@@ -1080,6 +1080,7 @@ mod strict_run_tests {
     #[test]
     fn strict_run_every_site_reaches_its_path_through_the_judgment() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+        // Each start is matched at the beginning of a line, so this test's own text does not match it.
         let body = |file: &str, start: &str, end: &str| -> String {
             let text = std::fs::read_to_string(root.join(file)).unwrap();
             let from = text.find(start).unwrap_or_else(|| panic!("{file}: {start}"));
@@ -1087,10 +1088,10 @@ mod strict_run_tests {
             text[from..to].to_owned()
         };
         let sites = [
-            (body("native_smoke.rs", "pub fn native_smoke_verify_handoff_package(", "\n}\n"), "verify_handoff_folder("),
-            (body("native_smoke.rs", "pub fn native_smoke_read_report_package(", "\n}\n"), "read_report_package_bytes("),
-            (body("native_smoke.rs", "fn profile_readers(", "\n}\n"), "open_launch_model("),
-            (body("native_smoke.rs", "pub fn native_smoke_finish(", "\n}\n"), "write_report("),
+            (body("native_smoke.rs", "\npub fn native_smoke_verify_handoff_package(", "\n}\n"), "verify_handoff_folder("),
+            (body("native_smoke.rs", "\npub fn native_smoke_read_report_package(", "\n}\n"), "read_report_package_bytes("),
+            (body("native_smoke.rs", "\nfn profile_readers(", "\n}\n"), "open_launch_model("),
+            (body("native_smoke.rs", "\npub fn native_smoke_finish(", "\n}\n"), "write_report("),
             (body("embedded_agent/live_runtime.rs", "SWBPIPE_NATIVE_SMOKE_AGENT_GATE\")", "let stdout = process.take_stdout()"), "crate::native_smoke::open_agent_gate("),
         ];
         for (text, through) in sites {
