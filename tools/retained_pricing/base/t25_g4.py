@@ -150,6 +150,11 @@ strings_typed = 8 * (7 + 16 * 7) + 6 + _ts["model"] + 2 * n + _ts["pipe"] * m + 
 TYPED = (Xc("MaterialInput", 8) + Xc("TemperaturePoint", 128) + Xc("PreviewNode", n) + Xc("PreviewPipe", m)
          + Xc("PreviewSupport", g) + Xc("String", r) + Xc("PreviewLoadCase", CC) + Xc("PrimitiveLoadInput", LL)
          + Xc("Authored<Vec<ExpansionLawInput>>", 4) + B(strings_typed * ID) + RAW)
+# RT-L2 (RTL2-TS): requested()'s typed request holds the pressure-elongation list as T_resident does.
+import rtl2_owners_model as _rtl2_model
+_rtl2 = _rtl2_model.inspect(os.environ.get("RP_SNAPSHOT"))
+if _rtl2:
+    TYPED = TYPED + _rtl2_model.typed_list(_rtl2)
 CONTENT = s("(Content,Content)") * 16_384 + B(131_072 + 131_072)   # flatten / internally tagged buffering
 requested = RAW + TYPED + CONTENT
 rows["T25.1a requested(): raw clone + typed request + serde buffering"] = requested

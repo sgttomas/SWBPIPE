@@ -32,6 +32,19 @@ fn profile(model: &Value) -> Value {
     json!({"schema_version": model["schema_version"], "pressure_contract": model["pressure_contract"]})
 }
 
+/// Removes the pressure elongation setting, which needs a pressure contract, and an
+/// emptied `model_settings`: a pressure-free document carries neither.
+fn without_pressure_elongation(model: &mut Value) {
+    let object = model.as_object_mut().unwrap();
+    let emptied = object.get_mut("model_settings").and_then(Value::as_object_mut).is_some_and(|settings| {
+        settings.remove("pressure_elongation");
+        settings.is_empty()
+    });
+    if emptied {
+        object.remove("model_settings");
+    }
+}
+
 #[test]
 fn absence_null_current_and_retired_contracts() {
     let current = fixture();
@@ -41,6 +54,7 @@ fn absence_null_current_and_retired_contracts() {
     assert!(!null_shape(&retired), "a retired object keeps its own refusals, never the null shape");
     let mut absent = fixture();
     absent.as_object_mut().unwrap().remove("pressure_contract");
+    without_pressure_elongation(&mut absent);
     assert!(!null_shape(&absent), "absence means the pressure-free route");
     let mut null = fixture();
     null["pressure_contract"] = Value::Null;
@@ -62,6 +76,7 @@ fn a_candidate_that_keeps_null_is_refused_and_nothing_is_applied() {
     // The same edit applies on the absent-contract (pressure-free) document.
     let mut absent = model.clone();
     absent.as_object_mut().unwrap().remove("pressure_contract");
+    without_pressure_elongation(&mut absent);
     assert!(apply_operation(&absent, &op, Some(&hash(&absent))).applied_model.is_some());
     let outcome = apply_operation(&model, &op, Some(&hash(&model)));
     assert!(outcome.applied_model.is_none(), "{:?}", outcome.diagnostics);

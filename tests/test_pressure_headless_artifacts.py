@@ -21,7 +21,7 @@ import pytest
 from core.analysis_runs import rust_reader
 from core.analysis_runs.compatibility import PRESSURE_CONTRACT_ID as PRODUCT_PRESSURE_ID, _source_contract, build_analysis_run_v0_3, numerical_use_standing
 from schema_validation import envelope_branches, validate_instance
-from tests.verifiers.pressure_2 import CONTRACT_ID as PRESSURE_CONTRACT_ID, verify_source
+from tests.verifiers.pressure_3 import CONTRACT_ID as PRESSURE_CONTRACT_ID, verify_source
 
 # b7-plan R2: Python product paths read through the Rust verdict's pressure
 # route, which has no transport reader.
@@ -48,7 +48,7 @@ def _schema(name):
 def _branches(instance):
     document = _schema("results.v0.3.schema.yaml")
     found = []
-    # pressure-2's branch is a reference into results_pressure_2.v0.3 (validated
+    # pressure-2's branch is a reference into results_pressure_3.v0.3 (validated
     # through it); its identity is read from the referenced definition.
     for index, (branch, resolved) in enumerate(zip(document["$defs"]["ResultEnvelope"]["oneOf"], envelope_branches(document))):
         alone = {"$schema": document["$schema"], "$id": document["$id"], "$defs": document["$defs"], **branch}

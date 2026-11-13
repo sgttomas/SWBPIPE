@@ -62,8 +62,9 @@ needs:
   when: Producing the headless timing baseline
   condition: >-
     The invented reference system is a committed exact-route model document that the product
-    solves, and its generator's check (`generate_reference_system.py --check`) exits 0 only when
-    the committed file is what the generator writes.
+    solves, and its generator's check in the mode the file was produced with
+    (`generate_reference_system.py --check --pressure-elongation all`) exits 0 only when the
+    committed file is what the generator writes.
   gating: false
 - from: DEL-07-11
   when: Measuring exit criterion 9 in the desktop

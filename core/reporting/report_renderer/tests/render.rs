@@ -613,8 +613,8 @@ fn blank_rule_pack_name_is_an_unsafe_reference() {
 #[path = "common/exact_input.rs"]
 mod exact_input;
 
-use exact_input::{with_exact_route, BYTES, DERIVATIVE, LOAD_REFERENCE_LINE, MANIFEST, MODEL, PRESSURE_2, RECEIVED, WITHHELD};
-use open_pipe_stress_report_renderer::exact_statements::{exact_statement_table, producer_sha256};
+use exact_input::{with_exact_route, BYTES, DERIVATIVE, LOAD_REFERENCE_LINE, MANIFEST, MODEL, PRESSURE_3, RECEIVED, WITHHELD};
+use open_pipe_stress_report_renderer::exact_statements::{exact_statement_table, producer_sha256, EXACT_STATEMENT_COUNT};
 use open_pipe_stress_report_renderer::{
     exact_route_blocking_reasons, exact_standing_line, EXACT_ADMISSION_BINDING_MISMATCH, EXACT_HEADLINES_HEADER,
     EXACT_HEADLINES_PARAGRAPH, EXACT_HEADLINES_SUBHEADING, EXACT_HEADLINE_UNREADABLE, EXACT_LIMITATION_UNREGISTERED,
@@ -682,7 +682,7 @@ fn exact_block_and_library_records_render_with_the_composed_standing_line() {
         format!("integrity checked (the Rust reader's standing for the result Export Result JSON admitted in this session: received result sha256 {RECEIVED}, model sha256 {MODEL}, input manifest {} sha256 {MANIFEST})", binding.input_manifest_ref)
     );
     let block = format!(
-        "<h3>{EXACT_ROUTE_SUBHEADING}</h3>\n<p class=\"meta\">Semantic contract: {PRESSURE_2} · Numerical standing: {standing}</p>\n<p>{LOAD_REFERENCE_LINE}</p>\n<h3>{EXACT_HEADLINES_SUBHEADING}</h3>\n<table>\n<tr><th>Section basis</th><th>Stress maximum</th><th>Location</th><th>Source</th></tr>\n<tr><td>Nominal section (nominal wall)</td><td>41.3549 MPa</td><td>pipe:invented-span</td><td>result:invented-nominal-maximum</td></tr>\n<tr><td>Reduced section (wall minus mill tolerance and corrosion allowance)</td><td>{WITHHELD}</td><td>{NOT_AVAILABLE}</td><td>{NOT_AVAILABLE}</td></tr>\n</table>\n<p>{EXACT_HEADLINES_PARAGRAPH}</p>\n"
+        "<h3>{EXACT_ROUTE_SUBHEADING}</h3>\n<p class=\"meta\">Semantic contract: {PRESSURE_3} · Numerical standing: {standing}</p>\n<p>{LOAD_REFERENCE_LINE}</p>\n<h3>{EXACT_HEADLINES_SUBHEADING}</h3>\n<table>\n<tr><th>Section basis</th><th>Stress maximum</th><th>Location</th><th>Source</th></tr>\n<tr><td>Nominal section (nominal wall)</td><td>41.3549 MPa</td><td>pipe:invented-span</td><td>result:invented-nominal-maximum</td></tr>\n<tr><td>Reduced section (wall minus mill tolerance and corrosion allowance)</td><td>{WITHHELD}</td><td>{NOT_AVAILABLE}</td><td>{NOT_AVAILABLE}</td></tr>\n</table>\n<p>{EXACT_HEADLINES_PARAGRAPH}</p>\n"
     );
     // At the start of the Results section, before the rows.
     assert!(html.contains(&format!("<h2>Results</h2>\n{block}<table>\n<tr><th>Result</th>")), "{html}");
@@ -838,7 +838,7 @@ fn every_integrity_warning_is_named_and_a_passed_check_alone_keeps_the_line() {
 #[test]
 fn exact_limitation_entries_outside_the_table_or_without_exact_route_refuse() {
     let coverage: serde_json::Value = serde_json::from_str(COVERAGE).unwrap();
-    let source_paragraph = coverage["lists"][0]["limitations"][7].as_str().unwrap().to_string();
+    let source_paragraph = coverage["lists"][0]["limitations"][8].as_str().unwrap().to_string();
     let run = "invented-run";
     let first = format!("limitation:{run}:exact:1");
     // A statement outside the table: the producer's whole source paragraph,
@@ -867,11 +867,11 @@ fn exact_limitation_entries_outside_the_table_or_without_exact_route_refuse() {
         .iter()
         .filter(|reason| reason.contains(EXACT_LIMITATION_UNREGISTERED) && reason.ends_with("an exact-route limitation entry without an exact_route section"))
         .count();
-    assert_eq!(refused, 20);
+    assert_eq!(refused, EXACT_STATEMENT_COUNT + 1, "every table statement and the profile reference");
     // A malformed statement table refuses every exact statement.
     let input = exact_input();
     let reasons = exact_route_blocking_reasons(&input, Err("REPORT-EXACT-STATEMENT-TABLE-INVALID: invented"));
-    assert_eq!(reasons.len(), 19);
+    assert_eq!(reasons.len(), EXACT_STATEMENT_COUNT);
     assert!(reasons.iter().all(|reason| reason.contains(EXACT_LIMITATION_UNREGISTERED) && reason.ends_with("REPORT-EXACT-STATEMENT-TABLE-INVALID: invented")));
     assert!(exact_route_blocking_reasons(&input, exact_statement_table()).is_empty());
     // The table keys producer strings by digest; the source paragraph has one.
@@ -1611,6 +1611,47 @@ fn integrity_and_long_diagnostics_show_a_short_cell_and_their_full_text_as_evide
         diagnostic_evidence_cell(&invented_diagnostic("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED", sections::Severity::Warning, "case:c", String::new()), "E7"),
         "Numerical integrity recovery basis unqualified (load case case:c); full text: Diagnostic evidence E7"
     );
+}
+
+/// DEL-04-07: the cancellation-screen exception's warning keeps its whole
+/// message in its Diagnostics cell whatever its length (its code is in
+/// `DIAGNOSTIC_MESSAGE_IN_TABLE_CODES`), while another message over the limit
+/// still moves to the evidence block, numbered as before.
+#[test]
+fn the_cancellation_exception_warning_stays_whole_in_its_cell_whatever_its_length() {
+    let code = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
+    let sentence = "where it is 2.9802322387695313e-8 N; that force is not a bound on the resulting displacement.";
+    let message = format!("In case case:{}, the retained remainder is largest at node node:{}, {sentence}", "c".repeat(400), "n".repeat(700));
+    assert!(message.chars().count() > DIAGNOSTIC_MESSAGE_TABLE_LIMIT);
+    let long = "y".repeat(DIAGNOSTIC_MESSAGE_TABLE_LIMIT + 1);
+    let mut input = fixture_input();
+    input.report_sections.diagnostics = vec![
+        invented_diagnostic(code, sections::Severity::Warning, "case:P, region:P, node:N", message.clone()),
+        invented_diagnostic("LONG_INVENTED_NOTE", sections::Severity::Warning, "component:C-1", long.clone()),
+    ];
+    let html = render_calculation_report(&input).html;
+    // The rendered Diagnostics table's row for the warning: its Message cell is the whole message.
+    let start = html.find("<h3>Diagnostics</h3>\n<table>\n").expect("the Diagnostics table");
+    let table = &html[start..start + html[start..].find("</table>").unwrap()];
+    let cell = |code: &str| {
+        let opening = format!("<tr><td>{code}</td>");
+        assert_eq!(table.matches(&opening).count(), 1, "{code}");
+        let row = &table[table.find(&opening).unwrap()..];
+        let row = &row[..row.find("</tr>").unwrap()];
+        let cells = row.strip_prefix("<tr><td>").unwrap().strip_suffix("</td>").unwrap().split("</td><td>").map(str::to_string).collect::<Vec<_>>();
+        assert_eq!(cells.len(), 4);
+        cells[2].clone()
+    };
+    let warning = cell(code);
+    assert!(warning.contains(sentence), "the force and the not-a-bound clause in the cell: {warning}");
+    assert_eq!(warning, escape_html(&message));
+    assert_eq!(cell("LONG_INVENTED_NOTE"), "Long invented note (affected: component:C-1); full text: Diagnostic evidence E1");
+    // One evidence entry, the other long note's.
+    let evidence = &html[html.find(&format!("<h3>{DIAGNOSTIC_EVIDENCE_SUBHEADING}</h3>")).unwrap()..];
+    assert_eq!(evidence.matches("E1: ").count(), 1);
+    assert!(!evidence.contains("E2: ") && !evidence.contains(code));
+    assert_eq!(html.matches(&long).count(), 1);
+    assert_eq!(html.matches(sentence).count(), 1);
 }
 
 /// The committed pressure-source-1 witness: its integrity diagnostic's text

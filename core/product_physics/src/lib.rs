@@ -60,6 +60,8 @@ mod b7b_admission_tests;
 #[cfg(test)]
 mod tie_rod_tests;
 #[cfg(test)]
+mod cap_remainder_publication_tests;
+#[cfg(test)]
 mod corrected_displacement_tests;
 #[cfg(test)]
 mod op1a_seed_tests;
@@ -1447,10 +1449,13 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
         // names the publication (pressure-source-1 or pressure-2).
         let load_state = case_state::is_load_state(model);
         let connectors = model.components.iter().any(|c| c.objective_connector.is_some());
+        // RT-L2: which pressure-elongation statement is true of the document.
+        let elongation = exact_admission::ElongationStatement::of(model);
         let mut basis = exact_admission::pressure_v3_formulation_basis_with_source(
             load_state,
             connectors,
             source_selected,
+            elongation,
         );
         // T4-U2: a model with a realized bend states the bend's terms; a
         // straight-only v3 model keeps its text unchanged (SP-1).
@@ -6558,7 +6563,7 @@ fn solve_prepared_load_case(
                 // D-5: the wall force on the pressure bore; the end action is
                 // basis-independent (each basis's membrane is the forces' own).
                 let end = |mechanical: f64| {
-                    state.sections.recover_wall_effective(mechanical, state.material, state.pressure).and_then(|forces| {
+                    state.sections.recover_wall_effective(mechanical, state.material, state.pressure, state.elongation_included).and_then(|forces| {
                         for basis in pressure_exact::SectionBasis::BOTH {
                             state.sections.membrane(basis, forces)?;
                         }
@@ -12342,7 +12347,7 @@ fn exact_straight_summary_extrema(
         let axial = if let Some((state, basis)) = pressure_state {
             state
                 .sections
-                .recover_wall_effective(r[0], state.material, state.pressure)
+                .recover_wall_effective(r[0], state.material, state.pressure, state.elongation_included)
                 .and_then(|forces| state.sections.membrane(basis, forces))
                 .map_err(|e| format!("source pressure membrane is unrepresentable: {e:?}"))?
         } else {
@@ -12814,6 +12819,12 @@ fn add_curved_bend_pressure_equivalent_load(
         let (Some(arc), Some(bend)) = (state.arc, curved_bends_by_pipe.get(pipe_index)) else {
             continue;
         };
+        // RT-L2 (DEL-04-07): a case that does not
+        // include pressure elongation pushes no free pressure strain; the arc
+        // keeps its −c_b and every thrust source in the source groups.
+        if !state.elongation_included {
+            continue;
+        }
         let free_expansion = curved_bend_free_expansion_displacements(bend, arc.strain);
         let dof_map = element_dof_map(bend.node_i, bend.node_j);
         for (local_row, &global_row) in dof_map.iter().enumerate() {
@@ -13781,6 +13792,7 @@ fn append_exact_pressure_results(
             mechanical[0],
             state.material,
             state.pressure,
+            state.elongation_included,
         ).and_then(|forces| Ok((forces.wall_n, forces.effective_n, [
             state.sections.membrane(SectionBasis::Nominal, forces)?,
             state.sections.membrane(SectionBasis::Reduced, forces)?,
@@ -15320,7 +15332,14 @@ fn result_tail(base_id: &str) -> &str {
     base_id.strip_prefix("result:").unwrap_or(base_id)
 }
 
-fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
+fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
+    // DEL-04-07: a case's cap remainder warning stands exactly where its
+    // published evidence carries the exception record. A case is published
+    // only in a document that is not blocked (every refusal of a case is
+    // blocking and returns here), and a blocked document publishes no case
+    // evidence, so the warning of a case admitted under the exception and
+    // then refused, or left unpublished by another case's refusal, goes too.
+    diagnostics.retain(|diagnostic| diagnostic.code != pressure_runtime::CAP_REMAINDER_WARNING_CODE);
     // T1 routes every blocked 0.4.0 envelope to load-reference-1 (0.4.0 is
     // exact-route only); it never publishes preview-physics-2.
     let exact_namespace = pressure_runtime::is_exact(&model) || case_state::is_load_state(&model);

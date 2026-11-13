@@ -53,7 +53,9 @@ pub struct RecordedVariant {
     /// Whether a statement bound to this variant is read under the variant's tables. The
     /// exact successor's statements read under the current reader (their rows and
     /// receipt bindings are unchanged; only the vocabulary and inherited pressure-2 digest
-    /// moved), so its variant changes no reader table: it is a recorded binding only.
+    /// moved), so its variant changes no reader table: it is a recorded binding only. Every
+    /// exact successor recorded here succeeds a pressure-2 result, so the current reader
+    /// refuses it by name (`SOURCE_PRESSURE_2_RETIRED`, RT-L2 DEL-04-07).
     reads_under_variant: bool,
 }
 

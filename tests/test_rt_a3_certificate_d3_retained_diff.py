@@ -21,9 +21,8 @@ this regeneration only these may change:
 
 The legacy W-CB3 successors stay byte for byte as `..._pre_certificate.json` (BASE's fixture bytes).
 
-The after-leg is fixed at S6's predecessor, END. S6 subsequently restates disclosure text and its binding hashes;
-test_rt_a3_s6_text_only_envelope_diff checks END through the current corpus, probes, fixture documents and reader
-outcomes, including exact numerical tokens and reader summaries. The certificate's original before basis and
+The after-leg is fixed at S6's predecessor, END. S6 subsequently restated disclosure text and its binding hashes, a
+one-time migration proven at its merge (its replay has been retired). The certificate's original before basis and
 allowed changes remain unchanged here.
 """
 from copy import deepcopy

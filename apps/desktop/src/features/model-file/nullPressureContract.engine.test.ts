@@ -29,6 +29,8 @@ describe("a present null pressure_contract on webview document open", () => {
   it("is not absence, and a present object or absence gives no such finding", () => {
     const absent = model();
     delete absent.pressure_contract;
+    // The pressure elongation setting needs the contract; a pressure-free document carries neither.
+    delete absent.model_settings;
     expect(contractFindings(absent)).toEqual([]);
     expect(contractFindings(model())).toEqual([]);
     const retired = model();

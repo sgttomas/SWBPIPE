@@ -68,7 +68,7 @@ pub(crate) fn assert_nodal_rows(results: &[ResultItem], node_ids: &[&str], expec
 
 fn solve(request: &Value, mode: PreviewSolverMode, force_binary64: bool) -> Value {
     U4A_FORCE_BINARY64.with(|flag| flag.set(force_binary64));
-    let source = run_linear_static_preview_value_with_mode(request.clone(), mode);
+    let source = run_linear_static_preview_value_with_mode(crate::pressure_runtime::with_pressurised_cases_named(request), mode);
     U4A_FORCE_BINARY64.with(|flag| flag.set(false));
     serde_json::to_value(source.unwrap()).unwrap()
 }

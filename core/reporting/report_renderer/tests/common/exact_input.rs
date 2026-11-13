@@ -12,7 +12,7 @@ use open_pipe_stress_report_renderer::{
 };
 use open_pipe_stress_report_sections as sections;
 
-pub const PRESSURE_2: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+pub const PRESSURE_3: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 pub const RECEIVED: &str = "1111111111111111111111111111111111111111111111111111111111111111";
 pub const MODEL: &str = "2222222222222222222222222222222222222222222222222222222222222222";
 pub const MANIFEST: &str = "3333333333333333333333333333333333333333333333333333333333333333";
@@ -37,9 +37,9 @@ pub fn with_exact_route(mut input: RenderableReportInput) -> RenderableReportInp
     calc.model_input_summary.model_hash.value = MODEL.to_string();
     let manifest_ref = calc.model_input_summary.input_manifest_ref.ref_id.clone();
     input.exact_route = Some(ExactRouteSection {
-        semantic_contract_id: PRESSURE_2.to_string(),
+        semantic_contract_id: PRESSURE_3.to_string(),
         admission: ExactAdmissionBinding {
-            semantic_contract_id: PRESSURE_2.to_string(),
+            semantic_contract_id: PRESSURE_3.to_string(),
             run_ref: run.clone(),
             result_envelope_id: envelope_id,
             received_result_sha256: RECEIVED.to_string(),
@@ -71,7 +71,7 @@ pub fn with_exact_route(mut input: RenderableReportInput) -> RenderableReportInp
     let template = input.report_sections.limitations[0].clone();
     let entry = |id: String, statement: &str| sections::Limitation {
         limitation_id: id,
-        source: sections::Reference::new("semantic_contract", PRESSURE_2),
+        source: sections::Reference::new("semantic_contract", PRESSURE_3),
         affected_scope: sections::Reference::new("analysis_run", run.clone()),
         statement: statement.to_string(),
         effect: template.effect.clone(),
@@ -83,7 +83,7 @@ pub fn with_exact_route(mut input: RenderableReportInput) -> RenderableReportInp
     }
     input.report_sections.limitations.push(entry(
         format!("limitation:{run}:exact:profile-reference"),
-        "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 6666666666666666666666666666666666666666666666666666666666666666) are bound by reference and are not restated in this report.",
+        "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-3 (sha256 6666666666666666666666666666666666666666666666666666666666666666) are bound by reference and are not restated in this report.",
     ));
     input.library_references = Some(vec![LibraryReference {
         reference_id: "library-ref:1".to_string(),

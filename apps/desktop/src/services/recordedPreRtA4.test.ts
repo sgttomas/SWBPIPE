@@ -5,7 +5,10 @@
 // successor statements; #101's physics-retained-1). At a4ff570dc every one of these records was
 // refused by the record validator (SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS, or
 // ANALYSIS_SEMANTIC_CONTRACT_MISMATCH for physics-retained-1); the current-path assertions below
-// are that refusal, kept.
+// are that refusal, kept. RT-L2 (DEL-04-07): the physics-retained-1 statements recorded here are
+// successors of pressure-2 results (their base identity statement names pressure-2 semantics),
+// which predate the pressure-elongation setting; they are refused by name with the pressure-2
+// message on the recorded read and on the current path. The pressure-free ones keep their read.
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -53,6 +56,10 @@ const VARIANTS: Variant[] = [
     sha256: "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },
 ];
 const RECORDED = { recordedRead: true } as const;
+/** RT-L2: the pressure-free variants keep main's read; the rest are pressure-2-based exact successors. */
+const PRESSURE_FREE = VARIANTS.slice(0, 3);
+const PRESSURE_2_BASED = VARIANTS.slice(3);
+const PRESSURE_2_RETIRED = "SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model";
 const basis = (record: AnalysisRunEnvelope) => record.analysis_run.load_basis_refs;
 
 async function reseal(record: AnalysisRunEnvelope): Promise<AnalysisRunEnvelope> {
@@ -81,7 +88,7 @@ const current = (source: MechanicsResult) => {
 };
 
 describe("a run recorded before RT-A4 (historical read)", () => {
-  it.each(VARIANTS)("$name reads as main read it on the recorded read, and is refused on the current path", async variant => {
+  it.each(PRESSURE_FREE)("$name reads as main read it on the recorded read, and is refused on the current path", async variant => {
     const record = variant.record(), source = variant.source();
     const before = JSON.stringify([record, source]);
     const binding = { id: source.producer!.semantic_contract_id, sha256: variant.sha256 };
@@ -94,7 +101,26 @@ describe("a run recorded before RT-A4 (historical read)", () => {
     expect(JSON.stringify([record, source])).toBe(before);
   });
 
-  it.each(VARIANTS.slice(0, 3))("$name stays refused on every current admission path", async variant => {
+  it.each(PRESSURE_2_BASED)("$name, a pressure-2 exact successor, is refused by name on the recorded read and the current path", async variant => {
+    const record = variant.record(), source = variant.source();
+    const before = JSON.stringify([record, source]);
+    const binding = { id: source.producer!.semantic_contract_id, sha256: variant.sha256 };
+    expect(record.analysis_run.reproducibility.semantic_contract).toEqual(binding);
+    expect(recordedPreRtA4Binding(binding)).toEqual(binding);
+    expect((source.formulation_basis as { limitations: string[] }).limitations[0].startsWith("3.0.0/exact_pressure_v3 under pressure-2 semantics.")).toBe(true);
+    expect(await verifyAnalysisRunRecord(record)).toBe("match");
+    await expect(validateAnalysisRunV03(record, source, basis(record), undefined, RECORDED)).rejects.toThrow(PRESSURE_2_RETIRED);
+    await expect(validateAnalysisRunV03(record, source, basis(record))).rejects.toThrow();
+    // The reader's error carries the code as its message and the full text as its detail.
+    for (const read of [validateRetainedPrecision(source), validateRetainedPrecisionRecorded(source, binding)]) {
+      await expect(read).rejects.toMatchObject({ gate: "G0", code: "SOURCE_PRESSURE_2_RETIRED", detail: PRESSURE_2_RETIRED });
+    }
+    expect(readerDispatch(source).error?.code).toBe("SOURCE_PRESSURE_2_RETIRED");
+    expect(recordedReaderDispatch(source, binding).error?.code).toBe("SOURCE_PRESSURE_2_RETIRED");
+    expect(JSON.stringify([record, source])).toBe(before);
+  });
+
+  it.each(PRESSURE_FREE)("$name stays refused on every current admission path", async variant => {
     const source = variant.source(), binding = { id: source.producer!.semantic_contract_id, sha256: variant.sha256 };
     const manifest = { manifest_ref: { object_type: "InputManifest", ref: "input-manifest:current" }, manifest_sha256: "1".repeat(64),
       manifest: { model_basis: { model_ref: source.model_ref }, solver_basis: { solver_name: "s", solver_version: "v", solver_build_ref: "b" }, active_rule_packs: [] } };
@@ -120,7 +146,7 @@ describe("a run recorded before RT-A4 (historical read)", () => {
     }
   });
 
-  it.each(VARIANTS)("$name: a tampered or mismatched variant is refused on the recorded read", async variant => {
+  it.each(PRESSURE_FREE)("$name: a tampered or mismatched variant is refused on the recorded read", async variant => {
     const record = variant.record(), source = variant.source();
     const id = source.producer!.semantic_contract_id, now = current(source);
     for (const sha256 of ["0".repeat(64), `${variant.sha256.slice(0, -1)}${variant.sha256.endsWith("0") ? "1" : "0"}`]) {

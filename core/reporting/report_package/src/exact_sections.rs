@@ -86,7 +86,7 @@ pub fn is_exact_identity(id: &str) -> bool {
 pub fn check_runner_profile(export_profile_id: &str, document: &Value) -> Result<(), String> {
     if export_profile_id == RUNNER_PROFILE && producer_contract_id(document).is_some_and(is_exact_identity) {
         return Err(format!(
-            "{EXACT_RUNNER_PROFILE}: the runner profile does not package pressure-2 or pressure-source-1 results; only the desktop builds their sections."
+            "{EXACT_RUNNER_PROFILE}: the runner profile does not package pressure-3 or pressure-source-1 results; only the desktop builds their sections."
         ));
     }
     Ok(())

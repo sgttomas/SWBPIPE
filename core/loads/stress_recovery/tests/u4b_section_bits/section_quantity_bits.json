@@ -6,7 +6,7 @@
   "generator": "core/loads/stress_recovery/tests/u4b_section_bits/gen_section_quantity_bits.py (standard library)",
   "method": "every operation of the normative sequence evaluated exactly in fractions.Fraction and rounded once to nearest, ties to even; norm2 = RN(sqrt(a^2 + b^2)) exactly; independent of the Rust implementation",
   "oracle": "validation/references/t4_u4b/oracle.json (binary64 members only)",
-  "oracle_sha256": "e616f207625608ac7a1374a8113d96a8f7bf932f3a3c10096f84a216bc4c8b08",
+  "oracle_sha256": "6c7a06653bc1c1c9da703c57e6ddf9605e11228fb595e2b5cbe8d9c54e430771",
   "hoop_near_edge_worst_intrados_error_units_of_2^-53": 158.786,
   "c_b_vectors": 94,
   "c_b_vectors_where_the_reassociated_order_differs": 23

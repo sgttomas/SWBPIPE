@@ -396,7 +396,7 @@ fn pressure_members_rotate_the_published_wall_action() {
     for mode in MODES {
         let label = format!("pressure {mode:?}");
         let out = solve(&wire, mode, &label);
-        assert_eq!(out.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-2");
+        assert_eq!(out.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-3");
         for (pipe, a, b) in [("pipe:A-M", "node:A", "node:M"), ("pipe:M-B", "node:M", "node:B")] {
             let r = straight_axes(at(a), at(b), [0.0, 0.0, 1.0]);
             for end in ["end_i", "end_j"] {

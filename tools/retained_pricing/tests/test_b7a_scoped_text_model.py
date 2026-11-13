@@ -45,7 +45,8 @@ def test_messages_refs_and_helper_delta_are_local_and_positive():
     row={'file':M['PP']+'pressure_runtime.rs','line':LN['diag'],'kind':'diag','message_arg':'message'}
     assert M['message'](active,row)==453
     assert M['refs'](active,row['file'],LN['diag'])==760
-    assert M['owner_total'](active,M['PROBLEM'],[M['REF_LOOP']],{M['PROBLEM']:14000})==70000
+    # RT-L2: the sites' qualified owner is `finding` (problem delegates to it); the counts stay problem's.
+    assert M['owner_total'](active,M['FINDING'],[M['REF_LOOP']],{M['PROBLEM']:14000})==70000
     assert M['extra_requested'](active,M['PP']+'lib.rs',LN['suffix'],'replace',{M['PROBLEM']:14000})==14448000
     assert M['message'](active,dict(row,line=LN['diag']-1)) is None
     assert M['refs'](active,row['file'],LN['diag']-1) is None
@@ -66,7 +67,7 @@ def test_authoritative_unit_audit_and_lexical_class_agree():
 def test_missing_or_nonpositive_owner_refuses(count):
     counts={} if count is None else {M['PROBLEM']:count}
     with pytest.raises(ValueError,match='missing/zero'):
-        M['owner_total']({},M['PROBLEM'],[M['REF_LOOP']],counts)
+        M['owner_total']({},M['FINDING'],[M['REF_LOOP']],counts)
     with pytest.raises(ValueError,match='missing/zero'):
         M['extra_requested']({},M['PP']+'lib.rs',LN['suffix'],'replace',counts)
 

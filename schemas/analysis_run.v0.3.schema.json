@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/analysis_run.v0.3.schema.json",
   "title": "Analysis record 0.3 with explicit source semantic contracts",
-  "description": "The current production and admission schema of analysis_run 0.3.0 records: the semantic-contract bindings it admits are the current tables' digests only. Runs recorded under earlier tables are read through the separate recorded historical-read compatibility contract (DEL-05-02 Design absolute-sum-srss-combinations.md section 10.4: the closed registry of tables recorded before RT-A4; and the pressure-2 recorded table bases, RECORDED_RUN_TABLE_BASES), not through this schema, and this schema makes no claim that such historical records validate against it. A stored record that a generic JSON Schema tool refuses under this schema is therefore not, by that alone, proof that its stored bytes are corrupt; its record checksum and the product's recorded-run read decide that.",
+  "description": "The current production and admission schema of analysis_run 0.3.0 records: the semantic-contract bindings it admits are the current tables' digests only. Runs recorded under earlier tables are read through the separate recorded historical-read compatibility contract (DEL-05-02 Design absolute-sum-srss-combinations.md section 10.4: the closed registry of tables recorded before RT-A4; a pressure-2 record is refused by name, SOURCE_PRESSURE_2_RETIRED), not through this schema, and this schema makes no claim that such historical records validate against it. A stored record that a generic JSON Schema tool refuses under this schema is therefore not, by that alone, proof that its stored bytes are corrupt; its record checksum and the product's recorded-run read decide that.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -252,7 +252,7 @@
             "openpipestress.result_semantics/0.3.0/pressure-source-1",
             "openpipestress.result_semantics/0.3.0/preview-physics-2",
             "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
-            "openpipestress.result_semantics/0.3.0/pressure-2",
+            "openpipestress.result_semantics/0.3.0/pressure-3",
             "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
             "openpipestress.result_semantics/0.3.0/physics-retained-1"
           ]
@@ -261,9 +261,9 @@
           "enum": [
             "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729",
             "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d",
-            "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad",
+            "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9",
             "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a",
-            "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3",
+            "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893",
             "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
           ]
         },
@@ -298,10 +298,10 @@
         {
           "properties": {
             "id": {
-              "const": "openpipestress.result_semantics/0.3.0/pressure-2"
+              "const": "openpipestress.result_semantics/0.3.0/pressure-3"
             },
             "sha256": {
-              "const": "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
+              "const": "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"
             }
           }
         },
@@ -321,7 +321,7 @@
               "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
             },
             "sha256": {
-              "const": "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"
+              "const": "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893"
             }
           }
         },
@@ -843,10 +843,10 @@
                 "semantic_contract": {
                   "properties": {
                     "id": {
-                      "const": "openpipestress.result_semantics/0.3.0/pressure-2"
+                      "const": "openpipestress.result_semantics/0.3.0/pressure-3"
                     },
                     "sha256": {
-                      "const": "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
+                      "const": "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"
                     }
                   }
                 }
@@ -858,10 +858,10 @@
                   "semantic_contract": {
                     "properties": {
                       "id": {
-                        "const": "openpipestress.result_semantics/0.3.0/pressure-2"
+                        "const": "openpipestress.result_semantics/0.3.0/pressure-3"
                       },
                       "sha256": {
-                        "const": "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
+                        "const": "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"
                       }
                     }
                   }
@@ -953,7 +953,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
                     },
                     "sha256": {
-                      "const": "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"
+                      "const": "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893"
                     }
                   }
                 }
@@ -968,7 +968,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
                       },
                       "sha256": {
-                        "const": "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"
+                        "const": "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893"
                       }
                     }
                   }

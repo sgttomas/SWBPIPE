@@ -26,9 +26,9 @@ except ImportError:
 from core.analysis_runs import rust_reader
 
 TRANSPORT = 'ordinary_pressure_1_cli_1.0_raw0.2'
-CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-3'
 PROFILE = 'exact_pressure_v3'
-TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
+TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_3.json'
 # b7-plan R2: the owned reader is Rust's current pressure-2 reader (`validate_pressure_evidence`, held in
 # physics_evidence.rs); the binding selects its source with the table and unit authority. Re-pin deliberately
 # whenever the reader changes. B7b re-pinned all three: physics-1's reader and table (a6681f69...) are retired.
@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = 'c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad'
+TABLE_SHA256 = '757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
@@ -65,8 +65,15 @@ DEPENDENCIES = {
     # merged with RT-U4 order (was fe65101b... on RT-U4 order and 2e9b087d... on RT-A3 increment 4); then RT-A3 §4
     # (DEL-05-02 Work `combination-certificate.md`): the pass reads the document without the combination certificate,
     # then the certificate on the whole document, merged with RT-U4 order (was 0baf783f... on RT-U4 order and
-    # fd69f9be... on RT-A3 §4).
-    MODULE: 'e85432423110e72022cb93f8c8324ffb4aa6dc48f1ed32a0cb20a28a986e0d73',
+    # fd69f9be... on RT-A3 §4); then RT-L2 (DEL-04-07): pressure-3, the reader keyed on each case's
+    # `pressure_elongation` evidence, and the readers' recomputation of the cancellation-screen exception (was
+    # e8543242...); then the consistency bound of the cancellation-screen exception, the re-formed pressure load,
+    # and the warning bound to each exception record (was dfc556bb...); then the exception record's renamed members
+    # and warning, its direction and unit checks, and its model binding (was 46c1290c...); then the record's
+    # remainder force, the warning's per-case message, and the readers' chain-based interior nodes and re-formed
+    # remainder (was 91841ccf...); then the warning's force read by value in the admitted shape rather than
+    # compared as re-formed text (was 528855d4...).
+    MODULE: 'bc69008c5a38dec68947f7daf384719f390ee3dbe06bc396f81aaecbddb80296',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the

@@ -205,7 +205,7 @@ fn original_subnormal_wall_force_direct_extrema_preserves_membrane() {
 /// preparation reaches the subject directly: it does not invoke
 /// solve_load_case, select a solver, or produce a solved envelope.
 fn prepared(inputs: Value) -> (PreviewModel, BuiltModel, pressure_runtime::ExactPressureCase) {
-    let request: LinearStaticPreviewRequest = serde_json::from_value(fixture(&inputs, true, true)).unwrap();
+    let request: LinearStaticPreviewRequest = serde_json::from_value(crate::pressure_runtime::with_pressurised_cases_named(&fixture(&inputs, true, true))).unwrap();
     let mut model = request.model;
     let mut materials = model.materials.clone();
     let mut diagnostics = Vec::new();
@@ -255,7 +255,7 @@ fn unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane() {
     // enclosure is unclamped and narrow enough for its midpoint to decide.
     let wall = state
         .sections
-        .recover_wall_effective(0.0, state.material, state.pressure)
+        .recover_wall_effective(0.0, state.material, state.pressure, state.elongation_included)
         .unwrap()
         .wall_n;
     assert!(wall > 0.0 && wall < f64::MIN_POSITIVE, "{wall:e}");

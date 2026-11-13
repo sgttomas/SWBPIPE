@@ -7,6 +7,8 @@
 use open_pipe_stress_report_package::bindings::{check_report_diagnostics, expected_report_diagnostics, BINDING_MISMATCH, SUPPLEMENTAL_DIAGNOSTIC_LABEL};
 use serde_json::{json, Value};
 
+mod common;
+
 const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_diagnostics_parity.json");
 
 fn vectors() -> Vec<Value> {
@@ -270,4 +272,99 @@ fn a_held_status_released_notice_is_quoted_as_supplied_text() {
         let (index, diagnostic) = released[0];
         assert_eq!(entries[index]["message"], json!(format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{}\"", diagnostic["message"].as_str().unwrap())), "{name}");
     }
+}
+
+/// The Message cell of the one row whose code is `code` in the rendered
+/// report's Diagnostics table (the table after the "Diagnostics" heading, up
+/// to its end), as escaped HTML. Panics unless exactly one such row exists
+/// and it has the table's four cells.
+fn diagnostics_message_cell<'a>(html: &'a str, code: &str) -> &'a str {
+    let start = html.find("<h3>Diagnostics</h3>\n<table>\n").expect("the Diagnostics table");
+    let table = &html[start..start + html[start..].find("</table>").expect("its end")];
+    let opening = format!("<tr><td>{code}</td>");
+    assert_eq!(table.matches(&opening).count(), 1, "one {code} row");
+    let row = &table[table.find(&opening).unwrap()..];
+    let row = &row[..row.find("</tr>").unwrap()];
+    let cells = row.strip_prefix("<tr><td>").unwrap().strip_suffix("</td>").unwrap().split("</td><td>").collect::<Vec<_>>();
+    assert_eq!(cells.len(), 4, "code, severity, message, remediation");
+    cells[2]
+}
+
+/// The report for a source carrying the warning for `case` and `node` at the
+/// force `force`, rendered from the package's projection.
+fn rendered_warning(case: &str, node: &str, force: f64) -> (String, String) {
+    use open_pipe_stress_report_renderer::render_calculation_report;
+    let message = open_pipe_stress_result_export::cap_remainder_warning_message(case, node, force);
+    let source = json!({
+        "contract_evidence": {"combination_gates": [{"combination_id": "comb:invented", "withheld": false, "reason": null}]},
+        "diagnostics": [{"id": "diagnostic:pressure-runtime:invented:PRESSURE_REGION_CAP_REMAINDER_RETAINED",
+            "code": open_pipe_stress_result_export::CAP_REMAINDER_WARNING_CODE, "severity": "warning", "message": message,
+            "source": "core/product_physics/src/pressure_runtime.rs", "affected_refs": [case, "region:P", node]}]
+    });
+    let entries = expected_report_diagnostics(&source).unwrap();
+    assert_eq!(entries[0]["message"], message.as_str(), "copied, not quoted as supplied text");
+    let mut input = common::fixture_report_input();
+    let provenance = serde_json::to_value(common::invented_section_provenance()).unwrap();
+    input.report_sections.diagnostics = entries.into_iter().map(|mut entry| {
+        entry["provenance"] = provenance.clone();
+        serde_json::from_value(entry).unwrap()
+    }).collect();
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    (outcome.html, message)
+}
+
+/// DEL-04-07: a person reading only the rendered report's Diagnostics sees,
+/// for a case admitted under the cancellation screen's exception, the case,
+/// the node at which the retained remainder is largest relative to the
+/// pressure force on the bore, that remainder as a force with its unit, and
+/// that the force is not a bound on the resulting displacement, all in that
+/// warning's Message cell of the Diagnostics table. The warning's message is
+/// the producer's form (`result_export::cap_remainder_warning_message`; the
+/// admitting reader reads its force and binds the rest to the record), copied
+/// on a result with a combination; the Diagnostics table shows a message and
+/// not its affected references, so the case and the node reach the reader
+/// through the sentence.
+#[test]
+fn a_report_reader_sees_the_case_the_node_the_force_and_that_it_is_no_bound() {
+    use open_pipe_stress_report_renderer::{escape_html, DIAGNOSTIC_EVIDENCE_SUBHEADING};
+    let (html, message) = rendered_warning("case:P", "node:C1", 0.2197357159078235);
+    let cell = diagnostics_message_cell(&html, open_pipe_stress_result_export::CAP_REMAINDER_WARNING_CODE);
+    assert_eq!(cell, escape_html(&message), "the whole message, in the cell");
+    assert_eq!(html.matches(&escape_html(&message)).count(), 1, "once");
+    for shown in ["In case case:P,", "at node node:C1,", "where it is 2.197357159078235e-1 N; that force is not a bound on the resulting displacement."] {
+        assert!(cell.contains(&escape_html(shown)), "{shown}");
+    }
+    assert!(!html.contains(DIAGNOSTIC_EVIDENCE_SUBHEADING), "no evidence block");
+    assert!(!html.contains(&format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}")), "not as supplied text");
+    assert!(!html.contains("case:P, region:P, node:C1"), "the table shows no affected references for this message");
+}
+
+/// DEL-04-07 (the fourth numerical scrutiny's finding 2): with long case and
+/// node identifiers the warning passes the renderer's long-text limit, and it
+/// still stays whole in its Diagnostics cell: the force with its unit and the
+/// not-a-bound clause, the case and the node are in that cell, and no
+/// diagnostic evidence entry is created for it.
+#[test]
+fn a_long_warning_stays_whole_in_its_diagnostics_cell() {
+    use open_pipe_stress_report_renderer::{escape_html, DIAGNOSTIC_EVIDENCE_SUBHEADING, DIAGNOSTIC_MESSAGE_TABLE_LIMIT};
+    let case = format!("case:{}", "long-case-".repeat(25));
+    let node = format!("node:{}", "long-node-".repeat(25));
+    let force = 2.98023223876953125e-8;
+    let (html, message) = rendered_warning(&case, &node, force);
+    assert!(message.chars().count() > DIAGNOSTIC_MESSAGE_TABLE_LIMIT, "{} characters", message.chars().count());
+    let cell = diagnostics_message_cell(&html, open_pipe_stress_result_export::CAP_REMAINDER_WARNING_CODE);
+    let sentence = format!("where it is {force:e} N; that force is not a bound on the resulting displacement.");
+    assert!(cell.contains(&escape_html(&sentence)), "the force and the not-a-bound clause in the cell: {cell}");
+    assert!(cell.contains(&escape_html(&format!("In case {case},"))) && cell.contains(&escape_html(&format!("at node {node},"))), "the case and the node in the cell");
+    assert_eq!(cell, escape_html(&message), "the whole message, in the cell");
+    assert!(!html.contains(DIAGNOSTIC_EVIDENCE_SUBHEADING), "no evidence block");
+    assert!(!html.contains("full text: Diagnostic evidence"), "no evidence entry");
+}
+
+/// The renderer keeps this warning's code in its table-message exemption by
+/// the result export's name for it.
+#[test]
+fn the_renderer_s_table_exemption_names_the_warning_s_code() {
+    assert_eq!(open_pipe_stress_report_renderer::DIAGNOSTIC_MESSAGE_IN_TABLE_CODES, [open_pipe_stress_result_export::CAP_REMAINDER_WARNING_CODE]);
 }

@@ -45,7 +45,7 @@ describe("actual pressure-2 source consumers (B7b: the v3 twin of physics-1)", (
     expect(JSON.stringify(source)).toBe(before);
   });
   it("pins the pressure-2 table bytes", () => {
-    expect(createHash("sha256").update(readFileSync(resolve(project, "fixtures/results/semantic_contract_v0_3_pressure_2.json"))).digest("hex")).toBe(PRESSURE_CONTRACT_SHA256);
+    expect(createHash("sha256").update(readFileSync(resolve(project, "fixtures/results/semantic_contract_v0_3_pressure_3.json"))).digest("hex")).toBe(PRESSURE_CONTRACT_SHA256);
   });
   it("rejects unknown, reserved, retired and mismatched profile dispatch without falling back", () => {
     for (const id of ["precision-2", "source-blocks-1", "physics-2", "physics-1", "physics-source-1", "load-reference-1", "load-reference-source-1"]) {

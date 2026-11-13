@@ -1584,17 +1584,28 @@ pub fn display_rule_statement(input: &RenderableReportInput) -> Option<&'static 
 
 /// A Diagnostics message longer than this many characters (Unicode scalar
 /// values) is shown in full in the diagnostic evidence block, not in the
-/// table. Every message of the producer's other diagnostics on the committed
+/// table, unless its code is one of [`DIAGNOSTIC_MESSAGE_IN_TABLE_CODES`].
+/// Every message of the producer's other diagnostics on the committed
 /// witnesses is shorter (the longest, 720 characters).
 pub const DIAGNOSTIC_MESSAGE_TABLE_LIMIT: usize = 1000;
+/// The codes whose whole message stays in the Diagnostics table's cell
+/// whatever its length. DEL-04-07: the cancellation-screen exception's warning
+/// (result export `CAP_REMAINDER_WARNING_CODE`), whose last sentence states the
+/// force and that it is not a bound on the resulting displacement; its length
+/// grows with the case and node identifiers it names, and a person reading the
+/// table must see that sentence there, not a pointer to it.
+pub const DIAGNOSTIC_MESSAGE_IN_TABLE_CODES: [&str; 1] = ["PRESSURE_REGION_CAP_REMAINDER_RETAINED"];
 /// The last block of the "Warnings, Assumptions, And Provenance" section.
 pub const DIAGNOSTIC_EVIDENCE_SUBHEADING: &str = "Diagnostic Evidence (full text)";
 
 /// Whether a diagnostic's message is shown in the evidence block: every
 /// numerical-integrity diagnostic (its message is the producer's structural
-/// evidence record), and every message over [`DIAGNOSTIC_MESSAGE_TABLE_LIMIT`].
+/// evidence record), and every message over [`DIAGNOSTIC_MESSAGE_TABLE_LIMIT`]
+/// except one whose code is in [`DIAGNOSTIC_MESSAGE_IN_TABLE_CODES`].
 pub fn diagnostic_message_is_evidence(diagnostic: &sections::Diagnostic) -> bool {
-    diagnostic.code.starts_with(INTEGRITY_CODE_PREFIX) || diagnostic.message.chars().count() > DIAGNOSTIC_MESSAGE_TABLE_LIMIT
+    diagnostic.code.starts_with(INTEGRITY_CODE_PREFIX)
+        || (diagnostic.message.chars().count() > DIAGNOSTIC_MESSAGE_TABLE_LIMIT
+            && !DIAGNOSTIC_MESSAGE_IN_TABLE_CODES.contains(&diagnostic.code.as_str()))
 }
 
 /// The code as a phrase: lower case, words separated by spaces, the first
