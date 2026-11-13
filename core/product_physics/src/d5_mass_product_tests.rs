@@ -785,3 +785,31 @@ fn a_case_factored_from_a_generated_weight_meets_statics_in_every_length_unit() 
         assert_anchor_rows_meet_statics(&request, &[w], FACTOR * weight_slack(bare_weight(STEEL)), &format!("arm (c) {}", LENGTH_UNITS[l]));
     }
 }
+
+// Review witness: factored self-weight retains the exact allowance with contents present.
+#[test]
+fn review_factored_generated_weight_with_nonzero_allowance_and_contents() {
+    const FACTOR: f64 = 0.25;
+    for l in 0..LENGTH_UNITS.len() {
+        let mut request = document(MILL, ALLOWANCE);
+        request["model"]["pipe_segments"][0]["section"] = section_in(true, l, 0);
+        let mut request = generated(request).1;
+        let model = &mut request["model"];
+        model["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference",
+            "geometry_ref": {"kind": "authored_model_geometry"},
+            "member_references": [{"pipe_ref": PIPE, "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": INVENTED}],
+            "provenance": INVENTED}]);
+        let case = &mut model["load_cases"][0];
+        let load = case["primitive_loads"][0]["id"].clone();
+        case["analysis_state"] = json!({"contract": LOAD_REFERENCE_STATE_CONTRACT, "reference_configuration_ref": "reference:installed",
+            "element_states": [{"pipe_ref": PIPE,
+                "material_selection": {"kind": "explicit_base_properties", "material_ref": "steel", "applicability_reference": "invented analytical basis declared applicable"},
+                "thermal_state": {"kind": "unchanged_reference", "provenance": INVENTED}}],
+            "support_states": [{"support_ref": "anchor", "participation": {"kind": "active_model_device"}}],
+            "load_sources": [{"source_ref": load, "factor": FACTOR}],
+            "history": {"kind": "independent_equilibrium"}, "provenance": INVENTED});
+        for mode in MODES {
+            checks_passed(&solved(&request, mode).0, &format!("factored nonzero allowance and contents {} {mode:?}", LENGTH_UNITS[l]));
+        }
+    }
+}
