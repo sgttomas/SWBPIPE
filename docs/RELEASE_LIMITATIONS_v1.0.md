@@ -23,6 +23,8 @@ acts (F-PIP-3, release target "Reserved to the owner"). The release notes'
 "Known Limitations And Open Risks" section (`docs/RELEASE_NOTES_TEMPLATE.md`)
 is written from the entries declared acceptable.
 
+DEL-04-05 AX-003 also requires unmet targets to be listed here. For an unmet-target entry, "What is refused" states what is not met, and the other fields describe the target and its practical effect. Its status records Agent 0's limitation declaration; neither listing it nor declaring it acceptable makes its criterion met or supplies acceptance, issuance or release.
+
 ## Entry form
 
 Each entry is one subsection:
@@ -45,8 +47,7 @@ Each entry is one subsection:
   by a landed change is marked `withdrawn` with the PR; the entry is kept,
   not deleted.
 
-Entries are added in the same PR that makes the refusal standing. The PR names
-the entry, and the entry names the PR.
+Entries are added in the same PR that makes the refusal standing. A previously unlisted standing refusal is added when identified; its Basis distinguishes the refusal's existing standing from the PR that records the entry. An unmet-target entry is added in the PR that records the unmet target. The PR names the entry, and the entry names the PR.
 
 ## Entries
 
@@ -190,4 +191,30 @@ the entry, and the entry names the PR.
 - **Why:** The check counts entries using a forest of finding keys and does not implement general matching. When the appended findings give a shared key different predecessors, that counting method does not decide the assignment, so the check refuses the group by name.
 - **What the user does instead:** Give the library or record an identifier without a backtick, import the corrected library and apply its record again, or resolve the library finding. Refresh the library findings, solve the model again if it changed, then render or save again.
 - **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), production method (the admission of Diagnostics entries after the result's own). The refusal is made standing by PR #292.
+- **Status:** not yet declared.
+
+### LIM-014 — The nonlinear operating reference rack is refused from 1,775 nodes
+
+- **Id:** LIM-014
+- **Exit criteria:** 9
+- **Requirement affected:** DEL-04-05/AC-001's nonlinear operating profile: on the 2,000-node nonlinear reference rack, on a 16 GiB base machine, the measured clock is at most 60 s, with the solve within the 12 GiB per-invocation budget.
+- **Code:** `NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED` (blocking).
+- **What is refused:** a solve, in either solver mode, of a model with a nonlinear support whose estimated leading dense storage exceeds the provisional limit. The nonlinear operating reference rack exceeds it from 1,775 nodes, so criterion 9's nonlinear profile cannot be run at 2,000 nodes.
+- **What it means in practice for a user:** a model with a nonlinear support above the estimate's limit is refused with that code before any case is solved; for the nonlinear operating reference rack, that is from 1,775 nodes.
+- **Why:** the sparse mode keeps the dense active-set loop's storage estimate as a provisional admission cap. That cap is not an established bound on the sparse iteration's memory (DEL-04-07, Completion and Reliance Basis, "Not met").
+- **What the user does instead:** the refusal's message names no alternative. A model under the limit passes this guard; that does not establish that it will solve or fit within the per-invocation budget.
+- **Basis:** DEL-04-07 [scope](../execution/PKG-04/DEL-04-07/ScopeOfWork.md), Completion and Reliance Basis, "Not met" (the nonlinear admission cap). The refusal was standing before this entry; the entry was added with PR #311.
+- **Status:** not yet declared.
+
+### LIM-015 — Exit criterion 9 is not met
+
+- **Id:** LIM-015
+- **Exit criteria:** 9
+- **Requirement affected:** DEL-04-05/AC-001: on the 2,000-node reference racks, on a 16 GiB base machine, the measured clock is at most 10 s for linear static and at most 60 s for nonlinear operating, with every solve within the 12 GiB per-invocation budget.
+- **Code:** none.
+- **What is refused:** nothing; this is an unmet target, not a refusal, listed under DEL-04-05 AX-003, and for it "what is refused" is read as "what is not met". No measurement shows criterion 9's linear static clock at most 10 s, or its nonlinear operating clock at most 60 s, on a base machine.
+- **What it means in practice for a user:** only what was measured is established. On the development host, an Apple M5 Max with 128 GiB on macOS 27.2, at the engine of commit 16039fa62, the timing driver's entry stage for the 2,000-node linear rack took 457.9 and 479.5 s. After that stage, the route's footprint passed the 12 GiB budget. No base-machine performance measurement is supplied here. The nonlinear profile cannot be run at 2,000 nodes (LIM-014).
+- **Why:** the linear rack's time and memory at 2,000 nodes are measured but not yet attributed to the work that takes them.
+- **What the user does instead:** none.
+- **Basis:** DEL-04-05 [scope](../execution/PKG-04/DEL-04-05/ScopeOfWork.md), AC-001, AX-003 and "Measured and not met, as of 2026-11-13". The entry was added with PR #311.
 - **Status:** not yet declared.

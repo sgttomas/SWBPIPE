@@ -37,6 +37,23 @@ A measurement on one host is evidence about that host. Whether exit criterion 9 
 
 A baseline bundle's read-back is the shell steps, the runner's `--read-back` command and the worker's own checks, all three, as the harness README's headless baseline describes them. It verifies the files read against an inventory written after the run, whose root digest is stated outside the bundle, and checks that the records agree with one another. It does not establish that the files were unchanged before the inventory was written. It does not detect a change made after it has read a file. It does not show that a record is true.
 
+*Measured and not met, as of 2026-11-13.* These figures were taken on the development host, an Apple M5 Max with 128 GiB of memory on macOS 27.2, which is not a base machine, at the engine of commit 16039fa62. Main has since taken pull request 217, under which the rack models, which name no pressure-elongation case, solve without it; main's engine is not the one measured. The figures are from the timing driver's existing whole-text route (B in the measurement plan), for the linear rack on the exact route, in sparse mode. They are driver observations; the desktop's whole clock and the desktop worker's peak memory were not measured. The figures are uncorrected for other load recorded on the host during the measurement window. Below 2,000 nodes each figure is the median of four runs.
+
+| Nodes | Entry stage (s) | Lifetime-maximum footprint at the entry stage's end (GB) |
+|---|---|---|
+| 250 | 18.9 | 1.56 |
+| 500 | 51.0 | 3.14 |
+| 1,000 | 139.0 | 6.23 |
+| 2,000 | 457.9 and 479.5, one run each | 12.38 |
+
+The entry stage's time grows between 2.7 and 3.5-fold with each doubling of the node count. Its footprint grows in proportion, about 6.2 MB per node.
+
+At 2,000 nodes the entry stage's lifetime-maximum footprint, 12.38 GB, is under the 12 GiB budget (12.88 GB). After the entry stage, the existing route's footprint passed the budget, and the footprint watch stopped it at 13.07 GB, after the entry-stage line and before any serialize-stage line. With a 24 GiB budget allowed, the same route completed, with a lifetime-maximum footprint of 13.83 GB. Its resident maximum was 17.90 GB, beside the 16 GiB of a base machine's memory. That reading is an observation, not the criterion's memory term, which is the per-invocation footprint budget.
+
+The entry stage alone took 457.9 and 479.5 s at 2,000 nodes, on this host at that revision. Criterion 9's value for linear static is 10 s, for the whole clock. Exit criterion 9 remains unmet because its required 2,000-node nonlinear profile is refused, as stated below. These development-host observations do not decide the linear-static profile's compliance on a base machine; no base-machine measurement is supplied here.
+
+Independently of any timing, the product refuses the nonlinear operating rack from 1,775 nodes (Reference rack, above). Criterion 9's nonlinear profile therefore cannot be run at 2,000 nodes, a blocker for the criterion whatever the times. The refusal and the unmet target are each listed in the release limitations, as LIM-014 and LIM-015 (AX-003).
+
 ### Requirements
 
 - **REQ-001** — The harness contains no solver logic and changes no product result or behaviour. What it measures is the product's own entry. The native-smoke performance kit and result injection are absent from product builds. The in-product solve-timeline marks change no behaviour, keep only timings, counts and codes, and can be read only where the desktop's UI diagnostics global is installed.
