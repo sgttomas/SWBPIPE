@@ -44,6 +44,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import statistics
 import subprocess
 import sys
@@ -673,20 +674,25 @@ def read_set_records(out_dir):
     path = os.path.join(out_dir, k6.RECORDS_NAME)
     if not os.path.isfile(path):
         return [], ['%s: no aggregate record in the folder' % k6.RECORDS_NAME]
-    records, findings = [], []
     with open(path, encoding='utf-8') as fh:
-        for number, line in enumerate(fh, 1):
-            if not line.strip():
-                continue
-            try:
-                record = json.loads(line)
-            except json.JSONDecodeError:
-                findings.append('%s line %d does not parse' % (k6.RECORDS_NAME, number))
-                continue
-            if isinstance(record, dict):
-                records.append(record)
-            else:
-                findings.append('%s line %d is not a record' % (k6.RECORDS_NAME, number))
+        return records_of(fh.read())
+
+
+def records_of(text):
+    """(records, findings) of an aggregate record's text, one JSON object per line, in order."""
+    records, findings = [], []
+    for number, line in enumerate(text.splitlines(), 1):
+        if not line.strip():
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            findings.append('%s line %d does not parse' % (k6.RECORDS_NAME, number))
+            continue
+        if isinstance(record, dict):
+            records.append(record)
+        else:
+            findings.append('%s line %d is not a record' % (k6.RECORDS_NAME, number))
     return records, findings
 
 
@@ -1754,64 +1760,164 @@ def _fields_differ(prefix, found, expected):
     return out
 
 
-def _json(path, problems):
-    try:
-        with open(path, encoding='utf-8') as fh:
-            return json.load(fh)
-    except (OSError, ValueError) as error:
-        problems.append('%s cannot be read: %s' % (path, error))
-        return None
+INVENTORY_NAME = 'SHA256SUMS'
+_INVENTORY_LINE = re.compile(r'([0-9a-f]{64})  \./(.+)')
+MEMORY_KEYS = ('ru_maxrss_bytes', 'phys_footprint_bytes', 'lifetime_max_phys_footprint_bytes')
+
+
+class BoundBundle:
+    """A bundle's files, read only as its inventory binds them. Every file consumed must be a regular file
+    reached without a symbolic link, named in SHA256SUMS (the inventory of README step 8), and have the
+    SHA-256 SHA256SUMS states; its bytes are read once, hashed, and only those bytes are used."""
+
+    def __init__(self, bundle, problems):
+        self.bundle, self.problems, self.sums = bundle, problems, None
+        raw = self._regular(INVENTORY_NAME)
+        if raw is None:
+            return
+        self.sums = {}
+        for number, line in enumerate(raw.decode('utf-8', 'replace').splitlines(), 1):
+            match = _INVENTORY_LINE.fullmatch(line)
+            if match is None:
+                problems.append('%s line %d is not "<sha256>  ./<path>"' % (INVENTORY_NAME, number))
+            else:
+                self.sums[match.group(2)] = match.group(1)
+
+    def _regular(self, name):
+        """The bytes of `name` if it and every folder above it within the bundle are not links and it is
+        a regular file; else None, with the difference recorded."""
+        path = self.bundle
+        parts = name.split('/')
+        for index, part in enumerate(parts):
+            path = os.path.join(path, part)
+            try:
+                mode = os.lstat(path).st_mode
+            except OSError:
+                self.problems.append('%s is missing' % name)
+                return None
+            if stat.S_ISLNK(mode):
+                self.problems.append('%s is reached through a symbolic link (%s)' % (name, '/'.join(parts[:index + 1])))
+                return None
+        if not stat.S_ISREG(mode):
+            self.problems.append('%s is not a regular file' % name)
+            return None
+        with open(path, 'rb') as fh:
+            return fh.read()
+
+    def read(self, name):
+        """The bytes of a consumed file, or None with the difference recorded."""
+        if self.sums is None:
+            return None
+        if name not in self.sums:
+            if os.path.lexists(os.path.join(self.bundle, name)):
+                self.problems.append('%s is not in %s, so its bytes are not bound' % (name, INVENTORY_NAME))
+            else:
+                self.problems.append('%s is missing' % name)
+            return None
+        data = self._regular(name)
+        if data is None:
+            return None
+        if hashlib.sha256(data).hexdigest() != self.sums[name]:
+            self.problems.append('%s does not have the SHA-256 %s states for it' % (name, INVENTORY_NAME))
+            return None
+        return data
+
+    def json(self, name):
+        data = self.read(name)
+        if data is None:
+            return None
+        try:
+            return json.loads(data)
+        except ValueError as error:
+            self.problems.append('%s does not parse: %s' % (name, error))
+            return None
+
+    def exists(self, name):
+        return os.path.lexists(os.path.join(self.bundle, name))
+
+
+def _stage_lines(data, run_id, problems):
+    lines = []
+    for line in data.decode('utf-8', 'replace').splitlines():
+        if line.startswith(PROGRESS_PREFIX):
+            try:
+                lines.append(json.loads(line[len(PROGRESS_PREFIX):]))
+            except ValueError:
+                problems.append('%s: a stage line of its .stderr.txt does not parse' % run_id)
+    return lines
 
 
 def read_back(bundle, revision, shared_host=False):
     """The differences between a bundle's records (items 2 to 6 of the read-back), as text."""
     problems = []
-    at = lambda name: os.path.join(bundle, name)  # noqa: E731
-    # 2. What is consumed is present.
-    for name in READ_BACK_FILES + (READ_BACK_SHARED_HOST_FILES if shared_host else ()):
-        if not os.path.isfile(at(name)):
-            problems.append('%s is missing' % name)
-    plan, manifest, packet_doc, metadata = (_json(at(n), problems) for n in (
-        'plan.json', 'models/manifest.json', 'out/packet.json', 'out/metadata.json'))
-    records, unread = read_set_records(at('out'))
-    problems += unread
-    if plan is None or manifest is None or packet_doc is None or metadata is None:
+    files = BoundBundle(bundle, problems)
+    if files.sums is None:
         return problems
+    # 2. What is consumed is present, bound by the inventory and not a link.
+    for name in READ_BACK_FILES + (READ_BACK_SHARED_HOST_FILES if shared_host else ()):
+        if name not in ('plan.json', 'models/manifest.json', 'out/packet.json', 'out/metadata.json',
+                        'out/' + k6.RECORDS_NAME):
+            files.read(name)
+    plan, manifest, packet_doc, metadata = (files.json(n) for n in (
+        'plan.json', 'models/manifest.json', 'out/packet.json', 'out/metadata.json'))
+    aggregate_bytes = files.read('out/' + k6.RECORDS_NAME)
+    if None in (plan, manifest, packet_doc, metadata, aggregate_bytes):
+        return problems
+    records, unread = records_of(aggregate_bytes.decode('utf-8', 'replace'))
+    problems += unread
     manifest = manifest.get('models') or {}
     aggregate = {r.get('run_id'): r for r in records}
-    plan_ids = [r.get('run_id') for r in plan.get('runs') or []]
-    if sorted(aggregate) != sorted(plan_ids) or len(aggregate) != len(records):
-        problems.append('the aggregate does not hold one record for each run of plan.json')
-    for p in plan.get('runs') or []:
+    plan_runs = plan.get('runs') or []
+    plan_ids = [r.get('run_id') for r in plan_runs]
+    # The plan of this run: the one the supervisor read (its schema), whose window and quiet wait it
+    # wrote into the metadata with the run ids in order, and whose entries it copied into each record.
+    if plan.get('schema') != PLAN_SCHEMA:
+        problems.append('plan.json schema is %r, not %s, the only plan the supervisor reads' % (plan.get('schema'), PLAN_SCHEMA))
+    if metadata.get('budget_s') != plan.get('window_budget_s'):
+        problems.append('metadata.json budget_s %r is not plan.json window_budget_s %r' % (
+            metadata.get('budget_s'), plan.get('window_budget_s')))
+    if metadata.get('quiet_wait_s') != plan.get('quiet_wait_s'):
+        problems.append('metadata.json quiet_wait_s %r is not plan.json quiet_wait_s %r' % (
+            metadata.get('quiet_wait_s'), plan.get('quiet_wait_s')))
+    if metadata.get('plan') != plan_ids:
+        problems.append('metadata.json plan is not the run ids of plan.json in their order')
+    if [r.get('run_id') for r in records] != plan_ids:
+        problems.append('the aggregate does not hold one record for each run of plan.json, in its order')
+    for p in plan_runs:
         run_id = p.get('run_id')
         r = aggregate.get(run_id)
         if r is None:
             continue
-        files = [at('out/%s%s' % (run_id, suffix)) for suffix in (k6.STDOUT_SUFFIX, k6.STDERR_SUFFIX, '.record.json')]
+        for key in PLAN_RUN_KEYS + ('model',):
+            if key not in p or key not in r or p[key] != r[key]:
+                problems.append('%s: %s in the aggregate is not plan.json\'s' % (run_id, key))
+        names = ['out/%s%s' % (run_id, suffix) for suffix in (k6.STDOUT_SUFFIX, k6.STDERR_SUFFIX, '.record.json')]
         launched = 'launch' in r
-        for path in files:
-            if launched and not os.path.isfile(path):
-                problems.append('%s: %s is missing for a launched run' % (run_id, os.path.basename(path)))
-            if not launched and os.path.exists(path):
-                problems.append('%s: %s exists for a run that was never launched' % (run_id, os.path.basename(path)))
+        if not launched:
+            for name in names:
+                if files.exists(name):
+                    problems.append('%s: %s exists for a run that was never launched' % (run_id, os.path.basename(name)))
+            if r.get('last_stage') is not None or r.get('last_stage_memory') is not None:
+                problems.append('%s: a run never launched carries a last stage' % run_id)
+        stdout_bytes, stderr_bytes, record_bytes = (files.read(n) for n in names) if launched else (None, None, None)
+        stages = _stage_lines(stderr_bytes, run_id, problems) if stderr_bytes is not None else []
         # 3. Every launched run.
-        stages = []
-        if os.path.isfile(files[1]):
-            with open(files[1], encoding='utf-8', errors='replace') as fh:
-                stages = [json.loads(line[len(PROGRESS_PREFIX):]) for line in fh if line.startswith(PROGRESS_PREFIX)]
         if launched:
-            launch_record = _json(files[2], problems) if os.path.isfile(files[2]) else None
-            if launch_record is not None:
-                for key in sorted(r['launch']):
+            if record_bytes is not None:
+                try:
+                    launch_record = json.loads(record_bytes)
+                except ValueError:
+                    launch_record = None
+                    problems.append('%s: its .record.json does not parse' % run_id)
+                for key in sorted(r['launch']) if isinstance(launch_record, dict) else ():
                     if launch_record.get(key) != r['launch'][key]:
                         problems.append('%s: launch.%s differs from its .record.json' % (run_id, key))
             stdout_sha = r['launch'].get('stdout_sha256')
-            if stdout_sha is not None and (not os.path.isfile(files[0]) or sha256_file(files[0]) != stdout_sha):
+            if stdout_sha is not None and (stdout_bytes is None or hashlib.sha256(stdout_bytes).hexdigest() != stdout_sha):
                 problems.append('%s: its .jsonl is not launch.stdout_sha256' % run_id)
             last = stages[-1] if stages else None
             expected_stage = {k: last.get(k) for k in ('repeat', 'stage', 'seconds')} if last else None
-            expected_memory = {k: last.get(k) for k in ('ru_maxrss_bytes', 'phys_footprint_bytes',
-                                                        'lifetime_max_phys_footprint_bytes')} if last else None
+            expected_memory = {k: last.get(k) for k in MEMORY_KEYS} if last else None
             if r.get('last_stage') != expected_stage or r.get('last_stage_memory') != expected_memory:
                 problems.append('%s: last_stage or last_stage_memory differs from the last stage line of its '
                                 '.stderr.txt' % run_id)
@@ -1820,10 +1926,7 @@ def read_back(bundle, revision, shared_host=False):
                 problems.append('%s: model_sha256 %s is not the plan\'s %s and the manifest\'s %s' % (
                     run_id, r.get('model_sha256'), p.get('expected_model_sha256'), listed))
         # 4. A run with a driver line; 5. a run without one.
-        stdout = ''
-        if os.path.isfile(files[0]):
-            with open(files[0], encoding='utf-8', errors='replace') as fh:
-                stdout = fh.read()
+        stdout = stdout_bytes.decode('utf-8', 'replace') if stdout_bytes is not None else ''
         lines = [line for line in stdout.splitlines() if line.strip()]
         if lines:
             try:
@@ -1832,14 +1935,24 @@ def read_back(bundle, revision, shared_host=False):
                 parsed = None
             if parsed is None or parsed != r.get('driver'):
                 problems.append('%s: its .jsonl is not one line equal to the aggregate\'s driver' % run_id)
-            elif r.get('classification') == 'ok':
-                seconds = r['driver'].get('seconds') or {}
+            else:
+                # Each stage line's memory readings are the driver's own for that stage.
+                peaks = r['driver'].get('peak_memory') or {}
                 for line in stages:
-                    if seconds.get(line.get('stage')) != line.get('seconds'):
-                        problems.append('%s: stage %s seconds differ from driver.seconds' % (run_id, line.get('stage')))
-                if not all(_number(seconds.get(s)) for s in SOLVE_STAGES + ('total',)) or abs(
-                        seconds['total'] - sum(seconds[s] for s in SOLVE_STAGES)) > 1e-6:
-                    problems.append('%s: driver.seconds.total is not the sum of the seven stages to 1e-6 s' % run_id)
+                    held = peaks.get(line.get('stage'))
+                    for key in MEMORY_KEYS if isinstance(held, dict) else ():
+                        if key in line and key in held and line[key] != held[key]:
+                            problems.append('%s: stage %s %s differs from driver.peak_memory' % (
+                                run_id, line.get('stage'), key))
+                if r.get('classification') == 'ok':
+                    seconds = r['driver'].get('seconds') or {}
+                    for line in stages:
+                        if seconds.get(line.get('stage')) != line.get('seconds'):
+                            problems.append('%s: stage %s seconds differ from driver.seconds' % (run_id, line.get('stage')))
+                    if not all(_number(seconds.get(s)) for s in SOLVE_STAGES + ('total',)):
+                        problems.append('%s: driver.seconds lacks a number for a stage or the total' % run_id)
+                    elif abs(seconds['total'] - sum(seconds[s] for s in SOLVE_STAGES)) > 1e-6:
+                        problems.append('%s: driver.seconds.total is not the sum of the seven stages to 1e-6 s' % run_id)
         elif r.get('driver') is not None or r.get('classification') == 'ok':
             problems.append('%s: no driver line, but the aggregate has a driver or classification ok' % run_id)
     # 6. The packet and the metadata.

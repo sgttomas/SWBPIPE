@@ -30,6 +30,7 @@ from test_release_runner import (  # noqa: E402,F401  (collected by pytest)
     PinnedModels,
     Plan,
     ReadBack,
+    ReadBackBinding,
     ProgressLines,
     ReferenceSystemModel,
     RunIds,

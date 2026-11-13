@@ -919,14 +919,30 @@ NEVER_LAUNCHED = ('baseline-one-case-ex-n0047-sparse', 'baseline-one-case-ex-n00
 
 
 def extract_fixture(folder, bundle):
-    """`bundle`'s files of the fixture, written under `folder`."""
+    """`bundle`'s files of the fixture, written under `folder`; their names."""
+    names = []
     with tarfile.open(READ_BACK_FIXTURE) as tar:
         for member in tar.getmembers():
             if member.name.startswith(bundle + '/') and member.isfile():
-                path = os.path.join(folder, member.name[len(bundle) + 1:])
+                names.append(member.name[len(bundle) + 1:])
+                path = os.path.join(folder, names[-1])
                 os.makedirs(os.path.dirname(path), exist_ok=True)
                 with open(path, 'wb') as fh:
                     fh.write(tar.extractfile(member).read())
+    return names
+
+
+def write_inventory(folder, names):
+    """SHA256SUMS of `names` that are regular files reached without a link, as README step 8's
+    `find . -type f` inventory writes it (a link is not a regular file there)."""
+    lines = []
+    for name in sorted(names):
+        path = os.path.join(folder, name)
+        if os.path.isfile(path) and not os.path.islink(path) and not os.path.islink(os.path.dirname(path)):
+            with open(path, 'rb') as fh:
+                lines.append('%s  ./%s\n' % (hashlib.sha256(fh.read()).hexdigest(), name))
+    with open(os.path.join(folder, 'SHA256SUMS'), 'w') as fh:
+        fh.writelines(lines)
 
 
 class ReadBack(unittest.TestCase):
@@ -935,11 +951,16 @@ class ReadBack(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.bundle = self.tmp.name
-        extract_fixture(self.bundle, 'forms')
+        self.names = extract_fixture(self.bundle, 'forms')
         for name in ('build-facts.txt', 'host-before.txt', 'host-processes.log', 'baseline-set.json', 'contract.md'):
             with open(os.path.join(self.bundle, name), 'w') as fh:
                 fh.write('stand-in\n')
+            self.names.append(name)
         self.revision = self.load('out/metadata.json')['source_commit']
+        self.inventory()
+
+    def inventory(self):
+        write_inventory(self.bundle, self.names)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -968,6 +989,8 @@ class ReadBack(unittest.TestCase):
         return next(r for r in packet['runs'] + packet['not_run'] if r['run_id'] == run_id)
 
     def problems(self):
+        """The read-back after the bundle is inventoried again, so that a change reaches the semantic checks."""
+        self.inventory()
         return rr.read_back(self.bundle, self.revision)
 
     def test_the_intact_bundle_has_no_difference_and_holds_every_row_form(self):
@@ -1100,7 +1123,7 @@ class ReadBack(unittest.TestCase):
         cases = {
             'a required file missing': (lambda: os.unlink(self.path('baseline-set.json')), 'baseline-set.json is missing'),
             'a launched run without its stderr': (lambda: os.unlink(self.path('out/%s.stderr.txt' % STOPPED)),
-                                                  '.stderr.txt is missing for a launched run'),
+                                                  'out/%s.stderr.txt is missing' % STOPPED),
             'a file planted for a never-launched run': (
                 lambda: open(self.path('out/%s.jsonl' % NEVER_LAUNCHED[2]), 'w').close(),
                 'exists for a run that was never launched'),
@@ -1142,6 +1165,164 @@ class ReadBack(unittest.TestCase):
         with redirect_stdout(io.StringIO()) as printed:
             self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', '0' * 40]), 1)
         self.assertIn('DIFFERS: metadata.json names', printed.getvalue())
+
+
+class ReadBackBinding(ReadBack):
+    """`--read-back`: the plan of this run (F1), the inventory's binding of every file consumed (F4), a
+    never-launched run's absent stage and each stage's memory (F5), on the fixture's forms/ folder.
+    The methods of ReadBack are not run again here."""
+
+    def test_the_intact_bundle_has_no_difference_and_holds_every_row_form(self):
+        self.assertEqual(self.problems(), [])
+
+    test_the_mapping_names_every_field_of_the_supervisors_rows = None
+    test_each_row_form_with_a_missing_key_and_a_wrong_value = None
+    test_every_field_of_every_row_form_is_compared = None
+    test_each_record_check_finds_its_difference = None
+
+    def expect(self, change, expected, inventory=True):
+        self.tearDown()
+        self.setUp()
+        change()
+        problems = self.problems() if inventory else rr.read_back(self.bundle, self.revision)
+        self.assertTrue(any(expected in p for p in problems), (expected, problems[:4]))
+
+    def test_the_plan_is_the_plan_the_records_and_metadata_were_written_from(self):
+        """F1. Each plan-entry field the supervisor copies into a record (supervise.rs 181-211, 1135-1145),
+        the run ids in order, and the plan's schema, window and quiet wait (1117-1123)."""
+        def plan_field(key):
+            def change():
+                def edit(d):
+                    run = d['runs'][0]
+                    run[key] = (not run[key]) if isinstance(run[key], bool) else (
+                        run[key] + 1 if isinstance(run[key], int) else run[key] + '-other')
+                self.edit('plan.json', edit)
+            return change
+        for key in rr.PLAN_RUN_KEYS + ('model',):
+            if key == 'run_id':
+                continue
+            self.expect(plan_field(key), "%s: %s in the aggregate is not plan.json's" % (COMPLETED, key))
+        self.expect(lambda: self.edit('plan.json', lambda d: d['runs'].reverse()),
+                    'metadata.json plan is not the run ids of plan.json in their order')
+        self.expect(lambda: self.edit('plan.json', lambda d: d['runs'].reverse()),
+                    'the aggregate does not hold one record for each run of plan.json, in its order')
+        self.expect(lambda: self.edit('plan.json', lambda d: d.update(schema='changed')), 'plan.json schema is')
+        self.expect(lambda: self.edit('plan.json', lambda d: d.update(window_budget_s=d['window_budget_s'] + 1)),
+                    'metadata.json budget_s')
+        self.expect(lambda: self.edit('plan.json', lambda d: d.update(quiet_wait_s=d['quiet_wait_s'] + 1)),
+                    'metadata.json quiet_wait_s')
+
+        def metadata_plan_in_both_copies():
+            self.edit('out/metadata.json', lambda d: d.update(plan=['some-other-run']))
+            self.edit('out/packet.json', lambda d: d['metadata'].update(plan=['some-other-run']))
+        self.expect(metadata_plan_in_both_copies, 'metadata.json plan is not the run ids of plan.json in their order')
+
+    def test_every_file_consumed_is_a_regular_file_bound_by_the_inventory(self):
+        """F4. The command reads SHA256SUMS itself."""
+        outside = tempfile.TemporaryDirectory()
+        self.addCleanup(outside.cleanup)
+
+        def plan_linked_outside(inventoried):
+            def change():
+                target = os.path.join(outside.name, 'plan.json')
+                shutil.copyfile(self.path('plan.json'), target)
+                os.unlink(self.path('plan.json'))
+                os.symlink(target, self.path('plan.json'))
+                self.inventory()
+                if inventoried:   # the link's bytes are listed, as if the inventory had followed it
+                    with open(target, 'rb') as fh, open(self.path('SHA256SUMS'), 'a') as sums:
+                        sums.write('%s  ./plan.json\n' % hashlib.sha256(fh.read()).hexdigest())
+            return change
+        self.expect(plan_linked_outside(False), 'plan.json is not in SHA256SUMS, so its bytes are not bound', False)
+        self.expect(plan_linked_outside(True), 'plan.json is reached through a symbolic link (plan.json)', False)
+
+        def folder_linked():
+            moved = os.path.join(outside.name, 'out')
+            shutil.move(self.path('out'), moved)
+            os.symlink(moved, self.path('out'))
+            lines = []   # every file listed through the link, as if the inventory had followed it
+            for name in sorted(self.names):
+                with open(self.path(name), 'rb') as fh:
+                    lines.append('%s  ./%s\n' % (hashlib.sha256(fh.read()).hexdigest(), name))
+            with open(self.path('SHA256SUMS'), 'w') as fh:
+                fh.writelines(lines)
+        self.expect(folder_linked, 'out/metadata.json is reached through a symbolic link (out)', False)
+
+        def changed_after_inventory():
+            self.inventory()
+            self.edit('out/packet.json', lambda d: d.update(window_elapsed_s=-1))
+        self.expect(changed_after_inventory, 'out/packet.json does not have the SHA-256 SHA256SUMS states for it', False)
+
+        def left_out_of_inventory():
+            self.inventory()
+            with open(self.path('SHA256SUMS')) as fh:
+                kept = [line for line in fh if not line.endswith('./out/records.jsonl\n')]
+            with open(self.path('SHA256SUMS'), 'w') as fh:
+                fh.writelines(kept)
+        self.expect(left_out_of_inventory, 'out/records.jsonl is not in SHA256SUMS, so its bytes are not bound', False)
+        self.expect(lambda: os.unlink(self.path('SHA256SUMS')), 'SHA256SUMS is missing', False)
+
+        def malformed():
+            with open(self.path('SHA256SUMS'), 'a') as fh:
+                fh.write('not a line\n')
+        self.expect(malformed, 'SHA256SUMS line', False)
+
+    def test_a_never_launched_run_carries_no_last_stage(self):
+        """F5 (a): a skip, a missing or a mismatched model has no stage (supervise.rs 1146-1162, 1173-1190)."""
+        stage = {'repeat': 0, 'stage': 'parse_back', 'seconds': 0.1}
+        self.expect(lambda: self.records(lambda by, rows: by[NEVER_LAUNCHED[2]].update(last_stage=stage)),
+                    '%s: a run never launched carries a last stage' % NEVER_LAUNCHED[2])
+
+    def test_each_stage_line_carries_the_drivers_memory_for_that_stage(self):
+        """F5 (b): each stderr stage line's readings against the driver's `peak_memory.<stage>`."""
+        def first_stage_memory():
+            path = self.path('out/%s.stderr.txt' % COMPLETED)
+            with open(path) as fh:
+                lines = fh.read().splitlines(True)
+            index = next(i for i, line in enumerate(lines) if line.startswith(rr.PROGRESS_PREFIX))
+            reading = json.loads(lines[index][len(rr.PROGRESS_PREFIX):])
+            reading['lifetime_max_phys_footprint_bytes'] = 1
+            lines[index] = rr.PROGRESS_PREFIX + json.dumps(reading) + '\n'
+            with open(path, 'w') as fh:
+                fh.writelines(lines)
+        self.expect(first_stage_memory, '%s: stage read lifetime_max_phys_footprint_bytes differs from driver.peak_memory'
+                    % COMPLETED)
+
+    def test_each_stage_lines_seconds_are_the_drivers(self):
+        """The stderr stage seconds alone, the aggregate and stdout left as they are."""
+        def first_stage_seconds():
+            path = self.path('out/%s.stderr.txt' % COMPLETED)
+            with open(path) as fh:
+                lines = fh.read().splitlines(True)
+            index = next(i for i, line in enumerate(lines) if line.startswith(rr.PROGRESS_PREFIX))
+            reading = json.loads(lines[index][len(rr.PROGRESS_PREFIX):])
+            reading['seconds'] += 1.0
+            lines[index] = rr.PROGRESS_PREFIX + json.dumps(reading) + '\n'
+            with open(path, 'w') as fh:
+                fh.writelines(lines)
+        self.expect(first_stage_seconds, '%s: stage read seconds differ from driver.seconds' % COMPLETED)
+
+    def test_an_ok_run_has_a_number_for_every_stage_and_the_total(self):
+        """A stage missing from driver.seconds in every copy (aggregate, stdout, its stdout hash) and from the
+        stage lines: only the numeric-presence check sees it."""
+        def stage_missing():
+            path = self.path('out/%s.jsonl' % COMPLETED)
+
+            def drop(by, rows):
+                by[COMPLETED]['driver']['seconds'].pop('serialize')
+                with open(path, 'w') as fh:
+                    fh.write(json.dumps(by[COMPLETED]['driver']) + '\n')
+                with open(path, 'rb') as fh:
+                    digest = hashlib.sha256(fh.read()).hexdigest()
+                by[COMPLETED]['launch']['stdout_sha256'] = digest
+                self.edit('out/%s.record.json' % COMPLETED, lambda d: d.update(stdout_sha256=digest))
+            self.records(drop)
+            stderr = self.path('out/%s.stderr.txt' % COMPLETED)
+            with open(stderr) as fh:
+                kept = [line for line in fh if '"stage":"serialize"' not in line.replace(' ', '')]
+            with open(stderr, 'w') as fh:
+                fh.writelines(kept)
+        self.expect(stage_missing, '%s: driver.seconds lacks a number for a stage or the total' % COMPLETED)
 
 
 class Classification(unittest.TestCase):
