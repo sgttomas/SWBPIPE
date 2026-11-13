@@ -53,9 +53,13 @@ grant, including any limit on passing those decisions on:
   independent grounds, never to fit the implementation.
 - These stay the owner's: publishing a release; licence, legal and
   professional sign-off; spending money; credentials; repository protections
-  and settings. So does the verdict on the product: the owner's yes or no
-  after the tested use cases of exit criterion 8, with acceptance, issuance
-  and release.
+  and settings; amending the PRD. So does the verdict on the product: the
+  owner's yes or no after the tested use cases of exit criterion 8, with
+  acceptance, issuance and release.
+- Where a decision under this grant contradicts the PRD, the agent states
+  the limitation in `docs/RELEASE_LIMITATIONS_v1.0.md`, names the PRD place
+  it contradicts, and brings the contradiction to the owner for an
+  amendment. It does not write the decision into `docs/PRD.md`.
 
 ## How the work is organised
 
