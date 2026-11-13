@@ -40,6 +40,7 @@ import json
 import os
 import re
 import shutil
+import statistics
 import subprocess
 import sys
 import threading
@@ -184,13 +185,19 @@ BASELINE_REPEATS = 5
 # recorded as what it is and is never a timing. Its 900 s timeout lets the entry stage finish (the one
 # kept record shows entry ending at about 450 s and the footprint watch killing the run soon after).
 LINEAR_RACK_2000_ROW = next(row for row in _DEFAULT if row[:2] == ('linear-ex', 2000) and len(row) == 5)
-# What each run costs the window beyond its timeout: the host check, the launch and the records.
-RUN_ALLOWANCE_S = 10
+# A PLANNING allowance for the supervisor's own work between runs (hashing the model, the host check,
+# the launch and the records), not an established bound on it: nothing measures or enforces it.
+RUN_ALLOWANCE_S = 30
 
 
 def window_budget_for(plan, quiet_wait_s):
-    """A window in which no run of `plan` is skipped or has its timeout capped, even if every run
-    lasts until its timeout: the quiet-host wait, every timeout and RUN_ALLOWANCE_S per run."""
+    """The quiet-host wait, every timeout and RUN_ALLOWANCE_S per run. Such a window fits every run of
+    `plan` at its full timeout PROVIDED the supervisor's own work between runs stays within the
+    allowance; where it does not, the supervisor caps a later run's timeout to what remains or skips
+    the run, and that run's record says so (`timeout_capped_by_window` true, or
+    `skipped_window_budget`), which `--baseline-set` reads. A scope decision, not a necessity: a
+    bounded window could instead decline to start a run whose full timeout no longer fits; both
+    supervisors are kept as they are by choice."""
     return quiet_wait_s + sum(r['timeout_s'] for r in plan) + RUN_ALLOWANCE_S * len(plan)
 
 
@@ -210,8 +217,9 @@ NAMED_PLAN_QUIET_WAIT_S = QUIET_WAIT_S
 
 def named_plan(name):
     """(plan, window_budget_s, quiet_wait_s) of a named plan: sparse mode, the 12 GiB footprint budget
-    and the 16 GiB emergency cap, run ids made distinct (`repeat_run_ids`) and a window that allows
-    every run (`window_budget_for`)."""
+    and the 16 GiB emergency cap, run ids made distinct (`repeat_run_ids`) and a window that fits every
+    run at its full timeout provided the supervisor's work between runs stays within RUN_ALLOWANCE_S
+    (`window_budget_for`)."""
     plan = repeat_run_ids(build_plan(NAMED_PLANS[name](), NAMED_PLAN_MODE))
     return plan, window_budget_for(plan, NAMED_PLAN_QUIET_WAIT_S), NAMED_PLAN_QUIET_WAIT_S
 
@@ -441,6 +449,11 @@ def format_plan(plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=None):
                'budget are skipped, and each timeout is capped at the remaining budget.' % (total, total / 60, budget_s))
     if quiet_wait_s is not None:
         out.append('quiet-host wait: up to %d s before the first run, inside the window budget.' % quiet_wait_s)
+        out.append('the window fits every run at its full timeout provided the supervisor\'s own work between runs '
+                   '(hashing the model, the host check, the launch, the records) stays within the planning allowance '
+                   'of %d s per run; where it does not, the run\'s record says so (timeout_capped_by_window true, or '
+                   'skipped_window_budget) and --baseline-set reports the set INCOMPLETE BY THE WINDOW.'
+                   % RUN_ALLOWANCE_S)
     out.append('estimates: they order and bound the window; none is a '
                'measurement. budget: the phys_footprint kill (the product budget); rss_cap: the emergency ps RSS kill. '
                'A run id ending -attr takes stack snapshots; its timings are not measurements. A run id starting '
@@ -612,6 +625,173 @@ def generate(plan, models_dir, generator=GENERATOR, python=sys.executable, run=s
         json.dump(manifest, fh, indent=1, sort_keys=True)
         fh.write('\n')
     return manifest, failures
+
+
+# --------------------------------------------------------------- the baseline set
+#
+# `--baseline-set OUT --plan-file PLAN --subset NAME`: the verdict on ONE supervised folder of a named
+# plan, read from the records' existing fields; it writes nothing and never combines folders.
+
+SET_COMPLETE = 0
+SET_FINDINGS = 1
+SET_INCOMPLETE_BY_WINDOW = 3   # 2 is argparse's usage error
+SET_VERDICTS = {SET_COMPLETE: 'COMPLETE', SET_FINDINGS: 'FINDINGS', SET_INCOMPLETE_BY_WINDOW: 'INCOMPLETE BY THE WINDOW'}
+
+
+def _number(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def read_set_records(out_dir):
+    """(records, findings) of OUT's aggregate record, one JSON object per line, in order."""
+    path = os.path.join(out_dir, k6.RECORDS_NAME)
+    if not os.path.isfile(path):
+        return [], ['%s: no aggregate record in the folder' % k6.RECORDS_NAME]
+    records, findings = [], []
+    with open(path, encoding='utf-8') as fh:
+        for number, line in enumerate(fh, 1):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                findings.append('%s line %d does not parse' % (k6.RECORDS_NAME, number))
+                continue
+            if isinstance(record, dict):
+                records.append(record)
+            else:
+                findings.append('%s line %d is not a record' % (k6.RECORDS_NAME, number))
+    return records, findings
+
+
+def judge_set(records, plan_runs):
+    """The verdict on one folder's `records` against the plan file's `plan_runs`.
+
+    A workload is each (profile, nodes) the plan expects `solved`; a run the plan expects otherwise
+    (baseline-with-rack's linear rack) is reported and is never a timing. A run is a completed timing
+    only if: `classification` is `ok` and `as_expected` is true; `driver.route` is `EX`; the plan's
+    `expected_model_sha256`, the record's `model_sha256` and `driver.document.sha256` are one value;
+    `driver.seconds.entry` and `launch.rss.exit_lifetime_max_phys_footprint_bytes` are numbers; and
+    `driver.output_sha256`, `driver.rows` and `driver.output_bytes` equal those of the workload's
+    other completed runs. A run skipped for the window, or timed out under a capped timeout, is a
+    window problem; any other way of not being a completed timing is a finding, and a finding is
+    never absorbed into a window problem. COMPLETE: every run of every workload is a completed
+    timing and there is no window problem."""
+    findings, window, not_timings = [], [], []
+    by_id = {}
+    for r in records:
+        run_id = r.get('run_id')
+        if run_id in by_id:
+            findings.append('%s: more than one record' % run_id)
+        by_id[run_id] = r
+    planned = {r.get('run_id') for r in plan_runs}
+    for run_id in by_id:
+        if run_id not in planned:
+            findings.append('%s: a record of a run the plan does not hold' % run_id)
+    workloads = {}
+    for p in plan_runs:
+        run_id = p.get('run_id')
+        rec = by_id.get(run_id)
+        if p.get('expect') == 'solved':
+            entry = workloads.setdefault('%s n%s' % (p.get('profile'), p.get('nodes')),
+                                         {'planned': [], 'candidates': []})
+            entry['planned'].append(run_id)
+        if rec is None:
+            findings.append('%s: no record (the plan was not run to its end)' % run_id)
+            continue
+        classification = rec.get('classification')
+        if classification == 'skipped_window_budget' or (
+                classification == 'timed_out' and rec.get('timeout_capped_by_window') is True):
+            window.append('%s: %s%s' % (run_id, classification, ' under a timeout the window capped to %s s'
+                                        % rec.get('timeout_applied_s') if classification == 'timed_out' else ''))
+            continue
+        if p.get('expect') != 'solved':
+            not_timings.append({'run_id': run_id, 'expect': p.get('expect'), 'classification': classification,
+                                'as_expected': rec.get('as_expected')})
+            continue
+        driver = rec.get('driver') if isinstance(rec.get('driver'), dict) else {}
+        reasons = []
+        if classification != 'ok':
+            reasons.append('classification %s%s' % (classification, ' (%s)' % rec.get('classification_detail')
+                                                     if rec.get('classification_detail') else ''))
+            if classification == 'timed_out':
+                reasons.append('timed out at its full timeout')
+        if rec.get('as_expected') is not True:
+            reasons.append('as_expected is %r' % rec.get('as_expected'))
+        if driver.get('route') != 'EX':
+            reasons.append('driver.route is %r, not EX' % driver.get('route'))
+        hashes = (p.get('expected_model_sha256'), rec.get('model_sha256'), (driver.get('document') or {}).get('sha256'))
+        if None in hashes or len(set(hashes)) != 1:
+            reasons.append('the plan\'s expected_model_sha256, the record\'s model_sha256 and driver.document.sha256 '
+                           'are not one value: %s' % ', '.join(map(str, hashes)))
+        entry_s = (driver.get('seconds') or {}).get('entry')
+        if not _number(entry_s):
+            reasons.append('driver.seconds.entry is %r' % entry_s)
+        footprint = ((rec.get('launch') or {}).get('rss') or {}).get('exit_lifetime_max_phys_footprint_bytes')
+        if not _number(footprint):
+            reasons.append('launch.rss.exit_lifetime_max_phys_footprint_bytes is %r' % footprint)
+        if reasons:
+            findings.append('%s: %s' % (run_id, '; '.join(reasons)))
+        else:
+            entry['candidates'].append((run_id, entry_s, (driver.get('output_sha256'), driver.get('rows'),
+                                                          driver.get('output_bytes'))))
+    report = {}
+    for name, entry in workloads.items():
+        products = {product for _, _, product in entry['candidates']}
+        completed = entry['candidates']
+        if len(products) > 1:
+            findings.append('%s: output_sha256, rows and output_bytes disagree across its runs: %s' % (
+                name, '; '.join('%s %s' % (run_id, list(product)) for run_id, _, product in entry['candidates'])))
+            completed = []
+        seconds = [s for _, s, _ in completed]
+        report[name] = {'planned': len(entry['planned']), 'completed': len(completed),
+                        'completed_run_ids': [run_id for run_id, _, _ in completed],
+                        'entry_seconds': seconds,
+                        'median_entry_s': statistics.median(seconds) if seconds else None,
+                        'min_entry_s': min(seconds) if seconds else None,
+                        'max_entry_s': max(seconds) if seconds else None,
+                        'output': list(next(iter(products))) if len(products) == 1 else None}
+    if findings:
+        code = SET_FINDINGS
+    elif window:
+        code = SET_INCOMPLETE_BY_WINDOW
+    elif all(w['completed'] == w['planned'] for w in report.values()) and report:
+        code = SET_COMPLETE
+    else:
+        findings.append('a workload has fewer completed timings than planned runs')
+        code = SET_FINDINGS
+    return {'verdict': SET_VERDICTS[code], 'exit_code': code, 'workloads': report, 'findings': findings,
+            'window_problems': window, 'not_timings': not_timings}
+
+
+def baseline_set(out_dir, plan_path, name, committed=None):
+    """`judge_set` on OUT's records with PLAN, after holding PLAN to the named plan `name` at this
+    checkout: the same runs, in the same order, with the same limits, and each run's
+    expected_model_sha256 the repository's own (`pinned_sha256`). Reads only; writes nothing."""
+    records, findings = read_set_records(out_dir)
+    try:
+        with open(plan_path, encoding='utf-8') as fh:
+            plan_runs = json.load(fh).get('runs') or []
+    except (OSError, ValueError, AttributeError) as error:
+        return {'verdict': SET_VERDICTS[SET_FINDINGS], 'exit_code': SET_FINDINGS, 'workloads': {},
+                'findings': findings + ['the plan file cannot be read: %s' % error], 'window_problems': [],
+                'not_timings': []}
+    named, _, _ = named_plan(name)
+    keys = ('order', 'run_id', 'task', 'profile', 'nodes', 'mode', 'timeout_s', 'footprint_budget_bytes',
+            'rss_cap_bytes', 'expect')
+    if [{k: r.get(k) for k in keys} for r in plan_runs] != [{k: r[k] for k in keys} for r in named]:
+        findings.append('the plan file is not the named plan %s at this checkout (runs, order or limits differ)' % name)
+    hashes = recorded_rack_hashes()
+    for r in plan_runs:
+        expected, where = pinned_sha256(r.get('profile'), r.get('nodes'), hashes, committed)
+        if r.get('expected_model_sha256') != expected:
+            findings.append('%s: the plan\'s expected_model_sha256 %s is not %s (%s)' % (
+                r.get('run_id'), r.get('expected_model_sha256'), expected, where))
+    report = judge_set(records, plan_runs)
+    if findings:
+        report['findings'] = findings + report['findings']
+        report['exit_code'], report['verdict'] = SET_FINDINGS, SET_VERDICTS[SET_FINDINGS]
+    return report
 
 
 # --------------------------------------------------------------- footprint
@@ -1325,6 +1505,10 @@ def main(argv=None):
     parser.add_argument('--generate', action='store_true', help="generate the plan's models and the manifest")
     parser.add_argument('--run', action='store_true', help="run the plan (one process at a time)")
     parser.add_argument('--packet', action='store_true', help='write OUT/packet.json from the records')
+    parser.add_argument('--baseline-set', metavar='OUT',
+                        help='the verdict on ONE supervised folder of a named plan (with --plan-file and --subset): '
+                             'exit 0 COMPLETE, 3 INCOMPLETE BY THE WINDOW, 1 FINDINGS; writes nothing')
+    parser.add_argument('--plan-file', help='the plan file the supervised folder was run from (--baseline-set)')
     parser.add_argument('--write-plan', metavar='FILE',
                         help="write the selected runs as the plan file of the driver's supervise mode (with --models, "
                              "each model's sha256 from the manifest)")
@@ -1385,6 +1569,12 @@ def main(argv=None):
                 plan = with_attribution(plan)
         except ValueError as error:
             parser.error(str(error))
+    if args.baseline_set:
+        if not named or not args.plan_file:
+            parser.error('--baseline-set needs --plan-file and a named --subset (%s)' % ', '.join(NAMED_PLANS))
+        report = baseline_set(args.baseline_set, args.plan_file, args.subset)
+        sys.stdout.write(json.dumps(report, indent=1, sort_keys=True) + '\n')
+        return report['exit_code']
     if args.plan:
         sys.stdout.write(format_plan(plan, args.budget_s, args.quiet_wait_s if named else None))
         return 0

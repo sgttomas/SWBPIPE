@@ -246,7 +246,8 @@ class BaselinePlans(unittest.TestCase):
         # The window lets every run last until its timeout, after the quiet wait, unskipped and uncapped.
         self.assertEqual(quiet_wait_s, rr.QUIET_WAIT_S)
         self.assertGreaterEqual(budget_s, quiet_wait_s + sum(r['timeout_s'] for r in plan) + len(plan))
-        self.assertEqual(budget_s, 1960)
+        self.assertEqual(rr.RUN_ALLOWANCE_S, 30)
+        self.assertEqual(budget_s, 60 + 5 * 300 + 5 * 60 + 10 * 30)  # 2,160 s
 
     def test_baseline_with_rack_is_the_baseline_then_the_default_linear_rack_row_last(self):
         baseline, _, _ = rr.named_plan('baseline')
@@ -260,7 +261,7 @@ class BaselinePlans(unittest.TestCase):
                          (10, 'exceeds_base_machine_budget', 900))
         rr.check_run_ids(plan)
         self.assertGreaterEqual(budget_s, quiet_wait_s + sum(r['timeout_s'] for r in plan) + len(plan))
-        self.assertEqual(budget_s, 2870)
+        self.assertEqual(budget_s, 60 + 5 * 300 + 5 * 60 + 900 + 11 * 30)  # 3,090 s
 
     def test_a_named_plan_fixes_its_mode_and_limits(self):
         for flags in (['--mode', 'dense'], ['--budget-s', '900'], ['--footprint-budget-bytes', '1'],
@@ -271,8 +272,8 @@ class BaselinePlans(unittest.TestCase):
             self.assertIn('fixes its runs, mode and limits', err.getvalue(), flags)
         out = io.StringIO()
         with redirect_stdout(out):
-            self.assertEqual(rr.main(['--plan', '--subset', 'baseline', '--mode', 'sparse', '--budget-s', '1960']), 0)
-        self.assertIn('window budget 1960 s', out.getvalue())
+            self.assertEqual(rr.main(['--plan', '--subset', 'baseline', '--mode', 'sparse', '--budget-s', '2160']), 0)
+        self.assertIn('window budget 2160 s', out.getvalue())
 
     def test_a_repeated_run_gets_distinct_ids_and_a_single_one_keeps_its_own(self):
         plan = rr.repeat_run_ids(rr.build_plan((('linear-ex', 100, 60, 1, 'solved'), ('linear-ex', 200, 60, 1, 'solved'),
@@ -308,7 +309,7 @@ class BaselinePlans(unittest.TestCase):
             with open(path) as fh:
                 document = json.load(fh)
         self.assertEqual((document['schema'], document['window_budget_s'], document['quiet_wait_s']),
-                         (rr.PLAN_SCHEMA, 1960, rr.QUIET_WAIT_S))
+                         (rr.PLAN_SCHEMA, 2160, rr.QUIET_WAIT_S))
         self.assertEqual([r['model'] for r in document['runs']],
                          ['baseline-one-case-ex-n2000.json', 'reference_system.json'] * 5)
         self.assertEqual([r['expected_model_sha256'] for r in document['runs']], [w1, reference] * 5)
@@ -478,6 +479,184 @@ class PinnedModels(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn('quiet-host wait: up to %d s before the first run' % rr.QUIET_WAIT_S, out)
         self.assertNotIn('quiet-host wait', self._main(['--plan', '--subset', 'window'])[1])
+
+
+def set_records(plan, models=None):
+    """A folder's records for `plan` in which every run is a completed timing: the plan document's
+    runs (with their expected sha256) and one record each, as the supervisor writes them."""
+    models = models or {'baseline-one-case-ex-n2000.json': 'a' * 64, 'reference_system.json': 'b' * 64,
+                        'linear-ex-n2000.json': 'c' * 64}
+    runs, records = [], []
+    for r in plan:
+        name = rr.model_name(r['profile'], r['nodes'])
+        runs.append(dict({k: r[k] for k in rr.PLAN_RUN_KEYS}, model=name, expected_model_sha256=models[name]))
+        solved = r['expect'] == 'solved'
+        line = driver(document={'sha256': models[name], 'bytes': 1}, output_sha256='%s-out' % name,
+                      rows=7 if 'reference' in name else 9, output_bytes=100)
+        line['seconds'] = dict(line['seconds'], entry=1.0 + r['order'] / 100)
+        records.append(dict(r, model=name, model_sha256=models[name], timeout_applied_s=r['timeout_s'],
+                            timeout_capped_by_window=False, driver=line,
+                            classification='ok' if solved else 'exceeds_base_machine_budget', as_expected=True,
+                            launch={'rss': {'exit_lifetime_max_phys_footprint_bytes': 2 * k6.GIB}}))
+    return runs, records
+
+
+class BaselineSet(unittest.TestCase):
+    """`--baseline-set`: the verdict on one supervised folder of a named plan, from the records' fields."""
+
+    def judge(self, mutate=None, name='baseline'):
+        plan, _, _ = rr.named_plan(name)
+        runs, records = set_records(plan)
+        by_id = {r['run_id']: r for r in records}
+        if mutate:
+            mutate(by_id, records, runs)
+        return rr.judge_set(records, runs)
+
+    def test_complete_gives_each_workloads_median_minimum_and_maximum(self):
+        report = self.judge()
+        self.assertEqual((report['verdict'], report['exit_code']), ('COMPLETE', rr.SET_COMPLETE))
+        w1 = report['workloads']['baseline-one-case-ex n2000']
+        self.assertEqual((w1['planned'], w1['completed']), (5, 5))
+        self.assertEqual((w1['median_entry_s'], w1['min_entry_s'], w1['max_entry_s']), (1.04, 1.0, 1.08))
+        self.assertEqual(report['workloads']['reference-system n27']['completed'], 5)
+        self.assertEqual((report['findings'], report['window_problems']), ([], []))
+        # A run whose timeout the window capped but which completed is unaffected.
+        report = self.judge(lambda by, *_: by['reference-system-n0027-sparse-r5'].update(
+            timeout_capped_by_window=True, timeout_applied_s=40))
+        self.assertEqual(report['verdict'], 'COMPLETE')
+
+    def test_the_rack_run_is_reported_and_never_a_timing(self):
+        report = self.judge(name='baseline-with-rack')
+        self.assertEqual(report['verdict'], 'COMPLETE')
+        self.assertEqual(report['not_timings'], [{'run_id': 'linear-ex-n2000-sparse', 'expect': 'exceeds_base_machine_budget',
+                                                  'classification': 'exceeds_base_machine_budget', 'as_expected': True}])
+        self.assertEqual(sorted(report['workloads']), ['baseline-one-case-ex n2000', 'reference-system n27'])
+
+    def test_a_skipped_or_capped_and_timed_out_run_is_incomplete_by_the_window(self):
+        def window(by, *_):
+            by['reference-system-n0027-sparse-r5'].update(classification='skipped_window_budget', driver=None)
+            by['baseline-one-case-ex-n2000-sparse-r5'].update(classification='timed_out', timeout_applied_s=250,
+                                                               timeout_capped_by_window=True, driver=None)
+        report = self.judge(window)
+        self.assertEqual((report['verdict'], report['exit_code']), ('INCOMPLETE BY THE WINDOW', 3))
+        self.assertEqual(report['findings'], [])
+        self.assertEqual(len(report['window_problems']), 2)
+        self.assertIn('baseline-one-case-ex-n2000-sparse-r5: timed_out under a timeout the window capped to 250 s',
+                      report['window_problems'])
+        self.assertEqual(report['workloads']['baseline-one-case-ex n2000']['completed'], 4)
+
+    def test_each_finding_alone_is_findings(self):
+        r1 = 'baseline-one-case-ex-n2000-sparse-r1'
+        cases = {
+            'disagreeing output': lambda by, *_: by[r1]['driver'].update(output_sha256='other'),
+            'memory breach': lambda by, *_: by[r1].update(classification='exceeds_base_machine_budget', as_expected=False),
+            'full timeout': lambda by, *_: by[r1].update(classification='timed_out', as_expected=False),
+            'refusal': lambda by, *_: by[r1].update(classification='refused', as_expected=False),
+            'route': lambda by, *_: by[r1]['driver'].update(route='PF'),
+            'model mismatch': lambda by, *_: by[r1].update(model_sha256='d' * 64),
+            'document hash': lambda by, *_: by[r1]['driver'].update(document={'sha256': 'd' * 64}),
+            'plan hash': lambda by, records, runs: runs[0].update(expected_model_sha256='d' * 64),
+            'null footprint': lambda by, *_: by[r1]['launch']['rss'].update(exit_lifetime_max_phys_footprint_bytes=None),
+            'no entry figure': lambda by, *_: by[r1]['driver']['seconds'].pop('entry'),
+            'missing record': lambda by, records, runs: records.remove(by[r1]),
+        }
+        for label, mutate in cases.items():
+            report = self.judge(mutate)
+            self.assertEqual((report['verdict'], report['exit_code']), ('FINDINGS', 1), label)
+            self.assertTrue(report['findings'], label)
+            self.assertEqual(report['window_problems'], [], label)
+        report = self.judge(cases['full timeout'])
+        self.assertIn('timed out at its full timeout', report['findings'][0])
+
+    def test_a_finding_with_a_window_problem_is_findings_and_lists_both(self):
+        def both(by, *_):
+            by['reference-system-n0027-sparse-r5'].update(classification='skipped_window_budget', driver=None)
+            by['baseline-one-case-ex-n2000-sparse-r2']['driver'].update(route='PF')
+        report = self.judge(both)
+        self.assertEqual((report['verdict'], report['exit_code']), ('FINDINGS', 1))
+        self.assertEqual(report['window_problems'], ['reference-system-n0027-sparse-r5: skipped_window_budget'])
+        self.assertIn('driver.route', report['findings'][0])
+
+    def test_the_cli_reads_one_folder_writes_nothing_and_holds_the_plan_to_the_named_plan(self):
+        plan, _, _ = rr.named_plan('baseline')
+        hashes = rr.recorded_rack_hashes()
+        with open(rr.COMMITTED_MODELS['reference-system']['source'], 'rb') as fh:
+            reference = hashlib.sha256(fh.read()).hexdigest()
+        runs, records = set_records(plan, {'baseline-one-case-ex-n2000.json': hashes[('baseline-one-case-ex', 2000)],
+                                           'reference_system.json': reference})
+        with tempfile.TemporaryDirectory() as folder:
+            out = os.path.join(folder, 'out')
+            os.makedirs(out)
+            with open(os.path.join(out, k6.RECORDS_NAME), 'w') as fh:
+                fh.writelines(json.dumps(r) + '\n' for r in records)
+            plan_path = os.path.join(folder, 'plan.json')
+            with open(plan_path, 'w') as fh:
+                json.dump({'schema': rr.PLAN_SCHEMA, 'runs': runs}, fh)
+            before = {name: os.path.getmtime(os.path.join(out, name)) for name in os.listdir(out)}
+            argv = ['--baseline-set', out, '--plan-file', plan_path, '--subset', 'baseline']
+            with redirect_stdout(io.StringIO()) as printed:
+                self.assertEqual(rr.main(argv), 0)
+            self.assertEqual(json.loads(printed.getvalue())['verdict'], 'COMPLETE')
+            self.assertEqual({name: os.path.getmtime(os.path.join(out, name)) for name in os.listdir(out)}, before)
+            # The same records judged as baseline-with-rack: not that plan, a finding.
+            with redirect_stdout(io.StringIO()) as printed:
+                self.assertEqual(rr.main(argv[:-1] + ['baseline-with-rack']), 1)
+            self.assertIn('is not the named plan baseline-with-rack', json.loads(printed.getvalue())['findings'][0])
+            # A plan whose hash is not the repository's own is a finding even where the records agree with it.
+            runs[0]['expected_model_sha256'] = records[0]['model_sha256'] = 'e' * 64
+            records[0]['driver']['document']['sha256'] = 'e' * 64
+            with open(plan_path, 'w') as fh:
+                json.dump({'schema': rr.PLAN_SCHEMA, 'runs': runs}, fh)
+            with open(os.path.join(out, k6.RECORDS_NAME), 'w') as fh:
+                fh.writelines(json.dumps(r) + '\n' for r in records)
+            with redirect_stdout(io.StringIO()) as printed:
+                self.assertEqual(rr.main(argv), 1)
+            self.assertIn("the plan's expected_model_sha256 " + 'e' * 64, printed.getvalue())
+            with redirect_stdout(io.StringIO()), mock.patch('sys.stderr', io.StringIO()), self.assertRaises(SystemExit):
+                rr.main(['--baseline-set', out, '--plan-file', plan_path, '--subset', 'window'])
+
+    def test_overhead_above_the_allowance_through_the_run_path_is_incomplete_by_the_window(self):
+        """The runner's own run loop with a fake clock and launcher: every run lasts its full timeout and
+        each host check costs 40 s, above the 30 s planning allowance, so the window runs short."""
+        plan, budget, wait = rr.named_plan('baseline')
+        runs, _ = set_records(plan)
+        with tempfile.TemporaryDirectory() as folder:
+            models = os.path.join(folder, 'models')
+            os.makedirs(models)
+            shas = {}
+            for name in ('baseline-one-case-ex-n2000.json', 'reference_system.json'):
+                with open(os.path.join(models, name), 'w') as fh:
+                    fh.write(name)
+                shas[name] = rr.sha256_file(os.path.join(models, name))
+            for r in runs:
+                r['expected_model_sha256'] = shas[r['model']]
+            now, first = [0.0], [True]
+
+            def quiet(log, allowance):
+                if first[0]:
+                    now[0] += wait
+                    first[0] = False
+                now[0] += 40
+                return {'quiet': True, 'waited_s': 0}
+
+            def launch(argv, *, timeout_s, record_dir, run_id, **kwargs):
+                run = next(r for r in plan if r['run_id'] == run_id)
+                now[0] += timeout_s
+                name = rr.model_name(run['profile'], run['nodes'])
+                with open(os.path.join(record_dir, run_id + k6.STDOUT_SUFFIX), 'w') as fh:
+                    fh.write(json.dumps(driver(document={'sha256': shas[name]}, output_sha256=name)) + '\n')
+                if timeout_s < run['timeout_s']:
+                    return launched('timed_out', exit_code=None, timeout_s=timeout_s)
+                return launched(rss={'exit_lifetime_max_phys_footprint_bytes': k6.GIB, 'time_peak_footprint_bytes': k6.GIB})
+
+            out = os.path.join(folder, 'out')
+            records = rr.run_plan(plan, models, out, '/no-driver', budget_s=budget, quiet_wait_s=wait, launch=launch,
+                                  quiet=quiet, clock=lambda: now[0], log=lambda *a: None, md={})
+            self.assertTrue(any(r.get('timeout_capped_by_window') or r['classification'] == 'skipped_window_budget'
+                                for r in records))
+            report = rr.judge_set(rr.read_set_records(out)[0], runs)
+        self.assertEqual((report['verdict'], report['exit_code']), ('INCOMPLETE BY THE WINDOW', 3), report)
+        self.assertTrue(report['window_problems'])
 
 
 class Classification(unittest.TestCase):
