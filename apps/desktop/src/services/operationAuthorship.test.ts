@@ -9,7 +9,7 @@ import { applyOperationBatch } from "./operationBatchService";
 import { computeModelHash } from "./hashService";
 import { loadPreviewModel } from "./previewService";
 import { parseOfflineBatch } from "../features/offline-proposal-intake/OfflineProposalIntakePanel";
-import { requeueRetainedRecord, stampImportedBatch, writesUserEnteredModifier } from "./operationAuthorship";
+import { PERSON_ENTERED_CHECK, requeueRetainedRecord, stampImportedBatch, writesUserEnteredModifier } from "./operationAuthorship";
 
 const op = (over: Record<string, unknown>) => ({ operation_id: "op:x", operation_kind: "modify", operation_status: "proposed",
   target: { object_type: "Component", ref: "component:C-110" },
@@ -77,7 +77,7 @@ describe("operation authorship on agent and imported routes", () => {
       const batch = { batch_id: "file", operations: [op({ operation_id: "op:clean", target: { object_type: "Node", ref: "n" }, change: { change_kind: "set_field", field_path: "position.x", before: "0", after: "1" } }), op({ operation_id: "op:carrying", ...over })] } as unknown as OperationBatch;
       let message = "";
       try { stampImportedBatch(batch); } catch (error) { message = (error as Error).message; }
-      expect(message, member).toBe(`Operation 2 (op:carrying) of this file carries ${LABELS[member as keyof typeof LABELS]}, a value only you enter; an imported operation cannot write it, so nothing was queued. Remove it from the file, then enter the value yourself in the component inspector.`);
+      expect(message, member).toBe(`Operation 2 (op:carrying) of this file has a value that names ${LABELS[member as keyof typeof LABELS]}, which only you enter. A value naming it cannot be told apart from it, even as text, so nothing was queued. Remove it from the file, then enter the value yourself in the component inspector.`);
       expect(message).not.toContain(SECRET);
     }
     const clean = { batch_id: "file", operations: [op({ operation_id: "op:clean", target: { object_type: "Node", ref: "n" }, change: { change_kind: "set_field", field_path: "position.x", before: "0", after: "1" } })] } as unknown as OperationBatch;
@@ -90,7 +90,7 @@ describe("operation authorship on agent and imported routes", () => {
     expect(requeueRetainedRecord(component, 8)).toEqual({ refused: "This stored record writes a value only you enter (a flexibility factor k, a SIF or another component modifier), and its author cannot be verified after reopening. Enter the value again in the component inspector." });
     const material = op({ author_type: "user", operation_kind: "create", target: { object_type: "Material", ref: "material:m" }, change: { change_kind: "create_material", field_path: "materials", before: "not_present",
       after: JSON.stringify({ id: "material:m", modifiers: {} }) } });
-    expect(requeueRetainedRecord(material, 9)).toEqual({ refused: expect.stringMatching(/^This stored record carries modifiers \(k, SIFs, stiffness and their source\), a value only you enter, which the operation engine would not write for it\. It was not queued for review; the record stays stored/) });
+    expect(requeueRetainedRecord(material, 9)).toEqual({ refused: expect.stringMatching(/^This stored record has a value that names modifiers \(k, SIFs, stiffness and their source\), which only you enter\. A value naming it cannot be told apart from it, even as text\. It was not queued for review; the record stays stored/) });
   });
 
   it("intake leaves a non-operation entry and a non-object after text for the engine, without a refusal of its own", () => {
@@ -106,27 +106,17 @@ describe("operation authorship on agent and imported routes", () => {
     const operation = op({ operation_id: "op:review", operation_kind: "create", target: { object_type: "Combination", ref: "combination:review-nested" },
       change: { change_kind: "create_combination", field_path: "combinations", before: "not_present", after: review } });
     expect(() => stampImportedBatch({ batch_id: "file", operations: [operation] } as unknown as OperationBatch))
-      .toThrow("Operation 1 (op:review) of this file carries modifiers (k, SIFs, stiffness and their source) at terms[0].modifiers, a value only you enter; an imported operation cannot write it, so nothing was queued.");
+      .toThrow("Operation 1 (op:review) of this file has a value that names modifiers (k, SIFs, stiffness and their source) at terms[0].modifiers, which only you enter. A value naming it cannot be told apart from it, even as text, so nothing was queued.");
     for (const author of [{ author_type: "agent", source: { source_ref: "s", source_channel: "embedded_agent", source_role: "agent" } }, { author_type: "user" }]) {
       const result = requeueRetainedRecord({ ...operation, ...author }, 3);
-      expect(result).toEqual({ refused: expect.stringMatching(/^This stored record carries modifiers \(k, SIFs, stiffness and their source\) at terms\[0\]\.modifiers, a value only you enter/) });
+      expect(result).toEqual({ refused: expect.stringMatching(/^This stored record has a value that names modifiers \(k, SIFs, stiffness and their source\) at terms\[0\]\.modifiers, which only you enter/) });
       expect((result as { refused: string }).refused).not.toContain("2.4");
     }
     let deep: unknown = { leaf: 1 };
     for (let i = 0; i < 40; i++) deep = [deep];
     const bounded = op({ operation_id: "op:deep", change: { change_kind: "create_material", field_path: "materials", after: JSON.stringify(deep) } });
-    expect(() => stampImportedBatch({ batch_id: "file", operations: [bounded] } as unknown as OperationBatch)).toThrow(/^Operation 1 \(op:deep\) of this file carries an after value nested deeper than 32 levels or with more than 50000 members, which is not checked for values only the person enters, so nothing was queued\./);
-    expect(requeueRetainedRecord({ ...bounded, author_type: "user" }, 4)).toEqual({ refused: expect.stringMatching(/^This stored record carries an after value nested deeper than 32 levels.*It was not queued for review; the record stays stored and nothing of yours is lost\./) });
-  });
-
-  it("an operation past the member-count bound is refused for that reason at intake", () => {
-    const wide = op({ operation_id: "op:wide", change: { change_kind: "create_material", field_path: "materials", after: JSON.stringify(Array.from({ length: 50_001 }, () => 0)) } });
-    expect(() => stampImportedBatch({ batch_id: "file", operations: [wide] } as unknown as OperationBatch)).toThrow(/^Operation 1 \(op:wide\) of this file carries an after value nested deeper than 32 levels or with more than 50000 members, which is not checked for values only the person enters, so nothing was queued\./);
-  });
-
-  it("an operation past the member-count bound is refused for that reason at requeue", () => {
-    const wide = op({ operation_id: "op:wide", change: { change_kind: "create_material", field_path: "materials", after: JSON.stringify(Array.from({ length: 50_001 }, () => 0)) } });
-    expect(requeueRetainedRecord({ ...wide, author_type: "agent", source: { source_ref: "s", source_channel: "embedded_agent", source_role: "agent" } }, 5)).toEqual({ refused: expect.stringMatching(/^This stored record carries an after value nested deeper than 32 levels or with more than 50000 members.*the record stays stored and nothing of yours is lost\./) });
+    expect(() => stampImportedBatch({ batch_id: "file", operations: [bounded] } as unknown as OperationBatch)).toThrow(`Operation 1 (op:deep) of this file carries an after value nested deeper than ${PERSON_ENTERED_CHECK.maxDepth} levels, which is not checked for values only the person enters, so nothing was queued.`);
+    expect(requeueRetainedRecord({ ...bounded, author_type: "user" }, 4)).toEqual({ refused: expect.stringMatching(/^This stored record carries an after value nested deeper than 32 levels, which.*It was not queued for review; the record stays stored and nothing of yours is lost\./) });
   });
 
   it("requeue refuses a stored agent, imported or user record carrying such a member, and leaves it stored", () => {
@@ -138,7 +128,7 @@ describe("operation authorship on agent and imported routes", () => {
       const stored = op({ operation_id: "op:stored", ...over, ...author });
       const before = JSON.stringify(stored);
       const result = requeueRetainedRecord(stored, 7);
-      expect(result, `${member} ${JSON.stringify(author)}`).toEqual({ refused: `This stored record carries ${LABELS[member as keyof typeof LABELS]}, a value only you enter, which the operation engine would not write for it. It was not queued for review; the record stays stored and nothing of yours is lost. Enter the value yourself in the component inspector, or prepare the change again without it.` });
+      expect(result, `${member} ${JSON.stringify(author)}`).toEqual({ refused: `This stored record has a value that names ${LABELS[member as keyof typeof LABELS]}, which only you enter. A value naming it cannot be told apart from it, even as text. It was not queued for review; the record stays stored and nothing of yours is lost. Enter the value yourself in the component inspector, or prepare the change again without it.` });
       expect(JSON.stringify(stored)).toBe(before);
       expect((result as { refused: string }).refused).not.toContain(SECRET);
     }

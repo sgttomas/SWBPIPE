@@ -160,3 +160,16 @@ the entry, and the entry names the PR.
 - **What the user does instead:** Reduce the cases and combinations or split the model as the full-copy refusal advises, then solve again. Passing the full-copy limit does not establish that the report can be completed.
 - **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), REQ-022 and AC-011; DEL-07-07 [scope](../execution/PKG-07/DEL-07-07/ScopeOfWork.md), "Held result" (the full-result gate and the displayable limit). The limit was standing before this entry; the entry was added with PR #289.
 - **Status:** not yet declared.
+
+### LIM-013 — A text value that reads as JSON naming a person-entered member is refused from the agent, an imported file and a requeued record
+
+- **Id:** LIM-013
+- **Exit criteria:** 8, 17
+- **Requirement affected:** Exit criterion 17, that the embedded agent builds the reference system from a person's request (DEL-16-06/REQ-010), and exit criterion 8 through DEL-07-06/AC-007's use cases that import a proposal or requeue a stored record (DEL-16-03/REQ-013 and AC-007).
+- **Code:** none; the refusal is a message from the agent's executor, offline intake or requeue, naming the operation.
+- **What is refused:** An operation from the embedded agent, from an imported proposal file or from a stored record requeued after reopening whose value is a text that reads as JSON naming a member only the person enters, for example a label `{"modifiers":{}}`. The text is refused like the member itself. The refusal says the value names the member and cannot be told apart from it; it does not say that a member was found.
+- **What it means in practice for a user:** An imported file or an agent proposal carrying such a label is refused whole for that operation, and nothing of that batch is queued. A stored record carrying one is not requeued, and it stays stored.
+- **Why:** The web view cannot tell literal text from a person-entered member without the engine's field kinds. Only the operation engine's field rules know which fields it writes as literal text, and the web view has no export of them.
+- **What the user does instead:** Enter the text yourself in the inspector, which is not refused, or change the label so that it does not read as JSON naming such a member.
+- **Basis:** DEL-16-03 [scope](../execution/PKG-16/DEL-16-03/ScopeOfWork.md), REQ-013 and AC-007; DEL-16-06 [scope](../execution/PKG-16/DEL-16-06/ScopeOfWork.md) (author routes and the trust boundary). Made standing by PR #261.
+- **Status:** not yet declared.

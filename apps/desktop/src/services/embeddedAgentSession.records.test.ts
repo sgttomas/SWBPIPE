@@ -16,7 +16,7 @@ import type { PreviewModel } from "../types";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { familyRecords, RECORD_FAMILIES, recordBefore, stampAgentOperations, type RecordFamily } from "./embeddedAgentSession";
-import { writesUserEnteredModifier } from "./operationAuthorship";
+import { PERSON_ENTERED_CHECK, writesUserEnteredModifier } from "./operationAuthorship";
 import { applyOperationBatch } from "./operationBatchService";
 import { canonicalJsonString, computeModelHash } from "./hashService";
 
@@ -236,10 +236,11 @@ describe("the person-entered members the agent's proposals are refused for", () 
 });
 
 describe("the member-count bound", () => {
-  it("refuses past the count and reads up to it", () => {
-    const op = (after: unknown) => ({ operation_id: "op", target: { object_type: "Material", ref: "m" }, change: { change_kind: "create_material", field_path: "materials", after: JSON.stringify(after) } });
-    expect(writesUserEnteredModifier(op(Array.from({ length: 50_001 }, () => 0)))).toMatchObject({ route: "unchecked" });
-    expect(writesUserEnteredModifier(op(Array.from({ length: 49_000 }, () => 0)))).toBeNull();
+  it("reads exactly the bound and refuses one member past it", () => {
+    const op = (after: string) => ({ operation_id: "op", target: { object_type: "Material", ref: "m" }, change: { change_kind: "create_material", field_path: "materials", after } });
+    const zeros = (members: number) => `[${"0,".repeat(members - 1)}0]`;
+    expect(writesUserEnteredModifier(op(zeros(PERSON_ENTERED_CHECK.maxMembers + 1)))).toMatchObject({ route: "unchecked", reason: "count" });
+    expect(writesUserEnteredModifier(op(zeros(PERSON_ENTERED_CHECK.maxMembers)))).toBeNull();
   });
 });
 

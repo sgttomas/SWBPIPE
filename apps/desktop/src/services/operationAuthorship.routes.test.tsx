@@ -10,7 +10,13 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadPreviewModel } from "./previewService";
+import { applyOperationBatch } from "./operationBatchService";
+import { computeModelHash } from "./hashService";
+import { requeueRetainedRecord, writesUserEnteredModifier } from "./operationAuthorship";
 import { OfflineProposalIntakePanel } from "../features/offline-proposal-intake/OfflineProposalIntakePanel";
+import { PropertyInspector } from "../features/model-tree/PropertyInspector";
+import { DisplayUnitsProvider } from "../features/display-units";
+import type { EditorOperationIntent } from "../types";
 
 afterEach(cleanup);
 const SOURCE = resolve(__dirname, "..");
@@ -41,10 +47,40 @@ describe("routes to the review queue", () => {
       rationale: "file" }] };
     fireEvent.change(screen.getByLabelText("Proposal batch JSON"), { target: { value: JSON.stringify(file) } });
     fireEvent.click(screen.getByRole("button", { name: "Queue imported batch for review" }));
-    expect(screen.getByRole("alert").textContent).toContain("Operation 1 (op:m) of this file carries modifiers");
+    expect(screen.getByRole("alert").textContent).toContain("Operation 1 (op:m) of this file has a value that names modifiers");
     expect(screen.getByRole("alert").textContent).not.toContain("9.75");
     expect(queue).not.toHaveBeenCalled();
   });
+
+  it("a person typing a text that reads as JSON into a label is not refused: the inspector's route calls none of the three gates", async () => {
+    // Trigger: the person types into the inspector's value field and queues it. Route: the
+    // inspector builds the intent with author_type "user" (PropertyInspector.tsx, the field's
+    // literal text as after) and hands it to onQueueIntent, which the workspace binds to
+    // handleQueueEditorIntent (workspaceSession.ts): it adds the intent to the person's queue and
+    // calls no gate. The three gates are the agent's executor, offline intake and requeue only.
+    const model = await loadPreviewModel();
+    const node = model.nodes[0];
+    const queue = vi.fn<(intent: EditorOperationIntent) => void>();
+    render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: node.id }} onQueueIntent={queue} /></DisplayUnitsProvider>);
+    fireEvent.click(screen.getByRole("tab", { name: "Task" }));
+    fireEvent.click(screen.getByTestId("inspector-start-task"));
+    fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value: '{"modifiers":{}}' } });
+    fireEvent.click(screen.getByTestId("queue-editor-intent"));
+    expect(queue).toHaveBeenCalledTimes(1);
+    const intent = queue.mock.calls[0][0];
+    expect(intent).toMatchObject({ author_type: "user", change: { change_kind: "set_field", field_path: "label", after: '{"modifiers":{}}' } });
+    // The same text would be named by the gate, had the route called it.
+    expect(writesUserEnteredModifier(intent)).toMatchObject({ member: "modifiers" });
+    const session = readFileSync(join(SOURCE, "features/workspace/workspaceSession.ts"), "utf8");
+    const handler = session.slice(session.indexOf("function handleQueueEditorIntent("), session.indexOf("async function handleReviewQueuedIntentsAsBatch("));
+    expect(handler.length).toBeGreaterThan(0);
+    expect(handler).not.toMatch(/writesUserEnteredModifier|personEnteredWriteIn|stampImportedBatch|requeueRetainedRecord/);
+    // The engine writes it as the label's literal text when the person applies it.
+    const outcome = await applyOperationBatch(model, { batch_id: "person-label", operations: [intent] }, await computeModelHash(model));
+    expect(outcome.applied_model?.nodes.find(item => item.id === node.id)?.label).toBe('{"modifiers":{}}');
+    // Stored and requeued after reopening, its author claim cannot be verified, so requeue refuses it.
+    expect(requeueRetainedRecord(intent, 0)).toEqual({ refused: expect.stringMatching(/^This stored record has a value that names modifiers/) });
+  }, 60_000);
 
   it("every queue entry and every non-user author stamp is on the reviewed list", () => {
     // The three places that stamp an author other than the user, each gated by writesUserEnteredModifier:
@@ -56,8 +92,8 @@ describe("routes to the review queue", () => {
     expect(stamp.indexOf("personEnteredWriteIn(batch.operations)")).toBeGreaterThan(0);
     expect(stamp.indexOf("personEnteredWriteIn(batch.operations)")).toBeLessThan(stamp.indexOf('author_type: "agent"'));
     const requeue = authorship.slice(authorship.indexOf("export function requeueRetainedRecord"));
-    expect(requeue.indexOf("writesUserEnteredModifier(intent)")).toBeGreaterThan(0);
-    expect(requeue.indexOf("writesUserEnteredModifier(intent)")).toBeLessThan(requeue.indexOf('author_type: "agent"'));
+    expect(requeue.indexOf("writesUserEnteredModifier(intent,")).toBeGreaterThan(0);
+    expect(requeue.indexOf("writesUserEnteredModifier(intent,")).toBeLessThan(requeue.indexOf('author_type: "agent"'));
     const session = readFileSync(join(SOURCE, "services/embeddedAgentSession.ts"), "utf8");
     const propose = session.slice(session.indexOf("if(call.tool==='swbpipe_propose_operations'){"));
     expect(propose.indexOf("personEnteredWriteIn(")).toBeGreaterThan(0);
