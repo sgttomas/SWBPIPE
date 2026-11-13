@@ -10876,6 +10876,66 @@
    "named_by_statement": null
   },
   {
+   "code": "MODEL-CHECKS-ARGS-INVALID",
+   "crates": [
+    "core/solver/release_timing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/solver/release_timing/src/main.rs",
+    "line": 674,
+    "via": "message prefix"
+   },
+   "sites": [
+    {
+     "file": "core/solver/release_timing/src/main.rs",
+     "line": 674,
+     "via": "message prefix",
+     "severity": null
+    }
+   ],
+   "messages": [
+    "MODEL-CHECKS-ARGS-INVALID: {error}"
+   ],
+   "classification": "internal",
+   "reason": "Raised by the release_timing measurement binary (core/solver/release_timing), not by a solve of a user document.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "MODEL-CHECKS-REPORT-INVALID",
+   "crates": [
+    "core/solver/release_timing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/solver/release_timing/src/main.rs",
+    "line": 694,
+    "via": "message prefix"
+   },
+   "sites": [
+    {
+     "file": "core/solver/release_timing/src/main.rs",
+     "line": 694,
+     "via": "message prefix",
+     "severity": null
+    }
+   ],
+   "messages": [
+    "MODEL-CHECKS-REPORT-INVALID: {error}"
+   ],
+   "classification": "internal",
+   "reason": "Raised by the release_timing measurement binary (core/solver/release_timing), not by a solve of a user document.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
    "code": "MODEL-SETTING-SHEAR-MODEL-UNKNOWN",
    "crates": [
     "core/product_physics"
@@ -15081,13 +15141,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/solver/release_timing/src/main.rs",
-    "line": 390,
+    "line": 602,
     "via": "message prefix"
    },
    "sites": [
     {
      "file": "core/solver/release_timing/src/main.rs",
-     "line": 390,
+     "line": 602,
      "via": "message prefix",
      "severity": null
     }
@@ -20847,7 +20907,7 @@
    "sites": [
     "core/product_physics/src/lib.rs:15842",
     "core/solver/nonlinear_integration/src/lib.rs:1400",
-    "core/solver/release_timing/src/main.rs:358"
+    "core/solver/release_timing/src/main.rs:539"
    ]
   },
   {
@@ -21050,13 +21110,21 @@
     "core/product_physics/src/lib.rs:3730",
     "core/product_physics/src/retained_product.rs:4852",
     "core/solver/diagnostics/src/lib.rs:113",
-    "core/solver/diagnostics/src/lib.rs:114"
+    "core/solver/diagnostics/src/lib.rs:114",
+    "core/solver/release_timing/src/classify.rs:16"
    ]
   },
   {
    "literal": "MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED",
    "sites": [
     "core/product_physics/src/modal/integrity.rs:90"
+   ]
+  },
+  {
+   "literal": "MODEL_CHECKS_REPORTED",
+   "sites": [
+    "core/solver/release_timing/src/classify.rs:18",
+    "core/solver/release_timing/src/main.rs:84"
    ]
   },
   {
@@ -21122,6 +21190,12 @@
    "literal": "PRESSURE-SOURCE-1",
    "sites": [
     "core/product_physics/src/source_receipt.rs:71"
+   ]
+  },
+  {
+   "literal": "RELEASE_TIMING_BUILD_IDENTITY",
+   "sites": [
+    "core/solver/release_timing/src/lib.rs:16"
    ]
   },
   {
