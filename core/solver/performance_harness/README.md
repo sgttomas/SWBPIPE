@@ -469,8 +469,10 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
    `--generate` compares its SHA-256 with the line `baseline-one-case-ex  2000` of
    `observations/rack/models_sha256.txt`, which `tests/test_performance_rack_model.py` holds
    against the generator. W2 is copied only after
-   `python3 -B fixtures/reference_system/generate_reference_system.py --check` exits 0, which shows
-   the committed file is what its generator writes. No other file states its hash: it is the
+   `python3 -B fixtures/reference_system/generate_reference_system.py --check --pressure-elongation all`
+   exits 0, which shows the committed file is what its generator writes in the mode it was produced
+   with. The runner names that mode itself and leaves `SWBPIPE_PRESSURE_ELONGATION` out of the
+   check's environment, so the caller's setting cannot change what is compared. No other file states its hash: it is the
    SHA-256 of the committed file at that revision (`shasum -a 256 fixtures/reference_system/reference_system.json`).
    `FOLDER/manifest.json` records both hashes. If W1's hash differs from its line, or W2's check
    fails, `--generate` names the model (for W1 also the expected and the found hash), leaves it
