@@ -262,7 +262,7 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "552547b7e24a4f16c2835d3960c4903a81ee9b73fc424b5dd19d56bf2f1b33ca",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "e8457ea2242c4a6ab490dc1cda6d4f11abdaae51f34cf5f7d18acecc0ac4aa62",
+      "core/product_physics/Cargo.toml": "c456b71dbdfdb795812f2b6850b13babfd23c35eb557dbd31632021fc8974133",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "dd148327d8582cf51cc3201636f51e50ed7e486bd685f11c8b9336372ab72c34",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",

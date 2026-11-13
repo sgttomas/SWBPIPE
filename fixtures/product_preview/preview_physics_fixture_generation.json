@@ -267,7 +267,7 @@
     "core/product_physics/tests/pressure_source_join/consequences.rs": "cf3936e96c666a6d7c11b6de533e04b771320f547b05a784021d94a3de39ca9d",
     "core/product_physics/tests/preview_physics_runtime.rs": "b754701b7a848cc412e274b346ae09b5600b5e2ed93b7ffa572aaac9ad69d9e1",
     "core/product_physics/tests/represented_gap_publication.rs": "dc39680e6b8aa7d79c3671beaa5585fc59062cfd8ce57f72fecc934822c910bc",
-    "core/product_physics/tests/retained_memory_challenge.rs": "72c5a876ba22b489c586db691999528f05805712758066498879edfff468315d",
+    "core/product_physics/tests/retained_memory_challenge.rs": "2cc8fb475babb51694b858036f92ba5fe342ea4790d8881f7ad7dacbcfd6cd1f",
     "core/product_physics/tests/retained_precision_admission.rs": "caa4024a43acc30fde7956232faab47ad8c6f3d763608c99877679c9553989a8",
     "core/product_physics/tests/rt_a3_constant_effort_references.rs": "9510d2583bf885833c11545a5b20d470c84a7df8562362078bd90b102c6f9f6f",
     "core/product_physics/tests/rt_a3_constant_effort_source_receipt.rs": "3045a176d5df93e6f0926be9b58d0e26d80327b943ca07f5988e804e73b012ca",
@@ -1002,7 +1002,7 @@
     "core/product_physics/tests/pressure_source_join/consequences.rs": "cf3936e96c666a6d7c11b6de533e04b771320f547b05a784021d94a3de39ca9d",
     "core/product_physics/tests/preview_physics_runtime.rs": "b754701b7a848cc412e274b346ae09b5600b5e2ed93b7ffa572aaac9ad69d9e1",
     "core/product_physics/tests/represented_gap_publication.rs": "dc39680e6b8aa7d79c3671beaa5585fc59062cfd8ce57f72fecc934822c910bc",
-    "core/product_physics/tests/retained_memory_challenge.rs": "72c5a876ba22b489c586db691999528f05805712758066498879edfff468315d",
+    "core/product_physics/tests/retained_memory_challenge.rs": "2cc8fb475babb51694b858036f92ba5fe342ea4790d8881f7ad7dacbcfd6cd1f",
     "core/product_physics/tests/retained_precision_admission.rs": "caa4024a43acc30fde7956232faab47ad8c6f3d763608c99877679c9553989a8",
     "core/product_physics/tests/rt_a3_constant_effort_references.rs": "9510d2583bf885833c11545a5b20d470c84a7df8562362078bd90b102c6f9f6f",
     "core/product_physics/tests/rt_a3_constant_effort_source_receipt.rs": "3045a176d5df93e6f0926be9b58d0e26d80327b943ca07f5988e804e73b012ca",
@@ -1485,7 +1485,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "7211fbc7365a29322fc571fb888049ad3c21edf24692d9af76244de2038c561f",
+  "inventory_json_sha256": "c78998498563b9225448eaa9082b2105c543ebe02b1210a3c02ecf12b123505e",
   "dependencies": [
     {
       "name": "block-buffer",
