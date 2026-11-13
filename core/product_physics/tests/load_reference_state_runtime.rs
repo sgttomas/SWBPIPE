@@ -36,7 +36,7 @@ const MODES: [PreviewSolverMode; 2] = [
 const RELATIVE: f64 = 1.0e-9;
 // B7b: a model with the load/reference-state group publishes pressure-2 under
 // exact_pressure_v3; its records keep resolved_straight_load_state_v1.
-const SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const PROFILE: &str = "exact_pressure_v3";
 const STATE_CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
 const REFERENCE: &str = "reference:installed";

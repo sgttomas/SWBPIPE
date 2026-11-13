@@ -17,7 +17,7 @@ Modes (each starts nothing else):
 - ``--plan``: the schedule with its estimates and their total;
 - ``--generate --models DIR``: the plan's models from the rack generator (a
   committed model, the reference system, is copied after its generator's
-  ``--check``), and ``DIR/manifest.json`` (profile, nodes, sha256, bytes, stats);
+  declared check), and ``DIR/manifest.json`` (profile, nodes, sha256, bytes, stats);
 - ``--run --models DIR --out DIR --binary PATH``: the plan's runs, within a
   window budget (``--budget-s``); ``--write-results`` keeps each result's bytes;
 - ``--packet --out DIR``: ``DIR/packet.json`` from the run records.
@@ -81,16 +81,22 @@ CHECKS_REPORTED = 'MODEL_CHECKS_REPORTED'
 # baseline's one-case model (rack_model.py PROFILES).
 PROFILES = ('linear-ex', 'nonlinear-ex', 'nonlinear-pf', 'baseline-one-case-ex')
 # Committed models that are not racks, by the plan entry's profile: the file the plan entry names, the
-# fixture generator whose `--check` must exit 0 (the committed file is what it writes) before
-# `--generate` copies the file, and its node count (a label in the plan, as a rack's is).
+# fixture generator whose declared check (`check_args`) must exit 0 (the committed file is what it
+# writes) before `--generate` copies the file, and its node count (a label in the plan, as a rack's
+# is). The check names its pressure-elongation mode explicitly, the mode the committed file was
+# produced with, so the comparison never takes the mode from the caller's environment.
 REFERENCE_SYSTEM_DIR = os.path.join(REPO, 'fixtures', 'reference_system')
 COMMITTED_MODELS = {
     'reference-system': {
         'source': os.path.join(REFERENCE_SYSTEM_DIR, 'reference_system.json'),
         'check': os.path.join(REFERENCE_SYSTEM_DIR, 'generate_reference_system.py'),
+        'check_args': ('--check', '--pressure-elongation', 'all'),
         'nodes': 27,
     },
 }
+# The variable a producer reads its pressure-elongation mode from when no switch is given
+# (tools/validation/pressure_elongation.py ENV); the declared check runs without it.
+PRESSURE_ELONGATION_ENV = 'SWBPIPE_PRESSURE_ELONGATION'
 MODES = ('sparse', 'dense')
 # A run's task: the driver's solve invocation, or its `--model-checks` invocation (the desktop's
 # on-demand model checks, a process of their own).
@@ -501,13 +507,25 @@ def committed_stats(path):
             'model_version': document.get('schema_version')}
 
 
+def check_argv(spec, python=sys.executable):
+    """The argv of a committed model's declared check: its generator and `check_args`."""
+    return [python, spec['check']] + list(spec['check_args'])
+
+
+def check_environment(environ=None):
+    """The environment the declared check runs in: the caller's, without PRESSURE_ELONGATION_ENV, so
+    the mode the check compares is the declared one and nothing the caller has set."""
+    return {k: v for k, v in (os.environ if environ is None else environ).items() if k != PRESSURE_ELONGATION_ENV}
+
+
 def copy_committed(profile, path, python=sys.executable, run=subprocess.run, committed=None):
-    """A committed model copied to `path` after its generator's `--check` exits 0: (manifest entry,
-    None), or (None, why) with nothing copied."""
+    """A committed model copied to `path` after its generator's declared check (`check_args`) exits 0:
+    (manifest entry, None), or (None, why) with nothing copied. The manifest's `source_check` is that
+    check as run."""
     spec = (committed or COMMITTED_MODELS)[profile]
-    done = run([python, spec['check'], '--check'], capture_output=True, text=True, check=False)
+    done = run(check_argv(spec, python), capture_output=True, text=True, check=False, env=check_environment())
     if done.returncode != 0:
-        return None, 'its generator\'s --check exited %s: %s' % (
+        return None, 'its generator\'s %s exited %s: %s' % (' '.join(spec['check_args']),
             done.returncode, k6.sanitize(((done.stdout or '') + (done.stderr or '')).strip()[-500:]))
     source_sha = sha256_file(spec['source'])
     shutil.copyfile(spec['source'], path)
@@ -515,7 +533,8 @@ def copy_committed(profile, path, python=sys.executable, run=subprocess.run, com
         return None, 'the copy differs from the committed file'
     relative = os.path.relpath(spec['source'], REPO) if spec['source'].startswith(REPO + os.sep) else os.path.basename(spec['source'])
     return {'profile': profile, 'nodes': spec['nodes'], 'sha256': source_sha, 'bytes': os.path.getsize(path),
-            'source': relative.replace(os.sep, '/'), 'source_check': os.path.basename(spec['check']) + ' --check',
+            'source': relative.replace(os.sep, '/'),
+            'source_check': ' '.join([os.path.basename(spec['check'])] + list(spec['check_args'])),
             'stats': committed_stats(path)}, None
 
 

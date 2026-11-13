@@ -334,7 +334,7 @@ fn user_release_display_rule() {
 fn the_derivation_refuses_a_basis_outside_scope_r() {
     let cases = cases();
     let case = &cases[0];
-    for exact in ["openpipestress.result_semantics/0.3.0/pressure-2", "openpipestress.result_semantics/0.3.0/pressure-source-1"] {
+    for exact in ["openpipestress.result_semantics/0.3.0/pressure-3", "openpipestress.result_semantics/0.3.0/pressure-source-1"] {
         let mut source = case.source.clone();
         source["producer"]["semantic_contract_id"] = json!(exact);
         let refusal = derive(&UserReleaseBasis { source: &source, ..case.basis() }).unwrap_err();

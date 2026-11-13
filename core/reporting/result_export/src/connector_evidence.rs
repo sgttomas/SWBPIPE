@@ -6,7 +6,7 @@
 //! refuses both (`CONNECTOR_UNSUPPORTED`).
 //!
 //! The row signatures are the `connector_*` rows of
-//! `fixtures/results/semantic_contract_v0_3_pressure_2.json`, held here as
+//! `fixtures/results/semantic_contract_v0_3_pressure_3.json`, held here as
 //! code constants: the reader adds no table or static of its own (T4-RV14 F1).
 //! The rows are a declared coverage limit (outside R-b′ and the straight-member
 //! recovery bound); this reader checks their bindings and semantics, never

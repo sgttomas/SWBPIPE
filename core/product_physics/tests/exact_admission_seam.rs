@@ -37,7 +37,7 @@ const FAMILY: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
 const COMPOSITION: &str = "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED";
 const COMBINATION: &str = "EXACT_PRESSURE_COMBINATION_UNSUPPORTED";
 const NEGATIVE: &str = "PRESSURE_REGION_PRESSURE_NEGATIVE";
-const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const PROVENANCE: &str = "invented_u2a_control";
 
 #[derive(Clone, Copy, Debug)]
@@ -233,7 +233,7 @@ fn assert_v3_identity(envelope: &Value) {
     assert_eq!(envelope["formulation_basis"]["profile_id"], "exact_pressure_v3");
     let limitations = envelope["formulation_basis"]["limitations"].to_string();
     for clause in [
-        "3.0.0/exact_pressure_v3 under pressure-2 semantics",
+        "3.0.0/exact_pressure_v3 under pressure-3 semantics",
         "external-pressure stability and collapse are not assessed",
         "steady-flow momentum and transient pressure loads",
         "Bourdon",
@@ -775,8 +775,8 @@ fn shared_pressure_v3_reader_corpus_is_current() {
 fn the_pressure_1_table_is_a_reviewed_input() {
     let identity = include_str!("../src/build_identity.rs");
     assert!(!identity.contains("\"../../fixtures/results/semantic_contract_v0_3_physics_1.json\""));
-    assert!(identity.contains("\"../../schemas/results_pressure_2.v0.3.schema.json\""));
-    assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_2.json\""));
+    assert!(identity.contains("\"../../schemas/results_pressure_3.v0.3.schema.json\""));
+    assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_3.json\""));
     assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json\""));
 }
 

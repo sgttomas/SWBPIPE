@@ -240,6 +240,7 @@ code_paths:
 - tools/validation/qualification_exact_pressure.py
 - tests/test_qualification_exact_pressure.py
 - fixtures/results/pressure_u4b_arc_sparse.json
+- fixtures/results/pressure_v3_cap_remainder_halfway_force.json
 - fixtures/model_operations/pressure_v3_l_line_authoring.json
 - apps/desktop/src-tauri/src/memory_pool.rs
 - apps/desktop/src-tauri/src/host_memory.rs
@@ -257,6 +258,10 @@ code_paths:
 - apps/desktop/src-tauri/src/result_detail.rs
 - tools/fixtures/temperature_canonical_decimal_corpus.py
 - tools/validation/k1_twin_bound.py
+- tools/validation/pressure_elongation.py
+- tools/validation/pressure_elongation_anchor.py
+- tools/validation/pressure_elongation_inventory.py
+- tools/validation/pressure_elongation_inventory.json
 - validation/platform/windows_runner_startup_probe/**
 - validation/platform/windows_arena_probe/**
 - validation/platform/windows_worker_fixture/**
@@ -273,7 +278,6 @@ checks:
 - tests/test_rt_a3_reducer_2b_text_only_envelope_diff.py
 - tests/test_rt_a3_constant_effort_text_only_envelope_diff.py
 - tests/test_rt_a3_nonlinear_text_only_envelope_diff.py
-- tests/test_rt_a3_s6_text_only_envelope_diff.py
 - core/product_physics/tests/rt_a3_constant_effort_references.rs
 - core/product_physics/tests/rt_a3_constant_effort_source_receipt.rs
 - tests/test_rt_a3_constant_effort_schema.py
@@ -310,6 +314,13 @@ checks:
 - core/product_physics/src/case_state/temperature.rs
 - core/product_physics/src/case_state/temperature/canonical_decimal.rs
 - core/product_physics/tests/load_reference_state_runtime_extension.rs
+- core/product_physics/tests/model_settings_pressure_elongation.rs
+- core/product_physics/tests/pressure_elongation_switch.rs
+- core/product_physics/tests/pressure_elongation_on_path.rs
+- core/reporting/result_export/tests/pressure_elongation_contract.rs
+- tests/test_pressure_elongation_readers.py
+- tests/test_pressure_cancellation_exception_readers.py
+- tools/validation/test_pressure_elongation_anchor.py
 - validation/platform/windows_runner_startup_probe/run.ps1
 - validation/platform/windows_arena_probe/run.ps1
 - validation/platform/windows_worker_fixture/run.ps1

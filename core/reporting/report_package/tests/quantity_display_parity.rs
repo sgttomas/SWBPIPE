@@ -72,7 +72,7 @@ fn a_scaled_value_is_displayed_only_for_pa() {
             "summary": {"max_open_formula_stress_nominal_section": nominal, "max_open_formula_stress_reduced_section": reduced}
         })
     };
-    let pressure = "openpipestress.result_semantics/0.3.0/pressure-2";
+    let pressure = "openpipestress.result_semantics/0.3.0/pressure-3";
     let source = "openpipestress.result_semantics/0.3.0/pressure-source-1";
     let preview = "openpipestress.result_semantics/0.3.0/preview-physics-2";
     assert!(source_displays_scaled_value(&exact(headline("Pa"), headline("Pa"), pressure)));

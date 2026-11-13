@@ -145,7 +145,7 @@ not reference: it links the product crate by path and calls only `run_linear_sta
 
 **Since refutation round 5 this set is judged by the shared M3 judge, `../m3_judge/`, route `exact`.**
 Its validator turns each raw record into a closed, typed evidence view: both D-5 bases, units from the
-pressure-2 contract, case-bound and unique identities, and lo ≤ hi. Its comparison reads only that
+pressure-3 contract, case-bound and unique identities, and lo ≤ hi. Its comparison reads only that
 view. The rules below are ported there unchanged in meaning. The changes the view makes are listed in
 `../m3_judge/README.md` ("The rules"): a repeated row identity, a basis-free stress row or a wrong
 unit is refused rather than counted as information, and nonvacuity applies per family. The measured

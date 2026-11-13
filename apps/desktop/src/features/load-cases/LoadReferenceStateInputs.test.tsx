@@ -46,6 +46,11 @@ function controlValues(region: HTMLElement): string[] {
 function pressureFree(): PreviewModel {
   const model = structuredClone(exactPressure) as unknown as PreviewModel;
   delete (model as { pressure_contract?: unknown }).pressure_contract;
+  // The pressure elongation setting needs the contract; a pressure-free document carries neither.
+  if (model.model_settings) {
+    delete model.model_settings.pressure_elongation;
+    if (Object.keys(model.model_settings).length === 0) delete model.model_settings;
+  }
   return model;
 }
 

@@ -333,6 +333,8 @@ mod tests {
         // Absence is the pressure-free route, never this finding.
         let mut absent = valid.clone();
         absent.as_object_mut().unwrap().remove("pressure_contract");
+        // The pressure elongation setting needs the contract; a pressure-free document carries neither.
+        absent.as_object_mut().unwrap().remove("model_settings");
         if let ModelDocumentOpenOutcome::Refused { diagnostics, .. } = read_model_document_bytes("absent.json".into(), absent.to_string().as_bytes()) {
             assert!(diagnostics.iter().all(|d| d.path != "pressure_contract"), "{diagnostics:?}");
         }

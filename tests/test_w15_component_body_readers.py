@@ -15,7 +15,7 @@ import pytest
 from core.analysis_runs import rust_reader
 from tests.test_headless_runner_contract import final_runner_request
 from tests.verifiers import component_body
-from tests.verifiers.pressure_2 import pressure_table, validate_exact_pressure_evidence
+from tests.verifiers.pressure_3 import pressure_table, validate_exact_pressure_evidence
 from tests.verifiers.preview_physics_evidence import TABLE as PREVIEW_TABLE, validate_preview_physics_evidence
 
 PROV = "invented W-15 slice-d test input; not library, catalog or code data"

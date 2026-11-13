@@ -31,8 +31,8 @@ ROOT = os.path.dirname(HERE)
 U4A_DIR = os.path.join(os.path.dirname(ROOT), "t4_u4a")
 # The U4a files this reference was cross-checked against; a change is refused
 # until it is examined (README, re-freeze rules).
-U4A_REQUESTS_SHA256 = "6582d2504640628a5fb6ca5dd9c937594c7a4ca532869d99fa80f3c72447a9c8"
-U4A_ORACLE_SHA256 = "7e4e384501076d9796b1e789388cc3aa1da3d5c135d668f88a838295341f7cd5"
+U4A_REQUESTS_SHA256 = "291554718edb2df79090b8f19c4c1041c4eb2ba1901be5dfb0edc00c0ec8ea12"
+U4A_ORACLE_SHA256 = "2e58202021dc03726bc53632ece44965aeee249422d2882a92116f9ee873e602"
 
 BASE_PREC = 90          # working precision (significant digits)
 OUT_DIGITS = 40         # significant digits written for every value

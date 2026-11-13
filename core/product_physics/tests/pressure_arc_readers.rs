@@ -23,6 +23,8 @@ use serde_json::{json, Value};
 
 #[path = "common/current_model.rs"]
 mod current_model;
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
 
 const I7_DOCUMENTS: &str =
     include_str!("../../../validation/references/t4_i7/u2_document_sketches.json");
@@ -31,10 +33,13 @@ const CORPUS_PATH: &str = "../../fixtures/results/pressure_v3_arc_reader_corpus.
 const PROVENANCE: &str = "invented T4-U2 phase-2 reader corpus input (from T4-I7's L line); not library, component, catalog or code-rule data";
 
 /// A frozen T4-I7 sketch document (bytes unchanged), its copy re-authored by
-/// B7b to the current 0.9.0 exact document (`common/current_model.rs`).
+/// B7b to the current 0.9.0 exact document (`common/current_model.rs`), with
+/// every pressurised case including pressure elongation (RT-L2: today's
+/// mechanics, stated explicitly).
 fn i7(id: &str, version: &str) -> Value {
     let documents: Value = serde_json::from_str(I7_DOCUMENTS).unwrap();
-    current_model::reauthor_request(documents["sketches"][id][version]["document"].clone())
+    let document = current_model::reauthor_request(documents["sketches"][id][version]["document"].clone());
+    pressure_elongation::with_elongation_if_pressurised(&document)
 }
 
 /// Runs the re-authored copy of `document` (the re-authoring is the identity
@@ -117,7 +122,8 @@ fn replaced_span_only() -> Value {
         case["primitive_loads"] = json!([{"id": "load:B-Y", "category": "occasional", "target": {"type": "node", "node": "node:B"},
             "direction": "global_y", "magnitude": {"value": 350.0, "unit": "N"}, "dimension": "force", "provenance": PROVENANCE}]);
     }
-    document
+    // No case keeps a region, so the document states no pressure-elongation setting.
+    pressure_elongation::without_elongation(&document)
 }
 
 /// T4-U4b (§2.6): the L line's bend with the directional SIF pair (invented
