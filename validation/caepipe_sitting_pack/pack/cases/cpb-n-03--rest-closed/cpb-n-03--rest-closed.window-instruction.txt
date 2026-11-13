@@ -5,7 +5,7 @@
 5. Stiffness: Rigid (the default) (the page's default).
 6. Connected to Node: blank (connected to the ground).
 7. Leave every other field and record as imported.
-8. Save the model as cpb-n-03--rest-closed.mod in this folder by the command you noted at the dry run. Do not save over the imported file. If the program will not save under that name, skip this run and note it. Run nothing in its place; go on to the next case.
+8. Save the model as cpb-n-03--rest-closed.mod in this folder by the command you noted at the dry run. Do not save over the imported file. If the program will not save under that name, skip this run and note it. If you skip this run, run nothing in its place; go on to the next case.
 9. Then analyze the model by File > Analyze (F12); the page says: "At the end of analysis, you are asked whether you want to “View results?” Click on OK to see results or Cancel to return to the main window." If the command is inactive ("Command “Analyze” in the “File” menu will become inactive when the model is not edited and “.res” file is available in the directory where the stress model “.mod” is stored."), skip this run, run nothing in its place, note it on the run line and go on to the next case. [https://docs.sstcae.com/users_manual/analyze__f12_.htm (user's manual, "Analyze (F12)"), read 2026-11-13]
 10. In the Results window, open Print: File > Print (Ctrl+P). [https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, "Print (Ctrl+P)"), read 2026-11-12]
 11. Click All. [https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, "Print (Ctrl+P)"), read 2026-11-12]

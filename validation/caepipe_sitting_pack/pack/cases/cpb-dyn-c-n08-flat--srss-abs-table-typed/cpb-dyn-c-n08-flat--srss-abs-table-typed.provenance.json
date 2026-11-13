@@ -6,7 +6,7 @@
   },
   "mbf_sha256": "a4746ad8f51df42e6343739f3c9a4391e0de82ede7eea28eb78d594f03a0485f",
   "model_document": {
-    "file_sha256": "8d6089e43741151e5a304aa11a23327eef5bacf2bccd4b884af3920cde64b891",
+    "file_sha256": "c64089d9cb033332104a0b7015da5368fe0182440b6b5aa00820c761e83e5933",
     "path": "validation/caepipe_benchmark/models/cpb-dyn-c-n08-flat.json"
   },
   "origin": "invented",
