@@ -911,21 +911,212 @@ def test_the_case_manifest_binds_the_revision_runner_request_and_result(fake_ben
         assert custody[f"{name}_sha256"] == hashlib.sha256((case / "swbpipe" / f"{name}.json").read_bytes()).hexdigest()
 
 
-def test_a_stored_request_or_result_is_never_replaced(fake_benchmark, monkeypatch, capsys):
-    """Seeded: a case folder already holding only a request, or only a result, is refused before any solve."""
+def test_a_half_made_case_is_refused_by_name_and_left_as_it_is(fake_benchmark, monkeypatch, capsys):
+    """Seeded, the two half-made forms an interrupt after authorised creation can leave: a request alone, and a request
+    and result, each with no case manifest. A later invocation refuses each by name, before any solve, and leaves it
+    exactly as it is."""
     state = fake_benchmark
     solves = []
     monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
         {"invented": True}, {"payload": invented_payload()}, ""))
     root = state["config"].exchange_root
-    for case_id, name in (("cpb-g1-01", "request.json"), ("cpb-g1-02", "result.json")):
-        stored = case_paths(state["config"], case_id)["swbpipe"] / name
-        stored.write_text("INVENTED STORED FILE\n", encoding="utf-8")
+    for case_id, names in (("cpb-g1-01", ("request.json",)), ("cpb-g1-02", ("request.json", "result.json"))):
+        folder = root / "cases" / case_id / "swbpipe"
+        folder.mkdir(parents=True)
+        for name in names:
+            (folder / name).write_text("INVENTED STORED FILE\n", encoding="utf-8")
     before = tree_bytes(root)
     for case_id in ("cpb-g1-01", "cpb-g1-02"):
         assert run_pilot.main(state["argv"] + ["--case", case_id], environ={}) == 1
-        assert f"{case_id}: route=already_recorded;" in capsys.readouterr().out
+        assert f"{case_id}: route=half_made; this case is half-made" in capsys.readouterr().out
     assert solves == [] and state["calls"] == [] and tree_bytes(root) == before
+
+
+def test_an_admission_refusal_of_a_recorded_case_creates_no_folder(fake_benchmark, capsys):
+    """A recorded case (stored files and a case manifest) missing its other layer folders is refused at admission,
+    before anything of it is authorised: no folder is created."""
+    state = fake_benchmark
+    root = state["config"].exchange_root
+    case = root / "cases" / "cpb-g1-01"
+    (case / "swbpipe").mkdir(parents=True)
+    (case / "swbpipe" / "request.json").write_text("INVENTED\n", encoding="utf-8")
+    (case / "case_manifest.json").write_text("{}\n", encoding="utf-8")
+    before = tree_bytes(root)
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
+    assert "cpb-g1-01: route=already_recorded;" in capsys.readouterr().out
+    assert tree_bytes(root) == before
+
+
+def test_o_excl_does_not_replace_a_stored_file(tmp_path):
+    """O_EXCL establishes that a stored file is not replaced (it says nothing about whether a racing process solved)."""
+    stored = tmp_path / "request.json"
+    stored.write_text("INVENTED STORED FILE\n", encoding="utf-8")
+    with pytest.raises(FileExistsError):
+        run_pilot._create_private_json(tmp_path, stored, {"other": True})
+    assert stored.read_text(encoding="utf-8") == "INVENTED STORED FILE\n"
+
+
+def test_the_clean_flag_is_what_git_reports(fake_benchmark):
+    state = fake_benchmark
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
+    custody = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())[
+        "custody"]
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    status = subprocess.run(["git", "-C", str(ROOT), "status", "--porcelain"], capture_output=True, text=True, env=env)
+    assert custody["source_tree_clean"] == ((status.stdout == "") if status.returncode == 0 else None)
+
+
+def _bench_entry(state, model_id="cpb-g1-01"):
+    return run_pilot.load_benchmark(state["manifest"], [model_id])[0]
+
+
+def _collecting_round_trip(config_, case_id, mbf_text, **kwargs):
+    sha = hashlib.sha256(mbf_text.encode("utf-8")).hexdigest()
+    out = case_paths(config_, case_id)["caepipe_out"]
+    (out / "model.csv").write_text(invented_print(), encoding="utf-8")
+    record = {"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch", "mbf": {"sha256": sha},
+              "guest_mbf_sha256": sha, "observed_csv_path": {"host": "caepipe_out/model.csv"},
+              "settings_guard": {"status": "unchanged"}}
+    (out / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
+    return record
+
+
+def test_the_custody_is_on_disk_when_the_round_trip_starts(fake_benchmark):
+    """At the moment the round trip is invoked, the persisted case manifest already binds the two stored files; an
+    interrupt there leaves that custody recorded and the case half-made with its manifest."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    seen = {}
+
+    def round_trip(config_, case_id, mbf_text, **kwargs):
+        manifest = json.loads((case / "case_manifest.json").read_text())
+        seen["outcome"] = manifest["outcome"]
+        for name in ("request", "result"):
+            seen[name] = manifest["custody"][f"{name}_sha256"] == hashlib.sha256(
+                (case / "swbpipe" / f"{name}.json").read_bytes()).hexdigest()
+        raise KeyboardInterrupt
+    with pytest.raises(KeyboardInterrupt):
+        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       collect_only=True)
+    assert seen == {"outcome": "solved", "request": True, "result": True}
+    assert json.loads((case / "case_manifest.json").read_text())["outcome"] == "solved"
+
+
+def test_an_interrupted_later_manifest_write_leaves_the_custody_readable(fake_benchmark, monkeypatch):
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    first = {}
+
+    def round_trip(config_, case_id, mbf_text, **kwargs):
+        first["bytes"] = (case / "case_manifest.json").read_bytes()
+
+        def interrupted(descriptor, data):
+            os.write(descriptor, data[: len(data) // 2])
+            os.close(descriptor)
+            raise KeyboardInterrupt
+        monkeypatch.setattr(run_pilot, "_write_fd", interrupted)
+        return _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
+    with pytest.raises(KeyboardInterrupt):
+        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       collect_only=True)
+    assert (case / "case_manifest.json").read_bytes() == first["bytes"]
+    assert json.loads(first["bytes"])["custody"]["request_sha256"]
+    assert not [path for path in case.iterdir() if path.name.endswith(".tmp")]
+
+
+def test_a_custody_changed_on_disk_is_refused_and_nothing_written(fake_benchmark):
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    edited = {}
+
+    def round_trip(config_, case_id, mbf_text, **kwargs):
+        manifest = json.loads((case / "case_manifest.json").read_text())
+        manifest["custody"]["request_sha256"] = "0" * 64
+        (case / "case_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        edited["bytes"] = (case / "case_manifest.json").read_bytes()
+        return _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
+    with pytest.raises(run_pilot.CustodyChanged):
+        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       collect_only=True)
+    assert (case / "case_manifest.json").read_bytes() == edited["bytes"]
+
+
+@pytest.mark.parametrize("change", ["runner", "commit"])
+def test_a_changed_runner_or_checkout_refuses_before_the_round_trip(fake_benchmark, monkeypatch, change):
+    """Assumed stable through the invocation, the runner and the checkout are checked again before the round trip; an
+    ordinary change refuses by name, leaving the case half-made with its custody."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    real_solve = run_pilot.solve_swbpipe
+    if change == "runner":
+        def solve(runner, case_):
+            Path(state["runner"]).write_text("REPLACED DURING THE SOLVE", encoding="utf-8")
+            return real_solve(runner, case_)
+        monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
+    else:
+        identities = iter([{"source_commit": "a" * 40, "source_tree_clean": True},
+                           {"source_commit": "b" * 40, "source_tree_clean": True}])
+        monkeypatch.setattr(run_pilot, "_source_identity", lambda: next(identities))
+    calls = []
+    status, route, _ = run_pilot._run_benchmark_model(
+        _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
+        round_trip=lambda *a, **k: calls.append(1), gui_fallback=False, attempt=1, collect_only=True)
+    assert (status, route, calls) == (run_pilot.NOT_RUN, "identity_changed", [])
+    manifest = json.loads((case / "case_manifest.json").read_text())
+    assert manifest["outcome"] == "no_record" and manifest["custody"]["request_sha256"]
+
+
+def test_the_runner_hashed_is_the_runner_run(fake_benchmark, monkeypatch, tmp_path):
+    """A bare runner name is resolved on PATH, as subprocess does; that same path is hashed and handed to the solve,
+    not a file of the same name in the working directory."""
+    state = fake_benchmark
+    on_path = tmp_path / "bin"
+    on_path.mkdir()
+    real = on_path / "invented-runner"
+    real.write_text("THE RUNNER ON PATH", encoding="utf-8")
+    real.chmod(0o755)
+    elsewhere = tmp_path / "cwd"
+    elsewhere.mkdir()
+    (elsewhere / "invented-runner").write_text("A STALE FILE OF THE SAME NAME", encoding="utf-8")
+    monkeypatch.chdir(elsewhere)
+    monkeypatch.setenv("PATH", str(on_path))
+    given = []
+    real_solve = run_pilot.solve_swbpipe
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case_: given.append(runner) or real_solve(runner,
+                                                                                                             case_))
+    run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner="invented-runner", offline=False,
+                                   emit=lambda line: None, round_trip=_collecting_round_trip, gui_fallback=False,
+                                   attempt=1, collect_only=True)
+    assert given == [str(real.resolve())]
+    manifest = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
+    assert manifest["custody"]["runner_sha256"] == hashlib.sha256(real.read_bytes()).hexdigest()
+
+
+def test_collect_only_offline_and_recorded_refusals_through_the_model_callable(fake_benchmark):
+    """Through run_benchmark_model, the callable the batch wrapper uses: collect-only offline is refused before
+    anything is written; offline, a recorded case and a case with no folder are refused at admission, creating
+    nothing."""
+    state = fake_benchmark
+    root = state["config"].exchange_root
+    entry = _bench_entry(state)
+    before = tree_bytes(root)
+    with pytest.raises(ValueError, match="collect-only run is live"):
+        run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                      emit=lambda line: None, collect_only=True)
+    assert tree_bytes(root) == before
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[1] == "no_stored_case"
+    assert tree_bytes(root) == before
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=False,
+                                         emit=lambda line: None, round_trip=_collecting_round_trip,
+                                         collect_only=True)[0] == run_pilot.COLLECTED
+    recorded = tree_bytes(root)
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[1] == "already_recorded"
+    assert tree_bytes(root) == recorded
 
 
 def test_the_retry_reuses_its_own_solve_and_replaces_nothing(fake_benchmark, monkeypatch):
@@ -984,10 +1175,10 @@ def test_collect_only_binds_first_collects_and_reads_no_print(fake_benchmark, mo
 
 
 def test_offline_leaves_a_case_without_a_bound_print_untouched(fake_benchmark):
-    """Seeded: offline, a case with no stored, bound print is refused before anything is solved or created."""
+    """Offline, a case with no stored folder is refused at admission, before anything is solved, and no folder is
+    created."""
     state = fake_benchmark
     root = state["config"].exchange_root
-    case_paths(state["config"], "cpb-g1-03")
     before = tree_bytes(root)
     offline = ["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline", "--case", "cpb-g1-03"]
     assert run_pilot.main(offline, environ={}) == 1

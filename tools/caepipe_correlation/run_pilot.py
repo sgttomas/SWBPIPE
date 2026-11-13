@@ -109,6 +109,8 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import secrets
+import shutil
 import subprocess
 import sys
 import time
@@ -369,6 +371,36 @@ def _create_private_json(root: Path, path: Path, value: Any) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _write_fd(descriptor: int, data: bytes) -> None:
+    with os.fdopen(descriptor, "wb") as handle:
+        handle.write(data)
+
+
+def _replace_private_json(root: Path, path: Path, value: Any) -> None:
+    """Replace `path` inside the exchange folder by writing a new temporary file in the same folder and renaming it
+    over the old one, so an interruption during the write leaves the earlier file whole. (Nothing is claimed about
+    surviving a power loss.)"""
+    target = contained(root, path)
+    data = (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    temporary = contained(root, path.parent / f".{path.name}.{os.getpid()}.{secrets.token_hex(4)}.tmp")
+    descriptor = os.open(temporary, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o666)
+    try:
+        _write_fd(descriptor, data)
+        os.replace(temporary, target)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def _runner_identity(path: str) -> dict[str, Any]:
+    """The runner's resolved path, size and SHA-256, compared before the round trip with what the solve recorded."""
+    try:
+        size = os.stat(path).st_size
+    except OSError:
+        size = None
+    return {"path": path, "size": size, "sha256": _file_sha256(path)}
+
+
 def _file_sha256(path: str | Path) -> str | None:
     """The SHA-256 of a file's bytes, or None when it cannot be read."""
     try:
@@ -380,15 +412,33 @@ def _file_sha256(path: str | Path) -> str | None:
 def _source_identity() -> dict[str, Any]:
     """The commit this checkout of SWBPIPE is at and whether its tree is clean (None for either when Git cannot
     say), recorded with each benchmark run so the revision that produced its SWBPIPE result is identified."""
+    # Inherited GIT_* variables (a hook's GIT_DIR, for instance) would make Git describe another repository.
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+
     def git(*args: str) -> subprocess.CompletedProcess | None:
         try:
             return subprocess.run(["git", "-C", str(PROJECT), *args], capture_output=True, text=True, check=False,
-                                  timeout=60)
+                                  timeout=60, env=env)
         except (OSError, subprocess.SubprocessError):
             return None
     head, status = git("rev-parse", "HEAD"), git("status", "--porcelain")
     return {"source_commit": head.stdout.strip() if head is not None and head.returncode == 0 else None,
             "source_tree_clean": (status.stdout == "") if status is not None and status.returncode == 0 else None}
+
+
+def _resolve_runner(runner: str) -> str:
+    """The runner as the absolute real path that will be executed: a bare name is looked up on PATH, as
+    subprocess does, and a path is resolved; the same string is hashed and run."""
+    path = Path(runner)
+    if os.sep not in runner and not (os.altsep and os.altsep in runner):
+        found = shutil.which(runner)
+        if found:
+            path = Path(found)
+    return str(path.resolve())
+
+
+class CustodyChanged(RuntimeError):
+    """A case manifest on disk holds a custody member other than the one this process recorded; nothing is written."""
 
 
 def _now() -> str:
@@ -783,7 +833,7 @@ RECORDED, NOT_RUN, RETRY = "recorded", "not_run", "retry"
 COLLECTED = "collected"
 # The SWBPIPE solve of each case folder made in this process, with its custody digests, so that the one retry of a
 # model reuses its own request and result instead of replacing them.
-_SOLVED_THIS_PROCESS: dict[str, tuple[Any, Any, str, dict[str, Any]]] = {}
+_SOLVED_THIS_PROCESS: dict[str, tuple[Any, Any, str, dict[str, Any], dict[str, Any]]] = {}
 
 
 @dataclass(frozen=True)
@@ -841,8 +891,24 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
                         outcome: str, route: str, attempt: int, custody: Mapping[str, Any] | None = None,
                         **extra: Any) -> None:
     """The model's private run record (the case manifest), written for every live attempt and every record. Its
-    `custody` names the SWBPIPE revision and runner that produced the case's request and result and their digests."""
-    _write_json(root, paths["manifest"], {
+    `custody` names the SWBPIPE revision and runner that produced the case's request and result and their digests.
+    Once a manifest holding a custody member is on disk, a later write carries that member forward unchanged and
+    refuses (CustodyChanged, nothing written) when the custody this process holds differs from it."""
+    held = {key: (custody or {}).get(key) for key in BENCHMARK_CUSTODY_KEYS}
+    on_disk = None
+    manifest_path = contained(root, paths["manifest"])
+    if manifest_path.is_file():
+        try:
+            on_disk = json.loads(manifest_path.read_text(encoding="utf-8")).get("custody")
+        except (OSError, ValueError, AttributeError) as error:
+            raise CustodyChanged(f"{benchmark_run_id(entry)}: the case manifest on disk cannot be read "
+                                 f"({type(error).__name__}); nothing written") from error
+    if isinstance(on_disk, dict) and any(value is not None for value in on_disk.values()):
+        if on_disk != held:
+            raise CustodyChanged(f"{benchmark_run_id(entry)}: the case manifest's custody differs from the custody "
+                                 "this process recorded; nothing written")
+        held = on_disk
+    _replace_private_json(root, paths["manifest"], {
         "document_kind": MANIFEST_KIND,
         "case_id": benchmark_run_id(entry),
         "created": _now(),
@@ -856,7 +922,7 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
         "generator": entry.get("generator"),
         "piping_code": entry["piping_code"],
         "internal_model_hash": canonical_model_hash(entry["model"]),
-        "custody": {key: (custody or {}).get(key) for key in BENCHMARK_CUSTODY_KEYS},
+        "custody": held,
         **extra,
         "layer_privacy": LAYER_PRIVACY,
         "boundary_note": BOUNDARY_NOTE,
@@ -873,16 +939,29 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     if collect_only and offline:
         raise ValueError("a collect-only run is live: offline there is nothing to collect")
     root = config.exchange_root.resolve()
-    paths = case_paths(config, model_id)
-    request_path, result_path = paths["swbpipe"] / "request.json", paths["swbpipe"] / "result.json"
+    if not CASE_ID_PATTERN.match(model_id):
+        raise ValueError(f"case id {model_id!r} must match {CASE_ID_PATTERN.pattern}")
+    # Checked on the paths alone, before case_paths creates any folder, so a refusal changes nothing.
+    case_root = root / "cases" / model_id
+    request_path, result_path = case_root / "swbpipe" / "request.json", case_root / "swbpipe" / "result.json"
     # Only the retry (attempt 2) of a model reuses the solve its own first attempt made in this process.
-    solved = _SOLVED_THIS_PROCESS.get(str(paths["root"])) if attempt > 1 else None
+    solved = _SOLVED_THIS_PROCESS.get(str(case_root)) if attempt > 1 else None
     if solved is None and (os.path.lexists(request_path) or os.path.lexists(result_path)):
         # The SWBPIPE request and result of a case are created once and never replaced: a later revision is a
         # separately identified comparison in case folders of its own, never a rewrite of the first.
-        reason = "this case already holds a SWBPIPE request or result, which are never replaced"
-        emit(f"{model_id}: route=already_recorded; {reason}; not run")
-        return NOT_RUN, "already_recorded", reason
+        if os.path.lexists(case_root / "case_manifest.json"):
+            route, reason = "already_recorded", "this case already holds a SWBPIPE request or result, which are " \
+                                                "never replaced"
+        else:
+            route, reason = "half_made", ("this case is half-made: a SWBPIPE request or result exists with no case "
+                                          "manifest; it is never made again under its id")
+        emit(f"{model_id}: route={route}; {reason}; not run")
+        return NOT_RUN, route, reason
+    if offline and not os.path.lexists(case_root):
+        reason = "offline, this case has no stored folder"
+        emit(f"{model_id}: route=no_stored_case; {reason}; no benchmark record")
+        return NOT_RUN, "no_stored_case", reason
+    paths = case_paths(config, model_id)
     custody: dict[str, Any] = {}
 
     def outcome(status: str, route: str, reason: str, **extra: Any) -> tuple[str, str, str]:
@@ -908,17 +987,26 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         if csv_path is None:
             return outcome(NOT_RUN, route, reason)
     if solved is None:
-        # Solved once per case; attempt 1 records the solve for its own retry.
-        body, output, error = solve_swbpipe(runner, {
+        # Solved once per case; attempt 1 records the solve for its own retry. The runner is resolved once, hashed
+        # and the checkout identified BEFORE the solve, and that same path is run.
+        # Assumed: the runner artifact and the source checkout are stable throughout this invocation. Ordinary changes
+        # are caught by the identity check before the round trip; nothing binds the executed file atomically.
+        resolved = _resolve_runner(runner)
+        identity = _runner_identity(resolved)
+        custody.update(_source_identity(), runner_sha256=identity["sha256"])
+        body, output, error = solve_swbpipe(resolved, {
             "case_id": model_id, "model": entry["model"],
             "source_location": f"validation/caepipe_benchmark/models/{entry['model_id']}.json"})
-        custody.update(_source_identity(), runner_sha256=_file_sha256(runner),
-                       request_sha256=_create_private_json(root, request_path, body),
+        custody.update(request_sha256=_create_private_json(root, request_path, body),
                        result_sha256=(_create_private_json(root, result_path, output) if output is not None
                                       else None))
-        _SOLVED_THIS_PROCESS[str(paths["root"])] = (body, output, error, dict(custody))
+        _SOLVED_THIS_PROCESS[str(case_root)] = (body, output, error, dict(custody), identity)
+        if not offline:
+            # The custody is on disk before the round trip: an interrupt from here on leaves it recorded.
+            _benchmark_manifest(root, paths, entry, offline=offline, outcome="solved", route="solved",
+                                attempt=attempt, custody=custody)
     else:
-        body, output, error, recorded = solved
+        body, output, error, recorded, identity = solved
         custody.update(recorded)
     if error:
         return outcome(NOT_RUN, "not_run", f"SWBPIPE not solved ({error})")
@@ -930,6 +1018,11 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         "piping_code": entry["piping_code"], "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report,
         "assumptions": mbf.assumptions, "mbf_sha256": mbf_sha256})
     if not offline:
+        # Before the round trip: the runner (resolved path, size, SHA-256) and the checkout's commit must still be what
+        # the solve recorded; an ordinary change refuses by name, and the case is left half-made with its custody.
+        if _runner_identity(identity["path"]) != identity \
+                or _source_identity().get("source_commit") != custody.get("source_commit"):
+            return outcome(NOT_RUN, "identity_changed", "the runner or the SWBPIPE checkout changed after the solve")
         try:
             record = round_trip(config, model_id, mbf_text, gui_fallback=gui_fallback)
         except Exception as error:
