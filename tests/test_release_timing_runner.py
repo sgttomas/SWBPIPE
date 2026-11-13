@@ -26,6 +26,7 @@ from test_release_runner import (  # noqa: E402,F401  (collected by pytest)
     LiveLaunch,
     MetadataHasNoHostIdentifiers,
     PacketAggregation,
+    PinnedModels,
     Plan,
     ProgressLines,
     ReferenceSystemModel,

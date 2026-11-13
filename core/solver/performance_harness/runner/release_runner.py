@@ -52,6 +52,9 @@ import k6_runner as k6  # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..', '..'))
 GENERATOR = os.path.join(HERE, '..', 'rack', 'rack_model.py')
+# The rack generator's recorded hashes (`rack_model.py --hashes`), held against the generator by
+# tests/test_performance_rack_model.py: a named plan's rack models must have these bytes.
+RACK_HASHES = os.path.join(HERE, '..', 'observations', 'rack', 'models_sha256.txt')
 
 DRIVER_SCHEMA = 'release-timing-v2'
 RECORD_SCHEMA = 'release-runner-record-v1'
@@ -424,7 +427,8 @@ def write_plan(path, plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, 
     return document
 
 
-def format_plan(plan, budget_s=WINDOW_BUDGET_S):
+def format_plan(plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=None):
+    """The schedule as text; `quiet_wait_s` (given for a named plan) adds the quiet-host wait it carries."""
     out = ['order run_id                        profile       nodes mode    estimate_s timeout_s budget_GiB '
            'rss_cap_GiB expect']
     for r in plan:
@@ -435,6 +439,8 @@ def format_plan(plan, budget_s=WINDOW_BUDGET_S):
     total = plan_total_s(plan)
     out.append('total estimate: %d s (%.1f min); window budget %d s; runs whose estimate exceeds the remaining '
                'budget are skipped, and each timeout is capped at the remaining budget.' % (total, total / 60, budget_s))
+    if quiet_wait_s is not None:
+        out.append('quiet-host wait: up to %d s before the first run, inside the window budget.' % quiet_wait_s)
     out.append('estimates: they order and bound the window; none is a '
                'measurement. budget: the phys_footprint kill (the product budget); rss_cap: the emergency ps RSS kill. '
                'A run id ending -attr takes stack snapshots; its timings are not measurements. A run id starting '
@@ -495,12 +501,62 @@ def copy_committed(profile, path, python=sys.executable, run=subprocess.run, com
             'stats': committed_stats(path)}, None
 
 
+def recorded_rack_hashes(path=RACK_HASHES):
+    """{(profile, nodes): sha256} of the rack generator's recorded hashes."""
+    hashes = {}
+    with open(path, encoding='utf-8') as fh:
+        for line in fh:
+            if line.strip() and not line.startswith('#'):
+                digest, profile, nodes = line.split()
+                hashes[(profile, int(nodes))] = digest
+    return hashes
+
+
+def pinned_sha256(profile, nodes, hashes, committed=None):
+    """(sha256, where it is stated) that a named plan's model must have: a rack's line of the recorded
+    hashes, or the committed file's own SHA-256 at this checkout; (None, why) for a rack with no line."""
+    committed = committed or COMMITTED_MODELS
+    if profile in committed:
+        source = committed[profile]['source']
+        return sha256_file(source), 'the committed file %s' % os.path.basename(source)
+    digest = hashes.get((profile, nodes))
+    if digest is None:
+        return None, 'no line "%s  %d" in %s' % (profile, nodes, os.path.basename(RACK_HASHES))
+    return digest, 'the line "%s  %d" of %s' % (profile, nodes, os.path.basename(RACK_HASHES))
+
+
+def check_pinned_models(plan, models_dir, hashes_path=RACK_HASHES, committed=None):
+    """Refuses (ValueError) a named plan's models folder unless the manifest lists every model of the
+    plan with the SHA-256 the repository states for it (`pinned_sha256`): a folder produced by any
+    other means, or at another revision, cannot be written into a named plan."""
+    hashes = recorded_rack_hashes(hashes_path)
+    listed = read_manifest(models_dir).get('models', {})
+    problems, seen = [], set()
+    for r in plan:
+        name = model_name(r['profile'], r['nodes'])
+        if name in seen:
+            continue
+        seen.add(name)
+        expected, where = pinned_sha256(r['profile'], r['nodes'], hashes, committed)
+        found = (listed.get(name) or {}).get('sha256')
+        if expected is None:
+            problems.append('%s: %s' % (name, where))
+        elif found != expected:
+            problems.append('%s: expected sha256 %s (%s), found %s in the manifest' % (
+                name, expected, where, found or 'no entry'))
+    if problems:
+        raise ValueError('a named plan holds only the repository\'s own model bytes; refused: ' + '; '.join(problems))
+
+
 def generate(plan, models_dir, generator=GENERATOR, python=sys.executable, run=subprocess.run, log=print,
-             committed=None):
+             committed=None, pinned_hashes=None):
     """Each distinct (profile, nodes) of the plan, from the rack generator or, for a committed model,
     copied after its generator's check (refused, and dropped from the manifest, when the check fails),
-    and the manifest."""
+    and the manifest. With `pinned_hashes` (a named plan: the recorded hashes' path), a rack model is
+    refused, dropped from the manifest and its file removed, unless it hashes to its recorded line,
+    and a profile and size with no line is refused before the generator runs."""
     committed = committed or COMMITTED_MODELS
+    hashes = recorded_rack_hashes(pinned_hashes) if pinned_hashes else None
     os.makedirs(models_dir, exist_ok=True)
     manifest = read_manifest(models_dir)
     failures = []
@@ -522,15 +578,34 @@ def generate(plan, models_dir, generator=GENERATOR, python=sys.executable, run=s
                 manifest['models'][name] = entry
                 log('generate %s: copied, %d bytes, sha256 %s' % (name, entry['bytes'], entry['sha256']))
             continue
+        expected = None
+        if hashes is not None:
+            expected, where = pinned_sha256(r['profile'], r['nodes'], hashes, committed)
+            if expected is None:
+                manifest['models'].pop(name, None)
+                failures.append(name)
+                log('generate %s: refused: %s' % (name, where))
+                continue
         done = run([python, generator, '--profile', r['profile'], '--nodes', str(r['nodes']), '-o', path],
                    capture_output=True, text=True, check=False)
         if done.returncode != 0 or not os.path.exists(path):
             failures.append(name)
             log('generate %s: failed (exit %s) %s' % (name, done.returncode, k6.sanitize(done.stderr.strip()[-500:])))
             continue
+        if expected is not None:
+            found = sha256_file(path)
+            if found != expected:
+                manifest['models'].pop(name, None)
+                os.unlink(path)  # written by this call; never left for an unchecked use
+                failures.append(name)
+                log('generate %s: refused: expected sha256 %s (%s), found %s' % (name, expected, where, found))
+                continue
         manifest['models'][name] = {'profile': r['profile'], 'nodes': r['nodes'], 'sha256': sha256_file(path),
                                     'bytes': os.path.getsize(path), 'stats': last_json_line(done.stderr)}
-        log('generate %s: %d bytes' % (name, manifest['models'][name]['bytes']))
+        if expected is not None:
+            log('generate %s: %d bytes, sha256 %s, %s' % (name, manifest['models'][name]['bytes'], expected, where))
+        else:
+            log('generate %s: %d bytes' % (name, manifest['models'][name]['bytes']))
     manifest['schema'] = MANIFEST_SCHEMA
     manifest['generator'] = {'name': os.path.basename(generator), 'sha256': sha256_file(generator)}
     with open(os.path.join(models_dir, 'manifest.json'), 'w') as fh:
@@ -1265,7 +1340,7 @@ def main(argv=None):
     parser.add_argument('--models')
     parser.add_argument('--out')
     parser.add_argument('--binary')
-    parser.add_argument('--generator', default=GENERATOR)
+    parser.add_argument('--generator', help='the rack generator (default: rack/rack_model.py); refused for a named plan')
     parser.add_argument('--attribute', action='store_true',
                         help='run every selected run as an attribution run (stack snapshots; timings not measurements)')
     parser.add_argument('--keep-samples', action='store_true', help="keep attribution runs' raw sample reports")
@@ -1282,11 +1357,22 @@ def main(argv=None):
                      if given is not None and given != own]
         if args.attribute:
             differing.append('--attribute')
+        if args.generator is not None and os.path.realpath(args.generator) != os.path.realpath(GENERATOR):
+            differing.append('--generator %s (its rack models are the repository generator\'s bytes, held to '
+                             'observations/rack/models_sha256.txt)' % os.path.basename(args.generator))
         if differing:
             parser.error('the named plan %s fixes its runs, mode and limits; leave out %s'
                          % (args.subset, ', '.join(differing)))
         args.budget_s, args.quiet_wait_s = budget_s, quiet_wait_s
+        args.generator = GENERATOR
+        # Whatever reads a models folder for a named plan first holds it to the repository's bytes.
+        if args.models and (args.plan or args.write_plan or args.run):
+            try:
+                check_pinned_models(plan, args.models)
+            except ValueError as error:
+                parser.error(str(error))
     else:
+        args.generator = args.generator or GENERATOR
         args.mode = args.mode or 'sparse'
         args.rss_cap_bytes = EMERGENCY_RSS_CAP_BYTES if args.rss_cap_bytes is None else args.rss_cap_bytes
         args.footprint_budget_bytes = (BASE_MACHINE_BUDGET_BYTES if args.footprint_budget_bytes is None
@@ -1300,7 +1386,7 @@ def main(argv=None):
         except ValueError as error:
             parser.error(str(error))
     if args.plan:
-        sys.stdout.write(format_plan(plan, args.budget_s))
+        sys.stdout.write(format_plan(plan, args.budget_s, args.quiet_wait_s if named else None))
         return 0
     if args.write_plan:
         try:
@@ -1311,7 +1397,7 @@ def main(argv=None):
     if args.generate:
         if not args.models:
             parser.error('--generate needs --models')
-        _, failures = generate(plan, args.models, generator=args.generator)
+        _, failures = generate(plan, args.models, generator=args.generator, pinned_hashes=RACK_HASHES if named else None)
         return 1 if failures else 0
     if args.run:
         if not (args.models and args.out and args.binary):

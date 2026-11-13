@@ -281,22 +281,27 @@ class BaselinePlans(unittest.TestCase):
                          ['linear-ex-n0100-sparse-r1', 'linear-ex-n0200-sparse', 'linear-ex-n0100-sparse-r2'])
 
     def test_the_baseline_plan_file_names_each_models_sha256_and_needs_the_manifest(self):
+        plan, _, _ = rr.named_plan('baseline')
+        hashes = rr.recorded_rack_hashes()
+        with open(rr.COMMITTED_MODELS['reference-system']['source'], 'rb') as fh:
+            reference = hashlib.sha256(fh.read()).hexdigest()
+        w1 = hashes[('baseline-one-case-ex', 2000)]
         with tempfile.TemporaryDirectory() as folder:
             path = os.path.join(folder, 'plan.json')
             with redirect_stdout(io.StringIO()), mock.patch('sys.stderr', io.StringIO()) as err, \
                     self.assertRaises(SystemExit):
                 rr.main(['--write-plan', path, '--subset', 'baseline', '--models', folder])
-            self.assertIn('not in the models manifest', err.getvalue())
+            self.assertIn('baseline-one-case-ex-n2000.json: expected sha256 %s' % w1, err.getvalue())
+            self.assertIn('found no entry in the manifest', err.getvalue())
             self.assertFalse(os.path.exists(path))
-            # A rack listed without a sha256 is refused too, unlike in a default subset's plan.
+            # The plan document itself, called directly, refuses a rack listed without a sha256 too,
+            # unlike in a default subset's plan.
             with open(os.path.join(folder, 'manifest.json'), 'w') as fh:
-                json.dump({'models': {'reference_system.json': {'sha256': 'b' * 64, 'stats': {}}}}, fh)
-            with redirect_stdout(io.StringIO()), mock.patch('sys.stderr', io.StringIO()) as err, \
-                    self.assertRaises(SystemExit):
-                rr.main(['--write-plan', path, '--subset', 'baseline', '--models', folder])
-            self.assertIn('baseline-one-case-ex-n2000.json is not in the models manifest', err.getvalue())
-            self.assertFalse(os.path.exists(path))
-            models ={rr.model_name('baseline-one-case-ex', 2000): 'a' * 64, 'reference_system.json': 'b' * 64}
+                json.dump({'models': {'reference_system.json': {'sha256': reference, 'stats': {}}}}, fh)
+            with self.assertRaises(ValueError) as refused:
+                rr.plan_document(plan, models_dir=folder, require_sha256=True)
+            self.assertIn('baseline-one-case-ex-n2000.json is not in the models manifest', str(refused.exception))
+            models = {rr.model_name('baseline-one-case-ex', 2000): w1, 'reference_system.json': reference}
             with open(os.path.join(folder, 'manifest.json'), 'w') as fh:
                 json.dump({'models': {name: {'sha256': sha, 'stats': {}} for name, sha in models.items()}}, fh)
             self.assertEqual(rr.main(['--write-plan', path, '--subset', 'baseline', '--models', folder]), 0)
@@ -306,7 +311,7 @@ class BaselinePlans(unittest.TestCase):
                          (rr.PLAN_SCHEMA, 1960, rr.QUIET_WAIT_S))
         self.assertEqual([r['model'] for r in document['runs']],
                          ['baseline-one-case-ex-n2000.json', 'reference_system.json'] * 5)
-        self.assertEqual([r['expected_model_sha256'] for r in document['runs']], ['a' * 64, 'b' * 64] * 5)
+        self.assertEqual([r['expected_model_sha256'] for r in document['runs']], [w1, reference] * 5)
 
 
 class ReferenceSystemModel(unittest.TestCase):
@@ -354,6 +359,125 @@ class ReferenceSystemModel(unittest.TestCase):
             self.assertIn('refused', logged[0])
             with self.assertRaises(ValueError):
                 rr.plan_document(plan, models_dir=models)
+
+
+class PinnedModels(unittest.TestCase):
+    """A named plan is generated and written only from the repository's own model bytes: its rack
+    models hash to their lines of observations/rack/models_sha256.txt and the reference system to the
+    committed file; `--generator` is refused for it."""
+
+    # Writes the 46-node baseline model whatever size is asked: valid bytes, not the plan's.
+    WRONG_SIZE = ('import subprocess, sys\nargs = sys.argv[1:]\nargs[args.index("--nodes") + 1] = "46"\n'
+                  'raise SystemExit(subprocess.run([sys.executable, %r] + args).returncode)\n')
+
+    def _wrong_generator(self, folder):
+        path = os.path.join(folder, 'wrong_size.py')
+        with open(path, 'w') as fh:
+            fh.write(self.WRONG_SIZE % os.path.abspath(rr.GENERATOR))
+        return path
+
+    def _main(self, argv):
+        with redirect_stdout(io.StringIO()) as out, mock.patch('sys.stderr', io.StringIO()) as err:
+            try:
+                code = rr.main(argv)
+            except SystemExit as stop:
+                code = stop.code
+        return code, out.getvalue(), err.getvalue()
+
+    def test_a_named_plan_refuses_another_generator_and_a_default_subset_keeps_it(self):
+        with tempfile.TemporaryDirectory() as folder:
+            wrong = self._wrong_generator(folder)
+            for name in rr.NAMED_PLANS:
+                code, _, err = self._main(['--generate', '--subset', name, '--models', os.path.join(folder, name),
+                                           '--generator', wrong])
+                self.assertEqual(code, 2, name)
+                self.assertIn('leave out --generator wrong_size.py', err)
+                self.assertIn('models_sha256.txt', err)
+                self.assertFalse(os.path.exists(os.path.join(folder, name)), 'nothing generated')
+            # The repository's own generator, named explicitly, is the default and is accepted.
+            code, _, _ = self._main(['--plan', '--subset', 'baseline', '--generator', rr.GENERATOR])
+            self.assertEqual(code, 0)
+            fake = os.path.join(folder, 'fake_rack.py')
+            with open(fake, 'w') as fh:
+                fh.write(Generate.FAKE)
+            models = os.path.join(folder, 'window')
+            code, _, _ = self._main(['--generate', '--subset', 'window', '--models', models, '--generator', fake])
+            self.assertEqual(code, 0, 'a default subset still takes --generator')
+            self.assertEqual(rr.read_manifest(models)['generator']['name'], 'fake_rack.py')
+
+    def test_a_pinned_rack_model_that_differs_from_its_recorded_line_is_refused(self):
+        expected = rr.recorded_rack_hashes()[('baseline-one-case-ex', 250)]
+        with tempfile.TemporaryDirectory() as folder:
+            models = os.path.join(folder, 'models')
+            with open(os.path.join(os.makedirs(models) or models, 'manifest.json'), 'w') as fh:
+                json.dump({'models': {'baseline-one-case-ex-n0250.json': {'sha256': expected}}}, fh)
+            plan = rr.build_plan((('baseline-one-case-ex', 250, 60, 1, 'solved'),))
+            logged = []
+            manifest, failures = rr.generate(plan, models, generator=self._wrong_generator(folder), log=logged.append,
+                                             pinned_hashes=rr.RACK_HASHES)
+            self.assertEqual(failures, ['baseline-one-case-ex-n0250.json'])
+            self.assertNotIn('baseline-one-case-ex-n0250.json', manifest['models'], 'an earlier entry is dropped too')
+            self.assertFalse(os.path.exists(os.path.join(models, 'baseline-one-case-ex-n0250.json')))
+            self.assertIn('refused: expected sha256 %s' % expected, logged[0])
+            self.assertIn('baseline-one-case-ex-n0250.json', logged[0])
+            self.assertRegex(logged[0], r'found [0-9a-f]{64}$')
+            # The repository's generator writes the recorded bytes, and the model is kept.
+            manifest, failures = rr.generate(plan, models, log=lambda *a: None, pinned_hashes=rr.RACK_HASHES)
+            self.assertEqual((failures, manifest['models']['baseline-one-case-ex-n0250.json']['sha256']), ([], expected))
+
+    def test_a_pinned_profile_and_size_with_no_recorded_line_is_refused_before_the_generator_runs(self):
+        with tempfile.TemporaryDirectory() as folder:
+            plan = rr.build_plan((('baseline-one-case-ex', 46, 60, 1, 'solved'),))
+            logged = []
+            run = mock.Mock(side_effect=AssertionError('the generator ran'))
+            manifest, failures = rr.generate(plan, folder, run=run, log=logged.append, pinned_hashes=rr.RACK_HASHES)
+            self.assertEqual((failures, manifest['models']), (['baseline-one-case-ex-n0046.json'], {}))
+            self.assertIn('no line "baseline-one-case-ex  46"', logged[0])
+            run.assert_not_called()
+
+    def _folder(self, folder, w1=None, w2=None):
+        hashes = rr.recorded_rack_hashes()
+        with open(rr.COMMITTED_MODELS['reference-system']['source'], 'rb') as fh:
+            reference = hashlib.sha256(fh.read()).hexdigest()
+        models = {'baseline-one-case-ex-n2000.json': w1 or hashes[('baseline-one-case-ex', 2000)],
+                  'reference_system.json': w2 or reference}
+        with open(os.path.join(folder, 'manifest.json'), 'w') as fh:
+            json.dump({'models': {name: {'sha256': sha, 'stats': {}} for name, sha in models.items()}}, fh)
+        return models
+
+    def test_every_model_is_compared_again_when_a_named_plan_is_written(self):
+        plan, _, _ = rr.named_plan('baseline')
+        with tempfile.TemporaryDirectory() as folder:
+            self._folder(folder)
+            rr.check_pinned_models(plan, folder)
+            path = os.path.join(folder, 'plan.json')
+            self.assertEqual(self._main(['--write-plan', path, '--subset', 'baseline', '--models', folder])[0], 0)
+            os.unlink(path)
+            for w1, w2, wrong in (('d' * 64, None, 'baseline-one-case-ex-n2000.json'),
+                                  (None, 'e' * 64, 'reference_system.json')):
+                self._folder(folder, w1, w2)
+                with self.assertRaises(ValueError) as refused:
+                    rr.check_pinned_models(plan, folder)
+                self.assertIn('%s: expected sha256' % wrong, str(refused.exception))
+                self.assertIn('found %s' % (w1 or w2), str(refused.exception))
+                for argv in (['--write-plan', path], ['--plan']):
+                    code, out, err = self._main(argv + ['--subset', 'baseline', '--models', folder])
+                    self.assertEqual(code, 2, argv)
+                    self.assertIn('own model bytes; refused: %s' % wrong, err)
+                    self.assertFalse(os.path.exists(path), 'no plan file')
+                    self.assertEqual(out, '')
+        # A default subset's plan is written from whatever the manifest lists, as before.
+        with tempfile.TemporaryDirectory() as folder:
+            with open(os.path.join(folder, 'manifest.json'), 'w') as fh:
+                json.dump({'models': {rr.model_name('linear-ex', 250): {'sha256': 'f' * 64}}}, fh)
+            self.assertEqual(self._main(['--write-plan', os.path.join(folder, 'p.json'), '--subset', 'window',
+                                         '--models', folder])[0], 0)
+
+    def test_plan_prints_a_named_plans_quiet_wait_and_a_default_subsets_text_is_unchanged(self):
+        code, out, _ = self._main(['--plan', '--subset', 'baseline'])
+        self.assertEqual(code, 0)
+        self.assertIn('quiet-host wait: up to %d s before the first run' % rr.QUIET_WAIT_S, out)
+        self.assertNotIn('quiet-host wait', self._main(['--plan', '--subset', 'window'])[1])
 
 
 class Classification(unittest.TestCase):
