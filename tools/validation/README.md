@@ -23,7 +23,10 @@ same physical numbers as today, bit for bit.
   claimed by an `EXEMPT` entry with a one-line reason. An unclaimed file, a file claimed
   twice, a stale claim, an exemption without a reason, and an exemption of a data file
   with a pressurised document each fail. The inventory is also the checklist for
-  re-producing the fixtures. Regenerate it with
+  re-producing the fixtures. A pin on a single file beyond its group's (`PINNED_BY`, such as the
+  O4 source twins' SHA-256 pins) is listed on that file's entry or exemption record. What the
+  scan does not read (escaped or UTF-16 keys, source code, assembled blobs such as the MBF writer
+  parity vectors' deltas) is stated in the script's docstring. Regenerate it with
   `python3 tools/validation/pressure_elongation_inventory.py`;
   `test_pressure_elongation_inventory.py` fails until it is current.
 - `pressure_elongation_anchor.py`: the harness. It solves each document with the

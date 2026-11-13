@@ -13,6 +13,17 @@ Scans every Git-tracked file under the scanned roots (`core`, `validation`, `tes
 - any other scanned file (code that builds no solved pressurised document, or data with no pressurised document),
   by an EXEMPT entry with a one-line reason.
 
+What the scan does not read. It finds files by the literal bytes `pressure_regions` (not an escaped key, not UTF-16)
+and evaluates no source code: a code file's claim rests on reading it. Of data it reads plain JSON, JSON Lines, JSON
+text held in strings (recursively) and the retained-precision DAG storage; any other assembly is not reconstructed.
+One such store exists: the CAEPIPE MBF writer parity vectors (`fixtures/caepipe_mbf/invented/parity/
+writer_vectors.json`) keep many of their models as blobs assembled from a base blob and a prefix, middle and
+suffix (`tools/fixtures/caepipe_mbf_import_vectors.py`), so the 58 writer models recorded below are those held
+as full strings; the independent review of this change reconstructed 107 pressurised writer models, 49 of them
+assembled. Every one is an MBF writer input compared between the Python and Rust writers, and nothing solves
+them: `test_pressure_elongation_inventory.py` fails if code that reads the parity vectors gains a mechanics
+solve entry.
+
 The result, `pressure_elongation_inventory.json`, is also the re-production checklist for the fixture rebuild.
 
     python3 tools/validation/pressure_elongation_inventory.py           # write the inventory
@@ -339,6 +350,17 @@ DERIVED = [
      "from": ["t4_u5b_requests"], "reader": "tests/test_pressure_connector_readers.py"},
 ]
 
+# Pins on individual scanned files beyond their group's `pinned_by`: each named file's group entry lists them after
+# the group's pins, and an exemption's record lists them per file. A pattern that matches no scanned file is stale.
+PINNED_BY = [
+    # The O4 source twins' generator pins the twelve pressure-source request fixtures and the J7 census inputs by
+    # SHA-256 (PINS and PINS_ADMITTED); a byte change to any of them fails its check.
+    {"paths": ["fixtures/product_preview/pressure_source/physics_source/*.request.json",
+               "fixtures/product_preview/pressure_source/load_reference_source/*.request.json",
+               "fixtures/results/j7_rf_census_inputs.json"],
+     "pinned_by": ["validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"]},
+]
+
 # Code files that build a pressurised document which is solved: the expectations their assertions rest on
 # (EXPECTATIONS: an independent closed form, a reference file, the product's own output, or no response value at all)
 # and whether their pressurised cases are named in model_settings.pressure_elongation (CASES_NAMED). Where cases are
@@ -353,37 +375,53 @@ IN_CODE = [
      "expectations": "closed_form", "cases_named": "all",
      "detail": "anchored-anchored closed straight; N_wall = 2 nu p Ai - E As eps closed form; run() names every "
                "pressurised case"},
-    {"paths": ["core/product_physics/src/f1b_tests.rs"],
-     "expectations": "product_output", "cases_named": "none",
-     "detail": "sparse-wiring parity against the product's own assembled bases over a declared subset including "
-               "load_reference connected.request and t4_i12 connector; PHYS-R4 pressurised branch never called"},
     {"paths": ["core/product_physics/src/joint_pressure_tests.rs"],
      "reference": "validation/references/t4_i12",
      "expectations": "closed_form", "cases_named": "all",
      "detail": "t4_i12-derived U5a joint controls; closed-form rhs and q; model_settings names case:A"},
     {"paths": ["core/product_physics/src/kd5_pressure_closure_tests.rs"],
-     "expectations": "closed_form", "cases_named": "all",
-     "detail": "load closure against binary64 laws; named via with_pressurised_cases_named"},
+     "expectations": "closed_form", "cases_named": "some",
+     "detail": "named (with_pressurised_cases_named): the load-closure bindings against binary64 references of each "
+               "pressure law and the mutants; unnamed: kd5_u2_arc_wall_rows_keep_nw_equal_s_plus_p_ai solves the I7 "
+               "L line as authored and asserts N_w = S + p A_i and the wall end actions, a relation between product "
+               "rows that holds in both settings"},
     {"paths": ["core/product_physics/src/membrane_publication_range.rs"],
      "expectations": "reference_file", "cases_named": "all",
      "detail": "direct PHYS-R4 publisher against frozen Fraction reference; named"},
     {"paths": ["core/product_physics/src/o4_m3_judging_tests.rs"],
      "reference": "validation/references/o4_retained_source",
      "expectations": "reference_file", "cases_named": "all",
-     "detail": "o4 frozen references; SETTING names every pressurised case"},
+     "detail": "o4 frozen references; the committed J2 source fixtures it re-authors keep their named cases "
+               "(SETTING, line 79, removes that block from the text only to hash it against the frozen bytes; it "
+               "names nothing). Its default tests solve no pressurised case; the pressurised mixed twins are solved "
+               "by the ignored long groups o4_m3_twins_j2_*"},
     {"paths": ["core/product_physics/src/pressure_runtime.rs"],
      "expectations": "closed_form", "cases_named": "all",
-     "detail": "product source; inline tests assemble region ledgers against closed forms, naming every pressurised "
-               "case"},
+     "detail": "product source; its inline tests assemble region ledgers against closed forms, and assert named "
+               "rejections, on documents whose every pressurised case the test helper names "
+               "(name_every_pressurised_case)"},
     {"paths": ["core/product_physics/src/source_receipt/load_state_fallback_tests.rs"],
-     "expectations": "product_output", "cases_named": "none",
-     "detail": "1e-5 Pa sensitive case; expected rows from the uncaptured typed route"},
+     "expectations": "product_output", "cases_named": "some",
+     "detail": "named: the committed physics_source/mixed request and its pre-0.4 composite-failure variant "
+               "(case:ordinary-pressure named in the fixture); unnamed: with_sensitive_pressure_case adds a 1e-5 Pa "
+               "case:pressure to the eigen_motion witness. Both assert the ordinary route's publication against the "
+               "uncaptured typed route's rows of the same request and the named diagnostics (product output); no "
+               "independent response value"},
+    {"paths": ["core/product_physics/src/source_receipt/load_state_join_tests.rs"],
+     "expectations": "product_output", "cases_named": "all",
+     "detail": "its one pressurised solve is the committed load_reference_source/mixed request (line 765), whose "
+               "case:ordinary-pressure is named; it asserts the joined envelope's selected and ordinary methods, the "
+               "ordinary case's not_joined record and the receipt the route re-finalizes against the published one, "
+               "and refusals of tampered records (product output, no response value from outside). Its other "
+               "solves are the pressure-free eigen_motion witness and a zero-pressure region"},
     {"paths": ["core/product_physics/src/source_receipt/load_state_tests.rs"],
      "expectations": "no_response_value", "cases_named": "none",
      "detail": "witness(true) asserts route, profile and not_joined record only"},
     {"paths": ["core/product_physics/src/timoshenko_product_tests.rs"],
-     "expectations": "no_response_value", "cases_named": "none",
-     "detail": "t4_i7 mixed L line solved; asserts section and region evidence only"},
+     "expectations": "reference_file", "cases_named": "some",
+     "detail": "named: the frozen t4_u6 Timoshenko self-weight request (its case named), judged against that "
+               "variant's kappa_E, shear area and wrong-value discriminators; unnamed: the I7 mixed L line, solved "
+               "for section and region evidence only (arc markers, beam theory)"},
     {"paths": ["core/product_physics/src/u4b_tests.rs"],
      "reference": "validation/references/t4_u4b",
      "expectations": "reference_file", "cases_named": "all",
@@ -401,36 +439,52 @@ IN_CODE = [
      "expectations": "reference_file", "cases_named": "all",
      "detail": "shared comparison with t4_u6/t4_i8/t4_u8 frozen rows; names every pressurised case"},
     {"paths": ["core/product_physics/tests/connector_readers.rs"],
-     "expectations": "product_output", "cases_named": "none",
-     "detail": "t4_i12 and t4_u5b connector documents solved; reader admission and the committed connector reader "
-               "corpus"},
+     "expectations": "product_output", "cases_named": "all",
+     "detail": "the pressurised documents it solves are the t4_u5b rod connectors (AS-F and its twin) from the "
+               "shared builder, which names every pressurised case; the T4-I12 system documents carry empty regions."
+               " It asserts connector evidence, reader admission and the committed connector reader corpus (product "
+               "output)"},
     {"paths": ["core/product_physics/tests/exact_admission_seam.rs"],
-     "expectations": "product_output", "cases_named": "none",
-     "detail": "X0/Y0 and patched twins; admission codes, the committed pressure_v3 reader corpus and product-vs-"
-               "product w15 scaling"},
+     "expectations": "product_output", "cases_named": "all",
+     "detail": "X0 (exact_pressure_connected_request, case:closed-pressure named) and Y0 "
+               "(load_reference/pressure.request, both cases named) and their patched twins, which keep the setting."
+               " It asserts admission codes, the committed pressure_v3 reader corpus and product-against-product w15"
+               " scaling (product output)"},
     {"paths": ["core/product_physics/tests/exact_route_limitations.rs"],
      "expectations": "product_output", "cases_named": "some",
-     "detail": "committed limitation fixture; variants solved not included, included and no effect, each stated"},
+     "detail": "the committed limitation fixture: each pressurised request is solved not included, included and with"
+               " no effect, and its stated limitation is compared with the committed fixture (product output); the "
+               "unnamed solves (certified_recovery_statements_enter_once and the not-included variants) are judged "
+               "on the limitation statements only, never on a response value"},
     {"paths": ["core/product_physics/tests/exact_route_refusals.rs"],
-     "expectations": "no_response_value", "cases_named": "none",
-     "detail": "refusal codes, emission order and signed-zero pressure publication"},
+     "expectations": "no_response_value", "cases_named": "all",
+     "detail": "refusal controls on X0 and Y0, whose cases are named in their fixtures: X0's case:closed-pressure is"
+               " assembled and then blocked without export; it asserts refusal codes, emission order and a signed-"
+               "zero pressure publication (the admitted region there carries zero pressure); no rows are judged"},
     {"paths": ["core/product_physics/tests/f1b_w2_runtime.rs"],
      "expectations": "closed_form", "cases_named": "all",
      "detail": "force-scaling exact references; the pressurised PHYS-R4 fixture names case:source-section"},
     {"paths": ["core/product_physics/tests/global_end_actions_runtime.rs"],
-     "expectations": "closed_form", "cases_named": "none",
-     "detail": "nodal equilibrium of published rows and authored loads, and local axes from geometry: hold whether "
-               "or not elongation is included"},
+     "expectations": "closed_form", "cases_named": "some",
+     "detail": "named: the committed physics_source/mixed request (case:ordinary-pressure), solved to show source-"
+               "recovery publications omit the global rows and keep their bytes (product output); unnamed: the "
+               "inline straight line case:p and bend case:bend, judged by nodal equilibrium of published rows and "
+               "authored loads at an interior node and by local axes recomputed from geometry, which hold whether or"
+               " not elongation is included"},
     {"paths": ["core/product_physics/tests/load_reference_state_runtime_extension.rs"],
      "expectations": "reference_file", "cases_named": "all",
      "detail": "reference_cases.json and stated derivations; solve helper names every pressurised case"},
     {"paths": ["core/product_physics/tests/physics_source_runtime.rs"],
-     "expectations": "no_response_value", "cases_named": "none",
-     "detail": "pressurised mixed and n05 variants assert route identity and evidence counts only"},
+     "expectations": "no_response_value", "cases_named": "some",
+     "detail": "named: the committed mixed request (case:ordinary-pressure), solved for its route and evidence "
+               "counts; unnamed: n05 with a copied region at 0 or 1e-5 Pa, solved only to assert the source method "
+               "is not entered (route identity). No response value is compared on a pressurised case"},
     {"paths": ["core/product_physics/tests/pressure_arc_readers.rs"],
-     "expectations": "product_output", "cases_named": "all",
-     "detail": "writes the committed arc reader corpus; t4_i7 sketches named; the connector variant carries no "
-               "region"},
+     "expectations": "product_output", "cases_named": "some",
+     "detail": "named: the documents of the committed arc reader corpus (t4_i7 sketches through "
+               "with_elongation_if_pressurised); unnamed: every_i7_case_and_the_hanger_documents_are_admitted runs "
+               "the raw frozen I7 sketches through run() for admission and the readers' acceptance only. The corpus "
+               "is product output; no independent response value is compared"},
     {"paths": ["core/product_physics/tests/pressure_elongation_on_path.rs"],
      "expectations": "product_output", "cases_named": "all",
      "detail": "the regression anchor: committed pre-switch envelopes against solves naming every pressurised case"},
@@ -444,7 +498,8 @@ IN_CODE = [
                " controls are judged against the not-included statics"},
     {"paths": ["core/product_physics/tests/pressure_membrane_range.rs"],
      "expectations": "no_response_value", "cases_named": "none",
-     "detail": "the subnormal PHYS-R4 fixture is refused NUMERICAL_INTEGRITY_UNRESOLVED; no rows"},
+     "detail": "the subnormal PHYS-R4 fixture (both ends fixed, its case not named) is refused "
+               "NUMERICAL_INTEGRITY_UNRESOLVED before any result row; it asserts the refusal only"},
     {"paths": ["core/product_physics/tests/pressure_runtime.rs"],
      "expectations": "reference_file", "cases_named": "all",
      "detail": "frozen FROZEN_RUNTIME_EXPECTATIONS; solve helper names every pressurised case"},
@@ -452,8 +507,10 @@ IN_CODE = [
      "expectations": "reference_file", "cases_named": "all",
      "detail": "frozen section expectations; solve helper names every pressurised case"},
     {"paths": ["core/product_physics/tests/pressure_source_join/consequences.rs"],
-     "expectations": "no_response_value", "cases_named": "none",
-     "detail": "genuine producer outputs read by the pressure-source readers; reader statements only"},
+     "expectations": "no_response_value", "cases_named": "some",
+     "detail": "named: the committed mixed controls (case:ordinary-pressure), whose genuine producer outputs the "
+               "pressure-source readers read; unnamed: n05 with a copied region at -1e-5, 0 or 1e-5 Pa, solved only "
+               "to assert the pressure-source method declines it. Reader statements and route identity only"},
     {"paths": ["core/product_physics/tests/rt_a3_constant_effort_references.rs"],
      "reference": "validation/references/rt_a3_constant_effort",
      "expectations": "reference_file", "cases_named": "all",
@@ -491,8 +548,10 @@ IN_CODE = [
      "expectations": "closed_form", "cases_named": "all",
      "detail": "closed-form cap statics at the anchored junction; the committed request names case:pressure"},
     {"paths": ["core/product_physics/tests/spring_hanger_preload_warning.rs"],
-     "expectations": "no_response_value", "cases_named": "none",
-     "detail": "warning codes and messages only"},
+     "expectations": "no_response_value", "cases_named": "all",
+     "detail": "the committed shared_terminal_junction request (case:pressure named) with its closures set to "
+               "transfer and a hanger added; it asserts the SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD warnings and "
+               "messages only"},
     {"paths": ["core/product_physics/tests/t4_u2_pressure_references.rs"],
      "reference": "validation/references/t4_i7, validation/references/t4_i8",
      "expectations": "reference_file", "cases_named": "all",
@@ -503,8 +562,12 @@ IN_CODE = [
      "detail": "w15_rigid_scaling references; the pressure cantilever is named"},
     {"paths": ["core/product_physics/tests/w16_exact_combinations.rs"],
      "reference": "validation/references/w16_exact_combinations",
-     "expectations": "reference_file", "cases_named": "all",
-     "detail": "w16_exact_combinations references; case:A/B/C named"},
+     "expectations": "reference_file", "cases_named": "some",
+     "detail": "named: the closed-form line (case:A/B/C, setting in the builder) against the w16_exact_combinations "
+               "frozen references, and the committed mixed request; unnamed: "
+               "a_pressurized_arc_in_a_non_default_case_combines_with_its_recovery copies the frozen I7 L line, "
+               "whose combined toroidal and wall rows are checked only against the product's own case rows (combined"
+               " = 1.3 x the pressurised case's, plus exact zeros)"},
     {"paths": ["core/model_operations/operation_applier/tests/exact_authoring.rs"],
      "expectations": "closed_form", "cases_named": "all",
      "detail": "closed-end free axial strain closed form at the tip; the elongation intent names case:closed-"
@@ -521,6 +584,13 @@ IN_CODE = [
      "expectations": "no_response_value", "cases_named": "none",
      "detail": "pressurised region documents solved for status and PRESSURE_REGION_INTERNAL_BRANCH only; the physics"
                " section's closed forms are pressure-free"},
+    {"paths": ["core/runner/headless/src/lib.rs"],
+     "expectations": "product_output", "cases_named": "all",
+     "detail": "runner source; its inline test "
+               "rule_revisions_preserve_actual_physics_and_preview_physics_producer_source solves the committed "
+               "exact_pressure_connected request (case:closed-pressure named) and asserts that rule-check revisions "
+               "leave the producer's envelope, digests and export bindings unchanged (product output); the test that"
+               " names the regions removes a closure and asserts the refusal, with no rows"},
     {"paths": ["core/runner/headless/tests/tied_joint_references.rs"],
      "reference": "validation/references/t4_u5b",
      "expectations": "reference_file", "cases_named": "all",
@@ -537,17 +607,21 @@ IN_CODE = [
                "response value is judged"},
     {"paths": ["apps/desktop/src-tauri/src/lib.rs"],
      "expectations": "no_response_value", "cases_named": "all",
-     "detail": "desktop source; an inline test solves the committed exact authoring fixture (which names its case) "
-               "for status, contract id and case count only"},
+     "detail": "desktop source; its inline tests solve the committed exact authoring fixture (its case named) for "
+               "status, contract identity, case count and rule binding; their one closed form (tip rotation from the"
+               " derived G) is on case:six-component-load, which carries no pressure; the load_reference connected "
+               "document they solve is unpressurised"},
     {"paths": ["apps/desktop/src-tauri/src/report_render_exact_tests.rs"],
      "expectations": "no_response_value", "cases_named": "none",
      "detail": "anchored closed chain admitted under the cancellation-screen exception; asserts the report quotes "
                "the warning; unnamed by design (exception family excludes elongation)"},
     {"paths": ["tests/test_caepipe_benchmark.py"],
      "expectations": "closed_form", "cases_named": "some",
-     "detail": "CAEPIPE benchmark tranche 2: the committed default series (no setting) is judged against the "
-               "elongation-off closed forms, the in-memory on series names the pressure case and is judged against "
-               "the elongation-on closed forms"},
+     "detail": "CAEPIPE benchmark tranche 2. Unnamed: the committed default series, judged against the elongation-"
+               "off closed forms and against closed forms that hold in both settings (a closed cantilever's zero "
+               "reaction, the open end's thrust p A_i held by the anchor, thermal growth); the bend-opening premise "
+               "compares the default and on series' rotations within a bound (product against product). Named: the "
+               "in-memory on series, judged against the elongation-on closed forms"},
     {"paths": ["tests/test_caepipe_mbf_round_trip.py"],
      "expectations": "product_output", "cases_named": "none",
      "detail": "source and bound import solved and compared with each other (product against product), and the "
@@ -579,9 +653,6 @@ IN_CODE = [
      "detail": "M3-T judged-set generator (and producer of the frozen subset); its pressurised models name no "
                "setting while kd5t_engine's expected rows include the free strain; judged by m3_judge through "
                "run.sh, which no hosted job runs; awaiting the M3 restoration"},
-    {"paths": ["validation/references/kd5_timoshenko/kd5t_reauthor.py"],
-     "expectations": "no_response_value", "cases_named": "none",
-     "detail": "premise-census re-authoring of archived corpora; census.sh solves them for standings only"},
     {"paths": ["validation/references/o4_retained_source/declared_problem/twins.py"],
      "expectations": "no_response_value", "cases_named": "all",
      "detail": "declared-problem study tool: re-authors J2's source requests (the pressurised one names its case) "
@@ -603,8 +674,9 @@ EXEMPT = [
     {"reason": "gives the composite adapter a missing, zero or nonzero region only to show it refuses them; nothing "
                "reaches mechanics",
      "paths": ["core/product_physics/src/source_receipt/tests.rs"]},
-    {"reason": "runner source; its inline tests remove a closure or the regions and assert the refusal, with no rows",
-     "paths": ["core/runner/headless/src/lib.rs", "core/runner/headless/src/bin/openpipestress-runner.rs"]},
+    {"reason": "runner binary source; its inline tests drop the regions of a retired-contract model and assert the "
+               "CLI's refusal, with no rows",
+     "paths": ["core/runner/headless/src/bin/openpipestress-runner.rs"]},
     {"reason": "authoring source (operation applier): reads regions for references, routing and messages; solves nothing",
      "paths": ["core/model_operations/operation_applier/src/lib.rs", "core/model_operations/operation_applier/src/pipe_reconnect.rs",
                "core/model_operations/operation_applier/src/pressure_authoring.rs"]},
@@ -612,7 +684,8 @@ EXEMPT = [
                "is refused PREVIEW_CONTRACT_VERSION_MISMATCH",
      "paths": ["core/model_operations/operation_applier/src/b7b_transport_tests.rs",
                "core/model_operations/operation_applier/tests/pipe_delete_dependents.rs"]},
-    {"reason": "desktop source and types: authoring, validation and package panels; no solve",
+    {"reason": "desktop source and types: authoring, validation and package panels, and the embedded agent's session, "
+               "which routes a live solve of the owner's model; none owns a model or a response expectation",
      "paths": ["apps/desktop/src/features/caepipe-mbf/mbfImport.ts", "apps/desktop/src/features/geometry-tools/geometryDraft.ts",
                "apps/desktop/src/features/model-settings/modelSettingsIntents.ts",
                "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
@@ -649,8 +722,9 @@ EXEMPT = [
     {"reason": "schema and synthetic structural tests; nothing is solved",
      "paths": ["tests/test_model_document_0_9_0_members.py", "tests/test_model_schema.py",
                "tests/test_qualification_physics_structure.py", "tools/validation/qualification_physics_structure.py"]},
-    {"reason": "the VP-HARNESS adapter: binds the exact_pressure package's requests, built and named by "
-               "generate_package.py (claimed), and reads the runner's output",
+    {"reason": "the VP-HARNESS adapter: submits the exact_pressure package's requests, built and named by "
+               "generate_package.py (claimed there), to the selected runner and checks its output against the "
+               "package; it builds no document of its own",
      "paths": ["tools/validation/qualification_exact_pressure.py"]},
     {"reason": "retained-route pricing: static analysis of product source and committed outputs; nothing is solved",
      "paths": ["tools/retained_pricing/base/batch5_model.py", "tools/retained_pricing/lib/census_exact.py",
@@ -665,7 +739,6 @@ EXEMPT = [
                "core/product_physics/src/d5_mass_product_tests.rs", "core/product_physics/src/modal/tests.rs",
                "core/product_physics/src/retained_facade_tests.rs", "core/product_physics/src/retained_memory_law_tests.rs",
                "core/product_physics/src/retained_memory_witness_tests.rs",
-               "core/product_physics/src/source_receipt/load_state_join_tests.rs",
                "core/product_physics/src/source_recovery/j7_rf_census.rs",
                "core/product_physics/tests/common/b1_sq_inputs.rs", "core/product_physics/tests/common/w15c_bench.rs",
                "core/product_physics/tests/connector_pp_paths.rs", "core/product_physics/tests/elastic_extrema_runtime.rs",
@@ -681,6 +754,10 @@ EXEMPT = [
                "tests/test_w15_component_body_readers.py", "tools/fixtures/j7_rf_census_inputs.py",
                "validation/references/kd5_member_bound/notice_reference.py",
                "validation/references/kd5_member_bound/two_body_reference.py"]},
+    {"reason": "its one pressurised builder branch, phys_r4_request(true), is never called; every document its sparse-"
+               "wiring parity tests solve (the declared subset, the T4-I12 connector, connected.request) carries no "
+               "pressurised case",
+     "paths": ["core/product_physics/src/f1b_tests.rs"]},
     {"reason": "regions appear only in decode tests; its solves use t4_u5a J3-0, whose one region carries zero pressure",
      "paths": ["core/product_physics/src/b7b_admission_tests.rs"]},
     {"reason": "it replaces the pressurised case of physics_source/mixed.request.json with an empty-region case and "
@@ -707,6 +784,10 @@ EXEMPT = [
                "validation/references/t4_i12/generators/u3_round02.py",
                "validation/references/t4_u4b/generators/u4b_reference.py",
                "validation/references/t4_u5b/generators/u5b_reference.py"]},
+    {"reason": "re-authors K-D5 evaluation corpora held outside the repository for the premise census (census.sh "
+               "solves them for standings only): it gives a pressure-free document empty region lists and keeps any "
+               "authored region as given, so it builds no pressurised case of its own",
+     "paths": ["validation/references/kd5_timoshenko/kd5t_reauthor.py"]},
     {"reason": "independent reference generator (imports no product code) that states pressure elongation on or off per "
                "case; no product test solves its cases yet",
      "paths": ["validation/references/exact_difference_basis/generators/exact_difference_basis_reference.py",
@@ -942,15 +1023,24 @@ def claims(files: list[str], data: dict[str, tuple[list[dict], list[dict]]], gro
     return taken, problems
 
 
+def _pins(path: str, pinned: list[dict]) -> list[str]:
+    return [pin for entry in pinned if _matches(path, entry["paths"]) for pin in entry["pinned_by"]]
+
+
 def build(groups: list[dict] | None = None, in_code: list[dict] | None = None, exempt: list[dict] | None = None,
-          root: Path = ROOT, scanned: tuple | None = None) -> dict:
+          root: Path = ROOT, scanned: tuple | None = None, pinned: list[dict] | None = None) -> dict:
     """The inventory from the claims (default: this module's GROUPS, IN_CODE and EXEMPT) over `scanned` (default: a
     fresh `scan(root)`); InventoryError lists every problem."""
     groups = GROUPS if groups is None else groups
     in_code = IN_CODE if in_code is None else in_code
     exempt = EXEMPT if exempt is None else exempt
+    pinned = PINNED_BY if pinned is None else pinned
     files, data = scan(root) if scanned is None else scanned
     taken, problems = claims(files, data, groups, in_code, exempt)
+    for entry in pinned:
+        for pattern in entry["paths"]:
+            if not any(fnmatch.fnmatchcase(path, pattern) for path in files):
+                problems.append(f"stale: PINNED_BY path {pattern} matches no tracked file naming {TOKEN}")
     entries = []
     for group in groups:
         paths = sorted(p for p, (plain, held) in data.items() if (plain or held) and _matches(p, group["paths"]))
@@ -969,7 +1059,7 @@ def build(groups: list[dict] | None = None, in_code: list[dict] | None = None, e
                     anchor["files"] = files_for
             entry = {"id": group["id"] if len(paths) == 1 else f"{group['id']}/{_suffix(path, paths)}",
                      "group": group["id"], "path": path, "producer": group["producer"],
-                     "pinned_by": group["pinned_by"], "anchor": anchor, "documents": documents}
+                     "pinned_by": group["pinned_by"] + _pins(path, pinned), "anchor": anchor, "documents": documents}
             if held:
                 entry["held_documents"] = held
             entries.append(entry)
@@ -1008,9 +1098,17 @@ def build(groups: list[dict] | None = None, in_code: list[dict] | None = None, e
         "entries": entries,
         "derived_consumers": DERIVED,
         "in_code_constructions": in_code,
-        "exemptions": [{"reason": entry["reason"], "paths": entry["paths"],
-                        "files": [p for p in files if _matches(p, entry["paths"])]} for entry in exempt],
+        "exemptions": [_exemption_record(entry, files, pinned) for entry in exempt],
     }
+
+
+def _exemption_record(entry: dict, files: list[str], pinned: list[dict]) -> dict:
+    matched = [p for p in files if _matches(p, entry["paths"])]
+    record = {"reason": entry["reason"], "paths": entry["paths"], "files": matched}
+    pins = {p: _pins(p, pinned) for p in matched if _pins(p, pinned)}
+    if pins:
+        record["pinned_by"] = pins
+    return record
 
 
 def dumps(value) -> str:

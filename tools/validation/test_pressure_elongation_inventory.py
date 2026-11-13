@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import copy
 import json
+import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -192,3 +194,60 @@ def test_held_documents_found_in_the_repository_are_recorded_where_they_are(scan
             assert PE.pressurised_case_ids(doc) == record["pressurised_load_cases"], (path, record)
             listed = ((doc.get("model_settings") or {}).get("pressure_elongation") or {}).get("operating_load_cases")
             assert (set(record["pressurised_load_cases"]) <= set(listed or [])) is named, (path, record)
+
+
+# ----------------------------------------------------------------------------- what the scan does not reconstruct
+PARITY_READERS = r"parity/(writer|import)_vectors|caepipe_mbf_(writer|import)_vectors"
+SOLVE_ENTRIES = re.compile(r"run_linear_static_preview|open_pipe_stress_product_physics|open_pipe_stress_headless_runner"
+                           r"|openpipestress-runner|OPENPIPESTRESS_RUNNER_BIN")
+CODE = ("*.rs", "*.py", "*.ts", "*.tsx", "*.js", "*.mjs")
+
+
+def test_nothing_that_reads_the_mbf_parity_vectors_can_solve_them():
+    """The writer parity vectors hold many pressurised models as delta-assembled blobs the scan does not reconstruct
+    (the module docstring). They are claimed as MBF writer inputs that nothing solves. This keeps that true: every
+    tracked code file naming the vectors or their harvest modules, and the Cargo manifest of a Rust one's crate, names
+    no mechanics solve entry (the product's preview entry, the product or runner crate, or the runner binary)."""
+    done = subprocess.run(["git", "grep", "-l", "-E", PARITY_READERS, "--", *CODE], cwd=ROOT, capture_output=True,
+                          text=True, check=True)
+    own = {"tools/validation/pressure_elongation_inventory.py", "tools/validation/test_pressure_elongation_inventory.py"}
+    readers = sorted(set(done.stdout.split()) - own)
+    assert "tools/fixtures/caepipe_mbf_writer_vectors.py" in readers and \
+        "core/handoff/caepipe_mbf_engine/tests/writer_parity.rs" in readers, readers
+    for path in readers:
+        checked = [path]
+        if path.endswith(".rs"):
+            crate = (ROOT / path).parent
+            while not (crate / "Cargo.toml").exists():
+                crate = crate.parent
+            checked.append(str((crate / "Cargo.toml").relative_to(ROOT)))
+        for name in checked:
+            found = SOLVE_ENTRIES.search((ROOT / name).read_text(encoding="utf-8"))
+            assert found is None, f"{name} (read for {path}) names {found.group(0)}: the parity vectors may now be solved"
+
+
+# ----------------------------------------------------------------------------- pins on individual files
+TWINS = "validation/references/o4_retained_source/generators/o4_source_twins.py"
+
+
+def test_every_inventoried_file_the_o4_source_twins_pin_names_them(scanned):
+    """The twins' generator pins its inputs by SHA-256 (PINS, PINS_ADMITTED); a change to one of them without moving
+    its pin fails that check, so every one the inventory holds must say so, whether its claim is a group or an
+    exemption."""
+    tables = re.findall(r'^PINS(?:_ADMITTED)? = \{(.*?)^\}', (ROOT / TWINS).read_text(encoding="utf-8"), re.M | re.S)
+    pinned = {path for table in tables for path in re.findall(r'"([^"]+)":\s*"[0-9a-f]{64}"', table)}
+    assert len(pinned) == 14, sorted(pinned)
+    inventory = INV.build(scanned=scanned)
+    named = {e["path"]: e["pinned_by"] for e in inventory["entries"]}
+    for record in inventory["exemptions"]:
+        named.update({path: record.get("pinned_by", {}).get(path, []) for path in record["files"]})
+    held = sorted(pinned & set(named))
+    assert len(held) == 13, held  # tools/fixtures/retained_precision_corpus.py names no pressure_regions
+    for path in held:
+        assert any(pin.startswith(TWINS) for pin in named[path]), path
+
+
+def test_a_stale_pin_fails(scanned):
+    stale = [*INV.PINNED_BY, {"paths": ["fixtures/no_such_fixture.json"], "pinned_by": ["somewhere"]}]
+    assert "stale: PINNED_BY path fixtures/no_such_fixture.json matches no tracked file naming pressure_regions" in \
+        problems(scanned, pinned=stale)
