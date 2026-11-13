@@ -145,7 +145,7 @@ def test_the_index_names_every_other_file_with_its_hash_and_size_and_the_builder
 def test_the_parts_hold_what_the_plan_names_in_order():
     index = index_of(built())
     assert [(p["id"], p["kind"], len(p["items"])) for p in index["parts"]] == [
-        ("part-0", "dry_run", 5), ("part-1", "dynamics", 67), ("part-2", "pressure", 66),
+        ("part-0", "dry_run", 6), ("part-1", "dynamics", 67), ("part-2", "pressure", 66),
         ("part-3", "static_series", 12), ("part-4", "hand_entry", 5), ("part-5", "tranche1_rest", 57)]
     items = by_id(index)
     m = manifest()
@@ -298,8 +298,9 @@ def test_the_dry_run_samples_copy_the_smallest_dynamics_models_form_a_file():
         assert item["routes"] == [route] and item["copy_of"]["run_id"] == run["run_id"]
         assert (sample_id in commands) == (route == spb.BATCH)
     window = items["sample-dyn-window"]
-    assert window["dry_run_checks"][1:] == m["dry_run"]["checks"]
-    sheet = files[P(spb.RUN_SHEET)].decode()
+    assert window["dry_run_checks"][1:] == [c for c in m["dry_run"]["checks"] if not c.startswith("(v)")]
+    assert len(window["dry_run_checks"]) == 5  # answer C and checks (i) to (iv); check (v) is the export trial's
+    sheet = files[P(spb.RUN_SHEET)].decode().replace("\r\n", "\n")
     for line in [*m["dry_run"]["checks"], *m["dry_run"]["consequences"]]:
         assert line in sheet
 
@@ -561,7 +562,7 @@ def test_each_model_file_has_a_provenance_sidecar_saying_only_what_is_establishe
             assert sidecar["run"]["added_records"] == [r["heading"] for r in run["mbf"].get("added_records") or []]
             assert sidecar["run"]["substituted_records"] == (["OPPRES"] if run["mbf"]["source"] == "substituted"
                                                              else [])
-    assert seen == 212
+    assert seen == 213
 
 
 def test_the_owners_reading_of_the_instructions_and_run_sheet():
@@ -591,7 +592,7 @@ def test_the_owners_reading_of_the_instructions_and_run_sheet():
             + '" It also notes: "' + spb.ANALYZE_INACTIVE + '"') in instructions
     assert "- CAEPIPE-ANALYZE: https://docs.sstcae.com/users_manual/analyze__f12_.htm" in instructions
     assert "Go on to part 1 only when" not in instructions
-    assert ("7. After part 0, copy the working folder back to the Mac, leaving the working folder on Windows as it is. "
+    assert ("8. After part 0, copy the working folder back to the Mac, leaving the working folder on Windows as it is. "
             "It is listed there by name, size and hash. Wait until you are told the listing is done, whether or not a "
             "title was missing, and then go on to part 1.") in instructions
     assert '" If Analyze is inactive, note it on the run line and go on to the next case.' in instructions
@@ -601,7 +602,7 @@ def test_the_owners_reading_of_the_instructions_and_run_sheet():
     assert ("4. If the sitting must be shortened, strike parts from the end: part 5 first, then part 4, part 3 and part "
             "2. Part 1 is " + rule) in instructions
     assert "Part 1 is " + rule in sheet and "This part is " + rule in sheet and "never cut" not in instructions + sheet
-    assert ("8. If a section title is missing from the first case's print, write which on that case's run line, and say "
+    assert ("9. If a section title is missing from the first case's print, write which on that case's run line, and say "
             "so when the folder is brought back: what to do about it is decided then, before part 1.") in instructions
     assert "Use the same working folder for the rest of the sitting, and bring it back to the Mac whole at the end." \
         in instructions
@@ -688,7 +689,7 @@ def test_the_index_designates_each_return_held_sealed_screened_or_stored_only():
         counts[item["designation"]] = counts.get(item["designation"], 0) + 1
         if item["designation"] == "held":
             assert item["run_kind"] in ("option_addition", "hand_entry") and item["routes"] == [spb.WINDOW]
-    assert counts == {"held": 72, "sealed": 22, "stored_only": 2, "screened": 116}
+    assert counts == {"held": 72, "sealed": 22, "stored_only": 3, "screened": 116}
 
 
 def test_the_export_pages_words_the_batch_lines_answer_and_the_import_after_a_batch_line():
@@ -717,3 +718,148 @@ def test_the_export_pages_words_the_batch_lines_answer_and_the_import_after_a_ba
     assert ("then run that case the window way (3.2) before pasting the next line. The import may write over the model "
             "file the batch line left in that folder (the export page's words in 3.2, step 1); note on the run line that "
             "the case was imported after its batch line.") in instructions
+
+
+# -- the export ------------------------------------------------------------------------------------------------------
+def _text(files: dict[str, bytes], name: str) -> str:
+    return files[P(name)].decode("utf-8").replace("\r\n", "\n")
+
+
+def _section5(instructions: str) -> dict[str, str]:
+    """Each item's entry in section 5 of the instructions, by item id."""
+    body = instructions.split("\n## 5. Per item\n", 1)[1].split("\n## Sources\n", 1)[0]
+    entries = {}
+    for chunk in body.split("\n### ")[1:]:
+        head = chunk.split("\n", 1)[0]
+        entries[head.split(" ", 2)[1]] = chunk
+    return entries
+
+
+def _export_runs(m: dict) -> set[str]:
+    return {run["run_id"] for entry in m["models"] for run in entry.get("runs") or [] if run.get("export")}
+
+
+def test_the_export_trial_is_a_byte_copy_of_the_declared_run_file_and_has_no_batch_line():
+    """The sacrificial duplicate the manifest names (dry_run.export_trial): its own folder, a byte copy of the same run
+    file as the other two samples, window only, no line in the command file, placed after the window sample."""
+    files = built()
+    index = index_of(files)
+    m = manifest()
+    trial = m["dry_run"]["export_trial"]
+    item_id = trial["file"][:-len(".mbf")]
+    item = by_id(index)[item_id]
+    assert item["folder"] == trial["folder"] == f"samples/{item_id}" and item["mbf"]["file"] == trial["file"]
+    run = next(r for e in m["models"] for r in e.get("runs") or [] if r["run_id"] == trial["copy_of_run"])
+    data = files[P(f"{trial['folder']}/{trial['file']}")]
+    assert hashlib.sha256(data).hexdigest() == run["mbf"]["sha256"] == item["copy_of"]["sha256"]
+    assert item["copy_of"]["run_id"] == trial["copy_of_run"]
+    for other in ("sample-dyn-batch", "sample-dyn-window"):
+        assert data == files[P(f"samples/{other}/{other}.mbf")]
+    assert item["item_kind"] == "dry_run_sample" and item["routes"] == [spb.WINDOW]
+    assert item["designation"] == "stored_only" and "window_instruction" not in item
+    commands = files[P(spb.BATCH_COMMANDS)].decode()
+    assert item_id not in commands and "export" not in commands
+    part0 = index["parts"][0]["items"]
+    assert part0[-2:] == ["sample-dyn-window", item_id]
+    entry = _section5(_text(files, spb.INSTRUCTIONS))[item_id]
+    assert ("- by the window way: the model file the import writes, if it writes one (answer C), and "
+            f"`{item_id}.export.mbf` (if check (v) allowed the export)\n") in entry
+
+
+def test_exactly_the_runs_that_offer_an_export_carry_it_in_expected_back_and_on_the_run_line():
+    files = built()
+    index = index_of(files)
+    exporting = _export_runs(manifest())
+    assert len(exporting) == 24
+    entries = _section5(_text(files, spb.INSTRUCTIONS))
+    label = "export (made, or not made and why): "
+    assert spb.EXPORT_LABEL + ": " == label
+    seen = 0
+    for item in index["items"]:
+        run_line = files[P(f"{item['folder']}/run_line.txt")].decode()
+        exported = f"{item['item_id']}.export.mbf"
+        offers = item["item_id"] in exporting
+        assert run_line.count(label) == int(offers), item["item_id"]
+        assert (f"`{exported}` (if the export was made)" in entries[item["item_id"]]) == offers, item["item_id"]
+        trial = item.get("export_trial") is not None
+        assert (exported in item["results"].get(spb.WINDOW, [])) == (offers or trial), item["item_id"]
+        assert (".export.mbf" in entries[item["item_id"]]) == (offers or trial)
+        for line in run_line.split("\r\n")[2:]:  # a label holds no colon of its own before its last one
+            if line:
+                assert line.endswith(": ") and ": " not in line[:-2], line
+        seen += offers
+    assert seen == 24
+
+
+def test_check_v_and_its_consequence_are_given_as_the_manifest_gives_them():
+    """On the run sheet's part 0 and in section 4 of the instructions, check (v) and its consequence verbatim; a step
+    after the window sample's sends the owner to the duplicate folder and says what is not touched; check (v)'s
+    answers go on the trial's run line under labels in check (v)'s own words, not on the window sample's."""
+    files = built()
+    m = manifest()
+    check_v = next(c for c in m["dry_run"]["checks"] if c.startswith("(v)"))
+    consequence_v = next(c for c in m["dry_run"]["consequences"] if c.startswith("(v)"))
+    part0 = _text(files, spb.RUN_SHEET).split("## Part 0:", 1)[1].split("## Part 1:", 1)[0]
+    instructions = _text(files, spb.INSTRUCTIONS)
+    section4 = instructions.split("\n## 4. ", 1)[1].split("\n## 5. ", 1)[0]
+    for text in (part0, section4):
+        assert "\n" + check_v + "\n" in text
+        assert "\n" + consequence_v + "\n" in text or "\n- " + consequence_v + "\n" in text
+    step = ("6. Then go to the export trial's folder (`samples/sample-dyn-export-trial`) and make check (v) there, in "
+            "that folder only, as the benchmark manifest gives it below this list. Write each answer on that folder's "
+            "run line. The window sample's folder (`samples/sample-dyn-window`) and every case folder are not opened or "
+            "touched by this trial.")
+    assert "\n" + step + "\n" in section4
+    assert section4.index("\n5. In the window sample's folder") < section4.index("\n" + step)
+    steps = {int(line.split(". ", 1)[0]): line.split(". ", 1)[1] for line in check_v.split("\n")[1:]}
+    trial_line = files[P("samples/sample-dyn-export-trial/run_line.txt")].decode()
+    answered = []
+    for number, label, words in spb.EXPORT_TRIAL_ANSWERS:
+        assert label.startswith(f"(v) step {number}, ") and ":" not in label
+        body = label[len(f"(v) step {number}, "):]
+        assert all(w in steps[number] and w.lower() in body.lower() for w in words), label
+        assert sum(len(w) for w in words) >= 0.6 * len(body), label  # mostly the manifest's words
+        assert f"\r\n{label}: \r\n" in trial_line and f"- {label}: " in part0
+        answered.append(number)
+    assert answered == [3, 5, 6, 7]  # the steps of check (v) that ask for something to be written or chosen
+    window_line = files[P("samples/sample-dyn-window/run_line.txt")].decode()
+    assert "(v)" not in window_line and "(iv)" in window_line
+
+
+def test_section_2_binds_an_export_to_the_runs_saved_model_and_the_statement_is_read_before_part_1():
+    files = built()
+    m = manifest()
+    instructions = _text(files, spb.INSTRUCTIONS)
+    section2 = instructions.split("\n## 2. ", 1)[1].split("\n## 3. ", 1)[0]
+    binding = ("An export, where one is made, is bound to that run's saved model and that run's instruction: the "
+               "program writes it from that run's saved model (`<run id>.mod`) as the program holds it after that "
+               "run's instruction, including what was entered or set by hand; it is not the pack's model file, and it "
+               "is not evidence of which model was run.")
+    assert "\n" + binding + "\n" in section2
+    words = ("as the program holds it after that run's instruction, including what was entered or set by hand; it is "
+             "not the pack's model file")
+    assert words in m["export"]["statement"]  # the manifest's binding words
+    statement = '"' + m["export"]["statement"] + '."'
+    assert statement in section2 and m["export"]["runs"] in section2
+    assert "Each export's steps are optional, and you may drop them" in section2
+    assert instructions.index(statement) < instructions.index("\n## 4. ")
+
+
+EXPORT_INPUT_WORDS = re.compile(r"(pack's|imported|case's|this run's) (model )?file|<stem>\.mbf|<run id>\.mbf|"
+                                r"\.mbf` of the pack", re.IGNORECASE)
+
+
+def test_no_text_of_the_pack_says_an_exports_input_is_the_packs_file():
+    """Every sentence of the pack that speaks of an export and of the pack's (or the imported) model file says the
+    export is not the pack's model file."""
+    files = built()
+    hits = 0
+    for name, data in files.items():
+        if name.split("/", 1)[0] != spb.PACK or not name.endswith((".md", ".txt", ".json")):
+            continue
+        text = data.decode("utf-8")
+        for sentence in re.split(r"(?<=\.)\s+|\r?\n", text):
+            if re.search(r"export", sentence, re.IGNORECASE) and EXPORT_INPUT_WORDS.search(sentence):
+                hits += 1
+                assert "not the pack's model file" in sentence, (name, sentence)
+    assert hits  # the statement and the binding sentence are among them
