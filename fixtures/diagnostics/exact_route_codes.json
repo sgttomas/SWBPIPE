@@ -107,7 +107,7 @@
    "core/numerics/*",
    "core/model_operations/operation_applier (a solve's code it relays unchanged only)"
   ],
-  "operation_applier": "core/model_operations/operation_applier is read only for a solve's code that it relays unchanged: a code position there whose value is a constant declared in a scanned solve crate. The applier's own codes are excluded, including an applier code that wraps a solve refusal. An applier code position whose value the scanner cannot resolve is listed in listed_unresolved_sites like any other, and its entry says whether it is outside the unit.",
+  "operation_applier": "core/model_operations/operation_applier is read only for a solve's code that it relays unchanged: a code position there whose value is a constant declared in a scanned solve crate. The applier's own codes are excluded, including an applier code that wraps a solve refusal. An applier site reported unresolved must be listed with its outside-unit status.",
   "outside_the_unit": "Reason tokens printed inside messages are not inventoried by this table, and no inventory of them exists. The arc-maximum reason tokens below are such tokens: each is produced by a named refusal method or a map_err or Err literal, and is printed inside the message of an enclosing diagnostic whose code is listed here. Other token fields of a published record (a reason's tag, kind, stage or cause, a disposition's reason) are not codes either.",
   "reason_tokens_outside_the_unit": [
    {
@@ -224,8 +224,8 @@
    "the code field of a diagnostic record (a struct or enum variant with code and message or severity) in a literal",
    "an assignment .code = on a diagnostic record",
    "an argument at a parameter that reaches a code position, through helpers to a fixed point",
-   "an argument at a text parameter named code whose sink is not traced (code-shaped values count, others are unclaimed)",
-   "the code field of a struct not known as a diagnostic record (code-shaped values count, others are unclaimed)",
+   "an argument at a text parameter named code whose sink is not traced (code-shaped values count; other resolved values that pass the filters are unclaimed)",
+   "the code field of a struct not known as a diagnostic record (code-shaped values count; other resolved values that pass the filters are unclaimed)",
    "a JSON object's \"code\" key, whether or not a message or severity stands beside it",
    "the as_str of an enum a diagnostic record declares as its code type (enum-to-text producer)",
    "a method code(&self) or *_code(&self) returning text (typed producer)",
@@ -242,8 +242,8 @@
    "production code after a test-only if",
    "production code after a test-only match",
    "production code after a test-only for",
-   "a record's code field read through a receiver whose type the scanner can prove (self in an impl, a typed parameter, a local bound to a struct literal or annotated with a type, Err(x), Ok(x) or Some(x) over a direct call whose declared Result or Option return type names it, or a closure parameter or for variable over a named slice or Vec): recorded where the record is built, when that type is defined in a scanned crate without Deserialize and no type of that name with a code field is defined elsewhere for the crate",
-   "the nearer of a let and a pattern binding of a name, read only within the pattern's scope",
+   "a record's code field read through a receiver whose type is inferred from the listed syntactic forms (self in an impl, a typed parameter, a local bound to a struct literal or annotated with a type, Err(x), Ok(x) or Some(x) over a direct call whose declared Result or Option return type names it, or a closure parameter or for variable over a named slice or Vec) may trigger the relay exemption, when that type is defined in a scanned crate without Deserialize and no type of that name with a code field is defined elsewhere for the crate; inference can select a shadowed type, and construction/mutation coverage is assumed",
+   "a witnessed choice between a let and a recognised pattern binding within that pattern's scope; this is not general lexical-scope resolution, and inner-block/plain-loop shadowing can select the wrong value",
    "the statement forms the test-code stripper recognises under a test-only attribute: items (const fn among them), fields, labelled loops, brace-delimited macro invocations, if (its condition may be a block) with else if and else, while, for, loop, match, a method chain after a block, let and expression statements",
    "a module or item under cfg(any(test, feature = \"..\")), read as production (the conservative choice): core/solver/frame_kernel/src/structural/retained/seeded.rs under mutation-controls and exact_boundary/exact_operation_count.rs under exact-operation-count among them; seeded.rs adds sixteen unclaimed literals (VK-F01 to VK-F17, VK-R02, VK-R28, VK-S1, VK-S2 and FK_SEEDED_FAULT)"
   ],
@@ -252,7 +252,7 @@
    "raw enum codes never published as text: an enum value at a code field declared with that enum is read through its as_str only; enum variant names that serde or Display turn into text elsewhere are not read",
    "codes that reach a person by a route that is not a code position: a field not named code, a reason or tag token, a map value, text built in a macro_rules body or generated code",
    "tuple-returning helpers whose values are not published at a code position",
-   "a receiver type behind a crate-local Result alias, a field's declared type, a method chain or a run-time choice of function: such a code field read is an unresolved site, listed with its reason",
+   "a receiver type behind a crate-local Result alias, a field's declared type, a method chain or a run-time choice of function: these forms are outside explicit receiver inference; a reported unresolved site must be listed, but the unproven relay fallback can suppress a report",
    "test-only code marked other than by cfg(test) or cfg(all(test, ..)): it is read as production",
    "mixed-case message prefixes: only an upper-case CODE: or {CONST}: prefix is read",
    "UNREPORTED: a call made through a function pointer or a closure object: the code argument is not found",

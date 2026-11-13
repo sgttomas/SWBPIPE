@@ -55,7 +55,7 @@ from tools.validation.diagnostic_codes import (  # noqa: E402
     ARC_REASON_TOKENS, CLASSES, PRODUCER_SHAPES, EXEMPT_CASES, READ_FORMS, TABLE, Scan, listed_summary,
     listing_problems, tokenize)
 
-# The scan reads every production Rust file of these crates through their module trees.
+# These globs declare scan inputs; traversal follows the module and test-name heuristics.
 CI_READS = ('core/product_physics/src/**', 'core/solver/*/src/**', 'core/loads/*/src/**',
             'core/analysis/hanger_sizing/src/**', 'core/numerics/*/src/**',
             'core/model_operations/operation_applier/src/**', 'fixtures/diagnostics/exact_route_codes.json',
@@ -107,14 +107,15 @@ def table():
 
 
 def differences(found, held):
-    """The codes the sources raise that the table lacks, and the codes it holds that they no longer raise."""
+    """Codes in the scanner's observations absent from the table, and table codes absent from those
+    observations."""
     return sorted(set(found) - set(held)), sorted(set(held) - set(found))
 
 
 def test_every_raised_code_is_in_the_table_and_no_other():
     lacking, stale = differences({c['code'] for c in scan()['codes']}, {c['code'] for c in table()['codes']})
-    assert not lacking, f'codes the sources raise that the table lacks: {lacking}; {REFRESH}'
-    assert not stale, f'codes in the table the sources no longer raise: {stale}; {REFRESH}'
+    assert not lacking, f'scanner-observed codes missing from the table: {lacking}; {REFRESH}'
+    assert not stale, f'table codes absent from scanner observations: {stale}; {REFRESH}'
 
 
 def test_the_table_is_sorted_with_one_record_per_code():
@@ -123,9 +124,8 @@ def test_the_table_is_sorted_with_one_record_per_code():
 
 
 def test_every_unresolved_code_position_is_pinned_or_listed():
-    """Nothing is dropped silently: a code position whose value the scanner cannot resolve is an unresolved site,
-    and each fails here unless a pin in the table settles it or an entry of listed_unresolved_sites lists it by
-    the text of its line. A pin that no longer holds, or a listed entry whose site changed or went, fails too."""
+    """Each site the scanner reports as unresolved fails unless a holding pin or listing covers it; pin/listing
+    mismatches fail too. This does not detect every silent omission."""
     problems = list(scanned().pin_problems)
     problems += listing_problems(scan()['unresolved_sites'], table().get('listed_unresolved_sites', []))
     assert not problems, f'{problems}; resolve each site, pin it, or list it by hand with its reason'
@@ -350,8 +350,7 @@ def test_witness_codes_are_found_in_every_kind_of_position_whatever_their_spelli
 
 
 def test_witness_values_at_unverified_positions_are_listed_not_dropped(tmp_path):
-    """A non-code-shaped value at a position known only by a parameter's name, or in the code field of a struct
-    not known as a diagnostic record, is in the unclaimed list; a code-shaped one there is a code."""
+    """The two non-code-shaped values in this witness are unclaimed; its code-shaped value is recorded."""
     _s, found = witness_scan(tmp_path)
     assert {u['literal'] for u in found['unclaimed_literals']} == {'lower_untraced', 'plain_lower'}
 
@@ -406,7 +405,8 @@ def runtime_pin(**change):
 
 
 def test_witness_an_unresolved_code_position_fails_unless_its_pin_holds(tmp_path):
-    """A value built at run time at a code position is kept as an unresolved site, never dropped. A pin whose
+    """The format!-built value in this witness is reported unresolved; this witness checks the pin and anchor
+    mutations below. A pin whose
     site text stands and whose anchors are, unchanged, the whole function the site stands in and the whole
     function its reason rests on turns it into the pinned values. A pin does not hold, and the site stays
     unresolved, when: a line is inserted anywhere in the function that binds, builds and uses the value (the
@@ -446,7 +446,7 @@ def test_witness_a_nested_wrapper_pattern_reads_only_its_arm(tmp_path):
     assert 'error_only' in codes and 'ok_only' not in codes, sorted(codes - FOUND)
 
 
-# ---------------------------------------------------------------- part two: nothing is dropped silently
+# ---------------------------------------------------------------- part two: reported unresolved sites and exemptions
 
 def test_witness_no_values_outside_the_closed_list_is_an_unresolved_site(tmp_path):
     """The closed list of exemptions: a case not on it cannot be returned, every case on it is used by the
@@ -505,9 +505,10 @@ pub fn s_for(problems: Vec<Problem>) -> Vec<Diagnostic> { let mut out = Vec::new
 
 def test_witness_a_code_field_read_through_a_pattern_or_iterator_is_a_relay(tmp_path):
     """The cheap form: `e.code` where e is bound by Err(e) over a call declaring Result<_, Problem>, in an if let
-    or a match arm, or by a closure parameter or a for variable over a named slice or Vec of Problem, is a relay
-    of Problem's own construction (recorded there); the same read through a receiver of unknown type stays an
-    unresolved site."""
+    or a match arm, or by a closure parameter or a for variable over a named slice or Vec of Problem. In
+    CHEAP_FORM, these reads receive the relay exemption and PROBLEM_BUILT is observed. In the supplied
+    outside-type witness, p.code is reported unresolved; this does not establish either outcome for every
+    receiver."""
     _s, found = witness_scan(tmp_path, CHEAP_FORM, 'cheap')
     assert found['unresolved_sites'] == [], found['unresolved_sites']
     assert 'PROBLEM_BUILT' in {c['code'] for c in found['codes']}
@@ -547,9 +548,9 @@ ITEM_FORMS = {
 
 
 def test_witness_each_statement_form_the_stripper_recognises(tmp_path):
-    """For each statement form the stripper recognises under a test-only attribute: what is inside it is not read,
-    the production statement after it is, and nothing fails to strip. Items likewise, with a production function
-    after them."""
+    """For the ten STRIP_FORMS and four ITEM_FORMS snippets here, the test checks exclusion, preservation of the
+    following production code, and no reported strip failure. This does not establish correct boundaries for
+    every instance of those forms."""
     problems = []
     for i, (form, test_only) in enumerate(STRIP_FORMS.items()):
         extra = f'pub fn s_strip_{i}() -> Diagnostic {{\n    {test_only}\n    emit("AfterForm{i}", "m")\n}}'

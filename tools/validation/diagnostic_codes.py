@@ -4,8 +4,8 @@
 Exit criterion 3 of `docs/RELEASE_TARGET_v1.0.md` needs every remaining refusal of a required
 capability listed in `docs/RELEASE_LIMITATIONS_v1.0.md`. The codes are string literals at their
 call sites, with no registry, so this scanner makes one: it reads the production sources of the
-crates a solve runs through (`SCOPE`) and records each code a production call site can publish, with
-the files and lines that raise it and the severity the site states. The unit is the code: the value
+crates a solve runs through (`SCOPE`) and records the codes its traversal and resolution heuristics
+observe, with their observed sites and severities. The unit is the code: the value
 of the code field of a diagnostic, finding, refusal or reason record that production code of the
 scanned crates constructs, whether or not the record carrying it is published; reason tokens printed
 inside messages are not codes, and the table is not an inventory of every refusal a person can meet
@@ -16,20 +16,22 @@ shapes listed in `PRODUCER_SHAPES` and the forms in `READ_FORMS`, each with a wi
 agreement, not completeness.
 
 What counts as production code: the modules reachable from each crate's `src/lib.rs` (or
-`src/main.rs`) through `mod` declarations, following `#[path]`, with every item or statement under a
-test-only attribute removed and every file or directory whose name marks it a test (`tests`,
-`*_tests`, `tests_*`) left out. A test-only attribute is `cfg(test)` or `cfg(all(test, ..))`; code
+`src/main.rs`) through `mod` declarations, following `#[path]`. Module traversal applies the test-name
+filter (a file or directory named `tests`, `*_tests` or `tests_*` is left out) and the stripper's
+attribute/boundary heuristics. A test-only attribute is `cfg(test)` or `cfg(all(test, ..))`; code
 under `cfg(any(test, feature = ".."))` may be built in production and is read as production (the
-conservative choice). The stripper removes only a statement form it recognises (`_skip_item`); a
-test-only attribute on any other form is a strip failure, named by file and line, and the test fails
-on it. `src/bin/` harness binaries are not crate roots here and are not read. `STRIPPER_FINDING`
+conservative choice). The stripper removes spans it recognises (`_skip_item`) and reports forms it
+rejects: a test-only attribute on any other form is a strip failure, named by file and line, and the
+test fails on it. It can accept a wrong boundary or miss an inner test attribute without reporting
+failure. `src/bin/` harness binaries are not crate roots here and are not read. `STRIPPER_FINDING`
 records what repairing the stripper found about the tool as committed until then.
 
 How a code is found. A code is the value that reaches a *code position*:
 - the `code` field of a diagnostic record (a struct or enum variant with `code` and `message` or
   `severity`), in a literal or an assignment `.code = ...`; a JSON object's `"code"` key;
 - an argument at a parameter that reaches such a position, to a fixed point through helpers;
-- by shape or name only (where a code-shaped value counts and any other is listed as unclaimed): a
+- by shape or name only (where a code-shaped value counts and other resolved values that pass the
+  filters are unclaimed): a
   text parameter named `code` whose sink is not traced, the `code` field of another struct, a
   `(CODE, message)` pair, `Err("CODE")`, and the prefix `CODE: ` of a message literal;
 - typed producers: a method `code(&self)` returning text, and the `as_str` of an enum a diagnostic
@@ -39,8 +41,10 @@ bindings, `match` and `if` arms and block tails, calls (their return points, wit
 parameter mapped back to the argument), closures, and tuples: tuple `let`s, `.0` projections, and
 the tuple patterns of `for`, `let`, `if let`, `match` arms and closure parameters, followed to the
 tuples their source yields (`vec![..]`, `push`, `extend`, `Some`/`Ok`/`Err`, iterator adapters,
-`map` closures, a record field's constructions). A value relayed from another record's `.code` field
-or a struct pattern's `code` is not a new code: every construction of that field is itself a site.
+`map` closures, a record field's constructions). A field or pattern read may be exempted as a relay by
+a type/declaration heuristic. The exemption assumes that construction and mutation coverage already
+records its values; that premise is not established (EXEMPT_CASES['relay']). Other reads may be
+reported unresolved.
 
 Each position the scanner REPORTS as unresolved must be pinned by hand (`pinned_sites`, with its values and
 whole-function anchors the test checks) or listed (`listed_unresolved_sites`, with the text of its line
@@ -52,7 +56,8 @@ mechanisms a fourth independent review constructed). A part of a value yields no
 `EXEMPT_CASES`, which are exemptions, not proofs: some are sound and some rest on a premise the scanner
 does not establish. Every code-shaped literal (`UPPER_SNAKE` with an underscore) in
 production code that the scanner does not find raised, and that is not only compared against, is
-listed (`unclaimed_literals`), with any value at a position known only by shape or name.
+listed (`unclaimed_literals`), with the other resolved values that pass the filters at a position known
+only by shape or name. Severity words and empty text can be discarded without a report.
 
 Usage, from the repository root:
   python3 tools/validation/diagnostic_codes.py            # summary to stdout; writes nothing
@@ -96,8 +101,8 @@ SEVERITIES = {'blocking', 'warning', 'info', 'failure'}
 CODE_SHAPE = re.compile(r'^[A-Z][A-Z0-9]*(?:[_-][A-Z0-9]+)+$')
 CONST_NAME = re.compile(r'^[A-Z][A-Z0-9_]*$')
 # A token that could be a code in any spelling: no whitespace, a letter first. Used where a code is known
-# only by its place (a pair's first element, a whole error value): a code-shaped token there counts, any
-# other is listed as unclaimed.
+# only by its place (a pair's first element, a whole error value): a code-shaped token there counts; other
+# resolved values that pass the filters are unclaimed.
 TOKEN_SHAPE = re.compile(r'^[A-Za-z][A-Za-z0-9_.:-]{1,79}$')
 PREFIX_LITERAL = re.compile(r'^([A-Z][A-Z0-9]*(?:[_-][A-Z0-9]+)+): ')
 PREFIX_FORMAT = re.compile(r'^\{([A-Z][A-Z0-9_]*)\}: ')
@@ -296,7 +301,8 @@ def _attr_test_only(body):
 
 
 def strip_cfg_test(toks, failures=None):
-    """The tokens with every item or statement under a test-only attribute (`_attr_test_only`) removed.
+    """The tokens with the spans the stripper recognises under a test-only attribute (`_attr_test_only`)
+    removed; it can accept a wrong boundary or miss an inner test attribute without reporting failure.
     A test-only attribute on a form `_skip_item` does not recognise is not guessed at: (line, why) goes to
     `failures`, and only the attribute is removed, so the form is read as production."""
     out, k, n = [], 0, len(toks)
@@ -1288,8 +1294,9 @@ class Scan:
         return not self.outside_code_types.get(src.crate, set())
 
     def _relay(self, receiver, fn, src, at):
-        """A read `<receiver>.code`: recorded where the record is built, when that is proven (see
-        EXEMPT_CASES['relay']); otherwise unresolved."""
+        """A read `<receiver>.code`: it may be exempted as a relay by a type/declaration heuristic. The
+        exemption assumes that construction and mutation coverage already records its values; that premise is
+        not established (EXEMPT_CASES['relay']). Other reads may be reported unresolved."""
         rtype = self._receiver_type(receiver, fn, src, at)
         if self._relay_proven(rtype, src):
             return _none('relay')
@@ -1436,8 +1443,9 @@ class Scan:
 
     def resolve_pattern(self, bound_by, fn, src, depth):
         """The values a name bound by a pattern can take. A struct or enum-variant pattern (`Refused {
-        code, message }`) reads a record's `code` field, every construction of which is itself a code
-        position: closed by construction. A tuple pattern is followed to the tuples its source yields
+        code, message }`) reads a record's `code` field and may be exempted as a relay; the exemption
+        assumes that construction and mutation coverage already records its values, and that premise is not
+        established (EXEMPT_CASES['relay']). A tuple pattern is followed to the tuples its source yields
         (`tuple_values`); a source the scanner cannot follow is unresolved, never assumed."""
         toks = src.toks
         j, o, m = bound_by
@@ -1826,8 +1834,9 @@ class Scan:
             return [('unresolved', f'a tuple source {name} the scanner cannot follow')]
         return out
 
-    # Methods on a local that only read it or take elements away; with push, extend, entry and insert
-    # (read as adding tuples), any other method on a tuple local makes it unresolved.
+    # Methods treated as only reading or removing elements; callback mutation, including dedup_by/dedup_by_key,
+    # is not established absent. With push, extend, entry and insert (read as adding tuples), any other method
+    # on a tuple local makes it unresolved.
     LOCAL_READS = {'iter', 'into_iter', 'len', 'is_empty', 'contains', 'contains_key', 'get', 'first', 'last',
                    'clone', 'keys', 'values', 'to_vec', 'as_slice', 'join', 'concat', 'starts_with', 'ends_with',
                    'binary_search', 'to_owned', 'as_ref', 'is_some', 'is_none', 'is_ok', 'is_err', 'windows',
@@ -2533,11 +2542,11 @@ class Scan:
         return f.fixed_severity
 
     def record(self, results, src, k, via, severity, message, reuse, verified=False, prefix=False, expr=None):
-        """Record each resolved code at its site. At a verified diagnostic position a value counts
-        whatever its spelling. At a position known only by a shape or a name (a parameter called
-        `code` whose sink is not traced, a struct not known as a diagnostic record, a pair) a
-        code-shaped value counts and any other value is listed as unclaimed, never dropped. A message
-        prefix is a shape by nature: there only a code-shaped value is a code."""
+        """Record each resolved code at its site. Resolved nonempty text at a recognised verified position
+        is recorded. At name/shape-only positions (a parameter called `code` whose sink is not traced, a
+        struct not known as a diagnostic record, a pair) code-shaped values count; other resolved values
+        that pass the filters are unclaimed. Severity words and empty text can be discarded without a
+        report. A message prefix is a shape by nature: there only a code-shaped value is a code."""
         toks = src.toks
         expr_line = toks[k].line
         if not results:
@@ -2625,8 +2634,8 @@ class Scan:
             # read through that enum's as_str
             self.record_field(results, src, k, fn, via, reuse, verified=True, enum_field=not text_code,
                               expr=_text(src.toks[a:b]))
-        # other `code` fields, of a struct not known as a diagnostic record: code-shaped values count,
-        # any other value is listed as unclaimed
+        # other `code` fields, of a struct not known as a diagnostic record: code-shaped values count;
+        # other resolved values that pass the filters are unclaimed
         for k, t in enumerate(toks):
             if not _is(t, 'id', 'code') or k == 0 or k in verified_at:
                 continue
@@ -2766,9 +2775,10 @@ class Scan:
         return False
 
     def _param_result(self, caller, idx, enum_field=False):
-        """What a parameter of `caller` at a code position comes to. A text code parameter's values are
-        recorded at its callers' arguments (proven empty here). An enum-typed one at a code field whose type is
-        that enum is read through the enum's as_str. Anything else is unresolved."""
+        """What a parameter of `caller` at a code position comes to. A text code parameter is exempted under
+        flows_to_callers, assuming the scanner finds all uses as direct calls. An enum-typed field is exempted
+        under enum_code_field, assuming a readable as_str producer exists. Neither premise is established;
+        other parameter forms are reported unresolved."""
         pname, ptype = caller.params[idx]
         text = _stringish(ptype) or (caller.closure and not ptype)
         if idx in caller.code_params and text:
@@ -3235,12 +3245,14 @@ STRIPPER_FINDING = (
 
 # Forms the scanner reads besides the producer shapes below, each with its own witness in the test.
 READ_FORMS = [
-    'a record\'s code field read through a receiver whose type the scanner can prove (self in an impl, a typed '
-    'parameter, a local bound to a struct literal or annotated with a type, Err(x), Ok(x) or Some(x) over a direct '
-    'call whose declared Result or Option return type names it, or a closure parameter or for variable over a '
-    'named slice or Vec): recorded where the record is built, when that type is defined in a scanned crate '
-    'without Deserialize and no type of that name with a code field is defined elsewhere for the crate',
-    'the nearer of a let and a pattern binding of a name, read only within the pattern\'s scope',
+    'a record\'s code field read through a receiver whose type is inferred from the listed syntactic forms (self '
+    'in an impl, a typed parameter, a local bound to a struct literal or annotated with a type, Err(x), Ok(x) or '
+    'Some(x) over a direct call whose declared Result or Option return type names it, or a closure parameter or '
+    'for variable over a named slice or Vec) may trigger the relay exemption, when that type is defined in a '
+    'scanned crate without Deserialize and no type of that name with a code field is defined elsewhere for the '
+    'crate; inference can select a shadowed type, and construction/mutation coverage is assumed',
+    'a witnessed choice between a let and a recognised pattern binding within that pattern\'s scope; this is not '
+    'general lexical-scope resolution, and inner-block/plain-loop shadowing can select the wrong value',
     'the statement forms the test-code stripper recognises under a test-only attribute: items (const fn among '
     'them), fields, labelled loops, brace-delimited macro invocations, if (its condition may be a block) with else '
     'if and else, while, for, loop, match, a method chain after a block, let and expression statements',
@@ -3262,10 +3274,10 @@ PRODUCER_SHAPES = [
      'pub fn s_assign() -> Diagnostic { let mut d = field(); d.code = "ShapeAssigned".into(); d }'),
     ('an argument at a parameter that reaches a code position, through helpers to a fixed point',
      'ShapeHelperFlow', 'relay()', 'pub fn s_flow() -> Diagnostic { relay("ShapeHelperFlow") }'),
-    ('an argument at a text parameter named code whose sink is not traced (code-shaped values count, others '
-     'are unclaimed)', 'SHAPE_NAMED_PARAM', 'untraced()', 'pub fn s_named() -> usize { untraced("SHAPE_NAMED_PARAM") }'),
-    ('the code field of a struct not known as a diagnostic record (code-shaped values count, others are '
-     'unclaimed)', 'SHAPE_PLAIN_FIELD', 'field code',
+    ('an argument at a text parameter named code whose sink is not traced (code-shaped values count; other '
+     'resolved values that pass the filters are unclaimed)', 'SHAPE_NAMED_PARAM', 'untraced()', 'pub fn s_named() -> usize { untraced("SHAPE_NAMED_PARAM") }'),
+    ('the code field of a struct not known as a diagnostic record (code-shaped values count; other resolved '
+     'values that pass the filters are unclaimed)', 'SHAPE_PLAIN_FIELD', 'field code',
      'pub fn s_plain() -> Tagged { Tagged { code: "SHAPE_PLAIN_FIELD", n: 1 } }'),
     ('a JSON object\'s "code" key, whether or not a message or severity stands beside it', 'shapeJsonReason',
      'json code', 'pub fn s_json() -> String { serde_json::json!({"code": "shapeJsonReason", "phase": "p"}).to_string() }'),
@@ -3420,9 +3432,8 @@ HEADER = {
         'operation_applier': ('core/model_operations/operation_applier is read only for a solve\'s code that it '
                               'relays unchanged: a code position there whose value is a constant declared in a '
                               'scanned solve crate. The applier\'s own codes are excluded, including an applier '
-                              'code that wraps a solve refusal. An applier code position whose value the scanner '
-                              'cannot resolve is listed in listed_unresolved_sites like any other, and its entry '
-                              'says whether it is outside the unit.'),
+                              'code that wraps a solve refusal. An applier site reported unresolved must be '
+                              'listed with its outside-unit status.'),
         'outside_the_unit': ('Reason tokens printed inside messages are not inventoried by this table, and no '
                              'inventory of them exists. The arc-maximum reason tokens below are such tokens: each '
                              'is produced by a named refusal method or a map_err or Err literal, and is printed '
@@ -3455,7 +3466,8 @@ HEADER = {
             'tag token, a map value, text built in a macro_rules body or generated code',
             'tuple-returning helpers whose values are not published at a code position',
             'a receiver type behind a crate-local Result alias, a field\'s declared type, a method chain or a run-time '
-            'choice of function: such a code field read is an unresolved site, listed with its reason',
+            'choice of function: these forms are outside explicit receiver inference; a reported unresolved site '
+            'must be listed, but the unproven relay fallback can suppress a report',
             'test-only code marked other than by cfg(test) or cfg(all(test, ..)): it is read as production',
             'mixed-case message prefixes: only an upper-case CODE: or {CONST}: prefix is read',
             # The sixteen mechanisms a fourth independent review constructed, each a way a value at a code
