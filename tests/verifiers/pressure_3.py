@@ -427,7 +427,7 @@ def poisson_coefficient(coefficient: float, nu: float, included: bool) -> None:
 
 
 CANCELLATION_EXCEPTION_BASIS = "straight_region_interior_cap_pairs_cap_remainder_retained"
-EXCEPTION_RECORD_KEYS = {"basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "remainder_to_bore_force_ratio", "consistency_bound_ratio"}
+EXCEPTION_RECORD_KEYS = {"basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "remainder_to_bore_force_ratio", "remainder_force_n", "consistency_bound_ratio"}
 # The consistency bound's constants (product physics ``pressure_runtime``: BORE_DEPARTURE_RATIO, ALIGNMENT_DEPARTURE_RATIO,
 # FORMATION_ALLOWANCE_RATIO, SUBNORMAL_ALLOWANCE), whose derivation is stated there.
 BORE_DEPARTURE_RATIO = 256 * 2.0 ** -52
@@ -563,6 +563,23 @@ def _family_consistency(rhs: Mapping[str, Any], terminals: list[tuple[str, str, 
     return interior
 
 
+def _published_traversal_consistency(interior: list[dict[str, Any]], members: dict[str, list[str]]) -> None:
+    """Consistency (no model; Rust ``physics_evidence::published_traversal_consistency``): each two consecutive
+    published members of a region (``member_pipe_ids``, the producer's traversal order) meet at one interior node, so
+    each pair must be found exactly once among the interior nodes whose published terms are those two members', and
+    none may be left over. A node whose every group was omitted publishes no term, so its pair is found nowhere
+    (SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_INTERIOR_NODE_MISSING). Node names, member ends and the list's order are the
+    producer's as published; this twin reads no model."""
+    matched: set[int] = set()
+    for region, listed in members.items():
+        for a, b in zip(listed, listed[1:]):
+            found = [i for i, node in enumerate(interior) if node["region"] == region and sorted(node["pipes"]) == sorted([a, b])]
+            _require(bool(found), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_INTERIOR_NODE_MISSING")
+            _require(found[0] not in matched, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")
+            matched.add(found[0])
+    _require(len(matched) == len(interior), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")
+
+
 def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, regions: list[Any]) -> None:
     """DEL-04-07, the cancellation screen (Rust ``physics_evidence::assembly`` and ``exception_consistency``).
 
@@ -601,6 +618,7 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
         for load in region.get("applied_loads") or []:
             directions[(region["region_id"], load["pipe_id"])] = _consistent_direction(load)
     interior = _family_consistency(rhs, terminals, directions)
+    _published_traversal_consistency(interior, members)
     _require(bool(interior), family)
     node = interior[0]
     for candidate in interior[1:]:
@@ -614,6 +632,8 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
     bound = consistency_bound_ratio(span, lengths)
     _require(_number(record["consistency_bound_ratio"]) and _same(record["consistency_bound_ratio"], bound), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND")
     _require(_number(record["remainder_to_bore_force_ratio"]) and _same(record["remainder_to_bore_force_ratio"], node["ratio"]), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
+    # The record's force: |F| at its node, the ratio's numerator, bit for bit.
+    _require(_number(record["remainder_force_n"]) and _same(record["remainder_force_n"], node["force"]), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FORCE")
     _require(node["force"] <= node["bore_force"] * bound + SUBNORMAL_ALLOWANCE, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND")
     # The original screen as the producer forms it.
     order, assembled = rhs["node_order"], rhs["assembled_pressure_rhs_global"]
@@ -639,7 +659,7 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
 
 CAP_REMAINDER_WARNING_CODE = "PRESSURE_REGION_CAP_REMAINDER_RETAINED"
 CAP_REMAINDER_WARNING_MESSAGE = (
-    "At interior nodes of this case's pressure regions the cap loads of adjacent members do not cancel exactly in this model. "
+    "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. "
     "The remainder comes from small differences in bore or alignment within each region's representation limits, from "
     "the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The "
     "exception to the pressure cancellation screen that admitted this case does not establish that its effect is "
@@ -647,10 +667,38 @@ CAP_REMAINDER_WARNING_MESSAGE = (
     "which those loads cancel.")
 
 
+def rust_lower_exp(value: float) -> str:
+    """Rust's ``format!("{:e}", value)`` for a finite binary64 value (``LowerExp`` without a precision): the shortest
+    decimal digits that read back to the same value, as ``d[.ddd]e<exponent>``, no ``+`` and no leading zeros in the
+    exponent (``2.197357159078235e-1``, ``0e0``, ``5e-324``). Python's ``repr`` gives the same shortest round-trip
+    digits (the shortest string that reads back to the value, the nearest to it among those), so only the layout is
+    re-formed here."""
+    _require(math.isfinite(value), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
+    sign = "-" if math.copysign(1.0, value) < 0 else ""
+    if value == 0:
+        return sign + "0e0"
+    digits, exponent = repr(abs(value)).lower().partition("e")[::2]
+    whole, _, fraction = digits.partition(".")
+    significant = (whole + fraction).lstrip("0")
+    point = len(whole) - (len(whole + fraction) - len((whole + fraction).lstrip("0")))
+    significant = significant.rstrip("0") or "0"
+    power = (int(exponent) if exponent else 0) + point - 1
+    mantissa = significant[0] + ("." + significant[1:] if len(significant) > 1 else "")
+    return f"{sign}{mantissa}e{power}"
+
+
+def cap_remainder_warning_message(case: str, node: str, force: float) -> str:
+    """The warning's whole message (Rust ``physics_evidence::cap_remainder_warning_message``): the fixed opening and
+    one sentence naming the case and node by their ids and stating the record's force in newtons as Rust writes it."""
+    return (f"{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the retained remainder is largest relative to the pressure "
+            f"force on the bore at node {node}, where it is {rust_lower_exp(force)} N; that force is not a bound on the resulting "
+            "displacement.")
+
+
 def cap_remainder_warnings(source: Mapping[str, Any]) -> None:
     """DEL-04-07 (Rust ``physics_evidence::cap_remainder_warnings``), read after every exception record has been
-    checked: the warning stands on a case exactly when its record does, once, at warning severity, with the fixed
-    message and the references [case, region, node], the region being the one whose terms meet at the record's node.
+    checked: the warning stands on a case exactly when its record does, once, at warning severity, with the message
+    re-formed from the record (``cap_remainder_warning_message``) and the references [case, region, node], the region being the one whose terms meet at the record's node.
     A record without its warning, a warning on a case without a record, and a warning of another form are each
     refused by name."""
     expected = []
@@ -662,16 +710,16 @@ def cap_remainder_warnings(source: Mapping[str, Any]) -> None:
         node = record["node_ref"]
         regions = [g["terms"][0]["region_id"] for g in rhs["groups"] if g["node_ref"] == node and g["terms"]]
         _require(bool(regions), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")
-        expected.append([case["load_case_id"], regions[0], node])
+        expected.append(([case["load_case_id"], regions[0], node], cap_remainder_warning_message(case["load_case_id"], node, record["remainder_force_n"])))
     diagnostics = source.get("diagnostics")
     warnings = [d for d in (diagnostics if isinstance(diagnostics, list) else []) if isinstance(d, Mapping) and d.get("code") == CAP_REMAINDER_WARNING_CODE]
     for warning in warnings:
         refs = warning.get("affected_refs")
         case = refs[0] if isinstance(refs, list) and refs else None
-        _require(any(item[0] == case for item in expected), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")
-        _require(warning.get("severity") == "warning" and warning.get("message") == CAP_REMAINDER_WARNING_MESSAGE and refs in expected,
+        _require(any(item[0][0] == case for item in expected), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")
+        _require(warning.get("severity") == "warning" and any(refs == r and warning.get("message") == m for r, m in expected),
                  "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
-    for refs in expected:
+    for refs, _ in expected:
         count = sum(1 for warning in warnings if warning.get("affected_refs") == refs)
         _require(count != 0, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_MISSING")
         _require(count == 1, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
