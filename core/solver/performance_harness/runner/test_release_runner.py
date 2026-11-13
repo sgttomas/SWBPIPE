@@ -3,7 +3,7 @@
 
 The pure tests need no child process and no Rust binary. `LiveLaunch` runs two tiny
 self-limiting Python children through the runner's own run path: a stand-in driver that prints
-one `release-timing-v1` line, and (macOS) a growing child under a 128 MiB cap with a failsafe
+one driver line (`rr.DRIVER_SCHEMA`), and (macOS) a growing child under a 128 MiB cap with a failsafe
 exit at 512 MiB. Nothing measures or asserts a time or memory bound.
 
 Run from this directory: python3 -m unittest test_release_runner
@@ -53,7 +53,7 @@ def driver(status=rr.SOLVED, codes=(), footprint=2 * k6.GIB, **extra):
                                       'lifetime_max_phys_footprint_bytes': footprint},
                             'parse_back': {'ru_maxrss_bytes': 3 * k6.GIB + 5, 'phys_footprint_bytes': k6.GIB,
                                            'lifetime_max_phys_footprint_bytes': footprint}},
-            'worker_peak_footprint_bytes_equivalent': footprint, 'limits': ['a limit']}
+            'driver_peak_footprint_bytes': footprint, 'limits': ['a limit']}
     line.update(extra)
     return line
 
@@ -84,26 +84,43 @@ class Plan(unittest.TestCase):
         self.assertEqual([r['order'] for r in plan], list(range(len(plan))), 'every run is in plan order')
         self.assertEqual(len({r['run_id'] for r in plan}), len(plan))
         timed = [r for r in plan if not r['attribute']]
-        self.assertEqual(len({(r['profile'], r['nodes']) for r in timed}), len(timed),
-                         'one model per (profile, nodes)')
+        self.assertEqual(len({(r['task'], r['profile'], r['nodes']) for r in timed}), len(timed),
+                         'one run per (task, profile, nodes)')
         for r in plan:
             if r['attribute']:
                 self.assertTrue(r['run_id'].endswith('-attr'))
-                self.assertIn((r['profile'], r['nodes'], r['mode']),
-                              {(t['profile'], t['nodes'], t['mode']) for t in timed}, 'an attribution run has a twin')
+                self.assertIn((r['task'], r['profile'], r['nodes'], r['mode']),
+                              {(t['task'], t['profile'], t['nodes'], t['mode']) for t in timed},
+                              'an attribution run has a twin')
         for r in plan:
+            self.assertIn(r['task'], rr.TASKS)
             self.assertIn(r['profile'], rr.PROFILES)
             self.assertEqual(r['footprint_budget_bytes'], BUDGET)
             self.assertEqual(r['rss_cap_bytes'], rr.EMERGENCY_RSS_CAP_BYTES)
             self.assertEqual(r['mode'], 'sparse')
-            self.assertEqual(r['run_id'], rr.run_id_of(r['profile'], r['nodes'], r['mode'], r['attribute']))
+            self.assertEqual(r['run_id'], rr.run_id_of(r['profile'], r['nodes'], r['mode'], r['attribute'], r['task']))
             self.assertIsNotNone(rr.as_expected(r['expect'], 'ok', None), 'expectation %r unknown' % r['expect'])
-        for name in ('window', 'window2'):
+        # The model checks are runs of their own, never inside a solve run or a timed window.
+        checks = rr.select(plan, 'model-checks')
+        self.assertTrue(checks)
+        for r in checks:
+            self.assertEqual(r['task'], 'model_checks')
+            self.assertTrue(r['run_id'].startswith('model-checks-') and r['run_id'].endswith('-n%04d' % r['nodes']))
+            self.assertEqual(r['expect'], 'ok')
+            self.assertIn(rr.model_name(r['profile'], r['nodes']),
+                          {rr.model_name(s['profile'], s['nodes']) for s in plan if s['task'] == 'solve'},
+                          'a model-checks run reads a rack a solve run reads')
+        self.assertIn('model-checks-linear-ex-n2000', {r['run_id'] for r in rr.select(plan, 'criterion')})
+        for name in ('window', 'window2', 'scaling', 'scaling-2000'):
             window = rr.select(plan, name)
             self.assertTrue(window)
-            self.assertLessEqual(rr.plan_total_s(window) + rr.QUIET_WAIT_S, rr.WINDOW_BUDGET_S, name)
+            self.assertTrue(all(r['task'] == 'solve' for r in window), name)
+            if name != 'scaling-2000':
+                self.assertLessEqual(rr.plan_total_s(window) + rr.QUIET_WAIT_S, rr.WINDOW_BUDGET_S, name)
         self.assertFalse(any(r['attribute'] for r in rr.select(plan, 'window')), 'the timed window samples nothing')
         self.assertEqual(sorted(r['attribute'] for r in rr.select(plan, 'window2')), [False, True])
+        self.assertEqual([(r['profile'], r['nodes']) for r in rr.select(plan, 'scaling')],
+                         [(p, n) for p in ('linear-ex', 'nonlinear-ex') for n in (250, 500, 1000)])
         criterion = {r['run_id'] for r in rr.select(plan, 'criterion')}
         self.assertTrue(criterion)
         self.assertEqual({r['run_id'] for r in plan if r['nodes'] == 2000}, criterion)
@@ -123,6 +140,19 @@ class Plan(unittest.TestCase):
         marked = rr.with_attribution(plan)
         self.assertEqual([r['run_id'] for r in marked], ['linear-ex-n0100-sparse-attr', 'nonlinear-pf-n0100-sparse-attr'])
         self.assertTrue(all(r['attribute'] for r in marked))
+
+    def test_a_model_checks_run_is_its_own_driver_invocation(self):
+        plan = rr.build_plan((('linear-ex', 100, 60, 5, 'solved'), ('linear-ex', 100, 60, 1, 'ok', False, 'model_checks')))
+        solve, checks = plan
+        self.assertEqual((solve['task'], solve['run_id']), ('solve', 'linear-ex-n0100-sparse'))
+        self.assertEqual((checks['task'], checks['run_id']), ('model_checks', 'model-checks-linear-ex-n0100'))
+        self.assertEqual(rr.driver_argv('/b/release_timing', '/m/x.json', solve), ['/b/release_timing', '/m/x.json',
+                                                                                  '--mode', 'sparse'])
+        self.assertEqual(rr.driver_argv('/b/release_timing', '/m/x.json', checks, '/r'),
+                         ['/b/release_timing', '/m/x.json', '--model-checks', '--write',
+                          os.path.join('/r', 'model-checks-linear-ex-n0100.result.json')])
+        with self.assertRaises(ValueError):
+            rr.build_plan((('linear-ex', 100, 60, 1, 'ok', False, 'other'),))
 
     def test_build_plan_totals_and_selection(self):
         plan = synthetic_plan()
@@ -152,6 +182,44 @@ class Plan(unittest.TestCase):
         self.assertIn('total estimate: %d s' % rr.plan_total_s(window), text)
         for r in window:
             self.assertIn(r['run_id'], text)
+
+
+class WritePlan(unittest.TestCase):
+    """`--write-plan`: the plan file of the driver's supervise mode has the runner's plan as its one source."""
+
+    def test_the_plan_file_is_the_selected_plan(self):
+        with tempfile.TemporaryDirectory() as folder:
+            models = os.path.join(folder, 'models')
+            os.makedirs(models)
+            listed = rr.model_name('linear-ex', 250)
+            with open(os.path.join(models, 'manifest.json'), 'w') as fh:
+                json.dump({'models': {listed: {'sha256': 'a' * 64, 'stats': {'nodes': 250}}}}, fh)
+            path = os.path.join(folder, 'plan.json')
+            out = io.StringIO()
+            with mock.patch.object(k6, 'launch', side_effect=AssertionError('launched')), redirect_stdout(out):
+                self.assertEqual(rr.main(['--write-plan', path, '--subset', 'window', '--models', models,
+                                          '--budget-s', '600', '--quiet-wait-s', '30']), 0)
+            with open(path) as fh:
+                document = json.load(fh)
+        window = rr.select(rr.default_plan(), 'window')
+        self.assertEqual(document['schema'], rr.PLAN_SCHEMA)
+        self.assertEqual((document['window_budget_s'], document['quiet_wait_s']), (600, 30))
+        self.assertEqual([{k: r[k] for k in rr.PLAN_RUN_KEYS} for r in document['runs']],
+                         [{k: r[k] for k in rr.PLAN_RUN_KEYS} for r in window])
+        self.assertEqual([r['model'] for r in document['runs']], [rr.model_name(r['profile'], r['nodes']) for r in window])
+        by_model = {r['model']: r for r in document['runs']}
+        self.assertEqual((by_model[listed]['expected_model_sha256'], by_model[listed]['model_stats']),
+                         ('a' * 64, {'nodes': 250}))
+        others = [r for r in document['runs'] if r['model'] != listed]
+        self.assertTrue(others and all(r['expected_model_sha256'] is None for r in others), 'unlisted: no check')
+        self.assertNotIn(folder, json.dumps(document))
+
+    def test_attribution_runs_are_refused(self):
+        with self.assertRaises(ValueError):
+            rr.plan_document(rr.select(rr.default_plan(), 'window2'))
+        with tempfile.TemporaryDirectory() as folder, redirect_stdout(io.StringIO()), \
+                mock.patch('sys.stderr', io.StringIO()), self.assertRaises(SystemExit):
+            rr.main(['--write-plan', os.path.join(folder, 'plan.json'), '--subset', 'window2'])
 
 
 class Classification(unittest.TestCase):
@@ -237,6 +305,52 @@ class Classification(unittest.TestCase):
         self.assertEqual(rr.classify(launched('error', 101), None, BUDGET), ('error', 'no_driver_line_exit_101'))
         self.assertEqual(rr.classify(launched(), driver('SOMETHING'), BUDGET), ('error', 'status_SOMETHING'))
         self.assertEqual(rr.classify(launched('error', 2), driver('driver_error'), BUDGET)[0], 'error')
+
+    def test_a_model_checks_report_is_ok(self):
+        line = driver(rr.CHECKS_REPORTED, footprint=k6.GIB)
+        self.assertEqual(rr.classify(launched(), line, BUDGET), ('ok', None))
+        self.assertTrue(rr.as_expected('ok', 'ok', None))
+        self.assertEqual(rr.classify(launched(), driver(rr.CHECKS_REPORTED, footprint=BUDGET + 1), BUDGET)[0],
+                         'exceeds_base_machine_budget')
+
+
+class ClassificationReadings(unittest.TestCase):
+    """Each record names the footprint readings its classification used, and this runner's reading
+    at exit (/usr/bin/time's peak memory footprint) or why it has none."""
+
+    def test_a_completed_run_names_every_reading_it_compared(self):
+        progress = {'phys_footprint_bytes': 5, 'lifetime_max_phys_footprint_bytes': 6}
+        record = launched(wrapper='/usr/bin/time -l', sampler={'peak_phys_footprint_bytes': 1,
+                                                               'peak_lifetime_max_phys_footprint_bytes': 2})
+        readings = rr.readings_record(record, driver(), progress)
+        self.assertEqual(readings['used'], [
+            'sampler:peak_phys_footprint_bytes', 'sampler:peak_lifetime_max_phys_footprint_bytes',
+            'rss:time_peak_footprint_bytes', 'driver:driver_peak_footprint_bytes',
+            'progress:phys_footprint_bytes', 'progress:lifetime_max_phys_footprint_bytes'])
+        self.assertEqual((readings['at_exit'], readings['at_exit_absent']), ('rss:time_peak_footprint_bytes', None))
+
+    def test_a_killed_run_says_it_had_no_reading_at_exit(self):
+        # /usr/bin/time is in the killed group: no time_* readings.
+        killed = launched('killed_by_rss_watchdog', -9, wrapper='/usr/bin/time -l', rss={'ps_max_kib': 1},
+                          sampler={'peak_phys_footprint_bytes': BUDGET - 1,
+                                   'peak_lifetime_max_phys_footprint_bytes': BUDGET - 1})
+        readings = rr.readings_record(killed, None)
+        self.assertEqual(readings['used'], ['sampler:peak_phys_footprint_bytes',
+                                            'sampler:peak_lifetime_max_phys_footprint_bytes'])
+        self.assertIsNone(readings['at_exit'])
+        self.assertIn('killed with its process group', readings['at_exit_absent'])
+        self.assertEqual(rr.classify(killed, None, rr.EMERGENCY_RSS_CAP_BYTES, BUDGET)[0], 'killed_by_rss_cap')
+        sampled = launched('killed_by_sampler', -9, wrapper='/usr/bin/time -l', rss={},
+                           sampler={'kill_footprint_bytes': BUDGET + 1})
+        self.assertEqual(rr.readings_record(sampled, None)['used'], ['sampler:kill_footprint_bytes'])
+        self.assertIn('killed with its process group', rr.readings_record(sampled, None)['at_exit_absent'])
+        self.assertIn('did not run under /usr/bin/time', rr.readings_record(launched(rss={}), driver())['at_exit_absent'])
+
+    def test_no_footprint_decides_a_timeout_or_an_entry_error(self):
+        self.assertEqual(rr.classification_readings(launched('timed_out', -9), None), [])
+        line = driver('entry_error', entry_error={'stage': 'entry', 'message': 'x'})
+        self.assertEqual(rr.classification_readings(launched('error', 3), line), [])
+        self.assertEqual(rr.classification_readings(launched('error', 101), None), [])
 
 
 class Window(unittest.TestCase):
@@ -355,7 +469,67 @@ class Window(unittest.TestCase):
         self.assertTrue(argv[5].endswith(os.path.join('results', 'linear-ex-n0100-sparse.result.json')))
 
 
+class RunIds(unittest.TestCase):
+    """A run id names record files inside the output folder: only bare names are accepted."""
+
+    def test_a_run_id_that_is_not_a_bare_name_is_refused_before_anything_is_written(self):
+        for bad in ('../escaped', 'a/b', '.hidden', '', 'x' * 129, 'a b'):
+            with tempfile.TemporaryDirectory() as folder:
+                plan = rr.build_plan((('linear-ex', 100, 60, 1, 'solved'),))
+                plan[0]['run_id'] = bad
+                out = os.path.join(folder, 'out')
+                with self.assertRaises(ValueError) as refused:
+                    rr.run_plan(plan, folder, out, '/bin/false', launch=None, quiet=None, log=lambda *a: None, md={})
+                self.assertIn('bare names', str(refused.exception))
+                self.assertEqual(os.listdir(folder), [], 'nothing written, inside or outside the output folder')
+                with self.assertRaises(ValueError):
+                    rr.plan_document(plan)
+        for good in ('linear-ex-n2000-sparse', 'model-checks-linear-ex-n1000', 'a.b_c-1'):
+            rr.check_run_ids([{'run_id': good}])
+
+    def test_run_ids_that_would_name_one_file_twice_are_refused_before_anything_is_written(self):
+        # The third review's cases: the run id `records` made its stdout record the aggregate
+        # record, and `Case` and `case` were one set of files on a case-insensitive volume.
+        cases = {('records',): 'records.jsonl', ('Records',): 'records.jsonl', ('Case', 'case'): 'same ignoring case'}
+        for name in rr.FOLDER_NAMES:
+            cases[(name,)] = 'a name the runner writes'
+            cases[(name.upper(),)] = 'a name the runner writes'
+        for ids, message in cases.items():
+            with tempfile.TemporaryDirectory() as folder:
+                plan = rr.build_plan(tuple(('linear-ex', 100 + i, 60, 1, 'solved') for i in range(len(ids))))
+                for r, run_id in zip(plan, ids):
+                    r['run_id'] = run_id
+                with self.assertRaises(ValueError) as refused:
+                    rr.run_plan(plan, folder, os.path.join(folder, 'out'), '/bin/false', launch=None, quiet=None,
+                                log=lambda *a: None, md={})
+                self.assertIn(message, str(refused.exception), ids)
+                self.assertEqual(os.listdir(folder), [], 'nothing written')
+                with self.assertRaises(ValueError):
+                    rr.plan_document(plan)
+        # The default plan's ids, and every pair of suffix-shaped ids, name distinct files.
+        rr.check_run_ids(rr.default_plan())
+        rr.check_run_ids([{'run_id': i} for i in ('x', 'x.record', 'x.stderr', 'x.time', 'x.jsonl', 'x.json', 'x.txt',
+                                                   'x.sample-000', 'x.result')])
+
+
 class PacketAggregation(unittest.TestCase):
+    def test_a_record_of_an_earlier_driver_is_refused_by_name(self):
+        # A record written with a release-timing-v1 driver line (the side stage form) is not
+        # repackaged under the current conditions.
+        with tempfile.TemporaryDirectory() as out:
+            old = driver(schema='release-timing-v1', side_stages=['model_checks'])
+            k6.append_record(out, {'schema': rr.RECORD_SCHEMA, 'run_id': 'old-run', 'classification': 'ok',
+                                   'launch': launched(), 'driver': old})
+            with self.assertRaises(ValueError) as refused:
+                rr.packet(out)
+            self.assertEqual(str(refused.exception), "record old-run: its driver line has schema release-timing-v1, "
+                             "not release-timing-v2; an earlier driver's record is not repackaged")
+            err = io.StringIO()
+            with mock.patch('sys.stderr', err):
+                self.assertEqual(rr.main(['--packet', '--out', out]), 2)
+            self.assertIn('not repackaged', err.getvalue())
+            self.assertFalse(os.path.exists(os.path.join(out, 'packet.json')))
+
     def test_packet_from_synthetic_records(self):
         with tempfile.TemporaryDirectory() as out:
             with open(os.path.join(out, 'metadata.json'), 'w') as fh:
@@ -440,6 +614,16 @@ class MetadataHasNoHostIdentifiers(unittest.TestCase):
         self.assertEqual(md['base_machine_budget_bytes'], BUDGET)
         self.assertFalse(md['source_dirty'])
 
+    def test_a_dirty_flag_git_cannot_establish_is_unknown_never_false(self):
+        def fake(answers):
+            return lambda args: answers.get(args[-1] if args[0] == 'rev-parse' else args[0])
+        clean = {'HEAD': 'a' * 40, 'HEAD^{tree}': 'b' * 40, 'status': ''}
+        self.assertEqual(rr.source_identity(fake(clean)), ('a' * 40, 'b' * 40, False))
+        self.assertIs(rr.source_identity(fake(dict(clean, status=' M core/x.rs')))[2], True)
+        self.assertEqual(rr.source_identity(fake(dict(clean, status=None)))[2], 'unknown')
+        self.assertEqual(rr.source_identity(fake({'status': ''}))[2], 'unknown', 'no commit: not established')
+        self.assertEqual(rr.source_identity(lambda args: None), (None, None, 'unknown'))
+
 
 class Generate(unittest.TestCase):
     FAKE = ('import argparse, json, sys\n'
@@ -472,9 +656,9 @@ class Generate(unittest.TestCase):
 
 
 STAND_IN_DRIVER = ('import json, sys\n'
-                   'print(json.dumps({"schema": "release-timing-v1", "status": "MECHANICS_SOLVED", '
+                   'print(json.dumps({"schema": "%s", "status": "MECHANICS_SOLVED", '
                    '"blocking_codes": [], "rows": 3, "argv_tail": sys.argv[2:], '
-                   '"worker_peak_footprint_bytes_equivalent": 1}))\n')
+                   '"driver_peak_footprint_bytes": 1}))\n' % rr.DRIVER_SCHEMA)
 
 
 def grower(progress=False):
@@ -523,6 +707,22 @@ class LiveLaunch(unittest.TestCase):
         self.assertEqual(r['driver']['argv_tail'], ['--mode', 'sparse'])
         self.assertEqual(r['launch']['argv'][0], 'release_timing', 'record argv holds no path')
         self.assertTrue(r['as_expected'])
+
+    def test_each_recorded_hash_is_its_files_at_the_end_of_a_multi_run_plan(self):
+        with tempfile.TemporaryDirectory() as folder:
+            binary = executable(folder, 'release_timing', STAND_IN_DRIVER)
+            models = self.models(folder)
+            with open(os.path.join(models, rr.model_name('nonlinear-pf', 200)), 'w') as fh:
+                fh.write('{}')
+            plan = rr.build_plan((('nonlinear-pf', 100, 60, 1, 'solved'), ('nonlinear-pf', 200, 60, 1, 'solved')),
+                                 rss_cap_bytes=128 * k6.MIB)
+            out = os.path.join(folder, 'out')
+            records = rr.run_plan(plan, models, out, binary, quiet=lambda log, wait: {'quiet': True},
+                                  log=lambda *a: None, md={})
+            self.assertEqual(len(records), 2)
+            for r in records:
+                with open(os.path.join(out, r['run_id'] + k6.STDOUT_SUFFIX), 'rb') as fh:
+                    self.assertEqual(r['launch']['stdout_sha256'], hashlib.sha256(fh.read()).hexdigest(), r['run_id'])
 
     def test_a_growing_child_is_killed_at_the_cap(self):
         # macOS: the ps RSS watchdog kills it. Linux: RLIMIT_AS stops its growth (MemoryError).
@@ -694,8 +894,8 @@ class LiveFootprint(unittest.TestCase):
                 '    while time.monotonic() < until:\n'
                 '        x += 1\n'
                 'spin(time.monotonic() + 3.5)\n'
-                'print(json.dumps({"schema": "release-timing-v1", "status": "MECHANICS_SOLVED", '
-                '"blocking_codes": [], "worker_peak_footprint_bytes_equivalent": 1}))\n')
+                'print(json.dumps({"schema": "%s", "status": "MECHANICS_SOLVED", '
+                '"blocking_codes": [], "driver_peak_footprint_bytes": 1}))\n' % rr.DRIVER_SCHEMA)
         with tempfile.TemporaryDirectory() as folder:
             binary = executable(folder, 'release_timing', busy)
             factory = lambda out, run_id, keep: rr.Attributor(out, run_id, keep, frame_pattern='PyEval')  # noqa: E731
