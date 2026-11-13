@@ -121,6 +121,18 @@ GROUPS = [
      "pinned_by": ["core/runner/headless/tests/t4_u5b_requests/bindings.json", "core/runner/headless/tests/tied_joint_references.rs",
                    "core/product_physics/tests/connector_readers.rs", "fixtures/results/pressure_v3_connector_reader_corpus.json"],
      "anchor": BASELINE},
+    # The cancellation-screen exception's halfway-force case: the test builds its model in code without the setting by
+    # design (the exception's family excludes pressure elongation), so its committed envelope is the not-included
+    # mechanics; the anchor compares `--switch all` with the pre-change engine's solve of the committed request.
+    {"id": "cap_remainder_halfway_force", "paths": ["fixtures/results/pressure_v3_cap_remainder_halfway_force.json"],
+     "producer": {"kind": "rust_test", "path": "core/product_physics/tests/pressure_grouping_limits.rs",
+                  "write": "SWBPIPE_WRITE_CAP_REMAINDER_FIXTURE=1 with "
+                           "a_force_halfway_between_two_shortest_decimals_is_read_in_either_spelling",
+                  "switch_plumbed": False,
+                  "switch_route": "the model is built in code without model_settings.pressure_elongation by design"},
+     "pinned_by": ["core/product_physics/tests/pressure_grouping_limits.rs",
+                   "tests/test_pressure_cancellation_exception_readers.py"],
+     "anchor": BASELINE},
     {"id": "arc_reader_corpus", "paths": ["fixtures/results/pressure_v3_arc_reader_corpus.json"],
      "producer": _writer("rust_test", "core/product_physics/tests/pressure_arc_readers.rs",
                          "shared_arc_reader_corpus_is_current (models from validation/references/t4_i7)"),
