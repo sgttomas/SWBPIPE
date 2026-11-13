@@ -253,7 +253,9 @@ CONDITIONS = (
     'there is killed_by_rss_cap unless a footprint reading shows the budget exceeded.',
     'The host is the one described in metadata (memory_bytes, cpu_model); it is not necessarily the 16 GiB base '
     'machine, so memory pressure, paging and compression on a 16 GiB machine are not reproduced.',
-    'Models are invented rack models from rack_model.py, identified per run by sha256.',
+    'Models are those the plan names: invented rack models from rack_model.py and, where the plan names it, the '
+    'committed invented reference system (fixtures/reference_system/reference_system.json). Each is identified per '
+    'run by sha256.',
     'An attribution run (run id ending -attr) takes stack snapshots with macOS sample (1 s at 1 ms every 2 s, and '
     'whenever the footprint has grown by more than 512 MiB since the previous snapshot), each with the footprints at '
     'its start and the top call paths reduced to product frames. Sampling suspends the process at every sample, so '
