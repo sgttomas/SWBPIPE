@@ -288,7 +288,15 @@ class BaselinePlans(unittest.TestCase):
                 rr.main(['--write-plan', path, '--subset', 'baseline', '--models', folder])
             self.assertIn('not in the models manifest', err.getvalue())
             self.assertFalse(os.path.exists(path))
-            models = {rr.model_name('baseline-one-case-ex', 2000): 'a' * 64, 'reference_system.json': 'b' * 64}
+            # A rack listed without a sha256 is refused too, unlike in a default subset's plan.
+            with open(os.path.join(folder, 'manifest.json'), 'w') as fh:
+                json.dump({'models': {'reference_system.json': {'sha256': 'b' * 64, 'stats': {}}}}, fh)
+            with redirect_stdout(io.StringIO()), mock.patch('sys.stderr', io.StringIO()) as err, \
+                    self.assertRaises(SystemExit):
+                rr.main(['--write-plan', path, '--subset', 'baseline', '--models', folder])
+            self.assertIn('baseline-one-case-ex-n2000.json is not in the models manifest', err.getvalue())
+            self.assertFalse(os.path.exists(path))
+            models ={rr.model_name('baseline-one-case-ex', 2000): 'a' * 64, 'reference_system.json': 'b' * 64}
             with open(os.path.join(folder, 'manifest.json'), 'w') as fh:
                 json.dump({'models': {name: {'sha256': sha, 'stats': {}} for name, sha in models.items()}}, fh)
             self.assertEqual(rr.main(['--write-plan', path, '--subset', 'baseline', '--models', folder]), 0)
