@@ -82,7 +82,8 @@ def test_the_steps_run_in_the_job_s_order_with_its_names_and_output_files(repo, 
     assert (repo / 'deliverable-check.json').exists()
 
 
-def test_the_first_failing_step_ends_the_run_with_its_status(repo, capsys):
+def test_the_first_failing_step_ends_the_run_with_its_status(repo, capsys, monkeypatch):
+    monkeypatch.delenv('GITHUB_ACTIONS', raising=False)  # the local form; the hosted form is the next test's
     base = git(repo, 'rev-parse', 'HEAD^1')
     recorder = Recorder(repo, fail='tools.deliverables')
     assert checks.run(repo, 'pull_request', base, 'HEAD', PY, recorder) == 1
@@ -110,8 +111,9 @@ def test_a_base_that_names_no_commit_falls_back_to_the_head_s_parent(repo, event
     assert commands(recorder) == expected(event, base, 'HEAD^1')
 
 
-def test_a_merge_queue_base_that_names_no_commit_fails_closed(repo, capsys):
+def test_a_merge_queue_base_that_names_no_commit_fails_closed(repo, capsys, monkeypatch):
     """A queue group can hold several pull requests, so HEAD^1 would omit earlier ones."""
+    monkeypatch.delenv('GITHUB_ACTIONS', raising=False)
     recorder = Recorder(repo)
     assert checks.run(repo, 'merge_group', SHA, 'HEAD', PY, recorder) == 1
     assert commands(recorder) == expected('merge_group', SHA, 'unused')[:4]
