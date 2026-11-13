@@ -499,7 +499,8 @@ def test_the_one_session_alternative_is_allowed_for_and_no_sentence_says_every_r
                         and "begin" in lowered), sentence
     m = manifest()
     offering = [r for e in m["models"] for r in e.get("runs") or []
-                if "Instead of importing this run's file, you MAY" in (r.get("window_instruction") or {}).get("text", "")]
+                if "instead of importing this run's file, you may"
+                in (r.get("window_instruction") or {}).get("text", "").lower()]
     assert offering  # the manifest offers it; what comes back for such a run is the same three files
     for run in offering:
         item = by_id(index_of(files))[run["run_id"]]
