@@ -35,6 +35,24 @@ EXPECTED_EXACT_DEV_REQUIREMENTS = {
 }
 
 
+# The sweep's entry point sets CARGO_NET_OFFLINE in its own process for everything it starts. The tests here call
+# that entry point inside pytest's process, so without this the variable stayed set in the worker for every later
+# test: a later test's own `cargo build` then ran offline, and failed wherever its dependencies were not cached.
+CARGO_OFFLINE = "CARGO_NET_OFFLINE"
+CARGO_OFFLINE_AT_IMPORT = os.environ.get(CARGO_OFFLINE)
+
+
+@pytest.fixture(autouse=True)
+def cargo_offline_as_found():
+    """Each test here leaves CARGO_NET_OFFLINE as it found it, set or unset."""
+    found = os.environ.get(CARGO_OFFLINE)
+    yield
+    if found is None:
+        os.environ.pop(CARGO_OFFLINE, None)
+    else:
+        os.environ[CARGO_OFFLINE] = found
+
+
 def load_module():
     spec = importlib.util.spec_from_file_location("run_evidence_sweep", MODULE_PATH)
     assert spec is not None
@@ -1223,3 +1241,24 @@ def test_main_preflight_failure_runs_no_surface_and_writes_no_summary(
 
     assert result == 1
     assert list(tmp_path.glob("SWEEP_*.json")) == []
+
+
+def test_an_executed_sweep_sets_cargo_offline_in_its_own_process(monkeypatch, tmp_path):
+    """The premise of `cargo_offline_as_found`: executing the sweep sets the variable in the process that called
+    it, here pytest's worker. (The variable is removed first without monkeypatch, so that only the fixture can
+    put back what this test found.)"""
+    os.environ.pop(CARGO_OFFLINE, None)
+    sweep = load_module()
+    root = tmp_path / "repo"
+    root.mkdir()
+    monkeypatch.setattr(sweep, "missing_tools", lambda surfaces: [])
+    monkeypatch.setattr(sweep, "preflight_prerequisites", lambda root, surfaces: [])
+    monkeypatch.setattr(sweep, "run_sweep", lambda surfaces, root: stub_sweep_summary(dirty=False))
+
+    assert sweep.main(["--execute", "--repo-root", str(root)]) == 0
+    assert os.environ.get(CARGO_OFFLINE) == "true"
+
+
+def test_the_test_after_an_executed_sweep_finds_cargo_offline_as_this_module_did():
+    """Runs after the test above, in this module's order and on its worker: what that test set is gone."""
+    assert os.environ.get(CARGO_OFFLINE) == CARGO_OFFLINE_AT_IMPORT

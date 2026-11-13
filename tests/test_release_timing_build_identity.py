@@ -33,6 +33,16 @@ identity still correct.
 The build tests run Cargo themselves (the first build from scratch), so they are marked
 `runs_cargo`: hosted CI runs them, and a local session with OPENPIPESTRESS_NO_CARGO_BUILD=1 skips
 them. Behaviour only: nothing here is a timing.
+
+Every build here is `--offline`. On main these builds once inherited whatever the process
+environment held, and reached the registry when it let them: an earlier test on the same worker
+(the evidence sweep's, which sets CARGO_NET_OFFLINE in its own process) left them offline, and
+they then passed or failed by whether some other build of the same job had already cached the
+driver's locked dependencies. Now they never reach the registry, whatever the environment says:
+the hosted runner fetches the locked dependencies before pytest starts (`tools/ci/python_ci.py`
+`OFFLINE_BUILDS`), and where they are missing the failure names the command that fetches them.
+`test_the_builds_never_reach_the_registry` builds against an empty Cargo home and requires a
+refusal and no downloaded crate.
 """
 from __future__ import annotations
 
@@ -52,6 +62,8 @@ EDITED = Path("core") / "product_physics" / "src" / "lib.rs"
 COPIED = ("core", "fixtures", "schemas", "validation")
 CI_READS = ("core/**", "fixtures/**", "schemas/**", "validation/**")
 RUNS_CARGO = pytest.mark.runs_cargo("cargo builds of the release timing driver in a copy of its crates")
+# What provides the driver's locked dependencies to these offline builds (the hosted runner runs it before pytest).
+FETCH = f"cargo fetch --locked --manifest-path {(CRATE / 'Cargo.toml').as_posix()}"
 
 
 def isolated_env(ceiling: Path) -> dict[str, str]:
@@ -118,12 +130,13 @@ def copy_workspace(destination: Path) -> None:
 
 
 def build_identity(copy: Path, target: Path, env: dict[str, str] | None = None) -> dict:
-    """Builds the copy's driver and prints its identity. `env` is the environment cargo (and so the
-    build script) inherits: by default this process's, GIT_* variables and all."""
+    """Builds the copy's driver, offline, and prints its identity. `env` is the environment cargo (and
+    so the build script) inherits: by default this process's, GIT_* variables and all."""
     env = dict(os.environ if env is None else env, CARGO_TARGET_DIR=str(target))
-    built = subprocess.run(["cargo", "build", "--quiet", "--locked", "--bin", "release_timing"], cwd=copy / CRATE,
-                           capture_output=True, text=True, check=False, env=env)
-    assert built.returncode == 0, built.stderr[-4000:]
+    built = subprocess.run(["cargo", "build", "--quiet", "--locked", "--offline", "--bin", "release_timing"],
+                           cwd=copy / CRATE, capture_output=True, text=True, check=False, env=env)
+    assert built.returncode == 0, (f"the offline build failed; if a dependency is missing from Cargo's cache, run "
+                                   f"`{FETCH}` from the project first.\n{built.stderr[-4000:]}")
     shown = subprocess.run([str(target / "debug" / "release_timing"), "--build-identity"], capture_output=True,
                            text=True, check=True)
     return json.loads(shown.stdout)
@@ -205,6 +218,24 @@ def test_an_inherited_git_dir_reaches_no_other_repository(tmp_path, hostile_repo
     assert (identity["source_commit"], identity["source_dirty"]) == (commit, False), identity
     assert identity["source_commit"] != other_commit
     assert snapshot(hostile_repository) == before, "the other repository was touched"
+
+
+@RUNS_CARGO
+def test_the_builds_never_reach_the_registry(tmp_path):
+    """With an empty Cargo home, so that no crate is cached, and with CARGO_NET_OFFLINE removed, so that
+    only the build's own flag holds it offline, the copy's build is refused and downloads nothing."""
+    copy, target, cargo_home = tmp_path / "workspace", tmp_path / "target", tmp_path / "cargo-home"
+    copy_workspace(copy)
+    new_repository(copy, "the copy, clean")
+    cargo_home.mkdir()
+    env = {name: value for name, value in os.environ.items()
+           if not name.startswith("GIT_") and name != "CARGO_NET_OFFLINE"}
+    env["CARGO_HOME"] = str(cargo_home)
+    with pytest.raises(AssertionError) as refused:
+        build_identity(copy, target, env)
+    assert "offline" in str(refused.value) and FETCH in str(refused.value), str(refused.value)[-2000:]
+    assert not list(cargo_home.rglob("*.crate")), "a crate was downloaded"
+    assert not (target / "debug" / "release_timing").exists()
 
 
 def project_index_flags() -> str:

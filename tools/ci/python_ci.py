@@ -6,6 +6,7 @@ import functools
 from fnmatch import fnmatchcase
 import json
 import math
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -28,6 +29,12 @@ FAMILIES = {
     'canonical': ['tests/test_*canonical_json_adapter.py'],
 }
 AGENT_SUPPLIER_TEST = 'tools/agent_supplier_resource_test.py'
+# A test that builds a crate with `cargo build --offline` gives a verdict that depends neither on the network nor on
+# what an earlier test left in its worker's environment, provided the crate's locked dependencies are in Cargo's
+# cache before pytest starts. Each such test file names here the manifests whose `cargo fetch --locked` provides them.
+OFFLINE_BUILDS = {
+    'tests/test_release_timing_build_identity.py': ('core/solver/release_timing/Cargo.toml',),
+}
 AGENT_SUPPLIER_INPUTS = {
     'tools/agent_supplier_resource.py',
     'tools/agent_supplier_resource_test.py',
@@ -304,6 +311,23 @@ TIMINGS = Path(__file__).with_name('python_ci_timings.json')
 UNKNOWN_SECONDS = 120.0
 
 
+def offline_build_manifests(selected):
+    """The manifests to fetch for a selection: those of each OFFLINE_BUILDS test the selection holds, whether it
+    names the test's file or a folder above it."""
+    def held(test):
+        return any(test == root or test.startswith(root.rstrip('/') + '/') for root in selected)
+    return sorted({manifest for test, manifests in OFFLINE_BUILDS.items() if held(test) for manifest in manifests})
+
+
+def fetch_locked(project, manifests, run=subprocess.run):
+    """`cargo fetch --locked` for each manifest, before pytest starts and online whatever the caller's environment
+    says: the one moment this job reaches the registry for them. A failed fetch stops the job before any test."""
+    env = {name: value for name, value in os.environ.items() if name != 'CARGO_NET_OFFLINE'}
+    for manifest in manifests:
+        print(f'cargo fetch --locked --manifest-path {manifest}', flush=True)
+        run(['cargo', 'fetch', '--locked', '--manifest-path', manifest], cwd=project, env=env, check=True)
+
+
 def load_timings(path=TIMINGS):
     """Reject broken measurement inputs; they never decide test eligibility."""
     data = json.loads(path.read_text())
@@ -403,7 +427,10 @@ def main():
     command = [sys.executable, '-m', 'pytest', '-v', '--tb=short', '--durations=20',
                '-o', 'tmp_path_retention_policy=failed',
                '-n', 'auto', '--dist', 'loadscope', *selected]
-    return 0 if args.dry_run else subprocess.run(command, cwd=project).returncode
+    if args.dry_run:
+        return 0
+    fetch_locked(project, offline_build_manifests(selected))
+    return subprocess.run(command, cwd=project).returncode
 
 
 if __name__ == '__main__':
