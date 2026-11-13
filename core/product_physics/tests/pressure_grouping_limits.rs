@@ -669,7 +669,7 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
 }
 
 const WARNING: &str = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
-const WARNING_MESSAGE: &str = "At interior nodes of this case's pressure regions the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
+const WARNING_MESSAGE: &str = "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
 
 fn warnings(output: &Value) -> Vec<Value> {
     output["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == WARNING).cloned().collect()
@@ -1108,7 +1108,7 @@ fn the_model_binding_refuses_a_model_that_contradicts_the_exception_s_evidence()
 /// (0,0,0), (1,1,1) and (4,4,4), exactly collinear in the recorded
 /// coordinates (chords (1,1,1) and (3,3,3)). Admitted, with the warning, and
 /// each sentence of the warning is true of it: the cap loads at the interior
-/// node do not cancel exactly; the remainder comes from the rounding of the
+/// node are formed separately and here do not cancel exactly; the remainder comes from the rounding of the
 /// separately formed directions (the bores' bits are equal and the chords are
 /// exactly proportional, so no bore or alignment difference is recorded); it
 /// is retained as a pressure load; and the exception's record states no
@@ -1414,6 +1414,57 @@ fn a_formed_zero_from_an_underflowed_offset_at_the_smallest_subnormal_is_admitte
         assert!(assembly(&output)["groups"].as_array().unwrap().iter().all(|g| g["component"] != "Fy"));
         let ratio = record["remainder_to_bore_force_ratio"].as_f64().unwrap();
         assert!(ratio <= record["consistency_bound_ratio"].as_f64().unwrap(), "{mode:?}");
+        validate_pressure_evidence(&output).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        assert_eq!(verdict(&output, &input["model"])["ok"], true, "{mode:?}: {}", verdict(&output, &input["model"]));
+    }
+}
+
+/// The third review's subnormal model: the collinear equal-bore run of
+/// `exactly_collinear_...` at 1e-310 Pa. The original screen fails (every
+/// assembled load is zero while a group value is not) and the exception is
+/// taken; the two members' separately grouped subnormal cap loads at the
+/// interior node cancel exactly, so the published assembled vector is all
+/// zero. The warning stands, and what each sentence states holds of the case:
+/// (1) the cap loads at the interior node are formed separately (one group per
+/// member, distinct direction bits) and need not cancel, here they do; (2) the
+/// separation comes from the rounding of the members' directions (equal bore
+/// bits, exactly proportional chords, unequal formed directions); (3) the
+/// formed groups are the published load (they sum to it, zero, and the readers
+/// re-form it); (4) the record states a ratio within a consistency bound and
+/// nothing of the effect.
+#[test]
+fn a_subnormal_pressure_s_exactly_cancelling_remainder_carries_a_true_warning() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    let mut input = chain(&[[0.0; 3], [1.0, 1.0, 1.0], [4.0, 4.0, 4.0]], &[0.12, 0.12], &[0, 2]);
+    input["model"]["load_cases"][0]["pressure_regions"][0]["pressure"]["value"] = json!(1e-310);
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", output["diagnostics"]);
+        let record = assert_screen(&output, true, "subnormal");
+        assert!(assembly(&output)["cancellation_screen"].is_null(), "{mode:?}: the screen is not finite");
+        let rhs = assembly(&output);
+        assert!(rhs["assembled_pressure_rhs_global"].as_array().unwrap().iter().all(|v| v.as_f64().unwrap() == 0.0), "{mode:?}: all zero");
+        assert_eq!(record["node_ref"], "node:C1", "{mode:?}");
+        assert_eq!(record["remainder_to_bore_force_ratio"].as_f64().unwrap(), 0.0, "{mode:?}");
+        let found = warnings(&output);
+        assert_eq!(found.len(), 1, "{mode:?}");
+        assert_eq!(found[0]["message"], WARNING_MESSAGE, "{mode:?}");
+        assert!(found[0]["message"].as_str().unwrap().starts_with("At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model."));
+        // (1) one group per member at each axis of the interior node, each nonzero, summing to zero.
+        let at_node = rhs["groups"].as_array().unwrap().iter().filter(|g| g["node_ref"] == "node:C1").collect::<Vec<_>>();
+        for component in ["Fx", "Fy", "Fz"] {
+            let groups = at_node.iter().filter(|g| g["component"] == component).collect::<Vec<_>>();
+            assert_eq!(groups.len(), 2, "{mode:?} {component}: formed separately");
+            assert!(groups.iter().all(|g| g["terms"].as_array().unwrap().len() == 1 && g["assembled_force_n"].as_f64().unwrap() != 0.0));
+            assert_ne!(groups[0]["direction_component_magnitude"], groups[1]["direction_component_magnitude"], "{mode:?}");
+            assert_eq!(groups[0]["assembled_force_n"].as_f64().unwrap() + groups[1]["assembled_force_n"].as_f64().unwrap(), 0.0, "{mode:?}: here they cancel");
+        }
+        // (2) equal bore bits, unequal formed directions of exactly proportional chords.
+        let bores = rhs["groups"].as_array().unwrap().iter().map(|g| g["source_inner_radius_hi_bits"].as_str().unwrap()).collect::<std::collections::BTreeSet<_>>();
+        assert_eq!(bores.len(), 1, "{mode:?}");
+        let directions = output["contract_evidence"]["pressure"][0]["applied_loads"].as_array().unwrap().iter().map(|l| l["local_x_global"].clone()).collect::<Vec<_>>();
+        assert_ne!(directions[0], directions[1], "{mode:?}");
+        // (3) and (4): the readers re-form the load from the groups and read the record.
         validate_pressure_evidence(&output).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
         assert_eq!(verdict(&output, &input["model"])["ok"], true, "{mode:?}: {}", verdict(&output, &input["model"]));
     }

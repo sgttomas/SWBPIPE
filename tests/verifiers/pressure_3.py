@@ -657,7 +657,7 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
 
 CAP_REMAINDER_WARNING_CODE = "PRESSURE_REGION_CAP_REMAINDER_RETAINED"
 CAP_REMAINDER_WARNING_MESSAGE = (
-    "At interior nodes of this case's pressure regions the cap loads of adjacent members do not cancel exactly in this model. "
+    "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. "
     "The remainder comes from small differences in bore or alignment within each region's representation limits, from "
     "the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The "
     "exception to the pressure cancellation screen that admitted this case does not establish that its effect is "
