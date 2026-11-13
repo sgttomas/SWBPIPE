@@ -66,6 +66,9 @@ mod native_replay_tests;
 mod native_ledger_tests;
 mod report_package_bridge;
 mod report_package_save;
+mod report_session_diagnostics;
+#[cfg(test)]
+mod report_session_diagnostics_tests;
 mod report_render_exact;
 #[cfg(test)]
 mod report_render_exact_tests;
