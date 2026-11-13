@@ -79,7 +79,7 @@ It serves SOW-030, SOW-046 and SOW-075 under OBJ-007, OBJ-009, OBJ-017 and OBJ-0
 **Not met.**
 
 - AC-002 and VER-002 are not met for added-record and hand-entry runs: no code yet writes a run record for such a run, or records a person's check or a saved model. Those runs are capture-only, and their captures are held until such code exists.
-- REQ-019 is not met for cpb-h-01: its named input constant_support_load (the target program computes the support's load itself; SWBPIPE states one) is carried by no one-parameter series. Its capture is held, and it is not compared, until an independently justified one-parameter series supplies the evidence REQ-019 requires for that input, as well as the product's own result and the capture's binding to the model actually run. The series's load values are never fitted to the captured result.
+- REQ-019 is not met for cpb-h-01: its named input constant_support_load (the target program computes the support's load itself; SWBPIPE states one) is carried by no one-parameter series. Its capture is held, and it is not compared, until an independently justified one-parameter series supplies the evidence REQ-019 requires for that input, as well as the product's own result and the capture's binding to the model actually run. The series's load values are never fitted to the captured result. The vendor's public technical page on the constant support names a route by which this input could be held equal ("To analyze an existing constant support with a known load, input it as a user hanger with a zero spring rate.", https://docs.sstcae.com/tech_manual/constant_support.htm); it was not taken because no public page states in words the unit of the user hanger's load field.
 
 ### Acceptance criteria
 
