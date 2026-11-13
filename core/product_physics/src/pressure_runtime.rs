@@ -1748,14 +1748,16 @@ fn cap_remainder_warning(
 /// and that it is not a bound on the resulting displacement. The case and the node are
 /// written as their ids, as the document holds them (`load_case_id`, the
 /// record's `node_ref`), because the report's Diagnostics table shows a
-/// message and not its references. The force is written by Rust's `{:e}`
-/// (`LowerExp` without a precision): the shortest decimal digits that read
-/// back to the same binary64 value, as `d[.ddd]e<exponent>` with no `+` and no
+/// message and not its references. The producer writes the force by `{:e}`
+/// (`LowerExp` without a precision), as `d[.ddd]e<exponent>` with no `+` and no
 /// leading zeros in the exponent (`2.197357159078235e-1`, `0e0`, `5e-324`).
-/// That string is a function of the value's bits alone, so the readers re-form
-/// it from the record's member and require the whole message to be equal (the
-/// Python twin forms the same digits from `repr`, the same shortest
-/// round-trip rule).
+/// The readers do not re-form that text, they parse it and require the value:
+/// everything else in the message is re-formed and compared exactly, and the
+/// force's text must be in that shape and read back exactly to the record's
+/// `remainder_force_n` (result export `cap_remainder_warning_states`; the
+/// Python twin `tests/verifiers/pressure_3.py`). At a value halfway between two
+/// shortest decimal candidates (2^-25) Rust and Python choose different
+/// candidates; both read back to the value and both are accepted.
 pub(crate) fn cap_remainder_warning_message(case: &str, node: &str, force: f64) -> String {
     format!("{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the retained remainder is largest relative to the pressure force on the bore at node {node}, where it is {force:e} N; that force is not a bound on the resulting displacement.")
 }
@@ -3514,10 +3516,10 @@ mod cancellation_exception_tests {
         }
     }
 
-    /// The warning's force is written by `{:e}`; the Python twin
-    /// (`tests/test_pressure_cancellation_exception_readers.py`,
-    /// LOWER_EXP_VECTORS) asserts the same strings for the same values. The
-    /// result-export reader forms the message by the same expression.
+    /// The warning's force is written by `{:e}`, and the result-export former
+    /// (used for expectations in the report and desktop tests) writes the same
+    /// expression. The readers do not compare against either: they parse the
+    /// force's text and require the record's value.
     #[test]
     fn the_warning_s_sentence_writes_the_force_as_the_readers_re_form_it() {
         for (value, text) in [(0.2197357159078235, "2.197357159078235e-1"), (0.0, "0e0"), (f64::from_bits(1), "5e-324"), (1.0, "1e0"),

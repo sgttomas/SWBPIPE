@@ -1507,3 +1507,68 @@ fn a_subnormal_pressure_s_exactly_cancelling_remainder_carries_a_true_warning() 
         assert_eq!(verdict(&output, &input["model"])["ok"], true, "{mode:?}: {}", verdict(&output, &input["model"]));
     }
 }
+
+/// The fourth review's witness (its request in the fixture below): a force of
+/// exactly 2^-25 N, halfway between two 17-digit decimals that both read back
+/// to it. The producer's `{:e}` writes the upper; Python's `repr` writes the
+/// lower. The readers read the force, they do not re-form its text, so both
+/// spellings are accepted by the reader without the model and by the verdict
+/// given it; a different value in the admitted shape, and a spelling outside
+/// that shape that would read back, are refused by name.
+const HALFWAY_FIXTURE: &str = "fixtures/results/pressure_v3_cap_remainder_halfway_force.json";
+
+fn respelled(output: &Value, from: &str, to: &str) -> Value {
+    let mut document = output.clone();
+    for diagnostic in document["diagnostics"].as_array_mut().unwrap() {
+        if diagnostic["code"] == WARNING {
+            let message = diagnostic["message"].as_str().unwrap();
+            let (from, to) = (format!(", where it is {from} N; that force"), format!(", where it is {to} N; that force"));
+            assert_eq!(message.matches(&from).count(), 1);
+            diagnostic["message"] = json!(message.replace(&from, &to));
+        }
+    }
+    document
+}
+
+#[test]
+fn a_force_halfway_between_two_shortest_decimals_is_read_in_either_spelling() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    let path = current_model::project_root().join(HALFWAY_FIXTURE);
+    let mut fixture: Value = serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+    let request = fixture["request"].clone();
+    let model = &request["model"];
+    let (rust, python) = ("2.9802322387695313e-8", "2.9802322387695312e-8");
+    for mode in MODES {
+        let output = serde_json::to_value(solve(request.clone(), mode)).unwrap();
+        assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", output["diagnostics"]);
+        let record = assert_screen(&output, true, "halfway force");
+        let force = record["remainder_force_n"].as_f64().unwrap();
+        assert_eq!(force.to_bits(), 0x3e60_0000_0000_0000, "{mode:?}: 2^-25 N");
+        let found = warnings(&output);
+        assert_eq!(found.len(), 1, "{mode:?}");
+        assert_eq!(found[0]["message"], warning_message(&output, "case:P"), "{mode:?}");
+        assert!(found[0]["message"].as_str().unwrap().contains(&format!(", where it is {rust} N;")), "{mode:?}: the producer writes the upper");
+        if mode == PreviewSolverMode::SparseInteractive {
+            if std::env::var_os("SWBPIPE_WRITE_CAP_REMAINDER_FIXTURE").is_some() {
+                fixture["document"] = output.clone();
+                std::fs::write(&path, serde_json::to_string_pretty(&fixture).unwrap() + "\n").unwrap();
+            }
+            // The fixture's document is this head's producer output where the readers look.
+            for key in ["contract_evidence", "diagnostics", "status"] {
+                assert_eq!(fixture["document"][key], output[key], "the fixture's {key} is the producer's");
+            }
+        }
+        for spelling in [rust, python] {
+            let document = respelled(&output, rust, spelling);
+            validate_pressure_evidence(&document).unwrap_or_else(|e| panic!("{mode:?} {spelling}: {e}"));
+            let verdict = verdict(&document, model);
+            assert_eq!(verdict["ok"], true, "{mode:?} {spelling}: {verdict}");
+        }
+        let next = format!("{:e}", f64::from_bits(force.to_bits() + 1));
+        for spelling in [next.as_str(), "3e-8", "+2.9802322387695313e-8", "2.9802322387695313e-08", "2.98023223876953125e-8", "2.9802322387695313E-8", "0.000000029802322387695313"] {
+            let document = respelled(&output, rust, spelling);
+            assert_eq!(validate_pressure_evidence(&document).unwrap_err(), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING", "{mode:?} {spelling}");
+            assert_eq!(verdict(&document, model)["error"]["code"], "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING", "{mode:?} {spelling}");
+        }
+    }
+}

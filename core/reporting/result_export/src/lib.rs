@@ -1699,7 +1699,10 @@ mod physics_evidence;
 /// DEL-04-07: the warning on a case admitted under the cancellation-screen exception, whose
 /// presence, message and references the pressure readers bind to the exception record; the
 /// report quotes it as product text (`report_package::bindings`; desktop `suppliedDiagnostics.ts`).
-pub use physics_evidence::{cap_remainder_warning_message, CAP_REMAINDER_WARNING_CODE, CAP_REMAINDER_WARNING_MESSAGE};
+pub use physics_evidence::{
+    cap_remainder_warning_message, cap_remainder_warning_states, CAP_REMAINDER_WARNING_CODE, CAP_REMAINDER_WARNING_MESSAGE,
+    CAP_REMAINDER_WARNING_TAIL,
+};
 // W-16 slice b (DEL-05-02 Design `exact-combinations.md` §6): the pressure-2
 // reader's combination pass.
 mod exact_combination_evidence;

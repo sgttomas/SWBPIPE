@@ -54,6 +54,7 @@ from fractions import Fraction
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 import struct
 from typing import Any
@@ -667,40 +668,68 @@ CAP_REMAINDER_WARNING_MESSAGE = (
     "which those loads cancel.")
 
 
-def rust_lower_exp(value: float) -> str:
-    """Rust's ``format!("{:e}", value)`` for a finite binary64 value (``LowerExp`` without a precision): the shortest
-    decimal digits that read back to the same value, as ``d[.ddd]e<exponent>``, no ``+`` and no leading zeros in the
-    exponent (``2.197357159078235e-1``, ``0e0``, ``5e-324``). Python's ``repr`` gives the same shortest round-trip
-    digits (the shortest string that reads back to the value, the nearest to it among those), so only the layout is
-    re-formed here."""
-    _require(math.isfinite(value), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
-    sign = "-" if math.copysign(1.0, value) < 0 else ""
-    if value == 0:
-        return sign + "0e0"
-    digits, exponent = repr(abs(value)).lower().partition("e")[::2]
-    whole, _, fraction = digits.partition(".")
-    significant = (whole + fraction).lstrip("0")
-    point = len(whole) - (len(whole + fraction) - len((whole + fraction).lstrip("0")))
-    significant = significant.rstrip("0") or "0"
-    power = (int(exponent) if exponent else 0) + point - 1
-    mantissa = significant[0] + ("." + significant[1:] if len(significant) > 1 else "")
-    return f"{sign}{mantissa}e{power}"
+CAP_REMAINDER_WARNING_TAIL = " N; that force is not a bound on the resulting displacement."
 
 
-def cap_remainder_warning_message(case: str, node: str, force: float) -> str:
-    """The warning's whole message (Rust ``physics_evidence::cap_remainder_warning_message``): the fixed opening and
-    one sentence naming the case and node by their ids and stating the record's force in newtons as Rust writes it."""
+def cap_remainder_warning_head(case: str, node: str) -> str:
+    """The warning's last sentence up to the force (Rust ``physics_evidence::cap_remainder_warning_head``): the fixed
+    opening, the case and the record's node by their ids. The reader re-forms this and compares it exactly."""
     return (f"{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the retained remainder is largest relative to the pressure "
-            f"force on the bore at node {node}, where it is {rust_lower_exp(force)} N; that force is not a bound on the resulting "
-            "displacement.")
+            f"force on the bore at node {node}, where it is ")
+
+
+def cap_remainder_warning_message(case: str, node: str, force_text: str) -> str:
+    """A whole warning message with the force written as ``force_text`` (tests form documents with it; the reader
+    does not compare against a re-formed number)."""
+    return cap_remainder_warning_head(case, node) + force_text + CAP_REMAINDER_WARNING_TAIL
+
+
+_FORCE_SHAPE = re.compile(r"[0-9](?:\.[0-9]{1,16})?e(?:0|-?[1-9][0-9]*)")
+
+
+def cap_remainder_force_reads_back(text: str, force: Any) -> bool:
+    """Rust ``physics_evidence::cap_remainder_force_reads_back``: whether ``text``, the warning's force, is in the
+    admitted shape and reads back exactly to the recorded ``force``. The shape, checked before parsing, is the one the
+    producer's ``{:e}`` writes: one digit; optionally a point followed by one to sixteen digits; ``e``; an exponent with
+    an optional minus sign, no plus sign and no leading zeros (``0e0``, ``5e-324``, ``2.9802322387695313e-8``). There
+    is no trailing-zero rule and no shortest-digits rule: every spelling in that shape that reads back to the recorded
+    value is accepted, and more than two spellings may satisfy it (at a value halfway between two shortest decimal
+    candidates, such as 2^-25, both candidates do, and so do longer spellings). The text is then parsed by Python's
+    correctly rounded decimal-to-binary conversion (``float``) and the result must equal the record's value bit for
+    bit. A spelling outside binary64 is refused: one that overflows parses to infinity, and one whose digits are not all
+    zero but underflow parses to zero; neither is accepted. Negative zero cannot be written in the shape."""
+    if not isinstance(text, str) or _FORCE_SHAPE.fullmatch(text) is None or not _number(force):
+        return False
+    value = float(text)
+    written_zero = all(c in "0." for c in text.partition("e")[0])
+    return math.isfinite(value) and (value != 0 or written_zero) and struct.pack("<d", value) == struct.pack("<d", float(force))
+
+
+def cap_remainder_warning_states(message: Any, case: str, node: str, force: Any) -> bool:
+    """Rust ``physics_evidence::cap_remainder_warning_states``: whether ``message`` is the warning for ``case``, the
+    record's node ``node`` and its force ``force``. Everything but the force's text is bound exactly: the head
+    re-formed from the document, then the force's text, then the fixed tail. The force's text is located by position,
+    after that exact head and before that exact tail, never by searching for a phrase, so a case or node id containing
+    the delimiting words cannot move it. The number shown must read back exactly to the recorded force; only its
+    spelling may vary (``cap_remainder_force_reads_back``)."""
+    if not isinstance(message, str) or not isinstance(case, str) or not isinstance(node, str):
+        return False
+    head = cap_remainder_warning_head(case, node)
+    if not message.startswith(head):
+        return False
+    rest = message[len(head):]
+    if not rest.endswith(CAP_REMAINDER_WARNING_TAIL):
+        return False
+    return cap_remainder_force_reads_back(rest[:len(rest) - len(CAP_REMAINDER_WARNING_TAIL)], force)
 
 
 def cap_remainder_warnings(source: Mapping[str, Any]) -> None:
     """DEL-04-07 (Rust ``physics_evidence::cap_remainder_warnings``), read after every exception record has been
-    checked: the warning stands on a case exactly when its record does, once, at warning severity, with the message
-    re-formed from the record (``cap_remainder_warning_message``) and the references [case, region, node], the region being the one whose terms meet at the record's node.
-    A record without its warning, a warning on a case without a record, and a warning of another form are each
-    refused by name."""
+    checked: the warning stands on a case exactly when its record does, once, at warning severity, with a message that
+    states the case's id, the record's node and force (``cap_remainder_warning_states``) and the references [case,
+    region, node], the region being the one whose terms meet at the record's node. A record without its warning, a
+    warning on a case without a record, and a warning of another form (including a force whose text is outside the
+    admitted shape or does not read back to the record's) are each refused by name."""
     expected = []
     for case in source["contract_evidence"]["exact_cases"]:
         rhs = case["pressure_rhs_assembly"]
@@ -710,16 +739,16 @@ def cap_remainder_warnings(source: Mapping[str, Any]) -> None:
         node = record["node_ref"]
         regions = [g["terms"][0]["region_id"] for g in rhs["groups"] if g["node_ref"] == node and g["terms"]]
         _require(bool(regions), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")
-        expected.append(([case["load_case_id"], regions[0], node], cap_remainder_warning_message(case["load_case_id"], node, record["remainder_force_n"])))
+        expected.append(([case["load_case_id"], regions[0], node], case["load_case_id"], node, record["remainder_force_n"]))
     diagnostics = source.get("diagnostics")
     warnings = [d for d in (diagnostics if isinstance(diagnostics, list) else []) if isinstance(d, Mapping) and d.get("code") == CAP_REMAINDER_WARNING_CODE]
     for warning in warnings:
         refs = warning.get("affected_refs")
         case = refs[0] if isinstance(refs, list) and refs else None
         _require(any(item[0][0] == case for item in expected), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")
-        _require(warning.get("severity") == "warning" and any(refs == r and warning.get("message") == m for r, m in expected),
+        _require(warning.get("severity") == "warning" and any(refs == r and cap_remainder_warning_states(warning.get("message"), c, n, f) for r, c, n, f in expected),
                  "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
-    for refs, _ in expected:
+    for refs, *_ in expected:
         count = sum(1 for warning in warnings if warning.get("affected_refs") == refs)
         _require(count != 0, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_MISSING")
         _require(count == 1, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
