@@ -160,3 +160,16 @@ the entry, and the entry names the PR.
 - **What the user does instead:** Reduce the cases and combinations or split the model as the full-copy refusal advises, then solve again. Passing the full-copy limit does not establish that the report can be completed.
 - **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), REQ-022 and AC-011; DEL-07-07 [scope](../execution/PKG-07/DEL-07-07/ScopeOfWork.md), "Held result" (the full-result gate and the displayable limit). The limit was standing before this entry; the entry was added with PR #289.
 - **Status:** not yet declared.
+
+### LIM-012 — A report whose library findings are spelled alike by two references is refused by the Diagnostics check
+
+- **Id:** LIM-012
+- **Exit criteria:** 4
+- **Requirement affected:** Exit criterion 4: a user releases, saves and prints a report for results on either route (DEL-08-01/REQ-022 and AC-011).
+- **Code:** `SESSION-DIAGNOSTICS-CHECK-LIMIT`, carried in the detail of `REPORT-EXACT-SECTIONS-MISMATCH`.
+- **What is refused:** rendering a bound report, or saving its local-private package, when its Diagnostics carry library store findings and the bound model has two library references whose identifiers make one finding's text come from both of them in different positions. The refusal says that this is a limit of the check and not a fault of the report.
+- **What it means in practice for a user:** it arises only where a library identifier or a record identifier contains a backtick together with the words of the finding's own sentence, so that two different references read as the same text; for example a record identifier ``r` of material library `M`` on one reference beside a library identifier ``M` of material library `L`` on another reference of the same entity, with the report carrying the first reference's library-not-held finding and the record-not-held finding that both references spell. Identifiers without a backtick do not meet it. Such an identifier can reach a model by two supported routes: a library document a person imports, whose library and record identifiers need only be nonblank, applied to an entity from the library panel; and an operation batch that writes an entity's provenance record, whose library reference identifiers need only be nonblank text. A model imported from a CAEPIPE file carries no library reference.
+- **Why:** the check admits a Diagnostics entry after the result's own only by counting it against the references of the bound model that yield its text. With identifiers that spell one text at two references in different positions the count cannot decide, and deciding would need storage for every reference site, which the memory provided for the check does not cover.
+- **What the user does instead:** give the library or the record an identifier without a backtick (import the library under the new identifier and apply its record again), or resolve the library finding so that the report carries no entry for it, then render or save again.
+- **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), production method (the admission of Diagnostics entries after the result's own). The refusal is made standing by PR #292.
+- **Status:** not yet declared.
