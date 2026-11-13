@@ -31,6 +31,7 @@ export function stampImportedBatch(batch: OperationBatch): { batch: OperationBat
   if (entered) {
     const which = `Operation ${entered.index + 1}${entered.operationId && entered.operationId.length <= 160 ? ` (${entered.operationId})` : ""} of this file`;
     if (entered.route === "unchecked") throw new Error(`${which} carries ${entered.label}, so nothing was queued. Split it into smaller operations.`);
+    if (entered.route === "malformed") throw new Error(`${which} has ${entered.label}, so nothing was queued. Write the after value as text in the file.`);
     if (entered.path) throw new Error(`${which} has a value that names ${entered.label}, which only you enter. ${INDISTINGUISHABLE}, so nothing was queued. Remove it from the file, then enter the value yourself in the component inspector.`);
     throw new Error(`${which} carries ${entered.label}, a value only you enter; an imported operation cannot write it, so nothing was queued. Remove it from the file, then enter the value yourself in the component inspector.`);
   }
@@ -70,8 +71,24 @@ export function stampImportedBatch(batch: OperationBatch): { batch: OperationBat
  * web view has no list of such fields (only the engine's field rules know them), so a text that
  * reads as JSON naming such a member cannot be told apart from the member and is refused in
  * words that claim no structure (`path` is set: "has a value that names …"). */
-export type PersonEnteredWrite = Readonly<{ member: string; route: "refused" | "dropped" | "unchecked"; reason?: "size" | "depth" | "count"; label: string; path: string }>;
-const named = (path: string) => path.length <= 80 ? `${path} (a component modifier)` : "a component modifier (k, a SIF, a stiffness or their source)";
+export type PersonEnteredWrite = Readonly<{ member: string; route: "refused" | "dropped" | "unchecked" | "malformed"; reason?: "size" | "depth" | "count"; label: string; path: string }>;
+/** A refusal carries the operation's identifier, the shape of where a member was found, the
+ * member's name and the rule or bound that refused, and nothing else from the operation: no key,
+ * field path or value the file or the agent chose. `path` (with the operation's own keys) is
+ * returned for tests and for choosing the words, and no caller shows or forwards it. */
+const COMPONENT_MODIFIER = "a component modifier (k, a SIF, a stiffness or their source)";
+const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+/** Where a member was found, by shape only: its depth below the root, and the position in each
+ * list it is inside (outermost first); every key the operation chose is left out. */
+function located(steps: readonly (string | number)[]): string {
+  if (steps.length === 1) return "at the top level of the value";
+  const items = steps.filter((step): step is number => typeof step === "number").map(position => String(position + 1));
+  const levels = `${NUMBER_WORDS[steps.length] ?? steps.length} levels inside the value`;
+  if (items.length === 0) return levels;
+  if (items.length === 1) return `${levels}, in item ${items[0]} of a list`;
+  return `${levels}, in items ${items.slice(0, -1).join(", ")} and ${items.at(-1)} of nested lists, outermost first`;
+}
+const MALFORMED = "an after value that is not text, which the operation engine does not read";
 const INDISTINGUISHABLE = "A value naming it cannot be told apart from it, even as text";
 /** The next power of two at or above `n`. */
 const nextPowerOfTwo = (n: number) => 2 ** Math.ceil(Math.log2(n));
@@ -96,24 +113,28 @@ const UNCHECKED = {
   count: `an after value with more than ${PERSON_ENTERED_CHECK.maxMembers} members`,
 } as const;
 const step = (key: string) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(key) ? `.${key}` : `[${JSON.stringify(key)}]`;
-const shown = (path: string) => path.length <= 120 ? path : `${path.slice(0, 119)}…`;
 
-type Found = { member: keyof typeof LABELS; path: string };
+type Found = { member: keyof typeof LABELS; path: string; steps: (string | number)[] };
 /** The shallowest person-entered member anywhere in a parsed after value, or the bound it passes.
  * Each member below the root (the root is level 0) is admitted against the bounds as it is read,
  * so at most one member past the count is read, however wide an array or object is; only
  * containers wait in the queue, each with its parent and key, and a path is built only for the
- * member found. `observe.queued` reports how many containers were queued. An object's own keys
- * are enumerated by the JavaScript engine (for…in), whose work is bounded by the text's length. */
+ * member found. `observe.queued` reports how many containers were queued. A forbidden member is
+ * recognised by its name before it is counted, so at the first member past a bound (a count or a
+ * depth) the member is named, not the bound. An object's own keys are enumerated by the
+ * JavaScript engine (for…in) before the first is yielded: the member count does not bound that
+ * work; the after text's length does, and an after given directly as an object has no text, so
+ * only the size of what carried it (a file, a stored record) does. */
 export function findPersonEntered(root: unknown, observe?: { queued: number }): Found | { unchecked: "depth" | "count" } | null {
   const { maxDepth, maxMembers } = PERSON_ENTERED_CHECK;
   const values: unknown[] = [root], depths: number[] = [0], parents: number[] = [-1], keys: (string | number)[] = [""];
   let members = 0;
-  const pathOf = (parent: number, key: string | number) => {
-    const parts: string[] = [typeof key === "number" ? `[${key}]` : step(key)];
-    for (let at = parent; at > 0; at = parents[at]) parts.push(typeof keys[at] === "number" ? `[${keys[at]}]` : step(keys[at] as string));
-    const path = parts.reverse().join("");
-    return path.startsWith(".") ? path.slice(1) : path;
+  const foundAt = (member: keyof typeof LABELS, parent: number): Found => {
+    const steps: (string | number)[] = [member];
+    for (let at = parent; at > 0; at = parents[at]) steps.push(keys[at]);
+    steps.reverse();
+    const path = steps.map(part => typeof part === "number" ? `[${part}]` : step(part)).join("");
+    return { member, path: path.startsWith(".") ? path.slice(1) : path, steps };
   };
   /** Admit one member: refuse past a bound, queue it if it is a container. */
   const admit = (value: unknown, depth: number, parent: number, key: string | number): "depth" | "count" | null => {
@@ -136,8 +157,8 @@ export function findPersonEntered(root: unknown, observe?: { queued: number }): 
       for (const key in value) {
         if (!Object.hasOwn(value, key)) continue;
         const member = value[key];
-        if (key === "modifiers" || key === "bend_realization") return { member: key, path: pathOf(index, key) };
-        if (key === "mechanics_interface" && plain(member) && member.solver_consumption === "curved_bend_macro_element") return { member: key, path: pathOf(index, key) };
+        if (key === "modifiers" || key === "bend_realization") return foundAt(key, index);
+        if (key === "mechanics_interface" && plain(member) && member.solver_consumption === "curved_bend_macro_element") return foundAt(key, index);
         const bound = admit(member, depth, index, key);
         if (bound) return { unchecked: bound };
       }
@@ -164,20 +185,26 @@ export function writesUserEnteredModifier(intent: unknown, maxAfterChars: number
   const kind = String(change.change_kind ?? ""), path = String(change.field_path ?? ""), object = String(target.object_type ?? "");
   if (kind === "insert_bend_at_corner") return { member: kind, route: "refused", label: "a bend insertion (insert_bend_at_corner)", path: "" };
   if (object === "Component" && path === "bend_realization") return { member: path, route: "refused", label: LABELS.bend_realization, path: "" };
-  if (object === "Component" && path.startsWith("modifiers.")) return { member: path, route: "refused", label: named(path), path: "" };
+  if (object === "Component" && path.startsWith("modifiers.")) return { member: path, route: "refused", label: COMPONENT_MODIFIER, path: "" };
   const unchecked = (reason: keyof typeof UNCHECKED): PersonEnteredWrite =>
     ({ member: "", route: "unchecked", reason, path: "", label: `${UNCHECKED[reason]}, which is not checked for values only the person enters` });
   if (typeof change.after === "string" && change.after.length > maxAfterChars) return unchecked("size");
-  const after = parsed(change.after);
+  // An after that is not text is read directly (an object or an array is walked like parsed
+  // text), so nothing passes unread; the engine reads only text (atomic_batch.rs preflight and
+  // lib.rs check_intent_structure refuse any other), so without a member it is refused as such.
+  // An operation with no after member is left for the engine, which refuses it as incomplete.
+  const text = typeof change.after === "string";
+  if (!text && !Object.hasOwn(change, "after")) return null;
+  const after = text ? parsed(change.after) : change.after;
   if (kind === "apply_library_record" && plain(after)) {
-    for (const key in after) if (Object.hasOwn(after, key) && key.startsWith("modifiers.")) return { member: key, route: "refused", label: named(key), path: "" };
+    for (const key in after) if (Object.hasOwn(after, key) && key.startsWith("modifiers.")) return { member: "modifiers.", route: "refused", label: COMPONENT_MODIFIER, path: "" };
   }
   const found = findPersonEntered(after);
-  if (found === null) return null;
-  if ("unchecked" in found) return unchecked(found.unchecked);
-  const top = found.path === found.member;
+  if (found !== null && "unchecked" in found) return unchecked(found.unchecked);
+  if (found === null) return text ? null : { member: "", route: "malformed", path: "", label: MALFORMED };
+  const top = found.steps.length === 1;
   return { member: found.member, path: found.path, route: kind === "insert_component_symbol" && top && found.member === "modifiers" ? "refused" : "dropped",
-    label: top ? LABELS[found.member] : `${LABELS[found.member]} at ${shown(found.path)}` };
+    label: `${LABELS[found.member]} ${located(found.steps)}` };
 }
 
 /** The first operation of a batch that carries a person-entered member, with its position. */
@@ -214,6 +241,7 @@ export function requeueRetainedRecord(intent: unknown, index: number): RequeueRe
     }
     return { refused: `This stored record carries ${entered.label}. ${KEPT} Prepare the change again in smaller operations.` };
   }
+  if (entered?.route === "malformed") return { refused: `This stored record has ${entered.label}. ${KEPT} Prepare the change again.` };
   if (entered && entered.path && (agentOrImported || entered.route === "dropped")) {
     return { refused: `This stored record has a value that names ${entered.label}, which only you enter. ${INDISTINGUISHABLE}. ${KEPT} Enter the value yourself in the component inspector, or prepare the change again without it.` };
   }

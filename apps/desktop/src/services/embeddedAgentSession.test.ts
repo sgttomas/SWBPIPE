@@ -77,8 +77,8 @@ describe('workspace-owned live embedded agent adapter',()=>{
  it('refuses a person-entered member at any depth, naming its path, and an after value past the walk bound, before validation',async()=>{
   const review='{"id":"combination:review-nested","label":"Review example","basis":"mechanics","terms":[{"load_case":"load:RS-SUS","factor":1,"modifiers":{"sif_user_value":{"value":2.4,"unit":"1"}}}],"provenance":"invented review example"}';
   let deep:unknown={leaf:1};for(let i=0;i<40;i++)deep=[deep];
-  for(const [after,expected] of [[review,/has a value that names modifiers \(k, SIFs, stiffness and their source\) at terms\[0\]\.modifiers, which only the person enters\. A value naming it cannot be told apart from it, even as text, so nothing was queued\./],
-   [JSON.stringify({id:'node:n',position:{x:0,y:0,z:0,bend_realization:{}}}),/has a value that names bend_realization \(a bend realization\) at position\.bend_realization,/],
+  for(const [after,expected] of [[review,/has a value that names modifiers \(k, SIFs, stiffness and their source\) three levels inside the value, in item 1 of a list, which only the person enters\. A value naming it cannot be told apart from it, even as text, so nothing was queued\./],
+   [JSON.stringify({id:'node:n',position:{x:0,y:0,z:0,bend_realization:{}}}),/has a value that names bend_realization \(a bend realization\) two levels inside the value,/],
    [JSON.stringify(deep),/carries an after value nested deeper than 32 levels, which is not checked for values only the person enters, so nothing was queued\. Propose it in smaller operations\./]] as [string,RegExp][]){
    vi.useFakeTimers();const {session,owner,call}=setup();
    call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',change:{change_kind:'create_combination',after}}],assumptions:[]});await session.start('revision');await session.poll();await drain();
@@ -116,9 +116,27 @@ describe('workspace-owned live embedded agent adapter',()=>{
   await session.start('revision');await session.poll();await drain();
   const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
   expect(outcome.status).toBe('unavailable');
-  expect(outcome.message).toBe('Operation 1 (operation-1) has a value that names modifiers (k, SIFs, stiffness and their source), which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.');
+  expect(outcome.message).toBe('Operation 1 (operation-1) has a value that names modifiers (k, SIFs, stiffness and their source) at the top level of the value, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.');
   expect(mocks.validate).not.toHaveBeenCalled();expect(owner.register).not.toHaveBeenCalled();
   await session.close();
+ });
+ it('reads an after given as an object, an array or a scalar, and names no key the agent chose, before validation',async()=>{
+  const SECRET='Zq7SECRETAGENTTEXTxv';
+  for(const [after,expected] of [
+   [{id:'m',[SECRET]:{modifiers:{}}},'Operation 1 (operation-1) has a value that names modifiers (k, SIFs, stiffness and their source) two levels inside the value, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.'],
+   [[{bend_realization:1}],'Operation 1 (operation-1) has a value that names bend_realization (a bend realization) two levels inside the value, in item 1 of a list, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.'],
+   [{id:SECRET},'Operation 1 (operation-1) has an after value that is not text, which the operation engine does not read, so nothing was queued. Propose it with the after value as text.'],
+   [7,'Operation 1 (operation-1) has an after value that is not text, which the operation engine does not read, so nothing was queued. Propose it with the after value as text.'],
+   [JSON.stringify({[SECRET]:[{[SECRET]:{modifiers:1}}]}),'Operation 1 (operation-1) has a value that names modifiers (k, SIFs, stiffness and their source) four levels inside the value, in item 1 of a list, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.'],
+  ] as [unknown,string][]){
+   vi.useFakeTimers();const {session,owner,call}=setup();
+   call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',change:{change_kind:'create_material',after}}],assumptions:[]});await session.start('revision');await session.poll();await drain();
+   const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
+   expect(outcome.status).toBe('unavailable');expect(outcome.message).toBe(expected);
+   expect(session.actual('invented-session:1')!.outcome).not.toContain(SECRET);
+   expect(mocks.validate).not.toHaveBeenCalled();expect(owner.register).not.toHaveBeenCalled();
+   await session.close();vi.clearAllMocks();vi.useRealTimers();
+  }
  });
  it('still registers a non-curved interface, a payload that is not JSON and one with no such member',async()=>{
   for(const after of [JSON.stringify({id:'component:v',mechanics_interface:{solver_consumption:'not_solver_consumed'}}),'not_present','{"modifiers"',JSON.stringify([1,{id:'x'}])]){

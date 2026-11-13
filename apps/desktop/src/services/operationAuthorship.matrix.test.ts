@@ -18,9 +18,9 @@ const VALUES = {
 const LABELS = { modifiers: "modifiers (k, SIFs, stiffness and their source)", bend_realization: "bend_realization (a bend realization)",
   mechanics_interface: "a curved-bend mechanics_interface (a bend realization)" } as const;
 const PLACEMENTS = {
-  "the top level": (member: string, value: unknown) => [{ id: "material:m", label: "M", [member]: value }, ""],
-  "an object": (member: string, value: unknown) => [{ id: "material:m", label: "M", geometry: { [member]: value } }, " at geometry." + member],
-  "an array": (member: string, value: unknown) => [{ id: "material:m", label: "M", terms: [{ factor: 1, [member]: value }] }, ` at terms[0].${member}`],
+  "the top level": (member: string, value: unknown) => [{ id: "material:m", label: "M", [member]: value }, " at the top level of the value"],
+  "an object": (member: string, value: unknown) => [{ id: "material:m", label: "M", geometry: { [member]: value } }, " two levels inside the value"],
+  "an array": (member: string, value: unknown) => [{ id: "material:m", label: "M", terms: [{ factor: 1, [member]: value }] }, " three levels inside the value, in item 1 of a list"],
 } as const;
 const ORIGINS = {
   agent: { author_type: "agent", source: { source_ref: "s", source_channel: "embedded_agent", source_role: "agent" } },
@@ -64,10 +64,10 @@ describe("a text value that reads as JSON naming a person-entered member", () =>
     rationale: "r", ...origin });
   it("is refused at intake and at requeue without claiming a member was found", () => {
     expect(() => stampImportedBatch({ batch_id: "file", operations: [label(ORIGINS.imported)] } as unknown as OperationBatch))
-      .toThrow("Operation 1 (op:label) of this file has a value that names modifiers (k, SIFs, stiffness and their source), which only you enter. A value naming it cannot be told apart from it, even as text, so nothing was queued.");
+      .toThrow("Operation 1 (op:label) of this file has a value that names modifiers (k, SIFs, stiffness and their source) at the top level of the value, which only you enter. A value naming it cannot be told apart from it, even as text, so nothing was queued.");
     for (const claim of Object.values(ORIGINS)) {
       const result = requeueRetainedRecord(label(claim), 1);
-      expect(result).toEqual({ refused: expect.stringMatching(/^This stored record has a value that names modifiers \(k, SIFs, stiffness and their source\), which only you enter\. A value naming it cannot be told apart from it, even as text\./) });
+      expect(result).toEqual({ refused: expect.stringMatching(/^This stored record has a value that names modifiers \(k, SIFs, stiffness and their source\) at the top level of the value, which only you enter\. A value naming it cannot be told apart from it, even as text\./) });
       expect(JSON.stringify(result)).not.toMatch(/carries|would not write/);
     }
   });

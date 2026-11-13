@@ -130,7 +130,7 @@ describe("tee Modifier source (G11)", () => {
     expect(agent.diagnostics.some((item) => item.code === code && item.severity === "blocking")).toBe(true);
     // Offline intake refuses it by name before stamping (operationAuthorship.ts); the engine
     // still refuses it stamped as intake would stamp it.
-    expect(() => stampImportedBatch({ batch_id: "imported-modifier", operations: [user] })).toThrow(`carries ${fieldPath} (a component modifier), a value only you enter; an imported operation cannot write it, so nothing was queued.`);
+    expect(() => stampImportedBatch({ batch_id: "imported-modifier", operations: [user] })).toThrow(`carries a component modifier (k, a SIF, a stiffness or their source), a value only you enter; an imported operation cannot write it, so nothing was queued.`);
     const imported = { batch_id: "imported-modifier", operations: [{ ...structuredClone(user), author_type: "agent" as const,
       source: { source_ref: "offline-import:imported-modifier:1", source_channel: "offline_intake", source_role: "imported" } }] };
     const refused = await applyOperationBatch(model, imported, await computeModelHash(model));

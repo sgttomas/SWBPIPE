@@ -374,6 +374,7 @@ export class EmbeddedAgentSession {
    const entered=personEnteredWriteIn(call.arguments.operations as unknown[]);
    if(entered){const which=`Operation ${entered.index+1}${entered.operationId?` (${entered.operationId})`:''}`;
     return this.failure(call,entered.route==='unchecked'?`${which} carries ${entered.label}, so nothing was queued. Propose it in smaller operations.`
+     :entered.route==='malformed'?`${which} has ${entered.label}, so nothing was queued. Propose it with the after value as text.`
      :entered.path?`${which} has a value that names ${entered.label}, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.`
      :`${which} carries ${entered.label}, a person-entered value an agent cannot write; nothing was queued. Propose it without that member and ask the person to enter the value.`);}
    const handle=opaque();const context:AgentContext=Object.freeze({requestRef:call.requestRef,threadId:call.threadId,turnId:call.turnId,callId:call.callId,basis:structuredClone(call.basis),assumptions:structuredClone(call.arguments.assumptions as AgentAssumption[])});

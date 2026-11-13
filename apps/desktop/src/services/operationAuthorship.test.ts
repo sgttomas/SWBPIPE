@@ -52,7 +52,7 @@ describe("operation authorship on agent and imported routes", () => {
       op({ operation_id: "op:sif", author_type: "user", source: { source_ref: "me", source_channel: "local_desktop_preview", source_role: "gui_editor" } }),
       op({ operation_id: "op:k", author_type: "user", change: { ...op({}).change, change_id: "c:k", field_path: "modifiers.flexibility_factor_user_value.value", after: "{\"value\":2,\"unit\":\"none\"}" } })
     ] } as unknown as OperationBatch;
-    expect(() => stampImportedBatch(parseOfflineBatch(JSON.stringify(file)))).toThrow(/^Operation 1 \(op:sif\) of this file carries modifiers\.sif_user_value\.value \(a component modifier\), a value only you enter; an imported operation cannot write it, so nothing was queued\./);
+    expect(() => stampImportedBatch(parseOfflineBatch(JSON.stringify(file)))).toThrow(/^Operation 1 \(op:sif\) of this file carries a component modifier \(k, a SIF, a stiffness or their source\), a value only you enter; an imported operation cannot write it, so nothing was queued\./);
     // The applier's own refusal, should any route stamp such an operation agent.
     for (const [index, operation] of file.operations.entries()) {
       const single = { batch_id: `import-${index}`, operations: [{ ...operation, author_type: "agent", source: { source_ref: `offline-import:batch:claimed-user:${index + 1}`, source_channel: "offline_intake", source_role: "imported" } }] } as unknown as OperationBatch;
@@ -77,7 +77,7 @@ describe("operation authorship on agent and imported routes", () => {
       const batch = { batch_id: "file", operations: [op({ operation_id: "op:clean", target: { object_type: "Node", ref: "n" }, change: { change_kind: "set_field", field_path: "position.x", before: "0", after: "1" } }), op({ operation_id: "op:carrying", ...over })] } as unknown as OperationBatch;
       let message = "";
       try { stampImportedBatch(batch); } catch (error) { message = (error as Error).message; }
-      expect(message, member).toBe(`Operation 2 (op:carrying) of this file has a value that names ${LABELS[member as keyof typeof LABELS]}, which only you enter. A value naming it cannot be told apart from it, even as text, so nothing was queued. Remove it from the file, then enter the value yourself in the component inspector.`);
+      expect(message, member).toBe(`Operation 2 (op:carrying) of this file has a value that names ${LABELS[member as keyof typeof LABELS]} at the top level of the value, which only you enter. A value naming it cannot be told apart from it, even as text, so nothing was queued. Remove it from the file, then enter the value yourself in the component inspector.`);
       expect(message).not.toContain(SECRET);
     }
     const clean = { batch_id: "file", operations: [op({ operation_id: "op:clean", target: { object_type: "Node", ref: "n" }, change: { change_kind: "set_field", field_path: "position.x", before: "0", after: "1" } })] } as unknown as OperationBatch;
@@ -90,7 +90,7 @@ describe("operation authorship on agent and imported routes", () => {
     expect(requeueRetainedRecord(component, 8)).toEqual({ refused: "This stored record writes a value only you enter (a flexibility factor k, a SIF or another component modifier), and its author cannot be verified after reopening. Enter the value again in the component inspector." });
     const material = op({ author_type: "user", operation_kind: "create", target: { object_type: "Material", ref: "material:m" }, change: { change_kind: "create_material", field_path: "materials", before: "not_present",
       after: JSON.stringify({ id: "material:m", modifiers: {} }) } });
-    expect(requeueRetainedRecord(material, 9)).toEqual({ refused: expect.stringMatching(/^This stored record has a value that names modifiers \(k, SIFs, stiffness and their source\), which only you enter\. A value naming it cannot be told apart from it, even as text\. It was not queued for review; the record stays stored/) });
+    expect(requeueRetainedRecord(material, 9)).toEqual({ refused: expect.stringMatching(/^This stored record has a value that names modifiers \(k, SIFs, stiffness and their source\) at the top level of the value, which only you enter\. A value naming it cannot be told apart from it, even as text\. It was not queued for review; the record stays stored/) });
   });
 
   it("intake leaves a non-operation entry and a non-object after text for the engine, without a refusal of its own", () => {
@@ -106,10 +106,10 @@ describe("operation authorship on agent and imported routes", () => {
     const operation = op({ operation_id: "op:review", operation_kind: "create", target: { object_type: "Combination", ref: "combination:review-nested" },
       change: { change_kind: "create_combination", field_path: "combinations", before: "not_present", after: review } });
     expect(() => stampImportedBatch({ batch_id: "file", operations: [operation] } as unknown as OperationBatch))
-      .toThrow("Operation 1 (op:review) of this file has a value that names modifiers (k, SIFs, stiffness and their source) at terms[0].modifiers, which only you enter. A value naming it cannot be told apart from it, even as text, so nothing was queued.");
+      .toThrow("Operation 1 (op:review) of this file has a value that names modifiers (k, SIFs, stiffness and their source) three levels inside the value, in item 1 of a list, which only you enter. A value naming it cannot be told apart from it, even as text, so nothing was queued.");
     for (const author of [{ author_type: "agent", source: { source_ref: "s", source_channel: "embedded_agent", source_role: "agent" } }, { author_type: "user" }]) {
       const result = requeueRetainedRecord({ ...operation, ...author }, 3);
-      expect(result).toEqual({ refused: expect.stringMatching(/^This stored record has a value that names modifiers \(k, SIFs, stiffness and their source\) at terms\[0\]\.modifiers, which only you enter/) });
+      expect(result).toEqual({ refused: expect.stringMatching(/^This stored record has a value that names modifiers \(k, SIFs, stiffness and their source\) three levels inside the value, in item 1 of a list, which only you enter/) });
       expect((result as { refused: string }).refused).not.toContain("2.4");
     }
     let deep: unknown = { leaf: 1 };
@@ -128,7 +128,7 @@ describe("operation authorship on agent and imported routes", () => {
       const stored = op({ operation_id: "op:stored", ...over, ...author });
       const before = JSON.stringify(stored);
       const result = requeueRetainedRecord(stored, 7);
-      expect(result, `${member} ${JSON.stringify(author)}`).toEqual({ refused: `This stored record has a value that names ${LABELS[member as keyof typeof LABELS]}, which only you enter. A value naming it cannot be told apart from it, even as text. It was not queued for review; the record stays stored and nothing of yours is lost. Enter the value yourself in the component inspector, or prepare the change again without it.` });
+      expect(result, `${member} ${JSON.stringify(author)}`).toEqual({ refused: `This stored record has a value that names ${LABELS[member as keyof typeof LABELS]} at the top level of the value, which only you enter. A value naming it cannot be told apart from it, even as text. It was not queued for review; the record stays stored and nothing of yours is lost. Enter the value yourself in the component inspector, or prepare the change again without it.` });
       expect(JSON.stringify(stored)).toBe(before);
       expect((result as { refused: string }).refused).not.toContain(SECRET);
     }
