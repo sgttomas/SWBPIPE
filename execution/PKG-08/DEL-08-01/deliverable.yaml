@@ -92,6 +92,13 @@ needs:
   condition: The product solve publishes a result on the pressure-free and exact routes under a current
     result identity, and each result binds the exact request it was computed from.
   gating: true
+- from: DEL-04-07
+  condition: The desktop's memory pool admits the lease of a command whose request can carry a model,
+    result, report, rule pack or library document before its request is parsed and grows it on request
+    within the per-invocation budget, the pool's remaining bytes and a fresh headroom verdict, refusing
+    by name otherwise, and releases it when the command returns.
+  when: Rendering a bound report or saving a report package.
+  gating: false
 - from: DEL-07-07
   condition: Until a completed solve job's result is disposed of, the native host keeps with it the digests
     of the model text the job received and of the result it delivered, so that the model and result texts
@@ -147,6 +154,7 @@ code_paths:
 - apps/desktop/src/services/reportPackageSaveService.ts
 # The native side: the render and save commands, the exact source binding and the user-release admission.
 - apps/desktop/src-tauri/src/report_render_exact.rs
+- apps/desktop/src-tauri/src/report_session_diagnostics.rs
 - apps/desktop/src-tauri/src/report_package_bridge.rs
 - apps/desktop/src-tauri/src/report_package_save.rs
 - apps/desktop/src-tauri/src/atomic_report_package_save.rs
@@ -195,6 +203,7 @@ checks:
 - tests/test_headless_runner_contract.py
 - tests/test_report_sections_provenance_records.py
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
+- apps/desktop/src-tauri/src/report_session_diagnostics_tests.rs
 - apps/desktop/src-tauri/src/object_form_tests.rs
 - apps/desktop/src-tauri/src/user_release_admission_tests.rs
 - apps/desktop/src-tauri/src/user_release_save_tests.rs

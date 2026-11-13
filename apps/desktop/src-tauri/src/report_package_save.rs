@@ -537,7 +537,9 @@ pub fn check_exact_text_sizes(exact_result_text: Option<&str>, exact_intake_text
 /// resubmitted texts, each M plus its re-serialization
 /// ([`crate::command_ingress::text_parse_bytes`]; §3.6, "Pricing"). The
 /// native standing, the digests and the comparisons run under the held lease
-/// as the command's working memory, within the existing W M provision.
+/// as the command's working memory, within the existing W M provision. The
+/// session Diagnostics check (`report_session_diagnostics`) has its own term,
+/// [`session_check_lease_bytes`], which [`ingress_lease_bytes`] adds.
 pub fn parse_lease_bytes_with_exact(
     request_text: &str,
     model_text: &str,
@@ -556,6 +558,16 @@ pub fn parse_lease_bytes_with_exact(
     Ok(base.saturating_add(priced("exact_result", exact_result_text)?).saturating_add(priced("exact_intake", exact_intake_text)?))
 }
 
+/// The save's provision for the session Diagnostics check
+/// ([`crate::report_session_diagnostics::session_check_provision_bytes`]). The save's lease grows
+/// before its request is parsed, so the request text stands for the text of the report's
+/// Diagnostics, which it contains: at least the check's own provision. It is taken on every
+/// save, whether or not the document is one the check applies to, which is not known before the
+/// parse.
+pub fn session_check_lease_bytes(request_text: &str, model_text: &str) -> u64 {
+    crate::report_session_diagnostics::session_check_provision_bytes(model_text.len() as u64, request_text.len() as u64)
+}
+
 /// The run record text of route 010 (§2.5 step 2): present, within
 /// [`MAX_ANALYSIS_RUN_TEXT_BYTES`].
 fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportPackageSaveCommandError> {
@@ -571,8 +583,9 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 
 /// The command's route-aware ingress lease growth (W-18b, DEL-08-01 Design
 /// `report-user-release.md` §2.5, "The outer command"), after the evidence:
-/// - route 009: [`parse_lease_bytes_with_exact`], unchanged; a run record text
-///   is refused (it is route 010's);
+/// - route 009: [`parse_lease_bytes_with_exact`] and the session Diagnostics
+///   check's provision ([`session_check_lease_bytes`]); a run record text is
+///   refused (it is route 010's);
 /// - route 010: D-6 adds the exact texts' capped, priced parse through
 ///   [`parse_lease_bytes_with_exact`], retaining the ordinary reservation over the
 ///   request, model and input-manifest texts and the run record text's
@@ -585,7 +598,8 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 ///     ([`crate::user_release_admission::refusal_formatting_bytes`]): a
 ///     route-010 refusal names one JSON pointer in the model or the request,
 ///     whose length the texts bound (Codex round 2 at #1673), and is then
-///     bounded (Codex round 1 at #1682).
+///     bounded (Codex round 1 at #1682);
+///   - the session Diagnostics check's provision, as on route 009.
 ///
 /// Rule 3 (b)'s growth (§2.7) comes later, inside admission, by the largest
 /// embedded candidate's priced parse. Every growth is refused above the
@@ -596,13 +610,14 @@ pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, Re
         if request.analysis_run_text.is_some() {
             return Err(refuse(REQUEST_INVALID, "/analysis_run", "Only route DREP-PACKAGE-USER-RELEASE-010 carries a run record text."));
         }
-        return parse_lease_bytes_with_exact(
+        return Ok(parse_lease_bytes_with_exact(
             &request.request_text,
             &request.model_text,
             &request.input_manifest_text,
             request.exact_result_text.as_deref(),
             request.exact_intake_text.as_deref(),
-        );
+        )?
+        .saturating_add(session_check_lease_bytes(&request.request_text, &request.model_text)));
     }
     let ordinary = parse_lease_bytes_with_exact(
         &request.request_text, &request.model_text, &request.input_manifest_text,
@@ -616,7 +631,8 @@ pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, Re
     let run = priced("analysis_run", analysis_run_text_of(request.analysis_run_text.as_deref())?)?;
     let derivation = priced("request", &request.request_text)?.saturating_add(priced("input_manifest", &request.input_manifest_text)?);
     let formatting = user_release_native::refusal_formatting_bytes(request.request_text.len() as u64, request.model_text.len() as u64);
-    Ok(ordinary.saturating_add(run).saturating_add(derivation).saturating_add(formatting))
+    let session = session_check_lease_bytes(&request.request_text, &request.model_text);
+    Ok(ordinary.saturating_add(run).saturating_add(derivation).saturating_add(formatting).saturating_add(session))
 }
 
 /// The ingress lease growth for parsing the three texts (§2.6 item 1, "a
@@ -1485,6 +1501,21 @@ fn admit_both_routes(
     // pointer, never a value.
     open_pipe_stress_report_package::model_input::check_model_input_tables(&model_value, request_value.get("report").unwrap_or(&Value::Null))
         .map_err(|message| coded("/request/report/model_input_tables", &message))?;
+    // The package's item 9 refuses only integrity codes among the Diagnostics
+    // after the result's (review of c2cc050ea, R8): on an exact or pressure-free
+    // Timoshenko document, those entries are the session entries the host
+    // derives from this bound model, each as often as the model yields it, and
+    // none copies a result diagnostic (`report_session_diagnostics`, the render
+    // command's check).
+    let save_source = request_value.pointer("/source_results/0").unwrap_or(&Value::Null);
+    let pf_timoshenko = save_source
+        .pointer("/producer/semantic_contract_id")
+        .and_then(Value::as_str)
+        .is_some_and(open_pipe_stress_report_package::pf_timoshenko::is_pf_timoshenko_identity);
+    if exact_custody.is_some() || pf_timoshenko {
+        crate::report_session_diagnostics::check_session_diagnostics(request_value.get("report").unwrap_or(&Value::Null), save_source, &model_value)
+            .map_err(|detail| exact_refused(exact_binding::sections_mismatch(&format!("diagnostics: {detail}")), "/request/report/report_sections/diagnostics"))?;
+    }
     // The run's input manifest: its SHA-256 is the audit input-manifest hash.
     let input_manifest_value = parse_canonical("input_manifest", &input_manifest_text)?;
     let input_manifest_hex = sha256_hex(&input_manifest_text);
