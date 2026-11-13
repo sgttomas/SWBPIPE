@@ -29,8 +29,8 @@ files; `--write` rewrites them.
 
 `--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION,
 else absent) sets `model_settings.pressure_elongation` in the written requests
-through the shared `tools/validation/pressure_elongation.py` (DEL-04-07); the
-references are today's mechanics,
+through the shared `tools/validation/pressure_elongation.py` (DEL-04-07
+`Work/pressure-elongation.md` §7); the references are today's mechanics,
 pressure elongation included, whatever the switch.
 """
 from __future__ import annotations
