@@ -70,4 +70,6 @@ checks:
 - apps/desktop/src/features/viewport/PipeViewport.entrySources.test.tsx
 - apps/desktop/src/features/workspace/entryRules.ts
 - apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
+- apps/desktop/src/features/model-tree/taskUntouchedEntry.test.tsx
+- apps/desktop/src/App.taskUntouchedEntry.test.tsx
 - apps/desktop/src/features/exportProjectUnitRefusal.test.tsx
