@@ -187,7 +187,7 @@ EXPORT_QUOTE_TYPE = ("The Export Model dialog is shown. Selecting the “Save as
 EXPORT_QUOTE_BUTTON = "Once done, click on Export button to write to an .mbf file."
 EXPORT_NOT_MADE = "export not made"
 # The dry run's sacrificial duplicate: the pack author makes this folder; it holds a copy of the same run file as the
-# window sample (WINDOW_SAMPLE_RUN), so that the trial touches neither that sample nor any case folder.
+# window sample (WINDOW_SAMPLE_RUN), so that the check touches neither that sample nor any case folder.
 EXPORT_TRIAL_FOLDER = "samples/sample-dyn-export-trial"
 EXPORT_TRIAL_FILE = "sample-dyn-export-trial.mbf"
 WINDOW_SAMPLE_FOLDER = "samples/sample-dyn-window"
@@ -251,7 +251,7 @@ DRY_RUN["checks"].append(
          f"whether it displays them before anything is written.", ()),
         ("If it does, click Export; if not, click Cancel.", (EXPORT_PAGE,)),
         ("Note the files the folder then holds, by name.", ()),
-        (f"Nothing in {WINDOW_SAMPLE_FOLDER} or in any case folder is opened or touched by this trial.", ()),
+        (f"Nothing in {WINDOW_SAMPLE_FOLDER} or in any case folder is opened or touched by this check.", ()),
     ]))
 DRY_RUN["consequences"].append(
     "(v) the dialog did not let you set the name and the folder, or a file was written before a destination was "

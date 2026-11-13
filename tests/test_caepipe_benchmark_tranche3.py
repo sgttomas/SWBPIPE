@@ -998,7 +998,7 @@ def test_dry_run_check_v_uses_the_sacrificial_duplicate_and_leaves_the_window_sa
                      "and whether it displays them before anything is written.",
                      "If it does, click Export; if not, click Cancel.",
                      "Note the files the folder then holds, by name.",
-                     "Nothing in samples/sample-dyn-window or in any case folder is opened or touched by this trial."):
+                     "Nothing in samples/sample-dyn-window or in any case folder is opened or touched by this check."):
         assert sum(sentence in line for line in steps) == 1, sentence
     assert dry_run["consequences"][3] == (
         "(v) the dialog did not let you set the name and the folder, or a file was written before a destination was "
@@ -1073,3 +1073,17 @@ def test_the_pair_rule_says_at_most_one_is_analysed_and_every_pair_records_an_ou
     assert 'its run line says "switched to counterpart <form B run id>"' in rule and "no return to form A" in rule
     assert texts["run_sheet_pair_rule"].startswith("At most one of a pair is analysed")
     assert "neither run and why" in texts["run_sheet_pair_rule"]
+
+
+def test_no_tranche_3_prose_says_trial():
+    """Check (v) is a check: no prose string of tranche 3 (window instructions, the dry-run text, the export statement,
+    the option-addition and hand-entry declarations, tranche 3's manifest entries) uses the word "trial". The folder
+    and file names samples/sample-dyn-export-trial and sample-dyn-export-trial.mbf, and the key export_trial, are
+    identifiers, not prose, and are left out of the search."""
+    texts = [run["window_instruction"]["text"] for _, run in _window_instructions()]
+    texts += [json.dumps(manifest()[key], ensure_ascii=False) for key in ("dry_run", "export", "option_addition",
+                                                                          "hand_entry")]
+    texts += [json.dumps(entry, ensure_ascii=False) for entry in manifest()["models"] if entry["tranche"] == "3"]
+    for text in texts:
+        prose = text.replace("sample-dyn-export-trial", "").replace("export_trial", "")
+        assert not re.search(r"(?i)\btrials?\b", prose), re.search(r"(?i).{0,60}\btrials?\b", prose).group(0)
