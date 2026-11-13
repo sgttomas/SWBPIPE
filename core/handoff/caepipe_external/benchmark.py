@@ -7,6 +7,11 @@ value is needed. Each scalar is screened against the screening profile of the "B
 docs/RELEASE_TARGET_v1.0.md and classified as `within_profile`, `finding`, `unmatched` or `status_mismatch`. A
 closed-form value the benchmark model carries is kept as the third value with its own checks.
 
+A case whose SWBPIPE side the solver publishes with a numerical quality other than checks passed is not screened
+(`SENSITIVE_SIDE_RULE`): its scalars carry `sensitive_side` with SWBPIPE's own values and closed-form checks only, the
+target program's results for it are not read, and the case is one finding with the solver's status, codes and cause.
+The quality is read from SWBPIPE's result envelope alone; a compared case without it raises NumericalQualityError.
+
 The record is built from CAEPIPE output and is private (docs/IP_AND_DATA_BOUNDARY.md §6.2): it stays in the exchange
 folder. It is screening evidence for Agent 0 and the owner's review of the full record, not validation,
 compatibility proof, code compliance or professional acceptance. The screening profile is a proposal under that
@@ -32,7 +37,34 @@ WITHIN = "within_profile"
 FINDING = "finding"
 UNMATCHED = "unmatched"
 STATUS_MISMATCH = "status_mismatch"
-CLASSIFICATIONS = (WITHIN, FINDING, UNMATCHED, STATUS_MISMATCH)
+# SWBPIPE itself publishes the case's numerical quality as other than checks passed: the case is not screened.
+SENSITIVE_SIDE = "sensitive_side"
+CLASSIFICATIONS = (WITHIN, FINDING, UNMATCHED, STATUS_MISMATCH, SENSITIVE_SIDE)
+CHECKS_PASSED = "checks_passed"
+SENSITIVE_SIDE_RULE = (
+    "A case whose SWBPIPE side the solver publishes with a numerical quality other than checks_passed is not "
+    "screened: each of its scalars is classed sensitive_side, the case is one finding with the integrity status and "
+    "the cause the solver names, and its comparison waits for the deliverable that owns that cause. Which cases these "
+    "are is read from SWBPIPE's own result alone. The rule runs both ways: such a case is sensitive_side whatever its "
+    "values, and while it is so published no value of the target program and no difference is formed, recorded or "
+    "shown for it.")
+# The longest verbatim excerpt of the solver's cause sentence a finding carries.
+CAUSE_SENTENCE_LIMIT = 600
+_INTEGRITY_PREFIX = "NUMERICAL_INTEGRITY_"
+_INTEGRITY_PASSED = "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+
+
+class NumericalQualityError(ValueError):
+    """SWBPIPE's result does not state, consistently, the numerical quality of a case it solved and that is compared.
+    Raised by name; never read as a pass."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(f"{code}: {message}")
+        self.code = code
+
+
+QUALITY_MISSING = "BENCHMARK_NUMERICAL_QUALITY_MISSING"
+QUALITY_INCONSISTENT = "BENCHMARK_NUMERICAL_QUALITY_INCONSISTENT"
 
 EXACT = "exact"
 NAMED_INEXACT = "named_inexact"
@@ -97,6 +129,68 @@ def screen(swbpipe: float, caepipe: float, unit: str, cls: str, case_maximum: fl
 
 def _close(a: float, b: float, unit: str) -> bool:
     return abs(a - b) <= CLOSED_FORM_TOLERANCE["abs"][unit] + CLOSED_FORM_TOLERANCE["rel"] * max(abs(a), abs(b))
+
+
+# -- SWBPIPE's own numerical quality ---------------------------------------------------------------------------------
+def numerical_quality(envelope: Mapping[str, Any], case_ids: list[str]) -> dict[str, str]:
+    """{case: solve_quality} for every named case, read from SWBPIPE's result envelope alone (its
+    numerical_quality.cases entry for the case), cross-checked against the envelope's own status. A missing entry, a
+    non-string quality, or a case that is not checks_passed under an envelope status of checks_passed raises
+    NumericalQualityError by name; nothing else sets or overrides a case's quality."""
+    if not case_ids:
+        return {}  # SWBPIPE solved no compared case: nothing of its values is compared
+    quality = envelope.get("numerical_quality")
+    if not isinstance(quality, Mapping):
+        raise NumericalQualityError(QUALITY_MISSING, "the SWBPIPE result has no numerical_quality")
+    entries: dict[str, list[Any]] = {}
+    for entry in quality.get("cases") or []:
+        if isinstance(entry, Mapping):
+            entries.setdefault(str((entry.get("basis_ref") or {}).get("ref_id")), []).append(entry.get("solve_quality"))
+    out = {}
+    for case in case_ids:
+        found = entries.get(case, [])
+        if len(found) != 1 or not isinstance(found[0], str) or not found[0]:
+            raise NumericalQualityError(
+                QUALITY_MISSING, f"the SWBPIPE result states no single numerical quality for load case {case}")
+        out[case] = found[0]
+    if quality.get("status") == CHECKS_PASSED and any(value != CHECKS_PASSED for value in out.values()):
+        raise NumericalQualityError(QUALITY_INCONSISTENT, "the SWBPIPE result's numerical quality status is "
+                                    "checks_passed but a compared case is not")
+    return out
+
+
+def _cause_sentence(message: str, case: str) -> str | None:
+    """The solver's own sentence that names why `case` is not checks passed, verbatim and bounded in length."""
+    for marker in (f"load case {case} is Sensitive", "is Sensitive because", "is sensitive because"):
+        at = message.find(marker)
+        if at >= 0:
+            guard = message.rfind("S11-G", 0, at)  # the guard sentence opens with the guard's name
+            start = guard if guard >= 0 else message.rfind(". ", 0, at) + 2 if ". " in message[:at] else 0
+            return message[start:start + CAUSE_SENTENCE_LIMIT]
+    return None
+
+
+def sensitive_finding(envelope: Mapping[str, Any], case: str, solve_quality: str) -> dict[str, Any]:
+    """The one finding of a case SWBPIPE publishes as other than checks passed: the status, the integrity diagnostic
+    codes of the case, and the solver's sentence naming the cause. SWBPIPE's own output only."""
+    codes, cause = [], None
+    for item in envelope.get("diagnostics") or []:
+        if not isinstance(item, Mapping):
+            continue
+        code = str(item.get("code") or "")
+        message = str(item.get("message") or "")
+        refs = [str(ref) for key in ("affected_refs", "refs", "references", "affected_objects")
+                for ref in (item.get(key) or []) if isinstance(item.get(key), list)]
+        mine = (case in refs or str(item.get("id") or "").endswith(f":{case}")
+                or f"load case {case}:" in message or f"load case {case} " in message)
+        if code.startswith(_INTEGRITY_PREFIX) and code != _INTEGRITY_PASSED and mine:
+            codes.append(code)
+            cause = cause or _cause_sentence(message, case)
+    return {"case": case, "classification": SENSITIVE_SIDE, "solve_quality": solve_quality,
+            "numerical_quality_status": (envelope.get("numerical_quality") or {}).get("status"),
+            "diagnostic_codes": sorted(set(codes)),
+            "cause": cause if cause is not None else "the solver names no cause sentence for this case",
+            "comparison": "not formed; waits for the answer of the deliverable that owns the cause"}
 
 
 # -- extraction ------------------------------------------------------------------------------------------------------
@@ -282,11 +376,43 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
     solved = {(row.get("basis_ref") or {}).get("ref_id") for row in results if isinstance(row, Mapping)}
     closed_forms = [entry for entry in benchmark_model.get("closed_form") or [] if isinstance(entry, Mapping)]
     expected = _expected_keys(mbf)
+    # SWBPIPE's own numerical quality of every mapped case it solved: read from its result alone, before anything of
+    # the target program is read.
+    quality = numerical_quality(envelope, sorted(case for case in case_map if case in solved))
+    sensitive = sorted(case for case, value in quality.items() if value != CHECKS_PASSED)
+    findings = [sensitive_finding(envelope, case, quality[case]) for case in sensitive]
 
     cases_out, rows, unbound_rows, bindings = [], [], [], {}
     for case_name, swbpipe_cases, label in compared:
         inputs = list(inexact.get(case_name) or [])
         cls = screening_class(inputs)
+        withheld = sorted(set(swbpipe_cases) & set(sensitive))
+        if withheld:
+            # Not screened: SWBPIPE's own values and closed-form checks only; the target program's results for this
+            # case are not read, and no value, difference or printed status of it is recorded.
+            cases_out.append({"case": case_name, "swbpipe_cases": swbpipe_cases, "caepipe_load_case": label,
+                              "screening_class": cls, "inexact_inputs": inputs, "swbpipe_solved": True,
+                              "sensitive_side": {case: quality[case] for case in withheld}})
+            swb, swb_invalid = swbpipe_values(results, swbpipe_cases, support_nodes, anchor_nodes)
+            for key in sorted(expected | set(swb) | swb_invalid):
+                kind, entity, end, axis = key
+                unit = _UNIT[kind]
+                row = {"case": case_name, "kind": kind, "entity": entity, "component": axis, "unit": unit,
+                       **({"end": end} if end else {}), "values": {"swbpipe": swb.get(key)},
+                       "classification": SENSITIVE_SIDE,
+                       "reason": (f"SWBPIPE publishes the numerical quality of {', '.join(withheld)} as "
+                                  f"{', '.join(sorted({quality[case] for case in withheld}))}; not screened")}
+                for entry in closed_forms:
+                    if entry.get("load_case") == case_name and _closed_form_key(entry, mbf) == key:
+                        value = _si(entry.get("value"), entry.get("unit"))
+                        if value is not None:
+                            row["values"]["closed_form"] = value
+                            row["closed_form"] = {"formula": entry.get("formula"), "basis": entry.get("basis")}
+                            if key in swb:
+                                row["closed_form"]["closed_form_vs_swbpipe"] = (
+                                    "agree" if _close(value, swb[key], unit) else "disagree")
+                rows.append(row)
+            continue
         status = {"case": case_name, "swbpipe_cases": swbpipe_cases, "caepipe_load_case": label,
                   "screening_class": cls, "inexact_inputs": inputs,
                   "swbpipe_solved": all(case in solved for case in swbpipe_cases),
@@ -347,8 +473,18 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                     row["reason"] = "SWBPIPE differs from the model's closed form"
             rows.append(row)
     # A parser error (a refused section or row) is never silent: one unmatched row each, so the counts show it.
+    withheld_labels = {label: case_name for case_name, swbpipe_cases, label in compared
+                       if set(swbpipe_cases) & set(sensitive)}
     for item in (parsed_caepipe or {}).get("diagnostics") or []:
         if isinstance(item, Mapping) and item.get("severity") == "error":
+            owner = next((case for label, case in withheld_labels.items() if label in str(item.get("section") or "")),
+                         None)
+            if owner is not None:
+                # A parser error in a section of a case that is not screened: counted, its text not carried.
+                rows.append({"case": owner, "kind": "parser_error", "entity": "withheld",
+                             "classification": SENSITIVE_SIDE, "code": item.get("code"),
+                             "reason": "a parser error in a section of a case that is not screened"})
+                continue
             rows.append({"case": "parser", "kind": "parser_error", "entity": str(item.get("section")),
                          "classification": UNMATCHED, "code": item.get("code"), "line": item.get("line"),
                          "reason": item.get("message")})
@@ -395,4 +531,16 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
         "results": rows,
         "summary": summary,
         "evidence_classification": EVIDENCE_CLASSIFICATION,
+        # SWBPIPE's own numerical quality and the cases this record screens: present in every record.
+        "numerical_quality": {"status": (envelope.get("numerical_quality") or {}).get("status"), "cases": quality,
+                              "rule": SENSITIVE_SIDE_RULE},
+        "screening": {
+            "screened_cases": [case_name for case_name, swbpipe_cases, _ in compared
+                               if not set(swbpipe_cases) & set(sensitive)
+                               and not any(row["classification"] == STATUS_MISMATCH and row["case"] == case_name
+                                           and row["kind"] == "load_case" for row in rows)],
+            "sensitive_side_cases": [case_name for case_name, swbpipe_cases, _ in compared
+                                     if set(swbpipe_cases) & set(sensitive)],
+            "findings": findings,
+        },
     }

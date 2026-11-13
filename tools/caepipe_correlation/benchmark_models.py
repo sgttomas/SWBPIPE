@@ -32,6 +32,16 @@ whose MBF has its OPPRES line substituted (`substituted_mbf_text`). `series_docu
 solves and screens, with that run's closed forms and inexact inputs. Closed forms derived from the Lame
 closed-cylinder stresses, Hooke's law and statics are attached per series state where the state changes them.
 
+SWBPIPE's side of a tranche 1 model is solved on the exact route; the side that counts for exit criterion 11 is the
+Timoshenko one (`SIDES`). `exact_route_document(document, shear_model)` gives that side's document: the tracked model
+restated in the form the exact route requires (`exact_route_model`), with no mechanics input changed, and the closed
+forms valid for the shear model (`timoshenko_closed_forms` adds the shear term where it enters). The two shear models
+form the series `exact-shear-model`; the tracked pressure-free document is the labelled second series
+`pressure-free-route`. The twins are derived on demand, so the tracked files keep their bytes; the manifest records,
+per model and member, the twin's canonical model hash, its closed forms, and whether the writer writes the twin's model
+file byte for byte as it writes the tracked one's (`model_file_condition`), and carries the choices of that side as
+they were recorded before any exact-route result existed (`EXACT_ROUTE_CHOICES`).
+
 Nothing here runs either program, and nothing here records a result.
 """
 
@@ -1331,6 +1341,387 @@ def series_document(document: dict[str, Any], series: str) -> dict[str, Any]:
     return out
 
 
+# -- tranche 1 on the exact route: the exact-route twin -------------------------------------------------------------
+# SWBPIPE's side of a tranche 1 model is solved on the exact route (the SWBPIPE Agent 0, 12 November 2026): the twin
+# below restates the tracked, pressure-free model in the form the exact route requires, changing no mechanics input.
+# The tracked files are not changed; the twin is derived on demand, and the manifest records its canonical model hash
+# per shear model. The pressure-free solve of the tracked file is kept as a second, labelled series.
+TIMOSHENKO = "timoshenko_annulus_energy_v1"
+EULER_BERNOULLI = "euler_bernoulli"
+EXACT_SHEAR_SERIES = "exact-shear-model"
+# The members of the one-parameter series, in order: the first is the side used for the screen.
+EXACT_SHEAR_MEMBERS = (TIMOSHENKO, EULER_BERNOULLI)
+SIDE_EXACT = "exact-route-timoshenko"
+SIDE_PRESSURE_FREE = "pressure-free"
+PRESSURE_FREE_SERIES = "pressure-free-route"
+TWIN_PROVENANCE = ("exact-route restatement of an invented CAEPIPE benchmark input (DEL-17-05, tranche 1); seeded "
+                   "generator; not library, component, catalog, standard or code-rule data")
+LOAD_STATE_CONTRACT = "openpipestress.load_reference_state/1.0.0"
+TWIN_REFERENCE = "reference:installed"
+TIMOSHENKO_BASIS_TEXT = ("Timoshenko closed form with the energy-matched annulus shear factor kappa_E and G = E/(2(1 + "
+                         "nu)) as DEL-05-03 states them; invented inputs")
+# The binding records of the writer's identity file: a stored result binds to SWBPIPE's entities through these.
+BINDING_MAPS = ("node_map", "element_map", "support_map", "load_case_map")
+# The choices of the exact-route side, recorded before any exact-route result existed (see EXACT_ROUTE_CHOICES).
+CHOICES_DATE = "2026-11-12"
+SHEAR_SOURCE = {
+    "citation": ("Vendor public technical reference, \"Fiber Reinforced Plastic Piping (FRP)\", \"Stiffness matrix\", "
+                 "fetched 2026-11-12: the pipe stiffness includes a transverse shear flexibility term, shape factor "
+                 "× L/(GA)."),
+    "title": "Fiber Reinforced Plastic Piping (FRP)",
+    "section": "Stiffness matrix",
+    "url": "https://docs.sstcae.com/tech_manual/fiber_reinforced_plastic_piping__frp_.htm",
+    "fetched": "2026-11-12",
+    "states": ("the stiffness matrix of a pipe is calculated with an axial term L/EA, a shear term (shape factor x "
+               "L/GA), a bending term L/EI and a torsion term, and for an isotropic material G = E/2(1 + Poisson's "
+               "ratio): the public description of the pipe element includes a transverse shear flexibility term"),
+}
+EXACT_ROUTE_CHOICES = {
+    "date": CHOICES_DATE,
+    "decided_by": "the SWBPIPE Agent 0 decided the route (12 November 2026); the inputs below were recorded by the "
+                  "CAEPIPE interoperation Type 1",
+    "recorded_before": ("These choices were recorded before any exact-route result for these models existed, and so "
+                        "before any exact-route result was compared with, or looked at beside, a value of the target "
+                        "program. The pressure-free route's results for all 60 models had already been seen, screened "
+                        "against the target program's results, before they were recorded; so the shear model rests on "
+                        "the public source below, and the other value of that one input is run as a declared series "
+                        "member."),
+    "after_the_record": ("After these choices were recorded and before any exact-route result existed, an estimate of "
+                         "what the exact-route side will show was made by an agent with the target program's values "
+                         "in front of it, using a frame model it wrote itself and not the exact route. The inputs of "
+                         "the exact-route side had been fixed first, and none was changed afterwards. This is a "
+                         "protocol correction after an earlier screen, not a comparison made without prior "
+                         "exposure. The estimate is not a reference of this set and stands on no footing beside one: "
+                         "nothing here rests on it, and it is not recorded here. The independent references are the "
+                         "closed forms, derived from the model inputs and stated mechanics without product code and "
+                         "without any value of the target program. Separately, what each series member is expected "
+                         "to show, so that a series can tell explanations apart, is stated only from textbook "
+                         "mechanics (no shear; a constant thin-wall shear factor; the thickness-dependent coefficient "
+                         "DEL-05-03 states); any number fitted to the target program's results stays private."),
+    "shear_model": {
+        "side_used_for_the_screen": TIMOSHENKO,
+        "source": SHEAR_SOURCE,
+        "not_settled_by_the_source": [
+            "the value of the shape factor",
+            "whether the shear term applies to steel pipe as well as to fibre reinforced plastic pipe (DEL-17-01 "
+            "question CQ-17-01-010, open)",
+        ],
+        "consequence": ("SWBPIPE's coefficient is its own energy-matched annulus factor kappa_E (DEL-05-03); "
+                        "shear_deformation stays a named inexact input on every case that names it, in the 5e-3 "
+                        "class; nothing is fitted and the shear coefficient is not a free parameter"),
+        "series": {"name": EXACT_SHEAR_SERIES, "members": list(EXACT_SHEAR_MEMBERS),
+                   "note": (f"{EULER_BERNOULLI} is the declared second member, declared before any run and run once; "
+                            "it shows the size of the input and is not the side used for the screen")},
+    },
+    "other_inputs": {
+        "mechanics": ("geometry, sections, E, G (as the Poisson's ratio it was formed from), expansion coefficient, "
+                      "loads, restraints, spring rates, imposed movements, bend radius, angle and flexibility factor "
+                      "are the tracked values unchanged"),
+        "corrosion_allowance": "0 m on every pipe section (the exact contract requires it stated; the models are bare "
+                               "pipe)",
+        "pressure_regions": "an explicit empty list on every load case (no tranche 1 model has pressure)",
+        "material": ("constitutive_basis homogeneous_isotropic_E_nu_v1 with Poisson's ratio the value the tracked G "
+                     "was formed from (G = E/(2(1 + nu)) in this generator); the tracked shear_modulus is not "
+                     "restated, since the exact route takes G only from E and nu"),
+        "anchor_movements": ("the same values, stated as boundary motion (absolute reference displacement) of the "
+                             "moved support in the case's analysis_state, the only form the exact route takes them "
+                             "in; the document then carries the load/reference-state group: one reference "
+                             "configuration of the authored geometry with a direct-strain basis and no fit, every "
+                             "pipe on its base properties with an unchanged-reference thermal state, every support an "
+                             "active model device, every stored load a source of factor 1"),
+        "thermal_change": ("the same temperature interval per pipe, as the tracked primitive thermal load, which the "
+                           "exact route takes as it is"),
+        "bend_modifiers": ("the record states bend modifiers that do not enter mechanics (stress intensification) as "
+                           "1 where the exact route requires them. Done: none was added, because the exact route does "
+                           "not require one: it admits each bend with a warning (BEND_USER_MODIFIER_INPUT_MISSING, the "
+                           "same warning the pressure-free route gives) and does not refuse it; and a stated factor "
+                           "would add a record (BSIF) to the model file, which the model file condition does not "
+                           "allow"),
+        "anything_else": ("set to the value that restates the tracked model; a requirement that cannot be met without "
+                          "a value that changes mechanics leaves the model refused, with the refusal's code, and that "
+                          "refusal is a finding"),
+    },
+    "model_file_condition": ("the stored results of the target program are bound by hash to the model file written "
+                             "from the tracked document; a twin is a second SWBPIPE side of a stored result only if "
+                             "the writer, given the twin with the same piping code and reference temperature, writes "
+                             "the same model file bytes, with every differing line listed otherwise; a twin that "
+                             "fails this is not compared"),
+}
+# The screening rule for a case SWBPIPE publishes as numerically sensitive (the SWBPIPE Agent 0, 12 November 2026;
+# DEL-17-05 REQ-020). Which cases these are is derived from each result, never listed here.
+SENSITIVE_SIDE_RULE_TEXT = (
+    "A benchmark case whose SWBPIPE side the solver publishes with a numerical quality other than checks passed is "
+    "not screened. Each of its values is classed sensitive_side, the case is recorded as one finding with the "
+    "integrity status and the cause the solver names, and its comparison waits for the answer of the deliverable "
+    "that owns that cause. Which cases these are is read from SWBPIPE's own result for each run, and from nothing "
+    "else; it is never a list kept here. The rule runs both ways: a case is sensitive_side whenever the solver "
+    "publishes it so, whether or not its values would have agreed, and while it is so published no value of the "
+    "target program and no difference is formed, recorded or shown for it, not even for information.")
+SIDES = {
+    SIDE_EXACT: {
+        "route": "exact", "pressure_contract": {**PRESSURE_CONTRACT, "shear_model": TIMOSHENKO},
+        "counts_for": "exit criterion 11 of docs/RELEASE_TARGET_v1.0.md",
+        "document": f"exact_route_document(document, {TIMOSHENKO!r})", "series": EXACT_SHEAR_SERIES,
+        "applies_to": "tranche 1; tranche 2 is authored on the exact route with this shear model",
+    },
+    SIDE_PRESSURE_FREE: {
+        "route": "pressure_free", "label": "second series: the tracked document as it is, solved on the "
+                                           "pressure-free route (an Euler-Bernoulli frame)",
+        "counts_for": None, "document": "the tracked model document as it is", "series": PRESSURE_FREE_SERIES,
+        "applies_to": "tranche 1",
+    },
+}
+
+
+def _poisson_ratio(material: dict[str, Any]) -> float:
+    """The Poisson's ratio this generator formed the tracked material's G from; refuses a G not formed so."""
+    for name, e, nu, _, _ in MATERIALS:
+        if name == material["id"]:
+            if (material["elastic_modulus"]["value"], material["shear_modulus"]["value"]) != (e, e / (2.0 * (1.0 + nu))):
+                raise ValueError(f"{name}: the tracked E and G are not the generator's")
+            return nu
+    raise ValueError(f"{material['id']} is not one of the generator's materials")
+
+
+def _load_state_restatement(model: dict[str, Any]) -> None:
+    """Move every support-targeted imposed displacement into its case's analysis_state as boundary motion, adding the
+    load/reference-state group that form needs (in place)."""
+    pipes = [pipe["id"] for pipe in model["pipe_segments"]]
+    model["reference_configurations"] = [{
+        "id": TWIN_REFERENCE, "geometry_ref": {"kind": "authored_model_geometry"}, "provenance": TWIN_PROVENANCE,
+        "member_references": [{"pipe_ref": pipe, "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"},
+                               "provenance": TWIN_PROVENANCE} for pipe in pipes]}]
+    material = {pipe["id"]: pipe["material"] for pipe in model["pipe_segments"]}
+    for case in model["load_cases"]:
+        motion: dict[str, list[dict[str, Any]]] = {}
+        kept = []
+        for load in case["primitive_loads"]:
+            if load["category"] == "imposed_displacement":
+                motion.setdefault(load["target"]["support"], []).append({
+                    "dof": load["target"]["dof"], "value": dict(load["magnitude"]),
+                    "meaning": "absolute_reference_displacement"})
+            else:
+                kept.append(load)
+        case["primitive_loads"] = kept
+        states = []
+        for support in model["supports"]:
+            state: dict[str, Any] = {"support_ref": support["id"], "participation": {"kind": "active_model_device"}}
+            if support["id"] in motion:
+                state["boundary_motion"] = motion.pop(support["id"])
+            states.append(state)
+        if motion:
+            raise ValueError(f"{case['id']}: imposed displacement on an unknown support {sorted(motion)}")
+        case["analysis_state"] = {
+            "contract": LOAD_STATE_CONTRACT, "reference_configuration_ref": TWIN_REFERENCE,
+            "element_states": [{"pipe_ref": pipe,
+                                "material_selection": {"kind": "explicit_base_properties", "material_ref": material[pipe],
+                                                       "applicability_reference": TWIN_PROVENANCE},
+                                "thermal_state": {"kind": "unchanged_reference", "provenance": TWIN_PROVENANCE}}
+                               for pipe in pipes],
+            "support_states": states,
+            "load_sources": [{"source_ref": load["id"], "factor": 1.0} for load in kept],
+            "history": {"kind": "independent_equilibrium"}, "provenance": TWIN_PROVENANCE}
+
+
+def exact_route_model(model: dict[str, Any], shear_model: str) -> dict[str, Any]:
+    """The exact-route twin of a tracked tranche 1 model for `shear_model`: the exact pressure contract, a zero
+    corrosion allowance on every section, an explicit empty pressure_regions on every case, an E and nu material, and
+    any anchor movement as boundary motion. No mechanics input changes; the argument is not changed."""
+    if shear_model not in EXACT_SHEAR_MEMBERS:
+        raise ValueError(f"unknown shear model {shear_model!r}")
+    if "pressure_contract" in model:
+        raise ValueError("the twin is formed from a pressure-free model")
+    out = copy.deepcopy(model)
+    out["pressure_contract"] = {**PRESSURE_CONTRACT, "shear_model": shear_model}
+    for pipe in out["pipe_segments"]:
+        pipe["section"]["corrosion_allowance"] = q(0.0, "m")
+    out["materials"] = [{
+        "id": material["id"], "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": dict(material["elastic_modulus"]), "poisson_ratio": q(_poisson_ratio(material), "1"),
+        **{key: copy.deepcopy(value) for key, value in material.items()
+           if key not in ("id", "elastic_modulus", "shear_modulus")}} for material in out["materials"]]
+    for case in out["load_cases"]:
+        case["pressure_regions"] = []
+    if any(load["category"] == "imposed_displacement" for case in out["load_cases"] for load in case["primitive_loads"]):
+        _load_state_restatement(out)
+    return out
+
+
+def annulus_shear_factor(r_o: float, r_i: float, nu: float) -> float:
+    """kappa_E, the energy-matched shear factor of the annulus, in DEL-05-03's operation order (no product code)."""
+    m = r_i / r_o
+    m2 = m * m
+    a, b, n1 = 1.0 + m2, 1.0 - m2, 1.0 + nu
+    c = (8.0 * nu + 14.0) * nu + 7.0
+    d = c * (b * b) + 48.0 * (m2 * (n1 * n1))
+    return (6.0 * (n1 * n1)) * (a * a) / d
+
+
+def _beam(document: dict[str, Any]) -> dict[str, float]:
+    """E, G, I, the shear area G A_s and the bending/shear ratio of a model's (uniform) straight section, in SI."""
+    model = document["model"]
+    pipe = model["pipe_segments"][0]
+    od, wall = pipe["section"]["outside_diameter"]["value"], pipe["section"]["wall_thickness"]["value"]
+    if any((p["section"]["outside_diameter"]["value"], p["section"]["wall_thickness"]["value"]) != (od, wall)
+           for p in model["pipe_segments"]):
+        raise ValueError(f"{document['model_id']}: a closed form needs one section")
+    material = model["materials"][0]
+    e, nu = material["elastic_modulus"]["value"], _poisson_ratio(material)
+    g = e / (2.0 * (1.0 + nu))
+    r_o = od / 2.0
+    r_i = r_o - wall
+    area = math.pi * (r_o * r_o - r_i * r_i)
+    inertia = math.pi / 4.0 * (cr_pow(r_o, 4) - cr_pow(r_i, 4))
+    shear_area = annulus_shear_factor(r_o, r_i, nu) * area
+    return {"E": e, "G": g, "I": inertia, "GAs": g * shear_area, "EI": e * inertia}
+
+
+def timoshenko_closed_forms(document: dict[str, Any]) -> list[dict]:
+    """The tracked closed forms of a tranche 1 model restated for Timoshenko straight members: each value that the
+    shear term changes is derived here (no product code); every other closed form is carried unchanged.
+
+    Cantilever under a tip load P and a uniform load w (G1): the section rotation and the reactions are statically
+    determinate and unchanged; the tip deflection gains the shear term (P L + w L^2/2)/(G A_s).
+    Beam fixed at both ends, end B moved by delta or turned by phi (G8), with phi_s = 12 E I/(G A_s L^2): the end
+    shear is 12 E I delta/(L^3 (1 + phi_s)) and the midspan deflection stays delta/2; under phi the end moments are
+    (4 + phi_s) E I phi/(L (1 + phi_s)) at B and (2 - phi_s) E I phi/(L (1 + phi_s)) at A, the end shear
+    6 E I phi/(L^2 (1 + phi_s)), and the midspan section rotation -phi (1 - 2 phi_s)/(4 (1 + phi_s)). Axial closed
+    forms carry no shear term."""
+    out = []
+    family, parameters = document["family"], document["parameters"]
+    for entry in document["closed_form"]:
+        entry = dict(entry)
+        formula = entry["formula"]
+        if family == "G1" and parameters["config"] == "cantilever" and formula == "P L^3/(3EI) + w L^4/(8EI)":
+            beam, span, tip = _beam(document), parameters["span"], parameters["tip_force"]
+            builder = Builder(document["model_id"], next(index for index, item in enumerate(MATERIALS)
+                                                        if item[0] == document["model"]["materials"][0]["id"]))
+            builder.sections["pipe"] = (parameters["od"], float(f"{parameters['od'] / parameters['dt']:.4g}"))
+            w = builder.weight_per_length("pipe")
+            entry.update(value=entry["value"] + (tip * span + w * cr_pow(span, 2) / 2) / beam["GAs"],
+                         formula="P L^3/(3EI) + w L^4/(8EI) + (P L + w L^2/2)/(G A_s)", basis=TIMOSHENKO_BASIS_TEXT)
+        elif family == "G8" and parameters["config"] != "l_general" and (
+                entry["quantity"].startswith("reaction")
+                or (parameters["config"] == "rotate_rz" and entry["quantity"] == "rotation")):
+            beam, span = _beam(document), parameters["span"]
+            phi_s = 12.0 * beam["EI"] / (beam["GAs"] * span * span)
+            factor = {
+                "12EI delta/L^3": 1.0 / (1.0 + phi_s), "-12EI delta/L^3": 1.0 / (1.0 + phi_s),
+                "-6EI phi/L^2": 1.0 / (1.0 + phi_s),
+                "4EI phi/L": (4.0 + phi_s) / (4.0 * (1.0 + phi_s)), "2EI phi/L": (2.0 - phi_s) / (2.0 * (1.0 + phi_s)),
+                "-phi/4 at midspan (v = phi (x^3/L^2 - x^2/L))": (1.0 - 2.0 * phi_s) / (1.0 + phi_s),
+            }[formula]
+            restated = {
+                "12EI delta/L^3": "12EI delta/(L^3 (1 + phi_s))", "-12EI delta/L^3": "-12EI delta/(L^3 (1 + phi_s))",
+                "-6EI phi/L^2": "-6EI phi/(L^2 (1 + phi_s))", "4EI phi/L": "(4 + phi_s) EI phi/(L (1 + phi_s))",
+                "2EI phi/L": "(2 - phi_s) EI phi/(L (1 + phi_s))",
+                "-phi/4 at midspan (v = phi (x^3/L^2 - x^2/L))": "-phi (1 - 2 phi_s)/(4 (1 + phi_s)) at midspan",
+            }[formula]
+            entry.update(value=entry["value"] * factor, formula=f"{restated}, phi_s = 12 E I/(G A_s L^2)",
+                         basis=TIMOSHENKO_BASIS_TEXT)
+        out.append(entry)
+    return out
+
+
+def exact_route_document(document: dict[str, Any], shear_model: str) -> dict[str, Any]:
+    """The benchmark document of a tranche 1 model's exact-route side for one member of the exact-shear-model series:
+    the tracked document with its model replaced by the exact-route twin and the closed forms valid for that shear
+    model (Euler-Bernoulli: the tracked ones; Timoshenko: `timoshenko_closed_forms`). Deterministic; nothing is
+    written to the tracked set."""
+    if document.get("tranche") == "2":
+        raise ValueError(f"{document.get('model_id')} is a tranche 2 model, authored on the exact route")
+    out = copy.deepcopy(document)
+    out["model"] = exact_route_model(document["model"], shear_model)
+    out["series_run"] = EXACT_SHEAR_SERIES
+    out["route"] = "exact"
+    out["shear_model"] = shear_model
+    out["closed_form"] = (timoshenko_closed_forms(document) if shear_model == TIMOSHENKO
+                          else copy.deepcopy(document["closed_form"]))
+    return out
+
+
+def _write_model_file(document: dict[str, Any], model: dict[str, Any]):
+    """The writer's output for `model` with the piping code and reference temperature run_pilot passes."""
+    return render_caepipe_mbf_si(model, title=document["model_id"],
+                                 reference_temperature_c=document.get("reference_temperature_c", 20.0),
+                                 piping_code=document["piping_code"])
+
+
+def model_file_differences(pressure_free: str, twin: str) -> list[dict[str, Any]]:
+    """Every line where two model files differ, each with the record (the keyword line above it) it belongs to."""
+    a, b = pressure_free.split("\r\n"), twin.split("\r\n")
+    out, record = [], None
+    for index in range(max(len(a), len(b))):
+        left = a[index] if index < len(a) else None
+        right = b[index] if index < len(b) else None
+        line = left if left is not None else right
+        if line and "," not in line and line.replace("_", "").isalnum() and line.upper() == line:
+            record = line
+        if left != right:
+            out.append({"line": index + 1, "record": record, "pressure_free": left, "exact": right})
+    return out
+
+
+def model_file_condition(document: dict[str, Any], shear_model: str) -> dict[str, Any]:
+    """Whether the writer writes the twin's model file byte for byte as it writes the tracked document's."""
+    tracked = _write_model_file(document, document["model"])
+    twin = _write_model_file(document, exact_route_model(document["model"], shear_model))
+    if twin.status != "written":
+        return {"writer_status": twin.status, "equal_to_pressure_free": False,
+                "writer_refusals": sorted({item["code"] for item in twin.diagnostics if item["severity"] == "error"})}
+    differences = model_file_differences(tracked.text, twin.text)
+    tracked_record, twin_record = tracked.to_dict(), twin.to_dict()
+    return {"writer_status": "written", "equal_to_pressure_free": not differences, "differences": differences,
+            "binding_maps_equal": all(tracked_record[name] == twin_record[name] for name in BINDING_MAPS),
+            "identity_file_records_differing": sorted(key for key in set(tracked_record) | set(twin_record)
+                                                      if tracked_record.get(key) != twin_record.get(key))}
+
+
+def _closed_form_sha256(closed_forms: list[dict]) -> str:
+    return hashlib.sha256(_dump(closed_forms).encode("ascii")).hexdigest()
+
+
+def exact_route_entry(document: dict[str, Any]) -> dict[str, Any]:
+    """The manifest's record of a tranche 1 model's exact-route twin: per shear model, the twin's canonical model
+    hash, its closed forms and the model file condition."""
+    forms = ["pressure_contract", "corrosion_allowance_zero", "pressure_regions_empty", "material_E_nu"]
+    if any(load["category"] == "imposed_displacement" for case in document["model"]["load_cases"]
+           for load in case["primitive_loads"]):
+        forms.append("boundary_motion_in_load_reference_state")
+    members = []
+    for shear_model in EXACT_SHEAR_MEMBERS:
+        twin = exact_route_document(document, shear_model)
+        condition = model_file_condition(document, shear_model)
+        if not condition.get("differences", True):
+            condition.pop("differences")
+        members.append({"shear_model": shear_model, "side": SIDE_EXACT if shear_model == TIMOSHENKO else None,
+                        "swbpipe_model_hash": canonical_model_hash(twin["model"]),
+                        "closed_forms": len(twin["closed_form"]),
+                        "closed_form_sha256": _closed_form_sha256(twin["closed_form"]),
+                        "model_file": condition})
+    return {"series": EXACT_SHEAR_SERIES, "forms": forms,
+            "comparable_with_stored_results": all(member["model_file"]["equal_to_pressure_free"] for member in members),
+            "members": members}
+
+
+EXACT_SHEAR_SERIES_DEFINITION = {
+    "kind": "shear_model", "parameter": "pressure_contract.shear_model", "hypothesis": SHEAR,
+    "values": [{"value": TIMOSHENKO, "role": f"the side used for the screen ({SIDE_EXACT})"},
+               {"value": EULER_BERNOULLI, "role": "declared second member; shows the size of the input"}],
+    "swbpipe": "exact_route_document(document, value): the exact-route twin of the tracked tranche 1 model",
+    "caepipe": "the model file written from the tracked document, unchanged, where the twin's model file equals it",
+    "description": ("every tranche 1 model on the exact route under each shear model; a model whose twin fails the "
+                    "model file condition is listed with comparable_with_stored_results false and is not compared"),
+}
+PRESSURE_FREE_SERIES_DEFINITION = {
+    "kind": "route", "parameter": "route", "value": "pressure_free",
+    "swbpipe": "the tracked tranche 1 model document as it is, solved on the pressure-free route",
+    "caepipe": "the model file written from the tracked document",
+    "description": ("the second, labelled series: SWBPIPE's pressure-free route (an Euler-Bernoulli frame); it does "
+                    "not count for exit criterion 11"),
+}
+
+
 def run_mbf_text(document: dict[str, Any], writer_text: str) -> str:
     """The MBF a benchmark document's run carries: the writer's text, with the OPPRES line of a series run."""
     line = document.get("oppres_line")
@@ -1499,6 +1890,16 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
                     series.setdefault(name, {**declared, "members": []})
                     series[name]["members"].append({"model_id": model_id, "run_id": run["run_id"],
                                                     "elongation_load_case": SUSTAINED})
+            else:
+                entry["exact_route"] = exact_route_entry(document)
+                series.setdefault(PRESSURE_FREE_SERIES, {**PRESSURE_FREE_SERIES_DEFINITION, "members": []})
+                series[PRESSURE_FREE_SERIES]["members"].append({"model_id": model_id, "value": "pressure_free",
+                                                                "swbpipe_model_hash": entry["model_hash"]})
+                series.setdefault(EXACT_SHEAR_SERIES, {**EXACT_SHEAR_SERIES_DEFINITION, "members": []})
+                for member in entry["exact_route"]["members"]:
+                    series[EXACT_SHEAR_SERIES]["members"].append({
+                        "model_id": model_id, "value": member["shear_model"],
+                        "swbpipe_model_hash": member["swbpipe_model_hash"]})
             entries.append(entry)
     files["manifest.json"] = _dump({
         "document_kind": MANIFEST_KIND,
@@ -1508,9 +1909,12 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
         "pressure_hypothesis": PRESSURE_HYPOTHESIS,
         "requirement": ("DEL-17-05 REQ-018 and AC-007 (execution/PKG-17/DEL-17-05/ScopeOfWork.md); the Benchmark "
                         "method section of docs/RELEASE_TARGET_v1.0.md"),
+        "sensitive_side_rule": SENSITIVE_SIDE_RULE_TEXT,
         "piping_code": PIPING_CODE,
         "materials": [{"id": name, "elastic_modulus_pa": e, "poisson_ratio": nu, "thermal_expansion_per_k": alpha,
                        "density_kg_per_m3": rho} for name, e, nu, alpha, rho in MATERIALS],
+        "swbpipe_sides": SIDES,
+        "exact_route_choices": EXACT_ROUTE_CHOICES,
         "series": dict(sorted(series.items())),
         "models": entries,
         "provenance": {"origin": "invented", "produced_by_caepipe": False,

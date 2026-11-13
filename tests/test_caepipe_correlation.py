@@ -85,7 +85,9 @@ def swb_rows(*, uy_mm=-10.0, rz_rad=-0.01, fy=2000.0, restraint_fy=50.0):
     if fy is not None:
         rows.append(row("support_reaction_component_v2", "A0", fy, "N", "Fy"))
     rows.append(row("support_reaction_component_v2", "G1", restraint_fy, "N", "Fy"))
-    return {"mechanics_envelope": {"results": rows}}
+    return {"mechanics_envelope": {"results": rows, "numerical_quality": {
+        "status": "checks_passed",
+        "cases": [{"basis_ref": {"ref_type": "load_case", "ref_id": "LC1"}, "solve_quality": "checks_passed"}]}}}
 
 
 MBF = {
