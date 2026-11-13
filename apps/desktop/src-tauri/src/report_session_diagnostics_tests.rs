@@ -734,11 +734,14 @@ fn work_bound(sites: u64, entries: u64, results: u64) -> u64 {
 /// with its comma, against at most 48 indexed bytes), identical and distinct;
 /// thousands of the smallest entries the copy check indexes (a string code and
 /// affected id: 44 bytes against at most 16); and thousands of entries the
-/// check refuses before storing anything for them (`{}`, `0`, `""`). Each
-/// priced peak is within the provision, by the function the routes call.
+/// check refuses before storing anything for them (`{}`, `0`, `""`: two or
+/// three bytes each). The model is tiny, so the provision is the Diagnostics
+/// text and the fixed part, and 20,000 entries put any storage of more than
+/// about three bytes per refused entry above it. Each priced peak is within
+/// the provision, by the function the routes call.
 #[test]
 fn many_minimal_entries_stay_within_the_provision() {
-    const ENTRIES: usize = 4000;
+    const ENTRIES: usize = 20_000;
     let empty_session_form = json!({"code": "", "class": "", "severity": "",
         "source": {"ref_type": "", "ref_id": ""}, "affected_object": {"ref_type": "", "ref_id": ""}, "message": "", "remediation": ""});
     assert_eq!(serde_json::to_string(&empty_session_form).unwrap().len() + 1, 150, "the smallest indexed entry with its comma");
@@ -749,7 +752,7 @@ fn many_minimal_entries_stay_within_the_provision() {
     };
     let copy_form = json!({"code": "", "affected_object": {"ref_id": ""}});
     assert_eq!(serde_json::to_string(&copy_form).unwrap().len() + 1, 44, "the smallest copy-check entry with its comma");
-    let model = json!({"project": {"id": "project:invented"}, "components": vec![json!({"id": "component:same"}); ENTRIES]});
+    let model = json!({"project": {"id": "project:invented"}});
     let cases: Vec<(&str, Vec<Value>)> = vec![
         ("the smallest indexed entry, identical", vec![empty_session_form.clone(); ENTRIES]),
         ("the smallest indexed entries, distinct", (0..ENTRIES).map(distinct_session_form).collect()),
@@ -764,7 +767,7 @@ fn many_minimal_entries_stay_within_the_provision() {
         let (outcome, measured, work, provision) = measured_check(&input, &model);
         // No site yields any of them: the first is refused.
         assert_eq!(outcome, not_derived(0), "{name}");
-        let bound = work_bound(ENTRIES as u64, entries, 0);
+        let bound = work_bound(0, entries, 0);
         eprintln!("{name}: {entries} entries: {work} steps (bound {bound}), {} allocations, priced peak {} B, provision {provision} B", measured.allocations, measured.peak_priced);
         assert!(work <= bound, "{name}: {work} steps exceed {bound}");
         assert!(measured.peak_priced <= provision, "{name}: priced peak {} exceeds the provision {provision}", measured.peak_priced);
