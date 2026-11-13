@@ -299,6 +299,24 @@ locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
 target directory).
 
+The headless artifact readers (`tests/test_pressure_headless_artifacts.py`,
+`tests/test_load_reference_headless_artifacts.py`) read the files that the
+headless runner's Rust tests write at the tested head; without them they skip.
+When the reporting-runner shard's plan selects `core/runner/headless`, a step
+after its suite, in the same job, runs `pressure_export.rs`,
+`load_reference_cli.rs` and the lib's `load_reference_route_tests` with the three
+artifact folders set to fresh folders, reusing the suite's build. It then runs
+both readers with `HEADLESS_ARTIFACTS_REQUIRED=1`, which turns a skip into a
+failure, and fails unless every reader test ran and passed; its log gives the
+artifact and test counts. The shard's existing selection covers the runner and
+the result contract. `piping_artifact_readers` in `tools/hosted-ci-routing.json`
+adds the readers: a change to either reader, or to any `tests/` file in its
+transitive imports (the verifiers and `tests/schema_validation.py`, derived by
+`tools/ci/python_test_reads.py` at selection time), selects the headless crate.
+Such a change also runs the headless crate's whole Cargo suite on that shard, an
+accepted cost. An invalid declaration, or imports that cannot be derived, select
+every crate.
+
 No post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or
 unresolved concern. Failure diagnostics stay in CI artifacts. The optional
