@@ -5,6 +5,8 @@ import {
   confirmProjectUnits,
   expectTreeEntity,
   openWorkspaceSection,
+  selectCompactOption,
+  startPropertyTaskFromTreeEntity,
 } from "./workspace-driver";
 
 // T1 WP3: plain load/reference-state fields (model 0.9.0 with the exact contract since
@@ -201,15 +203,51 @@ test("blank load/reference model: author support motion, a thermal state and a m
   await openWorkspaceSection(page, "loads");
   await expect(inputs.getByTestId("load-state-analysis-state")).toContainText("analysis_state is applied for this case.");
 
+  // Solve is withheld, naming the findings, while a solve-blocking finding stands
+  // (DEL-07-07 REQ-008). This exact-profile model has no explicit corrosion allowance
+  // on its member and no pressure-region declaration on its case, so the model checks
+  // name both and no job starts.
+  await openWorkspaceSection(page, "solve");
+  const run = page.getByTestId("run-mechanics-preview");
+  await run.click();
+  await expect(run).toHaveAttribute("aria-disabled", "true");
+  await expect(run).toHaveText("Run mechanics preview (withheld)");
+  const withheld = page.getByTestId("solve-withheld-notice");
+  await expect(withheld.getByTestId("solve-withheld-summary")).toContainText("2 solve-blocking findings stand for this model.");
+  await expect(withheld.getByTestId("model-check-EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED")).toBeVisible();
+  await expect(withheld.getByTestId("model-check-EXACT_PRESSURE_REGIONS_REQUIRED")).toBeVisible();
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
+  expect(await modelHash(page)).toBe(afterHash);
+
+  // The two inputs through the product's own fields: the member's explicit zero
+  // corrosion allowance (the inspector) and the case's explicitly reviewed empty
+  // pressure-region array (the Loads panel).
+  const inspector = await startPropertyTaskFromTreeEntity(page, "pipe", "pipe:WP3");
+  await selectCompactOption(inspector.getByTestId("editor-intent-field"), "section.corrosion_allowance.value");
+  await inspector.getByTestId("editor-intent-value").fill("0");
+  await inspector.getByTestId("apply-editor-intent-inline").click();
+  await openWorkspaceSection(page, "operations");
+  await expect(page.getByTestId("operation-apply-message")).toContainText("Applied op:editor-intent-pipe-pipe:WP3-section.corrosion_allowance.value");
+  await closeWorkspacePanels(page);
+  const regions = (await openWorkspaceSection(page, "loads")).getByRole("region", { name: "Case pressure regions", exact: true });
+  await expect(regions).toContainText("No pressure-region declaration has been applied.");
+  await regions.getByRole("button", { name: "Queue explicit empty pressure regions", exact: true }).click();
+  await applyQueued(page);
+  await openWorkspaceSection(page, "loads");
+  await expect(regions).toContainText("0 applied regions.");
+  const solvableHash = await modelHash(page);
+  expect(solvableHash).not.toBe(afterHash);
+
   // Browser solve refuses in both modes; no resolved-state block appears.
   for (const mode of ["sparse", "dense"]) {
     await openWorkspaceSection(page, "solve");
     await page.getByTestId(`solver-mode-${mode}`).click();
     await expect(page.getByTestId(`solver-mode-${mode}`)).toHaveAttribute("aria-pressed", "true");
     await page.getByTestId("run-mechanics-preview").click();
+    await expect(page.getByTestId("solve-withheld-notice")).toHaveCount(0);
     await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
     await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED");
     await expect(page.getByTestId("load-reference-states-block")).toHaveCount(0);
   }
-  expect(await modelHash(page)).toBe(afterHash);
+  expect(await modelHash(page)).toBe(solvableHash);
 });
