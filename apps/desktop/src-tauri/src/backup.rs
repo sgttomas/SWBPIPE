@@ -1435,6 +1435,10 @@ pub(crate) fn admit_body(
     command_ingress::admit_body_within(registry, body, headers, command, ArgsDecoding::Moved, max)
 }
 fn choose_backup_folder(app: &AppHandle) -> Result<Option<PathBuf>, String> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = crate::native_smoke::take_chosen_path(app, "choose_backup_folder") {
+        return Ok(Some(path));
+    }
     let mut chooser = app.dialog().file();
     if let Some(directory) =
         default_save_directory(app.path().document_dir().ok(), app.path().home_dir().ok())

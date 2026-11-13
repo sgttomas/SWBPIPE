@@ -238,7 +238,7 @@ async fn save_report_package_decoded(
 
 fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<Result<PathBuf, String>> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_report_package_save_path") {
         return Some(Ok(path));
     }
     app.dialog()
@@ -2302,7 +2302,7 @@ fn cancel_mbf_import(
 /// the import's paths).
 fn choose_mbf_import_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_mbf_import_path") {
         return Ok(Some(path));
     }
     let Some(selected) = app.dialog().file().add_filter("Model batch file", &["mbf"]).blocking_pick_file() else {
@@ -2313,7 +2313,7 @@ fn choose_mbf_import_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
 
 fn choose_mbf_save_path(app: &AppHandle, suggested_file_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_mbf_save_path") {
         return Ok(Some(path));
     }
     let mut chooser = app.dialog().file().set_file_name(suggested_file_name).add_filter("Model batch file", &["mbf"]);
@@ -2396,7 +2396,7 @@ fn choose_model_document_save_path(
     directory: Option<PathBuf>,
 ) -> Result<Option<PathBuf>, String> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_model_document_save_path") {
         return Ok(Some(path));
     }
     let mut chooser = app
@@ -2481,7 +2481,7 @@ async fn save_handoff_package_decoded(
 
 fn choose_handoff_package_path(app: &AppHandle, suggested_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_handoff_package_path") {
         return Ok(Some(path));
     }
     let mut chooser = app
@@ -2500,7 +2500,7 @@ fn choose_handoff_package_path(app: &AppHandle, suggested_name: &str, directory:
 
 fn choose_model_document_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_model_document_path") {
         return Ok(Some(path));
     }
     let Some(selected) = app
