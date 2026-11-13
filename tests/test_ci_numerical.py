@@ -690,6 +690,66 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(result['modes']['piping-numerical'], 'not-applicable')
             self.assertEqual(result['piping_numerical_selection']['manifests'], [])
 
+    def test_declared_artifact_reader_and_its_test_imports_select_the_crate_that_writes_its_artifacts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            producer = self.crate(project, 'producer')
+            unrelated = self.crate(project, 'unrelated')
+            (project / 'tests/helpers').mkdir(parents=True)
+            (project / 'tests/test_reads_artifacts.py').write_text('from tests.helpers.reading import read\n')
+            (project / 'tests/helpers/__init__.py').write_text('')
+            (project / 'tests/helpers/reading.py').write_text('from tests.helpers import deeper\ndef read(): pass\n')
+            (project / 'tests/helpers/deeper.py').write_text('')
+            (project / 'tests/helpers/unused.py').write_text('')
+            (project / 'tests/test_other.py').write_text('')
+            (project / 'tools').mkdir()
+            (project / 'tools/x.py').write_text('')
+            (project / 'tests/untracked.py').write_text('')
+            subprocess.run(['git', 'init', '-q', str(project)], check=True)
+            subprocess.run(['git', '-C', str(project), 'add', '--', 'core', 'tests/test_reads_artifacts.py', 'tests/helpers',
+                            'tests/test_other.py', 'tools'], check=True)
+            manifests = [producer, unrelated]
+            readers = {'tests/test_reads_artifacts.py': [producer.as_posix()]}
+            def select(local, declaration=readers):
+                return ci.numerical_selection(project, manifests, [ci.PROJECT + local], EMPTY_READS, (), declaration)
+            # The reader and each tests/ file it imports, transitively, select the producer.
+            for local in ('tests/test_reads_artifacts.py', 'tests/helpers/reading.py', 'tests/helpers/deeper.py'):
+                result = select(local)
+                self.assertEqual(result['classification'], 'reachability', local)
+                self.assertEqual(result['manifests'], [producer.as_posix()], local)
+                self.assertEqual(result['reasons'], [{'path': ci.PROJECT + local, 'kind': 'artifact-reader', 'manifest': producer.as_posix()}])
+            # A tests/ file the reader does not import, or no declaration, keeps today's behaviour.
+            for local in ('tests/test_other.py', 'tests/helpers/unused.py'):
+                self.assertEqual(select(local)['manifests'], [], local)
+            self.assertEqual(ci.numerical_selection(project, manifests, [ci.PROJECT + 'tests/test_reads_artifacts.py'], EMPTY_READS)['manifests'], [])
+            self.assertEqual(select('tests/test_reads_artifacts.py', {})['manifests'], [])
+            # An invalid declaration, an absent, untracked or non-test reader, or an undiscovered or missing producer
+            # rejects reduced selection.
+            for bad in ([], {'tests/absent.py': [producer.as_posix()]}, {'tests/untracked.py': [producer.as_posix()]},
+                        {'tools/x.py': [producer.as_posix()]}, {'tests/test_reads_artifacts.py': ['core/absent/Cargo.toml']},
+                        {'tests/test_reads_artifacts.py': []}, {'tests/test_reads_artifacts.py': producer.as_posix()}):
+                self.assertEqual(select('tests/test_other.py', bad)['classification'], 'full-fallback', bad)
+            # So does a reader whose imports cannot be derived.
+            (project / 'tests/helpers/reading.py').write_text('def read(:\n')
+            result = select('tests/test_other.py')
+            self.assertEqual(result['classification'], 'full-fallback')
+            self.assertIn('cannot be derived', result['fallback_reasons'][0])
+
+    def test_headless_artifact_readers_and_their_test_imports_select_the_headless_runner(self):
+        profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
+        headless = 'core/runner/headless/Cargo.toml'
+        self.assertEqual(ci.manifest_shard(headless), 'reporting-runner')
+        for path in ('tests/test_pressure_headless_artifacts.py', 'tests/test_load_reference_headless_artifacts.py',
+                     'tests/verifiers/pressure_3.py', 'tests/schema_validation.py'):
+            result = hosted_ci.select_paths([ci.PROJECT + path], profile)
+            self.assertEqual(result['modes']['piping-numerical'], 'full', path)
+            self.assertEqual(result['piping_numerical_selection']['manifests'], [headless], path)
+            self.assertEqual({r['kind'] for r in result['piping_numerical_selection']['reasons']}, {'artifact-reader'}, path)
+        # A tests/ file neither reader imports stays a Python check.
+        result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], profile)
+        self.assertEqual(result['modes']['piping-numerical'], 'not-applicable')
+        self.assertEqual(result['piping_numerical_selection']['manifests'], [])
+
 
     def test_known_fixture_keeps_second_reader_with_unmodeled_filesystem_imports(self):
         with tempfile.TemporaryDirectory() as tmp:

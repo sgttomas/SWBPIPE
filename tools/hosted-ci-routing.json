@@ -6412,6 +6412,17 @@
       }
     }
   },
+  "piping_artifact_readers": {
+    "description": "Python tests that read the artifacts a crate's own tests write at the tested head. A change to a reader selects that crate's numerical shard, which writes the artifacts and runs the reader on them with HEADLESS_ARTIFACTS_REQUIRED=1 (docs/CI_STRATEGY.md).",
+    "readers": {
+      "tests/test_load_reference_headless_artifacts.py": [
+        "core/runner/headless/Cargo.toml"
+      ],
+      "tests/test_pressure_headless_artifacts.py": [
+        "core/runner/headless/Cargo.toml"
+      ]
+    }
+  },
   "piping_desktop_resources": {
     "source": "apps/desktop/native-smoke/expected.json",
     "pointer": "cases.fixture",

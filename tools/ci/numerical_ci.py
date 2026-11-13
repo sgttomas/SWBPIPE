@@ -328,7 +328,41 @@ def cargo_dependencies(project, manifests):
     return dependencies
 
 
-def numerical_selection(project, manifests, paths, declarations=None, ignored_paths=()):
+def artifact_producers(project, manifests, readers):
+    """{changed tests/ path: manifests} for declared Python readers of artifacts that a crate's own tests write.
+
+    Each declared reader names the manifests whose tests produce what it reads. The reader and every tests/ file
+    in its transitive imports, derived by tools/ci/python_test_reads.py at selection time, select those crates, so
+    their shard writes the artifacts and runs the reader on them. A reader that is not a tracked Python file under
+    tests/, an undiscovered manifest or a derivation that cannot be made rejects reduced selection."""
+    if not isinstance(readers, dict):
+        raise ValueError('Invalid artifact reader declaration')
+    if not readers:
+        return {}
+    known = {m.as_posix() for m in manifests}
+    try:
+        reads = load_module('numerical_python_test_reads', HERE / 'python_test_reads.py')
+        tracked = reads.tracked(project)
+    except Exception as exc:
+        raise ValueError(f'Artifact reader imports cannot be derived: {type(exc).__name__}: {exc}') from exc
+    producers = {}
+    for reader, producing in readers.items():
+        if (not isinstance(reader, str) or not reader.startswith('tests/') or not reader.endswith('.py')
+                or reader not in tracked or not (project / reader).is_file()):
+            raise ValueError('Unresolved artifact reader: ' + str(reader))
+        if not isinstance(producing, list) or not producing or not all(isinstance(m, str) and m in known for m in producing):
+            raise ValueError('Unresolved artifact producer for ' + reader)
+        try:
+            closure = reads._closure(project, reader)
+        except Exception as exc:
+            raise ValueError(f'Artifact reader imports cannot be derived for {reader}: {type(exc).__name__}: {exc}') from exc
+        for local in closure:
+            if local.startswith('tests/'):
+                producers.setdefault(local, set()).update(Path(m) for m in producing)
+    return producers
+
+
+def numerical_selection(project, manifests, paths, declarations=None, ignored_paths=(), artifact_readers=None):
     manifests = sorted(manifests)
     reasons, selected = [], set()
     def full(reason):
@@ -346,6 +380,7 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
                     raise ValueError('Missing or empty cargo input: ' + str(path))
         dependencies = cargo_dependencies(project, manifests)
         resources = source_read_dependencies(project, manifests, declarations)
+        producers = artifact_producers(project, manifests, {} if artifact_readers is None else artifact_readers)
     except (ValueError, OSError, KeyError, TypeError, AttributeError, tomllib.TOMLDecodeError) as exc:
         return full(str(exc))
     ignored = set(ignored_paths)
@@ -364,7 +399,10 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
         for manifest in sorted(readers):
             selected.add(manifest)
             reasons.append({'path': path, 'kind': 'exact-file-reader', 'manifest': manifest.as_posix()})
-        if owners or readers:
+        for manifest in sorted(producers.get(relative.as_posix(), ())):
+            selected.add(manifest)
+            reasons.append({'path': path, 'kind': 'artifact-reader', 'manifest': manifest.as_posix()})
+        if owners or readers or relative.as_posix() in producers:
             continue
         if path in ignored:
             reasons.append({'path': path, 'kind': 'mapped-other-checks'})
