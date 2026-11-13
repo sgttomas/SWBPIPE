@@ -1,0 +1,363 @@
+{
+  "closed_form": [],
+  "description": "a cantilever under weight and an upward tip force of twice the span's weight, on a one-way vertical support at the tip: the force exceeds the 3|w|L/8 the closed support would carry, so it lifts off",
+  "document_kind": "openpipestress.caepipe_benchmark.model",
+  "family": "N",
+  "family_description": "nonlinear supports entered by hand at the window (one-way stops and supports, no clearance)",
+  "generator": {
+    "seed": 20261028,
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "hand_entry": {
+    "base_rule": "model is the WRITTEN BASE: the case's SWBPIPE model with the member's support records left out; hand_entry_model appends them to model.supports and changes nothing else",
+    "expected_status": {
+      "support:B-rest": {
+        "case:sustained": "open",
+        "operating": "open"
+      }
+    },
+    "held": {
+      "case:sustained": "captured at the sitting and HELD, stored sealed, until SWBPIPE's own result for this case and this load case is published by the product as checks passed; no comparison is formed before then",
+      "operating": "captured at the sitting and HELD, stored sealed, until SWBPIPE's own result for this case and this load case is published by the product as checks passed; no comparison is formed before then"
+    },
+    "member": [
+      {
+        "family": "nonlinear",
+        "id": "support:B-rest",
+        "node": "node:B",
+        "nonlinear": {
+          "active_when": "positive_reaction",
+          "behavior": "one_way",
+          "dof": "UY",
+          "initial_state": "active"
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+        "restraints": []
+      }
+    ],
+    "member_text": "a one-way vertical (resting) support at the tip",
+    "one_way_case": "a one-way support: its capture is taken at the sitting and held; whether SWBPIPE's result for it may be compared is read from the product at each solve and is recorded nowhere here.",
+    "run": {
+      "expected_print_file": "cpb-n-02--rest-lift-off.print.csv",
+      "expected_saved_file": "cpb-n-02--rest-lift-off.mod",
+      "fields": [
+        {
+          "enters": "Lower limit 0.000, Upper limit blank (None), Y comp 1.000",
+          "field": "Vertical (preset button)",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "it enters Lower limit 0, Upper limit blank and Y comp 1: a one-way stop that keeps the node from moving down; zero needs no unit",
+          "sign_convention": "the gap in front of the node in the direction of the vector is the upper limit, the gap to the rear the lower limit, measured from the undeflected position of the node; a zero limit makes a one-way restraint in that direction; a blank limit means the node moves freely on that side; with Y vertical and Y comp 1 the zero lower limit stops the node moving down",
+          "unit": "none needed: the value is zero, the same in every length unit; the page does not state the window's length unit, and no other value is entered",
+          "value": "pressed"
+        },
+        {
+          "field": "Friction coefficient",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "no friction",
+          "sign_convention": "not applicable: left blank, no friction",
+          "unit": "none (a coefficient)",
+          "value": "blank"
+        },
+        {
+          "field": "Stiffness",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "the page's default",
+          "sign_convention": "not applicable",
+          "unit": "none: the Rigid token",
+          "value": "Rigid (the default)"
+        },
+        {
+          "field": "Connected to Node",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "connected to the ground",
+          "sign_convention": "not applicable",
+          "unit": "none",
+          "value": "blank"
+        }
+      ],
+      "fields_entered_estimate": 2,
+      "kind": "hand_entry",
+      "label": "rest-lift-off",
+      "pages": [
+        "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+        "https://docs.sstcae.com/users_manual/analyze__f12_.htm (user's manual, \"Analyze (F12)\"), read 2026-11-13",
+        "https://docs.sstcae.com/users_manual/file_menu_2.htm (user's manual, \"File Menu\"), read 2026-11-13",
+        "https://docs.sstcae.com/users_manual/import_mbf.htm (\"IMPORT MBF\"; CAEPIPE-IMPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12",
+        "https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, \"Print (Ctrl+P)\"), read 2026-11-12",
+        "https://docs.sstcae.com/users_manual/save__ctrl_s_.htm (user's manual, \"Save (Ctrl+S)\"), read 2026-11-13"
+      ],
+      "run_id": "cpb-n-02--rest-lift-off",
+      "saved_file_read": "nothing of SWBPIPE's reads the saved file",
+      "series": "hand-entry",
+      "window_instruction": {
+        "sha256": "f0018b524950154a6f13504442f5a6dc60b375f7db9684b9d34d87eccda604c7",
+        "text": "1. Import cpb-n-02--rest-lift-off.mbf: File > Import from the Main window, select the file and click Import. [https://docs.sstcae.com/users_manual/import_mbf.htm (\"IMPORT MBF\"; CAEPIPE-IMPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]\n2. In the Layout window, at node 30, enter a Limit Stop (type L in the Data column, or Limit Stop in the Data Types dialog) with the fields of the next steps. [https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12]\n3. Vertical (preset button): pressed (it enters Lower limit 0, Upper limit blank and Y comp 1: a one-way stop that keeps the node from moving down; zero needs no unit).\n4. Friction coefficient: blank (no friction).\n5. Stiffness: Rigid (the default) (the page's default).\n6. Connected to Node: blank (connected to the ground).\n7. Leave every other field and record as imported.\n8. Save the model as cpb-n-02--rest-lift-off.mod in this folder by the command you noted at the dry run. Do not save over the imported file. If the program will not save under that name, skip this run and note it.\n9. Then analyze the model by File > Analyze (F12); the page says: \"At the end of analysis, you are asked whether you want to \u201cView results?\u201d Click on OK to see results or Cancel to return to the main window.\" [https://docs.sstcae.com/users_manual/analyze__f12_.htm (user's manual, \"Analyze (F12)\"), read 2026-11-13]\n10. Then print the results to file: in the Results window, File > Print (Ctrl+P), click All, then To File, and save the .csv file as cpb-n-02--rest-lift-off.print.csv. [https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, \"Print (Ctrl+P)\"), read 2026-11-12]\n11. If the window does not offer a field as the page describes it, skip this case and note it on the run line; do not enter an equivalent."
+      }
+    },
+    "third_values": [
+      {
+        "basis": "Euler-Bernoulli cantilever and propped cantilever, ideal supports; invented inputs",
+        "component": "y",
+        "formula": "0 (the one-way prop lifts off)",
+        "load_case": "case:sustained",
+        "quantity": "reaction_force",
+        "support": "support:B-rest",
+        "unit": "N",
+        "value": 0.0
+      },
+      {
+        "basis": "Euler-Bernoulli cantilever and propped cantilever, ideal supports; invented inputs",
+        "component": "y",
+        "formula": "P L^3/(3EI) + w L^4/(8EI) (free cantilever)",
+        "load_case": "case:sustained",
+        "node": "node:B",
+        "quantity": "displacement",
+        "unit": "m",
+        "value": 0.0038368201706646
+      },
+      {
+        "basis": "Euler-Bernoulli cantilever and propped cantilever, ideal supports; invented inputs",
+        "component": "y",
+        "formula": "-(P + w L)",
+        "load_case": "case:sustained",
+        "quantity": "reaction_force",
+        "support": "support:A",
+        "unit": "N",
+        "value": -999.6333971583734
+      },
+      {
+        "basis": "Euler-Bernoulli cantilever and propped cantilever, ideal supports; invented inputs",
+        "component": "z",
+        "formula": "-(P L + w L^2/2)",
+        "load_case": "case:sustained",
+        "quantity": "reaction_moment",
+        "support": "support:A",
+        "unit": "N*m",
+        "value": -4497.95009573756
+      }
+    ]
+  },
+  "hand_entry_rank": 2,
+  "inexact_inputs": {
+    "case:sustained": [
+      "shear_deformation",
+      "rigid_support_stiffness"
+    ],
+    "operating": [
+      "rigid_support_stiffness",
+      "shear_deformation"
+    ]
+  },
+  "model": {
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "combinations": [],
+    "components": [],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "case:sustained",
+        "primitive_loads": [
+          {
+            "category": "concentrated_force",
+            "dimension": "force",
+            "direction": "global_y",
+            "id": "load:up",
+            "magnitude": {
+              "unit": "N",
+              "value": 1999.0
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+            "target": {
+              "node": "node:B",
+              "type": "node"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P1",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -333.12220094720885
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P2",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -333.12220094720885
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P2",
+              "type": "element"
+            }
+          }
+        ],
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 210000000000.0
+        },
+        "id": "material:bench-t3",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 81395348837.2093
+        },
+        "temperature_points": [],
+        "thermal_expansion_coefficient": {
+          "unit": "1/degC",
+          "value": 1.1e-05
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "node:A",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M",
+        "position": {
+          "x": 1.5,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:B",
+        "position": {
+          "x": 3.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "node:A",
+        "id": "pipe:P1",
+        "material": "material:bench-t3",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.19
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.0076
+          }
+        },
+        "to": "node:M",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M",
+        "id": "pipe:P2",
+        "material": "material:bench-t3",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.19
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.0076
+          }
+        },
+        "to": "node:B",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      }
+    ],
+    "project": {
+      "id": "project:cpb-n-02",
+      "name": "project:cpb-n-02",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.9.0",
+    "supports": [
+      {
+        "family": "anchor",
+        "id": "support:A",
+        "node": "node:A",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      }
+    ]
+  },
+  "model_id": "cpb-n-02",
+  "parameters": {
+    "material": "material:bench-t3",
+    "od": 190.0,
+    "span": 3.0,
+    "up_force": 1999.0,
+    "wall": 7.6
+  },
+  "piping_code": "B311-80",
+  "provenance": {
+    "contributor_note": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+    "license": "project-original",
+    "origin": "invented",
+    "produced_by_caepipe": false,
+    "redistribution_status": "public_permissive"
+  },
+  "reference_temperature_c": 20.0,
+  "sampling": "designed",
+  "screening_classes": {
+    "static": {
+      "case:sustained": "nonlinear",
+      "operating": "nonlinear"
+    }
+  },
+  "series": [],
+  "tranche": "3"
+}

@@ -1,0 +1,1537 @@
+{
+  "closed_form": [
+    {
+      "basis": "section identity; invented inputs",
+      "formula": "pi/4 (OD^2 - (OD - 2t)^2)",
+      "quantity": "metal_area",
+      "unit": "m^2",
+      "value": 0.0006926737420674799
+    },
+    {
+      "basis": "weight identity; invented inputs",
+      "formula": "rho A g, g = 9.80665",
+      "quantity": "weight_per_length",
+      "unit": "N/m",
+      "value": 53.323550278271505
+    },
+    {
+      "basis": "mass identity; invented inputs",
+      "formula": "rho A L",
+      "quantity": "total_mass",
+      "unit": "kg",
+      "value": 81.56233312844576
+    }
+  ],
+  "compared_quantities": [
+    {
+      "bind": "mode order",
+      "quantity": "frequency"
+    },
+    {
+      "component": "x",
+      "from_direction": "Y",
+      "node": "node:B",
+      "quantity": "displacement"
+    },
+    {
+      "component": "y",
+      "from_direction": "Y",
+      "node": "node:B",
+      "quantity": "displacement"
+    },
+    {
+      "component": "z",
+      "from_direction": "Y",
+      "node": "node:B",
+      "quantity": "displacement"
+    },
+    {
+      "component": "x",
+      "from_direction": "Y",
+      "quantity": "reaction_force",
+      "support": "support:A"
+    },
+    {
+      "component": "y",
+      "from_direction": "Y",
+      "quantity": "reaction_force",
+      "support": "support:A"
+    },
+    {
+      "component": "z",
+      "from_direction": "Y",
+      "quantity": "reaction_force",
+      "support": "support:A"
+    },
+    {
+      "component": "x",
+      "from_direction": "Y",
+      "quantity": "reaction_moment",
+      "support": "support:A"
+    },
+    {
+      "component": "y",
+      "from_direction": "Y",
+      "quantity": "reaction_moment",
+      "support": "support:A"
+    },
+    {
+      "component": "z",
+      "from_direction": "Y",
+      "quantity": "reaction_moment",
+      "support": "support:A"
+    },
+    {
+      "component": "x",
+      "from_direction": "Y",
+      "quantity": "reaction_force",
+      "support": "support:B-x"
+    }
+  ],
+  "comparison_conventions": [
+    "relative deviation = (value - continuum) / |continuum|, the magnitude of the continuum value in the denominator",
+    "where a mode's two largest translational components are equal in magnitude, the shape's sign and the participation factor's sign are not compared; frequency, effective mass and combined magnitudes are",
+    "element end forces in member axes are outside the like-for-like set for this case (member_frame)",
+    "under the SRSS mode sum this case's Y and Z components are equal, and under CQC they are not (discrete_reference_values)"
+  ],
+  "discrete_reference_values": {
+    "combined_magnitude_by_modal_rule": {
+      "absolute_sum": {
+        "displacement node:B x": 0.48237091105311064,
+        "displacement node:B y": 1.0409104762135801,
+        "displacement node:B z": 1.0409104762135801,
+        "reaction_force support:A x": 55.127119090896116,
+        "reaction_force support:A y": 117.73446262410756,
+        "reaction_force support:A z": 117.73446262410756,
+        "reaction_force support:B-x x": 3.858967288424885,
+        "reaction_moment support:A x": 870.6105991336576,
+        "reaction_moment support:A y": 838.2193462438892,
+        "reaction_moment support:A z": 838.2193462438892
+      },
+      "cqc": {
+        "displacement node:B x": 0.47448948451849576,
+        "displacement node:B y": 0.9880329767882569,
+        "displacement node:B z": 0.614606171704847,
+        "reaction_force support:A x": 40.343363914825225,
+        "reaction_force support:A y": 84.70025432028532,
+        "reaction_force support:A z": 49.39555515490952,
+        "reaction_force support:B-x x": 3.795915876147966,
+        "reaction_moment support:A x": 789.8196959414853,
+        "reaction_moment support:A y": 240.2287679392119,
+        "reaction_moment support:A z": 719.4251535640254
+      },
+      "grouping": {
+        "displacement node:B x": 0.4745018361629825,
+        "displacement node:B y": 1.025106728309639,
+        "displacement node:B z": 1.025106728309639,
+        "reaction_force support:A x": 40.311289687028555,
+        "reaction_force support:A y": 87.66320149988542,
+        "reaction_force support:A z": 87.66320149988542,
+        "reaction_force support:B-x x": 3.79601468930386,
+        "reaction_moment support:A x": 789.6982785690118,
+        "reaction_moment support:A y": 757.6661110018175,
+        "reaction_moment support:A z": 757.6661110018175
+      },
+      "srss": {
+        "displacement node:B x": 0.4745018361629825,
+        "displacement node:B y": 0.8228030407189664,
+        "displacement node:B z": 0.8228030407189664,
+        "reaction_force support:A x": 40.311289687028555,
+        "reaction_force support:A y": 69.28538849725084,
+        "reaction_force support:A z": 69.28538849725084,
+        "reaction_force support:B-x x": 3.79601468930386,
+        "reaction_moment support:A x": 789.6982785690118,
+        "reaction_moment support:A y": 536.2328456810815,
+        "reaction_moment support:A z": 536.2328456810815
+      },
+      "ten_percent": {
+        "displacement node:B x": 0.4745018361629825,
+        "displacement node:B y": 1.025106728309639,
+        "displacement node:B z": 1.025106728309639,
+        "reaction_force support:A x": 40.311289687028555,
+        "reaction_force support:A y": 87.66320149988542,
+        "reaction_force support:A z": 87.66320149988542,
+        "reaction_force support:B-x x": 3.79601468930386,
+        "reaction_moment support:A x": 789.6982785690118,
+        "reaction_moment support:A y": 757.6661110018175,
+        "reaction_moment support:A z": 757.6661110018175
+      }
+    },
+    "formulation": "SWBPIPE's stated formulation at 8 members: Hermitian consistent mass with Rayleigh rotary inertia, no shear deformation. Units m, N, N*m, Hz. Each value is the reference's nearest binary64; the file holds 40 significant digits",
+    "frequencies_hz": [
+      0.25088012387225606,
+      0.2637132709600337,
+      1.5723225779073138,
+      1.5744331816736572,
+      4.404698632256768,
+      4.405452709300892
+    ],
+    "note": "combined magnitudes are unsigned. The comparable setting is srss; the other rules are quoted for the declared variants, and correspond only where the other program's rule is the same rule (the closeness tests and correlation coefficient are stated in the reference's README)",
+    "request": "spectrum along global Y, flat 2.5 m/s^2, the first 6 modes, no missing mass, one direction",
+    "source": "validation/references/f2_spectrum/discrete/c9_pipe_diagonal.json, case C9-PIPE-DIAGONAL (pull request 268; not yet on main)",
+    "source_sha256": "c669ceea4182b2c20b1cacf5d587b5d3151cde55a9fb33f2c112179a48c3e0ba",
+    "source_status": "references with a refutation record: REFUTATION.md in this directory"
+  },
+  "document_kind": "openpipestress.caepipe_benchmark.model",
+  "dynamic_request": {
+    "conditions": [
+      "every extracted mode and the rigid frequency lie strictly inside the table (SWBPIPE refuses outside it; the other program uses the end value)",
+      "the two lowest modes are about 5 percent apart: this is the case on which the absolute and closely spaced mode sums differ from SRSS, so every mode sum the other program offers is meaningful here"
+    ],
+    "other_program_settings": {
+      "cutoff_frequency_hz": 900.0,
+      "gravitational_acceleration_m_per_s2": 9.80665,
+      "gravitational_direction": "-Y",
+      "include_missing_mass": 0,
+      "note": "the capture also takes every other mode sum and direction sum the program offers, as declared variants of this file; the comparable setting is the one stated here",
+      "number_of_modes": 6,
+      "spectrum_direction_sum": "SRSS",
+      "spectrum_mode_sum": "SRSS"
+    },
+    "spectra": [
+      {
+        "abscissa": "frequency",
+        "abscissa_unit": "Hz",
+        "damping_ratio": 0.05,
+        "id": "spectrum:dyn-flat",
+        "interpolation": {
+          "abscissa": "linear",
+          "ordinate": "linear"
+        },
+        "ordinate": "pseudo_spectral_acceleration",
+        "ordinate_other_program": "acceleration in mm/sec2 (multiply each ordinate by 1000)",
+        "ordinate_unit": "m/s^2",
+        "points": [
+          [
+            0.125,
+            2.5
+          ],
+          [
+            1000.0,
+            2.5
+          ]
+        ]
+      }
+    ],
+    "swbpipe_modal_request": {
+      "frequency_cutoff": null,
+      "mode_count": 6
+    },
+    "swbpipe_spectrum_request": {
+      "directional_combination": "srss",
+      "directions": [
+        {
+          "direction": "Y",
+          "scale_factor": 1.0,
+          "spectrum": "spectrum:dyn-flat"
+        }
+      ],
+      "missing_mass": {
+        "apply": false,
+        "rigid_combination_series": [],
+        "rigid_frequency_hz": null
+      },
+      "modal_combination": "srss"
+    }
+  },
+  "family": "DYN-D",
+  "family_description": "the case C pipe along the space diagonal, anchored at A, one linear spring along global X at the tip B: two simple bending modes about 5 percent apart, both excited by a spectrum along Y",
+  "folded_from": "folded into the seeded generator from the dynamics lane's wrapper files, dynamics family draft 4, 2026-11-12: the model members by the same arithmetic, byte for byte; the reference values quoted from tools/caepipe_correlation/dynamics_reference_quotes.json",
+  "generator": {
+    "seed": 20261028,
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "inexact_input_sizes": {
+    "mass_formulation": "per member count and response kind in validation/references/f2_spectrum (closed_form/screening_basis.json and beams_fe.json; pull request 268, not yet on main)",
+    "shear_deformation": "ESTIMATE, not a reference value: SWBPIPE has no shear deformation in dynamics; if the other program includes it, under 1e-3 relative on every compared frequency at this slenderness (about five times the Rayleigh rotary term)"
+  },
+  "inexact_inputs": {
+    "case:weight": [
+      "shear_deformation",
+      "rigid_support_stiffness"
+    ],
+    "dynamic": [
+      "mass_formulation",
+      "shear_deformation"
+    ],
+    "operating": [
+      "shear_deformation",
+      "rigid_support_stiffness"
+    ]
+  },
+  "member_frame": {
+    "note": "x from the near node to the far node, y = y_reference made normal to x, z = x cross y. The pipe is round, so every compared quantity (frequencies, global displacements, global support loads) is independent of this choice. Element end forces in member axes are OUTSIDE the like-for-like set: they depend on each program's local axis rule, and the discrete reference tabulates them in a different member frame (y_reference global Z)",
+    "x": [
+      0.5773502691896258,
+      0.5773502691896258,
+      0.5773502691896258
+    ],
+    "y": [
+      -0.4082482904638631,
+      0.8164965809277261,
+      -0.4082482904638631
+    ],
+    "y_reference": "global Y on every member",
+    "z": [
+      -0.7071067811865475,
+      0.0,
+      0.7071067811865475
+    ]
+  },
+  "mode_count_note": "the counts differ between the sides where a diagonal mass formulation has fewer finite modes: at 1 member it has the Y bending mode and one axial mode (2) against 5 on the consistent side; at 2 members 5 (three bending, two axial) against the first 6",
+  "model": {
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "combinations": [],
+    "components": [],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "case:weight",
+        "primitive_loads": [
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P1",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P2",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P2",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P3",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P3",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P4",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P4",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P5",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P5",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P6",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P6",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P7",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P7",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P8",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P8",
+              "type": "element"
+            }
+          }
+        ],
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 200000000000.0
+        },
+        "id": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 78125000000.0
+        },
+        "temperature_points": [],
+        "thermal_expansion_coefficient": {
+          "unit": "1/degC",
+          "value": 1.2e-05
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "node:A",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M1",
+        "position": {
+          "x": 1.0825317547305484,
+          "y": 1.0825317547305484,
+          "z": 1.0825317547305484
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M2",
+        "position": {
+          "x": 2.165063509461097,
+          "y": 2.165063509461097,
+          "z": 2.165063509461097
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M3",
+        "position": {
+          "x": 3.247595264191645,
+          "y": 3.247595264191645,
+          "z": 3.247595264191645
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M4",
+        "position": {
+          "x": 4.330127018922194,
+          "y": 4.330127018922194,
+          "z": 4.330127018922194
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M5",
+        "position": {
+          "x": 5.412658773652742,
+          "y": 5.412658773652742,
+          "z": 5.412658773652742
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M6",
+        "position": {
+          "x": 6.49519052838329,
+          "y": 6.49519052838329,
+          "z": 6.49519052838329
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M7",
+        "position": {
+          "x": 7.577722283113839,
+          "y": 7.577722283113839,
+          "z": 7.577722283113839
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:B",
+        "position": {
+          "x": 8.660254037844387,
+          "y": 8.660254037844387,
+          "z": 8.660254037844387
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "node:A",
+        "id": "pipe:P1",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:M1",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M1",
+        "id": "pipe:P2",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:M2",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M2",
+        "id": "pipe:P3",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:M3",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M3",
+        "id": "pipe:P4",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:M4",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M4",
+        "id": "pipe:P5",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:M5",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M5",
+        "id": "pipe:P6",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:M6",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M6",
+        "id": "pipe:P7",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:M7",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M7",
+        "id": "pipe:P8",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:B",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      }
+    ],
+    "project": {
+      "id": "project:cpb-dyn-d-n08-flat",
+      "name": "project:cpb-dyn-d-n08-flat",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.9.0",
+    "supports": [
+      {
+        "family": "anchor",
+        "id": "support:A",
+        "node": "node:A",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      },
+      {
+        "family": "spring",
+        "id": "support:B-x",
+        "node": "node:B",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX"
+        ],
+        "stiffness": {
+          "dof": "UX",
+          "value": {
+            "unit": "N/m",
+            "value": 8.0
+          }
+        }
+      }
+    ]
+  },
+  "model_id": "cpb-dyn-d-n08-flat",
+  "parameters": {
+    "elastic_modulus": 200000000000.0,
+    "g": 9.80665,
+    "length": 15.0,
+    "members": 8,
+    "metal_area": 0.0006926737420674799,
+    "od": 0.0603,
+    "rho": 7850.0,
+    "shear_modulus": 78125000000.0,
+    "slenderness_length_over_od": 248.75621890547265,
+    "tip_spring_x": 8.0,
+    "wall": 0.00391,
+    "weight_per_length": 53.323550278271505
+  },
+  "piping_code": "B311-80",
+  "provenance": {
+    "contributor_note": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+    "license": "project-original",
+    "origin": "invented",
+    "produced_by_caepipe": false,
+    "redistribution_status": "public_permissive"
+  },
+  "rank": 5,
+  "reference_temperature_c": 20.0,
+  "reference_values": [
+    {
+      "consistent": null,
+      "continuum": 0.47444402552794057,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uX_m",
+      "rule": "SRSS",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.47444402552794057,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uX_m",
+      "rule": "ABSSUM",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.47444402552794057,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uX_m",
+      "rule": "TEN_PERCENT",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.47444402552794057,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uX_m",
+      "rule": "CQC",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.8227191414543984,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uY_m",
+      "rule": "SRSS",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 1.0249989497046712,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uY_m",
+      "rule": "ABSSUM",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 1.0249989497046712,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uY_m",
+      "rule": "TEN_PERCENT",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.9879455826034867,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uY_m",
+      "rule": "CQC",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.8227191414543984,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uZ_m",
+      "rule": "SRSS",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 1.0249989497046712,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uZ_m",
+      "rule": "ABSSUM",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 1.0249989497046712,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uZ_m",
+      "rule": "TEN_PERCENT",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.6145706609049785,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "tip_uZ_m",
+      "rule": "CQC",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 37.99284174967437,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FX_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 37.99284174967437,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FX_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 37.99284174967437,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FX_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 37.99284174967437,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FX_N",
+      "rule": "CQC",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 65.90418854382052,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FY_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 83.39855362756893,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FY_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 83.39855362756893,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FY_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 80.21271330484866,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FY_N",
+      "rule": "CQC",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 65.90418854382052,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FZ_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 83.39855362756893,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FZ_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 83.39855362756893,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FZ_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 47.46203492806691,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_FZ_N",
+      "rule": "CQC",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 786.4945868010134,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MX_Nm",
+      "rule": "SRSS",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 786.4945868010134,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MX_Nm",
+      "rule": "ABSSUM",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 786.4945868010134,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MX_Nm",
+      "rule": "TEN_PERCENT",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 786.4945868010134,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MX_Nm",
+      "rule": "CQC",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 533.8892632585804,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MY_Nm",
+      "rule": "SRSS",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 754.3488188140191,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MY_Nm",
+      "rule": "ABSSUM",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 754.3488188140191,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MY_Nm",
+      "rule": "TEN_PERCENT",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 240.22692086715793,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MY_Nm",
+      "rule": "CQC",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 533.8892632585804,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MZ_Nm",
+      "rule": "SRSS",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 754.3488188140191,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MZ_Nm",
+      "rule": "ABSSUM",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 754.3488188140191,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MZ_Nm",
+      "rule": "TEN_PERCENT",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 715.7978187562908,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "base_MZ_Nm",
+      "rule": "CQC",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 3.7955522042235246,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "spring_FX_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 3.7955522042235246,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "spring_FX_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 3.7955522042235246,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "spring_FX_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 3.7955522042235246,
+      "lumped": null,
+      "modes": "modes_1_2",
+      "quantity": "spring_FX_N",
+      "rule": "CQC",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.4745016222778807,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uX_m",
+      "rule": "SRSS",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.48237077662027716,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uX_m",
+      "rule": "ABSSUM",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.4745016222778807,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uX_m",
+      "rule": "TEN_PERCENT",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.47448926895581955,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uX_m",
+      "rule": "CQC",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.8228029658539905,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uY_m",
+      "rule": "SRSS",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 1.040910319479658,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uY_m",
+      "rule": "ABSSUM",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 1.0251064317515857,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uY_m",
+      "rule": "TEN_PERCENT",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.9880329634689902,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uY_m",
+      "rule": "CQC",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.8228029658539905,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uZ_m",
+      "rule": "SRSS",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 1.040910319479658,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uZ_m",
+      "rule": "ABSSUM",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 1.0251064317515857,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uZ_m",
+      "rule": "TEN_PERCENT",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 0.6146059862059294,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "tip_uZ_m",
+      "rule": "CQC",
+      "unit": "m"
+    },
+    {
+      "consistent": null,
+      "continuum": 40.31134750896781,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FX_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 55.12759358506328,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FX_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 40.31134750896781,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FX_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 40.34343989803197,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FX_N",
+      "rule": "CQC",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 69.28548023165554,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FY_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 117.7354076032194,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FY_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 87.66330240343524,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FY_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 84.70041826332098,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FY_N",
+      "rule": "CQC",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 69.28548023165554,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FZ_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 117.7354076032194,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FZ_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 87.66330240343524,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FZ_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 49.39560605571156,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_FZ_N",
+      "rule": "CQC",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 789.6983402712453,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MX_Nm",
+      "rule": "SRSS",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 870.6118035485218,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MX_Nm",
+      "rule": "ABSSUM",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 789.6983402712453,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MX_Nm",
+      "rule": "TEN_PERCENT",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 789.8197893980282,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MX_Nm",
+      "rule": "CQC",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 536.232709194619,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MY_Nm",
+      "rule": "SRSS",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 838.2203070876251,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MY_Nm",
+      "rule": "ABSSUM",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 757.665906232658,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MY_Nm",
+      "rule": "TEN_PERCENT",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 240.22794498577386,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MY_Nm",
+      "rule": "CQC",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 536.232709194619,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MZ_Nm",
+      "rule": "SRSS",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 838.2203070876251,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MZ_Nm",
+      "rule": "ABSSUM",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 757.665906232658,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MZ_Nm",
+      "rule": "TEN_PERCENT",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 719.4252597723735,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "base_MZ_Nm",
+      "rule": "CQC",
+      "unit": "N*m"
+    },
+    {
+      "consistent": null,
+      "continuum": 3.7960129782230454,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "spring_FX_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 3.8589662129622173,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "spring_FX_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 3.7960129782230454,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "spring_FX_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    },
+    {
+      "consistent": null,
+      "continuum": 3.7959141516465564,
+      "lumped": null,
+      "modes": "modes_1_6_information",
+      "quantity": "spring_FX_N",
+      "rule": "CQC",
+      "unit": "N"
+    }
+  ],
+  "reference_values_note": "from validation/references/f2_spectrum/benchmark_pack/pack_summary.json: references with a refutation record, in pull request 268 and not yet on main. continuum = Rayleigh continuum closed form; consistent = SWBPIPE's stated formulation at this member count; lumped = half-and-half translational lumped mass at this member count, NOT SWBPIPE's formulation, the size of the named inexact input mass_formulation. Each side's periodic set is the first six modes of its own merged list, or all its finite modes where fewer exist",
+  "sampling": "single",
+  "screening_classes": {
+    "modal": "modal",
+    "response_spectrum": "response_spectrum",
+    "static": {
+      "case:weight": "named_inexact",
+      "operating": "named_inexact"
+    }
+  },
+  "series": [],
+  "third_value": "a discrete reference on SWBPIPE's stated formulation at this member count, quoted in discrete_reference_values, and a continuum closed form to within a small stated axial coupling in reference_values",
+  "tranche": "3"
+}

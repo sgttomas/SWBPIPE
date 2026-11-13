@@ -1,0 +1,2256 @@
+{
+  "document_kind": "openpipestress.caepipe_benchmark.dynamics_reference_quotes",
+  "models": {
+    "cpb-dyn-c-n01-flat": {
+      "reference_values": [
+        {
+          "consistent": 0.25207232951419895,
+          "continuum": 0.250879601297653,
+          "lumped": 0.17478011273550573,
+          "quantity": "frequency_Y1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.462297167976197,
+          "continuum": 1.100134510455633,
+          "lumped": null,
+          "quantity": "frequency_Z1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 2.4834703945510985,
+          "continuum": 1.572196875300449,
+          "lumped": null,
+          "quantity": "frequency_Y2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": null,
+          "continuum": 3.5650411624530403,
+          "lumped": null,
+          "quantity": "frequency_Z2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": null,
+          "continuum": 4.402021439848474,
+          "lumped": null,
+          "quantity": "frequency_Y3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": null,
+          "continuum": 7.437836259704876,
+          "lumped": null,
+          "quantity": "frequency_Z3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.565773780804699,
+          "continuum": 1.5757116147722436,
+          "lumped": 2.0729853919110774,
+          "quantity": "tip_UY_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.576731293080792,
+          "continuum": 1.5994498623390387,
+          "lumped": 2.0729853919110774,
+          "quantity": "tip_UY_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.565773780804699,
+          "continuum": 1.5757116147722436,
+          "lumped": 2.0729853919110774,
+          "quantity": "tip_UY_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 126.88314251127143,
+          "continuum": 131.43649490005885,
+          "lumped": 101.95291641055725,
+          "quantity": "base_FY_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 152.9273116627843,
+          "continuum": 176.60220981684955,
+          "lumped": 101.95291641055725,
+          "quantity": "base_FY_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 126.88314251127143,
+          "continuum": 131.43649490005885,
+          "lumped": 101.95291641055725,
+          "quantity": "base_FY_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 1354.7055002875659,
+          "continuum": 1367.7976480026125,
+          "lumped": 1529.2937461583588,
+          "quantity": "base_MZ_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1452.8245258258185,
+          "continuum": 1507.943877415214,
+          "lumped": 1529.2937461583588,
+          "quantity": "base_MZ_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1354.7055002875659,
+          "continuum": 1367.7976480026125,
+          "lumped": 1529.2937461583588,
+          "quantity": "base_MZ_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.06501579093393817,
+          "lumped": null,
+          "quantity": "mid_UZ_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.0657459942942352,
+          "lumped": null,
+          "quantity": "mid_UZ_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.06501579093393817,
+          "lumped": null,
+          "quantity": "mid_UZ_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 80.71103645014045,
+          "continuum": 90.50416975455785,
+          "lumped": null,
+          "quantity": "base_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 80.71103645014045,
+          "continuum": 107.50822532799813,
+          "lumped": null,
+          "quantity": "base_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 80.71103645014045,
+          "continuum": 90.50416975455785,
+          "lumped": null,
+          "quantity": "base_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 318.5996968300838,
+          "continuum": 341.9170740649665,
+          "lumped": null,
+          "quantity": "base_MY_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 318.5996968300838,
+          "continuum": 370.94172244149564,
+          "lumped": null,
+          "quantity": "base_MY_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 318.5996968300838,
+          "continuum": 341.9170740649665,
+          "lumped": null,
+          "quantity": "base_MY_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 67.96660520353004,
+          "continuum": 62.23262378935714,
+          "lumped": null,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 67.96660520353004,
+          "continuum": 74.23659684699615,
+          "lumped": null,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 67.96660520353004,
+          "continuum": 62.23262378935714,
+          "lumped": null,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        }
+      ]
+    },
+    "cpb-dyn-c-n02-flat": {
+      "reference_values": [
+        {
+          "consistent": 0.2510008833615325,
+          "continuum": 0.250879601297653,
+          "lumped": 0.2252088096809477,
+          "quantity": "frequency_Y1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.1103104042751721,
+          "continuum": 1.100134510455633,
+          "lumped": 1.0569707712410998,
+          "quantity": "frequency_Z1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.585537409753418,
+          "continuum": 1.572196875300449,
+          "lumped": 1.1600711211449917,
+          "quantity": "frequency_Y2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 4.1673133039679575,
+          "continuum": 3.5650411624530403,
+          "lumped": null,
+          "quantity": "frequency_Z2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 5.3622972281106,
+          "continuum": 4.402021439848474,
+          "lumped": null,
+          "quantity": "frequency_Y3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 11.104191548375931,
+          "continuum": 7.437836259704876,
+          "lumped": null,
+          "quantity": "frequency_Z3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.5755771129258174,
+          "continuum": 1.5757116147722436,
+          "lumped": 1.7014514899728292,
+          "quantity": "tip_UY_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.5982390967583504,
+          "continuum": 1.5994498623390387,
+          "lumped": 1.7184311828286587,
+          "quantity": "tip_UY_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.5755771129258174,
+          "continuum": 1.5757116147722436,
+          "lumped": 1.7014514899728292,
+          "quantity": "tip_UY_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 130.78215635830094,
+          "continuum": 131.43649490005885,
+          "lumped": 121.05738866867395,
+          "quantity": "base_FY_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 172.3654975446715,
+          "continuum": 176.60220981684955,
+          "lumped": 152.92937461583588,
+          "quantity": "base_FY_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 130.78215635830094,
+          "continuum": 131.43649490005885,
+          "lumped": 121.05738866867395,
+          "quantity": "base_FY_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 1367.308418012727,
+          "continuum": 1367.7976480026125,
+          "lumped": 1390.762034403277,
+          "quantity": "base_MZ_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1500.3208825444292,
+          "continuum": 1507.943877415214,
+          "lumped": 1529.2937461583588,
+          "quantity": "base_MZ_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1367.308418012727,
+          "continuum": 1367.7976480026125,
+          "lumped": 1390.762034403277,
+          "quantity": "base_MZ_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 0.06481813542794722,
+          "continuum": 0.06501579093393817,
+          "lumped": 0.056683194310068526,
+          "quantity": "mid_UZ_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.06504138052996548,
+          "continuum": 0.0657459942942352,
+          "lumped": 0.056683194310068526,
+          "quantity": "mid_UZ_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.06481813542794722,
+          "continuum": 0.06501579093393817,
+          "lumped": 0.056683194310068526,
+          "quantity": "mid_UZ_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 89.28710747270131,
+          "continuum": 90.50416975455785,
+          "lumped": 70.09263003225811,
+          "quantity": "base_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 98.88677330783642,
+          "continuum": 107.50822532799813,
+          "lumped": 70.09263003225811,
+          "quantity": "base_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 89.28710747270131,
+          "continuum": 90.50416975455785,
+          "lumped": 70.09263003225811,
+          "quantity": "base_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 340.26500515844543,
+          "continuum": 341.9170740649665,
+          "lumped": 286.74257740469227,
+          "quantity": "base_MY_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 358.42551403275587,
+          "continuum": 370.94172244149564,
+          "lumped": 286.74257740469227,
+          "quantity": "base_MY_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 340.26500515844543,
+          "continuum": 341.9170740649665,
+          "lumped": 286.74257740469227,
+          "quantity": "base_MY_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 61.89387538204722,
+          "continuum": 62.23262378935714,
+          "lumped": 31.86028637829914,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 73.53111122847294,
+          "continuum": 74.23659684699615,
+          "lumped": 31.86028637829914,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 61.89387538204722,
+          "continuum": 62.23262378935714,
+          "lumped": 31.86028637829914,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        }
+      ]
+    },
+    "cpb-dyn-c-n04-flat": {
+      "reference_values": [
+        {
+          "consistent": 0.250887806924226,
+          "continuum": 0.250879601297653,
+          "lumped": 0.2438896941836908,
+          "quantity": "frequency_Y1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.1008295834376527,
+          "continuum": 1.100134510455633,
+          "lumped": 1.0989682610184284,
+          "quantity": "frequency_Z1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.5740286854395003,
+          "continuum": 1.572196875300449,
+          "lumped": 1.4335205426159403,
+          "quantity": "frequency_Y2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 3.5872803516159038,
+          "continuum": 3.5650411624530403,
+          "lumped": 3.5001908857944186,
+          "quantity": "frequency_Z2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 4.4360993115194445,
+          "continuum": 4.402021439848474,
+          "lumped": 3.7961398432586044,
+          "quantity": "frequency_Y3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 7.605441466470169,
+          "continuum": 7.437836259704876,
+          "lumped": 6.530978162086211,
+          "quantity": "frequency_Z3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.5757095755113455,
+          "continuum": 1.5757116147722436,
+          "lumped": 1.608322205352983,
+          "quantity": "tip_UY_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.5994334273433264,
+          "continuum": 1.5994498623390387,
+          "lumped": 1.6315698931339586,
+          "quantity": "tip_UY_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.5757095755113455,
+          "continuum": 1.5757116147722436,
+          "lumped": 1.608322205352983,
+          "quantity": "tip_UY_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 131.42314196090678,
+          "continuum": 131.43649490005885,
+          "lumped": 128.75674279867235,
+          "quantity": "base_FY_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 176.4972771155157,
+          "continuum": 176.60220981684955,
+          "lumped": 173.7790442715303,
+          "quantity": "base_FY_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 131.42314196090678,
+          "continuum": 131.43649490005885,
+          "lumped": 128.75674279867235,
+          "quantity": "base_FY_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 1367.7906312000569,
+          "continuum": 1367.7976480026125,
+          "lumped": 1372.0789038364458,
+          "quantity": "base_MZ_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1507.7996841839781,
+          "continuum": 1507.943877415214,
+          "lumped": 1521.3041431950367,
+          "quantity": "base_MZ_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1367.7906312000569,
+          "continuum": 1367.7976480026125,
+          "lumped": 1372.0789038364458,
+          "quantity": "base_MZ_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 0.06501312807654547,
+          "continuum": 0.06501579093393817,
+          "lumped": 0.06278273590328427,
+          "quantity": "mid_UZ_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.0657370570226,
+          "continuum": 0.0657459942942352,
+          "lumped": 0.06355915462244614,
+          "quantity": "mid_UZ_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.06501312807654547,
+          "continuum": 0.06501579093393817,
+          "lumped": 0.06278273590328427,
+          "quantity": "mid_UZ_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 90.43067747249695,
+          "continuum": 90.50416975455785,
+          "lumped": 86.62288194656185,
+          "quantity": "base_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 107.03942780593138,
+          "continuum": 107.50822532799813,
+          "lumped": 100.3599020916423,
+          "quantity": "base_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 90.43067747249695,
+          "continuum": 90.50416975455785,
+          "lumped": 86.62288194656185,
+          "quantity": "base_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 341.8736263032581,
+          "continuum": 341.9170740649665,
+          "lumped": 330.6130976956564,
+          "quantity": "base_MY_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 370.439657421001,
+          "continuum": 370.94172244149564,
+          "lumped": 358.4282217558653,
+          "quantity": "base_MY_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 341.8736263032581,
+          "continuum": 341.9170740649665,
+          "lumped": 330.6130976956564,
+          "quantity": "base_MY_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 62.14826119981688,
+          "continuum": 62.23262378935714,
+          "lumped": 54.27525649060608,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 73.70264989247822,
+          "continuum": 74.23659684699615,
+          "lumped": 60.359656286986755,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 62.14826119981688,
+          "continuum": 62.23262378935714,
+          "lumped": 54.27525649060608,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        }
+      ]
+    },
+    "cpb-dyn-c-n08-flat": {
+      "reference_values": [
+        {
+          "consistent": 0.2508801238722561,
+          "continuum": 0.250879601297653,
+          "lumped": 0.24909484350497915,
+          "quantity": "frequency_Y1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.100178623930602,
+          "continuum": 1.100134510455633,
+          "lumped": 1.1000942736276078,
+          "quantity": "frequency_Z1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.5723225779073142,
+          "continuum": 1.572196875300449,
+          "lumped": 1.534216977452261,
+          "quantity": "frequency_Y2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 3.566521746009848,
+          "continuum": 3.5650411624530403,
+          "lumped": 3.5630900645853303,
+          "quantity": "frequency_Z2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 4.4046986322567685,
+          "continuum": 4.402021439848474,
+          "lumped": 4.2297709631336255,
+          "quantity": "frequency_Y3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 7.450981144312544,
+          "continuum": 7.437836259704876,
+          "lumped": 7.414996853570556,
+          "quantity": "frequency_Z3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.575711582962726,
+          "continuum": 1.5757116147722436,
+          "lumped": 1.5839780714241785,
+          "quantity": "tip_UY_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.5994496235339362,
+          "continuum": 1.5994498623390387,
+          "lumped": 1.6077853673081672,
+          "quantity": "tip_UY_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.575711582962726,
+          "continuum": 1.5757116147722436,
+          "lumped": 1.5839780714241785,
+          "quantity": "tip_UY_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 131.43630560907047,
+          "continuum": 131.43649490005885,
+          "lumped": 130.74826930939048,
+          "quantity": "base_FY_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 176.60075707666175,
+          "continuum": 176.60220981684955,
+          "lumped": 175.91441044573708,
+          "quantity": "base_FY_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 131.43630560907047,
+          "continuum": 131.43649490005885,
+          "lumped": 130.74826930939048,
+          "quantity": "base_FY_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 1367.7975411312088,
+          "continuum": 1367.7976480026125,
+          "lumped": 1368.762223463961,
+          "quantity": "base_MZ_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1507.9417913074756,
+          "continuum": 1507.943877415214,
+          "lumped": 1510.999248740299,
+          "quantity": "base_MZ_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1367.7975411312088,
+          "continuum": 1367.7976480026125,
+          "lumped": 1368.762223463961,
+          "quantity": "base_MZ_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 0.0650157498318207,
+          "continuum": 0.06501579093393817,
+          "lumped": 0.06445395436235385,
+          "quantity": "mid_UZ_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.06574585875901574,
+          "continuum": 0.0657459942942352,
+          "lumped": 0.06519388427061164,
+          "quantity": "mid_UZ_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.0650157498318207,
+          "continuum": 0.06501579093393817,
+          "lumped": 0.06445395436235385,
+          "quantity": "mid_UZ_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 90.50344250779933,
+          "continuum": 90.50416975455785,
+          "lumped": 89.64641528898136,
+          "quantity": "base_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 107.50385906673917,
+          "continuum": 107.50822532799813,
+          "lumped": 106.6041016320219,
+          "quantity": "base_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 90.50344250779933,
+          "continuum": 90.50416975455785,
+          "lumped": 89.64641528898136,
+          "quantity": "base_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 341.91659239187015,
+          "continuum": 341.9170740649665,
+          "lumped": 339.0198003097493,
+          "quantity": "base_MY_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 370.93746290981903,
+          "continuum": 370.94172244149564,
+          "lumped": 368.6331008753257,
+          "quantity": "base_MY_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 341.91659239187015,
+          "continuum": 341.9170740649665,
+          "lumped": 339.0198003097493,
+          "quantity": "base_MY_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 62.231779130414175,
+          "continuum": 62.23262378935714,
+          "lumped": 60.18449583822844,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 74.23158758020658,
+          "continuum": 74.23659684699615,
+          "lumped": 70.86451800749558,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 62.231779130414175,
+          "continuum": 62.23262378935714,
+          "lumped": 60.18449583822844,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        }
+      ]
+    },
+    "cpb-dyn-c-n08-trunc": {
+      "reference_values": [
+        {
+          "consistent": 1.5756913305630151,
+          "continuum": 1.575691361481829,
+          "lumped": 1.583958350214042,
+          "quantity": "tip_UY_m",
+          "rule": "periodic_SRSS_with_rigid_SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.5963686427928334,
+          "continuum": 1.5963687038294956,
+          "lumped": 1.6048020866591461,
+          "quantity": "tip_UY_m",
+          "rule": "periodic_SRSS_with_rigid_ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 147.82399461128142,
+          "continuum": 147.82399625826983,
+          "lumped": 147.59522149833316,
+          "quantity": "base_FY_N",
+          "rule": "periodic_SRSS_with_rigid_SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 203.9058328211145,
+          "continuum": 203.9058328211145,
+          "lumped": 203.9058328211145,
+          "quantity": "base_FY_N",
+          "rule": "periodic_SRSS_with_rigid_ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 1372.4522583941716,
+          "continuum": 1372.452291094238,
+          "lumped": 1373.1575893534457,
+          "quantity": "base_MZ_Nm",
+          "rule": "periodic_SRSS_with_rigid_SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1529.2937461583588,
+          "continuum": 1529.2937461583588,
+          "lumped": 1529.2937461583588,
+          "quantity": "base_MZ_Nm",
+          "rule": "periodic_SRSS_with_rigid_ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 0.06501383766063196,
+          "continuum": 0.0650138781385174,
+          "lumped": 0.06445190734865822,
+          "quantity": "mid_UZ_m",
+          "rule": "periodic_SRSS_with_rigid_SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.0652460494481957,
+          "continuum": 0.0652461301158189,
+          "lumped": 0.0646286352251665,
+          "quantity": "mid_UZ_m",
+          "rule": "periodic_SRSS_with_rigid_ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 97.14982031110334,
+          "continuum": 97.14986584196414,
+          "lumped": 96.5807327090692,
+          "quantity": "base_FZ_N",
+          "rule": "periodic_SRSS_with_rigid_SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 127.44114551319656,
+          "continuum": 127.44114551319656,
+          "lumped": 127.04289193346781,
+          "quantity": "base_FZ_N",
+          "rule": "periodic_SRSS_with_rigid_ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 343.6722798188599,
+          "continuum": 343.67249124940633,
+          "lumped": 340.4383219760862,
+          "quantity": "base_MY_Nm",
+          "rule": "periodic_SRSS_with_rigid_SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 382.3234365395897,
+          "continuum": 382.3234365395897,
+          "lumped": 376.3496328436586,
+          "quantity": "base_MY_Nm",
+          "rule": "periodic_SRSS_with_rigid_ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 63.23530581928734,
+          "continuum": 63.23537940586244,
+          "lumped": 62.041069285855606,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "periodic_SRSS_with_rigid_SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 76.46468730791794,
+          "continuum": 76.46468730791794,
+          "lumped": 76.86294088764667,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "periodic_SRSS_with_rigid_ABSSUM",
+          "unit": "N"
+        }
+      ]
+    },
+    "cpb-dyn-c-n08-two": {
+      "reference_values": [
+        {
+          "consistent": 0.2508801238722561,
+          "continuum": 0.250879601297653,
+          "lumped": 0.24909484350497915,
+          "quantity": "frequency_Y1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.100178623930602,
+          "continuum": 1.100134510455633,
+          "lumped": 1.1000942736276078,
+          "quantity": "frequency_Z1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.5723225779073142,
+          "continuum": 1.572196875300449,
+          "lumped": 1.534216977452261,
+          "quantity": "frequency_Y2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 3.566521746009848,
+          "continuum": 3.5650411624530403,
+          "lumped": 3.5630900645853303,
+          "quantity": "frequency_Z2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 4.4046986322567685,
+          "continuum": 4.402021439848474,
+          "lumped": 4.2297709631336255,
+          "quantity": "frequency_Y3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 7.450981144312544,
+          "continuum": 7.437836259704876,
+          "lumped": 7.414996853570556,
+          "quantity": "frequency_Z3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.0728044067453575,
+          "continuum": 1.0728038494849932,
+          "lumped": 1.0766070519434014,
+          "quantity": "tip_UY_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.1089339519875125,
+          "continuum": 1.108932276230065,
+          "lumped": 1.1123219656476784,
+          "quantity": "tip_UY_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.0728044067453575,
+          "continuum": 1.0728038494849932,
+          "lumped": 1.0766070519434014,
+          "quantity": "tip_UY_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 105.56347018820168,
+          "continuum": 105.56278530053595,
+          "lumped": 104.60864088801588,
+          "quantity": "base_FY_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 165.39272064200384,
+          "continuum": 165.394222584835,
+          "lumped": 164.0413495617364,
+          "quantity": "base_FY_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 105.56347018820168,
+          "continuum": 105.56278530053595,
+          "lumped": 104.60864088801588,
+          "quantity": "base_FY_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 946.064694269022,
+          "continuum": 946.0628298080362,
+          "lumped": 945.0490133709426,
+          "quantity": "base_MZ_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1152.4708410024746,
+          "continuum": 1152.4683772706308,
+          "lumped": 1152.276523742187,
+          "quantity": "base_MZ_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 946.064694269022,
+          "continuum": 946.0628298080362,
+          "lumped": 945.0490133709426,
+          "quantity": "base_MZ_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 0.07958812937196455,
+          "continuum": 0.07958634856390583,
+          "lumped": 0.07889703472647609,
+          "quantity": "mid_UZ_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.0807042287662825,
+          "continuum": 0.08070302103179966,
+          "lumped": 0.08003764076391627,
+          "quantity": "mid_UZ_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.07958812937196455,
+          "continuum": 0.07958634856390583,
+          "lumped": 0.07889703472647609,
+          "quantity": "mid_UZ_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 111.41217701112895,
+          "continuum": 111.41288882960802,
+          "lumped": 110.35677199676243,
+          "quantity": "base_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 136.87238878003603,
+          "continuum": 136.8878854919653,
+          "lumped": 135.9557057473745,
+          "quantity": "base_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 111.41217701112895,
+          "continuum": 111.41288882960802,
+          "lumped": 110.35677199676243,
+          "quantity": "base_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 418.9917474276738,
+          "continuum": 418.98401065579145,
+          "lumped": 415.46486397434643,
+          "quantity": "base_MY_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 463.3003121544792,
+          "continuum": 463.3142567313362,
+          "lumped": 461.0424181757537,
+          "quantity": "base_MY_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 418.9917474276738,
+          "continuum": 418.98401065579145,
+          "lumped": 415.46486397434643,
+          "quantity": "base_MY_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 76.63369057809831,
+          "continuum": 76.63483133328342,
+          "lumped": 74.03493204359187,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 94.59944478501392,
+          "continuum": 94.61324691032809,
+          "lumped": 90.21465286341441,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 76.63369057809831,
+          "continuum": 76.63483133328342,
+          "lumped": 74.03493204359187,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        }
+      ]
+    },
+    "cpb-dyn-c-n16-flat": {
+      "reference_values": [
+        {
+          "consistent": 0.2508796341106131,
+          "continuum": 0.250879601297653,
+          "lumped": 0.2504317811699414,
+          "quantity": "frequency_Y1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.1001372781230934,
+          "continuum": 1.100134510455633,
+          "lumped": 1.1001428691576403,
+          "quantity": "frequency_Z1",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.5722049053135805,
+          "continuum": 1.572196875300449,
+          "lumped": 1.5625245717144363,
+          "quantity": "frequency_Y2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 3.5651350223340676,
+          "continuum": 3.5650411624530403,
+          "lumped": 3.565073780367032,
+          "quantity": "frequency_Z2",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 4.40219641735337,
+          "continuum": 4.402021439848474,
+          "lumped": 4.3577506120414045,
+          "quantity": "frequency_Y3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 7.438683893000992,
+          "continuum": 7.437836259704876,
+          "lumped": 7.437457516141471,
+          "quantity": "frequency_Z3",
+          "unit": "Hz"
+        },
+        {
+          "consistent": 1.575711614273971,
+          "continuum": 1.5757116147722436,
+          "lumped": 1.5777858984617215,
+          "quantity": "tip_UY_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.5994498586200807,
+          "continuum": 1.5994498623390387,
+          "lumped": 1.601557527368229,
+          "quantity": "tip_UY_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 1.575711614273971,
+          "continuum": 1.5757116147722436,
+          "lumped": 1.5777858984617215,
+          "quantity": "tip_UY_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 131.4364919789327,
+          "continuum": 131.43649490005885,
+          "lumped": 131.26453584369798,
+          "quantity": "base_FY_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 176.6021874576695,
+          "continuum": 176.60220981684955,
+          "lumped": 176.43392568772086,
+          "quantity": "base_FY_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 131.4364919789327,
+          "continuum": 131.43649490005885,
+          "lumped": 131.26453584369798,
+          "quantity": "base_FY_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 1367.7976463184177,
+          "continuum": 1367.7976480026125,
+          "lumped": 1368.0344467113132,
+          "quantity": "base_MZ_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1507.9438443552451,
+          "continuum": 1507.943877415214,
+          "lumped": 1508.683225406577,
+          "quantity": "base_MZ_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 1367.7976463184177,
+          "continuum": 1367.7976480026125,
+          "lumped": 1368.0344467113132,
+          "quantity": "base_MZ_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 0.06501579029489518,
+          "continuum": 0.06501579093393817,
+          "lumped": 0.0648752859524992,
+          "quantity": "mid_UZ_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.06574599218236642,
+          "continuum": 0.0657459942942352,
+          "lumped": 0.06560773136363654,
+          "quantity": "mid_UZ_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": 0.06501579029489518,
+          "continuum": 0.06501579093393817,
+          "lumped": 0.0648752859524992,
+          "quantity": "mid_UZ_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": 90.50415877231767,
+          "continuum": 90.50416975455785,
+          "lumped": 90.295780757579,
+          "quantity": "base_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 107.5081596545941,
+          "continuum": 107.50822532799813,
+          "lumped": 107.31011817474443,
+          "quantity": "base_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 90.50415877231767,
+          "continuum": 90.50416975455785,
+          "lumped": 90.295780757579,
+          "quantity": "base_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": 341.9170663928621,
+          "continuum": 341.9170740649665,
+          "lumped": 341.18309043085844,
+          "quantity": "base_MY_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 370.9416536057853,
+          "continuum": 370.94172244149564,
+          "lumped": 370.3406940014907,
+          "quantity": "base_MY_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 341.9170663928621,
+          "continuum": 341.9170740649665,
+          "lumped": 341.18309043085844,
+          "quantity": "base_MY_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": 62.23261094806763,
+          "continuum": 62.23262378935714,
+          "lumped": 61.7183788904609,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": 74.23652094138441,
+          "continuum": 74.23659684699615,
+          "lumped": 73.40344821516561,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": 62.23261094806763,
+          "continuum": 62.23262378935714,
+          "lumped": 61.7183788904609,
+          "quantity": "tip_reaction_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        }
+      ]
+    },
+    "cpb-dyn-d-n08-flat": {
+      "discrete_reference_values": {
+        "combined_magnitude_by_modal_rule": {
+          "absolute_sum": {
+            "displacement node:B x": 0.48237091105311064,
+            "displacement node:B y": 1.0409104762135801,
+            "displacement node:B z": 1.0409104762135801,
+            "reaction_force support:A x": 55.127119090896116,
+            "reaction_force support:A y": 117.73446262410756,
+            "reaction_force support:A z": 117.73446262410756,
+            "reaction_force support:B-x x": 3.858967288424885,
+            "reaction_moment support:A x": 870.6105991336576,
+            "reaction_moment support:A y": 838.2193462438892,
+            "reaction_moment support:A z": 838.2193462438892
+          },
+          "cqc": {
+            "displacement node:B x": 0.47448948451849576,
+            "displacement node:B y": 0.9880329767882569,
+            "displacement node:B z": 0.614606171704847,
+            "reaction_force support:A x": 40.343363914825225,
+            "reaction_force support:A y": 84.70025432028532,
+            "reaction_force support:A z": 49.39555515490952,
+            "reaction_force support:B-x x": 3.795915876147966,
+            "reaction_moment support:A x": 789.8196959414853,
+            "reaction_moment support:A y": 240.2287679392119,
+            "reaction_moment support:A z": 719.4251535640254
+          },
+          "grouping": {
+            "displacement node:B x": 0.4745018361629825,
+            "displacement node:B y": 1.025106728309639,
+            "displacement node:B z": 1.025106728309639,
+            "reaction_force support:A x": 40.311289687028555,
+            "reaction_force support:A y": 87.66320149988542,
+            "reaction_force support:A z": 87.66320149988542,
+            "reaction_force support:B-x x": 3.79601468930386,
+            "reaction_moment support:A x": 789.6982785690118,
+            "reaction_moment support:A y": 757.6661110018175,
+            "reaction_moment support:A z": 757.6661110018175
+          },
+          "srss": {
+            "displacement node:B x": 0.4745018361629825,
+            "displacement node:B y": 0.8228030407189664,
+            "displacement node:B z": 0.8228030407189664,
+            "reaction_force support:A x": 40.311289687028555,
+            "reaction_force support:A y": 69.28538849725084,
+            "reaction_force support:A z": 69.28538849725084,
+            "reaction_force support:B-x x": 3.79601468930386,
+            "reaction_moment support:A x": 789.6982785690118,
+            "reaction_moment support:A y": 536.2328456810815,
+            "reaction_moment support:A z": 536.2328456810815
+          },
+          "ten_percent": {
+            "displacement node:B x": 0.4745018361629825,
+            "displacement node:B y": 1.025106728309639,
+            "displacement node:B z": 1.025106728309639,
+            "reaction_force support:A x": 40.311289687028555,
+            "reaction_force support:A y": 87.66320149988542,
+            "reaction_force support:A z": 87.66320149988542,
+            "reaction_force support:B-x x": 3.79601468930386,
+            "reaction_moment support:A x": 789.6982785690118,
+            "reaction_moment support:A y": 757.6661110018175,
+            "reaction_moment support:A z": 757.6661110018175
+          }
+        },
+        "formulation": "SWBPIPE's stated formulation at 8 members: Hermitian consistent mass with Rayleigh rotary inertia, no shear deformation. Units m, N, N*m, Hz. Each value is the reference's nearest binary64; the file holds 40 significant digits",
+        "frequencies_hz": [
+          0.25088012387225606,
+          0.2637132709600337,
+          1.5723225779073138,
+          1.5744331816736572,
+          4.404698632256768,
+          4.405452709300892
+        ],
+        "note": "combined magnitudes are unsigned. The comparable setting is srss; the other rules are quoted for the declared variants, and correspond only where the other program's rule is the same rule (the closeness tests and correlation coefficient are stated in the reference's README)",
+        "request": "spectrum along global Y, flat 2.5 m/s^2, the first 6 modes, no missing mass, one direction",
+        "source": "validation/references/f2_spectrum/discrete/c9_pipe_diagonal.json, case C9-PIPE-DIAGONAL (pull request 268; not yet on main)",
+        "source_sha256": "c669ceea4182b2c20b1cacf5d587b5d3151cde55a9fb33f2c112179a48c3e0ba",
+        "source_status": "references with a refutation record: REFUTATION.md in this directory"
+      },
+      "reference_values": [
+        {
+          "consistent": null,
+          "continuum": 0.47444402552794057,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uX_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.47444402552794057,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uX_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.47444402552794057,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uX_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.47444402552794057,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uX_m",
+          "rule": "CQC",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.8227191414543984,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uY_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 1.0249989497046712,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uY_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 1.0249989497046712,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uY_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.9879455826034867,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uY_m",
+          "rule": "CQC",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.8227191414543984,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uZ_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 1.0249989497046712,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uZ_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 1.0249989497046712,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uZ_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.6145706609049785,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "tip_uZ_m",
+          "rule": "CQC",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 37.99284174967437,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FX_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 37.99284174967437,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FX_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 37.99284174967437,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FX_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 37.99284174967437,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FX_N",
+          "rule": "CQC",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 65.90418854382052,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FY_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 83.39855362756893,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FY_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 83.39855362756893,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FY_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 80.21271330484866,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FY_N",
+          "rule": "CQC",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 65.90418854382052,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 83.39855362756893,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 83.39855362756893,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 47.46203492806691,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_FZ_N",
+          "rule": "CQC",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 786.4945868010134,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MX_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 786.4945868010134,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MX_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 786.4945868010134,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MX_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 786.4945868010134,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MX_Nm",
+          "rule": "CQC",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 533.8892632585804,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MY_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 754.3488188140191,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MY_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 754.3488188140191,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MY_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 240.22692086715793,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MY_Nm",
+          "rule": "CQC",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 533.8892632585804,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MZ_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 754.3488188140191,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MZ_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 754.3488188140191,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MZ_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 715.7978187562908,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "base_MZ_Nm",
+          "rule": "CQC",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 3.7955522042235246,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "spring_FX_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 3.7955522042235246,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "spring_FX_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 3.7955522042235246,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "spring_FX_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 3.7955522042235246,
+          "lumped": null,
+          "modes": "modes_1_2",
+          "quantity": "spring_FX_N",
+          "rule": "CQC",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.4745016222778807,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uX_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.48237077662027716,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uX_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.4745016222778807,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uX_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.47448926895581955,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uX_m",
+          "rule": "CQC",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.8228029658539905,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uY_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 1.040910319479658,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uY_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 1.0251064317515857,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uY_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.9880329634689902,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uY_m",
+          "rule": "CQC",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.8228029658539905,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uZ_m",
+          "rule": "SRSS",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 1.040910319479658,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uZ_m",
+          "rule": "ABSSUM",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 1.0251064317515857,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uZ_m",
+          "rule": "TEN_PERCENT",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 0.6146059862059294,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "tip_uZ_m",
+          "rule": "CQC",
+          "unit": "m"
+        },
+        {
+          "consistent": null,
+          "continuum": 40.31134750896781,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FX_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 55.12759358506328,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FX_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 40.31134750896781,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FX_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 40.34343989803197,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FX_N",
+          "rule": "CQC",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 69.28548023165554,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FY_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 117.7354076032194,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FY_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 87.66330240343524,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FY_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 84.70041826332098,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FY_N",
+          "rule": "CQC",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 69.28548023165554,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FZ_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 117.7354076032194,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FZ_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 87.66330240343524,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FZ_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 49.39560605571156,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_FZ_N",
+          "rule": "CQC",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 789.6983402712453,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MX_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 870.6118035485218,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MX_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 789.6983402712453,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MX_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 789.8197893980282,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MX_Nm",
+          "rule": "CQC",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 536.232709194619,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MY_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 838.2203070876251,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MY_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 757.665906232658,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MY_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 240.22794498577386,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MY_Nm",
+          "rule": "CQC",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 536.232709194619,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MZ_Nm",
+          "rule": "SRSS",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 838.2203070876251,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MZ_Nm",
+          "rule": "ABSSUM",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 757.665906232658,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MZ_Nm",
+          "rule": "TEN_PERCENT",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 719.4252597723735,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "base_MZ_Nm",
+          "rule": "CQC",
+          "unit": "N*m"
+        },
+        {
+          "consistent": null,
+          "continuum": 3.7960129782230454,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "spring_FX_N",
+          "rule": "SRSS",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 3.8589662129622173,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "spring_FX_N",
+          "rule": "ABSSUM",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 3.7960129782230454,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "spring_FX_N",
+          "rule": "TEN_PERCENT",
+          "unit": "N"
+        },
+        {
+          "consistent": null,
+          "continuum": 3.7959141516465564,
+          "lumped": null,
+          "modes": "modes_1_6_information",
+          "quantity": "spring_FX_N",
+          "rule": "CQC",
+          "unit": "N"
+        }
+      ]
+    },
+    "cpb-dyn-l-flat": {
+      "mode_count_basis": {
+        "cumulative_effective_mass_fraction_extracted": {
+          "x": 0.313,
+          "y": 0.82,
+          "z": 0.413
+        },
+        "frequencies_hz_rounded": [
+          5.665,
+          18.075,
+          19.404,
+          34.05,
+          35.084,
+          57.243,
+          58.778,
+          96.946
+        ],
+        "note": "the response is truncated at these modes on both sides alike; no missing mass is requested",
+        "relative_gap_after_last_extracted_mode": 0.394,
+        "repeated_clusters_within_extracted_modes": false,
+        "smallest_relative_gap_within_extracted_modes": 0.0261,
+        "what": "SWBPIPE's own modal solve of this model (in-crate, the production criteria, branch head c8c602df6; an experimental surface, not a released result and NOT a reference value). Given so the mode count can be seen to cut at a wide gap and to hold no repeated cluster"
+      }
+    },
+    "cpb-dyn-m-flat": {
+      "mode_count_basis": {
+        "cumulative_effective_mass_fraction_extracted": {
+          "x": 0.408,
+          "y": 0.829,
+          "z": 0.486
+        },
+        "frequencies_hz_rounded": [
+          5.415,
+          10.117,
+          10.945,
+          33.186,
+          34.118,
+          47.503,
+          48.537,
+          70.283
+        ],
+        "note": "the response is truncated at these modes on both sides alike; no missing mass is requested",
+        "relative_gap_after_last_extracted_mode": 0.309,
+        "repeated_clusters_within_extracted_modes": false,
+        "smallest_relative_gap_within_extracted_modes": 0.0213,
+        "what": "SWBPIPE's own modal solve of this model (in-crate, the production criteria, branch head c8c602df6; an experimental surface, not a released result and NOT a reference value). Given so the mode count can be seen to cut at a wide gap and to hold no repeated cluster"
+      }
+    }
+  },
+  "purpose": "Values the dynamics family of tranche 3 quotes and does not compute: the reference_values of the straight and diagonal cases, the diagonal case's discrete_reference_values and the piping cases' mode_count_basis, copied unchanged from the dynamics lane's wrapper files (dynamics family draft 4, 2026-11-12). Each is declared with its source and standing as its wrapper states it; the reference package they name is in pull request 268 and is not on main. Nothing here is a result of the target program."
+}
