@@ -128,9 +128,12 @@ describe("tee Modifier source (G11)", () => {
     const agent = await applyModelOperation(model, { ...structuredClone(user), author_type: "agent" }, null);
     expect(agent.applied_model).toBeNull();
     expect(agent.diagnostics.some((item) => item.code === code && item.severity === "blocking")).toBe(true);
-    const imported = stampImportedBatch({ batch_id: "imported-modifier", operations: [user] });
-    expect(imported.batch.operations[0].author_type).toBe("agent");
-    const refused = await applyOperationBatch(model, imported.batch, await computeModelHash(model));
+    // Offline intake refuses it by name before stamping (operationAuthorship.ts); the engine
+    // still refuses it stamped as intake would stamp it.
+    expect(() => stampImportedBatch({ batch_id: "imported-modifier", operations: [user] })).toThrow(`carries a component modifier (k, a SIF, a stiffness or their source), a value only you enter; an imported operation cannot write it, so nothing was queued.`);
+    const imported = { batch_id: "imported-modifier", operations: [{ ...structuredClone(user), author_type: "agent" as const,
+      source: { source_ref: "offline-import:imported-modifier:1", source_channel: "offline_intake", source_role: "imported" } }] };
+    const refused = await applyOperationBatch(model, imported, await computeModelHash(model));
     expect(refused.applied_model).toBeNull();
     const codes = [...refused.diagnostics, ...refused.operation_outcomes.flatMap((item) => item.diagnostics)].map((item) => item.code);
     expect(codes).toContain(code);

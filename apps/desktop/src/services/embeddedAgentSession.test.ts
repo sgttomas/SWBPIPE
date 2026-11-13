@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EmbeddedAgentSession, type WorkspaceExecution, type AgentRunReceipt } from './embeddedAgentSession';
+import { PERSON_ENTERED_CHECK } from './operationAuthorship';
 import type { PreviewModel, ModelHashEvidence, MechanicsResult } from '../types';
 import type { AgentBasis } from './embeddedAgentBridge';
+import catalog from '../../src-tauri/resources/agent-capability-catalog.json';
 const mocks=vi.hoisted(()=>({validate:vi.fn()}));
 vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}));
 const hash={algorithm:'sha256',canonicalization:'rfc8785_jcs',payload_scope:'model_payload',payload_ref:'invented',value:'a'.repeat(64),hash_status:'computed_local_preview'} as ModelHashEvidence;
@@ -44,6 +46,105 @@ describe('workspace-owned live embedded agent adapter',()=>{
   call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
   const solved=JSON.parse(session.actual('invented-session:2')!.outcome);expect(solved.status).toBe('completed');expect(solved.data.evaluatedModelHash).toEqual(hash);
   await session.close();
+ });
+ it('refuses a person-entered member at the top level of any operation before the engine, naming it and echoing no value',async()=>{
+  const SECRET='SECRET-4.2-person-value';
+  const op=(id:string,after:unknown)=>({operation_id:id,change:{after:JSON.stringify(after)}});
+  const members:[string,Record<string,unknown>,RegExp][]=[
+   ['modifiers',{id:'component:c',kind:'tee',modifiers:{flexibility_factor_user_value:{value:4.2,unit:'none'},source_reference:SECRET}},/modifiers \(k, SIFs, stiffness and their source\)/],
+   ['modifiers on a material',{id:'material:m',label:SECRET,modifiers:null},/modifiers \(k, SIFs, stiffness and their source\)/],
+   ['bend_realization',{id:'component:b',kind:'bend',bend_realization:{radius:SECRET}},/bend_realization/],
+   ['curved interface',{id:'component:v',kind:'valve',label:SECRET,mechanics_interface:{solver_consumption:'curved_bend_macro_element'}},/a curved-bend mechanics_interface \(a bend realization\)/],
+  ];
+  let n=0;
+  for(const [what,after,named] of members)for(const position of [0,2]){
+   vi.useFakeTimers();const {session,owner,call}=setup();n++;
+   const operations=[op('operation-1',{id:'node:a'}),op('operation-2',{id:'node:b'}),op('operation-3',{id:'node:c'})];operations[position]=op(`operation-${position+1}`,after);
+   call('swbpipe_propose_operations',{operations,assumptions:[]});await session.start('revision');await session.poll();await drain();
+   const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
+   expect(outcome.status,`${what} at ${position}`).toBe('unavailable');expect(outcome.data).toBeNull();
+   expect(outcome.message).toMatch(named);expect(outcome.message).toContain(`Operation ${position+1} (operation-${position+1})`);
+   expect(outcome.message).toContain('which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued.');
+   expect(session.actual('invented-session:1')!.outcome).not.toContain(SECRET);
+   expect(mocks.validate).not.toHaveBeenCalled();expect(owner.register).not.toHaveBeenCalled();
+   // The turn stays usable: the next call in the same turn is answered.
+   call('swbpipe_read_model_summary',{},'invented-session:2');await session.poll();await drain();
+   expect(JSON.parse(session.actual('invented-session:2')!.outcome).status).toBe('ok');
+   await session.close();vi.clearAllMocks();vi.useRealTimers();
+  }
+  expect(n).toBe(8);
+ });
+ it('refuses a person-entered member at any depth, naming its path, and an after value past the walk bound, before validation',async()=>{
+  const review='{"id":"combination:review-nested","label":"Review example","basis":"mechanics","terms":[{"load_case":"load:RS-SUS","factor":1,"modifiers":{"sif_user_value":{"value":2.4,"unit":"1"}}}],"provenance":"invented review example"}';
+  let deep:unknown={leaf:1};for(let i=0;i<40;i++)deep=[deep];
+  for(const [after,expected] of [[review,/has a value that names modifiers \(k, SIFs, stiffness and their source\) three levels inside the value, in item 1 of a list, which only the person enters\. A value naming it cannot be told apart from it, even as text, so nothing was queued\./],
+   [JSON.stringify({id:'node:n',position:{x:0,y:0,z:0,bend_realization:{}}}),/has a value that names bend_realization \(a bend realization\) two levels inside the value,/],
+   [JSON.stringify(deep),/carries an after value nested deeper than 32 levels, which is not checked for values only the person enters, so nothing was queued\. Propose it in smaller operations\./]] as [string,RegExp][]){
+   vi.useFakeTimers();const {session,owner,call}=setup();
+   call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',change:{change_kind:'create_combination',after}}],assumptions:[]});await session.start('revision');await session.poll();await drain();
+   const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
+   expect(outcome.status).toBe('unavailable');expect(outcome.message).toMatch(expected);expect(outcome.message).not.toContain('2.4');
+   expect(mocks.validate).not.toHaveBeenCalled();expect(owner.register).not.toHaveBeenCalled();
+   await session.close();vi.clearAllMocks();vi.useRealTimers();
+  }
+ });
+ it('cannot be reached past the member-count bound or the length bound through the agent: such arguments exceed the host argument bound first',()=>{
+  // The smallest after value with more members than the walk reads, and any after text longer
+  // than the check reads, is far larger than the 16,384 argument bytes the host admits
+  // (protocol.rs refuses larger arguments before the webview; the catalog caps an after at
+  // 16,384 characters), and the bridge refuses a claim over 64 KiB; these bounds are for intake
+  // and requeue (operationAuthorship.bounds.test.ts).
+  const smallest=`[${'0,'.repeat(PERSON_ENTERED_CHECK.maxMembers)}0]`;
+  expect(new TextEncoder().encode(smallest).byteLength).toBeGreaterThan(64*1024);
+  expect(PERSON_ENTERED_CHECK.maxAfterChars).toBeGreaterThan(64*1024);
+ });
+ it('reads an after value at exactly the depth bound and refuses one level past it, before validation',async()=>{
+  const deep=(depth:number)=>`${'['.repeat(depth)}0${']'.repeat(depth)}`;
+  for(const [after,registers] of [[deep(PERSON_ENTERED_CHECK.maxDepth),true],[deep(PERSON_ENTERED_CHECK.maxDepth+1),false]] as [string,boolean][]){
+   vi.useFakeTimers();const {session,owner,call}=setup();if(registers)mocks.validate.mockResolvedValueOnce({validation:{batch_validation_status:'passed'}});
+   call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',change:{change_kind:'create_material',after}}],assumptions:[]});await session.start('revision');await session.poll();await drain();
+   const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
+   if(registers){expect(outcome.status).toBe('pending_review');expect(owner.register).toHaveBeenCalledTimes(1);}
+   else{expect(outcome.status).toBe('unavailable');expect(outcome.message).toBe(`Operation 1 (operation-1) carries an after value nested deeper than ${PERSON_ENTERED_CHECK.maxDepth} levels, which is not checked for values only the person enters, so nothing was queued. Propose it in smaller operations.`);
+    expect(mocks.validate).not.toHaveBeenCalled();expect(owner.register).not.toHaveBeenCalled();}
+   await session.close();vi.clearAllMocks();vi.useRealTimers();
+  }
+ });
+ it('refuses a label whose text reads as JSON naming a person-entered member, in words that claim no member was found',async()=>{
+  vi.useFakeTimers();const {session,owner,call}=setup();
+  call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',operation_kind:'modify',target:{object_type:'Material',ref:'material:m'},change:{change_kind:'set_field',field_path:'label',before:'M',after:'{"modifiers":{}}'}}],assumptions:[]});
+  await session.start('revision');await session.poll();await drain();
+  const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
+  expect(outcome.status).toBe('unavailable');
+  expect(outcome.message).toBe('Operation 1 (operation-1) has a value that names modifiers (k, SIFs, stiffness and their source) at the top level of the value, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.');
+  expect(mocks.validate).not.toHaveBeenCalled();expect(owner.register).not.toHaveBeenCalled();
+  await session.close();
+ });
+ it('reads an after given as an object, an array or a scalar, and names no key the agent chose, before validation',async()=>{
+  const SECRET='Zq7SECRETAGENTTEXTxv';
+  for(const [after,expected] of [
+   [{id:'m',[SECRET]:{modifiers:{}}},'Operation 1 (operation-1) has a value that names modifiers (k, SIFs, stiffness and their source) two levels inside the value, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.'],
+   [[{bend_realization:1}],'Operation 1 (operation-1) has a value that names bend_realization (a bend realization) two levels inside the value, in item 1 of a list, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.'],
+   [{id:SECRET},'Operation 1 (operation-1) has an after value that is not text, which the operation engine does not read, so nothing was queued. Propose it with the after value as text.'],
+   [7,'Operation 1 (operation-1) has an after value that is not text, which the operation engine does not read, so nothing was queued. Propose it with the after value as text.'],
+   [JSON.stringify({[SECRET]:[{[SECRET]:{modifiers:1}}]}),'Operation 1 (operation-1) has a value that names modifiers (k, SIFs, stiffness and their source) four levels inside the value, in item 1 of a list, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.'],
+  ] as [unknown,string][]){
+   vi.useFakeTimers();const {session,owner,call}=setup();
+   call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',change:{change_kind:'create_material',after}}],assumptions:[]});await session.start('revision');await session.poll();await drain();
+   const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
+   expect(outcome.status).toBe('unavailable');expect(outcome.message).toBe(expected);
+   expect(session.actual('invented-session:1')!.outcome).not.toContain(SECRET);
+   expect(mocks.validate).not.toHaveBeenCalled();expect(owner.register).not.toHaveBeenCalled();
+   await session.close();vi.clearAllMocks();vi.useRealTimers();
+  }
+ });
+ it('still registers a non-curved interface, a payload that is not JSON and one with no such member',async()=>{
+  for(const after of [JSON.stringify({id:'component:v',mechanics_interface:{solver_consumption:'not_solver_consumed'}}),'not_present','{"modifiers"',JSON.stringify([1,{id:'x'}])]){
+   vi.useFakeTimers();const {session,owner,call}=setup();mocks.validate.mockResolvedValueOnce({validation:{batch_validation_status:'passed'}});
+   call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',change:{after}}],assumptions:[]});await session.start('revision');await session.poll();await drain();
+   expect(JSON.parse(session.actual('invented-session:1')!.outcome).status,after).toBe('pending_review');expect(owner.register).toHaveBeenCalledTimes(1);
+   await session.close();vi.clearAllMocks();vi.useRealTimers();
+  }
  });
  it('validates the batch on the engine form and reports an applied outcome in the catalog form',async()=>{
   vi.useFakeTimers();const {session,sent,owner,call}=setup();mocks.validate.mockResolvedValueOnce({validation:{batch_validation_status:'passed'}});
@@ -202,7 +303,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   vi.useFakeTimers();const {session,sent,model}=setup();await session.start('revision');await session.poll();await drain();
   let data=JSON.parse(sent.filter(v=>v.kind==='publish_actual').at(-1)!.outcome as string).data;
   expect(data).toMatchObject({projectId:'invented',schemaVersion:'0.9.0',pressureContract:null,pressureProfileBefore:'{"schema_version":"0.9.0"}'});
-  expect(data.admittedOperationKinds).toContain('insert/Component/insert_component_symbol');expect(data.admittedOperationKinds).toHaveLength(16);expect(data.componentsAwaitingUserModifiers).toEqual({count:0,ids:[]});
+  expect(data.admittedOperationKinds).toContain('insert/Component/insert_component_symbol');expect(data.admittedOperationKinds).toHaveLength(41);expect(data.admittedOperationKinds).toEqual(catalog.definitions.summaryData.properties.admittedOperationKinds.items.enum);expect(data.componentsAwaitingUserModifiers).toEqual({count:0,ids:[]});
   await session.close();
   (model as unknown as Record<string,unknown>).pressure_contract={version:'3.0.0',mode:'exact_pressure_v3',shear_model:'euler_bernoulli'};
   await session.start('revision');await session.poll();await drain();

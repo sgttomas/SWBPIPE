@@ -56,3 +56,7 @@ checks:
 - tests/test_operation_audit_trail.py
 - apps/desktop/src/services/operationAuthorship.test.ts
 - apps/desktop/src/features/offline-proposal-intake/workflows.test.tsx
+- apps/desktop/src/services/operationAuthorship.routes.test.tsx
+- apps/desktop/src/services/operationAuthorship.bounds.test.ts
+- apps/desktop/src/services/operationAuthorship.matrix.test.ts
+- apps/desktop/src/services/operationAuthorship.text.test.ts
