@@ -766,7 +766,9 @@ fn create_judged(
     Err("was refused because strict run judges paths by unix file identities, which this platform lacks")
 }
 
-#[cfg(all(test, unix))]
+// Test-only by an exact `#[cfg(test)]`, as the user-release reach scan requires (`user_release_reach_scan.rs`).
+#[cfg(test)]
+#[cfg(unix)]
 #[cfg(feature = "native-smoke")]
 mod strict_run_tests {
     use super::{create_judged, file_identity, open_for_reading, open_judged, STRICT_CHOOSER_EXIT, STRICT_RUN_ENV, STRICT_RUN_PATH_TOKEN};
