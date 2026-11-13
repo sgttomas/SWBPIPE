@@ -222,6 +222,132 @@ class WritePlan(unittest.TestCase):
             rr.main(['--write-plan', os.path.join(folder, 'plan.json'), '--subset', 'window2'])
 
 
+class BaselinePlans(unittest.TestCase):
+    """The headless baseline's named plans: `baseline` (W1, W2 alternating, five each) and
+    `baseline-with-rack` (the same ten, then criterion 9's linear rack at 2,000 nodes once)."""
+
+    W1 = ('baseline-one-case-ex', 2000, 300, 'solved')
+    W2 = ('reference-system', 27, 60, 'solved')
+
+    def test_baseline_is_ten_runs_alternating_with_the_contract_limits(self):
+        plan, budget_s, quiet_wait_s = rr.named_plan('baseline')
+        self.assertEqual(len(plan), 10)
+        self.assertEqual([(r['profile'], r['nodes'], r['timeout_s'], r['expect']) for r in plan], [self.W1, self.W2] * 5)
+        self.assertEqual([r['order'] for r in plan], list(range(10)))
+        for r in plan:
+            self.assertEqual((r['task'], r['mode'], r['attribute']), ('solve', 'sparse', False))
+            self.assertEqual(r['footprint_budget_bytes'], 12_884_901_888)
+            self.assertEqual(r['rss_cap_bytes'], 16 * k6.GIB)
+        self.assertEqual([r['run_id'] for r in plan],
+                         ['%s-r%d' % (rid, k) for k in range(1, 6)
+                          for rid in ('baseline-one-case-ex-n2000-sparse', 'reference-system-n0027-sparse')])
+        rr.check_run_ids(plan)
+        self.assertEqual(len({r['run_id'].lower() for r in plan}), 10)
+        # The window lets every run last until its timeout, after the quiet wait, unskipped and uncapped.
+        self.assertEqual(quiet_wait_s, rr.QUIET_WAIT_S)
+        self.assertGreaterEqual(budget_s, quiet_wait_s + sum(r['timeout_s'] for r in plan) + len(plan))
+        self.assertEqual(budget_s, 1960)
+
+    def test_baseline_with_rack_is_the_baseline_then_the_default_linear_rack_row_last(self):
+        baseline, _, _ = rr.named_plan('baseline')
+        plan, budget_s, quiet_wait_s = rr.named_plan('baseline-with-rack')
+        self.assertEqual(len(plan), 11)
+        self.assertEqual(plan[:10], baseline)
+        default = [r for r in rr.default_plan() if r['run_id'] == 'linear-ex-n2000-sparse']
+        self.assertEqual(len(default), 1)
+        self.assertEqual(dict(plan[10], order=None), dict(default[0], order=None), 'the default row but for its place')
+        self.assertEqual((plan[10]['order'], plan[10]['expect'], plan[10]['timeout_s']),
+                         (10, 'exceeds_base_machine_budget', 900))
+        rr.check_run_ids(plan)
+        self.assertGreaterEqual(budget_s, quiet_wait_s + sum(r['timeout_s'] for r in plan) + len(plan))
+        self.assertEqual(budget_s, 2870)
+
+    def test_a_named_plan_fixes_its_mode_and_limits(self):
+        for flags in (['--mode', 'dense'], ['--budget-s', '900'], ['--footprint-budget-bytes', '1'],
+                      ['--rss-cap-bytes', '1'], ['--quiet-wait-s', '0'], ['--attribute']):
+            with redirect_stdout(io.StringIO()), mock.patch('sys.stderr', io.StringIO()) as err, \
+                    self.assertRaises(SystemExit):
+                rr.main(['--plan', '--subset', 'baseline'] + flags)
+            self.assertIn('fixes its runs, mode and limits', err.getvalue(), flags)
+        out = io.StringIO()
+        with redirect_stdout(out):
+            self.assertEqual(rr.main(['--plan', '--subset', 'baseline', '--mode', 'sparse', '--budget-s', '1960']), 0)
+        self.assertIn('window budget 1960 s', out.getvalue())
+
+    def test_a_repeated_run_gets_distinct_ids_and_a_single_one_keeps_its_own(self):
+        plan = rr.repeat_run_ids(rr.build_plan((('linear-ex', 100, 60, 1, 'solved'), ('linear-ex', 200, 60, 1, 'solved'),
+                                                ('linear-ex', 100, 60, 1, 'solved'))))
+        self.assertEqual([r['run_id'] for r in plan],
+                         ['linear-ex-n0100-sparse-r1', 'linear-ex-n0200-sparse', 'linear-ex-n0100-sparse-r2'])
+
+    def test_the_baseline_plan_file_names_each_models_sha256_and_needs_the_manifest(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = os.path.join(folder, 'plan.json')
+            with redirect_stdout(io.StringIO()), mock.patch('sys.stderr', io.StringIO()) as err, \
+                    self.assertRaises(SystemExit):
+                rr.main(['--write-plan', path, '--subset', 'baseline', '--models', folder])
+            self.assertIn('not in the models manifest', err.getvalue())
+            self.assertFalse(os.path.exists(path))
+            models = {rr.model_name('baseline-one-case-ex', 2000): 'a' * 64, 'reference_system.json': 'b' * 64}
+            with open(os.path.join(folder, 'manifest.json'), 'w') as fh:
+                json.dump({'models': {name: {'sha256': sha, 'stats': {}} for name, sha in models.items()}}, fh)
+            self.assertEqual(rr.main(['--write-plan', path, '--subset', 'baseline', '--models', folder]), 0)
+            with open(path) as fh:
+                document = json.load(fh)
+        self.assertEqual((document['schema'], document['window_budget_s'], document['quiet_wait_s']),
+                         (rr.PLAN_SCHEMA, 1960, rr.QUIET_WAIT_S))
+        self.assertEqual([r['model'] for r in document['runs']],
+                         ['baseline-one-case-ex-n2000.json', 'reference_system.json'] * 5)
+        self.assertEqual([r['expected_model_sha256'] for r in document['runs']], ['a' * 64, 'b' * 64] * 5)
+
+
+class ReferenceSystemModel(unittest.TestCase):
+    """A committed model that is not a rack: `--generate` copies the committed reference system after
+    its fixture generator's `--check`, and refuses when the check fails."""
+
+    def test_generate_copies_the_committed_file_and_records_its_sha256(self):
+        source = rr.COMMITTED_MODELS['reference-system']['source']
+        self.assertTrue(source.endswith(os.path.join('fixtures', 'reference_system', 'reference_system.json')))
+        with open(source, 'rb') as fh:
+            committed = fh.read()
+        with tempfile.TemporaryDirectory() as models:
+            plan, _, _ = rr.named_plan('baseline')
+            manifest, failures = rr.generate([r for r in plan if r['profile'] == 'reference-system'], models,
+                                             log=lambda *a: None)
+            self.assertEqual(failures, [])
+            entry = manifest['models']['reference_system.json']
+            with open(os.path.join(models, 'reference_system.json'), 'rb') as fh:
+                self.assertEqual(fh.read(), committed)
+        self.assertEqual(entry['sha256'], hashlib.sha256(committed).hexdigest())
+        self.assertEqual((entry['source'], entry['source_check']),
+                         ('fixtures/reference_system/reference_system.json', 'generate_reference_system.py --check'))
+        document = json.loads(committed)
+        self.assertEqual(entry['stats']['nodes'], len(document['nodes']))
+        self.assertEqual(entry['nodes'], len(document['nodes']), 'the plan label is the fixture\'s node count')
+        self.assertEqual(entry['stats']['route'], 'EX')
+
+    def test_a_failing_fixture_check_refuses_and_copies_nothing(self):
+        calls = []
+
+        def failing(argv, **kwargs):
+            calls.append(argv)
+            return types.SimpleNamespace(returncode=1, stdout='differs: reference_system.json\n', stderr='')
+
+        with tempfile.TemporaryDirectory() as models:
+            with open(os.path.join(models, 'manifest.json'), 'w') as fh:
+                json.dump({'models': {'reference_system.json': {'sha256': 'c' * 64}}}, fh)
+            plan = rr.build_plan((('reference-system', 27, 60, 5, 'solved'),))
+            logged = []
+            manifest, failures = rr.generate(plan, models, run=failing, log=logged.append)
+            self.assertEqual(failures, ['reference_system.json'])
+            self.assertNotIn('reference_system.json', manifest['models'], 'an earlier entry is dropped')
+            self.assertFalse(os.path.exists(os.path.join(models, 'reference_system.json')))
+            self.assertEqual(calls, [[sys.executable, rr.COMMITTED_MODELS['reference-system']['check'], '--check']])
+            self.assertIn('refused', logged[0])
+            with self.assertRaises(ValueError):
+                rr.plan_document(plan, models_dir=models)
+
+
 class Classification(unittest.TestCase):
     def test_ok(self):
         self.assertEqual(rr.classify(launched(), driver(), BUDGET), ('ok', None))

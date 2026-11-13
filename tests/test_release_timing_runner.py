@@ -18,6 +18,7 @@ sys.path.insert(0, str(RUNNER))
 
 from test_release_runner import (  # noqa: E402,F401  (collected by pytest)
     Attribution,
+    BaselinePlans,
     Classification,
     ClassificationReadings,
     Generate,
@@ -27,6 +28,7 @@ from test_release_runner import (  # noqa: E402,F401  (collected by pytest)
     PacketAggregation,
     Plan,
     ProgressLines,
+    ReferenceSystemModel,
     RunIds,
     Window,
     WritePlan,
