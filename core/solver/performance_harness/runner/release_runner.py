@@ -21,6 +21,8 @@ Modes (each starts nothing else):
 - ``--run --models DIR --out DIR --binary PATH``: the plan's runs, within a
   window budget (``--budget-s``); ``--write-results`` keeps each result's bytes;
 - ``--packet --out DIR``: ``DIR/packet.json`` from the run records.
+- ``--baseline-set OUT --plan-file PLAN --subset NAME``: the verdict on one supervised
+  folder of a named plan (COMPLETE, INCOMPLETE BY THE WINDOW or FINDINGS), read only.
 
 The footprint budget is the base-machine budget by default: 12 GiB, the
 product's per-invocation memory budget on the 16 GiB base machine (docs/PRD.md

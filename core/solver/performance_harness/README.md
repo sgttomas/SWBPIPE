@@ -371,13 +371,67 @@ ids end `-r1` to `-r5`. `baseline-with-rack` holds the same ten, then one run of
 `exceeds_base_machine_budget`. It states criterion 9's own linear workload beside the baseline
 on the same revision, and it is never a timing. A named plan fixes its mode, its limits, its
 window and its quiet-host wait. `--plan --subset baseline` prints them, and the runner refuses
-any flag that would change them, `--generator` included. The window is long enough for every run to last until its
-timeout, with nothing skipped or cut short. Whoever measures states their thresholds in their
-own measurement contract; this section sets none.
+any flag that would change them, `--generator` included.
 
-In order, from a fresh clone of the revision to be measured:
+The window is the quiet-host wait, every run's timeout and a planning allowance of 30 s per run
+for the supervisor's own work between runs: hashing the model, the host check, the launch and
+the records. The allowance is a planning figure, not an established bound on that work, and
+nothing enforces it. So the window fits every run at its full timeout provided that work stays
+within the allowance. Where it does not, the supervisor cuts a later run's timeout to what
+remains, or skips the run, and the run's record says so: `timeout_capped_by_window` true, or
+`skipped_window_budget`. `--baseline-set` (step 8) then reports the set INCOMPLETE BY THE WINDOW.
+This is a scope decision, not a necessity. A bounded window could instead decline to start a
+run whose full timeout no longer fits; both supervisors are kept as they are by choice.
 
-1. Produce the models:
+Whoever measures states their thresholds in their own measurement contract; this section sets
+none. The steps below are the procedure. The revision to measure, the acceptable values and what
+follows from a verdict belong to that contract.
+
+On a shared host, run the build through the host's cargo wrapper and the supervised run through
+its exclusive wrapper. A refusal by either is a host condition, not a result.
+
+1. **A controlled build.** Make a fresh clone of the revision in a new directory (not a worktree
+   of a checkout that has been worked in) and a new, empty build directory `BUILD` outside it.
+   From the clone's root, build with an environment that holds only these four names. On a
+   shared host, put the host's cargo wrapper where `cargo` is:
+
+   ```sh
+   env -i HOME="$HOME" PATH="$HOME/.cargo/bin:/usr/bin:/bin:/usr/sbin:/sbin" \
+       CARGO_TARGET_DIR=BUILD CARGO_BUILD_JOBS=4 \
+       cargo build --release --locked --manifest-path core/solver/release_timing/Cargo.toml
+   ```
+
+   So no `RUSTFLAGS` of any spelling, compiler wrapper, linker or SDK variable, or
+   `CARGO_PROFILE_` variable can reach the build. Record in `build-facts.txt`, before the build
+   and again after it (the two must agree):
+
+   - the Git state: `git rev-parse HEAD` is the revision; `git diff --quiet HEAD` exits 0; and
+     `git -c core.fsmonitor=false status --short --ignored --untracked-files=all` prints nothing.
+     A command that fails is not an empty answer.
+   - Cargo configuration, which fails closed. Check `.cargo/config` and `.cargo/config.toml` in
+     the clone, in every parent directory up to the root, and in `$HOME/.cargo/`. List each file
+     that exists with its path and SHA-256. Any such file makes the build unfit unless its whole
+     text is recorded and it holds none of these:
+     - a `[build]`, `[target]`, `[profile]`, `[env]`, `[patch]`, `[source]` or `[unstable]`
+       table;
+     - an `include`;
+     - a `rustflags`, `linker`, `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key.
+   - the toolchain, each as its command prints it: `rustup show active-toolchain` (in the clone),
+     `rustc -Vv`, `cargo -V`, `xcode-select -p`, `xcrun --show-sdk-version`,
+     `xcrun --show-sdk-path`, `cc --version`, `ld -v`, `sw_vers` and `uname -m`;
+   - the SHA-256 of `core/solver/release_timing/Cargo.lock`;
+   - the names, never the values, in the build's environment:
+     `env -i HOME="$HOME" PATH=... CARGO_TARGET_DIR=... CARGO_BUILD_JOBS=4 env | cut -d= -f1 | sort`
+     prints exactly `CARGO_BUILD_JOBS`, `CARGO_TARGET_DIR`, `HOME` and `PATH`.
+
+   After the build, the executable is `BUILD/release/release_timing`, and the commands below
+   name it by that path. `BUILD/release/release_timing --build-identity` must name the revision
+   with `source_dirty: false` and `build_profile: "release"`. Record the executable's SHA-256
+   (`shasum -a 256 BUILD/release/release_timing`). Two such builds from two clones are expected
+   to differ in SHA-256, because the clone's path is compiled in. Compare their toolchain facts
+   and the product's output bytes instead. Read the first item of
+   [What it does not yet do](#what-it-does-not-yet-do): this step is what stands in for it.
+2. **Produce the models:**
 
    ```sh
    python3 core/solver/performance_harness/runner/release_runner.py --generate --subset baseline --models FOLDER
@@ -394,16 +448,7 @@ In order, from a fresh clone of the revision to be measured:
    `FOLDER/manifest.json` records both hashes. If W1's hash differs from its line, or W2's check
    fails, `--generate` names the model (for W1 also the expected and the found hash), leaves it
    out of the manifest and exits 1. The plan cannot then be written.
-2. Build the driver, with the build directory `BUILD` a new folder outside the clone:
-
-   ```sh
-   CARGO_TARGET_DIR=BUILD cargo build --release --locked --manifest-path core/solver/release_timing/Cargo.toml
-   ```
-
-   The executable is then `BUILD/release/release_timing`; the commands below name it by that
-   path. `BUILD/release/release_timing --build-identity` names the revision. Read the first item of
-   [What it does not yet do](#what-it-does-not-yet-do) before relying on it.
-3. Write the plan. Each run then carries its model's SHA-256 from the manifest. First every
+3. **Write the plan.** Each run then carries its model's SHA-256 from the manifest. First every
    model the manifest lists is compared again: W1 with its line of
    `observations/rack/models_sha256.txt`, W2 with the SHA-256 of the committed file at this
    checkout. If a model is missing or differs, nothing is written and the runner exits 2. So a
@@ -414,19 +459,101 @@ In order, from a fresh clone of the revision to be measured:
    python3 core/solver/performance_harness/runner/release_runner.py --write-plan plan.json --subset baseline --models FOLDER
    ```
 
-4. Run it, under the host's exclusive wrapper on a shared host, into a folder that does not yet
-   exist:
+4. **Check the host before the run**, and record each command with what it printed in
+   `host-before.txt`:
+   - `pgrep -x cargo` and `pgrep -x rustc`, each of which should print nothing. The supervisor's
+     own quiet test looks for cargo and evidence sweeps, not for rustc.
+   - `sysctl -n kern.memorystatus_level`, which must print a number. The supervisor's own test
+     accepts an unreadable level.
+   - `sysctl -n vm.loadavg`.
+   - `df -g` of the volume the run writes to.
+5. **Start the process log** before the supervised run, and stop it after the run:
+
+   ```sh
+   while :; do printf 'T %s\n' "$(date -u +%FT%TZ)"; ps -Ao pcpu=,pid=,comm= -r | head -12; sleep 5; done > host-processes.log
+   ```
+
+6. **Run the plan**, under the host's exclusive wrapper on a shared host, into a folder that does
+   not yet exist:
 
    ```sh
    BUILD/release/release_timing --supervise plan.json --models FOLDER --out NEW_FOLDER
    ```
 
-The timing of a run is the `entry` member of `seconds` in the driver's line. That line is the
-`release-timing-v2` object in the run's stdout record, `NEW_FOLDER/<run id>.jsonl`. It is the
-product's solve entry, and `packet.json` repeats it as `stage_seconds`. A run is a candidate
-timing only if its record's `classification` is `ok` and its `model_sha256` is the plan's. A run
-that timed out, was killed for memory (`exceeds_base_machine_budget`, `killed_by_rss_cap`), was
-refused, ended in an error (`entry_error`, `error`), or was skipped or found its model missing or
-mismatched, is recorded as what it was and is never a timing. Neither is the `linear-ex` run of
-`baseline-with-rack`. Before relying on stored records, read the second item of
-[What it does not yet do](#what-it-does-not-yet-do): no reader here verifies what it reads back.
+7. **The bundle.** Put these in one folder:
+   - `out/`, the folder the supervisor wrote;
+   - `plan.json` and `models/manifest.json` (the models themselves can be produced again by
+     step 2);
+   - `build-facts.txt`, `host-before.txt` and `host-processes.log`;
+   - on a shared host, the exclusive wrapper's own lines for the run;
+   - a copy of the measurement contract used.
+
+   Once the supervisor has exited and the process log has stopped, inventory the bundle from its
+   root:
+
+   ```sh
+   find . -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 shasum -a 256 > SHA256SUMS
+   shasum -a 256 SHA256SUMS
+   ```
+
+   Nothing in the bundle is written after that. The second command prints the root digest. State
+   it outside the bundle, in the message that reports the run; a later reader takes it from
+   there. No reader here verifies stored records (the second item of
+   [What it does not yet do](#what-it-does-not-yet-do)). So whoever reads a bundle back does the
+   following, and stops on any difference:
+   - recompute the root digest first and compare it with the stated one;
+   - run `shasum -a 256 -c SHA256SUMS` from the bundle's root;
+   - then check directly, for every run:
+     - its stdout line parses and equals the aggregate's `driver` member;
+     - the stage lines in its stderr file carry the same seconds as `driver.seconds`;
+     - the aggregate's `model_sha256` equals the plan's `expected_model_sha256` and the
+       manifest's;
+     - `metadata.json` names the revision.
+
+   The hashes show that the files are the ones inventoried; they do not show that a record is
+   true.
+8. **Read the set's verdict:**
+
+   ```sh
+   python3 core/solver/performance_harness/runner/release_runner.py --baseline-set NEW_FOLDER --plan-file plan.json --subset baseline
+   ```
+
+   It reads exactly one supervised folder, writes nothing and prints a JSON report. First it
+   holds `plan.json` to the named plan at this checkout: the same runs, order and limits, and
+   each run's `expected_model_sha256` the repository's own. A run is a completed timing only if
+   all of these hold:
+   - its `classification` is `ok` and `as_expected` is true;
+   - `driver.route` is `EX`;
+   - the plan's `expected_model_sha256`, the record's `model_sha256` and
+     `driver.document.sha256` are one value;
+   - `driver.seconds.entry` and `launch.rss.exit_lifetime_max_phys_footprint_bytes` are numbers;
+   - `driver.output_sha256`, `driver.rows` and `driver.output_bytes` equal those of the
+     workload's other completed runs.
+
+   For each workload the report gives its completed timings, with the median, minimum and
+   maximum of `driver.seconds.entry`. That is the product's solve entry, the `entry` member of
+   `seconds` in the driver's line (the `release-timing-v2` object in `NEW_FOLDER/<run id>.jsonl`,
+   repeated in `packet.json` as `stage_seconds`). The verdict and its exit status are one of
+   these:
+   - **COMPLETE (0)**: every run of each workload is a completed timing, and no run was skipped
+     for the window or timed out under a capped timeout. A run whose timeout was capped but
+     which completed is unaffected.
+   - **INCOMPLETE BY THE WINDOW (3)**: one or more runs were `skipped_window_budget` or timed out
+     with `timeout_capped_by_window` true, and there is no finding. The report names those runs.
+   - **FINDINGS (1)**: anything else that keeps a run from being a completed timing. That means
+     a wrong or disagreeing output, a memory breach, a timeout at the full timeout, a refusal, an
+     error, a model mismatch, or a missing or null figure. Where a finding and a window problem
+     both occur, the verdict is FINDINGS and both are listed. A finding is never absorbed into a
+     window problem.
+
+   Neither run kind below is ever a timing:
+   - a run that timed out, was killed for memory (`exceeds_base_machine_budget`,
+     `killed_by_rss_cap`), was refused, ended in an error, or was skipped;
+   - the `linear-ex` run of `baseline-with-rack` (the report lists it under `not_timings`).
+
+   `host_not_quiet` lists runs whose own host check was not quiet or read no memory level. It is
+   for the measurement contract's rules and does not change the verdict.
+
+A set that is INCOMPLETE BY THE WINDOW, or otherwise unusable, is kept as it is. A repeat runs
+the whole named plan again, into a new folder. Completed timings are never combined across
+attempts: `--baseline-set` reads one folder only.
