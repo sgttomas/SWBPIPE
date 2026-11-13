@@ -70,6 +70,8 @@ pub(crate) fn injected_outcome(pool: &Arc<MemoryPool>, raw_model: &[u8], cancell
     let Some(root) = std::env::var_os(INJECT_ROOT_ENV) else {
         return Some(WorkerOutcome::Failed(format!("NATIVE-SMOKE-INJECT: {INJECT_ROOT_ENV} is unset; nothing is injected")));
     };
+    // Strict run (`native_smoke::STRICT_RUN_ENV`): the root inside the given home, or the app ends.
+    crate::native_smoke::judge_inject_root(Path::new(&root));
     Some(outcome_from_file(pool, raw_model, Path::new(&path), Path::new(&root), cancelled))
 }
 

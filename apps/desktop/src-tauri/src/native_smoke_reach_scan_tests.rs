@@ -52,8 +52,10 @@ const NEEDLES: [&str; 6] = [
 const EXEMPT: [&str; 2] = ["native_smoke_inject.rs", "native_smoke_reach_scan_tests.rs"];
 /// The strict run's names: its variable, its constants and every function the
 /// native smoke module exports for it (each named `strict_run…`).
-const STRICT_RUN_NEEDLES: [&str; 4] = ["SWBPIPE_NATIVE_SMOKE_STRICT_RUN", "STRICT_RUN_", "strict_run", "open_agent_gate"];
-const STRICT_RUN_EXEMPT: [&str; 2] = ["native_smoke.rs", "native_smoke_reach_scan_tests.rs"];
+const STRICT_RUN_NEEDLES: [&str; 5] = ["SWBPIPE_NATIVE_SMOKE_STRICT_RUN", "STRICT_RUN_", "strict_run", "open_agent_gate", "judge_inject_root"];
+/// `native_smoke.rs` and `native_smoke_inject.rs` are each declared only under the gate in `lib.rs` (asserted below
+/// and by the injection's own scan above).
+const STRICT_RUN_EXEMPT: [&str; 3] = ["native_smoke.rs", "native_smoke_inject.rs", "native_smoke_reach_scan_tests.rs"];
 
 
 /// Exactly `#[cfg(feature = "native-smoke")]` among `attrs`.
