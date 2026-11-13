@@ -48,8 +48,9 @@ NO_BASIS = "no basis: "  # opens the reason of a membership nothing in the packa
 TMP = "<new scratch directory>"  # replaced by a fresh, absent directory under pytest's tmp_path
 # Each check command's time limit: LIMIT_MARGIN times the slowest time observed for any retained command,
 # rounded up to 10 s, one value for all. Hosted per-command times exist only for a shard's twenty slowest tests
-# (pytest --durations=20), and the same commands ran 1.6 to 1.9 times slower on the second hosted run than on
-# the first, so one limit grounded on the slowest command keeps the margin for every command. A command that
+# (pytest --durations=20). The completed regeneration checks reported in both lists slowed by factors of
+# 1.67 (m3_judge) and 2.18 (pf_timoshenko), so one limit grounded on the slowest observed command keeps the
+# observed margin for every command. A command that
 # hangs still fails its test at the limit, inside the hosted job's allowance.
 LIMIT_MARGIN = 5
 SLOWEST_OBSERVED = (214.90, "t4_i9 check 0 on the hosted Linux runner: pytest's call duration, run 43513992525, "
@@ -147,8 +148,9 @@ NOT_ESTABLISHED_HERE = ("the command ran and exited 0 within its limit; reproduc
 T4_I9_ARC_GAP = (
     "observed: on the development host (macOS, sys.platform darwin) the command prints arc_load_references.txt byte "
     "for byte; on the hosted Linux runner (run 43513992525, Python product contracts 2/4, at aaf769403) it completed "
-    "in 214.90 s and printed something else. Elsewhere than darwin, " + NOT_ESTABLISHED_HERE + ". The cause is not "
-    "established until the per-case report this check emits there has been read. Proposed repair, a separate change "
+    "in 214.90 s and printed something else. Elsewhere than darwin, the command must run and exit 0 within its "
+    "limit; reproduction of the committed file is not established there. The cause is not established. The per-case "
+    "report shows which printed args and refs differ. Proposed repair, a separate change "
     "SWBPIPE's Agent 0 commissions: the generator's inputs pinned as input-only bits that reproduce the committed "
     "inputs, its independent calculation untouched. The entry is removed only when the complete output equals the "
     "committed file on both macOS and the hosted Linux runner")
@@ -390,7 +392,7 @@ PACKAGES: dict[str, Package] = {
                    historical="the revision-1 hashes, kept on purpose (README); superseded by SHA256SUMS")),
         checks=(Check(("_run_records/selfcheck_stiffness.py",), cwd="REFERENCES"),),
         not_regenerated=(("REFERENCES/references.json",
-                          "references.py took 679 s and 722 s (README), beyond the limit, and its only mode writes "
+                          "references.py took 679 s and 722 s (README), and its regeneration mode writes "
                           "references.json; the author self-check runs instead"),)),
     "kd5_timoshenko": Package(
         "DEL-05-03",

@@ -133,7 +133,7 @@ def test_a_platform_limited_comparison_on_another_check_fails_classification(mon
     assert any("is not the exception PLATFORM_LIMITED_STDOUT names" in p for p in R.classification_problems())
 
 
-def test_the_stdout_report_decides_whether_the_inputs_explain_a_difference():
+def test_the_stdout_report_counts_cases_with_identical_args_and_differing_refs():
     frozen = (b"case a\nphi 1\nargs 1 2\nref 1\nref 2\nend\n"
               b"case b\nphi 2\nargs 3 4\nref 3\nref 4\nend\n"
               b"case c\nphi 3\nargs 5 6\nref 5\nref 6\nend\n")
