@@ -115,6 +115,16 @@ code_paths:
 # weight of the cases still pending in the fixture. No product test reads them yet.
 - validation/references/reference_system_pending_cases/**
 - tests/test_reference_system_pending_cases_references.py
+# The maintained check over every package under validation/references/: checksum-list inventory and
+# verification under the table's recorded exceptions; accounted membership, with no-basis cases named and
+# counted; and the retained check commands. Output entries not regenerated, regeneration gaps and deferred
+# commands are named and counted. Deferred commands are not run; each names its last observed blocker and
+# the full revision observed, and states that what it checks beyond that point is not established.
+# It does not check that a package's generators are independent of product code. Whether a package's values
+# are right stays with the deliverable that holds it.
+- tests/reference_packages.py
+- tests/test_reference_packages.py
+- tests/test_reference_packages_regeneration.py
 # The fixture's generated-weight verdicts, fixed by its metre twin's.
 - core/product_physics/tests/reference_system_generated_weight_standing.rs
 # Not decided: which deliverable's criteria govern the required-output qualification gate below.
@@ -137,6 +147,8 @@ checks:
 - core/product_physics/tests/w16_imposed_motion.rs
 - tests/test_reference_system_fixture.py
 - tests/test_reference_system_records.py
+- tests/test_reference_packages.py
+- tests/test_reference_packages_regeneration.py
 - core/product_physics/tests/reference_system_generated_weight_standing.rs
 - tests/test_qualification_gate.py
 - tests/test_qualification_physics.py
