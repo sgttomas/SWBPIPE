@@ -6641,9 +6641,10 @@ if fnkey("exception_consistency", _RTL2_PE) and fnkey("assembly", _RTL2_PE):
 # document whose `operating_load_cases` is longer than its load cases before the permit, and validation runs only in the
 # permitted run, so validation sees k <= c <= C (caps::LOAD_CASES, read from the caps module).
 # pressure_elongation_refusals walks the ids twice (duplicates, then unknown ids): each loop k times. Its refusals are the
-# contract refusal plus at most one per element (an element's first occurrence can be unknown, a later one a
-# duplicate; the empty-list refusal only at k = 0): at most k + 1, so validate_model_settings' diagnostic loop runs at
-# most k + 1 times, one blocking diagnostic each. Its callers keep their own multiplicity (the validation calls).
+# contract refusal plus the empty-list refusal at k = 0, otherwise at most one per element (an element's first
+# occurrence can be unknown, a later one a duplicate): at most max(2, k + 1), priced at k = C as C + 1 = 4, so
+# validate_model_settings' diagnostic loop runs at most C + 1 times, one blocking diagnostic each. Its callers keep their
+# own multiplicity (the validation calls).
 _rtl2_k = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
                                                      "rtl2_owners_model.py"))["inspect"](_SNAP)
 if _rtl2_k:
@@ -6653,7 +6654,8 @@ if _rtl2_k:
          O10 + f"RTL2-VL: the operating load-case ids, k <= c <= C = {_RTL2_K} after D1.4's elongation clause (RTL2-K)",
          ["model_settings.rs:pressure_elongation_refusals"]),
         ("for (index, error) in refusals.into_iter().enumerate()", str(_RTL2_K + 1),
-         O10 + f"RTL2-VL: at most k + 1 refusals (the contract refusal and one per element), k <= C = {_RTL2_K} (RTL2-K)",
+         O10 + f"RTL2-VL: at most max(2, k + 1) refusals (the contract refusal, then the empty-list refusal at k = 0, "
+         f"otherwise at most one per element), k <= C = {_RTL2_K} (RTL2-K), priced at k = C as C + 1 = {_RTL2_K + 1}",
          ["validation.rs:validate_model_settings"]),
     ]
 # RTL2-ID: the setting's texts. The two refusal messages format one authored id each, a raw string value of at most

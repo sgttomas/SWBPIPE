@@ -32,10 +32,11 @@ RTL2-VS (validation's refusal working set, BuildScratch, one validate_model_sett
 - pressure_elongation_refusals' `ids` (Vec<&str>, pushcap(k)), `seen` (<= k entries), `duplicated` (<= k/2: an id is
   duplicated only at its second occurrence) and `unknown` (<= k), three push-grown hash sets live together, each with
   its previous table during its last resize;
-- `refusals`, a push-grown Vec<ModelSettingError> ({&'static str, String}, the (&str,String) stride) of at most k + 1
-  entries (the contract refusal, then at most one per list element: an element's first occurrence can be unknown, a
-  later one a duplicate; the empty-list refusal only at k = 0), with its previous backing. Each message is a format!
-  site the TEXT inventory prices at its loop multiplicity; it moves into the diagnostic.
+- `refusals`, a push-grown Vec<ModelSettingError> ({&'static str, String}, the (&str,String) stride) of at most
+  max(2, k + 1) entries (the contract refusal, then the empty-list refusal at k = 0, otherwise at most one per list
+  element: an element's first occurrence can be unknown, a later one a duplicate), priced at k = C as C + 1 = 4, with
+  its previous backing. Each message is a format! site the TEXT inventory prices at its loop multiplicity; it moves
+  into the diagnostic.
 
 RTL2-FS (the formulation statement, T_resident): ElongationStatement::of collects the named load cases as references,
 at most C = 3, one push-grown backing of 4 pointer-width slots (32 B), transient while the formulation basis is formed;

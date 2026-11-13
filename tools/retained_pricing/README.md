@@ -617,7 +617,8 @@ check and `CapturedInvocation::parse` (the typed list is allocated there), then 
   it follows the clause, but its string bytes have no per-string capacity cap below RawStringCapacity, so it is kept at
   the census as an over-bound);
 - validation sees k ≤ c ≤ C = 3 (`caps::LOAD_CASES`). RTL2-VS (validation's refusal working set, BuildScratch) and
-  RTL2-VL (`rules/o10_rules.py`: the refusal loops, k each, and the diagnostic loop, k + 1) are priced at k = C.
+  RTL2-VL (`rules/o10_rules.py`: the refusal loops, k each, and the diagnostic loop, at most max(2, k + 1)) are priced
+  at k = C, the diagnostic loop as C + 1 = 4.
 The guard stops the run if the clause is removed or changed, leaves `family_clauses` or loses the load-case cap beside
 it, or if the chain that puts it before validation changes (family_clauses ← domain_clauses ← admit before law_order;
 law_order's `domain?` before its permit; admit before `permitted_dispatch`; no validation in retained_memory.rs,
@@ -658,8 +659,8 @@ the reader's record and model checks all run only on a case with a pressure regi
 
 **Derivation and native checks.** On `19eab0355` (the final source with the third and fourth scrutinies' responses) the four points complete with O-10 0/0; the prune (36) and the
 resolutions (8) are main's. Against main `4d29420a0`'s kept tree (reproduced by its own tool), 1,468 of 1,606
-coefficients are equal, 138 higher and none lower: D +8 at every point (two validation calls, k + 1 ≤ 4 diagnostics
-each), STATICS[1] +4,497 B (the pressure-3 table and schema, with the exception record's `remainder_force_n` and its
+coefficients are equal, 138 higher and none lower: D +8 at every point (two validation calls, at most max(2, k + 1) ≤ C + 1 = 4
+diagnostics each), STATICS[1] +4,497 B (the pressure-3 table and schema, with the exception record's `remainder_force_n` and its
 description; the schema is resident, so its description bytes are priced), O_base +131,212 B with +16,384 s(String), +20 s(&str) and
 +6 s((&str,String)) (the typed list at the census; the working set at C), TAV +174,654 B; s((&str,String)) joins the
 profile (four coefficients from 0). The block is regenerated with this revision's basis line (1,718 lines) and the
