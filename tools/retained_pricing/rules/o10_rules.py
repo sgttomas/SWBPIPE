@@ -3790,6 +3790,64 @@ if fnkey("exact_equivalent_static_record", _LIB):
             fnkey("carries_fields", PP_ + "case_state/mod.rs"), "1",
             O10 + "RTA3NL-S6: the S6 context's one unconditional call per validate_profile call; the case loop's call is "
             "inside `case.equivalent_static.is_some()`, refused on every retained branch (D1.5, W16C-ES)")]
+# SWU-RM (self-weight units repair, 12f46a797): certified_loads::recorded_mass re-forms a generated self weight's mass
+# from its record's SI normalized_dependencies, cloning that map and deserialising it into a PipeSectionInput. Those
+# allocations are unpriced on the retained route BECAUSE the branch that calls recorded_mass cannot run on an admitted
+# retained model: intensity calls it only under `evidence["method"] == self_weight::GENERATED_METHOD`, where `evidence`
+# is the matched primitive load's provenance parsed as JSON, and D1.10 (retained_memory.rs provenance_clause, called
+# from domain_clauses) refuses every primitive load whose provenance begins, after ASCII whitespace, with `{`. Such a
+# provenance never parses to an object, and indexing a non-object Value gives Null, never the method string. The zero
+# does not say the allocations are small or absent: on the ordinary route they are ordinary allocations, outside the
+# retained budget. If D1.10 is ever widened (the refusal, its call or the branch below changes), this guard stops the
+# pricing run until recorded_mass's allocations are priced. core/product_physics/tests/s11f_site_test.rs lists
+# recorded_mass among rule 6's force sites (36fb3781f); that listing and this rule are the two halves of one obligation.
+_SWU_CL = PP_ + "certified_loads.rs"
+_SWU_RM = PP_ + "retained_memory.rs"
+if fnkey("recorded_mass", _SWU_CL):
+    _swu_int = _fn_text("intensity", _SWU_CL) if fnkey("intensity", _SWU_CL) else ""
+    _swu_branch = ("        if let Some(primitive) = case\n"
+                   "            .primitive_loads\n"
+                   "            .iter()\n"
+                   "            .find(|primitive| primitive.id == load.load_id)\n"
+                   "        {\n"
+                   "            if let Some(evidence) = primitive\n"
+                   "                .provenance\n"
+                   "                .as_deref()\n"
+                   "                .and_then(|text| serde_json::from_str::<serde_json::Value>(text).ok())\n"
+                   "            {\n"
+                   "                if evidence[\"method\"] == self_weight::GENERATED_METHOD {\n"
+                   "                    // This source provenance has already passed the applied-weight\n"
+                   "                    // validation. A manual override is an authored intensity.\n"
+                   "                    let mass = recorded_mass(&evidence);\n")
+    _swu_clause = ("fn provenance_clause(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionRefusal> {\n"
+                   "    let object = |text: &str| text.trim_start_matches(|c: char| c.is_ascii_whitespace()).starts_with('{');\n"
+                   "    let loads = request.model.load_cases.iter().flat_map(|case| &case.primitive_loads);\n"
+                   "    for load in loads {\n"
+                   "        if load.provenance.as_deref().is_some_and(object) {\n"
+                   "            return Err(AdmissionRefusal::Family(D1Clause::Provenance, FamilyFact::ObjectProvenance));\n"
+                   "        }\n"
+                   "    }\n"
+                   "    Ok(())\n"
+                   "}\n")
+    _swu_rm_prod = _production(_SWU_RM)
+    _swu_rm = (
+        # The branch: the one call of recorded_mass is inside the method test on the matched load's parsed provenance.
+        _swu_int.count(_swu_branch) == 1,
+        _swu_int.count("recorded_mass(") == 1,
+        _production(_SWU_CL).count("recorded_mass(") == 2,
+        # D1.10: the refusal, verbatim, and its one call among the domain clauses.
+        _swu_rm_prod.count(_swu_clause) == 1,
+        _swu_rm_prod.count("provenance_clause(") == 2,
+        bool(fnkey("domain_clauses", _SWU_RM)) and _fn_text("domain_clauses", _SWU_RM).count("    provenance_clause(request)?;\n") == 1,
+    )
+    if not all(_swu_rm):
+        raise SystemExit(f"SWU-RM: D1.10's refusal or intensity's generated self-weight branch changed; price "
+                         f"recorded_mass's allocations before removing this zero: {_swu_rm}")
+    O10_EDGE_ZERO += [(fnkey("intensity", _SWU_CL), fnkey("recorded_mass", _SWU_CL),
+                       O10 + "SWU-RM: D1.10 (provenance_clause) refuses every object provenance, so intensity's "
+                       "`evidence[\"method\"] == GENERATED_METHOD` arm never runs on an admitted retained model; "
+                       "recorded_mass's map clone and deserialisation are unpriced here for that reason only (ordinary "
+                       "allocations on the ordinary route, outside the retained budget)")]
 # RTA3S6-VP (RT-A3 S6, §8.59; replaces RTA3NL-S6's per-call charge on S6 source): validate_profile no longer forms the
 # S6 context; every support family, the nonlinear one included, is judged by exact_admission::admission, and
 # nonlinear_support_admission is deleted. Its one carries_fields call is the case loop's, inside
