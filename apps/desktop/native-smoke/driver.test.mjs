@@ -301,3 +301,164 @@ test("the Inspector is pressed once and waited for until open", { timeout: 5000 
   await hooks.ensureInspector();
   assert.equal(presses, 1);
 });
+
+// The first launch from main at 5f9e3959b: since 8f2b8c42e the Solve section's rule checks sit
+// behind a gate that reads a native result's full rows only when the person clicks "Load for rule
+// checks" (C2ResultGate.tsx, `explicit`). The driver never clicked it, so `rule-check-run` never
+// existed and the 30 s wait timed out. Here a section holds its gates' elements as the product
+// renders them; a gate's button, once clicked, renders its panel in place.
+function gatedWindow({ onMenu = null } = {}) {
+  const sent = [];
+  const loaded = load({ onMenu: (commandId) => { sent.push(commandId); onMenu?.(commandId); } });
+  const element = (testId, extra = {}) => ({ testId, textContent: "", disabled: false, offsetParent: {}, getAttribute: (name) => (name === "data-testid" ? testId : null), ...extra });
+  const sections = new Map();
+  const section = (name, shown = true) => {
+    const children = [];
+    const root = element(`workspace-section-${name}`, {
+      offsetParent: shown ? {} : null,
+      children,
+      querySelectorAll: (selector) => { const id = /^\[data-testid="(.*)"\]$/.exec(selector)?.[1]; return children.filter((child) => child.testId === id); },
+      querySelector: (selector) => root.querySelectorAll(selector)[0] ?? null
+    });
+    loaded.elements.set(root.testId, root);
+    sections.set(name, root);
+    return root;
+  };
+  // An element shown in a section, found by the section's own query and by its test id.
+  const place = (root, child) => { root.children.push(child); loaded.elements.set(child.testId, child); return child; };
+  // `which` is a test id or the element itself (a section can hold two gates' elements under one id).
+  const remove = (root, which) => {
+    const at = root.children.findIndex((child) => child === which || child.testId === which);
+    const [gone] = root.children.splice(at, 1);
+    if (loaded.elements.get(gone.testId) === gone) loaded.elements.delete(gone.testId);
+  };
+  // An explicit gate as C2ResultGate renders it before the person asks; the click renders `panel`.
+  const explicitGate = (root, feature, panel) => {
+    const offer = place(root, element("c2-result-explicit", { textContent: `The full result rows for ${feature} are read on request (they stay native until then). Load for ${feature}` }));
+    const button = place(root, element("c2-result-load", { textContent: `Load for ${feature}`, clicks: 0 }));
+    button.click = () => {
+      button.clicks += 1;
+      setTimeout(() => { remove(root, offer); remove(root, button); panel(); }, 150);
+    };
+    return button;
+  };
+  return { ...loaded, sent, element, section, sections, place, remove, explicitGate };
+}
+
+test("the rule-check gate is opened as a person opens it, and the panel is waited for", { timeout: 5000 }, async () => {
+  const w = gatedWindow();
+  const solve = w.section("solve");
+  // Another feature's gate in the same section is not touched.
+  const other = w.explicitGate(solve, "comparisons", () => {});
+  const button = w.explicitGate(solve, "rule checks", () => w.place(solve, w.element("rule-check-run-panel")));
+  const gate = await w.hooks.openC2Gate("solve", "rule checks", "rule-check-run-panel");
+  assert.deepEqual(JSON.parse(JSON.stringify(gate)), { loaded_on_request: true });
+  assert.equal(button.clicks, 1);
+  assert.equal(other.clicks, 0);
+  assert.deepEqual(w.sent, []);
+  // Shown again for the same result, the panel is there and nothing is clicked.
+  assert.deepEqual(JSON.parse(JSON.stringify(await w.hooks.openC2Gate("solve", "rule checks", "rule-check-run-panel"))), { loaded_on_request: false });
+  assert.equal(button.clicks, 1);
+});
+
+test("a gate that reads the full copy by itself is waited for without a click", { timeout: 5000 }, async () => {
+  const w = gatedWindow();
+  const report = w.section("report");
+  w.place(report, w.element("c2-result-loading", { textContent: "Reading the full result for the rendered report…" }));
+  setTimeout(() => { w.remove(report, "c2-result-loading"); w.place(report, w.element("rendered-report-panel")); }, 300);
+  const started = Date.now();
+  assert.deepEqual(JSON.parse(JSON.stringify(await w.hooks.openC2Gate("report", "the rendered report", "rendered-report-panel"))), { loaded_on_request: false });
+  assert.ok(Date.now() - started >= 250);
+});
+
+test("a gate that refused or failed ends the wait at once with its own text; another feature's refusal does not", { timeout: 5000 }, async () => {
+  const refused = "RESULT-DETAIL-WEBVIEW-LIMIT: This result is 80 MiB, above the 64 MiB the webview can hold whole, so rule checks cannot read it until its native path lands.";
+  const w = gatedWindow();
+  const solve = w.section("solve");
+  w.explicitGate(solve, "rule checks", () => w.place(solve, w.element("c2-result-refused", { textContent: refused })));
+  const started = Date.now();
+  await assert.rejects(w.hooks.openC2Gate("solve", "rule checks", "rule-check-run-panel", 3000), (error) => {
+    assert.match(error.message, /^rule checks: RESULT-DETAIL-WEBVIEW-LIMIT: /);
+    assert.match(error.message, /clicked=true$/);
+    return true;
+  });
+  assert.ok(Date.now() - started < 1000);
+  const v = gatedWindow();
+  const report = v.section("report");
+  v.place(report, v.element("c2-result-failed", { textContent: "the report could not read the full result: boom" }));
+  v.place(report, v.element("c2-result-loading", { textContent: "Reading the full result for the rendered report…" }));
+  await assert.rejects(v.hooks.openC2Gate("report", "the rendered report", "rendered-report-panel", 300), (error) => {
+    assert.match(error.message, /^timed out after 300 ms waiting for the rendered report: rendered-report-panel in the report section; gate: reading=true; offered=false; load button=false; clicked=false$/);
+    return true;
+  });
+});
+
+test("rule checks: through the gate, the demo pack is loaded, the run made and its outcome read", { timeout: 8000 }, async () => {
+  const w = gatedWindow({ onMenu: (commandId) => {
+    for (const [name, root] of w.sections) root.offsetParent = commandId === `view.section.${name}` ? {} : null;
+  } });
+  const solve = w.section("solve");
+  const results = w.section("results", false);
+  const status = w.element("rule-check-run-status");
+  const run = w.element("rule-check-run", { disabled: true });
+  w.explicitGate(solve, "rule checks", () => {
+    w.place(solve, w.element("rule-check-run-panel"));
+    w.place(solve, status);
+    w.place(solve, run);
+    w.place(solve, w.element("rule-check-load-demo", { click: () => setTimeout(() => { status.textContent = "Loaded the bundled invented demonstration rule pack."; run.disabled = false; }, 100) }));
+  });
+  run.click = () => setTimeout(() => {
+    w.place(solve, w.element("rule-check-aggregate-status", { textContent: "Aggregate statusINCOMPLETE — 0 check(s) failed; 1 check(s) blocked (RULE_INPUTS_INCOMPLETE)" }));
+    w.place(solve, w.element("rule-check-outcomes", { textContent: "demo_training_check: RULE_INPUTS_INCOMPLETE inputs: demo_actual_quantity=MISSING, demo_limit_quantity=MISSING" }));
+  }, 100);
+  // The Results section's stress and ratio table, holding the run's rule group.
+  const rows = [{ getAttribute: (name) => ({ "data-part": "pinned", "data-status": "RULE_INPUTS_INCOMPLETE" })[name] ?? null }];
+  w.place(results, w.element("stress-ratio-panel"));
+  w.place(results, w.element("stress-ratio-table", { querySelectorAll: () => rows, querySelector: () => ({}) }));
+  w.place(results, w.element("stress-ratio-group", { value: "rule:demo_training_check", querySelectorAll: (selector) => (selector.includes("rule:") ? [{}] : []) }));
+  w.place(results, w.element("stress-ratio-mode", { getAttribute: (name) => (name === "data-mode" ? "ratio" : null) }));
+  const observation = await w.hooks.runRuleChecks("demo/rule-checks");
+  assert.equal(observation.gate.loaded_on_request, true);
+  assert.match(observation.aggregate, /RULE_INPUTS_INCOMPLETE/);
+  assert.match(observation.outcomes, /demo_actual_quantity=MISSING, demo_limit_quantity=MISSING/);
+  assert.equal(observation.stress_ratio.rule_groups, 1);
+  assert.equal(observation.stress_ratio.pinned_incomplete, 1);
+  assert.deepEqual(w.sent, ["view.section.results"]);
+});
+
+// The same launch's phase 2: with no blank project, the handoff asked to reopen the stored demo
+// while it was the open project, and waited 120 s on a tree that cannot show it both ways.
+test("reopening the project already open fails at once, naming it, and asks the window nothing", { timeout: 3000 }, async () => {
+  const w = gatedWindow();
+  const started = Date.now();
+  await assert.rejects(w.hooks.openProjectById("project:invented-demo-loop-01", "project:invented-demo-loop-01"),
+    { message: /^reopen project:invented-demo-loop-01: it is already the open project; / });
+  assert.ok(Date.now() - started < 500);
+  assert.deepEqual(w.sent, []);
+});
+
+test("without a blank project, the handoff uses the stored demo it just reopened instead of reopening it", { timeout: 3000 }, async () => {
+  const w = gatedWindow();
+  const plan = { bundled_project_id: "project:invented-demo-loop-01", handoff: { path: "/tmp/handoff" } };
+  // The fake host answers no chooser: the round trip stops at its first save, past the basis step.
+  await assert.rejects(w.hooks.handoffRoundTrip(plan, {}, plan.bundled_project_id, plan.bundled_project_id), { message: "unexpected command native_smoke_choose" });
+  assert.deepEqual(w.sent, []);
+  assert.ok(w.logs.includes("handoff basis: already open: project:invented-demo-loop-01 was the last project reopened from the store in this phase"));
+});
+
+// Since e8a322ac6 a Run is withheld while a solve-blocking model-check finding stands: no job
+// starts, and the Solve panel says why. The wait ends at once on that statement, not after 300 s.
+test("a withheld Run ends the solve wait at once with the Solve panel's reason; a completed solve is not failed by it", async () => {
+  const withheld = "Solve is withheld: 1 solve-blocking finding stands for this model, listed in Model checks in the Issues drawer.\n  SUPPORT_MISSING …";
+  const { hooks, elements } = load({ shown: { "solve-job-summary": "state=completed; events=3; result_rows=12; cancellation_requested=false", "solve-withheld-notice": withheld } });
+  const started = Date.now();
+  await assert.rejects(hooks.waitForSolve("blank solve", hooks.solveDone("blank", "project-1", null, true), 3000), (error) => {
+    assert.match(error.message, /^blank: Solve is withheld: 1 solve-blocking finding stands for this model, listed in Model checks in the Issues drawer\. SUPPORT_MISSING …; solve job: /);
+    assert.equal(error.hard, true);
+    return true;
+  });
+  assert.ok(Date.now() - started < 1000);
+  // The new proof of the project is there: the solve completed, whatever else is shown.
+  elements.set("status-pill-solve-proof", { textContent: "", getAttribute: () => null, querySelector: () => ({ textContent: "rows=12; project=project-1; identity=match" }) });
+  assert.equal(hooks.solveDone("blank", "project-1", null, true)(), true);
+});

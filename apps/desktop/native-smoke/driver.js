@@ -122,6 +122,49 @@
     }
   }
 
+  // C1 native custody (C2ResultGate.tsx): for a native result, a panel that reads the full result
+  // rows sits behind a gate. Since 3b953a731 a gate on a shown page reads the full copy by itself
+  // ("Reading the full result for …" until it lands); since 8f2b8c42e the Solve section's rule
+  // checks read it only when the person clicks "Load for rule checks". So the driver, as a person,
+  // clicks that button when the section offers it, then waits for the panel. A gate that refused or
+  // failed ends the wait at once with its own text. Only the gate for `feature` in this section is
+  // touched: other pages hold gates of their own, and one page can hold several.
+  function c2Gate(section, feature) {
+    const root = byTestId(`workspace-section-${section}`);
+    const all = (id) => [...(root?.querySelectorAll(`[data-testid="${CSS.escape(id)}"]`) ?? [])];
+    const said = (element) => element?.textContent?.trim() ?? "";
+    return {
+      root,
+      load: all("c2-result-load").find((button) => said(button) === `Load for ${feature}`) ?? null,
+      // The gate's own wording (C2ResultGate.tsx; describeFullResultRefused in nativeResult.ts).
+      stopped: all("c2-result-refused").find((element) => said(element).includes(`so ${feature} cannot read it`))
+        ?? all("c2-result-failed").find((element) => said(element).startsWith(`${feature} could not read`) || said(element).startsWith(`${feature} has no route`))
+        ?? null,
+      reading: all("c2-result-loading").some((element) => said(element).includes(`for ${feature}`)),
+      offered: Boolean(all("c2-result-explicit").find((element) => said(element).includes(`for ${feature} are read on request`)))
+    };
+  }
+  async function openC2Gate(section, feature, panelId, timeoutMs = 120000) {
+    await showSection(section);
+    const first = c2Gate(section, feature);
+    let loadedOnRequest = false;
+    if (first.load) {
+      if (first.load.disabled) throw new Error(`Load for ${feature} is disabled`);
+      await log(`${section}: Load for ${feature}`);
+      first.load.click();
+      loadedOnRequest = true;
+    }
+    await waitFor(`${feature}: ${panelId} in the ${section} section`, () => {
+      const gate = c2Gate(section, feature);
+      if (gate.stopped) throw new Error(`${feature}: ${gate.stopped.textContent.trim()}`);
+      return gate.root?.querySelector(`[data-testid="${CSS.escape(panelId)}"]`) ?? null;
+    }, timeoutMs).catch((error) => {
+      const gate = c2Gate(section, feature);
+      throw new Error(`${error.message}; gate: reading=${gate.reading}; offered=${gate.offered}; load button=${Boolean(gate.load)}; clicked=${loadedOnRequest}`);
+    });
+    return { loaded_on_request: loadedOnRequest };
+  }
+
   // W-6a. Save the session's model document, re-open the saved file, and save
   // the re-opened session again; run.mjs compares both files and both reported
   // hashes with the RFC 8785 SHA-256 it computes from the source document.
@@ -185,8 +228,15 @@
 
   // W-6b. Save Handoff… on the stored demo twice: first with a new handoff-basis
   // state, then over the same package, which is replaced and keeps that basis.
-  async function handoffRoundTrip(plan, report, previousId) {
-    const opened = await openProjectById(plan.bundled_project_id, previousId);
+  // `reopened` is the project this phase last opened from the store. Ordinarily that is the blank
+  // project, and the stored demo is reopened here. Without a blank (phase 1 ended before authoring
+  // it), the last one reopened is the stored demo itself: it is already the session, so it is used
+  // as it is rather than asked to reopen (openProjectById refuses that).
+  async function handoffRoundTrip(plan, report, previousId, reopened) {
+    const opened = reopened === plan.bundled_project_id
+      ? `already open: ${plan.bundled_project_id} was the last project reopened from the store in this phase`
+      : await openProjectById(plan.bundled_project_id, previousId);
+    await log(`handoff basis: ${opened}`);
     const first = await saveHandoff(plan.handoff.path, "handoff/save");
     const second = await saveHandoff(plan.handoff.path, "handoff/replace");
     report.handoff = { opened, first, second };
@@ -198,7 +248,8 @@
   // `path`; then the saved file is re-read with the product's reader. A save refused
   // before its chooser drops the queued path, so it cannot answer a later chooser.
   async function saveReportPackage(path, label) {
-    await showSection("report");
+    // The package controls are part of the rendered-report panel, behind the Report section's gate.
+    await openC2Gate("report", "the rendered report", "rendered-report-panel");
     const intent = await waitFor(`${label}: package controls`, () => byTestId("report-package-private-intent"), 30000);
     const record = {
       label,
@@ -433,13 +484,18 @@
   // at once with its error.
   const UNSOLVED_STATE = /\bstate=(failed|cancelled|refused)(?:;|$)/;
   // The probe a solve wait polls: the job completed with a new proof of
-  // `projectId` (not `priorProof`); a job that ended any other way throws.
+  // `projectId` (not `priorProof`); a job that ended any other way throws. Since
+  // e8a322ac6 a Run is withheld, and no job starts, while a solve-blocking model-check
+  // finding stands; the Solve panel then states why, and that statement ends the wait.
   function solveDone(label, projectId, priorProof, hard) {
     return () => {
       const summary = text("solve-job-summary") ?? "";
       if (UNSOLVED_STATE.test(summary)) throw Object.assign(new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`), { hard });
       const proof = proofText();
-      return summary.includes("state=completed") && proof && proof !== priorProof && proof.includes(`project=${projectId}`);
+      if (summary.includes("state=completed") && proof && proof !== priorProof && proof.includes(`project=${projectId}`)) return true;
+      const withheld = byTestId("solve-withheld-notice");
+      if (withheld) throw Object.assign(new Error(`${label}: ${withheld.textContent.trim().replace(/\s+/g, " ").slice(0, 2000)}`), { hard });
+      return false;
     };
   }
   // A solve that failed, was refused or cancelled, or did not finish in time,
@@ -583,6 +639,9 @@
   // The open's status line repeats from one project open to the next, so the
   // model tree is the witness: the reopened project replaces `previousId`.
   async function openProjectById(projectId, previousId) {
+    // That witness cannot exist for the project already open: its row would have to be shown and
+    // gone at once. Such a request is the driver's own error, so it is named, not waited out.
+    if (projectId === previousId) throw new Error(`reopen ${projectId}: it is already the open project; the driver asked to reopen the project it has open, which the model tree cannot witness`);
     // List once. Listing is a project operation, and a click that lands while
     // a list is in flight is dropped, so a project already listed is opened
     // from the existing list.
@@ -748,9 +807,11 @@
   }
 
   async function renderLocalPrivateReport(label) {
-    await showSection("report");
-    const intent = byTestId("rendered-report-local-private-intent");
-    if (!intent) throw new Error("no local-private report selection");
+    // The panel is behind the Report section's gate (3b953a731): it is read once the full copy lands.
+    await openC2Gate("report", "the rendered report", "rendered-report-panel");
+    // The gate reads again when the result's run record changes; the selection is waited for, briefly.
+    const intent = await waitFor("local-private report selection", () => byTestId("rendered-report-local-private-intent"), 30000)
+      .catch(() => { throw new Error("no local-private report selection"); });
     if (!intent.checked) { intent.click(); await waitFor("report intent", () => byTestId("rendered-report-local-private-intent")?.checked, 10000); }
     await waitFor("render enabled", () => byTestId("rendered-report-render") && !byTestId("rendered-report-render").disabled, 30000);
     click("rendered-report-render");
@@ -772,14 +833,22 @@
     return observation;
   }
 
+  // The Solve section's rule checks, as a person runs them since 8f2b8c42e: Load for rule checks
+  // (the gate, for this result), Load demo rule pack, Run checks. The panel is mounted afresh for
+  // each new result, so both the demo's and the exact route's runs pass through the gate.
   async function runRuleChecks(label) {
-    await showSection("solve");
-    const load = byTestId("rule-check-load-demo");
-    if (load && !load.disabled) { load.click(); await sleep(500); }
-    const run = await waitFor(`${label}: rule-check run enabled`, () => { const button = byTestId("rule-check-run"); return button && !button.disabled ? button : null; }, 30000);
+    const gate = await openC2Gate("solve", "rule checks", "rule-check-run-panel");
+    click("rule-check-load-demo");
+    const run = await waitFor(`${label}: rule-check run enabled`, () => {
+      const status = text("rule-check-run-status") ?? "";
+      if (status.startsWith("RULE-CHECK-DEMO-LOAD-ERROR")) throw new Error(`${label}: ${status}`);
+      const button = byTestId("rule-check-run");
+      return button && !button.disabled ? button : null;
+    }, 30000).catch((error) => { throw new Error(`${error.message}; status="${text("rule-check-run-status")}"`); });
     run.click();
-    const aggregate = await waitFor(`${label}: rule-check aggregate`, () => text("rule-check-aggregate-status"), 120000);
-    const observation = { label, aggregate, status: text("rule-check-run-status"), outcomes: text("rule-check-outcomes")?.slice(0, 600) ?? null };
+    const aggregate = await waitFor(`${label}: rule-check aggregate`, () => text("rule-check-aggregate-status"), 120000)
+      .catch((error) => { throw new Error(`${error.message}; status="${text("rule-check-run-status")}"`); });
+    const observation = { label, gate, aggregate, status: text("rule-check-run-status"), outcomes: text("rule-check-outcomes")?.slice(0, 600) ?? null };
     // A3: the session's run reaches the Results section's stress and ratio table.
     await showSection("results");
     observation.stress_ratio = await waitFor(`${label}: stress and ratio table`, () => (stressRatioStructure()?.rule_groups > 0 ? stressRatioStructure() : null), 15000)
@@ -796,7 +865,9 @@
     const shown = await openModelDocument(plan.exact.path);
     await waitFor("exact model in the model tree", () => treeRow(plan.exact.project_id));
     const solved = await solveCurrent("exact", plan.exact.project_id, null);
-    await showSection("report");
+    // The new result's full copy is read by the Report section's gate (3b953a731) before the panel
+    // exists; sampled earlier, the panel reads as absent.
+    await openC2Gate("report", "the rendered report", "rendered-report-panel");
     // The rendered-report panel's own output gate: it adds no refusal since W-11.
     const renderedPanel = byTestId("rendered-report-panel");
     const gates = {
@@ -945,25 +1016,27 @@
     // The bundled demo is not exempt: saving it over the stored demo asks.
     report.prompts.push(await saveThroughPrompt("file.save-local", "cancel", "bundled-demo/save"));
     let previousId = plan.bundled_project_id;
+    // The project last opened from the store (the session starts on the bundled demo, not stored).
+    let reopened = null;
     for (const doc of plan.documents) {
       report.opened.push({ case: doc.case, message: await openProjectById(doc.project_id, previousId) });
-      previousId = doc.project_id;
+      previousId = reopened = doc.project_id;
       for (const mode of doc.modes) report.observations.push({ case: doc.case, mode, ...(await solve(mode, `${doc.case}/${mode}/reopened`, doc.project_id, doc.probe)) });
     }
     // W-4: the project authored from blank, reopened in this fresh process and solved again.
     if (plan.blank?.project_id) {
       report.opened.push({ case: "blank", message: await openProjectById(plan.blank.project_id, previousId) });
       report.blank = { solve: await solveCurrent("blank/reopened", plan.blank.project_id, plan.blank.probe) };
-      previousId = plan.blank.project_id;
+      previousId = reopened = plan.blank.project_id;
     }
     // W-6b: last, so nothing the earlier checks observe changes.
-    if (plan.handoff) await handoffRoundTrip(plan, report, previousId);
+    if (plan.handoff) await handoffRoundTrip(plan, report, previousId, reopened);
   }
 
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_NATIVE_SMOKE_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics, awaitBlankProject, showSection, showOperations, closeSection, ensureInspector });
+    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics, awaitBlankProject, showSection, showOperations, closeSection, ensureInspector, openC2Gate, runRuleChecks, openProjectById, handoffRoundTrip });
     return;
   }
 
