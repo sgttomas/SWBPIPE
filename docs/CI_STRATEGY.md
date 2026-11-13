@@ -310,12 +310,17 @@ both readers with `HEADLESS_ARTIFACTS_REQUIRED=1`, which turns a skip into a
 failure, and fails unless every reader test ran and passed; its log gives the
 artifact and test counts. The shard's existing selection covers the runner and
 the result contract. `piping_artifact_readers` in `tools/hosted-ci-routing.json`
-adds the readers: a change to either reader, or to any `tests/` file in its
-transitive imports (the verifiers and `tests/schema_validation.py`, derived by
-`tools/ci/python_test_reads.py` at selection time), selects the headless crate.
-Such a change also runs the headless crate's whole Cargo suite on that shard, an
-accepted cost. An invalid declaration, or imports that cannot be derived, select
-every crate.
+adds the readers: a change to either reader, to the `tests/conftest.py` that
+pytest loads for them, or to any `tests/` file in their transitive imports (the
+verifiers and `tests/schema_validation.py`, derived by
+`tools/ci/python_test_reads.py` at selection time) adds the headless crate to
+whatever else that path selects. Such a change also runs the headless crate's
+whole Cargo suite on that shard, an accepted cost. Every crate is selected when
+the declaration is not a mapping (including null), when a declared reader or
+producer does not resolve, when a project module the readers import does not
+resolve, when the diff deletes a file they load, or when their imports cannot be
+derived. The production profile's two entries are held by
+`tests/test_ci_numerical.py`; a profile without the section has no such rule.
 
 No post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or

@@ -328,41 +328,84 @@ def cargo_dependencies(project, manifests):
     return dependencies
 
 
-def artifact_producers(project, manifests, readers):
-    """{changed tests/ path: manifests} for declared Python readers of artifacts that a crate's own tests write.
+def _artifact_reader_files(reads, project, tracked, local):
+    """One file of a declared artifact reader's load: (its own unresolved import candidates, as project paths).
 
-    Each declared reader names the manifests whose tests produce what it reads. The reader and every tests/ file
-    in its transitive imports, derived by tools/ci/python_test_reads.py at selection time, select those crates, so
-    their shard writes the artifacts and runs the reader on them. A reader that is not a tracked Python file under
-    tests/, an undiscovered manifest or a derivation that cannot be made rejects reduced selection."""
+    Stricter than tools/ci/python_test_reads.py, whose Python test selection keeps a superset root rather than
+    fail: here an imported module whose top-level name is project-local but which does not resolve raises, and the
+    paths at which every other unresolved name would resolve are returned, so that a change deleting one of them
+    can be refused. `from M import name` may import an attribute of module M, so M.name need not resolve when M is
+    a module file."""
+    reader = reads._reader(project, local)
+    dirs = reader.search_dirs()
+    def resolved(module):
+        return next((found for d in dirs if (found := reads._module_file(project, tracked, d, module))), None)
+    missing = set()
+    for name in sorted(reader.imports()):
+        if resolved(name):
+            continue
+        parent = name.rpartition('.')[0]
+        found = resolved(parent) if parent else None
+        if found and not found.endswith('/__init__.py'):
+            continue  # an attribute of a module file
+        top = name.partition('.')[0]
+        if any((f'{d}/{top}' if d else top) in tracked for d in dirs) or resolved(top):
+            raise ValueError(f'Unresolved local import {name} in {local}')
+        stem = name.replace('.', '/')
+        missing.update(f'{d}/{c}' if d else c for d in dirs for c in (f'{stem}.py', f'{stem}/__init__.py'))
+    return missing
+
+
+def artifact_producers(project, manifests, readers):
+    """Declared Python readers of artifacts that a crate's own tests write: ({path: manifests}, missing paths).
+
+    Each declared reader names the manifests whose tests produce what it reads. The reader, every conftest.py that
+    pytest loads for it (in its directory or an ancestor) and every tests/ file in their transitive imports, derived
+    by tools/ci/python_test_reads.py at selection time, select those crates, so their shard writes the artifacts and
+    runs the reader on them. The missing paths are where an absent conftest.py or an unresolved imported module
+    would be: a change that deletes one is refused by the caller. A declaration that is not a mapping, a reader that
+    is not a tracked Python file under tests/, an undiscovered manifest, an imported project module that does not
+    resolve or a derivation that cannot be made rejects reduced selection."""
     if not isinstance(readers, dict):
         raise ValueError('Invalid artifact reader declaration')
     if not readers:
-        return {}
+        return {}, frozenset()
     known = {m.as_posix() for m in manifests}
     try:
         reads = load_module('numerical_python_test_reads', HERE / 'python_test_reads.py')
         tracked = reads.tracked(project)
     except Exception as exc:
         raise ValueError(f'Artifact reader imports cannot be derived: {type(exc).__name__}: {exc}') from exc
-    producers = {}
+    producers, missing = {}, set()
     for reader, producing in readers.items():
         if (not isinstance(reader, str) or not reader.startswith('tests/') or not reader.endswith('.py')
                 or reader not in tracked or not (project / reader).is_file()):
             raise ValueError('Unresolved artifact reader: ' + str(reader))
         if not isinstance(producing, list) or not producing or not all(isinstance(m, str) and m in known for m in producing):
             raise ValueError('Unresolved artifact producer for ' + reader)
+        parts = reader.split('/')[:-1]
+        conftests = ['/'.join(parts[:end] + ['conftest.py']) for end in range(len(parts) + 1)]
+        loaded = [c for c in conftests if c in tracked and (project / c).is_file()]
+        missing.update(c for c in conftests if c not in loaded)
         try:
-            closure = reads._closure(project, reader)
+            closure = {local for start in [reader, *loaded] for local in reads._closure(project, start)}
+            for local in sorted(closure):
+                missing |= _artifact_reader_files(reads, project, tracked, local)
+        except ValueError:
+            raise
         except Exception as exc:
             raise ValueError(f'Artifact reader imports cannot be derived for {reader}: {type(exc).__name__}: {exc}') from exc
         for local in closure:
-            if local.startswith('tests/'):
+            if local.startswith('tests/') or local in loaded:
                 producers.setdefault(local, set()).update(Path(m) for m in producing)
-    return producers
+    return producers, frozenset(missing)
 
 
-def numerical_selection(project, manifests, paths, declarations=None, ignored_paths=(), artifact_readers=None):
+# No artifact reader declaration was given (direct callers); an explicit None is an invalid declaration.
+UNDECLARED = object()
+
+
+def numerical_selection(project, manifests, paths, declarations=None, ignored_paths=(), artifact_readers=UNDECLARED):
     manifests = sorted(manifests)
     reasons, selected = [], set()
     def full(reason):
@@ -380,7 +423,7 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
                     raise ValueError('Missing or empty cargo input: ' + str(path))
         dependencies = cargo_dependencies(project, manifests)
         resources = source_read_dependencies(project, manifests, declarations)
-        producers = artifact_producers(project, manifests, {} if artifact_readers is None else artifact_readers)
+        producers, missing = artifact_producers(project, manifests, {} if artifact_readers is UNDECLARED else artifact_readers)
     except (ValueError, OSError, KeyError, TypeError, AttributeError, tomllib.TOMLDecodeError) as exc:
         return full(str(exc))
     ignored = set(ignored_paths)
@@ -391,6 +434,8 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
                 continue
             return full('Shared or unknown numerical input: ' + path)
         relative = Path(path[len(PROJECT):])
+        if relative.as_posix() in missing and not (project / relative).exists():
+            return full('A file a declared artifact reader loads is missing: ' + path)
         readers = resources.get(relative.as_posix(), set())
         owners = {m for m in manifests if relative.is_relative_to(m.parent)} if relative.suffix == '.rs' or relative.name in {'Cargo.toml', 'Cargo.lock'} else set()
         for manifest in sorted(owners):
@@ -399,10 +444,11 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
         for manifest in sorted(readers):
             selected.add(manifest)
             reasons.append({'path': path, 'kind': 'exact-file-reader', 'manifest': manifest.as_posix()})
+        # The artifact-reader rule only adds: the path keeps whatever else it selects, including a fallback.
         for manifest in sorted(producers.get(relative.as_posix(), ())):
             selected.add(manifest)
             reasons.append({'path': path, 'kind': 'artifact-reader', 'manifest': manifest.as_posix()})
-        if owners or readers or relative.as_posix() in producers:
+        if owners or readers:
             continue
         if path in ignored:
             reasons.append({'path': path, 'kind': 'mapped-other-checks'})
