@@ -77,9 +77,12 @@ once 2 min later. The run stops at the first unclean settings check, a failed
 check before a model, or a round trip that raised twice; the GUI print fallback
 is used only with restore_scope "key" (Design §5). --offline builds the records
 from the stored, bound CSVs. Each case's SWBPIPE request and result are created
-once and never replaced: a case that already holds either is refused by name
-(already_recorded), live or offline, before anything is solved or written, and the
-one retry of a model reuses its own solve. The case manifest's custody member
+once and never replaced: a case that already holds either is refused by name,
+live or offline, at admission, before anything is solved or any folder is created:
+already_recorded when a readable case manifest records custody for it (the reason
+carrying that manifest's outcome and route), manifest_unreadable when the manifest
+cannot be read, and half_made otherwise. Offline, a case with no folder is refused
+as no_stored_case. The one retry of a model reuses its own solve. The case manifest's custody member
 records the SWBPIPE commit and whether its tree was clean, the runner binary's
 SHA-256, and the SHA-256 of the request and result the run created.
 --collect-only (live only) stops each model once its SWBPIPE request and result are
@@ -428,13 +431,26 @@ def _source_identity() -> dict[str, Any]:
 
 def _resolve_runner(runner: str) -> str:
     """The runner as the absolute real path that will be executed: a bare name is looked up on PATH, as
-    subprocess does, and a path is resolved; the same string is hashed and run."""
+    subprocess does (one not found there is resolved against the working directory, where subprocess would not
+    look), and a path is resolved; the same string is hashed and run."""
     path = Path(runner)
     if os.sep not in runner and not (os.altsep and os.altsep in runner):
         found = shutil.which(runner)
         if found:
             path = Path(found)
     return str(path.resolve())
+
+
+def _recorded_manifest(path: Path) -> dict[str, Any] | None:
+    """A case manifest as read at admission: {} when there is none, the manifest when it reads as a JSON object,
+    None when it exists and cannot be read as one."""
+    if not os.path.lexists(path):
+        return {}
+    try:
+        value = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return value if isinstance(value, dict) else None
 
 
 class CustodyChanged(RuntimeError):
@@ -949,12 +965,19 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     if solved is None and (os.path.lexists(request_path) or os.path.lexists(result_path)):
         # The SWBPIPE request and result of a case are created once and never replaced: a later revision is a
         # separately identified comparison in case folders of its own, never a rewrite of the first.
-        if os.path.lexists(case_root / "case_manifest.json"):
-            route, reason = "already_recorded", "this case already holds a SWBPIPE request or result, which are " \
-                                                "never replaced"
+        # Classified by whether a readable case manifest records custody (a request digest), not by whether a
+        # manifest file exists: one written before the solve (an MBF refusal) records none.
+        recorded = _recorded_manifest(case_root / "case_manifest.json")
+        if recorded is None:
+            route, reason = "manifest_unreadable", ("this case holds a SWBPIPE request or result and its case manifest "
+                                                    "cannot be read; it is never made again under its id")
+        elif isinstance((recorded.get("custody") or {}).get("request_sha256"), str):
+            route, reason = "already_recorded", (
+                "this case already holds a SWBPIPE request or result, which are never replaced; its case manifest "
+                f"records outcome {recorded.get('outcome')!r}, route {recorded.get('route')!r}")
         else:
-            route, reason = "half_made", ("this case is half-made: a SWBPIPE request or result exists with no case "
-                                          "manifest; it is never made again under its id")
+            route, reason = "half_made", ("this case is half-made: a SWBPIPE request or result exists and no case "
+                                          "manifest records custody for it; it is never made again under its id")
         emit(f"{model_id}: route={route}; {reason}; not run")
         return NOT_RUN, route, reason
     if offline and not os.path.lexists(case_root):
@@ -971,6 +994,15 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         if status == NOT_RUN:
             emit(f"{model_id}: route={route}; {reason}; no benchmark record")
         return status, route, reason
+
+    def guard_stop(settings: Any) -> None:
+        # A settings stop ends a round trip that concluded: its outcome is recorded (through the same manifest
+        # update and custody check as every later write) before the stop is raised.
+        try:
+            _guard_stop(config, model_id, settings, emit)
+        except RunStopped:
+            outcome(RETRY, "settings_stop", "the round trip's settings check was not clean; the run stopped")
+            raise
 
     mbf = render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
                                 reference_temperature_c=entry.get("reference_temperature_c", 20.0),
@@ -1018,8 +1050,9 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         "piping_code": entry["piping_code"], "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report,
         "assumptions": mbf.assumptions, "mbf_sha256": mbf_sha256})
     if not offline:
-        # Before the round trip: the runner (resolved path, size, SHA-256) and the checkout's commit must still be what
-        # the solve recorded; an ordinary change refuses by name, and the case is left half-made with its custody.
+        # Before the round trip: the size and SHA-256 of the runner at its resolved path, and the checkout's commit,
+        # must still be what the solve recorded; an ordinary change refuses by name, and the case keeps its custody
+        # manifest, with outcome no_record and route identity_changed.
         if _runner_identity(identity["path"]) != identity \
                 or _source_identity().get("source_commit") != custody.get("source_commit"):
             return outcome(NOT_RUN, "identity_changed", "the runner or the SWBPIPE checkout changed after the solve")
@@ -1027,10 +1060,10 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
             record = round_trip(config, model_id, mbf_text, gui_fallback=gui_fallback)
         except Exception as error:
             emit(f"{model_id}: round trip raised {type(error).__name__}: {error}")
-            _guard_stop(config, model_id, getattr(error, "settings_guard", None), emit)
+            guard_stop(getattr(error, "settings_guard", None))
             return outcome(RETRY, "round_trip_raised", f"the round trip raised {type(error).__name__}")
         # The guard comes first: any other outcome still stops the run on it.
-        _guard_stop(config, model_id, record.get("settings_guard"), emit)
+        guard_stop(record.get("settings_guard"))
         if not gui_fallback and record.get("route") == "batch_no_csv":
             outcome(RETRY, "batch_no_csv", "the batch run left no CSV and the GUI fallback is off")
             emit(f"{model_id}: route=batch_no_csv; the GUI fallback is off for this run; stopped")

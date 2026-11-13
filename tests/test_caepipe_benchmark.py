@@ -903,32 +903,58 @@ def test_the_case_manifest_binds_the_revision_runner_request_and_result(fake_ben
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
     custody = json.loads((case / "case_manifest.json").read_text())["custody"]
     assert set(custody) == set(run_pilot.BENCHMARK_CUSTODY_KEYS)
-    head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True)
-    assert custody["source_commit"] == (head.stdout.strip() if head.returncode == 0 else None)
+    assert custody["source_commit"] == checkout_head()
     assert custody["source_tree_clean"] in (True, False, None)
     assert custody["runner_sha256"] == hashlib.sha256(Path(state["runner"]).read_bytes()).hexdigest()
     for name in ("request", "result"):
         assert custody[f"{name}_sha256"] == hashlib.sha256((case / "swbpipe" / f"{name}.json").read_bytes()).hexdigest()
 
 
+def checkout_head() -> str | None:
+    """This checkout's commit, asked of Git with the inherited GIT_* variables removed."""
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True, env=env)
+    return head.stdout.strip() if head.returncode == 0 else None
+
+
+def test_an_inherited_git_dir_does_not_change_the_recorded_commit(fake_benchmark, monkeypatch, tmp_path):
+    """Run from a Git hook, GIT_DIR would name another repository; the custody still records this checkout's commit."""
+    state = fake_benchmark
+    other = tmp_path / "other"
+    subprocess.run(["git", "init", "-q", str(other)], check=True)
+    monkeypatch.setenv("GIT_DIR", str(other / ".git"))
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
+    manifest = state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json"
+    assert json.loads(manifest.read_text())["custody"]["source_commit"] == checkout_head()
+
+
 def test_a_half_made_case_is_refused_by_name_and_left_as_it_is(fake_benchmark, monkeypatch, capsys):
-    """Seeded, the two half-made forms an interrupt after authorised creation can leave: a request alone, and a request
-    and result, each with no case manifest. A later invocation refuses each by name, before any solve, and leaves it
-    exactly as it is."""
+    """Seeded, the half-made forms an interrupt after authorised creation can leave (a request alone; a request and
+    result), a result alone, and stored files beside a case manifest that records no custody (one written before the
+    solve). A later invocation refuses each by name, before any solve, and leaves it exactly as it is; a manifest that
+    cannot be read is refused by its own name."""
     state = fake_benchmark
     solves = []
     monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
         {"invented": True}, {"payload": invented_payload()}, ""))
     root = state["config"].exchange_root
-    for case_id, names in (("cpb-g1-01", ("request.json",)), ("cpb-g1-02", ("request.json", "result.json"))):
+    no_custody = json.dumps({"outcome": "no_record", "route": "not_run",
+                             "custody": dict.fromkeys(run_pilot.BENCHMARK_CUSTODY_KEYS)})
+    seeds = {"cpb-g1-01": (("request.json",), None), "cpb-g1-02": (("request.json", "result.json"), None),
+             "cpb-g1-03": (("result.json",), None), "cpb-g1-04": (("request.json",), no_custody),
+             "cpb-g1-05": (("request.json",), "{ NOT JSON")}
+    for case_id, (names, manifest) in seeds.items():
         folder = root / "cases" / case_id / "swbpipe"
         folder.mkdir(parents=True)
         for name in names:
             (folder / name).write_text("INVENTED STORED FILE\n", encoding="utf-8")
+        if manifest is not None:
+            (folder.parent / "case_manifest.json").write_text(manifest, encoding="utf-8")
     before = tree_bytes(root)
-    for case_id in ("cpb-g1-01", "cpb-g1-02"):
+    for case_id in seeds:
+        expected = "manifest_unreadable; this case holds" if case_id == "cpb-g1-05" else "half_made; this case is half-made"
         assert run_pilot.main(state["argv"] + ["--case", case_id], environ={}) == 1
-        assert f"{case_id}: route=half_made; this case is half-made" in capsys.readouterr().out
+        assert f"{case_id}: route={expected}" in capsys.readouterr().out
     assert solves == [] and state["calls"] == [] and tree_bytes(root) == before
 
 
@@ -940,7 +966,8 @@ def test_an_admission_refusal_of_a_recorded_case_creates_no_folder(fake_benchmar
     case = root / "cases" / "cpb-g1-01"
     (case / "swbpipe").mkdir(parents=True)
     (case / "swbpipe" / "request.json").write_text("INVENTED\n", encoding="utf-8")
-    (case / "case_manifest.json").write_text("{}\n", encoding="utf-8")
+    (case / "case_manifest.json").write_text(json.dumps({"outcome": "invented", "route": "invented",
+                                                         "custody": {"request_sha256": "0" * 64}}), encoding="utf-8")
     before = tree_bytes(root)
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     assert "cpb-g1-01: route=already_recorded;" in capsys.readouterr().out
@@ -983,7 +1010,8 @@ def _collecting_round_trip(config_, case_id, mbf_text, **kwargs):
 
 def test_the_custody_is_on_disk_when_the_round_trip_starts(fake_benchmark):
     """At the moment the round trip is invoked, the persisted case manifest already binds the two stored files; an
-    interrupt there leaves that custody recorded and the case half-made with its manifest."""
+    interrupt there leaves that custody recorded, with the manifest still at outcome "solved": a round trip that did
+    not conclude."""
     state = fake_benchmark
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
     seen = {}
@@ -1047,7 +1075,8 @@ def test_a_custody_changed_on_disk_is_refused_and_nothing_written(fake_benchmark
 @pytest.mark.parametrize("change", ["runner", "commit"])
 def test_a_changed_runner_or_checkout_refuses_before_the_round_trip(fake_benchmark, monkeypatch, change):
     """Assumed stable through the invocation, the runner and the checkout are checked again before the round trip; an
-    ordinary change refuses by name, leaving the case half-made with its custody."""
+    ordinary change refuses by name, and the case keeps its custody manifest (outcome no_record, route
+    identity_changed), which a later invocation refuses as already recorded, naming that outcome and route."""
     state = fake_benchmark
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
     real_solve = run_pilot.solve_swbpipe
@@ -1067,6 +1096,38 @@ def test_a_changed_runner_or_checkout_refuses_before_the_round_trip(fake_benchma
     assert (status, route, calls) == (run_pilot.NOT_RUN, "identity_changed", [])
     manifest = json.loads((case / "case_manifest.json").read_text())
     assert manifest["outcome"] == "no_record" and manifest["custody"]["request_sha256"]
+    before = tree_bytes(state["config"].exchange_root)
+    status, route, reason = run_pilot._run_benchmark_model(
+        _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
+        round_trip=lambda *a, **k: calls.append(1), gui_fallback=False, attempt=1, collect_only=True)
+    assert (status, route, calls) == (run_pilot.NOT_RUN, "already_recorded", [])
+    assert "records outcome 'no_record', route 'identity_changed'" in reason
+    assert tree_bytes(state["config"].exchange_root) == before
+
+
+def test_a_settings_stop_records_its_outcome_before_it_stops(fake_benchmark):
+    """A round trip that concluded with an unclean settings check: the outcome is written (keeping the custody)
+    before the run stops, so the manifest is not left at "solved"."""
+    state = fake_benchmark
+    state["outcomes"][:] = [{"route": "timeout", "settings_guard": {"status": "owned_process_running"}}]
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
+    manifest = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
+    assert (manifest["outcome"], manifest["route"]) == ("no_record", "settings_stop")
+    assert manifest["custody"]["request_sha256"]
+
+
+def test_an_unreadable_manifest_is_refused_on_a_later_write(fake_benchmark):
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+
+    def round_trip(config_, case_id, mbf_text, **kwargs):
+        (case / "case_manifest.json").write_text("{ NOT JSON", encoding="utf-8")
+        return _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
+    with pytest.raises(run_pilot.CustodyChanged, match="cannot be read"):
+        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       collect_only=True)
+    assert (case / "case_manifest.json").read_text(encoding="utf-8") == "{ NOT JSON"
 
 
 def test_the_runner_hashed_is_the_runner_run(fake_benchmark, monkeypatch, tmp_path):
@@ -1179,6 +1240,18 @@ def test_offline_leaves_a_case_without_a_bound_print_untouched(fake_benchmark):
     created."""
     state = fake_benchmark
     root = state["config"].exchange_root
+    before = tree_bytes(root)
+    offline = ["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline", "--case", "cpb-g1-03"]
+    assert run_pilot.main(offline, environ={}) == 1
+    assert tree_bytes(root) == before
+
+
+def test_offline_a_stored_folder_without_a_bound_print_is_refused_before_any_solve(fake_benchmark):
+    """Seeded: offline, a case whose folders exist and hold no stored, bound print is refused before anything is
+    solved, so no SWBPIPE request or result is created and nothing changes."""
+    state = fake_benchmark
+    root = state["config"].exchange_root
+    case_paths(state["config"], "cpb-g1-03")
     before = tree_bytes(root)
     offline = ["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline", "--case", "cpb-g1-03"]
     assert run_pilot.main(offline, environ={}) == 1
