@@ -285,7 +285,7 @@
       "core/solver/nonlinear_integration/Cargo.toml": "7fe7a344af40736a980765d9c96edcf201210b20d610101a9988665115a5b2cf",
       "core/solver/nonlinear_supports/Cargo.toml": "c34c7d2a46294e3c2ab57b4b15028c48664670dfe25278b8b6d22147743a10a6",
       "core/solver/performance_harness/Cargo.toml": "af149ad58e5cb3bb646248e6196496e41d4749b4dc7cc67cdac341f04d2bae47",
-      "core/solver/release_timing/Cargo.toml": "3a9145d9c3023bd7f75fc21da33c9b3ee9973b8206278707df04506355185a35",
+      "core/solver/release_timing/Cargo.toml": "27ee5d434ac2faf7c5c3309337ce5c1f6cbfed453453bee063e7d7f4e64592f8",
       "core/solver/sparse_direct/Cargo.toml": "0bbbf9fbe14e2bbf47574c1daf5e9ef42b8d0b1b3b60588e87d83b7da7cde181",
       "core/solver/straight_pipe/Cargo.toml": "e09dcd581ac02093f6c4501abcdabed8df5c9d8e77ac4595f3cccfb94c2a3e67",
       "core/units/Cargo.toml": "4b50bd105464cc05c99d661414581555a27806864bf3cb991d15bdc26fa77cb6",
@@ -3012,7 +3012,12 @@
               "core/solver/performance_harness/src/k6/w1/rows.rs",
               "core/solver/performance_harness/src/k6/w1/staged.rs",
               "core/solver/performance_harness/src/lib.rs",
+              "core/solver/release_timing/build.rs",
+              "core/solver/release_timing/src/classify.rs",
+              "core/solver/release_timing/src/host.rs",
+              "core/solver/release_timing/src/lib.rs",
               "core/solver/release_timing/src/main.rs",
+              "core/solver/release_timing/src/supervise.rs",
               "core/solver/sparse_direct/src/lib.rs",
               "core/solver/sparse_direct/src/structural.rs",
               "core/solver/sparse_direct/src/structural/k1_tests.rs",
@@ -3562,6 +3567,7 @@
           "core/rules/rule_check_runner/Cargo.toml",
           "core/rules/rule_pack_document/Cargo.toml",
           "core/rules/rule_pack_lifecycle/Cargo.toml",
+          "core/solver/release_timing/Cargo.toml",
           "validation/benchmarks/physics_audit_regression/Cargo.toml"
         ],
         "inputs": [
@@ -6133,7 +6139,7 @@
         ]
       },
       "core/solver/release_timing/src/main.rs": {
-        "sha256": "2b9c8efe950c78aa30e118b74828dc71a66fcf2004ddfb92f063d4d59a3e55d9",
+        "sha256": "fa504c3e75848646844d2427dd82a44e2920de4c266d1f701818b7cb5ebd5e08",
         "source_trees": [
           "core/solver/release_timing/Cargo.toml"
         ],
@@ -6144,7 +6150,7 @@
         }
       },
       "core/solver/release_timing/tests/release_timing.rs": {
-        "sha256": "014203aba82cf0669f5fbd488a6c3e70a7f87dfed2197c873864f806576e314a",
+        "sha256": "2e94e3725164ecb32951ed98b635d51505e936c9a3270ff3c54f8f76a7b950e4",
         "source_trees": [
           "core/solver/release_timing/Cargo.toml"
         ],
@@ -6230,6 +6236,36 @@
             ]
           }
         ]
+      },
+      "core/solver/release_timing/src/supervise.rs": {
+        "sha256": "05d1034fd246b840fd81d3cd7a3cedd049df8fbea4e3463094ad95d767656069",
+        "source_trees": [
+          "core/solver/release_timing/Cargo.toml"
+        ],
+        "inputs": [],
+        "external_reads": {
+          "kind": "audited-external-inputs",
+          "reason": "The supervise mode reads the user-supplied plan, its models folder, this binary and the records it writes in the user-supplied output folder; no default repository file."
+        }
+      },
+      "core/solver/release_timing/tests/supervise.rs": {
+        "sha256": "386ca94c71e8b979ce59a702dfdfcfe436e1e93ddcc3b8786a7deca475f3e2d1",
+        "source_trees": [
+          "core/solver/release_timing/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "../../../fixtures/product_preview/invented_demo_model.json",
+            "base": "manifest",
+            "files": [
+              "fixtures/product_preview/invented_demo_model.json"
+            ]
+          }
+        ],
+        "external_reads": {
+          "kind": "audited-external-inputs",
+          "reason": "The live tests read the records the supervisor writes in a temporary folder."
+        }
       }
     }
   },

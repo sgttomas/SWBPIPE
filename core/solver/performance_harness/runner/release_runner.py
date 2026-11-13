@@ -2,8 +2,9 @@
 """DEL-04-05 release timing runner (RT-U4, release target exit criterion 9): standard library only.
 
 It runs the release timing driver (``core/solver/release_timing``,
-binary ``release_timing``, schema ``release-timing-v1``) on invented rack
-models, one process at a time, each under K6's launch machinery
+binary ``release_timing``, schema ``release-timing-v2``) on invented rack
+models, one process at a time (a solve run, or a model-checks run of the
+desktop's on-demand model checks), each under K6's launch machinery
 (``k6_runner.launch``: ``/usr/bin/time -l``, the 100 ms ``ps`` RSS watchdog, the
 timeout and the process-group kill, and its record files), and gathers a
 compact packet. A footprint watchdog emulates the product's memory budget: every
@@ -50,7 +51,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..', '..'))
 GENERATOR = os.path.join(HERE, '..', 'rack', 'rack_model.py')
 
-DRIVER_SCHEMA = 'release-timing-v1'
+DRIVER_SCHEMA = 'release-timing-v2'
 RECORD_SCHEMA = 'release-runner-record-v1'
 PACKET_SCHEMA = 'release-timing-packet-v1'
 MANIFEST_SCHEMA = 'release-models-manifest-v1'
@@ -63,58 +64,92 @@ PROGRESS_PREFIX = 'release-timing-stage '
 WINDOW_BUDGET_S = 900
 QUIET_WAIT_S = 60
 SOLVED = 'MECHANICS_SOLVED'
+# The driver's status for a `--model-checks` run whose checks returned a report (whatever it found).
+CHECKS_REPORTED = 'MODEL_CHECKS_REPORTED'
 PROFILES = ('linear-ex', 'nonlinear-ex', 'nonlinear-pf')
 MODES = ('sparse', 'dense')
+# A run's task: the driver's solve invocation, or its `--model-checks` invocation (the desktop's
+# on-demand model checks, a process of their own).
+TASKS = ('solve', 'model_checks')
 
-# The default plan, in run order. Estimates are dry runs of these rack models with this driver
-# on one shared slot of the development host (main 7e061cf2e; not measurements); they order the
-# window and bound it, nothing else. Dry runs: linear-ex 250 nodes 27 s and 2.7 GB peak footprint,
-# 500 nodes 76 s and 5.6 GB; nonlinear-pf 500 nodes 97 s and 1,000 nodes 1,466 s (the dense
-# nonlinear loop's Cholesky per friction iteration; RT-A3 stage P).
+# The default plan, in run order. Estimates order the window and bound it, nothing else; none is
+# a measurement. The linear-ex estimates follow the records taken after the published-row index
+# (RT-A3 increment 1b): 142 s at 1,000 nodes in an exclusive window, and the desktop worker's 58 s
+# at 500 nodes. The nonlinear estimates are assumptions: no run of either nonlinear rack exists
+# since RT-A3 stage P moved the sparse-mode loop onto the sparse pattern, and the nonlinear-pf
+# figures before it (97 s at 500 nodes, 1,466 s at 1,000) no longer describe that loop. A timeout
+# is generous because a timed-out run records only the stage it reached.
 _DEFAULT = (
     # profile, nodes, timeout_s, estimate_s, expect
-    ('linear-ex', 250, 120, 30, 'solved'),
-    ('linear-ex', 500, 240, 80, 'solved'),
-    ('linear-ex', 1000, 480, 220, 'solved'),
+    ('linear-ex', 250, 120, 25, 'solved'),
+    ('linear-ex', 500, 240, 60, 'solved'),
+    ('linear-ex', 1000, 900, 150, 'solved'),
     # Its attribution twin: stack snapshots while it runs (timings perturbed, not measurements).
-    ('linear-ex', 1000, 480, 240, 'solved', True),
-    # Projected above the 12 GiB base-machine budget (about 22 GB) and beyond one window.
+    ('linear-ex', 1000, 900, 170, 'solved', True),
+    # Expected over the 12 GiB base-machine budget or beyond one window.
     ('linear-ex', 2000, 900, 650, 'exceeds_base_machine_budget'),
-    ('nonlinear-pf', 250, 60, 15, 'solved'),
-    ('nonlinear-pf', 500, 240, 100, 'solved'),
-    # Refused before any n^2 allocation by the nonlinear loop's dense-memory guard.
+    ('nonlinear-pf', 250, 120, 30, 'solved'),
+    ('nonlinear-pf', 500, 240, 90, 'solved'),
+    # Refused before any case by the nonlinear admission cap (nonlinear_integration
+    # `DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY`), which sparse mode keeps although its loop no longer
+    # holds the dense buffers the estimate counts.
     ('nonlinear-pf', 2000, 60, 2, 'refused:NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED'),
-    # The dense loop's cubic cost puts these beyond one window until RT-A3 stage P.
-    ('nonlinear-pf', 1000, 2400, 1500, 'solved'),
-    ('nonlinear-pf', 1500, 7200, 5000, 'solved'),
-    # Since RT-A3 increment 4 the exact route carries the rack's nonlinear supports (rack_model.py),
-    # so nonlinear-ex runs the same dense active-set loop and shares nonlinear-pf's supports and
-    # restrained DOFs: the dense-memory guard refuses criterion 9's 2,000 nodes before any case,
-    # and 1,000 nodes takes the dense loop's cost. Their timeout and estimate are nonlinear-pf's at
-    # the same size, assumed, not dry runs or measurements of nonlinear-ex.
+    ('nonlinear-pf', 1000, 900, 300, 'solved'),
+    ('nonlinear-pf', 1500, 1800, 700, 'solved'),
+    # The exact route carries the rack's nonlinear supports since RT-A3 increment 4
+    # (rack_model.py), so nonlinear-ex runs the same active-set loop as nonlinear-pf on the same
+    # supports and restrained DOFs, and the cap refuses criterion 9's 2,000 nodes before any case.
     ('nonlinear-ex', 2000, 60, 2, 'refused:NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED'),
-    ('nonlinear-ex', 1000, 2400, 1500, 'solved'),
+    # A stack-sampled run on main c407e3db0 (not a timing) ended in 24 s at 1,000 nodes.
+    ('nonlinear-ex', 250, 120, 15, 'solved'),
+    ('nonlinear-ex', 500, 240, 30, 'solved'),
+    ('nonlinear-ex', 1000, 900, 60, 'solved'),
+    # The desktop's on-demand model checks, each a process of its own (the driver's --model-checks
+    # invocation) on the same racks: the checks before stiffness formation and the model-data slot
+    # checks, no solve. The estimates are assumptions (no run of them exists); none is a measurement.
+    ('linear-ex', 1000, 120, 10, 'ok', False, 'model_checks'),
+    ('linear-ex', 2000, 120, 15, 'ok', False, 'model_checks'),
+    ('nonlinear-ex', 2000, 120, 15, 'ok', False, 'model_checks'),
+    ('nonlinear-pf', 2000, 120, 15, 'ok', False, 'model_checks'),
 )
+
+
+def _solve(r):
+    return r['task'] == 'solve'
+
 
 SUBSETS = {
     'all': lambda r: True,
     # One exclusive window of at most 15 minutes: the scaling points that fit.
-    'window': lambda r: not r['attribute'] and (r['profile'], r['nodes']) in {
+    'window': lambda r: _solve(r) and not r['attribute'] and (r['profile'], r['nodes']) in {
         ('linear-ex', 250), ('linear-ex', 500), ('linear-ex', 1000), ('nonlinear-pf', 250), ('nonlinear-pf', 500),
         ('nonlinear-pf', 2000), ('nonlinear-ex', 2000)},
     # A second window: linear-ex 1000 timed, then its attribution twin.
-    'window2': lambda r: (r['profile'], r['nodes']) == ('linear-ex', 1000),
+    'window2': lambda r: _solve(r) and (r['profile'], r['nodes']) == ('linear-ex', 1000),
+    # One window for the growth law of both exact-route profiles below the nonlinear cap.
+    'scaling': lambda r: _solve(r) and not r['attribute'] and r['profile'] in ('linear-ex', 'nonlinear-ex')
+    and r['nodes'] in (250, 500, 1000),
+    # The same, then the linear rack at criterion 9's size, where a longer window allows it.
+    'scaling-2000': lambda r: _solve(r) and not r['attribute'] and (
+        (r['profile'] in ('linear-ex', 'nonlinear-ex') and r['nodes'] in (250, 500, 1000))
+        or (r['profile'], r['nodes']) == ('linear-ex', 2000)),
     'linear': lambda r: r['profile'] == 'linear-ex',
     'nonlinear-pf': lambda r: r['profile'] == 'nonlinear-pf',
     'nonlinear-ex': lambda r: r['profile'] == 'nonlinear-ex',
     'nonlinear': lambda r: r['profile'] in ('nonlinear-pf', 'nonlinear-ex'),
+    # Criterion 9's size: its solves, and the model checks on the same racks.
     'criterion': lambda r: r['nodes'] == 2000,
+    'model-checks': lambda r: r['task'] == 'model_checks',
 }
 
 CONDITIONS = (
-    'Engine stages only: the release_timing driver runs, in one process, the stages the desktop solve worker runs for '
-    'an ordinary solve (read, parse, request, entry, serialize, release_envelope, parse_back). The desktop app, its IPC '
-    'and ingress, the worker process protocol and memory pool, the solve attestation digests and the webview are not '
+    'Engine stages only. A solve run: the release_timing driver runs, in one process, the stages the desktop solve '
+    'worker runs for an ordinary solve (read, parse, request, entry, serialize, release_envelope, parse_back) and '
+    'nothing else; parse_back is a cheaper stand-in for the worker\'s read-back of the result text, so the driver\'s '
+    'time and memory from serialize on are lower bounds on the worker\'s, not a measured worker peak. A model-checks '
+    'run (task model_checks, run id model-checks-...) is a process of its own: the stages the desktop\'s check worker '
+    'runs for the on-demand model checks (read, parse, model_checks, serialize). The desktop app, its IPC and '
+    'ingress, the worker process protocol and memory pool, the solve attestation digests and the webview are not '
     'included; the driver lists its own limits in each run.',
     'One driver process at a time, each under /usr/bin/time -l and a per-run timeout. Every 100 ms the runner reads '
     'the driver phys_footprint and lifetime-maximum phys_footprint (proc_pid_rusage RUSAGE_INFO_V4) and its ps RSS; '
@@ -125,7 +160,8 @@ CONDITIONS = (
     'exceeds_base_machine_budget (the desktop worker_footprint_exceeded). Like the product, the sampling can miss a '
     'peak shorter than one poll; a completed run whose lifetime-maximum footprint (sampled, the driver reading or '
     '/usr/bin/time peak memory footprint) exceeds the budget is classified the same way, because the desktop would '
-    'refuse that result.',
+    'refuse that result. A killed run has no /usr/bin/time reading, because /usr/bin/time is killed with the '
+    'driver\'s process group; each record names the readings its classification used (classification_readings).',
     'The ps RSS watchdog is an emergency cap only (16 GiB by default, the base machine physical memory). RSS can run '
     'well above phys_footprint (about 1.4 times at 500 linear-ex nodes), so it is not the product measure; a kill '
     'there is killed_by_rss_cap unless a footprint reading shows the budget exceeded.',
@@ -140,7 +176,11 @@ CONDITIONS = (
 )
 
 
-def run_id_of(profile, nodes, mode, attribute=False):
+def run_id_of(profile, nodes, mode, attribute=False, task='solve'):
+    """`<profile>-n<nodes>-<mode>` for a solve, `model-checks-<profile>-n<nodes>` for the model
+    checks (which have no solver mode); `-attr` for an attribution run."""
+    if task == 'model_checks':
+        return 'model-checks-%s-n%04d%s' % (profile, nodes, '-attr' if attribute else '')
     return '%s-n%04d-%s%s' % (profile, nodes, mode, '-attr' if attribute else '')
 
 
@@ -150,14 +190,19 @@ def model_name(profile, nodes):
 
 def build_plan(rows, mode='sparse', rss_cap_bytes=EMERGENCY_RSS_CAP_BYTES,
                footprint_budget_bytes=BASE_MACHINE_BUDGET_BYTES):
-    """A plan from (profile, nodes, timeout_s, estimate_s, expect[, attribute]) rows, in row order."""
+    """A plan from (profile, nodes, timeout_s, estimate_s, expect[, attribute[, task]]) rows, in row
+    order. `task` is `solve` (the default) or `model_checks`; a model-checks run keeps the plan's
+    mode in its entry, but the driver is not given it."""
     plan = []
     for i, row in enumerate(rows):
         p, n, t, e, x = row[:5]
         attribute = bool(row[5]) if len(row) > 5 else False
-        plan.append({'order': i, 'run_id': run_id_of(p, n, mode, attribute), 'profile': p, 'nodes': n, 'mode': mode,
-                     'timeout_s': t, 'footprint_budget_bytes': footprint_budget_bytes, 'rss_cap_bytes': rss_cap_bytes,
-                     'estimate_s': e, 'expect': x, 'attribute': attribute})
+        task = row[6] if len(row) > 6 else 'solve'
+        if task not in TASKS:
+            raise ValueError('unknown task %r' % task)
+        plan.append({'order': i, 'run_id': run_id_of(p, n, mode, attribute, task), 'task': task, 'profile': p,
+                     'nodes': n, 'mode': mode, 'timeout_s': t, 'footprint_budget_bytes': footprint_budget_bytes,
+                     'rss_cap_bytes': rss_cap_bytes, 'estimate_s': e, 'expect': x, 'attribute': attribute})
     return plan
 
 
@@ -165,7 +210,7 @@ def with_attribution(plan):
     """`--attribute`: every run of `plan` as an attribution run (one per run id, plan order kept)."""
     out, seen = [], set()
     for r in plan:
-        run = dict(r, attribute=True, run_id=run_id_of(r['profile'], r['nodes'], r['mode'], True))
+        run = dict(r, attribute=True, run_id=run_id_of(r['profile'], r['nodes'], r['mode'], True, r['task']))
         if run['run_id'] not in seen:
             seen.add(run['run_id'])
             out.append(run)
@@ -193,19 +238,110 @@ def plan_total_s(plan):
     return sum(r['estimate_s'] for r in plan)
 
 
+# The plan file the self-supervising driver reads (`release_timing --supervise PLAN --out DIR`).
+PLAN_SCHEMA = 'release-timing-plan-v2'
+# A run id is a bare name: it names the run's record files inside the output folder, so it is
+# refused at plan load unless it matches this closed pattern (no path separator, no leading dot).
+RUN_ID_PATTERN = r'[A-Za-z0-9][A-Za-z0-9._-]{0,127}'
+_RUN_ID = re.compile(RUN_ID_PATTERN)
+
+
+# The names `run_plan` and `write_packet` write in the output folder apart from each run's.
+METADATA_NAME = 'metadata.json'
+PACKET_NAME = 'packet.json'
+RESULTS_NAME = 'results'
+FOLDER_NAMES = (k6.RECORDS_NAME, METADATA_NAME, PACKET_NAME, RESULTS_NAME)
+# An attribution run's raw sample report, `<run_id>.sample-NNN.txt` (`Attributor._take`), and a
+# kept result, `results/<run_id>.result.json` (`driver_argv`).
+SAMPLE_SUFFIX = '.sample-%03d.txt'
+RESULT_SUFFIX = '.result.json'
+
+
+def names_written(run_ids):
+    """Every name the runner writes in the output folder for a plan of `run_ids`: FOLDER_NAMES,
+    each run's launch files (`k6.LAUNCH_SUFFIXES`), its first sample report (the later ones differ
+    from it only in their digits, which no other suffix ends in) and its kept result."""
+    names = list(FOLDER_NAMES)
+    for run_id in run_ids:
+        names += [run_id + suffix for suffix in k6.LAUNCH_SUFFIXES]
+        names += [run_id + SAMPLE_SUFFIX % 0, RESULTS_NAME + '/' + run_id + RESULT_SUFFIX]
+    return names
+
+
+def check_run_ids(plan):
+    """Refuses a plan holding a run id that is not a bare name (`RUN_ID_PATTERN`), two run ids equal
+    ignoring case (a case-insensitive volume, the macOS default, opens them as one), a run id equal,
+    ignoring case, to a name the runner writes, or run ids that make any two names the runner
+    writes equal ignoring case (the run id `records` would make its stdout record `records.jsonl`,
+    the aggregate record). Run ids are ASCII, so ASCII case folding is the volume's."""
+    bad = [r.get('run_id') for r in plan if not isinstance(r.get('run_id'), str) or not _RUN_ID.fullmatch(r['run_id'])]
+    if bad:
+        raise ValueError('run ids must be bare names (%s): %s' % (RUN_ID_PATTERN, ', '.join(map(repr, bad))))
+    ids, folded = [r['run_id'] for r in plan], {}
+    for run_id in ids:
+        if run_id.lower() in folded:
+            raise ValueError('run ids %s and %s are the same ignoring case, so on a case-insensitive volume they '
+                             'name the same files' % (folded[run_id.lower()], run_id))
+        folded[run_id.lower()] = run_id
+        for name in FOLDER_NAMES:
+            if name.lower() == run_id.lower():
+                raise ValueError('run id %s is, ignoring case, %s, a name the runner writes in the output folder'
+                                 % (run_id, name))
+    written = [('the runner', name) for name in FOLDER_NAMES]
+    for run_id in ids:
+        written += [('run ' + run_id, name) for name in names_written([run_id])[len(FOLDER_NAMES):]]
+    owners = {}
+    for owner, name in written:
+        if name.lower() in owners:
+            other_owner, other_name = owners[name.lower()]
+            raise ValueError("%s's %s and %s's %s are the same file ignoring case; rename the run"
+                             % (other_owner, other_name, owner, name))
+        owners[name.lower()] = (owner, name)
+PLAN_RUN_KEYS = ('order', 'run_id', 'task', 'profile', 'nodes', 'mode', 'timeout_s', 'footprint_budget_bytes',
+                 'rss_cap_bytes', 'estimate_s', 'expect', 'attribute')
+
+
+def plan_document(plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, models_dir=None):
+    """`plan` as the plan file the driver's supervise mode reads: each run's plan entry, its model's
+    file name, and, where `models_dir`'s manifest lists the model, its sha256 and generator stats.
+    That supervisor takes no stack snapshots, so an attribution run is refused here."""
+    check_run_ids(plan)
+    attributed = [r['run_id'] for r in plan if r.get('attribute')]
+    if attributed:
+        raise ValueError('the self-supervising driver takes no stack snapshots; leave out %s' % ', '.join(attributed))
+    manifest = read_manifest(models_dir).get('models', {}) if models_dir else {}
+    runs = []
+    for r in plan:
+        name = model_name(r['profile'], r['nodes'])
+        listed = manifest.get(name) or {}
+        runs.append(dict({k: r[k] for k in PLAN_RUN_KEYS}, model=name, expected_model_sha256=listed.get('sha256'),
+                         model_stats=listed.get('stats')))
+    return {'schema': PLAN_SCHEMA, 'window_budget_s': budget_s, 'quiet_wait_s': quiet_wait_s, 'runs': runs}
+
+
+def write_plan(path, plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, models_dir=None):
+    document = plan_document(plan, budget_s, quiet_wait_s, models_dir)
+    with open(path, 'w') as fh:
+        json.dump(document, fh, indent=1, sort_keys=True)
+        fh.write('\n')
+    return document
+
+
 def format_plan(plan, budget_s=WINDOW_BUDGET_S):
     out = ['order run_id                        profile       nodes mode    estimate_s timeout_s budget_GiB '
            'rss_cap_GiB expect']
     for r in plan:
         out.append('%5d %-29s %-13s %5d %-7s %10d %9d %10.2f %11.2f %s' % (
-            r['order'], r['run_id'], r['profile'], r['nodes'], r['mode'], r['estimate_s'], r['timeout_s'],
+            r['order'], r['run_id'], r['profile'], r['nodes'], r['mode'] if r['task'] == 'solve' else '-',
+            r['estimate_s'], r['timeout_s'],
             r['footprint_budget_bytes'] / GIB, r['rss_cap_bytes'] / GIB, r['expect']))
     total = plan_total_s(plan)
     out.append('total estimate: %d s (%.1f min); window budget %d s; runs whose estimate exceeds the remaining '
                'budget are skipped, and each timeout is capped at the remaining budget.' % (total, total / 60, budget_s))
-    out.append('estimates: dry runs of these rack models with this driver on a shared development host, not '
-               'measurements. budget: the phys_footprint kill (the product budget); rss_cap: the emergency ps RSS kill. '
-               'A run id ending -attr takes stack snapshots; its timings are not measurements.')
+    out.append('estimates: they order and bound the window; none is a '
+               'measurement. budget: the phys_footprint kill (the product budget); rss_cap: the emergency ps RSS kill. '
+               'A run id ending -attr takes stack snapshots; its timings are not measurements. A run id starting '
+               'model-checks- times the desktop\'s on-demand model checks in a process of its own (no solver mode).')
     return '\n'.join(out) + '\n'
 
 
@@ -488,7 +624,7 @@ class Attributor:
         self.thread.start()
 
     def _take(self, pid, snapshot):
-        path = os.path.join(self.record_dir, '%s.sample-%03d.txt' % (self.run_id, snapshot['index']))
+        path = os.path.join(self.record_dir, self.run_id + SAMPLE_SUFFIX % snapshot['index'])
         try:
             done = self.run([self.tool, str(pid), str(self.duration_s), str(self.sampling_ms), '-file', path],
                             capture_output=True, text=True, timeout=self.duration_s + 60, check=False)
@@ -539,7 +675,7 @@ def progress_lines(stderr_text):
 
 def last_progress(record_dir, run_id):
     """(last_stage, last_stage_memory, stages_finished) from the run's stderr record."""
-    path = os.path.join(record_dir, run_id + '.stderr.txt')
+    path = os.path.join(record_dir, run_id + k6.STDERR_SUFFIX)
     if not os.path.exists(path):
         return None, None, 0
     with open(path) as fh:
@@ -567,11 +703,73 @@ def peak_footprint(driver, launch_record, progress_memory=None):
     values = [sampler.get('peak_phys_footprint_bytes'), sampler.get('peak_lifetime_max_phys_footprint_bytes'),
               (launch_record.get('rss') or {}).get('time_peak_footprint_bytes')]
     if driver:
-        values.append(driver.get('worker_peak_footprint_bytes_equivalent'))
+        values.append(driver.get('driver_peak_footprint_bytes'))
     if progress_memory:
         values += [progress_memory.get('phys_footprint_bytes'), progress_memory.get('lifetime_max_phys_footprint_bytes')]
     values = [v for v in values if isinstance(v, int) and not isinstance(v, bool)]
     return max(values) if values else None
+
+
+def _is_int(value):
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def footprint_readings(driver, launch_record, progress_memory=None):
+    """The readings `peak_footprint` found, each named `source:key` (`sampler`, `rss`, `driver`,
+    `progress`), in its order. The self-supervising driver ports this (`classify.rs`) and has one
+    more source, `rss:exit_lifetime_max_phys_footprint_bytes`, its reading of the driver at exit."""
+    launch_record = launch_record or {}
+    sampler = launch_record.get('sampler') or {}
+    rss = launch_record.get('rss') or {}
+    candidates = [('sampler', sampler, 'peak_phys_footprint_bytes'),
+                  ('sampler', sampler, 'peak_lifetime_max_phys_footprint_bytes'),
+                  ('rss', rss, 'time_peak_footprint_bytes'),
+                  ('rss', rss, 'exit_lifetime_max_phys_footprint_bytes')]
+    if driver:
+        candidates.append(('driver', driver, 'driver_peak_footprint_bytes'))
+    if progress_memory:
+        candidates += [('progress', progress_memory, 'phys_footprint_bytes'),
+                       ('progress', progress_memory, 'lifetime_max_phys_footprint_bytes')]
+    return ['%s:%s' % (source, key) for source, values, key in candidates if _is_int(values.get(key))]
+
+
+def classification_readings(launch_record, driver, progress_memory=None):
+    """The footprint readings `classify` compared with the budget to reach its classification, in
+    its branch order (none where no footprint decided it: a timeout, no driver line, an entry error
+    or a failed exit)."""
+    k6_class = launch_record.get('classification')
+    if k6_class == 'killed_by_sampler':
+        kill = (launch_record.get('sampler') or {}).get('kill_footprint_bytes')
+        return ['sampler:kill_footprint_bytes'] if _is_int(kill) else []
+    if k6_class in ('killed_by_rss_watchdog', 'rlimit_abort', 'heap_cap_abort'):
+        return footprint_readings(driver, launch_record, progress_memory)
+    if k6_class == 'timed_out' or driver is None:
+        return []
+    if driver.get('status') == 'entry_error' or launch_record.get('exit_code') != 0:
+        return []
+    return footprint_readings(driver, launch_record, progress_memory)
+
+
+KILLED_CLASSES = ('killed_by_sampler', 'killed_by_rss_watchdog', 'timed_out', 'heap_cap_abort', 'rlimit_abort')
+
+
+def readings_record(launch_record, driver, progress_memory=None):
+    """The record's `classification_readings`: `used`, the readings the classification compared
+    with the budget; `at_exit`, this runner's reading of the driver at its exit (/usr/bin/time's peak
+    memory footprint, `rss:time_peak_footprint_bytes`), or None with `at_exit_absent` saying why. A
+    killed run has none: /usr/bin/time is killed with the driver's process group."""
+    at_exit = 'rss:time_peak_footprint_bytes' if _is_int(
+        (launch_record.get('rss') or {}).get('time_peak_footprint_bytes')) else None
+    absent = None
+    if at_exit is None:
+        if not launch_record.get('wrapper'):
+            absent = 'the driver did not run under /usr/bin/time'
+        elif launch_record.get('classification') in KILLED_CLASSES:
+            absent = 'the run was killed with its process group, /usr/bin/time with it, so there is no reading at exit'
+        else:
+            absent = '/usr/bin/time reported no peak memory footprint'
+    return {'used': classification_readings(launch_record, driver, progress_memory), 'at_exit': at_exit,
+            'at_exit_absent': absent}
 
 
 def classify(launch_record, driver, rss_cap_bytes, budget_bytes=BASE_MACHINE_BUDGET_BYTES, progress_memory=None):
@@ -602,7 +800,7 @@ def classify(launch_record, driver, rss_cap_bytes, budget_bytes=BASE_MACHINE_BUD
     footprint = peak_footprint(driver, launch_record, progress_memory)
     if footprint is not None and footprint > budget_bytes:
         return 'exceeds_base_machine_budget', 'footprint_%d_above_budget_at_result' % footprint
-    if status == SOLVED:
+    if status in (SOLVED, CHECKS_REPORTED):
         return 'ok', None
     codes = driver.get('blocking_codes') or []
     if codes:
@@ -626,7 +824,7 @@ def as_expected(expect, classification, detail):
 
 
 def driver_line(record_dir, run_id):
-    path = os.path.join(record_dir, run_id + '.jsonl')
+    path = os.path.join(record_dir, run_id + k6.STDOUT_SUFFIX)
     if not os.path.exists(path):
         return None
     with open(path) as fh:
@@ -637,9 +835,14 @@ def driver_line(record_dir, run_id):
 
 
 def driver_argv(binary, model_path, run, results_dir=None):
-    argv = [binary, model_path, '--mode', run['mode']]
+    """A solve run's model and `--mode`, or a model-checks run's model and `--model-checks`, then
+    `--write` when results are kept."""
+    if run.get('task', 'solve') == 'model_checks':
+        argv = [binary, model_path, '--model-checks']
+    else:
+        argv = [binary, model_path, '--mode', run['mode']]
     if results_dir:
-        argv += ['--write', os.path.join(results_dir, run['run_id'] + '.result.json')]
+        argv += ['--write', os.path.join(results_dir, run['run_id'] + RESULT_SUFFIX)]
     return argv
 
 
@@ -648,10 +851,13 @@ def git(args, cwd=REPO):
     return done.stdout.strip() if done is not None and done.returncode == 0 else None
 
 
-def source_identity():
-    """The runner checkout's commit and tree (hashes only) and whether its tree is dirty."""
+def source_identity(git=git):
+    """The runner checkout's commit and tree (hashes only) and whether its tree is dirty: True,
+    False, or 'unknown' where git cannot establish it (no git, no repository, no commit or a failed
+    status), never False then. The driver's build identity has the same three states."""
+    commit, tree = git(['rev-parse', '--verify', 'HEAD']), git(['rev-parse', '--verify', 'HEAD^{tree}'])
     status = git(['status', '--porcelain'])
-    return git(['rev-parse', 'HEAD']), git(['rev-parse', 'HEAD^{tree}']), (bool(status) if status is not None else None)
+    return commit, tree, (bool(status) if status is not None and commit is not None else 'unknown')
 
 
 def metadata(binary, source_commit, source_tree, source_dirty, run=k6.run_quiet, system=None):
@@ -684,21 +890,22 @@ def run_plan(plan, models_dir, out_dir, binary, *, budget_s=WINDOW_BUDGET_S, wri
     `sampler_factory(budget_bytes)` makes each run's footprint watchdog, and for an attribution run
     `attributor_factory(out_dir, run_id, keep_raw)` its stack snapshots (raw reports kept only with
     `keep_samples`)."""
+    check_run_ids(plan)  # before anything is created or written
     start = clock()
     if wrapper is None:
         wrapper = os.path.exists(k6.TIME_WRAPPER)
     os.makedirs(out_dir, exist_ok=True)
-    if os.path.exists(os.path.join(out_dir, 'records.jsonl')):
+    if os.path.exists(os.path.join(out_dir, k6.RECORDS_NAME)):
         raise RuntimeError('records already exist in the output folder; use a new one')
     if md is None:
         md = metadata(binary, *source_identity())
     md = dict(md, budget_s=budget_s, write_results=write_results, quiet_wait_s=quiet_wait_s,
               plan=[r['run_id'] for r in plan])
-    with open(os.path.join(out_dir, 'metadata.json'), 'w') as fh:
+    with open(os.path.join(out_dir, METADATA_NAME), 'w') as fh:
         json.dump(md, fh, indent=1, sort_keys=True)
         fh.write('\n')
     manifest = read_manifest(models_dir).get('models', {})
-    results_dir = os.path.join(out_dir, 'results') if write_results else None
+    results_dir = os.path.join(out_dir, RESULTS_NAME) if write_results else None
     if results_dir:
         os.makedirs(results_dir, exist_ok=True)
     records = []
@@ -758,6 +965,7 @@ def run_plan(plan, models_dir, out_dir, binary, *, budget_s=WINDOW_BUDGET_S, wri
                 classification, detail = classify(launched, driver, run['rss_cap_bytes'],
                                                   run['footprint_budget_bytes'], last_memory)
                 watchdog = launched.get('sampler') or {}
+                record['classification_readings'] = readings_record(launched, driver, last_memory)
                 record.update(last_stage=last_stage, last_stage_memory=last_memory, stages_finished=stages_finished,
                               footprint_watchdog={k: v for k, v in watchdog.items() if k != 'samples'},
                               peak_footprint_bytes=peak_footprint(driver, launched, last_memory))
@@ -813,7 +1021,8 @@ def packet_row(r):
     rss = launch.get('rss') or {}
     ps_kib = rss.get('ps_max_kib')
     return {
-        'order': r.get('order'), 'run_id': r['run_id'], 'profile': r['profile'], 'nodes': r['nodes'],
+        'order': r.get('order'), 'run_id': r['run_id'], 'task': r.get('task'), 'profile': r['profile'],
+        'nodes': r['nodes'],
         'mode': r['mode'], 'route': driver.get('route'), 'expect': r.get('expect'),
         'classification': r['classification'], 'classification_detail': r.get('classification_detail'),
         'as_expected': r.get('as_expected'), 'conditions': run_conditions(r),
@@ -826,7 +1035,7 @@ def packet_row(r):
             'time_peak_footprint': rss.get('time_peak_footprint_bytes'),
             'ps_max_rss': k6.ps_kib_to_bytes(ps_kib) if ps_kib is not None else None,
             'driver_ru_maxrss': _stage_memory(driver, 'ru_maxrss_bytes'),
-            'driver_lifetime_max_phys_footprint': driver.get('worker_peak_footprint_bytes_equivalent'),
+            'driver_lifetime_max_phys_footprint': driver.get('driver_peak_footprint_bytes'),
             'sampled_phys_footprint': (r.get('footprint_watchdog') or {}).get('peak_phys_footprint_bytes'),
             'sampled_lifetime_max_phys_footprint':
                 (r.get('footprint_watchdog') or {}).get('peak_lifetime_max_phys_footprint_bytes'),
@@ -842,9 +1051,25 @@ def packet_row(r):
     }
 
 
+def stale_driver_message(record):
+    """The refusal of a record whose driver line is not the current form (DRIVER_SCHEMA), or None."""
+    driver = record.get('driver')
+    if driver is None or (isinstance(driver, dict) and driver.get('schema') == DRIVER_SCHEMA):
+        return None
+    schema = driver.get('schema') if isinstance(driver, dict) else None
+    return ('record %s: its driver line has schema %s, not %s; an earlier driver\'s record is not repackaged'
+            % (record.get('run_id'), schema, DRIVER_SCHEMA))
+
+
 def packet(out_dir):
+    """The packet of OUT's records. A record whose driver line is not the current form is refused
+    (ValueError), never repackaged under the current conditions."""
     records = [r for r in k6.read_records(out_dir) if r.get('schema') == RECORD_SCHEMA]
-    md_path = os.path.join(out_dir, 'metadata.json')
+    for r in records:
+        message = stale_driver_message(r)
+        if message:
+            raise ValueError(message)
+    md_path = os.path.join(out_dir, METADATA_NAME)
     md = None
     if os.path.exists(md_path):
         with open(md_path) as fh:
@@ -870,7 +1095,7 @@ def packet(out_dir):
 
 def write_packet(out_dir):
     result = packet(out_dir)
-    with open(os.path.join(out_dir, 'packet.json'), 'w') as fh:
+    with open(os.path.join(out_dir, PACKET_NAME), 'w') as fh:
         json.dump(result, fh, indent=1, sort_keys=True)
         fh.write('\n')
     return result
@@ -885,6 +1110,9 @@ def main(argv=None):
     parser.add_argument('--generate', action='store_true', help="generate the plan's models and the manifest")
     parser.add_argument('--run', action='store_true', help="run the plan (one process at a time)")
     parser.add_argument('--packet', action='store_true', help='write OUT/packet.json from the records')
+    parser.add_argument('--write-plan', metavar='FILE',
+                        help="write the selected runs as the plan file of the driver's supervise mode (with --models, "
+                             "each model's sha256 from the manifest)")
     parser.add_argument('--subset', default='all', help='%s, or comma-separated run ids' % ', '.join(SUBSETS))
     parser.add_argument('--mode', choices=MODES, default='sparse')
     parser.add_argument('--footprint-budget-bytes', type=int, default=BASE_MACHINE_BUDGET_BYTES,
@@ -911,6 +1139,12 @@ def main(argv=None):
     if args.plan:
         sys.stdout.write(format_plan(plan, args.budget_s))
         return 0
+    if args.write_plan:
+        try:
+            write_plan(args.write_plan, plan, args.budget_s, args.quiet_wait_s, args.models)
+        except ValueError as error:
+            parser.error(str(error))
+        return 0
     if args.generate:
         if not args.models:
             parser.error('--generate needs --models')
@@ -927,7 +1161,11 @@ def main(argv=None):
     if args.packet:
         if not args.out:
             parser.error('--packet needs --out')
-        result = write_packet(args.out)
+        try:
+            result = write_packet(args.out)
+        except ValueError as error:
+            print('release_runner --packet: %s' % error, file=sys.stderr)
+            return 2
         print(json.dumps({'packet': 'packet.json', 'classification_counts': result['classification_counts']}))
         return 0
     parser.print_help()

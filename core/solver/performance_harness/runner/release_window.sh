@@ -5,8 +5,11 @@
 # Usage (run it under the host's exclusive-job wrapper; it builds and generates nothing):
 #   release_window.sh <models_dir> <out_root> <release_timing binary> [subset]
 #     subset: window (default: the runs sized for one window of at most 15 min), window2
-#             (linear-ex 1000 timed, then its attribution twin -attr), all, linear, nonlinear,
-#             nonlinear-pf, nonlinear-ex, criterion,
+#             (linear-ex 1000 timed, then its attribution twin -attr), scaling (both exact-route
+#             profiles at 250, 500 and 1,000 nodes), scaling-2000 (the same, then linear-ex at
+#             2,000 nodes; needs RELEASE_WINDOW_BUDGET_S above 900), all, linear, nonlinear,
+#             nonlinear-pf, nonlinear-ex, criterion (the 2,000-node solves and model checks),
+#             model-checks (the desktop's on-demand model checks, each a run of its own),
 #             or comma-separated run ids (see: release_runner.py --plan --subset <subset>).
 #   Environment: RELEASE_WINDOW_BUDGET_S (default 900: the whole window stays within 15 min;
 #   a run whose estimate exceeds the remaining budget is skipped and logged, and each timeout
@@ -21,7 +24,7 @@
 # Each run's elapsed time is printed as it ends; records, packet.json and window.log go to a new
 # <out_root>/window-<UTC time>/ folder.
 set -u
-[ $# -ge 3 ] || { sed -n '2,22p' "$0" >&2; exit 2; }
+[ $# -ge 3 ] || { sed -n '2,24p' "$0" >&2; exit 2; }
 HERE=$(cd "$(dirname "$0")" && pwd)
 MODELS=$1
 ROOT=$2
@@ -48,5 +51,12 @@ python3 -u "$HERE/release_runner.py" --run --subset "$SUBSET" --mode "$MODE" --b
 RC=${PIPESTATUS[0]}
 log "RUNS DONE rc=$RC"
 python3 -u "$HERE/release_runner.py" --packet --out "$OUT" | tee -a "$OUT/window.log"
+PACKET_RC=${PIPESTATUS[0]}
+if [ "$PACKET_RC" -ne 0 ]; then
+  # A failed packet step is a failed window: it is never reported as done, and its status leaves.
+  log "WINDOW NOT DONE: the packet step failed rc=$PACKET_RC (runs rc=$RC); no packet.json of this window is to be relied on"
+  [ "$RC" -ne 0 ] && exit "$RC"
+  exit "$PACKET_RC"
+fi
 log "WINDOW DONE; records and packet.json in $(basename "$OUT") under the out root"
 exit "$RC"
