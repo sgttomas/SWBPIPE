@@ -56,10 +56,12 @@ grant, including any limit on passing those decisions on:
   and settings; amending the PRD. So does the verdict on the product: the
   owner's yes or no after the tested use cases of exit criterion 8, with
   acceptance, issuance and release.
-- Where a decision under this grant contradicts the PRD, the agent states
-  the limitation in `docs/RELEASE_LIMITATIONS_v1.0.md`, names the PRD place
-  it contradicts, and brings the contradiction to the owner for an
-  amendment. It does not write the decision into `docs/PRD.md`.
+- Where a decision under this grant contradicts the PRD, the agent records
+  the decision and names the conflicting PRD section in the affected scope
+  or release-target text, and brings the contradiction to the owner for an
+  amendment. If the decision omits or narrows a capability for v1.0, the
+  agent also states the limitation and the conflicting PRD section in
+  `docs/RELEASE_LIMITATIONS_v1.0.md`. Agents do not amend `docs/PRD.md`.
 
 ## How the work is organised
 
