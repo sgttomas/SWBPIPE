@@ -33,11 +33,25 @@ identity still correct.
 The build tests run Cargo themselves (the first build from scratch), so they are marked
 `runs_cargo`: hosted CI runs them, and a local session with OPENPIPESTRESS_NO_CARGO_BUILD=1 skips
 them. Behaviour only: nothing here is a timing.
+
+Every build here is `--offline`. On main these builds once inherited whatever the process
+environment held, and fetched their dependencies when it let them: an earlier test on the same
+worker (the evidence sweep's, which sets CARGO_NET_OFFLINE in its own process) left them offline,
+and they then passed or failed by whether some other build of the same job had already cached the
+driver's locked dependencies. What is established now is narrower than "no network": these builds
+do not FETCH CARGO DEPENDENCIES at test time, whatever the environment says. It rests on Cargo's
+own `--offline`. The hosted runner fetches the locked dependencies before pytest starts
+(`tools/ci/python_ci.py` `OFFLINE_BUILDS`), and where they are missing the failure names the
+command that fetches them. `test_cargo_refuses_a_dependency_it_may_not_fetch` builds against an
+empty Cargo home and requires Cargo's own diagnostic for that refusal, read from Cargo's standard
+error; `test_an_unrelated_build_failure_is_not_taken_for_that_refusal` shows a build that fails
+for another reason does not satisfy the same check. Nothing here observes the network itself.
 """
 from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -52,6 +66,8 @@ EDITED = Path("core") / "product_physics" / "src" / "lib.rs"
 COPIED = ("core", "fixtures", "schemas", "validation")
 CI_READS = ("core/**", "fixtures/**", "schemas/**", "validation/**")
 RUNS_CARGO = pytest.mark.runs_cargo("cargo builds of the release timing driver in a copy of its crates")
+# What provides the driver's locked dependencies to these offline builds (the hosted runner runs it before pytest).
+FETCH = f"cargo fetch --locked --manifest-path {(CRATE / 'Cargo.toml').as_posix()}"
 
 
 def isolated_env(ceiling: Path) -> dict[str, str]:
@@ -117,13 +133,47 @@ def copy_workspace(destination: Path) -> None:
         shutil.copyfile(source, target)  # a copy, never a link: editing it cannot reach the project
 
 
-def build_identity(copy: Path, target: Path, env: dict[str, str] | None = None) -> dict:
-    """Builds the copy's driver and prints its identity. `env` is the environment cargo (and so the
-    build script) inherits: by default this process's, GIT_* variables and all."""
+def offline_build(copy: Path, target: Path, env: dict[str, str] | None = None) -> subprocess.CompletedProcess:
+    """Cargo's own outcome of building the copy's driver offline: its exit status and its standard
+    error, with nothing of this file's added. `env` is the environment cargo (and so the build
+    script) inherits: by default this process's, GIT_* variables and all."""
     env = dict(os.environ if env is None else env, CARGO_TARGET_DIR=str(target))
-    built = subprocess.run(["cargo", "build", "--quiet", "--locked", "--bin", "release_timing"], cwd=copy / CRATE,
-                           capture_output=True, text=True, check=False, env=env)
-    assert built.returncode == 0, built.stderr[-4000:]
+    return subprocess.run(["cargo", "build", "--quiet", "--locked", "--offline", "--bin", "release_timing"],
+                          cwd=copy / CRATE, capture_output=True, text=True, check=False, env=env)
+
+
+def unfetched_dependency(cargo_stderr: str) -> str | None:
+    """The package Cargo says it may not fetch offline, from CARGO'S OWN standard error, or None when
+    its error is anything else. Cargo words the refusal in two ways, by what its cache holds:
+    - no registry index at all: "error: no matching package named `P` found", with its remark that
+      offline mode "can sometimes cause surprising resolution failures" (a note in current Cargo,
+      "As a reminder, you're using offline mode (--offline) which ..." in older ones);
+    - the index but not the crate: "error: failed to download `P vN`", caused by "attempting to
+      make an HTTP request, but --offline was specified" (the hosted failure this file answers).
+    Both parts of a form are required. If Cargo rewords them, the tests that use this fail and say so."""
+    unresolved = re.search(r"^error: no matching package named `([^`]+)` found$", cargo_stderr, re.M)
+    remark = re.search(r"offline mode \((?:via )?`?--offline`?\) (?:which )?can sometimes cause surprising resolution "
+                       r"failures", cargo_stderr)
+    if unresolved and remark:
+        return unresolved.group(1)
+    download = re.search(r"^error: failed to download `([^` ]+) v[^`]+`$", cargo_stderr, re.M)
+    if download and "attempting to make an HTTP request, but --offline was specified" in cargo_stderr:
+        return download.group(1)
+    return None
+
+
+def registry_dependencies() -> set[str]:
+    """The names of the packages the driver's lock takes from a registry."""
+    lock = (PROJECT / CRATE / "Cargo.lock").read_text()
+    return {block.split('name = "', 1)[1].split('"', 1)[0] for block in lock.split("[[package]]")[1:]
+            if 'source = "registry+' in block}
+
+
+def build_identity(copy: Path, target: Path, env: dict[str, str] | None = None) -> dict:
+    """Builds the copy's driver, offline, and prints its identity."""
+    built = offline_build(copy, target, env)
+    assert built.returncode == 0, (f"the offline build failed; if a dependency is missing from Cargo's cache, run "
+                                   f"`{FETCH}` from the project first.\n{built.stderr[-4000:]}")
     shown = subprocess.run([str(target / "debug" / "release_timing"), "--build-identity"], capture_output=True,
                            text=True, check=True)
     return json.loads(shown.stdout)
@@ -205,6 +255,78 @@ def test_an_inherited_git_dir_reaches_no_other_repository(tmp_path, hostile_repo
     assert (identity["source_commit"], identity["source_dirty"]) == (commit, False), identity
     assert identity["source_commit"] != other_commit
     assert snapshot(hostile_repository) == before, "the other repository was touched"
+
+
+def cargo_env_without_a_cache(cargo_home: Path) -> dict[str, str]:
+    """This process's environment with an empty Cargo home, so that no dependency is cached, and with
+    CARGO_NET_OFFLINE removed, so that only the build's own `--offline` holds it offline."""
+    cargo_home.mkdir()
+    env = {name: value for name, value in os.environ.items()
+           if not name.startswith("GIT_") and name != "CARGO_NET_OFFLINE"}
+    env["CARGO_HOME"] = str(cargo_home)
+    return env
+
+
+@RUNS_CARGO
+def test_cargo_refuses_a_dependency_it_may_not_fetch(tmp_path):
+    """With no cached dependency, the copy's build is refused BY CARGO, FOR A DEPENDENCY OF THE
+    DRIVER'S LOCK IT MAY NOT FETCH OFFLINE: the check reads Cargo's standard error alone, never the
+    hint `build_identity` adds to every failure. No crate file appears in the Cargo home and no
+    driver is built. This shows Cargo did not fetch; it does not observe the network."""
+    copy, target, cargo_home = tmp_path / "workspace", tmp_path / "target", tmp_path / "cargo-home"
+    copy_workspace(copy)
+    new_repository(copy, "the copy, clean")
+    refused = offline_build(copy, target, cargo_env_without_a_cache(cargo_home))
+    assert refused.returncode != 0, "the build succeeded with no dependency cached"
+    package = unfetched_dependency(refused.stderr)
+    assert package is not None, f"cargo failed for another reason:\n{refused.stderr[-2000:]}"
+    assert package in registry_dependencies(), package
+    assert not list(cargo_home.rglob("*.crate")), "a crate was downloaded"
+    assert not (target / "debug" / "release_timing").exists()
+
+
+@RUNS_CARGO
+def test_an_unrelated_build_failure_is_not_taken_for_that_refusal(tmp_path):
+    """A build that fails for another reason (here the copy's manifest is not TOML, which Cargo
+    meets before it resolves any dependency) is not read as the refusal above, although
+    `build_identity`'s own message for it carries both "offline" and the fetch command: that is
+    why the check reads Cargo's standard error and not that message."""
+    copy, target, cargo_home = tmp_path / "workspace", tmp_path / "target", tmp_path / "cargo-home"
+    copy_workspace(copy)
+    with open(copy / CRATE / "Cargo.toml", "a") as manifest:
+        manifest.write("\nthis line is not TOML\n")
+    env = cargo_env_without_a_cache(cargo_home)
+    failed = offline_build(copy, target, env)
+    assert failed.returncode != 0 and "Cargo.toml" in failed.stderr, failed.stderr[-2000:]
+    assert unfetched_dependency(failed.stderr) is None, failed.stderr[-2000:]
+    with pytest.raises(AssertionError) as hinted:
+        build_identity(copy, target, env)
+    assert "offline" in str(hinted.value) and FETCH in str(hinted.value), "the helper's hint is on every failure"
+
+
+def test_only_cargos_own_refusal_wording_is_recognised():
+    """No build: the two wordings Cargo uses, each needing both of its parts, and other failures."""
+    no_index = ("error: no matching package named `serde` found\nlocation searched: crates.io index\n"
+                "required by package `open_pipe_stress_release_timing v0.1.0 (/x)`\n"
+                "note: offline mode (via `--offline`) can sometimes cause surprising resolution failures\n")
+    no_crate = ("error: failed to download `cfg-if v1.0.4`\n\nCaused by:\n"
+                "  attempting to make an HTTP request, but --offline was specified\n")
+    older = ("error: no matching package named `serde` found\nlocation searched: registry `crates-io`\n"
+             "required by package `open_pipe_stress_release_timing v0.1.0 (/x)`\n"
+             "As a reminder, you're using offline mode (--offline) which can sometimes cause surprising resolution "
+             "failures, if this error is too confusing you may wish to retry without the offline flag.\n")
+    assert [unfetched_dependency(text) for text in (no_index, no_crate, older)] == ["serde", "cfg-if", "serde"]
+    hint = f"the offline build failed; if a dependency is missing from Cargo's cache, run `{FETCH}` from the project first.\n"
+    for other in (
+        hint,
+        hint + "error: could not compile `open_pipe_stress_release_timing` (bin \"release_timing\") due to 1 previous error\n",
+        "error: no matching package named `serde` found\nlocation searched: crates.io index\n",
+        "error: failed to download `cfg-if v1.0.4`\n\nCaused by:\n  failed to get 200 response from `https://x`\n",
+        "error: rustup could not choose a version of cargo to run\n",
+        "error: failed to parse manifest at `/x/Cargo.toml`\n",
+        "",
+    ):
+        assert unfetched_dependency(other) is None, other
 
 
 def project_index_flags() -> str:
