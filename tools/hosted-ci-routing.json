@@ -294,7 +294,7 @@
       "validation/benchmarks/numerical_integrity/Cargo.toml": "93e5b01a0e38770d1208b56532b2c22848c0d005093ac58354ab0ac714823ecd",
       "validation/benchmarks/numerical_robustness/Cargo.toml": "af3a147d652afaac1daedb4a6e4526fc3434f3b28a9679ea09ae00c73988047b",
       "validation/benchmarks/physics_audit_regression/Cargo.toml": "1138d96b4c63cb6e7a70aa7fef27f5e650f362fcfbcf3a47a7d202b71d190246",
-      "validation/benchmarks/stress/Cargo.toml": "37b5e65f7351bce4729641e398c593caed5c97b1afe69ca584db30c449db2c3f"
+      "validation/benchmarks/stress/Cargo.toml": "aa23bef7ee0e19362a840c9c4ba74860d8e09c317a4f29367d03883c491ffb2b"
     },
     "reads": {
       "core/product_physics/src/source_receipt/pressure_source_context_tests.rs": {
