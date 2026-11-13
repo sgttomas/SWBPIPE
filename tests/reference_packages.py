@@ -12,7 +12,10 @@ that check what every package holds:
 These tests do not check that a package's generators are independent of product code.
 
 An exception carries its reason. Checksum-line exceptions and recorded defect markers are checked for
-continued presence. Deferred commands are not run and are removed only when their complete commands pass.
+continued presence. A check command stated somewhere other than its package's README names that place, and
+the text stating it there is checked for continued presence. Deferred commands are not run and are removed
+only when their complete commands pass; where a deferred entry names text that its repair must add, the
+text's absence is checked, so the entry fails when the blocker is repaired.
 What the tests take on trust is named and counted: output entries not regenerated, regeneration gaps and
 deferred commands (`taken_on_trust()`), and memberships with no stated basis (`membership_on_trust()`).
 
@@ -52,10 +55,12 @@ class Sums:
 
 @dataclass(frozen=True)
 class Check:
-    """A check command from the package's README, run from `cwd` (package-relative)."""
+    """A check command from the package's README, run from `cwd` (package-relative), or from the place
+    `basis` names."""
     argv: tuple
     cwd: str = "."
     stdout_equals: str | None = None  # package-relative file the stdout must equal byte for byte
+    basis: tuple | None = None  # (repository-relative file, text): where the command is stated when its README does not
 
 
 @dataclass(frozen=True)
@@ -67,6 +72,7 @@ class Deferred:
     blocker: str
     observed_at: str
     cwd: str = "."
+    blocked_while_absent: tuple = ()  # ((package-relative file, text), ...): text the repair must add, asserted absent
 
 
 NOT_ESTABLISHED = "what the command checks after that point is not established"
@@ -74,6 +80,43 @@ NOT_ESTABLISHED = "what the command checks after that point is not established"
 M3_SCHEMA_BLOCKER = ("the shared M3 judge's schema reader (m3_judge/m3_view.py) refuses the allOf keyword, which "
                      "schemas/load_reference_state.schema.json has held since 0c480a9e5 (2026-11-07)")
 M3_OBSERVED = "feffd237f2b2d15ad9741b8c42f7f4970d0ad5e6"
+
+# The three source-twin inputs that pull request 217's 04de5e11f changed (it added model_settings.pressure_elongation)
+# without their pins in generators/o4_source_twins.py moving: (input, found, pinned in PINS, admitted in PINS_ADMITTED).
+O4_TWIN_INPUTS = (
+    ("fixtures/product_preview/pressure_source/physics_source/mixed.request.json",
+     "5a18bece8c0a601404b782fc89d280a7d290bd3133f879146d68315720815aa6",
+     "0da7828c35c78d5f3fa25b5336d448c0c72ee83b469b908376e2bb09194f3349",
+     "e8afa2bb836793e7c7e08eaa47c76d5c1ee4310919148ef25ba39f1e0fe3d70a"),
+    ("fixtures/product_preview/pressure_source/physics_source/mixed_units.request.json",
+     "4280a1b703216170898ee9c6b6e1e1c529f4afe03f2c52d5a7a1c74c83c37dbd",
+     "f8dc9ffafcf0d3854498ac3456b30264524589432dbe29af90a0ba3dc7c523f5",
+     "a53a068b6760302cb28eb53906735d2d030e491b7e571a516bff2bb236a02173"),
+    ("fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json",
+     "f037e7832e81bfb6c42723fcef2affbe7676c83077d953e1eb1724f1d4bfa895",
+     "9209e39bbd5f8976e59b8989915d4baf67934111537db23cacff170dbf6755db",
+     "97556596c03da64534ff962bd7d3a07100702e6e867dffe200a46d5e72c9977b"),
+)
+O4_TWINS_BLOCKER = (
+    "three pinned inputs changed in 04de5e11f (pull request 217) match neither their pin nor their admitted "
+    "successor in generators/o4_source_twins.py: "
+    + "; ".join(f"{path} found {found}, pinned {pinned}, admitted successor {admitted}"
+                for path, found, pinned, admitted in O4_TWIN_INPUTS)
+    + "; the check reports only the first")
+O4_TWINS_OBSERVED = "8a097b8da636f8eb9226f61566a3450793d753c9"
+
+# Five packages whose committed outputs were generated with --pressure-elongation all (pull request 217, eff19a897):
+# their check command is the one this inventory states, not the README's, which runs at the switch's default.
+PE_INVENTORY = "tools/validation/pressure_elongation_inventory.json"
+PE_ALL = ("--pressure-elongation", "all")
+PE_README_REASON = (
+    "the README's verify command runs at the switch's default (absent) and fails (MISMATCH, or STALE for rt_a3_s6) "
+    "on outputs generated with --pressure-elongation all (eff19a897), as " + PE_INVENTORY + " states the command; "
+    "to be repaired, README and SHA256SUMS line by the package's own method, by a follow-up to pull request 217")
+
+
+def _pe_basis(gen: str) -> tuple:
+    return (PE_INVENTORY, f"{gen} --pressure-elongation all")
 
 
 @dataclass(frozen=True)
@@ -134,10 +177,11 @@ def _generated(where: str, readme: str | None = None) -> Membership:
     return Membership(basis + (f"; README: {readme}" if readme else ""))
 
 
-def _plain(gen: str, *args: str, deliverables: str, members: Membership | None = None, **kw) -> Package:
+def _plain(gen: str, *args: str, deliverables: str, members: Membership | None = None, basis: tuple | None = None,
+           **kw) -> Package:
     """One generator whose default (or named) mode rebuilds in memory and compares byte for byte."""
     return Package(deliverables, members or _generated(f"generators/{gen}"), sums=(Sums("SHA256SUMS"),),
-                   checks=(Check(("generators/" + gen, *args)),), **kw)
+                   checks=(Check(("generators/" + gen, *args), basis=basis),), **kw)
 
 
 PACKAGES: dict[str, Package] = {
@@ -154,7 +198,9 @@ PACKAGES: dict[str, Package] = {
                            unlisted={"README.md": "outside the README's stated set"})),
     "reference_system": _plain(
         "rs_reference.py", deliverables="DEL-09-01"),
-    "rt_a3_s6": _plain("rt_a3_s6_reference.py", deliverables="DEL-04-07"),
+    "rt_a3_s6": _plain("rt_a3_s6_reference.py", *PE_ALL, deliverables="DEL-04-07",
+                       basis=_pe_basis("generators/rt_a3_s6_reference.py"),
+                       defects=(("README.md", "`python3 -I generators/rt_a3_s6_reference.py` rebuilds", PE_README_REASON),)),
     "rt_a3_constant_effort": _plain("rt_a3_constant_effort_reference.py", "--check", deliverables="DEL-04-07"),
     "rt_a3_nonlinear": _plain("rt_a3_nonlinear_reference.py", "--check", deliverables="DEL-04-07"),
     "rt_a3_reducer": _plain("rt_a3_reducer_reference.py", "--check", deliverables="DEL-03-05, DEL-04-07"),
@@ -179,20 +225,30 @@ PACKAGES: dict[str, Package] = {
     "w16_nonlinear_motion": _plain("w16_nl_reference.py", deliverables="DEL-04-03"),
     "w16_timoshenko_partial_wind": _plain("w16t_reference.py", deliverables="DEL-05-01"),
     "t4_u4b": _plain("u4b_reference.py", deliverables="DEL-04-07"),
-    "t4_u5a": _plain("u5a_reference.py", deliverables="DEL-03-06, DEL-04-07",
+    "t4_u5a": _plain("u5a_reference.py", *PE_ALL, deliverables="DEL-03-06, DEL-04-07",
                      members=Membership("README file table: `SHA256SUMS` | the hashes of every file above (the "
-                                        "generator does not write the list)")),
+                                        "generator does not write the list)"),
+                     basis=_pe_basis("u5a_reference.py"),
+                     defects=(("README.md", "python3 -I generators/u5a_reference.py          # verify",
+                               PE_README_REASON),)),
     "t4_u5b": _plain("u5b_reference.py", deliverables="DEL-04-07"),
-    "t4_u6": _plain("u6_reference.py", deliverables="DEL-05-03",
+    "t4_u6": _plain("u6_reference.py", *PE_ALL, deliverables="DEL-05-03",
                     members=Membership("README file table: `SHA256SUMS` | the hashes of every file above (the "
-                                       "generator does not write the list)")),
+                                       "generator does not write the list)"),
+                    basis=_pe_basis("generators/u6_reference.py"),
+                    defects=(("README.md", "python3 -I -B generators/u6_reference.py           # verify",
+                              PE_README_REASON),)),
     "t4_u8": _plain(
-        "u8_reference.py", deliverables="DEL-05-03"),
+        "u8_reference.py", *PE_ALL, deliverables="DEL-05-03", basis=_pe_basis("u8_reference.py"),
+        defects=(("README.md", "python3 -I generators/u8_reference.py          # check", PE_README_REASON),)),
     "pf_timoshenko": _plain(
         "pf_reference.py", deliverables="DEL-05-03"),
     "t4_u4a": Package("DEL-04-07", Membership("README file table: `SHA256SUMS` | Digests of the five files above "
                                               "(u4a_generate.py does not write the list)"),
-                      sums=(Sums("SHA256SUMS"),),                       checks=(Check(("u4a_generate.py",)),)),
+                      sums=(Sums("SHA256SUMS"),),
+                      checks=(Check(("u4a_generate.py", *PE_ALL), basis=_pe_basis("u4a_generate.py")),),
+                      defects=(("README.md", "Verify with `python3 -I -B u4a_generate.py` in this directory",
+                                PE_README_REASON),)),
     "hanger_sizing": Package(
         "DEL-04-11",
         Membership("README (Checksum list): `SHA256SUMS` lists every file of this package except itself, regenerated "
@@ -333,8 +389,11 @@ PACKAGES: dict[str, Package] = {
                                                   "SHA256SUMS' (generators/o4_reference.py, BESIDE)"}),
         sums=(Sums("SHA256SUMS"),),
         checks=(Check(("generators/o4_reference.py", "--workers", "1")),
-                Check(("generators/o4_source_twins.py", "--workers", "1")),
-                Check(("oracle.py", "--selftest"), cwd="declared_problem"))),  # the product check's own oracle, pure Python
+                Check(("oracle.py", "--selftest"), cwd="declared_problem")),  # the product check's own oracle, pure Python
+        # The source twins are not checked: their check refuses the inputs below until the pins move.
+        deferred=(Deferred(("generators/o4_source_twins.py", "--workers", "1"), O4_TWINS_BLOCKER, O4_TWINS_OBSERVED,
+                           blocked_while_absent=tuple(("generators/o4_source_twins.py", found)
+                                                      for _, found, _, _ in O4_TWIN_INPUTS)),)),
     "f1_modal/continuum": Package(
         "DEL-04-09", _generated("generators/generate.py (AUTHORED, GENERATORS and the three JSON files)"),
         sums=(Sums("SHA256SUMS"),),
@@ -360,7 +419,7 @@ PACKAGES: dict[str, Package] = {
 }
 
 # Outputs not regenerated, regeneration gaps and deferred commands, each a row of taken_on_trust().
-TAKEN_ON_TRUST_COUNT = 12
+TAKEN_ON_TRUST_COUNT = 13
 MEMBERSHIP_ON_TRUST_COUNT = 2
 
 
@@ -571,6 +630,25 @@ def defect_problems(name: str) -> list[str]:
     return [f"{file} no longer holds {text!r}; the defect looks repaired, so remove its entry"
             for file, text, reason in PACKAGES[name].defects
             if not reason.strip() or text not in (REFS / name / file).read_text(encoding="utf-8")]
+
+
+def basis_problems(name: str) -> list[str]:
+    """A check command stated outside its README: the text stating it must still be there."""
+    out = []
+    for check in PACKAGES[name].checks:
+        if check.basis is not None:
+            file, text = check.basis
+            path = ROOT / file
+            if not path.is_file() or text not in path.read_text(encoding="utf-8"):
+                out.append(f"{' '.join(check.argv)}: {file} no longer states {text!r}; restate the command's basis")
+    return out
+
+
+def blocked_problems(name: str) -> list[str]:
+    """A deferred entry naming text its repair must add: while the text is absent, the blocker holds."""
+    return [f"{' '.join(d.argv)}: {file} now holds {text!r}; the blocker looks repaired, so run the command and "
+            "remove the entry" for d in PACKAGES[name].deferred for file, text in d.blocked_while_absent
+            if text in (REFS / name / file).read_text(encoding="utf-8")]
 
 
 def _changes(before: dict, after: dict) -> list[str]:
