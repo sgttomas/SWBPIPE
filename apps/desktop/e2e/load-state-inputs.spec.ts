@@ -3,9 +3,11 @@ import {
   chooseVirtualTarget,
   closeWorkspacePanels,
   confirmProjectUnits,
+  ensureInspectorExpanded,
   expectTreeEntity,
   openWorkspaceSection,
   selectCompactOption,
+  selectTreeEntity,
   startPropertyTaskFromTreeEntity,
 } from "./workspace-driver";
 
@@ -235,7 +237,23 @@ test("blank load/reference model: author support motion, a thermal state and a m
   await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("operation-apply-message")).toContainText("Applied op:editor-intent-pipe-pipe:WP3-section.corrosion_allowance.value");
   await closeWorkspacePanels(page);
-  const regions = (await openWorkspaceSection(page, "loads")).getByRole("region", { name: "Case pressure regions", exact: true });
+  // LOAD_STATE_MATERIAL_BASIS_REQUIRED (a later stage, met once the two above clear): the
+  // element state's material needs the explicit homogeneous_isotropic_E_nu_v1 basis. The
+  // invented nu is the one the authored E and G give, nu = E/(2G) - 1 = 0.2987 to four places.
+  await selectTreeEntity(page, "material", "material:wp3-invented");
+  await ensureInspectorExpanded(page);
+  const propertiesTab = page.getByTestId("property-inspector").getByRole("tab", { name: "Properties", exact: true });
+  if (await propertiesTab.getAttribute("aria-selected") !== "true") await propertiesTab.click();
+  const constitutive = page.getByRole("region", { name: "Exact material constitutive inputs", exact: true });
+  await constitutive.getByLabel("Constitutive basis", { exact: true }).selectOption("homogeneous_isotropic_E_nu_v1");
+  await constitutive.getByLabel("Elastic modulus E value", { exact: true }).fill("200000000000");
+  await constitutive.getByLabel("Elastic modulus E unit", { exact: true }).fill("Pa");
+  await constitutive.getByLabel("Poisson ratio nu value", { exact: true }).fill("0.2987");
+  await constitutive.getByLabel("Poisson ratio nu unit", { exact: true }).fill("1");
+  await constitutive.getByLabel("Constitutive provenance", { exact: true }).fill(P);
+  await constitutive.getByRole("button", { name: "Queue constitutive properties", exact: true }).click();
+  await applyQueued(page);
+  const regions =(await openWorkspaceSection(page, "loads")).getByRole("region", { name: "Case pressure regions", exact: true });
   await expect(regions).toContainText("No pressure-region declaration has been applied.");
   await regions.getByRole("button", { name: "Queue explicit empty pressure regions", exact: true }).click();
   await applyQueued(page);
