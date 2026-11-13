@@ -57,20 +57,8 @@ impl Provider {
         if authority.contains('@') || authority.ends_with(':') {
             return Err(Failure::Configuration);
         }
-        if url.scheme() == "http" {
-            let raw_host = if authority.starts_with('[') {
-                let end = authority.find(']').ok_or(Failure::Configuration)?;
-                &authority[1..end]
-            } else {
-                authority.split(':').next().ok_or(Failure::Configuration)?
-            };
-            if !raw_host
-                .parse::<IpAddr>()
-                .map(|ip| ip.is_loopback())
-                .unwrap_or(false)
-            {
-                return Err(Failure::Configuration);
-            }
+        if url.scheme() == "http" && !literal_loopback(authority)? {
+            return Err(Failure::Configuration);
         }
         let raw_path = endpoint
             .split_once("://")
@@ -80,6 +68,13 @@ impl Provider {
             .map(|offset| &endpoint[endpoint.find("://").unwrap() + 3 + offset..])
             .unwrap_or("/");
         if !safe_path(raw_path) {
+            return Err(Failure::Configuration);
+        }
+        // Native smoke strict run only (`native_smoke::STRICT_RUN_ENV`): judged at the taking, after every ordinary
+        // check, so an ordinary refusal stays unmarked. The relay's forward judges the target again.
+        #[cfg(feature = "native-smoke")]
+        if crate::native_smoke::strict_run() && !(url.scheme() == "http" && literal_loopback(authority)?) {
+            crate::native_smoke::strict_run_provider_refused("when it was taken");
             return Err(Failure::Configuration);
         }
         let prefix = url.path().trim_end_matches('/').to_owned();
@@ -98,6 +93,17 @@ impl Provider {
         url.set_path(&format!("{}/{suffix}", self.prefix));
         Ok(url)
     }
+}
+/// Whether the authority's host, as written, is a literal loopback IP address (`127.0.0.1`, `[::1]`; not `localhost`,
+/// not a shortened or numeric spelling such as `127.1`).
+fn literal_loopback(authority: &str) -> Result<bool, Failure> {
+    let raw_host = if authority.starts_with('[') {
+        let end = authority.find(']').ok_or(Failure::Configuration)?;
+        &authority[1..end]
+    } else {
+        authority.split(':').next().ok_or(Failure::Configuration)?
+    };
+    Ok(raw_host.parse::<IpAddr>().map(|ip| ip.is_loopback()).unwrap_or(false))
 }
 impl fmt::Debug for Provider {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -457,5 +463,84 @@ mod tests {
             format!("{secret:?} {provider:?}"),
             "Secret([REDACTED]) Provider"
         );
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "native-smoke")]
+mod strict_run_provider_tests {
+    use super::Provider;
+    use crate::native_smoke::{STRICT_RUN_ENV, STRICT_RUN_PROVIDER_TOKEN};
+    use std::process::Command;
+
+    const ENTRY: &str = "embedded_agent::relay_policy::strict_run_provider_tests::strict_run_provider_entry";
+    const ENTRY_ENV: &str = "SWBPIPE_TEST_STRICT_RUN_PROVIDER_ENTRY";
+    const ENDPOINT_ENV: &str = "SWBPIPE_TEST_STRICT_RUN_PROVIDER_ENDPOINT";
+
+    /// Takes `endpoint` in a child of this test binary whose environment is cleared and then holds only strict run's
+    /// variable at `mode`: whether the provider was admitted, and the child's standard error.
+    fn take(endpoint: &str, mode: Option<&str>) -> (bool, String) {
+        let mut command = Command::new(std::env::current_exe().unwrap());
+        command.args([ENTRY, "--exact", "--test-threads=1", "--nocapture"]).env_clear().env(ENTRY_ENV, "1").env(ENDPOINT_ENV, endpoint);
+        if let Some(mode) = mode {
+            command.env(STRICT_RUN_ENV, mode);
+        }
+        let output = command.output().unwrap();
+        let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+        let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+        assert!(output.status.success(), "{stdout}\n{stderr}");
+        let admitted = stdout.lines().any(|line| line.ends_with("... admitted"));
+        assert!(admitted || stdout.lines().any(|line| line.ends_with("... refused")), "{stdout}");
+        (admitted, stderr)
+    }
+
+    #[test]
+    fn strict_run_provider_only_a_literal_loopback_over_http_is_admitted() {
+        for endpoint in ["http://127.0.0.1:8123/v1", "http://[::1]:8123/api/v1/"] {
+            for mode in [Some("1"), None] {
+                let (admitted, stderr) = take(endpoint, mode);
+                assert!(admitted, "{endpoint} {mode:?}");
+                assert!(!stderr.contains(STRICT_RUN_PROVIDER_TOKEN), "{stderr}");
+            }
+        }
+        for (endpoint, host) in [
+            ("https://provider.example/v1", "provider.example"),
+            ("https://192.0.2.1/v1", "192.0.2.1"),
+            ("https://127.0.0.1:8443/v1", "127.0.0.1"),
+            ("https://[::1]/v1", "::1"),
+        ] {
+            let (admitted, stderr) = take(endpoint, Some("1"));
+            assert!(!admitted, "{endpoint}");
+            assert!(stderr.contains(&format!("{STRICT_RUN_PROVIDER_TOKEN}: ")) && stderr.contains("when it was taken"), "{stderr}");
+            assert!(!stderr.contains(host), "the line names the provider: {stderr}");
+            for mode in [None, Some("0"), Some("")] {
+                let (admitted, stderr) = take(endpoint, mode);
+                assert!(admitted, "mode off changes nothing: {endpoint} {mode:?}");
+                assert!(!stderr.contains(STRICT_RUN_PROVIDER_TOKEN), "{stderr}");
+            }
+        }
+    }
+
+    #[test]
+    fn strict_run_provider_an_ordinary_refusal_carries_no_token() {
+        for endpoint in ["http://localhost/v1", "http://192.0.2.1/v1", "http://127.1/v1", "https://user:password@provider.example/v1", "ftp://127.0.0.1/v1"] {
+            for mode in [Some("1"), None] {
+                let (admitted, stderr) = take(endpoint, mode);
+                assert!(!admitted, "{endpoint} {mode:?}");
+                assert!(!stderr.contains(STRICT_RUN_PROVIDER_TOKEN), "{endpoint} {mode:?}: {stderr}");
+            }
+        }
+    }
+
+    /// Run only by [`take`] ([`ENTRY_ENV`]); otherwise it returns at once.
+    #[test]
+    fn strict_run_provider_entry() {
+        if std::env::var_os(ENTRY_ENV).is_none() {
+            return;
+        }
+        match Provider::new(&std::env::var(ENDPOINT_ENV).unwrap()) {
+            Ok(_) => println!("admitted"),
+            Err(_) => println!("refused"),
+        }
     }
 }

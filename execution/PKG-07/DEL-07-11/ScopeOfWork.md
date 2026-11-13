@@ -63,7 +63,7 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 - **REQ-007** — *No implicit model.* The desktop opens no model the user did not choose. The bundled invented example opens only on request and is labelled as invented. A command that needs a model and has none is refused by name.
 - **REQ-008** — *Response integrity.* A response that does not answer the request the session last made (superseded, failed, or carrying a model other than the one sent) is refused by name and leaves the session as it was.
 - **REQ-009** — *Suggested file names.* Every suggested name follows one convention: a fixed word for each kind of export and, where the export covers a case, filter, run or state, a qualifier naming it, or its stable key where the name reduces to nothing, in lower-case ASCII letters and digits joined by single hyphens, with the file's extension. No suggested name contains a project name, a project or model identifier, or a path. A name already taken is resolved by the native dialog.
-- **REQ-010** — *Scripted run.* The desktop can be driven through a scripted run in the scripted-run build. No product build contains the substitution or the instrumentation.
+- **REQ-010** — *Scripted run.* The desktop can be driven through a scripted run in the scripted-run build. No product build contains the substitution or the instrumentation. Under that build's strict mode, the five paths it takes without a chooser (the handoff folder and the report package it reads back, the launch plan's model file, the agent gate and the report it writes) are judged inside the home it was given, the four reads at the operation.
 
 ### Acceptance criteria
 

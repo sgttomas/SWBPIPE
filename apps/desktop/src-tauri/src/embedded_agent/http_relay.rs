@@ -508,6 +508,20 @@ impl Drop for Connection {
         self.0.abort();
     }
 }
+/// Strict run's judgment of a forward's target: refused unless plain HTTP to a literal loopback IP address. A parsed
+/// target's host is already an address or a name; only an address is admitted, so no name is looked up.
+#[cfg(feature = "native-smoke")]
+fn strict_run_target_refused(target: &url::Url) -> bool {
+    let loopback = match target.host() {
+        Some(url::Host::Ipv4(ip)) => ip.is_loopback(),
+        Some(url::Host::Ipv6(ip)) => ip.is_loopback(),
+        _ => false,
+    };
+    !(target.scheme() == "http" && loopback)
+}
+/// How many times a forward reached its name lookup, for tests that show strict run refuses before it.
+#[cfg(test)]
+static LOOKUPS_ATTEMPTED: AtomicUsize = AtomicUsize::new(0);
 async fn forward(
     head: policy::RequestHead,
     body: Vec<u8>,
@@ -523,7 +537,17 @@ async fn forward(
         .target
         .port_or_known_default()
         .ok_or(Failure::Upstream)?;
+    // Native smoke strict run only (`native_smoke::STRICT_RUN_ENV`): judged at the operation, beside the name lookup,
+    // whatever the provider's constructor admitted. An admitted target's host is a literal loopback address, so the
+    // lookup below resolves no name and the connect reaches only that address.
+    #[cfg(feature = "native-smoke")]
+    if crate::native_smoke::strict_run() && strict_run_target_refused(&head.target) {
+        crate::native_smoke::strict_run_provider_refused("at the relay's forward, before any name lookup");
+        return Err(Failure::Upstream);
+    }
     let deadline = tokio::time::Instant::now() + IO_TIMEOUT;
+    #[cfg(test)]
+    LOOKUPS_ATTEMPTED.fetch_add(1, Ordering::SeqCst);
     let addresses =
         tokio::time::timeout_at(deadline, tokio::net::lookup_host((host.as_str(), port)))
             .await
@@ -1528,5 +1552,111 @@ mod tls_tests {
             assert!(Instant::now() < deadline);
             thread::sleep(Duration::from_millis(5));
         }
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "native-smoke")]
+mod strict_run_relay_tests {
+    use super::super::relay_policy::{Provider, RequestHead};
+    use super::{forward, strict_run_target_refused, LOOKUPS_ATTEMPTED};
+    use crate::native_smoke::{STRICT_RUN_ENV, STRICT_RUN_PROVIDER_TOKEN};
+    use std::process::{Command, Output};
+    use std::sync::{atomic::Ordering, Arc};
+
+    const ENTRY: &str = "embedded_agent::http_relay::strict_run_relay_tests::strict_run_relay_entry";
+    const ENTRY_ENV: &str = "SWBPIPE_TEST_STRICT_RUN_RELAY_ENTRY";
+    const ENDPOINT_ENV: &str = "SWBPIPE_TEST_STRICT_RUN_RELAY_ENDPOINT";
+    const TURN_ON_ENV: &str = "SWBPIPE_TEST_STRICT_RUN_RELAY_TURN_ON";
+
+    #[test]
+    fn strict_run_relay_target_judgment() {
+        let refused = |target: &str| strict_run_target_refused(&url::Url::parse(target).unwrap());
+        assert!(!refused("http://127.0.0.1:8123/v1/responses"));
+        assert!(!refused("http://[::1]:8123/v1/responses"));
+        assert!(!refused("http://127.1:8123/v1/responses"), "a parsed shortened literal is the loopback address it names");
+        for target in [
+            "https://provider.example/v1/responses",
+            "http://provider.example/v1/responses",
+            "http://localhost/v1/responses",
+            "http://192.0.2.1/v1/responses",
+            "https://127.0.0.1/v1/responses",
+            "https://[::1]/v1/responses",
+            "http://[2001:db8::1]/v1/responses",
+        ] {
+            assert!(refused(target), "{target}");
+        }
+    }
+
+    /// Runs one forward in a child of this test binary with a cleared environment: the provider is constructed with
+    /// strict run off (so its constructor admits it), then, with `turn_on`, strict run is turned on before the request,
+    /// so only the forward's own check can refuse it.
+    fn forward_in_child(endpoint: &str, turn_on: bool) -> Output {
+        let mut command = Command::new(std::env::current_exe().unwrap());
+        command.args([ENTRY, "--exact", "--test-threads=1", "--nocapture"]).env_clear().env(ENTRY_ENV, "1").env(ENDPOINT_ENV, endpoint);
+        if turn_on {
+            command.env(TURN_ON_ENV, "1");
+        }
+        command.output().unwrap()
+    }
+
+    fn outcome(output: &Output) -> (String, String) {
+        let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+        let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+        assert!(output.status.success(), "{stdout}\n{stderr}");
+        let line = stdout.lines().find_map(|line| line.split_once("forward ").map(|(_, rest)| rest.to_owned())).unwrap_or_else(|| panic!("{stdout}"));
+        (line, stderr)
+    }
+
+    #[test]
+    fn strict_run_relay_forward_refuses_before_any_lookup_whatever_the_constructor_admitted() {
+        for endpoint in ["https://provider.example/v1", "https://127.0.0.1:9/v1"] {
+            let (line, stderr) = outcome(&forward_in_child(endpoint, true));
+            assert_eq!(line, "Err(Upstream) lookups 0", "{endpoint}: {stderr}");
+            assert!(stderr.contains(&format!("{STRICT_RUN_PROVIDER_TOKEN}: ")) && stderr.contains("at the relay's forward, before any name lookup"), "{stderr}");
+            assert!(!stderr.contains("provider.example") && !stderr.contains("127.0.0.1"), "the line names the provider: {stderr}");
+        }
+    }
+
+    #[test]
+    fn strict_run_relay_forward_admits_a_literal_loopback_and_with_the_mode_off_changes_nothing() {
+        // Admitted by the forward's check: the lookup of the literal is reached (and the connect to the closed port fails).
+        let (line, stderr) = outcome(&forward_in_child("http://127.0.0.1:9/v1", true));
+        assert_eq!(line, "Err(Upstream) lookups 1", "{stderr}");
+        assert!(!stderr.contains(STRICT_RUN_PROVIDER_TOKEN), "{stderr}");
+        // Mode off: the https loopback target strict run refuses reaches its lookup as before. (No name is used here,
+        // so the test resolves no name.)
+        let (line, stderr) = outcome(&forward_in_child("https://127.0.0.1:9/v1", false));
+        assert_eq!(line, "Err(Upstream) lookups 1", "{stderr}");
+        assert!(!stderr.contains(STRICT_RUN_PROVIDER_TOKEN), "{stderr}");
+    }
+
+    /// Run only by [`forward_in_child`] ([`ENTRY_ENV`]); otherwise it returns at once.
+    #[test]
+    fn strict_run_relay_entry() {
+        if std::env::var_os(ENTRY_ENV).is_none() {
+            return;
+        }
+        let endpoint = std::env::var(ENDPOINT_ENV).unwrap();
+        assert!(std::env::var_os(STRICT_RUN_ENV).is_none());
+        let provider = Provider::new(&endpoint).expect("admitted with strict run off");
+        if std::env::var_os(TURN_ON_ENV).is_some() {
+            std::env::set_var(STRICT_RUN_ENV, "1");
+        }
+        let head = RequestHead { method: http::Method::POST, target: provider.target("/v1/responses").unwrap(), body_len: 2 };
+        let tls = Arc::new(
+            rustls::ClientConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
+                .with_protocol_versions(&[&rustls::version::TLS13])
+                .unwrap()
+                .with_root_certificates(rustls::RootCertStore::empty())
+                .with_no_client_auth(),
+        );
+        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+        let result = runtime.block_on(forward(head, b"{}".to_vec(), None, &tls));
+        let result = match result {
+            Ok(_) => "Ok".to_string(),
+            Err(failure) => format!("Err({failure:?})"),
+        };
+        println!("forward {result} lookups {}", LOOKUPS_ATTEMPTED.load(Ordering::SeqCst));
     }
 }

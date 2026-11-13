@@ -1116,7 +1116,14 @@ fn own_jcs_text(bytes: &[u8], member: &str) -> Result<Value, String> {
 /// confirm them, which the save does when it publishes.
 #[cfg_attr(not(any(test, feature = "native-smoke")), allow(dead_code))]
 pub fn verify_handoff_package(directory: &Path) -> Result<HandoffVerification, String> {
-    let dir = Dir::open_path(directory).map_err(|error| format!("{VERIFY_FAILED}: the folder could not be opened as a folder ({error})"))?;
+    verify_opened_handoff_package(Dir::open_path(directory))
+}
+
+/// [`verify_handoff_package`] on a folder already opened (or the failure to open it): the native smoke's strict run
+/// judges the opened folder first, then verifies through this descriptor only.
+#[cfg_attr(not(any(test, feature = "native-smoke")), allow(dead_code))]
+pub(crate) fn verify_opened_handoff_package(opened: io::Result<Dir>) -> Result<HandoffVerification, String> {
+    let dir = opened.map_err(|error| format!("{VERIFY_FAILED}: the folder could not be opened as a folder ({error})"))?;
     verify_dir(&dir).map(|(verification, _)| verification)
 }
 

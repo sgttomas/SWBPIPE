@@ -190,7 +190,7 @@ impl Live {
                 };
                 loop {
                     let mut bytes = Vec::new();
-                    if let Ok(file) = std::fs::File::open(&gate) {
+                    if let Ok(file) = crate::native_smoke::open_agent_gate(std::path::Path::new(&gate)) {
                         if file.take(8).read_to_end(&mut bytes).is_ok() {
                             match gate_answer(&bytes) {
                                 Some(GateAnswer::Ready) => break,

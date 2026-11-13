@@ -18,6 +18,13 @@
 //! Also: the module is declared once, in `lib.rs`; no feature of this crate
 //! implies `native-smoke`, and it is not a default.
 //!
+//! The same scan, with its own names ([`STRICT_RUN_NEEDLES`]), holds the
+//! strict run (`native_smoke::STRICT_RUN_ENV`) to the gate: outside
+//! `native_smoke.rs`, which `lib.rs` declares only under the gate, the strict
+//! run's variable, constants and functions are named only inside gated nodes,
+//! so a build without the feature does not read the variable. The relay and
+//! the provider policy, compiled in every build, consult it that way.
+//!
 //! Threat model (accepted for PR #53's permissions review). The scan guards
 //! against honest edits that drop, move or weaken the `native-smoke` gate, or
 //! add an ungated use by name. It is NOT a defence against deliberate
@@ -43,10 +50,11 @@ const NEEDLES: [&str; 6] = [
     "INJECT_ROOT_ENV",
 ];
 const EXEMPT: [&str; 2] = ["native_smoke_inject.rs", "native_smoke_reach_scan_tests.rs"];
+/// The strict run's names: its variable, its constants and every function the
+/// native smoke module exports for it (each named `strict_run…`).
+const STRICT_RUN_NEEDLES: [&str; 4] = ["SWBPIPE_NATIVE_SMOKE_STRICT_RUN", "STRICT_RUN_", "strict_run", "open_agent_gate"];
+const STRICT_RUN_EXEMPT: [&str; 2] = ["native_smoke.rs", "native_smoke_reach_scan_tests.rs"];
 
-fn names_the_injection(text: &str) -> bool {
-    NEEDLES.iter().any(|needle| text.contains(needle))
-}
 
 /// Exactly `#[cfg(feature = "native-smoke")]` among `attrs`.
 fn gated(attrs: &[Attribute]) -> bool {
@@ -101,8 +109,8 @@ fn expr_attrs(expr: &Expr) -> &[Attribute] {
     }
 }
 
-#[derive(Default)]
 struct Scan {
+    needles: &'static [&'static str],
     depth: usize,
     found: Vec<String>,
 }
@@ -114,7 +122,7 @@ impl Scan {
         self.depth -= usize::from(gate);
     }
     fn note(&mut self, what: &str, text: String) {
-        if self.depth == 0 && names_the_injection(&text) {
+        if self.depth == 0 && self.needles.iter().any(|needle| text.contains(needle)) {
             self.found.push(format!("{what}: {text}"));
         }
     }
@@ -161,8 +169,13 @@ impl<'ast> Visit<'ast> for Scan {
 
 /// Every use of the injection in `source` outside the native-smoke gate.
 fn ungated(source: &str) -> Result<Vec<String>, syn::Error> {
+    ungated_names(source, &NEEDLES)
+}
+
+/// Every use of `needles` in `source` outside the native-smoke gate.
+fn ungated_names(source: &str, needles: &'static [&'static str]) -> Result<Vec<String>, syn::Error> {
     let file = syn::parse_file(source)?;
-    let mut scan = Scan::default();
+    let mut scan = Scan { needles, depth: 0, found: Vec::new() };
     scan.visit_file(&file);
     Ok(scan.found)
 }
@@ -254,4 +267,62 @@ fn ungated_uses_fail() {
         assert!(!ungated(source).unwrap().is_empty(), "accepted, should be refused: {source}");
     }
     assert!(ungated("fn f( {").is_err(), "a file that does not parse is a failure, not a pass");
+}
+
+/// Without the `native-smoke` feature the strict run's variable is not read:
+/// every name of the strict run outside `native_smoke.rs` is inside a gated
+/// node, `native_smoke.rs` is declared only under the gate, and the scan
+/// finds the uses it must (so it cannot pass by finding none). Threat model as
+/// above: honest edits, not obfuscation; the cargo feature is authoritative.
+#[test]
+fn the_strict_run_is_read_only_under_the_native_smoke_gate() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut files = Vec::new();
+    sources(&root.join("src"), &mut files);
+    let mut problems = Vec::new();
+    let mut gated_uses = Vec::new();
+    for file in &files {
+        let name = file.file_name().unwrap().to_string_lossy().into_owned();
+        if STRICT_RUN_EXEMPT.contains(&name.as_str()) {
+            continue;
+        }
+        let text = std::fs::read_to_string(file).unwrap();
+        let relative = file.strip_prefix(root).unwrap().display().to_string();
+        match ungated_names(&text, &STRICT_RUN_NEEDLES) {
+            Ok(found) => problems.extend(found.into_iter().map(|use_| format!("{relative}: {use_}"))),
+            Err(error) => problems.push(format!("{relative}: does not parse ({error})")),
+        }
+        if text.contains("crate::native_smoke::strict_run") || text.contains("crate::native_smoke::open_agent_gate") {
+            gated_uses.push(name);
+        }
+    }
+    assert!(problems.is_empty(), "the strict run is named outside the native-smoke gate:\n{}", problems.join("\n"));
+    gated_uses.sort();
+    assert_eq!(gated_uses, ["http_relay.rs", "live_runtime.rs", "relay_policy.rs"], "the scan sees the gated consumers");
+    let lib = std::fs::read_to_string(root.join("src/lib.rs")).unwrap();
+    assert!(lib.contains("#[cfg(feature = \"native-smoke\")]\nmod native_smoke;\n"), "lib.rs declares native_smoke under the gate");
+    assert_eq!(lib.lines().filter(|line| line.trim() == "mod native_smoke;").count(), 1, "declared once");
+}
+
+#[test]
+fn the_strict_run_scan_refuses_an_ungated_read() {
+    let gate = "#[cfg(feature = \"native-smoke\")]";
+    let accepted = [
+        format!("fn f() {{ {gate} if crate::native_smoke::strict_run() {{ return; }} }}"),
+        format!("fn f() {{ {gate} let strict = crate::native_smoke::strict_run(); }}"),
+        format!("{gate} fn strict_run_target_refused() {{}}"),
+    ];
+    for source in &accepted {
+        assert_eq!(ungated_names(source, &STRICT_RUN_NEEDLES).unwrap(), Vec::<String>::new(), "{source}");
+    }
+    let refused = [
+        "fn f() { if crate::native_smoke::strict_run() { return; } }".to_string(),
+        "fn f() { let on = std::env::var_os(\"SWBPIPE_NATIVE_SMOKE_STRICT_RUN\"); }".to_string(),
+        "fn f() { let file = crate::native_smoke::open_agent_gate(p); }".to_string(),
+        format!("fn f() {{ {gate} let _a = 0; let on = crate::native_smoke::strict_run(); }}"),
+        "#[cfg(any(test, feature = \"native-smoke\"))] fn f() { crate::native_smoke::strict_run(); }".to_string(),
+    ];
+    for source in &refused {
+        assert!(!ungated_names(source, &STRICT_RUN_NEEDLES).unwrap().is_empty(), "accepted, should be refused: {source}");
+    }
 }

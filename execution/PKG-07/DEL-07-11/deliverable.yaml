@@ -104,6 +104,10 @@ checks:
 - apps/desktop/src/features/project-storage/modalHolds.test.ts
 - apps/desktop/src/features/project-storage/workLossGuards.test.tsx
 - apps/desktop/src-tauri/src/close_guard.rs
+# The scripted-run build's strict mode (REQ-010): its judgment of the five paths, and the scan that
+# keeps its variable out of a build without the native-smoke feature.
+- apps/desktop/src-tauri/src/native_smoke.rs
+- apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs
 - apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx
 - apps/desktop/src/App.shell.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts

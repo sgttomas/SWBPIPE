@@ -110,12 +110,19 @@ fn strict_end(chooser: &str, reason: &str) -> ! {
 /// by where it would be created. The home itself is inside. The temporary folder is not special: an answer under
 /// `TMPDIR` is inside only because a confined launch puts `TMPDIR` inside the home.
 fn inside_home(answer: &Path, home: Option<&OsStr>, fixed_home: Option<&OsStr>) -> bool {
-    let Some(home) = home else { return false };
-    if fixed_home.is_some_and(|fixed| fixed != home) {
-        return false;
-    }
-    let Ok(home) = fs::canonicalize(home) else { return false };
+    let Ok(home) = given_home(home, fixed_home) else { return false };
     resolved_answer(answer).is_some_and(|answer| answer.starts_with(&home))
+}
+
+/// The home this process was given, resolved: the value of `HOME`, refused when `HOME` is unset, when
+/// `CFFIXED_USER_HOME` is set to any other value, or when it cannot be resolved. The error is the reason, for a log
+/// line; it never names a path.
+fn given_home(home: Option<&OsStr>, fixed_home: Option<&OsStr>) -> Result<PathBuf, &'static str> {
+    let Some(home) = home else { return Err("was refused because HOME is unset") };
+    if fixed_home.is_some_and(|fixed| fixed != home) {
+        return Err("was refused because CFFIXED_USER_HOME differs from HOME");
+    }
+    fs::canonicalize(home).map_err(|_| "was refused because the home cannot be resolved")
 }
 
 /// `path` resolved as far as it exists: its deepest existing ancestor resolved (links followed), then the components
@@ -463,6 +470,638 @@ mod strict_chooser_tests {
     }
 }
 
+/// Strict run mode. With this variable set to this value:
+/// - the embedded agent's provider is admitted only as plain HTTP at a literal loopback address, judged when it is
+///   taken (`relay_policy::Provider::new`) and again by the relay's forward before any name lookup
+///   (`http_relay::forward`). Each refusal is returned to its caller and logged with [`STRICT_RUN_PROVIDER_TOKEN`]
+///   ([`strict_run_provider_refused`]), never with the provider's value;
+/// - the five paths this build takes without a chooser are judged inside the home this process was given
+///   ([`given_home`]): four reads at the operation ([`open_judged`]: the handoff folder of
+///   [`native_smoke_verify_handoff_package`], the file of [`native_smoke_read_report_package`], the plan's model path
+///   ([`open_launch_model`]) and the agent gate ([`open_agent_gate`])) and the report write ([`write_report`]). A
+///   refusal ends the app as the strict chooser does ([`strict_run_end`]).
+///
+/// Unset, or any other value, changes nothing. The mode exists only in this module, compiled only with the
+/// `native-smoke` feature; the relay and the provider policy, compiled in every build, consult it only inside
+/// `#[cfg(feature = "native-smoke")]` statements (`native_smoke_reach_scan_tests.rs`). The strict chooser's
+/// variable is a separate switch.
+pub(crate) const STRICT_RUN_ENV: &str = "SWBPIPE_NATIVE_SMOKE_STRICT_RUN";
+pub(crate) const STRICT_RUN_VALUE: &str = "1";
+/// The fixed token of a provider refused by strict run, distinct from an ordinary policy refusal (which logs nothing).
+pub(crate) const STRICT_RUN_PROVIDER_TOKEN: &str = "STRICT-RUN-PROVIDER-REFUSED";
+/// The fixed token of a path refused by strict run.
+pub(crate) const STRICT_RUN_PATH_TOKEN: &str = "STRICT-RUN-PATH-REFUSED";
+
+/// Whether strict run is on: the variable holds exactly [`STRICT_RUN_VALUE`].
+pub(crate) fn strict_run() -> bool {
+    std::env::var_os(STRICT_RUN_ENV).is_some_and(|mode| mode == STRICT_RUN_VALUE)
+}
+
+/// Logs a provider refused by strict run, `at` naming where; never the provider's value.
+pub(crate) fn strict_run_provider_refused(at: &str) {
+    eprintln!("[native-smoke] {STRICT_RUN_PROVIDER_TOKEN}: strict run admits only a provider at a literal loopback address over plain HTTP; a provider was refused {at}");
+}
+
+/// Ends the app for a path refused by strict run, naming which of the five and the reason (never the path), with the
+/// strict chooser's exit code.
+fn strict_run_end(which: &str, reason: &str) -> ! {
+    eprintln!("[native-smoke] {STRICT_RUN_PATH_TOKEN}: strict run: {which} {reason}; ending the app before anything more is read or written (exit {STRICT_CHOOSER_EXIT})");
+    std::process::exit(STRICT_CHOOSER_EXIT)
+}
+
+/// The judgment when a path is taken, before it is opened: absolute; its parent folder exists and resolves inside
+/// `home`; and the path, resolved as far as it exists ([`resolved_answer`]), lies inside `home` (so a link as the
+/// path, or among its ancestors, that points out of the home is outside; a link whose target is missing, or a `..`
+/// below the existing part, is refused). The error is the reason, for the log line.
+fn judge_taken(path: &Path, home: &Path) -> Result<(), &'static str> {
+    if !path.is_absolute() {
+        return Err("was refused because it is not an absolute path");
+    }
+    let parent = path.parent().and_then(|parent| fs::canonicalize(parent).ok());
+    if !parent.is_some_and(|parent| parent.starts_with(home)) {
+        return Err("was refused because its parent folder is absent or outside the home");
+    }
+    if !resolved_answer(path).is_some_and(|resolved| resolved.starts_with(home)) {
+        return Err("was refused because it resolves outside the home");
+    }
+    Ok(())
+}
+
+/// The judgment of an opened object: the path, resolved again now, lies inside `home`, and the entry it resolves to
+/// (not followed further) is the opened object, by device and inode.
+#[cfg(unix)]
+fn judge_opened(path: &Path, home: &Path, opened: (u64, u64)) -> Result<(), &'static str> {
+    use std::os::unix::fs::MetadataExt;
+    let Ok(resolved) = fs::canonicalize(path) else {
+        return Err("was refused because it cannot be resolved again once opened");
+    };
+    if !resolved.starts_with(home) {
+        return Err("was refused because, once opened, it resolves outside the home");
+    }
+    match fs::symlink_metadata(&resolved) {
+        Ok(entry) if (entry.dev(), entry.ino()) == opened => Ok(()),
+        _ => Err("was refused because the opened object is not the one the path names inside the home"),
+    }
+}
+
+/// Strict run's judgment at the operation. The home is the one given ([`given_home`]) and the path is judged when
+/// taken ([`judge_taken`]); then `open` opens it; then `between` runs (a test's hook; nothing in the app); then the
+/// OPENED object is judged ([`judge_opened`], its identity from `id`). The caller reads only through the returned
+/// object, so a path replaced after the judgment cannot redirect the read. `Err` is a refusal, with its reason;
+/// `Ok(Err)` is an ordinary failure to open (nothing was opened or read).
+#[cfg(unix)]
+fn open_judged<T>(
+    path: &Path,
+    home: Option<&OsStr>,
+    fixed_home: Option<&OsStr>,
+    open: impl FnOnce(&Path) -> io::Result<T>,
+    id: impl FnOnce(&T) -> io::Result<(u64, u64)>,
+    between: impl FnOnce(),
+) -> Result<io::Result<T>, &'static str> {
+    let home = given_home(home, fixed_home)?;
+    judge_taken(path, &home)?;
+    let opened = match open(path) {
+        Ok(opened) => opened,
+        Err(error) => return Ok(Err(error)),
+    };
+    between();
+    let identity = id(&opened).map_err(|_| "was refused because the opened object cannot be identified")?;
+    judge_opened(path, &home, identity)?;
+    Ok(Ok(opened))
+}
+
+#[cfg(not(unix))]
+fn open_judged<T>(
+    _path: &Path,
+    _home: Option<&OsStr>,
+    _fixed_home: Option<&OsStr>,
+    _open: impl FnOnce(&Path) -> io::Result<T>,
+    _id: impl FnOnce(&T) -> io::Result<(u64, u64)>,
+    _between: impl FnOnce(),
+) -> Result<io::Result<T>, &'static str> {
+    Err("was refused because strict run judges paths by unix file identities, which this platform lacks")
+}
+
+/// A file opened for reading as strict run opens it: never blocking on a FIFO at the open.
+#[cfg(unix)]
+fn open_for_reading(path: &Path) -> io::Result<fs::File> {
+    use std::os::unix::fs::OpenOptionsExt;
+    fs::OpenOptions::new().read(true).custom_flags(libc::O_NONBLOCK).open(path)
+}
+
+#[cfg(not(unix))]
+fn open_for_reading(path: &Path) -> io::Result<fs::File> {
+    fs::File::open(path)
+}
+
+#[cfg(unix)]
+fn file_identity(file: &fs::File) -> io::Result<(u64, u64)> {
+    use std::os::unix::fs::MetadataExt;
+    file.metadata().map(|metadata| (metadata.dev(), metadata.ino()))
+}
+
+#[cfg(not(unix))]
+fn file_identity(_file: &fs::File) -> io::Result<(u64, u64)> {
+    Err(io::Error::from(io::ErrorKind::Unsupported))
+}
+
+/// With strict run off, `None` (the caller opens as it always has). With it on, the object [`open_judged`] opened
+/// from the environment's home, or the ordinary failure to open; a refusal ends the app naming `which`.
+fn strict_run_open<T>(
+    which: &str,
+    path: &Path,
+    open: impl FnOnce(&Path) -> io::Result<T>,
+    id: impl FnOnce(&T) -> io::Result<(u64, u64)>,
+) -> Option<io::Result<T>> {
+    if !strict_run() {
+        return None;
+    }
+    let home = std::env::var_os("HOME");
+    let fixed_home = std::env::var_os("CFFIXED_USER_HOME");
+    match open_judged(path, home.as_deref(), fixed_home.as_deref(), open, id, || {}) {
+        Ok(opened) => Some(opened),
+        Err(reason) => strict_run_end(which, reason),
+    }
+}
+
+/// The handoff folder `native_smoke_verify_handoff_package` verifies: with strict run on, opened and judged as a
+/// folder at the operation, and verified through that descriptor only.
+fn verify_handoff_folder(path: &Path) -> Result<crate::handoff_package_publish::HandoffVerification, String> {
+    use crate::handoff_package_publish::{verify_handoff_package, verify_opened_handoff_package, Dir};
+    match strict_run_open("native_smoke_verify_handoff_package", path, Dir::open_path, Dir::id) {
+        None => verify_handoff_package(path),
+        Some(opened) => verify_opened_handoff_package(opened),
+    }
+}
+
+/// The bytes `native_smoke_read_report_package` reads: with strict run on, from the file judged at the operation.
+fn read_report_package_bytes(path: &Path) -> io::Result<Vec<u8>> {
+    match strict_run_open("native_smoke_read_report_package", path, open_for_reading, file_identity) {
+        None => fs::read(path),
+        Some(opened) => opened.and_then(|mut file| {
+            let mut bytes = Vec::new();
+            file.read_to_end(&mut bytes).map(|_| bytes)
+        }),
+    }
+}
+
+/// The plan's model file, opened for `native_smoke_profile_readers`: with strict run on, judged at the operation.
+fn open_launch_model(path: &Path) -> io::Result<fs::File> {
+    strict_run_open("native_smoke_profile_readers (the plan's model_path)", path, open_for_reading, file_identity)
+        .unwrap_or_else(|| fs::File::open(path))
+}
+
+/// One open of the agent gate (`SWBPIPE_NATIVE_SMOKE_AGENT_GATE`, `embedded_agent::live_runtime`): with strict run
+/// on, judged at the operation each time. A gate not yet written is an ordinary failure to open (its loop waits).
+pub(crate) fn open_agent_gate(path: &Path) -> io::Result<fs::File> {
+    strict_run_open("SWBPIPE_NATIVE_SMOKE_AGENT_GATE", path, open_for_reading, file_identity)
+        .unwrap_or_else(|| fs::File::open(path))
+}
+
+/// The report `native_smoke_finish` writes. With strict run off, created or truncated by name as before. With it
+/// on: the path is judged when taken ([`judge_taken`]) and must not be a link; it is opened for writing, created if
+/// absent, without truncation and without following a final link (`O_NOFOLLOW`); the opened file is judged
+/// ([`judge_opened`]) and must be a regular file; only then is it truncated and written, through that descriptor.
+/// Std offers no creation relative to an opened folder without `unsafe`, so the CREATION is judged at the taking:
+/// an ancestor swapped between the check and the open could create an empty file elsewhere, which is then refused
+/// before a byte is written.
+fn write_report(path: &Path, text: &str) -> io::Result<()> {
+    if !strict_run() {
+        return fs::write(path, text);
+    }
+    let home = std::env::var_os("HOME");
+    let fixed_home = std::env::var_os("CFFIXED_USER_HOME");
+    match create_judged(path, home.as_deref(), fixed_home.as_deref(), || {}) {
+        Ok(opened) => opened.and_then(|mut file| {
+            use std::io::Write;
+            file.set_len(0)?;
+            file.write_all(text.as_bytes())
+        }),
+        Err(reason) => strict_run_end("SWBPIPE_NATIVE_SMOKE_REPORT", reason),
+    }
+}
+
+/// [`write_report`]'s judgment, with the home given and a test's `between` hook after the open.
+#[cfg(unix)]
+fn create_judged(
+    path: &Path,
+    home: Option<&OsStr>,
+    fixed_home: Option<&OsStr>,
+    between: impl FnOnce(),
+) -> Result<io::Result<fs::File>, &'static str> {
+    use std::os::unix::fs::OpenOptionsExt;
+    let home = given_home(home, fixed_home)?;
+    judge_taken(path, &home)?;
+    if fs::symlink_metadata(path).is_ok_and(|entry| entry.file_type().is_symlink()) {
+        return Err("was refused because it is a link");
+    }
+    let opened = fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
+        .open(path);
+    let file = match opened {
+        Ok(file) => file,
+        Err(error) => return Ok(Err(error)),
+    };
+    between();
+    let metadata = file.metadata().map_err(|_| "was refused because the opened object cannot be identified")?;
+    if !metadata.is_file() {
+        return Err("was refused because it is not a regular file");
+    }
+    let identity = file_identity(&file).map_err(|_| "was refused because the opened object cannot be identified")?;
+    judge_opened(path, &home, identity)?;
+    Ok(Ok(file))
+}
+
+#[cfg(not(unix))]
+fn create_judged(
+    _path: &Path,
+    _home: Option<&OsStr>,
+    _fixed_home: Option<&OsStr>,
+    _between: impl FnOnce(),
+) -> Result<io::Result<fs::File>, &'static str> {
+    Err("was refused because strict run judges paths by unix file identities, which this platform lacks")
+}
+
+#[cfg(all(test, unix))]
+mod strict_run_tests {
+    use super::{create_judged, file_identity, open_for_reading, open_judged, STRICT_CHOOSER_EXIT, STRICT_RUN_ENV, STRICT_RUN_PATH_TOKEN};
+    use crate::handoff_package_publish::Dir;
+    use std::ffi::OsStr;
+    use std::io::Read;
+    use std::path::{Path, PathBuf};
+    use std::process::{Command, Output};
+
+    /// A test folder under this process's temporary folder, removed on every way the test ends: `home` and `outside`
+    /// side by side; in `home` a file, a folder, a link to `outside`, a link to a file outside and a link to the file
+    /// inside; in `outside` a file and a folder.
+    struct Folder {
+        root: PathBuf,
+    }
+
+    impl Folder {
+        fn new(name: &str) -> Self {
+            static SEQUENCE: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+            let sequence = SEQUENCE.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            let root = std::env::temp_dir().join(format!("swbpipe-strict-run-test-{name}-{}-{sequence}", std::process::id()));
+            let _ = std::fs::remove_dir_all(&root);
+            let folder = Self { root };
+            std::fs::create_dir_all(folder.home().join("folder")).unwrap();
+            std::fs::create_dir_all(folder.outside().join("folder")).unwrap();
+            std::fs::write(folder.home().join("inside.txt"), b"in").unwrap();
+            std::fs::write(folder.home().join("other.txt"), b"other").unwrap();
+            std::fs::write(folder.outside().join("outside.txt"), b"out").unwrap();
+            std::os::unix::fs::symlink(folder.outside(), folder.home().join("link-out")).unwrap();
+            std::os::unix::fs::symlink(folder.outside().join("outside.txt"), folder.home().join("file-link-out")).unwrap();
+            std::os::unix::fs::symlink(folder.outside().join("folder"), folder.home().join("folder-link-out")).unwrap();
+            std::os::unix::fs::symlink(folder.home().join("inside.txt"), folder.home().join("file-link-in")).unwrap();
+            folder
+        }
+
+        fn home(&self) -> PathBuf {
+            self.root.join("home")
+        }
+
+        fn outside(&self) -> PathBuf {
+            self.root.join("outside")
+        }
+
+        /// The five refused forms of one kind of path (`file` names the leaf: a file or a folder), each with its label.
+        fn refused(&self, file: &str) -> Vec<(&'static str, PathBuf, Option<PathBuf>, Option<PathBuf>)> {
+            let home = Some(self.home());
+            let outward = if file == "folder" { "folder-link-out" } else { "file-link-out" };
+            vec![
+                ("an outward link as the path", self.home().join(outward), home.clone(), None),
+                ("a link among its ancestors", self.home().join("link-out").join(if file == "folder" { "folder" } else { "outside.txt" }), home.clone(), None),
+                ("an absent parent", self.home().join("missing").join(file), home.clone(), None),
+                ("HOME unset", self.home().join(file), None, None),
+                ("the two home variables differing", self.home().join(file), home, Some(self.outside())),
+            ]
+        }
+    }
+
+    impl Drop for Folder {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.root);
+        }
+    }
+
+    fn read_file(path: &Path, home: Option<&Path>, fixed: Option<&Path>) -> Result<std::io::Result<std::fs::File>, &'static str> {
+        open_judged(path, home.map(Path::as_os_str), fixed.map(Path::as_os_str), open_for_reading, file_identity, || {})
+    }
+
+    fn read_folder(path: &Path, home: Option<&Path>, fixed: Option<&Path>) -> Result<std::io::Result<Dir>, &'static str> {
+        open_judged(path, home.map(Path::as_os_str), fixed.map(Path::as_os_str), Dir::open_path, Dir::id, || {})
+    }
+
+    fn create(path: &Path, home: Option<&Path>, fixed: Option<&Path>) -> Result<std::io::Result<std::fs::File>, &'static str> {
+        create_judged(path, home.map(Path::as_os_str), fixed.map(Path::as_os_str), || {})
+    }
+
+    fn contents(mut file: std::fs::File) -> String {
+        let mut text = String::new();
+        file.read_to_string(&mut text).unwrap();
+        text
+    }
+
+    #[test]
+    fn strict_run_judgment_a_read_inside_the_home_is_admitted_and_each_escape_refused() {
+        let folder = Folder::new("read");
+        let home = folder.home();
+        assert_eq!(contents(read_file(&home.join("inside.txt"), Some(&home), None).unwrap().unwrap()), "in");
+        assert_eq!(contents(read_file(&home.join("file-link-in"), Some(&home), None).unwrap().unwrap()), "in", "a link inside to inside");
+        assert!(read_file(&home.join("absent.txt"), Some(&home), None).unwrap().is_err(), "an absent file inside is an ordinary failure");
+        assert!(read_file(&home.join("inside.txt"), Some(&home), Some(&home)).unwrap().is_ok(), "equal home variables");
+        for (label, path, home, fixed) in folder.refused("inside.txt") {
+            assert!(read_file(&path, home.as_deref(), fixed.as_deref()).is_err(), "{label}");
+        }
+        assert!(read_file(Path::new("inside.txt"), Some(&home), None).is_err(), "a relative path");
+    }
+
+    #[test]
+    fn strict_run_judgment_a_folder_inside_the_home_is_admitted_and_each_escape_refused() {
+        let folder = Folder::new("folder");
+        let home = folder.home();
+        let opened = read_folder(&home.join("folder"), Some(&home), None).unwrap().unwrap();
+        use std::os::unix::fs::MetadataExt;
+        let entry = std::fs::metadata(home.join("folder")).unwrap();
+        assert_eq!(opened.id().unwrap(), (entry.dev(), entry.ino()));
+        for (label, path, home, fixed) in folder.refused("folder") {
+            assert!(read_folder(&path, home.as_deref(), fixed.as_deref()).is_err(), "{label}");
+        }
+    }
+
+    #[test]
+    fn strict_run_judgment_the_report_inside_the_home_is_admitted_and_each_escape_refused() {
+        let folder = Folder::new("write");
+        let home = folder.home();
+        assert!(create(&home.join("report.json"), Some(&home), None).unwrap().is_ok(), "a new file inside");
+        assert!(create(&home.join("inside.txt"), Some(&home), None).unwrap().is_ok(), "an existing file inside");
+        assert_eq!(std::fs::read(home.join("inside.txt")).unwrap(), b"in", "not truncated before the judgment's caller writes");
+        assert!(create(&home.join("file-link-in"), Some(&home), None).is_err(), "a link, even to a file inside");
+        assert!(create(&home.join("folder"), Some(&home), None).unwrap().is_err(), "a folder is not opened for writing");
+        for (label, path, home, fixed) in folder.refused("report.json") {
+            assert!(create(&path, home.as_deref(), fixed.as_deref()).is_err(), "{label}");
+        }
+        assert_eq!(std::fs::read(folder.outside().join("outside.txt")).unwrap(), b"out");
+        let mut left: Vec<_> = std::fs::read_dir(folder.outside()).unwrap().map(|entry| entry.unwrap().file_name()).collect();
+        left.sort();
+        assert_eq!(left, ["folder", "outside.txt"], "nothing was created outside");
+    }
+
+    #[test]
+    fn strict_run_operation_a_file_replaced_after_the_open_is_refused() {
+        let folder = Folder::new("swap-file");
+        let home = folder.home();
+        let path = home.join("inside.txt");
+        // Another file inside the home moved over the path: the path no longer names the opened file.
+        let swapped = open_judged(&path, Some(home.as_os_str()), None, open_for_reading, file_identity, || {
+            std::fs::rename(home.join("other.txt"), &path).unwrap();
+        });
+        assert!(swapped.is_err());
+        // The path replaced by a link out of the home: it resolves outside.
+        std::fs::write(&path, b"in").unwrap();
+        let swapped = open_judged(&path, Some(home.as_os_str()), None, open_for_reading, file_identity, || {
+            std::fs::remove_file(&path).unwrap();
+            std::os::unix::fs::symlink(folder.outside().join("outside.txt"), &path).unwrap();
+        });
+        assert!(swapped.is_err());
+    }
+
+    #[test]
+    fn strict_run_operation_an_outside_file_opened_through_a_swapped_path_is_refused() {
+        let folder = Folder::new("swap-back");
+        let home = folder.home();
+        let path = home.join("inside.txt");
+        // The path names an outside file when it is opened and is put back before the judgment: the opened file is not
+        // the one the path names inside the home.
+        let swapped = open_judged(&path, Some(home.as_os_str()), None, |judged: &Path| {
+            std::fs::rename(judged, home.join("aside.txt")).unwrap();
+            std::os::unix::fs::symlink(folder.outside().join("outside.txt"), judged).unwrap();
+            let opened = open_for_reading(judged);
+            std::fs::remove_file(judged).unwrap();
+            std::fs::rename(home.join("aside.txt"), judged).unwrap();
+            opened
+        }, file_identity, || {});
+        assert!(swapped.is_err());
+    }
+
+    #[test]
+    fn strict_run_operation_the_descriptor_read_is_the_one_judged() {
+        let folder = Folder::new("descriptor");
+        let home = folder.home();
+        let path = home.join("inside.txt");
+        let file = read_file(&path, Some(&home), None).unwrap().unwrap();
+        // Replaced after the judgment, by a link out of the home: the read still lands on the judged file.
+        std::fs::remove_file(&path).unwrap();
+        std::os::unix::fs::symlink(folder.outside().join("outside.txt"), &path).unwrap();
+        assert_eq!(contents(file), "in");
+        // The folder: replaced after the judgment, the descriptor is still the folder judged.
+        let opened = read_folder(&home.join("folder"), Some(&home), None).unwrap().unwrap();
+        let judged = opened.id().unwrap();
+        std::fs::rename(home.join("folder"), home.join("folder-aside")).unwrap();
+        std::fs::create_dir(home.join("folder")).unwrap();
+        use std::os::unix::fs::MetadataExt;
+        let now = std::fs::metadata(home.join("folder")).unwrap();
+        assert_ne!((now.dev(), now.ino()), judged);
+        assert_eq!(opened.id().unwrap(), judged);
+    }
+
+    #[test]
+    fn strict_run_operation_a_folder_replaced_after_the_open_is_refused() {
+        let folder = Folder::new("swap-folder");
+        let home = folder.home();
+        let path = home.join("folder");
+        let swapped = open_judged(&path, Some(home.as_os_str()), None, Dir::open_path, Dir::id, || {
+            std::fs::rename(&path, home.join("folder-aside")).unwrap();
+            std::os::unix::fs::symlink(folder.outside().join("folder"), &path).unwrap();
+        });
+        assert!(swapped.is_err());
+    }
+
+    #[test]
+    fn strict_run_operation_the_report_replaced_after_the_open_is_refused_before_a_byte_is_written() {
+        let folder = Folder::new("swap-report");
+        let home = folder.home();
+        let path = home.join("inside.txt");
+        let swapped = create_judged(&path, Some(home.as_os_str()), None, || {
+            std::fs::remove_file(&path).unwrap();
+            std::os::unix::fs::symlink(folder.outside().join("outside.txt"), &path).unwrap();
+        });
+        assert!(swapped.is_err());
+        assert_eq!(std::fs::read(folder.outside().join("outside.txt")).unwrap(), b"out");
+    }
+
+    const ENTRY: &str = "native_smoke::strict_run_tests::strict_run_entry";
+    const ENTRY_ENV: &str = "SWBPIPE_TEST_STRICT_RUN_ENTRY";
+    const PATH_ENV: &str = "SWBPIPE_TEST_STRICT_RUN_PATH";
+
+    /// The five sites, by the name each refusal's log line gives.
+    const SITES: [(&str, &str); 5] = [
+        ("verify", "native_smoke_verify_handoff_package"),
+        ("read", "native_smoke_read_report_package"),
+        ("model", "native_smoke_profile_readers (the plan's model_path)"),
+        ("gate", "SWBPIPE_NATIVE_SMOKE_AGENT_GATE"),
+        ("write", "SWBPIPE_NATIVE_SMOKE_REPORT"),
+    ];
+
+    /// Runs one site's function in a child of this test binary whose environment is cleared and then holds only `env`
+    /// (the variables it reads cannot be set in this process, whose other tests run on other threads). The child runs
+    /// the function the command calls, not the running application.
+    fn run_site(site: &str, path: &Path, env: &[(&str, &OsStr)]) -> Output {
+        Command::new(std::env::current_exe().unwrap())
+            .args([ENTRY, "--exact", "--test-threads=1", "--nocapture"])
+            .env_clear()
+            .env(ENTRY_ENV, site)
+            .env(PATH_ENV, path)
+            .envs(env.iter().copied())
+            .output()
+            .unwrap()
+    }
+
+    fn assert_ended(output: &Output, which: &str, path: &Path, label: &str) {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert_eq!(output.status.code(), Some(STRICT_CHOOSER_EXIT), "{which}, {label}:\n{stdout}\n{stderr}");
+        assert!(stderr.contains(&format!("{STRICT_RUN_PATH_TOKEN}: strict run: {which} was refused because")), "{stderr}");
+        assert!(!stdout.contains("site returned"), "{stdout}");
+        assert!(!stderr.contains(&*path.to_string_lossy()) && !stdout.contains(&*path.to_string_lossy()), "the log names the path: {stderr}");
+    }
+
+    fn assert_returned(output: &Output, path: &Path) -> String {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert!(output.status.success(), "{:?} for {}\n{stdout}\n{stderr}", output.status, path.display());
+        assert!(!stderr.contains(STRICT_RUN_PATH_TOKEN), "{stderr}");
+        let line = stdout.lines().find(|line| line.contains("site returned")).unwrap_or_else(|| panic!("{stdout}"));
+        line.to_owned()
+    }
+
+    /// The leaf each site is given inside the home: the handoff site a folder, the others a file (the report a new one).
+    fn leaf(site: &str) -> &'static str {
+        match site {
+            "verify" => "folder",
+            "write" => "report.json",
+            _ => "inside.txt",
+        }
+    }
+
+    #[test]
+    fn strict_run_sites_each_escape_ends_the_app_naming_the_site_never_the_path() {
+        for (site, which) in SITES {
+            let folder = Folder::new(&format!("site-{site}"));
+            for (label, path, home, fixed) in folder.refused(leaf(site)) {
+                let mut env: Vec<(&str, &OsStr)> = vec![(STRICT_RUN_ENV, OsStr::new("1"))];
+                if let Some(home) = &home {
+                    env.push(("HOME", home.as_os_str()));
+                }
+                if let Some(fixed) = &fixed {
+                    env.push(("CFFIXED_USER_HOME", fixed.as_os_str()));
+                }
+                assert_ended(&run_site(site, &path, &env), which, &path, label);
+            }
+            assert_eq!(std::fs::read(folder.outside().join("outside.txt")).unwrap(), b"out", "{site}");
+            assert!(!folder.outside().join("report.json").exists() && !folder.home().join("missing").exists(), "{site}");
+        }
+    }
+
+    #[test]
+    fn strict_run_sites_inside_the_home_are_admitted() {
+        for (site, _) in SITES {
+            let folder = Folder::new(&format!("inside-{site}"));
+            let path = folder.home().join(leaf(site));
+            let home = folder.home();
+            let line = assert_returned(&run_site(site, &path, &[(STRICT_RUN_ENV, OsStr::new("1")), ("HOME", home.as_os_str())]), &path);
+            match site {
+                "read" => assert!(line.ends_with("site returned 2 bytes"), "{line}"),
+                "model" | "gate" => assert!(line.ends_with("site returned opened"), "{line}"),
+                "write" => {
+                    assert!(line.ends_with("site returned written"), "{line}");
+                    assert_eq!(std::fs::read(&path).unwrap(), b"{\"report\":1}");
+                }
+                _ => assert!(line.contains("site returned"), "{line}"),
+            }
+        }
+    }
+
+    #[test]
+    fn strict_run_sites_with_the_mode_off_take_the_path_wherever_it_points() {
+        for (site, _) in SITES {
+            for mode in [None, Some("0"), Some("")] {
+                let folder = Folder::new(&format!("off-{site}"));
+                let path = if site == "verify" { folder.outside().join("folder") } else { folder.outside().join(if site == "write" { "report.json" } else { "outside.txt" }) };
+                let home = folder.home();
+                let mut env: Vec<(&str, &OsStr)> = vec![("HOME", home.as_os_str())];
+                if let Some(mode) = mode {
+                    env.push((STRICT_RUN_ENV, OsStr::new(mode)));
+                }
+                let line = assert_returned(&run_site(site, &path, &env), &path);
+                match site {
+                    "read" => assert!(line.ends_with("site returned 3 bytes"), "{line}"),
+                    "model" | "gate" => assert!(line.ends_with("site returned opened"), "{line}"),
+                    "write" => assert_eq!(std::fs::read(&path).unwrap(), b"{\"report\":1}"),
+                    _ => {}
+                }
+                // The strict chooser's variable does not turn strict run on.
+                if mode.is_none() && site == "read" {
+                    let line = assert_returned(&run_site(site, &path, &[("HOME", home.as_os_str()), (super::STRICT_CHOOSER_ENV, OsStr::new("1"))]), &path);
+                    assert!(line.ends_with("site returned 3 bytes"), "{line}");
+                }
+            }
+        }
+    }
+
+    /// Run only by [`run_site`] ([`ENTRY_ENV`] names the site); otherwise it returns at once.
+    #[test]
+    fn strict_run_entry() {
+        let Some(site) = std::env::var_os(ENTRY_ENV) else { return };
+        let path = PathBuf::from(std::env::var_os(PATH_ENV).unwrap());
+        let outcome = match site.to_str().unwrap() {
+            "verify" => match super::verify_handoff_folder(&path) {
+                Ok(_) => "verified".to_string(),
+                Err(error) => format!("refused by the verifier: {}", error.split(':').next().unwrap_or("")),
+            },
+            "read" => match super::read_report_package_bytes(&path) {
+                Ok(bytes) => format!("{} bytes", bytes.len()),
+                Err(error) => format!("failed {:?}", error.kind()),
+            },
+            "model" => super::open_launch_model(&path).map_or_else(|error| format!("failed {:?}", error.kind()), |_| "opened".into()),
+            "gate" => super::open_agent_gate(&path).map_or_else(|error| format!("failed {:?}", error.kind()), |_| "opened".into()),
+            "write" => super::write_report(&path, "{\"report\":1}").map_or_else(|error| format!("failed {:?}", error.kind()), |_| "written".into()),
+            other => panic!("unknown site {other}"),
+        };
+        println!("site returned {outcome}");
+    }
+
+    /// Every command or loop that takes one of the five paths reaches it only through its strict run function: no
+    /// direct open, read or write of a path remains in those functions. Threat model: an honest edit that bypasses the
+    /// judgment; not a defence against another route.
+    #[test]
+    fn strict_run_every_site_reaches_its_path_through_the_judgment() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+        let body = |file: &str, start: &str, end: &str| -> String {
+            let text = std::fs::read_to_string(root.join(file)).unwrap();
+            let from = text.find(start).unwrap_or_else(|| panic!("{file}: {start}"));
+            let to = from + text[from..].find(end).unwrap_or_else(|| panic!("{file}: {end}"));
+            text[from..to].to_owned()
+        };
+        let sites = [
+            (body("native_smoke.rs", "pub fn native_smoke_verify_handoff_package(", "\n}\n"), "verify_handoff_folder("),
+            (body("native_smoke.rs", "pub fn native_smoke_read_report_package(", "\n}\n"), "read_report_package_bytes("),
+            (body("native_smoke.rs", "fn profile_readers(", "\n}\n"), "open_launch_model("),
+            (body("native_smoke.rs", "pub fn native_smoke_finish(", "\n}\n"), "write_report("),
+            (body("embedded_agent/live_runtime.rs", "SWBPIPE_NATIVE_SMOKE_AGENT_GATE\")", "let stdout = process.take_stdout()"), "crate::native_smoke::open_agent_gate("),
+        ];
+        for (text, through) in sites {
+            assert!(text.contains(through), "{through}");
+            for direct in ["File::open", "fs::read", "fs::write", "OpenOptions", "Dir::open_path", "handoff_package_publish::verify_handoff_package"] {
+                assert!(!text.contains(direct), "{through}'s site opens a path directly ({direct})");
+            }
+        }
+    }
+}
+
 #[tauri::command]
 pub fn native_smoke_choose(app: AppHandle, path: String) -> Result<(), String> {
     app.state::<SmokeState>()
@@ -527,7 +1166,7 @@ pub fn native_smoke_log(line: String) {
 pub fn native_smoke_finish(app: AppHandle, report: Value) -> Result<(), String> {
     let path = std::env::var("SWBPIPE_NATIVE_SMOKE_REPORT").map_err(|_| "SWBPIPE_NATIVE_SMOKE_REPORT unset".to_string())?;
     let text = serde_json::to_string_pretty(&report).map_err(|error| error.to_string())?;
-    fs::write(&path, text).map_err(|error| format!("{path}: {error}"))?;
+    write_report(Path::new(&path), &text).map_err(|error| format!("{path}: {error}"))?;
     app.exit(0);
     Ok(())
 }
@@ -680,7 +1319,7 @@ pub fn install<R: Runtime>(builder: Builder<R>) -> Builder<R> {
 /// verifier the design names.
 #[tauri::command]
 pub fn native_smoke_verify_handoff_package(path: String) -> Result<crate::handoff_package_publish::HandoffVerification, String> {
-    crate::handoff_package_publish::verify_handoff_package(std::path::Path::new(&path))
+    verify_handoff_folder(Path::new(&path))
 }
 
 /// Re-reads a saved report package with the product's reader
@@ -690,7 +1329,7 @@ pub fn native_smoke_verify_handoff_package(path: String) -> Result<crate::handof
 #[tauri::command]
 pub fn native_smoke_read_report_package(path: String) -> Result<Value, String> {
     use sha2::{Digest, Sha256};
-    let bytes = fs::read(&path).map_err(|error| format!("{path}: {error}"))?;
+    let bytes = read_report_package_bytes(Path::new(&path)).map_err(|error| format!("{path}: {error}"))?;
     let read = open_pipe_stress_report_package::read_report_package_container(&bytes).map_err(|refusal| refusal.to_string())?;
     let hex = |data: &[u8]| format!("{:x}", Sha256::digest(data));
     let members: Vec<Value> = read
@@ -796,7 +1435,7 @@ fn profile_readers(
     let path = plan["model_path"]
         .as_str()
         .ok_or_else(|| fail("the launch has no model path"))?;
-    let mut file = fs::File::open(path).map_err(|_| fail("the launch model cannot be opened"))?;
+    let mut file = open_launch_model(Path::new(path)).map_err(|_| fail("the launch model cannot be opened"))?;
     let file_len = file
         .metadata()
         .map_err(|_| fail("model metadata unavailable"))?
