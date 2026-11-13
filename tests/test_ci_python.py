@@ -710,3 +710,28 @@ def test_sharding_preserves_pytest_collection_with_directory_and_wrapper(tmp_pat
     assert expected == actual
     assert any('suffix_test.py::test_suffix' in name for name in expected)
     assert any('wrapper_test.py::test_one' in name for name in expected)
+
+
+def test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_pytest(monkeypatch):
+    """A test that builds a crate offline fetches no Cargo dependency itself: the runner fetches the crate's locked
+    dependencies before pytest starts, whenever the selection holds the test, by file or by a folder above it."""
+    test, manifest = 'tests/test_release_timing_build_identity.py', 'core/solver/release_timing/Cargo.toml'
+    assert ci.OFFLINE_BUILDS[test] == (manifest,)
+    for name, manifests in ci.OFFLINE_BUILDS.items():
+        assert '"--offline"' in (PROJECT / name).read_text(), name
+        for path in manifests:
+            assert (PROJECT / path).is_file() and (PROJECT / path).with_name('Cargo.lock').is_file(), path
+    assert ci.offline_build_manifests([test]) == [manifest]
+    assert ci.offline_build_manifests(['tests/test_ci_python.py', 'tests']) == [manifest]
+    assert ci.offline_build_manifests(['tests/test_release_timing_build_identity.py.bak', 'tests/security']) == []
+    assert ci.offline_build_manifests([]) == []
+    # The fetch is online whatever an earlier step left in the environment, and locked.
+    monkeypatch.setenv('CARGO_NET_OFFLINE', 'true')
+    calls = []
+    ci.fetch_locked(PROJECT, [manifest], run=lambda argv, **kwargs: calls.append((argv, kwargs)))
+    (argv, kwargs), = calls
+    assert argv == ['cargo', 'fetch', '--locked', '--manifest-path', manifest]
+    assert 'CARGO_NET_OFFLINE' not in kwargs['env'] and kwargs['check'] is True and kwargs['cwd'] == PROJECT
+    assert 'PATH' in kwargs['env'], 'the rest of the environment is kept'
+    ci.fetch_locked(PROJECT, [], run=lambda *args, **kwargs: calls.append(None))
+    assert len(calls) == 1, 'nothing is fetched for a selection without such a test'
