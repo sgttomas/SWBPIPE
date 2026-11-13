@@ -830,8 +830,9 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_bytes = include_bytes!("../../../schemas/results_pressure_3.v0.3.schema.json");
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
-    // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "3781fec06000072e54f44c02bfcf0116213227d422b47fa387c6766ee5a14d23");
+    // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3). RT-L2: the
+    // cancellation-screen exception record (its renamed ratio member, basis token and description).
+    assert_eq!(schema_hash, "2f10da82e591d426bcedd6297032c6cad054bd92e9dd6c49766bea62f0f18235");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -911,7 +912,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // #105B, PF1b and I3a).
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
-        "dfded4b08d1f2b8bf7bd3b1745b5d82647d25eaec08ffc84a14217564a74bcf2",
+        "0440ba00d0377a4f023860ce2239ce35bd1905d0676bd6b1ecebcb19ad9b23dc",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
         "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a",
@@ -920,7 +921,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ce61278a855e9337af18fdc7a1fd517bbe881290be7a5fba049add2491511326",
         "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
-        "3781fec06000072e54f44c02bfcf0116213227d422b47fa387c6766ee5a14d23",
+        "2f10da82e591d426bcedd6297032c6cad054bd92e9dd6c49766bea62f0f18235",
         "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9",
         "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d",
     ];
@@ -1695,9 +1696,10 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // §8.36: the snubber token extends the unsupported-family text by 9 B at 32 supports (+288 B).
     // §8.44 on §8.45's lexer: -1,223,704 B, the static/report literal classes measured by the Rust lexer (§8.45);
     // main 6c3cb46d3's tree priced by its own tool gives the same 273,191,600 B, so RT-A3 increment 3 moves none of it.
-    // RT-L2 (RTL2-VL): +170,272,920 B = 16,385 · 10,392 B, the pressure-elongation setting's k + 1 refusal
-    // diagnostics in the env variant's validation call (k <= RawValues), each at NP-MS's 2,048 + 8,192 + 152 B.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 443_464_520, "current text closure at C_eq = 3, maximum over routes");
+    // RT-L2 (RTL2-VL): +41,568 B = 4 · 10,392 B, the pressure-elongation setting's k + 1 refusal diagnostics in
+    // the env variant's validation call (k <= C = 3: D1.4 declines a longer list before validation, RTL2-K), each
+    // at NP-MS's 2,048 + 8,192 + 152 B.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 273_233_168, "current text closure at C_eq = 3, maximum over routes");
     // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
@@ -1706,9 +1708,9 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!((caps.complete[6], caps.complete[7]), (text_atoms::L_PUB, text_atoms::L_DIAGID), "L_PUB (RV84 C-N1) and L_DIAGID (RV87 N-3)");
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
-    // RT-L2 (RTL2-VL): D_env +16,385 (the setting's k + 1 refusal diagnostics), so its push capacity doubles.
+    // RT-L2 (RTL2-VL): D_env +4 (the setting's k + 1 refusal diagnostics, k <= C = 3); its push capacity stays.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (6_139_118, 2_330, 16_384, 45_160, 65_536), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (6_139_118, 2_330, 16_384, 28_779, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -2240,14 +2242,16 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // STATICS[1] +779 B, +17 Node(String,Value) and +78 s(Value); the restated identity and load-state motion and
 // history limitations, TAV_W and TAV_X +2,718 B): +18,761 B in every phase and mode, from maintained eval at the
 // unchanged in-build atoms (they reproduce §8.58's record exactly), without R.
-// RT-L2 D3: the pressure-elongation setting's list priced at the raw census's bound (RTL2-K: the typed list,
-// validation's refusal working set and k + 1 diagnostics per validation call, D +32,770) and the pressure-3
-// table and schema (STATICS[1] +3,948 B): every phase rises, W1 +900,809,543 B to W3 +1,623,276,625 B, X1
-// +748,730,763 B, in both modes, from maintained eval at the in-build atoms (s((&str,String)) joins the
-// profile), without R. W3 stays the maximum.
+// RT-L2 D3 on the final source: the pressure-elongation setting (RTL2-K: the typed list at the raw census's bound,
+// because it is parsed before D1; validation's refusal working set and k + 1 diagnostics per validation call at
+// k <= C = 3, because D1.4 declines a longer list before validation, D +8), the pressure-3 table and schema
+// (STATICS[1] +4,044 B) and TAV +174,654 B (the 8 diagnostics at 21,640 B each and 1,534 B that D does not
+// carry): every phase rises, W1 +779,814 B, W3 +956,334 B,
+// X1 +1,267,322 B, in both modes, from maintained eval at the in-build atoms (s((&str,String)) joins the profile),
+// without R. W3 stays the maximum.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [7_351_202_784, 7_693_197_345, 10_367_400_255, 10_074_794_529, 8_829_447_425, 9_275_104_108, 7_921_333_256, 7_478_519_022],
-    [7_410_334_128, 7_752_328_689, 10_426_531_599, 10_133_925_873, 8_888_578_769, 9_334_235_452, 7_980_464_600, 7_537_650_366],
+    [6_451_173_055, 6_793_167_616, 8_745_079_964, 8_538_776_164, 7_612_393_074, 8_527_640_667, 7_259_712_601, 6_932_974_133],
+    [6_510_304_399, 6_852_298_960, 8_804_211_308, 8_597_907_508, 7_671_524_418, 8_586_772_011, 7_318_843_945, 6_992_105_477],
 ];
 
 #[test]
@@ -2366,7 +2370,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 45_160, "current canonical D_env at C_eq = 3 (RT-L2: +16,385, the pressure-elongation setting's k + 1 refusal diagnostics, k <= RawValues, RTL2-VL; model document 0.8.0's shear-model refusal, §8.26: +1; W-16 slice a, §8.23: -128, route E's deleted pre-parse imposed-displacement refusal; W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
+    assert_eq!(caps.complete[3], 28_779, "current canonical D_env at C_eq = 3 (RT-L2: +4, the pressure-elongation setting's k + 1 refusal diagnostics, k <= C after D1.4's elongation clause, RTL2-VL; model document 0.8.0's shear-model refusal, §8.26: +1; W-16 slice a, §8.23: -128, route E's deleted pre-parse imposed-displacement refusal; W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();

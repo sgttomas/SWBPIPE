@@ -123,6 +123,8 @@ if fnkey("member_descriptors", PP_ + "source_recovery.rs"):
 if _PRESSURE_FN == "assemble_pressure_case":
     O10_LOOPS_LAST += [
         ("for ((dof, pbits, area, _), group) in groups", "0", O10 + "B5L1: both bore and joint factor groups are produced only inside D1.5's absent/empty pressure-region loop; retains the former factor-group zero on the new key shape", ["pressure_runtime.rs:finish_source_groups"]),
+        # RT-L2 (final source): the same loop now borrows the groups (the exception reads them after it); same premise.
+        ("for (&(dof, pbits, area, _), group) in &groups", "0", O10 + "B5L1: both bore and joint factor groups are produced only inside D1.5's absent/empty pressure-region loop; the loop borrows the same (empty) map", ["pressure_runtime.rs:finish_source_groups"]),
         ("for edge in edges", "0", O10 + "B5L2: connector pressure edges exist only in pressure regions with built connectors; D1.4/5 have neither and project(successor) retains empty pressure evidence; keeps outer scans and every reader owner", ["connector_evidence.rs:validate_pressure"]),
     ]
 if fnkey("append_connector_results", PP_ + "lib.rs"):
@@ -4017,7 +4019,9 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # RT-L2 D3: reader_verdict.rs re-read: physics_model_checks adds the exception's model checks and standing passes the
     # retired pressure-2 code through; both reached only from standing/dispatch, outside the retained roots. The OP1A
     # premises stand.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/reporting/result_export/src/reader_verdict.rs': '64dd6426b5b2943a5d0c5336e21d17af4309a99f57289d16b5c438b03c7203ca'}
+    # RT-L2 final source: reader_verdict.rs re-read: the exception's model check is renamed exception_model_binding (one
+    # call and its comment). The OP1A premises stand.
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/reporting/result_export/src/reader_verdict.rs': '30217d83a14d26614935ec948e4db7e86763682632544d2c07685f9f40318c65'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -4091,7 +4095,9 @@ if fnkey("selects", _TIM):
     # shear-model member, its decoder and selects' reading are unchanged. reader_verdict.rs adds the exception's model
     # checks to physics_model_checks and passes the retired pressure-2 code through standing; both are reached only from
     # standing/dispatch, outside the retained roots. The Timoshenko premises stand.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2b7eeabb66ba98ce7e727939ccc23eb6c8036db86ca6e2cdea72e9ebb28b772', 'core/reporting/result_export/src/reader_verdict.rs': '64dd6426b5b2943a5d0c5336e21d17af4309a99f57289d16b5c438b03c7203ca', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    # RT-L2 final source: reader_verdict.rs re-read: the exception's model check is renamed exception_model_binding (one
+    # call and its comment), still reached only from standing/dispatch. The Timoshenko premises stand.
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2b7eeabb66ba98ce7e727939ccc23eb6c8036db86ca6e2cdea72e9ebb28b772', 'core/reporting/result_export/src/reader_verdict.rs': '30217d83a14d26614935ec948e4db7e86763682632544d2c07685f9f40318c65', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -6521,41 +6527,51 @@ if __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(
 _RTL2_PR = PP_ + "pressure_runtime.rs"
 _RTL2_PE = RE_ + "physics_evidence.rs"
 _RTL2_MS = PP_ + "model_settings.rs"
-# RTL2-XZ (producer, guard): finish_source_groups forms the exception's eligibility and family before the screen, and the
-# record and the warning only inside the failed-screen branch. On D1 every retained case's factor groups are empty:
-# they are formed only inside assemble_pressure_case's loop over the case's pressure regions (and the joint terms it
-# calls there), which D1.5 makes explicitly empty on route E, and route L never reaches the pressure producer (B5L1's
-# premise, the rule on finish_source_groups' group loop). With no region and no group:
-# - the eligibility predicate returns false at the case setting or walks the empty regions and terminals (an empty
-#   Vec::new) and the term test's empty map, allocating nothing and pushing no text;
-# - the family collects an empty set, map and two empty Vecs from the empty regions and groups (no allocation);
-# - the screen's maximum ratio stays 0 over no group, so the screen is 0, the failed-screen branch is never entered and
-#   neither the record nor the warning is formed; `exception` stays None.
-# The four call edges carry no heap or text on D1 and are zeroed for pricing; each callee's loops over groups, terms,
-# regions, terminals and members, and the record's and the warning's string and JSON construction, are unreached. The
-# guard binds the structure, never the message, code name or basis token: one call of each, the record's call inside
-# the failed-screen branch, the warning's inside `if let Some(record) = exception`, and B5L1's group loop.
+# RTL2-XZ (producer, guard): the cancellation screen's exception. finish_source_groups forms the factor groups' evidence
+# in one loop that borrows the groups, decides the original screen, and only when it fails calls
+# `cancellation_exception` (the eligibility predicate, `family_nodes` and `cap_remainder_record`, each called once there);
+# the groups are then dropped, and the warning (`cap_remainder_warning`) is formed only inside
+# `if let Some((record, (_, interior))) = exception`. On D1 every retained case's factor groups are empty: they are
+# formed only inside assemble_pressure_case's loop over the case's pressure regions (and the joint terms it calls there),
+# which D1.5 makes explicitly empty on route E, and route L never reaches the pressure producer (B5L1's premise, the
+# rule on the group loop). With no group, `by_dof`'s lists stay empty, the screen's maximum ratio stays 0 and the screen
+# is 0, so the failed-screen branch is never entered: `cancellation_exception` is not called (its predicate, family and
+# record are not reached), `exception` stays None and the warning is not formed. The groups map is empty (a BTreeMap
+# with no node allocates nothing), so borrowing it through the loop and dropping it after the screen holds no bytes on
+# D1. The two call edges from finish_source_groups carry no heap or text on D1 and are zeroed for pricing, and with
+# them the three edges inside `cancellation_exception` (its only caller is the zeroed one). The guard binds the
+# structure, never the message, code name or basis token: one production call of each, the exception's call inside
+# the failed-screen branch and after the screen's ratio, the warning's inside `if let Some(` .. `) = exception {`, the
+# predicate, family and record called only from `cancellation_exception`, and B5L1's group loop.
+_RTL2_X0 = ("cancellation_exception", "cap_remainder_warning")
+_RTL2_X1 = ("cancellation_exception_eligible", "family_nodes", "cap_remainder_record")
 if _fn_has("finish_source_groups", _RTL2_PR, "let mut exception = None;"):
     _rtl2_fsg = _fn_text("finish_source_groups", _RTL2_PR)
-    _rtl2_x = ("cancellation_exception_eligible", "family_nodes", "departure_thrust_record", "departure_thrust_warning")
+    _rtl2_ce = _fn_text("cancellation_exception", _RTL2_PR) if fnkey("cancellation_exception", _RTL2_PR) else ""
+    _rtl2_code = _re.sub(r"//[^\n]*", "", _production(_RTL2_PR))
     _rtl2_branch = _rtl2_fsg.split("if !screen.is_finite() || screen > 1e-9 {", 1)
+    _rtl2_some = _re.split(r"if let Some\([^\n]*\) = exception \{", _rtl2_fsg, maxsplit=1)
     _rtl2_ok = (
-        all(fnkey(_n, _RTL2_PR) for _n in _rtl2_x),
-        all(len(_re.findall(r"\b" + _n + r"\(", _re.sub(r"//[^\n]*", "", _production(_RTL2_PR)))) == 2 for _n in _rtl2_x),
-        all(_rtl2_fsg.count(_n + "(") == 1 for _n in _rtl2_x),
-        _rtl2_fsg.count("for ((dof, pbits, area, _), group) in groups {") == 1,
+        all(fnkey(_n, _RTL2_PR) for _n in _RTL2_X0 + _RTL2_X1),
+        all(len(_re.findall(r"\b" + _n + r"\(", _rtl2_code)) == 2 for _n in _RTL2_X0 + _RTL2_X1),
+        all(_rtl2_fsg.count(_n + "(") == 1 for _n in _RTL2_X0),
+        all(_rtl2_ce.count(_n + "(") == 1 for _n in _RTL2_X1),
+        _rtl2_fsg.count("for (&(dof, pbits, area, _), group) in &groups {") == 1,
         _rtl2_fsg.count("let mut maximum_ratio = 0.0_f64;") == 1,
-        len(_rtl2_branch) == 2 and "departure_thrust_record(" in _rtl2_branch[1].split("\n    }\n", 1)[0],
-        "if let Some(record) = exception {" in _rtl2_fsg
-        and "departure_thrust_warning(" in _rtl2_fsg.split("if let Some(record) = exception {", 1)[1].split("\n    }\n", 1)[0],
+        len(_rtl2_branch) == 2 and "maximum_ratio" in _rtl2_branch[0]
+        and "cancellation_exception(" in _rtl2_branch[1].split("\n    }\n", 1)[0],
+        len(_rtl2_some) == 2 and "cap_remainder_warning(" in _rtl2_some[1].split("\n    }\n", 1)[0],
         _fn_has(_PRESSURE_FN, _RTL2_PR, "for region in regions {"),
     )
     if not all(_rtl2_ok):
         raise SystemExit(f"RTL2-XZ: the cancellation exception's calls or the group/screen structure changed; re-review: {_rtl2_ok}")
     O10_EDGE_ZERO += [(fnkey("finish_source_groups", _RTL2_PR), fnkey(_n, _RTL2_PR),
-                       O10 + "RTL2-XZ: no pressure region and no factor group on D1 (D1.5, B5L1), so " + _n
-                       + " allocates and formats nothing (eligibility and family over empty inputs; record and warning only "
-                       "after a failed screen, which is 0 with no group)") for _n in _rtl2_x]
+                       O10 + "RTL2-XZ: no pressure region and no factor group on D1 (D1.5, B5L1), so the screen is 0 and "
+                       + _n + " is not reached (the exception only after a failed screen, the warning only with its record)")
+                      for _n in _RTL2_X0]
+    O10_EDGE_ZERO += [(fnkey("cancellation_exception", _RTL2_PR), fnkey(_n, _RTL2_PR),
+                       O10 + "RTL2-XZ: cancellation_exception's one caller is the failed-screen branch, never entered on D1, "
+                       "so " + _n + " is not reached") for _n in _RTL2_X1]
 # RTL2-FV (the U5B-JV pattern): model_fields.rs `keep_finding` calls `finding()`, its own `impl FnOnce() -> T` parameter;
 # the by-name scan names pressure_runtime's private `finding`, which keep_finding cannot reach. The false edge is zeroed.
 _RTL2_MF = PP_ + "model_fields.rs"
@@ -6570,7 +6586,7 @@ if fnkey("finding", _RTL2_PR) and fnkey("keep_finding", _RTL2_MF):
 # private FallbackError min/max, which KD5C6's entry cutset forbids. Each body is bound here by its one call of the
 # method and its f64 operands (no message, code or token text); both functions are unreached on D1 (RTL2-XZ).
 if _fn_has("finish_source_groups", _RTL2_PR, "let mut exception = None;"):
-    for _fn, _m, _needle in (("departure_bound_ratio", "min", ").min(2.0)"), ("departure_thrust_record", "max", "bore_force = bore_force.max(")):
+    for _fn, _m, _needle in (("consistency_bound_ratio", "min", ").min(2.0)"), ("cap_remainder_record", "max", "bore_force = bore_force.max(")):
         _body = _fn_text(_fn, _RTL2_PR) if fnkey(_fn, _RTL2_PR) else ""
         if _body.count("." + _m + "(") != 1 or _body.count(_needle) != 1 or "FallbackError" in _body:
             raise SystemExit(f"RTL2-FB: {_fn}'s f64 {_m} changed; re-review the by-name exclusion")
@@ -6583,30 +6599,36 @@ if _fn_has("finish_source_groups", _RTL2_PR, "let mut exception = None;"):
 # RTL2-RX (reader, guard): the pressure reader's exception checks run only where the assembly carries the exception
 # record, which the producer writes only after a failed screen (RTL2-XZ: never on D1); project(successor) copies the
 # contract evidence and the diagnostics unchanged (B7b-LR's premise). So in `assembly` the record is None and the three
-# record checks are not called; the warning check walks the cases (no record: continue), collects the warnings of its
-# code from diagnostics the producer never gave one on D1 (an empty Vec allocates nothing) and loops over two empty
-# lists. Zeroed for pricing; the guard binds each call under its record condition and the one call of the warning check.
-if fnkey("cancellation_exception", _RTL2_PE) and fnkey("assembly", _RTL2_PE):
+# record checks (`assembled_is_group_sum`, `exception_consistency` with its family and direction checks, and the bore
+# groups' `bore_group_value`) are not called; the warning check (`cap_remainder_warnings`) walks the cases (no record:
+# continue), collects the warnings of its code from diagnostics the producer never gave one on D1 (an empty Vec
+# allocates nothing) and loops over two empty lists. Zeroed for pricing; the guard binds each call under its record
+# condition and the one call of the warning check. The readers' model binding (`exception_model_binding`) is reached
+# only from reader_verdict's `physics_model_checks`, outside the retained graph.
+if fnkey("exception_consistency", _RTL2_PE) and fnkey("assembly", _RTL2_PE):
     _rtl2_as = _fn_text("assembly", _RTL2_PE)
     _rtl2_rec = _rtl2_as.split("if let Some(record) = exception {", 1)
+    _rtl2_rx = ("assembled_is_group_sum", "exception_consistency")
     _rtl2_rok = (
         _rtl2_as.count('let exception = v.get("cancellation_screen_exception");') == 1,
-        len(_rtl2_rec) == 2 and all(_c in _rtl2_rec[1].split("\n    }\n", 1)[0] for _c in ("assembled_is_group_sum(", "cancellation_exception(")),
-        _rtl2_as.count("assembled_is_group_sum(") == 1 and _rtl2_as.count("cancellation_exception(") == 1,
+        len(_rtl2_rec) == 2 and all(_c + "(" in _rtl2_rec[1].split("\n    }\n", 1)[0] for _c in _rtl2_rx),
+        all(_rtl2_as.count(_c + "(") == 1 for _c in _rtl2_rx),
+        all(len(_re.findall(r"\b" + _c + r"\(", _production(_RTL2_PE))) == 2 for _c in _rtl2_rx),
         _rtl2_as.count("if exception.is_some() {\n            bore_group_value(") == 1 and _rtl2_as.count("bore_group_value(") == 1,
-        _fn_text("validate_physics_evidence_in", _RTL2_PE).count("departure_thrust_warnings(source)?;") == 1,
-        len(_re.findall(r"\bdeparture_thrust_warnings\(", _production(_RTL2_PE))) == 2,
+        _fn_text("validate_physics_evidence_in", _RTL2_PE).count("cap_remainder_warnings(source)?;") == 1,
+        len(_re.findall(r"\bcap_remainder_warnings\(", _production(_RTL2_PE))) == 2,
     )
     if not all(_rtl2_rok):
         raise SystemExit(f"RTL2-RX: the reader's exception calls changed; re-review: {_rtl2_rok}")
     O10_EDGE_ZERO += [(fnkey("assembly", _RTL2_PE), fnkey(_n, _RTL2_PE),
                        O10 + "RTL2-RX: the assembly carries no exception record on D1 (RTL2-XZ), so " + _n + " is not called")
-                      for _n in ("assembled_is_group_sum", "cancellation_exception", "bore_group_value")]
-    O10_EDGE_ZERO += [(fnkey("validate_physics_evidence_in", _RTL2_PE), fnkey("departure_thrust_warnings", _RTL2_PE),
+                      for _n in _rtl2_rx + ("bore_group_value",)]
+    O10_EDGE_ZERO += [(fnkey("validate_physics_evidence_in", _RTL2_PE), fnkey("cap_remainder_warnings", _RTL2_PE),
                        O10 + "RTL2-RX: no exception record and no exception warning on D1, so the warning check walks the "
                        "cases and two empty lists, allocating and formatting nothing")]
-# RTL2-VL: the setting's refusal loops. D1 names no member of `model_settings`, so an admitted request may list any
-# number k of operating load cases up to D1.9's RawValues cap (RTL2-K, rtl2_owners_model, read from the caps module).
+# RTL2-VL: the setting's refusal loops. D1.4's elongation clause (rtl2_owners_model RTL2-K, guarded there) declines a
+# document whose `operating_load_cases` is longer than its load cases before the permit, and validation runs only in the
+# permitted run, so validation sees k <= c <= C (caps::LOAD_CASES, read from the caps module).
 # pressure_elongation_refusals walks the ids twice (duplicates, then unknown ids): each loop k times. Its refusals are the
 # contract refusal plus at most one per element (an element's first occurrence can be unknown, a later one a
 # duplicate; the empty-list refusal only at k = 0): at most k + 1, so validate_model_settings' diagnostic loop runs at
@@ -6617,9 +6639,10 @@ if _rtl2_k:
     _RTL2_K = _rtl2_k["k"]
     O10_LOOPS_LAST += [
         ("for id in &ids", str(_RTL2_K),
-         O10 + f"RTL2-VL: the operating load-case ids, k <= RawValues = {_RTL2_K} (RTL2-K)", ["model_settings.rs:pressure_elongation_refusals"]),
+         O10 + f"RTL2-VL: the operating load-case ids, k <= c <= C = {_RTL2_K} after D1.4's elongation clause (RTL2-K)",
+         ["model_settings.rs:pressure_elongation_refusals"]),
         ("for (index, error) in refusals.into_iter().enumerate()", str(_RTL2_K + 1),
-         O10 + f"RTL2-VL: at most k + 1 refusals (the contract refusal and one per element), k <= {_RTL2_K}",
+         O10 + f"RTL2-VL: at most k + 1 refusals (the contract refusal and one per element), k <= C = {_RTL2_K} (RTL2-K)",
          ["validation.rs:validate_model_settings"]),
     ]
 # RTL2-ID: the setting's texts. The two refusal messages format one authored id each, a raw string value of at most

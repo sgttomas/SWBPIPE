@@ -104,7 +104,9 @@ REDUCED_PINS = {
     # RT-A3 S6 D3 (§8.59): lib.rs re-read: no reduction's owner or lifetime changes; L5 texts unchanged.
     # RT-L2 D3: lib.rs, retained_wire.rs and certified_publication.rs re-read (b7a_domain_model's RT-L2 note): no
     # reduction's owner or lifetime changes; the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "b8bc16833240abd7fd10e4e753d3124a32a5b09ad64b131447ea2fc61c22b192",
+    # RT-L2 final source: lib.rs re-read: a test-module declaration and blocked_envelope's in-place retain of the
+    # exception warning; no reduction's owner or lifetime changes, the L5 texts are unchanged.
+    "core/product_physics/src/lib.rs": "475600b6f99d83054e8f3850d4b161b4c33c202326fc595db985fae650c8b08a",
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",

@@ -70,7 +70,9 @@ use b1_sq_inputs as inputs;
 // MemberBoundInputs.lift_radius and CaseRecord.along_directions in the in-build atoms +1,016 B).
 // §8.59 (RT-A3 S6, proposed): +18,761 B (S6-ME in O_base; the restated tables and schema in STATICS; the
 // restated identity and load-state limitations in TAV_W and TAV_X).
-const W1_PHASE_BYTES: [u64; 2] = [6_450_393_241, 6_509_524_585];
+// RT-L2 (pressure elongation per load case): +779,814 B, the registered profile's W1 at the in-build atoms (the
+// setting's typed list, its validation working set and k + 1 diagnostics at k <= C, the pressure-3 table and schema).
+const W1_PHASE_BYTES: [u64; 2] = [6_451_173_055, 6_510_304_399];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4

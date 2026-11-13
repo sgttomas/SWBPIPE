@@ -73,7 +73,9 @@ PINS = {
     # component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "4deeb3d3495fe1a4fcc25131edfa513ff8df55215d113162d4f81cf275de01bd",
+        # RT-L2 final source: family_clauses adds D1.4's elongation clause (rtl2_owners_model RTL2-K): it reads two
+        # lengths and only narrows admission. No carrier, child or staging changes.
+        "family_clauses": "7ec83a2c4632a2cd6b8194cd24dab11be8d05b7c5a7976a40216eb489f1fbe98",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
@@ -130,7 +132,13 @@ PINS = {
 # cancellation exception (eligibility, family, record and warning). Every group, region and terminal it reads is empty
 # on D1 (D1.5; RTL2-XZ), so no carrier, child or staging changes. solve_prepared_load_case passes the flag to the wall
 # recovery (one argument).
-PRESSURE_PREFIX_PIN = "c73534f2fa13fdbfd2a546324f39f6e582b0808878f79d25197a78207ce07cb1"
+# RT-L2 final source: finish_source_groups' group loop borrows the groups and drops them after the screen, and the
+# exception is one call (`cancellation_exception`) inside the failed-screen branch; both read only D1's empty groups
+# (RTL2-XZ), so no carrier, child or staging changes. The prefix (the text before the first `#[cfg(test)]`) now ends at
+# the test probe inside finish_source_groups' `if let Some(..) = exception` arm (pressure_runtime.rs line 1652; it ended
+# at the test module, line 2386 at bb1de0937). The text after it, production included, stays bound by b7a_domain_model's
+# full-file pin of pressure_runtime.rs (SOURCE_FILES), which every run checks first.
+PRESSURE_PREFIX_PIN = "2ccf76e11fc0fa646e10bbe334909bcd56c5781f390f9d2a313098e797edf0af"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

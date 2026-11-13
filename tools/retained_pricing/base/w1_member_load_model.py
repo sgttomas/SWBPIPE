@@ -74,6 +74,7 @@ import runpy
 # wraps G7's for_source in the base-read context. No member-load owner changes.
 # RT-L2 D3: retained_wire.rs and retained_precision.rs move the DEF-E hash (retained_precision.rs also its exact base
 # and G0's pressure-2-base refusal); result_export lib.rs re-exports the warning's two constants. No owner changes.
+# RT-L2 final source: result_export lib.rs re-exports the renamed warning constants (one line). No owner changes.
 SOURCE_FILES = {
     "core/product_physics/src/retained_product.rs": '7f8ac0d3654432e08e419619fe04a391c2776e7a7dfe01cbca067e52e68c505f',
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
@@ -83,7 +84,7 @@ SOURCE_FILES = {
     # member-load owner changes.
     # Operating-case slice 1b (§8.51): RE lib.rs declares preview_difference_basis; retained_precision.rs changes only its
     # TABLE_HASH constant. No member-load owner changes.
-    "core/reporting/result_export/src/lib.rs": "3c4f8ff4ee1d233de6f69b46b5bd343c5aa27fddc7197dce4190cfd06168fc2d",
+    "core/reporting/result_export/src/lib.rs": "21a3f2c14729a9d98b3b20b589bb268d5ae103668c5122a798b259d7a0d994ff",
     # RT-A3 S6 D3 (§8.59): only EXACT_TABLE_HASH moves (physics-retained-1's restated parent digest).
     "core/reporting/result_export/src/retained_precision.rs": "ead2db672f35b0c1414b5e0dd0f973853694467d017b57959741fec9e94c6312",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',

@@ -259,7 +259,9 @@ def inspect_directed_helpers(snapshot):
 # RT-A3 S6 D3 (§8.59): lib.rs re-read; no `.min(`/`.max(` call added or removed.
 # RT-S3 CE fallback (§8.61, CEF-PJ): compared without the exact reviewed CE delta (ce_fallback_model.s6_bytes); the
 # branch adds or removes no `.min(`/`.max(` call, and its two tests are test-only. The pin stays S6's.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'b8bc16833240abd7fd10e4e753d3124a32a5b09ad64b131447ea2fc61c22b192'
+# RT-L2 final source: lib.rs re-read: a test-module declaration and blocked_envelope's in-place `retain` (a closure
+# comparing a code); no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '475600b6f99d83054e8f3850d4b161b4c33c202326fc595db985fae650c8b08a'
 
 
 def _ce_fallback():
@@ -348,8 +350,11 @@ FALLBACK_OUTSIDE_CALLERS_U2 = (
 # every actual Scaled target and all original conservative candidates.
 # RT-L2 D3: finish_source_groups adds the cancellation exception's calls; its `.mul(` sites (3) and receivers are
 # unchanged and it gains no FallbackError method name.
+# RT-L2 final source: the group loop borrows the groups, the exception is one call (`cancellation_exception`) inside the
+# failed-screen branch, the groups are dropped after it, and the warning's call is renamed; the one line with its three
+# `.mul(` sites and their Scaled receivers is unchanged, and no FallbackError method name is added.
 FALLBACK_OUTSIDE_CALLERS_B5 = (
-    ("pressure_runtime.rs", "finish_source_groups", ("mul",), "03d6236932dd0136591157fe9baa3d9c6a2eaa669b482298a4501d9002b13a8b"),
+    ("pressure_runtime.rs", "finish_source_groups", ("mul",), "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4"),
 )
 def _indented_function(text, name):
     hits = list(re.finditer(r"^([ \t]*)(?:pub(?:\([a-z]+\))?\s+)?(?:const\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))

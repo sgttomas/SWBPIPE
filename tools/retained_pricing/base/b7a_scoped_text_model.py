@@ -81,10 +81,12 @@ LN = {
     # RT-S3 CE: maintained Mapper carries all four unchanged lib.rs sites +6; classes and audit values stay.
     # RT-L2 D3: +3 (unit_message: the formulation basis's elongation statement precedes it) and +10 (the three helpers:
     # the arc push's setting test and the wall recovery's flag argument precede them), unchanged text.
-    'unit_message': 10734, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15823,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15772,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15822,   # lib.rs fn stable_suffix (13613) [13618]
+    # RT-L2 final source: +2 (unit_message: the test-module declaration) and +9 (the three helpers: that and
+    # blocked_envelope's warning retain), unchanged text.
+    'unit_message': 10736, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15832,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15781,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15831,   # lib.rs fn stable_suffix (13613) [13618]
     # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
     # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
     # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.
@@ -175,8 +177,12 @@ PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 133
     '209:exact_member_recovery', '233:validate_profile', '544:refuse_compensated_shared_terminals',
     # RT-A3 increment 1 D3 (§8.33): junction_closure_warnings, its per-case helper and their own `warn` helper (no call
     # of `problem`) precede check_suffixes; the later parents move +88 with unchanged text.
+    # RT-L2 final source: through finish_source_groups the parents stand; from traverse_region they move +126 (the
+    # exception's `cancellation_exception`, test probe, member record and the predicate's direction checks precede
+    # them), byte-identical text. finish_source_groups' one `problem` call is the `None` arm of the
+    # `cancellation_exception` match, inside the failed-screen branch.
     '669:check_suffixes', '683:normalize_region_units', '756:assemble_pressure_case', '1253:add_joint_terms',
-    '1505:finish_source_groups', '1997:traverse_region', '2264:refuse_reducers_outside_step', '2341:collinear_run')]
+    '1505:finish_source_groups', '2123:traverse_region', '2390:refuse_reducers_outside_step', '2467:collinear_run')]
 # RT-A3 reducer 2a (§8.38): the new problem parent is inside the loop over reducers_in_regions.
 # D1.4 admits no components and D1.5 has empty E regions, so that classifier returns an empty Vec
 # (no push/table initialization), the loop has no iteration and problem receives no new message/ref owner.

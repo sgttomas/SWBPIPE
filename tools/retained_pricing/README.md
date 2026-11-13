@@ -603,61 +603,69 @@ operating load-case ids, refused at validation without a pressure contract, empt
 exact route reads it per case: the straight Poisson coefficient is 2ν or 1, the arc's free-strain push and recovery are
 skipped when a case does not include it, the certified wall increment follows, and the formulation basis carries one of
 three fixed statements. The ordinary semantics move from pressure-2 to pressure-3; readers refuse a stored pressure-2
-result, and a successor whose base is one, by name. `finish_source_groups` gains the cancellation screen's exception
-(eligibility predicate, family, record and warning) and the pressure reader its checks.
+result, and a successor whose base is one, by name. `finish_source_groups` gains the cancellation screen's exception:
+when the original screen fails, `cancellation_exception` runs the eligibility predicate, the family and the record; the
+warning is formed only with a record, and `blocked_envelope` removes it from a blocked document in place. D1.4 gains one
+clause: it declines a document whose `operating_load_cases` is longer than its load cases, from the two lengths.
 
-**Rules and models.** Each argument stands beside its rule.
-- RTL2-K, -TS, -VS, -FS, -RD (`base/rtl2_owners_model.py`; `ordinary_caps.py`, `t25_g4.py`, `g4_caps.py`): D1 names no
-  member of `model_settings`, so the list's length k is bounded only by the raw census (k ≤ RawValues = 16,384; its
-  strings' total capacity ≤ RawStringCapacity = 131,072), both read from the caps module. Positive: the typed list in
-  T_resident and T25.1a, validation's refusal working set (the ids, three hash sets, the refusals vector) in
-  BuildScratch, the formulation statement's named cases (resident), the reader's key list and statements in T17 V5.
-- RTL2-VL (`rules/o10_rules.py`): the refusal loops, k each, and the diagnostic loop, k + 1; NP-MS's guard counts the
-  third diagnostic and the four templates. RTL2-ID: the texts' argument classes (an id IN128; the two paths and the
-  statements at their literal bytes, read from source).
-- RTL2-XZ: the exception's four callees of `finish_source_groups` are zero edges. On D1 every retained case's groups
-  are empty (formed only inside the region loop, D1.5's empty E regions; L never reaches the producer), so the
-  predicate and the family walk empty inputs without allocating, and the screen is 0, so the record and the warning
-  are never formed. The guard binds the call structure (one call each, the record inside the failed-screen branch, the
-  warning inside `if let Some(record) = exception`, B5L1's group loop), not message, code or token text.
-- RTL2-RX: the reader's record checks (`assembled_is_group_sum`, `cancellation_exception`, `bore_group_value`) and the
-  warning check are zero edges: no record and no warning exist on D1. RTL2-FB: the exception's f64 `.min`/`.max` are not
-  FallbackError's (KD5C6's cutset). RTL2-FV: `keep_finding`'s `finding()` is its closure parameter.
-- B7a scoped TEXT: `problem` now delegates to `finding`, which owns the diag sites; `finding`'s count must equal
-  `problem`'s on D1 (its other caller is the exception warning).
-- B7b-B: the route bases {pressure-3, preview-physics-2} select the B7b route-E rules (same PRESSURE_ID arm).
-- M08-VZ reads `ExactContract::of` by its impl (exact_admission.rs now has two `fn of`).
+**The list's two bounds (RTL2-K, `base/rtl2_owners_model.py`).** The retained route runs, in order: the closed-field
+check and `CapturedInvocation::parse` (the typed list is allocated there), then `admit`'s censuses, then
+`domain_clauses` (with the clause), then `law_order`, and only with a permit the permitted run, where validation runs
+(once in the ordinary run and once more in a republication). So:
+- at parse time the list is bounded by the raw census only (k ≤ RawValues = 16,384; its strings ≤ RawStringCapacity =
+  131,072 B). RTL2-TS charges the typed list at that bound in T_resident and in T25.1a (`requested()`'s re-derivation;
+  it follows the clause, but its string bytes have no per-string capacity cap below RawStringCapacity, so it is kept at
+  the census as an over-bound);
+- validation sees k ≤ c ≤ C = 3 (`caps::LOAD_CASES`). RTL2-VS (validation's refusal working set, BuildScratch) and
+  RTL2-VL (`rules/o10_rules.py`: the refusal loops, k each, and the diagnostic loop, k + 1) are priced at k = C.
+The guard stops the run if the clause is removed or changed, leaves `family_clauses` or loses the load-case cap beside
+it, or if the chain that puts it before validation changes (family_clauses ← domain_clauses ← admit before law_order;
+law_order's `domain?` before its permit; admit before `permitted_dispatch`; no validation in retained_memory.rs,
+source_receipt.rs or model_fields.rs). RTL2-FS (the formulation statement's ≤ 3 named cases) and RTL2-RD (the pressure
+reader's key list and statements, T17 V5) do not depend on k.
 
-**Carried obligations.** Full-file, prefix and body pins re-read on their diffs and re-bound (B7a domain, W1
-reductions and stage 2, batch 5's prefix, KD5 production/body pins and KD5C5/C6, O4, TIM, RT-A4-HS); hand-kept
-current-source line keys carried by diff mapping with unchanged text (B7a domain audits, owner choices, phase,
-returning errors, scoped TEXT, the `_X` emitter, KD5C6's two fallback offsets); the identity's static disposition head
-and the resident pressure table's path follow pressure-3. No owner, carrier, staging or first-return alternative
-changes beyond those listed.
+**Other rules.** Each argument stands beside its rule.
+- RTL2-XZ: on D1 every retained case's factor groups are empty (formed only inside the region loop, D1.5's empty E
+  regions; L never reaches the producer), so the screen is 0, the failed-screen branch is never entered and
+  `cancellation_exception` (the predicate, `family_nodes`, `cap_remainder_record`) and `cap_remainder_warning` are not
+  reached; borrowing the empty group map through the loop and dropping it after the screen holds no bytes. The two
+  edges from `finish_source_groups` and the three inside `cancellation_exception` are zero. The guard binds the call
+  structure (one production call of each, the exception inside the failed-screen branch, the warning inside
+  `if let Some(..) = exception`, B5L1's borrowed group loop), not message, code or token text.
+- RTL2-RX: the reader's record checks (`assembled_is_group_sum`, `exception_consistency`, `bore_group_value`) and the
+  warning check are zero edges: no record and no warning exist on D1; `exception_model_binding` is reached only from
+  `reader_verdict`. RTL2-FB: `consistency_bound_ratio`'s and `cap_remainder_record`'s f64 `.min`/`.max` are not
+  FallbackError's. RTL2-FV: `keep_finding`'s `finding()` is its closure parameter. RTL2-ID: the texts' argument classes.
+- `blocked_envelope`'s `retain` is `Vec::retain` in place (no crate target in the call graph, no allocation); it walks
+  the blocked document's diagnostics once.
+- B7a scoped TEXT: `problem` delegates to `finding`, which owns the diag sites; `finding`'s count equals `problem`'s on
+  D1. B7b-B: the route bases {pressure-3, preview-physics-2} select the B7b route-E rules. M08-VZ reads
+  `ExactContract::of` by its impl.
+
+**Carried obligations.** Full-file, prefix and body pins re-read on their diffs and re-bound (B7a domain, its admission
+prefix and `family_clauses`, W1 reductions and member loads, batch 5's prefix and `family_clauses`, KD5C4/C5, O4, TIM,
+RT-A4-HS); hand-kept current-source line keys carried by diff mapping with unchanged text (B7a domain audits, owner
+choices, phase, returning errors, scoped TEXT and its `problem` parents, the `_X` emitter). Batch 5's prefix (the text
+before the first `#[cfg(test)]`) now ends at the exception's test probe in `finish_source_groups`; the rest of
+pressure_runtime.rs stays bound by b7a_domain_model's full-file pin.
 
 **Outside D1 (not priced by the retained profile).** A pressure region's elongation token and flag, the arc push and
-recovery choice, the exception's predicate, family, record (a JSON object with the node, two member ids and lengths,
-span and two ratios) and warning (one diagnostic), and the reader's record checks and model checks all run only on a
-case with a pressure region; on a non-empty region their loops run over the case's groups, terms, regions, terminals
-and members, and the record's and warning's strings are formed at most once per case.
+recovery choice, the exception's predicate (its members and their formed directions), family, record and warning, and
+the reader's record and model checks all run only on a case with a pressure region.
 
-**Derivation and native checks.** On `bb1de0937` the four points complete with O-10 0/0; the prune (36) and the
-resolutions (8) are main's, with 889 keys remapped and none unmapped. Against the merge base `4d29420a0`, whose
-committed tool reproduces the kept block (`generate --check` 1,713 lines and `point-atoms --check` 154 lines, both
-equal), 1,468 of 1,606 coefficients are equal, 138 higher and none lower. D rises by 32,770 at every point (two
-validation calls, k + 1 diagnostics each); STATICS[1] +3,948 B (the pressure-3 table and schema); O_base +254,149 B
-with +139,268 s(&str), +49,152 s((&str,String)) and +16,384 s(String) (RTL2-TS/VS); every diagnostic-bearing form
-rises with D. The block is regenerated with this section's basis line (1,717 lines) and the point atoms (150 lines;
-s((&str,String)) moves into the profile, the four coefficients counted above as higher from 0); both `--check`s are
-equal. At the in-build atoms every phase rises in both modes (W1 +900,809,543 B, W3 +1,623,276,625 B, X1 +748,730,763
-B); W3 stays the maximum (10,426,531,599 B dense, without R). All phases of both modes fit the unchanged M, the 0.9
-margin and the upward-rounded 5% TEXT reserve; the minimum headroom is 819,546,058 B (dense W3), and L(2,1) and L(1,2)
-stay below the merged tree in every phase and mode. The law tests' pins move with it (the record, D_env 45,160 and its
-push capacity 65,536, Text(diag_env) 443,464,520 B = 273,191,600 + 16,385 · 10,392). This tool, with the twelve
-re-pinned files' values restored from main and every new rule kept, reproduces main `4d29420a0`'s 1,602 coefficients
-and its 1,713-line block exactly. The source work law takes ΔE = 93 B (the setting's member) in the three mixed
-requests: each selected case and the composite publication charge 24E, so each moves by 2,232.
-
-**The bound's cost.** Almost all of the rise is the list's raw-census bound: 16,385 refusal diagnostics per validation
-call, each priced at the inherited classes. A D1 clause that bounds `operating_load_cases` by C (as every other
-admitted list has a cap row) would take it back to a few hundred bytes; that is a source change, outside this tool.
+**Derivation and native checks.** On `d3edafe9d` the four points complete with O-10 0/0; the prune (36) and the
+resolutions (8) are main's. Against main `4d29420a0`'s kept tree (reproduced by its own tool), 1,468 of 1,606
+coefficients are equal, 138 higher and none lower: D +8 at every point (two validation calls, k + 1 ≤ 4 diagnostics
+each), STATICS[1] +4,044 B (the pressure-3 table and schema), O_base +131,212 B with +16,384 s(String), +20 s(&str) and
++6 s((&str,String)) (the typed list at the census; the working set at C), TAV +174,654 B; s((&str,String)) joins the
+profile (four coefficients from 0). The block is regenerated with this revision's basis line (1,718 lines) and the
+point atoms (150 lines); both `--check`s are equal. At the in-build atoms every phase rises in both modes by W1/W2
++779,814 B, W3 +956,334 B, W4 +936,262 B, W5 +857,374 B, X1 +1,267,322 B, X2 +721,866 B, X3 +693,522 B; W3 stays the
+maximum (8,804,211,308 B dense, without R). Every phase of both modes fits the unchanged M, the 0.9 margin and the
+upward-rounded 5% TEXT reserve; the minimum headroom is 2,477,314,833 B (dense W3; sparse 2,536,446,177 B, W3), and
+L(2,1) and L(1,2) stay below the merged tree in every phase and mode. The law tests' pins move with it (the record,
+D_env 28,779 with push capacity 32,768, Text(diag_env) 273,233,168 B = 273,191,600 + 4 · 10,392, reviewed inputs #1
+and #10). This tool, with the twelve re-pinned base files restored from main and main's three o10 pin values, every new
+rule kept, reproduces main `4d29420a0`'s 1,602 coefficients, its 1,713-line block and its 154-line point atoms exactly.
+The source work law takes ΔE = 93 B (the setting's member) in the three mixed requests: each selected case and the
+composite publication charge 24E, so each moves by 2,232.
