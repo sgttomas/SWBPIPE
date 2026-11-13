@@ -520,6 +520,12 @@ class BaselineSet(unittest.TestCase):
         self.assertEqual((w1['median_entry_s'], w1['min_entry_s'], w1['max_entry_s']), (1.04, 1.0, 1.08))
         self.assertEqual(report['workloads']['reference-system n27']['completed'], 5)
         self.assertEqual((report['findings'], report['window_problems']), ([], []))
+        self.assertEqual(report['host_not_quiet'], [])
+        # A host check that was not quiet, or read no memory level, is reported and leaves the verdict as it is.
+        report = self.judge(lambda by, *_: (by['reference-system-n0027-sparse-r1'].update(host={'quiet': False}),
+                                            by['reference-system-n0027-sparse-r2'].update(host={'quiet': True})))
+        self.assertEqual((report['verdict'], report['host_not_quiet']),
+                         ('COMPLETE', ['reference-system-n0027-sparse-r1', 'reference-system-n0027-sparse-r2']))
         # A run whose timeout the window capped but which completed is unaffected.
         report = self.judge(lambda by, *_: by['reference-system-n0027-sparse-r5'].update(
             timeout_capped_by_window=True, timeout_applied_s=40))

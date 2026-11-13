@@ -676,7 +676,9 @@ def judge_set(records, plan_runs):
     other completed runs. A run skipped for the window, or timed out under a capped timeout, is a
     window problem; any other way of not being a completed timing is a finding, and a finding is
     never absorbed into a window problem. COMPLETE: every run of every workload is a completed
-    timing and there is no window problem."""
+    timing and there is no window problem. `host_not_quiet` lists the launched runs whose host check
+    was not quiet or read no memory level; it is reported for a measurement contract's own rules and
+    does not change the verdict."""
     findings, window, not_timings = [], [], []
     by_id = {}
     for r in records:
@@ -760,8 +762,10 @@ def judge_set(records, plan_runs):
     else:
         findings.append('a workload has fewer completed timings than planned runs')
         code = SET_FINDINGS
+    host_not_quiet = [r.get('run_id') for r in records if isinstance(r.get('host'), dict) and not (
+        r['host'].get('quiet') is True and _number(r['host'].get('memorystatus_level')))]
     return {'verdict': SET_VERDICTS[code], 'exit_code': code, 'workloads': report, 'findings': findings,
-            'window_problems': window, 'not_timings': not_timings}
+            'window_problems': window, 'not_timings': not_timings, 'host_not_quiet': host_not_quiet}
 
 
 def baseline_set(out_dir, plan_path, name, committed=None):
@@ -775,7 +779,7 @@ def baseline_set(out_dir, plan_path, name, committed=None):
     except (OSError, ValueError, AttributeError) as error:
         return {'verdict': SET_VERDICTS[SET_FINDINGS], 'exit_code': SET_FINDINGS, 'workloads': {},
                 'findings': findings + ['the plan file cannot be read: %s' % error], 'window_problems': [],
-                'not_timings': []}
+                'not_timings': [], 'host_not_quiet': []}
     named, _, _ = named_plan(name)
     keys = ('order', 'run_id', 'task', 'profile', 'nodes', 'mode', 'timeout_s', 'footprint_budget_bytes',
             'rss_cap_bytes', 'expect')
