@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "test:e2e": "npm run build:wasm && playwright test",
     "test:e2e:dist": "npm run build:wasm && npm run build && playwright test --config playwright.dist.config.ts",
-    "test": "vitest run",
+    "test": "node --test native-smoke/launch-env.test.mjs && vitest run",
     "tauri": "tauri"
   },
   "dependencies": {
