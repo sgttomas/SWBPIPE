@@ -1,4 +1,4 @@
-"""REGENERATION of every reference package under validation/references/: each check command the package's
+"""REGENERATION of every reference package under validation/references/: each retained check command the package's
 README gives, from its entry in tests/reference_packages.py (`check_problems`), must exit 0 (and, where the
 entry says so, print exactly a frozen file); any other exit status is a failure. A command recorded as
 deferred is not run: it is printed with its last observed blocker and the revision it was observed at, what
@@ -56,7 +56,7 @@ def test_taken_on_trust_is_counted():
     for row in rows:
         print("  " + " | ".join(row))
     assert len(rows) == R.TAKEN_ON_TRUST_COUNT, (
-        f"{len(rows)} outputs are taken on trust, TAKEN_ON_TRUST_COUNT says {R.TAKEN_ON_TRUST_COUNT}; "
+        f"{len(rows)} entries are taken on trust, TAKEN_ON_TRUST_COUNT says {R.TAKEN_ON_TRUST_COUNT}; "
         "a change to that list is a decision, so change the count with it")
 
 

@@ -5,14 +5,16 @@ that check what every package holds:
   of every checksum list matches the bytes it names; the lists present are the lists declared; and
   MEMBERSHIP: every file of a package is named by a line of a verified list or is unlisted for a stated
   reason, on a basis the package states (see Membership);
-- tests/test_reference_packages_regeneration.py, REGENERATION: each check command the package's README
-  gives, never a mode that writes, with an assertion that no byte under validation/references/ changed.
+- tests/test_reference_packages_regeneration.py, REGENERATION: each retained check command from the
+  package's README, with an assertion that no byte under validation/references/ changed. Deferred
+  commands are not run.
 
 These tests do not check that a package's generators are independent of product code.
 
-An exception is an explanation, not a waiver: each carries its reason, and each fails the moment its
-cause is gone, so the entry goes with it. What the tests take on trust is named and counted: outputs not
-regenerated (`taken_on_trust()`), and files whose membership has no stated basis (`membership_on_trust()`).
+An exception carries its reason. Checksum-line exceptions and recorded defect markers are checked for
+continued presence. Deferred commands are not run and are removed only when their complete commands pass.
+What the tests take on trust is named and counted: output entries not regenerated, regeneration gaps and
+deferred commands (`taken_on_trust()`), and memberships with no stated basis (`membership_on_trust()`).
 
 The reading and running are functions here, and the tests call them: kept in this module, which builds no
 path from a value the CI selector cannot read, they let the consistency and regeneration tests be selected
