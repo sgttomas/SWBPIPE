@@ -203,7 +203,7 @@ DRY_RUN["checks"].append(
     f"file as the window sample ({WINDOW_SAMPLE_RUN}); in that folder only:\n" + numbered([
         (f"Import {EXPORT_TRIAL_FILE}: File > Import from the Main window, select the file and click Import.", (IMPORT,)),
         (f"From the Layout window, choose File > Export (\"{EXPORT_QUOTE_MENU}\").", (EXPORT_PAGE,)),
-        ("Before touching the dialog, note whether any new file has appeared in the folder.", ()),
+        ("Before touching the dialog, write down the files the folder now holds, by name.", ()),
         ("In the Export Model dialog, choose \"Model batch file (*.mbf)\" as the Save as type.", (EXPORT_PAGE,)),
         (f"Note whether the dialog lets you set the name {EXPORT_TRIAL_FILE[:-4]}.export.mbf and this folder, and "
          f"whether it displays them before anything is written.", ()),

@@ -949,7 +949,7 @@ def test_dry_run_check_v_uses_the_sacrificial_duplicate_and_leaves_the_window_sa
                     "(cpb-dyn-c-n01-flat--srss-srss); in that folder only:")
     assert [int(re.match(r"(\d+)\. ", line).group(1)) for line in steps] == list(range(1, len(steps) + 1))
     for sentence in ("Import sample-dyn-export-trial.mbf: File > Import from the Main window",
-                     "Before touching the dialog, note whether any new file has appeared in the folder.",
+                     "Before touching the dialog, write down the files the folder now holds, by name.",
                      "Note whether the dialog lets you set the name sample-dyn-export-trial.export.mbf and this folder, "
                      "and whether it displays them before anything is written.",
                      "If it does, click Export; if not, click Cancel.",
