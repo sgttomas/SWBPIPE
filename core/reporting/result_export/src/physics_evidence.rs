@@ -1795,25 +1795,87 @@ pub const CAP_REMAINDER_WARNING_CODE: &str = "PRESSURE_REGION_CAP_REMAINDER_RETA
 /// [`cap_remainder_warning_message`].
 pub const CAP_REMAINDER_WARNING_MESSAGE: &str = "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
 
-/// DEL-04-07, the warning's whole message (product physics
-/// `cap_remainder_warning_message`): [`CAP_REMAINDER_WARNING_MESSAGE`] and one
-/// sentence naming the case and the record's node by their ids (the node at
-/// which the retained remainder is largest relative to the pressure force on
-/// the bore) and stating the record's `remainder_force_n` there in newtons, written by Rust's `{:e}` (the
-/// shortest digits that read back to the same binary64 value), and that it is
-/// not a bound on the resulting displacement.
+/// DEL-04-07, the warning's last sentence up to the force: the case and the
+/// record's node by their ids (the node at which the retained remainder is
+/// largest relative to the pressure force on the bore). The readers re-form
+/// this from the document and compare it exactly.
+fn cap_remainder_warning_head(case: &str, node: &str) -> String {
+    format!("{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the retained remainder is largest relative to the pressure force on the bore at node {node}, where it is ")
+}
+/// The warning's fixed text after the force: its unit and that it is not a
+/// bound on the resulting displacement.
+pub const CAP_REMAINDER_WARNING_TAIL: &str = " N; that force is not a bound on the resulting displacement.";
+
+/// DEL-04-07, the warning's whole message as the producer forms it (product
+/// physics `cap_remainder_warning_message`): [`CAP_REMAINDER_WARNING_MESSAGE`]
+/// and one sentence naming the case and the record's node by their ids and
+/// stating the record's `remainder_force_n` there in newtons, written by
+/// Rust's `{:e}`, and that it is not a bound on the resulting displacement.
+/// The reader does not compare against this text; it reads the force
+/// ([`cap_remainder_warning_states`]). This former is for expectations built
+/// elsewhere (the report and desktop tests).
 pub fn cap_remainder_warning_message(case: &str, node: &str, force: f64) -> String {
-    format!("{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the retained remainder is largest relative to the pressure force on the bore at node {node}, where it is {force:e} N; that force is not a bound on the resulting displacement.")
+    format!("{}{force:e}{CAP_REMAINDER_WARNING_TAIL}", cap_remainder_warning_head(case, node))
+}
+
+/// DEL-04-07: whether `message` is the warning for the case `case`, the
+/// record's node `node` and its force `force`. Everything but the force's
+/// text is bound exactly: the message must be the head re-formed from the
+/// document ([`cap_remainder_warning_head`]), then the force's text, then
+/// [`CAP_REMAINDER_WARNING_TAIL`]. The force's text is located by position,
+/// after that exact head and before that exact tail, never by searching for
+/// a phrase, so a case or node id containing the delimiting words cannot
+/// move it. The number shown must read back exactly to the recorded force;
+/// only its spelling may vary ([`cap_remainder_force_reads_back`]).
+pub fn cap_remainder_warning_states(message: &str, case: &str, node: &str, force: f64) -> bool {
+    message
+        .strip_prefix(cap_remainder_warning_head(case, node).as_str())
+        .and_then(|rest| rest.strip_suffix(CAP_REMAINDER_WARNING_TAIL))
+        .is_some_and(|text| cap_remainder_force_reads_back(text, force))
+}
+
+/// DEL-04-07: whether `text`, the warning's force, is in the admitted shape
+/// and reads back exactly to the recorded `force`. The shape, checked before
+/// parsing, is the one the producer's `{:e}` writes: one digit; optionally a
+/// point followed by one to sixteen digits; `e`; an exponent with an optional
+/// minus sign, no plus sign and no leading zeros (`0e0`, `5e-324`,
+/// `2.9802322387695313e-8`). There is no trailing-zero rule and no
+/// shortest-digits rule: every spelling in that shape that reads back to the
+/// recorded value is accepted, and more than two spellings may satisfy it (at
+/// a value halfway between two shortest decimal candidates, such as 2^-25,
+/// both candidates do, and so do longer spellings). The text is then parsed by
+/// Rust's correctly rounded decimal-to-binary conversion (`str::parse::<f64>`)
+/// and the result must equal the record's value bit for bit. A spelling
+/// outside binary64 is refused: one that overflows parses to infinity, and
+/// one whose digits are not all zero but underflow parses to zero; neither is
+/// accepted. Negative zero cannot be written in the shape (no sign before the
+/// digit).
+fn cap_remainder_force_reads_back(text: &str, force: f64) -> bool {
+    let Some((mantissa, exponent)) = text.split_once('e') else { return false };
+    let digits = |part: &str| !part.is_empty() && part.bytes().all(|byte| byte.is_ascii_digit());
+    let mantissa_shape = match mantissa.split_once('.') {
+        None => mantissa.len() == 1 && digits(mantissa),
+        Some((whole, fraction)) => whole.len() == 1 && digits(whole) && (1..=16).contains(&fraction.len()) && digits(fraction),
+    };
+    let magnitude = exponent.strip_prefix('-').unwrap_or(exponent);
+    let exponent_shape = exponent == "0" || (digits(magnitude) && !magnitude.starts_with('0'));
+    if !(mantissa_shape && exponent_shape) {
+        return false;
+    }
+    let Ok(value) = text.parse::<f64>() else { return false };
+    let written_zero = mantissa.bytes().all(|byte| byte == b'0' || byte == b'.');
+    value.is_finite() && (value != 0.0 || written_zero) && value.to_bits() == force.to_bits()
 }
 
 /// DEL-04-07: the warning stands on a case exactly when its exception record
 /// does (read after every record has been checked): one warning per record,
-/// of warning severity, with the message re-formed from the record
-/// ([`cap_remainder_warning_message`], the case's id, the record's node and
-/// force) and the references [case, region, node], the region being the one
-/// whose terms meet at the record's node. A record without its warning, a
-/// warning on a case without a record, and a warning of another form are each
-/// refused by name.
+/// of warning severity, whose message states the case's id, the record's node
+/// and force ([`cap_remainder_warning_states`]), and the references [case,
+/// region, node], the region being the one whose terms meet at the record's
+/// node. A record without its warning, a warning on a case without a record,
+/// and a warning of another form (including a force whose text is outside the
+/// admitted shape or does not read back to the record's) are each refused by
+/// name.
 fn cap_remainder_warnings(source: &Value) -> Check {
     let mut expected = Vec::new();
     for case in array(&source["contract_evidence"]["exact_cases"])? {
@@ -1824,20 +1886,23 @@ fn cap_remainder_warnings(source: &Value) -> Check {
             .find_map(|group| group["terms"].as_array().and_then(|terms| terms.first()))
             .map(|term| term["region_id"].clone())
             .ok_or("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")?;
-        let message = cap_remainder_warning_message(text(&case["load_case_id"])?, text(node)?, number(&record["remainder_force_n"])?);
-        expected.push((json!([case["load_case_id"], region, node]), message));
+        let (case_id, node_id, force) = (text(&case["load_case_id"])?, text(node)?, number(&record["remainder_force_n"])?);
+        expected.push((json!([case["load_case_id"], region, node]), case_id, node_id, force));
     }
     let warnings = array(&source["diagnostics"])?.iter().filter(|d| d["code"] == CAP_REMAINDER_WARNING_CODE).collect::<Vec<_>>();
     for warning in &warnings {
         let case = &warning["affected_refs"][0];
-        require(expected.iter().any(|(refs, _)| refs[0] == *case), "RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")?;
+        require(expected.iter().any(|(refs, ..)| refs[0] == *case), "RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")?;
+        let message = warning["message"].as_str();
         require(
             warning["severity"] == "warning"
-                && expected.iter().any(|(refs, message)| warning["affected_refs"] == *refs && warning["message"] == message.as_str()),
+                && expected.iter().any(|(refs, case, node, force)| {
+                    warning["affected_refs"] == *refs && message.is_some_and(|message| cap_remainder_warning_states(message, case, node, *force))
+                }),
             "RHS_SCREEN_EXCEPTION_WARNING",
         )?;
     }
-    let expected = expected.into_iter().map(|(refs, _)| refs).collect::<Vec<_>>();
+    let expected = expected.into_iter().map(|(refs, ..)| refs).collect::<Vec<_>>();
     for refs in &expected {
         let count = warnings.iter().filter(|warning| warning["affected_refs"] == *refs).count();
         require(count != 0, "RHS_SCREEN_EXCEPTION_WARNING_MISSING")?;
@@ -2707,3 +2772,81 @@ mod static_field_slice_tests {
 #[cfg(test)]
 #[path = "case_basis_ok_tests.rs"]
 mod case_basis_ok_tests;
+
+/// DEL-04-07: the warning's force is read, not re-formed. Every spelling in
+/// the admitted shape that reads back to the recorded value is accepted; any
+/// other spelling, and any other value, is refused; the case and node stay
+/// bound exactly, wherever their ids put the delimiting words.
+#[cfg(test)]
+mod cap_remainder_warning_tests {
+    use super::{cap_remainder_force_reads_back, cap_remainder_warning_head, cap_remainder_warning_message, cap_remainder_warning_states, CAP_REMAINDER_WARNING_TAIL};
+
+    /// 2^-25 N, exactly halfway between two 17-digit decimals that both read
+    /// back to it: Rust's `{:e}` writes the upper, Python's `repr` the lower.
+    const TIE: f64 = 2.98023223876953125e-8;
+
+    #[test]
+    fn both_spellings_of_a_halfway_value_and_longer_ones_read_back() {
+        assert_eq!(TIE.to_bits(), 0x3e60_0000_0000_0000);
+        assert_eq!(format!("{TIE:e}"), "2.9802322387695313e-8");
+        for text in ["2.9802322387695313e-8", "2.9802322387695312e-8", "2.9802322387695314e-8", "2.9802322387695315e-8"] {
+            assert!(cap_remainder_force_reads_back(text, TIE), "{text}");
+        }
+        // Another value in the shape: the next binary64 value up, a short one, and one that reads back to the
+        // value below (2^-25 is a power of two, so the gap below it is half the gap above).
+        assert!(!cap_remainder_force_reads_back(&format!("{:e}", f64::from_bits(TIE.to_bits() + 1)), TIE));
+        assert!(!cap_remainder_force_reads_back("3e-8", TIE));
+        assert!(!cap_remainder_force_reads_back("2.980232238769531e-8", TIE));
+        assert!(cap_remainder_force_reads_back("2.980232238769531e-8", f64::from_bits(TIE.to_bits() - 1)));
+        // Outside the shape, though each reads back: a plus sign, a leading zero in the exponent,
+        // seventeen fraction digits (the exact value), an upper-case E, no exponent, two digits before the point.
+        for text in ["+2.9802322387695313e-8", "2.9802322387695313e-08", "2.98023223876953125e-8", "2.9802322387695313E-8",
+            "0.000000029802322387695313", "29.802322387695313e-9", "2.9802322387695313e-8 ", " 2.9802322387695313e-8", "2.e-8", ".2e-7", "2.9802322387695313e"] {
+            assert!(!cap_remainder_force_reads_back(text, TIE), "{text}");
+        }
+    }
+
+    #[test]
+    fn zero_and_the_subnormals_read_back_and_nothing_outside_binary64_does() {
+        for (text, value) in [("1e0", 1.0), ("0e0", 0.0), ("0.0e5", 0.0), ("5e-324", f64::from_bits(1)), ("4.9406564584124654e-324", f64::from_bits(1)), ("2.5e-310", 2.5e-310), ("1.7976931348623157e308", f64::MAX)] {
+            assert!(cap_remainder_force_reads_back(text, value), "{text}");
+        }
+        // Negative zero cannot be written; a written zero is positive zero.
+        assert!(!cap_remainder_force_reads_back("0e0", -0.0));
+        assert!(!cap_remainder_force_reads_back("-0e0", -0.0));
+        // A plus sign on the exponent; the exponent's minus sign alone, without a magnitude, or on zero.
+        assert!(!cap_remainder_force_reads_back("1e+0", 1.0));
+        assert!(!cap_remainder_force_reads_back("0e-0", 0.0));
+        assert!(!cap_remainder_force_reads_back("1e-", 1.0));
+        // Overflow parses to infinity and nonzero digits that underflow parse to zero: both refused, no panic.
+        for text in ["1e400", "1.8e308", "9e99999999999999999999999999"] {
+            assert!(!cap_remainder_force_reads_back(text, f64::MAX), "{text}");
+            assert!(!cap_remainder_force_reads_back(text, f64::INFINITY), "{text}");
+        }
+        for text in ["1e-400", "2e-324", "1e-99999999999999999999999999"] {
+            assert!(!cap_remainder_force_reads_back(text, 0.0), "{text}");
+        }
+        // A spelling of the zero digit at an extreme exponent is still zero.
+        assert!(cap_remainder_force_reads_back("0e99999999999999999999999999", 0.0));
+    }
+
+    #[test]
+    fn the_force_is_located_by_the_re_formed_head_and_the_fixed_tail() {
+        let node = "node:Q, where it is 1e0 N; that force is not a bound on the resulting displacement. at node node:R, where it is 2e0";
+        let case = "case:P where it is 3e0 N; that force";
+        let message = cap_remainder_warning_message(case, node, TIE);
+        assert!(cap_remainder_warning_states(&message, case, node, TIE));
+        let other = format!("{}2.9802322387695312e-8{CAP_REMAINDER_WARNING_TAIL}", cap_remainder_warning_head(case, node));
+        assert!(cap_remainder_warning_states(&other, case, node, TIE));
+        // The ids' own numbers are not the force: a record of 1, 2 or 3 N does not match.
+        for force in [1.0, 2.0, 3.0] {
+            assert!(!cap_remainder_warning_states(&message, case, node, force), "{force}");
+        }
+        // Another node or case, the tail or head changed, or nothing between them.
+        assert!(!cap_remainder_warning_states(&message, case, "node:Q", TIE));
+        assert!(!cap_remainder_warning_states(&message, "case:P", node, TIE));
+        assert!(!cap_remainder_warning_states(&message.replace(" N; that force is not a bound on the resulting displacement.", " N."), case, node, TIE));
+        assert!(!cap_remainder_warning_states(&format!("{}{CAP_REMAINDER_WARNING_TAIL}", cap_remainder_warning_head(case, node)), case, node, TIE));
+        assert!(!cap_remainder_warning_states(&message.replacen("not establish", "establish", 1), case, node, TIE));
+    }
+}

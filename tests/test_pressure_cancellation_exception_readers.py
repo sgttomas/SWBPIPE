@@ -18,11 +18,16 @@ and member ends are the producer's as published (the Rust verdict given the mode
 from __future__ import annotations
 
 from copy import deepcopy
+import json
 import math
+from pathlib import Path
 
 import pytest
 
-from tests.verifiers.pressure_3 import CAP_REMAINDER_WARNING_MESSAGE, cap_remainder_warning_message, cap_remainder_warnings, rhs_screen, rust_lower_exp
+from tests.verifiers import physics_evidence
+from tests.verifiers.pressure_3 import CAP_REMAINDER_WARNING_MESSAGE, case_elongation, cap_remainder_warnings, rhs_screen, validate_pressure_evidence
+
+ROOT = Path(__file__).resolve().parents[1]
 
 CASE = "case:P"
 
@@ -158,13 +163,36 @@ def test_a_passing_screen_stands_alone() -> None:
     _refused(rhs, regions, "SOURCE_PHYSICS_RHS_SCREEN")
 
 
+def rust_lower_exp(value: float) -> str:
+    """A producer-like spelling of ``value`` for forming test documents: Rust's ``{:e}`` layout (``d[.ddd]e<exponent>``,
+    no ``+``, no leading zeros in the exponent) with the digits of Python's ``repr``. It agrees with Rust on the vectors
+    below but not at a value halfway between two shortest decimal candidates (2^-25: Rust writes the upper, ``repr``
+    the lower). No reader compares against it; the readers parse the force and require the record's value."""
+    if value == 0:
+        return "0e0"
+    digits, exponent = repr(abs(value)).lower().partition("e")[::2]
+    whole, _, fraction = digits.partition(".")
+    significant = (whole + fraction).lstrip("0")
+    point = len(whole) - (len(whole + fraction) - len((whole + fraction).lstrip("0")))
+    significant = significant.rstrip("0") or "0"
+    power = (int(exponent) if exponent else 0) + point - 1
+    return significant[0] + ("." + significant[1:] if len(significant) > 1 else "") + f"e{power}"
+
+
+def _message(case: str, node: str, force_text: str) -> str:
+    """The warning's whole message, written out independently of the producer's and the readers' functions: the
+    opening, then the case, the node, the force as ``force_text`` in N and the not-a-bound clause."""
+    return (f"{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the retained remainder is largest relative to the pressure force on "
+            f"the bore at node {node}, where it is {force_text} N; that force is not a bound on the resulting displacement.")
+
+
 def _document(label: str) -> dict:
     """A source holding one admitted case and its warning, as the producer publishes them (Rust
     ``pressure_runtime::cap_remainder_warning``): [case, region, the record's node]."""
     rhs, regions = _admitted(label)
     node = rhs["cancellation_screen_exception"]["node_ref"]
     warning = {"id": "diagnostic:pressure-runtime:invented:PRESSURE_REGION_CAP_REMAINDER_RETAINED", "code": "PRESSURE_REGION_CAP_REMAINDER_RETAINED",
-               "severity": "warning", "message": cap_remainder_warning_message(CASE, node, rhs["cancellation_screen_exception"]["remainder_force_n"]), "source": "core/product_physics/src/pressure_runtime.rs",
+               "severity": "warning", "message": _message(CASE, node, rust_lower_exp(rhs["cancellation_screen_exception"]["remainder_force_n"])), "source": "core/product_physics/src/pressure_runtime.rs",
                "affected_refs": [CASE, regions[0]["region_id"], node]}
     return {"contract_evidence": {"exact_cases": [{"load_case_id": CASE, "pressure_rhs_assembly": rhs}]}, "diagnostics": [warning]}
 
@@ -197,7 +225,7 @@ def test_the_warning_stands_exactly_with_the_record(label: str) -> None:
     # Another force in the sentence (one ulp), the record unchanged; and the not-a-bound clause dropped.
     document = _document(label)
     force = document["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["cancellation_screen_exception"]["remainder_force_n"]
-    document["diagnostics"][0]["message"] = cap_remainder_warning_message(CASE, document["diagnostics"][0]["affected_refs"][2], _up(force))
+    document["diagnostics"][0]["message"] = _message(CASE, document["diagnostics"][0]["affected_refs"][2], rust_lower_exp(_up(force)))
     _warning_refused(document, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
     document = _document(label)
     document["diagnostics"][0]["message"] = document["diagnostics"][0]["message"].replace("; that force is not a bound on the resulting displacement.", ".")
@@ -400,8 +428,9 @@ def test_a_whole_node_omitted_in_the_second_of_two_family_regions_is_refused_by_
     _refused(rhs, regions, MISSING)
 
 
-# The force's text is Rust's ``{:e}`` (LowerExp without a precision). These vectors are the same values and strings the
-# Rust producer's unit test asserts (``pressure_runtime::cancellation_exception_tests``), so the two languages agree on them.
+# The test helper ``rust_lower_exp`` forms a producer-like spelling for building documents. On these vectors it agrees
+# with the Rust producer's unit test (``pressure_runtime::cancellation_exception_tests``); it does not agree at a value
+# halfway between two shortest decimal candidates, which is why no reader compares against a re-formed spelling.
 LOWER_EXP_VECTORS = [(0.2197357159078235, "2.197357159078235e-1"), (0.0, "0e0"), (5e-324, "5e-324"), (1.0, "1e0"),
                      (1234.5, "1.2345e3"), (1e22, "1e22"), (1e-7, "1e-7"), (3.637978807091713e-12, "3.637978807091713e-12"),
                      (15707.963267948964, "1.5707963267948964e4"), (0.1, "1e-1"), (2.5e-310, "2.5e-310"), (123.0, "1.23e2"),
@@ -409,15 +438,119 @@ LOWER_EXP_VECTORS = [(0.2197357159078235, "2.197357159078235e-1"), (0.0, "0e0"),
 
 
 @pytest.mark.parametrize(("value", "text"), LOWER_EXP_VECTORS)
-def test_the_force_is_written_as_rust_writes_it(value: float, text: str) -> None:
+def test_the_test_helper_spells_these_vectors_as_rust_does(value: float, text: str) -> None:
     assert rust_lower_exp(value) == text
 
 
+def test_the_test_helper_and_rust_differ_at_a_halfway_value() -> None:
+    # 2^-25 N: Rust's ``{:e}`` writes 2.9802322387695313e-8 (the fixture below holds the producer's message).
+    assert rust_lower_exp(2.0 ** -25) == "2.9802322387695312e-8"
+
+
 def test_the_sentence_names_the_case_the_force_with_its_unit_the_node_and_that_it_is_no_bound() -> None:
-    message = cap_remainder_warning_message("case:P", "node:1", 0.2197357159078235)
+    message = _message("case:P", "node:1", rust_lower_exp(0.2197357159078235))
     assert message.startswith(CAP_REMAINDER_WARNING_MESSAGE + " ")
     assert message.endswith(" In case case:P, the retained remainder is largest relative to the pressure force on the bore at "
                             "node node:1, where it is 2.197357159078235e-1 N; that force is not a bound on the resulting "
                             "displacement.")
-    # The all-zero case of the subnormal model: a remainder of zero newtons, still true.
-    assert "at node node:1, where it is 0e0 N;" in cap_remainder_warning_message("case:P", "node:1", 0.0)
+
+
+# The fourth review's witness: a force of exactly 2^-25 N, halfway between two 17-digit decimals that both read back
+# to it. The fixture holds the request and the producer's document (written and checked by
+# core/product_physics/tests/pressure_grouping_limits.rs); the producer writes the upper spelling.
+HALFWAY = json.loads((ROOT / "fixtures/results/pressure_v3_cap_remainder_halfway_force.json").read_text())
+RUST_SPELLING, PYTHON_SPELLING = "2.9802322387695313e-8", "2.9802322387695312e-8"
+
+
+def _respelled(spelling: str) -> dict:
+    document = deepcopy(HALFWAY["document"])
+    [warning] = [d for d in document["diagnostics"] if d["code"] == "PRESSURE_REGION_CAP_REMAINDER_RETAINED"]
+    old, new = f", where it is {RUST_SPELLING} N; that force", f", where it is {spelling} N; that force"
+    assert warning["message"].count(old) == 1
+    warning["message"] = warning["message"].replace(old, new)
+    return document
+
+
+def test_the_halfway_fixture_is_the_producer_s_tie() -> None:
+    record = HALFWAY["document"]["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["cancellation_screen_exception"]
+    assert record["remainder_force_n"] == 2.0 ** -25
+    [warning] = [d for d in HALFWAY["document"]["diagnostics"] if d["code"] == "PRESSURE_REGION_CAP_REMAINDER_RETAINED"]
+    assert warning["message"] == _message("case:P", record["node_ref"], RUST_SPELLING)
+
+
+@pytest.mark.parametrize("spelling", [RUST_SPELLING, PYTHON_SPELLING])
+def test_a_halfway_force_is_read_in_either_spelling(spelling: str) -> None:
+    document = _respelled(spelling)
+    validate_pressure_evidence(document)
+    cap_remainder_warnings(document)
+    # The physics-evidence RHS reader (``physics_evidence._validate_rhs``) reads the assembly, not the warning; the
+    # physics-evidence route reads the warning by the same ``cap_remainder_warnings``.
+    assert physics_evidence.cap_remainder_warnings is cap_remainder_warnings
+    evidence = document["contract_evidence"]
+    for case in evidence["exact_cases"]:
+        cid = case["load_case_id"]
+        physics_evidence._validate_rhs(case["pressure_rhs_assembly"], cid, case_elongation(evidence["pressure"], cid),
+                                       [r for r in evidence["pressure"] if r["load_case_id"] == cid])
+
+
+@pytest.mark.parametrize("spelling", [
+    "2.9802322387695315e-7",  # another value in the shape
+    "3e-8",  # another value in the shape
+    "2.980232238769531e-8",  # in the shape; reads back to the value below 2^-25
+    "+2.9802322387695313e-8",  # a plus sign
+    "2.9802322387695313e-08",  # a leading zero in the exponent
+    "2.98023223876953125e-8",  # seventeen fraction digits (the exact value)
+    "2.9802322387695313E-8",  # an upper-case E
+    "0.000000029802322387695313",  # no exponent
+])
+def test_another_value_or_a_spelling_outside_the_shape_is_refused(spelling: str) -> None:
+    document = _respelled(spelling)
+    with pytest.raises(ValueError, match="SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING$"):
+        validate_pressure_evidence(document)
+    _warning_refused(document, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
+
+
+def _renamed(document: dict, old: str, new: str) -> dict:
+    return json.loads(json.dumps(document).replace(json.dumps(old), json.dumps(new)))
+
+
+def test_a_node_id_containing_the_delimiting_words_does_not_move_the_force() -> None:
+    node = "node:Q, where it is 1e0 N; that force is not a bound on the resulting displacement. at node node:R, where it is 2e0"
+    document = _renamed(_document("one ulp"), "node:1", node)
+    assert document["diagnostics"][0]["affected_refs"][2] == node
+    force = document["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["cancellation_screen_exception"]["remainder_force_n"]
+    document["diagnostics"][0]["message"] = _message(CASE, node, rust_lower_exp(force))
+    cap_remainder_warnings(document)
+    # The record at 1 N or 2 N, the numbers the id carries: refused.
+    for value in (1.0, 2.0):
+        changed = deepcopy(document)
+        changed["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["cancellation_screen_exception"]["remainder_force_n"] = value
+        _warning_refused(changed, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
+    # A message that names a shorter node and so leaves the id's tail where the force would be: refused.
+    changed = deepcopy(document)
+    changed["diagnostics"][0]["message"] = _message(CASE, "node:Q", "1e0").replace(" N; that force is not a bound on the resulting displacement.", "") + \
+        " N; that force is not a bound on the resulting displacement. at node node:R, where it is 2e0 N; that force is not a bound on the resulting displacement."
+    _warning_refused(changed, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
+
+
+@pytest.mark.parametrize(("force", "texts"), [(0.0, ["0e0", "0.0e3"]), (5e-324, ["5e-324", "4.9406564584124654e-324"]), (2.5e-310, ["2.5e-310"])])
+def test_zero_and_subnormal_forces_are_read(force: float, texts: list[str]) -> None:
+    for text in texts:
+        document = _document("one ulp")
+        document["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["cancellation_screen_exception"]["remainder_force_n"] = force
+        document["diagnostics"][0]["message"] = _message(CASE, "node:1", text)
+        cap_remainder_warnings(document)
+
+
+def test_the_force_reading_refuses_what_is_outside_binary64_and_negative_zero() -> None:
+    from tests.verifiers.pressure_3 import cap_remainder_force_reads_back
+    assert cap_remainder_force_reads_back("0e0", 0.0)
+    assert not cap_remainder_force_reads_back("0e0", -0.0)
+    assert not cap_remainder_force_reads_back("-0e0", -0.0)
+    assert not cap_remainder_force_reads_back("0e-0", 0.0)
+    assert not cap_remainder_force_reads_back("1e+0", 1.0)
+    for text in ("1e400", "1.8e308", "9e99999999999999999999999999"):
+        assert not cap_remainder_force_reads_back(text, 1.7976931348623157e308), text
+    for text in ("1e-400", "2e-324", "1e-99999999999999999999999999"):
+        assert not cap_remainder_force_reads_back(text, 0.0), text
+    assert cap_remainder_force_reads_back("0e99999999999999999999999999", 0.0)

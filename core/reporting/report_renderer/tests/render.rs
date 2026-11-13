@@ -1613,6 +1613,47 @@ fn integrity_and_long_diagnostics_show_a_short_cell_and_their_full_text_as_evide
     );
 }
 
+/// DEL-04-07: the cancellation-screen exception's warning keeps its whole
+/// message in its Diagnostics cell whatever its length (its code is in
+/// `DIAGNOSTIC_MESSAGE_IN_TABLE_CODES`), while another message over the limit
+/// still moves to the evidence block, numbered as before.
+#[test]
+fn the_cancellation_exception_warning_stays_whole_in_its_cell_whatever_its_length() {
+    let code = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
+    let sentence = "where it is 2.9802322387695313e-8 N; that force is not a bound on the resulting displacement.";
+    let message = format!("In case case:{}, the retained remainder is largest at node node:{}, {sentence}", "c".repeat(400), "n".repeat(700));
+    assert!(message.chars().count() > DIAGNOSTIC_MESSAGE_TABLE_LIMIT);
+    let long = "y".repeat(DIAGNOSTIC_MESSAGE_TABLE_LIMIT + 1);
+    let mut input = fixture_input();
+    input.report_sections.diagnostics = vec![
+        invented_diagnostic(code, sections::Severity::Warning, "case:P, region:P, node:N", message.clone()),
+        invented_diagnostic("LONG_INVENTED_NOTE", sections::Severity::Warning, "component:C-1", long.clone()),
+    ];
+    let html = render_calculation_report(&input).html;
+    // The rendered Diagnostics table's row for the warning: its Message cell is the whole message.
+    let start = html.find("<h3>Diagnostics</h3>\n<table>\n").expect("the Diagnostics table");
+    let table = &html[start..start + html[start..].find("</table>").unwrap()];
+    let cell = |code: &str| {
+        let opening = format!("<tr><td>{code}</td>");
+        assert_eq!(table.matches(&opening).count(), 1, "{code}");
+        let row = &table[table.find(&opening).unwrap()..];
+        let row = &row[..row.find("</tr>").unwrap()];
+        let cells = row.strip_prefix("<tr><td>").unwrap().strip_suffix("</td>").unwrap().split("</td><td>").map(str::to_string).collect::<Vec<_>>();
+        assert_eq!(cells.len(), 4);
+        cells[2].clone()
+    };
+    let warning = cell(code);
+    assert!(warning.contains(sentence), "the force and the not-a-bound clause in the cell: {warning}");
+    assert_eq!(warning, escape_html(&message));
+    assert_eq!(cell("LONG_INVENTED_NOTE"), "Long invented note (affected: component:C-1); full text: Diagnostic evidence E1");
+    // One evidence entry, the other long note's.
+    let evidence = &html[html.find(&format!("<h3>{DIAGNOSTIC_EVIDENCE_SUBHEADING}</h3>")).unwrap()..];
+    assert_eq!(evidence.matches("E1: ").count(), 1);
+    assert!(!evidence.contains("E2: ") && !evidence.contains(code));
+    assert_eq!(html.matches(&long).count(), 1);
+    assert_eq!(html.matches(sentence).count(), 1);
+}
+
 /// The committed pressure-source-1 witness: its integrity diagnostic's text
 /// is preserved verbatim in the evidence block, and the standing line's
 /// pointer still finds its code in the Diagnostics table.
