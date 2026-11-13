@@ -45,6 +45,11 @@
    "documents": 1,
    "pressurised_load_cases": 3
   },
+  "caepipe_benchmark": {
+   "files": 22,
+   "documents": 22,
+   "pressurised_load_cases": 22
+  },
   "t4_u5b_requests": {
    "files": 36,
    "documents": 36,
@@ -1391,6 +1396,688 @@
       "load:RS-SUS",
       "load:RS-OPE",
       "load:RS-SAM"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p1-01",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p1-01.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p1-02",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p1-02.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p1-03",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p1-03.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p1-04",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p1-04.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p1-05",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p1-05.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p1-06",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p1-06.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p2-01",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p2-01.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p2-02",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p2-02.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p2-03",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p2-03.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p2-04",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p2-04.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p3-01",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p3-01.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p3-02",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p3-02.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p3-03",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p3-03.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p3-04",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p3-04.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p4-01",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p4-01.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p4-02",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p4-02.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p4-03",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p4-03.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p4-04",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p4-04.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p5-01",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p5-01.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p5-02",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p5-02.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p6-01",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p6-01.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "caepipe_benchmark/cpb-p7-01",
+   "group": "caepipe_benchmark",
+   "path": "validation/caepipe_benchmark/models/cpb-p7-01.json",
+   "producer": {
+    "kind": "python_generator",
+    "path": "tools/caepipe_correlation/benchmark_models.py",
+    "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+    "write": "python3 -m tools.caepipe_correlation.benchmark_models",
+    "switch_plumbed": false,
+    "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation by design; the pressure-elongation-on series names the case that carries pressure in memory"
+   },
+   "pinned_by": [
+    "validation/caepipe_benchmark/manifest.json",
+    "tests/test_caepipe_benchmark.py",
+    "core/handoff/caepipe_external/benchmark.py",
+    "tools/caepipe_correlation/run_pilot.py"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "case:sustained"
      ]
     }
    ]

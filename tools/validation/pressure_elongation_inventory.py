@@ -100,6 +100,19 @@ GROUPS = [
                    "core/product_physics/tests/rt_a3_s6_reference_system.rs",
                    "core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs"],
      "anchor": BASELINE},
+    # The CAEPIPE benchmark set: its producer writes each model's default series without the setting by design (the
+    # pressure-elongation-on series adds it in memory, naming the case that carries pressure), so its switch is not
+    # plumbed; the anchor compares `--switch all` with the pre-change engine's solve of the committed document.
+    {"id": "caepipe_benchmark", "paths": ["validation/caepipe_benchmark/models/cpb-p*.json"],
+     "producer": {"kind": "python_generator", "path": "tools/caepipe_correlation/benchmark_models.py",
+                  "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+                  "write": "python3 -m tools.caepipe_correlation.benchmark_models", "switch_plumbed": False,
+                  "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation "
+                                  "by design; the pressure-elongation-on series names the case that carries pressure "
+                                  "in memory"},
+     "pinned_by": ["validation/caepipe_benchmark/manifest.json", "tests/test_caepipe_benchmark.py",
+                   "core/handoff/caepipe_external/benchmark.py", "tools/caepipe_correlation/run_pilot.py"],
+     "anchor": BASELINE},
     # ---- Rust and TypeScript writers (switch not plumbed; they copy committed sources) --------
     {"id": "t4_u5b_requests", "paths": ["core/runner/headless/tests/t4_u5b_requests/*.request.json"],
      "producer": _writer("rust_builder", "core/product_physics/tests/common/t4_u5b.rs",

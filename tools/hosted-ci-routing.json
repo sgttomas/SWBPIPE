@@ -262,15 +262,15 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "552547b7e24a4f16c2835d3960c4903a81ee9b73fc424b5dd19d56bf2f1b33ca",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "51abcc475bcf563a4abdffdbc977be46659347246264394b47136ad9a7e0961d",
+      "core/product_physics/Cargo.toml": "894b05816257bf94a1413494e5ae06d2aa66a48736facb7a0e829d9c18356659",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "dd148327d8582cf51cc3201636f51e50ed7e486bd685f11c8b9336372ab72c34",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
       "core/reporting/report_generator/Cargo.toml": "625a9a604bf91c108cdbd55f650788f319c27c21390ae536d660a0d640d3c81c",
-      "core/reporting/report_package/Cargo.toml": "45f11631710cd488bc58cb57af8ae9259824821d98a78b69911540ea75185b23",
+      "core/reporting/report_package/Cargo.toml": "7afc83d7f9c0d390456aa5253faecb299d8ea4d44bc220d18ec4bf89134e1f1e",
       "core/reporting/report_renderer/Cargo.toml": "daae7a4d2b54ff12f567d892d50c18c00932cf3062f2cc7b270a567976f7d6e6",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "2aaff2a62c317fd62a07b80cc7f83c490de0e29459c1b16e6d4561a497b11624",
+      "core/reporting/result_export/Cargo.toml": "040c4c6e5685dc096d970190cb8db3404956fe1dd78345b7f89adf556c314e87",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "e407cc7c71142212a0f518856e33c826b1a2ceaeeaf0fc96ba6d50dc3f49fa6b",
       "core/rules/rule_check_runner/Cargo.toml": "b433d3eec2112c518f51ac9f83cfdc6469fef33cdaa9e1020bd8b814e5e15c85",
@@ -298,7 +298,7 @@
     },
     "reads": {
       "core/product_physics/src/source_receipt/pressure_source_context_tests.rs": {
-        "sha256": "b58b2a089abb2b4d51837e18a144f9a422087b7a08eada59d1a0ca18a81828a6",
+        "sha256": "903fe310c1ecb0b20294aae0adc01feb95fe27a8a72198dfe691b377259f28b4",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml",
           "core/loads/self_weight_wasm/Cargo.toml",
@@ -2672,6 +2672,7 @@
               "core/product_physics/src/b7b_admission_tests.rs",
               "core/product_physics/src/bend_pressure.rs",
               "core/product_physics/src/build_identity.rs",
+              "core/product_physics/src/cap_remainder_publication_tests.rs",
               "core/product_physics/src/case_state/input.rs",
               "core/product_physics/src/case_state/material.rs",
               "core/product_physics/src/case_state/mod.rs",
@@ -4090,6 +4091,7 @@
               "core/product_physics/src/b7b_admission_tests.rs",
               "core/product_physics/src/bend_pressure.rs",
               "core/product_physics/src/build_identity.rs",
+              "core/product_physics/src/cap_remainder_publication_tests.rs",
               "core/product_physics/src/case_state/input.rs",
               "core/product_physics/src/case_state/material.rs",
               "core/product_physics/src/case_state/mod.rs",
@@ -4313,6 +4315,7 @@
               "core/product_physics/src/b7b_admission_tests.rs",
               "core/product_physics/src/bend_pressure.rs",
               "core/product_physics/src/build_identity.rs",
+              "core/product_physics/src/cap_remainder_publication_tests.rs",
               "core/product_physics/src/case_state/input.rs",
               "core/product_physics/src/case_state/material.rs",
               "core/product_physics/src/case_state/mod.rs",
@@ -6226,7 +6229,7 @@
         ]
       },
       "core/product_physics/tests/pressure_grouping_limits.rs": {
-        "sha256": "198dbf93705925c09eeef26624ac0610c2b802e5e3506a0dcbff2ebbac173971",
+        "sha256": "83044707d2031f2209ea6cd900ddf3cecdfb1b8293104184d63f081f6082d066",
         "source_trees": [
           "core/product_physics/Cargo.toml"
         ],
