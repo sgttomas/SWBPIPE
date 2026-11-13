@@ -8,6 +8,7 @@ exit at 512 MiB. Nothing measures or asserts a time or memory bound.
 
 Run from this directory: python3 -m unittest test_release_runner
 """
+import copy
 import getpass
 import hashlib
 import io
@@ -943,6 +944,16 @@ def write_inventory(folder, names):
                 lines.append('%s  ./%s\n' % (hashlib.sha256(fh.read()).hexdigest(), name))
     with open(os.path.join(folder, 'SHA256SUMS'), 'w') as fh:
         fh.writelines(lines)
+    return root_digest(folder)
+
+
+def root_digest(folder):
+    """The SHA-256 of a bundle's SHA256SUMS, the root digest a worker states outside the bundle."""
+    path = os.path.join(folder, 'SHA256SUMS')
+    if not os.path.isfile(path):
+        return '0' * 64
+    with open(path, 'rb') as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
 
 
 class ReadBack(unittest.TestCase):
@@ -952,15 +963,21 @@ class ReadBack(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.bundle = self.tmp.name
         self.names = extract_fixture(self.bundle, 'forms')
-        for name in ('build-facts.txt', 'host-before.txt', 'host-processes.log', 'baseline-set.json', 'contract.md'):
+        for name in ('build-facts.txt', 'host-before.txt', 'host-processes.log', 'contract.md'):
             with open(os.path.join(self.bundle, name), 'w') as fh:
                 fh.write('stand-in\n')
             self.names.append(name)
+        # baseline-set.json as README step 7 writes it: the read-back recomputes it.
+        with redirect_stdout(io.StringIO()) as printed, mock.patch('sys.stderr', io.StringIO()):
+            rr.main(['--baseline-set', self.path('out'), '--plan-file', self.path('plan.json'), '--subset', 'baseline'])
+        with open(self.path('baseline-set.json'), 'w') as fh:
+            fh.write(printed.getvalue())
+        self.names.append('baseline-set.json')
         self.revision = self.load('out/metadata.json')['source_commit']
         self.inventory()
 
     def inventory(self):
-        write_inventory(self.bundle, self.names)
+        self.root = write_inventory(self.bundle, self.names)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -991,13 +1008,13 @@ class ReadBack(unittest.TestCase):
     def problems(self):
         """The read-back after the bundle is inventoried again, so that a change reaches the semantic checks."""
         self.inventory()
-        return rr.read_back(self.bundle, self.revision)
+        return rr.read_back(self.bundle, self.revision, self.root)
 
     def test_the_intact_bundle_has_no_difference_and_holds_every_row_form(self):
         self.assertEqual(self.problems(), [])
         with redirect_stdout(io.StringIO()) as printed:
-            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', self.revision]), 0)
-        self.assertEqual(printed.getvalue(), 'read-back: 0 difference(s)\n')
+            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', self.revision, '--root-digest', self.root]), 0)
+        self.assertEqual(printed.getvalue(), 'read-back: 0 difference(s)\n%s\n' % rr.CLEAN_READ_BACK_LIMIT)
         forms = {r['run_id']: (rr.row_form(r), r['classification']) for r in rr.read_set_records(self.path('out'))[0]}
         self.assertEqual(forms, {
             COMPLETED: ('completed', 'ok'), COMPLETED_W2: ('completed', 'ok'), STOPPED: ('stopped', 'timed_out'),
@@ -1007,7 +1024,7 @@ class ReadBack(unittest.TestCase):
         # are not differences.
         packet = self.load('out/packet.json')
         self.assertEqual([self.row(packet, STOPPED)[k] for k in ('route', 'rows', 'output_sha256')], [None, None, None])
-        self.assertIn('exclusive.log is missing', rr.read_back(self.bundle, self.revision, shared_host=True))
+        self.assertIn('exclusive.log is missing', rr.read_back(self.bundle, self.revision, self.root, shared_host=True))
 
     def test_the_mapping_names_every_field_of_the_supervisors_rows(self):
         """PACKET_RUN_FIELDS is the one statement of the mapping: its fields are exactly the fields of a
@@ -1160,10 +1177,10 @@ class ReadBack(unittest.TestCase):
         self.assertTrue(any('total is not the sum' in p for p in self.problems()), self.problems()[:3])
         self.tearDown()
         self.setUp()
-        problems = rr.read_back(self.bundle, '0' * 40)
+        problems = rr.read_back(self.bundle, '0' * 40, self.root)
         self.assertEqual(problems, ['metadata.json names %s, not the revision %s' % (self.revision, '0' * 40)])
         with redirect_stdout(io.StringIO()) as printed:
-            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', '0' * 40]), 1)
+            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', '0' * 40, '--root-digest', self.root]), 1)
         self.assertIn('DIFFERS: metadata.json names', printed.getvalue())
 
 
@@ -1184,7 +1201,7 @@ class ReadBackBinding(ReadBack):
         self.tearDown()
         self.setUp()
         change()
-        problems = self.problems() if inventory else rr.read_back(self.bundle, self.revision)
+        problems = self.problems() if inventory else rr.read_back(self.bundle, self.revision, root_digest(self.bundle))
         self.assertTrue(any(expected in p for p in problems), (expected, problems[:4]))
 
     def test_the_plan_is_the_plan_the_records_and_metadata_were_written_from(self):
@@ -1267,6 +1284,53 @@ class ReadBackBinding(ReadBack):
                 fh.write('not a line\n')
         self.expect(malformed, 'SHA256SUMS line', False)
 
+    def test_the_root_digest_binds_the_inventory_and_the_inventory_names_only_the_bundles_files(self):
+        """The command verifies SHA256SUMS against the root digest stated outside the bundle; a file listed
+        there that is no file of the bundle (README step 8) or of a launched run is a difference; a file the
+        worker examines by hand (exclusive.log) is bound too, where present."""
+        self.assertEqual(rr.read_back(self.bundle, self.revision, '0' * 64)[0],
+                         'SHA256SUMS does not have the root digest %s; nothing in the bundle is bound' % ('0' * 64))
+
+        def orphan():
+            with open(self.path('out/unrelated-old-run.record.json'), 'w') as fh:
+                fh.write('{"wall_s": 999}\n')
+            self.names.append('out/unrelated-old-run.record.json')
+        self.expect(orphan, 'out/unrelated-old-run.record.json is in SHA256SUMS but is no file of the bundle')
+
+        def exclusive_changed_after_inventory():
+            with open(self.path('exclusive.log'), 'w') as fh:
+                fh.write('wrapper lines\n')
+            self.names.append('exclusive.log')
+            self.inventory()
+            with open(self.path('exclusive.log'), 'w') as fh:
+                fh.write('other lines\n')
+        self.expect(exclusive_changed_after_inventory, 'exclusive.log does not have the SHA-256 SHA256SUMS states', False)
+        with redirect_stdout(io.StringIO()), mock.patch('sys.stderr', io.StringIO()) as err, \
+                self.assertRaises(SystemExit):
+            rr.main(['--read-back', self.bundle, '--revision', self.revision])
+        self.assertIn('--root-digest', err.getvalue())
+
+    def test_every_launch_key_the_supervisor_writes_is_present_even_as_null(self):
+        """F5 in full: a key absent where the producer writes it, even as null, is a difference."""
+        self.assertIsNone(self.load('out/%s.record.json' % COMPLETED)['classification_detail'])
+        self.expect(lambda: self.edit('out/%s.record.json' % COMPLETED, lambda d: d.pop('classification_detail')),
+                    '%s: launch.classification_detail is missing from its .record.json' % COMPLETED)
+        self.expect(lambda: self.records(lambda by, rows: by[COMPLETED]['launch'].pop('kill_after_s')),
+                    "%s: the aggregate's launch does not carry exactly the supervisor's launch keys" % COMPLETED)
+
+    def test_baseline_set_json_is_recomputed_from_the_records(self):
+        """The two results recomputed from the records the command has just checked, against the stored file."""
+        def results_changed():
+            stored = self.load('baseline-set.json')
+            stored['results'][0] = 'TEN-RUN TIMING SET: COMPLETE'
+            with open(self.path('baseline-set.json'), 'w') as fh:
+                json.dump(stored, fh)
+        self.expect(results_changed, 'baseline-set.json is not the two results --baseline-set gives')
+        self.expect(lambda: self.records(lambda by, rows: by[STOPPED].update(classification_detail='after_2_s')),
+                    'baseline-set.json is not the two results --baseline-set gives')
+        self.expect(lambda: self.edit('baseline-set.json', lambda d: d.update(subset='window')),
+                    "baseline-set.json names no named plan (subset 'window')")
+
     def test_a_never_launched_run_carries_no_last_stage(self):
         """F5 (a): a skip, a missing or a mismatched model has no stage (supervise.rs 1146-1162, 1173-1190)."""
         stage = {'repeat': 0, 'stage': 'parse_back', 'seconds': 0.1}
@@ -1323,6 +1387,90 @@ class ReadBackBinding(ReadBack):
             with open(stderr, 'w') as fh:
                 fh.writelines(kept)
         self.expect(stage_missing, '%s: driver.seconds lacks a number for a stage or the total' % COMPLETED)
+
+
+class RequiredValuesByBranch(unittest.TestCase):
+    """REQUIRED_BY_BRANCH: for each record form, a value a decision rule reads is required (nulled, a
+    difference), and a null the producer leaves where no rule reads it is legitimate (not a difference)."""
+
+    @classmethod
+    def setUpClass(cls):
+        tmp = tempfile.TemporaryDirectory()
+        extract_fixture(tmp.name, 'forms')
+        cls.real = {r['run_id']: r for r in rr.read_set_records(os.path.join(tmp.name, 'out'))[0]}
+        tmp.cleanup()
+
+    def forms(self):
+        """A record of each branch: the fixture's own where it holds one, else the producer's shape for it
+        (main.rs, classify.rs) built from the fixture's completed or stopped record."""
+        completed, timed_out, sampler = (copy.deepcopy(self.real[k]) for k in (COMPLETED, STOPPED, STOPPED_W2))
+        refused = dict(copy.deepcopy(completed), classification='refused', classification_detail='SUPPORT_INPUT_MISSING',
+                       as_expected=False)
+        entry_error = dict(copy.deepcopy(completed), classification='entry_error', classification_detail='entry: synthetic',
+                           as_expected=False)
+        read_error = dict(copy.deepcopy(timed_out), classification='entry_error', classification_detail='read: synthetic',
+                          as_expected=False, last_stage=None, last_stage_memory=None)
+        at_result = dict(copy.deepcopy(completed), classification='exceeds_base_machine_budget', as_expected=False,
+                         classification_detail='footprint_1_above_budget_at_result')
+        rss_cap = dict(copy.deepcopy(timed_out), classification='killed_by_rss_cap', as_expected=False,
+                       classification_detail='killed_above_rss_cap_1_footprint_unread')
+        rss_cap['launch'] = dict(rss_cap['launch'], killed_by_rss_watchdog=True)
+        error = dict(copy.deepcopy(timed_out), classification='error', classification_detail='exit_code_2', as_expected=False)
+        return {'completed': completed, 'timed_out': timed_out, 'killed_by_sampler': sampler, 'refused': refused,
+                'entry_error': entry_error, 'entry_error at read': read_error, 'over_budget_at_result': at_result,
+                'killed_by_rss_cap': rss_cap, 'error': error,
+                'never_launched': copy.deepcopy(self.real[NEVER_LAUNCHED[2]])}
+
+    def test_each_form_takes_its_branch_and_is_complete_as_the_producer_writes_it(self):
+        for label, record in self.forms().items():
+            self.assertEqual(rr.record_branch(record), label.split(' ')[0], label)
+            self.assertEqual(rr.required_value_problems(record), [], label)
+
+    def test_a_required_value_nulled_is_a_difference(self):
+        for label, record in self.forms().items():
+            branch = rr.record_branch(record)
+            for path in rr.REQUIRED_BY_BRANCH[branch]:
+                if label == 'entry_error at read' and path == 'last_stage':
+                    continue
+                broken = copy.deepcopy(record)
+                *parents, last = path.split('.')
+                holder = broken
+                for key in parents:
+                    holder = holder[key]
+                holder[last] = None
+                # (Nulling a path that selects the branch moves the record to another branch, which still
+                # requires it.)
+                selects = ('classification', 'classification_detail', 'launch.killed_by_sampler')
+                expected = 'has no value at %s,' % path if path in selects else \
+                    'a %s record has no value at %s,' % (branch, path)
+                self.assertIn(expected, ' '.join(rr.required_value_problems(broken)), (label, path))
+                del holder[last]
+                self.assertTrue(rr.required_value_problems(broken), (label, path, 'missing key'))
+
+    def test_a_null_the_producer_leaves_where_no_rule_reads_it_is_not_a_difference(self):
+        """The reader's co-null cases among them: a refused run's route, model counts, stage seconds, output
+        hash, blocking codes and nonlinear iterations; an entry error's route, counts, seconds and status; a
+        completed run's nonlinear iterations; a stopped run's driver and last stage."""
+        legitimate = {
+            'refused': ('driver.route', 'driver.nodes', 'driver.seconds', 'driver.output_sha256', 'driver.blocking_codes',
+                        'driver.nonlinear_iterations'),
+            'entry_error': ('driver.route', 'driver.nodes', 'driver.seconds', 'driver.status'),
+            'completed': ('driver.nonlinear_iterations', 'classification_detail', 'host.memorystatus_level'),
+            'timed_out': ('driver', 'last_stage', 'last_stage_memory'),
+            'killed_by_sampler': ('driver', 'last_stage'),
+            'killed_by_rss_cap': ('driver', 'last_stage'),
+            'never_launched': ('last_stage', 'timeout_capped_by_window', 'model_sha256'),
+        }
+        forms = self.forms()
+        for label, paths in legitimate.items():
+            for path in paths:
+                record = copy.deepcopy(forms[label])
+                *parents, last = path.split('.')
+                holder = record
+                for key in parents:
+                    holder = holder[key]
+                holder[last] = None
+                self.assertEqual(rr.required_value_problems(record), [], (label, path))
 
 
 class Classification(unittest.TestCase):
