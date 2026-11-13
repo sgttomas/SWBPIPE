@@ -12,8 +12,8 @@ tmp_path. The test does not rely on that alone: it records every file under vali
 before and after each run, and fails on any change, addition or removal.
 
 The generators run as `python3 -I -B` from their package directory, one per check, each within
-its time limit (reference_packages.check_limit: CHECK_TIMEOUT_S, or the command's own limit in SLOW_CHECKS,
-set from its measured times). No product binary and no environment switch is needed, so the
+reference_packages.CHECK_TIMEOUT_S, set from the slowest time observed. A stdout comparison limited to named
+platforms is reported as a StdoutNotCompared warning elsewhere, with what differs. No product binary and no environment switch is needed, so the
 test runs under OPENPIPESTRESS_NO_CARGO_BUILD=1 (tests/conftest.py). What it does not regenerate is listed
 in `reference_packages.taken_on_trust()` and counted by TAKEN_ON_TRUST_COUNT.
 

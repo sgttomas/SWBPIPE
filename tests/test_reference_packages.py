@@ -19,6 +19,7 @@ are independent of product code.
 """
 from __future__ import annotations
 
+import sys
 from dataclasses import replace
 
 import pytest
@@ -82,14 +83,11 @@ def test_a_deferred_commands_blocker_still_holds(name):
     assert not problems, f"{name}:\n" + "\n".join(problems)
 
 
-def test_each_time_limit_is_set_from_its_measured_times():
-    """A slow check's own limit names a check that exists, keeps the margin over its slowest observed time
-    and is never below the default; the default keeps the margin over what it covers."""
-    for (name, index), (limit, observed, where) in R.SLOW_CHECKS.items():
-        assert index < len(PACKAGES[name].checks), (name, index)
-        assert where.strip() and limit >= R.LIMIT_MARGIN * observed and limit >= R.CHECK_TIMEOUT_S, (name, index)
-        assert limit % 10 == 0, (name, index)
-    assert R.check_limit("rt_a3_tee", 0) == R.CHECK_TIMEOUT_S
+def test_the_time_limit_is_set_from_the_slowest_observed_time():
+    """One limit for every command: the margin over the slowest command observed, rounded up to 10 s."""
+    observed, where = R.SLOWEST_OBSERVED
+    assert where.strip() and R.CHECK_TIMEOUT_S % 10 == 0
+    assert R.LIMIT_MARGIN * observed <= R.CHECK_TIMEOUT_S < R.LIMIT_MARGIN * observed + 10
 
 
 def test_a_command_over_its_limit_fails_its_check(monkeypatch, tmp_path):
@@ -100,6 +98,63 @@ def test_a_command_over_its_limit_fails_its_check(monkeypatch, tmp_path):
     monkeypatch.setattr(R, "CHECK_TIMEOUT_S", 1)
     problems = R.check_problems("rt_a3_tee", 0, tmp_path / "out")
     assert len(problems) == 1 and "did not finish within its 1 s limit" in problems[0]
+
+
+def _printing(pkg, text, platforms):
+    """pkg's first check replaced by one printing `text`, compared with the package's README only on `platforms`."""
+    return replace(pkg, checks=(replace(pkg.checks[0], argv=("-c", f"print({text!r}, end='')"),
+                                        stdout_equals="README.md", stdout_platforms=platforms, stdout_gap="test"),))
+
+
+def test_a_stdout_comparison_made_here_fails_with_what_differs(monkeypatch, tmp_path):
+    monkeypatch.setitem(PACKAGES, "rt_a3_tee", _printing(PACKAGES["rt_a3_tee"], "case x\nargs y\n", (sys.platform,)))
+    problems = R.check_problems("rt_a3_tee", 0, tmp_path / "out")
+    assert len(problems) == 1 and "stdout differs from README.md" in problems[0] and "frozen lines differ" in problems[0]
+
+
+def test_where_the_comparison_is_not_enforced_reproduction_is_not_established_and_what_differs_is_reported(
+        monkeypatch, tmp_path):
+    monkeypatch.setitem(PACKAGES, "rt_a3_tee", _printing(PACKAGES["rt_a3_tee"], "case x\nargs y\n", ("no-platform",)))
+    with pytest.warns(R.StdoutNotCompared, match=r"(?s)reproduction of the committed file is not established on "
+                                                 r"this platform.*differed from the committed file here:.*lines differ"):
+        assert R.check_problems("rt_a3_tee", 0, tmp_path / "out") == []
+
+
+def test_the_platform_exception_is_the_one_named_command_and_file():
+    limited = [(n, c.argv[0], c.stdout_equals) for n, p in PACKAGES.items() for c in p.checks if c.stdout_platforms]
+    assert limited == list(R.PLATFORM_LIMITED_STDOUT) == [("t4_i9", "t4_i17_arc_refs.py", "arc_load_references.txt")]
+    assert PACKAGES["t4_i9"].checks[0].stdout_platforms == ("darwin",)
+
+
+def test_a_platform_limited_comparison_on_another_check_fails_classification(monkeypatch):
+    pkg = PACKAGES["t4_i9"]
+    monkeypatch.setitem(PACKAGES, "t4_i9", replace(pkg, checks=(pkg.checks[0], replace(
+        pkg.checks[1], stdout_platforms=("darwin",), stdout_gap="test"), pkg.checks[2])))
+    assert any("is not the exception PLATFORM_LIMITED_STDOUT names" in p for p in R.classification_problems())
+
+
+def test_the_stdout_report_decides_whether_the_inputs_explain_a_difference():
+    frozen = (b"case a\nphi 1\nargs 1 2\nref 1\nref 2\nend\n"
+              b"case b\nphi 2\nargs 3 4\nref 3\nref 4\nend\n"
+              b"case c\nphi 3\nargs 5 6\nref 5\nref 6\nend\n")
+    printed = (b"case a\nphi 1\nargs 1 9\nref 1\nref 8\nend\n"   # inputs differ, so do refs
+               b"case b\nphi 2\nargs 3 4\nref 3\nref 7\nend\n"   # inputs identical, refs differ: deciding
+               b"case c\nphi 3\nargs 5 6\nref 5\nref 6\nend\n")  # identical
+    report = R.stdout_report(frozen, printed)
+    assert report.splitlines()[0] == "3 of 18 frozen lines differ (18 printed): args 1, ref 2"
+    assert "first args at line 3: frozen 'args 1 2'; printed 'args 1 9'" in report
+    assert ("cases: 3 committed, 3 printed; args identical in 2; cases with identical args and differing refs: 1"
+            in report)
+    assert "  case a: args differ; refs differ (1 of 2)" in report
+    assert "  case b: args identical; refs differ (1 of 2)" in report
+    assert "  case c: args identical; refs identical" in report
+
+
+def test_a_platform_limited_comparison_must_say_what_was_observed(monkeypatch):
+    pkg = PACKAGES["t4_i9"]
+    monkeypatch.setitem(PACKAGES, "t4_i9", replace(pkg, checks=(replace(pkg.checks[0], stdout_gap=None),
+                                                                  *pkg.checks[1:])))
+    assert any(p.startswith("t4_i9:") and "only on named platforms" in p for p in R.classification_problems())
 
 
 def test_a_repaired_blocker_fails_its_deferred_entry(monkeypatch):
