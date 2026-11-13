@@ -96,7 +96,7 @@ Euler–Bernoulli results; `semantic_contract_v0_3_preview_physics_timoshenko_1.
 - headline `max_open_formula_stress`;
 - refusals: the five codes of pf-timoshenko.md.
 
-**Exact** (`semantic_contract_v0_3_pressure_2.json`, `exact_pressure_v3`):
+**Exact** (`semantic_contract_v0_3_pressure_3.json`, `exact_pressure_v3`):
 
 - both D-5 bases, `nominal_section` and `reduced_section`: every judged stress kind carries one,
   through the contract's declared token, and no other judged kind does;

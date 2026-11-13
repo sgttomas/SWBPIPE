@@ -2628,10 +2628,14 @@ fn b3b_witness_inputs_and_routes() {
 /// §8.59): read from the producer on the candidate build; the successor carries one S6 text (limitation [0]) and the
 /// publication and receipt hashes binding it. Restating it to main 394f4c623's and resealing with the Python 07e rule
 /// reproduces main's pins byte for byte.
+/// Pressure elongation (RT-L2): read from the producer; these zero-pressure models name no case, so the successor
+/// gains the not-included statement, limitation [0] takes the pressure-3 identity and DEF-E's H moved. Removing the
+/// statement, restoring the pressure-2 token and resealing with the Python 07e rule under DEF-E's former H
+/// reproduces the previous pins byte for byte.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
-    ("sparse_interactive", "9b88b65706bc9972eef15cb0b79bd1bcc4cde51477a83d574717044e0b399319", "7caee2b3e51ad976111facaa1f487f3c8460e5ee6a8dab082549996c35c67322", "dcd8b13a7b62212eb933289da2a271cfdc47ae7930bf1985b9a6d20ecd3120a0"),
-    ("dense_scrutiny", "65009c8e43461834882a7164780f1f0b77f9336edfcdd079dcde3d82df33f80d", "f857513916b8428b4ac00be7d6dfc220f0b3c60331bd694f2b80e0053c462209", "a8959bc8489b6c012c843f887c5cb7752ef31daed4d4585e72d630616087a3eb"),
+    ("sparse_interactive", "eccf7619075504b3dc3fd9d2bcbac700ce489da62e29b7876a0a897d5d42c0ee", "b83fdd74f7d1c4d24fb77962e8ef4e789efac26d6a41b9274161a6449ac16785", "40b2b1991dfc86f602a8c74f53c2e2d07bf935fcbcded5d374e9e0e702d46b08"),
+    ("dense_scrutiny", "71c11cd36323869a680349bf7ea9393a919b90eb0a1fe78fd43c4a498957a776", "a0a953d96164b395f512b3c68d25d26412762a3a8b9e4e2d9853cacb9c750072", "d425e5a228b01079f1a9bee790fd66157f7d94f345eafab1a5961aa5b0069402"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2657,7 +2661,11 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// §8.59): read from the producer on the candidate build; the successor carries one S6 text (limitation [0]) and the
 /// publication and receipt hashes binding it. Restating it to main 394f4c623's and resealing with the Python 07e rule
 /// reproduces main's pins byte for byte.
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "107798b28c5dea3b7d49babe9ad0877c91e91c66fde787f6e6826de22a1aeab9", "c37bb3dbbed6b25f5cf8cf2254d578872d3523a37f033c7ca671b4d7ffd5b76f"),("dense_scrutiny", "7c5b892c1257d686365777893da7487d4d6c12bd6d7fb711580503bc1ab3bc22", "976f0cbb6f5bcdcb78df14eeee1b27eca50c445b76bb1ed9a22f0df139ea6867")];
+/// Pressure elongation (RT-L2): read from the producer; these zero-pressure models name no case, so the successor
+/// gains the not-included statement, limitation [0] takes the pressure-3 identity and DEF-E's H moved. Removing the
+/// statement, restoring the pressure-2 token and resealing with the Python 07e rule under DEF-E's former H
+/// reproduces the previous pins byte for byte.
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "38ef8c85e6e7ac7264ac52a156b483a9c5fb4a881afa9ed0047f656c6cfea737", "227307991c59b77d4be90ff6131c6ce42406ce0ab097f4e5101c510eadc04816"),("dense_scrutiny", "fc63a0bfdc34b5667eaa32908a3fffa7f545dd6a85d9734642408fa743cb59a2", "f171d4ac2e9edd43b8171d32ce0a3e5d6e32d80f3b0bbe5033212893f122c763")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3703,11 +3711,15 @@ fn two_member_exact(reversed: bool) -> Value {
 /// §8.59): read from the producer on the candidate build; the successor carries one S6 text (limitation [0]) and the
 /// publication and receipt hashes binding it. Restating it to main 394f4c623's and resealing with the Python 07e rule
 /// reproduces main's pins byte for byte.
+/// Pressure elongation (RT-L2): read from the producer; these zero-pressure models name no case, so the successor
+/// gains the not-included statement, limitation [0] takes the pressure-3 identity and DEF-E's H moved. Removing the
+/// statement, restoring the pressure-2 token and resealing with the Python 07e rule under DEF-E's former H
+/// reproduces the previous pins byte for byte.
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "9a0b1772e6854254006b1fab46d281fd5209ca95d6301f6806edddc0d0dbe1fd"),
-    (false, "dense_scrutiny", "bafea5e825f19383ad163c8a4f9ae6a0f0f8daba6bebdd21fa0cb7d723254aed"),
-    (true, "sparse_interactive", "02ebe31835acb4d20c63c92df5ba77b3c72e9415c9c65e843249313caded496e"),
-    (true, "dense_scrutiny", "e26293f92c97fd13a3d24e894a59cc6b1a0fcbd8b547f73d483501019bbd3dd2")];
+    (false, "sparse_interactive", "649e5960e4a6222b944f58781eaf8440594ccace1bd7cff4475aef0c87520b4d"),
+    (false, "dense_scrutiny", "39fd4d2052a41d5a4913510c59469fc1e5f3aef6dbcc7c76eb7931cea6f8aa9f"),
+    (true, "sparse_interactive", "07673d1633654d59b0cbcb3d3a560664c35e80a09ef1d38a396b7071b7440881"),
+    (true, "dense_scrutiny", "54654709517b0f524275081bcd69662327fba3b90e248f085834d7cfb76dea47")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3769,8 +3781,12 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// §8.59): read from the producer on the candidate build; the successor carries one S6 text (limitation [0]) and the
 /// publication and receipt hashes binding it. Restating it to main 394f4c623's and resealing with the Python 07e rule
 /// reproduces main's pins byte for byte.
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "8e4ac9042d283878674e76069af6dbc0872e71dbb538cfdba415681a8fd6c384"),
-    ("dense_scrutiny", "e3e283486ab2e62cbde02d139fc6245f701205f5a8c57c8841fc0b154e50acd5")];
+/// Pressure elongation (RT-L2): read from the producer; these zero-pressure models name no case, so the successor
+/// gains the not-included statement, limitation [0] takes the pressure-3 identity and DEF-E's H moved. Removing the
+/// statement, restoring the pressure-2 token and resealing with the Python 07e rule under DEF-E's former H
+/// reproduces the previous pins byte for byte.
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "744e6457943b61195d1edd3d198edfe040942f121b6351a2862cfbb9aca80bbd"),
+    ("dense_scrutiny", "fddc53c2e407c9106c5cd4a0ef785b1b92141359479e30b3b9df7566e3b346df")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),
@@ -5290,5 +5306,49 @@ fn pf_timoshenko_is_declined_at_d1_and_takes_the_ordinary_route_unchanged() {
             let (output, _) = direct(other, mode);
             assert_ne!(output.admission().unwrap().law().domain, declined, "{label} {mode:?}");
         }
+    }
+}
+/// DEL-04-07: D1.4 bounds `model_settings.pressure_elongation.operating_load_cases` by the
+/// document's number of load cases. A list as long as the load cases (here the valid list
+/// naming the one case) stays inside D1; one entry longer (an id that names no case) is
+/// declined by name at D1.4, from the two lengths, on the actual Direct entry: one ordinary
+/// run, no G-C, no W1 and no successor, and the publication is the ordinary route's bytes,
+/// whose validation refuses the list by name as before. The build's registration is not read
+/// here (the domain verdict does not depend on it).
+#[test]
+fn an_elongation_list_longer_than_the_load_cases_is_declined_at_d1_and_takes_the_ordinary_route() {
+    use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+    let with_list = |extra: usize| {
+        let mut raw = m3x();
+        let mut ids: Vec<Value> = raw["model"]["load_cases"].as_array().unwrap().iter().map(|c| c["id"].clone()).collect();
+        assert_eq!(ids.len(), 1);
+        ids.extend((0..extra).map(|k| json!(format!("case:unknown-{k}"))));
+        raw["model"]["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": ids}});
+        raw
+    };
+    let counted = |raw: &Value, mode| {
+        let raw = raw.clone();
+        hooks::counted(move || run_linear_static_preview_value_with_retained_direct(raw, mode, RETAINED_LIMIT).unwrap())
+    };
+    let (equal, longer) = (with_list(0), with_list(1));
+    for mode in MODES {
+        let (output, _) = counted(&equal, mode);
+        assert_eq!(output.admission().unwrap().law().domain, None, "{mode:?}: equal to the load cases, inside D1");
+        let envelope: Value = serde_json::from_slice(&plain(mode, &equal)).unwrap();
+        assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}");
+        let (output, counts) = counted(&longer, mode);
+        assert_eq!(output.admission().unwrap().law().domain,
+            Some(AdmissionRefusal::Family(D1Clause::Invocation, FamilyFact::PressureElongationCases)), "{mode:?}: one longer, declined");
+        assert_eq!(counts, ONE_RUN, "{mode:?}: the ordinary run only, no G-C");
+        assert!(output.retained().is_none(), "{mode:?}: no W1");
+        assert!(output.successor().is_none(), "{mode:?}: no successor");
+        let ordinary = plain(mode, &longer);
+        assert!(published(output) == ordinary, "{mode:?}: the ordinary bytes");
+        let envelope: Value = serde_json::from_slice(&ordinary).unwrap();
+        assert_eq!(envelope["status"]["mechanics"], json!("MODEL_INCOMPLETE"), "{mode:?}");
+        let blocking: Vec<(&str, &str, Value)> = envelope["diagnostics"].as_array().unwrap().iter().filter(|d| d["severity"] == "blocking")
+            .map(|d| (d["id"].as_str().unwrap(), d["code"].as_str().unwrap(), d["affected_refs"].clone())).collect();
+        assert_eq!(blocking, [("diagnostic:model-settings:pressure-elongation:0", super::model_settings::MODEL_SETTING_PRESSURE_ELONGATION_CASE_UNKNOWN,
+            json!([super::model_settings::PRESSURE_ELONGATION_PATH]))], "{mode:?}");
     }
 }

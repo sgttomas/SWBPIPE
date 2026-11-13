@@ -1,6 +1,6 @@
 """RT-A3 increment 4 (DEL-04-07 Design ``route-unification-r4.md`` §2.4 and §3.5 S5; ``pressure-contract.md``,
 "Nonlinear supports on EX (RT-A3 increment 4)"): the test-only Python pressure-2 reader
-(``tests/verifiers/pressure_2.py`` with ``nonlinear_support_evidence.py``) and the Rust product reader
+(``tests/verifiers/pressure_3.py`` with ``nonlinear_support_evidence.py``) and the Rust product reader
 (``openpipestress-runner read pressure``) take the same verdict on the exact route's nonlinear support results.
 
 Each case of the frozen references (``validation/references/rt_a3_nonlinear/``, 20 of 21; G1-P0 has no load and is
@@ -26,6 +26,7 @@ import subprocess
 import pytest
 
 from tests.verifiers import nonlinear_support_evidence as nse
+from tools.validation import pressure_elongation
 from tests.verifiers import reader_verdict as rv
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -120,7 +121,9 @@ def document(case: dict) -> dict:
               "direction": directions[c], "magnitude": quantity(ratio(v), "N"), "dimension": "force", "provenance": PROVENANCE}
              for n, by in lc["nodal_loads"].items() for c, v in by.items()]
     shear = {"euler_bernoulli": "euler_bernoulli", "timoshenko": "timoshenko_annulus_energy_v1"}[m["shear_model"]]
-    return {"model": {"schema_version": MODEL_SCHEMA_VERSION, "document_kind": "openpipestress.product_preview.model",
+    # The Rust binding solves through `with_elongation_if_pressurised`: the document names its pressurised case in
+    # the pressure elongation setting (the shared switch at `all`), so both readers judge the same solve.
+    return {"model": pressure_elongation.apply({"schema_version": MODEL_SCHEMA_VERSION, "document_kind": "openpipestress.product_preview.model",
                       "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": shear},
                       "project": {"id": "project:rt-a3-nonlinear", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
                       "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
@@ -129,7 +132,7 @@ def document(case: dict) -> dict:
                                      "elastic_modulus": quantity(ratio(model["material"]["E_Pa"]), "Pa"), "poisson_ratio": quantity(0.3, "1"), "provenance": PROVENANCE}],
                       "supports": supports, "components": components,
                       "load_cases": [{"id": "case:main", "primitive_loads": loads, "pressure_regions": regions, "provenance": PROVENANCE}],
-                      "combinations": []},
+                      "combinations": []}, "all"),
             "materials": []}
 
 
@@ -473,6 +476,9 @@ def two_case_document(first: str, second: str, combinations) -> dict:
         pair.append(case)
     doc["model"]["load_cases"] = pair
     doc["model"]["combinations"] = combinations(f"case:{first}", f"case:{second}")
+    # The renamed cases: the setting names the composed document's pressurised cases, as the Rust binding's
+    # `with_elongation_if_pressurised` does for the document it solves.
+    pressure_elongation.apply(doc["model"], "all")
     return doc
 
 
@@ -537,7 +543,7 @@ def test_flat_mechanics_combinations_are_withheld_and_oq1_is_admitted_by_both_re
 
 def test_every_reference_envelope_validates_against_the_pressure_2_result_schema(solved):
     """No new reason code or row kind is published: the nonlinear support kinds, their diagnostics, the gap standing and
-    the combination gate are already in ``results_pressure_2.v0.3.schema.json``, and every reference envelope (and the
+    the combination gate are already in ``results_pressure_3.v0.3.schema.json``, and every reference envelope (and the
     combination document's, gate-withheld) validates."""
     from tests.test_rt_a3_constant_effort_schema import _pressure_schema, _validate
     schema = _pressure_schema()

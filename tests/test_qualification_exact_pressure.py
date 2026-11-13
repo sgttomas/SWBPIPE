@@ -47,7 +47,7 @@ def generated(admitted=True) -> dict[str, bytes]:
     """The package in memory (generated once per admission state)."""
     if admitted not in _GENERATED:
         with patch.object(generator, 'admission', return_value=ADMITTED if admitted else None):
-            _GENERATED[admitted] = generator.generate()
+            _GENERATED[admitted] = generator.generate("all")
     return _GENERATED[admitted]
 
 
@@ -201,9 +201,9 @@ class PackageTests(unittest.TestCase):
         admitted = generator.admission()
         self.assertIsNotNone(admitted)
         self.assertEqual(admitted['independent_review']['path'], f'{PACKAGE}/INDEPENDENT_REVIEW_T4-U4B-U5B.md')
-        files = generator.generate()
+        files = generator.generate("all")
         manifest = f'{PACKAGE}/MANIFEST.json'
-        self.assertEqual((PROJECT / manifest).read_bytes(), files[manifest], 'regenerate with generate_package.py --write')
+        self.assertEqual((PROJECT / manifest).read_bytes(), files[manifest], 'regenerate with generate_package.py --write --pressure-elongation all')
         cases = json.loads(files[manifest])['cases']
         for case in cases:
             for role in ('runner_input', 'product_request', 'reference', 'selectors', 'criteria'):

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/results.v0.3.schema.yaml",
   "title": "Precision-preserving derivative result export 0.3",
-  "description": "Source-bound preview-physics-2, pressure-2 and pressure-source-1 semantics and their retained-precision successors; method-specific evidence retained without engineering qualification.",
+  "description": "Source-bound preview-physics-2, pressure-3 and pressure-source-1 semantics and their retained-precision successors; method-specific evidence retained without engineering qualification.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -910,7 +910,7 @@
                 "$ref": "#/$defs/PreviewPhysicsResultSet"
               },
               {
-                "$ref": "results_pressure_2.v0.3.schema.json#/$defs/PressureResultSet"
+                "$ref": "results_pressure_3.v0.3.schema.json#/$defs/PressureResultSet"
               }
             ]
           }
@@ -1002,7 +1002,7 @@
                 "openpipestress.result_semantics/0.3.0/pressure-source-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-2",
                 "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
-                "openpipestress.result_semantics/0.3.0/pressure-2",
+                "openpipestress.result_semantics/0.3.0/pressure-3",
                 "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                 "openpipestress.result_semantics/0.3.0/physics-retained-1"
               ]
@@ -1025,7 +1025,7 @@
                 "openpipestress.result_semantics/0.3.0/pressure-source-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-2",
                 "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
-                "openpipestress.result_semantics/0.3.0/pressure-2",
+                "openpipestress.result_semantics/0.3.0/pressure-3",
                 "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                 "openpipestress.result_semantics/0.3.0/physics-retained-1"
               ]
@@ -1158,7 +1158,7 @@
               "$ref": "#/$defs/PreviewPhysicsContractEvidence"
             },
             {
-              "$ref": "results_pressure_2.v0.3.schema.json#/$defs/PressureContractEvidence"
+              "$ref": "results_pressure_3.v0.3.schema.json#/$defs/PressureContractEvidence"
             },
             {
               "$ref": "#/$defs/PressureSourceContractEvidence"
@@ -1411,7 +1411,7 @@
           ]
         },
         {
-          "$ref": "results_pressure_2.v0.3.schema.json#/$defs/PressureResultEnvelope"
+          "$ref": "results_pressure_3.v0.3.schema.json#/$defs/PressureResultEnvelope"
         },
         {
           "required": [
@@ -1501,17 +1501,34 @@
                   "const": "exact_straight_retained_w1a_v2"
                 },
                 "limitations": {
-                  "const": [
-                    "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED); gap, one-way, lift-off and friction supports (friction with an explicit normal or a normal derived from a linear restraint), beside objective connectors and on load/reference-state documents included, are solved in each case by the active-set loop from their authored initial states and publish their states, final displacements and reactions; K-D5 confirmation is attempted for an eligible non-gap state, and the case's published numerical standing reflects its outcome; a case with a gap support is published with the unqualified recovery basis (NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED) and no confirmation, and a mechanics combination over a model with a nonlinear support is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE) unless it is one load case at factor exactly 1 plus at least one combination whose fixed-load count is exactly 0, formed from rows as a solved state plus derived differences or bounds, not an equilibrium state. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
-                    "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
-                    "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
-                    "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
-                    "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-                    "Signed support actions are attributed only for admitted linear restraints, springs and nonlinear supports and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
-                    "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-                    "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
-                    "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-                    "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+                  "description": "RT-L2 (DEL-04-07): the ten fixed statements with, immediately after the D-3 sentence, the pressure-elongation statement that is true of the document. Every case on this route has explicitly empty pressure_regions, so no case carries pressure and only the not-included (setting absent) and no-effect (setting names cases) statements can occur.",
+                  "enum": [
+                    [
+                      "3.0.0/exact_pressure_v3 under pressure-3 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED); gap, one-way, lift-off and friction supports (friction with an explicit normal or a normal derived from a linear restraint), beside objective connectors and on load/reference-state documents included, are solved in each case by the active-set loop from their authored initial states and publish their states, final displacements and reactions; K-D5 confirmation is attempted for an eligible non-gap state, and the case's published numerical standing reflects its outcome; a case with a gap support is published with the unqualified recovery basis (NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED) and no confirmation, and a mechanics combination over a model with a nonlinear support is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE) unless it is one load case at factor exactly 1 plus at least one combination whose fixed-load count is exactly 0, formed from rows as a solved state plus derived differences or bounds, not an equilibrium state. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+                      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+                      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+                      "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied.",
+                      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+                      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+                      "Signed support actions are attributed only for admitted linear restraints, springs and nonlinear supports and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
+                      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+                      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+                      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+                      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+                    ],
+                    [
+                      "3.0.0/exact_pressure_v3 under pressure-3 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED); gap, one-way, lift-off and friction supports (friction with an explicit normal or a normal derived from a linear restraint), beside objective connectors and on load/reference-state documents included, are solved in each case by the active-set loop from their authored initial states and publish their states, final displacements and reactions; K-D5 confirmation is attempted for an eligible non-gap state, and the case's published numerical standing reflects its outcome; a case with a gap support is published with the unqualified recovery basis (NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED) and no confirmation, and a mechanics combination over a model with a nonlinear support is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE) unless it is one load case at factor exactly 1 plus at least one combination whose fixed-load count is exactly 0, formed from rows as a solved state plus derived differences or bounds, not an equilibrium state. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+                      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+                      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+                      "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect.",
+                      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+                      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+                      "Signed support actions are attributed only for admitted linear restraints, springs and nonlinear supports and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
+                      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+                      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+                      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+                      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+                    ]
                   ]
                 }
               }
@@ -2589,7 +2606,8 @@
               "approximation",
               "provenance",
               "geometry_representation_guard",
-              "result_ids"
+              "result_ids",
+              "pressure_elongation"
             ],
             "properties": {
               "load_case_id": {
@@ -2930,6 +2948,14 @@
                   "type": "string",
                   "minLength": 1
                 }
+              },
+              "pressure_elongation": {
+                "type": "string",
+                "enum": [
+                  "included",
+                  "not_included"
+                ],
+                "description": "RT-L2 (DEL-04-07): whether this case includes pressure elongation, the closed-end free pressure strain (1 - 2nu)pAi/(E As). Included: the straight Poisson group's coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not_included: sign*1 and exactly zero. Every pressure region of a case states the same value."
               }
             }
           }
@@ -3073,6 +3099,35 @@
                   "screen_roundoff_multiplier",
                   "screen_is_not_numerical_qualification"
                 ],
+                "if": {
+                  "required": [
+                    "cancellation_screen_exception"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "cancellation_screen": {
+                      "anyOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "number",
+                          "exclusiveMinimum": 1.0e-09
+                        }
+                      ]
+                    }
+                  }
+                },
+                "else": {
+                  "properties": {
+                    "cancellation_screen": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1.0e-09
+                    }
+                  }
+                },
                 "properties": {
                   "method": {
                     "const": "source_factor_grouped_pressure_rhs_v1"
@@ -3214,7 +3269,69 @@
                     "const": true
                   },
                   "cancellation_screen": {
-                    "type": "number"
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "DEL-04-07: the original cancellation screen, 32*epsilon times the largest per-DOF sum of source-group magnitudes over the largest assembled translational load; null when not finite. Within screen_limit it stands alone; over it, or null, the case was admitted only by cancellation_screen_exception."
+                  },
+                  "cancellation_screen_exception": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "basis",
+                      "node_ref",
+                      "member_pipe_ids",
+                      "member_lengths_m",
+                      "region_span_m",
+                      "remainder_to_bore_force_ratio",
+                      "remainder_force_n",
+                      "consistency_bound_ratio"
+                    ],
+                    "properties": {
+                      "basis": {
+                        "const": "straight_region_interior_cap_pairs_cap_remainder_retained"
+                      },
+                      "node_ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "member_pipe_ids": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "member_lengths_m": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "region_span_m": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "remainder_to_bore_force_ratio": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "remainder_force_n": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "consistency_bound_ratio": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    },
+                    "description": "DEL-04-07: present exactly when the original screen failed and the case was admitted because it is of the family the basis names: no pressure elongation, closed straight regions whose only formed pressure loads are the interior cap pairs of two members of one region. Their sum F at an interior node is the remainder of the two members' cap loads, from the bore and alignment differences the region's representation guards admit, from the rounding of each member's direction and bore area, or both; the product solves the recorded geometry as computed, with that remainder retained. The record states the interior node of the largest |F|/(|p|*A_hi), its two members (in the region's order) and their lengths, the region's span, that ratio, |F| there in newtons (remainder_force_n, the correctly rounded norm of the assembled translational pressure load at the node, the ratio's numerator; the case's PRESSURE_REGION_CAP_REMAINDER_RETAINED warning states it, written by Rust's {:e}, with the case and the node, and says it is not a bound on the resulting displacement), and the bound beta formed from the span and lengths by the derivation in product physics (pressure_runtime BORE_DEPARTURE_RATIO). The bound checks consistency of the formed force with the guards and formation. It establishes neither a response bound nor response accuracy or engineering acceptability. Numerical standing comes from the solve integrity check on its recorded premise; this exception supplies no independent assurance."
                   },
                   "screen_limit": {
                     "const": 1e-09
@@ -3224,6 +3341,14 @@
                   },
                   "screen_is_not_numerical_qualification": {
                     "const": true
+                  },
+                  "pressure_elongation": {
+                    "type": "string",
+                    "enum": [
+                      "included",
+                      "not_included"
+                    ],
+                    "description": "RT-L2: present exactly when the case has pressure regions, equal to their pressure_elongation."
                   }
                 }
               }
@@ -4455,7 +4580,7 @@
           }
         },
         "combination_certificate": {
-          "$ref": "results_pressure_2.v0.3.schema.json#/$defs/CombinationCertificate"
+          "$ref": "results_pressure_3.v0.3.schema.json#/$defs/CombinationCertificate"
         },
         "difference_basis_derivation": {
           "type": "array",

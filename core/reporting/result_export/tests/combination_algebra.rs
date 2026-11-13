@@ -18,7 +18,7 @@ const CLASSES: [&str; 3] = ["signed_linear", "recomputed_from_combined", "never_
 const RANGE_BASIS: &str = "explicit_user_range_envelope";
 const RANGE_MODES: [&str; 4] = ["max_abs", "min_abs", "max", "min"];
 const TABLES: [(&str, &str); 4] = [
-    ("openpipestress.result_semantics/0.3.0/pressure-2", "semantic_contract_v0_3_pressure_2.json"),
+    ("openpipestress.result_semantics/0.3.0/pressure-3", "semantic_contract_v0_3_pressure_3.json"),
     ("openpipestress.result_semantics/0.3.0/preview-physics-2", "semantic_contract_v0_3_preview_physics_2.json"),
     ("openpipestress.result_semantics/0.3.0/physics-retained-1", "semantic_contract_v0_3_physics_retained_1.json"),
     ("openpipestress.result_semantics/0.3.0/preview-physics-retained-1", "semantic_contract_v0_3_preview_physics_retained_1.json"),

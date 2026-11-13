@@ -58,6 +58,8 @@
 //! of a nonlinear model is withheld, OQ-1's one solved case at factor 1 plus
 //! κ-zero combinations is admitted, and both readers refuse forged gates.
 
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
 use open_pipe_stress_product_physics::result_export::reader_verdict;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode, MODEL_SCHEMA_VERSION};
 use serde_json::{json, Value};
@@ -259,7 +261,7 @@ fn document(references: &Value, case: &Value) -> Value {
 // ----------------------------------------------------------------- solving
 
 fn solve(document: &Value, mode: PreviewSolverMode) -> Value {
-    serde_json::to_value(run_linear_static_preview_value_with_mode(document.clone(), mode).expect("the entry accepts the document")).unwrap()
+    serde_json::to_value(run_linear_static_preview_value_with_mode(pressure_elongation::with_elongation_if_pressurised(document), mode).expect("the entry accepts the document")).unwrap()
 }
 
 fn diagnostics(envelope: &Value) -> &Vec<Value> {
@@ -1035,6 +1037,9 @@ fn reader_binds_inactive_residuals_support_nodes_and_standings() {
     // load subtracted) and the residual evaluation (the negative load, then
     // normalized products) are different evaluations, and neither row's
     // denominator is published, so the record bounds nothing. Admitted.
+    // Pressure elongation (RT-L2): the source was re-produced from this model by the current
+    // producer; every number, these two among them, is bit-identical, and only the identity,
+    // limitation texts and the not-included elongation statement moved.
     let fixture: Value = serde_json::from_str(B1_LOADED).unwrap();
     let loaded = json!({"model": fixture["model"].clone(), "materials": []});
     let source = &fixture["source"];

@@ -49,7 +49,7 @@ const EXPECTED_PATH: &str = "../../fixtures/results/j7_rf_census_expected.json";
 const J2: &str = include_str!("../../../../fixtures/results/pressure_source_reader_corpus.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const FAMILIES: [&str; 10] = ["RF-CHAIN", "RF-SKEW", "RF-WEAK", "RF-LARGE", "RF-INVARIANCE", "RF-RANGE", "RF-ZERO", "RF-FINITE", "RF-MECH", "RF-CANCEL"];
-const PRESSURE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const PRESSURE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 /// Every source-recovery identity (the current one and the two retired v2 ones).
 const SOURCE_IDENTITIES: [&str; 3] = [
     "openpipestress.result_semantics/0.3.0/pressure-source-1",

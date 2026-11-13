@@ -183,6 +183,13 @@
         }
       }
     ],
+    "model_settings": {
+      "pressure_elongation": {
+        "operating_load_cases": [
+          "case:u2"
+        ]
+      }
+    },
     "nodes": [
       {
         "id": "node:A",

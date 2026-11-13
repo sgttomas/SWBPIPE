@@ -4163,6 +4163,15 @@
       }
     }
   ],
+  "model_settings": {
+    "pressure_elongation": {
+      "operating_load_cases": [
+        "load:RS-SUS",
+        "load:RS-OPE",
+        "load:RS-SAM"
+      ]
+    }
+  },
   "nodes": [
     {
       "id": "node:RS-010",

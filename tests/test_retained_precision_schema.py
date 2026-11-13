@@ -12,6 +12,11 @@ from checked_json_fixture_cache import checked_json_fixture_cache
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 from retained_precision_corpus import load_corpus  # noqa: E402
+from tests.verifiers.pressure_3 import (  # noqa: E402
+    ELONGATION_INCLUDED_STATEMENT,
+    ELONGATION_NO_EFFECT_STATEMENT,
+    ELONGATION_NOT_INCLUDED_STATEMENT,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = json.loads((ROOT / "schemas/retained_precision_mp_v2.schema.json").read_text())
@@ -103,7 +108,7 @@ CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 # T4-U6 (D-5, §2.4): follows pressure-2's per-basis table by its inherited hash (was 69581249...).
-EXACT_SHA = "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"
+EXACT_SHA = "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
 # b7-plan's pressure-source join: a tenth run branch (no receipt); its contract
@@ -163,7 +168,7 @@ def projected(source):
     base = deepcopy(source)
     del base["retained_precision"]
     exact = source["producer"]["semantic_contract_id"] == EXACT
-    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-2" if exact else PREVIEW
+    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-3" if exact else PREVIEW
     base["formulation_basis"]["profile_id"] = "exact_pressure_v3" if exact else "product_preview_mechanics_v1"
     for row in base["results"]:
         row.pop("recovery_method", None)
@@ -258,7 +263,7 @@ def test_d_u6_2_class_codes_are_admitted_only_in_the_successor_branch():
     assert enum[-2:] == CODES and len(set(enum)) == len(enum)
     clause = {"properties": {"row_disclosures": {"items": {"properties": {"reason_code": {"not": {"enum": CODES}}}}}}}
     from tests.schema_validation import envelope_branches
-    branches = envelope_branches(schema)  # pressure-2's branch is held in results_pressure_2.v0.3
+    branches = envelope_branches(schema)  # pressure-2's branch is held in results_pressure_3.v0.3
     for branch in branches:
         sid = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
         if sid in SUCCESSORS:
@@ -436,13 +441,18 @@ PLAIN = "fixtures/results/pressure_connected_mechanics_sparse.json"
 
 
 def exact_source():
-    """A pressure-2 statement under the exact successor's identity and profile (its limitations are pressure-2's,
-    the branch's const), carrying the shared corpus's first receipt (shape only; no reader runs here)."""
+    """A pressure-3 statement under the exact successor's identity and profile, carrying the shared corpus's first
+    receipt (shape only; no reader runs here). Its limitations are pressure-3's with the pressure-elongation statement a
+    document on this route can carry: every case there has explicitly empty pressure regions, so none carries pressure
+    and the statement is the not-included (or no-effect) one, never the included one of the pressurised source."""
     source = json.loads((ROOT / PLAIN).read_text())
-    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/pressure-2"
+    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/pressure-3"
     source = deepcopy(source)
     source["producer"]["semantic_contract_id"] = EXACT
     source["formulation_basis"]["profile_id"] = EXACT_PROFILE
+    limitations = source["formulation_basis"]["limitations"]
+    assert limitations[3] == ELONGATION_INCLUDED_STATEMENT
+    limitations[3] = ELONGATION_NOT_INCLUDED_STATEMENT
     source["retained_precision"] = deepcopy(CORPUS["cases"][0]["source"]["retained_precision"])
     return source
 
@@ -463,12 +473,17 @@ def test_exact_successor_results_branch():
         document = results_document(source)
         document["result_envelope"]["row_disclosures"] = [disclosure(code)]
         check("results.v0.3.schema.yaml", document, True, f"exact successor {code}")
+    no_effect = results_document(source)
+    no_effect["result_envelope"]["formulation_basis"]["limitations"][3] = ELONGATION_NO_EFFECT_STATEMENT
+    check("results.v0.3.schema.yaml", no_effect, True, "exact successor, setting without effect")
     refused = {
         "no_receipt": lambda s: s.pop("retained_precision"),
         "preview_profile": lambda s: s["formulation_basis"].__setitem__("profile_id", PROFILE),
         "physics_profile": lambda s: s["formulation_basis"].__setitem__("profile_id", "exact_straight_pressure_v2"),
         "pressure_profile": lambda s: s["formulation_basis"].__setitem__("profile_id", "exact_pressure_v3"),
         "other_limitations": lambda s: s["formulation_basis"].__setitem__("limitations", ["Straight circular members and linear restraints or springs only."]),
+        "included_elongation": lambda s: s["formulation_basis"]["limitations"].__setitem__(3, ELONGATION_INCLUDED_STATEMENT),
+        "no_elongation_statement": lambda s: s["formulation_basis"]["limitations"].pop(3),
         "preview_evidence": lambda s: s.__setitem__("contract_evidence", deepcopy(CORPUS["cases"][0]["source"]["contract_evidence"])),
         "source_block_recovery": lambda s: s.__setitem__("source_block_recovery", foreign_source_block_recovery()),
     }

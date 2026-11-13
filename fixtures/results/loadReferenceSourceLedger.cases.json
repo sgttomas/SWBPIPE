@@ -564,7 +564,7 @@
    {
     "op": "set",
     "path": "/source_block_recovery/body/cases/0/source/normalized_source_sha256",
-    "value": "8ff7c81298c7dfc0ed79000cd2121eea99ce332a74b781da6bae3060554469f2"
+    "value": "7545cfe3c47b6d064064c496f3144f4c0d67f25efb65e8faee4064c6a0ea1cda"
    }
   ],
   "reseal_publication": true,

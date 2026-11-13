@@ -25,7 +25,7 @@ CHECK_IDS = (
     'stress_summary_binding', 'displacement_summary_binding',
 )
 # The first-static cases are qualified as pressure-2 on the re-authored current (0.9.0) copy of their frozen input.
-CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-3'
 PROFILE = 'exact_pressure_v3'
 MODEL_VERSION = '0.9.0'
 PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': PROFILE, 'shear_model': 'euler_bernoulli'}

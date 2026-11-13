@@ -30,7 +30,7 @@ import hashlib, os, re
 # RT-A3 S6 D3 (§8.59): solve_prepared_load_case (KD5T2) adds no literal, label, record constructor, route string,
 # carrier, staging, fallback attempt or first-return alternative: the resolved case's motion arms (D1.5), the base map,
 # the spring-ground test in source eligibility (all zero on D1) and the capture's CaseMotionEvidence argument (S6-ME).
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '8175571355e36d701e08c6fb2e86981082d8184cfb72d390562fb32b2925e92f', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'c6d77195d0533f25745736b634a4e05a786211d103d19376c47b2587f4515dd7'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '8175571355e36d701e08c6fb2e86981082d8184cfb72d390562fb32b2925e92f', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '75e9f9ea7841f969dbc4fac3b325e7c5c0b5c452338ad750acfe0842dbce49a2', 'fallback_circular_maximum': '98cea10ecc8f6a9c702e3b40549b528a560c1d71d82e89420c05385cbd02d8d5', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'd36ba54f458bfe92046552b20a3647c6be9c36be1b0e31328ff6730ad2154cf1'}}
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
 # the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
@@ -75,7 +75,9 @@ PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8
 # RT-A3 §4 D3 (§8.53): solve_prepared_load_case sets LoadCaseSolve.certificate_operand (None at every early return;
 # combination_certificate::operand's value with a combination and a formed member bound). No literal, label, record
 # constructor, route string, carrier, staging, fallback attempt or first-return alternative changes.
-PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '7f616539d121dd08b3dda69747f86b9fdce6808da3f2317aec0f2f127796de88', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8e505d4ca5f254a33a52502acb14245587f0378cac880087592315addd669064', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
+# RT-L2 D3: certified_publication.rs re-read (kd5_first_error_model's RT-L2 note); no slot, owned layout or
+# caller/workspace union changes.
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '7a89931accf55addbb7339d97c86e14bf902bdb969e7b71eaf73502d0c426ef7', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8e505d4ca5f254a33a52502acb14245587f0378cac880087592315addd669064', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -257,7 +259,9 @@ def inspect_directed_helpers(snapshot):
 # RT-A3 S6 D3 (§8.59): lib.rs re-read; no `.min(`/`.max(` call added or removed.
 # RT-S3 CE fallback (§8.61, CEF-PJ): compared without the exact reviewed CE delta (ce_fallback_model.s6_bytes); the
 # branch adds or removes no `.min(`/`.max(` call, and its two tests are test-only. The pin stays S6's.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'd193d408df925ea70e77c93fd65dbbe88b9780a4353017c8ce8934f6032c6737'
+# RT-L2 final source: lib.rs re-read: a test-module declaration and blocked_envelope's in-place `retain` (a closure
+# comparing a code); no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '475600b6f99d83054e8f3850d4b161b4c33c202326fc595db985fae650c8b08a'
 
 
 def _ce_fallback():
@@ -306,8 +310,8 @@ FALLBACK_OUTSIDE_CALLERS = (
     ("annulus_geometry.rs", "source_insulation_area_m2", ("mul",), "41ec087e427844f47f407ed550d9124e6cfe773e98ab61a99335e08a47a68b41"),
     # T4-U6 (D-5): the pressure state names its basis; the sole `.add(` receiver is still the span intensity's
     # ExactAccumulator, and the sole `.divided(` receiver frame_kernel's CertifiedRow (now once per basis).
-    ("lib.rs", "exact_straight_summary_extrema", ("add",), "1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0"),
-    ("lib.rs", "append_exact_pressure_results", ("divided",), "6cd118c3cddbcadcd46c0545d8e7153d11831e9c4641dafc85a7f9b3e431b967"),
+    ("lib.rs", "exact_straight_summary_extrema", ("add",), "f8e3dc3ab54eac18a0140d08f1e43ed19ecc7316f0883efa656f1814d3ab1094"),
+    ("lib.rs", "append_exact_pressure_results", ("divided",), "d1b0587b656fe26bbd3c071b11cb7706eb2d3e7c70a8fd3c9cae8c984df79cba"),
     ("pressure_exact.rs", "from_radii", ("mul",), "30bf50858d1c5a2223b5fa9c4f5a4d2643c87d26875e394770b6d69d89230340"),
     ("pressure_exact.rs", "eigenload_pair", ("mul",), "ce624c341c68c90e445856b617fe49fbcb81c7e5591c95e8e174f1d9a94413e9"),
     # B7a E14/C5: row slots and arc metadata changed; the sole divided
@@ -344,10 +348,14 @@ FALLBACK_OUTSIDE_CALLERS_U2 = (
 # B5C1: the new effective-area expression's receiver is Scaled. Only
 # subtract the unrelated private FallbackError::mul candidate, keeping
 # every actual Scaled target and all original conservative candidates.
+# RT-L2 D3: finish_source_groups adds the cancellation exception's calls; its `.mul(` sites (3) and receivers are
+# unchanged and it gains no FallbackError method name.
+# RT-L2 final source: the group loop borrows the groups, the exception is one call (`cancellation_exception`) inside the
+# failed-screen branch, the groups are dropped after it, and the warning's call is renamed; the one line with its three
+# `.mul(` sites and their Scaled receivers is unchanged, and no FallbackError method name is added.
 FALLBACK_OUTSIDE_CALLERS_B5 = (
-    ("pressure_runtime.rs", "finish_source_groups", ("mul",), "c1a88878b2f10038e0b1f446f0c0fbf02b34bd1fba84cef3cd2770e98ee624fa"),
+    ("pressure_runtime.rs", "finish_source_groups", ("mul",), "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4"),
 )
-
 def _indented_function(text, name):
     hits = list(re.finditer(r"^([ \t]*)(?:pub(?:\([a-z]+\))?\s+)?(?:const\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
     if len(hits) != 1:

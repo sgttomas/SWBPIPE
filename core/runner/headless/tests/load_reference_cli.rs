@@ -18,7 +18,7 @@ use std::process::{Command, Stdio};
 
 /// B7b: the group is selected by presence on the exact pressure-2 and
 /// pressure-source-1 statements; the retired load-reference identities are gone.
-const LR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const LR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const LRS_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 const MODES: [PreviewSolverMode; 2] = [

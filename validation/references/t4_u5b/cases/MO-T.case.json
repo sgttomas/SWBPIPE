@@ -6,12 +6,12 @@
  "derives_from": {
   "reference": "validation/references/t4_u5a",
   "request": "requests/J3-1.request.json",
-  "request_sha256": "e64cbeae5b9f25a25b1d38566579e3d9ccabd7e69304e9637af20033efa49e47",
+  "request_sha256": "5b4aabda6740f11b8fa75a76459df4d23975ff752a267871111796aa978d0f68",
   "oracle_case": "J3-1",
   "orientation_pattern": null,
   "thermal_pattern": {
    "request": "requests/J3-1T.request.json",
-   "request_sha256": "829fc390290b7b0ed392f50078c01a9f7f8a4e56f23c13ee067309c05f36307d",
+   "request_sha256": "a8f4f27760e4928fd8a898149f481a86dc7643656809e94ab4a0e8f155d62c73",
    "applied": "J3-1T's thermal loads load:T-L and load:T-R (+10 degC on pipe:L and pipe:R) only; its pressure region is not applied"
   }
  },

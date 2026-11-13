@@ -46,12 +46,20 @@ RE = 'core/reporting/result_export/src/'
 # W-16 slice a D3 (§8.23): with unchanged text, the unit message and the three tail lines move +35 and +39
 # (LoadTargetInput's support arm, the imposed-motion validation, the case solve's prescribed map and, for the tail,
 # the primitive filter precede them).
+# RT-L2 D3: `problem` keeps its callers and now delegates, with severity "blocking", to the new private `finding`, which
+# holds the diag, format, join and to_string sites unchanged but for the severity argument (a static "blocking" or
+# "warning" token). The qualified owner of those sites is `finding` (FINDING); `problem` must be its only caller with a
+# nonzero count. Its other caller, the cancellation exception's warning, is reached only after a failed screen, never
+# on D1 (RTL2-XZ), and `owner_count` checks the counts are equal. Lines: problem 159 -> 171 (+12: the per-state flag and
+# the token helper precede it), the sites 165/166/168/173 -> 187/188/190/195 inside `finding`; every parent below moves
+# with byte-identical text.
 LN = {
-    'problem': 159,       # pressure_runtime.rs fn problem (160) [148]
-    'diag': 165,          # `let mut finding = diag(` (166) [154]
-    'format': 166,        # `&format!(` (167) [155]
-    'join': 168,          # `stable_suffix(&refs.join(":"))` (169) [157]
-    'to_string': 173,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
+    'problem': 171,       # pressure_runtime.rs fn problem (160) [148]
+    'finding': 180,       # pressure_runtime.rs fn finding (RT-L2)
+    'diag': 187,          # `let mut finding = diag(` (166) [154]
+    'format': 188,        # `&format!(` (167) [155]
+    'join': 190,          # `stable_suffix(&refs.join(":"))` (169) [157]
+    'to_string': 195,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
     # Nested-record closure D3 (§8.25): the four lib.rs lines move +106 with unchanged text; model document 0.8.0 (§8.26):
     # +36 (unit_message) and +36 (the three helpers), unchanged text.
     # §8.30 D3: +23 (unit_message) and +2 (the three helpers), unchanged text.
@@ -71,10 +79,14 @@ LN = {
     # RT-A3 S6 D3 (§8.59): +16 (unit_message: the S6 formulation-basis bindings and the case solve's motion lines
     # precede it) and +52 (the three helpers: load_state_spring_ground precedes them), unchanged text.
     # RT-S3 CE: maintained Mapper carries all four unchanged lib.rs sites +6; classes and audit values stay.
-    'unit_message': 10731, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15813,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15762,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15812,   # lib.rs fn stable_suffix (13613) [13618]
+    # RT-L2 D3: +3 (unit_message: the formulation basis's elongation statement precedes it) and +10 (the three helpers:
+    # the arc push's setting test and the wall recovery's flag argument precede them), unchanged text.
+    # RT-L2 final source: +2 (unit_message: the test-module declaration) and +9 (the three helpers: that and
+    # blocked_envelope's warning retain), unchanged text.
+    'unit_message': 10736, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15832,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15781,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15831,   # lib.rs fn stable_suffix (13613) [13618]
     # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
     # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
     # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.
@@ -82,6 +94,7 @@ LN = {
 }
 PR = PP + 'pressure_runtime.rs:'
 PROBLEM = PR + '%d:problem' % LN['problem']
+FINDING = PR + '%d:finding' % LN['finding']
 REF_LOOP = 'iter:refs.iter().map'
 RANGE_CONTENT = 59
 RANGE_ORIGINS = {
@@ -139,8 +152,8 @@ LEX_CURRENT = {
 # at most 327 B and at most two refs, within the unchanged 453/760 bounds.
 MESSAGE_CURRENT = {'pressure_runtime.rs:%d' % LN['diag']: 453}
 REFS_CURRENT = {'pressure_runtime.rs:%d' % LN['diag']: 760}
-EXTRA_CURRENT = {'lib.rs:%d' % LN['suffix']: {'owner': PROBLEM, 'extra_content': 516, 'capacity': 2}}
-OWNER_LOOP = {'owner': PROBLEM, 'header': REF_LOOP, 'per_call': 5}
+EXTRA_CURRENT = {'lib.rs:%d' % LN['suffix']: {'owner': FINDING, 'extra_content': 516, 'capacity': 2}}
+OWNER_LOOP = {'owner': FINDING, 'header': REF_LOOP, 'per_call': 5}
 PROBLEM_SITES = [(LN['diag'], 'diag'), (LN['format'], 'format'), (LN['join'], 'join'), (LN['to_string'], 'to_string')]
 PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 1332, 1480, 1720
     # T4-U6 [B7b: 176, 222, 507, 521, 594, 1067, 1308, 1456, 1696]; epoch addbdc030e: -3 after
@@ -157,11 +170,22 @@ PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 133
     # validate_profile (its 30 `problem` calls unchanged); every later parent moves +11 with byte-identical text.
     # RT-A3 S6 D3 (§8.59): validate_profile drops the S6 context and its verdict match (the table judges every family;
     # its 30 `problem` calls unchanged); every later parent moves -10 with byte-identical text.
-    '187:exact_member_recovery', '211:validate_profile', '522:refuse_compensated_shared_terminals',
+    # RT-L2 D3: the parents move with byte-identical text: +22 (the per-state flag, the token helper and `finding`)
+    # through assemble_pressure_case, +35 at add_joint_terms (assemble's flag read and kappa choice), +37 at
+    # finish_source_groups, +381 from traverse_region (the cancellation exception's constants, warning, record, predicate
+    # and family precede it). finish_source_groups' one `problem` call is the failed-screen arm of the record match.
+    '209:exact_member_recovery', '233:validate_profile', '544:refuse_compensated_shared_terminals',
     # RT-A3 increment 1 D3 (§8.33): junction_closure_warnings, its per-case helper and their own `warn` helper (no call
     # of `problem`) precede check_suffixes; the later parents move +88 with unchanged text.
-    '647:check_suffixes', '661:normalize_region_units', '734:assemble_pressure_case', '1218:add_joint_terms',
-    '1468:finish_source_groups', '1616:traverse_region', '1883:refuse_reducers_outside_step', '1960:collinear_run')]
+    # RT-L2 final source: through finish_source_groups the parents stand; from traverse_region they move +126 (the
+    # exception's `cancellation_exception`, test probe, member record and the predicate's direction checks precede
+    # them), byte-identical text. finish_source_groups' one `problem` call is the `None` arm of the
+    # `cancellation_exception` match, inside the failed-screen branch.
+    # RT-L2 third scrutiny: from traverse_region they move +119 more (the exception's chains, the chain-based predicate
+    # and family, and the warning's message function precede them), byte-identical text.
+    # RT-L2 fourth scrutiny: from traverse_region they move +2 (the warning message's doc comment), byte-identical text.
+    '669:check_suffixes', '683:normalize_region_units', '756:assemble_pressure_case', '1253:add_joint_terms',
+    '1505:finish_source_groups', '2244:traverse_region', '2511:refuse_reducers_outside_step', '2588:collinear_run')]
 # RT-A3 reducer 2a (§8.38): the new problem parent is inside the loop over reducers_in_regions.
 # D1.4 admits no components and D1.5 has empty E regions, so that classifier returns an empty Vec
 # (no push/table initialization), the loop has no iteration and problem receives no new message/ref owner.
@@ -299,11 +323,21 @@ def validate_consumers(graph, formats, lexical):
     expected=PROBLEM_PARENTS+([JOINT_VALUE_PARENT] if JOINT_VALUE_PARENT in edges else [])
     if sorted(parents)!=sorted(expected):
         raise ValueError('B7a scoped TEXT: problem caller inventory changed')
-    if edges[PROBLEM] != [PP+'lib.rs:%d:diag' % LN['diag_fn'], PP+'lib.rs:%d:stable_suffix' % LN['suffix_fn']]:
-        raise ValueError('B7a scoped TEXT: problem conversion/diag edge changed')
+    # RT-L2: problem's one edge is `finding`, which holds the conversion and diag edges; finding's other callers are
+    # pressure_runtime functions whose count is checked to be zero on D1 (owner_count).
+    if edges[PROBLEM] != [FINDING] or FINDING not in edges:
+        raise ValueError('B7a scoped TEXT: problem no longer delegates only to finding')
+    if edges[FINDING] != [PP+'lib.rs:%d:diag' % LN['diag_fn'], PP+'lib.rs:%d:stable_suffix' % LN['suffix_fn']]:
+        raise ValueError('B7a scoped TEXT: finding conversion/diag edge changed')
+    # model_fields.rs keep_finding's `finding()` is its closure parameter (o10_rules.py RTL2-FV zeroes that false edge,
+    # as U5B-JV does joint.rs hardware's for problem).
+    others=[u for u,vs in edges.items() for v in vs if v==FINDING and u!=PROBLEM
+            and not (u.startswith(PP+'model_fields.rs:') and u.endswith(':keep_finding'))]
+    if PROBLEM not in [u for u,vs in edges.items() if FINDING in vs] or any(not u.startswith(PR) for u in others):
+        raise ValueError('B7a scoped TEXT: finding caller inventory changed')
     for line,kind in PROBLEM_SITES:
         rows=[r for r in formats+lexical if (r['file'],r['line'],r['kind'])==(PP+'pressure_runtime.rs',line,kind)]
-        if len(rows)!=1 or rows[0].get('fn',PROBLEM)!=PROBLEM:
+        if len(rows)!=1 or rows[0].get('fn',FINDING)!=FINDING:
             raise ValueError('B7a scoped TEXT: missing/duplicate/misowned problem site')
 
 
@@ -311,6 +345,9 @@ def positive_owner(counts):
     count=counts.get(PROBLEM)
     if not isinstance(count,int) or count<=0:
         raise ValueError('B7a scoped TEXT: missing/zero qualified problem calls')
+    # RT-L2: the sites' owner is `finding`; every call of it on D1 is a `problem` call (RTL2-XZ zeroes its other caller).
+    if counts.get(FINDING, count) != count:
+        raise ValueError('B7a scoped TEXT: finding has callers other than problem on D1')
     return count
 
 
@@ -341,7 +378,7 @@ def refs(active, file, line):
 
 
 def owner_total(active, owner, stack, counts):
-    if owner == PROBLEM and REF_LOOP in stack:
+    if owner == FINDING and REF_LOOP in stack:
         if stack != [REF_LOOP]:
             raise ValueError('B7a scoped TEXT: private ref conversion loop nesting changed')
         return positive_owner(counts) * 5
