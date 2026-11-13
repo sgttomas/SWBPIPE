@@ -722,6 +722,11 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
           `metadata.json`.
 
         `metadata.json` also names `REVISION`.
+      - The build identity. `metadata.json` must say `source_dirty` false and `build_profile`
+        `"release"`; anything else (true, `"unknown"`, missing, null, a debug build) is a
+        difference. `--allow-unreleased-build` exists only for the debug-built test fixture: it
+        waives this one check, and the command then prints that the build identity was not
+        required.
       - The two results. `baseline-set.json` must equal what `--baseline-set` gives, recomputed
         from the records and plan just checked, for the named plan it names. No stored verdict is
         taken unchecked.
