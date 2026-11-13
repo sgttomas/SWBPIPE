@@ -198,6 +198,10 @@ describe("the property task clears a value typed beside a unit taken from the pr
     rerender({}, 1, storeModulus(200000, "MPa"));
     expect(byId("editor-intent-value")).toHaveValue("200000");
     expect(notice()).toHaveTextContent(cleared("Pa", "MPa"));
+    // A clearing leaves nothing to Add, Review or Apply.
+    expect(byId("queue-editor-intent")).toBeDisabled();
+    expect(byId("validate-editor-intent-inline")).toBeDisabled();
+    expect(byId("apply-editor-intent-inline")).toBeDisabled();
   });
 
   it("finding 1: an outside edit first stores the typed number, then re-stores it in another unit", async () => {
@@ -207,6 +211,10 @@ describe("the property task clears a value typed beside a unit taken from the pr
     rerender({}, 1, storeModulus(150000, "MPa"));
     expect(byId("editor-intent-value")).toHaveValue("150000");
     expect(notice()).toHaveTextContent(cleared("Pa", "MPa"));
+    // A clearing leaves nothing to Add, Review or Apply.
+    expect(byId("queue-editor-intent")).toBeDisabled();
+    expect(byId("validate-editor-intent-inline")).toBeDisabled();
+    expect(byId("apply-editor-intent-inline")).toBeDisabled();
   });
 
   it("finding 1, untouched: nothing typed, an outside edit re-stores the value in another unit", async () => {
@@ -229,6 +237,7 @@ describe("the property task clears a value typed beside a unit taken from the pr
   const add = () => byId("queue-editor-intent") as HTMLButtonElement;
   // The task's own Apply writes the displayed change in one press: wherever Add is withheld, so is it.
   const applyNow = () => byId("apply-editor-intent-inline") as HTMLButtonElement;
+  const reviewNow = () => byId("validate-editor-intent-inline") as HTMLButtonElement;
   const stale = () => screen.queryByTestId("editor-intent-stale");
 
   it("finding 2: the target deleted, then re-created in another unit: nothing typed for the old record stands beside the new unit", async () => {
@@ -245,6 +254,7 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(notice()).toHaveTextContent(cleared("MPa", "Pa"));
     expect(add()).toBeDisabled();
     expect(applyNow()).toBeDisabled();
+    expect(reviewNow()).toBeDisabled();
   });
 
   it("the field ceases to exist while its target stays: the entry goes to no other field", async () => {
@@ -266,6 +276,7 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(stale()).toHaveTextContent("The stored elastic modulus is now 195000000000 Pa; this entry was made against 200000000000 Pa.");
     expect(add()).toBeDisabled();
     expect(applyNow()).toBeDisabled();
+    expect(reviewNow()).toBeDisabled();
     expect(add().getAttribute("aria-describedby")).toBe("editor-intent-stale-reason");
     expect(document.getElementById("editor-intent-stale-reason")).toHaveTextContent("Not added: the stored value changed after this entry was made.");
     expect(byId("apply-editor-intent-inline")).toBeDisabled();
@@ -274,6 +285,7 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(stale()).not.toBeNull();
     expect(add()).toBeDisabled();
     expect(applyNow()).toBeDisabled();
+    expect(reviewNow()).toBeDisabled();
     // The deliberate act beside the stale entry does.
     fireEvent.click(byId("editor-intent-stale-confirm"));
     expect(stale()).toBeNull();
@@ -295,6 +307,7 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(stale()).toHaveTextContent("The stored elastic modulus is now 195000000000 Pa; this entry was made against 200000000000 Pa.");
     expect(add()).toBeDisabled();
     expect(applyNow()).toBeDisabled();
+    expect(reviewNow()).toBeDisabled();
   });
 
   // (b) A review result belongs to the operation it was obtained for. The person reviews an
@@ -381,6 +394,7 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(stale()).toHaveTextContent("The stored elastic modulus is now 190000 MPa; this entry was made against 210000 MPa.");
     expect(add()).toBeDisabled();
     expect(applyNow()).toBeDisabled();
+    expect(reviewNow()).toBeDisabled();
   });
 
   it("identifier reuse in one update, the unit differing: the typed draft is cleared and the new stored entry shown", async () => {
@@ -392,6 +406,7 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(stale()).toBeNull();
     expect(add()).toBeDisabled();
     expect(applyNow()).toBeDisabled();
+    expect(reviewNow()).toBeDisabled();
   });
 
   it("identifier reuse in one update, nothing typed: the entry follows the new stored value and unit", async () => {
@@ -402,6 +417,7 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(notice()).toBeNull();
     expect(add()).toBeDisabled();
     expect(applyNow()).toBeDisabled();
+    expect(reviewNow()).toBeDisabled();
   });
 
   it("the stated limit: identifier reuse in one update, identical in the field, is indistinguishable from no change", async () => {
