@@ -115,6 +115,7 @@ code_paths:
 # weight of the cases still pending in the fixture. No product test reads them yet.
 - validation/references/reference_system_pending_cases/**
 - tests/test_reference_system_pending_cases_references.py
+# The fixture's generated-weight verdicts, fixed by its metre twin's.
 - core/product_physics/tests/reference_system_generated_weight_standing.rs
 # Not decided: which deliverable's criteria govern the required-output qualification gate below.
 # No criterion of this scope governs it. Its exact-pressure fixtures, tool and test
