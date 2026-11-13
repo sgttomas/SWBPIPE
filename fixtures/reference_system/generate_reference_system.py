@@ -30,9 +30,9 @@ built with `--features wasm` (`capture_self_weight.mjs` drives it), for example
 The model-document version is the one constant MODEL_DOCUMENT_VERSION and is not part of the weight
 basis, so a version ripple re-runs this generator without a new capture.
 
-Usage:
-    python3 fixtures/reference_system/generate_reference_system.py           # write
-    python3 fixtures/reference_system/generate_reference_system.py --check   # compare only
+Usage (the committed files are produced with every pressurised case named):
+    python3 fixtures/reference_system/generate_reference_system.py --pressure-elongation all           # write
+    python3 fixtures/reference_system/generate_reference_system.py --check --pressure-elongation all   # compare only
 
 `--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION, else absent) sets
 `model_settings.pressure_elongation` in the model document through the shared

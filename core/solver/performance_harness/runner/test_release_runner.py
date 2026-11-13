@@ -400,7 +400,8 @@ class ReferenceSystemModel(unittest.TestCase):
         self.assertEqual(failures, [])
         self.assertEqual(manifest['models']['reference_system.json']['sha256'], committed)
         self.assertEqual([argv[2:] for argv, _ in seen], [list(spec['check_args'])])
-        self.assertNotIn(PE.ENV, seen[0][1])
+        # Membership only: a failure must not print the child's environment values.
+        self.assertFalse(PE.ENV in seen[0][1], f'{PE.ENV} reached the check child')
 
 
 _PINNED = []
