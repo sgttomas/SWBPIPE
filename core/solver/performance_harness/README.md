@@ -135,7 +135,10 @@ memory bound.
   racks of an exact node count, built from 41-node bays. The profiles are:
   - `linear-ex`: the exact route, with the static case set and its subtractions;
   - `nonlinear-ex`: OPE with lift-off, friction and gap supports;
-  - `nonlinear-pf`: its pressure-free twin.
+  - `nonlinear-pf`: its pressure-free twin;
+  - `baseline-one-case-ex`: not a criterion 9 profile. It is the headless baseline's one-case
+    model: `linear-ex`'s rack with its operating case (weight, pressure, temperature) alone and no
+    combination ([The headless baseline](#the-headless-baseline)).
 
   Only forms that main admits are emitted. `LEDGER` (`--ledger`) lists each target form that
   is pending, with its interim form and what it waits for. `observations/rack/models_sha256.txt`
@@ -246,7 +249,7 @@ memory bound.
   reader here currently performs that verification; the manifest and verifying reader belong to
   the follow-up.
 
-  Two things it does not yet do, which a reader of a run's records must know:
+  <a id="what-it-does-not-yet-do"></a>Two things it does not yet do, which a reader of a run's records must know:
 
   - **The build identity does not establish that the executable was built from the named
     revision alone.** It says that tracked files match the head, that nothing outside Git's
@@ -349,3 +352,75 @@ memory bound.
   outside the binary is run. A copy that macOS has quarantined (one from AirDrop or a download)
   may be refused at first start; copy the folder from a drive instead. Bring back
   `results/`; `packet.json` is the record.
+
+## The headless baseline
+
+This baseline does not measure criterion 9's linear workload. That workload is the profile
+`linear-ex` (seven cases and five combinations). The baseline is a timing that a second worker
+can reproduce from the repository alone, on two exact-route models. Each is solved by the
+driver in sparse mode, in a process of its own:
+
+- W1, `baseline-one-case-ex` at 2,000 nodes: `linear-ex`'s rack with its operating case alone
+  and no combination. The product solves every case and combination a document holds, so the
+  only way to time one case is a model that holds one case.
+- W2, the committed reference system, `fixtures/reference_system/reference_system.json`.
+
+The runner's named plan `baseline` holds ten runs, W1, W2, W1, W2, ..., five of each. Their run
+ids end `-r1` to `-r5`. `baseline-with-rack` holds the same ten, then one run of `linear-ex` at
+2,000 nodes. That run is the default plan's row, with the same expectation,
+`exceeds_base_machine_budget`. It states criterion 9's own linear workload beside the baseline
+on the same revision, and it is never a timing. A named plan fixes its mode, its limits, its
+window and its quiet-host wait. `--plan --subset baseline` prints them, and the runner refuses
+any flag that would change them. The window is long enough for every run to last until its
+timeout, with nothing skipped or cut short. Whoever measures states their thresholds in their
+own measurement contract; this section sets none.
+
+In order, from a fresh clone of the revision to be measured:
+
+1. Produce the models:
+
+   ```sh
+   python3 core/solver/performance_harness/runner/release_runner.py --generate --subset baseline --models FOLDER
+   ```
+
+   W1 is written by the rack generator, the same bytes as
+   `python3 core/solver/performance_harness/rack/rack_model.py --profile baseline-one-case-ex --nodes 2000 -o FILE`.
+   Its SHA-256 must equal the line `baseline-one-case-ex  2000` of
+   `observations/rack/models_sha256.txt`, which `tests/test_performance_rack_model.py` holds
+   against the generator. W2 is copied only after
+   `python3 fixtures/reference_system/generate_reference_system.py --check` exits 0, which shows
+   the committed file is what its generator writes. No other file states its hash: it is the
+   SHA-256 of the committed file at that revision (`shasum -a 256 fixtures/reference_system/reference_system.json`).
+   `FOLDER/manifest.json` records both hashes. If either check fails, `--generate` exits 1 and the
+   plan cannot be written.
+2. Build the driver, with the build directory outside the clone:
+
+   ```sh
+   CARGO_TARGET_DIR=/a/new/folder/outside/the/clone cargo build --release --locked --manifest-path core/solver/release_timing/Cargo.toml
+   ```
+
+   `release_timing --build-identity` names the revision. Read the first item of
+   [What it does not yet do](#what-it-does-not-yet-do) before relying on it.
+3. Write the plan. Each run then carries its model's SHA-256 from the manifest, and the plan is
+   refused if a model is missing from the manifest:
+
+   ```sh
+   python3 core/solver/performance_harness/runner/release_runner.py --write-plan plan.json --subset baseline --models FOLDER
+   ```
+
+4. Run it, under the host's exclusive wrapper on a shared host, into a folder that does not yet
+   exist:
+
+   ```sh
+   release_timing --supervise plan.json --models FOLDER --out NEW_FOLDER
+   ```
+
+The timing of a run is the `entry` member of `seconds` in the driver's line. That line is the
+`release-timing-v2` object in the run's stdout record, `NEW_FOLDER/<run id>.jsonl`. It is the
+product's solve entry, and `packet.json` repeats it as `stage_seconds`. A run is a candidate
+timing only if its record's `classification` is `ok` and its `model_sha256` is the plan's. A run
+that timed out, was killed for memory (`exceeds_base_machine_budget`, `killed_by_rss_cap`), was
+refused, ended in an error (`entry_error`, `error`), or was skipped or found its model missing or
+mismatched, is recorded as what it was and is never a timing. Neither is the `linear-ex` run of
+`baseline-with-rack`. Before relying on stored records, read the second item of
+[What it does not yet do](#what-it-does-not-yet-do): no reader here verifies what it reads back.
