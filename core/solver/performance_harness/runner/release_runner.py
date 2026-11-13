@@ -878,9 +878,17 @@ def baseline_set(out_dir, plan_path, name, committed=None):
     try:
         with open(plan_path, encoding='utf-8') as fh:
             document = json.load(fh)
-        plan_runs = document.get('runs') or []
+        document.get('runs')
     except (OSError, ValueError, AttributeError) as error:
-        return judge_set(records, [], findings + ['the plan file cannot be read: %s' % error])
+        return dict(judge_set(records, [], findings + ['the plan file cannot be read: %s' % error]), subset=name)
+    return baseline_set_of(records, document, name, findings, committed)
+
+
+def baseline_set_of(records, document, name, findings=(), committed=None):
+    """`baseline_set` on records and a plan document already read (`--read-back` recomputes it from the
+    bytes it has verified). The report names its named plan, `subset`."""
+    findings = list(findings)
+    plan_runs = document.get('runs') or []
     named, budget_s, quiet_wait_s = named_plan(name)
     # Every top-level field of the plan document, and every field of each run but the two the models
     # folder supplies (expected_model_sha256, checked against the repository below, and model_stats,
@@ -902,7 +910,7 @@ def baseline_set(out_dir, plan_path, name, committed=None):
         if r.get('expected_model_sha256') != expected:
             findings.append('%s: the plan\'s expected_model_sha256 %s is not %s (%s)' % (
                 r.get('run_id'), r.get('expected_model_sha256'), expected, where))
-    return judge_set(records, plan_runs, findings)
+    return dict(judge_set(records, plan_runs, findings), subset=name)
 
 
 # --------------------------------------------------------------- footprint
@@ -1761,7 +1769,73 @@ def _fields_differ(prefix, found, expected):
 
 
 INVENTORY_NAME = 'SHA256SUMS'
+# The aggregate record's `launch` member: the supervisor copies exactly these keys from the launch record,
+# a null where it has none (supervise.rs LAUNCH_KEYS), and its launch route writes each into the launch
+# record (`launch`, supervise.rs 987-1018), null included.
+LAUNCH_KEYS = ('classification', 'classification_detail', 'exit_code', 'wall_s', 'rss', 'peak_rss_bytes',
+               'peak_rss_source', 'killed_by_rss_watchdog', 'killed_by_sampler', 'timed_out', 'kill_after_s',
+               'watchdog_last_kib', 'watchdog_polls', 'survivors', 'binary_pid_found', 'load_before', 'load_after',
+               'memorystatus_before', 'memorystatus_after', 'stdout_sha256', 'stderr_tail', 'argv',
+               'watchdog_last_resident_bytes', 'schema', 'stdout_record_error')
+# REQUIRED VALUES BY DECISION BRANCH, mirroring the decision-input table of the measurement contract: for
+# each record form, the aggregate paths a decision rule reads (S3, S4: sections 7, 8, 11; S5: section 14).
+# A null or a missing key there is a difference. Every other path may hold the null the producer leaves.
+_EVERY_RECORD = ('classification',)
+_LAUNCHED = _EVERY_RECORD + ('as_expected', 'model_sha256', 'timeout_applied_s', 'timeout_capped_by_window',
+                             'host.quiet', 'launch.killed_by_sampler', 'launch.killed_by_rss_watchdog')
+REQUIRED_BY_BRANCH = {
+    'completed': _LAUNCHED + (
+        'driver.route', 'driver.document.sha256', 'driver.output_sha256', 'driver.rows', 'driver.output_bytes',
+        'driver.seconds.read', 'driver.seconds.parse', 'driver.seconds.request', 'driver.seconds.entry',
+        'driver.seconds.serialize', 'driver.seconds.release_envelope', 'driver.seconds.parse_back',
+        'driver.seconds.total', 'launch.rss.exit_lifetime_max_phys_footprint_bytes',
+        'driver.peak_memory.entry.lifetime_max_phys_footprint_bytes',
+        'driver.peak_memory.serialize.lifetime_max_phys_footprint_bytes', 'last_stage'),
+    'refused': _LAUNCHED + ('classification_detail', 'last_stage'),
+    'entry_error': _LAUNCHED + ('classification_detail', 'last_stage'),   # last_stage: not after a read error
+    'killed_by_sampler': _LAUNCHED + ('classification_detail',),
+    'over_budget_at_result': _LAUNCHED + ('classification_detail', 'last_stage'),
+    'killed_by_rss_cap': _LAUNCHED + ('classification_detail',),
+    'timed_out': _LAUNCHED + ('classification_detail',),
+    'error': _LAUNCHED + ('classification_detail',),
+    'never_launched': _EVERY_RECORD + ('classification_detail',),
+}
+
+
+def record_branch(record):
+    """The decision branch a record's form takes (REQUIRED_BY_BRANCH)."""
+    if 'launch' not in record:
+        return 'never_launched'
+    classification, detail = record.get('classification'), str(record.get('classification_detail') or '')
+    if classification == 'ok':
+        return 'completed'
+    if classification in ('refused', 'entry_error', 'timed_out', 'killed_by_rss_cap'):
+        return classification
+    if classification == 'exceeds_base_machine_budget':
+        if _get(record, 'launch.killed_by_sampler') is True:
+            return 'killed_by_sampler'
+        if detail.endswith('_above_budget_at_result'):
+            return 'over_budget_at_result'
+        return 'killed_by_rss_cap'
+    return 'error'
+
+
+def required_value_problems(record):
+    """Each path a decision reads for this record's branch that holds no value (REQUIRED_BY_BRANCH)."""
+    branch = record_branch(record)
+    problems = []
+    for path in REQUIRED_BY_BRANCH[branch]:
+        if path == 'last_stage' and branch == 'entry_error' and str(record.get('classification_detail') or '').startswith('read:'):
+            continue   # an error in the read stage ends before any stage line
+        *parents, last = path.split('.')
+        holder = _get(record, '.'.join(parents)) if parents else record
+        if not isinstance(holder, dict) or holder.get(last) is None:
+            problems.append('%s: a %s record has no value at %s, which a decision rule reads' % (
+                record.get('run_id'), branch, path))
+    return problems
 _INVENTORY_LINE = re.compile(r'([0-9a-f]{64})  \./(.+)')
+CLEAN_READ_BACK_LIMIT = ('A clean read-back does not by itself make a measurement usable: the worker\'s checks of the '
+                         'build (contract section 4) and of the host and window (section 8) do that.')
 MEMORY_KEYS = ('ru_maxrss_bytes', 'phys_footprint_bytes', 'lifetime_max_phys_footprint_bytes')
 
 
@@ -1770,10 +1844,13 @@ class BoundBundle:
     reached without a symbolic link, named in SHA256SUMS (the inventory of README step 8), and have the
     SHA-256 SHA256SUMS states; its bytes are read once, hashed, and only those bytes are used."""
 
-    def __init__(self, bundle, problems):
+    def __init__(self, bundle, problems, root_digest):
         self.bundle, self.problems, self.sums = bundle, problems, None
         raw = self._regular(INVENTORY_NAME)
         if raw is None:
+            return
+        if hashlib.sha256(raw).hexdigest() != root_digest:
+            problems.append('%s does not have the root digest %s; nothing in the bundle is bound' % (INVENTORY_NAME, root_digest))
             return
         self.sums = {}
         for number, line in enumerate(raw.decode('utf-8', 'replace').splitlines(), 1):
@@ -1847,17 +1924,21 @@ def _stage_lines(data, run_id, problems):
     return lines
 
 
-def read_back(bundle, revision, shared_host=False):
+def read_back(bundle, revision, root_digest, shared_host=False):
     """The differences between a bundle's records (items 2 to 6 of the read-back), as text."""
     problems = []
-    files = BoundBundle(bundle, problems)
+    files = BoundBundle(bundle, problems, root_digest)
     if files.sums is None:
         return problems
-    # 2. What is consumed is present, bound by the inventory and not a link.
+    # 2. What is consumed is present, bound by the inventory and not a link. The files the worker
+    # examines by hand (build facts, host files, the exclusive log, the contract) are inside the same
+    # boundary: their bytes are verified here, their content is not read.
     for name in READ_BACK_FILES + (READ_BACK_SHARED_HOST_FILES if shared_host else ()):
         if name not in ('plan.json', 'models/manifest.json', 'out/packet.json', 'out/metadata.json',
-                        'out/' + k6.RECORDS_NAME):
+                        'out/' + k6.RECORDS_NAME, 'baseline-set.json'):
             files.read(name)
+    if not shared_host and 'exclusive.log' in files.sums:
+        files.read('exclusive.log')
     plan, manifest, packet_doc, metadata = (files.json(n) for n in (
         'plan.json', 'models/manifest.json', 'out/packet.json', 'out/metadata.json'))
     aggregate_bytes = files.read('out/' + k6.RECORDS_NAME)
@@ -1865,6 +1946,16 @@ def read_back(bundle, revision, shared_host=False):
         return problems
     records, unread = records_of(aggregate_bytes.decode('utf-8', 'replace'))
     problems += unread
+    expected_names = set(READ_BACK_FILES) | set(READ_BACK_SHARED_HOST_FILES) | {
+        'models/%s' % r.get('model') for r in plan.get('runs') or []} | {
+        'out/%s%s' % (r.get('run_id'), suffix) for r in records if 'launch' in r
+        for suffix in (k6.STDOUT_SUFFIX, k6.STDERR_SUFFIX, '.record.json')}
+    for name in sorted(set(files.sums) - expected_names):
+        problems.append('%s is in %s but is no file of the bundle (README step 8) or of a launched run' % (
+            name, INVENTORY_NAME))
+    for name in sorted(n for n in files.sums if n.startswith('models/') and n != 'models/manifest.json'
+                       and n in expected_names):
+        files.read(name)   # a model kept in the bundle is bound too
     manifest = manifest.get('models') or {}
     aggregate = {r.get('run_id'): r for r in records}
     plan_runs = plan.get('runs') or []
@@ -1888,6 +1979,7 @@ def read_back(bundle, revision, shared_host=False):
         r = aggregate.get(run_id)
         if r is None:
             continue
+        problems += required_value_problems(r)
         for key in PLAN_RUN_KEYS + ('model',):
             if key not in p or key not in r or p[key] != r[key]:
                 problems.append('%s: %s in the aggregate is not plan.json\'s' % (run_id, key))
@@ -1909,8 +2001,13 @@ def read_back(bundle, revision, shared_host=False):
                 except ValueError:
                     launch_record = None
                     problems.append('%s: its .record.json does not parse' % run_id)
-                for key in sorted(r['launch']) if isinstance(launch_record, dict) else ():
-                    if launch_record.get(key) != r['launch'][key]:
+                if sorted(r['launch']) != sorted(LAUNCH_KEYS):
+                    problems.append('%s: the aggregate\'s launch does not carry exactly the supervisor\'s launch keys' % run_id)
+                for key in LAUNCH_KEYS if isinstance(launch_record, dict) else ():
+                    if key not in launch_record or key not in r['launch']:
+                        problems.append('%s: launch.%s is missing from %s (the supervisor writes it, null included)' % (
+                            run_id, key, 'its .record.json' if key not in launch_record else 'the aggregate'))
+                    elif launch_record[key] != r['launch'][key]:
                         problems.append('%s: launch.%s differs from its .record.json' % (run_id, key))
             stdout_sha = r['launch'].get('stdout_sha256')
             if stdout_sha is not None and (stdout_bytes is None or hashlib.sha256(stdout_bytes).hexdigest() != stdout_sha):
@@ -1989,6 +2086,14 @@ def read_back(bundle, revision, shared_host=False):
         problems.append('packet.metadata is not metadata.json')
     if metadata.get('source_commit') != revision:
         problems.append('metadata.json names %s, not the revision %s' % (metadata.get('source_commit'), revision))
+    # baseline-set.json: the two results recomputed from the records just checked, then compared.
+    stored = files.json('baseline-set.json')
+    if stored is not None:
+        name = stored.get('subset') if isinstance(stored, dict) else None
+        if name not in NAMED_PLANS:
+            problems.append('baseline-set.json names no named plan (subset %r), so its results cannot be recomputed' % name)
+        elif baseline_set_of(records, plan, name, unread) != stored:
+            problems.append('baseline-set.json is not the two results --baseline-set gives for these records and plan')
     return problems
 
 
@@ -2010,6 +2115,7 @@ def main(argv=None):
                         help='the direct checks of a baseline bundle (with --revision): each difference is printed; '
                              'exit 0 when there is none, 1 otherwise; reads only')
     parser.add_argument('--revision', help='the full commit the bundle measured (--read-back)')
+    parser.add_argument('--root-digest', help='--read-back: the SHA-256 of the bundle\'s SHA256SUMS, stated outside it')
     parser.add_argument('--shared-host', action='store_true',
                         help='--read-back: the bundle must also hold exclusive.log, the exclusive wrapper\'s lines')
     parser.add_argument('--write-plan', metavar='FILE',
@@ -2073,12 +2179,15 @@ def main(argv=None):
         except ValueError as error:
             parser.error(str(error))
     if args.read_back:
-        if not args.revision:
-            parser.error('--read-back needs --revision, the full commit the bundle measured')
-        problems = read_back(args.read_back, args.revision, args.shared_host)
+        if not (args.revision and args.root_digest):
+            parser.error('--read-back needs --revision, the full commit the bundle measured, and --root-digest, '
+                         'the SHA-256 of its SHA256SUMS stated outside the bundle')
+        problems = read_back(args.read_back, args.revision, args.root_digest, args.shared_host)
         for problem in problems:
             print('DIFFERS: %s' % problem)
         print('read-back: %d difference(s)' % len(problems))
+        if not problems:
+            print(CLEAN_READ_BACK_LIMIT)
         return 1 if problems else 0
     if args.baseline_set:
         if not named or not args.plan_file:
