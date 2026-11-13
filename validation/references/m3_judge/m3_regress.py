@@ -809,7 +809,7 @@ def collection_scenarios(check):
               bool(sp([0, 0.0], uniq)) and bool(sp([{"a": 1}, {"a": 1.0}], uniq)) and not sp([0, 1], uniq) and not sp([0, False], uniq))
         table(11, "an unsupported keyword nested in a schema", "schema_unsupported_keyword_nested",
               "raised in if, in an untaken else, in oneOf, under properties; a supported schema does not raise",
-              raises({"if": {"not": {}}, "then": {}}) and raises({"if": {"type": "integer"}, "then": {}, "else": {"allOf": []}})
+              raises({"if": {"not": {}}, "then": {}}) and raises({"if": {"type": "integer"}, "then": {}, "else": {"anyOf": []}})
               and raises({"oneOf": [{"type": "integer"}, {"anyOf": []}]}) and raises({"type": "object", "properties": {"x": {"not": {}}}}, {})
               and not raises({"if": {"type": "integer"}, "then": {"minimum": 0}, "else": {}, "oneOf": [{"type": "integer"}, {"type": "string"}]}))
         sc = {"support_id": pres["request"]["model"]["supports"][0]["id"], "node_id": pres["request"]["model"]["supports"][0]["node"], "dof": "UX",
@@ -854,6 +854,94 @@ def collection_scenarios(check):
         finally:
             MV._SCHEMA_DOCS.clear()
             MV._SCHEMA_DOCS.update(saved_docs)
+        # ---- round 14 (Agent 0, after 0c480a9e5 added allOf to load_reference_state.schema.json's SupportComponent):
+        # the reader reads allOf with JSON Schema's meaning: every subschema holds, beside the node's other keywords;
+        # a branch that fails is a failed shape (schema problems, a refused record), never SchemaUnsupported and never
+        # a pass; every branch is checked for supported keywords; allOf that is not a non-empty array of schema
+        # objects is a malformed schema (SchemaMalformed, a SchemaUnsupported: the record is refused outright)
+        AO = "m3_selftest_allof.schema.json"     # a synthetic schema document, planted beside the real ones
+        law_source = {"oneOf": [{"properties": {"law": {"const": "rigid"}, "source": {"const": "boundary"}}},
+                                         {"properties": {"law": {"const": "spring"}, "source": {"const": "base"}}}]}
+        ao_doc = {"$defs": {"law_source": law_source,
+                            "component": {"type": "object", "additionalProperties": False, "required": ["dof", "unit", "law", "source"],
+                                          "properties": {"dof": {"enum": ["UX", "RX"]}, "unit": {"enum": ["m", "rad"]},
+                                                         "law": {"enum": ["rigid", "spring"]}, "source": {"enum": ["boundary", "base"]}},
+                                          "allOf": [{"oneOf": [{"properties": {"dof": {"const": "UX"}, "unit": {"const": "m"}}},
+                                                               {"properties": {"dof": {"const": "RX"}, "unit": {"const": "rad"}}}]},
+                                                    {"$ref": "#/$defs/law_source"}]}}}
+        comp_ref = {"$ref": "#/$defs/component"}
+
+        def disposition(value, node):
+            try:
+                probs = MV.schema_problems(value, node, AO)
+            except MV.SchemaMalformed as e:
+                return "malformed", [str(e)]
+            except MV.SchemaUnsupported as e:
+                return "unsupported", [str(e)]
+            return ("problems", probs) if probs else ("clean", [])
+        good_c = {"dof": "UX", "unit": "m", "law": "rigid", "source": "boundary"}
+        saved_docs = dict(MV._SCHEMA_DOCS)
+        try:
+            MV._SCHEMA_DOCS[AO] = ao_doc
+            for case, value, node, want, why in (
+                    ("allof_satisfied", good_c, comp_ref, "clean", lambda p: True),
+                    ("allof_satisfied_other_alternatives", dict(good_c, dof="RX", unit="rad", law="spring", source="base"), comp_ref, "clean",
+                     lambda p: True),
+                    ("allof_one_branch_violated", dict(good_c, unit="rad"), comp_ref, "problems",
+                     lambda p: len(p) == 1 and p[0].startswith("<allOf[0]>")),
+                    ("allof_both_branches_violated", dict(good_c, unit="rad", source="base"), comp_ref, "problems",
+                     lambda p: len(p) == 2 and p[0].startswith("<allOf[0]>") and p[1].startswith("<allOf[1]>")),
+                    ("allof_ref_inside_branch_violated", dict(good_c, law="spring"), comp_ref, "problems",
+                     lambda p: len(p) == 1 and p[0].startswith("<allOf[1]>") and "oneOf" in p[0]),
+                    ("allof_sibling_violated_branches_hold", dict(good_c, extra=1), comp_ref, "problems",
+                     lambda p: p == ["/: unknown key extra"]),
+                    ("allof_sibling_enum_violated_branches_hold", {"x": "c"}, {"properties": {"x": {"enum": ["a", "b"]}},
+                                                                                 "allOf": [{"properties": {"y": {"const": 1}}}]}, "problems",
+                     lambda p: len(p) == 1 and p[0].startswith(".x:") and "allOf" not in p[0]),
+                    ("allof_nested_path", {"c": dict(good_c, unit="rad")}, {"properties": {"c": comp_ref}}, "problems",
+                     lambda p: len(p) == 1 and p[0].startswith(".c<allOf[0]>")),
+                    ("allof_unsupported_in_a_branch_not_matched", good_c,
+                     {"allOf": [{"properties": {"law": {"const": "rigid"}}}, {"properties": {"law": {"const": "spring"}}, "not": {}}]},
+                     "unsupported", lambda p: "'not'" in p[0]),
+                    ("allof_unsupported_in_an_untaken_alternative_of_a_branch", good_c,
+                     {"allOf": [{"oneOf": [{"properties": {"law": {"const": "rigid"}}}, {"anyOf": []}]}]}, "unsupported", lambda p: "'anyOf'" in p[0]),
+                    ("allof_unsupported_in_a_branch_under_a_failing_type", "text",
+                     {"type": "object", "allOf": [{"dependentSchemas": {}}]}, "unsupported", lambda p: "'dependentSchemas'" in p[0]),
+                    ("allof_empty", good_c, {"allOf": []}, "malformed", lambda p: True),
+                    ("allof_empty_beside_a_failing_sibling", good_c, {"required": ["absent"], "allOf": []}, "malformed", lambda p: True),
+                    ("allof_not_a_list", good_c, {"allOf": {"properties": {}}}, "malformed", lambda p: True),
+                    ("allof_null", good_c, {"allOf": None}, "malformed", lambda p: True),
+                    ("allof_member_not_an_object", good_c, {"allOf": [{}, True]}, "malformed", lambda p: True),
+                    ("allof_malformed_in_an_untaken_else", 1, {"if": {"type": "integer"}, "then": {}, "else": {"allOf": []}}, "malformed",
+                     lambda p: True)):
+                got, probs = disposition(value, node)
+                table(14, "the schema reader on allOf", case, f"{got}: {probs[:2]}", got == want and why(probs))
+        finally:
+            MV._SCHEMA_DOCS.clear()
+            MV._SCHEMA_DOCS.update(saved_docs)
+        # end to end, on the real schema: a support component that breaks one allOf branch of SupportComponent (UX in rad)
+        # is a failed shape: the record is refused by the view with the branch named, never SchemaUnsupported, never judged;
+        # the same component well formed under each of S6's three law/source pairs is admitted
+        def lrs_sc(**kw):
+            rec = copy.deepcopy(lrs_one)
+            rec["support_components"] = [dict(sc, **kw)]
+            return with_lrs(rec)
+        branch_named = lambda i: (lambda j: schema(j) and j["schema_invalid"] == j["m3_failing_records"] == len(xe) and not j["pass"]
+                                  and any(f"<allOf[{i}]>" in p for p in j["schema_problems"])
+                                  and not any("SchemaUnsupported" in p or "unreadable" in p for p in j["schema_problems"]))
+        for case, f, want, why, label in (
+                ("exact_lrs_support_component_unit_branch_violated", lrs_sc(unit="rad"), False, branch_named(0),
+                 "refused by the view: schema problems under allOf[0]; C0 on every record"),
+                ("exact_lrs_support_component_source_branch_violated", lrs_sc(physical_state_source="support_state.base_motion"), False,
+                 branch_named(1), "refused by the view: schema problems under allOf[1]; C0 on every record"),
+                ("exact_lrs_support_component_rotation_in_rad", lrs_sc(dof="RX", global_dof=3, unit="rad"), True,
+                 lambda j: j.get("schema_invalid", 0) == 0, "admitted"),
+                ("exact_lrs_support_component_nonlinear_ground", lrs_sc(law_kind="nonlinear_ground"), True, lambda j: j.get("schema_invalid", 0) == 0,
+                 "admitted"),
+                ("exact_lrs_support_component_spring_base", lrs_sc(law_kind="spring_base", physical_state_source="support_state.base_motion"), True,
+                 lambda j: j.get("schema_invalid", 0) == 0, "admitted")):
+            judge_runs(14, "exact view: a load_reference_states support component against SupportComponent's allOf", case, ex_own,
+                       mut(xe, f), want, why, label, route="exact")
         # ---- round 12 (#1663 at 9fbb2b7b6f): PF publishes Timoshenko results under preview-physics-timoshenko-1, the same
         # rows as preview-physics-2 with its own identity; the view matches a record against the table its request's shear
         # model selects. Its new kind (supported-source-080/081) is admitted from the table, never judged
