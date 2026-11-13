@@ -33,6 +33,10 @@ A matching model hash shows which bytes were kept, not which model CAEPIPE actua
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
+An export, where one is made, is bound to that run's saved model and that run's instruction: the program writes it from that run's saved model (`<run id>.mod`) as the program holds it after that run's instruction, including what was entered or set by hand; it is not the pack's model file, and it is not evidence of which model was run.
+
+**Exports.** The runs that offer an export, from the benchmark manifest: the five hand-entry runs and every dynamics run at strike numbers 1 to 10 (both forms of each pair and the single typed form at strike 6); no other run. Of an export, the benchmark manifest says: "an export is a model batch file the program writes, at the owner's choice, from a run's saved model (<run id>.mod) as the program holds it after that run's instruction, including what was entered or set by hand; it is not the pack's model file. Each export is private, like every returned file. The exports are material for later interoperability work: they put on file how the program itself writes records SWBPIPE's writer does not write today. They do not demonstrate exit criterion 6's round trip in the desktop, and they do not make any family the product refuses become supported. Nothing of SWBPIPE's reads an export in this change." Each export's steps are optional, and you may drop them; if you do, write "export not made" on the run line. A run whose export is dropped is still run.
+
 ## 3. Two ways to run a case
 
 Each case is offered one or both of two ways (`manual_batch`, `manual_print`), named for it in section 5. A window-only case is offered the program's window alone and has no line in `BATCH_COMMANDS.txt`. Where a case is offered both ways, run it by its batch line; use the window way for that case only if its batch line left no results, and note that on its run line.
@@ -90,10 +94,27 @@ Part 0 is the dry run. Write what you observe on `RUN_SHEET.md` under part 0, af
 3. Paste each other case line of part 0 one line at a time.
 4. Paste the batch sample's line (sample-dyn-batch). Write down answer B.
 5. In the window sample's folder (`samples/sample-dyn-window`), import `sample-dyn-window.mbf` in the program's window with the import command in 3.2, step 1. Write down answer C. Make checks (i) and (ii) against the stated values for this sample in section 5, and check (iv), and write down each answer. Then save the model as `sample-dyn-window.mod` in that folder, as a real window run saves its model as `<run id>.mod` in its own folder. The Save page (CAEPIPE-SAVE, https://docs.sstcae.com/users_manual/save__ctrl_s_.htm, read 2026-11-13) says: "This command saves model data to a .mod file format." The File Menu page (CAEPIPE-FILE-MENU, https://docs.sstcae.com/users_manual/file_menu_2.htm, read 2026-11-13) lists no command for saving under another name. Then make check (iii): write down the command that saved the imported model; whether the program let you choose the name and the folder; the name and folder the saved file took; whether the program asked anything. Do not save over the imported file. Do not analyse or print. This sample has no line in `BATCH_COMMANDS.txt`.
-6. Read the consequences listed under part 0 of `RUN_SHEET.md` and write down which apply.
+6. Then go to the export trial's folder (`samples/sample-dyn-export-trial`) and make check (v) there, in that folder only, as the benchmark manifest gives it below this list. Write each answer on that folder's run line. The window sample's folder (`samples/sample-dyn-window`) and every case folder are not opened or touched by this trial.
+7. Read the consequences listed under part 0 of `RUN_SHEET.md` and write down which apply.
 
-7. After part 0, copy the working folder back to the Mac, leaving the working folder on Windows as it is. It is listed there by name, size and hash. Wait until you are told the listing is done, whether or not a title was missing, and then go on to part 1.
-8. If a section title is missing from the first case's print, write which on that case's run line, and say so when the folder is brought back: what to do about it is decided then, before part 1.
+8. After part 0, copy the working folder back to the Mac, leaving the working folder on Windows as it is. It is listed there by name, size and hash. Wait until you are told the listing is done, whether or not a title was missing, and then go on to part 1.
+9. If a section title is missing from the first case's print, write which on that case's run line, and say so when the folder is brought back: what to do about it is decided then, before part 1.
+
+Check (v), from the benchmark manifest:
+
+(v) on a sacrificial duplicate: the folder samples/sample-dyn-export-trial holds sample-dyn-export-trial.mbf, a copy of the same run file as the window sample (cpb-dyn-c-n01-flat--srss-srss); in that folder only:
+1. Import sample-dyn-export-trial.mbf: File > Import from the Main window, select the file and click Import. [https://docs.sstcae.com/users_manual/import_mbf.htm ("IMPORT MBF"; CAEPIPE-IMPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]
+2. From the Layout window, choose File > Export ("To export a model, select the menu command File > Export from the Layout window."). [https://docs.sstcae.com/users_manual/export_mbf.htm (user's manual, "EXPORT MBF"; CAEPIPE-EXPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]
+3. Before touching the dialog, write down the files the folder now holds, by name.
+4. In the Export Model dialog, choose "Model batch file (*.mbf)" as the Save as type. [https://docs.sstcae.com/users_manual/export_mbf.htm (user's manual, "EXPORT MBF"; CAEPIPE-EXPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]
+5. Note whether the dialog lets you set the name sample-dyn-export-trial.export.mbf and this folder, and whether it displays them before anything is written.
+6. If it does, click Export; if not, click Cancel. [https://docs.sstcae.com/users_manual/export_mbf.htm (user's manual, "EXPORT MBF"; CAEPIPE-EXPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]
+7. Note the files the folder then holds, by name.
+8. Nothing in samples/sample-dyn-window or in any case folder is opened or touched by this trial.
+
+Its consequence, from the benchmark manifest:
+
+(v) the dialog did not let you set the name and the folder, or a file was written before a destination was offered: no run exports at this sitting, and the export steps of every run are skipped and noted
 
 Use the same working folder for the rest of the sitting, and bring it back to the Mac whole at the end.
 
@@ -222,7 +243,35 @@ C. after the import in the window sample's folder, whether the import wrote a mo
 (iv) note what the spectrum options window (Options > Spectrum) offers for axis units and interpolation: 
 ```
 
-### 6. cpb-dyn-c-n08-flat--srss-srss (held capture, window only)
+### 6. sample-dyn-export-trial (dry-run sample, export trial)
+
+Folder `samples/sample-dyn-export-trial`; model file `sample-dyn-export-trial.mbf`, layout rows 3; offered: `manual_print`.
+
+A copy of the model file of the run cpb-dyn-c-n01-flat--srss-srss (SHA-256 239c4758a55c), which carries both added records. It is never screened or compared.
+
+Observe: check (v) of the dry run, in this folder only (INSTRUCTIONS.md section 4, step 6).
+
+Expected back in this folder (`samples/sample-dyn-export-trial` of the pack folder):
+
+- by the window way: the model file the import writes, if it writes one (answer C), and `sample-dyn-export-trial.export.mbf` (if check (v) allowed the export)
+
+Run line (`run_line.txt`):
+
+```
+SWBPIPE sitting run line: sample-dyn-export-trial
+Fill in after each colon. Do not change the words before the colon.
+date: 
+run (yes, or not run and why): 
+route used (manual_print): 
+CAEPIPE version as displayed: 
+anything unusual: 
+(v) step 3, before touching the dialog, the files the folder now holds, by name: 
+(v) step 5, whether the dialog lets you set the name sample-dyn-export-trial.export.mbf and this folder, and whether it displays them before anything is written: 
+(v) step 6, Export or Cancel ("If it does, click Export; if not, click Cancel"): 
+(v) step 7, the files the folder then holds, by name: 
+```
+
+### 7. cpb-dyn-c-n08-flat--srss-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--srss-srss`; model file `cpb-dyn-c-n08-flat--srss-srss.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -234,7 +283,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--srss-srss.print.csv`, `cpb-dyn-c-n08-flat--srss-srss.mod`, `cpb-dyn-c-n08-flat--srss-srss.res`
+- by the window way: `cpb-dyn-c-n08-flat--srss-srss.print.csv`, `cpb-dyn-c-n08-flat--srss-srss.mod`, `cpb-dyn-c-n08-flat--srss-srss.res`, `cpb-dyn-c-n08-flat--srss-srss.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -248,9 +297,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 7. cpb-dyn-c-n08-flat--srss-srss-table-typed (held capture, window only)
+### 8. cpb-dyn-c-n08-flat--srss-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--srss-srss-table-typed`; model file `cpb-dyn-c-n08-flat--srss-srss-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -262,7 +312,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-flat--srss-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n08-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-flat--srss-srss-table-typed.res`, `cpb-dyn-c-n08-flat--srss-srss-table-typed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -276,9 +326,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 8. cpb-dyn-c-n02-flat--srss-srss (held capture, window only)
+### 9. cpb-dyn-c-n02-flat--srss-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--srss-srss`; model file `cpb-dyn-c-n02-flat--srss-srss.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -290,7 +341,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--srss-srss.print.csv`, `cpb-dyn-c-n02-flat--srss-srss.mod`, `cpb-dyn-c-n02-flat--srss-srss.res`
+- by the window way: `cpb-dyn-c-n02-flat--srss-srss.print.csv`, `cpb-dyn-c-n02-flat--srss-srss.mod`, `cpb-dyn-c-n02-flat--srss-srss.res`, `cpb-dyn-c-n02-flat--srss-srss.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -304,9 +355,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 9. cpb-dyn-c-n02-flat--srss-srss-table-typed (held capture, window only)
+### 10. cpb-dyn-c-n02-flat--srss-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--srss-srss-table-typed`; model file `cpb-dyn-c-n02-flat--srss-srss-table-typed.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -318,7 +370,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n02-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n02-flat--srss-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n02-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n02-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n02-flat--srss-srss-table-typed.res`, `cpb-dyn-c-n02-flat--srss-srss-table-typed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -332,9 +384,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 10. cpb-dyn-c-n16-flat--srss-srss (held capture, window only)
+### 11. cpb-dyn-c-n16-flat--srss-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--srss-srss`; model file `cpb-dyn-c-n16-flat--srss-srss.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -346,7 +399,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--srss-srss.print.csv`, `cpb-dyn-c-n16-flat--srss-srss.mod`, `cpb-dyn-c-n16-flat--srss-srss.res`
+- by the window way: `cpb-dyn-c-n16-flat--srss-srss.print.csv`, `cpb-dyn-c-n16-flat--srss-srss.mod`, `cpb-dyn-c-n16-flat--srss-srss.res`, `cpb-dyn-c-n16-flat--srss-srss.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -360,9 +413,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 11. cpb-dyn-c-n16-flat--srss-srss-table-typed (held capture, window only)
+### 12. cpb-dyn-c-n16-flat--srss-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--srss-srss-table-typed`; model file `cpb-dyn-c-n16-flat--srss-srss-table-typed.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -374,7 +428,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n16-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n16-flat--srss-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n16-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n16-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n16-flat--srss-srss-table-typed.res`, `cpb-dyn-c-n16-flat--srss-srss-table-typed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -388,9 +442,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 12. cpb-dyn-c-n08-trunc--srss-srss (held capture, window only)
+### 13. cpb-dyn-c-n08-trunc--srss-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-trunc--srss-srss`; model file `cpb-dyn-c-n08-trunc--srss-srss.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -402,7 +457,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-trunc--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-trunc--srss-srss.print.csv`, `cpb-dyn-c-n08-trunc--srss-srss.mod`, `cpb-dyn-c-n08-trunc--srss-srss.res`
+- by the window way: `cpb-dyn-c-n08-trunc--srss-srss.print.csv`, `cpb-dyn-c-n08-trunc--srss-srss.mod`, `cpb-dyn-c-n08-trunc--srss-srss.res`, `cpb-dyn-c-n08-trunc--srss-srss.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -416,9 +471,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 13. cpb-dyn-c-n08-trunc--srss-srss-table-typed (held capture, window only)
+### 14. cpb-dyn-c-n08-trunc--srss-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-trunc--srss-srss-table-typed`; model file `cpb-dyn-c-n08-trunc--srss-srss-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -430,7 +486,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-trunc--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-trunc--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-trunc--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-trunc--srss-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n08-trunc--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-trunc--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-trunc--srss-srss-table-typed.res`, `cpb-dyn-c-n08-trunc--srss-srss-table-typed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -444,9 +500,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 14. cpb-dyn-d-n08-flat--srss-srss (held capture, window only)
+### 15. cpb-dyn-d-n08-flat--srss-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-d-n08-flat--srss-srss`; model file `cpb-dyn-d-n08-flat--srss-srss.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -458,7 +515,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-d-n08-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-d-n08-flat--srss-srss.print.csv`, `cpb-dyn-d-n08-flat--srss-srss.mod`, `cpb-dyn-d-n08-flat--srss-srss.res`
+- by the window way: `cpb-dyn-d-n08-flat--srss-srss.print.csv`, `cpb-dyn-d-n08-flat--srss-srss.mod`, `cpb-dyn-d-n08-flat--srss-srss.res`, `cpb-dyn-d-n08-flat--srss-srss.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -472,9 +529,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 15. cpb-dyn-d-n08-flat--srss-srss-table-typed (held capture, window only)
+### 16. cpb-dyn-d-n08-flat--srss-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-d-n08-flat--srss-srss-table-typed`; model file `cpb-dyn-d-n08-flat--srss-srss-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -486,7 +544,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-d-n08-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-d-n08-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-d-n08-flat--srss-srss-table-typed.mod`, `cpb-dyn-d-n08-flat--srss-srss-table-typed.res`
+- by the window way: `cpb-dyn-d-n08-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-d-n08-flat--srss-srss-table-typed.mod`, `cpb-dyn-d-n08-flat--srss-srss-table-typed.res`, `cpb-dyn-d-n08-flat--srss-srss-table-typed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -500,9 +558,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 16. cpb-dyn-c-n08-two--srss-srss-table-typed (held capture, window only)
+### 17. cpb-dyn-c-n08-two--srss-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-two--srss-srss-table-typed`; model file `cpb-dyn-c-n08-two--srss-srss-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -516,7 +575,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-two--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-two--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-two--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-two--srss-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n08-two--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-two--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-two--srss-srss-table-typed.res`, `cpb-dyn-c-n08-two--srss-srss-table-typed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -530,9 +589,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 17. cpb-dyn-m-flat--srss-srss (held capture, window only)
+### 18. cpb-dyn-m-flat--srss-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-m-flat--srss-srss`; model file `cpb-dyn-m-flat--srss-srss.mbf`, layout rows 13; offered: `manual_print`.
 
@@ -544,7 +604,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-m-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-m-flat--srss-srss.print.csv`, `cpb-dyn-m-flat--srss-srss.mod`, `cpb-dyn-m-flat--srss-srss.res`
+- by the window way: `cpb-dyn-m-flat--srss-srss.print.csv`, `cpb-dyn-m-flat--srss-srss.mod`, `cpb-dyn-m-flat--srss-srss.res`, `cpb-dyn-m-flat--srss-srss.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -558,9 +618,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 18. cpb-dyn-m-flat--srss-srss-table-typed (held capture, window only)
+### 19. cpb-dyn-m-flat--srss-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-m-flat--srss-srss-table-typed`; model file `cpb-dyn-m-flat--srss-srss-table-typed.mbf`, layout rows 13; offered: `manual_print`.
 
@@ -572,7 +633,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-m-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-m-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-m-flat--srss-srss-table-typed.mod`, `cpb-dyn-m-flat--srss-srss-table-typed.res`
+- by the window way: `cpb-dyn-m-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-m-flat--srss-srss-table-typed.mod`, `cpb-dyn-m-flat--srss-srss-table-typed.res`, `cpb-dyn-m-flat--srss-srss-table-typed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -586,9 +647,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 19. cpb-dyn-c-n04-flat--srss-srss (held capture, window only)
+### 20. cpb-dyn-c-n04-flat--srss-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n04-flat--srss-srss`; model file `cpb-dyn-c-n04-flat--srss-srss.mbf`, layout rows 6; offered: `manual_print`.
 
@@ -600,7 +662,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n04-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n04-flat--srss-srss.print.csv`, `cpb-dyn-c-n04-flat--srss-srss.mod`, `cpb-dyn-c-n04-flat--srss-srss.res`
+- by the window way: `cpb-dyn-c-n04-flat--srss-srss.print.csv`, `cpb-dyn-c-n04-flat--srss-srss.mod`, `cpb-dyn-c-n04-flat--srss-srss.res`, `cpb-dyn-c-n04-flat--srss-srss.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -614,9 +676,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 20. cpb-dyn-c-n04-flat--srss-srss-table-typed (held capture, window only)
+### 21. cpb-dyn-c-n04-flat--srss-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n04-flat--srss-srss-table-typed`; model file `cpb-dyn-c-n04-flat--srss-srss-table-typed.mbf`, layout rows 6; offered: `manual_print`.
 
@@ -628,7 +691,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n04-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n04-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n04-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n04-flat--srss-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n04-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n04-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n04-flat--srss-srss-table-typed.res`, `cpb-dyn-c-n04-flat--srss-srss-table-typed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -642,9 +705,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 21. cpb-dyn-l-flat--srss-srss (held capture, window only)
+### 22. cpb-dyn-l-flat--srss-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-l-flat--srss-srss`; model file `cpb-dyn-l-flat--srss-srss.mbf`, layout rows 9; offered: `manual_print`.
 
@@ -656,7 +720,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-l-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-l-flat--srss-srss.print.csv`, `cpb-dyn-l-flat--srss-srss.mod`, `cpb-dyn-l-flat--srss-srss.res`
+- by the window way: `cpb-dyn-l-flat--srss-srss.print.csv`, `cpb-dyn-l-flat--srss-srss.mod`, `cpb-dyn-l-flat--srss-srss.res`, `cpb-dyn-l-flat--srss-srss.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -670,9 +734,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 22. cpb-dyn-l-flat--srss-srss-table-typed (held capture, window only)
+### 23. cpb-dyn-l-flat--srss-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-l-flat--srss-srss-table-typed`; model file `cpb-dyn-l-flat--srss-srss-table-typed.mbf`, layout rows 9; offered: `manual_print`.
 
@@ -684,7 +749,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-l-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-l-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-l-flat--srss-srss-table-typed.mod`, `cpb-dyn-l-flat--srss-srss-table-typed.res`
+- by the window way: `cpb-dyn-l-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-l-flat--srss-srss-table-typed.mod`, `cpb-dyn-l-flat--srss-srss-table-typed.res`, `cpb-dyn-l-flat--srss-srss-table-typed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -698,9 +763,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 23. cpb-dyn-c-n01-flat--srss-srss (held capture, window only)
+### 24. cpb-dyn-c-n01-flat--srss-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n01-flat--srss-srss`; model file `cpb-dyn-c-n01-flat--srss-srss.mbf`, layout rows 3; offered: `manual_print`.
 
@@ -712,7 +778,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n01-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n01-flat--srss-srss.print.csv`, `cpb-dyn-c-n01-flat--srss-srss.mod`, `cpb-dyn-c-n01-flat--srss-srss.res`
+- by the window way: `cpb-dyn-c-n01-flat--srss-srss.print.csv`, `cpb-dyn-c-n01-flat--srss-srss.mod`, `cpb-dyn-c-n01-flat--srss-srss.res`, `cpb-dyn-c-n01-flat--srss-srss.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -726,9 +792,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 24. cpb-dyn-c-n01-flat--srss-srss-table-typed (held capture, window only)
+### 25. cpb-dyn-c-n01-flat--srss-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n01-flat--srss-srss-table-typed`; model file `cpb-dyn-c-n01-flat--srss-srss-table-typed.mbf`, layout rows 3; offered: `manual_print`.
 
@@ -740,7 +807,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n01-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n01-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n01-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n01-flat--srss-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n01-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n01-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n01-flat--srss-srss-table-typed.res`, `cpb-dyn-c-n01-flat--srss-srss-table-typed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -754,9 +821,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 25. cpb-dyn-c-n08-flat--abs-abs (held capture, window only)
+### 26. cpb-dyn-c-n08-flat--abs-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--abs-abs`; model file `cpb-dyn-c-n08-flat--abs-abs.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -784,7 +852,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 26. cpb-dyn-c-n08-flat--abs-abs-table-typed (held capture, window only)
+### 27. cpb-dyn-c-n08-flat--abs-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--abs-abs-table-typed`; model file `cpb-dyn-c-n08-flat--abs-abs-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -812,7 +880,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 27. cpb-dyn-c-n08-flat--abs-srss (held capture, window only)
+### 28. cpb-dyn-c-n08-flat--abs-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--abs-srss`; model file `cpb-dyn-c-n08-flat--abs-srss.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -840,7 +908,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 28. cpb-dyn-c-n08-flat--abs-srss-table-typed (held capture, window only)
+### 29. cpb-dyn-c-n08-flat--abs-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--abs-srss-table-typed`; model file `cpb-dyn-c-n08-flat--abs-srss-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -868,7 +936,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 29. cpb-dyn-c-n08-flat--srss-abs (held capture, window only)
+### 30. cpb-dyn-c-n08-flat--srss-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--srss-abs`; model file `cpb-dyn-c-n08-flat--srss-abs.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -896,7 +964,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 30. cpb-dyn-c-n08-flat--srss-abs-table-typed (held capture, window only)
+### 31. cpb-dyn-c-n08-flat--srss-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--srss-abs-table-typed`; model file `cpb-dyn-c-n08-flat--srss-abs-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -924,7 +992,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 31. cpb-dyn-c-n08-flat--closely-spaced-abs (held capture, window only)
+### 32. cpb-dyn-c-n08-flat--closely-spaced-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--closely-spaced-abs`; model file `cpb-dyn-c-n08-flat--closely-spaced-abs.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -952,7 +1020,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 32. cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed (held capture, window only)
+### 33. cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed`; model file `cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -980,7 +1048,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 33. cpb-dyn-c-n08-flat--closely-spaced-srss (held capture, window only)
+### 34. cpb-dyn-c-n08-flat--closely-spaced-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--closely-spaced-srss`; model file `cpb-dyn-c-n08-flat--closely-spaced-srss.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -1008,7 +1076,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 34. cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed (held capture, window only)
+### 35. cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed`; model file `cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -1036,7 +1104,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 35. cpb-dyn-c-n08-flat--nrl-abs (held capture, window only)
+### 36. cpb-dyn-c-n08-flat--nrl-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--nrl-abs`; model file `cpb-dyn-c-n08-flat--nrl-abs.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -1064,7 +1132,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 36. cpb-dyn-c-n08-flat--nrl-abs-table-typed (held capture, window only)
+### 37. cpb-dyn-c-n08-flat--nrl-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--nrl-abs-table-typed`; model file `cpb-dyn-c-n08-flat--nrl-abs-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -1092,7 +1160,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 37. cpb-dyn-c-n08-flat--nrl-srss (held capture, window only)
+### 38. cpb-dyn-c-n08-flat--nrl-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--nrl-srss`; model file `cpb-dyn-c-n08-flat--nrl-srss.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -1120,7 +1188,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 38. cpb-dyn-c-n08-flat--nrl-srss-table-typed (held capture, window only)
+### 39. cpb-dyn-c-n08-flat--nrl-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n08-flat--nrl-srss-table-typed`; model file `cpb-dyn-c-n08-flat--nrl-srss-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -1148,7 +1216,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 39. cpb-dyn-c-n02-flat--abs-abs (held capture, window only)
+### 40. cpb-dyn-c-n02-flat--abs-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--abs-abs`; model file `cpb-dyn-c-n02-flat--abs-abs.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1176,7 +1244,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 40. cpb-dyn-c-n02-flat--abs-abs-table-typed (held capture, window only)
+### 41. cpb-dyn-c-n02-flat--abs-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--abs-abs-table-typed`; model file `cpb-dyn-c-n02-flat--abs-abs-table-typed.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1204,7 +1272,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 41. cpb-dyn-c-n02-flat--abs-srss (held capture, window only)
+### 42. cpb-dyn-c-n02-flat--abs-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--abs-srss`; model file `cpb-dyn-c-n02-flat--abs-srss.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1232,7 +1300,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 42. cpb-dyn-c-n02-flat--abs-srss-table-typed (held capture, window only)
+### 43. cpb-dyn-c-n02-flat--abs-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--abs-srss-table-typed`; model file `cpb-dyn-c-n02-flat--abs-srss-table-typed.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1260,7 +1328,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 43. cpb-dyn-c-n02-flat--srss-abs (held capture, window only)
+### 44. cpb-dyn-c-n02-flat--srss-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--srss-abs`; model file `cpb-dyn-c-n02-flat--srss-abs.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1288,7 +1356,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 44. cpb-dyn-c-n02-flat--srss-abs-table-typed (held capture, window only)
+### 45. cpb-dyn-c-n02-flat--srss-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--srss-abs-table-typed`; model file `cpb-dyn-c-n02-flat--srss-abs-table-typed.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1316,7 +1384,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 45. cpb-dyn-c-n02-flat--closely-spaced-abs (held capture, window only)
+### 46. cpb-dyn-c-n02-flat--closely-spaced-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--closely-spaced-abs`; model file `cpb-dyn-c-n02-flat--closely-spaced-abs.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1344,7 +1412,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 46. cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed (held capture, window only)
+### 47. cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed`; model file `cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1372,7 +1440,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 47. cpb-dyn-c-n02-flat--closely-spaced-srss (held capture, window only)
+### 48. cpb-dyn-c-n02-flat--closely-spaced-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--closely-spaced-srss`; model file `cpb-dyn-c-n02-flat--closely-spaced-srss.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1400,7 +1468,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 48. cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed (held capture, window only)
+### 49. cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed`; model file `cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1428,7 +1496,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 49. cpb-dyn-c-n02-flat--nrl-abs (held capture, window only)
+### 50. cpb-dyn-c-n02-flat--nrl-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--nrl-abs`; model file `cpb-dyn-c-n02-flat--nrl-abs.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1456,7 +1524,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 50. cpb-dyn-c-n02-flat--nrl-abs-table-typed (held capture, window only)
+### 51. cpb-dyn-c-n02-flat--nrl-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--nrl-abs-table-typed`; model file `cpb-dyn-c-n02-flat--nrl-abs-table-typed.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1484,7 +1552,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 51. cpb-dyn-c-n02-flat--nrl-srss (held capture, window only)
+### 52. cpb-dyn-c-n02-flat--nrl-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--nrl-srss`; model file `cpb-dyn-c-n02-flat--nrl-srss.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1512,7 +1580,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 52. cpb-dyn-c-n02-flat--nrl-srss-table-typed (held capture, window only)
+### 53. cpb-dyn-c-n02-flat--nrl-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n02-flat--nrl-srss-table-typed`; model file `cpb-dyn-c-n02-flat--nrl-srss-table-typed.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -1540,7 +1608,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 53. cpb-dyn-c-n16-flat--abs-abs (held capture, window only)
+### 54. cpb-dyn-c-n16-flat--abs-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--abs-abs`; model file `cpb-dyn-c-n16-flat--abs-abs.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1568,7 +1636,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 54. cpb-dyn-c-n16-flat--abs-abs-table-typed (held capture, window only)
+### 55. cpb-dyn-c-n16-flat--abs-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--abs-abs-table-typed`; model file `cpb-dyn-c-n16-flat--abs-abs-table-typed.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1596,7 +1664,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 55. cpb-dyn-c-n16-flat--abs-srss (held capture, window only)
+### 56. cpb-dyn-c-n16-flat--abs-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--abs-srss`; model file `cpb-dyn-c-n16-flat--abs-srss.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1624,7 +1692,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 56. cpb-dyn-c-n16-flat--abs-srss-table-typed (held capture, window only)
+### 57. cpb-dyn-c-n16-flat--abs-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--abs-srss-table-typed`; model file `cpb-dyn-c-n16-flat--abs-srss-table-typed.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1652,7 +1720,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 57. cpb-dyn-c-n16-flat--srss-abs (held capture, window only)
+### 58. cpb-dyn-c-n16-flat--srss-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--srss-abs`; model file `cpb-dyn-c-n16-flat--srss-abs.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1680,7 +1748,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 58. cpb-dyn-c-n16-flat--srss-abs-table-typed (held capture, window only)
+### 59. cpb-dyn-c-n16-flat--srss-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--srss-abs-table-typed`; model file `cpb-dyn-c-n16-flat--srss-abs-table-typed.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1708,7 +1776,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 59. cpb-dyn-c-n16-flat--closely-spaced-abs (held capture, window only)
+### 60. cpb-dyn-c-n16-flat--closely-spaced-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--closely-spaced-abs`; model file `cpb-dyn-c-n16-flat--closely-spaced-abs.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1736,7 +1804,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 60. cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed (held capture, window only)
+### 61. cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed`; model file `cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1764,7 +1832,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 61. cpb-dyn-c-n16-flat--closely-spaced-srss (held capture, window only)
+### 62. cpb-dyn-c-n16-flat--closely-spaced-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--closely-spaced-srss`; model file `cpb-dyn-c-n16-flat--closely-spaced-srss.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1792,7 +1860,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 62. cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed (held capture, window only)
+### 63. cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed`; model file `cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1820,7 +1888,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 63. cpb-dyn-c-n16-flat--nrl-abs (held capture, window only)
+### 64. cpb-dyn-c-n16-flat--nrl-abs (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--nrl-abs`; model file `cpb-dyn-c-n16-flat--nrl-abs.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1848,7 +1916,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 64. cpb-dyn-c-n16-flat--nrl-abs-table-typed (held capture, window only)
+### 65. cpb-dyn-c-n16-flat--nrl-abs-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--nrl-abs-table-typed`; model file `cpb-dyn-c-n16-flat--nrl-abs-table-typed.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1876,7 +1944,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 65. cpb-dyn-c-n16-flat--nrl-srss (held capture, window only)
+### 66. cpb-dyn-c-n16-flat--nrl-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--nrl-srss`; model file `cpb-dyn-c-n16-flat--nrl-srss.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1904,7 +1972,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 66. cpb-dyn-c-n16-flat--nrl-srss-table-typed (held capture, window only)
+### 67. cpb-dyn-c-n16-flat--nrl-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-c-n16-flat--nrl-srss-table-typed`; model file `cpb-dyn-c-n16-flat--nrl-srss-table-typed.mbf`, layout rows 18; offered: `manual_print`.
 
@@ -1932,7 +2000,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 67. cpb-dyn-d-n08-flat--abs-srss (held capture, window only)
+### 68. cpb-dyn-d-n08-flat--abs-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-d-n08-flat--abs-srss`; model file `cpb-dyn-d-n08-flat--abs-srss.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -1960,7 +2028,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 68. cpb-dyn-d-n08-flat--abs-srss-table-typed (held capture, window only)
+### 69. cpb-dyn-d-n08-flat--abs-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-d-n08-flat--abs-srss-table-typed`; model file `cpb-dyn-d-n08-flat--abs-srss-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -1988,7 +2056,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 69. cpb-dyn-d-n08-flat--closely-spaced-srss (held capture, window only)
+### 70. cpb-dyn-d-n08-flat--closely-spaced-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-d-n08-flat--closely-spaced-srss`; model file `cpb-dyn-d-n08-flat--closely-spaced-srss.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -2016,7 +2084,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 70. cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed (held capture, window only)
+### 71. cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed`; model file `cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -2044,7 +2112,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 71. cpb-dyn-d-n08-flat--nrl-srss (held capture, window only)
+### 72. cpb-dyn-d-n08-flat--nrl-srss (held capture, window only)
 
 Folder `cases/cpb-dyn-d-n08-flat--nrl-srss`; model file `cpb-dyn-d-n08-flat--nrl-srss.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -2072,7 +2140,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 72. cpb-dyn-d-n08-flat--nrl-srss-table-typed (held capture, window only)
+### 73. cpb-dyn-d-n08-flat--nrl-srss-table-typed (held capture, window only)
 
 Folder `cases/cpb-dyn-d-n08-flat--nrl-srss-table-typed`; model file `cpb-dyn-d-n08-flat--nrl-srss-table-typed.mbf`, layout rows 10; offered: `manual_print`.
 
@@ -2100,7 +2168,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 73. cpb-p1-01--pressure-default (benchmark case)
+### 74. cpb-p1-01--pressure-default (benchmark case)
 
 Folder `cases/cpb-p1-01--pressure-default`; model file `cpb-p1-01--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2123,7 +2191,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 74. cpb-p1-01--pressure-elongation-on (benchmark case)
+### 75. cpb-p1-01--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p1-01--pressure-elongation-on`; model file `cpb-p1-01--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2146,7 +2214,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 75. cpb-p1-02--pressure-default (benchmark case)
+### 76. cpb-p1-02--pressure-default (benchmark case)
 
 Folder `cases/cpb-p1-02--pressure-default`; model file `cpb-p1-02--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2169,7 +2237,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 76. cpb-p1-02--pressure-elongation-on (benchmark case)
+### 77. cpb-p1-02--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p1-02--pressure-elongation-on`; model file `cpb-p1-02--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2192,7 +2260,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 77. cpb-p1-03--pressure-default (benchmark case)
+### 78. cpb-p1-03--pressure-default (benchmark case)
 
 Folder `cases/cpb-p1-03--pressure-default`; model file `cpb-p1-03--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2215,7 +2283,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 78. cpb-p1-03--pressure-elongation-on (benchmark case)
+### 79. cpb-p1-03--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p1-03--pressure-elongation-on`; model file `cpb-p1-03--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2238,7 +2306,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 79. cpb-p1-04--pressure-default (benchmark case)
+### 80. cpb-p1-04--pressure-default (benchmark case)
 
 Folder `cases/cpb-p1-04--pressure-default`; model file `cpb-p1-04--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2261,7 +2329,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 80. cpb-p1-04--pressure-elongation-on (benchmark case)
+### 81. cpb-p1-04--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p1-04--pressure-elongation-on`; model file `cpb-p1-04--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2284,7 +2352,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 81. cpb-p1-05--pressure-default (benchmark case)
+### 82. cpb-p1-05--pressure-default (benchmark case)
 
 Folder `cases/cpb-p1-05--pressure-default`; model file `cpb-p1-05--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2307,7 +2375,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 82. cpb-p1-05--pressure-elongation-on (benchmark case)
+### 83. cpb-p1-05--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p1-05--pressure-elongation-on`; model file `cpb-p1-05--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2330,7 +2398,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 83. cpb-p1-06--pressure-default (benchmark case)
+### 84. cpb-p1-06--pressure-default (benchmark case)
 
 Folder `cases/cpb-p1-06--pressure-default`; model file `cpb-p1-06--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2353,7 +2421,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 84. cpb-p1-06--pressure-elongation-on (benchmark case)
+### 85. cpb-p1-06--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p1-06--pressure-elongation-on`; model file `cpb-p1-06--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2376,7 +2444,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 85. cpb-p2-01--pressure-default (benchmark case)
+### 86. cpb-p2-01--pressure-default (benchmark case)
 
 Folder `cases/cpb-p2-01--pressure-default`; model file `cpb-p2-01--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2399,7 +2467,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 86. cpb-p2-01--pressure-elongation-on (benchmark case)
+### 87. cpb-p2-01--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p2-01--pressure-elongation-on`; model file `cpb-p2-01--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2422,7 +2490,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 87. cpb-p2-02--pressure-default (benchmark case)
+### 88. cpb-p2-02--pressure-default (benchmark case)
 
 Folder `cases/cpb-p2-02--pressure-default`; model file `cpb-p2-02--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2445,7 +2513,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 88. cpb-p2-02--pressure-elongation-on (benchmark case)
+### 89. cpb-p2-02--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p2-02--pressure-elongation-on`; model file `cpb-p2-02--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2468,7 +2536,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 89. cpb-p2-03--pressure-default (benchmark case)
+### 90. cpb-p2-03--pressure-default (benchmark case)
 
 Folder `cases/cpb-p2-03--pressure-default`; model file `cpb-p2-03--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2491,7 +2559,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 90. cpb-p2-03--pressure-elongation-on (benchmark case)
+### 91. cpb-p2-03--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p2-03--pressure-elongation-on`; model file `cpb-p2-03--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2514,7 +2582,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 91. cpb-p2-04--pressure-default (benchmark case)
+### 92. cpb-p2-04--pressure-default (benchmark case)
 
 Folder `cases/cpb-p2-04--pressure-default`; model file `cpb-p2-04--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2537,7 +2605,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 92. cpb-p2-04--pressure-elongation-on (benchmark case)
+### 93. cpb-p2-04--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p2-04--pressure-elongation-on`; model file `cpb-p2-04--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2560,7 +2628,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 93. cpb-p3-01--pressure-default (benchmark case)
+### 94. cpb-p3-01--pressure-default (benchmark case)
 
 Folder `cases/cpb-p3-01--pressure-default`; model file `cpb-p3-01--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2583,7 +2651,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 94. cpb-p3-01--pressure-elongation-on (benchmark case)
+### 95. cpb-p3-01--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p3-01--pressure-elongation-on`; model file `cpb-p3-01--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2606,7 +2674,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 95. cpb-p3-02--pressure-default (benchmark case)
+### 96. cpb-p3-02--pressure-default (benchmark case)
 
 Folder `cases/cpb-p3-02--pressure-default`; model file `cpb-p3-02--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2629,7 +2697,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 96. cpb-p3-02--pressure-elongation-on (benchmark case)
+### 97. cpb-p3-02--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p3-02--pressure-elongation-on`; model file `cpb-p3-02--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2652,7 +2720,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 97. cpb-p3-03--pressure-default (benchmark case)
+### 98. cpb-p3-03--pressure-default (benchmark case)
 
 Folder `cases/cpb-p3-03--pressure-default`; model file `cpb-p3-03--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2675,7 +2743,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 98. cpb-p3-03--pressure-elongation-on (benchmark case)
+### 99. cpb-p3-03--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p3-03--pressure-elongation-on`; model file `cpb-p3-03--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2698,7 +2766,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 99. cpb-p3-04--pressure-default (benchmark case)
+### 100. cpb-p3-04--pressure-default (benchmark case)
 
 Folder `cases/cpb-p3-04--pressure-default`; model file `cpb-p3-04--pressure-default.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2721,7 +2789,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 100. cpb-p3-04--pressure-elongation-on (benchmark case)
+### 101. cpb-p3-04--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p3-04--pressure-elongation-on`; model file `cpb-p3-04--pressure-elongation-on.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -2744,7 +2812,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 101. cpb-p4-01--pressure-default (benchmark case)
+### 102. cpb-p4-01--pressure-default (benchmark case)
 
 Folder `cases/cpb-p4-01--pressure-default`; model file `cpb-p4-01--pressure-default.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -2767,7 +2835,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 102. cpb-p4-01--pressure-elongation-on (benchmark case)
+### 103. cpb-p4-01--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p4-01--pressure-elongation-on`; model file `cpb-p4-01--pressure-elongation-on.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -2790,7 +2858,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 103. cpb-p4-02--pressure-default (benchmark case)
+### 104. cpb-p4-02--pressure-default (benchmark case)
 
 Folder `cases/cpb-p4-02--pressure-default`; model file `cpb-p4-02--pressure-default.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -2813,7 +2881,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 104. cpb-p4-02--pressure-elongation-on (benchmark case)
+### 105. cpb-p4-02--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p4-02--pressure-elongation-on`; model file `cpb-p4-02--pressure-elongation-on.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -2836,7 +2904,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 105. cpb-p4-03--pressure-default (benchmark case)
+### 106. cpb-p4-03--pressure-default (benchmark case)
 
 Folder `cases/cpb-p4-03--pressure-default`; model file `cpb-p4-03--pressure-default.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -2859,7 +2927,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 106. cpb-p4-03--pressure-elongation-on (benchmark case)
+### 107. cpb-p4-03--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p4-03--pressure-elongation-on`; model file `cpb-p4-03--pressure-elongation-on.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -2882,7 +2950,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 107. cpb-p4-04--pressure-default (benchmark case)
+### 108. cpb-p4-04--pressure-default (benchmark case)
 
 Folder `cases/cpb-p4-04--pressure-default`; model file `cpb-p4-04--pressure-default.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -2905,7 +2973,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 108. cpb-p4-04--pressure-elongation-on (benchmark case)
+### 109. cpb-p4-04--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p4-04--pressure-elongation-on`; model file `cpb-p4-04--pressure-elongation-on.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -2928,7 +2996,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 109. cpb-p5-01--pressure-default (benchmark case)
+### 110. cpb-p5-01--pressure-default (benchmark case)
 
 Folder `cases/cpb-p5-01--pressure-default`; model file `cpb-p5-01--pressure-default.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -2951,7 +3019,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 110. cpb-p5-01--pressure-elongation-on (benchmark case)
+### 111. cpb-p5-01--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p5-01--pressure-elongation-on`; model file `cpb-p5-01--pressure-elongation-on.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -2974,7 +3042,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 111. cpb-p5-02--pressure-default (benchmark case)
+### 112. cpb-p5-02--pressure-default (benchmark case)
 
 Folder `cases/cpb-p5-02--pressure-default`; model file `cpb-p5-02--pressure-default.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -2997,7 +3065,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 112. cpb-p5-02--pressure-elongation-on (benchmark case)
+### 113. cpb-p5-02--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p5-02--pressure-elongation-on`; model file `cpb-p5-02--pressure-elongation-on.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -3020,7 +3088,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 113. cpb-p6-01--pressure-default (benchmark case)
+### 114. cpb-p6-01--pressure-default (benchmark case)
 
 Folder `cases/cpb-p6-01--pressure-default`; model file `cpb-p6-01--pressure-default.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -3043,7 +3111,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 114. cpb-p6-01--pressure-elongation-on (benchmark case)
+### 115. cpb-p6-01--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p6-01--pressure-elongation-on`; model file `cpb-p6-01--pressure-elongation-on.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -3066,7 +3134,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 115. cpb-p7-01--pressure-default (benchmark case)
+### 116. cpb-p7-01--pressure-default (benchmark case)
 
 Folder `cases/cpb-p7-01--pressure-default`; model file `cpb-p7-01--pressure-default.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3089,7 +3157,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 116. cpb-p7-01--pressure-elongation-on (benchmark case)
+### 117. cpb-p7-01--pressure-elongation-on (benchmark case)
 
 Folder `cases/cpb-p7-01--pressure-elongation-on`; model file `cpb-p7-01--pressure-elongation-on.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3112,7 +3180,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 117. cpb-p1-01--pressure-bourdon-expansion-capture (sealed capture)
+### 118. cpb-p1-01--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p1-01--pressure-bourdon-expansion-capture`; model file `cpb-p1-01--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3137,7 +3205,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 118. cpb-p1-02--pressure-bourdon-expansion-capture (sealed capture)
+### 119. cpb-p1-02--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p1-02--pressure-bourdon-expansion-capture`; model file `cpb-p1-02--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3162,7 +3230,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 119. cpb-p1-03--pressure-bourdon-expansion-capture (sealed capture)
+### 120. cpb-p1-03--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p1-03--pressure-bourdon-expansion-capture`; model file `cpb-p1-03--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3187,7 +3255,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 120. cpb-p1-04--pressure-bourdon-expansion-capture (sealed capture)
+### 121. cpb-p1-04--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p1-04--pressure-bourdon-expansion-capture`; model file `cpb-p1-04--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3212,7 +3280,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 121. cpb-p1-05--pressure-bourdon-expansion-capture (sealed capture)
+### 122. cpb-p1-05--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p1-05--pressure-bourdon-expansion-capture`; model file `cpb-p1-05--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3237,7 +3305,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 122. cpb-p1-06--pressure-bourdon-expansion-capture (sealed capture)
+### 123. cpb-p1-06--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p1-06--pressure-bourdon-expansion-capture`; model file `cpb-p1-06--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3262,7 +3330,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 123. cpb-p2-01--pressure-bourdon-expansion-capture (sealed capture)
+### 124. cpb-p2-01--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p2-01--pressure-bourdon-expansion-capture`; model file `cpb-p2-01--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3287,7 +3355,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 124. cpb-p2-02--pressure-bourdon-expansion-capture (sealed capture)
+### 125. cpb-p2-02--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p2-02--pressure-bourdon-expansion-capture`; model file `cpb-p2-02--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3312,7 +3380,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 125. cpb-p2-03--pressure-bourdon-expansion-capture (sealed capture)
+### 126. cpb-p2-03--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p2-03--pressure-bourdon-expansion-capture`; model file `cpb-p2-03--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3337,7 +3405,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 126. cpb-p2-04--pressure-bourdon-expansion-capture (sealed capture)
+### 127. cpb-p2-04--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p2-04--pressure-bourdon-expansion-capture`; model file `cpb-p2-04--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3362,7 +3430,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 127. cpb-p3-01--pressure-bourdon-expansion-capture (sealed capture)
+### 128. cpb-p3-01--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p3-01--pressure-bourdon-expansion-capture`; model file `cpb-p3-01--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3387,7 +3455,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 128. cpb-p3-02--pressure-bourdon-expansion-capture (sealed capture)
+### 129. cpb-p3-02--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p3-02--pressure-bourdon-expansion-capture`; model file `cpb-p3-02--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3412,7 +3480,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 129. cpb-p3-03--pressure-bourdon-expansion-capture (sealed capture)
+### 130. cpb-p3-03--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p3-03--pressure-bourdon-expansion-capture`; model file `cpb-p3-03--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3437,7 +3505,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 130. cpb-p3-04--pressure-bourdon-expansion-capture (sealed capture)
+### 131. cpb-p3-04--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p3-04--pressure-bourdon-expansion-capture`; model file `cpb-p3-04--pressure-bourdon-expansion-capture.mbf`, layout rows 3; offered: `manual_batch` and `manual_print`.
 
@@ -3462,7 +3530,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 131. cpb-p4-01--pressure-bourdon-expansion-capture (sealed capture)
+### 132. cpb-p4-01--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p4-01--pressure-bourdon-expansion-capture`; model file `cpb-p4-01--pressure-bourdon-expansion-capture.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3487,7 +3555,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 132. cpb-p4-02--pressure-bourdon-expansion-capture (sealed capture)
+### 133. cpb-p4-02--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p4-02--pressure-bourdon-expansion-capture`; model file `cpb-p4-02--pressure-bourdon-expansion-capture.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3512,7 +3580,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 133. cpb-p4-03--pressure-bourdon-expansion-capture (sealed capture)
+### 134. cpb-p4-03--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p4-03--pressure-bourdon-expansion-capture`; model file `cpb-p4-03--pressure-bourdon-expansion-capture.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3537,7 +3605,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 134. cpb-p4-04--pressure-bourdon-expansion-capture (sealed capture)
+### 135. cpb-p4-04--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p4-04--pressure-bourdon-expansion-capture`; model file `cpb-p4-04--pressure-bourdon-expansion-capture.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3562,7 +3630,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 135. cpb-p5-01--pressure-bourdon-expansion-capture (sealed capture)
+### 136. cpb-p5-01--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p5-01--pressure-bourdon-expansion-capture`; model file `cpb-p5-01--pressure-bourdon-expansion-capture.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -3587,7 +3655,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 136. cpb-p5-02--pressure-bourdon-expansion-capture (sealed capture)
+### 137. cpb-p5-02--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p5-02--pressure-bourdon-expansion-capture`; model file `cpb-p5-02--pressure-bourdon-expansion-capture.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -3612,7 +3680,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 137. cpb-p6-01--pressure-bourdon-expansion-capture (sealed capture)
+### 138. cpb-p6-01--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p6-01--pressure-bourdon-expansion-capture`; model file `cpb-p6-01--pressure-bourdon-expansion-capture.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -3637,7 +3705,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 138. cpb-p7-01--pressure-bourdon-expansion-capture (sealed capture)
+### 139. cpb-p7-01--pressure-bourdon-expansion-capture (sealed capture)
 
 Folder `cases/cpb-p7-01--pressure-bourdon-expansion-capture`; model file `cpb-p7-01--pressure-bourdon-expansion-capture.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3662,7 +3730,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 139. cpb-s1-01 (benchmark case)
+### 140. cpb-s1-01 (benchmark case)
 
 Folder `cases/cpb-s1-01`; model file `cpb-s1-01.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3685,7 +3753,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 140. cpb-s1-02 (benchmark case)
+### 141. cpb-s1-02 (benchmark case)
 
 Folder `cases/cpb-s1-02`; model file `cpb-s1-02.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3708,7 +3776,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 141. cpb-s1-03 (benchmark case)
+### 142. cpb-s1-03 (benchmark case)
 
 Folder `cases/cpb-s1-03`; model file `cpb-s1-03.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3731,7 +3799,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 142. cpb-s1-04 (benchmark case)
+### 143. cpb-s1-04 (benchmark case)
 
 Folder `cases/cpb-s1-04`; model file `cpb-s1-04.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3754,7 +3822,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 143. cpb-s2-01 (benchmark case)
+### 144. cpb-s2-01 (benchmark case)
 
 Folder `cases/cpb-s2-01`; model file `cpb-s2-01.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3777,7 +3845,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 144. cpb-s2-02 (benchmark case)
+### 145. cpb-s2-02 (benchmark case)
 
 Folder `cases/cpb-s2-02`; model file `cpb-s2-02.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3800,7 +3868,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 145. cpb-s2-03 (benchmark case)
+### 146. cpb-s2-03 (benchmark case)
 
 Folder `cases/cpb-s2-03`; model file `cpb-s2-03.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3823,7 +3891,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 146. cpb-s3-01 (benchmark case)
+### 147. cpb-s3-01 (benchmark case)
 
 Folder `cases/cpb-s3-01`; model file `cpb-s3-01.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3846,7 +3914,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 147. cpb-s3-02 (benchmark case)
+### 148. cpb-s3-02 (benchmark case)
 
 Folder `cases/cpb-s3-02`; model file `cpb-s3-02.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3869,7 +3937,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 148. cpb-s3-03 (benchmark case)
+### 149. cpb-s3-03 (benchmark case)
 
 Folder `cases/cpb-s3-03`; model file `cpb-s3-03.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3892,7 +3960,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 149. cpb-s3-04 (benchmark case)
+### 150. cpb-s3-04 (benchmark case)
 
 Folder `cases/cpb-s3-04`; model file `cpb-s3-04.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3915,7 +3983,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 150. cpb-s3-05 (benchmark case)
+### 151. cpb-s3-05 (benchmark case)
 
 Folder `cases/cpb-s3-05`; model file `cpb-s3-05.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -3938,7 +4006,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 151. cpb-n-01--stop-axial-closed (held capture, window only)
+### 152. cpb-n-01--stop-axial-closed (held capture, window only)
 
 Folder `cases/cpb-n-01--stop-axial-closed`; model file `cpb-n-01--stop-axial-closed.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -3952,7 +4020,7 @@ Its hold names the product's gate; `QUALIFICATION.txt` applies.
 
 Expected back in this folder (`cases/cpb-n-01--stop-axial-closed` of the pack folder):
 
-- by the window way: `cpb-n-01--stop-axial-closed.print.csv`, `cpb-n-01--stop-axial-closed.mod`, `cpb-n-01--stop-axial-closed.res`
+- by the window way: `cpb-n-01--stop-axial-closed.print.csv`, `cpb-n-01--stop-axial-closed.mod`, `cpb-n-01--stop-axial-closed.res`, `cpb-n-01--stop-axial-closed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -3966,9 +4034,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 152. cpb-n-02--rest-lift-off (held capture, window only)
+### 153. cpb-n-02--rest-lift-off (held capture, window only)
 
 Folder `cases/cpb-n-02--rest-lift-off`; model file `cpb-n-02--rest-lift-off.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -3982,7 +4051,7 @@ Its hold names the product's gate; `QUALIFICATION.txt` applies.
 
 Expected back in this folder (`cases/cpb-n-02--rest-lift-off` of the pack folder):
 
-- by the window way: `cpb-n-02--rest-lift-off.print.csv`, `cpb-n-02--rest-lift-off.mod`, `cpb-n-02--rest-lift-off.res`
+- by the window way: `cpb-n-02--rest-lift-off.print.csv`, `cpb-n-02--rest-lift-off.mod`, `cpb-n-02--rest-lift-off.res`, `cpb-n-02--rest-lift-off.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -3996,9 +4065,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 153. cpb-n-03--rest-closed (held capture, window only)
+### 154. cpb-n-03--rest-closed (held capture, window only)
 
 Folder `cases/cpb-n-03--rest-closed`; model file `cpb-n-03--rest-closed.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -4012,7 +4082,7 @@ Its hold names the product's gate; `QUALIFICATION.txt` applies.
 
 Expected back in this folder (`cases/cpb-n-03--rest-closed` of the pack folder):
 
-- by the window way: `cpb-n-03--rest-closed.print.csv`, `cpb-n-03--rest-closed.mod`, `cpb-n-03--rest-closed.res`
+- by the window way: `cpb-n-03--rest-closed.print.csv`, `cpb-n-03--rest-closed.mod`, `cpb-n-03--rest-closed.res`, `cpb-n-03--rest-closed.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -4026,9 +4096,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 154. cpb-n-04--stop-axial-open (held capture, window only)
+### 155. cpb-n-04--stop-axial-open (held capture, window only)
 
 Folder `cases/cpb-n-04--stop-axial-open`; model file `cpb-n-04--stop-axial-open.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -4042,7 +4113,7 @@ Its hold names the product's gate; `QUALIFICATION.txt` applies.
 
 Expected back in this folder (`cases/cpb-n-04--stop-axial-open` of the pack folder):
 
-- by the window way: `cpb-n-04--stop-axial-open.print.csv`, `cpb-n-04--stop-axial-open.mod`, `cpb-n-04--stop-axial-open.res`
+- by the window way: `cpb-n-04--stop-axial-open.print.csv`, `cpb-n-04--stop-axial-open.mod`, `cpb-n-04--stop-axial-open.res`, `cpb-n-04--stop-axial-open.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -4056,9 +4127,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 155. cpb-h-01--constant-support (held capture, window only)
+### 156. cpb-h-01--constant-support (held capture, window only)
 
 Folder `cases/cpb-h-01--constant-support`; model file `cpb-h-01--constant-support.mbf`, layout rows 4; offered: `manual_print`.
 
@@ -4072,7 +4144,7 @@ Its hold names the product's gate; `QUALIFICATION.txt` applies.
 
 Expected back in this folder (`cases/cpb-h-01--constant-support` of the pack folder):
 
-- by the window way: `cpb-h-01--constant-support.print.csv`, `cpb-h-01--constant-support.mod`, `cpb-h-01--constant-support.res`
+- by the window way: `cpb-h-01--constant-support.print.csv`, `cpb-h-01--constant-support.mod`, `cpb-h-01--constant-support.res`, `cpb-h-01--constant-support.export.mbf` (if the export was made)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -4086,9 +4158,10 @@ run (yes, or not run and why):
 route used (manual_print): 
 CAEPIPE version as displayed: 
 anything unusual: 
+export (made, or not made and why): 
 ```
 
-### 156. cpb-g1-01 (benchmark case)
+### 157. cpb-g1-01 (benchmark case)
 
 Folder `cases/cpb-g1-01`; model file `cpb-g1-01.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -4111,7 +4184,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 157. cpb-g1-02 (benchmark case)
+### 158. cpb-g1-02 (benchmark case)
 
 Folder `cases/cpb-g1-02`; model file `cpb-g1-02.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -4134,7 +4207,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 158. cpb-g1-03 (benchmark case)
+### 159. cpb-g1-03 (benchmark case)
 
 Folder `cases/cpb-g1-03`; model file `cpb-g1-03.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -4157,7 +4230,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 159. cpb-g1-04 (benchmark case)
+### 160. cpb-g1-04 (benchmark case)
 
 Folder `cases/cpb-g1-04`; model file `cpb-g1-04.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -4180,7 +4253,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 160. cpb-g1-06 (benchmark case)
+### 161. cpb-g1-06 (benchmark case)
 
 Folder `cases/cpb-g1-06`; model file `cpb-g1-06.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -4203,7 +4276,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 161. cpb-g1-07 (benchmark case)
+### 162. cpb-g1-07 (benchmark case)
 
 Folder `cases/cpb-g1-07`; model file `cpb-g1-07.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -4226,7 +4299,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 162. cpb-g1-10 (benchmark case)
+### 163. cpb-g1-10 (benchmark case)
 
 Folder `cases/cpb-g1-10`; model file `cpb-g1-10.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -4249,7 +4322,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 163. cpb-g1-08 (benchmark case)
+### 164. cpb-g1-08 (benchmark case)
 
 Folder `cases/cpb-g1-08`; model file `cpb-g1-08.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -4272,7 +4345,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 164. cpb-g1-09 (benchmark case)
+### 165. cpb-g1-09 (benchmark case)
 
 Folder `cases/cpb-g1-09`; model file `cpb-g1-09.mbf`, layout rows 8; offered: `manual_batch` and `manual_print`.
 
@@ -4295,7 +4368,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 165. cpb-g2-01 (benchmark case)
+### 166. cpb-g2-01 (benchmark case)
 
 Folder `cases/cpb-g2-01`; model file `cpb-g2-01.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4318,7 +4391,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 166. cpb-g2-02 (benchmark case)
+### 167. cpb-g2-02 (benchmark case)
 
 Folder `cases/cpb-g2-02`; model file `cpb-g2-02.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4341,7 +4414,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 167. cpb-g2-03 (benchmark case)
+### 168. cpb-g2-03 (benchmark case)
 
 Folder `cases/cpb-g2-03`; model file `cpb-g2-03.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4364,7 +4437,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 168. cpb-g2-04 (benchmark case)
+### 169. cpb-g2-04 (benchmark case)
 
 Folder `cases/cpb-g2-04`; model file `cpb-g2-04.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4387,7 +4460,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 169. cpb-g2-05 (benchmark case)
+### 170. cpb-g2-05 (benchmark case)
 
 Folder `cases/cpb-g2-05`; model file `cpb-g2-05.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4410,7 +4483,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 170. cpb-g2-06 (benchmark case)
+### 171. cpb-g2-06 (benchmark case)
 
 Folder `cases/cpb-g2-06`; model file `cpb-g2-06.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4433,7 +4506,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 171. cpb-g2-07 (benchmark case)
+### 172. cpb-g2-07 (benchmark case)
 
 Folder `cases/cpb-g2-07`; model file `cpb-g2-07.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4456,7 +4529,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 172. cpb-g2-08 (benchmark case)
+### 173. cpb-g2-08 (benchmark case)
 
 Folder `cases/cpb-g2-08`; model file `cpb-g2-08.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4479,7 +4552,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 173. cpb-g2-09 (benchmark case)
+### 174. cpb-g2-09 (benchmark case)
 
 Folder `cases/cpb-g2-09`; model file `cpb-g2-09.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4502,7 +4575,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 174. cpb-g2-10 (benchmark case)
+### 175. cpb-g2-10 (benchmark case)
 
 Folder `cases/cpb-g2-10`; model file `cpb-g2-10.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4525,7 +4598,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 175. cpb-g2-11 (benchmark case)
+### 176. cpb-g2-11 (benchmark case)
 
 Folder `cases/cpb-g2-11`; model file `cpb-g2-11.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4548,7 +4621,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 176. cpb-g2-12 (benchmark case)
+### 177. cpb-g2-12 (benchmark case)
 
 Folder `cases/cpb-g2-12`; model file `cpb-g2-12.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4571,7 +4644,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 177. cpb-g2-13 (benchmark case)
+### 178. cpb-g2-13 (benchmark case)
 
 Folder `cases/cpb-g2-13`; model file `cpb-g2-13.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4594,7 +4667,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 178. cpb-g2-14 (benchmark case)
+### 179. cpb-g2-14 (benchmark case)
 
 Folder `cases/cpb-g2-14`; model file `cpb-g2-14.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4617,7 +4690,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 179. cpb-g2-15 (benchmark case)
+### 180. cpb-g2-15 (benchmark case)
 
 Folder `cases/cpb-g2-15`; model file `cpb-g2-15.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4640,7 +4713,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 180. cpb-g2-16 (benchmark case)
+### 181. cpb-g2-16 (benchmark case)
 
 Folder `cases/cpb-g2-16`; model file `cpb-g2-16.mbf`, layout rows 5; offered: `manual_batch` and `manual_print`.
 
@@ -4663,7 +4736,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 181. cpb-g3-01 (benchmark case)
+### 182. cpb-g3-01 (benchmark case)
 
 Folder `cases/cpb-g3-01`; model file `cpb-g3-01.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -4686,7 +4759,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 182. cpb-g3-02 (benchmark case)
+### 183. cpb-g3-02 (benchmark case)
 
 Folder `cases/cpb-g3-02`; model file `cpb-g3-02.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -4709,7 +4782,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 183. cpb-g3-03 (benchmark case)
+### 184. cpb-g3-03 (benchmark case)
 
 Folder `cases/cpb-g3-03`; model file `cpb-g3-03.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -4732,7 +4805,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 184. cpb-g3-04 (benchmark case)
+### 185. cpb-g3-04 (benchmark case)
 
 Folder `cases/cpb-g3-04`; model file `cpb-g3-04.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -4755,7 +4828,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 185. cpb-g3-05 (benchmark case)
+### 186. cpb-g3-05 (benchmark case)
 
 Folder `cases/cpb-g3-05`; model file `cpb-g3-05.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -4778,7 +4851,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 186. cpb-g3-06 (benchmark case)
+### 187. cpb-g3-06 (benchmark case)
 
 Folder `cases/cpb-g3-06`; model file `cpb-g3-06.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -4801,7 +4874,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 187. cpb-g3-07 (benchmark case)
+### 188. cpb-g3-07 (benchmark case)
 
 Folder `cases/cpb-g3-07`; model file `cpb-g3-07.mbf`, layout rows 8; offered: `manual_batch` and `manual_print`.
 
@@ -4824,7 +4897,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 188. cpb-g3-08 (benchmark case)
+### 189. cpb-g3-08 (benchmark case)
 
 Folder `cases/cpb-g3-08`; model file `cpb-g3-08.mbf`, layout rows 8; offered: `manual_batch` and `manual_print`.
 
@@ -4847,7 +4920,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 189. cpb-g3-09 (benchmark case)
+### 190. cpb-g3-09 (benchmark case)
 
 Folder `cases/cpb-g3-09`; model file `cpb-g3-09.mbf`, layout rows 8; offered: `manual_batch` and `manual_print`.
 
@@ -4870,7 +4943,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 190. cpb-g3-10 (benchmark case)
+### 191. cpb-g3-10 (benchmark case)
 
 Folder `cases/cpb-g3-10`; model file `cpb-g3-10.mbf`, layout rows 8; offered: `manual_batch` and `manual_print`.
 
@@ -4893,7 +4966,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 191. cpb-g3-11 (benchmark case)
+### 192. cpb-g3-11 (benchmark case)
 
 Folder `cases/cpb-g3-11`; model file `cpb-g3-11.mbf`, layout rows 8; offered: `manual_batch` and `manual_print`.
 
@@ -4916,7 +4989,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 192. cpb-g3-12 (benchmark case)
+### 193. cpb-g3-12 (benchmark case)
 
 Folder `cases/cpb-g3-12`; model file `cpb-g3-12.mbf`, layout rows 8; offered: `manual_batch` and `manual_print`.
 
@@ -4939,7 +5012,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 193. cpb-g4-01 (benchmark case)
+### 194. cpb-g4-01 (benchmark case)
 
 Folder `cases/cpb-g4-01`; model file `cpb-g4-01.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -4962,7 +5035,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 194. cpb-g4-02 (benchmark case)
+### 195. cpb-g4-02 (benchmark case)
 
 Folder `cases/cpb-g4-02`; model file `cpb-g4-02.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -4985,7 +5058,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 195. cpb-g4-03 (benchmark case)
+### 196. cpb-g4-03 (benchmark case)
 
 Folder `cases/cpb-g4-03`; model file `cpb-g4-03.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -5008,7 +5081,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 196. cpb-g4-04 (benchmark case)
+### 197. cpb-g4-04 (benchmark case)
 
 Folder `cases/cpb-g4-04`; model file `cpb-g4-04.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -5031,7 +5104,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 197. cpb-g4-05 (benchmark case)
+### 198. cpb-g4-05 (benchmark case)
 
 Folder `cases/cpb-g4-05`; model file `cpb-g4-05.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -5054,7 +5127,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 198. cpb-g4-06 (benchmark case)
+### 199. cpb-g4-06 (benchmark case)
 
 Folder `cases/cpb-g4-06`; model file `cpb-g4-06.mbf`, layout rows 6; offered: `manual_batch` and `manual_print`.
 
@@ -5077,7 +5150,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 199. cpb-g5-01 (benchmark case)
+### 200. cpb-g5-01 (benchmark case)
 
 Folder `cases/cpb-g5-01`; model file `cpb-g5-01.mbf`, layout rows 7; offered: `manual_batch` and `manual_print`.
 
@@ -5100,7 +5173,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 200. cpb-g5-02 (benchmark case)
+### 201. cpb-g5-02 (benchmark case)
 
 Folder `cases/cpb-g5-02`; model file `cpb-g5-02.mbf`, layout rows 7; offered: `manual_batch` and `manual_print`.
 
@@ -5123,7 +5196,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 201. cpb-g5-03 (benchmark case)
+### 202. cpb-g5-03 (benchmark case)
 
 Folder `cases/cpb-g5-03`; model file `cpb-g5-03.mbf`, layout rows 7; offered: `manual_batch` and `manual_print`.
 
@@ -5146,7 +5219,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 202. cpb-g5-04 (benchmark case)
+### 203. cpb-g5-04 (benchmark case)
 
 Folder `cases/cpb-g5-04`; model file `cpb-g5-04.mbf`, layout rows 7; offered: `manual_batch` and `manual_print`.
 
@@ -5169,7 +5242,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 203. cpb-g5-05 (benchmark case)
+### 204. cpb-g5-05 (benchmark case)
 
 Folder `cases/cpb-g5-05`; model file `cpb-g5-05.mbf`, layout rows 7; offered: `manual_batch` and `manual_print`.
 
@@ -5192,7 +5265,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 204. cpb-g5-06 (benchmark case)
+### 205. cpb-g5-06 (benchmark case)
 
 Folder `cases/cpb-g5-06`; model file `cpb-g5-06.mbf`, layout rows 7; offered: `manual_batch` and `manual_print`.
 
@@ -5215,7 +5288,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 205. cpb-g6-01 (benchmark case)
+### 206. cpb-g6-01 (benchmark case)
 
 Folder `cases/cpb-g6-01`; model file `cpb-g6-01.mbf`, layout rows 7; offered: `manual_batch` and `manual_print`.
 
@@ -5238,7 +5311,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 206. cpb-g6-03 (benchmark case)
+### 207. cpb-g6-03 (benchmark case)
 
 Folder `cases/cpb-g6-03`; model file `cpb-g6-03.mbf`, layout rows 7; offered: `manual_batch` and `manual_print`.
 
@@ -5261,7 +5334,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 207. cpb-g7-01 (benchmark case)
+### 208. cpb-g7-01 (benchmark case)
 
 Folder `cases/cpb-g7-01`; model file `cpb-g7-01.mbf`, layout rows 8; offered: `manual_batch` and `manual_print`.
 
@@ -5284,7 +5357,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 208. cpb-g7-02 (benchmark case)
+### 209. cpb-g7-02 (benchmark case)
 
 Folder `cases/cpb-g7-02`; model file `cpb-g7-02.mbf`, layout rows 8; offered: `manual_batch` and `manual_print`.
 
@@ -5307,7 +5380,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 209. cpb-g7-03 (benchmark case)
+### 210. cpb-g7-03 (benchmark case)
 
 Folder `cases/cpb-g7-03`; model file `cpb-g7-03.mbf`, layout rows 8; offered: `manual_batch` and `manual_print`.
 
@@ -5330,7 +5403,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 210. cpb-g8-02 (benchmark case)
+### 211. cpb-g8-02 (benchmark case)
 
 Folder `cases/cpb-g8-02`; model file `cpb-g8-02.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -5353,7 +5426,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 211. cpb-g8-03 (benchmark case)
+### 212. cpb-g8-03 (benchmark case)
 
 Folder `cases/cpb-g8-03`; model file `cpb-g8-03.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
@@ -5376,7 +5449,7 @@ CAEPIPE version as displayed:
 anything unusual: 
 ```
 
-### 212. cpb-g8-04 (benchmark case)
+### 213. cpb-g8-04 (benchmark case)
 
 Folder `cases/cpb-g8-04`; model file `cpb-g8-04.mbf`, layout rows 4; offered: `manual_batch` and `manual_print`.
 
