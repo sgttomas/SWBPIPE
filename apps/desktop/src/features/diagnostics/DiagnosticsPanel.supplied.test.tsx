@@ -160,7 +160,7 @@ describe("Diagnostics panel: supplied diagnostic text", () => {
 describe("Diagnostics panel: the cancellation-screen exception's warning", () => {
   // The fixed opening and the sentence the producer forms from the record (`cap_remainder_warning_message`).
   const OPENING = "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
-  const SENTENCE = " In case case:P, the largest retained remainder relative to the pressure force on the bore is 2.197357159078235e-1 N, at node node:C1; it is not a bound on the resulting displacement.";
+  const SENTENCE = " In case case:P, the retained remainder is largest relative to the pressure force on the bore at node node:C1, where it is 2.197357159078235e-1 N; that force is not a bound on the resulting displacement.";
   const MESSAGE = OPENING + SENTENCE;
   const warning = (refs: string[]): Diagnostic => ({ id: "diagnostic:pressure-runtime:invented:PRESSURE_REGION_CAP_REMAINDER_RETAINED", code: CAP_REMAINDER_WARNING_CODE,
     severity: "warning", source: "core/product_physics/src/pressure_runtime.rs", affected_refs: refs, message: MESSAGE }) as Diagnostic;
@@ -183,7 +183,7 @@ describe("Diagnostics panel: the cancellation-screen exception's warning", () =>
     const view = render(<DiagnosticsPanel model={panelModel(result)} knowledge={null} result={result} selectedDiagnosticId={shownWarning.id!} onSelectDiagnostic={() => {}} />);
     const listed = screen.getAllByTestId(`diagnostic-${CAP_REMAINDER_WARNING_CODE}`).map((item) => item.querySelector("p")!.textContent);
     expect(listed).toEqual([MESSAGE]);
-    for (const part of ["In case case:P,", "2.197357159078235e-1 N", "at node node:C1;", "it is not a bound on the resulting displacement."]) {
+    for (const part of ["In case case:P,", "at node node:C1,", "where it is 2.197357159078235e-1 N;", "that force is not a bound on the resulting displacement."]) {
       expect(listed[0]).toContain(part);
     }
     expect(screen.getByTestId("selected-diagnostic-affected-refs").textContent).toContain("case:P, region:P, node:C1");

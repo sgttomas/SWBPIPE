@@ -2166,8 +2166,9 @@ mod direct_native {
 /// case admitted under the exception quotes the case's
 /// `PRESSURE_REGION_CAP_REMAINDER_RETAINED` warning plainly in its
 /// Diagnostics section (its message, re-formed from the record, naming the
-/// case, the node, the retained remainder in N and that it is no bound on the
-/// displacement), not as supplied, unverified text, on a result with a
+/// case, the node where the retained remainder is largest relative to the
+/// pressure force on the bore, that remainder in N and that the force is no
+/// bound on the displacement), not as supplied, unverified text, on a result with a
 /// combination, where every message naming no combination is otherwise
 /// quoted after that label. The admitted case is solved here (a closed
 /// straight run of two members whose outside diameters are one ulp apart,
@@ -2231,7 +2232,7 @@ fn a_report_for_a_case_admitted_under_the_exception_quotes_its_warning_plainly()
     assert_eq!(html.matches(&sentence).count(), 1, "the sentence, once");
     assert!(!html.contains(&format!("{label}{}", open_pipe_stress_report_renderer::escape_html(&format!("\"{message}")))), "not as supplied text");
     // The case, the node, the force with its unit and the not-a-bound clause, in the message itself.
-    for shown in ["In case case:P,".to_owned(), format!("{:e} N", record["remainder_force_n"].as_f64().unwrap()), format!("at node {node};"), "it is not a bound on the resulting displacement.".to_owned()] {
+    for shown in ["In case case:P,".to_owned(), format!("at node {node},"), format!("where it is {:e} N;", record["remainder_force_n"].as_f64().unwrap()), "that force is not a bound on the resulting displacement.".to_owned()] {
         assert!(sentence.contains(&open_pipe_stress_report_renderer::escape_html(&shown)), "{shown}");
     }
     let diagnostics = html.find("Diagnostics").expect("a Diagnostics section");

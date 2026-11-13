@@ -200,7 +200,7 @@ def test_the_warning_stands_exactly_with_the_record(label: str) -> None:
     document["diagnostics"][0]["message"] = cap_remainder_warning_message(CASE, document["diagnostics"][0]["affected_refs"][2], _up(force))
     _warning_refused(document, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
     document = _document(label)
-    document["diagnostics"][0]["message"] = document["diagnostics"][0]["message"].replace("; it is not a bound on the resulting displacement.", ".")
+    document["diagnostics"][0]["message"] = document["diagnostics"][0]["message"].replace("; that force is not a bound on the resulting displacement.", ".")
     _warning_refused(document, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
     # A wrong node.
     document = _document(label)
@@ -416,7 +416,8 @@ def test_the_force_is_written_as_rust_writes_it(value: float, text: str) -> None
 def test_the_sentence_names_the_case_the_force_with_its_unit_the_node_and_that_it_is_no_bound() -> None:
     message = cap_remainder_warning_message("case:P", "node:1", 0.2197357159078235)
     assert message.startswith(CAP_REMAINDER_WARNING_MESSAGE + " ")
-    assert message.endswith(" In case case:P, the largest retained remainder relative to the pressure force on the bore is "
-                            "2.197357159078235e-1 N, at node node:1; it is not a bound on the resulting displacement.")
+    assert message.endswith(" In case case:P, the retained remainder is largest relative to the pressure force on the bore at "
+                            "node node:1, where it is 2.197357159078235e-1 N; that force is not a bound on the resulting "
+                            "displacement.")
     # The all-zero case of the subnormal model: a remainder of zero newtons, still true.
-    assert "is 0e0 N, at node node:1;" in cap_remainder_warning_message("case:P", "node:1", 0.0)
+    assert "at node node:1, where it is 0e0 N;" in cap_remainder_warning_message("case:P", "node:1", 0.0)

@@ -1797,12 +1797,13 @@ pub const CAP_REMAINDER_WARNING_MESSAGE: &str = "At interior nodes of this case'
 
 /// DEL-04-07, the warning's whole message (product physics
 /// `cap_remainder_warning_message`): [`CAP_REMAINDER_WARNING_MESSAGE`] and one
-/// sentence naming the case and the record's node by their ids and stating
-/// the record's `remainder_force_n` in newtons, written by Rust's `{:e}` (the
+/// sentence naming the case and the record's node by their ids (the node at
+/// which the retained remainder is largest relative to the pressure force on
+/// the bore) and stating the record's `remainder_force_n` there in newtons, written by Rust's `{:e}` (the
 /// shortest digits that read back to the same binary64 value), and that it is
 /// not a bound on the resulting displacement.
 pub fn cap_remainder_warning_message(case: &str, node: &str, force: f64) -> String {
-    format!("{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the largest retained remainder relative to the pressure force on the bore is {force:e} N, at node {node}; it is not a bound on the resulting displacement.")
+    format!("{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the retained remainder is largest relative to the pressure force on the bore at node {node}, where it is {force:e} N; that force is not a bound on the resulting displacement.")
 }
 
 /// DEL-04-07: the warning stands on a case exactly when its exception record

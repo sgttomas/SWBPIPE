@@ -276,9 +276,9 @@ fn a_held_status_released_notice_is_quoted_as_supplied_text() {
 
 /// DEL-04-07: a person reading only the rendered report's Diagnostics sees,
 /// for a case admitted under the cancellation screen's exception, the case,
-/// the node, the largest retained remainder (relative to the pressure force on
-/// the bore) as a force with its unit, and that it is not a bound on the
-/// resulting displacement. The warning's message is the producer's form
+/// the node at which the retained remainder is largest relative to the
+/// pressure force on the bore, that remainder as a force with its unit, and
+/// that the force is not a bound on the resulting displacement. The warning's message is the producer's form
 /// (`result_export::cap_remainder_warning_message`, which the admitting
 /// reader re-forms from the record), copied on a result with a combination;
 /// the Diagnostics table shows a message of this length and not its affected
@@ -309,7 +309,7 @@ fn a_report_reader_sees_the_case_the_node_the_force_and_that_it_is_no_bound() {
     let at = html.find(&sentence).expect("the whole message, once");
     assert_eq!(html.matches(&sentence).count(), 1);
     assert!(at > diagnostics, "in the Diagnostics section");
-    for shown in ["In case case:P,", "2.197357159078235e-1 N", "at node node:C1;", "it is not a bound on the resulting displacement."] {
+    for shown in ["In case case:P,", "at node node:C1,", "where it is 2.197357159078235e-1 N;", "that force is not a bound on the resulting displacement."] {
         assert!(html[at..at + sentence.len()].contains(&escape_html(shown)), "{shown}");
     }
     assert!(!html.contains(&format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}")), "not as supplied text");

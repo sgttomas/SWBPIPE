@@ -690,8 +690,9 @@ def rust_lower_exp(value: float) -> str:
 def cap_remainder_warning_message(case: str, node: str, force: float) -> str:
     """The warning's whole message (Rust ``physics_evidence::cap_remainder_warning_message``): the fixed opening and
     one sentence naming the case and node by their ids and stating the record's force in newtons as Rust writes it."""
-    return (f"{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the largest retained remainder relative to the pressure "
-            f"force on the bore is {rust_lower_exp(force)} N, at node {node}; it is not a bound on the resulting displacement.")
+    return (f"{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the retained remainder is largest relative to the pressure "
+            f"force on the bore at node {node}, where it is {rust_lower_exp(force)} N; that force is not a bound on the resulting "
+            "displacement.")
 
 
 def cap_remainder_warnings(source: Mapping[str, Any]) -> None:

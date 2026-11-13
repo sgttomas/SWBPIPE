@@ -685,7 +685,7 @@ const WARNING_MESSAGE: &str = "At interior nodes of this case's pressure regions
 fn warning_message(output: &Value, case: &str) -> String {
     let record = &exact_case(output, case)["pressure_rhs_assembly"]["cancellation_screen_exception"];
     let force = record["remainder_force_n"].as_f64().unwrap();
-    format!("{WARNING_MESSAGE} In case {case}, the largest retained remainder relative to the pressure force on the bore is {force:e} N, at node {}; it is not a bound on the resulting displacement.", record["node_ref"].as_str().unwrap())
+    format!("{WARNING_MESSAGE} In case {case}, the retained remainder is largest relative to the pressure force on the bore at node {}, where it is {force:e} N; that force is not a bound on the resulting displacement.", record["node_ref"].as_str().unwrap())
 }
 
 fn warnings(output: &Value) -> Vec<Value> {
@@ -739,7 +739,7 @@ fn a_case_admitted_under_the_exception_carries_its_warning_and_the_readers_bind_
         let message = warning_message(&admitted, CASE);
         let force = record["remainder_force_n"].as_f64().unwrap();
         for text in [WARNING_MESSAGE.to_owned(), message.replace(&format!("{force:e} N"), &format!("{:e} N", next_up(force, 1))),
-            message.replace("; it is not a bound on the resulting displacement.", ".")] {
+            message.replace("; that force is not a bound on the resulting displacement.", ".")] {
             let mut changed = without(&admitted);
             let mut warning = found[0].clone();
             warning["message"] = json!(text);
@@ -1417,8 +1417,9 @@ fn interior_nodes_the_model_does_not_have_are_refused_by_the_model_binding() {
 /// record's node; the record's force is unchanged by the exchange).
 fn reform_warning_message(warning: &mut Value, node: &Value) {
     let old = warning["message"].as_str().unwrap().to_owned();
-    let (head, _) = old.rsplit_once(", at node ").unwrap();
-    warning["message"] = json!(format!("{head}, at node {}; it is not a bound on the resulting displacement.", node.as_str().unwrap()));
+    let (head, rest) = old.rsplit_once(" at node ").unwrap();
+    let (_, tail) = rest.split_once(", where it is ").unwrap();
+    warning["message"] = json!(format!("{head} at node {}, where it is {tail}", node.as_str().unwrap()));
 }
 
 /// A run along x whose interior node is off the axis in y by the smallest
@@ -1485,7 +1486,7 @@ fn a_subnormal_pressure_s_exactly_cancelling_remainder_carries_a_true_warning() 
         assert_eq!(found[0]["message"], warning_message(&output, CASE), "{mode:?}");
         // (5) the last sentence: the case, a remainder of zero newtons at the record's node, and no bound on the displacement.
         assert_eq!(record["remainder_force_n"].as_f64().unwrap(), 0.0, "{mode:?}");
-        assert!(found[0]["message"].as_str().unwrap().ends_with(&format!(" In case {CASE}, the largest retained remainder relative to the pressure force on the bore is 0e0 N, at node node:C1; it is not a bound on the resulting displacement.")), "{mode:?}");
+        assert!(found[0]["message"].as_str().unwrap().ends_with(&format!(" In case {CASE}, the retained remainder is largest relative to the pressure force on the bore at node node:C1, where it is 0e0 N; that force is not a bound on the resulting displacement.")), "{mode:?}");
         assert!(found[0]["message"].as_str().unwrap().starts_with("At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model."));
         // (1) one group per member at each axis of the interior node, each nonzero, summing to zero.
         let at_node = rhs["groups"].as_array().unwrap().iter().filter(|g| g["node_ref"] == "node:C1").collect::<Vec<_>>();

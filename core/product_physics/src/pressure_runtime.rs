@@ -1743,8 +1743,9 @@ fn cap_remainder_warning(
 
 /// The warning's whole message for the case `case` whose exception record
 /// names `node` and the force `force`: [`CAP_REMAINDER_WARNING_MESSAGE`] and
-/// one sentence stating the case, that force in newtons, the node, and that it
-/// is not a bound on the resulting displacement. The case and the node are
+/// one sentence stating the case, the node at which the retained remainder is
+/// largest relative to the pressure force on the bore, that force in newtons,
+/// and that it is not a bound on the resulting displacement. The case and the node are
 /// written as their ids, as the document holds them (`load_case_id`, the
 /// record's `node_ref`), because the report's Diagnostics table shows a
 /// message and not its references. The force is written by Rust's `{:e}`
@@ -1756,7 +1757,7 @@ fn cap_remainder_warning(
 /// Python twin forms the same digits from `repr`, the same shortest
 /// round-trip rule).
 pub(crate) fn cap_remainder_warning_message(case: &str, node: &str, force: f64) -> String {
-    format!("{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the largest retained remainder relative to the pressure force on the bore is {force:e} N, at node {node}; it is not a bound on the resulting displacement.")
+    format!("{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the retained remainder is largest relative to the pressure force on the bore at node {node}, where it is {force:e} N; that force is not a bound on the resulting displacement.")
 }
 
 /// DEL-04-07, the consistency check of the cancellation-screen exception.
@@ -3524,7 +3525,7 @@ mod cancellation_exception_tests {
             (15707.963267948964, "1.5707963267948964e4"), (0.1, "1e-1"), (2.5e-310, "2.5e-310"), (123.0, "1.23e2"), (f64::MAX, "1.7976931348623157e308")] {
             assert_eq!(format!("{value:e}"), text);
             let message = cap_remainder_warning_message("case:P", "node:1", value);
-            assert_eq!(message, format!("{CAP_REMAINDER_WARNING_MESSAGE} In case case:P, the largest retained remainder relative to the pressure force on the bore is {text} N, at node node:1; it is not a bound on the resulting displacement."));
+            assert_eq!(message, format!("{CAP_REMAINDER_WARNING_MESSAGE} In case case:P, the retained remainder is largest relative to the pressure force on the bore at node node:1, where it is {text} N; that force is not a bound on the resulting displacement."));
             assert_eq!(message, open_pipe_stress_result_export::cap_remainder_warning_message("case:P", "node:1", value));
         }
     }
