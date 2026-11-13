@@ -123,7 +123,7 @@
   }
 
   // C1 native custody (C2ResultGate.tsx): for a native result, a panel that reads the full result
-  // rows sits behind a gate. Since 3b953a731 a gate on a shown page reads the full copy by itself
+  // rows sits behind a gate. Since 5629867e5 a gate on a shown page reads the full copy by itself
   // ("Reading the full result for …" until it lands); since 8f2b8c42e the Solve section's rule
   // checks read it only when the person clicks "Load for rule checks". So the driver, as a person,
   // clicks that button when the section offers it, then waits for the panel. A gate that refused or
@@ -807,7 +807,7 @@
   }
 
   async function renderLocalPrivateReport(label) {
-    // The panel is behind the Report section's gate (3b953a731): it is read once the full copy lands.
+    // The panel is behind the Report section's gate (5629867e5): it is read once the full copy lands.
     await openC2Gate("report", "the rendered report", "rendered-report-panel");
     // The gate reads again when the result's run record changes; the selection is waited for, briefly.
     const intent = await waitFor("local-private report selection", () => byTestId("rendered-report-local-private-intent"), 30000)
@@ -865,7 +865,7 @@
     const shown = await openModelDocument(plan.exact.path);
     await waitFor("exact model in the model tree", () => treeRow(plan.exact.project_id));
     const solved = await solveCurrent("exact", plan.exact.project_id, null);
-    // The new result's full copy is read by the Report section's gate (3b953a731) before the panel
+    // The new result's full copy is read by the Report section's gate (5629867e5) before the panel
     // exists; sampled earlier, the panel reads as absent.
     await openC2Gate("report", "the rendered report", "rendered-report-panel");
     // The rendered-report panel's own output gate: it adds no refusal since W-11.
