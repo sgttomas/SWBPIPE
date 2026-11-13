@@ -645,9 +645,10 @@ reader's key list and statements, T17 V5) do not depend on k.
 **Carried obligations.** Full-file, prefix and body pins re-read on their diffs and re-bound (B7a domain, its admission
 prefix and `family_clauses`, W1 reductions and member loads, batch 5's prefix and `family_clauses`, KD5C4/C5, O4, TIM,
 RT-A4-HS); hand-kept current-source line keys carried by diff mapping with unchanged text (B7a domain audits, owner
-choices, phase, returning errors, scoped TEXT and its `problem` parents, the `_X` emitter). Batch 5's prefix (the text
-before the first `#[cfg(test)]`) now ends at the exception's test probe in `finish_source_groups`; the rest of
-pressure_runtime.rs stays bound by b7a_domain_model's full-file pin.
+choices, phase, returning errors, scoped TEXT and its `problem` parents, the `_X` emitter). Batch 5's pressure pin now binds
+the whole production text of pressure_runtime.rs, each `#[cfg(test)]` item removed (B5-PR): the text before the first
+`#[cfg(test)]`, its former scope, would end at the exception's test probe inside `finish_source_groups` and leave the
+production after it unpinned there.
 
 **Outside D1 (not priced by the retained profile).** A pressure region's elongation token and flag, the arc push and
 recovery choice, the exception's predicate (its members and their formed directions), family, record and warning, and

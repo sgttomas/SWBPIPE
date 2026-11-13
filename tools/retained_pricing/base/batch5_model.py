@@ -134,13 +134,56 @@ PINS = {
 # recovery (one argument).
 # RT-L2 final source: finish_source_groups' group loop borrows the groups and drops them after the screen, and the
 # exception is one call (`cancellation_exception`) inside the failed-screen branch; both read only D1's empty groups
-# (RTL2-XZ), so no carrier, child or staging changes. The prefix (the text before the first `#[cfg(test)]`) now ends at
-# the test probe inside finish_source_groups' `if let Some(..) = exception` arm (pressure_runtime.rs line 1652; it ended
-# at the test module, line 2386 at bb1de0937). The text after it, production included, stays bound by b7a_domain_model's
-# full-file pin of pressure_runtime.rs (SOURCE_FILES), which every run checks first.
-PRESSURE_PREFIX_PIN = "2ccf76e11fc0fa646e10bbe334909bcd56c5781f390f9d2a313098e797edf0af"
+# (RTL2-XZ), so no carrier, child or staging changes. The pin's text changes with it (B5-PR): the text before the first
+# `#[cfg(test)]` would now end at the exception's test probe inside finish_source_groups (line 1652; the test module at
+# line 2386 before), leaving the production after it unpinned here, so the current pin binds the whole production text,
+# each `#[cfg(test)]` item removed as o10_rules' `_production` removes it (newlines kept). The legacy branch keeps the
+# truncated prefix it was registered with.
+PRESSURE_PREFIX_PIN = "7585fcee1a09600b1a05f07a38a852abc23a52b6911eaea9b7a19ce207260d11"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
+
+
+def production(text, rel):
+    """B5-PR: `text` without its `#[cfg(test)]` items, as o10_rules' `_production`: each exact `#[cfg(test)]` in code
+    (literals and comments masked by base/rust_literals.py) removes its item through any further attributes, to the
+    first code `;` outside brackets or the `}` closing the item's first code `{`. Newlines are kept."""
+    if "#[cfg(test)]" not in text:
+        return text
+    lexer = runpy.run_path(os.path.join(os.path.dirname(__file__), "rust_literals.py"))
+    toks, comments = lexer["scan"](text, rel)
+    mask = lexer["_masks"](text, toks, comments)
+    out, at = [], 0
+    for m in re.finditer(r"#\[cfg\(test\)\]", text):
+        if m.start() < at or mask[m.start()]:
+            continue
+        i, nest, opened = m.end(), 0, False
+        while i < len(text):
+            ch = text[i]
+            if not mask[i]:
+                if ch in "([":
+                    nest += 1
+                elif ch in ")]":
+                    nest -= 1
+                elif ch == "{":
+                    nest += 1
+                    opened = True
+                elif ch == "}":
+                    nest -= 1
+                    if opened and nest == 0:
+                        i += 1
+                        break
+                elif ch == ";" and nest == 0 and not opened:
+                    i += 1
+                    break
+            i += 1
+        else:
+            raise ValueError(f"B5-PR: {rel}: unterminated #[cfg(test)] item at offset {m.start()}")
+        out.append(text[at:m.start()])
+        out.append("\n" * text.count("\n", m.start(), i))
+        at = i
+    out.append(text[at:])
+    return "".join(out)
 
 
 def active(snapshot):
@@ -153,6 +196,7 @@ def active(snapshot):
         if pressure_digest != LEGACY_PRESSURE_PREFIX_PIN or case_digest != LEGACY_CASE_PIN:
             raise ValueError("B5O1: prepared helper absent but producer/consumer is not the reviewed registered source; refusing historical pricing")
         return False
+    pressure_digest = hashlib.sha256(production(pressure, "core/product_physics/src/pressure_runtime.rs").encode()).hexdigest()
     if pressure_digest != PRESSURE_PREFIX_PIN:
         raise ValueError("B5O1: pressure producer/declaration source changed; re-review every owner, child and staging bound")
     # RT-S3 CE fallback (§8.61, CEF-PJ): solve_prepared_load_case is compared without the exact reviewed branch. It adds
