@@ -656,16 +656,17 @@ production after it unpinned there.
 recovery choice, the exception's predicate (its members and their formed directions), family, record and warning, and
 the reader's record and model checks all run only on a case with a pressure region.
 
-**Derivation and native checks.** On `052121aea` (the final source with the third scrutiny's response) the four points complete with O-10 0/0; the prune (36) and the
+**Derivation and native checks.** On `19eab0355` (the final source with the third and fourth scrutinies' responses) the four points complete with O-10 0/0; the prune (36) and the
 resolutions (8) are main's. Against main `4d29420a0`'s kept tree (reproduced by its own tool), 1,468 of 1,606
 coefficients are equal, 138 higher and none lower: D +8 at every point (two validation calls, k + 1 ≤ 4 diagnostics
-each), STATICS[1] +4,424 B (the pressure-3 table and schema, with the exception record's `remainder_force_n`), O_base +131,212 B with +16,384 s(String), +20 s(&str) and
+each), STATICS[1] +4,497 B (the pressure-3 table and schema, with the exception record's `remainder_force_n` and its
+description; the schema is resident, so its description bytes are priced), O_base +131,212 B with +16,384 s(String), +20 s(&str) and
 +6 s((&str,String)) (the typed list at the census; the working set at C), TAV +174,654 B; s((&str,String)) joins the
 profile (four coefficients from 0). The block is regenerated with this revision's basis line (1,718 lines) and the
 point atoms (150 lines); both `--check`s are equal. At the in-build atoms every phase rises in both modes by W1/W2
-+781,122 B, W3 +957,642 B, W4 +937,570 B, W5 +858,682 B, X1 +1,268,630 B, X2 +723,174 B, X3 +694,830 B; W3 stays the
-maximum (8,804,212,616 B dense, without R). Every phase of both modes fits the unchanged M, the 0.9 margin and the
-upward-rounded 5% TEXT reserve; the minimum headroom is 2,477,313,525 B (dense W3; sparse 2,536,444,869 B, W3), and
++781,195 B, W3 +957,715 B, W4 +937,643 B, W5 +858,755 B, X1 +1,268,703 B, X2 +723,247 B, X3 +694,903 B; W3 stays the
+maximum (8,804,212,689 B dense, without R). Every phase of both modes fits the unchanged M, the 0.9 margin and the
+upward-rounded 5% TEXT reserve; the minimum headroom is 2,477,313,452 B (dense W3; sparse 2,536,444,796 B, W3), and
 L(2,1) and L(1,2) stay below the merged tree in every phase and mode. The law tests' pins move with it (the record,
 D_env 28,779 with push capacity 32,768, Text(diag_env) 273,233,168 B = 273,191,600 + 4 · 10,392, reviewed inputs #1
 and #10). This tool, with the twelve re-pinned base files restored from main and main's three o10 pin values, every new

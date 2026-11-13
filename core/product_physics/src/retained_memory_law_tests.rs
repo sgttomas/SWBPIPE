@@ -832,8 +832,8 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3). RT-L2: the
     // cancellation-screen exception record (its renamed ratio member, basis token and description; then its
-    // remainder_force_n member).
-    assert_eq!(schema_hash, "60fa7588781dc3c63c2c8b9a2e6036c3bd4292a9617185f7ff82b8f07f6cf3ec");
+    // remainder_force_n member; then its description).
+    assert_eq!(schema_hash, "4e1e877b05b2fb3a11d934d2854a37de2de61b3dfb1d9613cec136aeca5da4d7");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -913,7 +913,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // #105B, PF1b and I3a).
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
-        "5d1e98df8ef57244dba8636fbbdf54829e59c4394d666fafdda4692b310d00e2",
+        "5866cdac7f6c537d325b70ea31542faa8f8633a8fb2e9efe043042b7e7a6bf45",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
         "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a",
@@ -922,7 +922,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ce61278a855e9337af18fdc7a1fd517bbe881290be7a5fba049add2491511326",
         "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
-        "60fa7588781dc3c63c2c8b9a2e6036c3bd4292a9617185f7ff82b8f07f6cf3ec",
+        "4e1e877b05b2fb3a11d934d2854a37de2de61b3dfb1d9613cec136aeca5da4d7",
         "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9",
         "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d",
     ];
@@ -2246,14 +2246,15 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // RT-L2 D3 on the final source: the pressure-elongation setting (RTL2-K: the typed list at the raw census's bound,
 // because it is parsed before D1; validation's refusal working set and k + 1 diagnostics per validation call at
 // k <= C = 3, because D1.4 declines a longer list before validation, D +8), the pressure-3 table and schema
-// (STATICS[1] +4,424 B, with the exception record's remainder_force_n member, +1 Node(String,Value) and +6 s(Value))
+// (STATICS[1] +4,497 B, with the exception record's remainder_force_n member and description, +1 Node(String,Value)
+// and +6 s(Value))
 // and TAV +174,654 B (the 8 diagnostics at 21,640 B each and 1,534 B that D does not carry): every phase rises,
-// W1 +781,122 B, W3 +957,642 B,
-// X1 +1,268,630 B, in both modes, from maintained eval at the in-build atoms (s((&str,String)) joins the profile),
+// W1 +781,195 B, W3 +957,715 B,
+// X1 +1,268,703 B, in both modes, from maintained eval at the in-build atoms (s((&str,String)) joins the profile),
 // without R. W3 stays the maximum.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_451_174_363, 6_793_168_924, 8_745_081_272, 8_538_777_472, 7_612_394_382, 8_527_641_975, 7_259_713_909, 6_932_975_441],
-    [6_510_305_707, 6_852_300_268, 8_804_212_616, 8_597_908_816, 7_671_525_726, 8_586_773_319, 7_318_845_253, 6_992_106_785],
+    [6_451_174_436, 6_793_168_997, 8_745_081_345, 8_538_777_545, 7_612_394_455, 8_527_642_048, 7_259_713_982, 6_932_975_514],
+    [6_510_305_780, 6_852_300_341, 8_804_212_689, 8_597_908_889, 7_671_525_799, 8_586_773_392, 7_318_845_326, 6_992_106_858],
 ];
 
 #[test]

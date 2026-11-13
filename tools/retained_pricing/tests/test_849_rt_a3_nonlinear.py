@@ -127,7 +127,7 @@ def test_the_scoped_problem_parents_follow_their_functions():
     keys = [p.split("pressure_runtime.rs:")[-1] for p in scoped.PROBLEM_PARENTS]
     assert keys[:2] == ["209:exact_member_recovery", "233:validate_profile"]   # RT-L2: +22, unchanged text
     # RT-A3 S6 (§8.59): -10 after validate_profile, whose S6 context is gone.
-    assert "544:refuse_compensated_shared_terminals" in keys and "2586:collinear_run" in keys   # RT-L2: +22/+381; final source: +126; third scrutiny: +119
+    assert "544:refuse_compensated_shared_terminals" in keys and "2588:collinear_run" in keys   # RT-L2: +22/+381; final source: +126; third scrutiny: +119; fourth: +2
     for key in keys:
         line, name = key.split(":")
         assert text[int(line) - 1].lstrip().startswith(("fn " + name, "pub(crate) fn " + name)), key

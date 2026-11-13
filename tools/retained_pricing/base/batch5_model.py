@@ -142,7 +142,9 @@ PINS = {
 # RT-L2 third scrutiny (c1f4db7c8): the exception's chains, its chain-based predicate and family, the record's force
 # member and the warning's formatted message, all inside cancellation_exception or with its record (RTL2-XZ). No
 # carrier, child or staging changes.
-PRESSURE_PREFIX_PIN = "8709c715d74c73265cb8ad06ac981d99e0e8f1ed6ed28444feec630272af9b6c"
+# RT-L2 fourth scrutiny (6b046927e): comments only (two more lines of the warning message's doc). No carrier, child or
+# staging changes.
+PRESSURE_PREFIX_PIN = "08c637f70136916e75384d77178cdffcfcb9856fd08e8b3176e81c41ecc75229"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

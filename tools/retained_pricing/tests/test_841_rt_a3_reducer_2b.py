@@ -89,7 +89,8 @@ def test_the_scoped_problem_parents_follow_their_functions():
     # RT-L2: both move +381 (the cancellation exception precedes them), unchanged text.
     # RT-L2 final source: both move +126 (the exception's restructured predicate and its probe), unchanged text.
     # RT-L2 third scrutiny: both move +119 (the exception's chains and the warning's message function), unchanged text.
-    for key in ("2509:refuse_reducers_outside_step", "2586:collinear_run"):
+    # RT-L2 fourth scrutiny: both move +2 (the warning message's doc comment), unchanged text.
+    for key in ("2511:refuse_reducers_outside_step", "2588:collinear_run"):
         line, name = key.split(":")
         assert any(parent.endswith(key) for parent in scoped.PROBLEM_PARENTS), key
         assert text[int(line) - 1].lstrip().startswith(("fn " + name, "pub(crate) fn " + name)), key
