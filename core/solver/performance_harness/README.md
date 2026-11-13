@@ -480,20 +480,44 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
    python3 -B core/solver/performance_harness/runner/release_runner.py --write-plan plan.json --subset baseline --models FOLDER
    ```
 
-4. **Check the host before the run**, and record each command with what it printed in
-   `host-before.txt`:
-   - `pgrep -x cargo` and `pgrep -x rustc`, each of which should print nothing. The supervisor's
-     own quiet test looks for cargo and evidence sweeps, not for rustc.
-   - `sysctl -n kern.memorystatus_level`, which must print a number. The supervisor's own test
-     accepts an unreadable level.
+4. **Check the host before the run.** Record each command, its exit status and what it printed in
+   `host-before.txt`. The run does not start until each check passes:
+   - `pgrep -x cargo` and `pgrep -x rustc`. Exit 1 with nothing printed means the process is
+     absent; exit 0 means one is running; any other status means the check failed. The
+     supervisor's own quiet test looks for cargo and evidence sweeps, not for rustc.
+   - `sysctl -n kern.memorystatus_level`, which must exit 0 and print a number. The figure is the
+     share of physical memory that is neither wired nor held by the compressor; it is not the
+     share free. It is kept because the supervisor's own quiet test reads it, and that test
+     accepts it unreadable, which this check does not. It does not stand for available memory.
+   - Available memory, from `vm_stat`: (Pages free + Pages inactive + Pages speculative) × the page
+     size `vm_stat` prints. The process log records it again in every sample:
+
+     ```sh
+     vm_stat | awk '/page size of/ {page = $8} /^Pages (free|inactive|speculative):/ {sub(/\.$/, "", $NF); pages += $NF} END {print pages * page}'
+     ```
+
+   - Swap use, from `sysctl -n vm.swapusage`, which must exit 0; its `used` figure is recorded.
    - `sysctl -n vm.loadavg`.
    - `df -g` of the volume the run writes to.
-5. **Start the process log** before the supervised run, and stop it after the run:
+
+   The values each of these must reach are thresholds, and the measurement contract sets them.
+5. **Start the process log** before the supervised run, and stop it after the supervisor exits:
 
    ```sh
-   while :; do printf 'T %s\n' "$(date -u +%FT%TZ)"; ps -Ao pcpu=,pid=,comm= -r | head -12; sleep 5; done > host-processes.log
+   while :; do printf 'T %s\n' "$(date -u +%FT%TZ)"; ps -Ao pcpu=,pid=,comm= -r | head -12; printf 'S %s\n' "$(sysctl -n vm.swapusage)"; vm_stat | grep -E '^(Mach|Pages (free|inactive|speculative))'; sleep 5; done > host-processes.log
    ```
 
+   Each sample is a `T` line (the time), the twelve busiest processes, an `S` line (swap use) and
+   four `vm_stat` lines (the page size and the free, inactive and speculative pages). The log is
+   complete when all of these hold:
+   - its first `T` line is earlier than the run's start in the metadata;
+   - its last `T` line is later than the supervisor's exit;
+   - no two consecutive `T` lines are more than 15 s apart;
+   - every `T` line is followed by at least one process line, an `S` line and the four `vm_stat`
+     lines.
+
+   The measurement contract judges each sample against its own limits, for available memory,
+   swap growth and steady foreign load.
 6. **Run the plan**, under the host's exclusive wrapper on a shared host, into a folder that does
    not yet exist:
 
@@ -662,6 +686,14 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
           The row forms are launched and completed (`ok`); launched and stopped (killed, timed
           out, refused, an entry error); and never launched (skipped, `model_missing`,
           `model_mismatch`).
+
+        A limit of this check: the mapping copies the self-supervising driver's `packet_row`
+        (`supervise.rs`) in Python. A test ties it to the packet rows in
+        `runner/fixtures/read_back.tar.gz`, written by that supervisor at commit `e42da5ff1`, not
+        to the live Rust. If the supervisor's packet changes, the change appears as differences on
+        real bundles, so the check fails closed; no test fails.
+        `runner/fixtures/make_read_back_fixture.py` says what the fixture holds and how it is
+        written again.
 
         A stopped or never-launched run's legitimate nulls (no driver line, so no route, rows
         or output hash) are kept, and are not differences. These are each a difference:
