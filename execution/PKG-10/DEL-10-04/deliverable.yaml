@@ -61,10 +61,13 @@ code_paths:
 - fixtures/product_preview/demo_fixture_generation.json
 - fixtures/product_preview/preview_physics_fixture_generation.json
 # Held here without being the pipeline's product: the shared product-preview service and its
-# tests, and the dependency-register validator.
+# tests, the dependency-register validator, and the diagnostic code table with its scanner.
 - core/product_preview/**
 - tests/product_preview/**
 - tools/validation/validate_dependencies_schema.py
+- tools/validation/diagnostic_codes.py
+- fixtures/diagnostics/exact_route_codes.json
+- tests/test_diagnostic_code_table.py
 # Hosted verification: workflows, check registry, routing, selectors, the document route and the
 # execution/ boundary guard.
 - .github/workflows/**
@@ -103,6 +106,7 @@ checks:
 - tools/software_workflow/test_hosted_ci_workflows.py
 - tools/software_workflow/test_documentation_ci.py
 - tools/validation/test_execution_boundary.py
+- tests/test_diagnostic_code_table.py
 - tests/test_release_packaging_script.py
 - tests/test_release_notarize_script.py
 - tests/test_release_signed_build_script.py
