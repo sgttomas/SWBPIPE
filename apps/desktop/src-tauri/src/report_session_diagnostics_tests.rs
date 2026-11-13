@@ -631,6 +631,27 @@ fn the_host_derives_each_session_kind_the_desktop_appends() {
     assert_eq!(session_check(&model, &derived), Ok(()));
 }
 
+/// A section may carry the same reference twice: in its object-form provenance
+/// note and in its provenance record. With both, the store check's two
+/// identical findings are admitted. With one cleared, only one is: a second
+/// is a finding for a reference the model no longer carries (independent
+/// review of 7d6b8ffa2, finding 1). The desktop's filter of its published
+/// findings applies the same rule (`libraryRefFindings.ts`
+/// `currentLibraryRefFindings`), so the pair it now sends is admitted.
+#[test]
+fn a_repeated_reference_admits_one_finding_for_each_site_that_remains() {
+    let (entity, project) = ("section:refs", "project:invented");
+    let reference = json!({"library_kind": "section", "library_id": "seclib.invented.gone", "library_version": "sha256:s", "record_id": "sec.refs"});
+    let both = json!({"project": {"id": project}, "sections": [{"id": entity, "provenance": {"note": "Invented", "library_ref": reference},
+        "provenance_record": {"source_name": "Invented", "library_ref": reference}}]});
+    let finding = not_held_on(entity, "section", "seclib.invented.gone", project);
+    assert_eq!(session_check(&both, &[finding.clone(), finding.clone()]), Ok(()), "two sites, two findings");
+    assert_eq!(session_check(&both, &[finding.clone(), finding.clone(), finding.clone()]), not_derived(2));
+    let cleared = json!({"project": {"id": project}, "sections": [{"id": entity, "provenance": {"note": "Invented", "library_ref": reference}}]});
+    assert_eq!(session_check(&cleared, std::slice::from_ref(&finding)), Ok(()), "the pair the desktop's filter now sends");
+    assert_eq!(session_check(&cleared, &[finding.clone(), finding]), not_derived(1), "the stale duplicate is still refused");
+}
+
 /// Where reference fields spell one finding's text through different splits
 /// (a backtick in a library or record id), sites can yield the same text in
 /// different positions: an entry there is refused by name, as a limit of the
