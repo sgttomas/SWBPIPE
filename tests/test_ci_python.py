@@ -436,20 +436,27 @@ def test_reads_follow_imports_and_path_loaded_models_not_imported_modules_reads(
     assert 'apps/desktop/src-tauri/resources/agent-capability-catalog.json' in reads['tools/agent_host_witness_test.py']
 
 
+def _repository_checks():
+    spec = importlib.util.spec_from_file_location('repository_checks', PROJECT / 'tools/ci/repository_checks.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_repository_check_tests_are_the_governance_step_s():
+    """The Repository checks job's list is tools/ci/repository_checks.py, which the governance harness calls."""
     workflow = (PROJECT / '.github/workflows/governance-harness.yml').read_text()
-    line, = [line for line in workflow.splitlines() if 'python3 -m pytest -q -n auto' in line]
-    assert tuple(line.split('"${deselect[@]}"')[1].split()) == ci.python_test_reads.REPOSITORY_CHECK_TESTS
+    assert 'python3 tools/ci/repository_checks.py ' in workflow
+    assert _repository_checks().REGRESSION_TARGETS == ci.python_test_reads.REPOSITORY_CHECK_TESTS
 
 
 def test_the_repository_checks_job_runs_the_routing_invariant_on_every_pull_request():
     """Adding or changing a maintained test selects neither `tools/ci/` nor this file, so the invariant over every
     maintained test's routing runs in the Repository checks job, which every product pull request runs."""
-    workflow = (PROJECT / '.github/workflows/governance-harness.yml').read_text()
-    line, = [line for line in workflow.splitlines() if 'tests/test_ci_python.py::' in line]
+    checks = _repository_checks()
     for name in ('test_every_maintained_test_runs_when_a_path_it_reads_changes',
                  'test_a_specification_a_test_only_names_is_never_its_probe'):
-        assert f'"tests/test_ci_python.py::{name}"' in line, name
+        assert f'tests/test_ci_python.py::{name}' in checks.ROUTING_INVARIANT_TESTS, name
         assert name in globals(), name
 
 
