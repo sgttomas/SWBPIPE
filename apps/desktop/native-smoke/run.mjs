@@ -142,8 +142,9 @@ const IDENTIFIER = TAURI_CONF.identifier;
 // screen locked, window occluded), which would stall the driver. The smoke build
 // alone turns that throttling off, through Tauri's TAURI_CONFIG build-time merge;
 // tauri.conf.json and product builds are unchanged.
-// The same merge gives the smoke build's web view a non-persistent store (`smokeWindows`): it keeps no
-// web storage on disk, so nothing of it can land under the account's real Library.
+// The same merge selects a non-persistent data store for the smoke build's web view (`smokeWindows`).
+// That is the whole of the claim: what the system's web view framework and its helper processes may
+// keep besides that store is not established here.
 const SMOKE_WINDOWS = smokeWindows(TAURI_CONF.app.windows);
 const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: SMOKE_WINDOWS } });
 
