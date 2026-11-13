@@ -1,0 +1,23 @@
+{
+  "generator": {
+    "module": "tools/caepipe_correlation/benchmark_models.py",
+    "tranche": "3",
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "mbf_sha256": "12ed404f863994c22e128d70f1fe5468f3aa58dbc7159c8884d16cdbb85105f2",
+  "model_document": {
+    "file_sha256": "0f54dc88a839aee7a4489d3b6c90a5098fa431636eb924f0f590746ef51d179a",
+    "path": "validation/caepipe_benchmark/models/cpb-n-02.json"
+  },
+  "origin": "invented",
+  "origin_basis": "generator-made; designed in the generator's text, drawing nothing from the seed",
+  "produced_by_caepipe": false,
+  "run": {
+    "added_records": [],
+    "run_id": "cpb-n-02--rest-lift-off",
+    "series": "hand-entry",
+    "substituted_records": [],
+    "through": "benchmark_models.run_mbf_text"
+  },
+  "written_by": "SWBPIPE's model-file writer (core/handoff/caepipe_mbf)"
+}

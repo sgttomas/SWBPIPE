@@ -1,0 +1,11 @@
+1. Import cpb-n-02--rest-lift-off.mbf: File > Import from the Main window, select the file and click Import. [https://docs.sstcae.com/users_manual/import_mbf.htm ("IMPORT MBF"; CAEPIPE-IMPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]
+2. In the Layout window, at node 30, enter a Limit Stop (type L in the Data column, or Limit Stop in the Data Types dialog) with the fields of the next steps. [https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, "Limit Stop"), read 2026-11-12]
+3. Vertical (preset button): pressed (it enters Lower limit 0, Upper limit blank and Y comp 1: a one-way stop that keeps the node from moving down; zero needs no unit).
+4. Friction coefficient: blank (no friction).
+5. Stiffness: Rigid (the default) (the page's default).
+6. Connected to Node: blank (connected to the ground).
+7. Leave every other field and record as imported.
+8. Save the model as cpb-n-02--rest-lift-off.mod in this folder by the command you noted at the dry run. Do not save over the imported file. If the program will not save under that name, skip this run and note it.
+9. Then analyze the model by File > Analyze (F12); the page says: "At the end of analysis, you are asked whether you want to “View results?” Click on OK to see results or Cancel to return to the main window." [https://docs.sstcae.com/users_manual/analyze__f12_.htm (user's manual, "Analyze (F12)"), read 2026-11-13]
+10. Then print the results to file: in the Results window, File > Print (Ctrl+P), click All, then To File, and save the .csv file as cpb-n-02--rest-lift-off.print.csv. [https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, "Print (Ctrl+P)"), read 2026-11-12]
+11. If the window does not offer a field as the page describes it, skip this case and note it on the run line; do not enter an equivalent.

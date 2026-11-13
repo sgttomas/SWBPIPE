@@ -1,0 +1,86 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-dyn-c-n01-flat"
+    },
+    "source_model_sha256": "4dd991ef0922d203ca526d151db7f5f11f220c857419f33a6c4100fba03d6785"
+  },
+  "element_map": {
+    "pipe:P1": {
+      "from": "10",
+      "reversed": false,
+      "to": "20",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:weight": "Sustained (W+P)"
+  },
+  "load_map": {
+    "case:weight/load:weight:pipe:P1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P1"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:dyn-a"
+    }
+  },
+  "mbf_sha256": "1b65b7d58a1482ef647a669d10762f6c569c0f9a684b047ad7c7b4b19992b9b1",
+  "node_map": {
+    "node:A": "10",
+    "node:B": "20"
+  },
+  "pressure_map": {
+    "contract": "none",
+    "regions": [],
+    "shear_model": "euler_bernoulli"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "63849da6772fec4470d9ef46485d0cd1fae0309e5432d82e8d0fa56f82a16693",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:B-z": {
+      "family": "guide",
+      "family_authored": false,
+      "node": "20",
+      "restrained": [
+        "UZ"
+      ]
+    }
+  }
+}
