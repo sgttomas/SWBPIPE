@@ -1,0 +1,366 @@
+{
+  "closed_form": [],
+  "description": "the bar of cpb-n-01 with the stop behind the free end: open, carrying nothing",
+  "document_kind": "openpipestress.caepipe_benchmark.model",
+  "family": "N",
+  "family_description": "nonlinear supports entered by hand at the window (one-way stops and supports, no clearance)",
+  "generator": {
+    "seed": 20261028,
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "hand_entry": {
+    "base_rule": "model is the WRITTEN BASE: the case's SWBPIPE model with the member's support records left out; hand_entry_model appends them to model.supports and changes nothing else",
+    "expected_status": {
+      "support:B-stop": {
+        "case:expansion": "open",
+        "operating": "open"
+      }
+    },
+    "held": {
+      "case:expansion": "captured at the sitting and HELD, stored sealed, until SWBPIPE's own result for this case and this load case is published by the product as checks passed; no comparison is formed before then",
+      "operating": "captured at the sitting and HELD, stored sealed, until SWBPIPE's own result for this case and this load case is published by the product as checks passed; no comparison is formed before then"
+    },
+    "member": [
+      {
+        "family": "nonlinear",
+        "id": "support:B-stop",
+        "node": "node:B",
+        "nonlinear": {
+          "active_when": "positive_reaction",
+          "behavior": "one_way",
+          "dof": "UX",
+          "initial_state": "active"
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+        "restraints": []
+      }
+    ],
+    "member_text": "a one-way stop along +X at the free end, no clearance behind: the bar grows away from it",
+    "one_way_case": "a one-way support: its capture is taken at the sitting and held; whether SWBPIPE's result for it may be compared is read from the product at each solve and is recorded nowhere here.",
+    "run": {
+      "expected_print_file": "cpb-n-04--stop-axial-open.print.csv",
+      "expected_saved_file": "cpb-n-04--stop-axial-open.mod",
+      "export": {
+        "condition": "the dry run's check (v) found that the export dialog lets the owner set the file's name and folder",
+        "file": "cpb-n-04--stop-axial-open.export.mbf",
+        "if_dropped": "\"export not made\" on the run line",
+        "lost_if_dropped": "the program's own writing of the support record entered by hand (a limit stop)",
+        "optional": true,
+        "records": "The file it writes records this run's saved model, cpb-n-04--stop-axial-open.mod, as the program holds it after this instruction's steps, including what was entered or set by hand; it is not the pack's model file."
+      },
+      "fields": [
+        {
+          "field": "Upper limit",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "no limit in front of the node along the direction, the node moves freely on that side",
+          "sign_convention": "the gap in front of the node in the direction of the vector is the upper limit, the gap to the rear the lower limit, measured from the undeflected position of the node; a zero limit makes a one-way restraint in that direction; a blank limit means the node moves freely on that side",
+          "unit": "none: left blank",
+          "value": "blank"
+        },
+        {
+          "field": "Lower limit",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "the gap behind the node; zero makes a one-way restraint, no unit needed",
+          "sign_convention": "the gap in front of the node in the direction of the vector is the upper limit, the gap to the rear the lower limit, measured from the undeflected position of the node; a zero limit makes a one-way restraint in that direction; a blank limit means the node moves freely on that side",
+          "unit": "none needed: the value is zero, the same in every length unit; the page does not state the window's length unit, and no other value is entered",
+          "value": "0"
+        },
+        {
+          "field": "X comp",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "global X component, no unit",
+          "sign_convention": "the limit stop's direction vector in global components",
+          "unit": "none: a component of the direction in global X, Y and Z",
+          "value": "1"
+        },
+        {
+          "field": "Y comp",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "global Y component, no unit",
+          "sign_convention": "the limit stop's direction vector in global components",
+          "unit": "none: a component of the direction in global X, Y and Z",
+          "value": "0"
+        },
+        {
+          "field": "Z comp",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "global Z component, no unit",
+          "sign_convention": "the limit stop's direction vector in global components",
+          "unit": "none: a component of the direction in global X, Y and Z",
+          "value": "0"
+        },
+        {
+          "field": "Friction coefficient",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "no friction",
+          "sign_convention": "not applicable: left blank, no friction",
+          "unit": "none (a coefficient)",
+          "value": "blank"
+        },
+        {
+          "field": "Stiffness",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "the page's default",
+          "sign_convention": "not applicable",
+          "unit": "none: the Rigid token",
+          "value": "Rigid (the default)"
+        },
+        {
+          "field": "Connected to Node",
+          "page": "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+          "short": "connected to the ground",
+          "sign_convention": "not applicable",
+          "unit": "none",
+          "value": "blank"
+        }
+      ],
+      "fields_entered_estimate": 4,
+      "kind": "hand_entry",
+      "label": "stop-axial-open",
+      "pages": [
+        "https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12",
+        "https://docs.sstcae.com/users_manual/analyze__f12_.htm (user's manual, \"Analyze (F12)\"), read 2026-11-13",
+        "https://docs.sstcae.com/users_manual/export_mbf.htm (user's manual, \"EXPORT MBF\"; CAEPIPE-EXPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12",
+        "https://docs.sstcae.com/users_manual/file_menu_2.htm (user's manual, \"File Menu\"), read 2026-11-13",
+        "https://docs.sstcae.com/users_manual/import_mbf.htm (\"IMPORT MBF\"; CAEPIPE-IMPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12",
+        "https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, \"Print (Ctrl+P)\"), read 2026-11-12",
+        "https://docs.sstcae.com/users_manual/save__ctrl_s_.htm (user's manual, \"Save (Ctrl+S)\"), read 2026-11-13"
+      ],
+      "run_id": "cpb-n-04--stop-axial-open",
+      "saved_file_read": "nothing of SWBPIPE's reads the saved file",
+      "series": "hand-entry",
+      "window_instruction": {
+        "sha256": "fb9827e894318b64186050cbd463a8e489a92f515d451ec7e4cefc0f663b4fa2",
+        "text": "1. Import cpb-n-04--stop-axial-open.mbf: File > Import from the Main window, select the file and click Import. [https://docs.sstcae.com/users_manual/import_mbf.htm (\"IMPORT MBF\"; CAEPIPE-IMPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]\n2. In the Layout window, at node 30, enter a Limit Stop (type L in the Data column, or Limit Stop in the Data Types dialog) with the fields of the next steps. [https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read 2026-11-12]\n3. Upper limit: blank (no limit in front of the node along the direction, the node moves freely on that side).\n4. Lower limit: 0 (the gap behind the node; zero makes a one-way restraint, no unit needed).\n5. X comp: 1 (global X component, no unit).\n6. Y comp: 0 (global Y component, no unit).\n7. Z comp: 0 (global Z component, no unit).\n8. Friction coefficient: blank (no friction).\n9. Stiffness: Rigid (the default) (the page's default).\n10. Connected to Node: blank (connected to the ground).\n11. Leave every other field and record as imported.\n12. Save the model as cpb-n-04--stop-axial-open.mod in this folder by the command you noted at the dry run. Do not save over the imported file. If the program will not save under that name, skip this run and note it. If you skip this run, run nothing in its place; go on to the next case.\n13. Then analyze the model by File > Analyze (F12); the page says: \"At the end of analysis, you are asked whether you want to \u201cView results?\u201d Click on OK to see results or Cancel to return to the main window.\" If the command is inactive (\"Command \u201cAnalyze\u201d in the \u201cFile\u201d menu will become inactive when the model is not edited and \u201c.res\u201d file is available in the directory where the stress model \u201c.mod\u201d is stored.\"), skip this run, run nothing in its place, note it on the run line and go on to the next case. [https://docs.sstcae.com/users_manual/analyze__f12_.htm (user's manual, \"Analyze (F12)\"), read 2026-11-13]\n14. In the Results window, open Print: File > Print (Ctrl+P). [https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, \"Print (Ctrl+P)\"), read 2026-11-12]\n15. Click All. [https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, \"Print (Ctrl+P)\"), read 2026-11-12]\n16. Click To File. [https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, \"Print (Ctrl+P)\"), read 2026-11-12]\n17. Save the .csv file as cpb-n-04--stop-axial-open.print.csv. [https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, \"Print (Ctrl+P)\"), read 2026-11-12]\n18. If the window does not offer a field as the page describes it, do not enter an equivalent; skip this run, run nothing in its place, note it on the run line and go on to the next case.\n19. Optional: the next four steps export this run's saved model, and you may drop them; if you do, write \"export not made\" on the run line. If you drop it, what is lost is the program's own writing of the support record entered by hand (a limit stop). Take them only if the dry run's check (v) found that the export dialog lets you set the file's name and folder. The file it writes records this run's saved model, cpb-n-04--stop-axial-open.mod, as the program holds it after this instruction's steps, including what was entered or set by hand; it is not the pack's model file. If any control in these steps is not offered as described, click Cancel if a dialog is open, write \"export not made\" and why on the run line; the run is complete.\n20. From the Layout window, choose File > Export (\"To export a model, select the menu command File > Export from the Layout window.\"). [https://docs.sstcae.com/users_manual/export_mbf.htm (user's manual, \"EXPORT MBF\"; CAEPIPE-EXPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]\n21. In the Export Model dialog, choose \"Model batch file (*.mbf)\" as the Save as type (\"The Export Model dialog is shown. Selecting the \u201cSave as type\u201d option as \u201cModel batch file (*.mbf)\u201d will export the stress model in CAEPIPE latest version.\"). [https://docs.sstcae.com/users_manual/export_mbf.htm (user's manual, \"EXPORT MBF\"; CAEPIPE-EXPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]\n22. Set the name cpb-n-04--stop-axial-open.export.mbf in this run's folder.\n23. Click Export (\"Once done, click on Export button to write to an .mbf file.\") only if the dialog displays exactly the name cpb-n-04--stop-axial-open.export.mbf in this run's folder and no file of that name is already there. If it does not, or if anything would be written over, click Cancel and write \"export not made\" and why on the run line; the run is complete. [https://docs.sstcae.com/users_manual/export_mbf.htm (user's manual, \"EXPORT MBF\"; CAEPIPE-EXPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]"
+      }
+    },
+    "third_values": [
+      {
+        "basis": "statics; invented inputs",
+        "component": "x",
+        "formula": "0 (the stop is open)",
+        "load_case": "case:expansion",
+        "quantity": "reaction_force",
+        "support": "support:A",
+        "unit": "N",
+        "value": 0.0
+      },
+      {
+        "basis": "Euler-Bernoulli closed form; invented inputs",
+        "component": "x",
+        "formula": "alpha dT L (free growth, stop open)",
+        "load_case": "case:expansion",
+        "node": "node:B",
+        "quantity": "displacement",
+        "unit": "m",
+        "value": 0.0033
+      }
+    ]
+  },
+  "hand_entry_rank": 4,
+  "inexact_inputs": {
+    "case:expansion": [
+      "rigid_support_stiffness"
+    ],
+    "operating": [
+      "rigid_support_stiffness"
+    ]
+  },
+  "model": {
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "combinations": [],
+    "components": [],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "case:expansion",
+        "primitive_loads": [
+          {
+            "category": "thermal",
+            "dimension": "temperature_interval",
+            "direction": "global_x",
+            "id": "load:thermal:pipe:P1",
+            "magnitude": {
+              "unit": "degC",
+              "value": 100.0
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+            "target": {
+              "pipe": "pipe:P1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "thermal",
+            "dimension": "temperature_interval",
+            "direction": "global_x",
+            "id": "load:thermal:pipe:P2",
+            "magnitude": {
+              "unit": "degC",
+              "value": 100.0
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+            "target": {
+              "pipe": "pipe:P2",
+              "type": "element"
+            }
+          }
+        ],
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 210000000000.0
+        },
+        "id": "material:bench-t3",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 81395348837.2093
+        },
+        "temperature_points": [],
+        "thermal_expansion_coefficient": {
+          "unit": "1/degC",
+          "value": 1.1e-05
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "node:A",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M",
+        "position": {
+          "x": 1.5,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:B",
+        "position": {
+          "x": 3.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "node:A",
+        "id": "pipe:P1",
+        "material": "material:bench-t3",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.19
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.0076
+          }
+        },
+        "to": "node:M",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M",
+        "id": "pipe:P2",
+        "material": "material:bench-t3",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.19
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.0076
+          }
+        },
+        "to": "node:B",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      }
+    ],
+    "project": {
+      "id": "project:cpb-n-04",
+      "name": "project:cpb-n-04",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.9.0",
+    "supports": [
+      {
+        "family": "anchor",
+        "id": "support:A",
+        "node": "node:A",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      }
+    ]
+  },
+  "model_id": "cpb-n-04",
+  "parameters": {
+    "delta_t": 100.0,
+    "material": "material:bench-t3",
+    "od": 190.0,
+    "span": 3.0,
+    "wall": 7.6
+  },
+  "piping_code": "B311-80",
+  "provenance": {
+    "contributor_note": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3 part two, entered by hand); seeded generator; not library, component, catalog, standard or code-rule data",
+    "license": "project-original",
+    "origin": "invented",
+    "produced_by_caepipe": false,
+    "redistribution_status": "public_permissive"
+  },
+  "reference_temperature_c": 20.0,
+  "sampling": "designed",
+  "screening_classes": {
+    "static": {
+      "case:expansion": "nonlinear",
+      "operating": "nonlinear"
+    }
+  },
+  "series": [],
+  "tranche": "3"
+}

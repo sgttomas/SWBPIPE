@@ -69,6 +69,9 @@ code_paths:
 - tools/caepipe_correlation/**
 - validation/caepipe_correlation/**
 - validation/caepipe_benchmark/**
+- validation/caepipe_sitting_pack/**
+- validation/caepipe_sitting_pack_identity.txt
+- tests/test_caepipe_sitting_pack_build.py
 checks:
 - tests/test_caepipe_external_run_package.py
 - tests/test_caepipe_print_csv_parser.py
@@ -77,6 +80,8 @@ checks:
 - tests/test_caepipe_private_correlation.py
 - tests/test_check_public_observations.py
 - tests/test_caepipe_benchmark.py
+- tests/test_caepipe_benchmark_tranche3.py
+- tests/test_caepipe_sitting_pack_build.py
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
 - apps/desktop/src/App.test.tsx

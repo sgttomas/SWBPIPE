@@ -1,0 +1,17 @@
+{
+  "generator": {
+    "module": "tools/caepipe_correlation/benchmark_models.py",
+    "tranche": "1",
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "mbf_sha256": "70efb097970c3e86be340bee733535620f02d8f957b4c64e03ce0443e10dbaef",
+  "model_document": {
+    "file_sha256": "c0856404a6405e9dd74851b0bbf41351a7173d7ab222c7cee6fff9338db91694",
+    "path": "validation/caepipe_benchmark/models/cpb-g1-08.json"
+  },
+  "origin": "invented",
+  "origin_basis": "generator-made; drawn from seed 20261028",
+  "produced_by_caepipe": false,
+  "run": null,
+  "written_by": "SWBPIPE's model-file writer (core/handoff/caepipe_mbf)"
+}

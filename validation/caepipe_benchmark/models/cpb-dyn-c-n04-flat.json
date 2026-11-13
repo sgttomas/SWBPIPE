@@ -1,0 +1,761 @@
+{
+  "closed_form": [
+    {
+      "basis": "section identity; invented inputs",
+      "formula": "pi/4 (OD^2 - (OD - 2t)^2)",
+      "quantity": "metal_area",
+      "unit": "m^2",
+      "value": 0.0006926737420674799
+    },
+    {
+      "basis": "weight identity; invented inputs",
+      "formula": "rho A g, g = 9.80665",
+      "quantity": "weight_per_length",
+      "unit": "N/m",
+      "value": 53.323550278271505
+    },
+    {
+      "basis": "mass identity; invented inputs",
+      "formula": "rho A L",
+      "quantity": "total_mass",
+      "unit": "kg",
+      "value": 81.56233312844576
+    },
+    {
+      "basis": "Euler-Bernoulli continuum, cantilever (XY plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
+      "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), 1 + cos x cosh x = 0",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
+      "plane": "XY",
+      "plane_mode": 1,
+      "quantity": "frequency",
+      "unit": "Hz",
+      "value": 0.2508806361891397
+    },
+    {
+      "basis": "Euler-Bernoulli continuum, cantilever (XY plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
+      "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), 1 + cos x cosh x = 0",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
+      "plane": "XY",
+      "plane_mode": 2,
+      "quantity": "frequency",
+      "unit": "Hz",
+      "value": 1.572242109234627
+    },
+    {
+      "basis": "Euler-Bernoulli continuum, cantilever (XY plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
+      "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), 1 + cos x cosh x = 0",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
+      "plane": "XY",
+      "plane_mode": 3,
+      "quantity": "frequency",
+      "unit": "Hz",
+      "value": 4.40232343182394
+    },
+    {
+      "basis": "Euler-Bernoulli continuum, propped cantilever (XZ plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
+      "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), tan x = tanh x",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
+      "plane": "XZ",
+      "plane_mode": 1,
+      "quantity": "frequency",
+      "unit": "Hz",
+      "value": 1.1001457513070019
+    },
+    {
+      "basis": "Euler-Bernoulli continuum, propped cantilever (XZ plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
+      "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), tan x = tanh x",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
+      "plane": "XZ",
+      "plane_mode": 2,
+      "quantity": "frequency",
+      "unit": "Hz",
+      "value": 3.565176888150391
+    },
+    {
+      "basis": "Euler-Bernoulli continuum, propped cantilever (XZ plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
+      "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), tan x = tanh x",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
+      "plane": "XZ",
+      "plane_mode": 3,
+      "quantity": "frequency",
+      "unit": "Hz",
+      "value": 7.438457006475975
+    }
+  ],
+  "compared_quantities": [
+    {
+      "bind": "mode order, with the plane of each mode",
+      "quantity": "frequency"
+    },
+    {
+      "component": "y",
+      "from_direction": "Y",
+      "node": "node:B",
+      "quantity": "displacement"
+    },
+    {
+      "component": "y",
+      "from_direction": "Y",
+      "quantity": "reaction_force",
+      "support": "support:A"
+    },
+    {
+      "component": "z",
+      "from_direction": "Y",
+      "quantity": "reaction_moment",
+      "support": "support:A"
+    },
+    {
+      "component": "z",
+      "from_direction": "Z",
+      "quantity": "reaction_force",
+      "support": "support:A"
+    },
+    {
+      "component": "y",
+      "from_direction": "Z",
+      "quantity": "reaction_moment",
+      "support": "support:A"
+    },
+    {
+      "component": "z",
+      "from_direction": "Z",
+      "quantity": "reaction_force",
+      "support": "support:B-z"
+    }
+  ],
+  "comparison_conventions": [
+    "For quantities with a nonzero named continuum prediction, relative deviation = (value \u2212 continuum) / |continuum|. This convention defines no comparison where that prediction is absent.",
+    "where a mode's two largest translational components are equal in magnitude, the shape's sign and the participation factor's sign are not compared; frequency, effective mass and combined magnitudes are"
+  ],
+  "document_kind": "openpipestress.caepipe_benchmark.model",
+  "dynamic_request": {
+    "conditions": [
+      "every extracted mode and the rigid frequency lie strictly inside the table (SWBPIPE refuses outside it; the other program uses the end value)"
+    ],
+    "other_program_settings": {
+      "cutoff_frequency_hz": 900.0,
+      "gravitational_acceleration_m_per_s2": 9.80665,
+      "gravitational_direction": "-Y",
+      "include_missing_mass": 0,
+      "note": "the capture also takes every other mode sum and direction sum the program offers, as declared variants of this file; the comparable setting is the one stated here",
+      "number_of_modes": 6,
+      "spectrum_direction_sum": "SRSS",
+      "spectrum_mode_sum": "SRSS"
+    },
+    "spectra": [
+      {
+        "abscissa": "frequency",
+        "abscissa_unit": "Hz",
+        "damping_ratio": 0.05,
+        "id": "spectrum:dyn-flat",
+        "interpolation": {
+          "abscissa": "linear",
+          "ordinate": "linear"
+        },
+        "ordinate": "pseudo_spectral_acceleration",
+        "ordinate_other_program": "acceleration in mm/sec2 (multiply each ordinate by 1000)",
+        "ordinate_unit": "m/s^2",
+        "points": [
+          [
+            0.125,
+            2.5
+          ],
+          [
+            1000.0,
+            2.5
+          ]
+        ]
+      }
+    ],
+    "swbpipe_modal_request": {
+      "frequency_cutoff": null,
+      "mode_count": 6
+    },
+    "swbpipe_spectrum_request": {
+      "directional_combination": "srss",
+      "directions": [
+        {
+          "direction": "Y",
+          "scale_factor": 1.0,
+          "spectrum": "spectrum:dyn-flat"
+        },
+        {
+          "direction": "Z",
+          "scale_factor": 1.0,
+          "spectrum": "spectrum:dyn-flat"
+        }
+      ],
+      "missing_mass": {
+        "apply": false,
+        "rigid_combination_series": [],
+        "rigid_frequency_hz": null
+      },
+      "modal_combination": "srss"
+    }
+  },
+  "family": "DYN-C",
+  "family_description": "one straight pipe along X, anchored at A, UZ held at the tip B: a cantilever in the XY plane and a propped cantilever in the XZ plane; no repeated mode",
+  "folded_from": "folded into the seeded generator from the dynamics lane's wrapper files, dynamics family draft 4, 2026-11-12: the model members by the same arithmetic, byte for byte; the reference values quoted from tools/caepipe_correlation/dynamics_reference_quotes.json",
+  "generator": {
+    "seed": 20261028,
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "inexact_input_sizes": {
+    "mass_formulation": "per member count and response kind in validation/references/f2_spectrum (closed_form/screening_basis.json and beams_fe.json; pull request 268, not yet on main)",
+    "shear_deformation": "ESTIMATE, not a reference value: SWBPIPE has no shear deformation in dynamics; if the other program includes it, under 1e-3 relative on every compared frequency at this slenderness (about five times the Rayleigh rotary term)"
+  },
+  "inexact_inputs": {
+    "case:weight": [
+      "shear_deformation",
+      "rigid_support_stiffness"
+    ],
+    "dynamic": [
+      "mass_formulation",
+      "shear_deformation"
+    ],
+    "operating": [
+      "shear_deformation",
+      "rigid_support_stiffness"
+    ]
+  },
+  "mode_count_note": "the counts differ between the sides where a diagonal mass formulation has fewer finite modes: at 1 member it has the Y bending mode and one axial mode (2) against 5 on the consistent side; at 2 members 5 (three bending, two axial) against the first 6",
+  "model": {
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "combinations": [],
+    "components": [],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "case:weight",
+        "primitive_loads": [
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P1",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P2",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P2",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P3",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P3",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P4",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P4",
+              "type": "element"
+            }
+          }
+        ],
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 200000000000.0
+        },
+        "id": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 78125000000.0
+        },
+        "temperature_points": [],
+        "thermal_expansion_coefficient": {
+          "unit": "1/degC",
+          "value": 1.2e-05
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "node:A",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M1",
+        "position": {
+          "x": 3.75,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M2",
+        "position": {
+          "x": 7.5,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M3",
+        "position": {
+          "x": 11.25,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:B",
+        "position": {
+          "x": 15.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "node:A",
+        "id": "pipe:P1",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:M1",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M1",
+        "id": "pipe:P2",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:M2",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M2",
+        "id": "pipe:P3",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:M3",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M3",
+        "id": "pipe:P4",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:B",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      }
+    ],
+    "project": {
+      "id": "project:cpb-dyn-c-n04-flat",
+      "name": "project:cpb-dyn-c-n04-flat",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.9.0",
+    "supports": [
+      {
+        "family": "anchor",
+        "id": "support:A",
+        "node": "node:A",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      },
+      {
+        "id": "support:B-z",
+        "node": "node:B",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    ]
+  },
+  "model_id": "cpb-dyn-c-n04-flat",
+  "parameters": {
+    "elastic_modulus": 200000000000.0,
+    "g": 9.80665,
+    "length": 15.0,
+    "members": 4,
+    "metal_area": 0.0006926737420674799,
+    "od": 0.0603,
+    "rho": 7850.0,
+    "shear_modulus": 78125000000.0,
+    "slenderness_length_over_od": 248.75621890547265,
+    "wall": 0.00391,
+    "weight_per_length": 53.323550278271505
+  },
+  "piping_code": "B311-80",
+  "provenance": {
+    "contributor_note": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+    "license": "project-original",
+    "origin": "invented",
+    "produced_by_caepipe": false,
+    "redistribution_status": "public_permissive"
+  },
+  "rank": 8,
+  "reference_temperature_c": 20.0,
+  "reference_values": [
+    {
+      "consistent": 0.250887806924226,
+      "continuum": 0.250879601297653,
+      "lumped": 0.2438896941836908,
+      "quantity": "frequency_Y1",
+      "unit": "Hz"
+    },
+    {
+      "consistent": 1.1008295834376527,
+      "continuum": 1.100134510455633,
+      "lumped": 1.0989682610184284,
+      "quantity": "frequency_Z1",
+      "unit": "Hz"
+    },
+    {
+      "consistent": 1.5740286854395003,
+      "continuum": 1.572196875300449,
+      "lumped": 1.4335205426159403,
+      "quantity": "frequency_Y2",
+      "unit": "Hz"
+    },
+    {
+      "consistent": 3.5872803516159038,
+      "continuum": 3.5650411624530403,
+      "lumped": 3.5001908857944186,
+      "quantity": "frequency_Z2",
+      "unit": "Hz"
+    },
+    {
+      "consistent": 4.4360993115194445,
+      "continuum": 4.402021439848474,
+      "lumped": 3.7961398432586044,
+      "quantity": "frequency_Y3",
+      "unit": "Hz"
+    },
+    {
+      "consistent": 7.605441466470169,
+      "continuum": 7.437836259704876,
+      "lumped": 6.530978162086211,
+      "quantity": "frequency_Z3",
+      "unit": "Hz"
+    },
+    {
+      "consistent": 1.5757095755113455,
+      "continuum": 1.5757116147722436,
+      "lumped": 1.608322205352983,
+      "quantity": "tip_UY_m",
+      "rule": "SRSS",
+      "unit": "m"
+    },
+    {
+      "consistent": 1.5994334273433264,
+      "continuum": 1.5994498623390387,
+      "lumped": 1.6315698931339586,
+      "quantity": "tip_UY_m",
+      "rule": "ABSSUM",
+      "unit": "m"
+    },
+    {
+      "consistent": 1.5757095755113455,
+      "continuum": 1.5757116147722436,
+      "lumped": 1.608322205352983,
+      "quantity": "tip_UY_m",
+      "rule": "TEN_PERCENT",
+      "unit": "m"
+    },
+    {
+      "consistent": 131.42314196090678,
+      "continuum": 131.43649490005885,
+      "lumped": 128.75674279867235,
+      "quantity": "base_FY_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": 176.4972771155157,
+      "continuum": 176.60220981684955,
+      "lumped": 173.7790442715303,
+      "quantity": "base_FY_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": 131.42314196090678,
+      "continuum": 131.43649490005885,
+      "lumped": 128.75674279867235,
+      "quantity": "base_FY_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    },
+    {
+      "consistent": 1367.7906312000569,
+      "continuum": 1367.7976480026125,
+      "lumped": 1372.0789038364458,
+      "quantity": "base_MZ_Nm",
+      "rule": "SRSS",
+      "unit": "N*m"
+    },
+    {
+      "consistent": 1507.7996841839781,
+      "continuum": 1507.943877415214,
+      "lumped": 1521.3041431950367,
+      "quantity": "base_MZ_Nm",
+      "rule": "ABSSUM",
+      "unit": "N*m"
+    },
+    {
+      "consistent": 1367.7906312000569,
+      "continuum": 1367.7976480026125,
+      "lumped": 1372.0789038364458,
+      "quantity": "base_MZ_Nm",
+      "rule": "TEN_PERCENT",
+      "unit": "N*m"
+    },
+    {
+      "consistent": 0.06501312807654547,
+      "continuum": 0.06501579093393817,
+      "lumped": 0.06278273590328427,
+      "quantity": "mid_UZ_m",
+      "rule": "SRSS",
+      "unit": "m"
+    },
+    {
+      "consistent": 0.0657370570226,
+      "continuum": 0.0657459942942352,
+      "lumped": 0.06355915462244614,
+      "quantity": "mid_UZ_m",
+      "rule": "ABSSUM",
+      "unit": "m"
+    },
+    {
+      "consistent": 0.06501312807654547,
+      "continuum": 0.06501579093393817,
+      "lumped": 0.06278273590328427,
+      "quantity": "mid_UZ_m",
+      "rule": "TEN_PERCENT",
+      "unit": "m"
+    },
+    {
+      "consistent": 90.43067747249695,
+      "continuum": 90.50416975455785,
+      "lumped": 86.62288194656185,
+      "quantity": "base_FZ_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": 107.03942780593138,
+      "continuum": 107.50822532799813,
+      "lumped": 100.3599020916423,
+      "quantity": "base_FZ_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": 90.43067747249695,
+      "continuum": 90.50416975455785,
+      "lumped": 86.62288194656185,
+      "quantity": "base_FZ_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    },
+    {
+      "consistent": 341.8736263032581,
+      "continuum": 341.9170740649665,
+      "lumped": 330.6130976956564,
+      "quantity": "base_MY_Nm",
+      "rule": "SRSS",
+      "unit": "N*m"
+    },
+    {
+      "consistent": 370.439657421001,
+      "continuum": 370.94172244149564,
+      "lumped": 358.4282217558653,
+      "quantity": "base_MY_Nm",
+      "rule": "ABSSUM",
+      "unit": "N*m"
+    },
+    {
+      "consistent": 341.8736263032581,
+      "continuum": 341.9170740649665,
+      "lumped": 330.6130976956564,
+      "quantity": "base_MY_Nm",
+      "rule": "TEN_PERCENT",
+      "unit": "N*m"
+    },
+    {
+      "consistent": 62.14826119981688,
+      "continuum": 62.23262378935714,
+      "lumped": 54.27525649060608,
+      "quantity": "tip_reaction_FZ_N",
+      "rule": "SRSS",
+      "unit": "N"
+    },
+    {
+      "consistent": 73.70264989247822,
+      "continuum": 74.23659684699615,
+      "lumped": 60.359656286986755,
+      "quantity": "tip_reaction_FZ_N",
+      "rule": "ABSSUM",
+      "unit": "N"
+    },
+    {
+      "consistent": 62.14826119981688,
+      "continuum": 62.23262378935714,
+      "lumped": 54.27525649060608,
+      "quantity": "tip_reaction_FZ_N",
+      "rule": "TEN_PERCENT",
+      "unit": "N"
+    }
+  ],
+  "reference_values_note": "from validation/references/f2_spectrum/benchmark_pack/pack_summary.json: references with a refutation record, in pull request 268 and not yet on main. continuum = Rayleigh continuum closed form; consistent = SWBPIPE's stated formulation at this member count; lumped = half-and-half translational lumped mass at this member count, NOT SWBPIPE's formulation, the size of the named inexact input mass_formulation. Each side's periodic set is the first six modes of its own merged list, or all its finite modes where fewer exist; the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
+  "sampling": "series",
+  "screening_classes": {
+    "modal": "modal",
+    "response_spectrum": "response_spectrum",
+    "static": {
+      "case:weight": "named_inexact",
+      "operating": "named_inexact"
+    }
+  },
+  "series": [
+    "members"
+  ],
+  "third_value": "closed form: a continuous Euler\u2013Bernoulli beam (shear deformation and rotary inertia neglected), a continuum comparison target, not the eigenvalue of any finite member count; per member count and per mass formulation in validation/references/f2_spectrum (pull request 268, not yet on main)",
+  "tranche": "3"
+}

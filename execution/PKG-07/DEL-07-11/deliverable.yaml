@@ -88,6 +88,9 @@ code_paths:
 # native-smoke/: perf* is DEL-04-05's, agent-journey.js is DEL-16-06's, mbf-journey.* is
 # DEL-17-04's, and run.mjs is shared with DEL-08-01 and DEL-15-03.
 - apps/desktop/src-tauri/src/native_smoke.rs
+# Shared with DEL-16-06, whose Keychain backend it is: its smoke backend, the scripted-run
+# build's refusal of every application-owned Keychain item operation, is this deliverable's.
+- apps/desktop/src-tauri/src/embedded_agent/keychain_native.rs
 - apps/desktop/native-smoke/**
 - apps/desktop/scripts/engineSourceStamp.mjs
 - apps/desktop/scripts/appBinaryBinding.mjs
@@ -104,6 +107,7 @@ checks:
 - apps/desktop/src/features/project-storage/modalHolds.test.ts
 - apps/desktop/src/features/project-storage/workLossGuards.test.tsx
 - apps/desktop/src-tauri/src/close_guard.rs
+- apps/desktop/src-tauri/src/embedded_agent/keychain_native.rs
 - apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx
 - apps/desktop/src/App.shell.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts

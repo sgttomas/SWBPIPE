@@ -1,0 +1,8 @@
+SWBPIPE sitting run line: cpb-dyn-d-n08-flat--srss-srss
+Fill in after each colon. Do not change the words before the colon.
+date: 
+run (yes, or not run and why): 
+route used (manual_print): 
+CAEPIPE version as displayed: 
+anything unusual: 
+export (made, or not made and why): 
