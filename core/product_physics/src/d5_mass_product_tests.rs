@@ -363,6 +363,67 @@ fn generated_self_weight_check_is_invariant_under_the_authored_units() {
     }
 }
 
+/// Mixed authoring: the lengths of one section in different units from each
+/// other, and its densities likewise. Length i of `LENGTHS` takes unit
+/// (i + s) mod 3 and density j of `DENSITIES` unit (j + s) mod 2, for s = 0, 1,
+/// 2, on both mass routes and in both modes. Each authoring is checks passed
+/// and gives its normalized twin's check outcome and published values bit for
+/// bit. The uniform matrix above cannot see a repair that converts every
+/// length with one length's unit (or every density with one density's): this
+/// one does.
+#[test]
+fn generated_self_weight_check_is_invariant_under_mixed_authored_units() {
+    for exact in [true, false] {
+        for s in 0..3 {
+            let mut section = json!({});
+            for (i, (name, values)) in LENGTHS.iter().enumerate() {
+                if exact || *name != "corrosion_allowance" {
+                    let l = (i + s) % LENGTH_UNITS.len();
+                    section[*name] = json!({"value": values[l], "unit": LENGTH_UNITS[l]});
+                }
+            }
+            for (j, (name, values)) in DENSITIES.iter().enumerate() {
+                let d = (j + s) % DENSITY_UNITS.len();
+                section[*name] = json!({"value": values[d], "unit": DENSITY_UNITS[d]});
+            }
+            let (request, twin) = (authored(exact, section.clone()), authored(exact, normalized_twin(&section)));
+            for mode in MODES {
+                let label = format!("exact {exact} shift {s} {mode:?}: {section}");
+                let (outcome, values) = solved(&request, mode);
+                checks_passed(&outcome, &label);
+                let (twin_outcome, twin_values) = solved(&twin, mode);
+                assert_eq!(outcome, twin_outcome, "{label}: the normalized twin's check outcome");
+                assert_eq!(values, twin_values, "{label}: the normalized twin's published values");
+            }
+        }
+    }
+}
+
+/// The independent reader's witness (round one), kept as it was run: the wall
+/// in metres, every other length in millimetres or inches, densities in either
+/// unit, on both mass routes and in both modes. It is the authoring shown to
+/// reject a repair that converts every length with the outside diameter's unit.
+#[test]
+fn generated_self_weight_with_a_metre_wall_and_other_lengths_in_mm_or_in_matches_its_twin() {
+    for exact in [true, false] {
+        for l in [1, 2] {
+            for d in 0..DENSITY_UNITS.len() {
+                let mut section = section_in(exact, l, d);
+                section["wall_thickness"] = json!({"value": LENGTHS[1].1[0], "unit": LENGTH_UNITS[0]});
+                let (request, twin) = (authored(exact, section.clone()), authored(exact, normalized_twin(&section)));
+                for mode in MODES {
+                    let label = format!("exact {exact} {} {} metre wall {mode:?}", LENGTH_UNITS[l], DENSITY_UNITS[d]);
+                    let (outcome, values) = solved(&request, mode);
+                    checks_passed(&outcome, &label);
+                    let (twin_outcome, twin_values) = solved(&twin, mode);
+                    assert_eq!(outcome, twin_outcome, "{label}: the normalized twin's check outcome");
+                    assert_eq!(values, twin_values, "{label}: the normalized twin's published values");
+                }
+            }
+        }
+    }
+}
+
 /// Negative witness: a generated self-weight load whose formation really is
 /// wrong is still found, in every unit. The s11f RF-CANCEL-UDL geometry (two
 /// 2 m members, anchored ends, S1 pinned) carries the generated self-weight
@@ -475,6 +536,65 @@ fn a_record_whose_dependencies_are_not_si_or_incomplete_gives_no_mass() {
     assert!(defects.is_empty(), "{defects:#?}");
 }
 
+/// Signed zero (round one's reader, extended through re-formation). The
+/// applied-weight validation compares a record's `normalized_dependencies` by
+/// JSON value equality, so a dependency of -0.0 where the generator wrote +0.0
+/// stays fresh and reaches the check's primitive with its sign bit (the
+/// reader's witness, kept as the first assertion). This test requires that the
+/// sign of a zero operand changes nothing the check derives from it: on the
+/// exact route (zero mill tolerance and zero allowance, each alone and both)
+/// and on the preview route (zero mill tolerance), in both modes, the case's
+/// integrity code and message, its numerical quality, every published value
+/// bit for bit, and every certified recovery record (each group's norm, bound
+/// and scale, printed with their signs) equal those of the record as
+/// generated. Any difference is a dependency on the sign of zero, to be
+/// repaired, not documented.
+#[test]
+fn a_zero_operand_of_either_sign_re_forms_to_the_same_check() {
+    let probe = |request: &Value, mode| {
+        crate::tests::KD5_RECOVERY_PROBE.with(|p| *p.borrow_mut() = Some(Vec::new()));
+        let solved = solved(request, mode);
+        let records = crate::tests::KD5_RECOVERY_PROBE.with(|p| p.borrow_mut().take().unwrap());
+        (solved, format!("{records:?}"))
+    };
+    for (exact, operands) in [
+        (true, vec!["mill_tolerance"]),
+        (true, vec!["corrosion_allowance"]),
+        (true, vec!["mill_tolerance", "corrosion_allowance"]),
+        (false, vec!["mill_tolerance"]),
+    ] {
+        let (_, request) = generated(if exact { document(0.0, 0.0) } else { preview(0.0) });
+        let negated = with_record(request.clone(), |r| {
+            for name in &operands {
+                assert_eq!(r["normalized_dependencies"][*name]["value"].as_f64().map(f64::to_bits), Some(0.0f64.to_bits()), "{name}");
+                r["normalized_dependencies"][*name]["value"] = json!(-0.0);
+            }
+        });
+        let label = format!("exact {exact} {operands:?}");
+        assert_eq!(state(&negated), AppliedSelfWeightState::Fresh, "{label}: value equality keeps the record fresh");
+        let model = typed(&negated);
+        let loads = build_load_case_primitive_loads(&model, &model.load_cases[0], &mut Vec::new());
+        let application = prepare_loads(model.nodes.len(), model.pipe_segments.len(), &loads);
+        let IntensityPrimitive::SelfWeight { mass, .. } = certified_loads::intensity(&model, &application.element_uniform_loads[0], CASE)
+        else { panic!("{label}: not a self-weight intensity") };
+        if operands.contains(&"mill_tolerance") {
+            assert_eq!(mass.mill_tolerance.to_bits(), (-0.0f64).to_bits(), "{label}: the sign reaches the primitive");
+        }
+        if operands.contains(&"corrosion_allowance") {
+            assert_eq!(mass.corrosion_allowance.map(f64::to_bits), Some((-0.0f64).to_bits()), "{label}: the sign reaches the primitive");
+        }
+        for mode in MODES {
+            let ((outcome, values), records) = probe(&request, mode);
+            let ((negated_outcome, negated_values), negated_records) = probe(&negated, mode);
+            checks_passed(&outcome, &format!("{label} {mode:?}"));
+            assert_eq!(negated_outcome, outcome, "{label} {mode:?}: the check outcome");
+            assert_eq!(negated_values, values, "{label} {mode:?}: every published value, bit for bit");
+            assert_eq!(negated_records, records, "{label} {mode:?}: every certified recovery record");
+            assert!(records.contains("groups"), "{label} {mode:?}: the records were collected");
+        }
+    }
+}
+
 // ------------------------------------------------- the defect's faces against statics
 //
 // While the formation check read a generated record's `mass_inputs` as SI, it
@@ -505,7 +625,7 @@ fn a_record_whose_dependencies_are_not_si_or_incomplete_gives_no_mass() {
 /// formula w_g = rho g pi t (D - t) (D-5, nominal wall) from the same decimal
 /// inputs in binary64 and may differ in its last places. With u = 2^-53, to
 /// first order: the test rounds D, t, pi, rho and g once each and makes one
-/// subtraction and three multiplications; the error of D - t carries those of
+/// subtraction and four multiplications; the error of D - t carries those of
 /// D and t amplified by (D + t)/(D - t) = 1.078; in all at most 10.1 u. The
 /// generator converts D and t from the authored unit (a rounded decimal, a
 /// rounded factor and one multiplication: 3 u each) and forms pi t (D - t) in

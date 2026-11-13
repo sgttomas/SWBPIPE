@@ -219,9 +219,11 @@ fn mass(section: &PipeSectionInput, exact: bool) -> MassPrimitive {
     }
 }
 /// A generated self-weight record's mass operands: its
-/// `normalized_dependencies`, the generator's own SI operands, which the
-/// applied-weight validation binds bit for bit to `mass_inputs` (kept in the
-/// authored units, never read here) and to `mass_kg_per_m`. A dependency set
+/// `normalized_dependencies`, the generator's own SI operands. Applied-weight
+/// validation compares these by JSON value equality with normalized
+/// `mass_inputs` and recomputes `mass_kg_per_m` and the generated payload.
+/// These comparisons do not distinguish signed zero. `mass_inputs` retain
+/// authored units and are never read here. A dependency set
 /// that does not parse, lacks a member or holds a non-SI unit gives NaN
 /// operands, so the check fails closed with its named reason.
 fn recorded_mass(evidence: &serde_json::Value) -> MassPrimitive {
