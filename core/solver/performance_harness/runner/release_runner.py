@@ -21,6 +21,8 @@ Modes (each starts nothing else):
 - ``--run --models DIR --out DIR --binary PATH``: the plan's runs, within a
   window budget (``--budget-s``); ``--write-results`` keeps each result's bytes;
 - ``--packet --out DIR``: ``DIR/packet.json`` from the run records.
+- ``--read-back BUNDLE --revision SHA``: the direct checks of a baseline bundle's records,
+  read only.
 - ``--baseline-set OUT --plan-file PLAN --subset NAME``: two results on one supervised
   folder of a named plan, the ten-run timing set and the rack observation, read only.
 
@@ -751,7 +753,8 @@ def judge_set(records, plan_runs, folder_findings=()):
             row.update(_outcome(rec))
             window = _window_problem(rec)
             if window:
-                row['result'] = 'INCOMPLETE BY THE WINDOW'
+                # A capped timeout was launched and observed (its outcome is the timeout); a skip was not.
+                row.update(observed='launch' in rec, result='INCOMPLETE BY THE WINDOW')
                 rack_window.append('%s: %s' % (run_id, window))
             elif 'launch' not in rec or rec.get('classification') in ('model_missing', 'model_mismatch'):
                 row['result'] = 'FINDING'
@@ -1598,6 +1601,170 @@ def write_packet(out_dir):
     return result
 
 
+# --------------------------------------------------------------- read-back
+#
+# `--read-back BUNDLE --revision SHA`: the direct checks of a baseline bundle's records (README, "The
+# headless baseline", step 9, items 2 to 6), after the shell's integrity and membership checks. It
+# reads only, and prints each difference; it does not show that a record is true.
+
+READ_BACK_FILES = ('out/metadata.json', 'out/' + k6.RECORDS_NAME, 'out/packet.json', 'plan.json',
+                   'models/manifest.json', 'build-facts.txt', 'host-before.txt', 'host-processes.log',
+                   'baseline-set.json', 'contract.md')
+READ_BACK_SHARED_HOST_FILES = ('exclusive.log',)
+SOLVE_STAGES = ('read', 'parse', 'request', 'entry', 'serialize', 'release_envelope', 'parse_back')
+NOT_RUN_KEYS = ('order', 'run_id', 'classification', 'classification_detail')
+
+
+def supervised_packet_row(r):
+    """The packet row the self-supervising driver writes for a launched record (`supervise.rs`
+    `packet_row`): this runner's `packet_row`, and in `peak_memory_bytes` the supervisor's three
+    readings beside it."""
+    row = packet_row(r)
+    rss = (r.get('launch') or {}).get('rss') or {}
+    row['peak_memory_bytes'] = dict(row['peak_memory_bytes'], wait4_maxrss=rss.get('wait4_maxrss_bytes'),
+                                    sampled_resident_size=rss.get('resident_max_bytes'),
+                                    exit_lifetime_max_phys_footprint=rss.get('exit_lifetime_max_phys_footprint_bytes'))
+    return row
+
+
+def _fields_differ(prefix, found, expected):
+    """Each field of `expected` that `found` lacks or holds otherwise, and each field `found` holds that
+    `expected` does not, by dotted name."""
+    out = []
+    for key in sorted(set(found) | set(expected)):
+        name = '%s.%s' % (prefix, key)
+        if key not in expected:
+            out.append('%s is a field this check does not know' % name)
+        elif key not in found:
+            out.append('%s is missing' % name)
+        elif isinstance(expected[key], dict) and isinstance(found[key], dict):
+            out += _fields_differ(name, found[key], expected[key])
+        elif found[key] != expected[key]:
+            out.append('%s is %r, the aggregate gives %r' % (name, found[key], expected[key]))
+    return out
+
+
+def _json(path, problems):
+    try:
+        with open(path, encoding='utf-8') as fh:
+            return json.load(fh)
+    except (OSError, ValueError) as error:
+        problems.append('%s cannot be read: %s' % (path, error))
+        return None
+
+
+def read_back(bundle, revision, shared_host=False):
+    """The differences between a bundle's records (items 2 to 6 of the read-back), as text."""
+    problems = []
+    at = lambda name: os.path.join(bundle, name)  # noqa: E731
+    # 2. What is consumed is present.
+    for name in READ_BACK_FILES + (READ_BACK_SHARED_HOST_FILES if shared_host else ()):
+        if not os.path.isfile(at(name)):
+            problems.append('%s is missing' % name)
+    plan, manifest, packet_doc, metadata = (_json(at(n), problems) for n in (
+        'plan.json', 'models/manifest.json', 'out/packet.json', 'out/metadata.json'))
+    records, unread = read_set_records(at('out'))
+    problems += unread
+    if plan is None or manifest is None or packet_doc is None or metadata is None:
+        return problems
+    manifest = manifest.get('models') or {}
+    aggregate = {r.get('run_id'): r for r in records}
+    plan_ids = [r.get('run_id') for r in plan.get('runs') or []]
+    if sorted(aggregate) != sorted(plan_ids) or len(aggregate) != len(records):
+        problems.append('the aggregate does not hold one record for each run of plan.json')
+    for p in plan.get('runs') or []:
+        run_id = p.get('run_id')
+        r = aggregate.get(run_id)
+        if r is None:
+            continue
+        files = [at('out/%s%s' % (run_id, suffix)) for suffix in (k6.STDOUT_SUFFIX, k6.STDERR_SUFFIX, '.record.json')]
+        launched = 'launch' in r
+        for path in files:
+            if launched and not os.path.isfile(path):
+                problems.append('%s: %s is missing for a launched run' % (run_id, os.path.basename(path)))
+            if not launched and os.path.exists(path):
+                problems.append('%s: %s exists for a run that was never launched' % (run_id, os.path.basename(path)))
+        # 3. Every launched run.
+        stages = []
+        if os.path.isfile(files[1]):
+            with open(files[1], encoding='utf-8', errors='replace') as fh:
+                stages = [json.loads(line[len(PROGRESS_PREFIX):]) for line in fh if line.startswith(PROGRESS_PREFIX)]
+        if launched:
+            launch_record = _json(files[2], problems) if os.path.isfile(files[2]) else None
+            if launch_record is not None:
+                for key in sorted(r['launch']):
+                    if launch_record.get(key) != r['launch'][key]:
+                        problems.append('%s: launch.%s differs from its .record.json' % (run_id, key))
+            stdout_sha = r['launch'].get('stdout_sha256')
+            if stdout_sha is not None and (not os.path.isfile(files[0]) or sha256_file(files[0]) != stdout_sha):
+                problems.append('%s: its .jsonl is not launch.stdout_sha256' % run_id)
+            last = stages[-1] if stages else None
+            expected_stage = {k: last.get(k) for k in ('repeat', 'stage', 'seconds')} if last else None
+            expected_memory = {k: last.get(k) for k in ('ru_maxrss_bytes', 'phys_footprint_bytes',
+                                                        'lifetime_max_phys_footprint_bytes')} if last else None
+            if r.get('last_stage') != expected_stage or r.get('last_stage_memory') != expected_memory:
+                problems.append('%s: last_stage or last_stage_memory differs from the last stage line of its '
+                                '.stderr.txt' % run_id)
+            listed = (manifest.get(p.get('model')) or {}).get('sha256')
+            if r.get('model_sha256') is None or not (r.get('model_sha256') == p.get('expected_model_sha256') == listed):
+                problems.append('%s: model_sha256 %s is not the plan\'s %s and the manifest\'s %s' % (
+                    run_id, r.get('model_sha256'), p.get('expected_model_sha256'), listed))
+        # 4. A run with a driver line; 5. a run without one.
+        stdout = ''
+        if os.path.isfile(files[0]):
+            with open(files[0], encoding='utf-8', errors='replace') as fh:
+                stdout = fh.read()
+        lines = [line for line in stdout.splitlines() if line.strip()]
+        if lines:
+            try:
+                parsed = json.loads(lines[0]) if len(lines) == 1 else None
+            except ValueError:
+                parsed = None
+            if parsed is None or parsed != r.get('driver'):
+                problems.append('%s: its .jsonl is not one line equal to the aggregate\'s driver' % run_id)
+            elif r.get('classification') == 'ok':
+                seconds = r['driver'].get('seconds') or {}
+                for line in stages:
+                    if seconds.get(line.get('stage')) != line.get('seconds'):
+                        problems.append('%s: stage %s seconds differ from driver.seconds' % (run_id, line.get('stage')))
+                if not all(_number(seconds.get(s)) for s in SOLVE_STAGES + ('total',)) or abs(
+                        seconds['total'] - sum(seconds[s] for s in SOLVE_STAGES)) > 1e-6:
+                    problems.append('%s: driver.seconds.total is not the sum of the seven stages to 1e-6 s' % run_id)
+        elif r.get('driver') is not None or r.get('classification') == 'ok':
+            problems.append('%s: no driver line, but the aggregate has a driver or classification ok' % run_id)
+    # 6. The packet and the metadata.
+    rows = {}
+    for kind, entries in (('runs', packet_doc.get('runs') or []), ('not_run', packet_doc.get('not_run') or [])):
+        for row in entries:
+            if row.get('run_id') in rows:
+                problems.append('packet: %s is listed more than once' % row.get('run_id'))
+            rows[row.get('run_id')] = (kind, row)
+    for run_id, r in aggregate.items():
+        kind, row = rows.get(run_id, (None, None))
+        want = 'runs' if 'launch' in r else 'not_run'
+        if row is None:
+            problems.append('packet: %s is not listed' % run_id)
+            continue
+        if kind != want:
+            problems.append('packet: %s is listed under %s, not %s' % (run_id, kind, want))
+            continue
+        expected = supervised_packet_row(r) if want == 'runs' else {k: r.get(k) for k in NOT_RUN_KEYS}
+        problems += _fields_differ('packet[%s]' % run_id, row, expected)
+    for run_id in rows:
+        if run_id not in aggregate:
+            problems.append('packet: %s has no aggregate record' % run_id)
+    counts = {}
+    for r in records:
+        counts[str(r.get('classification'))] = counts.get(str(r.get('classification')), 0) + 1
+    if packet_doc.get('classification_counts') != counts:
+        problems.append('packet.classification_counts is not the aggregate\'s')
+    if packet_doc.get('metadata') != metadata:
+        problems.append('packet.metadata is not metadata.json')
+    if metadata.get('source_commit') != revision:
+        problems.append('metadata.json names %s, not the revision %s' % (metadata.get('source_commit'), revision))
+    return problems
+
+
 # --------------------------------------------------------------- main
 
 
@@ -1612,6 +1779,12 @@ def main(argv=None):
                              'the ten-run timing set and the rack observation; writes nothing; prints the JSON '
                              'report on stdout and the two results on stderr; ' + EXIT_CONTRACT.replace('%', '%%'))
     parser.add_argument('--plan-file', help='the plan file the supervised folder was run from (--baseline-set)')
+    parser.add_argument('--read-back', metavar='BUNDLE',
+                        help='the direct checks of a baseline bundle (with --revision): each difference is printed; '
+                             'exit 0 when there is none, 1 otherwise; reads only')
+    parser.add_argument('--revision', help='the full commit the bundle measured (--read-back)')
+    parser.add_argument('--shared-host', action='store_true',
+                        help='--read-back: the bundle must also hold exclusive.log, the exclusive wrapper\'s lines')
     parser.add_argument('--write-plan', metavar='FILE',
                         help="write the selected runs as the plan file of the driver's supervise mode (with --models, "
                              "each model's sha256 from the manifest)")
@@ -1672,6 +1845,14 @@ def main(argv=None):
                 plan = with_attribution(plan)
         except ValueError as error:
             parser.error(str(error))
+    if args.read_back:
+        if not args.revision:
+            parser.error('--read-back needs --revision, the full commit the bundle measured')
+        problems = read_back(args.read_back, args.revision, args.shared_host)
+        for problem in problems:
+            print('DIFFERS: %s' % problem)
+        print('read-back: %d difference(s)' % len(problems))
+        return 1 if problems else 0
     if args.baseline_set:
         if not named or not args.plan_file:
             parser.error('--baseline-set needs --plan-file and a named --subset (%s)' % ', '.join(NAMED_PLANS))

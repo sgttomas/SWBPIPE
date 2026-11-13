@@ -690,10 +690,24 @@ class BaselineSet(unittest.TestCase):
                       report['rack_observation']['findings'][0])
         self.assertEqual(report['rack_observation']['runs'][0]['classification_detail'], 'entry: failed')
         # A window skip is INCOMPLETE BY THE WINDOW for the observation.
-        skipped = lambda by, *_: by[rack].update(classification='skipped_window_budget', driver=None)  # noqa: E731
+        skipped = lambda by, *_: (by[rack].pop('launch'), by[rack].pop('model_sha256'),  # noqa: E731
+                                  by[rack].update(classification='skipped_window_budget', driver=None))
         report = self.judge(skipped, name='baseline-with-rack')
         self.assertEqual(results(report), (TIMING_COMPLETE, RACK_WINDOW, rr.SET_EXIT_WINDOW))
         self.assertEqual(report['rack_observation']['window_problems'], [rack + ': skipped_window_budget'])
+        self.assertEqual((report['rack_observation']['runs'][0]['observed'],
+                          report['rack_observation']['runs'][0]['classification']), (False, 'skipped_window_budget'))
+        # A launched run that timed out under a timeout the window capped: observed, its outcome given.
+        capped = lambda by, *_: by[rack].update(classification='timed_out', classification_detail='after_100_s',  # noqa: E731
+                                                timeout_capped_by_window=True, timeout_applied_s=100, as_expected=False,
+                                                last_stage=stage)
+        report = self.judge(capped, name='baseline-with-rack')
+        self.assertEqual(results(report), (TIMING_COMPLETE, RACK_WINDOW, rr.SET_EXIT_WINDOW))
+        self.assertEqual(report['rack_observation']['runs'], [{
+            'run_id': rack, 'expect': 'exceeds_base_machine_budget', 'observed': True, 'classification': 'timed_out',
+            'classification_detail': 'after_100_s', 'last_stage': stage, 'as_expected': False,
+            'result': 'INCOMPLETE BY THE WINDOW'}])
+        self.assertIn('capped to 100 s', report['rack_observation']['window_problems'][0])
         # A rack finding with a window problem among the ten: exit 1, both listed, each in its own result.
         report = self.judge(lambda by, records, runs: (not_observed['model_missing'](by), by[
             'reference-system-n0027-sparse-r5'].update(classification='skipped_window_budget', driver=None)),
@@ -856,6 +870,169 @@ class BaselineSet(unittest.TestCase):
             report = rr.judge_set(rr.read_set_records(out)[0], runs)
         self.assertEqual(results(report), (TIMING_WINDOW, RACK_NONE, rr.SET_EXIT_WINDOW), report)
         self.assertTrue(report['timing_set']['window_problems'])
+
+
+READ_BACK_FIXTURE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'read_back')
+READ_BACK_FIXTURE_FILES = ('plan.json', 'models/manifest.json', 'out/metadata.json', 'out/records.jsonl',
+                           'out/packet.json') + tuple(
+    'out/%s%s' % (run_id, suffix) for run_id in ('baseline-one-case-ex-n0046-sparse-r1', 'reference-system-n0027-sparse-r1')
+    for suffix in ('.jsonl', '.stderr.txt', '.record.json'))
+LAUNCHED = 'baseline-one-case-ex-n0046-sparse-r1'
+SKIPPED = 'baseline-one-case-ex-n0046-sparse-r2'
+
+
+class ReadBack(unittest.TestCase):
+    """`--read-back`: the direct checks of a bundle, on the out/ folder, plan and manifest the
+    self-supervising driver wrote for a small stand-in plan of the baseline's shape (46-node W1 and the
+    reference system, one of each run, then two runs skipped for the window; its CPU model blanked)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.bundle = self.tmp.name
+        for name in READ_BACK_FIXTURE_FILES:
+            os.makedirs(os.path.dirname(os.path.join(self.bundle, name)), exist_ok=True)
+            shutil.copyfile(os.path.join(READ_BACK_FIXTURE, name), os.path.join(self.bundle, name))
+        for name in ('build-facts.txt', 'host-before.txt', 'host-processes.log', 'baseline-set.json', 'contract.md'):
+            with open(os.path.join(self.bundle, name), 'w') as fh:
+                fh.write('stand-in\n')
+        self.revision = self.load('out/metadata.json')['source_commit']
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def path(self, name):
+        return os.path.join(self.bundle, name)
+
+    def load(self, name):
+        with open(self.path(name)) as fh:
+            return json.load(fh)
+
+    def save(self, name, value):
+        with open(self.path(name), 'w') as fh:
+            json.dump(value, fh)
+
+    def edit(self, name, change):
+        value = self.load(name)
+        change(value)
+        self.save(name, value)
+
+    def records(self, change):
+        with open(self.path('out/records.jsonl')) as fh:
+            rows = [json.loads(line) for line in fh if line.strip()]
+        change(rows)
+        with open(self.path('out/records.jsonl'), 'w') as fh:
+            fh.writelines(json.dumps(r) + '\n' for r in rows)
+
+    def problems(self):
+        return rr.read_back(self.bundle, self.revision)
+
+    def test_the_intact_bundle_has_no_difference_and_holds_a_launched_and_a_skipped_run(self):
+        self.assertEqual(self.problems(), [])
+        with redirect_stdout(io.StringIO()) as printed:
+            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', self.revision]), 0)
+        self.assertEqual(printed.getvalue(), 'read-back: 0 difference(s)\n')
+        classes = [r['classification'] for r in rr.read_set_records(self.path('out'))[0]]
+        self.assertEqual(classes, ['ok', 'ok', 'skipped_window_budget', 'skipped_window_budget'])
+        self.assertIn('exclusive.log is missing', rr.read_back(self.bundle, self.revision, shared_host=True))
+
+    def test_every_packet_field_of_a_row_is_the_aggregates(self):
+        """The third reader's three controls, then every field of a launched row and of a not-run row."""
+        def row(doc, where=0):
+            return doc['runs'][where]
+        cases = [
+            ('exit footprint changed', lambda d: row(d)['peak_memory_bytes'].update(exit_lifetime_max_phys_footprint=1),
+             'peak_memory_bytes.exit_lifetime_max_phys_footprint is 1'),
+            ('last stage changed', lambda d: row(d)['last_stage'].update(stage='request'), "last_stage.stage is 'request'"),
+            ('output hash deleted', lambda d: row(d).pop('output_sha256'), 'output_sha256 is missing'),
+        ]
+        packet = self.load('out/packet.json')
+
+        def leaves(obj, prefix=()):
+            for key, value in obj.items():
+                if isinstance(value, dict) and value:
+                    yield from leaves(value, prefix + (key,))
+                else:
+                    yield prefix + (key,)
+        for where in ('runs', 'not_run'):
+            for keys in leaves(packet[where][0]):
+                def change(d, where=where, keys=keys):
+                    target = d[where][0]
+                    for key in keys[:-1]:
+                        target = target[key]
+                    target[keys[-1]] = None if target[keys[-1]] is not None else 'x'
+                # A row whose run id is changed is a row of no run, and its run's row is missing.
+                expected = 'is not listed' if keys == ('run_id',) else '.'.join(keys)
+                cases.append(('%s %s' % (where, '.'.join(keys)), change, expected))
+        cases += [
+            ('an added field', lambda d: row(d).update(extra=1), 'extra is a field this check does not know'),
+            ('a launched row under not_run', lambda d: d['not_run'].append(d['runs'].pop(0)), 'is listed under not_run'),
+            ('a row listed twice', lambda d: d['runs'].append(dict(d['runs'][0])), 'listed more than once'),
+            ('a row missing', lambda d: d['runs'].pop(0), 'is not listed'),
+            ('classification counts', lambda d: d['classification_counts'].update(ok=9), 'classification_counts'),
+            ('metadata', lambda d: d['metadata'].update(budget_s=1), 'packet.metadata'),
+        ]
+        self.assertGreater(len(cases), 60)
+        for label, change, expected in cases:
+            self.save('out/packet.json', packet)
+            self.edit('out/packet.json', change)
+            problems = self.problems()
+            self.assertTrue(problems and any(expected in p for p in problems), (label, problems[:3]))
+        self.save('out/packet.json', packet)
+        self.assertEqual(self.problems(), [])
+
+    def test_each_record_check_finds_its_difference(self):
+        def stdout_edited():
+            path = self.path('out/%s.jsonl' % LAUNCHED)
+            line = json.loads(open(path).read())
+            line['rows'] = 1
+            with open(path, 'w') as fh:
+                fh.write(json.dumps(line) + '\n')
+        cases = {
+            'a required file missing': (lambda: os.unlink(self.path('baseline-set.json')), 'baseline-set.json is missing'),
+            'a launched run without its stderr': (lambda: os.unlink(self.path('out/%s.stderr.txt' % LAUNCHED)),
+                                                  '.stderr.txt is missing for a launched run'),
+            'a file planted for a skipped run': (lambda: open(self.path('out/%s.jsonl' % SKIPPED), 'w').close(),
+                                                 'exists for a run that was never launched'),
+            'the launch record differs': (lambda: self.edit('out/%s.record.json' % LAUNCHED,
+                                                            lambda d: d.update(wall_s=999.0)), 'launch.wall_s differs'),
+            'the stdout line edited': (stdout_edited, 'is not launch.stdout_sha256'),
+            'the last stage differs': (lambda: self.records(lambda rows: rows[0]['last_stage'].update(stage='read')),
+                                       'last_stage or last_stage_memory differs'),
+            'the model hash differs': (lambda: self.edit('plan.json', lambda d: d['runs'][0].update(
+                expected_model_sha256='0' * 64)), 'model_sha256'),
+            'a stage second differs': (lambda: self.records(lambda rows: rows[0]['driver']['seconds'].update(parse=9.0)),
+                                       "is not one line equal to the aggregate's driver"),
+            'a driver for a run with no line': (lambda: self.records(lambda rows: rows[2].update(driver={'x': 1})),
+                                                'no driver line, but the aggregate has a driver'),
+            'a record missing': (lambda: self.records(lambda rows: rows.pop(3)), 'one record for each run of plan.json'),
+        }
+        fixture = {name: open(os.path.join(READ_BACK_FIXTURE, name), 'rb').read() for name in READ_BACK_FIXTURE_FILES}
+        for label, (change, expected) in cases.items():
+            for name, data in fixture.items():
+                with open(self.path(name), 'wb') as fh:
+                    fh.write(data)
+            for name in ('baseline-set.json',):
+                with open(self.path(name), 'w') as fh:
+                    fh.write('stand-in\n')
+            if os.path.exists(self.path('out/%s.jsonl' % SKIPPED)):
+                os.unlink(self.path('out/%s.jsonl' % SKIPPED))
+            change()
+            problems = self.problems()
+            self.assertTrue(any(expected in p for p in problems), (label, problems[:3]))
+        # The total of an ok run's stages, and the revision.
+        self.setUp()
+        self.records(lambda rows: rows[0]['driver']['seconds'].update(total=rows[0]['driver']['seconds']['total'] + 1))
+        with open(self.path('out/%s.jsonl' % LAUNCHED), 'w') as fh:
+            fh.write(json.dumps(rr.read_set_records(self.path('out'))[0][0]['driver']) + '\n')
+        self.records(lambda rows: rows[0]['launch'].update(stdout_sha256=None))
+        self.edit('out/%s.record.json' % LAUNCHED, lambda d: d.update(stdout_sha256=None))
+        self.assertTrue(any('total is not the sum' in p for p in self.problems()), self.problems()[:3])
+        self.setUp()
+        problems = rr.read_back(self.bundle, '0' * 40)
+        self.assertEqual(problems, ['metadata.json names %s, not the revision %s' % (self.revision, '0' * 40)])
+        with redirect_stdout(io.StringIO()) as printed:
+            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', '0' * 40]), 1)
+        self.assertIn('DIFFERS: metadata.json names', printed.getvalue())
 
 
 class Classification(unittest.TestCase):

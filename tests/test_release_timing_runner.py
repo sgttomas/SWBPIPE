@@ -29,6 +29,7 @@ from test_release_runner import (  # noqa: E402,F401  (collected by pytest)
     PacketAggregation,
     PinnedModels,
     Plan,
+    ReadBack,
     ProgressLines,
     ReferenceSystemModel,
     RunIds,

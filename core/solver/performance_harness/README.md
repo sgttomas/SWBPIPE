@@ -393,45 +393,61 @@ On a shared host, run the build through the host's cargo wrapper and the supervi
 its exclusive wrapper. A refusal by either is a host condition, not a result.
 
 1. **A controlled build.** Make a fresh clone of the revision in a new directory (not a worktree
-   of a checkout that has been worked in) and a new, empty build directory `BUILD` outside it.
-   From the clone's root, build with an environment that holds only these four names. On a
-   shared host, put the host's cargo wrapper where `cargo` is:
+   of a checkout that has been worked in) and a new, empty build directory outside it. From the
+   clone's root, set `BUILD` to that directory's absolute path and `CTL` to the controlled
+   environment. Every command of this step then runs under `"${CTL[@]}"`, so the build is given
+   only these four names, and the facts recorded describe the build's own environment, not the
+   caller's (bash or zsh):
 
    ```sh
-   env -i HOME="$HOME" PATH="$HOME/.cargo/bin:/usr/bin:/bin:/usr/sbin:/sbin" \
-       CARGO_TARGET_DIR=BUILD CARGO_BUILD_JOBS=4 \
-       cargo build --release --locked --manifest-path core/solver/release_timing/Cargo.toml
+   BUILD=/absolute/path/of/the/new/build/directory
+   FACTS=/absolute/path/of/a/folder/outside/the/clone/for/the/facts
+   CTL=(env -i HOME="$HOME" PATH="$HOME/.cargo/bin:/usr/bin:/bin:/usr/sbin:/sbin" CARGO_TARGET_DIR="$BUILD" CARGO_BUILD_JOBS=4)
    ```
 
-   So no `RUSTFLAGS` of any spelling, compiler wrapper, linker or SDK variable, or
-   `CARGO_PROFILE_` variable can reach the build. Record in `build-facts.txt`, before the build
-   and again after it (the two must agree):
+   Record the facts in `build-facts.txt`, before the build and again after it, and check that
+   the two agree. The block below prints each command, its exit status and what it printed. A
+   command that fails is not an empty answer.
 
-   - the Git state: `git rev-parse HEAD` is the revision; `git diff --quiet HEAD` exits 0; and
-     `git -c core.fsmonitor=false status --short --ignored --untracked-files=all` prints nothing.
-     A command that fails is not an empty answer.
-   - Cargo configuration, which fails closed. Check `.cargo/config` and `.cargo/config.toml` in
-     the clone, in every parent directory up to the root, and in `$HOME/.cargo/`. List each file
-     that exists with its path and SHA-256. Any such file makes the build unfit unless its whole
-     text is recorded and it holds none of these:
-     - a `[build]`, `[target]`, `[profile]`, `[env]`, `[patch]`, `[source]` or `[unstable]`
-       table;
-     - an `include`;
-     - a `rustflags`, `linker`, `rustc`, `rustc-wrapper` or `rustc-workspace-wrapper` key.
-   - the toolchain, each as its command prints it: `rustup show active-toolchain` (in the clone),
-     `rustc -Vv`, `cargo -V`, `xcode-select -p`, `xcrun --show-sdk-version`,
-     `xcrun --show-sdk-path`, `cc --version`, `ld -v`, `sw_vers` and `uname -m`;
-   - the SHA-256 of `core/solver/release_timing/Cargo.lock`;
-   - the names, never the values, in the build's environment:
-     `env -i HOME="$HOME" PATH=... CARGO_TARGET_DIR=... CARGO_BUILD_JOBS=4 env | cut -d= -f1 | sort`
-     prints exactly `CARGO_BUILD_JOBS`, `CARGO_TARGET_DIR`, `HOME` and `PATH`.
+   ```sh
+   facts() {
+     for fact in "git rev-parse HEAD" "git diff --quiet HEAD" \
+         "git -c core.fsmonitor=false status --short --ignored --untracked-files=all" \
+         "rustup show active-toolchain" "rustc -Vv" "cargo -V" "xcode-select -p" "xcrun --show-sdk-version" \
+         "xcrun --show-sdk-path" "cc --version" "ld -v" "sw_vers" "uname -m" "command -v cargo rustc cc ld xcrun" \
+         "shasum -a 256 core/solver/release_timing/Cargo.lock"; do
+       echo "\$ CTL $fact"; "${CTL[@]}" /bin/sh -c "$fact" 2>&1; echo "exit $?"
+     done
+     echo '$ CTL env (names only)'; "${CTL[@]}" /usr/bin/env | cut -d= -f1 | sort; echo "exit $?"
+     echo '$ CTL ls .cargo/config and .cargo/config.toml in the clone, every parent and HOME'
+     "${CTL[@]}" /bin/sh -c 'd=$PWD; while :; do ls -d "$d/.cargo/config" "$d/.cargo/config.toml" 2>/dev/null; [ "$d" = / ] && break; d=$(dirname "$d"); done; ls -d "$HOME/.cargo/config" "$HOME/.cargo/config.toml" 2>/dev/null; true'
+   }
+   facts > "$FACTS/build-facts-before.txt"
+   "${CTL[@]}" cargo build --release --locked --manifest-path core/solver/release_timing/Cargo.toml
+   facts > "$FACTS/build-facts-after.txt"
+   ```
 
-   After the build, the executable is `BUILD/release/release_timing`, and the commands below
-   name it by that path. `BUILD/release/release_timing --build-identity` must name the revision
-   with `source_dirty: false` and `build_profile: "release"`. Record the executable's SHA-256
-   (`shasum -a 256 BUILD/release/release_timing`). Two such builds from two clones are expected
-   to differ in SHA-256, because the clone's path is compiled in. Compare their toolchain facts
-   and the product's output bytes instead. Read the first item of
+   On a shared host, put the host's cargo wrapper where `cargo build` is. The fact files are
+   written outside the clone, so the clone stays clean between the two Git checks. Together they
+   are the bundle's `build-facts.txt` (`cat` the two into it). The build is unfit unless all of these hold:
+   - `git rev-parse HEAD` is the revision, `git diff --quiet HEAD` exits 0, and the status
+     prints nothing;
+   - the environment's names are exactly `CARGO_BUILD_JOBS`, `CARGO_TARGET_DIR`, `HOME` and
+     `PATH` (names only, never values; inside the `/bin/sh` the shell adds its own, such as
+     `PWD`, which carry nothing from the caller);
+   - no Cargo configuration file is listed: any such file makes the build unfit;
+   - `command -v` shows the executables the controlled `PATH` resolves;
+   - the two fact files agree.
+
+   So no `RUSTFLAGS` of any spelling, compiler wrapper, linker, `RUSTUP_` or SDK variable, or
+   `CARGO_PROFILE_` variable can reach the build.
+
+   After the build, the executable is `$BUILD/release/release_timing`; below it is written
+   `BUILD/release/release_timing`. `BUILD/release/release_timing --build-identity` must name the
+   revision with `source_dirty: false` and `build_profile: "release"`. Record the executable's
+   SHA-256 (`shasum -a 256 BUILD/release/release_timing`). Two such builds from two clones are
+   expected to differ in SHA-256, because the clone's path is compiled in. Compare their recorded
+   facts and the product's output bytes instead. Read the first item of
    [What it does not yet do](#what-it-does-not-yet-do): this step is what stands in for it.
 2. **Produce the models:**
 
@@ -603,123 +619,48 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
       shasum -a 256 contract.md         # equals the stated SHA-256 of the contract
       ```
 
-   2. Items 2 to 6 below are checked by one command, with `REVISION` the full commit measured.
-      It prints each difference and exits 1 if there is any:
-      - 2. What is consumed is present: the bundle's files, one aggregate record for each run of
-        `plan.json`, the three files of each launched run, and no file of a run never launched.
-      - 3. For every run, these agree:
+   2. Items 2 to 6 are checked by one command of the runner, run from the clone's root, with
+      `BUNDLE` the bundle's path and `REVISION` the full commit measured. It reads only, prints
+      each difference and exits 1 if there is any:
+
+      ```sh
+      python3 -B core/solver/performance_harness/runner/release_runner.py --read-back BUNDLE --revision REVISION
+      ```
+
+      Add `--shared-host` where the bundle must also hold the exclusive wrapper's lines
+      (`exclusive.log`). It checks:
+      - 2. What is consumed is present. That means the bundle's files and one aggregate record
+        for each run of `plan.json`. Each launched run has its three files, and a run never
+        launched (skipped, or its model missing or mismatched) has none: its record alone stands
+        for it.
+      - 3. For every launched run, these agree:
         - the aggregate's `launch` with `<run id>.record.json`, in every key the aggregate
           carries;
         - `<run id>.jsonl` with `launch.stdout_sha256`, where that is not null;
-        - `last_stage` and `last_stage_memory` with the last stage line of the stderr file, both
-          null where there is none;
-        - `model_sha256`, where the run read its model, with the plan's and the manifest's.
-      - 4. For a run with a driver line, the stdout line equals the aggregate's `driver`. For an
+        - `last_stage` and `last_stage_memory` with the last stage line of the stderr file (both
+          null where there is none);
+        - `model_sha256` with the plan's `expected_model_sha256` and the manifest's.
+
+        A never-launched run is read for its classification and detail.
+      - 4. For a run with a driver line, that one line equals the aggregate's `driver`. For an
         `ok` run, each stage line's seconds also equal `driver.seconds`, and
         `driver.seconds.total` is the sum of the seven stages to 1e-6 s (there is no total stage
         line).
       - 5. A run with no driver line (a kill, a timeout, a skip) has an empty or absent stdout
         file and a null `driver`. That is not a corrupt bundle; such a run is read for its
         classification, detail and last stage only.
-      - 6. `packet.json` lists each run once, with the aggregate's values, and `metadata.json`
-        names `REVISION`.
+      - 6. In `packet.json`, each run id is listed once, under `runs` if it was launched and
+        `not_run` if not. EVERY field of its row equals the value the aggregate gives for it,
+        nested fields included: the exit footprint, the last stage and the output hash among
+        them. The expected row is the one the supervisor builds from that record. These are each
+        a difference:
+        - a field the row should carry but lacks;
+        - a field the row carries as null where the aggregate has a value;
+        - a field the check does not know;
+        - `classification_counts` or `metadata` that differs from the aggregate or from
+          `metadata.json`.
 
-      ```sh
-      python3 -B - REVISION <<'EOF'
-      import hashlib, json, os, sys
-      revision = sys.argv[1]
-      problems = []
-      def differs(what):
-          problems.append(what)
-          print('DIFFERS:', what)
-      def sha256(path):
-          return hashlib.sha256(open(path, 'rb').read()).hexdigest()
-      def stage_lines(run_id):
-          path = 'out/%s.stderr.txt' % run_id
-          prefix = 'release-timing-stage '
-          if not os.path.exists(path):
-              return []
-          return [json.loads(line[len(prefix):]) for line in open(path) if line.startswith(prefix)]
-      # 2. What is consumed is present.
-      for name in ('out/metadata.json', 'out/records.jsonl', 'out/packet.json', 'plan.json', 'models/manifest.json',
-                   'build-facts.txt', 'host-before.txt', 'host-processes.log', 'baseline-set.json', 'contract.md'):
-          if not os.path.isfile(name):
-              differs('%s is missing' % name)
-      plan = json.load(open('plan.json'))
-      manifest = json.load(open('models/manifest.json'))['models']
-      records = [json.loads(line) for line in open('out/records.jsonl') if line.strip()]
-      aggregate = {r['run_id']: r for r in records}
-      if sorted(aggregate) != sorted(r['run_id'] for r in plan['runs']) or len(aggregate) != len(records):
-          differs('the aggregate does not hold one record for each run of plan.json')
-      for p in plan['runs']:
-          run_id, r = p['run_id'], aggregate.get(p['run_id'])
-          if r is None:
-              continue
-          files = ['out/%s%s' % (run_id, suffix) for suffix in ('.jsonl', '.stderr.txt', '.record.json')]
-          if 'launch' in r:   # launched: its three files
-              for path in files:
-                  if not os.path.isfile(path):
-                      differs('%s is missing' % path)
-          else:               # never launched (skipped, model missing or mismatched): no files of its own
-              for path in files:
-                  if os.path.exists(path):
-                      differs('%s exists for a run that was not launched' % path)
-          # 3. Every run.
-          if 'launch' in r and os.path.isfile(files[2]):
-              record = json.load(open(files[2]))
-              for key, value in r['launch'].items():
-                  if record.get(key) != value:
-                      differs('%s: launch.%s differs from %s' % (run_id, key, files[2]))
-              if r['launch'].get('stdout_sha256') is not None and (
-                      not os.path.isfile(files[0]) or sha256(files[0]) != r['launch']['stdout_sha256']):
-                  differs('%s: the stdout file is not launch.stdout_sha256' % run_id)
-          lines = stage_lines(run_id)
-          last = lines[-1] if lines else None
-          stage = {k: last.get(k) for k in ('repeat', 'stage', 'seconds')} if last else None
-          memory = {k: last.get(k) for k in ('ru_maxrss_bytes', 'phys_footprint_bytes',
-                                             'lifetime_max_phys_footprint_bytes')} if last else None
-          if r.get('last_stage') != stage or r.get('last_stage_memory') != memory:
-              differs('%s: last_stage or last_stage_memory differs from its stderr file' % run_id)
-          if 'model_sha256' in r and not (r['model_sha256'] == p.get('expected_model_sha256')
-                                          == (manifest.get(p['model']) or {}).get('sha256')):
-              differs('%s: model_sha256 is not the plan\'s and the manifest\'s' % run_id)
-          # 4. A run with a driver line; 5. a run without one.
-          stdout = open(files[0]).read() if os.path.isfile(files[0]) else ''
-          if r.get('driver') is not None:
-              lines_out = [line for line in stdout.splitlines() if line.strip()]
-              if len(lines_out) != 1 or json.loads(lines_out[0]) != r['driver']:
-                  differs('%s: the stdout line is not the aggregate\'s driver' % run_id)
-              if r['classification'] == 'ok':
-                  seconds = r['driver']['seconds']
-                  for line in lines:
-                      if seconds.get(line['stage']) != line['seconds']:
-                          differs('%s: stage %s seconds differ from driver.seconds' % (run_id, line['stage']))
-                  stages = ('read', 'parse', 'request', 'entry', 'serialize', 'release_envelope', 'parse_back')
-                  if abs(seconds['total'] - sum(seconds[s] for s in stages)) > 1e-6:
-                      differs('%s: driver.seconds.total is not the sum of the seven stages' % run_id)
-          elif r['classification'] == 'ok' or stdout.strip():
-              differs('%s: no driver in the aggregate but classification ok or a stdout line' % run_id)
-      # 6. The packet and the metadata.
-      packet = json.load(open('out/packet.json'))
-      for row in packet['runs'] + packet['not_run']:
-          r = aggregate.get(row['run_id']) or {}
-          driver = r.get('driver') or {}
-          pairs = {k: r.get(k) for k in ('order', 'classification', 'classification_detail', 'as_expected', 'model',
-                                         'model_sha256', 'model_bytes', 'expect', 'profile', 'nodes', 'mode', 'task')}
-          pairs.update(route=driver.get('route'), status=driver.get('status'), stage_seconds=driver.get('seconds'),
-                       rows=driver.get('rows'), output_bytes=driver.get('output_bytes'),
-                       output_sha256=driver.get('output_sha256'))
-          for key, value in pairs.items():
-              if key in row and row[key] != value:
-                  differs('%s: packet.%s differs from the aggregate' % (row['run_id'], key))
-      if sorted(row['run_id'] for row in packet['runs'] + packet['not_run']) != sorted(aggregate):
-          differs('the packet does not list each run of the aggregate once')
-      if json.load(open('out/metadata.json')).get('source_commit') != revision:
-          differs('metadata.json does not name the revision')
-      print('read-back: %d difference(s)' % len(problems))
-      sys.exit(1 if problems else 0)
-      EOF
-      ```
+        `metadata.json` also names `REVISION`.
 
 A set that is INCOMPLETE BY THE WINDOW, or otherwise unusable, is kept as it is. A repeat runs
 the whole named plan again, into a new folder. Completed timings are never combined across
