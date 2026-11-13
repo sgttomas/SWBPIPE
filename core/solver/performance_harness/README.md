@@ -111,9 +111,9 @@ A refused allocation writes a marker and aborts.
 **Running it.**
 - `cargo build --release --bin k6_observe`, then `k6_observe --model <id> --mode <mode> --heap-cap-bytes <n>`.
 - `k6_observe --list-models`, `--emit-model` and `--counts-only` inspect the models.
-- `python3 runner/k6_runner.py --plan --counts observations/k6/counts.jsonl` shows the schedule. `--run --tier <T>` runs a tier, one process at a time, on a quiet host.
+- `python3 -B runner/k6_runner.py --plan --counts observations/k6/counts.jsonl` shows the schedule. `--run --tier <T>` runs a tier, one process at a time, on a quiet host.
 - `--packet --records <dir>` writes the compact packet. `observations/k6/k6_packet.json` is the packet of K6's recorded runs (Mac only), and `observations/k6/SHA256SUMS` lists the folder's hashes.
-- The runner's tests run with `python3 -m unittest test_k6_runner` from `runner/`, and on the DEC-025 pytest surface through `tests/test_performance_harness_runner.py`.
+- The runner's tests run with `python3 -B -m unittest test_k6_runner` from `runner/`, and on the DEC-025 pytest surface through `tests/test_performance_harness_runner.py`.
 
 ## K6b: W1 observations on the K6 harness (T3 K6b)
 
@@ -135,7 +135,10 @@ memory bound.
   racks of an exact node count, built from 41-node bays. The profiles are:
   - `linear-ex`: the exact route, with the static case set and its subtractions;
   - `nonlinear-ex`: OPE with lift-off, friction and gap supports;
-  - `nonlinear-pf`: its pressure-free twin.
+  - `nonlinear-pf`: its pressure-free twin;
+  - `baseline-one-case-ex`: not a criterion 9 profile. It is the headless baseline's one-case
+    model: `linear-ex`'s rack with its operating case (weight, pressure, temperature) alone and no
+    combination ([The headless baseline](#the-headless-baseline)).
 
   Only forms that main admits are emitted. `LEDGER` (`--ledger`) lists each target form that
   is pending, with its interim form and what it waits for. `observations/rack/models_sha256.txt`
@@ -246,7 +249,7 @@ memory bound.
   reader here currently performs that verification; the manifest and verifying reader belong to
   the follow-up.
 
-  Two things it does not yet do, which a reader of a run's records must know:
+  <a id="what-it-does-not-yet-do"></a>Two things it does not yet do, which a reader of a run's records must know:
 
   - **The build identity does not establish that the executable was built from the named
     revision alone.** It says that tracked files match the head, that nothing outside Git's
@@ -324,8 +327,8 @@ memory bound.
 
   ```sh
   (cd core/solver/release_timing && cargo build --release --locked)
-  python3 core/solver/performance_harness/runner/release_runner.py --generate --subset criterion --models FOLDER
-  python3 core/solver/performance_harness/runner/release_runner.py --write-plan FOLDER/plan.json --subset criterion --models FOLDER
+  python3 -B core/solver/performance_harness/runner/release_runner.py --generate --subset criterion --models FOLDER
+  python3 -B core/solver/performance_harness/runner/release_runner.py --write-plan FOLDER/plan.json --subset criterion --models FOLDER
   cp "${CARGO_TARGET_DIR:-core/solver/release_timing/target}/release/release_timing" FOLDER/
   ```
 
@@ -349,3 +352,409 @@ memory bound.
   outside the binary is run. A copy that macOS has quarantined (one from AirDrop or a download)
   may be refused at first start; copy the folder from a drive instead. Bring back
   `results/`; `packet.json` is the record.
+
+## The headless baseline
+
+This baseline does not measure criterion 9's linear workload. That workload is the profile
+`linear-ex` (seven cases and five combinations). The baseline is a timing that a second worker
+can reproduce from the repository alone, on two exact-route models. Each is solved by the
+driver in sparse mode, in a process of its own:
+
+- W1, `baseline-one-case-ex` at 2,000 nodes: `linear-ex`'s rack with its operating case alone
+  and no combination. The product solves every case and combination a document holds, so the
+  only way to time one case is a model that holds one case.
+- W2, the committed reference system, `fixtures/reference_system/reference_system.json`.
+
+The runner's named plan `baseline` holds ten runs, W1, W2, W1, W2, ..., five of each. Their run
+ids end `-r1` to `-r5`. `baseline-with-rack` holds the same ten, then one run of `linear-ex` at
+2,000 nodes. That run is the default plan's row, with the same expectation,
+`exceeds_base_machine_budget`. It states criterion 9's own linear workload beside the baseline
+on the same revision, and it is never a timing. A named plan fixes its mode, its limits, its
+window and its quiet-host wait. `--plan --subset baseline` prints them, and the runner refuses
+any flag that would change them, `--generator` included.
+
+The window is the quiet-host wait, every run's timeout and a planning allowance of 30 s per run
+for the supervisor's own work between runs: hashing the model, the host check, the launch and
+the records. The allowance is a planning figure, not an established bound on that work, and
+nothing enforces it. So the window fits every run at its full timeout provided that work stays
+within the allowance. Where it does not, the supervisor cuts a later run's timeout to what
+remains, or skips the run, and the run's record says so: `timeout_capped_by_window` true, or
+`skipped_window_budget`. `--baseline-set` (step 7) then reports that result INCOMPLETE BY THE
+WINDOW.
+This is a scope decision, not a necessity. A bounded window could instead decline to start a
+run whose full timeout no longer fits; both supervisors are kept as they are by choice.
+
+Whoever measures states their thresholds in their own measurement contract; this section sets
+none. The steps below are the procedure. Every command names `--subset baseline`; for
+`baseline-with-rack`, the same commands name that subset. The revision to measure, the acceptable values and what
+follows from a verdict belong to that contract.
+
+On a shared host, run the build through the host's cargo wrapper and the supervised run through
+its exclusive wrapper. A refusal by either is a host condition, not a result.
+
+1. **A controlled build.** Make a fresh clone of the revision in a new directory (not a worktree
+   of a checkout that has been worked in) and a new, empty build directory outside it. From the
+   clone's root, set `BUILD` to that directory's absolute path and `CTL` to the controlled
+   environment. Every command of this step then runs under `"${CTL[@]}"`, so the build is given
+   only these four names, and the facts recorded describe the build's own environment, not the
+   caller's (bash or zsh):
+
+   ```sh
+   BUILD=/absolute/path/of/the/new/build/directory
+   FACTS=/absolute/path/of/a/folder/outside/the/clone/for/the/facts
+   CTL=(env -i HOME="$HOME" PATH="$HOME/.cargo/bin:/usr/bin:/bin:/usr/sbin:/sbin" CARGO_TARGET_DIR="$BUILD" CARGO_BUILD_JOBS=4)
+   ```
+
+   Record the facts in `build-facts.txt`, before the build and again after it, and check that
+   the two agree. The block below prints each command, its exit status and what it printed. A
+   command that fails is not an empty answer.
+
+   ```sh
+   facts() {
+     for fact in "git rev-parse HEAD" "git diff --quiet HEAD" \
+         "git -c core.fsmonitor=false status --short --ignored --untracked-files=all" \
+         "rustup show active-toolchain" "rustc -Vv" "cargo -V" "xcode-select -p" "xcrun --show-sdk-version" \
+         "xcrun --show-sdk-path" "cc --version" "ld -v" "sw_vers" "uname -m" "command -v cargo rustc cc ld xcrun" \
+         "shasum -a 256 core/solver/release_timing/Cargo.lock"; do
+       echo "\$ CTL $fact"; "${CTL[@]}" /bin/sh -c "$fact" 2>&1; echo "exit $?"
+     done
+     echo '$ CTL env (names only)'; "${CTL[@]}" /usr/bin/env | cut -d= -f1 | sort; echo "exit $?"
+     echo '$ CTL ls .cargo/config and .cargo/config.toml in the clone, every parent and HOME'
+     "${CTL[@]}" /bin/sh -c 'd=$PWD; while :; do ls -d "$d/.cargo/config" "$d/.cargo/config.toml" 2>/dev/null; [ "$d" = / ] && break; d=$(dirname "$d"); done; ls -d "$HOME/.cargo/config" "$HOME/.cargo/config.toml" 2>/dev/null; true'
+   }
+   facts > "$FACTS/build-facts-before.txt"
+   "${CTL[@]}" cargo build --release --locked --manifest-path core/solver/release_timing/Cargo.toml
+   facts > "$FACTS/build-facts-after.txt"
+   { "${CTL[@]}" "$BUILD/release/release_timing" --build-identity; echo "exit $?"
+     "${CTL[@]}" /usr/bin/shasum -a 256 "$BUILD/release/release_timing"; echo "exit $?"; } > "$FACTS/build-identity.txt"
+   ```
+
+   On a shared host, put the host's cargo wrapper where `cargo build` is. The fact files are
+   written outside the clone, so the clone stays clean between the two Git checks. Together they
+   are the bundle's `build-facts.txt`, with `build-identity.txt` (`cat` the three into it). The build is unfit unless all of these hold:
+   - `git rev-parse HEAD` is the revision, `git diff --quiet HEAD` exits 0, and the status
+     prints nothing;
+   - the environment's names are exactly `CARGO_BUILD_JOBS`, `CARGO_TARGET_DIR`, `HOME` and
+     `PATH` (names only, never values; inside the `/bin/sh` the shell adds its own, such as
+     `PWD`, which carry nothing from the caller);
+   - no Cargo configuration file is listed: any such file makes the build unfit;
+   - `command -v` shows the executables the controlled `PATH` resolves;
+   - the two fact files agree.
+
+   So no `RUSTFLAGS` of any spelling, compiler wrapper, linker, `RUSTUP_` or SDK variable, or
+   `CARGO_PROFILE_` variable can reach the build.
+
+   After the build, the executable is `$BUILD/release/release_timing`; below it is written
+   `BUILD/release/release_timing`. Its build identity, recorded under `CTL` in
+   `build-identity.txt` above, must name the revision with `source_dirty: false` and
+   `build_profile: "release"`. Its SHA-256 is recorded there too. Two such builds from two clones are
+   expected to differ in SHA-256, because the clone's path is compiled in. Compare their recorded
+   facts and the product's output bytes instead. Read the first item of
+   [What it does not yet do](#what-it-does-not-yet-do): this step is what stands in for it.
+2. **Produce the models:**
+
+   ```sh
+   python3 -B core/solver/performance_harness/runner/release_runner.py --generate --subset baseline --models FOLDER
+   ```
+
+   W1 is written by the repository's rack generator, the same bytes as
+   `python3 -B core/solver/performance_harness/rack/rack_model.py --profile baseline-one-case-ex --nodes 2000 -o FILE`.
+   `--generate` compares its SHA-256 with the line `baseline-one-case-ex  2000` of
+   `observations/rack/models_sha256.txt`, which `tests/test_performance_rack_model.py` holds
+   against the generator. W2 is copied only after
+   `python3 -B fixtures/reference_system/generate_reference_system.py --check` exits 0, which shows
+   the committed file is what its generator writes. No other file states its hash: it is the
+   SHA-256 of the committed file at that revision (`shasum -a 256 fixtures/reference_system/reference_system.json`).
+   `FOLDER/manifest.json` records both hashes. If W1's hash differs from its line, or W2's check
+   fails, `--generate` names the model (for W1 also the expected and the found hash), leaves it
+   out of the manifest and exits 1. The plan cannot then be written.
+3. **Write the plan.** Each run then carries its model's SHA-256 from the manifest. First every
+   model of the plan is compared again, both its manifest record and the file itself in
+   `FOLDER`: W1 with its line of `observations/rack/models_sha256.txt`, W2 with the SHA-256 of
+   the committed file at this checkout. If a model is missing or differs, nothing is written and
+   the runner exits 2. So a
+   models folder made any other way, or at another revision, cannot become a named plan.
+   `--plan --models FOLDER` and `--run --models FOLDER` make the same comparison.
+
+   ```sh
+   python3 -B core/solver/performance_harness/runner/release_runner.py --write-plan plan.json --subset baseline --models FOLDER
+   ```
+
+4. **Check the host before the run.** Record each command, its exit status and what it printed in
+   `host-before.txt`. The run does not start until each check passes:
+   - `pgrep -x cargo` and `pgrep -x rustc`. Exit 1 with nothing printed means the process is
+     absent; exit 0 means one is running; any other status means the check failed. The
+     supervisor's own quiet test looks for cargo and evidence sweeps, not for rustc.
+   - `sysctl -n kern.memorystatus_level`, which must exit 0 and print a number. The figure is the
+     share of physical memory that is neither wired nor held by the compressor; it is not the
+     share free. It is kept because the supervisor's own quiet test reads it, and that test
+     accepts it unreadable, which this check does not. It does not stand for available memory.
+   - Available memory, from `vm_stat`: (Pages free + Pages inactive + Pages speculative) × the page
+     size `vm_stat` prints. The process log records it again in every sample:
+
+     ```sh
+     vm_stat | awk '/page size of/ {page = $8} /^Pages (free|inactive|speculative):/ {sub(/\.$/, "", $NF); pages += $NF} END {print pages * page}'
+     ```
+
+   - Swap use, from `sysctl -n vm.swapusage`, which must exit 0; its `used` figure is recorded.
+   - `sysctl -n vm.loadavg`.
+   - `df -g` of the volume the run writes to.
+
+   The values each of these must reach are thresholds, and the measurement contract sets them.
+5. **Start the process log** before the supervised run, and stop it after the supervisor exits:
+
+   ```sh
+   while :; do printf 'T %s\n' "$(date -u +%FT%TZ)"; ps -Ao pcpu=,pid=,comm= -r | head -12; printf 'S %s\n' "$(sysctl -n vm.swapusage)"; vm_stat | grep -E '^(Mach|Pages (free|inactive|speculative))'; sleep 5; done > host-processes.log
+   ```
+
+   Each sample is a `T` line (the time), the twelve busiest processes, an `S` line (swap use) and
+   four `vm_stat` lines (the page size and the free, inactive and speculative pages). The log is
+   complete when all of these hold:
+   - its first `T` line is earlier than the run's start in the metadata;
+   - its last `T` line is later than the supervisor's exit;
+   - no two consecutive `T` lines are more than 15 s apart;
+   - every `T` line is followed by at least one process line, an `S` line and the four `vm_stat`
+     lines.
+
+   The measurement contract judges each sample against its own limits, for available memory,
+   swap growth and steady foreign load.
+6. **Run the plan**, under the host's exclusive wrapper on a shared host, into a folder that does
+   not yet exist:
+
+   ```sh
+   BUILD/release/release_timing --supervise plan.json --models FOLDER --out NEW_FOLDER
+   ```
+
+7. **Read the two results**, into the file the bundle keeps:
+
+   ```sh
+   python3 -B core/solver/performance_harness/runner/release_runner.py --baseline-set NEW_FOLDER --plan-file plan.json --subset baseline > baseline-set.json
+   ```
+
+   It reads exactly one supervised folder and writes nothing there. The JSON report goes to
+   stdout. The two results, and the exit status with its contract, go to stderr. First it holds
+   `plan.json` to the named plan at this checkout: every top-level field (the schema, the window,
+   the quiet-host wait), and every field of each run except two. The run's
+   `expected_model_sha256` must instead be the repository's own. Its `model_stats` is the
+   generator's description and is not compared. A difference there, or in the folder itself
+   (a record that does not parse, a duplicate, a record of a run the plan does not hold), is a
+   folder finding: both results are then FINDINGS.
+
+   **The ten-run timing set** holds the runs the plan expects `solved`, W1 and W2 five times
+   each. A run is a completed timing only if all of these hold:
+   - its `classification` is `ok` and `as_expected` is true;
+   - `driver.route` is `EX`;
+   - the plan's `expected_model_sha256`, the record's `model_sha256` and
+     `driver.document.sha256` are one value;
+   - `driver.seconds.entry` and `launch.rss.exit_lifetime_max_phys_footprint_bytes` are numbers;
+   - `driver.output_sha256`, `driver.rows` and `driver.output_bytes` are present, and equal
+     those of the workload's other completed runs.
+
+   For each workload the report gives its completed timings, with the median, minimum and
+   maximum of `driver.seconds.entry`. That is the product's solve entry: the `entry` member of
+   `seconds` in the driver's line, which is the `release-timing-v2` object in
+   `NEW_FOLDER/<run id>.jsonl`, repeated in `packet.json` as `stage_seconds`. Its result is
+   printed as one of these:
+   - `TEN-RUN TIMING SET: COMPLETE`: every run of each workload is a completed timing, and no run
+     was skipped for the window or timed out under a capped timeout. A run whose timeout was
+     capped but which completed is unaffected.
+   - `TEN-RUN TIMING SET: INCOMPLETE BY THE WINDOW`: one or more runs were
+     `skipped_window_budget` or timed out with `timeout_capped_by_window` true, and the set has
+     no finding. The report names those runs.
+   - `TEN-RUN TIMING SET: FINDINGS`: anything else that keeps a run from being a completed
+     timing: a wrong, missing or disagreeing output, a memory breach, a timeout at the full
+     timeout, a refusal, an error, a model mismatch, or a missing or null figure. Where a finding
+     and a window problem both occur, the result is FINDINGS and both are listed. A finding is
+     never absorbed into a window problem.
+
+   A run that timed out, was killed for memory (`exceeds_base_machine_budget`,
+   `killed_by_rss_cap`), was refused, ended in an error or was skipped is never a timing.
+
+   **The rack observation** covers every run the plan does not expect to solve. In
+   `baseline-with-rack` that is the `linear-ex` run, expected `exceeds_base_machine_budget`. It
+   is never a timing, but it is always judged. Leaving it out of the timing statistics never
+   leaves it out of the findings. For each such run the report states whether it was observed
+   at all, its actual outcome (classification, detail and last stage) and whether its declared
+   expectation was met (`as_expected`):
+   - Observed, with the expectation met (for the rack, the budget limit it is expected to reach):
+     a successful observation.
+   - Not observed is a finding: no record; no launch (`model_missing`, `model_mismatch`, or an
+     error before any driver started); or a model run on other bytes than the plan's.
+   - Observed, with an outcome that does not meet the expectation, is a finding. That covers an
+     entry error, a refusal, a full-length timeout, a resident-cap kill where the plan expects
+     otherwise, or `ok` where it expects a budget limit.
+   - A skip for the window, or a timeout under a timeout the window capped, is a window problem.
+
+   Its result is printed as one of these:
+   - `RACK OBSERVATION: OBSERVED AS EXPECTED`;
+   - `RACK OBSERVATION: INCOMPLETE BY THE WINDOW`;
+   - `RACK OBSERVATION: FINDINGS`;
+   - `RACK OBSERVATION: NONE IN THIS PLAN` (`baseline`).
+
+   A rack finding does not change the ten-run timing set's result.
+
+   **The exit contract**, one status for both results:
+
+   | Exit | When |
+   | --- | --- |
+   | 1 | any finding exists: in the ten-run timing set, the rack observation, the folder or the plan file |
+   | 3 | no finding, and either result is INCOMPLETE BY THE WINDOW |
+   | 0 | `TEN-RUN TIMING SET: COMPLETE` with `RACK OBSERVATION: OBSERVED AS EXPECTED` or `NONE IN THIS PLAN` |
+
+   So a set whose ten timings are complete beside a rack finding exits 1. Its timing-set result
+   still reads `TEN-RUN TIMING SET: COMPLETE`. `--help` states the same contract.
+
+   `host_not_quiet` lists runs whose own host check was not quiet or read no memory level. It is
+   for the measurement contract's rules and changes neither result.
+8. **The bundle.** Put these in one folder:
+   - `out/`, the folder the supervisor wrote. Each run that was launched has three files there:
+     `<run id>.jsonl` (the driver's stdout line, empty where it printed none), `<run id>.stderr.txt`
+     (its stage lines) and `<run id>.record.json` (the launch record). A run that was never
+     launched has none: one skipped for the window, or one whose model was missing or
+     mismatched.
+   - `plan.json` and `models/manifest.json` (the models themselves can be produced again by
+     step 2);
+   - `build-facts.txt`, `host-before.txt`, `host-processes.log` and `baseline-set.json`;
+   - on a shared host, the exclusive wrapper's own lines for the run;
+   - a copy of the measurement contract used.
+
+   Once the supervisor has exited and the process log has stopped, inventory the bundle from its
+   root:
+
+   ```sh
+   find . -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 shasum -a 256 > SHA256SUMS
+   shasum -a 256 SHA256SUMS
+   ```
+
+   Nothing in the bundle is written after that. The second command prints the root digest. State
+   it outside the bundle, with the SHA-256 of the contract's copy, in the message that reports the
+   run; a later reader takes both from there.
+9. **Read a bundle back.** No reader here verifies stored records (the second item of
+   [What it does not yet do](#what-it-does-not-yet-do)). Whoever reads a bundle does the
+   following, in order, from its root, and stops on the first difference. The hashes show that
+   the files are the ones inventoried; they do not show that a record is true. The checks after
+   them cover what decides time, memory and classification.
+
+   1. Integrity and membership. `shasum -c` alone does not see an added file, so the third
+      command compares the bundle's files with the list's names:
+
+      ```sh
+      shasum -a 256 SHA256SUMS          # equals the stated root digest
+      shasum -a 256 -c SHA256SUMS       # every line OK
+      diff <(find . -type f ! -name SHA256SUMS | LC_ALL=C sort) <(sed 's/^[0-9a-f]*  //' SHA256SUMS)   # prints nothing
+      shasum -a 256 contract.md         # equals the stated SHA-256 of the contract
+      ```
+
+   2. Items 2 to 6 are checked by one command of the runner, run from the clone's root. `BUNDLE` is
+      the bundle's path, `REVISION` the full commit measured, and `ROOT` the root digest stated
+      outside the bundle. It reads only, prints each difference and exits 1 if there is any:
+
+      ```sh
+      python3 -B core/solver/performance_harness/runner/release_runner.py --read-back BUNDLE --revision REVISION --root-digest ROOT
+      ```
+
+      Add `--shared-host` where the bundle must also hold the exclusive wrapper's lines
+      (`exclusive.log`).
+
+      **Integrity, inside the command.** It verifies `SHA256SUMS` against `ROOT` first. Then, for
+      each file it consumes, it reads the bytes once, checks them against `SHA256SUMS`, and parses
+      only those bytes. That includes the files the worker examines by hand: the build facts, the
+      host files, the exclusive log and the contract's copy. Their bytes are verified, though
+      their content is not read. These are each a difference:
+      - a symbolic link, or a file reached through one;
+      - a file it consumes that `SHA256SUMS` does not name;
+      - a name in `SHA256SUMS` that is no file of the bundle or of a launched run;
+      - a hash that does not match.
+
+      It does not detect a change made after it has read a file: the bundle is frozen once
+      inventoried (step 8).
+
+      **Then it checks:**
+      - 2. What is consumed is present. That means the bundle's files and one aggregate record
+        for each run of `plan.json`, in the plan's order. Each launched run has its three files.
+        A run never launched (skipped, or its model missing or mismatched) has none and carries
+        no last stage: its record alone stands for it.
+      - The plan of this run. These must agree with what the supervisor did with the plan:
+        - each entry field it copies into the run's record, and the model;
+        - the run ids, in order, in the metadata;
+        - the plan's window and quiet wait, against the metadata;
+        - the plan's schema, which must be the one the supervisor reads.
+      - 3. For every launched run, these agree:
+        - the aggregate's `launch` with `<run id>.record.json`, key for key: every key the
+          supervisor writes is present in both, null included;
+        - `<run id>.jsonl` with `launch.stdout_sha256`, where that is not null;
+        - `last_stage` and `last_stage_memory` with the last stage line of the stderr file (both
+          null where there is none);
+        - `model_sha256` with the plan's `expected_model_sha256` and the manifest's.
+
+        A never-launched run is read for its classification and detail.
+      - 4. For a run with a driver line, that one line equals the aggregate's `driver`, and each
+        stage line's memory readings equal `driver.peak_memory` for that stage. For an `ok` run,
+        each stage line's seconds also equal `driver.seconds`, every stage and the total is a
+        number, and `driver.seconds.total` is the sum of the seven stages to 1e-6 s (there is no
+        total stage line).
+      - 5. A run with no driver line (a kill, a timeout, a skip) has an empty or absent stdout
+        file and a null `driver`. That is not a corrupt bundle; such a run is read for its
+        classification, detail and last stage only.
+      - Required values by decision branch. For each record form, every value a decision rule
+        reads must be present and not null. The forms are completed; refused; entry error;
+        killed by the footprint watch; over the budget at the result; killed by the resident
+        cap; timed out; an error; never launched. A null the producer leaves where no rule reads
+        it is kept, and is not a difference. `REQUIRED_BY_BRANCH` in `runner/release_runner.py`
+        mirrors the measurement contract's decision-input table, which names each input, the
+        rule that reads it, every copy that must agree, and who checks it.
+      - 6. In `packet.json`, each run id is listed once, under `runs` if it was launched and
+        `not_run` if not. EVERY field of its row equals the value the aggregate gives for it,
+        nested fields included: the exit footprint, the last stage and the output hash among
+        them. The complete mapping is stated once, in `runner/release_runner.py`:
+        - `PACKET_RUN_FIELDS` gives each field of a launched row with its source in the aggregate
+          record;
+        - `NOT_RUN_KEYS` gives the fields of a never-launched row;
+        - `PACKET_REQUIRED_VALUES` gives, for each row form, the fields its packet row must hold a
+          value in.
+
+        A stopped or never-launched run's legitimate nulls are kept, and are not differences.
+        These are each a difference:
+        - a field the row should carry but lacks;
+        - a null where the aggregate has a value, or where the row form requires one;
+        - a field the check does not know;
+        - `classification_counts` or `metadata` that differs from the aggregate or from
+          `metadata.json`.
+
+        `metadata.json` also names `REVISION`.
+      - The build identity. `metadata.json` must say `source_dirty` false and `build_profile`
+        `"release"`; anything else (true, `"unknown"`, missing, null, a debug build) is a
+        difference. `--allow-unreleased-build` exists only for the debug-built test fixture: it
+        waives this one check, and the command then prints that the build identity was not
+        required.
+      - The two results. `baseline-set.json` must equal what `--baseline-set` gives, recomputed
+        from the records and plan just checked, for the named plan it names. No stored verdict is
+        taken unchecked.
+
+      **What the command does not check, and why no decision relies on it:**
+      - The packet's presentation fields: `window_elapsed_s`, `driver_limits`, `conditions`,
+        `schema`, `observation_only`, `no_thresholds` and any unknown envelope key. Every
+        decision reads the aggregate record, never these.
+      - A change of meaning that keeps names and shapes (a unit, say, copied the same way into
+        the aggregate, the launch record and the packet). No comparison can see it.
+      - The mapping's limits. It copies the self-supervising driver's `packet_row`
+        (`supervise.rs`) in Python. A test ties it to the packet rows in
+        `runner/fixtures/read_back/`, written by that supervisor at commit `e42da5ff1`, not
+        to the live Rust. If a future supervisor adds, removes or renames a fixed mapped row key,
+        real bundles show differences. An envelope addition, a nested key copied dynamically from
+        the aggregate (a new stage in `driver.seconds`, say), or a change of meaning shows none,
+        and no test fails. `runner/fixtures/make_read_back_fixture.py` says what the fixture holds
+        and how it is written again.
+      - The content of the files the worker examines by hand: `build-facts.txt` (contract
+        section 4; section 11 item 2), `host-before.txt` and `host-processes.log` (section 8), and
+        `exclusive.log`. Their presence and bytes are checked, and presence discharges none of
+        those rules. The contract's decision-input table names the outcome each must show.
+      - A file added to the bundle and not listed in `SHA256SUMS`. The membership check of item 1
+        finds it.
+
+      A clean read-back prints that it does not by itself make a measurement usable. The worker's
+      checks of the build (section 4) and of the host and window (section 8) do that.
+
+A set that is INCOMPLETE BY THE WINDOW, or otherwise unusable, is kept as it is. A repeat runs
+the whole named plan again, into a new folder. Completed timings are never combined across
+attempts: `--baseline-set` reads one folder only.
