@@ -995,6 +995,14 @@ def read_time_file(path, system):
     return parse_time(text, system)
 
 
+# The aggregate record of a record folder (`append_record`, `read_records`).
+RECORDS_NAME = 'records.jsonl'
+# The files `launch` writes for one run, `<run_id><suffix>`: /usr/bin/time's report, stdout, the
+# sanitized stderr and the launch record.
+TIME_SUFFIX, STDOUT_SUFFIX, STDERR_SUFFIX, LAUNCH_RECORD_SUFFIX = '.time.txt', '.jsonl', '.stderr.txt', '.record.json'
+LAUNCH_SUFFIXES = (TIME_SUFFIX, STDOUT_SUFFIX, STDERR_SUFFIX, LAUNCH_RECORD_SUFFIX)
+
+
 def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, system=None,
            resource_module=None, poll_s=POLL_S, k6_protocol=True, sampler=None):
     """One observation process: wrapper, watchdog, limits, record. Returns the record.
@@ -1004,7 +1012,7 @@ def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, 
     system = system or platform.system()
     os.makedirs(record_dir, exist_ok=True)
     base = os.path.join(record_dir, run_id)
-    time_path = base + '.time.txt'
+    time_path = base + TIME_SUFFIX
     cmd = list(argv)
     if wrapper:
         cmd = [TIME_WRAPPER, '-l' if system == 'Darwin' else '-v', '-o', time_path] + cmd
@@ -1016,7 +1024,7 @@ def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, 
               'rss_cap_bytes': rss_cap_bytes, 'timeout_s': timeout_s, 'poll_s': poll_s,
               'rlimit_as_applied': preexec is not None,
               'load_before': list(os.getloadavg()), 'memorystatus_before': memorystatus_level(system)}
-    out_path = base + '.jsonl'
+    out_path = base + STDOUT_SUFFIX
     stdout_lines, stderr_chunks = [], []
     t0 = time.monotonic()
     proc, watched, threads = None, None, []
@@ -1057,7 +1065,7 @@ def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, 
     exit_code = os.waitstatus_to_exitcode(status)
     proc.returncode = exit_code
     stderr_text = b''.join(stderr_chunks).decode('utf-8', 'replace')
-    with open(base + '.stderr.txt', 'w') as fh:
+    with open(base + STDERR_SUFFIX, 'w') as fh:
         fh.write(sanitize(stderr_text))
     time_info = read_time_file(time_path, system)
     objects = jsonl(stdout_lines)
@@ -1095,7 +1103,7 @@ def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, 
         record['repeats_heap_peak_move'] = summary.get('repeats_heap_peak_move')
     with open(out_path, 'rb') as fh:
         record['stdout_sha256'] = hashlib.sha256(fh.read()).hexdigest()
-    with open(base + '.record.json', 'w') as fh:
+    with open(base + LAUNCH_RECORD_SUFFIX, 'w') as fh:
         json.dump(record, fh, indent=1, sort_keys=True)
         fh.write('\n')
     return record
@@ -1153,7 +1161,7 @@ def run_entries(records):
 
 
 def read_records(record_dir):
-    path = os.path.join(record_dir, 'records.jsonl')
+    path = os.path.join(record_dir, RECORDS_NAME)
     if not os.path.exists(path):
         return []
     with open(path) as fh:
@@ -1161,7 +1169,7 @@ def read_records(record_dir):
 
 
 def append_record(record_dir, record):
-    with open(os.path.join(record_dir, 'records.jsonl'), 'a') as fh:
+    with open(os.path.join(record_dir, RECORDS_NAME), 'a') as fh:
         fh.write(json.dumps(record, sort_keys=True) + '\n')
 
 

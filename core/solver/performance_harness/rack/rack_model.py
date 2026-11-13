@@ -189,7 +189,7 @@ LEDGER = [
      "target_form": "the nonlinear OPE solve of the rack",
      "interim_form": "document emitted unchanged; the product refuses the solve before any case",
      "refusal_code": "NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED",
-     "waits_for": "RT-A3 stage P (nonlinear above ~1,760 nodes)",
+     "waits_for": "the replacement of the nonlinear admission cap in sparse mode (DEL-04-07 REQ-008; Agent 0 decides)",
      "profiles": ["nonlinear-ex", "nonlinear-pf"],
      "min_nodes": NONLINEAR_DENSE_GUARD_NODES},
     {"family": "SAM: anchor movement on the end anchor, with dSAM",

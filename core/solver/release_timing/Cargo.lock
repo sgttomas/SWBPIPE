@@ -144,6 +144,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_operation_applier"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_canonical_json",
+ "open_pipe_stress_frame_kernel",
+ "open_pipe_stress_product_physics",
+ "open_pipe_stress_units",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "open_pipe_stress_primitive_loads"
 version = "0.1.0"
 dependencies = [
@@ -181,7 +194,9 @@ name = "open_pipe_stress_release_timing"
 version = "0.1.0"
 dependencies = [
  "libc",
+ "open_pipe_stress_operation_applier",
  "open_pipe_stress_product_physics",
+ "serde",
  "serde_json",
  "sha2",
 ]

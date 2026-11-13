@@ -142,15 +142,44 @@ memory bound.
   holds the scaling series' hashes; `--hashes` regenerates them. The model version is read from
   `model_format.rs`.
 - **The driver** (`core/solver/release_timing/`, bin `release_timing`, its own crate and lock) mirrors the
-  worker's ordinary solve: read, parse, request wrapper, entry, serialize, then the result
-  digest's parse-back. It uses serde_json features equal to the desktop's.
-  - It prints one `release-timing-v1` JSON line with seconds, `ru_maxrss` and phys_footprint
-    per stage, rows and bytes per kind, case and row class, and diagnostic counts. After each
-    stage it also writes a `release-timing-stage {json}` progress line to stderr, so a killed
-    run's record shows the last stage it finished and that stage's memory readings.
-  - Its `limits` list says what it does not reproduce: the attestation digests, the worker's
-    allocator, IPC and the webview.
-  - Its tests pin the written bytes to the product entry's own serialization.
+  worker's ordinary solve: read, parse, request wrapper, entry, serialize, release of the
+  envelope, then `parse_back`, and nothing else in the process. `parse_back` is a cheaper
+  stand-in for the worker's read-back of its result text, and a lower bound on it: one streamed
+  parse that keeps nothing. The worker's read-back is the attestation digest (`d_S`,
+  `result_text_digest.rs`, in the desktop crate, which the driver cannot link): it materialises
+  each leaf value up to 256 KiB (a result below that is materialised whole), collects and sorts
+  the members of larger objects, decodes escaped keys, validates the values and serialises them
+  canonically. The driver reproduces none of that, so it does not reproduce the worker's
+  read-back peak. It uses serde_json features equal to the desktop's.
+  - `--model-checks` is its own invocation, in a process of its own: the desktop's on-demand
+    model checks (`check_preview_model`, a menu command run in its own check worker), as that
+    worker runs them: read, parse, `model_checks` (the public entry `model_checks_owned`) and
+    serialize. A solve run never runs them.
+  - It prints one `release-timing-v2` JSON line (`invocation` `solve` or `model_checks`) with
+    seconds, `ru_maxrss` and phys_footprint per stage; a solve adds rows and bytes per kind, case
+    and row class, and diagnostic counts, and the model checks a count of what the report shows.
+    After each stage it also writes a `release-timing-stage {json}` progress line to stderr, so a
+    killed run's record shows the last stage it finished and that stage's memory readings.
+  - Its `limits` list says what it does not reproduce: the attestation digests and the worker's
+    read-back peak, the worker's allocator, IPC and the webview.
+  - Its tests pin the written bytes to the product entry's own serialization, and the model
+    checks' report to the entry's own report.
+  - `release_timing --build-identity` prints the identity embedded at build time: the source
+    commit and tree, `source_dirty` and the toolchain. The build script runs on every build. The
+    identity records the checkout's HEAD commit and tree and its reported Git state at build
+    time; it does not establish the identity of every input used to build the executable.
+    `source_dirty` is `true`,
+    `false`, or `"unknown"` where git cannot establish it (no git, no repository, no commit), never
+    `false` then; the Python runner records its own checkout the same way. The identity says
+    clean only when the status is clean and no index entry is flagged assume-unchanged or
+    skip-worktree (`git ls-files -v`), since either flag hides a file's changes from the status;
+    a clean status with such a flag is `"unknown"`.
+
+  How to read the figures: a solve's stage seconds and memory readings are the driver's, in one
+  process. `driver_peak_footprint_bytes` is the driver's lifetime-maximum
+  phys_footprint after `parse_back`; it stands where the worker's reported peak stands but is not
+  a measured worker peak. The driver's memory at serialisation and after is a lower bound on the
+  worker's. A model-checks run's figures are its own process's, never part of a solve's.
 - **The runner** (`runner/release_runner.py`, standard library; it reuses `k6_runner`'s
   launch, watchdog and metadata) does four things:
   - `--plan` prints the schedule;
@@ -163,10 +192,160 @@ memory bound.
     because RSS runs well above the footprint. `--attribute` (and the `-attr` runs) take a
     `sample` stack snapshot every 2 s, and whenever the footprint has grown by 512 MiB. Each
     snapshot records the top call paths, reduced to product frames. Its timings are not
-    measurements;
+    measurements. A run id starting `model-checks-` (subset `model-checks`; `criterion` includes
+    the 2,000-node ones) runs the driver's `--model-checks` invocation;
   - `--packet` writes the compact packet.
 
+  Each record names the footprint readings its classification compared with the budget
+  (`classification_readings`: `used`, and `at_exit`, the runner's reading of the driver at its
+  exit, or why there is none). The runner's reading at exit is `/usr/bin/time`'s peak memory
+  footprint, which a killed run does not have: `/usr/bin/time` is killed with the driver's
+  process group.
+
   `runner/release_window.sh` is the single exclusive-window entry, run under the host's
-  exclusive wrapper; its default `window` subset fits 15 minutes, as does `window2` (linear-ex
-  1000 timed, then its attribution twin). Result bytes are kept only
-  with `--write-results`.
+  exclusive wrapper; its default `window` subset fits 15 minutes, as do `window2` (linear-ex
+  1000 timed, then its attribution twin) and `scaling` (both exact-route profiles at 250, 500
+  and 1,000 nodes). `scaling-2000` adds the linear rack at 2,000 nodes and needs a longer
+  window (`RELEASE_WINDOW_BUDGET_S`). Result bytes are kept only with `--write-results`.
+- **The self-supervising driver** (`release_timing --supervise`, macOS) is the runner's `--run`
+  and `--packet` inside the driver binary, for a machine on which nothing may be installed: a
+  stock Mac has no Python or git. It reads a plan file, runs each run by re-executing itself as
+  the driver in its own session and process group, and watches that child from outside as the
+  runner does. Every 100 ms one `proc_pid_rusage` call reads the phys_footprint, its lifetime
+  maximum and the resident size. The whole group is killed with SIGKILL above the footprint
+  budget, above the 16 GiB resident cap or at the timeout. It classifies each run with the
+  runner's rules (`src/classify.rs` ports `classify` line for line) and writes the same records
+  and packet, with the same schema names and keys. Where the runner's source is absent
+  (`/usr/bin/time`, `ps`), the key is null and a named sibling carries this supervisor's reading:
+  the child's final lifetime-maximum footprint, read at exit before reaping, and `wait4`'s
+  `ru_maxrss`. The same rules; the driver also has the reading at exit. It reads it on a killed
+  run too, where the runner's `/usr/bin/time` was killed with the group, and counts it as the
+  stricter observation, so the two do not class every run alike: an emergency RSS-cap kill whose
+  sampled footprint was within the budget and whose reading at exit is above it is
+  `exceeds_base_machine_budget` here and `killed_by_rss_cap` in the runner. Each record's
+  `classification_readings` names the readings its classification used.
+
+  What the self-supervisor promises about its records and its drivers:
+
+  - It writes only entries it created exclusively in the output folder it opened, and reports
+    only what it wrote. No plan content and no state of that folder, before or during a run,
+    makes it write elsewhere or record a hash that is not of the bytes it wrote. No two records
+    it writes can be the same file, by name, by case or by link.
+  - A driver started by this supervisor receives `--supervised-by <pid>` and stops when that
+    parent exits. A driver invoked without `--supervised-by` watches no supervisor, whatever its
+    environment. An invocation supplying a stale or non-parent pid exits 125.
+  - Its build identity says clean only when Git status is clean and no index flag hides a file;
+    otherwise it says unknown or dirty.
+
+  It promises nothing against someone who can replace the `git` executable, forge objects in
+  the checkout, or write into the output folder's parent between its own operations in ways the
+  exclusive-creation rule does not already refuse. The exclusion for changes to the output
+  folder's files applies only to deliberate modification of their contents by another person. It
+  does not exclude ordinary folder moves, accidental corruption or the tool's own operations.
+  Consumers must verify recorded integrity information before relying on stored files. No
+  reader here currently performs that verification; the manifest and verifying reader belong to
+  the follow-up.
+
+  Two things it does not yet do, which a reader of a run's records must know:
+
+  - **The build identity does not establish that the executable was built from the named
+    revision alone.** It says that tracked files match the head, that nothing outside Git's
+    ignore rules is untracked and that no index flag hides a file. A file Git ignores can take
+    part in the build: an ignored build script in a dependency crate was compiled and run with
+    the identity still naming the commit as clean. Until the tool lists ignored files and marks
+    the identity incomplete, a run's identity is not evidence about the named revision unless
+    the build was made in a fresh checkout of that revision, and the tool does not check that.
+  - **No reader verifies what it reads back.** The supervisor records a hash of the bytes it
+    wrote for each run's stdout record only; the aggregate record, the metadata, the packet, the
+    stderr lines and the launch record have no recorded hash, and neither `--packet` nor any
+    other reader here recomputes one. A folder carried from one machine to another is not
+    evidence by itself. Until a manifest and a verifying reader exist, note the SHA-256 of
+    `packet.json` by hand where the run is made (`shasum -a 256 results/packet.json`).
+
+  It keeps no result bytes: `--write-results` is refused under `--supervise`, by name, before
+  anything is written and before any driver starts, because the driver writes a kept result by
+  pathname. The recorded argv contains the driver arguments with absolute paths reduced to
+  basenames and the `--supervised-by <pid>` pair omitted.
+
+  How it keeps them. Run ids are bare names (`[A-Za-z0-9][A-Za-z0-9._-]{0,127}`), and both
+  supervisors refuse at plan load, before anything is written, any other id, two ids that are
+  the same ignoring case (a case-insensitive volume, the macOS default, opens them as one file),
+  an id that is, ignoring case, a name the supervisor writes, and any plan whose ids would make
+  two names it writes the same ignoring case (the id `records` would make its stdout record
+  `records.jsonl`). The output folder is opened once, as a directory and without following a
+  link, and every record is created relative to it, so a later replacement of its path cannot
+  redirect a record. Each run needs a new folder: a folder that already holds any name the run
+  would write is refused before anything is written and before any driver starts, with a
+  message to give `--out` a new folder. Every record is created as a new file (`O_CREAT |
+  O_EXCL`), so an existing entry of that name, whether a file, a FIFO, a symbolic link or a hard
+  link to a file elsewhere, is refused. An existing entry is never opened for writing. If a
+  per-run stdout, stderr or launch-record name appears during the plan, that run is refused when
+  its files are prepared, before its driver starts. A planted `.packet.json.partial` fails the
+  next packet write. A planted `packet.json` entry is replaced by the packet rename, without
+  opening its target. A failed packet write stops the supervisor with exit status 2; that costs
+  the rest of the plan and no record already written. `records.jsonl` is created once
+  and written through that one descriptor. `packet.json` is written under a new name and renamed
+  into place, which replaces the folder's entry and leaves any other link of the old file as it
+  was. The summary printed at the end is the packet just written, never a second read of the
+  folder's path. A write to a regular file can still block on a stalled file system: each group
+  of record writes is bounded (120 s), and past that the supervisor stops with exit status 4 and
+  a message that the records are incomplete (no driver is running then: the run's driver has
+  already been reaped). A failed write of a run's stdout record makes the run `error`
+  (`stdout_record_write_failed`), with `stdout_sha256` null and `stdout_record_error` saying why:
+  no hash of bytes that were not written is recorded. From a driver's start on, any failure
+  kills and reaps it. SIGINT, SIGTERM, SIGHUP, SIGQUIT and the other signals that end a process
+  without a fault kill and reap the running driver before the supervisor exits (128 + the
+  signal). For a death no handler sees (SIGKILL, a fault), the supervisor passes the driver it
+  starts its own process id as an argument, and that driver watches it and stops when it is
+  gone; a driver started without that argument (directly, or by the Python runner) watches
+  nothing, whatever its environment. On macOS the driver exits 125 when the kernel event reports
+  its supervisor's exit; on Linux the kernel sends SIGKILL when its parent exits. `--packet` (the
+  runner) and the supervisor's packet refuse, by name, a record whose driver line is not
+  `release-timing-v2`: "record ID: its driver line has schema S, not release-timing-v2; an
+  earlier driver's record is not repackaged".
+
+  A difference from the Python runner: it has no such watch. A Python-supervised run whose runner
+  is killed (SIGKILL, or any death that skips its handlers) can leave a driver running, in its
+  own session. Find it by its process name and the model path in its arguments, for example
+  `pgrep -fl 'release_timing .*linear-ex-n2000.json'`, and stop it with `kill`. The Python
+  runner opens record paths by name and does not pin its output directory; replacing that path
+  can redirect its record reads and writes. With `--write-results` it passes the driver a
+  pathname rather than a directory descriptor, so kept result bytes have the same limitation.
+
+  Host facts come from `sysctl`, and the cargo
+  and sweep checks from the process table. The source commit, tree, dirty flag and toolchain are
+  embedded at build time (`--build-identity` above). It takes no stack snapshots, so a plan with
+  `-attr` runs is refused. `tests/test_release_timing_supervise.py` runs both supervisors on the
+  same plan and models, on cases away from that boundary, and compares their classifications,
+  outputs and keys; the boundary itself is tested in the crate's `tests/supervise.rs`.
+
+  The folder to carry, prepared on a development machine from a fresh checkout of the named
+  revision:
+
+  ```sh
+  (cd core/solver/release_timing && cargo build --release --locked)
+  python3 core/solver/performance_harness/runner/release_runner.py --generate --subset criterion --models FOLDER
+  python3 core/solver/performance_harness/runner/release_runner.py --write-plan FOLDER/plan.json --subset criterion --models FOLDER
+  cp "${CARGO_TARGET_DIR:-core/solver/release_timing/target}/release/release_timing" FOLDER/
+  ```
+
+  `FOLDER` then holds the binary `release_timing`, `plan.json` (`release-timing-plan-v2`: the
+  runs, each with its task, model name and sha256, the window budget and the quiet-host wait) and
+  the plan's rack models with their
+  `manifest.json`. Any subset without `-attr` runs can be written, and `--budget-s` and
+  `--quiet-wait-s` set the window and the wait. On the measured Mac, put the folder in the home
+  folder (not Desktop or Documents, which ask for permission) and run, in Terminal:
+
+  ```sh
+  cd FOLDER && ./release_timing --supervise plan.json --out results
+  ```
+
+  It writes only inside `results/`, which must be a new folder (one that already holds any of
+  the names below is refused before anything starts): `metadata.json`, `records.jsonl` (one line
+  as each run ends), `packet.json` (replaced after each run), and per run its stdout line (`.jsonl`), its
+  stderr progress lines (`.stderr.txt`) and the launch record (`.record.json`). It keeps no
+  result bytes; `--models DIR` reads the models from another folder. Ctrl-C
+  kills the running driver before the supervisor exits. Nothing is installed, and no tool
+  outside the binary is run. A copy that macOS has quarantined (one from AirDrop or a download)
+  may be refused at first start; copy the folder from a drive instead. Bring back
+  `results/`; `packet.json` is the record.

@@ -327,6 +327,7 @@ target remains adequate. A failure alone does not justify relaxing one.
 - Release authority: waiving a release gate, or accepting a risk as the act of
   releasing.
 - The native-smoke `expected.json` values.
+- Amending `docs/PRD.md`.
 
 Agent 0 decides what else the target needs, under the grant in `AGENTS.md`
 ("Posture for this phase"): changing an exit criterion or its value on product
