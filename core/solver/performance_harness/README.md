@@ -645,36 +645,64 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
       shasum -a 256 contract.md         # equals the stated SHA-256 of the contract
       ```
 
-   2. Items 2 to 6 are checked by one command of the runner, run from the clone's root, with
-      `BUNDLE` the bundle's path and `REVISION` the full commit measured. It reads only, prints
-      each difference and exits 1 if there is any:
+   2. Items 2 to 6 are checked by one command of the runner, run from the clone's root. `BUNDLE` is
+      the bundle's path, `REVISION` the full commit measured, and `ROOT` the root digest stated
+      outside the bundle. It reads only, prints each difference and exits 1 if there is any:
 
       ```sh
-      python3 -B core/solver/performance_harness/runner/release_runner.py --read-back BUNDLE --revision REVISION
+      python3 -B core/solver/performance_harness/runner/release_runner.py --read-back BUNDLE --revision REVISION --root-digest ROOT
       ```
 
       Add `--shared-host` where the bundle must also hold the exclusive wrapper's lines
-      (`exclusive.log`). It checks:
+      (`exclusive.log`).
+
+      **Integrity, inside the command.** It verifies `SHA256SUMS` against `ROOT` first. Then, for
+      each file it consumes, it reads the bytes once, checks them against `SHA256SUMS`, and parses
+      only those bytes. That includes the files the worker examines by hand: the build facts, the
+      host files, the exclusive log and the contract's copy. Their bytes are verified, though
+      their content is not read. These are each a difference:
+      - a symbolic link, or a file reached through one;
+      - a file it consumes that `SHA256SUMS` does not name;
+      - a name in `SHA256SUMS` that is no file of the bundle or of a launched run;
+      - a hash that does not match.
+
+      It does not detect a change made after it has read a file: the bundle is frozen once
+      inventoried (step 8).
+
+      **Then it checks:**
       - 2. What is consumed is present. That means the bundle's files and one aggregate record
-        for each run of `plan.json`. Each launched run has its three files, and a run never
-        launched (skipped, or its model missing or mismatched) has none: its record alone stands
-        for it.
+        for each run of `plan.json`, in the plan's order. Each launched run has its three files.
+        A run never launched (skipped, or its model missing or mismatched) has none and carries
+        no last stage: its record alone stands for it.
+      - The plan of this run. These must agree with what the supervisor did with the plan:
+        - each entry field it copies into the run's record, and the model;
+        - the run ids, in order, in the metadata;
+        - the plan's window and quiet wait, against the metadata;
+        - the plan's schema, which must be the one the supervisor reads.
       - 3. For every launched run, these agree:
-        - the aggregate's `launch` with `<run id>.record.json`, in every key the aggregate
-          carries;
+        - the aggregate's `launch` with `<run id>.record.json`, key for key: every key the
+          supervisor writes is present in both, null included;
         - `<run id>.jsonl` with `launch.stdout_sha256`, where that is not null;
         - `last_stage` and `last_stage_memory` with the last stage line of the stderr file (both
           null where there is none);
         - `model_sha256` with the plan's `expected_model_sha256` and the manifest's.
 
         A never-launched run is read for its classification and detail.
-      - 4. For a run with a driver line, that one line equals the aggregate's `driver`. For an
-        `ok` run, each stage line's seconds also equal `driver.seconds`, and
-        `driver.seconds.total` is the sum of the seven stages to 1e-6 s (there is no total stage
-        line).
+      - 4. For a run with a driver line, that one line equals the aggregate's `driver`, and each
+        stage line's memory readings equal `driver.peak_memory` for that stage. For an `ok` run,
+        each stage line's seconds also equal `driver.seconds`, every stage and the total is a
+        number, and `driver.seconds.total` is the sum of the seven stages to 1e-6 s (there is no
+        total stage line).
       - 5. A run with no driver line (a kill, a timeout, a skip) has an empty or absent stdout
         file and a null `driver`. That is not a corrupt bundle; such a run is read for its
         classification, detail and last stage only.
+      - Required values by decision branch. For each record form, every value a decision rule
+        reads must be present and not null. The forms are completed; refused; entry error;
+        killed by the footprint watch; over the budget at the result; killed by the resident
+        cap; timed out; an error; never launched. A null the producer leaves where no rule reads
+        it is kept, and is not a difference. `REQUIRED_BY_BRANCH` in `runner/release_runner.py`
+        mirrors the measurement contract's decision-input table, which names each input, the
+        rule that reads it, every copy that must agree, and who checks it.
       - 6. In `packet.json`, each run id is listed once, under `runs` if it was launched and
         `not_run` if not. EVERY field of its row equals the value the aggregate gives for it,
         nested fields included: the exit footprint, the last stage and the output hash among
@@ -682,21 +710,11 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
         - `PACKET_RUN_FIELDS` gives each field of a launched row with its source in the aggregate
           record;
         - `NOT_RUN_KEYS` gives the fields of a never-launched row;
-        - `PACKET_REQUIRED_VALUES` gives, for each row form, the fields that must hold a value.
-          The row forms are launched and completed (`ok`); launched and stopped (killed, timed
-          out, refused, an entry error); and never launched (skipped, `model_missing`,
-          `model_mismatch`).
+        - `PACKET_REQUIRED_VALUES` gives, for each row form, the fields its packet row must hold a
+          value in.
 
-        A limit of this check: the mapping copies the self-supervising driver's `packet_row`
-        (`supervise.rs`) in Python. A test ties it to the packet rows in
-        `runner/fixtures/read_back.tar.gz`, written by that supervisor at commit `e42da5ff1`, not
-        to the live Rust. If the supervisor's packet changes, the change appears as differences on
-        real bundles, so the check fails closed; no test fails.
-        `runner/fixtures/make_read_back_fixture.py` says what the fixture holds and how it is
-        written again.
-
-        A stopped or never-launched run's legitimate nulls (no driver line, so no route, rows
-        or output hash) are kept, and are not differences. These are each a difference:
+        A stopped or never-launched run's legitimate nulls are kept, and are not differences.
+        These are each a difference:
         - a field the row should carry but lacks;
         - a null where the aggregate has a value, or where the row form requires one;
         - a field the check does not know;
@@ -704,6 +722,33 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
           `metadata.json`.
 
         `metadata.json` also names `REVISION`.
+      - The two results. `baseline-set.json` must equal what `--baseline-set` gives, recomputed
+        from the records and plan just checked, for the named plan it names. No stored verdict is
+        taken unchecked.
+
+      **What the command does not check, and why no decision relies on it:**
+      - The packet's presentation fields: `window_elapsed_s`, `driver_limits`, `conditions`,
+        `schema`, `observation_only`, `no_thresholds` and any unknown envelope key. Every
+        decision reads the aggregate record, never these.
+      - A change of meaning that keeps names and shapes (a unit, say, copied the same way into
+        the aggregate, the launch record and the packet). No comparison can see it.
+      - The mapping's limits. It copies the self-supervising driver's `packet_row`
+        (`supervise.rs`) in Python. A test ties it to the packet rows in
+        `runner/fixtures/read_back.tar.gz`, written by that supervisor at commit `e42da5ff1`, not
+        to the live Rust. If a future supervisor adds, removes or renames a fixed mapped row key,
+        real bundles show differences. An envelope addition, a nested key copied dynamically from
+        the aggregate (a new stage in `driver.seconds`, say), or a change of meaning shows none,
+        and no test fails. `runner/fixtures/make_read_back_fixture.py` says what the fixture holds
+        and how it is written again.
+      - The content of the files the worker examines by hand: `build-facts.txt` (contract
+        section 4; section 11 item 2), `host-before.txt` and `host-processes.log` (section 8), and
+        `exclusive.log`. Their presence and bytes are checked, and presence discharges none of
+        those rules. The contract's decision-input table names the outcome each must show.
+      - A file added to the bundle and not listed in `SHA256SUMS`. The membership check of item 1
+        finds it.
+
+      A clean read-back prints that it does not by itself make a measurement usable. The worker's
+      checks of the build (section 4) and of the host and window (section 8) do that.
 
 A set that is INCOMPLETE BY THE WINDOW, or otherwise unusable, is kept as it is. A repeat runs
 the whole named plan again, into a new folder. Completed timings are never combined across
