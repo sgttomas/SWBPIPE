@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Native smoke test of the desktop walking skeleton (DEL-07-11 VER-003), macOS.
 //
-//   node apps/desktop/native-smoke/run.mjs [--skip-build] [--keep]
+//   node apps/desktop/native-smoke/run.mjs [--skip-build] [--keep] [--home-root DIR]
+//   node apps/desktop/native-smoke/run.mjs --print-launch-env [--home-root DIR] [--keep]
 //
 // Checks each WebAssembly engine's content stamp (`scripts/engineSourceStamp.mjs`)
 // and rebuilds a stale or unstamped engine, even under --skip-build; builds the
@@ -76,6 +77,22 @@
 // directory; the refusal the next run prints names both, and recovery removes
 // that one directory, once the lock is removed and nothing runs from it, never
 // every `run-*`.
+//
+// What a launch is given (`launch-env.mjs`). The app's environment is built from
+// nothing: HOME and CFFIXED_USER_HOME, both a throwaway home created under
+// --home-root (default: os.tmpdir()); TMPDIR, a folder inside it; the runner's
+// own SWBPIPE_NATIVE_SMOKE_* variables; and whatever the allowlist carries from
+// this process (nothing, at present). A built environment with any other key,
+// differing home variables or TMPDIR outside the home is refused by name and
+// nothing is launched. The home is removed when the runner exits, whatever the
+// result, unless --keep is given; the evidence root (reports, models, saved
+// files) is kept as before. A tripwire stats a fixed list of product-named paths
+// under the real user's Library before the first launch and after the last and
+// fails the run if any appears, disappears or changes its modification time.
+// --print-launch-env builds and checks that environment, prints the variables'
+// names (never their values) and the home and temporary paths, and exits before
+// any lock, build or launch. The builds above the launches still inherit this
+// process's environment: they need the toolchain.
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
@@ -84,6 +101,7 @@ import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
 import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
+import { PARENT_ALLOWLIST, buildLaunchEnv, createThrowawayHome, refusedLaunchEnv, statWatched, tripwireChanges, watchedLibraryPaths } from "./launch-env.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -104,6 +122,57 @@ const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: TAURI_CONF.app.windo
 if (process.platform !== "darwin") {
   console.error("native smoke: macOS only");
   process.exit(2);
+}
+
+// --home-root DIR: the one folder the throwaway home is created under.
+const argv = process.argv.slice(2);
+const homeRootAt = argv.indexOf("--home-root");
+if (homeRootAt >= 0 && (argv[homeRootAt + 1] === undefined || argv[homeRootAt + 1].startsWith("--"))) {
+  console.error("native smoke: --home-root needs a folder");
+  process.exit(2);
+}
+const homeRoot = homeRootAt >= 0 ? path.resolve(argv[homeRootAt + 1]) : os.tmpdir();
+// The throwaway home and TMPDIR inside it, removed when this process exits
+// unless --keep is given.
+let home;
+let tmpdir;
+function makeHome() {
+  try {
+    ({ home, tmpdir } = createThrowawayHome(homeRoot));
+  } catch (error) {
+    console.error(error.message);
+    process.exit(2);
+  }
+  process.on("exit", () => {
+    if (args.has("--keep")) console.log(`native smoke: home kept at ${home}`);
+    else rmSync(home, { recursive: true, force: true });
+  });
+}
+// The launched app's whole environment, and every reason it must not be used.
+const DRIVER = path.join(here, "driver.js");
+function launchEnv(plan, report) {
+  const env = buildLaunchEnv({
+    parent: process.env,
+    home,
+    tmpdir,
+    runner: { SWBPIPE_NATIVE_SMOKE_DRIVER: DRIVER, SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: report }
+  });
+  return { env, refused: refusedLaunchEnv(env) };
+}
+// The tripwire's paths under the real user's Library (the account's home, not
+// this process's HOME).
+const WATCHED = watchedLibraryPaths(path.join(os.userInfo().homedir, "Library"), { identifier: IDENTIFIER, names: [TAURI_CONF.productName, "openpipestress-desktop"] });
+if (args.has("--print-launch-env")) {
+  makeHome();
+  // A plan and report path stand in for a phase's; only names are printed.
+  const { env, refused } = launchEnv({ phase: "print-launch-env" }, path.join(tmpdir, "report-print-launch-env.json"));
+  for (const line of refused) console.error(`native smoke: ${line}`);
+  console.log(`launch environment variable names: ${Object.keys(env).sort().join(" ")}`);
+  console.log(`carried from this process (allowlist): ${PARENT_ALLOWLIST.length === 0 ? "none" : PARENT_ALLOWLIST.join(" ")}`);
+  console.log(`HOME and CFFIXED_USER_HOME: ${home}`);
+  console.log(`TMPDIR: ${tmpdir}`);
+  console.log(`tripwire paths (stated, not examined in this mode):\n${WATCHED.map((file) => `  ${file}`).join("\n")}`);
+  process.exit(refused.length === 0 ? 0 : 2);
 }
 
 // A failed command, as execFileSync named one.
@@ -225,10 +294,8 @@ function canonical(value) {
 const modelSha256 = (document) => `sha256:${createHash("sha256").update(canonical(document), "utf8").digest("hex")}`;
 
 const root = mkdtempSync(path.join(os.tmpdir(), "swbpipe-native-smoke-"));
-const home = path.join(root, "home");
+makeHome();
 const models = path.join(root, "models");
-mkdirSync(home);
-mkdirSync(path.join(home, "Downloads"));
 mkdirSync(models);
 // W-6a. Where the save chooser is answered: outside HOME's Documents, so the
 // files are the ones this run wrote.
@@ -291,6 +358,11 @@ function launch(phase, extra = {}) {
     ...extra
   };
   console.log(`\n== phase ${phase} (HOME=${home})`);
+  const { env, refused } = launchEnv(plan, report);
+  if (refused.length > 0) {
+    for (const line of refused) console.error(`native smoke: ${line}; not launched`);
+    return exitAfterSignals(2);
+  }
   if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
     console.error(`native smoke: ${binary}, the private copy of the bound app, changed since it was checked; not launched`);
     return exitAfterSignals(2);
@@ -301,13 +373,7 @@ function launch(phase, extra = {}) {
   // handler stops and reaps it before the lock is released.
   return runUnderLock("/usr/bin/caffeinate", ["-di", binary], {
     cwd: root,
-    env: {
-      ...process.env,
-      HOME: home,
-      SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "driver.js"),
-      SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan),
-      SWBPIPE_NATIVE_SMOKE_REPORT: report
-    },
+    env,
     stdio: ["ignore", "inherit", "inherit"],
     timeoutMs: PHASE_TIMEOUT_MS
   }).then(({ status, signal, timedOut }) => {
@@ -367,6 +433,7 @@ function checkStressRatioAfterRuleChecks(prefix, rules) {
     table?.table && table.rule_groups > 0 && table.group?.startsWith("rule:") && table.mode === "ratio" && table.rows > 0 && table.pinned_incomplete === table.rows && table.ranked === 0, table);
 }
 
+const watchedBefore = statWatched(WATCHED);
 const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE, exact_report_package: EXACT_REPORT_PACKAGE_SAVE });
 check("phase open-solve-save completed", first.ok, first.error);
 // Nothing here is pinned:
@@ -734,6 +801,13 @@ for (const doc of documents) {
   }
   check("save handoff: the basis state is in the local store as handoff_basis with the package's model hash",
     storedState?.state_kind === "handoff_basis" && storedState.model_hash === sha(modelBytes ?? Buffer.alloc(0)), storedState);
+}
+
+// The tripwire, after the last launch.
+{
+  const changes = tripwireChanges(watchedBefore, statWatched(WATCHED));
+  for (const line of changes) console.error(`native smoke: ${line}`);
+  check(`the real user's Library: none of the ${WATCHED.length} product-named paths appeared, disappeared or changed`, changes.length === 0, changes.length === 0 ? undefined : changes);
 }
 
 const failed = checks.filter((item) => !item.ok);
