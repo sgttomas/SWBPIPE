@@ -372,7 +372,7 @@ def pinned_models(folder):
         plan, _, _ = rr.named_plan('baseline')
         _, failures = rr.generate(plan, _PINNED[0].name, log=lambda *a: None, pinned_hashes=rr.RACK_HASHES)
         assert not failures, failures
-    for name in os.listdir(_PINNED[0].name):
+    for name in ('baseline-one-case-ex-n2000.json', 'reference_system.json', 'manifest.json'):
         shutil.copyfile(os.path.join(_PINNED[0].name, name), os.path.join(folder, name))
     return rr.read_manifest(folder)['models']
 
