@@ -36,7 +36,7 @@ export function heldStatusQuotedNotice(diagnostic: { code?: unknown }): boolean 
 
 /** DEL-04-07: the warning on a case admitted under the cancellation-screen exception (Rust
  * `result_export::CAP_REMAINDER_WARNING_CODE`). The pressure readers bind its presence, its whole
- * message (re-formed from the record: the case, the node and the retained force in N) and its references to the exception record, so where the reader admitted the result its
+ * message (the case and the node re-formed from the record and compared exactly, the retained force in N read and required to equal the record's) and its references to the exception record, so where the reader admitted the result its
  * message is a product diagnostic, copied as it stands, never quoted as supplied text. */
 export const CAP_REMAINDER_WARNING_CODE = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
 
