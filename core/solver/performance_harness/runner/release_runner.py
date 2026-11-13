@@ -1615,15 +1615,125 @@ SOLVE_STAGES = ('read', 'parse', 'request', 'entry', 'serialize', 'release_envel
 NOT_RUN_KEYS = ('order', 'run_id', 'classification', 'classification_detail')
 
 
-def supervised_packet_row(r):
-    """The packet row the self-supervising driver writes for a launched record (`supervise.rs`
-    `packet_row`): this runner's `packet_row`, and in `peak_memory_bytes` the supervisor's three
-    readings beside it."""
-    row = packet_row(r)
-    rss = (r.get('launch') or {}).get('rss') or {}
-    row['peak_memory_bytes'] = dict(row['peak_memory_bytes'], wait4_maxrss=rss.get('wait4_maxrss_bytes'),
-                                    sampled_resident_size=rss.get('resident_max_bytes'),
-                                    exit_lifetime_max_phys_footprint=rss.get('exit_lifetime_max_phys_footprint_bytes'))
+def _get(record, path):
+    """The value at a dotted path of a record, or None."""
+    value = record
+    for key in path.split('.'):
+        value = value.get(key) if isinstance(value, dict) else None
+    return value
+
+
+def _stage_max(record, key):
+    peaks = _get(record, 'driver.peak_memory') or {}
+    values = [m.get(key) for m in peaks.values() if isinstance(m, dict) and _is_int(m.get(key))]
+    return max(values) if values else None
+
+
+# THE PACKET ROW MAPPING, the one statement of it (README, "The headless baseline", step 9 refers
+# here). A launched run's row in `packet.json` `runs` (the self-supervising driver's `packet_row`,
+# supervise.rs) carries every field below, each the value the aggregate record gives by the stated
+# source. A never-launched run's row in `not_run` carries exactly NOT_RUN_KEYS, each the record's own.
+# (packet field, its source in the aggregate record, the value)
+PACKET_RUN_FIELDS = (
+    ('order', 'order', lambda r: r.get('order')),
+    ('run_id', 'run_id', lambda r: r.get('run_id')),
+    ('task', 'task', lambda r: r.get('task')),
+    ('profile', 'profile', lambda r: r.get('profile')),
+    ('nodes', 'nodes', lambda r: r.get('nodes')),
+    ('mode', 'mode', lambda r: r.get('mode')),
+    ('route', 'driver.route', lambda r: _get(r, 'driver.route')),
+    ('expect', 'expect', lambda r: r.get('expect')),
+    ('classification', 'classification', lambda r: r.get('classification')),
+    ('classification_detail', 'classification_detail', lambda r: r.get('classification_detail')),
+    ('as_expected', 'as_expected', lambda r: r.get('as_expected')),
+    ('conditions', 'run_conditions(record): profile, nodes, mode, model, timeout_applied_s, '
+                   'timeout_capped_by_window, footprint_budget_bytes, rss_cap_bytes, host', lambda r: run_conditions(r)),
+    ('model', 'model', lambda r: r.get('model')),
+    ('model_sha256', 'model_sha256', lambda r: r.get('model_sha256')),
+    ('model_bytes', 'model_bytes', lambda r: r.get('model_bytes')),
+    ('counts.nodes', 'driver.nodes', lambda r: _get(r, 'driver.nodes')),
+    ('counts.members', 'driver.members', lambda r: _get(r, 'driver.members')),
+    ('counts.supports', 'driver.supports', lambda r: _get(r, 'driver.supports')),
+    ('counts.cases', 'driver.cases', lambda r: _get(r, 'driver.cases')),
+    ('counts.combinations', 'driver.combinations', lambda r: _get(r, 'driver.combinations')),
+    ('status', 'driver.status', lambda r: _get(r, 'driver.status')),
+    ('blocking_codes', 'driver.blocking_codes', lambda r: _get(r, 'driver.blocking_codes')),
+    ('wall_s', 'launch.wall_s', lambda r: _get(r, 'launch.wall_s')),
+    ('stage_seconds', 'driver.seconds', lambda r: _get(r, 'driver.seconds')),
+    ('peak_memory_bytes.time_max_rss', 'launch.rss.time_max_rss_bytes',
+     lambda r: _get(r, 'launch.rss.time_max_rss_bytes')),
+    ('peak_memory_bytes.time_peak_footprint', 'launch.rss.time_peak_footprint_bytes',
+     lambda r: _get(r, 'launch.rss.time_peak_footprint_bytes')),
+    ('peak_memory_bytes.ps_max_rss', 'launch.rss.ps_max_kib x 1024',
+     lambda r: k6.ps_kib_to_bytes(_get(r, 'launch.rss.ps_max_kib')) if _is_int(_get(r, 'launch.rss.ps_max_kib')) else None),
+    ('peak_memory_bytes.driver_ru_maxrss', 'the largest driver.peak_memory.<stage>.ru_maxrss_bytes',
+     lambda r: _stage_max(r, 'ru_maxrss_bytes')),
+    ('peak_memory_bytes.driver_lifetime_max_phys_footprint', 'driver.driver_peak_footprint_bytes',
+     lambda r: _get(r, 'driver.driver_peak_footprint_bytes')),
+    ('peak_memory_bytes.sampled_phys_footprint', 'footprint_watchdog.peak_phys_footprint_bytes',
+     lambda r: _get(r, 'footprint_watchdog.peak_phys_footprint_bytes')),
+    ('peak_memory_bytes.sampled_lifetime_max_phys_footprint', 'footprint_watchdog.peak_lifetime_max_phys_footprint_bytes',
+     lambda r: _get(r, 'footprint_watchdog.peak_lifetime_max_phys_footprint_bytes')),
+    ('peak_memory_bytes.peak_footprint', 'peak_footprint_bytes', lambda r: r.get('peak_footprint_bytes')),
+    ('peak_memory_bytes.wait4_maxrss', 'launch.rss.wait4_maxrss_bytes', lambda r: _get(r, 'launch.rss.wait4_maxrss_bytes')),
+    ('peak_memory_bytes.sampled_resident_size', 'launch.rss.resident_max_bytes',
+     lambda r: _get(r, 'launch.rss.resident_max_bytes')),
+    ('peak_memory_bytes.exit_lifetime_max_phys_footprint', 'launch.rss.exit_lifetime_max_phys_footprint_bytes',
+     lambda r: _get(r, 'launch.rss.exit_lifetime_max_phys_footprint_bytes')),
+    ('last_stage', 'last_stage', lambda r: r.get('last_stage')),
+    ('last_stage_memory', 'last_stage_memory', lambda r: r.get('last_stage_memory')),
+    ('attribution', 'attribute (true or false)', lambda r: bool(r.get('attribute'))),
+    ('timing_use', 'timing_use, else "measurement"', lambda r: r.get('timing_use', 'measurement')),
+    ('snapshots', 'attribution.snapshots', lambda r: _get(r, 'attribution.snapshots')),
+    ('rows', 'driver.rows', lambda r: _get(r, 'driver.rows')),
+    ('output_bytes', 'driver.output_bytes', lambda r: _get(r, 'driver.output_bytes')),
+    ('output_sha256', 'driver.output_sha256', lambda r: _get(r, 'driver.output_sha256')),
+    ('row_classes', 'driver.row_classes', lambda r: _get(r, 'driver.row_classes')),
+    ('bases', 'the number of driver.rows_per_basis', lambda r: len(_get(r, 'driver.rows_per_basis') or {})),
+    ('diagnostic_counts', 'driver.diagnostic_counts', lambda r: _get(r, 'driver.diagnostic_counts')),
+    ('nonlinear_iterations', 'driver.nonlinear_iterations', lambda r: _get(r, 'driver.nonlinear_iterations')),
+)
+# The fields whose VALUE each row form requires: a null there, in the row or in the aggregate's own
+# value, is a difference. Every other field may be null where the aggregate's value is null (a
+# stopped run has no driver line; this supervisor has no /usr/bin/time or ps reading).
+#   completed: launched, classification ok;
+#   stopped: launched, any other classification (killed, timed out, refused, an entry error);
+#   not_run: never launched (skipped for the window, model_missing, model_mismatch).
+PACKET_REQUIRED_VALUES = {
+    'completed': ('order', 'run_id', 'task', 'profile', 'nodes', 'mode', 'route', 'expect', 'classification',
+                  'as_expected', 'conditions', 'model', 'model_sha256', 'model_bytes', 'counts.nodes', 'counts.members',
+                  'counts.supports', 'counts.cases', 'counts.combinations', 'status', 'blocking_codes', 'wall_s',
+                  'stage_seconds', 'peak_memory_bytes.driver_ru_maxrss',
+                  'peak_memory_bytes.driver_lifetime_max_phys_footprint', 'peak_memory_bytes.peak_footprint',
+                  'peak_memory_bytes.exit_lifetime_max_phys_footprint', 'last_stage', 'last_stage_memory',
+                  'attribution', 'timing_use', 'rows', 'output_bytes', 'output_sha256', 'row_classes', 'bases',
+                  'diagnostic_counts'),
+    'stopped': ('order', 'run_id', 'task', 'profile', 'nodes', 'mode', 'expect', 'classification',
+                'classification_detail', 'as_expected', 'conditions', 'model', 'model_sha256', 'model_bytes', 'wall_s',
+                'attribution', 'timing_use', 'bases'),
+    'not_run': ('order', 'run_id', 'classification', 'classification_detail'),
+}
+
+
+def row_form(record):
+    """`completed`, `stopped` or `not_run`: which packet row form a record has."""
+    if 'launch' not in record:
+        return 'not_run'
+    return 'completed' if record.get('classification') == 'ok' else 'stopped'
+
+
+def expected_packet_row(record):
+    """The packet row PACKET_RUN_FIELDS (a launched record) or NOT_RUN_KEYS (a never-launched one)
+    gives for `record`, as nested dicts."""
+    if row_form(record) == 'not_run':
+        return {k: record.get(k) for k in NOT_RUN_KEYS}
+    row = {}
+    for field, _source, value in PACKET_RUN_FIELDS:
+        *parents, last = field.split('.')
+        target = row
+        for key in parents:
+            target = target.setdefault(key, {})
+        target[last] = value(record)
     return row
 
 
@@ -1748,8 +1858,12 @@ def read_back(bundle, revision, shared_host=False):
         if kind != want:
             problems.append('packet: %s is listed under %s, not %s' % (run_id, kind, want))
             continue
-        expected = supervised_packet_row(r) if want == 'runs' else {k: r.get(k) for k in NOT_RUN_KEYS}
+        expected = expected_packet_row(r)
         problems += _fields_differ('packet[%s]' % run_id, row, expected)
+        for field in PACKET_REQUIRED_VALUES[row_form(r)]:
+            if _get(row, field) is None or _get(expected, field) is None:
+                problems.append('packet[%s].%s: a %s row requires a value, and the %s has none' % (
+                    run_id, field, row_form(r), 'row' if _get(row, field) is None else 'aggregate'))
     for run_id in rows:
         if run_id not in aggregate:
             problems.append('packet: %s has no aggregate record' % run_id)

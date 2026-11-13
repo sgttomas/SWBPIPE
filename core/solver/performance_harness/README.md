@@ -425,11 +425,13 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
    facts > "$FACTS/build-facts-before.txt"
    "${CTL[@]}" cargo build --release --locked --manifest-path core/solver/release_timing/Cargo.toml
    facts > "$FACTS/build-facts-after.txt"
+   { "${CTL[@]}" "$BUILD/release/release_timing" --build-identity; echo "exit $?"
+     "${CTL[@]}" /usr/bin/shasum -a 256 "$BUILD/release/release_timing"; echo "exit $?"; } > "$FACTS/build-identity.txt"
    ```
 
    On a shared host, put the host's cargo wrapper where `cargo build` is. The fact files are
    written outside the clone, so the clone stays clean between the two Git checks. Together they
-   are the bundle's `build-facts.txt` (`cat` the two into it). The build is unfit unless all of these hold:
+   are the bundle's `build-facts.txt`, with `build-identity.txt` (`cat` the three into it). The build is unfit unless all of these hold:
    - `git rev-parse HEAD` is the revision, `git diff --quiet HEAD` exits 0, and the status
      prints nothing;
    - the environment's names are exactly `CARGO_BUILD_JOBS`, `CARGO_TARGET_DIR`, `HOME` and
@@ -443,9 +445,9 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
    `CARGO_PROFILE_` variable can reach the build.
 
    After the build, the executable is `$BUILD/release/release_timing`; below it is written
-   `BUILD/release/release_timing`. `BUILD/release/release_timing --build-identity` must name the
-   revision with `source_dirty: false` and `build_profile: "release"`. Record the executable's
-   SHA-256 (`shasum -a 256 BUILD/release/release_timing`). Two such builds from two clones are
+   `BUILD/release/release_timing`. Its build identity, recorded under `CTL` in
+   `build-identity.txt` above, must name the revision with `source_dirty: false` and
+   `build_profile: "release"`. Its SHA-256 is recorded there too. Two such builds from two clones are
    expected to differ in SHA-256, because the clone's path is compiled in. Compare their recorded
    facts and the product's output bytes instead. Read the first item of
    [What it does not yet do](#what-it-does-not-yet-do): this step is what stands in for it.
@@ -652,10 +654,19 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
       - 6. In `packet.json`, each run id is listed once, under `runs` if it was launched and
         `not_run` if not. EVERY field of its row equals the value the aggregate gives for it,
         nested fields included: the exit footprint, the last stage and the output hash among
-        them. The expected row is the one the supervisor builds from that record. These are each
-        a difference:
+        them. The complete mapping is stated once, in `runner/release_runner.py`:
+        - `PACKET_RUN_FIELDS` gives each field of a launched row with its source in the aggregate
+          record;
+        - `NOT_RUN_KEYS` gives the fields of a never-launched row;
+        - `PACKET_REQUIRED_VALUES` gives, for each row form, the fields that must hold a value.
+          The row forms are launched and completed (`ok`); launched and stopped (killed, timed
+          out, refused, an entry error); and never launched (skipped, `model_missing`,
+          `model_mismatch`).
+
+        A stopped or never-launched run's legitimate nulls (no driver line, so no route, rows
+        or output hash) are kept, and are not differences. These are each a difference:
         - a field the row should carry but lacks;
-        - a field the row carries as null where the aggregate has a value;
+        - a null where the aggregate has a value, or where the row form requires one;
         - a field the check does not know;
         - `classification_counts` or `metadata` that differs from the aggregate or from
           `metadata.json`.

@@ -20,6 +20,7 @@ import socket
 import stat
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 import types
@@ -714,6 +715,38 @@ class BaselineSet(unittest.TestCase):
             name='baseline-with-rack')
         self.assertEqual(results(report), (TIMING_WINDOW, RACK_FINDINGS, rr.SET_EXIT_FINDINGS))
 
+    def test_the_supervisors_own_capped_timeout_is_observed_and_its_skip_is_not(self):
+        """The fixture's window/ folder, written by the self-supervising driver: two runs a plan expects
+        exceeds_base_machine_budget, in a 4 s window.
+        - Run r1 is a LAUNCHED, window-capped timeout. supervise.rs `run_plan` caps the timeout to what
+          remains (`let timeout = run.timeout_s.min(remaining.trunc() as i64)`, recording
+          `timeout_capped_by_window`), launches the driver, and classify.rs classifies the kill
+          `timed_out` (`after_<timeout>_s`); the record keeps its `launch`.
+        - Run r2 is a SKIP for the window. supervise.rs `run_plan` writes `skipped_window_budget` when the
+          run's estimate exceeds the remaining window, before any host check or launch ("estimate N s
+          exceeds the remaining M s"); the record has no `launch`.
+        The plan holds no run expected solved, so the timing set has no workload; only the rack observation
+        is read here."""
+        with tempfile.TemporaryDirectory() as folder:
+            extract_fixture(folder, 'window')
+            with open(os.path.join(folder, 'plan.json')) as fh:
+                runs = json.load(fh)['runs']
+            records = rr.read_set_records(os.path.join(folder, 'out'))[0]
+        capped, skipped = records
+        self.assertEqual((capped['classification'], capped['timeout_capped_by_window'], 'launch' in capped),
+                         ('timed_out', True, True))
+        self.assertEqual((skipped['classification'], 'launch' in skipped), ('skipped_window_budget', False))
+        report = rr.judge_set(records, runs)
+        rack = report['rack_observation']
+        self.assertEqual((rack['result'], report['exit_code']), (RACK_WINDOW, rr.SET_EXIT_FINDINGS))
+        self.assertEqual([(r['run_id'], r['observed'], r['classification'], r['result']) for r in rack['runs']], [
+            ('baseline-one-case-ex-n0046-sparse-r1', True, 'timed_out', 'INCOMPLETE BY THE WINDOW'),
+            ('baseline-one-case-ex-n0046-sparse-r2', False, 'skipped_window_budget', 'INCOMPLETE BY THE WINDOW')])
+        self.assertEqual(rack['runs'][0]['classification_detail'], capped['classification_detail'])
+        self.assertEqual(rack['runs'][0]['last_stage'], capped['last_stage'])
+        self.assertEqual(rack['findings'], [])
+        self.assertIn('capped to %s s' % capped['timeout_applied_s'], rack['window_problems'][0])
+
     def test_absent_output_figures_are_a_finding_even_where_every_run_lacks_them(self):
         def absent(by, records, runs):
             for r in records:
@@ -872,26 +905,37 @@ class BaselineSet(unittest.TestCase):
         self.assertTrue(report['timing_set']['window_problems'])
 
 
-READ_BACK_FIXTURE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'read_back')
-READ_BACK_FIXTURE_FILES = ('plan.json', 'models/manifest.json', 'out/metadata.json', 'out/records.jsonl',
-                           'out/packet.json') + tuple(
-    'out/%s%s' % (run_id, suffix) for run_id in ('baseline-one-case-ex-n0046-sparse-r1', 'reference-system-n0027-sparse-r1')
-    for suffix in ('.jsonl', '.stderr.txt', '.record.json'))
-LAUNCHED = 'baseline-one-case-ex-n0046-sparse-r1'
-SKIPPED = 'baseline-one-case-ex-n0046-sparse-r2'
+READ_BACK_FIXTURE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'read_back.tar.gz')
+# The fixture holds two folders the self-supervising driver wrote (debug build, 46-node W1 and the
+# reference system; CPU model blanked), each with its plan.json and models/manifest.json:
+# - forms/: every packet row form. Completed: W1 r1 and W2 r1 (ok). Stopped: W1 r2 (timed_out, a 1 s
+#   timeout) and W2 r2 (exceeds_base_machine_budget, a 1 MB footprint budget). Never launched: n0047
+#   (model_missing), n0048 (model_mismatch) and W2 r3 (skipped_window_budget, an estimate above the window).
+# - window/: two runs a plan expects exceeds_base_machine_budget, in a 4 s window with no quiet wait.
+COMPLETED, COMPLETED_W2 = 'baseline-one-case-ex-n0046-sparse-r1', 'reference-system-n0027-sparse-r1'
+STOPPED, STOPPED_W2 = 'baseline-one-case-ex-n0046-sparse-r2', 'reference-system-n0027-sparse-r2'
+NEVER_LAUNCHED = ('baseline-one-case-ex-n0047-sparse', 'baseline-one-case-ex-n0048-sparse',
+                  'reference-system-n0027-sparse-r3')
+
+
+def extract_fixture(folder, bundle):
+    """`bundle`'s files of the fixture, written under `folder`."""
+    with tarfile.open(READ_BACK_FIXTURE) as tar:
+        for member in tar.getmembers():
+            if member.name.startswith(bundle + '/') and member.isfile():
+                path = os.path.join(folder, member.name[len(bundle) + 1:])
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, 'wb') as fh:
+                    fh.write(tar.extractfile(member).read())
 
 
 class ReadBack(unittest.TestCase):
-    """`--read-back`: the direct checks of a bundle, on the out/ folder, plan and manifest the
-    self-supervising driver wrote for a small stand-in plan of the baseline's shape (46-node W1 and the
-    reference system, one of each run, then two runs skipped for the window; its CPU model blanked)."""
+    """`--read-back`: the direct checks of a bundle, on the fixture's forms/ folder."""
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.bundle = self.tmp.name
-        for name in READ_BACK_FIXTURE_FILES:
-            os.makedirs(os.path.dirname(os.path.join(self.bundle, name)), exist_ok=True)
-            shutil.copyfile(os.path.join(READ_BACK_FIXTURE, name), os.path.join(self.bundle, name))
+        extract_fixture(self.bundle, 'forms')
         for name in ('build-facts.txt', 'host-before.txt', 'host-processes.log', 'baseline-set.json', 'contract.md'):
             with open(os.path.join(self.bundle, name), 'w') as fh:
                 fh.write('stand-in\n')
@@ -907,43 +951,107 @@ class ReadBack(unittest.TestCase):
         with open(self.path(name)) as fh:
             return json.load(fh)
 
-    def save(self, name, value):
-        with open(self.path(name), 'w') as fh:
-            json.dump(value, fh)
-
     def edit(self, name, change):
         value = self.load(name)
         change(value)
-        self.save(name, value)
+        with open(self.path(name), 'w') as fh:
+            json.dump(value, fh)
 
     def records(self, change):
         with open(self.path('out/records.jsonl')) as fh:
             rows = [json.loads(line) for line in fh if line.strip()]
-        change(rows)
+        change({r['run_id']: r for r in rows}, rows)
         with open(self.path('out/records.jsonl'), 'w') as fh:
             fh.writelines(json.dumps(r) + '\n' for r in rows)
+
+    def row(self, packet, run_id):
+        return next(r for r in packet['runs'] + packet['not_run'] if r['run_id'] == run_id)
 
     def problems(self):
         return rr.read_back(self.bundle, self.revision)
 
-    def test_the_intact_bundle_has_no_difference_and_holds_a_launched_and_a_skipped_run(self):
+    def test_the_intact_bundle_has_no_difference_and_holds_every_row_form(self):
         self.assertEqual(self.problems(), [])
         with redirect_stdout(io.StringIO()) as printed:
             self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', self.revision]), 0)
         self.assertEqual(printed.getvalue(), 'read-back: 0 difference(s)\n')
-        classes = [r['classification'] for r in rr.read_set_records(self.path('out'))[0]]
-        self.assertEqual(classes, ['ok', 'ok', 'skipped_window_budget', 'skipped_window_budget'])
+        forms = {r['run_id']: (rr.row_form(r), r['classification']) for r in rr.read_set_records(self.path('out'))[0]}
+        self.assertEqual(forms, {
+            COMPLETED: ('completed', 'ok'), COMPLETED_W2: ('completed', 'ok'), STOPPED: ('stopped', 'timed_out'),
+            STOPPED_W2: ('stopped', 'exceeds_base_machine_budget'), NEVER_LAUNCHED[0]: ('not_run', 'model_missing'),
+            NEVER_LAUNCHED[1]: ('not_run', 'model_mismatch'), NEVER_LAUNCHED[2]: ('not_run', 'skipped_window_budget')})
+        # A stopped run's legitimate nulls (no driver line, so no route, rows or output hash) are kept, and
+        # are not differences.
+        packet = self.load('out/packet.json')
+        self.assertEqual([self.row(packet, STOPPED)[k] for k in ('route', 'rows', 'output_sha256')], [None, None, None])
         self.assertIn('exclusive.log is missing', rr.read_back(self.bundle, self.revision, shared_host=True))
 
-    def test_every_packet_field_of_a_row_is_the_aggregates(self):
-        """The third reader's three controls, then every field of a launched row and of a not-run row."""
-        def row(doc, where=0):
-            return doc['runs'][where]
+    def test_the_mapping_names_every_field_of_the_supervisors_rows(self):
+        """PACKET_RUN_FIELDS is the one statement of the mapping: its fields are exactly the fields of a
+        launched row the supervisor wrote, and NOT_RUN_KEYS those of a never-launched one."""
+        def leaves(obj, prefix=''):
+            for key, value in obj.items():
+                if isinstance(value, dict) and key in ('counts', 'peak_memory_bytes'):
+                    yield from leaves(value, prefix + key + '.')
+                else:
+                    yield prefix + key
+        packet = self.load('out/packet.json')
+        for run_id in (COMPLETED, STOPPED, STOPPED_W2):
+            self.assertEqual(sorted(leaves(self.row(packet, run_id))), sorted(f for f, _, _ in rr.PACKET_RUN_FIELDS))
+        for run_id in NEVER_LAUNCHED:
+            self.assertEqual(sorted(self.row(packet, run_id)), sorted(rr.NOT_RUN_KEYS))
+        for form, fields in rr.PACKET_REQUIRED_VALUES.items():
+            known = rr.NOT_RUN_KEYS if form == 'not_run' else [f for f, _, _ in rr.PACKET_RUN_FIELDS]
+            self.assertTrue(set(fields) <= set(known), form)
+
+    def test_each_row_form_with_a_missing_key_and_a_wrong_value(self):
         cases = [
-            ('exit footprint changed', lambda d: row(d)['peak_memory_bytes'].update(exit_lifetime_max_phys_footprint=1),
-             'peak_memory_bytes.exit_lifetime_max_phys_footprint is 1'),
-            ('last stage changed', lambda d: row(d)['last_stage'].update(stage='request'), "last_stage.stage is 'request'"),
-            ('output hash deleted', lambda d: row(d).pop('output_sha256'), 'output_sha256 is missing'),
+            # completed
+            ('completed, a key missing', lambda d: self.row(d, COMPLETED).pop('output_sha256'),
+             'packet[%s].output_sha256 is missing' % COMPLETED),
+            ('completed, a wrong value', lambda d: self.row(d, COMPLETED)['peak_memory_bytes'].update(
+                exit_lifetime_max_phys_footprint=1), 'peak_memory_bytes.exit_lifetime_max_phys_footprint is 1'),
+            ('completed, a required value null', lambda d: self.row(d, COMPLETED).update(route=None),
+             'packet[%s].route: a completed row requires a value' % COMPLETED),
+            # stopped
+            ('stopped, a key missing', lambda d: self.row(d, STOPPED).pop('last_stage'),
+             'packet[%s].last_stage is missing' % STOPPED),
+            ('stopped, a wrong value', lambda d: self.row(d, STOPPED).update(classification_detail='after_2_s'),
+             "packet[%s].classification_detail is 'after_2_s'" % STOPPED),
+            ('stopped, a value where the aggregate has none', lambda d: self.row(d, STOPPED).update(route='EX'),
+             "packet[%s].route is 'EX', the aggregate gives None" % STOPPED),
+            # never launched
+            ('never launched, a key missing', lambda d: self.row(d, NEVER_LAUNCHED[2]).pop('classification_detail'),
+             'packet[%s].classification_detail is missing' % NEVER_LAUNCHED[2]),
+            ('never launched, a wrong value', lambda d: self.row(d, NEVER_LAUNCHED[0]).update(classification='ok'),
+             "packet[%s].classification is 'ok'" % NEVER_LAUNCHED[0]),
+            ('never launched, an added key', lambda d: self.row(d, NEVER_LAUNCHED[1]).update(model_sha256='x'),
+             'packet[%s].model_sha256 is a field this check does not know' % NEVER_LAUNCHED[1]),
+        ]
+        packet = self.load('out/packet.json')
+        for label, change, expected in cases:
+            self.edit('out/packet.json', lambda d: d.update(packet))
+            self.edit('out/packet.json', change)
+            problems = self.problems()
+            self.assertTrue(any(expected in p for p in problems), (label, problems[:3]))
+        # A required value the aggregate itself lacks, though the packet agrees with it.
+        self.edit('out/packet.json', lambda d: d.update(packet))
+        self.records(lambda by, rows: by[COMPLETED]['launch']['rss'].update(exit_lifetime_max_phys_footprint_bytes=None))
+        self.edit('out/%s.record.json' % COMPLETED, lambda d: d['rss'].update(exit_lifetime_max_phys_footprint_bytes=None))
+        self.edit('out/packet.json', lambda d: self.row(d, COMPLETED)['peak_memory_bytes'].update(
+            exit_lifetime_max_phys_footprint=None))
+        self.assertIn('packet[%s].peak_memory_bytes.exit_lifetime_max_phys_footprint: a completed row requires a value, '
+                      'and the row has none' % COMPLETED, self.problems())
+
+    def test_every_field_of_every_row_form_is_compared(self):
+        """The third reader's three controls, then each field of a completed, a stopped and a never-launched
+        row, set to null where it has a value and to a value where it is null."""
+        cases = [
+            ('exit footprint changed', lambda d: self.row(d, COMPLETED)['peak_memory_bytes'].update(
+                exit_lifetime_max_phys_footprint=1), 'exit_lifetime_max_phys_footprint is 1'),
+            ('last stage changed', lambda d: self.row(d, COMPLETED)['last_stage'].update(stage='request'),
+             "last_stage.stage is 'request'"),
+            ('output hash deleted', lambda d: self.row(d, COMPLETED).pop('output_sha256'), 'output_sha256 is missing'),
         ]
         packet = self.load('out/packet.json')
 
@@ -953,80 +1061,79 @@ class ReadBack(unittest.TestCase):
                     yield from leaves(value, prefix + (key,))
                 else:
                     yield prefix + (key,)
-        for where in ('runs', 'not_run'):
-            for keys in leaves(packet[where][0]):
-                def change(d, where=where, keys=keys):
-                    target = d[where][0]
+        for run_id in (COMPLETED, STOPPED, NEVER_LAUNCHED[2]):
+            for keys in leaves(self.row(packet, run_id)):
+                def change(d, run_id=run_id, keys=keys):
+                    target = self.row(d, run_id)
                     for key in keys[:-1]:
                         target = target[key]
                     target[keys[-1]] = None if target[keys[-1]] is not None else 'x'
                 # A row whose run id is changed is a row of no run, and its run's row is missing.
                 expected = 'is not listed' if keys == ('run_id',) else '.'.join(keys)
-                cases.append(('%s %s' % (where, '.'.join(keys)), change, expected))
+                cases.append(('%s %s' % (run_id, '.'.join(keys)), change, expected))
         cases += [
-            ('an added field', lambda d: row(d).update(extra=1), 'extra is a field this check does not know'),
             ('a launched row under not_run', lambda d: d['not_run'].append(d['runs'].pop(0)), 'is listed under not_run'),
             ('a row listed twice', lambda d: d['runs'].append(dict(d['runs'][0])), 'listed more than once'),
             ('a row missing', lambda d: d['runs'].pop(0), 'is not listed'),
             ('classification counts', lambda d: d['classification_counts'].update(ok=9), 'classification_counts'),
             ('metadata', lambda d: d['metadata'].update(budget_s=1), 'packet.metadata'),
         ]
-        self.assertGreater(len(cases), 60)
+        self.assertGreater(len(cases), 100)
         for label, change, expected in cases:
-            self.save('out/packet.json', packet)
+            self.edit('out/packet.json', lambda d: d.update(packet))
             self.edit('out/packet.json', change)
             problems = self.problems()
             self.assertTrue(problems and any(expected in p for p in problems), (label, problems[:3]))
-        self.save('out/packet.json', packet)
+        self.edit('out/packet.json', lambda d: d.update(packet))
         self.assertEqual(self.problems(), [])
 
     def test_each_record_check_finds_its_difference(self):
         def stdout_edited():
-            path = self.path('out/%s.jsonl' % LAUNCHED)
-            line = json.loads(open(path).read())
+            path = self.path('out/%s.jsonl' % COMPLETED)
+            with open(path) as fh:
+                line = json.loads(fh.read())
             line['rows'] = 1
             with open(path, 'w') as fh:
                 fh.write(json.dumps(line) + '\n')
         cases = {
             'a required file missing': (lambda: os.unlink(self.path('baseline-set.json')), 'baseline-set.json is missing'),
-            'a launched run without its stderr': (lambda: os.unlink(self.path('out/%s.stderr.txt' % LAUNCHED)),
+            'a launched run without its stderr': (lambda: os.unlink(self.path('out/%s.stderr.txt' % STOPPED)),
                                                   '.stderr.txt is missing for a launched run'),
-            'a file planted for a skipped run': (lambda: open(self.path('out/%s.jsonl' % SKIPPED), 'w').close(),
-                                                 'exists for a run that was never launched'),
-            'the launch record differs': (lambda: self.edit('out/%s.record.json' % LAUNCHED,
+            'a file planted for a never-launched run': (
+                lambda: open(self.path('out/%s.jsonl' % NEVER_LAUNCHED[2]), 'w').close(),
+                'exists for a run that was never launched'),
+            'the launch record differs': (lambda: self.edit('out/%s.record.json' % STOPPED,
                                                             lambda d: d.update(wall_s=999.0)), 'launch.wall_s differs'),
             'the stdout line edited': (stdout_edited, 'is not launch.stdout_sha256'),
-            'the last stage differs': (lambda: self.records(lambda rows: rows[0]['last_stage'].update(stage='read')),
-                                       'last_stage or last_stage_memory differs'),
+            'the last stage differs': (lambda: self.records(lambda by, rows: by[STOPPED]['last_stage'].update(
+                stage='read')), 'last_stage or last_stage_memory differs'),
             'the model hash differs': (lambda: self.edit('plan.json', lambda d: d['runs'][0].update(
                 expected_model_sha256='0' * 64)), 'model_sha256'),
-            'a stage second differs': (lambda: self.records(lambda rows: rows[0]['driver']['seconds'].update(parse=9.0)),
-                                       "is not one line equal to the aggregate's driver"),
-            'a driver for a run with no line': (lambda: self.records(lambda rows: rows[2].update(driver={'x': 1})),
+            'a stage second differs': (lambda: self.records(lambda by, rows: by[COMPLETED]['driver']['seconds'].update(
+                parse=9.0)), "is not one line equal to the aggregate's driver"),
+            'a driver for a run with no line': (lambda: self.records(lambda by, rows: by[STOPPED].update(driver={'x': 1})),
                                                 'no driver line, but the aggregate has a driver'),
-            'a record missing': (lambda: self.records(lambda rows: rows.pop(3)), 'one record for each run of plan.json'),
+            'a record missing': (lambda: self.records(lambda by, rows: rows.remove(by[NEVER_LAUNCHED[0]])),
+                                 'one record for each run of plan.json'),
         }
-        fixture = {name: open(os.path.join(READ_BACK_FIXTURE, name), 'rb').read() for name in READ_BACK_FIXTURE_FILES}
         for label, (change, expected) in cases.items():
-            for name, data in fixture.items():
-                with open(self.path(name), 'wb') as fh:
-                    fh.write(data)
-            for name in ('baseline-set.json',):
-                with open(self.path(name), 'w') as fh:
-                    fh.write('stand-in\n')
-            if os.path.exists(self.path('out/%s.jsonl' % SKIPPED)):
-                os.unlink(self.path('out/%s.jsonl' % SKIPPED))
+            self.tearDown()
+            self.setUp()
             change()
             problems = self.problems()
             self.assertTrue(any(expected in p for p in problems), (label, problems[:3]))
         # The total of an ok run's stages, and the revision.
+        self.tearDown()
         self.setUp()
-        self.records(lambda rows: rows[0]['driver']['seconds'].update(total=rows[0]['driver']['seconds']['total'] + 1))
-        with open(self.path('out/%s.jsonl' % LAUNCHED), 'w') as fh:
-            fh.write(json.dumps(rr.read_set_records(self.path('out'))[0][0]['driver']) + '\n')
-        self.records(lambda rows: rows[0]['launch'].update(stdout_sha256=None))
-        self.edit('out/%s.record.json' % LAUNCHED, lambda d: d.update(stdout_sha256=None))
+        self.records(lambda by, rows: by[COMPLETED]['driver']['seconds'].update(
+            total=by[COMPLETED]['driver']['seconds']['total'] + 1))
+        with open(self.path('out/%s.jsonl' % COMPLETED), 'w') as fh:
+            fh.write(json.dumps(next(r for r in rr.read_set_records(self.path('out'))[0]
+                                     if r['run_id'] == COMPLETED)['driver']) + '\n')
+        self.records(lambda by, rows: by[COMPLETED]['launch'].update(stdout_sha256=None))
+        self.edit('out/%s.record.json' % COMPLETED, lambda d: d.update(stdout_sha256=None))
         self.assertTrue(any('total is not the sum' in p for p in self.problems()), self.problems()[:3])
+        self.tearDown()
         self.setUp()
         problems = rr.read_back(self.bundle, '0' * 40)
         self.assertEqual(problems, ['metadata.json names %s, not the revision %s' % (self.revision, '0' * 40)])
