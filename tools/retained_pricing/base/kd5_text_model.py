@@ -261,7 +261,9 @@ def inspect_directed_helpers(snapshot):
 # branch adds or removes no `.min(`/`.max(` call, and its two tests are test-only. The pin stays S6's.
 # RT-L2 final source: lib.rs re-read: a test-module declaration and blocked_envelope's in-place `retain` (a closure
 # comparing a code); no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '475600b6f99d83054e8f3850d4b161b4c33c202326fc595db985fae650c8b08a'
+# Self-weight units repair (12f46a797): lib.rs re-read: one intensity unit test in `mod tests` restates its evidence
+# literal (test-only); no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '3343fa7efd15a53e17a699aefd9f3af3e43c1c863e281ebe629da05ed491d429'
 
 
 def _ce_fallback():
