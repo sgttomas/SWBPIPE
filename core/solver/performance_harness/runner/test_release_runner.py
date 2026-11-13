@@ -14,6 +14,7 @@ import io
 import json
 import os
 import platform
+import shutil
 import socket
 import stat
 import subprocess
@@ -302,9 +303,7 @@ class BaselinePlans(unittest.TestCase):
             with self.assertRaises(ValueError) as refused:
                 rr.plan_document(plan, models_dir=folder, require_sha256=True)
             self.assertIn('baseline-one-case-ex-n2000.json is not in the models manifest', str(refused.exception))
-            models = {rr.model_name('baseline-one-case-ex', 2000): w1, 'reference_system.json': reference}
-            with open(os.path.join(folder, 'manifest.json'), 'w') as fh:
-                json.dump({'models': {name: {'sha256': sha, 'stats': {}} for name, sha in models.items()}}, fh)
+            pinned_models(folder)
             self.assertEqual(rr.main(['--write-plan', path, '--subset', 'baseline', '--models', folder]), 0)
             with open(path) as fh:
                 document = json.load(fh)
@@ -360,6 +359,22 @@ class ReferenceSystemModel(unittest.TestCase):
             self.assertIn('refused', logged[0])
             with self.assertRaises(ValueError):
                 rr.plan_document(plan, models_dir=models)
+
+
+_PINNED = []
+
+
+def pinned_models(folder):
+    """`folder` filled with the baseline's model files as the repository generates them (the 2,000-node
+    W1 and the reference system; generated once per session, then copied) and their manifest."""
+    if not _PINNED:
+        _PINNED.append(tempfile.TemporaryDirectory())
+        plan, _, _ = rr.named_plan('baseline')
+        _, failures = rr.generate(plan, _PINNED[0].name, log=lambda *a: None, pinned_hashes=rr.RACK_HASHES)
+        assert not failures, failures
+    for name in os.listdir(_PINNED[0].name):
+        shutil.copyfile(os.path.join(_PINNED[0].name, name), os.path.join(folder, name))
+    return rr.read_manifest(folder)['models']
 
 
 class PinnedModels(unittest.TestCase):
@@ -437,14 +452,14 @@ class PinnedModels(unittest.TestCase):
             run.assert_not_called()
 
     def _folder(self, folder, w1=None, w2=None):
-        hashes = rr.recorded_rack_hashes()
-        with open(rr.COMMITTED_MODELS['reference-system']['source'], 'rb') as fh:
-            reference = hashlib.sha256(fh.read()).hexdigest()
-        models = {'baseline-one-case-ex-n2000.json': w1 or hashes[('baseline-one-case-ex', 2000)],
-                  'reference_system.json': w2 or reference}
+        """The repository's own model files, with the manifest's sha256 replaced where given."""
+        listed = pinned_models(folder)
+        for name, sha in (('baseline-one-case-ex-n2000.json', w1), ('reference_system.json', w2)):
+            if sha:
+                listed[name]['sha256'] = sha
         with open(os.path.join(folder, 'manifest.json'), 'w') as fh:
-            json.dump({'models': {name: {'sha256': sha, 'stats': {}} for name, sha in models.items()}}, fh)
-        return models
+            json.dump({'models': listed}, fh)
+        return listed
 
     def test_every_model_is_compared_again_when_a_named_plan_is_written(self):
         plan, _, _ = rr.named_plan('baseline')
@@ -467,6 +482,25 @@ class PinnedModels(unittest.TestCase):
                     self.assertIn('own model bytes; refused: %s' % wrong, err)
                     self.assertFalse(os.path.exists(path), 'no plan file')
                     self.assertEqual(out, '')
+        # The model FILES are hashed too: a manifest that agrees with the repository does not cover a file
+        # whose bytes differ, or a file that is missing.
+        for change, message in (('corrupt', 'the file in the models folder has'), ('remove', 'no such file')):
+            with tempfile.TemporaryDirectory() as folder:
+                self._folder(folder)
+                w1 = os.path.join(folder, 'baseline-one-case-ex-n2000.json')
+                if change == 'corrupt':
+                    with open(w1, 'w') as fh:
+                        fh.write('{"nodes":[]}')
+                else:
+                    os.unlink(w1)
+                path = os.path.join(folder, 'plan.json')
+                for argv in (['--write-plan', path], ['--plan'], ['--run', '--out', os.path.join(folder, 'out'),
+                                                                  '--binary', '/no-driver']):
+                    code, out, err = self._main(argv + ['--subset', 'baseline', '--models', folder])
+                    self.assertEqual(code, 2, (change, argv))
+                    self.assertIn('refused: baseline-one-case-ex-n2000.json: ', err)
+                    self.assertIn(message, err)
+                    self.assertFalse(os.path.exists(path) or os.path.exists(os.path.join(folder, 'out')))
         # A default subset's plan is written from whatever the manifest lists, as before.
         with tempfile.TemporaryDirectory() as folder:
             with open(os.path.join(folder, 'manifest.json'), 'w') as fh:
@@ -539,7 +573,9 @@ class BaselineSet(unittest.TestCase):
         report = self.judge(name='baseline-with-rack')
         self.assertEqual(report['verdict'], 'COMPLETE')
         self.assertEqual(report['not_timings'], [{'run_id': 'linear-ex-n2000-sparse', 'expect': 'exceeds_base_machine_budget',
-                                                  'classification': 'exceeds_base_machine_budget', 'as_expected': True}])
+                                                  'classification': 'exceeds_base_machine_budget',
+                                                  'classification_detail': None, 'last_stage': None,
+                                                  'as_expected': True}])
         self.assertEqual(sorted(report['workloads']), ['baseline-one-case-ex n2000', 'reference-system n27'])
 
     def test_a_skipped_or_capped_and_timed_out_run_is_incomplete_by_the_window(self):
@@ -603,7 +639,7 @@ class BaselineSet(unittest.TestCase):
                 fh.writelines(json.dumps(r) + '\n' for r in records)
             plan_path = os.path.join(folder, 'plan.json')
             with open(plan_path, 'w') as fh:
-                json.dump({'schema': rr.PLAN_SCHEMA, 'runs': runs}, fh)
+                json.dump({'schema': rr.PLAN_SCHEMA, 'window_budget_s': 2160, 'quiet_wait_s': 60, 'runs': runs}, fh)
             before = {name: os.path.getmtime(os.path.join(out, name)) for name in os.listdir(out)}
             argv = ['--baseline-set', out, '--plan-file', plan_path, '--subset', 'baseline']
             with redirect_stdout(io.StringIO()) as printed:
@@ -618,7 +654,7 @@ class BaselineSet(unittest.TestCase):
             runs[0]['expected_model_sha256'] = records[0]['model_sha256'] = 'e' * 64
             records[0]['driver']['document']['sha256'] = 'e' * 64
             with open(plan_path, 'w') as fh:
-                json.dump({'schema': rr.PLAN_SCHEMA, 'runs': runs}, fh)
+                json.dump({'schema': rr.PLAN_SCHEMA, 'window_budget_s': 2160, 'quiet_wait_s': 60, 'runs': runs}, fh)
             with open(os.path.join(out, k6.RECORDS_NAME), 'w') as fh:
                 fh.writelines(json.dumps(r) + '\n' for r in records)
             with redirect_stdout(io.StringIO()) as printed:
@@ -626,6 +662,97 @@ class BaselineSet(unittest.TestCase):
             self.assertIn("the plan's expected_model_sha256 " + 'e' * 64, printed.getvalue())
             with redirect_stdout(io.StringIO()), mock.patch('sys.stderr', io.StringIO()), self.assertRaises(SystemExit):
                 rr.main(['--baseline-set', out, '--plan-file', plan_path, '--subset', 'window'])
+
+    def test_a_run_not_expected_to_solve_must_still_have_run(self):
+        rack = 'linear-ex-n2000-sparse'
+        not_run = {
+            'missing record': lambda by, records, runs: records.remove(by[rack]),
+            'model_missing': lambda by, *_: (by[rack].pop('launch'), by[rack].pop('model_sha256'), by[rack].update(
+                classification='model_missing', classification_detail='linear-ex-n2000.json', driver=None)),
+            'model_mismatch': lambda by, *_: (by[rack].pop('launch'), by[rack].update(
+                classification='model_mismatch', model_sha256='d' * 64, driver=None)),
+            'error before launch': lambda by, *_: (by[rack].pop('launch'), by[rack].update(classification='error',
+                                                                                            driver=None)),
+            'other model bytes': lambda by, *_: by[rack].update(model_sha256='d' * 64),
+        }
+        for label, mutate in not_run.items():
+            report = self.judge(mutate, name='baseline-with-rack')
+            self.assertEqual((report['verdict'], report['exit_code']), ('FINDINGS', 1), label)
+            self.assertIn(rack, report['findings'][0], label)
+            self.assertEqual(report['not_timings'], [], label)
+        # The same with a window problem among the ten: FINDINGS, and both are listed.
+        report = self.judge(lambda by, records, runs: (not_run['model_missing'](by), by[
+            'reference-system-n0027-sparse-r5'].update(classification='skipped_window_budget', driver=None)),
+            name='baseline-with-rack')
+        self.assertEqual((report['verdict'], len(report['findings']), len(report['window_problems'])), ('FINDINGS', 1, 1))
+        # Skipped for the window: a window problem.
+        report = self.judge(lambda by, *_: by[rack].update(classification='skipped_window_budget', driver=None),
+                            name='baseline-with-rack')
+        self.assertEqual((report['verdict'], report['window_problems']),
+                         ('INCOMPLETE BY THE WINDOW', [rack + ': skipped_window_budget']))
+        # Whatever the driver itself did is reported as it is and does not decide the ten's verdict.
+        for classification, detail, expected in (
+                ('exceeds_base_machine_budget', 'footprint_1_above_budget_2_killed', True),
+                ('timed_out', 'after_900_s', False), ('entry_error', 'entry: failed', False),
+                ('ok', None, False), ('error', 'exit_code_3', False)):
+            report = self.judge(lambda by, *_: by[rack].update(
+                classification=classification, classification_detail=detail, as_expected=expected,
+                last_stage={'repeat': 0, 'stage': 'request', 'seconds': 0.5}), name='baseline-with-rack')
+            self.assertEqual(report['verdict'], 'COMPLETE', classification)
+            self.assertEqual(report['not_timings'], [{
+                'run_id': rack, 'expect': 'exceeds_base_machine_budget', 'classification': classification,
+                'classification_detail': detail, 'last_stage': {'repeat': 0, 'stage': 'request', 'seconds': 0.5},
+                'as_expected': expected}])
+
+    def test_absent_output_figures_are_a_finding_even_where_every_run_lacks_them(self):
+        def absent(by, records, runs):
+            for r in records:
+                for key in ('output_sha256', 'rows', 'output_bytes'):
+                    r['driver'].pop(key, None)
+        report = self.judge(absent)
+        self.assertEqual((report['verdict'], report['exit_code']), ('FINDINGS', 1))
+        self.assertEqual(len(report['findings']), 10)
+        self.assertIn('are not all present', report['findings'][0])
+
+    def test_every_top_level_field_and_run_field_of_the_plan_file_is_the_named_plans(self):
+        plan, _, _ = rr.named_plan('baseline')
+        hashes = rr.recorded_rack_hashes()
+        with open(rr.COMMITTED_MODELS['reference-system']['source'], 'rb') as fh:
+            reference = hashlib.sha256(fh.read()).hexdigest()
+        runs, records = set_records(plan, {'baseline-one-case-ex-n2000.json': hashes[('baseline-one-case-ex', 2000)],
+                                           'reference_system.json': reference})
+        cases = {
+            'none': lambda d: None,
+            'window_budget_s': lambda d: d.update(window_budget_s=1960),
+            'quiet_wait_s': lambda d: d.update(quiet_wait_s=0),
+            'schema': lambda d: d.update(schema='release-timing-plan-v1'),
+            'an added top-level field': lambda d: d.update(extra=1),
+            'a missing top-level field': lambda d: d.pop('quiet_wait_s'),
+            'estimate_s': lambda d: d['runs'][0].update(estimate_s=1),
+            'attribute': lambda d: d['runs'][0].update(attribute=True),
+            'model': lambda d: d['runs'][1].update(model='other.json'),
+            'an added run field': lambda d: d['runs'][2].update(extra=1),
+        }
+        with tempfile.TemporaryDirectory() as folder:
+            out = os.path.join(folder, 'out')
+            os.makedirs(out)
+            with open(os.path.join(out, k6.RECORDS_NAME), 'w') as fh:
+                fh.writelines(json.dumps(r) + '\n' for r in records)
+            for label, change in cases.items():
+                document = json.loads(json.dumps({'schema': rr.PLAN_SCHEMA, 'window_budget_s': 2160,
+                                                  'quiet_wait_s': 60, 'runs': runs}))
+                change(document)
+                path = os.path.join(folder, 'plan.json')
+                with open(path, 'w') as fh:
+                    json.dump(document, fh)
+                report = rr.baseline_set(out, path, 'baseline')
+                if label == 'none':
+                    self.assertEqual(report['verdict'], 'COMPLETE')
+                    continue
+                self.assertEqual(report['verdict'], 'FINDINGS', label)
+                self.assertIn('is not the named plan baseline', report['findings'][0], label)
+                if label in ('window_budget_s', 'quiet_wait_s', 'schema'):
+                    self.assertIn('%s differs' % label, report['findings'][0])
 
     def test_overhead_above_the_allowance_through_the_run_path_is_incomplete_by_the_window(self):
         """The runner's own run loop with a fake clock and launcher: every run lasts its full timeout and

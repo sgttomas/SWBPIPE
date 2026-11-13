@@ -542,8 +542,9 @@ def pinned_sha256(profile, nodes, hashes, committed=None):
 
 def check_pinned_models(plan, models_dir, hashes_path=RACK_HASHES, committed=None):
     """Refuses (ValueError) a named plan's models folder unless the manifest lists every model of the
-    plan with the SHA-256 the repository states for it (`pinned_sha256`): a folder produced by any
-    other means, or at another revision, cannot be written into a named plan."""
+    plan with the SHA-256 the repository states for it (`pinned_sha256`) and the model file itself
+    has those bytes: a folder produced by any other means, or at another revision, cannot be
+    written into a named plan."""
     hashes = recorded_rack_hashes(hashes_path)
     listed = read_manifest(models_dir).get('models', {})
     problems, seen = [], set()
@@ -554,11 +555,17 @@ def check_pinned_models(plan, models_dir, hashes_path=RACK_HASHES, committed=Non
         seen.add(name)
         expected, where = pinned_sha256(r['profile'], r['nodes'], hashes, committed)
         found = (listed.get(name) or {}).get('sha256')
+        path = os.path.join(models_dir, name)
         if expected is None:
             problems.append('%s: %s' % (name, where))
         elif found != expected:
             problems.append('%s: expected sha256 %s (%s), found %s in the manifest' % (
                 name, expected, where, found or 'no entry'))
+        elif not os.path.isfile(path):
+            problems.append('%s: no such file in the models folder' % name)
+        elif sha256_file(path) != expected:
+            problems.append('%s: expected sha256 %s (%s), the file in the models folder has %s' % (
+                name, expected, where, sha256_file(path)))
     if problems:
         raise ValueError('a named plan holds only the repository\'s own model bytes; refused: ' + '; '.join(problems))
 
@@ -710,8 +717,19 @@ def judge_set(records, plan_runs):
                                         % rec.get('timeout_applied_s') if classification == 'timed_out' else ''))
             continue
         if p.get('expect') != 'solved':
-            not_timings.append({'run_id': run_id, 'expect': p.get('expect'), 'classification': classification,
-                                'as_expected': rec.get('as_expected')})
+            # Never a timing, but it must have RUN: launched, on the plan's model bytes. Whatever the driver
+            # itself then did is reported as it is and does not decide the verdict.
+            if 'launch' not in rec or classification in ('model_missing', 'model_mismatch'):
+                findings.append('%s: not run (classification %s%s); a run the plan expects %s must still run' % (
+                    run_id, classification, ', %s' % rec.get('classification_detail')
+                    if rec.get('classification_detail') else '', p.get('expect')))
+            elif rec.get('model_sha256') is None or rec.get('model_sha256') != p.get('expected_model_sha256'):
+                findings.append('%s: ran on model sha256 %s, not the plan\'s %s' % (
+                    run_id, rec.get('model_sha256'), p.get('expected_model_sha256')))
+            else:
+                not_timings.append({'run_id': run_id, 'expect': p.get('expect'), 'classification': classification,
+                                    'classification_detail': rec.get('classification_detail'),
+                                    'last_stage': rec.get('last_stage'), 'as_expected': rec.get('as_expected')})
             continue
         driver = rec.get('driver') if isinstance(rec.get('driver'), dict) else {}
         reasons = []
@@ -734,6 +752,10 @@ def judge_set(records, plan_runs):
         footprint = ((rec.get('launch') or {}).get('rss') or {}).get('exit_lifetime_max_phys_footprint_bytes')
         if not _number(footprint):
             reasons.append('launch.rss.exit_lifetime_max_phys_footprint_bytes is %r' % footprint)
+        product = (driver.get('output_sha256'), driver.get('rows'), driver.get('output_bytes'))
+        if None in product:
+            reasons.append('driver.output_sha256, driver.rows and driver.output_bytes are not all present: %s'
+                           % ', '.join(map(str, product)))
         if reasons:
             findings.append('%s: %s' % (run_id, '; '.join(reasons)))
         else:
@@ -777,16 +799,27 @@ def baseline_set(out_dir, plan_path, name, committed=None):
     records, findings = read_set_records(out_dir)
     try:
         with open(plan_path, encoding='utf-8') as fh:
-            plan_runs = json.load(fh).get('runs') or []
+            document = json.load(fh)
+        plan_runs = document.get('runs') or []
     except (OSError, ValueError, AttributeError) as error:
         return {'verdict': SET_VERDICTS[SET_FINDINGS], 'exit_code': SET_FINDINGS, 'workloads': {},
                 'findings': findings + ['the plan file cannot be read: %s' % error], 'window_problems': [],
                 'not_timings': [], 'host_not_quiet': []}
-    named, _, _ = named_plan(name)
-    keys = ('order', 'run_id', 'task', 'profile', 'nodes', 'mode', 'timeout_s', 'footprint_budget_bytes',
-            'rss_cap_bytes', 'expect')
-    if [{k: r.get(k) for k in keys} for r in plan_runs] != [{k: r[k] for k in keys} for r in named]:
-        findings.append('the plan file is not the named plan %s at this checkout (runs, order or limits differ)' % name)
+    named, budget_s, quiet_wait_s = named_plan(name)
+    # Every top-level field of the plan document, and every field of each run but the two the models
+    # folder supplies (expected_model_sha256, checked against the repository below, and model_stats,
+    # the generator's description of the model).
+    expected_top = {'schema': PLAN_SCHEMA, 'window_budget_s': budget_s, 'quiet_wait_s': quiet_wait_s}
+    differing = sorted(key for key in set(document) | set(expected_top) | {'runs'}
+                       if key != 'runs' and document.get(key) != expected_top.get(key))
+    keys = PLAN_RUN_KEYS + ('model',)
+    if [{k: r.get(k) for k in keys} for r in plan_runs] != [dict({k: r[k] for k in PLAN_RUN_KEYS}, model=model_name(
+            r['profile'], r['nodes'])) for r in named] or any(
+            set(r) - set(keys) - {'expected_model_sha256', 'model_stats'} for r in plan_runs):
+        differing.append('runs')
+    if differing:
+        findings.append('the plan file is not the named plan %s at this checkout: %s differ%s' % (
+            name, ', '.join(differing), '' if len(differing) > 1 else 's'))
     hashes = recorded_rack_hashes()
     for r in plan_runs:
         expected, where = pinned_sha256(r.get('profile'), r.get('nodes'), hashes, committed)
