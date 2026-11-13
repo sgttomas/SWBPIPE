@@ -50,3 +50,7 @@ apps/desktop/public/mbf-engine.old-*/
 
 # Exact hosted engine-output cache receipt.
 apps/desktop/public/wasm-cache.json
+
+# Written at the repository root by tools/ci/repository_checks.py (the Repository checks).
+/repository-ci-plan.json
+/deliverable-check.json
