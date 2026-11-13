@@ -82,6 +82,26 @@ def test_a_deferred_commands_blocker_still_holds(name):
     assert not problems, f"{name}:\n" + "\n".join(problems)
 
 
+def test_each_time_limit_is_set_from_its_measured_times():
+    """A slow check's own limit names a check that exists, keeps the margin over its slowest observed time
+    and is never below the default; the default keeps the margin over what it covers."""
+    for (name, index), (limit, observed, where) in R.SLOW_CHECKS.items():
+        assert index < len(PACKAGES[name].checks), (name, index)
+        assert where.strip() and limit >= R.LIMIT_MARGIN * observed and limit >= R.CHECK_TIMEOUT_S, (name, index)
+        assert limit % 10 == 0, (name, index)
+    assert R.check_limit("rt_a3_tee", 0) == R.CHECK_TIMEOUT_S
+
+
+def test_a_command_over_its_limit_fails_its_check(monkeypatch, tmp_path):
+    """A hung command fails its test at its limit, by name, and does not hang the job."""
+    pkg = PACKAGES["rt_a3_tee"]
+    monkeypatch.setitem(PACKAGES, "rt_a3_tee", replace(pkg, checks=(replace(
+        pkg.checks[0], argv=("-c", "import time; time.sleep(30)")),)))
+    monkeypatch.setattr(R, "CHECK_TIMEOUT_S", 1)
+    problems = R.check_problems("rt_a3_tee", 0, tmp_path / "out")
+    assert len(problems) == 1 and "did not finish within its 1 s limit" in problems[0]
+
+
 def test_a_repaired_blocker_fails_its_deferred_entry(monkeypatch):
     """The reader's mutation: naming text the twins' generator holds must make the entry fail."""
     pkg = PACKAGES["o4_retained_source"]

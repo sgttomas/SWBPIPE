@@ -42,6 +42,24 @@ CHECKSUM_LIST = re.compile(r"(^|_)SHA256SUMS(\..+)?$")
 NO_BASIS = "no basis: "  # opens the reason of a membership nothing in the package states
 TMP = "<new scratch directory>"  # replaced by a fresh, absent directory under pytest's tmp_path
 CHECK_TIMEOUT_S = 120
+# Each check command's time limit, set from its measured times: at least LIMIT_MARGIN times the slowest
+# time observed for that command, rounded up to 10 s. The default holds for every command observed at or
+# under CHECK_TIMEOUT_S / LIMIT_MARGIN; the commands observed slower have their own limit below. A command
+# that hangs still fails its test at its limit. Observed: local, four workers on the development host
+# (bounded reading at e4c5787ca, JUnit times); hosted, the Python product contracts job of run 43508652617.
+LIMIT_MARGIN = 5
+SLOW_CHECKS = {  # (package, check index): (limit in s, slowest observed s, where observed)
+    ("t4_i9", 0): (600, 119.83, "hosted, stopped at the then 120 s limit, so a lower bound; local 99.88"),
+    ("pf_timoshenko", 0): (330, 65.07, "local; hosted 56.92"),
+    ("m3_judge", 0): (290, 56.73, "local; hosted 36.50"),
+    ("t4_u4b", 0): (230, 44.83, "local; hosted 35.24"),
+    ("t4_u4a", 0): (200, 39.68, "hosted; local 38.87"),
+}
+
+
+def check_limit(name: str, index: int) -> int:
+    """The time limit, in seconds, for the package's check `index`."""
+    return SLOW_CHECKS.get((name, index), (CHECK_TIMEOUT_S,))[0]
 
 @dataclass(frozen=True)
 class Sums:
@@ -666,11 +684,15 @@ def check_problems(name: str, index: int, scratch: Path) -> list[str]:
     check = PACKAGES[name].checks[index]
     argv = [str(scratch) if a == TMP else a for a in check.argv]
     before = tree_state()
-    run = subprocess.run([sys.executable, "-I", "-B", *argv], cwd=REFS / name / check.cwd, capture_output=True,
-                         timeout=CHECK_TIMEOUT_S)
+    label = f"python3 -I -B {' '.join(argv)} (in {check.cwd})"
+    limit = check_limit(name, index)
+    try:
+        run = subprocess.run([sys.executable, "-I", "-B", *argv], cwd=REFS / name / check.cwd,
+                             capture_output=True, timeout=limit)
+    except subprocess.TimeoutExpired:
+        return [f"{label} did not finish within its {limit} s limit (reference_packages.SLOW_CHECKS)"]
     written = _changes(before, tree_state())
     output = (run.stdout + run.stderr).decode("utf-8", "replace")
-    label = f"python3 -I -B {' '.join(argv)} (in {check.cwd})"
     if written:
         return [f"{label} wrote under validation/references/:"] + written
     if run.returncode != 0:
