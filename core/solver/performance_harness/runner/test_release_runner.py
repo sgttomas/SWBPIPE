@@ -1072,6 +1072,8 @@ class ReadBack(unittest.TestCase):
                 expected = 'is not listed' if keys == ('run_id',) else '.'.join(keys)
                 cases.append(('%s %s' % (run_id, '.'.join(keys)), change, expected))
         cases += [
+            ('an added field in a launched row', lambda d: self.row(d, COMPLETED).update(extra=1),
+             'extra is a field this check does not know'),
             ('a launched row under not_run', lambda d: d['not_run'].append(d['runs'].pop(0)), 'is listed under not_run'),
             ('a row listed twice', lambda d: d['runs'].append(dict(d['runs'][0])), 'listed more than once'),
             ('a row missing', lambda d: d['runs'].pop(0), 'is not listed'),
