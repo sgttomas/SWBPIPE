@@ -371,7 +371,7 @@ ids end `-r1` to `-r5`. `baseline-with-rack` holds the same ten, then one run of
 `exceeds_base_machine_budget`. It states criterion 9's own linear workload beside the baseline
 on the same revision, and it is never a timing. A named plan fixes its mode, its limits, its
 window and its quiet-host wait. `--plan --subset baseline` prints them, and the runner refuses
-any flag that would change them. The window is long enough for every run to last until its
+any flag that would change them, `--generator` included. The window is long enough for every run to last until its
 timeout, with nothing skipped or cut short. Whoever measures states their thresholds in their
 own measurement contract; this section sets none.
 
@@ -383,26 +383,32 @@ In order, from a fresh clone of the revision to be measured:
    python3 core/solver/performance_harness/runner/release_runner.py --generate --subset baseline --models FOLDER
    ```
 
-   W1 is written by the rack generator, the same bytes as
+   W1 is written by the repository's rack generator, the same bytes as
    `python3 core/solver/performance_harness/rack/rack_model.py --profile baseline-one-case-ex --nodes 2000 -o FILE`.
-   Its SHA-256 must equal the line `baseline-one-case-ex  2000` of
+   `--generate` compares its SHA-256 with the line `baseline-one-case-ex  2000` of
    `observations/rack/models_sha256.txt`, which `tests/test_performance_rack_model.py` holds
    against the generator. W2 is copied only after
    `python3 fixtures/reference_system/generate_reference_system.py --check` exits 0, which shows
    the committed file is what its generator writes. No other file states its hash: it is the
    SHA-256 of the committed file at that revision (`shasum -a 256 fixtures/reference_system/reference_system.json`).
-   `FOLDER/manifest.json` records both hashes. If either check fails, `--generate` exits 1 and the
-   plan cannot be written.
-2. Build the driver, with the build directory outside the clone:
+   `FOLDER/manifest.json` records both hashes. If W1's hash differs from its line, or W2's check
+   fails, `--generate` names the model (for W1 also the expected and the found hash), leaves it
+   out of the manifest and exits 1. The plan cannot then be written.
+2. Build the driver, with the build directory `BUILD` a new folder outside the clone:
 
    ```sh
-   CARGO_TARGET_DIR=/a/new/folder/outside/the/clone cargo build --release --locked --manifest-path core/solver/release_timing/Cargo.toml
+   CARGO_TARGET_DIR=BUILD cargo build --release --locked --manifest-path core/solver/release_timing/Cargo.toml
    ```
 
-   `release_timing --build-identity` names the revision. Read the first item of
+   The executable is then `BUILD/release/release_timing`; the commands below name it by that
+   path. `BUILD/release/release_timing --build-identity` names the revision. Read the first item of
    [What it does not yet do](#what-it-does-not-yet-do) before relying on it.
-3. Write the plan. Each run then carries its model's SHA-256 from the manifest, and the plan is
-   refused if a model is missing from the manifest:
+3. Write the plan. Each run then carries its model's SHA-256 from the manifest. First every
+   model the manifest lists is compared again: W1 with its line of
+   `observations/rack/models_sha256.txt`, W2 with the SHA-256 of the committed file at this
+   checkout. If a model is missing or differs, nothing is written and the runner exits 2. So a
+   models folder made any other way, or at another revision, cannot become a named plan.
+   `--plan --models FOLDER` makes the same comparison.
 
    ```sh
    python3 core/solver/performance_harness/runner/release_runner.py --write-plan plan.json --subset baseline --models FOLDER
@@ -412,7 +418,7 @@ In order, from a fresh clone of the revision to be measured:
    exist:
 
    ```sh
-   release_timing --supervise plan.json --models FOLDER --out NEW_FOLDER
+   BUILD/release/release_timing --supervise plan.json --models FOLDER --out NEW_FOLDER
    ```
 
 The timing of a run is the `entry` member of `seconds` in the driver's line. That line is the
