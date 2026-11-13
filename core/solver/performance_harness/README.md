@@ -229,26 +229,39 @@ memory bound.
     only what it wrote. No plan content and no state of that folder, before or during a run,
     makes it write elsewhere or record a hash that is not of the bytes it wrote. No two records
     it writes can be the same file, by name, by case or by link.
-  - A driver it started does not outlive it; a driver it did not start is not affected by it.
+  - A driver started by this supervisor receives `--supervised-by <pid>` and stops when that
+    parent exits. A driver invoked without `--supervised-by` watches no supervisor, whatever its
+    environment. An invocation supplying a stale or non-parent pid exits 125.
   - Its build identity says clean only when Git status is clean and no index flag hides a file;
     otherwise it says unknown or dirty.
 
   It promises nothing against someone who can replace the `git` executable, forge objects in
-  the checkout, write into the output folder's parent between its own operations in ways the
-  exclusive-creation rule does not already refuse, or write into the output folder's own entries
-  during or after a run: it answers for the bytes it wrote, not for what another writer does to
-  a file afterwards. Its build identity does not see files Git ignores. An identity of "clean"
-  says that tracked files match the head, that no file outside Git's ignore rules is untracked,
-  and that no index flag hides a file; it does not say that no ignored file took part in the
-  build. Where a measurement will be cited for exit criterion 9, the build is made in a fresh
-  checkout of the head.
+  the checkout, or write into the output folder's parent between its own operations in ways the
+  exclusive-creation rule does not already refuse. The exclusion for changes to the output
+  folder's files applies only to deliberate modification of their contents by another person. It
+  does not exclude ordinary folder moves, accidental corruption or the tool's own operations.
+  Consumers must verify recorded integrity information before relying on stored files.
+
+  Two things it does not yet do, which a reader of a run's records must know:
+
+  - **The build identity does not establish that the executable was built from the named
+    revision alone.** It says that tracked files match the head, that nothing outside Git's
+    ignore rules is untracked and that no index flag hides a file. A file Git ignores can take
+    part in the build: an ignored build script in a dependency crate was compiled and run with
+    the identity still naming the commit as clean. Until the tool lists ignored files and marks
+    the identity incomplete, a run's identity is not evidence about the named revision unless
+    the build was made in a fresh checkout of that revision, and the tool does not check that.
+  - **No reader verifies what it reads back.** The supervisor records a hash of the bytes it
+    wrote for each run's stdout record only; the aggregate record, the metadata, the packet, the
+    stderr lines and the launch record have no recorded hash, and neither `--packet` nor any
+    other reader here recomputes one. A folder carried from one machine to another is not
+    evidence by itself. Until a manifest and a verifying reader exist, note the SHA-256 of
+    `packet.json` by hand where the run is made (`shasum -a 256 results/packet.json`).
 
   It keeps no result bytes: `--write-results` is refused under `--supervise`, by name, before
   anything is written and before any driver starts, because the driver writes a kept result by
-  pathname. The recorded argv is the driver's own arguments, without the supervisor's process
-  id. A `.packet.json.partial` that someone plants in the folder during a run makes the next
-  packet write fail and the supervisor stop with exit status 2; that costs the rest of the plan
-  and no record already written.
+  pathname. The recorded argv contains the driver arguments with absolute paths reduced to
+  basenames and the `--supervised-by <pid>` pair omitted.
 
   How it keeps them. Run ids are bare names (`[A-Za-z0-9][A-Za-z0-9._-]{0,127}`), and both
   supervisors refuse at plan load, before anything is written, any other id, two ids that are
@@ -261,8 +274,12 @@ memory bound.
   would write is refused before anything is written and before any driver starts, with a
   message to give `--out` a new folder. Every record is created as a new file (`O_CREAT |
   O_EXCL`), so an existing entry of that name, whether a file, a FIFO, a symbolic link or a hard
-  link to a file elsewhere, is never opened for writing; one that appears during the run is
-  refused by name as that run's error, before its driver starts. `records.jsonl` is created once
+  link to a file elsewhere, is refused. An existing entry is never opened for writing. If a
+  per-run stdout, stderr or launch-record name appears during the plan, that run is refused when
+  its files are prepared, before its driver starts. A planted `.packet.json.partial` fails the
+  next packet write. A planted `packet.json` entry is replaced by the packet rename, without
+  opening its target. A failed packet write stops the supervisor with exit status 2; that costs
+  the rest of the plan and no record already written. `records.jsonl` is created once
   and written through that one descriptor. `packet.json` is written under a new name and renamed
   into place, which replaces the folder's entry and leaves any other link of the old file as it
   was. The summary printed at the end is the packet just written, never a second read of the

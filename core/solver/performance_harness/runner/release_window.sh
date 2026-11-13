@@ -51,5 +51,12 @@ python3 -u "$HERE/release_runner.py" --run --subset "$SUBSET" --mode "$MODE" --b
 RC=${PIPESTATUS[0]}
 log "RUNS DONE rc=$RC"
 python3 -u "$HERE/release_runner.py" --packet --out "$OUT" | tee -a "$OUT/window.log"
+PACKET_RC=${PIPESTATUS[0]}
+if [ "$PACKET_RC" -ne 0 ]; then
+  # A failed packet step is a failed window: it is never reported as done, and its status leaves.
+  log "WINDOW NOT DONE: the packet step failed rc=$PACKET_RC (runs rc=$RC); no packet.json of this window is to be relied on"
+  [ "$RC" -ne 0 ] && exit "$RC"
+  exit "$PACKET_RC"
+fi
 log "WINDOW DONE; records and packet.json in $(basename "$OUT") under the out root"
 exit "$RC"
