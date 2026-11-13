@@ -9,7 +9,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
+import type { EditorOperationIntent, EntityRef, OperationOutcome, PreviewModel } from "../../types";
 import type { UnitCatalogRoute } from "../../services/unitCatalogService";
 import { unitCatalogFixture } from "../../test-support/unitCatalogFixture";
 import { changeFormControl, chooseCompactOption } from "../../test-support/workspaceTestControls";
@@ -52,9 +52,11 @@ const notice = () => screen.queryByTestId("editor-intent-unit-cleared");
 async function startTask(selection: EntityRef, fieldPath: string, units: Record<string, string> = {}, edit?: (model: PreviewModel) => void) {
   route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
-  const tree = (model: PreviewModel, session = 1) => (
+  const validate = vi.fn<(intent: EditorOperationIntent) => void>();
+  const apply = vi.fn<(intent: EditorOperationIntent) => Promise<boolean>>(async () => true);
+  const tree = (model: PreviewModel, session = 1, outcomes: Record<string, OperationOutcome> = {}) => (
     <DisplayUnitsProvider initialPreference="SI">
-      <PropertyInspector model={model} selection={selection} onQueueIntent={queue} onApplyIntent={async () => true} projectSessionGeneration={session} />
+      <PropertyInspector model={model} selection={selection} onQueueIntent={queue} onValidateIntent={validate} onApplyIntent={apply} operationOutcomes={outcomes} projectSessionGeneration={session} />
     </DisplayUnitsProvider>
   );
   const view = render(tree(demo(units, edit)));
@@ -66,7 +68,9 @@ async function startTask(selection: EntityRef, fieldPath: string, units: Record<
   return {
     starting,
     queue,
-    rerender: (next: Record<string, string>, session = 1, edit?: (model: PreviewModel) => void) => view.rerender(tree(demo(next, edit), session))
+    validate,
+    apply,
+    rerender: (next: Record<string, string>, session = 1, edit?: (model: PreviewModel) => void, outcomes: Record<string, OperationOutcome> = {}) => view.rerender(tree(demo(next, edit), session, outcomes))
   };
 }
 
@@ -291,6 +295,71 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(stale()).toHaveTextContent("The stored elastic modulus is now 195000000000 Pa; this entry was made against 200000000000 Pa.");
     expect(add()).toBeDisabled();
     expect(applyNow()).toBeDisabled();
+  });
+
+  // (b) A review result belongs to the operation it was obtained for. The person reviews an
+  // entry, the stored value changes under the same unit, the entry becomes stale, they keep it.
+  const resultFor = (intent: EditorOperationIntent, blocked: boolean): OperationOutcome => ({
+    mode: "validate_only",
+    operation_id: intent.operation_id,
+    change_id: intent.change.change_id,
+    change_kind: intent.change.change_kind,
+    target_object_type: intent.target.object_type,
+    target_ref: intent.target.ref,
+    validation: blocked
+      ? { schema_validation: "passed", reference_validation: "failed", unit_validation: "passed", before_state_validation: "matched", diff_preview_status: "not_generated", application_status: "blocked" }
+      : { schema_validation: "passed", reference_validation: "passed", unit_validation: "passed", before_state_validation: "matched", diff_preview_status: "generated", application_status: "validated" },
+    diff_preview: blocked ? [] : [{ entity_ref: intent.target.ref, object_type: intent.target.object_type, field_path: intent.change.field_path, before: intent.change.before, after: intent.change.after, unit: intent.change.unit, dimension: intent.change.dimension, change_kind: intent.change.change_kind }],
+    diagnostics: blocked ? [{ id: "diag:1", code: "OP-INVENTED-BLOCK", severity: "blocking", message: "invented refusal", remediation: "", affected_refs: [], source: "test" }] : []
+  } as unknown as OperationOutcome);
+  const shownResult = () => screen.queryByTestId("editor-intent-inline-validation");
+
+  it.each([["a valid result", false], ["a blocked result", true]])("(b) %s obtained before the stored value changed is not shown for the rebuilt operation; a fresh Review is", async (_name, blocked) => {
+    const { rerender, validate, apply } = await startTask(steel, "elastic_modulus.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "210000000000" } });
+    fireEvent.click(byId("validate-editor-intent-inline"));
+    const reviewed = validate.mock.calls[0][0];
+    expect(reviewed.change.before).toBe("200000000000");
+    const earlier = { [reviewed.queue_id ?? reviewed.operation_id]: resultFor(reviewed, blocked) };
+    rerender({}, 1, undefined, earlier);
+    expect(shownResult()).not.toBeNull();
+    // The stored value changes under the same unit: the entry is stale, and the result is not its.
+    rerender({}, 1, storeModulus(195000000000, "Pa"), earlier);
+    expect(stale()).not.toBeNull();
+    expect(shownResult()).toBeNull();
+    expect(byId("validate-editor-intent-inline")).toBeDisabled();
+    expect(applyNow()).toBeDisabled();
+    // Kept against the changed value: still no earlier result; a fresh Review is needed.
+    fireEvent.click(byId("editor-intent-stale-confirm"));
+    expect(shownResult()).toBeNull();
+    expect(byId("editor-intent-inline-validation-empty")).toHaveTextContent("Validate to check this change before applying it.");
+    // A fresh Review of the rebuilt operation is shown.
+    fireEvent.click(byId("validate-editor-intent-inline"));
+    const fresh = validate.mock.calls[1][0];
+    expect(fresh.change.before).toBe("195000000000");
+    rerender({}, 1, storeModulus(195000000000, "Pa"), { [fresh.queue_id ?? fresh.operation_id]: resultFor(fresh, blocked) });
+    expect(shownResult()).not.toBeNull();
+    // The task's own Apply acts on the rebuilt operation, measured against the changed value.
+    fireEvent.click(applyNow());
+    await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+    expect(apply.mock.calls[0][0].change.before).toBe("195000000000");
+    expect(apply.mock.calls[0][0].change.after).toBe(JSON.stringify({ value: 210000000000, unit: "Pa" }));
+  });
+
+  it("(a) keeping a stale entry establishes the new basis: a later change makes it stale again, and Add queues against the kept value", async () => {
+    const { rerender, queue } = await startTask(steel, "elastic_modulus.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "210000000000" } });
+    rerender({}, 1, storeModulus(195000000000, "Pa"));
+    fireEvent.click(byId("editor-intent-stale-confirm"));
+    expect(stale()).toBeNull();
+    rerender({}, 1, storeModulus(190000000000, "Pa"));
+    expect(stale()).toHaveTextContent("The stored elastic modulus is now 190000000000 Pa; this entry was made against 195000000000 Pa.");
+    expect(add()).toBeDisabled();
+    expect(byId("validate-editor-intent-inline")).toBeDisabled();
+    expect(applyNow()).toBeDisabled();
+    fireEvent.click(byId("editor-intent-stale-confirm"));
+    fireEvent.click(add());
+    expect(queue.mock.calls[0][0].change.before).toBe("190000000000");
   });
 
   it("stale: editing the value again ends it", async () => {

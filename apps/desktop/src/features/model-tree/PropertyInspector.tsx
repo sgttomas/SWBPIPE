@@ -355,9 +355,18 @@ export function PropertyInspector({
   const nodeDeleteIntent = mutationNode ? buildDeleteNodeIntent(mutationNode, model) : null;
   const pipeDeleteIntent = mutationPipe ? buildDeletePipeIntent(mutationPipe, model) : null;
   const supportDeleteIntent = mutationSupport ? buildDeleteSupportIntent(mutationSupport, model) : null;
-  const inlineValidationOutcome = operationIntent
+  // A review result belongs to the draft and the stored entry it was obtained against
+  // (DEL-02-02 AC-011). In the render where the task's draft is replaced or its stored entry
+  // changes, every result that exists then is set aside and never shown for it again, even one
+  // that still matches the rebuilt operation (a blocked result carries no prior value to tell
+  // it apart), so the person must Review again.
+  const reviewBasisKey = `${taskDraftIdentity}\u0000${currentBasis ? `${currentBasis.value}\u0000${currentBasis.unit}` : ""}`;
+  const [reviewBasis, setReviewBasis] = useState(() => ({ key: reviewBasisKey, earlier: new Set(Object.values(operationOutcomes)) }));
+  if (reviewBasis.key !== reviewBasisKey) setReviewBasis({ key: reviewBasisKey, earlier: new Set(Object.values(operationOutcomes)) });
+  const matchedValidationOutcome = operationIntent
     ? matchingInlineValidationOutcome(operationOutcomes[operationIntentKey(operationIntent)], operationIntent)
     : null;
+  const inlineValidationOutcome = matchedValidationOutcome && !reviewBasis.earlier.has(matchedValidationOutcome) ? matchedValidationOutcome : null;
   const fieldChanged = Boolean(
     operationIntent &&
     selectedField &&
@@ -458,7 +467,7 @@ export function PropertyInspector({
   }
 
   async function handleApplyCurrentIntent() {
-    if (multiSelection || !operationIntent || !onApplyIntent || unitRefusal) return;
+    if (multiSelection || !operationIntent || !onApplyIntent || unitRefusal || taskStale) return;
     const taskGeneration = taskGenerationRef.current;
     try {
       if (await onApplyIntent(operationIntent) && taskGenerationRef.current === taskGeneration) setTaskActive(false);
@@ -730,7 +739,7 @@ export function PropertyInspector({
                 <button
                   data-testid="validate-editor-intent-inline"
                   disabled={multiSelection || !fieldChanged || Boolean(unitRefusal) || taskStale || operationBusy || !onValidateIntent}
-                  onClick={() => operationIntent && !unitRefusal && onValidateIntent?.(operationIntent)}
+                  onClick={() => operationIntent && !unitRefusal && !taskStale && onValidateIntent?.(operationIntent)}
                   title="Validate without applying"
                   type="button"
                 >
