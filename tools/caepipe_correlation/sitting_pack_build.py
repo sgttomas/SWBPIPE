@@ -999,7 +999,7 @@ Part 0 is the dry run. Write what you observe on `{RUN_SHEET}` under part 0, aft
 6. Then go to the export trial's folder (`{trial['folder']}`) and make check (v) there, in that folder only, as the benchmark manifest gives it below this list. Write each answer on that folder's run line. The window sample's folder (`{window_sample['folder']}`) and every case folder are not opened or touched by this trial.
 7. Read the consequences listed under part 0 of `{RUN_SHEET}` and write down which apply.
 
-8. After part 0, copy the working folder back to the Mac, leaving the working folder on Windows as it is. It is listed there by name, size and hash. Wait until you are told the listing is done, whether or not a title was missing, and then go on to part 1.
+8. After part 0, copy the working folder to a place of your choosing on the Mac, outside every repository, leaving the working folder on Windows as it is. Say when the copy has finished and where it is; say it only once your copying tool says the copy has finished, because the copy must not change while it is being stored. It is stored there under one new name and listed by name, size and hash. Wait until you are told it is stored, whether or not a title was missing, and then go on to part 1.
 9. If a section title is missing from the first case's print, write which on that case's run line, and say so when the folder is brought back: what to do about it is decided then, before part 1.
 
 Check (v), from the benchmark manifest:
@@ -1010,7 +1010,7 @@ Its consequence, from the benchmark manifest:
 
 {consequence_v}
 
-Use the same working folder for the rest of the sitting, and bring it back to the Mac whole at the end.
+Use the same working folder for the rest of the sitting. At the end, copy it to the Mac whole in the same way, and say when the copy has finished and where it is.
 
 ## 5. Per item
 

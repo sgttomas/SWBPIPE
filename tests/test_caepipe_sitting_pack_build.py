@@ -592,9 +592,11 @@ def test_the_owners_reading_of_the_instructions_and_run_sheet():
             + '" It also notes: "' + spb.ANALYZE_INACTIVE + '"') in instructions
     assert "- CAEPIPE-ANALYZE: https://docs.sstcae.com/users_manual/analyze__f12_.htm" in instructions
     assert "Go on to part 1 only when" not in instructions
-    assert ("8. After part 0, copy the working folder back to the Mac, leaving the working folder on Windows as it is. "
-            "It is listed there by name, size and hash. Wait until you are told the listing is done, whether or not a "
-            "title was missing, and then go on to part 1.") in instructions
+    assert ("\n8. After part 0, copy the working folder to a place of your choosing on the Mac, outside every repository, "
+            "leaving the working folder on Windows as it is. Say when the copy has finished and where it is; say it only "
+            "once your copying tool says the copy has finished, because the copy must not change while it is being "
+            "stored. It is stored there under one new name and listed by name, size and hash. Wait until you are told "
+            "it is stored, whether or not a title was missing, and then go on to part 1.\n") in instructions
     assert '" If Analyze is inactive, note it on the run line and go on to the next case.' in instructions
     assert "in the program's window with the import command in 3.2, step 1." in instructions
     rule = ("never struck to make room for a later part. If time runs out within it, stop after a complete strike "
@@ -604,8 +606,8 @@ def test_the_owners_reading_of_the_instructions_and_run_sheet():
     assert "Part 1 is " + rule in sheet and "This part is " + rule in sheet and "never cut" not in instructions + sheet
     assert ("9. If a section title is missing from the first case's print, write which on that case's run line, and say "
             "so when the folder is brought back: what to do about it is decided then, before part 1.") in instructions
-    assert "Use the same working folder for the rest of the sitting, and bring it back to the Mac whole at the end." \
-        in instructions
+    assert ("\nUse the same working folder for the rest of the sitting. At the end, copy it to the Mac whole in the same "
+            "way, and say when the copy has finished and where it is.\n") in instructions
     window = by_id(index)["sample-dyn-window"]
     assert window["results"] == {spb.WINDOW: ["sample-dyn-window.mod"]}
     assert ".saved.mod" not in instructions + sheet
