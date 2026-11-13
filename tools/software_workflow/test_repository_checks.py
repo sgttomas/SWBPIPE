@@ -133,3 +133,29 @@ def test_the_list_validates_and_never_refreshes(repo):
     for command, _ in recorder.commands:
         assert not any(word in ' '.join(command) for word in ('refresh', 'regenerate', '--write', '--update'))
     assert 'refresh-audit' not in text and 'write_text' not in text
+
+
+def test_the_registry_names_the_documented_command_for_every_change():
+    """The local selection names the Repository checks for every change, whatever its route: the route also depends
+    on modes, additions, encodings and the reader audit, which paths cannot show (docs/CI_STRATEGY.md)."""
+    import sys
+    sys.path.insert(0, str(ROOT / 'tools/software_workflow'))
+    from select_affected_checks import select_checks
+    profile = json.loads((ROOT / 'software-workflow.json').read_text())
+    assert profile['checks']['repository-checks'] == {
+        'cwd': '.', 'command': ['python3', 'tools/ci/repository_checks.py', '--event', 'pull_request',
+                                '--base', 'origin/main', '--head', 'HEAD']}
+    assert 'repository-checks' in profile['always_checks']
+    # Selected with no path at all, so for every change, including the declarative records (whose paths the
+    # execution boundary keeps out of maintained code).
+    assert select_checks(profile, [])['checks'] == ['repository-checks']
+    for paths in (['docs/CI_STRATEGY.md'], ['README.md'], ['AGENTS.md'],  # documentation route only when audited
+                  ['tools/ci/repository_checks.py'], ['core/units/adapter.py'], ['.gitignore'],
+                  ['.github/workflows/governance-harness.yml'], ['docs/CI_STRATEGY.md', 'tools/REGISTRY.md']):
+        assert 'repository-checks' in select_checks(profile, paths)['checks'], paths
+
+
+def test_a_local_run_leaves_its_output_files_ignored():
+    ignored = subprocess.run(['git', '-C', str(ROOT), 'check-ignore', '--no-index', checks.PLAN, checks.DELIVERABLE_CHECK],
+                             capture_output=True, text=True)
+    assert ignored.returncode == 0 and ignored.stdout.split() == [checks.PLAN, checks.DELIVERABLE_CHECK]

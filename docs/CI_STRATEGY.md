@@ -212,8 +212,9 @@ unknown paths and shared execution controls select all discovered crates. Existi
 numerical oracles remain unchanged. Python coverage is gated independently.
 
 The standalone required repository job runs the bounded tool/routing suite and
-`tests/test_ci_numerical.py` on every PR and workflow dispatch, including Rust and Cargo manifest
-additions/removals, in parallel (`pytest -n auto`). Its own plan
+`tests/test_ci_numerical.py` on every product-route pull request or merge-queue group and every
+workflow dispatch (which always takes the product route), including Rust and Cargo manifest
+additions/removals, in parallel (`pytest -n auto`). A documentation-route change does not run it. Its own plan
 (`hosted_ci.py repository`) omits only the seven source-reachability tests named in
 `SOURCE_REACHABILITY_TESTS`, and only for a pull request whose complete diff is
 in-place edits of UTF-8 Markdown regular files outside `.github/`, `tools/` and
@@ -246,7 +247,18 @@ It runs the steps in order, names each, stops at the first failure and writes
 inventories and digests and never refreshes them: where a check finds one stale,
 the run fails, and its owning tool refreshes it deliberately. A base that names no commit is
 replaced by `HEAD^1` for the documents and conflict checks, except in a merge
-queue, which fails closed.
+queue, which fails closed. `.gitignore` names both output files, so a local run
+leaves the checkout clean.
+
+`software-workflow.json` registers the script as `repository-checks` in
+`always_checks`, so the selection names it for every change. That costs about
+four minutes locally on a documentation-route change, for which the hosted job
+does not run it. The registry selects by path, and the route also depends on
+what paths cannot show: a file's mode, whether it is added or deleted, whether
+it is UTF-8, and whether the document-reader audit is current. A path rule that
+excluded `execution/` or prose would miss a product-route change there, such as
+an executable or linked file under `execution/` (which the boundary guard in
+this list rejects) or a prose edit while the audit is stale.
 
 Python-test-only edits retain their Python checks with zero Cargo crates. Python PR coverage keeps security and constraint/source-block validation, then
 adds qualification, schema and canonical-JSON families when their inputs change.
