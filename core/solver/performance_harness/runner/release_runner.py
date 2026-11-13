@@ -15,8 +15,9 @@ exceeds the budget, as the desktop kills a worker (``worker_footprint_exceeded``
 Modes (each starts nothing else):
 
 - ``--plan``: the schedule with its estimates and their total;
-- ``--generate --models DIR``: the plan's models from the rack generator, and
-  ``DIR/manifest.json`` (profile, nodes, sha256, bytes, the generator's stats);
+- ``--generate --models DIR``: the plan's models from the rack generator (a
+  committed model, the reference system, is copied after its generator's
+  ``--check``), and ``DIR/manifest.json`` (profile, nodes, sha256, bytes, stats);
 - ``--run --models DIR --out DIR --binary PATH``: the plan's runs, within a
   window budget (``--budget-s``); ``--write-results`` keeps each result's bytes;
 - ``--packet --out DIR``: ``DIR/packet.json`` from the run records.
@@ -38,6 +39,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -66,7 +68,20 @@ QUIET_WAIT_S = 60
 SOLVED = 'MECHANICS_SOLVED'
 # The driver's status for a `--model-checks` run whose checks returned a report (whatever it found).
 CHECKS_REPORTED = 'MODEL_CHECKS_REPORTED'
-PROFILES = ('linear-ex', 'nonlinear-ex', 'nonlinear-pf')
+# The rack generator's profiles. baseline-one-case-ex is not a criterion 9 profile: it is the headless
+# baseline's one-case model (rack_model.py PROFILES).
+PROFILES = ('linear-ex', 'nonlinear-ex', 'nonlinear-pf', 'baseline-one-case-ex')
+# Committed models that are not racks, by the plan entry's profile: the file the plan entry names, the
+# fixture generator whose `--check` must exit 0 (the committed file is what it writes) before
+# `--generate` copies the file, and its node count (a label in the plan, as a rack's is).
+REFERENCE_SYSTEM_DIR = os.path.join(REPO, 'fixtures', 'reference_system')
+COMMITTED_MODELS = {
+    'reference-system': {
+        'source': os.path.join(REFERENCE_SYSTEM_DIR, 'reference_system.json'),
+        'check': os.path.join(REFERENCE_SYSTEM_DIR, 'generate_reference_system.py'),
+        'nodes': 27,
+    },
+}
 MODES = ('sparse', 'dense')
 # A run's task: the driver's solve invocation, or its `--model-checks` invocation (the desktop's
 # on-demand model checks, a process of their own).
@@ -142,6 +157,77 @@ SUBSETS = {
     'model-checks': lambda r: r['task'] == 'model_checks',
 }
 
+# Named plans of their own, not subsets of the default plan: `--subset NAME` selects one. Each fixes
+# its runs, mode and limits; `--mode`, `--footprint-budget-bytes`, `--rss-cap-bytes`, `--budget-s` and
+# `--quiet-wait-s` are refused unless they equal the plan's, and `--attribute` is refused.
+#
+# The headless baseline (DEL-04-05): a timing baseline that can be reproduced from the repository
+# alone. It does NOT measure criterion 9's linear workload (the profile linear-ex: seven cases and five
+# combinations). W1 is the one-case model (baseline-one-case-ex: linear-ex's rack at 2,000 nodes with
+# its operating case alone); W2 is the committed reference system. Each runs five times, alternating
+# W1, W2, W1, W2, ..., so that drift in the host's state reaches both alike. Timeouts are limits, not
+# expectations; the estimates order and bound the window and are not measurements (W1: the only
+# earlier figure for a one-case rack at 2,000 nodes is about a minute of entry, one dirty-built run
+# under foreign load; W2 is a 27-node model).
+BASELINE_ROWS = (
+    # profile, nodes, timeout_s, estimate_s, expect
+    ('baseline-one-case-ex', 2000, 300, 90, 'solved'),
+    ('reference-system', COMMITTED_MODELS['reference-system']['nodes'], 60, 5, 'solved'),
+)
+BASELINE_REPEATS = 5
+# The default plan's row for criterion 9's linear rack at 2,000 nodes, taken from _DEFAULT, not
+# restated: `baseline-with-rack` runs it once, last, to state criterion 9's own linear workload on the
+# measured revision beside the baseline. Its expectation is exceeds_base_machine_budget; it is
+# recorded as what it is and is never a timing. Its 900 s timeout lets the entry stage finish (the one
+# kept record shows entry ending at about 450 s and the footprint watch killing the run soon after).
+LINEAR_RACK_2000_ROW = next(row for row in _DEFAULT if row[:2] == ('linear-ex', 2000) and len(row) == 5)
+# What each run costs the window beyond its timeout: the host check, the launch and the records.
+RUN_ALLOWANCE_S = 10
+
+
+def window_budget_for(plan, quiet_wait_s):
+    """A window in which no run of `plan` is skipped or has its timeout capped, even if every run
+    lasts until its timeout: the quiet-host wait, every timeout and RUN_ALLOWANCE_S per run."""
+    return quiet_wait_s + sum(r['timeout_s'] for r in plan) + RUN_ALLOWANCE_S * len(plan)
+
+
+def _baseline_rows():
+    return BASELINE_ROWS * BASELINE_REPEATS
+
+
+NAMED_PLANS = {
+    # The ten alternating runs of the headless baseline.
+    'baseline': _baseline_rows,
+    # The same ten, then criterion 9's linear rack at 2,000 nodes once (never a timing).
+    'baseline-with-rack': lambda: _baseline_rows() + (LINEAR_RACK_2000_ROW,),
+}
+NAMED_PLAN_MODE = 'sparse'
+NAMED_PLAN_QUIET_WAIT_S = QUIET_WAIT_S
+
+
+def named_plan(name):
+    """(plan, window_budget_s, quiet_wait_s) of a named plan: sparse mode, the 12 GiB footprint budget
+    and the 16 GiB emergency cap, run ids made distinct (`repeat_run_ids`) and a window that allows
+    every run (`window_budget_for`)."""
+    plan = repeat_run_ids(build_plan(NAMED_PLANS[name](), NAMED_PLAN_MODE))
+    return plan, window_budget_for(plan, NAMED_PLAN_QUIET_WAIT_S), NAMED_PLAN_QUIET_WAIT_S
+
+
+def repeat_run_ids(plan):
+    """Each run whose run id occurs more than once in `plan` gets `-r1`, `-r2`, ... in plan order (a run
+    that occurs once keeps its id); `check_run_ids` then holds the result to both supervisors' rules."""
+    counts, seen, out = {}, {}, []
+    for r in plan:
+        counts[r['run_id']] = counts.get(r['run_id'], 0) + 1
+    for r in plan:
+        if counts[r['run_id']] > 1:
+            seen[r['run_id']] = seen.get(r['run_id'], 0) + 1
+            r = dict(r, run_id='%s-r%d' % (r['run_id'], seen[r['run_id']]))
+        out.append(r)
+    check_run_ids(out)
+    return out
+
+
 CONDITIONS = (
     'Engine stages only. A solve run: the release_timing driver runs, in one process, the stages the desktop solve '
     'worker runs for an ordinary solve (read, parse, request, entry, serialize, release_envelope, parse_back) and '
@@ -185,6 +271,10 @@ def run_id_of(profile, nodes, mode, attribute=False, task='solve'):
 
 
 def model_name(profile, nodes):
+    """A model's file name in the models folder: a rack's `<profile>-n<nodes>.json`, or a committed
+    model's own file name."""
+    if profile in COMMITTED_MODELS:
+        return os.path.basename(COMMITTED_MODELS[profile]['source'])
     return '%s-n%04d.json' % (profile, nodes)
 
 
@@ -301,10 +391,12 @@ PLAN_RUN_KEYS = ('order', 'run_id', 'task', 'profile', 'nodes', 'mode', 'timeout
                  'rss_cap_bytes', 'estimate_s', 'expect', 'attribute')
 
 
-def plan_document(plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, models_dir=None):
+def plan_document(plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, models_dir=None, require_sha256=False):
     """`plan` as the plan file the driver's supervise mode reads: each run's plan entry, its model's
     file name, and, where `models_dir`'s manifest lists the model, its sha256 and generator stats.
-    That supervisor takes no stack snapshots, so an attribution run is refused here."""
+    That supervisor takes no stack snapshots, so an attribution run is refused here. A committed
+    model, and with `require_sha256` every model, must be listed: a run without an expected sha256 is
+    not checked by the supervisor."""
     check_run_ids(plan)
     attributed = [r['run_id'] for r in plan if r.get('attribute')]
     if attributed:
@@ -314,13 +406,16 @@ def plan_document(plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, mod
     for r in plan:
         name = model_name(r['profile'], r['nodes'])
         listed = manifest.get(name) or {}
+        if not listed.get('sha256') and (require_sha256 or r['profile'] in COMMITTED_MODELS):
+            raise ValueError('%s is not in the models manifest with a sha256; run --generate with the same --subset '
+                             'and --models first' % name)
         runs.append(dict({k: r[k] for k in PLAN_RUN_KEYS}, model=name, expected_model_sha256=listed.get('sha256'),
                          model_stats=listed.get('stats')))
     return {'schema': PLAN_SCHEMA, 'window_budget_s': budget_s, 'quiet_wait_s': quiet_wait_s, 'runs': runs}
 
 
-def write_plan(path, plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, models_dir=None):
-    document = plan_document(plan, budget_s, quiet_wait_s, models_dir)
+def write_plan(path, plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, models_dir=None, require_sha256=False):
+    document = plan_document(plan, budget_s, quiet_wait_s, models_dir, require_sha256)
     with open(path, 'w') as fh:
         json.dump(document, fh, indent=1, sort_keys=True)
         fh.write('\n')
@@ -369,8 +464,41 @@ def read_manifest(models_dir):
         return json.load(fh)
 
 
-def generate(plan, models_dir, generator=GENERATOR, python=sys.executable, run=subprocess.run, log=print):
-    """Each distinct (profile, nodes) of the plan, from the rack generator, and the manifest."""
+def committed_stats(path):
+    """A committed model's counts, in the rack generator's stats terms where they apply."""
+    with open(path, encoding='utf-8') as fh:
+        document = json.load(fh)
+    return {'nodes': len(document.get('nodes') or []), 'members': len(document.get('pipe_segments') or []),
+            'cases': [c.get('id') for c in document.get('load_cases') or []],
+            'combinations': [c.get('id') for c in document.get('combinations') or []],
+            'route': 'EX' if 'pressure_contract' in document else 'PF',
+            'model_version': document.get('schema_version')}
+
+
+def copy_committed(profile, path, python=sys.executable, run=subprocess.run, committed=None):
+    """A committed model copied to `path` after its generator's `--check` exits 0: (manifest entry,
+    None), or (None, why) with nothing copied."""
+    spec = (committed or COMMITTED_MODELS)[profile]
+    done = run([python, spec['check'], '--check'], capture_output=True, text=True, check=False)
+    if done.returncode != 0:
+        return None, 'its generator\'s --check exited %s: %s' % (
+            done.returncode, k6.sanitize(((done.stdout or '') + (done.stderr or '')).strip()[-500:]))
+    source_sha = sha256_file(spec['source'])
+    shutil.copyfile(spec['source'], path)
+    if sha256_file(path) != source_sha:
+        return None, 'the copy differs from the committed file'
+    relative = os.path.relpath(spec['source'], REPO) if spec['source'].startswith(REPO + os.sep) else os.path.basename(spec['source'])
+    return {'profile': profile, 'nodes': spec['nodes'], 'sha256': source_sha, 'bytes': os.path.getsize(path),
+            'source': relative.replace(os.sep, '/'), 'source_check': os.path.basename(spec['check']) + ' --check',
+            'stats': committed_stats(path)}, None
+
+
+def generate(plan, models_dir, generator=GENERATOR, python=sys.executable, run=subprocess.run, log=print,
+             committed=None):
+    """Each distinct (profile, nodes) of the plan, from the rack generator or, for a committed model,
+    copied after its generator's check (refused, and dropped from the manifest, when the check fails),
+    and the manifest."""
+    committed = committed or COMMITTED_MODELS
     os.makedirs(models_dir, exist_ok=True)
     manifest = read_manifest(models_dir)
     failures = []
@@ -382,6 +510,16 @@ def generate(plan, models_dir, generator=GENERATOR, python=sys.executable, run=s
         seen.add(key)
         name = model_name(*key)
         path = os.path.join(models_dir, name)
+        if r['profile'] in committed:
+            entry, why = copy_committed(r['profile'], path, python=python, run=run, committed=committed)
+            if entry is None:
+                manifest['models'].pop(name, None)
+                failures.append(name)
+                log('generate %s: refused: %s' % (name, why))
+            else:
+                manifest['models'][name] = entry
+                log('generate %s: copied, %d bytes, sha256 %s' % (name, entry['bytes'], entry['sha256']))
+            continue
         done = run([python, generator, '--profile', r['profile'], '--nodes', str(r['nodes']), '-o', path],
                    capture_output=True, text=True, check=False)
         if done.returncode != 0 or not os.path.exists(path):
@@ -1113,14 +1251,15 @@ def main(argv=None):
     parser.add_argument('--write-plan', metavar='FILE',
                         help="write the selected runs as the plan file of the driver's supervise mode (with --models, "
                              "each model's sha256 from the manifest)")
-    parser.add_argument('--subset', default='all', help='%s, or comma-separated run ids' % ', '.join(SUBSETS))
-    parser.add_argument('--mode', choices=MODES, default='sparse')
-    parser.add_argument('--footprint-budget-bytes', type=int, default=BASE_MACHINE_BUDGET_BYTES,
+    parser.add_argument('--subset', default='all', help='%s, or comma-separated run ids; or a named plan: %s' % (
+        ', '.join(SUBSETS), ', '.join(NAMED_PLANS)))
+    parser.add_argument('--mode', choices=MODES, help='default sparse')
+    parser.add_argument('--footprint-budget-bytes', type=int,
                         help='the phys_footprint kill (default: the 12 GiB base-machine budget)')
-    parser.add_argument('--rss-cap-bytes', type=int, default=EMERGENCY_RSS_CAP_BYTES,
+    parser.add_argument('--rss-cap-bytes', type=int,
                         help='the emergency ps RSS kill (default: 16 GiB, the base machine memory)')
-    parser.add_argument('--budget-s', type=int, default=WINDOW_BUDGET_S)
-    parser.add_argument('--quiet-wait-s', type=int, default=QUIET_WAIT_S)
+    parser.add_argument('--budget-s', type=int, help='default %d; a named plan carries its own' % WINDOW_BUDGET_S)
+    parser.add_argument('--quiet-wait-s', type=int, help='default %d' % QUIET_WAIT_S)
     parser.add_argument('--models')
     parser.add_argument('--out')
     parser.add_argument('--binary')
@@ -1130,18 +1269,40 @@ def main(argv=None):
     parser.add_argument('--keep-samples', action='store_true', help="keep attribution runs' raw sample reports")
     parser.add_argument('--write-results', action='store_true', help='keep each result (large: about 1.5 GB at 2,000 nodes)')
     args = parser.parse_args(argv)
-    try:
-        plan = select(default_plan(args.mode, args.rss_cap_bytes, args.footprint_budget_bytes), args.subset)
+    named = args.subset in NAMED_PLANS
+    if named:
+        plan, budget_s, quiet_wait_s = named_plan(args.subset)
+        fixed = {'--mode': (args.mode, NAMED_PLAN_MODE),
+                 '--footprint-budget-bytes': (args.footprint_budget_bytes, BASE_MACHINE_BUDGET_BYTES),
+                 '--rss-cap-bytes': (args.rss_cap_bytes, EMERGENCY_RSS_CAP_BYTES),
+                 '--budget-s': (args.budget_s, budget_s), '--quiet-wait-s': (args.quiet_wait_s, quiet_wait_s)}
+        differing = ['%s %s (the plan carries %s)' % (flag, given, own) for flag, (given, own) in fixed.items()
+                     if given is not None and given != own]
         if args.attribute:
-            plan = with_attribution(plan)
-    except ValueError as error:
-        parser.error(str(error))
+            differing.append('--attribute')
+        if differing:
+            parser.error('the named plan %s fixes its runs, mode and limits; leave out %s'
+                         % (args.subset, ', '.join(differing)))
+        args.budget_s, args.quiet_wait_s = budget_s, quiet_wait_s
+    else:
+        args.mode = args.mode or 'sparse'
+        args.rss_cap_bytes = EMERGENCY_RSS_CAP_BYTES if args.rss_cap_bytes is None else args.rss_cap_bytes
+        args.footprint_budget_bytes = (BASE_MACHINE_BUDGET_BYTES if args.footprint_budget_bytes is None
+                                       else args.footprint_budget_bytes)
+        args.budget_s = WINDOW_BUDGET_S if args.budget_s is None else args.budget_s
+        args.quiet_wait_s = QUIET_WAIT_S if args.quiet_wait_s is None else args.quiet_wait_s
+        try:
+            plan = select(default_plan(args.mode, args.rss_cap_bytes, args.footprint_budget_bytes), args.subset)
+            if args.attribute:
+                plan = with_attribution(plan)
+        except ValueError as error:
+            parser.error(str(error))
     if args.plan:
         sys.stdout.write(format_plan(plan, args.budget_s))
         return 0
     if args.write_plan:
         try:
-            write_plan(args.write_plan, plan, args.budget_s, args.quiet_wait_s, args.models)
+            write_plan(args.write_plan, plan, args.budget_s, args.quiet_wait_s, args.models, require_sha256=named)
         except ValueError as error:
             parser.error(str(error))
         return 0

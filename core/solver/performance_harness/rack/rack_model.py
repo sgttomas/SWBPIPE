@@ -22,8 +22,9 @@ A bay has 41 nodes. The tail has 4 + r nodes, where r absorbs the remainder so t
 rests sit at every fourth tail node short of the end anchor. The rack is a tree, so members = nodes - 1.
 
 Profiles: `linear-ex` (criterion 9's linear static, exact route EX), `nonlinear-ex` (criterion 9's nonlinear
-operating, EX) and `nonlinear-pf` (the nonlinear twin on the pressure-free route). Only what the product admits is
-emitted; each target family or case form that it refuses is recorded in LEDGER with its interim form, the refusal
+operating, EX), `nonlinear-pf` (the nonlinear twin on the pressure-free route) and `baseline-one-case-ex` (a one-case
+baseline model for reproducing a timing: linear-ex's rack with the operating case alone and no combination; it is
+not criterion 9's linear workload, which is `linear-ex`). Only what the product admits is emitted; each target family or case form that it refuses is recorded in LEDGER with its interim form, the refusal
 observed and what it waits for.
 
 The document carries the desktop's model-file shape as well (`apps/desktop/src/features/model-file/
@@ -155,6 +156,18 @@ PROFILES = {
                        "is nonlinear-ex's)",
         "timed": "OPE",
     },
+    # Not a criterion 9 profile. The product solves every case and combination a document holds (the timing
+    # driver's request is the model and an empty materials list), so a timing of one case needs a model that holds
+    # one case.
+    "baseline-one-case-ex": {
+        "route": "EX",
+        "nonlinear": False,
+        "min_nodes": BASE_NODES + BAY_NODES,
+        "description": "one-case baseline model for reproducing a timing: linear-ex's rack and its OPE case (W + P + "
+                       "T) alone on the exact route, no combination; NOT criterion 9's linear workload, which is "
+                       "linear-ex (seven cases and five combinations)",
+        "timed": "the headless baseline's one case: OPE alone, the only case of the document",
+    },
 }
 
 # -- pending-family ledger ------------------------------------------------------------------------------------------
@@ -170,14 +183,14 @@ LEDGER = [
      "interim_form": "plain three-pipe junction with no tee component",
      "refusal_code": "EXACT_PRESSURE_FAMILY_NOT_ADMITTED",
      "waits_for": "RT-A3 increment 1 (tee)",
-     "profiles": ["linear-ex", "nonlinear-ex", "nonlinear-pf"],
+     "profiles": ["linear-ex", "nonlinear-ex", "nonlinear-pf", "baseline-one-case-ex"],
      "note": f"nonlinear-pf: {TWIN_NOTE}"},
     {"family": "reducer at the branch connection (S270 header to S170 branch)",
      "target_form": "reducer component on the branch's first member in its own pressure region, tee-adjacent at the branch junction",
      "interim_form": "omitted: the branch is S170 from the junction",
      "refusal_code": "EXACT_PRESSURE_REDUCER_IN_REGION",
      "waits_for": "RT-A3 reducer follow-on beyond initial 2a (own-region, tee-adjacent)",
-     "profiles": ["linear-ex", "nonlinear-ex", "nonlinear-pf"],
+     "profiles": ["linear-ex", "nonlinear-ex", "nonlinear-pf", "baseline-one-case-ex"],
      "note": f"initial 2a admits a plain collinear run, not this tee-adjacent target; nonlinear-pf: {TWIN_NOTE}"},
     {"family": "lift-off friction shoe (friction normal from a one-way rest)",
      "target_form": "the friction shoe's normal_reaction_source names a one_way UZ rest at the same node",
@@ -225,7 +238,7 @@ LEDGER = [
      "interim_form": "authored per case (thermal primitives, pressure regions, weight line loads)",
      "refusal_code": "not authorable at the current model document",
      "waits_for": "model document 0.9.0 S1 (RT-G5)",
-     "profiles": ["linear-ex", "nonlinear-ex", "nonlinear-pf"]},
+     "profiles": ["linear-ex", "nonlinear-ex", "nonlinear-pf", "baseline-one-case-ex"]},
 ]
 
 
@@ -555,6 +568,8 @@ def load_cases(rack: Rack, profile: str) -> tuple[list[dict], list[dict]]:
         return record
 
     if profile != "linear-ex":
+        # nonlinear-ex, nonlinear-pf and baseline-one-case-ex: OPE alone, no combination. On the exact route this is
+        # linear-ex's OPE case byte for byte (the same call below).
         label = "OPE operating: W + P + T" if exact else "OPE operating: W + T (pressure-free twin)"
         return [case("OPE", label, thermal=True)], []
     every_pipe = [pipe["id"] for pipe in rack.pipes]

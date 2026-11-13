@@ -135,7 +135,7 @@ def expected_counts(profile: str, nodes: int) -> dict:
     else:
         supports = linear
     weight_loads = nodes - 1 + 3 * bays  # every member but the 3 rigid bodies per bay; a force and a moment each
-    cases = 7 if profile == "linear-ex" else 1
+    cases = 7 if profile == "linear-ex" else 1  # baseline-one-case-ex: OPE alone
     return {
         "nodes": nodes, "members": nodes - 1, "bends": 4 * bays,
         "components": {"bend": 4 * bays, "flange": 2 * bays, "valve": bays},
@@ -181,6 +181,48 @@ def test_every_ex_region_is_a_chain_from_terminal_to_terminal_and_the_regions_co
             assert at == end
             covered += region["member_pipe_ids"]
         assert sorted(covered) == sorted(pipes)
+
+
+# -- the one-case baseline profile ---------------------------------------------------------------------------------
+BASELINE = "baseline-one-case-ex"
+
+
+@pytest.mark.parametrize("nodes", SIZES)
+def test_the_one_case_baseline_is_linear_ex_with_the_operating_case_alone(nodes):
+    """baseline-one-case-ex is linear-ex's rack on the exact route with one load case, linear-ex's OPE (W + P + T)
+    byte for byte, and no combination; nothing else differs but the project's identity."""
+    one, stats = rm.build(BASELINE, nodes)
+    rack, _ = rm.build("linear-ex", nodes)
+    assert [case["id"] for case in one["load_cases"]] == ["load:RK-OPE"] == stats["cases"]
+    assert one["combinations"] == [] == stats["combinations"]
+    assert one["pressure_contract"] == rm.EX_CONTRACT and stats["route"] == "EX"
+    operating = next(case for case in rack["load_cases"] if case["id"] == "load:RK-OPE")
+    assert rm.canonical(one["load_cases"][0]) == rm.canonical(operating)
+    assert {c["category"] for c in operating["primitive_loads"]} == {"weight", "thermal"} and operating["pressure_regions"]
+    assert all(s["family"] != "nonlinear" for s in one["supports"])
+    differing = sorted(key for key in set(one) | set(rack) if one.get(key) != rack.get(key))
+    assert differing == ["combinations", "load_cases", "project"]
+    assert {k for k in one["project"] if one["project"][k] != rack["project"][k]} == {"id", "name"}
+
+
+def test_the_one_case_baseline_says_it_is_not_criterion_9s_linear_workload():
+    spec = rm.PROFILES[BASELINE]
+    assert not spec["description"].startswith("criterion 9")
+    assert "NOT criterion 9's linear workload, which is linear-ex" in spec["description"]
+    assert "baseline" in spec["timed"] and "criterion" not in spec["timed"]
+    assert [name for name in rm.PROFILES if rm.PROFILES[name]["description"].startswith("criterion 9")] == [
+        "linear-ex", "nonlinear-ex"]
+
+
+def test_the_one_case_baseline_has_its_hash_lines():
+    rows = {(profile, int(nodes)): digest for digest, profile, nodes in
+            (line.split() for line in HASHES.read_text(encoding="utf-8").splitlines() if not line.startswith("#"))}
+    for nodes in SIZES:
+        assert rows[(BASELINE, nodes)] == hashlib.sha256(rm.canonical(rm.build(BASELINE, nodes)[0])).hexdigest()
+    # The command the headless baseline names writes those bytes.
+    stdout = subprocess.run([sys.executable, str(GENERATOR), "--profile", BASELINE, "--nodes", "250"], check=True,
+                            capture_output=True).stdout
+    assert hashlib.sha256(stdout).hexdigest() == rows[(BASELINE, 250)]
 
 
 # -- invented identities and provenance -----------------------------------------------------------------------------
@@ -356,11 +398,12 @@ def test_the_recorded_small_hashes_are_the_generators():
 # -- the product solve ----------------------------------------------------------------------------------------------
 # Small sizes: linear-ex at its one-bay minimum, because the headless runner's solve output (the payload plus its
 # redaction decisions and findings) grows with every result row; the nonlinear profiles carry one case.
-SOLVE_SIZES = {"linear-ex": 46, "nonlinear-ex": 128, "nonlinear-pf": 128}
+SOLVE_SIZES = {"linear-ex": 46, "nonlinear-ex": 128, "nonlinear-pf": 128, "baseline-one-case-ex": 46}
 EXPECTED_WARNINGS = {
     # The realized bends carry the complete directional SIF pair, so the product raises no
     # BEND_USER_MODIFIER_INPUT_MISSING for them.
     "linear-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING"},
+    "baseline-one-case-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING"},
     # The nonlinear OPE case has gap supports: R1's unqualified branch, no confirmation until R-3 (pressure-contract.md
     # "Nonlinear supports on EX", Standings; the same on the pressure-free route).
     "nonlinear-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING",
