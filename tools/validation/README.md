@@ -42,7 +42,8 @@ same physical numbers as today, bit for bit.
   - REFUSED, when the engine does not accept the member yet (exit 3);
   - ERROR;
   - UNCOMPARED, when there is no committed envelope and no baseline;
-  - EXCLUDED, for frozen persistence records.
+  - EXCLUDED, for an entry whose anchor is excluded: frozen persistence records, and files
+    whose documents are held in JSON Lines, JSON text or DAG storage.
 
   The comparison exempts only the bytes the design changes:
   - the key `pressure_elongation`, at any depth;
