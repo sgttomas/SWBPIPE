@@ -58,6 +58,40 @@ pub(crate) const LIBRARY_REF_CHECK_SOURCE: &str = "apps/desktop/src-tauri/src/li
 /// The name of the one refusal that is a limit of this check, not a fault of
 /// the report ([`place`]).
 pub(crate) const SESSION_CHECK_LIMIT: &str = "SESSION-DIAGNOSTICS-CHECK-LIMIT";
+/// The fixed part of [`session_check_provision_bytes`].
+pub(crate) const SESSION_CHECK_FIXED_BYTES: u64 = 64 << 10;
+
+/// The memory provided for [`check_session_diagnostics`] before it runs, on both routes: the
+/// bound model's text, the text of the report's Diagnostics, and a fixed part. The render grows
+/// its lease by exactly this before the check (`report_render_exact::bind_render_admission`);
+/// the save, whose lease grows before its request is parsed, provides it with the request text
+/// standing for the Diagnostics text it contains (`report_package_save::parse_lease_bytes_with_exact`).
+/// The regressions assert the check's priced peak against this same function, so the provision
+/// and the test are one number. A provision checked on those inputs, not a proven bound.
+pub(crate) fn session_check_provision_bytes(model_text_bytes: u64, diagnostics_text_bytes: u64) -> u64 {
+    model_text_bytes.saturating_add(diagnostics_text_bytes).saturating_add(SESSION_CHECK_FIXED_BYTES)
+}
+
+/// The length of the compact JSON text of the report's Diagnostics
+/// (`report_sections.diagnostics`), counted without building the text; 0 where there is none.
+pub(crate) fn diagnostics_text_bytes(input: &Value) -> u64 {
+    struct Count(u64);
+    impl std::io::Write for Count {
+        fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+            self.0 = self.0.saturating_add(bytes.len() as u64);
+            Ok(bytes.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    let Some(diagnostics) = input.pointer("/report_sections/diagnostics") else { return 0 };
+    let mut count = Count(0);
+    // Writing to a counter cannot fail, and a `Value` always serializes.
+    let _ = serde_json::to_writer(&mut count, diagnostics);
+    count.0
+}
+
 const PROVENANCE_WARNING: &str = "PROVENANCE_WARNING";
 const WARNING: &str = "warning";
 const UNRESOLVED: &str = "MODEL-LIBRARY-REF-UNRESOLVED";

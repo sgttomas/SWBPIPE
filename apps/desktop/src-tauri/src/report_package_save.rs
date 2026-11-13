@@ -536,7 +536,9 @@ pub fn check_exact_text_sizes(exact_result_text: Option<&str>, exact_intake_text
 /// resubmitted texts, each M plus its re-serialization
 /// ([`crate::command_ingress::text_parse_bytes`]; §3.6, "Pricing"). The
 /// native standing, the digests and the comparisons run under the held lease
-/// as the command's working memory, within the existing W M provision.
+/// as the command's working memory, within the existing W M provision. The
+/// session Diagnostics check (`report_session_diagnostics`) has its own term,
+/// [`session_check_lease_bytes`].
 pub fn parse_lease_bytes_with_exact(
     request_text: &str,
     model_text: &str,
@@ -552,7 +554,20 @@ pub fn parse_lease_bytes_with_exact(
             refuse(NOT_CANONICAL, &format!("/{what}"), format!("The {what} text is not JSON ({} at byte {}).", invalid.reason, invalid.offset))
         }),
     };
-    Ok(base.saturating_add(priced("exact_result", exact_result_text)?).saturating_add(priced("exact_intake", exact_intake_text)?))
+    Ok(base
+        .saturating_add(priced("exact_result", exact_result_text)?)
+        .saturating_add(priced("exact_intake", exact_intake_text)?)
+        .saturating_add(session_check_lease_bytes(request_text, model_text)))
+}
+
+/// The save's provision for the session Diagnostics check
+/// ([`crate::report_session_diagnostics::session_check_provision_bytes`]). The save's lease grows
+/// before its request is parsed, so the request text stands for the text of the report's
+/// Diagnostics, which it contains: at least the check's own provision. It is taken on every
+/// save, whether or not the document is one the check applies to, which is not known before the
+/// parse.
+pub fn session_check_lease_bytes(request_text: &str, model_text: &str) -> u64 {
+    crate::report_session_diagnostics::session_check_provision_bytes(model_text.len() as u64, request_text.len() as u64)
 }
 
 /// The run record text of route 010 (§2.5 step 2): present, within

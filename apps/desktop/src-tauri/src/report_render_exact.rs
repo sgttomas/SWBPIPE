@@ -290,7 +290,14 @@ fn bind_render_admission(
     rederive(input, &bound.source, &bound.model_sha256, &digests).map_err(|section| refused(sections_mismatch(&section)))?;
     // The Diagnostics after the result's are the session entries the host
     // derives from the bound model, and none copies a result diagnostic
-    // (review of f3d02469c, finding 2; `report_session_diagnostics`).
+    // (review of f3d02469c, finding 2; `report_session_diagnostics`). The
+    // lease grows by the check's provision first; where it cannot, the pool's
+    // refusal leaves and the check does not run.
+    let provision = crate::report_session_diagnostics::session_check_provision_bytes(
+        intake.len() as u64,
+        crate::report_session_diagnostics::diagnostics_text_bytes(input),
+    );
+    lease.grow_to(lease.bytes().saturating_add(provision)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
     crate::report_session_diagnostics::check_session_diagnostics(input, &bound.source, &bound.model)
         .map_err(|detail| refused(sections_mismatch(&format!("diagnostics: {detail}"))))?;
     // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the

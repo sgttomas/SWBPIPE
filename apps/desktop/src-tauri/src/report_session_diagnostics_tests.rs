@@ -30,7 +30,10 @@ use crate::memory_pool::test_host::ScriptedHost;
 use crate::report_package_save::test_support::{desktop_request_from, model as invented_model, no_store, save_request_with, software, witness_source};
 use crate::report_package_save::{admit_report_package_in, parse_lease_bytes_with_exact, ReportPackageSaveRequest};
 use crate::report_render_exact::PF_TIMOSHENKO_SECTION;
-use crate::report_session_diagnostics::{check_session_diagnostics, session_diagnostics, steps, LIBRARY_REF_CHECK_SOURCE, SESSION_CHECK_LIMIT};
+use crate::report_session_diagnostics::{
+    check_session_diagnostics, diagnostics_text_bytes, session_check_provision_bytes, session_diagnostics, steps, LIBRARY_REF_CHECK_SOURCE,
+    SESSION_CHECK_LIMIT,
+};
 use crate::solve_jobs::test_support::delivered_in_custody;
 use crate::solve_jobs::SolveJobRegistry;
 use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
@@ -715,6 +718,10 @@ fn the_matching_is_bounded_on_thousands_of_sites_and_entries() {
         // the buffers and fixed tables. (The general matching kept a site list
         // per entry: about 128 MB for 4,000 identical entries and sites.)
         assert!(measured.peak_priced <= 1024 * entries + (64 << 10), "{name}: priced peak {} for {entries} entries", measured.peak_priced);
+        // And within what both routes provide for the check before it runs.
+        let provision = session_check_provision_bytes(canonical_json(model).len() as u64, diagnostics_text_bytes(&input));
+        eprintln!("{name}: provision {provision} B");
+        assert!(measured.peak_priced <= provision, "{name}: priced peak {} exceeds the provision {provision}", measured.peak_priced);
     }
 }
 
@@ -741,7 +748,10 @@ fn the_session_check_does_not_amplify_a_model_with_many_reference_sites() {
     let source = json!({"diagnostics": []});
     let (outcome, measured) = measure(|| check_session_diagnostics(&input, &source, &model));
     assert_eq!(outcome, Ok(()));
-    let bound = model_text + appended_text + (64 << 10);
+    // The bound is the provision both routes make before the check runs, by the same function.
+    assert_eq!(diagnostics_text_bytes(&input), appended_text, "the counted Diagnostics text is its compact JSON length");
+    let bound = session_check_provision_bytes(model_text, appended_text);
+    assert_eq!(bound, model_text + appended_text + (64 << 10));
     eprintln!("{SITES} reference sites: model text {model_text} B, Diagnostics {appended_text} B, priced peak {} B (bound {bound}), {} allocations", measured.peak_priced, measured.allocations);
     assert!(measured.peak_priced <= bound, "priced peak {} exceeds {bound}", measured.peak_priced);
 }
