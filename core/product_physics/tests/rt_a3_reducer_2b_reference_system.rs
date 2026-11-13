@@ -66,6 +66,7 @@ use open_pipe_stress_product_physics::self_weight::{
     generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest, COMPONENT_WEIGHT_METHOD, COMPONENT_WEIGHT_SCOPE, GENERATED_METHOD,
 };
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewModel, PreviewSolverMode};
+use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, HashMap};
@@ -1112,14 +1113,40 @@ fn a_rigid_surrogate_of_rs_r1_publishes_bit_identical_rows() {
 }
 
 
-/// RT-S3 F-CE: ordinary/no-NL reproduction on main 00832d746. The former
-/// fallback published CE Fz=0 although the ledger and applied row consumed 9000 N.
-/// Keep the actual reference topology/materials/cases, overlay only the already
-/// specified R1 and CE1, and regenerate W on the complete overlaid source.
-#[test]
-fn rt_s3_consumed_constant_effort_is_published_on_sensitive_no_nonlinear_reference_system() {
+/// Every length of every pipe section and shared section re-authored in m at
+/// the exact normalized binary64 value of its authoring (densities are already
+/// kg/m^3): the same physical model, whose generated records then keep metres.
+fn to_metres(model: &mut Value) {
+    let to = canonical_unit(Dimension::Length).unwrap();
+    let convert = |q: &mut Value| {
+        let from = unit_by_symbol(q["unit"].as_str().unwrap(), Dimension::Length).unwrap();
+        let value = convert_for_dimension(q["value"].as_f64().unwrap(), Dimension::Length, from, to).unwrap();
+        *q = json!({"value": value, "unit": to.definition().symbol});
+    };
+    for pipe in model["pipe_segments"].as_array_mut().unwrap() {
+        for key in ["outside_diameter", "wall_thickness", "mill_tolerance", "corrosion_allowance", "insulation_thickness"] {
+            if pipe["section"].get(key).is_some_and(Value::is_object) {
+                convert(&mut pipe["section"][key]);
+            }
+        }
+    }
+    for section in model["sections"].as_array_mut().unwrap() {
+        for key in ["outside_diameter", "wall_thickness"] {
+            convert(&mut section["properties"][key]);
+        }
+    }
+}
+
+/// The RT-S3 model below: the actual reference topology, materials and cases
+/// with only the already specified R1 and CE1 overlaid, and W regenerated on
+/// the complete overlaid source. With `metre`, its sections are re-authored in
+/// m (`to_metres`) before W is generated.
+fn ce_model(metre: bool) -> Value {
     const CE: &str = "support:RS-CE1";
     let mut model = overlay(EB, Some(r1(false)), true).model;
+    if metre {
+        to_metres(&mut model);
+    }
     assert!(model["supports"].as_array().unwrap().iter().all(|s| s.get("nonlinear").is_none()));
     assert!(model["supports"].as_array().unwrap().iter().all(|s| s["id"] != CE));
     let p = model["supports"][0]["provenance"].clone();
@@ -1148,13 +1175,49 @@ fn rt_s3_consumed_constant_effort_is_published_on_sensitive_no_nonlinear_referen
         for load in &loads {
             let evidence: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
             assert_eq!(evidence["source_model_hash"], source_hash);
+            if evidence["method"] == GENERATED_METHOD {
+                let unit = &evidence["mass_inputs"]["outside_diameter"]["unit"];
+                assert_eq!(unit, &json!(if metre { "m" } else { "mm" }), "the generated pipe-weight record keeps the authored unit");
+            }
         }
         c["analysis_state"]["load_sources"] = json!(loads.iter().map(|l| json!({"source_ref": l["id"], "factor": 1.0})).collect::<Vec<_>>());
         c["primitive_loads"] = json!(loads);
     }
-    let original = fixture();
+    let mut original = fixture();
+    if metre {
+        to_metres(&mut original);
+    }
     for key in ["nodes", "pipe_segments", "sections", "materials", "reference_configurations", "combinations", "pressure_contract"] {
         assert_eq!(model[key], original[key], "the CE publication test preserves {key}");
+    }
+    model
+}
+
+/// RT-S3 F-CE: ordinary/no-NL reproduction on main 00832d746. The former
+/// fallback published CE Fz=0 although the ledger and applied row consumed 9000 N.
+///
+/// Its numerical standing is fixed by unit equivalence, not by the repaired
+/// check: the metre twin of the same model (`ce_model(true)`) publishes each
+/// case NUMERICAL_INTEGRITY_CHECKS_PASSED, and the formation check read a
+/// metre-authored record correctly before and after the self-weight units
+/// repair; the millimetre model must publish the same verdict. This test
+/// formerly pinned NUMERICAL_INTEGRITY_SENSITIVE ("no standing promotion"),
+/// which stated the state then, not a requirement: the check was re-forming
+/// the generated weight from the record's millimetres read as metres.
+#[test]
+fn rt_s3_consumed_constant_effort_is_published_on_the_no_nonlinear_reference_system() {
+    const CE: &str = "support:RS-CE1";
+    let model = ce_model(false);
+    let twin = ce_model(true);
+    for mode in MODES {
+        let envelope = solve(&twin, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "metre twin {mode:?}: {:?}", blocking(&envelope));
+        for case in CASES {
+            let id = format!("diagnostic:numerical-integrity:{case}");
+            let integrity: Vec<_> = diagnostics(&envelope).iter().filter(|d| d["id"] == id).collect();
+            assert_eq!(integrity.len(), 1);
+            assert_eq!(integrity[0]["code"], "NUMERICAL_INTEGRITY_CHECKS_PASSED", "metre twin {mode:?} {case}: {}", integrity[0]["message"]);
+        }
     }
     let mut checked = Vec::new();
     for mode in MODES {
@@ -1167,7 +1230,8 @@ fn rt_s3_consumed_constant_effort_is_published_on_sensitive_no_nonlinear_referen
             let id = format!("diagnostic:numerical-integrity:{case}");
             let integrity: Vec<_> = diagnostics(&envelope).iter().filter(|d| d["id"] == id).collect();
             assert_eq!(integrity.len(), 1);
-            assert_eq!(integrity[0]["code"], "NUMERICAL_INTEGRITY_SENSITIVE", "{label} {case}: no standing promotion");
+            // The metre twin's verdict, above.
+            assert_eq!(integrity[0]["code"], "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label} {case}: {}", integrity[0]["message"]);
         }
         assert_eq!(reader_verdict::validate("pressure", &envelope, Some(&model), None)["ok"], true, "{label}: model-bound reader");
         assert_eq!(reader_verdict::validate("pressure", &envelope, None, None)["ok"], true, "{label}: standalone reader");
