@@ -992,13 +992,13 @@ def collection_scenarios(check):
             judge_runs(13, "a reference line declaring malformed entries", case, bad_set, complete, False, prov, "provenance: the reference is refused")
         # ---- round 7 (Codex at cb60446a01): index flags hid an edited manifest; it is now read from HEAD's blob (Agent 0)
         jr = T("r7-judge-repo")
-        rel_j = os.path.join("projects", "chirality-piping", "validation", "references", "m3_judge")
-        rel_c = os.path.join("projects", "chirality-piping", "fixtures", "results")
+        rel_j = os.path.join("validation", "references", "m3_judge")
+        rel_c = os.path.join("fixtures", "results")
         shutil.copytree(HERE, os.path.join(jr, rel_j), ignore=shutil.ignore_patterns("__pycache__"))
         os.makedirs(os.path.join(jr, rel_c))
         for f in MV.CONTRACT_FILES.values():
             shutil.copyfile(os.path.join(MV.FIXTURES, f), os.path.join(jr, rel_c, f))
-        rel_s = os.path.join("projects", "chirality-piping", "schemas")
+        rel_s = "schemas"
         os.makedirs(os.path.join(jr, rel_s))
         for f in MV.SCHEMA_FILES:
             shutil.copyfile(os.path.join(MV.SCHEMAS, f), os.path.join(jr, rel_s, f))
@@ -1132,8 +1132,8 @@ def collection_scenarios(check):
                ["own"], False, tmpset)
         # build.sh: a dirty build input refuses the build before cargo runs (a throwaway repository; cargo is `false`)
         repo = T("build-repo")
-        rel = os.path.join("projects", "chirality-piping")
-        rr = os.path.join(rel, "validation", "references", "m3_judge", "runner")
+        rel = ""      # this repository's layout: the product and the runner under the checkout root
+        rr = os.path.join("validation", "references", "m3_judge", "runner")
         for f in (os.path.join(rel, "core", "product_physics", "Cargo.toml"), os.path.join(rel, "fixtures", "x.json"), os.path.join(rel, "schemas", "x.json"),
                   os.path.join(rr, "Cargo.toml"), os.path.join(rr, "Cargo.lock"), os.path.join(rr, "build.rs"), os.path.join(rel, "apps", "x.txt")):
             write(os.path.join(repo, f), "x\n", raw=True)
