@@ -71,8 +71,9 @@ DEPENDENCIES = {
     # and the warning bound to each exception record (was dfc556bb...); then the exception record's renamed members
     # and warning, its direction and unit checks, and its model binding (was 46c1290c...); then the record's
     # remainder force, the warning's per-case message, and the readers' chain-based interior nodes and re-formed
-    # remainder (was 91841ccf...).
-    MODULE: '528855d4d0927368a2ee4121c746ffe8840e6b0f1566ac29b39de3669e862dd4',
+    # remainder (was 91841ccf...); then the warning's force read by value in the admitted shape rather than
+    # compared as re-formed text (was 528855d4...).
+    MODULE: 'bc69008c5a38dec68947f7daf384719f390ee3dbe06bc396f81aaecbddb80296',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the
