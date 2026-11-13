@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// DO NOT use this runner to launch the application (--run) until it goes through the shared launch helper's environment allowlist and has had its own launch-safety reading: it hands the application the whole inherited environment and has no reviewed home lifecycle.
 // Desktop performance runner (RT-U4, release target exit criterion 9;
 // DEL-04-05), macOS. Observation only:
 // nothing here asserts a time or memory bound.
