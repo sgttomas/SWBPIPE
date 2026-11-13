@@ -256,9 +256,12 @@ def test_the_dynamics_cases_keep_their_wrapper_declarations():
         assert document["inexact_inputs"]["dynamic"]  # as the wrapper states
         assert document["screening_classes"]["modal"] == "modal"
         assert document["screening_classes"]["response_spectrum"] == "response_spectrum"
-        assert document["comparison_conventions"][0].startswith("relative deviation = (value - continuum) / |continuum|")
+        # The SWBPIPE Agent 0's wording (2026-11-13), exactly.
+        assert document["comparison_conventions"][0] == (
+            "For quantities with a nonzero named continuum prediction, relative deviation = (value \u2212 continuum) / "
+            "|continuum|. This convention defines no comparison where that prediction is absent.")
         if document["family"] in ("DYN-L", "DYN-M"):
-            assert document["third_value"].startswith("NONE.") and document["mode_count_basis"]
+            assert document["third_value"].startswith("NONE for the dynamic response:") and document["mode_count_basis"]
         else:
             assert "pull request 268, not yet on main" in json.dumps(document)
     diagonal = by_id()["cpb-dyn-d-n08-flat"]
@@ -1053,13 +1056,71 @@ def test_every_other_skip_runs_nothing_in_its_place_and_goes_on_to_the_next_item
         kind = "hand" if run["kind"] == "hand_entry" else ("dynamics" if run["single_form"] else "pair")
         following = f"go on to {hand.NEXT_ITEM[kind]}"
         for line in run["window_instruction"]["text"].split("\n"):
-            skips = len(re.findall(r"\bskip\b", line))
+            # "If you skip this run," opens the continuation of a skip already counted; it is not a further skip.
+            skips = len(re.findall(r"\bskip\b", line)) - line.count("If you skip this run,")
             assert line.count(following) >= skips, (run["run_id"], line[:80])
             assert line.count("run nothing in its place") + line.count("Run nothing in its place") >= skips
             if kind == "pair":
                 # A skip in either form never invites the other form.
                 assert line.count("not its counterpart either") >= skips, (run["run_id"], line[:80])
             assert "counterpart run" not in line
+
+
+def test_the_two_limits_stand_beside_the_numbers_they_qualify():
+    """The SWBPIPE Agent 0's two limits (2026-11-13), beside the numbers, not only in the pull request: every
+    continuum frequency closed form and every reference-values note says the continuum reference package's validity is
+    not established; every attribution of the shear coefficient says it was not checked against the published table."""
+    frequencies = shear = notes = 0
+    for path in sorted((BENCHMARK / "models").glob("cpb-*.json")):
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        for form in doc.get("closed_form", []):
+            if form.get("quantity") == "frequency":
+                frequencies += 1
+                assert form.get("not_established") == t3.CONTINUUM_NOT_ESTABLISHED, path.name
+        for prediction in doc.get("predictions", []):
+            if "shear_coefficient_source" in prediction:
+                shear += 1
+                assert prediction.get("shear_coefficient_not_established") == t3.COWPER_NOT_ESTABLISHED, path.name
+        if "reference_values_note" in doc:
+            notes += 1
+            assert doc["reference_values_note"].endswith(t3.CONTINUUM_NOT_ESTABLISHED), path.name
+    assert (frequencies, shear, notes) == (42, 22, 8)
+    assert "not checked against Cowper's published table" in t3.COWPER_NOT_ESTABLISHED
+    assert "does not establish the full expression" in t3.COWPER_NOT_ESTABLISHED
+    assert "is not established" in t3.CONTINUUM_NOT_ESTABLISHED
+
+
+def test_the_dynamics_theory_is_described_without_claiming_the_limit_of_the_member_series():
+    """After the independent derivation (2026-11-13): the frequency basis states the continuous Euler-Bernoulli theory
+    and a continuum comparison target, not a limit of the finite member series; the bend layouts' "NONE" is scoped to
+    the dynamic response, since they do carry section, weight and mass identities."""
+    frequencies = third_c = third_none = 0
+    for path in sorted((BENCHMARK / "models").glob("cpb-dyn-*.json")):
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        assert "limit of the member series" not in json.dumps(doc), path.name
+        for form in doc["closed_form"]:
+            if form["quantity"] == "frequency":
+                frequencies += 1
+                assert "neglecting shear deformation and rotary inertia" in form["basis"], path.name
+                assert form["basis"].endswith("a continuum comparison target, not a finite-mesh eigenvalue"), path.name
+        third = doc.get("third_value", "")
+        if third.startswith("closed form: a continuous Euler"):
+            third_c += 1
+            assert "not the eigenvalue of any finite member count" in third, path.name
+        if third.startswith("NONE"):
+            third_none += 1
+            assert third.startswith("NONE for the dynamic response:"), path.name
+    assert (frequencies, third_c, third_none) == (42, 7, 2)
+
+
+def test_the_continuation_after_a_settled_skip_sentence_is_conditional_on_the_skip():
+    """After the settled save sentence (and the displayed-NRL sentence), the next action is conditional, so that a
+    successful save is never read as moving on (the bounded independent reading's suggestion, taken by the Agent 0)."""
+    for _, run in _window_instructions():
+        text = run["window_instruction"]["text"]
+        assert "Run nothing in its place" not in text, run["run_id"]
+        save = next(line for line in text.split("\n") if "If the program will not save under that name" in line)
+        assert "skip this run and note it. If you skip this run, run nothing in its place" in save, run["run_id"]
 
 
 def test_the_pair_rule_says_at_most_one_is_analysed_and_every_pair_records_an_outcome():

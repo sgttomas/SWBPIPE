@@ -368,6 +368,7 @@
         "bending_axial_with_stated_anchor_stiffness": -0.0005584594179636644
       },
       "shear_coefficient": 0.5303337522410032,
+      "shear_coefficient_not_established": "the attribution of this shear coefficient was not checked against Cowper's published table; its formula was checked only by its solid-circle and thin-ring limits, which does not establish the full expression",
       "shear_coefficient_source": "G. R. Cowper, \"The shear coefficient in Timoshenko's beam theory\", Journal of Applied Mechanics 33(2), 335-340 (1966), Table 1, hollow circular section",
       "statement": "textbook predictions of four strain-energy sets on one curved-beam idealisation; relative differences are against bending_axial, SWBPIPE's formulation for this document. The predicted difference of adding shear is bending_axial_shear's; none states what the target program does",
       "support": "support:A",
@@ -390,6 +391,7 @@
         "bending_axial_with_stated_anchor_stiffness": -0.0005584594179636644
       },
       "shear_coefficient": 0.5303337522410032,
+      "shear_coefficient_not_established": "the attribution of this shear coefficient was not checked against Cowper's published table; its formula was checked only by its solid-circle and thin-ring limits, which does not establish the full expression",
       "shear_coefficient_source": "G. R. Cowper, \"The shear coefficient in Timoshenko's beam theory\", Journal of Applied Mechanics 33(2), 335-340 (1966), Table 1, hollow circular section",
       "statement": "textbook predictions of four strain-energy sets on one curved-beam idealisation; relative differences are against bending_axial, SWBPIPE's formulation for this document. The predicted difference of adding shear is bending_axial_shear's; none states what the target program does",
       "support": "support:A",
@@ -412,6 +414,7 @@
         "bending_axial_with_stated_anchor_stiffness": 0.0007612870652933281
       },
       "shear_coefficient": 0.5303337522410032,
+      "shear_coefficient_not_established": "the attribution of this shear coefficient was not checked against Cowper's published table; its formula was checked only by its solid-circle and thin-ring limits, which does not establish the full expression",
       "shear_coefficient_source": "G. R. Cowper, \"The shear coefficient in Timoshenko's beam theory\", Journal of Applied Mechanics 33(2), 335-340 (1966), Table 1, hollow circular section",
       "statement": "textbook predictions of four strain-energy sets on one curved-beam idealisation; relative differences are against bending_axial, SWBPIPE's formulation for this document. The predicted difference of adding shear is bending_axial_shear's; none states what the target program does",
       "support": "support:A",
@@ -434,6 +437,7 @@
         "bending_axial_with_stated_anchor_stiffness": 0.0005584594179636644
       },
       "shear_coefficient": 0.5303337522410032,
+      "shear_coefficient_not_established": "the attribution of this shear coefficient was not checked against Cowper's published table; its formula was checked only by its solid-circle and thin-ring limits, which does not establish the full expression",
       "shear_coefficient_source": "G. R. Cowper, \"The shear coefficient in Timoshenko's beam theory\", Journal of Applied Mechanics 33(2), 335-340 (1966), Table 1, hollow circular section",
       "statement": "textbook predictions of four strain-energy sets on one curved-beam idealisation; relative differences are against bending_axial, SWBPIPE's formulation for this document. The predicted difference of adding shear is bending_axial_shear's; none states what the target program does",
       "support": "support:B",
@@ -456,6 +460,7 @@
         "bending_axial_with_stated_anchor_stiffness": 0.0005584594179636644
       },
       "shear_coefficient": 0.5303337522410032,
+      "shear_coefficient_not_established": "the attribution of this shear coefficient was not checked against Cowper's published table; its formula was checked only by its solid-circle and thin-ring limits, which does not establish the full expression",
       "shear_coefficient_source": "G. R. Cowper, \"The shear coefficient in Timoshenko's beam theory\", Journal of Applied Mechanics 33(2), 335-340 (1966), Table 1, hollow circular section",
       "statement": "textbook predictions of four strain-energy sets on one curved-beam idealisation; relative differences are against bending_axial, SWBPIPE's formulation for this document. The predicted difference of adding shear is bending_axial_shear's; none states what the target program does",
       "support": "support:B",
@@ -478,6 +483,7 @@
         "bending_axial_with_stated_anchor_stiffness": -0.0007612870652933281
       },
       "shear_coefficient": 0.5303337522410032,
+      "shear_coefficient_not_established": "the attribution of this shear coefficient was not checked against Cowper's published table; its formula was checked only by its solid-circle and thin-ring limits, which does not establish the full expression",
       "shear_coefficient_source": "G. R. Cowper, \"The shear coefficient in Timoshenko's beam theory\", Journal of Applied Mechanics 33(2), 335-340 (1966), Table 1, hollow circular section",
       "statement": "textbook predictions of four strain-energy sets on one curved-beam idealisation; relative differences are against bending_axial, SWBPIPE's formulation for this document. The predicted difference of adding shear is bending_axial_shear's; none states what the target program does",
       "support": "support:B",

@@ -98,6 +98,19 @@ DYNAMICS_PAGE = (f"{_url('tech_manual', 'dynamic_analysis')} (technical referenc
                  f"\"Response Spectrum\"), read {DATE_READ}")
 COWPER = ("G. R. Cowper, \"The shear coefficient in Timoshenko's beam theory\", Journal of Applied Mechanics 33(2), "
           "335-340 (1966), Table 1, hollow circular section")
+# The two limits the SWBPIPE Agent 0 required beside the numbers (2026-11-13), so that they stay visible wherever these
+# values might later be taken as independent reference evidence.
+COWPER_NOT_ESTABLISHED = ("the attribution of this shear coefficient was not checked against Cowper's published "
+                          "table; its formula was checked only by its solid-circle and thin-ring limits, which does not "
+                          "establish the full expression")
+CONTINUUM_NOT_ESTABLISHED = ("the validity of the continuum reference package behind these frequencies "
+                             "(validation/references/f2_spectrum, pull request 268, not on main) is not established "
+                             "by this tranche")
+# The frequency closed forms' basis, narrowed after the independent derivation of 2026-11-13: the documents do not
+# establish that the finite member series converges to this Euler-Bernoulli value (a Rayleigh beam keeps rotary
+# inertia), so the basis states the theory and not a limit of the series.
+EB_BASIS = ("Euler-Bernoulli continuum, {support} ({plane} plane): a continuous Euler–Bernoulli beam, neglecting shear "
+            "deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue")
 CASTIGLIANO = ("Castigliano's second theorem on a plane frame (complementary energy of bending, axial and transverse "
                "shear; e.g. S. Timoshenko and D. H. Young, Theory of Structures, 2nd ed., McGraw-Hill 1965, the "
                "chapter on statically indeterminate frames)")
@@ -193,7 +206,8 @@ def build_s1(model_id: str, dt: float) -> dict[str, Any]:
                    "euler_bernoulli_with_stated_anchor_stiffness": eb + support},
         "relative_difference": {"timoshenko": _relative(eb + shear, eb),
                                 "euler_bernoulli_with_stated_anchor_stiffness": _relative(eb + support, eb)},
-        "shear_coefficient": kappa, "shear_coefficient_source": COWPER, "shear_modulus": g,
+        "shear_coefficient": kappa, "shear_coefficient_source": COWPER,
+        "shear_coefficient_not_established": COWPER_NOT_ESTABLISHED, "shear_modulus": g,
         "formula": {"euler_bernoulli": "P L^3/(3EI) + w L^4/(8EI)",
                     "timoshenko": "P L^3/(3EI) + w L^4/(8EI) + (P L + w L^2/2)/(kappa G A)",
                     "euler_bernoulli_with_stated_anchor_stiffness": ("P L^3/(3EI) + w L^4/(8EI) + (P + w L)/k_t + "
@@ -333,6 +347,7 @@ def build_s2(model_id: str, dt: float) -> dict[str, Any]:
         "relative_difference": {name: _relative(values[key], swb[key]) for name, values in sets.items()
                                 if name != "bending_axial"},
         "basis": CASTIGLIANO, "shear_coefficient": cowper_kappa(S2_OD, wall, nu), "shear_coefficient_source": COWPER,
+        "shear_coefficient_not_established": COWPER_NOT_ESTABLISHED,
         "statement": ("textbook predictions of four strain-energy sets on one curved-beam idealisation; relative "
                       "differences are against bending_axial, SWBPIPE's formulation for this document. The predicted "
                       "difference of adding shear is bending_axial_shear's; none states what the target program does"),
@@ -630,12 +645,12 @@ def straight_closed_form() -> list[dict]:
     out = _identity_forms() + [{"basis": "mass identity; invented inputs", "quantity": "total_mass",
                                 "formula": "rho A L", "unit": "kg", "value": MBAR * LENGTH}]
     for n, value in enumerate(eb_frequencies("cantilever"), 1):
-        out.append({"basis": "Euler-Bernoulli continuum, cantilever (XY plane); the limit of the member series",
-                    "quantity": "frequency", "plane": "XY", "plane_mode": n,
+        out.append({"basis": EB_BASIS.format(support="cantilever", plane="XY"),
+                    "quantity": "frequency", "plane": "XY", "plane_mode": n, "not_established": CONTINUUM_NOT_ESTABLISHED,
                     "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), 1 + cos x cosh x = 0", "unit": "Hz", "value": value})
     for n, value in enumerate(eb_frequencies("propped"), 1):
-        out.append({"basis": "Euler-Bernoulli continuum, propped cantilever (XZ plane); the limit of the member series",
-                    "quantity": "frequency", "plane": "XZ", "plane_mode": n,
+        out.append({"basis": EB_BASIS.format(support="propped cantilever", plane="XZ"),
+                    "quantity": "frequency", "plane": "XZ", "plane_mode": n, "not_established": CONTINUUM_NOT_ESTABLISHED,
                     "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), tan x = tanh x", "unit": "Hz", "value": value})
     return out
 
@@ -645,7 +660,7 @@ REFERENCE_NOTE = ("from validation/references/f2_spectrum/benchmark_pack/pack_su
                   "form; consistent = SWBPIPE's stated formulation at this member count; lumped = half-and-half "
                   "translational lumped mass at this member count, NOT SWBPIPE's formulation, the size of the named "
                   "inexact input mass_formulation. Each side's periodic set is the first six modes of its own merged "
-                  "list, or all its finite modes where fewer exist")
+                  "list, or all its finite modes where fewer exist" + "; " + CONTINUUM_NOT_ESTABLISHED)
 MODE_COUNT_NOTE = ("the counts differ between the sides where a diagonal mass formulation has fewer finite modes: at 1 "
                    "member it has the Y bending mode and one axial mode (2) against 5 on the consistent side; at 2 "
                    "members 5 (three bending, two axial) against the first 6")
@@ -695,8 +710,10 @@ def straight_wrapper(rank, model_id, members, table, modes_other, modes_swb, mis
                                 "(closed_form/screening_basis.json and beams_fe.json; pull request 268, not yet on main)",
         },
         "series": ["members"], "sampling": "series",
-        "third_value": "closed form (continuum) in the limit of the member series; per member count and per mass "
-                       "formulation in validation/references/f2_spectrum (pull request 268, not yet on main)",
+        "third_value": ("closed form: a continuous Euler–Bernoulli beam (shear deformation and rotary inertia "
+                        "neglected), a continuum comparison target, not the eigenvalue of any finite member count; per "
+                        "member count and per mass formulation in validation/references/f2_spectrum (pull request 268, "
+                        "not yet on main)"),
         "dynamic_request": request,
         "compared_quantities": [
             {"quantity": "frequency", "bind": "mode order, with the plane of each mode"},
@@ -811,8 +828,10 @@ def piping_wrapper(rank, model_id, family, description, legs, members, direction
         },
         "series": [], "sampling": "single",
         "mode_count_basis": copy.deepcopy(quotes[model_id].get("mode_count_basis")),
-        "third_value": "NONE. No closed form exists for this layout and no independent reference has been generated "
-                       "for it, so agreement here compares two programs and is not a check against a third value",
+        "third_value": ("NONE for the dynamic response: no frequency or response closed form exists for this layout "
+                        "(its section, weight and mass identities do not check modal or spectrum response), and no "
+                        "independent reference has been generated for it, so agreement here compares two programs and "
+                        "is not a check against a third value"),
         "dynamic_request": request,
         "compared_quantities": [
             {"quantity": "frequency", "bind": "mode order, with SWBPIPE's cluster identifier"},
@@ -871,9 +890,14 @@ def dynamics_documents() -> list[dict[str, Any]]:
     return sorted(docs, key=lambda doc: doc["rank"])
 
 
+# The continuum convention, worded by the SWBPIPE Agent 0 after the independent derivation (2026-11-13), so that it
+# defines no comparison where a document names no continuum prediction.
+CONTINUUM_CONVENTION = ("For quantities with a nonzero named continuum prediction, relative deviation = (value − "
+                        "continuum) / |continuum|. This convention defines no comparison where that prediction is "
+                        "absent.")
 # The dynamics lane's comparison conventions, carried into every dynamics record (and the diagonal case's own).
 D_CONVENTIONS = [
-    "relative deviation = (value - continuum) / |continuum|, the magnitude of the continuum value in the denominator",
+    CONTINUUM_CONVENTION,
     ("where a mode's two largest translational components are equal in magnitude, the shape's sign and the "
      "participation factor's sign are not compared; frequency, effective mass and combined magnitudes are"),
 ]

@@ -270,6 +270,7 @@
         "timoshenko": -0.07410237842388495
       },
       "shear_coefficient": 0.6193585557902823,
+      "shear_coefficient_not_established": "the attribution of this shear coefficient was not checked against Cowper's published table; its formula was checked only by its solid-circle and thin-ring limits, which does not establish the full expression",
       "shear_coefficient_source": "G. R. Cowper, \"The shear coefficient in Timoshenko's beam theory\", Journal of Applied Mechanics 33(2), 335-340 (1966), Table 1, hollow circular section",
       "shear_modulus": 81395348837.2093,
       "statement": "textbook predictions of two beam theories and of two support idealisations; SWBPIPE's formulation for this document is Euler-Bernoulli with ideal anchors (closed_form). Neither prediction states what the target program does: the series can refute either",
