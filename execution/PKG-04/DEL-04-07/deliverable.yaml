@@ -304,6 +304,7 @@ checks:
 - apps/desktop/src/test-support/demoReportPackageRequest.test.ts
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
+- apps/desktop/src-tauri/src/report_session_diagnostics_tests.rs
 - apps/desktop/src-tauri/src/solve_attestation.rs
 - apps/desktop/src-tauri/src/result_text_digest.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
