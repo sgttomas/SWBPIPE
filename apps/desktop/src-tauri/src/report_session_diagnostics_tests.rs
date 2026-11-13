@@ -458,7 +458,7 @@ fn the_render_and_the_save_with_session_entries_stay_within_their_leases() {
         let (mut decoded, mut lease) = admit_body(&case.live.registry, &body, &headers, "save_report_package", ArgsDecoding::Moved).unwrap();
         let request = crate::report_package_save::save_report_package_args(&mut decoded).unwrap();
         drop(decoded);
-        let growth = parse_lease_bytes_with_exact(&request.request_text, &request.model_text, &request.input_manifest_text, None, None).unwrap();
+        let growth = crate::report_package_save::ingress_lease_bytes(&request).unwrap();
         lease.grow_to(lease.bytes() + growth).unwrap();
         let blocked = save(None, request);
         (blocked, lease.bytes())
@@ -819,11 +819,12 @@ fn the_render_grows_its_lease_by_the_provision_before_the_check() {
 }
 
 /// The save's provision for the check (`report_package_save::session_check_lease_bytes`,
-/// within `parse_lease_bytes_with_exact`, which `ingress_lease_bytes` grows the
-/// lease by before the request is parsed): the growth with the term less the
-/// growth without it is the model text plus the request text plus the fixed
-/// part, and a budget one byte under the grown lease is refused by the pool
-/// in the save's ingress, before the admission parses anything.
+/// added by `ingress_lease_bytes`, by which the save's ingress grows the lease
+/// before the request is parsed): the growth with the term less the growth
+/// without it (`parse_lease_bytes_with_exact`) is the model text plus the
+/// request text plus the fixed part, and a budget one byte under the grown
+/// lease is refused by the pool in the save's ingress, before the admission
+/// parses anything.
 #[test]
 fn the_save_grows_its_lease_by_the_provision_before_the_parse() {
     use crate::command_ingress::test_support::grown_lease_meets_the_budget;
@@ -831,10 +832,14 @@ fn the_save_grows_its_lease_by_the_provision_before_the_parse() {
     let w = exact_witness();
     let live = live(&w.intake, &w.result);
     let args = exact_save_args(&w, &exact_bound(&w, &live.job));
-    let with = parse_lease_bytes_with_exact(&args.request_text, &args.model_text, &args.input_manifest_text, Some(&w.result), Some(&w.intake)).unwrap();
-    let without = crate::report_package_save::parse_lease_bytes(&args.request_text, &args.model_text, &args.input_manifest_text).unwrap()
-        + text_parse_bytes(&w.result, ArgsDecoding::Moved).unwrap()
-        + text_parse_bytes(&w.intake, ArgsDecoding::Moved).unwrap();
+    let with = crate::report_package_save::ingress_lease_bytes(&args).unwrap();
+    let without = parse_lease_bytes_with_exact(&args.request_text, &args.model_text, &args.input_manifest_text, Some(&w.result), Some(&w.intake)).unwrap();
+    assert_eq!(
+        without,
+        crate::report_package_save::parse_lease_bytes(&args.request_text, &args.model_text, &args.input_manifest_text).unwrap()
+            + text_parse_bytes(&w.result, ArgsDecoding::Moved).unwrap()
+            + text_parse_bytes(&w.intake, ArgsDecoding::Moved).unwrap()
+    );
     assert_eq!(with - without, session_check_provision_bytes(args.model_text.len() as u64, args.request_text.len() as u64));
     assert_eq!(with - without, args.model_text.len() as u64 + args.request_text.len() as u64 + (64 << 10));
     let mut raw = crate::report_package_save::test_support::args_body(&args);
