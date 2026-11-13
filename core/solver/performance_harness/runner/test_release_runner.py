@@ -1288,8 +1288,8 @@ class ReadBackBinding(ReadBack):
         """The command verifies SHA256SUMS against the root digest stated outside the bundle; a file listed
         there that is no file of the bundle (README step 8) or of a launched run is a difference; a file the
         worker examines by hand (exclusive.log) is bound too, where present."""
-        self.assertEqual(rr.read_back(self.bundle, self.revision, '0' * 64)[0],
-                         'SHA256SUMS does not have the root digest %s; nothing in the bundle is bound' % ('0' * 64))
+        self.assertEqual(rr.read_back(self.bundle, self.revision, '0' * 64),
+                         ['SHA256SUMS does not have the root digest %s; nothing in the bundle is bound' % ('0' * 64)])
 
         def orphan():
             with open(self.path('out/unrelated-old-run.record.json'), 'w') as fh:
@@ -1317,6 +1317,14 @@ class ReadBackBinding(ReadBack):
                     '%s: launch.classification_detail is missing from its .record.json' % COMPLETED)
         self.expect(lambda: self.records(lambda by, rows: by[COMPLETED]['launch'].pop('kill_after_s')),
                     "%s: the aggregate's launch does not carry exactly the supervisor's launch keys" % COMPLETED)
+
+    def test_a_required_value_nulled_in_every_copy_is_a_difference(self):
+        """REQUIRED_BY_BRANCH applied by the read-back itself: a value a rule reads, nulled consistently in the
+        aggregate and the launch record (the packet does not carry it), is still a difference."""
+        def nulled():
+            self.records(lambda by, rows: by[COMPLETED]['launch'].update(killed_by_rss_watchdog=None))
+            self.edit('out/%s.record.json' % COMPLETED, lambda d: d.update(killed_by_rss_watchdog=None))
+        self.expect(nulled, '%s: a completed record has no value at launch.killed_by_rss_watchdog' % COMPLETED)
 
     def test_baseline_set_json_is_recomputed_from_the_records(self):
         """The two results recomputed from the records the command has just checked, against the stored file."""
@@ -1420,6 +1428,27 @@ class RequiredValuesByBranch(unittest.TestCase):
                 'entry_error': entry_error, 'entry_error at read': read_error, 'over_budget_at_result': at_result,
                 'killed_by_rss_cap': rss_cap, 'error': error,
                 'never_launched': copy.deepcopy(self.real[NEVER_LAUNCHED[2]])}
+
+    def test_the_required_values_are_the_decision_input_tables(self):
+        """REQUIRED_BY_BRANCH mirrors the decision-input table's "Required" column, branch by branch."""
+        launched = {'classification', 'as_expected', 'model_sha256', 'timeout_applied_s', 'timeout_capped_by_window',
+                    'host.quiet', 'launch.killed_by_sampler', 'launch.killed_by_rss_watchdog'}
+        stages = {'driver.seconds.' + s for s in rr.SOLVE_STAGES + ('total',)}
+        self.assertEqual({k: set(v) for k, v in rr.REQUIRED_BY_BRANCH.items()}, {
+            'completed': launched | stages | {
+                'driver.route', 'driver.document.sha256', 'driver.output_sha256', 'driver.rows', 'driver.output_bytes',
+                'launch.rss.exit_lifetime_max_phys_footprint_bytes',
+                'driver.peak_memory.entry.lifetime_max_phys_footprint_bytes',
+                'driver.peak_memory.serialize.lifetime_max_phys_footprint_bytes', 'last_stage'},
+            'refused': launched | {'classification_detail', 'last_stage'},
+            'entry_error': launched | {'classification_detail', 'last_stage'},
+            'killed_by_sampler': launched | {'classification_detail'},
+            'over_budget_at_result': launched | {'classification_detail', 'last_stage'},
+            'killed_by_rss_cap': launched | {'classification_detail'},
+            'timed_out': launched | {'classification_detail'},
+            'error': launched | {'classification_detail'},
+            'never_launched': {'classification', 'classification_detail'},
+        })
 
     def test_each_form_takes_its_branch_and_is_complete_as_the_producer_writes_it(self):
         for label, record in self.forms().items():
