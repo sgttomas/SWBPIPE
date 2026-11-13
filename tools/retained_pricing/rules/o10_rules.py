@@ -3795,12 +3795,20 @@ if fnkey("exact_equivalent_static_record", _LIB):
 # allocations are unpriced on the retained route BECAUSE the branch that calls recorded_mass cannot run on an admitted
 # retained model: intensity calls it only under `evidence["method"] == self_weight::GENERATED_METHOD`, where `evidence`
 # is the matched primitive load's provenance parsed as JSON, and D1.10 (retained_memory.rs provenance_clause, called
-# from domain_clauses) refuses every primitive load whose provenance begins, after ASCII whitespace, with `{`. Such a
-# provenance never parses to an object, and indexing a non-object Value gives Null, never the method string. The zero
+# from domain_clauses) refuses every primitive load whose provenance begins, after ASCII whitespace, with `{`. An admitted
+# provenance cannot parse to an object, and indexing a non-object Value gives Null, never the method string. The zero
 # does not say the allocations are small or absent: on the ordinary route they are ordinary allocations, outside the
-# retained budget. If D1.10 is ever widened (the refusal, its call or the branch below changes), this guard stops the
-# pricing run until recorded_mass's allocations are priced. core/product_physics/tests/s11f_site_test.rs lists
-# recorded_mass among rule 6's force sites (36fb3781f); that listing and this rule are the two halves of one obligation.
+# retained budget. If D1.10 is ever widened (the refusal, its call or the branch below changes), SWU-RM or B7a's
+# admission-prefix pin stops the pricing run until recorded_mass's allocations are priced. The two mechanisms:
+# - SWU-RM's own guard (below) stops a change to the arm's text around the one call of recorded_mass, to that call's
+#   count in intensity or in certified_loads.rs's production text, to the refusal's body in provenance_clause, or to
+#   the count or spelling of its call `provenance_clause(request)?;` in domain_clauses.
+# - B7a's admission-prefix pin (b7a_domain_model ADMISSION_PREFIX_PIN, read later on the same decision path) binds
+#   every byte of retained_memory.rs before its D-6 marker, which holds provenance_clause and domain_clauses. It stops
+#   the D1.10 call wrapped or bypassed in domain_clauses with its spelling kept (such as `if false { … }` around it),
+#   which SWU-RM's own predicates do not see; test_swu_recorded_mass.py requires both routes' decision path to reject it.
+# core/product_physics/tests/s11f_site_test.rs lists recorded_mass among rule 6's force sites (36fb3781f); that listing
+# and this rule are the two halves of one obligation.
 _SWU_CL = PP_ + "certified_loads.rs"
 _SWU_RM = PP_ + "retained_memory.rs"
 if fnkey("recorded_mass", _SWU_CL):

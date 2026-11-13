@@ -2,7 +2,8 @@
 normalized_dependencies. The retained route charges the edge intensity -> recorded_mass zero only because D1.10
 (retained_memory.rs provenance_clause) refuses every object provenance, so intensity's GENERATED_METHOD arm never runs
 on an admitted model. A widened D1.10, a dropped call of it, or a call of recorded_mass outside that arm stops the
-pricing run until the allocations are priced."""
+pricing run until the allocations are priced. A D1.10 call kept in spelling but bypassed (`if false { … }`) is rejected
+by the complete decision path on both routes, whichever mechanism rejects it."""
 from pathlib import Path
 import hashlib
 import runpy
@@ -66,6 +67,35 @@ def test_a_changed_premise_stops(tmp_path, monkeypatch, path, old, new):
     snap = snapshot_with(tmp_path, path, old, new)
     with pytest.raises(SystemExit, match="SWU-RM"):
         decisions(monkeypatch, snapshot=snap)
+
+
+CALL = "    provenance_clause(request)?;\n"
+
+
+@pytest.fixture(scope="module")
+def copies(tmp_path_factory):
+    """Two copies of the source tree: one unaltered, one whose domain_clauses wraps D1.10's call in `if false { … }`,
+    keeping the call's spelling (the pricing reviewer's attack)."""
+    plain = tmp_path_factory.mktemp("swu-plain")
+    shutil.copytree(SOURCE / "core", plain / "core", ignore=shutil.ignore_patterns("target", "__pycache__"))
+    bypass = tmp_path_factory.mktemp("swu-bypass")
+    shutil.copytree(SOURCE / "core", bypass / "core", ignore=shutil.ignore_patterns("target", "__pycache__"))
+    target = bypass / RM
+    text = target.read_text(encoding="utf-8")
+    assert text.count(CALL) == 1
+    target.write_text(text.replace(CALL, "    if false {\n" + CALL + "    }\n"), encoding="utf-8")
+    return plain, bypass
+
+
+@pytest.mark.parametrize("route", ["L", "E"])
+def test_the_decision_path_rejects_a_bypassed_d1_10_call(copies, monkeypatch, route):
+    # The complete decision path accepts the unaltered copy and rejects the bypassed one. Which mechanism rejects it
+    # (today B7a's admission-prefix pin; SWU-RM's own predicates do not see the bypass) is deliberately not asserted:
+    # the tool stops a run by SystemExit (rules) or ValueError (models), and either is the rejection required here.
+    plain, bypass = copies
+    decisions(monkeypatch, snapshot=plain, route=route)
+    with pytest.raises((SystemExit, ValueError)):
+        decisions(monkeypatch, snapshot=bypass, route=route)
 
 
 BRANCH = '                if evidence["method"] == self_weight::GENERATED_METHOD {\n                    // This source'
