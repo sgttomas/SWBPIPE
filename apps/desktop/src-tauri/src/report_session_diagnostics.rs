@@ -33,12 +33,17 @@
 //! deduplication: two reference sites can yield identical findings), and a
 //! site that may yield one of several findings is used once ([`place`]).
 //!
-//! Bounded by construction (review round 3 of c290410c6): no derived entry is
-//! kept. Each site's entries are written into buffers the next site reuses and
-//! looked up among the report's own appended entries, so the check holds the
-//! report's entries' keys, a few counters per distinct key, and buffers no
-//! longer than the longest derived text; its work is a constant per site plus
-//! the report's entries times the logarithm of their number.
+//! Memory (review round 3 of c290410c6 and the provision of both routes): the
+//! check's priced peak is at most [`session_check_provision_bytes`] of the
+//! model text and the report's Diagnostics text, for any number of entries of
+//! any size. No derived text is built: a site's entries are sequences of
+//! borrowed pieces ([`Piece`]) compared and hashed byte by byte against the
+//! report's own strings. The only storage that grows with the entries is an
+//! index of the entries the check can match, and an entry is indexed only when
+//! its own text pays for it: an entry not of a session entry's form is refused
+//! at its index before anything is stored for it ([`place`]), and the copy
+//! check stores only entries with a string code and affected object id
+//! ([`first_copy_of_a_result_diagnostic`]). The arithmetic is at [`place`].
 //!
 //! Applied by the existing render command's admission
 //! (`report_render_exact::bind_render_admission`, on both bound identities)
@@ -47,10 +52,10 @@
 //! Timoshenko documents).
 //! Standard claim fence applies (claims taxonomy per DEC-081).
 
-use open_pipe_stress_report_package::bindings::expected_report_diagnostics;
+use open_pipe_stress_report_package::bindings::BINDING_MISMATCH;
 use serde_json::{Map, Value};
-use std::collections::{HashMap, HashSet};
-use std::fmt::Write as _;
+use std::collections::hash_map::RandomState;
+use std::hash::{BuildHasher, Hasher};
 
 /// The library store check's diagnostic source (desktop
 /// `features/library/libraryRefFindings.ts` `LIBRARY_REF_CHECK_SOURCE`).
@@ -65,9 +70,10 @@ pub(crate) const SESSION_CHECK_FIXED_BYTES: u64 = 64 << 10;
 /// bound model's text, the text of the report's Diagnostics, and a fixed part. The render grows
 /// its lease by exactly this before the check (`report_render_exact::bind_render_admission`);
 /// the save, whose lease grows before its request is parsed, provides it with the request text
-/// standing for the Diagnostics text it contains (`report_package_save::parse_lease_bytes_with_exact`).
-/// The regressions assert the check's priced peak against this same function, so the provision
-/// and the test are one number. A provision checked on those inputs, not a proven bound.
+/// standing for the Diagnostics text it contains (`report_package_save::session_check_lease_bytes`,
+/// within `parse_lease_bytes_with_exact`). The regressions assert the check's priced peak against
+/// this same function, so the provision and the test are one number; the arithmetic that the
+/// check stays within it for any entries is at [`place`].
 pub(crate) fn session_check_provision_bytes(model_text_bytes: u64, diagnostics_text_bytes: u64) -> u64 {
     model_text_bytes.saturating_add(diagnostics_text_bytes).saturating_add(SESSION_CHECK_FIXED_BYTES)
 }
@@ -146,9 +152,125 @@ fn id(entity: &Value) -> &str {
     entity.get("id").and_then(Value::as_str).unwrap_or("")
 }
 
-/// An entry's seven bound fields, borrowed: code, class, severity, source and
-/// affected object (`{ref_type, ref_id}`, exactly those two members), message
-/// and remediation.
+// ---------------------------------------------------------------------------
+// Texts compared without being built.
+// ---------------------------------------------------------------------------
+
+/// One step of a `library_ref` site's path in the builder's walk: a member
+/// name or an array index.
+#[derive(Clone, Copy)]
+enum Segment<'a> {
+    Key(&'a str),
+    Index(usize),
+}
+
+/// A piece of a derived text: a borrowed string, or a site's path rendered as
+/// the builder renders it (`a.b[0].library_ref`).
+#[derive(Clone, Copy)]
+enum Piece<'a> {
+    Str(&'a str),
+    Path(&'a [Segment<'a>]),
+}
+
+/// The text's bytes in order, in chunks, to `f`; `false` as soon as `f`
+/// returns `false`. Allocates nothing: an index's digits are written on the
+/// stack.
+fn chunks(text: &[Piece<'_>], f: &mut dyn FnMut(&[u8]) -> bool) -> bool {
+    for piece in text {
+        match *piece {
+            Piece::Str(string) => {
+                if !f(string.as_bytes()) {
+                    return false;
+                }
+            }
+            Piece::Path(segments) => {
+                for (at, segment) in segments.iter().enumerate() {
+                    match *segment {
+                        Segment::Key(key) => {
+                            if (at > 0 && !f(b".")) || !f(key.as_bytes()) {
+                                return false;
+                            }
+                        }
+                        Segment::Index(index) => {
+                            let mut digits = [0u8; 20];
+                            if !f(b"[") || !f(decimal(index, &mut digits)) || !f(b"]") {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    true
+}
+
+/// `number` in decimal, written at the end of `digits`.
+fn decimal(mut number: usize, digits: &mut [u8; 20]) -> &[u8] {
+    let mut start = digits.len();
+    loop {
+        start -= 1;
+        digits[start] = b'0' + (number % 10) as u8;
+        number /= 10;
+        if number == 0 {
+            return &digits[start..];
+        }
+    }
+}
+
+/// Whether the pieced text equals `string`, byte for byte.
+fn text_equals(text: &[Piece<'_>], string: &str) -> bool {
+    let mut rest = string.as_bytes();
+    let whole = chunks(text, &mut |chunk| match rest.strip_prefix(chunk) {
+        Some(after) => {
+            rest = after;
+            true
+        }
+        None => false,
+    });
+    whole && rest.is_empty()
+}
+
+/// The text materialized (tests only).
+#[cfg(test)]
+fn text_string(text: &[Piece<'_>]) -> String {
+    let mut out = Vec::new();
+    chunks(text, &mut |chunk| {
+        out.extend_from_slice(chunk);
+        true
+    });
+    String::from_utf8(out).expect("pieces of UTF-8 strings")
+}
+
+/// Every byte one call at a time, then a separator no UTF-8 text contains: a
+/// pieced text and an equal string feed the hasher the same calls, so they
+/// hash alike whatever the hasher does with adjacent writes.
+fn hash_bytes(hasher: &mut impl Hasher, bytes: &[u8]) {
+    for &byte in bytes {
+        hasher.write_u8(byte);
+    }
+}
+
+fn hash_str(hasher: &mut impl Hasher, string: &str) {
+    hash_bytes(hasher, string.as_bytes());
+    hasher.write_u8(0xff);
+}
+
+fn hash_text(hasher: &mut impl Hasher, text: &[Piece<'_>]) {
+    chunks(text, &mut |chunk| {
+        hash_bytes(hasher, chunk);
+        true
+    });
+    hasher.write_u8(0xff);
+}
+
+// ---------------------------------------------------------------------------
+// The entries the session may append, and the report's entries.
+// ---------------------------------------------------------------------------
+
+/// A report entry's seven bound fields, borrowed: code, class, severity,
+/// source and affected object (`{ref_type, ref_id}`, exactly those two
+/// members), message and remediation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct Fields<'a> {
     code: &'a str,
@@ -158,14 +280,6 @@ struct Fields<'a> {
     affected: (&'a str, &'a str),
     message: &'a str,
     remediation: &'a str,
-}
-
-/// Every field, as the derived equality compares them (written out: the
-/// user-release reach scan admits no `Hash` derive).
-impl std::hash::Hash for Fields<'_> {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        (self.code, self.class, self.severity, self.source, self.affected, self.message, self.remediation).hash(state);
-    }
 }
 
 /// A `{ref_type, ref_id}` object with string members and no other member.
@@ -193,44 +307,79 @@ impl<'a> Fields<'a> {
         })
     }
 
-    /// A session entry: every kind is a provenance warning.
-    fn session(code: &'a str, source: (&'a str, &'a str), affected: (&'a str, &'a str), message: &'a str, remediation: &'a str) -> Self {
-        Fields { code, class: PROVENANCE_WARNING, severity: WARNING, source, affected, message, remediation }
+    fn hash(&self, state: &RandomState) -> u64 {
+        let mut hasher = state.build_hasher();
+        for field in [self.code, self.class, self.severity, self.source.0, self.source.1, self.affected.0, self.affected.1, self.message, self.remediation] {
+            hash_str(&mut hasher, field);
+        }
+        hasher.finish()
+    }
+}
+
+/// An entry the session may append at a site, its texts in pieces: always a
+/// provenance warning, so class and severity are fixed.
+struct Derived<'a> {
+    code: &'a str,
+    source: (&'a str, &'a str),
+    affected: (&'a str, &'a [Piece<'a>]),
+    message: &'a [Piece<'a>],
+    remediation: &'a [Piece<'a>],
+}
+
+impl Derived<'_> {
+    /// The same calls [`Fields::hash`] makes for an equal entry.
+    fn hash(&self, state: &RandomState) -> u64 {
+        let mut hasher = state.build_hasher();
+        for field in [self.code, PROVENANCE_WARNING, WARNING, self.source.0, self.source.1, self.affected.0] {
+            hash_str(&mut hasher, field);
+        }
+        for text in [self.affected.1, self.message, self.remediation] {
+            hash_text(&mut hasher, text);
+        }
+        hasher.finish()
+    }
+
+    fn equals(&self, entry: &Fields<'_>) -> bool {
+        self.code == entry.code
+            && entry.class == PROVENANCE_WARNING
+            && entry.severity == WARNING
+            && self.source == entry.source
+            && self.affected.0 == entry.affected.0
+            && text_equals(self.affected.1, entry.affected.1)
+            && text_equals(self.message, entry.message)
+            && text_equals(self.remediation, entry.remediation)
     }
 }
 
 /// The model's `library_ref` sites in the builder's walk
 /// (`libraryImportService.ts` `libraryRefSites`): `emit(entity, reference)`
 /// with the owning entity's id, or the site's path when no enclosing object
-/// has one. `path` is one buffer, extended and truncated in place.
-fn library_ref_sites<'m>(value: &'m Value, owner: Option<&'m str>, path: &mut String, emit: &mut dyn FnMut(&str, &'m Map<String, Value>)) {
+/// has one. `path` is a stack of borrowed segments, one per level of the walk;
+/// the walk is as deep as the model, which the routes parse with serde_json's
+/// nesting limit (128).
+fn library_ref_sites<'m>(value: &'m Value, owner: Option<&'m str>, path: &mut Vec<Segment<'m>>, emit: &mut dyn FnMut(Piece<'_>, &'m Map<String, Value>)) {
     match value {
         Value::Array(entries) => {
             for (index, entry) in entries.iter().enumerate() {
-                let length = path.len();
-                let _ = write!(path, "[{index}]");
+                path.push(Segment::Index(index));
                 library_ref_sites(entry, owner, path, emit);
-                path.truncate(length);
+                path.pop();
             }
         }
         Value::Object(object) => {
             let named = object.get("id").and_then(Value::as_str).filter(|id| !id.is_empty()).or(owner);
             for (key, child) in object {
-                let length = path.len();
-                if length > 0 {
-                    path.push('.');
-                }
-                path.push_str(key);
+                path.push(Segment::Key(key));
                 if key == "library_ref" {
                     if let Value::Object(reference) = child {
                         match named {
-                            Some(entity) => emit(entity, reference),
-                            None => emit(path, reference),
+                            Some(entity) => emit(Piece::Str(entity), reference),
+                            None => emit(Piece::Path(path), reference),
                         }
                     }
                 }
                 library_ref_sites(child, named, path, emit);
-                path.truncate(length);
+                path.pop();
             }
         }
         _ => {}
@@ -256,100 +405,121 @@ const STORED_LIBRARY_KINDS: [&str; 4] = ["material", "section", "component", "ha
 ///   trimming (`library_identity`) and a `library_version`: the store check
 ///   returns the record-not-held finding before it compares any version.
 ///
-/// The entries passed to `visit` borrow the model and three message buffers
-/// that the next site overwrites (review round 3 of c290410c6: no copy of a
-/// shared string, such as the project id, is kept per alternative).
-fn for_each_site(model: &Value, visit: &mut dyn FnMut(&[Fields<'_>])) {
-    let mut messages: [String; 3] = Default::default();
-    let mut remediation = String::new();
+/// The entries passed to `visit` are pieces on the stack, borrowing the model,
+/// fixed prose and the walk's path: nothing is built or kept.
+fn for_each_site(model: &Value, visit: &mut dyn FnMut(&[Derived<'_>])) {
     for component in items(model, "components").filter(|component| !has_provenance(component)) {
         let id = id(component);
-        let message = &mut messages[0];
-        message.clear();
-        let _ = write!(
-            message,
-            "Component {} has neither a provenance_record nor a component.provenance note; report provenance is incomplete for this component.",
-            or_id(component.get("label"), id)
-        );
-        visit(&[Fields::session(
-            "COMPONENT_PROVENANCE_MISSING",
-            ("component", id),
-            ("component", id),
-            message,
-            "Enter component source/provenance before relying on this report.",
-        )]);
+        let message = [
+            Piece::Str("Component "),
+            Piece::Str(or_id(component.get("label"), id)),
+            Piece::Str(" has neither a provenance_record nor a component.provenance note; report provenance is incomplete for this component."),
+        ];
+        let affected = [Piece::Str(id)];
+        visit(&[Derived {
+            code: "COMPONENT_PROVENANCE_MISSING",
+            source: ("component", id),
+            affected: ("component", &affected),
+            message: &message,
+            remediation: &[Piece::Str("Enter component source/provenance before relying on this report.")],
+        }]);
     }
     for support in items(model, "supports").filter(|support| is_spring_hanger(support)) {
         let blank = |value: Option<&Value>| value.and_then(Value::as_str).is_none_or(|text| js_trim(text).is_empty());
         if blank(support.get("provenance")) || blank(support.pointer("/hanger/source_reference")) {
             let id = id(support);
-            let message = &mut messages[0];
-            message.clear();
-            let _ = write!(message, "Spring hanger {} is missing support provenance or hanger.source_reference.", or_id(support.get("label"), id));
-            visit(&[Fields::session(
-                "SPRING_HANGER_PROVENANCE_MISSING",
-                ("support", id),
-                ("support", id),
-                message,
-                "Enter spring-hanger source/provenance before relying on this report.",
-            )]);
+            let message = [
+                Piece::Str("Spring hanger "),
+                Piece::Str(or_id(support.get("label"), id)),
+                Piece::Str(" is missing support provenance or hanger.source_reference."),
+            ];
+            let affected = [Piece::Str(id)];
+            visit(&[Derived {
+                code: "SPRING_HANGER_PROVENANCE_MISSING",
+                source: ("support", id),
+                affected: ("support", &affected),
+                message: &message,
+                remediation: &[Piece::Str("Enter spring-hanger source/provenance before relying on this report.")],
+            }]);
         }
     }
     for (kind, member, label, code, title) in
         [("material", "materials", "label", "MATERIAL_PROVENANCE_MISSING", "Material"), ("section", "sections", "name", "SECTION_PROVENANCE_MISSING", "Section")]
     {
-        remediation.clear();
-        let _ = write!(remediation, "Enter {kind} source/provenance before relying on this report.");
+        let remediation = [Piece::Str("Enter "), Piece::Str(kind), Piece::Str(" source/provenance before relying on this report.")];
         for subject in items(model, member).filter(|subject| !has_provenance(subject)) {
             let id = id(subject);
-            let message = &mut messages[0];
-            message.clear();
-            let _ = write!(
-                message,
-                "{title} {} has neither a provenance_record nor a provenance note; report provenance is incomplete for this {kind}.",
-                text(subject.get(label)).unwrap_or(id)
-            );
-            visit(&[Fields::session(code, (kind, id), (kind, id), message, &remediation)]);
+            let message = [
+                Piece::Str(title),
+                Piece::Str(" "),
+                Piece::Str(text(subject.get(label)).unwrap_or(id)),
+                Piece::Str(" has neither a provenance_record nor a provenance note; report provenance is incomplete for this "),
+                Piece::Str(kind),
+                Piece::Str("."),
+            ];
+            let affected = [Piece::Str(id)];
+            visit(&[Derived { code, source: (kind, id), affected: (kind, &affected), message: &message, remediation: &remediation }]);
         }
     }
     let project = model.pointer("/project/id").and_then(Value::as_str).unwrap_or("").trim();
-    let mut path = String::new();
+    let mut path = Vec::new();
     library_ref_sites(model, None, &mut path, &mut |entity, site| {
         let member = |key: &str| site.get(key).and_then(Value::as_str);
         let (kind, library) = (member("library_kind").unwrap_or(""), member("library_id").unwrap_or(""));
-        let [not_held, record_not_held, changed] = &mut messages;
-        not_held.clear();
-        let _ = write!(
-            not_held,
-            "{entity} names {kind} library `{library}`, which the local store does not hold for project `{project}`. The model's values stand. A project saved under a new id reads its references as unresolved until the library is imported into that project."
-        );
+        let record = member("record_id");
+        let not_held = [
+            entity,
+            Piece::Str(" names "),
+            Piece::Str(kind),
+            Piece::Str(" library `"),
+            Piece::Str(library),
+            Piece::Str("`, which the local store does not hold for project `"),
+            Piece::Str(project),
+            Piece::Str("`. The model's values stand. A project saved under a new id reads its references as unresolved until the library is imported into that project."),
+        ];
+        let record_not_held = [
+            entity,
+            Piece::Str(" names record `"),
+            Piece::Str(record.unwrap_or("(none recorded)")),
+            Piece::Str("` of "),
+            Piece::Str(kind),
+            Piece::Str(" library `"),
+            Piece::Str(library),
+            Piece::Str("`, which the stored library does not hold. The model's values stand."),
+        ];
+        let changed = [
+            Piece::Str("The stored record `"),
+            Piece::Str(record.unwrap_or("")),
+            Piece::Str("` of "),
+            Piece::Str(kind),
+            Piece::Str(" library `"),
+            Piece::Str(library),
+            Piece::Str("` has changed since "),
+            entity,
+            Piece::Str(" recorded it. The model's values and recorded version stand; re-apply from the library to adopt the stored record."),
+        ];
         let mut yielded = 1;
         if STORED_LIBRARY_KINDS.contains(&kind.trim()) && !library.trim().is_empty() {
-            record_not_held.clear();
-            let _ = write!(
-                record_not_held,
-                "{entity} names record `{}` of {kind} library `{library}`, which the stored library does not hold. The model's values stand.",
-                member("record_id").unwrap_or("(none recorded)")
-            );
             yielded = 2;
-            let record = member("record_id").filter(|record| !record.trim().is_empty());
-            if let (Some(record), Some(_)) = (record, member("library_version")) {
-                changed.clear();
-                let _ = write!(
-                    changed,
-                    "The stored record `{record}` of {kind} library `{library}` has changed since {entity} recorded it. The model's values and recorded version stand; re-apply from the library to adopt the stored record."
-                );
+            let recorded = record.is_some_and(|record| !record.trim().is_empty());
+            if recorded && member("library_version").is_some() {
                 yielded = 3;
             }
         }
-        let alternatives = [library_finding(UNRESOLVED, entity, not_held), library_finding(UNRESOLVED, entity, record_not_held), library_finding(VERSION_CHANGED, entity, changed)];
+        let affected = [entity];
+        let remediation = [Piece::Str(LIBRARY_REMEDIATION)];
+        let alternatives = [
+            library_finding(UNRESOLVED, &affected, &not_held, &remediation),
+            library_finding(UNRESOLVED, &affected, &record_not_held, &remediation),
+            library_finding(VERSION_CHANGED, &affected, &changed, &remediation),
+        ];
         visit(&alternatives[..yielded]);
     });
 }
 
-/// A library store finding on `entity` (`libraryFindingDiagnostics`).
-fn library_finding<'a>(code: &'a str, entity: &'a str, message: &'a str) -> Fields<'a> {
-    Fields::session(code, ("diagnostic_source", LIBRARY_REF_CHECK_SOURCE), ("model_entity", entity), message, LIBRARY_REMEDIATION)
+/// A library store finding (`libraryFindingDiagnostics`).
+fn library_finding<'a>(code: &'a str, affected: &'a [Piece<'a>], message: &'a [Piece<'a>], remediation: &'a [Piece<'a>]) -> Derived<'a> {
+    Derived { code, source: ("diagnostic_source", LIBRARY_REF_CHECK_SOURCE), affected: ("model_entity", affected), message, remediation }
 }
 
 /// Every entry the session may append for `model`, each site's alternatives
@@ -360,10 +530,10 @@ pub(crate) fn session_diagnostics(model: &Value) -> Vec<Value> {
     for_each_site(model, &mut |alternatives| {
         for entry in alternatives {
             out.push(serde_json::json!({
-                "code": entry.code, "class": entry.class, "severity": entry.severity,
+                "code": entry.code, "class": PROVENANCE_WARNING, "severity": WARNING,
                 "source": {"ref_type": entry.source.0, "ref_id": entry.source.1},
-                "affected_object": {"ref_type": entry.affected.0, "ref_id": entry.affected.1},
-                "message": entry.message, "remediation": entry.remediation,
+                "affected_object": {"ref_type": entry.affected.0, "ref_id": text_string(entry.affected.1)},
+                "message": text_string(entry.message), "remediation": text_string(entry.remediation),
             }));
         }
     });
@@ -375,8 +545,11 @@ thread_local! {
     static STEPS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
 }
 
-/// One unit of the check's work: a site entry looked up, an appended entry
-/// counted, or a distinct key visited (tests read the total, [`steps`]).
+/// One unit of the check's work: an entry examined or looked up, a site's
+/// entry looked up, a result diagnostic looked up, or a distinct key visited
+/// (tests read the total, [`steps`]). A lookup's slot visits are not counted:
+/// with a randomly keyed SipHash and a table at most half full their expected
+/// number is a constant, as it was for the `HashMap` this replaced.
 #[inline]
 fn step() {
     #[cfg(test)]
@@ -389,17 +562,44 @@ pub(crate) fn steps() -> u64 {
     STEPS.with(std::cell::Cell::get)
 }
 
-/// How a distinct appended entry sits among the sites that yield it.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum Link {
-    /// No site yields it.
-    Unseen,
-    /// Every site that yields it yields no other appended entry before it.
-    Root,
-    /// Every site that yields it yields this other appended entry first.
-    Parent(usize),
-    /// Sites yield it in different positions ([`place`]).
-    Conflict,
+/// An open-addressing table of entry indices (linear probing), at least twice
+/// as many slots as entries and a power of two: `4 * slots` bytes, at most 16
+/// bytes per entry, already a power of two and so priced at its size.
+struct Table {
+    slots: Vec<u32>,
+}
+
+const EMPTY: u32 = u32::MAX;
+
+impl Table {
+    fn for_entries(entries: usize) -> Self {
+        Table { slots: vec![EMPTY; entries.saturating_mul(2).max(2).next_power_of_two()] }
+    }
+
+    /// The stored index `same` accepts, or the empty slot where the probe ended.
+    fn probe(&self, hash: u64, same: &mut dyn FnMut(u32) -> bool) -> Result<u32, usize> {
+        let mask = self.slots.len() - 1;
+        let mut at = hash as usize & mask;
+        loop {
+            match self.slots[at] {
+                EMPTY => return Err(at),
+                stored if same(stored) => return Ok(stored),
+                _ => at = (at + 1) & mask,
+            }
+        }
+    }
+}
+
+/// How a distinct appended entry sits among the sites that yield it: no site
+/// ([`UNSEEN`]); every such site yields no other appended entry before it
+/// ([`ROOT`]); sites yield it in different positions ([`CONFLICT`]); or every
+/// such site yields this other key just before it (the key's number).
+const UNSEEN: u32 = u32::MAX;
+const ROOT: u32 = u32::MAX - 1;
+const CONFLICT: u32 = u32::MAX - 2;
+
+fn parent(link: u32) -> Option<u32> {
+    (link < CONFLICT).then_some(link)
 }
 
 /// Why an appended entry is refused, by its index among the appended entries.
@@ -414,10 +614,10 @@ enum Unplaced {
     Limit(usize),
 }
 
-fn find(sets: &mut [usize], mut key: usize) -> usize {
-    while sets[key] != key {
-        sets[key] = sets[sets[key]];
-        key = sets[key];
+fn find(sets: &mut [u32], mut key: u32) -> u32 {
+    while sets[key as usize] != key {
+        sets[key as usize] = sets[sets[key as usize] as usize];
+        key = sets[key as usize];
     }
     key
 }
@@ -425,21 +625,24 @@ fn find(sets: &mut [usize], mut key: usize) -> usize {
 /// An assignment of each appended entry to a distinct site that may yield it
 /// (each site yields at most one entry, so a repeated entry is admitted only
 /// as many times as the model has sites yielding it, and a site that may
-/// yield one of several entries is used once), without a general matching.
+/// yield one of several entries is used once), without a general matching,
+/// a sort or any derived text.
 ///
-/// Only the appended entries are keyed (by their bound fields, borrowed from
-/// the report). Each site is reduced to the appended entries it may yield, in
-/// its order (the library-not-held, record-not-held, record-changed order);
-/// within a site those are distinct. When every site that yields an appended
-/// entry yields the same appended entry just before it (or none), the entries
-/// form a forest of depth at most 2 and each site may yield exactly the
-/// entries on the path from its last one to a root. Then the assignment
-/// exists exactly when, taking the deepest entries first, each entry's count
-/// is at most the sites ending at it or below that its descendants left
-/// unused: such sites can yield it and every entry above it alike, so only
-/// their number matters. The refused entry is the first whose prefix of the
-/// appended entries has no assignment (a binary search over prefixes, since a
-/// prefix of an assignable list is assignable).
+/// The entries before the first one not of a session entry's form are
+/// indexed; that one, which no site can yield, is refused at its index unless
+/// an entry before it is refused first, and nothing is stored for it or for
+/// any entry after it. Each indexed entry gets a key (equal entries share
+/// one) through [`Table`]. Each site is reduced to the keys it may yield, in
+/// its order (library not held, record not held, record changed); within a
+/// site those differ. When every site yielding a key yields the same key just
+/// before it (or none), the keys form a forest of depth at most 2 and each
+/// site may yield exactly the keys on the path from its last key to a root.
+/// Then an assignment exists exactly when every key's subtree has at least as
+/// many sites ending in it as entries claiming it (Hall's condition reduces to
+/// subtrees: a key's claims can be met only by sites ending in its subtree,
+/// and disjoint subtrees add). So one pass over the entries in order, taking
+/// one from the slack of each key on the entry's path to its root, stops at
+/// the first entry that the entries before it leave no site for.
 ///
 /// Every genuine site structure is such a forest: a site's library findings
 /// share its entity, a record-changed text fixes the record-not-held text, and
@@ -448,30 +651,59 @@ fn find(sets: &mut [usize], mut key: usize) -> usize {
 /// different splits (a backtick in a kind, library or record id); an entry
 /// there is refused by name as [`Unplaced::Limit`], a limit of this check.
 ///
-/// Work: three lookups per site, then the appended entries and their distinct
-/// keys once per prefix tried. Storage: the appended entries' keys and a few
-/// counters per distinct key. No recursion.
+/// Memory, against [`session_check_provision_bytes`]: with n indexed entries
+/// and k <= n keys, the table holds at most 16 n bytes (priced at its size),
+/// the entries' keys 4 n (priced at most 8 n), and the keys' links, counts and
+/// sets 12 k (priced at most 24 n), so at most 48 bytes per indexed entry; the
+/// conflict marks (k bytes, at most 2 n priced) are taken after the table is
+/// freed. An indexed entry is an object with the seven bound fields, at least
+/// 150 bytes of the Diagnostics' compact text with its separating comma (all
+/// keys present, every string empty). The path stack is at most serde_json's
+/// nesting limit of segments, about 3 KiB, within the fixed part. Nothing else
+/// grows with the model or the entries.
+///
+/// Work: one examination and one lookup per entry, at most three lookups per
+/// site, at most three visits per key, and one pass of at most three counter
+/// visits per entry. No recursion in the matching.
 fn place(appended: &[Value], model: &Value) -> Result<(), Unplaced> {
-    let mut index: HashMap<Fields<'_>, usize> = HashMap::with_capacity(appended.len());
-    let claims: Vec<Option<usize>> = appended
+    let cutoff = appended
         .iter()
-        .map(|entry| {
+        .position(|entry| {
             step();
-            Fields::of(entry).map(|fields| {
-                let next = index.len();
-                *index.entry(fields).or_insert(next)
-            })
+            Fields::of(entry).is_none()
         })
-        .collect();
-    let distinct = index.len();
-    let mut links = vec![Link::Unseen; distinct];
-    let mut supply = vec![0usize; distinct];
-    let mut sets: Vec<usize> = (0..distinct).collect();
+        .unwrap_or(appended.len());
+    let indexed = &appended[..cutoff];
+    let fields = |index: u32| Fields::of(&indexed[index as usize]).expect("an indexed entry is of a session entry's form");
+    let state = RandomState::new();
+    let mut table = Table::for_entries(indexed.len());
+    let mut claims: Vec<u32> = Vec::with_capacity(indexed.len());
+    let mut keys = 0u32;
+    for (index, entry) in indexed.iter().enumerate() {
+        step();
+        let entry = Fields::of(entry).expect("an indexed entry is of a session entry's form");
+        match table.probe(entry.hash(&state), &mut |stored| fields(stored) == entry) {
+            Ok(stored) => {
+                let key = claims[stored as usize];
+                claims.push(key);
+            }
+            Err(slot) => {
+                table.slots[slot] = index as u32;
+                claims.push(keys);
+                keys += 1;
+            }
+        }
+    }
+    let distinct = keys as usize;
+    let mut links = vec![UNSEEN; distinct];
+    let mut supply = vec![0u32; distinct];
+    let mut sets: Vec<u32> = (0..keys).collect();
     for_each_site(model, &mut |alternatives| {
-        let (mut path, mut length) = ([0usize; 3], 0);
+        let (mut path, mut length) = ([0u32; 3], 0);
         for alternative in alternatives {
             step();
-            if let Some(&key) = index.get(alternative) {
+            if let Ok(stored) = table.probe(alternative.hash(&state), &mut |stored| alternative.equals(&fields(stored))) {
+                let key = claims[stored as usize];
                 if !path[..length].contains(&key) {
                     path[length] = key;
                     length += 1;
@@ -479,107 +711,192 @@ fn place(appended: &[Value], model: &Value) -> Result<(), Unplaced> {
             }
         }
         for at in 0..length {
-            let expected = if at == 0 { Link::Root } else { Link::Parent(path[at - 1]) };
-            let link = &mut links[path[at]];
+            let expected = if at == 0 { ROOT } else { path[at - 1] };
+            let link = &mut links[path[at] as usize];
             *link = match *link {
-                Link::Unseen => expected,
+                UNSEEN => expected,
                 same if same == expected => same,
-                _ => Link::Conflict,
+                _ => CONFLICT,
             };
             if at > 0 {
                 let (above, below) = (find(&mut sets, path[at - 1]), find(&mut sets, path[at]));
-                sets[below] = above;
+                sets[below as usize] = above;
             }
         }
         if length > 0 {
-            supply[path[length - 1]] += 1;
+            let last = path[length - 1] as usize;
+            supply[last] = supply[last].saturating_add(1);
         }
     });
-    drop(index);
-    // An entry no site yields, or not of a session entry's form.
-    let not_derived = claims.iter().position(|claim| claim.is_none_or(|key| links[key] == Link::Unseen));
-    // An entry in a group of entries whose sites order them differently.
+    drop(table);
+    // A group of keys whose sites order them differently.
     let mut conflicted = vec![false; distinct];
-    for key in 0..distinct {
+    for key in 0..keys {
         step();
-        if links[key] == Link::Conflict {
+        if links[key as usize] == CONFLICT {
             let set = find(&mut sets, key);
-            conflicted[set] = true;
+            conflicted[set as usize] = true;
         }
     }
-    let limited = claims.iter().position(|claim| claim.is_some_and(|key| conflicted[find(&mut sets, key)]));
-    match (not_derived, limited) {
-        (Some(entry), limit) if limit.is_none_or(|limit| entry < limit) => return Err(Unplaced::NotDerived(entry)),
-        (_, Some(entry)) => return Err(Unplaced::Limit(entry)),
-        _ => {}
-    }
-    // Every claimed entry now has a key at depth 0, 1 or 2, deepest first.
-    let depth = |key: usize| match links[key] {
-        Link::Parent(parent) if matches!(links[parent], Link::Parent(_)) => 2,
-        Link::Parent(_) => 1,
-        _ => 0,
+    // Each key's count becomes its subtree's: the deepest keys first.
+    let depth = |key: usize| match parent(links[key]) {
+        Some(above) if parent(links[above as usize]).is_some() => 2,
+        Some(_) => 1,
+        None => 0,
     };
-    let mut order: Vec<usize> = (0..distinct).collect();
-    order.sort_by_key(|&key| std::cmp::Reverse(depth(key)));
-    let (mut demand, mut pool) = (vec![0usize; distinct], vec![0usize; distinct]);
-    let mut assignable = |prefix: usize| {
-        demand.iter_mut().for_each(|count| *count = 0);
-        for claim in &claims[..prefix] {
+    for level in [2, 1] {
+        for key in 0..distinct {
             step();
-            demand[claim.expect("every claimed entry is keyed")] += 1;
-        }
-        pool.copy_from_slice(&supply);
-        for &key in &order {
-            step();
-            if pool[key] < demand[key] {
-                return false;
-            }
-            if let Link::Parent(parent) = links[key] {
-                pool[parent] += pool[key] - demand[key];
+            if depth(key) == level && !conflicted[find(&mut sets, key as u32) as usize] {
+                let above = parent(links[key]).expect("a key below a root has a parent") as usize;
+                supply[above] = supply[above].saturating_add(supply[key]);
             }
         }
-        true
-    };
-    if assignable(appended.len()) {
-        return Ok(());
     }
-    // The shortest unassignable prefix: assignable at `low`, not at `high`.
-    let (mut low, mut high) = (0, appended.len());
-    while high - low > 1 {
-        let middle = low + (high - low) / 2;
-        if assignable(middle) {
-            low = middle;
-        } else {
-            high = middle;
+    for (index, &key) in claims.iter().enumerate() {
+        step();
+        if conflicted[find(&mut sets, key) as usize] {
+            return Err(Unplaced::Limit(index));
+        }
+        let (mut chain, mut length, mut node) = ([0u32; 3], 0, Some(key));
+        while let Some(at) = node {
+            if supply[at as usize] == 0 {
+                return Err(Unplaced::NotDerived(index));
+            }
+            chain[length] = at;
+            length += 1;
+            node = parent(links[at as usize]);
+        }
+        for &at in &chain[..length] {
+            supply[at as usize] -= 1;
         }
     }
-    Err(Unplaced::NotDerived(high - 1))
+    if cutoff < appended.len() {
+        return Err(Unplaced::NotDerived(cutoff));
+    }
+    Ok(())
+}
+
+/// A result diagnostic's affected object id as the projection writes it
+/// (`bindings::expected_report_diagnostics`): its affected refs joined by
+/// ", ", or, when that is empty, its id, or, when that is empty too,
+/// `diagnostic-<index>`.
+enum ResultId<'a> {
+    Joined(&'a [Value]),
+    Id(&'a str),
+    Generated(usize),
+}
+
+impl ResultId<'_> {
+    fn chunks(&self, f: &mut dyn FnMut(&[u8]) -> bool) -> bool {
+        match *self {
+            ResultId::Joined(refs) => {
+                for (at, item) in refs.iter().enumerate() {
+                    if (at > 0 && !f(b", ")) || !f(item.as_str().unwrap_or("").as_bytes()) {
+                        return false;
+                    }
+                }
+                true
+            }
+            ResultId::Id(id) => f(id.as_bytes()),
+            ResultId::Generated(index) => {
+                let mut digits = [0u8; 20];
+                f(b"diagnostic-") && f(decimal(index, &mut digits))
+            }
+        }
+    }
+
+    fn equals(&self, string: &str) -> bool {
+        let mut rest = string.as_bytes();
+        let whole = self.chunks(&mut |chunk| match rest.strip_prefix(chunk) {
+            Some(after) => {
+                rest = after;
+                true
+            }
+            None => false,
+        });
+        whole && rest.is_empty()
+    }
+}
+
+/// Result diagnostic `index`'s code and affected id, refused as the
+/// projection refuses a diagnostic whose fields are not of the producer's
+/// form, in its order (code, severity, message, affected refs, id, source).
+fn result_key(index: usize, diagnostic: &Value) -> Result<(&str, ResultId<'_>), String> {
+    let unreadable = |field: &str| format!("{BINDING_MISMATCH}: report diagnostics: source diagnostic {index} has an unreadable {field}");
+    let string = |field: &str| diagnostic[field].as_str().ok_or_else(|| unreadable(field));
+    let code = string("code")?;
+    string("severity")?;
+    string("message")?;
+    let refs: &[Value] = match &diagnostic["affected_refs"] {
+        Value::Null => &[],
+        Value::Array(refs) if refs.iter().all(Value::is_string) => refs,
+        _ => return Err(unreadable("affected_refs")),
+    };
+    let id = match &diagnostic["id"] {
+        Value::Null => None,
+        Value::String(id) => Some(id.as_str()),
+        _ => return Err(unreadable("id")),
+    };
+    if !matches!(&diagnostic["source"], Value::Null | Value::String(_)) {
+        return Err(unreadable("source"));
+    }
+    let joined_empty = refs.is_empty() || (refs.len() == 1 && refs[0].as_str() == Some(""));
+    let affected = match id.filter(|id| !id.is_empty()) {
+        _ if !joined_empty => ResultId::Joined(refs),
+        Some(id) => ResultId::Id(id),
+        None => ResultId::Generated(index),
+    };
+    Ok((code, affected))
+}
+
+/// An appended entry's code and affected object id, when both are strings.
+fn copy_key(entry: &Value) -> Option<(&str, &str)> {
+    Some((entry.get("code")?.as_str()?, entry.get("affected_object")?.get("ref_id")?.as_str()?))
 }
 
 /// The index, among `appended`, of the first entry with a code and affected
-/// object of one of `results` (the result's projected diagnostics), looked up
-/// by code and affected object id.
-fn first_copy_of_a_result_diagnostic(appended: &[Value], results: &[Value]) -> Option<usize> {
-    fn affected_id(entry: &Value) -> Option<&Value> {
-        entry.get("affected_object").and_then(|object| object.get("ref_id"))
-    }
-    fn key(entry: &Value) -> Option<(&str, &str)> {
-        Some((entry.get("code")?.as_str()?, affected_id(entry)?.as_str()?))
-    }
-    // The projection writes both as strings; any other result is compared whole.
-    let (mut claimed, mut other) = (HashSet::with_capacity(results.len()), Vec::new());
-    for result in results {
-        match key(result) {
-            Some(pair) => {
-                claimed.insert(pair);
-            }
-            None => other.push(result),
+/// object id of one of the result's diagnostics (as projected), or the
+/// projection's refusal of a result diagnostic not of the producer's form.
+/// Only appended entries with a string code and affected id are indexed (each
+/// at least 44 bytes of compact text with its comma, against at most 16 bytes
+/// of [`Table`]); each result diagnostic is looked up once, its affected id
+/// compared in pieces.
+fn first_copy_of_a_result_diagnostic(appended: &[Value], results: &[Value]) -> Result<Option<usize>, String> {
+    let candidates = appended.iter().filter(|entry| copy_key(entry).is_some()).count();
+    let state = RandomState::new();
+    let mut table = Table::for_entries(candidates);
+    let hash = |code: &str, id: &dyn Fn(&mut std::collections::hash_map::DefaultHasher)| {
+        let mut hasher = state.build_hasher();
+        hash_str(&mut hasher, code);
+        id(&mut hasher);
+        hasher.finish()
+    };
+    for (index, entry) in appended.iter().enumerate() {
+        step();
+        let Some((code, id)) = copy_key(entry) else { continue };
+        let key = hash(code, &|hasher| hash_str(hasher, id));
+        if let Err(slot) = table.probe(key, &mut |stored| copy_key(&appended[stored as usize]) == Some((code, id))) {
+            table.slots[slot] = index as u32;
         }
     }
-    appended.iter().position(|entry| {
-        key(entry).is_some_and(|pair| claimed.contains(&pair))
-            || other.iter().any(|result| result.get("code") == entry.get("code") && affected_id(result) == affected_id(entry))
-    })
+    let mut first: Option<usize> = None;
+    for (index, diagnostic) in results.iter().enumerate() {
+        step();
+        let (code, affected) = result_key(index, diagnostic)?;
+        let key = hash(code, &|hasher| {
+            affected.chunks(&mut |chunk| {
+                hash_bytes(hasher, chunk);
+                true
+            });
+            hasher.write_u8(0xff);
+        });
+        let found = table.probe(key, &mut |stored| copy_key(&appended[stored as usize]).is_some_and(|(c, id)| c == code && affected.equals(id)));
+        if let Ok(stored) = found {
+            first = Some(first.map_or(stored as usize, |earlier| earlier.min(stored as usize)));
+        }
+    }
+    Ok(first)
 }
 
 /// The binding (module docs): every entry of `report_sections.diagnostics`
@@ -589,19 +906,17 @@ fn first_copy_of_a_result_diagnostic(appended: &[Value], results: &[Value]) -> O
 /// result's derives nothing.
 pub(crate) fn check_session_diagnostics(input: &Value, source: &Value, model: &Value) -> Result<(), String> {
     let found = input.pointer("/report_sections/diagnostics").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
-    let Some(result_count) = source.get("diagnostics").and_then(Value::as_array).map(Vec::len) else {
-        return expected_report_diagnostics(source).map(drop);
+    let Some(results) = source.get("diagnostics").and_then(Value::as_array) else {
+        return Err(format!("{BINDING_MISMATCH}: report diagnostics: the source has no diagnostics"));
     };
-    if found.len() <= result_count {
+    if found.len() <= results.len() {
         return Ok(());
     }
-    let results = expected_report_diagnostics(source)?;
-    let appended = found.get(results.len()..).unwrap_or(&[]);
-    if let Some(index) = first_copy_of_a_result_diagnostic(appended, &results) {
-        return Err(format!("report diagnostic {} copies a result diagnostic's code and affected object", results.len() + index));
-    }
     let count = results.len();
-    drop(results);
+    let appended = &found[count..];
+    if let Some(index) = first_copy_of_a_result_diagnostic(appended, results)? {
+        return Err(format!("report diagnostic {} copies a result diagnostic's code and affected object", count + index));
+    }
     place(appended, model).map_err(|unplaced| match unplaced {
         Unplaced::NotDerived(index) => format!("report diagnostic {} is not a session diagnostic the host derives from the bound model", count + index),
         Unplaced::Limit(index) => format!(

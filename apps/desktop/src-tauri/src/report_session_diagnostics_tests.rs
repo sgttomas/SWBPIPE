@@ -657,12 +657,14 @@ fn a_finding_text_shared_across_reference_shapes_is_refused_by_name_as_a_limit()
     assert_eq!(session_check(&model, &[component_entry("component:other"), not_held_a, shared]), not_derived(0));
 }
 
-/// The bound of the matching (review round 3 of c290410c6): the check's work
-/// is a constant per site plus the appended entries and their distinct keys
-/// once per prefix tried, and its allocations do not grow with the number of
-/// sites, on thousands of sites and entries, identical and distinct. The
-/// general matching it replaces compared every entry with every site and kept
-/// a site list per entry.
+/// The check's work, allocation count and priced peak on thousands of
+/// sites and entries, identical and distinct, against the work bound below
+/// and the provision both routes make before the check
+/// ([`session_check_provision_bytes`], the function the routes call). The
+/// general matching this replaced compared every entry with every site and
+/// kept a site list per entry; its first replacement kept a hash map of about
+/// 540 bytes per entry, which exceeded the provision here (2,163,104 priced
+/// bytes against 1,977,589 for 4,000 identical entries).
 #[test]
 fn the_matching_is_bounded_on_thousands_of_sites_and_entries() {
     const SITES: usize = 4000;
@@ -691,38 +693,164 @@ fn the_matching_is_bounded_on_thousands_of_sites_and_entries() {
     ];
     for (name, model, appended, expected) in cases {
         let entries = appended.len() as u64;
-        // The appended entries' own materialization bound: their share of the
-        // save request text's M, which the save's W * M term is proportional to.
-        let share = crate::ingress::prescan(serde_json::to_string(&appended).unwrap().as_bytes()).unwrap().materialization_bytes;
         let input = json!({"report_sections": {"diagnostics": appended}});
-        let source = json!({"diagnostics": []});
-        let before = steps();
-        let (outcome, measured) = measure(|| check_session_diagnostics(&input, &source, model));
-        let work = steps() - before;
+        let (outcome, measured, work, provision) = measured_check(&input, model);
         assert_eq!(outcome, expected, "{name}");
-        // At most three lookups per site; the entries counted once, then the
-        // entries and their keys (at most as many) once per prefix tried: the
-        // whole list, then a binary search of at most ceil(log2) + 1 more.
-        let tries = 2 + u64::from(entries.next_power_of_two().trailing_zeros());
-        let bound = 3 * SITES as u64 + entries + entries + tries * 2 * entries;
-        eprintln!("{name}: {entries} entries, {SITES} sites: {work} steps (bound {bound}), {} allocations, priced peak {} B, the entries' materialization bound {share} B", measured.allocations, measured.peak_priced);
+        let bound = work_bound(SITES as u64, entries, 0);
+        eprintln!("{name}: {entries} entries, {SITES} sites: {work} steps (bound {bound}), {} allocations, priced peak {} B, provision {provision} B", measured.allocations, measured.peak_priced);
         assert!(work <= bound, "{name}: {work} steps exceed {bound}");
-        // Allocations: a fixed number of tables and buffers, none per site or entry.
+        // A fixed number of tables, none per site or entry.
         assert!(measured.allocations <= 64, "{name}: {} allocations", measured.allocations);
-        // The priced peak: a constant per entry, none per site, and buffers no
-        // longer than the longest derived text. Each request is priced at its
-        // next power of two (`allocation_envelope`), so the key table (at most
-        // 16/7 slots of 153 B per entry, <= 350 B) prices at <= 700 B per entry
-        // and the per-entry vectors (claims and links of 16 B, six of 8 B, one
-        // of 1 B: <= 81 B) at <= 162 B: within 1 KiB per entry, with 64 KiB for
-        // the buffers and fixed tables. (The general matching kept a site list
-        // per entry: about 128 MB for 4,000 identical entries and sites.)
-        assert!(measured.peak_priced <= 1024 * entries + (64 << 10), "{name}: priced peak {} for {entries} entries", measured.peak_priced);
-        // And within what both routes provide for the check before it runs.
-        let provision = session_check_provision_bytes(canonical_json(model).len() as u64, diagnostics_text_bytes(&input));
-        eprintln!("{name}: provision {provision} B");
         assert!(measured.peak_priced <= provision, "{name}: priced peak {} exceeds the provision {provision}", measured.peak_priced);
     }
+}
+
+/// The check on `input`'s Diagnostics after a result without diagnostics,
+/// measured: its outcome, the counting allocator's measure, its units of work,
+/// and the provision both routes make for it before it runs.
+fn measured_check(input: &Value, model: &Value) -> (Result<(), String>, crate::ingress::counting::Measured, u64, u64) {
+    let source = json!({"diagnostics": []});
+    let before = steps();
+    let (outcome, measured) = measure(|| check_session_diagnostics(input, &source, model));
+    let work = steps() - before;
+    let provision = session_check_provision_bytes(canonical_json(model).len() as u64, diagnostics_text_bytes(input));
+    (outcome, measured, work, provision)
+}
+
+/// The check's work bound (`report_session_diagnostics::place`): for the copy
+/// check, one examination per appended entry and one lookup per result
+/// diagnostic; for the matching, one examination and one lookup per entry, at
+/// most three lookups per site, at most three visits per distinct key (at most
+/// one per entry) and one pass over the entries: 3 S + 7 A + R. (The bound it
+/// replaces was 3 S + 2 A + 2 A (2 + ceil(log2 A)): 132,000 at 4,000 sites and
+/// entries; this one is 40,000 there.)
+fn work_bound(sites: u64, entries: u64, results: u64) -> u64 {
+    3 * sites + 7 * entries + results
+}
+
+/// The case that broke the first provision (property 1 of the Agent 0's
+/// decision): thousands of the smallest entries the check indexes (an object
+/// with the seven bound fields, every string empty: 150 bytes of compact text
+/// with its comma, against at most 48 indexed bytes), identical and distinct;
+/// thousands of the smallest entries the copy check indexes (a string code and
+/// affected id: 44 bytes against at most 16); and thousands of entries the
+/// check refuses before storing anything for them (`{}`, `0`, `""`). Each
+/// priced peak is within the provision, by the function the routes call.
+#[test]
+fn many_minimal_entries_stay_within_the_provision() {
+    const ENTRIES: usize = 4000;
+    let empty_session_form = json!({"code": "", "class": "", "severity": "",
+        "source": {"ref_type": "", "ref_id": ""}, "affected_object": {"ref_type": "", "ref_id": ""}, "message": "", "remediation": ""});
+    assert_eq!(serde_json::to_string(&empty_session_form).unwrap().len() + 1, 150, "the smallest indexed entry with its comma");
+    let distinct_session_form = |index: usize| {
+        let mut entry = empty_session_form.clone();
+        entry["code"] = json!(index.to_string());
+        entry
+    };
+    let copy_form = json!({"code": "", "affected_object": {"ref_id": ""}});
+    assert_eq!(serde_json::to_string(&copy_form).unwrap().len() + 1, 44, "the smallest copy-check entry with its comma");
+    let model = json!({"project": {"id": "project:invented"}, "components": vec![json!({"id": "component:same"}); ENTRIES]});
+    let cases: Vec<(&str, Vec<Value>)> = vec![
+        ("the smallest indexed entry, identical", vec![empty_session_form.clone(); ENTRIES]),
+        ("the smallest indexed entries, distinct", (0..ENTRIES).map(distinct_session_form).collect()),
+        ("the smallest copy-check entry", vec![copy_form; ENTRIES]),
+        ("empty objects", vec![json!({}); ENTRIES]),
+        ("zeros", vec![json!(0); ENTRIES]),
+        ("empty strings", vec![json!(""); ENTRIES]),
+    ];
+    for (name, appended) in cases {
+        let entries = appended.len() as u64;
+        let input = json!({"report_sections": {"diagnostics": appended}});
+        let (outcome, measured, work, provision) = measured_check(&input, &model);
+        // No site yields any of them: the first is refused.
+        assert_eq!(outcome, not_derived(0), "{name}");
+        let bound = work_bound(ENTRIES as u64, entries, 0);
+        eprintln!("{name}: {entries} entries: {work} steps (bound {bound}), {} allocations, priced peak {} B, provision {provision} B", measured.allocations, measured.peak_priced);
+        assert!(work <= bound, "{name}: {work} steps exceed {bound}");
+        assert!(measured.peak_priced <= provision, "{name}: priced peak {} exceeds the provision {provision}", measured.peak_priced);
+    }
+}
+
+/// The render's provision for the check (`report_render_exact::bind_render_admission`):
+/// with a forged entry appended to the committed straight witness, a budget
+/// that grants the ingress lease, the render's growth and the provision
+/// exactly yields the check's refusal; one byte under it yields the pool's
+/// refusal, with the lease unchanged by it and no unit of the check's work.
+#[test]
+fn the_render_grows_its_lease_by_the_provision_before_the_check() {
+    let w = exact_witness();
+    let live = live(&w.intake, &w.result);
+    let mut input = exact_bound(&w, &live.job)["report"].clone();
+    let count = input["report_sections"]["diagnostics"].as_array().unwrap().len();
+    let mut forged = input["report_sections"]["diagnostics"][0].clone();
+    forged["code"] = json!("SOLVER_RESULT_VERIFIED");
+    forged["affected_object"]["ref_id"] = json!("case:invented");
+    input["report_sections"]["diagnostics"].as_array_mut().unwrap().push(forged);
+    let manifest = canonical_json(&w.manifest);
+    let args = json!({"input": input, "exactResultText": w.result, "exactIntakeText": w.intake, "inputManifestText": manifest});
+    let ingress = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &args).unwrap().1.bytes();
+    let growth = crate::report_render_exact::exact_render_growth_bytes(&w.result, &w.intake, &manifest).unwrap();
+    let provision = session_check_provision_bytes(w.intake.len() as u64, diagnostics_text_bytes(&input));
+    let grown = ingress + growth + provision;
+    let (pool_bytes, budget) = live.registry.pool().settings();
+    assert!(grown <= budget, "the witness fits the default budget");
+    let render_under = |budget_bytes: u64| {
+        live.registry.configure_pool(pool_bytes, budget_bytes, false).unwrap();
+        let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &args).unwrap();
+        let before = steps();
+        let outcome = crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease);
+        (outcome, lease.bytes(), steps() - before)
+    };
+    let (outcome, lease_bytes, work) = render_under(grown);
+    assert_eq!(message(outcome), refusal(count, NOT_DERIVED), "at the grown lease the check runs and refuses");
+    assert_eq!(lease_bytes, grown);
+    assert!(work > 0);
+    let (outcome, lease_bytes, work) = render_under(grown - 1);
+    match outcome {
+        Err(CommandError::Ingress(crate::solve_jobs::SolveJobError::ResourceUnavailable { refusal, .. })) => assert_eq!(
+            refusal,
+            crate::memory_pool::ResourceRefusal::IngressExceedsBudget { required_bytes: grown, budget_bytes: grown - 1 }
+        ),
+        other => panic!("one byte under: not the pool's refusal: {other:?}"),
+    }
+    assert_eq!(lease_bytes, ingress + growth, "the provision is not granted");
+    assert_eq!(work, 0, "no unit of the check's work after the pool's refusal");
+    live.registry.configure_pool(pool_bytes, budget, false).unwrap();
+}
+
+/// The save's provision for the check (`report_package_save::session_check_lease_bytes`,
+/// within `parse_lease_bytes_with_exact`, which `ingress_lease_bytes` grows the
+/// lease by before the request is parsed): the growth with the term less the
+/// growth without it is the model text plus the request text plus the fixed
+/// part, and a budget one byte under the grown lease is refused by the pool
+/// in the save's ingress, before the admission parses anything.
+#[test]
+fn the_save_grows_its_lease_by_the_provision_before_the_parse() {
+    use crate::command_ingress::test_support::grown_lease_meets_the_budget;
+    use crate::command_ingress::text_parse_bytes;
+    let w = exact_witness();
+    let live = live(&w.intake, &w.result);
+    let args = exact_save_args(&w, &exact_bound(&w, &live.job));
+    let with = parse_lease_bytes_with_exact(&args.request_text, &args.model_text, &args.input_manifest_text, Some(&w.result), Some(&w.intake)).unwrap();
+    let without = crate::report_package_save::parse_lease_bytes(&args.request_text, &args.model_text, &args.input_manifest_text).unwrap()
+        + text_parse_bytes(&w.result, ArgsDecoding::Moved).unwrap()
+        + text_parse_bytes(&w.intake, ArgsDecoding::Moved).unwrap();
+    assert_eq!(with - without, session_check_provision_bytes(args.model_text.len() as u64, args.request_text.len() as u64));
+    assert_eq!(with - without, args.model_text.len() as u64 + args.request_text.len() as u64 + (64 << 10));
+    let mut raw = crate::report_package_save::test_support::args_body(&args);
+    raw["exactResultText"] = json!(w.result);
+    raw["exactIntakeText"] = json!(w.intake);
+    let body = InvokeBody::Raw(serde_json::to_vec(&raw).unwrap());
+    let headers = headers(Some(INGRESS_ARGS_JSON_V1));
+    let ingress = admit_body(&live.registry, &body, &headers, "save_report_package", ArgsDecoding::Moved).unwrap().1.bytes();
+    let (_, grown) = grown_lease_meets_the_budget(&live.registry, "exact save with the session provision", ingress, &|| {
+        match crate::admit_report_package_save(&live.registry, &body, &headers) {
+            Ok((_, lease)) => Ok(lease.bytes()),
+            Err(CommandError::Ingress(error)) => Err(error),
+            Err(other) => panic!("the save's ingress failed otherwise: {other:?}"),
+        }
+    });
+    assert_eq!(grown, ingress + with, "the grown lease carries the provision");
 }
 
 /// No amplification from the model (review round 3 of c290410c6): 1,000
