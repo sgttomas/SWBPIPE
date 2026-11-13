@@ -876,16 +876,122 @@ def test_the_benchmark_option_writes_a_private_record_per_model_one_at_a_time(fa
     assert "HGRA,B311-80,SI" in rendered
     # Operational status only on standard output: no classification or count.
     assert "within_profile" not in out and "finding" not in out
-    # One batch alone; then the stored, bound CSVs rebuild the records offline with no round trip and no wait.
+    # A recorded case is never run again, live (one batch alone) or offline: each is refused by name before anything
+    # is solved, round-tripped or written, and the exchange folder is unchanged.
+    before = tree_bytes(root)
     state["calls"].clear()
-    assert run_pilot.main(state["argv"] + ["--batch", "2", "--pace-s", "90"], environ={}) == 0
-    assert [call[0] for call in state["calls"]] == ["cpb-g1-05"]
-    state["calls"].clear()
+    assert run_pilot.main(state["argv"] + ["--batch", "2", "--pace-s", "90"], environ={}) == 1
+    assert state["calls"] == []
+    out = capsys.readouterr().out
+    assert "batch 2/2: cpb-g1-05" in out and "cpb-g1-05: route=already_recorded;" in out
     state["sleeps"].clear()
     offline = ["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline"]
-    assert run_pilot.main(offline + ["--case", "cpb-g1-02"], environ={}) == 0
+    assert run_pilot.main(offline + ["--case", "cpb-g1-02"], environ={}) == 1
     assert state["calls"] == [] and state["sleeps"] == []
-    assert "cpb-g1-02: route=csv_from_batch; benchmark record written" in capsys.readouterr().out
+    assert "cpb-g1-02: route=already_recorded;" in capsys.readouterr().out
+    assert tree_bytes(root) == before
+
+
+def tree_bytes(root: Path) -> dict[str, bytes]:
+    return {str(item.relative_to(root)): item.read_bytes() if item.is_file() else b"<dir>"
+            for item in sorted(root.rglob("*"))}
+
+
+def test_the_case_manifest_binds_the_revision_runner_request_and_result(fake_benchmark):
+    state = fake_benchmark
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    custody = json.loads((case / "case_manifest.json").read_text())["custody"]
+    assert set(custody) == set(run_pilot.BENCHMARK_CUSTODY_KEYS)
+    head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True)
+    assert custody["source_commit"] == (head.stdout.strip() if head.returncode == 0 else None)
+    assert custody["source_tree_clean"] in (True, False, None)
+    assert custody["runner_sha256"] == hashlib.sha256(Path(state["runner"]).read_bytes()).hexdigest()
+    for name in ("request", "result"):
+        assert custody[f"{name}_sha256"] == hashlib.sha256((case / "swbpipe" / f"{name}.json").read_bytes()).hexdigest()
+
+
+def test_a_stored_request_or_result_is_never_replaced(fake_benchmark, monkeypatch, capsys):
+    """Seeded: a case folder already holding only a request, or only a result, is refused before any solve."""
+    state = fake_benchmark
+    solves = []
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
+        {"invented": True}, {"payload": invented_payload()}, ""))
+    root = state["config"].exchange_root
+    for case_id, name in (("cpb-g1-01", "request.json"), ("cpb-g1-02", "result.json")):
+        stored = case_paths(state["config"], case_id)["swbpipe"] / name
+        stored.write_text("INVENTED STORED FILE\n", encoding="utf-8")
+    before = tree_bytes(root)
+    for case_id in ("cpb-g1-01", "cpb-g1-02"):
+        assert run_pilot.main(state["argv"] + ["--case", case_id], environ={}) == 1
+        assert f"{case_id}: route=already_recorded;" in capsys.readouterr().out
+    assert solves == [] and state["calls"] == [] and tree_bytes(root) == before
+
+
+def test_the_retry_reuses_its_own_solve_and_replaces_nothing(fake_benchmark, monkeypatch):
+    state = fake_benchmark
+    solves = []
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case["case_id"]) or (
+        {"invented": case["case_id"]}, {"payload": invented_payload()}, ""))
+    failure = RuntimeError("invented transport failure")
+    failure.settings_guard = {"status": "unchanged"}  # a clean settings check, so the model is retried
+    state["outcomes"].append(failure)
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-01"] and solves == ["cpb-g1-01"]
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    manifest = json.loads((case / "case_manifest.json").read_text())
+    assert (manifest["attempt"], manifest["outcome"]) == (2, "recorded")
+    assert manifest["custody"]["request_sha256"] == hashlib.sha256(
+        (case / "swbpipe" / "request.json").read_bytes()).hexdigest()
+
+
+def test_collect_only_binds_first_collects_and_reads_no_print(fake_benchmark, monkeypatch, capsys):
+    """Bind first, capture now, screen later: the SWBPIPE request and result are created before the round trip, the
+    print is collected and bound, and nothing parses it or writes a comparison; the GUI fallback is off even when the
+    guard restores the whole key."""
+    state = fake_benchmark
+    config = dataclasses.replace(state["config"], settings_guard=dataclasses.replace(
+        state["config"].settings_guard, restore_scope="key"))
+    assert config.settings_guard.restores_whole_key
+    monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: config)
+    real_solve = run_pilot.solve_swbpipe
+    case = config.exchange_root / "cases" / "cpb-g1-01"
+
+    def solve(runner, case_):
+        state["events"].append(("solve",))
+        return real_solve(runner, case_)
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
+
+    def refuse(*args, **kwargs):
+        raise AssertionError("a collect-only run must not read the print or compare")
+    for name in ("read_caepipe_print_csv", "build_benchmark_record"):
+        monkeypatch.setattr(run_pilot, name, refuse)
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--collect-only"], environ={}) == 0
+    # The SWBPIPE side is solved and its files created before the round trip.
+    assert [event for event in state["events"] if event[0] in ("solve", "round_trip")] == [
+        ("solve",), ("round_trip", "cpb-g1-01")]
+    assert state["calls"][0][1] == {"gui_fallback": False}
+    manifest = json.loads((case / "case_manifest.json").read_text())
+    assert (manifest["outcome"], manifest["route"], manifest["parser_status"]) == (
+        "collected", "csv_from_batch", "not_parsed")
+    assert manifest["csv"] == "caepipe_out/model.csv" and manifest["custody"]["result_sha256"]
+    assert not (case / "parsed").exists() or not any((case / "parsed").iterdir())
+    assert not (case / "comparison").exists() or not any((case / "comparison").iterdir())
+    assert "cpb-g1-01: route=csv_from_batch; collected and bound; not parsed or compared" in capsys.readouterr().out
+    with pytest.raises(SystemExit):
+        run_pilot.main(["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline",
+                        "--collect-only"], environ={})
+
+
+def test_offline_leaves_a_case_without_a_bound_print_untouched(fake_benchmark):
+    """Seeded: offline, a case with no stored, bound print is refused before anything is solved or created."""
+    state = fake_benchmark
+    root = state["config"].exchange_root
+    case_paths(state["config"], "cpb-g1-03")
+    before = tree_bytes(root)
+    offline = ["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline", "--case", "cpb-g1-03"]
+    assert run_pilot.main(offline, environ={}) == 1
+    assert tree_bytes(root) == before
 
 
 def test_a_model_that_declares_runs_is_refused_without_a_series(tmp_path, capsys):
@@ -1007,7 +1113,8 @@ def test_a_capture_run_is_refused_by_name_and_nothing_is_read_or_written(fake_be
                      "stored_run_record", "_sha256", "bound_csv", "case_paths"):
             if hasattr(module, name):
                 monkeypatch.setattr(module, name, spy(f"{module.__name__}.{name}"))
-    for name in ("solve_swbpipe", "render_caepipe_mbf_si", "write_private", "_write_json", "check_guest_alive",
+    for name in ("solve_swbpipe", "render_caepipe_mbf_si", "write_private", "_write_json", "_create_private_json",
+                 "check_guest_alive",
                  "check_no_foreign_instance", "resolve_harness_config"):
         monkeypatch.setattr(run_pilot, name, spy(f"run_pilot.{name}"))
     real_open, real_os_open = builtins.open, os.open

@@ -7,7 +7,8 @@ From the project root:
     python3 -m tools.caepipe_correlation.run_pilot --authored [--case ID ...] [--export-only | --no-export]
     python3 -m tools.caepipe_correlation.run_pilot --authored --authored-dir PATH [--case ID ...]
     python3 -m tools.caepipe_correlation.run_pilot --benchmark MANIFEST [--case ID ...] [--batch N]
-        [--batch-size N] [--runner PATH] (--offline | --freeze-file PATH --exclusive-file PATH [--pace-s S])
+        [--batch-size N] [--runner PATH] (--offline | --freeze-file PATH --exclusive-file PATH [--pace-s S]
+        [--collect-only])
 
 Per case: the independent hand calculation, the SWBPIPE solve (headless runner),
 the SI MBF (with the case's deliberate fault injection, if any), the live
@@ -74,8 +75,17 @@ running process (up to 30 min), checks that the guest answers `cmd /c ver`
 whose round trip raised or left no CSV, with a clean settings check, is retried
 once 2 min later. The run stops at the first unclean settings check, a failed
 check before a model, or a round trip that raised twice; the GUI print fallback
-is used only with restore_scope "key" (Design §5). --offline rebuilds the records
-from the stored, bound CSVs.
+is used only with restore_scope "key" (Design §5). --offline builds the records
+from the stored, bound CSVs. Each case's SWBPIPE request and result are created
+once and never replaced: a case that already holds either is refused by name
+(already_recorded), live or offline, before anything is solved or written, and the
+one retry of a model reuses its own solve. The case manifest's custody member
+records the SWBPIPE commit and whether its tree was clean, the runner binary's
+SHA-256, and the SHA-256 of the request and result the run created.
+--collect-only (live only) stops each model once its SWBPIPE request and result are
+created and its CAEPIPE print is collected and bound to the MBF: the print is not
+parsed and no comparison is written (outcome "collected"), and the GUI print
+fallback is off. Screening such a case later is a separate step.
 
 Standard output carries operational status only: per case its id, route and
 either the comparison record's path relative to the exchange folder or the
@@ -349,6 +359,38 @@ def _write_json(root: Path, path: Path, value: Any) -> None:
     write_private(root, path, json.dumps(value, indent=2, sort_keys=True) + "\n")
 
 
+def _create_private_json(root: Path, path: Path, value: Any) -> str:
+    """Create `path` inside the exchange folder, failing if it exists (O_EXCL), and return the SHA-256 of the bytes
+    written. A benchmark run's SWBPIPE request and result are created this way, so they are never replaced."""
+    data = (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    descriptor = os.open(contained(root, path), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o666)
+    with os.fdopen(descriptor, "wb") as handle:
+        handle.write(data)
+    return hashlib.sha256(data).hexdigest()
+
+
+def _file_sha256(path: str | Path) -> str | None:
+    """The SHA-256 of a file's bytes, or None when it cannot be read."""
+    try:
+        return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    except OSError:
+        return None
+
+
+def _source_identity() -> dict[str, Any]:
+    """The commit this checkout of SWBPIPE is at and whether its tree is clean (None for either when Git cannot
+    say), recorded with each benchmark run so the revision that produced its SWBPIPE result is identified."""
+    def git(*args: str) -> subprocess.CompletedProcess | None:
+        try:
+            return subprocess.run(["git", "-C", str(PROJECT), *args], capture_output=True, text=True, check=False,
+                                  timeout=60)
+        except (OSError, subprocess.SubprocessError):
+            return None
+    head, status = git("rev-parse", "HEAD"), git("status", "--porcelain")
+    return {"source_commit": head.stdout.strip() if head is not None and head.returncode == 0 else None,
+            "source_tree_clean": (status.stdout == "") if status is not None and status.returncode == 0 else None}
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -422,7 +464,8 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
 
     mbf_sha256 = _sha256(mbf_text)
     if offline:
-        # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept.
+        # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept, and before
+        # anything is solved, so a case with no bound CSV is left without a SWBPIPE request or result.
         csv_path, route, reason = bound_csv(root, paths, stored_run_record(root, paths["caepipe_out"]), mbf_sha256)
         if csv_path is None:
             emit(f"{case_id}: route={route}; {reason}; no comparison record")
@@ -736,6 +779,11 @@ def benchmark_batches(models: list[Mapping[str, Any]], size: int) -> list[list[M
 
 
 RECORDED, NOT_RUN, RETRY = "recorded", "not_run", "retry"
+# A collect-only run ends here: SWBPIPE solved and bound, the CAEPIPE print collected, nothing parsed or compared.
+COLLECTED = "collected"
+# The SWBPIPE solve of each case folder made in this process, with its custody digests, so that the one retry of a
+# model reuses its own request and result instead of replacing them.
+_SOLVED_THIS_PROCESS: dict[str, tuple[Any, Any, str, dict[str, Any]]] = {}
 
 
 @dataclass(frozen=True)
@@ -767,7 +815,8 @@ def _exclusive_pending(path: Path) -> bool:
 def run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runner: str, offline: bool,
                         emit: Callable[[str], None] = print,
                         round_trip: Callable[..., dict[str, Any]] = run_caepipe_round_trip,
-                        gui_fallback: bool = False, attempt: int = 1) -> tuple[str, str, str]:
+                        gui_fallback: bool = False, attempt: int = 1,
+                        collect_only: bool = False) -> tuple[str, str, str]:
     """One benchmark model: solve, write, guarded batch round trip (or the stored bound CSV), parse, compare.
 
     Returns (status, route, reason): `recorded`, `not_run` (SWBPIPE not solved, MBF refused, containment, or no
@@ -777,15 +826,22 @@ def run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runn
     model_id = benchmark_run_id(entry)
     try:
         return _run_benchmark_model(entry, config, runner=runner, offline=offline, emit=emit, round_trip=round_trip,
-                                    gui_fallback=gui_fallback, attempt=attempt)
+                                    gui_fallback=gui_fallback, attempt=attempt, collect_only=collect_only)
     except ContainmentError as error:
         emit(f"{model_id}: route=containment_violation; {error}; no benchmark record")
         return NOT_RUN, "containment_violation", str(error)
 
 
+# The custody members of a benchmark case manifest: the revision and runner that produced the SWBPIPE side and the
+# digests of the request and result the run created (each None until known).
+BENCHMARK_CUSTODY_KEYS = ("source_commit", "source_tree_clean", "runner_sha256", "request_sha256", "result_sha256")
+
+
 def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[str, Any], *, offline: bool,
-                        outcome: str, route: str, attempt: int, **extra: Any) -> None:
-    """The model's private run record (the case manifest), written for every live attempt and every record."""
+                        outcome: str, route: str, attempt: int, custody: Mapping[str, Any] | None = None,
+                        **extra: Any) -> None:
+    """The model's private run record (the case manifest), written for every live attempt and every record. Its
+    `custody` names the SWBPIPE revision and runner that produced the case's request and result and their digests."""
     _write_json(root, paths["manifest"], {
         "document_kind": MANIFEST_KIND,
         "case_id": benchmark_run_id(entry),
@@ -800,6 +856,7 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
         "generator": entry.get("generator"),
         "piping_code": entry["piping_code"],
         "internal_model_hash": canonical_model_hash(entry["model"]),
+        "custody": {key: (custody or {}).get(key) for key in BENCHMARK_CUSTODY_KEYS},
         **extra,
         "layer_privacy": LAYER_PRIVACY,
         "boundary_note": BOUNDARY_NOTE,
@@ -808,30 +865,34 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
 
 def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runner: str, offline: bool,
                          emit: Callable[[str], None], round_trip: Callable[..., dict[str, Any]], gui_fallback: bool,
-                         attempt: int) -> tuple[str, str, str]:
+                         attempt: int, collect_only: bool = False) -> tuple[str, str, str]:
     model_id = benchmark_run_id(entry)
     if entry.get("capture_only"):
         # Refused before anything is resolved or written (capture_refusal says why).
         return capture_refusal(entry, emit)
+    if collect_only and offline:
+        raise ValueError("a collect-only run is live: offline there is nothing to collect")
     root = config.exchange_root.resolve()
     paths = case_paths(config, model_id)
+    request_path, result_path = paths["swbpipe"] / "request.json", paths["swbpipe"] / "result.json"
+    # Only the retry (attempt 2) of a model reuses the solve its own first attempt made in this process.
+    solved = _SOLVED_THIS_PROCESS.get(str(paths["root"])) if attempt > 1 else None
+    if solved is None and (os.path.lexists(request_path) or os.path.lexists(result_path)):
+        # The SWBPIPE request and result of a case are created once and never replaced: a later revision is a
+        # separately identified comparison in case folders of its own, never a rewrite of the first.
+        reason = "this case already holds a SWBPIPE request or result, which are never replaced"
+        emit(f"{model_id}: route=already_recorded; {reason}; not run")
+        return NOT_RUN, "already_recorded", reason
+    custody: dict[str, Any] = {}
 
     def outcome(status: str, route: str, reason: str, **extra: Any) -> tuple[str, str, str]:
         if not offline:
             _benchmark_manifest(root, paths, entry, offline=offline, outcome="no_record", route=route,
-                                attempt=attempt, reason=reason, **extra)
+                                attempt=attempt, reason=reason, custody=custody, **extra)
         if status == NOT_RUN:
             emit(f"{model_id}: route={route}; {reason}; no benchmark record")
         return status, route, reason
 
-    body, output, error = solve_swbpipe(runner, {
-        "case_id": model_id, "model": entry["model"],
-        "source_location": f"validation/caepipe_benchmark/models/{entry['model_id']}.json"})
-    _write_json(root, paths["swbpipe"] / "request.json", body)
-    if output is not None:
-        _write_json(root, paths["swbpipe"] / "result.json", output)
-    if error:
-        return outcome(NOT_RUN, "not_run", f"SWBPIPE not solved ({error})")
     mbf = render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
                                 reference_temperature_c=entry.get("reference_temperature_c", 20.0),
                                 piping_code=entry["piping_code"])
@@ -841,10 +902,26 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     mbf_text = benchmark_models.run_mbf_text(entry, mbf.text)  # a series run's OPPRES line substituted
     mbf_sha256 = _sha256(mbf_text)
     if offline:
-        # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept.
+        # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept, and before
+        # anything is solved, so a case with no bound CSV is left without a SWBPIPE request or result.
         csv_path, route, reason = bound_csv(root, paths, stored_run_record(root, paths["caepipe_out"]), mbf_sha256)
         if csv_path is None:
             return outcome(NOT_RUN, route, reason)
+    if solved is None:
+        # Solved once per case; attempt 1 records the solve for its own retry.
+        body, output, error = solve_swbpipe(runner, {
+            "case_id": model_id, "model": entry["model"],
+            "source_location": f"validation/caepipe_benchmark/models/{entry['model_id']}.json"})
+        custody.update(_source_identity(), runner_sha256=_file_sha256(runner),
+                       request_sha256=_create_private_json(root, request_path, body),
+                       result_sha256=(_create_private_json(root, result_path, output) if output is not None
+                                      else None))
+        _SOLVED_THIS_PROCESS[str(paths["root"])] = (body, output, error, dict(custody))
+    else:
+        body, output, error, recorded = solved
+        custody.update(recorded)
+    if error:
+        return outcome(NOT_RUN, "not_run", f"SWBPIPE not solved ({error})")
     in_dir = paths["caepipe_in"]
     write_private(root, in_dir / "model.mbf", mbf_text.encode("utf-8"))
     _write_json(root, in_dir / "id_map.json", mbf.sidecar(mbf_sha256))
@@ -868,6 +945,14 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         csv_path, route, reason = bound_csv(root, paths, record, mbf_sha256)
         if csv_path is None:
             return outcome(RETRY, route, reason)
+        if collect_only:
+            # Bind first, capture now, screen later: the print is collected and bound, and not read.
+            _benchmark_manifest(root, paths, entry, offline=offline, outcome=COLLECTED, route=route, attempt=attempt,
+                                custody=custody, exported_model_hash=mbf_sha256, parser_status="not_parsed",
+                                trial_first_launch_date=config.trial_first_launch_date,
+                                csv=str(csv_path.relative_to(paths["root"])))
+            emit(f"{model_id}: route={route}; collected and bound; not parsed or compared")
+            return COLLECTED, route, ""
     parsed = read_caepipe_print_csv(csv_path)
     _write_json(root, paths["parsed"] / "caepipe_results.json", parsed)
     _write_json(root, paths["parsed"] / "parser_diagnostics.json", {
@@ -878,6 +963,7 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     comparison_path = paths["comparison"] / BENCHMARK_RECORD
     _write_json(root, comparison_path, comparison)
     _benchmark_manifest(root, paths, entry, offline=offline, outcome="recorded", route=route, attempt=attempt,
+                        custody=custody,
                         exported_model_hash=mbf_sha256, target_tool=comparison["target_tool"],
                         target_version=comparison["target_version"], product_label=comparison["product_label"],
                         trial_first_launch_date=config.trial_first_launch_date,
@@ -928,7 +1014,7 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
                   precondition: Callable[[HarnessConfig], dict[str, Any]] | None = None,
                   liveness: Callable[[HarnessConfig], dict[str, Any]] | None = None,
                   stops: BenchmarkStops | None = None, pace_s: float = BENCHMARK_PACE_S,
-                  sleep: Callable[[float], None] | None = None) -> int:
+                  sleep: Callable[[float], None] | None = None, collect_only: bool = False) -> int:
     """Run the models one at a time, in serial batches; the exit status of main.
 
     A live run paces the models `pace_s` apart, passes `_benchmark_gate` before each attempt, and retries a model
@@ -954,7 +1040,9 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     check = precondition or check_no_foreign_instance
     alive = liveness or check_guest_alive
     sleep = sleep or time.sleep
-    gui_fallback = bool(config.settings_guard is not None and config.settings_guard.restores_whole_key)
+    # A collect-only run never prints through the program's window.
+    gui_fallback = bool(not collect_only and config.settings_guard is not None
+                        and config.settings_guard.restores_whole_key)
     results, started = [], False
     for number, members in chosen:
         emit(f"batch {number}/{len(batches)}: {', '.join(benchmark_run_id(entry) for entry in members)}")
@@ -974,7 +1062,8 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
                         started = True
                     status, route, reason = run_benchmark_model(entry, config, runner=runner, offline=offline,
                                                                 emit=emit, round_trip=round_trip,
-                                                                gui_fallback=gui_fallback, attempt=attempt)
+                                                                gui_fallback=gui_fallback, attempt=attempt,
+                                                                collect_only=collect_only)
                     if status != RETRY:
                         break
                     if attempt == 1:
@@ -987,7 +1076,7 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
                     emit(f"stopped after {model_id}: the round trip raised again after one retry; no further model ran")
                     return 1
                 emit(f"{model_id}: route={route}; {reason}; no benchmark record after one retry")
-            results.append(status == RECORDED)
+            results.append(status == (COLLECTED if collect_only else RECORDED))
     return 0 if all(results) else 1
 
 
@@ -1025,15 +1114,22 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
                              "exclusive job, which holds the run")
     parser.add_argument("--pace-s", type=float, default=BENCHMARK_PACE_S, metavar="S",
                         help=f"with a live --benchmark run, seconds between models (default {BENCHMARK_PACE_S:g})")
+    parser.add_argument("--collect-only", action="store_true",
+                        help="with a live --benchmark run, stop each model once SWBPIPE is solved and bound and the "
+                             "CAEPIPE print is collected and bound: nothing is parsed or compared")
     args = parser.parse_args(argv)
     benchmark_only = (args.batch is not None or args.batch_size != BENCHMARK_BATCH_SIZE or args.freeze_file
-                      or args.exclusive_file or args.pace_s != BENCHMARK_PACE_S or args.series is not None)
+                      or args.exclusive_file or args.pace_s != BENCHMARK_PACE_S or args.series is not None
+                      or args.collect_only)
     if args.benchmark and (args.authored or args.authored_dir or args.no_export or args.export_mbf
                            or args.export_only):
         parser.error("--benchmark takes only --case, --series, --offline, --batch, --batch-size, --freeze-file, "
-                     "--exclusive-file, --pace-s and --runner")
+                     "--exclusive-file, --pace-s, --collect-only and --runner")
     if not args.benchmark and benchmark_only:
-        parser.error("--series, --batch, --batch-size, --freeze-file, --exclusive-file and --pace-s need --benchmark")
+        parser.error("--series, --batch, --batch-size, --freeze-file, --exclusive-file, --pace-s and --collect-only "
+                     "need --benchmark")
+    if args.collect_only and args.offline:
+        parser.error("--collect-only is a live run; offline there is nothing to collect")
     if args.batch_size < 1:
         parser.error("--batch-size must be at least 1")
     if not (args.pace_s >= 0.0):
@@ -1133,7 +1229,7 @@ def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
     stops = None if args.offline else BenchmarkStops(freeze=Path(args.freeze_file),
                                                      exclusive=Path(args.exclusive_file))
     return run_benchmark(models, config, runner=runner, offline=args.offline, batch_size=args.batch_size,
-                         batch=args.batch, stops=stops, pace_s=args.pace_s)
+                         batch=args.batch, stops=stops, pace_s=args.pace_s, collect_only=args.collect_only)
 
 
 if __name__ == "__main__":
