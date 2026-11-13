@@ -478,6 +478,10 @@ class PinnedModels(unittest.TestCase):
         code, out, _ = self._main(['--plan', '--subset', 'baseline'])
         self.assertEqual(code, 0)
         self.assertIn('quiet-host wait: up to %d s before the first run' % rr.QUIET_WAIT_S, out)
+        # The window's condition, stated where the window is printed.
+        self.assertIn('provided the supervisor\'s own work between runs', out)
+        self.assertIn('planning allowance of 30 s per run', out)
+        self.assertIn('INCOMPLETE BY THE WINDOW', out)
         self.assertNotIn('quiet-host wait', self._main(['--plan', '--subset', 'window'])[1])
 
 
@@ -573,6 +577,8 @@ class BaselineSet(unittest.TestCase):
             self.assertEqual(report['window_problems'], [], label)
         report = self.judge(cases['full timeout'])
         self.assertIn('timed out at its full timeout', report['findings'][0])
+        report = self.judge(cases['missing record'])
+        self.assertIn('baseline-one-case-ex-n2000-sparse-r1: no record', report['findings'][0])
 
     def test_a_finding_with_a_window_problem_is_findings_and_lists_both(self):
         def both(by, *_):
