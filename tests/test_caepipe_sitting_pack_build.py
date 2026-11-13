@@ -502,11 +502,11 @@ def test_the_one_session_alternative_is_allowed_for_and_no_sentence_says_every_r
     offering = [r for e in m["models"] for r in e.get("runs") or []
                 if "instead of importing this run's file, you may"
                 in (r.get("window_instruction") or {}).get("text", "").lower()]
-    assert offering  # the manifest offers it; what comes back for such a run is the same three files
+    assert offering  # the manifest offers it; what comes back for such a run is the same as from its own file
     for run in offering:
         item = by_id(index_of(files))[run["run_id"]]
-        assert item["results"][spb.WINDOW] == [run["expected_print_file"], run["expected_saved_file"],
-                                               f"{run['run_id']}.res"]
+        assert item["results"][spb.WINDOW] == [run["expected_print_file"], run["expected_saved_file"]]
+        assert item["results_if_written"] == {spb.WINDOW: [f"{run['run_id']}.res"]}
 
 
 def test_no_screening_class_or_override_from_the_manifest_reaches_the_pack():
@@ -618,7 +618,11 @@ def test_the_owners_reading_of_the_instructions_and_run_sheet():
     check_iii = next(c for c in manifest()["dry_run"]["checks"] if c.startswith("(iii)"))
     assert "Then make check (iii): " + check_iii[len("(iii) "):] + "." in instructions  # the tranche's own words
     part1 = sheet.split("## Part 1:", 1)[1].split("## Part 2:", 1)[0]
-    assert "Tick the form you ran, and write \"not run: other form\" on the other form's run line." in part1
+    assert ("\nFor each pair, record its outcome on both run lines: the form you analysed and, on the other form's line, "
+            "\"not run: other form\"; or, if form A was switched at its step 4 or 5, \"switched to counterpart <id>\" on "
+            "form A's line (as its instruction says) and form B's own outcome on its line; or \"neither run\" and why on "
+            "both lines. Tick the form you analysed, if any. This part is never struck") in part1
+    assert "Tick the form you ran" not in sheet
     assert "This part is never struck to make room for a later part." in part1
     assert "| # | strike order | form | item |" in part1
     rows = [line.split(" | ") for line in part1.splitlines() if line.startswith("| ") and line[2].isdigit()]
@@ -741,7 +745,7 @@ def _export_runs(m: dict) -> set[str]:
     return {run["run_id"] for entry in m["models"] for run in entry.get("runs") or [] if run.get("export")}
 
 
-def test_the_export_trial_is_a_byte_copy_of_the_declared_run_file_and_has_no_batch_line():
+def test_check_vs_duplicate_is_a_byte_copy_of_the_declared_run_file_and_has_no_batch_line():
     """The sacrificial duplicate the manifest names (dry_run.export_trial): its own folder, a byte copy of the same run
     file as the other two samples, window only, no line in the command file, placed after the window sample."""
     files = built()
@@ -783,7 +787,7 @@ def test_exactly_the_runs_that_offer_an_export_carry_it_in_expected_back_and_on_
         offers = item["item_id"] in exporting
         assert run_line.count(label) == int(offers), item["item_id"]
         assert (f"`{exported}` (if the export was made)" in entries[item["item_id"]]) == offers, item["item_id"]
-        trial = item.get("export_trial") is not None
+        trial = item.get("export_check") is not None
         assert (exported in item["results"].get(spb.WINDOW, [])) == (offers or trial), item["item_id"]
         assert (".export.mbf" in entries[item["item_id"]]) == (offers or trial)
         for line in run_line.split("\r\n")[2:]:  # a label holds no colon of its own before its last one
@@ -807,16 +811,16 @@ def test_check_v_and_its_consequence_are_given_as_the_manifest_gives_them():
     for text in (part0, section4):
         assert "\n" + check_v + "\n" in text
         assert "\n" + consequence_v + "\n" in text or "\n- " + consequence_v + "\n" in text
-    step = ("6. Then go to the export trial's folder (`samples/sample-dyn-export-trial`) and make check (v) there, in "
+    step = ("6. Then go to the export check's folder (`samples/sample-dyn-export-trial`) and make check (v) there, in "
             "that folder only, as the benchmark manifest gives it below this list. Write each answer on that folder's "
             "run line. The window sample's folder (`samples/sample-dyn-window`) and every case folder are not opened or "
-            "touched by this trial.")
+            "touched by this check.")
     assert "\n" + step + "\n" in section4
     assert section4.index("\n5. In the window sample's folder") < section4.index("\n" + step)
     steps = {int(line.split(". ", 1)[0]): line.split(". ", 1)[1] for line in check_v.split("\n")[1:]}
     trial_line = files[P("samples/sample-dyn-export-trial/run_line.txt")].decode()
     answered = []
-    for number, label, words in spb.EXPORT_TRIAL_ANSWERS:
+    for number, label, words in spb.EXPORT_CHECK_ANSWERS:
         assert label.startswith(f"(v) step {number}, ") and ":" not in label
         body = label[len(f"(v) step {number}, "):]
         assert all(w in steps[number] and w.lower() in body.lower() for w in words), label
@@ -865,3 +869,42 @@ def test_no_text_of_the_pack_says_an_exports_input_is_the_packs_file():
                 hits += 1
                 assert "not the pack's model file" in sentence, (name, sentence)
     assert hits  # the statement and the binding sentence are among them
+
+
+def test_part_1_prints_the_manifests_pair_rule_verbatim():
+    files = built()
+    rule = manifest()["option_addition"]["run_sheet_pair_rule"]
+    part1 = _text(files, spb.RUN_SHEET).split("## Part 1:", 1)[1].split("## Part 2:", 1)[0]
+    assert f'\nFrom the benchmark manifest: "{rule}"\n' in part1
+    assert "Exactly one of a pair" not in _text(files, spb.RUN_SHEET) + _text(files, spb.INSTRUCTIONS)
+
+
+def test_a_window_cases_results_file_is_conditional_on_what_the_program_writes():
+    """Every window case's expected back names its results file only as one the program may write; the batch lists
+    keep deferring to answer A."""
+    files = built()
+    entries = _section5(_text(files, spb.INSTRUCTIONS))
+    window_cases = 0
+    for item in index_of(files)["items"]:
+        if item["item_kind"] != "benchmark_case":
+            continue
+        stem = item["stem"]
+        lines = [l for l in entries[item["item_id"]].split("\n") if l.startswith("- by the ")]
+        if item["routes"] == [spb.WINDOW]:
+            window_cases += 1
+            (line,) = lines
+            assert line.endswith(f", and any results file the program writes (for example `{stem}.res`)"), line
+            assert line.count(f"{stem}.res") == 1 and f"`{stem}.res`," not in line
+        else:
+            assert lines[0].endswith(". Which of these the program writes is the dry run's answer A.")
+            assert f"`{stem}.res`" in lines[0]
+    assert window_cases == 72
+
+
+def test_no_prose_of_the_pack_says_trial():
+    """The pack calls check (v) a check; "trial" occurs only inside the duplicate folder's name, which stays."""
+    for name, data in built().items():
+        if name.split("/", 1)[0] != spb.PACK:
+            continue
+        text = data.decode("utf-8", errors="replace").replace("sample-dyn-export-trial", "")
+        assert "trial" not in text.lower(), (name, text[max(0, text.lower().find("trial") - 60):][:120])

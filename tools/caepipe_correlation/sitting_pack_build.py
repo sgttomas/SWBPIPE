@@ -117,11 +117,15 @@ ONE_SESSION = ("A window instruction may end with a paragraph offering, on a con
                "setting in the model of an earlier run of the same case that is still open, instead of importing the "
                "run's file. Where its condition holds and you take it, save the model and print the results under that run's name in that run's folder, as the paragraph "
                "says, and write on its run line that the setting was made by hand. The files expected back in that "
-               "folder are the same three.")
+               "folder are the same as for a run made from its own file.")
 ON_THE_MAC = "No SWBPIPE command for the returned folder is part of this pack."
 KEEP_EVERYTHING = ("A capture brought back without this evidence may remain unusable for a qualified comparison. Bring "
                    "back everything in each run's folder, and do not tidy, rename or delete anything.")
 KINDS_CLAIM = "The pack contains only its specified permitted kinds of file and reviewed contents"
+TICK_LINE = ("For each pair, record its outcome on both run lines: the form you analysed and, on the other form's line, "
+             "\"not run: other form\"; or, if form A was switched at its step 4 or 5, \"switched to counterpart <id>\" "
+             "on form A's line (as its instruction says) and form B's own outcome on its line; or \"neither run\" and "
+             "why on both lines. Tick the form you analysed, if any.")
 EXPORT_BINDING = ("An export, where one is made, is bound to that run's saved model and that run's instruction: the "
                   "program writes it from that run's saved model (`<run id>.mod`) as the program holds it after that "
                   "run's instruction, including what was entered or set by hand; it is not the pack's model file, "
@@ -176,9 +180,9 @@ IMPORT_MODEL_LABEL = ("C. after the import in the window sample's folder, whethe
                       "where (the export page, CAEPIPE-EXPORT-MBF, says \"" + EXPORT_OVERWRITE + "\" and does not say in "
                       "which folder)")
 # The export: the label each run that offers one carries, and the labels for check (v)'s answers on the export
-# trial's run line, each with the words of check (v)'s step it answers (refused at build if a step lacks them).
+# check's folder's run line, each with the words of check (v)'s step it answers (refused at build if a step lacks them).
 EXPORT_LABEL = "export (made, or not made and why)"
-EXPORT_TRIAL_ANSWERS = (
+EXPORT_CHECK_ANSWERS = (
     (3, "(v) step 3, before touching the dialog, the files the folder now holds, by name",
      ("Before touching the dialog", "the files the folder now holds, by name")),
     (5, "(v) step 5, whether the dialog lets you set the name sample-dyn-export-trial.export.mbf and this folder, and "
@@ -453,7 +457,8 @@ def case_item(document: Mapping[str, Any], entry: Mapping[str, Any], run: Mappin
             raise BuildError(f"{key}: the window instruction's text does not have the SHA-256 the manifest declares")
         files[f"{PACK}/{folder}/{stem}.window-instruction.txt"] = body
         item["window_instruction"] = {"file": f"{stem}.window-instruction.txt", "sha256": instruction["sha256"]}
-        item["results"] = {WINDOW: [run["expected_print_file"], run["expected_saved_file"], f"{stem}.res"]}
+        item["results"] = {WINDOW: [run["expected_print_file"], run["expected_saved_file"]]}
+        item["results_if_written"] = {WINDOW: [f"{stem}.res"]}
         if run.get("form"):
             item["form"] = run["form"]
         if run.get("single_form"):
@@ -495,7 +500,7 @@ def export_trial_steps(manifest: Mapping[str, Any]) -> dict[int, str]:
 def sample_items(run_entry: Mapping[str, Any], dyn_entries: list[Mapping[str, Any]], data: bytes,
                  samples: Mapping[str, str], part: Mapping[str, Any], files: dict[str, bytes],
                  manifest: Mapping[str, Any]) -> list[dict[str, Any]]:
-    """The three dry-run samples (batch, window, and the export trial's sacrificial duplicate): each a copy, under its
+    """The three dry-run samples (batch, window, and check (v)'s sacrificial duplicate): each a copy, under its
     own id and folder, of one dynamics run file in the form that carries both added records, of the smallest dynamics
     model (fewest layout rows)."""
     entry, run = run_entry["entry"], run_entry["run"]
@@ -522,7 +527,7 @@ def sample_items(run_entry: Mapping[str, Any], dyn_entries: list[Mapping[str, An
     trial_id = trial["file"][:-len(".mbf")]
     if (trial["copy_of_run"] != run["run_id"] or trial["folder"] != f"samples/{trial_id}"
             or trial["file"] != f"{trial_id}.mbf"):
-        raise BuildError("the export trial must copy the dry-run samples' run file into samples/<its id>/")
+        raise BuildError("check (v)'s duplicate must copy the dry-run samples' run file into samples/<its id>/")
     out = []
     for route, item_id in ((BATCH, samples["batch"]), (WINDOW, samples["window"]), (WINDOW, trial_id)):
         folder = f"samples/{item_id}"
@@ -541,16 +546,16 @@ def sample_items(run_entry: Mapping[str, Any], dyn_entries: list[Mapping[str, An
             item["observe"] = BATCH_SAMPLE_LABEL
         elif item_id == trial_id:
             check_v = export_trial_steps(manifest)
-            for step, _label, words in EXPORT_TRIAL_ANSWERS:
+            for step, _label, words in EXPORT_CHECK_ANSWERS:
                 if any(w not in check_v.get(step, "") for w in words):
                     raise BuildError(f"check (v) step {step} no longer holds the words its answer's label quotes")
             exported = f"{item_id}.export.mbf"
-            item["export_trial"] = {"untouched": list(trial["untouched"]), "made_by": trial["made_by"]}
+            item["export_check"] = {"untouched": list(trial["untouched"]), "made_by": trial["made_by"]}
             item["observe"] = "check (v) of the dry run, in this folder only (INSTRUCTIONS.md section 4, step 6)"
             item["results"] = {WINDOW: [exported]}
             item["results_first"] = "the model file the import writes, if it writes one (answer C)"
             item["result_conditions"] = {exported: "if check (v) allowed the export"}
-            item["dry_run_checks"] = [label for _step, label, _words in EXPORT_TRIAL_ANSWERS]
+            item["dry_run_checks"] = [label for _step, label, _words in EXPORT_CHECK_ANSWERS]
         else:
             item["results"] = {WINDOW: [f"{item_id}.mod"]}
             item["stated_values"] = stated
@@ -731,8 +736,8 @@ def batch_commands_text(index: Mapping[str, Any]) -> str:
 
 def _kind_label(item: Mapping[str, Any]) -> str:
     if item["item_kind"] == "dry_run_sample":
-        if item.get("export_trial"):
-            return "dry-run sample, export trial"
+        if item.get("export_check"):
+            return "dry-run sample, export check"
         return "dry-run sample, batch" if item["routes"] == [BATCH] else "dry-run sample, window"
     label = {"held": "held capture", "sealed": "sealed capture"}.get(item.get("designation"), "benchmark case")
     return label + (", window only" if item["routes"] == [WINDOW] else "")
@@ -761,7 +766,7 @@ def shortening(index: Mapping[str, Any]) -> str:
 
 def run_sheet_text(index: Mapping[str, Any], manifest: Mapping[str, Any]) -> str:
     by_id = {item["item_id"]: item for item in index["items"]}
-    pair_rule = _sentence_starting(manifest["option_addition"]["pairs"], "Exactly one of a pair")
+    pair_rule = manifest["option_addition"]["run_sheet_pair_rule"]
     out = [QUALIFICATION, "", QUALIFICATION_FOLLOW, "", "# SWBPIPE sitting run sheet", "",
            "Run the parts in this order. " + shortening(index), "",
            "Tick each line when you have run its case, or written on its run line why not.", ""]
@@ -783,8 +788,8 @@ def run_sheet_text(index: Mapping[str, Any], manifest: Mapping[str, Any]) -> str
             out += ["Window only: no case of this part has a line in `BATCH_COMMANDS.txt`.", ""]
         if part["kind"] == "dry_run":
             window = next(by_id[i] for i in part["items"] if by_id[i]["item_kind"] == "dry_run_sample"
-                          and by_id[i]["routes"] == [WINDOW] and not by_id[i].get("export_trial"))
-            trial = next(by_id[i] for i in part["items"] if by_id[i].get("export_trial"))
+                          and by_id[i]["routes"] == [WINDOW] and not by_id[i].get("export_check"))
+            trial = next(by_id[i] for i in part["items"] if by_id[i].get("export_check"))
             consequences = manifest["dry_run"]["consequences"]
             numbered = [c[:c.index(")") + 1] for c in consequences]
             out += ["Write down what you observe, after each colon. Nothing here says what you will see. Write the "
@@ -799,8 +804,7 @@ def run_sheet_text(index: Mapping[str, Any], manifest: Mapping[str, Any]) -> str
                     *[f"- {consequence}" for consequence in consequences], "",
                     "- the consequences that apply (write their numbers, or none): ", ""]
         if part["kind"] == "dynamics":
-            out += ["Tick the form you ran, and write \"not run: other form\" on the other form's run line. "
-                    + part1_rule(index), "",
+            out += [TICK_LINE + " " + part1_rule(index), "",
                     "| # | strike order | form | item | layout rows | MBF SHA-256 (first 12) | folder | done |",
                     "|---|---|---|---|---|---|---|---|"]
             forms = {"table_added": "A, table added", "table_typed": "B, table typed"}
@@ -870,6 +874,9 @@ def expected_back(item: Mapping[str, Any]) -> str:
         files = ", ".join(f"`{name}`" + (f" ({conditions[name]})" if name in conditions else "") for name in new)
         if item.get("results_first"):
             files = f"{item['results_first']}, and {files}"
+        extra = [name for name in (item.get("results_if_written") or {}).get(route, []) if name not in named]
+        named += extra
+        files += "".join(f", and any results file the program writes (for example `{name}`)" for name in extra)
         if route == BATCH:
             lines.append(f"- by the batch line: {files}. Which of these the program writes is the dry run's answer A.")
         elif BATCH in item["routes"]:
@@ -897,13 +904,13 @@ def instructions_text(index: Mapping[str, Any], manifest: Mapping[str, Any]) -> 
     batch_sample = next(by_id[i] for i in dry["items"] if by_id[i]["routes"] == [BATCH]
                         and by_id[i]["item_kind"] == "dry_run_sample")
     window_sample = next(by_id[i] for i in dry["items"] if by_id[i]["routes"] == [WINDOW]
-                         and by_id[i]["item_kind"] == "dry_run_sample" and not by_id[i].get("export_trial"))
+                         and by_id[i]["item_kind"] == "dry_run_sample" and not by_id[i].get("export_check"))
     window_parts, batch_parts = evidence_parts(index)
     window_parts, batch_parts = _and(window_parts), _and(batch_parts)
     check_iii = next(c for c in manifest["dry_run"]["checks"] if c.startswith("(iii)"))
     check_iii = "(iii): " + check_iii[len("(iii) "):]
     export = manifest["export"]
-    trial = next(by_id[i] for i in dry["items"] if by_id[i].get("export_trial"))
+    trial = next(by_id[i] for i in dry["items"] if by_id[i].get("export_check"))
     consequence_v = next(c for c in manifest["dry_run"]["consequences"] if c.startswith("(v)"))
     out = f"""{QUALIFICATION}
 
@@ -996,7 +1003,7 @@ Part 0 is the dry run. Write what you observe on `{RUN_SHEET}` under part 0, aft
 3. Paste each other case line of part 0 one line at a time.
 4. Paste the batch sample's line ({batch_sample['item_id']}). Write down answer B.
 5. In the window sample's folder (`{window_sample['folder']}`), import `{window_sample['mbf']['file']}` in the program's window with the import command in 3.2, step 1. Write down answer C. Make checks (i) and (ii) against the stated values for this sample in section 5, and check (iv), and write down each answer. Then save the model as `{window_sample['stem']}.mod` in that folder, as a real window run saves its model as `<run id>.mod` in its own folder. The Save page ({_ref('CAEPIPE-SAVE')}, read 2026-11-13) says: "{SAVE_WORDS}" The File Menu page ({_ref('CAEPIPE-FILE-MENU')}, read 2026-11-13) lists no command for saving under another name. Then make check {check_iii}. Do not save over the imported file. Do not analyse or print. This sample has no line in `{BATCH_COMMANDS}`.
-6. Then go to the export trial's folder (`{trial['folder']}`) and make check (v) there, in that folder only, as the benchmark manifest gives it below this list. Write each answer on that folder's run line. The window sample's folder (`{window_sample['folder']}`) and every case folder are not opened or touched by this trial.
+6. Then go to the export check's folder (`{trial['folder']}`) and make check (v) there, in that folder only, as the benchmark manifest gives it below this list. Write each answer on that folder's run line. The window sample's folder (`{window_sample['folder']}`) and every case folder are not opened or touched by this check.
 7. Read the consequences listed under part 0 of `{RUN_SHEET}` and write down which apply.
 
 8. After part 0, copy the working folder to a place of your choosing on the Mac, outside every repository, leaving the working folder on Windows as it is. Say when the copy has finished and where it is; say it only once your copying tool says the copy has finished, because the copy must not change while it is being stored. It is stored there under one new name and listed by name, size and hash. Wait until you are told it is stored, whether or not a title was missing, and then go on to part 1.
