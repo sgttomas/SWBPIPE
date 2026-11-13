@@ -371,7 +371,7 @@ test("a gate that reads the full copy by itself is waited for without a click", 
   assert.ok(Date.now() - started >= 250);
 });
 
-test("a gate that refused or failed ends the wait at once with its own text; another feature's refusal does not", { timeout: 5000 }, async () => {
+test("a matching gate that refused ends the wait at once with its own text; another feature's failure does not end it", { timeout: 5000 }, async () => {
   const refused = "RESULT-DETAIL-WEBVIEW-LIMIT: This result is 80 MiB, above the 64 MiB the webview can hold whole, so rule checks cannot read it until its native path lands.";
   const w = gatedWindow();
   const solve = w.section("solve");
@@ -424,6 +424,31 @@ test("rule checks: through the gate, the demo pack is loaded, the run made and i
   assert.equal(observation.stress_ratio.rule_groups, 1);
   assert.equal(observation.stress_ratio.pinned_incomplete, 1);
   assert.deepEqual(w.sent, ["view.section.results"]);
+});
+
+// A gate that failed, in each of the product's two failure forms for its feature (C2ResultGate.tsx:68,
+// a session with no loader; :79, a loader that threw, its text from nativeFailureText in
+// services/nativeIngress.ts): the wait ends at once with that text, not after its timeout.
+test("a matching gate that failed, could not read or has no route, ends the wait at once with its own text", { timeout: 5000 }, async () => {
+  const failures = [
+    "rule checks could not read the full result: Error: RESULT-DETAIL-READ-FAILED: the native result handle was released",
+    "rule checks could not read the full result: Refused by the native memory pool: Not enough available memory on this Mac right now: needs 64 MiB, 0 MiB available.",
+    "rule checks has no route to the full result here."
+  ];
+  for (const failed of failures) {
+    const w = gatedWindow();
+    const solve = w.section("solve");
+    w.explicitGate(solve, "rule checks", () => w.place(solve, w.element("c2-result-failed", { textContent: failed })));
+    const started = Date.now();
+    // The timeout here is the test's bound: a wait that only times out fails the test.
+    await assert.rejects(w.hooks.openC2Gate("solve", "rule checks", "rule-check-run-panel", 3000), (error) => {
+      assert.doesNotMatch(error.message, /timed out/, failed);
+      assert.ok(error.message.startsWith(`rule checks: ${failed}; gate: `), error.message);
+      assert.match(error.message, /clicked=true$/);
+      return true;
+    });
+    assert.ok(Date.now() - started < 1000, failed);
+  }
 });
 
 // The same launch's phase 2: with no blank project, the handoff asked to reopen the stored demo
