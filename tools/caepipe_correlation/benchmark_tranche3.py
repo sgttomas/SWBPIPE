@@ -967,7 +967,7 @@ TYPED = "-table-typed"
 FORM_A, FORM_B = "table_added", "table_typed"
 from tools.caepipe_correlation.benchmark_hand_entry import (  # noqa: E402
     ANALYSIS_PAGE, PRINT_PAGE, ANALYZE_PAGE, SAVE_PAGE, FILE_MENU_PAGE, finish_steps, numbered, EXPORT_PAGE,
-    export_declaration,
+    export_declaration, skip, then_next,
 )
 SPECTRUM_LOAD_PAGE = ("https://docs.sstcae.com/users_manual/spectrum_load.htm (user's manual, \"Spectrum Load\"), read "
                       "2026-11-13")
@@ -1000,21 +1000,39 @@ CUTOFF_UNIT = ("the import page gives OPMISC's cutoff frequency without a unit; 
                "import page")
 PAIR_RULE = ("each dynamics run but one case's is declared in two forms with different files: form A (series without "
              "suffix) adds the options record and the spectrum table; form B (series ending -table-typed) adds the "
-             "options record alone and the person types the spectrum table. Exactly one of a pair is run at the "
-             "sitting: form A only if the dry run's check of the dry-run sample that carries the same spectrum table "
-             "agreed, form B otherwise. The pair is never both screened")
+             "options record alone and the person types the spectrum table. At most one of a pair is analysed. Form "
+             "A is taken if the dry run's check of the dry-run sample that carries the same spectrum table agreed, form "
+             "B otherwise. Only form A's named initial checks, of the spectrum table and of the spectrum options, which "
+             "come before its explicit Save and Analyze steps, lead to form B: if either does not agree, form A is not "
+             "run, any files its import wrote in its folder are left as they are, its run line says \"switched to "
+             "counterpart <form B run id>\", and form B is run from its step 1, with no return to form A. Every other "
+             "skip, in either form, runs nothing in its place, not the counterpart either, and goes on to the next "
+             "strike number. Every pair ends with an explicit outcome on its two run lines: form A analysed, form B "
+             "analysed, or neither run and why. The pair is never both screened")
+RUN_SHEET_PAIR_RULE = ("At most one of a pair is analysed: form A if the dry run's check agreed, form B otherwise or when "
+                       "form A was switched to it at its named initial checks; every pair ends with an explicit outcome on "
+                       "its two run lines, including neither run and why.")
 SESSION_ALTERNATIVE = ("offered as an instruction only: every run that is a further combination of a model whose "
                        "comparable run comes earlier in the strike order ends with a paragraph letting the owner, only "
                        "if the command noted at the dry run lets the owner choose the saved file's name and folder, and "
                        "with that comparable run's model still open, change Mode Sum and Direction Sum in Loads > "
                        "Spectrum (the Spectrum Load page names both) instead of importing the run's file; per-file import "
                        "remains the default and is what the pack is checked against. For an NRL run the paragraph "
-                       "says the alternative is not open, because the window's Mode Sum lists no NRL")
+                       "says the alternative is not open, because the public Spectrum Load page lists no NRL among "
+                       "its Mode Sum choices")
 DRY_RUN_A = ("Use this run only if the dry run's check of the dry-run sample that carries the same spectrum table agreed "
              "(the owner compared the table the program showed with the stated values and noted agreement on that "
              "sample's run line); otherwise run its counterpart {other} instead.")
 DRY_RUN_B = ("Use this run if the dry run's check of the dry-run sample that carries the same spectrum table did not "
-             "agree or was not made; otherwise run its counterpart {other} instead.")
+             "agree or was not made, or if its counterpart {other} was switched to this run at its step {steps}; "
+             "otherwise run its counterpart {other} instead. Once switched to this run, do not return to {other}.")
+# Form A's named initial checks, the only route from form A to form B: the spectrum table (step 4) and the spectrum
+# options (step 5), both before the explicit Save and Analyze steps.
+A_SWITCH_STEPS = (4, 5)
+A_SWITCH_STEPS_TEXT = "4 or 5"
+# The Analysis page's Misc section opens with these words, quoted exactly (users_manual/analysis.htm); Vertical Direction
+# and Gravitational Acceleration and Direction come under it.
+MISC_QUOTE = "On this tab you can set miscellaneous options."
 DRY_RUN_SINGLE = ("This case is declared in the typed form only: no dry-run sample carries its spectrum table, "
                   "so no form that writes the table is declared.")
 
@@ -1040,7 +1058,8 @@ def _series_name(ms: int, ds: int) -> str:
     return "dynamics-comparable" if (ms, ds) == (2, 2) else f"dynamics-{MODE_SUMS[ms][0]}-{DIRECTION_SUMS[ds][0]}"
 
 
-def _spectrum_load_steps(name: str, directions: list[dict[str, Any]], ms: int, ds: int) -> list[tuple[str, tuple]]:
+def _spectrum_load_steps(name: str, directions: list[dict[str, Any]], ms: int, ds: int,
+                         kind: str) -> list[tuple[str, tuple]]:
     """The Loads > Spectrum entry, in the Spectrum Load page's words, as numbered steps."""
     q = SPECTRUM_LOAD_QUOTES
     listed = {item["direction"]: item for item in directions}
@@ -1049,10 +1068,10 @@ def _spectrum_load_steps(name: str, directions: list[dict[str, Any]], ms: int, d
     spectrums = f"X, Y and Z spectrums (\"{q['spectrums']}\"): {per_direction}"
     if unassigned:
         spectrums += (f"; and no spectrum for {', '.join(unassigned)} (if the window requires a spectrum for every "
-                      f"direction, skip this run and note it)")
+                      f"direction, {skip(kind)})")
     mode = WINDOW_MODE_SUM[ms]
     mode_sum = (f"Mode Sum (\"{q['mode_sum']}\"): this run declares NRL, which the page does not list. Continue only if "
-                f"the displayed Mode Sum is NRL; otherwise record what it shows and skip."
+                f"the displayed Mode Sum is NRL; otherwise record what it shows and skip. {then_next(kind)}"
                 if mode is None else f"Mode Sum (\"{q['mode_sum']}\"): {mode}.")
     page = (SPECTRUM_LOAD_PAGE,)
     return [
@@ -1064,7 +1083,7 @@ def _spectrum_load_steps(name: str, directions: list[dict[str, Any]], ms: int, d
         (f"Factor (\"{q['factor']}\") is a pure multiplier of the spectrum's ordinates, with no unit. If the window "
          f"offers one Factor per direction, enter each as the previous step states it. If the window offers a single "
          f"Factor and this run states the same factor for every direction it loads, enter that value; if it states "
-         f"different factors for different directions, skip this run and note it.", page),
+         f"different factors for different directions, {skip(kind)}.", page),
         (mode_sum, page),
         (f"Direction Sum (\"{q['direction_sum']}\"): {WINDOW_DIRECTION_SUM[ds]}.", page),
     ]
@@ -1108,72 +1127,86 @@ def dynamics_runs(document: dict[str, Any], writer_text: str) -> list[dict[str, 
             other = None if single else ids[FORM_B if form == FORM_A else FORM_A]
             records = [opmisc, spcms] if form == FORM_A else [opmisc]
             text = added_mbf_text(writer_text, records)
-            exports = "dynamics" if strike_order(rank, index) <= EXPORT_STRIKES else None
+            exports = strike_order(rank, index) <= EXPORT_STRIKES
+            kind = "dynamics" if single else "pair"
             importing = f"Import {run_id}.mbf: File > Import from the Main window, select the file and click Import"
             if form == FORM_A:
+                switch = (f"switch to the counterpart: this run is not run, and any files the import wrote in this run's "
+                          f"folder are left as they are; write \"switched to counterpart {other}\" on this run line; then "
+                          f"run {other} from its own folder, from its step 1.")
                 table_steps = [
                     (DRY_RUN_A.format(other=other), ()),
                     (f"{importing}; it is the model file with the OPMISC and SPCMS records added.", (IMPORT_PAGE,)),
                     ("Select Spectrums from the Misc menu.", (SPECTRUMS_PAGE,)),
                     (f"If the List window for spectrums shows a spectrum named {name} with these "
-                     f"{len(table['points'])} pairs of values, {pairs}, go on; otherwise skip this run and note it on "
-                     f"the run line.", (SPECTRUMS_PAGE,)),
+                     f"{len(table['points'])} pairs of values, {pairs}, go on; otherwise {switch}", (SPECTRUMS_PAGE,)),
                     ("If Options > Spectrum, which sets the units of the X- and Y-axes and the interpolation method, "
                      "shows the X-axis unit Frequency (Hz), the Y-axis unit Acceleration (mm/sec2) and a linear "
-                     "interpolation method, go on; otherwise skip this run and note it on the run line.",
-                     (SPECTRUMS_PAGE,)),
+                     f"interpolation method, go on; otherwise {switch}", (SPECTRUMS_PAGE,)),
                 ]
+                assert len(table_steps) == A_SWITCH_STEPS[-1]
                 pages = [IMPORT_PAGE, SPECTRUMS_PAGE]
             else:
                 table_steps = [
-                    (DRY_RUN_SINGLE if single else DRY_RUN_B.format(other=other), ()),
+                    (DRY_RUN_SINGLE if single else DRY_RUN_B.format(other=other, steps=A_SWITCH_STEPS_TEXT), ()),
                     (f"{importing}; it is the model file with the OPMISC record added and no spectrum table.",
                      (IMPORT_PAGE,)),
                     ("Options > Spectrum sets the units of the X- and Y-axes and the interpolation method: if it offers "
                      "Frequency (Hz) for the X-axis and Acceleration (mm/sec2) for the Y-axis (the units the same page "
                      "names for a spectrum) and a linear interpolation method (spectra are interpolated linearly or "
-                     "logarithmically), set them; otherwise skip this run and note it on the run line.",
-                     (SPECTRUMS_PAGE, DYNAMICS_PAGE)),
+                     f"logarithmically), set them; otherwise {skip(kind)}.", (SPECTRUMS_PAGE, DYNAMICS_PAGE)),
                     ("Select Spectrums from the Misc menu.", (SPECTRUMS_PAGE,)),
                     (f"In the List window for spectrums, type a spectrum named {name} in the Name column with "
                      f"{len(table['points'])} pairs of values, each a frequency in Hz then an acceleration in mm/sec2: "
                      f"{typed_rows}.", (SPECTRUMS_PAGE,)),
                 ]
                 pages = [IMPORT_PAGE, SPECTRUMS_PAGE, DYNAMICS_PAGE]
-            window = table_steps + _spectrum_load_steps(name, directions, ms, ds) + [
+            other_state = "unchecked" if missing == "checked" else "checked"
+            other_action = "check" if missing == "checked" else "uncheck"
+            window = table_steps + _spectrum_load_steps(name, directions, ms, ds, kind) + [
                 ("Before the analysis, open Options > Analysis, tab Dynamics.", (ANALYSIS_PAGE,)),
-                (f"Check that Cutoff Frequency reads {_num(settings['cutoff_frequency_hz'])} Hz and Number of Modes "
-                 f"{settings['number_of_modes']}; a value that differs is set to the stated value by hand and noted on "
-                 f"the run line. The vendor's public import page states the file's cutoff frequency value with no "
-                 f"unit; Hertz is taken from the analysis page's description of the window's Cutoff Frequency field.",
+                (f"Check that Cutoff Frequency reads {_num(settings['cutoff_frequency_hz'])} Hz; a value that differs "
+                 f"is set to the stated value by hand and noted on the run line. The vendor's public import page states "
+                 f"the file's cutoff frequency value with no unit; Hertz is taken from the analysis page's description "
+                 f"of the window's Cutoff Frequency field. If the tab does not show it, {skip(kind)}.",
                  (IMPORT_PAGE, ANALYSIS_PAGE)),
-                (f"Check that Include Missing Mass Correction is {missing}. If the tab does not show one of these "
-                 f"fields, skip this run and note it on the run line.", (ANALYSIS_PAGE,)),
+                (f"Check that Number of Modes reads {settings['number_of_modes']}; a value that differs is set to the "
+                 f"stated value by hand and noted on the run line. If the tab does not show it, {skip(kind)}.",
+                 (ANALYSIS_PAGE,)),
+                (f"Check that Include Missing Mass Correction is {missing}. If it is {other_state}, {other_action} it "
+                 f"and note that on the run line. If the tab does not show it, {skip(kind)}.", (ANALYSIS_PAGE,)),
+                (f"Select the Misc tab (\"{MISC_QUOTE}\"; the page gives Vertical Direction and Gravitational "
+                 f"Acceleration and Direction under it).", (ANALYSIS_PAGE,)),
                 (f"Before the analysis, check the gravity the window shows against this run's request (\"Gravitational "
                  f"Acceleration and Direction\"): Vertical Direction Y; Gravitational Acceleration {g} m/sec2; "
                  f"Direction of Gravity downward along Y (-Y). The page says to \"click the “Change” button to modify "
                  f"the Gravitational Acceleration and the corresponding Direction of Gravity\"; change nothing. If the "
-                 f"window shows another value or direction, or does not show them, skip this run and note it on the "
-                 f"run line.", (ANALYSIS_PAGE,)),
+                 f"window shows another value or direction, or does not show them, {skip(kind)}.", (ANALYSIS_PAGE,)),
                 ("Loads > Load Cases: check the box next to Response Spectrum for analysis.", (LOAD_CASES_PAGE,)),
-                *finish_steps(run_id, export=exports),
+                *finish_steps(run_id, kind, export_lost=EXPORT_LOST_DYNAMICS if exports else None),
             ]
-            closing = None
+            closing, closing_steps = None, None
             if index > 0:
                 if WINDOW_MODE_SUM[ms] is None:
-                    closing = ("A further run of the same model in one session is not open for this run: the window's "
-                               "Mode Sum lists no NRL; import this run's file.", (SPECTRUM_LOAD_PAGE,))
+                    closing = ("A further run of the same model in one session is not open for this run: the public "
+                               "Spectrum Load page lists no NRL among its Mode Sum choices; import this run's file.",
+                               (SPECTRUM_LOAD_PAGE,))
                 else:
                     closing = (
                         f"Only if the command you noted at the dry run lets you choose the saved file's name and folder: "
                         f"instead of importing this run's file, you MAY, with the model of this case's comparable run "
-                        f"({comparable_ids[form]}) still open, change Mode Sum to {WINDOW_MODE_SUM[ms]} and Direction "
-                        f"Sum to {WINDOW_DIRECTION_SUM[ds]} in Loads > Spectrum, save the model as {run_id}.mod in this "
-                        f"run's folder by the command you noted at the dry run, analyze it by File > Analyze (F12), "
-                        f"print the results to file as {run_id}.print.csv, and write on this run's run line that the "
-                        f"setting was made by hand. Importing this run's file remains the default.",
-                        (SPECTRUM_LOAD_PAGE,))
-            instruction = numbered(window, closing)
+                        f"({comparable_ids[form]}) still open, take the steps below. Importing this run's file remains "
+                        f"the default.", ())
+                    closing_steps = [
+                        (f"Change Mode Sum to {WINDOW_MODE_SUM[ms]} in Loads > Spectrum.", (SPECTRUM_LOAD_PAGE,)),
+                        (f"Change Direction Sum to {WINDOW_DIRECTION_SUM[ds]} in Loads > Spectrum.", (SPECTRUM_LOAD_PAGE,)),
+                        (f"Save the model as {run_id}.mod in this run's folder by the command you noted at the dry run.",
+                         ()),
+                        ("Analyze it by File > Analyze (F12).", (ANALYZE_PAGE,)),
+                        (f"Print the results to file as {run_id}.print.csv.", (PRINT_PAGE,)),
+                        ("Write on this run's run line that the setting was made by hand.", ()),
+                    ]
+            instruction = numbered(window, closing, closing_steps)
             runs.append({
                 "series": series + (TYPED if form == FORM_B else ""), "kind": "option_addition", "form": form,
                 "label": label + (TYPED if form == FORM_B else ""), "run_id": run_id, "counterpart_run_id": other,
@@ -1287,6 +1320,7 @@ OPTION_ADDITION = {
         "response-spectrum analysis is selected (Load cases page)",
     ],
     "pairs": PAIR_RULE,
+    "run_sheet_pair_rule": RUN_SHEET_PAIR_RULE,
     "opmisc_cutoff_unit": CUTOFF_UNIT,
     "same_session_alternative": SESSION_ALTERNATIVE,
     "nrl": NRL_RULE,
@@ -1411,7 +1445,7 @@ def hand_entry_declaration() -> dict[str, Any]:
                      "member's support records appended (benchmark_hand_entry.hand_entry_model); no support or load "
                      "record is added to a written file"),
             "held": hand.HELD, "held_until_series": {"cpb-h-01": hand.HELD_UNTIL_SERIES},
-            "one_way_cases": hand.ONE_WAY, "skip": hand.SKIP_SENTENCE,
+            "one_way_cases": hand.ONE_WAY, "skip": hand.skip_rule("hand"),
             "files": ("each run is its own case under its run id: the person imports <run_id>.mbf, enters the one "
                       "member, saves it as <run_id>.mod before analysing by the command noted at the dry run, never "
                       "over the .mbf, and prints to file as <run_id>.print.csv; nothing of SWBPIPE's reads the saved "

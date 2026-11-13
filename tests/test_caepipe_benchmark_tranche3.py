@@ -343,11 +343,13 @@ def test_req005_addition_runs_per_case():
                 assert run["swbpipe_counterpart"] is None  # NRL: no SWBPIPE rule; captured only
             text = run["window_instruction"]["text"]
             assert hashlib.sha256(text.encode("utf-8")).hexdigest() == run["window_instruction"]["sha256"]
-            assert f"Import {run['run_id']}.mbf" in text and text.count(hand.SKIP_SENTENCE) == 1
-            # The skip sentence is the last numbered step; a further combination's closing paragraph follows it.
-            lines = text.split("\n")
-            last_step = lines[-1] if run["comparable"] else lines[-2]
-            assert re.fullmatch(r"\d+\. " + re.escape(hand.SKIP_SENTENCE), last_step)
+            kind = "dynamics" if run["single_form"] else "pair"
+            assert f"Import {run['run_id']}.mbf" in text and text.count(hand.skip_rule(kind)) == 1
+            # The skip rule is the numbered step after the print steps, and the last one unless the export follows.
+            steps, _, _ = _parts(text)
+            rule = next(i for i, line in enumerate(steps) if line.endswith(hand.skip_rule(kind)))
+            assert _body(steps[rule - 1]) == f"Save the .csv file as {run['run_id']}.print.csv. [{hand.PRINT_PAGE}]"
+            assert (rule == len(steps) - 1) is ("export" not in run)
             assert text.count(hand.save_sentence(run["run_id"])) == 1 and "never saved over" not in text
             assert "File > Analyze (F12)" in text and hand.ANALYZE_QUOTE in text
             assert "states the file's cutoff frequency value with no unit" in text
@@ -355,7 +357,14 @@ def test_req005_addition_runs_per_case():
             assert text.index("Cutoff Frequency reads") < text.index("File > Analyze (F12)")
             assert text.index(f"{run['run_id']}.mod") < text.index("File > Analyze (F12)") < text.index(
                 f"{run['run_id']}.print.csv")
-            assert "File > Print (Ctrl+P), click All, then To File" in text
+            # One action per step: the print sequence in four steps; the cutoff and the number of modes apart.
+            bodies = [_body(line) for line in steps]
+            for action in ("In the Results window, open Print: File > Print (Ctrl+P).", "Click All.", "Click To File.",
+                           f"Save the .csv file as {run['run_id']}.print.csv."):
+                assert sum(body.startswith(action + " [") for body in bodies) == 1, action
+            [cutoff] = [body for body in bodies if "Cutoff Frequency reads" in body]
+            [modes] = [body for body in bodies if "Number of Modes reads" in body]
+            assert "Number of Modes" not in cutoff and "Cutoff Frequency" not in modes
             assert run["expected_saved_file"] == f"{run['run_id']}.mod"
             assert ("agreed" in text.split("\n")[0]) is (run["form"] == "table_added")
             orders.append((run["strike_order"], entry["rank"], run["comparable"]))
@@ -542,7 +551,11 @@ def test_each_hand_entry_run_is_one_change_with_stated_fields_and_a_save():
         assert text.count(hand.save_sentence(run_id)) == 1 and "never saved over" not in text
         assert "File > Analyze (F12)" in text and hand.ANALYZE_QUOTE in text
         assert text.index(f"{run_id}.mod") < text.index("File > Analyze (F12)") < text.index(f"{run_id}.print.csv")
-        assert text.endswith(hand.SKIP_SENTENCE)
+        steps, closing, _ = _parts(text)
+        assert closing is None and text.count(hand.skip_rule("hand")) == 1
+        for action in ("In the Results window, open Print: File > Print (Ctrl+P).", "Click All.", "Click To File.",
+                       f"Save the .csv file as {run_id}.print.csv."):
+            assert sum(_body(line).startswith(action + " [") for line in steps) == 1, action
         assert text.count(" enter a ") == 1  # one member
         for field in run["fields"]:
             assert field["unit"] and field["sign_convention"] and field["short"]
@@ -777,6 +790,7 @@ def test_every_thermal_case_with_two_or_more_anchors_names_the_rigid_support_inp
 
 
 def test_dynamics_instructions_check_gravity_and_enter_the_spectrum_load_in_its_pages_words():
+    docs = by_id()
     for entry in dynamics_entries():
         for run in entry["runs"]:
             text = run["window_instruction"]["text"]
@@ -789,18 +803,42 @@ def test_dynamics_instructions_check_gravity_and_enter_the_spectrum_load_in_its_
                 assert run["window_mode_sum"] is None and run["mbf"]["added_records"][0]["lines"][1].split(",")[5] == "4"
                 assert "Continue only if the displayed Mode Sum is NRL; otherwise record what it shows and skip." in text
                 assert "offer NRL" not in text
-            paragraph = text.split("\n")[-1]
+            steps, paragraph, session = _parts(text)
+            bodies = [_body(line) for line in steps]
+            # The Misc tab is selected in the step just before the gravity check.
+            misc = [i for i, body in enumerate(bodies) if body.startswith(
+                f"Select the Misc tab (\"{t3.MISC_QUOTE}\"; the page gives Vertical Direction and Gravitational "
+                f"Acceleration and Direction under it). [{hand.ANALYSIS_PAGE}]")]
+            gravity = [i for i, body in enumerate(bodies) if body.startswith("Before the analysis, check the gravity")]
+            assert len(misc) == 1 and len(gravity) == 1 and misc[0] == gravity[0] - 1
+            # Include Missing Mass Correction in the wrong state is set and noted.
+            requested = docs[entry["model_id"]]["dynamic_request"]["other_program_settings"]["include_missing_mass"]
+            [mass] = [body for body in bodies if body.startswith("Check that Include Missing Mass Correction is")]
+            assert ("If it is unchecked, check it and note that on the run line." if requested else
+                    "If it is checked, uncheck it and note that on the run line.") in mass
             if run["comparable"]:
-                assert re.fullmatch(r"\d+\. " + re.escape(hand.SKIP_SENTENCE), paragraph)
+                assert paragraph is None
             elif run["spectrum_mode_sum"] == 4:
-                assert paragraph.startswith("A further run of the same model in one session is not open")
+                assert paragraph.startswith("A further run of the same model in one session is not open for this run: "
+                                            "the public Spectrum Load page lists no NRL among its Mode Sum choices; "
+                                            "import this run's file. [") and not session
+                assert "the window's Mode Sum lists no NRL" not in text
             else:
                 comparable = run["run_id"].split("--")[0] + "--srss-srss" + ("-table-typed" if run["form"] ==
                                                                             "table_typed" else "")
                 assert paragraph.startswith("Only if the command you noted at the dry run lets you choose the saved "
                                             "file's name and folder: instead of importing this run's file, you MAY")
                 assert comparable in paragraph
-                assert f"{run['run_id']}.mod in this run's folder" in paragraph and "run line" in paragraph
+                # The one-session alternative in numbered steps, the same words.
+                assert [int(re.match(r"(\d+)\. ", line).group(1)) for line in session] == list(range(1, 7))
+                own = [_body(line) for line in session]
+                assert own[0].startswith(f"Change Mode Sum to {run['window_mode_sum']} in Loads > Spectrum. [")
+                assert own[1].startswith("Change Direction Sum to ") and "in Loads > Spectrum. [" in own[1]
+                assert own[2] == (f"Save the model as {run['run_id']}.mod in this run's folder by the command you noted "
+                                  f"at the dry run.")
+                assert own[3].startswith("Analyze it by File > Analyze (F12). [")
+                assert own[4].startswith(f"Print the results to file as {run['run_id']}.print.csv. [")
+                assert own[5] == "Write on this run's run line that the setting was made by hand."
     texts = manifest()["option_addition"]
     assert "dynamics-nrl-abs" in texts["nrl"] and "cpb-dyn-c-n08-two" in texts["single_form"]
     assert "not a run that was skipped" in texts["single_form"] and "checked, not entered" in " ".join(
@@ -838,11 +876,10 @@ def test_every_window_instruction_is_numbered_steps_with_the_citations_bracketed
         text = run["window_instruction"]["text"]
         assert hashlib.sha256(text.encode("utf-8")).hexdigest() == run["window_instruction"]["sha256"]
         lines = text.split("\n")
-        closing = run.get("kind") == "option_addition" and not run["comparable"]
-        steps = lines[:-1] if closing else lines
+        steps, closing, session = _parts(text)
         assert [int(re.match(r"(\d+)\. \S", line).group(1)) for line in steps] == list(range(1, len(steps) + 1))
-        if closing:
-            assert not re.match(r"\d+\. ", lines[-1])
+        assert (closing is not None) is (run.get("kind") == "option_addition" and not run["comparable"])
+        assert [int(re.match(r"(\d+)\. \S", line).group(1)) for line in session] == list(range(1, len(session) + 1))
         for line in lines:
             body = line[:line.rindex(" [")] if line.endswith("]") else line
             assert line.strip() == line and line and not re.search(r"[*#`_]{2}|^\s*[-*] ", body), line  # no markup
@@ -871,8 +908,8 @@ def test_one_factor_or_one_per_direction_is_entered_without_ambiguity():
             continue
         text = run["window_instruction"]["text"]
         assert ("If the window offers a single Factor and this run states the same factor for every direction it "
-                "loads, enter that value; if it states different factors for different directions, skip this run and "
-                "note it.") in text
+                "loads, enter that value; if it states different factors for different directions, skip this run, run "
+                "nothing in its place") in text
         assert "enter it as stated" not in text and "rather than one per direction" not in text
 
 
@@ -895,19 +932,26 @@ def test_exactly_the_24_runs_end_with_the_optional_export_of_their_saved_model()
             continue
         run_id, text = run["run_id"], run["window_instruction"]["text"]
         name = f"{run_id}.export.mbf"
-        lines = text.split("\n")
+        lines, _, _ = _parts(text)
+        kind = "hand" if run["kind"] == "hand_entry" else ("dynamics" if run["single_form"] else "pair")
         index = {key: next(i for i, line in enumerate(lines) if marker in line) for key, marker in (
-            ("print", f"save the .csv file as {run_id}.print.csv"), ("optional", "Optional: the next four steps"),
-            ("menu", "From the Layout window, choose File > Export"), ("type", "In the Export Model dialog"),
-            ("name", f"Set the name {name} in this run's folder."), ("guard", "Click Export"),
-            ("skip", hand.SKIP_SENTENCE))}
-        # After the print step, before the closing skip line, one action per numbered step.
-        assert [index[key] for key in ("print", "optional", "menu", "type", "name", "guard", "skip")] == list(
-            range(index["print"], index["print"] + 7))
+            ("print", f"Save the .csv file as {run_id}.print.csv."), ("skip", hand.skip_rule(kind)),
+            ("optional", "Optional: the next four steps"), ("menu", "From the Layout window, choose File > Export"),
+            ("type", "In the Export Model dialog"), ("name", f"Set the name {name} in this run's folder."),
+            ("guard", "Click Export"))}
+        # After the print steps and the skip rule, one action per numbered step, the export closes the steps.
+        assert [index[key] for key in ("print", "skip", "optional", "menu", "type", "name", "guard")] == list(
+            range(index["print"], index["print"] + 7)) and index["guard"] == len(lines) - 1
         # The guard: the displayed name in this run's folder, nothing written over, Cancel otherwise.
         assert text.count(f"Click Export (\"{hand.EXPORT_QUOTE_BUTTON}\") only if the dialog displays exactly the name "
                           f"{name} in this run's folder and no file of that name is already there. If it does not, or "
-                          f"if anything would be written over, click Cancel and note it on the run line.") == 1
+                          f"if anything would be written over, click Cancel and write \"export not made\" and why on "
+                          f"the run line; the run is complete.") == 1
+        # A control not offered as described ends the export, not the run.
+        assert ('If any control in these steps is not offered as described, click Cancel if a dialog is open, write '
+                '"export not made" and why on the run line; the run is complete.') in _body(lines[index["optional"]])
+        # The declared loss is carried to the owner.
+        assert f"If you drop it, what is lost is {run['export']['lost_if_dropped']}." in _body(lines[index["optional"]])
         assert ("Take them only if the dry run's check (v) found that the export dialog lets you set the file's name and "
                 "folder.") in text and '"export not made" on the run line' in text
         # The binding: this run's saved model, as the program holds it after these steps; not the pack's file.
@@ -961,3 +1005,71 @@ def test_dry_run_check_v_uses_the_sacrificial_duplicate_and_leaves_the_window_sa
         "offered: no run exports at this sitting, and the export steps of every run are skipped and noted")
     assert dry_run["export_trial"]["folder"] == "samples/sample-dyn-export-trial"
     assert dry_run["export_trial"]["copy_of_run"] == "cpb-dyn-c-n01-flat--srss-srss"
+
+
+# -- layout helpers and the pair rule --------------------------------------------------------------------------------
+def _parts(text: str) -> tuple[list[str], str | None, list[str]]:
+    """An instruction's numbered steps, its unnumbered closing line (or None) and the closing's own numbered steps."""
+    lines = text.split("\n")
+    cut = next((i for i, line in enumerate(lines) if not re.match(r"\d+\. ", line)), len(lines))
+    return lines[:cut], (lines[cut] if cut < len(lines) else None), lines[cut + 1:]
+
+
+def _body(line: str) -> str:
+    return re.sub(r"^\d+\. ", "", line)
+
+
+def _pairs():
+    runs = {run["run_id"]: run for entry in dynamics_entries() for run in entry["runs"]}
+    return [(run, runs[run["counterpart_run_id"]]) for run in runs.values() if run["form"] == "table_added"]
+
+
+def test_form_a_leads_to_form_b_only_at_its_named_initial_checks_and_form_b_admits_it_without_return():
+    assert t3.A_SWITCH_STEPS == (4, 5)
+    for a, b in _pairs():
+        a_steps, a_close, a_session = _parts(a["window_instruction"]["text"])
+        b_steps, b_close, b_session = _parts(b["window_instruction"]["text"])
+        switch = (f"switch to the counterpart: this run is not run, and any files the import wrote in this run's folder "
+                  f"are left as they are; write \"switched to counterpart {b['run_id']}\" on this run line; then run "
+                  f"{b['run_id']} from its own folder, from its step 1.")
+        for number in t3.A_SWITCH_STEPS:
+            assert switch in a_steps[number - 1], (a["run_id"], number)
+        # Only A's dry-run selection (step 1) and its named initial checks name the counterpart.
+        assert [i + 1 for i, line in enumerate(a_steps + [a_close or ""] + a_session) if b["run_id"] in line] == [
+            1, *t3.A_SWITCH_STEPS]
+        # B admits entry from A's named checks and never sends back to A after it.
+        assert (f"or if its counterpart {a['run_id']} was switched to this run at its step 4 or 5; otherwise run its "
+                f"counterpart {a['run_id']} instead. Once switched to this run, do not return to {a['run_id']}.") in b_steps[0]
+        a_id = re.compile(re.escape(a["run_id"]) + r"(?![\w-])")  # A's id is a prefix of B's: match it whole
+        assert [i + 1 for i, line in enumerate(b_steps + [b_close or ""] + b_session) if a_id.search(line)] == [1]
+        # A's note says it switched; it does not claim the counterpart ran.
+        notes = re.findall(r'write "([^"]*)" on this run line', a["window_instruction"]["text"])
+        assert set(notes) == {f"switched to counterpart {b['run_id']}"}
+        assert "counterpart run" not in a["window_instruction"]["text"] and " ran" not in notes[0]
+
+
+def test_every_other_skip_runs_nothing_in_its_place_and_goes_on_to_the_next_item():
+    for _, run in _window_instructions():
+        kind = "hand" if run["kind"] == "hand_entry" else ("dynamics" if run["single_form"] else "pair")
+        following = f"go on to {hand.NEXT_ITEM[kind]}"
+        for line in run["window_instruction"]["text"].split("\n"):
+            skips = len(re.findall(r"\bskip\b", line))
+            assert line.count(following) >= skips, (run["run_id"], line[:80])
+            assert line.count("run nothing in its place") + line.count("Run nothing in its place") >= skips
+            if kind == "pair":
+                # A skip in either form never invites the other form.
+                assert line.count("not its counterpart either") >= skips, (run["run_id"], line[:80])
+            assert "counterpart run" not in line
+
+
+def test_the_pair_rule_says_at_most_one_is_analysed_and_every_pair_records_an_outcome():
+    texts = manifest()["option_addition"]
+    rule = texts["pairs"]
+    assert "At most one of a pair is analysed." in rule and "Exactly one of a pair" not in rule
+    assert ("Every pair ends with an explicit outcome on its two run lines: form A analysed, form B analysed, or neither "
+            "run and why.") in rule
+    assert ("Only form A's named initial checks, of the spectrum table and of the spectrum options, which come before "
+            "its explicit Save and Analyze steps, lead to form B") in rule
+    assert 'its run line says "switched to counterpart <form B run id>"' in rule and "no return to form A" in rule
+    assert texts["run_sheet_pair_rule"].startswith("At most one of a pair is analysed")
+    assert "neither run and why" in texts["run_sheet_pair_rule"]

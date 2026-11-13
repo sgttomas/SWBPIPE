@@ -113,29 +113,68 @@ def save_sentence(run_id: str) -> str:
 Step = tuple[str, tuple[str, ...]]
 
 
-def numbered(steps: list[Step], closing: Step | None = None) -> str:
+def numbered(steps: list[Step], closing: Step | None = None, closing_steps: list[Step] | None = None) -> str:
     """A window instruction as one text: numbered steps, one action per step, each step's page citations in brackets
-    at its end, then an optional unnumbered closing paragraph laid out the same way; plain line breaks, no markup."""
+    at its end; then, optionally, an unnumbered closing condition laid out the same way, followed by its own numbered
+    steps from 1; plain line breaks, no markup."""
     def line(text: str, pages: tuple[str, ...]) -> str:
         return text + (f" [{'; '.join(pages)}]" if pages else "")
 
     lines = [f"{index}. {line(*step)}" for index, step in enumerate(steps, 1)]
-    return "\n".join(lines + ([line(*closing)] if closing else []))
+    if closing:
+        lines.append(line(*closing))
+        lines += [f"{index}. {line(*step)}" for index, step in enumerate(closing_steps or [], 1)]
+    return "\n".join(lines)
 
 
-def analyze_and_print_steps(run_id: str) -> list[Step]:
-    """Analyse by File > Analyze (F12), quoting its page, then print to file under the run id: two steps."""
-    return [(f"Then analyze the model by File > Analyze (F12); the page says: \"{ANALYZE_QUOTE}\"", (ANALYZE_PAGE,)),
-            (f"Then print the results to file: in the Results window, File > Print (Ctrl+P), click All, then To File, "
-             f"and save the .csv file as {run_id}.print.csv.", (PRINT_PAGE,))]
+# What a skip means: no replacement, and the next item. A dynamics run goes on to the next strike number; a hand-entry
+# run to the next case. (Form A's start checks alone send the owner to the counterpart; benchmark_tranche3.)
+# A run of a pair ("pair") also says that its counterpart is not run in its place: only form A's named initial checks
+# lead to the counterpart (benchmark_tranche3.PAIR_RULE).
+NEXT_ITEM = {"dynamics": "the next strike number", "pair": "the next strike number", "hand": "the next case"}
+NOT_COUNTERPART = {"pair": " and not its counterpart either"}
 
 
-def finish_steps(run_id: str, export: str | None = None) -> list[Step]:
-    """The end of every window instruction: save under the run id by the command observed at the dry run (DRY_RUN),
-    analyse, print to file under the run id, then, for a run that declares one, the optional export of its saved model
-    (EXPORT_STATEMENT), and the skip rule."""
-    return [(save_sentence(run_id), ()), *analyze_and_print_steps(run_id), *(export_steps(run_id) if export else []),
-            (SKIP_SENTENCE, ())]
+def skip(kind: str) -> str:
+    """The clause every skip carries: no replacement, noted, and the next item."""
+    return (f"skip this run, run nothing in its place{NOT_COUNTERPART.get(kind, '')}, note it on the run line and go "
+            f"on to {NEXT_ITEM[kind]}")
+
+
+def then_next(kind: str) -> str:
+    """The next action after a settled sentence that already says to skip and note."""
+    return f"Run nothing in its place{NOT_COUNTERPART.get(kind, '')}; go on to {NEXT_ITEM[kind]}."
+
+
+def skip_rule(kind: str) -> str:
+    """The rule for a field the window does not offer as its page describes; it comes before the optional export."""
+    return f"If the window does not offer a field as the page describes it, do not enter an equivalent; {skip(kind)}."
+
+
+# The Analyze page's sentence on when the command is inactive, quoted exactly (users_manual/analyze__f12_.htm).
+ANALYZE_INACTIVE_QUOTE = ("Command “Analyze” in the “File” menu will become inactive when the model "
+                          "is not edited and “.res” file is available in the directory where the stress model "
+                          "“.mod” is stored.")
+
+
+def analyze_and_print_steps(run_id: str, kind: str) -> list[Step]:
+    """Analyse by File > Analyze (F12), quoting its page, then print to file under the run id, one action per step."""
+    return [
+        (f"Then analyze the model by File > Analyze (F12); the page says: \"{ANALYZE_QUOTE}\" If the command is "
+         f"inactive (\"{ANALYZE_INACTIVE_QUOTE}\"), {skip(kind)}.", (ANALYZE_PAGE,)),
+        ("In the Results window, open Print: File > Print (Ctrl+P).", (PRINT_PAGE,)),
+        ("Click All.", (PRINT_PAGE,)),
+        ("Click To File.", (PRINT_PAGE,)),
+        (f"Save the .csv file as {run_id}.print.csv.", (PRINT_PAGE,)),
+    ]
+
+
+def finish_steps(run_id: str, kind: str, export_lost: str | None = None) -> list[Step]:
+    """The end of every window instruction: save under the run id by the command observed at the dry run (DRY_RUN; the
+    settled sentence, then its next action), analyse, print to file under the run id, the skip rule, then, for a run
+    that declares one, the optional export of its saved model (EXPORT_STATEMENT)."""
+    return [(f"{save_sentence(run_id)} {then_next(kind)}", ()), *analyze_and_print_steps(run_id, kind),
+            (skip_rule(kind), ()), *(export_steps(run_id, export_lost) if export_lost else [])]
 
 
 # -- the optional export of a run's saved model (the SWBPIPE Agent 0, 2026-11-13) -----------------------------------
@@ -172,20 +211,23 @@ def export_binding(run_id: str) -> str:
             f"instruction's steps, including what was entered or set by hand; it is not the pack's model file.")
 
 
-def export_steps(run_id: str) -> list[Step]:
-    """The optional export, in numbered steps: its condition and binding, the menu, the type, the name, the guard."""
+def export_steps(run_id: str, lost_if_dropped: str) -> list[Step]:
+    """The optional export, in numbered steps: its condition, binding and loss, the menu, the type, the name, the
+    guard. A control not offered as described ends the export, not the run."""
     name = export_name(run_id)
     return [
         (f"Optional: the next four steps export this run's saved model, and you may drop them; if you do, write "
-         f"\"{EXPORT_NOT_MADE}\" on the run line. Take them only if the dry run's check (v) found that the export dialog "
-         f"lets you set the file's name and folder. {export_binding(run_id)}", ()),
+         f"\"{EXPORT_NOT_MADE}\" on the run line. If you drop it, what is lost is {lost_if_dropped}. Take them only if "
+         f"the dry run's check (v) found that the export dialog lets you set the file's name and folder. "
+         f"{export_binding(run_id)} If any control in these steps is not offered as described, click Cancel if a dialog "
+         f"is open, write \"{EXPORT_NOT_MADE}\" and why on the run line; the run is complete.", ()),
         (f"From the Layout window, choose File > Export (\"{EXPORT_QUOTE_MENU}\").", (EXPORT_PAGE,)),
         (f"In the Export Model dialog, choose \"Model batch file (*.mbf)\" as the Save as type (\"{EXPORT_QUOTE_TYPE}\").",
          (EXPORT_PAGE,)),
         (f"Set the name {name} in this run's folder.", ()),
         (f"Click Export (\"{EXPORT_QUOTE_BUTTON}\") only if the dialog displays exactly the name {name} in this run's "
          f"folder and no file of that name is already there. If it does not, or if anything would be written over, "
-         f"click Cancel and note it on the run line.", (EXPORT_PAGE,)),
+         f"click Cancel and write \"{EXPORT_NOT_MADE}\" and why on the run line; the run is complete.", (EXPORT_PAGE,)),
     ]
 
 
@@ -218,8 +260,6 @@ DRY_RUN["export_trial"] = {"folder": EXPORT_TRIAL_FOLDER, "file": EXPORT_TRIAL_F
                            "made_by": "the pack author", "untouched": [WINDOW_SAMPLE_FOLDER, "every case folder"]}
 
 
-SKIP_SENTENCE = ("If the window does not offer a field as the page describes it, skip this case and note it on the run "
-                 "line; do not enter an equivalent.")
 # Designed values (benchmark_designed.py): OD 190 mm by the rule, D/t 25, a span of 3.0 m, a temperature change of 100 K.
 OD, DT, SPAN, DELTA_T = designed_od(190.0), 25.0, 3.0, 100.0
 WALL = designed_wall(OD, DT)
@@ -315,7 +355,8 @@ def _limit_stop_fields(*, upper: str, lower: str, direction: tuple[str, str, str
     return fields
 
 
-def _instruction(run_id: str, node_label: str, what: str, fields: list[dict[str, Any]], page: str) -> str:
+def _instruction(run_id: str, node_label: str, what: str, fields: list[dict[str, Any]], page: str,
+                 lost_if_dropped: str) -> str:
     """The run's window instruction, in numbered steps; the files follow the pack: each run is its own case under its
     run id."""
     return numbered([
@@ -323,7 +364,7 @@ def _instruction(run_id: str, node_label: str, what: str, fields: list[dict[str,
         (f"In the Layout window, at node {node_label}, enter {what} with the fields of the next steps.", (page,)),
         *[(f"{item['field']}: {item['value']} ({item['short']}).", ()) for item in fields],
         ("Leave every other field and record as imported.", ()),
-        *finish_steps(run_id, export="hand"),
+        *finish_steps(run_id, "hand", export_lost=lost_if_dropped),
     ])
 
 
@@ -495,7 +536,8 @@ def documents(seed: int, common: dict[str, Any], static_classes) -> list[dict[st
                                           piping_code=bm.PIPING_CODE)
         node_label = str(writer.to_dict()["node_map"][member[0]["node"]])
         run_id = f"{model_id}--{spec['label']}"
-        instruction = _instruction(run_id, node_label, spec["what"], spec["fields"], spec["page"])
+        instruction = _instruction(run_id, node_label, spec["what"], spec["fields"], spec["page"],
+                                   EXPORT_LOST_HAND[family])
         expected_status = {support: dict(by_case) for support, by_case in status.items()}
         if OPERATING in cases:
             for by_case in expected_status.values():
