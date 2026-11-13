@@ -21,8 +21,8 @@ Modes (each starts nothing else):
 - ``--run --models DIR --out DIR --binary PATH``: the plan's runs, within a
   window budget (``--budget-s``); ``--write-results`` keeps each result's bytes;
 - ``--packet --out DIR``: ``DIR/packet.json`` from the run records.
-- ``--baseline-set OUT --plan-file PLAN --subset NAME``: the verdict on one supervised
-  folder of a named plan (COMPLETE, INCOMPLETE BY THE WINDOW or FINDINGS), read only.
+- ``--baseline-set OUT --plan-file PLAN --subset NAME``: two results on one supervised
+  folder of a named plan, the ten-run timing set and the rack observation, read only.
 
 The footprint budget is the base-machine budget by default: 12 GiB, the
 product's per-invocation memory budget on the 16 GiB base machine (docs/PRD.md
@@ -454,7 +454,7 @@ def format_plan(plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=None):
         out.append('the window fits every run at its full timeout provided the supervisor\'s own work between runs '
                    '(hashing the model, the host check, the launch, the records) stays within the planning allowance '
                    'of %d s per run; where it does not, the run\'s record says so (timeout_capped_by_window true, or '
-                   'skipped_window_budget) and --baseline-set reports the set INCOMPLETE BY THE WINDOW.'
+                   'skipped_window_budget) and --baseline-set reports that result INCOMPLETE BY THE WINDOW.'
                    % RUN_ALLOWANCE_S)
     out.append('estimates: they order and bound the window; none is a '
                'measurement. budget: the phys_footprint kill (the product budget); rss_cap: the emergency ps RSS kill. '
@@ -638,13 +638,28 @@ def generate(plan, models_dir, generator=GENERATOR, python=sys.executable, run=s
 
 # --------------------------------------------------------------- the baseline set
 #
-# `--baseline-set OUT --plan-file PLAN --subset NAME`: the verdict on ONE supervised folder of a named
+# `--baseline-set OUT --plan-file PLAN --subset NAME`: two results on ONE supervised folder of a named
 # plan, read from the records' existing fields; it writes nothing and never combines folders.
+#
+# - THE TEN-RUN TIMING SET: the runs the plan expects `solved`. "TEN-RUN TIMING SET: COMPLETE",
+#   "... INCOMPLETE BY THE WINDOW" or "... FINDINGS".
+# - THE RACK OBSERVATION: every run the plan expects not to solve (baseline-with-rack's linear rack).
+#   It is never a timing, and it is always judged: "RACK OBSERVATION: OBSERVED AS EXPECTED",
+#   "... INCOMPLETE BY THE WINDOW", "... FINDINGS", or "... NONE IN THIS PLAN".
+#
+# THE EXIT CONTRACT, one status for both results: 1 when ANY finding exists (in either result, or in
+# the folder or the plan file); otherwise 3 when either result is INCOMPLETE BY THE WINDOW; otherwise
+# 0, which is TEN-RUN TIMING SET: COMPLETE with the rack observation OBSERVED AS EXPECTED or NONE IN
+# THIS PLAN. A rack finding does not change the timing set's own result.
 
-SET_COMPLETE = 0
-SET_FINDINGS = 1
-SET_INCOMPLETE_BY_WINDOW = 3   # 2 is argparse's usage error
-SET_VERDICTS = {SET_COMPLETE: 'COMPLETE', SET_FINDINGS: 'FINDINGS', SET_INCOMPLETE_BY_WINDOW: 'INCOMPLETE BY THE WINDOW'}
+SET_EXIT_OK = 0
+SET_EXIT_FINDINGS = 1
+SET_EXIT_WINDOW = 3   # 2 is argparse's usage error
+TIMING_SET = 'TEN-RUN TIMING SET'
+RACK_OBSERVATION = 'RACK OBSERVATION'
+EXIT_CONTRACT = ('exit 1 when any finding exists (in the ten-run timing set, the rack observation, the folder or '
+                 'the plan file); otherwise exit 3 when either result is INCOMPLETE BY THE WINDOW; otherwise exit 0: '
+                 'TEN-RUN TIMING SET: COMPLETE with RACK OBSERVATION: OBSERVED AS EXPECTED or NONE IN THIS PLAN')
 
 
 def _number(value):
@@ -673,64 +688,98 @@ def read_set_records(out_dir):
     return records, findings
 
 
-def judge_set(records, plan_runs):
-    """The verdict on one folder's `records` against the plan file's `plan_runs`.
+def _outcome(rec):
+    """A run's own outcome as its record states it."""
+    return {'classification': rec.get('classification'), 'classification_detail': rec.get('classification_detail'),
+            'last_stage': rec.get('last_stage'), 'as_expected': rec.get('as_expected')}
 
-    A workload is each (profile, nodes) the plan expects `solved`; a run the plan expects otherwise
-    (baseline-with-rack's linear rack) is reported and is never a timing. A run is a completed timing
-    only if: `classification` is `ok` and `as_expected` is true; `driver.route` is `EX`; the plan's
-    `expected_model_sha256`, the record's `model_sha256` and `driver.document.sha256` are one value;
-    `driver.seconds.entry` and `launch.rss.exit_lifetime_max_phys_footprint_bytes` are numbers; and
-    `driver.output_sha256`, `driver.rows` and `driver.output_bytes` equal those of the workload's
-    other completed runs. A run skipped for the window, or timed out under a capped timeout, is a
-    window problem; any other way of not being a completed timing is a finding, and a finding is
-    never absorbed into a window problem. COMPLETE: every run of every workload is a completed
-    timing and there is no window problem. `host_not_quiet` lists the launched runs whose host check
-    was not quiet or read no memory level; it is reported for a measurement contract's own rules and
-    does not change the verdict."""
-    findings, window, not_timings = [], [], []
+
+def _window_problem(rec):
+    classification = rec.get('classification')
+    if classification == 'skipped_window_budget':
+        return 'skipped_window_budget'
+    if classification == 'timed_out' and rec.get('timeout_capped_by_window') is True:
+        return 'timed_out under a timeout the window capped to %s s' % rec.get('timeout_applied_s')
+    return None
+
+
+def judge_set(records, plan_runs, folder_findings=()):
+    """The two results on one folder's `records` against the plan file's `plan_runs`.
+
+    The ten-run timing set: each (profile, nodes) the plan expects `solved` is a workload. A run is a
+    completed timing only if: `classification` is `ok` and `as_expected` is true; `driver.route` is
+    `EX`; the plan's `expected_model_sha256`, the record's `model_sha256` and `driver.document.sha256`
+    are one value; `driver.seconds.entry` and `launch.rss.exit_lifetime_max_phys_footprint_bytes` are
+    numbers; and `driver.output_sha256`, `driver.rows` and `driver.output_bytes` are present and equal
+    those of the workload's other completed runs. A skip for the window, or a timeout under a capped
+    timeout, is a window problem; any other way of not being a completed timing is a finding.
+
+    The rack observation: each run the plan expects otherwise must be OBSERVED: a record, a launch, the
+    plan's model bytes. Its outcome (classification, detail, last stage) is reported, and it is a
+    success only where the declared expectation is met (`as_expected` true). A missing record, no
+    launch (`model_missing`, `model_mismatch`, an error before any driver started), other model bytes,
+    or an outcome that does not meet the expectation is a finding; a window problem is a window
+    problem. Its exclusion from the timing statistics is never exclusion from the findings.
+
+    `folder_findings` (the folder or the plan file) make both results FINDINGS. `host_not_quiet` lists
+    the launched runs whose host check was not quiet or read no memory level; it is reported for a
+    measurement contract's rules and changes neither result."""
+    folder_findings = list(folder_findings)
+    timing_findings, timing_window, rack_findings, rack_window, rack_runs = [], [], [], [], []
     by_id = {}
     for r in records:
         run_id = r.get('run_id')
         if run_id in by_id:
-            findings.append('%s: more than one record' % run_id)
+            folder_findings.append('%s: more than one record' % run_id)
         by_id[run_id] = r
     planned = {r.get('run_id') for r in plan_runs}
     for run_id in by_id:
         if run_id not in planned:
-            findings.append('%s: a record of a run the plan does not hold' % run_id)
+            folder_findings.append('%s: a record of a run the plan does not hold' % run_id)
     workloads = {}
     for p in plan_runs:
         run_id = p.get('run_id')
         rec = by_id.get(run_id)
-        if p.get('expect') == 'solved':
-            entry = workloads.setdefault('%s n%s' % (p.get('profile'), p.get('nodes')),
-                                         {'planned': [], 'candidates': []})
-            entry['planned'].append(run_id)
+        if p.get('expect') != 'solved':
+            row = {'run_id': run_id, 'expect': p.get('expect'), 'observed': False, 'classification': None,
+                   'classification_detail': None, 'last_stage': None, 'as_expected': None}
+            rack_runs.append(row)
+            if rec is None:
+                row['result'] = 'FINDING'
+                rack_findings.append('%s: no record: the run was not observed' % run_id)
+                continue
+            row.update(_outcome(rec))
+            window = _window_problem(rec)
+            if window:
+                row['result'] = 'INCOMPLETE BY THE WINDOW'
+                rack_window.append('%s: %s' % (run_id, window))
+            elif 'launch' not in rec or rec.get('classification') in ('model_missing', 'model_mismatch'):
+                row['result'] = 'FINDING'
+                rack_findings.append('%s: not observed: no driver was started (classification %s%s)' % (
+                    run_id, rec.get('classification'), ', %s' % rec.get('classification_detail')
+                    if rec.get('classification_detail') else ''))
+            elif rec.get('model_sha256') is None or rec.get('model_sha256') != p.get('expected_model_sha256'):
+                row['result'] = 'FINDING'
+                rack_findings.append('%s: observed on model sha256 %s, not the plan\'s %s' % (
+                    run_id, rec.get('model_sha256'), p.get('expected_model_sha256')))
+            elif rec.get('as_expected') is not True:
+                row.update(observed=True, result='FINDING')
+                rack_findings.append('%s: observed, but its outcome %s%s does not meet its declared expectation %s' % (
+                    run_id, rec.get('classification'), ' (%s)' % rec.get('classification_detail')
+                    if rec.get('classification_detail') else '', p.get('expect')))
+            else:
+                row.update(observed=True, result='OBSERVED AS EXPECTED')
+            continue
+        entry = workloads.setdefault('%s n%s' % (p.get('profile'), p.get('nodes')), {'planned': [], 'candidates': []})
+        entry['planned'].append(run_id)
         if rec is None:
-            findings.append('%s: no record (the plan was not run to its end)' % run_id)
+            timing_findings.append('%s: no record (the plan was not run to its end)' % run_id)
+            continue
+        window = _window_problem(rec)
+        if window:
+            timing_window.append('%s: %s' % (run_id, window))
             continue
         classification = rec.get('classification')
-        if classification == 'skipped_window_budget' or (
-                classification == 'timed_out' and rec.get('timeout_capped_by_window') is True):
-            window.append('%s: %s%s' % (run_id, classification, ' under a timeout the window capped to %s s'
-                                        % rec.get('timeout_applied_s') if classification == 'timed_out' else ''))
-            continue
-        if p.get('expect') != 'solved':
-            # Never a timing, but it must have RUN: launched, on the plan's model bytes. Whatever the driver
-            # itself then did is reported as it is and does not decide the verdict.
-            if 'launch' not in rec or classification in ('model_missing', 'model_mismatch'):
-                findings.append('%s: not run (classification %s%s); a run the plan expects %s must still run' % (
-                    run_id, classification, ', %s' % rec.get('classification_detail')
-                    if rec.get('classification_detail') else '', p.get('expect')))
-            elif rec.get('model_sha256') is None or rec.get('model_sha256') != p.get('expected_model_sha256'):
-                findings.append('%s: ran on model sha256 %s, not the plan\'s %s' % (
-                    run_id, rec.get('model_sha256'), p.get('expected_model_sha256')))
-            else:
-                not_timings.append({'run_id': run_id, 'expect': p.get('expect'), 'classification': classification,
-                                    'classification_detail': rec.get('classification_detail'),
-                                    'last_stage': rec.get('last_stage'), 'as_expected': rec.get('as_expected')})
-            continue
         driver = rec.get('driver') if isinstance(rec.get('driver'), dict) else {}
         reasons = []
         if classification != 'ok':
@@ -757,54 +806,72 @@ def judge_set(records, plan_runs):
             reasons.append('driver.output_sha256, driver.rows and driver.output_bytes are not all present: %s'
                            % ', '.join(map(str, product)))
         if reasons:
-            findings.append('%s: %s' % (run_id, '; '.join(reasons)))
+            timing_findings.append('%s: %s' % (run_id, '; '.join(reasons)))
         else:
-            entry['candidates'].append((run_id, entry_s, (driver.get('output_sha256'), driver.get('rows'),
-                                                          driver.get('output_bytes'))))
-    report = {}
+            entry['candidates'].append((run_id, entry_s, product))
+    stats = {}
     for name, entry in workloads.items():
         products = {product for _, _, product in entry['candidates']}
         completed = entry['candidates']
         if len(products) > 1:
-            findings.append('%s: output_sha256, rows and output_bytes disagree across its runs: %s' % (
+            timing_findings.append('%s: output_sha256, rows and output_bytes disagree across its runs: %s' % (
                 name, '; '.join('%s %s' % (run_id, list(product)) for run_id, _, product in entry['candidates'])))
             completed = []
         seconds = [s for _, s, _ in completed]
-        report[name] = {'planned': len(entry['planned']), 'completed': len(completed),
-                        'completed_run_ids': [run_id for run_id, _, _ in completed],
-                        'entry_seconds': seconds,
-                        'median_entry_s': statistics.median(seconds) if seconds else None,
-                        'min_entry_s': min(seconds) if seconds else None,
-                        'max_entry_s': max(seconds) if seconds else None,
-                        'output': list(next(iter(products))) if len(products) == 1 else None}
-    if findings:
-        code = SET_FINDINGS
-    elif window:
-        code = SET_INCOMPLETE_BY_WINDOW
-    elif all(w['completed'] == w['planned'] for w in report.values()) and report:
-        code = SET_COMPLETE
+        stats[name] = {'planned': len(entry['planned']), 'completed': len(completed),
+                       'completed_run_ids': [run_id for run_id, _, _ in completed],
+                       'entry_seconds': seconds,
+                       'median_entry_s': statistics.median(seconds) if seconds else None,
+                       'min_entry_s': min(seconds) if seconds else None,
+                       'max_entry_s': max(seconds) if seconds else None,
+                       'output': list(next(iter(products))) if len(products) == 1 else None}
+    if not timing_findings and not timing_window and not (
+            stats and all(w['completed'] == w['planned'] for w in stats.values())):
+        timing_findings.append('the timing set has a workload with fewer completed timings than planned runs, or none')
+    if folder_findings or timing_findings:
+        timing_result = 'FINDINGS'
+    elif timing_window:
+        timing_result = 'INCOMPLETE BY THE WINDOW'
     else:
-        findings.append('a workload has fewer completed timings than planned runs')
-        code = SET_FINDINGS
+        timing_result = 'COMPLETE'
+    if folder_findings or rack_findings:   # a folder finding puts the plan itself in doubt
+        rack_result = 'FINDINGS'
+    elif not rack_runs:
+        rack_result = 'NONE IN THIS PLAN'
+    elif rack_window:
+        rack_result = 'INCOMPLETE BY THE WINDOW'
+    else:
+        rack_result = 'OBSERVED AS EXPECTED'
+    if folder_findings or timing_findings or rack_findings:
+        code = SET_EXIT_FINDINGS
+    elif timing_window or rack_window:
+        code = SET_EXIT_WINDOW
+    else:
+        code = SET_EXIT_OK
     host_not_quiet = [r.get('run_id') for r in records if isinstance(r.get('host'), dict) and not (
         r['host'].get('quiet') is True and _number(r['host'].get('memorystatus_level')))]
-    return {'verdict': SET_VERDICTS[code], 'exit_code': code, 'workloads': report, 'findings': findings,
-            'window_problems': window, 'not_timings': not_timings, 'host_not_quiet': host_not_quiet}
+    timing_line, rack_line = '%s: %s' % (TIMING_SET, timing_result), '%s: %s' % (RACK_OBSERVATION, rack_result)
+    return {'results': [timing_line, rack_line], 'exit_code': code, 'exit_contract': EXIT_CONTRACT,
+            'folder_findings': folder_findings,
+            'timing_set': {'result': timing_line, 'workloads': stats, 'findings': timing_findings,
+                           'window_problems': timing_window},
+            'rack_observation': {'result': rack_line, 'runs': rack_runs, 'findings': rack_findings,
+                                 'window_problems': rack_window},
+            'host_not_quiet': host_not_quiet}
 
 
 def baseline_set(out_dir, plan_path, name, committed=None):
     """`judge_set` on OUT's records with PLAN, after holding PLAN to the named plan `name` at this
-    checkout: the same runs, in the same order, with the same limits, and each run's
-    expected_model_sha256 the repository's own (`pinned_sha256`). Reads only; writes nothing."""
+    checkout: every top-level field, every field of each run but expected_model_sha256 and
+    model_stats, and each run's expected_model_sha256 the repository's own (`pinned_sha256`). A
+    difference is a folder finding, which makes both results FINDINGS. Reads only; writes nothing."""
     records, findings = read_set_records(out_dir)
     try:
         with open(plan_path, encoding='utf-8') as fh:
             document = json.load(fh)
         plan_runs = document.get('runs') or []
     except (OSError, ValueError, AttributeError) as error:
-        return {'verdict': SET_VERDICTS[SET_FINDINGS], 'exit_code': SET_FINDINGS, 'workloads': {},
-                'findings': findings + ['the plan file cannot be read: %s' % error], 'window_problems': [],
-                'not_timings': [], 'host_not_quiet': []}
+        return judge_set(records, [], findings + ['the plan file cannot be read: %s' % error])
     named, budget_s, quiet_wait_s = named_plan(name)
     # Every top-level field of the plan document, and every field of each run but the two the models
     # folder supplies (expected_model_sha256, checked against the repository below, and model_stats,
@@ -826,11 +893,7 @@ def baseline_set(out_dir, plan_path, name, committed=None):
         if r.get('expected_model_sha256') != expected:
             findings.append('%s: the plan\'s expected_model_sha256 %s is not %s (%s)' % (
                 r.get('run_id'), r.get('expected_model_sha256'), expected, where))
-    report = judge_set(records, plan_runs)
-    if findings:
-        report['findings'] = findings + report['findings']
-        report['exit_code'], report['verdict'] = SET_FINDINGS, SET_VERDICTS[SET_FINDINGS]
-    return report
+    return judge_set(records, plan_runs, findings)
 
 
 # --------------------------------------------------------------- footprint
@@ -1545,8 +1608,9 @@ def main(argv=None):
     parser.add_argument('--run', action='store_true', help="run the plan (one process at a time)")
     parser.add_argument('--packet', action='store_true', help='write OUT/packet.json from the records')
     parser.add_argument('--baseline-set', metavar='OUT',
-                        help='the verdict on ONE supervised folder of a named plan (with --plan-file and --subset): '
-                             'exit 0 COMPLETE, 3 INCOMPLETE BY THE WINDOW, 1 FINDINGS; writes nothing')
+                        help='two results on ONE supervised folder of a named plan (with --plan-file and --subset), '
+                             'the ten-run timing set and the rack observation; writes nothing; prints the JSON '
+                             'report on stdout and the two results on stderr; ' + EXIT_CONTRACT.replace('%', '%%'))
     parser.add_argument('--plan-file', help='the plan file the supervised folder was run from (--baseline-set)')
     parser.add_argument('--write-plan', metavar='FILE',
                         help="write the selected runs as the plan file of the driver's supervise mode (with --models, "
@@ -1613,6 +1677,8 @@ def main(argv=None):
             parser.error('--baseline-set needs --plan-file and a named --subset (%s)' % ', '.join(NAMED_PLANS))
         report = baseline_set(args.baseline_set, args.plan_file, args.subset)
         sys.stdout.write(json.dumps(report, indent=1, sort_keys=True) + '\n')
+        sys.stderr.write(''.join(line + '\n' for line in report['results'])
+                         + 'exit %d (%s)\n' % (report['exit_code'], EXIT_CONTRACT))
         return report['exit_code']
     if args.plan:
         sys.stdout.write(format_plan(plan, args.budget_s, args.quiet_wait_s if named else None))

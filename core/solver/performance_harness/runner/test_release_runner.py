@@ -14,6 +14,7 @@ import io
 import json
 import os
 import platform
+import re
 import shutil
 import socket
 import stat
@@ -539,8 +540,29 @@ def set_records(plan, models=None):
     return runs, records
 
 
+TIMING_COMPLETE = 'TEN-RUN TIMING SET: COMPLETE'
+TIMING_WINDOW = 'TEN-RUN TIMING SET: INCOMPLETE BY THE WINDOW'
+TIMING_FINDINGS = 'TEN-RUN TIMING SET: FINDINGS'
+RACK_OK = 'RACK OBSERVATION: OBSERVED AS EXPECTED'
+RACK_WINDOW = 'RACK OBSERVATION: INCOMPLETE BY THE WINDOW'
+RACK_FINDINGS = 'RACK OBSERVATION: FINDINGS'
+RACK_NONE = 'RACK OBSERVATION: NONE IN THIS PLAN'
+
+
+def results(report):
+    """(timing set result, rack observation result, exit status)."""
+    return report['timing_set']['result'], report['rack_observation']['result'], report['exit_code']
+
+
+def unqualified_complete(text):
+    """Every place `COMPLETE` stands as a word in `text` without the timing set's name before it."""
+    return [m.start() for m in re.finditer(r'(?<![A-Z])COMPLETE', text)
+            if text[max(0, m.start() - len('TEN-RUN TIMING SET: ')):m.start()] != 'TEN-RUN TIMING SET: ']
+
+
 class BaselineSet(unittest.TestCase):
-    """`--baseline-set`: the verdict on one supervised folder of a named plan, from the records' fields."""
+    """`--baseline-set`: two results on one supervised folder of a named plan, from the records' fields:
+    the ten-run timing set and the rack observation, under one exit contract."""
 
     def judge(self, mutate=None, name='baseline'):
         plan, _, _ = rr.named_plan(name)
@@ -552,31 +574,24 @@ class BaselineSet(unittest.TestCase):
 
     def test_complete_gives_each_workloads_median_minimum_and_maximum(self):
         report = self.judge()
-        self.assertEqual((report['verdict'], report['exit_code']), ('COMPLETE', rr.SET_COMPLETE))
-        w1 = report['workloads']['baseline-one-case-ex n2000']
+        self.assertEqual(results(report), (TIMING_COMPLETE, RACK_NONE, rr.SET_EXIT_OK))
+        self.assertEqual(report['results'], [TIMING_COMPLETE, RACK_NONE])
+        w1 = report['timing_set']['workloads']['baseline-one-case-ex n2000']
         self.assertEqual((w1['planned'], w1['completed']), (5, 5))
         self.assertEqual((w1['median_entry_s'], w1['min_entry_s'], w1['max_entry_s']), (1.04, 1.0, 1.08))
-        self.assertEqual(report['workloads']['reference-system n27']['completed'], 5)
-        self.assertEqual((report['findings'], report['window_problems']), ([], []))
+        self.assertEqual(report['timing_set']['workloads']['reference-system n27']['completed'], 5)
+        self.assertEqual((report['timing_set']['findings'], report['timing_set']['window_problems']), ([], []))
         self.assertEqual(report['host_not_quiet'], [])
-        # A host check that was not quiet, or read no memory level, is reported and leaves the verdict as it is.
+        self.assertEqual(unqualified_complete(json.dumps(report)), [])
+        # A host check that was not quiet, or read no memory level, is reported and leaves the results as they are.
         report = self.judge(lambda by, *_: (by['reference-system-n0027-sparse-r1'].update(host={'quiet': False}),
                                             by['reference-system-n0027-sparse-r2'].update(host={'quiet': True})))
-        self.assertEqual((report['verdict'], report['host_not_quiet']),
-                         ('COMPLETE', ['reference-system-n0027-sparse-r1', 'reference-system-n0027-sparse-r2']))
+        self.assertEqual((results(report), report['host_not_quiet']),
+                         ((TIMING_COMPLETE, RACK_NONE, 0), ['reference-system-n0027-sparse-r1', 'reference-system-n0027-sparse-r2']))
         # A run whose timeout the window capped but which completed is unaffected.
         report = self.judge(lambda by, *_: by['reference-system-n0027-sparse-r5'].update(
             timeout_capped_by_window=True, timeout_applied_s=40))
-        self.assertEqual(report['verdict'], 'COMPLETE')
-
-    def test_the_rack_run_is_reported_and_never_a_timing(self):
-        report = self.judge(name='baseline-with-rack')
-        self.assertEqual(report['verdict'], 'COMPLETE')
-        self.assertEqual(report['not_timings'], [{'run_id': 'linear-ex-n2000-sparse', 'expect': 'exceeds_base_machine_budget',
-                                                  'classification': 'exceeds_base_machine_budget',
-                                                  'classification_detail': None, 'last_stage': None,
-                                                  'as_expected': True}])
-        self.assertEqual(sorted(report['workloads']), ['baseline-one-case-ex n2000', 'reference-system n27'])
+        self.assertEqual(results(report), (TIMING_COMPLETE, RACK_NONE, 0))
 
     def test_a_skipped_or_capped_and_timed_out_run_is_incomplete_by_the_window(self):
         def window(by, *_):
@@ -584,12 +599,12 @@ class BaselineSet(unittest.TestCase):
             by['baseline-one-case-ex-n2000-sparse-r5'].update(classification='timed_out', timeout_applied_s=250,
                                                                timeout_capped_by_window=True, driver=None)
         report = self.judge(window)
-        self.assertEqual((report['verdict'], report['exit_code']), ('INCOMPLETE BY THE WINDOW', 3))
-        self.assertEqual(report['findings'], [])
-        self.assertEqual(len(report['window_problems']), 2)
+        self.assertEqual(results(report), (TIMING_WINDOW, RACK_NONE, rr.SET_EXIT_WINDOW))
+        self.assertEqual(report['timing_set']['findings'], [])
+        self.assertEqual(len(report['timing_set']['window_problems']), 2)
         self.assertIn('baseline-one-case-ex-n2000-sparse-r5: timed_out under a timeout the window capped to 250 s',
-                      report['window_problems'])
-        self.assertEqual(report['workloads']['baseline-one-case-ex n2000']['completed'], 4)
+                      report['timing_set']['window_problems'])
+        self.assertEqual(report['timing_set']['workloads']['baseline-one-case-ex n2000']['completed'], 4)
 
     def test_each_finding_alone_is_findings(self):
         r1 = 'baseline-one-case-ex-n2000-sparse-r1'
@@ -608,64 +623,44 @@ class BaselineSet(unittest.TestCase):
         }
         for label, mutate in cases.items():
             report = self.judge(mutate)
-            self.assertEqual((report['verdict'], report['exit_code']), ('FINDINGS', 1), label)
-            self.assertTrue(report['findings'], label)
-            self.assertEqual(report['window_problems'], [], label)
+            self.assertEqual(results(report), (TIMING_FINDINGS, RACK_NONE, rr.SET_EXIT_FINDINGS), label)
+            self.assertTrue(report['timing_set']['findings'], label)
+            self.assertEqual(report['timing_set']['window_problems'], [], label)
         report = self.judge(cases['full timeout'])
-        self.assertIn('timed out at its full timeout', report['findings'][0])
+        self.assertIn('timed out at its full timeout', report['timing_set']['findings'][0])
         report = self.judge(cases['missing record'])
-        self.assertIn('baseline-one-case-ex-n2000-sparse-r1: no record', report['findings'][0])
+        self.assertIn('baseline-one-case-ex-n2000-sparse-r1: no record', report['timing_set']['findings'][0])
 
     def test_a_finding_with_a_window_problem_is_findings_and_lists_both(self):
         def both(by, *_):
             by['reference-system-n0027-sparse-r5'].update(classification='skipped_window_budget', driver=None)
             by['baseline-one-case-ex-n2000-sparse-r2']['driver'].update(route='PF')
         report = self.judge(both)
-        self.assertEqual((report['verdict'], report['exit_code']), ('FINDINGS', 1))
-        self.assertEqual(report['window_problems'], ['reference-system-n0027-sparse-r5: skipped_window_budget'])
-        self.assertIn('driver.route', report['findings'][0])
+        self.assertEqual(results(report), (TIMING_FINDINGS, RACK_NONE, 1))
+        self.assertEqual(report['timing_set']['window_problems'], ['reference-system-n0027-sparse-r5: skipped_window_budget'])
+        self.assertIn('driver.route', report['timing_set']['findings'][0])
 
-    def test_the_cli_reads_one_folder_writes_nothing_and_holds_the_plan_to_the_named_plan(self):
-        plan, _, _ = rr.named_plan('baseline')
-        hashes = rr.recorded_rack_hashes()
-        with open(rr.COMMITTED_MODELS['reference-system']['source'], 'rb') as fh:
-            reference = hashlib.sha256(fh.read()).hexdigest()
-        runs, records = set_records(plan, {'baseline-one-case-ex-n2000.json': hashes[('baseline-one-case-ex', 2000)],
-                                           'reference_system.json': reference})
-        with tempfile.TemporaryDirectory() as folder:
-            out = os.path.join(folder, 'out')
-            os.makedirs(out)
-            with open(os.path.join(out, k6.RECORDS_NAME), 'w') as fh:
-                fh.writelines(json.dumps(r) + '\n' for r in records)
-            plan_path = os.path.join(folder, 'plan.json')
-            with open(plan_path, 'w') as fh:
-                json.dump({'schema': rr.PLAN_SCHEMA, 'window_budget_s': 2160, 'quiet_wait_s': 60, 'runs': runs}, fh)
-            before = {name: os.path.getmtime(os.path.join(out, name)) for name in os.listdir(out)}
-            argv = ['--baseline-set', out, '--plan-file', plan_path, '--subset', 'baseline']
-            with redirect_stdout(io.StringIO()) as printed:
-                self.assertEqual(rr.main(argv), 0)
-            self.assertEqual(json.loads(printed.getvalue())['verdict'], 'COMPLETE')
-            self.assertEqual({name: os.path.getmtime(os.path.join(out, name)) for name in os.listdir(out)}, before)
-            # The same records judged as baseline-with-rack: not that plan, a finding.
-            with redirect_stdout(io.StringIO()) as printed:
-                self.assertEqual(rr.main(argv[:-1] + ['baseline-with-rack']), 1)
-            self.assertIn('is not the named plan baseline-with-rack', json.loads(printed.getvalue())['findings'][0])
-            # A plan whose hash is not the repository's own is a finding even where the records agree with it.
-            runs[0]['expected_model_sha256'] = records[0]['model_sha256'] = 'e' * 64
-            records[0]['driver']['document']['sha256'] = 'e' * 64
-            with open(plan_path, 'w') as fh:
-                json.dump({'schema': rr.PLAN_SCHEMA, 'window_budget_s': 2160, 'quiet_wait_s': 60, 'runs': runs}, fh)
-            with open(os.path.join(out, k6.RECORDS_NAME), 'w') as fh:
-                fh.writelines(json.dumps(r) + '\n' for r in records)
-            with redirect_stdout(io.StringIO()) as printed:
-                self.assertEqual(rr.main(argv), 1)
-            self.assertIn("the plan's expected_model_sha256 " + 'e' * 64, printed.getvalue())
-            with redirect_stdout(io.StringIO()), mock.patch('sys.stderr', io.StringIO()), self.assertRaises(SystemExit):
-                rr.main(['--baseline-set', out, '--plan-file', plan_path, '--subset', 'window'])
-
-    def test_a_run_not_expected_to_solve_must_still_have_run(self):
+    def test_the_rack_observation_is_judged_apart_from_the_ten_timings(self):
+        """The round 2 reader's rack outcomes, each against the declared expectation
+        exceeds_base_machine_budget; the ten timings stay COMPLETE whatever the rack did."""
         rack = 'linear-ex-n2000-sparse'
-        not_run = {
+        stage = {'repeat': 0, 'stage': 'request', 'seconds': 0.5}
+
+        def outcome(classification, detail=None, expected=False):
+            return lambda by, *_: by[rack].update(classification=classification, classification_detail=detail,
+                                                  as_expected=expected, last_stage=stage)
+
+        # The expected budget-limited outcome is a successful observation, reported as it is.
+        report = self.judge(outcome('exceeds_base_machine_budget', 'footprint_1_above_budget_2_killed', True),
+                            name='baseline-with-rack')
+        self.assertEqual(results(report), (TIMING_COMPLETE, RACK_OK, rr.SET_EXIT_OK))
+        self.assertEqual(report['rack_observation']['runs'], [{
+            'run_id': rack, 'expect': 'exceeds_base_machine_budget', 'observed': True,
+            'classification': 'exceeds_base_machine_budget', 'classification_detail': 'footprint_1_above_budget_2_killed',
+            'last_stage': stage, 'as_expected': True, 'result': 'OBSERVED AS EXPECTED'}])
+        self.assertEqual(sorted(report['timing_set']['workloads']), ['baseline-one-case-ex n2000', 'reference-system n27'])
+        # Not observed: no record, no driver started, or other model bytes.
+        not_observed = {
             'missing record': lambda by, records, runs: records.remove(by[rack]),
             'model_missing': lambda by, *_: (by[rack].pop('launch'), by[rack].pop('model_sha256'), by[rack].update(
                 classification='model_missing', classification_detail='linear-ex-n2000.json', driver=None)),
@@ -675,34 +670,35 @@ class BaselineSet(unittest.TestCase):
                                                                                             driver=None)),
             'other model bytes': lambda by, *_: by[rack].update(model_sha256='d' * 64),
         }
-        for label, mutate in not_run.items():
+        # Observed, but the outcome does not meet the declared expectation.
+        unmet = {
+            'entry error': outcome('entry_error', 'entry: failed'),
+            'refusal': outcome('refused', 'NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED'),
+            'full timeout': outcome('timed_out', 'after_900_s'),
+            'resident-cap kill': outcome('killed_by_rss_cap', 'killed_above_rss_cap'),
+            'ok where a budget limit is expected': outcome('ok'),
+        }
+        for label, mutate in list(not_observed.items()) + list(unmet.items()):
             report = self.judge(mutate, name='baseline-with-rack')
-            self.assertEqual((report['verdict'], report['exit_code']), ('FINDINGS', 1), label)
-            self.assertIn(rack, report['findings'][0], label)
-            self.assertEqual(report['not_timings'], [], label)
-        # The same with a window problem among the ten: FINDINGS, and both are listed.
-        report = self.judge(lambda by, records, runs: (not_run['model_missing'](by), by[
+            self.assertEqual(results(report), (TIMING_COMPLETE, RACK_FINDINGS, rr.SET_EXIT_FINDINGS), label)
+            self.assertIn(rack, report['rack_observation']['findings'][0], label)
+            self.assertEqual(report['rack_observation']['runs'][0]['result'], 'FINDING', label)
+            self.assertEqual(report['rack_observation']['runs'][0]['observed'], label in unmet, label)
+            self.assertEqual(report['timing_set']['findings'], [], 'a rack finding does not invalidate the ten')
+        report = self.judge(unmet['entry error'], name='baseline-with-rack')
+        self.assertIn('does not meet its declared expectation exceeds_base_machine_budget',
+                      report['rack_observation']['findings'][0])
+        self.assertEqual(report['rack_observation']['runs'][0]['classification_detail'], 'entry: failed')
+        # A window skip is INCOMPLETE BY THE WINDOW for the observation.
+        skipped = lambda by, *_: by[rack].update(classification='skipped_window_budget', driver=None)  # noqa: E731
+        report = self.judge(skipped, name='baseline-with-rack')
+        self.assertEqual(results(report), (TIMING_COMPLETE, RACK_WINDOW, rr.SET_EXIT_WINDOW))
+        self.assertEqual(report['rack_observation']['window_problems'], [rack + ': skipped_window_budget'])
+        # A rack finding with a window problem among the ten: exit 1, both listed, each in its own result.
+        report = self.judge(lambda by, records, runs: (not_observed['model_missing'](by), by[
             'reference-system-n0027-sparse-r5'].update(classification='skipped_window_budget', driver=None)),
             name='baseline-with-rack')
-        self.assertEqual((report['verdict'], len(report['findings']), len(report['window_problems'])), ('FINDINGS', 1, 1))
-        # Skipped for the window: a window problem.
-        report = self.judge(lambda by, *_: by[rack].update(classification='skipped_window_budget', driver=None),
-                            name='baseline-with-rack')
-        self.assertEqual((report['verdict'], report['window_problems']),
-                         ('INCOMPLETE BY THE WINDOW', [rack + ': skipped_window_budget']))
-        # Whatever the driver itself did is reported as it is and does not decide the ten's verdict.
-        for classification, detail, expected in (
-                ('exceeds_base_machine_budget', 'footprint_1_above_budget_2_killed', True),
-                ('timed_out', 'after_900_s', False), ('entry_error', 'entry: failed', False),
-                ('ok', None, False), ('error', 'exit_code_3', False)):
-            report = self.judge(lambda by, *_: by[rack].update(
-                classification=classification, classification_detail=detail, as_expected=expected,
-                last_stage={'repeat': 0, 'stage': 'request', 'seconds': 0.5}), name='baseline-with-rack')
-            self.assertEqual(report['verdict'], 'COMPLETE', classification)
-            self.assertEqual(report['not_timings'], [{
-                'run_id': rack, 'expect': 'exceeds_base_machine_budget', 'classification': classification,
-                'classification_detail': detail, 'last_stage': {'repeat': 0, 'stage': 'request', 'seconds': 0.5},
-                'as_expected': expected}])
+        self.assertEqual(results(report), (TIMING_WINDOW, RACK_FINDINGS, rr.SET_EXIT_FINDINGS))
 
     def test_absent_output_figures_are_a_finding_even_where_every_run_lacks_them(self):
         def absent(by, records, runs):
@@ -710,17 +706,80 @@ class BaselineSet(unittest.TestCase):
                 for key in ('output_sha256', 'rows', 'output_bytes'):
                     r['driver'].pop(key, None)
         report = self.judge(absent)
-        self.assertEqual((report['verdict'], report['exit_code']), ('FINDINGS', 1))
-        self.assertEqual(len(report['findings']), 10)
-        self.assertIn('are not all present', report['findings'][0])
+        self.assertEqual(results(report), (TIMING_FINDINGS, RACK_NONE, 1))
+        self.assertEqual(len(report['timing_set']['findings']), 10)
+        self.assertIn('are not all present', report['timing_set']['findings'][0])
 
-    def test_every_top_level_field_and_run_field_of_the_plan_file_is_the_named_plans(self):
-        plan, _, _ = rr.named_plan('baseline')
+    def _cli_folder(self, folder, name='baseline'):
+        plan, budget, wait = rr.named_plan(name)
         hashes = rr.recorded_rack_hashes()
         with open(rr.COMMITTED_MODELS['reference-system']['source'], 'rb') as fh:
             reference = hashlib.sha256(fh.read()).hexdigest()
         runs, records = set_records(plan, {'baseline-one-case-ex-n2000.json': hashes[('baseline-one-case-ex', 2000)],
-                                           'reference_system.json': reference})
+                                           'reference_system.json': reference,
+                                           'linear-ex-n2000.json': hashes[('linear-ex', 2000)]})
+        out = os.path.join(folder, 'out')
+        os.makedirs(out, exist_ok=True)
+        with open(os.path.join(out, k6.RECORDS_NAME), 'w') as fh:
+            fh.writelines(json.dumps(r) + '\n' for r in records)
+        plan_path = os.path.join(folder, 'plan.json')
+        with open(plan_path, 'w') as fh:
+            json.dump({'schema': rr.PLAN_SCHEMA, 'window_budget_s': budget, 'quiet_wait_s': wait, 'runs': runs}, fh)
+        return out, plan_path, runs, records
+
+    def _cli(self, argv):
+        with redirect_stdout(io.StringIO()) as printed, mock.patch('sys.stderr', io.StringIO()) as err:
+            code = rr.main(argv)
+        return code, json.loads(printed.getvalue()), err.getvalue()
+
+    def test_the_cli_prints_both_results_and_the_exit_contract(self):
+        with tempfile.TemporaryDirectory() as folder:
+            out, plan_path, _, records = self._cli_folder(folder, 'baseline-with-rack')
+            before = {name: os.path.getmtime(os.path.join(out, name)) for name in os.listdir(out)}
+            argv = ['--baseline-set', out, '--plan-file', plan_path, '--subset', 'baseline-with-rack']
+            code, report, err = self._cli(argv)
+            self.assertEqual((code, report['results']), (0, [TIMING_COMPLETE, RACK_OK]))
+            self.assertEqual(err.splitlines()[:2], [TIMING_COMPLETE, RACK_OK])
+            self.assertIn('exit 0 (exit 1 when any finding exists', err)
+            self.assertEqual(report['exit_contract'], rr.EXIT_CONTRACT)
+            self.assertEqual(unqualified_complete(json.dumps(report) + err), [])
+            self.assertEqual({name: os.path.getmtime(os.path.join(out, name)) for name in os.listdir(out)}, before)
+            # A rack finding: the ten stay COMPLETE, the rack is FINDINGS and the status is 1.
+            records[-1].update(classification='model_missing', driver=None)
+            records[-1].pop('launch')
+            with open(os.path.join(out, k6.RECORDS_NAME), 'w') as fh:
+                fh.writelines(json.dumps(r) + '\n' for r in records)
+            code, report, err = self._cli(argv)
+            self.assertEqual((code, report['results']), (1, [TIMING_COMPLETE, RACK_FINDINGS]))
+            self.assertEqual(err.splitlines()[:2], [TIMING_COMPLETE, RACK_FINDINGS])
+        with redirect_stdout(io.StringIO()) as printed:
+            with self.assertRaises(SystemExit):
+                rr.main(['--help'])
+        self.assertIn('exit 1 when any finding exists', ' '.join(printed.getvalue().split()))
+
+    def test_the_cli_holds_the_plan_to_the_named_plan(self):
+        with tempfile.TemporaryDirectory() as folder:
+            out, plan_path, runs, records = self._cli_folder(folder)
+            argv = ['--baseline-set', out, '--plan-file', plan_path, '--subset', 'baseline']
+            self.assertEqual(self._cli(argv)[0], 0)
+            # The same records judged as baseline-with-rack: not that plan, a finding in both results.
+            code, report, _ = self._cli(argv[:-1] + ['baseline-with-rack'])
+            self.assertEqual((code, report['results']), (1, [TIMING_FINDINGS, RACK_FINDINGS]))
+            self.assertIn('is not the named plan baseline-with-rack', report['folder_findings'][0])
+            # A plan whose hash is not the repository's own is a finding even where the records agree with it.
+            runs[0]['expected_model_sha256'] = records[0]['model_sha256'] = 'e' * 64
+            records[0]['driver']['document']['sha256'] = 'e' * 64
+            with open(plan_path, 'w') as fh:
+                json.dump({'schema': rr.PLAN_SCHEMA, 'window_budget_s': 2160, 'quiet_wait_s': 60, 'runs': runs}, fh)
+            with open(os.path.join(out, k6.RECORDS_NAME), 'w') as fh:
+                fh.writelines(json.dumps(r) + '\n' for r in records)
+            code, report, _ = self._cli(argv)
+            self.assertEqual(code, 1)
+            self.assertIn("the plan's expected_model_sha256 " + 'e' * 64, report['folder_findings'][0])
+            with redirect_stdout(io.StringIO()), mock.patch('sys.stderr', io.StringIO()), self.assertRaises(SystemExit):
+                rr.main(['--baseline-set', out, '--plan-file', plan_path, '--subset', 'window'])
+
+    def test_every_top_level_field_and_run_field_of_the_plan_file_is_the_named_plans(self):
         cases = {
             'none': lambda d: None,
             'window_budget_s': lambda d: d.update(window_budget_s=1960),
@@ -734,25 +793,22 @@ class BaselineSet(unittest.TestCase):
             'an added run field': lambda d: d['runs'][2].update(extra=1),
         }
         with tempfile.TemporaryDirectory() as folder:
-            out = os.path.join(folder, 'out')
-            os.makedirs(out)
-            with open(os.path.join(out, k6.RECORDS_NAME), 'w') as fh:
-                fh.writelines(json.dumps(r) + '\n' for r in records)
+            out, plan_path, _, _ = self._cli_folder(folder)
+            with open(plan_path) as fh:
+                original = json.load(fh)
             for label, change in cases.items():
-                document = json.loads(json.dumps({'schema': rr.PLAN_SCHEMA, 'window_budget_s': 2160,
-                                                  'quiet_wait_s': 60, 'runs': runs}))
+                document = json.loads(json.dumps(original))
                 change(document)
-                path = os.path.join(folder, 'plan.json')
-                with open(path, 'w') as fh:
+                with open(plan_path, 'w') as fh:
                     json.dump(document, fh)
-                report = rr.baseline_set(out, path, 'baseline')
+                report = rr.baseline_set(out, plan_path, 'baseline')
                 if label == 'none':
-                    self.assertEqual(report['verdict'], 'COMPLETE')
+                    self.assertEqual(results(report), (TIMING_COMPLETE, RACK_NONE, 0))
                     continue
-                self.assertEqual(report['verdict'], 'FINDINGS', label)
-                self.assertIn('is not the named plan baseline', report['findings'][0], label)
+                self.assertEqual(results(report), (TIMING_FINDINGS, RACK_FINDINGS, 1), label)
+                self.assertIn('is not the named plan baseline', report['folder_findings'][0], label)
                 if label in ('window_budget_s', 'quiet_wait_s', 'schema'):
-                    self.assertIn('%s differs' % label, report['findings'][0])
+                    self.assertIn('%s differs' % label, report['folder_findings'][0])
 
     def test_overhead_above_the_allowance_through_the_run_path_is_incomplete_by_the_window(self):
         """The runner's own run loop with a fake clock and launcher: every run lasts its full timeout and
@@ -794,8 +850,8 @@ class BaselineSet(unittest.TestCase):
             self.assertTrue(any(r.get('timeout_capped_by_window') or r['classification'] == 'skipped_window_budget'
                                 for r in records))
             report = rr.judge_set(rr.read_set_records(out)[0], runs)
-        self.assertEqual((report['verdict'], report['exit_code']), ('INCOMPLETE BY THE WINDOW', 3), report)
-        self.assertTrue(report['window_problems'])
+        self.assertEqual(results(report), (TIMING_WINDOW, RACK_NONE, rr.SET_EXIT_WINDOW), report)
+        self.assertTrue(report['timing_set']['window_problems'])
 
 
 class Classification(unittest.TestCase):

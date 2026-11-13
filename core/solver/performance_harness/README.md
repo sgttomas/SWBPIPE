@@ -379,12 +379,14 @@ the records. The allowance is a planning figure, not an established bound on tha
 nothing enforces it. So the window fits every run at its full timeout provided that work stays
 within the allowance. Where it does not, the supervisor cuts a later run's timeout to what
 remains, or skips the run, and the run's record says so: `timeout_capped_by_window` true, or
-`skipped_window_budget`. `--baseline-set` (step 8) then reports the set INCOMPLETE BY THE WINDOW.
+`skipped_window_budget`. `--baseline-set` (step 7) then reports that result INCOMPLETE BY THE
+WINDOW.
 This is a scope decision, not a necessity. A bounded window could instead decline to start a
 run whose full timeout no longer fits; both supervisors are kept as they are by choice.
 
 Whoever measures states their thresholds in their own measurement contract; this section sets
-none. The steps below are the procedure. The revision to measure, the acceptable values and what
+none. The steps below are the procedure. Every command names `--subset baseline`; for
+`baseline-with-rack`, the same commands name that subset. The revision to measure, the acceptable values and what
 follows from a verdict belong to that contract.
 
 On a shared host, run the build through the host's cargo wrapper and the supervised run through
@@ -481,18 +483,23 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
    BUILD/release/release_timing --supervise plan.json --models FOLDER --out NEW_FOLDER
    ```
 
-7. **Read the set's verdict**, into the file the bundle keeps:
+7. **Read the two results**, into the file the bundle keeps:
 
    ```sh
    python3 -B core/solver/performance_harness/runner/release_runner.py --baseline-set NEW_FOLDER --plan-file plan.json --subset baseline > baseline-set.json
    ```
 
-   It reads exactly one supervised folder, writes nothing there and prints a JSON report. First
-   it holds `plan.json` to the named plan at this checkout: every top-level field (the schema,
-   the window, the quiet-host wait), and every field of each run except two. The run's
+   It reads exactly one supervised folder and writes nothing there. The JSON report goes to
+   stdout. The two results, and the exit status with its contract, go to stderr. First it holds
+   `plan.json` to the named plan at this checkout: every top-level field (the schema, the window,
+   the quiet-host wait), and every field of each run except two. The run's
    `expected_model_sha256` must instead be the repository's own. Its `model_stats` is the
-   generator's description and is not compared. A run is a completed timing only if all of
-   these hold:
+   generator's description and is not compared. A difference there, or in the folder itself
+   (a record that does not parse, a duplicate, a record of a run the plan does not hold), is a
+   folder finding: both results are then FINDINGS.
+
+   **The ten-run timing set** holds the runs the plan expects `solved`, W1 and W2 five times
+   each. A run is a completed timing only if all of these hold:
    - its `classification` is `ok` and `as_expected` is true;
    - `driver.route` is `EX`;
    - the plan's `expected_model_sha256`, the record's `model_sha256` and
@@ -504,33 +511,59 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
    For each workload the report gives its completed timings, with the median, minimum and
    maximum of `driver.seconds.entry`. That is the product's solve entry: the `entry` member of
    `seconds` in the driver's line, which is the `release-timing-v2` object in
-   `NEW_FOLDER/<run id>.jsonl`, repeated in `packet.json` as `stage_seconds`. The verdict and its
-   exit status are one of these:
-   - **COMPLETE (0)**: every run of each workload is a completed timing, and no run was skipped
-     for the window or timed out under a capped timeout. A run whose timeout was capped but
-     which completed is unaffected.
-   - **INCOMPLETE BY THE WINDOW (3)**: one or more runs were `skipped_window_budget` or timed out
-     with `timeout_capped_by_window` true, and there is no finding. The report names those runs.
-   - **FINDINGS (1)**: anything else that keeps a run from being a completed timing: a wrong,
-     missing or disagreeing output, a memory breach, a timeout at the full timeout, a refusal, an
-     error, a model mismatch, or a missing or null figure. Where a finding and a window problem
-     both occur, the verdict is FINDINGS and both are listed. A finding is never absorbed into a
-     window problem.
+   `NEW_FOLDER/<run id>.jsonl`, repeated in `packet.json` as `stage_seconds`. Its result is
+   printed as one of these:
+   - `TEN-RUN TIMING SET: COMPLETE`: every run of each workload is a completed timing, and no run
+     was skipped for the window or timed out under a capped timeout. A run whose timeout was
+     capped but which completed is unaffected.
+   - `TEN-RUN TIMING SET: INCOMPLETE BY THE WINDOW`: one or more runs were
+     `skipped_window_budget` or timed out with `timeout_capped_by_window` true, and the set has
+     no finding. The report names those runs.
+   - `TEN-RUN TIMING SET: FINDINGS`: anything else that keeps a run from being a completed
+     timing: a wrong, missing or disagreeing output, a memory breach, a timeout at the full
+     timeout, a refusal, an error, a model mismatch, or a missing or null figure. Where a finding
+     and a window problem both occur, the result is FINDINGS and both are listed. A finding is
+     never absorbed into a window problem.
 
    A run that timed out, was killed for memory (`exceeds_base_machine_budget`,
    `killed_by_rss_cap`), was refused, ended in an error or was skipped is never a timing.
 
-   A run the plan does not expect to solve (the `linear-ex` run of `baseline-with-rack`) is never
-   a timing either, but it must have run:
-   - Each of these is a finding: no record; no launch (`model_missing`, `model_mismatch`, or an
+   **The rack observation** covers every run the plan does not expect to solve. In
+   `baseline-with-rack` that is the `linear-ex` run, expected `exceeds_base_machine_budget`. It
+   is never a timing, but it is always judged. Leaving it out of the timing statistics never
+   leaves it out of the findings. For each such run the report states whether it was observed
+   at all, its actual outcome (classification, detail and last stage) and whether its declared
+   expectation was met (`as_expected`):
+   - Observed, with the expectation met (for the rack, the budget limit it is expected to reach):
+     a successful observation.
+   - Not observed is a finding: no record; no launch (`model_missing`, `model_mismatch`, or an
      error before any driver started); or a model run on other bytes than the plan's.
-   - A skip for the window is a window problem.
-   - Whatever the driver itself then did (a kill, a timeout, an entry error, a result) is
-     reported as it is under `not_timings`, with its classification, detail, last stage and
-     `as_expected`. It does not decide the verdict.
+   - Observed, with an outcome that does not meet the expectation, is a finding. That covers an
+     entry error, a refusal, a full-length timeout, a resident-cap kill where the plan expects
+     otherwise, or `ok` where it expects a budget limit.
+   - A skip for the window, or a timeout under a timeout the window capped, is a window problem.
+
+   Its result is printed as one of these:
+   - `RACK OBSERVATION: OBSERVED AS EXPECTED`;
+   - `RACK OBSERVATION: INCOMPLETE BY THE WINDOW`;
+   - `RACK OBSERVATION: FINDINGS`;
+   - `RACK OBSERVATION: NONE IN THIS PLAN` (`baseline`).
+
+   A rack finding does not change the ten-run timing set's result.
+
+   **The exit contract**, one status for both results:
+
+   | Exit | When |
+   | --- | --- |
+   | 1 | any finding exists: in the ten-run timing set, the rack observation, the folder or the plan file |
+   | 3 | no finding, and either result is INCOMPLETE BY THE WINDOW |
+   | 0 | `TEN-RUN TIMING SET: COMPLETE` with `RACK OBSERVATION: OBSERVED AS EXPECTED` or `NONE IN THIS PLAN` |
+
+   So a set whose ten timings are complete beside a rack finding exits 1. Its timing-set result
+   still reads `TEN-RUN TIMING SET: COMPLETE`. `--help` states the same contract.
 
    `host_not_quiet` lists runs whose own host check was not quiet or read no memory level. It is
-   for the measurement contract's rules and does not change the verdict.
+   for the measurement contract's rules and changes neither result.
 8. **The bundle.** Put these in one folder:
    - `out/`, the folder the supervisor wrote. Each run that was launched has three files there:
      `<run id>.jsonl` (the driver's stdout line, empty where it printed none), `<run id>.stderr.txt`
