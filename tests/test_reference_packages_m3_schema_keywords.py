@@ -29,8 +29,8 @@ ROOT = Path(__file__).resolve().parents[1]
 JUDGE = ROOT / "validation" / "references" / "m3_judge"
 SCHEMAS = ROOT / "schemas"
 # The entries' $ref targets are named in the schemas' own text, which the CI selector cannot read: a change to
-# any schema may change what an entry reaches.
-CI_READS = ("schemas/**",)
+# any schema may change what an entry reaches. The call-site guard scans the judge's modules.
+CI_READS = ("schemas/**", "validation/references/m3_judge/**")
 sys.path.insert(0, str(JUDGE))
 import m3_view as MV  # noqa: E402
 
@@ -40,8 +40,8 @@ ONE = ("items", "additionalProperties", "not", "if", "then", "else", "contains",
        "unevaluatedItems", "unevaluatedProperties")
 MAP = ("properties", "patternProperties", "dependentSchemas")
 LIST = ("allOf", "anyOf", "oneOf", "prefixItems")
-# The judge's modules that judge (its self-test modules call the reader on schemas they construct).
-JUDGE_MODULES = ("m3_view.py", "m3_report.py", "m3_compare.py", "m3_types.py", "m3_json.py", "m3_synth.py", "m3_reproduce.py")
+# The judge's self-test modules, which call the reader on schemas they construct; every other module is scanned.
+SELF_TEST = {"m3_selftest.py", "m3_regress.py"}
 READER = {"schema_problems", "schema_supported"}
 # The functions that call the reader, and the table names each must take its entries from.
 CALL_SITES = {"_evidence": {"SOURCE_RECOVERY_SCHEMA", "SOURCE_RECOVERY_EVIDENCE"},
@@ -129,8 +129,11 @@ def test_every_reachable_keyword_is_one_the_judge_reads(entry):
 def test_the_judges_tables_are_its_only_schema_entries():
     """A new call of the reader outside the two known sites would consume an entry this test does not walk."""
     calls = {}
-    for module in JUDGE_MODULES:
-        tree = ast.parse((JUDGE / module).read_text(encoding="utf-8"))
+    modules = sorted(path for path in JUDGE.rglob("*.py") if path.name not in SELF_TEST)
+    assert JUDGE / "m3_view.py" in modules
+    for path in modules:
+        module = path.relative_to(JUDGE).as_posix()
+        tree = ast.parse(path.read_text(encoding="utf-8"))
         for fn in ast.walk(tree):
             if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)) or fn.name in READER:
                 continue
