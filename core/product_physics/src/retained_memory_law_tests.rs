@@ -1697,9 +1697,9 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // §8.36: the snubber token extends the unsupported-family text by 9 B at 32 supports (+288 B).
     // §8.44 on §8.45's lexer: -1,223,704 B, the static/report literal classes measured by the Rust lexer (§8.45);
     // main 6c3cb46d3's tree priced by its own tool gives the same 273,191,600 B, so RT-A3 increment 3 moves none of it.
-    // RT-L2 (RTL2-VL): +41,568 B = 4 · 10,392 B, the pressure-elongation setting's k + 1 refusal diagnostics in
-    // the env variant's validation call (k <= C = 3: D1.4 declines a longer list before validation, RTL2-K), each
-    // at NP-MS's 2,048 + 8,192 + 152 B.
+    // RT-L2 (RTL2-VL): +41,568 B = 4 · 10,392 B, the pressure-elongation setting's refusal diagnostics in the env
+    // variant's validation call, at most max(2, k + 1), priced at k = C as C + 1 = 4 (k <= C = 3: D1.4 declines a
+    // longer list before validation, RTL2-K), each at NP-MS's 2,048 + 8,192 + 152 B.
     assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 273_233_168, "current text closure at C_eq = 3, maximum over routes");
     // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
@@ -1709,7 +1709,8 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!((caps.complete[6], caps.complete[7]), (text_atoms::L_PUB, text_atoms::L_DIAGID), "L_PUB (RV84 C-N1) and L_DIAGID (RV87 N-3)");
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
-    // RT-L2 (RTL2-VL): D_env +4 (the setting's k + 1 refusal diagnostics, k <= C = 3); its push capacity stays.
+    // RT-L2 (RTL2-VL): D_env +4 (the setting's refusal diagnostics, at most max(2, k + 1), priced at k = C as
+    // C + 1 = 4, k <= C = 3); its push capacity stays.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
         (6_139_118, 2_330, 16_384, 28_779, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
@@ -2244,8 +2245,9 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // history limitations, TAV_W and TAV_X +2,718 B): +18,761 B in every phase and mode, from maintained eval at the
 // unchanged in-build atoms (they reproduce §8.58's record exactly), without R.
 // RT-L2 D3 on the final source: the pressure-elongation setting (RTL2-K: the typed list at the raw census's bound,
-// because it is parsed before D1; validation's refusal working set and k + 1 diagnostics per validation call at
-// k <= C = 3, because D1.4 declines a longer list before validation, D +8), the pressure-3 table and schema
+// because it is parsed before D1; validation's refusal working set and at most max(2, k + 1) refusal diagnostics
+// per validation call, priced at k = C as C + 1 = 4 with k <= C = 3, because D1.4 declines a longer list before
+// validation, D +8), the pressure-3 table and schema
 // (STATICS[1] +4,497 B, with the exception record's remainder_force_n member and description, +1 Node(String,Value)
 // and +6 s(Value))
 // and TAV +174,654 B (the 8 diagnostics at 21,640 B each and 1,534 B that D does not carry): every phase rises,

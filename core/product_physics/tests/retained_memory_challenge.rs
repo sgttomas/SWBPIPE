@@ -71,7 +71,8 @@ use b1_sq_inputs as inputs;
 // §8.59 (RT-A3 S6, proposed): +18,761 B (S6-ME in O_base; the restated tables and schema in STATICS; the
 // restated identity and load-state limitations in TAV_W and TAV_X).
 // RT-L2 (pressure elongation per load case): +781,195 B, the registered profile's W1 at the in-build atoms (the
-// setting's typed list, its validation working set and k + 1 diagnostics at k <= C, the pressure-3 table and schema).
+// setting's typed list, its validation working set and at most max(2, k + 1) refusal diagnostics, priced at k = C as
+// C + 1 = 4, the pressure-3 table and schema).
 const W1_PHASE_BYTES: [u64; 2] = [6_451_174_436, 6_510_305_780];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at

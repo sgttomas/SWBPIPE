@@ -1290,18 +1290,21 @@ pub(super) struct RegisteredProfile {
 /// registered by reviewed change, not a test permit; every other build identity is
 /// `Stale` and keeps the ordinary route.
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
-    // RT-L2 D3 at bb1de0937 (pressure elongation per load case and the cancellation screen's exception,
-    // on main 4d29420a0, whose §8.59 tree its own tool reproduces): the regenerated source-derived block.
-    // D1 names no member of `model_settings`, so the setting's operating-case list is bounded only by
-    // the raw census (k <= RawValues): the typed list, validation's refusal working set and its k + 1
-    // diagnostics per validation call are priced at that bound (RTL2-K/TS/VS/VL). The exception's
-    // predicate, family, record and warning and the reader's record checks are unreached on D1 (no
-    // pressure region, no factor group). Against the kept tree 138 coefficients rise and none fall:
-    // D +32,770 at every point and every diagnostic-bearing form with it, STATICS[1] +3,948 B (the
-    // pressure-3 table and schema), O_base +254,149 B with the list's and refusals' atoms. Reviewed
-    // inputs #1 (the source-recovery schema), #7 (DEF-E), #8 (physics-retained-1), #10 (the pressure-3
-    // result schema) and #11 (pressure-3), counted from 0, take the head's bytes; the identity, the
-    // other inputs, the reader layouts and the threshold are unchanged.
+    // RT-L2 D3 at 19eab0355, re-run at 34ab264af0 (pressure elongation per load case and the
+    // cancellation screen's exception, on main e264159cf, whose §8.59 tree its own tool reproduces):
+    // the regenerated source-derived block. D1.4's clause (`FamilyFact::PressureElongationCases`)
+    // bounds the setting's operating-case list at k <= c <= C, so validation's refusal working set and
+    // its refusal diagnostics, at most max(2, k + 1) per validation call, are priced at k = C = 3 as
+    // C + 1 = 4; the typed list stays at the raw census (k <= RawValues) because it is parsed before D1
+    // (RTL2-K/TS/VS/VL). The exception's predicate, family, record and warning and the reader's record
+    // checks are unreached on D1 (no pressure region, no factor group). Against the kept tree 138
+    // coefficients rise and none fall: D +8 (D_env +4) and every diagnostic-bearing form with it,
+    // STATICS[1] +4,497 B (the pressure-3 table and schema), O_base +131,212 B in both modes with
+    // +16,384 s(String), +20 s(&str) and +6 s((&str,String)) (the typed list at the census; the working
+    // set at C), TAV_W +174,654 B and TAV_X +88,362 B. Reviewed inputs #1 (the source-recovery schema),
+    // #7 (DEF-E), #8 (physics-retained-1), #10 (the pressure-3 result schema, in place of pressure-2's)
+    // and #11 (pressure-3, in place of pressure-2), counted from 0, take the head's bytes; the identity,
+    // the other inputs, the reader layouts and the threshold are unchanged.
     // §8.59 D3 at 0c480a9e5 (RT-A3 S6, nonlinear supports on load/reference-state documents and
     // beside objective connectors, on main 394f4c623, whose §8.58 tree it reproduces): the
     // regenerated source-derived block, a proposed registration for independent scrutiny (not
