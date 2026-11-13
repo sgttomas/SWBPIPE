@@ -33,6 +33,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import k6_runner as k6  # noqa: E402
 import release_runner as rr  # noqa: E402
 
+sys.path.insert(0, rr.REPO)
+from tools.validation import pressure_elongation as PE  # noqa: E402
+
 BUDGET = rr.BASE_MACHINE_BUDGET_BYTES
 
 
@@ -335,7 +338,8 @@ class ReferenceSystemModel(unittest.TestCase):
                 self.assertEqual(fh.read(), committed)
         self.assertEqual(entry['sha256'], hashlib.sha256(committed).hexdigest())
         self.assertEqual((entry['source'], entry['source_check']),
-                         ('fixtures/reference_system/reference_system.json', 'generate_reference_system.py --check'))
+                         ('fixtures/reference_system/reference_system.json',
+                          'generate_reference_system.py --check --pressure-elongation all'))
         document = json.loads(committed)
         self.assertEqual(entry['stats']['nodes'], len(document['nodes']))
         self.assertEqual(entry['nodes'], len(document['nodes']), 'the plan label is the fixture\'s node count')
@@ -357,10 +361,47 @@ class ReferenceSystemModel(unittest.TestCase):
             self.assertEqual(failures, ['reference_system.json'])
             self.assertNotIn('reference_system.json', manifest['models'], 'an earlier entry is dropped')
             self.assertFalse(os.path.exists(os.path.join(models, 'reference_system.json')))
-            self.assertEqual(calls, [[sys.executable, rr.COMMITTED_MODELS['reference-system']['check'], '--check']])
+            self.assertEqual(calls, [[sys.executable, rr.COMMITTED_MODELS['reference-system']['check'], '--check',
+                                      '--pressure-elongation', 'all']])
             self.assertIn('refused', logged[0])
             with self.assertRaises(ValueError):
                 rr.plan_document(plan, models_dir=models)
+
+    def test_the_declared_mode_is_the_one_the_committed_file_was_produced_with(self):
+        # An accidental flip, of the committed file's setting or of the declared mode, fails here by
+        # name: the declared mode leaves the committed document as it is, and the other mode does not.
+        spec = rr.COMMITTED_MODELS['reference-system']
+        mode = PE.argv_mode(list(spec['check_args']))
+        self.assertEqual(spec['check_args'][0], '--check')
+        with open(spec['source'], encoding='utf-8') as fh:
+            document = json.load(fh)
+        self.assertEqual(PE.apply(copy.deepcopy(document), mode), document,
+                         'the declared mode %s would change the committed reference system' % mode)
+        other = 'absent' if mode == 'all' else 'all'
+        self.assertNotEqual(PE.apply(copy.deepcopy(document), other), document,
+                            'the reference system has pressurised cases, so the other mode differs')
+
+    def test_the_callers_pressure_elongation_setting_does_not_change_the_check(self):
+        self.assertEqual(rr.PRESSURE_ELONGATION_ENV, PE.ENV)
+        spec = rr.COMMITTED_MODELS['reference-system']
+        with open(spec['source'], 'rb') as fh:
+            committed = hashlib.sha256(fh.read()).hexdigest()
+        other = 'absent' if PE.argv_mode(list(spec['check_args'])) == 'all' else 'all'
+        seen = []
+
+        def recording(argv, **kwargs):
+            seen.append((argv, kwargs.get('env')))
+            return subprocess.run(argv, **kwargs)
+
+        with mock.patch.dict(os.environ, {PE.ENV: other}), tempfile.TemporaryDirectory() as models:
+            plan = rr.build_plan((('reference-system', 27, 60, 5, 'solved'),))
+            manifest, failures = rr.generate(plan, models, run=recording, log=lambda *a: None)
+            self.assertEqual(os.environ[PE.ENV], other)
+        self.assertEqual(failures, [])
+        self.assertEqual(manifest['models']['reference_system.json']['sha256'], committed)
+        self.assertEqual([argv[2:] for argv, _ in seen], [list(spec['check_args'])])
+        # Membership only: a failure must not print the child's environment values.
+        self.assertFalse(PE.ENV in seen[0][1], f'{PE.ENV} reached the check child')
 
 
 _PINNED = []
