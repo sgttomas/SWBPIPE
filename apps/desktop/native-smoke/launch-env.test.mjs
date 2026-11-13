@@ -14,7 +14,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   HOME_KEYS, PARENT_ALLOWLIST, RUNNER_KEYS, STRICT_CHOOSER_ENV, awaitNoProcesses, awaitNoProcessesSync, buildLaunchEnv, censusOf, chooserLayout, closeRun, createThrowawayHome,
-  keepOutOfHome, keptRelativePaths, readRunMarker, refusedLaunchEnv, refusedPlanPaths, runMarkerRefusal, statWatched, tripwireChanges, watchedLibraryPaths, writeRunMarker
+  keepOutOfHome, keptRelativePaths, readRunMarker, refusedLaunchEnv, refusedPlanPaths, refusedSmokeWindows, runMarkerRefusal, smokeWindows, statWatched, tripwireChanges, watchedLibraryPaths,
+  writeRunMarker
 } from "./launch-env.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -329,4 +330,22 @@ test("F3 with a process of the run possibly alive the snapshot is recorded but i
   assert.equal(kept.exitCode, 1);
   assert.equal(kept.retain, true);
   assert.equal(kept.afterLast, false);
+});
+
+test("F2 the smoke build's web view is non-persistent in every window, and a window that would persist is refused", (t) => {
+  const product = JSON.parse(readFileSync(path.join(here, "..", "src-tauri", "tauri.conf.json"), "utf8")).app.windows;
+  assert.ok(product.length > 0);
+  assert.ok(product.every((window) => window.incognito !== true), "the product's own windows are not changed");
+  const smoke = smokeWindows(product);
+  assert.equal(smoke.length, product.length);
+  assert.ok(smoke.every((window) => window.incognito === true && window.backgroundThrottling === "disabled"));
+  assert.deepEqual(refusedSmokeWindows(smoke), []);
+  // Today's override (background throttling alone) would be refused, and so would no window at all.
+  const today = product.map((window) => ({ ...window, backgroundThrottling: "disabled" }));
+  assert.ok(refusedSmokeWindows(today).length === product.length && refusedSmokeWindows(today).every((line) => line.startsWith("WEBVIEW-STORE-REFUSED")));
+  assert.ok(refusedSmokeWindows([])[0].startsWith("WEBVIEW-STORE-REFUSED"));
+  // And the runner says so in its no-launch mode.
+  const result = printLaunchEnv(scratch(t));
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.match(/^web view store: (.+)$/m)?.[1], "non-persistent in every window of the smoke build");
 });

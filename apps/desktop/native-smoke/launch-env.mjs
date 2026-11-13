@@ -117,6 +117,23 @@ export function keepOutOfHome(home, destination, relatives) {
 }
 
 // The launched application's whole environment.
+// The smoke build's windows: the product's, with background throttling off and a NON-PERSISTENT web view.
+// Tauri's `incognito` gives the web view on macOS a WKWebsiteDataStore.nonPersistentDataStore() (wry,
+// wkwebview/mod.rs), so the scripted build keeps no web storage on disk at all, neither under the
+// throwaway home nor under the account's real Library. Where the system's web view would otherwise keep
+// its data under a home override cannot be established by reading Apple's framework; with no persistent
+// store there is nothing to place. Product builds and tauri.conf.json are unchanged.
+export function smokeWindows(windows) {
+  return windows.map((window) => ({ ...window, backgroundThrottling: "disabled", incognito: true }));
+}
+
+// The reasons a window configuration may not be launched: none, or a window whose web view would persist.
+export function refusedSmokeWindows(windows) {
+  if (!Array.isArray(windows) || windows.length === 0) return ["WEBVIEW-STORE-REFUSED: the smoke build declares no window, so its web view's store is not established"];
+  return windows.flatMap((window, index) =>
+    window?.incognito === true ? [] : [`WEBVIEW-STORE-REFUSED: window ${index} of the smoke build would use a persistent web view store (incognito is not true)`]);
+}
+
 export function buildLaunchEnv({ parent, home, tmpdir, runner }) {
   const env = {};
   for (const key of PARENT_ALLOWLIST) if (Object.hasOwn(parent, key)) env[key] = parent[key];

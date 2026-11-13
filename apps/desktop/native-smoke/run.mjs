@@ -124,7 +124,8 @@ import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/app
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
 import {
   PARENT_ALLOWLIST, awaitNoProcesses, awaitNoProcessesSync, buildLaunchEnv, censusOf, chooserLayout, closeRun, createThrowawayHome, keepOutOfHome, keptRelativePaths,
-  readRunMarker, refusedLaunchEnv, refusedPlanPaths, runMarkerRefusal, statWatched, tripwireChanges, watchedLibraryPaths, writeRunMarker
+  readRunMarker, refusedLaunchEnv, refusedPlanPaths, runMarkerRefusal, statWatched, tripwireChanges, watchedLibraryPaths, writeRunMarker,
+  refusedSmokeWindows, smokeWindows
 } from "./launch-env.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, processStartTime, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
@@ -141,7 +142,10 @@ const IDENTIFIER = TAURI_CONF.identifier;
 // screen locked, window occluded), which would stall the driver. The smoke build
 // alone turns that throttling off, through Tauri's TAURI_CONFIG build-time merge;
 // tauri.conf.json and product builds are unchanged.
-const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: TAURI_CONF.app.windows.map((window) => ({ ...window, backgroundThrottling: "disabled" })) } });
+// The same merge gives the smoke build's web view a non-persistent store (`smokeWindows`): it keeps no
+// web storage on disk, so nothing of it can land under the account's real Library.
+const SMOKE_WINDOWS = smokeWindows(TAURI_CONF.app.windows);
+const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: SMOKE_WINDOWS } });
 
 // --home-root DIR: the one folder the throwaway home is created under.
 const argv = process.argv.slice(2);
@@ -202,14 +206,16 @@ if (args.has("--print-launch-env")) {
   const plan = { phase: "print-launch-env", model_document: layout.modelDocumentSave, handoff: layout.handoffSave, report_package: layout.reportPackageSave, exact_report_package: layout.exactReportPackageSave, models: layout.models };
   const planRefused = refusedPlanPaths(plan, home);
   const { env, refused } = launchEnv(plan, path.join(tmpdir, "report-print-launch-env.json"));
-  for (const line of [...refused, ...planRefused]) console.error(`native smoke: ${line}`);
+  const windowsRefused = refusedSmokeWindows(SMOKE_WINDOWS);
+  for (const line of [...refused, ...planRefused, ...windowsRefused]) console.error(`native smoke: ${line}`);
   console.log(`launch environment variable names: ${Object.keys(env).sort().join(" ")}`);
   console.log(`carried from this process (allowlist): ${PARENT_ALLOWLIST.length === 0 ? "none" : PARENT_ALLOWLIST.join(" ")}`);
   console.log(`HOME and CFFIXED_USER_HOME: ${home}`);
   console.log(`TMPDIR: ${tmpdir}`);
   console.log(`chooser answers: ${planRefused.length === 0 ? "every one resolves inside the home" : "REFUSED"}, under ${layout.area}`);
+  console.log(`web view store: ${windowsRefused.length === 0 ? "non-persistent in every window of the smoke build" : "REFUSED"}`);
   console.log(`tripwire paths (stated, not examined in this mode):\n${WATCHED.map((file) => `  ${file}`).join("\n")}`);
-  process.exit(refused.length === 0 && planRefused.length === 0 ? 0 : 2);
+  process.exit(refused.length === 0 && planRefused.length === 0 && windowsRefused.length === 0 ? 0 : 2);
 }
 
 if (process.platform !== "darwin") {
@@ -403,7 +409,7 @@ function launch(phase, extra = {}) {
   };
   console.log(`\n== phase ${phase} (HOME=${home})`);
   const { env, refused } = launchEnv(plan, report);
-  const refusedPaths = refusedPlanPaths(plan, home);
+  const refusedPaths = [...refusedPlanPaths(plan, home), ...refusedSmokeWindows(SMOKE_WINDOWS)];
   if (refused.length > 0 || refusedPaths.length > 0) {
     for (const line of [...refused, ...refusedPaths]) console.error(`native smoke: ${line}; not launched`);
     return exitAfterSignals(2);
