@@ -71,7 +71,7 @@ pub(crate) const SESSION_CHECK_FIXED_BYTES: u64 = 64 << 10;
 /// its lease by exactly this before the check (`report_render_exact::bind_render_admission`);
 /// the save, whose lease grows before its request is parsed, provides it with the request text
 /// standing for the Diagnostics text it contains (`report_package_save::session_check_lease_bytes`,
-/// within `parse_lease_bytes_with_exact`). The regressions assert the check's priced peak against
+/// within `ingress_lease_bytes`). The regressions assert the check's priced peak against
 /// this same function, so the provision and the test are one number; the arithmetic that the
 /// check stays within it for any entries is at [`place`].
 pub(crate) fn session_check_provision_bytes(model_text_bytes: u64, diagnostics_text_bytes: u64) -> u64 {

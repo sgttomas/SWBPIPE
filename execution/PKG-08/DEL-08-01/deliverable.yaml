@@ -92,6 +92,13 @@ needs:
   condition: The product solve publishes a result on the pressure-free and exact routes under a current
     result identity, and each result binds the exact request it was computed from.
   gating: true
+- from: DEL-04-07
+  condition: The desktop's memory pool admits the lease of a command whose request can carry a model,
+    result, report, rule pack or library document before its request is parsed and grows it on request
+    within the per-invocation budget, the pool's remaining bytes and a fresh headroom verdict, refusing
+    by name otherwise, and releases it when the command returns.
+  when: Rendering a bound report or saving a report package.
+  gating: false
 - from: DEL-07-07
   condition: Until a completed solve job's result is disposed of, the native host keeps with it the digests
     of the model text the job received and of the result it delivered, so that the model and result texts
