@@ -29,9 +29,10 @@ FAMILIES = {
     'canonical': ['tests/test_*canonical_json_adapter.py'],
 }
 AGENT_SUPPLIER_TEST = 'tools/agent_supplier_resource_test.py'
-# A test that builds a crate with `cargo build --offline` gives a verdict that depends neither on the network nor on
-# what an earlier test left in its worker's environment, provided the crate's locked dependencies are in Cargo's
-# cache before pytest starts. Each such test file names here the manifests whose `cargo fetch --locked` provides them.
+# A test that builds a crate with `cargo build --offline` fetches no Cargo dependency at test time, and its verdict
+# does not depend on what an earlier test left in its worker's environment, provided the crate's locked dependencies
+# are in Cargo's cache before pytest starts. Each such test file names here the manifests whose
+# `cargo fetch --locked` provides them.
 OFFLINE_BUILDS = {
     'tests/test_release_timing_build_identity.py': ('core/solver/release_timing/Cargo.toml',),
 }

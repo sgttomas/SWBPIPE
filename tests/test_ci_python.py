@@ -713,7 +713,7 @@ def test_sharding_preserves_pytest_collection_with_directory_and_wrapper(tmp_pat
 
 
 def test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_pytest(monkeypatch):
-    """A test that builds a crate offline never reaches the registry itself: the runner fetches the crate's locked
+    """A test that builds a crate offline fetches no Cargo dependency itself: the runner fetches the crate's locked
     dependencies before pytest starts, whenever the selection holds the test, by file or by a folder above it."""
     test, manifest = 'tests/test_release_timing_build_identity.py', 'core/solver/release_timing/Cargo.toml'
     assert ci.OFFLINE_BUILDS[test] == (manifest,)
