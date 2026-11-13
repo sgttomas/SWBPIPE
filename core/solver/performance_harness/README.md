@@ -111,9 +111,9 @@ A refused allocation writes a marker and aborts.
 **Running it.**
 - `cargo build --release --bin k6_observe`, then `k6_observe --model <id> --mode <mode> --heap-cap-bytes <n>`.
 - `k6_observe --list-models`, `--emit-model` and `--counts-only` inspect the models.
-- `python3 runner/k6_runner.py --plan --counts observations/k6/counts.jsonl` shows the schedule. `--run --tier <T>` runs a tier, one process at a time, on a quiet host.
+- `python3 -B runner/k6_runner.py --plan --counts observations/k6/counts.jsonl` shows the schedule. `--run --tier <T>` runs a tier, one process at a time, on a quiet host.
 - `--packet --records <dir>` writes the compact packet. `observations/k6/k6_packet.json` is the packet of K6's recorded runs (Mac only), and `observations/k6/SHA256SUMS` lists the folder's hashes.
-- The runner's tests run with `python3 -m unittest test_k6_runner` from `runner/`, and on the DEC-025 pytest surface through `tests/test_performance_harness_runner.py`.
+- The runner's tests run with `python3 -B -m unittest test_k6_runner` from `runner/`, and on the DEC-025 pytest surface through `tests/test_performance_harness_runner.py`.
 
 ## K6b: W1 observations on the K6 harness (T3 K6b)
 
@@ -327,8 +327,8 @@ memory bound.
 
   ```sh
   (cd core/solver/release_timing && cargo build --release --locked)
-  python3 core/solver/performance_harness/runner/release_runner.py --generate --subset criterion --models FOLDER
-  python3 core/solver/performance_harness/runner/release_runner.py --write-plan FOLDER/plan.json --subset criterion --models FOLDER
+  python3 -B core/solver/performance_harness/runner/release_runner.py --generate --subset criterion --models FOLDER
+  python3 -B core/solver/performance_harness/runner/release_runner.py --write-plan FOLDER/plan.json --subset criterion --models FOLDER
   cp "${CARGO_TARGET_DIR:-core/solver/release_timing/target}/release/release_timing" FOLDER/
   ```
 
@@ -434,29 +434,30 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
 2. **Produce the models:**
 
    ```sh
-   python3 core/solver/performance_harness/runner/release_runner.py --generate --subset baseline --models FOLDER
+   python3 -B core/solver/performance_harness/runner/release_runner.py --generate --subset baseline --models FOLDER
    ```
 
    W1 is written by the repository's rack generator, the same bytes as
-   `python3 core/solver/performance_harness/rack/rack_model.py --profile baseline-one-case-ex --nodes 2000 -o FILE`.
+   `python3 -B core/solver/performance_harness/rack/rack_model.py --profile baseline-one-case-ex --nodes 2000 -o FILE`.
    `--generate` compares its SHA-256 with the line `baseline-one-case-ex  2000` of
    `observations/rack/models_sha256.txt`, which `tests/test_performance_rack_model.py` holds
    against the generator. W2 is copied only after
-   `python3 fixtures/reference_system/generate_reference_system.py --check` exits 0, which shows
+   `python3 -B fixtures/reference_system/generate_reference_system.py --check` exits 0, which shows
    the committed file is what its generator writes. No other file states its hash: it is the
    SHA-256 of the committed file at that revision (`shasum -a 256 fixtures/reference_system/reference_system.json`).
    `FOLDER/manifest.json` records both hashes. If W1's hash differs from its line, or W2's check
    fails, `--generate` names the model (for W1 also the expected and the found hash), leaves it
    out of the manifest and exits 1. The plan cannot then be written.
 3. **Write the plan.** Each run then carries its model's SHA-256 from the manifest. First every
-   model the manifest lists is compared again: W1 with its line of
-   `observations/rack/models_sha256.txt`, W2 with the SHA-256 of the committed file at this
-   checkout. If a model is missing or differs, nothing is written and the runner exits 2. So a
+   model of the plan is compared again, both its manifest record and the file itself in
+   `FOLDER`: W1 with its line of `observations/rack/models_sha256.txt`, W2 with the SHA-256 of
+   the committed file at this checkout. If a model is missing or differs, nothing is written and
+   the runner exits 2. So a
    models folder made any other way, or at another revision, cannot become a named plan.
-   `--plan --models FOLDER` makes the same comparison.
+   `--plan --models FOLDER` and `--run --models FOLDER` make the same comparison.
 
    ```sh
-   python3 core/solver/performance_harness/runner/release_runner.py --write-plan plan.json --subset baseline --models FOLDER
+   python3 -B core/solver/performance_harness/runner/release_runner.py --write-plan plan.json --subset baseline --models FOLDER
    ```
 
 4. **Check the host before the run**, and record each command with what it printed in
@@ -480,11 +481,65 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
    BUILD/release/release_timing --supervise plan.json --models FOLDER --out NEW_FOLDER
    ```
 
-7. **The bundle.** Put these in one folder:
-   - `out/`, the folder the supervisor wrote;
+7. **Read the set's verdict**, into the file the bundle keeps:
+
+   ```sh
+   python3 -B core/solver/performance_harness/runner/release_runner.py --baseline-set NEW_FOLDER --plan-file plan.json --subset baseline > baseline-set.json
+   ```
+
+   It reads exactly one supervised folder, writes nothing there and prints a JSON report. First
+   it holds `plan.json` to the named plan at this checkout: every top-level field (the schema,
+   the window, the quiet-host wait), and every field of each run except two. The run's
+   `expected_model_sha256` must instead be the repository's own. Its `model_stats` is the
+   generator's description and is not compared. A run is a completed timing only if all of
+   these hold:
+   - its `classification` is `ok` and `as_expected` is true;
+   - `driver.route` is `EX`;
+   - the plan's `expected_model_sha256`, the record's `model_sha256` and
+     `driver.document.sha256` are one value;
+   - `driver.seconds.entry` and `launch.rss.exit_lifetime_max_phys_footprint_bytes` are numbers;
+   - `driver.output_sha256`, `driver.rows` and `driver.output_bytes` are present, and equal
+     those of the workload's other completed runs.
+
+   For each workload the report gives its completed timings, with the median, minimum and
+   maximum of `driver.seconds.entry`. That is the product's solve entry: the `entry` member of
+   `seconds` in the driver's line, which is the `release-timing-v2` object in
+   `NEW_FOLDER/<run id>.jsonl`, repeated in `packet.json` as `stage_seconds`. The verdict and its
+   exit status are one of these:
+   - **COMPLETE (0)**: every run of each workload is a completed timing, and no run was skipped
+     for the window or timed out under a capped timeout. A run whose timeout was capped but
+     which completed is unaffected.
+   - **INCOMPLETE BY THE WINDOW (3)**: one or more runs were `skipped_window_budget` or timed out
+     with `timeout_capped_by_window` true, and there is no finding. The report names those runs.
+   - **FINDINGS (1)**: anything else that keeps a run from being a completed timing: a wrong,
+     missing or disagreeing output, a memory breach, a timeout at the full timeout, a refusal, an
+     error, a model mismatch, or a missing or null figure. Where a finding and a window problem
+     both occur, the verdict is FINDINGS and both are listed. A finding is never absorbed into a
+     window problem.
+
+   A run that timed out, was killed for memory (`exceeds_base_machine_budget`,
+   `killed_by_rss_cap`), was refused, ended in an error or was skipped is never a timing.
+
+   A run the plan does not expect to solve (the `linear-ex` run of `baseline-with-rack`) is never
+   a timing either, but it must have run:
+   - Each of these is a finding: no record; no launch (`model_missing`, `model_mismatch`, or an
+     error before any driver started); or a model run on other bytes than the plan's.
+   - A skip for the window is a window problem.
+   - Whatever the driver itself then did (a kill, a timeout, an entry error, a result) is
+     reported as it is under `not_timings`, with its classification, detail, last stage and
+     `as_expected`. It does not decide the verdict.
+
+   `host_not_quiet` lists runs whose own host check was not quiet or read no memory level. It is
+   for the measurement contract's rules and does not change the verdict.
+8. **The bundle.** Put these in one folder:
+   - `out/`, the folder the supervisor wrote. Each run that was launched has three files there:
+     `<run id>.jsonl` (the driver's stdout line, empty where it printed none), `<run id>.stderr.txt`
+     (its stage lines) and `<run id>.record.json` (the launch record). A run that was never
+     launched has none: one skipped for the window, or one whose model was missing or
+     mismatched.
    - `plan.json` and `models/manifest.json` (the models themselves can be produced again by
      step 2);
-   - `build-facts.txt`, `host-before.txt` and `host-processes.log`;
+   - `build-facts.txt`, `host-before.txt`, `host-processes.log` and `baseline-set.json`;
    - on a shared host, the exclusive wrapper's own lines for the run;
    - a copy of the measurement contract used.
 
@@ -497,62 +552,141 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
    ```
 
    Nothing in the bundle is written after that. The second command prints the root digest. State
-   it outside the bundle, in the message that reports the run; a later reader takes it from
-   there. No reader here verifies stored records (the second item of
-   [What it does not yet do](#what-it-does-not-yet-do)). So whoever reads a bundle back does the
-   following, and stops on any difference:
-   - recompute the root digest first and compare it with the stated one;
-   - run `shasum -a 256 -c SHA256SUMS` from the bundle's root;
-   - then check directly, for every run:
-     - its stdout line parses and equals the aggregate's `driver` member;
-     - the stage lines in its stderr file carry the same seconds as `driver.seconds`;
-     - the aggregate's `model_sha256` equals the plan's `expected_model_sha256` and the
-       manifest's;
-     - `metadata.json` names the revision.
+   it outside the bundle, with the SHA-256 of the contract's copy, in the message that reports the
+   run; a later reader takes both from there.
+9. **Read a bundle back.** No reader here verifies stored records (the second item of
+   [What it does not yet do](#what-it-does-not-yet-do)). Whoever reads a bundle does the
+   following, in order, from its root, and stops on the first difference. The hashes show that
+   the files are the ones inventoried; they do not show that a record is true. The checks after
+   them cover what decides time, memory and classification.
 
-   The hashes show that the files are the ones inventoried; they do not show that a record is
-   true.
-8. **Read the set's verdict:**
+   1. Integrity and membership. `shasum -c` alone does not see an added file, so the third
+      command compares the bundle's files with the list's names:
 
-   ```sh
-   python3 core/solver/performance_harness/runner/release_runner.py --baseline-set NEW_FOLDER --plan-file plan.json --subset baseline
-   ```
+      ```sh
+      shasum -a 256 SHA256SUMS          # equals the stated root digest
+      shasum -a 256 -c SHA256SUMS       # every line OK
+      diff <(find . -type f ! -name SHA256SUMS | LC_ALL=C sort) <(sed 's/^[0-9a-f]*  //' SHA256SUMS)   # prints nothing
+      shasum -a 256 contract.md         # equals the stated SHA-256 of the contract
+      ```
 
-   It reads exactly one supervised folder, writes nothing and prints a JSON report. First it
-   holds `plan.json` to the named plan at this checkout: the same runs, order and limits, and
-   each run's `expected_model_sha256` the repository's own. A run is a completed timing only if
-   all of these hold:
-   - its `classification` is `ok` and `as_expected` is true;
-   - `driver.route` is `EX`;
-   - the plan's `expected_model_sha256`, the record's `model_sha256` and
-     `driver.document.sha256` are one value;
-   - `driver.seconds.entry` and `launch.rss.exit_lifetime_max_phys_footprint_bytes` are numbers;
-   - `driver.output_sha256`, `driver.rows` and `driver.output_bytes` equal those of the
-     workload's other completed runs.
+   2. Items 2 to 6 below are checked by one command, with `REVISION` the full commit measured.
+      It prints each difference and exits 1 if there is any:
+      - 2. What is consumed is present: the bundle's files, one aggregate record for each run of
+        `plan.json`, the three files of each launched run, and no file of a run never launched.
+      - 3. For every run, these agree:
+        - the aggregate's `launch` with `<run id>.record.json`, in every key the aggregate
+          carries;
+        - `<run id>.jsonl` with `launch.stdout_sha256`, where that is not null;
+        - `last_stage` and `last_stage_memory` with the last stage line of the stderr file, both
+          null where there is none;
+        - `model_sha256`, where the run read its model, with the plan's and the manifest's.
+      - 4. For a run with a driver line, the stdout line equals the aggregate's `driver`. For an
+        `ok` run, each stage line's seconds also equal `driver.seconds`, and
+        `driver.seconds.total` is the sum of the seven stages to 1e-6 s (there is no total stage
+        line).
+      - 5. A run with no driver line (a kill, a timeout, a skip) has an empty or absent stdout
+        file and a null `driver`. That is not a corrupt bundle; such a run is read for its
+        classification, detail and last stage only.
+      - 6. `packet.json` lists each run once, with the aggregate's values, and `metadata.json`
+        names `REVISION`.
 
-   For each workload the report gives its completed timings, with the median, minimum and
-   maximum of `driver.seconds.entry`. That is the product's solve entry, the `entry` member of
-   `seconds` in the driver's line (the `release-timing-v2` object in `NEW_FOLDER/<run id>.jsonl`,
-   repeated in `packet.json` as `stage_seconds`). The verdict and its exit status are one of
-   these:
-   - **COMPLETE (0)**: every run of each workload is a completed timing, and no run was skipped
-     for the window or timed out under a capped timeout. A run whose timeout was capped but
-     which completed is unaffected.
-   - **INCOMPLETE BY THE WINDOW (3)**: one or more runs were `skipped_window_budget` or timed out
-     with `timeout_capped_by_window` true, and there is no finding. The report names those runs.
-   - **FINDINGS (1)**: anything else that keeps a run from being a completed timing. That means
-     a wrong or disagreeing output, a memory breach, a timeout at the full timeout, a refusal, an
-     error, a model mismatch, or a missing or null figure. Where a finding and a window problem
-     both occur, the verdict is FINDINGS and both are listed. A finding is never absorbed into a
-     window problem.
-
-   Neither run kind below is ever a timing:
-   - a run that timed out, was killed for memory (`exceeds_base_machine_budget`,
-     `killed_by_rss_cap`), was refused, ended in an error, or was skipped;
-   - the `linear-ex` run of `baseline-with-rack` (the report lists it under `not_timings`).
-
-   `host_not_quiet` lists runs whose own host check was not quiet or read no memory level. It is
-   for the measurement contract's rules and does not change the verdict.
+      ```sh
+      python3 -B - REVISION <<'EOF'
+      import hashlib, json, os, sys
+      revision = sys.argv[1]
+      problems = []
+      def differs(what):
+          problems.append(what)
+          print('DIFFERS:', what)
+      def sha256(path):
+          return hashlib.sha256(open(path, 'rb').read()).hexdigest()
+      def stage_lines(run_id):
+          path = 'out/%s.stderr.txt' % run_id
+          prefix = 'release-timing-stage '
+          if not os.path.exists(path):
+              return []
+          return [json.loads(line[len(prefix):]) for line in open(path) if line.startswith(prefix)]
+      # 2. What is consumed is present.
+      for name in ('out/metadata.json', 'out/records.jsonl', 'out/packet.json', 'plan.json', 'models/manifest.json',
+                   'build-facts.txt', 'host-before.txt', 'host-processes.log', 'baseline-set.json', 'contract.md'):
+          if not os.path.isfile(name):
+              differs('%s is missing' % name)
+      plan = json.load(open('plan.json'))
+      manifest = json.load(open('models/manifest.json'))['models']
+      records = [json.loads(line) for line in open('out/records.jsonl') if line.strip()]
+      aggregate = {r['run_id']: r for r in records}
+      if sorted(aggregate) != sorted(r['run_id'] for r in plan['runs']) or len(aggregate) != len(records):
+          differs('the aggregate does not hold one record for each run of plan.json')
+      for p in plan['runs']:
+          run_id, r = p['run_id'], aggregate.get(p['run_id'])
+          if r is None:
+              continue
+          files = ['out/%s%s' % (run_id, suffix) for suffix in ('.jsonl', '.stderr.txt', '.record.json')]
+          if 'launch' in r:   # launched: its three files
+              for path in files:
+                  if not os.path.isfile(path):
+                      differs('%s is missing' % path)
+          else:               # never launched (skipped, model missing or mismatched): no files of its own
+              for path in files:
+                  if os.path.exists(path):
+                      differs('%s exists for a run that was not launched' % path)
+          # 3. Every run.
+          if 'launch' in r and os.path.isfile(files[2]):
+              record = json.load(open(files[2]))
+              for key, value in r['launch'].items():
+                  if record.get(key) != value:
+                      differs('%s: launch.%s differs from %s' % (run_id, key, files[2]))
+              if r['launch'].get('stdout_sha256') is not None and (
+                      not os.path.isfile(files[0]) or sha256(files[0]) != r['launch']['stdout_sha256']):
+                  differs('%s: the stdout file is not launch.stdout_sha256' % run_id)
+          lines = stage_lines(run_id)
+          last = lines[-1] if lines else None
+          stage = {k: last.get(k) for k in ('repeat', 'stage', 'seconds')} if last else None
+          memory = {k: last.get(k) for k in ('ru_maxrss_bytes', 'phys_footprint_bytes',
+                                             'lifetime_max_phys_footprint_bytes')} if last else None
+          if r.get('last_stage') != stage or r.get('last_stage_memory') != memory:
+              differs('%s: last_stage or last_stage_memory differs from its stderr file' % run_id)
+          if 'model_sha256' in r and not (r['model_sha256'] == p.get('expected_model_sha256')
+                                          == (manifest.get(p['model']) or {}).get('sha256')):
+              differs('%s: model_sha256 is not the plan\'s and the manifest\'s' % run_id)
+          # 4. A run with a driver line; 5. a run without one.
+          stdout = open(files[0]).read() if os.path.isfile(files[0]) else ''
+          if r.get('driver') is not None:
+              lines_out = [line for line in stdout.splitlines() if line.strip()]
+              if len(lines_out) != 1 or json.loads(lines_out[0]) != r['driver']:
+                  differs('%s: the stdout line is not the aggregate\'s driver' % run_id)
+              if r['classification'] == 'ok':
+                  seconds = r['driver']['seconds']
+                  for line in lines:
+                      if seconds.get(line['stage']) != line['seconds']:
+                          differs('%s: stage %s seconds differ from driver.seconds' % (run_id, line['stage']))
+                  stages = ('read', 'parse', 'request', 'entry', 'serialize', 'release_envelope', 'parse_back')
+                  if abs(seconds['total'] - sum(seconds[s] for s in stages)) > 1e-6:
+                      differs('%s: driver.seconds.total is not the sum of the seven stages' % run_id)
+          elif r['classification'] == 'ok' or stdout.strip():
+              differs('%s: no driver in the aggregate but classification ok or a stdout line' % run_id)
+      # 6. The packet and the metadata.
+      packet = json.load(open('out/packet.json'))
+      for row in packet['runs'] + packet['not_run']:
+          r = aggregate.get(row['run_id']) or {}
+          driver = r.get('driver') or {}
+          pairs = {k: r.get(k) for k in ('order', 'classification', 'classification_detail', 'as_expected', 'model',
+                                         'model_sha256', 'model_bytes', 'expect', 'profile', 'nodes', 'mode', 'task')}
+          pairs.update(route=driver.get('route'), status=driver.get('status'), stage_seconds=driver.get('seconds'),
+                       rows=driver.get('rows'), output_bytes=driver.get('output_bytes'),
+                       output_sha256=driver.get('output_sha256'))
+          for key, value in pairs.items():
+              if key in row and row[key] != value:
+                  differs('%s: packet.%s differs from the aggregate' % (row['run_id'], key))
+      if sorted(row['run_id'] for row in packet['runs'] + packet['not_run']) != sorted(aggregate):
+          differs('the packet does not list each run of the aggregate once')
+      if json.load(open('out/metadata.json')).get('source_commit') != revision:
+          differs('metadata.json does not name the revision')
+      print('read-back: %d difference(s)' % len(problems))
+      sys.exit(1 if problems else 0)
+      EOF
+      ```
 
 A set that is INCOMPLETE BY THE WINDOW, or otherwise unusable, is kept as it is. A repeat runs
 the whole named plan again, into a new folder. Completed timings are never combined across
