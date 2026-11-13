@@ -5714,7 +5714,20 @@
               "core/runner/headless/tests/t4_u5b_requests/SK-F.request.json",
               "core/runner/headless/tests/t4_u5b_requests/bindings.json",
               "core/solver/performance_harness/observations/k6/k6_packet.json",
-              "core/solver/performance_harness/observations/k6b/k6b_packet.json"
+              "core/solver/performance_harness/observations/k6b/k6b_packet.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/models/manifest.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/baseline-one-case-ex-n0046-sparse-r1.record.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/baseline-one-case-ex-n0046-sparse-r2.record.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/metadata.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/packet.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/reference-system-n0027-sparse-r1.record.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/reference-system-n0027-sparse-r2.record.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/plan.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/models/manifest.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/out/baseline-one-case-ex-n0046-sparse-r1.record.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/out/metadata.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/out/packet.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/plan.json"
             ],
             "audit": "T4-S6's hash corpus test walks every .json and .jsonl file under core/ outside hidden, target, node_modules and dist directories, comparing the streamed canonical text and digests with the former path."
           },
@@ -5732,7 +5745,14 @@
             },
             "files": [
               "core/solver/performance_harness/observations/k6/counts.jsonl",
-              "core/solver/performance_harness/observations/k6b/counts.jsonl"
+              "core/solver/performance_harness/observations/k6b/counts.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/baseline-one-case-ex-n0046-sparse-r1.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/baseline-one-case-ex-n0046-sparse-r2.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/records.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/reference-system-n0027-sparse-r1.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/reference-system-n0027-sparse-r2.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/out/baseline-one-case-ex-n0046-sparse-r1.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/out/records.jsonl"
             ],
             "audit": "T4-S6's hash corpus test walks every .json and .jsonl file under core/ outside hidden, target, node_modules and dist directories, comparing the streamed canonical text and digests with the former path."
           }

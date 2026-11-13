@@ -739,7 +739,7 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
         the aggregate, the launch record and the packet). No comparison can see it.
       - The mapping's limits. It copies the self-supervising driver's `packet_row`
         (`supervise.rs`) in Python. A test ties it to the packet rows in
-        `runner/fixtures/read_back.tar.gz`, written by that supervisor at commit `e42da5ff1`, not
+        `runner/fixtures/read_back/`, written by that supervisor at commit `e42da5ff1`, not
         to the live Rust. If a future supervisor adds, removes or renames a fixed mapped row key,
         real bundles show differences. An envelope addition, a nested key copied dynamically from
         the aggregate (a new stage in `driver.seconds`, say), or a change of meaning shows none,

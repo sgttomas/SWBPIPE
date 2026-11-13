@@ -1,0 +1,7 @@
+release-timing-stage {"lifetime_max_phys_footprint_bytes":2310576,"phys_footprint_bytes":2310576,"repeat":0,"ru_maxrss_bytes":4587520,"seconds":0.000034791,"stage":"read"}
+release-timing-stage {"lifetime_max_phys_footprint_bytes":3195312,"phys_footprint_bytes":3195312,"repeat":0,"ru_maxrss_bytes":6012928,"seconds":0.00164925,"stage":"parse"}
+release-timing-stage {"lifetime_max_phys_footprint_bytes":3195312,"phys_footprint_bytes":3195312,"repeat":0,"ru_maxrss_bytes":6062080,"seconds":2.92e-7,"stage":"request"}
+release-timing-stage {"lifetime_max_phys_footprint_bytes":55165432,"phys_footprint_bytes":27886072,"repeat":0,"ru_maxrss_bytes":70598656,"seconds":6.841049,"stage":"entry"}
+release-timing-stage {"lifetime_max_phys_footprint_bytes":55165432,"phys_footprint_bytes":33751544,"repeat":0,"ru_maxrss_bytes":71663616,"seconds":0.129614458,"stage":"serialize"}
+release-timing-stage {"lifetime_max_phys_footprint_bytes":55165432,"phys_footprint_bytes":33751544,"repeat":0,"ru_maxrss_bytes":71663616,"seconds":0.001265334,"stage":"release_envelope"}
+release-timing-stage {"lifetime_max_phys_footprint_bytes":55165432,"phys_footprint_bytes":33751544,"repeat":0,"ru_maxrss_bytes":71663616,"seconds":0.033466959,"stage":"parse_back"}

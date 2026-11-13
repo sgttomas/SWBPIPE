@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerates read_back.tar.gz, the fixture of ReadBack and BaselineSet in test_release_runner.py.
+"""Regenerates read_back/, the fixture of ReadBack and BaselineSet in test_release_runner.py.
 
 The fixture in the repository was written by a debug build of release_timing at commit
 e42da5ff19cee9d8276df6b9a3169d9cec80f6f4 (the self-supervising driver's source there is that of every
@@ -10,10 +10,15 @@ later commit of this change), with:
         --binary BUILD/debug/release_timing --work NEW_FOLDER
 
 run from the repository root (on a shared host, the build through its cargo wrapper and this script
-through its slot wrapper). It writes two supervised folders under NEW_FOLDER and packs their plan.json,
-models/manifest.json and out/ into the fixture (`--fixture` names another path), with the CPU model
-blanked in metadata.json and the packet's copy of it. A new run gives new figures (times, memory, host
-readings); the tests depend only on the run forms below, which the script checks before it packs.
+through its slot wrapper). It writes two supervised folders under NEW_FOLDER and copies their plan.json,
+models/manifest.json and out/ into the fixture folder (`--fixture` names another folder) as the files
+the supervisor wrote, with the CPU model blanked in metadata.json and the packet's copy of it. It
+replaces the fixture's forms/ and window/ folders whole, so no file of an earlier run remains. The
+files are text, tracked as they are: the JSON and JSONL among them are part of the hash corpus
+(core/reporting/result_export/tests/hash_corpus.rs) and of its routing declaration in
+tools/hosted-ci-routing.json, which a regeneration that adds, removes or renames a file must follow.
+A new run gives new figures (times, memory, host readings); the tests depend only on the run forms
+below, which the script checks before it writes anything into the fixture.
 
 forms/: every packet row form, from 46-node W1 (baseline-one-case-ex) and the reference system:
   W1 r1 and W2 r1            completed (ok): ordinary runs;
@@ -27,13 +32,11 @@ quiet wait: r1 is launched with its timeout capped to what remains of the window
 (timeout_capped_by_window true); r2 is then skipped for the window.
 """
 import argparse
-import gzip
-import io
 import json
 import os
+import shutil
 import subprocess
 import sys
-import tarfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
@@ -72,14 +75,14 @@ def bundle(root, which, binary):
     found = [r['classification'] for r in rr.read_set_records(os.path.join(root, 'out'))[0]]
     if found != EXPECTED[which] or (which == 'window' and not rr.read_set_records(
             os.path.join(root, 'out'))[0][0].get('timeout_capped_by_window')):
-        raise SystemExit('%s: the runs are %s, not %s; nothing packed' % (which, found, EXPECTED[which]))
+        raise SystemExit('%s: the runs are %s, not %s; nothing written' % (which, found, EXPECTED[which]))
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--binary', required=True, help='a debug build of release_timing')
     parser.add_argument('--work', required=True, help='a new folder for the two supervised folders')
-    parser.add_argument('--fixture', default=os.path.join(HERE, 'read_back.tar.gz'))
+    parser.add_argument('--fixture', default=os.path.join(HERE, 'read_back'))
     args = parser.parse_args(argv)
     os.makedirs(args.work)
     members = []
@@ -95,15 +98,15 @@ def main(argv=None):
                 document = json.loads(data)
                 (document if name == 'out/metadata.json' else document['metadata'])['cpu_model'] = 'test fixture'
                 data = (json.dumps(document, indent=1, sort_keys=True) + '\n').encode()
+            data.decode('utf-8')  # the fixture is tracked as text
             members.append(('%s/%s' % (which, name), data))
-    raw = io.BytesIO()
-    with tarfile.open(fileobj=raw, mode='w', format=tarfile.USTAR_FORMAT) as tar:
-        for name, data in members:
-            info = tarfile.TarInfo(name)
-            info.size, info.mtime, info.mode = len(data), 0, 0o644
-            tar.addfile(info, io.BytesIO(data))
-    with open(args.fixture, 'wb') as fh, gzip.GzipFile(fileobj=fh, mode='wb', mtime=0, filename='') as gz:
-        gz.write(raw.getvalue())
+    for which in ('forms', 'window'):
+        shutil.rmtree(os.path.join(args.fixture, which), ignore_errors=True)
+    for name, data in members:
+        path = os.path.join(args.fixture, name)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'wb') as fh:
+            fh.write(data)
     print('%s: %d files' % (args.fixture, len(members)))
     return 0
 

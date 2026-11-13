@@ -21,7 +21,6 @@ import socket
 import stat
 import subprocess
 import sys
-import tarfile
 import tempfile
 import time
 import types
@@ -906,8 +905,8 @@ class BaselineSet(unittest.TestCase):
         self.assertTrue(report['timing_set']['window_problems'])
 
 
-READ_BACK_FIXTURE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'read_back.tar.gz')
-# The fixture holds two folders the self-supervising driver wrote (debug build, 46-node W1 and the
+READ_BACK_FIXTURE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'read_back')
+# The fixture holds, as the text files the supervisor wrote, two folders the self-supervising driver wrote (debug build, 46-node W1 and the
 # reference system; CPU model blanked), each with its plan.json and models/manifest.json:
 # - forms/: every packet row form. Completed: W1 r1 and W2 r1 (ok). Stopped: W1 r2 (timed_out, a 1 s
 #   timeout) and W2 r2 (exceeds_base_machine_budget, a 1 MB footprint budget). Never launched: n0047
@@ -920,16 +919,16 @@ NEVER_LAUNCHED = ('baseline-one-case-ex-n0047-sparse', 'baseline-one-case-ex-n00
 
 
 def extract_fixture(folder, bundle):
-    """`bundle`'s files of the fixture, written under `folder`; their names."""
+    """`bundle`'s files of the fixture, copied byte for byte under `folder`; their names."""
     names = []
-    with tarfile.open(READ_BACK_FIXTURE) as tar:
-        for member in tar.getmembers():
-            if member.name.startswith(bundle + '/') and member.isfile():
-                names.append(member.name[len(bundle) + 1:])
-                path = os.path.join(folder, names[-1])
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-                with open(path, 'wb') as fh:
-                    fh.write(tar.extractfile(member).read())
+    source = os.path.join(READ_BACK_FIXTURE, bundle)
+    for parent, _, files in sorted(os.walk(source)):
+        for name in sorted(files):
+            names.append(os.path.relpath(os.path.join(parent, name), source).replace(os.sep, '/'))
+            path = os.path.join(folder, names[-1])
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(os.path.join(parent, name), 'rb') as src, open(path, 'wb') as fh:
+                fh.write(src.read())
     return names
 
 
