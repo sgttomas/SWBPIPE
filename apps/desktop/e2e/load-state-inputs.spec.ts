@@ -217,6 +217,12 @@ test("blank load/reference model: author support motion, a thermal state and a m
   await expect(withheld.getByTestId("model-check-EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED")).toBeVisible();
   await expect(withheld.getByTestId("model-check-EXACT_PRESSURE_REGIONS_REQUIRED")).toBeVisible();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
+  // The withheld Solve opens the Issues drawer with its Model checks; close it before
+  // authoring, since it lies over the workspace.
+  const issues = page.getByTestId("issues-home");
+  await expect(issues.getByTestId("model-checks-panel")).toBeVisible();
+  await issues.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(issues).toHaveCount(0);
   expect(await modelHash(page)).toBe(afterHash);
 
   // The two inputs through the product's own fields: the member's explicit zero
