@@ -36,7 +36,7 @@ Check (v) is made in `samples/sample-dyn-export-trial` alone. From the benchmark
 5. Note whether the dialog lets you set the name sample-dyn-export-trial.export.mbf and this folder, and whether it displays them before anything is written.
 6. If it does, click Export; if not, click Cancel. [https://docs.sstcae.com/users_manual/export_mbf.htm (user's manual, "EXPORT MBF"; CAEPIPE-EXPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]
 7. Note the files the folder then holds, by name.
-8. Nothing in samples/sample-dyn-window or in any case folder is opened or touched by this trial.
+8. Nothing in samples/sample-dyn-window or in any case folder is opened or touched by this check.
 
 - (v) step 3, before touching the dialog, the files the folder now holds, by name: 
 - (v) step 5, whether the dialog lets you set the name sample-dyn-export-trial.export.mbf and this folder, and whether it displays them before anything is written: 
@@ -59,7 +59,7 @@ The benchmark manifest's consequences of the checks (i), (ii), (iii) and (v):
 | 3 | cpb-g6-02 | benchmark case | 7 | 9a3805aa5e48 | `cases/cpb-g6-02` | [ ] |
 | 4 | sample-dyn-batch | dry-run sample, batch | 3 | 239c4758a55c | `samples/sample-dyn-batch` | [ ] |
 | 5 | sample-dyn-window | dry-run sample, window | 3 | 239c4758a55c | `samples/sample-dyn-window` | [ ] |
-| 6 | sample-dyn-export-trial | dry-run sample, export trial | 3 | 239c4758a55c | `samples/sample-dyn-export-trial` | [ ] |
+| 6 | sample-dyn-export-trial | dry-run sample, export check | 3 | 239c4758a55c | `samples/sample-dyn-export-trial` | [ ] |
 
 ## Part 1: Dynamics runs
 
@@ -69,13 +69,13 @@ Evidence of the model run: the model saved as `<run id>.mod` from inside the pro
 
 Window only: no case of this part has a line in `BATCH_COMMANDS.txt`.
 
-From the benchmark manifest: "Exactly one of a pair is run at the sitting: form A only if the dry run's check of the dry-run sample that carries the same spectrum table agreed, form B otherwise."
+From the benchmark manifest: "At most one of a pair is analysed: form A if the dry run's check agreed, form B otherwise or when form A was switched to it at its named initial checks; every pair ends with an explicit outcome on its two run lines, including neither run and why."
 
 From the benchmark manifest: "cpb-dyn-c-n08-two is declared in the typed form only (series dynamics-comparable-table-typed, run cpb-dyn-c-n08-two--srss-srss-table-typed). Its spectrum table (DYNTWO, three rows) is carried by no dry-run sample, so the condition on which the form that writes the table may be run could never be met; by design the typed form is this case's only form. It is not a run that was skipped"
 
-A window instruction may end with a paragraph offering, on a condition it states, to make a run's setting in the model of an earlier run of the same case that is still open, instead of importing the run's file. Where its condition holds and you take it, save the model and print the results under that run's name in that run's folder, as the paragraph says, and write on its run line that the setting was made by hand. The files expected back in that folder are the same three.
+A window instruction may end with a paragraph offering, on a condition it states, to make a run's setting in the model of an earlier run of the same case that is still open, instead of importing the run's file. Where its condition holds and you take it, save the model and print the results under that run's name in that run's folder, as the paragraph says, and write on its run line that the setting was made by hand. The files expected back in that folder are the same as for a run made from its own file.
 
-Tick the form you ran, and write "not run: other form" on the other form's run line. This part is never struck to make room for a later part. If time runs out within it, stop after a complete strike number: the lowest numbers are run first, and strike numbers 32 to 34 are the first to go.
+For each pair, record its outcome on both run lines: the form you analysed and, on the other form's line, "not run: other form"; or, if form A was switched at its step 4 or 5, "switched to counterpart <id>" on form A's line (as its instruction says) and form B's own outcome on its line; or "neither run" and why on both lines. Tick the form you analysed, if any. This part is never struck to make room for a later part. If time runs out within it, stop after a complete strike number: the lowest numbers are run first, and strike numbers 32 to 34 are the first to go.
 
 | # | strike order | form | item | layout rows | MBF SHA-256 (first 12) | folder | done |
 |---|---|---|---|---|---|---|---|

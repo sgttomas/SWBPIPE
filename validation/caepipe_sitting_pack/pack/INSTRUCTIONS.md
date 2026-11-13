@@ -83,7 +83,7 @@ If a window of the program asks something or shows a message, answering or closi
 
 A window-only case's folder holds `<stem>.window-instruction.txt`, the benchmark manifest's text for that run, byte for byte. Follow it step by step in place of the four steps above; this document does not restate it. Its print and its saved model take the names section 5 gives.
 
-A window instruction may end with a paragraph offering, on a condition it states, to make a run's setting in the model of an earlier run of the same case that is still open, instead of importing the run's file. Where its condition holds and you take it, save the model and print the results under that run's name in that run's folder, as the paragraph says, and write on its run line that the setting was made by hand. The files expected back in that folder are the same three.
+A window instruction may end with a paragraph offering, on a condition it states, to make a run's setting in the model of an earlier run of the same case that is still open, instead of importing the run's file. Where its condition holds and you take it, save the model and print the results under that run's name in that run's folder, as the paragraph says, and write on its run line that the setting was made by hand. The files expected back in that folder are the same as for a run made from its own file.
 
 ## 4. The dry run comes first
 
@@ -94,7 +94,7 @@ Part 0 is the dry run. Write what you observe on `RUN_SHEET.md` under part 0, af
 3. Paste each other case line of part 0 one line at a time.
 4. Paste the batch sample's line (sample-dyn-batch). Write down answer B.
 5. In the window sample's folder (`samples/sample-dyn-window`), import `sample-dyn-window.mbf` in the program's window with the import command in 3.2, step 1. Write down answer C. Make checks (i) and (ii) against the stated values for this sample in section 5, and check (iv), and write down each answer. Then save the model as `sample-dyn-window.mod` in that folder, as a real window run saves its model as `<run id>.mod` in its own folder. The Save page (CAEPIPE-SAVE, https://docs.sstcae.com/users_manual/save__ctrl_s_.htm, read 2026-11-13) says: "This command saves model data to a .mod file format." The File Menu page (CAEPIPE-FILE-MENU, https://docs.sstcae.com/users_manual/file_menu_2.htm, read 2026-11-13) lists no command for saving under another name. Then make check (iii): write down the command that saved the imported model; whether the program let you choose the name and the folder; the name and folder the saved file took; whether the program asked anything. Do not save over the imported file. Do not analyse or print. This sample has no line in `BATCH_COMMANDS.txt`.
-6. Then go to the export trial's folder (`samples/sample-dyn-export-trial`) and make check (v) there, in that folder only, as the benchmark manifest gives it below this list. Write each answer on that folder's run line. The window sample's folder (`samples/sample-dyn-window`) and every case folder are not opened or touched by this trial.
+6. Then go to the export check's folder (`samples/sample-dyn-export-trial`) and make check (v) there, in that folder only, as the benchmark manifest gives it below this list. Write each answer on that folder's run line. The window sample's folder (`samples/sample-dyn-window`) and every case folder are not opened or touched by this check.
 7. Read the consequences listed under part 0 of `RUN_SHEET.md` and write down which apply.
 
 8. After part 0, copy the working folder to a place of your choosing on the Mac, outside every repository, leaving the working folder on Windows as it is. Say when the copy has finished and where it is; say it only once your copying tool says the copy has finished, because the copy must not change while it is being stored. It is stored there under one new name and listed by name, size and hash. Wait until you are told it is stored, whether or not a title was missing, and then go on to part 1.
@@ -110,7 +110,7 @@ Check (v), from the benchmark manifest:
 5. Note whether the dialog lets you set the name sample-dyn-export-trial.export.mbf and this folder, and whether it displays them before anything is written.
 6. If it does, click Export; if not, click Cancel. [https://docs.sstcae.com/users_manual/export_mbf.htm (user's manual, "EXPORT MBF"; CAEPIPE-EXPORT-MBF, execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read 2026-11-12]
 7. Note the files the folder then holds, by name.
-8. Nothing in samples/sample-dyn-window or in any case folder is opened or touched by this trial.
+8. Nothing in samples/sample-dyn-window or in any case folder is opened or touched by this check.
 
 Its consequence, from the benchmark manifest:
 
@@ -243,7 +243,7 @@ C. after the import in the window sample's folder, whether the import wrote a mo
 (iv) note what the spectrum options window (Options > Spectrum) offers for axis units and interpolation: 
 ```
 
-### 6. sample-dyn-export-trial (dry-run sample, export trial)
+### 6. sample-dyn-export-trial (dry-run sample, export check)
 
 Folder `samples/sample-dyn-export-trial`; model file `sample-dyn-export-trial.mbf`, layout rows 3; offered: `manual_print`.
 
@@ -283,7 +283,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--srss-srss.print.csv`, `cpb-dyn-c-n08-flat--srss-srss.mod`, `cpb-dyn-c-n08-flat--srss-srss.res`, `cpb-dyn-c-n08-flat--srss-srss.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n08-flat--srss-srss.print.csv`, `cpb-dyn-c-n08-flat--srss-srss.mod`, `cpb-dyn-c-n08-flat--srss-srss.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n08-flat--srss-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -312,7 +312,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-flat--srss-srss-table-typed.res`, `cpb-dyn-c-n08-flat--srss-srss-table-typed.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n08-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-flat--srss-srss-table-typed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n08-flat--srss-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -341,7 +341,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--srss-srss.print.csv`, `cpb-dyn-c-n02-flat--srss-srss.mod`, `cpb-dyn-c-n02-flat--srss-srss.res`, `cpb-dyn-c-n02-flat--srss-srss.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n02-flat--srss-srss.print.csv`, `cpb-dyn-c-n02-flat--srss-srss.mod`, `cpb-dyn-c-n02-flat--srss-srss.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n02-flat--srss-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -370,7 +370,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n02-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n02-flat--srss-srss-table-typed.res`, `cpb-dyn-c-n02-flat--srss-srss-table-typed.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n02-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n02-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n02-flat--srss-srss-table-typed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n02-flat--srss-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -399,7 +399,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--srss-srss.print.csv`, `cpb-dyn-c-n16-flat--srss-srss.mod`, `cpb-dyn-c-n16-flat--srss-srss.res`, `cpb-dyn-c-n16-flat--srss-srss.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n16-flat--srss-srss.print.csv`, `cpb-dyn-c-n16-flat--srss-srss.mod`, `cpb-dyn-c-n16-flat--srss-srss.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n16-flat--srss-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -428,7 +428,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n16-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n16-flat--srss-srss-table-typed.res`, `cpb-dyn-c-n16-flat--srss-srss-table-typed.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n16-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n16-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n16-flat--srss-srss-table-typed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n16-flat--srss-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -457,7 +457,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-trunc--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-trunc--srss-srss.print.csv`, `cpb-dyn-c-n08-trunc--srss-srss.mod`, `cpb-dyn-c-n08-trunc--srss-srss.res`, `cpb-dyn-c-n08-trunc--srss-srss.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n08-trunc--srss-srss.print.csv`, `cpb-dyn-c-n08-trunc--srss-srss.mod`, `cpb-dyn-c-n08-trunc--srss-srss.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n08-trunc--srss-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -486,7 +486,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-trunc--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-trunc--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-trunc--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-trunc--srss-srss-table-typed.res`, `cpb-dyn-c-n08-trunc--srss-srss-table-typed.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n08-trunc--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-trunc--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-trunc--srss-srss-table-typed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n08-trunc--srss-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -515,7 +515,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-d-n08-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-d-n08-flat--srss-srss.print.csv`, `cpb-dyn-d-n08-flat--srss-srss.mod`, `cpb-dyn-d-n08-flat--srss-srss.res`, `cpb-dyn-d-n08-flat--srss-srss.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-d-n08-flat--srss-srss.print.csv`, `cpb-dyn-d-n08-flat--srss-srss.mod`, `cpb-dyn-d-n08-flat--srss-srss.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-d-n08-flat--srss-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -544,7 +544,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-d-n08-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-d-n08-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-d-n08-flat--srss-srss-table-typed.mod`, `cpb-dyn-d-n08-flat--srss-srss-table-typed.res`, `cpb-dyn-d-n08-flat--srss-srss-table-typed.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-d-n08-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-d-n08-flat--srss-srss-table-typed.mod`, `cpb-dyn-d-n08-flat--srss-srss-table-typed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-d-n08-flat--srss-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -575,7 +575,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-two--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-two--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-two--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-two--srss-srss-table-typed.res`, `cpb-dyn-c-n08-two--srss-srss-table-typed.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n08-two--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n08-two--srss-srss-table-typed.mod`, `cpb-dyn-c-n08-two--srss-srss-table-typed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n08-two--srss-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -604,7 +604,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-m-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-m-flat--srss-srss.print.csv`, `cpb-dyn-m-flat--srss-srss.mod`, `cpb-dyn-m-flat--srss-srss.res`, `cpb-dyn-m-flat--srss-srss.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-m-flat--srss-srss.print.csv`, `cpb-dyn-m-flat--srss-srss.mod`, `cpb-dyn-m-flat--srss-srss.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-m-flat--srss-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -633,7 +633,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-m-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-m-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-m-flat--srss-srss-table-typed.mod`, `cpb-dyn-m-flat--srss-srss-table-typed.res`, `cpb-dyn-m-flat--srss-srss-table-typed.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-m-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-m-flat--srss-srss-table-typed.mod`, `cpb-dyn-m-flat--srss-srss-table-typed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-m-flat--srss-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -662,7 +662,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n04-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n04-flat--srss-srss.print.csv`, `cpb-dyn-c-n04-flat--srss-srss.mod`, `cpb-dyn-c-n04-flat--srss-srss.res`, `cpb-dyn-c-n04-flat--srss-srss.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n04-flat--srss-srss.print.csv`, `cpb-dyn-c-n04-flat--srss-srss.mod`, `cpb-dyn-c-n04-flat--srss-srss.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n04-flat--srss-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -691,7 +691,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n04-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n04-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n04-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n04-flat--srss-srss-table-typed.res`, `cpb-dyn-c-n04-flat--srss-srss-table-typed.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n04-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n04-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n04-flat--srss-srss-table-typed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n04-flat--srss-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -720,7 +720,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-l-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-l-flat--srss-srss.print.csv`, `cpb-dyn-l-flat--srss-srss.mod`, `cpb-dyn-l-flat--srss-srss.res`, `cpb-dyn-l-flat--srss-srss.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-l-flat--srss-srss.print.csv`, `cpb-dyn-l-flat--srss-srss.mod`, `cpb-dyn-l-flat--srss-srss.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-l-flat--srss-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -749,7 +749,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-l-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-l-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-l-flat--srss-srss-table-typed.mod`, `cpb-dyn-l-flat--srss-srss-table-typed.res`, `cpb-dyn-l-flat--srss-srss-table-typed.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-l-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-l-flat--srss-srss-table-typed.mod`, `cpb-dyn-l-flat--srss-srss-table-typed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-l-flat--srss-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -778,7 +778,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n01-flat--srss-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n01-flat--srss-srss.print.csv`, `cpb-dyn-c-n01-flat--srss-srss.mod`, `cpb-dyn-c-n01-flat--srss-srss.res`, `cpb-dyn-c-n01-flat--srss-srss.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n01-flat--srss-srss.print.csv`, `cpb-dyn-c-n01-flat--srss-srss.mod`, `cpb-dyn-c-n01-flat--srss-srss.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n01-flat--srss-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -807,7 +807,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n01-flat--srss-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n01-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n01-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n01-flat--srss-srss-table-typed.res`, `cpb-dyn-c-n01-flat--srss-srss-table-typed.export.mbf` (if the export was made)
+- by the window way: `cpb-dyn-c-n01-flat--srss-srss-table-typed.print.csv`, `cpb-dyn-c-n01-flat--srss-srss-table-typed.mod`, `cpb-dyn-c-n01-flat--srss-srss-table-typed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-dyn-c-n01-flat--srss-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -836,7 +836,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--abs-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--abs-abs.print.csv`, `cpb-dyn-c-n08-flat--abs-abs.mod`, `cpb-dyn-c-n08-flat--abs-abs.res`
+- by the window way: `cpb-dyn-c-n08-flat--abs-abs.print.csv`, `cpb-dyn-c-n08-flat--abs-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--abs-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -864,7 +864,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--abs-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--abs-abs-table-typed.print.csv`, `cpb-dyn-c-n08-flat--abs-abs-table-typed.mod`, `cpb-dyn-c-n08-flat--abs-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n08-flat--abs-abs-table-typed.print.csv`, `cpb-dyn-c-n08-flat--abs-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--abs-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -892,7 +892,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--abs-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--abs-srss.print.csv`, `cpb-dyn-c-n08-flat--abs-srss.mod`, `cpb-dyn-c-n08-flat--abs-srss.res`
+- by the window way: `cpb-dyn-c-n08-flat--abs-srss.print.csv`, `cpb-dyn-c-n08-flat--abs-srss.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--abs-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -920,7 +920,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--abs-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--abs-srss-table-typed.print.csv`, `cpb-dyn-c-n08-flat--abs-srss-table-typed.mod`, `cpb-dyn-c-n08-flat--abs-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n08-flat--abs-srss-table-typed.print.csv`, `cpb-dyn-c-n08-flat--abs-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--abs-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -948,7 +948,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--srss-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--srss-abs.print.csv`, `cpb-dyn-c-n08-flat--srss-abs.mod`, `cpb-dyn-c-n08-flat--srss-abs.res`
+- by the window way: `cpb-dyn-c-n08-flat--srss-abs.print.csv`, `cpb-dyn-c-n08-flat--srss-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--srss-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -976,7 +976,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--srss-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--srss-abs-table-typed.print.csv`, `cpb-dyn-c-n08-flat--srss-abs-table-typed.mod`, `cpb-dyn-c-n08-flat--srss-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n08-flat--srss-abs-table-typed.print.csv`, `cpb-dyn-c-n08-flat--srss-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--srss-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1004,7 +1004,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--closely-spaced-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--closely-spaced-abs.print.csv`, `cpb-dyn-c-n08-flat--closely-spaced-abs.mod`, `cpb-dyn-c-n08-flat--closely-spaced-abs.res`
+- by the window way: `cpb-dyn-c-n08-flat--closely-spaced-abs.print.csv`, `cpb-dyn-c-n08-flat--closely-spaced-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--closely-spaced-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1032,7 +1032,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed.print.csv`, `cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed.mod`, `cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed.print.csv`, `cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--closely-spaced-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1060,7 +1060,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--closely-spaced-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--closely-spaced-srss.print.csv`, `cpb-dyn-c-n08-flat--closely-spaced-srss.mod`, `cpb-dyn-c-n08-flat--closely-spaced-srss.res`
+- by the window way: `cpb-dyn-c-n08-flat--closely-spaced-srss.print.csv`, `cpb-dyn-c-n08-flat--closely-spaced-srss.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--closely-spaced-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1088,7 +1088,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed.print.csv`, `cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed.mod`, `cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed.print.csv`, `cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--closely-spaced-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1116,7 +1116,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--nrl-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--nrl-abs.print.csv`, `cpb-dyn-c-n08-flat--nrl-abs.mod`, `cpb-dyn-c-n08-flat--nrl-abs.res`
+- by the window way: `cpb-dyn-c-n08-flat--nrl-abs.print.csv`, `cpb-dyn-c-n08-flat--nrl-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--nrl-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1144,7 +1144,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--nrl-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--nrl-abs-table-typed.print.csv`, `cpb-dyn-c-n08-flat--nrl-abs-table-typed.mod`, `cpb-dyn-c-n08-flat--nrl-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n08-flat--nrl-abs-table-typed.print.csv`, `cpb-dyn-c-n08-flat--nrl-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--nrl-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1172,7 +1172,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--nrl-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--nrl-srss.print.csv`, `cpb-dyn-c-n08-flat--nrl-srss.mod`, `cpb-dyn-c-n08-flat--nrl-srss.res`
+- by the window way: `cpb-dyn-c-n08-flat--nrl-srss.print.csv`, `cpb-dyn-c-n08-flat--nrl-srss.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--nrl-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1200,7 +1200,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n08-flat--nrl-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n08-flat--nrl-srss-table-typed.print.csv`, `cpb-dyn-c-n08-flat--nrl-srss-table-typed.mod`, `cpb-dyn-c-n08-flat--nrl-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n08-flat--nrl-srss-table-typed.print.csv`, `cpb-dyn-c-n08-flat--nrl-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n08-flat--nrl-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1228,7 +1228,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--abs-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--abs-abs.print.csv`, `cpb-dyn-c-n02-flat--abs-abs.mod`, `cpb-dyn-c-n02-flat--abs-abs.res`
+- by the window way: `cpb-dyn-c-n02-flat--abs-abs.print.csv`, `cpb-dyn-c-n02-flat--abs-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--abs-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1256,7 +1256,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--abs-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--abs-abs-table-typed.print.csv`, `cpb-dyn-c-n02-flat--abs-abs-table-typed.mod`, `cpb-dyn-c-n02-flat--abs-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n02-flat--abs-abs-table-typed.print.csv`, `cpb-dyn-c-n02-flat--abs-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--abs-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1284,7 +1284,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--abs-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--abs-srss.print.csv`, `cpb-dyn-c-n02-flat--abs-srss.mod`, `cpb-dyn-c-n02-flat--abs-srss.res`
+- by the window way: `cpb-dyn-c-n02-flat--abs-srss.print.csv`, `cpb-dyn-c-n02-flat--abs-srss.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--abs-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1312,7 +1312,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--abs-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--abs-srss-table-typed.print.csv`, `cpb-dyn-c-n02-flat--abs-srss-table-typed.mod`, `cpb-dyn-c-n02-flat--abs-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n02-flat--abs-srss-table-typed.print.csv`, `cpb-dyn-c-n02-flat--abs-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--abs-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1340,7 +1340,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--srss-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--srss-abs.print.csv`, `cpb-dyn-c-n02-flat--srss-abs.mod`, `cpb-dyn-c-n02-flat--srss-abs.res`
+- by the window way: `cpb-dyn-c-n02-flat--srss-abs.print.csv`, `cpb-dyn-c-n02-flat--srss-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--srss-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1368,7 +1368,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--srss-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--srss-abs-table-typed.print.csv`, `cpb-dyn-c-n02-flat--srss-abs-table-typed.mod`, `cpb-dyn-c-n02-flat--srss-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n02-flat--srss-abs-table-typed.print.csv`, `cpb-dyn-c-n02-flat--srss-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--srss-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1396,7 +1396,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--closely-spaced-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--closely-spaced-abs.print.csv`, `cpb-dyn-c-n02-flat--closely-spaced-abs.mod`, `cpb-dyn-c-n02-flat--closely-spaced-abs.res`
+- by the window way: `cpb-dyn-c-n02-flat--closely-spaced-abs.print.csv`, `cpb-dyn-c-n02-flat--closely-spaced-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--closely-spaced-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1424,7 +1424,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed.print.csv`, `cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed.mod`, `cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed.print.csv`, `cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--closely-spaced-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1452,7 +1452,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--closely-spaced-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--closely-spaced-srss.print.csv`, `cpb-dyn-c-n02-flat--closely-spaced-srss.mod`, `cpb-dyn-c-n02-flat--closely-spaced-srss.res`
+- by the window way: `cpb-dyn-c-n02-flat--closely-spaced-srss.print.csv`, `cpb-dyn-c-n02-flat--closely-spaced-srss.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--closely-spaced-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1480,7 +1480,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed.print.csv`, `cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed.mod`, `cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed.print.csv`, `cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--closely-spaced-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1508,7 +1508,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--nrl-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--nrl-abs.print.csv`, `cpb-dyn-c-n02-flat--nrl-abs.mod`, `cpb-dyn-c-n02-flat--nrl-abs.res`
+- by the window way: `cpb-dyn-c-n02-flat--nrl-abs.print.csv`, `cpb-dyn-c-n02-flat--nrl-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--nrl-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1536,7 +1536,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--nrl-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--nrl-abs-table-typed.print.csv`, `cpb-dyn-c-n02-flat--nrl-abs-table-typed.mod`, `cpb-dyn-c-n02-flat--nrl-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n02-flat--nrl-abs-table-typed.print.csv`, `cpb-dyn-c-n02-flat--nrl-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--nrl-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1564,7 +1564,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--nrl-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--nrl-srss.print.csv`, `cpb-dyn-c-n02-flat--nrl-srss.mod`, `cpb-dyn-c-n02-flat--nrl-srss.res`
+- by the window way: `cpb-dyn-c-n02-flat--nrl-srss.print.csv`, `cpb-dyn-c-n02-flat--nrl-srss.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--nrl-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1592,7 +1592,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n02-flat--nrl-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n02-flat--nrl-srss-table-typed.print.csv`, `cpb-dyn-c-n02-flat--nrl-srss-table-typed.mod`, `cpb-dyn-c-n02-flat--nrl-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n02-flat--nrl-srss-table-typed.print.csv`, `cpb-dyn-c-n02-flat--nrl-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n02-flat--nrl-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1620,7 +1620,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--abs-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--abs-abs.print.csv`, `cpb-dyn-c-n16-flat--abs-abs.mod`, `cpb-dyn-c-n16-flat--abs-abs.res`
+- by the window way: `cpb-dyn-c-n16-flat--abs-abs.print.csv`, `cpb-dyn-c-n16-flat--abs-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--abs-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1648,7 +1648,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--abs-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--abs-abs-table-typed.print.csv`, `cpb-dyn-c-n16-flat--abs-abs-table-typed.mod`, `cpb-dyn-c-n16-flat--abs-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n16-flat--abs-abs-table-typed.print.csv`, `cpb-dyn-c-n16-flat--abs-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--abs-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1676,7 +1676,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--abs-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--abs-srss.print.csv`, `cpb-dyn-c-n16-flat--abs-srss.mod`, `cpb-dyn-c-n16-flat--abs-srss.res`
+- by the window way: `cpb-dyn-c-n16-flat--abs-srss.print.csv`, `cpb-dyn-c-n16-flat--abs-srss.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--abs-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1704,7 +1704,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--abs-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--abs-srss-table-typed.print.csv`, `cpb-dyn-c-n16-flat--abs-srss-table-typed.mod`, `cpb-dyn-c-n16-flat--abs-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n16-flat--abs-srss-table-typed.print.csv`, `cpb-dyn-c-n16-flat--abs-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--abs-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1732,7 +1732,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--srss-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--srss-abs.print.csv`, `cpb-dyn-c-n16-flat--srss-abs.mod`, `cpb-dyn-c-n16-flat--srss-abs.res`
+- by the window way: `cpb-dyn-c-n16-flat--srss-abs.print.csv`, `cpb-dyn-c-n16-flat--srss-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--srss-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1760,7 +1760,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--srss-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--srss-abs-table-typed.print.csv`, `cpb-dyn-c-n16-flat--srss-abs-table-typed.mod`, `cpb-dyn-c-n16-flat--srss-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n16-flat--srss-abs-table-typed.print.csv`, `cpb-dyn-c-n16-flat--srss-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--srss-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1788,7 +1788,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--closely-spaced-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--closely-spaced-abs.print.csv`, `cpb-dyn-c-n16-flat--closely-spaced-abs.mod`, `cpb-dyn-c-n16-flat--closely-spaced-abs.res`
+- by the window way: `cpb-dyn-c-n16-flat--closely-spaced-abs.print.csv`, `cpb-dyn-c-n16-flat--closely-spaced-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--closely-spaced-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1816,7 +1816,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed.print.csv`, `cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed.mod`, `cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed.print.csv`, `cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--closely-spaced-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1844,7 +1844,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--closely-spaced-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--closely-spaced-srss.print.csv`, `cpb-dyn-c-n16-flat--closely-spaced-srss.mod`, `cpb-dyn-c-n16-flat--closely-spaced-srss.res`
+- by the window way: `cpb-dyn-c-n16-flat--closely-spaced-srss.print.csv`, `cpb-dyn-c-n16-flat--closely-spaced-srss.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--closely-spaced-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1872,7 +1872,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed.print.csv`, `cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed.mod`, `cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed.print.csv`, `cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--closely-spaced-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1900,7 +1900,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--nrl-abs` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--nrl-abs.print.csv`, `cpb-dyn-c-n16-flat--nrl-abs.mod`, `cpb-dyn-c-n16-flat--nrl-abs.res`
+- by the window way: `cpb-dyn-c-n16-flat--nrl-abs.print.csv`, `cpb-dyn-c-n16-flat--nrl-abs.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--nrl-abs.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1928,7 +1928,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--nrl-abs-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--nrl-abs-table-typed.print.csv`, `cpb-dyn-c-n16-flat--nrl-abs-table-typed.mod`, `cpb-dyn-c-n16-flat--nrl-abs-table-typed.res`
+- by the window way: `cpb-dyn-c-n16-flat--nrl-abs-table-typed.print.csv`, `cpb-dyn-c-n16-flat--nrl-abs-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--nrl-abs-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1956,7 +1956,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--nrl-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--nrl-srss.print.csv`, `cpb-dyn-c-n16-flat--nrl-srss.mod`, `cpb-dyn-c-n16-flat--nrl-srss.res`
+- by the window way: `cpb-dyn-c-n16-flat--nrl-srss.print.csv`, `cpb-dyn-c-n16-flat--nrl-srss.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--nrl-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -1984,7 +1984,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-c-n16-flat--nrl-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-c-n16-flat--nrl-srss-table-typed.print.csv`, `cpb-dyn-c-n16-flat--nrl-srss-table-typed.mod`, `cpb-dyn-c-n16-flat--nrl-srss-table-typed.res`
+- by the window way: `cpb-dyn-c-n16-flat--nrl-srss-table-typed.print.csv`, `cpb-dyn-c-n16-flat--nrl-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-c-n16-flat--nrl-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -2012,7 +2012,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-d-n08-flat--abs-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-d-n08-flat--abs-srss.print.csv`, `cpb-dyn-d-n08-flat--abs-srss.mod`, `cpb-dyn-d-n08-flat--abs-srss.res`
+- by the window way: `cpb-dyn-d-n08-flat--abs-srss.print.csv`, `cpb-dyn-d-n08-flat--abs-srss.mod`, and any results file the program writes (for example `cpb-dyn-d-n08-flat--abs-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -2040,7 +2040,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-d-n08-flat--abs-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-d-n08-flat--abs-srss-table-typed.print.csv`, `cpb-dyn-d-n08-flat--abs-srss-table-typed.mod`, `cpb-dyn-d-n08-flat--abs-srss-table-typed.res`
+- by the window way: `cpb-dyn-d-n08-flat--abs-srss-table-typed.print.csv`, `cpb-dyn-d-n08-flat--abs-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-d-n08-flat--abs-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -2068,7 +2068,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-d-n08-flat--closely-spaced-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-d-n08-flat--closely-spaced-srss.print.csv`, `cpb-dyn-d-n08-flat--closely-spaced-srss.mod`, `cpb-dyn-d-n08-flat--closely-spaced-srss.res`
+- by the window way: `cpb-dyn-d-n08-flat--closely-spaced-srss.print.csv`, `cpb-dyn-d-n08-flat--closely-spaced-srss.mod`, and any results file the program writes (for example `cpb-dyn-d-n08-flat--closely-spaced-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -2096,7 +2096,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed.print.csv`, `cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed.mod`, `cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed.res`
+- by the window way: `cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed.print.csv`, `cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-d-n08-flat--closely-spaced-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -2124,7 +2124,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-d-n08-flat--nrl-srss` of the pack folder):
 
-- by the window way: `cpb-dyn-d-n08-flat--nrl-srss.print.csv`, `cpb-dyn-d-n08-flat--nrl-srss.mod`, `cpb-dyn-d-n08-flat--nrl-srss.res`
+- by the window way: `cpb-dyn-d-n08-flat--nrl-srss.print.csv`, `cpb-dyn-d-n08-flat--nrl-srss.mod`, and any results file the program writes (for example `cpb-dyn-d-n08-flat--nrl-srss.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -2152,7 +2152,7 @@ From the benchmark manifest, what the screening of this run waits for: "a headle
 
 Expected back in this folder (`cases/cpb-dyn-d-n08-flat--nrl-srss-table-typed` of the pack folder):
 
-- by the window way: `cpb-dyn-d-n08-flat--nrl-srss-table-typed.print.csv`, `cpb-dyn-d-n08-flat--nrl-srss-table-typed.mod`, `cpb-dyn-d-n08-flat--nrl-srss-table-typed.res`
+- by the window way: `cpb-dyn-d-n08-flat--nrl-srss-table-typed.print.csv`, `cpb-dyn-d-n08-flat--nrl-srss-table-typed.mod`, and any results file the program writes (for example `cpb-dyn-d-n08-flat--nrl-srss-table-typed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -4020,7 +4020,7 @@ Its hold names the product's gate; `QUALIFICATION.txt` applies.
 
 Expected back in this folder (`cases/cpb-n-01--stop-axial-closed` of the pack folder):
 
-- by the window way: `cpb-n-01--stop-axial-closed.print.csv`, `cpb-n-01--stop-axial-closed.mod`, `cpb-n-01--stop-axial-closed.res`, `cpb-n-01--stop-axial-closed.export.mbf` (if the export was made)
+- by the window way: `cpb-n-01--stop-axial-closed.print.csv`, `cpb-n-01--stop-axial-closed.mod`, `cpb-n-01--stop-axial-closed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-n-01--stop-axial-closed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -4051,7 +4051,7 @@ Its hold names the product's gate; `QUALIFICATION.txt` applies.
 
 Expected back in this folder (`cases/cpb-n-02--rest-lift-off` of the pack folder):
 
-- by the window way: `cpb-n-02--rest-lift-off.print.csv`, `cpb-n-02--rest-lift-off.mod`, `cpb-n-02--rest-lift-off.res`, `cpb-n-02--rest-lift-off.export.mbf` (if the export was made)
+- by the window way: `cpb-n-02--rest-lift-off.print.csv`, `cpb-n-02--rest-lift-off.mod`, `cpb-n-02--rest-lift-off.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-n-02--rest-lift-off.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -4082,7 +4082,7 @@ Its hold names the product's gate; `QUALIFICATION.txt` applies.
 
 Expected back in this folder (`cases/cpb-n-03--rest-closed` of the pack folder):
 
-- by the window way: `cpb-n-03--rest-closed.print.csv`, `cpb-n-03--rest-closed.mod`, `cpb-n-03--rest-closed.res`, `cpb-n-03--rest-closed.export.mbf` (if the export was made)
+- by the window way: `cpb-n-03--rest-closed.print.csv`, `cpb-n-03--rest-closed.mod`, `cpb-n-03--rest-closed.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-n-03--rest-closed.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -4113,7 +4113,7 @@ Its hold names the product's gate; `QUALIFICATION.txt` applies.
 
 Expected back in this folder (`cases/cpb-n-04--stop-axial-open` of the pack folder):
 
-- by the window way: `cpb-n-04--stop-axial-open.print.csv`, `cpb-n-04--stop-axial-open.mod`, `cpb-n-04--stop-axial-open.res`, `cpb-n-04--stop-axial-open.export.mbf` (if the export was made)
+- by the window way: `cpb-n-04--stop-axial-open.print.csv`, `cpb-n-04--stop-axial-open.mod`, `cpb-n-04--stop-axial-open.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-n-04--stop-axial-open.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
@@ -4144,7 +4144,7 @@ Its hold names the product's gate; `QUALIFICATION.txt` applies.
 
 Expected back in this folder (`cases/cpb-h-01--constant-support` of the pack folder):
 
-- by the window way: `cpb-h-01--constant-support.print.csv`, `cpb-h-01--constant-support.mod`, `cpb-h-01--constant-support.res`, `cpb-h-01--constant-support.export.mbf` (if the export was made)
+- by the window way: `cpb-h-01--constant-support.print.csv`, `cpb-h-01--constant-support.mod`, `cpb-h-01--constant-support.export.mbf` (if the export was made), and any results file the program writes (for example `cpb-h-01--constant-support.res`)
 
 A capture brought back without this evidence may remain unusable for a qualified comparison. Bring back everything in each run's folder, and do not tidy, rename or delete anything.
 
