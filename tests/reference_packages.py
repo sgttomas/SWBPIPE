@@ -49,7 +49,8 @@ CHECK_TIMEOUT_S = 120
 # (bounded reading at e4c5787ca, JUnit times); hosted, the Python product contracts job of run 43508652617.
 LIMIT_MARGIN = 5
 SLOW_CHECKS = {  # (package, check index): (limit in s, slowest observed s, where observed)
-    ("t4_i9", 0): (600, 119.83, "hosted, stopped at the then 120 s limit, so a lower bound; local 99.88"),
+    ("t4_i9", 0): (900, 119.83, "hosted, stopped at the then 120 s limit, so a lower bound; local 99.88; "
+                               "900 s keeps the margin for a true hosted time up to 180 s"),
     ("pf_timoshenko", 0): (330, 65.07, "local; hosted 56.92"),
     ("m3_judge", 0): (290, 56.73, "local; hosted 36.50"),
     ("t4_u4b", 0): (230, 44.83, "local; hosted 35.24"),
