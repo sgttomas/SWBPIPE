@@ -125,7 +125,10 @@ fn small_r_it_without_iterations_vec() -> u128 {
 #[test]
 fn r_it_by_hand() {
     let s_iter = size_of::<NonlinearFrameIteration>() as u128;
-    assert_eq!(R_it(&small()), Ok(small_r_it_without_iterations_vec() + 4 * s_iter));
+    assert_eq!(
+        R_it(&small()),
+        Ok(small_r_it_without_iterations_vec() + 4 * s_iter)
+    );
 }
 
 #[test]
@@ -161,7 +164,10 @@ fn t_phases_by_hand() {
         (prep, aud, ord, red, s, fin, eq, obs),
         (8715, 77_628, 12_156, 460, 3662, 46_040, 1728, 12_696)
     );
-    assert_eq!((v, f, base, gap, asi, geo), (576, 96, 29_276, 1612, 191, 374));
+    assert_eq!(
+        (v, f, base, gap, asi, geo),
+        (576, 96, 29_276, 1612, 191, 374)
+    );
     assert_eq!(T_Prep(&c), Ok(prep));
     assert_eq!(T_Aud(&c), Ok(aud));
     assert_eq!(T_Ord(&c), Ok(ord));
@@ -368,11 +374,19 @@ fn counts_near_u64_max_return_the_error() {
     // A single quadratic count suffices: 24·F with f₀ near u64::MAX, and 24d̄².
     let mut c = small();
     c.f0 = u64::MAX;
-    assert_eq!(T_Ord(&c), Err(SparseAdmissionError::Overflow { term: "Ord" }));
+    assert_eq!(
+        T_Ord(&c),
+        Err(SparseAdmissionError::Overflow { term: "Ord" })
+    );
     assert!(M_loop(&c).is_err());
     let mut c = small();
     c.d_bar = u64::MAX;
-    assert_eq!(T_F(&c), Err(SparseAdmissionError::Overflow { term: "F (coupling)" }));
+    assert_eq!(
+        T_F(&c),
+        Err(SparseAdmissionError::Overflow {
+            term: "F (coupling)"
+        })
+    );
     assert!(M_loop(&c).is_err());
     // I·R_it with both near the top.
     let mut c = all(u64::MAX / 4096);
@@ -419,7 +433,6 @@ macro_rules! pin {
 
 #[test]
 fn size_pins() {
-    use open_pipe_stress_solver_diagnostics::SolverDiagnostic;
     use open_pipe_stress_frame_kernel::connector::ObjectiveConnector;
     use open_pipe_stress_frame_kernel::structural::exact_boundary::ForceContribution;
     use open_pipe_stress_frame_kernel::structural::{
@@ -431,6 +444,7 @@ fn size_pins() {
     use open_pipe_stress_nonlinear_supports::{
         ActiveSetIteration, NonlinearSupport, SupportStateRecord, TrialSupportState,
     };
+    use open_pipe_stress_solver_diagnostics::SolverDiagnostic;
     use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 
     use crate::product_equilibrium::{ProductEquilibriumReport, WorkRow};
@@ -443,39 +457,104 @@ fn size_pins() {
         SlidingFrictionEvidence, SparseLinearSolveEvidence,
     };
 
-    pin!(wrong, NonlinearFrameIteration, PIN_S_ITER, "S_iter: R_it's 4·S_iter and X");
+    pin!(
+        wrong,
+        NonlinearFrameIteration,
+        PIN_S_ITER,
+        "S_iter: R_it's 4·S_iter and X"
+    );
     pin!(wrong, ProductCompletion, 544, "X's completion box (≈ 552)");
     pin!(wrong, LinearizedSolve, 664, "T's Base (held base solve)");
-    pin!(wrong, ExactGapReport, 1592, "S_iter (StrictGapEvidence::Qualified inline)");
+    pin!(
+        wrong,
+        ExactGapReport,
+        1592,
+        "S_iter (StrictGapEvidence::Qualified inline)"
+    );
     pin!(wrong, StrictGapEvidence, 1592, "S_iter");
     pin!(wrong, ExactGapWork, 72, "S_iter");
     pin!(wrong, LoopStiffness, 104, "X's completion box (≈ 112)");
-    pin!(wrong, NonlinearFrameSolveInput, 328, "X's completion box (input 328)");
-    pin!(wrong, NonlinearFrameSolveResult, 208, "X's completion output box");
+    pin!(
+        wrong,
+        NonlinearFrameSolveInput,
+        328,
+        "X's completion box (input 328)"
+    );
+    pin!(
+        wrong,
+        NonlinearFrameSolveResult,
+        208,
+        "X's completion output box"
+    );
     pin!(wrong, SparseLinearSolveEvidence, 256, "S_iter");
     pin!(wrong, ProductEquilibriumReport, 88, "S_iter");
     pin!(wrong, StructuralReport, 248, "S_iter");
     pin!(wrong, ActiveSetIteration, 96, "S_iter");
     pin!(wrong, WorkRow, 64, "R_pe and Eq (64f work_rows)");
-    pin!(wrong, ResidualRow, 104, "R_sr, R_pe, Fin, Eq (208f per row vector)");
+    pin!(
+        wrong,
+        ResidualRow,
+        104,
+        "R_sr, R_pe, Fin, Eq (208f per row vector)"
+    );
     pin!(wrong, PivotEvidence, 48, "R_sr and S (48f, 96f)");
     pin!(wrong, ContributionRounding, 96, "R_sr (96R) and Aud (192R)");
-    pin!(wrong, StiffnessContribution, 24, "H_loop contributions (48c)");
+    pin!(
+        wrong,
+        StiffnessContribution,
+        24,
+        "H_loop contributions (48c)"
+    );
     pin!(wrong, SymmetricMatrixEntry, 24, "Ord and Obs entries (48L)");
     pin!(wrong, StiffnessBlock, 1168, "H_asm_peak blocks (1168B)");
-    pin!(wrong, (usize, usize, Matrix12), 1168, "H_asm_peak formed (1168·…)");
-    pin!(wrong, FrameElement, 152, "H_in (152E) and H_loop formation (152E)");
-    pin!(wrong, ObjectiveConnector, 712, "H_in (712C) and H_loop formation (1424C)");
+    pin!(
+        wrong,
+        (usize, usize, Matrix12),
+        1168,
+        "H_asm_peak formed (1168·…)"
+    );
+    pin!(
+        wrong,
+        FrameElement,
+        152,
+        "H_in (152E) and H_loop formation (152E)"
+    );
+    pin!(
+        wrong,
+        ObjectiveConnector,
+        712,
+        "H_in (712C) and H_loop formation (1424C)"
+    );
     pin!(wrong, TieRod, 248, "H_loop formation (1032C_r + 496T)");
     pin!(wrong, CurvedBendStiffnessElement, 3504, "H_in (3504B)");
     pin!(wrong, NonlinearSupport, 72, "H_in (104k) and ASI (176k)");
-    pin!(wrong, SupportStateRecord, 32, "H_in, H_loop, R_it and X (32k)");
+    pin!(
+        wrong,
+        SupportStateRecord,
+        32,
+        "H_in, H_loop, R_it and X (32k)"
+    );
     pin!(wrong, TrialSupportState, 72, "ASI (176k)");
     pin!(wrong, FrictionNormalReaction, 32, "H_in (32k_x)");
     pin!(wrong, DerivedFrictionNormalReaction, 64, "H_in (64d̄)");
-    pin!(wrong, AppliedSlidingFrictionForce, 40, "R_it friction forces (80k)");
-    pin!(wrong, SlidingFrictionCandidate, 64, "per-iterate O(k) transients");
-    pin!(wrong, SlidingFrictionEvidence, 48, "per-iterate O(k) transients");
+    pin!(
+        wrong,
+        AppliedSlidingFrictionForce,
+        40,
+        "R_it friction forces (80k)"
+    );
+    pin!(
+        wrong,
+        SlidingFrictionCandidate,
+        64,
+        "per-iterate O(k) transients"
+    );
+    pin!(
+        wrong,
+        SlidingFrictionEvidence,
+        48,
+        "per-iterate O(k) transients"
+    );
     pin!(wrong, SolverDiagnostic, 304, "D_as (304 per diagnostic)");
     pin!(wrong, ForceContribution, 40, "Gap (92n)");
     pin!(wrong, SparseStiffness, 104, "the loop stiffness's struct");

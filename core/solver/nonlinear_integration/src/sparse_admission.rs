@@ -93,7 +93,10 @@ impl std::fmt::Display for SparseAdmissionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Overflow { term } => {
-                write!(f, "sparse admission estimate term {term} is more than u128::MAX bytes")
+                write!(
+                    f,
+                    "sparse admission estimate term {term} is more than u128::MAX bytes"
+                )
             }
         }
     }
@@ -327,10 +330,7 @@ pub fn H_asm_peak(c: &Counts) -> Est {
     named(
         sum([
             mul(1168, w(c.B)),
-            mul(
-                1168,
-                max([e_plus_c, mul(2, sum([w(c.E), w(c.C), w(c.T)]))]),
-            ),
+            mul(1168, max([e_plus_c, mul(2, sum([w(c.E), w(c.C), w(c.T)]))])),
             sum([mul(16, eps), mul(8, w(c.s))]),
             sum([
                 mul(56, w(c.N)),
@@ -423,12 +423,7 @@ pub fn R_it(c: &Counts) -> Est {
             // recovery strings, once: 2(400 + 2σ_k + 20k + 42(r₀ + k))
             mul(
                 2,
-                sum([
-                    Some(400),
-                    mul(2, w(c.sigma_k)),
-                    mul(20, w(c.k)),
-                    mul(42, a),
-                ]),
+                sum([Some(400), mul(2, w(c.sigma_k)), mul(20, w(c.k)), mul(42, a)]),
             ),
             // the iterations Vec: 4·S_iter
             Some(ITERATIONS_VEC_ELEMENTS * S_ITER),
@@ -478,7 +473,12 @@ pub fn X(c: &Counts) -> Est {
 /// (≤ 56z_f + 20f + 16n + 8 + 331, FKS:1544–1723).
 pub fn T_Prep(c: &Counts) -> Est {
     named(
-        sum([mul(56, w(c.z)), mul(20, w(c.f0)), mul(16, w(c.n)), Some(339)]),
+        sum([
+            mul(56, w(c.z)),
+            mul(20, w(c.f0)),
+            mul(16, w(c.n)),
+            Some(339),
+        ]),
         "Prep",
     )
 }
@@ -487,12 +487,7 @@ pub fn T_Prep(c: &Counts) -> Est {
 /// (FKS:1410–1437, :1770–1870).
 pub fn T_Aud(c: &Counts) -> Est {
     named(
-        sum([
-            mul(344, w(c.z)),
-            mul(48, Some(c.c()?)),
-            w(c.n),
-            Some(384),
-        ]),
+        sum([mul(344, w(c.z)), mul(48, Some(c.c()?)), w(c.n), Some(384)]),
         "Aud",
     )
 }
@@ -605,12 +600,7 @@ pub fn T_Base(c: &Counts) -> Est {
 /// (92n + 16f + 16a + 0.3 KiB, SA:3405–3446).
 pub fn T_Gap(c: &Counts) -> Est {
     named(
-        sum([
-            mul(92, w(c.n)),
-            mul(16, w(c.f0)),
-            mul(16, c.a()),
-            Some(300),
-        ]),
+        sum([mul(92, w(c.n)), mul(16, w(c.f0)), mul(16, c.a()), Some(300)]),
         "Gap",
     )
 }
