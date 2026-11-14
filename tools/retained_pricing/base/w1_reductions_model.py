@@ -111,7 +111,9 @@ REDUCED_PINS = {
     # in place of the closure over mass_inputs. No reduction's owner or lifetime changes; the L5 texts are unchanged.
     # One-way friction normal source (DEL-04-04 REQ-012): lib.rs re-read: the nonlinear friction source admission and the
     # derived normal's publication, inside the loops over nonlinear supports; no reduction's owner or lifetime changes.
-    "core/product_physics/src/lib.rs": "5f03bfccaac2d013d4db8bfdb072f3c97eca2538f1a6e3bfdd8c4a3e0ef12e8f",
+    # DEL-04-01 VER-007: lib.rs re-read: line 10 also declares a #[cfg(test)] test module (no line moves); no
+    # reduction's owner or lifetime changes; the L5 texts are unchanged.
+    "core/product_physics/src/lib.rs": "b5555650788f788782d6f063ae7b789bc8850122d4363590dd6ee2788f9584b1",
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",
