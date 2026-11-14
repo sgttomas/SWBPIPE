@@ -2254,9 +2254,14 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // W1 +781,195 B, W3 +957,715 B,
 // X1 +1,268,703 B, in both modes, from maintained eval at the in-build atoms (s((&str,String)) joins the profile),
 // without R. W3 stays the maximum.
+// SHA-256 finalize() hex sizing on main 053bde0b3: a streaming Sha256's finalize() formatted as hex is sized
+// at its 64 characters, not the 16 B default, at retained_wire.rs:239, source_receipt.rs:41,
+// declared_member_load.rs:500 and source_blocks.rs:191 (TAV_W +3,744 B, TAV_X +1,440 B): W1-W5 +3,744 B and
+// X1-X3 +1,440 B in both modes, from maintained eval at the unchanged in-build atoms, without R. W3 stays the
+// maximum.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_451_174_436, 6_793_168_997, 8_745_081_345, 8_538_777_545, 7_612_394_455, 8_527_642_048, 7_259_713_982, 6_932_975_514],
-    [6_510_305_780, 6_852_300_341, 8_804_212_689, 8_597_908_889, 7_671_525_799, 8_586_773_392, 7_318_845_326, 6_992_106_858],
+    [6_451_178_180, 6_793_172_741, 8_745_085_089, 8_538_781_289, 7_612_398_199, 8_527_643_488, 7_259_715_422, 6_932_976_954],
+    [6_510_309_524, 6_852_304_085, 8_804_216_433, 8_597_912_633, 7_671_529_543, 8_586_774_832, 7_318_846_766, 6_992_108_298],
 ];
 
 #[test]

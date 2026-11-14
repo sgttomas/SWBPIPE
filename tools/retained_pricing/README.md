@@ -674,3 +674,38 @@ and #10). This tool, with the twelve re-pinned base files restored from main and
 rule kept, reproduces main `4d29420a0`'s 1,602 coefficients, its 1,713-line block and its 154-line point atoms exactly.
 The source work law takes ΔE = 93 B (the setting's member) in the three mixed requests: each selected case and the
 composite publication charge 24E, so each moves by 2,232.
+
+### SHA-256 finalize() hex sizing (upward re-pricing on main 053bde0b3)
+
+**The change.** A SHA-256 digest in lowercase hex is 64 characters, whatever expression produced it. The text
+budget's `{:x}` rule (`base/text_budget.py` `arg_max`) gave 64 B only to an argument naming `digest` or `Sha256`, so
+a streaming hasher's `hasher.finalize()` fell to the 16 B default, below the string's 64 characters. `arg_max` now
+reads the hasher's construction in the enclosing function (`hasher_type`: `let [mut] NAME [: T] = [path::]Type::new()`
+between the site and its `fn` header) and sizes a `Sha256`'s `finalize()` at 64 B. A `finalize()` of any other or
+unproven hasher (a wider hash, one built in another function, one passed in) is left unclassified, so the run stops
+instead of sizing it silently. Other hex arguments keep their sizes. `tests/test_hex_digest_sizing.py` holds the
+64 B case, the unchanged sizes, the unclassified cases and the premise over the priced crates (every hex
+`finalize()` there formats a hasher built as a `Sha256`).
+
+**The sites.** Of main's 47 priced hex placeholders, five format a streaming `Sha256::new()` hasher's `finalize()`,
+each built in the same function: product_physics `retained_wire.rs:239` (built :237), `source_receipt.rs:41`
+(:38) and `source_recovery/j7_rf_census.rs:239` (:227, not reached on D1); result_export
+`declared_member_load.rs:500` (:459) and `source_blocks.rs:191` (:189). No wider hash is formatted in the priced
+crates. The other 42 are sized correctly or over (16 B for `016x` of f64 bits and limbs and per `02x` byte, 32 B
+for `032x` of a u128, 64 B for `Sha256::digest(...)` and a value named `digest`).
+
+**Derivation.** This tool on main `053bde0b3` against main's registered tree (`d5e8063f4`'s run, which main's own
+`generate --check` reproduces against `053bde0b3`'s block with its committed basis): the four points complete,
+o10 0/0. Only the four reached sites move, each from 16 B to 64 B at its unchanged multiplicity; total text rises
+L(3,0) +4,224 B, L(2,1) +4,320 B, L(1,2) +4,416 B, E +5,088 B. Of 1,606 coefficients 1,600 are equal and 6 higher,
+none lower: TAV_text_requested and TAV_text_moving +5,088 B; TAV_W and success__TAV_W +3,744 B (the `_W` budget:
+retained_wire +1,056, source_receipt +96 at multiplicity 1 in that variant, declared_member_load +864,
+source_blocks +1,728); TAV_X and success__TAV_X +1,440 B (the `_X` budget: source_receipt at multiplicity 15).
+The block is regenerated with this revision's basis line and both `--check`s are equal; the point atoms are
+unchanged.
+
+**Native checks.** At the unchanged in-build atoms every W phase rises +3,744 B and every X phase +1,440 B in both
+modes; W3 stays the maximum (8,745,085,089 B sparse, 8,804,216,433 B dense, without R). The law tests' record is
+re-pinned to those values and all nine `profile_` tests pass. Every phase of both modes fits the unchanged M, the
+0.9 margin and the upward-rounded 5% TEXT reserve; the minimum headroom is 2,477,309,521 B (dense W3; sparse
+2,536,440,865 B, W3), from 2,477,313,452 B and 2,536,444,796 B.
