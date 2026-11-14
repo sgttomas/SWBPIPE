@@ -400,9 +400,9 @@
    ],
    "producer": {
     "kind": "none",
-    "status": "frozen_copy",
+    "status": "hand_authored",
     "switch_plumbed": false,
-    "switch_route": "no producer: a trimmed copy of the RT-A3 S6 no-gap overlay (one case, RS-SUS); edit the document, then re-produce its raw file with core/product_physics/tests/report_standing_witnesses.rs and the render input with its writer"
+    "switch_route": "no producer (made once as a trimmed copy of the RT-A3 S6 no-gap overlay, one case, RS-SUS): edit the document, then re-produce its raw file with core/product_physics/tests/report_standing_witnesses.rs and the render input with its writer"
    },
    "pinned_by": [
     "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json (core/product_physics/tests/report_standing_witnesses.rs)",
@@ -965,6 +965,14 @@
     "core/reporting/result_export/tests/retained_precision_derivative_golden.rs (EXACT_PINNED)",
     "tests/test_retained_precision_b3.py (EXACT_PINNED)",
     "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx (EXACT_GOLDEN)"
+   ]
+  },
+  {
+   "paths": [
+    "validation/references/rt_a3_s6/requests/c1_gap.json"
+   ],
+   "pinned_by": [
+    "core/product_physics/tests/report_standing_witnesses.rs (fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json, and through apps/desktop/src/features/report/reportStandingWitness.test.tsx the render input that holds this request as exact intake text)"
    ]
   }
  ],

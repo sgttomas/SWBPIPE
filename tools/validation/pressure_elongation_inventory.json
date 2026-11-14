@@ -1304,7 +1304,8 @@
     "core/product_physics/tests/rt_a3_s6_reference_system.rs",
     "core/product_physics/tests/exact_admission_seam.rs",
     "core/product_physics/src/modal/tests_state.rs",
-    "tests/test_rt_a3_nonlinear_reader.py"
+    "tests/test_rt_a3_nonlinear_reader.py",
+    "core/product_physics/tests/report_standing_witnesses.rs (fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json, and through apps/desktop/src/features/report/reportStandingWitness.test.tsx the render input that holds this request as exact intake text)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -3854,9 +3855,9 @@
    "path": "fixtures/reports/invented/report_standing_witnesses/coupled_friction.request.json",
    "producer": {
     "kind": "none",
-    "status": "frozen_copy",
+    "status": "hand_authored",
     "switch_plumbed": false,
-    "switch_route": "no producer: a trimmed copy of the RT-A3 S6 no-gap overlay (one case, RS-SUS); edit the document, then re-produce its raw file with core/product_physics/tests/report_standing_witnesses.rs and the render input with its writer"
+    "switch_route": "no producer (made once as a trimmed copy of the RT-A3 S6 no-gap overlay, one case, RS-SUS): edit the document, then re-produce its raw file with core/product_physics/tests/report_standing_witnesses.rs and the render input with its writer"
    },
    "pinned_by": [
     "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json (core/product_physics/tests/report_standing_witnesses.rs)",
