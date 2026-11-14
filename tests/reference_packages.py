@@ -1,13 +1,14 @@
 """The one table of the reference packages under validation/references/, read by the two maintained tests
 that check what every package holds:
 
-- tests/test_reference_packages.py, CONSISTENCY (pure reading): every directory has an entry; every line
-  of every checksum list matches the bytes it names; the lists present are the lists declared; and
-  MEMBERSHIP: every file of a package is named by a line of a verified list or is unlisted for a stated
-  reason, on a basis the package states (see Membership);
-- tests/test_reference_packages_regeneration.py, REGENERATION: each retained check command from the
-  package's README, with an assertion that no byte under validation/references/ changed. Deferred
-  commands are not run.
+- tests/test_reference_packages.py, CONSISTENCY (pure reading): every directory has an entry; verified
+  checksum lists are checked against the bytes they name, with declared failing-line exceptions;
+  historical lists are themselves pinned, and pin lists check their declared committed-file targets;
+  the lists present are the lists declared; and MEMBERSHIP: every file of a package is named by a line
+  of a verified list or is unlisted for a stated reason, on a basis the package states (see Membership);
+- tests/test_reference_packages_regeneration.py, REGENERATION: each retained check command documented
+  by its package (in its README or module docstring), with an assertion that no byte under
+  validation/references/ changed. Deferred commands are not run.
 
 These tests do not check that a package's generators are independent of product code.
 
@@ -72,7 +73,7 @@ class Sums:
 
 @dataclass(frozen=True)
 class Check:
-    """A check command from the package's README, run from `cwd` (package-relative)."""
+    """A documented check command, run from `cwd` (package-relative)."""
     argv: tuple
     cwd: str = "."
     stdout_equals: str | None = None  # package-relative file the stdout must equal byte for byte
