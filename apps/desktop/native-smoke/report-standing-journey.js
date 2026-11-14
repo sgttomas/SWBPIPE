@@ -73,10 +73,11 @@
 
   const UNSOLVED_STATE = /\bstate=(failed|cancelled|refused)(?:;|$)/;
   const proofText = () => byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
-  // Run the solve from the menu and wait for a completed job summary other than the one before it AND a solve proof
-  // other than the one before it. The proof names its job and is shown only while the session's published result
-  // matches it (solveProof.ts), so a new proof means the new result is the session's. A job that ended any other way,
-  // or a withheld Run, ends the wait with its statement.
+  // Run the solve from the menu and wait for a completed job summary AND a solve proof other than the one before it.
+  // The proof names its job and is shown only while the session's published result matches it (solveProof.ts), so a
+  // new proof means the new result is the session's. The summary text carries no job identity (SolvePanel.tsx: state,
+  // events, rows, cancellation), so two solves of the same model read alike and the proof alone tells them apart. A
+  // job that ended any other way, or a withheld Run, ends the wait with its statement.
   async function solve(label, projectId) {
     await showSection("solve");
     const priorSummary = text("solve-job-summary") ?? "";
@@ -84,13 +85,13 @@
     await menu("analyze.run");
     await waitFor(`${label}: solve completed and its result published`, () => {
       const summary = text("solve-job-summary") ?? "";
-      if (summary !== priorSummary && UNSOLVED_STATE.test(summary)) throw new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`);
+      if (UNSOLVED_STATE.test(summary)) throw new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`);
       const withheld = byTestId("solve-withheld-notice");
       if (withheld) throw new Error(`${label}: ${withheld.textContent.trim().replace(/\s+/g, " ").slice(0, 2000)}`);
       const proof = proofText();
-      return summary !== priorSummary && summary.includes("state=completed") && proof !== null && proof !== priorProof && proof.includes(`project=${projectId}`);
+      return summary.includes("state=completed") && proof !== null && proof !== priorProof && proof.includes(`project=${projectId}`);
     }, 600000);
-    return { summary: text("solve-job-summary"), proof_job: proofText()?.match(/job=([^;]+)/)?.[1] ?? null };
+    return { summary: text("solve-job-summary"), prior_summary: priorSummary, proof_job: proofText()?.match(/job=([^;]+)/)?.[1] ?? null, prior_proof_job: priorProof?.match(/job=([^;]+)/)?.[1] ?? null };
   }
   // Render for local review and wait for the shown document or a named failure.
   async function renderReport(label) {
@@ -117,12 +118,14 @@
   }
 
   const steps = [];
+  // A step's body may note what it has seen as it goes (`note`), so a step that fails keeps its observations so far.
   async function step(id, body) {
     const entry = { id, reached: false };
     steps.push(entry);
     await log(`step ${id}`);
+    const note = (seen) => Object.assign(entry, seen);
     try {
-      Object.assign(entry, await body());
+      Object.assign(entry, await body(note));
       entry.reached = true;
     } catch (error) {
       entry.error = `${error?.message ?? error}`;
@@ -267,13 +270,17 @@
       }, 30000);
       return { applied: true, summary, ...seen };
     });
-    await step("resolve-invalidates", async () => {
+    await step("resolve-invalidates", async (note) => {
       await menu("edit.undo");
       await sleep(1000);
+      note({ undo_message: message() });
       const again = await solve("solve after undo", plan.model.project_id);
+      note({ solve_after_undo: again, proof_job_before: again.proof_job });
       const preview = await renderReport("render again");
       const rerendered_line = standingLineOf(parse(preview.getAttribute("srcdoc") ?? ""));
+      note({ preview_before: Boolean(preview), rerendered_line });
       const fresh = await solve("fresh solve", plan.model.project_id);
+      note({ fresh_solve: fresh, proof_job_after: fresh.proof_job });
       await showSection("report");
       // One snapshot, positive on every side: the panel present, the gate's loading line gone, no precondition and
       // Render enabled, so the panel holds the fresh result (published, by the new proof); only then is the preview's
