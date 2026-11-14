@@ -25,6 +25,8 @@ It serves SOW-035 under OBJ-003 and OBJ-008 (`execution/_Decomposition/SOFTWARE_
 - *The clock.* For exit criterion 9, the time from the run request in the desktop until the result is verified and first painted. "Linear static" is every case and combination of the linear rack; "nonlinear operating" is the operating case of the nonlinear rack. Each stage is timed separately, so that a shortfall names its stage: model read and parse, the solve and publication, serialization, the result's verification, transfer to the display, and first paint. A record states two figures and never only their sum: the engine's time, which is the solve worker's stages, and the time from the worker's result to first paint. On a 16 GiB base machine, an engine time above the corresponding exit criterion 9 value shows the criterion not met; only a measurement of the whole clock on that base machine can show it met.
 - *Verified before first paint.* Agent 0 decided this on 2026-11-14, under the grant in `AGENTS.md`. Before first paint, every required verification predicate has an outcome established for the held result and its applicable inputs. A later consumer may reuse that outcome only with matching dependencies and must still apply its own admission and presentation rules.
   - *Dependencies.* An outcome's dependencies are:
+    - the immutable held result's bytes, bound by its custody digest;
+    - the actual model text and its digest, wherever the check depends on a model;
     - the reader operation;
     - its model-free or model-bound mode;
     - the invocation, where it applies;
