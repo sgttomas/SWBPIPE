@@ -23,6 +23,23 @@ It serves SOW-035 under OBJ-003 and OBJ-008 (`execution/_Decomposition/SOFTWARE_
 
 - *Reference rack.* A deterministic, invented pipe rack of an exact node count, generated from bays of straight pipe, realized bends, branches, rigid components and supports. It has three profiles: linear static on the exact route, with its static cases and their combinations; nonlinear operating on the exact route, with lift-off, friction and gap supports; and the nonlinear profile's pressure-free twin. A rack is identified by the hash of its model document. A rack that omits or simplifies a form its target rack carries is *interim*: the generator's ledger names each such form, its interim form and what it waits for. A measurement on an interim rack can show exit criterion 9 not met and never shows it met. As generated now, the linear rack omits the tee and the reducer at each branch, anchor movement and its difference, the hydrotest's test condition, the seismic SRSS and absolute-sum combinations and the two occasional sums built on them, the expansion difference's recorded basis and the operating condition set. The nonlinear racks omit the tee, the branch reducer, the friction shoe whose normal comes from a one-way rest and the operating condition set; their result is published unqualified while a gap state has no confirmation, so their members are not certified; and the product refuses them from 1,775 nodes at its nonlinear admission cap.
 - *The clock.* For exit criterion 9, the time from the run request in the desktop until the result is verified and first painted. "Linear static" is every case and combination of the linear rack; "nonlinear operating" is the operating case of the nonlinear rack. Each stage is timed separately, so that a shortfall names its stage: model read and parse, the solve and publication, serialization, the result's verification, transfer to the display, and first paint. A record states two figures and never only their sum: the engine's time, which is the solve worker's stages, and the time from the worker's result to first paint. On a 16 GiB base machine, an engine time above the corresponding exit criterion 9 value shows the criterion not met; only a measurement of the whole clock on that base machine can show it met.
+- *Verified before first paint.* Agent 0 decided this on 2026-11-14, under the grant in `AGENTS.md`. Before first paint, every required verification predicate has an outcome established for the held result and its applicable inputs. A later consumer may reuse that outcome only with matching dependencies and must still apply its own admission and presentation rules.
+  - *Dependencies.* An outcome's dependencies are:
+    - the reader operation;
+    - its model-free or model-bound mode;
+    - the invocation, where it applies;
+    - the current or recorded semantic table and its digest;
+    - any separately supplied evidence that affects the verdict.
+
+    Each call compares the actual dependency digests and recomputes when they differ. Model-bound reuse therefore does not wait on a proof that two model texts are identical.
+  - *Outside the rule.* Disposal, changed registration, cancellation and memory admission are outside the rule. A restored result does not inherit a fresh solve's registration because its bytes match. A parse kept for sharing keeps its memory charge for as long as it lives.
+  - *A fact is shared, not its consequence.* For example, duplicated ids are a finding in standing and a refusal in building the run record.
+  - *Nothing is dropped.* No check is dropped, deferred past first paint or weakened. These three stay required until their coverage is established:
+    - The run record's per-row interpretation (`interpret` in `analysis_run_v03_build.rs`) tells unknown signatures apart from unit, basis and dimension contradictions under the record's table. It may be replaced only by a result shown to be equivalent per row under that table, with its refusal precedence preserved.
+    - The checked number profile needs an authentic outcome tied to the held source, not the attestation's presence. The assembled record's own added members still need their profile checks.
+    - The route header may share the parse and the route facts, but is never evidence that the full reading passed. The check that the header agrees with the dispatch stays.
+
+    Until a reuse is built, the clock includes every check the desktop actually runs before first paint, and ends at first paint.
 - *The base machine.* A machine with 16 GiB of memory, on which one solve may use at most the product's per-invocation budget of 12 GiB. A run whose peak footprint passes the budget is classed as exceeding it and is not a timed result. Exit criterion 9's base machine is a 16 GiB Apple-silicon notebook, identified by the owner on 2026-11-13 as that machine. Its processor and macOS version are recorded with the first measurement made on it. Criterion 9's absolute timings are made on it and arranged when one is needed. A time taken on a development host is not criterion 9's measurement.
 - *Observation.* A recorded measurement with its model hash, build identity, solver mode, host and conditions. An observation asserts nothing; limits come only from exit criterion 9 and the generated-grid screen of REQ-003.
 - *Sparse observation.* For a kernel solve: the ordering, the stored profile size, the pivot extremes and their ratio, the count of non-positive pivots, the residual, the agreement between sparse and dense, and the repeat-run difference.
@@ -67,7 +84,7 @@ Independently of any timing, the product refuses the nonlinear operating rack fr
 
 **Undecided.**
 
-- Exit criterion 9's two values become final when Agent 0 decides them. What "verified" requires of the result's checks before first paint is Agent 0's to decide; until then the clock includes every check the desktop actually runs before first paint and ends at first paint. Whether a stated projection from another host's speed may stand in for a base-machine run is Agent 0's choice; none is applied.
+- Exit criterion 9's two values become final when Agent 0 decides them. Whether a stated projection from another host's speed may stand in for a base-machine run is Agent 0's choice; none is applied.
 - Limits for conditioning, and for time and memory normalized across machines, are not set.
 - Whether hosted CI records sparse performance observations is not decided.
 
