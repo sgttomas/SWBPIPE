@@ -2483,6 +2483,7 @@
             "base": "manifest",
             "files": [
               "apps/desktop/src-tauri/build.rs",
+              "apps/desktop/src-tauri/src/after_worker_perf_tests.rs",
               "apps/desktop/src-tauri/src/analysis_run_v03_build.rs",
               "apps/desktop/src-tauri/src/analysis_run_v03_build_old_reference.rs",
               "apps/desktop/src-tauri/src/analysis_run_v03_build_tests.rs",
