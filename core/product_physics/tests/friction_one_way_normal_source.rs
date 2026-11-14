@@ -508,7 +508,8 @@ fn a_lift_off_friction_cycle_is_refused_by_name_with_no_result() {
     for mode in MODES {
         let envelope = solve(&document, mode);
         assert_eq!(envelope["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
-        let codes = blocking(&envelope).iter().map(|d| d["code"].as_str().unwrap()).collect::<Vec<_>>();
+        let mut codes = blocking(&envelope).iter().map(|d| d["code"].as_str().unwrap()).collect::<Vec<_>>();
+        codes.sort_unstable();
         assert_eq!(codes, ["NONLINEAR_SUPPORT_NONCONVERGENCE", "SOLVER_SYSTEM_BLOCKED"], "{mode:?}");
         assert!(envelope["results"].as_array().unwrap().is_empty(), "{mode:?}");
     }

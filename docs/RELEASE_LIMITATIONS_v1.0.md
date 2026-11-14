@@ -302,20 +302,14 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Exit criteria:** 1
 - **Requirement affected:** DEL-04-04/REQ-012, that the nonlinear support classes converge on the validation cases and that the reference system's gap, lift-off and friction supports converge; DEL-04-07's assembled nonlinear iteration. The refusal satisfies DEL-04-04/AC-004: a case whose states cycle is reported as not converged and never published as converged. It does not establish REQ-012's convergence.
 - **Code:** `NONLINEAR_SUPPORT_NONCONVERGENCE` and `SOLVER_SYSTEM_BLOCKED`, both blocking; the mechanics status is `MODEL_INCOMPLETE`.
-- **What is refused:** the current active-set iteration cycles on a demonstrated friction case whose normal comes from a one-way support, although an admissible equilibrium exists. Both solver modes report non-convergence and refuse the mechanics result. The refusal does not establish that the model has no equilibrium.
+- **What is refused:** The current active-set iteration cycles on a demonstrated friction case whose normal comes from a one-way support, although an admissible equilibrium exists. Both solver modes report non-convergence and refuse the mechanics result. The refusal does not establish that the model has no equilibrium.
 - **What it means in practice for a user:** for such a model no case is solved and no result row is published. The non-convergence message names the supports still changing and each support's state at the last iteration. How often this arises in ordinary models is not established.
-- **Why:** the iteration updates every support's state at once. In the demonstrated case:
-  - while the friction support is held (sticking), the one-way support would have to pull, so both release;
-  - with both free, the lateral motion presses the node onto the one-way support, so it re-engages;
-  - with the friction support free, its trial force is zero, so it sticks again;
-  - and the three steps repeat.
-
-  The admissible state, the one-way support bearing and the friction support sliding, is never reached.
+- **Why:** the iteration updates every support's state at once. In the solver-level witness, sticking makes the one-way support pull so both release; with both free, lateral motion re-engages the one-way support; with the friction support free and the one-way support bearing, the friction support's zero trial force makes it stick again, repeating without reaching the admissible bearing-and-sliding state.
 - **What the user does instead:** no workaround has been demonstrated for this case.
 - **Basis:**
   - DEL-04-04 [scope](../execution/PKG-04/DEL-04-04/ScopeOfWork.md) (REQ-012, AC-004) and DEL-04-07 [scope](../execution/PKG-04/DEL-04-07/ScopeOfWork.md) (the nonlinear iteration).
   - Solver-level witness: `core/solver/nonlinear_integration/src/oneway_source_tests.rs`, `a_lift_off_friction_cycle_ends_in_named_non_convergence`. The model is an off-axis chord (3, −4, 0) under −100 along X and +3 along Y, against a positive-reaction one-way support at μ = 0.3. In both solver modes the states repeat with period three over 16 iterations. The admissible state on the nominal chord, computed exactly by the independent numerical reading of the change that records this entry, is N = 23915/773, T = 14349/1546, u_x = −126125/18552.
-  - Product-level witness: `core/product_physics/tests/friction_one_way_normal_source.rs`, `a_lift_off_friction_cycle_is_refused_by_name_with_no_result`. It is the same chord as a model document. In both modes it gives the two codes above and no result row.
+  - Product-level witness: `core/product_physics/tests/friction_one_way_normal_source.rs`, `a_lift_off_friction_cycle_is_refused_by_name_with_no_result`. It is the same chord geometry as a model document, with this file's pipe section and material, so its stiffness is not the nominal chord's. In both modes it gives the two codes above and no result row.
   - A separate observation, not generalized: the frozen reference's exact lift-boundary case LIFT-BOUNDARY (`validation/references/friction_one_way_normal`) converges in dense mode, and reaches its four-iteration cap in sparse mode, where it is refused with the same codes. This is not a general failure of sparse mode, and dense mode is not a workaround.
   - The refusal became standing with PR #NNN, which admits a one-way or lift-off support as a friction normal source and records this entry. Before it, such a model was refused at model build (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`).
 - **Status:** not yet declared.
