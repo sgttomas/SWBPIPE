@@ -719,9 +719,10 @@ multiplicity 0 on D1. Not repaired here.
 **Derivation.** This tool on main `053bde0b3` against main's registered tree (`d5e8063f4`'s run, which main's own
 `generate --check` reproduces against `053bde0b3`'s block with its committed basis): the four points complete,
 o10 0/0. In all sixteen budgets (four points, four variants) exactly the five finalize rows change their bytes, from
-16 to 64, and no row changes its multiplicity or any other field. Requested bytes change at the four reached sites
-in the main and `_W` budgets, at `source_receipt.rs:41` only in `_X`, and at none in `_env`; the fifth row,
-`j7_rf_census.rs:239`, keeps multiplicity and requested bytes 0 in every budget. Total text rises
+16 to 64. Only `bytes` and the resulting `req` values change; multiplicities and all remaining fields are unchanged.
+`req` changes in 4 rows in each main and `_W` budget (the four reached sites), in 1 row in each `_X` budget
+(`source_receipt.rs:41`) and in no row in `_env`; the fifth row, `j7_rf_census.rs:239`, keeps multiplicity and `req`
+0 in every budget. Total text rises
 L(3,0) +4,224 B, L(2,1) +4,320 B, L(1,2) +4,416 B, E +5,088 B. Of 1,606 coefficients 1,600 are equal and 6 higher,
 none lower: TAV_text_requested and TAV_text_moving +5,088 B; TAV_W and success__TAV_W +3,744 B (the `_W` budget:
 retained_wire +1,056, source_receipt +96 at multiplicity 1 in that variant, declared_member_load +864,
