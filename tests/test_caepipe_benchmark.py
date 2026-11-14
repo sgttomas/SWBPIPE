@@ -800,6 +800,19 @@ def benchmark_manifest(tmp_path: Path, count: int = 5, ids: tuple[str, ...] = ()
     return path
 
 
+def command_sleep(replacement):
+    """A replacement for time.sleep that takes only the benchmark command's own waits. run_pilot.time is the
+    process-wide time module, so a library's own short wait (subprocess polling a git child it started with a timeout)
+    is passed through to the real sleep instead of being mistaken for the command's pacing."""
+    real_sleep = run_pilot.time.sleep
+
+    def sleep(seconds):
+        if sys._getframe(1).f_globals.get("__name__") != run_pilot.__name__:
+            return real_sleep(seconds)
+        return replacement(seconds)
+    return sleep
+
+
 @pytest.fixture
 def fake_benchmark(tmp_path, monkeypatch):
     """A configured harness with a fake SWBPIPE solve, a fake guarded round trip that prints an invented CSV, a fake
@@ -840,8 +853,8 @@ def fake_benchmark(tmp_path, monkeypatch):
                         lambda entry, config_, **kw: real(entry, config_, **{**kw, "round_trip": round_trip}))
     monkeypatch.setattr(run_pilot, "check_no_foreign_instance", precondition)
     monkeypatch.setattr(run_pilot, "check_guest_alive", alive)
-    monkeypatch.setattr(run_pilot.time, "sleep", lambda seconds: (state["sleeps"].append(seconds),
-                                                                  state["events"].append(("sleep", seconds))))
+    monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(lambda seconds: (
+        state["sleeps"].append(seconds), state["events"].append(("sleep", seconds)))))
     runner = tmp_path / "runner"
     runner.write_text("invented", encoding="utf-8")
     stops = tmp_path / "stops"
@@ -1115,7 +1128,7 @@ def test_a_custody_changed_on_disk_is_refused_and_nothing_written(fake_benchmark
     assert (case / "case_manifest.json").read_bytes() == edited["bytes"]
 
 
-@pytest.mark.parametrize("change", ["runner", "commit"])
+@pytest.mark.parametrize("change", ["runner", "runner of the same size", "commit"])
 def test_a_changed_runner_or_checkout_refuses_before_the_round_trip(fake_benchmark, monkeypatch, change):
     """Assumed stable through the invocation, the runner and the checkout are checked again before the round trip; an
     ordinary change refuses by name, and the case keeps its custody manifest (outcome no_record, route
@@ -1123,9 +1136,11 @@ def test_a_changed_runner_or_checkout_refuses_before_the_round_trip(fake_benchma
     state = fake_benchmark
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
     real_solve = run_pilot.solve_swbpipe
-    if change == "runner":
+    if change.startswith("runner"):
         def solve(runner, case_):
-            Path(state["runner"]).write_text("REPLACED DURING THE SOLVE", encoding="utf-8")
+            size = Path(state["runner"]).stat().st_size
+            replacement = "X" * size if change.endswith("same size") else "REPLACED DURING THE SOLVE"
+            Path(state["runner"]).write_text(replacement, encoding="utf-8")
             return real_solve(runner, case_)
         monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
     else:
@@ -1159,9 +1174,12 @@ def test_a_settings_stop_records_its_outcome_before_it_stops(fake_benchmark):
     assert manifest["custody"]["request_sha256"]
 
 
-def test_a_failed_settings_stop_write_keeps_the_custody_and_the_stopping_reason(fake_benchmark, monkeypatch):
-    """When writing the settings stop's outcome fails, the custody already on disk stays readable, and the original
-    stop is still discoverable: in the raised error's context and in the run record's settings check."""
+@pytest.mark.parametrize("failure", [OSError, KeyboardInterrupt])
+def test_a_failed_settings_stop_write_keeps_the_custody_and_the_stopping_reason(fake_benchmark, monkeypatch, failure):
+    """When writing the settings stop's outcome fails, the custody already on disk stays readable and the stop
+    wins: on an error, RunStopped is raised and its message and an emitted line name the failure (what the callers
+    print or record); an interrupt propagates with the RunStopped as its context. The run record keeps the settings
+    check either way."""
     state = fake_benchmark
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
     first = {}
@@ -1171,22 +1189,103 @@ def test_a_failed_settings_stop_write_keeps_the_custody_and_the_stopping_reason(
 
         def failing(descriptor, data):
             os.close(descriptor)
-            raise OSError("invented failure while writing the outcome")
+            raise failure("invented failure while writing the outcome")
         monkeypatch.setattr(run_pilot, "_write_fd", failing)
         record = _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
         record["settings_guard"] = {"status": "owned_process_running"}
         (case / "caepipe_out" / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
         return record
-    with pytest.raises(OSError, match="invented failure") as raised:
+    expected, lines = (run_pilot.RunStopped if failure is OSError else KeyboardInterrupt), []
+    with pytest.raises(expected) as raised:
         run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
-                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       emit=lines.append, round_trip=round_trip, gui_fallback=False, attempt=1,
                                        collect_only=True)
-    assert isinstance(raised.value.__context__, run_pilot.RunStopped)
+    if failure is OSError:
+        note = "settings_stop; its outcome could not be recorded (OSError: invented failure while writing the outcome)"
+        assert note in str(raised.value) and any(note.split("; ", 1)[1] in line for line in lines)
+    else:
+        assert isinstance(raised.value.__context__, run_pilot.RunStopped)
     assert (case / "case_manifest.json").read_bytes() == first["bytes"]
     assert json.loads(first["bytes"])["custody"]["request_sha256"]
     record = json.loads((case / "caepipe_out" / "run_record.json").read_text())
     assert record["settings_guard"]["status"] == "owned_process_running"
     assert not [path for path in case.iterdir() if path.name.endswith(".tmp")]
+
+
+@pytest.mark.parametrize("stopping", [{"route": "timeout", "settings_guard": {"status": "owned_process_running"}},
+                                      {"route": "batch_no_csv", "settings_guard": {"status": "unchanged"}}])
+def test_a_stop_survives_a_containment_error_on_its_write(fake_benchmark, monkeypatch, capsys, stopping):
+    """A stop's outcome write (a settings stop, or a batch run that left no CSV) meets a ContainmentError: the manifest
+    is replaced by a link after the custody write. The run still stops at that model, no further model runs, and the
+    line the benchmark command prints names the failed write."""
+    state = fake_benchmark
+    real = run_pilot._guard_stop
+
+    def guard(config, case_id, settings, emit):
+        manifest = state["config"].exchange_root / "cases" / case_id / "case_manifest.json"
+        if case_id == "cpb-g1-01" and manifest.is_file() and not manifest.is_symlink():
+            moved = manifest.with_name("moved_manifest.json")
+            os.replace(manifest, moved)
+            os.symlink(moved.name, manifest)
+        return real(config, case_id, settings, emit)
+    monkeypatch.setattr(run_pilot, "_guard_stop", guard)
+    state["outcomes"][:] = [stopping]
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={}) == 1
+    out = capsys.readouterr().out
+    route = "settings_stop" if stopping["route"] == "timeout" else "batch_no_csv"
+    assert f"stopped after cpb-g1-01 ({route}; its outcome could not be recorded (ContainmentError" in out
+    assert "route=containment_violation" not in out
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]
+
+
+def test_the_batch_callable_raises_the_stop_naming_a_failed_write(fake_benchmark, monkeypatch):
+    """Through run_benchmark_model, the callable the batch wrapper uses (it records str(error)): a failed write of a
+    stop's outcome raises RunStopped, never a not-run outcome, and its text names the failure."""
+    state = fake_benchmark
+    state["outcomes"][:] = [{"route": "batch_no_csv", "settings_guard": {"status": "unchanged"}}]
+    real = run_pilot._guard_stop
+
+    def guard(config, case_id, settings, emit):
+        def failing(descriptor, data):
+            os.close(descriptor)
+            raise OSError("invented failure while writing the outcome")
+        monkeypatch.setattr(run_pilot, "_write_fd", failing)
+        return real(config, case_id, settings, emit)
+    monkeypatch.setattr(run_pilot, "_guard_stop", guard)
+    with pytest.raises(run_pilot.RunStopped) as raised:
+        run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                      emit=lambda line: None, collect_only=True)
+    assert f"{type(raised.value).__name__}: {raised.value}" == (
+        "RunStopped: cpb-g1-01 (batch_no_csv; its outcome could not be recorded (OSError: invented failure while "
+        "writing the outcome))")
+
+
+def test_a_settings_stop_on_the_raise_path_records_its_outcome(fake_benchmark):
+    """The round trip raised with no clean settings check: the outcome settings_stop is recorded, saying so."""
+    state = fake_benchmark
+    state["outcomes"][:] = [RuntimeError("invented")]
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
+    manifest = json.loads(
+        (state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
+    assert (manifest["outcome"], manifest["route"]) == ("no_record", "settings_stop")
+    assert "the round trip raised" in manifest["reason"] and manifest["custody"]["request_sha256"]
+
+
+@pytest.mark.parametrize("content, route", [(json.dumps({"custody": "invented"}), "half_made"),
+                                            (json.dumps({"custody": ["invented"]}), "half_made"),
+                                            ("[]", "manifest_unreadable"), ('"invented"', "manifest_unreadable")])
+def test_a_malformed_manifest_at_admission_is_refused_by_name(fake_benchmark, content, route):
+    """A readable manifest whose custody member is not an object records no custody (half-made); a manifest that is
+    JSON but not an object cannot be read as a manifest. Each is refused by name, and nothing is written."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    (case / "swbpipe").mkdir(parents=True)
+    (case / "swbpipe" / "request.json").write_text("INVENTED\n", encoding="utf-8")
+    (case / "case_manifest.json").write_text(content, encoding="utf-8")
+    before = tree_bytes(state["config"].exchange_root)
+    assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                         emit=lambda line: None, collect_only=True)[:2] == (run_pilot.NOT_RUN, route)
+    assert tree_bytes(state["config"].exchange_root) == before
 
 
 def test_an_unreadable_manifest_is_refused_on_a_later_write(fake_benchmark):
@@ -1604,7 +1703,8 @@ def test_an_unresponsive_guest_is_checked_again_after_two_minutes_then_stops_the
 def test_the_freeze_file_stops_the_run_before_the_next_model(fake_benchmark, monkeypatch, capsys):
     state = fake_benchmark
     # The freeze file appears during the pause after the first model.
-    monkeypatch.setattr(run_pilot.time, "sleep", lambda seconds: state["freeze"].write_text("", encoding="ascii"))
+    monkeypatch.setattr(run_pilot.time, "sleep",
+                        command_sleep(lambda seconds: state["freeze"].write_text("", encoding="ascii")))
     assert run_pilot.main(state["argv"], environ={}) == 1
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]
     assert "stopped before cpb-g1-02: the freeze file is present" in capsys.readouterr().out
@@ -1619,13 +1719,13 @@ def test_a_pending_exclusive_job_holds_the_run(fake_benchmark, monkeypatch, caps
         polls.append(seconds)
         if len(polls) == 2:
             state["exclusive"].write_text("not a process id\n", encoding="ascii")
-    monkeypatch.setattr(run_pilot.time, "sleep", poll)
+    monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(poll))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
     assert polls == [30.0, 30.0] and [call[0] for call in state["calls"]] == ["cpb-g1-01"]
     assert "cpb-g1-01: an exclusive job is pending; waiting for it (up to 1800 s)" in capsys.readouterr().out
     state["calls"].clear()
     state["exclusive"].write_text(f"{os.getpid()}\n", encoding="ascii")
-    monkeypatch.setattr(run_pilot.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(lambda seconds: None))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     assert state["calls"] == []
     assert "stopped before cpb-g1-01: an exclusive job was still pending after 1800 s" in capsys.readouterr().out

@@ -847,9 +847,9 @@ def benchmark_batches(models: list[Mapping[str, Any]], size: int) -> list[list[M
 RECORDED, NOT_RUN, RETRY = "recorded", "not_run", "retry"
 # The case manifest's state between custody and a terminal outcome. Defined once (here, in DEL-17-05's scope and in the
 # batch's session statements): custody was recorded; no terminal outcome is recorded; the case is named and is not
-# made again under its id; its capture is not admitted for use. It shows no more: an interrupt may have come before
-# the round trip started, during it, or after it returned and before the final manifest update, and it does not show
-# that SWBPIPE's solve succeeded (it is written before that is checked).
+# made again under its id; its capture is not admitted for use. It shows no more: an interrupt or an uncaught error
+# may have come before the round trip started, during it, or after it returned and before the final manifest update,
+# and it does not show that SWBPIPE's solve succeeded (it is written before that is checked).
 CUSTODY_RECORDED = "custody_recorded"
 # A collect-only run ends here: SWBPIPE solved and bound, the CAEPIPE print collected, nothing parsed or compared.
 COLLECTED = "collected"
@@ -973,12 +973,15 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         # separately identified comparison in case folders of its own, never a rewrite of the first.
         # A classification of the refusal only: whether a readable case manifest records custody (a request digest),
         # not whether a manifest file exists (one written before the solve, at an MBF refusal, records none). It
-        # validates nothing about the stored case and permits no overwrite: every class is refused.
+        # validates nothing about the stored case and permits no overwrite: every class is refused. An unreadable
+        # manifest leaves the custody unknown, not absent; a malformed custody member is classed half-made for this
+        # refusal only, and nothing of it is overwritten or reconstructed.
         recorded = _recorded_manifest(case_root / "case_manifest.json")
         if recorded is None:
             route, reason = "manifest_unreadable", ("this case holds a SWBPIPE request or result and its case manifest "
-                                                    "cannot be read; it is never made again under its id")
-        elif isinstance((recorded.get("custody") or {}).get("request_sha256"), str):
+                                                    "cannot be read, so its custody is unknown (not absent); it is "
+                                                    "never made again under its id")
+        elif isinstance(recorded.get("custody"), dict) and isinstance(recorded["custody"].get("request_sha256"), str):
             route, reason = "already_recorded", (
                 "this case already holds a SWBPIPE request or result, which are never replaced; its case manifest "
                 f"records custody, outcome {recorded.get('outcome')!r}, route {recorded.get('route')!r} (this names the "
@@ -1003,14 +1006,27 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
             emit(f"{model_id}: route={route}; {reason}; no benchmark record")
         return status, route, reason
 
-    def guard_stop(settings: Any) -> None:
-        # A settings stop ends a round trip that concluded: its outcome is recorded (through the same manifest
-        # update and custody check as every later write) before the stop is raised.
+    def stop(route: str, reason: str) -> None:
+        # Every stop of this function: its outcome is recorded (through the same manifest update and custody check as
+        # every later write) and the stop is then raised. The stop always wins: if that write fails, RunStopped is
+        # still raised, so no caller can turn the stop into another outcome, and the failure is named in the stop's
+        # message and in an emitted line, which is what the callers print or record. An interrupt propagates as
+        # itself. No further manifest write is attempted to explain the failed one.
+        try:
+            outcome(RETRY, route, reason)
+        except Exception as failure:
+            note = f"its outcome could not be recorded ({type(failure).__name__}: {failure})"
+            emit(f"{model_id}: route={route}; {note}; stopped")
+            raise RunStopped(f"{model_id} ({route}; {note})") from failure
+        raise RunStopped(model_id)
+
+    def guard_stop(settings: Any, *, raised: bool = False) -> None:
         try:
             _guard_stop(config, model_id, settings, emit)
         except RunStopped:
-            outcome(RETRY, "settings_stop", "the round trip's settings check was not clean; the run stopped")
-            raise
+            stop("settings_stop", "the round trip raised, and its settings check was not clean or not recorded; the "
+                                  "run stopped" if raised else "the round trip's settings check was not clean; the run "
+                                                               "stopped")
 
     mbf = render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
                                 reference_temperature_c=entry.get("reference_temperature_c", 20.0),
@@ -1069,14 +1085,13 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
             record = round_trip(config, model_id, mbf_text, gui_fallback=gui_fallback)
         except Exception as error:
             emit(f"{model_id}: round trip raised {type(error).__name__}: {error}")
-            guard_stop(getattr(error, "settings_guard", None))
+            guard_stop(getattr(error, "settings_guard", None), raised=True)
             return outcome(RETRY, "round_trip_raised", f"the round trip raised {type(error).__name__}")
         # The guard comes first: any other outcome still stops the run on it.
         guard_stop(record.get("settings_guard"))
         if not gui_fallback and record.get("route") == "batch_no_csv":
-            outcome(RETRY, "batch_no_csv", "the batch run left no CSV and the GUI fallback is off")
             emit(f"{model_id}: route=batch_no_csv; the GUI fallback is off for this run; stopped")
-            raise RunStopped(model_id)
+            stop("batch_no_csv", "the batch run left no CSV and the GUI fallback is off")
         csv_path, route, reason = bound_csv(root, paths, record, mbf_sha256)
         if csv_path is None:
             return outcome(RETRY, route, reason)
