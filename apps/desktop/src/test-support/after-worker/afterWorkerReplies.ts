@@ -38,13 +38,24 @@
 // imported), the reading cache's `keyOf` (not exported), the registration gate
 // (`nativeRegistrationHolds` reads module state a reply does not carry), and the session's
 // sequencing (inline in `readNativeFreshResult` and the session).
+//
+// Each reply is accepted in the kind it was delivered in (`acceptReply`), with the web's guard on
+// that kind for that call: the verdict decoders' own (imported); the byte-response adapter
+// `bytesInvoke` (restated: not exported) and, for S, `readNativeSummary`'s text refusal (restated:
+// inline in a function that sends natively); and the exported adapters `readAnalysisRunPreview`,
+// `queryResultRows`, `queryResultSourceRecovery` and `readResultRowSemantics`, imported and handed
+// the kept reply in place of a native call, so their own guards, decoders and requests apply.
+//
+// The standing rule (Agent 0): a predicate of the session's acceptance is IMPORTED where it is
+// exported; where it is restated, it has a row in the generated table with its source lines; and a
+// change to the judge or to a web source it imports or restates re-runs the table's check.
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { createNativeResult, decodeNativeRouteHeader, decodeNativeValidation, decodeNativeVerdict, nativeCustody, requireRouteHeaderAgreement, type NativeRouteHeader } from "../../services/nativeResult";
+import { createNativeResult, decodeNativeRouteHeader, decodeNativeValidation, decodeNativeVerdict, NATIVE_SUMMARY_COMMAND, nativeCustody, requireRouteHeaderAgreement, type NativeRouteHeader } from "../../services/nativeResult";
 import { decodeResultSummary, type ResultSummary } from "../../services/resultSummary";
-import { decodeAnalysisRunPreview, type AnalysisRunPreview } from "../../services/analysisRunPreview";
-import { decodeRowSemantics, decodeRowsPage, decodeSourceRecovery, panelDetailFilter, type SourceRecovery } from "../../services/resultDetail";
+import { readAnalysisRunPreview, type AnalysisRunPreview } from "../../services/analysisRunPreview";
+import { panelDetailFilter, queryResultRows, queryResultSourceRecovery, readResultRowSemantics, type DetailFilter, type RowsPage, type SourceRecovery } from "../../services/resultDetail";
 import { nativeInvokeError, ResourceUnavailableError } from "../../services/memoryPool";
 import { checkedJsonText } from "../../services/hashService";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
@@ -80,19 +91,72 @@ const text = (bytes: Uint8Array) => new TextDecoder("utf-8", { fatal: true }).de
 // never reaches a command.
 const same = (a: unknown, b: unknown) => sameModelData(a, b);
 
-/** A reply's decoder, by the call that produced it (the maintained wiring test checks each). */
-export function decoderFor(call: string): (bytes: Uint8Array, context: { jobId: string; ordinals?: readonly number[] }) => unknown {
+/** The panel's first-page filter (`NativeResultsPanel.tsx`, its default filters). */
+const FIRST_PAGE_FILTER = panelDetailFilter({ filterText: "", familyFilter: "all", frame: "all", caseKey: "all" });
+type ManifestEvidence = Pick<CurrentSessionInputManifestEvidence, "manifest_ref" | "manifest_sha256" | "canonical_bytes">;
+export type ReplyContext = { jobId: string; ordinals?: readonly number[]; inputManifest?: ManifestEvidence; filter?: DetailFilter };
+export type Accepted = { value: unknown; sent: { command: string; args: Record<string, unknown> } | null };
+
+/** A kept reply as the web's caller receives it, by the harness's delivery kind: `json`, the parsed
+ * JSON value Tauri delivers; `bin`, bytes (an ArrayBuffer view); `txt`, a string. */
+function delivery(kind: ReplyEntry["kind"], bytes: Uint8Array): unknown {
+  if (kind === "json") {
+    try {
+      return JSON.parse(text(bytes));
+    } catch {
+      return fail("a json delivery that is not JSON");
+    }
+  }
+  if (kind === "txt") return text(bytes);
+  if (kind === "bin") return bytes;
+  return fail(`a ${kind} delivery is not a reply`);
+}
+
+/** `bytesInvoke` (nativeResult.ts:253-258), restated: not exported. The byte-response commands'
+ * adapter passes bytes and a string through and refuses any other delivery. */
+function bytesDelivery(command: string, delivered: unknown): ArrayBuffer | Uint8Array | string {
+  if (delivered instanceof ArrayBuffer || ArrayBuffer.isView(delivered)) return delivered as ArrayBuffer | Uint8Array;
+  if (Object.prototype.toString.call(delivered) === "[object ArrayBuffer]") return delivered as ArrayBuffer;
+  if (typeof delivered === "string") return delivered;
+  throw new Error(`NATIVE-RESULT-RESPONSE-KIND: ${command} delivered a ${delivered === null ? "null" : typeof delivered}, not bytes`);
+}
+
+/** The web's acceptance of `call`'s reply delivered as `kind`: the call's own guard on the kind,
+ * then its decoder. The byte-response calls go through `bytesInvoke` into the web's own adapter,
+ * which is handed the kept reply in place of the native call; the request it sends is returned. */
+export async function acceptReply(call: string, kind: ReplyEntry["kind"], bytes: Uint8Array, context: ReplyContext): Promise<Accepted> {
+  const delivered = delivery(kind, bytes);
+  const capture: { sent: Accepted["sent"] } = { sent: null };
+  const invoke = async (command: string, args: Record<string, unknown>) => {
+    capture.sent = { command, args };
+    return bytesDelivery(command, delivered);
+  };
   switch (call) {
-    case "header": return (bytes, { jobId }) => decodeNativeRouteHeader(JSON.parse(text(bytes)), jobId);
-    case "registration": return (bytes) => decodeNativeValidation(JSON.parse(text(bytes)));
-    case "standing": case "standing_again": case "dispatch_again": return (bytes) => decodeNativeVerdict(JSON.parse(text(bytes)));
-    case "summary": return (bytes) => decodeResultSummary(bytes);
-    case "source_recovery": return (bytes) => decodeSourceRecovery(bytes);
-    case "run_preview": return (bytes) => decodeAnalysisRunPreview(bytes);
-    case "rows_page": return (bytes) => decodeRowsPage(bytes);
-    case "row_semantics": return (bytes, { ordinals }) => decodeRowSemantics(text(bytes), ordinals ?? fail("the semantics need their ordinals"));
+    // The verdict command's deliveries: the decoders' own guards refuse anything but a parsed object.
+    case "header": return { value: decodeNativeRouteHeader(delivered, context.jobId), sent: null };
+    case "registration": return { value: decodeNativeValidation(delivered), sent: null };
+    case "standing": case "standing_again": case "dispatch_again": return { value: decodeNativeVerdict(delivered), sent: null };
+    case "summary": {
+      const response = bytesDelivery(NATIVE_SUMMARY_COMMAND, delivered);
+      // `readNativeSummary` (nativeResult.ts:413), restated: inline in a function that sends natively.
+      if (typeof response === "string") throw new Error("RESULT-SUMMARY-MALFORMED: a text response where bytes were expected");
+      return { value: decodeResultSummary(response), sent: null };
+    }
+    case "source_recovery": return { value: await queryResultSourceRecovery(invoke as never, context.jobId, 0, 1), sent: capture.sent };
+    case "run_preview": return { value: await readAnalysisRunPreview(invoke as never, context.jobId, { inputManifest: context.inputManifest ?? fail("run_preview needs its manifest"), rulePackExclusions: NO_RULE_PACK_RESOLUTION.excluded }), sent: capture.sent };
+    case "rows_page": return { value: await queryResultRows(invoke as never, context.jobId, context.filter ?? fail("the rows need their filter"), 0, DEFAULT_RESULT_PAGE_SIZE), sent: capture.sent };
+    case "row_semantics": return { value: await readResultRowSemantics(invoke as never, context.jobId, context.ordinals ?? fail("the semantics need their ordinals")), sent: capture.sent };
     default: return fail(`a reply of an unknown call: ${call}`);
   }
+}
+
+/** The kind the harness keeps each call's reply in (after_worker_perf_tests.rs, its `Reply` kinds). */
+const KEPT_KIND: Readonly<Record<string, ReplyEntry["kind"]>> = { header: "json", registration: "json", standing: "json", standing_again: "json", dispatch_again: "json", summary: "bin", source_recovery: "bin", run_preview: "bin", rows_page: "bin", row_semantics: "txt" };
+/** A reply's acceptance in the kind the harness keeps it in (the maintained wiring test checks each). */
+export function decoderFor(call: string): (bytes: Uint8Array, context: ReplyContext) => Promise<unknown> {
+  const kind = Object.hasOwn(KEPT_KIND, call) ? KEPT_KIND[call] : fail(`a reply of an unknown call: ${call}`);
+  const manifest: ManifestEvidence = { manifest_ref: { object_type: "InputManifest", ref: "wiring" }, manifest_sha256: "0".repeat(64), canonical_bytes: "{}" };
+  return async (bytes, context) => (await acceptReply(call, kind, bytes, { filter: FIRST_PAGE_FILTER, inputManifest: manifest, ...context })).value;
 }
 
 /** `nativeEnvelopeRefusal` (previewService.ts:599-608), restated: it is not exported. Its
@@ -168,13 +232,26 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     return { entry, args, bytes };
   };
   const ended = (verdict: RunVerdict) => verdict;
+  type Kept = { entry: ReplyEntry; args: Record<string, unknown> | null; bytes: Uint8Array };
+  /** `call`'s kept reply accepted as the web accepts it in its delivered kind, refused at that call;
+   * a request the web's own adapter sends must be the kept one. */
+  const accept = async <T>(call: string, reply: Kept, context: Omit<ReplyContext, "jobId"> = {}): Promise<T> => {
+    let accepted: Accepted;
+    try {
+      accepted = await acceptReply(call, reply.entry.kind, reply.bytes, { jobId, ...context });
+    } catch (error) {
+      throw new Error(`AFTER-WORKER-REPLY-REFUSED: the web refuses ${call}'s ${reply.entry.kind} reply after ${native.join(" > ")}: ${(error as Error)?.message ?? String(error)}`);
+    }
+    if (accepted.sent && reply.args && !same(reply.args, accepted.sent.args)) fail(`${call}'s request is not the one the web's adapter sends`);
+    return accepted.value as T;
+  };
 
   // header
   const h = next("header");
   if ("refused" in h) return ended(h.refused);
   if ("rejected" in h) fail(`the header was rejected: ${String(h.rejected)}`);
   if (h.args && h.args.operation !== "route_header") fail("the header request is not route_header");
-  const header = decoderFor("header")(h.bytes, { jobId }) as NativeRouteHeader;
+  const header = await accept<NativeRouteHeader>("header", h);
   const route = header.route as string;
 
   // registration (`validateNativeReaders`): its reader by route, with the web's own model texts.
@@ -208,8 +285,9 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
           if (r.args.invocationJson !== jsonTextKeepingNegativeZero(invocation)) fail("the registration's invocation text is not the web's");
         } else if (r.args.modelJson !== jsonTextKeepingNegativeZero(invocation.request.model)) fail("the registration's model text is not the web's (checkedJsonText, then jsonTextKeepingNegativeZero)");
       }
-      const outcome = decoderFor("registration")(r.bytes, { jobId }) as { ok: boolean; error?: { code: string } };
-      readers = outcome.ok ? null : outcome.error!.code;
+      const outcome = await accept<{ ok: boolean; error?: { code: string } }>("registration", r);
+      // validateNativeReaders :574-586: a refusal counts only when its code is not empty (`if (code)`).
+      readers = outcome.ok || !outcome.error!.code ? null : outcome.error!.code;
     }
   }
 
@@ -223,7 +301,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   const keyOf = (...parts: readonly (string | null | undefined)[]) => parts.map((part) => part ?? "\u0001").join("\u0000");
   const readings = new Map<string, unknown>();
   const sessionModel = () => solveModel ?? fail("the run kept no standing request to take the session model from");
-  const readStanding = (call: string, registered: boolean): ReaderDispatch => {
+  const readStanding = async (call: string, registered: boolean): Promise<ReaderDispatch> => {
     const inputs = nativeStandingInputs(route, capture, registered, sessionModel());
     const key = keyOf("dispatch", inputs.modelText, inputs.invocationText);
     if (readings.has(key)) {
@@ -234,11 +312,11 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     if ("refused" in s) throw s;
     if ("rejected" in s) fail(`${call} was rejected: ${String(s.rejected)}`);
     if (s.args && (s.args.modelJson !== inputs.modelText || s.args.invocationJson !== (inputs.invocationText ?? undefined))) fail(`${call}'s request is not nativeStandingInputs'`);
-    const reading = decoderFor(call)(s.bytes, { jobId }) as ReaderDispatch;
+    const reading = await accept<ReaderDispatch>(call, s);
     readings.set(key, reading);
     return reading;
   };
-  const readSummary = (verdict: ReaderDispatch): ResultSummary => {
+  const readSummary = async (verdict: ReaderDispatch): Promise<ResultSummary> => {
     const modelText = jsonTextKeepingNegativeZero(sessionModel());
     const standing = { eligible: verdict.standing.eligible, findings: [...verdict.standing.findings] };
     const key = keyOf("summary", modelText, JSON.stringify(standing));
@@ -250,7 +328,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     if ("refused" in s) throw s;
     if ("rejected" in s) fail(`the summary was rejected: ${String(s.rejected)}`);
     if (s.args && (s.args.modelJson !== modelText || !same(s.args.standing, standing))) fail("the summary's request is not the standing's model text and standing");
-    const reading = decoderFor("summary")(s.bytes, { jobId }) as ResultSummary;
+    const reading = await accept<ResultSummary>("summary", s);
     readings.set(key, reading);
     return reading;
   };
@@ -259,16 +337,16 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   let unregistered: string | null = null;
   let finalInvocationText: string | undefined;
   try {
-    verdict = readStanding("standing", readers === null);
-    summary = readSummary(verdict);
+    verdict = await readStanding("standing", readers === null);
+    summary = await readSummary(verdict);
     unregistered = readers ?? envelopeRefusal(summary.header.envelope, route, invocation.request.model, solveModel);
     if (unregistered !== null && readers === null) {
-      verdict = readStanding("standing_again", false);
-      summary = readSummary(verdict);
+      verdict = await readStanding("standing_again", false);
+      summary = await readSummary(verdict);
     }
     // The dispatch with the final inputs (previewService.ts:659-660).
     finalInvocationText = nativeStandingInputs(route, capture, unregistered === null, sessionModel()).invocationText ?? undefined;
-    verdict = readStanding("dispatch_again", unregistered === null);
+    verdict = await readStanding("dispatch_again", unregistered === null);
   } catch (thrown) {
     if (thrown && typeof thrown === "object" && "refused" in thrown) return ended((thrown as { refused: RunVerdict }).refused);
     throw thrown;
@@ -283,7 +361,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     if ("refused" in c) return ended(c.refused);
     if ("rejected" in c) fail(`the source recovery was rejected: ${String(c.rejected)}`);
     if (c.args && (c.args.offset !== 0 || c.args.limit !== 1 || c.args.raw !== false)) fail("the source recovery's request is not the web's");
-    recovery = decoderFor("source_recovery")(c.bytes, { jobId }) as SourceRecovery;
+    recovery = await accept<SourceRecovery>("source_recovery", c);
   }
 
   // The session's gates (workspaceSession.ts:1563-1568), on the handle `readNativeFreshResult`
@@ -345,7 +423,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     if (!sameModelData(JSON.parse(sent.canonical_bytes), JSON.parse(checkedJsonText(built.manifest)))) fail("the manifest is not buildCurrentSessionInputManifest's");
     if (p.args.ruleCheckAggregate !== null || !same(p.args.rulePackExclusions, NO_RULE_PACK_RESOLUTION.excluded)) fail("the rule-pack arguments are not NO_RULE_PACK_RESOLUTION's");
   }
-  const preview = decoderFor("run_preview")(p.bytes, { jobId }) as AnalysisRunPreview;
+  const preview = await accept<AnalysisRunPreview>("run_preview", p, { inputManifest: built });
   if (preview.job_id !== jobId || preview.route !== route) fail("run_preview names another job or route");
   // The session's model-reference check before it commits (workspaceSession.ts:1612-1616).
   if (handle.model_ref !== solveModel.project.id) return gate("SOLVE-RESULT-MODEL-MISMATCH");
@@ -354,9 +432,9 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   const rowsReply = next("rows_page");
   if ("refused" in rowsReply) return ended(rowsReply.refused);
   if ("rejected" in rowsReply) fail(`the rows page was rejected: ${String(rowsReply.rejected)}`);
-  const filter = panelDetailFilter({ filterText: "", familyFilter: "all", frame: "all", caseKey: "all" });
+  const filter = FIRST_PAGE_FILTER;
   if (rowsReply.args && (!same(rowsReply.args.filter, filter) || rowsReply.args.offset !== 0 || rowsReply.args.limit !== DEFAULT_RESULT_PAGE_SIZE)) fail("the rows request is not the panel's first page");
-  const page = decoderFor("rows_page")(rowsReply.bytes, { jobId }) as ReturnType<typeof decodeRowsPage>;
+  const page = await accept<RowsPage>("rows_page", rowsReply, { filter });
   if (page.rows.length === 0 && page.total > 0) fail("the panel would read the last page; the run did not");
   if (page.rows.length > 0) {
     const ordinals = page.rows.map((row) => row.ordinal);
@@ -364,7 +442,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     if ("refused" in sem) return ended(sem.refused);
     if ("rejected" in sem) fail(`the row semantics were rejected: ${String(sem.rejected)}`);
     if (sem.args && !same(sem.args.ordinals, ordinals)) fail("the semantics' ordinals are not the page's");
-    decoderFor("row_semantics")(sem.bytes, { jobId, ordinals });
+    await accept("row_semantics", sem, { ordinals });
   }
   if (entries.length) fail(`the web stops at the first page; the run kept ${entries.length} more replies`);
   return { calls, native, ended: "first_page_ready", refusal: null };

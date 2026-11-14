@@ -17,7 +17,7 @@ import { DISPLAY_COLUMNS, SOURCE_OFFSETS, SOURCE_REFS, STRESS_COLUMNS } from "..
 import { PHYSICS_RETAINED_CONTRACT_ID, PRESSURE_CONTRACT_ID } from "../../features/results/numericalResultQuality";
 import { checkedJsonText } from "../../services/hashService";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
-import { inputManifestRef } from "../../services/inputManifestService";
+import { buildCurrentSessionInputManifest, inputManifestRef } from "../../services/inputManifestService";
 import { panelDetailFilter } from "../../services/resultDetail";
 import { DEFAULT_RESULT_PAGE_SIZE } from "../../features/results/ResultsPanel";
 
@@ -25,9 +25,13 @@ const ROOT = process.env.SWBPIPE_AFTER_WORKER_REPLIES;
 const REPOSITORY = path.resolve(__dirname, "../../../../..");
 
 const utf8 = (value: unknown) => new TextEncoder().encode(typeof value === "string" ? value : JSON.stringify(value));
-/** A framed response: magic, the header's length (u64 LE), the header, `pad` zeros, then `tail`. */
+/** A framed response: magic, the header's length (u64 LE), the header, `pad` zeros, then `tail`.
+ * The header's JSON text is padded with spaces until its length's bytes are ASCII, so that the frame
+ * is valid UTF-8 and can also be delivered as text (the delivery-kind controls). */
 function framed(magic: string, header: unknown, pad: boolean, tail: Uint8Array = new Uint8Array()): Uint8Array {
-  const head = utf8(header);
+  let headText = typeof header === "string" ? header : JSON.stringify(header);
+  while (headText.length & 0x80) headText += " ";
+  const head = utf8(headText);
   let length = 16 + head.length;
   const padding = pad ? (8 - (length % 8)) % 8 : 0;
   length += padding + tail.length;
@@ -61,8 +65,8 @@ describe("the after-worker reply judge reaches the web's decoder for each call",
     ["source_recovery", framed("SWBDETv1", { document_kind: "swbpipe.desktop.result_detail_rows", version: 1, lengths: [] }, false), /RESULT-DETAIL-MALFORMED/],
   ];
   for (const [call, bytes, code] of cases) {
-    it(`${call}: a malformed reply fails ${code.source}`, () => {
-      expect(() => decoderFor(call)(bytes, { jobId: job, ordinals: [1, 2] })).toThrow(code);
+    it(`${call}: a malformed reply fails ${code.source}`, async () => {
+      await expect(decoderFor(call)(bytes, { jobId: job, ordinals: [1, 2] })).rejects.toThrow(code);
     });
   }
   it("an unknown call is refused", () => {
@@ -93,7 +97,7 @@ describe("the after-worker reply judge applies the session's connecting gates", 
   const S = jsonTextKeepingNegativeZero(MODEL);
   const R = jsonTextKeepingNegativeZero(JSON.parse(checkedJsonText({ request: { model: MODEL, materials: [] }, solver_mode: "sparse_interactive" })).request.model);
   const BINDING = { id: PRESSURE_CONTRACT_ID, sha256: "a".repeat(64) };
-  type Step = { call: string; reply: unknown; args: Record<string, unknown>; kind?: "json" | "bin" };
+  type Step = { call: string; reply: unknown; args: Record<string, unknown>; kind?: "json" | "bin" | "txt" };
   const header = (recognized = true) => recognized
     ? { document_kind: "swbpipe.desktop.result_route_header", version: 1, job_id: JOB, header_status: "recognized", route: "pressure", binding: BINDING, refusal: null }
     : { document_kind: "swbpipe.desktop.result_route_header", version: 1, job_id: JOB, header_status: "refused", route: "unsupported", binding: null, refusal: { code: "Y", detail: null } };
@@ -111,7 +115,7 @@ describe("the after-worker reply judge applies the session's connecting gates", 
   const PRODUCER = { component_name: "invented", component_version: "1", semantic_contract_id: PRESSURE_CONTRACT_ID };
   const standingArgs = { jobId: JOB, modelJson: S };
   const summaryArgs = { jobId: JOB, modelJson: S, standing: { eligible: false, findings: [] } };
-  const step = (call: string, reply: unknown, args: Record<string, unknown>): Step => ({ call, reply, args, kind: reply instanceof Uint8Array ? "bin" : "json" });
+  const step = (call: string, reply: unknown, args: Record<string, unknown>, kind?: Step["kind"]): Step => ({ call, reply, args, kind: kind ?? (reply instanceof Uint8Array ? "bin" : "json") });
   async function judged(steps: Step[]) {
     const directory = mkdtempSync(path.join(tmpdir(), "after-worker-gate-"));
     try {
@@ -203,6 +207,70 @@ describe("the after-worker reply judge applies the session's connecting gates", 
     const judgedRun = await judged(opening({ ok: true }, empty));
     expect(judgedRun.ended).toBe("session gate: INPUT-MANIFEST-SOLVER-INCOMPLETE");
     expect(judgedRun.native).toEqual(OPENING);
+  });
+
+  // A complete run to the first page (a model the manifest builder accepts), for the controls that
+  // change one reply: the registration's outcome, or one reply's delivery kind.
+  const FULL = { ...MODEL, load_cases: [{ id: "L1", kind: "sustained", status: "active", provenance: "invented" }] };
+  const FULL_S = jsonTextKeepingNegativeZero(FULL);
+  const FULL_R = jsonTextKeepingNegativeZero(JSON.parse(checkedJsonText({ request: { model: FULL, materials: [] }, solver_mode: "sparse_interactive" })).request.model);
+  const FULL_SEQUENCE = ["header", "registration", "standing", "summary", "run_preview", "rows_page", "row_semantics"];
+  async function fullRun(registration: unknown = { ok: true }, kinds: Record<string, Step["kind"]> = {}): Promise<Step[]> {
+    const evidence = await buildCurrentSessionInputManifest({
+      model: FULL as never,
+      solver: { solver_name: "invented", solver_version: "1", solver_build_ref: "invented@1", solver_mode: "sparse_interactive", settings: { nonlinear_iteration_policy: "DEC-046-CV-B-product-preview-active-set-count-v1", sparse_evidence_lane: true } },
+      active_rule_packs: [], external_assets: [],
+    });
+    const preview = { document_kind: "swbpipe.desktop.analysis_run_preview", version: 1, job_id: JOB, route: "pressure", record_bytes: 1, rule_check_status: "RULE_INPUTS_INCOMPLETE", result_ref_count: 0, producer_diagnostic_count: 0, carried_members: [], rule_pack_ref_diagnostics: [], record: { analysis_run: { run_id: "r", analysis_status: [], hashes: [{ payload_scope: "analysis_run_record", value: "a".repeat(64) }, { payload_scope: "received_result", value: "b".repeat(64) }] } } };
+    const replies: Step[] = [
+      step("header", header(), { jobId: JOB, operation: "route_header" }),
+      step("registration", registration, { jobId: JOB, reader: "pressure", modelJson: FULL_R }),
+      step("standing", verdict(), { jobId: JOB, modelJson: FULL_S }),
+      step("summary", summary(envelope(PRODUCER)), { jobId: JOB, modelJson: FULL_S, standing: { eligible: false, findings: [] } }),
+      step("run_preview", utf8(preview), { jobId: JOB, inputManifest: { manifest_ref: evidence.manifest_ref, manifest_sha256: evidence.manifest_sha256, canonical_bytes: evidence.canonical_bytes }, ruleCheckAggregate: null, rulePackExclusions: [] }),
+      step("rows_page", framed("SWBDETv1", { document_kind: "swbpipe.desktop.result_detail_rows", version: 1, lengths: [2], total: 1, offset: 0, returned: 1, truncated: false, ordinals: [0] }, false, utf8("{}")),
+        { jobId: JOB, filter: panelDetailFilter({ filterText: "", familyFilter: "all", frame: "all", caseKey: "all" }), offset: 0, limit: DEFAULT_RESULT_PAGE_SIZE }),
+      step("row_semantics", JSON.stringify([{ ok: true }]), { jobId: JOB, ordinals: [0] }, "txt"),
+    ];
+    return replies.map((s) => (kinds[s.call] ? { ...s, kind: kinds[s.call] } : s));
+  }
+  const refusedAt = (call: string, kind: string, code: string) => new RegExp(`the web refuses ${call}'s ${kind} reply after ${FULL_SEQUENCE.slice(0, FULL_SEQUENCE.indexOf(call) + 1).join(" > ")}: ${code}`);
+
+  it("the complete synthetic run reaches the first page through every web acceptance", async () => {
+    const judgedRun = await judged(await fullRun());
+    expect(judgedRun.ended).toBe("first_page_ready");
+    expect(judgedRun.native).toEqual(FULL_SEQUENCE);
+  });
+  it("a registration outcome that is not ok but carries an empty code is no refusal: the web goes on to the first page", async () => {
+    // validateNativeReaders (previewService.ts:574-586) returns a code only when it is not empty.
+    const judgedRun = await judged(await fullRun({ ok: false, error: { code: "", detail: null } }));
+    expect(judgedRun.ended).toBe("first_page_ready");
+    expect(judgedRun.native).toEqual(FULL_SEQUENCE);
+    expect(judgedRun.calls).toEqual([...FULL_SEQUENCE.slice(0, 4), "dispatch_again: the web's cache", "agreement", ...FULL_SEQUENCE.slice(4)]);
+  });
+  // The delivery kind: each call's own guard (the decoders', `bytesInvoke`, `readNativeSummary`'s,
+  // and the adapters' `readAnalysisRunPreview`, `binary` and `readResultRowSemantics`), the
+  // payload's bytes unchanged.
+  it("a verdict delivered as bytes, not the parsed object, is refused at that call", async () => {
+    await expect(judged(await fullRun(undefined, { standing: "bin" }))).rejects.toThrow(refusedAt("standing", "bin", "NATIVE-VERDICT-MALFORMED"));
+  });
+  it("S delivered as text is refused at the summary (readNativeSummary)", async () => {
+    await expect(judged(await fullRun(undefined, { summary: "txt" }))).rejects.toThrow(refusedAt("summary", "txt", "RESULT-SUMMARY-MALFORMED: a text response where bytes were expected"));
+  });
+  it("the preview delivered as text is refused at run_preview (readAnalysisRunPreview)", async () => {
+    await expect(judged(await fullRun(undefined, { run_preview: "txt" }))).rejects.toThrow(refusedAt("run_preview", "txt", "ANALYSIS-RUN-PREVIEW-MALFORMED: a text response where bytes were expected"));
+  });
+  it("the preview delivered as a parsed JSON value is refused at run_preview (bytesInvoke)", async () => {
+    await expect(judged(await fullRun(undefined, { run_preview: "json" }))).rejects.toThrow(refusedAt("run_preview", "json", "NATIVE-RESULT-RESPONSE-KIND"));
+  });
+  it("a rows page delivered as text is refused at rows_page (the detail adapters' binary)", async () => {
+    await expect(judged(await fullRun(undefined, { rows_page: "txt" }))).rejects.toThrow(refusedAt("rows_page", "txt", "RESULT-DETAIL-MALFORMED: a text response where bytes were expected"));
+  });
+  it("the row semantics delivered as a parsed JSON value are refused at row_semantics (bytesInvoke); as bytes they are accepted", async () => {
+    await expect(judged(await fullRun(undefined, { row_semantics: "json" }))).rejects.toThrow(refusedAt("row_semantics", "json", "NATIVE-RESULT-RESPONSE-KIND"));
+    const judgedRun = await judged(await fullRun(undefined, { row_semantics: "bin" }));
+    expect(judgedRun.ended).toBe("first_page_ready");
+    expect(judgedRun.native).toEqual(FULL_SEQUENCE);
   });
 });
 

@@ -3,6 +3,13 @@
 //! by call, the native reader calls the desktop makes between the worker's
 //! `job_done` and first paint, on a result the real worker publishes.
 //!
+//! Its acceptance is the web's own code over the kept replies
+//! (`apps/desktop/src/test-support/after-worker/afterWorkerReplies.ts`). The
+//! standing rule (Agent 0): a predicate of the session's acceptance is
+//! IMPORTED where it is exported; where it is restated, it has a row in the
+//! generated table with its source lines; and a change to the judge or to a
+//! web source it imports or restates re-runs the table's check.
+//!
 //! What it drives, in the web's order and with the web's arguments
 //! (`previewService.ts` `readNativeFreshResult` and `validateNativeReaders`,
 //! `nativeResult.ts`, `workspaceSession.ts` after the terminal poll,
@@ -866,7 +873,8 @@ fn accept_validation(reply: &String) -> Accepted {
     let value: Value = serde_json::from_str(reply).map_err(|e| e.to_string())?;
     match value["ok"].as_bool() {
         Some(true) => Ok(json!({"code": null})),
-        Some(false) => value["error"]["code"].as_str().map(|code| json!({"code": code})).ok_or_else(|| "a refusal without a code".into()),
+        // validateNativeReaders (previewService.ts:574-586) counts a refusal only when its code is not empty.
+        Some(false) => value["error"]["code"].as_str().map(|code| json!({"code": (!code.is_empty()).then_some(code)})).ok_or_else(|| "a refusal without a code".into()),
         None => Err("not a reader validation outcome".into()),
     }
 }
