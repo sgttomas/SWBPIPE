@@ -300,7 +300,7 @@ fn load_case_id(entry: &Value) -> Option<&str> {
 
 /// the state of a `solve_quality`; an unknown or absent value is not
 /// assessed.
-fn state_of(solve_quality: Option<&str>) -> &'static str {
+pub(crate) fn state_of(solve_quality: Option<&str>) -> &'static str {
     match solve_quality {
         Some("checks_passed") => "checks_passed",
         Some("sensitive") => "sensitive",

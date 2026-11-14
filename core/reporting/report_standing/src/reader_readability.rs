@@ -20,6 +20,18 @@ use std::collections::HashMap;
 /// code its evidence names, or whose evidence does not name exactly the case's
 /// integrity diagnostic.
 pub const NUMERICAL_CASE_RECORD_INCONSISTENT: &str = "NUMERICAL_CASE_RECORD_INCONSISTENT";
+/// A load case's state of one nonlinear support published in more than one row,
+/// with equal or different row ids: `NUMERICAL_SUPPORT_STATE_DUPLICATED: <load
+/// case> <support>`. The producer publishes one row per load case and support,
+/// so the document is malformed: it names no one state, and its states are not
+/// read as not published.
+pub const NUMERICAL_SUPPORT_STATE_DUPLICATED: &str = "NUMERICAL_SUPPORT_STATE_DUPLICATED";
+/// A diagnostic id published more than once, identical or not:
+/// `NUMERICAL_DIAGNOSTIC_ID_DUPLICATED: <id>`. The document names no one
+/// diagnostic for that id, which is not the same as recording none.
+pub const NUMERICAL_DIAGNOSTIC_ID_DUPLICATED: &str = "NUMERICAL_DIAGNOSTIC_ID_DUPLICATED";
+/// The result row kind of a nonlinear support's computed state.
+pub(crate) const STATE_CODE_KIND: &str = "nonlinear_support_active_set_state_code";
 /// The ordinary standing's finding for a case that is not eligible: a case that
 /// is merely not checks passed, or an inconsistent case record. Which of the two
 /// is decided here by [`case_records_consistent`].
@@ -39,25 +51,57 @@ const INTEGRITY_ID_PREFIX: &str = "diagnostic:numerical-integrity:";
 /// `unreadable` lists, in `standing`'s order, every finding that makes the
 /// result unreadable (a route refusal's finding may be the reader's free text,
 /// which callers quote and never read as a code), then
-/// [`NUMERICAL_CASE_RECORD_INCONSISTENT`] where a case record is inconsistent.
+/// [`NUMERICAL_CASE_RECORD_INCONSISTENT`] where a case record is inconsistent,
+/// then each named duplicate ([`duplicated_evidence`]).
 /// `readable` is no unreadable finding; `solved` is the envelope's mechanics
 /// status. Neither changes `standing`.
 pub fn readability(source: &Value, standing: &Value) -> Value {
     let findings: Vec<&str> = standing["findings"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(Value::as_str).collect();
-    let mut unreadable: Vec<&str> = Vec::new();
+    let mut unreadable: Vec<String> = Vec::new();
     for finding in &findings {
-        if *finding != MECHANICS_NOT_SOLVED && !standing_finding(finding) && !unreadable.contains(finding) {
-            unreadable.push(finding);
+        if *finding != MECHANICS_NOT_SOLVED && !standing_finding(finding) && !unreadable.iter().any(|f| f == finding) {
+            unreadable.push(finding.to_string());
         }
     }
     if findings.contains(&CASE_EVIDENCE_INCOMPLETE) && !case_records_consistent(source) {
-        unreadable.push(NUMERICAL_CASE_RECORD_INCONSISTENT);
+        unreadable.push(NUMERICAL_CASE_RECORD_INCONSISTENT.to_string());
     }
+    unreadable.extend(duplicated_evidence(source));
     json!({
         "readable": unreadable.is_empty(),
         "solved": source["status"]["mechanics"] == "MECHANICS_SOLVED",
         "unreadable": unreadable,
     })
+}
+
+/// Every duplicate the historical reader cannot read, each once, in document
+/// order: each diagnostic id published more than once
+/// ([`NUMERICAL_DIAGNOSTIC_ID_DUPLICATED`]), then each (load case, support)
+/// whose state is published in more than one row
+/// ([`NUMERICAL_SUPPORT_STATE_DUPLICATED`]). Empty for a document without one;
+/// genuinely absent evidence is not a duplicate and keeps its own reading.
+pub fn duplicated_evidence(source: &Value) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut ids = std::collections::HashSet::new();
+    // An empty or absent id is the ordinary reader's NUMERICAL_EVIDENCE_ID_AMBIGUOUS.
+    for id in source["diagnostics"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(|d| d["id"].as_str().filter(|id| !id.is_empty())) {
+        let finding = format!("{NUMERICAL_DIAGNOSTIC_ID_DUPLICATED}: {id}");
+        if !ids.insert(id) && !out.contains(&finding) {
+            out.push(finding);
+        }
+    }
+    let mut states = std::collections::HashSet::new();
+    for row in source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+        if row["kind"] != STATE_CODE_KIND || row["basis_ref"]["ref_type"] != "load_case" {
+            continue;
+        }
+        let key = (row["basis_ref"]["ref_id"].as_str().unwrap_or(""), row["entity_ref"].as_str().unwrap_or(""));
+        let finding = format!("{NUMERICAL_SUPPORT_STATE_DUPLICATED}: {} {}", key.0, key.1);
+        if !states.insert(key) && !out.contains(&finding) {
+            out.push(finding);
+        }
+    }
+    out
 }
 
 /// Every `numerical_quality` case record that the ordinary standing does not
@@ -95,10 +139,13 @@ fn case_record_consistent(case: &Value, codes: &HashMap<&str, Vec<Option<&str>>>
     let Some(refs) = case["evidence_refs"].as_array() else {
         return false;
     };
+    let wanted = format!("{INTEGRITY_ID_PREFIX}{case_id}");
     let expected = match refs.as_slice() {
+        // The producer gives the not-assessed record only to a case with no
+        // integrity diagnostic (product_physics `assessed_numerical_quality`).
+        [] if codes.contains_key(wanted.as_str()) => None,
         [] => Some(["numerically_unresolved", "not_assessed", "not_assessed", "not_claimed"]),
         [only] => {
-            let wanted = format!("{INTEGRITY_ID_PREFIX}{case_id}");
             if only.as_str() != Some(wanted.as_str()) {
                 return false;
             }

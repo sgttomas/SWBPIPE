@@ -40,6 +40,7 @@
 //! established is conditional on the inverse-norm step; every other
 //! confirmation outcome is not established. Nothing here is upgraded.
 use crate::historical_health::{numerical_health, Location};
+use crate::reader_readability::{NUMERICAL_CASE_RECORD_INCONSISTENT, STATE_CODE_KIND};
 use open_pipe_stress_numerical_vocabulary::{
     CaseHealth, EvidenceStatus, FrictionNormal, HistoricalCause, HistoricalConfirmation, HistoricalIntegrityCode, NoFigureReason, Premise,
     StandingFinding, SupportBehavior, SupportState,
@@ -59,16 +60,25 @@ const NOT_ESTABLISHED_TAIL: &str = "); member rows are binary64 recoveries";
 const NOT_RUN: &str = "confirmation attempt: not run";
 const RECOVERY_LEAD: &str = " S11-G recovery guard (R-b'): load case ";
 const SENSITIVE_BECAUSE: &str = " is Sensitive because ";
-const STATE_CODE_KIND: &str = "nonlinear_support_active_set_state_code";
 
 /// The standing record of `source` with its `model`, or the refusal
 /// `NUMERICAL_TAG_UNSUPPORTED: <vocabulary>` for a tag outside the
-/// historical vocabularies. Callers derive it only for a result the reader
+/// historical vocabularies, or a named duplicate
+/// (`reader_readability::duplicated_evidence`), or
+/// `NUMERICAL_CASE_RECORD_INCONSISTENT: <case>`
+/// for a case whose stated health is not the one its integrity code's closed
+/// record names (`reader_readability::STANDING_QUALITY`): the record never
+/// states a health beside a code that contradicts it. Callers derive it only for a result the reader
 /// reads (`reader_readability::readability`).
 /// `standing` is `reader_verdict::standing`'s output for the same source and
 /// model; its findings that state the standing (`standing_finding`) are carried
 /// in order, each once.
 pub fn historical_standing_record(source: &Value, model: &Value, standing: &Value) -> Result<Value, String> {
+    // A direct caller cannot derive a record from an ambiguous document: the first
+    // named duplicate refuses it (`reader_readability::duplicated_evidence`).
+    if let Some(duplicate) = crate::reader_readability::duplicated_evidence(source).into_iter().next() {
+        return Err(duplicate);
+    }
     let unsupported = |vocabulary: &str| format!("{NUMERICAL_TAG_UNSUPPORTED}: {vocabulary}");
     let mut findings: Vec<StandingFinding> = Vec::new();
     for finding in standing["findings"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(Value::as_str) {
@@ -97,6 +107,15 @@ pub fn historical_standing_record(source: &Value, model: &Value, standing: &Valu
             Some(code) => Some(HistoricalIntegrityCode::parse(code).ok_or_else(|| unsupported(HistoricalIntegrityCode::VOCABULARY))?),
             None => None,
         };
+        // The health is the case record's solve_quality; the code's closed record
+        // names one. Only solve_quality is compared, so an accuracy value the closed
+        // record does not name (reference_verified) is not refused here.
+        if let Some(code) = code {
+            let named = crate::reader_readability::standing_quality(code.as_str()).map(|record| crate::historical_health::state_of(Some(record[1])));
+            if named != Some(case.state) {
+                return Err(format!("{NUMERICAL_CASE_RECORD_INCONSISTENT}: {}", case.case_id));
+            }
+        }
         let mut causes = Vec::new();
         for cause in &case.causes {
             let tag = HistoricalCause::parse(cause.kind).ok_or_else(|| unsupported(HistoricalCause::VOCABULARY))?;
@@ -117,7 +136,7 @@ pub fn historical_standing_record(source: &Value, model: &Value, standing: &Valu
             .map(|support| {
                 let (state, row) = states
                     .get(&(case.case_id.as_str(), support.id))
-                    .map(|(state, row)| (*state, Some(*row)))
+                    .copied()
                     .unwrap_or((SupportState::NotPublished, None));
                 json!({
                     "support_id": support.id,
@@ -229,7 +248,10 @@ fn nonlinear_supports(model: &Value) -> Result<Vec<NonlinearSupport<'_>>, &'stat
 /// Each (load case, support) state row's state and row id. A state code outside
 /// the published convention (0 inactive, 1 active, 2 sticking, 3 sliding) reads
 /// as not published.
-fn support_states(source: &Value) -> HashMap<(&str, &str), (SupportState, &str)> {
+/// Each (load case, support)'s published state and its row. Called only after
+/// the derivation refused any duplicate (`duplicated_evidence`), so each pair
+/// has one row.
+fn support_states(source: &Value) -> HashMap<(&str, &str), (SupportState, Option<&str>)> {
     let mut out = HashMap::new();
     for row in source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
         if row["kind"] != STATE_CODE_KIND || row["basis_ref"]["ref_type"] != "load_case" {
@@ -245,7 +267,7 @@ fn support_states(source: &Value) -> HashMap<(&str, &str), (SupportState, &str)>
             Some(v) if v == 3.0 => SupportState::Sliding,
             _ => SupportState::NotPublished,
         };
-        out.insert((case, support), (state, id));
+        out.insert((case, support), (state, Some(id)));
     }
     out
 }

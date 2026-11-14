@@ -96,3 +96,114 @@ fn an_integrity_code_outside_the_vocabulary_is_never_given_a_known_meaning() {
     assert_eq!(readability(&source, &standing)["unreadable"], json!(["SOURCE_PHYSICS_NONLINEAR_STANDING_CODE", NUMERICAL_CASE_RECORD_INCONSISTENT]));
     assert_eq!(historical_standing_record(&source, &model, &standing).unwrap_err(), "NUMERICAL_TAG_UNSUPPORTED: historical_integrity_code");
 }
+
+/// The not-assessed record is the producer's only for a case with no integrity
+/// diagnostic: with forged empty evidence beside a published diagnostic, the
+/// case record is inconsistent (scrutiny of PR 328, finding 3a).
+#[test]
+fn a_not_assessed_case_record_beside_its_integrity_diagnostic_is_inconsistent() {
+    let (mut source, _, _) = read(GAP_RAW, GAP_REQUEST);
+    assert!(open_pipe_stress_report_standing::reader_readability::case_records_consistent(&source));
+    let case = &mut source["numerical_quality"]["cases"][0];
+    assert_eq!(case["basis_ref"]["ref_id"], "load:PRESSURE");
+    for (field, value) in [("structural_status", "numerically_unresolved"), ("solve_quality", "not_assessed"), ("model_matrix_fidelity", "not_assessed"), ("accuracy_evidence", "not_claimed")] {
+        case[field] = json!(value);
+    }
+    case["evidence_refs"] = json!([]);
+    assert!(!open_pipe_stress_report_standing::reader_readability::case_records_consistent(&source));
+}
+
+/// The standing record never states a health beside an integrity code whose
+/// closed record names another (scrutiny of PR 328, finding 3b), even where
+/// the case record was altered to the eligible record, which the readability
+/// check leaves as the ordinary standing found it.
+#[test]
+fn a_health_contradicting_its_integrity_code_refuses_the_record() {
+    let (mut source, model, standing) = read(GAP_RAW, GAP_REQUEST);
+    let case = &mut source["numerical_quality"]["cases"][0];
+    for (field, value) in [("structural_status", "passive_model_basis"), ("solve_quality", "checks_passed"), ("model_matrix_fidelity", "represented_equations_retained"), ("accuracy_evidence", "not_claimed")] {
+        case[field] = json!(value);
+    }
+    assert_eq!(historical_standing_record(&source, &model, &standing).unwrap_err(), format!("{NUMERICAL_CASE_RECORD_INCONSISTENT}: load:PRESSURE"));
+}
+
+/// Scrutiny of PR 328, finding 5, as Agent 0 settled it: a duplicate is a
+/// statement about the document, not about a case. Two rows for one load case
+/// and support, or two diagnostics with one id, make the result unreadable by a
+/// finding that names the key or id, whatever their order and whether or not
+/// they are identical; and a direct caller of the derivation gets the same
+/// refusal, never a record.
+mod duplicates {
+    use super::*;
+    use open_pipe_stress_report_standing::reader_readability::{NUMERICAL_DIAGNOSTIC_ID_DUPLICATED, NUMERICAL_SUPPORT_STATE_DUPLICATED};
+
+    const STATE: &str = "nonlinear_support_active_set_state_code";
+    const FR1: &str = "support:RS-FR1";
+
+    fn fr1_state(source: &Value) -> (usize, Value) {
+        source["results"].as_array().unwrap().iter().enumerate()
+            .find(|(_, r)| r["kind"] == STATE && r["entity_ref"] == FR1)
+            .map(|(i, r)| (i, r.clone()))
+            .expect("RS-FR1's state row")
+    }
+
+    fn refused(source: &Value, model: &Value, standing: &Value, finding: &str) {
+        let verdict = readability(source, standing);
+        assert_eq!(verdict["readable"], false, "{verdict}");
+        assert!(verdict["unreadable"].as_array().unwrap().contains(&json!(finding)), "{verdict}");
+        assert_eq!(historical_standing_record(source, model, standing).unwrap_err(), finding);
+    }
+
+    #[test]
+    fn a_support_state_published_twice_refuses_in_either_order_and_when_identical() {
+        let (source, model, standing) = read(FRICTION_RAW, FRICTION_REQUEST);
+        let (at, row) = fr1_state(&source);
+        let case = row["basis_ref"]["ref_id"].as_str().unwrap().to_string();
+        let finding = format!("{NUMERICAL_SUPPORT_STATE_DUPLICATED}: {case} {FR1}");
+        let mut conflicting = row.clone();
+        conflicting["id"] = json!(format!("{}:twin", row["id"].as_str().unwrap()));
+        conflicting["value"] = json!(if row["value"] == json!(1.0) { 3.0 } else { 1.0 });
+        // The conflicting row after the published one, then before it.
+        for before in [false, true] {
+            let mut altered = source.clone();
+            let rows = altered["results"].as_array_mut().unwrap();
+            if before { rows.insert(at, conflicting.clone()) } else { rows.push(conflicting.clone()) }
+            refused(&altered, &model, &standing, &finding);
+        }
+        // An identical copy of the row (same id and value).
+        let mut identical = source.clone();
+        identical["results"].as_array_mut().unwrap().push(row.clone());
+        refused(&identical, &model, &standing, &finding);
+    }
+
+    #[test]
+    fn a_diagnostic_id_published_twice_refuses_in_either_order_and_when_identical() {
+        let (source, model, standing) = read(GAP_RAW, GAP_REQUEST);
+        let id = "diagnostic:numerical-integrity:load:PRESSURE";
+        let finding = format!("{NUMERICAL_DIAGNOSTIC_ID_DUPLICATED}: {id}");
+        let (at, original) = source["diagnostics"].as_array().unwrap().iter().enumerate().find(|(_, d)| d["id"] == id).map(|(i, d)| (i, d.clone())).unwrap();
+        let mut conflicting = original.clone();
+        conflicting["code"] = json!("NUMERICAL_INTEGRITY_CHECKS_PASSED");
+        conflicting["message"] = json!("Invented other message.");
+        for before in [false, true] {
+            let mut altered = source.clone();
+            let diagnostics = altered["diagnostics"].as_array_mut().unwrap();
+            if before { diagnostics.insert(at, conflicting.clone()) } else { diagnostics.push(conflicting.clone()) }
+            refused(&altered, &model, &standing, &finding);
+        }
+        let mut identical = source.clone();
+        identical["diagnostics"].as_array_mut().unwrap().push(original);
+        refused(&identical, &model, &standing, &finding);
+    }
+
+    /// Genuinely absent historical evidence is not a duplicate: the gap witness
+    /// publishes no confirmation record, and it still reads, with that stated.
+    #[test]
+    fn absent_historical_evidence_still_reads() {
+        let (source, model, standing) = read(GAP_RAW, GAP_REQUEST);
+        assert!(open_pipe_stress_report_standing::reader_readability::duplicated_evidence(&source).is_empty());
+        assert_eq!(readability(&source, &standing)["readable"], true);
+        let record = historical_standing_record(&source, &model, &standing).unwrap();
+        assert_eq!(case(&record, "load:PRESSURE")["confirmation"]["outcome"], "no_confirmation_record");
+    }
+}
