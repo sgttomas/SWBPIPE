@@ -12,7 +12,8 @@ same physical numbers as today, bit for bit.
   pressurised cases in document order.
 - `pressure_elongation_inventory.json`: every tracked file under `core`, `validation`,
   `tests`, `tools`, `fixtures` and `apps` whose bytes name `pressure_regions`, each claimed
-  exactly once in `pressure_elongation_inventory.py`. A data file (`.json`, or `.jsonl` read
+  exactly once in `pressure_elongation_inventory.declarations.json`, which
+  `pressure_elongation_inventory.py` reads as data. A data file (`.json`, or `.jsonl` read
   line by line) holding a pressurised model document is claimed by a group in `GROUPS`:
   its producer, the tests that pin it and its anchor route. Documents held as JSON text in
   a string or in the retained-precision DAG storage count too, and are listed as
@@ -41,6 +42,19 @@ same physical numbers as today, bit for bit.
   does not read (escaped or UTF-16 keys, source code, assembled blobs such as the MBF writer
   parity vectors' deltas) is stated in the script's docstring. Regenerate it with `python3 tools/validation/pressure_elongation_inventory.py`;
   `test_pressure_elongation_inventory.py` fails until it is current.
+
+  Adding a claim. A change that adds a tracked file naming `pressure_regions` adds one claim
+  to `tools/validation/pressure_elongation_inventory.declarations.json`: a record in `groups`
+  (a data file holding a pressurised document), in `in_code` (code that builds a solved
+  pressurised document) or in `exempt` (anything else, with its reason), shaped like the
+  records beside it. A comment on a declaration goes in `notes`, naming it by its group id,
+  its first path or pattern, or a pin registration's first consumer. Then run
+  `python3 tools/validation/pressure_elongation_inventory.py` (it writes the inventory),
+  `python3 tools/validation/pressure_elongation_inventory.py --check` and
+  `python3 -m pytest -q tools/validation/test_pressure_elongation_inventory.py`. A missing or
+  malformed declarations file, or a key given twice in one object, fails with its name and
+  the problem. If the declarations file itself ever names `pressure_regions`, the check reports
+  it unclaimed: add it to the inventory's own exemption.
 
   The committed check establishes general structural properties: every scanned file is claimed
   exactly once, by a record or an exemption; no claim is stale; the declarations have their

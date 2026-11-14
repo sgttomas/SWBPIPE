@@ -759,3 +759,99 @@ def test_a_stale_pin_fails(scanned):
     stale = [*INV.PINNED_BY, {"paths": ["fixtures/no_such_fixture.json"], "pinned_by": ["somewhere"]}]
     assert "stale: PINNED_BY path fixtures/no_such_fixture.json matches no tracked file naming pressure_regions" in \
         problems(scanned, pinned=stale)
+
+
+# ----------------------------------------------------------------------------- the declarations file
+def _declarations_text() -> str:
+    return INV.DECLARATIONS.read_text(encoding="utf-8")
+
+
+def _refusal(path: Path) -> str:
+    with pytest.raises(INV.DeclarationsError) as raised:
+        INV.load_declarations(path)
+    return str(raised.value)
+
+
+def test_a_missing_declarations_file_fails_visibly(tmp_path):
+    missing = tmp_path / "pressure_elongation_inventory.declarations.json"
+    assert _refusal(missing) == f"{missing}: the declarations file is missing"
+
+
+def test_importing_the_producer_without_its_declarations_file_fails_naming_it(tmp_path):
+    """The producer loads its declarations when it is imported, from beside its own file: a copy with no file beside
+    it fails to import, naming the file, rather than running with empty tables."""
+    copy_dir = tmp_path / "tools/validation"
+    copy_dir.mkdir(parents=True)
+    module = copy_dir / "pressure_elongation_inventory.py"
+    module.write_bytes(Path(INV.__file__).read_bytes())
+    done = subprocess.run([sys.executable, "-c", f"import runpy; runpy.run_path({str(module)!r})"], cwd=ROOT,
+                          capture_output=True, text=True, env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(ROOT)})
+    assert done.returncode != 0
+    assert f"DeclarationsError: {copy_dir / 'pressure_elongation_inventory.declarations.json'}: the declarations " \
+           "file is missing" in done.stderr, done.stderr
+
+
+def test_malformed_declarations_json_fails_visibly(tmp_path):
+    broken = tmp_path / "declarations.json"
+    broken.write_text(_declarations_text()[:-200], encoding="utf-8")
+    assert _refusal(broken).startswith(f"{broken}: not valid JSON (")
+
+
+def test_a_key_given_twice_in_one_object_fails_visibly(tmp_path):
+    """The duplicate would otherwise silently replace the earlier member (json's default keeps the last)."""
+    doubled = tmp_path / "declarations.json"
+    text = _declarations_text()
+    first = '"reason": '
+    assert first in text
+    doubled.write_text(text.replace(first, '"reason": "an earlier reason", ' + first, 1), encoding="utf-8")
+    assert _refusal(doubled) == f"{doubled}: the key 'reason' appears twice in one object"
+
+
+@pytest.mark.parametrize("label, mutate", [
+    ("a list at the top level", lambda value: [value]),
+    ("a table missing", lambda value: {k: v for k, v in value.items() if k != "exempt"}),
+    ("an extra member", lambda value: {**value, "exemptions": []}),
+    ("a table that is not a list of objects", lambda value: {**value, "in_code": {"paths": []}}),
+    ("another document kind", lambda value: {**value, "document_kind": "something else"}),
+])
+def test_a_wrong_top_level_shape_fails_visibly(tmp_path, label, mutate):
+    wrong = tmp_path / "declarations.json"
+    wrong.write_text(json.dumps(mutate(json.loads(_declarations_text()))), encoding="utf-8")
+    message = _refusal(wrong)
+    assert message.startswith(f"{wrong}: ") and any(phrase in message for phrase in (
+        "the top level must be an object with exactly the members", "must be a list of objects",
+        "document_kind must be")), (label, message)
+
+
+def test_a_note_must_name_exactly_one_declaration(tmp_path):
+    value = json.loads(_declarations_text())
+    value["notes"][0]["declarations"] = ["no_such_group"]
+    wrong = tmp_path / "declarations.json"
+    wrong.write_text(json.dumps(value), encoding="utf-8")
+    assert _refusal(wrong) == f"{wrong}: notes[0] names 'no_such_group', which is 0 declarations of groups, not one"
+
+
+def test_the_loaded_tables_are_the_declarations_and_have_the_required_shapes():
+    """The module's tables are the file's, and each record has the fields build() and claims() read."""
+    loaded = INV.load_declarations()
+    assert (INV.GROUPS, INV.DERIVED, INV.PINNED_BY, INV.IN_CODE, INV.EXEMPT) == \
+        tuple(loaded[table] for table in INV.TABLES)
+    for group in INV.GROUPS:
+        assert set(group) == {"id", "paths", "producer", "pinned_by", "anchor"}, group.get("id")
+        assert isinstance(group["id"], str) and group["paths"] and all(isinstance(p, str) for p in group["paths"])
+        assert isinstance(group["producer"], dict) and isinstance(group["anchor"], dict) and "kind" in group["anchor"]
+        assert all(isinstance(p, str) for p in group["pinned_by"])
+    for record in INV.DERIVED:
+        assert set(record) == {"path", "producer", "from", "reader"}, record
+    for entry in INV.PINNED_BY:
+        assert set(entry) == {"paths", "pinned_by"} and entry["paths"] and entry["pinned_by"], entry
+        assert all(isinstance(p, str) for p in entry["paths"] + entry["pinned_by"])
+    for record in INV.IN_CODE:
+        assert {"paths", "expectations", "cases_named", "detail"} <= set(record), record
+        assert record["expectations"] in INV.EXPECTATIONS and record["cases_named"] in INV.CASES_NAMED
+        assert record["paths"] and all(isinstance(p, str) for p in record["paths"]) and record["detail"].strip()
+    for entry in INV.EXEMPT:
+        assert set(entry) == {"reason", "paths"} and entry["reason"].strip() and entry["paths"], entry
+    for note in loaded["notes"]:
+        for key in note["declarations"]:
+            assert [r for r in loaded[note["table"]] if INV.declaration_key(note["table"], r) == key], (note, key)
