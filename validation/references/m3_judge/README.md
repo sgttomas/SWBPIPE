@@ -2,9 +2,9 @@
 
 This directory holds the one M3 judge shared by the exact-route set (`../kd5_timoshenko/`, K-D5 M3-T)
 and the pressure-free set (PF M3-T, #1663). It judges raw runner outputs against an exact reference,
-with the acceptance of
-[kd5-member-relative-bound.md](../../../execution/PKG-04/DEL-04-01/Design/kd5-member-relative-bound.md)
-section 4.3. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Its verdicts are
+with the acceptance of `kd5-member-relative-bound.md` (DEL-04-01) section 4.3, removed from the tree by
+0fbc2ee73 (in its parent at `execution/PKG-04/DEL-04-01/Work/`); the clauses this judge applies are
+stated in `m3_compare.py`'s docstring. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Its verdicts are
 evidence for the owner's review: they record no acceptance, issuance or lifecycle standing (F-PIP-3).
 Every model is invented.
 
@@ -38,7 +38,7 @@ runner (`runner/`) is harness, not reference.
 | `m3_report.py` | The judging pass: provenance, inventory, M3, design conformance, nonvacuity, `OVERALL`. |
 | `run.sh` | The driver: builds the runner from a clean checkout, runs every chunk, judges each variant. |
 | `runner/` | The shared runner: `Cargo.toml`, `Cargo.lock`, `build.rs`, `src/main.rs`, `build.sh`. |
-| `m3_selftest.py`, `m3_regress.py`, `m3_synth.py` | Self-test: isolation, contract units, rules on both views, and the round 1–7 regression table. |
+| `m3_selftest.py`, `m3_regress.py`, `m3_synth.py` | Self-test: isolation, contract units, rules on both views, and the round 1–14 regression table. |
 | `selftest/pf_set.jsonl` | 20 lines copied verbatim from `pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl` (sha256 `eaa573a6…`) for the PF view's self-test. |
 | `REFERENCE_SHA256SUMS` | The committed digests of the reference files the judge may judge against (provenance), read from HEAD's blob. |
 | `m3_reproduce.py` | Regenerates every pinned reference file from its committed generator and requires its pin. |
@@ -302,14 +302,14 @@ closure is not subject to further adversarial review (#1714).
 
 ## Self-test
 
-`python3 -I -B m3_selftest.py` checks 1,369 of 1,369. It covers:
+`python3 -I -B m3_selftest.py` checks 1,469 of 1,469. It covers:
 
 - isolation (above), the exact-type gates (ten subclass probes, refused), and the contract units of
   the judged kinds;
 - every rule and clause on both views: CRIT from both sides on every group kind, C3 from both sides,
   F1–F4, C2, C4/C4b, C6/C6i, C7, C8, C10, C11, the τ defect, σ± and τ operations, the twin control,
   the Lamé and nominal/reduced mutants;
-- 230 regression cases.
+- 329 regression cases.
 
 `--quick` runs only the isolation checks and the regression cases. Each regression case prints
 `TABLE round | attack | case | outcome`. By round:
@@ -324,6 +324,13 @@ closure is not subject to further adversarial review (#1714).
 | 5 | 82 |
 | 6 (the final round) | 36 |
 | 7 (the judge's own checkout) | 7 |
+| 8 (the exact view admits load/reference states, shape-checked from the schema) | 14 |
+| 9 (pressure-source-1's recovery evidence, validated against its schema) | 16 |
+| 10 (C4 within one contract; C4x information) | 8 |
+| 11 (JSON Schema equivalence of the evidence checker) | 10 |
+| 12 (PF Timoshenko results under preview-physics-timoshenko-1) | 6 |
+| 13 (models judged through the typed entry alone) | 7 |
+| 14 (the schema reader reads allOf and anyOf with JSON Schema's meaning) | 38 |
 
 - **PF view.** Rounds 1–4 are the PF judge's table, replayed. Round 5 covers:
   - the shadow evidence: nested, and in an unread member;
@@ -376,7 +383,7 @@ neither set contains.
 ## Reproduce
 
 ```
-python3 -I -B m3_selftest.py                         # isolation, contract units, rules on both views, rounds 1-5
+python3 -I -B m3_selftest.py                         # isolation, contract units, rules on both views, rounds 1-14
 python3 -I -B m3_selftest.py --quick | grep '^TABLE'  # the regression table
 ./run.sh exact <clean checkout> <kd5 set dir> <run dir> own twin control
 ./run.sh pf <clean checkout> <pf set dir> <run dir> own twin

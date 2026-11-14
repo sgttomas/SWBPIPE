@@ -1,11 +1,12 @@
 #!/bin/bash
 # Build the M3 judge's runner from a clean checkout (both routes).
 #   build.sh <checkout root> <cargo target dir> <binary out>
-# The runner is the checkout's own committed m3_judge/runner (Cargo.toml, Cargo.lock, build.rs, src/main.rs); it links
-# ../../../../core/product_physics of that checkout. Every build input must be clean in git: core/ (the product and all
-# its path dependencies), fixtures/, schemas/ and validation/ (files the product embeds, the runner sources and its
-# Cargo.lock); the runner links nothing under apps/. A dirty input refuses the build (exit 3); M3J_ALLOW_DIRTY=1 builds
-# anyway with the head marked -dirty, which the judging pass refuses. The head baked in is the checkout's commit.
+# The runner is the checkout's own committed validation/references/m3_judge/runner (Cargo.toml, Cargo.lock, build.rs,
+# src/main.rs); it links ../../../../core/product_physics, the checkout root's core/product_physics. Every build input
+# must be clean in git: core/ (the product and all its path dependencies), fixtures/, schemas/ and validation/ (files
+# the product embeds, the runner sources and its Cargo.lock); the runner links nothing under apps/. A dirty input
+# refuses the build (exit 3); M3J_ALLOW_DIRTY=1 builds anyway with the head marked -dirty, which the judging pass
+# refuses. The head baked in is the checkout's commit.
 # Cargo is $M3J_CARGO (default: cargo; a host wrapper may be named) and runs with --locked. Prints the binary's sha256
 # and the head.
 set -eu
@@ -13,12 +14,11 @@ set -eu
 ROOT=$(cd "$1" && pwd -P)
 TARGET=$2
 OUT=$3
-P=projects/chirality-piping
-DEST=$ROOT/$P/validation/references/m3_judge/runner
-[ -f "$ROOT/$P/core/product_physics/Cargo.toml" ] || { echo "no product_physics crate under $ROOT" >&2; exit 2; }
+DEST=$ROOT/validation/references/m3_judge/runner
+[ -f "$ROOT/core/product_physics/Cargo.toml" ] || { echo "no product_physics crate under $ROOT" >&2; exit 2; }
 [ -f "$DEST/Cargo.toml" ] && [ -f "$DEST/build.rs" ] || { echo "the checkout has no committed M3 judge runner at $DEST" >&2; exit 2; }
 HEAD_SHA=$(git -C "$ROOT" rev-parse --verify HEAD^{commit})
-DIRTY=$(git -C "$ROOT" status --porcelain --untracked-files=all -- "$P/core" "$P/fixtures" "$P/schemas" "$P/validation")
+DIRTY=$(git -C "$ROOT" status --porcelain --untracked-files=all -- core fixtures schemas validation)
 if [ -n "$DIRTY" ]; then
   if [ "${M3J_ALLOW_DIRTY:-}" = 1 ]; then
     HEAD_SHA=$HEAD_SHA-dirty
