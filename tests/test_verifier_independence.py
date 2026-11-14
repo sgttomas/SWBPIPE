@@ -69,7 +69,7 @@ def _verifier_imports(tree):
 # verifier's path. The import check still applies to it, and it may hold no means of loading a file as code.
 PATH_NAMERS = {
     "tools/validation/pressure_elongation_inventory.py":
-        "the pressure-elongation inventory claims, by path, every tracked file that names pressure_regions, two "
+        "the pressure-elongation inventory claims, by path, every tracked file that names a pressure region list, two "
         "verifiers among them; it reads files as text and loads none",
 }
 _NAMES_A_VERIFIER_PATH = re.compile(r"tests[/\\.]verifiers|verifiers[/\\]retained_precision")
