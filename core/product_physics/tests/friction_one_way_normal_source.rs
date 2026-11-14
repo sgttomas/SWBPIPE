@@ -30,7 +30,7 @@
 //! `NUMERICAL_INTEGRITY_SENSITIVE` with its named reason. The change makes
 //! this configuration solve; it does not confirm it.
 
-use open_pipe_stress_product_physics::result_export::reader_verdict;
+use open_pipe_stress_product_physics::result_export::{reader_verdict, semantic_contract};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode, MODEL_SCHEMA_VERSION};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -330,9 +330,25 @@ fn every_settled_case_solves_to_the_reference_in_both_modes() {
             if let Some(error) = reader(&envelope, None) {
                 failures.push(format!("{label}: the reader without the model refuses: {error}"));
             }
+            let numerical_use = numerical_use(&envelope, &document);
+            if numerical_use != "needs_recompute" {
+                failures.push(format!("{label}: readable and sensitive, yet its numerical use is {numerical_use}"));
+            }
         }
     }
     assert!(failures.is_empty(), "{failures:#?}");
+}
+
+/// Readable is not eligible: a sensitive result's numerical-use standing, with
+/// every load case requested, is `needs_recompute`. The desktop's rule check
+/// binds solver results only at `numerically_eligible`
+/// (`qualify_rule_mechanics_with_context`; DEL-06-03 AC-004), so these results
+/// authorize no rule outcome.
+fn numerical_use(envelope: &Value, document: &Value) -> &'static str {
+    let bases = document["model"]["load_cases"].as_array().unwrap().iter()
+        .map(|case| json!({"ref_type": "load_case", "ref_id": case["id"]}))
+        .collect::<Vec<_>>();
+    semantic_contract::numerical_use_standing_with_context(envelope, &bases, None)
 }
 
 
