@@ -564,7 +564,11 @@ def printed_resolution(text: str, label: str | None, system: str | None) -> dict
         return {"resolution": _to_output(float(Fraction(1, 10 ** decimals)), label)}
     exponent = _EXPONENT.match(text)
     if exponent is not None:
-        place = int(exponent.group("e")) - len(exponent.group("a") or exponent.group("b") or "")
+        try:
+            place = int(exponent.group("e")) - len(exponent.group("a") or exponent.group("b") or "")
+        except ValueError:
+            return {"resolution": None,
+                    "reason": "the printed exponent is outside the supported range: its printed resolution is indeterminate"}
         if place > -decimals:
             return {"resolution": None,
                     "reason": f"{text!r} is printed coarser than the {decimals} decimal places the format prints for "

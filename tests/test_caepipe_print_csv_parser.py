@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 import sys
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -371,3 +373,103 @@ def test_printed_resolution_never_infers_a_coarse_floor_from_the_text():
         entry = printed_resolution(text, "mm", "SI")
         assert entry["resolution"] is None and words in entry["reason"], text
     assert printed_resolution("1", "N", None)["resolution"] is None  # no system: not established
+
+
+
+# -- long exponents (P2): never an uncaught exception ------------------------------------------------------------------
+LONG = "1" * 5000  # 5,000 exponent digits: beyond int()'s default digit limit, so the place cannot be computed
+
+
+@pytest.mark.parametrize("token", [f"-1.5e{LONG}", f"+1.5e+{LONG}"])
+def test_a_long_positive_exponent_is_refused_as_a_number_never_an_exception(token):
+    entry = printed_resolution(token, "mm", "SI")
+    assert entry["resolution"] is None and "exponent is outside the supported range" in entry["reason"]
+    # The value overflows binary64: the row is refused by the existing finite-number check, and parsing goes on.
+    result = parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED), f"20,{token},,,,,,,"))
+    assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-NUMBER-INVALID"]
+    assert set(result["load_cases"][SUSTAINED]["displacements"]) == {"10"}
+
+
+def test_a_long_negative_exponent_keeps_its_finite_value_with_indeterminate_resolution():
+    token = f"-1.5e-{LONG}"
+    entry = printed_resolution(token, "mm", "SI")
+    assert entry["resolution"] is None and "exponent is outside the supported range" in entry["reason"]
+    result = parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED), f"20,{token},,,,,,,"))
+    assert errors(result) == []
+    assert result["load_cases"][SUSTAINED]["displacements"]["20"]["ux"] == 0.0  # underflows to a finite value, kept
+    kept = result["printed_resolution"][SUSTAINED]["displacements"]["20"]["ux"]
+    assert kept["resolution"] is None and "exponent is outside the supported range" in kept["reason"]
+
+
+# -- the section rule for printed resolution (P1): scaffolding only ----------------------------------------------------
+# Each case is an invented section; the assertions cover every value of the named unit in it. The rule itself awaits
+# the Agent 0's P1 ruling: until it is implemented these cases fail, strictly.
+P1_PENDING = pytest.mark.xfail(strict=True, reason="awaiting the Agent 0's P1 ruling")
+MM = ("ux", "uy", "uz")
+
+
+def displacement_section(*rows: str) -> dict:
+    """The parse of one SI displacement section of `rows` (rotations blank)."""
+    return parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED)[:4], *rows))
+
+
+def mm_entries(result: dict) -> dict:
+    """{(node, key): printed-resolution entry} for every mm value of the section."""
+    table = result["printed_resolution"][SUSTAINED]["displacements"]
+    return {(node, key): row[key] for node, row in table.items() for key in MM}
+
+
+def assert_all_unmatched(entries: dict, nodes: set) -> None:
+    assert {node for node, _ in entries} == nodes
+    for where, entry in entries.items():
+        assert entry["resolution"] is None, where
+        assert isinstance(entry.get("reason"), str) and entry["reason"], where  # a stated cause
+
+
+@P1_PENDING
+def test_p1_a_section_of_zeros_and_blanks_only_establishes_nothing():  # (a)
+    result = parse_caepipe_print_csv(text_of(f"{SUSTAINED}: Loads on restraints,", "Node,Tag,FX (N),FY (N),FZ (N),,",
+                                             "40,,0,,-0,,", "50,,,0,,,"))
+    table = result["printed_resolution"][SUSTAINED]["restraint_loads_global"]
+    entries = {(node, key): row[key] for node, row in table.items() for key in ("fx", "fy", "fz")}
+    assert_all_unmatched(entries, {"40", "50"})
+
+
+def test_p1_a_witness_at_the_tables_places_carries_zero_blank_and_shorter_tokens():  # (b)
+    # Not marked xfail: the current head already gives every value the table's places here, so a strict xfail would
+    # pass unexpectedly. It must keep passing once the rule is in.
+    result = displacement_section("10,1.250,0,,,,,,", "20,0.05,,-0,,,,,", "30,,4.8,0.001,,,,,")
+    entries = mm_entries(result)
+    assert {node for node, _ in entries} == {"10", "20", "30"}
+    assert all(entry == {"resolution": 0.001} for entry in entries.values()), entries
+
+
+@P1_PENDING
+def test_p1_a_section_whose_nonzero_tokens_are_all_shorter_establishes_nothing():  # (c)
+    assert_all_unmatched(mm_entries(displacement_section("10,0.05,1.2,,,,,,", "20,4.8,0,-0.5,,,,,")), {"10", "20"})
+
+
+@P1_PENDING
+def test_p1_a_token_with_more_places_than_the_table_unmatches_the_section():  # (d)
+    # A would-be witness (1.250) is present; the token with four places still leaves every mm value unmatched.
+    assert_all_unmatched(mm_entries(displacement_section("10,1.250,0,,,,,,", "20,0.1250,,0.5,,,,,")), {"10", "20"})
+
+
+@P1_PENDING
+def test_p1_an_exponent_form_token_unmatches_the_section():  # (e)
+    assert_all_unmatched(mm_entries(displacement_section("10,1.250,0,,,,,,", "20,1.25E+00,,0.5,,,,,")), {"10", "20"})
+
+
+@P1_PENDING
+def test_p1_a_long_exponent_token_unmatches_the_section():  # (f)
+    # A negative long exponent keeps its row (a finite value), so the section is read with it.
+    assert_all_unmatched(mm_entries(displacement_section("10,1.250,0,,,,,,", f"20,-1.5e-{LONG},,0.5,,,,,")),
+                         {"10", "20"})
+
+
+@P1_PENDING
+def test_p1_a_refused_row_never_witnesses_the_section():  # (g)
+    # Row 20 would witness (0.125 at three places) but is refused for its invalid field; it establishes nothing.
+    result = displacement_section("10,0,,0.5,,,,,", "20,0.125,*****,,,,,,")
+    assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-NUMBER-INVALID"]
+    assert_all_unmatched(mm_entries(result), {"10"})
