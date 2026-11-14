@@ -20,8 +20,8 @@
  * yields; the report JSON packet and the other surfaces keep refusing an exact result.
  * Standard claim fence applies (claims taxonomy per DEC-081). */
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
-import { buildCurrentResultExport, resultDigest, type JsonObject } from "../result-export/resultExportAdapter";
-import { numericalResultStanding } from "../results/resultStanding";
+import { buildCurrentResultExport, resultDigest, type CurrentResultExportPurpose, type JsonObject } from "../result-export/resultExportAdapter";
+import { numericalResultStanding, reportStanding } from "../results/resultStanding";
 import { canonicalSha256Hex, checkedJsonText } from "../../services/hashService";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import {
@@ -60,19 +60,25 @@ export type ExactAdmissionBinding = {
   received_bytes_sha256: string;
 };
 
-export type ExactReportAdmission = Readonly<{ document: JsonObject; binding: Readonly<ExactAdmissionBinding> }>;
+/** The admission, and the standing record the report states (DEL-08-01 REQ-024), which the
+ * native host re-derives from the bound result and model and requires equal. */
+export type ExactReportAdmission = Readonly<{ document: JsonObject; binding: Readonly<ExactAdmissionBinding>; numericalStanding: Readonly<Record<string, unknown>> }>;
 
 export type ExactReportAdmissionInputs = {
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
   inputManifest: CurrentSessionInputManifestEvidence;
+  /** `report-render` admits any solved result the reader reads (the rendered report and its
+   * print view); the default, `result-export`, keeps the numerically eligible standing the
+   * package save and user release still require (DEL-08-01 REQ-024's present account). */
+  purpose?: CurrentResultExportPurpose;
 };
 
 /** The texts an exact render or save resubmits to the native host. */
 export type ExactSourceSubmission = { exactResultText: string; exactIntakeText: string };
 
-type Recorded = ExactReportAdmissionInputs & { text: string; solverMode: string; bytes: string };
+type Recorded = ExactReportAdmissionInputs & { text: string; solverMode: string; bytes: string; purpose: CurrentResultExportPurpose };
 const recorded = new WeakMap<object, Recorded>();
 
 function mismatch(field: string): Error {
@@ -110,7 +116,11 @@ export async function admitExactReportSource(inputs: ExactReportAdmissionInputs)
   let text: string;
   try { text = checkedJsonText({ model, result, analysisRun, inputManifest }); } catch { throw stale(); }
   const solverMode = inputManifest?.manifest?.solver_basis?.solver_mode ?? "";
-  const document = await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
+  const purpose = inputs.purpose ?? "result-export";
+  const document = await buildCurrentResultExport({ model, result, analysisRun, inputManifest, purpose });
+  const reading = reportStanding(result, model);
+  if (reading.numerical_standing === null) throw mismatch(`numerical_standing${reading.standing_refusal ? `: ${reading.standing_refusal}` : ""}`);
+  const numericalStanding = reading.numerical_standing;
   const envelope = document.result_envelope as JsonObject | undefined;
   const nativeJobId = deliveredMechanicsResultJob(result);
   const bytes = receivedResultBytes(result);
@@ -147,8 +157,8 @@ export async function admitExactReportSource(inputs: ExactReportAdmissionInputs)
     if (field.endsWith("_sha256") && !LOWER_HEX_64.test(value)) throw mismatch(field);
     binding[field] = value;
   }
-  const admission: ExactReportAdmission = Object.freeze({ document, binding: Object.freeze(binding) });
-  recorded.set(admission, { model, result, analysisRun, inputManifest, text, solverMode, bytes: bytes as string });
+  const admission: ExactReportAdmission = Object.freeze({ document, binding: Object.freeze(binding), numericalStanding });
+  recorded.set(admission, { model, result, analysisRun, inputManifest, text, solverMode, bytes: bytes as string, purpose });
   // After the last await: the snapshot taken before the first await still holds,
   // with the live invocation, standing, custody and received bytes. Otherwise the
   // admission is stale and is never returned.
@@ -175,9 +185,18 @@ export function checkExactReportAdmission(admission: unknown, inputs: ExactRepor
   try { text = checkedJsonText({ model, result, analysisRun, inputManifest }); } catch { throw stale(); }
   if (text !== record.text) throw stale();
   if (!hasNativeMechanicsInvocation(result, model, record.solverMode)) throw stale();
-  let eligible = false;
-  try { eligible = numericalResultStanding(result, model).eligible; } catch { eligible = false; }
-  if (!eligible) throw stale();
+  // The standing the admission was made for still holds: readable and solved for the
+  // rendered report, numerically eligible for the other emissions.
+  let admitted = false;
+  try {
+    if (record.purpose === "report-render") {
+      const reading = reportStanding(result, model);
+      admitted = reading.readability.readable && reading.readability.solved;
+    } else {
+      admitted = numericalResultStanding(result, model).eligible;
+    }
+  } catch { admitted = false; }
+  if (!admitted) throw stale();
   if (deliveredMechanicsResultJob(result) !== (admission as ExactReportAdmission).binding.native_job_id) throw stale();
   if (receivedResultBytes(result) !== record.bytes) throw stale();
 }
