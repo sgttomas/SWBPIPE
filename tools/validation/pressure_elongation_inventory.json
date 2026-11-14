@@ -214,8 +214,8 @@
    "files": 1,
    "documents": 0,
    "pressurised_load_cases": 0,
-   "held_documents": 54,
-   "held_pressurised_load_cases": 62
+   "held_documents": 58,
+   "held_pressurised_load_cases": 66
   },
   "desktop_analysis_run_v03_cases": {
    "files": 1,
@@ -6242,7 +6242,7 @@
      ]
     },
     {
-     "pointer": "/requests/60/args/invocationJson",
+     "pointer": "/requests/61/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6252,7 +6252,7 @@
      ]
     },
     {
-     "pointer": "/requests/86/args/modelJson",
+     "pointer": "/requests/87/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6262,7 +6262,7 @@
      ]
     },
     {
-     "pointer": "/requests/97/args/invocationJson",
+     "pointer": "/requests/98/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6272,7 +6272,7 @@
      ]
     },
     {
-     "pointer": "/requests/128/args/invocationJson",
+     "pointer": "/requests/129/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6282,7 +6282,7 @@
      ]
     },
     {
-     "pointer": "/requests/133/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/134/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6293,7 +6293,7 @@
      ]
     },
     {
-     "pointer": "/requests/184/args/invocationJson",
+     "pointer": "/requests/185/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6303,7 +6303,7 @@
      ]
     },
     {
-     "pointer": "/requests/186/args/modelJson",
+     "pointer": "/requests/187/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6313,7 +6313,17 @@
      ]
     },
     {
-     "pointer": "/requests/223/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/217/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/225/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6323,7 +6333,7 @@
      ]
     },
     {
-     "pointer": "/requests/228/args/modelJson",
+     "pointer": "/requests/230/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6334,7 +6344,7 @@
      ]
     },
     {
-     "pointer": "/requests/261/args/modelJson",
+     "pointer": "/requests/263/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6344,7 +6354,7 @@
      ]
     },
     {
-     "pointer": "/requests/261/args/invocationJson",
+     "pointer": "/requests/263/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6354,7 +6364,7 @@
      ]
     },
     {
-     "pointer": "/requests/291/args/modelJson",
+     "pointer": "/requests/294/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6364,7 +6374,7 @@
      ]
     },
     {
-     "pointer": "/requests/311/args/modelJson",
+     "pointer": "/requests/314/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6374,7 +6384,7 @@
      ]
     },
     {
-     "pointer": "/requests/327/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/330/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6385,7 +6395,7 @@
      ]
     },
     {
-     "pointer": "/requests/336/args/modelJson",
+     "pointer": "/requests/339/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6395,7 +6405,7 @@
      ]
     },
     {
-     "pointer": "/requests/338/args/modelJson",
+     "pointer": "/requests/341/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6405,7 +6415,7 @@
      ]
     },
     {
-     "pointer": "/requests/338/args/invocationJson",
+     "pointer": "/requests/341/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6415,7 +6425,7 @@
      ]
     },
     {
-     "pointer": "/requests/347/args/modelJson",
+     "pointer": "/requests/350/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6426,7 +6436,7 @@
      ]
     },
     {
-     "pointer": "/requests/359/args/invocationJson",
+     "pointer": "/requests/362/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6436,7 +6446,7 @@
      ]
     },
     {
-     "pointer": "/requests/416/args/invocationJson",
+     "pointer": "/requests/419/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6446,7 +6456,27 @@
      ]
     },
     {
-     "pointer": "/requests/438/args/modelJson",
+     "pointer": "/requests/427/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/437/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/443/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6456,7 +6486,7 @@
      ]
     },
     {
-     "pointer": "/requests/470/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/475/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6466,7 +6496,7 @@
      ]
     },
     {
-     "pointer": "/requests/513/args/modelJson",
+     "pointer": "/requests/518/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6476,7 +6506,7 @@
      ]
     },
     {
-     "pointer": "/requests/517/args/modelJson",
+     "pointer": "/requests/522/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6487,7 +6517,7 @@
      ]
     },
     {
-     "pointer": "/requests/525/args/modelJson",
+     "pointer": "/requests/530/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6497,7 +6527,7 @@
      ]
     },
     {
-     "pointer": "/requests/553/args/modelJson",
+     "pointer": "/requests/558/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6507,7 +6537,7 @@
      ]
     },
     {
-     "pointer": "/requests/553/args/invocationJson",
+     "pointer": "/requests/558/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6517,7 +6547,7 @@
      ]
     },
     {
-     "pointer": "/requests/560/args/modelJson",
+     "pointer": "/requests/565/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6527,7 +6557,7 @@
      ]
     },
     {
-     "pointer": "/requests/565/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/570/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6537,7 +6567,7 @@
      ]
     },
     {
-     "pointer": "/requests/572/args/modelJson",
+     "pointer": "/requests/577/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6547,7 +6577,7 @@
      ]
     },
     {
-     "pointer": "/requests/591/args/modelJson",
+     "pointer": "/requests/596/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6557,7 +6587,7 @@
      ]
     },
     {
-     "pointer": "/requests/596/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/601/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6567,7 +6597,7 @@
      ]
     },
     {
-     "pointer": "/requests/635/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/640/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6577,7 +6607,7 @@
      ]
     },
     {
-     "pointer": "/requests/654/args/modelJson",
+     "pointer": "/requests/659/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6587,7 +6617,7 @@
      ]
     },
     {
-     "pointer": "/requests/654/args/invocationJson",
+     "pointer": "/requests/659/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6597,7 +6627,7 @@
      ]
     },
     {
-     "pointer": "/requests/681/args/modelJson",
+     "pointer": "/requests/686/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6607,7 +6637,7 @@
      ]
     },
     {
-     "pointer": "/requests/702/args/modelJson",
+     "pointer": "/requests/707/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6617,7 +6647,7 @@
      ]
     },
     {
-     "pointer": "/requests/714/args/modelJson",
+     "pointer": "/requests/719/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6628,7 +6658,7 @@
      ]
     },
     {
-     "pointer": "/requests/715/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/720/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6638,7 +6668,7 @@
      ]
     },
     {
-     "pointer": "/requests/728/args/modelJson",
+     "pointer": "/requests/733/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6648,7 +6678,7 @@
      ]
     },
     {
-     "pointer": "/requests/730/args/modelJson",
+     "pointer": "/requests/735/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6659,7 +6689,7 @@
      ]
     },
     {
-     "pointer": "/requests/748/args/modelJson",
+     "pointer": "/requests/753/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6669,7 +6699,7 @@
      ]
     },
     {
-     "pointer": "/requests/781/args/modelJson",
+     "pointer": "/requests/786/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6679,7 +6709,7 @@
      ]
     },
     {
-     "pointer": "/requests/785/args/modelJson",
+     "pointer": "/requests/790/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6689,7 +6719,7 @@
      ]
     },
     {
-     "pointer": "/requests/789/args/modelJson",
+     "pointer": "/requests/794/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6699,7 +6729,7 @@
      ]
     },
     {
-     "pointer": "/requests/838/args/modelJson",
+     "pointer": "/requests/843/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6709,7 +6739,7 @@
      ]
     },
     {
-     "pointer": "/requests/860/args/invocationJson",
+     "pointer": "/requests/865/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6719,7 +6749,17 @@
      ]
     },
     {
-     "pointer": "/requests/919/args/modelJson",
+     "pointer": "/requests/917/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/925/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6729,7 +6769,7 @@
      ]
     },
     {
-     "pointer": "/requests/934/args/modelJson",
+     "pointer": "/requests/940/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6739,7 +6779,7 @@
      ]
     },
     {
-     "pointer": "/requests/976/args/invocationJson",
+     "pointer": "/requests/982/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6749,7 +6789,7 @@
      ]
     },
     {
-     "pointer": "/requests/977/args/modelJson",
+     "pointer": "/requests/983/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6759,7 +6799,7 @@
      ]
     },
     {
-     "pointer": "/requests/991/args/modelJson",
+     "pointer": "/requests/997/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6769,7 +6809,7 @@
      ]
     },
     {
-     "pointer": "/requests/1002/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/1008/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
