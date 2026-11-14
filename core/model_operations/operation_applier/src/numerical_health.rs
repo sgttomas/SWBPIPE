@@ -337,12 +337,23 @@ fn named_load_cases(source: &Value) -> Vec<&str> {
         .collect()
 }
 
-/// Whether the document's mechanics are solved, in either published shape: the
-/// mechanics envelope's `status.mechanics`, or a result envelope's
-/// `analysis_status` list. Any other document is not solved.
+/// Whether the document states its mechanics solved, in either published
+/// shape: the mechanics envelope's `status.mechanics`, or a result envelope's
+/// `analysis_status` list. A document carrying either field is solved only if
+/// that field says so: a blocked one (old or new), or a malformed field, is
+/// not. A projection carrying neither (an export package, which is made only
+/// from a solved result and states its own `package_status`) is read on its
+/// quality as before.
 fn mechanics_solved(source: &Value) -> bool {
-    source["status"]["mechanics"] == "MECHANICS_SOLVED"
-        || array(&source["analysis_status"]).iter().any(|s| s == "MECHANICS_SOLVED")
+    match (source.get("status"), source.get("analysis_status")) {
+        (None, None) => true,
+        (status, list) => {
+            status.is_some_and(|status| status["mechanics"] == "MECHANICS_SOLVED")
+                || list
+                    .and_then(Value::as_array)
+                    .is_some_and(|list| list.iter().any(|s| s == "MECHANICS_SOLVED"))
+        }
+    }
 }
 
 fn case_health(index: &Diagnostics, case_id: &str, state: &'static str, solved: bool) -> CaseHealth {
@@ -1229,12 +1240,6 @@ mod tests {
     }
 
     fn health(source: &Value, findings: Option<&str>) -> Value {
-        // The synthetic envelopes here omit `status`; a real envelope always
-        // states it, and the tests of an unsolved document set it explicitly.
-        let mut source = source.clone();
-        if source.get("status").is_none() {
-            source["status"] = json!({"mechanics": "MECHANICS_SOLVED"});
-        }
         serde_json::from_str(&numerical_health_json(&source.to_string(), findings).unwrap())
             .unwrap()
     }
@@ -1266,6 +1271,27 @@ mod tests {
         assert_eq!(named["cases"][0]["state"], "not_assessed");
         assert_eq!(named["cases"][0]["code"], INSPECTION_ONLY);
         assert!(named["cases"][0]["rcond"].is_null());
+        // A field that is present but does not say solved is not solved: a
+        // result envelope's list without it, a status without mechanics, or a
+        // mechanics value of the wrong type.
+        let report = message("a", "Passed", "0.5", ", residual_rows: ", MAP, "");
+        let base = envelope("a", "checks_passed", vec![integrity("a", CHECKS_PASSED, report)]);
+        for (label, field, value) in [
+            ("list", "analysis_status", json!(["MODEL_INCOMPLETE"])),
+            ("empty list", "analysis_status", json!([])),
+            ("list of wrong type", "analysis_status", json!("MECHANICS_SOLVED")),
+            ("no mechanics", "status", json!({})),
+            ("mechanics of wrong type", "status", json!({"mechanics": ["MECHANICS_SOLVED"]})),
+        ] {
+            let mut source = base.clone();
+            source[field] = value;
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{label}");
+        }
+        let mut listed = base.clone();
+        listed["analysis_status"] = json!(["MECHANICS_SOLVED"]);
+        assert_eq!(health(&listed, None)["cases"][0]["state"], "checks_passed", "a solved list");
+        // A projection stating neither field is read on its quality.
+        assert_eq!(health(&base, None)["cases"][0]["state"], "checks_passed", "a projection");
     }
 
     fn one_case_source(case: &str, code: &str, solve_quality: &str, message: String, mechanics: &str) -> Value {
