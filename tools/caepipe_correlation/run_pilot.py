@@ -27,6 +27,11 @@ exchange folder; every case whose declarations name an evaluated hypothesis and
 whose stored record carries a different series status is then rebuilt offline
 from its stored CSV, so its causes use the series status (Design §6, §7).
 
+The export modes described below are held: the guest script returns
+`export_held` and starts nothing until the export adopts the attempt's claim
+and job. The export descriptions state the retained path, not currently
+available behavior.
+
 --export-mbf adds the export step after each case's live round trip: the guest
 opens the case's solved model in a CAEPIPE instance it starts, writes it back to
 MBF with File > Export to MBF... and stops that instance; the harness collects

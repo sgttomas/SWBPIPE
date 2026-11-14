@@ -2367,6 +2367,8 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             route = "not_started"
         elif start_state == "partial":
             route = "start_partial"
+        elif guest_mbf_sha256 is None:  # the guest reported no hash: nothing was compared, so nothing "mismatched"
+            route = str(status) if status and status not in CSV_ROUTES else "input_hash_unreported"
         elif not input_verified:
             route = "input_hash_mismatch"
         elif collection_problem is not None:
@@ -2506,7 +2508,7 @@ def solved_model_binding(record: Mapping[str, Any] | None, mbf_sha256: str, mod:
     if record is None:
         return "no valid caepipe_out/run_record.json binds a solved model to this MBF"
     if (record.get("mbf") or {}).get("sha256") != mbf_sha256 or record.get("guest_mbf_sha256") != mbf_sha256:
-        return "the stored solve is not of the current MBF (host or guest MBF hash differs)"
+        return "the stored solve is not of the current MBF (host or guest MBF hash absent or different)"
     if "model.mod" not in (record.get("outputs_collected") or []) or not mod.is_file():
         return "the run record names no collected caepipe_out/model.mod"
     hashes = record.get("outputs_sha256")
@@ -2602,7 +2604,8 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
     collect = None
     mod_verified = guest_mod_sha256 == mod_sha256
     status = guest_log.get("status") if isinstance(guest_log, dict) else None
-    if status == EXPORT_ROUTE and mod_verified:
+    # Collected only when the report says exported, names the stored model's hash, and its own exit is 0.
+    if status == EXPORT_ROUTE and mod_verified and export["exit_status"] == 0:
         _refuse_links(root, out)  # again just before the guest writes into the layer
         collect = step("export_collect", f"copy /Y {_quote(guest_mbf)} {_quote(_win(guest_out, EXPORTED_MBF))}")
 
@@ -2622,10 +2625,16 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
         route = "timeout"
     elif guest_log is None:
         route = "no_guest_json"
+    elif status == "export_held":
+        route = "export_held"
+    elif guest_mod_sha256 is None:  # the guest reported no hash: nothing was compared, so nothing "mismatched"
+        route = str(status) if status and status != EXPORT_ROUTE else "input_hash_unreported"
     elif not mod_verified:
         route = "input_hash_mismatch"
     elif status != EXPORT_ROUTE:
         route = str(status or "unknown_guest_status")
+    elif export["exit_status"] != 0:  # a report of success whose own exit says otherwise is not a success
+        route = "exported_with_nonzero_exit"
     elif exported_sha256 is None or not (collect is not None and _copied_one_file(collect)):
         route = "mbf_not_collected"
     elif exported_sha256 != guest_exported_sha256:

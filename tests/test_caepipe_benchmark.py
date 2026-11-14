@@ -831,6 +831,8 @@ def fake_benchmark(tmp_path, monkeypatch):
         outcome = state["outcomes"].pop(0) if state["outcomes"] else state["clean"]
         if isinstance(outcome, BaseException):
             raise outcome
+        if callable(outcome):  # a real round trip (against a fake guest), run as the pilot's own call
+            return outcome(config_, case_id, mbf_text, **kwargs)
         sha = hashlib.sha256(mbf_text.encode("utf-8")).hexdigest()
         out = case_paths(config_, case_id)["caepipe_out"]
         (out / "model.csv").write_text(invented_print(), encoding="utf-8")
@@ -1938,3 +1940,356 @@ def test_two_not_started_attempts_are_not_run_and_never_retried(fake_benchmark):
     assert status[:2] == (run_pilot.NOT_RUN, "not_started")
     assert (_manifest_of(state)["outcome"], _manifest_of(state)["route"]) == ("no_record", "not_started")
     assert len(state["calls"]) == 1
+
+
+
+# --------------------------------------------------------------------------------------------------------------
+# P1 regressions from the first independent reading of the run-phase change, written before their repair. Each
+# drives a real round trip against the fake guest, hands what it raised to run_pilot (the outer caller), and observes
+# there: the dispatch count, restore writes, whether the next model ran, and the disposition received. Each fails on
+# the head that was read; each is a strict xfail until the settled repair lands.
+# --------------------------------------------------------------------------------------------------------------
+import signal as _signal  # noqa: E402
+import sys as _sys  # noqa: E402
+from types import SimpleNamespace  # noqa: E402
+
+from core.handoff.caepipe_external import harness  # noqa: E402
+from core.handoff.caepipe_external.harness import ContainmentError  # noqa: E402
+
+from tests.test_caepipe_start_reconciliation import (  # noqa: E402
+    CASE as RECONCILE_CASE, GUARD as RECONCILE_GUARD, Registry as InventedRegistry, config_for, guest_for,
+    run as run_attempt)
+from tests.caepipe_fake_guest import Program as InventedProgram  # noqa: E402
+
+AWAITING_P1 = pytest.mark.xfail(strict=True, reason="awaiting the P1 repair shape")
+
+
+def _invented_clock(monkeypatch) -> dict:
+    state = {"t": 0.0}
+    monkeypatch.setattr(harness, "time", SimpleNamespace(monotonic=lambda: state["t"]))
+    monkeypatch.setattr(harness, "_backoff", lambda seconds: state.__setitem__("t", state["t"] + seconds))
+    return state
+
+
+def _partial_run_raising(tmp_path, monkeypatch, failing: str):
+    """A real round trip whose attempt is established partial (claimed, launched, launcher and program killed,
+    quiescent, no terminal report), with a clean guard, whose reporting then fails at `failing`. Returns what it
+    raised, the fake guest and its invented registry."""
+    config = config_for(tmp_path / "partial", RECONCILE_GUARD)
+    with monkeypatch.context() as patch:
+        clock_state = _invented_clock(patch)
+        guest = guest_for(config, clock_state)
+        registry = InventedRegistry(guest, change_on_launch=False)
+        guest.plan = {1: {"kill_at": "launched", "reply": "transport"}}
+        if failing == "record construction":
+            def broken(item):
+                raise ValueError("invented record construction failure")
+            patch.setattr(harness, "_failed_write_stderr", broken)
+        else:
+            name = {"guard result write": harness.GUARD_RESULT_FILE, "dispatch stream write": "guest_stdout.txt",
+                    "record write": "run_record.json"}[failing]
+            real_write = harness.write_private
+
+            def failing_write(root, path, data):
+                if Path(path).name == name:
+                    raise OSError(f"invented failure writing {name}")
+                return real_write(root, path, data)
+            patch.setattr(harness, "write_private", failing_write)
+        with pytest.raises(Exception) as raised:
+            run_attempt(config, guest)
+    return raised.value, guest, registry
+
+
+@AWAITING_P1
+@pytest.mark.parametrize("failing", ["guard result write", "dispatch stream write", "record construction",
+                                     "record write"])
+def test_p1_1_a_partial_runs_reporting_error_never_becomes_retry(fake_benchmark, tmp_path, monkeypatch, capsys,
+                                                                 failing):
+    error, guest, registry = _partial_run_raising(tmp_path, monkeypatch, failing)
+    assert guest.kinds.count("attempt") == 1 and len(guest.launches) == 1  # one dispatch, one start
+    assert registry.writes == []
+    state = fake_benchmark
+    state["outcomes"][:] = [error]
+    exit_status = run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={})
+    out = capsys.readouterr().out
+    # Not retried, and with its evidence not saved the run stops: the next model does not run.
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"], out
+    assert exit_status == 1
+    assert "retrying" not in out and _manifest_of(state)["route"] != "round_trip_raised"
+    assert "start_partial" in out  # the disposition the caller received
+
+
+@AWAITING_P1
+def test_p1_2_a_failure_to_record_partial_is_never_not_run(fake_benchmark, monkeypatch):
+    state = fake_benchmark
+    state["outcomes"][:] = [{"route": "start_partial", "settings_guard": {"status": "unchanged"},
+                             "guest_mbf_sha256": None, "observed_csv_path": {"host": None}}]
+    real = run_pilot._benchmark_manifest
+
+    def failing(*args, **kwargs):
+        if kwargs.get("outcome") == "partial":
+            raise ContainmentError("invented containment failure saving a partial outcome")
+        return real(*args, **kwargs)
+    monkeypatch.setattr(run_pilot, "_benchmark_manifest", failing)
+    with pytest.raises(run_pilot.RunStopped, match="start_partial"):
+        run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                      emit=lambda line: None, collect_only=True)
+    assert len(state["calls"]) == 1
+
+
+@AWAITING_P1
+def test_p1_2_a_partial_whose_outcome_cannot_be_recorded_stops_the_list(fake_benchmark, monkeypatch, capsys):
+    state = fake_benchmark
+    partial = {"route": "start_partial", "settings_guard": {"status": "unchanged"}, "guest_mbf_sha256": None,
+               "observed_csv_path": {"host": None}}
+    state["outcomes"][:] = [dict(partial), dict(partial)]
+    real = run_pilot._benchmark_manifest
+
+    def failing(*args, **kwargs):
+        if kwargs.get("outcome") == "partial":
+            raise ContainmentError("invented containment failure saving a partial outcome")
+        return real(*args, **kwargs)
+    monkeypatch.setattr(run_pilot, "_benchmark_manifest", failing)
+    assert run_pilot.main(state["argv"], environ={}) == 1
+    out = capsys.readouterr().out
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"], out  # never NOT_RUN, so the list stops
+    assert "start_partial" in out and "route=containment_violation" not in out
+
+
+# The post-run boundary: after reconciliation left the start unresolved and before the guard checks begin, and
+# again where the guard's result is computed but not yet handed to the live state.
+BOUNDARIES = {"after reconciliation": ("# other or the result. While the start is unresolved these are read-only "
+                                       "diagnosis: no restore.", "    if guarded:"),
+              "before the live guard result": (None, '        live["settings"] = settings')}
+
+
+def _boundary_line(where: str) -> int:
+    lines = Path(harness.__file__).read_text(encoding="utf-8").splitlines()
+    comment, text = BOUNDARIES[where]
+    start = next(i for i, line in enumerate(lines) if comment in line) if comment else 0
+    found = [i + 1 for i, line in enumerate(lines) if i > start and line == text]
+    return found[0]
+
+
+def _unresolved_run_terminated(tmp_path, monkeypatch, where: str, signum: int, again_in_recovery: bool):
+    """A real round trip whose program lives on (the start unresolved), terminated by a real signal at `where`,
+    and, with `again_in_recovery`, a second time as the outer recovery begins."""
+    config = config_for(tmp_path / "unresolved", RECONCILE_GUARD)
+    expected = harness.TerminationRequested if signum == _signal.SIGTERM else KeyboardInterrupt
+    with monkeypatch.context() as patch:
+        clock_state = _invented_clock(patch)
+        guest = guest_for(config, clock_state)
+        registry = InventedRegistry(guest)
+        guest.plan = {1: {"run": "launched", "reply": "transport"}}
+        guest.programs[1] = InventedProgram(lingers=True)
+        body, line = harness._round_trip_body.__code__, _boundary_line(where)
+        fired = []
+        previous = _sys.gettrace()
+
+        def tracer(frame, event, arg):
+            if event == "line" and frame.f_code is body and frame.f_lineno == line and not fired:
+                fired.append("boundary")
+                _signal.raise_signal(signum)
+            return tracer
+        if again_in_recovery:
+            real_recovery = harness._recover_guard_result
+
+            def recovery(*args, **kwargs):  # a second termination as the outer recovery begins
+                if fired == ["boundary"]:
+                    fired.append("recovery")
+                    _signal.raise_signal(_signal.SIGTERM)
+                return real_recovery(*args, **kwargs)
+            patch.setattr(harness, "_recover_guard_result", recovery)
+        try:
+            _sys.settrace(tracer)
+            with pytest.raises(BaseException) as raised:
+                run_attempt(config, guest)
+        finally:
+            _sys.settrace(previous)
+    assert fired == (["boundary", "recovery"] if again_in_recovery else ["boundary"])
+    assert isinstance(raised.value, expected if not again_in_recovery else harness.TerminationRequested)
+    path = config.exchange_root / "cases" / RECONCILE_CASE / "caepipe_out" / harness.GUARD_RESULT_FILE
+    stored = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None  # an interrupted write may
+    return raised.value, guest, registry, stored                                          # leave none
+
+
+@AWAITING_P1
+@pytest.mark.parametrize("where", sorted(BOUNDARIES))
+@pytest.mark.parametrize("signum, again", [(_signal.SIGTERM, False), (_signal.SIGINT, False), (_signal.SIGTERM, True)],
+                         ids=["SIGTERM", "SIGINT", "SIGTERM then SIGTERM in recovery"])
+def test_p1_3_a_termination_at_the_post_run_boundary_keeps_the_start_unresolved(fake_benchmark, tmp_path, monkeypatch,
+                                                                                where, signum, again):
+    error, guest, registry, stored = _unresolved_run_terminated(tmp_path, monkeypatch, where, signum, again)
+    assert guest.kinds.count("attempt") == 1 and registry.writes == []  # one dispatch, zero restore writes
+    # The persisted guard result, if any was saved, says start_unresolved: never settings_check_failed.
+    assert stored is None or stored["status"] == "start_unresolved", stored
+    state = fake_benchmark
+    state["outcomes"][:] = [error]
+    with pytest.raises(type(error)) as received:  # what run_pilot's caller receives
+        run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={})
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]  # the next model did not run
+    assert getattr(received.value, "start_unresolved", False) is True
+    assert received.value.settings_guard["status"] == "start_unresolved"
+    assert _manifest_of(state)["outcome"] == "custody_recorded"
+
+
+# --------------------------------------------------------------------------------------------------------------
+# Exits that are never success: a reply whose own exit is nonzero (1, 3, 255, or a signal's negative status) never
+# becomes a success route, an export reported as exported with a nonzero exit never collects, and a collection copy
+# with a nonzero exit never gives an exported or collected route. Each runs to the outer caller.
+# --------------------------------------------------------------------------------------------------------------
+from tests.caepipe_fake_guest import FakeGuestModel as InventedGuest, classify as classify_command, done as answer  # noqa: E402
+from tests.test_caepipe_correlation import (  # noqa: E402
+    COPIED, EXPORTED_SHA, MOD_SHA, current_mbf_sha, export_runner, solved_case)
+
+NONZERO_EXITS = (1, 3, 255, -9)
+
+
+def _pilot_round_trip(state, guest):
+    """The pilot's round trip, run for real against `guest`, on the pilot's own exchange folder."""
+    def call(config_, case_id, mbf_text, **kwargs):
+        return harness.run_caepipe_round_trip(config_, case_id, mbf_text, runner=guest.runner, **kwargs)
+    return call
+
+
+def _pilot_guest(state, monkeypatch) -> tuple[InventedGuest, InventedRegistry]:
+    _invented_clock(monkeypatch)
+    guest = InventedGuest(state["config"].exchange_root, state["config"].guest_exchange_root)
+    return guest, InventedRegistry(guest, change_on_launch=False)
+
+
+def _collect_one(state, outcome) -> tuple:
+    state["outcomes"][:] = [outcome]
+    try:
+        return run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"],
+                                             offline=False, emit=lambda line: None, collect_only=True)
+    except run_pilot.RunStopped as stopped:
+        return ("stopped", str(stopped), "")
+
+
+def test_a_clean_attempt_collects_through_the_pilot(fake_benchmark, monkeypatch):
+    state = fake_benchmark
+    guest, registry = _pilot_guest(state, monkeypatch)
+    status = _collect_one(state, _pilot_round_trip(state, guest))
+    assert status[:2] == (run_pilot.COLLECTED, "csv_from_batch") and guest.kinds.count("attempt") == 1
+    assert registry.writes == []
+
+
+@pytest.mark.parametrize("code", NONZERO_EXITS)
+@pytest.mark.parametrize("kind", ["attempt", "claim_read", "cim", "job", "finished_read", "chunk"])
+def test_a_success_reply_with_a_nonzero_exit_never_becomes_a_success_route(fake_benchmark, monkeypatch, kind, code):
+    state = fake_benchmark
+    guest, registry = _pilot_guest(state, monkeypatch)
+    if kind == "attempt":
+        guest.plan = {1: {"kill_at": "launched"}}  # no terminal report: only the reply claims success
+    base = guest.runner
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        if classify_command(argv[6]) != kind:
+            return result
+        if kind == "attempt":  # the reply a successful script prints, with another exit
+            report = {"schema": harness.GUEST_REPORT_SCHEMA, "attempt_token": guest.attempts[-1].token,
+                      "status": "csv_from_batch", "mbf_sha256": "0" * 64, "csv_path": "model.csv"}
+            return answer(argv, code, json.dumps(report), "")
+        return answer(argv, code, result.stdout, result.stderr)  # the read's own success form, another exit
+    guest.runner = runner
+    status = _collect_one(state, _pilot_round_trip(state, guest))
+    assert status[0] not in (run_pilot.COLLECTED, run_pilot.RECORDED), status
+    assert guest.kinds.count("attempt") == 1 and registry.writes == []
+    if kind == "attempt":
+        assert status[:2] == (run_pilot.PARTIAL, "start_partial"), status
+    elif kind == "chunk":  # completed, but nothing collected (what the pilot then does is the open family below)
+        assert status[1] == "collection_failed", status
+    else:  # the start stays unresolved: a stop, the manifest left at custody_recorded
+        assert status[0] == "stopped" and "start_unresolved" in status[1], status
+        assert _manifest_of(state)["outcome"] == "custody_recorded"
+
+
+def _bound_export_case(tmp_path):
+    case = next(item for item in run_pilot.load_cases() if item["case_id"] == "cpc-01-cantilever-force")
+    sha = current_mbf_sha(case["case_id"])
+    config, out = solved_case(tmp_path, case["case_id"], mbf={"sha256": sha}, guest_mbf_sha256=sha)
+    return case, config, out
+
+
+@pytest.mark.parametrize("code", (1, 255, -15))
+def test_an_export_reported_as_exported_with_a_nonzero_exit_never_collects(tmp_path, code):
+    case, config, out = _bound_export_case(tmp_path)
+    commands: list[str] = []
+    base = export_runner(out, commands)
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        return answer(argv, code, result.stdout, "") if argv[6].startswith("powershell") else result
+    lines: list[str] = []
+    assert run_pilot.export_case(case, config, emit=lines.append, export=lambda config_, case_id, sha: (
+        harness.run_caepipe_mbf_export(config_, case_id, sha, runner=runner))) is False
+    assert not any(command.startswith("copy") for command in commands)  # never collected
+    assert not (out / "exported.mbf").exists()
+    assert lines == [f"{case['case_id']}: export route=exported_with_nonzero_exit; the guest export did not complete "
+                     f"(cases/{case['case_id']}/caepipe_out/run_record.json); no exported MBF"]
+    entry = json.loads((out / "run_record.json").read_text(encoding="utf-8"))["mbf_export"]
+    assert entry["exit_status"] == code and entry["exported_mbf"]["sha256"] is None
+
+
+@pytest.mark.parametrize("code", (1, 255, -15))
+def test_a_collection_copy_with_a_nonzero_exit_never_gives_an_exported_route(tmp_path, code):
+    case, config, out = _bound_export_case(tmp_path)
+    base = export_runner(out, [])
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)  # the copy took place and printed its success line
+        return answer(argv, code, COPIED, "") if argv[6].startswith("copy") else result
+    lines: list[str] = []
+    assert run_pilot.export_case(case, config, emit=lines.append, export=lambda config_, case_id, sha: (
+        harness.run_caepipe_mbf_export(config_, case_id, sha, runner=runner))) is False
+    assert not (out / "exported.mbf").exists()
+    assert "export route=mbf_not_collected" in lines[0]
+
+
+def test_the_held_exports_real_refusal_reaches_the_pilot_as_held(tmp_path):
+    case, config, out = _bound_export_case(tmp_path)
+    refusal = {"schema": "openpipestress.caepipe_guest_mbf_export.v1", "status": "export_held",
+               "diagnostics": ["the export starts the program only inside a won claim and job, which it has not "
+                               "adopted"]}
+    commands: list[str] = []
+    base = export_runner(out, commands, guest=refusal)
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        return answer(argv, 6, result.stdout, "") if argv[6].startswith("powershell") else result
+    lines: list[str] = []
+    assert run_pilot.export_case(case, config, emit=lines.append, export=lambda config_, case_id, sha: (
+        harness.run_caepipe_mbf_export(config_, case_id, sha, runner=runner))) is False
+    assert "export route=export_held" in lines[0] and not any(c.startswith("copy") for c in commands)
+    entry = json.loads((out / "run_record.json").read_text(encoding="utf-8"))["mbf_export"]
+    assert entry["route"] == "export_held" and entry["guest_mod_sha256"] is None
+
+
+
+# A refusal the guest reports, with the nonzero exit its script gives it, keeps its own route name at the caller.
+REFUSALS = [("no_results_after_batch", 2), ("batch_no_csv", 3), ("print_file_ambiguous", 5)]
+
+
+@pytest.mark.parametrize("status, code", REFUSALS)
+def test_a_guest_refusal_with_its_nonzero_exit_keeps_its_route_name_at_the_pilot(fake_benchmark, monkeypatch, capsys,
+                                                                               status, code):
+    state = fake_benchmark
+    guest, registry = _pilot_guest(state, monkeypatch)
+    guest.programs[1] = InventedProgram(status=status, print_name=None, files={"model.res": b"RES"})
+    base = guest.runner
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        return answer(argv, code, result.stdout, "") if classify_command(argv[6]) == "attempt" else result
+    guest.runner = runner
+    status_seen = _collect_one(state, _pilot_round_trip(state, guest))
+    assert guest.kinds.count("attempt") == 1 and registry.writes == []
+    if status == "batch_no_csv":  # the GUI fallback is off for the batch: a stop, named
+        assert status_seen[0] == "stopped" and _manifest_of(state)["route"] == "batch_no_csv", status_seen
+    else:
+        assert status_seen[1] == status, status_seen
+    stored = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "caepipe_out" / "run_record.json")
+                        .read_text(encoding="utf-8"))
+    assert stored["route"] == status and stored["exit_status"] == code

@@ -350,12 +350,14 @@ def test_a_repeated_chunk_read_changes_nothing(tmp_path, clock):
     guest = guest_for(config, clock)
     guest.lost |= {("chunk", 1), ("chunk", 2)}
     guest.answers[("chunk", 4)] = (0, SIGN_IN_TEXT, "")
+    before: list[dict] = []
+    guest.hooks[("chunk", 1)] = lambda: before.append(dict(guest.files))  # the guest's files as collection begins
     record = run(config, guest)
-    before = dict(guest.files)
     token = record["attempt_token"]
     out = config.exchange_root / "cases" / CASE / "caepipe_out" / token
     assert (out / "model.csv").read_bytes() == b"Invented,print\r\n"
-    assert guest.files == before and guest.kinds.count("chunk") == 3 + 3
+    assert before and guest.files == before[0]  # every read, the repeated ones included, changed nothing
+    assert guest.kinds.count("chunk") == 3 + 3
     collect = [step for step in record["steps"] if step["name"].startswith("collect_")]
     assert [step.get("answer") for step in collect][:4] == ["unresolved", "unresolved", "chunk", "unresolved"]
 
@@ -817,3 +819,181 @@ def test_a_serialised_record_on_a_subtree_read_back_fails_closed():
     for stdout, stderr, code in ((shown, PROGRESS, 0), ("", PROGRESS, 0),
                                  ("", PROGRESS + harness.REG_NOT_FOUND_LINE, 1)):
         assert harness._read_subtree(step_answering(stdout, stderr, code), "r", key) == ("unreadable", None)
+
+
+# --------------------------------------------------------------------------------------------------------------
+# A report with no input hash: nothing was compared, so no route says the input hash mismatched.
+# --------------------------------------------------------------------------------------------------------------
+@pytest.mark.parametrize("status, route", [
+    ("attempt_folder_exists", "attempt_folder_exists"),
+    ("attempt_failed", "attempt_failed"),
+    ("csv_from_batch", "input_hash_unreported"),  # a success status without its hash is not a success
+    (None, "input_hash_unreported"),
+])
+def test_a_terminal_report_without_an_input_hash_never_reads_as_a_mismatch(tmp_path, clock, status, route):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    guest.plan = {1: {"kill_at": "folder", "reply": "transport"}}  # claimed, job made, ended before any copy
+
+    def report_without_hash():
+        token = guest.attempts[0].token
+        report = {"schema": harness.GUEST_REPORT_SCHEMA, "attempt_token": token, "mbf_sha256": None,
+                  **({"status": status} if status else {})}
+        text = json.dumps(report, separators=(",", ":"))
+        guest.answers[("finished_read", 1)] = (0, f"swbpipe-finished v1\r\ntoken={token}\r\nreport={text}\r\n", "")
+    guest.hooks[("finished_read", 1)] = report_without_hash
+    record = run(config, guest)
+    assert record["start"]["state"] == "completed" and record["route"] == route
+    assert record["guest_mbf_sha256"] is None and "chunk" not in guest.kinds  # nothing compared, nothing collected
+    paths = harness.case_paths(config, CASE)
+    _, bound_route, reason = run_pilot.bound_csv(config.exchange_root.resolve(), paths, record, MBF_SHA)
+    assert bound_route == "unbound_output" and "absent or different" in reason
+
+
+@pytest.mark.parametrize("report, code, route", [
+    ({"status": "export_held"}, 6, "export_held"),                    # the guest script's real refusal
+    ({"status": "export_failed"}, 4, "export_failed"),                # an older failure report without the hash
+    ({"status": "mbf_not_written"}, 4, "mbf_not_written"),
+    ({"status": "mbf_exported", "exported_mbf_sha256": "1" * 64}, 0, "input_hash_unreported"),
+    ({}, 4, "input_hash_unreported"),
+    ({"status": "mbf_exported", "mod_sha256": "0" * 64, "exported_mbf_sha256": "1" * 64}, 0, "input_hash_mismatch"),
+])
+def test_an_export_report_without_the_models_hash_never_reads_as_a_mismatch(tmp_path, report, code, route):
+    from tests.test_caepipe_correlation import export_runner, solved_case
+    config, out = solved_case(tmp_path, "cpc-e")
+    commands: list[str] = []
+    base = export_runner(out, commands, guest=report)
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        return done(argv, code, result.stdout, "") if argv[6].startswith("powershell") else result
+    entry = harness.run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=runner)
+    assert entry["route"] == route
+    assert not any(command.startswith("copy") for command in commands) and not (out / "exported.mbf").exists()
+
+
+# --------------------------------------------------------------------------------------------------------------
+# The first independent reading's own passing cases, kept: section 3a's late and fenced invocations, lost fence
+# replies, a collection over one chunk, malformed and wrong-token claims, a denied fence, a missing creation time,
+# a denied job query, and a record failure while the start is unresolved.
+# --------------------------------------------------------------------------------------------------------------
+def test_a_late_first_invocation_cannot_launch_after_its_token_was_fenced(tmp_path, clock):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    guest.plan = {1: {"run": "work", "reply": "transport"}}
+    guest.hooks[("attempt", 2)] = lambda: guest.attempts[0].advance()  # the first arrives after the redispatch
+    record = run(config, guest)
+    assert [entry["disposition"] for entry in record["attempts"]] == ["not_started", "completed"]
+    assert guest.launches == [record["attempt_token"]] and guest.attempts[0].exit == 20  # its claim lost
+
+
+def test_a_permission_failure_on_the_fence_is_unknown_without_a_second_dispatch(tmp_path, clock):
+    config = config_for(tmp_path, GUARD)
+    guest = guest_for(config, clock)
+    registry = Registry(guest)
+    guest.plan = {1: {"reply": "undelivered"}}
+    base = guest.runner
+
+    def deny(argv, **kwargs):
+        if classify(argv[6]) == "fence":
+            clock["t"] += 1
+            return done(argv, 1, "", "Access is denied.")
+        return base(argv, **kwargs)
+    guest.runner = deny
+    with pytest.raises(StartUnresolved):
+        run(config, guest)
+    assert guest.kinds.count("attempt") == 1 and registry.writes == []
+
+
+@pytest.mark.parametrize("fence_effect", ["ran", "undelivered", "delayed"])
+def test_a_lost_fence_reply_is_settled_by_its_claim_even_when_the_fence_arrives_late(tmp_path, clock, fence_effect):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    guest.plan = {1: {"run": "work", "reply": "transport"}}
+    base = guest.runner
+    fences = []
+
+    def runner(argv, **kwargs):
+        if classify(argv[6]) == "fence":
+            fences.append((argv, kwargs))
+            if len(fences) == 1:
+                if fence_effect == "ran":
+                    base(argv, **kwargs)
+                clock["t"] += 1
+                return done(argv, 255, "", TRANSPORT[0])
+            if fence_effect == "delayed" and len(fences) == 2:
+                base(fences[0][0], **fences[0][1])  # the first fence arrives late, just before the second
+        return base(argv, **kwargs)
+    guest.runner = runner
+    guest.hooks[("attempt", 2)] = lambda: guest.attempts[0].advance()
+    record = run(config, guest)
+    assert [entry["disposition"] for entry in record["attempts"]] == ["not_started", "completed"]
+    assert guest.launches == [record["attempt_token"]]
+    assert len(fences) == (1 if fence_effect == "ran" else 2)
+
+
+def test_a_missing_creation_time_never_establishes_the_launchers_end(tmp_path, clock):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    for number in range(1, 500):
+        guest.answers[("cim", number)] = (0, "SWBPIPE-CIM v1 pid=3004 created=\r\n", "")
+    with pytest.raises(StartUnresolved):
+        run(config, guest)
+    assert "job" not in guest.kinds
+
+
+@pytest.mark.parametrize("claim", ["", "swbpipe-claim v1\r\n", SIGN_IN_TEXT,
+                                   "swbpipe-claim v1\r\ntoken=" + "0" * 32 + "\r\nowner=host\r\nnonce=" + "a" * 32
+                                   + "\r\n"], ids=["empty", "truncated", "sign-in text", "another token"])
+def test_an_incomplete_or_wrong_token_claim_stays_unknown(tmp_path, clock, claim):
+    config = config_for(tmp_path, GUARD)
+    guest = guest_for(config, clock)
+    registry = Registry(guest)
+    for number in range(1, 500):
+        guest.answers[("claim_read", number)] = (0, claim, "")
+    with pytest.raises(StartUnresolved):
+        run(config, guest)
+    assert guest.kinds.count("attempt") == 1 and "fence" not in guest.kinds and registry.writes == []
+
+
+def test_a_denied_job_query_is_unknown_never_absent(tmp_path, clock):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    for number in range(1, 500):
+        guest.answers[("job", number)] = (0, "SWBPIPE-JOB v1 error=5\r\n", "")
+    with pytest.raises(StartUnresolved):
+        run(config, guest)
+    assert "chunk" not in guest.kinds
+
+
+def test_a_collection_over_one_chunk_changes_no_guest_file_and_checks_every_hash(tmp_path, clock):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    payload = bytes(range(256)) * ((harness.COLLECT_CHUNK_BYTES + 17) // 256 + 1)
+    guest.programs[1] = Program(files={"model.csv": payload}, print_name="model.csv")
+    guest.lost.add(("chunk", 1))
+    before: list[dict] = []
+    guest.hooks[("chunk", 1)] = lambda: before.append(dict(guest.files))
+    record = run(config, guest)
+    assert guest.files == before[0]
+    assert (config.exchange_root / "cases" / CASE / record["observed_csv_path"]["host"]).read_bytes() == payload
+    reads = [step for step in record["steps"] if step["name"].startswith("collect_model.csv")]
+    assert [step["answer"] for step in reads] == ["unresolved", "chunk", "chunk"]  # two chunks, one read again
+
+
+def test_a_record_failure_while_the_start_is_unresolved_keeps_restoration_inhibited(tmp_path, monkeypatch, clock):
+    config = config_for(tmp_path, GUARD)
+    guest = guest_for(config, clock)
+    registry = Registry(guest)
+    guest.cim_unavailable = True
+    real_write = harness.write_private
+
+    def failing(root, path, data):
+        if Path(path).name == "run_record.json":
+            raise OSError("invented failure writing the run record")
+        return real_write(root, path, data)
+    monkeypatch.setattr(harness, "write_private", failing)
+    with pytest.raises(OSError) as raised:
+        run(config, guest)
+    assert raised.value.start_unresolved is True and raised.value.settings_guard["status"] == "start_unresolved"
+    assert registry.writes == []
