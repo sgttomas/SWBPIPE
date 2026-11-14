@@ -20,9 +20,10 @@ One such store exists: the CAEPIPE MBF writer parity vectors (`fixtures/caepipe_
 writer_vectors.json`) keep many of their models as blobs assembled from a base blob and a prefix, middle and
 suffix (`tools/fixtures/caepipe_mbf_import_vectors.py`), so the 58 writer models recorded below are those held
 as full strings; the independent review of this change reconstructed 107 pressurised writer models, 49 of them
-assembled. Every one is an MBF writer input compared between the Python and Rust writers, and nothing solves
-them: `test_pressure_elongation_inventory.py` fails if code that reads the parity vectors gains a mechanics
-solve entry.
+assembled. Every one is an MBF writer input compared between the Python and Rust writers; none is solved, as
+source-reviewed at a6392aafb and 986096a03. What the committed test detects is narrower: it fails if a tracked code
+file (`.rs`, `.py`, `.ts`, `.tsx`, `.js`, `.mjs`) that names the parity vectors or their harvest modules, or the
+Cargo manifest of a Rust one's crate, names a mechanics solve entry. It matches names, not reachability.
 
 The result, `pressure_elongation_inventory.json`, is also the re-production checklist for the fixture rebuild.
 
@@ -33,8 +34,9 @@ An unclaimed file, a file claimed twice, a claim that matches no file still nami
 exemption without a reason, or an exemption of a data file that holds a pressurised document is an error: a new
 pressure input must be classified here before the inventory is current.
 
-What the committed check establishes. `--check` and `test_pressure_elongation_inventory.py` establish these
-structural properties and no others:
+What the committed check establishes. `--check` and `test_pressure_elongation_inventory.py` establish general
+structural properties and particular data facts; they establish nothing about source behaviour. The structural
+properties:
 1. every scanned file is claimed exactly once, by a group, an IN_CODE record or an exemption;
 2. no claim is stale: each group pattern matches a data file holding a pressurised document, each IN_CODE path and
    each exemption or PINNED_BY pattern a tracked file still naming `pressure_regions`;
@@ -42,17 +44,29 @@ structural properties and no others:
    document; an IN_CODE record names code files only and states its expectations, its cases_named and a detail; a
    group whose documents are held only (JSON Lines, JSON text or DAG storage) has an excluded anchor;
 4. the generated copy, `pressure_elongation_inventory.json`, equals what this producer writes;
-5. each inventoried file names its registered pin consumers: every file that a fixed pin table listed in the test
-   module's PIN_TABLES names lists that table's consumer in its `pinned_by`, whether or not the table's digest still
-   matches the file;
-6. no code that reads the MBF parity vectors names a mechanics solve entry.
+5. each inventoried file names its registered pin consumers: for each fixed pin table listed in the test module's
+   PIN_TABLES, a reader extracts every target path by the table's own path-construction rules, independently of how
+   each digest is written and of whether it matches the file, and refuses by consumer and table any path-bearing
+   form it does not support; every inventoried target must list that consumer in its `pinned_by`;
+6. a literal-name guard over the MBF parity vectors: no tracked code file of the six suffixes above that names them
+   or their harvest modules, nor a Rust one's Cargo manifest, names a mechanics solve entry. It does not establish
+   that nothing reaches a solve.
+
+The data facts, asserted directly on the parsed fixtures: the K-D5 M3-T frozen subset holds twelve pressurised
+documents, one pressurised case each and twelve nonzero regions in all, none naming the setting; and the five files
+whose documents are held only (the desktop native-replay requests, the desktop analysis-run v0.3 cases, the
+pressure-source reader corpus and the two MBF parity vectors) hold them at the recorded locations, with the
+recorded pressurised cases, each named in the setting except in the parity vectors. These are bounded facts about
+those bytes, not about the source that reads them.
 
 What it does not establish. The source classifications (an IN_CODE record's cases_named and expectations, a group's
 producer) and the exemptions are curated assertions supported by review at identified revisions: an independent
 reading at a6392aafb, whose findings (a false exemption and nine false cases_named) were repaired in accdaf407; a
 second independent reading at 986096a03, which derived all 61 IN_CODE records and all 130 exempted code files from
-source and found them correct; and a scratch probe, run at 4854700d0, that logged at the pressure assembly site each
-solved case's pressure and whether the setting names it. The crates and Python sources the probe observed are
+source and found them correct; and a scratch probe, run at 4854700d0, that logged each case reaching pressure assembly
+with its largest region pressure and whether the setting names it. The logger runs before mechanics: it can record
+a case that is refused later or an assembly repeated for evidence, misses a case refused before assembly and ignores
+its own write errors, so its records are assembly observations, not successful solves. The crates and Python sources the probe observed are
 identical at 4854700d0 and 986096a03, and its observations agreed with 56 IN_CODE files and 28 exempted files and
 disagreed with none. The probe is not committed and protects nothing. Regenerating the copy does not renew that
 evidence, and a green check does not maintain the assertions' truth. An assertion must be re-read when a change
