@@ -554,6 +554,8 @@ fn the_counter_counts_a_known_allocation() {
     let start = reset_peaks(0);
     let block = vec![0u8; 1 << 20];
     drop(block);
-    // Other unit tests may allocate concurrently: the peak is at least the block.
-    assert!(PEAK_REQ[0].load(SeqCst) - start.live_req >= 1 << 20);
+    // Other threads (the harness, other unit tests) may allocate or free a few bytes at the
+    // same time, so the peak is bounded on both sides (within 64 KiB of the block).
+    let peak = PEAK_REQ[0].load(SeqCst) as i128 - start.live_req as i128;
+    assert!(((1 << 20) - (64 << 10)..(1 << 20) + (64 << 10)).contains(&peak), "peak {peak}");
 }
