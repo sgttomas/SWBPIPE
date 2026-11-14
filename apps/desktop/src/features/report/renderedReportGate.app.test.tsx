@@ -25,7 +25,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { App } from "../../App";
-import { createSolveJobTransport } from "../../test/nativeMechanicsReplay";
+import { createSolveJobTransport, REPLAY_COMMANDS } from "../../test/nativeMechanicsReplay";
+import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import type { PreviewModel } from "../../types";
@@ -35,6 +36,9 @@ const root = resolve(__dirname, "../../../../../");
 const DIR = "fixtures/reports/invented/report_standing_witnesses";
 const RAW = `${DIR}/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json`;
 const REQUEST = `${DIR}/coupled_friction.request.json`;
+
+// jsdom does no layout: the shell's `.inactive` sections are modelled as hidden.
+useModelledVisibility();
 
 afterEach(() => {
   cleanup();
@@ -82,13 +86,19 @@ describe("the rendered report of a solved exact-route result that is not numeric
       if (command === "get_local_storage_capability") return storage;
       if (command === "load_design_knowledge") return knowledge;
       if (command === "sync_native_shell_state") return null;
-      if (command === "load_preview_model" && args === undefined) return structuredClone(model);
+      if (command === "load_preview_model") {
+        if (args !== undefined) throw new Error("RENDERED_REPORT_GATE_REQUEST_INVALID");
+        return structuredClone(model);
+      }
       if (command === "render_calculation_report") { renders.push(args); return renderedOutcome(); }
+      // Every other command is the native mechanics job contract, or refused by name.
+      if (!REPLAY_COMMANDS.includes(command)) throw new Error(`RENDERED_REPORT_GATE_COMMAND_UNSUPPORTED: ${command}`);
       return transport.invoke(command, args, options);
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
+    await screen.findByTestId("workspace-toolbar");
     await screen.findByTestId(`tree-row-project-${encodeURIComponent(model.project.id)}`);
 
     // Before any solve the panel has no result.
