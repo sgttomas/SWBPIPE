@@ -162,9 +162,10 @@ def test_the_retained_reader_never_reads_an_inspection_only_evaluation(mode):
         rp.validate_retained_precision(blocked, invocation)
     assert (refused.value.gate, refused.value.code) == ("G5", "RETAINED_PRECISION_ATTEMPT_MISMATCH")
     assert c.numerical_use_standing(blocked, refs, invocation) == "unsupported"
-    # reader_verdict, the unpinned dispatcher (the Rust twin).
+    # reader_verdict on the retained route reads through retained_precision, a protected reader (the Rust twin): the
+    # blocked form is refused by that reader's own gate, never named as solved.
     model = invocation["request"]["model"]
     assert rv.standing(source, model, invocation)["eligible"] is True, "the control"
     assert rv.standing(named, model, invocation)["eligible"] is not True
     standing = rv.standing(blocked, model, invocation)
-    assert standing["eligible"] is not True and "MECHANICS_NOT_SOLVED" in standing["findings"], standing
+    assert standing["eligible"] is not True and standing["findings"] == ["RETAINED_PRECISION_ATTEMPT_MISMATCH"], standing

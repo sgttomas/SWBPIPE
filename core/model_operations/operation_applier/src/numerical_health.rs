@@ -1888,6 +1888,7 @@ mod tests {
     #[test]
     fn combinations_inherit_the_worst_badge_of_their_cases() {
         let source = json!({
+            "status": {"mechanics": "MECHANICS_SOLVED"},
             "numerical_quality": {"status": "sensitive", "cases": [
                 {"basis_ref": {"ref_type": "load_case", "ref_id": "a"}, "solve_quality": "checks_passed"},
                 {"basis_ref": {"ref_type": "load_case", "ref_id": "b"}, "solve_quality": "sensitive"}]},
