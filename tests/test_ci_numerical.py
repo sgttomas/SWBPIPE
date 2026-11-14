@@ -632,17 +632,18 @@ class ReachabilitySafetyTests(unittest.TestCase):
     def test_actual_complete_desktop_pr_diffs_retain_every_reader_and_controls_select_all(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
         # Each selection below is its named direct readers plus every crate that depends on
-        # product_physics, computed from the Cargo graph: a new caller of product_physics joins
-        # without an edited count, and an omitted reader or caller still fails.
+        # one of them or on product_physics, computed from the Cargo graph: a new caller joins
+        # without an edited count (report_standing depends on result_export and not on
+        # product_physics), and an omitted reader or caller still fails.
         manifests = ci.readiness.discover_cargo_manifests(ROOT)
         dependencies = ci.cargo_dependencies(ROOT, manifests)
-        callers = {Path('core/product_physics/Cargo.toml')}
-        while True:
-            enlarged = callers | {m for m, deps in dependencies.items() if deps & callers}
-            if enlarged == callers:
-                break
-            callers = enlarged
         def readers_and_product_callers(readers):
+            callers = {Path('core/product_physics/Cargo.toml')} | {Path(r) for r in readers}
+            while True:
+                enlarged = callers | {m for m, deps in dependencies.items() if deps & callers}
+                if enlarged == callers:
+                    break
+                callers = enlarged
             return sorted(set(readers) | {c.as_posix() for c in callers})
         readers = ['core/product_physics/Cargo.toml', 'core/reporting/report_package/Cargo.toml',
                    'core/reporting/result_export/Cargo.toml', 'validation/benchmarks/mechanics/Cargo.toml']
