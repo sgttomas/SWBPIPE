@@ -608,26 +608,28 @@ def text_decisions(snapshot, resolved):
         # statement), unchanged text; retained_precision.rs +16 (G0's pressure-2-base refusal), unchanged text.
         # RT-L2 final source: every lib.rs key below moves +2 (the cap remainder publication tests' module declaration
         # precedes them), unchanged text.
-        (pp + "lib.rs:12476", {"load_case_id": inp}),
-        (pp + "lib.rs:12490", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12497", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12502", {"load.load_id": inp}),
-        (pp + "lib.rs:12503", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12504", {"bend.component_id": inp}),
-        (pp + "lib.rs:12505", {"load_case_id": inp}),
-        (pp + "lib.rs:12564", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12571", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12576", {"load.load_id": inp}),
-        (pp + "lib.rs:12577", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12578", {"bend.component_id": inp}),
-        (pp + "lib.rs:12579", {"load_case_id": inp}),
-        (pp + "lib.rs:12618", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12625", {"load.load_id": inp, "load_case_id": inp}),
+        # One-way normal source D3: every lib.rs key below moves +17 (the friction normal admission and the
+        # publication call's supports and final states precede them), unchanged text.
+        (pp + "lib.rs:12493", {"load_case_id": inp}),
+        (pp + "lib.rs:12507", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12514", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12519", {"load.load_id": inp}),
+        (pp + "lib.rs:12520", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12521", {"bend.component_id": inp}),
+        (pp + "lib.rs:12522", {"load_case_id": inp}),
+        (pp + "lib.rs:12581", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12588", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12593", {"load.load_id": inp}),
+        (pp + "lib.rs:12594", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12595", {"bend.component_id": inp}),
+        (pp + "lib.rs:12596", {"load_case_id": inp}),
+        (pp + "lib.rs:12635", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12642", {"load.load_id": inp, "load_case_id": inp}),
         # W-16 slice c (§8.27): certified_loads' two generated-id prefix formats move into lib.rs'
         # is_generated_equivalent_static_load (the kind arm and the any-kind arm) with the same input id; both are
         # reached only from an admitted equivalent-static case (W16C-ES: none on D1).
-        (pp + "lib.rs:11039", {"load_case.id": inp}),
-        (pp + "lib.rs:11040", {"load_case.id": inp}),
+        (pp + "lib.rs:11056", {"load_case.id": inp}),
+        (pp + "lib.rs:11057", {"load_case.id": inp}),
         (pp + 'retained_product.rs:4773', {"stable_suffix(id)": inp}),
         (pp + 'retained_product.rs:4774', {"id": inp}),
         (pp + 'retained_product.rs:4782', {"id": inp, "id.len()": inp, "component": static}),
