@@ -1321,7 +1321,12 @@ mod tests {
         bare.as_object_mut().unwrap().remove("status");
         assert_eq!(health(&bare, None)["cases"][0]["state"], "not_assessed", "no status, not a package");
         // Without `status`, a malformed list alone is not solved either.
-        for list in [json!(["MECHANICS_SOLVED", null]), json!(["MECHANICS_SOLVED", {}]), json!(["MECHANICS_SOLVED", "invented_status"])] {
+        for list in [
+            json!(["MECHANICS_SOLVED", null]),
+            json!(["MECHANICS_SOLVED", {}]),
+            json!(["MECHANICS_SOLVED", 1]),
+            json!(["MECHANICS_SOLVED", "invented_status"]),
+        ] {
             let mut source = bare.clone();
             source["analysis_status"] = list.clone();
             assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{list}");
