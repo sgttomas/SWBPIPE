@@ -1,7 +1,7 @@
 //! Sparse-mode admission estimate for one nonlinear active-set loop call (part 1).
 //!
 //! This module implements the bound of the exact route performance Type 1's
-//! `nl-part1/DERIVATION.md` (draft 1), whose terms come from the source
+//! `nl-part1/DERIVATION.md` (draft 2), whose terms come from the source
 //! accounting `nl-part1/ACCOUNTING.md` at 946553b52. Row names in the doc
 //! comments below are the accounting's "Final table" rows; section numbers are
 //! the derivation's.
@@ -23,7 +23,7 @@
 #![allow(non_snake_case)] // Symbols are named as DERIVATION.md §2 names them.
 
 use crate::structural_adapter::EXACT_GAP_MAX_DOFS;
-use crate::NonlinearFrameIteration;
+use crate::{NonlinearFrameIteration, ProductCompletion};
 
 /// The counts of DERIVATION.md §2, all known at the product guard before any
 /// case is solved. Named as there. ε and c are derived ([`Counts::eps`],
@@ -140,11 +140,13 @@ pub const OPEN_SIGMA_IDS_PER_SIGMA_K: u128 = 1;
 /// hidden. OPEN: draft value from ACCOUNTING (β_it, §2), not derived.
 pub const OPEN_FRICTION_IDS_PER_SIGMA_K: u128 = 1;
 
-/// The strict-gap evidence's bound when n ≤ 256 (row "Strict gap evidence":
-/// "bounded (n ≤ 256)"). OPEN: draft value from ACCOUNTING, not derived. The
+/// The strict-gap evidence's small-model bound (row "Strict gap evidence":
+/// "bounded (n ≤ 256)"), priced at m = min(n, 256) for every n (DERIVATION.md
+/// draft 2, change 1). OPEN: draft value from ACCOUNTING, not derived. The
 /// accounting's only figure here is the exact context's coarse bound,
 /// "≤ 5 MiB at n = 256" (ACCOUNTING §2, "Small-model exact paths"); it gives
-/// no figure for the retained `Qualified` report itself.
+/// no figure for the retained `Qualified` report itself, and no form in m, so
+/// the draft value is this one constant at every m.
 pub const OPEN_STRICT_GAP_SMALL_MODEL: u128 = 5 * 1024 * 1024;
 
 // ---------------------------------------------------------------------------
@@ -155,11 +157,19 @@ pub const OPEN_STRICT_GAP_SMALL_MODEL: u128 = 5 * 1024 * 1024;
 /// (SA:3386; row "Strict gap evidence").
 const STRICT_GAP_UNSUPPORTED_REASON: u128 = 185;
 
-/// The small-model exact paths apply at n ≤ this (SA:3312).
+/// The small-model exact paths apply at n ≤ this (SA:3312); their terms are
+/// priced at m = min(n, this) for every n (DERIVATION.md draft 2, change 1).
 const SMALL_MODEL_MAX_DOFS: u128 = EXACT_GAP_MAX_DOFS as u128;
 
-/// S_iter = size_of::<NonlinearFrameIteration>(), pinned by a test.
+/// S_iter = size_of::<NonlinearFrameIteration>(), pinned at 2,512 by a test
+/// (DERIVATION.md draft 2, change 3).
 const S_ITER: u128 = std::mem::size_of::<NonlinearFrameIteration>() as u128;
+
+/// The completion box: size_of::<ProductCompletion>(), pinned at 544 by a test.
+/// It replaces the accounting's ≈ 552 in X (DERIVATION.md draft 2, change 3).
+/// `LoopStiffness` (pinned at 104, against the accounting's ≈ 112) enters the
+/// bound only inside this box.
+const COMPLETION_BOX: u128 = std::mem::size_of::<ProductCompletion>() as u128;
 
 /// The iterations Vec's element count as DERIVATION.md §3 writes it ("4·S_iter";
 /// row "Iterations Vec", NI:1037).
@@ -226,8 +236,10 @@ impl Counts {
         sum([w(self.r0), w(self.k)])
     }
 
-    fn small_model(&self) -> bool {
-        u128::from(self.n) <= SMALL_MODEL_MAX_DOFS
+    /// m = min(n, 256), the DOF count at which the small-model terms are
+    /// priced for every n (DERIVATION.md draft 2, change 1).
+    pub fn m(&self) -> u128 {
+        u128::from(self.n).min(SMALL_MODEL_MAX_DOFS)
     }
 }
 
@@ -242,6 +254,9 @@ impl Counts {
 /// ground motion" (32g + σ_g, PP:7993), "Input supports, states" (104k + 2σ_k,
 /// PP:7994–7995), "Input friction normals" (32k_x + σ_x + 64d̄ + σ_d,
 /// PP:7996–7999), "Policy ref, springs" (48 + 16s, PP:199, :7651).
+///
+/// The base-motion term 16·max(4, p_b) applies even with no motion, where the
+/// accounting row gives 0: conservative over-count (DERIVATION §5), kept.
 pub fn H_in(c: &Counts) -> Est {
     named(
         sum([
@@ -275,17 +290,16 @@ pub fn H_in(c: &Counts) -> Est {
 /// SA:1733), "Formation frames, curved, springs" (152E + 1200B + σ_B + 16s,
 /// SA:1738–1750), "Formation connectors and rod Arcs" (1424C + 1032C_r + 496T,
 /// SA:1725–1728), "`current_states`, friction maps" (32k + σ_k + κ_k·k, NI:2304,
-/// :2309–2366; κ_k OPEN) and "Gap views" (3(24n + 8n²) when n ≤ 256,
-/// NI:2704–2716; SA:3317–3349).
+/// :2309–2366; κ_k OPEN) and "Gap views" (NI:2704–2716; SA:3317–3349), priced
+/// as 3(24m + 8m²) with m = min(n, 256) for every n (DERIVATION.md draft 2,
+/// change 1). Above 256 DOFs the views are not allocated, so this over-counts
+/// there by at most 3(24·256 + 8·256²) = 1,591,296 B.
 pub fn H_loop(c: &Counts) -> Est {
     let eps = Some(c.eps()?);
     let cc = Some(c.c()?);
     let n = w(c.n);
-    let gap_views = if c.small_model() {
-        mul(3, sum([mul(24, n), mul(8, mul2(n, n))]))
-    } else {
-        Some(0)
-    };
+    let m = Some(c.m());
+    let gap_views = mul(3, sum([mul(24, m), mul(8, mul2(m, m))]));
     named(
         sum([
             // the loop stiffness
@@ -310,7 +324,7 @@ pub fn H_loop(c: &Counts) -> Est {
             ]),
             // current states and friction maps (κ_k OPEN)
             sum([mul(32, w(c.k)), w(c.sigma_k), mul(OPEN_KAPPA_K, w(c.k))]),
-            // the gap views, when n ≤ 256
+            // the gap views, at m = min(n, 256)
             gap_views,
         ]),
         "H_loop",
@@ -324,6 +338,10 @@ pub fn H_loop(c: &Counts) -> Est {
 /// `spring_dofs`" (16ε + 8s, FKS:729–734), "Pattern builder"
 /// (≤ 56N + 64ε + 33n + 40z + 8, FKS:84–160) and "Evidence magnitudes, scatter
 /// counts" (16z, SA:727–728).
+///
+/// The max in `formed` is redundant: max(E+C, 2(E+C+T)) is always 2(E+C+T),
+/// and the accounting gives exactly 1168(E+C) when T = 0. Conservative
+/// over-count (DERIVATION §5), kept.
 pub fn H_asm_peak(c: &Counts) -> Est {
     let eps = Some(c.eps()?);
     let e_plus_c = sum([w(c.E), w(c.C)]);
@@ -389,14 +407,16 @@ pub fn D_as(c: &Counts) -> Est {
 /// n ≤ 256 bound, SA:3386, :3611–3673; OPEN), "Recovery strings (iter 1)"
 /// (≤ 2(400 + 2σ_k + 20k + 42a), NI:845–890) and "Iterations Vec" (4·S_iter,
 /// NI:1037). Σids, the friction ids and the small-model strict-gap bound are
-/// OPEN constants.
+/// OPEN constants. The strict-gap evidence is priced as max(185, the
+/// small-model bound at m = min(n, 256)) for every n (DERIVATION.md draft 2,
+/// change 1).
+///
+/// The iterations Vec's 4·S_iter and the "once" recovery strings sit under
+/// R_it, so M_loop counts them I times, and X's completion output I times
+/// again: conservative over-count (DERIVATION §5), kept.
 pub fn R_it(c: &Counts) -> Est {
     let a = c.a();
-    let strict_gap = if c.small_model() {
-        OPEN_STRICT_GAP_SMALL_MODEL
-    } else {
-        STRICT_GAP_UNSUPPORTED_REASON
-    };
+    let strict_gap = STRICT_GAP_UNSUPPORTED_REASON.max(strict_gap_small_model_bound(c.m()));
     named(
         sum([
             Some(R_sr(c)?),
@@ -418,14 +438,16 @@ pub fn R_it(c: &Counts) -> Est {
             ]),
             // strings: ≤ 222
             Some(222),
-            // strict-gap evidence: ≤ 185, or the n ≤ 256 bound (OPEN)
+            // strict-gap evidence: max(185, the small-model bound at m) (OPEN)
             Some(strict_gap),
-            // recovery strings, once: 2(400 + 2σ_k + 20k + 42(r₀ + k))
+            // recovery strings, once: 2(400 + 2σ_k + 20k + 42(r₀ + k));
+            // counted I times (conservative over-count, DERIVATION §5, kept)
             mul(
                 2,
                 sum([Some(400), mul(2, w(c.sigma_k)), mul(20, w(c.k)), mul(42, a)]),
             ),
-            // the iterations Vec: 4·S_iter
+            // the iterations Vec: 4·S_iter; counted I times (conservative
+            // over-count, DERIVATION §5, kept)
             Some(ITERATIONS_VEC_ELEMENTS * S_ITER),
         ]),
         "R_it",
@@ -434,14 +456,15 @@ pub fn R_it(c: &Counts) -> Est {
 
 /// X, made once at exit:
 /// 16n + 2,566 + H_in + 16s + 8n + 8 + 24z + 8n + 16f₀ + 16(r₀ + k)
-/// + [I·R_it + 16n + 32k + σ_k + 2,662] + 552.
+/// + [I·R_it + 16n + 32k + σ_k + 2,662] + size_of::<ProductCompletion>()
+/// (pinned 544; draft 1's ≈ 552).
 /// ACCOUNTING rows "Result displacements, reactions clones" (16n,
 /// NI:1072–1073), "Assumptions, limitations" (2,566, NI:1368–1388), "Completion
 /// input clone" (H_in, NI:1095), "Completion springs, stiffness"
 /// (16s + 8n + 8 + 24z, NI:1096, :1098, :2698), "Completion final force, free,
 /// prescribed" (8n + 2·8f + 16a, NI:1083–1092), "Completion output"
-/// (I·R_it + 16n + 32k + σ_k + 2.6 KiB, NI:1102) and "Completion box" (≈ 552,
-/// NI:377–386).
+/// (I·R_it + 16n + 32k + σ_k + 2.6 KiB, NI:1102) and "Completion box"
+/// (NI:377–386; the pinned size replaces ≈ 552).
 pub fn X(c: &Counts) -> Est {
     let n = w(c.n);
     named(
@@ -463,10 +486,17 @@ pub fn X(c: &Counts) -> Est {
                 w(c.sigma_k),
                 Some(2662),
             ]),
-            Some(552),
+            Some(COMPLETION_BOX),
         ]),
         "X",
     )
+}
+
+/// The strict-gap evidence's small-model bound at m = min(n, 256). OPEN: the
+/// draft value is [`OPEN_STRICT_GAP_SMALL_MODEL`] at every m (no form in m is
+/// given). It must stay non-decreasing in m for M_loop to stay monotone.
+pub fn strict_gap_small_model_bound(_m: u128) -> u128 {
+    OPEN_STRICT_GAP_SMALL_MODEL
 }
 
 /// Prep ≤ 56z + 20f₀ + 16n + 339. ACCOUNTING row "Preparation"
@@ -673,7 +703,9 @@ pub struct Breakdown {
     pub c: u128,
     pub F: u128,
     pub L: u128,
+    pub m: u128,
     pub S_iter: u128,
+    pub completion_box: u128,
     pub H_in: u128,
     pub H_loop: u128,
     pub H_asm_peak: u128,
@@ -709,7 +741,9 @@ pub fn breakdown(c: &Counts) -> Result<Breakdown, SparseAdmissionError> {
         c: c.c()?,
         F: c.F()?,
         L: c.L()?,
+        m: c.m(),
         S_iter: S_ITER,
+        completion_box: COMPLETION_BOX,
         H_in: H_in(c)?,
         H_loop: H_loop(c)?,
         H_asm_peak: H_asm_peak(c)?,

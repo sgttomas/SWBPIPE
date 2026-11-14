@@ -1,11 +1,11 @@
-//! Tests of the sparse admission estimate (DERIVATION.md draft 1, part 1).
+//! Tests of the sparse admission estimate (DERIVATION.md draft 2, part 1).
 use super::*;
 use std::mem::size_of;
 
 /// One small counts value, used for every hand computation below.
 /// ε = E + C + T + B = 1 + 1 + 1 + 1 = 4; c = 144·4 + 1 = 577;
 /// F = 6·7/2 = 21; L = (144 + 6)/2 = 75; a = r₀ + k = 6 + 1 = 7.
-/// n = 12 ≤ 256, so the small-model terms apply.
+/// n = 12, so m = min(n, 256) = 12 for the small-model terms.
 fn small() -> Counts {
     Counts {
         N: 2,
@@ -41,6 +41,10 @@ fn derived_symbols_by_hand() {
     assert_eq!(c.c(), Ok(577)); // 144·4 + 1
     assert_eq!(c.F(), Ok(21)); // 6·7/2
     assert_eq!(c.L(), Ok(75)); // (144 + 6)/2
+    assert_eq!(c.m(), 12); // min(12, 256)
+    let mut big = c;
+    big.n = 1_000_000;
+    assert_eq!(big.m(), 256); // min(10⁶, 256)
 }
 
 #[test]
@@ -62,7 +66,7 @@ fn h_loop_by_hand() {
     let coordinates = 32 * 2; // 64
     let formation = 152 + 1200 + 4 + 16 + 1424 + 1032 + 496; // 4324
     let states = 32 * 1 + 5 + 0 * 1; // 37, κ_k = 0 (OPEN placeholder)
-    let gap_views = 3 * (24 * 12 + 8 * 12 * 12); // 4320, n = 12 ≤ 256
+    let gap_views = 3 * (24 * 12 + 8 * 12 * 12); // 4320, m = min(12, 256) = 12
     let expected = stiffness
         + evidence_pattern
         + contributions
@@ -107,7 +111,7 @@ fn small_r_it_without_iterations_vec() -> u128 {
     let active_set = 32 * 1 + 5 + 48 * 1 + 5 + 828; // 918; Σids = 1·σ_k (OPEN)
     let friction_forces = 80 * 1 + 5; // 85; ids = 1·σ_k (OPEN)
     let strings = 222;
-    let strict_gap = 5 * 1024 * 1024; // n ≤ 256: OPEN draft 5 MiB
+    let strict_gap = 5 * 1024 * 1024; // max(185, OPEN draft 5 MiB at m)
     let recovery = 2 * (400 + 2 * 5 + 20 * 1 + 42 * (6 + 1)); // 2·724 = 1448
     let total = r_sr
         + r_pe
@@ -135,12 +139,12 @@ fn r_it_by_hand() {
 fn x_by_hand() {
     let r_it = R_it(&small()).unwrap();
     // 16·12 + 2566 + 4867 + 16·1 + 8·12 + 8 + 24·144 + 8·12 + 16·6 + 16·7
-    // + [4·R_it + 16·12 + 32·1 + 5 + 2662] + 552
-    let outside = 192 + 2566 + 4867 + 16 + 96 + 8 + 3456 + 96 + 96 + 112 + 552;
-    assert_eq!(outside, 12_057);
+    // + [4·R_it + 16·12 + 32·1 + 5 + 2662] + 544 (size_of::<ProductCompletion>(), pinned)
+    let outside = 192 + 2566 + 4867 + 16 + 96 + 8 + 3456 + 96 + 96 + 112 + 544;
+    assert_eq!(outside, 12_049);
     let bracket_fixed = 192 + 32 + 5 + 2662;
     assert_eq!(bracket_fixed, 2891);
-    assert_eq!(X(&small()), Ok(12_057 + 2891 + 4 * r_it));
+    assert_eq!(X(&small()), Ok(12_049 + 2891 + 4 * r_it));
 }
 
 #[test]
@@ -199,8 +203,8 @@ fn t_phases_by_hand() {
 fn m_loop_by_hand() {
     let r_it = R_it(&small()).unwrap();
     // H_in + H_loop + H_asm_peak + I·R_it + X + T
-    // = 4867 + 46,153 + 17,084 + 4·R_it + (14,948 + 4·R_it) + 168,630
-    let expected = 4867 + 46_153 + 17_084 + 4 * r_it + (14_948 + 4 * r_it) + 168_630;
+    // = 4867 + 46,153 + 17,084 + 4·R_it + (14,940 + 4·R_it) + 168,630
+    let expected = 4867 + 46_153 + 17_084 + 4 * r_it + (14_940 + 4 * r_it) + 168_630;
     assert_eq!(M_loop(&small()), Ok(expected));
     let b = breakdown(&small()).unwrap();
     assert_eq!(b.M_loop, expected);
@@ -216,13 +220,17 @@ fn branches_by_hand() {
     let mut c = small();
     c.d_bar = 0;
     assert_eq!(T_Base(&c), Ok(0));
-    // Above 256 DOFs: no gap views, and the strict-gap evidence is 185.
+    // Above 256 DOFs the small-model terms are priced at m = min(257, 256) = 256:
+    // gap views 3(24·256 + 8·256²) = 3(6144 + 524,288) = 1,591,296, and the
+    // strict-gap evidence max(185, 5 MiB) = 5,242,880.
     let mut c = small();
     c.n = 257;
-    let h_loop_257 = 2 * (8 * 257 + 8 + 32 * 144) + 27_696 + 288 + 64 + 4324 + 37;
+    let gap_views_256 = 3 * (24 * 256 + 8 * 256 * 256);
+    assert_eq!(gap_views_256, 1_591_296);
+    let h_loop_257 = 2 * (8 * 257 + 8 + 32 * 144) + 27_696 + 288 + 64 + 4324 + 37 + gap_views_256;
     assert_eq!(H_loop(&c), Ok(h_loop_257));
     let s_iter = size_of::<NonlinearFrameIteration>() as u128;
-    let r_it_257 = 27_356 + 1632 + 16 * 257 + 112 + 918 + 85 + 222 + 185 + 1448 + 4 * s_iter;
+    let r_it_257 = 27_356 + 1632 + 16 * 257 + 112 + 918 + 85 + 222 + 5_242_880 + 1448 + 4 * s_iter;
     assert_eq!(R_it(&c), Ok(r_it_257));
 }
 
@@ -331,11 +339,11 @@ fn m_loop_is_monotone_on_pseudo_random_counts() {
     );
 }
 
-/// DERIVATION.md §3 claims M_loop is monotone non-decreasing in every symbol.
-/// As written, two terms apply only when n ≤ 256 (the gap views 3(24n + 8n²)
-/// in H_loop, and the strict-gap evidence's n ≤ 256 bound in R_it), so they
-/// drop out between n = 256 and n = 257. This test checks the claim at that
-/// boundary; it FAILS on draft 1 and is reported as a finding, not repaired.
+/// Draft 1 applied the gap views and the strict-gap small-model bound only at
+/// n ≤ 256, so M_loop fell between n = 256 and 257 (the finding; this test
+/// failed on draft 1). Draft 2 prices both at m = min(n, 256) for every n.
+/// This checks monotonicity across the boundary: every single-count increment
+/// at n = 256, and M_loop over n = 240 to 272.
 #[test]
 fn m_loop_is_monotone_at_the_small_model_boundary() {
     let mut base = small();
@@ -343,10 +351,21 @@ fn m_loop_is_monotone_at_the_small_model_boundary() {
     let found = decreases(&base);
     assert!(
         found.is_empty(),
-        "FINDING against DERIVATION.md §3 (draft 1): the n ≤ 256 terms make M_loop \
-         non-monotone in n:\n{}",
+        "M_loop is not monotone at the small-model boundary (DERIVATION.md draft 2, \
+         change 1):\n{}",
         found.join("\n")
     );
+    let mut previous = 0;
+    for n in 240..=272 {
+        let mut c = small();
+        c.n = n;
+        let total = M_loop(&c).unwrap();
+        assert!(
+            total >= previous,
+            "M_loop fell at n = {n}: {previous} -> {total}"
+        );
+        previous = total;
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -463,7 +482,12 @@ fn size_pins() {
         PIN_S_ITER,
         "S_iter: R_it's 4·S_iter and X"
     );
-    pin!(wrong, ProductCompletion, 544, "X's completion box (≈ 552)");
+    pin!(
+        wrong,
+        ProductCompletion,
+        544,
+        "X's completion box (COMPLETION_BOX)"
+    );
     pin!(wrong, LinearizedSolve, 664, "T's Base (held base solve)");
     pin!(
         wrong,
@@ -473,7 +497,12 @@ fn size_pins() {
     );
     pin!(wrong, StrictGapEvidence, 1592, "S_iter");
     pin!(wrong, ExactGapWork, 72, "S_iter");
-    pin!(wrong, LoopStiffness, 104, "X's completion box (≈ 112)");
+    pin!(
+        wrong,
+        LoopStiffness,
+        104,
+        "X's completion box, inside ProductCompletion"
+    );
     pin!(
         wrong,
         NonlinearFrameSolveInput,
