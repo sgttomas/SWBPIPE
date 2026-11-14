@@ -135,7 +135,7 @@ code_paths:
 - apps/desktop/e2e/rotation-glyph.spec.ts
 # The numerical-health indicator's module in the operation engine's crate; the rest of that crate
 # is DEL-16-06's.
-- core/model_operations/operation_applier/src/numerical_health.rs
+- core/reporting/result_export/src/historical_health.rs
 # A reference module with its own contract test; the desktop does not call it.
 - core/gui/results_viewer/**
 # The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and

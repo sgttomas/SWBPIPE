@@ -262,7 +262,7 @@ describe("numericalHealthView", () => {
   it("adds the output sentence only under the verdict-only hold on the generic route", () => {
     const cases = [healthCase("LC1", "sensitive"), healthCase("LC2", "not_assessed"), healthCase("LC3", "checks_passed")];
     expect(numericalHealthView(health("generic", true, cases), { eligible: false, verdictHold: true })!.outputSentence)
-      .toBe("No results of this run can be exported or used by rule checks while 2 load case(s) are not checks passed.");
+      .toBe("Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 2 load case(s) are not checks passed; results tables, CSV export and the rendered report carry each case's standing.");
     expect(numericalHealthView(health("generic", true, cases), { eligible: false, verdictHold: false })!.outputSentence).toBeNull();
     expect(numericalHealthView(health("generic", false, cases), { eligible: false, verdictHold: false })!.outputSentence).toBeNull();
     expect(numericalHealthView(health("pressure_source", false, cases), { eligible: false, verdictHold: true })!.outputSentence).toBeNull();

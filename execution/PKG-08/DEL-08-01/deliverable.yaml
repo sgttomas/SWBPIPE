@@ -114,10 +114,12 @@ needs:
   gating: true
 - from: DEL-05-02
   condition: The ordinary result reader gives a pressure-free or exact-route result its standing (numerically
-    eligible, needing recomputation or unsupported) with the route's published limitations, as a verdict
-    every reader surface takes, and the result is bound to its route's semantic table by identifier and
-    digest.
-  when: Stating an exact-route result's standing and limitations.
+    eligible, needing recomputation or unsupported) with the route's published limitations, whether it can
+    read the result and the findings that decide that, and its standing record by load case and nonlinear
+    support with the evidence statuses and availability reasons that the published evidence supports, as
+    typed tags, as a verdict every reader surface takes, and the result is bound to its route's semantic
+    table by identifier and digest.
+  when: Stating a result's standing and limitations.
   gating: true
 - from: DEL-07-03
   condition: A model entity to which a library record was applied keeps a reference to that record, and
@@ -163,6 +165,13 @@ code_paths:
 - apps/desktop/src-tauri/src/user_release_reach_scan.rs
 # Fixtures: reviewed exact-route statements, and invented vectors shared by the two implementations.
 - fixtures/reports/exact_report_statements.json
+- fixtures/reports/standing_statements.json
+- fixtures/reports/numerical_vocabulary.json
+- fixtures/reports/invented/report_standing_witnesses/**
+- core/reporting/numerical_vocabulary/**
+- core/reporting/report_renderer/tests/standing_statements.rs
+- apps/desktop/src/features/report/reportStandingWitness.test.tsx
+- core/product_physics/tests/report_standing_witnesses.rs
 - fixtures/reports/exact_route_limitations.json
 - fixtures/reports/invented/calculation_report_fixture.json
 - fixtures/reports/invented/exact_report_package_requests/**

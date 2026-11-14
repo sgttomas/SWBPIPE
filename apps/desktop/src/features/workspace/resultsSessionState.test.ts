@@ -240,9 +240,9 @@ it("holds a real verdict-only generic result: every other Current requirement me
   expect(result.current.numericalHealthHold).toEqual({
     headline: "Numerical health: 1 sensitive",
     shortHeadline: "Numerical health: sensitive",
-    outputSentence: "No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed."
+    outputSentence: "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and the rendered report carry each case's standing."
   });
-  expect(result.current.numericalHealth?.outputSentence).toBe("No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed.");
+  expect(result.current.numericalHealth?.outputSentence).toBe("Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and the rendered report carry each case's standing.");
   // A later edit of the record removes the hold: another requirement now fails.
   act(() => result.current.setAnalysisRun({ ...analysis, schema_version: "0.2.0" } as typeof analysis));
   expect(result.current.numericalHealthHold).toBeNull();

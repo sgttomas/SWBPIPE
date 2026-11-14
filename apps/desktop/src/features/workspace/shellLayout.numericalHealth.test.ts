@@ -9,7 +9,7 @@ const solved = { status: { mechanics: "MECHANICS_SOLVED", professional_acceptanc
 const hold = {
   headline: "Numerical health: 1 sensitive, 1 checks passed",
   shortHeadline: "Numerical health: sensitive",
-  outputSentence: "No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed."
+  outputSentence: "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and the rendered report carry each case's standing."
 };
 const cells = (extra: Record<string, unknown>) => ({
   model: { analysis_status: { mechanics: "MECHANICS_SOLVED" } },
