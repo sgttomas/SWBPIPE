@@ -77,14 +77,16 @@ SOURCES = {
 # elongation statement; +9 to the bend recovery: the arc push's setting test); no owner gains a caller.
 # RT-L2 final source: every lib.rs owner, site and caller moves +2 with unchanged text (the test-module declaration);
 # no owner gains a caller.
+# One-way normal source D3: every lib.rs owner, site and caller moves +17 with unchanged text (the friction normal
+# admission and the publication call's supports and final states); no owner gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12331,
+    "line": 12348,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12289:exact_straight_summary_extrema",
-    "short": "lib.rs:12331",
-    "from": "lib.rs:12289:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12306:exact_straight_summary_extrema",
+    "short": "lib.rs:12348",
+    "from": "lib.rs:12306:exact_straight_summary_extrema",
     "parents": [
       "core/product_physics/src/lib.rs:5376:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
@@ -94,11 +96,11 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12337,
+    "line": 12354,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12289:exact_straight_summary_extrema",
-    "short": "lib.rs:12337",
-    "from": "lib.rs:12289:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12306:exact_straight_summary_extrema",
+    "short": "lib.rs:12354",
+    "from": "lib.rs:12306:exact_straight_summary_extrema",
     "parents": [
       "core/product_physics/src/lib.rs:5376:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
@@ -108,11 +110,11 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 13006,
+    "line": 13023,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12987:recover_curved_bend_local_forces",
-    "short": "lib.rs:13006",
-    "from": "lib.rs:12987:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:13004:recover_curved_bend_local_forces",
+    "short": "lib.rs:13023",
+    "from": "lib.rs:13004:recover_curved_bend_local_forces",
     "parents": [
       "core/product_physics/src/lib.rs:5376:solve_prepared_load_case"
     ]
