@@ -26,16 +26,10 @@ pub const NUMERICAL_CASE_RECORD_INCONSISTENT: &str = "NUMERICAL_CASE_RECORD_INCO
 const CASE_EVIDENCE_INCOMPLETE: &str = "NUMERICAL_CASE_EVIDENCE_INCOMPLETE";
 const MECHANICS_NOT_SOLVED: &str = "MECHANICS_NOT_SOLVED";
 /// Findings that state a readable result's numerical standing and never make it
-/// unreadable.
-const STANDING_FINDINGS: [&str; 7] = [
-    "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
-    CASE_EVIDENCE_INCOMPLETE,
-    "SOURCE_BLOCKS_CASE_UNQUALIFIED",
-    "SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY",
-    "SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED",
-    crate::reader_verdict::LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE,
-    crate::reader_verdict::RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE,
-];
+/// unreadable: the closed `standing_finding` vocabulary.
+fn standing_finding(finding: &str) -> bool {
+    open_pipe_stress_numerical_vocabulary::StandingFinding::parse(finding).is_some()
+}
 /// The producer's integrity diagnostic id of a load case
 /// (product_physics `integrity_diagnostic_id`).
 const INTEGRITY_ID_PREFIX: &str = "diagnostic:numerical-integrity:";
@@ -52,7 +46,7 @@ pub fn readability(source: &Value, standing: &Value) -> Value {
     let findings: Vec<&str> = standing["findings"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(Value::as_str).collect();
     let mut unreadable: Vec<&str> = Vec::new();
     for finding in &findings {
-        if *finding != MECHANICS_NOT_SOLVED && !STANDING_FINDINGS.contains(finding) && !unreadable.contains(finding) {
+        if *finding != MECHANICS_NOT_SOLVED && !standing_finding(finding) && !unreadable.contains(finding) {
             unreadable.push(finding);
         }
     }

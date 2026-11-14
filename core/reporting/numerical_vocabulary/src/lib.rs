@@ -134,6 +134,21 @@ vocabulary!(
 );
 
 vocabulary!(
+    /// The product reader's findings that state a readable result's numerical
+    /// standing (DEL-05-02 Standing): `reader_verdict::standing`'s findings
+    /// that do not make the result unreadable.
+    StandingFinding, "standing_finding", {
+        NotQualified => "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+        CaseEvidenceIncomplete => "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
+        SourceBlocksCaseUnqualified => "SOURCE_BLOCKS_CASE_UNQUALIFIED",
+        SourceBlocksPhysicalRowInspectionOnly => "SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY",
+        SourceBlocksEnvelopeUnqualified => "SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED",
+        LoadReferenceSourceNotEligible => "LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1",
+        RetainedNotEligible => "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE",
+    }
+);
+
+vocabulary!(
     /// A nonlinear support's computed state in a load case
     /// (`nonlinear_support_active_set_state_code`: 0 inactive, 1 active,
     /// 2 sticking, 3 sliding).
@@ -222,6 +237,7 @@ pub fn catalogue() -> Vec<CatalogueEntry> {
         .chain(of(HistoricalIntegrityCode::VOCABULARY, HistoricalIntegrityCode::ALL, HistoricalIntegrityCode::as_str))
         .chain(of(HistoricalCause::VOCABULARY, HistoricalCause::ALL, HistoricalCause::as_str))
         .chain(of(HistoricalConfirmation::VOCABULARY, HistoricalConfirmation::ALL, HistoricalConfirmation::as_str))
+        .chain(of(StandingFinding::VOCABULARY, StandingFinding::ALL, StandingFinding::as_str))
         .chain(of(SupportState::VOCABULARY, SupportState::ALL, SupportState::as_str))
         .chain(of(SupportBehavior::VOCABULARY, SupportBehavior::ALL, SupportBehavior::as_str))
         .chain(of(FrictionNormal::VOCABULARY, FrictionNormal::ALL, FrictionNormal::as_str))
@@ -256,6 +272,7 @@ mod tests {
         check(HistoricalIntegrityCode::ALL, HistoricalIntegrityCode::as_str, HistoricalIntegrityCode::parse);
         check(HistoricalCause::ALL, HistoricalCause::as_str, HistoricalCause::parse);
         check(HistoricalConfirmation::ALL, HistoricalConfirmation::as_str, HistoricalConfirmation::parse);
+        check(StandingFinding::ALL, StandingFinding::as_str, StandingFinding::parse);
         check(SupportState::ALL, SupportState::as_str, SupportState::parse);
         check(SupportBehavior::ALL, SupportBehavior::as_str, SupportBehavior::parse);
         check(FrictionNormal::ALL, FrictionNormal::as_str, FrictionNormal::parse);
@@ -275,6 +292,6 @@ mod tests {
             assert!(seen.insert((entry.vocabulary, entry.tag)), "{entry:?}");
         }
         let names: std::collections::BTreeSet<_> = entries.iter().map(|e| e.vocabulary).collect();
-        assert_eq!(names.len(), 10);
+        assert_eq!(names.len(), 11);
     }
 }

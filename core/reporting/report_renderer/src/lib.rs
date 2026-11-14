@@ -1073,6 +1073,9 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                 let mut blocks = vec![table(&["Load case", "Label", "Basis", "Source"], rows)];
                 if let Some(record) = &input.numerical_standing {
                     blocks.push(subheading(STANDING_BY_LOAD_CASE_SUBHEADING));
+                    if let Some(findings) = standing::standing_findings_paragraph(record) {
+                        blocks.push(paragraph(&findings));
+                    }
                     blocks.push(table(
                         &["Load case", "Numerical health", "Integrity code", "Reasons", "Support-state confirmation", "Error figures"],
                         standing::case_rows(record),

@@ -31,9 +31,10 @@ fn the_gap_witness_is_read_and_states_an_unresolved_unconfirmed_case() {
     let (source, model, standing) = read(GAP_RAW, GAP_REQUEST);
     assert_eq!(standing["eligible"], false);
     assert_eq!(readability(&source, &standing), json!({"readable": true, "solved": true, "unreadable": []}));
-    let record = historical_standing_record(&source, &model).unwrap();
+    let record = historical_standing_record(&source, &model, &standing).unwrap();
     assert_eq!(record["record_version"], "historical_1");
     assert_eq!(record["figures"], json!({"status": "unavailable", "reason": "older_document"}));
+    assert_eq!(record["standing_findings"], json!(["NUMERICAL_INTEGRITY_NOT_QUALIFIED", "NUMERICAL_CASE_EVIDENCE_INCOMPLETE"]));
     for id in ["load:PRESSURE", "load:VACUUM"] {
         let c = case(&record, id);
         assert_eq!(c["health"], "quality_unresolved", "{id}");
@@ -53,7 +54,7 @@ fn the_coupled_friction_witness_is_read_and_states_a_sensitive_case_with_a_condi
     let (source, model, standing) = read(FRICTION_RAW, FRICTION_REQUEST);
     assert_eq!(standing["eligible"], false);
     assert_eq!(readability(&source, &standing), json!({"readable": true, "solved": true, "unreadable": []}));
-    let record = historical_standing_record(&source, &model).unwrap();
+    let record = historical_standing_record(&source, &model, &standing).unwrap();
     let c = case(&record, "load:RS-SUS");
     assert_eq!(c["health"], "sensitive");
     assert_eq!(c["integrity_code"], "NUMERICAL_INTEGRITY_SENSITIVE");
@@ -93,5 +94,5 @@ fn an_integrity_code_outside_the_vocabulary_is_never_given_a_known_meaning() {
     let invocation = json!({"request": {"model": model.clone(), "materials": []}, "solver_mode": "sparse_interactive"});
     let standing = standing(&source, Some(&model), Some(&invocation));
     assert_eq!(readability(&source, &standing)["unreadable"], json!(["SOURCE_PHYSICS_NONLINEAR_STANDING_CODE", NUMERICAL_CASE_RECORD_INCONSISTENT]));
-    assert_eq!(historical_standing_record(&source, &model).unwrap_err(), "NUMERICAL_TAG_UNSUPPORTED: historical_integrity_code");
+    assert_eq!(historical_standing_record(&source, &model, &standing).unwrap_err(), "NUMERICAL_TAG_UNSUPPORTED: historical_integrity_code");
 }

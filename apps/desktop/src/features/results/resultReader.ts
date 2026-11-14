@@ -160,15 +160,16 @@ export type ReportStandingReading = Readonly<{
 
 /** The report standing of a statement read with its model, by the one Rust reader. A
  * native handle is not read here: its report standing is the native host's. */
-export function readerReportStanding(source: unknown, model: unknown): ReportStandingReading {
+export function readerReportStanding(source: unknown, model: unknown, invocation?: unknown): ReportStandingReading {
   if (isNativeResult(source)) throw new ResultReaderError("REPORT-STANDING-NATIVE-HANDLE");
   unavailable();
   const sourceJson = readerSourceText(source);
   const modelJson = optionalText(model);
+  const invocationJson = optionalText(invocation);
   if (modelJson === undefined) throw new ResultReaderError("REPORT-STANDING-MODEL-REQUIRED");
   const e = engine()!;
-  return cached(sourceJson, `report_standing\u0000${modelJson}`, () =>
-    freeze(JSON.parse(e.readerReportStandingJson(sourceJson, modelJson)) as ReportStandingReading));
+  return cached(sourceJson, `report_standing\u0000${modelJson}\u0000${invocationJson ?? ""}`, () =>
+    freeze(JSON.parse(e.readerReportStandingJson(sourceJson, modelJson, invocationJson)) as ReportStandingReading));
 }
 
 /** G5 and G1: the header dispatch of this statement (route, table binding, refusal)

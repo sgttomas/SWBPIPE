@@ -42,7 +42,7 @@
 use crate::historical_health::{numerical_health, Location};
 use open_pipe_stress_numerical_vocabulary::{
     CaseHealth, EvidenceStatus, FrictionNormal, HistoricalCause, HistoricalConfirmation, HistoricalIntegrityCode, NoFigureReason, Premise,
-    SupportBehavior, SupportState,
+    StandingFinding, SupportBehavior, SupportState,
 };
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -65,8 +65,19 @@ const STATE_CODE_KIND: &str = "nonlinear_support_active_set_state_code";
 /// `NUMERICAL_TAG_UNSUPPORTED: <vocabulary>` for a tag outside the
 /// historical vocabularies. Callers derive it only for a result the reader
 /// reads (`reader_readability::readability`).
-pub fn historical_standing_record(source: &Value, model: &Value) -> Result<Value, String> {
+/// `standing` is `reader_verdict::standing`'s output for the same source and
+/// model; its findings that state the standing (`standing_finding`) are carried
+/// in order, each once.
+pub fn historical_standing_record(source: &Value, model: &Value, standing: &Value) -> Result<Value, String> {
     let unsupported = |vocabulary: &str| format!("{NUMERICAL_TAG_UNSUPPORTED}: {vocabulary}");
+    let mut findings: Vec<StandingFinding> = Vec::new();
+    for finding in standing["findings"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(Value::as_str) {
+        if let Some(tag) = StandingFinding::parse(finding) {
+            if !findings.contains(&tag) {
+                findings.push(tag);
+            }
+        }
+    }
     let supports = nonlinear_supports(model).map_err(|v| unsupported(v))?;
     let integrity_messages: HashMap<&str, &str> = source["diagnostics"]
         .as_array()
@@ -136,6 +147,7 @@ pub fn historical_standing_record(source: &Value, model: &Value) -> Result<Value
         "record_version": RECORD_VERSION,
         "evidence_member": "absent",
         "figures": {"status": EvidenceStatus::Unavailable.as_str(), "reason": NoFigureReason::OlderDocument.as_str()},
+        "standing_findings": findings.iter().map(|f| f.as_str()).collect::<Vec<_>>(),
         "counts": counts.iter().map(|(h, n)| json!({"health": h.as_str(), "cases": n})).collect::<Vec<_>>(),
         "cases": cases,
     }))

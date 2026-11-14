@@ -386,13 +386,23 @@ fn an_undecodable_input_names_its_path_and_kind_not_its_value() {
 /// physics-retained-1 still refuses at step 0.
 #[test]
 fn production_native_render_binds_a_coherent_exact_input_before_rendering() {
-    let exact = with_exact_route(pressure_free_input());
+    let mut exact = with_exact_route(pressure_free_input());
+    // A renderer-only input states a standing record (DEL-08-01 REQ-024); the native
+    // binding is what re-derives one from a bound result.
+    exact["numerical_standing"] = json!({
+        "record_version": "historical_1", "evidence_member": "absent",
+        "figures": {"status": "unavailable", "reason": "older_document"}, "standing_findings": [],
+        "counts": [{"health": "checks_passed", "cases": 1}, {"health": "sensitive", "cases": 0}, {"health": "quality_unresolved", "cases": 0}, {"health": "solve_failed", "cases": 0}, {"health": "not_assessed", "cases": 0}],
+        "cases": [{"case_id": "case:invented-a", "health": "checks_passed", "integrity_code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+            "integrity_diagnostic_id": "diagnostic:numerical-integrity:case:invented-a", "causes": [],
+            "confirmation": {"outcome": "not_applicable", "detail": null, "status": null, "premises": []}, "supports": []}]
+    });
     // Coherent: the renderer itself renders it unblocked, with the exact block
     // and the composed standing line.
     let rendered = crate::render_calculation_report_value(exact.clone()).expect("the renderer renders it");
     assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
     let html = rendered["html"].as_str().unwrap();
-    assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: integrity checked"));
+    assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: read by the Rust reader"));
     assert_eq!(check_render_route_admitted(&exact, PRODUCTION), Ok(()));
     // Without a report context, the exact render refuses before its binding
     // (Codex review round 1 of #1648).
@@ -1493,7 +1503,7 @@ mod direct_native {
         let rendered = production_render_on(&live, &genuine_render_args(&w, &live.job)).expect("the genuine input renders");
         assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
         let html = rendered["html"].as_str().unwrap();
-        assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: integrity checked"));
+        assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: read by the Rust reader"));
         assert!(html.contains(EXACT_HEADLINES_SUBHEADING) && html.contains("[reduced section]"));
         assert!(live.registry.custody_binding(&live.job).is_some(), "the render keeps no bytes and releases no custody");
     }
@@ -1678,7 +1688,8 @@ mod direct_native {
                 ]
             } else {
                 &[
-                    "Numerical health, as the solver reports it: 0 checks passed, 1 sensitive, 0 quality unresolved, 0 not assessed, of 1 load cases.",
+                    "Numerical health, as the solver reports it: 0 checks passed, 1 sensitive, 0 quality unresolved, 0 not assessed, of 1 load case.",
+                    "The product reader&#39;s findings on this result&#39;s standing: Not every load case of this result is checks passed",
                     "Computed state: sliding. Not confirmed: the solver&#39;s confirmation reports this state established, conditional on the solver&#39;s inverse-norm step.",
                     "friction, normal force derived from another support&#39;s reaction",
                 ]

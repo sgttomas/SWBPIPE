@@ -1050,7 +1050,7 @@ pub fn reader_report_standing_json(
     let standing = rv::standing(&source, Some(&model), invocation.as_ref());
     let readability = reader_readability::readability(&source, &standing);
     let (record, refusal) = if readability["readable"] == true && readability["solved"] == true {
-        match report_standing::historical_standing_record(&source, &model) {
+        match report_standing::historical_standing_record(&source, &model, &standing) {
             Ok(record) => (record, Value::Null),
             Err(refusal) => (Value::Null, Value::String(refusal)),
         }

@@ -21,8 +21,7 @@
  * Standard claim fence applies (claims taxonomy per DEC-081). */
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { buildCurrentResultExport, resultDigest, type CurrentResultExportPurpose, type JsonObject } from "../result-export/resultExportAdapter";
-import { readerReportStanding } from "../results/resultReader";
-import { numericalResultStanding } from "../results/resultStanding";
+import { numericalResultStanding, reportStanding } from "../results/resultStanding";
 import { canonicalSha256Hex, checkedJsonText } from "../../services/hashService";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import {
@@ -119,7 +118,7 @@ export async function admitExactReportSource(inputs: ExactReportAdmissionInputs)
   const solverMode = inputManifest?.manifest?.solver_basis?.solver_mode ?? "";
   const purpose = inputs.purpose ?? "result-export";
   const document = await buildCurrentResultExport({ model, result, analysisRun, inputManifest, purpose });
-  const reading = readerReportStanding(result, model);
+  const reading = reportStanding(result, model);
   if (reading.numerical_standing === null) throw mismatch(`numerical_standing${reading.standing_refusal ? `: ${reading.standing_refusal}` : ""}`);
   const numericalStanding = reading.numerical_standing;
   const envelope = document.result_envelope as JsonObject | undefined;
@@ -191,7 +190,7 @@ export function checkExactReportAdmission(admission: unknown, inputs: ExactRepor
   let admitted = false;
   try {
     if (record.purpose === "report-render") {
-      const reading = readerReportStanding(result, model);
+      const reading = reportStanding(result, model);
       admitted = reading.readability.readable && reading.readability.solved;
     } else {
       admitted = numericalResultStanding(result, model).eligible;

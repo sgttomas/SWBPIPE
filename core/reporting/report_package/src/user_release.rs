@@ -1041,6 +1041,12 @@ fn derive_in(basis: &UserReleaseBasis<'_>, custody: Option<(&str, &str)>) -> Res
         request["report"]["exact_route"] = serde_json::to_value(crate::exact_sections::expected_exact_route_section(
             source, &document, &audit, job, bytes_hash,
         )?).map_err(|_| invalid("exact section serialization"))?;
+        // DEL-08-01 REQ-024: the standing record the reader derives from the bound
+        // result and model, as the desktop's builder carries it.
+        let invocation = json!({"request": {"model": model.clone(), "materials": []}, "solver_mode": basis.solver_mode});
+        let standing = open_pipe_stress_result_export::reader_verdict::standing(source, Some(model), Some(&invocation));
+        request["report"]["numerical_standing"] = open_pipe_stress_result_export::report_standing::historical_standing_record(source, model, &standing)
+            .map_err(|refusal| invalid(format_args!("numerical standing: {refusal}")))?;
         crate::bindings::check_report_diagnostics(&request["report"], source)?;
         crate::exact_sections::check_exact_sections(source, &document, &audit, &request["report"])?;
     }

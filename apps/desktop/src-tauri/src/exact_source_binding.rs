@@ -138,8 +138,9 @@ pub(crate) struct BoundSource {
     pub model: Value,
     /// `digest(model)`: the solved model's canonical SHA-256.
     pub model_sha256: String,
-    /// The native reading's unchanged `eligible` verdict.
-    pub eligible: bool,
+    /// The native reading's standing (`reader_verdict::standing`), whose
+    /// standing findings the report's standing record carries.
+    pub standing: Value,
 }
 
 /// Steps 3-5, after the command's lease covers the priced parse of
@@ -150,11 +151,23 @@ pub(crate) struct BoundSource {
 /// (`{request: {model, materials: []}, solver_mode}`, the form of the
 /// desktop's `NativeMechanicsInvocation`), then bind the admission's result
 /// and model digests to them.
+/// What a binding admits the delivered result for (DEL-08-01 REQ-017 and
+/// REQ-024's present account).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SourceAdmission {
+    /// The rendered report and its print view: any solved result the reader reads.
+    Render,
+    /// The package save and the user release: still a numerically eligible result,
+    /// refused at step 4 as before (LIM-016).
+    Eligible,
+}
+
 pub(crate) fn read_delivered_source(
     admission: &Value,
     digests: &CustodyDigests,
     result_text: &str,
     intake_text: &str,
+    kind: SourceAdmission,
 ) -> Result<BoundSource, ExactRefusal> {
     let source: Value = serde_json::from_str(result_text).map_err(|_| not_delivered("result"))?;
     guard_json(&source).map_err(|_| not_delivered("result"))?;
@@ -182,6 +195,9 @@ pub(crate) fn read_delivered_source(
         });
     }
     let eligible = standing["eligible"] == Value::Bool(true);
+    if kind == SourceAdmission::Eligible && !eligible {
+        return Err(not_eligible());
+    }
     let source_sha256 = digest(&source).map_err(|_| not_delivered("result"))?;
     if source_sha256 != binding_text(admission, "received_result_sha256") {
         return Err(not_delivered("result"));
@@ -190,18 +206,15 @@ pub(crate) fn read_delivered_source(
     if model_sha256 != binding_text(admission, "model_sha256") {
         return Err(not_delivered("model"));
     }
-    Ok(BoundSource { source, model, model_sha256, eligible })
+    Ok(BoundSource { source, model, model_sha256, standing })
 }
 
 /// DEL-08-01 REQ-024's present account (LIM-016): the package save and the
-/// user release still require a numerically eligible result, with today's
-/// refusal; the rendered report does not.
-pub(crate) fn require_eligible(bound: &BoundSource) -> Result<(), ExactRefusal> {
-    if bound.eligible {
-        return Ok(());
-    }
-    Err(ExactRefusal {
+/// user release still refuse a result that is not numerically eligible, with
+/// today's refusal at today's step; the rendered report does not.
+fn not_eligible() -> ExactRefusal {
+    ExactRefusal {
         code: STANDING_NOT_ELIGIBLE,
         message: format!("{STANDING_NOT_ELIGIBLE}: the native reading of the delivered result is not numerically eligible."),
-    })
+    }
 }

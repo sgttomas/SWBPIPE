@@ -1,7 +1,7 @@
 import { refuseSurfaceOutput, refuseSurfaceRoute } from '../results/outputPolicy';
 import { RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure, retainedRowClassesFromReader } from '../results/retainedPrecisionDisclosure';
-import { readerReportStanding, readerRowSemantics, readerValidate, sourceContract, sourceSemanticBinding } from "../results/resultReader";
-import { numericalResultStanding } from "../results/resultStanding";
+import { readerRowSemantics, readerValidate, sourceContract, sourceSemanticBinding } from "../results/resultReader";
+import { numericalResultStanding, reportStanding } from "../results/resultStanding";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute } from '../results/numericalResultQuality';
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from '../../types';
@@ -263,7 +263,7 @@ export type CurrentResultExportPurpose='result-export'|'report-render';
 /** The Current builder's standing admission for `purpose`. */
 function currentStandingAdmitted(result:MechanicsResult,model:PreviewModel,purpose:CurrentResultExportPurpose):boolean{
   if(purpose==='result-export')return numericalResultStanding(result,model).eligible;
-  try{const reading=readerReportStanding(result,model);return reading.readability.readable&&reading.readability.solved;}catch{return false;}
+  try{const reading=reportStanding(result,model);return reading.readability.readable&&reading.readability.solved;}catch{return false;}
 }
 export async function buildCurrentResultExport({model,result,analysisRun,inputManifest,purpose='result-export'}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined;purpose?:CurrentResultExportPurpose}):Promise<JsonObject>{
   guardResultJson(model);guardResultJson(result);guardResultJson(analysisRun);

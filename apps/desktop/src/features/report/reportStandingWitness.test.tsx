@@ -23,8 +23,7 @@ import type { MechanicsResult, PreviewModel } from "../../types";
 import { createSolveJobTransport } from "../../test/nativeMechanicsReplay";
 import { buildAnalysisRunPreview, resetSessionResultCustodyForTests, runPreviewMechanics } from "../../services/previewService";
 import { buildCurrentSessionInputManifest, type CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
-import { numericalResultStanding } from "../results/resultStanding";
-import { readerReportStanding } from "../results/resultReader";
+import { numericalResultStanding, reportStanding } from "../results/resultStanding";
 import { assembleRenderedReport } from "./renderedReportAssembly";
 import { buildReportPackageRequest } from "./reportPackageRequest";
 
@@ -78,7 +77,7 @@ describe("report standing witnesses (DEL-08-01 REQ-024)", () => {
       const session = await solve(item);
       const { model, result, analysisRun, inputManifest } = session;
       expect(numericalResultStanding(result, model).eligible, item.name).toBe(false);
-      const reading = readerReportStanding(result, model);
+      const reading = reportStanding(result, model);
       expect(reading.readability, item.name).toEqual({ readable: true, solved: true, unreadable: [] });
       const assembly = await assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
       const input = assembly.input as Json;

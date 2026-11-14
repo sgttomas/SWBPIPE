@@ -11,7 +11,7 @@
  * registered source is Rust's with that invocation. A copy, a header, a hash or a saved
  * record never registers, and any later byte change voids it. G3 (the caller's model is
  * the dispatched one) is previewService's capture check. */
-import { readerDispatch, readerSourceText, recordedReaderDispatch, readerValidate, ResultReaderError, type ReaderStanding, type ReaderValidation } from "./resultReader";
+import { readerDispatch, readerReportStanding, readerSourceText, recordedReaderDispatch, readerValidate, ResultReaderError, type ReaderStanding, type ReaderValidation, type ReportStandingReading } from "./resultReader";
 import { retainedPrecisionStanding } from "./retainedPrecisionStanding";
 import { isRetainedRoute, RETAINED_STANDING_STATUS, type SourceContract } from "./numericalResultQuality";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -118,6 +118,15 @@ export function recordedResultStanding(source: MechanicsResult, binding: Readonl
   if (route === "pressure_source") return numericalResultStanding(source, model);
   return presented(recordedReaderDispatch(source, binding, model).standing);
 }
+/** DEL-08-01 REQ-024: the report standing of a statement for the current model, read as
+ * its numerical standing is (Rust's, with the registered invocation for a source route):
+ * the standing, the readability verdict beside it and the standing record a report states. */
+export function reportStanding(source: MechanicsResult, model: PreviewModel): ReportStandingReading {
+  const route = readerDispatch(source).route;
+  const invocation = route === "pressure_source" ? registeredInvocation(source, model, route) ?? undefined : undefined;
+  return readerReportStanding(source, model, invocation);
+}
+
 /** The numerical standing of a statement for the current model: Rust's, with the
  * registered invocation for a source route (G4). A successor's standing is R1's
  * registered reader validation with the live native capture. */

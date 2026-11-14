@@ -1094,12 +1094,17 @@ fn bind_exact_save_source(
     let digests = exact_binding::check_custody(&admission, custody).map_err(|refusal| exact_refused(refusal, &format!("{ADMISSION}/native_job_id")))?;
     exact_binding::check_delivered_texts(&admission, &digests, exact_result_text, exact_intake_text)
         .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
-    let bound = exact_binding::read_delivered_source(&admission, &digests, exact_result_text.unwrap_or(""), exact_intake_text.unwrap_or(""))
-        .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
-    exact_binding::require_eligible(&bound).map_err(|refusal| exact_refused(refusal, ADMISSION))?;
+    let bound = exact_binding::read_delivered_source(
+        &admission,
+        &digests,
+        exact_result_text.unwrap_or(""),
+        exact_intake_text.unwrap_or(""),
+        exact_binding::SourceAdmission::Eligible,
+    )
+    .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
     // DEL-08-01 REQ-024: the packaged report states the standing record the reader
     // derives from the bound result and model, exactly.
-    let derived = open_pipe_stress_result_export::report_standing::historical_standing_record(&bound.source, &bound.model).ok();
+    let derived = open_pipe_stress_result_export::report_standing::historical_standing_record(&bound.source, &bound.model, &bound.standing).ok();
     if derived.is_none() || request.pointer("/report/numerical_standing") != derived.as_ref() {
         return Err(exact_refused(exact_binding::sections_mismatch("numerical_standing"), "/request/report/numerical_standing"));
     }

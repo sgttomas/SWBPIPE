@@ -14,7 +14,7 @@
 
 use crate::command_ingress::test_support::admit_json;
 use crate::command_ingress::{ArgsDecoding, CommandError};
-use crate::exact_source_binding::{SECTIONS_MISMATCH, STANDING_NOT_ELIGIBLE};
+use crate::exact_source_binding::{RESULT_NOT_READABLE, SECTIONS_MISMATCH};
 use crate::memory_pool::test_host::ScriptedHost;
 use crate::report_package_save::test_support::{desktop_request_from, input_manifest, model, witness_source};
 use crate::report_render_exact::PF_TIMOSHENKO_SECTION;
@@ -102,6 +102,13 @@ fn case_of(model: Value, source: Value) -> Case {
             "native_job_id": job,
             "received_bytes_sha256": sha256_hex(&result),
         }});
+    // DEL-08-01 REQ-024: the standing record the desktop's builder carries, as the reader
+    // derives it from this source and model (the native host re-derives it).
+    let invocation = json!({"request": {"model": model.clone(), "materials": []}, "solver_mode": MODE});
+    let standing = open_pipe_stress_result_export::reader_verdict::standing(&source, Some(&model), Some(&invocation));
+    if let Ok(record) = open_pipe_stress_result_export::report_standing::historical_standing_record(&source, &model, &standing) {
+        input["numerical_standing"] = record;
+    }
     Case { registry, _gate: gate, input, result, intake, manifest: manifest_text }
 }
 
@@ -177,11 +184,13 @@ fn removing_or_altering_the_arc_diagnostic_keeping_the_result_is_refused() {
     refused(&case, &refs, true, SECTIONS_MISMATCH, "diagnostic references altered");
 }
 
+/// DEL-08-01 REQ-017: a crossed pair is a reader refusal (the model's shear model does
+/// not select the result's identity), so the result is unreadable and refuses by name.
 #[test]
-fn a_crossed_model_is_not_eligible_at_the_native_binding() {
+fn a_crossed_model_is_not_readable_at_the_native_binding() {
     // The same Timoshenko result delivered from a model that does not select Timoshenko.
     let case = case("euler_bernoulli");
-    refused(&case, &case.input, true, STANDING_NOT_ELIGIBLE, "crossed pair");
+    refused(&case, &case.input, true, RESULT_NOT_READABLE, "crossed pair");
 }
 
 /// The product's own Timoshenko result with a realized arc (the frozen

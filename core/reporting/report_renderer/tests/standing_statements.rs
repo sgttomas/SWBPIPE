@@ -91,3 +91,39 @@ fn the_committed_catalogue_and_statement_table_agree() {
     };
     assert_eq!(pairs(&read("numerical_vocabulary.json"), "tags"), pairs(&read("standing_statements.json"), "statements"));
 }
+
+/// VER-016: a standing record carrying a tag outside the vocabulary is refused
+/// when the renderer input is decoded, by name, and never read as a known tag.
+#[test]
+fn a_record_carrying_a_tag_outside_the_vocabulary_is_refused_by_name() {
+    use open_pipe_stress_report_renderer::standing::NumericalStanding;
+    let record = json!({
+        "record_version": "historical_1",
+        "evidence_member": "absent",
+        "figures": {"status": "unavailable", "reason": "older_document"},
+        "standing_findings": [],
+        "counts": [{"health": "checks_passed", "cases": 1}],
+        "cases": [{
+            "case_id": "case:a", "health": "checks_passed", "integrity_code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+            "integrity_diagnostic_id": null, "causes": [],
+            "confirmation": {"outcome": "not_applicable", "detail": null, "status": null, "premises": []},
+            "supports": []
+        }]
+    });
+    assert!(serde_json::from_value::<NumericalStanding>(record.clone()).is_ok());
+    for (pointer, value, vocabulary) in [
+        ("/cases/0/health", "checks_passed_enough", "case_health"),
+        ("/cases/0/integrity_code", "NUMERICAL_INTEGRITY_SENSITIVE_ENOUGH", "historical_integrity_code"),
+        ("/cases/0/confirmation/outcome", "confirmed", "historical_confirmation"),
+        ("/standing_findings", "x", "standing_finding"),
+    ] {
+        let mut altered = record.clone();
+        if pointer == "/standing_findings" {
+            altered["standing_findings"] = json!([value]);
+        } else {
+            *altered.pointer_mut(pointer).unwrap() = json!(value);
+        }
+        let error = serde_json::from_value::<NumericalStanding>(altered).unwrap_err().to_string();
+        assert!(error.contains(&format!("NUMERICAL_TAG_UNSUPPORTED: {vocabulary}")), "{pointer}: {error}");
+    }
+}

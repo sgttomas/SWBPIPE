@@ -13,7 +13,7 @@
 //! emission, and never interpreted.
 use open_pipe_stress_numerical_vocabulary::{
     CaseHealth, EvidenceStatus, FrictionNormal, HistoricalCause, HistoricalConfirmation, HistoricalIntegrityCode, NoFigureReason, Premise,
-    SupportBehavior, SupportState,
+    StandingFinding, SupportBehavior, SupportState,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -42,6 +42,7 @@ vocabulary_tag!(
     HistoricalIntegrityCode,
     NoFigureReason,
     Premise,
+    StandingFinding,
     SupportBehavior,
     SupportState
 );
@@ -77,6 +78,7 @@ pub struct NumericalStanding {
     pub record_version: String,
     pub evidence_member: String,
     pub figures: Figures,
+    pub standing_findings: Vec<Tag<StandingFinding>>,
     pub counts: Vec<HealthCount>,
     pub cases: Vec<CaseStanding>,
 }
@@ -169,6 +171,38 @@ pub fn cause_statement(cause: HistoricalCause) -> &'static str {
         HistoricalCause::Mechanism => "Solve failed: the solver found the model to be a mechanism.",
         HistoricalCause::NegativeEnergy => "Solve failed: the solver found negative strain energy in the model.",
     }
+}
+
+/// The product reader's standing findings: each one's statement.
+pub fn standing_finding_statement(finding: StandingFinding) -> &'static str {
+    match finding {
+        StandingFinding::NotQualified => "Not every load case of this result is checks passed, so the product reader does not find it numerically eligible.",
+        StandingFinding::CaseEvidenceIncomplete => {
+            "At least one load case's record is not a checks-passed record; each load case's numerical health is stated by load case."
+        }
+        StandingFinding::SourceBlocksCaseUnqualified => "At least one load case of the pressure source's recovery is not qualified.",
+        StandingFinding::SourceBlocksPhysicalRowInspectionOnly => {
+            "Some physical-quantity rows are given for inspection only: the pressure source's recovery does not qualify them."
+        }
+        StandingFinding::SourceBlocksEnvelopeUnqualified => {
+            "The pressure source's recovery does not qualify the result as a whole, or the model has combinations it does not qualify."
+        }
+        StandingFinding::LoadReferenceSourceNotEligible => {
+            "This result includes load/reference states, which the product reader does not find numerically eligible on this route."
+        }
+        StandingFinding::RetainedNotEligible => "The retained-precision reading does not find this result numerically eligible.",
+    }
+}
+
+/// The paragraph that states the reader's standing findings, or none without any.
+pub fn standing_findings_paragraph(standing: &NumericalStanding) -> Option<String> {
+    if standing.standing_findings.is_empty() {
+        return None;
+    }
+    Some(format!(
+        "The product reader's findings on this result's standing: {}",
+        standing.standing_findings.iter().map(|f| format!("{} ({})", standing_finding_statement(f.0), f.0.as_str())).collect::<Vec<_>>().join(" ")
+    ))
 }
 
 /// The integrity code's display: the code itself, as the solver published it.
@@ -305,16 +339,18 @@ pub fn standing_line(standing: &NumericalStanding) -> String {
     let canonical = if passed > 0 { format!(" {NQ_HEALTH_CANONICAL}") } else { String::new() };
     if n > 0 && passed == n {
         format!(
-            "Numerical health, as the solver reports it: checks passed for all {n} load cases. The solver's checks-passed verdict rests on its inverse-norm step, which the product does not establish; the numerical conditions supporting this verdict have not been established. The evidence status of each figure and support state is stated with it; see Numerical Standing by Load Case and Limitations, What the solver's error figures rest on.{canonical}"
+            "Numerical health, as the solver reports it: checks passed for {}. The solver's checks-passed verdict rests on its inverse-norm step, which the product does not establish; the numerical conditions supporting this verdict have not been established. The evidence status of each figure and support state is stated with it; see Numerical Standing by Load Case and Limitations, What the solver's error figures rest on.{canonical}",
+            if n == 1 { "its one load case".to_string() } else { format!("all {n} load cases") }
         )
     } else {
         let failed = count(standing, CaseHealth::SolveFailed);
         let failed_text = if failed > 0 { format!(", {failed} solve failed") } else { String::new() };
         format!(
-            "Numerical health, as the solver reports it: {passed} checks passed, {} sensitive, {} quality unresolved, {} not assessed{failed_text}, of {n} load cases. Any checks-passed verdict rests on the solver's inverse-norm step, which the product does not establish; the numerical conditions supporting this verdict have not been established. Each value carries its load case's health and the evidence status of its error figure; see Numerical Standing by Load Case and Limitations, What the solver's error figures rest on.{canonical}",
+            "Numerical health, as the solver reports it: {passed} checks passed, {} sensitive, {} quality unresolved, {} not assessed{failed_text}, of {n} {}. Any checks-passed verdict rests on the solver's inverse-norm step, which the product does not establish; the numerical conditions supporting this verdict have not been established. Each value carries its load case's health and the evidence status of its error figure; see Numerical Standing by Load Case and Limitations, What the solver's error figures rest on.{canonical}",
             count(standing, CaseHealth::Sensitive),
             count(standing, CaseHealth::QualityUnresolved),
             count(standing, CaseHealth::NotAssessed),
+            if n == 1 { "load case" } else { "load cases" },
         )
     }
 }
@@ -377,6 +413,9 @@ pub fn statement_table() -> Vec<(&'static str, &'static str, String)> {
     }
     for c in HistoricalCause::ALL {
         out.push((HistoricalCause::VOCABULARY, c.as_str(), cause_statement(*c).to_string()));
+    }
+    for f in StandingFinding::ALL {
+        out.push((StandingFinding::VOCABULARY, f.as_str(), standing_finding_statement(*f).to_string()));
     }
     for c in HistoricalConfirmation::ALL {
         out.push((HistoricalConfirmation::VOCABULARY, c.as_str(), confirmation_statement(*c).to_string()));
