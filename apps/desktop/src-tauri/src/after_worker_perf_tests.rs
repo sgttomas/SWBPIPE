@@ -479,6 +479,12 @@ fn child(kind: &str) -> Value {
     report["allocation"] = allocation;
     report["footprint_basis"] = json!("phys_footprint at call edges is a point reading, not a per-call peak; lifetime_max_footprint is this process's maximum since it started (cumulative), not the call's; the worker is another process and is in neither");
     report["timing_basis"] = json!("calls[].wall_ms is the native call alone; calls[].post_call_ms (the reply write and the pre-check) is outside it and inside sequence_wall_ms");
+    report["capture_overhead"] = json!({
+        "inside each call's own marks": "the request's Value and its raw body (about twice args_bytes; the webview's ingress hands the command the same body) and the HeaderMap the command reads",
+        "post_call (its own mark)": "the reply write (no copy) and the structural pre-check's transient; replies are written and dropped before the next call, never held",
+        "held across calls": "the records and the replies manifest entries (kilobytes), and the pre-checks' small decoded results (the route, standing, producer, omitted members, first-page ordinals)",
+        "between calls, in the next call's peak_between": "the input manifest built before run_preview (a canonical copy of the model, a few MB)",
+    });
     report["parse_lease_basis"] = json!("M for the header, registration, standing and summary leases is their source_admit phase line; run_preview's parse, the detail index's route parse and the semantics' working lease have no phase line: their M is result.parse_lease_m_by_prescan (the same prescan bound of the same text), the semantics' lease adding its rows and working allowance");
     report["full_parse_basis"] = json!("counted from phase lines where they exist; from source, run_preview parses the text once, the first rows query once (the detail index's route table, kept on the share afterwards) and the row semantics once");
     report["after_sequence"] = json!({"phys_footprint": worker_alloc::phys_footprint(), "lifetime_max_footprint": worker_alloc::lifetime_max_footprint(), "pool_reserved_bytes": registry.pool().reserved_total()});
@@ -853,24 +859,50 @@ fn le_u64(bytes: &[u8], at: usize) -> Option<u64> {
 /// A structural pre-check of S's framing and the header members the sequence reads; the web's
 /// `decodeResultSummary` (planes, descriptors and values) judges the kept reply.
 fn accept_summary(reply: &[u8]) -> Accepted {
+    // Only the members the sequence reads are deserialized; serde_json skips every other member
+    // (the tables, the values, the envelope's carried members) without building a tree, so the
+    // pre-check holds nothing of S's size after it returns (Agent 0's condition 5).
+    #[derive(serde::Deserialize)]
+    struct Head {
+        document_kind: String,
+        version: u64,
+        planes_bytes: u64,
+        planes: Vec<serde::de::IgnoredAny>,
+        envelope: Envelope,
+        omitted_members: Vec<String>,
+    }
+    #[derive(serde::Deserialize)]
+    struct Envelope {
+        #[serde(default)]
+        model_ref: Value,
+        #[serde(default)]
+        producer: Option<Producer>,
+    }
+    #[derive(serde::Deserialize)]
+    struct Producer {
+        component_name: Option<String>,
+        component_version: Option<String>,
+        semantic_contract_id: Option<String>,
+    }
     if reply.len() < 16 || &reply[..8] != b"SWBSUMv1" {
         return Err("not a result summary".into());
     }
     let length = le_u64(reply, 8).unwrap() as usize;
     let head = 16usize.checked_add(length).filter(|&h| h <= reply.len()).ok_or("the header runs past the end")?;
-    let header: Value = serde_json::from_slice(&reply[16..head]).map_err(|e| format!("the header is not JSON: {e}"))?;
-    object(&header, "the header")?;
+    let header: Head = serde_json::from_slice(&reply[16..head]).map_err(|e| format!("the header is not the summary's: {e}"))?;
     let start = head + (8 - head % 8) % 8;
     if start > reply.len() || reply[head..start].iter().any(|&b| b != 0) {
         return Err("the padding is not zero".into());
     }
-    if header["planes_bytes"].as_u64() != Some((reply.len() - start) as u64) || !header["planes"].is_array() {
+    if header.planes_bytes != (reply.len() - start) as u64 {
         return Err("the planes are not the response's remaining bytes".into());
     }
-    if header["document_kind"] != "swbpipe.desktop.result_summary" || header["version"] != 1 || !header["envelope"].is_object() {
+    if header.document_kind != "swbpipe.desktop.result_summary" || header.version != 1 {
         return Err("another document kind or version".into());
     }
-    Ok(json!({"envelope": header["envelope"], "omitted_members": header["omitted_members"], "row_count": header["row_count"]}))
+    let _ = header.planes.len();
+    let producer = header.envelope.producer.map(|p| json!({"component_name": p.component_name, "component_version": p.component_version, "semantic_contract_id": p.semantic_contract_id}));
+    Ok(json!({"envelope": {"model_ref": header.envelope.model_ref, "producer": producer}, "omitted_members": header.omitted_members}))
 }
 
 /// Structural pre-check after `decodeAnalysisRunPreview` (which judges the kept reply).
