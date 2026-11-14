@@ -2,6 +2,7 @@
 from copy import deepcopy
 import json
 import os
+import re
 from pathlib import Path
 import runpy
 import shutil
@@ -66,6 +67,41 @@ ALIAS_SITES=[(MODEL["FK"]+"structural.rs",MODEL["SOURCE_LINE"],"clone_text")]+[
     (row["file"],row["line"],row["kind"]) for row in
     MODEL["PREIMAGES"]["group_rows"][:1]+MODEL["PREIMAGES"]["aux_rows"]+MODEL["PREIMAGES"]["helper_rows"]
     +MODEL["PREIMAGES"]["error_rows"][1:]]
+# The same sites stated independently of the model, by enclosing function and line text (and which occurrence of
+# that text in the function), so that a row deleted from the model cannot delete its coverage.
+EXPECTED_ALIAS_SITES=[
+    ("structural.rs","clone_text","row_sources","let mut sources: Vec<String> = terms.iter().map(|t| t.source.clone()).collect();",0),
+    ("retained_product.rs","format","validate_final_metadata",'format!("result:disp:{suffix}")',0),
+    ("retained_product.rs","format","validate_final_metadata",'format!("positive value follows the global cartesian {axis} axis displacement of the node")',0),
+    ("retained_product.rs","format","validate_final_metadata",'format!("positive value follows the right-hand-rule rotation about the global cartesian {axis} axis")',0),
+    ("retained_product.rs","format","validate_final_metadata",'(station_id_location(loc),"recovered_from_open_mechanics_stress_components",format!("{prefix}; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"))',0),
+    ("retained_product.rs","format","validate_final_metadata",'format!("result:combination:{}:{}", stable_suffix(id), super::result_tail(&expected))',0),
+    ("retained_product.rs","to_string","validate_final_metadata","STRAIGHT_ENDPOINT_SECTION_SIGN_CONVENTION.to_string(),",0),
+    ("lib.rs","format","qualified_load_case_result_id","format!(",0),
+    ("lib.rs","replace","stable_suffix","id.replace(':', \"-\")",0),
+    ("retained_product.rs","format","validate_final_metadata","return Err(CaptureError::Association(format!(",0),
+    ("retained_product.rs","format","validate_final_metadata","return Err(CaptureError::Association(format!(",1),
+]
+
+
+def enclosing_site(file,line):
+    """(basename, enclosing fn, stripped text, occurrence of that text within the fn) of a source line."""
+    lines=(SOURCE/file).read_bytes().decode().split("\n")
+    start=line-1
+    while start>=0 and not re.match(r"^\s*(pub(\([^)]*\))?\s+)?fn\s+\w+",lines[start]):start-=1
+    assert start>=0,(file,line)
+    function=re.match(r"^\s*(pub(\([^)]*\))?\s+)?fn\s+(\w+)",lines[start]).group(3)
+    text=lines[line-1].strip()
+    occurrence=sum(1 for i in range(start,line-1) if lines[i].strip()==text)
+    return file.rsplit("/",1)[1],function,text,occurrence
+
+
+def test_the_alias_sites_are_exactly_the_expected_owner_sites():
+    observed=sorted((name,kind,function,text,occurrence) for file,line,kind in ALIAS_SITES
+                    for name,function,text,occurrence in [enclosing_site(file,line)])
+    assert observed==sorted(EXPECTED_ALIAS_SITES)
+
+
 @pytest.mark.parametrize("family",["site_zero","site_from","site_total","site_aggregate","site_size","lex_site_size"])
 @pytest.mark.parametrize("site",ALIAS_SITES,ids=lambda site:f"{site[0].rsplit('/',1)[1]}:{site[1]}")
 def test_complete_group_source_error_and_auxiliary_alias_refusal(family,site):
