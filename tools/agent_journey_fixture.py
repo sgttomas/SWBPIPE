@@ -46,12 +46,15 @@ from tools.agent_live_session_fixture import (  # noqa: E402  (the live-session 
     Records, Refusal, Scope, anchor_start, bounded_wait, cleanup_anchor, pid_live,
 )
 from tools import agent_journey_memory_monitor as memory_monitor  # noqa: E402
+from tools import native_launch_guard  # noqa: E402
 
 PROJECT = Path(__file__).resolve().parents[1]
 FIXTURE = PROJECT / "fixtures" / "model_operations" / "agent_w9a_journey.json"
 REFERENCES = PROJECT / "validation" / "references" / "w9_benchmarks" / "references.json"
 PIN = PROJECT / "fixtures" / "embedded_agent" / "agent-witness-pin.json"
 DRIVER = PROJECT / "apps" / "desktop" / "native-smoke" / "agent-journey.js"
+TAURI_CONF = PROJECT / "apps" / "desktop" / "src-tauri" / "tauri.conf.json"
+GUARD_EXIT = 5  # the launch guard did not find the run clean: never a pass
 STEPS = ["new blank", "provider and start", "turn 1", "apply", "turn 2", "observe", "stop"]
 TURNS = [
     "Build the W9-A L-frame from the blank model as one batch for my review: material W9 steel "
@@ -490,18 +493,15 @@ class Lines:
         return found[0] if found else None
 
 
-def preflight(args, root):
+def preflight(args, root, guard):
     """The live-session fixture's standalone preflight: probes only, no supplier or relay."""
-    state = root / "preflight"
-    state.mkdir(mode=0o700)
-    app = subprocess.Popen([str(args.app), "--native-agent-session-fixture"], stdin=subprocess.PIPE,
-                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env={"PATH": "/usr/bin:/bin"})
+    # The first frame is the helper's: its state folder inside the throwaway home, the probes checked.
+    frame = guard.run.fixture_frame(model="preflight", context_window=32768, endpoint="http://127.0.0.1:9/v1", key=None,
+                                    mode="preflight", process_probe=args.process_probe, boundary_probe=args.boundary_probe)
+    app = guard.launch("preflight", [str(args.app), "--native-agent-session-fixture"], {}, frame=frame, close_stdin=True,
+                       stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     records = Records(app.stdout)
     try:
-        app.stdin.write(json.dumps({"state": str(state), "model": "preflight", "contextWindow": 32768,
-                                    "endpoint": "http://127.0.0.1:9/v1", "key": None, "mode": "preflight",
-                                    "processProbe": str(args.process_probe), "boundaryProbe": str(args.boundary_probe)}).encode() + b"\n")
-        app.stdin.close()
         app.wait(timeout=120)
         records.finish(time.monotonic() + 5)
     finally:
@@ -512,20 +512,118 @@ def preflight(args, root):
     return {"passed": passed, "status": app.returncode, "records": [r["record"] for r in records.records]}
 
 
+class LaunchGuard:
+    """The journey's one run of the launch helper (tools/native_launch_guard.py, `Run`): every start
+    of the application executable in the journey, the preflight included, goes through `launch`,
+    which the helper's run alone performs. `start` admits the run, takes the Library baseline and
+    makes the throwaway home; `finish` compares, persists the comparison, lists the home and marks
+    the run finished in the kit's inventory, whatever the outcome. Nothing is removed."""
+
+    library = None  # the real Library; offline tests alone set another
+    cache = None  # the system's per-user cache folder; offline tests alone set another
+    real = None  # the account's home for the four folder times; offline tests alone set another
+
+    def __init__(self, app, root):
+        self.root = Path(root)
+        self.run = native_launch_guard.Run(app, self.root, "home", extra_names=[configured_identifier()])
+        self.names = self.run.names
+        for name in ("library", "cache", "real"):
+            if getattr(self, name) is not None:
+                setattr(self.run, name, getattr(self, name))
+        self.launches = []
+
+    @property
+    def home(self):
+        return self.run.home
+
+    def start(self):
+        try:
+            self.run.begin()
+        except native_launch_guard.LaunchRefused as refusal:
+            raise Refusal(f"launch_refused_{refusal}") from None
+
+    def launch(self, role, argv, extra, frame=None, key_line=None, close_stdin=False, **popen):
+        try:
+            process = self.run.start(role, argv, extra, web_view=role == "app", frame=frame, key_line=key_line,
+                                     close_stdin=close_stdin, **popen)
+        except native_launch_guard.LaunchRefused as refusal:
+            raise Refusal(f"launch_refused_{refusal}") from None
+        self.launches.append(role)
+        return process
+
+    def finish(self, result, processes_gone=True, groups=()):
+        """Never raises but for a termination signal, which it re-raises once the home is handled."""
+        for group in groups:
+            self.run.attribute(group=group)
+        try:
+            outcome = self.run.finish(retain=not processes_gone)
+        finally:
+            outcome = self.run.outcome or {}
+            report = dict(outcome.get("comparison") or {"compared": False, "verdict": "not compared"})
+            report["launches"] = list(self.launches)
+            result["launchGuard"] = report
+            result["launchRecord"] = {k: outcome.get(k) for k in ("confinement", "sockets", "finished", "admissions", "frames")}
+            home = outcome.get("throwawayHome") or {"state": "left", "home": str(self.home), "removed": False}
+            result["throwawayHome"] = home
+            # The helper removes nothing: a finished home stays for its lane's removal command. A home
+            # left because a holder may be alive fails the run and is named.
+            if home.get("state") not in ("finished", "not created"):
+                report["verdict"] = f"throwaway home {home.get('state')}: {home.get('home')}"
+
+
+def configured_identifier():
+    """The product's configured bundle identifier, added to the names the helper derives from the
+    bundle itself."""
+    return json.loads(TAURI_CONF.read_text())["identifier"]
+
+
+def require_comparison(result):
+    """No run that started the application reports a result without the comparison made and
+    clean: otherwise it fails, with exit status GUARD_EXIT."""
+    guard = result.get("launchGuard")
+    if guard is None or not guard.get("compared") or guard.get("verdict") != "clean":
+        verdict = (guard or {}).get("verdict") if guard and guard.get("compared") else "not compared"
+        result["passed"] = False
+        result["failure"] = result.get("failure") or f"launch_guard: {verdict}"
+        return GUARD_EXIT
+    return None
+
+
 def run(args, key, root):
     result = {"passed": False, "mode": args.mode, "startedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
               "appSha256": sha256(args.app), "cleanup": "unknown"}
+    guard = None
+    try:
+        try:
+            guard = LaunchGuard(args.app, root)
+        except native_launch_guard.LaunchRefused as refusal:
+            raise Refusal(f"launch_refused_{refusal}") from None
+        guard.start()
+        journey(args, key, root, guard, result)
+    except Exception as error:  # noqa: BLE001
+        result["passed"] = False
+        result["failure"] = result.get("failure") or (str(error) if isinstance(error, Refusal) else type(error).__name__)
+    finally:
+        # Every way out of the run, an interrupt included, passes here. The home is removed unless
+        # a process the run started may still be alive (custody retained, or a resident found).
+        gone = result.get("rescue") != "retained_original_app_custody" and not result.get("residents")
+        supplier = (result.get("supplier") or {}).get("pid")
+        if guard is not None:
+            guard.finish(result, processes_gone=gone, groups=[supplier] if isinstance(supplier, int) else [])
+    return result
+
+
+def journey(args, key, root, guard, result):
     supplier = args.app.parents[1] / "Resources" / "agent-supplier"
     pin = json.loads(PIN.read_text())["codex"]["binarySha256"]
     found = [p for p in supplier.glob("codex*") if p.is_file()]
     result["supplierPin"] = {"expected": pin, "observed": [sha256(p) for p in found]}
     if len(found) != 1 or sha256(found[0]) != pin:
         raise Refusal("supplier_not_pinned")
-    result["preflight"] = preflight(args, root)
+    result["preflight"] = preflight(args, root, guard)
     if not result["preflight"]["passed"]:
         raise Refusal("preflight")
-    home, gate, report_path = root / "home", root / "gate", root / "report.json"
-    home.mkdir(mode=0o700)
+    home, gate, report_path = guard.home, guard.run.gate_path, guard.run.report_path
     reference = w9a_reference()
     operations = json.loads(FIXTURE.read_text())["routes"]["PF"]["operations"]
     stub = StubProvider(TURNS) if args.mode == "stub" else None
@@ -540,17 +638,19 @@ def run(args, key, root):
                 "turns": TURNS, "resultProbe": "node:c",
                 "treeTypes": sorted(TREE_TYPES.values()),
                 "timeoutsMs": {"ui": 60000, "start": 60000, "turn": args.turn_timeout * 1000}}
-        env = {"PATH": "/usr/bin:/bin", "HOME": str(home), "SWBPIPE_NATIVE_SMOKE_DRIVER": "-",
-               "SWBPIPE_NATIVE_SMOKE_PLAN": json.dumps(plan), "SWBPIPE_NATIVE_SMOKE_REPORT": str(report_path),
-               "SWBPIPE_NATIVE_SMOKE_AGENT_GATE": str(gate), "SWBPIPE_NATIVE_SMOKE_AGENT_GATE_MODE": "handshake"}
+        env = {"SWBPIPE_NATIVE_SMOKE_DRIVER": "-",
+               "SWBPIPE_NATIVE_SMOKE_PLAN": json.dumps(plan), "SWBPIPE_NATIVE_SMOKE_REPORT": native_launch_guard.RUN_OWNED,
+               "SWBPIPE_NATIVE_SMOKE_AGENT_GATE": native_launch_guard.RUN_OWNED,
+               "SWBPIPE_NATIVE_SMOKE_AGENT_GATE_MODE": "handshake"}
         if key is not None:
             env["SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY"] = "stdin"
-        app = subprocess.Popen([str(args.app)], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
-                               stderr=subprocess.PIPE, env=env)
+        # The driver is the helper's frame: the repository's file, read and hashed by the helper; the
+        # key line, when there is one, is written before it.
+        app = guard.launch("app", [str(args.app)], env, frame=guard.run.driver_frame(DRIVER.relative_to(PROJECT)),
+                           key_line=key, close_stdin=True, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.PIPE)
         result["app"] = {"pid": app.pid}
         lines = Lines(app.stderr)
-        app.stdin.write((key.encode() + b"\n" if key is not None else b"") + DRIVER.read_bytes())
-        app.stdin.close()
         key = None
         deadline = time.monotonic() + args.deadline
 
@@ -580,7 +680,7 @@ def run(args, key, root):
                     observer = Scope(sdk)
                     if observer.exited:
                         raise Refusal("supplier_exited_before_gate")
-                    anchor = anchor_start(args.process_probe, sdk, app)
+                    anchor = anchor_start(args.process_probe, sdk, app, cwd=root)
                 except Exception as error:  # noqa: BLE001
                     refused = str(error) if isinstance(error, Refusal) else type(error).__name__
                     result["anchorRefused"] = refused
@@ -650,7 +750,6 @@ def run(args, key, root):
             result["passed"] = False
             result["failure"] = result.get("failure") or "resident_processes"
         result["endedAt"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    return result
 
 
 RETAINED = Path("/private/tmp") / f"swbpipe-agent-journey-{os.getuid()}.retained"
@@ -762,6 +861,15 @@ def main():
     parser.add_argument("--memory-heartbeat", type=Path,
                         help="required live: the external two-second monitor's heartbeat.json")
     args = parser.parse_args()
+    # Every location the caller supplies is checked before anything is created or read there.
+    try:
+        output = Path(os.path.realpath(args.output.parent)) / args.output.name
+        native_launch_guard.check_location(output, "evidence")
+        for name in ("app", "process_probe", "boundary_probe"):
+            setattr(args, name, native_launch_guard.check_location(Path(os.path.realpath(getattr(args, name))), "resource"))
+    except native_launch_guard.LaunchRefused as refusal:
+        print(f"refused: {refusal}", file=sys.stderr)
+        return 2
     # A retained run's latch refuses before anything is read, created or launched.
     if RETAINED.exists():
         print(f"refused: a previous attempt retained its app ({RETAINED.read_text().strip()}). Quit that app "
@@ -795,23 +903,28 @@ def main():
     except Refusal as refusal:
         print(f"refused: {refusal}", file=sys.stderr)
         return 2
-    args.output.mkdir(mode=0o700, parents=False, exist_ok=False)
-    root = args.output.resolve()
-    for name in ("app", "process_probe", "boundary_probe"):
-        setattr(args, name, getattr(args, name).resolve(strict=True))
+    try:
+        root = native_launch_guard.make_evidence(output)  # made through a verified descriptor walk
+    except native_launch_guard.LaunchRefused as refusal:
+        print(f"refused: {refusal}", file=sys.stderr)
+        return 2
     free = free_bytes()
     result = {"passed": False, "freeBytesAtStart": free, "minFreeBytes": int(args.min_free_gib * 1024 ** 3)}
+    ran = False
     if free < result["minFreeBytes"]:
         result["failure"] = "memory_gate"
     else:
+        ran = True
         try:
             result.update(run(args, key, root))
         except Exception as error:  # noqa: BLE001
             result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
     key = None
+    guarded = require_comparison(result) if ran else None
     (root / "result.json").write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps({k: result.get(k) for k in ("passed", "failure", "failures", "rescue", "release", "residents", "startedAt", "endedAt")}))
-    return 0 if result["passed"] else 1
+    print(json.dumps({k: result.get(k) for k in ("passed", "failure", "failures", "rescue", "release", "residents", "startedAt", "endedAt")}
+                     | {"launchGuard": (result.get("launchGuard") or {}).get("verdict")}))
+    return guarded or (0 if result["passed"] else 1)
 
 
 if __name__ == "__main__":
