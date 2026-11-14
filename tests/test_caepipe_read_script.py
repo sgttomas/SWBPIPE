@@ -417,20 +417,70 @@ def test_the_job_answer_forms(answer, state):
     assert harness.JOB_ANSWER.match("SWBPIPE-JOB v1 error=canary-\r\n") is None
 
 
-def test_opjob_decides_on_the_canary_first_and_reads_absent_only_from_error_2():
-    code = _code(READ_SOURCE)
+def _opjob_order_holds(source: str) -> bool:
+    """OpJob's outcome table in its order (Amendment 10): a handle is presence whatever the canary; a failure under a
+    canary other than 6 is an error; a failure with error 2 is absent; any other failure is its error. And the helper's
+    IL takes the canary from argument 2 and the error from argument 1."""
+    code = _code(source)
     job = code[code.index("function OpJob"):code.index("function OpChunk")]
-    assert job.count("if ($canary -ne 6) {") == 1
+    if job.count("if ($canary -ne 6) {") != 1 or job.count("if ($job -eq [IntPtr]::Zero) {") != 1:
+        return False
+    zero = job.index("if ($job -eq [IntPtr]::Zero) {")
     canary = job.index("if ($canary -ne 6) {")
-    # The canary decides first: no use of the handle's error, and no answer, before it.
-    assert canary < job.index("if ($job -eq [IntPtr]::Zero)") and canary < job.index("$openError -eq")
-    assert job.index("return ") > canary and job.count("absent") == 1
-    assert 'if ($openError -eq 2) { return "SWBPIPE-JOB v1 absent`r`n" }' in job
+    absent_line = 'if ($openError -eq 2) { return "SWBPIPE-JOB v1 absent`r`n" }'
+    other_line = 'return "SWBPIPE-JOB v1 error=$openError`r`n"'
+    if absent_line not in job or other_line not in job or job.count("absent") != 1:
+        return False
+    branch_end = job.index("\n  }\n", zero)
+    order = [zero, canary, job.index(absent_line), job.index(other_line), branch_end,
+             job.index("QueryInformationJobObject")]
+    if order != sorted(order) or job.index("return ") < zero or "$canary" in job[branch_end:]:
+        return False  # every failure answer inside the zero-handle branch, in order; the canary never cancels a handle
     native = code[code.index("function Native"):code.index("function OpCim")]
-    assert re.findall(r"\$il\.Emit\(\$o::(\w+)", native) == [
+    return re.findall(r"\$il\.Emit\(\$o::(\w+)", native) == [
         "Ldarg_2", "Ldsfld", "Call", "Pop", "Call", "Stind_I4",  # canary (argument 2) <- CloseHandle(NULL)'s error
         "Ldarg_1", "Ldc_I4", "Ldc_I4_0", "Ldarg_0", "Call", "Stloc", "Call", "Stind_I4",  # error (argument 1)
         "Ldloc", "Ret"]
+
+
+def test_opjob_reads_presence_first_then_the_canary_and_absent_only_from_error_2():
+    assert _opjob_order_holds(READ_SOURCE)
+
+
+CANARY_LINE = '    if ($canary -ne 6) { return "SWBPIPE-JOB v1 error=canary-$canary`r`n" }\n'
+ABSENT_LINE = '    if ($openError -eq 2) { return "SWBPIPE-JOB v1 absent`r`n" }\n'
+ZERO_LINE = "  if ($job -eq [IntPtr]::Zero) {\n"
+OPJOB_MUTANTS = {
+    "the canary checked before the presence check": lambda s: s.replace(CANARY_LINE, "").replace(
+        ZERO_LINE, CANARY_LINE.replace("    if", "  if", 1) + ZERO_LINE),
+    "absent read before the canary": lambda s: s.replace(CANARY_LINE + ABSENT_LINE, ABSENT_LINE + CANARY_LINE),
+    "the canary weakened": lambda s: s.replace("if ($canary -ne 6) {", "if ($canary -eq 0) {"),
+    "the error and canary arguments swapped": lambda s: s.replace("$il.Emit($o::Ldarg_2)", "$il.Emit($o::LDARG_X)")
+    .replace("$il.Emit($o::Ldarg_1)", "$il.Emit($o::Ldarg_2)").replace("$il.Emit($o::LDARG_X)", "$il.Emit($o::Ldarg_1)"),
+}
+
+
+@pytest.mark.parametrize("mutant", list(OPJOB_MUTANTS))
+def test_the_opjob_order_check_kills_each_decision_order_mutant(mutant):
+    mutated = OPJOB_MUTANTS[mutant](READ_SOURCE)
+    assert mutated != READ_SOURCE, mutant  # the mutation applies
+    assert not _opjob_order_holds(mutated), mutant
+
+
+def test_a_held_job_is_present_whatever_the_canary_says(tmp_path, clock):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    harness.install_guest_scripts(config)
+    token = "b" * 32
+    guest.jobs[f"swbpipe-{token}"] = 1  # a handle another process holds
+    guest.job_canary = 0
+    record = harness._guest_step(config, guest.runner, 5.0, [], "job",
+                                 harness._read_command(config, "job", {"job": f"swbpipe-{token}"}), attempts=1)
+    assert harness.JOB_ANSWER.match(harness._body(record))["state"] == "present active=0"
+    guest.jobs.clear()  # every handle closed: now the canary decides, and it is never absent
+    record = harness._guest_step(config, guest.runner, 5.0, [], "job",
+                                 harness._read_command(config, "job", {"job": f"swbpipe-{token}"}), attempts=1)
+    assert harness.JOB_ANSWER.match(harness._body(record))["state"] == "error=canary-0"
 
 
 # --------------------------------------------------------------------------------------------------------------

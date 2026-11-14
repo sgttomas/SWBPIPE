@@ -14,7 +14,8 @@ The host refuses any reply whose echo is missing, malformed, or names digests
 other than the ones it installed. Then each operation prints exactly one answer
 in its fixed form, beginning with its own sentinel:
   cim      SWBPIPE-CIM v1 none | pid=<n> created=<yyyyMMddHHmmss.ffffff>
-  job      SWBPIPE-JOB v1 absent | present active=<n|unknown> | error=<n> | error=canary-<n>
+  job      SWBPIPE-JOB v1 present active=<n|unknown> (opened, whatever the canary) | absent
+           (not opened, error 2, canary 6) | error=canary-<n> (not opened, canary not 6) | error=<n>
   chunk    SWBPIPE-CHUNK v1 absent | size=.. sha256=.. offset=.. length=.. chunk_sha256=..<CRLF><base64>
   regread  the value as `reg query` prints it (REG_BINARY only); not found:
            stderr `ERROR: The system was unable to find the specified registry key or value.`, exit 1
@@ -43,11 +44,15 @@ Reflection.Emit content among them) and its module analysis cache and startup
 profile data under %LOCALAPPDATA%, and its command discovery lists the folders
 on PSModulePath; these are not the script's operations.
 Native calls are made through Reflection.Emit in memory (DefineDynamicAssembly
-with Run access, DefinePInvokeMethod, CreateType): no compiler and no temporary
-file. The job query's helper (OpenJobChecked) is emitted the same way, with
-DefineMethod and its ILGenerator, so that OpenJobObject's last error, and a
-canary's before it, are read in the same frame as each call. The pattern is taken from NATIVE in the route check's fence_check.py
-(lines 85 to 96), with `::new` in place of the cmdlet that makes objects.
+with Run access, DefineMethod with PinvokeImpl and a DllImportAttribute that sets
+SetLastError, CreateType): no compiler and no temporary file. The pattern is
+taken from NATIVE in the route check's fence_check.py (lines 85 to 96), with
+`::new` in place of the cmdlet that makes objects, and each method defined by
+DefineMethod rather than DefinePInvokeMethod, so that its DllImportAttribute
+creates the P/Invoke map with the last-error flag. The job query's helper
+(OpenJobChecked) is emitted the same way, with DefineMethod and its ILGenerator,
+so that OpenJobObject's last error, and a canary's before it, are read in the
+same frame as each call.
 #>
 param(
   [Parameter(Mandatory = $true)][string]$Op,
@@ -106,8 +111,10 @@ function Native {
   )
   $native = @{}
   foreach ($d in $defs) {
-    $m = $tb.DefinePInvokeMethod($d[0], 'kernel32.dll', 'Public,Static,PinvokeImpl', 'Standard', $d[1],
-                                 [Type[]]$d[2], 'Winapi', 'Unicode')
+    # A plain static method marked PinvokeImpl, whose DllImportAttribute then creates its P/Invoke map with
+    # SetLastError (the last-error flag). DefinePInvokeMethod would write that map first, without the flag, and the
+    # attribute could not add it afterwards.
+    $m = $tb.DefineMethod($d[0], 'Public,Static,PinvokeImpl', $d[1], [Type[]]$d[2])
     $m.SetImplementationFlags('PreserveSig')
     $m.SetCustomAttribute([Reflection.Emit.CustomAttributeBuilder]::new($da.GetConstructor(@([string])),
                                                                        @('kernel32.dll'), $fields, $values))
@@ -150,18 +157,17 @@ function OpCim($p) {
 }
 
 # The job by name: OpenJobObject fails with ERROR_FILE_NOT_FOUND (2) only when no member lives and no handle is open.
-# Its last error is captured in the same frame as the call (OpenJobChecked), behind a canary that must be 6.
+# Its last error is captured in the same frame as the call (OpenJobChecked), behind a canary that must be 6. In order:
+# a handle is presence, whatever the canary says (the canary guards the reading of failure codes, not a handle); a
+# failure under a canary other than 6 is an error; a failure with error 2 is absent; any other failure is its error.
 function OpJob($p) {
-  if ($p.job -notmatch '^swbpipe-[0-9a-f]{32}$') { throw 'job name refused' }
+  if ($p.job -notmatch '^swbpipe-[0-9a-f]{32}\z') { throw 'job name refused' }
   $n = Native
   [int]$openError = 0
   [int]$canary = 0
   $job = $n::OpenJobChecked([string]$p.job, [ref]$openError, [ref]$canary)
-  if ($canary -ne 6) {
-    if ($job -ne [IntPtr]::Zero) { [void]$n::CloseHandle($job) }
-    return "SWBPIPE-JOB v1 error=canary-$canary`r`n"
-  }
   if ($job -eq [IntPtr]::Zero) {
+    if ($canary -ne 6) { return "SWBPIPE-JOB v1 error=canary-$canary`r`n" }
     if ($openError -eq 2) { return "SWBPIPE-JOB v1 absent`r`n" }
     return "SWBPIPE-JOB v1 error=$openError`r`n"
   }
@@ -201,7 +207,7 @@ function OpChunk($p) {
 
 # One REG_BINARY value of the current user's hive, read through the registry API with the key opened read-only.
 function OpRegread($p) {
-  if ([string]$p.key -notmatch '^[A-Za-z0-9 ._()-]+(\\[A-Za-z0-9 ._()-]+)*$') { throw 'key refused' }
+  if ([string]$p.key -notmatch '^[A-Za-z0-9 ._()-]+(\\[A-Za-z0-9 ._()-]+)*\z') { throw 'key refused' }
   $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey([string]$p.key)
   if ($null -eq $key) { [Console]::Error.Write($missing); exit 1 }
   try {
@@ -319,7 +325,7 @@ try {
   $dataSha = 'none'
   $merged = @{}
   if ($Data) {
-    if ($Data -notmatch '^[0-9a-f]{64}$') { throw 'data digest refused' }
+    if ($Data -notmatch '^[0-9a-f]{64}\z') { throw 'data digest refused' }
     $dataPath = Confined ($root.TrimEnd('\') + '\_harness\data\' + $Data + '.json')
     $dataSha = FileSha $dataPath
   }

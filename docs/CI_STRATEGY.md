@@ -107,6 +107,15 @@ journeys, packaging and retained-memory qualification need their own Windows
 evidence. Parallels Windows on Arm and emulated x64 runs are labelled separately.
 DEL-10-04 owns the Windows port.
 
+`piping-windows-read-script.yml` runs DEL-17-05's read script on hosted Windows,
+on `windows-11-arm` (ARM64) and `windows-2025` (x64). It runs the exact
+maintained script by digest, through `cmd /c` and Windows PowerShell 5.1, and
+checks its job query against named jobs the test creates and closes, with three
+controls that must fail. Its PR path filter covers the read script, the harness,
+the test and the workflow; manual dispatch is also available. It reports beside
+`harness`, which does not wait on it, and the required-check setting is
+unchanged. It shows the script's behaviour on the runner only, not any guest's.
+
 On a relevant PR, desktop coverage is a production build and one Chromium
 project (`chromium-desktop`) running core specs: the R2 smoke and save/reopen
 journey, the rotation-glyph browser evidence (DEL-07-05:1) and the result
