@@ -22,7 +22,7 @@
 //!   admission or standing.
 //!
 //! Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
-use crate::reader_verdict as rv;
+use open_pipe_stress_result_export::reader_verdict as rv;
 use serde::Serialize;
 use serde_json::Value;
 use std::collections::{BTreeSet, HashMap, HashSet};

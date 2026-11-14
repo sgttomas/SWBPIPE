@@ -106,7 +106,7 @@ fn case_of(model: Value, source: Value) -> Case {
     // derives it from this source and model (the native host re-derives it).
     let invocation = json!({"request": {"model": model.clone(), "materials": []}, "solver_mode": MODE});
     let standing = open_pipe_stress_result_export::reader_verdict::standing(&source, Some(&model), Some(&invocation));
-    if let Ok(record) = open_pipe_stress_result_export::report_standing::historical_standing_record(&source, &model, &standing) {
+    if let Ok(record) = open_pipe_stress_report_standing::report_standing::historical_standing_record(&source, &model, &standing) {
         input["numerical_standing"] = record;
     }
     Case { registry, _gate: gate, input, result, intake, manifest: manifest_text }

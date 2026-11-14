@@ -1104,7 +1104,7 @@ fn bind_exact_save_source(
     .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
     // DEL-08-01 REQ-024: the packaged report states the standing record the reader
     // derives from the bound result and model, exactly.
-    let derived = open_pipe_stress_result_export::report_standing::historical_standing_record(&bound.source, &bound.model, &bound.standing).ok();
+    let derived = open_pipe_stress_report_standing::report_standing::historical_standing_record(&bound.source, &bound.model, &bound.standing).ok();
     if derived.is_none() || request.pointer("/report/numerical_standing") != derived.as_ref() {
         return Err(exact_refused(exact_binding::sections_mismatch("numerical_standing"), "/request/report/numerical_standing"));
     }

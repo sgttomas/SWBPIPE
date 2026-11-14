@@ -100,7 +100,7 @@ pub fn with_exact_route(mut input: RenderableReportInput) -> RenderableReportInp
 
 /// An invented standing record (DEL-08-01 REQ-024) of one checks-passed load case
 /// with no nonlinear support, in the form the reader derives
-/// (`result_export::report_standing`). The renderer reads it as given; the native
+/// (`report_standing::report_standing`). The renderer reads it as given; the native
 /// host is what re-derives it from a bound result.
 pub fn invented_standing() -> open_pipe_stress_report_renderer::standing::NumericalStanding {
     serde_json::from_value(serde_json::json!({

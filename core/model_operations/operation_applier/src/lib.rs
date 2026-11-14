@@ -999,14 +999,14 @@ pub fn retained_precision_transport_outcome_json(source_json: &str) -> Result<St
 }
 
 /// DEL-07-05's numerical health indicator over JSON text: the reader's
-/// historical health projection (`result_export::historical_health`).
+/// historical health projection (`report_standing::historical_health`).
 /// `reader_findings_json` is the Rust reader's findings for the same result, as
 /// that function describes; an absent or `null` value reads as absent. Errors
 /// only on input that is not JSON.
 pub fn numerical_health_json(source_json: &str, reader_findings_json: Option<&str>) -> Result<String, String> {
     let source = parse_reader_input("source", source_json)?;
     let findings = optional_reader_input("reader_findings", reader_findings_json)?;
-    open_pipe_stress_product_physics::result_export::historical_health::numerical_health_json(&source, findings.as_ref())
+    open_pipe_stress_report_standing::historical_health::numerical_health_json(&source, findings.as_ref())
 }
 
 /// b7-plan R2: the base-route readers' verdicts (`result_export::reader_verdict`)
@@ -1033,7 +1033,7 @@ pub fn reader_dispatch_json(
 /// DEL-08-01 REQ-024 and DEL-05-02 Standing, for the report builder: the
 /// reader's standing, its readability verdict beside it, and, for a readable
 /// solved result, the standing record a report states
-/// (`result_export::report_standing`), as
+/// (`open_pipe_stress_report_standing::report_standing`), as
 /// `{standing, readability, numerical_standing, standing_refusal}`.
 /// `numerical_standing` is null for a result the reader cannot read or whose
 /// mechanics are not solved, and where a tag lies outside the historical
@@ -1043,7 +1043,8 @@ pub fn reader_report_standing_json(
     model_json: &str,
     invocation_json: Option<&str>,
 ) -> Result<String, String> {
-    use open_pipe_stress_product_physics::result_export::{reader_readability, reader_verdict as rv, report_standing};
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    use open_pipe_stress_report_standing::{reader_readability, report_standing};
     let source = parse_reader_input("source", source_json)?;
     let model = parse_reader_input("model", model_json)?;
     let invocation = optional_reader_input("invocation", invocation_json)?;

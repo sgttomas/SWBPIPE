@@ -28,7 +28,8 @@
 
 use crate::solve_jobs::{sha256_in_place, CustodyDigests};
 use open_pipe_stress_result_export::derivative::{digest, guard_json};
-use open_pipe_stress_result_export::{reader_readability, reader_verdict};
+use open_pipe_stress_report_standing::reader_readability;
+use open_pipe_stress_result_export::reader_verdict;
 use serde_json::{json, Value};
 
 pub(crate) const CUSTODY_RELEASED: &str = "REPORT-EXACT-CUSTODY-RELEASED";

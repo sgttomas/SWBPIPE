@@ -93,10 +93,7 @@ code_paths:
 # The readers' re-derivation of combination rows, gates, standing and certificate, in the Rust
 # reader and in the separately written Python verifiers (tests/verifiers/** is otherwise
 # DEL-04-08's), with their corpora and tests.
-- core/reporting/result_export/src/historical_health.rs
-- core/reporting/result_export/src/reader_readability.rs
-- core/reporting/result_export/src/report_standing.rs
-- core/reporting/result_export/tests/report_standing.rs
+- core/reporting/report_standing/**
 - core/reporting/numerical_vocabulary/**
 - core/reporting/result_export/src/combination_graph.rs
 - core/reporting/result_export/src/combination_certificate.rs

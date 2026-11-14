@@ -4,7 +4,7 @@
 //! what the solver's figures rest on.
 //!
 //! The input carries only the standing record the product reader derives
-//! (`result_export::report_standing`), as typed tags and identifiers; every
+//! (`report_standing::report_standing`), as typed tags and identifiers; every
 //! boundary that holds the bound result re-derives it and requires equality.
 //! Every word below is composed here. Each tag maps to its reviewed statement
 //! through a match with no wildcard arm, so a tag without a statement does not
@@ -71,7 +71,7 @@ pub const NUMERICAL_TAG_UNSUPPORTED: &str = "NUMERICAL_TAG_UNSUPPORTED";
 /// The only standing-record form this renderer reads.
 pub const HISTORICAL_RECORD_VERSION: &str = "historical_1";
 
-/// The standing record (`result_export::report_standing`).
+/// The standing record (`report_standing::report_standing`).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct NumericalStanding {

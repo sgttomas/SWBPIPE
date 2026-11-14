@@ -3861,7 +3861,7 @@
    },
    "pinned_by": [
     "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json (core/product_physics/tests/report_standing_witnesses.rs)",
-    "core/reporting/result_export/tests/report_standing.rs",
+    "core/reporting/report_standing/tests/report_standing.rs",
     "apps/desktop/src/features/report/reportStandingWitness.test.tsx"
    ],
    "anchor": {

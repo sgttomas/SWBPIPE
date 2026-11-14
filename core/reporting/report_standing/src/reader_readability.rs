@@ -65,7 +65,7 @@ pub fn readability(source: &Value, standing: &Value) -> Value {
 /// case's integrity diagnostic, which the envelope carries once, and its
 /// (structural status, solve quality, matrix fidelity, accuracy evidence) is
 /// the producer's closed record for that diagnostic's code
-/// (`nonlinear_support_evidence::standing_quality`); or, for a case the
+/// ([`standing_quality`]); or, for a case the
 /// producer did not assess, its evidence is empty and its record is the
 /// not-assessed record. A code the producer does not publish is inconsistent.
 /// An eligible case is left as the ordinary standing found it.
@@ -103,7 +103,7 @@ fn case_record_consistent(case: &Value, codes: &HashMap<&str, Vec<Option<&str>>>
                 return false;
             }
             match codes.get(wanted.as_str()).map(Vec::as_slice) {
-                Some([Some(code)]) => crate::nonlinear_support_evidence::standing_quality(code),
+                Some([Some(code)]) => standing_quality(code),
                 _ => None,
             }
         }
@@ -113,4 +113,26 @@ fn case_record_consistent(case: &Value, codes: &HashMap<&str, Vec<Option<&str>>>
         Some(expected) => record.iter().zip(expected).all(|(field, want)| *field == want),
         None => false,
     }
+}
+
+/// The producer's closed record for each integrity code it publishes:
+/// (structural_status, solve_quality, model_matrix_fidelity,
+/// accuracy_evidence), as product_physics `assessed_numerical_quality`
+/// assigns them and as `result_export::nonlinear_support_evidence` reads them
+/// for a nonlinear case (`NUMERICAL_INTEGRITY_UNRESOLVED` is the producer's
+/// default arm). `None`: a code the producer does not publish. Held here, not
+/// borrowed from result_export, so that the priced reader is unchanged; the
+/// tests compare it, entry for entry, with the priced reader's table.
+pub fn standing_quality(code: &str) -> Option<[&'static str; 4]> {
+    Some(match code {
+        "NUMERICAL_INTEGRITY_CHECKS_PASSED" => ["passive_model_basis", "checks_passed", "represented_equations_retained", "not_claimed"],
+        "NUMERICAL_INTEGRITY_SENSITIVE" => ["passive_model_basis", "sensitive", "represented_equations_retained", "not_claimed"],
+        "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM" => ["physical_mechanism_witnessed", "failed", "not_assessed", "not_claimed"],
+        "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY" => ["negative_energy_witnessed", "failed", "not_assessed", "not_claimed"],
+        "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED" => ["numerically_unresolved", "unresolved", "not_assessed", "unresolved"],
+        "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED" => ["numerically_unresolved", "unresolved", "assembly_loss_detected", "unresolved"],
+        "NUMERICAL_INTEGRITY_FAILED" => ["numerically_unresolved", "failed", "assembly_uncertainty", "unresolved"],
+        "NUMERICAL_INTEGRITY_UNRESOLVED" => ["numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"],
+        _ => return None,
+    })
 }

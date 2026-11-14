@@ -3,9 +3,9 @@
 //! eligible, and derives their standing records under the historical
 //! vocabularies; an inconsistent case record and a code outside the
 //! vocabulary make a result unreadable rather than giving it a known meaning.
-use open_pipe_stress_result_export::reader_readability::{readability, NUMERICAL_CASE_RECORD_INCONSISTENT};
+use open_pipe_stress_report_standing::reader_readability::{readability, NUMERICAL_CASE_RECORD_INCONSISTENT};
 use open_pipe_stress_result_export::reader_verdict::standing;
-use open_pipe_stress_result_export::report_standing::historical_standing_record;
+use open_pipe_stress_report_standing::report_standing::historical_standing_record;
 use serde_json::{json, Value};
 
 const GAP_RAW: &str = include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json");

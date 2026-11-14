@@ -864,7 +864,7 @@ const RESULT_FIXTURES: [&str; 112] = [
 ];
 
 /// The JSON-text entry refuses input that is not JSON (the projection itself is
-/// `result_export::historical_health`).
+/// `report_standing::historical_health`).
 #[test]
 fn input_that_is_not_json_is_refused() {
     assert!(numerical_health_json("not json", None).is_err());

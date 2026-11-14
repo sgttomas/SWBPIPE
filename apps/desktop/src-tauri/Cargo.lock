@@ -2259,6 +2259,7 @@ dependencies = [
  "open_pipe_stress_canonical_json",
  "open_pipe_stress_frame_kernel",
  "open_pipe_stress_product_physics",
+ "open_pipe_stress_report_standing",
  "open_pipe_stress_units",
  "serde",
  "serde_json",
@@ -2329,6 +2330,7 @@ dependencies = [
  "open_pipe_stress_canonical_json",
  "open_pipe_stress_pdf_emitter",
  "open_pipe_stress_report_renderer",
+ "open_pipe_stress_report_standing",
  "open_pipe_stress_result_export",
  "serde",
  "serde_json",
@@ -2356,15 +2358,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_report_standing"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_numerical_vocabulary",
+ "open_pipe_stress_result_export",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "open_pipe_stress_result_export"
 version = "0.1.0"
 dependencies = [
  "open_pipe_stress_canonical_json",
  "open_pipe_stress_correct_norm",
  "open_pipe_stress_load_case_algebra",
- "open_pipe_stress_numerical_vocabulary",
  "open_pipe_stress_units",
- "serde",
  "serde_json",
  "sha2",
 ]
@@ -2466,6 +2476,7 @@ dependencies = [
  "open_pipe_stress_product_physics",
  "open_pipe_stress_report_package",
  "open_pipe_stress_report_renderer",
+ "open_pipe_stress_report_standing",
  "open_pipe_stress_result_export",
  "open_pipe_stress_rule_check_runner",
  "open_pipe_stress_rule_pack_document",

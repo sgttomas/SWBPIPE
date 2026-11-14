@@ -151,7 +151,7 @@ function unsupportedDispatch(code: string): ReaderDispatch {
 export type ReportStandingReading = Readonly<{
   standing: ReaderDispatch["standing"];
   readability: Readonly<{ readable: boolean; solved: boolean; unreadable: readonly string[] }>;
-  /** The standing record (`result_export::report_standing`), null for a result the reader
+  /** The standing record (`report_standing::report_standing`), null for a result the reader
    * cannot read or whose mechanics are not solved, or where `standing_refusal` names a tag
    * outside the historical vocabularies. The native host re-derives it and requires it equal. */
   numerical_standing: Record<string, unknown> | null;

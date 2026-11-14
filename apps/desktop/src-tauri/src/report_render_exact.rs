@@ -311,9 +311,9 @@ fn bind_render_admission(
 
 /// DEL-08-01 REQ-024: the input's `numerical_standing` equals the standing
 /// record the reader derives from the bound result and model
-/// (`result_export::report_standing`). `Err` names the section.
+/// (`report_standing::report_standing`). `Err` names the section.
 fn check_numerical_standing(input: &Value, source: &Value, model: &Value, standing: &Value) -> Result<(), String> {
-    let derived = open_pipe_stress_result_export::report_standing::historical_standing_record(source, model, standing)
+    let derived = open_pipe_stress_report_standing::report_standing::historical_standing_record(source, model, standing)
         .map_err(|_| "numerical_standing".to_string())?;
     if input.get("numerical_standing") != Some(&derived) {
         return Err("numerical_standing".to_string());

@@ -17,7 +17,7 @@
 //!   maintained test compares with the statement table in both directions.
 //!
 //! Vocabularies whose names begin `historical_` are read by the historical
-//! reader (`result_export::report_standing`) from results that carry no typed
+//! reader (`report_standing::report_standing`) from results that carry no typed
 //! numerical evidence: they are recovered from a result's published integrity
 //! code, solve quality and fixed diagnostic text. They are not the typed
 //! producer vocabulary, and they stay supported for results made before typed
@@ -87,7 +87,7 @@ vocabulary!(
 
 vocabulary!(
     /// The causes the historical health reader recovers
-    /// (`result_export::historical_health`), each only where its evidence is
+    /// (`report_standing::historical_health`), each only where its evidence is
     /// present at its fixed position.
     HistoricalCause, "historical_cause", {
         /// The integrity report's reciprocal condition estimate, on a linear
