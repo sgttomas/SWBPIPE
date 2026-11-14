@@ -2123,7 +2123,7 @@ fn run_with_context(
                         if let Err(error) =
                             rich_authoring::validate_support_configuration(&candidate, dependent)
                         {
-                            checker.push("OP-SUPPORT-DEPENDENT-INVALID","blocking",error.message,"Keep the referenced linear restraint DOF valid or retarget the dependent nonlinear support first.",vec![target_ref.clone(),dependent["id"].as_str().unwrap_or("unknown").into()]);
+                            checker.push("OP-SUPPORT-DEPENDENT-INVALID","blocking",error.message,"Keep the referenced normal-source support and its DOF valid or retarget the dependent friction support first.",vec![target_ref.clone(),dependent["id"].as_str().unwrap_or("unknown").into()]);
                         }
                     }
                 }
