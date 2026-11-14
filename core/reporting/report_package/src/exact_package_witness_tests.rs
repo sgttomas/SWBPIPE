@@ -137,13 +137,15 @@ fn each_witness_shape_assembles_and_reads_back_through_the_production_roots() {
 
 /// The standing line's lead on the one witness whose Diagnostics carry an
 /// integrity warning (pressure-source-1, synthetic n05: `NUMERICAL_INTEGRITY_SENSITIVE`).
-const SENSITIVE_LEAD: &str = "Numerical standing: integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under Warnings, Assumptions, And Provenance); integrity checked (the Rust reader";
+const SENSITIVE_LEAD: &str = "Numerical standing: integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under Warnings, Assumptions, And Provenance); read by the Rust reader";
 
 /// W-11 opening, observation 4 (owner, 2026-10-26: "#1648 I approve option A.";
 /// DEL-08-01 Design `exact-route-report-sections.md` §3.2, §6.3): in the HTML
 /// and the PDF member, the standing line of the witness with an integrity
 /// warning names it and points to it, and never reads only "integrity
-/// checked"; the others keep the line without a lead.
+/// checked"; the others keep the line without a lead. Since DEL-08-01
+/// REQ-024 the line no longer says "integrity checked" at all: the numerical
+/// health is the standing line's.
 fn assert_standing(name: &str, html: &str, pdf: &str) {
     if name == "pressure_source_1" {
         assert!(html.contains(&SENSITIVE_LEAD.replace('\'', "&#39;")), "{name}");
@@ -152,8 +154,8 @@ fn assert_standing(name: &str, html: &str, pdf: &str) {
             assert!(!text.contains("Numerical standing: integrity checked"), "{name}: never only \"integrity checked\" beside an integrity warning");
         }
     } else {
-        assert!(html.contains("Numerical standing: integrity checked (the Rust reader&#39;s standing"), "{name}");
-        assert!(pdf.contains("Numerical standing: integrity checked (the Rust reader's standing"), "{name}: the PDF member");
+        assert!(html.contains("Numerical standing: read by the Rust reader for the result"), "{name}");
+        assert!(pdf.contains("Numerical standing: read by the Rust reader for the result"), "{name}: the PDF member");
         assert!(!html.contains("integrity warning") && !pdf.contains("integrity warning"), "{name}");
     }
 }

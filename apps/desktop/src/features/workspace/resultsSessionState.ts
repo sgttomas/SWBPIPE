@@ -3,6 +3,8 @@ import { currentSemanticContract } from "../results/resultReader";
 import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
+import { isExactReportSource } from "../report/exactReportSections";
+import { renderableReportSource } from "../report/renderableReportSource";
 import { useMemo, useRef, useState } from "react";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
@@ -123,6 +125,20 @@ export function useResultsSessionState() {
   // T0R: Current only for the static fresh-identity set with Current standing;
   // other identities stay readable, never Current.
   const currentSolvedResult = result && otherCurrentRequirementsHold && numericallyEligible ? result : null;
+  // DEL-08-01 REQ-017, REQ-024: the rendered report (and its print view) also takes an
+  // exact-route result that meets every other Current requirement, whose mechanics are
+  // solved and whose standing names only standing findings, whatever that standing is: a
+  // candidate, which the build step and the native host each read in full before any
+  // render (`renderableReportSource`). Every other output, the report package included,
+  // keeps `currentSolvedResult`.
+  const renderableSolvedResult = renderableReportSource({
+    current: currentSolvedResult,
+    result,
+    otherCurrentRequirementsHold,
+    exactRoute: result !== null && isExactReportSource(result as MechanicsResult),
+    mechanicsSolved: result?.status?.mechanics === "MECHANICS_SOLVED",
+    standing
+  });
   // DEL-07-05 numerical health: the Rust indicator for this result with the reader's
   // findings from the standing above. Presentation only; it reads nothing back into
   // Current standing or any output gate.
@@ -233,6 +249,8 @@ export function useResultsSessionState() {
     fullResultCopy, setFullResultCopy,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    /** The result the rendered report takes (see above); never an input to any other output. */
+    renderableSolvedResult,
     /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
      * result overlays; it admits nothing by itself. */
     numericallyEligible,
