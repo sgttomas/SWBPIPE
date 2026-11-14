@@ -3630,38 +3630,77 @@ if fnkey("append", _W16B_EC):
          _W16B_CB + " (state_operand_standing runs only on that member)"),
     ]
 if fnkey("validate", _W16B_EV) and fnkey("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs"):
-    # RT-A3 §4 (§8.53): the certificate moves the dispatch into validate_pressure_evidence_uncertified, which
-    # validate_pressure_evidence reaches through validate_pressure_evidence_without_certificate (W16B-RD's three keys).
+    # The dispatch has had three shapes, each guarded by its exact text below, so that the preceding registered revisions
+    # still price under this tool and any other text stops:
+    # - W-16 slice b (§8.27): validate_pressure_evidence holds the dispatch;
+    # - RT-A3 §4 (§8.53): the certificate moves the dispatch into validate_pressure_evidence_uncertified, which
+    #   validate_pressure_evidence reaches through validate_pressure_evidence_without_certificate (W16B-RD's three keys);
+    # - the one-view reader (Way H B2): validate_pressure_evidence_uncertified is folded back into
+    #   validate_pressure_evidence_without_certificate, which asks `present` of the received document first and calls
+    #   without_member only in its no-combination arm. present reads only contract_evidence.exact_combinations and the
+    #   result rows, and without_member removes only the certificate member, so `present` answers on the received
+    #   document as it did on the member-less view: the arm taken is the RT-A3 §4 shape's on every document.
     _W16B_PE = RE_ + "physics_evidence.rs"
-    _W16B_DISPATCH = "validate_pressure_evidence_uncertified" if fnkey("validate_pressure_evidence_uncertified", _W16B_PE) else "validate_pressure_evidence"
+    _W16B_UNCERTIFIED = bool(fnkey("validate_pressure_evidence_uncertified", _W16B_PE))
+    _W16B_ONE_VIEW = not _W16B_UNCERTIFIED and bool(fnkey("validate_pressure_evidence_without_certificate", _W16B_PE))
+    _W16B_DISPATCH = ("validate_pressure_evidence_uncertified" if _W16B_UNCERTIFIED
+                      else "validate_pressure_evidence_without_certificate" if _W16B_ONE_VIEW else "validate_pressure_evidence")
     _W16B_VPE = _fn_text(_W16B_DISPATCH, _W16B_PE)
     _W16B_PRESENT = _fn_text("present", _W16B_EV)
-    # W16B-RD (guard): the reader enters its combination pass only when `present`; otherwise it runs the direct pass
-    # once and returns its Result.
-    _w16b_rd = (
-        _W16B_VPE.count("    if crate::exact_combination_evidence::present(source) {\n"
-                        "        let view = crate::exact_combination_evidence::direct_view(source)?;\n"
-                        "        validate_direct_pressure_evidence(&view)?;\n"
-                        "        return crate::exact_combination_evidence::validate(source);\n    }\n"
-                        "    validate_direct_pressure_evidence(source)\n}") == 1,
-        _W16B_VPE.count("validate_direct_pressure_evidence(") == 2,
+    # What `present` reads (every shape), and that a combination row is one whose basis_ref names a combination.
+    _w16b_present = (
         _W16B_PRESENT.count('source["contract_evidence"].get("exact_combinations").is_some()\n'
                             "        || items(&source[\"results\"]).iter().any(is_combination_row)") == 1,
         _fn_text("is_combination_row", _W16B_EV).count('row["basis_ref"]["ref_type"] == "combination"') == 1,
     )
-    if _W16B_DISPATCH != "validate_pressure_evidence":
-        # RTA3C-WC (§8.53): the wrapper reads the uncertified pass once, then the certificate; the uncertified pass
-        # is reached from one of two exclusive match arms (the view without the member, or the source).
-        _w16b_rd += (
-            _fn_text("validate_pressure_evidence", _W16B_PE).count(
-                "    validate_pressure_evidence_without_certificate(source)?;\n"
-                "    crate::combination_certificate::check(source)\n}") == 1,
-            _fn_text("validate_pressure_evidence_without_certificate", _W16B_PE).count(
+    # The certificate's wrapper (RT-A3 §4 and one-view shapes): the pass without the certificate once, then the
+    # certificate. The second test holds "once": the first alone would admit a further call before the pair.
+    _w16b_wrapper = (
+        _fn_text("validate_pressure_evidence", _W16B_PE).count(
+            "    validate_pressure_evidence_without_certificate(source)?;\n"
+            "    crate::combination_certificate::check(source)\n}") == 1,
+        _fn_text("validate_pressure_evidence", _W16B_PE).count("validate_pressure_evidence_without_certificate(") == 1,
+    )
+    if _W16B_ONE_VIEW:
+        # W16B-RD and RTA3C-WC (guard, one-view shape): the whole body, from the signature. The combination pass and
+        # its view run only when `present`; otherwise without_member runs once and the direct pass is one of the two
+        # arms of its match. validate_direct_pressure_evidence is private and its file names it four times (its
+        # definition and these three calls), so no other caller reaches it.
+        _w16b_rd = (
+            _W16B_VPE.startswith(
+                "pub(crate) fn validate_pressure_evidence_without_certificate(source: &Value) -> Check {\n"
+                "    if crate::exact_combination_evidence::present(source) {\n"
+                "        let view = crate::exact_combination_evidence::direct_view(source)?;\n"
+                "        validate_direct_pressure_evidence(&view)?;\n"
+                "        drop(view);\n"
+                "        return crate::exact_combination_evidence::validate(source);\n    }\n"
                 "    match crate::combination_certificate::without_member(source) {\n"
-                "        Some(view) => validate_pressure_evidence_uncertified(&view),\n"
-                "        None => validate_pressure_evidence_uncertified(source),\n    }\n}") == 1,
-            _text_of(_W16B_PE).count("validate_pressure_evidence_uncertified(") == 3,
-        )
+                "        Some(view) => validate_direct_pressure_evidence(&view),\n"
+                "        None => validate_direct_pressure_evidence(source),\n    }\n}"),
+            _W16B_VPE.count("validate_direct_pressure_evidence(") == 3,
+            _text_of(_W16B_PE).count("validate_direct_pressure_evidence(") == 4,
+        ) + _w16b_present + _w16b_wrapper
+    else:
+        # W16B-RD (guard): the reader enters its combination pass only when `present`; otherwise it runs the direct
+        # pass once and returns its Result.
+        _w16b_rd = (
+            _W16B_VPE.count("    if crate::exact_combination_evidence::present(source) {\n"
+                            "        let view = crate::exact_combination_evidence::direct_view(source)?;\n"
+                            "        validate_direct_pressure_evidence(&view)?;\n"
+                            "        return crate::exact_combination_evidence::validate(source);\n    }\n"
+                            "    validate_direct_pressure_evidence(source)\n}") == 1,
+            _W16B_VPE.count("validate_direct_pressure_evidence(") == 2,
+        ) + _w16b_present
+        if _W16B_UNCERTIFIED:
+            # RTA3C-WC (§8.53): the wrapper reads the uncertified pass once, then the certificate; the uncertified pass
+            # is reached from one of two exclusive match arms (the view without the member, or the source).
+            _w16b_rd += _w16b_wrapper + (
+                _fn_text("validate_pressure_evidence_without_certificate", _W16B_PE).count(
+                    "    match crate::combination_certificate::without_member(source) {\n"
+                    "        Some(view) => validate_pressure_evidence_uncertified(&view),\n"
+                    "        None => validate_pressure_evidence_uncertified(source),\n    }\n}") == 1,
+                _text_of(_W16B_PE).count("validate_pressure_evidence_uncertified(") == 3,
+            )
     if not all(_w16b_rd):
         raise SystemExit(f"W16B-RD: the reader's combination dispatch changed; re-review its zeros: {_w16b_rd}")
     _W16B_RD = (O10 + "W16B-RD: present(source) is false on D1: the successor carries no contract_evidence.exact_combinations "
@@ -3669,10 +3708,20 @@ if fnkey("validate", _W16B_EV) and fnkey("validate_direct_pressure_evidence", RE
                 "never reaches this reader, R1), so the combination pass and its view never run")
     O10_EDGE_ZERO += [(fnkey(_W16B_DISPATCH, _W16B_PE), fnkey(_n, _W16B_EV), _W16B_RD)
                       for _n in ("direct_view", "validate")]
-    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey(_W16B_DISPATCH, _W16B_PE),
-        fnkey("validate_direct_pressure_evidence", _W16B_PE), "1",
-        O10 + "W16B-RD: of the two direct-pass calls, the `present` arm's returns and is unreached on D1; the other runs once")]
-    if _W16B_DISPATCH != "validate_pressure_evidence":
+    if _W16B_ONE_VIEW:
+        # One edge carries both former per-call premises: W16B-RD's (the `present` arm's call is unreached on D1) and
+        # RTA3C-WC's (the other two are the arms of one match on without_member). Along the RT-A3 §4 shape's chain the
+        # direct pass ran 1 x 1 per call; here it runs 1 per call, from the same function that owns without_member's
+        # view (RTA3C-Z's site rule, from validate_pressure_evidence_without_certificate, is unchanged).
+        EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey(_W16B_DISPATCH, _W16B_PE),
+            fnkey("validate_direct_pressure_evidence", _W16B_PE), "1",
+            O10 + "W16B-RD and RTA3C-WC: of the three direct-pass calls, the `present` arm's returns and is unreached on "
+            "D1; the other two are the arms of one match on without_member, so exactly one runs per call")]
+    else:
+        EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey(_W16B_DISPATCH, _W16B_PE),
+            fnkey("validate_direct_pressure_evidence", _W16B_PE), "1",
+            O10 + "W16B-RD: of the two direct-pass calls, the `present` arm's returns and is unreached on D1; the other runs once")]
+    if _W16B_UNCERTIFIED:
         EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_pressure_evidence_without_certificate", _W16B_PE),
             fnkey("validate_pressure_evidence_uncertified", _W16B_PE), "1",
             O10 + "RTA3C-WC (§8.53): the two calls are the arms of one match on without_member, so exactly one runs per call")]
