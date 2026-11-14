@@ -412,14 +412,14 @@ DERIVED = [
 
 # Pins on individual scanned files beyond their group's `pinned_by`: each named file's group entry lists them after
 # the group's pins, and an exemption's record lists them per file. A pattern that matches no scanned file is stale.
-# Each is a fixed table in its consumer that requires a file's current bytes to have a recorded SHA-256 (a byte change
-# fails it when that check runs, until the table moves); provenance text and historical endpoint hashes are not pins.
+# Each is a fixed table in its consumer that requires the file's SHA-256 to match an admitted pin when that check runs;
+# provenance text and historical endpoint hashes are not pins.
 # The registrations are curated: they cover the fourteen tables `test_pressure_elongation_inventory.py` names
 # (PIN_TABLES), whose current targets have been reconciled by source review, and are compared with what its readers
 # extract (the module docstring, "The pin registrations"). They are not a census of every digest in the repository.
 PINNED_BY = [
     # The O4 source twins' generator pins the twelve pressure-source request fixtures and the J7 census inputs by
-    # SHA-256 (PINS and PINS_ADMITTED); a byte change to any of them fails its check.
+    # SHA-256 (PINS and PINS_ADMITTED); its check rejects bytes matching neither admitted digest when it runs.
     {"paths": ["fixtures/product_preview/pressure_source/physics_source/*.request.json",
                "fixtures/product_preview/pressure_source/load_reference_source/*.request.json",
                "fixtures/results/j7_rf_census_inputs.json"],

@@ -282,7 +282,7 @@ def _require(condition, what: str):
 def _block(text: str, start: str) -> str:
     """The text from the line starting `start` to the next line that closes it at the left margin."""
     found = re.search(rf"^{start}.*?^[\]\}}]", text, re.M | re.S)
-    _require(found, f"no {start!r} at the left margin")
+    _require(found, f"unsupported form: the expected complete left-margin block for {start!r} was not found")
     return found.group(0)
 
 
@@ -488,7 +488,7 @@ def _macro_literal(field: str, macro: str = "include_str") -> str | None:
 def _const_include(text: str, name: str) -> str:
     """The literal path of the module-level `const NAME: &str = include_str!("...");`."""
     found = re.findall(rf"^const {name}: &str = (.*?);$", _uncomment(text, "rust"), re.M | re.S)
-    _require(len(found) == 1, f"unsupported form: const {name} is not declared exactly once at the left margin")
+    _require(len(found) == 1, f"unsupported form: expected one match of the left-margin const {name}: &str = ...; pattern; found {len(found)}")
     path = _macro_literal(found[0].strip())
     _require(path is not None, f"unsupported form: const {name}'s value is not written as include_str!(\"<plain literal>\")")
     return path
@@ -534,8 +534,8 @@ def _witness_inputs(text):
 
 def _include_array(consumer: str, start: str, const: str, use: str):
     """The const array `const` inside the block at `start`: each element, bare or a tuple, holds exactly one
-    include_str! of a literal path, and the declared length equals the elements. `use`, the site that hashes them, must
-    appear as registered."""
+    include_str! of a literal path, and the declared length equals the elements. `use` is an expected use-site
+    spelling that must occur in the consumer text; its presence does not establish that hashing executes."""
     def read(text):
         _require(use in text, f"unsupported form: the expected use-site spelling {use!r} was not found")
         n, elements = _rust_array(_block(text, start), rf"const {const}: \[.*?; (?P<n>\d+)\] = \[")
@@ -570,7 +570,7 @@ def _eigen_motion(text):
     """EIGEN_MOTION_REQUEST: concat!(env!("CARGO_MANIFEST_DIR"), "<literal>"), hashed against EIGEN_MOTION_SHA256."""
     _require("hex, EIGEN_MOTION_SHA256" in text, "unsupported form: the expected spelling `hex, EIGEN_MOTION_SHA256` was not found")
     found = re.findall(r"^const EIGEN_MOTION_REQUEST: &str = (.*?);$", _uncomment(text, "rust"), re.M | re.S)
-    _require(len(found) == 1, "unsupported form: const EIGEN_MOTION_REQUEST is not declared exactly once at the left margin")
+    _require(len(found) == 1, f"unsupported form: expected one match of the left-margin const EIGEN_MOTION_REQUEST: &str = ...; pattern; found {len(found)}")
     path = re.fullmatch(r'concat!\(\s*env!\("CARGO_MANIFEST_DIR"\),\s*"(/[^"\\]*)"\s*,?\s*\)', found[0].strip())
     _require(path, f"EIGEN_MOTION_REQUEST is not concat!(env!(\"CARGO_MANIFEST_DIR\"), \"<literal>\"): {found[0][:120]}")
     return {"core/product_physics" + path.group(1)}  # concat!: CARGO_MANIFEST_DIR followed by the literal
@@ -582,7 +582,7 @@ def _golden(text):
              and "expect(sha256(goldenText)).toBe(golden.sha256)" in text, "unsupported form: the expected spellings of EXACT_GOLDEN's two sha256 expectations were not found")
     code = _uncomment(text, "ts")
     found = list(re.finditer(r"const EXACT_GOLDEN: [^=]*= \{", code))
-    _require(len(found) == 1, "EXACT_GOLDEN is not declared once as an object literal")
+    _require(len(found) == 1, f"unsupported form: expected one match of EXACT_GOLDEN's typed object-initialiser pattern; found {len(found)}")
     paths = set()
     for entry in _top_level(_enclosed(code, found[0].end() - 1, "ts"), "ts"):
         head = re.match(r"(\w+): \{", entry)
@@ -660,7 +660,7 @@ def unregistered(inventory: dict, root: Path = ROOT) -> list[tuple[str, str]]:
 @pytest.mark.parametrize("consumer, table, reader, total, held", PIN_TABLES,
                          ids=[f"{c.rsplit('/', 1)[1]}:{t}" for c, t, *_ in PIN_TABLES])
 def test_every_inventoried_file_a_fixed_pin_table_names_names_that_table(scanned, consumer, table, reader, total, held):
-    """A change to a pinned file without moving its pin fails the consumer's check when that check runs, so every
+    """Input bytes outside the consumer's admitted pins fail its check when that check runs, so every
     pinned file the inventory holds is registered with the consumer that pins it, whether its claim is a group or an
     exemption. This compares the registrations with the paths the reader extracts; it does not establish that the
     reading is complete. The counts cross-check the reading against the table as committed."""
