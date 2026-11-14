@@ -235,6 +235,7 @@ How the four original threats map onto it:
 
 Also outside the model:
 
+- The files cargo leaves that the tool reads (the binary cargo uplifted, the file rustc wrote, each unit's dep-info and the build scripts' `OUT_DIR` files) are read by name with no link followed, but with no held identity: cargo creates them, so the tool has none to hold. A replacement of one between cargo's exit and the tool's read is outside the model. The binary that runs is the tool's own copy, whose SHA-256 must equal that of the file rustc wrote, and which is held from the copy onward.
 - Only the stated roots are closed. The five single-file roots close existence only.
 - What a fixture tests is the manifest's business, not the tool's.
 
