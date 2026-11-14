@@ -137,6 +137,7 @@ def test_the_source_block_reader_never_reads_an_inspection_only_evaluation():
     for form in (old, new):
         standing = rv.standing(form, model, invocation)
         assert standing["eligible"] is not True and "MECHANICS_NOT_SOLVED" in standing["findings"], standing
+        assert "INTEGRITY_INSPECTION_ONLY_IN_SOLVED_DOCUMENT" not in standing["findings"], standing
 
 
 @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])

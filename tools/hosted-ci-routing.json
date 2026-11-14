@@ -270,7 +270,7 @@
       "core/reporting/report_package/Cargo.toml": "45cf061c452c6d96686c3cb78c69135514fe491d8000b8c34f2f8d6a1b17fe45",
       "core/reporting/report_renderer/Cargo.toml": "9d06c57d8d749e303bb5c334f7eeac4f283d7f93a2b2cda6c5cdf5dbcb5b8510",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "e240cdb027729f2f80eacad7d2c0691ce7b820f1a36c59ca329cc0be72bcacc1",
+      "core/reporting/result_export/Cargo.toml": "f16c020260baae0aead1a8e8f3095b18bf7c6cee1264219f4c42184149ad91e2",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "e407cc7c71142212a0f518856e33c826b1a2ceaeeaf0fc96ba6d50dc3f49fa6b",
       "core/rules/rule_check_runner/Cargo.toml": "b433d3eec2112c518f51ac9f83cfdc6469fef33cdaa9e1020bd8b814e5e15c85",
@@ -6439,7 +6439,7 @@
         ]
       },
       "core/reporting/result_export/tests/blocked_document_verdicts.rs": {
-        "sha256": "b478d653f36c6fd33d5eff115acca1f93c5c8ce9b94bdc90e1fbe3d61f04b5be",
+        "sha256": "3eec5065bc586d3593c8b37ef1d02b6c64728d7f0311cd992c96398e9053049a",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],

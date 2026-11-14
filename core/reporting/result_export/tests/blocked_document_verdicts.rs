@@ -214,5 +214,6 @@ fn the_source_block_reader_never_reads_an_inspection_only_evaluation() {
         let standing = rv::standing(form, Some(model), Some(&invocation));
         assert_ne!(standing["eligible"], true, "{label}: {standing}");
         assert!(findings(&standing).iter().any(|f| f == "MECHANICS_NOT_SOLVED"), "{label}: {standing}");
+        assert!(!findings(&standing).iter().any(|f| f == "INTEGRITY_INSPECTION_ONLY_IN_SOLVED_DOCUMENT"), "{label}: {standing}");
     }
 }
