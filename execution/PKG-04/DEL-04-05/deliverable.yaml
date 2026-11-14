@@ -90,6 +90,8 @@ code_paths:
 # Way H's attribution instrument: the native sequence between job_done and first paint, replayed
 # in order on a real worker's result (ignored tests; it drives DEL-07-07's commands unchanged).
 - apps/desktop/src-tauri/src/after_worker_perf_tests.rs
+# Its acceptance: the web's own decoders judge the replies the harness kept.
+- apps/desktop/src/test-support/after-worker/**
 checks:
 - core/solver/performance_harness/src/lib.rs
 - core/solver/performance_harness/tests/k6*.rs

@@ -24,11 +24,20 @@
 //!    default filter, offset 0, the default page size) and its row semantics
 //!    (`read_preview_mechanics_job_row_semantics`).
 //!
-//! Each reply must be of the shape and outcome the web's decoder accepts
-//! (checked below, not only `Ok`); a resource refusal ends the sequence where
-//! the web's `ResourceUnavailableError` ends it, and is recorded with its
-//! `required_bytes`. Nothing asserts a time or a size: a refusal (for example
-//! at 1,000 nodes) is an observed baseline, not a requirement.
+//! **Acceptance is the web's own code.** With [`REPLIES_ENV`] set, each native
+//! reply is kept byte for byte, after its call's clock stops, and
+//! `apps/desktop/src/test-support/after-worker/afterWorkerReplies.test.ts` feeds
+//! the kept replies to the web's exported decoders in the web's order
+//! (`decodeNativeRouteHeader`, `decodeNativeValidation`, `decodeNativeVerdict`,
+//! `decodeResultSummary`, `requireRouteHeaderAgreement`, `decodeSourceRecovery`,
+//! `decodeAnalysisRunPreview`, `decodeRowsPage`, `decodeRowSemantics`). The
+//! checks in this file are structural pre-checks that steer the sequence (the
+//! route, the standing, the producer and the first page's ordinals); they are
+//! not the web's acceptance and claim none. A resource refusal ends the
+//! sequence where the web's `ResourceUnavailableError` ends it, and is
+//! recorded with its `required_bytes`. Nothing asserts a time or a size: a
+//! refusal (for example at 1,000 nodes) is an observed baseline, not a
+//! requirement.
 //!
 //! **What it omits.** IPC transfer, the web's bookkeeping and caches, React
 //! commits, rendering and the two animation frames, and the panel's
@@ -108,6 +117,9 @@ pub(crate) const MODEL_ENV: &str = "SWBPIPE_AFTER_WORKER_MODEL";
 pub(crate) const RECORD_ENV: &str = "SWBPIPE_AFTER_WORKER_RECORD";
 /// `1`: an attribution run (allocation counting on); otherwise a timing run.
 pub(crate) const COUNTING_ENV: &str = "SWBPIPE_AFTER_WORKER_COUNTING";
+/// A directory (outside the repository) under which each run keeps its native replies, one
+/// subdirectory per run, for the web's own decoders to judge (`afterWorkerReplies.test.ts`).
+pub(crate) const REPLIES_ENV: &str = "SWBPIPE_AFTER_WORKER_REPLIES";
 /// Set by the parent on the child run: which source the child reads.
 const CHILD_ENV: &str = "SWBPIPE_AFTER_WORKER_CHILD";
 /// The native phase recorder's switch (`native_smoke::reader_diagnostic_call`).
@@ -423,18 +435,38 @@ fn child(kind: &str) -> Value {
         "pool_reserved_bytes": registry.pool().reserved_total(),
     });
     drop(held);
-    let mut sequence = Sequence { registry: &registry, job: &job, texts: &texts, origin: Instant::now(), counting, calls: Vec::new(), diagnosed: 0 };
+    // The kept replies: one subdirectory per run, named in the record (never the base directory).
+    let replies = std::env::var_os(REPLIES_ENV).map(|base| {
+        let base = PathBuf::from(base);
+        assert!(!base.canonicalize().expect("the replies directory exists").starts_with(root().canonicalize().unwrap()), "replies are kept outside the repository");
+        let stamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
+        let name = format!("{}-{}-{stamp}", report["source"]["name"].as_str().unwrap_or("run"), if counting { "attribution" } else { "timing" });
+        std::fs::create_dir(base.join(&name)).expect("the run's replies directory is new");
+        report["replies"] = json!({"run_directory": name});
+        Replies { directory: base.join(name), entries: Vec::new() }
+    });
+    if replies.is_none() {
+        report["replies"] = json!({"run_directory": null, "web_acceptance": "not judged: the replies were not kept"});
+    }
+    let mut sequence = Sequence { registry: &registry, job: &job, texts: &texts, origin: Instant::now(), counting, calls: Vec::new(), diagnosed: 0, replies };
     let (outcome, allocation) = if counting {
         let (outcome, measured) = ingress::counting::measure(|| sequence.run());
         (outcome, json!({
             "whole_sequence": measured,
-            "basis": "ingress::counting over the whole sequence in this thread: requested bytes from zero at the sequence's start, read with phase marks at each call's edges (live_*: running live bytes; peak_during: peak since the call's start mark; peak_between: peak since the previous call's end mark). Not seen: what existed before counting started (the held result text, the registry, the model texts, the manifest), and other threads' allocations (the registry's supervisor).",
+            "basis": "ingress::counting over the whole sequence in this thread: requested bytes from zero at the sequence's start, read with phase marks at each call's edges (live_*: running live bytes; peak_during: peak since the call's start mark; peak_between: peak since the previous call's end mark). Counting starts at ingress::counting::measure around the sequence: not seen is what existed before it (the held result text, the registry, the model texts), and other threads' allocations (the registry's supervisor and poll threads; no reader command on this path spawns a thread). Inside the count but outside every call's own marks: each call's reply write and structural pre-check (calls[].allocation.post_call), and the input manifest built before run_preview (in run_preview's peak_between).",
         }))
     } else {
         (sequence.run(), Value::Null)
     };
     let sequence_ms = sequence.origin.elapsed().as_secs_f64() * 1000.0;
     let calls = std::mem::take(&mut sequence.calls);
+    if let Some(replies) = sequence.replies.take() {
+        let manifest = json!({"schema": "swbpipe.after_worker_harness.replies/1", "head": git(&["rev-parse", "HEAD"]), "job_id": job, "source": report["source"].clone(), "run_kind": report["run_kind"].clone(), "entries": replies.entries});
+        std::fs::write(replies.directory.join("replies.json"), format!("{manifest}\n")).expect("the replies manifest is written");
+        report["replies"]["entries"] = json!(manifest["entries"].as_array().map_or(0, Vec::len));
+        report["replies"]["web_acceptance"] = json!("pre-checked");
+        report["replies"]["web_acceptance_basis"] = json!("pre-checked until afterWorkerReplies.test.ts's verdict over this run directory is attached; only a passing verdict makes it web-accepted");
+    }
     let held = registry.held_result(&job).expect("the result is still held");
     let text = held.text();
     let m = ingress::prescan_allowances(text.as_bytes()).map(|(bound, _)| bound.materialization_bytes).ok();
@@ -446,6 +478,7 @@ fn child(kind: &str) -> Value {
     report["before_sequence"] = before;
     report["allocation"] = allocation;
     report["footprint_basis"] = json!("phys_footprint at call edges is a point reading, not a per-call peak; lifetime_max_footprint is this process's maximum since it started (cumulative), not the call's; the worker is another process and is in neither");
+    report["timing_basis"] = json!("calls[].wall_ms is the native call alone; calls[].post_call_ms (the reply write and the pre-check) is outside it and inside sequence_wall_ms");
     report["parse_lease_basis"] = json!("M for the header, registration, standing and summary leases is their source_admit phase line; run_preview's parse, the detail index's route parse and the semantics' working lease have no phase line: their M is result.parse_lease_m_by_prescan (the same prescan bound of the same text), the semantics' lease adding its rows and working allowance");
     report["full_parse_basis"] = json!("counted from phase lines where they exist; from source, run_preview parses the text once, the first rows query once (the detail index's route table, kept on the share afterwards) and the row semantics once");
     report["after_sequence"] = json!({"phys_footprint": worker_alloc::phys_footprint(), "lifetime_max_footprint": worker_alloc::lifetime_max_footprint(), "pool_reserved_bytes": registry.pool().reserved_total()});
@@ -469,6 +502,41 @@ struct Sequence<'a> {
     counting: bool,
     calls: Vec<Value>,
     diagnosed: u64,
+    /// Where each reply is kept for the web's decoders (`afterWorkerReplies.test.ts`).
+    replies: Option<Replies>,
+}
+
+/// The kept replies of one run: its directory and, per reply, its file and request.
+struct Replies {
+    directory: PathBuf,
+    entries: Vec<Value>,
+}
+
+/// A native reply as the webview receives it: its bytes, and how the web reads them
+/// (`json`: Tauri delivers the parsed JSON value; `bin`: an ArrayBuffer; `txt`: UTF-8 text).
+trait Reply {
+    const KIND: &'static str;
+    fn bytes(&self) -> &[u8];
+}
+impl Reply for String {
+    const KIND: &'static str = "json";
+    fn bytes(&self) -> &[u8] {
+        self.as_bytes()
+    }
+}
+impl Reply for Vec<u8> {
+    const KIND: &'static str = "bin";
+    fn bytes(&self) -> &[u8] {
+        self
+    }
+}
+/// The row semantics' JSON text, which Tauri sends as a raw body (`semantics_response`).
+struct SemanticsText(String);
+impl Reply for SemanticsText {
+    const KIND: &'static str = "txt";
+    fn bytes(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
 }
 
 /// A call's reply as the web reads it: `Ok` with the decoded parts the sequence uses next.
@@ -480,15 +548,15 @@ impl Sequence<'_> {
     }
 
     /// One native call: its reservation and blocking part in this thread, its
-    /// edges, footprints and (attribution runs) phase marks, then the web's
-    /// decoder over the reply. `Err` ends the sequence with that outcome.
-    fn call<T>(
+    /// edges, footprints and (attribution runs) phase marks; then, outside its
+    /// clock and marks, the kept reply and the structural pre-check. `Err` ends
+    /// the sequence with that outcome.
+    fn call<T: Reply>(
         &mut self,
         name: &str,
         diagnosed: bool,
         args: Value,
         run: impl FnOnce(&SolveJobRegistry, &InvokeBody) -> Result<T, CommandError<String>>,
-        bytes_of: impl Fn(&T) -> usize,
         accept: impl FnOnce(&T) -> Accepted,
     ) -> Result<Value, Value> {
         let body = InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
@@ -514,21 +582,23 @@ impl Sequence<'_> {
             "start_ms": start_ms, "end_ms": end_ms, "wall_ms": wall_ms,
             "footprint": {"phys_start": foot_start, "phys_end": foot_end, "lifetime_max_start": max_start, "lifetime_max_end": max_end},
         });
-        if let (Some((live_start, peak_between)), Some((live_end, peak_during))) = (start_mark, end_mark) {
-            record["allocation"] = json!({"live_start": live_start, "live_end": live_end, "peak_during": peak_during, "peak_between": peak_between});
-        }
+        // After the call's clock and marks: the reply is kept (when a replies directory is set) and
+        // pre-checked. Both run under the counter on attribution runs; their own mark below keeps
+        // them out of this call's peak_during and out of the next call's peak_between.
+        let post_started = Instant::now();
         let result = match outcome {
             Ok(reply) => {
-                record["reply_bytes"] = json!(bytes_of(&reply));
+                record["reply_bytes"] = json!(reply.bytes().len());
+                self.keep(&mut record, name, T::KIND, reply.bytes(), &body);
                 match accept(&reply) {
                     Ok(decoded) => {
-                        record["outcome"] = json!("accepted");
+                        record["outcome"] = json!("pre_check_passed");
                         Ok(decoded)
                     }
                     Err(why) => {
-                        record["outcome"] = json!("not_accepted_by_the_web");
+                        record["outcome"] = json!("pre_check_failed");
                         record["why"] = json!(why);
-                        Err(json!({"ended_at": name, "kind": "not_accepted_by_the_web", "why": why}))
+                        Err(json!({"ended_at": name, "kind": "pre_check_failed", "why": why}))
                     }
                 }
             }
@@ -540,6 +610,9 @@ impl Sequence<'_> {
                 };
                 record["outcome"] = json!(if refusal.is_some() { "resource_refusal" } else { "command_error" });
                 record["error"] = serde_json::to_value(&error).unwrap_or(Value::Null);
+                // The rejection as the webview receives it: the error's serialized value.
+                let rejection = serde_json::to_vec(&error).unwrap_or_default();
+                self.keep(&mut record, name, "error", &rejection, &body);
                 if let Some((required, budget)) = required {
                     record["required_bytes"] = json!(required);
                     record["budget_bytes"] = json!(budget);
@@ -547,15 +620,37 @@ impl Sequence<'_> {
                 Err(json!({"ended_at": name, "kind": record["outcome"], "refusal": refusal, "required_bytes": required.map(|r| r.0), "budget_bytes": required.map(|r| r.1), "error": record["error"]}))
             }
         };
+        record["post_call_ms"] = json!(post_started.elapsed().as_secs_f64() * 1000.0);
+        let post_mark = self.counting.then(ingress::counting::phase_mark);
+        if let (Some((live_start, peak_between)), Some((live_end, peak_during)), Some((live_post, peak_post))) = (start_mark, end_mark, post_mark) {
+            record["allocation"] = json!({
+                "live_start": live_start, "live_end": live_end, "peak_during": peak_during, "peak_between": peak_between,
+                "post_call": {"live_after": live_post, "peak": peak_post, "basis": "the reply write and the structural pre-check, after the call's end mark: their own peak, not the call's"},
+            });
+        }
         self.calls.push(record);
         result
+    }
+
+    /// Keeps one reply (or rejection) and the request bytes it answered, bound to its run and its
+    /// position in the call order, for the web's decoders; nothing is kept past this call.
+    fn keep(&mut self, record: &mut Value, name: &str, kind: &str, bytes: &[u8], body: &InvokeBody) {
+        let Some(replies) = self.replies.as_mut() else { return };
+        let seq = replies.entries.len() + 1;
+        let file = format!("{seq:02}-{name}.{kind}");
+        let args_file = format!("{seq:02}-{name}.args.json");
+        std::fs::write(replies.directory.join(&file), bytes).expect("the reply is written");
+        let InvokeBody::Raw(raw) = body else { unreachable!("the harness sends raw bodies") };
+        std::fs::write(replies.directory.join(&args_file), raw).expect("the request is written");
+        replies.entries.push(json!({"seq": seq, "call": name, "file": file, "kind": kind, "bytes": bytes.len(), "args_file": args_file}));
+        record["reply_file"] = json!(file);
     }
 
     fn verdict(&mut self, name: &str, args: Value, accept: impl FnOnce(&String) -> Accepted) -> Result<Value, Value> {
         self.call(name, true, args, |registry, body| {
             let (raw, lease) = native_verdict::reserve(registry, body, &headers(Some(INGRESS_ARGS_JSON_V1)))?;
             native_verdict::run(registry.clone(), raw, lease)
-        }, String::len, accept)
+        }, accept)
     }
 
     fn summary(&mut self, standing: &Value) -> Result<Value, Value> {
@@ -563,7 +658,7 @@ impl Sequence<'_> {
         self.call("summary", true, args, |registry, body| {
             let (raw, lease) = result_summary::reserve(registry, body, &headers(Some(INGRESS_ARGS_JSON_V1)))?;
             result_summary::run(registry.clone(), raw, lease)
-        }, Vec::len, |reply| accept_summary(reply))
+        }, |reply| accept_summary(reply))
     }
 
     /// The standing's request (`nativeStandingInputs`): the session model's text, and the captured
@@ -621,7 +716,7 @@ impl Sequence<'_> {
             verdict = self.verdict("dispatch_again", final_args, accept_dispatch)?;
         }
         if let Err(why) = route_header_agreement(&header, &verdict) {
-            return Err(json!({"ended_at": "header_agreement", "kind": "not_accepted_by_the_web", "why": why}));
+            return Err(json!({"ended_at": "header_agreement", "kind": "pre_check_failed", "why": why}));
         }
         // Source recovery, only where the web reads it.
         let omitted = summary["omitted_members"].as_array().is_some_and(|m| m.iter().any(|m| m == "source_block_recovery"));
@@ -630,7 +725,7 @@ impl Sequence<'_> {
             self.call("source_recovery", false, args, |registry, body| {
                 let (raw, lease) = result_detail::reserve(registry, body, &headers(Some(INGRESS_ARGS_JSON_V1)), result_detail::RECOVERY_COMMAND)?;
                 result_detail::run_recovery(registry.clone(), raw, lease)
-            }, Vec::len, |reply| accept_detail(reply, "swbpipe.desktop.result_source_recovery").map(|_| Value::Null))?;
+            }, |reply| accept_detail(reply, "swbpipe.desktop.result_source_recovery").map(|_| Value::Null))?;
         }
         // 5. run_preview, with the session's input manifest (`buildCurrentSessionInputManifest`).
         let manifest = input_manifest(&self.texts.model, &summary["envelope"]["producer"]);
@@ -638,25 +733,26 @@ impl Sequence<'_> {
         let preview = self.call("run_preview", false, args, |registry, body| {
             let (raw, lease) = analysis_run_v03_build::reserve(registry, body, &headers(Some(INGRESS_ARGS_JSON_V1)))?;
             analysis_run_v03_build::run(registry.clone(), raw, lease)
-        }, Vec::len, |reply| accept_run_preview(reply))?;
+        }, |reply| accept_run_preview(reply))?;
         // 6. the first rows page and its row semantics (`NativeResultsPanel`).
         let filter = json!({"text": "", "family": "all", "frame": "all", "case": "all"});
         let rows = self.call("rows_page", false, json!({"jobId": job, "filter": filter, "offset": 0, "limit": FIRST_PAGE_ROWS}), |registry, body| {
             let (raw, lease) = result_detail::reserve(registry, body, &headers(Some(INGRESS_ARGS_JSON_V1)), result_detail::ROWS_COMMAND)?;
             result_detail::run_rows(registry.clone(), raw, lease)
-        }, Vec::len, |reply| accept_rows(reply))?;
+        }, |reply| accept_rows(reply))?;
         let ordinals = rows["ordinals"].clone();
         let returned = ordinals.as_array().map_or(0, Vec::len);
         if returned > 0 {
             let count = returned;
             self.call("row_semantics", false, json!({"jobId": job, "ordinals": ordinals}), |registry, body| {
                 let (raw, lease) = result_detail::reserve(registry, body, &headers(Some(INGRESS_ARGS_JSON_V1)), result_detail::SEMANTICS_COMMAND)?;
-                result_detail::run_semantics(registry.clone(), raw, lease)
-            }, String::len, |reply| accept_semantics(reply, count))?;
+                result_detail::run_semantics(registry.clone(), raw, lease).map(SemanticsText)
+            }, |reply| accept_semantics(&reply.0, count))?;
         }
         Ok(json!({
             "ended_at": "first_page_ready",
-            "kind": "accepted",
+            "kind": "first_page_ready",
+            "acceptance": "structural pre-checks passed; the web's acceptance is the vitest verdict over the kept replies",
             "route": route,
             "registered": unregistered.is_none(),
             "unregistered_reason": unregistered,
@@ -668,14 +764,14 @@ impl Sequence<'_> {
 }
 
 // ---------------------------------------------------------------------------
-// The web's acceptance of each reply (its decoders' checks)
+// Structural pre-checks (not the web's acceptance: that is afterWorkerReplies.test.ts)
 // ---------------------------------------------------------------------------
 
 fn object<'v>(value: &'v Value, what: &str) -> Result<&'v serde_json::Map<String, Value>, String> {
     value.as_object().ok_or_else(|| format!("{what} is not an object"))
 }
 
-/// `decodeNativeRouteHeader`.
+/// Structural pre-check after `decodeNativeRouteHeader` (which judges the kept reply).
 fn accept_route_header(reply: &str, job: &str) -> Accepted {
     let value: Value = serde_json::from_str(reply).map_err(|e| e.to_string())?;
     let map = object(&value, "the route header")?;
@@ -701,7 +797,8 @@ fn accept_route_header(reply: &str, job: &str) -> Accepted {
     Ok(value)
 }
 
-/// `decodeNativeValidation`, then `validateNativeReaders`' reading: `{code}` null when it passed.
+/// Structural pre-check after `decodeNativeValidation` (which judges the kept reply), then
+/// `validateNativeReaders`' reading: `{code}` null when it passed.
 fn accept_validation(reply: &String) -> Accepted {
     let value: Value = serde_json::from_str(reply).map_err(|e| e.to_string())?;
     match value["ok"].as_bool() {
@@ -711,7 +808,7 @@ fn accept_validation(reply: &String) -> Accepted {
     }
 }
 
-/// `decodeNativeVerdict`.
+/// Structural pre-check after `decodeNativeVerdict` (which judges the kept reply).
 fn accept_dispatch(reply: &String) -> Accepted {
     let value: Value = serde_json::from_str(reply).map_err(|e| e.to_string())?;
     let standing = &value["standing"];
@@ -724,7 +821,7 @@ fn accept_dispatch(reply: &String) -> Accepted {
     Ok(json!({"ok": value["ok"], "route": value["route"], "binding": value["binding"], "error": value["error"], "standing": standing}))
 }
 
-/// `requireRouteHeaderAgreement`.
+/// Structural pre-check after `requireRouteHeaderAgreement` (which judges the kept replies).
 fn route_header_agreement(header: &Value, verdict: &Value) -> Result<(), String> {
     let binding = if header["binding"].is_null() { verdict["binding"].is_null() } else { header["binding"]["id"] == verdict["binding"]["id"] && header["binding"]["sha256"] == verdict["binding"]["sha256"] };
     let refusal = if header["refusal"].is_null() { verdict["error"].is_null() } else { header["refusal"]["code"] == verdict["error"]["code"] && header["refusal"]["detail"] == verdict["error"]["detail"] };
@@ -753,7 +850,8 @@ fn le_u64(bytes: &[u8], at: usize) -> Option<u64> {
     bytes.get(at..at + 8).map(|b| u64::from_le_bytes(b.try_into().unwrap()))
 }
 
-/// `decodeResultSummary`'s framing and header checks (the planes' values are not re-read).
+/// A structural pre-check of S's framing and the header members the sequence reads; the web's
+/// `decodeResultSummary` (planes, descriptors and values) judges the kept reply.
 fn accept_summary(reply: &[u8]) -> Accepted {
     if reply.len() < 16 || &reply[..8] != b"SWBSUMv1" {
         return Err("not a result summary".into());
@@ -775,7 +873,7 @@ fn accept_summary(reply: &[u8]) -> Accepted {
     Ok(json!({"envelope": header["envelope"], "omitted_members": header["omitted_members"], "row_count": header["row_count"]}))
 }
 
-/// `decodeAnalysisRunPreview`.
+/// Structural pre-check after `decodeAnalysisRunPreview` (which judges the kept reply).
 fn accept_run_preview(reply: &[u8]) -> Accepted {
     let header: Value = serde_json::from_slice(reply).map_err(|_| "the response is not UTF-8 JSON".to_string())?;
     if header["document_kind"] != "swbpipe.desktop.analysis_run_preview" || header["version"] != 1 {
@@ -801,7 +899,7 @@ fn accept_run_preview(reply: &[u8]) -> Accepted {
     Ok(json!({"response_bytes": reply.len(), "record_bytes": header["record_bytes"], "route": header["route"], "result_ref_count": header["result_ref_count"], "rule_check_status": header["rule_check_status"]}))
 }
 
-/// `decodeDetailResponse`: the header and its texts' lengths.
+/// Structural pre-check after `decodeDetailResponse`: the header and its texts' lengths.
 fn accept_detail(reply: &[u8], kind: &str) -> Result<(Value, usize), String> {
     if reply.len() < 16 || &reply[..8] != b"SWBDETv1" {
         return Err("not a result detail response".into());
@@ -825,7 +923,7 @@ fn accept_detail(reply: &[u8], kind: &str) -> Result<(Value, usize), String> {
     Ok((header, texts))
 }
 
-/// `decodeRowsPage`.
+/// Structural pre-check after `decodeRowsPage` (which judges the kept reply).
 fn accept_rows(reply: &[u8]) -> Accepted {
     let (header, texts) = accept_detail(reply, "swbpipe.desktop.result_detail_rows")?;
     let ordinals = header["ordinals"].as_array().ok_or("no ordinals")?;
@@ -842,7 +940,7 @@ fn accept_rows(reply: &[u8]) -> Accepted {
     Ok(json!({"total": total, "ordinals": header["ordinals"]}))
 }
 
-/// `decodeRowSemantics`.
+/// Structural pre-check after `decodeRowSemantics` (which judges the kept reply).
 fn accept_semantics(reply: &String, count: usize) -> Accepted {
     let outcomes: Value = serde_json::from_str(reply).map_err(|_| "the semantics are not JSON".to_string())?;
     let list = outcomes.as_array().filter(|l| l.len() == count).ok_or("not one outcome per row")?;
