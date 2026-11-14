@@ -806,6 +806,7 @@ From history since 2026-10-17 (`git log -L` over the pinned regions, at main `bb
 - **The 26 scalars:** 50 site-commits from 22 distinct commits, against 83 from 38 under the blanket pin. Of the 50, 36
   come from one busy function, `pressure_runtime.rs`'s `finish_source_groups`, which holds four entries and changed in
   9 commits. Every other entry had 1 to 3.
+- **All 47:** 61 site-commits from 27 distinct commits, against 104 from 44 under the blanket pin.
 
 **The known source of re-audits.** `pressure_runtime.rs`'s `finish_source_groups` holds four entries (`pbits`, `hi`,
 `lo`, `bits`). It changed in 9 commits since 2026-10-17, which gave 36 of the scalars' 50 re-audit site-commits.
@@ -813,7 +814,6 @@ From history since 2026-10-17 (`git log -L` over the pinned regions, at main `bb
   re-recording the pins.
 - If it becomes a nuisance, the remedy is to move the four formatted lines into a small helper whose text is stable.
   That is a product refactor for its owner, not a change to the tool.
-- **All 47:** 61 site-commits from 27 distinct commits, against 104 from 44 under the blanket pin.
 
 The tool discovers no dependency: the audit names each one. The function pin and the named items do not by themselves
 show that nothing else is relied on. That is the audit's statement, in each entry's premises.
