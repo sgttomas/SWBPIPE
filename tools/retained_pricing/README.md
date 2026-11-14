@@ -675,48 +675,125 @@ rule kept, reproduces main `4d29420a0`'s 1,602 coefficients, its 1,713-line bloc
 The source work law takes ΔE = 93 B (the setting's member) in the three mixed requests: each selected case and the
 composite publication charge 24E, so each moves by 2,232.
 
-### SHA-256 finalize() hex sizing (upward re-pricing on main 053bde0b3)
+### Hex placeholders: the closed inventory (SHA-256 hex sizing; upward re-pricing on main 053bde0b3)
 
-**The change.** A SHA-256 digest in lowercase hex is 64 characters, whatever expression produced it. The text
-budget's `{:x}` rule (`base/text_budget.py` `arg_max`) gave 64 B to any argument whose text named `digest` or
-`Sha256`, without proving what it was, and the 16 B default to a streaming hasher's `hasher.finalize()`, below the
-string's 64 characters. `arg_max` now sizes a hex placeholder at 64 B only when it proves the value is SHA-256, in
-this order and before every other hex rule:
-1. an argument containing a finalize call is 64 B only when it is exactly `NAME.finalize()` and `NAME` is proved a
-   local `[sha2::]Sha256::new()` or `::default()` hasher;
-2. an argument whose own text is the call `[sha2::]Sha256::digest(...)` is 64 B, proved by that text (the fifteen
-   such placeholders below);
-3. a bare name proved bound to a `[sha2::]Sha256::digest(...)` call is 64 B, identified by the call, not the name;
-4. any other argument naming `digest` or `Sha256` is not proved.
+**Why.** A SHA-256 digest in lowercase hex is 64 characters, whatever expression produced it. Main's `{:x}` rule
+(`base/text_budget.py` `arg_max`) gave 64 B to any argument whose text named `digest` or `Sha256`, and the 16 B
+default to a streaming hasher's `hasher.finalize()`, so it priced four reached SHA-256 strings at 16 B. The rule
+recognised values by their text, so it could neither show that a 64 B value was SHA-256 nor that a 16 B one was not.
 
-The proof (`proved_sha256`) is deliberately narrow. It reads the file through the tool's own fail-closed lexer
-(`rust_literals`), so comments, strings and raw strings are not code. It requires the binding to be the only binding
-of the name in the enclosing function (no parameter of that name and no shadowing), in a block still open at the use,
-with every use between them a method call on it; `Sha256` must resolve to `sha2`'s type, by a `sha2::` path or a `use
-sha2::` import, with no alias or local definition of that name. Anything else, a field or inline receiver,
-parentheses, whitespace, a wider or unproven hasher, is not proved: the placeholder is unclassified and the run stops.
-It recognises only the constructions the priced sources use; the census in the D3 entry is what shows it covers what is
-priced. `tests/test_hex_digest_sizing.py` holds the five real shapes and this binding, each refusal the independent
-reading named (shadowing, a closed inner block, a commented-out construction, `self.digest.finalize()`,
-`Sha512::new().finalize()`, `(hasher.finalize())`, `hasher .finalize()`) with a construction inside a string, inside
-a raw string and in a nested closed scope, the name-only `digest` refusals, the order, the unchanged sizes, and the
-premise over the priced crates.
+**The inventory.** Each hex placeholder in the priced sources has one entry in `base/hex_inventory.json`. A hex
+placeholder is a format spec ending in `x` or `X`, with or without Debug `?`. The file sits beside `text_args.g4.json`,
+whose `id_audit` holds the G6 identifier audit. `base/hex_inventory.py` defines its checks. An entry carries:
+- its identity:
+  - `site`: `file:line`, the line its format macro starts on, which is the site key text_budget.py uses (`CUR[0]`);
+  - `arg`: keyed by G6's `audit_key`;
+  - `spec`: compared exactly;
+- its `size`;
+- its `reason`. For a hash site this is the named SHA-256 construction and its line. For a scalar it is the declared
+  type, where that type is declared, and the rule that bounds it;
+- the `premises` the reason relies on;
+- the `depends` it names outside its function;
+- its `pin`.
 
-**The sites.** Of main's 47 priced hex placeholders, five format a streaming `Sha256::new()` hasher's `finalize()`,
-each built in the same function: product_physics `retained_wire.rs:239` (built :237), `source_receipt.rs:41`
-(:38) and `source_recovery/j7_rf_census.rs:239` (:227, not reached on D1); result_export
-`declared_member_load.rs:500` (:459) and `source_blocks.rs:191` (:189). No wider hash is formatted in the priced
-crates. Sixteen placeholders were sized 64 B by the old name heuristic: fifteen are the `Sha256::digest(...)` call in
-their own text and stay proved by it; one, `retained_precision.rs:5935` (`format!("{:x}", digest)`), is now proved by
-its binding at :5934, `let digest = Sha256::digest(&encoded);`. Its size is unchanged (64 B). The remaining 26 are
-scalar placeholders sized correctly or over (16 B for `016x` of f64 bits and limbs and per `02x` byte, 32 B for `032x`
-of a u128), except `modal/tests_resource.rs:575`, which formats a `Vec<u64>` with `{:x?}`; the hex rule's 16 B does
-not bound a vector. Its multiplicity is 0, so it costs nothing in the registered price.
+The 47 entries at `053bde0b3`:
+- 21 hash sites at 64 B:
+  - the five streaming hashers' `finalize()`: product_physics `retained_wire.rs:239`, `source_receipt.rs:41`,
+    `source_recovery/j7_rf_census.rs:239`; result_export `declared_member_load.rs:500`, `source_blocks.rs:191`;
+  - fifteen `Sha256::digest(..)` calls, each in its own text;
+  - one bound digest: `retained_precision.rs:5935`, bound at :5934.
+- 26 scalars:
+  - u64 values at 16 B;
+  - one u128 at 32 B (`032x`);
+  - two per-byte `02x` of a digest's bytes (`modal/document.rs:214`, `retained_precision.rs:618`). These are priced
+    at 16 B against at most 2 characters, so they are over-priced;
+  - `modal/tests_resource.rs:575`, a `Vec<u64>` formatted with `{:x?}`. The hex rule does not bound it. Its entry
+    records it as unbounded at multiplicity 0, and a positive multiplicity stops the run (`hex-unbounded-positive`).
 
-**Remaining item.** `modal/tests_resource.rs:575`: a `{:x?}` of a `Vec<u64>`, not bounded by the hex rule, at
-multiplicity 0 on D1. Not repaired here.
+**Reconciliation, in pricing.** text_budget.py runs `hex_inventory.check` before it uses any hex size. The check
+compares the entries with the run's own template inventory: every hex placeholder that inventory holds, whatever its
+multiplicity. Each of these makes the run incomplete, so the point fails and the run ends with no tree:
+- a placeholder with no entry (`hex-unregistered`);
+- an entry with no placeholder (`hex-stale-entry`);
+- a count, duplicate or pin mismatch (`hex-count`, `hex-entry-duplicate`, `hex-pin`, `hex-dependency-pin`);
+- a scalar entry whose argument names a finalize, digest or sha (`hex-tripwire`). This is a second tripwire, not the
+  boundary.
 
-**Derivation.** This tool on main `053bde0b3` against main's registered tree (`d5e8063f4`'s run, which main's own
+`arg_max` sizes a hex placeholder only through its entry. Where the G6 audit also prices that placeholder, `arg_max`
+takes the larger of the two. Without a matching entry the size is None, so the placeholder is unclassified.
+`tests/test_hex_inventory.py` reconciles all 47 against the priced crates, carried to HEAD as pricing carries them.
+
+**The pin.** Each entry pins:
+- the SHA-256 of its enclosing function's whole text, from the first attribute line directly above it to its closing
+  brace. This covers any `use` inside the function;
+- the SHA-256 of the file's top-level `use` items.
+
+What an entry relies on outside those two it names in `depends`, and each dependency is pinned by the SHA-256 of the
+item's text. That text is the whole item for a struct, enum or type alias, and the header up to the body for a
+function signature or `impl` header. The named dependencies are:
+- the struct fields `Content` (`difference_basis.rs`), `LoadFidelityRow` and `LoadFidelityReport` (frame_kernel
+  `structural.rs`), `Quantity` and `PreviewLoadCase` (product_physics `lib.rs`), and `Wide` (`wide.rs`);
+- the alias `FactorKey` and the enum `FactorArea` (`pressure_runtime.rs`);
+- the enum `AccuracyClass` (`retained_precision.rs`);
+- the signatures `SelectedSourceRecovery::retained`, `RetainedFunctionalSet::projections` and
+  `RetainedFunctionalProjection::value`, then `normalized_quantity` (`physics_source.rs`), `number` (`source_blocks.rs`)
+  and `Wide<2>::sig`;
+- the two `impl fmt::Debug for Wide` headers.
+
+The tool discovers no dependency: the audit names each one. The function and `use` pins do not by themselves show that
+nothing else is relied on. That is the audit's statement, in each entry's premises.
+
+**Threat model and claim.** The priced sources are our own code under ordinary maintenance. Comments, aliases,
+shadowing and innocently named variables are ordinary maintenance and are inside the model. A test constructed to
+expose a defect is inside it too. Source arranged to match a pin while changing its meaning is outside it. The claim is
+narrowed to what holds: each size is a reviewed bound on identified source premises, and pricing stops when the text
+those premises were audited on changes. The proof is the independent source audit recorded in each entry; the pin only
+detects a change to what was audited. "Fails closed" is claimed within this model and nowhere wider.
+
+**Not covered by any pin.** These premises are named in the entries but not pinned:
+- external ones: sha2's 32-byte output, serde_json's `as_f64`, std's `to_bits` and `parse::<f64>`;
+- a crate-level rename of `sha2` (Cargo.toml, `extern crate`);
+- file-level items other than `use` (`mod sha2`, `type Sha256`);
+- a trait elsewhere in the crate supplying a same-named method;
+- the enclosing `impl` or `mod` headers of the other entries.
+
+**Re-key, not re-audit.** An entry's keys are written at the inventory's `revision`. `price.py run` carries them to
+the priced revision with the rule tables' own line map (`lib/linemap_rules.py`), without pruning, before the points
+run. A key whose line moved while all its pins still match is a re-key: pricing proceeds, and `summary.json`
+`hex_inventory_carry.rekeyed` records each old key, new key and method. Four things stop for a person to read:
+- a changed pin;
+- a missing entry;
+- an extra entry;
+- a key the line map cannot place (deleted, rewritten or not unique). The run stops there with exit 4.
+
+**Re-audit.** A re-audit is a re-reading, also after an unrelated edit:
+1. Read the diff of the function, the file's `use` items and each named dependency, from `revision` to the new head.
+2. Confirm that each recorded premise survives. Correct `reason`, `premises` and `depends` where the audit changes
+   them; a new hex placeholder needs a new entry.
+3. Carry the keys: `python3 lib/linemap_rules.py <repo> <revision> <head> <out> base/hex_inventory.json`, then copy
+   `<out>/hex_inventory.json` back and set `revision` to `<head>`.
+4. Re-record the pins on a checkout of `<head>`: `python3 base/hex_inventory.py record <source root>
+   base/hex_inventory.json`.
+5. Check against that head's template inventory: `python3 base/hex_inventory.py check <source root>
+   base/hex_inventory.json <template inventory json>`, then run the tests.
+
+**Superseded and removed.** The recogniser of the first two phases is gone: first `hasher_type`, then `proved_sha256`,
+which proved a value SHA-256 from its construction text. Two independent readings each found a new family of shapes it
+conceded:
+- first a shadowed, closed-scope or commented-out binding, and receivers it did not check;
+- then a comment before the call, an aliased direct digest, a same-line shadowing and a macro token tree.
+
+The inventory recognises nothing. A placeholder of any shape that has no entry stops the run, and
+`tests/test_hex_inventory.py` keeps each shape the readings named as a refusal case.
+
+**Remaining items.**
+- `modal/tests_resource.rs:575` is recorded as unbounded at multiplicity 0, and the run stops if that multiplicity
+  becomes positive.
+- The two per-byte `02x` entries stay over-priced at 16 B.
+
+**Derivation.** These figures come from the run of this change's first form (`5987e63d9`'s rule), whose sizes equal
+the inventory's at each of the 47 placeholders; the final run on then-current main re-derives them with the inventory.
+That run: this tool on main `053bde0b3` against main's registered tree (`d5e8063f4`'s run, which main's own
 `generate --check` reproduces against `053bde0b3`'s block with its committed basis): the four points complete,
 o10 0/0. In all sixteen budgets (four points, four variants) exactly the five finalize rows change their bytes, from
 16 to 64. Only `bytes` and the resulting `req` values change; multiplicities and all remaining fields are unchanged.

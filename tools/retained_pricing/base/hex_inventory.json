@@ -1,0 +1,1082 @@
+{
+ "about": "The closed inventory of the priced sources' hex placeholders (base/hex_inventory.py; README section 'Hex placeholders: the closed inventory'). Every {:x}-family placeholder the run's template inventory holds, at any multiplicity, has exactly one entry here, keyed by its site (file:line, the line its format macro starts on), its argument key (G6's audit_key) and its format spec; text_budget.py stops the run on a placeholder with no entry, an entry with no placeholder, or a pin that does not match. The keys are written at `revision` and carried to the priced revision by the rule tables' own line map (lib/linemap_rules.py, without pruning); a carried key whose pins all match is a re-key, recorded in summary.json, not a re-audit. Threat model: the priced sources are our own code under ordinary maintenance (comments, aliases, shadowing and innocently named variables are inside the model, and so is a test constructed to expose a defect); source arranged to match a pin while changing its meaning is outside it. Each size is a reviewed bound on the premises its entry names; the proof is the audit recorded in the entry (its reason and premises), and the pins only detect a change to what was audited. Line numbers in a reason are at `revision`.",
+ "revision": "053bde0b35b0c23110bdb45da7a16ee261503d51",
+ "entries": [
+  {
+   "site": "core/product_physics/src/case_state/resolve.rs:655",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(text.as_bytes())",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: the call Sha256::digest(text.as_bytes()) in fn reference_geometry_sha256; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 23).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "reference_geometry_sha256",
+    "fn_sha256": "345f95105dd08e3726b1d7f72735dcb054e6384b81ad30c99f6c76dfe60a25b2",
+    "uses_sha256": "7a53f1be030b7825bd1b699f65661c097381bb91a71542b901d245d9eb210c01"
+   }
+  },
+  {
+   "site": "core/product_physics/src/retained_wire.rs:229",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(bytes)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(bytes) in fn sha_hex; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 16).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "sha_hex",
+    "fn_sha256": "a51e5fa3211a3b898c1291963efc405f0ea3d8955bd72925699268f868e20653",
+    "uses_sha256": "fd27e001cb5b5bf0b0061c709f8efbebfeb3b2c7d68d4990ed21bc714c39457e"
+   }
+  },
+  {
+   "site": "core/product_physics/src/retained_wire.rs:239",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "hasher.finalize()",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 streaming hasher: let mut hasher = Sha256::new(); (line 237) in fn domain_hash, fed through ByteSink(|bytes| hasher.update(bytes)) (line 238) and finalized at the placeholder; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 16).",
+   "premises": [
+    "hasher is bound once in this function, by Sha256::new(), in a block still open at the placeholder",
+    "hasher is used before the placeholder only as a method receiver",
+    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "domain_hash",
+    "fn_sha256": "b9dcbf535bfb76a3d12ede3e98af43edfbf64da06ea337f59093de184e3051d1",
+    "uses_sha256": "fd27e001cb5b5bf0b0061c709f8efbebfeb3b2c7d68d4990ed21bc714c39457e"
+   }
+  },
+  {
+   "site": "core/product_physics/src/source_receipt.rs:41",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "hasher.finalize()",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 streaming hasher: let mut hasher = Sha256::new(); (line 38) in fn hash, fed by update through a closure (lines 39-40) and finalized at the placeholder; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 10).",
+   "premises": [
+    "hasher is bound once in this function, by Sha256::new(), in a block still open at the placeholder",
+    "hasher is used before the placeholder only as a method receiver",
+    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "hash",
+    "fn_sha256": "64adf03a34edecafb27dcae32f8df064bcae89d379f79f38d00cdd28d7f614e6",
+    "uses_sha256": "f6d246d6a8c9c28895253cc408344c93b164a5073f4031bd3ef42f2a77509067"
+   }
+  },
+  {
+   "site": "core/product_physics/src/source_recovery.rs:252",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(canonical.as_bytes())",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(canonical.as_bytes()) inside the closure of fn retained_identity_digest; Sha256 is imported by the function's own use sha2::{Digest, Sha256}; (line 232).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the function's own use item",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "retained_identity_digest",
+    "fn_sha256": "52cd92a86811676b3a6cab77d9f14bf3728696983231c8199bfcc1f9c3265a04",
+    "uses_sha256": "8e858bdac9b216bff3dafa4e0b575696955e0aae95e63c6b354e83dfd01c67b0"
+   }
+  },
+  {
+   "site": "core/product_physics/src/source_recovery/j7_rf_census.rs:62",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(bytes)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(bytes) in fn sha; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 35).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "sha",
+    "fn_sha256": "e8d6985b6b28357f1c7b7ca9fa9c6ac65e64103f74e532fba0b28aacfa59418e",
+    "uses_sha256": "61fe5977ebfc1ce143ee8068dd68869a8b55237f8fb9ef61ac254290d4dbec00"
+   }
+  },
+  {
+   "site": "core/product_physics/src/source_recovery/j7_rf_census.rs:239",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "h.finalize()",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 streaming hasher: let mut h = Sha256::new(); (line 227) in fn response_digest, fed by update and finalized at the placeholder; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 35).",
+   "premises": [
+    "h is bound once in this function, by Sha256::new(), in a block still open at the placeholder",
+    "h is used before the placeholder only as a method receiver",
+    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "response_digest",
+    "fn_sha256": "9b22f4289318aff79f59c16be38b467d009a63107f3cd6052bc7bacd39dd9e03",
+    "uses_sha256": "61fe5977ebfc1ce143ee8068dd68869a8b55237f8fb9ef61ac254290d4dbec00"
+   }
+  },
+  {
+   "site": "core/product_physics/src/source_recovery/j7_t4_consequences.rs:9",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(bytes)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(bytes) in the one-line fn sha; Sha256 is imported by the file's use sha2::{Digest,Sha256}; (line 6), which takes precedence over the file's glob imports use super::*; and use crate::*;.",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the file's explicit top-level use item, which takes precedence over its glob imports",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "sha",
+    "fn_sha256": "e52484e208de7bef7fe4f5e67dfa534db4247368860b926672862bd2bfdb9cd5",
+    "uses_sha256": "01217cd5ad437dde486513e7ab34f41f070a92333eaee74bcf43036f2f67b162"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/declared_member_load.rs:500",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "hash.finalize()",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 streaming hasher: let mut hash = Sha256::new(); (line 459) in fn recompute, fed by update (lines 460-461 and 491-496) and finalized at the placeholder; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 9).",
+   "premises": [
+    "hash is bound once in this function, by Sha256::new(), in a block still open at the placeholder",
+    "hash is used before the placeholder only as a method receiver",
+    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "recompute",
+    "fn_sha256": "97747ee5df7eb4887998e79ea81eaf57cd09fcd3d883204cffba92bbd7225bb5",
+    "uses_sha256": "f0b3bac955ee57f205ec1cf01ef23eebacab04b28850d909cff7fbc2c198e424"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/derivative.rs:94",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(canonical_json(v).as_bytes())",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(canonical_json(v).as_bytes()) in fn digest; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 11).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "digest",
+    "fn_sha256": "3a1f6b006716d3408952e8f2c35db626c7b3f5a7cf2d57007a5f9b88c142da83",
+    "uses_sha256": "e0b33b7ff8bbdac6fe25a0fbbc6cf68121082c816c401462e295461999ffc9f6"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/load_reference.rs:320",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(TRANSPORT_SCHEMA_BYTES.as_bytes())",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(TRANSPORT_SCHEMA_BYTES.as_bytes()) inside the get_or_init closure of fn transport_schema; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 20).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "transport_schema",
+    "fn_sha256": "1a65328ab474af395cb33805a8f2a959cf0e907404139c07f201f212a10fc4e4",
+    "uses_sha256": "bcbba80166fc2ee9417bf35e5f01cfcbd3bf2714745c3b26d4fe51b1bc4a72ed"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/recorded_tables.rs:226",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(bytes)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(bytes) in fn sha256_hex; Sha256 is imported by the function's own use sha2::{Digest, Sha256}; (line 225).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the function's own use item",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "sha256_hex",
+    "fn_sha256": "5cbd3402dfbe7e4407bb437899d07570576eae2e41a17be237abcb5886d4f464",
+    "uses_sha256": "e8529977bc80a8260e7417647ee8b0fd5201776674ff5f32313993bbbafff9d4"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/retained_precision.rs:2466",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(super::native_bytes(source,true)?)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(super::native_bytes(source,true)?) in fn native_source_digest; Sha256 is imported by the function's own use sha2::{Digest,Sha256}; (line 2465).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the function's own use item",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "native_source_digest",
+    "fn_sha256": "c31557b000758b219c778eb1800d4316b966e48ca00fa1f639d25acff1714922",
+    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/retained_precision.rs:5834",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(&k4cmb)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(&k4cmb) in fn g8_combinations; Sha256 is imported by the function's own use sha2::{Digest, Sha256}; (line 5791).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the function's own use item",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "g8_combinations",
+    "fn_sha256": "47fd507f24d53f56c240b85b8f85e13e29739a6076f62a0cc8df408621dda0e6",
+    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/retained_precision.rs:5935",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "digest",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its binding: let digest = Sha256::digest(&encoded); (line 5934) on the line before the placeholder, in the same block (let matches = { .. }, lines 5932-5936) of fn verify_native_source_hashes; Sha256 is imported by the function's own use sha2::{Digest, Sha256}; (line 5929).",
+   "premises": [
+    "digest is bound once, by a Sha256::digest(..) call, in the block that holds the placeholder",
+    "Sha256 resolves to sha2::Sha256 through the function's own use item",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "verify_native_source_hashes",
+    "fn_sha256": "f73ea8eff0923aa74a43b8ed7119534af57e8b9d9004a193f6868474783794a9",
+    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/semantic_contract.rs:215",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(bytes)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(bytes) in fn verify_preview_physics_retained_table; Sha256 is imported by the function's own use sha2::{Digest, Sha256}; (line 214).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the function's own use item",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "verify_preview_physics_retained_table",
+    "fn_sha256": "5a50d55d650f5deb7c4db875362bc6905476f8a3d19c3c5ad6f1500a85c34fc2",
+    "uses_sha256": "3a2812fc7f91e0047a41599c2857772ef1cb77d35bb47e98c2dc43ae693b10a8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/semantic_contract.rs:239",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(bytes)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(bytes) in fn verify_physics_retained_table; Sha256 is imported by the function's own use sha2::{Digest, Sha256}; (line 238).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the function's own use item",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "verify_physics_retained_table",
+    "fn_sha256": "62634909a0cc68afbce561af9a2dee9a2f93a3ca4d8c4c6e96b87fe631d567fa",
+    "uses_sha256": "3a2812fc7f91e0047a41599c2857772ef1cb77d35bb47e98c2dc43ae693b10a8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/semantic_contract.rs:325",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(bytes)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(bytes) in fn verify_pressure_table; Sha256 is imported by the function's own use sha2::{Digest, Sha256}; (line 324).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the function's own use item",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "verify_pressure_table",
+    "fn_sha256": "29ed182a09ce52d8032e9b95dcad53e6cb2a930b00ad623379c264f195e8e1f7",
+    "uses_sha256": "3a2812fc7f91e0047a41599c2857772ef1cb77d35bb47e98c2dc43ae693b10a8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/semantic_contract.rs:369",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(bytes)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(bytes) in fn verify_preview_physics_timoshenko_table; Sha256 is imported by the function's own use sha2::{Digest, Sha256}; (line 368).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the function's own use item",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "verify_preview_physics_timoshenko_table",
+    "fn_sha256": "f220f3dfa928d1cf18d227bae90ed1fcbc901a109eafd19d116ba9bd8a60b5c3",
+    "uses_sha256": "3a2812fc7f91e0047a41599c2857772ef1cb77d35bb47e98c2dc43ae693b10a8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/semantic_contract.rs:394",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "Sha256::digest(bytes)",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 by its own text: Sha256::digest(bytes) in fn verify_pressure_source_table; Sha256 is imported by the function's own use sha2::{Digest, Sha256}; (line 393).",
+   "premises": [
+    "the argument is itself a Sha256::digest(..) call",
+    "Sha256 resolves to sha2::Sha256 through the function's own use item",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "verify_pressure_source_table",
+    "fn_sha256": "5e7ee1100549d30f9e5b4297479b82e0560f041f3e9660a09b85ec30ea3af928",
+    "uses_sha256": "3a2812fc7f91e0047a41599c2857772ef1cb77d35bb47e98c2dc43ae693b10a8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/source_blocks.rs:191",
+   "row_kind": "format",
+   "spec": "x",
+   "arg": "hasher.finalize()",
+   "size": 64,
+   "kind": "hash",
+   "reason": "SHA-256 streaming hasher: let mut hasher = Sha256::new(); (line 189) in fn domain_digest, fed through ByteSink(|bytes| hasher.update(bytes)) (line 190) and finalized at the placeholder; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 10).",
+   "premises": [
+    "hasher is bound once in this function, by Sha256::new(), in a block still open at the placeholder",
+    "hasher is used before the placeholder only as a method receiver",
+    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "domain_digest",
+    "fn_sha256": "70026a9142580b04c1b445501b59712f59ba3776caa3470ca19a0d8817df1c59",
+    "uses_sha256": "0c8368189f6b2d45f10648b66bfde1c1191e356ca0bd19757369be67a8ab355b"
+   }
+  },
+  {
+   "site": "core/product_physics/src/difference_basis.rs:140",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "c.value_bits",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: c iterates contents: &BTreeMap<Content, usize> (the signature of fn contents_evidence) and Content.value_bits is a u64 (struct Content, line 57). The hex rule bounds a u64 at 16 characters; 016x pads to exactly 16.",
+   "premises": [
+    "c is a Content, from the function's signature",
+    "the field value_bits of struct Content is a u64"
+   ],
+   "depends": [
+    {
+     "key": "core/product_physics/src/difference_basis.rs:57",
+     "form": "item",
+     "note": "struct Content (value_bits: u64)",
+     "sha256": "aad2d6c035f6f40f99a04f3d55a83e91ba8a20f80a00e3f5e90a1e17acd0c112"
+    }
+   ],
+   "pin": {
+    "fn": "contents_evidence",
+    "fn_sha256": "5948df8c98076253fc649d663e2e72d8afd687295ac417429b5dc532062a7342",
+    "uses_sha256": "a5a878b4cfd2c69b5e0f031061335963400555e5123ba9fbef17c9385f90fb49"
+   }
+  },
+  {
+   "site": "core/product_physics/src/held_status.rs:310",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "value.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: value is the f64 parameter of fn hex (line 309) and f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "value is an f64, from the function's signature",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "hex",
+    "fn_sha256": "baa673ef6eff9cf8f2682578ecd545f62f492aa61ecc7d891182434b850064f1",
+    "uses_sha256": "6c392a46a7574058f47b4d097d7dda78ceb9339668208eb373f76cd391dc0ce0"
+   }
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:1727",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "row.exact_net_bits",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: row iterates report.rows, report: &LoadFidelityReport (the signature of fn append_load_contribution_absorbed); LoadFidelityReport.rows is a Vec<LoadFidelityRow> and LoadFidelityRow.exact_net_bits a u64 (frame_kernel structural.rs, lines 335 and 311). The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "report is a LoadFidelityReport, from the function's signature",
+    "the field rows of struct LoadFidelityReport is a Vec<LoadFidelityRow>",
+    "the field exact_net_bits of struct LoadFidelityRow is a u64"
+   ],
+   "depends": [
+    {
+     "key": "core/solver/frame_kernel/src/structural.rs:311",
+     "form": "item",
+     "note": "struct LoadFidelityRow (exact_net_bits: u64, actual_bits: u64)",
+     "sha256": "d1f2bb68305b4ee107288009966c294e218f5e60cff0bcc9066e7402ce57ccf2"
+    },
+    {
+     "key": "core/solver/frame_kernel/src/structural.rs:335",
+     "form": "item",
+     "note": "struct LoadFidelityReport (rows: Vec<LoadFidelityRow>)",
+     "sha256": "4ffac22d5fd5e0c68911230e667dabea190286b9ea6fafaf33b57a9d982a9309"
+    }
+   ],
+   "pin": {
+    "fn": "append_load_contribution_absorbed",
+    "fn_sha256": "d9ccdebbe431b63b584a26ddeb83a6bc75008918093b03904f52df81a023bad8",
+    "uses_sha256": "85fbd46c38e799f4fdedaa8c7e198dda1cd095da23a7a7ac1c596eeea2d32fbf"
+   }
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:1727",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "row.actual_bits",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: as row.exact_net_bits at the same site; LoadFidelityRow.actual_bits is a u64 (frame_kernel structural.rs, line 311). The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "report is a LoadFidelityReport, from the function's signature",
+    "the field rows of struct LoadFidelityReport is a Vec<LoadFidelityRow>",
+    "the field actual_bits of struct LoadFidelityRow is a u64"
+   ],
+   "depends": [
+    {
+     "key": "core/solver/frame_kernel/src/structural.rs:311",
+     "form": "item",
+     "note": "struct LoadFidelityRow (exact_net_bits: u64, actual_bits: u64)",
+     "sha256": "d1f2bb68305b4ee107288009966c294e218f5e60cff0bcc9066e7402ce57ccf2"
+    },
+    {
+     "key": "core/solver/frame_kernel/src/structural.rs:335",
+     "form": "item",
+     "note": "struct LoadFidelityReport (rows: Vec<LoadFidelityRow>)",
+     "sha256": "4ffac22d5fd5e0c68911230e667dabea190286b9ea6fafaf33b57a9d982a9309"
+    }
+   ],
+   "pin": {
+    "fn": "append_load_contribution_absorbed",
+    "fn_sha256": "d9ccdebbe431b63b584a26ddeb83a6bc75008918093b03904f52df81a023bad8",
+    "uses_sha256": "85fbd46c38e799f4fdedaa8c7e198dda1cd095da23a7a7ac1c596eeea2d32fbf"
+   }
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:11521",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "temperature.value.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: temperature is the Quantity in load_case.modulus_basis_temperature (struct PreviewLoadCase, line 850; the field an Option<Quantity>), Quantity.value is an f64 (struct Quantity, line 574) and f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "load_case is a PreviewLoadCase, from the function's signature",
+    "the field modulus_basis_temperature of struct PreviewLoadCase is an Option<Quantity>",
+    "the field value of struct Quantity is an f64",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [
+    {
+     "key": "core/product_physics/src/lib.rs:574",
+     "form": "item",
+     "note": "struct Quantity (value: f64)",
+     "sha256": "42cb72d18a50124d53385f4286b77877a016d1597b13580ac9d6b539c21b879e"
+    },
+    {
+     "key": "core/product_physics/src/lib.rs:850",
+     "form": "item",
+     "note": "struct PreviewLoadCase (modulus_basis_temperature: Option<Quantity>)",
+     "sha256": "74fc91d82beafee1fbc57446633dbba53fcdc5587fcff3d83b33f0fb587f3bd5"
+    }
+   ],
+   "pin": {
+    "fn": "modulus_basis_key",
+    "fn_sha256": "6db3495dcf1eb6f0b61b458846688d447126f789984f2d3b1e79a5c08ab38bae",
+    "uses_sha256": "85fbd46c38e799f4fdedaa8c7e198dda1cd095da23a7a7ac1c596eeea2d32fbf"
+   }
+  },
+  {
+   "site": "core/product_physics/src/modal/document.rs:214",
+   "row_kind": "format",
+   "spec": "02x",
+   "arg": "b",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u8, over-priced: b is the item of Sha256::digest(canonical.as_bytes()).iter() in fn modal_doc_sha256, a byte of the digest, at most 2 hex characters; the hex rule prices it 16, 14 more than it can be.",
+   "premises": [
+    "b is the closure parameter over the digest's iter(), inside the pinned function",
+    "the digest's items are bytes (external: the sha2 crate's output array)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "modal_doc_sha256",
+    "fn_sha256": "ce7028de94fc1c43b11c06f49b1ae5074b2e3b8033302edade18e9cdf1356d9c",
+    "uses_sha256": "ffe09adb4a87e9b0df16d54f73f0db8ea5d7d9fffe83454468d1017fe521ea7e"
+   }
+  },
+  {
+   "site": "core/product_physics/src/modal/tests_resource.rs:575",
+   "row_kind": "format",
+   "spec": "x?",
+   "arg": "values.iter().map(|x| x.to_bits()).collect::<Vec<_>>()",
+   "size": 16,
+   "kind": "scalar",
+   "bounded": false,
+   "reason": "NOT bounded by the hex rule: a Vec<u64> formatted with {:x?} (values: &[f64], the closure annotation in fn solution_bits) grows with its length, so the rule's 16 does not bound it. It is recorded at multiplicity 0; a positive multiplicity stops the run (hex-unbounded-positive).",
+   "premises": [
+    "the site's multiplicity is 0 in every budget"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "solution_bits",
+    "fn_sha256": "4d54c4456df5c66c503601512c1089c8ff86ae095fc93fdd3794c5ab9e609a65",
+    "uses_sha256": "7da435b6e2ad2caa6f2209eee265b9b2b12d413b1e446881729a2edac956f113"
+   }
+  },
+  {
+   "site": "core/product_physics/src/pressure_runtime.rs:1578",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "pbits",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: pbits is the second element of a FactorKey (for (&(dof, pbits, area, _), group) in &groups, line 1517; groups: BTreeMap<FactorKey, FactorGroup> in the signature of fn finish_source_groups), and type FactorKey = (usize, u64, FactorArea, u64) (line 1245). The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "groups is a BTreeMap<FactorKey, FactorGroup>, from the function's signature",
+    "pbits is bound by the for pattern over the map's keys",
+    "the type alias FactorKey's second element is a u64"
+   ],
+   "depends": [
+    {
+     "key": "core/product_physics/src/pressure_runtime.rs:1245",
+     "form": "item",
+     "note": "type FactorKey = (usize, u64, FactorArea, u64)",
+     "sha256": "13f66b931a18c4beaee1e474e27b041870a5bce6ceafa65bd009e9096ef329ed"
+    }
+   ],
+   "pin": {
+    "fn": "finish_source_groups",
+    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4",
+    "uses_sha256": "5d35fe2f0d39f8cf671454c566d507e3748744668474c2a73eaffd8c57a4fcf4"
+   }
+  },
+  {
+   "site": "core/product_physics/src/pressure_runtime.rs:1587",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "hi",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: hi is bound by FactorArea::Bore(hi, lo) (line 1586) in fn finish_source_groups, and enum FactorArea { Bore(u64, u64), Joint(u64) } (line 1244). The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "hi is bound by the match arm FactorArea::Bore(hi, lo)",
+    "FactorArea::Bore holds two u64"
+   ],
+   "depends": [
+    {
+     "key": "core/product_physics/src/pressure_runtime.rs:1244",
+     "form": "item",
+     "note": "enum FactorArea { Bore(u64, u64), Joint(u64) }",
+     "sha256": "d4d9cfa2d30f85246ff151bad9de5447043e16f3cc2a32cb56eed1c0f58d2f81"
+    }
+   ],
+   "pin": {
+    "fn": "finish_source_groups",
+    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4",
+    "uses_sha256": "5d35fe2f0d39f8cf671454c566d507e3748744668474c2a73eaffd8c57a4fcf4"
+   }
+  },
+  {
+   "site": "core/product_physics/src/pressure_runtime.rs:1588",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "lo",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: lo is bound by FactorArea::Bore(hi, lo) (line 1586) in fn finish_source_groups, and enum FactorArea { Bore(u64, u64), Joint(u64) } (line 1244). The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "lo is bound by the match arm FactorArea::Bore(hi, lo)",
+    "FactorArea::Bore holds two u64"
+   ],
+   "depends": [
+    {
+     "key": "core/product_physics/src/pressure_runtime.rs:1244",
+     "form": "item",
+     "note": "enum FactorArea { Bore(u64, u64), Joint(u64) }",
+     "sha256": "d4d9cfa2d30f85246ff151bad9de5447043e16f3cc2a32cb56eed1c0f58d2f81"
+    }
+   ],
+   "pin": {
+    "fn": "finish_source_groups",
+    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4",
+    "uses_sha256": "5d35fe2f0d39f8cf671454c566d507e3748744668474c2a73eaffd8c57a4fcf4"
+   }
+  },
+  {
+   "site": "core/product_physics/src/pressure_runtime.rs:1590",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "bits",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: bits is bound by FactorArea::Joint(bits) (line 1590) in fn finish_source_groups, and enum FactorArea { Bore(u64, u64), Joint(u64) } (line 1244). The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "bits is bound by the match arm FactorArea::Joint(bits)",
+    "FactorArea::Joint holds a u64"
+   ],
+   "depends": [
+    {
+     "key": "core/product_physics/src/pressure_runtime.rs:1244",
+     "form": "item",
+     "note": "enum FactorArea { Bore(u64, u64), Joint(u64) }",
+     "sha256": "d4d9cfa2d30f85246ff151bad9de5447043e16f3cc2a32cb56eed1c0f58d2f81"
+    }
+   ],
+   "pin": {
+    "fn": "finish_source_groups",
+    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4",
+    "uses_sha256": "5d35fe2f0d39f8cf671454c566d507e3748744668474c2a73eaffd8c57a4fcf4"
+   }
+  },
+  {
+   "site": "core/product_physics/src/retained_wire.rs:169",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "x.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: x is the f64 parameter of fn bits (line 165) and f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "x is an f64, from the function's signature",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "bits",
+    "fn_sha256": "670d60dd0512b06750e123669a5d66ca0a6204a85c3b40b734e22d22bbe44ebc",
+    "uses_sha256": "fd27e001cb5b5bf0b0061c709f8efbebfeb3b2c7d68d4990ed21bc714c39457e"
+   }
+  },
+  {
+   "site": "core/product_physics/src/retained_wire.rs:1417",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "limb",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: limb iterates limbs, typed [u64;16] by the closure annotation &(bool,i64,[u64;16]) (line 1415) in fn proof_trace. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "limbs is a [u64;16], from the closure annotation inside the pinned function"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "proof_trace",
+    "fn_sha256": "01e6ec1ce6ac28d4cbe97a8b041fc880c7ec88cd975d43e1586b585c5af9ede0",
+    "uses_sha256": "fd27e001cb5b5bf0b0061c709f8efbebfeb3b2c7d68d4990ed21bc714c39457e"
+   }
+  },
+  {
+   "site": "core/product_physics/src/source_receipt.rs:44",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "value.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: value is the f64 parameter of fn bits (line 43) and f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "value is an f64, from the function's signature",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "bits",
+    "fn_sha256": "1d3fbcaa762d72f888bf2246411aa091d58a752fe27c68b27bf149fbd1db34da",
+    "uses_sha256": "f6d246d6a8c9c28895253cc408344c93b164a5073f4031bd3ef42f2a77509067"
+   }
+  },
+  {
+   "site": "core/product_physics/src/source_recovery/j7_rf_census.rs:390",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "value.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: let value = projections[index].value(); (line 389) in fn check_public_source, projections = direct.retained().projections() with direct: &SelectedSourceRecovery in its signature; SelectedSourceRecovery::retained returns &RetainedFunctionalSet (source_recovery.rs, line 221), RetainedFunctionalSet::projections returns &[RetainedFunctionalProjection] and RetainedFunctionalProjection::value returns an f64 (frame_kernel functionals.rs, lines 1022 and 951); f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "direct is a SelectedSourceRecovery, from the function's signature",
+    "SelectedSourceRecovery::retained returns a RetainedFunctionalSet",
+    "RetainedFunctionalSet::projections returns a slice of RetainedFunctionalProjection",
+    "RetainedFunctionalProjection::value returns an f64",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [
+    {
+     "key": "core/product_physics/src/source_recovery.rs:221",
+     "form": "signature",
+     "note": "pub fn retained(&self) -> &RetainedFunctionalSet (impl SelectedSourceRecovery)",
+     "sha256": "45f8e3dc600a371dd6bf8d16d4c64b5e3a30bc0df3837cc1ee375ebdca6c3ed1"
+    },
+    {
+     "key": "core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs:1022",
+     "form": "signature",
+     "note": "pub fn projections(&self) -> &[RetainedFunctionalProjection] (impl RetainedFunctionalSet)",
+     "sha256": "a0fc159d0dd8c9fcbd98e974b295b1b692f685eed02a4c105b67c33dc5d1d276"
+    },
+    {
+     "key": "core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs:951",
+     "form": "signature",
+     "note": "pub fn value(&self) -> f64 (impl RetainedFunctionalProjection)",
+     "sha256": "a6f9d25b62f9c76ce67365b01b344a39cec6b57f4d459850f4ea844f8f114f98"
+    }
+   ],
+   "pin": {
+    "fn": "check_public_source",
+    "fn_sha256": "d4543e8c73d8e4cd02295ff67b20c17c1bab4009499c6cf0210e4f32a3703c8d",
+    "uses_sha256": "61fe5977ebfc1ce143ee8068dd68869a8b55237f8fb9ef61ac254290d4dbec00"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/derivative.rs:59",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "bound_bits",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: bound_bits is bound by AccuracyClass::AbsoluteVerified { bound_bits } (line 56) in fn class_disclosure, and enum AccuracyClass holds AbsoluteVerified { bound_bits: u64 } (retained_precision.rs, line 46). The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "bound_bits is bound by the match arm AccuracyClass::AbsoluteVerified { bound_bits }",
+    "AccuracyClass::AbsoluteVerified's bound_bits is a u64"
+   ],
+   "depends": [
+    {
+     "key": "core/reporting/result_export/src/retained_precision.rs:46",
+     "form": "item",
+     "note": "enum AccuracyClass (AbsoluteVerified { bound_bits: u64 })",
+     "sha256": "b8c039331c565947eb04036a0ce78b09eb10cb1165e9a8316b6f0a89bdebb9e8"
+    }
+   ],
+   "pin": {
+    "fn": "class_disclosure",
+    "fn_sha256": "9660df6d218b02033820a396b273227ef7acc49d10a6c6e945121b8e633e6f08",
+    "uses_sha256": "e0b33b7ff8bbdac6fe25a0fbbc6cf68121082c816c401462e295461999ffc9f6"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/exact_combination_evidence.rs:653",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "value.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: let value = t[\"value\"].as_f64().filter(..).ok_or_else(..)?; (line 652) in fn modulus_key: serde_json's Value::as_f64 gives an f64, and f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "value is the f64 from Value::as_f64 (external: serde_json), bound in the pinned function",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "modulus_key",
+    "fn_sha256": "c51b30e6a0db13cb90c4245c1651d6c576db48cd5a4eb076ebd88af999c4c307",
+    "uses_sha256": "3782344fc87e73c48e47db5d7148b97440f98afecc8b4bbb938b3ec64dc72711"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/preview_combination_gates.rs:430",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "kelvin.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: let kelvin = crate::physics_source::normalized_quantity(..)..?; (line 428) in fn modulus_key, and normalized_quantity returns Result<f64, String> (physics_source.rs, line 909); f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "kelvin is the Ok value of physics_source::normalized_quantity",
+    "physics_source::normalized_quantity returns Result<f64, String>",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [
+    {
+     "key": "core/reporting/result_export/src/physics_source.rs:909",
+     "form": "signature",
+     "note": "pub(crate) fn normalized_quantity(..) -> Result<f64, String>",
+     "sha256": "dfb5b65e0e25cdf168e5fc92ca353b94da7ff61511d0289038486fc65107f826"
+    }
+   ],
+   "pin": {
+    "fn": "modulus_key",
+    "fn_sha256": "9e9c0e76fff39fd205834193165d3c71456fcffc3856eb649fcbf8ff9f1aa9a9",
+    "uses_sha256": "3d434f15991a759bed6622ef2b0202e844c7e4d8e059ae7d5b45b78ebae35869"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/preview_difference_basis.rs:370",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "value.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: let (value, unit) = match .. (line 362) in fn model_multiset, whose arms give normalized_quantity's f64 (line 364; physics_source.rs, line 909) or Value::as_f64's f64 (line 367, serde_json); f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "value is bound by the match whose arms are both f64",
+    "physics_source::normalized_quantity returns Result<f64, String>",
+    "the other arm is Value::as_f64 (external: serde_json)",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [
+    {
+     "key": "core/reporting/result_export/src/physics_source.rs:909",
+     "form": "signature",
+     "note": "pub(crate) fn normalized_quantity(..) -> Result<f64, String>",
+     "sha256": "dfb5b65e0e25cdf168e5fc92ca353b94da7ff61511d0289038486fc65107f826"
+    }
+   ],
+   "pin": {
+    "fn": "model_multiset",
+    "fn_sha256": "6833acf699e8c5c9b91cffaf950235390d193f3a4fd675c706cf1de08ed27036",
+    "uses_sha256": "62533468cd091b33d5af71ca7c668d6d5eec54ca190184e7a09557c5bc0b0554"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/preview_held_status.rs:526",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "v.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: v is the closure parameter of value.is_some_and(..), value: Option<f64> by .parse::<f64>() (line 525) in fn modulus_label_states; f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "value is an Option<f64> from str::parse::<f64>, inside the pinned function (std)",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "modulus_label_states",
+    "fn_sha256": "e6ed1566835624dc117d54321646284108ce782fa4c5dffaea07fc4d48b28acd",
+    "uses_sha256": "c164db319ce973afae26917e2dbe15f16228388d26f579e1be438d8533195b0a"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/retained_precision.rs:334",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "v.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: v is the f64 parameter of fn bits (line 333) and f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "v is an f64, from the function's signature",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "bits",
+    "fn_sha256": "fad4e22639668bf4b77f4ae4967ddf67b1e05f46ac1e58a61a903e75f2c7c1e0",
+    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/retained_precision.rs:618",
+   "row_kind": "format",
+   "spec": "02x",
+   "arg": "b",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u8, over-priced: b is the item of Sha256::digest(bytes).iter() (line 616) in fn sha256_hex, a byte of the digest, at most 2 hex characters; the hex rule prices it 16, 14 more than it can be.",
+   "premises": [
+    "b is the closure parameter over the digest's iter(), inside the pinned function",
+    "the digest's items are bytes (external: the sha2 crate's output array)"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "sha256_hex",
+    "fn_sha256": "35fc81c4661577b8cb858c39e4f020a50f4c80cbf4a8d957da2a267b1a8da6ed",
+    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/retained_precision.rs:7334",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "bits",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: bits is the closure parameter annotated |bits: u64| (line 7334) in fn outcome_json. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "bits is a u64, from the closure annotation inside the pinned function"
+   ],
+   "depends": [],
+   "pin": {
+    "fn": "outcome_json",
+    "fn_sha256": "6b4adbeb5565bb216d524275d0603aff53587d26797f53d0110f2d52c7681b69",
+    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+   }
+  },
+  {
+   "site": "core/reporting/result_export/src/source_blocks.rs:362",
+   "row_kind": "format",
+   "spec": "016x",
+   "arg": "value.to_bits()",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: let value = number(&p[\"value\"])?; (line 358) in fn projection, and fn number returns Result<f64, String> (line 41); f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "value is the Ok value of this file's fn number",
+    "fn number returns Result<f64, String>",
+    "f64::to_bits returns a u64 (std)"
+   ],
+   "depends": [
+    {
+     "key": "core/reporting/result_export/src/source_blocks.rs:41",
+     "form": "signature",
+     "note": "fn number(v: &Value) -> Result<f64, String>",
+     "sha256": "09dbcf84e6f246558dc5bd88a38980fdbe25348ad29bf729b6a8fb010571f3ac"
+    }
+   ],
+   "pin": {
+    "fn": "projection",
+    "fn_sha256": "06d2a384821351f7ca768df304c56a3ecf093e95f4c5841dc55f0621ba7e831b",
+    "uses_sha256": "0c8368189f6b2d45f10648b66bfde1c1191e356ca0bd19757369be67a8ab355b"
+   }
+  },
+  {
+   "site": "core/solver/frame_kernel/src/structural/retained/wide.rs:218",
+   "row_kind": "write",
+   "spec": "032x",
+   "arg": "self.sig()",
+   "size": 32,
+   "kind": "scalar",
+   "reason": "u128: Wide<2>::sig returns a u128 (line 273), called in fmt of impl fmt::Debug for Wide<2>. A u128 is at most 32 hex characters; 032x pads to exactly 32, which is what the rule gives (the spec's width).",
+   "premises": [
+    "self is a Wide<2>, from the impl the function is in",
+    "Wide's fn sig returns a u128"
+   ],
+   "depends": [
+    {
+     "key": "core/solver/frame_kernel/src/structural/retained/wide.rs:212",
+     "form": "signature",
+     "note": "impl fmt::Debug for Wide<2> (the impl header: self is a Wide<2>)",
+     "sha256": "a2358c7ce46a1359c064ebc330053b0a6329c400571fd1cc37cd6adcac75c3f0"
+    },
+    {
+     "key": "core/solver/frame_kernel/src/structural/retained/wide.rs:273",
+     "form": "signature",
+     "note": "fn sig(&self) -> u128",
+     "sha256": "156e26c29dca5a8ce896f8fc8f51fd34bab7b48c2523f2f817f27e54e7f18282"
+    }
+   ],
+   "pin": {
+    "fn": "fmt",
+    "fn_sha256": "cd3aee6b6a7530eaf783c995990248a367ecfc527ccc027a84bfee8e4bc97aae",
+    "uses_sha256": "a08768b764f4a76fb98c794a3dd79d998a217a52b6a36fb6b82240d45e6aa201"
+   }
+  },
+  {
+   "site": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs:944",
+   "row_kind": "write",
+   "spec": "016x",
+   "arg": "limb",
+   "size": 16,
+   "kind": "scalar",
+   "reason": "u64: for limb in self.significand.iter().rev() (line 943) in fmt of impl fmt::Debug for Wide<L>, and struct Wide's significand is a [u64; L] (wide.rs, line 204). The hex rule bounds a u64 at 16 characters.",
+   "premises": [
+    "self is a Wide<L>, from the impl the function is in",
+    "the field significand of struct Wide is a [u64; L]"
+   ],
+   "depends": [
+    {
+     "key": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs:933",
+     "form": "signature",
+     "note": "impl<const L: usize> fmt::Debug for Wide<L> where Wide<L>: SupportedWidth (the impl header: self is a Wide<L>)",
+     "sha256": "016240784c77a2268a5777fd00627fb415771857df1e3ba50f64f983a4ee7bec"
+    },
+    {
+     "key": "core/solver/frame_kernel/src/structural/retained/wide.rs:204",
+     "form": "item",
+     "note": "struct Wide<const L: usize> (significand: [u64; L])",
+     "sha256": "a4d3876512a0d96373eb5cc1a0bfe6315a30d90fbbceac656ab46f55b64732ad"
+    }
+   ],
+   "pin": {
+    "fn": "fmt",
+    "fn_sha256": "ceacf6bb846055d0d0adf5a699a38f265f37279fb184eda3faa3883cf94227d1",
+    "uses_sha256": "2f053aed7acdc7221ddbef9d74fa766805efbff1ca0bc5b52042b4961c37d856"
+   }
+  }
+ ]
+}

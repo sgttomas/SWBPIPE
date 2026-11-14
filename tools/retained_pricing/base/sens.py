@@ -15,7 +15,7 @@ work, snap, edges, lexicon, eps, caps = sys.argv[1:7]
 os.makedirs(work, exist_ok=True)
 for f in os.listdir(H):
     if f.endswith(".py") or f in ("loop_bounds.g4.json", "text_args.g4.json", "callgraph_rules.g4.json",
-                                  "template_inventory_head.out.json", "crate_dirs.txt"):
+                                  "template_inventory_head.out.json", "crate_dirs.txt", "hex_inventory.json"):
         shutil.copy(os.path.join(H, f), os.path.join(work, f))
 env = dict(os.environ, G4_CAPS=caps, RP_SNAPSHOT=snap, RP_STAGE1_EDGES=edges)
 def run(args, out, extra=None, cwd=None):

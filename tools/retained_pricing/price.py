@@ -38,7 +38,8 @@ RULE_FILES = ("callgraph_rules.g4.json", "loop_bounds.g4.json", "text_args.g4.js
 POINTS = (("L", 3, 0), ("L", 2, 1), ("L", 1, 2), ("E", 3, 0))
 GIT_ENV = pinned_git.env()                  # no global or system git configuration, no output-changing GIT_* variable
 MARKER = ".retained_pricing_out"            # written in an output directory this tool created or claimed while empty
-OWNED = ("snap", "prepared_rules", "map", "chain", "rcL", "rcE", "runs", "logs", "tree_merged.json", "summary.json", "o10_check_L.json", "o10_check_E.json")
+OWNED = ("snap", "prepared_rules", "map", "map_hex", "chain", "rcL", "rcE", "runs", "logs", "tree_merged.json", "summary.json", "o10_check_L.json", "o10_check_E.json")
+HEX_INVENTORY = "hex_inventory.json"       # the closed inventory of hex placeholders (base/hex_inventory.py), keyed at its own `revision`
 RESOLUTIONS = os.path.join(RULES, "linemap_resolutions.json")
 
 
@@ -128,7 +129,25 @@ def chain_crates(chain, W):
     return crates, deps
 
 
-def template_inventory(W, chain, off_build=()):
+def carry_hex_inventory(repo, rev, out_dir, src=None, crates=None):
+    """Carry the hex inventory's line keys from the revision they are written at (its `revision`) to `rev` with the rule
+    tables' own line map (lib/linemap_rules.py: offset, else by function, else by text), without pruning, so a key whose
+    line was deleted or rewritten stays unmapped. A carried key whose pins all match at `rev` is a re-key, not a
+    re-audit: text_budget.py compares the pins. Returns (carried path, report, carried): carried is False when the line
+    map failed or left any key unmapped, and the run then stops."""
+    src = src or os.path.join(BASE, HEX_INVENTORY)
+    inv_rev = json.load(open(src, encoding="utf-8"))["revision"]
+    r = py([os.path.join(LIB, "linemap_rules.py"), repo, inv_rev, rev, out_dir, src],
+           env=chain_env(LINEMAP_CRATES=crates or os.path.join(BASE, "crate_dirs.txt")))
+    lm_p = os.path.join(out_dir, "g7_linemap.out.json")
+    lm = json.load(open(lm_p)) if os.path.exists(lm_p) else {"summary": {"unmapped": [["(no line map output)", r.stderr[-2000:]]]}, "remapped": []}
+    report = {"from": lm["summary"].get("old", inv_rev), "to": lm["summary"].get("new", rev),
+              "rekeyed": [[old, new, how] for _, old, new, how in lm["remapped"]], "unmapped": lm["summary"]["unmapped"]}
+    carried = r.returncode == 0 and not report["unmapped"]
+    return os.path.join(out_dir, os.path.basename(src)), report, carried
+
+
+def template_inventory(W, chain, off_build=(), out=None):
     """The chain's template inventory regenerated on the snapshot (production .rs files of the chain's crates, less the
     W1R-FG files the registered build does not compile)."""
     files = []
@@ -138,7 +157,7 @@ def template_inventory(W, chain, off_build=()):
                 continue
             files += [os.path.relpath(os.path.join(d, f), W) for f in fs if f.endswith(".rs") and not f.endswith("_tests.rs") and f != "tests.rs"
                       and os.path.relpath(os.path.join(d, f), W) not in off_build]
-    r = py([os.path.join(chain, "template_inventory.py"), "."] + sorted(files), cwd=W, out=os.path.join(chain, "template_inventory_head.out.json"))
+    r = py([os.path.join(chain, "template_inventory.py"), "."] + sorted(files), cwd=W, out=out or os.path.join(chain, "template_inventory_head.out.json"))
     if r.returncode:
         stop(4, "template inventory failed", stderr=r.stderr[-2000:])
 
@@ -275,11 +294,18 @@ def cmd_run(a):
     report["premise_pins"] = {"pins": len(pins), "bad": bad}
     if bad:
         stop(4, "a premise pin's line is not as reviewed", bad=bad)
+    # 3b. the hex inventory's keys, from the revision they are written at -> rev (a re-key is recorded; a key the line
+    # map cannot place stops the run). Its pins are compared at rev by text_budget.py's reconciliation.
+    hex_path, report["hex_inventory_carry"], hex_carried = carry_hex_inventory(repo, rev, os.path.join(out, "map_hex"))
+    if not hex_carried:
+        stop(4, "hex inventory keys not carried to the revision (map_hex/g7_linemap.out.json): re-audit the entries named",
+             unmapped=report["hex_inventory_carry"]["unmapped"])
     # 4. the base chain at rev: the base scripts, the carried rule tables, the regenerated template inventory
     chain = os.path.join(out, "chain")
     shutil.copytree(BASE, chain)
     for f in RULE_FILES:
         shutil.copy(os.path.join(m, f), os.path.join(chain, f))
+    shutil.copy(hex_path, os.path.join(chain, HEX_INVENTORY))
     # W1R-FG (retained-pricing-rules.md §8.11): the off-feature files and manifest lines, guarded; the scanners blank
     # off-feature items and skip these files, as the registered build (no features) does not compile them.
     try:

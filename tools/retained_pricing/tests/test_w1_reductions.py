@@ -161,6 +161,9 @@ def test_missing_or_former_guard_is_driver_exit_4(tmp_path, monkeypatch, capsys,
     monkeypatch.setattr(driver, "snapshot", lambda *args: str(root))
     monkeypatch.setattr(driver, "prepare_b7a_retired_carry", lambda *args: ({}, None))
     monkeypatch.setattr(driver, "template_inventory", lambda *args: None)
+    # The hex inventory's key carry (a second line-map stage) is stubbed as successful like the others.
+    monkeypatch.setattr(driver, "carry_hex_inventory", lambda *args, **kw: (
+        str(PRICING / "base" / "hex_inventory.json"), {"rekeyed": [], "unmapped": []}, True))
     def step(args, **kwargs):
         if str(args[0]).endswith("linemap_rules.py"):
             mapped = output / "map"
