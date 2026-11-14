@@ -1,6 +1,11 @@
 //! DEL-04-07 REQ-008, part 1 (evidence only): the sparse active-set loop's heap,
 //! measured by a counting global allocator over a model family.
 //!
+//! **Translated input: same counts, not the product's input; a cross-check.** The
+//! witness on the product's own loop input is the product crate's in-crate
+//! `src/sparse_loop_memory_tests.rs` (level "product-loop"); this binary translates
+//! each document itself and keeps the product's topology and counts, not its loads.
+//!
 //! This binary asserts no memory bound. For each model it measures, in one
 //! process and one test at a time, the peak live heap over one boundary that
 //! includes:
@@ -870,13 +875,21 @@ fn wait_for_timing_window() {
     }
 }
 
+/// The JSON-lines output: the file named by `SWBPIPE_SPARSE_MEMORY_OUT`, created once per
+/// run (else stdout).
+static OUT: Mutex<Option<std::fs::File>> = Mutex::new(None);
+
+fn open_out() {
+    if let Some(path) = std::env::var_os("SWBPIPE_SPARSE_MEMORY_OUT") {
+        *OUT.lock().unwrap_or_else(|e| e.into_inner()) = Some(std::fs::File::create(path).unwrap());
+    }
+}
+
 fn emit(line: &str) {
-    let Some(path) = std::env::var_os("SWBPIPE_SPARSE_MEMORY_OUT") else {
-        println!("{line}");
-        return;
-    };
-    let mut file = std::fs::OpenOptions::new().create(true).append(true).open(path).unwrap();
-    writeln!(file, "{line}").unwrap();
+    match OUT.lock().unwrap_or_else(|e| e.into_inner()).as_mut() {
+        Some(file) => writeln!(file, "{line}").unwrap(),
+        None => println!("{line}"),
+    }
 }
 
 fn json_string(text: &str) -> String {
@@ -1109,7 +1122,10 @@ fn the_counter_counts_a_known_allocation() {
     assert!(PEAK_RND[0].load(SeqCst) - start.live_rnd >= 1 << 20);
 }
 
-/// Every manifest model marked `loop`, then the Rust-generated tie-rod chains.
+/// Every manifest model marked `loop`, then the Rust-generated tie-rod chains, then the
+/// loop entry's guard on the models marked `refusal` (just above the limit): the refusal
+/// comes before the loop's assembly, and its heap is reported. One test, so that one run
+/// writes one output file.
 #[test]
 fn sparse_loop_peaks_over_the_model_family() {
     let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
@@ -1117,6 +1133,7 @@ fn sparse_loop_peaks_over_the_model_family() {
         eprintln!("SWBPIPE_SPARSE_MEMORY_MODELS is not set: no model is measured");
         return;
     }
+    open_out();
     let only = std::env::var("SWBPIPE_SPARSE_MEMORY_ONLY").ok();
     for (name, family, sha, path) in models("loop") {
         let model = translate(&Reader::parse(&std::fs::read(path).unwrap()));
@@ -1131,16 +1148,6 @@ fn sparse_loop_peaks_over_the_model_family() {
         // The generated input's identity: the SHA-256 of its `Debug` text.
         let sha = sha256(format!("{:?}", caller_input(&model)).as_bytes());
         measure(&name, "connectors with tie rods (Rust-generated)", &sha, &model).unwrap();
-    }
-}
-
-/// The loop entry's guard on models just above the limit: the refusal comes
-/// before the loop's assembly, and its heap is reported.
-#[test]
-fn loop_entry_guard_refuses_before_its_allocations() {
-    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
-    if std::env::var_os("SWBPIPE_SPARSE_MEMORY_MODELS").is_none() {
-        return;
     }
     for (name, family, sha, path) in models("refusal") {
         let model = translate(&Reader::parse(&std::fs::read(path).unwrap()));

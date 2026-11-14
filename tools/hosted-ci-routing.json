@@ -262,7 +262,7 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "552547b7e24a4f16c2835d3960c4903a81ee9b73fc424b5dd19d56bf2f1b33ca",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "0362f5d8b1b4196600e7dc687093bfedff32ea4b8bfdef2ec06a768913730fbd",
+      "core/product_physics/Cargo.toml": "f968fb32115f40f40811eca4aa8621b903261433bcc5fb58cb4b57654bef58f3",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "dd148327d8582cf51cc3201636f51e50ed7e486bd685f11c8b9336372ab72c34",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
@@ -282,7 +282,7 @@
       "core/solver/diagnostics/Cargo.toml": "33f62709325dd0aee1a7e4996ee1424e2dcbc9fd54418704f87c8f39e64b875c",
       "core/solver/frame_kernel/Cargo.toml": "8112d30a7f8fee1d125ff8a66a3a7fd55d7169136aee877acdad45a68564af56",
       "core/solver/linear_supports/Cargo.toml": "74cab9f6444ce421810b8a9778c1ad0257dcaf34815c4449ea2267fca23909cb",
-      "core/solver/nonlinear_integration/Cargo.toml": "7fe7a344af40736a980765d9c96edcf201210b20d610101a9988665115a5b2cf",
+      "core/solver/nonlinear_integration/Cargo.toml": "413830ec362c9393bdd2c8063dc5cd29d0685272dbd687421b79f5f6836965fc",
       "core/solver/nonlinear_supports/Cargo.toml": "c34c7d2a46294e3c2ab57b4b15028c48664670dfe25278b8b6d22147743a10a6",
       "core/solver/performance_harness/Cargo.toml": "af149ad58e5cb3bb646248e6196496e41d4749b4dc7cc67cdac341f04d2bae47",
       "core/solver/release_timing/Cargo.toml": "0c11556c7b093e0e2347f19000e107bc4c832fa00c89d081bd325f0e866251a4",
@@ -2780,6 +2780,7 @@
               "core/product_physics/src/source_recovery/j7_rf_census.rs",
               "core/product_physics/src/source_recovery/j7_t4_consequences.rs",
               "core/product_physics/src/source_recovery/ra_gating_tests.rs",
+              "core/product_physics/src/sparse_loop_memory_tests.rs",
               "core/product_physics/src/spectra.rs",
               "core/product_physics/src/tie_rod_tests.rs",
               "core/product_physics/src/timoshenko_product_tests.rs",
@@ -4205,6 +4206,7 @@
               "core/product_physics/src/source_recovery/j7_rf_census.rs",
               "core/product_physics/src/source_recovery/j7_t4_consequences.rs",
               "core/product_physics/src/source_recovery/ra_gating_tests.rs",
+              "core/product_physics/src/sparse_loop_memory_tests.rs",
               "core/product_physics/src/spectra.rs",
               "core/product_physics/src/tie_rod_tests.rs",
               "core/product_physics/src/timoshenko_product_tests.rs",
@@ -4429,6 +4431,7 @@
               "core/product_physics/src/source_recovery/j7_rf_census.rs",
               "core/product_physics/src/source_recovery/j7_t4_consequences.rs",
               "core/product_physics/src/source_recovery/ra_gating_tests.rs",
+              "core/product_physics/src/sparse_loop_memory_tests.rs",
               "core/product_physics/src/spectra.rs",
               "core/product_physics/src/tie_rod_tests.rs",
               "core/product_physics/src/timoshenko_product_tests.rs",
@@ -6408,6 +6411,47 @@
         "external_reads": {
           "kind": "audited-external-inputs",
           "reason": "The live tests read the records the supervisor writes in a temporary folder."
+        }
+      },
+      "core/solver/nonlinear_integration/tests/sparse_loop_memory.rs": {
+        "sha256": "b4879d3cce9a660e353e4dfd4bc322e40c3b95646ec949dd53ae0e9d927b2c51",
+        "source_trees": [
+          "core/solver/nonlinear_integration/Cargo.toml"
+        ],
+        "inputs": [],
+        "external_reads": {
+          "kind": "audited-external-inputs",
+          "reason": "Memory-measurement test reads only the model directory named by SWBPIPE_SPARSE_MEMORY_MODELS, a scratch directory outside the project; without that variable (as in CI) it returns before any read."
+        }
+      },
+      "core/product_physics/tests/sparse_admission_memory_twin.rs": {
+        "sha256": "fac7e9d572993e4352a212da1cb02780e116254a1336b42cd4e495ba6db12b64",
+        "source_trees": [
+          "core/product_physics/Cargo.toml"
+        ],
+        "inputs": [],
+        "external_reads": {
+          "kind": "audited-external-inputs",
+          "reason": "Memory-measurement test reads only the model directory named by SWBPIPE_SPARSE_MEMORY_MODELS, a scratch directory outside the project; without that variable (as in CI) it returns before any read."
+        }
+      },
+      "core/product_physics/src/sparse_loop_memory_tests.rs": {
+        "sha256": "67114dc40c1fd68e74a614bb41d1765c7a44c1183ec5100e09bb64e88c1b2320",
+        "source_trees": [
+          "core/analysis/hanger_sizing/Cargo.toml",
+          "core/loads/self_weight_wasm/Cargo.toml",
+          "core/model_operations/operation_applier/Cargo.toml",
+          "core/product_physics/Cargo.toml",
+          "core/runner/headless/Cargo.toml",
+          "core/solver/release_timing/Cargo.toml",
+          "validation/benchmarks/numerical_integrity/Cargo.toml",
+          "validation/benchmarks/physics_audit_regression/Cargo.toml",
+          "validation/benchmarks/stress/Cargo.toml"
+        ],
+        "inputs": [],
+        "external_reads": {
+          "kind": "audited-external-inputs",
+          "reason": "Memory-measurement test reads only the model directory named by SWBPIPE_SPARSE_MEMORY_MODELS, a scratch directory outside the project; without that variable (as in CI) it returns before any read."
         }
       }
     }

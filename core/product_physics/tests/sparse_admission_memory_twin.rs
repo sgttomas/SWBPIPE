@@ -158,13 +158,21 @@ fn wait_for_timing_window() {
     }
 }
 
+/// The JSON-lines output: the file named by `SWBPIPE_SPARSE_MEMORY_OUT`, created once per
+/// run (else stdout).
+static OUT: Mutex<Option<std::fs::File>> = Mutex::new(None);
+
+fn open_out() {
+    if let Some(path) = std::env::var_os("SWBPIPE_SPARSE_MEMORY_OUT") {
+        *OUT.lock().unwrap_or_else(|e| e.into_inner()) = Some(std::fs::File::create(path).unwrap());
+    }
+}
+
 fn emit(line: &str) {
-    let Some(path) = std::env::var_os("SWBPIPE_SPARSE_MEMORY_OUT") else {
-        println!("{line}");
-        return;
-    };
-    let mut file = std::fs::OpenOptions::new().create(true).append(true).open(path).unwrap();
-    writeln!(file, "{line}").unwrap();
+    match OUT.lock().unwrap_or_else(|e| e.into_inner()).as_mut() {
+        Some(file) => writeln!(file, "{line}").unwrap(),
+        None => println!("{line}"),
+    }
 }
 
 /// The envelope's facts this measurement reports (read after the boundary).
@@ -297,6 +305,7 @@ fn whole_call_peaks_over_the_model_family() {
         eprintln!("SWBPIPE_SPARSE_MEMORY_MODELS is not set: no model is measured");
         return;
     }
+    open_out();
     for (name, family, sha, path) in models(&["product", "refusal"]) {
         measure(&name, &family, &sha, std::fs::read(path).unwrap());
     }
