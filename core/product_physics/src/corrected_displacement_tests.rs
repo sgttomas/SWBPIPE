@@ -16,7 +16,7 @@ mod t4_u5b;
 
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 
-/// One load case's displacement publication, as `published_nodal_displacements`
+/// One load case's displacement publication, as `run_case` published it
 /// formed it (test-only probe in `run_case`).
 #[derive(Debug, Clone)]
 pub(crate) struct DisplacementPublication {
@@ -24,9 +24,16 @@ pub(crate) struct DisplacementPublication {
     pub bound: Option<MemberBoundInputs>,
     pub solve: Vec<f64>,
     pub published: Vec<f64>,
+    /// Whether the case's nonlinear state evidence (the held-status source's
+    /// evidence) says Confirmed; `None` for a case without that evidence.
+    pub confirmed_evidence: Option<bool>,
 }
 
 thread_local! {
+    /// Makes the named case's solve displacement non-finite before publication.
+    pub(crate) static FORCED_NONFINITE_DISPLACEMENT: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
+    /// Forces `corrected_nodal_displacements` to fail at this DOF with this step.
+    pub(crate) static FORCED_CORRECTION_FAILURE: std::cell::Cell<Option<(usize, open_pipe_stress_frame_kernel::structural::DisplacementFailureKind)>> = const { std::cell::Cell::new(None) };
     pub(crate) static DISPLACEMENT_PUBLICATION_PROBE: std::cell::RefCell<Option<Vec<DisplacementPublication>>> = const { std::cell::RefCell::new(None) };
 }
 
@@ -170,11 +177,13 @@ fn preview_physics_2_publishes_the_corrected_displacement_only_with_the_bound() 
 }
 
 /// Codex scrutiny 4 (a): a present bound with one component that cannot be
-/// formed (its exact sum overflows binary64) publishes the solve's own u for
-/// the whole case, the formable component included; without the overflow the
-/// formable component is corrected.
+/// formed (its exact sum overflows binary64) yields no corrected vector at all,
+/// naming the first such component and the step that failed (the caller then
+/// withdraws the bound for the whole case); without the overflow every
+/// component is corrected.
 #[test]
-fn an_unformable_component_falls_back_for_the_whole_case() {
+fn an_unformable_component_names_itself_and_its_step() {
+    use open_pipe_stress_frame_kernel::structural::DisplacementFailureKind;
     let bound = |w1: f64| MemberBoundInputs {
         w: vec![2.0_f64.powi(-40), w1],
         w2: vec![0.0, 0.0],
@@ -183,14 +192,23 @@ fn an_unformable_component_falls_back_for_the_whole_case() {
         lift_radius: Vec::new(),
     };
     let u = [1.0, f64::MAX];
-    let formed = published_nodal_displacements(&u, Some(&bound(0.0)));
+    let formed = corrected_nodal_displacements(&u, &bound(0.0)).unwrap();
     assert_eq!(formed.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), [(1.0 + 2.0_f64.powi(-40)).to_bits(), f64::MAX.to_bits()]);
-    let unformable = published_nodal_displacements(&u, Some(&bound(f64::MAX)));
-    assert_eq!(unformable.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), u.map(f64::to_bits), "the whole case keeps u");
-    // A bound shorter than u (a component outside it) is unformable too.
+    // u + w far beyond binary64 at component 1: the enclosure itself cannot be
+    // formed (the kernel's first step), so certification fails.
+    let unformable = corrected_nodal_displacements(&u, &bound(f64::MAX)).unwrap_err();
+    assert_eq!((unformable.dof, unformable.kind), (1, DisplacementFailureKind::Certify));
+    // Just past binary64 too (f64::MAX plus half its ulp): the enclosure's own
+    // range check runs first and fails, so this is also a certification
+    // failure. No input the enclosure admits fails afterwards at representing
+    // the value; that step stays typed so that a later kernel change cannot be
+    // reported as the wrong kind (the product-level test forces it).
+    let edge = corrected_nodal_displacements(&u, &bound(2.0_f64.powi(970))).unwrap_err();
+    assert_eq!((edge.dof, edge.kind), (1, DisplacementFailureKind::Certify));
+    // A bound shorter than u (a component outside it) cannot certify that component.
     let short = MemberBoundInputs { w: vec![2.0_f64.powi(-40)], w2: vec![0.0], exponents: vec![0], lambda_sigma: 0.0, lift_radius: Vec::new() };
-    assert_eq!(published_nodal_displacements(&[1.0, 2.0], Some(&short)), [1.0, 2.0]);
-    assert_eq!(published_nodal_displacements(&u, None), u);
+    let outside = corrected_nodal_displacements(&[1.0, 2.0], &short).unwrap_err();
+    assert_eq!((outside.dof, outside.kind), (1, DisplacementFailureKind::Certify));
 }
 
 /// Codex's item-6 round-2 scrutiny: the as-built rule through the product's
@@ -207,7 +225,7 @@ fn published_mm_rows_convert_the_si_corrected_displacement() {
     let mut bound = MemberBoundInputs { w: vec![0.0; DOF_PER_NODE], w2: vec![0.0; DOF_PER_NODE], exponents: vec![0; DOF_PER_NODE], lambda_sigma: 0.0, lift_radius: Vec::new() };
     bound.w[UX] = 2.0_f64.powi(-53);
     bound.w2[UX] = 2.0_f64.powi(-130);
-    let published = published_nodal_displacements(&u, Some(&bound));
+    let published = corrected_nodal_displacements(&u, &bound).unwrap();
     assert_eq!(published[UX].to_bits(), (1.0 + 2.0_f64.powi(-52)).to_bits(), "rounded once in SI");
     let as_built = 1000.0 * published[UX];
     let single = {
@@ -233,4 +251,235 @@ fn published_mm_rows_convert_the_si_corrected_displacement() {
     let mut support_rows = vec![ResultItem { component_body: None, id: id.clone(), value: 0.0, ..results[0].clone() }];
     restate_nonlinear_support_displacements(&mut support_rows, &[support], &published);
     assert_eq!(support_rows[0].value.to_bits(), as_built.to_bits(), "nonlinear support row");
+}
+
+/// DEL-04-07 *Published displacement* (Agent 0's decision, reading (ii)): where
+/// the bound exists but a component's correction cannot be formed, the bound
+/// and the confirmed state are withdrawn before anything is published. On the
+/// bundled demo model (two confirmed nonlinear cases), with the correction
+/// forced to fail at node 2's UX, in both modes and for both steps, every part
+/// of the document agrees that no published result relies on the confirmation:
+/// the case's verdict and its named reason, the named warning, the nodal rows
+/// (the solve's own u), the member, support and connector recoveries (no
+/// certified recovery record), the state evidence the held-status source would
+/// take (not Confirmed), the case quality and its downstream eligibility.
+#[test]
+fn a_correction_that_cannot_be_formed_withdraws_the_bound_for_the_whole_case() {
+    use open_pipe_stress_frame_kernel::structural::DisplacementFailureKind::{Certify, Represent};
+    let demo: Value = serde_json::json!({
+        "model": serde_json::from_str::<Value>(include_str!("../../../fixtures/product_preview/invented_demo_model.json")).unwrap(),
+        "materials": [],
+    });
+    let cases = ["load:L-100", "load:L-200"];
+    let run = |mode, forced| {
+        FORCED_CORRECTION_FAILURE.with(|f| f.set(forced));
+        crate::tests::KD5_RECOVERY_PROBE.with(|probe| *probe.borrow_mut() = Some(Vec::new()));
+        let (source, published) = with_publication_probe(|| solve(&demo, mode, false));
+        let recoveries = crate::tests::KD5_RECOVERY_PROBE.with(|probe| probe.borrow_mut().take().unwrap());
+        FORCED_CORRECTION_FAILURE.with(|f| f.set(None));
+        (source, published, recoveries)
+    };
+    let diagnostic = |source: &Value, id: String| {
+        source["diagnostics"].as_array().unwrap().iter().find(|d| d["id"] == id.as_str()).cloned()
+    };
+    let bases = |source: &Value| {
+        source["numerical_quality"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect::<Vec<_>>()
+    };
+    let node = serde_json::from_str::<Value>(include_str!("../../../fixtures/product_preview/invented_demo_model.json")).unwrap()["nodes"][1]["id"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    for mode in MODES {
+        // The unforced run is the positive control: confirmed, bound present, certified recoveries.
+        let (normal, published, recoveries) = run(mode, None);
+        assert!(!recoveries.is_empty(), "{mode:?}");
+        for case in cases {
+            let integrity = diagnostic(&normal, integrity_diagnostic_id(case)).unwrap();
+            assert_eq!(integrity["code"], "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{mode:?} {case}");
+            assert!(diagnostic(&normal, format!("diagnostic:displacement-correction:{case}")).is_none());
+            let record = published.iter().find(|r| r.case_id == case).unwrap();
+            assert!(record.bound.is_some() && record.confirmed_evidence == Some(true), "{mode:?} {case}");
+            // The two bases differ on this case: the corrected displacement is not the solve's own.
+            assert!(record.published.iter().zip(&record.solve).any(|(a, b)| a.to_bits() != b.to_bits()), "{mode:?} {case}: the bases coincide");
+        }
+        for (kind, step) in [(Certify, "certified"), (Represent, "represented in binary64")] {
+            let label = format!("{mode:?} {kind:?}");
+            let (source, published, recoveries) = run(mode, Some((DOF_PER_NODE, kind)));
+            assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED", "{label}");
+            assert!(recoveries.is_empty(), "{label}: a certified recovery was formed");
+            let clause = format!("the corrected displacement of {node}:UX could not be {step} (forced by test)");
+            for case in cases {
+                let integrity = diagnostic(&source, integrity_diagnostic_id(case)).unwrap();
+                let message = integrity["message"].as_str().unwrap();
+                assert_eq!(integrity["code"], "NUMERICAL_INTEGRITY_SENSITIVE", "{label} {case}");
+                assert!(message.contains(&format!("the member-relative formation check ran, but {clause}; every published displacement, and every member, support and connector row, of this case is a binary64 recovery from the solve's own displacement")), "{label} {case}: {message}");
+                assert!(!message.contains(NONLINEAR_CONFIRMED_EVIDENCE_LINE), "{label} {case}");
+                assert!(!message.contains("is not available"), "{label} {case}");
+                let warning = diagnostic(&source, format!("diagnostic:displacement-correction:{case}")).unwrap();
+                assert_eq!((warning["code"].as_str(), warning["severity"].as_str()), (Some("DISPLACEMENT_CORRECTION_UNAVAILABLE"), Some("warning")), "{label}");
+                assert_eq!(warning["message"], format!("Load case {case}: {clause}; no published result of this case relies on the member-relative formation check."), "{label}");
+                assert_eq!(warning["affected_refs"], serde_json::json!([case]), "{label}");
+                let quality = source["numerical_quality"]["cases"].as_array().unwrap().iter().find(|q| q["basis_ref"]["ref_id"] == case).unwrap();
+                assert_eq!(quality["solve_quality"], "sensitive", "{label} {case}");
+                let record = published.iter().find(|r| r.case_id == case).unwrap();
+                assert!(record.bound.is_none(), "{label} {case}: the bound was used");
+                assert_eq!(record.published.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), record.solve.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), "{label} {case}");
+                assert_eq!(record.confirmed_evidence, Some(false), "{label} {case}: the state evidence still says Confirmed");
+            }
+            // The member, support and connector rows changed basis: some differ from the confirmed run's.
+            assert!(differing_rows(&normal, &source) > 0, "{label}: no recovered row changed basis");
+            assert_eq!(crate::result_export::semantic_contract::numerical_use_standing(&source, &bases(&source)), "needs_recompute", "{label}");
+            assert!(crate::result_export::semantic_contract::for_source(&source).is_ok(), "{label}: the reader refuses");
+        }
+    }
+}
+
+/// The number of non-displacement result rows (member, section, support and
+/// connector recoveries) whose value differs in bits between two runs.
+fn differing_rows(a: &Value, b: &Value) -> usize {
+    let rows = |source: &Value| {
+        source["results"].as_array().unwrap().iter()
+            .filter(|r| !r["id"].as_str().unwrap().starts_with("result:disp:"))
+            .filter_map(|r| Some((r["id"].as_str()?.to_string(), r["value"].as_f64()?.to_bits())))
+            .collect::<std::collections::BTreeMap<_, _>>()
+    };
+    let (a, b) = (rows(a), rows(b));
+    assert_eq!(a.keys().collect::<Vec<_>>(), b.keys().collect::<Vec<_>>(), "the same rows are published");
+    a.iter().filter(|(id, bits)| b[*id] != **bits).count()
+}
+
+/// The same decision on the linear route (pressure-2, AS-F-R, a Passed case with
+/// its bound): withdrawn, sensitive with the named reason and the warning, every
+/// row the solve's own, no certified recovery, and the bases shown to differ.
+#[test]
+fn a_linear_correction_that_cannot_be_formed_withdraws_the_bound() {
+    use open_pipe_stress_frame_kernel::structural::DisplacementFailureKind::Certify;
+    let oracle = t4_u5b::oracle();
+    let request = t4_u5b::request("AS-F-R", &oracle["cases"]["AS-F-R"]);
+    let run = |mode, forced| {
+        FORCED_CORRECTION_FAILURE.with(|f| f.set(forced));
+        crate::tests::KD5_RECOVERY_PROBE.with(|probe| *probe.borrow_mut() = Some(Vec::new()));
+        let (source, published) = with_publication_probe(|| solve(&request, mode, false));
+        let recoveries = crate::tests::KD5_RECOVERY_PROBE.with(|probe| probe.borrow_mut().take().unwrap());
+        FORCED_CORRECTION_FAILURE.with(|f| f.set(None));
+        (source, published, recoveries)
+    };
+    for mode in MODES {
+        let (normal, published, recoveries) = run(mode, None);
+        assert!(integrity(&normal).starts_with("NUMERICAL_INTEGRITY_CHECKS_PASSED"), "{mode:?}");
+        assert!(!recoveries.is_empty(), "{mode:?}");
+        assert_eq!(published.len(), 1, "{mode:?}");
+        assert!(published[0].bound.is_some() && published[0].confirmed_evidence.is_none(), "{mode:?}");
+        assert!(published[0].published.iter().zip(&published[0].solve).any(|(a, b)| a.to_bits() != b.to_bits()), "{mode:?}: the bases coincide");
+        let (source, published, recoveries) = run(mode, Some((0, Certify)));
+        let case = published[0].case_id.clone();
+        assert!(integrity(&source).starts_with("NUMERICAL_INTEGRITY_SENSITIVE"), "{mode:?}: {}", integrity(&source));
+        assert!(integrity(&source).contains("the member-relative formation check ran, but the corrected displacement of "), "{mode:?}");
+        assert!(source["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "DISPLACEMENT_CORRECTION_UNAVAILABLE" && d["affected_refs"] == serde_json::json!([case])), "{mode:?}");
+        assert!(recoveries.is_empty(), "{mode:?}");
+        assert!(published[0].bound.is_none(), "{mode:?}");
+        assert_eq!(published[0].published.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), published[0].solve.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), "{mode:?}");
+        assert!(differing_rows(&normal, &source) > 0, "{mode:?}: no recovered row changed basis");
+        assert_magnitudes(&source, &format!("withdrawn {mode:?}"));
+    }
+}
+
+/// The fallback authorises nothing the ordinary publication would refuse: with
+/// the correction forced to fail AND a non-finite solve displacement in one
+/// case, that case is still refused (the document is blocked) and no warning
+/// stands for it as if its rows had been published.
+#[test]
+fn a_withdrawn_bound_is_no_route_around_a_non_finite_refusal() {
+    use open_pipe_stress_frame_kernel::structural::DisplacementFailureKind::Represent;
+    let demo: Value = serde_json::json!({
+        "model": serde_json::from_str::<Value>(include_str!("../../../fixtures/product_preview/invented_demo_model.json")).unwrap(),
+        "materials": [],
+    });
+    for mode in MODES {
+        FORCED_CORRECTION_FAILURE.with(|f| f.set(Some((DOF_PER_NODE, Represent))));
+        FORCED_NONFINITE_DISPLACEMENT.with(|f| *f.borrow_mut() = Some("load:L-200".to_string()));
+        let source = solve(&demo, mode, false);
+        FORCED_NONFINITE_DISPLACEMENT.with(|f| *f.borrow_mut() = None);
+        FORCED_CORRECTION_FAILURE.with(|f| f.set(None));
+        assert_eq!(source["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        assert!(source["results"].as_array().is_none_or(|r| r.is_empty()), "{mode:?}");
+        let diagnostics = source["diagnostics"].as_array().unwrap();
+        assert!(diagnostics.iter().any(|d| d["severity"] == "blocking"), "{mode:?}");
+        assert!(!diagnostics.iter().any(|d| d["id"] == "diagnostic:displacement-correction:load:L-200"), "{mode:?}");
+    }
+}
+
+/// DEL-04-07, blocked documents: the demo model with load:L-200 made
+/// non-finite after its verdict, in both modes. The document is blocked; each
+/// retained passed evaluation (load:L-100's, which completed, and load:L-200's,
+/// written before its refusal) is inspection-only under the exact prefix with
+/// its prior outcome, its original message verbatim after it; every case and
+/// the document are not assessed with their evidence references kept; the
+/// blocking failure stands; and the readers read nothing as assessed. No
+/// committed blocked document carries a verdict, so this constructed document
+/// is where the behaviour is shown.
+#[test]
+fn a_blocked_document_keeps_its_evaluations_for_inspection_only() {
+    use crate::result_export::{reader_verdict, semantic_contract};
+    let demo: Value = serde_json::json!({
+        "model": serde_json::from_str::<Value>(include_str!("../../../fixtures/product_preview/invented_demo_model.json")).unwrap(),
+        "materials": [],
+    });
+    for mode in MODES {
+        let solved = solve(&demo, mode, false);
+        let solved_message = |case: &str| {
+            solved["diagnostics"].as_array().unwrap().iter().find(|d| d["id"] == integrity_diagnostic_id(case).as_str()).unwrap()["message"]
+                .as_str()
+                .unwrap()
+                .to_string()
+        };
+        FORCED_NONFINITE_DISPLACEMENT.with(|f| *f.borrow_mut() = Some("load:L-200".to_string()));
+        let blocked = solve(&demo, mode, false);
+        FORCED_NONFINITE_DISPLACEMENT.with(|f| *f.borrow_mut() = None);
+        assert_eq!(blocked["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        let diagnostics = blocked["diagnostics"].as_array().unwrap();
+        assert!(diagnostics.iter().any(|d| d["severity"] == "blocking"), "{mode:?}");
+        for case in ["load:L-100", "load:L-200"] {
+            let id = integrity_diagnostic_id(case);
+            let d = diagnostics.iter().find(|d| d["id"] == id.as_str()).unwrap_or_else(|| panic!("{mode:?} {case}"));
+            assert_eq!((d["code"].as_str(), d["severity"].as_str()), (Some(INSPECTION_ONLY_CODE), Some("info")), "{mode:?} {case}");
+            assert_eq!(d["affected_refs"], serde_json::json!([case]), "{mode:?} {case}");
+            let message = d["message"].as_str().unwrap();
+            assert!(message.starts_with(&format!("{INSPECTION_ONLY_LEAD}NUMERICAL_INTEGRITY_CHECKS_PASSED{INSPECTION_ONLY_TAIL}")), "{mode:?} {case}: {message}");
+            let (prior, original) = semantic_contract::inspection_only_prior(message).unwrap();
+            assert_eq!(prior, "NUMERICAL_INTEGRITY_CHECKS_PASSED");
+            assert!(original.starts_with("M03-INTEGRITY-v1 represented original-equation structural evidence for load case "), "{mode:?} {case}");
+            if case == "load:L-100" {
+                assert_eq!(original, solved_message(case), "{mode:?}: the completed case's evaluation is kept verbatim");
+            }
+            let quality = blocked["numerical_quality"]["cases"].as_array().unwrap().iter().find(|q| q["basis_ref"]["ref_id"] == case).unwrap();
+            assert_eq!(quality["solve_quality"], "not_assessed", "{mode:?} {case}");
+            assert_eq!(quality["evidence_refs"], serde_json::json!([id]), "{mode:?} {case}");
+        }
+        assert_eq!(blocked["numerical_quality"]["status"], "not_assessed", "{mode:?}");
+        let bases = blocked["numerical_quality"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect::<Vec<_>>();
+        assert_eq!(semantic_contract::numerical_use_standing(&blocked, &bases), "needs_recompute", "{mode:?}");
+        let standing = reader_verdict::standing(&blocked, None, None);
+        assert_ne!(standing["eligible"], true, "{mode:?}");
+    }
+}
+
+/// The rewrite is applied only to a passed or sensitive evaluation, so a
+/// second application is the identity: nothing is ever wrapped twice.
+#[test]
+fn inspection_only_is_never_wrapped_twice() {
+    for code in ["NUMERICAL_INTEGRITY_CHECKS_PASSED", "NUMERICAL_INTEGRITY_SENSITIVE"] {
+        let mut d = diag("diagnostic:numerical-integrity:a", code, "info", "original".to_string(), vec!["a".to_string()]);
+        inspection_only(&mut d);
+        assert_eq!((d.code.as_str(), d.severity.as_str()), (INSPECTION_ONLY_CODE, "info"));
+        assert_eq!(d.message, format!("{INSPECTION_ONLY_LEAD}{code}{INSPECTION_ONLY_TAIL}original"));
+        let once = d.clone();
+        inspection_only(&mut d);
+        assert_eq!((d.code, d.message, d.severity), (once.code, once.message, once.severity));
+    }
+    for code in ["NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED", "NUMERICAL_INTEGRITY_FAILED", "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM"] {
+        let mut d = diag("diagnostic:numerical-integrity:a", code, "warning", "original".to_string(), vec!["a".to_string()]);
+        inspection_only(&mut d);
+        assert_eq!((d.code.as_str(), d.message.as_str()), (code, "original"), "{code} is not a verdict on a published result and is kept");
+    }
 }

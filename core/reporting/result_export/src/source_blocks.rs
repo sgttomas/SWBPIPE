@@ -251,6 +251,11 @@ fn ordinary(
         failure.is_null() || diagnostics.contains_key(text(&failure["diagnostic_ref"])?),
         "ORDINARY_FAILURE_REF"
     );
+    // An inspection-only evaluation belongs only to a blocked document: named, never read as an outcome.
+    require!(
+        report.is_null() || diagnostics[text(report)?]["code"] != crate::semantic_contract::INSPECTION_ONLY_CODE,
+        "INSPECTION_ONLY_IN_SOLVED_DOCUMENT"
+    );
     let refs = array(&q["evidence_refs"])?;
     match text(&o["outcome"])? {
         "not_attempted" => require!(

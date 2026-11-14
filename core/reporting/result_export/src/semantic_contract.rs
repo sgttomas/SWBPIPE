@@ -998,6 +998,31 @@ pub fn numerical_use_standing_with_context(
 }
 /// RT-U4 (single pass): [`numerical_use_standing_with_context`], given
 /// pressure-2's evidence verdict (`for_source_given`); `None` reads `for_source`.
+/// The code of a blocked document's retained integrity evaluation
+/// (product_physics `INSPECTION_ONLY_CODE`): never a verdict on a published result.
+pub const INSPECTION_ONLY_CODE: &str = "NUMERICAL_INTEGRITY_INSPECTION_ONLY";
+
+/// The inspection-only message's lead and tail (product_physics `INSPECTION_ONLY_LEAD` and
+/// `INSPECTION_ONLY_TAIL`): `{LEAD}{prior code}{TAIL}{original message}`.
+pub const INSPECTION_ONLY_LEAD: &str = "Inspection only (prior_outcome=";
+pub const INSPECTION_ONLY_TAIL: &str = "): this document is blocked (MODEL_INCOMPLETE); no result of this case is published, and this evaluation is retained for inspection, not as a verdict on a published result. ";
+
+/// The prior outcome of an inspection-only evaluation, parsed strictly: the exact lead, then
+/// exactly `NUMERICAL_INTEGRITY_CHECKS_PASSED` or `NUMERICAL_INTEGRITY_SENSITIVE`, then the exact
+/// tail. Anything else (another case or spacing, a third outcome, a missing token) is `None`.
+/// Returns the prior code and the original message.
+pub fn inspection_only_prior(message: &str) -> Option<(&'static str, &str)> {
+    let rest = message.strip_prefix(INSPECTION_ONLY_LEAD)?;
+    ["NUMERICAL_INTEGRITY_CHECKS_PASSED", "NUMERICAL_INTEGRITY_SENSITIVE"]
+        .into_iter()
+        .find_map(|prior| rest.strip_prefix(prior)?.strip_prefix(INSPECTION_ONLY_TAIL).map(|original| (prior, original)))
+}
+
+/// Whether any diagnostic of `source` carries [`INSPECTION_ONLY_CODE`].
+pub fn carries_inspection_only(source: &Value) -> bool {
+    source["diagnostics"].as_array().is_some_and(|items| items.iter().any(|d| d["code"] == INSPECTION_ONLY_CODE))
+}
+
 pub(crate) fn numerical_use_standing_given(
     source: &Value,
     requested_basis_refs: &[Value],
@@ -1015,6 +1040,17 @@ pub(crate) fn numerical_use_standing_given(
     let Ok((_, version)) = selected else {
         return "unsupported";
     };
+    // DEL-04-07: a document whose mechanics are not solved publishes no
+    // result, so no case in it is eligible, whatever its numerical quality
+    // says (an old blocked document included). An inspection-only evaluation
+    // belongs only to such a document; a solved source carrying one is
+    // inconsistent and is not read.
+    if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
+        return "needs_recompute";
+    }
+    if carries_inspection_only(source) {
+        return "unsupported";
+    }
     // T0R (A2 item 10): validate first. (B1 and B4/D1 (b) refuse precision-1
     // and source-blocks-1 by name, so no readable source has a standing reason.)
     if version != "0.3.0" || requested_basis_refs.is_empty() {

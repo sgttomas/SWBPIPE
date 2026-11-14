@@ -246,7 +246,7 @@ fn encloses_root(p: f64, b: f64, sign: i64, square: &str) -> bool {
 /// Astra N5: the K-D5 bounds the product itself forms contain the references' exact
 /// values, on every S-K1 product case in both static modes:
 /// - the lifted displacement at B: each published `certify_displacement` row (the value
-///   `published_nodal_displacements` publishes) is within its own bound of the exact u_B;
+///   `corrected_nodal_displacements` publishes) is within its own bound of the exact u_B;
 /// - the attributed reactions: each published global component of a skewed record is
 ///   within its `support_force` group bound, and its along-direction value within the
 ///   `along_direction` group bound (the groups the recovery guard judges), of the exact

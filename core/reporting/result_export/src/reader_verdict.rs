@@ -535,6 +535,9 @@ pub fn source_findings(source: &Value, invocation: &Value) -> Vec<&'static str> 
     }
     if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
         findings.push("MECHANICS_NOT_SOLVED");
+    } else if crate::semantic_contract::carries_inspection_only(source) {
+        // An inspection-only evaluation belongs only to a blocked document.
+        findings.push("INTEGRITY_INSPECTION_ONLY_IN_SOLVED_DOCUMENT");
     }
     let mut seen = std::collections::HashSet::new();
     findings.retain(|f| seen.insert(*f));
@@ -645,6 +648,9 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
     }
     if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
         findings.push("MECHANICS_NOT_SOLVED".into());
+    } else if crate::semantic_contract::carries_inspection_only(source) {
+        // An inspection-only evaluation belongs only to a blocked document.
+        findings.push("INTEGRITY_INSPECTION_ONLY_IN_SOLVED_DOCUMENT".into());
     }
     done(findings)
 }

@@ -326,6 +326,8 @@ def _read_case(source: Mapping, case: str) -> _Case:
     _require(len(quality) == 1, "STANDING")
     solve_quality = _get(quality[0], "solve_quality")
     solve_quality = solve_quality if isinstance(solve_quality, str) else ""
+    # An inspection-only evaluation belongs only to a blocked document: named, never read as a standing.
+    _require(code != "NUMERICAL_INTEGRITY_INSPECTION_ONLY", "INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
     tokens = STANDING_QUALITY.get(code)
     _require(tokens is not None, "STANDING_CODE")
     fields = tuple(_get(quality[0], f) for f in ("structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"))

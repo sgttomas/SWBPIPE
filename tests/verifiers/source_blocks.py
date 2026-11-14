@@ -115,6 +115,8 @@ def _ordinary(case: Mapping[str, Any], quality: Mapping[str, Any], diagnostics: 
     report, failure, outcome = ordinary["structural_report_diagnostic_ref"], ordinary["failure"], ordinary["outcome"]
     _require(report is None or report in diagnostics, "ORDINARY_REPORT_REF")
     _require(failure is None or failure["diagnostic_ref"] in diagnostics, "ORDINARY_FAILURE_REF")
+    # An inspection-only evaluation belongs only to a blocked document: named, never read as an outcome (the Rust twin).
+    _require(report is None or diagnostics[report].get("code") != "NUMERICAL_INTEGRITY_INSPECTION_ONLY", "INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
     if outcome == "not_attempted":
         _require(report is None and failure is None and quality["solve_quality"] == "not_assessed", "ORDINARY_NOT_ATTEMPTED")
     elif outcome in {"checks_passed", "sensitive"}:

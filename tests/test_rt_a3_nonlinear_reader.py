@@ -437,6 +437,8 @@ def test_inactive_residuals_support_nodes_and_standings_are_bound_by_both_reader
     # B3. The whole code-to-quality assignment, unknown codes and gap precedence.
     assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_code(e, SENSITIVE, UNQUALIFIED)) == both("STANDING")
     assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_code(e, SENSITIVE, "NUMERICAL_INTEGRITY_FAILED")) == both("STANDING")
+    # DEL-04-07: an inspection-only evaluation belongs only to a blocked document; in a solved one both readers name it.
+    assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_code(e, SENSITIVE, "NUMERICAL_INTEGRITY_INSPECTION_ONLY")) == both("INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
     assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_quality(
         e, ("passive_model_basis", "sensitive", "represented_equations_retained", "unresolved"))) == both("STANDING")
     assert forged(solved, "F1-P0-SLIDELOAD", lambda e: e["numerical_quality"]["cases"][0].update(evidence_refs=[])) == both("STANDING")

@@ -425,6 +425,8 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
     require(quality.len() == 1, "STANDING")?;
     let solve_quality = quality[0]["solve_quality"].as_str().unwrap_or("");
     // The producer's whole code-to-quality assignment, not only Passed's.
+    // An inspection-only evaluation belongs only to a blocked document: named, never read as a standing.
+    require(code != crate::semantic_contract::INSPECTION_ONLY_CODE, "INSPECTION_ONLY_IN_SOLVED_DOCUMENT")?;
     let tokens = standing_quality(code).ok_or_else(|| "SOURCE_PHYSICS_NONLINEAR_STANDING_CODE".to_string())?;
     let q = quality[0];
     let fields = [&q["structural_status"], &q["solve_quality"], &q["model_matrix_fidelity"], &q["accuracy_evidence"]];

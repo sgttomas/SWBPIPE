@@ -1503,8 +1503,29 @@ fn exact_source_identity(parts: &[&str]) -> String {
         .collect()
 }
 
+const INTEGRITY_DIAGNOSTIC_PREFIX: &str = "diagnostic:numerical-integrity:";
+
 fn integrity_diagnostic_id(case_id: &str) -> String {
     format!("diagnostic:numerical-integrity:{case_id}")
+}
+
+/// A retained integrity evaluation in a document that publishes nothing.
+pub(crate) const INSPECTION_ONLY_CODE: &str = "NUMERICAL_INTEGRITY_INSPECTION_ONLY";
+/// Its message: this lead, the prior outcome's code, this tail, then the
+/// evaluation's original message verbatim.
+pub(crate) const INSPECTION_ONLY_LEAD: &str = "Inspection only (prior_outcome=";
+pub(crate) const INSPECTION_ONLY_TAIL: &str = "): this document is blocked (MODEL_INCOMPLETE); no result of this case is published, and this evaluation is retained for inspection, not as a verdict on a published result. ";
+
+/// Rewrites one retained integrity evaluation as inspection-only, when its code
+/// is NUMERICAL_INTEGRITY_CHECKS_PASSED or NUMERICAL_INTEGRITY_SENSITIVE; any
+/// other code (an inspection-only one included) is left as it is.
+fn inspection_only(diagnostic: &mut Diagnostic) {
+    if !matches!(diagnostic.code.as_str(), "NUMERICAL_INTEGRITY_CHECKS_PASSED" | "NUMERICAL_INTEGRITY_SENSITIVE") {
+        return;
+    }
+    diagnostic.message = format!("{INSPECTION_ONLY_LEAD}{}{INSPECTION_ONLY_TAIL}{}", diagnostic.code, diagnostic.message);
+    diagnostic.code = INSPECTION_ONLY_CODE.to_string();
+    diagnostic.severity = "info".to_string();
 }
 
 /// S11-G section 3.5: `formation` is the case's load-row finding. When the
@@ -1580,7 +1601,7 @@ fn nonlinear_not_established_sentence(reason: &str) -> String {
 
 /// DEL-04-01 kd5-nonlinear-active-set.md §3.3: the evidence line of a Passed
 /// nonlinear case. T4-U5b item 6: its nodal displacements are corrected
-/// (`published_nodal_displacements`), its residual rows are not.
+/// (`corrected_nodal_displacements`), its residual rows are not.
 const NONLINEAR_CONFIRMED_EVIDENCE_LINE: &str = "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; the published nodal displacements, and the support displacement rows that follow them, are the formation check's corrected displacements; the iteration's residual rows are its own.";
 
 /// F1a: K-D5's `FormationCheck` record as one evidence line of the integrity
@@ -2389,6 +2410,13 @@ fn assessed_numerical_quality(
             .find(|d| d.id == wanted_id) };
         let (structural_status, solve_quality, model_matrix_fidelity, accuracy_evidence) =
             match evidence.map(|d| d.code.as_str()) {
+                // A blocked document's retained evaluation: no case verdict stands.
+                Some(INSPECTION_ONLY_CODE) => (
+                    StructuralStatus::NumericallyUnresolved,
+                    NumericalQualityStatus::NotAssessed,
+                    ModelMatrixFidelity::NotAssessed,
+                    AccuracyEvidence::NotClaimed,
+                ),
                 Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") => (
                     StructuralStatus::PassiveModelBasis,
                     NumericalQualityStatus::ChecksPassed,
@@ -6106,7 +6134,7 @@ fn solve_prepared_load_case(
     // Publication eligibility is the public standing after all prior guards,
     // not the structural report that preceded the load-row demotion.
     let pre_guard_passed = { let wanted_id = integrity_diagnostic_id(&load_case.id); diagnostics.iter().find(|d| d.id == wanted_id).is_some_and(|d| d.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED") };
-    let member_bound = linear_solve.as_ref().filter(|solve| pre_guard_passed && load_row_finding.is_none() && built.nonlinear_supports.is_empty() && solve.structural_report.quality == SolveQuality::Passed && selected_source.is_none()).and_then(|solve| solve.member_bound.as_ref());
+    let linear_bound = linear_solve.as_ref().filter(|solve| pre_guard_passed && load_row_finding.is_none() && built.nonlinear_supports.is_empty() && solve.structural_report.quality == SolveQuality::Passed && selected_source.is_none()).and_then(|solve| solve.member_bound.as_ref());
     // DEL-04-01 kd5-nonlinear-active-set.md §3.1: a nonlinear case publishes
     // the certified rows of its confirmed converged state (Stage B).
     let (confirmed_state, nonlinear_sentence) = match nonlinear_standing {
@@ -6114,7 +6142,33 @@ fn solve_prepared_load_case(
         Some(NonlinearStanding::NotEstablished(sentence)) => (None, Some(sentence)),
         None => (None, None),
     };
-    let confirmed = confirmed_state.as_deref().filter(|_| pre_guard_passed && load_row_finding.is_none() && !built.nonlinear_supports.is_empty());
+    let confirmed_candidate = confirmed_state.as_deref().filter(|_| pre_guard_passed && load_row_finding.is_none() && !built.nonlinear_supports.is_empty());
+    // DEL-04-07 *Published displacement*: the corrected displacement is formed
+    // here, before anything is decided for publication. Where the bound exists
+    // but a component cannot be certified or represented, no published result
+    // of the case relies on the member-relative formation check: the bound and
+    // the confirmed state are withdrawn, every row is the solve's own, and the
+    // case is sensitive with the named reason.
+    // Test-only: a non-finite solve displacement for the named case, to show
+    // that the fallback is no route around the ordinary refusal below.
+    #[cfg(test)]
+    if corrected_displacement_tests::FORCED_NONFINITE_DISPLACEMENT.with(|forced| forced.borrow().as_deref() == Some(load_case.id.as_str())) {
+        displacements[0] = f64::NAN;
+    }
+    let correction = linear_bound
+        .or(confirmed_candidate.map(|state| &state.member_bound))
+        .filter(|_| displacements.iter().all(|value| value.is_finite()))
+        .map(|bound| corrected_nodal_displacements(&displacements, bound));
+    let correction_failure = match &correction {
+        Some(Err(failure)) => Some(failure.clone()),
+        _ => None,
+    };
+    let member_bound = linear_bound.filter(|_| correction_failure.is_none());
+    let confirmed = confirmed_candidate.filter(|_| correction_failure.is_none());
+    let nonlinear_sentence = correction_failure
+        .as_ref()
+        .map(|failure| displacement_correction_sentence(model, failure))
+        .or(nonlinear_sentence);
     let nonlinear_state = capture_nonlinear_state_evidence(
         &load_case.id,
         solver_mode,
@@ -6167,7 +6221,13 @@ fn solve_prepared_load_case(
     let certified_source = member_bound.map(|_| certified_publication::source(built, certified_force, spring_entries));
     let mut recovery_records = Vec::new();
     require_finite_mechanics(displacements.iter().copied())?;
-    let published_displacements = published_nodal_displacements(&displacements, member_bound);
+    let published_displacements = match &correction {
+        Some(Ok(corrected)) if member_bound.is_some() => corrected.clone(),
+        _ => displacements.to_vec(),
+    };
+    if let Some(failure) = &correction_failure {
+        diagnostics.push(displacement_correction_warning(model, &load_case.id, failure));
+    }
     #[cfg(test)]
     corrected_displacement_tests::DISPLACEMENT_PUBLICATION_PROBE.with(|probe| {
         if let Some(records) = probe.borrow_mut().as_mut() {
@@ -6176,6 +6236,7 @@ fn solve_prepared_load_case(
                 bound: member_bound.cloned(),
                 solve: displacements.to_vec(),
                 published: published_displacements.clone(),
+                confirmed_evidence: nonlinear_state.as_deref().map(|evidence| matches!(evidence.standing, NonlinearStateStanding::Confirmed)),
             });
         }
     });
@@ -15370,6 +15431,14 @@ fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> Me
     // evidence, so the warning of a case admitted under the exception and
     // then refused, or left unpublished by another case's refusal, goes too.
     diagnostics.retain(|diagnostic| diagnostic.code != pressure_runtime::CAP_REMAINDER_WARNING_CODE);
+    // DEL-04-07: a blocked document publishes no result, so no case verdict
+    // stands in it. Each retained passed or sensitive integrity evaluation is
+    // kept for inspection under its own code, its prior outcome a closed token
+    // at the message start; the case and document quality are then not
+    // assessed. Only those two codes are rewritten, so nothing is wrapped twice.
+    for diagnostic in diagnostics.iter_mut().filter(|d| d.id.starts_with(INTEGRITY_DIAGNOSTIC_PREFIX)) {
+        inspection_only(diagnostic);
+    }
     // T1 routes every blocked 0.4.0 envelope to load-reference-1 (0.4.0 is
     // exact-route only); it never publishes preview-physics-2.
     let exact_namespace = pressure_runtime::is_exact(&model) || case_state::is_load_state(&model);
@@ -15452,21 +15521,79 @@ fn solver_blocked(
 /// converts it to its unit as every row is (mm translations round once more).
 /// That holds also when the
 /// later member recovery predicate (R-b') reports the case Sensitive: the
-/// bound existed. Otherwise, and for every component if any of them cannot
-/// be formed, it is the solve's own u. A selected retained source publishes
+/// bound existed. Otherwise it is the solve's own u. Where the bound exists but
+/// any component cannot be formed, the bound and any confirmed state are
+/// withdrawn before publication (the caller, DEL-04-07 *Published
+/// displacement*): every row of the case is then the solve's own and the case
+/// is sensitive with the named reason. A selected retained source publishes
 /// its recovery's nodal values (the caller). Member, support and connector
-/// recoveries already use u + w + w2.
-fn published_nodal_displacements(displacements: &[f64], member_bound: Option<&MemberBoundInputs>) -> Vec<f64> {
-    use open_pipe_stress_frame_kernel::structural::certify_displacement;
-    member_bound
-        .and_then(|bound| {
-            (0..displacements.len())
-                .map(|dof| certify_displacement(dof, displacements, bound).map(|row| row.published))
-                .collect::<Result<Vec<_>, _>>()
-                .ok()
+/// recoveries under the bound already use u + w + w2.
+///
+/// Why a load case's corrected displacement could not be formed: the first
+/// global DOF, in DOF order, whose correction failed, the step that failed
+/// (`certify_displacement_step`), and the kernel's error.
+#[derive(Debug, Clone)]
+struct DisplacementCorrectionFailure {
+    dof: usize,
+    kind: open_pipe_stress_frame_kernel::structural::DisplacementFailureKind,
+    error: String,
+}
+
+/// Every component's corrected displacement (`certify_displacement`'s published
+/// value), or the first component that cannot be formed.
+fn corrected_nodal_displacements(
+    displacements: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<Vec<f64>, DisplacementCorrectionFailure> {
+    use open_pipe_stress_frame_kernel::structural::certify_displacement_step;
+    #[cfg(test)]
+    if let Some((dof, kind)) = corrected_displacement_tests::FORCED_CORRECTION_FAILURE.with(|forced| forced.get()) {
+        return Err(DisplacementCorrectionFailure { dof, kind, error: "forced by test".to_string() });
+    }
+    (0..displacements.len())
+        .map(|dof| {
+            certify_displacement_step(dof, displacements, bound)
+                .map(|row| row.published)
+                .map_err(|(kind, error)| DisplacementCorrectionFailure { dof, kind, error: format!("{error:?}") })
         })
-        .filter(|corrected| corrected.iter().all(|v| v.is_finite()))
-        .unwrap_or_else(|| displacements.to_vec())
+        .collect()
+}
+
+fn displacement_correction_failed(model: &PreviewModel, failure: &DisplacementCorrectionFailure) -> String {
+    use open_pipe_stress_frame_kernel::structural::DisplacementFailureKind;
+    let step = match failure.kind {
+        DisplacementFailureKind::Certify => "certified",
+        DisplacementFailureKind::Represent => "represented in binary64",
+    };
+    format!(
+        "the corrected displacement of {} could not be {step} ({})",
+        integrity_dof_label(model, failure.dof),
+        failure.error
+    )
+}
+
+/// The integrity diagnostic's named reason for a withdrawn bound (DEL-04-07
+/// *Published displacement*): the check ran; one component's correction could
+/// not be formed.
+fn displacement_correction_sentence(model: &PreviewModel, failure: &DisplacementCorrectionFailure) -> String {
+    format!(
+        "the member-relative formation check ran, but {}; every published displacement, and every member, support and connector row, of this case is a binary64 recovery from the solve's own displacement",
+        displacement_correction_failed(model, failure)
+    )
+}
+
+/// The case's named warning for a withdrawn bound.
+fn displacement_correction_warning(model: &PreviewModel, case_id: &str, failure: &DisplacementCorrectionFailure) -> Diagnostic {
+    diag(
+        &format!("diagnostic:displacement-correction:{case_id}"),
+        "DISPLACEMENT_CORRECTION_UNAVAILABLE",
+        "warning",
+        format!(
+            "Load case {case_id}: {}; no published result of this case relies on the member-relative formation check.",
+            displacement_correction_failed(model, failure)
+        ),
+        vec![case_id.to_string()],
+    )
 }
 
 /// W-16 stage 2 (R-b, §4): the clause the K-D5 evidence line gains when a

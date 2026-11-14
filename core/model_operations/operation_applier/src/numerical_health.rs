@@ -33,6 +33,9 @@ const CURVED_BEND_SHORT: &str = "CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS";
 const NONLINEAR_LOOP_PREFIX: &str = "NONLINEAR_SUPPORT_LOOP_";
 const NOT_QUALIFIED: &str = "NUMERICAL_INTEGRITY_NOT_QUALIFIED";
 const EVIDENCE_INCOMPLETE: &str = "NUMERICAL_CASE_EVIDENCE_INCOMPLETE";
+/// A blocked document's retained integrity evaluation (product_physics
+/// `INSPECTION_ONLY_CODE`): never a verdict, and its message is never parsed.
+pub(crate) const INSPECTION_ONLY: &str = "NUMERICAL_INTEGRITY_INSPECTION_ONLY";
 
 // The producer text this parser copies. `tests::producer_text_is_pinned`
 // asserts each piece occurs verbatim in `core/product_physics`.
@@ -243,6 +246,10 @@ impl<'a> Diagnostics<'a> {
 fn numerical_health(source: &Value, reader_findings: Option<&Value>) -> Health {
     let route = route_of(source);
     let index = Diagnostics::new(source);
+    // A document whose mechanics are not solved publishes no result, so no
+    // case in it is assessed, whatever its quality or diagnostics say (old
+    // documents included); it is decided here, before any message is read.
+    let solved = mechanics_solved(source);
     let mut cases = Vec::new();
     let mut seen = HashSet::new();
     for entry in array(&source["numerical_quality"]["cases"]) {
@@ -255,6 +262,7 @@ fn numerical_health(source: &Value, reader_findings: Option<&Value>) -> Health {
                 &index,
                 case_id,
                 state_of(entry["solve_quality"].as_str()),
+                solved,
             ));
         }
     }
@@ -262,7 +270,7 @@ fn numerical_health(source: &Value, reader_findings: Option<&Value>) -> Health {
     // assessed.
     for case_id in named_load_cases(source) {
         if seen.insert(case_id.to_string()) {
-            cases.push(case_health(&index, case_id, "not_assessed"));
+            cases.push(case_health(&index, case_id, "not_assessed", solved));
         }
     }
     let states: HashMap<&str, &'static str> = cases
@@ -329,12 +337,25 @@ fn named_load_cases(source: &Value) -> Vec<&str> {
         .collect()
 }
 
-fn case_health(index: &Diagnostics, case_id: &str, state: &'static str) -> CaseHealth {
+/// Whether the document's mechanics are solved, in either published shape: the
+/// mechanics envelope's `status.mechanics`, or a result envelope's
+/// `analysis_status` list. Any other document is not solved.
+fn mechanics_solved(source: &Value) -> bool {
+    source["status"]["mechanics"] == "MECHANICS_SOLVED"
+        || array(&source["analysis_status"]).iter().any(|s| s == "MECHANICS_SOLVED")
+}
+
+fn case_health(index: &Diagnostics, case_id: &str, state: &'static str, solved: bool) -> CaseHealth {
     let integrity = index.integrity(case_id);
     let code = integrity.and_then(|d| d["code"].as_str());
     let integrity_id = integrity.and_then(|d| d["id"].as_str()).map(String::from);
+    // Decided before anything reads the message: a document not solved, or an
+    // inspection-only evaluation (which in a solved document is named by its
+    // code, not read), is not assessed, with no figure and no cause.
+    let assessed = solved && code != Some(INSPECTION_ONLY);
+    let state = if assessed { state } else { "not_assessed" };
     let report = integrity
-        .filter(|_| matches!(code, Some(CHECKS_PASSED | SENSITIVE)))
+        .filter(|_| assessed && matches!(code, Some(CHECKS_PASSED | SENSITIVE)))
         .and_then(|d| d["message"].as_str())
         .and_then(|message| Report::parse(message, case_id));
     let linear = !index.nonlinear.contains(case_id) && report.as_ref().is_some_and(|r| r.linear);
@@ -400,6 +421,9 @@ fn case_health(index: &Diagnostics, case_id: &str, state: &'static str) -> CaseH
             diagnostic_id: integrity_id.clone(),
             locations: Vec::new(),
         });
+    }
+    if !assessed {
+        causes.clear();
     }
     CaseHealth {
         case_id: case_id.to_string(),
@@ -1205,8 +1229,49 @@ mod tests {
     }
 
     fn health(source: &Value, findings: Option<&str>) -> Value {
+        // The synthetic envelopes here omit `status`; a real envelope always
+        // states it, and the tests of an unsolved document set it explicitly.
+        let mut source = source.clone();
+        if source.get("status").is_none() {
+            source["status"] = json!({"mechanics": "MECHANICS_SOLVED"});
+        }
         serde_json::from_str(&numerical_health_json(&source.to_string(), findings).unwrap())
             .unwrap()
+    }
+
+    /// DEL-04-07: a blocked document carrying passed verdicts, in the old form
+    /// (old codes, checks_passed quality) and the new one (inspection-only,
+    /// not_assessed), is not assessed, with no figure and no cause, decided by
+    /// its status before any message is read; a solved document carrying an
+    /// inspection-only evaluation names it by code and is not assessed.
+    #[test]
+    fn a_blocked_document_is_not_assessed_old_or_new_and_inspection_only_is_named() {
+        let report = message("a", "Passed", "0.5", ", residual_rows: ", MAP, "");
+        let old = one_case_source("a", CHECKS_PASSED, "checks_passed", report.clone(), "MODEL_INCOMPLETE");
+        let wrapped = format!("Inspection only (prior_outcome=NUMERICAL_INTEGRITY_CHECKS_PASSED): this document is blocked (MODEL_INCOMPLETE); no result of this case is published, and this evaluation is retained for inspection, not as a verdict on a published result. {report}");
+        let new = one_case_source("a", INSPECTION_ONLY, "not_assessed", wrapped.clone(), "MODEL_INCOMPLETE");
+        // The control: the same report in a solved document gives its figure.
+        let solved = health(&one_case_source("a", CHECKS_PASSED, "checks_passed", report, "MECHANICS_SOLVED"), None);
+        assert_eq!(solved["cases"][0]["state"], "checks_passed");
+        assert_eq!(solved["cases"][0]["rcond"], 0.5);
+        for (label, source) in [("old", old), ("new", new)] {
+            let out = health(&source, None);
+            let case = &out["cases"][0];
+            assert_eq!(case["state"], "not_assessed", "{label}");
+            assert!(case["rcond"].is_null() && case["digits"].is_null(), "{label}");
+            assert_eq!(case["causes"], json!([]), "{label}");
+            assert_eq!(out["verdict_only"], false, "{label}");
+        }
+        let named = health(&one_case_source("a", INSPECTION_ONLY, "checks_passed", wrapped, "MECHANICS_SOLVED"), None);
+        assert_eq!(named["cases"][0]["state"], "not_assessed");
+        assert_eq!(named["cases"][0]["code"], INSPECTION_ONLY);
+        assert!(named["cases"][0]["rcond"].is_null());
+    }
+
+    fn one_case_source(case: &str, code: &str, solve_quality: &str, message: String, mechanics: &str) -> Value {
+        let mut source = envelope(case, solve_quality, vec![integrity(case, code, message)]);
+        source["status"] = json!({"mechanics": mechanics});
+        source
     }
 
     fn one_case(case: &str, code: &str, solve_quality: &str, message: String) -> Value {

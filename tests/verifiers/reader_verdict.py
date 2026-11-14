@@ -490,6 +490,9 @@ def source_findings(source: Mapping[str, Any], invocation: Mapping[str, Any]) ->
         findings.append("SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED")
     if (source.get("status") or {}).get("mechanics") != "MECHANICS_SOLVED":
         findings.append("MECHANICS_NOT_SOLVED")
+    elif c.carries_inspection_only(source):
+        # An inspection-only evaluation belongs only to a blocked document (the Rust twin).
+        findings.append("INTEGRITY_INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
     return list(dict.fromkeys(findings))
 
 
@@ -582,6 +585,9 @@ def standing(source: Any, model: Any = None, invocation: Any = None) -> dict[str
         findings += _ordinary_findings(source, requested_ids)
     if ((source.get("status") or {}) if isinstance(source, Mapping) else {}).get("mechanics") != "MECHANICS_SOLVED":
         findings.append("MECHANICS_NOT_SOLVED")
+    elif c.carries_inspection_only(source):
+        # An inspection-only evaluation belongs only to a blocked document (the Rust twin).
+        findings.append("INTEGRITY_INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
     return done(findings)
 
 
