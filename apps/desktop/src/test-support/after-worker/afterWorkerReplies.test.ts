@@ -11,6 +11,10 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { checkRevision, decoderFor, judgeRun, type ReplyManifest } from "./afterWorkerReplies";
+import { DISPLAY_COLUMNS, SOURCE_OFFSETS, SOURCE_REFS, STRESS_COLUMNS } from "../../services/resultSummary";
+import { PHYSICS_RETAINED_CONTRACT_ID, PRESSURE_CONTRACT_ID } from "../../features/results/numericalResultQuality";
+import { checkedJsonText } from "../../services/hashService";
+import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 
 const ROOT = process.env.SWBPIPE_AFTER_WORKER_REPLIES;
 const REPOSITORY = path.resolve(__dirname, "../../../../..");
@@ -70,6 +74,82 @@ describe("the after-worker reply judge reaches the web's decoder for each call",
     } finally {
       rmSync(directory, { recursive: true, force: true });
     }
+  });
+});
+
+// Connecting controls: synthetic sequences whose replies each pass their decoder, but whose
+// connection the session refuses (workspaceSession.ts:1563-1567; previewService.ts:599-608).
+describe("the after-worker reply judge applies the session's connecting gates", () => {
+  const JOB = "backend-solve-job-9";
+  const MODEL = { project: { id: "p" } };
+  const S = jsonTextKeepingNegativeZero(MODEL);
+  const R = jsonTextKeepingNegativeZero(JSON.parse(checkedJsonText({ request: { model: MODEL, materials: [] }, solver_mode: "sparse_interactive" })).request.model);
+  const BINDING = { id: PRESSURE_CONTRACT_ID, sha256: "a".repeat(64) };
+  type Step = { call: string; reply: unknown; args: Record<string, unknown>; kind?: "json" | "bin" };
+  const header = (recognized = true) => recognized
+    ? { document_kind: "swbpipe.desktop.result_route_header", version: 1, job_id: JOB, header_status: "recognized", route: "pressure", binding: BINDING, refusal: null }
+    : { document_kind: "swbpipe.desktop.result_route_header", version: 1, job_id: JOB, header_status: "refused", route: "unsupported", binding: null, refusal: { code: "Y", detail: null } };
+  const verdict = (recognized = true) => recognized
+    ? { ok: true, route: "pressure", binding: BINDING, error: null, standing: { route: "pressure", eligible: false, findings: [] } }
+    : { ok: false, route: "unsupported", binding: null, error: { code: "Y", detail: null }, standing: { route: "unsupported", eligible: false, findings: [] } };
+  /** A minimal valid S: no rows, every schema plane, the one source offset. */
+  const summary = (envelope: Record<string, unknown>) => {
+    const names = [...DISPLAY_COLUMNS, SOURCE_OFFSETS, SOURCE_REFS, ...STRESS_COLUMNS];
+    const planes = names.map((name) => ({ name, offset: names.indexOf(name) > names.indexOf(SOURCE_OFFSETS) ? 8 : 0, count: name === SOURCE_OFFSETS ? 1 : 0 }));
+    const headerJson = { document_kind: "swbpipe.desktop.result_summary", version: 1, job_id: JOB, envelope, omitted_members: [], row_count: 0, values: [], display: { rows: 0, source_refs: 0 }, stress: { rows: 0 }, tables: { support_load_cases: [], stress_ratio: { groups: [] } }, planes, planes_bytes: 8 };
+    return framed("SWBSUMv1", headerJson, true, new Uint8Array(8));
+  };
+  const envelope = (producer: Record<string, unknown> | undefined) => ({ model_ref: "p", ...(producer ? { producer } : {}) });
+  const PRODUCER = { component_name: "invented", component_version: "1", semantic_contract_id: PRESSURE_CONTRACT_ID };
+  const standingArgs = { jobId: JOB, modelJson: S };
+  const summaryArgs = { jobId: JOB, modelJson: S, standing: { eligible: false, findings: [] } };
+  const step = (call: string, reply: unknown, args: Record<string, unknown>): Step => ({ call, reply, args, kind: reply instanceof Uint8Array ? "bin" : "json" });
+  function judged(steps: Step[]) {
+    const directory = mkdtempSync(path.join(tmpdir(), "after-worker-gate-"));
+    try {
+      const entries = steps.map((s, i) => {
+        const file = `${String(i + 1).padStart(2, "0")}-${s.call}.${s.kind}`;
+        const bytes = s.reply instanceof Uint8Array ? s.reply : utf8(s.reply);
+        writeFileSync(path.join(directory, file), bytes);
+        writeFileSync(path.join(directory, `${file}.args.json`), JSON.stringify(s.args));
+        return { seq: i + 1, call: s.call, file, kind: s.kind!, bytes: bytes.length, args_file: `${file}.args.json` };
+      });
+      writeFileSync(path.join(directory, "replies.json"), JSON.stringify({ schema: "swbpipe.after_worker_harness.replies/1", head: null, job_id: JOB, entries }));
+      return judgeRun(directory);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  }
+  const opening = (registration: unknown, env: Record<string, unknown>) => [
+    step("header", header(), { jobId: JOB, operation: "route_header" }),
+    step("registration", registration, { jobId: JOB, reader: "pressure", modelJson: R }),
+    step("standing", verdict(), standingArgs),
+    step("summary", summary(env), summaryArgs),
+  ];
+  const preview = step("run_preview", { invented: true }, { jobId: JOB });
+
+  it("a refused registration that the run carried on past fails at SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", () => {
+    expect(() => judged([...opening({ ok: false, error: { code: "X", detail: null } }, envelope(PRODUCER)), preview])).toThrow(/the session stops at SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED/);
+  });
+  it("a refused registration whose run stops there is judged to end at the session's gate", () => {
+    expect(judged(opening({ ok: false, error: { code: "X", detail: null } }, envelope(PRODUCER))).ended).toBe("session gate: SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED");
+  });
+  it("a retained identity claimed under another route refuses registration, so the web reads the standing again", () => {
+    const retained = envelope({ ...PRODUCER, semantic_contract_id: PHYSICS_RETAINED_CONTRACT_ID });
+    expect(() => judged([...opening({ ok: true }, retained), preview])).toThrow(/the web would call standing_again next; the run called run_preview/);
+    const again = [step("standing_again", verdict(), standingArgs), step("summary", summary(retained), summaryArgs)];
+    expect(judged([...opening({ ok: true }, retained), ...again]).ended).toBe("session gate: SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED");
+  });
+  it("a result without a current source contract fails at SOLVE-PRODUCER-CONTRACT-UNSUPPORTED", () => {
+    const steps = [
+      step("header", header(false), { jobId: JOB, operation: "route_header" }),
+      step("standing", verdict(false), standingArgs),
+      step("summary", summary(envelope(PRODUCER)), summaryArgs),
+    ];
+    expect(() => judged([...steps, preview])).toThrow(/the session stops at SOLVE-PRODUCER-CONTRACT-UNSUPPORTED/);
+  });
+  it("a result naming no producer fails at SOLVE-PRODUCER-CONTRACT-UNSUPPORTED", () => {
+    expect(() => judged([...opening({ ok: true }, envelope(undefined)), preview])).toThrow(/the session stops at SOLVE-PRODUCER-CONTRACT-UNSUPPORTED/);
   });
 });
 

@@ -24,30 +24,39 @@
 // run record's checksums are compared with a full build only on the C2 path
 // (`workspaceSession.ts:590`), not in this sequence, so not here.
 //
-// One copy, stated: `nativeEnvelopeRefusal` is not exported, so `envelopeRefusal` below is its
-// logic restated (previewService.ts:598-608).
+// The session's gates are applied too (workspaceSession.ts:1563-1567 before run_preview, :1614
+// before it commits): the registration (`hasNativeMechanicsInvocation`), a current source contract
+// and a producer, read with the web's own `hasCurrentSourceContract` on a handle the web's own
+// `createNativeResult` builds; then the model reference. A run whose sequence those gates would
+// stop is judged to end there; a run that kept replies past a gate fails.
+//
+// Web predicates are imported wherever they are exported. Restated, each with its reason and its
+// source compared line by line (the PR's family table): `nativeEnvelopeRefusal` (not exported;
+// its retained predicates are imported), `nativeStandingInputs` (not exported), the registration
+// gate (`nativeRegistrationHolds` reads module state a reply does not carry), and the session's
+// sequencing (inline in `readNativeFreshResult` and the session).
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { decodeNativeRouteHeader, decodeNativeValidation, decodeNativeVerdict, requireRouteHeaderAgreement, type NativeRouteHeader } from "../../services/nativeResult";
+import { createNativeResult, decodeNativeRouteHeader, decodeNativeValidation, decodeNativeVerdict, requireRouteHeaderAgreement, type NativeRouteHeader } from "../../services/nativeResult";
 import { decodeResultSummary, type ResultSummary } from "../../services/resultSummary";
 import { decodeAnalysisRunPreview, type AnalysisRunPreview } from "../../services/analysisRunPreview";
-import { decodeRowSemantics, decodeRowsPage, decodeSourceRecovery, panelDetailFilter } from "../../services/resultDetail";
+import { decodeRowSemantics, decodeRowsPage, decodeSourceRecovery, panelDetailFilter, type SourceRecovery } from "../../services/resultDetail";
 import { nativeInvokeError, ResourceUnavailableError } from "../../services/memoryPool";
 import { checkedJsonText } from "../../services/hashService";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 import { inputManifestRef } from "../../services/inputManifestService";
 import { sameModelData } from "../../features/results/resultStanding";
-import { PRESSURE_SOURCE_CONTRACT_ID } from "../../features/results/numericalResultQuality";
-import type { ReaderDispatch } from "../../features/results/resultReader";
+import { isRetainedIdentity, isRetainedRoute, PRESSURE_SOURCE_CONTRACT_ID } from "../../features/results/numericalResultQuality";
+import { hasCurrentSourceContract, type ReaderDispatch } from "../../features/results/resultReader";
+import { errorCode } from "../../services/solveTimeline";
+import { DEFAULT_RESULT_PAGE_SIZE } from "../../features/results/ResultsPanel";
 
 export type ReplyEntry = { seq: number; call: string; file: string; kind: "json" | "bin" | "txt" | "error"; bytes: number; args_file: string | null };
 export type ReplyManifest = { schema: string; head: string | null; job_id: string; extracted_from_record?: string; entries: ReplyEntry[] };
 export type RunVerdict = { calls: string[]; ended: string; refusal: { kind: string; required_bytes?: number; budget_bytes?: number } | null };
 
-/** `DEFAULT_RESULT_PAGE_SIZE` (`ResultsPanel.tsx:45`, `RESULT_PAGE_SIZE_OPTIONS[0]`). */
-const FIRST_PAGE_ROWS = 50;
 /** The session's solver mode (`resultsSessionState.ts:170`). */
 const SOLVER_MODE = "sparse_interactive";
 /** The web's decoder trees (the services and the result readers they import). A run from another
@@ -80,7 +89,9 @@ export function decoderFor(call: string): (bytes: Uint8Array, context: { jobId: 
   }
 }
 
-/** `nativeEnvelopeRefusal` (previewService.ts:598-608), restated: it is not exported. */
+/** `nativeEnvelopeRefusal` (previewService.ts:599-608), restated: it is not exported. Its
+ * `capture` is never null here (a fresh solve's capture exists), so its first line does not apply;
+ * the retained predicates are the web's own. */
 function envelopeRefusal(envelope: Record<string, unknown>, route: string, capturedModel: { project: { id: string } }, callerModel: unknown): string | null {
   if (envelope.model_ref !== capturedModel.project.id) return "CAPTURE_MISMATCH";
   const producer = envelope.producer as { semantic_contract_id?: string } | undefined;
@@ -88,7 +99,7 @@ function envelopeRefusal(envelope: Record<string, unknown>, route: string, captu
     if (!sameModelData(JSON.parse(checkedJsonText(callerModel)), capturedModel)) return "CALLER_DISPATCH_NORMALIZATION_MISMATCH";
     return route === "unsupported" ? "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED" : "SOURCE_BLOCKS_CONTRACT";
   }
-  if (route === "retained_preview_physics" || route === "retained_physics") return "RETAINED_PRECISION_NATIVE_REGISTRATION_UNAVAILABLE";
+  if (isRetainedRoute(route as never) || isRetainedIdentity(producer?.semantic_contract_id)) return "RETAINED_PRECISION_NATIVE_REGISTRATION_UNAVAILABLE";
   return null;
 }
 
@@ -167,11 +178,16 @@ export function judgeRun(directory: string): RunVerdict {
   const solveModel = S === null ? null : JSON.parse(S);
   const invocation = solveModel === null ? null : JSON.parse(checkedJsonText({ request: { model: solveModel, materials: [] }, solver_mode: SOLVER_MODE }));
   let readers: string | null = null;
-  if (reader) {
+  // validateNativeReaders :576: on the pressure-source route a normalization between the caller's
+  // model and the dispatched one registers nothing, and no reader is called.
+  const normalized = reader === "pressure-source" && solveModel !== null && !sameModelData(JSON.parse(checkedJsonText(solveModel)), invocation.request.model);
+  if (normalized) readers = "CALLER_DISPATCH_NORMALIZATION_MISMATCH";
+  if (reader && !normalized) {
     const r = next("registration");
     if ("refused" in r) return ended(r.refused);
     if ("rejected" in r) {
-      readers = (/^([A-Z][A-Z0-9_-]*)(?=[:\s]|$)/.exec(String((r.rejected as { message?: unknown })?.message ?? r.rejected))?.[1]) ?? "UNCODED_REFUSAL";
+      // validateNativeReaders :592: `errorCode(error) ?? "UNCODED_REFUSAL"` (the web's errorCode).
+      readers = errorCode(r.rejected) ?? "UNCODED_REFUSAL";
     } else {
       if (r.args) {
         if (invocation === null) fail("the run kept no standing request to take the session model from");
@@ -185,8 +201,11 @@ export function judgeRun(directory: string): RunVerdict {
     }
   }
 
-  // standing and summary (`nativeStandingInputs`, `readNativeSummary`)
-  const standingInputs = (registered: boolean) => ({ modelJson: S, invocationJson: route === "pressure_source" && registered ? jsonTextKeepingNegativeZero(invocation) : undefined });
+  // standing and summary (`nativeStandingInputs` :554-560, restated: not exported). Its `same` is
+  // sameModelData(model, captured) || sameModelData(model, JSON.parse(checkedJsonText(callerModel))),
+  // with the session model as both `model` and `callerModel` (solveModel is its structuredClone).
+  const sameCaptured = solveModel !== null && (sameModelData(solveModel, invocation.request.model) || sameModelData(solveModel, JSON.parse(checkedJsonText(solveModel))));
+  const standingInputs = (registered: boolean) => ({ modelJson: S, invocationJson: route === "pressure_source" && registered && sameCaptured ? jsonTextKeepingNegativeZero(invocation) : undefined });
   const readStanding = (call: string, registered: boolean): ReaderDispatch => {
     const s = next(call);
     if ("refused" in s) throw s;
@@ -204,18 +223,21 @@ export function judgeRun(directory: string): RunVerdict {
   };
   let verdict: ReaderDispatch;
   let summary: ResultSummary;
+  let unregistered: string | null = null;
+  let finalInvocationText: string | undefined;
   try {
     let lastRegistered = readers === null;
     verdict = readStanding("standing", lastRegistered);
     summary = readSummary(verdict);
-    const unregistered = readers ?? envelopeRefusal(summary.header.envelope, route, invocation.request.model, solveModel);
+    unregistered = readers ?? envelopeRefusal(summary.header.envelope, route, invocation.request.model, solveModel);
     if (unregistered !== null && readers === null) {
       lastRegistered = false;
       verdict = readStanding("standing_again", false);
       summary = readSummary(verdict);
     }
     // The dispatch again with the final inputs; the web's cache answers an unchanged key.
-    if (standingInputs(lastRegistered).invocationJson !== standingInputs(unregistered === null).invocationJson) verdict = readStanding("dispatch_again", unregistered === null);
+    finalInvocationText = standingInputs(unregistered === null).invocationJson;
+    if (standingInputs(lastRegistered).invocationJson !== finalInvocationText) verdict = readStanding("dispatch_again", unregistered === null);
   } catch (thrown) {
     if (thrown && typeof thrown === "object" && "refused" in thrown) return ended((thrown as { refused: RunVerdict }).refused);
     throw thrown;
@@ -224,13 +246,34 @@ export function judgeRun(directory: string): RunVerdict {
   calls.push("agreement");
 
   // source recovery, only where the web reads it
+  let recovery: SourceRecovery | null = null;
   if (route === "pressure_source" || summary.header.omitted_members.includes("source_block_recovery")) {
     const c = next("source_recovery");
     if ("refused" in c) return ended(c.refused);
     if ("rejected" in c) fail(`the source recovery was rejected: ${String(c.rejected)}`);
     if (c.args && (c.args.offset !== 0 || c.args.limit !== 1 || c.args.raw !== false)) fail("the source recovery's request is not the web's");
-    decoderFor("source_recovery")(c.bytes, { jobId });
+    recovery = decoderFor("source_recovery")(c.bytes, { jobId }) as SourceRecovery;
   }
+
+  // The session's gates (workspaceSession.ts:1563-1567), on the handle `readNativeFreshResult`
+  // builds (previewService.ts:667-676), with the web's own `createNativeResult` and
+  // `hasCurrentSourceContract`. `hasNativeMechanicsInvocation` for a native handle is
+  // `nativeRegistrationHolds` (:540-551), which needs the handle in `nativeRegistrations`, set
+  // only when nothing refused the registration (:676); its other conditions (the job live, the
+  // capture not invalidated, the solver mode, the captured fingerprints) are the session's own
+  // in-memory state for a fresh solve and are carried by no reply. `resultBytes` is not read by
+  // either gate.
+  const handle = createNativeResult({
+    jobId, origin: "fresh_job", resultBytes: 0, summary, verdict, recovery,
+    binding: { standingModelText: String(S), invocationText: finalInvocationText ?? null, summaryModelText: String(S), standing: { eligible: verdict.standing.eligible, findings: [...verdict.standing.findings] } },
+  });
+  const gate = (code: string): RunVerdict => {
+    if (entries.length) fail(`the session stops at ${code}; the run kept ${entries.length} more replies`);
+    calls.push(`session gate ${code}`);
+    return { calls, ended: `session gate: ${code}`, refusal: null };
+  };
+  if (unregistered !== null) return gate("SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED");
+  if (!hasCurrentSourceContract(handle) || !handle.producer) return gate("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED");
 
   // run_preview, with the session's input manifest (`buildCurrentSessionInputManifest`)
   const p = next("run_preview");
@@ -242,21 +285,43 @@ export function judgeRun(directory: string): RunVerdict {
     const sha = createHash("sha256").update(evidence.canonical_bytes, "utf8").digest("hex");
     if (sha !== evidence.manifest_sha256) fail("the manifest's SHA-256 is not its canonical bytes'");
     if (evidence.manifest_ref.object_type !== "InputManifest" || evidence.manifest_ref.ref !== inputManifestRef(manifest.model_basis.model_ref, sha)) fail("the manifest's ref is not inputManifestRef's");
-    if (manifest.model_basis.model_ref !== solveModel.project.id || !sameModelData(manifest.model_basis.model_payload, JSON.parse(checkedJsonText(solveModel)))) fail("the manifest's model is not the session model");
+    // The whole manifest `buildCurrentSessionInputManifest` builds (inputManifestService.ts:79-112),
+    // its object literal restated (the builder is async and needs the wasm engine for its canonical
+    // bytes), with the solver basis and rule packs the session passes (workspaceSession.ts:1571-1592),
+    // compared by value with the manifest the canonical bytes hold: `asJsonText` (JSON.stringify)
+    // precedes canonicalization, so the expectation is read back the same way.
     const producer = summary.header.envelope.producer as { component_name: string; component_version: string };
-    const solver = manifest.solver_basis;
-    if (solver.solver_name !== producer.component_name || solver.solver_version !== producer.component_version || solver.solver_build_ref !== `${producer.component_name}@${producer.component_version}` || solver.solver_mode !== SOLVER_MODE) fail("the manifest's solver basis is not the result's producer and the session's mode");
-    if ((solveModel.rule_pack_refs ?? []).length !== 0 || p.args.ruleCheckAggregate !== null || !same(p.args.rulePackExclusions, [])) fail("the rule-pack arguments are not NO_RULE_PACK_RESOLUTION's");
+    if ((solveModel.rule_pack_refs ?? []).length !== 0) fail("this judge restates the manifest of a model without rule-pack references (NO_RULE_PACK_RESOLUTION)");
+    const expected = {
+      schema_version: "1.0.0",
+      document_kind: "openpipestress.current_session_input_manifest",
+      model_basis: { model_ref: solveModel.project.id, model_payload: solveModel },
+      unit_basis: { project_units: Object.fromEntries(Object.entries(solveModel.project.units as Record<string, string>).sort(([left], [right]) => left.localeCompare(right))) },
+      solver_basis: {
+        solver_name: producer.component_name, solver_version: producer.component_version,
+        solver_build_ref: `${producer.component_name}@${producer.component_version}`, solver_mode: SOLVER_MODE,
+        settings: { nonlinear_iteration_policy: "DEC-046-CV-B-product-preview-active-set-count-v1", sparse_evidence_lane: SOLVER_MODE === "sparse_interactive" },
+      },
+      load_basis: { load_cases: solveModel.load_cases, combinations: solveModel.combinations ?? [] },
+      active_rule_packs: [],
+      external_assets: [],
+      identity_policy: { canonicalization: "rfc8785_jcs", hash_algorithm: "sha256", canonical_bytes_scope: "entire_input_manifest_object" },
+      replay_boundary: { included_as_package_member: false, portable_replay_claimed: false, current_session_ref_hash_integrity_only: true },
+    };
+    if (!sameModelData(manifest, JSON.parse(checkedJsonText(expected)))) fail("the manifest is not the one buildCurrentSessionInputManifest builds for this session");
+    if (p.args.ruleCheckAggregate !== null || !same(p.args.rulePackExclusions, [])) fail("the rule-pack arguments are not NO_RULE_PACK_RESOLUTION's");
   }
   const preview = decoderFor("run_preview")(p.bytes, { jobId }) as AnalysisRunPreview;
   if (preview.job_id !== jobId || preview.route !== route) fail("run_preview names another job or route");
+  // The session's model-reference check before it commits (workspaceSession.ts:1614).
+  if (handle.model_ref !== solveModel.project.id) return gate("SOLVE-RESULT-MODEL-MISMATCH");
 
   // the panel's first page and its row semantics
   const rowsReply = next("rows_page");
   if ("refused" in rowsReply) return ended(rowsReply.refused);
   if ("rejected" in rowsReply) fail(`the rows page was rejected: ${String(rowsReply.rejected)}`);
   const filter = panelDetailFilter({ filterText: "", familyFilter: "all", frame: "all", caseKey: "all" });
-  if (rowsReply.args && (!same(rowsReply.args.filter, filter) || rowsReply.args.offset !== 0 || rowsReply.args.limit !== FIRST_PAGE_ROWS)) fail("the rows request is not the panel's first page");
+  if (rowsReply.args && (!same(rowsReply.args.filter, filter) || rowsReply.args.offset !== 0 || rowsReply.args.limit !== DEFAULT_RESULT_PAGE_SIZE)) fail("the rows request is not the panel's first page");
   const page = decoderFor("rows_page")(rowsReply.bytes, { jobId }) as ReturnType<typeof decodeRowsPage>;
   if (page.rows.length === 0 && page.total > 0) fail("the panel would read the last page; the run did not");
   if (page.rows.length > 0) {

@@ -135,6 +135,9 @@ const SOLVER_MODE: &str = "sparse_interactive";
 const FIRST_PAGE_ROWS: u64 = 50;
 /// `PRESSURE_SOURCE_CONTRACT_ID` (`numericalResultQuality.ts`).
 const PRESSURE_SOURCE_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
+/// `PREVIEW_PHYSICS_RETAINED_CONTRACT_ID` and `PHYSICS_RETAINED_CONTRACT_ID` (`numericalResultQuality.ts`).
+const PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1";
+const PHYSICS_RETAINED_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
 const RECORD_SCHEMA: &str = "swbpipe.after_worker_harness.run/1";
 
 fn root() -> PathBuf {
@@ -453,7 +456,7 @@ fn child(kind: &str) -> Value {
         let (outcome, measured) = ingress::counting::measure(|| sequence.run());
         (outcome, json!({
             "whole_sequence": measured,
-            "basis": "ingress::counting over the whole sequence in this thread: requested bytes from zero at the sequence's start, read with phase marks at each call's edges (live_*: running live bytes; peak_during: peak since the call's start mark; peak_between: peak since the previous call's end mark). Counting starts at ingress::counting::measure around the sequence: not seen is what existed before it (the held result text, the registry, the model texts), and other threads' allocations (the registry's supervisor and poll threads; no reader command on this path spawns a thread). Inside the count but outside every call's own marks: each call's reply write and structural pre-check (calls[].allocation.post_call), and the input manifest built before run_preview (in run_preview's peak_between).",
+            "basis": "ingress::counting over the whole sequence in this thread: requested bytes from zero at the sequence's start, read with phase marks at each call's edges (live_*: running live bytes; peak_during: peak since the call's start mark; peak_between: peak since the previous call's post-call mark, up to this call's start mark). Counting starts at ingress::counting::measure around the sequence: not seen is what existed before it (the held result text, the registry, the model texts), and other threads' allocations (the registry's supervisor and poll threads; no reader command on this path spawns a thread). Inside the count but outside every call's own start-to-end marks: each call's reply write and structural pre-check (calls[].allocation.post_call), and, between the previous call's post-call mark and this call's start mark (its peak_between), the request Value and raw body this harness builds, and before run_preview the input manifest.",
         }))
     } else {
         (sequence.run(), Value::Null)
@@ -480,10 +483,10 @@ fn child(kind: &str) -> Value {
     report["footprint_basis"] = json!("phys_footprint at call edges is a point reading, not a per-call peak; lifetime_max_footprint is this process's maximum since it started (cumulative), not the call's; the worker is another process and is in neither");
     report["timing_basis"] = json!("calls[].wall_ms is the native call alone; calls[].post_call_ms (the reply write and the pre-check) is outside it and inside sequence_wall_ms");
     report["capture_overhead"] = json!({
-        "inside each call's own marks": "the request's Value and its raw body (about twice args_bytes; the webview's ingress hands the command the same body) and the HeaderMap the command reads",
+        "inside each call's own marks": "the request's raw body (args_bytes, in a buffer of at most twice that capacity; the webview's ingress hands the command the same body) and the HeaderMap the command reads; the request Value is dropped before the start mark",
         "post_call (its own mark)": "the reply write (no copy) and the structural pre-check's transient; replies are written and dropped before the next call, never held",
-        "held across calls": "the records and the replies manifest entries (kilobytes), and the pre-checks' small decoded results (the route, standing, producer, omitted members, first-page ordinals)",
-        "between calls, in the next call's peak_between": "the input manifest built before run_preview (a canonical copy of the model, a few MB)",
+        "held across calls": "the records and the replies manifest entries (kilobytes), and the pre-checks' small decoded results (the route, standing, producer, omitted members, first-page ordinals); no request Value or input manifest is held",
+        "in each call's peak_between (since the previous call's post-call mark)": "the request Value and its raw body as they are built, and before run_preview the input manifest (a canonical copy of the model, a few MB), moved into run_preview's request",
     });
     report["parse_lease_basis"] = json!("M for the header, registration, standing and summary leases is their source_admit phase line; run_preview's parse, the detail index's route parse and the semantics' working lease have no phase line: their M is result.parse_lease_m_by_prescan (the same prescan bound of the same text), the semantics' lease adding its rows and working allowance");
     report["full_parse_basis"] = json!("counted from phase lines where they exist; from source, run_preview parses the text once, the first rows query once (the detail index's route table, kept on the share afterwards) and the row semantics once");
@@ -566,6 +569,9 @@ impl Sequence<'_> {
         accept: impl FnOnce(&T) -> Accepted,
     ) -> Result<Value, Value> {
         let body = InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
+        // The request Value is the harness's; once its raw body (what the webview's ingress hands
+        // the command) is made, it is dropped, so it sits under no mark of this call.
+        drop(args);
         let args_bytes = match &body {
             InvokeBody::Raw(raw) => raw.len(),
             _ => 0,
@@ -667,11 +673,20 @@ impl Sequence<'_> {
         }, |reply| accept_summary(reply))
     }
 
-    /// The standing's request (`nativeStandingInputs`): the session model's text, and the captured
-    /// invocation's text only for a registered pressure-source statement.
-    fn standing_args(&self, route: &str, registered: bool) -> Value {
+    /// Whether the standing carries the captured invocation's text (`nativeStandingInputs`,
+    /// previewService.ts:554-560): a registered pressure-source statement whose session model is
+    /// the captured one (`same`). `same` holds exactly when the two model texts are equal: the
+    /// captured model is the session model read back through `checkedJsonText`, which differs
+    /// from it only where a negative zero is written `0`.
+    fn standing_invocation(&self, route: &str, registered: bool) -> bool {
+        let same = self.texts.registration == self.texts.standing;
+        route == "pressure_source" && registered && same
+    }
+
+    /// The standing's request, built when it is sent and not held afterwards.
+    fn standing_args(&self, with_invocation: bool) -> Value {
         let mut args = json!({"jobId": self.job, "modelJson": self.texts.standing});
-        if route == "pressure_source" && registered {
+        if with_invocation {
             args["invocationJson"] = json!(self.texts.invocation);
         }
         args
@@ -705,21 +720,22 @@ impl Sequence<'_> {
                 Err(ended) => return Err(ended),
             },
         };
-        // 3. standing, 4. summary
-        let mut standing_args = self.standing_args(&route, readers.is_none());
-        let mut verdict = self.verdict("standing", standing_args.clone(), accept_dispatch)?;
+        // 3. standing, 4. summary. Only whether each standing carried the invocation is kept
+        // between calls (the request Values are not held).
+        let mut last_invocation = self.standing_invocation(&route, readers.is_none());
+        let mut verdict = self.verdict("standing", self.standing_args(last_invocation), accept_dispatch)?;
         let mut summary = self.summary(&verdict["standing"])?;
         let envelope_refusal = envelope_refusal(&summary["envelope"], &route, &self.texts.model);
         let unregistered = readers.clone().or(envelope_refusal);
         if unregistered.is_some() && readers.is_none() {
-            standing_args = self.standing_args(&route, false);
-            verdict = self.verdict("standing_again", standing_args.clone(), accept_dispatch)?;
+            last_invocation = self.standing_invocation(&route, false);
+            verdict = self.verdict("standing_again", self.standing_args(last_invocation), accept_dispatch)?;
             summary = self.summary(&verdict["standing"])?;
         }
         // The dispatch read again with the final inputs: the web's cache answers an unchanged key.
-        let final_args = self.standing_args(&route, unregistered.is_none());
-        if final_args != standing_args {
-            verdict = self.verdict("dispatch_again", final_args, accept_dispatch)?;
+        let final_invocation = self.standing_invocation(&route, unregistered.is_none());
+        if final_invocation != last_invocation {
+            verdict = self.verdict("dispatch_again", self.standing_args(final_invocation), accept_dispatch)?;
         }
         if let Err(why) = route_header_agreement(&header, &verdict) {
             return Err(json!({"ended_at": "header_agreement", "kind": "pre_check_failed", "why": why}));
@@ -733,13 +749,29 @@ impl Sequence<'_> {
                 result_detail::run_recovery(registry.clone(), raw, lease)
             }, |reply| accept_detail(reply, "swbpipe.desktop.result_source_recovery").map(|_| Value::Null))?;
         }
-        // 5. run_preview, with the session's input manifest (`buildCurrentSessionInputManifest`).
-        let manifest = input_manifest(&self.texts.model, &summary["envelope"]["producer"]);
-        let args = json!({"jobId": job, "inputManifest": manifest, "ruleCheckAggregate": null, "rulePackExclusions": []});
+        // The session's gates before run_preview (workspaceSession.ts:1563-1567), for fidelity
+        // only: the judge (afterWorkerReplies.ts) is the acceptance. `hasNativeMechanicsInvocation`
+        // holds for a fresh native result only when it registered (previewService.ts:676,
+        // `nativeRegistrations` is set only when nothing refused it); `hasCurrentSourceContract`
+        // reads the final verdict's binding; and the result must name a producer.
+        if unregistered.is_some() {
+            return Err(json!({"ended_at": "session_gate", "kind": "session_gate", "code": "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", "unregistered_reason": unregistered}));
+        }
+        if verdict["binding"].is_null() || summary["envelope"]["producer"].is_null() {
+            return Err(json!({"ended_at": "session_gate", "kind": "session_gate", "code": "SOLVE-PRODUCER-CONTRACT-UNSUPPORTED"}));
+        }
+        // 5. run_preview, with the session's input manifest (`buildCurrentSessionInputManifest`),
+        // moved into its request (not held beside it) and dropped with it.
+        let mut args = json!({"jobId": job, "ruleCheckAggregate": null, "rulePackExclusions": []});
+        args["inputManifest"] = input_manifest(&self.texts.model, &summary["envelope"]["producer"]);
         let preview = self.call("run_preview", false, args, |registry, body| {
             let (raw, lease) = analysis_run_v03_build::reserve(registry, body, &headers(Some(INGRESS_ARGS_JSON_V1)))?;
             analysis_run_v03_build::run(registry.clone(), raw, lease)
         }, |reply| accept_run_preview(reply))?;
+        // The session's model-reference check before it commits the result (workspaceSession.ts:1614).
+        if summary["envelope"]["model_ref"] != self.texts.model["project"]["id"] {
+            return Err(json!({"ended_at": "session_gate", "kind": "session_gate", "code": "SOLVE-RESULT-MODEL-MISMATCH"}));
+        }
         // 6. the first rows page and its row semantics (`NativeResultsPanel`).
         let filter = json!({"text": "", "family": "all", "frame": "all", "case": "all"});
         let rows = self.call("rows_page", false, json!({"jobId": job, "filter": filter, "offset": 0, "limit": FIRST_PAGE_ROWS}), |registry, body| {
@@ -837,8 +869,9 @@ fn route_header_agreement(header: &Value, verdict: &Value) -> Result<(), String>
     Ok(())
 }
 
-/// `nativeEnvelopeRefusal` (its model-reference and pressure-source identity checks; the
-/// retained routes are named by route).
+/// `nativeEnvelopeRefusal` (previewService.ts:599-608): the model reference, a claimed
+/// pressure-source identity on another route, and a retained route or a retained identity
+/// (`isRetainedRoute`, `isRetainedIdentity`, numericalResultQuality.ts:34-40).
 fn envelope_refusal(envelope: &Value, route: &str, model: &Value) -> Option<String> {
     if envelope["model_ref"] != model["project"]["id"] {
         return Some("CAPTURE_MISMATCH".into());
@@ -846,7 +879,9 @@ fn envelope_refusal(envelope: &Value, route: &str, model: &Value) -> Option<Stri
     if route != "pressure_source" && envelope["producer"]["semantic_contract_id"] == PRESSURE_SOURCE_CONTRACT_ID {
         return Some(if route == "unsupported" { "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED" } else { "SOURCE_BLOCKS_CONTRACT" }.into());
     }
-    if route.starts_with("retained_") {
+    let identity = envelope["producer"]["semantic_contract_id"].as_str();
+    let retained_identity = matches!(identity, Some(PREVIEW_PHYSICS_RETAINED_CONTRACT_ID | PHYSICS_RETAINED_CONTRACT_ID));
+    if matches!(route, "retained_preview_physics" | "retained_physics") || retained_identity {
         return Some("RETAINED_PRECISION_NATIVE_REGISTRATION_UNAVAILABLE".into());
     }
     None
