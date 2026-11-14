@@ -3,6 +3,7 @@ import { currentSemanticContract } from "../results/resultReader";
 import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
+import { isExactReportSource } from "../report/exactReportSections";
 import { useMemo, useRef, useState } from "react";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
@@ -123,6 +124,13 @@ export function useResultsSessionState() {
   // T0R: Current only for the static fresh-identity set with Current standing;
   // other identities stay readable, never Current.
   const currentSolvedResult = result && otherCurrentRequirementsHold && numericallyEligible ? result : null;
+  // DEL-08-01 REQ-017, REQ-024: the rendered report (and its print view) also takes an
+  // exact-route result that meets every other Current requirement and has a standing,
+  // whatever that standing is; its build step and the native host each require that the
+  // reader reads the result and that its mechanics are solved, and the report states the
+  // standing. Every other output, the report package included, keeps `currentSolvedResult`.
+  const renderableSolvedResult = currentSolvedResult
+    ?? (result && otherCurrentRequirementsHold && standing !== null && isExactReportSource(result as MechanicsResult) ? result : null);
   // DEL-07-05 numerical health: the Rust indicator for this result with the reader's
   // findings from the standing above. Presentation only; it reads nothing back into
   // Current standing or any output gate.
@@ -233,6 +241,8 @@ export function useResultsSessionState() {
     fullResultCopy, setFullResultCopy,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    /** The result the rendered report takes (see above); never an input to any other output. */
+    renderableSolvedResult,
     /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
      * result overlays; it admits nothing by itself. */
     numericallyEligible,

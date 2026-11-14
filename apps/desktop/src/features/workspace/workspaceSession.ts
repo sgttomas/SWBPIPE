@@ -523,6 +523,7 @@ export function useWorkspaceSession() {
     fullResultCopy, setFullResultCopy,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    renderableSolvedResult,
     numericallyEligible,
     numericalHealth,
     numericalHealthHold,
@@ -5045,6 +5046,7 @@ export function useWorkspaceSession() {
     results: {
       result,
       currentSolvedResult,
+      renderableSolvedResult,
       numericallyEligible,
       numericalHealth,
       numericalHealthHold,

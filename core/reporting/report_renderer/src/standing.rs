@@ -309,14 +309,14 @@ pub fn standing_line(standing: &NumericalStanding) -> String {
     let canonical = if passed > 0 { format!(" {NQ_HEALTH_CANONICAL}") } else { String::new() };
     if n > 0 && passed == n {
         format!(
-            "Numerical health, as the solver reports it: checks passed for {}. The solver's checks-passed verdict rests on its inverse-norm step, which the product does not establish; the numerical conditions supporting this verdict have not been established. The evidence status of each figure and support state is stated with it; see Numerical Standing by Load Case and Limitations, What the solver's error figures rest on.{canonical}",
+            "Numerical health, as the solver reports it: checks passed for {}. The solver's checks-passed verdict rests on its inverse-norm step. The product does not establish that step, so the numerical conditions this verdict depends on are not established. The evidence status of each figure and support state is stated with it; see Numerical Standing by Load Case and Limitations, What the solver's error figures rest on.{canonical}",
             if n == 1 { "its one load case".to_string() } else { format!("all {n} load cases") }
         )
     } else {
         let failed = count(standing, CaseHealth::SolveFailed);
         let failed_text = if failed > 0 { format!(", {failed} solve failed") } else { String::new() };
         format!(
-            "Numerical health, as the solver reports it: {passed} checks passed, {} sensitive, {} quality unresolved, {} not assessed{failed_text}, of {n} {}. Any checks-passed verdict rests on the solver's inverse-norm step, which the product does not establish; the numerical conditions supporting this verdict have not been established. Each value carries its load case's health and the evidence status of its error figure; see Numerical Standing by Load Case and Limitations, What the solver's error figures rest on.{canonical}",
+            "Numerical health, as the solver reports it: {passed} checks passed, {} sensitive, {} quality unresolved, {} not assessed{failed_text}, of {n} {}. Any checks-passed verdict rests on the solver's inverse-norm step. The product does not establish that step, so the numerical conditions such a verdict depends on are not established. Each value carries its load case's health and the evidence status of its error figure; see Numerical Standing by Load Case and Limitations, What the solver's error figures rest on.{canonical}",
             count(standing, CaseHealth::Sensitive),
             count(standing, CaseHealth::QualityUnresolved),
             count(standing, CaseHealth::NotAssessed),

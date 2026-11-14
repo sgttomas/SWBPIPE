@@ -675,7 +675,7 @@ fn exact_block_and_library_records_render_with_the_composed_standing_line() {
     let html = &outcome.html;
     let binding = &input.exact_route.as_ref().unwrap().admission;
     let reading = format!(
-        "read by the Rust reader for the result Export Result JSON admitted in this session (received result sha256 {RECEIVED}, model sha256 {MODEL}, input manifest {} sha256 {MANIFEST}); its numerical health is stated at the start of Results and by load case",
+        "read by the Rust reader for the result bound to this report in this session (received result sha256 {RECEIVED}, model sha256 {MODEL}, input manifest {} sha256 {MANIFEST}); its numerical health is stated at the start of Results and by load case",
         binding.input_manifest_ref
     );
     assert_eq!(exact_standing_line(binding), reading);

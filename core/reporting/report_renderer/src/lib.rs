@@ -1836,7 +1836,7 @@ pub fn exact_admission_mismatches(input: &RenderableReportInput, route: &ExactRo
 /// preceded by [`exact_integrity_warning_lead`].
 pub fn exact_standing_line(binding: &ExactAdmissionBinding) -> String {
     format!(
-        "read by the Rust reader for the result Export Result JSON admitted in this session (received result sha256 {}, \
+        "read by the Rust reader for the result bound to this report in this session (received result sha256 {}, \
 model sha256 {}, input manifest {} sha256 {}); its numerical health is stated at the start of Results and by load case",
         binding.received_result_sha256, binding.model_sha256, binding.input_manifest_ref, binding.input_manifest_sha256
     )
