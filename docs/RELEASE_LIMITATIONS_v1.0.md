@@ -25,11 +25,15 @@ is written from the entries declared acceptable.
 
 DEL-04-05 AX-003 also requires unmet targets to be listed here. For an unmet-target entry, "What is refused" states what is not met, and the other fields describe the target and its practical effect. Its status records Agent 0's limitation declaration; neither listing it nor declaring it acceptable makes its criterion met or supplies acceptance, issuance or release.
 
+The list also carries applicability limitations, which exit criterion 3 does not require. An applicability limitation is a method that the exit criteria rely on and the product applies without refusal, but whose application range SWBPIPE's verification has not established. It causes no automatic refusal. Its entry says so in its Kind field. "Code" names any diagnostic or recorded field that bears on it, or none. "What is refused" says that nothing is refused and states what the method omits, and the other fields describe the method and its practical effect. Its status records Agent 0's limitation declaration. Declaring an applicability limitation acceptable does not establish that the method is adequate for any model, does not demonstrate the unestablished range and does not make an unmet criterion met.
+
 ## Entry form
 
 Each entry is one subsection:
 
 - **Id:** `LIM-nnn`, assigned in order and never reused.
+- **Kind:** present only for an applicability limitation: `applicability
+  limitation`, with the statement that it causes no automatic refusal.
 - **Exit criteria:** the release target's exit criteria it affects, by number.
 - **Requirement affected:** the requirement or capability of the exit criteria
   the refusal affects, by its identifier where one exists.
@@ -47,7 +51,7 @@ Each entry is one subsection:
   by a landed change is marked `withdrawn` with the PR; the entry is kept,
   not deleted.
 
-Entries are added in the same PR that makes the refusal standing. A previously unlisted standing refusal is added when identified; its Basis distinguishes the refusal's existing standing from the PR that records the entry. An unmet-target entry is added in the PR that records the unmet target. The PR names the entry, and the entry names the PR.
+Entries are added in the same PR that makes the refusal standing. A previously unlisted standing refusal is added when identified; its Basis distinguishes the refusal's existing standing from the PR that records the entry. An unmet-target entry is added in the PR that records the unmet target. An applicability limitation is added when identified; its Basis distinguishes the method's existing standing from the PR that records the entry. The PR names the entry, and the entry names the PR.
 
 ## Entries
 
@@ -327,4 +331,63 @@ Entries are added in the same PR that makes the refusal standing. A previously u
   - Product-level witness: `core/product_physics/tests/friction_one_way_normal_source.rs`, `a_lift_off_friction_cycle_is_refused_by_name_with_no_result`. It is the same chord geometry as a model document, with this file's pipe section and material, so its stiffness is not the nominal chord's. In both modes it gives the two codes above and no result row.
   - A separate observation, not generalized: the frozen reference's exact lift-boundary case LIFT-BOUNDARY (`validation/references/friction_one_way_normal`) converges in dense mode, and reaches its four-iteration cap in sparse mode, where it is refused with the same codes. This is not a general failure of sparse mode, and dense mode is not a workaround.
   - The refusal became standing with PR #326, which admits a one-way or lift-off support as a friction normal source and records this entry. Before it, such a model was refused at model build (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`).
+- **Status:** not yet declared.
+
+### LIM-021 — The application range of a realized bend's element is not established
+
+- **Id:** LIM-021
+- **Kind:** applicability limitation. It causes no automatic refusal.
+- **Exit criteria:** 1
+- **Requirement affected:** DEL-03-03's method for a realized bend: REQ-012, and AC-002's closed-form end flexibility of a circular curved beam with the user's factors on the two bending terms. Exit criterion 1 includes the realized bends of the reference system.
+- **Code:** none. No refusal code is emitted for this limitation. A result records each realized arc's `beam_theory` as `euler_bernoulli`. Under the pressure-free route's Timoshenko selection, a result also carries the information diagnostic `PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI`. Neither states what the element omits, nor that its application range is not established.
+- **What is refused:** nothing is refused. A realized bend is solved with the end flexibility of a thin curved beam. That flexibility includes bending, multiplied by the user's in-plane and out-of-plane flexibility factors, together with axial and torsional flexibility. It omits two kinds of term, of the same order as each other:
+  - transverse shear deformation;
+  - the curved-bar terms: the offset of the neutral axis from the centroid, and the coupling between axial force and bending moment.
+
+  The element also omits cross-section ovalization and its restraint. How much that matters, and how far the user's flexibility factor represents it, has not been established here. SWBPIPE's verification has not established an annular application range for this element.
+- **What it means in practice for a user:**
+  - The omitted beam terms grow with:
+    - the section's radius of gyration over the bend radius, r_g/R. For a thin wall r_g ≈ 0.354·D, so r_g/R is about 0.24 when R = 1.5·D and 0.35 when R = D;
+    - r_g over the lengths of the legs that carry moment into the bend;
+    - the section's wall ratio D/t.
+
+    The user's flexibility factor multiplies the bending term those omissions are compared with.
+  - No limit in these measures has been established below which the omissions are negligible.
+  - Three illustrations follow, from three different kinds of evidence, kept apart. Each is a sampled comparison, not a bound. None gives the error of, or a dependable sign for, any individual result or reaction.
+    1. **Exact elasticity, rectangular bar, one loading.**
+       - *Geometry and loading:* a quarter-circle bar of rectangular cross-section in plane stress, with depth h and centreline radius R, Poisson's ratio 0.3. A radial force acts at one end; the curved faces are free. This is the classical Golovin/Ribière solution, which prescribes distributed tractions on the end cuts, not a clamped end.
+       - *Compared:* the strain energy of the exact stress field against elementary beam energy built from the same section forces.
+       - *Normalized as:* 100·(model energy / exact energy − 1). Positive means the model stores more energy, so it is more flexible.
+       - *Results, at h/R of 0.1, 0.3 and 0.6:*
+         - the shear energy with a straight bar's shear coefficient (5/6): +0.093%, +0.85% and +3.54%;
+         - the total, thin bending without shear: −0.07%, −0.57% and −1.9%;
+         - the total, thin bending with shear added: +0.19%, +1.7% and +7.0%.
+    2. **Annular curved-bar model, one loading.**
+       - *Geometry and loading:* a quarter-circle arc of annular section under a radial force at its tip, the other end fixed.
+       - *Model:* elementary curved-bar energy with plane sections, the annulus's neutral axis in closed form, and the product's energy-matched annular shear factor (Poisson's ratio 0.3).
+       - *Normalized as:* the change in the arc's radial tip flexibility from each omitted term, divided by its thin bending flexibility with a factor of 1.
+       - *Results:* transverse shear about +5.2·(r_g/R)² and the curvature terms about −2.5·(r_g/R)², for D/t from 10 to 100 (about +4.7 and −2.7 at D/t = 5). Positive means more flexible.
+    3. **Invented assembled systems.**
+       - *Geometry and loading:* a planar L-shaped pipe run, two straight legs of equal length L joined by a 90° bend of radius R. Both ends are anchored. The run is loaded by a free thermal growth of 0.1% of the anchor-to-anchor offset in each direction. D = 0.3 m, sampled at R of 1, 1.5 and 3 diameters, D/t of 5, 20 and 100, and factors of 1 and 5. The legs are the same thin beams in every model; only the bend's model changes.
+       - *Compared:* the six anchor reaction components of both anchors (moments divided by L), between the thin bend and the bend with an omitted term added.
+       - *Normalized as:* the largest change of any component, divided by the largest reaction component of the thin model. The sign shown is that of the change in magnitude of that largest reaction. The figure summarizes the whole run; it is not any individual reaction's error.
+       - *Results:*
+         - transverse shear alone: up to 4.9%, 0.36% and 0.02% for legs of 3, 10 and 30 diameters, decreasing the largest reaction;
+         - the curvature terms, with the factor scaling the curved-bar bending term: up to 10.7%, 3.0%, 1.7% and 0.67% for legs of 3, 10, 30 and 100 diameters, increasing it;
+         - both together: at legs of 3 diameters, the sign varied with geometry;
+         - a second definition of what the factor scales changed the curvature terms' effect at a factor of 5 by factors of 1.18 to 4.75 across the sampled runs.
+  - The examined comparisons do not justify adding transverse shear alone as an accuracy improvement for annular bends. In illustration 1, adding shear alone moved the total energy further from the exact value than leaving it out, at every sampled ratio (h/R from 0.02 to 1.6). That is a counterexample to a general improvement; it does not show that adding shear is harmful throughout the annular domain.
+  - Nothing shown here says that the present element is more accurate than an alternative, or that its errors are conservative.
+- **Why:** DEL-03-03 defines the element as the thin curved beam's closed-form end flexibility, with the factors on the bending terms only. VER-002 compares the element with closed-form values of that same model (`validation/references/t4_i6`). That comparison shows agreement with the model, not the model's adequacy for a given bend. No reference of a more complete model has been identified for annular bends, whether a beam model with shear and curvature terms or an elasticity solution. What the user's flexibility factor would mean against such a model is not defined.
+- **What the user does instead:** the flexibility factors are the user's own inputs, and whether they suit the fitting is the user's engineer's judgment (DEL-03-03). No product option changes a realized bend's formulation; the Timoshenko selection applies to straight members only.
+- **Basis:**
+  - DEL-03-03 [scope](../execution/PKG-03/DEL-03-03/ScopeOfWork.md): the method; REQ-012, AC-002 and VER-002. The element's formulation has been standing since realized bends were introduced. This PR records the entry.
+  - Evidence, by pointer, in the inverse-norm lane's scratch: `/Users/ryan/dev/chirality-t3/scratch/swbpipe/inverse-norm-repair/arc-shear/`. It holds the formulation note `NOTE.md` and the scripts whose saved outputs give each figure above:
+    - illustration 1: `golovin_energy.py` and `golovin_energy.out`;
+    - illustration 2: `annulus_orders.py` and `annulus_orders.out`;
+    - illustration 3: `chain_range.py` and `chain_range.out`, whose bend energy is checked against illustration 2's model by `cross_term_check.py` (`cross_term_check.out`).
+
+    The note had an independent reading (`review/return.md`), and its corrections are integrated.
+  - Agent 0 decided that a second-order curved-bar element is not to be built before v1.0. Its prerequisites are the factor's meaning against a curved-bar baseline, an independent annular reference, and an element that is formed consistently in every place the product forms it.
+  - Declaring this limitation acceptable does not establish that the element is physically adequate for any bend.
 - **Status:** not yet declared.
