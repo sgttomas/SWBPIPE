@@ -244,6 +244,7 @@ class FakeGuestModel:
         self.resume_at: list[tuple[tuple[str, int], Attempt, str | None]] = []
         self.extra: Callable[..., subprocess.CompletedProcess | None] | None = None  # other commands (registry, ...)
         self.dispatch_raise: BaseException | None = None
+        self.stderr_added: dict[str, str] = {}  # kind -> text appended to stderr of every answer of that kind
         self.program_hook: Callable[[Attempt], Program] | None = None  # decides the program at launch when set
 
     # -- state ---------------------------------------------------------------------------------------------------
@@ -298,7 +299,7 @@ class FakeGuestModel:
                 self.resume_at.remove(entry)
                 entry[1].advance(entry[2])
         if kind == "attempt":
-            return self._dispatch(argv, command, number)
+            return self._with_stderr(kind, self._dispatch(argv, command, number))
         if (kind, number) in self.answers and kind not in ("fence",):
             code, out, err = self.answers[(kind, number)]
             return done(argv, code, out, err)
@@ -308,6 +309,11 @@ class FakeGuestModel:
             return done(argv, code, out, err)
         if (kind, number) in self.lost:
             return done(argv, 255, "", TRANSPORT[0])
+        return self._with_stderr(kind, result)
+
+    def _with_stderr(self, kind: str, result: subprocess.CompletedProcess) -> subprocess.CompletedProcess:
+        if kind in self.stderr_added:
+            result.stderr = (result.stderr or "") + self.stderr_added[kind]
         return result
 
     def _dispatch(self, argv, command: str, number: int) -> subprocess.CompletedProcess:

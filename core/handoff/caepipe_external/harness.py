@@ -113,7 +113,14 @@ RESTORABLE_DATA = {"REG_BINARY": re.compile(r"^[0-9A-Fa-f]*\Z"), "REG_DWORD": re
 LITERAL_VALUE_FOLDER = re.compile(r"^[A-Za-z]:(\\[A-Za-z0-9 ._()-]+)+\Z")
 # cmd.exe takes a command line of at most 8191 characters; `cmd /c ` and a margin come off it.
 LITERAL_COMMAND_LIMIT = 8000
-LITERAL_VALUE_SCRIPT = r"""$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
+# Every PowerShell script the harness sends begins with POWERSHELL_QUIET, so Windows PowerShell writes no progress
+# record (a module's first-use preparation included), which it would otherwise serialise to the redirected stderr.
+# Nothing else is silenced: a warning or an error stays visible on stderr, and every reply judged fails closed on
+# any non-blank stderr (`_answered`).
+POWERSHELL_QUIET = "$ProgressPreference = 'SilentlyContinue'\n"
+# How every PowerShell command is started (-EncodedCommand and -File show no banner).
+POWERSHELL_COMMAND = "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass"
+LITERAL_VALUE_SCRIPT = POWERSHELL_QUIET + r"""$ErrorActionPreference = 'Stop'
 $missing = 'ERROR: The system was unable to find the specified registry key or value.'
 try {
   $p = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@PAYLOAD@')) | ConvertFrom-Json
@@ -497,7 +504,7 @@ def _literal_value_command(printed_key: str, name: str, action: str, data: str |
                           "data": data}, sort_keys=True)
     script = LITERAL_VALUE_SCRIPT.replace("@PAYLOAD@", base64.b64encode(payload.encode("utf-8")).decode("ascii"))
     encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
-    command = f"powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand {encoded}"
+    command = f"{POWERSHELL_COMMAND} -EncodedCommand {encoded}"
     if len(command) > LITERAL_COMMAND_LIMIT:  # cmd.exe would cut it: refused while the plan is made, before any write
         raise ValueError(f"{printed_key}\\{name} cannot be written back exactly (its guest command is too long)")
     return command
@@ -527,7 +534,7 @@ def _win(*parts: str) -> str:
 # Every host query below is a fixed PowerShell script run with -EncodedCommand; its parameters travel as encoded
 # JSON data (`@PAYLOAD@`), never as command words. Each prints exactly one answer in a fixed form beginning with its
 # own sentinel, and each answer is matched whole (`_answered` and the patterns below); anything else is unresolved.
-_QUERY_PRELUDE = r"""$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
+_QUERY_PRELUDE = POWERSHELL_QUIET + r"""$ErrorActionPreference = 'Stop'
 $p = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@PAYLOAD@')) | ConvertFrom-Json
 """
 # The host's fence: the work folder (idempotent), then the exclusive create of <W>\<T>.claim with the host's content.
@@ -626,7 +633,7 @@ def _encoded_query(script: str, payload: Mapping[str, Any]) -> str:
     """The guest command running `script` with `payload` passed as encoded JSON data (never as command words)."""
     data = base64.b64encode(json.dumps(dict(payload), sort_keys=True).encode("utf-8")).decode("ascii")
     encoded = base64.b64encode(script.replace("@PAYLOAD@", data).encode("utf-16-le")).decode("ascii")
-    command = f"powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand {encoded}"
+    command = f"{POWERSHELL_COMMAND} -EncodedCommand {encoded}"
     if len(command) > LITERAL_COMMAND_LIMIT:
         raise ValueError("a guest query would exceed the command-line limit")
     return command
@@ -777,6 +784,8 @@ class _Reconciler:
         match = FENCE_ANSWER.match(record["stdout"]) if _answered(record) else None
         record["answer"] = match["result"] if match else "unresolved"
         self.evidence.append(f"fence: {record['answer']}")
+        if match is None:
+            self._pause()  # a fence out of form is not repeated at once; the claim read decides
 
     def _launcher_ended(self, claim: Mapping[str, Any]) -> dict[str, Any] | None:
         """(a): the CIM query for the claim's pid shows no process, or one created at another time (pid reuse).
@@ -1072,8 +1081,9 @@ def _guest_step(config: HarnessConfig, runner: Callable[..., subprocess.Complete
 
 
 def _answered(record: Mapping[str, Any]) -> bool:
-    """Exit 0 with nothing on stderr: the precondition of every read's answer form (each read then matches its
-    stdout against its own exact form)."""
+    """Exit 0 with nothing but blank space on stderr: the precondition of every judged reply's form, reads and
+    changing commands alike (each then matches its stdout against its own exact form). Anything on stderr, a
+    PowerShell warning or a serialised record included, fails it."""
     return record["exit_status"] == 0 and not (record.get("stderr") or "").strip()
 
 
@@ -2120,7 +2130,7 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
     guarded = config.settings_guard is not None
 
     def attempt_command(token: str) -> str:
-        return (f"powershell -NoProfile -ExecutionPolicy Bypass -File {_quote(share_script)} "
+        return (f"{POWERSHELL_COMMAND} -File {_quote(share_script)} "
                 f"-Exe {_quote(config.guest_executable)} -Mbf {_quote(staged_mbf)} -AttemptToken {token} "
                 f"-ExpectedMbfSha256 {mbf_sha256} -WorkRoot {_quote(work)}"
                 + (f" -PidFile {_quote(_win(work, token, OWNED_PIDS_FILE))}" if guarded else "")
@@ -2542,7 +2552,7 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
     share_script = _win(config.guest_exchange_root, HARNESS_DIR, script["sha256"], GUEST_SCRIPT.name)
 
     def export_command(script: str) -> str:
-        return (f"powershell -NoProfile -ExecutionPolicy Bypass -File {_quote(script)} "
+        return (f"{POWERSHELL_COMMAND} -File {_quote(script)} "
                 f"-Exe {_quote(config.guest_executable)} -ExportMod {_quote(guest_mod)} -ExportName {EXPORTED_MBF}")
 
     steps: list[dict[str, Any]] = []
@@ -2558,20 +2568,22 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
                                      f"{_quote(guest_mod)}")
     export: dict[str, Any] = {"exit_status": None, "stdout": "", "stderr": ""}
     guest_log = None
-    if prepare["exit_status"] == 0:
+    if _answered(prepare):
         export = step("export", export_command(share_script))
-        guest_log = last_json_object(export["stdout"])
+        # The report counts only when nothing is on stderr.
+        guest_log = last_json_object(export["stdout"]) if not (export["stderr"] or "").strip() else None
 
     def guest_hash(key: str) -> str | None:
         value = guest_log.get(key) if isinstance(guest_log, dict) else None
         return value.lower() if isinstance(value, str) else None
 
     guest_mod_sha256, guest_exported_sha256 = guest_hash("mod_sha256"), guest_hash("exported_mbf_sha256")
+    collect = None
     mod_verified = guest_mod_sha256 == mod_sha256
     status = guest_log.get("status") if isinstance(guest_log, dict) else None
     if status == EXPORT_ROUTE and mod_verified:
         _refuse_links(root, out)  # again just before the guest writes into the layer
-        step("export_collect", f"copy /Y {_quote(guest_mbf)} {_quote(_win(guest_out, EXPORTED_MBF))}")
+        collect = step("export_collect", f"copy /Y {_quote(guest_mbf)} {_quote(_win(guest_out, EXPORTED_MBF))}")
 
     write_private(root, out / "export_guest_stdout.txt", export["stdout"])
     write_private(root, out / "export_guest_stderr.txt", export["stderr"])
@@ -2583,7 +2595,7 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
     if exported.is_file() and not exported.is_symlink():
         data = exported.read_bytes()
         exported_sha256, exported_bytes = _sha256(data), len(data)
-    if prepare["exit_status"] != 0:
+    if not _answered(prepare):
         route = "prepare_failed"
     elif export["exit_status"] == "timeout":
         route = "timeout"
@@ -2593,7 +2605,7 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
         route = "input_hash_mismatch"
     elif status != EXPORT_ROUTE:
         route = str(status or "unknown_guest_status")
-    elif exported_sha256 is None:
+    elif exported_sha256 is None or not (collect is not None and _answered(collect)):
         route = "mbf_not_collected"
     elif exported_sha256 != guest_exported_sha256:
         route = "export_hash_mismatch"

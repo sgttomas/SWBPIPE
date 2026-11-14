@@ -621,3 +621,122 @@ def test_the_pilot_names_partial_beside_the_other_outcomes():
     assert {run_pilot.RECORDED, run_pilot.NOT_RUN, run_pilot.RETRY, run_pilot.PARTIAL} == {
         "recorded", "not_run", "retry", "partial"}
     assert "start_unresolved" not in harness.SETTINGS_KEEP_GOING
+
+
+# --------------------------------------------------------------------------------------------------------------
+# PowerShell's serialised records on stderr. Windows PowerShell 5.1 can write a progress record (for instance while it
+# prepares a module for first use) to a redirected stderr as CLIXML. Prevention: every PowerShell script the harness
+# sends, and the guest script, sets $ProgressPreference = 'SilentlyContinue' as its first statement. The rule stays
+# strict and deliberate: any non-blank stderr fails a judged reply closed, a progress record included, so a record
+# that still arrived is never read past. The records below are synthetic, in PowerShell's published form.
+# --------------------------------------------------------------------------------------------------------------
+def _clixml(*kinds: str) -> str:
+    objects = "".join(
+        f'<Obj S="{kind}" RefId="{number}"><TN RefId="{number}"><T>System.Management.Automation.PSCustomObject</T>'
+        f'<T>System.Object</T></TN><MS><I64 N="SourceId">1</I64><PR N="Record"><AV>Invented activity.</AV>'
+        f'<AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj>'
+        for number, kind in enumerate(kinds))
+    return ('#< CLIXML\r\n<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">'
+            + objects + "</Objs>")
+
+
+PROGRESS = _clixml("progress")
+
+
+def test_every_powershell_script_turns_progress_off_as_its_first_statement_and_nothing_else():
+    for script in (harness.FENCE_SCRIPT, harness.CIM_SCRIPT, harness.JOB_SCRIPT, harness.CHUNK_SCRIPT,
+                   harness.LITERAL_VALUE_SCRIPT):
+        assert script.startswith("$ProgressPreference = 'SilentlyContinue'\n"), script[:60]
+        assert "WarningPreference" not in script and "Write-Host" not in script  # warnings stay visible
+    after_params = SCRIPT[SCRIPT.index("\n)\n", SCRIPT.index("param(")) + 3:]
+    statements = [line for line in after_params.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+    assert statements[0] == "$ProgressPreference = 'SilentlyContinue'"
+    assert "WarningPreference" not in SCRIPT and "Write-Host" not in SCRIPT
+    assert harness.POWERSHELL_COMMAND == "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass"
+    for command in (harness._encoded_query(harness.CIM_SCRIPT, {"pid": 1}),
+                    harness._literal_value_command(KEY + "\\Recent list", "C:\\Invented\\", "read")):
+        assert command.startswith(harness.POWERSHELL_COMMAND + " -EncodedCommand ")
+
+
+@pytest.mark.parametrize("kind", ["cim", "job"])
+@pytest.mark.parametrize("record", ["progress", "warning", "Error"])
+def test_a_serialised_record_beside_a_clean_reconciling_reply_fails_closed(tmp_path, clock, kind, record):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    guest.stderr_added[kind] = _clixml(record)
+    with pytest.raises(StartUnresolved) as raised:
+        run(config, guest)
+    answers = {step.get("answer") for step in raised.value.record["steps"]
+               if classify(step["guest_command"]) == kind}
+    assert answers == {"unresolved"}
+
+
+@pytest.mark.parametrize("kind", ["claim_read", "finished_read"])
+def test_a_serialised_record_on_a_report_or_claim_read_fails_closed(tmp_path, clock, kind):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    guest.plan = {1: {"reply": "transport"}}
+    guest.stderr_added[kind] = PROGRESS
+    with pytest.raises(StartUnresolved):
+        run(config, guest)
+
+
+def test_a_serialised_record_beside_a_chunk_or_fence_reply_fails_closed(tmp_path, clock):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    guest.stderr_added["chunk"] = PROGRESS
+    record = run(config, guest)
+    assert record["route"] == "collection_failed" and record["outputs_collected"] == []
+
+    config = config_for(tmp_path / "fence")
+    guest = guest_for(config, clock)
+    guest.plan = {1: {"reply": "undelivered"}}
+    guest.stderr_added["fence"] = PROGRESS  # the fence took effect; its reply is out of form
+    record = run(config, guest)
+    assert [step["answer"] for step in record["steps"] if step["name"].startswith("fence")][0] == "unresolved"
+    assert record["attempts"][0]["disposition"] == "not_started"  # the claim read decides, never the fence's reply
+
+
+def test_a_serialised_record_beside_the_attempt_reply_changes_nothing(tmp_path, clock):
+    # The attempt's own reply is never judged: its reconciliation decides.
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    guest.stderr_added["attempt"] = PROGRESS
+    assert run(config, guest)["route"] == "csv_from_batch"
+
+
+@pytest.mark.parametrize("read", ["tasklist", "reg_query", "owned_pids"])
+def test_a_serialised_record_on_a_guard_read_fails_closed(tmp_path, clock, read):
+    config = config_for(tmp_path, GUARD)
+    guest = guest_for(config, clock)
+    registry = Registry(guest)
+    guest.stderr_added[read] = PROGRESS
+    record = run(config, guest)
+    assert record["settings_guard"]["status"] in ("precondition_unknown", "settings_check_failed",
+                                                  "owned_process_state_unknown")
+    assert registry.writes == []
+    assert check_guest_alive(config, runner=lambda argv, **k: done(
+        argv, 0, "\r\nMicrosoft Windows [Version 10.0.19045.5011]\r\n", PROGRESS))["status"] == "unreachable"
+
+
+def test_the_registry_api_read_and_write_fail_closed_on_any_serialised_record(tmp_path):
+    config = config_for(tmp_path, GUARD)
+    key = KEY + "\\Recent list"
+    read = harness._literal_value_command(key, "C:\\Invented\\", "read")
+    write = harness._literal_value_command(key, "C:\\Invented\\", "set", "0A")
+    shown = f"\r\n{key}\r\n    C:\\Invented\\    REG_BINARY    0A\r\n"
+
+    def step_answering(stdout, stderr, code=0):
+        return lambda name, command: {"name": name, "guest_command": command, "exit_status": code,
+                                      "stdout": stdout, "stderr": stderr}
+    assert harness._read_value(step_answering(shown, ""), "r", key, "C:\\Invented\\", read) == (
+        "present", ("REG_BINARY", "0A"))
+    assert harness._read_value(step_answering(shown, PROGRESS), "r", key, "C:\\Invented\\", read)[0] == "unreadable"
+    assert harness._read_value(step_answering("", PROGRESS + harness.REG_NOT_FOUND_LINE, 1), "r", key,
+                               "C:\\Invented\\", read)[0] == "unreadable"  # never read as "absent"
+    steps: list = []
+    for command in (write, 'reg add "x" /f'):
+        with pytest.raises(harness.RestoreWriteFailed) as raised:
+            harness._guest_write(config, lambda argv, **k: done(argv, 0, "The operation completed successfully.",
+                                                                PROGRESS), 20.0, steps, "w", command)
+        assert raised.value.outcome == "unknown" and not raised.value.transport  # stopped, never reissued

@@ -59,6 +59,9 @@ param(
     [string]$ExpectedMbfSha256 = "",
     [string]$WorkRoot = ""
 )
+# The first statement (PowerShell requires the param block before it): no progress record, a module's first-use
+# preparation included, is serialised to the host's stderr. Warnings and errors stay visible.
+$ProgressPreference = 'SilentlyContinue'
 $ErrorActionPreference = "Stop"
 
 # Nothing below starts a process before the claim is won (Start-Attempt); these refusals start nothing.
