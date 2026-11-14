@@ -681,9 +681,13 @@ composite publication charge 24E, so each moves by 2,232.
 budget's `{:x}` rule (`base/text_budget.py` `arg_max`) gave 64 B only to an argument naming `digest` or `Sha256`, so
 a streaming hasher's `hasher.finalize()` fell to the 16 B default, below the string's 64 characters. `arg_max` now
 reads the hasher's construction in the enclosing function (`hasher_type`: `let [mut] NAME [: T] = [path::]Type::new()`
-between the site and its `fn` header) and sizes a `Sha256`'s `finalize()` at 64 B. A `finalize()` of any other or
-unproven hasher (a wider hash, one built in another function, one passed in) is left unclassified, so the run stops
-instead of sizing it silently. Other hex arguments keep their sizes. `tests/test_hex_digest_sizing.py` holds the
+between the site and its `fn` header) and sizes a `Sha256`'s `finalize()` at 64 B. An argument of exactly that
+shape whose receiver is not found built so (a wider hash, one built in another function, one passed in) is left
+unclassified, so the run stops. At this revision the check covers only an argument of exactly the shape
+`NAME.finalize()`, and its backward scan does not yet refuse shadowing, a closed inner scope or a commented-out
+construction; the independent reading found both (its findings 1 and 2), and the repair is pending. The
+`{:x}` placeholders that format a `finalize()` in the priced sources are the five below, all of that shape and all
+proved `Sha256`. Other hex arguments keep their sizes. `tests/test_hex_digest_sizing.py` holds the
 64 B case, the unchanged sizes, the unclassified cases and the premise over the priced crates (every hex
 `finalize()` there formats a hasher built as a `Sha256`).
 
@@ -691,12 +695,19 @@ instead of sizing it silently. Other hex arguments keep their sizes. `tests/test
 each built in the same function: product_physics `retained_wire.rs:239` (built :237), `source_receipt.rs:41`
 (:38) and `source_recovery/j7_rf_census.rs:239` (:227, not reached on D1); result_export
 `declared_member_load.rs:500` (:459) and `source_blocks.rs:191` (:189). No wider hash is formatted in the priced
-crates. The other 42 are sized correctly or over (16 B for `016x` of f64 bits and limbs and per `02x` byte, 32 B
-for `032x` of a u128, 64 B for `Sha256::digest(...)` and a value named `digest`).
+crates. Of the other 42, 41 are scalar placeholders sized correctly or over (16 B for `016x` of f64 bits and limbs
+and per `02x` byte, 32 B for `032x` of a u128, 64 B for `Sha256::digest(...)` and for a value named `digest`, which
+is sized by its name; the one such value, `retained_precision.rs:5935`, is bound to `Sha256::digest(&encoded)` at
+:5934). The 42nd, `modal/tests_resource.rs:575`, formats a `Vec<u64>` with `{:x?}`; the hex rule's 16 B does not
+bound a vector. Its multiplicity is 0, so it costs nothing in the registered price; it is a remaining item, not
+repaired here.
 
 **Derivation.** This tool on main `053bde0b3` against main's registered tree (`d5e8063f4`'s run, which main's own
 `generate --check` reproduces against `053bde0b3`'s block with its committed basis): the four points complete,
-o10 0/0. Only the four reached sites move, each from 16 B to 64 B at its unchanged multiplicity; total text rises
+o10 0/0. In all sixteen budgets (four points, four variants) exactly the five finalize rows change their bytes, from
+16 to 64, and no row changes its multiplicity or any other field. Requested bytes change at the four reached sites
+in the main and `_W` budgets, at `source_receipt.rs:41` only in `_X`, and at none in `_env`; the fifth row,
+`j7_rf_census.rs:239`, keeps multiplicity and requested bytes 0 in every budget. Total text rises
 L(3,0) +4,224 B, L(2,1) +4,320 B, L(1,2) +4,416 B, E +5,088 B. Of 1,606 coefficients 1,600 are equal and 6 higher,
 none lower: TAV_text_requested and TAV_text_moving +5,088 B; TAV_W and success__TAV_W +3,744 B (the `_W` budget:
 retained_wire +1,056, source_receipt +96 at multiplicity 1 in that variant, declared_member_load +864,
