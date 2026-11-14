@@ -35,8 +35,6 @@ mod rich_authoring;
 mod retained_semantics_binding;
 pub use retained_semantics_binding::retained_precision_semantics_json;
 mod load_state_authoring;
-mod numerical_health;
-pub use numerical_health::numerical_health_json;
 mod model_checks;
 pub use model_checks::{
     model_checks, model_checks_owned, model_checks_text, MODEL_CHECKS_DOCUMENT_KIND, MODEL_CHECKS_INPUT_TOO_LARGE,
@@ -1000,6 +998,17 @@ pub fn retained_precision_transport_outcome_json(source_json: &str) -> Result<St
     Ok(rp::outcome_json(&rp::validate_transport_metadata(&source)).to_string())
 }
 
+/// DEL-07-05's numerical health indicator over JSON text: the reader's
+/// historical health projection (`result_export::historical_health`).
+/// `reader_findings_json` is the Rust reader's findings for the same result, as
+/// that function describes; an absent or `null` value reads as absent. Errors
+/// only on input that is not JSON.
+pub fn numerical_health_json(source_json: &str, reader_findings_json: Option<&str>) -> Result<String, String> {
+    let source = parse_reader_input("source", source_json)?;
+    let findings = optional_reader_input("reader_findings", reader_findings_json)?;
+    open_pipe_stress_product_physics::result_export::historical_health::numerical_health_json(&source, findings.as_ref())
+}
+
 /// b7-plan R2: the base-route readers' verdicts (`result_export::reader_verdict`)
 /// over JSON text, through `wasm_api` for the desktop. An absent or `null`
 /// model or invocation reads as absent.
@@ -1020,6 +1029,35 @@ pub fn reader_dispatch_json(
     let model = optional_reader_input("model", model_json)?;
     let invocation = optional_reader_input("invocation", invocation_json)?;
     Ok(rv::dispatch(&source, model.as_ref(), invocation.as_ref()).to_string())
+}
+/// DEL-08-01 REQ-024 and DEL-05-02 Standing, for the report builder: the
+/// reader's standing, its readability verdict beside it, and, for a readable
+/// solved result, the standing record a report states
+/// (`result_export::report_standing`), as
+/// `{standing, readability, numerical_standing, standing_refusal}`.
+/// `numerical_standing` is null for a result the reader cannot read or whose
+/// mechanics are not solved, and where a tag lies outside the historical
+/// vocabularies, whose refusal `standing_refusal` then names. The native host re-derives the record and requires it equal.
+pub fn reader_report_standing_json(
+    source_json: &str,
+    model_json: &str,
+    invocation_json: Option<&str>,
+) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::{reader_readability, reader_verdict as rv, report_standing};
+    let source = parse_reader_input("source", source_json)?;
+    let model = parse_reader_input("model", model_json)?;
+    let invocation = optional_reader_input("invocation", invocation_json)?;
+    let standing = rv::standing(&source, Some(&model), invocation.as_ref());
+    let readability = reader_readability::readability(&source, &standing);
+    let (record, refusal) = if readability["readable"] == true && readability["solved"] == true {
+        match report_standing::historical_standing_record(&source, &model) {
+            Ok(record) => (record, Value::Null),
+            Err(refusal) => (Value::Null, Value::String(refusal)),
+        }
+    } else {
+        (Value::Null, Value::Null)
+    };
+    Ok(serde_json::json!({"standing": standing, "readability": readability, "numerical_standing": record, "standing_refusal": refusal}).to_string())
 }
 /// One named reader's raw validation (`reader_verdict::READERS`).
 pub fn reader_validate_json(
@@ -1482,6 +1520,16 @@ mod wasm_api {
     pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<String>) -> Result<String, JsError> {
         entry_scope(|| {
             super::reader_row_semantics_each_json(rows_json, source_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
+    }
+
+    /// DEL-08-01 REQ-024: the reader's standing, readability and report
+    /// standing record for the report builder.
+    #[wasm_bindgen]
+    pub fn reader_report_standing_json(source_json: &str, model_json: &str, invocation_json: Option<String>) -> Result<String, JsError> {
+        entry_scope(|| {
+            super::reader_report_standing_json(source_json, model_json, invocation_json.as_deref())
                 .map_err(|error| JsError::new(&error))
         })
     }

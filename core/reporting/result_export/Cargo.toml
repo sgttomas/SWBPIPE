@@ -11,6 +11,11 @@ path = "src/lib.rs"
 [dependencies]
 open_pipe_stress_correct_norm = { path = "../../numerics/correct_norm" }
 serde_json = { version = "1", features = ["float_roundtrip"] }
+# The historical health reader (`historical_health`, moved from operation_applier) derives its
+# serialized records.
+serde = { version = "1", features = ["derive"] }
+# DEL-08-01 REQ-024: the closed numerical vocabulary the standing record is written in.
+open_pipe_stress_numerical_vocabulary = { path = "../numerical_vocabulary" }
 open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
 sha2 = "0.10"
 open_pipe_stress_units = { path = "../../units" }

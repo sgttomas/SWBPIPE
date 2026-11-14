@@ -146,6 +146,31 @@ function unsupportedDispatch(code: string): ReaderDispatch {
     standing: { route: "unsupported", token: "unsupported", status: "needs_recompute", eligible: false, findings: [code] } });
 }
 
+/** DEL-08-01 REQ-024 and DEL-05-02 Standing: the reader's readability verdict beside
+ * its standing, and the standing record a report of this result states. */
+export type ReportStandingReading = Readonly<{
+  standing: ReaderDispatch["standing"];
+  readability: Readonly<{ readable: boolean; solved: boolean; unreadable: readonly string[] }>;
+  /** The standing record (`result_export::report_standing`), null for a result the reader
+   * cannot read or whose mechanics are not solved, or where `standing_refusal` names a tag
+   * outside the historical vocabularies. The native host re-derives it and requires it equal. */
+  numerical_standing: Record<string, unknown> | null;
+  standing_refusal: string | null;
+}>;
+
+/** The report standing of a statement read with its model, by the one Rust reader. A
+ * native handle is not read here: its report standing is the native host's. */
+export function readerReportStanding(source: unknown, model: unknown): ReportStandingReading {
+  if (isNativeResult(source)) throw new ResultReaderError("REPORT-STANDING-NATIVE-HANDLE");
+  unavailable();
+  const sourceJson = readerSourceText(source);
+  const modelJson = optionalText(model);
+  if (modelJson === undefined) throw new ResultReaderError("REPORT-STANDING-MODEL-REQUIRED");
+  const e = engine()!;
+  return cached(sourceJson, `report_standing\u0000${modelJson}`, () =>
+    freeze(JSON.parse(e.readerReportStandingJson(sourceJson, modelJson)) as ReportStandingReading));
+}
+
 /** G5 and G1: the header dispatch of this statement (route, table binding, refusal)
  * and its standing with the model's load cases and, for a source route, the
  * invocation it was captured with. */

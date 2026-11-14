@@ -816,8 +816,8 @@ mod direct_native {
     /// The standing line's start, HTML-escaped: without an integrity warning,
     /// and on pressure-source-1 (synthetic n05), whose Diagnostics carry
     /// `NUMERICAL_INTEGRITY_SENSITIVE` (§3.2).
-    const PLAIN_STANDING: &str = "Numerical standing: integrity checked (the Rust reader&#39;s standing for the result";
-    const SENSITIVE_STANDING: &str = "Numerical standing: integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under Warnings, Assumptions, And Provenance); integrity checked (the Rust reader&#39;s standing for the result";
+    const PLAIN_STANDING: &str = "Numerical standing: read by the Rust reader for the result";
+    const SENSITIVE_STANDING: &str = "Numerical standing: integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under Warnings, Assumptions, And Provenance); read by the Rust reader for the result";
 
     fn project(path: &str) -> std::path::PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..").join(path)
@@ -1606,8 +1606,12 @@ mod direct_native {
         }
     }
 
+    /// DEL-08-01 REQ-017 and REQ-024's present account: a pressure-source-1 result with
+    /// load/reference states is not numerically eligible but is readable, so the render
+    /// passes step 4 and refuses only where this request, made for another result, fails
+    /// the re-derivation; the package save still refuses it as not eligible (LIM-016).
     #[test]
-    fn a_delivered_pressure_source_1_result_with_load_reference_states_is_not_eligible() {
+    fn a_delivered_pressure_source_1_result_with_load_reference_states_is_read_for_render_and_refused_for_save() {
         let w = witness(SOURCE_1);
         let lr_raw = std::fs::read_to_string(project("fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json")).unwrap();
         let lr_request: Value = serde_json::from_str(&std::fs::read_to_string(project("fixtures/product_preview/pressure_source/load_reference_source/n05.request.json")).unwrap()).unwrap();
@@ -1618,11 +1622,77 @@ mod direct_native {
         let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&lr_raw), Some(&intake)));
         assert_eq!(code, STANDING_NOT_ELIGIBLE, "{message}");
         let refused = refusal_text(production_render_on(&live, &render_args(&request["report"], Some(&lr_raw), Some(&intake), Some(&canonical_json(&w.manifest)))));
-        assert_eq!(refused, format!("{STANDING_NOT_ELIGIBLE}: the native reading of the delivered result is not numerically eligible."));
+        assert!(refused.starts_with(&format!("{SECTIONS_MISMATCH}: ")), "{refused}");
         // The genuine pressure-source-1 witness without load/reference states is eligible:
         // its request passes the binding and is admitted.
         let genuine = live_on(ScriptedHost::normal(), &w.intake, &w.mode, &w.result);
         save_admitted(&genuine, save_args(&bound(&w.request, &genuine.job), &w, &w.model, Some(&w.result), Some(&w.intake)), "pressure_source_1");
+    }
+
+    /// The DEL-08-01 REQ-024 connecting-path witnesses: the render arguments the
+    /// desktop's report build step produced (`reportStandingWitness.test.tsx`) for two
+    /// real producer results that are solved but not numerically eligible.
+    const STANDING_WITNESSES: [(&str, &str); 2] = [
+        (
+            "pressure_3_gap_unresolved",
+            include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.render.json"),
+        ),
+        (
+            "pressure_3_coupled_friction_sensitive",
+            include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.render.json"),
+        ),
+    ];
+
+    /// DEL-08-01 REQ-017, REQ-024: through the production render root, each witness is
+    /// admitted with its live job and genuine texts, and the report states its standing
+    /// line, its numerical standing by load case and its nonlinear support states, with
+    /// the actual tags the producer's output yields; an altered standing record refuses.
+    #[test]
+    fn a_readable_solved_result_that_is_not_checks_passed_renders_with_its_standing() {
+        for (name, text) in STANDING_WITNESSES {
+            let file: Value = serde_json::from_str(text).unwrap();
+            let raw = std::fs::read_to_string(project(file["raw_path"].as_str().unwrap())).unwrap();
+            let intake = file["exact_intake_text"].as_str().unwrap();
+            let manifest = file["input_manifest_text"].as_str().unwrap();
+            let live = live_on(ScriptedHost::normal(), intake, "sparse_interactive", &raw);
+            let mut input = file["input"].clone();
+            input["exact_route"]["admission"]["native_job_id"] = json!(live.job);
+            let rendered = production_render_on(&live, &render_args(&input, Some(&raw), Some(intake), Some(manifest)))
+                .unwrap_or_else(|error| panic!("{name}: {error:?}"));
+            assert_eq!(rendered["export_blocked"], json!(false), "{name}: {}", rendered["blocking_reasons"]);
+            let html = rendered["html"].as_str().unwrap();
+            let record: open_pipe_stress_report_renderer::standing::NumericalStanding = serde_json::from_value(input["numerical_standing"].clone()).unwrap();
+            let line = open_pipe_stress_report_renderer::escape_html(&open_pipe_stress_report_renderer::standing::standing_line(&record));
+            assert!(html.contains(&format!("<div class=\"standing-line\">{line}</div>")), "{name}: the frame's standing line");
+            assert!(html.contains(open_pipe_stress_report_renderer::STANDING_BY_LOAD_CASE_SUBHEADING), "{name}");
+            assert!(html.contains(open_pipe_stress_report_renderer::SUPPORT_STATES_SUBHEADING), "{name}");
+            assert!(html.contains(&open_pipe_stress_report_renderer::escape_html(open_pipe_stress_report_renderer::standing::ERROR_FIGURE_BASIS)), "{name}");
+            assert!(!html.contains("integrity checked"), "{name}: never \"integrity checked\" for a result that is not checks passed");
+            let expected: &[&str] = if name == "pressure_3_gap_unresolved" {
+                &[
+                    "Numerical health, as the solver reports it: 0 checks passed, 0 sensitive, 2 quality unresolved, 0 not assessed, of 2 load cases.",
+                    "Quality unresolved: this load case has a gap support. No confirmation covers gap supports, and its member values have no error figure.",
+                    "Computed state: active. Not confirmed: no confirmation covers gap supports.",
+                    "Computed state: inactive. Not confirmed: no confirmation covers gap supports.",
+                    "No error figure: this result has no numerical evidence member from which this reader can derive an error figure here.",
+                ]
+            } else {
+                &[
+                    "Numerical health, as the solver reports it: 0 checks passed, 1 sensitive, 0 quality unresolved, 0 not assessed, of 1 load cases.",
+                    "Computed state: sliding. Not confirmed: the solver&#39;s confirmation reports this state established, conditional on the solver&#39;s inverse-norm step.",
+                    "friction, normal force derived from another support&#39;s reaction",
+                ]
+            };
+            for phrase in expected {
+                assert!(html.contains(phrase), "{name}: {phrase}");
+            }
+            // Every boundary that holds the bound result re-derives the record and requires
+            // equality: one altered field refuses by name.
+            let mut altered = input.clone();
+            altered["numerical_standing"]["cases"][0]["health"] = json!("checks_passed");
+            let refused = refusal_text(production_render_on(&live, &render_args(&altered, Some(&raw), Some(intake), Some(manifest))));
+            assert_eq!(refused, format!("{SECTIONS_MISMATCH}: numerical_standing"), "{name}");
+        }
     }
 
     #[test]

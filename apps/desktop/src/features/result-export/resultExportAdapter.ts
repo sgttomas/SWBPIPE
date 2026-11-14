@@ -1,6 +1,6 @@
 import { refuseSurfaceOutput, refuseSurfaceRoute } from '../results/outputPolicy';
 import { RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure, retainedRowClassesFromReader } from '../results/retainedPrecisionDisclosure';
-import { readerRowSemantics, readerValidate, sourceContract, sourceSemanticBinding } from "../results/resultReader";
+import { readerReportStanding, readerRowSemantics, readerValidate, sourceContract, sourceSemanticBinding } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute } from '../results/numericalResultQuality';
@@ -255,14 +255,24 @@ export function currentResultDocumentBase(model:PreviewModel,result:MechanicsRes
   const provenance=derivativeProvenance;
   return {schema_version:RESULT_EXPORT_VERSION,deliverable_id:'DEL-08-04',package_id:'PKG-08',scope_item:'SOW-046',objectives:['OBJ-007','OBJ-009'],export_format_status:{baseline_format:'schema_first_json_result_envelope',additional_formats:'TBD',public_transport_protocol:'TBD',local_fea_package_format:'TBD',external_adapter_formats:'TBD'},result_envelope:{schema_version:RESULT_EXPORT_VERSION,envelope_id:`result-envelope:${result.run_id}`,model_ref:ref('model_payload',model.project.id),run_ref:ref('analysis_run',run.run_id),solver_version:{solver_name:solverBasis.solver_name,solver_version:solverBasis.solver_version,solver_build_ref:solverBasis.solver_build_ref},unit_system_ref:ref('unit_system',`${model.project.id}:units`),load_basis_refs:run.load_basis_refs.map(x=>exactLoadCase(result,x.object_type)?ref('load_case',x.ref):ref(x.object_type,x.ref)),result_sets:[{set_id:`result-set:${result.run_id}:mechanics`,set_type:'mechanics',basis_ref:ref('analysis_run',run.run_id),values:[]}],diagnostics:documentDiagnostics(result,run.diagnostics),provenance,reproducibility:{model_hash:null,run_hashes:run.hashes.map(x=>({algorithm:x.algorithm,canonicalization:x.canonicalization,payload_ref:ref(x.payload_ref.object_type,x.payload_ref.ref),value:x.value})),audit_manifest_ref:ref('audit_manifest',manifestRef),deterministic_ordering:true},analysis_status:run.analysis_status,professional_boundary:run.professional_boundary,downstream_use:{review:true,regression_comparison:true,report_consumption:true,headless_automation:true,governed_downstream_tooling:true,additional_export_formats:'TBD'}}};
 }
-export async function buildCurrentResultExport({model,result,analysisRun,inputManifest}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined}):Promise<JsonObject>{
+/** What the Current builder builds for (DEL-08-01 REQ-017, DEL-08-04): the standalone Export
+ * Result JSON, and every report emission but the rendered report, take only a numerically
+ * eligible result; the rendered report takes any solved result the reader reads, and states
+ * its numerical standing (REQ-024). */
+export type CurrentResultExportPurpose='result-export'|'report-render';
+/** The Current builder's standing admission for `purpose`. */
+function currentStandingAdmitted(result:MechanicsResult,model:PreviewModel,purpose:CurrentResultExportPurpose):boolean{
+  if(purpose==='result-export')return numericalResultStanding(result,model).eligible;
+  try{const reading=readerReportStanding(result,model);return reading.readability.readable&&reading.readability.solved;}catch{return false;}
+}
+export async function buildCurrentResultExport({model,result,analysisRun,inputManifest,purpose='result-export'}:{model:PreviewModel;result:MechanicsResult;analysisRun:AnalysisRunEnvelope;inputManifest:CurrentSessionInputManifestEvidence|null|undefined;purpose?:CurrentResultExportPurpose}):Promise<JsonObject>{
   guardResultJson(model);guardResultJson(result);guardResultJson(analysisRun);
   // T6S-3: this surface's policy entry; a retained-precision successor is admitted only at
   // numerically eligible standing with the live native capture. Epoch 8: the exact routes
   // (load/reference-state results included) add no policy refusal here; the standing
   // check below takes Rust's verdict for them.
   refuseSurfaceOutput(result,model,'result-export');
-  if(!numericalResultStanding(result,model).eligible)throw new Error('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE');
+  if(!currentStandingAdmitted(result,model,purpose))throw new Error(purpose==='result-export'?'CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE':'CURRENT_RESULT_NOT_READABLE');
   if(!isFreshSemanticResult(result))throw new Error('CURRENT_SOURCE_IDENTITY_NOT_FRESH');
   if(!inputManifest)throw new Error('CURRENT_INPUT_MANIFEST_UNAVAILABLE');guardResultJson(inputManifest);
   const currentBindingText=checkedJsonText({model,result,analysisRun,inputManifest});
@@ -296,7 +306,7 @@ export async function buildCurrentResultExport({model,result,analysisRun,inputMa
   const base=currentResultDocumentBase(model,result,run,inputManifest.manifest_ref.ref,inputManifest.manifest.solver_basis);
   if(!hasNativeMechanicsInvocation(result,model,solver.solver_mode))throw new Error('CURRENT_NATIVE_INVOCATION_UNAVAILABLE');
   const document=await deriveResultDocument(base,model,result,origin);
-  if(checkedJsonText({model,result,analysisRun,inputManifest})!==currentBindingText || !hasNativeMechanicsInvocation(result,model,solver.solver_mode) || !numericalResultStanding(result,model).eligible)throw new Error('CURRENT_BINDING_CHANGED_DURING_EXPORT');
+  if(checkedJsonText({model,result,analysisRun,inputManifest})!==currentBindingText || !hasNativeMechanicsInvocation(result,model,solver.solver_mode) || !currentStandingAdmitted(result,model,purpose))throw new Error('CURRENT_BINDING_CHANGED_DURING_EXPORT');
   return document;
 }
 export function resultSchemaVersion(value:JsonObject):typeof RESULT_EXPORT_VERSION{const v=value.schema_version;if(v!==RESULT_EXPORT_VERSION||value.result_envelope?.schema_version!==v)throw new Error('RESULT_VERSION_UNSUPPORTED_OR_MIXED');return v;}

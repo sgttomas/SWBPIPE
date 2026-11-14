@@ -1725,5 +1725,8 @@ pub mod physics_source;
 pub mod source_blocks;
 pub mod retained_precision;
 pub mod reader_verdict;
+pub mod historical_health;
+pub mod reader_readability;
+pub mod report_standing;
 pub mod recorded_tables;
 pub mod component_body;

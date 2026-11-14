@@ -143,7 +143,7 @@ const RELATIVE_TOLERANCE: f64 = 1e-9;
 /// solve_quality, model_matrix_fidelity, accuracy_evidence) the producer
 /// assigns to each integrity code it publishes (`NUMERICAL_INTEGRITY_UNRESOLVED`
 /// takes its default arm). `None`: a code the producer does not publish.
-fn standing_quality(code: &str) -> Option<[&'static str; 4]> {
+pub(crate) fn standing_quality(code: &str) -> Option<[&'static str; 4]> {
     Some(match code {
         PASSED => ["passive_model_basis", "checks_passed", "represented_equations_retained", "not_claimed"],
         "NUMERICAL_INTEGRITY_SENSITIVE" => ["passive_model_basis", "sensitive", "represented_equations_retained", "not_claimed"],

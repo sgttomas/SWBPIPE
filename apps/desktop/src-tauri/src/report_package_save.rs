@@ -1096,6 +1096,13 @@ fn bind_exact_save_source(
         .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
     let bound = exact_binding::read_delivered_source(&admission, &digests, exact_result_text.unwrap_or(""), exact_intake_text.unwrap_or(""))
         .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
+    exact_binding::require_eligible(&bound).map_err(|refusal| exact_refused(refusal, ADMISSION))?;
+    // DEL-08-01 REQ-024: the packaged report states the standing record the reader
+    // derives from the bound result and model, exactly.
+    let derived = open_pipe_stress_result_export::report_standing::historical_standing_record(&bound.source, &bound.model).ok();
+    if derived.is_none() || request.pointer("/report/numerical_standing") != derived.as_ref() {
+        return Err(exact_refused(exact_binding::sections_mismatch("numerical_standing"), "/request/report/numerical_standing"));
+    }
     // The save's own equalities: the request's source is the delivered result,
     // and the (canonical) model text is the solved model.
     let source = request.pointer("/source_results/0").unwrap_or(&Value::Null);
