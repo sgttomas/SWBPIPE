@@ -747,3 +747,7 @@ pub fn breakdown(c: &Counts) -> Result<Breakdown, SparseAdmissionError> {
         M_loop: M_loop(c)?,
     })
 }
+
+#[cfg(test)]
+#[path = "sparse_admission_tests.rs"]
+mod tests;
