@@ -39,7 +39,7 @@ from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     screen,
     screening_class,
 )
-from core.handoff.caepipe_external.harness import RUN_RECORD_KIND, check_guest_alive  # noqa: E402
+from core.handoff.caepipe_external.harness import RUN_RECORD_KIND, StartUnresolved, check_guest_alive  # noqa: E402
 from core.handoff.caepipe_external.print_csv import bind_element_rows  # noqa: E402
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
 from tools.caepipe_correlation import benchmark_models, run_pilot  # noqa: E402
@@ -1830,8 +1830,12 @@ def test_a_pending_exclusive_job_holds_the_run(fake_benchmark, monkeypatch, caps
     assert "stopped before cpb-g1-01: an exclusive job was still pending after 1800 s" in capsys.readouterr().out
 
 
+# The answer's form is the Windows version line alone, with nothing on stderr: any other text with exit 0 (an
+# invented banner, a sign-in or licence text) is not an answer.
 @pytest.mark.parametrize("answer, status", [
-    ((0, "Invented Guest [Version 0.0]\r\n", ""), "alive"),
+    ((0, "\r\nMicrosoft Windows [Version 10.0.19045.5011]\r\n", ""), "alive"),
+    ((0, "Invented Guest [Version 0.0]\r\n", ""), "unreachable"),
+    ((0, "Please sign in to continue.\r\n", ""), "unreachable"),
     ((1, "", "invented"), "unreachable"),
     ((0, "  \r\n", ""), "unreachable"),
     (subprocess.TimeoutExpired("prlctl", 1.0), "unreachable"),
@@ -1847,7 +1851,7 @@ def test_the_liveness_check_asks_the_guest_for_ver_and_starts_nothing(tmp_path, 
     result = check_guest_alive(fake_config(tmp_path), runner=runner)
     assert result["status"] == status
     assert calls == [["/invented/prlctl", "exec", "invented-vm", "--current-user", "cmd", "/c", "ver"]]
-    assert "Invented Guest" not in json.dumps(result)
+    assert "Invented Guest" not in json.dumps(result) and "19045" not in json.dumps(result)
 
 
 def test_benchmark_refusals(fake_benchmark, monkeypatch, capsys, tmp_path):
@@ -1880,3 +1884,57 @@ def test_benchmark_refusals(fake_benchmark, monkeypatch, capsys, tmp_path):
     assert run_pilot.main(base, environ={}) == 2
     assert "models/cpb-g1-02.json differs from the manifest's file_sha256" in capsys.readouterr().err
     assert state["calls"] == []
+
+
+# The run phase's start dispositions, as the model-list command and its per-model step take them (synthetic only).
+def _manifest_of(state, case_id="cpb-g1-01") -> dict:
+    return json.loads((state["config"].exchange_root / "cases" / case_id / "case_manifest.json").read_text())
+
+
+@pytest.mark.parametrize("how", ["StartUnresolved", "raised while unresolved"])
+def test_an_unresolved_start_stops_with_the_manifest_left_at_custody_recorded(fake_benchmark, capsys, how):
+    state = fake_benchmark
+    if how == "StartUnresolved":
+        error = StartUnresolved("start unresolved: invented")
+    else:
+        error = OSError("invented failure writing the record")
+        error.start_unresolved = True
+    error.settings_guard = {"status": "start_unresolved", "reason": "restoration inhibited: start unresolved"}
+    state["outcomes"][:] = [error]
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={}) == 1
+    manifest = _manifest_of(state)
+    assert (manifest["outcome"], manifest["route"]) == ("custody_recorded", "custody_recorded")
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]  # never retried, and no further model ran
+    out = capsys.readouterr().out
+    assert "cpb-g1-01: route=start_unresolved;" in out and "retrying" not in out
+    # Through the per-model step the wrapper calls: the stop is raised, and no outcome is written.
+    state["calls"].clear()
+    state["outcomes"][:] = [error]
+    with pytest.raises(run_pilot.RunStopped, match="start_unresolved"):
+        run_pilot.run_benchmark_model(_bench_entry(state, "cpb-g1-03"), state["config"], runner=state["runner"],
+                                      offline=False, emit=lambda line: None, collect_only=True)
+    assert _manifest_of(state, "cpb-g1-03")["outcome"] == "custody_recorded"
+
+
+def test_a_partial_start_is_recorded_never_retried_and_a_second_stops_the_run(fake_benchmark, capsys):
+    state = fake_benchmark
+    partial = {"route": "start_partial", "settings_guard": {"status": "unchanged"}, "guest_mbf_sha256": None,
+               "observed_csv_path": {"host": None}}
+    state["outcomes"][:] = [dict(partial), dict(partial)]
+    assert run_pilot.main(state["argv"], environ={}) == 1
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-02"]  # one round trip each, no retry
+    first = _manifest_of(state)
+    assert (first["outcome"], first["route"], first["attempt"]) == ("partial", "start_partial", 1)
+    out = capsys.readouterr().out
+    assert "stopped after cpb-g1-02: a second partial start in this run" in out and "retrying" not in out
+
+
+def test_two_not_started_attempts_are_not_run_and_never_retried(fake_benchmark):
+    state = fake_benchmark
+    state["outcomes"][:] = [{"route": "not_started", "settings_guard": {"status": "unchanged"},
+                             "guest_mbf_sha256": None, "observed_csv_path": {"host": None}}]
+    status = run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"],
+                                           offline=False, emit=lambda line: None)
+    assert status[:2] == (run_pilot.NOT_RUN, "not_started")
+    assert (_manifest_of(state)["outcome"], _manifest_of(state)["route"]) == ("no_record", "not_started")
+    assert len(state["calls"]) == 1
