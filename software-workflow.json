@@ -133,6 +133,16 @@
         "auto"
       ]
     },
+    "byte-compare-tool-tests": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_byte_compare_tool.py"
+      ]
+    },
     "benchmark-reference-tests": {
       "cwd": ".",
       "command": [
@@ -354,6 +364,16 @@
       ],
       "checks": [
         "retained-pricing-tool-tests"
+      ]
+    },
+    {
+      "paths": [
+        "tools/byte_compare/**",
+        "tests/test_byte_compare_tool.py",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "byte-compare-tool-tests"
       ]
     },
     {

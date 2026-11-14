@@ -26,6 +26,10 @@ import subprocess
 import sys
 import time
 
+# Every directory this tool scans is a worktree or scratch directory its caller names, outside this
+# checkout; a test that points it at project paths declares those paths itself.
+CI_READS = ()
+
 TOOL_DIR = Path(__file__).resolve().parent
 DEFAULT_MANIFEST = TOOL_DIR / "manifest.json"
 MANIFEST_SCHEMA = "swbpipe-byte-compare-manifest/v1"
