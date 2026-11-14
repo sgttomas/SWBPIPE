@@ -2,6 +2,7 @@
 import errno
 import importlib.util
 import io
+from contextlib import contextmanager
 from functools import cache
 import hashlib
 import json
@@ -41,6 +42,15 @@ def real_graph():
     return ci.source_read_dependencies(project, manifests), ci.cargo_dependencies(project, manifests)
 
 
+@cache
+def real_artifact_derivation():
+    """The artifact-reader derivation of the real profile's declaration on this snapshot: (readers, inputs, result)."""
+    project = MODULE.parents[2]
+    section = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]['piping_artifact_readers']
+    readers, inputs = section['readers'], section['inputs']
+    return readers, inputs, ci.artifact_producers(project, ci.readiness.discover_cargo_manifests(project), readers, inputs)
+
+
 EMPTY_READS = {'source_trees': {}, 'reads': {}}
 
 
@@ -52,13 +62,29 @@ def wrapped_reads(reads):
     return {'source_trees': trees, 'reads': reads}
 
 
-def numerical_input(path):
-    # These exhaustive existing assertions inspect one immutable repository
-    # snapshot. Reuse its verified graph, while exercising routing for each path.
+@contextmanager
+def real_snapshot():
+    """Route against this immutable repository snapshot reusing its verified graph and its artifact-reader derivation
+    (about a second each to compute, and some tests route hundreds of paths), while exercising routing for each path.
+    Only the real declaration's derivation on this snapshot's root is reused; any other declaration or root is derived
+    afresh, and tests that build or change a tree call the selector directly, outside this helper."""
     resources, dependencies = real_graph()
+    readers, inputs, derivation = real_artifact_derivation()
+    derive = ci.artifact_producers
+    def producers(project, manifests, declared_readers, declared_inputs=ci.UNDECLARED):
+        if Path(project).resolve() == ROOT.resolve() and (declared_readers, declared_inputs) == (readers, inputs):
+            return derivation
+        return derive(project, manifests, declared_readers, declared_inputs)
     with patch.object(hosted_ci, 'numerical_module', return_value=ci), \
          patch.object(ci, 'source_read_dependencies', return_value=resources), \
-         patch.object(ci, 'cargo_dependencies', return_value=dependencies):
+         patch.object(ci, 'cargo_dependencies', return_value=dependencies), \
+         patch.object(ci, 'artifact_producers', side_effect=producers):
+        yield
+
+
+def numerical_input(path):
+    # These exhaustive existing assertions inspect one immutable repository snapshot.
+    with real_snapshot():
         return hosted_ci.select_paths([path], load_profile(ROOT / 'tools/hosted-ci-routing.json')[1])['modes']['piping-numerical'] == 'full'
 
 
@@ -689,6 +715,234 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(result['modes']['piping-python'], python)
             self.assertEqual(result['modes']['piping-numerical'], 'not-applicable')
             self.assertEqual(result['piping_numerical_selection']['manifests'], [])
+
+    def artifact_reader_project(self, project):
+        """A git project whose declared reader imports a helper chain and a top-level module, under a conftest."""
+        producer = self.crate(project, 'producer')
+        unrelated = self.crate(project, 'unrelated')
+        files = {
+            'tests/conftest.py': 'from tests.helpers import session\n',
+            'tests/test_reads_artifacts.py': 'import top_helper\nfrom tests.helpers.reading import read\nfrom tests.pkg.mod import value\n',
+            'tests/pkg/__init__.py': '',
+            'tests/pkg/mod.py': 'value = 1\n',
+            'tests/sub/test_sub_reader.py': 'import json\n',
+            'tests/top_helper.py': ('import json\nfrom pathlib import Path\nTABLE = Path("fixtures/table.json")\n'
+                                    'SCHEMAS = sorted(Path("schemas").glob("*.schema.json"))\n'),
+            'fixtures/table.json': '{}',
+            'fixtures/unread.json': '{}',
+            'schemas/a.schema.json': '{}',
+            'tests/helpers/__init__.py': '',
+            'tests/helpers/reading.py': 'from tests.helpers import deeper\ndef read(): pass\n',
+            'tests/helpers/deeper.py': '',
+            'tests/helpers/session.py': '',
+            'tests/helpers/unused.py': '',
+            'tests/init_only_helper.py': 'marker = 1\n',
+            'tests/test_other.py': '',
+            'requirements.txt': 'pytest\n',
+            'tests/test_ci_selector.py': '',
+            'tools/x.py': '',
+        }
+        for local, text in files.items():
+            (project / local).parent.mkdir(parents=True, exist_ok=True)
+            (project / local).write_text(text)
+        (project / 'tests/untracked.py').write_text('')
+        subprocess.run(['git', 'init', '-q', str(project)], check=True)
+        subprocess.run(['git', '-C', str(project), 'add', '--', 'core', *files], check=True)
+        return producer, unrelated
+
+    def test_declared_artifact_reader_its_conftest_and_their_test_imports_select_the_crate_that_writes_its_artifacts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            producer, unrelated = self.artifact_reader_project(project)
+            manifests = [producer, unrelated]
+            readers = {'tests/test_reads_artifacts.py': [producer.as_posix()]}
+            def select(local, declaration=readers):
+                return ci.numerical_selection(project, manifests, [ci.PROJECT + local], EMPTY_READS, (), declaration)
+            # The reader, the conftest pytest loads for it, and each tests/ file they import, transitively, select
+            # the producer; the rule adds its reason to the path's own Python-check reason.
+            for local in ('tests/test_reads_artifacts.py', 'tests/conftest.py', 'tests/helpers/session.py',
+                          'tests/top_helper.py', 'tests/helpers/reading.py', 'tests/helpers/deeper.py'):
+                result = select(local)
+                self.assertEqual(result['classification'], 'reachability', local)
+                self.assertEqual(result['manifests'], [producer.as_posix()], local)
+                self.assertEqual(result['reasons'], [{'path': ci.PROJECT + local, 'kind': 'artifact-reader', 'manifest': producer.as_posix()},
+                                                     {'path': ci.PROJECT + local, 'kind': 'python-checks'}], local)
+            # A tests/ file they do not load, or no declaration, keeps today's behaviour.
+            for local in ('tests/test_other.py', 'tests/helpers/unused.py'):
+                self.assertEqual(select(local)['manifests'], [], local)
+            self.assertEqual(ci.numerical_selection(project, manifests, [ci.PROJECT + 'tests/test_reads_artifacts.py'], EMPTY_READS)['manifests'], [])
+            self.assertEqual(select('tests/test_reads_artifacts.py', {})['manifests'], [])
+            # The rule only adds: a declared path that falls back to every crate keeps that fallback.
+            self.assertEqual(select('tests/test_ci_selector.py', {'tests/test_ci_selector.py': [producer.as_posix()]})['classification'],
+                             'full-fallback')
+            # An invalid or null declaration, an absent, untracked or non-test reader, or an undiscovered or missing
+            # producer rejects reduced selection.
+            for bad in (None, [], {'tests/absent.py': [producer.as_posix()]}, {'tests/untracked.py': [producer.as_posix()]},
+                        {'tools/x.py': [producer.as_posix()]}, {'tests/test_reads_artifacts.py': ['core/absent/Cargo.toml']},
+                        {'tests/test_reads_artifacts.py': []}, {'tests/test_reads_artifacts.py': producer.as_posix()}):
+                self.assertEqual(select('tests/test_other.py', bad)['classification'], 'full-fallback', bad)
+
+    def test_artifact_reader_whose_loaded_files_cannot_be_derived_or_are_missing_selects_every_crate(self):
+        def remove(project, local):
+            subprocess.run(['git', '-C', str(project), 'rm', '-q', '-f', '--', local], check=True)
+        cases = [
+            # An imported project module that no longer resolves, whatever the diff.
+            ('tests/helpers/deeper.py', 'tests/test_other.py', 'Unresolved local import tests.helpers.deeper'),
+            # A deleted module imported by a top-level name, and a deleted conftest, are refused when the diff deletes them.
+            ('tests/top_helper.py', 'tests/top_helper.py', 'missing: tests/top_helper.py'),
+            ('tests/conftest.py', 'tests/conftest.py', 'missing: tests/conftest.py'),
+        ]
+        for deleted, changed, reason in cases:
+            with tempfile.TemporaryDirectory() as tmp:
+                project = Path(tmp)
+                producer, unrelated = self.artifact_reader_project(project)
+                remove(project, deleted)
+                result = ci.numerical_selection(project, [producer, unrelated], [ci.PROJECT + changed], EMPTY_READS, (),
+                                                {'tests/test_reads_artifacts.py': [producer.as_posix()]})
+                self.assertEqual(result['classification'], 'full-fallback', deleted)
+                self.assertIn(reason, result['fallback_reasons'][0])
+        # So does an import that cannot be derived at all.
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            producer, unrelated = self.artifact_reader_project(project)
+            (project / 'tests/helpers/reading.py').write_text('def read(:\n')
+            result = ci.numerical_selection(project, [producer, unrelated], [ci.PROJECT + 'tests/test_other.py'], EMPTY_READS, (),
+                                            {'tests/test_reads_artifacts.py': [producer.as_posix()]})
+            self.assertEqual(result['classification'], 'full-fallback')
+            self.assertIn('cannot be derived', result['fallback_reasons'][0])
+
+    def test_package_initializers_an_artifact_reader_runs_select_its_producer_when_added_edited_or_deleted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            producer, unrelated = self.artifact_reader_project(project)
+            readers = {'tests/test_reads_artifacts.py': [producer.as_posix()], 'tests/sub/test_sub_reader.py': [producer.as_posix()]}
+            def select(local):
+                return ci.numerical_selection(project, [producer, unrelated], [ci.PROJECT + local], EMPTY_READS, (), readers)
+            # Edit: the initializer of a package an import only passes through (`from tests.pkg.mod import value`).
+            self.assertEqual(select('tests/pkg/__init__.py')['manifests'], [producer.as_posix()])
+            # Addition: an initializer in a reader's own directory, which pytest runs and no import names.
+            (project / 'tests/sub/__init__.py').write_text('')
+            subprocess.run(['git', '-C', str(project), 'add', '--', 'tests/sub/__init__.py'], check=True)
+            self.assertEqual(select('tests/sub/__init__.py')['manifests'], [producer.as_posix()])
+            # Before the addition, a helper nothing loads is a Python check only.
+            self.assertEqual(select('tests/init_only_helper.py')['manifests'], [])
+            # Addition: tests/__init__.py, which pytest and the reader's dotted imports run, importing that helper.
+            (project / 'tests/__init__.py').write_text('from tests.init_only_helper import marker\n')
+            subprocess.run(['git', '-C', str(project), 'add', '--', 'tests/__init__.py'], check=True)
+            for local in ('tests/__init__.py', 'tests/init_only_helper.py'):
+                result = select(local)
+                self.assertEqual(result['manifests'], [producer.as_posix()], local)
+                self.assertIn({'path': ci.PROJECT + local, 'kind': 'artifact-reader', 'manifest': producer.as_posix()}, result['reasons'])
+            # Deletion: a diff that removes an initializer selects every crate, even where the imports still resolve.
+            for local in ('tests/__init__.py', 'tests/pkg/__init__.py', 'tests/sub/__init__.py'):
+                subprocess.run(['git', '-C', str(project), 'rm', '-q', '-f', '--', local], check=True)
+                result = select(local)
+                self.assertEqual(result['classification'], 'full-fallback', local)
+                self.assertIn('missing: ' + local, result['fallback_reasons'][0])
+
+    def test_resources_an_artifact_reader_reads_select_its_producer_when_added_edited_or_deleted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            producer, unrelated = self.artifact_reader_project(project)
+            readers = {'tests/test_reads_artifacts.py': [producer.as_posix()]}
+            def select(local):
+                return ci.numerical_selection(project, [producer, unrelated], [ci.PROJECT + local], EMPTY_READS, (local,), readers)
+            added = project / 'schemas/b.schema.json'
+            added.write_text('{}')
+            subprocess.run(['git', '-C', str(project), 'add', '--', 'schemas/b.schema.json'], check=True)
+            # Edited (a literal path), added (under a directory scan) and, below, deleted: each adds the producer to the
+            # path's own route (here mapped to other checks).
+            for local in ('fixtures/table.json', 'schemas/a.schema.json', 'schemas/b.schema.json'):
+                result = select(local)
+                self.assertEqual(result['manifests'], [producer.as_posix()], local)
+                self.assertEqual(result['reasons'], [{'path': local, 'kind': 'artifact-reader', 'manifest': producer.as_posix()},
+                                                     {'path': local, 'kind': 'mapped-other-checks'}], local)
+            subprocess.run(['git', '-C', str(project), 'rm', '-q', '-f', '--', 'fixtures/table.json'], check=True)
+            self.assertEqual(select('fixtures/table.json')['manifests'], [producer.as_posix()])
+            # A file the readers do not read keeps its own route only.
+            self.assertEqual(select('fixtures/unread.json')['manifests'], [])
+
+    def test_declared_artifact_input_adds_its_producer_to_the_path_s_own_selection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            producer, unrelated = self.artifact_reader_project(project)
+            readers = {'tests/test_reads_artifacts.py': [producer.as_posix()]}
+            def select(local, inputs, ignored=('requirements.txt',)):
+                return ci.numerical_selection(project, [producer, unrelated], [ci.PROJECT + local], EMPTY_READS, ignored, readers, inputs)
+            result = select('requirements.txt', {'requirements.txt': [producer.as_posix()]})
+            self.assertEqual((result['classification'], result['manifests']), ('reachability', [producer.as_posix()]))
+            # The input keeps its own route: here mapped to other checks.
+            self.assertEqual(result['reasons'], [{'path': 'requirements.txt', 'kind': 'artifact-reader', 'manifest': producer.as_posix()},
+                                                 {'path': 'requirements.txt', 'kind': 'mapped-other-checks'}])
+            self.assertEqual(select('requirements.txt', {})['manifests'], [])
+            for bad in (None, [], {'absent.txt': [producer.as_posix()]}, {'tests/untracked.py': [producer.as_posix()]},
+                        {'requirements.txt': []}, {'requirements.txt': ['core/absent/Cargo.toml']}):
+                self.assertEqual(select('tests/test_other.py', bad)['classification'], 'full-fallback', bad)
+
+    def test_the_reused_artifact_derivation_is_a_fresh_one_and_stays_on_its_snapshot(self):
+        readers, inputs, (producers, missing, resource_crates) = real_artifact_derivation()
+        fresh_producers, fresh_missing, fresh_resources = ci.artifact_producers(
+            ROOT, ci.readiness.discover_cargo_manifests(ROOT), readers, inputs)
+        self.assertEqual(producers, fresh_producers)
+        self.assertEqual(missing, fresh_missing)
+        # NUL-delimited: tracked paths may hold spaces, and a whitespace split would skip them.
+        listed = subprocess.run(['git', '-C', str(ROOT), 'ls-files', '-z'], capture_output=True, text=True, check=True).stdout
+        tracked = [path for path in listed.split('\0') if path]
+        self.assertTrue(any(' ' in path for path in tracked), 'expected at least one tracked path with a space')
+        self.assertEqual([resource_crates(p) for p in tracked], [fresh_resources(p) for p in tracked])
+        # Inside the snapshot helper, another declaration or another root is derived afresh.
+        with real_snapshot():
+            manifests = ci.readiness.discover_cargo_manifests(ROOT)
+            self.assertIs(ci.artifact_producers(ROOT, manifests, readers, inputs)[0], producers)
+            self.assertEqual(ci.artifact_producers(ROOT, manifests, {}, {})[:2], ({}, frozenset()))
+            with tempfile.TemporaryDirectory() as tmp:
+                with self.assertRaises(ValueError):
+                    ci.artifact_producers(Path(tmp), manifests, readers, inputs)
+
+    def test_headless_artifact_readers_their_conftest_and_their_test_imports_select_the_headless_runner(self):
+        # Every call routes on this snapshot's graph; altered declarations below are derived afresh.
+        with real_snapshot():
+            profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
+            headless = 'core/runner/headless/Cargo.toml'
+            self.assertEqual(ci.manifest_shard(headless), 'reporting-runner')
+            for path in ('tests/test_pressure_headless_artifacts.py', 'tests/test_load_reference_headless_artifacts.py',
+                         'tests/verifiers/pressure_3.py', 'tests/schema_validation.py', 'tests/conftest.py'):
+                result = hosted_ci.select_paths([ci.PROJECT + path], profile)
+                self.assertEqual(result['modes']['piping-numerical'], 'full', path)
+                self.assertEqual(result['piping_numerical_selection']['manifests'], [headless], path)
+                self.assertIn({'path': path, 'kind': 'artifact-reader', 'manifest': headless}, result['piping_numerical_selection']['reasons'])
+            # A schema tests/schema_validation.py loads into its registry: its Rust readers, and the producer.
+            result = hosted_ci.select_paths([ci.PROJECT + 'schemas/constraint.schema.json'], profile)['piping_numerical_selection']
+            self.assertIn(headless, result['manifests'])
+            self.assertIn({'path': 'schemas/constraint.schema.json', 'kind': 'artifact-reader', 'manifest': headless}, result['reasons'])
+            self.assertIn('exact-file-reader', {r['kind'] for r in result['reasons']})
+            # The dependency list the artifact-fed step installs adds the producer and keeps its Python selection.
+            result = hosted_ci.select_paths([ci.PROJECT + 'requirements-dev.txt'], profile)
+            self.assertEqual((result['modes']['piping-numerical'], result['modes']['piping-python']), ('full', 'full'))
+            self.assertEqual(result['piping_numerical_selection']['manifests'], [headless])
+            self.assertIn('piping-python', result['reasons'])
+            self.assertIn({'path': 'requirements-dev.txt', 'kind': 'artifact-reader', 'manifest': headless}, result['piping_numerical_selection']['reasons'])
+            self.assertIn({'path': 'requirements-dev.txt', 'kind': 'mapped-other-checks'}, result['piping_numerical_selection']['reasons'])
+            # A tests/ file neither reader loads stays a Python check.
+            result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], profile)
+            self.assertEqual(result['modes']['piping-numerical'], 'not-applicable')
+            self.assertEqual(result['piping_numerical_selection']['manifests'], [])
+            # An explicit null declaration selects every crate.
+            nulled = json.loads(json.dumps(profile))
+            nulled['piping_artifact_readers']['readers'] = None
+            result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], nulled)
+            self.assertEqual(result['piping_numerical_selection']['classification'], 'full-fallback')
+            nulled = json.loads(json.dumps(profile))
+            nulled['piping_artifact_readers']['inputs'] = None
+            result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], nulled)
+            self.assertEqual(result['piping_numerical_selection']['classification'], 'full-fallback')
+            # Declaring a path never narrows its selection: tests/test_ci_numerical.py keeps every crate.
+            widened = json.loads(json.dumps(profile))
+            widened['piping_artifact_readers']['readers']['tests/test_ci_numerical.py'] = [headless]
+            before = hosted_ci.select_paths([ci.PROJECT + 'tests/test_ci_numerical.py'], profile)['piping_numerical_selection']
+            after = hosted_ci.select_paths([ci.PROJECT + 'tests/test_ci_numerical.py'], widened)['piping_numerical_selection']
+            self.assertEqual(before['classification'], 'full-fallback')
+            self.assertEqual((after['classification'], after['manifests']), (before['classification'], before['manifests']))
 
 
     def test_known_fixture_keeps_second_reader_with_unmodeled_filesystem_imports(self):

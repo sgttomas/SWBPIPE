@@ -19,6 +19,8 @@ PROFILE = json.loads((Path(__file__).resolve().parents[1] / "hosted-ci-routing.j
 # (about 3.3 s). No test writes this checkout, so a scan's result is a pure
 # function of the project, the manifests and the declarations it is given.
 SOURCE_READS = {}
+# Likewise the artifact-reader derivation (tools/ci/numerical_ci.py's artifact_producers, about a second per plan).
+ARTIFACT_DERIVATIONS = {}
 load_numerical_module = hosted_ci.numerical_module
 real_python_reach = hosted_ci.python_reach
 
@@ -31,11 +33,22 @@ def source_python_reach(root, paths):
 
 def shared_numerical_module(root):
     """The real numerical selector, loaded as each plan loads it, whose source
-    read scan of this checkout is computed once per distinct input. A changed
-    declaration is a new key; a scan that fails is never kept; a fixture
-    checkout is scanned every time."""
+    read scan and artifact-reader derivation of this checkout are computed once
+    per distinct input. A changed declaration is a new key; a scan or derivation
+    that fails is never kept; a fixture checkout is scanned and derived every time."""
     module = load_numerical_module(root)
     scan = module.source_read_dependencies
+    derive = module.artifact_producers
+
+    def artifact_producers(project, manifests, readers, inputs=module.UNDECLARED):
+        resolved = Path(project).resolve()
+        if resolved != SOURCE_ROOT.resolve():
+            return derive(project, manifests, readers, inputs)
+        key = (tuple(Path(m).as_posix() for m in manifests), json.dumps(readers, sort_keys=True),
+               'undeclared' if inputs is module.UNDECLARED else json.dumps(inputs, sort_keys=True))
+        if key not in ARTIFACT_DERIVATIONS:
+            ARTIFACT_DERIVATIONS[key] = derive(project, manifests, readers, inputs)
+        return ARTIFACT_DERIVATIONS[key]
 
     def source_read_dependencies(project, manifests, declarations=None):
         resolved = Path(project).resolve()
@@ -47,6 +60,7 @@ def shared_numerical_module(root):
         return {path: set(readers) for path, readers in SOURCE_READS[key].items()}
 
     module.source_read_dependencies = source_read_dependencies
+    module.artifact_producers = artifact_producers
     return module
 
 
@@ -197,6 +211,22 @@ class HostedCITests(unittest.TestCase):
             self.assertEqual(selection['unmatched_paths'], [path])
             self.assertEqual(selection['modes'], dict.fromkeys(SUITES, 'full'))
 
+
+    def test_shared_artifact_derivation_is_reused_only_for_this_checkout_and_its_declaration(self):
+        module = hosted_ci.numerical_module(SOURCE_ROOT)
+        manifests = module.readiness.discover_cargo_manifests(SOURCE_ROOT)
+        section = PROFILE['piping_artifact_readers']
+        first = module.artifact_producers(SOURCE_ROOT, manifests, section['readers'], section['inputs'])
+        self.assertIs(hosted_ci.numerical_module(SOURCE_ROOT).artifact_producers(SOURCE_ROOT, manifests, section['readers'],
+                                                                                section['inputs']), first)
+        # The kept derivation is the fresh one.
+        fresh = load_numerical_module(SOURCE_ROOT).artifact_producers(SOURCE_ROOT, manifests, section['readers'], section['inputs'])
+        self.assertEqual(first[:2], fresh[:2])
+        # A changed declaration is derived anew; a fixture checkout, which lacks the readers, is derived (and fails) every time.
+        self.assertEqual(module.artifact_producers(SOURCE_ROOT, manifests, {}, {})[:2], ({}, frozenset()))
+        for _ in range(2):
+            with self.assertRaises(ValueError):
+                module.artifact_producers(self.root, manifests, section['readers'], section['inputs'])
 
     def test_policy_changes_require_full_consumer_checks(self):
         selection = select_paths(["tools/hosted-ci-routing.json"], PROFILE)
