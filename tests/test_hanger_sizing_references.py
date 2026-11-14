@@ -1,7 +1,6 @@
 """Reproduce the independent hanger-sizing references (DEL-04-11 REQ-010) with their maintained generators,
 and hold each generator to the independence REQ-010 states: it imports no product code."""
 import ast
-import hashlib
 from pathlib import Path
 import re
 import subprocess
@@ -64,11 +63,3 @@ def test_hanger_sizing_reference_generator_imports_no_product_code(generator):
 ])
 def test_the_product_path_scan_recognizes_ordinary_path_literals(literal, named):
     assert _names_product_path(literal) is named
-
-
-def test_the_checksum_list_is_complete_and_verifies():
-    # One assertion, kept here only until the maintained check over every reference package is on main.
-    listed = dict(reversed(line.split("  ", 1)) for line in (REFERENCES / "SHA256SUMS").read_text().splitlines())
-    actual = {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
-              for path in REFERENCES.iterdir() if path.is_file() and path.name != "SHA256SUMS"}
-    assert listed == actual
