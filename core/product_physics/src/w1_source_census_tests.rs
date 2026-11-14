@@ -901,7 +901,7 @@ fn b4_w1_census_loss_causes() {
                 eprintln!("B4_W1_CAUSE {}", json!({"control":c.name,"mode":mode.as_str(),"cause":"domain"}));
                 continue;
             };
-            let triggers: Vec<CaseTrigger> = case_triggers(&ordinary.numerical_quality, &observer.ordinary, cases.ids()).collect();
+            let triggers: Vec<CaseTrigger> = case_triggers(&ordinary.numerical_quality, &ordinary.diagnostics, &observer.ordinary, cases.ids()).collect();
             let attempted = cases.attempted(triggers.iter().copied());
             let slots: Vec<Value> = (0..observer.cases_seen()).map(|i| {
                 let (source, terminal) = observer.source_terminal_at(i);

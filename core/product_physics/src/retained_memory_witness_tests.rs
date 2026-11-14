@@ -1163,7 +1163,7 @@ fn def_o_report(label: &'static str, raw: Value, mode: PreviewSolverMode) {
         }
         let cases = crate::w1_case_ids(&capture).expect("inside D1.4");
         let ids: Vec<String> = cases.ids().iter().map(|id| id.to_string()).collect();
-        let attempted = cases.attempted(crate::case_triggers(&ordinary.numerical_quality, &observer.ordinary, cases.ids()));
+        let attempted = cases.attempted(crate::case_triggers(&ordinary.numerical_quality, &ordinary.diagnostics, &observer.ordinary, cases.ids()));
         if attempted.requests().is_empty() {
             return println!("I104_SQ_DEF_O {label} {mode:?} end=no_triggered_case");
         }

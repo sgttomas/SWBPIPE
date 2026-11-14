@@ -1239,7 +1239,7 @@ fn w2_failed() -> rp::W2Seed {
         failure: ForceScalingFailure::NotAdmitted { family: "spring", b: 518 }, diagnostic_ref: "diagnostic:numerical-integrity:case".into() }
 }
 fn classified(quality: &NumericalQuality, seeds: &[rp::OrdinarySeed], ids: &[&str]) -> Vec<CaseTrigger> {
-    case_triggers(quality, seeds, ids).collect()
+    case_triggers(quality, &[], seeds, ids).collect()
 }
 
 /// T-4's unit tests: each published verdict; W2-published Passed; report
@@ -1320,6 +1320,66 @@ fn b1_t4_classifier_reads_the_published_verdict_by_case_id() {
     assert_eq!(classified(&doubled, &[], &["case"]), [Attempted], "two entries for one case");
     let mechanism = || seed_of("case", failure_seed(StructuralError::Mechanism { direction: vec![1.0] }), rp::W2Seed::NotTriggered);
     assert_eq!(classified(&quality_of(vec![verdict_entry("case", V::Failed)]), &[mechanism(), mechanism()], &["case"]), [Attempted], "two seeds for one case");
+}
+
+/// T-4 in a blocked document (DEL-04-07 *Blocked document*): a case published not assessed
+/// because its retained evaluation was rewritten as inspection-only is classified by the prior
+/// outcome in that evaluation's closed token, as a solved document's verdict would be. Checks
+/// passed is NotRequired; sensitive is Attempted, or Excluded under decision 21's seeds. Without
+/// a single, well-formed inspection-only evaluation the case is decided as not assessed.
+#[test]
+fn t4_reads_an_inspection_only_case_by_its_prior_outcome() {
+    use CaseTrigger::{Attempted, Excluded, NotRequired};
+    use NumericalQualityStatus as V;
+    let id = "diagnostic:numerical-integrity:case";
+    let with = |code: &str, message: String| diag(id, code, "info", message, vec!["case".to_string()]);
+    let rewritten = |code: &str| { let mut d = with(code, "original".to_string()); inspection_only(&mut d); d };
+    let one = |verdict: V, diagnostics: &[Diagnostic], seed: Option<rp::OrdinarySeed>| {
+        let quality = quality_of(vec![verdict_entry("case", verdict)]);
+        let seeds: Vec<rp::OrdinarySeed> = seed.into_iter().collect();
+        let got: Vec<CaseTrigger> = case_triggers(&quality, diagnostics, &seeds, &["case"]).collect();
+        assert_eq!(got.len(), 1, "one class per requested case");
+        got[0]
+    };
+    let passed = rewritten("NUMERICAL_INTEGRITY_CHECKS_PASSED");
+    let sensitive = rewritten("NUMERICAL_INTEGRITY_SENSITIVE");
+    assert_eq!((passed.code.as_str(), sensitive.code.as_str()), (INSPECTION_ONLY_CODE, INSPECTION_ONLY_CODE), "the producer's own rewrite");
+    let report = |code: &str| Some(seed_of("case", report_seed(code), rp::W2Seed::NotTriggered));
+    let mechanism = || Some(seed_of("case", failure_seed(StructuralError::Mechanism { direction: vec![1.0] }), rp::W2Seed::NotTriggered));
+    // The prior outcome decides, as the solved verdict would.
+    assert_eq!(one(V::NotAssessed, &[passed.clone()], report("NUMERICAL_INTEGRITY_CHECKS_PASSED")), NotRequired, "inspection-only checks passed");
+    assert_eq!(one(V::NotAssessed, &[passed.clone()], None), NotRequired, "inspection-only checks passed, no seed");
+    assert_eq!(one(V::NotAssessed, &[sensitive.clone()], report("NUMERICAL_INTEGRITY_SENSITIVE")), Attempted, "inspection-only sensitive");
+    assert_eq!(one(V::NotAssessed, &[sensitive.clone()], mechanism()), Excluded, "inspection-only sensitive beside an excluded seed");
+    // Equal to a solved document's classification of the same outcome, with each seed.
+    for seed in [None, report("NUMERICAL_INTEGRITY_CHECKS_PASSED"), report("NUMERICAL_INTEGRITY_SENSITIVE"), mechanism()] {
+        assert_eq!(one(V::NotAssessed, &[passed.clone()], seed.clone()), one(V::ChecksPassed, &[], seed.clone()), "passed: blocked equals solved, {seed:?}");
+        assert_eq!(one(V::NotAssessed, &[sensitive.clone()], seed.clone()), one(V::Sensitive, &[], seed.clone()), "sensitive: blocked equals solved, {seed:?}");
+    }
+    // Read only where the published verdict is not assessed: another published verdict decides itself.
+    for verdict in [V::Failed, V::Unresolved] {
+        assert_eq!(one(verdict, &[passed.clone()], None), Attempted, "a published {verdict:?} is not overridden");
+    }
+    assert_eq!(one(V::Sensitive, &[passed.clone()], None), Attempted, "a published sensitive is not overridden");
+    // No single, well-formed inspection-only evaluation of this case: decided as not assessed.
+    let token = |prior: &str, tail: &str| format!("{INSPECTION_ONLY_LEAD}{prior}{tail}original");
+    let malformed = [
+        vec![],
+        vec![with("NUMERICAL_INTEGRITY_CHECKS_PASSED", "original".to_string())],
+        vec![with(INSPECTION_ONLY_CODE, token("NUMERICAL_INTEGRITY_FAILED", INSPECTION_ONLY_TAIL))],
+        vec![with(INSPECTION_ONLY_CODE, token("NUMERICAL_INTEGRITY_CHECKS_PASSED", ") "))],
+        vec![with(INSPECTION_ONLY_CODE, format!(" {}", token("NUMERICAL_INTEGRITY_CHECKS_PASSED", INSPECTION_ONLY_TAIL)))],
+        vec![with(INSPECTION_ONLY_CODE, token("NUMERICAL_INTEGRITY_CHECKS_PASSEDX", INSPECTION_ONLY_TAIL))],
+        vec![passed.clone(), passed.clone()],
+        vec![Diagnostic { id: "diagnostic:numerical-integrity:other".to_string(), ..passed.clone() }],
+    ];
+    for (n, diagnostics) in malformed.iter().enumerate() {
+        assert_eq!(one(V::NotAssessed, diagnostics, None), Attempted, "malformed {n}: {diagnostics:?}");
+        assert_eq!(one(V::NotAssessed, diagnostics, mechanism()), Excluded, "malformed {n}, excluded seed");
+    }
+    // The other requested case is unaffected by this case's evaluation.
+    let quality = quality_of(vec![verdict_entry("case", V::NotAssessed), verdict_entry("other", V::NotAssessed)]);
+    assert_eq!(case_triggers(&quality, &[passed.clone()], &[], &["case", "other"]).collect::<Vec<_>>(), [NotRequired, Attempted], "per case");
 }
 
 /// B1 ST (T-4; RR "I81's B1-0 probe verified…", ruling 4): a `NoTriggeredCase` pin on a real

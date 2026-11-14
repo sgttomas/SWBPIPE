@@ -2500,20 +2500,21 @@ fn assessed_numerical_quality(
     quality
 }
 
-/// A blocked document's numerical quality (DEL-04-07 *Blocked document*): every
-/// case and the aggregate are not assessed, whatever the retained integrity
-/// codes. Each case keeps its basis and its evidence reference, so the retained
-/// diagnostics (unchanged, apart from the inspection-only rewrite) stay reachable.
+/// A blocked document's numerical quality (DEL-04-07 *Blocked document*), read
+/// after `blocked_envelope` has rewritten each retained checks-passed or sensitive
+/// integrity evaluation as inspection-only. Per case: an inspection-only
+/// evaluation, or none, is not assessed; a failure (physical mechanism, negative
+/// energy, recovery basis unqualified, assembly unresolved, failed, or any other
+/// integrity code) keeps the classification the attempt recorded, as in a solved
+/// document; this does not alter how the attempt arrives at a failure
+/// classification, and no failure can make a document eligible. The aggregate is the most
+/// severe case: failed over unresolved over not assessed. So no blocked document
+/// carries a passing or sensitive verdict, and a failure verdict reads as before.
+/// Each case keeps its basis and its evidence reference.
 fn blocked_numerical_quality(model: &PreviewModel, diagnostics: &[Diagnostic]) -> NumericalQuality {
-    let mut quality = assessed_numerical_quality(model, diagnostics);
-    for case in &mut quality.cases {
-        case.structural_status = StructuralStatus::NumericallyUnresolved;
-        case.solve_quality = NumericalQualityStatus::NotAssessed;
-        case.model_matrix_fidelity = ModelMatrixFidelity::NotAssessed;
-        case.accuracy_evidence = AccuracyEvidence::NotClaimed;
-    }
-    quality.status = NumericalQualityStatus::NotAssessed;
-    quality
+    debug_assert!(!diagnostics.iter().any(|d| d.id.starts_with(INTEGRITY_DIAGNOSTIC_PREFIX)
+        && matches!(d.code.as_str(), "NUMERICAL_INTEGRITY_CHECKS_PASSED" | "NUMERICAL_INTEGRITY_SENSITIVE")));
+    assessed_numerical_quality(model, diagnostics)
 }
 
 pub fn unassessed_numerical_quality() -> NumericalQuality {
@@ -4209,13 +4210,25 @@ pub(crate) enum CaseTrigger {
 /// entry found by position (as `ordinary_value` binds it); its seed is the one seed
 /// whose `case` is the case id. An entry or a seed that is absent, or not unique, is
 /// absent: such a case is in A unless its verdict is `checks_passed`.
+///
+/// In a blocked document (DEL-04-07 *Blocked document*) a case whose retained
+/// evaluation was checks passed or sensitive is published not assessed, with that
+/// prior outcome in its inspection-only evaluation's closed token. For such a case
+/// the trigger reads the prior outcome in place of the published not assessed, so it
+/// classifies the case as a solved document's verdict would: checks passed is
+/// NotRequired, and sensitive is decided as any other verdict. A not-assessed case
+/// without a well-formed token is decided as not assessed.
 fn case_triggers<'a>(
     quality: &'a NumericalQuality,
+    diagnostics: &'a [Diagnostic],
     seeds: &'a [retained_product::OrdinarySeed],
     case_ids: &'a [&'a str],
 ) -> impl Iterator<Item = CaseTrigger> + 'a {
     case_ids.iter().map(move |&case_id| {
-        let verdict = only_one(quality.cases.iter().filter(|entry| entry.basis_ref.ref_id == case_id)).map(|entry| entry.solve_quality);
+        let verdict = only_one(quality.cases.iter().filter(|entry| entry.basis_ref.ref_id == case_id)).map(|entry| match entry.solve_quality {
+            NumericalQualityStatus::NotAssessed => inspection_only_prior(diagnostics, case_id).unwrap_or(NumericalQualityStatus::NotAssessed),
+            published => published,
+        });
         let seed = only_one(seeds.iter().filter(|seed| seed.case == case_id));
         if verdict == Some(NumericalQualityStatus::ChecksPassed) {
             CaseTrigger::NotRequired
@@ -4225,6 +4238,26 @@ fn case_triggers<'a>(
             CaseTrigger::Attempted
         }
     })
+}
+
+/// The prior outcome an inspection-only evaluation of `case_id` recorded: `ChecksPassed`
+/// or `Sensitive`, read from its closed token (`INSPECTION_ONLY_LEAD`, the prior code,
+/// `INSPECTION_ONLY_TAIL`). `None` when the case has no single integrity evaluation,
+/// when that evaluation is not inspection-only, or when its message does not begin
+/// with the closed token exactly.
+fn inspection_only_prior(diagnostics: &[Diagnostic], case_id: &str) -> Option<NumericalQualityStatus> {
+    let wanted_id = integrity_diagnostic_id(case_id);
+    let evaluation = only_one(diagnostics.iter().filter(|d| d.id == wanted_id))?;
+    if evaluation.code != INSPECTION_ONLY_CODE {
+        return None;
+    }
+    let rest = evaluation.message.strip_prefix(INSPECTION_ONLY_LEAD)?;
+    [
+        ("NUMERICAL_INTEGRITY_CHECKS_PASSED", NumericalQualityStatus::ChecksPassed),
+        ("NUMERICAL_INTEGRITY_SENSITIVE", NumericalQualityStatus::Sensitive),
+    ]
+    .into_iter()
+    .find_map(|(code, prior)| rest.strip_prefix(code)?.starts_with(INSPECTION_ONLY_TAIL).then_some(prior))
 }
 
 /// The one item, or `None` when there is none or more than one.
@@ -4269,10 +4302,10 @@ fn retained_w1(
     };
     // T-4 (decisions 1 and 21): W1 attempts only the cases in A. With A empty, the exact
     // ordinary bytes: no notice, and nothing reserved.
-    if !case_triggers(&ordinary.numerical_quality, &observer.ordinary, cases.ids()).any(|trigger| trigger == CaseTrigger::Attempted) {
+    if !case_triggers(&ordinary.numerical_quality, &ordinary.diagnostics, &observer.ordinary, cases.ids()).any(|trigger| trigger == CaseTrigger::Attempted) {
         return (ordinary, Err(W1Fallback::NoTriggeredCase));
     }
-    let attempted = cases.attempted(case_triggers(&ordinary.numerical_quality, &observer.ordinary, cases.ids()));
+    let attempted = cases.attempted(case_triggers(&ordinary.numerical_quality, &ordinary.diagnostics, &observer.ordinary, cases.ids()));
     // T-5 (R-2 per case): every case in A's notice is reserved before any W1 work starts.
     let Some(notice) = ReservedNotices::reserve(&mut ordinary, attempted.ids()) else {
         return (ordinary, Err(W1Fallback::NoticeReservation));
@@ -6267,10 +6300,10 @@ fn solve_prepared_load_case(
     let certified_source = member_bound.map(|_| certified_publication::source(built, certified_force, spring_entries));
     let mut recovery_records = Vec::new();
     require_finite_mechanics(displacements.iter().copied())?;
-    let published_displacements = match &correction {
-        Some(Ok(corrected)) if member_bound.is_some() => corrected.clone(),
-        _ => displacements.to_vec(),
-    };
+    let published_displacements = correction
+        .and_then(Result::ok)
+        .filter(|_| member_bound.is_some())
+        .unwrap_or_else(|| displacements.to_vec());
     if let Some(failure) = &correction_failure {
         diagnostics.push(displacement_correction_warning(model, &load_case.id, failure));
     }
@@ -15506,8 +15539,8 @@ fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> Me
     // kept for inspection under its own code, its prior outcome a closed token
     // at the message start. Only those two codes are rewritten, so nothing is
     // wrapped twice; every other retained diagnostic (a mechanism refusal, say)
-    // is kept as it is. Every case and the document are not assessed, whatever
-    // the retained codes (`blocked_numerical_quality`).
+    // is kept as it is. A rewritten case is not assessed; a failure keeps its
+    // classification (`blocked_numerical_quality`).
     for diagnostic in diagnostics.iter_mut().filter(|d| d.id.starts_with(INTEGRITY_DIAGNOSTIC_PREFIX)) {
         inspection_only(diagnostic);
     }
@@ -17019,15 +17052,14 @@ mod tests {
                                 | NumericalQualityStatus::Sensitive
                         ));
                     } else {
-                        // DEL-04-07 *Blocked document*: the refused case is not
-                        // assessed; its mechanism refusal is kept, unrelabelled,
-                        // as its evidence (checked below).
                         assert_ne!(output.status.mechanics, "MECHANICS_SOLVED");
-                        assert_eq!(case.structural_status, StructuralStatus::NumericallyUnresolved, "{:?}", output.diagnostics);
-                        assert_eq!(case.solve_quality, NumericalQualityStatus::NotAssessed);
-                        assert_eq!(output.numerical_quality.status, NumericalQualityStatus::NotAssessed);
-                        assert!(output.diagnostics.iter().any(|d| d.id == case.evidence_refs[0]
-                            && d.code == "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM"));
+                        assert_eq!(
+                            case.structural_status,
+                            StructuralStatus::PhysicalMechanismWitnessed,
+                            "{:?}",
+                            output.diagnostics
+                        );
+                        assert_eq!(case.solve_quality, NumericalQualityStatus::Failed);
                     }
                     assert_eq!(case.evidence_refs.len(), 1);
                     assert!(output
@@ -17089,12 +17121,13 @@ mod tests {
             let first = &output.numerical_quality.cases[0];
             let second = &output.numerical_quality.cases[1];
             assert_eq!(first.basis_ref.ref_id, "load:a-b");
-            assert_eq!(
-                first.solve_quality,
-                NumericalQualityStatus::ChecksPassed,
-                "{:?}",
-                output.diagnostics
-            );
+            // DEL-04-07 *Blocked document*: the first case's passed evaluation
+            // stands for inspection only, under its own id; no verdict stands.
+            assert_eq!(first.solve_quality, NumericalQualityStatus::NotAssessed, "{:?}", output.diagnostics);
+            let evidence = output.diagnostics.iter().find(|d| first.evidence_refs == [d.id.clone()]).unwrap();
+            assert_eq!(evidence.id, integrity_diagnostic_id("load:a-b"));
+            assert_eq!(evidence.code, INSPECTION_ONLY_CODE);
+            assert!(evidence.message.starts_with(&format!("{INSPECTION_ONLY_LEAD}NUMERICAL_INTEGRITY_CHECKS_PASSED)")));
             assert_eq!(second.basis_ref.ref_id, "load-a:b");
             assert_eq!(
                 second.solve_quality,

@@ -476,44 +476,56 @@ fn a_blocked_document_keeps_its_evaluations_for_inspection_only() {
     }
 }
 
-/// DEL-04-07 *Blocked document*, whatever the retained codes: on the demo
-/// model's two cases, one whose evaluation passed and one refused as a physical
-/// mechanism (a structural refusal), then a document whose only refusal is an
-/// unqualified recovery basis. Each case and the document are not assessed;
-/// the passed evaluation becomes inspection-only, and each refusal is kept
-/// with its code, severity and message unchanged, as the case's evidence.
+/// DEL-04-07 *Blocked document*, as narrowed (R1): no blocked document carries a
+/// passing or sensitive verdict, and a failure keeps its classification. Each
+/// case's expected standing is stated by kind; a case with no evaluation is not
+/// assessed; the aggregate is the most severe case.
 #[test]
-fn a_blocked_document_is_not_assessed_whatever_its_retained_codes() {
+fn a_blocked_document_carries_no_passing_verdict_and_keeps_its_failures() {
     let model: PreviewModel = serde_json::from_str(include_str!("../../../fixtures/product_preview/invented_demo_model.json")).unwrap();
     let integrity = |case: &str, code: &str, severity: &str| {
         diag(&integrity_diagnostic_id(case), code, severity, format!("original evaluation of {case}"), vec![case.to_string()])
     };
     let blocking = diag("diagnostic:test:blocking", "SOLVER_SYSTEM_BLOCKED", "blocking", "the case's refusal".to_string(), vec!["load:L-200".to_string()]);
-    for (label, retained) in [
-        ("mixed passed and mechanism", vec![integrity("load:L-100", "NUMERICAL_INTEGRITY_CHECKS_PASSED", "info"), integrity("load:L-200", "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM", "blocking"), blocking.clone()]),
-        ("unqualified recovery basis", vec![integrity("load:L-100", "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED", "warning"), blocking.clone()]),
+    let unassessed = ("numerically_unresolved", "not_assessed", "not_assessed", "not_claimed");
+    let mechanism = ("physical_mechanism_witnessed", "failed", "not_assessed", "not_claimed");
+    let unqualified = ("numerically_unresolved", "unresolved", "not_assessed", "unresolved");
+    for (label, retained, expected, aggregate) in [
+        ("mixed passed and mechanism",
+         vec![integrity("load:L-100", "NUMERICAL_INTEGRITY_CHECKS_PASSED", "info"), integrity("load:L-200", "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM", "blocking"), blocking.clone()],
+         vec![("load:L-100", unassessed), ("load:L-200", mechanism)], "failed"),
+        ("unqualified recovery basis",
+         vec![integrity("load:L-100", "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED", "warning"), blocking.clone()],
+         vec![("load:L-100", unqualified)], "unresolved"),
+        ("passed and sensitive only",
+         vec![integrity("load:L-100", "NUMERICAL_INTEGRITY_CHECKS_PASSED", "info"), integrity("load:L-200", "NUMERICAL_INTEGRITY_SENSITIVE", "warning"), blocking.clone()],
+         vec![("load:L-100", unassessed), ("load:L-200", unassessed)], "not_assessed"),
     ] {
         let envelope = serde_json::to_value(blocked_envelope(model.clone(), retained.clone())).unwrap();
         assert_eq!(envelope["status"]["mechanics"], "MODEL_INCOMPLETE", "{label}");
-        assert_eq!(envelope["numerical_quality"]["status"], "not_assessed", "{label}");
-        for case in envelope["numerical_quality"]["cases"].as_array().unwrap() {
+        assert_eq!(envelope["numerical_quality"]["status"], aggregate, "{label}");
+        let cases = envelope["numerical_quality"]["cases"].as_array().unwrap();
+        assert_eq!(cases.len(), model.load_cases.len(), "{label}");
+        for case in cases {
             let id = case["basis_ref"]["ref_id"].as_str().unwrap();
+            let want = expected.iter().find(|(case_id, _)| *case_id == id).map_or(unassessed, |(_, standing)| *standing);
             assert_eq!(
-                (case["structural_status"].as_str(), case["solve_quality"].as_str(), case["model_matrix_fidelity"].as_str(), case["accuracy_evidence"].as_str()),
-                (Some("numerically_unresolved"), Some("not_assessed"), Some("not_assessed"), Some("not_claimed")),
+                (case["structural_status"].as_str().unwrap(), case["solve_quality"].as_str().unwrap(), case["model_matrix_fidelity"].as_str().unwrap(), case["accuracy_evidence"].as_str().unwrap()),
+                want,
                 "{label} {id}"
             );
+            assert!(!matches!(case["solve_quality"].as_str(), Some("checks_passed" | "sensitive")), "{label} {id}: no passing verdict");
         }
         for original in &retained {
             let kept = envelope["diagnostics"].as_array().unwrap().iter().find(|d| d["id"] == original.id.as_str()).unwrap_or_else(|| panic!("{label}: {} kept", original.id));
-            if original.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED" {
+            if matches!(original.code.as_str(), "NUMERICAL_INTEGRITY_CHECKS_PASSED" | "NUMERICAL_INTEGRITY_SENSITIVE") {
                 assert_eq!(kept["code"], INSPECTION_ONLY_CODE, "{label}");
             } else {
                 assert_eq!((kept["code"].as_str(), kept["severity"].as_str(), kept["message"].as_str()), (Some(original.code.as_str()), Some(original.severity.as_str()), Some(original.message.as_str())), "{label}: unrelabelled");
             }
             if original.id.starts_with(INTEGRITY_DIAGNOSTIC_PREFIX) {
                 let case = &original.affected_refs[0];
-                let quality = envelope["numerical_quality"]["cases"].as_array().unwrap().iter().find(|q| q["basis_ref"]["ref_id"] == case.as_str()).unwrap();
+                let quality = cases.iter().find(|q| q["basis_ref"]["ref_id"] == case.as_str()).unwrap();
                 assert_eq!(quality["evidence_refs"], serde_json::json!([original.id]), "{label}: the evidence reference is kept");
             }
         }

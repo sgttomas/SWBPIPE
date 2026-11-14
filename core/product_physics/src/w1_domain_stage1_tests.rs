@@ -53,7 +53,7 @@ fn stepped(raw: &Value, mode: PreviewSolverMode, before_freeze: &dyn Fn(&mut rp:
     let (capture, observer, mut ordinary) = early_observed(raw, mode, true);
     ordinary.diagnostics.shrink_to_fit();
     let cases = w1_case_ids(&capture).unwrap();
-    let triggers: Vec<CaseTrigger> = case_triggers(&ordinary.numerical_quality, &observer.ordinary, cases.ids()).collect();
+    let triggers: Vec<CaseTrigger> = case_triggers(&ordinary.numerical_quality, &ordinary.diagnostics, &observer.ordinary, cases.ids()).collect();
     let attempted = cases.attempted(triggers.iter().copied());
     let mut prepared = match observer.prepare_cases(ordinary, cases.ids().len(), attempted.requests()) {
         Ok(prepared) => prepared,
