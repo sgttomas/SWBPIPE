@@ -483,12 +483,12 @@ class FakeGuestModel:
             if process is None or not process.alive:
                 return done(argv, 0, "SWBPIPE-CIM v1 none\r\n", "")
             return done(argv, 0, f"SWBPIPE-CIM v1 pid={process.pid} created={process.created}\r\n", "")
-        if kind == "job":
-            if self.job_canary != 6:  # the canary failed: no last error it read is trusted, never absent
-                return done(argv, 0, f"SWBPIPE-JOB v1 error=canary-{self.job_canary}\r\n", "")
+        if kind == "job":  # the read script's order: a handle is presence whatever the canary; then the canary
             name = payload["job"]
             members = self.job_members(name)
             if name not in self.jobs or (not members and not self.jobs[name]):
+                if self.job_canary != 6:  # the canary failed: no failure code it read is trusted, never absent
+                    return done(argv, 0, f"SWBPIPE-JOB v1 error=canary-{self.job_canary}\r\n", "")
                 if self.job_absent_error != 2:
                     return done(argv, 0, f"SWBPIPE-JOB v1 error={self.job_absent_error}\r\n", "")
                 return done(argv, 0, "SWBPIPE-JOB v1 absent\r\n", "")
