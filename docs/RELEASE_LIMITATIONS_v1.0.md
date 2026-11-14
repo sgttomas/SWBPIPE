@@ -381,7 +381,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** DEL-03-03 defines the element as the thin curved beam's closed-form end flexibility, with the factors on the bending terms only. VER-002 compares the element with closed-form values of that same model (`validation/references/t4_i6`). That comparison shows agreement with the model, not the model's adequacy for a given bend. No reference of a more complete model has been identified for annular bends, whether a beam model with shear and curvature terms or an elasticity solution. What the user's flexibility factor would mean against such a model is not defined.
 - **What the user does instead:** the flexibility factors are the user's own inputs, and whether they suit the fitting is the user's engineer's judgment (DEL-03-03). No product option changes a realized bend's formulation; the Timoshenko selection applies to straight members only.
 - **Basis:**
-  - DEL-03-03 [scope](../execution/PKG-03/DEL-03-03/ScopeOfWork.md): the method; REQ-012, AC-002 and VER-002. The element's formulation has been standing since realized bends were introduced. This PR records the entry.
+  - DEL-03-03 [scope](../execution/PKG-03/DEL-03-03/ScopeOfWork.md): the method; REQ-012, AC-002 and VER-002. The element's formulation has been standing since realized bends were introduced. PR #334 records this entry.
   - Evidence, by pointer, in the inverse-norm lane's scratch: `/Users/ryan/dev/chirality-t3/scratch/swbpipe/inverse-norm-repair/arc-shear/`. It holds the formulation note `NOTE.md` and the scripts whose saved outputs give each figure above:
     - illustration 1: `golovin_energy.py` and `golovin_energy.out`;
     - illustration 2: `annulus_orders.py` and `annulus_orders.out`;
