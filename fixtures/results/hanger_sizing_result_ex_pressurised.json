@@ -1,0 +1,294 @@
+{
+  "basis_statement": [
+    "Every position is measured from the drawn geometry, taken as the installed position at which each spring is set; F_cold is that setting and F_C the cold-condition load.",
+    "Quantities are SI: forces in N, lengths in m, rates in N/m; variations are ratios."
+  ],
+  "document_kind": "openpipestress.hanger_sizing.result",
+  "inputs": {
+    "canonical_profile": "openpipestress_jcs_ijson_v1",
+    "library": {
+      "library_id": "invented.hangers.exs-a",
+      "sha256": "d9f70d7eae66b7cf81b089db54802a4d5e0f07bfbe594195e42f72514f8e545d"
+    },
+    "sizing_request": {
+      "candidates": [
+        {
+          "family_policy": "variable",
+          "support": "H-3"
+        },
+        {
+          "family_policy": "constant",
+          "support": "H-5"
+        }
+      ],
+      "check_operating_cases": [
+        "O2"
+      ],
+      "design_operating_case": "O1",
+      "method": {
+        "load_design": "hot",
+        "selection_rule": "smallest_capacity",
+        "travel_allowance_m": 0.001,
+        "variation_limit": 0.25,
+        "variation_reference": "operating_load"
+      },
+      "solver_mode": "dense_scrutiny",
+      "weight_case": "W",
+      "weight_support_state": "own_solve"
+    },
+    "sizing_request_sha256": "b483d417ee76c8d7654ea682f033935aa846e85a0a7f78bd8bb4e99251a17e6f",
+    "solve_request": {
+      "sha256": "06dea9d2d1ceca00cf37ab49ba76571a9471b39b63e7923d8f356e16ae22308f"
+    }
+  },
+  "limitations": [
+    "Hanger sizing selects records of the user's own library by the user's own tests on the stated cases; it judges no hanger's suitability for a service and determines no code compliance.",
+    "Sized means the sizing algorithm completed. A candidate may have no fitting record, and the verification may be conditional; both are stated in the result.",
+    "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; nonlinear supports take each case's own converged state.",
+    "The stated route is the bound solve request's own, on which every derived solve runs; sizing changes only the candidates' roles and adds no mechanics of its own, so pressure enters a sized value only as those solves include it."
+  ],
+  "result": {
+    "candidates": [
+      {
+        "dof": "UZ",
+        "failure_counts": {
+          "constant": null,
+          "variable": {
+            "E1": 1,
+            "E2": 1,
+            "L": 2,
+            "T": 1,
+            "V": 1,
+            "V0": 0
+          }
+        },
+        "family_policy": "variable",
+        "governing": {
+          "travel_case": "O2",
+          "variation_case": "O2"
+        },
+        "node": "N3",
+        "operating": [
+          {
+            "case": "O1",
+            "u_m": -0.0025901930710134444
+          },
+          {
+            "case": "O2",
+            "u_m": 0.0029999999999999996
+          }
+        ],
+        "outcome": "selected",
+        "required_travel_m": 0.007590193071013444,
+        "selected": {
+          "envelope_n": [
+            9565.980692898656,
+            10325.0
+          ],
+          "f_cold_condition_n": 9965.980692898656,
+          "f_cold_n": 9965.980692898656,
+          "family": "variable_spring",
+          "hanger_id": "VS-B",
+          "k_n_per_m": 100000.0,
+          "operating": [
+            {
+              "case": "O1",
+              "f_n": 10225.0,
+              "variation": 0.025331961574703615
+            },
+            {
+              "case": "O2",
+              "f_n": 9665.980692898656,
+              "variation": 0.031036685208817156
+            }
+          ],
+          "record_sha256": "9a28df52ab113940727ef7c793ced98ae19dc3a4a969fc0661414f63c2586d53"
+        },
+        "span_m": [
+          -0.0025901930710134444,
+          0.0029999999999999996
+        ],
+        "support": "H-3",
+        "u_cold_m": -2.4375614156040824e-48,
+        "verification": {
+          "departure_n": 0.0,
+          "f_cold_condition_n": 10019.678342945892,
+          "failed_tests": [],
+          "family": "variable_spring",
+          "operating": [
+            {
+              "case": "O1",
+              "f_n": 10225.0,
+              "u_m": -0.002590193071013443,
+              "variation": 0.02008035765810349
+            },
+            {
+              "case": "O2",
+              "f_n": 9781.871756998491,
+              "u_m": 0.0018410893590016613,
+              "variation": 0.024310949055047902
+            }
+          ],
+          "required_travel_m": 0.006431282430015104,
+          "span_m": [
+            -0.002590193071013443,
+            0.0018410893590016613
+          ],
+          "t_pass": true,
+          "u_cold_m": -0.0005369765004723611
+        },
+        "verification_assumption": {
+          "f_cold_n": 9965.980692898656,
+          "k_n_per_m": 100000.0,
+          "role": "spring"
+        },
+        "w_n": 10225.0
+      },
+      {
+        "dof": "UZ",
+        "failure_counts": {
+          "constant": {
+            "E1": 0,
+            "L": 1,
+            "T": 1
+          },
+          "variable": null
+        },
+        "family_policy": "constant",
+        "governing": {
+          "travel_case": "O1",
+          "variation_case": null
+        },
+        "node": "N5",
+        "operating": [
+          {
+            "case": "O1",
+            "u_m": 0.005409806928986556
+          },
+          {
+            "case": "O2",
+            "u_m": -0.0029999999999999996
+          }
+        ],
+        "outcome": "selected",
+        "required_travel_m": 0.010409806928986555,
+        "selected": {
+          "family": "constant_effort",
+          "hanger_id": "CE-1",
+          "load_n": 7600.0,
+          "record_sha256": "3bf69d70975100dfeae1f820b9b82be4cb194508744f78b49898c3c02e8edcfa"
+        },
+        "span_m": [
+          -0.0029999999999999996,
+          0.005409806928986556
+        ],
+        "support": "H-5",
+        "u_cold_m": -2.5658541216885078e-48,
+        "verification": {
+          "failed_tests": [
+            "T"
+          ],
+          "family": "constant_effort",
+          "operating": [
+            {
+              "case": "O1",
+              "u_m": 0.0054098069289865575
+            },
+            {
+              "case": "O2",
+              "u_m": -0.004014046810873546
+            }
+          ],
+          "required_travel_m": 0.011423853739860103,
+          "span_m": [
+            -0.004014046810873546,
+            0.0054098069289865575
+          ],
+          "t_pass": false,
+          "u_cold_m": -0.00046985443791331603
+        },
+        "verification_assumption": {
+          "force_n": 7600.0,
+          "role": "force"
+        },
+        "w_n": 7600.0
+      }
+    ],
+    "cases": [
+      {
+        "case": "W",
+        "load_categories": [
+          "concentrated_force"
+        ],
+        "role": "weight",
+        "uses_condition_set": false
+      },
+      {
+        "case": "O1",
+        "load_categories": [
+          "concentrated_force"
+        ],
+        "role": "operating",
+        "uses_condition_set": false
+      },
+      {
+        "case": "O2",
+        "load_categories": [
+          "concentrated_force"
+        ],
+        "role": "operating",
+        "uses_condition_set": false
+      }
+    ],
+    "disclosures": [],
+    "solves": [
+      {
+        "case": "W",
+        "derived_document_sha256": "be6c595764d1b949650b47ebc6ba7a342d9a6b23ea09ce173ea4a1f6f096c0ab",
+        "label": "S_W",
+        "states": {}
+      },
+      {
+        "case": "W",
+        "derived_document_sha256": "a65d01624816e0c6c901684728f3469a21f16439ef27859468cfd509830c6645",
+        "label": "S_C",
+        "states": {}
+      },
+      {
+        "case": "O1",
+        "derived_document_sha256": "976a10b0cf7010251225a9d63aa31230a8a438177796e0e76a4e87084017a7ea",
+        "label": "S_O1",
+        "states": {}
+      },
+      {
+        "case": "O2",
+        "derived_document_sha256": "b59aee03e5bc5d8fdcc35d50fa1001dbaa562478cb732900418d440068f58361",
+        "label": "S_O2",
+        "states": {}
+      },
+      {
+        "case": "W",
+        "derived_document_sha256": "1a8b6f6da4954482d31f53f369a2a2f547b5f6ffa9be2bc798d87225f0d9f9bd",
+        "label": "V_C",
+        "states": {}
+      },
+      {
+        "case": "O1",
+        "derived_document_sha256": "c2c3afbec67f17320309b408b62b655d371302ba98aa555ab80165d9d0279ffc",
+        "label": "V_O1",
+        "states": {}
+      },
+      {
+        "case": "O2",
+        "derived_document_sha256": "88a63e2719ae247882b0e577ecf05d08bc23e7cfc1b6e642b4bd6c0465d5cbf3",
+        "label": "V_O2",
+        "states": {}
+      }
+    ],
+    "verification_standing": "unconditional"
+  },
+  "route": "exact_pressure",
+  "schema_version": "1.0.0",
+  "semantic_contract_id": "openpipestress.result_semantics/hanger-sizing-1",
+  "status": "sized"
+}

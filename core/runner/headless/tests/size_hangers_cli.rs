@@ -56,10 +56,12 @@ fn controlled(run: &Run) -> Value {
 /// With the intent flag, the document is the payload, unchanged: the runner's
 /// document is the one this build forms in-process from the same input (both
 /// are this build on this platform, so no committed bytes are compared), and
-/// the product reader passes every standing on the runner's own bytes.
+/// the product reader passes every standing on the runner's own bytes. The two
+/// `ex_` inputs are on the exact pressure route.
 #[test]
 fn a_sized_request_with_intent_publishes_the_document_with_exit_zero() {
-    for stem in ["two_span", "four_span"] {
+    for (stem, route) in [("two_span", "pressure_free"), ("four_span", "pressure_free"), ("ex_pressurised", "exact_pressure"),
+                          ("ex_riser", "exact_pressure")] {
         let input = fixture(&format!("hanger_sizing_input_{stem}.json"));
         let out = run(&["size-hangers", "--explicit-local-private-intent", "--input", "-"], input.as_bytes());
         assert_eq!(out.code, 0, "{stem}: {}", out.stderr);
@@ -67,6 +69,7 @@ fn a_sized_request_with_intent_publishes_the_document_with_exit_zero() {
         assert_eq!(c["blocked"], false, "{stem}");
         let document = &c["payload"];
         assert_eq!(document, &size_hangers(&input).into_document(), "{stem}: the payload is not the document");
+        assert_eq!(document["route"], route, "{stem}");
         let bound: Value = serde_json::from_str(&input).unwrap();
         let verdict = reader::read(
             &serde_json::to_string(document).unwrap(),

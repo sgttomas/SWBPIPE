@@ -222,6 +222,21 @@ fn four_span_input() -> Value {
     })
 }
 
+/// The four-span model with B and C under the constant policy and D left a rigid
+/// support: B's W (8wL/7 ≈ 4571 N) fits CE-2 and CE-3, and CE-3 (its range in
+/// lbf, 1124 lbf ≈ 4999.8 N) is taken by the smaller maximum working load; C's
+/// (13wL/14 ≈ 3714 N) fits CE-1. Every candidate has a constant selection and the
+/// verification is unconditional. Its applied model is the one a solve must reproduce exactly
+/// (`tests/applied_agreement.rs`).
+fn four_span_constant_input() -> Value {
+    let mut input = four_span_input();
+    input["sizing"]["candidates"] = json!([
+        {"support": "support:B", "family_policy": "constant"},
+        {"support": "support:C", "family_policy": "constant"}
+    ]);
+    input
+}
+
 /// The two-span input naming an unknown candidate: refused by the engine.
 fn refused_input() -> Value {
     let mut input = two_span_input();
@@ -232,10 +247,83 @@ fn refused_input() -> Value {
     input
 }
 
-const INPUTS: [(&str, fn() -> Value); 3] = [
+const EX_REFERENCE: &str = include_str!("../../../../validation/references/hanger_sizing/ex_sizing.json");
+
+/// A library of one exact-route reference model's invented catalogue.
+fn catalogue_library(model: &Value) -> Value {
+    let records: Vec<Value> = model["catalogue"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|r| {
+            let id = r["hanger_id"].as_str().unwrap();
+            let range = r["working_load_range_n"].as_array().map(|p| (p[0].as_f64().unwrap(), p[1].as_f64().unwrap(), "N"));
+            let travel = (r["travel_range_m"].as_f64().unwrap(), "m");
+            if r["hanger_type"] == "variable_spring_hanger" {
+                variable(id, r["stiffness_dof"].as_str().unwrap(), (r["stiffness_n_per_m"].as_f64().unwrap(), "N/m"), range, travel)
+            } else {
+                constant(id, range.unwrap(), travel)
+            }
+        })
+        .collect();
+    json!({
+        "schema_version": "1.1.0",
+        "hanger_library": {
+            "library_id": format!("invented.hangers.{}", model["id"].as_str().unwrap().to_lowercase()),
+            "name": "Invented exact-route hanger sizing fixture only",
+            "library_scope": "private_user_library",
+            "privacy_class": "private_user_supplied",
+            "provenance": provenance()
+        },
+        "hanger_records": records
+    })
+}
+
+/// The headless input of one exact-route reference run (`ex_sizing.json`): the
+/// model built as a product document on EX (`model_builder::exs_request`), the
+/// run's request and the model's catalogue. The model carries no
+/// `model_settings`, and no sized value depends on whether pressure elongation acts.
+fn ex_input(model_index: usize, run_id: &str, solver_mode: &str) -> Value {
+    let reference: Value = serde_json::from_str(EX_REFERENCE).unwrap();
+    let model = &reference["models"][model_index];
+    let run = model["runs"].as_array().unwrap().iter().find(|r| r["id"] == run_id).unwrap();
+    let r = &run["request"];
+    json!({
+        "request": exs_request(model),
+        "sizing": {
+            "weight_case": r["weight_case"],
+            "weight_support_state": "own_solve",
+            "design_operating_case": r["design_operating_case"],
+            "check_operating_cases": r["further_operating_cases"],
+            "candidates": r["candidates"],
+            "method": {"load_design": r["load_design"], "variation_reference": r["variation_reference"],
+                       "variation_limit": r["variation_limit"], "travel_allowance_m": r["travel_allowance_m"],
+                       "selection_rule": r["selection_rule"]},
+            "solver_mode": solver_mode
+        },
+        "library": catalogue_library(model)
+    })
+}
+
+/// EXS-A, run A-HOT: a pressurised load/reference-state document with a ledger
+/// and moved supports; a variable and a constant selection, the constant one
+/// failing its verified travel.
+fn ex_pressurised_input() -> Value {
+    ex_input(0, "A-HOT", "dense_scrutiny")
+}
+
+/// EXS-B, run B-COLD: a free riser on EX with no pressurised region.
+fn ex_riser_input() -> Value {
+    ex_input(1, "B-COLD", "sparse_interactive")
+}
+
+const INPUTS: [(&str, fn() -> Value); 6] = [
     ("hanger_sizing_input_two_span.json", two_span_input),
     ("hanger_sizing_input_four_span.json", four_span_input),
+    ("hanger_sizing_input_four_span_constant.json", four_span_constant_input),
     ("hanger_sizing_input_refused.json", refused_input),
+    ("hanger_sizing_input_ex_pressurised.json", ex_pressurised_input),
+    ("hanger_sizing_input_ex_riser.json", ex_riser_input),
 ];
 
 fn run_of(input: &Value) -> SizingRun {
@@ -317,6 +405,41 @@ fn the_corpus_documents_cover_each_outcome_both_families_and_both_standings() {
     assert_eq!(refused["status"], "refused");
     assert_eq!(refused["refusals"][0]["code"], "HANGER_SIZING_CANDIDATE_UNKNOWN");
     assert!(!refused["inputs"]["sizing_request"].is_null());
+    for document in [&two, &four, &refused] {
+        assert_eq!(document["route"], "pressure_free");
+    }
+    // Every candidate a constant selection, and the verification unconditional.
+    let constant = read_json("hanger_sizing_result_four_span_constant.json");
+    assert_eq!(constant["result"]["verification_standing"], "unconditional");
+    let selected: Vec<(&str, &str)> = constant["result"]["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|c| (c["selected"]["family"].as_str().unwrap(), c["selected"]["hanger_id"].as_str().unwrap()))
+        .collect();
+    assert_eq!(selected, [("constant_effort", "CE-3"), ("constant_effort", "CE-1")]);
+    // The exact route: 2n + 3 solves, a variable and a constant selection, the
+    // constant one failing its verified travel; and a riser with no pressurised region.
+    let pressurised = read_json("hanger_sizing_result_ex_pressurised.json");
+    let riser = read_json("hanger_sizing_result_ex_riser.json");
+    for document in [&pressurised, &riser] {
+        assert_eq!((document["status"].as_str(), document["route"].as_str()), (Some("sized"), Some("exact_pressure")));
+        assert_eq!(document["result"]["solves"].as_array().unwrap().len(), 2 * 2 + 3);
+    }
+    let selected: Vec<(&str, Option<&str>)> = pressurised["result"]["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|c| (c["selected"]["family"].as_str().unwrap(), c["selected"]["hanger_id"].as_str()))
+        .collect();
+    assert_eq!(selected, [("variable_spring", Some("VS-B")), ("constant_effort", Some("CE-1"))]);
+    assert_eq!(pressurised["result"]["candidates"][1]["verification"]["failed_tests"], json!(["T"]));
+    assert_eq!(riser["result"]["candidates"][0]["selected"]["hanger_id"], "VS-R1");
+    for name in ["hanger_sizing_input_ex_pressurised.json", "hanger_sizing_input_ex_riser.json"] {
+        let input = read_json(name);
+        assert!(input["request"]["model"].get("model_settings").is_none(), "{name}");
+        assert_eq!(input["request"]["model"]["pressure_contract"]["mode"], "exact_pressure_v3", "{name}");
+    }
 }
 
 // --- the corpus ---------------------------------------------------------------
@@ -402,7 +525,7 @@ fn the_reader_returns_the_corpus_standings() {
         }
         assert_eq!(verdict["binding"]["not_checked"], expected["binding_not_checked"], "{id}");
     }
-    assert_eq!(same_build, 2, "the two genuine sized entries");
+    assert_eq!(same_build, 5, "the five genuine sized entries: three on the pressure-free route, two on the exact route");
 }
 
 // --- the headless pipeline's refusals -----------------------------------------
@@ -430,6 +553,8 @@ fn an_input_outside_the_profile_is_refused_by_kind_and_path_without_its_value() 
         assert_eq!(doc["inputs"], json!({"canonical_profile": "openpipestress_jcs_ijson_v1", "sizing_request": null,
             "sizing_request_sha256": null, "solve_request": {"sha256": null}, "library": {"library_id": null, "sha256": null}}));
         assert!(!doc.to_string().contains("1e20") && !doc.to_string().contains("0.3"));
+        // No model was read, so no route is stated.
+        assert_eq!(doc["route"], Value::Null);
     }
 }
 
@@ -457,13 +582,15 @@ fn shape_library_and_request_refusals_name_their_paths_and_keep_the_hashes_forme
     assert!(doc["inputs"]["sizing_request"].is_null() && doc["inputs"]["sizing_request_sha256"].is_null());
     assert_eq!(doc["inputs"]["library"]["sha256"].as_str(), publish::checked_sha256(&input["library"]).as_deref());
 
-    // The engine's value checks stay the engine's, with the admitted request carried.
+    // The engine's value checks stay the engine's, with the admitted request
+    // carried; a refused document states its request's route.
     let mut input = two_span_input();
     input["sizing"]["method"]["variation_limit"] = json!(-1);
     input["request"]["model"]["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
     let doc = refused(size_hangers(&input.to_string()));
     let codes: Vec<&str> = doc["refusals"].as_array().unwrap().iter().map(|r| r["code"].as_str().unwrap()).collect();
-    assert_eq!(codes, ["HANGER_SIZING_VARIATION_LIMIT_INVALID", "HANGER_SIZING_EXACT_ROUTE_PENDING"]);
+    assert_eq!(codes, ["HANGER_SIZING_VARIATION_LIMIT_INVALID"]);
+    assert_eq!(doc["route"], "exact_pressure");
     assert_eq!(doc["inputs"]["sizing_request"], input["sizing"]);
     assert_eq!(doc["inputs"]["sizing_request_sha256"].as_str(), publish::checked_sha256(&input["sizing"]).as_deref());
 }
@@ -536,7 +663,7 @@ fn the_schema_states_the_crates_fixed_members() {
     assert_eq!(defs["Identity"]["properties"]["document_kind"]["const"], publish::DOCUMENT_KIND);
     assert_eq!(defs["Identity"]["properties"]["schema_version"]["const"], publish::SCHEMA_VERSION);
     assert_eq!(defs["Identity"]["properties"]["semantic_contract_id"]["const"], publish::SEMANTIC_CONTRACT_ID);
-    assert_eq!(defs["Identity"]["properties"]["route"]["const"], publish::ROUTE);
+    assert_eq!(enumeration(&defs["Route"]), publish::ROUTES);
 }
 
 // --- §8.3.8: the existing readers' actual handling ----------------------------

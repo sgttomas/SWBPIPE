@@ -8,6 +8,8 @@ import fourSpanJson from "../../../../../fixtures/results/hanger_sizing_result_f
 import refusedJson from "../../../../../fixtures/results/hanger_sizing_result_refused.json";
 import twoSpanInput from "../../../../../fixtures/results/hanger_sizing_input_two_span.json";
 import fourSpanInput from "../../../../../fixtures/results/hanger_sizing_input_four_span.json";
+import exPressurisedJson from "../../../../../fixtures/results/hanger_sizing_result_ex_pressurised.json";
+import exPressurisedInput from "../../../../../fixtures/results/hanger_sizing_input_ex_pressurised.json";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { CSV_SOFTWARE_VERSION } from "../result-export/csvProvenance";
 import { serializeCsvTable } from "../result-export/csvTable";
@@ -178,6 +180,21 @@ describe("HangerSizingPanel: basis, solves, standing and disclosures", () => {
     expect(byId("basis-case-load:O2").textContent).toBe("load:O2: role operating; load categories concentrated_force, weight; uses an operating-condition set: no");
     expect([...byId("basis-statement").querySelectorAll("li")].map((item) => item.textContent)).toEqual(twoSpanJson.basis_statement);
     expect([...byId("limitations").querySelectorAll("li")].map((item) => item.textContent)).toEqual(twoSpanJson.limitations);
+  });
+
+  it("reads the exact route from a committed exact-route document and renders its table", async () => {
+    const document = asDocument(exPressurisedJson) as HangerSizingSizedDocument;
+    await renderSized({ document, library: clone(exPressurisedInput.library) as Record<string, unknown> });
+    expect(byId("basis-route").textContent).toBe("exact_pressure");
+    const table = screen.getByRole("table", { name: HANGER_SIZING_CANDIDATES_TABLE_LABEL });
+    const rows = within(table).getAllByRole("row").slice(1);
+    expect(rows.map((row) => within(row).getByRole("rowheader").textContent)).toEqual(["H-3", "H-5"]);
+    expect(byId("outcome-H-3").textContent).toBe("selected");
+    expect(byId("outcome-H-5").textContent).toBe("selected");
+    expect(byId("record-H-3").textContent).toContain("VS-B");
+    expect(byId("record-H-5").textContent).toContain("CE-1");
+    expect([...byId("limitations").querySelectorAll("li")].map((item) => item.textContent)).toEqual(exPressurisedJson.limitations);
+    expect(screen.getByRole("table", { name: HANGER_SIZING_SOLVES_TABLE_LABEL })).toBeTruthy();
   });
 
   it("lists every solve with its label, case, derived hash and each nonlinear support's state", async () => {

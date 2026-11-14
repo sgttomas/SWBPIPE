@@ -43,6 +43,11 @@ fn request(candidates: &[&str], operating: &str) -> SizingRequest {
 /// classical continuous-beam result applies; Y at A and C and a torsion spring at A
 /// remove the out-of-plane and torsional mechanisms.
 fn two_span() -> Value {
+    two_span_on(Route::PressureFree)
+}
+
+/// [`two_span`] on a route: PF, its EX twin, or its EX load/reference-state twin.
+fn two_span_on(route: Route) -> Value {
     let member = |id, from, to| Member { id, from, to, outside_diameter_m: 0.2, wall_m: 0.01, elastic_modulus_pa: STEEL_E, expansion_per_k: ALPHA };
     let nodes = [("node:A", [0.0, 0.0, 0.0]), ("node:B", [4.0, 0.0, 0.0]), ("node:C", [8.0, 0.0, 0.0])];
     let members = [member("pipe:AB", "node:A", "node:B"), member("pipe:BC", "node:B", "node:C")];
@@ -57,7 +62,7 @@ fn two_span() -> Value {
         case("load:O", vec![line_load("load:O-AB", "pipe:AB", 1000.0), line_load("load:O-BC", "pipe:BC", 1000.0),
                             nodal_fz("load:O-lift", "node:B", 500.0)]),
     ];
-    model_builder::request(&nodes, &members, supports, cases)
+    on(route, model_builder::request(&nodes, &members, supports, cases))
 }
 
 fn close(a: f64, b: f64, rel: f64) -> bool {
@@ -66,7 +71,13 @@ fn close(a: f64, b: f64, rel: f64) -> bool {
 
 #[test]
 fn two_span_interior_reaction_is_the_hot_load_basis_and_the_stored_request_is_unchanged() {
-    let doc = two_span();
+    for route in ROUTES {
+        two_span_sized_on(route);
+    }
+}
+
+fn two_span_sized_on(route: Route) {
+    let doc = two_span_on(route);
     let before = serde_json::to_vec(&doc).unwrap();
     let records = vec![Record {
         hanger_id: "VS-1".into(),
@@ -86,7 +97,7 @@ fn two_span_interior_reaction_is_the_hot_load_basis_and_the_stored_request_is_un
     assert_eq!(run.results[0].outcome, Outcome::Selected);
     assert!(run.verifications[0].is_some());
     assert_eq!(run.standing, VerificationStanding::Unconditional);
-    assert_eq!(run.case_load_categories["load:W"], ["weight"]);
+    assert_eq!(run.case_load_categories["load:W"], ["weight"], "{route:?}");
 }
 
 #[test]
@@ -112,52 +123,268 @@ fn derived_documents_keep_one_case_and_put_each_candidate_in_its_role() {
     assert_eq!(b["stiffness"]["value"]["value"], 2.0e5);
 }
 
+fn support_refs(doc: &Value) -> Vec<String> {
+    doc["model"]["load_cases"][0]["analysis_state"]["support_states"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s["support_ref"].as_str().unwrap().to_string())
+        .collect()
+}
+
+fn ledger(doc: &Value) -> Vec<Value> {
+    doc["model"]["load_cases"][0]["analysis_state"]["load_sources"].as_array().unwrap().clone()
+}
+
+fn admitted(doc: Value, what: &str) {
+    let envelope = open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(doc, PreviewSolverMode::DenseScrutiny)
+        .unwrap_or_else(|e| panic!("{what}: refused: {e}"));
+    let blocking: Vec<&str> = envelope.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.code.as_str()).collect();
+    assert!(blocking.is_empty(), "{what}: {blocking:?}");
+}
+
+/// AC-003 on EX: on a load/reference-state case a rigid or spring candidate keeps
+/// its support state, a force candidate loses it with the support, and each added
+/// force is entered in the case's ledger at factor 1; every derived document is
+/// admitted by the solve. On an EX case without an analysis state, and on PF,
+/// nothing of this applies and the documents are admitted too.
+#[test]
+fn ex_derived_documents_reconcile_support_states_and_the_ledger_and_are_admitted() {
+    let site = Site { support: "support:B".into(), node: "node:B".into(), dof: Dof::Uz };
+    let doc = two_span_on(Route::ExactLoadReference);
+    let stored_ledger = ledger(&derived_document(&doc, "load:O", &[], &[]));
+    assert_eq!(stored_ledger.len(), 3, "the operating case's three stored loads");
+    let entry = json!({"source_ref": "load:hanger-sizing:support:B", "factor": 1.0});
+
+    let rigid = derived_document(&doc, "load:W", &[site.clone()], &[Role::Rigid]);
+    assert!(support_refs(&rigid).contains(&"support:B".to_string()));
+    assert!(!ledger(&rigid).contains(&entry));
+    admitted(rigid, "rigid");
+
+    let force = derived_document(&doc, "load:O", &[site.clone()], &[Role::Force(5000.0)]);
+    assert!(!support_refs(&force).contains(&"support:B".to_string()));
+    assert_eq!(support_refs(&force).len(), 3, "every other support keeps its state");
+    let mut expected = stored_ledger.clone();
+    expected.push(entry.clone());
+    assert_eq!(ledger(&force), expected, "the stored ledger, then the added force at factor 1");
+    admitted(force, "force");
+
+    let spring = derived_document(&doc, "load:O", &[site.clone()], &[Role::Spring { k: 2.0e5, f_cold: 5100.0 }]);
+    assert!(support_refs(&spring).contains(&"support:B".to_string()));
+    assert_eq!(ledger(&spring), expected, "the spring's cold-load force is in the ledger");
+    admitted(spring, "spring");
+
+    // EX without an analysis state, and PF: no analysis state is formed.
+    for route in [Route::Exact, Route::PressureFree] {
+        let doc = two_span_on(route);
+        for (case, role) in [("load:W", Role::Rigid), ("load:O", Role::Force(5000.0)), ("load:O", Role::Spring { k: 2.0e5, f_cold: 5100.0 })] {
+            let derived = derived_document(&doc, case, &[site.clone()], &[role]);
+            assert!(derived["model"]["load_cases"][0].get("analysis_state").is_none(), "{route:?}");
+            admitted(derived, &format!("{route:?} {role:?}"));
+        }
+    }
+}
+
 #[test]
 fn candidate_and_case_refusals_are_listed_together() {
-    let mut doc = two_span();
-    // A second support sharing B's DOF, and a candidate that is an anchor.
-    doc["model"]["supports"].as_array_mut().unwrap().push(support("support:B2", "node:B", "vertical_support", &["UZ"]));
-    let mut asked = request(&["support:B", "support:A", "support:missing", "support:B"], "load:W");
-    asked.check_operating_cases = vec!["load:nope".into()];
-    let refusals = run(&doc, &[], &asked).unwrap_err();
-    let codes: Vec<&str> = refusals.iter().map(|r| r.code).collect();
-    for code in [
-        "HANGER_SIZING_CASE_UNKNOWN",
-        "HANGER_SIZING_CASE_ROLES_OVERLAP",
-        "HANGER_SIZING_CANDIDATE_DUPLICATE",
-        "HANGER_SIZING_CANDIDATE_UNKNOWN",
-        "HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED",
-        "HANGER_SIZING_CANDIDATE_DOF_SHARED",
-    ] {
-        assert!(codes.contains(&code), "{code} missing from {codes:?}");
+    for route in ROUTES {
+        let mut doc = two_span_on(route);
+        // A second support sharing B's DOF, and a candidate that is an anchor.
+        add_support(&mut doc, support("support:B2", "node:B", "vertical_support", &["UZ"]));
+        let mut asked = request(&["support:B", "support:A", "support:missing", "support:B"], "load:W");
+        asked.check_operating_cases = vec!["load:nope".into()];
+        let refusals = run(&doc, &[], &asked).unwrap_err();
+        let codes: Vec<&str> = refusals.iter().map(|r| r.code).collect();
+        for code in [
+            "HANGER_SIZING_CASE_UNKNOWN",
+            "HANGER_SIZING_CASE_ROLES_OVERLAP",
+            "HANGER_SIZING_CANDIDATE_DUPLICATE",
+            "HANGER_SIZING_CANDIDATE_UNKNOWN",
+            "HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED",
+            "HANGER_SIZING_CANDIDATE_DOF_SHARED",
+        ] {
+            assert!(codes.contains(&code), "{route:?}: {code} missing from {codes:?}");
+        }
     }
 }
 
 #[test]
 fn a_singular_force_replacement_refuses_the_request_with_the_solve_diagnostics() {
-    // A single span pinned about Y at A with the candidate at B: rigid, it is a
-    // simple beam; replaced by a force, the span rotates freely about A, a
-    // mechanism the derived solve refuses.
-    let member = Member { id: "pipe:AB", from: "node:A", to: "node:B", outside_diameter_m: 0.2, wall_m: 0.01,
-                          elastic_modulus_pa: STEEL_E, expansion_per_k: ALPHA };
-    let doc = model_builder::request(
-        &[("node:A", [0.0, 0.0, 0.0]), ("node:B", [4.0, 0.0, 0.0])],
-        &[member],
-        vec![support("support:A", "node:A", "guide", &["UX", "UY", "UZ"]), torsion_spring("support:A-torsion", "node:A"),
-             support("support:B-lateral", "node:B", "guide", &["UY"]), support("support:B", "node:B", "vertical_support", &["UZ"])],
-        vec![case("load:W", vec![line_load("load:W-AB", "pipe:AB", 100.0)]), case("load:O", vec![line_load("load:O-AB", "pipe:AB", 100.0)])],
-    );
-    let refusals = run(&doc, &[], &request(&["support:B"], "load:O")).unwrap_err();
-    assert_eq!(refusals[0].code, "HANGER_SIZING_DERIVED_SOLVE_FAILED");
-    assert_eq!(refusals[0].names[0], "S_C");
+    for route in ROUTES {
+        // A single span pinned about Y at A with the candidate at B: rigid, it is a
+        // simple beam; replaced by a force, the span rotates freely about A, a
+        // mechanism the derived solve refuses.
+        let member = Member { id: "pipe:AB", from: "node:A", to: "node:B", outside_diameter_m: 0.2, wall_m: 0.01,
+                              elastic_modulus_pa: STEEL_E, expansion_per_k: ALPHA };
+        let doc = on(route, model_builder::request(
+            &[("node:A", [0.0, 0.0, 0.0]), ("node:B", [4.0, 0.0, 0.0])],
+            &[member],
+            vec![support("support:A", "node:A", "guide", &["UX", "UY", "UZ"]), torsion_spring("support:A-torsion", "node:A"),
+                 support("support:B-lateral", "node:B", "guide", &["UY"]), support("support:B", "node:B", "vertical_support", &["UZ"])],
+            vec![case("load:W", vec![line_load("load:W-AB", "pipe:AB", 100.0)]), case("load:O", vec![line_load("load:O-AB", "pipe:AB", 100.0)])],
+        ));
+        let refusals = run(&doc, &[], &request(&["support:B"], "load:O")).unwrap_err();
+        assert_eq!(refusals[0].code, "HANGER_SIZING_DERIVED_SOLVE_FAILED", "{route:?}");
+        assert_eq!(refusals[0].names[0], "S_C", "{route:?}");
+    }
 }
 
+/// REQ-009: what the solve refuses refuses the request with the solve's code. A
+/// non-candidate support with no state in the weight case is the solve's own
+/// refusal, carried in the derived-solve refusal's message.
 #[test]
-fn the_exact_route_waits_for_increment_four() {
-    let mut doc = two_span();
-    doc["model"]["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
+fn a_solve_refusal_of_the_stored_model_refuses_the_request_with_the_solves_code() {
+    let mut doc = two_span_on(Route::ExactLoadReference);
+    doc["model"]["load_cases"][0]["analysis_state"]["support_states"].as_array_mut().unwrap().retain(|s| s["support_ref"] != "support:C");
     let refusals = run(&doc, &[], &request(&["support:B"], "load:O")).unwrap_err();
-    assert!(refusals.iter().any(|r| r.code == "HANGER_SIZING_EXACT_ROUTE_PENDING"));
+    assert_eq!(refusals[0].code, "HANGER_SIZING_DERIVED_SOLVE_FAILED");
+    assert_eq!(refusals[0].names, ["S_W"]);
+    assert!(refusals[0].message.contains("LOAD_STATE_SUPPORT_STATE_MISSING"), "{}", refusals[0].message);
+}
+
+fn hanger_variable(id: &str, node: &str, restraints: &[&str], dof: &str) -> Value {
+    json!({"id": id, "node": node, "family": "variable_spring_hanger", "restraints": restraints,
+           "hanger": {"hanger_type": "variable_spring_hanger",
+                      "stiffness": {"dof": dof, "value": {"value": 1.0e5, "unit": "N/m"}},
+                      "cold_load": {"value": 5000.0, "unit": "N"}, "installed_load": {"value": 5000.0, "unit": "N"},
+                      "hot_load": {"value": 4800.0, "unit": "N"}, "travel_range": {"value": 0.05, "unit": "m"},
+                      "source_reference": "invented-local:VS-1"},
+           "provenance": "invented_test_value"})
+}
+
+/// Replaces support B of a two-span document by `replacement`, keeping its states.
+fn with_b(route: Route, replacement: Value) -> Value {
+    let mut doc = two_span_on(route);
+    let supports = doc["model"]["supports"].as_array_mut().unwrap();
+    let index = supports.iter().position(|s| s["id"] == "support:B").unwrap();
+    supports[index] = replacement;
+    doc
+}
+
+fn one_record() -> Vec<Record> {
+    vec![variable_record("VS-1", 1.0e6, (1000.0, 20000.0)), constant_record("CE-1", (4000.0, 6000.0))]
+}
+
+fn codes_and_names(refusals: &[Refusal]) -> Vec<(&str, Vec<String>)> {
+    refusals.iter().map(|r| (r.code, r.names.clone())).collect()
+}
+
+/// REQ-002 as decided: (a) an authored variable spring hanger with an empty
+/// restraint list is a candidate on its stiffness DOF; (d) a support written as an
+/// applied selection writes it (variable: one restraint equal to its stiffness DOF,
+/// with hanger loads; constant: one restraint and a constant load) is sized again.
+/// Each on PF, EX and an EX load/reference-state document, with W = 5wL/4.
+#[test]
+fn authored_and_applied_hangers_are_candidates_on_every_route() {
+    let constant = json!({"id": "support:B", "node": "node:B", "family": "constant_effort_support", "restraints": ["UZ"],
+        "hanger": {"hanger_type": "constant_effort_support", "constant_load": {"value": 5000.0, "unit": "N"},
+                   "travel_range": {"value": 0.1, "unit": "m"}, "source_reference": "invented-local:CE-1"},
+        "provenance": "invented_test_value"});
+    let cases = [
+        ("authored variable, no restraint", hanger_variable("support:B", "node:B", &[], "UZ"), FamilyPolicy::Variable),
+        ("applied variable", hanger_variable("support:B", "node:B", &["UZ"], "UZ"), FamilyPolicy::Variable),
+        ("applied constant", constant, FamilyPolicy::Constant),
+    ];
+    for route in ROUTES {
+        for (what, replacement, policy) in &cases {
+            let doc = with_b(route, replacement.clone());
+            let mut asked = request(&["support:B"], "load:O");
+            asked.candidates[0].family_policy = *policy;
+            let run = run(&doc, &one_record(), &asked).unwrap_or_else(|r| panic!("{route:?} {what}: {r:?}"));
+            assert_eq!(run.sites[0].dof, Dof::Uz, "{route:?} {what}");
+            assert!(close(run.candidates[0].w_n, 5000.0, 1e-9), "{route:?} {what}: W = {}", run.candidates[0].w_n);
+            assert_eq!(run.results[0].outcome, Outcome::Selected, "{route:?} {what}");
+        }
+    }
+}
+
+/// REQ-002 (b) and (c), on every route: a single restraint whose stiffness DOF
+/// differs acts on two DOFs; a restraint-free support that is not a variable spring
+/// hanger acts on none; and a candidate whose DOF comes from its stiffness shares
+/// its node and DOF with another support's rigid restraint or spring.
+#[test]
+fn a_second_dof_or_a_shared_stiffness_dof_is_refused_by_name_on_every_route() {
+    let b = |v: Vec<String>| v;
+    let only_b = || b(vec!["support:B".to_string()]);
+    for route in ROUTES {
+        // (b) Restraint UZ with a hanger stiffness on UY, and with a top-level stiffness on UX.
+        for replacement in [
+            hanger_variable("support:B", "node:B", &["UZ"], "UY"),
+            json!({"id": "support:B", "node": "node:B", "family": "spring", "restraints": ["UZ"],
+                   "stiffness": {"dof": "UX", "value": {"value": 1.0e5, "unit": "N/m"}}, "provenance": "invented_test_value"}),
+            json!({"id": "support:B", "node": "node:B", "family": "spring", "restraints": [],
+                   "stiffness": {"dof": "UZ", "value": {"value": 1.0e5, "unit": "N/m"}}, "provenance": "invented_test_value"}),
+        ] {
+            let refusals = run(&with_b(route, replacement.clone()), &one_record(), &request(&["support:B"], "load:O")).unwrap_err();
+            assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED", only_b())], "{route:?} {replacement}");
+        }
+        // (c) The candidate's DOF from its stiffness, shared with a rigid restraint and with a spring.
+        for other in [
+            support("support:B-rigid", "node:B", "vertical_support", &["UZ"]),
+            hanger_variable("support:B-spring", "node:B", &[], "UZ"),
+        ] {
+            let mut doc = with_b(route, hanger_variable("support:B", "node:B", &[], "UZ"));
+            add_support(&mut doc, other.clone());
+            let refusals = run(&doc, &one_record(), &request(&["support:B"], "load:O")).unwrap_err();
+            assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATE_DOF_SHARED", only_b())], "{route:?} {}", other["id"]);
+        }
+    }
+}
+
+/// REQ-002 on an EX load/reference-state document: a candidate needs, in every
+/// named case, exactly one ordinary support state. Each kind of departure is
+/// refused by name (HANGER_SIZING_CANDIDATE_MOVED); a missing state is named by
+/// sizing, because the operating cases' force solves remove the candidate and
+/// would never observe it. The candidate's own entry is not a reference, but a
+/// reference to it inside another support's state is.
+#[test]
+fn a_moved_or_stateless_candidate_is_refused_by_name_and_its_own_state_is_not_a_reference() {
+    let records = one_record();
+    let asked = request(&["support:B"], "load:O");
+    assert!(run(&two_span_on(Route::ExactLoadReference), &records, &asked).is_ok(), "the candidate's own active state");
+    let motion = json!([{"dof": "UZ", "value": {"value": 0.002, "unit": "m"}, "meaning": "absolute_reference_displacement"}]);
+    let departures: Vec<(&str, Box<dyn Fn(&mut Value)>)> = vec![
+        ("boundary motion", Box::new({ let m = motion.clone(); move |s: &mut Value| s["boundary_motion"] = m.clone() })),
+        ("base motion", Box::new({ let m = motion.clone(); move |s: &mut Value| s["base_motion"] = m.clone() })),
+        ("device reference", Box::new(|s: &mut Value| s["device_reference"] = json!({"kind": "unloaded_reference",
+            "reference_position": {"value": 0.0, "unit": "m"}}))),
+        ("inactive", Box::new(|s: &mut Value| s["participation"] = json!({"kind": "inactive"}))),
+    ];
+    for case in ["load:W", "load:O"] {
+        for (what, depart) in &departures {
+            let mut doc = two_span_on(Route::ExactLoadReference);
+            depart(support_state_mut(&mut doc, case, "support:B"));
+            let refusals = run(&doc, &records, &asked).unwrap_err();
+            assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATE_MOVED", vec!["support:B".to_string()])], "{case} {what}");
+        }
+        // No state, and two states.
+        let mut doc = two_span_on(Route::ExactLoadReference);
+        let case_index = if case == "load:W" { 0 } else { 1 };
+        let states = doc["model"]["load_cases"][case_index]["analysis_state"]["support_states"].as_array_mut().unwrap();
+        states.retain(|s| s["support_ref"] != "support:B");
+        let refusals = run(&doc, &records, &asked).unwrap_err();
+        assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATE_MOVED", vec!["support:B".to_string()])], "{case} missing");
+        let mut doc = two_span_on(Route::ExactLoadReference);
+        let states = doc["model"]["load_cases"][case_index]["analysis_state"]["support_states"].as_array_mut().unwrap();
+        states.push(json!({"support_ref": "support:B", "participation": {"kind": "active_model_device"}}));
+        let refusals = run(&doc, &records, &asked).unwrap_err();
+        assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATE_MOVED", vec!["support:B".to_string()])], "{case} repeated");
+    }
+    // An empty motion list moves nothing.
+    let mut doc = two_span_on(Route::ExactLoadReference);
+    support_state_mut(&mut doc, "load:O", "support:B")["boundary_motion"] = json!([]);
+    assert!(run(&doc, &records, &asked).is_ok());
+    // Another support's state that names the candidate is a reference.
+    let mut doc = two_span_on(Route::ExactLoadReference);
+    support_state_mut(&mut doc, "load:O", "support:C")["participation"] = json!({"kind": "locked_equivalent_support",
+        "components": [{"dof": "UZ", "position_source": {"kind": "predecessor_value", "case_ref": "load:W",
+            "state_hash": "0".repeat(64), "support_ref": "support:B", "dof": "UZ"}}]});
+    let refusals = run(&doc, &records, &asked).unwrap_err();
+    assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATE_REFERENCED", vec!["support:B".to_string()])]);
+    // A moved non-candidate is the model's own and is sized around.
+    let mut doc = two_span_on(Route::ExactLoadReference);
+    support_state_mut(&mut doc, "load:O", "support:C")["boundary_motion"] = motion;
+    assert!(run(&doc, &records, &asked).is_ok());
 }
 
 #[test]
@@ -247,9 +474,11 @@ fn reference_request(case: &Value) -> Value {
 fn derived_solves_reproduce_the_closed_form_references_r1_r2_r5() {
     let document: Value = serde_json::from_str(R125).unwrap();
     assert_eq!(document["schema"], "swbpipe.hanger_sizing_reference.r125/1");
-    for case in document["cases"].as_array().unwrap() {
-        let id = case["id"].as_str().unwrap();
-        let doc = reference_request(case);
+    // On PF, on its EX twin and on its EX load/reference-state twin, where R-2's
+    // thermal primitive becomes the member's constant-α interval state.
+    for (route, case) in ROUTES.iter().flat_map(|r| document["cases"].as_array().unwrap().iter().map(move |c| (*r, c))) {
+        let id = format!("{}/{route:?}", case["id"].as_str().unwrap());
+        let doc = on(route, reference_request(case));
         let weight = case["load_cases"].as_array().unwrap().iter().find(|c| c["role"] == "weight").unwrap()["id"].as_str().unwrap();
         let operating: Vec<&str> = case["load_cases"].as_array().unwrap().iter()
             .filter(|c| c["role"] == "operating").map(|c| c["id"].as_str().unwrap()).collect();
@@ -394,50 +623,83 @@ fn verification_puts_each_selection_in_its_role_and_marks_a_no_fit_conditional()
 
 #[test]
 fn every_candidate_finding_is_listed_and_only_real_references_refuse() {
-    let mut doc = two_span();
-    {
-        let supports = doc["model"]["supports"].as_array_mut().unwrap();
-        // A lift-off sharing B's node and UZ through its nonlinear DOF only.
-        supports.push(lift_off("support:B-lift", "node:B"));
-        // Text equal to a candidate id is not a reference.
-        supports[1]["provenance"] = json!("support:B");
+    for route in ROUTES {
+        candidate_findings_on(route);
     }
+}
+
+fn candidate_findings_on(route: Route) {
+    let mut doc = two_span_on(route);
+    // A lift-off sharing B's node and UZ through its nonlinear DOF only.
+    add_support(&mut doc, lift_off("support:B-lift", "node:B"));
+    // Text equal to a candidate id is not a reference.
+    doc["model"]["supports"][1]["provenance"] = json!("support:B");
     doc["model"]["pipe_segments"][0]["provenance"] = json!("support:B");
     let refusals = run(&doc, &[], &request(&["support:A", "support:B"], "load:O")).unwrap_err();
-    let listed: Vec<(&str, Vec<String>)> = refusals.iter().map(|r| (r.code, r.names.clone())).collect();
-    assert_eq!(listed, [
+    assert_eq!(codes_and_names(&refusals), [
         ("HANGER_SIZING_CANDIDATE_DOF_SHARED", vec!["support:B".to_string()]),
         ("HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED", vec!["support:A".to_string()]),
-    ]);
+    ], "{route:?}");
     // A co-located variable hanger that acts on UZ only through its hanger stiffness.
-    let mut hung = two_span();
-    hung["model"]["supports"].as_array_mut().unwrap().push(json!({
+    let mut hung = two_span_on(route);
+    add_support(&mut hung, json!({
         "id": "support:B-hanger", "node": "node:B", "family": "variable_spring_hanger", "restraints": [],
         "hanger": {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": "UZ", "value": {"value": 1.0e5, "unit": "N/m"}}},
         "provenance": "invented_test_value"}));
     let refusals = run(&hung, &[], &request(&["support:B"], "load:O")).unwrap_err();
-    assert!(refusals.iter().any(|r| r.code == "HANGER_SIZING_CANDIDATE_DOF_SHARED" && r.names == ["support:B"]), "{refusals:?}");
+    assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATE_DOF_SHARED", vec!["support:B".to_string()])], "{route:?}");
     // An anchor reports both its family and its DOFs.
-    let mut anchored = two_span();
+    let mut anchored = two_span_on(route);
     anchored["model"]["supports"][0]["family"] = json!("anchor");
     anchored["model"]["supports"][0]["restraints"] = json!(["UX", "UY", "UZ", "RX", "RY", "RZ"]);
     let refusals = run(&anchored, &[], &request(&["support:A"], "load:O")).unwrap_err();
     let codes: Vec<&str> = refusals.iter().map(|r| r.code).collect();
-    assert_eq!(codes, ["HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED", "HANGER_SIZING_CANDIDATE_FAMILY_UNSUPPORTED"]);
+    assert_eq!(codes, ["HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED", "HANGER_SIZING_CANDIDATE_FAMILY_UNSUPPORTED"], "{route:?}");
+    // A skew direction.
+    let mut skewed = two_span_on(route);
+    skewed["model"]["supports"][2]["direction"] = json!({"x": 0.0, "y": 0.6, "z": 0.8});
+    let refusals = run(&skewed, &[], &request(&["support:B"], "load:O")).unwrap_err();
+    assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATE_SKEW_UNSUPPORTED", vec!["support:B".to_string()])], "{route:?}");
     // A support-targeted load and a friction normal-reaction source are references.
-    let mut targeted = two_span();
-    targeted["model"]["load_cases"][1]["primitive_loads"].as_array_mut().unwrap().push(json!({
+    let mut targeted = two_span_on(route);
+    add_load(&mut targeted, "load:O", json!({
         "id": "load:O-imposed", "category": "imposed_displacement", "target": {"type": "support", "support": "support:B", "dof": "UZ"},
         "direction": "UZ", "magnitude": {"value": 0.001, "unit": "m"}, "dimension": "length", "provenance": "invented_test_value"}));
     let refusals = run(&targeted, &[], &request(&["support:B"], "load:O")).unwrap_err();
-    assert!(refusals.iter().any(|r| r.code == "HANGER_SIZING_CANDIDATE_REFERENCED" && r.names == ["support:B"]));
-    let mut sourced = two_span();
-    sourced["model"]["supports"].as_array_mut().unwrap().push(json!({
+    assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATE_REFERENCED", vec!["support:B".to_string()])], "{route:?}");
+    let mut sourced = two_span_on(route);
+    add_support(&mut sourced, json!({
         "id": "support:F", "node": "node:C", "family": "nonlinear", "restraints": [],
         "nonlinear": {"behavior": "friction", "dof": "UX", "friction_coefficient": {"value": 0.3, "unit": "1"},
                       "normal_reaction_source": {"support_ref": "support:B", "dof": "UZ"}},
         "provenance": "invented_test_value"}));
     let refusals = run(&sourced, &[], &request(&["support:B"], "load:O")).unwrap_err();
-    assert!(refusals.iter().any(|r| r.code == "HANGER_SIZING_CANDIDATE_REFERENCED" && r.names == ["support:B"]));
+    assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATE_REFERENCED", vec!["support:B".to_string()])], "{route:?}");
 }
 
+/// The run-level refusals, on every route: no candidate, a test-condition case, a
+/// derived-load id already in the model, and a hot-load basis that is not positive.
+#[test]
+fn the_run_level_refusals_name_their_objects_on_every_route() {
+    for route in ROUTES {
+        let refusals = run(&two_span_on(route), &[], &request(&[], "load:O")).unwrap_err();
+        assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_CANDIDATES_REQUIRED", vec![String::new()])], "{route:?}");
+
+        let mut tested = two_span_on(route);
+        tested["model"]["load_cases"][1]["test_condition"] = json!({"kind": "hydrotest"});
+        let refusals = run(&tested, &[], &request(&["support:B"], "load:O")).unwrap_err();
+        assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_TEST_CASE_UNSUPPORTED", vec!["load:O".to_string()])], "{route:?}");
+
+        let mut colliding = two_span_on(route);
+        add_load(&mut colliding, "load:O", nodal_fz("load:hanger-sizing:support:B", "node:C", 0.0));
+        let refusals = run(&colliding, &[], &request(&["support:B"], "load:O")).unwrap_err();
+        assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_ID_COLLISION", vec!["load:hanger-sizing:support:B".to_string()])],
+            "{route:?}");
+
+        // A weight case that lifts B: 12 kN up at B against 8 kN of weight.
+        let mut lifting = two_span_on(route);
+        add_load(&mut lifting, "load:W", nodal_fz("load:W-up", "node:B", 12000.0));
+        let refusals = run(&lifting, &[], &request(&["support:B"], "load:O")).unwrap_err();
+        assert_eq!(codes_and_names(&refusals), [("HANGER_SIZING_LOAD_NOT_POSITIVE", vec!["support:B".to_string()])], "{route:?}");
+    }
+}

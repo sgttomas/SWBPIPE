@@ -25,10 +25,12 @@ fn read_json(name: &str) -> Value {
     serde_json::from_slice(&read_bytes(name)).unwrap()
 }
 
-const INPUTS: [(&str, &str, bool); 3] = [
+const INPUTS: [(&str, &str, bool); 5] = [
     ("hanger_sizing_input_two_span.json", "hanger_sizing_result_two_span.json", true),
     ("hanger_sizing_input_four_span.json", "hanger_sizing_result_four_span.json", true),
     ("hanger_sizing_input_refused.json", "hanger_sizing_result_refused.json", false),
+    ("hanger_sizing_input_ex_pressurised.json", "hanger_sizing_result_ex_pressurised.json", true),
+    ("hanger_sizing_input_ex_riser.json", "hanger_sizing_result_ex_riser.json", true),
 ];
 
 const STANDINGS: [&str; 5] = ["closure", "binding", "arithmetic_consistent_with_published_positions", "derivation", "reproduction"];
@@ -144,8 +146,23 @@ fn the_crate_hash_of_the_committed_two_span_document_is_the_desktops() {
     let committed = read_json("hanger_sizing_result_two_span.json");
     assert_eq!(
         checked_sha256(&committed).as_deref(),
-        Some("a0d3764ae80d968cebd91c953412f287d869fba96dd631e671a29a3b4b653338")
+        Some("1a2db93e2a4be7b639b2188420056d0fe89433d9ef256177aade3980da0e11e2")
     );
+}
+
+/// The committed two-span reply (`hanger_sizing_reply_two_span.json`), which the
+/// desktop's worker test pins byte for byte (`hanger_sizing_job_tests.rs`), is
+/// this entry's reply on the committed input. With `HANGER_SIZING_WRITE_FIXTURES=1`
+/// it is rewritten from this build, as `publication.rs` rewrites the documents.
+#[test]
+fn the_committed_two_span_reply_is_the_entrys() {
+    let reply = size_and_read(&read_bytes("hanger_sizing_input_two_span.json")).unwrap().into_reply();
+    if std::env::var("HANGER_SIZING_WRITE_FIXTURES").is_ok_and(|v| v == "1") {
+        std::fs::write(fixture_path("hanger_sizing_reply_two_span.json"), &reply).unwrap();
+    }
+    let committed: Value = serde_json::from_slice(&read_bytes("hanger_sizing_reply_two_span.json")).unwrap();
+    let reply: Value = serde_json::from_str(&reply).unwrap();
+    assert_eq!(committed["document"], reply["document"], "rerun with HANGER_SIZING_WRITE_FIXTURES=1");
 }
 
 #[test]

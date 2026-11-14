@@ -32,15 +32,17 @@ a service, and it does not determine code compliance.
 | Hanger library format 1.1.0, with a per-record working load range | Built (slice 1b) |
 | The derived solves on the pressure-free route, the full sizing run and the library reader | Built (slice 1c) |
 | A published result document, its Rust reader and test-only Python verifier, and a headless runner entry (`openpipestress-runner size-hangers`) | Built (slice 1d-α); the user guide's §7.1 describes the entry |
-| The hanger table's CSV export, and recording a sizing as an analysis run | Not built (increment 3; recording awaits the joint analysis-run design) |
-| The desktop request form, hanger table, detail view and application of a selection | Not built (increment 3) |
-| Sizing on the exact pressure route | Not built (increment 4); a request on that route is refused (`HANGER_SIZING_EXACT_ROUTE_PENDING`) |
+| The hanger table's CSV export | Built (increment 3) |
+| Recording a sizing as an analysis run | Not built; awaits the joint analysis-run design |
+| The desktop request form, hanger table, detail view and application of a run's selections | Built (increment 3); the user guide's §7.1 describes them |
+| The report's hanger-sizing section | Not built |
+| Sizing on the exact pressure route, load/reference-state documents included (see *The exact pressure route*) | Built in the engine, the result document and the headless entry (increment 4) |
 | A variable spring carrying its cold load in the model's own solve (preload) | Decided, not built (increment 6) |
 | Forming the hot-load basis in the design operating case's support state | Not built; waits for the solve to hold another case's support states |
 
-Today a sizing run produces a typed result inside the engine. Nothing is published
-to the desktop or to a report yet, and nothing in this note describes a desktop
-screen.
+A sizing run publishes a result document, shown in the desktop and returned by the
+headless runner; nothing is published to a report yet. This note describes the method,
+not a desktop screen.
 
 ## Inputs
 
@@ -77,18 +79,29 @@ be seen as such.
 ## Candidates
 
 A candidate is a support of the model that:
-- restrains exactly one translational DOF (UX, UY or UZ);
+- acts on exactly one translational DOF (UX, UY or UZ): its single rigid restraint,
+  or, for a variable spring hanger with no rigid restraint, the DOF its stiffness
+  declares (its top-level stiffness or else its hanger's, as the solver takes it). A
+  single restraint whose stiffness declares another DOF acts on two, and is refused
+  (`HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED`);
 - has no skew direction;
 - is not nonlinear, a snubber or an anchor;
 - shares its node and DOF with no other support. "Shares" counts every DOF another
   support acts on: its rigid restraints, its nonlinear DOF, and its stiffness DOF,
   taken from its top-level stiffness or else its hanger's, as the solver takes it;
-- is not referenced by another model object: a load targeted at the support, or
-  another support's friction normal-reaction source.
+- is not referenced by another model object: a load targeted at the support,
+  another support's friction normal-reaction source, or a reference to it in a case's
+  analysis state other than its own support state;
+- on a load/reference-state document, has in every named case exactly one ordinary
+  support state: active, with no boundary motion, base motion or device reference
+  (`HANGER_SIZING_CANDIDATE_MOVED` otherwise, a missing or repeated state included).
+  Sizing names a missing state itself: the force solves remove the candidate, so the
+  operating cases' solves would never observe it.
 
-The candidate's present family and hanger data are not read, because every derived
-solve replaces the candidate. A placeholder support can therefore be sized before
-any hanger data exists.
+Apart from its DOF, the candidate's present family and hanger data are not read,
+because every derived solve replaces the candidate. A placeholder support can
+therefore be sized before any hanger data exists, and an authored or applied variable
+spring hanger or constant-effort support is sized again.
 
 A candidate's force acts along the **positive axis of its DOF**, the convention the
 constant-effort support already uses. Nothing infers "up". In a model whose vertical
@@ -111,8 +124,8 @@ verification pass, and, once increment 6 is built, in the model's own solve.
 an erection offset. SWBPIPE offers neither. Where the cold-condition position u_C is not
 zero, the installed setting F_cold and the cold-condition load F_C differ. The engine
 returns both, and only F_cold is a setting. The published result states the
-assumption in its basis statement (slice 1d-α). Labelling the two loads in the
-displayed hanger table comes with the desktop work (increment 3).
+assumption in its basis statement, and the desktop's hanger table labels the two
+loads separately.
 
 ## The method
 
@@ -156,6 +169,25 @@ omits a value sizing needs, the whole request is refused, carrying that solve's
 diagnostics (`HANGER_SIZING_DERIVED_SOLVE_FAILED`). No partial table is produced. A
 candidate whose removal leaves the model without stability is reported this way: it
 was carrying stability, not only load.
+
+### The exact pressure route
+
+A request on the exact pressure route (a model with a `pressure_contract`) is sized as
+one on the pressure-free route, and the result states its route: `pressure_free` or
+`exact_pressure`. Each derived solve keeps the model's route and settings.
+
+On a load/reference-state document each case carries a ledger of the stored loads it
+applies (`load_sources`) and a state for every support. A derived document keeps them
+consistent:
+- a candidate made rigid or a spring keeps its support state;
+- a candidate replaced by a force loses its support state with the support;
+- each added force (the replacement force, and a spring's cold-load force in the
+  verification) is entered in that case's ledger at factor 1.
+
+Without the ledger entry the added force would not act, and a kept state of a removed
+support is refused by the solve; the tests show both. A case without an analysis
+state applies its stored loads, as on the pressure-free route, and nothing of this
+applies.
 
 ### Nonlinear supports
 
@@ -282,7 +314,9 @@ A request with n operating cases runs 2n + 3 ordinary solves, one after another:
 - S_C and the n operating solves, with the candidates replaced by forces;
 - the n + 1 verification solves.
 
-Only the values sizing needs are kept after each solve. Each solve currently pays its
+On either route each derived solve costs what the model's own ordinary solve of that
+case costs on that route; the exact route adds no solve. Only the values sizing needs
+are kept after each solve. Each solve currently pays its
 full ordinary publication, which the sizing then discards.
 
 ## Assumptions and limitations
@@ -291,7 +325,8 @@ full ordinary publication, which the sizing then discards.
   erection-offset settings are not offered.
 - **Candidates** have a single translational DOF, with no skew direction.
 - **The weight case's own support state** forms W.
-- **The exact pressure route** is refused until increment 4.
+- **The exact pressure route** is sized as the pressure-free route is. Sizing adds no
+  pressure mechanics: every pressure effect in a sized value is the derived solves' own.
 - **The model's own solve does not yet apply a variable spring's cold load** (increment
   6). Until then, a spring applied to the model is solved as its rate from zero
   load. The model's own cases therefore do not reproduce the verification's loads,
@@ -318,14 +353,26 @@ against it:
   - non-positive loads;
 - **R-4:** the verification arithmetic, including absent ratios;
 - **R-5:** lift-off that opens in the operating case, and lift-off that holds,
-  including the support states in every solve.
+  including the support states in every solve;
+- **EXS-A, EXS-B** (`ex_sizing.json`): sizing on the exact pressure route, on a
+  pressurised load/reference-state document with a case ledger, a stored load no case
+  includes and moved non-candidate supports, and on a riser with no pressurised
+  region: W, every force-solve position, every load, variation, fit outcome, selection
+  and the verification pass, in both solver modes
+  (`core/analysis/hanger_sizing/tests/ex_references.rs`), with the ledger entry shown
+  to matter. The reference does not test pressure mechanics.
+
+The refusal and disclosure tests, and R-1, R-2 and R-5, run on the pressure-free
+route, on its exact-route twin and on its load/reference-state twin.
 
 Selection outcomes, record ids, failure counts and failed tests are compared exactly.
 Values are compared at 1e-9 relative, with an absolute allowance:
 - in `core/analysis/hanger_sizing/tests/r3_references.rs`, the allowance is 1e-12;
-- in `tests/derived_solves.rs`, positions get an allowance of 1e-9 of the case's
-  largest expected position, never below 1e-12 m, because a closed-form zero
-  cannot be judged by a relative tolerance.
+- in `tests/derived_solves.rs` and `tests/ex_references.rs`, positions get an
+  allowance of 1e-9 of the case's largest expected position, never below 1e-12 m,
+  because a closed-form zero cannot be judged by a relative tolerance; in
+  `tests/ex_references.rs` a force gets 1e-9 of its candidate's hot-load basis W,
+  never below 1e-12 N, and a ratio 1e-12.
 
 A selected spring's verification is also checked against a closed-form pinned-span
 solution in `tests/derived_solves.rs`.

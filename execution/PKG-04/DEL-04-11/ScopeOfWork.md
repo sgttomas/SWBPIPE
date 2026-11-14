@@ -94,12 +94,12 @@ A sizing result is a numerical statement about the discrete model under the user
   - the case-role refusals;
   - no default supplied on any entry.
 - **REQ-002** — *Candidates.*
-  - A candidate restrains exactly one translational DOF, has no skew direction, is not nonlinear, a snubber or an anchor, shares its node and DOF with no other support, and is referenced by no other model object.
-  - Its present family and hanger data are not read.
+  - A candidate acts on exactly one translational DOF: its single rigid restraint, or, for a variable spring hanger with no rigid restraint, the DOF its stiffness declares. It has no skew direction, is not nonlinear, a snubber or an anchor, shares its node and DOF with no other support, and is referenced by no other model object.
+  - Apart from that DOF, its present family and hanger data are not read.
   - On an EX load/reference-state document, it has in every named case an ordinary support state: active, with no imposed motion or device reference. That entry is the support's own declaration, not a blocking reference.
   - Its force acts along the positive axis of its DOF.
   - Each failure is refused by name, and refuses the request. A hot-load basis that is not positive also refuses the request, naming every such candidate.
-- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the non-positive hot-load refusal are exercised by maintained tests that assert the code and the named supports. A placeholder support of each admitted family is sized.
+- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the non-positive hot-load refusal are exercised by maintained tests that assert the code and the named supports. A placeholder support of each admitted family is sized, and so is an authored variable spring hanger with no rigid restraint.
 
 ### Solution
 
@@ -188,14 +188,16 @@ A sizing result is a numerical statement about the discrete model under the user
   - each existing reader's actual named refusal or disclosure of the document, as tested;
   - the table in DEL-08-04's CSV coverage guard.
 - **REQ-008** — *Applying a selection.*
-  - Applying a selected record is the person's explicit act. It goes through the existing hanger-selection operation builder and the one operation route, and is applied only on the person's acceptance.
+  - Applying a selected record is the person's explicit act. It goes through the existing hanger-selection operation builder and the one operation route, and is applied only on the person's acceptance. The selections of one sizing run are applied together, as one batch on one acceptance that one undo reverses; a candidate with no fit is left unchanged and named. A selection is offered for application only while the model and the stored library are the ones the result binds.
   - The batch writes the record's family, stiffness, travel range, references and provenance, and the sized loads, all into existing model members:
     - for a variable record, the cold and installed loads (both the sized cold load) and the hot load;
     - for a constant record, the constant load (the hot-load basis).
-  - Each sized value's source note names the sizing run, its request digest and the record. Sizing itself never writes the model.
+  - Each sized value's source note names the sizing run, its request digest and the record; one note may serve all the sized values of one selection. Sizing itself never writes the model.
 - **AC-008** — Desktop tests show:
   - the batch's before and after for a variable and a constant selection, with the sized values and their source notes;
   - nothing applied without acceptance;
+  - one run's selections applied as one batch, with one undo restoring the model;
+  - no selection offered when the model or the stored library differs from what the result binds;
   - the model unchanged by a sizing run.
 
 ### Domain, references, cost and surfaces
