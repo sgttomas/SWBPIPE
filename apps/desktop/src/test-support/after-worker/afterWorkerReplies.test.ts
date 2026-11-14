@@ -87,7 +87,7 @@ describe("the after-worker reply judge reaches the web's decoder for each call",
 });
 
 // Connecting controls: synthetic sequences whose replies each pass their decoder, but whose
-// connection the session refuses (workspaceSession.ts:1563-1597; previewService.ts:598-608). Each
+// connection the session refuses (workspaceSession.ts:1564-1598; previewService.ts:598-608). Each
 // control asserts its disposition (the code it ends or fails at) and its native-call sequence
 // (the replies the judge reads, in order, where it stops, and the readings the web's cache answers).
 describe("the after-worker reply judge applies the session's connecting gates", () => {

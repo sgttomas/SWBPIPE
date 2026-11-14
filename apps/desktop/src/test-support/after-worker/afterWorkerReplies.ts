@@ -4,7 +4,7 @@
 //
 // What it applies, in the web's order (`previewService.ts` `readNativeFreshResult` :636-682,
 // `validateNativeReaders` :568-594, `nativeStandingInputs` :554-560, `nativeEnvelopeRefusal`
-// :599-608; `workspaceSession.ts` :1563-1616; `NativeResultsPanel.tsx` :160-162, :208-216):
+// :599-608; `workspaceSession.ts` :1564-1617; `NativeResultsPanel.tsx` :160-162, :208-216):
 //   header        decodeNativeRouteHeader(parsed, jobId)          nativeResult.ts:308
 //   registration  decodeNativeValidation(parsed)                  nativeResult.ts:289
 //   standing      decodeNativeVerdict(parsed)                     nativeResult.ts:280
@@ -22,9 +22,9 @@
 // page, the semantics' ordinals); each conditional call is present exactly when the web would make
 // it; the route header agrees with the final verdict; run_preview names the job and route. The
 // run record's checksums are compared with a full build only on the C2 path
-// (`workspaceSession.ts:590`), not in this sequence, so not here.
+// (`workspaceSession.ts:591`), not in this sequence, so not here.
 //
-// The session's gates are applied too (workspaceSession.ts:1563-1568 before run_preview, :1612
+// The session's gates are applied too (workspaceSession.ts:1564-1569 before run_preview, :1613
 // before it commits): the registration (`hasNativeMechanicsInvocation`), a current source contract
 // and a producer, read with the web's own `hasCurrentSourceContract` on a handle the web's own
 // `createNativeResult` builds; then the model reference. A run whose sequence those gates would
@@ -78,7 +78,7 @@ export type ReplyManifest = { schema: string; head: string | null; job_id: strin
  * calls alone, in order, which are exactly the replies the run kept. */
 export type RunVerdict = { calls: string[]; native: string[]; ended: string; refusal: { kind: string; required_bytes?: number; budget_bytes?: number } | null };
 
-/** The session's solver mode (`resultsSessionState.ts:170`). */
+/** The session's solver mode (`resultsSessionState.ts:186`). */
 const SOLVER_MODE = "sparse_interactive";
 /** The web's decoder trees (the services and the result readers they import). A run from another
  * head is judged only if these are unchanged since it; this judge's own connecting checks are the
@@ -297,7 +297,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
 
   // standing and summary, as `readNativeFreshResult` reads them (previewService.ts:650-658), with the
   // web's own `nativeStandingInputs` (:554-560) on the fresh capture, the session model being both
-  // the standing's and the summary's (workspaceSession.ts:1546). The web's per-job reading cache
+  // the standing's and the summary's (workspaceSession.ts:1547). The web's per-job reading cache
   // (`cached`, nativeResult.ts:349-360) answers a reading whose key it has read before, and then
   // nothing is sent natively: `readNativeVerdict`'s key is keyOf("dispatch", modelText,
   // invocationText) (:389-397), `readNativeSummary`'s keyOf("summary", modelText,
@@ -368,7 +368,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     recovery = await accept<SourceRecovery>("source_recovery", c);
   }
 
-  // The session's gates (workspaceSession.ts:1563-1568), on the handle `readNativeFreshResult`
+  // The session's gates (workspaceSession.ts:1564-1569), on the handle `readNativeFreshResult`
   // builds (previewService.ts:667-676), with the web's own `createNativeResult` and
   // `hasCurrentSourceContract`. `hasNativeMechanicsInvocation` for a native handle is
   // `nativeRegistrationHolds` (:538-549), which needs the handle in `nativeRegistrations`, set
@@ -388,7 +388,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   if (unregistered !== null) return gate("SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED");
   if (!hasCurrentSourceContract(handle) || !handle.producer) return gate("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED");
 
-  // The session's input manifest (workspaceSession.ts:1572-1597), built by the web's own
+  // The session's input manifest (workspaceSession.ts:1573-1598), built by the web's own
   // `buildCurrentSessionInputManifest` (inputManifestService.ts:75), whose `validateArgs` runs
   // first, with the arguments the session passes: the solve model, the handle's producer, the
   // session's solver mode and settings, and NO_RULE_PACK_RESOLUTION for a model without rule-pack
@@ -412,7 +412,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     if (String((error as Error)?.message ?? "").startsWith("WASM-ENGINE-ASSET-ABSENT")) throw error;
     return gate(String((error as Error)?.message ?? error).match(/^([A-Z][A-Z0-9_-]*)(?=[:\s]|$)/)?.[1] ?? "UNCODED_MANIFEST_REFUSAL");
   }
-  // workspaceSession.ts:1595: the manifest's model text is the standing's bound text.
+  // workspaceSession.ts:1596: the manifest's model text is the standing's bound text.
   if (jsonTextKeepingNegativeZero(built.manifest.model_basis.model_payload) !== nativeCustody(handle).binding.standingModelText) return gate("SOLVE-NATIVE-STANDING-MODEL-MISMATCH");
 
   // run_preview, with that manifest's evidence (`readAnalysisRunPreview`, analysisRunPreview.ts:137-142)
@@ -429,7 +429,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   }
   const preview = await accept<AnalysisRunPreview>("run_preview", p, { inputManifest: built });
   if (preview.job_id !== jobId || preview.route !== route) fail("run_preview names another job or route");
-  // The session's model-reference check before it commits (workspaceSession.ts:1612-1616).
+  // The session's model-reference check before it commits (workspaceSession.ts:1613-1617).
   if (handle.model_ref !== solveModel.project.id) return gate("SOLVE-RESULT-MODEL-MISMATCH");
 
   // the panel's first page and its row semantics

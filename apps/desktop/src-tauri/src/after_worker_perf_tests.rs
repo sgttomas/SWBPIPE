@@ -785,7 +785,7 @@ impl Sequence<'_> {
                 result_detail::run_recovery(registry.clone(), raw, lease)
             }, |reply| accept_detail(reply, "swbpipe.desktop.result_source_recovery").map(|_| Value::Null))?;
         }
-        // The session's gates before run_preview (workspaceSession.ts:1563-1568), for fidelity
+        // The session's gates before run_preview (workspaceSession.ts:1564-1569), for fidelity
         // only: the judge (afterWorkerReplies.ts) is the acceptance. `hasNativeMechanicsInvocation`
         // holds for a fresh native result only when it registered (previewService.ts:676,
         // `nativeRegistrations` is set only when nothing refused it); `hasCurrentSourceContract`
@@ -804,7 +804,7 @@ impl Sequence<'_> {
             let (raw, lease) = analysis_run_v03_build::reserve(registry, body, &headers(Some(INGRESS_ARGS_JSON_V1)))?;
             analysis_run_v03_build::run(registry.clone(), raw, lease)
         }, |reply| accept_run_preview(reply))?;
-        // The session's model-reference check before it commits the result (workspaceSession.ts:1612-1616).
+        // The session's model-reference check before it commits the result (workspaceSession.ts:1613-1617).
         if summary["envelope"]["model_ref"] != self.texts.model["project"]["id"] {
             return Err(json!({"ended_at": "session_gate", "kind": "session_gate", "code": "SOLVE-RESULT-MODEL-MISMATCH"}));
         }
