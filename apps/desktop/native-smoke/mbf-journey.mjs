@@ -46,6 +46,7 @@ import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/app
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
 import { awaitNoProcesses } from "./launch-env.mjs";
 import { launchFailures, newNonce, readReport, recordedFailures, recordedOutcome } from "./launch-outcome.mjs";
+import { marksCheck, marksRefuse } from "./marks-check.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -222,8 +223,8 @@ const saved = {
 // Each launch's recorded outcome and judged failures, for summary.json.
 const launches = {};
 const TERMINATION_BOUND_MS = 20 * 1000;
-function judged(phase, outcome, read, failures) {
-  launches[phase] = { outcome, failures };
+function judged(phase, outcome, read, failures, marks) {
+  launches[phase] = { ...(marks ? { marks } : {}), outcome, failures };
   check(`${phase}: the launch ended cleanly and its report is this run's`, failures.length === 0, failures.length === 0 ? undefined : failures);
   // A failed launch's report stays readable for the checks that follow.
   return read.report ?? { ok: false, error: read.problem };
@@ -239,6 +240,14 @@ function launch(given) {
   console.log(`\n== phase ${plan.phase} (HOME=${home})`);
   if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
     console.error(`mbf journey: ${binary} changed since it was checked; not launched`);
+    return exitAfterSignals(2);
+  }
+  // The three marks (`marks-check.mjs`), directly before the app starts.
+  const marks = marksCheck();
+  console.log(`phase ${plan.phase}: marks, directly before the launch: ${JSON.stringify(marks)}`);
+  if (marksRefuse(marks)) {
+    launches[plan.phase] = { marks, launched: false };
+    console.error("mbf journey: NATIVE-SMOKE-MARK-PRESENT: an agent may be operating the App on the screen, or the marks could not be checked; not launched");
     return exitAfterSignals(2);
   }
   const started = new Date().toISOString();
@@ -260,7 +269,7 @@ function launch(given) {
     const census = await awaitNoProcesses(binary, { boundMs: TERMINATION_BOUND_MS });
     const read = readReport(report);
     const failures = launchFailures({ status, signal, timedOut, census, report: read.report, problem: read.problem, nonce: plan.nonce });
-    return judged(plan.phase, recordedOutcome({ status, signal, timedOut, census, nonce: plan.nonce, started, ended }), read, failures);
+    return judged(plan.phase, recordedOutcome({ status, signal, timedOut, census, nonce: plan.nonce, started, ended }), read, failures, marks);
   });
 }
 

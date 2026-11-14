@@ -139,6 +139,7 @@ import {
   refusedSmokeWindows, smokeWindows
 } from "./launch-env.mjs";
 import { launchFailures, newNonce, readReport, recordedOutcome } from "./launch-outcome.mjs";
+import { marksCheck, marksRefuse } from "./marks-check.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, processStartTime, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -436,6 +437,14 @@ function launch(phase, extra = {}) {
     console.error(`native smoke: ${binary}, the private copy of the bound app, changed since it was checked; not launched`);
     return exitAfterSignals(2);
   }
+  // The three marks (`marks-check.mjs`), directly before the app starts.
+  const marks = marksCheck();
+  console.log(`phase ${phase}: marks, directly before the launch: ${JSON.stringify(marks)}`);
+  if (marksRefuse(marks)) {
+    launches[phase] = { marks, launched: false };
+    console.error("native smoke: NATIVE-SMOKE-MARK-PRESENT: an agent may be operating the App on the screen, or the marks could not be checked; not launched");
+    return exitAfterSignals(2);
+  }
   if (!state.launched) writeRunMarker(RUN_MARKER, { pid: process.pid, started: processStartTime(process.pid), home, executable: binary, evidence_root: root, created: new Date().toISOString() });
   state.launched = true;
   state.termination = null;
@@ -466,7 +475,7 @@ function launch(phase, extra = {}) {
     console.log(`phase ${phase}: the census finds no process running the private app copy`);
     const read = readReport(report);
     const failures = launchFailures({ status, signal, timedOut, census: state.termination, report: read.report, problem: read.problem, nonce });
-    launches[phase] = { outcome: recordedOutcome({ status, signal, timedOut, census: state.termination, nonce, started, ended }), failures };
+    launches[phase] = { marks, outcome: recordedOutcome({ status, signal, timedOut, census: state.termination, nonce, started, ended }), failures };
     check(`phase ${phase}: the launch ended cleanly and its report is this run's`, failures.length === 0, failures.length === 0 ? undefined : failures);
     // A failed launch's report stays readable for the checks that follow.
     return read.report ?? { ok: false, error: `${read.problem} (exit ${status ?? signal})` };
