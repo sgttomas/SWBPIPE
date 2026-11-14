@@ -3,11 +3,11 @@
 This directory holds the judged-set generator, the exact reference engine, the M3 comparison with
 its PF clauses, the premise-census wrapper and a small frozen subset for M3-T carried to the
 pressure-free (PF) route's opt-in Timoshenko straight member: DEL-05-03 Design
-[pf-timoshenko.md](../../../execution/PKG-05/DEL-05-03/Design/pf-timoshenko.md) §5, "Certificate
+`pf-timoshenko.md` (DEL-05-03; removed by 0fbc2ee73, in its parent at `execution/PKG-05/DEL-05-03/Work/`) §5, "Certificate
 soundness (M3-T, carried to PF)", by the method of
-[section-bases-and-timoshenko.md](../../../execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md)
+`section-bases-and-timoshenko.md` (DEL-05-03; removed from the tree by 0fbc2ee73, in its parent at `execution/PKG-05/DEL-05-03/Work/`)
 §4 item 5. The acceptance is the K-D5 M3 criterion of
-[kd5-member-relative-bound.md](../../../execution/PKG-04/DEL-04-01/Design/kd5-member-relative-bound.md)
+`kd5-member-relative-bound.md` (DEL-04-01; removed by 0fbc2ee73, in its parent at `execution/PKG-04/DEL-04-01/Work/`)
 §4.3. It is the PF counterpart of [`../kd5_timoshenko/`](../kd5_timoshenko/README.md) (the exact
 route's M3-T), whose tooling it reuses by import, unchanged. Standard claim fence applies (F-PIP-2;
 claims taxonomy per DEC-081). Every model is invented.
@@ -412,7 +412,7 @@ Information clauses: kd5t_compare's C3lit, C4b, C5, C6i and C7, and:
 C11 uses the coupled scale, not each group's own q, because σ⁻ = σ_N − h and τ are binary64
 functions of certified rows and may cancel legitimately.
 
-**`--selftest` passes 775 checks on the frozen subset.** On ten models (Euler–Bernoulli and
+**`--selftest` runs the shared judge's self-test, which passes 1,469 checks.** On ten models (Euler–Bernoulli and
 Timoshenko cantilevers, a prescribed-motion run, an L-line with a guide, a skew multi-span with guides
 and springs, a c_m > 0 model, a skewed UTM cantilever, Codex's case, the skewed auxetic model (φ ≈ 2)
 and a two-element cantilever at E/(2G) = 1e-12) it checks:

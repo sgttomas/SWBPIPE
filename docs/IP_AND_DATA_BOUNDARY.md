@@ -109,7 +109,7 @@ The default-exclusion rule above governs *public redistribution and committed/ex
 
 #### 6.2.1 The correlation pilot's activation, target and invocation
 
-The following are sections 1 to 3 of the correlation pilot's design, restored unchanged from lines 9 to 103 of `execution/PKG-17/DEL-17-05/Work/caepipe-correlation-pilot.md` at commit 0d2d37260.
+The following are sections 1 to 3 of the correlation pilot's design, restored unchanged from lines 9 to 103 of `execution/PKG-17/DEL-17-05/Work/caepipe-correlation-pilot.md` at commit 0d2d37260, except that section 1's owner's words of 14 November 2026, and the paragraph after them from "The quotation contains" to "A full licence remains the owner's to buy.", are new on that date; that paragraph replaces the design's two sentences on the pilot's purpose and breadth.
 
 ## 1. Activation and purpose
 
@@ -130,11 +130,37 @@ owner activated it on 2026-10-26:
 - Purpose of the pilot: "The pilot using the trial version of CAEPIPE is just to prove
   the basic concept for how I want to do validation will work. Once that's assured, I
   will pay for the full license allowing us to do more extensive validation work."
+- On what the trial is used for (14 November 2026): "My philosophy here is use what we
+  have available to do as much as we can. I also have given guidance that there's
+  extensive model validation we can do even within the limitations of the [program's]
+  trial. […] Perhaps that's what's motivated the 56-run benchmark and I have no reason
+  to stop that from going forward. I see it as an important part of development if
+  done well. It would provide you real data to compare SWBPIPE against, which is
+  essential for effective hill-climbing. Thoughts?"
+- On what an agent may read of the comparisons (14 November 2026), the owner's
+  selections among wordings Agent 0 offered. For the comparison batch, "Everything,
+  privately": "An agent reads the comparisons, values and differences included, inside
+  the private folder and out of Git, and uses them to find and fix disagreements.
+  Nothing is published before your licence check." For the captures sealed for the
+  sitting of 21 to 24 November, "Same as the batch": "Whatever an agent may read of the
+  batch, it may also read of the sealed sitting captures." The owner's words
+  afterwards: "the old rulings seemed to treat those as secrets the agents had to be
+  able to achieve parity with by their own deduction, but I want to open up those as
+  targets for the agents to use as verification their chosen methods are working.
+  Maybe I'm misconstruing things, but the direction is right."
+- On the program's standing (14 November 2026): "CAEPIPE isn't "ground truth" but
+  nothing except reality itself is. CAEPIPE is a trusted validator model. There are
+  also trusted validation methods and outcomes that have been researched and planned
+  for. I believe you will find that in the repo too."
 <!-- /owner-words -->
 
-The pilot is a proof of concept supporting that licence decision. It exercises each
-part of the loop once on a small case set; breadth of coverage and governed
-tolerances wait for the full licence. CAEPIPE results are a reference, not ground
+The quotation contains a bracketed substitution and an omission to comply with §6.2.
+The full wording is retained privately. The pilot began as a proof of concept
+supporting that licence decision. Under the owner's direction of 14 November 2026,
+validation may extend across the various modelling scenarios and certain
+combinations, as far as they can be run now. Screening follows the benchmark method
+in `docs/RELEASE_TARGET_v1.0.md`. A full licence remains the owner's to buy.
+CAEPIPE results are a reference, not ground
 truth: the hand-calculation witnesses remain the primary verification anchor, and
 neither CAEPIPE agreement nor a completed run is professional acceptance, validation
 of engineering use, or compatibility proof (DEL-17-05-REQ-008, F-PIP-3).
