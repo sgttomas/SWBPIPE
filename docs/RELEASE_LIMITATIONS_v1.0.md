@@ -239,7 +239,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
     - with RS-G1, every case is unresolved (LIM-017);
     - without RS-G1, every case is sensitive (LIM-017).
   - Both are refused.
-  - So neither tested overlay gives an exact-route result whose report is admitted. Neither contains every support the reference system specifies. Its intended one-way normal source for RS-FR1 is refused by the solve (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`), so the reference system with all its specified supports is not solved by the product.
+  - So neither tested overlay gives an exact-route result whose report is admitted. Neither contains every support the reference system specifies. With RS-FR1's intended one-way normal source, the same overlays solve and are not confirmed: the confirmation admits only a base restraint as a derived normal's source. So without RS-G1 every case is sensitive with that named reason, and with RS-G1 every case is unresolved. A maintained test observes these standings (`core/product_physics/tests/rt_a3_s6_reference_system.rs`); their report refusal is read from `standing()`'s rule, not observed.
 - **Why:** DEL-08-01 refuses rather than renders in doubt (AX-003: "A warning in place of a refusal is not an improvement"). A report preserves the eligible standing of the result it reports, with its required warnings, so a result whose standing is not eligible is not reported.
 - **What the user does instead:** none for the same results. Eligible standing clears this gate; source binding and the other report conditions still apply.
 - **Basis:**
