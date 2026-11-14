@@ -6,7 +6,7 @@
 //! verdicts THROUGH the readers, in the old form (old codes, checks_passed quality)
 //! and the new one (NUMERICAL_INTEGRITY_INSPECTION_ONLY, not_assessed), and a solved
 //! document carrying an inspection-only evaluation, which is refused by name.
-use open_pipe_stress_result_export::{reader_verdict as rv, semantic_contract as s};
+use open_pipe_stress_result_export::{physics_source as ps, reader_verdict as rv, semantic_contract as s, source_blocks};
 use serde_json::{json, Value};
 
 fn fixture(name: &str) -> Value {
@@ -136,4 +136,72 @@ fn the_prior_outcome_token_is_parsed_strictly() {
     for message in &near_misses {
         assert_eq!(s::inspection_only_prior(message), None, "{message}");
     }
+}
+
+/// Rewrite every passed or sensitive integrity diagnostic as `blocked_envelope`
+/// writes it; returns how many were rewritten.
+fn inspect(doc: &mut Value) -> usize {
+    let mut count = 0;
+    for d in doc["diagnostics"].as_array_mut().unwrap() {
+        let code = d["code"].as_str().unwrap().to_string();
+        if matches!(code.as_str(), "NUMERICAL_INTEGRITY_CHECKS_PASSED" | "NUMERICAL_INTEGRITY_SENSITIVE") {
+            d["message"] = json!(format!("{}{code}{}{}", s::INSPECTION_ONLY_LEAD, s::INSPECTION_ONLY_TAIL, d["message"].as_str().unwrap()));
+            d["code"] = json!(s::INSPECTION_ONLY_CODE);
+            d["severity"] = json!("info");
+            count += 1;
+        }
+    }
+    count
+}
+
+/// A pressure-source document with two cases, one sensitive and one passed, each
+/// with its ordinary report, and the invocation it was produced from.
+fn pressure_source() -> (Value, Value) {
+    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview/pressure_source/physics_source");
+    let read = |name: &str| -> Value { serde_json::from_str(&std::fs::read_to_string(dir.join(name)).unwrap()).unwrap() };
+    (read("mixed-sparse_interactive.raw.json"), json!({"request": read("mixed.request.json"), "solver_mode": "sparse_interactive"}))
+}
+
+/// Recompute the publication and receipt hashes after an edit, so the edit
+/// reaches the check it targets rather than a hash refusal.
+fn reseal(mut doc: Value) -> Value {
+    let publication = source_blocks::domain_hash_without("source_blocks_publication_v1", doc.as_object().unwrap(), "source_block_recovery").unwrap();
+    doc["source_block_recovery"]["body"]["publication_sha256"] = json!(publication);
+    let receipt = source_blocks::domain_hash("source_blocks_receipt_v1", &doc["source_block_recovery"]["body"]).unwrap();
+    doc["source_block_recovery"]["receipt_sha256"] = json!(receipt);
+    doc
+}
+
+/// The source-block reader (pressure-source documents). The producer never
+/// writes a receipt into a blocked document (`blocked_envelope` sets
+/// `source_block_recovery` to none), so this reader meets a blocked document
+/// only as a forged, resealed one. An inspection-only evaluation in a solved
+/// document is refused by name; a blocked document is never eligible, in the
+/// old form (not solved) or the new (its receipt's passed outcome contradicts
+/// the not-assessed quality), and is never named as solved.
+#[test]
+fn the_source_block_reader_never_reads_an_inspection_only_evaluation() {
+    let (doc, invocation) = pressure_source();
+    let refs: Vec<Value> = bases(&doc);
+    assert_eq!(ps::validate(&doc, Some(&invocation)), Ok(true), "the control");
+    assert_eq!(reseal(doc.clone()), doc, "resealing the genuine document changes nothing");
+    let mut named = doc.clone();
+    assert_eq!(inspect(&mut named), 2);
+    let named = reseal(named);
+    assert_eq!(ps::validate(&named, Some(&invocation)), Err("SOURCE_BLOCKS_INSPECTION_ONLY_IN_SOLVED_DOCUMENT".into()));
+    assert_eq!(s::numerical_use_standing_with_context(&named, &refs, Some(&invocation)), "unsupported");
+    let mut old = doc.clone();
+    old["status"]["mechanics"] = json!("MODEL_INCOMPLETE");
+    let old = reseal(old);
+    let mut new = old.clone();
+    inspect(&mut new);
+    new["numerical_quality"]["status"] = json!("not_assessed");
+    for case in new["numerical_quality"]["cases"].as_array_mut().unwrap() {
+        case["solve_quality"] = json!("not_assessed");
+    }
+    let new = reseal(new);
+    assert_eq!(ps::validate(&old, Some(&invocation)), Ok(false));
+    assert_eq!(s::numerical_use_standing_with_context(&old, &refs, Some(&invocation)), "needs_recompute");
+    assert_eq!(ps::validate(&new, Some(&invocation)), Err("SOURCE_BLOCKS_ORDINARY_REPORT".into()));
+    assert_ne!(s::numerical_use_standing_with_context(&new, &refs, Some(&invocation)), "numerically_eligible");
 }

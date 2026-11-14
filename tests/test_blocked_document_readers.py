@@ -8,8 +8,13 @@ import copy
 import json
 from pathlib import Path
 
+import pytest
+
 from tests.verifiers import compatibility as c
+from tests.verifiers import physics_source as ps
 from tests.verifiers import reader_verdict as rv
+from tests.verifiers import retained_precision as rp
+from tests.verifiers.source_blocks import domain_hash
 
 ROOT = Path(__file__).resolve().parents[1]
 LEAD = "Inspection only (prior_outcome="
@@ -72,3 +77,81 @@ def test_a_solved_document_carrying_an_inspection_only_evaluation_is_refused_by_
     standing = rv.standing(source)
     assert standing.get("eligible") is not True, standing
     assert "INTEGRITY_INSPECTION_ONLY_IN_SOLVED_DOCUMENT" in standing.get("findings", []), standing
+
+
+def inspect(source: dict) -> int:
+    """Rewrite every passed or sensitive integrity diagnostic as blocked_envelope writes it."""
+    count = 0
+    for d in source["diagnostics"]:
+        if d["code"] in ("NUMERICAL_INTEGRITY_CHECKS_PASSED", "NUMERICAL_INTEGRITY_SENSITIVE"):
+            d["message"] = f"{LEAD}{d['code']}{TAIL}{d['message']}"
+            d["code"], d["severity"] = c.INSPECTION_ONLY_CODE, "info"
+            count += 1
+    return count
+
+
+def not_assessed(source: dict) -> dict:
+    source["status"]["mechanics"] = "MODEL_INCOMPLETE"
+    source["numerical_quality"]["status"] = "not_assessed"
+    for case in source["numerical_quality"]["cases"]:
+        case["solve_quality"] = "not_assessed"
+    return source
+
+
+def reseal(source: dict) -> dict:
+    """The source-block publication and receipt hashes after an edit (the Rust test's reseal)."""
+    body = source["source_block_recovery"]["body"]
+    body["publication_sha256"] = domain_hash("source_blocks_publication_v1", {k: v for k, v in source.items() if k != "source_block_recovery"})
+    source["source_block_recovery"]["receipt_sha256"] = domain_hash("source_blocks_receipt_v1", body)
+    return source
+
+
+def test_the_source_block_reader_never_reads_an_inspection_only_evaluation():
+    folder = ROOT / "fixtures/product_preview/pressure_source/physics_source"
+    doc = json.loads((folder / "mixed-sparse_interactive.raw.json").read_text())
+    invocation = {"request": json.loads((folder / "mixed.request.json").read_text()), "solver_mode": "sparse_interactive"}
+    refs = bases(doc)
+    assert ps.validate_physics_source(doc, invocation) is True, "the control"
+    assert reseal(copy.deepcopy(doc)) == doc
+    named = copy.deepcopy(doc)
+    assert inspect(named) == 2
+    named = reseal(named)
+    with pytest.raises(ValueError, match="^SOURCE_BLOCKS_INSPECTION_ONLY_IN_SOLVED_DOCUMENT$"):
+        ps.validate_physics_source(named, invocation)
+    assert c.numerical_use_standing(named, refs, invocation) == "unsupported"
+    old = copy.deepcopy(doc)
+    old["status"]["mechanics"] = "MODEL_INCOMPLETE"
+    old = reseal(old)
+    assert ps.validate_physics_source(old, invocation) is False
+    assert c.numerical_use_standing(old, refs, invocation) == "needs_recompute"
+    new = copy.deepcopy(doc)
+    inspect(new)
+    new = reseal(not_assessed(new))
+    with pytest.raises(ValueError, match="^SOURCE_BLOCKS_ORDINARY_REPORT$"):
+        ps.validate_physics_source(new, invocation)
+    assert c.numerical_use_standing(new, refs, invocation) != "numerically_eligible"
+
+
+@pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
+def test_the_retained_reader_never_reads_an_inspection_only_evaluation(mode):
+    def rehash(source):
+        body = source["retained_precision"]["body"]
+        body["publication_sha256"] = rp._hash("retained_precision_publication_mp_v2", {k: v for k, v in source.items() if k != "retained_precision"})
+        source["retained_precision"]["receipt_sha256"] = rp._hash("retained_precision_receipt_mp_v2", body)
+        return source
+    doc = json.loads((ROOT / f"fixtures/results/retained_precision_milestone_successor_{mode}.json").read_text())
+    source, invocation = doc["source"], doc["invocation"]
+    refs = [{"ref_type": "load_case", "ref_id": case["id"]} for case in invocation["request"]["model"]["load_cases"]]
+    assert c.numerical_use_standing(source, refs, invocation) == "numerically_eligible", "the control"
+    named = copy.deepcopy(source)
+    assert inspect(named) == 1
+    named = rehash(named)
+    with pytest.raises(rp.RetainedPrecisionError) as refused:
+        rp.validate_retained_precision(named, invocation)
+    assert (refused.value.gate, refused.value.code) == ("G4", "RETAINED_PRECISION_INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
+    assert c.numerical_use_standing(named, refs, invocation) == "unsupported"
+    blocked = rehash(not_assessed(copy.deepcopy(named)))
+    with pytest.raises(rp.RetainedPrecisionError) as refused:
+        rp.validate_retained_precision(blocked, invocation)
+    assert (refused.value.gate, refused.value.code) == ("G5", "RETAINED_PRECISION_ATTEMPT_MISMATCH")
+    assert c.numerical_use_standing(blocked, refs, invocation) == "unsupported"
