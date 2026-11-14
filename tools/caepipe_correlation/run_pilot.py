@@ -85,9 +85,10 @@ folder or file is created: already_recorded when its manifest reads as recording
 custody, whether or not the request and result are still present (the reason
 carrying the manifest's outcome and route); manifest_unreadable when its manifest
 is present and reads neither as recording custody nor as recording none (custody
-unknown, not absent: as when it cannot be read as a JSON object, is a link, or has
-a custody member that is not an object); and half_made when either file exists and
-no manifest records custody. The route only classifies the refusal.
+unknown, not absent: that is, when it is a link, cannot be read as a JSON object, or
+has a custody member that is not an object, null included); and half_made when
+either file exists and its manifest is absent or reads as recording no custody. The
+route only classifies the refusal.
 Offline, a case with no folder is refused as no_stored_case. The one retry of a
 model reuses its own solve. The case manifest's custody member records the SWBPIPE
 commit and whether its tree was clean, the runner binary's SHA-256, and the SHA-256
