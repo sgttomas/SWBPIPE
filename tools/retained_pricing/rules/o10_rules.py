@@ -3654,11 +3654,12 @@ if fnkey("validate", _W16B_EV) and fnkey("validate_direct_pressure_evidence", RE
         _fn_text("is_combination_row", _W16B_EV).count('row["basis_ref"]["ref_type"] == "combination"') == 1,
     )
     # The certificate's wrapper (RT-A3 §4 and one-view shapes): the pass without the certificate once, then the
-    # certificate.
+    # certificate. The second test holds "once": the first alone would admit a further call before the pair.
     _w16b_wrapper = (
         _fn_text("validate_pressure_evidence", _W16B_PE).count(
             "    validate_pressure_evidence_without_certificate(source)?;\n"
             "    crate::combination_certificate::check(source)\n}") == 1,
+        _fn_text("validate_pressure_evidence", _W16B_PE).count("validate_pressure_evidence_without_certificate(") == 1,
     )
     if _W16B_ONE_VIEW:
         # W16B-RD and RTA3C-WC (guard, one-view shape): the whole body, from the signature. The combination pass and
