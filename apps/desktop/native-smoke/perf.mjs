@@ -57,7 +57,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { isMainThread, parentPort, Worker, workerData } from "node:worker_threads";
-import { newNonce } from "./launch-outcome.mjs";
+import { launchFailures, newNonce, readReport, recordedOutcome } from "./launch-outcome.mjs";
+import { marksCheck, marksRefuse } from "./marks-check.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
@@ -680,26 +681,23 @@ const markAt = (timeline, stage) => {
   return mark ? timeline.time_origin_ms + mark.at_ms : null;
 };
 
-// The run's findings and its most severe class. A report does not rescue a launch that did not end cleanly
-// (DEL-07-11's one rule, `launch-outcome.mjs`): with a report present, a timeout, a signal, a non-zero exit, or,
-// where the run gave a `nonce`, a report that does not carry it, is a `launch_failed` finding; the report's own
-// observations are still read and classified beside it.
-export function classify({ report, exit, timedOut, progress, memory, store, run, resultBytes, nonce }) {
+// The run's findings and its most severe class. A report does not rescue a launch that did not end cleanly or a
+// report that is not this run's: with a report present, the one rule of `launch-outcome.mjs` (DEL-07-11) judges
+// the launch (`launchFailures`, no census: this runner takes none), and each named failure is a `launch_failed`
+// finding's `failures`; the report's own observations are still read and classified beside it. `reportProblem`
+// says why a report file that exists was not read (`readReport`).
+export function classify({ report, reportProblem = null, exit, timedOut, progress, memory, store, run, resultBytes, nonce }) {
   const findings = [];
   const add = (kind, detail) => findings.push({ class: kind, ...detail });
   const webcontentExited = Object.entries(memory.pids).filter(([, entry]) => entry.kind === "webcontent" && exit.ended_ms !== null && entry.last_ms < exit.ended_ms - 1000);
   for (const [pid, entry] of webcontentExited) add("crash", { process: "webcontent", pid: Number(pid), detail: `WebContent ${pid} stopped being sampled ${exit.ended_ms - entry.last_ms} ms before the app ended` });
   if (!report) {
-    if (timedOut) add("hang", { process: "app", detail: `no report within ${run.timeout_s} s; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
-    else add("crash", { process: "app", detail: `the app exited (${exit.status ?? exit.signal}) without a report; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
+    const unread = reportProblem && reportProblem !== "no report" ? ` (${reportProblem})` : "";
+    if (timedOut) add("hang", { process: "app", detail: `no report within ${run.timeout_s} s${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
+    else add("crash", { process: "app", detail: `the app exited (${exit.status ?? exit.signal}) without a report${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
   } else {
-    const launchProblems = [
-      timedOut ? `killed at the ${run.timeout_s} s limit` : null,
-      exit.signal ? `ended on ${exit.signal}` : null,
-      exit.status !== 0 ? `ended with status ${exit.status ?? "none"}` : null,
-      typeof nonce === "string" && report.nonce !== nonce ? "its report does not carry this run's nonce" : null
-    ].filter(Boolean);
-    if (launchProblems.length > 0) add("launch_failed", { process: "app", detail: `the launch did not end cleanly: ${launchProblems.join("; ")}. The report's observations are still read.`, needs_review: true });
+    const failures = launchFailures({ status: exit.status, signal: exit.signal, timedOut, census: undefined, report, nonce });
+    if (failures.length > 0) add("launch_failed", { process: "app", failures, detail: `the launch did not end cleanly or its report is not this run's: ${failures.join("; ")}. The report's observations are still read.`, needs_review: true });
     const solve = report.solve;
     // C1's host condition not established (or lost): the run is unobservable. Its solve, driver
     // and probe outcomes are consequences, not findings; the store is still checked below.
@@ -899,6 +897,12 @@ async function runOne(run, ctx) {
   }
   if (ctx.plan.c1_reader_diagnostics) env.SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS = "1";
   else delete env.SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS;
+  // The three marks (`marks-check.mjs`), checked here, after every build and binding and directly before the
+  // launch's own host admission (webkitPids, readStartupHost) and the app's start.
+  record.marks = marksCheck();
+  if (marksRefuse(record.marks)) {
+    return { ...record, class: "refused_with_message", findings: [{ class: "refused_with_message", step: "marks", message: "NATIVE-SMOKE-MARK-PRESENT: an agent may be operating the App on the screen, or the marks could not be checked; no App was launched.", needs_review: true }], kept: root };
+  }
   record.reader_phase_file = ctx.plan.c1_reader_diagnostics ? path.join(ctx.out, `perf-reader-phases-${planName(path.basename(ctx.scratch), "window")}-${planName(run.id, "run")}.jsonl`) : null;
   const phases = record.reader_phase_file ? createReaderPhaseEvidence(record.reader_phase_file) : null;
   const baseline = webkitPids();
@@ -1003,8 +1007,9 @@ async function runOne(run, ctx) {
   if (record.reader_phases && !phasePipeDrained) record.reader_phases.evidence_complete = false;
   record.elapsed_s = (exit.ended_ms - startedMs) / 1000;
   record.exit = { ...exit, timed_out: timedOut, timeout_ms: timeoutMs };
-  const reportPath = path.join(root, "report.json");
-  const report = existsSync(reportPath) ? JSON.parse(readFileSync(reportPath, "utf8")) : null;
+  // The launch outcome as the one rule records it, so that kept evidence can be judged again (`recordedFailures`).
+  record.launch_outcome = recordedOutcome({ status: exit.status, signal: exit.signal, timedOut, census: undefined, nonce, started: new Date(startedMs).toISOString(), ended: new Date(exit.ended_ms).toISOString() });
+  const { report, problem: reportProblem } = readReport(path.join(root, "report.json"));
   const jobDone = markAt(report?.solve?.timeline, "job_done");
   const memory = summarizeSamples(samples, { since: jobDone });
   const webcontent = Object.entries(memory.pids).filter(([, entry]) => entry.kind === "webcontent").map(([pid]) => Number(pid));
@@ -1029,7 +1034,7 @@ async function runOne(run, ctx) {
     same_model: proof ? proofField("model_sha256") === record.model_jcs_sha256 : null
   };
   const resultBytes = report?.solve?.timeline?.marks?.find((mark) => mark.stage === "job_done")?.detail?.result_bytes ?? null;
-  Object.assign(record, classify({ report, exit, timedOut, progress, memory, store, run, resultBytes, nonce }));
+  Object.assign(record, classify({ report, reportProblem, exit, timedOut, progress, memory, store, run, resultBytes, nonce }));
   if (ctx.plan.c1_reader_diagnostics && record.reader_phases?.evidence_complete !== true) {
     record.findings.push({ class: "refused_with_message", step: "reader_phases", message: "Native reader phase exits are incomplete or omitted.", needs_review: true });
     if (record.class === "ok") record.class = "refused_with_message";
