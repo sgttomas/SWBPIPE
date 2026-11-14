@@ -9,11 +9,15 @@ owner under DEC-058; here the output directory is always a temp directory.
 
 from __future__ import annotations
 
+import contextlib
+import hashlib
 import importlib.util
 import json
+import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -36,6 +40,65 @@ ACCEPTED_PROVENANCE = {
     "redistribution_status": "public_permissive",
     "review_status": "accepted",
 }
+
+
+LINTER_TARGET = ROOT / "core" / "reporting" / "protected_content_linter" / "target"
+
+
+def lint_engine_lock_path() -> Path:
+    """One lock file per Cargo target directory the lint engine is built in."""
+    target = Path(os.environ.get("CARGO_TARGET_DIR") or LINTER_TARGET).resolve()
+    name = hashlib.sha256(str(target).encode("utf-8")).hexdigest()[:16]
+    return Path(tempfile.gettempdir()) / f"openpipestress-lint-engine-{name}.lock"
+
+
+@contextlib.contextmanager
+def lint_engine_cargo_lock(blocking: bool = True):
+    """Hold the lint engine's `cargo run` to one process at a time.
+
+    `cargo run` re-links the executable into the target directory even when the
+    build is fresh, after Cargo has released its own build lock. Two test
+    processes running it at once (pytest-xdist workers) can therefore have one
+    remove the executable while the other starts it, which fails with exit 101
+    and "No such file or directory". Yields whether the lock was taken; a
+    non-blocking attempt that finds it held yields False.
+    """
+    with open(lint_engine_lock_path(), "a+b") as handle:
+        if os.name == "nt":
+            import msvcrt
+
+            handle.seek(0)
+            mode = msvcrt.LK_LOCK if blocking else msvcrt.LK_NBLCK
+            try:
+                msvcrt.locking(handle.fileno(), mode, 1)
+            except OSError:
+                if blocking:
+                    raise
+                yield False
+                return
+            try:
+                yield True
+            finally:
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+
+            try:
+                fcntl.flock(handle, fcntl.LOCK_EX | (0 if blocking else fcntl.LOCK_NB))
+            except BlockingIOError:
+                yield False
+                return
+            try:
+                yield True
+            finally:
+                fcntl.flock(handle, fcntl.LOCK_UN)
+
+
+@pytest.fixture
+def lint_engine_cargo():
+    with lint_engine_cargo_lock():
+        yield
 
 
 def load_module():
@@ -669,7 +732,7 @@ def test_record_makes_no_release_readiness_claim(tmp_path):
     shutil.which("cargo") is None, reason="cargo unavailable; engine CLI not built"
 )
 @pytest.mark.runs_cargo("cargo run of the protected-content lint engine")
-def test_engine_lint_integration_flags_invented_lookalike(tmp_path):
+def test_engine_lint_integration_flags_invented_lookalike(tmp_path, lint_engine_cargo):
     """End-to-end check (b): the DEL-08-05 engine CLI flags an INVENTED
     standards-table lookalike (designator name plus synthetic values only)
     and the record fails toward owner review."""
@@ -708,7 +771,7 @@ def test_engine_lint_integration_flags_invented_lookalike(tmp_path):
     shutil.which("cargo") is None, reason="cargo unavailable; engine CLI not built"
 )
 @pytest.mark.runs_cargo("cargo run of the protected-content lint engine")
-def test_engine_cli_reports_clean_content_without_findings(tmp_path):
+def test_engine_cli_reports_clean_content_without_findings(tmp_path, lint_engine_cargo):
     """Negative path for check (b): legitimate invented content with no
     standards-table signature produces no engine findings."""
     clean = tmp_path / "clean.txt"
@@ -739,6 +802,39 @@ def test_engine_cli_reports_clean_content_without_findings(tmp_path):
     payload = json.loads(completed.stdout)
     assert payload["summary"]["finding_count"] == 0
     assert payload["summary"]["clean_scan_is_clearance"] is False
+
+
+def test_lint_engine_cargo_lock_excludes_a_second_process(lint_engine_cargo):
+    """While a test holds the lint engine's Cargo lock, another process cannot take it;
+    without this the two `cargo run` tests race."""
+    probe = (
+        "import importlib.util, sys\n"
+        "spec = importlib.util.spec_from_file_location('scan_tests', sys.argv[1])\n"
+        "module = importlib.util.module_from_spec(spec)\n"
+        "spec.loader.exec_module(module)\n"
+        "with module.lint_engine_cargo_lock(blocking=False) as taken:\n"
+        "    print('taken' if taken else 'held')\n"
+    )
+    def attempt() -> str:
+        completed = subprocess.run([sys.executable, "-c", probe, str(Path(__file__).resolve())],
+                                   cwd=ROOT, capture_output=True, text=True, check=True)
+        return completed.stdout.strip()
+    assert attempt() == "held"
+
+
+def test_both_cargo_running_tests_take_the_lint_engine_lock():
+    """Every test of this module marked as running Cargo itself takes the lock."""
+    import ast
+
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    marked = [
+        node for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+        and any("runs_cargo" in ast.unparse(decorator) for decorator in node.decorator_list)
+    ]
+    assert len(marked) >= 2
+    for node in marked:
+        assert "lint_engine_cargo" in [argument.arg for argument in node.args.args], node.name
 
 
 def test_lint_batches_cover_every_input_and_preserve_summary_types(monkeypatch):
