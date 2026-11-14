@@ -341,6 +341,43 @@ def set_quality(envelope: dict, tokens: tuple) -> None:
         case.update(zip(("structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"), tokens))
 
 
+INSPECTION_ONLY = "NUMERICAL_INTEGRITY_INSPECTION_ONLY"
+LEAD = "Inspection only (prior_outcome="
+TAIL = ("): this document is blocked (MODEL_INCOMPLETE); no result of this case is published, and this evaluation is "
+        "retained for inspection, not as a verdict on a published result. ")
+
+
+def blocked(envelope: dict, new: bool, rows: bool) -> None:
+    """A blocked form of a solved envelope: status not solved; in the new form its passed or sensitive integrity
+    evaluations carry the inspection-only code with the prior outcome token, and its quality is not assessed. With
+    rows=False its results are dropped, as a real blocked envelope publishes none."""
+    envelope["status"]["mechanics"] = "MODEL_INCOMPLETE"
+    if new:
+        for d in envelope["diagnostics"]:
+            if d["code"] in (PASSED, SENSITIVE):
+                d["message"] = f"{LEAD}{d['code']}{TAIL}{d['message']}"
+                d["code"], d["severity"] = INSPECTION_ONLY, "info"
+        envelope["numerical_quality"]["status"] = "not_assessed"
+        for case in envelope["numerical_quality"]["cases"]:
+            case["solve_quality"] = "not_assessed"
+    if not rows:
+        envelope["results"] = []
+
+
+def test_a_blocked_document_never_reaches_a_nonlinear_verdict(solved):
+    """DEL-04-07: the nonlinear reader disposes of an unsolved document on its mechanics status before it reads any
+    case's verdict: nonlinear rows in one are refused by name, in the old form (passed codes kept) and the new
+    (inspection-only), and a blocked document without rows gives the nonlinear reader nothing to read."""
+    for cid in ("F1-P0-SLIDELOAD", "G2"):
+        for new in (False, True):
+            assert forged(solved, cid, lambda e: blocked(e, new, rows=True)) == both("ROWS_IN_UNSOLVED_DOCUMENT"), (cid, new)
+            doc, envelope = solved[(cid, "dense_scrutiny")]
+            bare = deepcopy(envelope)
+            blocked(bare, new, rows=False)
+            nse.check(bare)  # the nonlinear reader itself: nothing to read, no verdict reached
+    # The named refusal is reached only once the document is solved (the forgery above, in B3).
+
+
 def test_inactive_residuals_support_nodes_and_standings_are_bound_by_both_readers(solved):
     # B1. The untouched producer output, both modes: admitted as inspection evidence beside the producer's own compliant
     # free-row evaluation record (dense: far above 1e-9 of the largest support component).

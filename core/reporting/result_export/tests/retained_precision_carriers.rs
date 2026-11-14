@@ -1212,5 +1212,19 @@ fn an_inspection_only_evaluation_is_never_read_by_the_retained_reader() {
         let error = rp::validate(&blocked, Some(&m.invocation)).unwrap_err();
         assert_eq!((error.gate, error.code.as_str()), ("G5", "RETAINED_PRECISION_ATTEMPT_MISMATCH"), "{}", m.mode);
         assert_eq!(s::numerical_use_standing_with_context(&blocked, &refs, Some(&m.invocation)), "unsupported", "{}", m.mode);
+        // reader_verdict, the unpinned dispatcher: the control stands eligible,
+        // the named form does not, and the blocked form is disposed of on its
+        // mechanics status.
+        let model = &m.invocation["request"]["model"];
+        let standing = |doc: &Value| open_pipe_stress_result_export::reader_verdict::standing(doc, Some(model), Some(&m.invocation));
+        assert_eq!(standing(&m.source)["eligible"], true, "{}: the control", m.mode);
+        assert_ne!(standing(&named)["eligible"], true, "{}", m.mode);
+        let blocked_standing = standing(&blocked);
+        assert_ne!(blocked_standing["eligible"], true, "{}", m.mode);
+        assert!(
+            blocked_standing["findings"].as_array().is_some_and(|f| f.iter().any(|x| x == "MECHANICS_NOT_SOLVED")),
+            "{}: {blocked_standing}",
+            m.mode
+        );
     }
 }

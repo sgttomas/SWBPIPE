@@ -204,4 +204,15 @@ fn the_source_block_reader_never_reads_an_inspection_only_evaluation() {
     assert_eq!(s::numerical_use_standing_with_context(&old, &refs, Some(&invocation)), "needs_recompute");
     assert_eq!(ps::validate(&new, Some(&invocation)), Err("SOURCE_BLOCKS_ORDINARY_REPORT".into()));
     assert_ne!(s::numerical_use_standing_with_context(&new, &refs, Some(&invocation)), "numerically_eligible");
+    // reader_verdict, the unpinned dispatcher, on the same forms: the control
+    // stands eligible; the named form is not; the blocked forms are disposed of
+    // on their mechanics status.
+    let model = &invocation["request"]["model"];
+    assert_eq!(rv::standing(&doc, Some(model), Some(&invocation))["eligible"], true, "the control");
+    assert_ne!(rv::standing(&named, Some(model), Some(&invocation))["eligible"], true);
+    for (label, form) in [("old", &old), ("new", &new)] {
+        let standing = rv::standing(form, Some(model), Some(&invocation));
+        assert_ne!(standing["eligible"], true, "{label}: {standing}");
+        assert!(findings(&standing).iter().any(|f| f == "MECHANICS_NOT_SOLVED"), "{label}: {standing}");
+    }
 }

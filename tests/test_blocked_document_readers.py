@@ -130,6 +130,13 @@ def test_the_source_block_reader_never_reads_an_inspection_only_evaluation():
     with pytest.raises(ValueError, match="^SOURCE_BLOCKS_ORDINARY_REPORT$"):
         ps.validate_physics_source(new, invocation)
     assert c.numerical_use_standing(new, refs, invocation) != "numerically_eligible"
+    # reader_verdict, the unpinned dispatcher (the Rust twin).
+    model = invocation["request"]["model"]
+    assert rv.standing(doc, model, invocation)["eligible"] is True, "the control"
+    assert rv.standing(named, model, invocation)["eligible"] is not True
+    for form in (old, new):
+        standing = rv.standing(form, model, invocation)
+        assert standing["eligible"] is not True and "MECHANICS_NOT_SOLVED" in standing["findings"], standing
 
 
 @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
@@ -155,3 +162,9 @@ def test_the_retained_reader_never_reads_an_inspection_only_evaluation(mode):
         rp.validate_retained_precision(blocked, invocation)
     assert (refused.value.gate, refused.value.code) == ("G5", "RETAINED_PRECISION_ATTEMPT_MISMATCH")
     assert c.numerical_use_standing(blocked, refs, invocation) == "unsupported"
+    # reader_verdict, the unpinned dispatcher (the Rust twin).
+    model = invocation["request"]["model"]
+    assert rv.standing(source, model, invocation)["eligible"] is True, "the control"
+    assert rv.standing(named, model, invocation)["eligible"] is not True
+    standing = rv.standing(blocked, model, invocation)
+    assert standing["eligible"] is not True and "MECHANICS_NOT_SOLVED" in standing["findings"], standing
