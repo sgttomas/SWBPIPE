@@ -26,6 +26,9 @@ from tools.fixtures import retained_precision_corpus as CORPUS  # noqa: E402
 from tools.validation import pressure_elongation as PE  # noqa: E402
 from tools.validation import pressure_elongation_inventory as INV  # noqa: E402
 
+# The model document version the invented documents below carry; the one place this module names it
+# (tests/test_model_version_literals.py).
+MODEL_VERSION = "0.9.0"
 STRESS = "validation/benchmarks/stress/src/lib.rs"
 KD5 = "validation/references/kd5_timoshenko/frozen/kd5t_frozen_subset.jsonl"
 NOT_NAMING = "tools/validation/pressure_elongation_anchor.py"
@@ -145,9 +148,9 @@ def test_an_in_code_entry_cannot_claim_a_data_file(scanned):
 
 # ----------------------------------------------------------------------------- documents the rule reads
 def test_documents_are_read_in_json_text_json_lines_and_dag_storage():
-    doc = {"schema_version": "0.9.0", "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3"},
+    doc = {"schema_version": MODEL_VERSION, "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3"},
            "load_cases": [{"id": "case:p", "pressure_regions": [{"id": "r", "pressure": {"value": 1.0, "unit": "Pa"}}]}]}
-    record = {"schema_version": "0.9.0", "pressurised_load_cases": ["case:p"]}
+    record = {"schema_version": MODEL_VERSION, "pressurised_load_cases": ["case:p"]}
     assert INV.data_documents("a.json", json.dumps({"model": doc})) == ([{"pointer": "/model", **record}], [])
     text = json.dumps({"requests": [{"args": {"modelJson": json.dumps({"wrapped": json.dumps(doc)})}}]})
     assert INV.data_documents("a.json", text) == ([], [{"pointer": "/requests/0/args/modelJson",
