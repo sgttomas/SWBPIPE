@@ -76,7 +76,7 @@ describe("numerical health text pins", () => {
     expect(text.solveFailedLeadText("LC1")).toBe("The solver could not complete a solution for LC1.");
     expect(text.MECHANISM_TEXT).toBe("The model can move without resistance (a mechanism). Review connectivity, member releases and supports.");
     expect(text.NEGATIVE_ENERGY_TEXT).toBe("The assembled stiffness is not positive in some direction. Review element and support properties.");
-    expect(text.notAssessedText("LC1")).toBe("The solver did not assess the numerical quality of LC1.");
+    expect(text.notAssessedText("LC1")).toBe("No numerical quality is stated for LC1.");
     expect(text.combinationText([["LC1", "sensitive"], ["LC2", "checks_passed"]])).toBe(
       "Inherited from its load cases: LC1: sensitive; LC2: checks passed."
     );

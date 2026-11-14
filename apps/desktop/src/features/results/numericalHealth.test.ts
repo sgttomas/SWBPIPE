@@ -237,7 +237,7 @@ describe("numericalHealthView", () => {
     expect(byId.M.integrityDiagnosticId).toBeNull();
     expect(byId.N.sentences[1]).toBe("The assembled stiffness is not positive in some direction. Review element and support properties.");
     expect(byId.F.sentences[1]).toBe("See the solver diagnostic for the reason.");
-    expect(byId.X.sentences).toEqual(["The solver did not assess the numerical quality of X."]);
+    expect(byId.X.sentences).toEqual(["No numerical quality is stated for X."]);
   });
 
   it("prefixes the pressure-source route, adds the eligible wording and places no row badges", () => {

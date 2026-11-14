@@ -88,8 +88,11 @@ export function solveFailedLeadText(caseId: string): string {
 export const MECHANISM_TEXT = "The model can move without resistance (a mechanism). Review connectivity, member releases and supports.";
 export const NEGATIVE_ENERGY_TEXT = "The assembled stiffness is not positive in some direction. Review element and support properties.";
 
+/** True of every not-assessed case: one never evaluated, one whose document is not
+ * solved (the Rust projection makes each of its cases not assessed), and one whose
+ * retained evaluation is inspection-only. It says nothing about what the solver did. */
 export function notAssessedText(caseId: string): string {
-  return `The solver did not assess the numerical quality of ${caseId}.`;
+  return `No numerical quality is stated for ${caseId}.`;
 }
 
 /** "Inherited from its load cases: {case}: {state}; …". */
