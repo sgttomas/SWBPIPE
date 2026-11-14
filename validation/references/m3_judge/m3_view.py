@@ -652,8 +652,8 @@ def _evidence(ev, route, facts, by_id, contract=None):
 # ----------------------------------------------------------------- public schemas (exact evidence members)
 _SCHEMA_DOCS = {}
 SCHEMA_KEYWORDS = frozenset({"$ref", "type", "additionalProperties", "required", "properties", "items", "const", "enum", "minLength", "minimum",
-                             "pattern", "oneOf", "minItems", "if", "then", "else", "exclusiveMinimum", "maximum", "maxItems", "uniqueItems",
-                             "description", "title", "$comment"})
+                             "pattern", "oneOf", "allOf", "anyOf", "minItems", "if", "then", "else", "exclusiveMinimum", "maximum", "maxItems",
+                             "uniqueItems", "description", "title", "$comment"})
 SHAPE_CHECKED = ("load_reference_states", "exact_combinations")     # read only for their shape; never judged
 
 
@@ -686,7 +686,7 @@ def evidence_members():
 _TYPES = {"object": lambda v: type(v) is dict, "array": lambda v: type(v) is list, "string": lambda v: type(v) is str,
           "number": lambda v: type(v) in (int, float), "integer": lambda v: type(v) is int or (type(v) is float and v.is_integer()),
           "boolean": lambda v: type(v) is bool, "null": lambda v: v is None}
-_SUBSCHEMA = ("items", "if", "then", "else")       # keywords whose value is one schema; properties and oneOf hold several
+_SUBSCHEMA = ("items", "if", "then", "else")       # keywords whose value is one schema; properties, oneOf, allOf and anyOf hold several
 
 
 class SchemaUnsupported(ValueError):
@@ -694,9 +694,24 @@ class SchemaUnsupported(ValueError):
     unresolvable $ref). It is raised, never reported as a failed match, so the record is refused outright."""
 
 
+class SchemaMalformed(SchemaUnsupported):
+    """A supported keyword whose value is not a schema of its kind (allOf or anyOf not a non-empty array of objects)."""
+
+
+def _branches(node, key, doc_name):
+    """allOf's or anyOf's subschemas: a non-empty list of objects (an empty allOf would admit everything, an empty anyOf
+    nothing); raises SchemaMalformed."""
+    if key not in node:
+        return ()
+    subs = node[key]
+    if not (type(subs) is list and subs and all(type(s) is dict for s in subs)):
+        raise SchemaMalformed(f"{doc_name}: {key} is not a non-empty array of schema objects")
+    return subs
+
+
 def schema_supported(node, doc_name, seen=None):
-    """Every node reachable from `node` (through $ref, properties, additionalProperties, items, if/then/else and oneOf)
-    uses only SCHEMA_KEYWORDS and _TYPES, wherever it sits; raises SchemaUnsupported otherwise."""
+    """Every node reachable from `node` (through $ref, properties, additionalProperties, items, if/then/else, oneOf, allOf
+    and anyOf) uses only SCHEMA_KEYWORDS and _TYPES, wherever it sits; raises SchemaUnsupported otherwise."""
     seen = set() if seen is None else seen
     if (doc_name, id(node)) in seen:
         return
@@ -725,6 +740,9 @@ def schema_supported(node, doc_name, seen=None):
         schema_supported(sub, doc_name, seen)
     for sub in node.get("oneOf", ()):
         schema_supported(sub, doc_name, seen)
+    for key in ("allOf", "anyOf"):
+        for sub in _branches(node, key, doc_name):
+            schema_supported(sub, doc_name, seen)
 
 
 def _json_equal(a, b):
@@ -743,8 +761,10 @@ def _json_equal(a, b):
 
 def schema_problems(value, node, doc_name, where="", budget=None):
     """Problems of a JSON value against a schema node (a closed subset of JSON Schema). The whole schema reachable from
-    the node is checked first: an unsupported keyword anywhere, in a branch of if/then/else or oneOf included, raises
-    SchemaUnsupported (a refusal of the record), never a failed match."""
+    the node is checked first: an unsupported keyword anywhere, in a branch of if/then/else, oneOf, allOf or anyOf included,
+    raises SchemaUnsupported (a refusal of the record), never a failed match. allOf holds when every subschema holds, beside
+    the node's other keywords; each failing branch's problems are reported under `<allOf[i]>`. anyOf holds when at least
+    one subschema holds, beside the node's other keywords."""
     if budget is None:
         schema_supported(node, doc_name)
         budget = [20]
@@ -812,6 +832,11 @@ def schema_problems(value, node, doc_name, where="", budget=None):
         n = sum(1 for sub in node["oneOf"] if not schema_problems(value, sub, doc_name, where, [20]))
         if n != 1:
             bad(f"matches {n} of oneOf's {len(node['oneOf'])} alternatives")
+    for i, sub in enumerate(_branches(node, "allOf", doc_name)):
+        out += schema_problems(value, sub, doc_name, f"{where}<allOf[{i}]>", budget)
+    any_of = _branches(node, "anyOf", doc_name)
+    if any_of and not any(not schema_problems(value, sub, doc_name, where, [20]) for sub in any_of):
+        bad(f"matches none of anyOf's {len(any_of)} alternatives")
     return out
 
 

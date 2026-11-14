@@ -8,17 +8,16 @@ that check what every package holds:
   of a verified list or is unlisted for a stated reason, on a basis the package states (see Membership);
 - tests/test_reference_packages_regeneration.py, REGENERATION: each retained check command documented
   by its package (in its README or module docstring), with an assertion that no byte under
-  validation/references/ changed. Deferred commands are not run.
+  validation/references/ changed.
 
 These tests do not check that a package's generators are independent of product code.
 
-An exception carries its reason. Checksum-line exceptions and recorded defect markers are checked for
-continued presence. Deferred commands are not run and are removed only when their complete commands pass.
+An exception carries its reason. Checksum-line exceptions are checked for continued presence.
 One check's stdout comparison (PLATFORM_LIMITED_STDOUT) is made only on the platform where its frozen file is
 observed to reproduce, selected by `sys.platform` alone; elsewhere the command still runs and must exit 0 within
 its limit, reproduction of the committed file is not established there, and what it printed is reported
 against the frozen file, case by case, as a warning. What the tests take on trust is named and counted: output entries not
-regenerated, regeneration gaps, deferred commands and platform-limited stdout comparisons (`taken_on_trust()`),
+regenerated, regeneration gaps and platform-limited stdout comparisons (`taken_on_trust()`),
 and memberships with no stated basis (`membership_on_trust()`).
 
 The reading and running are functions here, and the tests call them: kept in this module, which builds no
@@ -81,23 +80,6 @@ class Check:
     stdout_gap: str | None = None  # what was observed where the comparison is not made, and its repair
 
 
-@dataclass(frozen=True)
-class Deferred:
-    """A check command from the package's README that is not run, beside the package's retained checks: its
-    last observed blocker and the full SHA of the head it was observed at. What the command checks after that
-    point is not established. The entry is removed only when the complete command passes."""
-    argv: tuple
-    blocker: str
-    observed_at: str
-    cwd: str = "."
-
-
-NOT_ESTABLISHED = "what the command checks after that point is not established"
-# The shared M3 judge's schema reader, where the three deferred commands were last observed to stop.
-M3_SCHEMA_BLOCKER = ("the shared M3 judge's schema reader (m3_judge/m3_view.py) refuses the allOf keyword, which "
-                     "schemas/load_reference_state.schema.json has held since 0c480a9e5 (2026-11-07)")
-M3_OBSERVED = "feffd237f2b2d15ad9741b8c42f7f4970d0ad5e6"
-
 # Five packages whose committed outputs were generated with --pressure-elongation all (pull request 217, eff19a897);
 # their READMEs give the check command with the switch.
 PE_ALL = ("--pressure-elongation", "all")
@@ -146,10 +128,8 @@ class Package:
     no_sums: bool = False
     checks: tuple = ()
     not_regenerated: tuple = ()  # ((what, reason), ...): outputs of a package with checks that no check reproduces
-    deferred: tuple = ()  # Deferred commands: not run, beside the retained checks
-    regeneration_gap: str | None = None  # reason, required exactly when the package has no check and no deferred command
+    regeneration_gap: str | None = None  # reason, required exactly when the package has no check
     other_test: str | None = None  # a maintained test, not yet on main, that will regenerate this package
-    defects: tuple = ()  # ((file, text, reason), ...): a known defect, asserted present until repaired
 
 
 @dataclass(frozen=True)
@@ -347,11 +327,7 @@ PACKAGES: dict[str, Package] = {
         Membership("README file table: `SHA256SUMS` | Digests of the files above, except this README",
                    unlisted={"README.md": "excepted by the README"}),
         sums=(Sums("SHA256SUMS"),),
-        defects=(("runner/build.sh", "REL=projects/chirality-piping/validation/references/kd5_timoshenko/runner",
-                  "lines 15-16 still use paths from before the repository split (projects/chirality-piping/), so the "
-                  "runner build script cannot work as written; to be repaired with the judge repair after PR 217"),),
-        checks=(Check(("kd5t_engine.py", "--check")),),
-        deferred=(Deferred(("kd5t_generate.py", "check"), M3_SCHEMA_BLOCKER, M3_OBSERVED),)),
+        checks=(Check(("kd5t_engine.py", "--check")), Check(("kd5t_generate.py", "check")))),
     "pf_timoshenko_m3t": Package(
         "DEL-05-03",
         Membership("README file table: `SHA256SUMS` | Digests of the files above, except this README",
@@ -361,16 +337,14 @@ PACKAGES: dict[str, Package] = {
                                                    "its SHA-256 instead"},
                    stated={"census-probe.patch": "a8b2b9de4da1b3f82d28203d493ae7406c27233d416b0166bc2f9292cf858fd5"}),
         sums=(Sums("SHA256SUMS"),),
-        checks=(Check(("pft_engine.py", "--check")),),
-        deferred=(Deferred(("pft_generate.py", "check"), M3_SCHEMA_BLOCKER, M3_OBSERVED),)),
+        checks=(Check(("pft_engine.py", "--check")), Check(("pft_generate.py", "check")))),
     "m3_judge": Package(
         "DEL-04-01",
         Membership("README file table: `SHA256SUMS` | Digests of the files above, except this README",
                    unlisted={"README.md": "excepted by the README"}),
         sums=(Sums("SHA256SUMS"),
               Sums("REFERENCE_SHA256SUMS", base="..", pins=3)),
-        checks=(Check(("m3_reproduce.py", TMP)),),
-        deferred=(Deferred(("m3_selftest.py",), M3_SCHEMA_BLOCKER, M3_OBSERVED),)),
+        checks=(Check(("m3_reproduce.py", TMP)), Check(("m3_selftest.py",)))),
     "o4_retained_source": Package(
         "DEL-04-08",
         Membership("generator: generators/o4_reference.py writes SHA256SUMS over SUMMED (this README and the seven "
@@ -405,9 +379,9 @@ PACKAGES: dict[str, Package] = {
     "snubber_static": _plain("snubber_static_reference.py", deliverables="DEL-04-10"),
 }
 
-# Outputs not regenerated, regeneration gaps, deferred commands and stdout comparisons made only on named
-# platforms, each a row of taken_on_trust().
-TAKEN_ON_TRUST_COUNT = 13
+# Outputs not regenerated, regeneration gaps and stdout comparisons made only on named platforms, each a row
+# of taken_on_trust().
+TAKEN_ON_TRUST_COUNT = 10
 MEMBERSHIP_ON_TRUST_COUNT = 2
 
 
@@ -415,17 +389,10 @@ def taken_on_trust() -> list[tuple[str, str, str]]:
     """Everything the regeneration test does not reproduce: (package, what, reason)."""
     out = [(name, what, why) for name, pkg in PACKAGES.items() for what, why in pkg.not_regenerated]
     out += [(name, REGENERATION_GAP, pkg.regeneration_gap) for name, pkg in PACKAGES.items() if pkg.regeneration_gap]
-    out += [(name, deferred_text(d), "deferred, not run") for name, pkg in PACKAGES.items() for d in pkg.deferred]
     out += [(name, f"reproduction of {c.stdout_equals} by {' '.join(c.argv)}: established only on "
                    f"{', '.join(c.stdout_platforms)}", c.stdout_gap)
             for name, pkg in PACKAGES.items() for c in pkg.checks if c.stdout_platforms]
     return out
-
-
-def deferred_text(d: Deferred) -> str:
-    """How a deferred command is printed."""
-    return (f"deferred command {' '.join(d.argv)} (in {d.cwd}): last observed blocker: {d.blocker}; observed at "
-            f"{d.observed_at}; {NOT_ESTABLISHED}")
 
 
 def membership_on_trust() -> list[tuple[str, str, str]]:
@@ -517,11 +484,10 @@ def classification_problems() -> list[str]:
                             f"check command and declaring deliverable) in tests/reference_packages.py")
     problems += [f"{p.name}: a file directly under validation/references/" for p in REFS.iterdir() if p.is_file()]
     for name, pkg in PACKAGES.items():
-        if not pkg.checks and not pkg.deferred and not (pkg.regeneration_gap or "").strip():
-            problems.append(f"{name}: no check command, no deferred command and no regeneration gap; its regeneration "
-                            f"would vanish uncounted")
-        elif (pkg.checks or pkg.deferred) and pkg.regeneration_gap:
-            problems.append(f"{name}: a regeneration gap beside check or deferred commands")
+        if not pkg.checks and not (pkg.regeneration_gap or "").strip():
+            problems.append(f"{name}: no check command and no regeneration gap; its regeneration would vanish uncounted")
+        elif pkg.checks and pkg.regeneration_gap:
+            problems.append(f"{name}: a regeneration gap beside check commands")
         for c in pkg.checks:
             if c.stdout_platforms and not (c.stdout_equals and (c.stdout_gap or "").strip()):
                 problems.append(f"{name}: {' '.join(c.argv)} compares its stdout only on named platforms, without a "
@@ -529,12 +495,6 @@ def classification_problems() -> list[str]:
             if c.stdout_platforms and (name, c.argv[0], c.stdout_equals) not in PLATFORM_LIMITED_STDOUT:
                 problems.append(f"{name}: {' '.join(c.argv)} compares its stdout only on named platforms but is not "
                                 "the exception PLATFORM_LIMITED_STDOUT names")
-        for d in pkg.deferred:
-            if not d.blocker.strip() or not re.fullmatch(r"[0-9a-f]{40}", d.observed_at):
-                problems.append(f"{name}: the deferred command {' '.join(d.argv)} names no blocker or no full SHA "
-                                f"it was observed at")
-            if any(c.argv == d.argv and c.cwd == d.cwd for c in pkg.checks):
-                problems.append(f"{name}: {' '.join(d.argv)} is both a check and deferred")
     for name in PACKAGES:
         if not (REFS / name).is_dir():
             problems.append(f"{name}: an entry with no package")
@@ -621,13 +581,6 @@ def membership_problems(name: str) -> list[str]:
         elif not (pkg_dir / rel).is_file() or not sha256(pkg_dir / rel).startswith(digest):
             problems.append(f"{rel} differs from the SHA-256 the package states for it ({digest[:16]}...)")
     return problems
-
-
-def defect_problems(name: str) -> list[str]:
-    """A known defect is an entry that fails the moment it is repaired, so the entry goes with it."""
-    return [f"{file} no longer holds {text!r}; the defect looks repaired, so remove its entry"
-            for file, text, reason in PACKAGES[name].defects
-            if not reason.strip() or text not in (REFS / name / file).read_text(encoding="utf-8")]
 
 
 def _changes(before: dict, after: dict) -> list[str]:

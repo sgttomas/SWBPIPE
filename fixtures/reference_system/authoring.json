@@ -1549,7 +1549,7 @@
       "entities": [
         "component:RS-R1"
       ],
-      "expected_until_then": "`EXACT_PRESSURE_REDUCER_IN_REGION`",
+      "expected_until_then": "admitted in the combined test overlay; solved with no blocking finding (core/product_physics/tests/rt_a3_s6_reference_system.rs; alone, core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs)",
       "family": "Eccentric reducer RS-R1 in region RG-R",
       "in_tranche_1": false,
       "row_lane": "RT-A3 reducer increment 2b (eccentric); initial concentric 2a does not unblock RS-R1",
@@ -1559,7 +1559,7 @@
       "entities": [
         "support:RS-CE1"
       ],
-      "expected_until_then": "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`",
+      "expected_until_then": "admitted in the combined test overlay; consumed, 9,000 N applied and published (core/product_physics/tests/rt_a3_s6_reference_system.rs)",
       "family": "Constant-effort support RS-CE1",
       "in_tranche_1": false,
       "row_lane": "RT-A3 increment 3",
@@ -1571,7 +1571,7 @@
         "support:RS-FR1",
         "support:RS-G1"
       ],
-      "expected_until_then": "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`",
+      "expected_until_then": "admitted in the combined test overlay; solved and published unqualified: `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`, quality unresolved (core/product_physics/tests/rt_a3_s6_reference_system.rs; LIM-017)",
       "family": "Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1)",
       "in_tranche_1": false,
       "row_lane": "RT-A3 increment 4; with the connector, increment 5",

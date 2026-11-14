@@ -3,9 +3,9 @@
 This directory holds the judged-set generator, the exact reference engine, the
 reconstructed M3 comparison with its verdict, the premise-census tooling and a small frozen
 subset for M3-T, part 5 of section 4 of
-[section-bases-and-timoshenko.md](../../../execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md).
+`section-bases-and-timoshenko.md` (DEL-05-03; removed from the tree by 0fbc2ee73, in its parent at `execution/PKG-05/DEL-05-03/Work/`).
 The acceptance is the K-D5 M3 criterion of
-[kd5-member-relative-bound.md](../../../execution/PKG-04/DEL-04-01/Design/kd5-member-relative-bound.md)
+`kd5-member-relative-bound.md` (DEL-04-01; removed by 0fbc2ee73, in its parent at `execution/PKG-04/DEL-04-01/Work/`)
 (section 4.3). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Every model is
 invented.
 
@@ -288,7 +288,7 @@ components only.
   rotations are all noise is judged against that noise and fails C3. A body whose rows are exactly zero
   passes.
 
-`--selftest` passes 948 checks on the frozen subset. It covers:
+`--selftest` runs the shared judge's self-test, which passes 1,469 checks. It covers:
 - the predicates at their exact boundaries (CRIT strict, floor inclusive, guard);
 - CRIT pinned from both sides (1 ± 1e-5) on the largest judged group of every group kind;
 - C3 pinned from both sides: a component error of (1 ± 1e-5)·CRIT·S*_kind on translations and rotations;

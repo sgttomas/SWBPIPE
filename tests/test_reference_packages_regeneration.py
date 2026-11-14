@@ -1,9 +1,7 @@
 """REGENERATION of every reference package under validation/references/: each retained check command the package's
 README gives, from its entry in tests/reference_packages.py (`check_problems`), must exit 0 (and, where the
-entry says so, print exactly a frozen file); any other exit status is a failure. A command recorded as
-deferred is not run: it is printed with its last observed blocker and the revision it was observed at, what
-it checks after that point is not established, and it is counted among what this test takes on trust. This
-test does not check that a package's generators are independent of product code.
+entry says so, print exactly a frozen file); any other exit status is a failure. This test does not check
+that a package's generators are independent of product code.
 
 No check writes into a package. Every command is a check mode (a generator's default comparison, its
 --check, or a self-test); the one that writes (m3_reproduce.py) is given a fresh directory under pytest's
@@ -53,7 +51,7 @@ del _name, _cls
 
 def test_taken_on_trust_is_counted():
     rows = R.taken_on_trust()
-    print("\nTaken on trust (not reproduced by this test; deferred commands are not run):")
+    print("\nTaken on trust (not reproduced by this test):")
     for row in rows:
         print("  " + " | ".join(row))
     assert len(rows) == R.TAKEN_ON_TRUST_COUNT, (
@@ -76,12 +74,6 @@ def test_a_package_awaiting_its_own_test_is_counted(name):
     assert f"validation/references/{name}" in AWAITED.read_text(encoding="utf-8"), f"{AWAITED.name} does not name {name}"
     pytest.fail(f"{pkg.other_test} is on this branch and names {name}: replace the entry's other_test and "
                 f"regeneration gap with its check commands, and lower TAKEN_ON_TRUST_COUNT")
-
-
-def test_no_deferred_command_is_run():
-    for name, pkg in PACKAGES.items():
-        for d in pkg.deferred:
-            assert all(c.argv != d.argv for c in pkg.checks), f"{name}: {' '.join(d.argv)} would run"
 
 
 def test_a_nonzero_exit_of_a_check_is_a_failure(monkeypatch, tmp_path):

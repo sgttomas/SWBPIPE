@@ -147,7 +147,9 @@ The validation lane proposes the set; this section records the method only:
   Stresses and code checks are left out.
 - **Models.** All invented. A seeded generator covers model families from
   straight spans to nonlinear supports, hangers and dynamics. Closed-form
-  members give an independent third value.
+  members give an independent third value. Where no closed form exists, the
+  comparison with the program is the validation: in the owner's words of
+  14 November 2026, CAEPIPE is "a trusted validator model".
 - **Inputs.** Each code-dependent input that changes mechanics is held equal on
   both sides. Where it cannot be held equal, it is named and carried by a
   one-parameter series. SWBPIPE is never tuned to match.
