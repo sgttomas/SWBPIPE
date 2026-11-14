@@ -628,8 +628,9 @@ PRINT_FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "caepipe_exte
 
 
 def _batch_print_round_trip(tmp_path, files: dict[str, bytes], status: str = "csv_from_batch",
-                            reported: str | None = "model.txt") -> dict:
-    """A round trip whose batch print leaves `files` in the guest work folder (collected into caepipe_out)."""
+                            reported: str | None = "model.txt", guest_exit: int = 0) -> dict:
+    """A round trip whose batch print leaves `files` in the guest work folder (collected into caepipe_out); the
+    guest script's step exits with `guest_exit`."""
     tmp_path.mkdir(parents=True, exist_ok=True)
     config = fake_config(tmp_path)
 
@@ -642,7 +643,7 @@ def _batch_print_round_trip(tmp_path, files: dict[str, bytes], status: str = "cs
         if command.startswith("copy /Y") and "caepipe_out" in command:
             for name, data in files.items():
                 (config.exchange_root / "cases" / "cpc-p" / "caepipe_out" / name).write_bytes(data)
-        return subprocess.CompletedProcess(argv, 0, stdout, "")
+        return subprocess.CompletedProcess(argv, guest_exit if command.startswith("powershell") else 0, stdout, "")
 
     return run_caepipe_round_trip(config, "cpc-p", MBF_TEXT, runner=runner)
 
@@ -670,6 +671,22 @@ def test_round_trip_refuses_two_batch_print_files(tmp_path):
                                       status="print_file_ambiguous", reported=None)
     assert record_["route"] == "print_file_ambiguous" and record_["observed_csv_path"]["host"] is None
     assert record_["print_file"]["collected"] is None
+
+
+@pytest.mark.parametrize("guest_exit", [1, 3, 255, -9])
+def test_round_trip_refuses_a_success_status_whose_guest_step_exited_nonzero(tmp_path, guest_exit):
+    # The guest script exits 0 exactly on its success routes; a success status with any other exit of its step (the
+    # script's own failure, the prlctl client's, or a kill) is contradictory and is never taken as a CSV route.
+    record_ = _batch_print_round_trip(tmp_path, {"model.txt": PRINT_FIXTURE.read_bytes()}, guest_exit=guest_exit)
+    assert record_["route"] == "guest_exit_nonzero" and record_["exit_status"] == guest_exit
+    stored = json.loads((tmp_path / "exchange" / "cases" / "cpc-p" / "caepipe_out" / "run_record.json").read_text())
+    assert stored["route"] == "guest_exit_nonzero"
+
+
+def test_round_trip_keeps_the_guest_refusal_reported_with_its_nonzero_exit(tmp_path):
+    # A refusal the guest reports with its nonzero exit is read as reported, as before.
+    record_ = _batch_print_round_trip(tmp_path, {}, status="no_results_after_batch", reported=None, guest_exit=2)
+    assert record_["route"] == "no_results_after_batch" and record_["exit_status"] == 2
     # The guest script refuses both before reporting either, and never falls back to the GUI then.
     script = harness.GUEST_SCRIPT.read_text(encoding="utf-8")
     both = script.index('$log.batch.csv_present -and $log.batch.txt_present')
@@ -914,8 +931,9 @@ def solved_case(tmp_path: Path, case_id: str, *, hashed: bool = True, **extra) -
 
 
 def export_runner(out: Path, commands: list[str], *, guest: dict | None = None, collected: bytes = EXPORTED_BYTES,
-                  on_export=None):
-    """A fake prlctl: the export step reports the invented hashes, the collect step writes the invented export."""
+                  on_export=None, export_exit: int = 0, collect_exit: int = 0):
+    """A fake prlctl: the export step reports the invented hashes, the collect step writes the invented export; they
+    exit with `export_exit` and `collect_exit`."""
 
     def runner(argv, **kwargs):
         assert argv[:6] == ["/invented/prlctl", "exec", "invented-vm", "--current-user", "cmd", "/c"]
@@ -930,7 +948,8 @@ def export_runner(out: Path, commands: list[str], *, guest: dict | None = None, 
                 "exported_mbf_path": "C:\\invented-work\\cpc-e\\export\\exported.mbf"})
         elif command.startswith("copy") and "caepipe_out" in command:
             (out / "exported.mbf").write_bytes(collected)
-        return subprocess.CompletedProcess(argv, 0, stdout, "")
+            return subprocess.CompletedProcess(argv, collect_exit, stdout, "")
+        return subprocess.CompletedProcess(argv, export_exit if command.startswith("powershell") else 0, stdout, "")
 
     return runner
 
@@ -1007,6 +1026,26 @@ def test_mbf_export_drops_a_collected_file_whose_hash_differs_from_the_guest_rep
     config, out = solved_case(tmp_path, "cpc-e")
     entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(out, [], collected=b"OTHER\r\n"))
     assert entry["route"] == "export_hash_mismatch"
+    assert not (out / "exported.mbf").exists() and entry["exported_mbf"]["sha256"] is None
+
+
+@pytest.mark.parametrize("export_exit", [1, 255, -15])
+def test_mbf_export_refuses_a_reported_export_whose_guest_step_exited_nonzero(tmp_path, export_exit):
+    # The guest script exits 0 exactly when it reports the exported MBF's hash; with any other exit nothing is
+    # collected and the export is refused by name.
+    config, out = solved_case(tmp_path, "cpc-e")
+    commands: list[str] = []
+    entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA,
+                                   runner=export_runner(out, commands, export_exit=export_exit))
+    assert entry["route"] == "guest_exit_nonzero" and entry["exit_status"] == export_exit
+    assert len(commands) == 2 and not (out / "exported.mbf").exists() and entry["exported_mbf"]["sha256"] is None
+
+
+def test_mbf_export_refuses_a_collection_whose_copy_exited_nonzero(tmp_path):
+    # The collection is one copy; its file is not taken when the copy's exit is nonzero, even with the reported hash.
+    config, out = solved_case(tmp_path, "cpc-e")
+    entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(out, [], collect_exit=1))
+    assert entry["route"] == "mbf_not_collected"
     assert not (out / "exported.mbf").exists() and entry["exported_mbf"]["sha256"] is None
 
 
@@ -3002,6 +3041,57 @@ def test_pilot_authored_dir_refusals(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: HarnessSkip("invented"))
     assert run_pilot.main(["--authored", "--authored-dir", str(outside)], environ={}) == 0
     assert "CAEPIPE harness skipped: invented" in capsys.readouterr().out
+
+
+SOLVED_OUTPUT = {"payload": {"mechanics_envelope": {"status": {"mechanics": "MECHANICS_SOLVED"}, "results": []}}}
+
+
+def stand_in_runner(tmp_path: Path, stdout: str, *, exit_code: int = 0, kill: int | None = None) -> str:
+    """An executable that reads the request, writes `stdout` whole and flushed, then exits with `exit_code` or, with
+    `kill`, ends itself by that signal, so that the parent observes a negative exit as for a killed runner."""
+    script = tmp_path / "stand-in-runner"
+    ending = f"os.kill(os.getpid(), {kill})\ntime.sleep(30)\n" if kill is not None else f"sys.exit({exit_code})\n"
+    script.write_text(f"#!{sys.executable}\nimport os, sys, time\nsys.stdin.read()\n"
+                      f"sys.stdout.write({stdout!r})\nsys.stdout.flush()\n" + ending, encoding="utf-8")
+    script.chmod(0o755)
+    return str(script)
+
+
+SOLVE_CASE = {"case_id": "exit-status", "model": {"invented": True}}
+
+
+@pytest.mark.parametrize("exit_code, kill, named", [
+    (1, None, "runner exit 1"),
+    (2, None, "runner exit 2"),
+    (None, signal.SIGKILL, "runner exit -9 (killed by signal SIGKILL)"),
+    (None, signal.SIGTERM, "runner exit -15 (killed by signal SIGTERM)"),
+])
+def test_a_nonzero_runner_exit_is_not_a_solve_even_with_solved_output(tmp_path, exit_code, kill, named):
+    # The runner's documented exits (docs/validation_manual/headless_runner_reproduction.md): 0 only without a
+    # blocking diagnostic or blocked export, 1 with one, 2 for unusable input; a negative exit is a kill by signal.
+    # Complete solved JSON on stdout does not make any of these a clean solve; the parsed output is kept.
+    runner = stand_in_runner(tmp_path, json.dumps(SOLVED_OUTPUT), exit_code=exit_code or 0,
+                             kill=int(kill) if kill is not None else None)
+    _, output, error = run_pilot.solve_swbpipe(runner, SOLVE_CASE)
+    assert output == SOLVED_OUTPUT
+    assert error.startswith(named) and "MECHANICS_SOLVED" not in error, error
+
+
+def test_exit_zero_with_solved_output_is_a_solve(tmp_path):
+    runner = stand_in_runner(tmp_path, json.dumps(SOLVED_OUTPUT))
+    body, output, error = run_pilot.solve_swbpipe(runner, SOLVE_CASE)
+    assert (output, error) == (SOLVED_OUTPUT, "")
+    assert body["solve"]["preview_model"]["model"] == SOLVE_CASE["model"]
+
+
+def test_exit_zero_unsolved_and_stdout_not_json_are_refused_as_before(tmp_path):
+    unsolved = {"payload": {"mechanics_envelope": {"status": {"mechanics": "MECHANICS_BLOCKED"}}}}
+    _, output, error = run_pilot.solve_swbpipe(stand_in_runner(tmp_path, json.dumps(unsolved)), SOLVE_CASE)
+    assert (output, error) == (unsolved, "SWBPIPE mechanics status 'MECHANICS_BLOCKED' (runner exit 0)")
+    for exit_code in (0, 2):
+        _, output, error = run_pilot.solve_swbpipe(stand_in_runner(tmp_path, "usage", exit_code=exit_code),
+                                                   SOLVE_CASE)
+        assert (output, error) == (None, f"runner exit {exit_code}; stdout is not JSON")
 
 
 def offline_case(tmp_path, monkeypatch, *, run_record=None, csv=True):
