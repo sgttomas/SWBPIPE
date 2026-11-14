@@ -196,6 +196,21 @@ needs:
     (DEL-07-07/REQ-012), so that a solve cannot exceed its budget and a completed solve's peak
     physical footprint can be observed against it.
   gating: false
+- from: DEL-04-05
+  when: Making a byte comparison of the entry's published results with tools/byte_compare
+  condition: >-
+    The release timing driver records, for a request in either solver mode, the bytes the
+    product's own entry writes for it (DEL-04-05 AC-002), under its driver protocol: one
+    release-timing-v2 solve line on stdout stating the outcome and the written envelope's digest
+    and length, and an entry error as its own status and exit. It also states its build identity
+    (`--build-identity`): the source commit and tree, whether the source was dirty, the build
+    profile and the toolchain. The driver crate builds at cargo's default release profile from
+    its own Cargo.lock, within the build closure the tool's manifest names (its registry
+    packages, build scripts and generated sources), so that the tool can attest each build
+    against that closure. Every source the driver build compiles, as rustc's dep-info reports it,
+    is a committed regular file of the tree, a locked registry file or an allowed generated file,
+    with no link in its path.
+  gating: false
 code_paths:
 # The product solve crate and the nonlinear iteration. Within core/product_physics/, modules that
 # carry another deliverable's definition are listed by that deliverable too: the retained producer
@@ -263,6 +278,10 @@ code_paths:
 - tools/validation/pressure_elongation_inventory.py
 - tools/validation/pressure_elongation_inventory.declarations.json
 - tools/validation/pressure_elongation_inventory.json
+# The before/after byte comparison of this entry's published results between two revisions, run
+# through DEL-04-05's release timing driver; its manifest names the maintained requests compared.
+- tools/byte_compare/**
+- tests/test_byte_compare_tool.py
 - validation/platform/windows_runner_startup_probe/**
 - validation/platform/windows_arena_probe/**
 - validation/platform/windows_worker_fixture/**
