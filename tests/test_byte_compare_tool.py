@@ -53,6 +53,30 @@ spec.loader.exec_module(bc)
 MAINTAINED = json.loads(MANIFEST.read_text())
 BUILD_BLOCKS = {key: MAINTAINED[key] for key in ("build_settings", "build_closure")}
 
+# The mutation harness sets this so that no test can fail on a diagnostic's wording alone: every
+# message check then passes, and a mutation counts as killed only where what the tool did changed.
+BEHAVIOUR_ONLY = os.environ.get("BYTE_COMPARE_BEHAVIOUR_ONLY") == "1"
+
+
+def says(text, needle):
+    """Whether a diagnostic names its reason (always, in behaviour-only mode)."""
+    return BEHAVIOUR_ONLY or needle in text
+
+
+def nothing_ran(scratch):
+    """No run output was written (the run directories are reserved empty first) and the reserved results
+    file holds nothing."""
+    runs, results = Path(scratch) / "runs", Path(scratch) / "results.json"
+    return not (runs.is_dir() and any(p.is_file() for p in runs.rglob("*"))) \
+        and not (results.is_file() and results.stat().st_size)
+
+
+def refused_with(needle, call, *args, **kwargs):
+    """`call` must raise BuildRefused (behaviour); its message must name `needle` (wording)."""
+    with pytest.raises(bc.BuildRefused) as refused:
+        call(*args, **kwargs)
+    assert says(str(refused.value), needle), str(refused.value)
+
 
 # ------------------------------------------------------------------ envelopes and runs
 
@@ -244,6 +268,23 @@ STUB_CARGO = textwrap.dedent('''\
     if leaked:
         print("stub cargo: inherited build settings reached the build: " + ", ".join(leaked), file=sys.stderr)
         sys.exit(1)
+    with open(os.environ["STUB_CARGO_LOG"], "a") as handle:
+        handle.write(json.dumps(args) + "\\n")
+    side = target.name.split("-")[0]
+    scratch = os.environ.get("STUB_SCRATCH")
+    # During side A's build: plant a link where the tool will write later (STUB_PLANT = path:kind), or
+    # swap a reserved directory for a link elsewhere (STUB_SWAP = path, STUB_SWAP_TO = destination).
+    if side == "A" and os.environ.get("STUB_PLANT"):
+        rel, kind = os.environ["STUB_PLANT"].rsplit(":", 1)
+        where, frozen = os.path.join(scratch, rel), os.environ["STUB_FROZEN"]
+        try:
+            os.symlink(frozen, where) if kind == "symlink" else os.link(frozen, where)
+        except FileExistsError:   # the tool already holds the name
+            open(os.environ["STUB_CARGO_LOG"] + ".plant-refused", "w").close()
+    if side == "A" and os.environ.get("STUB_SWAP"):
+        where = os.path.normpath(os.path.join(scratch, os.environ["STUB_SWAP"]))
+        os.rename(where, where + ".moved")
+        os.symlink(os.environ["STUB_SWAP_TO"], where)
     if os.environ.get("STUB_NO_LINK"):
         sys.exit(0)
     identity = {"source_commit": os.environ.get("STUB_COMMIT") or git("rev-parse", "HEAD"),
@@ -252,7 +293,6 @@ STUB_CARGO = textwrap.dedent('''\
                 "build_profile": os.environ.get("STUB_PROFILE") or ("release" if "--release" in args else "debug"),
                 "rustc": ["rustc 0.0.0-stub"], "cargo": ["cargo 0.0.0-stub"]}
     perturb = (tree / "perturb").exists()
-    side = target.name.split("-")[0]
     crate = manifest.parent
     deps = target / "release" / "deps"
     deps.mkdir(parents=True, exist_ok=True)
@@ -266,6 +306,12 @@ STUB_CARGO = textwrap.dedent('''\
     binary.write_text(body + ("# not the file rustc wrote\\n" if os.environ.get("STUB_UPLIFT_DIFFERS") else ""))
     for path in (written, binary):
         path.chmod(0o755)
+    # rustc's dep-info for the unit: its crate root (relative, as rustc reports a primary package's
+    # sources), and whatever a test adds (STUB_DEPS).
+    deps_listed = " ".join(["src/main.rs", *os.environ.get("STUB_DEPS", "").split()])
+    (deps / ("release_timing" + extra + ".d")).write_text(
+        f"{deps}/release_timing{extra}.d: {deps_listed}\\n\\n{deps}/release_timing{extra}: {deps_listed}\\n\\n"
+        + "".join(f"{d}:\\n" for d in deps_listed.split()) + "\\n# env-dep:CARGO_PKG_VERSION=0.1.0\\n")
     # A stand-in rustc in its own sysroot, answering -vV and --print sysroot.
     sysroot = Path(os.environ["STUB_SYSROOT"]) / side
     rustc = sysroot / "bin" / "rustc"
@@ -311,6 +357,13 @@ STUB_CARGO = textwrap.dedent('''\
 
 STUB_DRIVER = textwrap.dedent('''\
     import hashlib, json, os, sys
+    with open(os.environ["STUB_RUN_LOG"], "a") as handle:
+        handle.write(json.dumps(sys.argv[1:]) + "\\n")
+    # At its first solve, replace a later run's reserved output with a hard link to a frozen request.
+    if os.environ.get("STUB_REPLACE") and sys.argv[1:] != ["--build-identity"] and not os.path.exists(os.environ["STUB_REPLACE"] + ".done"):
+        open(os.environ["STUB_REPLACE"] + ".done", "w").close()
+        os.unlink(os.environ["STUB_REPLACE"])
+        os.link(os.environ["STUB_FROZEN"], os.environ["STUB_REPLACE"])
     if os.environ.get("STUB_OUTSIDE_LOG") and not os.environ.get("UNDER_RUN_WRAPPER"):
         with open(os.environ["STUB_OUTSIDE_LOG"], "a") as handle:
             handle.write(json.dumps(sys.argv) + "\\n")
@@ -391,6 +444,7 @@ def world(tmp_path):
     git(repo, "init", "-q")
     write(repo, bc.VERSION_SOURCE, 'pub const MODEL_SCHEMA_VERSION: &str = "2.0.0";\n')
     write(repo, bc.DRIVER_CRATE + "/Cargo.toml", "[package]\n")
+    write(repo, bc.DRIVER_CRATE + "/src/main.rs", "fn main() {}\n")
     write(repo, bc.DRIVER_CRATE + "/Cargo.lock",
           'version = 4\n\n[[package]]\nname = "open_pipe_stress_release_timing"\nversion = "0.1.0"\n')
     for rel, doc in FIXTURES.items():
@@ -409,23 +463,25 @@ def world(tmp_path):
     manifest = tmp_path / "manifest.json"
     manifest.write_text(manifest_for())
 
-    def run(a_rev=a, b_rev=b, env=None, manifest_path=manifest, scratch=None, work=None, table=None, keep=False,
+    def run(a_rev=a, b_rev=b, env=None, manifest_path=manifest, scratch=None, work=None, table="table.md", keep=False,
             wrapper=None):
         scratch = scratch or tmp_path / f"scratch-{len(list(tmp_path.glob('scratch-*')))}"
-        table = table or tmp_path / f"table-{len(list(tmp_path.glob('table-*.md')))}.md"
         saved = dict(os.environ)
         os.environ.update({"STUB_DRIVER": str(tools / "driver.py"), "STUB_SYSROOT": str(tmp_path / "sysroot"),
-                           "STUB_BUILD": json.dumps(BUILD_BLOCKS["build_settings"]["runtime"]), **(env or {})})
+                           "STUB_BUILD": json.dumps(BUILD_BLOCKS["build_settings"]["runtime"]),
+                           "STUB_CARGO_LOG": str(tmp_path / "cargo.log"), "STUB_RUN_LOG": str(tmp_path / "runs.log"),
+                           "STUB_SCRATCH": str(scratch), "STUB_FROZEN": str(repo / "f/old.json"), **(env or {})})
         try:
             code = bc.main(["compare", "--a", a_rev, "--b", b_rev, "--scratch", str(scratch), "--repo", str(repo),
                             "--manifest", str(manifest_path), "--cargo", f"{sys.executable} {tools / 'cargo.py'}",
-                            "--table", str(table), "--timeout", "60"]
+                            "--timeout", "60"] + (["--table", table] if table else [])
                            + (["--work", str(work)] if work else []) + (["--keep-worktrees"] if keep else [])
                            + (["--run-wrapper", str(wrapper)] if wrapper else []))
         finally:
             os.environ.clear()
             os.environ.update(saved)
-        text = table.read_text() if table.is_file() else ""
+        written = scratch / table if table else None
+        text = written.read_text() if written and code in (0, 1) and written.is_file() and not written.is_symlink() else ""
         return code, text, scratch
 
     return {"repo": repo, "a": a, "b": b, "run": run, "tmp": tmp_path, "manifest": manifest}
@@ -505,6 +561,23 @@ def test_a_manifest_path_that_does_not_exist_fails(world):
     assert "manifest path f/gone.json does not exist" in table
 
 
+def frozen(world):
+    return world["repo"] / "f/old.json"
+
+
+def snapshot(world):
+    """What must be preserved: the frozen request's bytes and link count, and the caller's clean status."""
+    return frozen(world).read_bytes(), os.stat(frozen(world)).st_nlink, git(world["repo"], "status", "--porcelain")
+
+
+def built(world):
+    return (world["tmp"] / "cargo.log").exists()
+
+
+def ran(world):
+    return (world["tmp"] / "runs.log").exists()
+
+
 @pytest.mark.parametrize("env, needle", [
     ({"STUB_COMMIT": "0" * 40}, "source_commit"),
     ({"STUB_TREE": "0" * 40}, "source_tree"),
@@ -515,21 +588,11 @@ def test_a_manifest_path_that_does_not_exist_fails(world):
 def test_a_binary_not_built_as_stated_is_never_run(world, env, needle, capsys):
     code, table, scratch = world["run"](env=env)
     assert code == 2 and table == ""
-    assert needle in capsys.readouterr().err
-    assert not (scratch / "runs").exists()
+    assert says(capsys.readouterr().err, needle)
+    assert nothing_ran(scratch)
+    lines = (world["tmp"] / "runs.log").read_text().splitlines() if ran(world) else []
+    assert all(json.loads(line) == ["--build-identity"] for line in lines), lines
     assert "wt-" not in git(world["repo"], "worktree", "list")
-
-
-def test_a_stale_binary_in_the_target_directory_is_not_used(world, capsys):
-    # Each build is into a fresh, empty target directory: one holding an earlier binary is refused
-    # before anything is built (round 3, threat (b): every unit attested was compiled by this build).
-    work = world["tmp"] / "work"
-    target = work / "target" / f"A-{world['a']}" / "release"
-    target.mkdir(parents=True)
-    (target / "release_timing").write_text("stale")
-    code, _, scratch = world["run"](env={"STUB_NO_LINK": "1"}, work=work)
-    assert code == 2 and "is not an empty directory; each build is fresh" in capsys.readouterr().err
-    assert not (scratch / "runs").exists()
 
 
 def test_a_frozen_request_changed_during_the_run_fails(world):
@@ -537,11 +600,6 @@ def test_a_frozen_request_changed_during_the_run_fails(world):
     assert code == 1
     assert "f/bare.json changed on disk during the comparison" in table
     assert "the worktree changed during the runs" in table
-
-
-def test_scratch_inside_a_git_work_tree_is_refused(world, capsys):
-    code, _, _ = world["run"](scratch=world["repo"] / "scratch")
-    assert code == 2 and "inside a git work tree" in capsys.readouterr().err
 
 
 def test_inherited_build_settings_never_reach_the_build(world):
@@ -558,80 +616,197 @@ def test_inherited_build_settings_never_reach_the_build(world):
     assert "Compared with numerical work on both sides: 4 of 8 pairs**" in table
 
 
-# ------------------------------------------------------------------ the table destination (threat (c))
+# ------------------------------------------------------------------ writes (threat (c)): every sink
 
-def frozen(world):
-    return world["repo"] / "f/old.json"
-
-
-def caller_worktree(world):
-    return frozen(world), "inside a git work tree"
+# Each path the tool writes, relative to the scratch area (README "Every sink"). `{a}` is side A's commit.
+SINKS = ["", "plan.json", "results.json", "table.md", "build-A.log", "build-A.jsonl", "inputs", "inputs/A/f__old.json.json",
+         "runs/A/f__old.json.sparse.stdout", "runs/A/f__old.json.sparse.envelope.json", "build", "build/bin/A-{a}/release_timing",
+         "build/target/A-{a}", "build/wt-A-{a12}"]
 
 
-def symlink_to_request(world):
-    link = world["tmp"] / "link.md"
-    link.symlink_to(frozen(world))
-    return link, "inside a git work tree"
+def plant(world, where, kind):
+    """A link at `where` to the frozen request: a symbolic link, or a hard link (a second name for its bytes)."""
+    where.parent.mkdir(parents=True, exist_ok=True)
+    where.symlink_to(frozen(world)) if kind == "symlink" else os.link(frozen(world), where)
 
 
-def hard_link_to_request(world):
-    link = world["tmp"] / "hard.md"
-    os.link(frozen(world), link)
-    return link, "already exists"
+@pytest.mark.parametrize("kind", ["symlink", "hardlink"])
+@pytest.mark.parametrize("sink", SINKS)
+def test_a_link_at_any_sink_of_an_existing_area_is_refused_before_anything_is_built(world, sink, kind, capsys):
+    # The reading's reproduction was the binary copy through a pre-existing work area; every sink is tried.
+    scratch = world["tmp"] / "scratch-old"
+    if sink:
+        scratch.mkdir()
+    plant(world, scratch / sink.format(a=world["a"], a12=world["a"][:12]), kind)   # sink "": the area itself
+    before = snapshot(world)
+    code, _, _ = world["run"](scratch=scratch)
+    assert code == 2 and says(capsys.readouterr().err, "already exists; each comparison reserves a new one")
+    assert snapshot(world) == before and not built(world) and not ran(world)
 
 
-def this_runs_generated_worktree(world):
-    return world["tmp"] / "work" / f"wt-A-{world['a'][:12]}" / "f/old.json", "one of the tool's own paths"
+def test_an_existing_empty_area_is_refused_before_anything_is_built(world, capsys):
+    before = snapshot(world)
+    (world["tmp"] / "scratch-empty").mkdir()
+    code, _, _ = world["run"](scratch=world["tmp"] / "scratch-empty")
+    assert code == 2 and says(capsys.readouterr().err, "already exists; each comparison reserves a new one")
+    assert snapshot(world) == before and not built(world) and not ran(world)
 
 
-def scratch_evidence(world):
-    return world["tmp"] / "scratch-x" / "results.json", "one of the tool's own paths"
+@pytest.mark.parametrize("kind", ["symlink", "hardlink"])
+def test_a_link_at_a_separate_work_area_is_refused_before_anything_is_built(world, kind, capsys):
+    plant(world, world["tmp"] / "work-old", kind)
+    before = snapshot(world)   # after the plant: a hard link adds its own name to the request
+    code, _, _ = world["run"](work=world["tmp"] / "work-old")
+    assert code == 2 and says(capsys.readouterr().err, "already exists; each comparison reserves a new one")
+    assert snapshot(world) == before and not built(world) and not ran(world)
 
 
-@pytest.mark.parametrize("destination", [caller_worktree, symlink_to_request, hard_link_to_request,
-                                         this_runs_generated_worktree, scratch_evidence])
-def test_a_table_destination_that_could_overwrite_a_request_or_evidence_is_refused(world, destination, capsys):
-    before = frozen(world).read_bytes()
-    table, needle = destination(world)
-    links = os.stat(frozen(world)).st_nlink
-    code, _, scratch = world["run"](table=table, work=world["tmp"] / "work", scratch=world["tmp"] / "scratch-x")
-    assert code == 2 and needle in capsys.readouterr().err
-    assert frozen(world).read_bytes() == before and os.stat(frozen(world)).st_nlink == links
-    assert git(world["repo"], "status", "--porcelain") == ""
-    assert not (scratch / "runs").exists() and not (scratch / "results.json").exists()
-    assert "wt-" not in git(world["repo"], "worktree", "list")
+def test_an_area_inside_the_callers_work_tree_is_refused_before_anything_is_built(world, capsys):
+    before = snapshot(world)
+    code, _, _ = world["run"](scratch=world["repo"] / "scratch")
+    assert code == 2 and says(capsys.readouterr().err, "inside a git work tree")
+    assert snapshot(world) == before and not built(world) and not ran(world)
+    assert not (world["repo"] / "scratch").exists()
 
 
-def test_a_table_destination_in_a_worktree_kept_by_an_earlier_run_is_refused(world, capsys):
+def test_an_area_inside_a_worktree_kept_by_an_earlier_run_is_refused(world, capsys):
     work = world["tmp"] / "work"
     code, table, _ = world["run"](work=work, keep=True)
     assert code == 0, table
     kept = work / f"wt-A-{world['a'][:12]}"
-    before = (kept / "f/old.json").read_bytes()
+    (world["tmp"] / "cargo.log").unlink()
+    (world["tmp"] / "runs.log").unlink()
     try:
-        code, _, _ = world["run"](table=kept / "f/old.json", work=world["tmp"] / "work-2")
-        assert code == 2 and "inside a git work tree" in capsys.readouterr().err
-        assert (kept / "f/old.json").read_bytes() == before
-        assert git(kept, "status", "--porcelain") == ""
+        code, _, _ = world["run"](scratch=kept / "f" / "scratch", work=world["tmp"] / "work-2")
+        assert code == 2 and says(capsys.readouterr().err, "inside a git work tree")
+        assert git(kept, "status", "--porcelain") == "" and not built(world) and not ran(world)
     finally:
         for tree in work.glob("wt-*"):
             git(world["repo"], "worktree", "remove", str(tree))
 
 
-def test_a_table_destination_created_during_the_comparison_is_not_overwritten(world, capsys):
-    table = world["tmp"] / "late.md"
-    code, _, scratch = world["run"](table=table, env={"STUB_CREATE": str(table)})
-    assert code == 2 and "came into existence during the comparison" in capsys.readouterr().err
-    assert table.read_text() == "earlier evidence"
-    assert (scratch / "results.json").is_file()
+@pytest.mark.parametrize("via", ["into the work tree", "missing component then ..", "missing parent"])
+def test_an_area_reached_through_an_alias_is_refused_before_anything_is_built(world, via, capsys):
+    before = snapshot(world)
+    if via == "into the work tree":   # a linked intermediate directory that resolves into the caller's repository
+        (world["tmp"] / "alias").symlink_to(world["repo"], target_is_directory=True)
+        given, needle = world["tmp"] / "alias" / "scratch", "inside a git work tree"
+    elif via == "missing component then ..":   # checked through /outside while the component exists nowhere
+        given, needle = world["tmp"] / "not-created-yet" / ".." / "repo" / "scratch", "does not resolve"
+    else:
+        given, needle = world["tmp"] / "not-created-yet" / "scratch", "does not resolve"
+    code, _, _ = world["run"](scratch=given)
+    assert code == 2 and says(capsys.readouterr().err, needle)
+    assert snapshot(world) == before and not built(world) and not ran(world)
+    assert not (world["repo"] / "scratch").exists() and not (world["tmp"] / "not-created-yet").exists()
 
 
-def test_a_table_destination_that_became_a_work_tree_during_the_comparison_is_refused(world, capsys):
-    table = world["tmp"] / "becomes-a-repo" / "table.md"
-    table.parent.mkdir()
-    code, _, _ = world["run"](table=table, env={"STUB_GIT_INIT": str(table.parent)})
-    assert code == 2 and "inside a git work tree" in capsys.readouterr().err
-    assert not table.exists()
+def test_an_area_through_a_linked_directory_outside_every_work_tree_is_made_where_it_resolves(world):
+    (world["tmp"] / "elsewhere").mkdir()
+    (world["tmp"] / "alias").symlink_to(world["tmp"] / "elsewhere", target_is_directory=True)
+    code, table, _ = world["run"](scratch=world["tmp"] / "alias" / "scratch")
+    assert code == 0, table
+    results = json.loads((world["tmp"] / "elsewhere" / "scratch" / "results.json").read_text())
+    assert results["sides"]["A"]["inputs"] == str((world["tmp"] / "elsewhere" / "scratch" / "inputs" / "A").resolve())
+
+
+@pytest.mark.parametrize("kind", ["symlink", "hardlink"])
+@pytest.mark.parametrize("sink", ["build/bin/B-{b}/release_timing", "inputs/A/f__old.json.json", "inputs/B/f__bare.json.json",
+                                  "runs/A/f__old.json.sparse.stdout", "runs/B/f__old.json.dense.status.json",
+                                  "runs/A/f__old.json.sparse.envelope.json"])
+def test_a_link_planted_at_a_sink_during_the_build_is_refused_and_nothing_runs(world, sink, kind, capsys):
+    before = snapshot(world)
+    code, _, _ = world["run"](env={"STUB_PLANT": f"{sink.format(b=world['b'])}:{kind}"})
+    assert code == 2 and says(capsys.readouterr().err, "already exists")
+    # The bytes are unchanged; a hard-link plant adds its own one name, and nothing else does.
+    assert snapshot(world)[:2] == (before[0], before[1] + (kind == "hardlink")) and not ran_a_solve(world)
+
+
+def ran_a_solve(world):
+    lines = (world["tmp"] / "runs.log").read_text().splitlines() if ran(world) else []
+    return any(json.loads(line) != ["--build-identity"] for line in lines)
+
+
+@pytest.mark.parametrize("fixed", ["plan.json", "results.json", "table.md"])
+def test_a_fixed_sink_is_reserved_before_the_build_so_a_later_link_cannot_take_it(world, fixed):
+    before = snapshot(world)
+    code, table, scratch = world["run"](env={"STUB_PLANT": f"{fixed}:hardlink"})
+    assert (world["tmp"] / "cargo.log.plant-refused").exists()   # the name was already the tool's
+    assert code == 0, table
+    assert snapshot(world)[:2] == before[:2] and (scratch / fixed).stat().st_nlink == 1
+    assert (scratch / fixed).read_bytes() != before[0]
+
+
+@pytest.mark.parametrize("swapped", [".", "inputs", "runs", "build", "build/bin"])
+def test_a_reserved_directory_swapped_for_a_link_during_the_build_is_refused_and_nothing_runs(world, swapped, capsys):
+    before = snapshot(world)
+    code, _, _ = world["run"](env={"STUB_SWAP": swapped, "STUB_SWAP_TO": str(world["repo"] / "f")})
+    assert code == 2 and says(capsys.readouterr().err, "no longer names the directory")
+    assert snapshot(world) == before and not ran_a_solve(world)
+    assert sorted(p.name for p in (world["repo"] / "f").iterdir()) == sorted(Path(k).name for k in FIXTURES)
+
+
+def test_a_run_output_replaced_after_its_reservation_is_refused(world, capsys):
+    before = snapshot(world)
+    scratch = world["tmp"] / "scratch-replace"
+    later = scratch / "runs" / "B" / "f__old.json.dense.stdout"
+    code, _, _ = world["run"](scratch=scratch, env={"STUB_REPLACE": str(later)})
+    assert code == 2 and says(capsys.readouterr().err, "was replaced after it was reserved")
+    assert frozen(world).read_bytes() == before[0]
+
+
+@pytest.mark.parametrize("name", ["/elsewhere/table.md", "../escape.md", "sub/table.md", "results.json", "build", ".."])
+def test_a_table_name_that_is_not_a_new_plain_name_in_the_area_is_refused(world, name, capsys):
+    before = snapshot(world)
+    code, _, scratch = world["run"](table=name)
+    assert code == 2 and not built(world) and not ran(world) and snapshot(world) == before
+    assert not (world["tmp"] / "escape.md").exists() and not Path("/elsewhere/table.md").exists()
+    err = capsys.readouterr().err
+    assert says(err, "is not a plain file name") or says(err, "is one of the tool's own evidence names"), err
+
+
+# ------------------------------------------------------------------ the reservation primitives
+
+def test_an_area_never_takes_a_name_it_did_not_make(tmp_path):
+    area = bc.Area.reserve(str(tmp_path / "area"), "--scratch")
+    try:
+        (tmp_path / "area" / "made-elsewhere").mkdir()
+        (tmp_path / "area" / "linked").symlink_to(tmp_path, target_is_directory=True)
+        (tmp_path / "victim").write_text("keep")
+        os.link(tmp_path / "victim", tmp_path / "area" / "hard")
+        for name in ("made-elsewhere", "linked"):
+            with pytest.raises(bc.SetupError):
+                area.directory(name)
+        for name in ("linked", "hard", "made-elsewhere"):
+            with pytest.raises(bc.SetupError):
+                area.write(name, b"overwritten")
+        assert (tmp_path / "victim").read_text() == "keep" and not list(tmp_path.glob("overwritten"))
+    finally:
+        area.close()
+
+
+def test_a_reserved_directory_swapped_for_a_link_is_refused_and_writes_stay_in_it(tmp_path):
+    area = bc.Area.reserve(str(tmp_path / "area"), "--scratch")
+    try:
+        inner = area.directory("inner")
+        os.rename(tmp_path / "area" / "inner", tmp_path / "area" / "inner.moved")
+        (tmp_path / "area" / "inner").symlink_to(tmp_path, target_is_directory=True)
+        with pytest.raises(bc.SetupError):
+            area.verify()
+        inner.write("evidence", b"kept")   # through the held descriptor, never through the link
+        assert (tmp_path / "area" / "inner.moved" / "evidence").read_bytes() == b"kept"
+        assert not (tmp_path / "evidence").exists()
+    finally:
+        area.close()
+
+
+def test_a_directory_is_opened_without_following_a_link(tmp_path):
+    root = tmp_path.resolve()
+    (root / "real").mkdir()
+    (root / "link").symlink_to(root / "real", target_is_directory=True)
+    os.close(bc.open_directory(root / "real"))
+    with pytest.raises(bc.SetupError):
+        os.close(bc.open_directory(root / "link"))
 
 
 # ------------------------------------------------------------------ hosted selection
@@ -664,8 +839,8 @@ def test_hosted_selection_runs_this_test_when_the_tool_or_its_manifest_changes()
 def test_a_build_the_attestation_does_not_establish_is_refused_before_any_run(world, env, needle, capsys):
     code, table, scratch = world["run"](env=env)
     err = capsys.readouterr().err
-    assert code == 2 and table == "" and needle in err, err
-    assert not (scratch / "runs").exists() and not (scratch / "results.json").exists()
+    assert code == 2 and table == "" and says(err, needle), err
+    assert nothing_ran(scratch)
     assert "wt-" not in git(world["repo"], "worktree", "list")
 
 
@@ -715,16 +890,17 @@ def test_every_start_of_a_built_binary_or_its_rustc_goes_through_the_run_wrapper
 
 def test_a_run_wrapper_that_cannot_be_used_is_refused_before_building(world, capsys):
     code, _, scratch = world["run"](wrapper=world["tmp"] / "no-such-wrapper")
-    assert code == 2 and "--run-wrapper" in (err := capsys.readouterr().err) and "cannot be used" in err, err
-    assert not (scratch / "build-A.log").exists() and not (scratch / "runs").exists()
+    err = capsys.readouterr().err
+    assert code == 2 and says(err, "--run-wrapper") and says(err, "cannot be used"), err
+    assert not (scratch / "build-A.log").exists() and nothing_ran(scratch)
 
 
 def test_a_run_wrapper_refusing_the_identity_check_stops_the_comparison(world, capsys):
     wrapper, _ = recording_wrapper(world["tmp"], refuse_identity=True)
     code, _, scratch = world["run"](wrapper=wrapper)
     err = capsys.readouterr().err
-    assert code == 2 and "--build-identity (exit 98, a host condition)" in err, err
-    assert not (scratch / "runs").exists()
+    assert code == 2 and says(err, "--build-identity (exit 98, a host condition)"), err
+    assert nothing_ran(scratch)
 
 
 def test_the_build_blocks_are_closed():
@@ -779,18 +955,30 @@ REGISTRY = "registry+https://github.com/rust-lang/crates.io-index"
 BIN_LINE = "--crate-name release_timing --edition=2021 src/main.rs"
 
 
-def attest_captured(stdout=lambda t: t, stderr=lambda t: t, lock=lambda t: t, observed=lambda o: o, calls=None):
-    seen = json.loads((CAPTURED / "observed.json").read_text())
-    seen = observed(seen)
+def attest_captured(stdout=lambda t: t, stderr=lambda t: t, lock=lambda t: t, observed=lambda o: o,
+                    dep_info=lambda d: d, calls=None):
+    """Attests the captured build. The registry verifier stands in with the captured verification (the
+    real one is tested below on a real archive); paths are the capture's placeholders, so the
+    file-system resolution is the plain path (the link check is tested below on real links)."""
+    seen = observed(json.loads((CAPTURED / "observed.json").read_text()))
+    deps = dep_info(json.loads((CAPTURED / "dep_info.json").read_text()))
     parsed = bc.parse_build_output(stdout((CAPTURED / "stdout.jsonl").read_text()),
                                    stderr((CAPTURED / "stderr.log").read_text()))
     rustc = {"program": "/SYSROOT/bin/rustc", "version": seen["rustc_version"], "sysroot": "/SYSROOT", "host": seen["host"]}
     manifest = bc.load_manifest(MANIFEST.read_text())
     record = calls if calls is not None else []
+
+    def verify(home, index, name, version, checksum):
+        record.append((home, index, name, version, checksum))
+        root = f"{home}/registry/src/{index}/{name}-{version}"
+        found = seen["registry"][root]
+        return {"archive_sha256": found["archive_sha256"], "source_sha256": found["source_sha256"], "root": root,
+                "files": set(found["files"])}
+
     return bc.attest_build(parsed, tree="/WT", target="/TARGET", lock_text=lock((CAPTURED / "Cargo.lock").read_text()),
                            settings=manifest["build_settings"], closure=manifest["build_closure"], rustc=rustc,
-                           list_generated=lambda out_dir: seen["out_dirs"][out_dir],
-                           verify_registry=lambda *args: record.append(args))
+                           committed=seen["committed"], list_generated=lambda out_dir: seen["out_dirs"][out_dir],
+                           verify_registry=verify, read_dep_info=lambda path: deps[path], realpath=os.path.normpath)
 
 
 def test_the_captured_build_of_the_driver_is_attested():
@@ -804,9 +992,35 @@ def test_the_captured_build_of_the_driver_is_attested():
     assert sorted(attestation["generated"]) == [f"{REGISTRY}#serde@1.0.228", f"{REGISTRY}#serde_core@1.0.228"]
     assert attestation["runner"] == {"rustc_output": "/TARGET/release/deps/release_timing-5593dae461ac0171",
                                      "executable": "/TARGET/release/release_timing"}
-    # Each registry package is verified with the source, name, version and checksum Cargo.lock gives.
+    # Each registry package is verified with the source, name, version and checksum Cargo.lock gives, and
+    # its archive and extracted-source digests are bound into this side's attestation.
     assert ("/CARGO_HOME", "index.crates.io-1949cf8c6b5b557f", "serde_json", "1.0.149",
             "83fc039473c5595ace860d8c4fafa220ff474b3fc6bfdb4293327f1a37e94d86") in calls
+    seen = json.loads((CAPTURED / "observed.json").read_text())
+    serde_json = seen["registry"]["/CARGO_HOME/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.149"]
+    assert attestation["registry"][f"{REGISTRY}#serde_json@1.0.149"] == {
+        "archive_sha256": serde_json["archive_sha256"], "source_sha256": serde_json["source_sha256"]}
+    # The source closure: every file the units' dep-info names, the path manifests and the lock.
+    assert attestation["source_closure_files"] == 540
+
+
+def test_each_side_verifies_its_registry_packages_itself():
+    # Two attestations (two sides) each verify every registry package: nothing is reused between them.
+    calls_a, calls_b = [], []
+    attest_captured(calls=calls_a)
+    attest_captured(calls=calls_b)
+    assert len(calls_a) == len(calls_b) == 22 and calls_a == calls_b
+
+
+BIN_DEPS = "/TARGET/release/deps/release_timing-5593dae461ac0171.d"
+ITOA_DEPS = next(path for path in json.loads((CAPTURED / "dep_info.json").read_text()) if "/deps/itoa-" in path)
+
+
+def add_dep(path, extra):
+    def change(deps):
+        deps[path] = edit(deps[path], ": src/main.rs\n", f": src/main.rs {extra}\n", count=2)
+        return deps
+    return change
 
 
 ITOA = f"{REGISTRY}#itoa@1.0.18"
@@ -892,15 +1106,36 @@ CAPTURED_REFUSALS = {
     "an unknown stderr line": (dict(stderr=lambda t: t + "warning: unused manifest key\n"), "unknown build output on stderr"),
     "a build that never finished": (dict(stdout=lambda t: edit(t, '{"reason":"build-finished","success":true}', "")),
                                     "exactly one successful build-finished"),
+    # A linked dependency at exactly the build-time settings (profile and flags) is still a runtime unit.
+    "a linked dependency at the build-time settings": (dict(
+        stdout=lambda t: edit_message(t, ITOA, ("lib",), lambda m: m["profile"].update(opt_level="0")),
+        stderr=lambda t: edit_line(t, "--crate-name itoa ", "-C opt-level=3 -C embed-bitcode=no",
+                                   "-C embed-bitcode=no -C debug-assertions=off")),
+        "itoa@1.0.18 (itoa, runtime) was built with profile"),
+    # The source closure (rustc's dep-info).
+    "a source outside the closure": (dict(dep_info=add_dep(BIN_DEPS, "/HOME/elsewhere/extra.rs")),
+                                     "is neither committed, nor a verified registry file"),
+    "an uncommitted worktree file": (dict(dep_info=add_dep(BIN_DEPS, "/WT/core/solver/release_timing/src/untracked.rs")),
+                                     "is not a committed file of the side's worktree"),
+    "a committed link in the closure": (dict(observed=lambda o: (o["committed"].update(
+        {"core/solver/release_timing/src/main.rs": "120000"}), o)[1]), "is a committed link"),
+    "a registry file outside its verified archive": (dict(dep_info=add_dep(
+        BIN_DEPS, "/CARGO_HOME/registry/src/index.crates.io-1949cf8c6b5b557f/itoa-1.0.18/src/planted.rs")),
+        "is neither committed, nor a verified registry file"),
+    "a generated file the manifest does not allow": (dict(dep_info=add_dep(
+        BIN_DEPS, "/TARGET/release/build/zmij-effecf68cb707a5f/out/gen.rs")), "nor an allowed generated file"),
+    "a unit without dep-info": (dict(dep_info=lambda d: (d.pop(BIN_DEPS), d)[1]), "left no dep-info"),
+    "an unknown dep-info line": (dict(dep_info=lambda d: dict(d, **{BIN_DEPS: d[BIN_DEPS] + "# checksum:abc\n"})),
+                                 "an unknown dep-info line"),
+    "a relative source for a unit compiled from an absolute path": (dict(dep_info=lambda d: dict(d, **{
+        ITOA_DEPS: d[ITOA_DEPS].replace("\n\n", " src/relative.rs\n\n", 1)})), "names a relative file"),
 }
 
 
 @pytest.mark.parametrize("case", sorted(CAPTURED_REFUSALS))
 def test_a_departure_in_the_captured_build_is_refused(case):
     edits, needle = CAPTURED_REFUSALS[case]
-    with pytest.raises(bc.BuildRefused) as refused:
-        attest_captured(**edits)
-    assert needle in str(refused.value), str(refused.value)
+    refused_with(needle, attest_captured, **edits)
 
 
 def test_a_wrapper_or_second_compiler_is_not_the_build_compiler():
@@ -912,8 +1147,7 @@ def test_a_wrapper_or_second_compiler_is_not_the_build_compiler():
                              ("/SYSROOT/bin/rustc", "/HOME/bin/wrap", "not rustc named by an absolute path")):
         changed = stderr.replace(old, new)
         assert changed != stderr
-        with pytest.raises(bc.BuildRefused, match=needle):
-            bc.compiler_program(bc.parse_build_output(stdout, changed))
+        refused_with(needle, lambda: bc.compiler_program(bc.parse_build_output(stdout, changed)))
 
 
 def test_the_compiler_must_be_its_own_sysroots_rustc(tmp_path):
@@ -925,8 +1159,7 @@ def test_the_compiler_must_be_its_own_sysroots_rustc(tmp_path):
         rustc.chmod(0o755)
         return str(rustc)
     assert bc.rustc_identity(fake(str(tmp_path)))["host"] == "h"
-    with pytest.raises(bc.BuildRefused, match="is not the rustc of its own sysroot"):
-        bc.rustc_identity(fake(str(tmp_path / "elsewhere")))
+    refused_with("is not the rustc of its own sysroot", bc.rustc_identity, fake(str(tmp_path / "elsewhere")))
 
 
 # ------------------------------------------------------------------ registry provenance
@@ -974,8 +1207,73 @@ def test_a_registry_package_that_is_not_its_locked_archive_is_refused(tmp_path, 
         (root / "build.rs").write_bytes(b"fn main() {}\n")
     else:
         next((home / "registry" / "cache").rglob("*.crate")).unlink()
-    with pytest.raises(bc.BuildRefused, match=needle):
-        bc.verify_registry_package(str(home), index, "demo", "1.0.0", checksum)
+    refused_with(needle, bc.verify_registry_package, str(home), index, "demo", "1.0.0", checksum)
+
+
+def test_a_registry_source_edited_between_the_two_sides_verifications_is_refused(tmp_path):
+    # Side A's verification accepts the package; its extracted source is then edited before side B's.
+    home, index, checksum, root = registry_home(tmp_path)
+    side_a = bc.verify_registry_package(str(home), index, "demo", "1.0.0", checksum)
+    (root / "src" / "lib.rs").write_bytes(b"pub fn f() { changed_after_side_a() }\n")
+    refused_with("is not the locked archive", bc.verify_registry_package, str(home), index, "demo", "1.0.0", checksum)
+    assert side_a["archive_sha256"] == checksum and side_a["files"] == {"Cargo.toml", "src/lib.rs"}
+
+
+# ------------------------------------------------------------------ the manifest's entry IDs
+
+def test_entries_whose_derived_ids_collide_are_refused():
+    colliding = [{"path": "f/a__b.json", "source_version": "1", "expect": NUMERICAL},
+                 {"path": "f/a/b.json", "source_version": "1", "expect": NUMERICAL}]
+    with pytest.raises(bc.ManifestError) as refused:
+        bc.load_manifest(manifest_text(colliding, roots=[{"pattern": "f/**/*.json", "why": "w"}]))
+    assert says(str(refused.value), "derive the same entry ID")
+
+
+# ------------------------------------------------------------------ the source closure, on real links
+
+@pytest.fixture()
+def closure_tree(tmp_path):
+    """A tree with committed files, one committed link to a directory outside it, and outside files."""
+    tree, outside = tmp_path / "tree", tmp_path / "outside"
+    (tree / "core" / "a").mkdir(parents=True)
+    (outside / "deep").mkdir(parents=True)
+    (tree / "core" / "a" / "x.rs").write_text("committed\n")
+    (outside / "x.rs").write_text("outside\n")
+    (tree / "core" / "a" / "link").symlink_to(outside / "deep", target_is_directory=True)
+    committed = {"core/a/x.rs": "100644", "core/a/link": "120000"}
+    return tree, outside, committed
+
+
+def closure(tree, committed, paths, generated=()):
+    bc.check_source_closure([str(p) for p in paths], tree=str(tree), committed=committed, registry={},
+                            generated={str(g) for g in generated})
+
+
+def test_committed_sources_reached_without_a_link_are_accepted(closure_tree):
+    tree, _, committed = closure_tree
+    closure(tree, committed, [tree / "core" / "a" / "x.rs", tree / "core" / "a" / ".." / "a" / "x.rs"])
+
+
+@pytest.mark.parametrize("case", ["through a link and ..", "a committed link", "outside", "uncommitted"])
+def test_a_source_the_closure_does_not_hold_is_refused(closure_tree, case):
+    tree, outside, committed = closure_tree
+    # "through a link and ..": written plainly it names committed core/a/x.rs, but the file system goes
+    # through the committed link and reads outside/x.rs.
+    path, needle = {"through a link and ..": (tree / "core" / "a" / "link" / ".." / "x.rs", "is reached through a link"),
+                    "a committed link": (tree / "core" / "a" / "link", "is reached through a link"),
+                    "outside": (outside / "x.rs", "is neither committed"),
+                    "uncommitted": (tree / "core" / "a" / "y.rs", "is not a committed file")}[case]
+    if case == "uncommitted":
+        path.write_text("untracked\n")
+    refused_with(needle, closure, tree, committed, [path])
+
+
+def test_a_generated_output_that_is_a_link_is_refused(tmp_path):
+    out_dir = tmp_path / "out"
+    out_dir.mkdir()
+    (out_dir / "private.rs").symlink_to(tmp_path / "elsewhere.rs")
+    (tmp_path / "elsewhere.rs").write_text("pub fn f() {}\n")
+    refused_with("is a link or not a regular file", bc.generated_files, str(out_dir))
 
 
 # ------------------------------------------------------------------ real cargo: inherited configuration
@@ -1154,8 +1452,8 @@ def test_an_ancestor_cargo_config_with_opt_level_0_is_refused(tmp_path, capsys, 
         world = cargo_world(tmp_path, {where: {".cargo/config.toml": config}})  # an ancestor of that side's crate
     code, out, scratch = run_real(world, capsys)
     refused = "B" if where == "B" else "A"
-    assert code == 2 and f"side {refused} (" in out.err and "runtime) was built with profile" in out.err, out.err
-    assert not (scratch / "runs").exists()
+    assert code == 2 and says(out.err, f"side {refused} (") and says(out.err, "runtime) was built with profile"), out.err
+    assert nothing_ran(scratch)
 
 
 @RUNS_CARGO
@@ -1163,8 +1461,8 @@ def test_a_cargo_home_config_adding_rustflags_is_refused(tmp_path, capsys):
     world = cargo_world(tmp_path)
     write(world["home"], "config.toml", '[build]\nrustflags = ["-C", "target-cpu=native"]\n')
     code, out, scratch = run_real(world, capsys)
-    assert code == 2 and "side A (" in out.err and "'target-cpu': 'native'" in out.err, out.err
-    assert not (scratch / "runs").exists()
+    assert code == 2 and says(out.err, "side A (") and says(out.err, "'target-cpu': 'native'"), out.err
+    assert nothing_ran(scratch)
 
 
 @RUNS_CARGO
@@ -1172,8 +1470,8 @@ def test_a_dependency_specific_profile_override_is_refused(tmp_path, capsys):
     world = cargo_world(tmp_path)
     write(world["home"], "config.toml", "[profile.release.package.dep]\nopt-level = 0\n")
     code, out, scratch = run_real(world, capsys)
-    assert code == 2 and "side A (" in out.err and "/core/solver/dep#0.1.0 (dep, runtime) was built with profile" in out.err, out.err
-    assert not (scratch / "runs").exists()
+    assert code == 2 and says(out.err, "side A (") and says(out.err, "/core/solver/dep#0.1.0 (dep, runtime) was built with profile"), out.err
+    assert nothing_ran(scratch)
 
 
 @RUNS_CARGO
@@ -1184,8 +1482,8 @@ def test_a_rustc_wrapper_is_refused(tmp_path, capsys):
     wrapper.chmod(0o755)
     write(world["home"], "config.toml", f'[build]\nrustc-wrapper = "{wrapper}"\n')
     code, out, scratch = run_real(world, capsys)
-    assert code == 2 and "side A (" in out.err and f"the compiler {wrapper} is not rustc" in out.err, out.err
-    assert not (scratch / "runs").exists()
+    assert code == 2 and says(out.err, "side A (") and says(out.err, f"the compiler {wrapper} is not rustc"), out.err
+    assert nothing_ran(scratch)
 
 
 @RUNS_CARGO
@@ -1195,6 +1493,25 @@ def test_a_build_override_that_changes_generated_source_is_refused(tmp_path, cap
     # dependency differs, while every runtime unit's own flags stay exactly the release settings.
     world = cargo_world(tmp_path, {side: {".cargo/config.toml": "[profile.release.build-override]\ndebug-assertions = true\n"}})
     code, out, scratch = run_real(world, capsys)
-    assert code == 2 and f"side {side} (" in out.err and "build_script_build, host) was built with profile" in out.err, out.err
-    assert not (scratch / "runs").exists()
+    assert code == 2 and says(out.err, f"side {side} (") and says(out.err, "build_script_build, host) was built with profile"), out.err
+    assert nothing_ran(scratch)
     assert "= true;" in generated_source(world, side)
+
+
+@RUNS_CARGO
+@pytest.mark.parametrize("side", ["A", "B"])
+def test_a_committed_link_in_the_source_closure_is_refused(tmp_path, capsys, side):
+    # The reading's example: the dependency declares `mod inner;` and the committed src/inner.rs is a link
+    # to code outside the repository. Cargo's crate root still names src/lib.rs.
+    outside = tmp_path / "outside-inner.rs"
+    outside.write_text("pub fn inner() {}\n")
+    world = cargo_world(tmp_path, {side: {"core/solver/dep/src/lib.rs": SYNTHETIC["core/solver/dep/src/lib.rs"] + "mod inner;\n"}})
+    repo = world["repo"]
+    git(repo, "checkout", "-q", "--detach", world[side])
+    (repo / "core/solver/dep/src/inner.rs").symlink_to(outside)
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", "link")
+    world[side] = git(repo, "rev-parse", "HEAD")
+    code, out, scratch = run_real(world, capsys)
+    assert code == 2 and says(out.err, f"side {side} (") and says(out.err, "inner.rs is reached through a link"), out.err
+    assert nothing_ran(scratch)

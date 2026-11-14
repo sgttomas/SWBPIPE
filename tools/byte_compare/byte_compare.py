@@ -25,6 +25,7 @@ from pathlib import Path, PurePosixPath
 import re
 import shlex
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -198,50 +199,165 @@ def inside_git_work_tree(path: Path) -> bool:
     return result.returncode == 0 and result.stdout.strip() == "true"
 
 
-def ensure_outside_work_trees(path: Path, what: str) -> None:
+# ------------------------------------------------------------------ writes (threat (c))
+#
+# Every path this tool writes is inside a reserved area: a directory the comparison creates itself,
+# exclusively, under a resolved parent outside every git work tree, and holds open. Each file and
+# directory below it is created exclusively, relative to an open directory descriptor and never by path,
+# with no link followed, so neither a link at a destination nor a substituted parent can redirect a
+# write. Where a subprocess must be given a path (cargo's target directory, a generated worktree, a run's
+# input and envelope), the path is checked to still name the reserved directory immediately before the
+# subprocess starts. README "Every sink" lists each write.
+
+DIR_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+NEW_FILE_FLAGS = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
+
+
+def open_directory(path: Path) -> int:
+    """Opens an absolute, resolved directory one component at a time from the root, following no link."""
     if not path.is_absolute():
-        raise SetupError(f"{what} must be an absolute path: {path}")
-    if inside_git_work_tree(path):
-        raise SetupError(f"{what} {path} is inside a git work tree; it must be outside every work tree")
+        raise SetupError(f"{path} is not an absolute path")
+    fd = os.open("/", os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for part in path.parts[1:]:
+            if part in (".", ".."):
+                raise SetupError(f"{path} has a {part!r} component")
+            child = os.open(part, DIR_FLAGS, dir_fd=fd)
+            os.close(fd)
+            fd = child
+    except OSError as error:
+        os.close(fd)
+        raise SetupError(f"{path} is not a directory reached without following a link: {error}") from error
+    except SetupError:
+        os.close(fd)
+        raise
+    return fd
 
 
-# What the tool itself writes directly in the scratch directory; the table may not take one of these names.
+def same_directory(path: Path, fd: int) -> bool:
+    """Whether `path`, as the file system resolves it now, is the directory open as `fd`."""
+    try:
+        named, held = os.stat(path), os.fstat(fd)
+    except OSError:
+        return False
+    return (named.st_dev, named.st_ino) == (held.st_dev, held.st_ino)
+
+
+def plain_name(name: str, what: str) -> str:
+    if not isinstance(name, str) or not name or name in (".", "..") or "/" in name or "\0" in name:
+        raise SetupError(f"{what} {name!r} is not a plain file name")
+    return name
+
+
+class Area:
+    """A directory this comparison created exclusively and holds open; every write below it goes
+    through its descriptor."""
+
+    def __init__(self, path: Path, fd: int, what: str, root: "Area | None" = None):
+        self.path, self.fd, self.what = path, fd, what
+        self.root = root or self
+        if root is None:
+            self.members: list[Area] = []
+        self.root.members.append(self)
+
+    @classmethod
+    def reserve(cls, given: str, what: str, root: "Area | None" = None) -> "Area":
+        """Reserves `given` as a new area: its parent must resolve, strictly (a missing component, with
+        or without a following "..", refuses), to an existing directory outside every git work tree; the
+        area itself must not exist in any form, link included, and is created exclusively."""
+        raw = Path(given)
+        if not raw.is_absolute():
+            raise SetupError(f"{what} must be an absolute path: {given}")
+        plain_name(raw.name, what)
+        try:
+            parent = raw.parent.resolve(strict=True)
+        except (OSError, RuntimeError) as error:
+            raise SetupError(f"{what} {given}: its parent does not resolve to an existing directory ({error})") from error
+        parent_fd = open_directory(parent)
+        try:
+            if inside_git_work_tree(parent) or not same_directory(parent, parent_fd):
+                raise SetupError(f"{what} {given} resolves inside a git work tree ({parent}); "
+                                 "it must be outside every work tree")
+            try:
+                os.mkdir(raw.name, 0o755, dir_fd=parent_fd)
+            except FileExistsError as error:
+                raise SetupError(f"{what} {parent / raw.name} already exists; each comparison reserves a new one") from error
+            fd = os.open(raw.name, DIR_FLAGS, dir_fd=parent_fd)
+        finally:
+            os.close(parent_fd)
+        return cls(parent / raw.name, fd, what, root)
+
+    def directory(self, name: str) -> "Area":
+        plain_name(name, f"a directory in {self.path}")
+        try:
+            os.mkdir(name, 0o755, dir_fd=self.fd)
+        except FileExistsError as error:
+            raise SetupError(f"{self.path / name} already exists; it was not made by this comparison") from error
+        return Area(self.path / name, os.open(name, DIR_FLAGS, dir_fd=self.fd), self.what, self.root)
+
+    def new_file(self, name: str, mode: int = 0o644) -> int:
+        plain_name(name, f"a file in {self.path}")
+        try:
+            return os.open(name, NEW_FILE_FLAGS, mode, dir_fd=self.fd)
+        except FileExistsError as error:
+            raise SetupError(f"{self.path / name} already exists; it was not made by this comparison, "
+                             "and nothing was written to it") from error
+
+    def write(self, name: str, data: bytes, mode: int = 0o644) -> Path:
+        with os.fdopen(self.new_file(name, mode), "wb") as handle:
+            handle.write(data)
+        return self.path / name
+
+    def open_new(self, name: str):
+        return os.fdopen(self.new_file(name), "wb")
+
+    def read(self, name: str) -> bytes | None:
+        """A file below this area, read without following a link; None when absent."""
+        try:
+            fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=self.fd)
+        except FileNotFoundError:
+            return None
+        except OSError as error:
+            raise SetupError(f"{self.path / name} cannot be read as a plain file: {error}") from error
+        with os.fdopen(fd, "rb") as handle:
+            if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+                raise SetupError(f"{self.path / name} is not a regular file")
+            return handle.read()
+
+    def verify(self) -> None:
+        """Refuses unless every area of this reservation is still named by its path (no directory on the
+        way replaced, by a link or otherwise)."""
+        for area in self.root.members:
+            if not same_directory(area.path, area.fd):
+                raise SetupError(f"{area.path} no longer names the directory this comparison reserved "
+                                 "(replaced or linked elsewhere); nothing more is run or written")
+
+    def close(self) -> None:
+        for area in self.root.members:
+            try:
+                os.close(area.fd)
+            except OSError:
+                pass
+
+
+def read_plain(path: Path) -> bytes:
+    """A file read with no link followed anywhere on its path (cargo's outputs, read back)."""
+    parent = open_directory(path.parent)
+    try:
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent)
+    except OSError as error:
+        raise BuildRefused(f"{path} cannot be read as a plain file: {error}") from error
+    finally:
+        os.close(parent)
+    with os.fdopen(fd, "rb") as handle:
+        if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+            raise BuildRefused(f"{path} is not a regular file")
+        return handle.read()
+
+
+# What the tool itself writes directly in the scratch area; the table may not take one of these names.
 SCRATCH_EVIDENCE = frozenset({"plan.json", "results.json", "build-A.log", "build-B.log", "build-A.jsonl",
                               "build-B.jsonl", "inputs", "runs", "build"})
-
-
-def table_destination(given: str, scratch: Path, work: Path) -> Path:
-    """The resolved --table path, refused unless it is outside every git work tree, does not exist (so
-    no file is truncated, including one hard-linked to a frozen request), and is none of the tool's own
-    paths: nothing under --work, which holds the generated worktrees, and none of the scratch evidence."""
-    raw = Path(given)
-    path = raw.resolve()
-    ensure_outside_work_trees(path, "--table")
-    if os.path.lexists(raw) or os.path.lexists(path):
-        raise SetupError(f"--table {given} already exists; the table is written only to a new file")
-    for root in (work.resolve(), *([scratch.resolve()] if scratch.exists() else [])):
-        if path == root or root in path.parents:
-            inside = path.relative_to(root).parts
-            if root == work.resolve() or not inside or inside[0] in SCRATCH_EVIDENCE:
-                raise SetupError(f"--table {path} is one of the tool's own paths under {root}")
-    return path
-
-
-def write_table(path: Path, table: str) -> None:
-    """Writes the table to `path`, created exclusively, after checking again that it is outside every
-    git work tree (the comparison has made worktrees since the first check)."""
-    ensure_outside_work_trees(path, "--table")
-    try:
-        with open(path, "x", encoding="utf-8") as handle:
-            handle.write(table)
-    except FileExistsError as error:
-        raise SetupError(f"--table {path} came into existence during the comparison; nothing was written") from error
-
-
-def ensure_new_or_empty(path: Path, what: str) -> None:
-    if path.exists() and (not path.is_dir() or any(path.iterdir())):
-        raise SetupError(f"{what} {path} exists and is not an empty directory")
-    path.mkdir(parents=True, exist_ok=True)
 
 
 def relative_posix(text: str, what: str) -> str:
@@ -316,6 +432,13 @@ def load_manifest(text: str) -> dict:
             sides = {"A": dict(both), "B": dict(both)}
         entries.append({"path": path, "source_version": entry["source_version"], "expect": sides,
                         "why": entry.get("why", "")})
+    # Each entry's scratch input and run evidence are named by its derived ID; two entries with one ID
+    # would share them, so that one request ran in place of the other.
+    ids: dict[str, str] = {}
+    for entry in entries:
+        other = ids.setdefault(entry_id(entry["path"]), entry["path"])
+        if other != entry["path"]:
+            raise ManifestError(f"{other} and {entry['path']} derive the same entry ID {entry_id(entry['path'])!r}")
     return {"roots": roots, "entries": entries, "build_settings": _build_settings(raw["build_settings"]),
             "build_closure": _build_closure(raw["build_closure"])}
 
@@ -529,16 +652,17 @@ def worktree_status(tree: Path) -> str:
     return git(tree, "status", "--porcelain", "--untracked-files=all", "--ignore-submodules=none").stdout
 
 
-def make_worktree(repo: Path, path: Path, sha: str) -> None:
-    if path.exists():
-        raise SetupError(f"worktree path {path} already exists")
-    git(repo, "worktree", "add", "--detach", str(path), sha)
-    head = git(path, "rev-parse", "HEAD").stdout.strip()
+def make_worktree(repo: Path, area: "Area", sha: str) -> None:
+    """Adds a detached worktree of `sha` into `area`, a directory this comparison reserved (empty)."""
+    area.verify()
+    git(repo, "worktree", "add", "--detach", str(area.path), sha)
+    area.verify()
+    head = git(area.path, "rev-parse", "HEAD").stdout.strip()
     if head != sha:
-        raise SetupError(f"worktree {path} is at {head}, not {sha}")
-    status = worktree_status(path)
+        raise SetupError(f"worktree {area.path} is at {head}, not {sha}")
+    status = worktree_status(area.path)
     if status:
-        raise SetupError(f"worktree {path} is not clean before the build:\n{status}")
+        raise SetupError(f"worktree {area.path} is not clean before the build:\n{status}")
 
 
 def remove_worktree(repo: Path, path: Path) -> str | None:
@@ -727,17 +851,12 @@ def _package(package_id: str, closure: dict, tree: str) -> dict:
     raise BuildRefused(f"{package_id} comes from neither the generated worktree nor {closure['registry']}")
 
 
-# Registry packages already verified in this process (each archive is read once).
-_REGISTRY_VERIFIED: dict = {}
-
-
-def verify_registry_package(home: str, index: str, name: str, version: str, checksum: str) -> None:
+def verify_registry_package(home: str, index: str, name: str, version: str, checksum: str) -> dict:
     """The registry package compiled is exactly the one Cargo.lock names: its cached archive's SHA-256
     is the lock's checksum, and the extracted source cargo compiled holds exactly the archive's files
-    and bytes (plus cargo's own `.cargo-ok` marker)."""
-    key = (home, index, name, version, checksum)
-    if key in _REGISTRY_VERIFIED:
-        return
+    and bytes (plus cargo's own `.cargo-ok` marker). Verified afresh on every call, so each side's build
+    is attested from what was on disk for that side; nothing is remembered between sides. Returns the
+    archive's digest, a digest over the extracted files and their digests, and the files."""
     stem = f"{name}-{version}"
     archive_path = Path(home) / "registry" / "cache" / index / f"{stem}.crate"
     root = Path(home) / "registry" / "src" / index / stem
@@ -765,26 +884,101 @@ def verify_registry_package(home: str, index: str, name: str, version: str, chec
     if actual != expected:
         changed = sorted(k for k in set(actual) | set(expected) if actual.get(k) != expected.get(k))
         raise BuildRefused(f"{stem}: the extracted source is not the locked archive: {changed[:5]}")
-    _REGISTRY_VERIFIED[key] = True
+    return {"archive_sha256": sha256_bytes(data),
+            "source_sha256": sha256_bytes(json.dumps(sorted(actual.items())).encode()),
+            "root": str(root), "files": set(actual)}
 
 
 def generated_files(out_dir: str) -> dict:
-    """Every file a build script left in its OUT_DIR, with its SHA-256."""
+    """Every file a build script left in its OUT_DIR, with its SHA-256. A link or other non-regular
+    entry there refuses: a generated file is read as itself, never through a link."""
     root = Path(out_dir)
-    if not root.is_dir():
-        raise BuildRefused(f"the build-script output directory {out_dir} is absent")
-    return {path.relative_to(root).as_posix(): sha256_file(path) for path in sorted(root.rglob("*"))
-            if path.is_file() or path.is_symlink()}
+    if root.is_symlink() or not root.is_dir():
+        raise BuildRefused(f"the build-script output directory {out_dir} is absent or a link")
+    found = {}
+    for directory, names, files in os.walk(root, followlinks=False):
+        for name in names + files:
+            path = Path(directory) / name
+            mode = os.lstat(path).st_mode
+            if stat.S_ISLNK(mode) or not (stat.S_ISDIR(mode) or stat.S_ISREG(mode)):
+                raise BuildRefused(f"the build-script output {path} is a link or not a regular file")
+            if stat.S_ISREG(mode):
+                found[path.relative_to(root).as_posix()] = sha256_file(path)
+    return dict(sorted(found.items()))
+
+
+def committed_files(tree: Path) -> dict:
+    """Each path the side's worktree has committed (the worktree is clean, so its index is the commit),
+    with its mode: 100644 or 100755 for a file, 120000 for a link."""
+    listing = subprocess.run(["git", "-c", "core.hooksPath=/dev/null", "-C", str(tree), "ls-files", "-s", "-z"],
+                             capture_output=True, env=clean_env())
+    if listing.returncode != 0:
+        raise BuildRefused(f"git ls-files failed in {tree}")
+    found = {}
+    for record in filter(None, listing.stdout.decode("utf-8", "surrogateescape").split("\0")):
+        meta, _, path = record.partition("\t")
+        found[path] = meta.split(" ")[0]
+    return found
+
+
+def parse_dep_info(text: str, where: str) -> list[str]:
+    """The files rustc reports a unit read, from its dep-info: every dependency of every rule. Comment
+    lines other than `# env-dep:` refuse, and a phony line must name a file a rule names."""
+    deps, phony = [], []
+    for line in text.split("\n"):
+        if not line or line.startswith("# env-dep:"):
+            continue
+        if line.startswith("#"):
+            raise BuildRefused(f"{where}: an unknown dep-info line {line[:120]!r}")
+        target, sep, rest = line.partition(": ")
+        if sep:
+            deps.extend(word.replace("\\ ", " ") for word in re.split(r"(?<!\\) ", rest) if word)
+        elif line.endswith(":"):
+            phony.append(line[:-1].replace("\\ ", " "))
+        else:
+            raise BuildRefused(f"{where}: an unparseable dep-info line {line[:120]!r}")
+    if not deps or not set(phony) <= set(deps):
+        raise BuildRefused(f"{where}: the dep-info names no source, or names a file no rule depends on")
+    return list(dict.fromkeys(deps))
+
+
+def check_source_closure(paths: list[str], *, tree: str, committed: dict, registry: dict, generated: set,
+                         realpath=os.path.realpath) -> None:
+    """A list comparison over what rustc reported (README "Source closure"). Each file, as the file
+    system resolves it, must be the path written plainly (so no link lies anywhere on the way) and must
+    be one of: a committed regular file of this side's worktree, a file of a registry package this side
+    verified, or a generated file the manifest allows. Anything else refuses."""
+    for path in paths:
+        plain = os.path.normpath(path)
+        if realpath(path) != plain:
+            raise BuildRefused(f"the source {path} is reached through a link ({realpath(path)}); "
+                               "a link anywhere in the source closure refuses")
+        if plain in generated:
+            continue
+        if _inside(plain, tree):
+            mode = committed.get(os.path.relpath(plain, tree))
+            if mode == "120000":
+                raise BuildRefused(f"the source {plain} is a committed link; a link in the source closure refuses")
+            if mode not in ("100644", "100755"):
+                raise BuildRefused(f"the source {plain} is not a committed file of the side's worktree")
+            continue
+        match = REGISTRY_SRC.match(plain)
+        root = os.path.join(match["home"], "registry", "src", match["index"], match["dir"]) if match else None
+        if root not in registry or match["rest"] not in registry[root]:
+            raise BuildRefused(f"the source {plain} is neither committed, nor a verified registry file, nor an "
+                               "allowed generated file")
 
 
 def attest_build(parsed: dict, *, tree: str, target: str, lock_text: str, settings: dict, closure: dict,
-                 rustc: dict, list_generated=generated_files, verify_registry=verify_registry_package) -> dict:
+                 rustc: dict, committed: dict, list_generated=generated_files, verify_registry=verify_registry_package,
+                 read_dep_info=lambda path: Path(path).read_text(encoding="utf-8"), realpath=os.path.realpath) -> dict:
     """Attests a parsed build (README "Build attestation"); raises BuildRefused on any departure.
 
     Runtime profile checks: the runner and every unit it links, followed through --extern, have the
     manifest's runtime settings. Build-time dependency checks: build scripts, proc macros and what they
     link have its host settings. Every unit's source is in the generated worktree or is the exact
-    Cargo.lock registry package; every flag and environment variable is accounted for."""
+    Cargo.lock registry package, verified for this side; every file rustc reports reading is committed,
+    verified or an allowed generated file; every flag and environment variable is accounted for."""
     try:
         lock = tomllib.loads(lock_text)
     except tomllib.TOMLDecodeError as error:
@@ -798,7 +992,7 @@ def attest_build(parsed: dict, *, tree: str, target: str, lock_text: str, settin
     program = rustc["program"]
     # Units: each compiler invocation is exactly one artifact message, and the reverse.
     by_key, by_file, packages = {}, {}, {}
-    registry_checked = set()
+    registry = {}
     for artifact in parsed["artifacts"]:
         package = packages.setdefault(artifact["package_id"], _package(artifact["package_id"], closure, tree))
         entry = locked.get((package["name"], package["version"]))
@@ -816,9 +1010,9 @@ def attest_build(parsed: dict, *, tree: str, target: str, lock_text: str, settin
             checksum = entry.get("checksum")
             if not isinstance(checksum, str) or not re.fullmatch(r"[0-9a-f]{64}", checksum):
                 raise BuildRefused(f"{package['id']} has no checksum in Cargo.lock")
-            if package["id"] not in registry_checked:
-                verify_registry(match["home"], match["index"], package["name"], package["version"], checksum)
-                registry_checked.add(package["id"])
+            if package["id"] not in registry:
+                registry[package["id"]] = verify_registry(match["home"], match["index"], package["name"],
+                                                          package["version"], checksum)
         crate = "build_script_build" if target_info["kind"] == ["custom-build"] else target_info["name"].replace("-", "_")
         key = (artifact["manifest_path"], crate, tuple(target_info["crate_types"]))
         if key in by_key:
@@ -988,6 +1182,29 @@ def attest_build(parsed: dict, *, tree: str, target: str, lock_text: str, settin
     for package_id, script in scripts.items():
         if script["run"] is None:
             raise BuildRefused(f"{package_id}'s build script has no run in the -vv output")
+    # The source closure: every file rustc reports each unit read (its dep-info), the path packages'
+    # manifests and the driver's lock, compared with this side's committed files, verified registry
+    # files and allowed generated files.
+    sources = [os.path.join(tree, DRIVER_CRATE, "Cargo.lock")]
+    sources += sorted({u["artifact"]["manifest_path"] for u in by_key.values() if u["package"]["kind"] == "path"})
+    for unit in by_key.values():
+        args, env = unit["args"], unit["invocation"]["env"]
+        dep_info = os.path.join(args["out_dir"], args["crate_name"] + str(args["codegen"].get("extra-filename", "")) + ".d")
+        try:
+            text = read_dep_info(dep_info)
+        except (OSError, KeyError) as error:
+            raise BuildRefused(f"{unit['package']['id']} ({unit['key'][1]}) left no dep-info {dep_info}") from error
+        relative_base = env.get("CARGO_MANIFEST_DIR") if not os.path.isabs(args["sources"][0]) else None
+        for path in parse_dep_info(text, dep_info):
+            if not os.path.isabs(path):
+                if relative_base is None:
+                    raise BuildRefused(f"{dep_info} names a relative file {path} for a unit compiled from an absolute path")
+                path = os.path.join(relative_base, path)
+            sources.append(path)
+    generated = {os.path.join(s["message"]["out_dir"], name) for s in scripts.values() for name in s["generated"]}
+    check_source_closure(list(dict.fromkeys(sources)), tree=tree, committed=committed,
+                         registry={r["root"]: r["files"] for r in registry.values()}, generated=generated,
+                         realpath=realpath)
     rustc_output = os.path.join(runner["args"]["out_dir"],
                                 runner["args"]["crate_name"] + str(runner["args"]["codegen"].get("extra-filename", "")))
     return {
@@ -995,7 +1212,10 @@ def attest_build(parsed: dict, *, tree: str, target: str, lock_text: str, settin
         "runtime_units": sorted(f"{u['package']['name']} {u['package']['version']} {u['key'][1]}" for u in runtime.values()),
         "host_units": sorted(f"{u['package']['name']} {u['package']['version']} {u['key'][1]}" for u in host.values()),
         "build_scripts": len(scripts),
-        "registry_packages": len(registry_checked),
+        "registry_packages": len(registry),
+        "registry": {pid: {"archive_sha256": r["archive_sha256"], "source_sha256": r["source_sha256"]}
+                     for pid, r in sorted(registry.items())},
+        "source_closure_files": len(dict.fromkeys(sources)),
         "generated": {pid: s["generated"] for pid, s in sorted(scripts.items()) if s["generated"]},
         "runner": {"rustc_output": rustc_output, "executable": runner["artifact"].get("executable")},
     }
@@ -1016,24 +1236,23 @@ def check_settings(what: str, cls: str, block: dict, unit: dict) -> None:
         raise BuildRefused(f"{what} was compiled with -C {actual}, not the {cls} settings {expected}")
 
 
-def build_driver(tree: Path, sha: str, target: Path, cargo: list[str], jobs: int, scratch: Path, side: str,
-                 manifest: dict, wrapper: list[str] = ()) -> dict:
-    """Builds the driver from `tree` into the fresh target directory `target` and attests the build.
-    Returns the build record; raises SetupError (exit 2, before any run) on any refusal."""
-    if target.exists() and (not target.is_dir() or any(target.iterdir())):
-        raise SetupError(f"target directory {target} exists and is not an empty directory; each build is fresh")
-    target.mkdir(parents=True, exist_ok=True)
-    tree, target = tree.resolve(), target.resolve()
+def build_driver(info: dict, cargo: list[str], jobs: int, scratch: "Area", side: str, manifest: dict,
+                 wrapper: list[str] = ()) -> dict:
+    """Builds the driver from the side's worktree into its reserved, empty target directory and attests
+    the build. Returns the build record; raises SetupError (exit 2, before any run) on any refusal."""
+    tree, target, sha = info["worktree"].path, info["target"].path, info["sha"]
     binary = target / PROFILE / DRIVER_BIN
     command = [*cargo, "build", "-vv", "--message-format=json", "--release", "--locked", "--manifest-path",
                str(tree / DRIVER_CRATE / "Cargo.toml"), "--target-dir", str(target), "--bin", DRIVER_BIN, "-j", str(jobs)]
-    messages, log = scratch / f"build-{side}.jsonl", scratch / f"build-{side}.log"
     started = time.time()
-    with open(messages, "wb") as out, open(log, "wb") as err:
+    with scratch.open_new(f"build-{side}.jsonl") as out, scratch.open_new(f"build-{side}.log") as err:
+        scratch.verify()
         try:
             result = subprocess.run(command, cwd=tree / DRIVER_CRATE, stdout=out, stderr=err, env=clean_env())
         except OSError as error:
             raise SetupError(f"the cargo command {cargo[0]} could not be started: {error}") from error
+    scratch.verify()
+    messages, log = scratch.path / f"build-{side}.jsonl", scratch.path / f"build-{side}.log"
     if result.returncode in WRAPPER_REFUSALS and cargo and os.path.basename(cargo[0]) != "cargo":
         raise SetupError(f"the cargo wrapper {cargo[0]} refused the build of {sha} (exit {result.returncode}, "
                          "a host condition)")
@@ -1045,26 +1264,29 @@ def build_driver(tree: Path, sha: str, target: Path, cargo: list[str], jobs: int
     if status:
         raise SetupError(f"worktree {tree} is not clean after the build:\n{status}")
     try:
-        parsed = parse_build_output(messages.read_text(encoding="utf-8"), log.read_text(encoding="utf-8"))
+        parsed = parse_build_output(scratch.read(messages.name).decode("utf-8"), scratch.read(log.name).decode("utf-8"))
         rustc = rustc_identity(compiler_program(parsed), wrapper)
-        lock = tree / DRIVER_CRATE / "Cargo.lock"
-        attestation = attest_build(parsed, tree=str(tree), target=str(target), lock_text=lock.read_text(encoding="utf-8"),
-                                   settings=manifest["build_settings"], closure=manifest["build_closure"], rustc=rustc)
+        attestation = attest_build(parsed, tree=str(tree), target=str(target),
+                                   lock_text=read_plain(tree / DRIVER_CRATE / "Cargo.lock").decode("utf-8"),
+                                   settings=manifest["build_settings"], closure=manifest["build_closure"], rustc=rustc,
+                                   committed=info["committed"],
+                                   read_dep_info=lambda path: read_plain(Path(path)).decode("utf-8"))
     except (OSError, UnicodeDecodeError, KeyError, TypeError, AttributeError) as error:
         raise BuildRefused(f"the build of {sha} could not be attested: {type(error).__name__}: {error}") from error
     except BuildRefused as error:
         raise BuildRefused(f"side {side} ({sha}): {error}") from error
     # Binding: what rustc wrote, what cargo uplifted, and (by the caller) the copy that runs.
     runner = attestation["runner"]
-    if runner["executable"] is None or Path(runner["executable"]).resolve() != binary:
+    if runner["executable"] is None or Path(runner["executable"]) != binary:
         raise BuildRefused(f"side {side}: cargo's executable {runner['executable']} is not {binary}")
-    output_sha256, binary_sha256 = sha256_file(Path(runner["rustc_output"])), sha256_file(binary)
+    data = read_plain(binary)
+    output_sha256, binary_sha256 = sha256_bytes(read_plain(Path(runner["rustc_output"]))), sha256_bytes(data)
     if output_sha256 != binary_sha256:
         raise BuildRefused(f"side {side}: the binary {binary} is not the file rustc wrote, {runner['rustc_output']}")
     return {"command": command, "binary": str(binary), "seconds": round(time.time() - started, 1),
-            "log": str(log), "log_sha256": sha256_file(log), "messages": str(messages),
-            "messages_sha256": sha256_file(messages), "rustc_output_sha256": output_sha256,
-            "binary_sha256": binary_sha256, "attestation": attestation}
+            "log": str(log), "log_sha256": sha256_bytes(scratch.read(log.name)), "messages": str(messages),
+            "messages_sha256": sha256_bytes(scratch.read(messages.name)), "rustc_output_sha256": output_sha256,
+            "binary_sha256": binary_sha256, "attestation": attestation, "data": data}
 
 
 def check_identity(binary: Path, sha: str, tree_sha: str, wrapper: list[str] = ()) -> dict:
@@ -1093,47 +1315,101 @@ def check_identity(binary: Path, sha: str, tree_sha: str, wrapper: list[str] = (
 
 # ------------------------------------------------------------------ runs
 
+RUN_OUTPUTS = (".stdout", ".stderr", ".status.json")
+
+
 def run_batch(plan: dict) -> int:
-    """Executes a plan's runs one at a time, keeping stdout, stderr, exit status and envelope."""
-    timeout = plan["timeout"]
-    for run in plan["runs"]:
-        prefix = Path(run["prefix"])
-        envelope = Path(str(prefix) + ".envelope.json")
-        if envelope.exists():
-            envelope.unlink()
-        started = time.monotonic()
-        with open(str(prefix) + ".stdout", "wb") as out, open(str(prefix) + ".stderr", "wb") as err:
-            process = subprocess.Popen([run["binary"], run["input"], "--mode", run["mode"], "--write", str(envelope)],
-                                       stdout=out, stderr=err, cwd=plan["cwd"], env=clean_env())
+    """Executes a plan's runs one at a time, keeping stdout, stderr, exit status and envelope. It reopens
+    the scratch area from the root with no link followed and requires it to be the directory the plan
+    names; it reserves every output of every run, exclusively, before the first run starts; and before
+    each run it checks that the area and the run's directory are still the ones it holds."""
+    root = Path(plan["root"])
+    fd = open_directory(root)
+    dirs: dict[str, int] = {}
+    try:
+        held = os.fstat(fd)
+        if [held.st_dev, held.st_ino] != plan["root_id"]:
+            raise SetupError(f"{root} is not the scratch area the comparison reserved")
+        reserved = {}
+        for run in plan["runs"]:
+            if run["dir"] not in dirs:
+                parent = fd
+                for part in Path(run["dir"]).parts:
+                    child = os.open(plain_name(part, "a run directory"), DIR_FLAGS, dir_fd=parent)
+                    if parent != fd:
+                        os.close(parent)
+                    parent = child
+                dirs[run["dir"]] = parent
+            where = dirs[run["dir"]]
+            for suffix in RUN_OUTPUTS:
+                name = plain_name(run["name"] + suffix, "a run output")
+                try:
+                    out = os.open(name, NEW_FILE_FLAGS, 0o644, dir_fd=where)
+                except FileExistsError as error:
+                    raise SetupError(f"{root / run['dir'] / name} already exists; nothing was run") from error
+                info = os.fstat(out)
+                os.close(out)
+                reserved[(run["dir"], name)] = (info.st_dev, info.st_ino)
             try:
-                code, timed_out = process.wait(timeout=timeout), False
-            except subprocess.TimeoutExpired:
-                process.kill()
-                code, timed_out = process.wait(), True
-        status = {"exit": code, "timed_out": timed_out, "seconds": round(time.monotonic() - started, 3)}
-        Path(str(prefix) + ".status.json").write_text(json.dumps(status) + "\n")
+                os.stat(run["name"] + ".envelope.json", dir_fd=where, follow_symlinks=False)
+                raise SetupError(f"{root / run['dir'] / (run['name'] + '.envelope.json')} already exists; nothing was run")
+            except FileNotFoundError:
+                pass
+
+        def reopen(run: dict, suffix: str) -> int:
+            name = run["name"] + suffix
+            out = os.open(name, os.O_WRONLY | os.O_NOFOLLOW, dir_fd=dirs[run["dir"]])
+            info = os.fstat(out)
+            if (info.st_dev, info.st_ino) != reserved[(run["dir"], name)] or info.st_nlink != 1:
+                os.close(out)
+                raise SetupError(f"{root / run['dir'] / name} was replaced after it was reserved")
+            return out
+
+        for run in plan["runs"]:
+            if not same_directory(root, fd) or not same_directory(root / run["dir"], dirs[run["dir"]]):
+                raise SetupError(f"{root / run['dir']} no longer names the directory reserved for the runs")
+            envelope = root / run["dir"] / (run["name"] + ".envelope.json")
+            started = time.monotonic()
+            with os.fdopen(reopen(run, ".stdout"), "wb") as out, os.fdopen(reopen(run, ".stderr"), "wb") as err:
+                process = subprocess.Popen([run["binary"], run["input"], "--mode", run["mode"], "--write", str(envelope)],
+                                           stdout=out, stderr=err, cwd=str(root), env=clean_env())
+                try:
+                    code, timed_out = process.wait(timeout=plan["timeout"]), False
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    code, timed_out = process.wait(), True
+            status = {"exit": code, "timed_out": timed_out, "seconds": round(time.monotonic() - started, 3)}
+            with os.fdopen(reopen(run, ".status.json"), "wb") as handle:
+                handle.write((json.dumps(status) + "\n").encode())
+    finally:
+        for where in dirs.values():
+            os.close(where)
+        os.close(fd)
     return 0
 
 
-def execute_plan(plan: dict, plan_path: Path, wrapper: list[str]) -> None:
-    plan_path.write_text(json.dumps(plan, indent=1) + "\n")
+def execute_plan(plan: dict, plan_handle, scratch: "Area", wrapper: list[str]) -> None:
+    """Writes the plan into its reserved file and runs the batch, under the run wrapper when given."""
+    with plan_handle:
+        plan_handle.write((json.dumps(plan, indent=1) + "\n").encode())
+    scratch.verify()
     if not wrapper:
         run_batch(plan)
         return
-    command = [*wrapper, sys.executable, "-I", str(Path(__file__).resolve()), "run-batch", str(plan_path)]
+    command = [*wrapper, sys.executable, "-I", str(Path(__file__).resolve()), "run-batch", str(scratch.path / "plan.json")]
     result = subprocess.run(command, env=clean_env())
     if result.returncode != 0:
         raise SetupError(f"the run batch exited {result.returncode} under {wrapper[0]}"
                          + (" (a host condition: the slot wrapper refused)" if result.returncode in (97, 98) else ""))
 
 
-def read_run(prefix: Path) -> tuple[dict, str, bytes | None]:
-    status_path = Path(str(prefix) + ".status.json")
-    status = json.loads(status_path.read_text()) if status_path.is_file() else {"exit": None, "missing": True}
-    stdout_path, envelope_path = Path(str(prefix) + ".stdout"), Path(str(prefix) + ".envelope.json")
-    stdout = stdout_path.read_text(errors="replace") if stdout_path.is_file() else ""
-    envelope = envelope_path.read_bytes() if envelope_path.is_file() else None
-    return status, stdout, envelope
+def read_run(runs: "Area", name: str) -> tuple[dict, str, bytes | None]:
+    """A run's saved status, stdout and envelope, each read below the held runs directory with no link
+    followed."""
+    status_bytes = runs.read(name + ".status.json")
+    status = json.loads(status_bytes) if status_bytes else {"exit": None, "missing": True}
+    stdout = (runs.read(name + ".stdout") or b"").decode("utf-8", "replace")
+    return status, stdout, runs.read(name + ".envelope.json")
 
 
 # ------------------------------------------------------------------ the comparison
@@ -1141,44 +1417,54 @@ def read_run(prefix: Path) -> tuple[dict, str, bytes | None]:
 def compare(args: argparse.Namespace) -> int:
     started = time.monotonic()
     repo = Path(git(Path(args.repo).resolve(), "rev-parse", "--show-toplevel").stdout.strip())
-    scratch, work = Path(args.scratch), Path(args.work) if args.work else Path(args.scratch) / "build"
-    for path, what in ((scratch, "--scratch"), (work, "--work")):
-        ensure_outside_work_trees(path, what)
-    ensure_new_or_empty(scratch, "--scratch")
-    work.mkdir(parents=True, exist_ok=True)
-    table_path = table_destination(args.table, scratch, work) if args.table else None
     manifest_path = Path(args.manifest).resolve()
     manifest = load_manifest(manifest_path.read_text(encoding="utf-8"))
     cargo = shlex.split(args.cargo)
     wrapper = shlex.split(args.run_wrapper) if args.run_wrapper else []
     usable_wrapper(cargo, "--cargo")
     usable_wrapper(wrapper, "--run-wrapper")
+    if args.table is not None and plain_name(args.table, "--table") in SCRATCH_EVIDENCE:
+        raise SetupError(f"--table {args.table} is one of the tool's own evidence names")
     sides = {}
     for side, rev in (("A", args.a), ("B", args.b)):
         sha = resolve_commit(repo, rev)
-        sides[side] = {"rev": rev, "sha": sha, "tree_sha": git(repo, "rev-parse", f"{sha}^{{tree}}").stdout.strip(),
-                       "worktree": work / f"wt-{side}-{sha[:12]}", "target": work / "target" / f"{side}-{sha}",
-                       "bin_dir": work / "bin" / f"{side}-{sha}"}
-    made = []
+        sides[side] = {"rev": rev, "sha": sha, "tree_sha": git(repo, "rev-parse", f"{sha}^{{tree}}").stdout.strip()}
+    # The reservation: the scratch area (and a separate work area, if given) is created here, fresh, and
+    # every directory and fixed file the comparison will write is reserved in it before anything runs.
+    scratch = Area.reserve(args.scratch, "--scratch")
+    made, reserved = [], {}
     try:
+        work = Area.reserve(args.work, "--work", root=scratch) if args.work else scratch.directory("build")
+        for name in ("plan.json", "results.json", *([args.table] if args.table else [])):
+            reserved[name] = scratch.open_new(name)
+        inputs, runs = scratch.directory("inputs"), scratch.directory("runs")
+        targets, bins = work.directory("target"), work.directory("bin")
+        for side, info in sides.items():
+            sha = info["sha"]
+            info.update(worktree=work.directory(f"wt-{side}-{sha[:12]}"), target=targets.directory(f"{side}-{sha}"),
+                        bin_dir=bins.directory(f"{side}-{sha}"), inputs=inputs.directory(side), runs=runs.directory(side))
         for side, info in sides.items():
             make_worktree(repo, info["worktree"], info["sha"])
-            made.append(info["worktree"])
+            made.append(info["worktree"].path)
         return _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, wrapper, sides, started,
-                                     table_path)
+                                     reserved)
     finally:
+        for handle in reserved.values():
+            handle.close()
         if not args.keep_worktrees:
             for path in made:
                 error = remove_worktree(repo, path)
                 if error:
                     print(f"byte_compare: could not remove worktree {path}: {error}", file=sys.stderr)
+        scratch.close()
 
 
 def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, wrapper, sides, started,
-                          table_path) -> int:
+                          reserved) -> int:
     failures: list[str] = []
     for side, info in sides.items():
-        tree = info["worktree"]
+        tree = info["worktree"].path
+        info["committed"] = committed_files(tree)
         info["target_version"] = target_version(tree)
         info["coverage"] = coverage(tree, manifest)
         for path in info["coverage"]["unnamed"]:
@@ -1187,19 +1473,18 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
             failures.append(f"{side}: manifest path {path} does not exist")
     # Build, attest and check both sides before anything runs.
     for side, info in sides.items():
-        info["build"] = build_driver(info["worktree"], info["sha"], info["target"], cargo, args.jobs, scratch, side,
-                                     manifest, wrapper)
-        info["bin_dir"].mkdir(parents=True, exist_ok=True)
-        binary = info["bin_dir"] / DRIVER_BIN
-        shutil.copy2(info["build"]["binary"], binary)
+        info["build"] = build_driver(info, cargo, args.jobs, scratch, side, manifest, wrapper)
+        data = info["build"].pop("data")
+        binary = info["bin_dir"].write(DRIVER_BIN, data, 0o755)
         info["binary"] = binary
-        info["binary_sha256"] = sha256_file(binary)
+        info["binary_sha256"] = sha256_bytes(info["bin_dir"].read(DRIVER_BIN))
         if info["binary_sha256"] != info["build"]["binary_sha256"]:
             raise BuildRefused(f"side {side}: the copy that runs, {binary}, is not the binary the build attested")
     versions = {side: info["build"]["attestation"]["rustc"]["version"] for side, info in sides.items()}
     if versions["A"] != versions["B"]:
         raise BuildRefused(f"rustc -vV differs between the sides:\nA:\n{versions['A']}B:\n{versions['B']}")
     for side, info in sides.items():
+        scratch.verify()
         info["identity"] = check_identity(info["binary"], info["sha"], info["tree_sha"], wrapper)
     # Inputs: the lift applied to temporary copies under the scratch directory only.
     records = {}
@@ -1207,13 +1492,14 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
     for entry in manifest["entries"]:
         record = records[entry["path"]] = {"entry": entry, "sides": {}}
         for side, info in sides.items():
-            source = info["worktree"] / entry["path"]
+            source = info["worktree"].path / entry["path"]
             facts = {"expected": entry["expect"][side]["disposition"], "source": str(source)}
             record["sides"][side] = facts
-            if not source.is_file():
-                facts.update(pre_class=MISSING, pre_detail="the manifest path does not exist")
+            if info["committed"].get(entry["path"]) not in ("100644", "100755") or \
+                    os.path.realpath(source) != os.path.normpath(source):
+                facts.update(pre_class=MISSING, pre_detail="not a committed regular file reached without a link")
                 continue
-            data = source.read_bytes()
+            data = read_plain(source)
             facts["input_sha256"] = sha256_bytes(data)
             try:
                 lifted = lift(data, entry["source_version"], info["target_version"])
@@ -1225,28 +1511,27 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
             if lifted["outside"]:
                 facts.update(pre_class=OUTSIDE_RUNNER_INPUT, pre_detail=lifted["outside"])
                 continue
-            input_dir = scratch / "inputs" / side
-            input_dir.mkdir(parents=True, exist_ok=True)
-            temp = input_dir / f"{entry_id(entry['path'])}.json"
-            temp.write_bytes(serialize_request(lifted["request"]))
+            temp = info["inputs"].write(f"{entry_id(entry['path'])}.json", serialize_request(lifted["request"]))
             facts["input"] = str(temp)
             for mode in MODES:
-                prefix = scratch / "runs" / side / f"{entry_id(entry['path'])}.{mode}"
-                prefix.parent.mkdir(parents=True, exist_ok=True)
-                runs.append({"binary": str(info["binary"]), "input": str(temp), "mode": mode, "prefix": str(prefix)})
-    plan = {"cwd": str(scratch), "timeout": args.timeout, "runs": runs}
-    execute_plan(plan, scratch / "plan.json", wrapper)
+                runs.append({"binary": str(info["binary"]), "input": str(temp), "mode": mode, "dir": f"runs/{side}",
+                             "name": f"{entry_id(entry['path'])}.{mode}"})
+    held = os.fstat(scratch.fd)
+    plan = {"root": str(scratch.path), "root_id": [held.st_dev, held.st_ino], "timeout": args.timeout, "runs": runs}
+    execute_plan(plan, reserved.pop("plan.json"), scratch, wrapper)
+    scratch.verify()
     # Integrity after the runs: binaries, sources and worktrees as they were.
     for side, info in sides.items():
-        if sha256_file(info["binary"]) != info["binary_sha256"]:
+        if sha256_bytes(info["bin_dir"].read(DRIVER_BIN) or b"") != info["binary_sha256"]:
             failures.append(f"{side}: the binary changed during the runs")
-        status = worktree_status(info["worktree"])
+        status = worktree_status(info["worktree"].path)
         if status:
             failures.append(f"{side}: the worktree changed during the runs:\n{status}")
     for record in records.values():
         for side, facts in record["sides"].items():
             source = Path(facts["source"])
-            if "input_sha256" in facts and (not source.is_file() or sha256_file(source) != facts["input_sha256"]):
+            if "input_sha256" in facts and (not source.is_file() or source.is_symlink()
+                                            or sha256_file(source) != facts["input_sha256"]):
                 failures.append(f"{side}: {record['entry']['path']} changed on disk during the comparison")
     # Classification and verdicts.
     pairs = []
@@ -1258,8 +1543,7 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
                     observed[side] = {"cls": facts["pre_class"], "detail": facts["pre_detail"], "envelope": None,
                                       "facts": {}}
                 else:
-                    prefix = scratch / "runs" / side / f"{entry_id(path)}.{mode}"
-                    status, stdout, envelope = read_run(prefix)
+                    status, stdout, envelope = read_run(sides[side]["runs"], f"{entry_id(path)}.{mode}")
                     cls, detail, run_facts = classify_run(status, stdout, envelope)
                     observed[side] = {"cls": cls, "detail": detail, "envelope": envelope, "facts": run_facts,
                                       "seconds": status.get("seconds"), "exit": status.get("exit")}
@@ -1276,12 +1560,16 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
     elapsed = time.monotonic() - started
     table = render_table(sides, manifest, manifest_path, records, pairs, failures, cargo, wrapper, elapsed)
     results = {"schema": RESULTS_SCHEMA, "manifest": str(manifest_path), "elapsed_seconds": round(elapsed, 1),
-               "sides": {side: {k: (str(v) if isinstance(v, Path) else v) for k, v in info.items()}
+               "sides": {side: {k: (str(v.path) if isinstance(v, Area) else str(v) if isinstance(v, Path) else v)
+                                for k, v in info.items() if k != "committed"}
                          for side, info in sides.items()},
                "pairs": pairs, "failures": failures}
-    (scratch / "results.json").write_text(json.dumps(results, indent=1, default=str) + "\n")
-    if table_path is not None:
-        write_table(table_path, table)
+    scratch.verify()
+    with reserved.pop("results.json") as handle:
+        handle.write((json.dumps(results, indent=1, default=str) + "\n").encode())
+    if args.table:
+        with reserved.pop(args.table) as handle:
+            handle.write(table.encode())
     else:
         sys.stdout.write(table)
     return EXIT_FAILED if failures else EXIT_OK
@@ -1372,21 +1660,27 @@ def main(argv: list[str] | None = None) -> int:
     run = sub.add_parser("compare", help="build both revisions and compare every manifest fixture")
     run.add_argument("--a", required=True, help="revision A (before)")
     run.add_argument("--b", required=True, help="revision B (after)")
-    run.add_argument("--scratch", required=True, help="new or empty directory for raw outputs, outside every git work tree")
-    run.add_argument("--work", help="directory for the worktrees, target directories and binaries (default <scratch>/build)")
+    run.add_argument("--scratch", required=True,
+                     help="a new directory for raw outputs, created by the tool, whose parent exists outside every git work tree")
+    run.add_argument("--work", help="a new directory for the worktrees, target directories and binaries, created as "
+                                    "--scratch is (default <scratch>/build)")
     run.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
     run.add_argument("--repo", default=str(TOOL_DIR), help="any path in the repository whose revisions are compared")
     run.add_argument("--cargo", default="cargo", help="the cargo command, e.g. a host wrapper (shell-split)")
     run.add_argument("--jobs", type=int, default=4, help="cargo build jobs (default 4)")
     run.add_argument("--run-wrapper", default="", help="command prefix for the run batch, e.g. a host slot wrapper")
     run.add_argument("--timeout", type=float, default=1800.0, help="seconds per driver run (default 1800)")
-    run.add_argument("--table", help="write the table here instead of stdout")
+    run.add_argument("--table", help="also write the table to this new file name in the scratch area, instead of stdout")
     run.add_argument("--keep-worktrees", action="store_true", help="leave the worktrees for inspection")
     batch = sub.add_parser("run-batch", help=argparse.SUPPRESS)
     batch.add_argument("plan")
     args = parser.parse_args(argv)
     if args.command == "run-batch":
-        return run_batch(json.loads(Path(args.plan).read_text()))
+        try:
+            return run_batch(json.loads(Path(args.plan).read_text()))
+        except SetupError as error:
+            print(f"byte_compare run-batch: {error}", file=sys.stderr)
+            return EXIT_SETUP
     try:
         return compare(args)
     except SetupError as error:

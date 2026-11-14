@@ -15,11 +15,11 @@ Standard library only. It needs `git`, and `cargo` or a host wrapper around it.
 
 ## Use
 
-Run from any directory. The scratch and work directories, and the `--table` file, must be outside every git work tree; the table file must not exist yet:
+Run from any directory. `--scratch` (and `--work`, if given) names a directory that must not exist yet: the tool creates it, and its parent must resolve to an existing directory outside every git work tree. `--table` is a file name, created in the scratch area:
 
 ```bash
 python3 tools/byte_compare/byte_compare.py compare --a <before> --b <after> \
-  --scratch <new or empty dir> [--work <dir>] [--table <file>] \
+  --scratch <new dir> [--work <new dir>] [--table <file name>] \
   [--cargo "<cargo command>"] [--jobs 4] [--run-wrapper "<prefix>"] [--timeout 1800] \
   [--manifest tools/byte_compare/manifest.json] [--keep-worktrees]
 ```
@@ -41,17 +41,18 @@ Without `--run-wrapper` those runs start directly. A wrapper that is not an exec
 The tool:
 
 1. resolves A and B to full commits in the repository containing `--repo` (by default, this checkout's);
-2. makes a detached worktree of each commit under `--work` (by default `<scratch>/build`) and requires it to be clean;
-3. checks the manifest's coverage in each worktree (below);
-4. builds the runner in each worktree with `cargo build -vv --message-format=json --release --locked --bin release_timing` into its own fresh, empty target directory `<work>/target/<side>-<sha>`; it clears `RUSTFLAGS`, `CARGO_PROFILE_*`, `CARGO_BUILD_*`, `CARGO_TARGET_*` and every `GIT_*` variable from the build, as a first barrier;
-5. attests each build from its own output (below) and refuses, before anything runs, unless both sides used an identical `rustc -vV`;
-6. copies each binary to `<work>/bin/<side>-<sha>/`, requires its SHA-256 to be the attested binary's and checks its embedded identity (below);
-7. applies the lift to a temporary copy of each fixture under `<scratch>/inputs/<side>/`;
-8. runs each copy through its side's binary in both modes, `sparse` and `dense`, one run at a time;
-9. checks again that the binaries, the fixtures and the worktrees are unchanged;
-10. classifies every run, judges every pair, writes the table and removes the worktrees with `git worktree remove`.
+2. reserves the scratch area (and the work area, by default `<scratch>/build`), and in it every directory and fixed file it will write (below, "Every sink"), before anything is built;
+3. makes a detached worktree of each commit in its reserved directory and requires it to be clean;
+4. checks the manifest's coverage in each worktree (below);
+5. builds the runner in each worktree with `cargo build -vv --message-format=json --release --locked --bin release_timing` into its own fresh, empty target directory `<work>/target/<side>-<sha>`; it clears `RUSTFLAGS`, `CARGO_PROFILE_*`, `CARGO_BUILD_*`, `CARGO_TARGET_*` and every `GIT_*` variable from the build, as a first barrier;
+6. attests each build from its own output (below) and refuses, before anything runs, unless both sides used an identical `rustc -vV`;
+7. copies each binary to `<work>/bin/<side>-<sha>/`, requires its SHA-256 to be the attested binary's and checks its embedded identity (below);
+8. applies the lift to a temporary copy of each fixture under `<scratch>/inputs/<side>/`;
+9. runs each copy through its side's binary in both modes, `sparse` and `dense`, one run at a time;
+10. checks again that the binaries, the fixtures and the worktrees are unchanged;
+11. classifies every run, judges every pair, writes the results and the table and removes the worktrees with `git worktree remove`.
 
-The target directories and binaries stay under `--work`. A later run needs a new `--work` (or the old target directories deleted), since each build must be into an empty one. Delete them when finished.
+The target directories and binaries stay in the work area. Every comparison needs a new scratch area (and work area, if given separately). Delete them when finished.
 
 ## The runner
 
@@ -103,7 +104,8 @@ The attestation refuses (exit 2, before any run) unless all of the following hol
 - **Build-time dependency checks.** Build scripts, proc macros and the units they link never run in the binary, but they can change what is compiled into it: a build script built under another setting can generate different source for a unit whose own flags are exactly right. Each such host unit has exactly the manifest's `build_settings.host`, which is cargo's documented default for build-time dependencies. A proc macro additionally carries `-C prefer-dynamic`. No unit may be both runtime and host, and every unit is one or the other.
 - **Every flag accounted for.** Accepted arguments are cargo's own (`--crate-name`, `--crate-type`, `--edition`, `--emit` of dep-info, metadata and link, `--error-format`, `--json`, `--out-dir`, `--check-cfg`, `--cap-lints`), resolved features, a build script's declared cfgs, lint levels, `-L dependency=` inside the target directory, and `--extern` to a file this build produced (or `proc_macro`, for a proc macro). Anything else refuses: `-Z`, `--target`, `-l`, `-L native=`, a linker or other `-C` option outside the block, a stray `--cfg`. A compiler invocation's environment holds only what cargo sets and the variables its package's build script declared. A build-script run's environment holds only what cargo sets for one, with no rustflags, the build's own rustc and the settings of the units it serves.
 - **One rustc.** Every unit is compiled by the same program. That program is `rustc` itself (not a wrapper) and is its own sysroot's `bin/rustc`. Its `rustc -vV` must be identical on both sides.
-- **Provenance.** Each unit's source is in the generated worktree (a path source), or is the exact Cargo.lock registry package. For a registry package that means the same name, version and source; the cached archive's SHA-256 equal to the lock's checksum; and the extracted source cargo compiled holding exactly the archive's files and bytes, plus cargo's own `.cargo-ok`. Any other source (git, another registry, source replacement, a `[patch]` outside the worktree) refuses.
+- **Provenance.** Each unit's source is in the generated worktree (a path source), or is the exact Cargo.lock registry package. For a registry package that means the same name, version and source; the cached archive's SHA-256 equal to the lock's checksum; and the extracted source cargo compiled holding exactly the archive's files and bytes, plus cargo's own `.cargo-ok`. Any other source (git, another registry, source replacement, a `[patch]` outside the worktree) refuses. Each side verifies every registry package itself, after its own build; nothing is remembered from the other side. The archive's digest and a digest over the extracted files are bound into that side's attestation (`registry` in `results.json`).
+- **Source closure.** For each side, every file rustc reports a unit read (the unit's own dep-info, which `--emit=dep-info` writes beside its output), the path packages' manifests and the driver's `Cargo.lock` must each be one of: a committed regular file of that side's worktree (`git ls-files -s`), a file of a registry package that side verified, or a generated file the manifest allows. Anything else refuses. A link anywhere in the closure refuses: a path rustc reports must, as the file system resolves it, be the path written plainly (the same test for every path, `..` included), and a committed link (mode 120000) is never a committed file. This is a list comparison over what rustc reports. It stays one: if it ever needs rules about which paths matter, the limit is stated here instead.
 - **Build scripts within the supported closure.** A build script may emit only `rerun-if-changed`, `rerun-if-env-changed`, `rustc-check-cfg`, `rustc-cfg`, `rustc-env` and `warning`, and these must match cargo's record. Link libraries or paths, any other directive and any other output line refuse. Each build script's output directory may hold only the files `build_closure.generated_sources` lists for its package (serde's and serde_core's `private.rs`); their SHA-256 is recorded.
 - **Binding.** The file rustc wrote for the runner, the binary cargo uplifted, and the copy that runs have equal SHA-256. The `-vv` log (`build-<side>.log`) and the JSON messages (`build-<side>.jsonl`) stay in the scratch directory, and their SHA-256 is recorded beside the binary's, from the same build.
 
@@ -112,6 +114,8 @@ The attestation refuses (exit 2, before any run) unless all of the following hol
 The manifest states the settings once, in `build_settings`, with their ground: cargo's documented default release profile, and its default for build-time dependencies, at the toolchain the identity records. `tests/test_byte_compare_tool.py` builds a synthetic repository at cargo's default release profile under controlled configuration (the tool's clean environment, an empty Cargo home, no cargo configuration in any ancestor) and fails if that build and the block disagree. The block cannot drift from what "default release" means.
 
 This is bounded to this runner's build closure. Anything outside it refuses rather than being interpreted. The tool is not a general Cargo provenance system.
+
+One limit of the source closure: a build script's own reads of files (as opposed to the sources rustc compiles) appear in no dep-info. They are seen only through what the build script prints and what it generates, both checked above; the files it reads are not compared.
 
 ## The lift
 
@@ -136,6 +140,8 @@ Some requests cannot be passed to the runner unchanged. A request with top-level
 - `entries`: each with a `path`, its `source_version` and an `expect`;
 - `build_settings`: the settings every attested unit must have, stated once with their ground. `runtime` and `host` each give a JSON `profile` and the nine `codegen` options (`null`: cargo passes none). `host` also gives `proc_macro_codegen`;
 - `build_closure`: the one registry, and the files each package's build script may generate.
+
+Each entry's scratch input and run evidence are named by an ID derived from its path (`/` becomes `__`). Two entries whose IDs collide are refused when the manifest is loaded.
 
 `expect` is either `{"disposition", "numerical"}` for both sides, or `{"A": {...}, "B": {...}}` for different expectations on each side. `numerical` must be `true` exactly when the disposition is `numerical_work`. An entry may give a `why`. Unknown keys are refused.
 
@@ -168,7 +174,7 @@ The current entries are:
 
 ## Outputs and exit codes
 
-The table goes to stdout, or to `--table`, a new file the tool creates exclusively. It refuses a `--table` path that already exists (so neither a file hard-linked to a request nor an earlier table is overwritten), that is inside a git work tree after resolving symlinks, that is under `--work`, or that is one of its own scratch paths below. It checks before building and again at the write. The table has:
+The table goes to stdout, or with `--table <name>` to that new file in the scratch area. The name must be a plain file name (no `/`, not `.` or `..`) and none of the tool's own names below; it is reserved with the other fixed files before anything is built. The table has:
 
 - each side's revision, commit, binary SHA-256, identity and target version;
 - each side's build attestation: unit counts, the binding digest, the log digests, the compiler and its trusted sysroot, and the `rustc -vV` both sides share;
@@ -178,7 +184,7 @@ The table goes to stdout, or to `--table`, a new file the tool creates exclusive
 - every entry not expected to reach numerical work, with what each side actually did;
 - the failures.
 
-`--scratch` keeps the raw outputs:
+The scratch area keeps the raw outputs:
 
 - `inputs/<side>/`: the lifted copies;
 - `runs/<side>/<fixture>.<mode>.{stdout,stderr,status.json,envelope.json}`;
@@ -190,28 +196,81 @@ The table goes to stdout, or to `--table`, a new file the tool creates exclusive
 |---|---|
 | 0 | every pair as the manifest expects and every compared pair byte-identical |
 | 1 | a failing pair, a byte difference among compared pairs, a coverage failure, or a binary, fixture or worktree that changed during the runs |
-| 2 | nothing compared: bad arguments or manifest, a scratch or work directory inside a git work tree, a refused `--table` destination, a failed build, a build the attestation refuses, or a binary not built as stated; also when the `--table` destination came to exist or entered a work tree during the comparison, in which case nothing is written there and `results.json` holds the comparison |
+| 2 | nothing compared: bad arguments or manifest (including colliding entry IDs), a scratch or work area that exists, resolves inside a git work tree or cannot be reached without a link, a refused `--table` name, a sink that already exists or a reserved directory replaced, a failed build, a build the attestation refuses, or a binary not built as stated |
 
 ## Threat model
 
-The tool is verification tooling, reviewed against these four threats (AGENTS.md "Proportionate review"). `tests/test_byte_compare_tool.py` covers each. Most tests build nothing: they use a stub cargo and a stub driver in a two-commit repository. The build attestation is also tested on `captured_build/`, a maintained capture of the real driver's `-vv` JSON build at this toolchain. Its paths are cleaned (`/WT`, `/TARGET`, `/CARGO_HOME`, `/SYSROOT`, `/HOME`) and its rendered compiler warnings dropped, and it pins the format the parser reads. The tests marked `runs_cargo` build a synthetic offline two-crate repository with real cargo: the default-release control, and one test for each inherited configuration below.
+**Limit:** the tool never takes an executed run as good from output alone; it trusts the built driver's own report of numerical work.
 
-- **(a) Agreement where the intended numerical work did not happen.** Only `numerical_work` on both sides is compared. Each of the following is a named class, never agreement: refusals (including schema and contract refusals), model-incomplete results, empty result sets, crashes and timeouts. An observed class that differs from the manifest fails, so two refusals of a request expected to solve fail.
-- **(b) Binaries not built from the stated revisions, or not at the default release settings.** The tool:
+What the tool defends:
+
+- its own writes never land outside a fresh reserved area;
+- each side's build is attested from that side's own verified inputs;
+- no input is silently skipped or aliased;
+- a run counts only on its own exit and report.
+
+What it does not defend:
+
+- a compromised toolchain or sysroot (rustc, cargo and the sysroot's prebuilt standard library are trusted: recorded, and required identical on both sides, but their own build is not verified);
+- the driver's own report of numerical work;
+- a hostile host: a process that races the tool, changing a path between the tool's check and the moment a subprocess uses it. A stale or pre-existing area, a planted link, a substituted directory present when the tool checks, and an output replaced after its reservation are all refused.
+
+The tool is verification tooling, reviewed against this model (AGENTS.md "Proportionate review"). `tests/test_byte_compare_tool.py` covers it. Most tests build nothing: they use a stub cargo and a stub driver in a two-commit repository. The build attestation is also tested on `captured_build/`, a maintained capture of the real driver's `-vv` JSON build at this toolchain, with each unit's dep-info, the committed mode of each worktree file it read and each registry package's verified files. Its paths are cleaned (`/WT`, `/TARGET`, `/CARGO_HOME`, `/SYSROOT`, `/HOME`) and its rendered compiler warnings dropped, and it pins the formats the parser reads. The tests marked `runs_cargo` build a synthetic offline two-crate repository with real cargo: the default-release control, one test for each inherited configuration below, and a committed link in the source closure. Every test that checks a diagnostic's wording does so through one helper, which the mutation harness switches off (`BYTE_COMPARE_BEHAVIOUR_ONLY=1`), so that a mutation counts as caught only where what the tool did changed.
+
+How the four original threats map onto it:
+
+- **(a) Agreement where the intended numerical work did not happen** (a run counts only on its own exit and report). Only `numerical_work` on both sides is compared. Each of the following is a named class, never agreement: refusals (including schema and contract refusals), model-incomplete results, empty result sets, crashes and timeouts. An observed class that differs from the manifest fails, so two refusals of a request expected to solve fail.
+- **(b) Binaries not built from the stated revisions, or not at the default release settings** (each side's build attested from its own verified inputs). The tool:
   - uses fresh detached worktrees, required clean before and after the build;
   - builds each side into a fresh, empty target directory;
   - clears the flag, profile and target environment, as a first barrier;
-  - attests every unit's settings and sources from the build's own output, as above. That closes every route inherited configuration takes: an ancestor or Cargo-home `.cargo/config.toml`, a `[profile.release.package.<dep>]` or `build-override` setting, rustflags, and a rustc wrapper. Real-cargo tests refuse each of these, the ancestor configuration and the build override on side A and on side B;
+  - attests every unit's settings, sources and source closure from the build's own output, as above. That closes every route inherited configuration takes: an ancestor or Cargo-home `.cargo/config.toml`, a `[profile.release.package.<dep>]` or `build-override` setting, rustflags, and a rustc wrapper. Real-cargo tests refuse each of these, the ancestor configuration and the build override on side A and on side B;
   - requires an identical `rustc -vV` on both sides;
   - runs only binaries whose embedded identity names the commit, its tree, a clean source and the release profile, and whose SHA-256 is the file rustc wrote;
   - re-hashes each binary after the runs.
 
   It never runs a binary from `PATH`, another worktree or an argument.
-- **(c) A frozen request modified on disk.** The lift touches only copies under the scratch directory. The scratch directory must be outside every git work tree. After the runs, every fixture is re-hashed and every worktree must still be clean. The `--table` file, written after those checks, must be new and is created exclusively, outside every work tree, under neither `--work` nor the tool's scratch evidence paths, as above.
-- **(d) Silent loss of coverage.** In each worktree the tool lists every file under a stated root that the manifest does not name, and fails on any. It also fails on any manifest path that does not exist. For every entry not expected to reach numerical work, it reports what each side did, and it fails when an expected refusal solves. `tests/test_byte_compare_tool.py` also checks the maintained manifest against the current tree, so a fixture added under a root without an entry fails CI.
+- **(c) A frozen request modified on disk** (writes never outside a fresh reserved area). Every write is one of the sinks below. After the runs, every fixture is re-hashed and every worktree must still be clean.
+- **(d) Silent loss of coverage** (no input silently skipped or aliased). In each worktree the tool lists every file under a stated root that the manifest does not name, and fails on any. It also fails on any manifest path that does not exist, or that is not a committed regular file reached without a link. Colliding entry IDs are refused, and every per-entry file is created exclusively, so no request can stand in for another. For every entry not expected to reach numerical work, it reports what each side did, and it fails when an expected refusal solves. `tests/test_byte_compare_tool.py` also checks the maintained manifest against the current tree, so a fixture added under a root without an entry fails CI.
 
-Outside the model:
+Also outside the model:
 
-- The toolchain itself (rustc, cargo and the sysroot's prebuilt standard library) is trusted. The tool records it and requires it identical on both sides, but does not verify the toolchain's own build.
 - Only the stated roots are closed. The five single-file roots close existence only.
 - What a fixture tests is the manifest's business, not the tool's.
+
+## Every sink
+
+Every path the tool writes, how it is created, and the test that covers it. The table is derived from `byte_compare.py`, not from memory: every call that can create or change a path was listed with
+
+```bash
+grep -nE "os\.mkdir|os\.open\(|\.open_new\(|\.write\(|new_file\(|\.directory\(|Area\.reserve\(|write_text|write_bytes|shutil\.|os\.rename|os\.link|os\.symlink|os\.unlink|rmdir|subprocess\.(run|Popen)|stdout=|--target-dir|worktree.*add|worktree.*remove|--write" tools/byte_compare/byte_compare.py
+```
+
+and each hit traced to the path it writes. That covers every `open`, write, copy, `mkdir`, rename and link, every subprocess, and each path or output stream given to one. No `write_text`, `write_bytes`, `shutil` copy, rename, link or unlink remains in the tool.
+
+How the tool creates what it writes:
+
+- **Reserve:** `Area.reserve`. The parent resolves strictly (a missing component, with or without a following `..`, refuses), must be outside every git work tree, and is opened one component at a time from `/` with no link followed. The area is then created with `mkdir` relative to the parent's descriptor; it must not exist in any form, a link included.
+- **Directory:** `Area.directory`, `mkdir` relative to the parent area's held descriptor, then opened with no link followed and held. All of these are made before anything is built.
+- **Exclusive file:** created with `O_CREAT | O_EXCL | O_NOFOLLOW` relative to a held directory descriptor, so a link or an existing file at the name refuses.
+- **Checked path:** a path handed to a subprocess. Every reserved directory is checked to still be the one held (`Area.verify`) before and after the subprocess.
+
+Paths are relative to the scratch area; `<work>` is the work area (`build/` by default); `<side>` is `A` or `B`.
+
+| Path | Written by | How it is created | Covered by |
+|---|---|---|---|
+| the scratch area itself | the tool | reserve | `test_a_link_at_any_sink_of_an_existing_area_is_refused_before_anything_is_built` (sink `""`), `test_an_existing_empty_area_is_refused_before_anything_is_built`, `test_an_area_inside_the_callers_work_tree_is_refused_before_anything_is_built`, `test_an_area_inside_a_worktree_kept_by_an_earlier_run_is_refused`, `test_an_area_reached_through_an_alias_is_refused_before_anything_is_built`, `test_an_area_through_a_linked_directory_outside_every_work_tree_is_made_where_it_resolves` |
+| a separate `--work` area | the tool | reserve, joined to the scratch reservation | `test_a_link_at_a_separate_work_area_is_refused_before_anything_is_built` |
+| `build/`, `inputs/`, `inputs/<side>/`, `runs/`, `runs/<side>/`, `<work>/target/`, `<work>/bin/`, `<work>/bin/<side>-<sha>/` | the tool | directory | the sink test (`inputs`, `build`), `test_a_reserved_directory_swapped_for_a_link_during_the_build_is_refused_and_nothing_runs`, `test_an_area_never_takes_a_name_it_did_not_make`, `test_a_reserved_directory_swapped_for_a_link_is_refused_and_writes_stay_in_it` |
+| `plan.json`, `results.json`, the `--table` file | the tool | exclusive file, reserved before the build and written at the end through the held descriptor | the sink test, `test_a_fixed_sink_is_reserved_before_the_build_so_a_later_link_cannot_take_it`, `test_a_table_name_that_is_not_a_new_plain_name_in_the_area_is_refused` |
+| `build-<side>.jsonl`, `build-<side>.log` | the tool opens them; cargo writes its stdout and stderr into them | exclusive file | the sink test (`build-A.log`, `build-A.jsonl`) |
+| `inputs/<side>/<id>.json` | the tool | exclusive file | the sink test, `test_a_link_planted_at_a_sink_during_the_build_is_refused_and_nothing_runs` |
+| `<work>/bin/<side>-<sha>/release_timing` | the tool (the copy that runs) | exclusive file, mode 0755, bytes checked against the attested binary | the sink test, the planted-link test (`bin/B`) |
+| `runs/<side>/<id>.<mode>.{stdout,stderr,status.json}` | the run batch; the driver's stdout and stderr go into the first two | the batch reopens the scratch area from `/` with no link followed and requires it to be the reserved one. It creates every output of every run as an exclusive file before the first run starts. Before each write it reopens the file with `O_NOFOLLOW` and requires the same file with a single link. | the sink test, the planted-link test, `test_a_run_output_replaced_after_its_reservation_is_refused` |
+| `runs/<side>/<id>.<mode>.envelope.json` | the driver (`--write <path>`), by path | must not exist (checked without following a link) before any run starts; the area and run directory are checked to be the held ones before each run | the sink test, the planted-link test (`envelope`) |
+| `<work>/target/<side>-<sha>/**` | cargo, rustc and build scripts, by path (`--target-dir`) | directory, reserved empty; checked path | the sink test (`build/target/A-…`), the swap test (`build`) |
+| `<work>/wt-<side>-<sha12>/**` | `git worktree add`, by path, into the reserved empty directory | directory; checked path | the sink test (`build/wt-A-…`), the swap test |
+| `<repository>/.git/worktrees/wt-<side>-<sha12>/` (outside the area) | git itself, for `worktree add` and `remove` | git's own administrative files for the generated worktrees, removed with `git worktree remove` | `test_identical_revisions_compare_only_the_numerical_pairs` (no worktree left registered) |
+| stdout (the table without `--table`) and stderr (diagnostics) | the tool | streams, not paths | — |
+
+Nothing else is written. Cargo may extract or fetch into its own registry cache under `$CARGO_HOME`; the tool only reads and verifies it. The host's wrappers keep their own logs.
