@@ -880,6 +880,8 @@ def test_the_copied_binary_replaced_by_identical_bytes_is_refused(world, when, c
     assert snapshot(world) == before
     if when == "during side B's cargo":   # refused before any binary is started at all
         assert not ran(world)
+    if when == "during side B's identity check":   # refused by the plan's original identity, before any run
+        assert not ran_a_solve(world)
 
 
 def test_a_build_log_replaced_by_an_identical_copy_after_it_was_parsed_is_refused(world, capsys):
