@@ -78,7 +78,9 @@ code_paths:
 # Independent references held with the code above: the integrity check (kd5_member_bound, m3_judge,
 # t4_o13, t4_i9), the confirmation of a converged nonlinear state (kd5_nonlinear, also examined under
 # DEL-04-04/AC-010 and DEL-04-07/AC-002), and the curved-bend element (t4_i6, examined under DEL-03-03's
-# criteria).
+# criteria). The known-limitation witness of the inverse-norm premise (inverse_norm_witness, REQ-015's
+# OUT-001 row) is a witness and not a reference of a criterion.
+- validation/references/inverse_norm_witness/**
 - validation/references/kd5_member_bound/**
 - validation/references/kd5_nonlinear/**
 - validation/references/m3_judge/**
@@ -100,5 +102,6 @@ checks:
 - core/solver/sparse_direct/src/lib.rs
 - core/product_physics/tests/t4_u1_reference.rs
 - core/product_physics/tests/global_end_actions_runtime.rs
+- core/product_physics/tests/inverse_norm_premise_known_limitation_witness.rs
 - tests/test_global_end_verifier.py
 - tests/test_m3_judge_schema_keywords.py

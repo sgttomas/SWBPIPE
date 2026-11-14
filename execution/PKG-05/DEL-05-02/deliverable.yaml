@@ -155,6 +155,7 @@ code_paths:
 - core/reporting/result_export/src/preview_physics_evidence.rs
 - core/reporting/result_export/src/preview_magnitude_tests.rs
 - core/reporting/result_export/src/physics_evidence.rs
+- core/reporting/result_export/src/direct_view_tests.rs
 - core/reporting/result_export/src/arc_evidence.rs
 - core/reporting/result_export/src/connector_evidence.rs
 - core/reporting/result_export/src/load_reference.rs
@@ -171,6 +172,7 @@ code_paths:
 - core/reporting/result_export/tests/pressure_contract.rs
 - core/reporting/result_export/tests/preview_physics_contract.rs
 - core/reporting/result_export/tests/reader_verdict.rs
+- core/reporting/result_export/tests/reader_view_memory.rs
 - core/reporting/result_export/tests/fixtures/load_reference*
 - fixtures/results/loadReference*.cases.json
 - fixtures/results/pressure_*_mechanics_*.json
@@ -241,6 +243,8 @@ checks:
 - tests/test_preview_held_status.py
 # The ordinary result reader and its tests listed above.
 - core/reporting/result_export/tests/reader_verdict.rs
+- core/reporting/result_export/src/direct_view_tests.rs
+- core/reporting/result_export/tests/reader_view_memory.rs
 - tests/test_base_reader_verifier.py
 - tests/test_declared_member_load_reader.py
 - tests/test_pressure_source_corpus.py

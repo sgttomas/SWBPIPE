@@ -105,6 +105,7 @@ checks:
 - tools/software_workflow/test_hosted_ci.py
 - tools/software_workflow/test_hosted_ci_workflows.py
 - tools/software_workflow/test_repository_checks.py
+- tools/software_workflow/test_headless_readers_step.py
 - tools/software_workflow/test_documentation_ci.py
 - tools/validation/test_execution_boundary.py
 - tests/test_diagnostic_code_table.py
