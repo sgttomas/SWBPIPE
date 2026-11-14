@@ -15682,7 +15682,7 @@ fn displacement_correction_failed(model: &PreviewModel, failure: &DisplacementCo
 /// not be formed.
 fn displacement_correction_sentence(model: &PreviewModel, failure: &DisplacementCorrectionFailure) -> String {
     format!(
-        "the member-relative formation check ran, but {}; every published displacement, and every member, support and connector row, of this case is a binary64 recovery from the solve's own displacement",
+        "the member-relative formation check ran, but {}; all published nodal displacements and member, support and connector rows for this case are recovered in binary64 from the solve's own displacement",
         displacement_correction_failed(model, failure)
     )
 }

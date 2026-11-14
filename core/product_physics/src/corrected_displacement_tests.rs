@@ -324,7 +324,7 @@ fn a_correction_that_cannot_be_formed_withdraws_the_bound_for_the_whole_case() {
                 let integrity = diagnostic(&source, integrity_diagnostic_id(case)).unwrap();
                 let message = integrity["message"].as_str().unwrap();
                 assert_eq!(integrity["code"], "NUMERICAL_INTEGRITY_SENSITIVE", "{label} {case}");
-                assert!(message.contains(&format!("the member-relative formation check ran, but {clause}; every published displacement, and every member, support and connector row, of this case is a binary64 recovery from the solve's own displacement")), "{label} {case}: {message}");
+                assert!(message.contains(&format!("the member-relative formation check ran, but {clause}; all published nodal displacements and member, support and connector rows for this case are recovered in binary64 from the solve's own displacement")), "{label} {case}: {message}");
                 assert!(!message.contains(NONLINEAR_CONFIRMED_EVIDENCE_LINE), "{label} {case}");
                 assert!(!message.contains("is not available"), "{label} {case}");
                 let warning = diagnostic(&source, format!("diagnostic:displacement-correction:{case}")).unwrap();
