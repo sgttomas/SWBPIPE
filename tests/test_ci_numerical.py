@@ -696,7 +696,10 @@ class ReachabilitySafetyTests(unittest.TestCase):
         unrelated = self.crate(project, 'unrelated')
         files = {
             'tests/conftest.py': 'from tests.helpers import session\n',
-            'tests/test_reads_artifacts.py': 'import top_helper\nfrom tests.helpers.reading import read\n',
+            'tests/test_reads_artifacts.py': 'import top_helper\nfrom tests.helpers.reading import read\nfrom tests.pkg.mod import value\n',
+            'tests/pkg/__init__.py': '',
+            'tests/pkg/mod.py': 'value = 1\n',
+            'tests/sub/test_sub_reader.py': 'import json\n',
             'tests/top_helper.py': ('import json\nfrom pathlib import Path\nTABLE = Path("fixtures/table.json")\n'
                                     'SCHEMAS = sorted(Path("schemas").glob("*.schema.json"))\n'),
             'fixtures/table.json': '{}',
@@ -786,11 +789,15 @@ class ReachabilitySafetyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)
             producer, unrelated = self.artifact_reader_project(project)
-            readers = {'tests/test_reads_artifacts.py': [producer.as_posix()]}
+            readers = {'tests/test_reads_artifacts.py': [producer.as_posix()], 'tests/sub/test_sub_reader.py': [producer.as_posix()]}
             def select(local):
                 return ci.numerical_selection(project, [producer, unrelated], [ci.PROJECT + local], EMPTY_READS, (), readers)
-            # Edit: the initializer of a package an import passes through.
-            self.assertEqual(select('tests/helpers/__init__.py')['manifests'], [producer.as_posix()])
+            # Edit: the initializer of a package an import only passes through (`from tests.pkg.mod import value`).
+            self.assertEqual(select('tests/pkg/__init__.py')['manifests'], [producer.as_posix()])
+            # Addition: an initializer in a reader's own directory, which pytest runs and no import names.
+            (project / 'tests/sub/__init__.py').write_text('')
+            subprocess.run(['git', '-C', str(project), 'add', '--', 'tests/sub/__init__.py'], check=True)
+            self.assertEqual(select('tests/sub/__init__.py')['manifests'], [producer.as_posix()])
             # Before the addition, a helper nothing loads is a Python check only.
             self.assertEqual(select('tests/init_only_helper.py')['manifests'], [])
             # Addition: tests/__init__.py, which pytest and the reader's dotted imports run, importing that helper.
@@ -800,11 +807,12 @@ class ReachabilitySafetyTests(unittest.TestCase):
                 result = select(local)
                 self.assertEqual(result['manifests'], [producer.as_posix()], local)
                 self.assertIn({'path': ci.PROJECT + local, 'kind': 'artifact-reader', 'manifest': producer.as_posix()}, result['reasons'])
-            # Deletion: a diff that removes the initializer selects every crate.
-            subprocess.run(['git', '-C', str(project), 'rm', '-q', '-f', '--', 'tests/__init__.py'], check=True)
-            result = select('tests/__init__.py')
-            self.assertEqual(result['classification'], 'full-fallback')
-            self.assertIn('missing: tests/__init__.py', result['fallback_reasons'][0])
+            # Deletion: a diff that removes an initializer selects every crate, even where the imports still resolve.
+            for local in ('tests/__init__.py', 'tests/pkg/__init__.py', 'tests/sub/__init__.py'):
+                subprocess.run(['git', '-C', str(project), 'rm', '-q', '-f', '--', local], check=True)
+                result = select(local)
+                self.assertEqual(result['classification'], 'full-fallback', local)
+                self.assertIn('missing: ' + local, result['fallback_reasons'][0])
 
     def test_resources_an_artifact_reader_reads_select_its_producer_when_added_edited_or_deleted(self):
         with tempfile.TemporaryDirectory() as tmp:
