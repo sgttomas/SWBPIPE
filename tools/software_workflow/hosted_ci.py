@@ -141,7 +141,8 @@ def numerical_plan(root: Path, paths: list[str] | None, profile: dict) -> dict:
             ignored.extend(p for p in paths or [] if p in resources)
         return module.numerical_selection(project, manifests, paths,
                                           profile.get("piping_runtime_reads", {}), ignored,
-                                          profile.get("piping_artifact_readers", {}).get("readers", {}))
+                                          profile.get("piping_artifact_readers", {}).get("readers", {}),
+                                          profile.get("piping_artifact_readers", {}).get("inputs", {}))
     except (ValueError, OSError, KeyError, TypeError, AttributeError, ImportError) as exc:
         return {"version": 2, "classification": "full-fallback", "manifests": [m.as_posix() for m in manifests],
                 "reasons": [], "fallback_reasons": [str(exc)]}

@@ -328,84 +328,125 @@ def cargo_dependencies(project, manifests):
     return dependencies
 
 
+# No artifact reader declaration was given (direct callers); an explicit None is an invalid declaration.
+UNDECLARED = object()
+
+
+def _initializers(project, tracked, directory):
+    """The package initializer positions in `directory` and each ancestor up to the project root, as (present, absent).
+    Python runs a package's `__init__.py` while resolving a dotted import through it, and pytest imports a test or
+    conftest as part of a package when its directory holds one."""
+    parts = directory.split('/') if directory else []
+    positions = ['/'.join(parts[:end] + ['__init__.py']) for end in range(len(parts), -1, -1)]
+    present = {c for c in positions if c in tracked and (project / c).is_file()}
+    return present, set(positions) - present
+
+
 def _artifact_reader_files(reads, project, tracked, local):
-    """One file of a declared artifact reader's load: (its own unresolved import candidates, as project paths).
+    """One file of a declared artifact reader's load: (its unresolved import candidates, package initializers it runs).
 
     Stricter than tools/ci/python_test_reads.py, whose Python test selection keeps a superset root rather than
     fail: here an imported module whose top-level name is project-local but which does not resolve raises, and the
     paths at which every other unresolved name would resolve are returned, so that a change deleting one of them
     can be refused. `from M import name` may import an attribute of module M, so M.name need not resolve when M is
-    a module file."""
+    a module file. Each import's package prefixes that are project directories give their initializers: a present
+    one is loaded with its own imports, an absent position is returned with the candidates, so that a change that
+    adds one (present at the head) selects through the closure and one that deletes it is refused."""
     reader = reads._reader(project, local)
     dirs = reader.search_dirs()
     def resolved(module):
         return next((found for d in dirs if (found := reads._module_file(project, tracked, d, module))), None)
-    missing = set()
+    missing, initializers = set(), set()
     for name in sorted(reader.imports()):
+        parts = name.split('.')
+        for d in dirs:
+            for end in range(1, len(parts)):
+                package = '/'.join(([d] if d else []) + parts[:end])
+                if package not in tracked or (project / package).is_file():
+                    break
+                init = package + '/__init__.py'
+                (initializers if init in tracked and (project / init).is_file() else missing).add(init)
         if resolved(name):
             continue
         parent = name.rpartition('.')[0]
         found = resolved(parent) if parent else None
         if found and not found.endswith('/__init__.py'):
             continue  # an attribute of a module file
-        top = name.partition('.')[0]
+        top = parts[0]
         if any((f'{d}/{top}' if d else top) in tracked for d in dirs) or resolved(top):
             raise ValueError(f'Unresolved local import {name} in {local}')
         stem = name.replace('.', '/')
         missing.update(f'{d}/{c}' if d else c for d in dirs for c in (f'{stem}.py', f'{stem}/__init__.py'))
-    return missing
+    return missing, initializers
 
 
-def artifact_producers(project, manifests, readers):
+def artifact_producers(project, manifests, readers, inputs=UNDECLARED):
     """Declared Python readers of artifacts that a crate's own tests write: ({path: manifests}, missing paths).
 
-    Each declared reader names the manifests whose tests produce what it reads. The reader, every conftest.py that
-    pytest loads for it (in its directory or an ancestor) and every tests/ file in their transitive imports, derived
-    by tools/ci/python_test_reads.py at selection time, select those crates, so their shard writes the artifacts and
-    runs the reader on them. The missing paths are where an absent conftest.py or an unresolved imported module
-    would be: a change that deletes one is refused by the caller. A declaration that is not a mapping, a reader that
-    is not a tracked Python file under tests/, an undiscovered manifest, an imported project module that does not
-    resolve or a derivation that cannot be made rejects reduced selection."""
-    if not isinstance(readers, dict):
+    Each declared reader names the manifests whose tests produce what it reads. These select those crates, so their
+    shard writes the artifacts and runs the reader on them: the reader; every conftest.py and package `__init__.py`
+    that pytest loads for it (in its directory or an ancestor); every project file in their transitive imports,
+    derived by tools/ci/python_test_reads.py at selection time, with the initializers of the packages those imports
+    pass through and the initializers' own imports; and each declared input, a file the artifact-fed step uses
+    besides them (the dependency list it installs). The missing paths are where an absent conftest.py, package
+    initializer or unresolved imported module would be: a change that deletes one is refused by the caller. A
+    declaration that is not a mapping, a reader that is not a tracked Python file under tests/, an input that is not
+    a tracked file, an undiscovered manifest, an imported project module that does not resolve or a derivation that
+    cannot be made rejects reduced selection."""
+    inputs = {} if inputs is UNDECLARED else inputs
+    if not isinstance(readers, dict) or not isinstance(inputs, dict):
         raise ValueError('Invalid artifact reader declaration')
-    if not readers:
+    if not readers and not inputs:
         return {}, frozenset()
     known = {m.as_posix() for m in manifests}
+    def producing_manifests(name, producing):
+        if not isinstance(producing, list) or not producing or not all(isinstance(m, str) and m in known for m in producing):
+            raise ValueError('Unresolved artifact producer for ' + str(name))
+        return {Path(m) for m in producing}
     try:
         reads = load_module('numerical_python_test_reads', HERE / 'python_test_reads.py')
         tracked = reads.tracked(project)
     except Exception as exc:
         raise ValueError(f'Artifact reader imports cannot be derived: {type(exc).__name__}: {exc}') from exc
     producers, missing = {}, set()
+    for name, producing in inputs.items():
+        if not isinstance(name, str) or name not in tracked or not (project / name).is_file():
+            raise ValueError('Unresolved artifact reader input: ' + str(name))
+        producers.setdefault(name, set()).update(producing_manifests(name, producing))
     for reader, producing in readers.items():
         if (not isinstance(reader, str) or not reader.startswith('tests/') or not reader.endswith('.py')
                 or reader not in tracked or not (project / reader).is_file()):
             raise ValueError('Unresolved artifact reader: ' + str(reader))
-        if not isinstance(producing, list) or not producing or not all(isinstance(m, str) and m in known for m in producing):
-            raise ValueError('Unresolved artifact producer for ' + reader)
-        parts = reader.split('/')[:-1]
+        crates = producing_manifests(reader, producing)
+        directory = reader.rpartition('/')[0]
+        parts = directory.split('/')
         conftests = ['/'.join(parts[:end] + ['conftest.py']) for end in range(len(parts) + 1)]
         loaded = [c for c in conftests if c in tracked and (project / c).is_file()]
         missing.update(c for c in conftests if c not in loaded)
+        present, absent = _initializers(project, tracked, directory)
+        missing |= absent
         try:
-            closure = {local for start in [reader, *loaded] for local in reads._closure(project, start)}
-            for local in sorted(closure):
-                missing |= _artifact_reader_files(reads, project, tracked, local)
+            pending, closure = sorted({reader, *loaded, *present}), set()
+            while pending:
+                local = pending.pop()
+                if local in closure:
+                    continue
+                closure.add(local)
+                _, loaded_files, imported = reads.file_reads(project, local)
+                unresolved, initializers = _artifact_reader_files(reads, project, tracked, local)
+                missing |= unresolved
+                pending.extend(sorted(set(loaded_files) | set(imported) | initializers))
         except ValueError:
             raise
         except Exception as exc:
             raise ValueError(f'Artifact reader imports cannot be derived for {reader}: {type(exc).__name__}: {exc}') from exc
         for local in closure:
-            if local.startswith('tests/') or local in loaded:
-                producers.setdefault(local, set()).update(Path(m) for m in producing)
+            producers.setdefault(local, set()).update(crates)
     return producers, frozenset(missing)
 
 
-# No artifact reader declaration was given (direct callers); an explicit None is an invalid declaration.
-UNDECLARED = object()
-
-
-def numerical_selection(project, manifests, paths, declarations=None, ignored_paths=(), artifact_readers=UNDECLARED):
+def numerical_selection(project, manifests, paths, declarations=None, ignored_paths=(), artifact_readers=UNDECLARED,
+                        artifact_inputs=UNDECLARED):
     manifests = sorted(manifests)
     reasons, selected = [], set()
     def full(reason):
@@ -423,7 +464,8 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
                     raise ValueError('Missing or empty cargo input: ' + str(path))
         dependencies = cargo_dependencies(project, manifests)
         resources = source_read_dependencies(project, manifests, declarations)
-        producers, missing = artifact_producers(project, manifests, {} if artifact_readers is UNDECLARED else artifact_readers)
+        producers, missing = artifact_producers(project, manifests, {} if artifact_readers is UNDECLARED else artifact_readers,
+                                                {} if artifact_inputs is UNDECLARED else artifact_inputs)
     except (ValueError, OSError, KeyError, TypeError, AttributeError, tomllib.TOMLDecodeError) as exc:
         return full(str(exc))
     ignored = set(ignored_paths)

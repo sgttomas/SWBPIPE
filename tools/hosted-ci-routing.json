@@ -6413,7 +6413,12 @@
     }
   },
   "piping_artifact_readers": {
-    "description": "Python tests that read the artifacts a crate's own tests write at the tested head. A change to a reader selects that crate's numerical shard, which writes the artifacts and runs the reader on them with HEADLESS_ARTIFACTS_REQUIRED=1 (docs/CI_STRATEGY.md).",
+    "description": "Python tests that read the artifacts a crate's own tests write at the tested head. A change to a reader, to what it loads, or to an input selects that crate's numerical shard, which writes the artifacts and runs the reader on them with HEADLESS_ARTIFACTS_REQUIRED=1 (docs/CI_STRATEGY.md). Inputs are the files the artifact-fed step uses besides the readers' loads: the dependency list it installs.",
+    "inputs": {
+      "requirements-dev.txt": [
+        "core/runner/headless/Cargo.toml"
+      ]
+    },
     "readers": {
       "tests/test_load_reference_headless_artifacts.py": [
         "core/runner/headless/Cargo.toml"

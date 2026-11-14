@@ -105,3 +105,12 @@ def test_reader_counts_fail_on_any_skip_failure_error_or_empty_run(tmp_path):
         result = subprocess.run(['python3', str(check), str(report)], capture_output=True, text=True)
         assert (result.returncode == 0) == passes, (counts, result.stderr)
         assert 'headless artifact readers:' in result.stdout
+
+
+def test_declared_artifact_inputs_are_the_dependency_lists_the_step_installs():
+    """Each dependency list the step installs is a declared input of the artifact-reader rule, and only those."""
+    _, _, step = the_step()
+    installed = set(re.findall(r'pip install -r (\S+)', step['run']))
+    assert installed == {'requirements-dev.txt'}
+    profile = json.loads((ROOT / 'tools/hosted-ci-routing.json').read_text())
+    assert set(profile['piping_artifact_readers']['inputs']) == installed

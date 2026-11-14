@@ -703,7 +703,9 @@ class ReachabilitySafetyTests(unittest.TestCase):
             'tests/helpers/deeper.py': '',
             'tests/helpers/session.py': '',
             'tests/helpers/unused.py': '',
+            'tests/init_only_helper.py': 'marker = 1\n',
             'tests/test_other.py': '',
+            'requirements.txt': 'pytest\n',
             'tests/test_ci_selector.py': '',
             'tools/x.py': '',
         }
@@ -776,6 +778,47 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(result['classification'], 'full-fallback')
             self.assertIn('cannot be derived', result['fallback_reasons'][0])
 
+    def test_package_initializers_an_artifact_reader_runs_select_its_producer_when_added_edited_or_deleted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            producer, unrelated = self.artifact_reader_project(project)
+            readers = {'tests/test_reads_artifacts.py': [producer.as_posix()]}
+            def select(local):
+                return ci.numerical_selection(project, [producer, unrelated], [ci.PROJECT + local], EMPTY_READS, (), readers)
+            # Edit: the initializer of a package an import passes through.
+            self.assertEqual(select('tests/helpers/__init__.py')['manifests'], [producer.as_posix()])
+            # Before the addition, a helper nothing loads is a Python check only.
+            self.assertEqual(select('tests/init_only_helper.py')['manifests'], [])
+            # Addition: tests/__init__.py, which pytest and the reader's dotted imports run, importing that helper.
+            (project / 'tests/__init__.py').write_text('from tests.init_only_helper import marker\n')
+            subprocess.run(['git', '-C', str(project), 'add', '--', 'tests/__init__.py'], check=True)
+            for local in ('tests/__init__.py', 'tests/init_only_helper.py'):
+                result = select(local)
+                self.assertEqual(result['manifests'], [producer.as_posix()], local)
+                self.assertIn({'path': ci.PROJECT + local, 'kind': 'artifact-reader', 'manifest': producer.as_posix()}, result['reasons'])
+            # Deletion: a diff that removes the initializer selects every crate.
+            subprocess.run(['git', '-C', str(project), 'rm', '-q', '-f', '--', 'tests/__init__.py'], check=True)
+            result = select('tests/__init__.py')
+            self.assertEqual(result['classification'], 'full-fallback')
+            self.assertIn('missing: tests/__init__.py', result['fallback_reasons'][0])
+
+    def test_declared_artifact_input_adds_its_producer_to_the_path_s_own_selection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            producer, unrelated = self.artifact_reader_project(project)
+            readers = {'tests/test_reads_artifacts.py': [producer.as_posix()]}
+            def select(local, inputs, ignored=('requirements.txt',)):
+                return ci.numerical_selection(project, [producer, unrelated], [ci.PROJECT + local], EMPTY_READS, ignored, readers, inputs)
+            result = select('requirements.txt', {'requirements.txt': [producer.as_posix()]})
+            self.assertEqual((result['classification'], result['manifests']), ('reachability', [producer.as_posix()]))
+            # The input keeps its own route: here mapped to other checks.
+            self.assertEqual(result['reasons'], [{'path': 'requirements.txt', 'kind': 'artifact-reader', 'manifest': producer.as_posix()},
+                                                 {'path': 'requirements.txt', 'kind': 'mapped-other-checks'}])
+            self.assertEqual(select('requirements.txt', {})['manifests'], [])
+            for bad in (None, [], {'absent.txt': [producer.as_posix()]}, {'tests/untracked.py': [producer.as_posix()]},
+                        {'requirements.txt': []}, {'requirements.txt': ['core/absent/Cargo.toml']}):
+                self.assertEqual(select('tests/test_other.py', bad)['classification'], 'full-fallback', bad)
+
     def test_headless_artifact_readers_their_conftest_and_their_test_imports_select_the_headless_runner(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
         headless = 'core/runner/headless/Cargo.toml'
@@ -786,6 +829,13 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(result['modes']['piping-numerical'], 'full', path)
             self.assertEqual(result['piping_numerical_selection']['manifests'], [headless], path)
             self.assertIn({'path': path, 'kind': 'artifact-reader', 'manifest': headless}, result['piping_numerical_selection']['reasons'])
+        # The dependency list the artifact-fed step installs adds the producer and keeps its Python selection.
+        result = hosted_ci.select_paths([ci.PROJECT + 'requirements-dev.txt'], profile)
+        self.assertEqual((result['modes']['piping-numerical'], result['modes']['piping-python']), ('full', 'full'))
+        self.assertEqual(result['piping_numerical_selection']['manifests'], [headless])
+        self.assertIn('piping-python', result['reasons'])
+        self.assertIn({'path': 'requirements-dev.txt', 'kind': 'artifact-reader', 'manifest': headless}, result['piping_numerical_selection']['reasons'])
+        self.assertIn({'path': 'requirements-dev.txt', 'kind': 'mapped-other-checks'}, result['piping_numerical_selection']['reasons'])
         # A tests/ file neither reader loads stays a Python check.
         result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], profile)
         self.assertEqual(result['modes']['piping-numerical'], 'not-applicable')
@@ -793,6 +843,10 @@ class ReachabilitySafetyTests(unittest.TestCase):
         # An explicit null declaration selects every crate.
         nulled = json.loads(json.dumps(profile))
         nulled['piping_artifact_readers']['readers'] = None
+        result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], nulled)
+        self.assertEqual(result['piping_numerical_selection']['classification'], 'full-fallback')
+        nulled = json.loads(json.dumps(profile))
+        nulled['piping_artifact_readers']['inputs'] = None
         result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], nulled)
         self.assertEqual(result['piping_numerical_selection']['classification'], 'full-fallback')
         # Declaring a path never narrows its selection: tests/test_ci_numerical.py keeps every crate.
