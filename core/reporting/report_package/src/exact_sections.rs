@@ -352,6 +352,11 @@ pub fn check_exact_sections(
         if limitations.iter().any(|item| item["limitation_id"].as_str().is_some_and(|id| id.contains(":exact:"))) {
             return Err(mismatch("limitations: the result is not an exact-route result"));
         }
+        // DEL-08-01 REQ-024: a standing record is packaged only where a boundary
+        // re-derives it from a bound exact-route result.
+        if report.get("numerical_standing").is_some_and(|record| !record.is_null()) {
+            return Err(mismatch("numerical_standing: the result is not an exact-route result"));
+        }
         return Ok(());
     }
     let carried = carried.ok_or_else(|| mismatch("exact_route: an exact-route result requires the report's exact_route"))?;
