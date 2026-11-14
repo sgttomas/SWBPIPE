@@ -273,12 +273,18 @@ def _relative(consumer: str, path: str) -> str:
 
 # -- Python: dictionary declarations are parsed, never evaluated; only literal string keys are read.
 def _py_keys(text: str, name: str) -> list[str]:
-    """The literal string keys of the one module-level `name = {...}`. A computed key, an unpacked mapping, a second
-    binding or any later change to `name` (item assignment, augmented assignment, a mutating method) is refused."""
+    """The literal string keys of the one module-level `name = {...}`. A computed key, an unpacked mapping, any other
+    binding of `name` anywhere in the module (nested, in a function, a loop or an import) or any later change to it
+    (item assignment, augmented assignment, a mutating method) is refused."""
     tree = ast.parse(text)
     bound = [n for n in tree.body if isinstance(n, (ast.Assign, ast.AnnAssign))
              and any(isinstance(t, ast.Name) and t.id == name for t in (n.targets if isinstance(n, ast.Assign) else [n.target]))]
     _require(len(bound) == 1, f"{name} is bound {len(bound)} times at module level; one dictionary literal is supported")
+    stores = [n.lineno for n in ast.walk(tree) if isinstance(n, ast.Name) and n.id == name and isinstance(n.ctx, ast.Store)]
+    stores += [n.lineno for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom))
+               and any((a.asname or a.name.split(".")[0]) == name for a in n.names)]
+    stores += [n.lineno for n in ast.walk(tree) if isinstance(n, (ast.Global, ast.Nonlocal)) and name in n.names]
+    _require(len(stores) == 1, f"{name} is bound or declared at lines {sorted(stores)}; one binding is supported")
     value = bound[0].value
     _require(isinstance(value, ast.Dict), f"{name} is not a dictionary literal")
     for node in ast.walk(tree):
@@ -473,6 +479,8 @@ def _source_basis(text):
         _require(rule in text, f"the path-construction rule {rule!r} is not as registered")
     _require(re.search(r'if self\.resolved\(\) \{\s*"load_reference_source"\s*\} else \{\s*"physics_source"\s*\}', text)
              and "matches!(self, Self::LoadReference)" in text, "Family's directory names are not as registered")
+    _require("for (family, name, request_sha256, mode, length, sha256) in CURRENT_SOURCE_BASIS {" in text,
+             "CURRENT_SOURCE_BASIS is no longer iterated by the join test as registered")
     n, rows = _rust_array(text, r"const CURRENT_SOURCE_BASIS: \[.*?; (?P<n>\d+)\] = \[")
     _require(n == len(rows), f"declares {n} rows and holds {len(rows)}")
     family = {"Family::Physics": "physics_source", "Family::LoadReference": "load_reference_source"}
@@ -502,10 +510,12 @@ def _witness_inputs(text):
     return paths
 
 
-def _include_array(consumer: str, start: str, const: str):
+def _include_array(consumer: str, start: str, const: str, use: str):
     """The const array `const` inside the block at `start`: each element, bare or a tuple, holds exactly one
-    include_str! of a literal path, and the declared length equals the elements."""
+    include_str! of a literal path, and the declared length equals the elements. `use`, the site that hashes them, must
+    appear as registered."""
     def read(text):
+        _require(use in text, f"{const} is no longer used as registered ({use})")
         n, elements = _rust_array(_block(text, start), rf"const {const}: \[.*?; (?P<n>\d+)\] = \[")
         _require(n == len(elements), f"{const} declares {n} elements and holds {len(elements)}")
         paths = set()
@@ -590,9 +600,10 @@ PIN_TABLES = [
     (J7_I12, "request", _j7_i12, 1, 1),
     # the four raw outputs, the pressure-3 table and the transport schema name no pressure_regions
     (FROZEN_CONSUMER, "FROZEN", _frozen, 8, 2),
-    (FACADE, "EXACT_PINNED", _include_array(FACADE, "fn b3b_exact_successor_fixtures_are_the_live_successors", "FIXTURES"), 2, 2),
-    (CONTRACT, "M3X", _include_array(CONTRACT, "const M3X", "M3X"), 2, 2),
-    (DERIVATIVE, "EXACT_PINNED", _include_array(DERIVATIVE, "const EXACT_PINNED", "EXACT_PINNED"), 2, 2),
+    (FACADE, "EXACT_PINNED", _include_array(FACADE, "fn b3b_exact_successor_fixtures_are_the_live_successors", "FIXTURES",
+                                                  "MODES.into_iter().zip(EXACT_PINNED).zip(FIXTURES)"), 2, 2),
+    (CONTRACT, "M3X", _include_array(CONTRACT, "const M3X", "M3X", "M3X.iter().find(|m| m.0 == base)"), 2, 2),
+    (DERIVATIVE, "EXACT_PINNED", _include_array(DERIVATIVE, "const EXACT_PINNED", "EXACT_PINNED", "pinned: EXACT_PINNED,"), 2, 2),
     ("tests/test_retained_precision_b3.py", "EXACT_PINNED", _b3_successors, 2, 2),
     # the two derivative goldens name no pressure_regions
     ("apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx", "EXACT_GOLDEN", _golden, 4, 2),
