@@ -516,7 +516,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // resident table's own file) for pressure-2's, and the inspected production after the resume
             // gains current_header's retired pressure-2 arm; E14 is byte-identical, and no path module,
             // static or production entered the excluded test region.
-            complete_suffix_sha256: "d542b68691a7a8b2128f344d9fecc3fd47c289ce7803ab4514473b92960178f1",
+            // Re-audited for PR-A (the integrity-diagnostic repair) by its fourth independent reading, on
+            // the whole suffix from line 415 at 4b4d7fe31: the closed B7b and E14 test modules are
+            // byte-identical to main 21fdbd94b; the change is the inspection-only token, detector and
+            // standing logic in the inspected production (lines 1001-1053); no include, path module,
+            // static or OnceLock entered the suffix.
+            complete_suffix_sha256: "e9a27502bfe6702e0f24de7aebe2410fc9f07c79666f05865e3b7c6e37b23b79",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
