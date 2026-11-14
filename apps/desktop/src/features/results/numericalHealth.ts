@@ -29,6 +29,8 @@ import {
   loadFidelityCauseText,
   nodeDofLocationText,
   notAssessedText,
+  MECHANICS_NOT_SOLVED_TEXT,
+  MECHANICS_NOT_ESTABLISHED_TEXT,
   numericalHealthCountHeadline,
   numericalHealthHeadline,
   outputSentence,
@@ -68,14 +70,20 @@ export type NumericalHealthCombination = Readonly<{
   withheld: boolean;
 }>;
 /** The Rust parse output, shape-checked. */
+export type NumericalHealthMechanicsStatus = "solved" | "not_solved" | "not_established";
 export type NumericalHealth = Readonly<{
   route: NumericalHealthRoute;
   verdict_only: boolean;
+  /** Rust `historical_health` `mechanics_status`: the document's mechanics are solved,
+   * explicitly not solved, or not established (a missing, malformed or contradicting
+   * status). The document-level statement only; no case's sentence reads it. */
+  mechanics_status: NumericalHealthMechanicsStatus;
   cases: readonly NumericalHealthCase[];
   combinations: readonly NumericalHealthCombination[];
 }>;
 
 const ROUTES: readonly string[] = ["generic", "pressure_source", "retained", "unsupported"];
+const MECHANICS_STATUSES: readonly string[] = ["solved", "not_solved", "not_established"];
 const STATES: readonly string[] = ["checks_passed", "sensitive", "quality_unresolved", "solve_failed", "not_assessed"];
 const CAUSE_KINDS: readonly string[] = [
   "conditioning", "load_fidelity", "formation", "formation_recovery", "curved_bend_short",
@@ -161,11 +169,13 @@ export function parseNumericalHealth(value: unknown): NumericalHealth | null {
     const verdictOnly = bool(field(o, "verdict_only"));
     // Rust gives verdict_only only on a generic route; anything else is not its output.
     if (verdictOnly && route !== "generic") fail();
+    const mechanicsValue = field(o, "mechanics_status");
+    const mechanicsStatus = typeof mechanicsValue === "string" && MECHANICS_STATUSES.includes(mechanicsValue) ? mechanicsValue as NumericalHealthMechanicsStatus : fail();
     const cases = arr(field(o, "cases")).map(healthCase);
     if (new Set(cases.map((c) => c.case_id)).size !== cases.length) fail();
     const combinations = arr(field(o, "combinations")).map(combination);
     if (new Set(combinations.map((c) => c.combination_id)).size !== combinations.length) fail();
-    return Object.freeze({ route, verdict_only: verdictOnly, cases: Object.freeze(cases), combinations: Object.freeze(combinations) });
+    return Object.freeze({ route, verdict_only: verdictOnly, mechanics_status: mechanicsStatus, cases: Object.freeze(cases), combinations: Object.freeze(combinations) });
   } catch (error) {
     if (error instanceof Shape) return null;
     throw error;
@@ -310,6 +320,9 @@ export type NumericalHealthView = Readonly<{
   shortHeadline: string;
   /** Present only when the generic result is held back by its verdict alone. */
   outputSentence: string | null;
+  /** The one document-level statement: whether the run's mechanics are not solved or not
+   * established; null when they are solved. */
+  documentStatement: string | null;
   /** No row badges on the pressure-source route: its values are the producer's recovery. */
   rowBadges: boolean;
   cases: readonly NumericalHealthCaseView[];
@@ -353,6 +366,7 @@ export function numericalHealthView(health: NumericalHealth | null, options: { e
     headline: health.cases.length === 0 ? numericalHealthHeadline("not_assessed", prefix) : numericalHealthCountHeadline(stateCounts(health.cases), prefix),
     shortHeadline: numericalHealthHeadline(worstState(health.cases)),
     outputSentence: route === "generic" && options.verdictHold && notPassed > 0 ? outputSentence(notPassed) : null,
+    documentStatement: health.mechanics_status === "not_solved" ? MECHANICS_NOT_SOLVED_TEXT : health.mechanics_status === "not_established" ? MECHANICS_NOT_ESTABLISHED_TEXT : null,
     rowBadges: route === "generic",
     cases,
     combinations,

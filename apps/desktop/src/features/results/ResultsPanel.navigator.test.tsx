@@ -265,7 +265,7 @@ describe("the navigator keeps results that are not checks passed, withheld or un
   const SENSITIVE = { case_id: "load:é", state: "sensitive", code: "NUMERICAL_INTEGRITY_SENSITIVE", integrity_diagnostic_id: "diagnostic:numerical-integrity:load:é", rcond: 1e-11, digits: 11, conditioning_sensitive: true, causes: [] };
   const PASSED = { case_id: "load:𝔫", state: "checks_passed", code: "NUMERICAL_INTEGRITY_CHECKS_PASSED", integrity_diagnostic_id: "diagnostic:numerical-integrity:load:𝔫", rcond: 0.01, digits: 2, conditioning_sensitive: false, causes: [] };
   const health = (withheldCombination: boolean) => numericalHealthView(parseNumericalHealth({
-    route: "generic", verdict_only: true, cases: [SENSITIVE, PASSED],
+    route: "generic", verdict_only: true, mechanics_status: "solved", cases: [SENSITIVE, PASSED],
     combinations: [{ combination_id: "combination:Σ", state: withheldCombination ? null : "sensitive", cases: withheldCombination ? [] : ["load:é", "load:𝔫"], withheld: withheldCombination }]
   }), { eligible: false, verdictHold: true })!;
 

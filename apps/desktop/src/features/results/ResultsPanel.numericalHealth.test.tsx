@@ -30,7 +30,7 @@ const SENSITIVE = {
 };
 const PASSED = { case_id: "load:𝔫", state: "checks_passed", code: "NUMERICAL_INTEGRITY_CHECKS_PASSED", integrity_diagnostic_id: "diagnostic:numerical-integrity:load:𝔫", rcond: 0.01, digits: 2, conditioning_sensitive: false, causes: [] };
 const genericHealth = (verdictOnly: boolean) => ({
-  route: "generic", verdict_only: verdictOnly, cases: [SENSITIVE, PASSED],
+  route: "generic", verdict_only: verdictOnly, mechanics_status: "solved", cases: [SENSITIVE, PASSED],
   combinations: [{ combination_id: "combination:Σ", state: "sensitive", cases: ["load:é", "load:𝔫"], withheld: false }]
 });
 
@@ -110,7 +110,7 @@ describe("ResultsPanel numerical health", () => {
 
   it("prefixes the pressure-source header, keeps the recovery text, adds the eligible wording and places no row badges", () => {
     const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult;
-    const health = view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", integrity_diagnostic_id: "diagnostic:numerical-integrity:case", causes: [] }], combinations: [] },
+    const health = view({ route: "pressure_source", verdict_only: false, mechanics_status: "solved", cases: [{ ...SENSITIVE, case_id: "case", integrity_diagnostic_id: "diagnostic:numerical-integrity:case", causes: [] }], combinations: [] },
       { eligible: true, verdictHold: false });
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
     expect(screen.getByTestId("numerical-health-header").textContent).toBe("Ordinary solve — Numerical health: 1 sensitive");
@@ -129,7 +129,7 @@ describe("ResultsPanel numerical health", () => {
     expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical integrity: checks_passed\. /);
     expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
     cleanup();
-    const pressureSource = view({ route: "pressure_source", verdict_only: false, cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
+    const pressureSource = view({ route: "pressure_source", verdict_only: false, mechanics_status: "solved", cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={pressureSource} />);
     expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical integrity: checks_passed\. /);
   });
@@ -147,7 +147,7 @@ describe("the standing line beside the health header", () => {
   it.each([
     ["generic", () => genericResult(), () => view(genericHealth(true), { eligible: false, verdictHold: true })],
     ["pressure-source", () => JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult,
-      () => view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", causes: [] }], combinations: [] }, { eligible: true, verdictHold: false })]
+      () => view({ route: "pressure_source", verdict_only: false, mechanics_status: "solved", cases: [{ ...SENSITIVE, case_id: "case", causes: [] }], combinations: [] }, { eligible: true, verdictHold: false })]
   ] as const)("keeps the %s standing text unchanged with the header above it", (_, makeResult, makeHealth) => {
     const result = makeResult();
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={makeHealth()} />);
@@ -177,8 +177,24 @@ describe("the per-case detail disclosure", () => {
     expect(open).toHaveAttribute("open");
     cleanup();
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
-      numericalHealth={view({ route: "generic", verdict_only: false, cases: [PASSED, { ...PASSED, case_id: "load:é", integrity_diagnostic_id: "diagnostic:numerical-integrity:load:é" }], combinations: [] }, { eligible: true, verdictHold: false })} />);
+      numericalHealth={view({ route: "generic", verdict_only: false, mechanics_status: "solved", cases: [PASSED, { ...PASSED, case_id: "load:é", integrity_diagnostic_id: "diagnostic:numerical-integrity:load:é" }], combinations: [] }, { eligible: true, verdictHold: false })} />);
     expect(screen.getByTestId("numerical-health-detail")).not.toHaveAttribute("open");
+  });
+});
+
+describe("the document-level statement", () => {
+  it("appears once in the detail when the mechanics are not solved or not established, and not when solved", () => {
+    const unassessed = { case_id: "load:é", state: "not_assessed", code: null, integrity_diagnostic_id: null, rcond: null, digits: null, conditioning_sensitive: false, causes: [] };
+    const rendered = (status: string) => {
+      cleanup();
+      render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
+        numericalHealth={view({ route: "generic", verdict_only: false, mechanics_status: status, cases: [unassessed], combinations: [] }, { eligible: false, verdictHold: false })} />);
+      return screen.queryAllByTestId("numerical-health-document-statement").map((e) => e.textContent);
+    };
+    expect(rendered("not_solved")).toEqual(["This run's mechanics are not solved."]);
+    expect(rendered("not_established")).toEqual(["Solved mechanics are not established for this document."]);
+    expect(rendered("solved")).toEqual([]);
+    expect(within(screen.getByTestId("numerical-health-detail")).getByTestId("numerical-health-case-text-load:é").textContent).toBe("No numerical quality is stated for load:é.");
   });
 });
 

@@ -43,7 +43,7 @@ const withoutAlong = (result: MechanicsResult): MechanicsResult => ({ ...result,
 
 function standing(states: Record<string, "checks_passed" | "sensitive">, combinationStates: Record<string, "checks_passed" | "sensitive">): ResultOverlayStanding {
   const parsed = parseNumericalHealth({
-    route: "generic", verdict_only: false,
+    route: "generic", verdict_only: false, mechanics_status: "solved",
     cases: Object.entries(states).map(([caseId, state]) => ({ case_id: caseId, state, code: null, integrity_diagnostic_id: null, rcond: null, digits: null, conditioning_sensitive: false, causes: [] })),
     combinations: Object.entries(combinationStates).map(([id, state]) => ({ combination_id: id, state, cases: Object.keys(states), withheld: false }))
   });

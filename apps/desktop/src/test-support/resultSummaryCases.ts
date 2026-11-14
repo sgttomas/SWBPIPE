@@ -78,7 +78,7 @@ const FILE_CASES: readonly [string, CaseText, CaseText, Standings][] = [
 function health(states: Record<string, string>, options: { route?: string; combinations?: Record<string, string | null>; withheld?: readonly string[] } = {}): Json {
   return {
     route: options.route ?? "generic",
-    verdict_only: false,
+    verdict_only: false, mechanics_status: "solved",
     cases: Object.entries(states).map(([caseId, state]) => ({
       case_id: caseId, state, code: null, integrity_diagnostic_id: null, rcond: null, digits: null, conditioning_sensitive: false, causes: []
     })),

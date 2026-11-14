@@ -24,7 +24,7 @@ function healthCase(caseId: string, state: string, extra: Raw = {}): Raw {
   return { case_id: caseId, state, code: null, integrity_diagnostic_id: `diagnostic:numerical-integrity:${caseId}`, rcond: null, digits: null, conditioning_sensitive: false, causes: [], ...extra };
 }
 function raw(route: string, verdictOnly: boolean, cases: Raw[], combinations: Raw[] = []): Raw {
-  return { route, verdict_only: verdictOnly, cases, combinations };
+  return { route, verdict_only: verdictOnly, mechanics_status: "solved", cases, combinations };
 }
 function health(route: string, verdictOnly: boolean, cases: Raw[], combinations: Raw[] = []): NumericalHealth {
   const parsed = parseNumericalHealth(raw(route, verdictOnly, cases, combinations));
@@ -76,10 +76,10 @@ describe("parseNumericalHealth requires the complete response", () => {
     expect(parseNumericalHealth(complete())).not.toBeNull();
   });
   it("gives no indicator for the bare case of a partial response", () => {
-    expect(parseNumericalHealth({ route: "generic", verdict_only: true, cases: [{ case_id: "LC1", state: "sensitive" }] })).toBeNull();
-    expect(parseNumericalHealth({ route: "generic", verdict_only: true, cases: [{ case_id: "LC1", state: "sensitive" }], combinations: [] })).toBeNull();
+    expect(parseNumericalHealth({ route: "generic", verdict_only: true, mechanics_status: "solved", cases: [{ case_id: "LC1", state: "sensitive" }] })).toBeNull();
+    expect(parseNumericalHealth({ route: "generic", verdict_only: true, mechanics_status: "solved", cases: [{ case_id: "LC1", state: "sensitive" }], combinations: [] })).toBeNull();
   });
-  it.each(["route", "verdict_only", "cases", "combinations"])("gives no indicator without the response's %s", (key) => {
+  it.each(["route", "verdict_only", "mechanics_status", "cases", "combinations"])("gives no indicator without the response's %s", (key) => {
     const value = complete();
     delete value[key];
     expect(parseNumericalHealth(value)).toBeNull();
@@ -240,6 +240,20 @@ describe("numericalHealthView", () => {
     expect(byId.X.sentences).toEqual(["No numerical quality is stated for X."]);
   });
 
+  it("states the document's mechanics once, from mechanics_status, and never in a case's sentence", () => {
+    const unassessed = healthCase("X", "not_assessed");
+    const of = (status: string) => numericalHealthView({ ...health("generic", false, [unassessed]), mechanics_status: status } as never, { eligible: false, verdictHold: false })!;
+    expect(of("solved").documentStatement).toBeNull();
+    expect(of("not_solved").documentStatement).toBe("This run's mechanics are not solved.");
+    expect(of("not_established").documentStatement).toBe("Solved mechanics are not established for this document.");
+    for (const status of ["solved", "not_solved", "not_established"]) {
+      expect(of(status).cases[0].sentences).toEqual(["No numerical quality is stated for X."]);
+    }
+    const good = raw("generic", false, [unassessed]);
+    expect(parseNumericalHealth({ ...good, mechanics_status: "not_solved" })?.mechanics_status).toBe("not_solved");
+    for (const bad of ["unknown", true, null, 1]) expect(parseNumericalHealth({ ...good, mechanics_status: bad })).toBeNull();
+  });
+
   it("prefixes the pressure-source route, adds the eligible wording and places no row badges", () => {
     const eligible = numericalHealthView(health("pressure_source", false, [healthCase("case", "sensitive", { digits: 10.2, conditioning_sensitive: true })]), { eligible: true, verdictHold: false })!;
     expect(eligible.headline).toBe("Ordinary solve — Numerical health: 1 sensitive");
@@ -326,7 +340,7 @@ describe("readNumericalHealth", () => {
     expect(readNumericalHealth(result, [])).toBeNull();
     engine.numericalHealthJson = () => { throw new Error("WASM-ENGINE-INPUT-JSON-INVALID"); };
     expect(readNumericalHealth(result, [])).toBeNull();
-    engine.numericalHealthJson = () => JSON.stringify({ route: "generic", verdict_only: true });
+    engine.numericalHealthJson = () => JSON.stringify({ route: "generic", verdict_only: true, mechanics_status: "solved" });
     expect(readNumericalHealth(result, [])).toBeNull();
     engine.numericalHealthJson = () => "not json";
     expect(readNumericalHealth(result, [])).toBeNull();

@@ -436,6 +436,8 @@ pub(crate) fn health_view(value: &Value) -> Option<HealthView> {
     if verdict_only && route != "generic" {
         return None;
     }
+    // The document-level statement's value (report_standing historical_health).
+    str_of(field(o, "mechanics_status")).filter(|s| ["solved", "not_solved", "not_established"].contains(s))?;
     let mut cases = HashMap::new();
     for case in field(o, "cases")?.as_array()? {
         let c = case.as_object()?;

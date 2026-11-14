@@ -888,6 +888,7 @@ fn a_blocked_document_with_passing_evidence_shows_no_passing_indicator() {
         let solved = serde_json::to_value(run_linear_static_preview_value_with_mode(control.clone(), mode).unwrap()).unwrap();
         assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{wire}");
         assert_eq!(health(&solved, None)["cases"][0]["state"], "checks_passed", "{wire}: control");
+        assert_eq!(health(&solved, None)["mechanics_status"], "solved", "{wire}: control");
         let blocked = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
         assert_eq!(blocked["status"]["mechanics"], "MODEL_INCOMPLETE", "{wire}");
         // The evidence looks passing: the first case's own record and quality.
@@ -896,6 +897,7 @@ fn a_blocked_document_with_passing_evidence_shows_no_passing_indicator() {
         assert_eq!(quality["solve_quality"], "checks_passed", "{wire}");
         assert_eq!(integrity(&blocked, &first)[0]["code"], "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{wire}");
         let out = health(&blocked, None);
+        assert_eq!(out["mechanics_status"], "not_solved", "{wire}: the document states it");
         for case in out["cases"].as_array().unwrap() {
             assert_eq!(case["state"], "not_assessed", "{wire}: {}", case["case_id"]);
             assert!(case["rcond"].is_null() && case["digits"].is_null(), "{wire}");

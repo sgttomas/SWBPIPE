@@ -70,7 +70,7 @@ function movements(node: string, basis: Row["basis_ref"], u: [number | null, num
 function standingWith(cases: Record<string, "checks_passed" | "sensitive">, combinations: Record<string, "checks_passed" | "sensitive" | null>, eligible = true): ResultOverlayStanding {
   const parsed = parseNumericalHealth({
     route: "generic",
-    verdict_only: false,
+    verdict_only: false, mechanics_status: "solved",
     cases: Object.entries(cases).map(([caseId, state]) => ({ case_id: caseId, state, code: null, integrity_diagnostic_id: null, rcond: null, digits: null, conditioning_sensitive: false, causes: [] })),
     combinations: Object.entries(combinations).map(([id, state]) => ({ combination_id: id, state, cases: Object.keys(cases), withheld: state === null }))
   });

@@ -426,7 +426,7 @@ fn rack(pipes: usize, kinds: usize) -> (Value, Value, Value) {
         .map(|c| json!({"case_id": c, "state": "checks_passed", "code": null, "integrity_diagnostic_id": null, "rcond": null, "digits": null, "conditioning_sensitive": false, "causes": []}))
         .collect();
     let health = json!({
-        "route": "generic", "verdict_only": false,
+        "route": "generic", "verdict_only": false, "mechanics_status": "solved",
         "cases": health_cases,
         "combinations": [{"combination_id": "C1", "state": "checks_passed", "cases": ["L1", "L2", "L3"], "withheld": false}]
     });
@@ -848,7 +848,7 @@ fn along_direction_rows_are_listed_per_case_and_never_a_column() {
         .all(|r| r["standing"] == "withheld" && r["along"].is_null() && r["alongDetail"].is_null()));
     let health_cases: Vec<Value> = ["L1", "L2"].iter().map(|id| json!({"case_id": id, "state": "checks_passed",
         "code": null, "integrity_diagnostic_id": null, "rcond": null, "digits": null, "conditioning_sensitive": false, "causes": []})).collect();
-    let health = json!({"route": "generic", "verdict_only": false, "combinations": [], "cases": health_cases});
+    let health = json!({"route": "generic", "verdict_only": false, "mechanics_status": "solved", "combinations": [], "cases": health_cases});
     let standing = Standing { eligible: true, health: tables::health_view(&health) };
     let summaries = support_load_summaries(&model, &source, &cases, Some(&standing));
     let supports = summaries["supports"].as_array().unwrap();

@@ -1200,6 +1200,7 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
     // Collapsed when every load case passed its checks; open otherwise.
     <details className="result-detail-panel numerical-health-detail" aria-label={DETAIL_SECTION_LABEL} data-testid="numerical-health-detail" open={health.cases.some((c) => c.state !== "checks_passed") || health.cases.length === 0}>
       <summary>{DETAIL_SECTION_LABEL}</summary>
+      {health.documentStatement ? <p data-testid="numerical-health-document-statement">{health.documentStatement}</p> : null}
       {health.cases.map((c) => (
         <article key={c.caseId} data-testid={`numerical-health-case-${c.caseId}`}>
           <h4>{c.caseId} <NumericalHealthBadgeText badge={c.badge} text={c.headline} testId={`numerical-health-case-badge-${c.caseId}`} /></h4>

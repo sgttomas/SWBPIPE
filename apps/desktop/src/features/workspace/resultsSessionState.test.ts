@@ -206,7 +206,7 @@ it("keeps admission as the full conjunction and reads the indicator beside it", 
   expect(result.current.numericalHealthHold).toBeNull();
 
   // Even an indicator claiming a verdict-only red case changes neither Current nor the hold.
-  engineForHealth.numericalHealthJson = () => JSON.stringify({ route: "generic", verdict_only: true, combinations: [],
+  engineForHealth.numericalHealthJson = () => JSON.stringify({ route: "generic", verdict_only: true, mechanics_status: "solved", combinations: [],
     cases: [{ case_id: "x", state: "sensitive", code: "NUMERICAL_INTEGRITY_SENSITIVE", integrity_diagnostic_id: null, rcond: null, digits: null, conditioning_sensitive: false, causes: [] }] });
   const copy = structuredClone(source);
   act(() => result.current.setResult(copy));

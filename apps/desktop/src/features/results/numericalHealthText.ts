@@ -95,6 +95,12 @@ export function notAssessedText(caseId: string): string {
   return `No numerical quality is stated for ${caseId}.`;
 }
 
+/** The document-level statement beside the detail: the run's mechanics are explicitly not
+ * solved (its own blocked status). */
+export const MECHANICS_NOT_SOLVED_TEXT = "This run's mechanics are not solved.";
+/** The document-level statement for a status that is missing, malformed or contradicting. */
+export const MECHANICS_NOT_ESTABLISHED_TEXT = "Solved mechanics are not established for this document.";
+
 /** "Inherited from its load cases: {case}: {state}; …". */
 export function combinationText(cases: ReadonlyArray<readonly [string, NumericalHealthState]>): string {
   return `Inherited from its load cases: ${cases.map(([caseId, state]) => `${caseId}: ${NUMERICAL_HEALTH_STATE_TEXT[state]}`).join("; ")}.`;

@@ -85,7 +85,7 @@ export function healthStanding(options: {
   const states = options.states ?? { "load:L-1": "checks_passed", "load:L-2": "checks_passed" };
   const parsed = parseNumericalHealth({
     route: options.route ?? "generic",
-    verdict_only: false,
+    verdict_only: false, mechanics_status: "solved",
     cases: Object.entries(states).map(([caseId, state]) => ({
       case_id: caseId, state, code: null, integrity_diagnostic_id: null, rcond: null, digits: null, conditioning_sensitive: false, causes: []
     })),

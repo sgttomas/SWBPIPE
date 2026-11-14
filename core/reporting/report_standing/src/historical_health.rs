@@ -114,6 +114,9 @@ pub(crate) const NONLINEAR_CONFIRMED_LINE: &str = "Converged support state: esta
 pub(crate) struct Health {
     route: &'static str,
     verdict_only: bool,
+    /// The document-level statement's value ([`mechanics_status`]), computed from
+    /// the source alone, with the same `mechanics_solved` the gate uses.
+    mechanics_status: &'static str,
     pub(crate) cases: Vec<CaseHealth>,
     combinations: Vec<CombinationHealth>,
 }
@@ -272,6 +275,37 @@ pub fn status_fields_say_solved(source: &Value) -> Option<bool> {
     )
 }
 
+/// Whether the document's status fields positively say its mechanics are not
+/// solved: `status` is an object whose `mechanics` is `MODEL_INCOMPLETE`, and
+/// either it carries no `analysis_status` list or the list is an array of
+/// strings, all from results.v0.3 `AnalysisStatus`, naming `MODEL_INCOMPLETE`
+/// and not `MECHANICS_SOLVED`. A missing, malformed or contradicting field is
+/// not blocked. It never holds together with [`mechanics_solved`].
+pub fn status_fields_say_blocked(source: &Value) -> bool {
+    let blocked_status = source.get("status").is_some_and(|status| status.is_object() && status["mechanics"] == "MODEL_INCOMPLETE");
+    blocked_status
+        && source.get("analysis_status").is_none_or(|list| {
+            list.as_array().is_some_and(|list| {
+                list.iter().all(|s| s.as_str().is_some_and(|s| s == "MODEL_INCOMPLETE" || SOLVED_LIST_STATUSES.contains(&s)))
+                    && list.iter().any(|s| s == "MODEL_INCOMPLETE")
+                    && !list.iter().any(|s| s == "MECHANICS_SOLVED")
+            })
+        })
+}
+
+/// The document-level statement's value: `solved` ([`mechanics_solved`]),
+/// `not_solved` ([`status_fields_say_blocked`]), or `not_established` for any
+/// other document (a missing, malformed or contradicting status).
+fn mechanics_status(solved: bool, source: &Value) -> &'static str {
+    if solved {
+        "solved"
+    } else if status_fields_say_blocked(source) {
+        "not_solved"
+    } else {
+        "not_established"
+    }
+}
+
 /// Whether the document states its mechanics solved, for the indicator: its
 /// status fields, or, where it carries neither, the export-package exception
 /// (it states `package_status` and `package_id`, and is made only from a solved
@@ -338,6 +372,7 @@ fn projection(source: &Value, reader_findings: Option<&Value>, gated: bool) -> H
     Health {
         route,
         verdict_only: verdict_only(route, source, &index, reader_findings),
+        mechanics_status: mechanics_status(solved, source),
         cases,
         combinations,
     }
@@ -1302,6 +1337,7 @@ mod tests {
         assert_eq!(case["causes"], json!([]));
         assert!(case["code"].is_null(), "no passing code beside a not-assessed state");
         assert_eq!(solved["cases"][0]["code"], CHECKS_PASSED);
+        assert_eq!((out["mechanics_status"].as_str(), solved["mechanics_status"].as_str()), (Some("not_solved"), Some("solved")));
         assert_eq!(out["verdict_only"], false);
         assert_eq!(status_fields_say_solved(&blocked), Some(false));
         assert_eq!(status_fields_say_solved(&base), Some(true));
@@ -1400,6 +1436,48 @@ mod tests {
         assert_eq!(case["state"], "not_assessed");
         assert!(case["code"].is_null() && case["rcond"].is_null());
         assert_eq!(case["causes"], json!([]));
+    }
+
+    /// DEL-07-05: the document-level statement's value. Not solved only for the
+    /// explicit blocked form; any missing, malformed or contradicting status is
+    /// not established; no document is both solved and blocked.
+    #[test]
+    fn the_document_statement_distinguishes_not_solved_from_not_established() {
+        let base = envelope("a", "not_assessed", vec![]);
+        let with = |status: Option<Value>, list: Option<Value>, package: bool| {
+            let mut d = base.clone();
+            let o = d.as_object_mut().unwrap();
+            o.remove("status");
+            if let Some(status) = status { o.insert("status".into(), status); }
+            if let Some(list) = list { o.insert("analysis_status".into(), list); }
+            if package { o.insert("package_status".into(), json!("complete")); o.insert("package_id".into(), json!("package:test")); }
+            d
+        };
+        let blocked = json!({"mechanics": "MODEL_INCOMPLETE"});
+        let solved = json!({"mechanics": "MECHANICS_SOLVED"});
+        let cases = [
+            ("solved", with(Some(solved.clone()), None, false), "solved"),
+            ("solved with a solved list", with(Some(solved.clone()), Some(json!(["MECHANICS_SOLVED", "USER_RULE_CHECKED"])), false), "solved"),
+            ("blocked, the producer's form", with(Some(blocked.clone()), None, false), "not_solved"),
+            ("blocked with a blocked list", with(Some(blocked.clone()), Some(json!(["MODEL_INCOMPLETE", "RULE_INPUTS_INCOMPLETE"])), false), "not_solved"),
+            ("no status, a blocked list", with(None, Some(json!(["MODEL_INCOMPLETE"])), false), "not_established"),
+            ("blocked, a list naming both", with(Some(blocked.clone()), Some(json!(["MODEL_INCOMPLETE", "MECHANICS_SOLVED"])), false), "not_established"),
+            ("blocked, a list with a non-string", with(Some(blocked.clone()), Some(json!(["MODEL_INCOMPLETE", 1])), false), "not_established"),
+            ("blocked, a list with an unknown member", with(Some(blocked.clone()), Some(json!(["MODEL_INCOMPLETE", "invented_status"])), false), "not_established"),
+            ("blocked, a list not naming it", with(Some(blocked.clone()), Some(json!(["RULE_INPUTS_INCOMPLETE"])), false), "not_established"),
+            ("blocked, a list of the wrong type", with(Some(blocked.clone()), Some(json!("MODEL_INCOMPLETE")), false), "not_established"),
+            ("solved status, a blocked list", with(Some(solved.clone()), Some(json!(["MODEL_INCOMPLETE"])), false), "not_established"),
+            ("a status that is not an object", with(Some(json!("MODEL_INCOMPLETE")), None, false), "not_established"),
+            ("an unknown mechanics", with(Some(json!({"mechanics": "MECHANICS_UNKNOWN"})), None, false), "not_established"),
+            ("neither field, not a package", with(None, None, false), "not_established"),
+            ("neither field, a package", with(None, None, true), "solved"),
+        ];
+        for (label, source, expected) in cases {
+            assert_eq!(health(&source, None)["mechanics_status"], expected, "{label}");
+            assert!(!(mechanics_solved(&source) && status_fields_say_blocked(&source)), "{label}: never both");
+            // The record's ungated projection reports the same document fact.
+            assert_eq!(numerical_health(&source, None).mechanics_status, expected, "{label}: the ungated projection");
+        }
     }
 
     fn one_case(case: &str, code: &str, solve_quality: &str, message: String) -> Value {
