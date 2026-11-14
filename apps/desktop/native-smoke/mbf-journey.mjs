@@ -45,7 +45,7 @@ import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
 import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
 import { keptPhaseFailures, newNonce, readReport } from "./launch-outcome.mjs";
-import { MARK_PRESENT, UNRESOLVED_TERMINATION, judgedPhase } from "./judged-launch.mjs";
+import { judgedPhase, phaseContinuation } from "./judged-launch.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -258,17 +258,7 @@ function launch(given) {
       SWBPIPE_NATIVE_SMOKE_REPORT: report
     },
     timeoutMs: PHASE_TIMEOUT_MS, reportPath: report, nonce: plan.nonce, censusBoundMs: TERMINATION_BOUND_MS
-  }).then((result) => {
-    console.log(`phase ${plan.phase}: marks, directly before the launch: ${JSON.stringify(result.marks)}`);
-    if (result.stop) {
-      console.error(result.stop === MARK_PRESENT
-        ? `mbf journey: ${MARK_PRESENT}: an agent may be operating the App on the screen, or the marks could not be checked; not launched`
-        : `mbf journey: ${UNRESOLVED_TERMINATION} after phase ${plan.phase}: ${result.census?.reason ?? "no census"}; no further phase starts; evidence in ${root}`);
-      return exitAfterSignals(result.exitCode);
-    }
-    if (result.outcome.timed_out) console.error(`phase ${plan.phase}: timed out`);
-    return result.report;
-  });
+  }).then(phaseContinuation({ prefix: "mbf journey", phase: plan.phase, evidenceRoot: root }));
 }
 
 const checks = [];
