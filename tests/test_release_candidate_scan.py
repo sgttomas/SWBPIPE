@@ -10,6 +10,7 @@ owner under DEC-058; here the output directory is always a temp directory.
 from __future__ import annotations
 
 import contextlib
+import errno
 import hashlib
 import importlib.util
 import json
@@ -18,6 +19,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 import pytest
@@ -52,47 +54,82 @@ def lint_engine_lock_path() -> Path:
     return Path(tempfile.gettempdir()) / f"openpipestress-lint-engine-{name}.lock"
 
 
+# How long a test waits for the lint engine's Cargo lock: well beyond the engine's first,
+# cold build, which another worker may be making while it holds the lock.
+LINT_ENGINE_LOCK_WAIT_SECONDS = 900.0
+
+
+def _try_lock(handle) -> bool:
+    """One non-blocking attempt at the exclusive lock; False only when another holder has it."""
+    if os.name == "nt":
+        import msvcrt
+
+        handle.seek(0)
+        try:
+            msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError as error:
+            if error.errno in (errno.EACCES, errno.EDEADLK):
+                return False
+            raise
+        return True
+    import fcntl
+
+    try:
+        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        return False
+    return True
+
+
+def _unlock(handle) -> None:
+    if os.name == "nt":
+        import msvcrt
+
+        handle.seek(0)
+        msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(handle, fcntl.LOCK_UN)
+
+
 @contextlib.contextmanager
-def lint_engine_cargo_lock(blocking: bool = True):
+def lint_engine_cargo_lock(blocking: bool = True, wait_seconds: float = LINT_ENGINE_LOCK_WAIT_SECONDS):
     """Hold the lint engine's `cargo run` to one process at a time.
 
-    `cargo run` re-links the executable into the target directory even when the
-    build is fresh, after Cargo has released its own build lock. Two test
-    processes running it at once (pytest-xdist workers) can therefore have one
-    remove the executable while the other starts it, which fails with exit 101
-    and "No such file or directory". Yields whether the lock was taken; a
-    non-blocking attempt that finds it held yields False.
+    Observed: when two test processes (pytest-xdist workers) run it at once, one
+    can fail with exit 101 and "No such file or directory" for the built
+    executable. The suspected cause is that `cargo run` re-links the executable
+    into the target directory, even when the build is fresh, after Cargo has
+    released its own build lock, so one process removes the file as another
+    starts it. Holding this lock for the whole run removes the concurrency
+    whatever the cause.
+
+    A blocking caller retries a non-blocking attempt until `wait_seconds` have
+    passed and then raises TimeoutError; the same loop runs on every platform,
+    and no platform's own blocking call is used (Windows' gives up after ten
+    seconds). Yields whether the lock was taken; a non-blocking caller that
+    finds it held yields False. The key is `CARGO_TARGET_DIR`, else the linter
+    crate's own `target`; a target directory set only in Cargo configuration is
+    not seen.
     """
-    with open(lint_engine_lock_path(), "a+b") as handle:
-        if os.name == "nt":
-            import msvcrt
-
-            handle.seek(0)
-            mode = msvcrt.LK_LOCK if blocking else msvcrt.LK_NBLCK
-            try:
-                msvcrt.locking(handle.fileno(), mode, 1)
-            except OSError:
-                if blocking:
-                    raise
+    path = lint_engine_lock_path()
+    with open(path, "a+b") as handle:
+        deadline = time.monotonic() + wait_seconds
+        while not _try_lock(handle):
+            if not blocking:
                 yield False
                 return
-            try:
-                yield True
-            finally:
-                handle.seek(0)
-                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
-        else:
-            import fcntl
-
-            try:
-                fcntl.flock(handle, fcntl.LOCK_EX | (0 if blocking else fcntl.LOCK_NB))
-            except BlockingIOError:
-                yield False
-                return
-            try:
-                yield True
-            finally:
-                fcntl.flock(handle, fcntl.LOCK_UN)
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    f"waited {wait_seconds:.0f} s for the lint engine's Cargo lock at {path}; "
+                    "another process still holds it"
+                )
+            time.sleep(0.2)
+        try:
+            yield True
+        finally:
+            _unlock(handle)
 
 
 @pytest.fixture
@@ -820,6 +857,77 @@ def test_lint_engine_cargo_lock_excludes_a_second_process(lint_engine_cargo):
                                    cwd=ROOT, capture_output=True, text=True, check=True)
         return completed.stdout.strip()
     assert attempt() == "held"
+
+
+LOCK_PROBE_PRELUDE = (
+    "import importlib.util, sys, time\n"
+    "spec = importlib.util.spec_from_file_location('scan_tests', sys.argv[1])\n"
+    "module = importlib.util.module_from_spec(spec)\n"
+    "spec.loader.exec_module(module)\n"
+)
+
+
+def test_a_blocking_waiter_takes_the_lock_after_a_holder_that_keeps_it_past_ten_seconds(tmp_path, monkeypatch):
+    """A holder in another process keeps the lock, then releases; the blocking waiter then has it.
+
+    On Windows the holder keeps it for more than ten seconds, the point at which that
+    platform's own blocking call gives up; elsewhere a shorter hold exercises the same loop.
+    The lock file is this test's own, so it neither waits on nor delays the Cargo tests.
+    """
+    monkeypatch.setenv("CARGO_TARGET_DIR", str(tmp_path / "target"))
+    hold = 11.0 if os.name == "nt" else 1.5
+    ready = tmp_path / "holder-has-the-lock"
+    holder = subprocess.Popen(
+        [sys.executable, "-c", LOCK_PROBE_PRELUDE + (
+            "from pathlib import Path\n"
+            "with module.lint_engine_cargo_lock() as taken:\n"
+            "    assert taken\n"
+            "    Path(sys.argv[2]).write_text('held')\n"
+            "    time.sleep(float(sys.argv[3]))\n"
+        ), str(Path(__file__).resolve()), str(ready), str(hold)],
+        cwd=ROOT,
+    )
+    try:
+        waited = time.monotonic() + 60
+        while not ready.exists():
+            assert holder.poll() is None, "the holder ended before taking the lock"
+            assert time.monotonic() < waited, "the holder never took the lock"
+            time.sleep(0.05)
+        with lint_engine_cargo_lock(blocking=False) as taken:
+            assert taken is False
+        started = time.monotonic()
+        with lint_engine_cargo_lock(wait_seconds=hold + 60) as taken:
+            assert taken is True
+        assert time.monotonic() - started >= hold / 2
+    finally:
+        holder.wait(timeout=hold + 60)
+    assert holder.returncode == 0
+
+
+def test_a_blocking_waiter_gives_up_with_a_named_timeout(tmp_path, monkeypatch):
+    monkeypatch.setenv("CARGO_TARGET_DIR", str(tmp_path / "target"))
+    ready = tmp_path / "holder-has-the-lock"
+    holder = subprocess.Popen(
+        [sys.executable, "-c", LOCK_PROBE_PRELUDE + (
+            "from pathlib import Path\n"
+            "with module.lint_engine_cargo_lock():\n"
+            "    Path(sys.argv[2]).write_text('held')\n"
+            "    time.sleep(3)\n"
+        ), str(Path(__file__).resolve()), str(ready)],
+        cwd=ROOT,
+    )
+    try:
+        waited = time.monotonic() + 60
+        while not ready.exists():
+            assert holder.poll() is None, "the holder ended before taking the lock"
+            assert time.monotonic() < waited, "the holder never took the lock"
+            time.sleep(0.05)
+        with pytest.raises(TimeoutError, match="lint engine's Cargo lock"):
+            with lint_engine_cargo_lock(wait_seconds=0.5):
+                pytest.fail("the lock was taken while another process held it")
+    finally:
+        holder.wait(timeout=60)
+    assert holder.returncode == 0
 
 
 def test_both_cargo_running_tests_take_the_lint_engine_lock():
