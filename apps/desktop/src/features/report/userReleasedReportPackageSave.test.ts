@@ -163,10 +163,17 @@ describe("Save Shareable Report Package… preparation (route 010)", () => {
       model, result, inputManifest, reportComposition: null, confirmation: { userReleasedAt: INVENTED_USER_RELEASED_AT }
     });
     if (prepared.route !== "ready") throw new Error("not ready");
-    const receipt = { outcome: "saved", user_release_recorded: true, user_release_model_document_sha256: "c".repeat(64) };
-    invokeMock.mockImplementation(async (command: string) => (command === "save_report_package" ? receipt : null));
-    const saved = await invokeUserReleasedReportPackageSave(prepared, () => true);
-    expect(saved).toEqual({ route: "tauri_report_package_save", receipt });
+    // The native receipt carries the binding; the status returned keeps only that a user release
+    // is recorded (REQ-019: the binding stays in the report and its package).
+    for (const [code, durability] of [["REPORT-PACKAGE-SAVED", "durable"], ["REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN", "saved_durability_uncertain"]]) {
+      invokeMock.mockClear();
+      const receipt = { outcome: "saved", code, durability, user_release_recorded: true, user_release_model_document_sha256: "c".repeat(64) };
+      invokeMock.mockImplementation(async (command: string) => (command === "save_report_package" ? receipt : null));
+      const saved = await invokeUserReleasedReportPackageSave(prepared, () => true);
+      expect(saved).toEqual({ route: "tauri_report_package_save", receipt: { outcome: "saved", code, durability, user_release_recorded: true } });
+      expect(saved.route === "tauri_report_package_save" && "user_release_model_document_sha256" in saved.receipt).toBe(false);
+      expect(JSON.stringify(saved)).not.toContain("c".repeat(64));
+    }
     const sent = invokeMock.mock.calls.filter(([command]) => command === "save_report_package");
     expect(sent).toHaveLength(1);
     expect(sent[0][1]).toEqual(prepared.args);

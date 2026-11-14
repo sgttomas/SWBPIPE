@@ -280,7 +280,7 @@ pub(crate) const PROC_MACRO_PACKAGES: [&str; 0] = [];
 /// checked on Rust 1.97.1), so they need no rule.
 pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 14] = [
     ("src-tauri/src/embedded_agent/mod.rs", "process_scope", "SDK kqueue/kevent observation of the original retained Child only, no tracking or signal authority"),
-    ("src-tauri/src/embedded_agent/mod.rs", "keychain_native", "generic provider credential SecItem calls and SDK-public constants, no-UI exact-item queries"),
+    ("src-tauri/src/embedded_agent/mod.rs", "keychain_native", "generic provider credential SecItem calls and SDK-public constants, no-UI exact-item queries, all in its live backend, which the native-smoke build does not compile; both builds keep the relay's no-UI policy call"),
     // HELP_HUMAN's ruling on #1709's autosave (code review r9 follow-up at
     // #1682): pinned as the eleventh; its test module `tests`
     // (`autosave_tests.rs`) is declared inside it and inherits the allow.

@@ -12,6 +12,20 @@ fails if any selected verification fails, is cancelled or never runs. Unselected
 product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
+A draft pull request runs the documentation checks and CI selection and, on the
+product route, the Repository checks; it does not run the product jobs
+(`piping`). On the product route its `harness` fails with "Draft pull request:
+the product jobs did not run. Mark it ready for review to run them." A skipped
+required check would count as passing, so `harness` runs and fails instead.
+Marking the pull request ready (`ready_for_review`) starts the full run on its
+head, in the pull request's concurrency group, which cancels an unfinished draft
+run. A draft on the documentation route has no product jobs to skip and is
+verified as before. A green `harness` therefore always means that every product
+job the route selects ran: in product mode the aggregate requires both the
+Repository checks and `piping` to succeed, so a skipped `piping` never
+aggregates green. Merge-queue and dispatch runs have no draft state and are
+unchanged, as are the Windows workflows.
+
 GitHub offers its merge queue only to organization-owned repositories, so it is
 not enabled here. The workflow stays ready for it: the merge queue
 (`merge_group`) verifies its temporary merge commit exactly as
@@ -198,8 +212,9 @@ unknown paths and shared execution controls select all discovered crates. Existi
 numerical oracles remain unchanged. Python coverage is gated independently.
 
 The standalone required repository job runs the bounded tool/routing suite and
-`tests/test_ci_numerical.py` on every PR and workflow dispatch, including Rust and Cargo manifest
-additions/removals, in parallel (`pytest -n auto`). Its own plan
+`tests/test_ci_numerical.py` on every product-route pull request or merge-queue group and every
+workflow dispatch (which always takes the product route), including Rust and Cargo manifest
+additions/removals, in parallel (`pytest -n auto`). A documentation-route change does not run it. Its own plan
 (`hosted_ci.py repository`) omits only the seven source-reachability tests named in
 `SOURCE_REACHABILITY_TESTS`, and only for a pull request whose complete diff is
 in-place edits of UTF-8 Markdown regular files outside `.github/`, `tools/` and
@@ -215,6 +230,35 @@ monorepo's routing-self-test selection
 gap. The local `tools/tools-test-routing.json` records this bounded estate; it
 does not import the former combined repository's unrelated tool suites. Numerical inventory/source-digest
 refresh and product-selection failure propagation remain required.
+
+The job's whole list (selection, the bounded suite, the routing invariant over
+every maintained test, the deliverable check, the execution-boundary and
+changed-specification check, and the conflict and run-record checks) is one
+maintained script, `tools/ci/repository_checks.py`, which the job calls after
+setting up Python, Rust and the check dependencies. Before a push, run it
+locally from a clean checkout at the repository root:
+
+```sh
+python3 tools/ci/repository_checks.py --event pull_request --base origin/main --head HEAD
+```
+
+It runs the steps in order, names each, stops at the first failure and writes
+`repository-ci-plan.json` and `deliverable-check.json` at the root. It validates
+inventories and digests and never refreshes them: where a check finds one stale,
+the run fails, and its owning tool refreshes it deliberately. A base that names no commit is
+replaced by `HEAD^1` for the documents and conflict checks, except in a merge
+queue, which fails closed. `.gitignore` names both output files, so a local run
+leaves the checkout clean.
+
+`software-workflow.json` registers the script as `repository-checks` in
+`always_checks`, so the selection names it for every change. That costs about
+four minutes locally on a documentation-route change, for which the hosted job
+does not run it. The registry selects by path, and the route also depends on
+what paths cannot show: a file's mode, whether it is added or deleted, whether
+it is UTF-8, and whether the document-reader audit is current. A path rule that
+excluded `execution/` or prose would miss a product-route change there, such as
+an executable or linked file under `execution/` (which the boundary guard in
+this list rejects) or a prose edit while the audit is stale.
 
 Python-test-only edits retain their Python checks with zero Cargo crates. Python PR coverage keeps security and constraint/source-block validation, then
 adds qualification, schema and canonical-JSON families when their inputs change.
@@ -330,6 +374,28 @@ all belong to the keyed input set and the key must still match. The main-only
 `shared-build-cache.yml` warmer uses the same setup action with `build-only:
 true`, so other PRs can read main-scoped engine outputs without running tests
 or installing browsers in the warmer.
+
+## Known costs
+
+Measured on main at `bfc649fd7` (2026-11-13) over 14 pull requests. None is
+repaired by this section; each stays open until its cause is changed.
+
+- **Runs on heads that never merge.** 24% of hosted job-minutes ran on the head
+  that merged. The rest ran on superseded pushes, which `cancel-in-progress`
+  stops only after they have used minutes. The practice that answers it takes
+  one push per merged change as its target: read the local commit, run the
+  affected tests and the Repository checks script (above) locally, then
+  push the head meant to merge. A deliberate early hosted run stays allowed
+  where a platform or integration question needs one.
+- **The Python job runs for every product pull request and is its longest
+  job.** 146 of the 293 maintained tests derive a read root of every path,
+  through a few shared helpers, and they carry nearly all of the recorded test
+  time, so a product change selects at least those 146 tests; other selection
+  rules can add more.
+- **The documentation route is off.** The document-reader audit digest has been
+  stale since 2026-11-08, so an in-place prose edit under `docs/` or to
+  `AGENTS.md` runs in product mode until the audit is refreshed. A change
+  confined to `execution/` is unaffected.
 
 ## Nightly full run
 

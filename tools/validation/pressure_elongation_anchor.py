@@ -63,10 +63,19 @@ leaf by leaf above. Such an entry passes as PASS_CHAINED, and its work-charge de
 listed for the retained-pricing (D3) turn, which owns them. `capture` writes the
 reference dumps beside the envelopes (`<key>.source-dump.json`).
 
+Each envelope's published commitments (every case's `physical_evidence_sha256`, the
+`publication_sha256` and the `receipt_sha256`) are recomputed from their preimages, and an
+entry whose commitment does not hash its preimage FAILs.
+
 Options: `--examples-dir` (prebuilt `core/product_physics` examples; otherwise they are
 built with `$CARGO`, default `cargo`, release profile), `--entry ID` (repeatable),
 `--modes sparse,dense`, `--json OUT` (machine-readable report), `--baseline-only` and
-`--entry-baseline` (above).
+`--entry-baseline` (above), `--inventory PATH` (another inventory), and for `check`
+`--profile NAME` (the exclusion profile: `pressure-elongation`, the default, is the list
+below; `none` excludes nothing) and `--chained-is-error` (an entry that would pass as
+PASS_CHAINED is an ERROR). `capture` records its commit identity in `capture_identity.json` beside
+the envelopes; the report records the check's commit identity and each baseline's recorded
+capture identity (null where a baseline has none).
 Exit status 0 when no
 entry FAILs or ERRORs; REFUSED (the engine does not accept the member yet) exits 3.
 """
@@ -126,6 +135,18 @@ BEND_CLAUSE_SUBSTITUTIONS = (
 )
 
 
+# Named exclusion profiles (`--profile`). The default is the list above, unchanged; `none` excludes
+# nothing, for a lane whose solve must equal its reference leaf for leaf.
+PROFILES = {
+    "pressure-elongation": {"keys": EXCLUDED_KEYS, "identity_substitutions": IDENTITY_SUBSTITUTIONS,
+                            "limitations_dropped": ADDED_LIMITATION_STATEMENTS,
+                            "bend_clause_substitutions": BEND_CLAUSE_SUBSTITUTIONS},
+    "none": {"keys": frozenset(), "identity_substitutions": (), "limitations_dropped": frozenset(),
+             "bend_clause_substitutions": ()},
+}
+DEFAULT_PROFILE = "pressure-elongation"
+
+
 RECEIPT = "/source_block_recovery"
 # Leaves chained from the request hash (`invocation.value`); see the module docstring.
 CHAINED_RECEIPT_LEAVES = tuple(re.compile(f"^{RECEIPT}{pattern}$") for pattern in (
@@ -148,8 +169,9 @@ PAYLOAD_CHAINED = {"normalized_source_text": "/payload/invocation_sha256",
 DUMP_TEST = "o4_source_payload_dump"
 
 
-def _norm_string(value: str) -> str:
-    for old, new in IDENTITY_SUBSTITUTIONS + BEND_CLAUSE_SUBSTITUTIONS:
+def _norm_string(value: str, profile: dict | None = None) -> str:
+    profile = profile or PROFILES[DEFAULT_PROFILE]
+    for old, new in profile["identity_substitutions"] + profile["bend_clause_substitutions"]:
         value = value.replace(old, new)
     return value
 
@@ -174,15 +196,19 @@ def _kind(value: Any) -> str:
     return "object"
 
 
-def differences(expected: Any, actual: Any, path: str = "", key: str | None = None) -> Iterator[tuple[str, str]]:
-    """Yield (JSON pointer, reason) for every difference outside the exclusions, in document order."""
+def differences(expected: Any, actual: Any, path: str = "", key: str | None = None,
+                profile: dict | None = None) -> Iterator[tuple[str, str]]:
+    """Yield (JSON pointer, reason) for every difference outside the exclusions of `profile` (default
+    `DEFAULT_PROFILE`), in document order."""
+    profile = profile or PROFILES[DEFAULT_PROFILE]
+    excluded, dropped = profile["keys"], profile["limitations_dropped"]
     ek, ak = _kind(expected), _kind(actual)
     if ek != ak:
         yield path or "/", f"type {ek} != {ak}"
         return
     if ek == "object":
-        names = [k for k in expected if k not in EXCLUDED_KEYS]
-        names += [k for k in actual if k not in EXCLUDED_KEYS and k not in expected]
+        names = [k for k in expected if k not in excluded]
+        names += [k for k in actual if k not in excluded and k not in expected]
         for name in names:
             child = f"{path}/{_escape(name)}"
             if name not in actual:
@@ -190,29 +216,29 @@ def differences(expected: Any, actual: Any, path: str = "", key: str | None = No
             elif name not in expected:
                 yield child, "unexpected in actual"
             else:
-                yield from differences(expected[name], actual[name], child, name)
+                yield from differences(expected[name], actual[name], child, name, profile)
     elif ek == "array":
         if key == LIMITATIONS_KEY:
-            expected = [v for v in expected if v not in ADDED_LIMITATION_STATEMENTS]
-            actual = [v for v in actual if v not in ADDED_LIMITATION_STATEMENTS]
+            expected = [v for v in expected if v not in dropped]
+            actual = [v for v in actual if v not in dropped]
         if len(expected) != len(actual):
             yield path or "/", f"array length {len(expected)} != {len(actual)}"
         for index, (e, a) in enumerate(zip(expected, actual)):
-            yield from differences(e, a, f"{path}/{index}")
+            yield from differences(e, a, f"{path}/{index}", None, profile)
     elif ek == "float":
         if struct.pack(">d", expected) != struct.pack(">d", actual):
             yield path or "/", f"number {expected!r} != {actual!r}"
     elif ek == "string":
-        if _norm_string(expected) != _norm_string(actual):
+        if _norm_string(expected, profile) != _norm_string(actual, profile):
             yield path or "/", f"string {expected[:80]!r} != {actual[:80]!r}"
     elif expected != actual:
         yield path or "/", f"{expected!r} != {actual!r}"
 
 
-def compare(expected: Any, actual: Any) -> tuple[int, str | None]:
+def compare(expected: Any, actual: Any, profile: dict | None = None) -> tuple[int, str | None]:
     """(number of differences, first difference as 'pointer: reason' or None)."""
     count, first = 0, None
-    for pointer, reason in differences(expected, actual):
+    for pointer, reason in differences(expected, actual, profile=profile):
         count += 1
         if first is None:
             first = f"{pointer}: {reason}"
@@ -372,12 +398,35 @@ class Solver:
 
 
 # ----------------------------------------------------------------------------- the run
-def load_inventory() -> dict:
-    return json.loads(INVENTORY.read_text(encoding="utf-8"))
+def load_inventory(path: Path | None = None) -> dict:
+    return json.loads((path or INVENTORY).read_text(encoding="utf-8"))
+
+
+CAPTURE_RECORD = "capture_identity.json"
+
+
+def commit_identity() -> dict:
+    """The checkout's commit and whether its tracked files differ from it."""
+    def git(*command: str) -> str:
+        return subprocess.run(["git", *command], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
+    try:
+        return {"commit": git("rev-parse", "HEAD"), "tracked_changes": bool(git("status", "--porcelain", "--untracked-files=no"))}
+    except (OSError, subprocess.CalledProcessError) as error:
+        return {"commit": None, "error": str(error)}
+
+
+def capture_identity(directory: Path | None) -> dict | None:
+    """The capture's recorded commit identity in `directory` (`capture` writes it), or None."""
+    record = directory / CAPTURE_RECORD if directory is not None else None
+    return json.loads(record.read_text(encoding="utf-8")) if record is not None and record.exists() else None
 
 
 def run(args) -> int:
-    inventory = load_inventory()
+    inventory = (load_inventory(Path(args.inventory).resolve()) if getattr(args, "inventory", None)
+                 else load_inventory())
+    profile_name = getattr(args, "profile", None) or DEFAULT_PROFILE
+    profile = PROFILES[profile_name]
+    chained_is_error = bool(getattr(args, "chained_is_error", False))
     entries = [e for e in inventory["entries"] if not args.entry or e["id"] in args.entry]
     if args.entry and len(entries) != len(set(args.entry)):
         raise SystemExit(f"unknown entry: {sorted(set(args.entry) - {e['id'] for e in entries})}")
@@ -397,8 +446,10 @@ def run(args) -> int:
         if entry_id not in {e["id"] for e in entries}:
             raise SystemExit(f"--entry-baseline names an entry not run: {entry_id}")
         entry_baselines[entry_id] = Path(directory).resolve()
+    identity = commit_identity()
     if args.command == "capture":
         baseline.mkdir(parents=True, exist_ok=True)
+        (baseline / CAPTURE_RECORD).write_text(json.dumps(identity, indent=1) + "\n", encoding="utf-8")
     solver = Solver(Path(args.examples_dir).resolve() if args.examples_dir else None)
     solver.ensure()
     report = {"switch": switch, "command": args.command, "modes": modes,
@@ -406,10 +457,18 @@ def run(args) -> int:
                             "committed envelope, else baseline") if args.command == "check" else None,
               "baseline": str(baseline) if baseline else None,
               "entry_baselines": {k: str(v) for k, v in sorted(entry_baselines.items())},
-              "exclusions": {"keys": sorted(EXCLUDED_KEYS),
-                             "identity_substitutions": [list(p) for p in IDENTITY_SUBSTITUTIONS],
-                             "limitations_dropped": sorted(ADDED_LIMITATION_STATEMENTS),
-                             "bend_clause_mapped": [new for new, _ in BEND_CLAUSE_SUBSTITUTIONS],
+              "inventory": str(Path(args.inventory).resolve()) if getattr(args, "inventory", None) else str(INVENTORY),
+              "commit": identity if args.command == "capture" else None,
+              "check_commit": identity if args.command == "check" else None,
+              "capture_commits": ({"baseline": capture_identity(baseline),
+                                   **{k: capture_identity(v) for k, v in sorted(entry_baselines.items())}}
+                                  if args.command == "check" else None),
+              "chained_is_error": chained_is_error,
+              "exclusions": {"profile": profile_name,
+                             "keys": sorted(profile["keys"]),
+                             "identity_substitutions": [list(p) for p in profile["identity_substitutions"]],
+                             "limitations_dropped": sorted(profile["limitations_dropped"]),
+                             "bend_clause_mapped": [new for new, _ in profile["bend_clause_substitutions"]],
                              "chained_receipt_leaves": [p.pattern for p in CHAINED_RECEIPT_LEAVES],
                              "work_leaves_for_d3": [p.pattern for p in WORK_LEAVES],
                              "payload_chained": PAYLOAD_CHAINED},
@@ -417,7 +476,7 @@ def run(args) -> int:
     totals: dict[str, int] = {}
     for entry in entries:
         result = run_entry(entry, switch, modes, solver, entry_baselines.get(entry["id"], baseline), args.command,
-                           baseline_only)
+                           baseline_only, profile, chained_is_error)
         report["entries"].append(result)
         totals[result["status"]] = totals.get(result["status"], 0) + 1
         line = f"{result['status']:<10} {entry['id']}"
@@ -461,12 +520,99 @@ def _dump_bound(dump: dict, envelope: Any) -> str | None:
     return None
 
 
-def receipt_chain(reference: Any, envelope: Any, reference_dump: dict | None, actual_dump: dict) -> str | None:
-    """None when the request-bound chain holds (module docstring), else the reason."""
+# The domains of the receipt's three published commitments (product physics `source_receipt.rs`
+# `hash`; the case preimage `source_receipt/composite.rs` `case_physical_evidence`).
+CASE_EVIDENCE_DOMAIN = "pressure_source_case_evidence_v1"
+PUBLICATION_DOMAIN = "source_blocks_publication_v1"
+RECEIPT_DOMAIN = "source_blocks_receipt_v1"
+
+
+def _number(value: float) -> str:
+    """ECMAScript Number::toString of a finite double (RFC 8785's number form)."""
+    if not (value == value and abs(value) != float("inf")):
+        raise ValueError("non-finite number in a hashed preimage")
+    if value == 0:
+        return "0"
+    mantissa, _, exponent = repr(abs(value)).partition("e")
+    whole, _, fraction = mantissa.partition(".")
+    raw = (whole + fraction).lstrip("0")
+    digits = raw.rstrip("0")
+    k = len(digits)
+    n = k + (int(exponent) if exponent else 0) - len(fraction) + (len(raw) - k)
+    sign = "-" if value < 0 else ""
+    if k <= n <= 21:
+        return sign + digits + "0" * (n - k)
+    if 0 < n <= 21:
+        return sign + digits[:n] + "." + digits[n:]
+    if -6 < n <= 0:
+        return sign + "0." + "0" * -n + digits
+    return sign + digits[0] + ("." + digits[1:] if k > 1 else "") + "e" + ("+" if n - 1 >= 0 else "-") + str(abs(n - 1))
+
+
+def canonical_json(value: Any) -> str:
+    """RFC 8785 (JCS) text of a JSON value as `loads` reads it: keys sorted by UTF-16 code units,
+    strings escaped as JSON.stringify escapes them, numbers in ECMAScript form. The harness's own
+    canonicalization (the product's `openpipestress_jcs_ijson_v1` text on the values a receipt hashes)."""
+    if value is None or isinstance(value, bool):
+        return {None: "null", True: "true", False: "false"}[value]
+    if isinstance(value, str):
+        return json.dumps(value, ensure_ascii=False)
+    if type(value) is int:
+        return str(value)
+    if type(value) is float:
+        return _number(value)
+    if isinstance(value, list):
+        return "[" + ",".join(canonical_json(item) for item in value) + "]"
+    if isinstance(value, dict):
+        keys = sorted(value, key=lambda key: key.encode("utf-16-be", "surrogatepass"))
+        return "{" + ",".join(json.dumps(key, ensure_ascii=False) + ":" + canonical_json(value[key]) for key in keys) + "}"
+    raise ValueError(f"unsupported value in a hashed preimage: {type(value).__name__}")
+
+
+def _domain_hash(domain: str, payload: Any) -> str:
+    """sha256 of the canonical {"domain", "payload"} text (the receipt's `hash`)."""
+    return hashlib.sha256(canonical_json({"domain": domain, "payload": payload}).encode("utf-8")).hexdigest()
+
+
+def _commitments_bound(envelope: Any) -> str | None:
+    """None when each case's `physical_evidence_sha256`, the `publication_sha256` and the `receipt_sha256`
+    are the hashes of their published preimages, else the reason. A case's preimage is
+    {"exact_case", "pressure", ["load_reference_state"]}: its exact case evidence, the pressure region
+    records of its load case (none for an exact source case, whose records the composite never carries),
+    and its load/reference-state record where the envelope has them; the publication's is the envelope
+    without `source_block_recovery`; the receipt's is the receipt body."""
+    recovery = envelope["source_block_recovery"]
+    body = recovery["body"]
+    evidence = envelope["contract_evidence"]
+    for case in body["cases"]:
+        case_id = case["basis_ref"]["ref_id"]
+        exact = [c for c in evidence["exact_cases"] if c["load_case_id"] == case_id]
+        if len(exact) != 1:
+            return f"{case_id}: not one exact case for its physical evidence"
+        proof = {"exact_case": exact[0], "pressure": [r for r in evidence["pressure"] if r["load_case_id"] == case_id]}
+        if "load_reference_states" in evidence:
+            records = [r for r in evidence["load_reference_states"] if r["load_case_id"] == case_id]
+            if len(records) != 1:
+                return f"{case_id}: not one load/reference-state record for its physical evidence"
+            proof["load_reference_state"] = records[0]
+        if _domain_hash(CASE_EVIDENCE_DOMAIN, proof) != case["physical_evidence_sha256"]:
+            return f"{case_id} physical_evidence_sha256 is not the hash of its published preimage"
+    publication = {k: v for k, v in envelope.items() if k != "source_block_recovery"}
+    if _domain_hash(PUBLICATION_DOMAIN, publication) != body["publication_sha256"]:
+        return "publication_sha256 is not the hash of the published envelope"
+    if _domain_hash(RECEIPT_DOMAIN, body) != recovery["receipt_sha256"]:
+        return "receipt_sha256 is not the hash of the receipt body"
+    return None
+
+
+def receipt_chain(reference: Any, envelope: Any, reference_dump: dict | None, actual_dump: dict,
+                  profile: dict | None = None) -> str | None:
+    """None when the request-bound chain holds (module docstring), else the reason. Each envelope's
+    published commitments are recomputed from their preimages (`_commitments_bound`)."""
     if reference_dump is None:
         return "no reference source dump (capture writes <key>.source-dump.json)"
     for name, dump, env in (("reference", reference_dump, reference), ("actual", actual_dump, envelope)):
-        reason = _dump_bound(dump, env)
+        reason = _dump_bound(dump, env) or _commitments_bound(env)
         if reason:
             return f"{name}: {reason}"
     expected = {r["case_id"]: r for r in reference_dump["records"]}
@@ -475,15 +621,15 @@ def receipt_chain(reference: Any, envelope: Any, reference_dump: dict | None, ac
         return f"dumped cases {sorted(expected)} != {sorted(actual)}"
     for case_id, record in expected.items():
         for text, allowed in PAYLOAD_CHAINED.items():
-            moved = [p for p, _ in differences(json.loads(record[text]), json.loads(actual[case_id][text]))
-                     if p != allowed]
+            moved = [p for p, _ in differences(json.loads(record[text]), json.loads(actual[case_id][text]),
+                                               profile=profile) if p != allowed]
             if moved:
                 return f"{case_id} {text} differs beyond {allowed}: {moved[:5]}"
     return None
 
 
 def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseline: Path | None, command: str,
-              baseline_only: bool = False) -> dict:
+              baseline_only: bool = False, profile: dict | None = None, chained_is_error: bool = False) -> dict:
     """One entry's status. `baseline_only`: every reference from `baseline`, the modes compared those
     `baseline` holds for the document; a document with none, or a held mode not compared, an ERROR."""
     anchor = entry["anchor"]
@@ -538,7 +684,7 @@ def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseli
             else:
                 uncompared.append(where)
                 continue
-            found = list(differences(reference, envelope))
+            found = list(differences(reference, envelope, profile=profile))
             compared += 1
             other = [(p, r) for p, r in found if not _matches(p, CHAINED_RECEIPT_LEAVES + WORK_LEAVES)]
             if other:
@@ -549,7 +695,7 @@ def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseli
                 dump_path = baseline / f"{key}.source-dump.json" if baseline is not None else None
                 reference_dump = (json.loads(dump_path.read_text(encoding="utf-8"))
                                   if dump_path is not None and dump_path.exists() else None)
-                reason = receipt_chain(reference, envelope, reference_dump, solver.dump(request, mode))
+                reason = receipt_chain(reference, envelope, reference_dump, solver.dump(request, mode), profile)
                 if reason:
                     return {"id": entry["id"], "status": "FAIL", "detail": f"{where}: receipt chain: {reason}",
                             "differences": [f"{p}: {r}" for p, r in found[:20]]}
@@ -572,6 +718,8 @@ def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseli
                   f" (source payloads identical); work deltas for D3: {len(work)}")
     if uncompared:
         detail += f"; {len(uncompared)} without a reference"
+    if chained and chained_is_error:
+        return {"id": entry["id"], "status": "ERROR", "detail": f"PASS_CHAINED under --chained-is-error: {detail}"}
     result = {"id": entry["id"], "status": "PASS_CHAINED" if chained else "PASS", "detail": detail}
     if work:
         result["work_deltas"] = work
@@ -591,12 +739,17 @@ def main(argv: list[str] | None = None) -> int:
                                 "every mode the baseline holds; a missing or uncompared baseline envelope is an ERROR")
             p.add_argument("--entry-baseline", action="append", metavar="ID=DIR",
                            help="take entry ID's references from DIR instead of --baseline (repeatable)")
+            p.add_argument("--profile", choices=sorted(PROFILES), default=DEFAULT_PROFILE,
+                           help="the named exclusion profile (default: the pressure-elongation list; none: nothing excluded)")
+            p.add_argument("--chained-is-error", action="store_true",
+                           help="report any entry that would pass only through the request-bound receipt chain as an ERROR")
         else:
             p.add_argument("--baseline", required=True, help="directory to write the captured envelopes into")
         p.add_argument("--examples-dir")
         p.add_argument("--entry", action="append")
         p.add_argument("--modes", default="sparse,dense")
         p.add_argument("--json")
+        p.add_argument("--inventory", help=f"the inventory to run (default {INVENTORY.relative_to(ROOT)})")
     args = parser.parse_args(argv)
     return run(args)
 

@@ -528,7 +528,7 @@ def w7_schemas(files: dict) -> None:
         schema = json.loads(files[path], object_pairs_hook=collections.OrderedDict)
         for name, bases in edits:
             extend(schema["$defs"][name]["properties"]["basis"]["enum"], bases)
-        files[path] = schema_text(schema, files[path])
+        files[path] = schema_text(schema, files[path], path)
 
 
 W7_PATHS = [TABLE % n for n in ("pressure_3", "preview_physics_2", "preview_physics_retained_1")] + [
@@ -661,7 +661,7 @@ def branch_schemas(files: dict) -> None:
     extend(defs["PressureResultMetadata"]["properties"]["basis"]["enum"], BRANCH_BASES)
     variants = defs["PressureExactCase"]["properties"]["intensified_measures"]["items"]["oneOf"]
     variants[:] = [v for v in variants if "factor_role" not in v.get("required", [])] + [branch_record()]
-    files[path] = schema_text(schema, files[path])
+    files[path] = schema_text(schema, files[path], path)
 
 
 BRANCH_PATHS = [TABLE % "pressure_3", "schemas/results_pressure_3.v0.3.schema.json"]
@@ -728,7 +728,7 @@ def sk1_tables(files: dict) -> None:
         properties = schema["$defs"][name]["properties"]
         extend(properties["component"]["enum"], [SK1_COMPONENT])
         extend(properties["coordinate_system"]["enum"], [SK1_COORDINATE_SYSTEM])
-    files[path] = schema_text(schema, files[path])
+    files[path] = schema_text(schema, files[path], path)
 
 
 SK1_PATHS = [TABLE % "preview_physics_2", TABLE % "preview_physics_retained_1", "schemas/results.v0.3.schema.yaml"]
@@ -861,10 +861,17 @@ def component_schema(schema) -> None:
     walk(schema, fields)
 
 
-def schema_text(schema, original: str) -> str:
+# A YAML 1.1 loader (PyYAML) reads an exponent number without a decimal point (1e-09) as text, so a
+# bound keyword written so makes a .yaml schema invalid for it; in a .yaml schema each such bound is
+# written with a decimal point (1.0e-09), the same number in JSON and in YAML.
+YAML_BOUND = re.compile(r'("(?:minimum|maximum|exclusiveMinimum|exclusiveMaximum)": -?[0-9]+)(e[-+][0-9]+)')
+
+
+def schema_text(schema, original: str, path: str = "") -> str:
     # Keep each file's own escaping: an ASCII-escaped file stays escaped.
     escaped = "\\u" in original and all(ord(c) < 128 for c in original)
-    return json.dumps(schema, indent=2, ensure_ascii=escaped) + "\n"
+    text = json.dumps(schema, indent=2, ensure_ascii=escaped) + "\n"
+    return YAML_BOUND.sub(r"\1.0\2", text) if path.endswith(".yaml") else text
 
 
 def u4b_schemas(files: dict) -> None:
@@ -875,7 +882,7 @@ def u4b_schemas(files: dict) -> None:
                        ("schemas/component.schema.yaml", component_schema)):
         schema = json.loads(files[path], object_pairs_hook=collections.OrderedDict)
         edit(schema)
-        files[path] = schema_text(schema, files[path])
+        files[path] = schema_text(schema, files[path], path)
 
 
 

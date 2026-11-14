@@ -60,6 +60,8 @@ mod b7b_admission_tests;
 #[cfg(test)]
 mod tie_rod_tests;
 #[cfg(test)]
+mod cap_remainder_publication_tests;
+#[cfg(test)]
 mod corrected_displacement_tests;
 #[cfg(test)]
 mod op1a_seed_tests;
@@ -15330,7 +15332,14 @@ fn result_tail(base_id: &str) -> &str {
     base_id.strip_prefix("result:").unwrap_or(base_id)
 }
 
-fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
+fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
+    // DEL-04-07: a case's cap remainder warning stands exactly where its
+    // published evidence carries the exception record. A case is published
+    // only in a document that is not blocked (every refusal of a case is
+    // blocking and returns here), and a blocked document publishes no case
+    // evidence, so the warning of a case admitted under the exception and
+    // then refused, or left unpublished by another case's refusal, goes too.
+    diagnostics.retain(|diagnostic| diagnostic.code != pressure_runtime::CAP_REMAINDER_WARNING_CODE);
     // T1 routes every blocked 0.4.0 envelope to load-reference-1 (0.4.0 is
     // exact-route only); it never publishes preview-physics-2.
     let exact_namespace = pressure_runtime::is_exact(&model) || case_state::is_load_state(&model);
@@ -16351,7 +16360,11 @@ mod tests {
         let mut application=prepare_loads(model.nodes.len(),model.pipe_segments.len(),&loads);
         let uniform=&mut application.element_uniform_loads[0];uniform.magnitude.value=0.1*1.1;
         assert_eq!(certified_loads::intensity(&model,uniform,&case_id),IntensityPrimitive::Product {factors:vec![0.1,1.1],direction:[0.0,1.0,0.0]});
-        let evidence=serde_json::json!({"method":self_weight::GENERATED_METHOD,"normalized_acceleration_m_per_s2":-9.81,"mass_inputs":{"outside_diameter":{"value":0.2},"wall_thickness":{"value":0.01},"material_density":{"value":7800.0}}});
+        // The check's operands are the record's normalized_dependencies (SI); its mass_inputs keep the authored units and are never read.
+        let evidence=serde_json::json!({"method":self_weight::GENERATED_METHOD,"normalized_acceleration_m_per_s2":-9.81,
+            "mass_inputs":{"outside_diameter":{"value":200.0,"unit":"mm"},"wall_thickness":{"value":10.0,"unit":"mm"},"material_density":{"value":7800.0,"unit":"kg/m^3"}},
+            "normalized_dependencies":{"section_ref":null,"outside_diameter":{"value":0.2,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"},"mill_tolerance":null,
+                "material_density":{"value":7800.0,"unit":"kg/m^3"},"contents_density":null,"insulation_thickness":null,"insulation_density":null}});
         model.load_cases[0].primitive_loads[0].provenance=Some(evidence.to_string());
         assert_eq!(certified_loads::intensity(&model,uniform,&case_id),IntensityPrimitive::Seismic {
             mass:MassPrimitive {outer_diameter:0.2,wall_thickness:0.01,mill_tolerance:0.0,pipe_density:7800.0,contents_density:0.0,insulation_thickness:0.0,insulation_density:0.0,corrosion_allowance:None},coefficient:1.1,gravity:-9.81,direction:[0.0,1.0,0.0] });

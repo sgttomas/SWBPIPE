@@ -38,15 +38,12 @@
 //!   solve once);
 //! - each published subtraction equals its operands' row difference.
 //!
-//! **Finding F-CE (pre-S6, reported, not repaired here).** On this document
-//! RS-CE1 is consumed and its `constant_effort_support_applied_load` row states
-//! 9,000 N, but its `support_reaction_component_v2` rows are all 0.0 in every
-//! case and mode of the S6 model (`unresolved` gap cases). A separate ordinary
-//! no-nonlinear probe also shows zero in all three `sensitive` cases; its log
-//! does not identify the mode. The published reactions sum to the weight
-//! less 9,000 N, whereas the S7 limitation attributes a consumed constant-effort
-//! support's constant force as its signed support action, and the increment-3
-//! references expect that restatement. EQ-1 here uses the applied-load row.
+//! **RS-CE1's support action.** RS-CE1 is consumed: its
+//! `constant_effort_support_applied_load` row states 9,000 N, and its published
+//! `support_reaction_component_v2` Fz is also 9,000 N in every case and mode;
+//! the test asserts the applied-load row and prints the published support action
+//! without asserting it. EQ-1 here uses the applied-load row. (An earlier header
+//! reported the published support action as 0.0; that no longer holds.)
 //!
 //! **Remaining blockers shown here.** The intended RS-FR1V `one_way` normal
 //! source for RS-FR1 is refused (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`):
@@ -166,6 +163,16 @@ fn overlay(intended: bool) -> Value {
 
 /// `overlay`, optionally without the three nonlinear supports (the constant-effort control).
 fn overlay_with(intended: bool, nonlinear: bool) -> Value {
+    overlay_of(intended, nonlinear, true)
+}
+
+/// `overlay` without RS-G1: the reducer, RS-CE1, RS-LO1 and RS-FR1 on the interim linear RS-FR1V.
+fn overlay_without_gap() -> Value {
+    overlay_of(false, true, false)
+}
+
+/// `overlay_with`, optionally without RS-G1.
+fn overlay_of(intended: bool, nonlinear: bool, gap: bool) -> Value {
     let mut model = fixture();
     let ids = |m: &Value, key: &str| m[key].as_array().unwrap().iter().map(|x| x["id"].as_str().unwrap().to_string()).collect::<BTreeSet<_>>();
     for id in [R1, CE1, LO1, FR1, G1] {
@@ -174,7 +181,7 @@ fn overlay_with(intended: bool, nonlinear: bool) -> Value {
     let components = model["components"].as_array_mut().unwrap();
     let at = components.iter().position(|c| c["kind"] == "expansion_joint").unwrap();
     components.insert(at, r1());
-    for (after, record) in supports(intended, nonlinear) {
+    for (after, record) in supports(intended, nonlinear).into_iter().filter(|(_, record)| gap || record["id"] != G1) {
         let list = model["supports"].as_array_mut().unwrap();
         let id = record["id"].as_str().unwrap().to_string();
         if let Some(existing) = list.iter().position(|s| s["id"] == id.as_str()) {
@@ -337,7 +344,7 @@ fn check_eq(model: &Value, envelope: &Value, label: &str, extra: f64) -> f64 {
         let (mut force, mut moment, mut fs, mut ms) = ([0.0; 3], [0.0; 3], 0.0f64, 0.0f64);
         for s in model["supports"].as_array().unwrap() {
             let id = s["id"].as_str().unwrap();
-            // RS-CE1's action on the pipe is its constant force along +Z (its applied-load row; finding F-CE).
+            // RS-CE1's action on the pipe is its constant force along +Z (its applied-load row).
             let f = if id == CE1 { [0.0, 0.0, ce_applied(envelope, case)] } else { ["Fx", "Fy", "Fz"].map(|c| reaction(envelope, id, case, c).0) };
             let m = ["Mx", "My", "Mz"].map(|c| reaction(envelope, id, case, c).0);
             let lever = cross(position(model, s["node"].as_str().unwrap()), f);
@@ -395,8 +402,7 @@ fn the_released_full_reference_system_solves_through_the_s6_connecting_path() {
                 eprintln!("{label} {case} {support}: {state}, reaction {component} {value:e} N");
             }
             // DEC-049: the consumed record applies its constant force (the applied-load row). Its published
-            // support action row is reported, not asserted: it is 0.0, not the constant
-            // force S7 attributes (with and without the nonlinear supports; finding F-CE below).
+            // support action row is printed, not asserted (it states the same 9,000 N; see the header).
             let applied = ce_applied(&envelope, case);
             assert_eq!(applied, 9000.0, "{label} {case}: RS-CE1's constant force is applied");
             let (ce, count) = reaction(&envelope, CE1, case, "Fz");
@@ -493,6 +499,43 @@ fn rs_sam_moves_only_through_its_resolved_anchor_motion() {
         assert_eq!(nonlinear_state(&still, support, "load:RS-SAM"), nonlinear_state(&still, support, "load:RS-SUS"), "{support}");
     }
     eprintln!("RS-SAM: {moved} of {} rows move with RS-C's motion; dropped, all equal RS-SUS's", sus.len());
+}
+
+/// KNOWN-LIMITATION WITNESS, not a requirement. It observes the present
+/// behaviour of the combined no-gap overlay: the S6 overlay above without RS-G1,
+/// that is the fixture plus RS-R1, RS-CE1, RS-LO1 and RS-FR1 on the interim
+/// linear RS-FR1V, with W regenerated. Every case solves with no blocking
+/// finding, its converged support state is confirmed, and the S11-G recovery
+/// guard publishes it `NUMERICAL_INTEGRITY_SENSITIVE`. What follows for the
+/// reader's standing and the report is recorded in LIM-017 of
+/// `docs/RELEASE_LIMITATIONS_v1.0.md`, not tested here. The guard's group counts are printed,
+/// not asserted. It says nothing about which addition produces the sensitivity,
+/// and it is not evidence about exit criterion 18 either way. It accepts neither
+/// outcome as correct: a change in what it observes needs independent numerical
+/// evidence, and the limitation entry reconciled, in the same change.
+#[test]
+fn known_limitation_witness_the_no_gap_overlay_publishes_confirmed_sensitive_cases() {
+    let model = overlay_without_gap();
+    check_overlay_identity(&model);
+    assert!(model["supports"].as_array().unwrap().iter().all(|s| s["id"] != G1));
+    for mode in MODES {
+        let label = format!("{mode:?}");
+        let envelope = solve(&model, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{label}");
+        assert!(blocking(&envelope).is_empty(), "{label}: {:#?}", blocking(&envelope));
+        for case in CASES {
+            let integrity: Vec<&Value> = diagnostics(&envelope).iter()
+                .filter(|d| d["code"].as_str().unwrap_or("").starts_with("NUMERICAL_INTEGRITY_") && d["affected_refs"] == json!([case]))
+                .collect();
+            assert_eq!(integrity.len(), 1, "{label} {case}: one integrity diagnostic");
+            let message = integrity[0]["message"].as_str().unwrap();
+            // The confirmation evidence: no published field carries it, so its line is matched in part.
+            assert!(message.contains("Converged support state: established at 128-bit precision"), "{label} {case}: {message}");
+            assert_eq!(integrity[0]["code"], "NUMERICAL_INTEGRITY_SENSITIVE", "{label} {case}: {message}");
+            let count = message.split("is Sensitive because ").nth(1).and_then(|t| t.split(' ').next()).unwrap_or("?");
+            eprintln!("{label} {case}: NUMERICAL_INTEGRITY_SENSITIVE; the recovery guard counts {count} group(s)");
+        }
+    }
 }
 
 /// The remaining S7 blocker: RS-FR1V in its intended `one_way` form as RS-FR1's

@@ -6,6 +6,9 @@ type Provider = {revision:string;endpoint:string;model:string;contextWindow:numb
 /** The person's provider context window, in tokens; the native store enforces the same bounds. */
 const CONTEXT_WINDOW={min:8192,max:131072};
 type Snapshot = {provider:Provider|null;cleanupPending:number|null;cleanupError:unknown};
+/** The scripted-run build's refusal of every Keychain item operation (native `KeyError::SmokeConfigurationDenied`): not a locked, missing or denied key. */
+const SMOKE_KEYCHAIN_DENIAL='This scripted test build refuses Keychain use, so saved API keys are unavailable. Save the provider with no API key.';
+const smokeDenied=(error:unknown)=>error==='smoke_configuration_denied'||(!!error&&typeof error==='object'&&(error as Record<string,unknown>).keychain==='smoke_configuration_denied');
 const object=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==='object'&&!Array.isArray(value);
 function snapshot(value:unknown):Snapshot {
  if(!object(value)||!(value.provider===null||object(value.provider)))throw new Error('INVALID-SETTINGS');
@@ -14,6 +17,7 @@ function snapshot(value:unknown):Snapshot {
  return {provider:provider as Provider|null,cleanupPending:typeof value.cleanupPending==='number'?value.cleanupPending:null,cleanupError:value.cleanupError};
 }
 function settingsError(error:unknown):string {
+ if(smokeDenied(error))return SMOKE_KEYCHAIN_DENIAL;
  if(object(error)&&object(error.reenter_key)){
   if(error.reenter_key.reason==='missing')return 'The saved key is missing. Re-enter your key.';
   if(error.reenter_key.reason==='denied')return 'This build cannot use the saved key. Re-enter your key.';
@@ -77,12 +81,12 @@ export function EmbeddedAgentPanel({session,active,onReview}:{session:EmbeddedAg
   const tokens=Number(contextWindow);
   if(!/^[0-9]+$/.test(contextWindow)||tokens<CONTEXT_WINDOW.min||tokens>CONTEXT_WINDOW.max){setKey(entered);setMessage(settingsError('invalid_input'));return;}
   const result=await settings({kind:'provider_save',expected:saved?.provider?.revision??null,endpoint,model,contextWindow:tokens,credentialMode,...(credentialMode==='replace'?{key:entered}:{})});
-  if(result){setSettingsOpen(false);setMessage(result.cleanupPending===0?'Provider saved.':result.cleanupPending===null?'Provider saved; credential cleanup status is unavailable.':'Provider saved; stale credential cleanup is pending.');}
+  if(result){setSettingsOpen(false);setMessage(result.cleanupPending===0?'Provider saved.':smokeDenied(result.cleanupError)?'Provider saved; this scripted test build refuses Keychain use, so credential cleanup did not run.':result.cleanupPending===null?'Provider saved; credential cleanup status is unavailable.':'Provider saved; stale credential cleanup is pending.');}
  }
  async function start(){
   if(!saved?.provider)return;
   const reply=await session.start(saved.provider.revision);
-  if(object(reply)&&reply.status==='credential_error'){setSettingsOpen(true);if(object(reply.error)&&object(reply.error.reenter_key)&&['missing','denied'].includes(String(reply.error.reenter_key.reason)))setCredentialMode('replace');setMessage(settingsError(reply.error));}
+  if(object(reply)&&reply.status==='credential_error'){setSettingsOpen(true);if(object(reply.error)&&object(reply.error.reenter_key)&&['missing','denied'].includes(String(reply.error.reenter_key.reason)))setCredentialMode('replace');else if(smokeDenied(reply.error))setCredentialMode('no_key');setMessage(settingsError(reply.error));}
  }
  const running=!view.closed;
  if(!active&&available===null)return null;

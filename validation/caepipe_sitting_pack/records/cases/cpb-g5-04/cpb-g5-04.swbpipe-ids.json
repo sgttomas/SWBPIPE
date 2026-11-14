@@ -1,0 +1,205 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-g5-04"
+    },
+    "source_model_sha256": "6237c24a666b231aa13ddb9c24f331ea4d2961bddba52eb62f284f4f72b1fb86"
+  },
+  "element_map": {
+    "pipe:BR1": {
+      "from": "20",
+      "reversed": false,
+      "to": "30",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:BR2": {
+      "from": "30",
+      "reversed": false,
+      "to": "40",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:R1": {
+      "from": "10",
+      "reversed": false,
+      "to": "20",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:R2": {
+      "from": "20",
+      "reversed": false,
+      "to": "50",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:expansion": "Expansion (T1)",
+    "case:sustained": "Sustained (W+P)"
+  },
+  "load_map": {
+    "case:expansion/load:thermal:pipe:BR1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:BR1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:BR2": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:BR2"
+      }
+    },
+    "case:expansion/load:thermal:pipe:R1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:R1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:R2": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:R2"
+      }
+    },
+    "case:sustained/load:branch-mid": {
+      "category": "concentrated_force",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "node": "node:M"
+      }
+    },
+    "case:sustained/load:weight:pipe:BR1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:BR1"
+      }
+    },
+    "case:sustained/load:weight:pipe:BR2": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:BR2"
+      }
+    },
+    "case:sustained/load:weight:pipe:R1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:R1"
+      }
+    },
+    "case:sustained/load:weight:pipe:R2": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:R2"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:bench-a"
+    }
+  },
+  "mbf_sha256": "68fff300e7a5bc3df2688a514b587e1f7c467c988ddcb731b643adede56db592",
+  "node_map": {
+    "node:A": "10",
+    "node:C": "50",
+    "node:E": "40",
+    "node:M": "30",
+    "node:T": "20"
+  },
+  "pressure_map": {
+    "contract": "none",
+    "regions": [],
+    "shear_model": "euler_bernoulli"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "050a7151546ac9dfa6456206c2f86642c45713403d3e0d4f7901177c084532c6",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:C": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "50",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:E": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "40",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  }
+}

@@ -8,7 +8,7 @@ product output; every input is a constant in this file. From any directory:
 
 `--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION, else absent) sets
 `model_settings.pressure_elongation` in the written requests through the shared
-`tools/validation/pressure_elongation.py` (DEL-04-07); the oracle is
+`tools/validation/pressure_elongation.py` (DEL-04-07 `Work/pressure-elongation.md` §7); the oracle is
 today's mechanics, pressure elongation included, whatever the switch.
 
 Basis (read, not imported):

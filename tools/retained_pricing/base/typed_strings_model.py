@@ -15,7 +15,11 @@ The correction charges all three on both routes (route L's contract is absent: a
 
 Bound to the exact struct bodies and the walk's pipe and contract statements; a changed record or walk stops the run.
 Model document 0.8.0's record (without condition_set_ref) reads the same 13. A snapshot before model_settings (model
-document 0.7.0) keeps the chain's basis count for its registered trees."""
+document 0.7.0) keeps the chain's basis count for its registered trees.
+
+RT-L2: `model_settings.pressure_elongation` is a closed record of one list of load-case ids. Its length is bounded only
+by the raw census, so it is not a fixed per-record count: `rtl2_owners_model` (RTL2-TS) charges its slots and bytes
+beside this count, in the same two places."""
 import os
 import re
 
@@ -69,8 +73,16 @@ def inspect(snapshot):
         raise SystemExit("S1-TS: PreviewPipe's or its section's owners changed; re-review the typed string count")
     if _types(runtime, "PressureContractInput") != {"version": "Option<String>", "mode": "Option<String>", "shear_model": "Option<String>"}:
         raise SystemExit("S1-TS: PressureContractInput changed; re-review the typed string count")
-    if _types(settings, "ModelSettings") != {"node_proximity_tolerance": "Option<Quantity>", "shear_model": "Option<ShearModelSetting>"}:
+    # RT-L2: model document 0.9.0's `pressure_elongation` adds one owner, a closed record holding only the list of
+    # operating load-case ids. Its strings are a list, not a fixed count: rtl2_owners_model (RTL2-TS) charges its slots
+    # and bytes at the raw census's bound beside this count, which stays the record's scalar strings.
+    _ms = _types(settings, "ModelSettings")
+    _pe = _ms.pop("pressure_elongation", None)
+    if _ms != {"node_proximity_tolerance": "Option<Quantity>", "shear_model": "Option<ShearModelSetting>"} or _pe not in (
+            None, "Option<PressureElongationSetting>"):
         raise SystemExit("S1-TS: ModelSettings changed; re-review the typed string count")
+    if _pe is not None and _types(settings, "PressureElongationSetting") != {"operating_load_cases": "Vec<String>"}:
+        raise SystemExit("S1-TS: PressureElongationSetting changed; re-review the typed string count")
     if "    Unknown,\n}" not in settings.split("pub enum ShearModelSetting {", 1)[1].split("\n}", 1)[0] + "\n}":
         raise SystemExit("S1-TS: ShearModelSetting changed; re-review the typed string count")
     walk = memory.split("    fn walk(&mut self, request: &LinearStaticPreviewRequest)", 1)[1].split("\npub(super) fn nested_typed_census", 1)[0]

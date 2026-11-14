@@ -2167,12 +2167,13 @@
                       "member_pipe_ids",
                       "member_lengths_m",
                       "region_span_m",
-                      "thrust_to_bore_force_ratio",
+                      "remainder_to_bore_force_ratio",
+                      "remainder_force_n",
                       "consistency_bound_ratio"
                     ],
                     "properties": {
                       "basis": {
-                        "const": "straight_region_interior_cap_pairs_representation_guard_departure_thrust"
+                        "const": "straight_region_interior_cap_pairs_cap_remainder_retained"
                       },
                       "node_ref": {
                         "type": "string",
@@ -2200,7 +2201,11 @@
                         "type": "number",
                         "exclusiveMinimum": 0
                       },
-                      "thrust_to_bore_force_ratio": {
+                      "remainder_to_bore_force_ratio": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "remainder_force_n": {
                         "type": "number",
                         "minimum": 0
                       },
@@ -2209,7 +2214,7 @@
                         "exclusiveMinimum": 0
                       }
                     },
-                    "description": "DEL-04-07: present exactly when the original screen failed and the case was admitted because it is of the family the basis names: no pressure elongation, closed straight regions whose only formed pressure loads are the interior cap pairs of two members of one region. Their sum F at an interior node is the thrust of the bore and alignment differences between the two members that the region's representation guards admit; the product solves the recorded geometry, for which that thrust is real. The record states the interior node of the largest |F|/(|p|*A_hi), its two members (in the region's order) and their lengths, the region's span, that ratio, and the bound beta formed from the span and lengths by the derivation in product physics (pressure_runtime BORE_DEPARTURE_RATIO). The bound is a consistency check that the formed force agrees with what the guards admit; it does not bound the response or establish its accuracy or acceptability, which the case's numerical standing addresses."
+                    "description": "DEL-04-07: present exactly when the original screen failed and the case was admitted because it is of the family the basis names: no pressure elongation, closed straight regions whose only formed pressure loads are the interior cap pairs of two members of one region. Their sum F at an interior node is the remainder of the two members' cap loads, from the bore and alignment differences the region's representation guards admit, from the rounding of each member's direction and bore area, or both; the product solves the recorded geometry as computed, with that remainder retained. The record states the interior node of the largest |F|/(|p|*A_hi), its two members (in the region's order) and their lengths, the region's span, that ratio, |F| there in newtons (remainder_force_n, the correctly rounded norm of the assembled translational pressure load at the node, the ratio's numerator; the case's PRESSURE_REGION_CAP_REMAINDER_RETAINED warning states it, written by Rust's {:e}, with the case and the node, and says it is not a bound on the resulting displacement), and the bound beta formed from the span and lengths by the derivation in product physics (pressure_runtime BORE_DEPARTURE_RATIO). The bound checks consistency of the formed force with the guards and formation. It establishes neither a response bound nor response accuracy or engineering acceptability. Numerical standing comes from the solve integrity check on its recorded premise; this exception supplies no independent assurance."
                   },
                   "screen_limit": {
                     "const": 1e-09

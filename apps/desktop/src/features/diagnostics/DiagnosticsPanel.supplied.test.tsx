@@ -11,7 +11,7 @@ import { registerRetainedPrecision, retainedPrecisionRegistration } from "../res
 import { DiagnosticsPanel } from "./DiagnosticsPanel";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { readerValidate, ResultReaderError } from "../results/resultReader";
-import { documentCombinationIdentities, presentedResultDiagnostics, SUPPLEMENTAL_DIAGNOSTIC_LABEL } from "../results/suppliedDiagnostics";
+import { CAP_REMAINDER_WARNING_CODE, documentCombinationIdentities, presentedResultDiagnostics, SUPPLEMENTAL_DIAGNOSTIC_LABEL, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 import { diagnosticsForSections } from "../report/renderableReportInput";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 
@@ -150,5 +150,56 @@ describe("Diagnostics panel: supplied diagnostic text", () => {
     const { listed, explanation } = shown(result, result.diagnostics[0]);
     expect(listed).toEqual([CLAIM, CLAIM]);
     expect(explanation.startsWith(`${CLAIM} It is linked to model.`)).toBe(true);
+  });
+});
+
+// DEL-04-07: the cancellation-screen exception's warning. The pressure readers bind its presence, its whole
+// message and its references to the exception record, so on a result the reader admitted it is a product
+// diagnostic, copied as it stands even where the result has combinations and the warning names none of them;
+// a result the reader refuses attests nothing, and the warning is then quoted as supplied text like any other.
+describe("Diagnostics panel: the cancellation-screen exception's warning", () => {
+  // The fixed opening and the sentence the producer forms from the record (`cap_remainder_warning_message`).
+  const OPENING = "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
+  const SENTENCE = " In case case:P, the retained remainder is largest relative to the pressure force on the bore at node node:C1, where it is 2.197357159078235e-1 N; that force is not a bound on the resulting displacement.";
+  const MESSAGE = OPENING + SENTENCE;
+  const warning = (refs: string[]): Diagnostic => ({ id: "diagnostic:pressure-runtime:invented:PRESSURE_REGION_CAP_REMAINDER_RETAINED", code: CAP_REMAINDER_WARNING_CODE,
+    severity: "warning", source: "core/product_physics/src/pressure_runtime.rs", affected_refs: refs, message: MESSAGE }) as Diagnostic;
+
+  it("is copied on a reader-admitted result with combinations and quoted where the reader admitted nothing", () => {
+    const combinations = new Set(["comb:invented"]);
+    const refs = ["case:invented", "region:invented", "node:invented"];
+    expect(suppliedDiagnosticMessage(warning(refs), combinations, true)).toBe(MESSAGE);
+    expect(suppliedDiagnosticMessage(warning(refs), combinations, false)).toBe(supplied(MESSAGE));
+    expect(suppliedDiagnosticMessage({ ...warning(refs), code: "INVENTED_CODE" }, combinations, true)).toBe(supplied(MESSAGE));
+    expect(suppliedDiagnosticMessage(warning(refs), new Set(), false)).toBe(MESSAGE);
+  });
+
+  it("shows a person the case, the node, the force with its unit and that it is no bound on the displacement", () => {
+    // A result without combinations: the message is copied as it stands. The list shows the message, which
+    // carries all four; the detail of the selected warning also shows its references (case, region, node).
+    const refs = ["case:P", "region:P", "node:C1"];
+    const shownWarning = warning(refs);
+    const result = { diagnostics: [shownWarning], results: [], contract_evidence: {}, summary: {} } as unknown as MechanicsResult;
+    const view = render(<DiagnosticsPanel model={panelModel(result)} knowledge={null} result={result} selectedDiagnosticId={shownWarning.id!} onSelectDiagnostic={() => {}} />);
+    const listed = screen.getAllByTestId(`diagnostic-${CAP_REMAINDER_WARNING_CODE}`).map((item) => item.querySelector("p")!.textContent);
+    expect(listed).toEqual([MESSAGE]);
+    for (const part of ["In case case:P,", "at node node:C1,", "where it is 2.197357159078235e-1 N;", "that force is not a bound on the resulting displacement."]) {
+      expect(listed[0]).toContain(part);
+    }
+    expect(screen.getByTestId("selected-diagnostic-affected-refs").textContent).toContain("case:P, region:P, node:C1");
+    view.unmount();
+  });
+
+  it("is refused by the reader on a case without the exception's record, and then quoted as supplied", () => {
+    const e = exCantilever();
+    const result = e.document;
+    const caseId = (result.contract_evidence as { exact_cases: { load_case_id: string }[] }).exact_cases[0].load_case_id;
+    const forged = warning([caseId, "region:invented", "node:invented"]);
+    result.diagnostics.push(forged);
+    let refusal: unknown = null;
+    try { readerValidate("pressure", result); } catch (error) { refusal = error; }
+    expect((refusal as ResultReaderError | null)?.code).toBe("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED");
+    const { listed } = shown(result, forged);
+    expect(listed).toEqual([supplied(MESSAGE)]);
   });
 });

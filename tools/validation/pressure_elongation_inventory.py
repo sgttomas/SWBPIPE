@@ -100,6 +100,19 @@ GROUPS = [
                    "core/product_physics/tests/rt_a3_s6_reference_system.rs",
                    "core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs"],
      "anchor": BASELINE},
+    # The CAEPIPE benchmark set: its producer writes each model's default series without the setting by design (the
+    # pressure-elongation-on series adds it in memory, naming the case that carries pressure), so its switch is not
+    # plumbed; the anchor compares `--switch all` with the pre-change engine's solve of the committed document.
+    {"id": "caepipe_benchmark", "paths": ["validation/caepipe_benchmark/models/cpb-p*.json"],
+     "producer": {"kind": "python_generator", "path": "tools/caepipe_correlation/benchmark_models.py",
+                  "verify": "python3 -m tools.caepipe_correlation.benchmark_models --check",
+                  "write": "python3 -m tools.caepipe_correlation.benchmark_models", "switch_plumbed": False,
+                  "switch_route": "the tracked model is the default series, without model_settings.pressure_elongation "
+                                  "by design; the pressure-elongation-on series names the case that carries pressure "
+                                  "in memory"},
+     "pinned_by": ["validation/caepipe_benchmark/manifest.json", "tests/test_caepipe_benchmark.py",
+                   "core/handoff/caepipe_external/benchmark.py", "tools/caepipe_correlation/run_pilot.py"],
+     "anchor": BASELINE},
     # ---- Rust and TypeScript writers (switch not plumbed; they copy committed sources) --------
     {"id": "t4_u5b_requests", "paths": ["core/runner/headless/tests/t4_u5b_requests/*.request.json"],
      "producer": _writer("rust_builder", "core/product_physics/tests/common/t4_u5b.rs",
@@ -107,6 +120,18 @@ GROUPS = [
                          "core/runner/headless/tests/t4_u5b_requests/bindings.json binds the request sha256"),
      "pinned_by": ["core/runner/headless/tests/t4_u5b_requests/bindings.json", "core/runner/headless/tests/tied_joint_references.rs",
                    "core/product_physics/tests/connector_readers.rs", "fixtures/results/pressure_v3_connector_reader_corpus.json"],
+     "anchor": BASELINE},
+    # The cancellation-screen exception's halfway-force case: the test builds its model in code without the setting by
+    # design (the exception's family excludes pressure elongation), so its committed envelope is the not-included
+    # mechanics; the anchor compares `--switch all` with the pre-change engine's solve of the committed request.
+    {"id": "cap_remainder_halfway_force", "paths": ["fixtures/results/pressure_v3_cap_remainder_halfway_force.json"],
+     "producer": {"kind": "rust_test", "path": "core/product_physics/tests/pressure_grouping_limits.rs",
+                  "write": "SWBPIPE_WRITE_CAP_REMAINDER_FIXTURE=1 with "
+                           "a_force_halfway_between_two_shortest_decimals_is_read_in_either_spelling",
+                  "switch_plumbed": False,
+                  "switch_route": "the model is built in code without model_settings.pressure_elongation by design"},
+     "pinned_by": ["core/product_physics/tests/pressure_grouping_limits.rs",
+                   "tests/test_pressure_cancellation_exception_readers.py"],
      "anchor": BASELINE},
     {"id": "arc_reader_corpus", "paths": ["fixtures/results/pressure_v3_arc_reader_corpus.json"],
      "producer": _writer("rust_test", "core/product_physics/tests/pressure_arc_readers.rs",

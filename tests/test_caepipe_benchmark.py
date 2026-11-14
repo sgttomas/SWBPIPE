@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Focused tests for the CAEPIPE benchmark tranche 1 (DEL-17-05 Design §11, RT-V2): the seeded model generator,
-the element-row binding, the two-way comparison and `run_pilot --benchmark` (invented inputs and invented CSV text
-only; nothing here runs the external program or reads its output)."""
+"""Focused tests for the CAEPIPE benchmark set, tranches 1 and 2 and the whole set's generation (DEL-17-05 REQ-018 and AC-007; the "Benchmark
+method" section of docs/RELEASE_TARGET_v1.0.md): the seeded model generator, the element-row binding, the two-way
+comparison and `run_pilot --benchmark` (invented inputs and invented CSV text only; nothing here runs the external
+program or reads its output)."""
 
 from __future__ import annotations
 
@@ -21,6 +22,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). Its one project scan is the
+# tracked benchmark models; `root.rglob("*")` snapshots the invented exchange folder under tmp_path.
+CI_READS = ("validation/caepipe_benchmark/models/*.json",)
+
 from core.handoff.caepipe_external import case_paths, parse_caepipe_print_csv  # noqa: E402
 from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     BENCHMARK_RECORD_KIND,
@@ -32,6 +37,7 @@ from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     WITHIN,
     build_benchmark_record,
     screen,
+    screening_class,
 )
 from core.handoff.caepipe_external.harness import RUN_RECORD_KIND, check_guest_alive  # noqa: E402
 from core.handoff.caepipe_external.print_csv import bind_element_rows  # noqa: E402
@@ -47,6 +53,15 @@ MANIFEST = BENCHMARK / "manifest.json"
 def tracked_models() -> list[dict]:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     return [json.loads((BENCHMARK / entry["file"]).read_text(encoding="utf-8")) for entry in manifest["models"]]
+
+
+def earlier_models() -> list[dict]:
+    """Tranches 1 and 2; tranche 3 is examined in tests/test_caepipe_benchmark_tranche3.py."""
+    return [document for document in tracked_models() if document.get("tranche") in (None, "2")]
+
+
+def pressurised_models() -> list[dict]:
+    return [document for document in tracked_models() if document.get("tranche") == "2"]
 
 
 # -- generator -------------------------------------------------------------------------------------------------------
@@ -76,8 +91,12 @@ def test_the_manifest_records_seed_family_parameters_and_hashes():
     assert manifest["generator"]["seed"] == benchmark_models.DEFAULT_SEED
     assert manifest["piping_code"] == "B311-80"
     counts: dict[str, int] = {}
+    pressure_counts: dict[str, int] = {}
     for entry in manifest["models"]:
-        counts[entry["family"]] = counts.get(entry["family"], 0) + 1
+        if entry["tranche"] == "3":
+            continue  # tests/test_caepipe_benchmark_tranche3.py
+        tally = pressure_counts if entry["tranche"] == "2" else counts
+        tally[entry["family"]] = tally.get(entry["family"], 0) + 1
         text = (BENCHMARK / entry["file"]).read_bytes()
         document = json.loads(text)
         assert hashlib.sha256(text).hexdigest() == entry["file_sha256"]
@@ -88,6 +107,10 @@ def test_the_manifest_records_seed_family_parameters_and_hashes():
         assert document["provenance"]["origin"] == "invented" and document["provenance"]["produced_by_caepipe"] is False
     assert counts == {"G1": 10, "G2": 16, "G3": 12, "G4": 6, "G5": 6, "G6": 3, "G7": 3, "G8": 4}
     assert sum(counts.values()) == 60
+    assert pressure_counts == {"P1": 6, "P2": 4, "P3": 4, "P4": 4, "P5": 2, "P6": 1, "P7": 1}
+    # Tranche 2 is appended after tranche 1, and tranche 3 after tranche 2.
+    assert [entry["tranche"] for entry in manifest["models"]] == ["1"] * 60 + ["2"] * 22 + ["3"] * 27
+    assert sorted(manifest["tranches"]) == ["1", "2", "3"]
     series = manifest["series"]
     assert [member["value"] for member in series["shear-dt"]["members"]] == [10.0, 20.0, 40.0, 100.0]
     assert [member["value"] for member in series["tee-ratio"]["members"]] == [0.3, 0.5, 0.75, 1.0]
@@ -101,7 +124,7 @@ def test_the_manifest_records_seed_family_parameters_and_hashes():
 
 def test_sections_materials_and_bends_span_the_proposed_ranges():
     ods, ratios, materials, radii = [], [], set(), set()
-    for document in tracked_models():
+    for document in earlier_models():
         model = document["model"]
         materials.add(model["materials"][0]["id"])
         for pipe in model["pipe_segments"]:
@@ -121,6 +144,8 @@ def test_sections_materials_and_bends_span_the_proposed_ranges():
 
 
 def test_every_model_is_written_with_its_explicit_piping_code_within_the_row_limit():
+    rows = {entry["model_id"]: entry.get("layout_row_count")
+            for entry in json.loads(MANIFEST.read_text(encoding="utf-8"))["models"]}
     for document in tracked_models():
         result = render_caepipe_mbf_si(document["model"], title=document["model_id"],
                                        reference_temperature_c=document["reference_temperature_c"],
@@ -131,6 +156,16 @@ def test_every_model_is_written_with_its_explicit_piping_code_within_the_row_lim
         assert not {item["code"] for item in result.diagnostics} & {"MBF-SI-PIPING-CODE-NOT-WRITTEN",
                                                                    "MBF-SI-LAYOUT-ROW-LIMIT"}
         assert sorted(result.load_case_map) == sorted(case["id"] for case in document["model"]["load_cases"])
+        if document.get("tranche") == "2":
+            # Written with the Bourdon option and bend pressure correction off, and its row count recorded.
+            assert "\r\nOPPRES\r\n0,0,0,1,0\r\n" in result.text
+            assert rows[document["model_id"]] == result.layout_row_count
+            assert result.load_case_map == {"case:sustained": "Sustained (W+P)", "case:expansion": "Expansion (T1)"}
+            assert result.pressure_map["contract"] == {"version": "3.0.0", "mode": "exact_pressure_v3"}
+        elif document.get("tranche") == "3":
+            assert "OPPRES" not in result.text and rows[document["model_id"]] == result.layout_row_count
+        else:
+            assert "OPPRES" not in result.text and rows[document["model_id"]] is None
 
 
 def solve(model: dict) -> dict:
@@ -209,7 +244,7 @@ def test_every_model_solves_and_its_closed_forms_match_swbpipe_and_a_mirror_scre
     """End to end on SWBPIPE's side: each generated model solves; an invented print that mirrors SWBPIPE's own results
     at printed resolution binds every row and screens within the profile; each closed form agrees with SWBPIPE."""
     closed = 0
-    for document in tracked_models():
+    for document in earlier_models():
         payload = solve(document["model"])
         mbf, text = mirror_csv(document, payload)
         record = build_benchmark_record(document, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf.text,
@@ -220,7 +255,268 @@ def test_every_model_solves_and_its_closed_forms_match_swbpipe_and_a_mirror_scre
             if "closed_form" in row:
                 closed += 1
                 assert row["closed_form"]["closed_form_vs_swbpipe"] == "agree", (document["model_id"], row)
-    assert closed == sum(len(document["closed_form"]) for document in tracked_models())
+    assert closed == sum(len(document["closed_form"]) for document in earlier_models())
+
+
+# -- tranche 2: pressure series --------------------------------------------------------------------------------------
+def build_has_pressure_elongation_setting() -> bool:
+    """Whether this checkout's model document has model_settings.pressure_elongation. Without it (main before the
+    setting), a pressurised document solves with pressure elongation on in every case; with it, a document that
+    lacks the member solves with elongation off. The runner the tests use is built from the same head."""
+    import yaml
+
+    schema = yaml.safe_load((ROOT / "schemas" / "model.schema.yaml").read_text(encoding="utf-8"))
+    return "pressure_elongation" in (schema["$defs"]["ModelSettings"].get("properties") or {})
+
+
+# The elongation-off closed forms, compared only on a build that has the setting. Each is listed so that none is
+# left out silently: (model id, number of closed forms valid in the pressure-default state only).
+PENDING_ELONGATION_OFF = (
+    *((f"cpb-p1-{index:02d}", 2) for index in range(1, 7)),  # both anchors' axial reactions, 0
+    *((f"cpb-p2-{index:02d}", 1) for index in range(1, 5)),  # the free end's axial displacement, 0
+)
+PENDING_REASON = ("the pressure-default closed forms need a build whose model document has "
+                  "model_settings.pressure_elongation (solved with the setting absent); this build has none, so a "
+                  "pressurised document solves with elongation on and these closed forms are not compared")
+
+
+def closed_form_rows(document: dict, solved_model: dict) -> list[dict]:
+    """The benchmark record's closed-form rows for `document` against SWBPIPE's solve of `solved_model`, with an
+    invented print that mirrors that solve."""
+    payload = solve(solved_model)
+    mbf, text = mirror_csv(document, payload)
+    record = build_benchmark_record(document, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf.text,
+                                    parsed_caepipe=parse_caepipe_print_csv(text))
+    return [row for row in record["results"] if "closed_form" in row]
+
+
+def test_the_elongation_on_closed_forms_match_swbpipe():
+    """The pressure-elongation-on run of every pressurised model: on a build with the setting, the document the
+    series gives (the setting names the pressure case); without it, the tracked document, which then solves with
+    elongation on."""
+    has_setting = build_has_pressure_elongation_setting()
+    compared = 0
+    for document in pressurised_models():
+        run = benchmark_models.series_document(document, benchmark_models.SERIES_ELONGATION_ON)
+        rows = closed_form_rows(run, run["model"] if has_setting else document["model"])
+        assert len(rows) == len(run["closed_form"]), document["model_id"]
+        for row in rows:
+            assert row["closed_form"]["closed_form_vs_swbpipe"] == "agree", (document["model_id"], row)
+        compared += len(rows)
+    assert compared == sum(len(document["closed_form"]) + len(document["closed_form_by_series"]
+                                                              [benchmark_models.SERIES_ELONGATION_ON])
+                           for document in pressurised_models())
+
+
+def test_the_elongation_off_closed_forms_are_listed_and_compared_only_on_a_build_with_the_setting():
+    listed = {document["model_id"]: len(document["closed_form_by_series"][benchmark_models.SERIES_DEFAULT])
+              for document in pressurised_models()}
+    assert {model: count for model, count in listed.items() if count} == dict(PENDING_ELONGATION_OFF)
+    if not build_has_pressure_elongation_setting():
+        pytest.skip(f"pending, {sum(listed.values())} closed forms: {PENDING_REASON}")
+    for document in pressurised_models():
+        run = benchmark_models.series_document(document, benchmark_models.SERIES_DEFAULT)
+        assert run["model"] == document["model"]
+        rows = closed_form_rows(run, run["model"])
+        assert len(rows) == len(run["closed_form"]), document["model_id"]
+        for row in rows:
+            assert row["closed_form"]["closed_form_vs_swbpipe"] == "agree", (document["model_id"], row)
+
+
+# The premise of the pressure-bend-opening series, checked only on a build that has the setting, and listed so that
+# it cannot drop out silently: (model id, the node whose rotation must not change between the two screened runs).
+PENDING_BEND_OPENING = (("cpb-p7-01", "node:B"),)
+# Bound on |rotation(on) - rotation(default)| at the free end, in rad, per component. The rotations in this model are
+# of order 1e-3 to 1e-2 rad, so double-precision working error is many orders below 1e-12; the result file prints
+# rotation to about 1.7e-6 rad (0.0001 deg), so 1e-12 is neither a bitwise demand nor a loose one. The pull request
+# 217 author reports bitwise equality out of plane and a residue of order 1e-40 in plane (that author's account).
+BEND_OPENING_ROTATION_BOUND = 1.0e-12
+BEND_OPENING_REASON = ("the pressure-bend-opening premise (SWBPIPE's free-end rotation unchanged between the "
+                       "pressure-default and pressure-elongation-on runs) needs a build whose model document has "
+                       "model_settings.pressure_elongation; this build has none, so both runs would solve the same "
+                       "state and nothing would be checked")
+
+
+def test_the_bend_opening_premise_holds_in_swbpipe():
+    series = json.loads(MANIFEST.read_text(encoding="utf-8"))["series"]["pressure-bend-opening"]
+    assert sorted({member["model_id"] for member in series["members"]}) == [model for model, _ in
+                                                                            PENDING_BEND_OPENING]
+    assert series["observed"] == "case:sustained rotation about Y of the free end node:B"
+    if not build_has_pressure_elongation_setting():
+        pytest.skip(f"pending, {len(PENDING_BEND_OPENING)} model: {BEND_OPENING_REASON}")
+    from core.handoff.caepipe_external.benchmark import swbpipe_values
+
+    documents = {document["model_id"]: document for document in pressurised_models()}
+    for model_id, node in PENDING_BEND_OPENING:
+        rotations = []
+        for run in RUNS[:2]:
+            run_document = benchmark_models.series_document(documents[model_id], run)
+            values, invalid = swbpipe_values(solve(run_document["model"])["mechanics_envelope"]["results"],
+                                             ["case:sustained"], {})
+            rotations.append({axis: values[("rotation", node, "", axis)] for axis in "xyz"})
+            assert not {key for key in invalid if key[:2] == ("rotation", node)}
+        assert any(abs(value) > 1.0e-6 for value in rotations[0].values())  # the rotation is not trivially zero
+        for axis in "xyz":
+            assert abs(rotations[1][axis] - rotations[0][axis]) <= BEND_OPENING_ROTATION_BOUND, (model_id, axis,
+                                                                                                rotations)
+
+
+RUNS = (benchmark_models.SERIES_DEFAULT, benchmark_models.SERIES_ELONGATION_ON,
+        benchmark_models.SERIES_BOURDON_EXPANSION)
+
+
+def test_every_pressurised_model_declares_three_runs_of_the_same_file():
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    pressurised = [entry for entry in manifest["models"] if entry["tranche"] == "2"]
+    names = [entry["model_id"] for entry in pressurised]
+    lines = {benchmark_models.SERIES_DEFAULT: "0,0,0,1,0", benchmark_models.SERIES_ELONGATION_ON: "0,1,0,1,1",
+             benchmark_models.SERIES_BOURDON_EXPANSION: "0,1,0,1,0"}
+    for name in RUNS:
+        declared = manifest["series"][name]
+        assert declared["oppres_line"] == lines[name] and declared["screened"] is (name != RUNS[2])
+        assert [member["model_id"] for member in declared["members"]] == names
+    capture_text = manifest["series"][RUNS[2]]["description"]
+    assert manifest["series"][RUNS[2]]["swbpipe"] is None and "collects nothing for it" in capture_text
+    assert "capture_path_unavailable" in capture_text and "screened against nothing" not in capture_text
+    hypothesis = manifest["pressure_hypothesis"]
+    assert hypothesis["statement"].startswith("HYPOTHESIS") and "tests and does not assume" in hypothesis["statement"]
+    assert "docs.sstcae.com/users_manual/import_mbf.htm" in hypothesis["format_source"]
+    assert "2026-11-12" in hypothesis["format_source"] and hypothesis["refuted_by"]
+    documents = {document["model_id"]: document for document in pressurised_models()}
+    for entry in pressurised:
+        document = documents[entry["model_id"]]
+        writer = render_caepipe_mbf_si(document["model"], title=document["model_id"],
+                                       reference_temperature_c=document["reference_temperature_c"],
+                                       piping_code=document["piping_code"]).text
+        assert [run["series"] for run in entry["runs"]] == list(RUNS)
+        assert len({run["run_id"] for run in entry["runs"]}) == 3
+        default, on, capture = entry["runs"]
+        assert default["variant_of"] is None and on["variant_of"] == capture["variant_of"] == RUNS[0]
+        assert default["file"] == on["file"] == capture["file"] == entry["file"]
+        assert default["mbf"] == {"oppres_line": "0,0,0,1,0", "source": "writer output",
+                                  "sha256": hashlib.sha256(writer.encode("utf-8")).hexdigest()}
+        for run in (on, capture):
+            substituted = benchmark_models.substituted_mbf_text(writer, run["mbf"]["oppres_line"])
+            assert substituted != writer and substituted.replace(f"\r\nOPPRES\r\n{run['mbf']['oppres_line']}\r\n",
+                                                                 "\r\nOPPRES\r\n0,0,0,1,0\r\n") == writer
+            assert run["mbf"] == {"oppres_line": run["mbf"]["oppres_line"], "source": "substituted",
+                                  "base_line": "0,0,0,1,0", "writer_output": False,
+                                  "sha256": hashlib.sha256(substituted.encode("utf-8")).hexdigest(),
+                                  "writer_sha256": default["mbf"]["sha256"]}
+        # Each run's file as the runner forms it: the writer's text of that run's own document (for the on run, the
+        # document carrying the setting), with that run's line substituted. Its bytes and hash are the manifest's, so a
+        # writer change that let model settings reach the MBF would fail here.
+        for series, run in zip(RUNS, entry["runs"]):
+            run_document = benchmark_models.series_document(document, series)
+            own = render_caepipe_mbf_si(run_document["model"], title=run_document["model_id"],
+                                        reference_temperature_c=run_document["reference_temperature_c"],
+                                        piping_code=run_document["piping_code"]).text
+            final = benchmark_models.run_mbf_text(run_document, own).encode("utf-8")
+            expected = benchmark_models.substituted_mbf_text(writer, run["mbf"]["oppres_line"]).encode("utf-8")
+            assert final == expected and hashlib.sha256(final).hexdigest() == run["mbf"]["sha256"], run["run_id"]
+        assert default["swbpipe_model_hash"] == entry["model_hash"] != on["swbpipe_model_hash"]
+        assert on["swbpipe_model_settings"] == {"pressure_elongation": {"operating_load_cases": ["case:sustained"]}}
+        assert (capture["screened"], capture["swbpipe_model_hash"], capture["closed_forms"]) == (False, None, 0)
+    # The thrust series: one target-program input, SWBPIPE's anchor terminal transferring or not.
+    for index in (1, 2):
+        members = manifest["series"][f"pressure-closure-{index:02d}"]["members"]
+        assert [(member["model_id"], member["value"]) for member in members] == [
+            (f"cpb-p2-{index:02d}", "transfers_to_wall"), (f"cpb-p3-{index:02d}", "separately_supported_or_compensated")]
+    # The bend-opening series: P7's default and on runs.
+    assert manifest["series"]["pressure-bend-opening"]["members"] == [
+        {"model_id": "cpb-p7-01", "run": RUNS[0]}, {"model_id": "cpb-p7-01", "run": RUNS[1]}]
+    assert not [entry for entry in manifest["models"] if entry["tranche"] == "1" and "runs" in entry]
+
+
+def test_the_substitution_refuses_a_file_without_exactly_one_writer_oppres_line():
+    writer = render_caepipe_mbf_si(pressurised_models()[0]["model"], title="T", piping_code="B311-80").text
+    for text in (writer.replace("\r\nOPPRES\r\n0,0,0,1,0\r\n", "\r\nOPPRES\r\n0,0,0,1,1\r\n"),
+                 writer + "OPPRES\r\n0,0,0,1,0\r\n", writer.replace("OPPRES", "OPTEMP")):
+        with pytest.raises(ValueError):
+            benchmark_models.substituted_mbf_text(text, "0,1,0,1,1")
+    assert benchmark_models.substituted_mbf_text(writer, "0,0,0,1,0") == writer
+
+
+def test_only_the_data_line_of_a_listed_options_heading_may_be_substituted():
+    """DEL-17-05 REQ-005: whole lines under a heading of the maintained short list, which changes no node, element or
+    support; for this set, the pressure options record as the writer writes it."""
+    assert benchmark_models.SUBSTITUTABLE_OPTION_HEADINGS == ("OPPRES",)
+    writer = render_caepipe_mbf_si(pressurised_models()[0]["model"], title="T", piping_code="B311-80").text
+    lines = writer.split("\r\n")
+    # A layout, material, section or load line is refused, whatever replaces it.
+    for heading in ("LAYOUT", "MATERIAL", "PIPE", "LOADS"):
+        data = lines[lines.index(heading) + 1]
+        with pytest.raises(ValueError, match="not an options heading"):
+            benchmark_models.substituted_mbf_text(writer, data, heading=heading)
+        with pytest.raises(ValueError, match="not an options heading"):
+            benchmark_models.substituted_mbf_text(writer, "0,1,0,1,1", heading=heading)
+    # Under OPPRES only a declared run's line, with no carriage return or line feed, replaces the writer's line.
+    for line in ("0,1,0,1,1\r\nLAYOUT", "0,1,0,1,1\n", "0,1,1,1,1", "1,0,0,1,0", ""):
+        with pytest.raises(ValueError):
+            benchmark_models.substituted_mbf_text(writer, line)
+    substituted = benchmark_models.substituted_mbf_text(writer, "0,1,0,1,1").split("\r\n")
+    assert [index for index, (old, new) in enumerate(zip(lines, substituted)) if old != new] == [
+        lines.index("OPPRES") + 1] and len(substituted) == len(lines)
+
+
+def test_inexact_inputs_follow_the_run_and_the_case():
+    bends = {"P4", "P5", "P7"}
+    for document in pressurised_models():
+        default = benchmark_models.series_document(document, RUNS[0])["inexact_inputs"]
+        on = benchmark_models.series_document(document, RUNS[1])["inexact_inputs"]
+        assert document["inexact_inputs"] == default
+        for case in ("case:sustained", "operating"):
+            assert "pressure_thrust_convention" in default[case] and "pressure_thrust_convention" in on[case]
+            assert "pressure_elongation_convention" not in default[case] and "pressure_elongation_convention" in on[case]
+            assert "bend_bourdon_opening" not in default[case]
+            assert ("bend_bourdon_opening" in on[case]) is (document["family"] in bends)
+        assert default["case:expansion"] == on["case:expansion"]
+        assert not {"pressure_elongation_convention", "bend_bourdon_opening", "pressure_thrust_convention"} & set(
+            on["case:expansion"])
+        if document["family"] in ("P1", "P2", "P3", "P7"):
+            # Axial growth only (P1), or free growth of a cantilever anchored at one end with no pressure or
+            # mechanical load (P2, P3, P7): no shear or bend input can change it, so the exact class in both runs.
+            assert default["case:expansion"] == [] == on["case:expansion"]
+            assert screening_class(default["case:expansion"]) == screening_class(on["case:expansion"]) == "exact"
+        else:
+            # Anchored at both ends or at three legs: bending is restrained, so the inputs stay named.
+            assert "shear_deformation" in default["case:expansion"]
+        capture = benchmark_models.series_document(document, RUNS[2])
+        assert capture["capture_only"] is True and capture["closed_form"] == [] and capture["inexact_inputs"] == {}
+
+
+def test_no_tracked_model_carries_model_settings_and_the_series_document_adds_it_without_writing():
+    for document in tracked_models():
+        assert "model_settings" not in document["model"], document["model_id"]
+    document = pressurised_models()[0]
+    before = json.dumps(document, sort_keys=True)
+    on = benchmark_models.series_document(document, benchmark_models.SERIES_ELONGATION_ON)
+    assert on == benchmark_models.series_document(document, benchmark_models.SERIES_ELONGATION_ON)
+    assert json.dumps(document, sort_keys=True) == before
+    assert on["model"]["model_settings"] == {"pressure_elongation": {"operating_load_cases": ["case:sustained"]}}
+    assert {key: value for key, value in on["model"].items() if key != "model_settings"} == document["model"]
+    assert on["series_run"] == benchmark_models.SERIES_ELONGATION_ON and "closed_form_by_series" not in on
+    with pytest.raises(ValueError):
+        benchmark_models.series_document(tracked_models()[0], benchmark_models.SERIES_DEFAULT)
+    assert benchmark_models.generate() == benchmark_models.generate()  # nothing the call changed reaches the set
+
+
+def test_every_pressurised_case_carries_an_unbalanced_thrust_or_one_straight_member_per_region():
+    """Each region is one straight member, or holds a bend (whose kink leaves a thrust), or ends at a terminal that
+    is separately supported or compensated; so no case is a multi-member closed straight run without one."""
+    for document in pressurised_models():
+        model = document["model"]
+        bends = {component["geometry"]["bend_pipe_ref"] for component in model["components"]}
+        regions = [region for case in model["load_cases"] for region in case["pressure_regions"]]
+        assert regions and all(case["id"] == "case:sustained" for case in model["load_cases"]
+                               if case["pressure_regions"])
+        for region in regions:
+            members = region["member_pipe_ids"]
+            open_end = any(terminal["closure_transfer"] != "transfers_to_wall" for terminal in region["terminals"])
+            assert len(members) == 1 or set(members) & bends or open_end, (document["model_id"], region["id"])
+        assert "pressure_thrust_convention" in document["inexact_inputs"]["case:sustained"]
+        assert model["pressure_contract"] == {"version": "3.0.0", "mode": "exact_pressure_v3",
+                                              "shear_model": "timoshenko_annulus_energy_v1"}
 
 
 # -- element-row binding ---------------------------------------------------------------------------------------------
@@ -491,16 +787,30 @@ def test_a_parser_error_is_counted_unmatched_never_dropped():
 
 
 # -- run_pilot --benchmark -------------------------------------------------------------------------------------------
-def benchmark_manifest(tmp_path: Path, count: int = 5) -> Path:
-    """A copy of the first `count` tracked models and a manifest naming them."""
+def benchmark_manifest(tmp_path: Path, count: int = 5, ids: tuple[str, ...] = ()) -> Path:
+    """A copy of the first `count` tracked models (or of the models `ids`) and a manifest naming them."""
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    manifest["models"] = manifest["models"][:count]
+    manifest["models"] = ([entry for entry in manifest["models"] if entry["model_id"] in ids] if ids
+                          else manifest["models"][:count])
     (tmp_path / "models").mkdir(parents=True)
     for entry in manifest["models"]:
         (tmp_path / entry["file"]).write_bytes((BENCHMARK / entry["file"]).read_bytes())
     path = tmp_path / "manifest.json"
     path.write_text(json.dumps(manifest), encoding="utf-8")
     return path
+
+
+def command_sleep(replacement):
+    """A replacement for time.sleep that takes only the benchmark command's own waits. run_pilot.time is the
+    process-wide time module, so a library's own short wait (subprocess polling a git child it started with a timeout)
+    is passed through to the real sleep instead of being mistaken for the command's pacing."""
+    real_sleep = run_pilot.time.sleep
+
+    def sleep(seconds):
+        if sys._getframe(1).f_globals.get("__name__") != run_pilot.__name__:
+            return real_sleep(seconds)
+        return replacement(seconds)
+    return sleep
 
 
 @pytest.fixture
@@ -511,11 +821,12 @@ def fake_benchmark(tmp_path, monkeypatch):
     monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: config)
     monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: (
         {"invented": case["source_location"]}, {"payload": invented_payload()}, ""))
-    state = {"calls": [], "outcomes": [], "session": [], "alive": [], "sleeps": [], "events": [],
+    state = {"calls": [], "outcomes": [], "session": [], "alive": [], "sleeps": [], "events": [], "mbf": {},
              "clean": {"settings_guard": {"status": "unchanged"}}}
 
     def round_trip(config_, case_id, mbf_text, **kwargs):
         state["calls"].append((case_id, kwargs))
+        state["mbf"][case_id] = mbf_text
         state["events"].append(("round_trip", case_id))
         outcome = state["outcomes"].pop(0) if state["outcomes"] else state["clean"]
         if isinstance(outcome, BaseException):
@@ -542,8 +853,8 @@ def fake_benchmark(tmp_path, monkeypatch):
                         lambda entry, config_, **kw: real(entry, config_, **{**kw, "round_trip": round_trip}))
     monkeypatch.setattr(run_pilot, "check_no_foreign_instance", precondition)
     monkeypatch.setattr(run_pilot, "check_guest_alive", alive)
-    monkeypatch.setattr(run_pilot.time, "sleep", lambda seconds: (state["sleeps"].append(seconds),
-                                                                  state["events"].append(("sleep", seconds))))
+    monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(lambda seconds: (
+        state["sleeps"].append(seconds), state["events"].append(("sleep", seconds)))))
     runner = tmp_path / "runner"
     runner.write_text("invented", encoding="utf-8")
     stops = tmp_path / "stops"
@@ -578,16 +889,828 @@ def test_the_benchmark_option_writes_a_private_record_per_model_one_at_a_time(fa
     assert "HGRA,B311-80,SI" in rendered
     # Operational status only on standard output: no classification or count.
     assert "within_profile" not in out and "finding" not in out
-    # One batch alone; then the stored, bound CSVs rebuild the records offline with no round trip and no wait.
+    # A recorded case is never run again, live (one batch alone) or offline: each is refused by name before anything
+    # is solved, round-tripped or written, and the exchange folder is unchanged.
+    before = tree_bytes(root)
     state["calls"].clear()
-    assert run_pilot.main(state["argv"] + ["--batch", "2", "--pace-s", "90"], environ={}) == 0
-    assert [call[0] for call in state["calls"]] == ["cpb-g1-05"]
-    state["calls"].clear()
+    assert run_pilot.main(state["argv"] + ["--batch", "2", "--pace-s", "90"], environ={}) == 1
+    assert state["calls"] == []
+    out = capsys.readouterr().out
+    assert "batch 2/2: cpb-g1-05" in out and "cpb-g1-05: route=already_recorded;" in out
     state["sleeps"].clear()
     offline = ["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline"]
-    assert run_pilot.main(offline + ["--case", "cpb-g1-02"], environ={}) == 0
+    assert run_pilot.main(offline + ["--case", "cpb-g1-02"], environ={}) == 1
     assert state["calls"] == [] and state["sleeps"] == []
-    assert "cpb-g1-02: route=csv_from_batch; benchmark record written" in capsys.readouterr().out
+    assert "cpb-g1-02: route=already_recorded;" in capsys.readouterr().out
+    assert tree_bytes(root) == before
+
+
+def tree_bytes(root: Path) -> dict[str, bytes]:
+    return {str(item.relative_to(root)): item.read_bytes() if item.is_file() else b"<dir>"
+            for item in sorted(root.rglob("*"))}
+
+
+def test_the_case_manifest_binds_the_revision_runner_request_and_result(fake_benchmark):
+    state = fake_benchmark
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    custody = json.loads((case / "case_manifest.json").read_text())["custody"]
+    assert set(custody) == set(run_pilot.BENCHMARK_CUSTODY_KEYS)
+    assert custody["source_commit"] == checkout_head()
+    assert custody["source_tree_clean"] in (True, False, None)
+    assert custody["runner_sha256"] == hashlib.sha256(Path(state["runner"]).read_bytes()).hexdigest()
+    for name in ("request", "result"):
+        assert custody[f"{name}_sha256"] == hashlib.sha256((case / "swbpipe" / f"{name}.json").read_bytes()).hexdigest()
+
+
+def checkout_head() -> str | None:
+    """This checkout's commit, asked of Git with the inherited GIT_* variables removed."""
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True, env=env)
+    return head.stdout.strip() if head.returncode == 0 else None
+
+
+def test_an_inherited_git_dir_does_not_change_the_recorded_commit(fake_benchmark, monkeypatch, tmp_path):
+    """Run from a Git hook, GIT_DIR would name another repository; the custody still records this checkout's commit."""
+    state = fake_benchmark
+    other = tmp_path / "other"
+    subprocess.run(["git", "init", "-q", str(other)], check=True)
+    monkeypatch.setenv("GIT_DIR", str(other / ".git"))
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
+    manifest = state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json"
+    assert json.loads(manifest.read_text())["custody"]["source_commit"] == checkout_head()
+
+
+def test_a_half_made_case_is_refused_by_name_and_left_as_it_is(fake_benchmark, monkeypatch, capsys):
+    """Seeded, the half-made forms an interrupt after authorised creation can leave (a request alone; a request and
+    result), a result alone, and stored files beside a case manifest that records no custody (one written before the
+    solve). A later invocation refuses each by name, before any solve, and leaves it exactly as it is; a manifest that
+    cannot be read is refused by its own name."""
+    state = fake_benchmark
+    solves = []
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
+        {"invented": True}, {"payload": invented_payload()}, ""))
+    root = state["config"].exchange_root
+    no_custody = json.dumps({"outcome": "no_record", "route": "not_run",
+                             "custody": dict.fromkeys(run_pilot.BENCHMARK_CUSTODY_KEYS)})
+    seeds = {"cpb-g1-01": (("request.json",), None), "cpb-g1-02": (("request.json", "result.json"), None),
+             "cpb-g1-03": (("result.json",), None), "cpb-g1-04": (("request.json",), no_custody),
+             "cpb-g1-05": (("request.json",), "{ NOT JSON")}
+    for case_id, (names, manifest) in seeds.items():
+        folder = root / "cases" / case_id / "swbpipe"
+        folder.mkdir(parents=True)
+        for name in names:
+            (folder / name).write_text("INVENTED STORED FILE\n", encoding="utf-8")
+        if manifest is not None:
+            (folder.parent / "case_manifest.json").write_text(manifest, encoding="utf-8")
+    before = tree_bytes(root)
+    for case_id in seeds:
+        expected = ("manifest_unreadable; this case's manifest cannot be read" if case_id == "cpb-g1-05"
+                    else "half_made; this case is half-made")
+        assert run_pilot.main(state["argv"] + ["--case", case_id], environ={}) == 1
+        assert f"{case_id}: route={expected}" in capsys.readouterr().out
+    assert solves == [] and state["calls"] == [] and tree_bytes(root) == before
+
+
+def test_a_stored_request_or_result_is_never_replaced(fake_benchmark, monkeypatch, capsys):
+    """Seeded (round 1's seeds, kept beside the half-made test): a case folder already holding only a request, or only
+    a result, with no case manifest, is refused by name before any solve and left exactly as it is."""
+    state = fake_benchmark
+    solves = []
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
+        {"invented": True}, {"payload": invented_payload()}, ""))
+    root = state["config"].exchange_root
+    for case_id, name in (("cpb-g1-01", "request.json"), ("cpb-g1-02", "result.json")):
+        stored = case_paths(state["config"], case_id)["swbpipe"] / name
+        stored.write_text("INVENTED STORED FILE\n", encoding="utf-8")
+    before = tree_bytes(root)
+    for case_id in ("cpb-g1-01", "cpb-g1-02"):
+        assert run_pilot.main(state["argv"] + ["--case", case_id], environ={}) == 1
+        assert f"{case_id}: route=half_made;" in capsys.readouterr().out
+    assert solves == [] and state["calls"] == [] and tree_bytes(root) == before
+
+
+def test_an_admission_refusal_of_a_recorded_case_creates_no_folder(fake_benchmark, capsys):
+    """A recorded case (stored files and a case manifest) missing its other layer folders is refused at admission,
+    before anything of it is authorised: no folder is created."""
+    state = fake_benchmark
+    root = state["config"].exchange_root
+    case = root / "cases" / "cpb-g1-01"
+    (case / "swbpipe").mkdir(parents=True)
+    (case / "swbpipe" / "request.json").write_text("INVENTED\n", encoding="utf-8")
+    (case / "case_manifest.json").write_text(json.dumps({"outcome": "invented", "route": "invented",
+                                                         "custody": {"request_sha256": "0" * 64}}), encoding="utf-8")
+    before = tree_bytes(root)
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
+    assert "cpb-g1-01: route=already_recorded;" in capsys.readouterr().out
+    assert tree_bytes(root) == before
+
+
+def test_o_excl_does_not_replace_a_stored_file(tmp_path):
+    """O_EXCL establishes that a stored file is not replaced (it says nothing about whether a racing process solved)."""
+    stored = tmp_path / "request.json"
+    stored.write_text("INVENTED STORED FILE\n", encoding="utf-8")
+    with pytest.raises(FileExistsError):
+        run_pilot._create_private_json(tmp_path, stored, {"other": True})
+    assert stored.read_text(encoding="utf-8") == "INVENTED STORED FILE\n"
+
+
+def test_the_clean_flag_is_what_git_reports(fake_benchmark):
+    state = fake_benchmark
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
+    custody = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())[
+        "custody"]
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    status = subprocess.run(["git", "-C", str(ROOT), "status", "--porcelain"], capture_output=True, text=True, env=env)
+    assert custody["source_tree_clean"] == ((status.stdout == "") if status.returncode == 0 else None)
+
+
+def _bench_entry(state, model_id="cpb-g1-01"):
+    return run_pilot.load_benchmark(state["manifest"], [model_id])[0]
+
+
+def _collecting_round_trip(config_, case_id, mbf_text, **kwargs):
+    sha = hashlib.sha256(mbf_text.encode("utf-8")).hexdigest()
+    out = case_paths(config_, case_id)["caepipe_out"]
+    (out / "model.csv").write_text(invented_print(), encoding="utf-8")
+    record = {"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch", "mbf": {"sha256": sha},
+              "guest_mbf_sha256": sha, "observed_csv_path": {"host": "caepipe_out/model.csv"},
+              "settings_guard": {"status": "unchanged"}}
+    (out / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
+    return record
+
+
+def test_the_custody_is_on_disk_when_the_round_trip_starts(fake_benchmark):
+    """At the moment the round trip is invoked, the persisted case manifest already binds the two stored files; an
+    interrupt there leaves that custody recorded, the manifest in the custody_recorded state (no terminal outcome
+    recorded)."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    seen = {}
+
+    def round_trip(config_, case_id, mbf_text, **kwargs):
+        manifest = json.loads((case / "case_manifest.json").read_text())
+        seen["outcome"] = manifest["outcome"]
+        for name in ("request", "result"):
+            seen[name] = manifest["custody"][f"{name}_sha256"] == hashlib.sha256(
+                (case / "swbpipe" / f"{name}.json").read_bytes()).hexdigest()
+        raise KeyboardInterrupt
+    with pytest.raises(KeyboardInterrupt):
+        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       collect_only=True)
+    assert seen == {"outcome": "custody_recorded", "request": True, "result": True}
+    assert json.loads((case / "case_manifest.json").read_text())["outcome"] == "custody_recorded"
+
+
+@pytest.mark.parametrize("side", ["before the round trip starts", "after it returns, before the final update"])
+def test_an_interrupt_on_either_side_of_the_round_trip_leaves_custody_recorded(fake_benchmark, monkeypatch, side):
+    """The custody_recorded state shows only that no terminal outcome was recorded: an interrupt after the custody is
+    on disk and before the round trip is called, or after it returns and before the final manifest update, leaves
+    it so, with the custody readable."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    calls = []
+
+    def interrupt(*args, **kwargs):
+        raise KeyboardInterrupt
+    if side.startswith("before"):
+        monkeypatch.setattr(run_pilot, "write_private", interrupt)  # the MBF write, after the custody write
+    else:
+        monkeypatch.setattr(run_pilot, "bound_csv", interrupt)  # after the round trip has returned
+    with pytest.raises(KeyboardInterrupt):
+        run_pilot._run_benchmark_model(
+            _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
+            round_trip=lambda *a, **k: calls.append(1) or _collecting_round_trip(*a, **k), gui_fallback=False,
+            attempt=1, collect_only=True)
+    assert calls == ([] if side.startswith("before") else [1])
+    manifest = json.loads((case / "case_manifest.json").read_text())
+    assert manifest["outcome"] == "custody_recorded" and manifest["custody"]["request_sha256"]
+
+
+def test_an_interrupted_later_manifest_write_leaves_the_custody_readable(fake_benchmark, monkeypatch):
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    first = {}
+
+    def round_trip(config_, case_id, mbf_text, **kwargs):
+        first["bytes"] = (case / "case_manifest.json").read_bytes()
+
+        def interrupted(descriptor, data):
+            os.write(descriptor, data[: len(data) // 2])
+            os.close(descriptor)
+            raise KeyboardInterrupt
+        monkeypatch.setattr(run_pilot, "_write_fd", interrupted)
+        return _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
+    with pytest.raises(KeyboardInterrupt):
+        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       collect_only=True)
+    assert (case / "case_manifest.json").read_bytes() == first["bytes"]
+    assert json.loads(first["bytes"])["custody"]["request_sha256"]
+    assert not [path for path in case.iterdir() if path.name.endswith(".tmp")]
+
+
+def test_a_custody_changed_on_disk_is_refused_and_nothing_written(fake_benchmark):
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    edited = {}
+
+    def round_trip(config_, case_id, mbf_text, **kwargs):
+        manifest = json.loads((case / "case_manifest.json").read_text())
+        manifest["custody"]["request_sha256"] = "0" * 64
+        (case / "case_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        edited["bytes"] = (case / "case_manifest.json").read_bytes()
+        return _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
+    with pytest.raises(run_pilot.CustodyChanged):
+        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       collect_only=True)
+    assert (case / "case_manifest.json").read_bytes() == edited["bytes"]
+
+
+@pytest.mark.parametrize("change", ["runner", "runner of the same size", "commit"])
+def test_a_changed_runner_or_checkout_refuses_before_the_round_trip(fake_benchmark, monkeypatch, change):
+    """Assumed stable through the invocation, the runner and the checkout are checked again before the round trip; an
+    ordinary change refuses by name, and the case keeps its custody manifest (outcome no_record, route
+    identity_changed), which a later invocation refuses as already recorded, naming that outcome and route."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    real_solve = run_pilot.solve_swbpipe
+    if change.startswith("runner"):
+        def solve(runner, case_):
+            size = Path(state["runner"]).stat().st_size
+            replacement = "X" * size if change.endswith("same size") else "REPLACED DURING THE SOLVE"
+            Path(state["runner"]).write_text(replacement, encoding="utf-8")
+            return real_solve(runner, case_)
+        monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
+    else:
+        identities = iter([{"source_commit": "a" * 40, "source_tree_clean": True},
+                           {"source_commit": "b" * 40, "source_tree_clean": True}])
+        monkeypatch.setattr(run_pilot, "_source_identity", lambda: next(identities))
+    calls = []
+    status, route, _ = run_pilot._run_benchmark_model(
+        _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
+        round_trip=lambda *a, **k: calls.append(1), gui_fallback=False, attempt=1, collect_only=True)
+    assert (status, route, calls) == (run_pilot.NOT_RUN, "identity_changed", [])
+    manifest = json.loads((case / "case_manifest.json").read_text())
+    assert manifest["outcome"] == "no_record" and manifest["custody"]["request_sha256"]
+    before = tree_bytes(state["config"].exchange_root)
+    status, route, reason = run_pilot._run_benchmark_model(
+        _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
+        round_trip=lambda *a, **k: calls.append(1), gui_fallback=False, attempt=1, collect_only=True)
+    assert (status, route, calls) == (run_pilot.NOT_RUN, "already_recorded", [])
+    assert "the manifest records outcome 'no_record', route 'identity_changed'" in reason
+    assert tree_bytes(state["config"].exchange_root) == before
+
+
+def test_a_settings_stop_records_its_outcome_before_it_stops(fake_benchmark):
+    """A round trip that concluded with an unclean settings check: the outcome is written (keeping the custody)
+    before the run stops, so the manifest is not left in the custody_recorded state."""
+    state = fake_benchmark
+    state["outcomes"][:] = [{"route": "timeout", "settings_guard": {"status": "owned_process_running"}}]
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
+    manifest = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
+    assert (manifest["outcome"], manifest["route"]) == ("no_record", "settings_stop")
+    assert manifest["custody"]["request_sha256"]
+
+
+@pytest.mark.parametrize("failure", [OSError, KeyboardInterrupt])
+def test_a_failed_settings_stop_write_keeps_the_custody_and_the_stopping_reason(fake_benchmark, monkeypatch, failure):
+    """When writing the settings stop's outcome fails, the custody already on disk stays readable and the stop
+    wins: on an error, RunStopped is raised and its message and an emitted line name the failure (what the callers
+    print or record); an interrupt propagates with the RunStopped as its context. The run record keeps the settings
+    check either way."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    first = {}
+
+    def round_trip(config_, case_id, mbf_text, **kwargs):
+        first["bytes"] = (case / "case_manifest.json").read_bytes()
+
+        def failing(descriptor, data):
+            os.close(descriptor)
+            raise failure("invented failure while writing the outcome")
+        monkeypatch.setattr(run_pilot, "_write_fd", failing)
+        record = _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
+        record["settings_guard"] = {"status": "owned_process_running"}
+        (case / "caepipe_out" / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
+        return record
+    expected, lines = (run_pilot.RunStopped if failure is OSError else KeyboardInterrupt), []
+    with pytest.raises(expected) as raised:
+        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                       emit=lines.append, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       collect_only=True)
+    if failure is OSError:
+        note = "settings_stop; its outcome could not be recorded (OSError: invented failure while writing the outcome)"
+        assert note in str(raised.value) and any(note.split("; ", 1)[1] in line for line in lines)
+    else:
+        assert isinstance(raised.value.__context__, run_pilot.RunStopped)
+    assert (case / "case_manifest.json").read_bytes() == first["bytes"]
+    assert json.loads(first["bytes"])["custody"]["request_sha256"]
+    record = json.loads((case / "caepipe_out" / "run_record.json").read_text())
+    assert record["settings_guard"]["status"] == "owned_process_running"
+    assert not [path for path in case.iterdir() if path.name.endswith(".tmp")]
+
+
+@pytest.mark.parametrize("stopping", [{"route": "timeout", "settings_guard": {"status": "owned_process_running"}},
+                                      {"route": "batch_no_csv", "settings_guard": {"status": "unchanged"}}])
+def test_a_stop_survives_a_containment_error_on_its_write(fake_benchmark, monkeypatch, capsys, stopping):
+    """A stop's outcome write (a settings stop, or a batch run that left no CSV) meets a ContainmentError: the manifest
+    is replaced by a link after the custody write. The run still stops at that model, no further model runs, and the
+    line the benchmark command prints names the failed write."""
+    state = fake_benchmark
+    real = run_pilot._guard_stop
+
+    def guard(config, case_id, settings, emit):
+        manifest = state["config"].exchange_root / "cases" / case_id / "case_manifest.json"
+        if case_id == "cpb-g1-01" and manifest.is_file() and not manifest.is_symlink():
+            moved = manifest.with_name("moved_manifest.json")
+            os.replace(manifest, moved)
+            os.symlink(moved.name, manifest)
+        return real(config, case_id, settings, emit)
+    monkeypatch.setattr(run_pilot, "_guard_stop", guard)
+    state["outcomes"][:] = [stopping]
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={}) == 1
+    out = capsys.readouterr().out
+    route = "settings_stop" if stopping["route"] == "timeout" else "batch_no_csv"
+    assert f"stopped after cpb-g1-01 ({route}; its outcome could not be recorded (ContainmentError" in out
+    assert "route=containment_violation" not in out
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]
+
+
+def test_the_batch_callable_raises_the_stop_naming_a_failed_write(fake_benchmark, monkeypatch):
+    """Through run_benchmark_model, the callable the batch wrapper uses (it records str(error)): a failed write of a
+    stop's outcome raises RunStopped, never a not-run outcome, and its text names the failure."""
+    state = fake_benchmark
+    state["outcomes"][:] = [{"route": "batch_no_csv", "settings_guard": {"status": "unchanged"}}]
+    real = run_pilot._guard_stop
+
+    def guard(config, case_id, settings, emit):
+        def failing(descriptor, data):
+            os.close(descriptor)
+            raise OSError("invented failure while writing the outcome")
+        monkeypatch.setattr(run_pilot, "_write_fd", failing)
+        return real(config, case_id, settings, emit)
+    monkeypatch.setattr(run_pilot, "_guard_stop", guard)
+    with pytest.raises(run_pilot.RunStopped) as raised:
+        run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                      emit=lambda line: None, collect_only=True)
+    assert f"{type(raised.value).__name__}: {raised.value}" == (
+        "RunStopped: cpb-g1-01 (batch_no_csv; its outcome could not be recorded (OSError: invented failure while "
+        "writing the outcome))")
+
+
+def test_a_settings_stop_on_the_raise_path_records_its_outcome(fake_benchmark):
+    """The round trip raised with no clean settings check: the outcome settings_stop is recorded, saying so."""
+    state = fake_benchmark
+    state["outcomes"][:] = [RuntimeError("invented")]
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
+    manifest = json.loads(
+        (state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
+    assert (manifest["outcome"], manifest["route"]) == ("no_record", "settings_stop")
+    assert "the round trip raised" in manifest["reason"] and manifest["custody"]["request_sha256"]
+
+
+RECORDED_CUSTODY = json.dumps({"outcome": "invented", "route": "invented",
+                               "custody": {"request_sha256": "0" * 64, "result_sha256": None}})
+
+
+@pytest.mark.parametrize("stored", [True, False], ids=["with a stored request", "with no stored file"])
+@pytest.mark.parametrize("content, route", [
+    (json.dumps({"custody": "invented"}), "manifest_unreadable"),
+    (json.dumps({"custody": ["invented"]}), "manifest_unreadable"),
+    (json.dumps({"custody": None}), "manifest_unreadable"),
+    ("[]", "manifest_unreadable"), ('"invented"', "manifest_unreadable"), ("{ NOT JSON", "manifest_unreadable"),
+    (RECORDED_CUSTODY, "already_recorded"),
+], ids=["custody a string", "custody a list", "custody null", "a list", "a string", "not JSON", "recorded custody"])
+def test_a_manifest_of_unknown_or_recorded_custody_is_refused_at_admission(fake_benchmark, monkeypatch, content,
+                                                                            route, stored):
+    """Through run_benchmark_model, the batch wrapper's callable: a case manifest that cannot be read, or whose
+    custody member is not an object, leaves the custody unknown; one that records custody keeps the case recorded even
+    with its request and result gone. Each is refused by name, with or without stored files, before anything is
+    solved or any file is created, and nothing is written or reconstructed."""
+    state = fake_benchmark
+    solves = []
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
+        {"invented": True}, {"payload": invented_payload()}, ""))
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    case.mkdir(parents=True)
+    if stored:
+        (case / "swbpipe").mkdir()
+        (case / "swbpipe" / "request.json").write_text("INVENTED\n", encoding="utf-8")
+    (case / "case_manifest.json").write_text(content, encoding="utf-8")
+    before = tree_bytes(state["config"].exchange_root)
+    assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                         emit=lambda line: None, collect_only=True)[:2] == (run_pilot.NOT_RUN, route)
+    assert solves == [] and state["calls"] == [] and tree_bytes(state["config"].exchange_root) == before
+
+
+def test_a_manifest_that_is_a_link_is_refused_as_unknown_custody(fake_benchmark):
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    case.mkdir(parents=True)
+    (case / "elsewhere.json").write_text(RECORDED_CUSTODY, encoding="utf-8")
+    os.symlink("elsewhere.json", case / "case_manifest.json")
+    before = tree_bytes(state["config"].exchange_root)
+    assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                         emit=lambda line: None, collect_only=True)[:2] == (
+        run_pilot.NOT_RUN, "manifest_unreadable")
+    assert state["calls"] == [] and tree_bytes(state["config"].exchange_root) == before
+
+
+def test_a_manifest_recording_no_custody_and_no_stored_file_is_admitted(fake_benchmark):
+    """A manifest written before any solve (an MBF refusal records custody with no value) does not hold the case."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    case.mkdir(parents=True)
+    (case / "case_manifest.json").write_text(json.dumps({
+        "outcome": "no_record", "route": "not_run", "custody": dict.fromkeys(run_pilot.BENCHMARK_CUSTODY_KEYS)}),
+        encoding="utf-8")
+    assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                         emit=lambda line: None, collect_only=True)[0] == run_pilot.COLLECTED
+
+
+def test_recorded_custody_without_a_request_digest_is_still_carried_and_compared(fake_benchmark, monkeypatch):
+    """A custody member with any value records custody, the same reading admission makes: a later write compares it
+    and refuses when it differs, even when it holds no request digest. The manifest is not replaced."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    real = run_pilot._guard_stop
+    replaced = {}
+
+    def guard(config, case_id, settings, emit):
+        manifest = json.loads((case / "case_manifest.json").read_text())
+        manifest["custody"] = {**dict.fromkeys(run_pilot.BENCHMARK_CUSTODY_KEYS), "source_commit": "f" * 40}
+        (case / "case_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        replaced["bytes"] = (case / "case_manifest.json").read_bytes()
+        return real(config, case_id, settings, emit)
+    monkeypatch.setattr(run_pilot, "_guard_stop", guard)
+    with pytest.raises(run_pilot.CustodyChanged, match="custody differs .* the case manifest was not replaced"):
+        run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                      emit=lambda line: None, collect_only=True)
+    assert (case / "case_manifest.json").read_bytes() == replaced["bytes"]
+
+
+@pytest.mark.parametrize("write", ["collected", "not collected", "settings stop"])
+def test_custody_malformed_between_admission_and_a_later_write_is_refused(fake_benchmark, monkeypatch, write):
+    """Custody well formed at admission and made malformed before a later write reads it (the collected write, a
+    not-collected outcome, a stop's write): the later write refuses, treating malformed custody as unknown, never as
+    absent, and the manifest is not replaced. Asserted through run_benchmark_model, the batch wrapper's callable:
+    the write's CustodyChanged is raised, and at a stop the stop wins and its text names the CustodyChanged."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    state["outcomes"][:] = [{"collected": {"settings_guard": {"status": "unchanged"}},
+                             "not collected": {"route": "timeout", "settings_guard": {"status": "unchanged"}},
+                             "settings stop": {"route": "timeout",
+                                               "settings_guard": {"status": "owned_process_running"}}}[write]]
+    real = run_pilot._guard_stop
+    corrupted = {}
+
+    def guard(config, case_id, settings, emit):
+        manifest = json.loads((case / "case_manifest.json").read_text())
+        assert manifest["outcome"] == "custody_recorded" and manifest["custody"]["request_sha256"]
+        manifest["custody"] = "invented"  # made malformed between admission and the later write
+        (case / "case_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        corrupted["bytes"] = (case / "case_manifest.json").read_bytes()
+        return real(config, case_id, settings, emit)
+    monkeypatch.setattr(run_pilot, "_guard_stop", guard)
+    expected = run_pilot.RunStopped if write == "settings stop" else run_pilot.CustodyChanged
+    with pytest.raises(expected) as raised:
+        run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                      emit=lambda line: None, collect_only=True)
+    text = f"{type(raised.value).__name__}: {raised.value}"
+    assert "custody member is not an object; the case manifest was not replaced" in text
+    if write == "settings stop":
+        assert text.startswith("RunStopped: cpb-g1-01 (settings_stop; its outcome could not be recorded "
+                               "(CustodyChanged: ")
+    assert (case / "case_manifest.json").read_bytes() == corrupted["bytes"]
+
+
+def test_an_unreadable_manifest_is_refused_on_a_later_write(fake_benchmark):
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+
+    def round_trip(config_, case_id, mbf_text, **kwargs):
+        (case / "case_manifest.json").write_text("{ NOT JSON", encoding="utf-8")
+        return _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
+    with pytest.raises(run_pilot.CustodyChanged, match="cannot be read"):
+        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       collect_only=True)
+    assert (case / "case_manifest.json").read_text(encoding="utf-8") == "{ NOT JSON"
+
+
+def test_the_runner_hashed_is_the_runner_run(fake_benchmark, monkeypatch, tmp_path):
+    """A bare runner name is resolved on PATH, as subprocess does; that same path is hashed and handed to the solve,
+    not a file of the same name in the working directory."""
+    state = fake_benchmark
+    on_path = tmp_path / "bin"
+    on_path.mkdir()
+    real = on_path / "invented-runner"
+    real.write_text("THE RUNNER ON PATH", encoding="utf-8")
+    real.chmod(0o755)
+    elsewhere = tmp_path / "cwd"
+    elsewhere.mkdir()
+    (elsewhere / "invented-runner").write_text("A STALE FILE OF THE SAME NAME", encoding="utf-8")
+    monkeypatch.chdir(elsewhere)
+    monkeypatch.setenv("PATH", str(on_path))
+    given = []
+    real_solve = run_pilot.solve_swbpipe
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case_: given.append(runner) or real_solve(runner,
+                                                                                                             case_))
+    run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner="invented-runner", offline=False,
+                                   emit=lambda line: None, round_trip=_collecting_round_trip, gui_fallback=False,
+                                   attempt=1, collect_only=True)
+    assert given == [str(real.resolve())]
+    manifest = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
+    assert manifest["custody"]["runner_sha256"] == hashlib.sha256(real.read_bytes()).hexdigest()
+
+
+def test_collect_only_offline_and_recorded_refusals_through_the_model_callable(fake_benchmark):
+    """Through run_benchmark_model, the callable the batch wrapper uses: collect-only offline is refused before
+    anything is written; offline, a recorded case and a case with no folder are refused at admission, creating
+    nothing."""
+    state = fake_benchmark
+    root = state["config"].exchange_root
+    entry = _bench_entry(state)
+    before = tree_bytes(root)
+    with pytest.raises(ValueError, match="collect-only run is live"):
+        run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                      emit=lambda line: None, collect_only=True)
+    assert tree_bytes(root) == before
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[1] == "no_stored_case"
+    assert tree_bytes(root) == before
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=False,
+                                         emit=lambda line: None, round_trip=_collecting_round_trip,
+                                         collect_only=True)[0] == run_pilot.COLLECTED
+    recorded = tree_bytes(root)
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[1] == "already_recorded"
+    assert tree_bytes(root) == recorded
+
+
+def test_the_retry_reuses_its_own_solve_and_replaces_nothing(fake_benchmark, monkeypatch):
+    state = fake_benchmark
+    solves = []
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case["case_id"]) or (
+        {"invented": case["case_id"]}, {"payload": invented_payload()}, ""))
+    failure = RuntimeError("invented transport failure")
+    failure.settings_guard = {"status": "unchanged"}  # a clean settings check, so the model is retried
+    state["outcomes"].append(failure)
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-01"] and solves == ["cpb-g1-01"]
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    manifest = json.loads((case / "case_manifest.json").read_text())
+    assert (manifest["attempt"], manifest["outcome"]) == (2, "recorded")
+    assert manifest["custody"]["request_sha256"] == hashlib.sha256(
+        (case / "swbpipe" / "request.json").read_bytes()).hexdigest()
+
+
+def test_collect_only_binds_first_collects_and_reads_no_print(fake_benchmark, monkeypatch, capsys):
+    """Bind first, capture now, screen later: the SWBPIPE request and result are created before the round trip, the
+    print is collected and bound, and nothing parses it or writes a comparison; the GUI fallback is off even when the
+    guard restores the whole key."""
+    state = fake_benchmark
+    config = dataclasses.replace(state["config"], settings_guard=dataclasses.replace(
+        state["config"].settings_guard, restore_scope="key"))
+    assert config.settings_guard.restores_whole_key
+    monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: config)
+    real_solve = run_pilot.solve_swbpipe
+    case = config.exchange_root / "cases" / "cpb-g1-01"
+
+    def solve(runner, case_):
+        state["events"].append(("solve",))
+        return real_solve(runner, case_)
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
+
+    def refuse(*args, **kwargs):
+        raise AssertionError("a collect-only run must not read the print or compare")
+    for name in ("read_caepipe_print_csv", "build_benchmark_record"):
+        monkeypatch.setattr(run_pilot, name, refuse)
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--collect-only"], environ={}) == 0
+    # The SWBPIPE side is solved and its files created before the round trip.
+    assert [event for event in state["events"] if event[0] in ("solve", "round_trip")] == [
+        ("solve",), ("round_trip", "cpb-g1-01")]
+    assert state["calls"][0][1] == {"gui_fallback": False}
+    manifest = json.loads((case / "case_manifest.json").read_text())
+    assert (manifest["outcome"], manifest["route"], manifest["parser_status"]) == (
+        "collected", "csv_from_batch", "not_parsed")
+    assert manifest["csv"] == "caepipe_out/model.csv" and manifest["custody"]["result_sha256"]
+    assert not (case / "parsed").exists() or not any((case / "parsed").iterdir())
+    assert not (case / "comparison").exists() or not any((case / "comparison").iterdir())
+    assert "cpb-g1-01: route=csv_from_batch; collected and bound; not parsed or compared" in capsys.readouterr().out
+    with pytest.raises(SystemExit):
+        run_pilot.main(["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline",
+                        "--collect-only"], environ={})
+
+
+def test_offline_leaves_a_case_without_a_bound_print_untouched(fake_benchmark):
+    """Offline, a case with no stored folder is refused at admission, before anything is solved, and no folder is
+    created."""
+    state = fake_benchmark
+    root = state["config"].exchange_root
+    before = tree_bytes(root)
+    offline = ["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline", "--case", "cpb-g1-03"]
+    assert run_pilot.main(offline, environ={}) == 1
+    assert tree_bytes(root) == before
+
+
+def test_offline_a_stored_folder_without_a_bound_print_is_refused_before_any_solve(fake_benchmark):
+    """Seeded: offline, a case whose folders exist and hold no stored, bound print is refused before anything is
+    solved, so no SWBPIPE request or result is created and nothing changes."""
+    state = fake_benchmark
+    root = state["config"].exchange_root
+    case_paths(state["config"], "cpb-g1-03")
+    before = tree_bytes(root)
+    offline = ["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline", "--case", "cpb-g1-03"]
+    assert run_pilot.main(offline, environ={}) == 1
+    assert tree_bytes(root) == before
+
+
+def test_a_model_that_declares_runs_is_refused_without_a_series(tmp_path, capsys):
+    path = benchmark_manifest(tmp_path / "set", ids=("cpb-g1-01", "cpb-p1-01"))
+    with pytest.raises(ValueError, match=r"name one with --series: cpb-p1-01 \(runs: pressure-bourdon-expansion-"
+                                         r"capture, pressure-default, pressure-elongation-on\)"):
+        run_pilot.load_benchmark(path)
+    # A model without runs, alone, loads as before; with a series it has no run of, it is refused by name.
+    assert [document["model_id"] for document in run_pilot.load_benchmark(path, ["cpb-g1-01"])] == ["cpb-g1-01"]
+    assert "run_id" not in run_pilot.load_benchmark(path, ["cpb-g1-01"])[0]
+    with pytest.raises(ValueError, match="no pressure-default run is declared for: cpb-g1-01"):
+        run_pilot.load_benchmark(path, ["cpb-g1-01"], benchmark_models.SERIES_DEFAULT)
+    with pytest.raises(ValueError, match="no model declares a pressure-x run"):
+        run_pilot.load_benchmark(path, None, "pressure-x")
+    # With a series and no selection, the models declaring that run are taken.
+    taken = run_pilot.load_benchmark(path, None, benchmark_models.SERIES_DEFAULT)
+    assert [document["run_id"] for document in taken] == ["cpb-p1-01--pressure-default"]
+
+
+def test_each_run_takes_its_state_document_closed_forms_and_mbf(tmp_path):
+    path = benchmark_manifest(tmp_path / "set", ids=("cpb-p2-01",))
+    document = json.loads((BENCHMARK / "models" / "cpb-p2-01.json").read_text(encoding="utf-8"))
+    for series in RUNS:
+        [run] = run_pilot.load_benchmark(path, ["cpb-p2-01"], series)
+        assert run == benchmark_models.series_document(document, series)
+        assert run["run_id"] == f"cpb-p2-01--{series}" and run["model_id"] == "cpb-p2-01"
+    default, on, capture = (run_pilot.load_benchmark(path, None, series)[0] for series in RUNS)
+    assert default["model"] == document["model"] and "model_settings" not in default["model"]
+    assert on["model"]["model_settings"] == {"pressure_elongation": {"operating_load_cases": ["case:sustained"]}}
+    assert default["closed_form"] == document["closed_form"] + document["closed_form_by_series"][RUNS[0]]
+    assert on["closed_form"] == document["closed_form"] + document["closed_form_by_series"][RUNS[1]]
+    assert [entry["formula"] for entry in on["closed_form"] if entry["load_case"] == "case:sustained"
+            and entry["quantity"] == "displacement"] == ["(1 - 2 nu) p A_i L/(E A_s)"]
+    assert [entry["value"] for entry in default["closed_form"] if entry["load_case"] == "case:sustained"
+            and entry["quantity"] == "displacement"] == [0.0]
+    assert capture["capture_only"] and capture["closed_form"] == []
+    writer = render_caepipe_mbf_si(document["model"], title="cpb-p2-01", piping_code="B311-80").text
+    for run, line in ((default, "0,0,0,1,0"), (on, "0,1,0,1,1"), (capture, "0,1,0,1,0")):
+        assert f"\r\nOPPRES\r\n{line}\r\n" in benchmark_models.run_mbf_text(run, writer)
+
+
+def test_two_states_of_one_model_leave_two_distinct_records(fake_benchmark, monkeypatch, capsys):
+    state = fake_benchmark
+    path = benchmark_manifest(state["manifest"].parent.parent / "pressure-set", ids=("cpb-p2-01",))
+    solved = {}
+
+    def solve(runner, case):
+        solved[case["case_id"]] = case["model"]
+        return {"invented": case["source_location"]}, {"payload": invented_payload()}, ""
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
+    argv = ["--benchmark", str(path)] + state["argv"][2:]
+    assert run_pilot.main(argv, environ={}) == 2
+    assert "these models declare runs; name one with --series: cpb-p2-01" in capsys.readouterr().err
+    root = state["config"].exchange_root
+    for series in RUNS[:2]:
+        assert run_pilot.main(argv + ["--series", series], environ={}) == 0
+    run_ids = [f"cpb-p2-01--{series}" for series in RUNS[:2]]
+    assert [call[0] for call in state["calls"]] == run_ids
+    assert [state["mbf"][run_id].split("\r\nOPPRES\r\n")[1].split("\r\n")[0] for run_id in run_ids] == [
+        "0,0,0,1,0", "0,1,0,1,1"]
+    assert sorted(solved) == run_ids and "model_settings" not in solved[run_ids[0]]
+    assert solved[run_ids[1]]["model_settings"]["pressure_elongation"] == {"operating_load_cases": ["case:sustained"]}
+    records = [root / "cases" / run_id / "comparison" / "benchmark_comparison.json" for run_id in run_ids]
+    assert records[0].is_file() and records[1].is_file()
+    first, second = (json.loads(record.read_text()) for record in records)
+    assert first["model_id"] == second["model_id"] == "cpb-p2-01"
+    assert "pressure_elongation_convention" not in first["load_cases"][1]["inexact_inputs"]
+    assert "pressure_elongation_convention" in second["load_cases"][1]["inexact_inputs"]
+    manifests = [json.loads((root / "cases" / run_id / "case_manifest.json").read_text()) for run_id in run_ids]
+    assert [(item["case_id"], item["series_run"], item["oppres_line"], item["outcome"]) for item in manifests] == [
+        (run_ids[0], RUNS[0], "0,0,0,1,0", "recorded"), (run_ids[1], RUNS[1], "0,1,0,1,1", "recorded")]
+
+
+CAPTURE_REFUSAL = ("cpb-p2-01--pressure-bourdon-expansion-capture: route=capture_path_unavailable; a capture-only run "
+                   "needs the capture-only path, which collects its result without reading it; that path is a "
+                   "separate change and is not on this build; not run")
+
+
+def test_a_capture_run_is_refused_by_name_and_nothing_is_read_or_written(fake_benchmark, monkeypatch, capsys):
+    """On this build a capture run is declared and refused by name, live or offline, at every entry point, before
+    anything is solved, written, collected, hashed or read. An invented stored result is seeded for its case, and every
+    spy records its call (and then raises), so a read through any parser alias, a recognition helper that swallows
+    the raised error, or a plain open of the seeded files still fails this test."""
+    import builtins
+    import io
+    from core.handoff.caepipe_external import harness, print_csv
+    import core.handoff.caepipe_external as external
+
+    state = fake_benchmark
+    path = benchmark_manifest(state["manifest"].parent.parent / "pressure-set", ids=("cpb-p2-01", "cpb-g1-01"))
+    [capture] = run_pilot.load_benchmark(path, ["cpb-p2-01"], RUNS[2])
+    [plain] = run_pilot.load_benchmark(path, ["cpb-g1-01"])
+    config = state["config"]
+    root = config.exchange_root
+    # An invented stored result for the capture run's case: obviously made-up text and a run record naming it.
+    out = case_paths(config, capture["run_id"])["caepipe_out"]
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "model.csv").write_text("INVENTED CAPTURE FIXTURE, NOT A RESULT OF ANY PROGRAM,\r\n", encoding="utf-8")
+    (out / "run_record.json").write_text(json.dumps({"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch",
+                                                     "invented": True}), encoding="utf-8")
+    watched = (root / "cases" / capture["run_id"]).resolve()
+
+    def snapshot() -> dict[str, bytes]:
+        return {str(item.relative_to(root)): item.read_bytes() if item.is_file() else b"<dir>"
+                for item in sorted(root.rglob("*"))}
+    before = snapshot()
+
+    calls: list[str] = []
+    active = {"on": True}
+
+    def spy(name):
+        def call(*args, **kwargs):
+            if active["on"]:
+                calls.append(name)
+            raise AssertionError(f"a capture run must not reach {name}")
+        return call
+    for module in (run_pilot, external, print_csv, harness):
+        for name in ("read_caepipe_print_csv", "parse_caepipe_print_csv", "_print_layout_problem",
+                     "stored_run_record", "_sha256", "bound_csv", "case_paths"):
+            if hasattr(module, name):
+                monkeypatch.setattr(module, name, spy(f"{module.__name__}.{name}"))
+    for name in ("solve_swbpipe", "render_caepipe_mbf_si", "write_private", "_write_json", "_create_private_json",
+                 "check_guest_alive",
+                 "check_no_foreign_instance", "resolve_harness_config"):
+        monkeypatch.setattr(run_pilot, name, spy(f"run_pilot.{name}"))
+    real_open, real_os_open = builtins.open, os.open
+
+    def touched(target) -> None:
+        try:
+            resolved = Path(os.fspath(target)).resolve()
+        except TypeError:
+            return  # a file descriptor
+        if active["on"] and (resolved == watched or watched in resolved.parents):
+            calls.append(f"open {resolved.relative_to(root.resolve())}")
+
+    def spy_open(file, *args, **kwargs):
+        touched(file)
+        return real_open(file, *args, **kwargs)
+
+    def spy_os_open(file, *args, **kwargs):
+        touched(file)
+        return real_os_open(file, *args, **kwargs)
+    monkeypatch.setattr(builtins, "open", spy_open)
+    monkeypatch.setattr(io, "open", spy_open)
+    monkeypatch.setattr(os, "open", spy_os_open)
+
+    def round_trip(*args, **kwargs):
+        calls.append("round_trip")
+        raise AssertionError("a capture run must not be round-tripped")
+    lines: list[str] = []
+    probes = {
+        "command live": lambda: run_pilot.main(["--benchmark", str(path), "--case", "cpb-p2-01", "--series", RUNS[2]]
+                                               + state["argv"][2:], environ={}),
+        "command offline": lambda: run_pilot.main(["--benchmark", str(path), "--case", "cpb-p2-01", "--runner",
+                                                   state["runner"], "--offline", "--series", RUNS[2]], environ={}),
+        "run_benchmark live": lambda: run_pilot.run_benchmark(
+            [capture], config, runner=state["runner"], offline=False, emit=lines.append, round_trip=round_trip),
+        "run_benchmark offline": lambda: run_pilot.run_benchmark([capture], config, runner=state["runner"],
+                                                                 offline=True, emit=lines.append),
+        "mixed batch": lambda: run_pilot.run_benchmark([plain, capture], config, runner=state["runner"],
+                                                       offline=True, emit=lines.append),
+        "run_benchmark_model live": lambda: run_pilot.run_benchmark_model(
+            capture, config, runner=state["runner"], offline=False, emit=lines.append, round_trip=round_trip)[1],
+        "run_benchmark_model offline": lambda: run_pilot.run_benchmark_model(
+            capture, config, runner=state["runner"], offline=True, emit=lines.append)[1],
+        "internal live": lambda: run_pilot._run_benchmark_model(
+            capture, config, runner=state["runner"], offline=False, emit=lines.append, round_trip=round_trip,
+            gui_fallback=False, attempt=1)[1],
+        "internal offline": lambda: run_pilot._run_benchmark_model(
+            capture, config, runner=state["runner"], offline=True, emit=lines.append, round_trip=round_trip,
+            gui_fallback=False, attempt=1)[1],
+    }
+    expected = {name: 2 for name in probes if name.startswith(("command", "run_benchmark ", "mixed"))}
+    for name, probe in probes.items():
+        lines.clear()
+        assert probe() == expected.get(name, "capture_path_unavailable"), name
+        assert calls == [], (name, calls)
+        if name.startswith("command"):
+            assert capsys.readouterr().out.strip() == CAPTURE_REFUSAL, name
+        else:
+            # Only the refusal's own status line; the mixed batch runs nothing, its other model included.
+            assert lines == [CAPTURE_REFUSAL], (name, lines)
+    active["on"] = False
+    assert state["calls"] == [] and state["sleeps"] == [] and snapshot() == before
 
 
 def test_the_pace_is_the_callers(fake_benchmark):
@@ -679,7 +1802,8 @@ def test_an_unresponsive_guest_is_checked_again_after_two_minutes_then_stops_the
 def test_the_freeze_file_stops_the_run_before_the_next_model(fake_benchmark, monkeypatch, capsys):
     state = fake_benchmark
     # The freeze file appears during the pause after the first model.
-    monkeypatch.setattr(run_pilot.time, "sleep", lambda seconds: state["freeze"].write_text("", encoding="ascii"))
+    monkeypatch.setattr(run_pilot.time, "sleep",
+                        command_sleep(lambda seconds: state["freeze"].write_text("", encoding="ascii")))
     assert run_pilot.main(state["argv"], environ={}) == 1
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]
     assert "stopped before cpb-g1-02: the freeze file is present" in capsys.readouterr().out
@@ -694,13 +1818,13 @@ def test_a_pending_exclusive_job_holds_the_run(fake_benchmark, monkeypatch, caps
         polls.append(seconds)
         if len(polls) == 2:
             state["exclusive"].write_text("not a process id\n", encoding="ascii")
-    monkeypatch.setattr(run_pilot.time, "sleep", poll)
+    monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(poll))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
     assert polls == [30.0, 30.0] and [call[0] for call in state["calls"]] == ["cpb-g1-01"]
     assert "cpb-g1-01: an exclusive job is pending; waiting for it (up to 1800 s)" in capsys.readouterr().out
     state["calls"].clear()
     state["exclusive"].write_text(f"{os.getpid()}\n", encoding="ascii")
-    monkeypatch.setattr(run_pilot.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(lambda seconds: None))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     assert state["calls"] == []
     assert "stopped before cpb-g1-01: an exclusive job was still pending after 1800 s" in capsys.readouterr().out
@@ -732,6 +1856,7 @@ def test_benchmark_refusals(fake_benchmark, monkeypatch, capsys, tmp_path):
     for argv, message in ((base + ["--authored"], "--benchmark takes only"),
                           (base + ["--export-mbf"], "--benchmark takes only"),
                           (["--batch", "1"], "need --benchmark"),
+                          (["--series", "pressure-default"], "need --benchmark"),
                           (["--freeze-file", "x"], "need --benchmark"),
                           (base + ["--batch-size", "0"], "--batch-size must be at least 1"),
                           (base + ["--pace-s", "-1"], "--pace-s must be a non-negative number"),

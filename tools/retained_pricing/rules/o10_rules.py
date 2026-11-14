@@ -28,9 +28,14 @@ _BASES_B7B = ["openpipestress.result_semantics/0.3.0/pressure-1", "openpipestres
 # T4-S5 (U4B-B): the epoch renames the two bases to pressure-2 and preview-physics-2 (S1's identity change, model
 # 0.6.0); the routes, their projections and dispatch are B7b's, so the B7b route-E rules apply unchanged.
 _BASES_U4B = ["openpipestress.result_semantics/0.3.0/pressure-2", "openpipestress.result_semantics/0.3.0/preview-physics-2"]
-if _rp_bases not in (_BASES_B7A, _BASES_B7B, _BASES_U4B):
+# RT-L2 (pressure elongation per case): route E's base is renamed pressure-2 -> pressure-3 (semantic_contract's PRESSURE_ID
+# and retained_precision's Route EXACT base_id together); the routes, projections and dispatch are B7b's (for_source takes
+# the same PRESSURE_ID arm), so the B7b route-E rules apply unchanged. current_header's new pressure-2 arm refuses a
+# retired id, as the pressure-1 arm does; project(successor)'s base id is the route's own, never a retired one.
+_BASES_RTL2 = ["openpipestress.result_semantics/0.3.0/pressure-3", "openpipestress.result_semantics/0.3.0/preview-physics-2"]
+if _rp_bases not in (_BASES_B7A, _BASES_B7B, _BASES_U4B, _BASES_RTL2):
     raise SystemExit(f"B7b-B: retained_precision's two route bases changed; re-review R1/J1 and route E: {_rp_bases}")
-B7B_EXACT_BASE = _rp_bases in (_BASES_B7B, _BASES_U4B)
+B7B_EXACT_BASE = _rp_bases in (_BASES_B7B, _BASES_U4B, _BASES_RTL2)
 # R1 (Agent 0's ruling: accepted). The pressure-1 arm of the precommit reader's dispatch.
 _c, _e = fnkey("for_source", RE_ + "semantic_contract.rs"), fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs")
 if _c and _e:
@@ -118,6 +123,8 @@ if fnkey("member_descriptors", PP_ + "source_recovery.rs"):
 if _PRESSURE_FN == "assemble_pressure_case":
     O10_LOOPS_LAST += [
         ("for ((dof, pbits, area, _), group) in groups", "0", O10 + "B5L1: both bore and joint factor groups are produced only inside D1.5's absent/empty pressure-region loop; retains the former factor-group zero on the new key shape", ["pressure_runtime.rs:finish_source_groups"]),
+        # RT-L2 (final source): the same loop now borrows the groups (the exception reads them after it); same premise.
+        ("for (&(dof, pbits, area, _), group) in &groups", "0", O10 + "B5L1: both bore and joint factor groups are produced only inside D1.5's absent/empty pressure-region loop; the loop borrows the same (empty) map", ["pressure_runtime.rs:finish_source_groups"]),
         ("for edge in edges", "0", O10 + "B5L2: connector pressure edges exist only in pressure regions with built connectors; D1.4/5 have neither and project(successor) retains empty pressure evidence; keeps outer scans and every reader owner", ["connector_evidence.rs:validate_pressure"]),
     ]
 if fnkey("append_connector_results", PP_ + "lib.rs"):
@@ -2475,12 +2482,15 @@ if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_messag
     _SM_DEC = _fn_text("deserialize_shear_model", _NP_MS) if fnkey("deserialize_shear_model", _NP_MS) else ""
     _SM_REF = _fn_text("shear_model_refusal", _NP_MS) if fnkey("shear_model_refusal", _NP_MS) else ""
     _SM_DOC = _fn_text("shear_model_document_refusal", _NP_MS) if fnkey("shear_model_document_refusal", _NP_MS) else ""
+    # RT-L2 (RTL2-VL): the pressure-elongation setting adds validate_model_settings' third diagnostic (in its refusal
+    # loop) and its four message templates; the first two diagnostics and their texts are unchanged.
+    _RTL2_PEX = 1 if "pub struct PressureElongationSetting {" in _NP_TEXT else 0
     _np = (
         len(_NP_PATH) == 1,
         all(_fn_text(fn, _NP_MS).count(t) == 1 for fn, t in _NP_T.items()),
-        _re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count("format!(") == len(_NP_T) + len(_SM_T),
-        _NP_VMS.count("diag(") == 2, _NP_VMS.count("error.message,") == 2, _NP_VMS.count("error.code,") == 2,
-        _NP_VMS.count('"blocking",') == 2, _NP_VMS.count('"diagnostic:model-settings:node-proximity-tolerance",') == 1,
+        _re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count("format!(") == len(_NP_T) + len(_SM_T) + 4 * _RTL2_PEX,
+        _NP_VMS.count("diag(") == 2 + _RTL2_PEX, _NP_VMS.count("error.message,") == 2 + _RTL2_PEX, _NP_VMS.count("error.code,") == 2 + _RTL2_PEX,
+        _NP_VMS.count('"blocking",') == 2 + _RTL2_PEX, _NP_VMS.count('"diagnostic:model-settings:node-proximity-tolerance",') == 1,
         _NP_VMS.count("vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],") == 1,
         _fn_text("validate_model_inputs", _W8V).count("validate_model_settings(model, diagnostics);") == 1,
         _text_of(_W8V).count("validate_model_settings(") == 2,
@@ -2603,6 +2613,22 @@ _M08_PR = PP_ + "pressure_runtime.rs"
 _M08_PROFILE = _fn_text("validate_profile", _M08_PR) if fnkey("validate_profile", _M08_PR) else ""
 _M08_TEXTS = ('format!("model document {} accepts only 3.0.0/exact_pressure_v3; incomplete or unknown contracts never fall back", crate::MODEL_SCHEMA_VERSION)',
               'format!("direct mechanics solves support exactly model version {}", crate::MODEL_SCHEMA_VERSION)')
+def _m08_contract_of():
+    """ExactContract::of's text. RT-L2: exact_admission.rs gains a second `fn of` (ElongationStatement::of), so the
+    contract's is read by its own impl block and signature (one each), not by the bare name; '' otherwise (the guard
+    then fails)."""
+    lines = _text_of(PP_ + "exact_admission.rs").split("\n")
+    impl = [i for i, l in enumerate(lines) if l == "impl ExactContract {"]
+    if len(impl) != 1:
+        return ""
+    close = next((i for i in range(impl[0] + 1, len(lines)) if lines[i] == "}"), None)
+    sig = [i for i in range(impl[0], close or impl[0]) if lines[i].startswith("    pub(crate) fn of(model: &PreviewModel) -> Option<Self> {")]
+    if len(sig) != 1:
+        return ""
+    end = next(i for i in range(sig[0] + 1, close + 1) if lines[i] == "    }")
+    return "\n".join(lines[sig[0]:end + 1])
+
+
 if any(_t in _M08_PROFILE for _t in _M08_TEXTS):
     _M08_BRANCH = _fn_text("namespace_branch", PP_ + "retained_memory.rs")
     _m08_vz = (
@@ -2614,8 +2640,7 @@ if any(_t in _M08_PROFILE for _t in _M08_TEXTS):
         _M08_BRANCH.count('(crate::MODEL_SCHEMA_VERSION, Some(c)) if contract_is(c, "3.0.0", "exact_pressure_v3") => Ok(NamespaceBranch::Exact),') == 1,
         _M08_BRANCH.count("(crate::MODEL_SCHEMA_VERSION, _) => Err(FamilyFact::PressureContract),\n        _ => Err(FamilyFact::SchemaVersion),") == 1,
         _fn_text("family_clauses", PP_ + "retained_memory.rs").count("Err(fact) => return refuse(C::Namespace, fact),") == 1,
-        _fn_text("of", PP_ + "exact_admission.rs").count("if model.schema_version != crate::MODEL_SCHEMA_VERSION {\n            return None;") == 1
-        if fnkey("of", PP_ + "exact_admission.rs") else False,
+        _m08_contract_of().count("if model.schema_version != crate::MODEL_SCHEMA_VERSION {\n            return None;") == 1,
     )
     if not all(_m08_vz):
         raise SystemExit(f"M08-VZ: validate_profile's version texts or D1.3's namespace changed; re-review: {_m08_vz}")
@@ -3765,6 +3790,72 @@ if fnkey("exact_equivalent_static_record", _LIB):
             fnkey("carries_fields", PP_ + "case_state/mod.rs"), "1",
             O10 + "RTA3NL-S6: the S6 context's one unconditional call per validate_profile call; the case loop's call is "
             "inside `case.equivalent_static.is_some()`, refused on every retained branch (D1.5, W16C-ES)")]
+# SWU-RM (self-weight units repair, 12f46a797): certified_loads::recorded_mass re-forms a generated self weight's mass
+# from its record's SI normalized_dependencies, cloning that map and deserialising it into a PipeSectionInput. Those
+# allocations are unpriced on the retained route BECAUSE the branch that calls recorded_mass cannot run on an admitted
+# retained model: intensity calls it only under `evidence["method"] == self_weight::GENERATED_METHOD`, where `evidence`
+# is the matched primitive load's provenance parsed as JSON, and D1.10 (retained_memory.rs provenance_clause, called
+# from domain_clauses) refuses every primitive load whose provenance begins, after ASCII whitespace, with `{`. An admitted
+# provenance cannot parse to an object, and indexing a non-object Value gives Null, never the method string. The zero
+# does not say the allocations are small or absent: on the ordinary route they are ordinary allocations, outside the
+# retained budget. If D1.10 is ever widened (the refusal, its call or the branch below changes), SWU-RM or B7a's
+# admission-prefix pin stops the pricing run until recorded_mass's allocations are priced. The two mechanisms:
+# - SWU-RM's own guard (below) stops a change to the arm's text around the one call of recorded_mass, to that call's
+#   count in intensity or in certified_loads.rs's production text, to the refusal's body in provenance_clause, or to
+#   the count or spelling of its call `provenance_clause(request)?;` in domain_clauses.
+# - B7a's admission-prefix pin (b7a_domain_model ADMISSION_PREFIX_PIN, read later on the same decision path) binds
+#   every byte of retained_memory.rs before its D-6 marker, which holds provenance_clause and domain_clauses. It stops
+#   the D1.10 call wrapped or bypassed in domain_clauses with its spelling kept (such as `if false { … }` around it),
+#   which SWU-RM's own predicates do not see; test_swu_recorded_mass.py requires both routes' decision path to reject it.
+# core/product_physics/tests/s11f_site_test.rs lists recorded_mass among rule 6's force sites (36fb3781f); that listing
+# and this rule are the two halves of one obligation.
+_SWU_CL = PP_ + "certified_loads.rs"
+_SWU_RM = PP_ + "retained_memory.rs"
+if fnkey("recorded_mass", _SWU_CL):
+    _swu_int = _fn_text("intensity", _SWU_CL) if fnkey("intensity", _SWU_CL) else ""
+    _swu_branch = ("        if let Some(primitive) = case\n"
+                   "            .primitive_loads\n"
+                   "            .iter()\n"
+                   "            .find(|primitive| primitive.id == load.load_id)\n"
+                   "        {\n"
+                   "            if let Some(evidence) = primitive\n"
+                   "                .provenance\n"
+                   "                .as_deref()\n"
+                   "                .and_then(|text| serde_json::from_str::<serde_json::Value>(text).ok())\n"
+                   "            {\n"
+                   "                if evidence[\"method\"] == self_weight::GENERATED_METHOD {\n"
+                   "                    // This source provenance has already passed the applied-weight\n"
+                   "                    // validation. A manual override is an authored intensity.\n"
+                   "                    let mass = recorded_mass(&evidence);\n")
+    _swu_clause = ("fn provenance_clause(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionRefusal> {\n"
+                   "    let object = |text: &str| text.trim_start_matches(|c: char| c.is_ascii_whitespace()).starts_with('{');\n"
+                   "    let loads = request.model.load_cases.iter().flat_map(|case| &case.primitive_loads);\n"
+                   "    for load in loads {\n"
+                   "        if load.provenance.as_deref().is_some_and(object) {\n"
+                   "            return Err(AdmissionRefusal::Family(D1Clause::Provenance, FamilyFact::ObjectProvenance));\n"
+                   "        }\n"
+                   "    }\n"
+                   "    Ok(())\n"
+                   "}\n")
+    _swu_rm_prod = _production(_SWU_RM)
+    _swu_rm = (
+        # The branch: the one call of recorded_mass is inside the method test on the matched load's parsed provenance.
+        _swu_int.count(_swu_branch) == 1,
+        _swu_int.count("recorded_mass(") == 1,
+        _production(_SWU_CL).count("recorded_mass(") == 2,
+        # D1.10: the refusal, verbatim, and its one call among the domain clauses.
+        _swu_rm_prod.count(_swu_clause) == 1,
+        _swu_rm_prod.count("provenance_clause(") == 2,
+        bool(fnkey("domain_clauses", _SWU_RM)) and _fn_text("domain_clauses", _SWU_RM).count("    provenance_clause(request)?;\n") == 1,
+    )
+    if not all(_swu_rm):
+        raise SystemExit(f"SWU-RM: D1.10's refusal or intensity's generated self-weight branch changed; price "
+                         f"recorded_mass's allocations before removing this zero: {_swu_rm}")
+    O10_EDGE_ZERO += [(fnkey("intensity", _SWU_CL), fnkey("recorded_mass", _SWU_CL),
+                       O10 + "SWU-RM: D1.10 (provenance_clause) refuses every object provenance, so intensity's "
+                       "`evidence[\"method\"] == GENERATED_METHOD` arm never runs on an admitted retained model; "
+                       "recorded_mass's map clone and deserialisation are unpriced here for that reason only (ordinary "
+                       "allocations on the ordinary route, outside the retained budget)")]
 # RTA3S6-VP (RT-A3 S6, §8.59; replaces RTA3NL-S6's per-call charge on S6 source): validate_profile no longer forms the
 # S6 context; every support family, the nonlinear one included, is judged by exact_admission::admission, and
 # nonlinear_support_admission is deleted. Its one carries_fields call is the case loop's, inside
@@ -3991,7 +4082,12 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # gates, model-bound: reader_verdict only, outside the retained roots); preview_physics_evidence.rs admits
     # difference_basis_derivation as an optional member (a static array element), lists G-1/G-2 in GATE_CODES (static)
     # and admits a withheld subtraction's modulus-basis records (an existing set's lookup). The OP1A premises stand.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/reporting/result_export/src/reader_verdict.rs': '7d3fdcd1a4a318ee49439e1a75db61420db2a9c9e2c9d1f7977be5b1cef41df3'}
+    # RT-L2 D3: reader_verdict.rs re-read: physics_model_checks adds the exception's model checks and standing passes the
+    # retired pressure-2 code through; both reached only from standing/dispatch, outside the retained roots. The OP1A
+    # premises stand.
+    # RT-L2 final source: reader_verdict.rs re-read: the exception's model check is renamed exception_model_binding (one
+    # call and its comment). The OP1A premises stand.
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/reporting/result_export/src/reader_verdict.rs': '30217d83a14d26614935ec948e4db7e86763682632544d2c07685f9f40318c65'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -4038,11 +4134,12 @@ if fnkey("append_operand_standing", _OP1A_PP):
         (_OP1A_RE, "standing_notice", 'format!("{case} ({quality})")', {"case": IN, "quality": {"bytes": 128, "source": "OP1A-ID: literal solve quality"}})):
         O10_ID_AUDIT += [(site(_fn, _file, _needle, full=True), _args)]
     # RT-A4 D3 (§8.46): the V5 line now ends in RT-A4-RD's `_RTA4_RD`; the patch's anchor carries it (mechanical carry).
+    # RT-L2 D3: the V5 line now ends in RTL2-RD's `_RTL2_RD`; the anchor carries it the same way.
     # OP1A-OWN: admitted Vec<&str> is push-collected from <=z gates, with
     # old backing during growth. expected/stated are empty on D1. The full
     # requested+moving sum beside V5 is conservative; native &str is witnessed.
-    O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + [("g4_caps.py", ' + _W7_RD + _W15_RB + _RTA4_RD + _RTA3C_RD,',
-                          ' + _W7_RD + _W15_RB + _RTA4_RD + _RTA3C_RD + s("&str") * (pushcap(CAPS.get("z", 0)) + pushcap(CAPS.get("z", 0)) // 2),',
+    O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + [("g4_caps.py", ' + _W7_RD + _W15_RB + _RTA4_RD + _RTA3C_RD + _RTL2_RD,',
+                          ' + _W7_RD + _W15_RB + _RTA4_RD + _RTA3C_RD + _RTL2_RD + s("&str") * (pushcap(CAPS.get("z", 0)) + pushcap(CAPS.get("z", 0)) // 2),',
                           O10 + "OP1A-OWN: V5 also holds admitted's <=z borrowed str entries and previous push backing; all other new Vecs are empty on D1")]
 
 # §8.32 combined D3: PF Timoshenko declines D1 before charged work.
@@ -4060,7 +4157,13 @@ if fnkey("selects", _TIM):
     # RT-U4 repair B: reader_verdict.rs re-read as for OP1A above; the Timoshenko premises stand.
     # RT-U4 order and repair B on RT-A3 increment 4 (§8.50): reader_verdict.rs re-read as for OP1A above.
     # Operating-case slice 1b D3 (§8.51): preview_physics_evidence.rs re-read as for OP1A above; the Timoshenko premises stand.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': '7d3fdcd1a4a318ee49439e1a75db61420db2a9c9e2c9d1f7977be5b1cef41df3', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    # RT-L2 D3: model_settings.rs adds the pressure-elongation record, its refusals and the per-case accessor (RTL2-*); the
+    # shear-model member, its decoder and selects' reading are unchanged. reader_verdict.rs adds the exception's model
+    # checks to physics_model_checks and passes the retired pressure-2 code through standing; both are reached only from
+    # standing/dispatch, outside the retained roots. The Timoshenko premises stand.
+    # RT-L2 final source: reader_verdict.rs re-read: the exception's model check is renamed exception_model_binding (one
+    # call and its comment), still reached only from standing/dispatch. The Timoshenko premises stand.
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2b7eeabb66ba98ce7e727939ccc23eb6c8036db86ca6e2cdea72e9ebb28b772', 'core/reporting/result_export/src/reader_verdict.rs': '30217d83a14d26614935ec948e4db7e86763682632544d2c07685f9f40318c65', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -5378,9 +5481,11 @@ _A4_RT = RE_ + "recorded_tables.rs"
 # S-K1 D3 (§8.55, on main 9c7db61bf): re-pinned on the merged bytes, main's content (C1's comment-only line 29) plus
 # S-K1's three recorded_pre_sk1 variants (VARIANTS and TABLES sixteen slots; data and tests only). No SELECTED write,
 # read_recorded caller or selection path changes; the guards below re-check them.
+# RT-L2 D3: re-pinned on the head; RecordedVariant's reads_under_variant doc comment states that every recorded exact
+# successor succeeds a pressure-2 result and is refused by name. Comment only; no code changes, the guards re-check.
 if fnkey("read_recorded", _A4_RT):
     if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
-            "78a275c872ec472578fb335056786d370a72608b039fcda8809cb4b6dd5a7acf":
+            "ea6c3dc9f8f344658e6b99ad3e6cbb2f3be2df6242bb10b357bda628499d3bed":
         raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
     _a4_rt = _production(_A4_RT)
     # One production item's text, from its opening line to its closing brace at the same indent (tests excluded).
@@ -6481,3 +6586,179 @@ if __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(
                        O10 + "CEF-D1: D1.6 refuses every hanger, nonlinear support and non-listed family, so "
                        "is_constant_effort_support is false on every admitted support and the case solve's fallback "
                        "branch never classifies (one exact call, bound by ce_fallback_model)")]
+
+# ---- RT-L2 (DEL-04-07): pressure elongation per load case (model document 0.9.0's `model_settings.pressure_elongation`)
+# and the cancellation screen's exception. The owners outside TEXT are priced in base/rtl2_owners_model.py (RTL2-K, -TS,
+# -VS, -FS, -RD); the rules here bound the new loops and zero only what the D1 premises leave without heap or text.
+_RTL2_PR = PP_ + "pressure_runtime.rs"
+_RTL2_PE = RE_ + "physics_evidence.rs"
+_RTL2_MS = PP_ + "model_settings.rs"
+# RTL2-XZ (producer, guard): the cancellation screen's exception. finish_source_groups forms the factor groups' evidence
+# in one loop that borrows the groups, decides the original screen, and only when it fails calls
+# `cancellation_exception` (the eligibility predicate, `family_nodes` and `cap_remainder_record`, each called once there);
+# the groups are then dropped, and the warning (`cap_remainder_warning`) is formed only inside
+# `if let Some((record, (_, interior))) = exception`. On D1 every retained case's factor groups are empty: they are
+# formed only inside assemble_pressure_case's loop over the case's pressure regions (and the joint terms it calls there),
+# which D1.5 makes explicitly empty on route E, and route L never reaches the pressure producer (B5L1's premise, the
+# rule on the group loop). With no group, `by_dof`'s lists stay empty, the screen's maximum ratio stays 0 and the screen
+# is 0, so the failed-screen branch is never entered: `cancellation_exception` is not called (its predicate, family and
+# record are not reached), `exception` stays None and the warning is not formed. The groups map is empty (a BTreeMap
+# with no node allocates nothing), so borrowing it through the loop and dropping it after the screen holds no bytes on
+# D1. The two call edges from finish_source_groups carry no heap or text on D1 and are zeroed for pricing, and with
+# them the three edges inside `cancellation_exception` (its only caller is the zeroed one). The guard binds the
+# structure, never the message, code name or basis token: one production call of each, the exception's call inside
+# the failed-screen branch and after the screen's ratio, the warning's inside `if let Some(` .. `) = exception {`, the
+# predicate, family and record called only from `cancellation_exception`, and B5L1's group loop.
+_RTL2_X0 = ("cancellation_exception", "cap_remainder_warning")
+# Third scrutiny: the exception's chains (`exception_chains`, the first call in cancellation_exception, two Vecs per
+# region) join the three; the warning's message is a String formatted per admitted case by `cap_remainder_warning_message`,
+# called only from cap_remainder_warning (RTL2-XZ-M below).
+_RTL2_X1 = ("exception_chains", "cancellation_exception_eligible", "family_nodes", "cap_remainder_record")
+if _fn_has("finish_source_groups", _RTL2_PR, "let mut exception = None;"):
+    _rtl2_fsg = _fn_text("finish_source_groups", _RTL2_PR)
+    _rtl2_ce = _fn_text("cancellation_exception", _RTL2_PR) if fnkey("cancellation_exception", _RTL2_PR) else ""
+    _rtl2_code = _re.sub(r"//[^\n]*", "", _production(_RTL2_PR))
+    _rtl2_branch = _rtl2_fsg.split("if !screen.is_finite() || screen > 1e-9 {", 1)
+    _rtl2_some = _re.split(r"if let Some\([^\n]*\) = exception \{", _rtl2_fsg, maxsplit=1)
+    _rtl2_ok = (
+        all(fnkey(_n, _RTL2_PR) for _n in _RTL2_X0 + _RTL2_X1),
+        all(len(_re.findall(r"\b" + _n + r"(?:<[^>()]*>)?\(", _rtl2_code)) == 2 for _n in _RTL2_X0 + _RTL2_X1),
+        all(_rtl2_fsg.count(_n + "(") == 1 for _n in _RTL2_X0),
+        all(_rtl2_ce.count(_n + "(") == 1 for _n in _RTL2_X1),
+        _rtl2_fsg.count("for (&(dof, pbits, area, _), group) in &groups {") == 1,
+        _rtl2_fsg.count("let mut maximum_ratio = 0.0_f64;") == 1,
+        len(_rtl2_branch) == 2 and "maximum_ratio" in _rtl2_branch[0]
+        and "cancellation_exception(" in _rtl2_branch[1].split("\n    }\n", 1)[0],
+        len(_rtl2_some) == 2 and "cap_remainder_warning(" in _rtl2_some[1].split("\n    }\n", 1)[0],
+        _fn_has(_PRESSURE_FN, _RTL2_PR, "for region in regions {"),
+    )
+    if not all(_rtl2_ok):
+        raise SystemExit(f"RTL2-XZ: the cancellation exception's calls or the group/screen structure changed; re-review: {_rtl2_ok}")
+    O10_EDGE_ZERO += [(fnkey("finish_source_groups", _RTL2_PR), fnkey(_n, _RTL2_PR),
+                       O10 + "RTL2-XZ: no pressure region and no factor group on D1 (D1.5, B5L1), so the screen is 0 and "
+                       + _n + " is not reached (the exception only after a failed screen, the warning only with its record)")
+                      for _n in _RTL2_X0]
+    O10_EDGE_ZERO += [(fnkey("cancellation_exception", _RTL2_PR), fnkey(_n, _RTL2_PR),
+                       O10 + "RTL2-XZ: cancellation_exception's one caller is the failed-screen branch, never entered on D1, "
+                       "so " + _n + " is not reached") for _n in _RTL2_X1]
+    # RTL2-XZ-M: the warning's formatted message is formed only inside cap_remainder_warning (one call; its only other
+    # caller is a test), which is reached only with an exception record, never on D1.
+    if fnkey("cap_remainder_warning_message", _RTL2_PR):
+        if (len(_re.findall(r"\bcap_remainder_warning_message\(", _rtl2_code)) != 2
+                or _fn_text("cap_remainder_warning", _RTL2_PR).count("cap_remainder_warning_message(") != 1):
+            raise SystemExit("RTL2-XZ-M: the warning message's call changed; re-review")
+        O10_EDGE_ZERO += [(fnkey("cap_remainder_warning", _RTL2_PR), fnkey("cap_remainder_warning_message", _RTL2_PR),
+                           O10 + "RTL2-XZ-M: the warning (and its message) is formed only with an exception record, never on D1")]
+# RTL2-FV (the U5B-JV pattern): model_fields.rs `keep_finding` calls `finding()`, its own `impl FnOnce() -> T` parameter;
+# the by-name scan names pressure_runtime's private `finding`, which keep_finding cannot reach. The false edge is zeroed.
+_RTL2_MF = PP_ + "model_fields.rs"
+if fnkey("finding", _RTL2_PR) and fnkey("keep_finding", _RTL2_MF):
+    _rtl2_kf = _fn_text("keep_finding", _RTL2_MF)
+    if _rtl2_kf.count("fn keep_finding(&mut self, finding: impl FnOnce() -> T) {") != 1 or _rtl2_kf.count("finding()") != 1:
+        raise SystemExit("RTL2-FV: keep_finding's closure parameter changed; re-review the false edge")
+    O10_EDGE_ZERO += [(fnkey("keep_finding", _RTL2_MF), fnkey("finding", _RTL2_PR),
+                       O10 + "RTL2-FV: `finding()` in keep_finding calls its FnOnce parameter, not pressure_runtime's private finding")]
+# RTL2-FB (the MODAL-FB/RTA3C-FB pattern): the exception's bound helper takes `(..).min(2.0)` over two f64 member terms
+# and its record `bore_force.max(..)` over f64 bore forces; the name-based resolver binds both to certified_publication's
+# private FallbackError min/max, which KD5C6's entry cutset forbids. Each body is bound here by its one call of the
+# method and its f64 operands (no message, code or token text); both functions are unreached on D1 (RTL2-XZ).
+if _fn_has("finish_source_groups", _RTL2_PR, "let mut exception = None;"):
+    for _fn, _m, _needle in (("consistency_bound_ratio", "min", ").min(2.0)"), ("cap_remainder_record", "max", "bore_force = bore_force.max(")):
+        _body = _fn_text(_fn, _RTL2_PR) if fnkey(_fn, _RTL2_PR) else ""
+        if _body.count("." + _m + "(") != 1 or _body.count(_needle) != 1 or "FallbackError" in _body:
+            raise SystemExit(f"RTL2-FB: {_fn}'s f64 {_m} changed; re-review the by-name exclusion")
+        _target = fnkey(_m, _CP)
+        if not _target:
+            raise SystemExit(f"RTL2-FB: certified_publication's {_m} is not unique; re-review")
+        CG_RULES += [{"caller": Resolved(_RTL2_PR + ":" + fnkey(_fn, _RTL2_PR).split(":", 1)[1]), "name": _m,
+                      "exclude_targets": [Resolved(_CP + ":" + _target.split(":", 1)[1])], "added": "RTL2-FB",
+                      "evidence": "f64::" + _m + " receivers; private FallbackError is not nameable in pressure_runtime (KD5C5)"}]
+# RTL2-RX (reader, guard): the pressure reader's exception checks run only where the assembly carries the exception
+# record, which the producer writes only after a failed screen (RTL2-XZ: never on D1); project(successor) copies the
+# contract evidence and the diagnostics unchanged (B7b-LR's premise). So in `assembly` the record is None and the three
+# record checks (`assembled_is_group_sum`, `exception_consistency` with its family and direction checks, and the bore
+# groups' `bore_group_value`) are not called; the warning check (`cap_remainder_warnings`) walks the cases (no record:
+# continue), collects the warnings of its code from diagnostics the producer never gave one on D1 (an empty Vec
+# allocates nothing) and loops over two empty lists. Zeroed for pricing; the guard binds each call under its record
+# condition and the one call of the warning check. The readers' model binding (`exception_model_binding`) is reached
+# only from reader_verdict's `physics_model_checks`, outside the retained graph.
+if fnkey("exception_consistency", _RTL2_PE) and fnkey("assembly", _RTL2_PE):
+    _rtl2_as = _fn_text("assembly", _RTL2_PE)
+    _rtl2_rec = _rtl2_as.split("if let Some(record) = exception {", 1)
+    _rtl2_rx = ("assembled_is_group_sum", "exception_consistency")
+    _rtl2_rok = (
+        _rtl2_as.count('let exception = v.get("cancellation_screen_exception");') == 1,
+        len(_rtl2_rec) == 2 and all(_c + "(" in _rtl2_rec[1].split("\n    }\n", 1)[0] for _c in _rtl2_rx),
+        all(_rtl2_as.count(_c + "(") == 1 for _c in _rtl2_rx),
+        all(len(_re.findall(r"\b" + _c + r"\(", _production(_RTL2_PE))) == 2 for _c in _rtl2_rx),
+        _rtl2_as.count("if exception.is_some() {\n            bore_group_value(") == 1 and _rtl2_as.count("bore_group_value(") == 1,
+        _fn_text("validate_physics_evidence_in", _RTL2_PE).count("cap_remainder_warnings(source)?;") == 1,
+        len(_re.findall(r"\bcap_remainder_warnings\(", _production(_RTL2_PE))) == 2,
+    )
+    if not all(_rtl2_rok):
+        raise SystemExit(f"RTL2-RX: the reader's exception calls changed; re-review: {_rtl2_rok}")
+    O10_EDGE_ZERO += [(fnkey("assembly", _RTL2_PE), fnkey(_n, _RTL2_PE),
+                       O10 + "RTL2-RX: the assembly carries no exception record on D1 (RTL2-XZ), so " + _n + " is not called")
+                      for _n in _rtl2_rx + ("bore_group_value",)]
+    O10_EDGE_ZERO += [(fnkey("validate_physics_evidence_in", _RTL2_PE), fnkey("cap_remainder_warnings", _RTL2_PE),
+                       O10 + "RTL2-RX: no exception record and no exception warning on D1, so the warning check walks the "
+                       "cases and two empty lists, allocating and formatting nothing")]
+# RTL2-VL: the setting's refusal loops. D1.4's elongation clause (rtl2_owners_model RTL2-K, guarded there) declines a
+# document whose `operating_load_cases` is longer than its load cases before the permit, and validation runs only in the
+# permitted run, so validation sees k <= c <= C (caps::LOAD_CASES, read from the caps module).
+# pressure_elongation_refusals walks the ids twice (duplicates, then unknown ids): each loop k times. Its refusals are the
+# contract refusal plus the empty-list refusal at k = 0, otherwise at most one per element (an element's first
+# occurrence can be unknown, a later one a duplicate): at most max(2, k + 1), priced at k = C as C + 1 = 4, so
+# validate_model_settings' diagnostic loop runs at most C + 1 times, one blocking diagnostic each. Its callers keep their
+# own multiplicity (the validation calls).
+_rtl2_k = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
+                                                     "rtl2_owners_model.py"))["inspect"](_SNAP)
+if _rtl2_k:
+    _RTL2_K = _rtl2_k["k"]
+    O10_LOOPS_LAST += [
+        ("for id in &ids", str(_RTL2_K),
+         O10 + f"RTL2-VL: the operating load-case ids, k <= c <= C = {_RTL2_K} after D1.4's elongation clause (RTL2-K)",
+         ["model_settings.rs:pressure_elongation_refusals"]),
+        ("for (index, error) in refusals.into_iter().enumerate()", str(_RTL2_K + 1),
+         O10 + f"RTL2-VL: at most max(2, k + 1) refusals (the contract refusal, then the empty-list refusal at k = 0, "
+         f"otherwise at most one per element), k <= C = {_RTL2_K} (RTL2-K), priced at k = C as C + 1 = {_RTL2_K + 1}",
+         ["validation.rs:validate_model_settings"]),
+    ]
+# RTL2-ID: the setting's texts. The two refusal messages format one authored id each, a raw string value of at most
+# D1.9's RawTextBytes (IN128); their path constants are static literals the inventory reads. validation's refs take
+# the record's path constant (a static literal, its bytes); the formulation basis copies one of the three fixed
+# statements (`ElongationStatement::text`, static literals; audited at the longest's UTF-8 bytes, read here).
+if _rtl2_k:
+    _rtl2_ea = _production(PP_ + "exact_admission.rs")
+    _rtl2_st = _re.findall(r'^pub\(crate\) const PRESSURE_ELONGATION_[A-Z_]+_LIMITATION: &str = "((?:[^"\\]|\\.)*)";$', _rtl2_ea, _re.M)
+    _rtl2_path = _re.findall(r'^pub const PRESSURE_ELONGATION_PATH: &str = "([^"\\{}]*)";$', _text_of(_RTL2_MS), _re.M)
+    if (len(_rtl2_st) != 3 or len(_rtl2_path) != 1 or any("\\" in _t for _t in _rtl2_st)
+            or _fn_text("text", PP_ + "exact_admission.rs").count("ElongationStatement::") != 3 if fnkey("text", PP_ + "exact_admission.rs") else True):
+        raise SystemExit("RTL2-ID: the three elongation statements or the setting's path changed; re-review")
+    _rtl2_sb = max(len(_t.encode()) for _t in _rtl2_st)
+    _rtl2_cp = _re.findall(r'^pub const PRESSURE_ELONGATION_CASES_PATH: &str = "([^"\\{}]*)";$', _text_of(_RTL2_MS), _re.M)
+    if len(_rtl2_cp) != 1:
+        raise SystemExit("RTL2-ID: the setting's list path changed; re-review")
+    _rtl2_pa = {"PRESSURE_ELONGATION_PATH": {"bytes": len(_rtl2_path[0].encode()), "source": O10 + "RTL2-ID: the setting's path, a static literal"},
+                "PRESSURE_ELONGATION_CASES_PATH": {"bytes": len(_rtl2_cp[0].encode()), "source": O10 + "RTL2-ID: the list's path, a static literal"}}
+    _rtl2_t = {
+        "pressure_elongation_without_pressure_contract_message": ("is set on a document without pressure_contract", ()),
+        "pressure_elongation_case_unknown_message": ("names `{id}`, which", ("id",)),
+        "pressure_elongation_cases_empty_message": ("is empty; name at least one", ()),
+        "pressure_elongation_case_duplicated_message": ("names `{id}` more than once", ("id",)),
+    }
+    for _fn, (_needle, _ids) in _rtl2_t.items():
+        _line = _fn_text(_fn, _RTL2_MS)
+        _audit = {_n: _a for _n, _a in _rtl2_pa.items() if "{" + _n + "}" in _line}
+        _audit.update({_i: IN for _i in _ids})
+        O10_ID_AUDIT += [(site(_fn, _RTL2_MS, _needle, full=True), _audit)]
+    # The diagnostic moves `error.message`, one of these four texts; like NP-MS's two diagnostics it keeps the inherited
+    # message class (text_budget prices a diag row's moved message by its argument rule, not by a site audit).
+    O10_ID_AUDIT += [
+        (site("validate_model_settings", _W8V, "PRESSURE_ELONGATION_PATH.to_string()],", full=True),
+         {"crate::model_settings::PRESSURE_ELONGATION_PATH": {"bytes": len(_rtl2_path[0].encode()),
+                                                              "source": O10 + "RTL2-ID: the setting's path, a static literal"}}),
+        (site("pressure_v3_formulation_basis_with_source", PP_ + "exact_admission.rs", "elongation.text().to_string(),", full=True),
+         {"elongation.text()": {"bytes": _rtl2_sb, "source": O10 + f"RTL2-ID: the longest of the three fixed statements, {_rtl2_sb} B"}}),
+    ]
+

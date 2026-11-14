@@ -278,10 +278,10 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
     if model.get("pressure_contract").is_some_and(|v| !v.is_null()) {
         crate::section_basis::bind_shear_model(evidence, model)?;
     }
-    // DEL-04-07: an exception record's geometry is the model's, and every
-    // interior node of its family is within its bound.
+    // DEL-04-07: a cancellation-screen exception's evidence is bound to the
+    // model's geometry and settings (`exception_model_binding`).
     if model.get("nodes").is_some_and(|v| !v.is_null()) && model.get("pipe_segments").is_some_and(|v| !v.is_null()) {
-        crate::physics_evidence::exception_model_checks(source, model)?;
+        crate::physics_evidence::exception_model_binding(source, model)?;
     }
     if model.get("supports").is_some_and(|v| !v.is_null()) {
         let supports = ids(&model["supports"], "id");

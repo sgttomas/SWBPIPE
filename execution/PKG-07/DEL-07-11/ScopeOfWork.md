@@ -32,7 +32,7 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 - *Explicit file operation.* A read or write of a file the user chose in a native dialog. Nothing else reads or writes outside the application's own storage.
 - *Model document file.* A file holding one model document. Opening one adopts the document exactly as read.
 - *Suggested file name.* The name a save dialog proposes. The user may type any other.
-- *Scripted-run build.* A build of the desktop made to be driven by a script, in which the file the chooser returns and the native menu commands are substituted. Its substitution and instrumentation are compiled only into that build.
+- *Scripted-run build.* A build of the desktop made to be driven by a script, in which the file the chooser returns and the native menu commands are substituted. Its substitution and instrumentation are compiled only into that build. In it, every Keychain item operation the application owns (loading, creating or deleting a saved provider key, and the default-keychain lookup they use) is refused, before any call to the Security framework, by a denial named as this build's own, so a scripted run reaches no Keychain item and shows nothing of how the product uses the Keychain. The native smoke runner builds it with a web view that selects a non-persistent data store, so a run by that runner does not show that a product build keeps web-view storage from one launch to the next; what the project store keeps is read from the store itself and is not affected.
 
 **Boundary.** The shell hosts and coordinates. The following belong elsewhere:
 

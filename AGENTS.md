@@ -53,9 +53,15 @@ grant, including any limit on passing those decisions on:
   independent grounds, never to fit the implementation.
 - These stay the owner's: publishing a release; licence, legal and
   professional sign-off; spending money; credentials; repository protections
-  and settings. So does the verdict on the product: the owner's yes or no
-  after the tested use cases of exit criterion 8, with acceptance, issuance
-  and release.
+  and settings; amending the PRD. So does the verdict on the product: the
+  owner's yes or no after the tested use cases of exit criterion 8, with
+  acceptance, issuance and release.
+- Where a decision under this grant contradicts the PRD, the agent records
+  the decision and names the conflicting PRD section in the affected scope
+  or release-target text, and brings the contradiction to the owner for an
+  amendment. If the decision omits or narrows a capability for v1.0, the
+  agent also states the limitation and the conflicting PRD section in
+  `docs/RELEASE_LIMITATIONS_v1.0.md`. Agents do not amend `docs/PRD.md`.
 
 ## How the work is organised
 
@@ -382,7 +388,47 @@ any further push to the branch. `main` does not require an up-to-date branch:
 before merging or arming, Agent 0 updates the branch and waits for a fresh run
 when a PR merged since the branch's base touched the same files or the same
 deliverable. Open PRs that overlap this way merge in turn: the later one stays
-unarmed until the earlier has landed and the later has been updated. Agents working under that Agent 0's assignment report a PR ready to
+unarmed until the earlier has landed and the later has been updated. Where a
+PR's head contains current `main` and the reviewed heads of earlier PRs, and
+the hosted `harness` result is green on that exact head, Agent 0 may instead
+merge it and so land the earlier ones without their own fresh runs. "Contains"
+means that the exact commit is an ancestor in Git history. For this exception
+the hosted run must use the then-current `main` commit as the base of its
+complete PR diff, and immediately before merging `main` must still name that
+same commit and the PR head must still name the tested commit, with no commit
+added after the run, so that the merge leaves `main` holding exactly the tree
+that ran; once `main` has moved, the ordinary rule applies. Each earlier one
+must have had the review and consultation its change requires at the commit
+contained. The containing head must reach it through conflict-free Git merges,
+and every path changed by that PR must have the same bytes, mode and presence
+as at its reviewed head, or the difference must itself receive the required
+review, including differences produced by a clean Git merge. Before merging,
+Agent 0 compares the combined tree with each reviewed head and reads the
+behaviour and interfaces the included changes share, with independent scrutiny
+where permissions or persistence are involved. Agent 0 may compose reviewed
+heads into one branch for this purpose, by merging only. A branch assembled to
+share a hosted run is a composed branch whether it is new or uses a member PR's
+branch; it may carry at most four member PRs in total, counting members already
+contained by another member. A merge that conflicts ends the attempt: the
+conflict is not resolved by hand or by a strategy that discards a side, and the
+ordinary route is used. Generated files are regenerated with their generators,
+and Agent 0 reads the resulting diff before merging; differences requiring
+independent review receive it. A failed combined run authorizes none of its
+members to land and, by itself, does not identify which member caused the
+failure; diagnosed failures remain findings. Neither route lands a PR that
+changes priced sources, frozen references or numerical meaning; if Agent 0
+cannot establish that for every PR included, it uses the ordinary per-PR route.
+A PR under a hold or awaiting a reserved owner choice, including the source
+revision or branch on which its re-verification runs, is neither composed nor
+landed by a containing head, and no PR built on it is landed by either route
+before it has itself landed. Pricing and independent numerical scrutiny still
+bind to the exact source they examined; a hosted run stands in for neither.
+Before merging, Agent 0 identifies on the carrying PR the hosted run, the
+`main` commit it ran against and the participating PRs, links each required
+review and consultation at its exact commit, identifies the merge and
+regeneration evidence, and records its comparison of shared behaviour and
+interfaces and its grounds that every included PR satisfies the exclusions.
+Agent 0 says on each PR landed this way which head carried it. Agents working under that Agent 0's assignment report a PR ready to
 merge and wait for that Agent 0 to merge it. A Type 1 the owner started directly reports its PR ready to this project's Agent 0; where the owner works with it alone and no Agent 0 holds the project, it holds that perspective and merges under this grant. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.
@@ -419,7 +465,10 @@ no memories; durable knowledge lives in Chirality. Scratch holds evidence,
 outputs and logs, never instructions. Once work is integrated or abandoned,
 each contributor deletes its scratch, worktrees, branches and build output
 unless an open review, named consumer or recovery need still uses them, or the
-owner asks to keep them. Before removal, check for wanted uncommitted work;
+owner asks to keep them. The agent that delegated a child or reviewer is
+responsible for removing that agent's worktree and scratch under this rule, once
+it has confirmed they are no longer in use: a returned agent has no one else to
+do it. Before removal, check for wanted uncommitted work;
 remove worktrees with `git worktree remove` so Git's records stay consistent.
 
 ## Hard boundaries

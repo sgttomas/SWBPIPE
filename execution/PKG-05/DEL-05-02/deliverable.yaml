@@ -143,6 +143,10 @@ code_paths:
 - validation/references/rt_a4_combinations/**
 - validation/references/w16_exact_combinations/**
 - validation/references/op1b_difference_basis/**
+# Frozen before the engine work it judges: the declared difference basis on the exact route. No
+# product test reads it yet.
+- validation/references/exact_difference_basis/**
+- tests/test_exact_difference_basis_references.py
 - validation/references/op_mf_held_status/**
 - validation/references/combination_certificate/**
 # The ordinary result reader (OUT-002): dispatch, row semantics, standing and the load-reference,

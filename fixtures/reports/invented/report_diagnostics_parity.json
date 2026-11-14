@@ -1199,6 +1199,76 @@
           "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
         }
       ]
+    },
+    {
+      "reason": "DEL-04-07: on a result with combinations, the cancellation-screen exception's warning (PRESSURE_REGION_CAP_REMAINDER_RETAINED) names no combination and is still copied: the admitting reader binds its presence, its whole message (re-formed from the record: the case, the node and the retained remainder's force in N) and its references to the exception record. Another warning naming no combination beside it is quoted as supplied text.",
+      "contract_evidence": {
+        "combination_gates": [
+          {
+            "combination_id": "comb:invented",
+            "withheld": false,
+            "reason": null
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:cap-remainder",
+          "code": "PRESSURE_REGION_CAP_REMAINDER_RETAINED",
+          "severity": "warning",
+          "message": "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel. In case case:invented, the retained remainder is largest relative to the pressure force on the bore at node node:invented, where it is 2.197357159078235e-1 N; that force is not a bound on the resulting displacement.",
+          "source": "core/product_physics/src/pressure_runtime.rs",
+          "affected_refs": [
+            "case:invented",
+            "region:invented",
+            "node:invented"
+          ]
+        },
+        {
+          "id": "diagnostic:invented:other",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics/src/pressure_runtime.rs",
+          "affected_refs": [
+            "case:invented",
+            "region:invented",
+            "node:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "PRESSURE_REGION_CAP_REMAINDER_RETAINED",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics/src/pressure_runtime.rs"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented, region:invented, node:invented"
+          },
+          "message": "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel. In case case:invented, the retained remainder is largest relative to the pressure force on the bore at node node:invented, where it is 2.197357159078235e-1 N; that force is not a bound on the resulting displacement.",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics/src/pressure_runtime.rs"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented, region:invented, node:invented"
+          },
+          "message": "Supplied diagnostic text, unverified (not a combination certificate statement): \"invented message\"",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
     }
   ]
 }

@@ -340,7 +340,8 @@ pub struct ReportPackageSaveReceipt {
     pub warnings: Vec<Diagnostic>,
     /// W-18b (§2.3): whether the package records the user's per-report user
     /// release (route 010), and the model document SHA-256 it is bound to
-    /// ("" when not recorded).
+    /// ("" when not recorded). Only a written package records it: `false`
+    /// and "" on a cancelled dialog.
     pub user_release_recorded: bool,
     pub user_release_model_document_sha256: String,
 }
@@ -536,7 +537,9 @@ pub fn check_exact_text_sizes(exact_result_text: Option<&str>, exact_intake_text
 /// resubmitted texts, each M plus its re-serialization
 /// ([`crate::command_ingress::text_parse_bytes`]; §3.6, "Pricing"). The
 /// native standing, the digests and the comparisons run under the held lease
-/// as the command's working memory, within the existing W M provision.
+/// as the command's working memory, within the existing W M provision. The
+/// session Diagnostics check (`report_session_diagnostics`) has its own term,
+/// [`session_check_lease_bytes`], which [`ingress_lease_bytes`] adds.
 pub fn parse_lease_bytes_with_exact(
     request_text: &str,
     model_text: &str,
@@ -555,6 +558,16 @@ pub fn parse_lease_bytes_with_exact(
     Ok(base.saturating_add(priced("exact_result", exact_result_text)?).saturating_add(priced("exact_intake", exact_intake_text)?))
 }
 
+/// The save's provision for the session Diagnostics check
+/// ([`crate::report_session_diagnostics::session_check_provision_bytes`]). The save's lease grows
+/// before its request is parsed, so the request text stands for the text of the report's
+/// Diagnostics, which it contains: at least the check's own provision. It is taken on every
+/// save, whether or not the document is one the check applies to, which is not known before the
+/// parse.
+pub fn session_check_lease_bytes(request_text: &str, model_text: &str) -> u64 {
+    crate::report_session_diagnostics::session_check_provision_bytes(model_text.len() as u64, request_text.len() as u64)
+}
+
 /// The run record text of route 010 (§2.5 step 2): present, within
 /// [`MAX_ANALYSIS_RUN_TEXT_BYTES`].
 fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportPackageSaveCommandError> {
@@ -570,8 +583,9 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 
 /// The command's route-aware ingress lease growth (W-18b, DEL-08-01 Design
 /// `report-user-release.md` §2.5, "The outer command"), after the evidence:
-/// - route 009: [`parse_lease_bytes_with_exact`], unchanged; a run record text
-///   is refused (it is route 010's);
+/// - route 009: [`parse_lease_bytes_with_exact`] and the session Diagnostics
+///   check's provision ([`session_check_lease_bytes`]); a run record text is
+///   refused (it is route 010's);
 /// - route 010: D-6 adds the exact texts' capped, priced parse through
 ///   [`parse_lease_bytes_with_exact`], retaining the ordinary reservation over the
 ///   request, model and input-manifest texts and the run record text's
@@ -584,7 +598,8 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 ///     ([`crate::user_release_admission::refusal_formatting_bytes`]): a
 ///     route-010 refusal names one JSON pointer in the model or the request,
 ///     whose length the texts bound (Codex round 2 at #1673), and is then
-///     bounded (Codex round 1 at #1682).
+///     bounded (Codex round 1 at #1682);
+///   - the session Diagnostics check's provision, as on route 009.
 ///
 /// Rule 3 (b)'s growth (§2.7) comes later, inside admission, by the largest
 /// embedded candidate's priced parse. Every growth is refused above the
@@ -595,13 +610,14 @@ pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, Re
         if request.analysis_run_text.is_some() {
             return Err(refuse(REQUEST_INVALID, "/analysis_run", "Only route DREP-PACKAGE-USER-RELEASE-010 carries a run record text."));
         }
-        return parse_lease_bytes_with_exact(
+        return Ok(parse_lease_bytes_with_exact(
             &request.request_text,
             &request.model_text,
             &request.input_manifest_text,
             request.exact_result_text.as_deref(),
             request.exact_intake_text.as_deref(),
-        );
+        )?
+        .saturating_add(session_check_lease_bytes(&request.request_text, &request.model_text)));
     }
     let ordinary = parse_lease_bytes_with_exact(
         &request.request_text, &request.model_text, &request.input_manifest_text,
@@ -615,7 +631,8 @@ pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, Re
     let run = priced("analysis_run", analysis_run_text_of(request.analysis_run_text.as_deref())?)?;
     let derivation = priced("request", &request.request_text)?.saturating_add(priced("input_manifest", &request.input_manifest_text)?);
     let formatting = user_release_native::refusal_formatting_bytes(request.request_text.len() as u64, request.model_text.len() as u64);
-    Ok(ordinary.saturating_add(run).saturating_add(derivation).saturating_add(formatting))
+    let session = session_check_lease_bytes(&request.request_text, &request.model_text);
+    Ok(ordinary.saturating_add(run).saturating_add(derivation).saturating_add(formatting).saturating_add(session))
 }
 
 /// The ingress lease growth for parsing the three texts (§2.6 item 1, "a
@@ -1484,6 +1501,21 @@ fn admit_both_routes(
     // pointer, never a value.
     open_pipe_stress_report_package::model_input::check_model_input_tables(&model_value, request_value.get("report").unwrap_or(&Value::Null))
         .map_err(|message| coded("/request/report/model_input_tables", &message))?;
+    // The package's item 9 refuses only integrity codes among the Diagnostics
+    // after the result's (review of c2cc050ea, R8): on an exact or pressure-free
+    // Timoshenko document, those entries are the session entries the host
+    // derives from this bound model, each as often as the model yields it, and
+    // none copies a result diagnostic (`report_session_diagnostics`, the render
+    // command's check).
+    let save_source = request_value.pointer("/source_results/0").unwrap_or(&Value::Null);
+    let pf_timoshenko = save_source
+        .pointer("/producer/semantic_contract_id")
+        .and_then(Value::as_str)
+        .is_some_and(open_pipe_stress_report_package::pf_timoshenko::is_pf_timoshenko_identity);
+    if exact_custody.is_some() || pf_timoshenko {
+        crate::report_session_diagnostics::check_session_diagnostics(request_value.get("report").unwrap_or(&Value::Null), save_source, &model_value)
+            .map_err(|detail| exact_refused(exact_binding::sections_mismatch(&format!("diagnostics: {detail}")), "/request/report/report_sections/diagnostics"))?;
+    }
     // The run's input manifest: its SHA-256 is the audit input-manifest hash.
     let input_manifest_value = parse_canonical("input_manifest", &input_manifest_text)?;
     let input_manifest_hex = sha256_hex(&input_manifest_text);
@@ -1702,6 +1734,9 @@ impl AdmittedReportPackage {
     fn receipt(self, outcome: &str, stage: &str, code: String, written: Option<atomic_report_package_save::AtomicSaveOutcome>) -> ReportPackageSaveReceipt {
         let Self { package, screening, local_first, warnings, exact_custody: _, user_release_model_document_sha256 } = self;
         let byte_count = if written.is_some() { package.container_bytes.len() } else { 0 };
+        // The package records the user release only once it is written: a
+        // cancelled dialog writes nothing and records nothing (REQ-019, AC-010).
+        let user_release_model_document_sha256 = user_release_model_document_sha256.filter(|_| written.is_some());
         let (replaced_existing, durability, selected_basename, path_containment, limitation) = match written {
             Some(save) => (save.replaced_existing, save.durability, save.selected_basename, save.path_containment, save.limitation),
             None => (
@@ -2637,6 +2672,152 @@ mod tests {
         for classification in [clear, blocking, nested] {
             let (code, paths) = refusal(admit(edited(pack(classification))));
             assert_eq!((code.as_str(), paths[0].as_str()), (DISPOSITION_MALFORMED, "/request/report/report_sections/provenance_notes/0/invented_pack/classification"));
+        }
+    }
+
+    // --- The receipt's user-release members (DEL-08-01 REQ-019, AC-010) ------
+
+    /// A route-010 package admitted as `user_release_save_tests.rs` admits it:
+    /// the committed derivation vectors' first basis, with route-010 evidence,
+    /// in a fresh session whose table attests the basis's solve. Returns the
+    /// package and the model document SHA-256 its record is bound to.
+    fn user_released_admitted() -> (AdmittedReportPackage, String) {
+        use crate::solve_attestation::SolveAttestation;
+        use open_pipe_stress_product_physics::PreviewSolverMode;
+        use open_pipe_stress_report_package::user_release::{derive, SoftwareIdentity, UserReleaseBasis};
+        use open_pipe_stress_report_renderer::UserReleaseRecord;
+        const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/user_release_derivation_vectors.json");
+        const SOURCE: &str = include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json");
+        let vector = serde_json::from_str::<Value>(VECTORS).unwrap()["vectors"][0].clone();
+        let (model, source) = (model(), serde_json::from_str::<Value>(SOURCE).unwrap());
+        let record: UserReleaseRecord = serde_json::from_value(vector["user_release"].clone()).unwrap();
+        let identity = SoftwareIdentity { name: software().name, version: software().version };
+        let basis = UserReleaseBasis {
+            model: &model,
+            source: &source,
+            solver_mode: "sparse_interactive",
+            run_record: &vector["run_record"],
+            software: &identity,
+            record: &record,
+            composition: None,
+        };
+        let request = derive(&basis).unwrap().request;
+        let mut args = save_request_with(&request, &model, &vector["input_manifest"]);
+        args.screening.route_id = REPORT_PACKAGE_USER_RELEASE_ROUTE_ID.to_string();
+        args.screening.export_context = "user_released_report".to_string();
+        args.screening.explicit_local_private_intent = false;
+        args.screening.explicit_user_release_intent = true;
+        let local_first = args.local_first.as_mut().unwrap();
+        local_first.route_id = REPORT_PACKAGE_USER_RELEASE_ROUTE_ID.to_string();
+        local_first.export_context = "user_released_report".to_string();
+        local_first.storage_context = "private_report".to_string();
+        local_first.reason_code = "USER_RELEASE_METADATA_ALLOWED".to_string();
+        local_first.explicit_local_private_intent = false;
+        local_first.explicit_user_release_intent = true;
+        args.analysis_run_text = Some(canonical_json(&vector["run_record"]));
+        let registry = crate::command_ingress::test_support::registry(crate::memory_pool::test_host::ScriptedHost::normal());
+        registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&model, &source).unwrap());
+        let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+        let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
+        let admitted = admit_report_package_session(args, &software(), &mut no_store, &no_custody, Some(&mut session))
+            .unwrap_or_else(|refusal| panic!("{refusal:?}"));
+        (admitted, record.bound_to.model_document_sha256.clone())
+    }
+
+    /// The receipt records the user release only when the package was
+    /// written: a cancelled dialog writes nothing and records nothing; a
+    /// written package records it, whether its durability is certain or not.
+    #[test]
+    fn the_receipt_records_a_user_release_only_for_a_written_package() {
+        // Cancelled: no file, no user release.
+        let (admitted, bound) = user_released_admitted();
+        assert_eq!(admitted.user_release_model_document_sha256.as_deref(), Some(bound.as_str()));
+        let receipt = save_admitted_report_package(admitted, |_| None).unwrap();
+        assert_eq!(
+            (receipt.outcome.as_str(), receipt.code.as_str(), receipt.byte_count, receipt.durability.as_str(), receipt.selected_basename.as_str()),
+            ("cancelled", "REPORT-PACKAGE-SAVE-CANCELLED", 0, "not_applicable", "")
+        );
+        assert_eq!((receipt.user_release_recorded, receipt.user_release_model_document_sha256.as_str()), (false, ""));
+
+        // Saved: the file is written and the receipt records the user release.
+        let (admitted, _) = user_released_admitted();
+        let save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let root = sandbox("user-release-receipt");
+        let receipt = save_admitted_report_package(admitted, |name| Some(Ok(root.join(name)))).unwrap();
+        drop(save_lock);
+        assert_eq!((receipt.outcome.as_str(), receipt.code.as_str(), receipt.durability.as_str()), ("saved", "REPORT-PACKAGE-SAVED", "durable"));
+        assert_eq!(fs::read(root.join(&receipt.container_file_name)).unwrap().len(), receipt.byte_count);
+        assert_eq!((receipt.user_release_recorded, receipt.user_release_model_document_sha256.as_str()), (true, bound.as_str()));
+        fs::remove_dir_all(root).unwrap();
+
+        // Saved with durability uncertain: the writer's outcome after the
+        // rename when the parent directory's sync did not complete.
+        let (admitted, _) = user_released_admitted();
+        let written = crate::atomic_report_package_save::AtomicSaveOutcome {
+            replaced_existing: false,
+            durability: "saved_durability_uncertain".to_string(),
+            selected_basename: admitted.package.container_file_name.clone(),
+            path_containment: crate::atomic_report_package_save::PATH_CONTAINMENT.to_string(),
+            limitation: crate::atomic_report_package_save::TOCTOU_LIMITATION.to_string(),
+        };
+        let receipt = admitted.receipt("saved", "complete", "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN".to_string(), Some(written));
+        assert_eq!((receipt.outcome.as_str(), receipt.durability.as_str()), ("saved", "saved_durability_uncertain"));
+        assert!(receipt.byte_count > 0);
+        assert_eq!((receipt.user_release_recorded, receipt.user_release_model_document_sha256.as_str()), (true, bound.as_str()));
+    }
+
+    /// A writer error whose temporary-file cleanup also failed: the selected
+    /// file is not written, the temporary file beside it remains and holds the
+    /// complete package bytes, and the error reaches the webview, on both
+    /// routes, with the cleanup failure's code, which the session reads to say
+    /// that a temporary file may remain beside the selected file. The error
+    /// names no temporary file: the writer's random temporary name is not one
+    /// of its members.
+    #[test]
+    fn a_writer_error_with_a_failed_cleanup_carries_its_cleanup_code() {
+        use crate::atomic_report_package_save::{atomic_save_bytes_as_with_io, AtomicSaveIo, REPORT_PACKAGE_FORMAT};
+        use std::io::{self, Write};
+        use std::path::Path;
+        struct RenameAndCleanupFail;
+        impl AtomicSaveIo for RenameAndCleanupFail {
+            fn write_all(&mut self, temp: &mut fs::File, bytes: &[u8]) -> io::Result<()> {
+                temp.write_all(bytes)
+            }
+            fn flush(&mut self, temp: &mut fs::File) -> io::Result<()> {
+                temp.flush()
+            }
+            fn sync_temp(&mut self, temp: &fs::File) -> io::Result<()> {
+                temp.sync_all()
+            }
+            fn rename(&mut self, _: &Path, _: &Path) -> io::Result<()> {
+                Err(io::Error::other("injected rename failure"))
+            }
+            // The temporary file is left in place, as a cleanup that really failed leaves it.
+            fn cleanup_temp(&mut self, _: &Path) -> io::Result<()> {
+                Err(io::Error::other("injected cleanup failure"))
+            }
+        }
+        let bytes = b"invented complete package bytes";
+        for route in ["009", "010"] {
+            let root = sandbox(&format!("writer-cleanup-failed-{route}"));
+            let destination = root.join("chosen.opsproj");
+            let error = ReportPackageSaveCommandError::from(
+                atomic_save_bytes_as_with_io(&REPORT_PACKAGE_FORMAT, &destination, bytes, &mut RenameAndCleanupFail).unwrap_err(),
+            );
+            let error = if route == "010" { bound_route_010_refusal(error) } else { error };
+            assert!(!destination.exists(), "{route}");
+            let left: Vec<String> = fs::read_dir(&root).unwrap().map(|entry| entry.unwrap().file_name().into_string().unwrap()).collect();
+            assert_eq!(left.len(), 1, "{route}: {left:?}");
+            let temp = &left[0];
+            assert!(temp.starts_with(REPORT_PACKAGE_FORMAT.temp_prefix) && temp.ends_with(".tmp"), "{route}: {temp}");
+            assert_eq!(fs::read(root.join(temp)).unwrap(), bytes, "{route}: the temporary file holds the complete bytes");
+            let sent = serde_json::to_value(&error).unwrap();
+            assert_eq!(sent["code"], "REPORT-PACKAGE-RENAME-FAILED", "{route}");
+            assert_eq!(sent["stage"], "rename", "{route}");
+            assert_eq!(sent["cleanup_code"], "REPORT-PACKAGE-TEMP-CLEANUP-FAILED", "{route}");
+            assert_eq!(sent["selected_basename"], "chosen.opsproj", "{route}");
+            assert!(!sent.to_string().contains(temp.as_str()) && !sent.to_string().contains(REPORT_PACKAGE_FORMAT.temp_prefix), "{route}: {sent}");
+            fs::remove_dir_all(root).unwrap();
         }
     }
 }

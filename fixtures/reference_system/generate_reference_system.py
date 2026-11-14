@@ -30,9 +30,9 @@ built with `--features wasm` (`capture_self_weight.mjs` drives it), for example
 The model-document version is the one constant MODEL_DOCUMENT_VERSION and is not part of the weight
 basis, so a version ripple re-runs this generator without a new capture.
 
-Usage:
-    python3 fixtures/reference_system/generate_reference_system.py           # write
-    python3 fixtures/reference_system/generate_reference_system.py --check   # compare only
+Usage (the committed files are produced with every pressurised case named):
+    python3 fixtures/reference_system/generate_reference_system.py --pressure-elongation all           # write
+    python3 fixtures/reference_system/generate_reference_system.py --check --pressure-elongation all   # compare only
 
 `--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION, else absent) sets
 `model_settings.pressure_elongation` in the model document through the shared
@@ -235,10 +235,16 @@ LEDGER = [
     ("Tee RS-T1 with user SIFs", "in tranche 1", "—", "—"),
     ("Eccentric reducer RS-R1 in region RG-R",
      "pending; RS-P150 is in tranche 1 as a plain S270 member in its own region", "RT-A3 reducer increment 2b (eccentric); initial concentric 2a does not unblock RS-R1",
-     "`EXACT_PRESSURE_REDUCER_IN_REGION`"),
-    ("Constant-effort support RS-CE1", "pending", "RT-A3 increment 3", "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`"),
+     "admitted in the combined test overlay; solved with no blocking finding "
+     "(core/product_physics/tests/rt_a3_s6_reference_system.rs; alone, core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs)"),
+    ("Constant-effort support RS-CE1", "pending", "RT-A3 increment 3",
+     "admitted in the combined test overlay; consumed, 9,000 N applied and published "
+     "(core/product_physics/tests/rt_a3_s6_reference_system.rs)"),
     ("Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1)", "pending",
-     "RT-A3 increment 4; with the connector, increment 5", "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`"),
+     "RT-A3 increment 4; with the connector, increment 5",
+     "admitted in the combined test overlay; solved and published unqualified: "
+     "`NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`, quality unresolved "
+     "(core/product_physics/tests/rt_a3_s6_reference_system.rs; LIM-017)"),
     ("RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7",
      "interim: RS-FR1V authored as a linear `vertical_support` UZ (Agent 0, 2026-10-31)",
      "RT-A3, R-4 stage S7, after increment 4 (DEL-04-07)",

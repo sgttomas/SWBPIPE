@@ -16,11 +16,13 @@ taxonomy per DEC-081): invented models, internal verification evidence only.
 | `oracle.json` | Expected rows per case, the discriminators, and the cross-checks; `requests_sha256` binds the exact bytes of `requests.json` |
 | `SHA256SUMS` | Digests of the five files above |
 
-Verify with `python3 -I -B u4a_generate.py` in this directory (it regenerates
-both JSON files in memory and compares them byte for byte, about 20 s; `-B`
-keeps the engine's import from writing `__pycache__` here) and
-`shasum -a 256 -c SHA256SUMS`. `--write` replaces them and is used only for an
-intended change of the references, never to absorb a product result.
+Verify with `python3 -I -B u4a_generate.py --pressure-elongation all` in this
+directory (it regenerates both JSON files in memory and compares them byte for
+byte, about 20 s; `-B` keeps the engine's import from writing `__pycache__`
+here) and `shasum -a 256 -c SHA256SUMS`. The switch is there because the committed requests name every pressurised load case in `model_settings.pressure_elongation` (DEL-04-07); without it the generator builds them without that member and reports a mismatch.
+`python3 -I -B u4a_generate.py --write --pressure-elongation all` replaces them
+and is used only for an intended change of the references, never to absorb a
+product result.
 
 ## D-5 re-freeze of the pressure-1 cases (T4-U6)
 

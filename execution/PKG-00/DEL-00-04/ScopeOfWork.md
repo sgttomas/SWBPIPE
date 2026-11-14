@@ -25,7 +25,7 @@ It serves SOW-059 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - *Schema governance.* Every kind of persisted document has a schema, in the dialect the baseline names (DEL-00-01).
 - *Version declaration.* Each persisted document carries its schema version. Each kind of document, and the project package, has one current version. A reader accepts that version and refuses every other by name: an older one with a diagnostic that says to re-author, a newer, missing or unparseable one as such. Nothing is migrated, upgraded, down-migrated or coerced. The names of the version statuses are DEL-02-05's.
 - *Store version.* The local store's own table layout is versioned apart from the documents, by SQLite's `user_version`.
-- *Version numbering.* Any change to what a document can contain, including an added optional field, raises at least the minor version. A patch number is for a change that does not alter the document's shape.
+- *Version numbering.* Any change to what a document can contain, including an added optional field, raises at least the minor version; REQ-007 records the single addition excepted. A patch number is for a change that does not alter the document's shape.
 - *Canonical hash.* SHA-256 over the RFC 8785 (JCS) canonical form of a JSON payload. A hash record names the payload it covers. A hash carried inside a document leaves out its own field and the volatile storage fields, so it can be recomputed from the restored document. A member that is not JSON is hashed by its bytes in a manifest.
 - *Round trip.* Save followed by open. It returns semantically equal model content, unit metadata, loads, rule-pack and library references, diagnostics and provenance; only fields documented as volatile may differ; and it inserts no engineering default.
 - *Local storage profile.* A local SQLite project store and index. Retrieval sidecars are rebuildable and never authoritative. Large external files are referenced in place by path or URI with a hash and metadata. There is no hosted database, daemon, required network, cloud sync or telemetry path. The store is changed only through application services, and no plugin or adapter has SQL access.
@@ -51,7 +51,7 @@ It serves SOW-059 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **REQ-004** — Round trips are checked for models, units, loads, rule-pack references, diagnostics and provenance metadata (`docs/PRD.md` FR-MOD-001).
 - **REQ-005** — Public schemas are separate from private, user-owned code data and proprietary libraries (`docs/PRD.md` §5.4).
 - **REQ-006** — Storage follows the local storage profile (decomposition AB-00-04).
-- **REQ-007** — Any change to what a persisted document can contain, including an added optional member, raises at least the minor version of its schema; a patch increment leaves the document's shape unchanged.
+- **REQ-007** — Any change to what a persisted document can contain, including an added optional member, raises at least the minor version of its schema; a patch increment leaves the document's shape unchanged. One addition is recorded as an exception, by Agent 0's decision: `model_settings.pressure_elongation` joined model document 0.9.0 without a step (DEL-02-01, Current version), so that existing documents are not refused by version; the owner had ruled that they get no compatibility or migration machinery. Its cost: the model version alone does not distinguish the schema before this addition from the schema after it, and a build older than the member refuses a document carrying it as an unknown member. The result semantics identity (`pressure-3`) marks the changed result meaning and does not stand in for the document's version. A later change to that member follows the rule.
 
 ### Acceptance criteria
 
@@ -61,7 +61,7 @@ It serves SOW-059 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **AC-004** — A save and reopen of a project populated with models, units, loads, rule-pack and library references, diagnostics and provenance returns semantically equal content. The only differing fields are those documented as volatile; reopening inserts no value that was not in the saved document, and no engineering default. This carries commitment DEL-00-04:1.
 - **AC-005** — Public schemas define structure only. No public schema, fixture or example embeds private rule data, proprietary library content or code-specific values.
 - **AC-006** — Deleting every retrieval sidecar (the rebuildable full-text index) and reopening the project loses no model, result or record. No plugin or adapter opens the store or issues SQL, and every change to the store is made through an application service. Authoring, solving and reporting work with the network disabled.
-- **AC-007** — For each change to a persisted-document schema, the declared current version rises by at least a minor step whenever the set of valid documents changes.
+- **AC-007** — For each change to a persisted-document schema, the declared current version rises by at least a minor step whenever the set of valid documents changes, except for the single addition recorded in REQ-007.
 
 ## Production and Verification Method — Praxeology
 
@@ -94,4 +94,4 @@ It serves SOW-059 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 | OUT-001 | SOW-059 OBJ-013 | REQ-004 | AC-004 | VER-001 | `docs/PRD.md` FR-MOD-001 states what must survive; the comparison is the authored input against the reopened document |
 | OUT-001 | SOW-059 OBJ-013 | REQ-005 | AC-005 | VER-004 | `docs/PRD.md` §5.4 and `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and reviewer |
 | OUT-001 | SOW-059 OBJ-013 | REQ-006 | AC-006 | VER-004 | Decomposition AB-00-04 states the profile; the deletion and offline scenarios state what must happen |
-| OUT-001 | SOW-059 OBJ-013 | REQ-007 | AC-007 | VER-005 | Additive changes raise the minor version; the comparison is each schema's change against its declared version |
+| OUT-001 | SOW-059 OBJ-013 | REQ-007 | AC-007 | VER-005 | Additive changes raise the minor version, except the single addition recorded in REQ-007; the comparison is each schema's change against its declared version |

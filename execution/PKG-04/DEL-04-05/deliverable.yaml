@@ -45,11 +45,26 @@ needs:
     its fixed code (DEL-07-07/REQ-013). A change to these stages changes what the harness must
     time.
   gating: false
+- from: DEL-04-06
+  when: Timing the desktop's on-demand model checks
+  condition: >-
+    The model checks have one public entry outside the desktop that takes the model document and
+    returns their report, and the desktop's check worker calls that entry, so that a driver
+    calling it times that model-check work.
+  gating: false
 - from: DEL-02-01
   when: Generating the reference racks
   condition: >-
     The model document has one current version, and a document of that version in the shapes it
     admits opens and solves; the rack generator writes that version.
+  gating: false
+- from: DEL-09-01
+  when: Producing the headless timing baseline
+  condition: >-
+    The invented reference system is a committed exact-route model document that the product
+    solves, and its generator's check in the mode the file was produced with
+    (`generate_reference_system.py --check --pressure-elongation all`) exits 0 only when the
+    committed file is what the generator writes.
   gating: false
 - from: DEL-07-11
   when: Measuring exit criterion 9 in the desktop
@@ -81,6 +96,9 @@ checks:
 - core/solver/release_timing/tests/release_timing.rs
 - core/solver/performance_harness/runner/test_release_runner.py
 - tests/test_release_timing_runner.py
+- core/solver/release_timing/tests/supervise.rs
+- tests/test_release_timing_supervise.py
+- tests/test_release_timing_build_identity.py
 - tests/test_performance_rack_model.py
 - apps/desktop/native-smoke/perf.test.mjs
 - apps/desktop/src/services/solveTimeline.test.ts

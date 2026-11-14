@@ -1677,8 +1677,24 @@ pub(crate) fn print_phases(title: &str, marks: &[stored_read::phase_probe::Mark]
 /// Each command's peak requested bytes before the change (this thread's Rust
 /// allocations, after [`warm_up`]; `command_peaks` of this file run on
 /// c8865f384's production code): the `preview:pressure` case.
+///
+/// Three of them carry the growth of that case's input since they were
+/// measured, added block by block and not re-measured, because c8865f384's code
+/// cannot read the present input: the case's result gained the pressure
+/// elongation statement and its per-case label, and its model gained the
+/// `model_settings` member. At each command's peak the present code holds, over
+/// the same code on the earlier input: five new strings in a parse of the
+/// result (309 B), one copy of the result text (324 B), one copy of the
+/// manifest text (91 B) and one parsed copy of the settings member per parsed
+/// model (1,465 B). Create and Save again hold all of these with the member
+/// parsed twice (+3,654 B); the restored re-save holds the strings, the text
+/// and one parsed member (+2,098 B). The meaning is unchanged: no more than
+/// c8865f384's code would hold, as far as reading that code establishes which
+/// copies it held at its peak. Each peak also holds the store's path, so it
+/// moves by a few bytes with the temporary directory's length and the process
+/// id's digit count.
 const PRE_CHANGE_PEAKS: [(&str, u64); 5] =
-    [("record_run", 10_446_522), ("recorded_read", 9_597_918), ("fresh_create", 1_798_677), ("fresh_save_again", 1_797_879), ("restored_resave", 4_214_403)];
+    [("record_run", 10_446_522), ("recorded_read", 9_597_918), ("fresh_create", 1_802_331), ("fresh_save_again", 1_801_533), ("restored_resave", 4_216_501)];
 
 /// P1's allocation evidence (`ingress::counting`: allocations, not leases):
 /// the result's parse ends before its text is written; the run's texts end at
@@ -1765,6 +1781,9 @@ fn p1_allocations_end_where_their_last_use_is() {
     // (d) One load of the record: the summary's readback is the only one.
     assert_eq!(marks.iter().filter(|mark| mark.at.starts_with("run readback: record parsed")).count(), 1, "{marks:?}");
     mark(&marks, "run readback: record parsed, text kept for custody");
+    // The read paths peak at the instant the canonical text buffer doubles inside the result hash
+    // check, so where that doubling falls in the text can move these peaks by a few hundred bytes
+    // (a serialiser temporary and a level of sorted keys) on a change that copies nothing more.
     assert!(read_peak + q as u64 <= pre("recorded_read"), "recorded read: {read_peak} against {}", pre("recorded_read"));
     registry.dispose_all_results();
 

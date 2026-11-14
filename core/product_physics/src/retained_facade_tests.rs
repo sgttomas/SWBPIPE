@@ -5308,3 +5308,47 @@ fn pf_timoshenko_is_declined_at_d1_and_takes_the_ordinary_route_unchanged() {
         }
     }
 }
+/// DEL-04-07: D1.4 bounds `model_settings.pressure_elongation.operating_load_cases` by the
+/// document's number of load cases. A list as long as the load cases (here the valid list
+/// naming the one case) stays inside D1; one entry longer (an id that names no case) is
+/// declined by name at D1.4, from the two lengths, on the actual Direct entry: one ordinary
+/// run, no G-C, no W1 and no successor, and the publication is the ordinary route's bytes,
+/// whose validation refuses the list by name as before. The build's registration is not read
+/// here (the domain verdict does not depend on it).
+#[test]
+fn an_elongation_list_longer_than_the_load_cases_is_declined_at_d1_and_takes_the_ordinary_route() {
+    use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+    let with_list = |extra: usize| {
+        let mut raw = m3x();
+        let mut ids: Vec<Value> = raw["model"]["load_cases"].as_array().unwrap().iter().map(|c| c["id"].clone()).collect();
+        assert_eq!(ids.len(), 1);
+        ids.extend((0..extra).map(|k| json!(format!("case:unknown-{k}"))));
+        raw["model"]["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": ids}});
+        raw
+    };
+    let counted = |raw: &Value, mode| {
+        let raw = raw.clone();
+        hooks::counted(move || run_linear_static_preview_value_with_retained_direct(raw, mode, RETAINED_LIMIT).unwrap())
+    };
+    let (equal, longer) = (with_list(0), with_list(1));
+    for mode in MODES {
+        let (output, _) = counted(&equal, mode);
+        assert_eq!(output.admission().unwrap().law().domain, None, "{mode:?}: equal to the load cases, inside D1");
+        let envelope: Value = serde_json::from_slice(&plain(mode, &equal)).unwrap();
+        assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}");
+        let (output, counts) = counted(&longer, mode);
+        assert_eq!(output.admission().unwrap().law().domain,
+            Some(AdmissionRefusal::Family(D1Clause::Invocation, FamilyFact::PressureElongationCases)), "{mode:?}: one longer, declined");
+        assert_eq!(counts, ONE_RUN, "{mode:?}: the ordinary run only, no G-C");
+        assert!(output.retained().is_none(), "{mode:?}: no W1");
+        assert!(output.successor().is_none(), "{mode:?}: no successor");
+        let ordinary = plain(mode, &longer);
+        assert!(published(output) == ordinary, "{mode:?}: the ordinary bytes");
+        let envelope: Value = serde_json::from_slice(&ordinary).unwrap();
+        assert_eq!(envelope["status"]["mechanics"], json!("MODEL_INCOMPLETE"), "{mode:?}");
+        let blocking: Vec<(&str, &str, Value)> = envelope["diagnostics"].as_array().unwrap().iter().filter(|d| d["severity"] == "blocking")
+            .map(|d| (d["id"].as_str().unwrap(), d["code"].as_str().unwrap(), d["affected_refs"].clone())).collect();
+        assert_eq!(blocking, [("diagnostic:model-settings:pressure-elongation:0", super::model_settings::MODEL_SETTING_PRESSURE_ELONGATION_CASE_UNKNOWN,
+            json!([super::model_settings::PRESSURE_ELONGATION_PATH]))], "{mode:?}");
+    }
+}
