@@ -360,9 +360,9 @@ the rule only adds to a selection. Such a change also runs the headless crate's
 whole Cargo suite on that shard, an accepted cost. Every crate is selected when
 the declaration is not a mapping (including null), when a declared reader,
 input or producer does not resolve, when a project module the readers import
-does not resolve, when the diff deletes a file they load, or when their imports
-cannot be derived. The production profile's entries are held by
-`tests/test_ci_numerical.py`; a profile without the section has no such rule.
+does not resolve, or when their imports cannot be derived. The production
+profile's entries are held by `tests/test_ci_numerical.py`; a profile without
+the section has no such rule.
 
 The rule detects these inputs of the two readers in the complete diff:
 - the readers and their local import closure, derived at selection time by
