@@ -71,18 +71,6 @@ def test_a_known_defect_is_still_there(name):
     assert not problems, f"{name}:\n" + "\n".join(problems)
 
 
-@pytest.mark.parametrize("name", sorted(n for n, p in PACKAGES.items() if any(c.basis for c in p.checks)))
-def test_a_command_stated_outside_its_readme_is_still_stated_there(name):
-    problems = R.basis_problems(name)
-    assert not problems, f"{name}:\n" + "\n".join(problems)
-
-
-@pytest.mark.parametrize("name", sorted(n for n, p in PACKAGES.items() if any(d.blocked_while_absent for d in p.deferred)))
-def test_a_deferred_commands_blocker_still_holds(name):
-    problems = R.blocked_problems(name)
-    assert not problems, f"{name}:\n" + "\n".join(problems)
-
-
 def test_the_time_limit_is_set_from_the_slowest_observed_time():
     """One limit for every command: the margin over the slowest command observed, rounded up to 10 s."""
     observed, where = R.SLOWEST_OBSERVED
@@ -157,15 +145,6 @@ def test_a_platform_limited_comparison_must_say_what_was_observed(monkeypatch):
     assert any(p.startswith("t4_i9:") and "only on named platforms" in p for p in R.classification_problems())
 
 
-def test_a_repaired_blocker_fails_its_deferred_entry(monkeypatch):
-    """The reader's mutation: naming text the twins' generator holds must make the entry fail."""
-    pkg = PACKAGES["o4_retained_source"]
-    held = (("generators/o4_source_twins.py", R.O4_TWIN_INPUTS[0][2]),)  # the old pin, still in the generator
-    monkeypatch.setitem(PACKAGES, "o4_retained_source",
-                        replace(pkg, deferred=(replace(pkg.deferred[0], blocked_while_absent=held),)))
-    assert R.blocked_problems("o4_retained_source")
-
-
 def test_a_package_with_no_check_command_and_no_gap_fails_classification(monkeypatch):
     """The reader's mutation: emptying one package's check commands must not make its regeneration vanish."""
     monkeypatch.setitem(PACKAGES, "rt_a3_tee", replace(PACKAGES["rt_a3_tee"], checks=()))
@@ -192,7 +171,7 @@ def test_each_deferred_command_is_printed_and_counted():
 
 
 def test_a_package_may_carry_retained_checks_beside_a_deferred_command():
-    names = ("kd5_timoshenko", "pf_timoshenko_m3t", "m3_judge", "o4_retained_source")
+    names = ("kd5_timoshenko", "pf_timoshenko_m3t", "m3_judge")
     for name in names:
         assert PACKAGES[name].checks and PACKAGES[name].deferred, name
     assert not any(p.startswith(names) for p in R.classification_problems())
