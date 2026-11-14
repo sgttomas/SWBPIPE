@@ -59,6 +59,34 @@ fn rounded(ptr: *mut u8, requested: usize) -> usize {
     }
 }
 
+// The calling thread's own requested live bytes and its peak: the measuring
+// thread's share, isolated from every other thread's allocations. Const-initialised and
+// without a destructor, so the allocator may read it at any time.
+thread_local! {
+    static THREAD_LIVE: std::cell::Cell<isize> = const { std::cell::Cell::new(0) };
+    static THREAD_PEAK: std::cell::Cell<isize> = const { std::cell::Cell::new(0) };
+}
+
+fn thread_add(delta: isize) {
+    let _ = THREAD_LIVE.try_with(|live| {
+        let now = live.get() + delta;
+        live.set(now);
+        let _ = THREAD_PEAK.try_with(|peak| {
+            if now > peak.get() {
+                peak.set(now);
+            }
+        });
+    });
+}
+
+fn thread_live() -> isize {
+    THREAD_LIVE.try_with(|live| live.get()).unwrap_or(0)
+}
+
+fn thread_peak() -> isize {
+    THREAD_PEAK.try_with(|peak| peak.get()).unwrap_or(0)
+}
+
 fn grow(requested: usize, rnd: usize) {
     let live = LIVE_REQ.fetch_add(requested, SeqCst) + requested;
     if live > CAP_BYTES {
@@ -68,11 +96,13 @@ fn grow(requested: usize, rnd: usize) {
     PEAK_MOVE.fetch_max(live, SeqCst);
     let live_rnd = LIVE_RND.fetch_add(rnd, SeqCst) + rnd;
     PEAK_RND.fetch_max(live_rnd, SeqCst);
+    thread_add(requested as isize);
 }
 
 fn shrink(requested: usize, rnd: usize) {
     LIVE_REQ.fetch_sub(requested, SeqCst);
     LIVE_RND.fetch_sub(rnd, SeqCst);
+    thread_add(-(requested as isize));
 }
 
 struct Counting;
@@ -129,6 +159,7 @@ struct Snapshot {
     deallocs: usize,
     reallocs: usize,
     moved: usize,
+    thread_live: isize,
 }
 
 fn snapshot() -> Snapshot {
@@ -139,6 +170,7 @@ fn snapshot() -> Snapshot {
         deallocs: DEALLOCS.load(SeqCst),
         reallocs: REALLOCS.load(SeqCst),
         moved: MOVED_REALLOCS.load(SeqCst),
+        thread_live: thread_live(),
     }
 }
 
@@ -147,6 +179,7 @@ fn reset_peaks() -> Snapshot {
     PEAK_REQ.store(now.live_req, SeqCst);
     PEAK_MOVE.store(now.live_req, SeqCst);
     PEAK_RND.store(now.live_rnd, SeqCst);
+    let _ = THREAD_PEAK.try_with(|peak| peak.set(thread_live()));
     snapshot()
 }
 
@@ -235,6 +268,8 @@ fn measure(name: &str, family: &str, sha: &str, bytes: Vec<u8>) {
         "deallocations": end.deallocs - start.deallocs,
         "reallocations": end.reallocs - start.reallocs,
         "moved_reallocations": end.moved - start.moved,
+        "thread_peak_requested": thread_peak() - start.thread_live,
+        "thread_live_requested_after_call": end.thread_live - start.thread_live,
     });
     // The facts are read from a serialized copy, after the boundary.
     let (facts, envelope_error) = match &outcome {
@@ -291,9 +326,14 @@ fn the_counter_counts_a_known_allocation() {
     let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
     let start = reset_peaks();
     let block = vec![0u8; 1 << 20];
+    let held = snapshot();
     drop(block);
-    // The harness's other threads may allocate or free a few bytes at the same time, so
-    // the peak is bounded on both sides (within 64 KiB of the block) rather than exact.
+    let end = snapshot();
+    // Exact on this thread's own tally, which no other thread touches.
+    assert_eq!(thread_peak() - start.thread_live, 1 << 20);
+    assert_eq!(held.thread_live - start.thread_live, 1 << 20);
+    assert_eq!(end.thread_live, start.thread_live);
+    // The global counters, which the harness's other threads share: bounded within 64 KiB.
     let peak = PEAK_REQ.load(SeqCst) as i128 - start.live_req as i128;
     assert!(((1 << 20) - (64 << 10)..(1 << 20) + (64 << 10)).contains(&peak), "peak {peak}");
 }
