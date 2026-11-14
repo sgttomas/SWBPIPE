@@ -1580,7 +1580,8 @@ enum SlidingNormalSource {
     Explicit(f64),
     /// `bearing_sense` is `Some(s)` when the source is a one-way or lift-off
     /// support (DEL-04-04 REQ-012): its normal is s·R on the branch s. `None`
-    /// is a linear source, whose branch follows the previous reaction's sign.
+    /// preserves the existing branch selected from the previous reaction for
+    /// every other source.
     Derived { source_global_dof: usize, bearing_sense: Option<f64> },
 }
 
@@ -3476,7 +3477,8 @@ fn friction_normal_for_support(
 
 /// The bearing sense s of a derived friction normal's source when that source is
 /// a one-way or lift-off support (+1 bearing with a positive reaction, -1 with a
-/// negative one), with its support id. `None` is a linear source.
+/// negative one), with its support id. `None` means the source is not a
+/// one-way or lift-off support; its normal keeps |R|.
 fn nonlinear_normal_source<'a>(
     supports: &'a [NonlinearSupport],
     source: &DerivedFrictionNormalReaction,
@@ -3498,7 +3500,7 @@ fn nonlinear_normal_source<'a>(
 
 /// The friction normal a derived source gives at `reaction`, its reaction in the
 /// published convention (DEL-04-04 REQ-012):
-/// - a linear source: |R|, as it always has been;
+/// - every other source: |R|, as it always has been (including a gap at NI level);
 /// - a one-way or lift-off source: exactly +0 unless it is active in `states`,
 ///   and while it is active, s·R where that is positive and +0 otherwise, so a
 ///   pulling reaction is never a normal.
