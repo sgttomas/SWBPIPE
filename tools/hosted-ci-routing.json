@@ -260,17 +260,17 @@
       "core/loads/self_weight_wasm/Cargo.toml": "7041b262bcf36c8b00d380e041d2375016101856a62c61551c0e8abb3d21dc7d",
       "core/loads/stress_recovery/Cargo.toml": "a8d181c7587101e60d9fcc9bc7006822f9ce77105707193933039458637198e4",
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
-      "core/model_operations/operation_applier/Cargo.toml": "552547b7e24a4f16c2835d3960c4903a81ee9b73fc424b5dd19d56bf2f1b33ca",
+      "core/model_operations/operation_applier/Cargo.toml": "d79144740d7bc17428aed21b7e87ec7edddb50bfad245439466612471140c305",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "dee4228f7c6758eaaf9cf2508fcdc853fce990d6287997f7dd6dffb58fa4f822",
+      "core/product_physics/Cargo.toml": "dcc93a29694bc0977fed9171c6a7a220704a637d894076748fd86e6d7f18b7a3",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
-      "core/reporting/pdf_emitter/Cargo.toml": "dd148327d8582cf51cc3201636f51e50ed7e486bd685f11c8b9336372ab72c34",
+      "core/reporting/pdf_emitter/Cargo.toml": "aef459ce93aa7dae801284e172f7e5b7ab958801c4716d3c8db262f8303259be",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
       "core/reporting/report_generator/Cargo.toml": "625a9a604bf91c108cdbd55f650788f319c27c21390ae536d660a0d640d3c81c",
-      "core/reporting/report_package/Cargo.toml": "45cf061c452c6d96686c3cb78c69135514fe491d8000b8c34f2f8d6a1b17fe45",
-      "core/reporting/report_renderer/Cargo.toml": "9d06c57d8d749e303bb5c334f7eeac4f283d7f93a2b2cda6c5cdf5dbcb5b8510",
+      "core/reporting/report_package/Cargo.toml": "85ecadb528788394c2b33e1ad8d2ede7117fcbb009f796f5767df448132594fe",
+      "core/reporting/report_renderer/Cargo.toml": "25d86624fc336dbc78f5e49e6d50f00bfb433ec8242fc4195cee758ad20fa5b7",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "e3354706edeb7e2c8bd20743d8c15488a7f8532bfd02ceb7a769ae849d4c94d3",
+      "core/reporting/result_export/Cargo.toml": "499705c1d1f1e74e281a620ece51718031fad2264074656de3f8cc0d407e894f",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "e407cc7c71142212a0f518856e33c826b1a2ceaeeaf0fc96ba6d50dc3f49fa6b",
       "core/rules/rule_check_runner/Cargo.toml": "b433d3eec2112c518f51ac9f83cfdc6469fef33cdaa9e1020bd8b814e5e15c85",
@@ -615,7 +615,7 @@
         ]
       },
       "core/model_operations/operation_applier/tests/numerical_health.rs": {
-        "sha256": "3257483ca358f96bde11b118938119f6a99fe3a1fb32048d64abbca00506f5c1",
+        "sha256": "5be8698ab3586815df1bd5775e25bb55ac3cc0871d76a50adbeea020e162d864",
         "source_trees": [
           "core/model_operations/operation_applier/Cargo.toml"
         ],
@@ -2658,7 +2658,6 @@
               "core/model_operations/operation_applier/src/model_data_authoring.rs",
               "core/model_operations/operation_applier/src/model_document_version.rs",
               "core/model_operations/operation_applier/src/model_settings_authoring.rs",
-              "core/model_operations/operation_applier/src/numerical_health.rs",
               "core/model_operations/operation_applier/src/pipe_reconnect.rs",
               "core/model_operations/operation_applier/src/pressure_authoring.rs",
               "core/model_operations/operation_applier/src/project_units_authoring.rs",
@@ -2804,6 +2803,7 @@
               "core/reporting/modal_result/src/lib.rs",
               "core/reporting/modal_result/src/model_mass.rs",
               "core/reporting/modal_result/src/working_bound.rs",
+              "core/reporting/numerical_vocabulary/src/lib.rs",
               "core/reporting/pdf_emitter/src/lib.rs",
               "core/reporting/protected_content_linter/src/bin/protected_content_lint_cli.rs",
               "core/reporting/protected_content_linter/src/lib.rs",
@@ -2828,6 +2828,7 @@
               "core/reporting/report_renderer/src/lib.rs",
               "core/reporting/report_renderer/src/model_input.rs",
               "core/reporting/report_renderer/src/object_form.rs",
+              "core/reporting/report_renderer/src/standing.rs",
               "core/reporting/report_sections/src/lib.rs",
               "core/reporting/result_export/src/along_direction_evidence.rs",
               "core/reporting/result_export/src/arc_evidence.rs",
@@ -2842,6 +2843,7 @@
               "core/reporting/result_export/src/derivative.rs",
               "core/reporting/result_export/src/exact_combination_evidence.rs",
               "core/reporting/result_export/src/global_end_evidence.rs",
+              "core/reporting/result_export/src/historical_health.rs",
               "core/reporting/result_export/src/lib.rs",
               "core/reporting/result_export/src/load_reference.rs",
               "core/reporting/result_export/src/load_reference_source.rs",
@@ -2856,10 +2858,12 @@
               "core/reporting/result_export/src/preview_held_status_tests.rs",
               "core/reporting/result_export/src/preview_magnitude_tests.rs",
               "core/reporting/result_export/src/preview_physics_evidence.rs",
+              "core/reporting/result_export/src/reader_readability.rs",
               "core/reporting/result_export/src/reader_verdict.rs",
               "core/reporting/result_export/src/reader_verdict_id_set_tests.rs",
               "core/reporting/result_export/src/reader_verdict_single_pass_tests.rs",
               "core/reporting/result_export/src/recorded_tables.rs",
+              "core/reporting/result_export/src/report_standing.rs",
               "core/reporting/result_export/src/retained_precision.rs",
               "core/reporting/result_export/src/section_basis.rs",
               "core/reporting/result_export/src/semantic_contract.rs",
@@ -4739,6 +4743,7 @@
               "core/product_physics/Cargo.toml",
               "core/reporting/audit_manifest/Cargo.toml",
               "core/reporting/modal_result/Cargo.toml",
+              "core/reporting/numerical_vocabulary/Cargo.toml",
               "core/reporting/pdf_emitter/Cargo.toml",
               "core/reporting/protected_content_linter/Cargo.toml",
               "core/reporting/report_generator/Cargo.toml",
@@ -5354,12 +5359,19 @@
               "fixtures/reports/invented/report_quantity_display_parity.json",
               "fixtures/reports/invented/report_result_rows_parity.json",
               "fixtures/reports/invented/report_sections_provenance_records.json",
+              "fixtures/reports/invented/report_standing_witnesses/coupled_friction.request.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.render.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.render.json",
               "fixtures/reports/invented/state_comparison_handoff_desktop_parity.json",
               "fixtures/reports/invented/user_release_derivation_vectors.json",
               "fixtures/reports/invented/user_release_exact/pressure_2_straight.json",
               "fixtures/reports/invented/user_release_exact/pressure_source_1.json",
               "fixtures/reports/invented/user_release_record.json",
               "fixtures/reports/invented/user_release_runner_refusal_request.json",
+              "fixtures/reports/numerical_vocabulary.json",
+              "fixtures/reports/standing_statements.json",
               "fixtures/results/base_reader_outcomes.json",
               "fixtures/results/combination_certificate_corpus.json",
               "fixtures/results/combination_certificate_forgeries.json",
@@ -6281,6 +6293,22 @@
           }
         ]
       },
+      "core/product_physics/tests/report_standing_witnesses.rs": {
+        "sha256": "c5a7fda5f8b3fe66d660d60c7f4d1ba5b84b0715b8b34496750b8af4320e3d0c",
+        "source_trees": [
+          "core/product_physics/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "fixtures/reports/invented/report_standing_witnesses",
+            "base": "project",
+            "files": [
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json"
+            ]
+          }
+        ]
+      },
       "core/solver/release_timing/src/main.rs": {
         "sha256": "fa504c3e75848646844d2427dd82a44e2920de4c266d1f701818b7cb5ebd5e08",
         "source_trees": [
@@ -6409,6 +6437,22 @@
           "kind": "audited-external-inputs",
           "reason": "The live tests read the records the supervisor writes in a temporary folder."
         }
+      },
+      "core/reporting/report_renderer/tests/standing_statements.rs": {
+        "sha256": "19fb8d4c7d23f54063978b299cd626db522d044ed8d848eb59dace703669d015",
+        "source_trees": [
+          "core/reporting/report_renderer/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "../../../fixtures/reports",
+            "base": "manifest",
+            "files": [
+              "fixtures/reports/numerical_vocabulary.json",
+              "fixtures/reports/standing_statements.json"
+            ]
+          }
+        ]
       }
     }
   },
