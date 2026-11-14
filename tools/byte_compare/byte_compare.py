@@ -162,6 +162,33 @@ def git(cwd: Path, *args: str, check: bool = True) -> subprocess.CompletedProces
     return result
 
 
+# The run wrapper's own refusals (t3_slot.sh: 97, its guard is not running; 98, a host condition).
+WRAPPER_REFUSALS = (97, 98)
+
+
+def usable_wrapper(wrapper: list[str], what: str) -> None:
+    """Refuses, before anything is built, a wrapper that cannot be started."""
+    if not wrapper:
+        return
+    program = wrapper[0]
+    found = program if os.sep in program else shutil.which(program)
+    if not found or not os.path.isfile(found) or not os.access(found, os.X_OK):
+        raise SetupError(f"{what} {program} cannot be used: it is not an executable file")
+
+
+def run_wrapped(wrapper: list[str], command: list[str], what: str) -> subprocess.CompletedProcess:
+    """Runs `command` under the run wrapper (directly only when none is given): every start of a
+    built binary or of the build's rustc goes through it, as the run batch does. A wrapper that
+    cannot be started, or that refuses, stops the comparison."""
+    try:
+        result = subprocess.run([*wrapper, *command], capture_output=True, text=True, env=clean_env())
+    except OSError as error:
+        raise SetupError(f"{what} could not be started{' under ' + wrapper[0] if wrapper else ''}: {error}") from error
+    if wrapper and result.returncode in WRAPPER_REFUSALS:
+        raise SetupError(f"the run wrapper {wrapper[0]} refused {what} (exit {result.returncode}, a host condition)")
+    return result
+
+
 def inside_git_work_tree(path: Path) -> bool:
     """Whether `path` (or, if absent, its nearest existing ancestor) lies inside any git work tree."""
     probe = path
@@ -667,12 +694,12 @@ def compiler_program(parsed: dict) -> str:
     return program
 
 
-def rustc_identity(program: str) -> dict:
+def rustc_identity(program: str, wrapper: list[str] = ()) -> dict:
     """`rustc -vV` and the sysroot of the compiler the build used. The prebuilt standard library in that
     sysroot is the trusted part of the toolchain (cargo compiles it nowhere in the build); what identifies
     it is this output and the sysroot path, and the compiler must be that sysroot's own `bin/rustc`."""
-    version = subprocess.run([program, "-vV"], capture_output=True, text=True, env=clean_env())
-    sysroot = subprocess.run([program, "--print", "sysroot"], capture_output=True, text=True, env=clean_env())
+    version = run_wrapped(list(wrapper), [program, "-vV"], f"{program} -vV")
+    sysroot = run_wrapped(list(wrapper), [program, "--print", "sysroot"], f"{program} --print sysroot")
     if version.returncode != 0 or sysroot.returncode != 0 or not version.stdout.startswith("rustc "):
         raise BuildRefused(f"{program} gives no rustc -vV and sysroot")
     root = sysroot.stdout.strip()
@@ -990,7 +1017,7 @@ def check_settings(what: str, cls: str, block: dict, unit: dict) -> None:
 
 
 def build_driver(tree: Path, sha: str, target: Path, cargo: list[str], jobs: int, scratch: Path, side: str,
-                 manifest: dict) -> dict:
+                 manifest: dict, wrapper: list[str] = ()) -> dict:
     """Builds the driver from `tree` into the fresh target directory `target` and attests the build.
     Returns the build record; raises SetupError (exit 2, before any run) on any refusal."""
     if target.exists() and (not target.is_dir() or any(target.iterdir())):
@@ -1003,7 +1030,13 @@ def build_driver(tree: Path, sha: str, target: Path, cargo: list[str], jobs: int
     messages, log = scratch / f"build-{side}.jsonl", scratch / f"build-{side}.log"
     started = time.time()
     with open(messages, "wb") as out, open(log, "wb") as err:
-        result = subprocess.run(command, cwd=tree / DRIVER_CRATE, stdout=out, stderr=err, env=clean_env())
+        try:
+            result = subprocess.run(command, cwd=tree / DRIVER_CRATE, stdout=out, stderr=err, env=clean_env())
+        except OSError as error:
+            raise SetupError(f"the cargo command {cargo[0]} could not be started: {error}") from error
+    if result.returncode in WRAPPER_REFUSALS and cargo and os.path.basename(cargo[0]) != "cargo":
+        raise SetupError(f"the cargo wrapper {cargo[0]} refused the build of {sha} (exit {result.returncode}, "
+                         "a host condition)")
     if result.returncode != 0:
         raise SetupError(f"the build of {sha} exited {result.returncode}; see {log}")
     if not binary.is_file() or binary.stat().st_mtime < started - 1:
@@ -1013,7 +1046,7 @@ def build_driver(tree: Path, sha: str, target: Path, cargo: list[str], jobs: int
         raise SetupError(f"worktree {tree} is not clean after the build:\n{status}")
     try:
         parsed = parse_build_output(messages.read_text(encoding="utf-8"), log.read_text(encoding="utf-8"))
-        rustc = rustc_identity(compiler_program(parsed))
+        rustc = rustc_identity(compiler_program(parsed), wrapper)
         lock = tree / DRIVER_CRATE / "Cargo.lock"
         attestation = attest_build(parsed, tree=str(tree), target=str(target), lock_text=lock.read_text(encoding="utf-8"),
                                    settings=manifest["build_settings"], closure=manifest["build_closure"], rustc=rustc)
@@ -1034,10 +1067,10 @@ def build_driver(tree: Path, sha: str, target: Path, cargo: list[str], jobs: int
             "binary_sha256": binary_sha256, "attestation": attestation}
 
 
-def check_identity(binary: Path, sha: str, tree_sha: str) -> dict:
+def check_identity(binary: Path, sha: str, tree_sha: str, wrapper: list[str] = ()) -> dict:
     """The driver's embedded identity (`--build-identity`) must name `sha`, its tree, a clean source
-    and the release profile."""
-    result = subprocess.run([str(binary), "--build-identity"], capture_output=True, text=True, env=clean_env())
+    and the release profile. The binary runs under the run wrapper, like every other run of it."""
+    result = run_wrapped(list(wrapper), [str(binary), "--build-identity"], f"{binary} --build-identity")
     try:
         identity = json.loads(result.stdout)
     except json.JSONDecodeError:
@@ -1118,6 +1151,8 @@ def compare(args: argparse.Namespace) -> int:
     manifest = load_manifest(manifest_path.read_text(encoding="utf-8"))
     cargo = shlex.split(args.cargo)
     wrapper = shlex.split(args.run_wrapper) if args.run_wrapper else []
+    usable_wrapper(cargo, "--cargo")
+    usable_wrapper(wrapper, "--run-wrapper")
     sides = {}
     for side, rev in (("A", args.a), ("B", args.b)):
         sha = resolve_commit(repo, rev)
@@ -1153,7 +1188,7 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
     # Build, attest and check both sides before anything runs.
     for side, info in sides.items():
         info["build"] = build_driver(info["worktree"], info["sha"], info["target"], cargo, args.jobs, scratch, side,
-                                     manifest)
+                                     manifest, wrapper)
         info["bin_dir"].mkdir(parents=True, exist_ok=True)
         binary = info["bin_dir"] / DRIVER_BIN
         shutil.copy2(info["build"]["binary"], binary)
@@ -1165,7 +1200,7 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
     if versions["A"] != versions["B"]:
         raise BuildRefused(f"rustc -vV differs between the sides:\nA:\n{versions['A']}B:\n{versions['B']}")
     for side, info in sides.items():
-        info["identity"] = check_identity(info["binary"], info["sha"], info["tree_sha"])
+        info["identity"] = check_identity(info["binary"], info["sha"], info["tree_sha"], wrapper)
     # Inputs: the lift applied to temporary copies under the scratch directory only.
     records = {}
     runs = []

@@ -272,7 +272,9 @@ STUB_CARGO = textwrap.dedent('''\
     rustc.parent.mkdir(parents=True, exist_ok=True)
     release = "0.0.1" if side == "B" and os.environ.get("STUB_RUSTC_B") else "0.0.0"
     version = f"rustc {release}-stub\\nbinary: rustc\\nhost: stub-host\\nrelease: {release}\\n"
-    rustc.write_text("#!" + sys.executable + "\\nimport sys\\n"
+    rustc.write_text("#!" + sys.executable + "\\nimport json, os, sys\\n"
+                     + "if os.environ.get('STUB_OUTSIDE_LOG') and not os.environ.get('UNDER_RUN_WRAPPER'):\\n"
+                     + "    open(os.environ['STUB_OUTSIDE_LOG'], 'a').write(json.dumps(sys.argv) + '\\\\n')\\n"
                      + f"if sys.argv[1:] == ['-vV']: sys.stdout.write({version!r})\\n"
                      + f"elif sys.argv[1:] == ['--print', 'sysroot']: print({str(sysroot)!r})\\n"
                      + "else: sys.exit(1)\\n")
@@ -309,6 +311,9 @@ STUB_CARGO = textwrap.dedent('''\
 
 STUB_DRIVER = textwrap.dedent('''\
     import hashlib, json, os, sys
+    if os.environ.get("STUB_OUTSIDE_LOG") and not os.environ.get("UNDER_RUN_WRAPPER"):
+        with open(os.environ["STUB_OUTSIDE_LOG"], "a") as handle:
+            handle.write(json.dumps(sys.argv) + "\\n")
     if sys.argv[1:] == ["--build-identity"]:
         print(IDENTITY); sys.exit(0)
     path, mode, out = sys.argv[1], sys.argv[3], sys.argv[5]
@@ -404,7 +409,8 @@ def world(tmp_path):
     manifest = tmp_path / "manifest.json"
     manifest.write_text(manifest_for())
 
-    def run(a_rev=a, b_rev=b, env=None, manifest_path=manifest, scratch=None, work=None, table=None, keep=False):
+    def run(a_rev=a, b_rev=b, env=None, manifest_path=manifest, scratch=None, work=None, table=None, keep=False,
+            wrapper=None):
         scratch = scratch or tmp_path / f"scratch-{len(list(tmp_path.glob('scratch-*')))}"
         table = table or tmp_path / f"table-{len(list(tmp_path.glob('table-*.md')))}.md"
         saved = dict(os.environ)
@@ -414,7 +420,8 @@ def world(tmp_path):
             code = bc.main(["compare", "--a", a_rev, "--b", b_rev, "--scratch", str(scratch), "--repo", str(repo),
                             "--manifest", str(manifest_path), "--cargo", f"{sys.executable} {tools / 'cargo.py'}",
                             "--table", str(table), "--timeout", "60"]
-                           + (["--work", str(work)] if work else []) + (["--keep-worktrees"] if keep else []))
+                           + (["--work", str(work)] if work else []) + (["--keep-worktrees"] if keep else [])
+                           + (["--run-wrapper", str(wrapper)] if wrapper else []))
         finally:
             os.environ.clear()
             os.environ.update(saved)
@@ -673,6 +680,51 @@ def test_the_build_log_is_kept_with_its_digest_beside_the_binarys(world):
         assert build["rustc_output_sha256"] == build["binary_sha256"] == results["sides"][side]["binary_sha256"]
         assert build["attestation"]["runtime_units"] == ["open_pipe_stress_release_timing 0.1.0 release_timing"]
     assert "rustc output = uplifted binary = copy run" in table
+
+
+def recording_wrapper(tmp_path, refuse_identity=False):
+    """A run wrapper that logs each command it starts, marks the command as started under it, and (if
+    asked) refuses the identity check as the slot wrapper refuses for a host condition (exit 98)."""
+    wrapper = tmp_path / "wrapper.py"
+    log = tmp_path / "wrapper.log"
+    wrapper.write_text(f"#!{sys.executable}\nimport json, os, sys\n"
+                       f"open({str(log)!r}, 'a').write(json.dumps(sys.argv[1:]) + '\\n')\n"
+                       f"if {refuse_identity!r} and sys.argv[-1] == '--build-identity': sys.exit(98)\n"
+                       "os.environ['UNDER_RUN_WRAPPER'] = '1'\nos.execvp(sys.argv[1], sys.argv[1:])\n")
+    wrapper.chmod(0o755)
+    return wrapper, log
+
+
+def test_every_start_of_a_built_binary_or_its_rustc_goes_through_the_run_wrapper(world):
+    wrapper, log = recording_wrapper(world["tmp"])
+    outside = world["tmp"] / "outside.log"
+    code, table, scratch = world["run"](wrapper=wrapper, env={"STUB_OUTSIDE_LOG": str(outside)})
+    assert code == 0, table
+    started = [json.loads(line) for line in log.read_text().splitlines()]
+    results = json.loads((scratch / "results.json").read_text())
+    for side in ("A", "B"):
+        info = results["sides"][side]
+        assert [info["binary"], "--build-identity"] in started
+        program = info["build"]["attestation"]["rustc"]["program"]
+        assert [program, "-vV"] in started and [program, "--print", "sysroot"] in started
+    assert any(command[-2:] == ["run-batch", str(scratch / "plan.json")] for command in started)
+    # Neither the driver (identity check and every run) nor the build's rustc started outside it.
+    assert not outside.exists(), outside.read_text()
+    assert "under " + str(wrapper) in table
+
+
+def test_a_run_wrapper_that_cannot_be_used_is_refused_before_building(world, capsys):
+    code, _, scratch = world["run"](wrapper=world["tmp"] / "no-such-wrapper")
+    assert code == 2 and "--run-wrapper" in (err := capsys.readouterr().err) and "cannot be used" in err, err
+    assert not (scratch / "build-A.log").exists() and not (scratch / "runs").exists()
+
+
+def test_a_run_wrapper_refusing_the_identity_check_stops_the_comparison(world, capsys):
+    wrapper, _ = recording_wrapper(world["tmp"], refuse_identity=True)
+    code, _, scratch = world["run"](wrapper=wrapper)
+    err = capsys.readouterr().err
+    assert code == 2 and "--build-identity (exit 98, a host condition)" in err, err
+    assert not (scratch / "runs").exists()
 
 
 def test_the_build_blocks_are_closed():

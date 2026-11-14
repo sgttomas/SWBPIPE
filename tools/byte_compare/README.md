@@ -24,11 +24,19 @@ python3 tools/byte_compare/byte_compare.py compare --a <before> --b <after> \
   [--manifest tools/byte_compare/manifest.json] [--keep-worktrees]
 ```
 
-On the shared T3 host, build through the cargo wrapper and run the batch inside one slot:
+On the shared T3 host, build through the cargo wrapper and run everything else under the slot wrapper:
 
 ```bash
 --cargo /Users/ryan/dev/chirality-t3/tools/t3_cargo.sh --run-wrapper /Users/ryan/dev/chirality-t3/tools/t3_slot.sh
 ```
+
+What runs where:
+
+- `--cargo` runs each side's build. Cargo starts the compiler and the build scripts itself, inside that command.
+- `--run-wrapper` starts every other run of a built binary or of the build's compiler, each as its own wrapped command: each side's `rustc -vV` and `rustc --print sysroot`, each binary's `--build-identity` check, and the batch of fixture runs, which executes inside one wrapped command.
+- The outer `python3` itself, and its `git` calls, run directly. They start no binary and no build.
+
+Without `--run-wrapper` those runs start directly. A wrapper that is not an executable file refuses (exit 2) before anything is built. A wrapper that refuses a run with exit 97 or 98 (the slot wrapper's host conditions) stops the comparison with exit 2, as does `--cargo` refusing the build with one of those exits.
 
 The tool:
 
