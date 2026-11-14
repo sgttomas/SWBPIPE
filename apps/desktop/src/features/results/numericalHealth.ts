@@ -391,7 +391,7 @@ export type ResultOverlayStanding = Readonly<{ eligible: boolean; health: Numeri
 /**
  * Whether a row's value may drive a result overlay. It reuses, and adds nothing to, the rules the
  * results surface already applies: the reader's numerical standing admits the result (when it does
- * not, the header says that no results of the run can be exported or used by rule checks), the
+ * not, the header says which outputs do not use the run and which carry each case's standing), the
  * numerical health indicator exists for the result's route, and the results table gives the row no
  * badge other than "checks passed". Anything missing fails closed. Presentation only.
  */

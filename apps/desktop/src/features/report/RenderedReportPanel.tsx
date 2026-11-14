@@ -95,6 +95,7 @@ export function RenderedReportPanel({
   packageBusy = false,
   packageRedaction = null,
   packageRoute = null,
+  packageNeedsCurrent = false,
   numericalHealth = null,
   reportComposition: sessionComposition,
   onReportCompositionChange,
@@ -116,12 +117,21 @@ export function RenderedReportPanel({
   packageBusy?: boolean;
   packageRedaction?: ControlledRouteExport | null;
   packageRoute?: ReportPackageSaveRoute | null;
+  /** DEL-08-01 REQ-024: the panel's result is shown for its rendered report only (a solved
+   * exact-route result that is not numerically eligible). The report package takes only a
+   * Current result, so its save buttons stay disabled for it, as the File menu's are. */
+  packageNeedsCurrent?: boolean;
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;
   /** W-18b (DEL-08-01 Design `report-user-release.md` §2.2): opens the user-release dialog. */
   onSaveShareableReportPackage?: () => void;
 }) {
   const [panelComposition, setPanelComposition] = useState<ReportComposition | null>(null);
+  const packageSaveTitle = !result || !analysisRun
+    ? "Solve first: report-package save needs the current mechanics result and analysis-run record."
+    : packageNeedsCurrent
+      ? "Not available for this result: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing."
+      : undefined;
   const reportComposition = sessionComposition === undefined ? panelComposition : sessionComposition;
   const changeComposition = onReportCompositionChange ?? setPanelComposition;
   const [localPrivateIntent, setLocalPrivateIntent] = useState(false);
@@ -335,8 +345,8 @@ export function RenderedReportPanel({
           <button
             type="button"
             data-testid="report-package-save"
-            disabled={!result || !analysisRun || packageBusy}
-            title={!result || !analysisRun ? "Solve first: report-package save needs the current mechanics result and analysis-run record." : undefined}
+            disabled={!result || !analysisRun || packageBusy || packageNeedsCurrent}
+            title={packageSaveTitle}
             onClick={onSaveReportPackage}
           >
             {packageBusy ? "Saving report package…" : "Save Report Package…"}
@@ -345,8 +355,8 @@ export function RenderedReportPanel({
             <button
               type="button"
               data-testid="report-package-user-release"
-              disabled={!result || !analysisRun || packageBusy}
-              title={!result || !analysisRun ? "Solve first: report-package save needs the current mechanics result and analysis-run record." : undefined}
+              disabled={!result || !analysisRun || packageBusy || packageNeedsCurrent}
+              title={packageSaveTitle}
               onClick={onSaveShareableReportPackage}
             >
               Save Shareable Report Package…
@@ -366,6 +376,9 @@ export function RenderedReportPanel({
       ) : null}
       {packageRoute?.route === "redaction_blocked" ? (
         <p data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
+      ) : null}
+      {packageRoute?.route === "not_requested" ? (
+        <p role="status" data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
       ) : null}
       {packageRoute?.route === "tauri_report_package_save" ? (
         <div className="report-list" data-testid="report-package-save-status">

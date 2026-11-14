@@ -1127,6 +1127,9 @@ async function renderableReportInput(
     // The minimal input carries no user-rule outcome member at all (§2.6).
     ...(minimal ? {} : { user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null }),
     ...(exactRoute ? { exact_route: exactRoute } : {}),
+    // DEL-08-01 REQ-024: the standing record the reader derived for the admitted source;
+    // the native render re-derives it from the bound result and model and requires equality.
+    ...((exactInputs || pfInputs) && exactAdmission ? { numerical_standing: exactAdmission.numericalStanding } : {}),
     // DEL-05-03 `pf-timoshenko.md` §4: absent on every other source, so its input is unchanged.
     ...(pfInputs ? { pf_timoshenko: pfTimoshenkoSection(exactAdmission!.binding) } : {}),
     // W-11 slice (c) (§4.2): absent without references, so such an input is unchanged.

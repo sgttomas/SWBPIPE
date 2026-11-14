@@ -38,7 +38,8 @@ const sha256 = (text: string) => createHash("sha256").update(text, "utf8").diges
 
 /** The committed fixture file a held source is, by digest, so a recorded request names a path, not
  * a copy. Read only when recording (an unrecorded request): the producer and result fixtures. */
-const KNOWN_SOURCE_ROOTS = ["fixtures/results", "fixtures/product_preview"];
+// fixtures/reports holds the DEL-08-01 report-standing witnesses' producer results.
+const KNOWN_SOURCE_ROOTS = ["fixtures/results", "fixtures/product_preview", "fixtures/reports"];
 let known: Map<string, string> | null = null;
 function knownPath(sha: string): string | null {
   if (!known) {

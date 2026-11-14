@@ -29,6 +29,8 @@ open_pipe_stress_report_renderer = { path = "../../../core/reporting/report_rend
 open_pipe_stress_report_package = { path = "../../../core/reporting/report_package" }
 open_pipe_stress_audit_manifest = { path = "../../../core/reporting/audit_manifest" }
 open_pipe_stress_result_export = { path = "../../../core/reporting/result_export" }
+# DEL-08-01 REQ-024: readability at the native binding and the re-derived standing record.
+open_pipe_stress_report_standing = { path = "../../../core/reporting/report_standing" }
 open_pipe_stress_rule_pack_document = { path = "../../../core/rules/rule_pack_document" }
 open_pipe_stress_rule_check_runner = { path = "../../../core/rules/rule_check_runner" }
 open_pipe_stress_units = { path = "../../../core/units" }
