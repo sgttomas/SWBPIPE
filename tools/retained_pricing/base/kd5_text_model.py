@@ -263,7 +263,9 @@ def inspect_directed_helpers(snapshot):
 # comparing a code); no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
 # Self-weight units repair (12f46a797): lib.rs re-read: one intensity unit test in `mod tests` restates its evidence
 # literal (test-only); no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '3343fa7efd15a53e17a699aefd9f3af3e43c1c863e281ebe629da05ed491d429'
+# One-way friction normal source (DEL-04-04 REQ-012): lib.rs re-read: the nonlinear friction source admission and the
+# derived normal's publication; no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '5f03bfccaac2d013d4db8bfdb072f3c97eca2538f1a6e3bfdd8c4a3e0ef12e8f'
 
 
 def _ce_fallback():

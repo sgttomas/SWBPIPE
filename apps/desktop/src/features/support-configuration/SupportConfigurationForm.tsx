@@ -40,6 +40,17 @@ function FamilyField({ value, onChange }: { value: unknown; onChange: (value: st
 /** The members `update_support configuration` replaces (rich_authoring.rs CONFIG). A stored
  * `direction` is not among them, so the applier keeps it through every configuration edit
  * (S-K1 condition (a)); it is never part of this payload. */
+/** The DOFs a friction normal may be derived from (DEL-04-04 REQ-012): a linear support's
+ *  restrained translational DOFs, or a one-way or lift-off support's own translational DOF. */
+export function normalSourceDofs(candidate: { restraints: string[] }): string[] {
+  const translational = (d: string) => ["UX", "UY", "UZ"].includes(d.toUpperCase());
+  const nonlinear = record(record(candidate).nonlinear);
+  if (record(candidate).nonlinear === undefined || record(candidate).nonlinear === null)
+    return candidate.restraints.filter(translational);
+  const behavior = String(nonlinear.behavior ?? "");
+  const own = typeof nonlinear.dof === "string" ? nonlinear.dof : "";
+  return ["one_way", "one-way", "oneway", "lift_off", "lift-off", "liftoff"].includes(behavior) && translational(own) ? [own] : [];
+}
 const CONFIG = ["family", "restraints", "stiffness", "hanger", "nonlinear", "provenance"];
 function projection(support: unknown): DraftRecord {
   const s = record(support);
@@ -140,7 +151,7 @@ function SupportEditor(props: RichFormProps & {
   const setN = (key: string, value: unknown) => set("nonlinear", setMember(nonlinear, key, value));
   const restraints = Array.isArray(draft.restraints) ? draft.restraints as string[] : [];
   const source = record(nonlinear.normal_reaction_source);
-  const eligible = useMemo(() => props.model.supports.filter(s => s.id !== (create ? id : support?.id) && !record(s).nonlinear && s.restraints.some(d => ["UX", "UY", "UZ"].includes(d.toUpperCase()))), [create, id, props.model.supports, support?.id]);
+  const eligible = useMemo(() => props.model.supports.filter(s => s.id !== (create ? id : support?.id) && normalSourceDofs(s).length > 0), [create, id, props.model.supports, support?.id]);
   const selectedSource = eligible.find(s => s.id === source.support_ref);
   const nodeOptions = useMemo(() => props.model.nodes.map((candidate) => ({ value: candidate.id, label: candidate.label || candidate.id })), [props.model.nodes]);
   const eligibleSupportOptions = useMemo(() => eligible.map((candidate) => ({ value: candidate.id, label: candidate.label || candidate.id, keywords: [candidate.node] })), [eligible]);
@@ -172,8 +183,8 @@ function SupportEditor(props: RichFormProps & {
           const src = record(n.normal_reaction_source);
           requireText(src.support_ref, "Reaction source support");
           requireText(src.dof, "Reaction source DOF");
-          if (!selectedSource || !selectedSource.restraints.some(d => d.toUpperCase() === String(src.dof).toUpperCase()))
-            throw new Error("Select an existing linear support and one of its restrained translational DOFs.");
+          if (!selectedSource || !normalSourceDofs(selectedSource).some(d => d.toUpperCase() === String(src.dof).toUpperCase()))
+            throw new Error("Select a linear support and one of its restrained translational DOFs, or a one-way or lift-off support and its own translational DOF.");
         }
         if (n.normal_reaction !== undefined && n.normal_reaction_source !== undefined)
           throw new Error("Use either an entered normal reaction or a derived source, not both.");
@@ -372,10 +383,10 @@ function SupportEditor(props: RichFormProps & {
               label="Reaction source DOF"
               value={source.dof}
               compactSelect
-              choices={selectedSource?.restraints.filter(d => ["UX", "UY", "UZ"].includes(d.toUpperCase())) ?? []}
+              choices={selectedSource ? normalSourceDofs(selectedSource) : []}
               onChange={v => setN("normal_reaction_source", setMember(source, "dof", v))}
             />
-            <p>Choose a linear support’s restrained translational DOF. Clear any entered normal reaction to use this source.</p>
+            <p>Choose a linear support’s restrained translational DOF, or a one-way or lift-off support’s own translational DOF. Clear any entered normal reaction to use this source.</p>
           </>}
       </fieldset>}
       {create && <DirectionFields value={directionText} onChange={next => { setDirectionText(next); engine.reset(); }} />}

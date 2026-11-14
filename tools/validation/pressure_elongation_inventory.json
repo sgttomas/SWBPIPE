@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 519,
+  "files": 525,
   "claimed_by": {
    "group": 137,
    "in_code": 62,
-   "exemption": 320
+   "exemption": 326
   }
  },
  "counts": {
@@ -9433,6 +9433,7 @@
     "core/product_physics/tests/common/w15c_bench.rs",
     "core/product_physics/tests/connector_pp_paths.rs",
     "core/product_physics/tests/elastic_extrema_runtime.rs",
+    "core/product_physics/tests/friction_one_way_normal_source.rs",
     "core/product_physics/tests/load_reference_state_runtime.rs",
     "core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs",
     "core/product_physics/tests/rt_a3_reducer_2b_pf_controls.rs",
@@ -9445,6 +9446,7 @@
     "core/product_physics/tests/w15c_eccentric_reducer.rs",
     "core/product_physics/tests/w16_imposed_motion.rs",
     "core/product_physics/tests/w9_solver_benchmarks.rs",
+    "tests/test_friction_one_way_normal_reader.py",
     "tests/test_rt_a4_exact_constant_effort_seam.py",
     "tests/test_w15_component_body_readers.py",
     "tools/fixtures/j7_rf_census_inputs.py",
@@ -9463,6 +9465,7 @@
     "core/product_physics/tests/common/w15c_bench.rs",
     "core/product_physics/tests/connector_pp_paths.rs",
     "core/product_physics/tests/elastic_extrema_runtime.rs",
+    "core/product_physics/tests/friction_one_way_normal_source.rs",
     "core/product_physics/tests/load_reference_state_runtime.rs",
     "core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs",
     "core/product_physics/tests/rt_a3_reducer_2b_pf_controls.rs",
@@ -9475,6 +9478,7 @@
     "core/product_physics/tests/w15c_eccentric_reducer.rs",
     "core/product_physics/tests/w16_imposed_motion.rs",
     "core/product_physics/tests/w9_solver_benchmarks.rs",
+    "tests/test_friction_one_way_normal_reader.py",
     "tests/test_rt_a4_exact_constant_effort_seam.py",
     "tests/test_w15_component_body_readers.py",
     "tools/fixtures/j7_rf_census_inputs.py",
@@ -9579,6 +9583,15 @@
    "files": [
     "validation/references/exact_difference_basis/generators/exact_difference_basis_reference.py",
     "validation/references/exact_load_state_equivalent_static/generators/exact_load_state_reference.py"
+   ]
+  },
+  {
+   "reason": "independent reference generator (standard library only, imports no product code) whose documents' one load case has an empty region list, so it builds no pressurised case; its committed requests are claimed with the empty-region model documents",
+   "paths": [
+    "validation/references/inverse_norm_witness/generators/inverse_norm_witness_reference.py"
+   ],
+   "files": [
+    "validation/references/inverse_norm_witness/generators/inverse_norm_witness_reference.py"
    ]
   },
   {
@@ -9758,6 +9771,9 @@
     "fixtures/results/retained_precision_*_successor_*.json",
     "validation/qualification/fixtures/first_static/*.json",
     "validation/qualification/fixtures/load_reference/*.json",
+    "validation/references/inverse_norm_witness/requests/linear.request.json",
+    "validation/references/inverse_norm_witness/requests/one_way_negative.request.json",
+    "validation/references/inverse_norm_witness/requests/one_way_positive.request.json",
     "validation/references/kd5_member_bound/request.json",
     "validation/references/kd5_member_bound/two_body_request.json",
     "validation/references/rt_a3_s6/requests/ls1_*.json",
@@ -9837,6 +9853,9 @@
     "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.runner_input.json",
     "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.preview_request.json",
     "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.runner_input.json",
+    "validation/references/inverse_norm_witness/requests/linear.request.json",
+    "validation/references/inverse_norm_witness/requests/one_way_negative.request.json",
+    "validation/references/inverse_norm_witness/requests/one_way_positive.request.json",
     "validation/references/kd5_member_bound/request.json",
     "validation/references/kd5_member_bound/two_body_request.json",
     "validation/references/rt_a3_s6/requests/ls1_a1.json",
