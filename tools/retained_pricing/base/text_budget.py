@@ -422,6 +422,23 @@ CANDIDATES = []   # (site, key, expr) of every identifier-bearing expression at 
 # candidacy, so the non-candidates can be swept by type at each re-qualification (TB_NONCAND_OUT)
 NONC = []
 
+def hasher_type(site, name):
+    """The type a local hasher `name` is built from, read backwards from `site` (`file:line`) to the
+    enclosing `fn` header: the `Type` of `let [mut] name = [path::]Type::new()`, or None when no such
+    construction precedes the site in its function."""
+    if not site:
+        return None
+    f, l = site.rsplit(":", 1)
+    L = filetext.setdefault(f, open(os.path.join(proot, f), encoding="utf-8").read().split("\n"))
+    built = re.compile(r"\blet\s+(mut\s+)?" + re.escape(name) + r"\s*(:\s*[\w:<>]+\s*)?=\s*([\w:]+)::new\(\)")
+    for i in range(int(l) - 1, -1, -1):
+        m = built.search(L[i])
+        if m:
+            return m.group(3).rsplit("::", 1)[-1]
+        if re.match(r"\s*(pub(\([^)]*\))?\s+)?(const\s+)?(async\s+)?fn\s", L[i]):
+            return None
+    return None
+
 def arg_max(spec, arg, lex=False):
     a1 = " ".join(arg.split())
     au = audited(arg, spec, lex)
@@ -431,6 +448,15 @@ def arg_max(spec, arg, lex=False):
         return TA["classes"]["f64_exp"]
     if "x" in spec:
         w = re.search(r"0?(\d+)x", spec)
+        # A streaming hasher's finalize(), formatted as hex. A SHA-256 digest in lowercase hex is 64
+        # characters, whatever expression produced it; the hasher's type is read from its construction
+        # in the enclosing function. A finalize() of any other or unproven hasher (a wider hash among
+        # them) is left unclassified, so the run stops instead of sizing it silently.
+        fin = re.fullmatch(r"(\w+)\.finalize\(\)", a1)
+        if fin:
+            if hasher_type(CUR[0], fin.group(1)) == "Sha256":
+                return max(64, int(w.group(1)) if w else 0)
+            return None
         if re.search(r"digest|Sha256", a1):
             return max(64, int(w.group(1)) if w else 0)
         if re.search(r"u128|identity_hash|hash128", a1):
