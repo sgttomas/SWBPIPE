@@ -1,7 +1,7 @@
 //! M03-INTEGRITY-v1: operational checks of represented passive equations.
 //! No formal inertia certificate or guaranteed forward accuracy is claimed.
 pub mod exact_boundary;
-mod formation_check; #[cfg(test)] mod residual_seam; #[cfg(test)] mod residual_refusal_tests; // DEL-04-01 VER-007's test-only refinement seam and its test, on this line so that no line moves.
+mod formation_check;
 /// DEL-04-09 seam (i): K-D5's p128 element formation from supplied operands.
 pub mod element_reformation;
 mod arc_certificate;
@@ -1921,7 +1921,7 @@ where
     }
     let scale_exponents = prepared.gate_scale_exponents();
     let force_binding = prepared.gate_binding();
-    let mut y = solve(prepared.gate_rhs())?; #[cfg(test)] residual_seam::bias(&mut y);
+    let mut y = solve(prepared.gate_rhs())?;
     if y.len() != n || y.iter().any(|v| !v.is_finite()) {
         return Err(StructuralError::InvalidInput("structural backend output"));
     }
@@ -2024,7 +2024,7 @@ where
                 row.row_scale_exponent + scale_exponents[i],
             )?);
         }
-        #[cfg(not(test))] let delta = solve(&correction)?; #[cfg(test)] let delta = residual_seam::biased(solve(&correction)?);
+        let delta = solve(&correction)?;
         if delta.len() != n || delta.iter().any(|v| !v.is_finite()) {
             return Err(StructuralError::InvalidInput("refinement backend output"));
         }
