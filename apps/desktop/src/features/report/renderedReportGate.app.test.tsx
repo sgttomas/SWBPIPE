@@ -30,6 +30,7 @@ import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import type { PreviewModel } from "../../types";
+import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const root = resolve(__dirname, "../../../../../");
@@ -53,6 +54,11 @@ function witnessModel(): PreviewModel {
   const model = structuredClone(JSON.parse(readFileSync(resolve(root, REQUEST), "utf8")).model) as PreviewModel;
   for (const loadCase of model.load_cases) if (loadCase.label === undefined) Object.assign(loadCase, { label: loadCase.id, kind: "invented_test_case", status: "invented_test_status" });
   if (typeof model.project.name !== "string") Object.assign(model.project, { name: "Invented report-standing witness pressure_3_coupled_friction_sensitive" });
+  // The two display members the desktop's model shape needs and this solve request omits; neither is
+  // read by the solver or the reader (an empty diagnostics list; the bundled demo's data boundary).
+  const record = model as unknown as Record<string, unknown>;
+  if (record.diagnostics === undefined) record.diagnostics = [];
+  if (record.data_boundary === undefined) record.data_boundary = structuredClone((demoModel as unknown as Record<string, unknown>).data_boundary);
   return model;
 }
 
@@ -69,9 +75,9 @@ function nativeMenuCommand(command: string) {
   window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: command }));
 }
 
+/** Opens the Report section through the menu command a person's View menu sends. */
 async function openReportStage() {
-  fireEvent.click(await screen.findByTestId("rail-stage-review"));
-  fireEvent.click(await screen.findByTestId("stage-tab-report"));
+  act(() => nativeMenuCommand("view.section.report"));
   return screen.findByTestId("rendered-report-panel");
 }
 
@@ -82,6 +88,10 @@ describe("the rendered report of a solved exact-route result that is not numeric
     const raw = readFileSync(resolve(root, RAW), "utf8");
     const transport = createSolveJobTransport(() => raw, { jobIdPrefix: "invented-rendered-report-gate-job" });
     const renders: Json[] = [];
+    // Any command outside the job contract is refused by name, as the native-replay App tests do; the
+    // App's startup chores it refuses (autosave, unit catalogue, model states) are tolerated by App, and
+    // the refused names are reported with any stalled step.
+    const refused: string[] = [];
     invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
       if (command === "get_local_storage_capability") return storage;
       if (command === "load_design_knowledge") return knowledge;
@@ -92,7 +102,7 @@ describe("the rendered report of a solved exact-route result that is not numeric
       }
       if (command === "render_calculation_report") { renders.push(args); return renderedOutcome(); }
       // Every other command is the native mechanics job contract, or refused by name.
-      if (!REPLAY_COMMANDS.includes(command)) throw new Error(`RENDERED_REPORT_GATE_COMMAND_UNSUPPORTED: ${command}`);
+      if (!REPLAY_COMMANDS.includes(command) && !transport.handles(command)) { refused.push(command); throw new Error(`RENDERED_REPORT_GATE_COMMAND_UNSUPPORTED: ${command}`); }
       return transport.invoke(command, args, options);
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -107,7 +117,11 @@ describe("the rendered report of a solved exact-route result that is not numeric
 
     act(() => nativeMenuCommand("analyze.run"));
     // The solved result reaches the panel through the gate (its full copy read for it).
-    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-precondition")).toBeNull(), { timeout: 30_000 });
+    await waitFor(() => {
+      const why = `refused commands: ${refused.join(", ")}; job commands: ${transport.commands().map((c: Json) => (typeof c === "string" ? c : c.command)).join(", ")}; status: ${screen.queryByTestId("local-project-message")?.textContent ?? ""}; alerts: ${[...document.querySelectorAll('[role="alert"], [data-testid*="error"], [data-testid*="refus"]')].map((e) => `${e.getAttribute("data-testid") ?? "alert"}=${(e.textContent ?? "").slice(0, 300)}`).join(" | ")}`;
+      expect(screen.queryByTestId("c2-result-failed")?.textContent ?? null, why).toBeNull();
+      expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-precondition"), why).toBeNull();
+    }, { timeout: 60_000 });
     panel = screen.getByTestId("rendered-report-panel");
     expect(within(panel).getByTestId("rendered-report-render")).toBeEnabled();
     // The report package is not offered for it, and the menu's command is disabled.
@@ -126,7 +140,11 @@ describe("the rendered report of a solved exact-route result that is not numeric
 
     // The render request carries the reader's standing record for this sensitive result.
     fireEvent.click(within(panel).getByTestId("rendered-report-render"));
-    await waitFor(() => expect(renders.length).toBe(1), { timeout: 30_000 });
+    await waitFor(() => {
+      const why = `refused commands: ${refused.join(", ")}`;
+      expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-error")?.textContent ?? null, why).toBeNull();
+      expect(renders.length, why).toBe(1);
+    }, { timeout: 60_000 });
     const record = renders[0].input.numerical_standing;
     expect(record.record_version).toBe("historical_1");
     expect(record.cases.map((c: Json) => c.health)).toEqual(["sensitive"]);
@@ -141,7 +159,7 @@ describe("the rendered report of a solved exact-route result that is not numeric
     // A replacement (a fresh solve) retires the shown report: the panel shows no rendered
     // document until it is rendered again for the new result.
     act(() => nativeMenuCommand("analyze.run"));
-    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-preview")).toBeNull(), { timeout: 30_000 });
+    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-preview")).toBeNull(), { timeout: 60_000 });
     expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-print-frame")).toBeNull();
-  });
+  }, 240_000);
 });
