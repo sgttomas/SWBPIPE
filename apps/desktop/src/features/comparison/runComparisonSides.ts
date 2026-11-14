@@ -52,6 +52,9 @@ export type RunComparisonSide = {
   input: RunComparisonInput;
   /** RT-R6: what the side states for a CSV preamble (absent sides state `not_recorded`). */
   csv?: RunSideCsvProvenance;
+  /** The solved model the run is bound to (its input manifest's model payload), which the
+   * comparison overlay draws (DEL-07-08 REQ-011); absent on a side built without it. */
+  model?: unknown;
 };
 
 export const CURRENT_RUN_DESCRIPTION = "the current run (this session's solve, not recorded)";
@@ -125,6 +128,7 @@ export async function recordedRunSide(read: AnalysisRunRead): Promise<RunCompari
     standing,
     recordedTableRead: context.recordedTableRead,
     input: sideInput(result, manifest, read.record, standing, context.recordedTableRead),
+    model: manifest.model_basis.model_payload,
     csv: { modelHash: csvRecordedModelHash(read.state.model_hash), model: null, resultHash: csvResultHash(result, read.record), analysisRoute: csvAnalysisRoute(result) }
   };
 }
@@ -169,6 +173,7 @@ export function currentRunSide(slot: CurrentRunSlot): RunComparisonSide {
     standing,
     recordedTableRead: null,
     input: sideInput(result, inputManifest.manifest, analysisRun, standing),
+    model: inputManifest.manifest.model_basis.model_payload,
     csv: { modelHash: null, model: inputManifest.manifest.model_basis.model_payload, resultHash: csvResultHash(result, analysisRun), analysisRoute: csvAnalysisRoute(result) }
   };
 }

@@ -202,6 +202,10 @@ function ViewportMeasurementQuantityReadout({ label, unit, value }: { label: str
 }
 
 type Props = {
+  /** The comparison overlay's read-only mode holds the viewport pane (DEL-07-08 REQ-011): the
+   * viewport stays mounted, unchanged, but hidden and inert, so nothing in it can be authored,
+   * picked or focused until the overlay is left. */
+  comparisonOverlayActive?: boolean;
   /** Optional shell-owned home for the existing authoring panel. */
   authoringPanelContainer?: HTMLElement | null;
   armedCreationTool?: CreationTool | null;
@@ -426,6 +430,7 @@ function ViewportComponentUnitSelect({
 
 
 export function PipeViewport({
+  comparisonOverlayActive = false,
   authoringPanelContainer = null,
   armedCreationTool = null,
   assignment = null,
@@ -2539,6 +2544,9 @@ export function PipeViewport({
   return (
     <div
       className="viewport-shell"
+      inert={comparisonOverlayActive}
+      aria-hidden={comparisonOverlayActive ? true : undefined}
+      data-comparison-overlay={comparisonOverlayActive ? "true" : undefined}
       onKeyDown={(event) => {
         if (event.defaultPrevented || event.repeat || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
         const target = event.target;

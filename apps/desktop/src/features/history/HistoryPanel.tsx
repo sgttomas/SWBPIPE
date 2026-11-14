@@ -16,7 +16,15 @@ import { HistoricalReaderFindings, recordedRunBindingFindings } from "../results
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
 import { RULE_PACKS_NOT_RESOLVED, unreadableGuidance, type UnreadableRow } from "../../services/historyListEntries";
 import { useSessionHistory, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
-import { notOpenableReason, runCompareUnavailableReason, stateCompareUnavailableReason } from "./useModelStateHistory";
+import {
+  comparisonOverlayUnavailableReason,
+  notOpenableReason,
+  runCompareUnavailableReason,
+  stateCompareUnavailableReason,
+  type RunComparisonResult,
+  type StateComparisonResult
+} from "./useModelStateHistory";
+import type { ComparisonOverlayLink } from "../comparison/ComparisonOverlayControl";
 import { StateComparisonView } from "../comparison/StateComparisonView";
 import { RunComparisonView } from "../comparison/RunComparisonView";
 import { CURRENT_RUN_DESCRIPTION, CURRENT_RUN_ID } from "../comparison/runComparisonSides";
@@ -496,8 +504,23 @@ function StateRow({ state, states, runs, selected, selectionFull, onToggleSelect
 export function HistoryPanel() {
   const {
     states, runs, unreadable, historyMessage, historyBusy, refreshStates, recordRunUnavailableReason, compareStates, stateComparison, closeStateComparison,
-    compareRuns, runComparison, closeRunComparison, currentRunUnavailableReason, refusedRuns, refusedStateExport, exportRefusedState
+    compareRuns, runComparison, closeRunComparison, currentRunUnavailableReason, refusedRuns, refusedStateExport, exportRefusedState,
+    comparisonOverlay, showComparisonOverlay, hideComparisonOverlay, comparisonRowRequest, clearComparisonRowRequest
   } = useSessionHistory();
+  // The comparison overlay's link for a shown comparison (DEL-07-08 REQ-011): its control and the
+  // overlay's row requests. Absent where the session offers no overlay.
+  const overlayLink = (kind: "states" | "runs", result: StateComparisonResult | RunComparisonResult, ids: readonly [string, string]): ComparisonOverlayLink | undefined =>
+    // A session double in a test may hold no overlay functions.
+    typeof showComparisonOverlay === "function" && typeof hideComparisonOverlay === "function" && typeof clearComparisonRowRequest === "function"
+      ? {
+        shown: comparisonOverlay?.kind === kind && comparisonOverlay.ids[0] === ids[0] && comparisonOverlay.ids[1] === ids[1],
+        unavailable: comparisonOverlayUnavailableReason(result),
+        onShow: () => { void showComparisonOverlay(kind, ids[0], ids[1]); },
+        onHide: hideComparisonOverlay,
+        rowRequest: comparisonRowRequest ?? null,
+        onRowRequestHandled: clearComparisonRowRequest
+      }
+      : undefined;
   const { model } = useSessionModel();
   const { projectBusy } = useSessionProject();
   const [saving, setSaving] = useState(false);
@@ -611,8 +634,8 @@ export function HistoryPanel() {
           </ul>
         </section>
       ) : null}
-      {stateComparison ? <StateComparisonView key={`${stateComparison.left.state_id}:${stateComparison.right.state_id}`} result={stateComparison} onClose={closeStateComparison} /> : null}
-      {runComparison ? <RunComparisonView key={`${runComparison.left.id}:${runComparison.right.id}`} result={runComparison} onClose={closeRunComparison} /> : null}
+      {stateComparison ? <StateComparisonView key={`${stateComparison.left.state_id}:${stateComparison.right.state_id}`} result={stateComparison} onClose={closeStateComparison} overlay={overlayLink("states", stateComparison, [stateComparison.left.state_id, stateComparison.right.state_id])} /> : null}
+      {runComparison ? <RunComparisonView key={`${runComparison.left.id}:${runComparison.right.id}`} result={runComparison} onClose={closeRunComparison} overlay={overlayLink("runs", runComparison, [runComparison.left.id, runComparison.right.id])} /> : null}
       {unreadable && (unreadable.states.length || unreadable.runs.length) ? (
         <section className="model-history-unreadable" aria-label="Unreadable history rows" data-testid="model-history-unreadable">
           <strong>Rows the store cannot read</strong>

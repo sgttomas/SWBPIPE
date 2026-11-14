@@ -54,7 +54,7 @@ import { DormantSection } from "./features/workspace/dormantSection";
 import { BOTH_SPLIT_PCT_BOUNDS, TABLE_DRAWER_PX_BOUNDS } from "./features/workspace/uiPreferences";
 import type { UiDensityPreference, UiThemePreference } from "./features/workspace/uiPreferences";
 import type React from "react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -102,6 +102,7 @@ import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
 import { HistoryPanel } from "./features/history/HistoryPanel";
+import { ComparisonOverlayMode } from "./features/viewport/ComparisonOverlayMode";
 import { QuitWhileBusyPrompt, UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
 import { AUTOSAVE_DESKTOP_ONLY, AutosaveRecoveryPrompt } from "./features/autosave";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
@@ -377,6 +378,32 @@ function AppSession() {
     openRuleChecks: () => runMenuCommand("analyze.rule-checks")
   });
   const keyResultsRuleCheckRun = currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null;
+
+  // The comparison overlay (DEL-07-08 REQ-011): a read-only mode of the viewport pane. When it is
+  // turned on, from a comparison view or by the session function, the viewport is brought into
+  // view once: a page closes onto its stage (the Review stage, which has no canvas, gives way to
+  // the Model stage) and a Table view shows Both. Activating a marked entity opens the comparison's
+  // row on the Project page; leaving the page returns to the overlay.
+  const { comparisonOverlay, hideComparisonOverlay, requestComparisonRow } = session.project.history;
+  const comparisonOverlayKey = comparisonOverlay ? JSON.stringify([comparisonOverlay.kind, comparisonOverlay.ids]) : null;
+  const revealedOverlayKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (!comparisonOverlayKey || revealedOverlayKey.current === comparisonOverlayKey) {
+      if (!comparisonOverlayKey) revealedOverlayKey.current = null;
+      return;
+    }
+    const location = shellLocation(activeSection, stageSurface);
+    if (location.stage === "review") {
+      runMenuCommand("view.stage.model");
+      return;
+    }
+    if (location.page) {
+      closeShellPage();
+      return;
+    }
+    revealedOverlayKey.current = comparisonOverlayKey;
+    if (viewForStage(stageViewMemory, location.stage) === "table") runMenuCommand("view.view.both");
+  });
 
   // In the packaged Tauri shell the OS-level menu bar is the single menu, so the
   // in-DOM menu bar is suppressed to avoid a redundant second row. In the
@@ -976,7 +1003,15 @@ function AppSession() {
             type="button"
           />
           <div className="workspace-pane workspace-pane-viewport">
+            {comparisonOverlay ? (
+              <ComparisonOverlayMode
+                overlay={comparisonOverlay}
+                onLeave={hideComparisonOverlay}
+                onActivate={(ref, family) => { requestComparisonRow(ref, family); setActiveSection("project"); }}
+              />
+            ) : null}
             <PipeViewport
+              comparisonOverlayActive={comparisonOverlay !== null}
               fullResult={session.results.fullResult}
               authoringPanelContainer={routingPanelContainer}
               presentationBottomInsetPx={treeCollapsed && (stageView === "model" || (stageView === "both" && narrowWindow)) ? 28 : 0}
@@ -1043,7 +1078,7 @@ function AppSession() {
                 onClick={() => toggleWorkspaceRail("inspector")}
               ><X size={14} aria-hidden="true" /></button>
             ) : null}
-            <div id="shell-routing-panel" className="shell-routing-panel" ref={setRoutingPanelContainer} />
+            <div id="shell-routing-panel" className="shell-routing-panel" ref={setRoutingPanelContainer} inert={comparisonOverlay !== null} />
             <PropertyInspector
               getPreparationEpoch={getPreparationEpoch}
               model={model}

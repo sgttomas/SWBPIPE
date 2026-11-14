@@ -3,6 +3,7 @@ import { GitCompare } from "lucide-react";
 import { modelStateDescription } from "../../services/modelStateService";
 import type { StateComparisonResult } from "../history/useModelStateHistory";
 import { CsvExportControl } from "../result-export/CsvExportControl";
+import { ComparisonOverlayControl, useComparisonRowRequest, type ComparisonOverlayLink } from "./ComparisonOverlayControl";
 import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_STORED } from "../result-export/csvProvenance";
 import { CHANGE_LABELS, CLASSIFICATION_LABELS, STATE_COMPARISON_CSV_KIND, stateComparisonCsv, storedValueFullText } from "./stateComparisonCsv";
 import {
@@ -49,6 +50,10 @@ function testIdOf(row: Pick<StateComparisonRow, "family" | "key">): string {
   return `state-comparison-row-${row.family}-${row.key.join("/")}`.replace(/[^a-zA-Z0-9:_/-]+/g, "-");
 }
 
+function rowKey(row: Pick<StateComparisonRow, "family" | "key">): string {
+  return JSON.stringify([row.family, ...row.key]);
+}
+
 function FieldChangeItem({ change }: { change: FieldChange }) {
   return (
     <li className="state-comparison-field" data-kind={change.kind}>
@@ -59,7 +64,7 @@ function FieldChangeItem({ change }: { change: FieldChange }) {
   );
 }
 
-export function StateComparisonView({ result, onClose }: { result: StateComparisonResult; onClose: () => void }) {
+export function StateComparisonView({ result, onClose, overlay }: { result: StateComparisonResult; onClose: () => void; overlay?: ComparisonOverlayLink }) {
   const { comparison, left, right } = result;
   const [classification, setClassification] = useState<ClassificationFilter>("differences");
   const [family, setFamily] = useState<EntityFamily | "all">("all");
@@ -81,6 +86,16 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
   const first = shownPage * COMPARISON_PAGE_ROWS;
   const visible = matching.slice(first, first + COMPARISON_PAGE_ROWS);
   const { summary } = comparison;
+  // The overlay's activation of an entity: every row shown again, on the page of that entity's row.
+  const focusedKey = useComparisonRowRequest(overlay, [left.state_id, right.state_id], (request) => {
+    const index = comparison.rows.findIndex((row) => row.id === request.ref && (request.family === null || row.family === request.family));
+    if (index < 0) return null;
+    setClassification("all");
+    setFamily("all");
+    setIdFilter("");
+    setPage(Math.floor(index / COMPARISON_PAGE_ROWS));
+    return rowKey(comparison.rows[index]);
+  });
   return (
     <section className="panel state-comparison-panel" aria-label="Saved state comparison" data-testid="state-comparison">
       <div className="panel-title">
@@ -131,6 +146,7 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
           <span>Id contains</span>
           <input data-testid="state-comparison-filter-id" value={idFilter} onChange={(event) => filtered(setIdFilter)(event.target.value)} />
         </label>
+        {overlay ? <ComparisonOverlayControl link={overlay} testId="state-comparison-overlay-toggle" /> : null}
         <button type="button" data-testid="state-comparison-close" onClick={onClose}>Close comparison</button>
       </div>
       <CsvExportControl
@@ -147,7 +163,14 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
         </thead>
         <tbody>
           {visible.map((row) => (
-            <tr key={JSON.stringify([row.family, ...row.key])} data-testid={testIdOf(row)} data-classification={row.classification}>
+            <tr
+              key={rowKey(row)}
+              data-testid={testIdOf(row)}
+              data-classification={row.classification}
+              data-overlay-row-key={rowKey(row)}
+              data-overlay-focus={focusedKey === rowKey(row) ? "true" : undefined}
+              tabIndex={focusedKey === rowKey(row) ? -1 : undefined}
+            >
               <td>{FAMILY_LABELS[row.family]}</td>
               <td><code>{row.id}</code></td>
               <td>{CLASSIFICATION_LABELS[row.classification]}</td>

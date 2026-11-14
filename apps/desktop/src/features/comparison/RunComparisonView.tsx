@@ -6,6 +6,7 @@ import { recordedTableLabel } from "../results/HistoricalRunContext";
 import type { RunComparisonPair, UnmatchedRunRow } from "./runComparison";
 import { COMPARISON_PAGE_ROWS, storedValueText } from "./StateComparisonView";
 import { CsvExportControl } from "../result-export/CsvExportControl";
+import { ComparisonOverlayControl, useComparisonRowRequest, type ComparisonOverlayLink } from "./ComparisonOverlayControl";
 import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_STORED } from "../result-export/csvProvenance";
 import {
   NOT_COMPARED_LABELS,
@@ -85,7 +86,7 @@ function testIdOf(row: TableRow): string {
   return `run-comparison-row-${row.status}-${row.identity.result_id}`.replace(/[^a-zA-Z0-9:_/-]+/g, "-");
 }
 
-export function RunComparisonView({ result, onClose }: { result: RunComparisonResult; onClose: () => void }) {
+export function RunComparisonView({ result, onClose, overlay }: { result: RunComparisonResult; onClose: () => void; overlay?: ComparisonOverlayLink }) {
   const { comparison, left, right } = result;
   const [status, setStatus] = useState<StatusFilter>("all");
   const [family, setFamily] = useState<string>("all");
@@ -100,6 +101,16 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
   const first = shownPage * COMPARISON_PAGE_ROWS;
   const visible = matching.slice(first, first + COMPARISON_PAGE_ROWS);
   const { summary } = comparison;
+  // The overlay's activation of an entity: every row shown again, on the page of the entity's first row.
+  const focusedKey = useComparisonRowRequest(overlay, [left.id, right.id], (request) => {
+    const index = rows.findIndex((row) => row.identity.object_ref === request.ref);
+    if (index < 0) return null;
+    setStatus("all");
+    setFamily("all");
+    setIdFilter("");
+    setPage(Math.floor(index / COMPARISON_PAGE_ROWS));
+    return rows[index].key;
+  });
   const recordedNeedsRecompute = [left, right].some((side) => side.kind === "recorded" && !side.standing.eligible);
   const facts: Array<[string, string, number]> = [
     ["mapped", "Mapped row pairs", summary.mapped_pairs],
@@ -193,6 +204,7 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
           <span>Result id contains</span>
           <input data-testid="run-comparison-filter-id" value={idFilter} onChange={(event) => filtered(setIdFilter)(event.target.value)} />
         </label>
+        {overlay ? <ComparisonOverlayControl link={overlay} testId="run-comparison-overlay-toggle" /> : null}
         <button type="button" data-testid="run-comparison-close" onClick={onClose}>Close comparison</button>
       </div>
       <CsvExportControl
@@ -214,7 +226,14 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
         </thead>
         <tbody>
           {visible.map((row) => (
-            <tr key={row.key} data-testid={testIdOf(row)} data-status={row.status}>
+            <tr
+              key={row.key}
+              data-testid={testIdOf(row)}
+              data-status={row.status}
+              data-overlay-row-key={row.key}
+              data-overlay-focus={focusedKey === row.key ? "true" : undefined}
+              tabIndex={focusedKey === row.key ? -1 : undefined}
+            >
               <td><code>{row.identity.result_id}</code></td>
               <td>{row.identity.family ?? "other"}</td>
               <td><code>{row.identity.object_ref}</code></td>
