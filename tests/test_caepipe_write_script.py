@@ -620,3 +620,9 @@ def test_every_confining_pattern_ends_at_the_end_of_the_string():
     patterns = re.findall(r"'(\^[^']*)'", WRITE_SCRIPT)
     loose = [pattern for pattern in patterns if pattern.endswith('$')]
     assert not loose, loose
+
+
+def test_regset_is_described_as_replacing_a_value_of_another_type():
+    header = WRITE_SOURCE[:WRITE_SOURCE.index("#>")]
+    assert "a value of another type is\n             replaced" in header
+    assert "set to REG_BINARY data, or deleted\n    when it is REG_BINARY;" in header

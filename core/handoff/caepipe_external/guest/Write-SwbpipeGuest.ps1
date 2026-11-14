@@ -16,8 +16,9 @@ other than the ones it installed. Then each operation prints one answer:
              the folder (idempotent), then the exclusive create (CreateNew, never an
              overwrite) of one claim file with the given ASCII content; `exists` is
              ERROR_FILE_EXISTS, `held` is a sharing violation (another holds the name)
-  regset     `The operation completed successfully.` after setting one REG_BINARY value
-             of an existing key of the current user's hive
+  regset     `The operation completed successfully.` after setting one value of an existing
+             key of the current user's hive to REG_BINARY data (a value of another type is
+             replaced, as a restore to a REG_BINARY first reading needs)
   regdelete  the same after deleting one REG_BINARY value (a value of another type is refused)
   keycreate  the same after creating the harness's exercise key (only that key)
   keydelete  the same after deleting the harness's exercise key and its values (only that key)
@@ -28,7 +29,8 @@ What it may change, and nothing else:
   - a claim file named `<32 hex>.claim` (an attempt's fence) in a folder on C:\, or
     `SWBPIPE-harness-exercise-<name>` in C:\oracle\SWBPIPE-harness-exercise-<YYYYMMDD>, and that
     folder, created with any missing parent when it is absent;
-  - one REG_BINARY value of an existing key under HKCU\Software;
+  - one value of an existing key under HKCU\Software: set to REG_BINARY data, or deleted
+    when it is REG_BINARY;
   - the key HKCU\Software\SWBPIPE-harness-exercise-<YYYYMMDD> (create, delete).
 It starts no process and reads or writes no other path.
 #>

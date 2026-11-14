@@ -410,7 +410,24 @@ def test_an_absent_job_with_any_last_error_but_2_is_an_error_never_absent(tmp_pa
 @pytest.mark.parametrize("answer, state", [("SWBPIPE-JOB v1 absent", "absent"),
                                            ("SWBPIPE-JOB v1 error=canary-0", "error=canary-0"),
                                            ("SWBPIPE-JOB v1 error=2", "error=2"),
+                                           ("SWBPIPE-JOB v1 error=-5", "error=-5"),
                                            ("SWBPIPE-JOB v1 present active=1", "present active=1")])
 def test_the_job_answer_forms(answer, state):
     assert harness.JOB_ANSWER.match(answer + "\r\n")["state"] == state
     assert harness.JOB_ANSWER.match("SWBPIPE-JOB v1 error=canary-\r\n") is None
+
+
+def test_opjob_decides_on_the_canary_first_and_reads_absent_only_from_error_2():
+    code = _code(READ_SOURCE)
+    job = code[code.index("function OpJob"):code.index("function OpChunk")]
+    assert job.count("if ($canary -ne 6) {") == 1
+    canary = job.index("if ($canary -ne 6) {")
+    # The canary decides first: no use of the handle's error, and no answer, before it.
+    assert canary < job.index("if ($job -eq [IntPtr]::Zero)") and canary < job.index("$openError -eq")
+    assert job.index("return ") > canary and job.count("absent") == 1
+    assert 'if ($openError -eq 2) { return "SWBPIPE-JOB v1 absent`r`n" }' in job
+    native = code[code.index("function Native"):code.index("function OpCim")]
+    assert re.findall(r"\$il\.Emit\(\$o::(\w+)", native) == [
+        "Ldarg_2", "Ldsfld", "Call", "Pop", "Call", "Stind_I4",  # canary (argument 2) <- CloseHandle(NULL)'s error
+        "Ldarg_1", "Ldc_I4", "Ldc_I4_0", "Ldarg_0", "Call", "Stloc", "Call", "Stind_I4",  # error (argument 1)
+        "Ldloc", "Ret"]
