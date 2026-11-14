@@ -44,9 +44,8 @@ import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
 import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
-import { awaitNoProcesses } from "./launch-env.mjs";
-import { keptPhaseFailures, launchFailures, newNonce, readReport, recordedOutcome } from "./launch-outcome.mjs";
-import { marksCheck, marksRefuse } from "./marks-check.mjs";
+import { keptPhaseFailures, newNonce, readReport } from "./launch-outcome.mjs";
+import { MARK_PRESENT, UNRESOLVED_TERMINATION, judgedPhase } from "./judged-launch.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -69,7 +68,8 @@ const REPLIES_FIXTURE = "fixtures/caepipe_mbf/invented/desktop_import/import_rep
 const MBF_NAME = "swbpipe-model.mbf";
 const IDS_NAME = "swbpipe-model.swbpipe-ids.json";
 
-if (process.platform !== "darwin") {
+// Launching is macOS only; --judge launches nothing and runs anywhere (mbf-journey-judge.test.mjs).
+if (process.platform !== "darwin" && !judgeDir) {
   console.error("mbf journey: macOS only");
   process.exit(2);
 }
@@ -223,8 +223,9 @@ const saved = {
 // Each launch's recorded outcome and judged failures, for summary.json.
 const launches = {};
 const TERMINATION_BOUND_MS = 20 * 1000;
-function judged(phase, outcome, read, failures, marks) {
-  launches[phase] = { ...(marks ? { marks } : {}), outcome, failures };
+// Judge mode: kept evidence judged from its recorded outcome (`keptPhaseFailures`).
+function judged(phase, outcome, read, failures) {
+  launches[phase] = { outcome, failures };
   check(`${phase}: the launch ended cleanly and its report is this run's`, failures.length === 0, failures.length === 0 ? undefined : failures);
   // A failed launch's report stays readable for the checks that follow.
   return read.report ?? { ok: false, error: read.problem };
@@ -242,17 +243,13 @@ function launch(given) {
     console.error(`mbf journey: ${binary} changed since it was checked; not launched`);
     return exitAfterSignals(2);
   }
-  // The three marks (`marks-check.mjs`), directly before the app starts.
-  const marks = marksCheck();
-  console.log(`phase ${plan.phase}: marks, directly before the launch: ${JSON.stringify(marks)}`);
-  if (marksRefuse(marks)) {
-    launches[plan.phase] = { marks, launched: false };
-    console.error("mbf journey: NATIVE-SMOKE-MARK-PRESENT: an agent may be operating the App on the screen, or the marks could not be checked; not launched");
-    return exitAfterSignals(2);
-  }
-  const started = new Date().toISOString();
-  return runUnderLock("/usr/bin/caffeinate", ["-di", binary], {
-    cwd: root,
+  // The marks directly before the start, the start, the census and the one rule (`judged-launch.mjs`). A mark
+  // present, or an unresolved census, saves the summary and stops: no second app start while a process of the copy
+  // may still run. The evidence root is kept.
+  return judgedPhase({
+    phase: plan.phase, checkName: `${plan.phase}: the launch ended cleanly and its report is this run's`, launches, check,
+    summaryPath: path.join(root, "summary.json"), summary: () => ({ checks }),
+    executable: binary, command: "/usr/bin/caffeinate", commandArgs: ["-di", binary], cwd: root,
     env: {
       ...process.env,
       HOME: home,
@@ -260,16 +257,17 @@ function launch(given) {
       SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan),
       SWBPIPE_NATIVE_SMOKE_REPORT: report
     },
-    stdio: ["ignore", "inherit", "inherit"],
-    timeoutMs: PHASE_TIMEOUT_MS
-  }).then(async ({ status, signal, timedOut }) => {
-    const ended = new Date().toISOString();
-    if (timedOut) console.error(`phase ${plan.phase}: timed out`);
-    // The census: no process may still run the private copy (the solve worker runs it in its own process group).
-    const census = await awaitNoProcesses(binary, { boundMs: TERMINATION_BOUND_MS });
-    const read = readReport(report);
-    const failures = launchFailures({ status, signal, timedOut, census, report: read.report, problem: read.problem, nonce: plan.nonce });
-    return judged(plan.phase, recordedOutcome({ status, signal, timedOut, census, nonce: plan.nonce, started, ended }), read, failures, marks);
+    timeoutMs: PHASE_TIMEOUT_MS, reportPath: report, nonce: plan.nonce, censusBoundMs: TERMINATION_BOUND_MS
+  }).then((result) => {
+    console.log(`phase ${plan.phase}: marks, directly before the launch: ${JSON.stringify(result.marks)}`);
+    if (result.stop) {
+      console.error(result.stop === MARK_PRESENT
+        ? `mbf journey: ${MARK_PRESENT}: an agent may be operating the App on the screen, or the marks could not be checked; not launched`
+        : `mbf journey: ${UNRESOLVED_TERMINATION} after phase ${plan.phase}: ${result.census?.reason ?? "no census"}; no further phase starts; evidence in ${root}`);
+      return exitAfterSignals(result.exitCode);
+    }
+    if (result.outcome.timed_out) console.error(`phase ${plan.phase}: timed out`);
+    return result.report;
   });
 }
 

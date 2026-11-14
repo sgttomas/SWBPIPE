@@ -5,9 +5,11 @@
 // macOS only, like the launches it guards.
 import { spawnSync } from "node:child_process";
 
-/** The marks as found now, with any check that could not be made. */
-export function marksCheck() {
-  const run = (command, commandArgs) => spawnSync(command, commandArgs, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 15000 });
+const runCommand = (command, commandArgs) => spawnSync(command, commandArgs, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 15000 });
+
+/** The marks as found now, with any check that could not be made. `run` answers each command as `spawnSync` does;
+ * it is an internal seam for `judged-launch.test.mjs`, which gives it controlled responses. */
+export function marksCheck(run = runCommand) {
   const launchd = run("/bin/launchctl", ["list"]);
   const sky = run("/usr/bin/pgrep", ["-f", "SkyComputerUseService"]);
   const codex = run("/usr/bin/pgrep", ["-f", "codex app-server --listen stdio://"]);

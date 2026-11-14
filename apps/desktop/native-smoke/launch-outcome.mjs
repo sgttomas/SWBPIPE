@@ -1,10 +1,10 @@
-// One rule for judging a native-smoke launch (DEL-07-11 VER-003): a launch passes only when the app ended
-// cleanly (exit status 0, no signal, no timeout), the census after it found no process of the run's private
-// app copy, and the run's fresh evidence root holds a readable report carrying this run's nonce. Each failed
-// condition is named. A failed launch never reads as a pass; its report, when there is one, stays readable for
-// the observations it records. `run.mjs` and `mbf-journey.mjs` judge each launch with it; `perf.mjs` applies the
-// same rule in its own classification. Evidence that recorded no launch outcome is judged
-// LAUNCH-OUTCOME-NOT-RECORDED: not a pass.
+// The rule for judging a native-smoke launch (DEL-07-11 VER-008). Common to every runner that uses it: the app
+// ended with exit status 0, no signal and no timeout, and the run's fresh evidence root holds a readable report
+// carrying the nonce the runner gave that launch. A runner whose contract requires a census adds one: no process of
+// the run's private app copy remains. `run.mjs` and `mbf-journey.mjs` require it (`judged-launch.mjs`); `perf.mjs`
+// takes no per-launch census and applies the common conditions in its classification. Each failed condition is
+// named. A failed launch never reads as a pass; its report, when there is one, stays readable for the observations
+// it records. Kept evidence is judged from its recorded outcome: none, or an incomplete one, is not a pass.
 import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 
@@ -44,15 +44,27 @@ export function recordedOutcome({ status, signal, timedOut, census, nonce, start
   return { status: status ?? null, signal: signal ?? null, timed_out: Boolean(timedOut), census: census ?? null, nonce: nonce ?? null, started: started ?? null, ended: ended ?? null };
 }
 
-/** The named failures of kept evidence: its recorded outcome judged with its report. Evidence that recorded
- * no outcome is LAUNCH-OUTCOME-NOT-RECORDED, whatever its report says. */
+const NOT_RECORDED = "LAUNCH-OUTCOME-NOT-RECORDED: this evidence records no complete launch outcome, so it cannot be judged a pass";
+// A recorded outcome is complete only when it states how the app ended: its status, its signal (null when none)
+// and whether the runner's time limit stopped it. A missing field is never read as a clean ending.
+const completeOutcome = (outcome) => outcome !== null && typeof outcome === "object" && !Array.isArray(outcome)
+  && Object.hasOwn(outcome, "status") && Object.hasOwn(outcome, "signal") && typeof outcome.timed_out === "boolean";
+
+/** The named failures of kept evidence from a runner that takes no census: its recorded outcome judged with its
+ * report. Evidence that recorded no complete outcome is LAUNCH-OUTCOME-NOT-RECORDED, whatever its report says. */
 export function recordedFailures(outcome, report, problem = null) {
-  if (!outcome || typeof outcome !== "object") return ["LAUNCH-OUTCOME-NOT-RECORDED: this evidence records no launch outcome, so it cannot be judged a pass"];
-  return launchFailures({ status: outcome.status, signal: outcome.signal, timedOut: outcome.timed_out, census: outcome.census ?? undefined, report, problem, nonce: outcome.nonce });
+  if (!completeOutcome(outcome)) return [NOT_RECORDED];
+  return launchFailures({ status: outcome.status, signal: outcome.signal, timedOut: outcome.timed_out, census: undefined, report, problem, nonce: outcome.nonce });
 }
 
-/** The named failures of one phase of kept evidence, from the run's `summary.json` (its `launches` record) and
- * the phase's report. A summary written before runners recorded launch outcomes has no such record: not a pass. */
+/** The named failures of one phase of kept evidence from a runner that takes a census (`run.mjs`,
+ * `mbf-journey.mjs`), from the run's `summary.json` (its `launches` record) and the phase's report. A summary
+ * written before runners recorded launch outcomes, or an incomplete outcome, is not a pass.
+ * The runner's contract decides whether a census is required; its absence from a stored record does not. These
+ * runners require one, so a missing or null census here is LAUNCH-CENSUS-UNRESOLVED, never "no census taken", even
+ * though `launchFailures` serves a runner without a census when it is given none. */
 export function keptPhaseFailures(summary, phase, report, problem = null) {
-  return recordedFailures(summary?.launches?.[phase]?.outcome ?? null, report, problem);
+  const outcome = summary?.launches?.[phase]?.outcome;
+  if (!completeOutcome(outcome)) return [NOT_RECORDED];
+  return launchFailures({ status: outcome.status, signal: outcome.signal, timedOut: outcome.timed_out, census: outcome.census ?? null, report, problem, nonce: outcome.nonce });
 }

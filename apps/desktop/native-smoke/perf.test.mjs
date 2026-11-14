@@ -423,6 +423,29 @@ test("a report does not rescue a launch that did not end cleanly, or a report th
   assert.equal(both.class, "launch_failed");
 });
 
+test("without a report, every failed launch condition is named on the app's crash or hang finding, and the class stays crash or hang", () => {
+  const appFinding = (input) => {
+    const result = classify(input);
+    const finding = result.findings.find((item) => item.process === "app");
+    return { class: result.class, kind: finding.class, codes: finding.failures.map((line) => line.split(":")[0]) };
+  };
+  assert.deepEqual(appFinding(base({ report: null, reportProblem: "no report", exit: { status: 7, signal: null, ended_ms: 10_000 } })), { class: "crash", kind: "crash", codes: ["LAUNCH-EXIT-NOT-ZERO", "LAUNCH-NO-REPORT"] });
+  assert.deepEqual(appFinding(base({ report: null, reportProblem: "no report", exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 } })), { class: "crash", kind: "crash", codes: ["LAUNCH-SIGNALLED", "LAUNCH-EXIT-NOT-ZERO", "LAUNCH-NO-REPORT"] });
+  assert.deepEqual(appFinding(base({ report: null, reportProblem: "no report", timedOut: true, exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 } })), { class: "hang", kind: "hang", codes: ["LAUNCH-TIMED-OUT", "LAUNCH-SIGNALLED", "LAUNCH-EXIT-NOT-ZERO", "LAUNCH-NO-REPORT"] });
+  // A clean exit that wrote no report is still a crash, and names the missing report.
+  assert.deepEqual(appFinding(base({ report: null, reportProblem: "no report" })), { class: "crash", kind: "crash", codes: ["LAUNCH-NO-REPORT"] });
+  assert.match(appFinding(base({ report: null, reportProblem: "the report does not parse (x)", exit: { status: 1, signal: null, ended_ms: 10_000 } })).codes.join(","), /LAUNCH-NO-REPORT/);
+});
+
+test("a report that carries no nonce is not this run's, built explicitly and not through base()'s nonce", () => {
+  const report = { solve: painted(), record_run: { attempted: true, message: "Recorded run perf r." }, save_project: { message: "Saved current project model snapshot." } };
+  const input = { ...base(), report };
+  assert.equal(Object.hasOwn(input.report, "nonce"), false);
+  const result = classify(input);
+  assert.equal(result.class, "launch_failed");
+  assert.deepEqual(result.findings[0].failures.map((line) => line.split(":")[0]), ["LAUNCH-REPORT-NOT-THIS-RUN"]);
+});
+
 test("a report file that does not parse is judged, not thrown: the run is classified without a report, and the reason is named", () => {
   const crashed = classify(base({ report: null, reportProblem: "the report does not parse (Unexpected token)", exit: { status: 1, signal: null, ended_ms: 10_000 } }));
   assert.equal(crashed.class, "crash");

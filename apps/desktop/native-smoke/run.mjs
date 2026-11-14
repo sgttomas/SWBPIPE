@@ -37,8 +37,10 @@
 // launch's outcome.
 //
 // --control-killed-after-report is the rule's control: the first launch runs the app as usual, under a shell
-// that kills itself with SIGKILL once the app has ended and written its report. The runner must then name the
-// launch failed while its report is still read; the control stops after that launch and exits non-zero.
+// that kills itself with SIGKILL after the app has returned, having written its report. The app is not killed: the
+// runner sees a signalled ending beside this run's valid report, the condition the judge must reject. The control
+// asserts that ending, that report and the judge's named failure, stops after that launch, and exits 1 whatever its
+// checks find, so its exit status proves nothing. judged-launch.test.mjs shows an app's own signal reaching the judge.
 //
 // What the engine stamps and the app binding guard against. In scope, and to be
 // closed: accidental staleness or mis-binding in our own environments: ordinary
@@ -138,8 +140,8 @@ import {
   readRunMarker, refusedLaunchEnv, refusedPlanPaths, runMarkerRefusal, statWatched, tripwireChanges, watchedLibraryPaths, writeRunMarker,
   refusedSmokeWindows, smokeWindows
 } from "./launch-env.mjs";
-import { launchFailures, newNonce, readReport, recordedOutcome } from "./launch-outcome.mjs";
-import { marksCheck, marksRefuse } from "./marks-check.mjs";
+import { newNonce } from "./launch-outcome.mjs";
+import { MARK_PRESENT, UNRESOLVED_TERMINATION, judgedPhase } from "./judged-launch.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, processStartTime, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -437,48 +439,41 @@ function launch(phase, extra = {}) {
     console.error(`native smoke: ${binary}, the private copy of the bound app, changed since it was checked; not launched`);
     return exitAfterSignals(2);
   }
-  // The three marks (`marks-check.mjs`), directly before the app starts.
-  const marks = marksCheck();
-  console.log(`phase ${phase}: marks, directly before the launch: ${JSON.stringify(marks)}`);
-  if (marksRefuse(marks)) {
-    launches[phase] = { marks, launched: false };
-    console.error("native smoke: NATIVE-SMOKE-MARK-PRESENT: an agent may be operating the App on the screen, or the marks could not be checked; not launched");
-    return exitAfterSignals(2);
-  }
-  if (!state.launched) writeRunMarker(RUN_MARKER, { pid: process.pid, started: processStartTime(process.pid), home, executable: binary, evidence_root: root, created: new Date().toISOString() });
-  state.launched = true;
-  state.termination = null;
   // caffeinate keeps the display and system awake for the app's lifetime. It
   // runs under the lock in its own process group: on timeout the whole group,
   // caffeinate and the app under it, is killed; on interruption the lock's
   // handler stops and reaps it before the lock is released.
-  // The control runs the same app under a shell that kills itself with SIGKILL after the app ends.
+  // The control runs the same app under a shell that kills itself with SIGKILL after the app has returned.
   const [command, commandArgs] = CONTROL_KILLED_AFTER_REPORT
     ? ["/bin/sh", ["-c", '/usr/bin/caffeinate -di "$1"; kill -KILL $$', "native-smoke-control", binary]]
     : ["/usr/bin/caffeinate", ["-di", binary]];
-  const started = new Date().toISOString();
-  return runUnderLock(command, commandArgs, {
-    cwd: root,
-    env,
-    stdio: ["ignore", "inherit", "inherit"],
-    timeoutMs: PHASE_TIMEOUT_MS
-  }).then(async ({ status, signal, timedOut }) => {
-    const ended = new Date().toISOString();
-    if (timedOut) console.error(`phase ${phase}: timed out`);
-    // The census: no process may still run the private copy (the solve worker
-    // runs it in its own process group, which runUnderLock does not track).
-    state.termination = await awaitNoProcesses(binary, { boundMs: TERMINATION_BOUND_MS });
-    if (!state.termination.resolved) {
-      console.error(`native smoke: UNRESOLVED TERMINATION after phase ${phase}: ${state.termination.reason}; no further phase starts`);
-      return exitAfterSignals(1);
+  // The marks directly before the start, the start, the census and the one rule (`judged-launch.mjs`). A mark
+  // present, or an unresolved census, saves the summary and stops the run: no further phase starts.
+  return judgedPhase({
+    phase, checkName: `phase ${phase}: the launch ended cleanly and its report is this run's`, launches, check,
+    summaryPath: path.join(root, "summary.json"), summary: () => ({ checks }),
+    executable: binary, command, commandArgs, cwd: root, env, timeoutMs: PHASE_TIMEOUT_MS, reportPath: report, nonce,
+    censusBoundMs: TERMINATION_BOUND_MS,
+    beforeStart: () => {
+      if (!state.launched) writeRunMarker(RUN_MARKER, { pid: process.pid, started: processStartTime(process.pid), home, executable: binary, evidence_root: root, created: new Date().toISOString() });
+      state.launched = true;
+      state.termination = null;
+    }
+  }).then((result) => {
+    console.log(`phase ${phase}: marks, directly before the launch: ${JSON.stringify(result.marks)}`);
+    if (result.stop === MARK_PRESENT) {
+      console.error(`native smoke: ${MARK_PRESENT}: an agent may be operating the App on the screen, or the marks could not be checked; not launched`);
+      return exitAfterSignals(result.exitCode);
+    }
+    state.termination = result.census;
+    if (result.outcome.timed_out) console.error(`phase ${phase}: timed out`);
+    if (result.stop === UNRESOLVED_TERMINATION) {
+      console.error(`native smoke: ${UNRESOLVED_TERMINATION} after phase ${phase}: ${result.census?.reason ?? "no census"}; no further phase starts`);
+      return exitAfterSignals(result.exitCode);
     }
     console.log(`phase ${phase}: the census finds no process running the private app copy`);
-    const read = readReport(report);
-    const failures = launchFailures({ status, signal, timedOut, census: state.termination, report: read.report, problem: read.problem, nonce });
-    launches[phase] = { marks, outcome: recordedOutcome({ status, signal, timedOut, census: state.termination, nonce, started, ended }), failures };
-    check(`phase ${phase}: the launch ended cleanly and its report is this run's`, failures.length === 0, failures.length === 0 ? undefined : failures);
     // A failed launch's report stays readable for the checks that follow.
-    return read.report ?? { ok: false, error: `${read.problem} (exit ${status ?? signal})` };
+    return result.report;
   });
 }
 
@@ -537,10 +532,15 @@ state.watchedBefore = statWatched(WATCHED);
 const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE, exact_report_package: EXACT_REPORT_PACKAGE_SAVE });
 check("phase open-solve-save completed", first.ok, first.error);
 if (CONTROL_KILLED_AFTER_REPORT) {
-  // The control: the launch must be named failed (killed) while its report, with this run's nonce, is read.
+  // The control's own assertions, each of which fails if its adverse state was not reached: the supervising shell
+  // was killed after the app returned, so the runner recorded a signalled ending; this run's valid report is beside
+  // it; the judge named the launch failed. Its exit status is 1 whatever happens, so it proves nothing by itself.
+  // That an app's own signal reaches the runner through the wrapper is shown by judged-launch.test.mjs, not here.
   const judged = launches["open-solve-save"];
-  check("control: the launch killed after its report is named failed", judged.failures.some((line) => line.startsWith("LAUNCH-SIGNALLED")), judged.failures);
-  check("control: its report is still read, with this run's nonce", first.nonce === judged.outcome.nonce && first.ok === true, { nonce: first.nonce ?? null, ok: first.ok });
+  const launchCheck = checks.find((item) => item.name === "phase open-solve-save: the launch ended cleanly and its report is this run's");
+  check("control: the recorded outcome is the adverse one: ended on SIGKILL, with no exit status", judged.outcome?.signal === "SIGKILL" && judged.outcome?.status === null && judged.outcome?.timed_out === false, judged.outcome && { signal: judged.outcome.signal, status: judged.outcome.status, timed_out: judged.outcome.timed_out });
+  check("control: this run's valid report is beside it (ok, carrying the plan's nonce)", first.ok === true && typeof judged.outcome?.nonce === "string" && first.nonce === judged.outcome.nonce, { nonce: first.nonce ?? null, ok: first.ok });
+  check("control: the judge named the launch failed (LAUNCH-SIGNALLED) and its launch check failed", judged.failures.some((line) => line.startsWith("LAUNCH-SIGNALLED")) && launchCheck?.ok === false, judged.failures);
   state.tripwireDone = true;
   const controlChanges = tripwireChanges(state.watchedBefore, statWatched(WATCHED));
   check(`control: the real user's Library, after the launch: none of the ${WATCHED.length} product-named paths changed`, controlChanges.length === 0, controlChanges.length === 0 ? undefined : controlChanges);

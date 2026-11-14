@@ -682,21 +682,23 @@ const markAt = (timeline, stage) => {
 };
 
 // The run's findings and its most severe class. A report does not rescue a launch that did not end cleanly or a
-// report that is not this run's: with a report present, the one rule of `launch-outcome.mjs` (DEL-07-11) judges
-// the launch (`launchFailures`, no census: this runner takes none), and each named failure is a `launch_failed`
-// finding's `failures`; the report's own observations are still read and classified beside it. `reportProblem`
-// says why a report file that exists was not read (`readReport`).
+// report that is not this run's: the common conditions of `launch-outcome.mjs` (DEL-07-11: exit, signal, timeout,
+// this run's report and nonce) judge every launch (`launchFailures`, with no census: this runner takes no
+// per-launch census, so its `ok` is not the census-bearing completion of `run.mjs`). With a report, the named failures are a
+// `launch_failed` finding's `failures` and the report's own observations are still read and classified beside it;
+// without one, they are the `failures` of the app's crash or hang finding, so every failed condition is named
+// and the class stays crash or hang. `reportProblem` says why a report file that exists was not read.
 export function classify({ report, reportProblem = null, exit, timedOut, progress, memory, store, run, resultBytes, nonce }) {
   const findings = [];
   const add = (kind, detail) => findings.push({ class: kind, ...detail });
   const webcontentExited = Object.entries(memory.pids).filter(([, entry]) => entry.kind === "webcontent" && exit.ended_ms !== null && entry.last_ms < exit.ended_ms - 1000);
   for (const [pid, entry] of webcontentExited) add("crash", { process: "webcontent", pid: Number(pid), detail: `WebContent ${pid} stopped being sampled ${exit.ended_ms - entry.last_ms} ms before the app ended` });
+  const failures = launchFailures({ status: exit.status, signal: exit.signal, timedOut, census: undefined, report, problem: reportProblem, nonce });
   if (!report) {
     const unread = reportProblem && reportProblem !== "no report" ? ` (${reportProblem})` : "";
-    if (timedOut) add("hang", { process: "app", detail: `no report within ${run.timeout_s} s${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
-    else add("crash", { process: "app", detail: `the app exited (${exit.status ?? exit.signal}) without a report${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
+    if (timedOut) add("hang", { process: "app", failures, detail: `no report within ${run.timeout_s} s${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
+    else add("crash", { process: "app", failures, detail: `the app exited (${exit.status ?? exit.signal}) without a report${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
   } else {
-    const failures = launchFailures({ status: exit.status, signal: exit.signal, timedOut, census: undefined, report, nonce });
     if (failures.length > 0) add("launch_failed", { process: "app", failures, detail: `the launch did not end cleanly or its report is not this run's: ${failures.join("; ")}. The report's observations are still read.`, needs_review: true });
     const solve = report.solve;
     // C1's host condition not established (or lost): the run is unobservable. Its solve, driver
@@ -1007,7 +1009,8 @@ async function runOne(run, ctx) {
   if (record.reader_phases && !phasePipeDrained) record.reader_phases.evidence_complete = false;
   record.elapsed_s = (exit.ended_ms - startedMs) / 1000;
   record.exit = { ...exit, timed_out: timedOut, timeout_ms: timeoutMs };
-  // The launch outcome as the one rule records it, so that kept evidence can be judged again (`recordedFailures`).
+  // The launch outcome as `launch-outcome.mjs` records it (no census), so that the record can be judged again
+  // (`recordedFailures`).
   record.launch_outcome = recordedOutcome({ status: exit.status, signal: exit.signal, timedOut, census: undefined, nonce, started: new Date(startedMs).toISOString(), ended: new Date(exit.ended_ms).toISOString() });
   const { report, problem: reportProblem } = readReport(path.join(root, "report.json"));
   const jobDone = markAt(report?.solve?.timeline, "job_done");

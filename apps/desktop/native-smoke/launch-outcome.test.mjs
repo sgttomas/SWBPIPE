@@ -76,3 +76,22 @@ test("a kept summary written before launch outcomes were recorded is judged not 
   assert.deepEqual(codes(keptPhaseFailures(recorded, "unbound", clean.report)), ["LAUNCH-OUTCOME-NOT-RECORDED"]);
   assert.deepEqual(codes(keptPhaseFailures(recorded, "bound", { ...clean.report, nonce: "another run" })), ["LAUNCH-REPORT-NOT-THIS-RUN"]);
 });
+
+test("an incomplete kept outcome is not a pass: a missing status, signal or timeout field is not recorded, a missing census is unresolved", () => {
+  const complete = recordedOutcome({ ...clean, started: "s", ended: "e" });
+  const summary = (outcome) => ({ launches: { bound: { outcome } } });
+  assert.deepEqual(keptPhaseFailures(summary(complete), "bound", clean.report), []);
+  const without = (field) => { const outcome = { ...complete }; delete outcome[field]; return outcome; };
+  for (const field of ["status", "signal", "timed_out"]) {
+    assert.deepEqual(codes(keptPhaseFailures(summary(without(field)), "bound", clean.report)), ["LAUNCH-OUTCOME-NOT-RECORDED"], field);
+    assert.deepEqual(codes(recordedFailures(without(field), clean.report)), ["LAUNCH-OUTCOME-NOT-RECORDED"], field);
+  }
+  assert.deepEqual(codes(keptPhaseFailures(summary({ ...complete, timed_out: "false" }), "bound", clean.report)), ["LAUNCH-OUTCOME-NOT-RECORDED"]);
+  assert.deepEqual(codes(keptPhaseFailures(summary([]), "bound", clean.report)), ["LAUNCH-OUTCOME-NOT-RECORDED"]);
+  // A census-taking runner's kept outcome with no census, or a null one, is unresolved, never "no census taken".
+  assert.deepEqual(codes(keptPhaseFailures(summary(without("census")), "bound", clean.report)), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  assert.deepEqual(codes(keptPhaseFailures(summary({ ...complete, census: null }), "bound", clean.report)), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  assert.deepEqual(codes(keptPhaseFailures(summary({ ...complete, census: { resolved: false, reason: "process 7 still ran" } }), "bound", clean.report)), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  // recordedFailures is for a runner that takes no census: its census, recorded or not, is not judged.
+  assert.deepEqual(recordedFailures({ ...complete, census: null }, clean.report), []);
+});
