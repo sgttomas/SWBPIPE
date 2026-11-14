@@ -465,18 +465,38 @@ def test_the_guest_script_is_added_once_verified_after_and_never_overwritten(tmp
 # --------------------------------------------------------------------------------------------------------------
 # The transport predicate and attempt_log
 # --------------------------------------------------------------------------------------------------------------
-@pytest.mark.parametrize("answer, expected", [
-    ((255, "", TRANSPORT[0]), TRANSPORT[0]),
-    ((255, "", TRANSPORT[1] + "\r\n"), TRANSPORT[1]),
-    ((255, TRANSPORT[0], ""), TRANSPORT[0]),
-    ((255, "", f"Failed to exec: {TRANSPORT[0]}"), None),
-    ((255, "", f"{TRANSPORT[0]}\r\n{TRANSPORT[1]}"), None),
-    ((255, "x", TRANSPORT[0]), None),
-    ((1, "", TRANSPORT[0]), None),
-    ((0, "", ""), None),
-])
-def test_the_transport_predicate_is_exact(answer, expected):
-    assert harness.transport_line(*answer) == expected
+# The client's two lines, written out here independently of the harness's constant.
+RESULT_LINE = "PrlJob_GetResult: Invalid argument. An invalid argument was passed."
+RETCODE_LINE = "PrlJob_GetRetCode: Invalid argument. An invalid argument was passed."
+
+
+def test_the_transport_lines_are_the_clients_whole_lines():
+    assert harness.TRANSPORT_LINES == (RESULT_LINE, RETCODE_LINE)
+
+
+@pytest.mark.parametrize("line", [RESULT_LINE, RETCODE_LINE])
+@pytest.mark.parametrize("stream", ["stdout", "stderr"])
+@pytest.mark.parametrize("space", [("", ""), ("\r\n", "\r\n"), ("  ", " \t"), ("\n\n", "\r\n\r\n")])
+def test_each_exact_line_with_exit_255_is_a_transport_answer_on_either_stream(line, stream, space):
+    text = space[0] + line + space[1]
+    answer = (255, text, "") if stream == "stdout" else (255, "", text)
+    assert harness.transport_line(*answer) == line
+
+
+@pytest.mark.parametrize("line, other", [(RESULT_LINE, RETCODE_LINE), (RETCODE_LINE, RESULT_LINE)])
+def test_nothing_but_an_exact_line_with_exit_255_is_a_transport_answer(line, other):
+    prefix = line.split(":", 1)[0]
+    not_transport = [
+        (255, "", prefix), (255, prefix, ""), (255, "", prefix + ":"),                  # the bare prefix
+        (255, "", "Failed to exec: " + line), (255, "", line + " Retrying."),           # text before or after
+        (255, "", "x" + line), (255, "", line + "x"),
+        (255, "", line + "\r\n" + other), (255, line, other),                          # the two lines together
+        (255, "", line + "\r\nAnother line."), (255, "Another line.", line),           # another non-blank line
+        (0, "", line), (1, "", line), (0, line, ""), (1, line, ""),                     # an exact line, exit 0 or 1
+        (255, "", line.lower()), (255, "", line[:-1]),                                 # not the same line
+    ]
+    for answer in not_transport:
+        assert harness.transport_line(*answer) is None, answer
 
 
 def test_a_read_retries_only_an_exact_transport_answer_and_logs_every_attempt(tmp_path, monkeypatch):

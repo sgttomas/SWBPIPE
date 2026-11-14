@@ -160,9 +160,11 @@ GUARD_SECTION_BUDGET_S = 120.0
 # the call's timeout (and the section budget inside the restore). Writes keep their single settled retry.
 GUARD_READ_ATTEMPTS = 6
 GUARD_READ_BACKOFF_S = 2.0
-# The prlctl client's two transport lines: it failed to fetch a guest job's result or its return code. Such an answer
-# allows that the guest command was dispatched, and possibly that it completed (`transport_line`).
-TRANSPORT_LINES = ("PrlJob_GetResult", "PrlJob_GetRetCode")
+# The prlctl client's two transport lines, exactly as it prints them: it failed to fetch a guest job's result or its
+# return code. Such an answer allows that the guest command was dispatched, and possibly that it completed
+# (`transport_line`).
+TRANSPORT_LINES = ("PrlJob_GetResult: Invalid argument. An invalid argument was passed.",
+                   "PrlJob_GetRetCode: Invalid argument. An invalid argument was passed.")
 # The guest's answer to `ver`: the one line a Windows guest prints (liveness).
 VER_LINE = re.compile(r"^Microsoft Windows \[Version [0-9]+(?:\.[0-9]+)+\]\Z")
 # One attempt per token: a fresh, unguessable token for each dispatch of the attempt operation (lower-case hex).
