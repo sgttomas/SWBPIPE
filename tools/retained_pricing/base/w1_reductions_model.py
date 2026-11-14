@@ -116,7 +116,10 @@ REDUCED_PINS = {
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",
     "core/product_physics/src/preview_physics.rs": "19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4",
-    "core/solver/frame_kernel/src/structural/formation_check.rs": "96b35424bd76fd7733b781241dd328aca91556372876df2a053cbdf2c7377e10",
+    # Explicit sliding-friction underflow refusal (DEL-04-01 AC-018): formation_check.rs re-read: sliding_friction_exact
+    # adds one refusal branch and four doc-comment lines, reached only through a friction formula D1 never forms. No
+    # reduction's owner or lifetime changes; the L5 texts are unchanged.
+    "core/solver/frame_kernel/src/structural/formation_check.rs": "e7b0b7158d017f186c4245c79506dafe7792fd8a86e07cf14092ea5a1205492d",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "ef58e6c2ec74bad85b991c344a2127a78145af2a22d8656bbeb699ad097c1e49",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
     "core/solver/nonlinear_integration/src/structural_adapter.rs": "72c93deecae3a0a377a02b08d91ab99d18a44d80d9ddb662b1cf1becd782b093",
