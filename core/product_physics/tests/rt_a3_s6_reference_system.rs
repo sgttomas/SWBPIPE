@@ -512,10 +512,7 @@ fn rs_sam_moves_only_through_its_resolved_anchor_motion() {
 /// not asserted. It says nothing about which addition produces the sensitivity,
 /// and it is not evidence about exit criterion 18 either way. It accepts neither
 /// outcome as correct: a change in what it observes needs independent numerical
-/// evidence, and the limitation entry reconciled, in the same change. A change in
-/// how the friction force's uncertainty reaches the formation check would change
-/// this outcome; such a change needs independent numerical evidence and LIM-017
-/// reconciled in the same change.
+/// evidence, and the limitation entry reconciled, in the same change.
 #[test]
 fn known_limitation_witness_the_no_gap_overlay_publishes_confirmed_sensitive_cases() {
     let model = overlay_without_gap();

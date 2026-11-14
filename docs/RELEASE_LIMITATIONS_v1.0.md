@@ -285,7 +285,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
   - both subtraction combinations are assessed and partially established. Their certificates keep apart groups established, groups not established, groups not assessed (below the floor) and rows not covered by any group. Rows not covered are inspection results, not withheld rows. The combination evidence states that these rows do not count toward the document's numerical eligibility.
   - Each subtraction also withholds two RS-EJ1 tie-rod rows. The committed reference system withholds the same rows, so they belong to the model.
   - The S11-G recovery guard demotes every case to `NUMERICAL_INTEGRITY_SENSITIVE`. At that revision it counted 495 (RS-SUS), 141 (RS-OPE) and 285 (RS-SAM) groups of the certified rows that "exceed the 1e-9 member-relative criterion or have an unavailable comparison". Its diagnostic names the first six in record order.
-  - A scratch record of every group at that revision found each one a finite exceedance, from 1.001 to 674 times the criterion.
+  - A scratch record of every group at that revision found every failing group a finite exceedance, from 1.001 to 674 times the criterion.
   - These are the guard's bounds. A bound is not a measured error.
   - So the case standing is not eligible, and its report is refused (LIM-016).
 - **Basis:**
