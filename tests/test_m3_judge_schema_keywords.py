@@ -10,9 +10,12 @@ exact-route record carrying load/reference states became unreadable, unnoticed, 
 
 This test takes the schema entries the judge consumes from the judge's own tables (EXACT_EVIDENCE_SCHEMA
 with SHAPE_CHECKED, SOURCE_RECOVERY_SCHEMA with SOURCE_RECOVERY_EVIDENCE), not from a sample record, so
-optional evidence is covered whether or not a record carries it. It checks that those tables are the
-reader's only call sites, then walks each entry and every `$ref` it reaches, across files, with a walker of
-its own that descends wherever JSON Schema places a subschema, and fails naming the schema file, the
+optional evidence is covered whether or not a record carries it. It checks the reader's call sites it
+recognises syntactically, a direct call of the reader inside a function of a judge module: that they are
+the two functions that take their entries from those tables. It does not establish a top-level call, a call
+through an imported alias, or how the schema argument is derived. It then walks each entry and every `$ref`
+it reaches, across files, with a walker of its own that descends wherever JSON Schema places a subschema,
+and fails naming the schema file, the
 JSON pointer and the keyword (or type) the reader does not support. It also runs the reader's own
 `schema_supported` on each entry. Pure reading; nothing is judged.
 """
