@@ -792,3 +792,32 @@ fn p_the_pattern_confirmation_equals_the_dense_derived_one() {
     }
     assert!(established >= 5, "non-vacuous: {established}");
 }
+
+/// DEL-04-01 OUT-001 and AC-018: on the ordinary route an explicit sliding
+/// force whose binary64 product mu·|N| rounds to zero leaves no applied-force
+/// record, so Stage B's load closure refuses before the forming helper (whose
+/// own refusal of that product, `frame_kernel`'s
+/// `explicit_sliding_friction_product_refuses_underflow_and_encloses_the_rest`,
+/// is therefore the discriminating test) is reached.
+#[test]
+fn an_explicit_friction_product_that_underflows_is_refused_at_load_closure() {
+    let (mu, normal) = (2f64.powi(-600), 2f64.powi(-600));
+    assert_eq!(mu * normal, 0.0);
+    for mode in MODES {
+        let (input, force) = cantilever(
+            vec![NonlinearSupport::friction("NL-U", 1, FrameDof::Ux, mu).unwrap()],
+            vec![SupportStateRecord::new("NL-U", ActiveSetState::Sliding)],
+            vec![FrictionNormalReaction::new("NL-U", normal).unwrap()],
+            Vec::new(),
+            &[],
+            &[(6, 40.0)],
+        );
+        let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, mode, &[]).unwrap();
+        assert!(solve.converged, "{:?}", solve.diagnostics);
+        let applied = &solve.iterations.last().unwrap().applied_sliding_friction_forces;
+        assert!(applied.iter().all(|f| f.support_id != "NL-U"), "{applied:?}");
+        let reason = reason(confirm(&input, &force, mode, None));
+        assert!(reason.starts_with("formation check: stage B: load closure:"), "{reason}");
+        assert!(!reason.contains("product underflows"), "{reason}");
+    }
+}
