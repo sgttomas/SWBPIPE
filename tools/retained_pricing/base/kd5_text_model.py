@@ -263,7 +263,9 @@ def inspect_directed_helpers(snapshot):
 # comparing a code); no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
 # Self-weight units repair (12f46a797): lib.rs re-read: one intensity unit test in `mod tests` restates its evidence
 # literal (test-only); no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '3343fa7efd15a53e17a699aefd9f3af3e43c1c863e281ebe629da05ed491d429'
+# DEL-04-07 REQ-008 part 1: lib.rs re-read: one test-module declaration folded onto an existing line (test-only);
+# no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '7a5ab1f822e1492b62d768bf5e809dd0060b55a13cadc6f05d84618da1399219'
 
 
 def _ce_fallback():
