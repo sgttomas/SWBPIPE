@@ -77,14 +77,17 @@ once 2 min later. The run stops at the first unclean settings check, a failed
 check before a model, or a round trip that raised twice; the GUI print fallback
 is used only with restore_scope "key" (Design §5). --offline builds the records
 from the stored, bound CSVs. Each case's SWBPIPE request and result are created
-once and never replaced. A case is admitted only when it holds neither and its
-case manifest, if any, is readable and records no custody; any other case is
-refused by name, live or offline, before anything is solved or any folder or file
-is created: manifest_unreadable when the manifest cannot be read or its custody
-member is not an object (custody unknown, not absent), already_recorded when it
-records custody, whether or not the request and result are still present (the
-reason carrying the manifest's outcome and route), and half_made when either file
-exists and no manifest records custody. The route only classifies the refusal.
+once and never replaced. At admission a case may proceed only when it holds
+neither and its case manifest is absent or readable as recording no custody (the
+command's other admission checks still apply). Every case that does not meet this
+condition is refused by name, live or offline, before anything is solved or any
+folder or file is created: already_recorded when its manifest reads as recording
+custody, whether or not the request and result are still present (the reason
+carrying the manifest's outcome and route); manifest_unreadable when its manifest
+is present and reads neither as recording custody nor as recording none (custody
+unknown, not absent: as when it cannot be read as a JSON object, is a link, or has
+a custody member that is not an object); and half_made when either file exists and
+no manifest records custody. The route only classifies the refusal.
 Offline, a case with no folder is refused as no_stored_case. The one retry of a
 model reuses its own solve. The case manifest's custody member records the SWBPIPE
 commit and whether its tree was clean, the runner binary's SHA-256, and the SHA-256
@@ -101,11 +104,12 @@ outcome of a round trip that raised, before its retry or before the stop after a
 second raise, is returned as not run, so that retry or stop is lost and the next
 model runs; a retry's second attempt writes no custody_recorded state before its
 round trip; and attempt 1's recorded outcome does not describe attempt 2 and cannot
-admit attempt 2's capture. Meanwhile the one permitted live caller is one that calls
-run_benchmark_model once per run with attempt 1, collect_only and the GUI fallback
-off, and never retries: the project's batch wrapper for the first comparison batch,
-kept outside the repository. This is a project instruction: the command does not
-itself refuse such a run.
+admit attempt 2's capture. Meanwhile the one permitted live caller is the
+independently reviewed wrapper used by the project's own first-comparison batch
+procedure. That procedure is maintained outside the public repository. The wrapper
+calls run_benchmark_model once per run with attempt 1, collect_only and the GUI
+fallback off, and never retries. Another caller is not covered, even with the same
+arguments. This is a project instruction: the command does not itself enforce it.
 
 Standard output carries operational status only: per case its id, route and
 either the comparison record's path relative to the exchange folder or the
@@ -483,7 +487,8 @@ def _manifest_custody(path: Path) -> tuple[str, dict[str, Any] | None, dict[str,
 
 
 class CustodyChanged(RuntimeError):
-    """A case manifest on disk holds a custody member other than the one this process recorded; nothing is written."""
+    """A case manifest on disk records custody other than the one this process recorded, or its custody is unknown
+    (as _manifest_custody reads it); the case manifest is not replaced."""
 
 
 def _now() -> str:
