@@ -24,7 +24,7 @@ pub enum StageProgress {
 /// `NotRun` only for the explicit not-run branches; every other evidence,
 /// including a refusal before a plan formed, is `Attempted`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ConfirmationAttempt {
+pub enum ConfirmationRun {
     NotRun,
     Attempted,
 }
@@ -115,15 +115,15 @@ pub struct StageEvidence {
     b_inputs_digest: Option<u64>,
     publication: PublicationUse,
     association: Vec<AssociationFailure>,
-    attempt: ConfirmationAttempt,
+    attempt: ConfirmationRun,
 }
 
 impl StageEvidence {
     /// The evidence of an explicitly not-run confirmation. Carries nothing.
     pub fn not_run() -> Self {
-        Self { attempt: ConfirmationAttempt::NotRun, ..Self::not_determined() }
+        Self { attempt: ConfirmationRun::NotRun, ..Self::not_determined() }
     }
-    pub fn attempt(&self) -> ConfirmationAttempt {
+    pub fn attempt(&self) -> ConfirmationRun {
         self.attempt
     }
     /// The evidence of an exit before a plan exists. Carries nothing.
@@ -134,7 +134,7 @@ impl StageEvidence {
             b_inputs_digest: None,
             publication: PublicationUse::NotConsulted,
             association: Vec::new(),
-            attempt: ConfirmationAttempt::Attempted,
+            attempt: ConfirmationRun::Attempted,
         }
     }
 

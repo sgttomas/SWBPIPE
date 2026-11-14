@@ -45,4 +45,6 @@ loaded-maximum-hooks = ["open_pipe_stress_frame_kernel/loaded-maximum-hooks"]
 [dev-dependencies]
 # RF source-method design §5.4: the J7 RF census's maintained control reads the
 # frame kernel's dev-only operation counter; test builds only, never the product.
-open_pipe_stress_frame_kernel = { path = "../solver/frame_kernel", features = ["exact-operation-count"] }
+# The inverse-norm carrier's tests build synthetic records through the kernel's
+# test-synthetic-records feature (carrier revision 4 §1.1); test builds only.
+open_pipe_stress_frame_kernel = { path = "../solver/frame_kernel", features = ["exact-operation-count", "test-synthetic-records"] }

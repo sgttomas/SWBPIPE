@@ -7,7 +7,7 @@
 //! private datasets, or professional acceptance are bundled by this crate.
 
 mod annulus_geometry;
-mod formation_guard;
+mod formation_guard; mod integrity; pub mod inverse_norm_evidence; // The inverse-norm evidence carrier (carrier revision 4 §3, §5), on this line so that no line moves.
 mod certified_loads;
 mod certified_publication;
 // Resolved load/reference-state case (model 0.4.0); one resolved case per load
@@ -1255,7 +1255,7 @@ pub struct MechanicsEnvelope {
     pub results: Vec<ResultItem>,
     pub diagnostics: Vec<Diagnostic>,
     pub professional_boundary: ProfessionalBoundary,
-    pub accepted_model_state_mutated: bool,
+    pub accepted_model_state_mutated: bool, #[serde(skip)] inverse_norm: integrity::InverseNormSink, // private: carrier revision 4 §4
 }
 
 /// Prospective source semantics; historical raw 0.1 carriers retain their identity.
@@ -1569,7 +1569,7 @@ fn append_integrity_report(
 /// hands publication: a confirmed state, or the fail-closed sentence.
 enum NonlinearStanding {
     Confirmed(Box<open_pipe_stress_nonlinear_integration::confirmation::ConfirmedState>),
-    NotEstablished(String),
+    NotEstablished { sentence: String, evidence: open_pipe_stress_nonlinear_integration::confirmation::StageEvidence }, // with whatever the confirmation ran (carrier revision 4 §2)
 }
 
 /// DEL-04-01 kd5-nonlinear-active-set.md §2.4: the fail-closed sentence of a
@@ -3752,7 +3752,7 @@ fn run_linear_static_preview_observed_inner(
         results,
         diagnostics,
         professional_boundary: professional_boundary(),
-        accepted_model_state_mutated: false,
+        accepted_model_state_mutated: false, inverse_norm: integrity::InverseNormSink::default(),
     };
     // W-16 slice b (§5): each operand's standing, from the assessed quality.
     if let Some(records) = envelope.contract_evidence.as_mut().and_then(|e| e.get_mut("exact_combinations")).and_then(serde_json::Value::as_array_mut) {
@@ -6109,10 +6109,10 @@ fn solve_prepared_load_case(
     let member_bound = linear_solve.as_ref().filter(|solve| pre_guard_passed && load_row_finding.is_none() && built.nonlinear_supports.is_empty() && solve.structural_report.quality == SolveQuality::Passed && selected_source.is_none()).and_then(|solve| solve.member_bound.as_ref());
     // DEL-04-01 kd5-nonlinear-active-set.md §3.1: a nonlinear case publishes
     // the certified rows of its confirmed converged state (Stage B).
-    let (confirmed_state, nonlinear_sentence) = match nonlinear_standing {
-        Some(NonlinearStanding::Confirmed(state)) => (Some(state), None),
-        Some(NonlinearStanding::NotEstablished(sentence)) => (None, Some(sentence)),
-        None => (None, None),
+    let (confirmed_state, nonlinear_sentence, _attempted_evidence) = match nonlinear_standing { // carrier revision 4 §3: evidence taken before this consuming match
+        Some(NonlinearStanding::Confirmed(state)) => (Some(state), None, None),
+        Some(NonlinearStanding::NotEstablished { sentence, evidence }) => (None, Some(sentence), Some(evidence)),
+        None => (None, None, None),
     };
     let confirmed = confirmed_state.as_deref().filter(|_| pre_guard_passed && load_row_finding.is_none() && !built.nonlinear_supports.is_empty());
     let nonlinear_state = capture_nonlinear_state_evidence(
@@ -7689,8 +7689,8 @@ fn append_nonlinear_support_loop_results(
                                     &frame_member_identities(built),
                                     solver_mode.nonlinear_mode(),
                                 )
-                                .unwrap_or_else(|error| Confirmation::NotEstablished {
-                                    reason: format!("confirmation attempt: {error}"),
+                                .unwrap_or_else(|error| {
+                                    Confirmation::not_determined(format!("confirmation attempt: {error}"))
                                 }),
                             );
                         }
@@ -7928,12 +7928,12 @@ fn append_nonlinear_support_loop_results(
             // return, so only a model with nonlinear supports forms it.
             let standing = match confirmation {
                 Some(Confirmation::Established(state)) => NonlinearStanding::Confirmed(state),
-                Some(Confirmation::NotEstablished { reason }) => {
-                    NonlinearStanding::NotEstablished(nonlinear_not_established_sentence(&reason))
+                Some(Confirmation::NotEstablished { reason, evidence }) => {
+                    NonlinearStanding::NotEstablished { sentence: nonlinear_not_established_sentence(&reason), evidence }
                 }
-                None => NonlinearStanding::NotEstablished(nonlinear_not_established_sentence(
+                None => NonlinearStanding::NotEstablished { sentence: nonlinear_not_established_sentence(
                     "confirmation attempt: not run",
-                )),
+                ), evidence: open_pipe_stress_nonlinear_integration::confirmation::StageEvidence::not_run() },
             };
             Some((solve, standing, qualification))
         }
@@ -15387,7 +15387,7 @@ fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> Me
         results: vec![],
         diagnostics,
         professional_boundary: professional_boundary(),
-        accepted_model_state_mutated: false,
+        accepted_model_state_mutated: false, inverse_norm: integrity::InverseNormSink::default(),
     };
     if let Some(basis) = preview_basis {
         envelope.formulation_basis = basis;
@@ -25909,4 +25909,15 @@ fn capture_nonlinear_state_evidence(
         final_states: solve.final_states.clone(),
         motion,
     }))
+}
+
+/// The document's inverse-norm evidence (carrier revision 4 §4, §5): exactly
+/// one entry per case of `numerical_quality.cases`, in that order, from the
+/// sink carried with this envelope. Identity-free. Appended here so that no
+/// line moves.
+impl MechanicsEnvelope {
+    pub fn inverse_norm_evidence(&self) -> inverse_norm_evidence::InverseNormEvidence {
+        let cases: Vec<&str> = self.numerical_quality.cases.iter().map(|c| c.basis_ref.ref_id.as_str()).collect();
+        self.inverse_norm.projection(&self.diagnostics, &cases)
+    }
 }

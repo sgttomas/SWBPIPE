@@ -480,7 +480,7 @@ pub(crate) fn derive(held: &HeldStatusSolve, orienting: &NonlinearFrameIteration
         (_, Outcome::Established) => ESTABLISHED.to_string(),
         (_, Outcome::Released) => RELEASED_STANDING.to_string(),
         (_, Outcome::GapInspection) => GAP_STANDING.to_string(),
-        (Confirmation::NotEstablished { reason }, Outcome::NotEstablished) => not_established(reason),
+        (Confirmation::NotEstablished { reason, .. }, Outcome::NotEstablished) => not_established(reason),
         (Confirmation::Established(_), Outcome::NotEstablished) => unreachable!("established is E"),
     };
     HeldEvidence {
@@ -556,6 +556,17 @@ pub(crate) struct HeldRun {
     pub evidence: HeldEvidence,
     pub converged: bool,
     pub exit: Option<(&'static str, String)>,
+    /// The held solve's own confirmation evidence (carrier revision 4 §6),
+    /// taken before the confirmation is consumed. Never serialized into
+    /// `contract_evidence` or `held_status_derivation`.
+    pub inverse_norm: HeldInverseNorm,
+}
+
+/// The held-publication owner of a held solve's inverse-norm evidence
+/// (carrier revision 4 §6, R3-F2): projected under the comparison's ids.
+#[derive(Debug, Clone)]
+pub(crate) struct HeldInverseNorm {
+    pub evidence: Option<open_pipe_stress_nonlinear_integration::confirmation::StageEvidence>,
 }
 
 /// A declared operating comparison whose subtrahend is held at the minuend's final status.
@@ -649,12 +660,17 @@ pub(crate) fn held_solve(
         .map(|d| (crate::solver_diag_code(d.code), d.message.clone()));
     let converged = held.result.converged;
     let HeldStatusSolve { result, confirmation, .. } = held;
+    // Carrier revision 4 §6: the held evidence is taken before the confirmation is consumed.
+    let inverse_norm = HeldInverseNorm { evidence: Some(confirmation.evidence().clone()) };
     // Only E publishes the certified rows; every other outcome's rows are binary64 recoveries.
     let standing = match (evidence.outcome, confirmation) {
         (Outcome::Established, Confirmation::Established(state)) => NonlinearStanding::Confirmed(state),
-        _ => NonlinearStanding::NotEstablished(evidence.standing.clone()),
+        (_, confirmation) => NonlinearStanding::NotEstablished {
+            sentence: evidence.standing.clone(),
+            evidence: confirmation.into_evidence(),
+        },
     };
-    request.outcome = Some(Ok(HeldRun { evidence, converged, exit }));
+    request.outcome = Some(Ok(HeldRun { evidence, converged, exit, inverse_norm }));
     Some((result, standing, None))
 }
 
