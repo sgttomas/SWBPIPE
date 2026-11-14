@@ -172,7 +172,7 @@ pub fn numerical_health_json(source: &Value, reader_findings: Option<&Value>) ->
     // DEL-07-05: the indicator's one gate, decided here, where every indicator
     // caller enters (the desktop through `operation_applier::numerical_health_json`,
     // in wasm and natively), before any message is read.
-    serde_json::to_string(&projection(source, reader_findings, mechanics_solved(source)))
+    serde_json::to_string(&projection(source, reader_findings, true))
         .map_err(|error| format!("NUMERICAL_HEALTH_SERIALIZATION: {error}"))
 }
 
@@ -286,13 +286,25 @@ pub fn mechanics_solved(source: &Value) -> bool {
 /// report unit's. The indicator never calls this; it enters through
 /// `numerical_health_json`, which applies `mechanics_solved`.
 pub(crate) fn numerical_health(source: &Value, reader_findings: Option<&Value>) -> Health {
-    projection(source, reader_findings, true)
+    projection(source, reader_findings, false)
 }
 
-/// The numerical health of `source`. With `solved` false (a document whose
-/// mechanics are not solved, so no result is published) every case is not
-/// assessed, with no figure and no cause, decided before any message is read.
-fn projection(source: &Value, reader_findings: Option<&Value>, solved: bool) -> Health {
+/// The states the gate suppresses in a document whose mechanics are not solved:
+/// a verdict that could be read as fit for use. Every other state (solve failed,
+/// quality unresolved, not assessed) passes through unchanged, with its code and
+/// causes: what is preserved is the attempt's recorded diagnostic, as main showed
+/// it. That equality is compatibility, not a claim that the recorded
+/// classification holds for the supplied model (issue #343).
+const SUPPRESSED_WHEN_NOT_SOLVED: [&str; 2] = ["checks_passed", "sensitive"];
+
+/// The numerical health of `source`. With `gated`, in a document whose mechanics
+/// are not solved (so no result is published), a case in a
+/// [`SUPPRESSED_WHEN_NOT_SOLVED`] state is not assessed, with no figure, no
+/// cause and no code, decided before its message is read; every other case is
+/// as in a solved document.
+fn projection(source: &Value, reader_findings: Option<&Value>, gated: bool) -> Health {
+    let solved = mechanics_solved(source);
+    let suppress = gated && !solved;
     let route = route_of(source);
     let index = Diagnostics::new(source);
     let mut cases = Vec::new();
@@ -307,7 +319,7 @@ fn projection(source: &Value, reader_findings: Option<&Value>, solved: bool) -> 
                 &index,
                 case_id,
                 state_of(entry["solve_quality"].as_str()),
-                solved,
+                suppress,
             ));
         }
     }
@@ -315,7 +327,7 @@ fn projection(source: &Value, reader_findings: Option<&Value>, solved: bool) -> 
     // assessed.
     for case_id in named_load_cases(source) {
         if seen.insert(case_id.to_string()) {
-            cases.push(case_health(&index, case_id, "not_assessed", solved));
+            cases.push(case_health(&index, case_id, "not_assessed", suppress));
         }
     }
     let states: HashMap<&str, &'static str> = cases
@@ -382,15 +394,17 @@ fn named_load_cases(source: &Value) -> Vec<&str> {
         .collect()
 }
 
-fn case_health(index: &Diagnostics, case_id: &str, state: &'static str, solved: bool) -> CaseHealth {
-    // A document whose mechanics are not solved: not assessed, and the message
-    // is never read.
-    let state = if solved { state } else { "not_assessed" };
+fn case_health(index: &Diagnostics, case_id: &str, state: &'static str, suppress: bool) -> CaseHealth {
+    // A passing or sensitive case of a document whose mechanics are not solved:
+    // not assessed, and its message is never read. Any other case keeps the
+    // attempt's recorded diagnostic unchanged.
+    let suppressed = suppress && SUPPRESSED_WHEN_NOT_SOLVED.contains(&state);
+    let state = if suppressed { "not_assessed" } else { state };
     let integrity = index.integrity(case_id);
     let code = integrity.and_then(|d| d["code"].as_str());
     let integrity_id = integrity.and_then(|d| d["id"].as_str()).map(String::from);
     let report = integrity
-        .filter(|_| solved && matches!(code, Some(CHECKS_PASSED | SENSITIVE)))
+        .filter(|_| !suppressed && matches!(code, Some(CHECKS_PASSED | SENSITIVE)))
         .and_then(|d| d["message"].as_str())
         .and_then(|message| Report::parse(message, case_id));
     let linear = !index.nonlinear.contains(case_id) && report.as_ref().is_some_and(|r| r.linear);
@@ -457,7 +471,7 @@ fn case_health(index: &Diagnostics, case_id: &str, state: &'static str, solved: 
             locations: Vec::new(),
         });
     }
-    if !solved {
+    if suppressed {
         causes.clear();
     }
     CaseHealth {
@@ -465,7 +479,7 @@ fn case_health(index: &Diagnostics, case_id: &str, state: &'static str, solved: 
         state,
         // A case the gate made not assessed carries no integrity code: no reader of
         // this record sees a passing code beside a not-assessed state.
-        code: code.filter(|_| solved).map(String::from),
+        code: code.filter(|_| !suppressed).map(String::from),
         integrity_diagnostic_id: integrity_id,
         rcond,
         // `0.0 -` keeps rcond = 1 at +0 (the display is the desktop's).
@@ -1348,6 +1362,44 @@ mod tests {
     fn health(source: &Value, findings: Option<&str>) -> Value {
         let findings: Option<Value> = findings.map(|text| serde_json::from_str(text).unwrap()).filter(|v: &Value| !v.is_null());
         serde_json::from_str(&numerical_health_json(source, findings.as_ref()).unwrap()).unwrap()
+    }
+
+    /// DEL-07-05: in a document whose mechanics are not solved, only a passing or
+    /// sensitive case is suppressed; a failure, and a case not assessed, keeps its
+    /// state, causes and code exactly as in the same document stated solved.
+    #[test]
+    fn a_failure_in_a_document_not_solved_keeps_its_state() {
+        let failures = [
+            (PHYSICAL_MECHANISM, "failed", "solve_failed"),
+            (NEGATIVE_ENERGY, "failed", "solve_failed"),
+            ("NUMERICAL_INTEGRITY_FAILED", "failed", "solve_failed"),
+            (RECOVERY_BASIS_UNQUALIFIED, "unresolved", "quality_unresolved"),
+            ("NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED", "unresolved", "quality_unresolved"),
+            ("NUMERICAL_INTEGRITY_UNRESOLVED", "unresolved", "quality_unresolved"),
+        ];
+        for (code, quality, state) in failures {
+            let solved = envelope("a", quality, vec![integrity("a", code, format!("Load case a: {code} evidence"))]);
+            let mut blocked = solved.clone();
+            blocked["status"] = json!({"mechanics": "MODEL_INCOMPLETE"});
+            let (s, b) = (health(&solved, None), health(&blocked, None));
+            assert_eq!(b["cases"][0]["state"], state, "{code}");
+            assert_eq!(b["cases"][0]["code"], code, "{code}");
+            assert_eq!(b["cases"], s["cases"], "{code}: as in the document stated solved");
+        }
+        // Not assessed passes through too: a case with no evaluation.
+        let solved = envelope("a", "not_assessed", vec![]);
+        let mut blocked = solved.clone();
+        blocked["status"] = json!({"mechanics": "MODEL_INCOMPLETE"});
+        assert_eq!(health(&blocked, None)["cases"], health(&solved, None)["cases"]);
+        // Sensitive is suppressed, with its causes and code.
+        let report = message("a", "Sensitive", "1e-9", ", residual_rows: ", MAP, "");
+        let mut sensitive = envelope("a", "sensitive", vec![integrity("a", SENSITIVE, report)]);
+        assert_eq!(health(&sensitive, None)["cases"][0]["state"], "sensitive");
+        sensitive["status"] = json!({"mechanics": "MODEL_INCOMPLETE"});
+        let case = &health(&sensitive, None)["cases"][0];
+        assert_eq!(case["state"], "not_assessed");
+        assert!(case["code"].is_null() && case["rcond"].is_null());
+        assert_eq!(case["causes"], json!([]));
     }
 
     fn one_case(case: &str, code: &str, solve_quality: &str, message: String) -> Value {
