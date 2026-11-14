@@ -240,7 +240,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
     - with RS-G1, every case is unresolved (LIM-017);
     - without RS-G1, every case is sensitive (LIM-017).
   - Both are refused.
-  - So neither tested overlay gives an exact-route result whose report is admitted. Neither contains every support the reference system specifies. Its intended one-way normal source for RS-FR1 is refused by the solve (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`), so the reference system with all its specified supports is not solved by the product.
+  - So neither tested overlay gives an exact-route result whose report is admitted. Neither contains every support the reference system specifies. With RS-FR1's intended one-way normal source, the same overlays solve and are not confirmed: the confirmation admits only a base restraint as a derived normal's source. So without RS-G1 every case is sensitive with that named reason, and with RS-G1 every case is unresolved. A maintained test observes these standings (`core/product_physics/tests/rt_a3_s6_reference_system.rs`); their report refusal is read from `standing()`'s rule, not observed.
 - **Why:** staged implementation. The rendered report states numerical standing (DEL-08-01 REQ-024) and admits such results first; the package save and the user release take the same admission when their own changes land (their package version change, and the user-release record's vocabulary, which today names ineligible exact-route results as not carried).
 - **What the user does instead:** renders and prints the report from the rendered view, with its standing stated. A report package or a user release of the same results still needs eligible standing; source binding and the other report conditions still apply.
 - **Basis:**
@@ -311,4 +311,22 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** the reader forms the whole result as a parsed tree and admits that tree's priced memory before parsing. The parse lease is bounded by the owner's 12 GiB per-invocation default (`apps/desktop/src-tauri/src/memory_pool.rs`, "Policy (fixed by the owner)") whatever budget is set.
 - **What the user does instead:** reduce the cases and combinations in one run, or split the model, then solve again.
 - **Basis:** DEL-07-07 [scope](../execution/PKG-07/DEL-07-07/ScopeOfWork.md), REQ-013, REQ-015 and "Held result"; DEL-04-05 [scope](../execution/PKG-04/DEL-04-05/ScopeOfWork.md), the clock. The refusal was standing before this entry, from the native custody of PR #59. The entry was added with PR #319. The size at which main's linear rack is refused is added when it has been measured.
+- **Status:** not yet declared.
+
+### LIM-019 — A friction support whose normal comes from a one-way support can cycle although an admissible state exists
+
+- **Id:** LIM-019
+- **Exit criteria:** 1
+- **Requirement affected:** DEL-04-04/REQ-012, that the nonlinear support classes converge on the validation cases and that the reference system's gap, lift-off and friction supports converge; DEL-04-07's assembled nonlinear iteration. The refusal satisfies DEL-04-04/AC-004: a case whose states cycle is reported as not converged and never published as converged. It does not establish REQ-012's convergence.
+- **Code:** `NONLINEAR_SUPPORT_NONCONVERGENCE` and `SOLVER_SYSTEM_BLOCKED`, both blocking; the mechanics status is `MODEL_INCOMPLETE`.
+- **What is refused:** The current active-set iteration cycles on a demonstrated friction case whose normal comes from a one-way support, although an admissible equilibrium exists. Both solver modes report non-convergence and refuse the mechanics result. The refusal does not establish that the model has no equilibrium.
+- **What it means in practice for a user:** for such a model no case is solved and no result row is published. The non-convergence message names the supports still changing and each support's state at the last iteration. How often this arises in ordinary models is not established.
+- **Why:** the iteration updates every support's state at once. In the solver-level witness, sticking makes the one-way support pull so both release; with both free, lateral motion re-engages the one-way support; with the friction support free and the one-way support bearing, the friction support's zero trial force makes it stick again, repeating without reaching the admissible bearing-and-sliding state.
+- **What the user does instead:** no workaround has been demonstrated for this case.
+- **Basis:**
+  - DEL-04-04 [scope](../execution/PKG-04/DEL-04-04/ScopeOfWork.md) (REQ-012, AC-004) and DEL-04-07 [scope](../execution/PKG-04/DEL-04-07/ScopeOfWork.md) (the nonlinear iteration).
+  - Solver-level witness: `core/solver/nonlinear_integration/src/oneway_source_tests.rs`, `a_lift_off_friction_cycle_ends_in_named_non_convergence`. The model is an off-axis chord (3, −4, 0) under −100 along X and +3 along Y, against a positive-reaction one-way support at μ = 0.3. In both solver modes the states repeat with period three over 16 iterations. The admissible state on the nominal chord, computed exactly by the independent numerical reading of the change that records this entry, is N = 23915/773, T = 14349/1546, u_x = −126125/18552.
+  - Product-level witness: `core/product_physics/tests/friction_one_way_normal_source.rs`, `a_lift_off_friction_cycle_is_refused_by_name_with_no_result`. It is the same chord geometry as a model document, with this file's pipe section and material, so its stiffness is not the nominal chord's. In both modes it gives the two codes above and no result row.
+  - A separate observation, not generalized: the frozen reference's exact lift-boundary case LIFT-BOUNDARY (`validation/references/friction_one_way_normal`) converges in dense mode, and reaches its four-iteration cap in sparse mode, where it is refused with the same codes. This is not a general failure of sparse mode, and dense mode is not a workaround.
+  - The refusal became standing with PR #326, which admits a one-way or lift-off support as a friction normal source and records this entry. Before it, such a model was refused at model build (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`).
 - **Status:** not yet declared.

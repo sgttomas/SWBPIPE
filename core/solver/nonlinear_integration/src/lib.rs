@@ -13,6 +13,8 @@ mod dense_memory_guard_tests;
 #[cfg(test)]
 mod held_tests;
 #[cfg(test)]
+mod oneway_source_tests;
+#[cfg(test)]
 mod p_tests;
 #[cfg(test)]
 mod s11k_tests;
@@ -32,8 +34,8 @@ use open_pipe_stress_frame_kernel::{
     FrameDof, FrameElement, FrameKernelError, Matrix12, DOF_PER_NODE, ELEMENT_DOF,
 };
 use open_pipe_stress_nonlinear_supports::{
-    evaluate_active_set_iteration_with_resolved_friction_states, ActiveSetIteration,
-    ActiveSetIterationInput, ActiveSetState, GapDirection, NonlinearSupport,
+    evaluate_active_set_iteration_with_resolved_friction_states, ActivationSense,
+    ActiveSetIteration, ActiveSetIterationInput, ActiveSetState, GapDirection, NonlinearSupport,
     NonlinearSupportBehavior, NonlinearSupportError, SupportStateRecord, TrialSupportState,
 };
 use open_pipe_stress_solver_diagnostics::{
@@ -970,6 +972,7 @@ fn complete_iteration(
     );
     let trial_states = build_trial_states(
         &ctx.input.nonlinear_supports,
+        &state.current_states,
         &ctx.input.ground_motion,
         &sliding_solve.linearized.displacements,
         &sliding_solve.reactions,
@@ -1295,6 +1298,7 @@ fn product_final_state_conditions(
     let derived = derived_friction_normal_map(input)?;
     let trials = build_trial_states(
         &input.nonlinear_supports,
+        &solve.final_states,
         &input.ground_motion,
         &solve.displacements,
         &solve.reactions,
@@ -1574,7 +1578,11 @@ fn sliding_friction_support_present(
 #[derive(Debug, Clone, Copy)]
 enum SlidingNormalSource {
     Explicit(f64),
-    Derived { source_global_dof: usize },
+    /// `bearing_sense` is `Some(s)` when the source is a one-way or lift-off
+    /// support (DEL-04-04 REQ-012): its normal is s·R on the branch s. `None`
+    /// preserves the existing branch selected from the previous reaction for
+    /// every other source.
+    Derived { source_global_dof: usize, bearing_sense: Option<f64> },
 }
 
 #[derive(Debug, Clone)]
@@ -1712,13 +1720,19 @@ fn solve_iteration_with_sliding_friction_evidence(
         let mut branches = Vec::with_capacity(derived_candidates.len());
         for &candidate_index in &derived_candidates {
             let candidate = &candidates[candidate_index];
-            let SlidingNormalSource::Derived { source_global_dof } = candidate.normal_source else {
+            let SlidingNormalSource::Derived { source_global_dof, bearing_sense } =
+                candidate.normal_source
+            else {
                 unreachable!("derived candidate index must name a derived normal")
             };
             let previous_reaction = previous
                 .expect("derived sliding candidate requires a previous iterate")
                 .reactions[source_global_dof];
-            let branch = if previous_reaction == 0.0 {
+            // A one-way or lift-off source bears only in its own sense, so its
+            // normal is s·R on the branch s, never a pulling reaction's |R|.
+            let branch = if let Some(sense) = bearing_sense {
+                sense
+            } else if previous_reaction == 0.0 {
                 normalized_reaction_sign(base_reactions[source_global_dof])
             } else {
                 normalized_reaction_sign(previous_reaction)
@@ -1748,7 +1762,7 @@ fn solve_iteration_with_sliding_friction_evidence(
             });
             let unit_reactions = reported_reactions(&unit.reactions, &unit_applied)?;
             for (row, &reaction_candidate_index) in derived_candidates.iter().enumerate() {
-                let SlidingNormalSource::Derived { source_global_dof } =
+                let SlidingNormalSource::Derived { source_global_dof, .. } =
                     candidates[reaction_candidate_index].normal_source
                 else {
                     unreachable!("derived candidate index must name a derived normal")
@@ -1764,7 +1778,8 @@ fn solve_iteration_with_sliding_friction_evidence(
         let mut right_hand_side = vec![0.0; row_count];
         for (row, &candidate_index) in derived_candidates.iter().enumerate() {
             let candidate = &candidates[candidate_index];
-            let SlidingNormalSource::Derived { source_global_dof } = candidate.normal_source else {
+            let SlidingNormalSource::Derived { source_global_dof, .. } = candidate.normal_source
+            else {
                 unreachable!("derived candidate index must name a derived normal")
             };
             let c = candidate.direction * candidate.coefficient * branches[row];
@@ -1823,7 +1838,8 @@ fn solve_iteration_with_sliding_friction_evidence(
     let mut derived_branch_admissibility = HashMap::new();
     for candidate_index in &derived_candidates {
         let candidate = &candidates[*candidate_index];
-        let SlidingNormalSource::Derived { source_global_dof } = candidate.normal_source else {
+        let SlidingNormalSource::Derived { source_global_dof, .. } = candidate.normal_source
+        else {
             unreachable!("derived candidate index must name a derived normal")
         };
         let admissible = derived_normal_branch_admissible(
@@ -1935,6 +1951,22 @@ pub fn solve_held_status_iteration(
         ..input.clone()
     };
     validate_input(&held_input)?;
+    // The held comparison keeps each unilateral support at its held status even
+    // where it would need a reaction it cannot supply, and the held record
+    // states a derived normal as |R| (DEL-05-02). A one-way or lift-off normal
+    // source has no held rule yet, so it is refused by name.
+    if let Some(source) = held_input
+        .derived_friction_normal_reactions
+        .iter()
+        .find(|source| nonlinear_normal_source(&held_input.nonlinear_supports, source).is_some())
+    {
+        return Err(NonlinearIntegrationError::InvalidInput {
+            detail: format!(
+                "held status: support {}'s friction normal is derived from the one-way or lift-off support {}, which has no held-status rule",
+                source.support_id, source.source_ref
+            ),
+        });
+    }
     // Missing, unknown and repeated held records are refused here, as seeds are.
     let held_states = normalized_initial_states(&held_input)?;
     if let Some(iterate) = orienting {
@@ -2186,8 +2218,17 @@ fn sliding_friction_candidates(
                 .get(support.support_id.as_str())
                 .copied()
             {
+                let bearing = nonlinear_normal_source(&input.nonlinear_supports, source);
+                // A one-way or lift-off source that is not active in this
+                // iterate bears nothing: N = 0, so no friction force is formed.
+                if let Some((source_id, _)) = bearing {
+                    if state_map.get(source_id).copied() != Some(ActiveSetState::Active) {
+                        continue;
+                    }
+                }
                 SlidingNormalSource::Derived {
                     source_global_dof: node_dof_index(source.source_node_index, source.source_dof),
+                    bearing_sense: bearing.map(|(_, sense)| sense),
                 }
             } else {
                 return Err(NonlinearSupportError::MissingFrictionData {
@@ -2353,6 +2394,28 @@ fn derived_friction_normal_map(
                     source.source_ref
                 ),
             });
+        }
+        // DEL-04-04 REQ-012: a one-way or lift-off source is named on its own
+        // translational DOF. Any other source keeps the rule it always had
+        // (|R| at its DOF); the product admits no gap or friction source.
+        if let Some(named) = input.nonlinear_supports.iter().find(|support| {
+            support.support_id == source.source_ref
+                && matches!(
+                    support.behavior,
+                    NonlinearSupportBehavior::OneWay { .. } | NonlinearSupportBehavior::LiftOff { .. }
+                )
+        }) {
+            if named.node_index != source.source_node_index
+                || named.dof != source.source_dof
+                || !is_translation_dof_index(global_dof)
+            {
+                return Err(NonlinearIntegrationError::InvalidInput {
+                    detail: format!(
+                        "derived friction normal source {} is a one-way or lift-off support and must be named on its own translational DOF",
+                        source.source_ref
+                    ),
+                });
+            }
         }
         if normals.insert(source.support_id.as_str(), source).is_some() {
             return Err(NonlinearIntegrationError::InvalidInput {
@@ -3336,8 +3399,11 @@ fn is_translation_dof_index(global_dof: usize) -> bool {
     matches!(global_dof % DOF_PER_NODE, 0 | 1 | 2)
 }
 
+/// `states` are the states the iterate was solved with: a one-way or lift-off
+/// normal source gives a normal only while it is active in them.
 fn build_trial_states(
     supports: &[NonlinearSupport],
+    states: &[SupportStateRecord],
     ground_motion: &[(String, f64)],
     displacements: &[f64],
     reactions: &[f64],
@@ -3362,6 +3428,8 @@ fn build_trial_states(
         if matches!(support.behavior, NonlinearSupportBehavior::Friction) {
             let normal = friction_normal_for_support(
                 support,
+                supports,
+                states,
                 reactions,
                 friction_normals,
                 derived_friction_normals,
@@ -3375,6 +3443,8 @@ fn build_trial_states(
 
 fn friction_normal_for_support(
     support: &NonlinearSupport,
+    supports: &[NonlinearSupport],
+    states: &[SupportStateRecord],
     reactions: &[f64],
     friction_normals: &HashMap<&str, f64>,
     derived_friction_normals: &HashMap<&str, &DerivedFrictionNormalReaction>,
@@ -3396,13 +3466,62 @@ fn friction_normal_for_support(
                 ),
             }
         })?;
-        return Ok(reaction.abs());
+        return Ok(derived_friction_normal(supports, states, source, reaction));
     }
 
     Err(NonlinearSupportError::MissingFrictionData {
         support_id: support.support_id.clone(),
     }
     .into())
+}
+
+/// The bearing sense s of a derived friction normal's source when that source is
+/// a one-way or lift-off support (+1 bearing with a positive reaction, -1 with a
+/// negative one), with its support id. `None` means the source is not a
+/// one-way or lift-off support; its normal keeps |R|.
+fn nonlinear_normal_source<'a>(
+    supports: &'a [NonlinearSupport],
+    source: &DerivedFrictionNormalReaction,
+) -> Option<(&'a str, f64)> {
+    let named = supports
+        .iter()
+        .find(|support| support.support_id == source.source_ref)?;
+    let sense = match named.behavior {
+        NonlinearSupportBehavior::OneWay { active_when } => active_when,
+        NonlinearSupportBehavior::LiftOff { contact_when } => contact_when,
+        _ => return None,
+    };
+    let sign = match sense {
+        ActivationSense::PositiveReaction => 1.0,
+        ActivationSense::NegativeReaction => -1.0,
+    };
+    Some((named.support_id.as_str(), sign))
+}
+
+/// The friction normal a derived source gives at `reaction`, its reaction in the
+/// published convention (DEL-04-04 REQ-012):
+/// - every other source: |R|, as it always has been (including a gap at NI level);
+/// - a one-way or lift-off source: exactly +0 unless it is active in `states`,
+///   and while it is active, s·R where that is positive and +0 otherwise, so a
+///   pulling reaction is never a normal.
+pub fn derived_friction_normal(
+    supports: &[NonlinearSupport],
+    states: &[SupportStateRecord],
+    source: &DerivedFrictionNormalReaction,
+    reaction: f64,
+) -> f64 {
+    let Some((source_id, sense)) = nonlinear_normal_source(supports, source) else {
+        return reaction.abs();
+    };
+    let active = states
+        .iter()
+        .any(|state| state.support_id == source_id && state.state == ActiveSetState::Active);
+    let bearing = sense * reaction;
+    if active && bearing > 0.0 {
+        bearing
+    } else {
+        0.0
+    }
 }
 
 fn multiply_matrix_vector(
@@ -5252,6 +5371,7 @@ mod tests {
 
                 let trial_states = build_trial_states(
                     &input.nonlinear_supports,
+                    &states,
                     &input.ground_motion,
                     &current.linearized.displacements,
                     &current.reactions,
