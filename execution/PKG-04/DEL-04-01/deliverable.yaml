@@ -32,6 +32,28 @@ needs:
     selects as Timoshenko (DEL-05-03/REQ-011, DEL-05-03/AC-004). The kernel forms its Timoshenko element from
     that definition; a change to the definition changes the kernel element with it.
   gating: false
+- from: DEL-02-01
+  condition: >-
+    For the M3 judge held here (validation/references/m3_judge): schemas/load_reference_state.schema.json,
+    which the exact route's load/reference states and pressure-source-1's resolved recovery evidence
+    reach, states their shape with only the JSON Schema keywords the judge's reader evaluates
+    (m3_view.SCHEMA_KEYWORDS); another keyword makes the judge refuse the records carrying that evidence
+    until its reader admits it. tests/test_m3_judge_schema_keywords.py names any such keyword.
+  evidence: tests/test_m3_judge_schema_keywords.py
+- from: DEL-08-04
+  condition: >-
+    For the M3 judge held here: schemas/results_pressure_3.v0.3.schema.json's PressureContractEvidence
+    names the exact route's contract-evidence members and states the shape of load_reference_states and
+    exact_combinations with only the keywords the judge's reader evaluates (m3_view.SCHEMA_KEYWORDS);
+    another keyword makes the judge refuse the records carrying that evidence.
+  evidence: tests/test_m3_judge_schema_keywords.py
+- from: DEL-04-08
+  condition: >-
+    For the M3 judge held here: schemas/physics_source_recovery.schema.json's ordinary and resolved
+    pressure-source-1 recovery evidence, against which the judge validates that contract's evidence, uses
+    only the keywords the judge's reader evaluates (m3_view.SCHEMA_KEYWORDS); another keyword makes the
+    judge refuse the pressure-source-1 records whose evidence reaches it.
+  evidence: tests/test_m3_judge_schema_keywords.py
 code_paths:
 # The frame kernel crate, with the integrity check (structural/formation_check**,
 # structural/certified_recovery.rs), the arc maximum enclosure (structural/arc_maximum.rs,
@@ -65,6 +87,8 @@ code_paths:
 - validation/references/t4_i6/**
 - validation/references/t4_i9/**
 - validation/references/t4_o13/**
+# The m3_judge schema reader against the public schemas it reads at judge time.
+- tests/test_m3_judge_schema_keywords.py
 checks:
 - core/solver/frame_kernel/src/lib.rs
 - core/solver/frame_kernel/src/structural/sparse/tests.rs
@@ -80,3 +104,4 @@ checks:
 - core/product_physics/tests/global_end_actions_runtime.rs
 - core/product_physics/tests/inverse_norm_premise_known_limitation_witness.rs
 - tests/test_global_end_verifier.py
+- tests/test_m3_judge_schema_keywords.py
