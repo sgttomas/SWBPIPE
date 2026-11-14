@@ -331,6 +331,7 @@ class FakeGuestModel:
         self.exercise_starts: list[str] = []  # tokens whose exercise process was started
         self.exercise_lingers = False  # the exercise's harmless process outlives the script's poll
         self.fence_denied = False  # the claim's create is refused (access denied): no effect, exit 1
+        self.reparse: set[str] = set()  # paths that are reparse points (a junction, a symbolic link)
 
     # -- state ---------------------------------------------------------------------------------------------------
     def spawn(self, job: str | None = None, pid: int | None = None) -> Process:
@@ -432,6 +433,14 @@ class FakeGuestModel:
         """The echo line the read script prints first for `command` (for a test that injects an answer in form)."""
         return read_echo(self.exchange_root, self.guest_exchange_root, command)[0]
 
+    def through_reparse(self, path: str) -> str | None:
+        """The first component of `path`, from the drive's first folder on, that is a reparse point, else None."""
+        parts = path.rstrip("\\").split("\\")
+        for i in range(2, len(parts) + 1):
+            if "\\".join(parts[:i]) in self.reparse:
+                return "\\".join(parts[:i])
+        return None
+
     def _read(self, argv, command: str, kind: str) -> subprocess.CompletedProcess:
         """A read- or write-script call: its echo first, then the operation's answer, as the real script prints
         them."""
@@ -476,6 +485,8 @@ class FakeGuestModel:
             if name not in self.jobs or (not members and not self.jobs[name]):
                 return done(argv, 0, "SWBPIPE-JOB v1 absent\r\n", "")
             return done(argv, 0, f"SWBPIPE-JOB v1 present active={len(members)}\r\n", "")
+        if kind in ("chunk", "hash") and self.through_reparse(payload["path"]):  # `Unreparsed`: refused, not opened
+            return done(argv, 1, "", f"path through a reparse point refused: {self.through_reparse(payload['path'])}")
         if kind == "chunk":
             data = self.files.get(payload["path"])
             if data is None:
@@ -497,6 +508,12 @@ class FakeGuestModel:
                            "format": "NTFS", "type": "Fixed",
                            "components": [{"path": "\\".join(folder.split("\\")[:i]), "reparse": False,
                                            "directory": True} for i in range(2, len(folder.split("\\")) + 1)]}
+                through = self.through_reparse(folder)
+                if through is not None:  # the walk stops at the reparse component and opens nothing through it
+                    components = [item for item in default["components"] if len(item["path"]) <= len(through)]
+                    components[-1]["reparse"] = True
+                    default = {"folder": folder, "absent": False, "final": None, "volume": None, "format": None,
+                               "type": None, "components": components}
                 entries.append(self.storage.get(folder, default if folder in self.dirs else
                                                 {"folder": folder, "absent": True}))
             return done(argv, 0, "SWBPIPE-STORAGE v1 " + json.dumps(entries, separators=(",", ":")) + "\r\n", "")

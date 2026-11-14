@@ -299,3 +299,63 @@ def test_the_fake_guest_runs_only_the_installed_read_script(tmp_path):
     record = harness._guest_step(config, guest.runner, 5.0, [], "cim", harness._read_command(config, "cim", {"pid": 1}),
                                  attempts=1)
     assert record["exit_status"] == 1 and not harness._answered(record)  # nothing installed: nothing runs
+
+
+# --------------------------------------------------------------------------------------------------------------
+# Reparse points (Amendment 5): the storage walk stops at one, and a chunk or hash through one is refused unopened.
+# --------------------------------------------------------------------------------------------------------------
+def test_the_read_script_refuses_paths_through_a_reparse_point_before_opening_them():
+    code = _code(READ_SOURCE)
+    for op in ("OpChunk", "OpHash"):
+        body = code[code.index(f"function {op}"):]
+        body = body[:body.index("\nfunction ", 1)] if "\nfunction " in body[1:] else body
+        assert body.index("Confined (") < body.index("Unreparsed $path") < body.index("[IO.File]::Exists")
+    storage = code[code.index("function OpStorage"):code.index("function OpHash")]
+    assert "Test-Path" not in storage and "Get-Item" not in storage and "[IO.File]::GetAttributes($c)" in storage
+    assert "0x02200000" in storage  # FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT
+    assert "function Unreparsed" in code and "path through a reparse point refused" in code
+
+
+def test_a_reparse_component_stops_the_storage_walk_and_fails_the_predicate(tmp_path):
+    config = config_for(tmp_path)
+    harness._install_guest_script(config.exchange_root, config.exchange_root / harness.HARNESS_DIR,
+                                  harness.READ_SCRIPT)
+    guest = FakeGuestModel(config.exchange_root)
+    folders = ["C:\\oracle\\work\\cx-s", "C:\\plain"]
+    guest.dirs |= set(folders)
+    guest.reparse.add("C:\\oracle\\work")  # a junction on the way
+    record = harness._guest_step(config, guest.runner, 5.0, [], "storage",
+                                 harness._read_command(config, "storage", {"folders": folders}), attempts=1)
+    through, plain = harness.parse_storage(harness._body(record), folders)
+    assert [item["path"] for item in through["components"]] == ["C:\\oracle", "C:\\oracle\\work"]
+    assert [item["reparse"] for item in through["components"]] == [False, True]
+    assert (through["final"], through["volume"], through["format"], through["type"]) == (None, None, None, None)
+    assert through["meets"] is False and plain["meets"] is True
+
+
+@pytest.mark.parametrize("op", ["chunk", "hash"])
+def test_a_chunk_or_hash_through_a_reparse_point_is_refused_unopened(tmp_path, op):
+    config = config_for(tmp_path)
+    harness._install_guest_script(config.exchange_root, config.exchange_root / harness.HARNESS_DIR,
+                                  harness.READ_SCRIPT)
+    guest = FakeGuestModel(config.exchange_root)
+    path = "C:\\oracle\\work\\cx-s\\model.csv"
+    guest.files[path] = b"INVENTED"
+    guest.reparse.add("C:\\oracle\\work\\cx-s")
+    payload = {"path": path} | ({"offset": 0, "length": 1024} if op == "chunk" else {})
+    record = harness._guest_step(config, guest.runner, 5.0, [], op, harness._read_command(config, op, payload),
+                                 attempts=1)
+    assert record["exit_status"] == 1 and record["echo"]["verified"] and not harness._answered(record)
+    assert record["stderr"] == "path through a reparse point refused: C:\\oracle\\work\\cx-s"
+    assert harness._body(record) == "" and not harness._not_found(record)  # neither an answer nor absent
+
+
+def test_a_claim_read_through_a_reparse_point_is_unreadable_in_the_state_report(tmp_path, clock):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    record = run(config, guest)
+    guest.reparse.add("C:\\invented-work\\cx-s")
+    state = harness.read_state_report(config, runner=guest.runner, case_id="cx-s",
+                                      token=record["attempt_token"])["attempt"]
+    assert (state["claim"], state["terminal"], state["classified"], state["success"]) == (
+        "unreadable", "unreadable", "unknown", False)

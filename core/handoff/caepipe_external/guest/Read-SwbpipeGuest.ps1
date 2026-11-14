@@ -19,12 +19,25 @@ in its fixed form, beginning with its own sentinel:
   regread  the value as `reg query` prints it (REG_BINARY only); not found:
            stderr `ERROR: The system was unable to find the specified registry key or value.`, exit 1
   storage  SWBPIPE-STORAGE v1 <one JSON array: per folder, absent, or its final path, volume path,
-           DriveFormat, DriveType and each path component's reparse and directory attributes>
+           DriveFormat, DriveType and each path component's reparse and directory attributes; at a
+           reparse component the walk stops, and final, volume, format and type are null>
   hash     SWBPIPE-HASH v1 absent | size=<n> sha256=<hex>
 Any error goes to stderr with a nonzero exit.
 
-Read-only by construction: it writes, creates, deletes and sets nothing, starts
-no process, and opens no path outside C:\ and the exchange root (`Confined`).
+Read-only by construction: the script's own operations write, create, delete and
+set nothing, and it starts no process. It names no path outside C:\ and the
+exchange root (`Confined`, a lexical check), and it refuses a path through a
+reparse point before opening it (`Unreparsed`, which walks the path's components
+by their attributes and does not follow the last); the storage answer reports a
+reparse component and stops its walk there, opening nothing through it. In
+answering the `cim` query the WMI service may start its own provider host
+(WmiPrvSE.exe); `job`'s OpenJobObject, `regread`'s read-only OpenSubKey and the
+storage, chunk and hash opens create nothing and start nothing. Windows
+PowerShell itself, as on every call, may write its own event-log records (for
+this script, an automatic warning-level script-block record of its
+Reflection.Emit content among them) and its module analysis cache and startup
+profile data under %LOCALAPPDATA%, and its command discovery lists the folders
+on PSModulePath; these are not the script's operations.
 Native calls are made through Reflection.Emit in memory (DefineDynamicAssembly
 with Run access, DefinePInvokeMethod, CreateType): no compiler and no temporary
 file. The pattern is taken from NATIVE in the route check's fence_check.py
@@ -58,6 +71,16 @@ function Confined([string]$path) {
        $full.StartsWith($root.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)
   if (-not ($c -or $x)) { throw "path outside C:\ and the exchange root refused: $path" }
   return $full
+}
+
+# Refuse a path through a reparse point, walking components by attributes (GetFileAttributes does not follow the last).
+function Unreparsed([string]$path) {
+  $parts = $path.TrimEnd('\').Split('\')
+  for ($i = 2; $i -le $parts.Length; $i++) {
+    $c = ($parts[0..($i - 1)] -join '\')
+    try { $a = [IO.File]::GetAttributes($c) } catch [IO.FileNotFoundException], [IO.DirectoryNotFoundException] { return }
+    if ($a -band [IO.FileAttributes]::ReparsePoint) { throw "path through a reparse point refused: $c" }
+  }
 }
 
 # In-memory P/Invoke through Reflection.Emit (NATIVE of fence_check.py, lines 85 to 96).
@@ -118,6 +141,7 @@ function OpJob($p) {
 # SHA-256, then the chunk in base64. A missing file is `absent`.
 function OpChunk($p) {
   $path = Confined ([string]$p.path)
+  Unreparsed $path
   if (-not [IO.File]::Exists($path)) { return "SWBPIPE-CHUNK v1 absent`r`n" }
   $fs = [IO.File]::Open($path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
   try {
@@ -156,18 +180,23 @@ function OpStorage($p) {
   $out = [Collections.ArrayList]::new()
   foreach ($folder in @($p.folders)) {
     $path = Confined ([string]$folder)
-    if (-not (Test-Path -LiteralPath $path -PathType Container)) {
-      [void]$out.Add([ordered]@{ folder = $path; absent = $true }); continue
-    }
     $parts = $path.TrimEnd('\').Split('\')
     $comp = [Collections.ArrayList]::new()
+    $absent = $false; $through = $false
     for ($i = 2; $i -le $parts.Length; $i++) {
       $c = ($parts[0..($i - 1)] -join '\')
-      $a = (Get-Item -LiteralPath $c -Force).Attributes
-      [void]$comp.Add([ordered]@{ path = $c; reparse = [bool]($a -band [IO.FileAttributes]::ReparsePoint)
-                                  directory = [bool]($a -band [IO.FileAttributes]::Directory) })
+      try { $a = [IO.File]::GetAttributes($c) }
+      catch [IO.FileNotFoundException], [IO.DirectoryNotFoundException] { $absent = $true; break }
+      $r = [bool]($a -band [IO.FileAttributes]::ReparsePoint)
+      [void]$comp.Add([ordered]@{ path = $c; reparse = $r; directory = [bool]($a -band [IO.FileAttributes]::Directory) })
+      if ($r) { $through = $true; break }
     }
-    $h = $n::CreateFile($path, 0, 7, [IntPtr]::Zero, 3, 0x02000000, [IntPtr]::Zero)
+    if ($absent) { [void]$out.Add([ordered]@{ folder = $path; absent = $true }); continue }
+    if ($through) {
+      [void]$out.Add([ordered]@{ folder = $path; absent = $false; final = $null; volume = $null; format = $null
+                                 type = $null; components = $comp.ToArray() }); continue
+    }
+    $h = $n::CreateFile($path, 0, 7, [IntPtr]::Zero, 3, 0x02200000, [IntPtr]::Zero)
     $final = $null
     if ($h -ne [IntPtr](-1)) {
       $b = [Text.StringBuilder]::new(1024)
@@ -187,6 +216,7 @@ function OpStorage($p) {
 
 function OpHash($p) {
   $path = Confined ([string]$p.path)
+  Unreparsed $path
   if (-not [IO.File]::Exists($path)) { return "SWBPIPE-HASH v1 absent`r`n" }
   $size = ([IO.FileInfo]::new($path)).Length
   return "SWBPIPE-HASH v1 size=$size sha256=" + (FileSha $path) + "`r`n"
