@@ -46,9 +46,13 @@
 // `queryResultRows`, `queryResultSourceRecovery` and `readResultRowSemantics`, imported and handed
 // the kept reply in place of a native call, so their own guards, decoders and requests apply.
 //
-// The standing rule (Agent 0): a predicate of the session's acceptance is IMPORTED where it is
-// exported; where it is restated, it has a row in the generated table with its source lines; and a
-// change to the judge or to a web source it imports or restates re-runs the table's check.
+// The standing rule (Agent 0):
+// A predicate of the session's acceptance is IMPORTED where it is exported. Where it is RESTATED,
+// it has a row in the generated table with its source lines and a digest of that source text; a
+// change to that text fails the check and names the row whose restatement must be revalidated. Any
+// change to the judge, or to a web source it imports or restates, re-runs the check. The check
+// gives traceability; it does not show that the judge equals the web, or that the table is
+// complete.
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
