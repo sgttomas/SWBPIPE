@@ -120,7 +120,6 @@ PREFIX_TESTS = {
     'core/model_operations/validation_preview/': ['tests/test_operation_validation_preview.py'],
     'core/reporting/report_package/': ['tests/test_schema_eval_parity.py'],
     'tools/retained_pricing/': ['tests/test_retained_pricing_tool.py'],
-    'tools/byte_compare/': ['tests/test_byte_compare_tool.py'],
 }
 
 # Maintained tests deliberately left unrouted, each with its reason.

@@ -138,6 +138,38 @@ def ensure_outside_work_trees(path: Path, what: str) -> None:
         raise SetupError(f"{what} {path} is inside a git work tree; it must be outside every work tree")
 
 
+# What the tool itself writes directly in the scratch directory; the table may not take one of these names.
+SCRATCH_EVIDENCE = frozenset({"plan.json", "results.json", "build-A.log", "build-B.log", "inputs", "runs", "build"})
+
+
+def table_destination(given: str, scratch: Path, work: Path) -> Path:
+    """The resolved --table path, refused unless it is outside every git work tree, does not exist (so
+    no file is truncated, including one hard-linked to a frozen request), and is none of the tool's own
+    paths: nothing under --work, which holds the generated worktrees, and none of the scratch evidence."""
+    raw = Path(given)
+    path = raw.resolve()
+    ensure_outside_work_trees(path, "--table")
+    if os.path.lexists(raw) or os.path.lexists(path):
+        raise SetupError(f"--table {given} already exists; the table is written only to a new file")
+    for root in (work.resolve(), *([scratch.resolve()] if scratch.exists() else [])):
+        if path == root or root in path.parents:
+            inside = path.relative_to(root).parts
+            if root == work.resolve() or not inside or inside[0] in SCRATCH_EVIDENCE:
+                raise SetupError(f"--table {path} is one of the tool's own paths under {root}")
+    return path
+
+
+def write_table(path: Path, table: str) -> None:
+    """Writes the table to `path`, created exclusively, after checking again that it is outside every
+    git work tree (the comparison has made worktrees since the first check)."""
+    ensure_outside_work_trees(path, "--table")
+    try:
+        with open(path, "x", encoding="utf-8") as handle:
+            handle.write(table)
+    except FileExistsError as error:
+        raise SetupError(f"--table {path} came into existence during the comparison; nothing was written") from error
+
+
 def ensure_new_or_empty(path: Path, what: str) -> None:
     if path.exists() and (not path.is_dir() or any(path.iterdir())):
         raise SetupError(f"{what} {path} exists and is not an empty directory")
@@ -495,6 +527,7 @@ def compare(args: argparse.Namespace) -> int:
         ensure_outside_work_trees(path, what)
     ensure_new_or_empty(scratch, "--scratch")
     work.mkdir(parents=True, exist_ok=True)
+    table_path = table_destination(args.table, scratch, work) if args.table else None
     manifest_path = Path(args.manifest).resolve()
     manifest = load_manifest(manifest_path.read_text(encoding="utf-8"))
     cargo = shlex.split(args.cargo)
@@ -510,7 +543,8 @@ def compare(args: argparse.Namespace) -> int:
         for side, info in sides.items():
             make_worktree(repo, info["worktree"], info["sha"])
             made.append(info["worktree"])
-        return _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, wrapper, sides, started)
+        return _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, wrapper, sides, started,
+                                     table_path)
     finally:
         if not args.keep_worktrees:
             for path in made:
@@ -519,7 +553,8 @@ def compare(args: argparse.Namespace) -> int:
                     print(f"byte_compare: could not remove worktree {path}: {error}", file=sys.stderr)
 
 
-def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, wrapper, sides, started) -> int:
+def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, wrapper, sides, started,
+                          table_path) -> int:
     failures: list[str] = []
     for side, info in sides.items():
         tree = info["worktree"]
@@ -619,8 +654,8 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
                          for side, info in sides.items()},
                "pairs": pairs, "failures": failures}
     (scratch / "results.json").write_text(json.dumps(results, indent=1, default=str) + "\n")
-    if args.table:
-        Path(args.table).write_text(table)
+    if table_path is not None:
+        write_table(table_path, table)
     else:
         sys.stdout.write(table)
     return EXIT_FAILED if failures else EXIT_OK

@@ -15,7 +15,7 @@ Standard library only. It needs `git`, and `cargo` or a host wrapper around it.
 
 ## Use
 
-Run from any directory. The scratch and work directories must be outside every git work tree:
+Run from any directory. The scratch and work directories, and the `--table` file, must be outside every git work tree; the table file must not exist yet:
 
 ```bash
 python3 tools/byte_compare/byte_compare.py compare --a <before> --b <after> \
@@ -123,7 +123,7 @@ The current entries are:
 
 ## Outputs and exit codes
 
-The table goes to stdout, or to `--table`. It has:
+The table goes to stdout, or to `--table`, a new file the tool creates exclusively. It refuses a `--table` path that already exists (so neither a file hard-linked to a request nor an earlier table is overwritten), that is inside a git work tree after resolving symlinks, that is under `--work`, or that is one of its own scratch paths below. It checks before building and again at the write. The table has:
 
 - each side's revision, commit, binary SHA-256, identity and target version;
 - one row per pair;
@@ -144,7 +144,7 @@ The table goes to stdout, or to `--table`. It has:
 |---|---|
 | 0 | every pair as the manifest expects and every compared pair byte-identical |
 | 1 | a failing pair, a byte difference among compared pairs, a coverage failure, or a binary, fixture or worktree that changed during the runs |
-| 2 | nothing compared: bad arguments or manifest, a scratch or work directory inside a git work tree, a failed build, or a binary not built as stated |
+| 2 | nothing compared: bad arguments or manifest, a scratch or work directory inside a git work tree, a refused `--table` destination, a failed build, or a binary not built as stated; also when the `--table` destination came to exist or entered a work tree during the comparison, in which case nothing is written there and `results.json` holds the comparison |
 
 ## Threat model
 
@@ -159,7 +159,7 @@ The tool is verification tooling, reviewed against these four threats (AGENTS.md
   - re-hashes each binary after the runs.
 
   It never runs a binary from `PATH`, another worktree or an argument.
-- **(c) A frozen request modified on disk.** The lift touches only copies under the scratch directory. The scratch directory must be outside every git work tree. After the runs, every fixture is re-hashed and every worktree must still be clean.
+- **(c) A frozen request modified on disk.** The lift touches only copies under the scratch directory. The scratch directory must be outside every git work tree. After the runs, every fixture is re-hashed and every worktree must still be clean. The `--table` file, written after those checks, must be new and is created exclusively, outside every work tree, under neither `--work` nor the tool's scratch evidence paths, as above.
 - **(d) Silent loss of coverage.** In each worktree the tool lists every file under a stated root that the manifest does not name, and fails on any. It also fails on any manifest path that does not exist. For every entry not expected to reach numerical work, it reports what each side did, and it fails when an expected refusal solves. `tests/test_byte_compare_tool.py` also checks the maintained manifest against the current tree, so a fixture added under a root without an entry fails CI.
 
 Outside the model:

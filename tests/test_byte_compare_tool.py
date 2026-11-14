@@ -117,7 +117,7 @@ def test_numerical_pairs_compare_their_bytes():
     assert moved["compared"] and moved["failed"]
 
 
-def test_an_expected_refusal_that_solves_fails():
+def test_an_expected_refusal_that_solves_fails_in_judge_pair():
     verdict = bc.judge_pair(side(bc.ENTRY_REFUSAL, bc.ENTRY_REFUSAL), side(bc.NUMERICAL, bc.ENTRY_REFUSAL, b"x"))
     assert verdict["failed"] and "B numerical_work where entry_refusal is expected" in verdict["why"]
 
@@ -221,15 +221,22 @@ STUB_CARGO = textwrap.dedent('''\
     import json, os, subprocess, sys
     from pathlib import Path
     args = sys.argv[1:]
+    LEAK_NAMES = {"RUSTFLAGS", "CARGO_ENCODED_RUSTFLAGS", "RUSTDOCFLAGS", "CARGO_INCREMENTAL", "RUSTC_WRAPPER",
+                  "RUSTC_WORKSPACE_WRAPPER"}
     manifest = Path(args[args.index("--manifest-path") + 1])
     target = Path(args[args.index("--target-dir") + 1])
     tree = manifest.parent.parent.parent.parent
     def git(*a):
         return subprocess.run(["git", "-C", str(tree), *a], capture_output=True, text=True, check=True).stdout.strip()
+    # Settings the tool must strip from the build's environment (CLEARED_ENV, CLEARED_PREFIXES).
+    leaked = sorted(k for k in os.environ if k in LEAK_NAMES or k.startswith(("GIT_", "CARGO_PROFILE_", "CARGO_BUILD_", "CARGO_TARGET_")))
+    if leaked:
+        print("stub cargo: inherited build settings reached the build: " + ", ".join(leaked), file=sys.stderr)
+        sys.exit(1)
     if os.environ.get("STUB_NO_LINK"):
         sys.exit(0)
     identity = {"source_commit": os.environ.get("STUB_COMMIT") or git("rev-parse", "HEAD"),
-                "source_tree": git("rev-parse", "HEAD^{tree}"),
+                "source_tree": os.environ.get("STUB_TREE") or git("rev-parse", "HEAD^{tree}"),
                 "source_dirty": bool(git("status", "--porcelain")) or bool(os.environ.get("STUB_DIRTY")),
                 "build_profile": os.environ.get("STUB_PROFILE") or ("release" if "--release" in args else "debug"),
                 "rustc": ["rustc 0.0.0-stub"], "cargo": ["cargo 0.0.0-stub"]}
@@ -247,6 +254,12 @@ STUB_DRIVER = textwrap.dedent('''\
     if sys.argv[1:] == ["--build-identity"]:
         print(IDENTITY); sys.exit(0)
     path, mode, out = sys.argv[1], sys.argv[3], sys.argv[5]
+    if os.environ.get("STUB_CREATE") and not os.path.lexists(os.environ["STUB_CREATE"]):
+        with open(os.environ["STUB_CREATE"], "x") as handle:
+            handle.write("earlier evidence")
+    if os.environ.get("STUB_GIT_INIT"):
+        import subprocess
+        subprocess.run(["git", "init", "-q", os.environ["STUB_GIT_INIT"]], check=True)
     if os.environ.get("STUB_TAMPER"):
         with open(os.path.join(TREE, os.environ["STUB_TAMPER"]), "a") as handle:
             handle.write(" ")
@@ -331,20 +344,21 @@ def world(tmp_path):
     manifest = tmp_path / "manifest.json"
     manifest.write_text(manifest_for())
 
-    def run(a_rev=a, b_rev=b, env=None, manifest_path=manifest, scratch=None, work=None):
+    def run(a_rev=a, b_rev=b, env=None, manifest_path=manifest, scratch=None, work=None, table=None, keep=False):
         scratch = scratch or tmp_path / f"scratch-{len(list(tmp_path.glob('scratch-*')))}"
+        table = table or tmp_path / f"table-{len(list(tmp_path.glob('table-*.md')))}.md"
         saved = dict(os.environ)
         os.environ.update({"STUB_DRIVER": str(tools / "driver.py"), **(env or {})})
         try:
             code = bc.main(["compare", "--a", a_rev, "--b", b_rev, "--scratch", str(scratch), "--repo", str(repo),
                             "--manifest", str(manifest_path), "--cargo", f"{sys.executable} {tools / 'cargo.py'}",
-                            "--table", str(tmp_path / "table.md"), "--timeout", "60"]
-                           + (["--work", str(work)] if work else []))
+                            "--table", str(table), "--timeout", "60"]
+                           + (["--work", str(work)] if work else []) + (["--keep-worktrees"] if keep else []))
         finally:
             os.environ.clear()
             os.environ.update(saved)
-        table = (tmp_path / "table.md").read_text() if (tmp_path / "table.md").exists() else ""
-        return code, table, scratch
+        text = table.read_text() if table.is_file() else ""
+        return code, text, scratch
 
     return {"repo": repo, "a": a, "b": b, "run": run, "tmp": tmp_path, "manifest": manifest}
 
@@ -425,6 +439,7 @@ def test_a_manifest_path_that_does_not_exist_fails(world):
 
 @pytest.mark.parametrize("env, needle", [
     ({"STUB_COMMIT": "0" * 40}, "source_commit"),
+    ({"STUB_TREE": "0" * 40}, "source_tree"),
     ({"STUB_DIRTY": "1"}, "source_dirty"),
     ({"STUB_PROFILE": "debug"}, "build_profile"),
     ({"STUB_NO_LINK": "1"}, "did not link"),
@@ -456,3 +471,108 @@ def test_a_frozen_request_changed_during_the_run_fails(world):
 def test_scratch_inside_a_git_work_tree_is_refused(world, capsys):
     code, _, _ = world["run"](scratch=world["repo"] / "scratch")
     assert code == 2 and "inside a git work tree" in capsys.readouterr().err
+
+
+def test_inherited_build_settings_never_reach_the_build(world):
+    assert bc.clean_env({"PATH": "p", "HOME": "h", "RUSTFLAGS": "-C opt-level=0", "CARGO_PROFILE_RELEASE_OPT_LEVEL": "0",
+                         "CARGO_BUILD_RUSTFLAGS": "x", "CARGO_TARGET_DIR": "t", "RUSTC_WRAPPER": "w",
+                         "GIT_DIR": "/nowhere"}) == {"PATH": "p", "HOME": "h"}
+    # The stub cargo refuses to build if any of these reaches it; the tool's git calls would fail on GIT_DIR.
+    inherited = {"RUSTFLAGS": "-C opt-level=0", "CARGO_ENCODED_RUSTFLAGS": "-Copt-level=0",
+                 "CARGO_PROFILE_RELEASE_OPT_LEVEL": "0", "CARGO_BUILD_RUSTFLAGS": "-C opt-level=0",
+                 "CARGO_TARGET_DIR": str(world["tmp"] / "elsewhere"), "CARGO_INCREMENTAL": "1",
+                 "RUSTC_WRAPPER": "/usr/bin/false", "GIT_DIR": str(world["tmp"] / "nowhere")}
+    code, table, _ = world["run"](env=inherited)
+    assert code == 0, table
+    assert "Compared with numerical work on both sides: 4 of 8 pairs**" in table
+
+
+# ------------------------------------------------------------------ the table destination (threat (c))
+
+def frozen(world):
+    return world["repo"] / "f/old.json"
+
+
+def caller_worktree(world):
+    return frozen(world), "inside a git work tree"
+
+
+def symlink_to_request(world):
+    link = world["tmp"] / "link.md"
+    link.symlink_to(frozen(world))
+    return link, "inside a git work tree"
+
+
+def hard_link_to_request(world):
+    link = world["tmp"] / "hard.md"
+    os.link(frozen(world), link)
+    return link, "already exists"
+
+
+def this_runs_generated_worktree(world):
+    return world["tmp"] / "work" / f"wt-A-{world['a'][:12]}" / "f/old.json", "one of the tool's own paths"
+
+
+def scratch_evidence(world):
+    return world["tmp"] / "scratch-x" / "results.json", "one of the tool's own paths"
+
+
+@pytest.mark.parametrize("destination", [caller_worktree, symlink_to_request, hard_link_to_request,
+                                         this_runs_generated_worktree, scratch_evidence])
+def test_a_table_destination_that_could_overwrite_a_request_or_evidence_is_refused(world, destination, capsys):
+    before = frozen(world).read_bytes()
+    table, needle = destination(world)
+    links = os.stat(frozen(world)).st_nlink
+    code, _, scratch = world["run"](table=table, work=world["tmp"] / "work", scratch=world["tmp"] / "scratch-x")
+    assert code == 2 and needle in capsys.readouterr().err
+    assert frozen(world).read_bytes() == before and os.stat(frozen(world)).st_nlink == links
+    assert git(world["repo"], "status", "--porcelain") == ""
+    assert not (scratch / "runs").exists() and not (scratch / "results.json").exists()
+    assert "wt-" not in git(world["repo"], "worktree", "list")
+
+
+def test_a_table_destination_in_a_worktree_kept_by_an_earlier_run_is_refused(world, capsys):
+    work = world["tmp"] / "work"
+    code, table, _ = world["run"](work=work, keep=True)
+    assert code == 0, table
+    kept = work / f"wt-A-{world['a'][:12]}"
+    before = (kept / "f/old.json").read_bytes()
+    try:
+        code, _, _ = world["run"](table=kept / "f/old.json", work=world["tmp"] / "work-2")
+        assert code == 2 and "inside a git work tree" in capsys.readouterr().err
+        assert (kept / "f/old.json").read_bytes() == before
+        assert git(kept, "status", "--porcelain") == ""
+    finally:
+        for tree in work.glob("wt-*"):
+            git(world["repo"], "worktree", "remove", str(tree))
+
+
+def test_a_table_destination_created_during_the_comparison_is_not_overwritten(world, capsys):
+    table = world["tmp"] / "late.md"
+    code, _, scratch = world["run"](table=table, env={"STUB_CREATE": str(table)})
+    assert code == 2 and "came into existence during the comparison" in capsys.readouterr().err
+    assert table.read_text() == "earlier evidence"
+    assert (scratch / "results.json").is_file()
+
+
+def test_a_table_destination_that_became_a_work_tree_during_the_comparison_is_refused(world, capsys):
+    table = world["tmp"] / "becomes-a-repo" / "table.md"
+    table.parent.mkdir()
+    code, _, _ = world["run"](table=table, env={"STUB_GIT_INIT": str(table.parent)})
+    assert code == 2 and "inside a git work tree" in capsys.readouterr().err
+    assert not table.exists()
+
+
+# ------------------------------------------------------------------ hosted selection
+
+def test_hosted_selection_runs_this_test_when_the_tool_or_its_manifest_changes():
+    spec = importlib.util.spec_from_file_location("python_ci_for_byte_compare", PROJECT / "tools/ci/python_ci.py")
+    python_ci = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(python_ci)
+    routing = json.loads((PROJECT / "tools/hosted-ci-routing.json").read_text())
+    # Selected from the test's own reads, not from a rule naming it.
+    assert not any(prefix.startswith("tools/byte_compare") for prefix in python_ci.PREFIX_TESTS)
+    for path in ("tools/byte_compare/byte_compare.py", "tools/byte_compare/manifest.json"):
+        assert "piping-python" in python_ci.hosted_ci.route_paths([path], routing)["checks"], path
+        selected = python_ci.select(PROJECT, {"event": "pull_request", "paths": [python_ci.PREFIX + path]})
+        assert "tests/test_byte_compare_tool.py" in selected, path
