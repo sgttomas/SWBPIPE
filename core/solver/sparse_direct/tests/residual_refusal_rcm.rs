@@ -4,8 +4,8 @@
 //! both of this crate's entries). Each returns a result, marked sensitive,
 //! meeting REQ-014 row by row. Together with the kernel witnesses this documents
 //! that the sparse refusal depends on the natural order (it puts the arrowhead's
-//! hub first; RCM puts it last, and the factor does not fill), so a change to
-//! either outcome is caught. It does not exercise the product end to end.
+//! hub first; RCM puts it second-last, and the factor has no numerical fill), so
+//! a change to either outcome is caught. It does not exercise the product end to end.
 
 use open_pipe_stress_frame_kernel::structural::{
     SolveQuality, SparseStiffness, SparseStructuralSystem, StructuralError, StructuralSolution, StructuralSystem,

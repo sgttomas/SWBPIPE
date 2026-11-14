@@ -1,10 +1,10 @@
-//! DEL-04-01 AC-012 and VER-007, at product level: the kernel's REQ-014 refusal
-//! ("original-equation residual failed after bounded refinement", no solution)
-//! is published as the case's named, blocking integrity finding. The kernel's
-//! constructed systems (core/solver/frame_kernel/tests/residual_refusal_witnesses.rs)
-//! reach that refusal through each finish; here the kernel's error value is
-//! supplied directly to the publication helper. This is not an end-to-end product
-//! solve.
+//! DEL-04-01 AC-012 and VER-007, publication-helper coverage: supplying the
+//! kernel's REQ-014 refusal ("original-equation residual failed after bounded
+//! refinement") to append_integrity_failure creates the named, blocking
+//! integrity finding. The constructed kernel systems reach that refusal
+//! through each finish. This test supplies the error directly; it does not
+//! exercise a product solve or subsequent retained-source selection, which
+//! can demote a rejected ordinary attempt's finding to informational.
 
 use super::*;
 
