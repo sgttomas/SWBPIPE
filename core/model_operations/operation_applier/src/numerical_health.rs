@@ -337,14 +337,16 @@ fn named_load_cases(source: &Value) -> Vec<&str> {
         .collect()
 }
 
-/// The mechanics statuses other than solved that a result envelope's
-/// `analysis_status` list can carry.
-const UNSOLVED_MECHANICS: [&str; 3] = ["MODEL_INCOMPLETE", "MECHANICS_FAILED", "NOT_RUN"];
+/// The statuses a solved result envelope's `analysis_status` list may carry
+/// (results.v0.3 `AnalysisStatus`, less `MODEL_INCOMPLETE`).
+const SOLVED_LIST_STATUSES: [&str; 5] =
+    ["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED", "HUMAN_REVIEW_REQUIRED"];
 
 /// Whether the document states its mechanics solved. Each status field it
 /// carries must say so: the mechanics envelope's `status.mechanics`, and a
 /// result envelope's `analysis_status` list, which must name
-/// `MECHANICS_SOLVED` and no other mechanics status. A blocked document (old or
+/// `MECHANICS_SOLVED` and carry nothing outside the solved vocabulary (an
+/// unsolved status, an unknown string or a non-string member is not solved). A blocked document (old or
 /// new), a malformed field, or two fields that disagree is not solved. A
 /// document carrying neither field is solved only if it is an export package
 /// (it states `package_status` and `package_id`), which is made only from a
@@ -358,7 +360,7 @@ fn mechanics_solved(source: &Value) -> bool {
         && list.is_none_or(|list| {
             list.as_array().is_some_and(|list| {
                 list.iter().any(|s| s == "MECHANICS_SOLVED")
-                    && !list.iter().any(|s| s.as_str().is_some_and(|s| UNSOLVED_MECHANICS.contains(&s)))
+                    && list.iter().all(|s| s.as_str().is_some_and(|s| SOLVED_LIST_STATUSES.contains(&s)))
             })
         })
 }
@@ -1303,6 +1305,10 @@ mod tests {
             ("status solved, list blocked", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MODEL_INCOMPLETE"])),
             ("status solved, list malformed", json!({"mechanics": "MECHANICS_SOLVED"}), json!("MECHANICS_SOLVED")),
             ("list naming both", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", "MODEL_INCOMPLETE"])),
+            ("list with a null", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", null])),
+            ("list with an object", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", {}])),
+            ("list with a number", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", 1])),
+            ("list with an unknown status", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", "invented_status"])),
         ] {
             let mut source = base.clone();
             source["status"] = status;
@@ -1314,6 +1320,12 @@ mod tests {
         let mut bare = base.clone();
         bare.as_object_mut().unwrap().remove("status");
         assert_eq!(health(&bare, None)["cases"][0]["state"], "not_assessed", "no status, not a package");
+        // Without `status`, a malformed list alone is not solved either.
+        for list in [json!(["MECHANICS_SOLVED", null]), json!(["MECHANICS_SOLVED", {}]), json!(["MECHANICS_SOLVED", "invented_status"])] {
+            let mut source = bare.clone();
+            source["analysis_status"] = list.clone();
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{list}");
+        }
         let mut package = bare.clone();
         package["package_status"] = json!("complete");
         assert_eq!(health(&package, None)["cases"][0]["state"], "not_assessed", "package_status alone");
