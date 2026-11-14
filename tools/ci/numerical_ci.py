@@ -381,14 +381,18 @@ def _artifact_reader_files(reads, project, tracked, local):
 
 
 def artifact_producers(project, manifests, readers, inputs=UNDECLARED):
-    """Declared Python readers of artifacts that a crate's own tests write: ({path: manifests}, missing paths).
+    """Declared Python readers of artifacts that a crate's own tests write: ({path: manifests}, missing paths,
+    resource_crates(path)).
 
     Each declared reader names the manifests whose tests produce what it reads. These select those crates, so their
     shard writes the artifacts and runs the reader on them: the reader; every conftest.py and package `__init__.py`
     that pytest loads for it (in its directory or an ancestor); every project file in their transitive imports,
     derived by tools/ci/python_test_reads.py at selection time, with the initializers of the packages those imports
     pass through and the initializers' own imports; and each declared input, a file the artifact-fed step uses
-    besides them (the dependency list it installs). The missing paths are where an absent conftest.py, package
+    besides them (the dependency list it installs). resource_crates gives the crates a changed path selects as a
+    resource those files read: a non-Python path at or under one of the read roots that python_test_reads derives
+    for them, whether added, edited or deleted. A root with no known leading directory (`**`, `**/*.json`), which
+    stands for a read the derivation cannot place, is not used. The missing paths are where an absent conftest.py, package
     initializer or unresolved imported module would be: a change that deletes one is refused by the caller. A
     declaration that is not a mapping, a reader that is not a tracked Python file under tests/, an input that is not
     a tracked file, an undiscovered manifest, an imported project module that does not resolve or a derivation that
@@ -397,7 +401,7 @@ def artifact_producers(project, manifests, readers, inputs=UNDECLARED):
     if not isinstance(readers, dict) or not isinstance(inputs, dict):
         raise ValueError('Invalid artifact reader declaration')
     if not readers and not inputs:
-        return {}, frozenset()
+        return {}, frozenset(), lambda path: set()
     known = {m.as_posix() for m in manifests}
     def producing_manifests(name, producing):
         if not isinstance(producing, list) or not producing or not all(isinstance(m, str) and m in known for m in producing):
@@ -408,7 +412,7 @@ def artifact_producers(project, manifests, readers, inputs=UNDECLARED):
         tracked = reads.tracked(project)
     except Exception as exc:
         raise ValueError(f'Artifact reader imports cannot be derived: {type(exc).__name__}: {exc}') from exc
-    producers, missing = {}, set()
+    producers, missing, resources = {}, set(), []
     for name, producing in inputs.items():
         if not isinstance(name, str) or name not in tracked or not (project / name).is_file():
             raise ValueError('Unresolved artifact reader input: ' + str(name))
@@ -432,7 +436,8 @@ def artifact_producers(project, manifests, readers, inputs=UNDECLARED):
                 if local in closure:
                     continue
                 closure.add(local)
-                _, loaded_files, imported = reads.file_reads(project, local)
+                roots, loaded_files, imported = reads.file_reads(project, local)
+                resources.extend((root, crates) for root in sorted(roots) if not root.startswith('*'))
                 unresolved, initializers = _artifact_reader_files(reads, project, tracked, local)
                 missing |= unresolved
                 pending.extend(sorted(set(loaded_files) | set(imported) | initializers))
@@ -442,7 +447,11 @@ def artifact_producers(project, manifests, readers, inputs=UNDECLARED):
             raise ValueError(f'Artifact reader imports cannot be derived for {reader}: {type(exc).__name__}: {exc}') from exc
         for local in closure:
             producers.setdefault(local, set()).update(crates)
-    return producers, frozenset(missing)
+    def resource_crates(path):
+        if path.endswith('.py'):
+            return set()  # Python files the readers load are in the closure
+        return set().union(*(crates for root, crates in resources if reads.root_matches(path, root)))
+    return producers, frozenset(missing), resource_crates
 
 
 def numerical_selection(project, manifests, paths, declarations=None, ignored_paths=(), artifact_readers=UNDECLARED,
@@ -464,7 +473,7 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
                     raise ValueError('Missing or empty cargo input: ' + str(path))
         dependencies = cargo_dependencies(project, manifests)
         resources = source_read_dependencies(project, manifests, declarations)
-        producers, missing = artifact_producers(project, manifests, {} if artifact_readers is UNDECLARED else artifact_readers,
+        producers, missing, resource_crates = artifact_producers(project, manifests, {} if artifact_readers is UNDECLARED else artifact_readers,
                                                 {} if artifact_inputs is UNDECLARED else artifact_inputs)
     except (ValueError, OSError, KeyError, TypeError, AttributeError, tomllib.TOMLDecodeError) as exc:
         return full(str(exc))
@@ -487,7 +496,7 @@ def numerical_selection(project, manifests, paths, declarations=None, ignored_pa
             selected.add(manifest)
             reasons.append({'path': path, 'kind': 'exact-file-reader', 'manifest': manifest.as_posix()})
         # The artifact-reader rule only adds: the path keeps whatever else it selects, including a fallback.
-        for manifest in sorted(producers.get(relative.as_posix(), ())):
+        for manifest in sorted(producers.get(relative.as_posix(), set()) | resource_crates(relative.as_posix())):
             selected.add(manifest)
             reasons.append({'path': path, 'kind': 'artifact-reader', 'manifest': manifest.as_posix()})
         if owners or readers:

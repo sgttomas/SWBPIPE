@@ -697,7 +697,11 @@ class ReachabilitySafetyTests(unittest.TestCase):
         files = {
             'tests/conftest.py': 'from tests.helpers import session\n',
             'tests/test_reads_artifacts.py': 'import top_helper\nfrom tests.helpers.reading import read\n',
-            'tests/top_helper.py': 'import json\n',
+            'tests/top_helper.py': ('import json\nfrom pathlib import Path\nTABLE = Path("fixtures/table.json")\n'
+                                    'SCHEMAS = sorted(Path("schemas").glob("*.schema.json"))\n'),
+            'fixtures/table.json': '{}',
+            'fixtures/unread.json': '{}',
+            'schemas/a.schema.json': '{}',
             'tests/helpers/__init__.py': '',
             'tests/helpers/reading.py': 'from tests.helpers import deeper\ndef read(): pass\n',
             'tests/helpers/deeper.py': '',
@@ -802,6 +806,28 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(result['classification'], 'full-fallback')
             self.assertIn('missing: tests/__init__.py', result['fallback_reasons'][0])
 
+    def test_resources_an_artifact_reader_reads_select_its_producer_when_added_edited_or_deleted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            producer, unrelated = self.artifact_reader_project(project)
+            readers = {'tests/test_reads_artifacts.py': [producer.as_posix()]}
+            def select(local):
+                return ci.numerical_selection(project, [producer, unrelated], [ci.PROJECT + local], EMPTY_READS, (local,), readers)
+            added = project / 'schemas/b.schema.json'
+            added.write_text('{}')
+            subprocess.run(['git', '-C', str(project), 'add', '--', 'schemas/b.schema.json'], check=True)
+            # Edited (a literal path), added (under a directory scan) and, below, deleted: each adds the producer to the
+            # path's own route (here mapped to other checks).
+            for local in ('fixtures/table.json', 'schemas/a.schema.json', 'schemas/b.schema.json'):
+                result = select(local)
+                self.assertEqual(result['manifests'], [producer.as_posix()], local)
+                self.assertEqual(result['reasons'], [{'path': local, 'kind': 'artifact-reader', 'manifest': producer.as_posix()},
+                                                     {'path': local, 'kind': 'mapped-other-checks'}], local)
+            subprocess.run(['git', '-C', str(project), 'rm', '-q', '-f', '--', 'fixtures/table.json'], check=True)
+            self.assertEqual(select('fixtures/table.json')['manifests'], [producer.as_posix()])
+            # A file the readers do not read keeps its own route only.
+            self.assertEqual(select('fixtures/unread.json')['manifests'], [])
+
     def test_declared_artifact_input_adds_its_producer_to_the_path_s_own_selection(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)
@@ -829,6 +855,11 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(result['modes']['piping-numerical'], 'full', path)
             self.assertEqual(result['piping_numerical_selection']['manifests'], [headless], path)
             self.assertIn({'path': path, 'kind': 'artifact-reader', 'manifest': headless}, result['piping_numerical_selection']['reasons'])
+        # A schema tests/schema_validation.py loads into its registry: its Rust readers, and the producer.
+        result = hosted_ci.select_paths([ci.PROJECT + 'schemas/constraint.schema.json'], profile)['piping_numerical_selection']
+        self.assertIn(headless, result['manifests'])
+        self.assertIn({'path': 'schemas/constraint.schema.json', 'kind': 'artifact-reader', 'manifest': headless}, result['reasons'])
+        self.assertIn('exact-file-reader', {r['kind'] for r in result['reasons']})
         # The dependency list the artifact-fed step installs adds the producer and keeps its Python selection.
         result = hosted_ci.select_paths([ci.PROJECT + 'requirements-dev.txt'], profile)
         self.assertEqual((result['modes']['piping-numerical'], result['modes']['piping-python']), ('full', 'full'))
