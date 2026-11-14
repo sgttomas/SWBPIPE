@@ -7,7 +7,7 @@
 //! private datasets, or professional acceptance are bundled by this crate.
 
 mod annulus_geometry;
-mod formation_guard;
+mod formation_guard; #[cfg(test)] mod residual_refusal_tests; // DEL-04-01 VER-007 at product level, on this line so that no line moves.
 mod certified_loads;
 mod certified_publication;
 // Resolved load/reference-state case (model 0.4.0); one resolved case per load

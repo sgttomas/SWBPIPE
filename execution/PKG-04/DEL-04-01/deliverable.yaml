@@ -99,9 +99,14 @@ checks:
 - core/solver/frame_kernel/src/structural/tie_rod_kd5_tests.rs
 - core/solver/frame_kernel/src/structural/absorption_tests.rs
 - core/solver/frame_kernel/src/structural/arc_maximum_tests.rs
+- core/solver/frame_kernel/tests/residual_refusal_witnesses.rs
+- core/solver/frame_kernel/tests/residual_refusal/sparse_natural_order_arrowhead.hex
+- core/solver/frame_kernel/tests/residual_refusal/dense_arrowhead.hex
+- core/solver/sparse_direct/tests/residual_refusal_rcm.rs
 - core/solver/sparse_direct/src/lib.rs
 - core/product_physics/tests/t4_u1_reference.rs
 - core/product_physics/tests/global_end_actions_runtime.rs
 - core/product_physics/tests/inverse_norm_premise_known_limitation_witness.rs
+- core/product_physics/src/residual_refusal_tests.rs
 - tests/test_global_end_verifier.py
 - tests/test_m3_judge_schema_keywords.py
