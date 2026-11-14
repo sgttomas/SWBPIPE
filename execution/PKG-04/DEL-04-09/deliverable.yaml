@@ -141,6 +141,7 @@ code_paths:
 - tests/verifiers/modal_model_mass*.py
 - tests/test_modal_*.py
 - validation/references/f1_modal/**
+- validation/references/modal_timoshenko_mass/**
 - tests/modal_feasibility_oracle.py
 checks:
 - core/solver/modal_eigen/tests/*.rs

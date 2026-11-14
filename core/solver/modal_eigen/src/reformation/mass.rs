@@ -11,6 +11,22 @@
 //! R's rows the member axes formed from the chord and the y reference as the
 //! frame kernel forms them.
 //!
+//! **Straight, Timoshenko** (DEL-04-09 REQ-001). In each bending plane, the
+//! consistent mass of the interpolation the Timoshenko stiffness implies:
+//! the exact homogeneous static shapes (Friedman and Kosmatka, 1993), with
+//! Φ = 12EI/(G·A_s·L²) of that plane's second moment (I_z for the x–y
+//! plane, I_y for the x–z plane, as the frame kernel pairs them). Over
+//! m̄L/(840(1+Φ)²) the translational plane is
+//! [312 + 588Φ + 280Φ², (44 + 77Φ + 35Φ²)L, 108 + 252Φ + 140Φ²,
+//! −(26 + 63Φ + 35Φ²)L; (8 + 14Φ + 7Φ²)L², (26 + 63Φ + 35Φ²)L,
+//! −(6 + 14Φ + 7Φ²)L²; …], and over ī/(30L(1+Φ)²) the rotary plane is
+//! [36, (3 − 15Φ)L, −36, (3 − 15Φ)L; (4 + 5Φ + 10Φ²)L², (−3 + 15Φ)L,
+//! (−1 − 5Φ + 5Φ²)L²; …], each symmetric with the Euler–Bernoulli
+//! element's sign pattern; at Φ = 0 they are the Hermitian and Rayleigh
+//! planes. Axial and torsional mass, the x–z sign map and the turn to
+//! global axes are the Euler–Bernoulli element's. The exact references are
+//! `validation/references/modal_timoshenko_mass`.
+//!
 //! **Realized arc** (§2.4). With d = x_j − x_i, L = |d|, n̂ the unit part of
 //! the y reference normal to d̂ (the bow side), s = sin α = L/(2R),
 //! c = cos α = √(R² − L²/4)/R and α = 2·atan(s/(1 + c)) the half-angle. Each
@@ -81,6 +97,9 @@ pub enum GeometryError {
     /// The half-angle is so small that an entry of the half-arc's local
     /// mass is below 2⁻⁹⁶⁹ in magnitude (module docs).
     ArcAngleRange,
+    /// A Timoshenko shear operand (E, G, A_s, I_y or I_z) is not positive
+    /// and finite, or its Φ is not finite.
+    ShearOperand,
 }
 
 impl fmt::Display for GeometryError {
@@ -93,6 +112,10 @@ impl fmt::Display for GeometryError {
             Self::ArcAngleRange => write!(
                 f,
                 "the bend angle is too small for its local mass entries to be represented"
+            ),
+            Self::ShearOperand => write!(
+                f,
+                "a Timoshenko shear operand is not positive and finite"
             ),
         }
     }
@@ -289,6 +312,127 @@ pub fn straight_mass(
         }
     }
     Ok(rotate12(&k, &[ex, ey, ez]))
+}
+
+/// The operands of a Timoshenko straight member's mass that its stiffness
+/// supplies: the stiffness's own E, G and shear area A_s, and the second
+/// moments of the two bending planes (I_y for the x–z plane, I_z for the
+/// x–y plane, as the frame kernel pairs them). All are per the stiffness
+/// formation, never defaulted.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TimoshenkoShear {
+    pub elastic_modulus: Dd,
+    pub shear_modulus: Dd,
+    pub shear_area: Dd,
+    pub second_moment_y: Dd,
+    pub second_moment_z: Dd,
+}
+
+/// The translational plane of the Timoshenko consistent mass over
+/// m̄L/(840(1+Φ)²): entry (c₀ + c₁Φ + c₂Φ²)·L^p as ([c₀, c₁, c₂], p).
+/// At Φ = 0 it is the Hermitian plane, each coefficient twice its value
+/// over 420.
+const TIMOSHENKO_TRANSLATION: [[([f64; 3], u32); 4]; 4] = [
+    [([312.0, 588.0, 280.0], 0), ([44.0, 77.0, 35.0], 1), ([108.0, 252.0, 140.0], 0), ([-26.0, -63.0, -35.0], 1)],
+    [([44.0, 77.0, 35.0], 1), ([8.0, 14.0, 7.0], 2), ([26.0, 63.0, 35.0], 1), ([-6.0, -14.0, -7.0], 2)],
+    [([108.0, 252.0, 140.0], 0), ([26.0, 63.0, 35.0], 1), ([312.0, 588.0, 280.0], 0), ([-44.0, -77.0, -35.0], 1)],
+    [([-26.0, -63.0, -35.0], 1), ([-6.0, -14.0, -7.0], 2), ([-44.0, -77.0, -35.0], 1), ([8.0, 14.0, 7.0], 2)],
+];
+/// The rotary plane of the Timoshenko consistent mass over ī/(30L(1+Φ)²),
+/// in the same form. At Φ = 0 it is the Rayleigh plane.
+const TIMOSHENKO_ROTARY: [[([f64; 3], u32); 4]; 4] = [
+    [([36.0, 0.0, 0.0], 0), ([3.0, -15.0, 0.0], 1), ([-36.0, 0.0, 0.0], 0), ([3.0, -15.0, 0.0], 1)],
+    [([3.0, -15.0, 0.0], 1), ([4.0, 5.0, 10.0], 2), ([-3.0, 15.0, 0.0], 1), ([-1.0, -5.0, 5.0], 2)],
+    [([-36.0, 0.0, 0.0], 0), ([-3.0, 15.0, 0.0], 1), ([36.0, 0.0, 0.0], 0), ([-3.0, 15.0, 0.0], 1)],
+    [([3.0, -15.0, 0.0], 1), ([-1.0, -5.0, 5.0], 2), ([-3.0, 15.0, 0.0], 1), ([4.0, 5.0, 10.0], 2)],
+];
+
+fn positive_finite(x: Dd) -> bool {
+    x.hi.is_finite() && x.lo.is_finite() && x.hi > 0.0
+}
+
+/// One bending plane of the Timoshenko consistent mass on (w_i, θ_i, w_j,
+/// θ_j), θ the section rotation, at shear parameter Φ (module docs).
+fn timoshenko_plane(l: Dd, phi: Dd, mbar: Dd, ibar: Dd) -> [[Dd; 4]; 4] {
+    let powers = [Dd::from_f64(1.0), l, l.mul(l)];
+    let one_plus = phi.add_f64(1.0);
+    let denominator = one_plus.mul(one_plus);
+    let translation = mbar.mul(l).div(denominator.mul_f64(840.0));
+    let rotary = ibar.div(l.mul(denominator).mul_f64(30.0));
+    let poly = |c: [f64; 3]| Dd::from_f64(c[2]).mul(phi).add_f64(c[1]).mul(phi).add_f64(c[0]);
+    let mut plane = [[Dd::ZERO; 4]; 4];
+    for r in 0..4 {
+        for c in 0..4 {
+            let (ct, pt) = TIMOSHENKO_TRANSLATION[r][c];
+            let (cr, pr) = TIMOSHENKO_ROTARY[r][c];
+            let a = translation.mul(poly(ct)).mul(powers[pt as usize]);
+            let b = rotary.mul(poly(cr)).mul(powers[pr as usize]);
+            plane[r][c] = a.add(b);
+        }
+    }
+    plane
+}
+
+/// A Timoshenko straight member's consistent mass in global axes: in each
+/// bending plane the mass of the interpolation its stiffness implies (the
+/// exact static shapes), with Φ = 12EI/(G·A_s·L²) of that plane's second
+/// moment, and the linear axial and torsional mass of the Euler–Bernoulli
+/// element (module docs). m̄, ī and j̄ are per length, as for
+/// [`straight_mass`]. At Φ = 0 each plane is the Euler–Bernoulli plane.
+pub fn straight_mass_timoshenko(
+    xi: [f64; 3],
+    xj: [f64; 3],
+    y_reference: [f64; 3],
+    mbar: Dd,
+    ibar: Dd,
+    jbar: Dd,
+    shear: &TimoshenkoShear,
+) -> Result<Block12, GeometryError> {
+    let s = shear;
+    if ![s.elastic_modulus, s.shear_modulus, s.shear_area, s.second_moment_y, s.second_moment_z]
+        .into_iter()
+        .all(positive_finite)
+    {
+        return Err(GeometryError::ShearOperand);
+    }
+    let ch = chord(xi, xj, y_reference)?;
+    let ex = ch.unit;
+    let ey = ch.normal;
+    let ez = cross3(&ex, &ey);
+    let l = ch.length;
+    let rigidity = s.shear_modulus.mul(s.shear_area).mul(l.mul(l));
+    let phi_of = |i: Dd| s.elastic_modulus.mul(i).mul_f64(12.0).div(rigidity);
+    let (phi_y, phi_z) = (phi_of(s.second_moment_y), phi_of(s.second_moment_z));
+    if !(phi_y.hi.is_finite() && phi_z.hi.is_finite() && phi_y.hi >= 0.0 && phi_z.hi >= 0.0) {
+        return Err(GeometryError::ShearOperand);
+    }
+    // The x–y plane bends about z (I_z); the x–z plane about y (I_y).
+    let plane_xy = timoshenko_plane(l, phi_z, mbar, ibar);
+    let plane_xz = timoshenko_plane(l, phi_y, mbar, ibar);
+    let mut k = [[Dd::ZERO; 12]; 12];
+    let third = |x: Dd| x.mul(l).div(Dd::from_f64(3.0));
+    let sixth = |x: Dd| x.mul(l).div(Dd::from_f64(6.0));
+    for (a, b, x) in [(0usize, 6usize, mbar), (3, 9, jbar)] {
+        k[a][a] = third(x);
+        k[b][b] = third(x);
+        k[a][b] = sixth(x);
+        k[b][a] = sixth(x);
+    }
+    // [u_y, θ_z] in the x–y plane; [u_z, −θ_y] in the x–z plane.
+    let sign = [1.0, -1.0, 1.0, -1.0];
+    let xy = [1usize, 5, 7, 11];
+    let xz = [2usize, 4, 8, 10];
+    for r in 0..4 {
+        for c in 0..4 {
+            k[xy[r]][xy[c]] = plane_xy[r][c];
+            k[xz[r]][xz[c]] = plane_xz[r][c].mul_f64(sign[r] * sign[c]);
+        }
+    }
+    let out = rotate12(&k, &[ex, ey, ez]);
+    if out.iter().flatten().any(|v| !(v.hi.is_finite() && v.lo.is_finite())) {
+        return Err(GeometryError::NonFinite);
+    }
+    Ok(out)
 }
 
 /// Terms are summed until one falls below 2⁻¹¹⁰ of the running sum.
@@ -601,6 +745,32 @@ mod tests {
             "{} vs {y}",
             x.to_f64()
         );
+    }
+
+    /// At Φ = 0 each Timoshenko plane is the Euler–Bernoulli plane: the
+    /// Hermitian m̄L/420 plane plus the Rayleigh ī/(30L) plane, entry by entry
+    /// to double-double precision (DEL-04-09 AC-012).
+    #[test]
+    fn the_timoshenko_plane_at_zero_phi_is_the_euler_bernoulli_plane() {
+        for (l, mbar, ibar) in [(3.0, 81.5, 1.035), (0.8125, 50.0, 0.25), (2.0, 1.0, 0.0)] {
+            let (l, mbar, ibar) = (Dd::from_f64(l), Dd::from_f64(mbar), Dd::from_f64(ibar));
+            let t = timoshenko_plane(l, Dd::ZERO, mbar, ibar);
+            let powers = [Dd::from_f64(1.0), l, l.mul(l)];
+            let translation = mbar.mul(l).div(Dd::from_f64(420.0));
+            let rotary = ibar.div(l.mul_f64(30.0));
+            for r in 0..4 {
+                for c in 0..4 {
+                    let (cm, pm) = MASS_PLANE[r][c];
+                    let (cr, pr) = ROTARY_PLANE[r][c];
+                    let e = translation
+                        .mul_f64(cm)
+                        .mul(powers[pm as usize])
+                        .add(rotary.mul_f64(cr).mul(powers[pr as usize]));
+                    let d = t[r][c].sub(e).abs().to_f64();
+                    assert!(d <= 1e-30 * e.abs().to_f64().max(1e-300), "({r}, {c}): {d:e}");
+                }
+            }
+        }
     }
 
     /// The series against the closed forms where neither cancels much.
