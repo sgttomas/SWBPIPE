@@ -506,9 +506,9 @@ fn rs_sam_moves_only_through_its_resolved_anchor_motion() {
 /// that is the fixture plus RS-R1, RS-CE1, RS-LO1 and RS-FR1 on the interim
 /// linear RS-FR1V, with W regenerated. Every case solves with no blocking
 /// finding, its converged support state is confirmed, and the S11-G recovery
-/// guard publishes it `NUMERICAL_INTEGRITY_SENSITIVE`, so the reader's standing
-/// is not eligible and its report is refused (the limitation recorded for it in
-/// `docs/RELEASE_LIMITATIONS_v1.0.md`). The guard's group counts are printed,
+/// guard publishes it `NUMERICAL_INTEGRITY_SENSITIVE`. What follows for the
+/// reader's standing and the report is recorded in LIM-017 of
+/// `docs/RELEASE_LIMITATIONS_v1.0.md`, not tested here. The guard's group counts are printed,
 /// not asserted. It says nothing about which addition produces the sensitivity,
 /// and it is not evidence about exit criterion 18 either way. It accepts neither
 /// outcome as correct: a change in what it observes needs independent numerical
