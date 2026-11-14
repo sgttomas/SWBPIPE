@@ -41,12 +41,19 @@ once, so the host can confirm from the process list that each has ended even whe
 it never receives this script's report. With -NoGuiFallback a batch run that leaves
 no CSV ends as batch_no_csv instead of falling back to the GUI.
 
+With -Exercise (the harness's controlled exercise, never a solve) the same attempt
+runs in C:\oracle\SWBPIPE-harness-exercise-<YYYYMMDD> with every name prefixed
+SWBPIPE-harness-exercise-: claim, job, folder and start path as above, with a
+fixed harmless process (powershell.exe -NoProfile -NonInteractive -Command
+"Start-Sleep -Seconds 5") started in place of the program and no MBF; its
+terminal report says exercise_ended or exercise_failed.
+
 Output: one JSON object on stdout describing what happened, including the
 attempt token and the SHA-256 of the MBF actually solved (mbf_sha256).
 CAEPIPE outputs stay in the attempt folder; the host reads them from there.
 #>
 param(
-    [Parameter(Mandatory = $true)][string]$Exe,
+    [string]$Exe = "",
     [string]$Mbf = "",
     [string]$CsvName = "",
     [string]$ExportMod = "",
@@ -57,7 +64,8 @@ param(
     [switch]$NoGuiFallback,
     [string]$AttemptToken = "",
     [string]$ExpectedMbfSha256 = "",
-    [string]$WorkRoot = ""
+    [string]$WorkRoot = "",
+    [switch]$Exercise
 )
 # The first statement (PowerShell requires the param block before it): no progress record, a module's first-use
 # preparation included, is serialised to the host's stderr. Warnings and errors stay visible.
@@ -71,15 +79,19 @@ if ($ExportMod) {
         ConvertTo-Json -Compress
     exit 6
 }
-if (-not $Mbf) { throw "-Mbf is required" }
+if (-not $Exercise -and (-not $Exe -or -not $Mbf)) { throw "-Exe and -Mbf are required" }
 if (-not $AttemptToken) {
     [ordered]@{ schema = "openpipestress.caepipe_guest_round_trip.v1"; status = "claim_required"
                 diagnostics = @("the program is started only by an attempt that has won its claim (-AttemptToken)") } |
         ConvertTo-Json -Compress
     exit 7
 }
-if ($AttemptToken -cnotmatch '^[0-9a-f]{32}$' -or $ExpectedMbfSha256 -cnotmatch '^[0-9a-f]{64}$' -or -not $WorkRoot) {
+if ($AttemptToken -cnotmatch '^[0-9a-f]{32}$' -or -not $WorkRoot -or
+    (-not $Exercise -and $ExpectedMbfSha256 -cnotmatch '^[0-9a-f]{64}$')) {
     throw "-AttemptToken (32 lower-case hex), -ExpectedMbfSha256 (64 lower-case hex) and -WorkRoot are required"
+}
+if ($Exercise -and ($WorkRoot -cnotmatch '^C:\\oracle\\SWBPIPE-harness-exercise-[0-9]{8}$' -or $Exe -or $Mbf)) {
+    throw "-Exercise runs only in C:\oracle\SWBPIPE-harness-exercise-<YYYYMMDD>, with no -Exe and no -Mbf"
 }
 
 # The target tool's user interface as the round trip addresses it.
@@ -355,11 +367,13 @@ function Export-SolvedModel {
 # ---------------------------------------------------------------------------------------------------------------
 # The attempt. Steps 1 to 7 of the header; nothing is started before steps 2 and 3 succeed in this invocation.
 # ---------------------------------------------------------------------------------------------------------------
-# The host builds the same names with the same join: <W>\<T>.claim, <W>\<T>.job, <W>\<T>.finished, <W>\<T>\.
-$claimPath = $WorkRoot + '\' + $AttemptToken + '.claim'
-$jobPath = $WorkRoot + '\' + $AttemptToken + '.job'
-$finishedPath = $WorkRoot + '\' + $AttemptToken + '.finished'
-$attemptDir = $WorkRoot + '\' + $AttemptToken
+# The host builds the same names with the same join: <W>\<P><T>.claim, <W>\<P><T>.job, <W>\<P><T>.finished and
+# <W>\<P><T>\, the prefix P empty except in the exercise.
+$prefix = if ($Exercise) { 'SWBPIPE-harness-exercise-' } else { '' }
+$claimPath = $WorkRoot + '\' + $prefix + $AttemptToken + '.claim'
+$jobPath = $WorkRoot + '\' + $prefix + $AttemptToken + '.job'
+$finishedPath = $WorkRoot + '\' + $prefix + $AttemptToken + '.finished'
+$attemptDir = $WorkRoot + '\' + $prefix + $AttemptToken
 
 function New-ExclusiveFile([string]$Path, [string[]]$Lines) {
     # CreateNew fails with ERROR_FILE_EXISTS when the name exists and never overwrites; FileShare.None keeps every
@@ -417,6 +431,26 @@ try {
     # 4. The fresh attempt folder. Only the claim's owner reaches this step, so an existing one is a defect.
     if (Test-Path -LiteralPath $attemptDir) { $log.status = "attempt_folder_exists"; Finish-Attempt 22 }
     [void][IO.Directory]::CreateDirectory($attemptDir)
+    if ($Exercise) {
+        # The controlled exercise: this attempt's claim, job and folder, and the same start path, with a fixed
+        # harmless process in place of the program.
+        $started = Get-Date
+        $proc = Start-Process -FilePath (Join-Path $PSHOME 'powershell.exe') -WorkingDirectory $attemptDir -PassThru `
+            -ArgumentList '-NoProfile -NonInteractive -Command "Start-Sleep -Seconds 5"'
+        Record-Owned $proc
+        $log.exercise = [ordered]@{ command_shape = 'powershell.exe -NoProfile -NonInteractive -Command "Start-Sleep -Seconds 5"' }
+        $deadline = $started.AddSeconds($BatchTimeoutSec)
+        while ((Get-Date) -lt $deadline -and -not $proc.HasExited) { Start-Sleep -Milliseconds 500 }
+        if ($proc.HasExited) {
+            $log.exercise.exit_code = $proc.ExitCode
+            $log.status = if ($proc.ExitCode -eq 0) { "exercise_ended" } else { "exercise_failed" }
+        } else {
+            Stop-Process -Id $proc.Id -Force
+            $log.exercise.stopped_own_process = $true
+            $log.status = "exercise_failed"
+        }
+        if ($log.status -eq "exercise_ended") { Finish-Attempt 0 } else { Finish-Attempt 3 }
+    }
     # 5. The verified copy of the staged MBF.
     $workMbf = $attemptDir + '\model.mbf'
     Copy-Item -LiteralPath $Mbf -Destination $workMbf

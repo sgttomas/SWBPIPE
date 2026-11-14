@@ -36,16 +36,35 @@ def done(argv, code: int = 0, stdout: str = "", stderr: str = "") -> subprocess.
 # the operation, its parameters as base64 JSON, and optionally a data file's SHA-256.
 READ_CALL = re.compile(r'^powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "(?P<script>[^"]+)" '
                        r"-Op (?P<op>[a-z]+) -Payload (?P<payload>[A-Za-z0-9+/=]+)(?: -Data (?P<data>[0-9a-f]{64}))?\Z")
-READ_KINDS = {"cim", "job", "chunk", "regread", "storage", "hash"}  # each op is its own kind
+READ_KINDS = {"cim", "job", "chunk", "regread", "storage", "hash"}  # each read op is its own kind
+# The write script's ops, by the kind each is counted under: the fence, the registry API writes, the exercise key.
+WRITE_KINDS = {"claim": "fence", "regset": "literal", "regdelete": "literal", "keycreate": "keywrite",
+               "keydelete": "keywrite"}
+SCRIPT_SENTINELS = {"Read-SwbpipeGuest.ps1": "SWBPIPE-READ", "Write-SwbpipeGuest.ps1": "SWBPIPE-WRITE"}
+
+
+def script_call(command: str) -> dict | None:
+    """A read- or write-script call: {script_name, op, payload (decoded), data, script (the guest path)}, else None."""
+    match = READ_CALL.match(command)
+    if match is None:
+        return None
+    name = match["script"].rsplit("\\", 1)[-1]
+    if name not in SCRIPT_SENTINELS:
+        return None
+    return {"script_name": name, "op": match["op"], "data": match["data"], "script": match["script"],
+            "payload": json.loads(base64.b64decode(match["payload"]).decode("utf-8"))}
 
 
 def read_call(command: str) -> dict | None:
     """The read script's call: {op, payload (decoded), data, script (the guest path)}, else None."""
-    match = READ_CALL.match(command)
-    if match is None:
-        return None
-    return {"op": match["op"], "payload": json.loads(base64.b64decode(match["payload"]).decode("utf-8")),
-            "data": match["data"], "script": match["script"]}
+    call = script_call(command)
+    return call if call is not None and call["script_name"] == "Read-SwbpipeGuest.ps1" else None
+
+
+def write_call(command: str) -> dict | None:
+    """The write script's call, like `read_call`, else None."""
+    call = script_call(command)
+    return call if call is not None and call["script_name"] == "Write-SwbpipeGuest.ps1" else None
 
 
 def host_path(exchange_root: Path, guest_exchange_root: str, guest_path: str) -> Path | None:
@@ -56,10 +75,10 @@ def host_path(exchange_root: Path, guest_exchange_root: str, guest_path: str) ->
 
 
 def read_echo(exchange_root: Path, guest_exchange_root: str, command: str) -> tuple[str, dict | None]:
-    """What the read script does before its operation: (its echo line, the data file's object or None). Like the
-    real script it hashes its own file (absent: no echo at all, as when PowerShell cannot run it) and the data file it
-    was named; ("", None) when there is no script to run."""
-    call = read_call(command)
+    """What the read or write script does before its operation: (its echo line, the data file's object or None).
+    Like the real script it hashes its own file (absent: no echo at all, as when PowerShell cannot run it) and the
+    data file it was named; ("", None) when there is no script to run."""
+    call = script_call(command)
     script = host_path(exchange_root, guest_exchange_root, call["script"])
     if script is None or not script.is_file():
         return "", None
@@ -70,23 +89,19 @@ def read_echo(exchange_root: Path, guest_exchange_root: str, command: str) -> tu
             raw = path.read_bytes()
             data_sha = hashlib.sha256(raw).hexdigest()
             data = json.loads(raw.decode("utf-8")) if data_sha == call["data"] else None
-    return f"SWBPIPE-READ v1 script={hashlib.sha256(script.read_bytes()).hexdigest()} data={data_sha}\r\n", data
+    sentinel = SCRIPT_SENTINELS[call["script_name"]]
+    return f"{sentinel} v1 script={hashlib.sha256(script.read_bytes()).hexdigest()} data={data_sha}\r\n", data
 
 
 def query_payload(command: str) -> tuple[str, dict] | None:
-    """(kind, payload) of a host query: the fence (`harness._encoded_query`), a read operation (`read_call`, its
-    kind the op's name), or the literal value's set or delete ("literal"); else None."""
-    call = read_call(command)
-    if call is not None:
-        return call["op"], call["payload"]
-    if not command.startswith("powershell ") or " -EncodedCommand " not in command:
+    """(kind, payload) of a scripted call: a read operation (its kind the op's name) or a write operation (the
+    fence, "literal" for the registry API's set and delete, "keywrite" for the exercise key); else None."""
+    call = script_call(command)
+    if call is None:
         return None
-    script = base64.b64decode(command.rsplit(" ", 1)[1]).decode("utf-16-le")
-    found = re.search(r"FromBase64String\('([A-Za-z0-9+/=]*)'\)", script)
-    payload = json.loads(base64.b64decode(found[1]).decode("utf-8")) if found else {}
-    if "SWBPIPE-FENCE" in script:
-        return "fence", payload
-    return "literal", payload
+    if call["script_name"] == "Read-SwbpipeGuest.ps1":
+        return call["op"], call["payload"]
+    return WRITE_KINDS.get(call["op"], "write_other"), call["payload"]
 
 
 def classify(command: str) -> str:
@@ -119,6 +134,7 @@ def classify(command: str) -> str:
 # read-only queries. Nothing that prepares, stages or copies in the guest.
 RUN_PHASE_KINDS = {"attempt", "fence", "claim_read", "finished_read", "cim", "job", "chunk", "owned_pids", "tasklist",
                    "reg_query", "regread", "storage", "hash"}
+SCRIPTED_KINDS = READ_KINDS | {"fence", "literal", "keywrite"}
 
 
 @dataclass
@@ -148,8 +164,11 @@ class Attempt:
         self.guest, self.command = guest, command
         def get(flag: str) -> str:
             return (re.search(flag + r' "([^"]*)"', command) or re.search(flag + r" (\S+)", command))[1]
-        self.token, self.work, self.mbf = get("-AttemptToken"), get("-WorkRoot"), get("-Mbf")
-        self.expected = get("-ExpectedMbfSha256")
+        self.exercise = " -Exercise " in command
+        self.prefix = "SWBPIPE-harness-exercise-" if self.exercise else ""
+        self.token, self.work = get("-AttemptToken"), get("-WorkRoot")
+        self.mbf = None if self.exercise else get("-Mbf")
+        self.expected = None if self.exercise else get("-ExpectedMbfSha256")
         self.pid_file = (re.search(r'-PidFile "([^"]*)"', command) or [None, None])[1]
         self.gui_fallback = " -NoGuiFallback" not in command
         self.launcher = guest.spawn()
@@ -160,7 +179,7 @@ class Attempt:
         self._steps = self._run()
 
     def path(self, suffix: str) -> str:
-        return f"{self.work}\\{self.token}{suffix}"
+        return f"{self.work}\\{self.prefix}{self.token}{suffix}"
 
     def advance(self, until: str | None = None) -> None:
         """Run the script's next steps, through `until` (all of them when None)."""
@@ -207,10 +226,29 @@ class Attempt:
         self.launcher.job = job
         guest.create_new(self.path(".job"), f"swbpipe-job v1\r\ntoken={self.token}\r\njob={job}\r\n".encode("ascii"))
         yield "job"
-        folder = f"{self.work}\\{self.token}"
+        folder = f"{self.work}\\{self.prefix}{self.token}"
         assert folder not in guest.dirs, "a fresh attempt folder already exists"
         guest.dirs.add(folder)
         yield "folder"
+        if self.exercise:  # the fixed harmless process in place of the program, in the same job
+            process = guest.spawn(job=job)
+            guest.exercise_starts.append(self.token)
+            yield "launched"
+            if not guest.exercise_lingers:
+                process.alive = False
+            report = {"schema": GUEST_SCHEMA, "attempt_token": self.token, "mbf": None, "mbf_sha256": None,
+                      "batch": {}, "gui": {"used": False}, "csv_path": None, "owned_pids": [process.pid],
+                      "status": "exercise_ended", "diagnostics": [],
+                      "claim": {"pid": self.launcher.pid, "created": self.launcher.created},
+                      "exercise": {"exit_code": 0}}
+            yield "program_ended"
+            text = json.dumps(report, separators=(",", ":"), sort_keys=True)
+            guest.create_new(self.path(".finished"),
+                             f"swbpipe-finished v1\r\ntoken={self.token}\r\nreport={text}\r\n".encode("ascii"))
+            self.report = report
+            yield "finished"
+            self._end(0, stdout=text)
+            return
         data = guest.read_share(self.mbf)
         if guest.corrupt_copy:
             data = data + b"corrupted"
@@ -290,6 +328,9 @@ class FakeGuestModel:
         self.stderr_added: dict[str, str] = {}  # kind -> text appended to stderr of every answer of that kind
         self.program_hook: Callable[[Attempt], Program] | None = None  # decides the program at launch when set
         self.storage: dict[str, dict[str, Any]] = {}  # folder -> its storage entry (default: a plain NTFS C: folder)
+        self.exercise_starts: list[str] = []  # tokens whose exercise process was started
+        self.exercise_lingers = False  # the exercise's harmless process outlives the script's poll
+        self.fence_denied = False  # the claim's create is refused (access denied): no effect, exit 1
 
     # -- state ---------------------------------------------------------------------------------------------------
     def spawn(self, job: str | None = None, pid: int | None = None) -> Process:
@@ -347,10 +388,10 @@ class FakeGuestModel:
         if (kind, number) in self.answers and kind not in ("fence",):
             code, out, err = self.answers[(kind, number)]
             return done(argv, code, out, err)
-        if kind in READ_KINDS:
+        if kind in SCRIPTED_KINDS:
             result = self._read(argv, command, kind)
         else:
-            result = self._answer(argv, command, kind, query_payload(command)[1] if kind == "fence" else {})
+            result = self._answer(argv, command, kind, {})
         if (kind, number) in self.answers:  # a fence whose effect happened, answered otherwise
             code, out, err = self.answers[(kind, number)]
             return done(argv, code, out, err)
@@ -392,11 +433,12 @@ class FakeGuestModel:
         return read_echo(self.exchange_root, self.guest_exchange_root, command)[0]
 
     def _read(self, argv, command: str, kind: str) -> subprocess.CompletedProcess:
-        """A read-script call: its echo first, then the operation's answer, as the real script prints them."""
+        """A read- or write-script call: its echo first, then the operation's answer, as the real script prints
+        them."""
         echo, data = read_echo(self.exchange_root, self.guest_exchange_root, command)
         if not echo:
             return done(argv, 1, "", "The term is not recognized as the name of a script file.")
-        call = read_call(command)
+        call = script_call(command)
         if call["data"] and data is None:
             return done(argv, 1, echo, "the data file differs from its digest")
         payload = dict(call["payload"]) | (data or {})
@@ -412,10 +454,15 @@ class FakeGuestModel:
             if path not in self.files:
                 return done(argv, 1, "", "The system cannot find the file specified.")
             return done(argv, 0, self.files[path].decode("ascii"), "")
-        if kind == "fence":
-            self.dirs.add(payload["work"])
-            created = self.create_new(payload["path"], payload["content"].encode("ascii"))
-            return done(argv, 0, f"SWBPIPE-FENCE v1 {'created' if created else 'exists'}\r\n", "")
+        if kind == "fence":  # the write script's claim: the folder, then the exclusive create
+            if self.fence_denied:
+                return done(argv, 1, "", "Access to the path is denied.")
+            self.dirs.add(payload["folder"])
+            path = payload["folder"] + "\\" + payload["name"]
+            if path in self.locked:
+                return done(argv, 0, "SWBPIPE-CLAIM v1 held\r\n", "")
+            created = self.create_new(path, payload["content"].encode("ascii"))
+            return done(argv, 0, f"SWBPIPE-CLAIM v1 {'created' if created else 'exists'}\r\n", "")
         if kind == "cim":
             if self.cim_unavailable:
                 return done(argv, 1, "", "The RPC server is unavailable.")

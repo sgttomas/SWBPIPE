@@ -7,9 +7,8 @@ complete round trips against the fake guest that take the longest-path branches:
 so the host fences it and dispatches again; a restore that writes back the recent-files values exactly, the literal
 value through the registry API, one write lost in transport and settled by its read-back before it is issued again;
 and a restore whose write fails, which reads the key once more. The chunk read at the largest offset a collection can
-reach is built by the same builder. Every command is recorded with its length, and every one is asserted within the
-limit, except the host's fence and the literal value's set and delete, still -EncodedCommand scripts until they get
-short forms; those are listed with their lengths.
+reach is built by the same builder. Every command is recorded with its length, and every one, the host's fence and
+the registry API's writes included, is asserted within the limit.
 
 The configuration is invented, with paths longer than the design's examples: the lengths are a forecast for the
 configured paths, which the harness checks itself before every send. Nothing here is a capture or a measurement.
@@ -17,10 +16,7 @@ configured paths, which the harness checks itself before every send. Nothing her
 
 from __future__ import annotations
 
-import base64
-import dataclasses
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -33,7 +29,7 @@ if str(ROOT) not in sys.path:
 from core.handoff.caepipe_external import harness  # noqa: E402
 from core.handoff.caepipe_external.harness import HarnessConfig, SettingsGuard, run_caepipe_round_trip  # noqa: E402
 from tests import test_caepipe_correlation as correlation  # noqa: E402
-from tests.caepipe_fake_guest import classify, read_call  # noqa: E402
+from tests.caepipe_fake_guest import classify, write_call  # noqa: E402
 
 MANIFEST = ROOT / "validation" / "caepipe_benchmark" / "manifest.json"
 PRESSURE_FAMILIES = ("P1", "P2", "P3", "P4", "P5", "P6", "P7")
@@ -79,9 +75,7 @@ def _step_name(command: str) -> str:
             return "key_create"
         return "value_delete" if " /v " in command else "key_delete"
     if kind == "literal":
-        script = base64.b64decode(command.rsplit(" ", 1)[1]).decode("utf-16-le")
-        payload = re.search(r"FromBase64String\('([A-Za-z0-9+/=]*)'\)", script)[1]
-        return "literal_" + json.loads(base64.b64decode(payload))["action"]
+        return {"regset": "regset", "regdelete": "regdelete"}[write_call(command)["op"]]
     if kind == "regread":
         return "literal_readback"
     return {"chunk": "chunk_read", "cim": "launcher_query", "job": "job_query"}.get(kind, kind)
@@ -125,8 +119,7 @@ def _solve(run_id: str, literal: str):
 
 
 def command_lengths(tmp_path: Path, monkeypatch) -> list[dict]:
-    """Every guest command of the longest-path runs, for each batch run: {run, variant, step, length, encoded,
-    command}."""
+    """Every guest command of the longest-path runs, for each batch run: {run, variant, step, length, command}."""
     monkeypatch.setattr(correlation, "INVENTED_KEY", PRINTED_KEY)
     monkeypatch.setattr(harness, "_backoff", lambda seconds: None)
     literal = EXE.rsplit("\\", 1)[0] + "\\"
@@ -156,21 +149,20 @@ def command_lengths(tmp_path: Path, monkeypatch) -> list[dict]:
             except harness.RestoreWriteFailed:
                 assert variant == "failed_restore"
             names = {_step_name(command) for command in sent}
-            assert {"attempt", "fence", "launcher_query", "job_query", "chunk_read", "literal_set" if variant ==
+            assert {"attempt", "fence", "launcher_query", "job_query", "chunk_read", "regset" if variant ==
                     "exact_restore" else "settings_reading"} <= names, (run_id, variant, sorted(names))
             if variant == "exact_restore":
-                assert {"value_write", "value_delete", "literal_set", "literal_readback"} <= names, sorted(names)
+                assert {"value_write", "value_delete", "regset", "literal_readback"} <= names, sorted(names)
             for command in sent:
                 rows.append({"run": run_id, "variant": variant, "step": _step_name(command),
                              "length": harness._guest_command_length(config.vm_name, command),
-                             "encoded": " -EncodedCommand " in command, "command": command})
+                             "command": command})
         # The chunk read at the largest offset a collection can reach, by the collection's own builder.
         largest = harness._read_command(config, "chunk", {
             "path": harness._win(WORK, run_id, "f" * 32, PRINT_NAME),
             "offset": harness.COLLECT_MAX_FILE_BYTES - 1, "length": harness.COLLECT_CHUNK_BYTES})
         rows.append({"run": run_id, "variant": "largest_offset", "step": "chunk_read",
-                     "length": harness._guest_command_length(config.vm_name, largest), "encoded": False,
-                     "command": largest})
+                     "length": harness._guest_command_length(config.vm_name, largest), "command": largest})
     return rows
 
 
@@ -181,9 +173,6 @@ def test_the_batch_is_the_56_runs_of_its_families():
 
 def test_every_guest_command_of_every_batch_run_is_within_the_limit(tmp_path, monkeypatch):
     rows = command_lengths(tmp_path, monkeypatch)
-    pending = {"fence", "literal_set", "literal_delete"}  # still -EncodedCommand until they get short forms
-    for row in rows:
-        assert row["encoded"] == (row["step"] in pending), row
-        if row["step"] not in pending:
-            assert row["length"] <= harness.GUEST_COMMAND_LIMIT, row
+    for row in rows:  # every command, without exception
+        assert row["length"] <= harness.GUEST_COMMAND_LIMIT and " -EncodedCommand " not in row["command"], row
     assert {row["run"] for row in rows} == set(batch_runs())

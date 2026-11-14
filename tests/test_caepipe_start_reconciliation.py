@@ -428,11 +428,12 @@ def test_the_export_and_an_unclaimed_solve_refuse_before_anything_can_start():
     refusal = SCRIPT[export_refusal:claim_refusal]
     assert 'status = "export_held"' in refusal and "exit 6" in refusal
     assert 'status = "claim_required"' in SCRIPT[claim_refusal:claim]
-    # Every launch outside the held export function comes after the claim and the job, and so does the GUI's.
+    # Every launch outside the held export function comes after the claim and the job: the program's batch run,
+    # its GUI fallback, and the controlled exercise's harmless process.
     start = SCRIPT.index("function Export-SolvedModel {")
     held = (start, SCRIPT.index("\n}\n", start))
     live = [index for index in launches if not held[0] < index < held[1]]
-    assert len(live) == 2 and all(index > job for index in live)
+    assert len(live) == 3 and all(index > job for index in live)
     assert "Export-SolvedModel" not in SCRIPT[held[1]:]  # the held export is never called
 
 
@@ -442,7 +443,7 @@ def test_the_script_claims_by_exclusive_create_and_never_requests_breakaway():
     for marker in ('"swbpipe-claim v1", "token=$AttemptToken", "owner=script", "pid=$PID"',
                    '"swbpipe-job v1", "token=$AttemptToken"', '"swbpipe-finished v1", "token=$AttemptToken"'):
         assert marker in SCRIPT
-    assert "$WorkRoot + '\\' + $AttemptToken + '.claim'" in SCRIPT  # the host's join
+    assert "$WorkRoot + '\\' + $prefix + $AttemptToken + '.claim'" in SCRIPT  # the host's join (prefix: exercise)
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -669,10 +670,8 @@ PROGRESS = _clixml("progress")
 
 
 def test_every_powershell_script_turns_progress_off_as_its_first_statement_and_nothing_else(tmp_path):
-    for script in (harness.FENCE_SCRIPT, harness.LITERAL_VALUE_SCRIPT):
-        assert script.startswith("$ProgressPreference = 'SilentlyContinue'\n"), script[:60]
-        assert "WarningPreference" not in script and "Write-Host" not in script  # warnings stay visible
-    for text in (SCRIPT, READ_SCRIPT):  # both -File scripts: the first statement after their parameters
+    write_script = harness.WRITE_SCRIPT.read_text(encoding="utf-8")
+    for text in (SCRIPT, READ_SCRIPT, write_script):  # every -File script: the first statement after its parameters
         after_params = text[text.index("\n)\n", text.index("param(")) + 3:]
         statements = [line for line in after_params.splitlines()
                       if line.strip() and not line.lstrip().startswith("#")]
@@ -681,12 +680,11 @@ def test_every_powershell_script_turns_progress_off_as_its_first_statement_and_n
         assert "WarningPreference" not in text and "Write-Host" not in text
     assert harness.POWERSHELL_COMMAND == "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass"
     config = config_for(tmp_path)
-    assert harness._encoded_query(harness.FENCE_SCRIPT, {"work": "C:\\w", "path": "C:\\w\\t.claim", "content": "x"}) \
-        .startswith(harness.POWERSHELL_COMMAND + " -EncodedCommand ")
-    assert harness._literal_value_command(KEY + "\\Recent list", "C:\\Invented\\", "set", "0A") \
-        .startswith(harness.POWERSHELL_COMMAND + " -EncodedCommand ")
     for command in (harness._read_command(config, "cim", {"pid": 1}),
-                    harness._literal_readback_command(config, KEY + "\\Recent list", "C:\\Invented\\")):
+                    harness._literal_readback_command(config, KEY + "\\Recent list", "C:\\Invented\\"),
+                    harness._write_command(config, "claim", {"folder": "C:\\w", "name": "0" * 32 + ".claim",
+                                                             "content": "swbpipe-claim v1\r\nx\r\n"}),
+                    harness._literal_write_command(config, KEY + "\\Recent list", "C:\\Invented\\", "set", "0A")):
         assert command.startswith(harness.POWERSHELL_COMMAND + " -File ")
 
 
@@ -755,7 +753,7 @@ def test_the_registry_api_read_and_write_fail_closed_on_any_serialised_record(tm
     config = config_for(tmp_path, GUARD)
     key = KEY + "\\Recent list"
     read = harness._literal_readback_command(config, key, "C:\\Invented\\")
-    write = harness._literal_value_command(key, "C:\\Invented\\", "set", "0A")
+    write = harness._literal_write_command(config, key, "C:\\Invented\\", "set", "0A")
     shown = f"{ECHO}\r\n{key}\r\n    C:\\Invented\\    REG_BINARY    0A\r\n"
 
     def step_answering(stdout, stderr, code=0):

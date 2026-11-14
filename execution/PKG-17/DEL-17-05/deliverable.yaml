@@ -79,6 +79,7 @@ checks:
 - tests/test_caepipe_correlation.py
 - tests/test_caepipe_start_reconciliation.py
 - tests/test_caepipe_read_script.py
+- tests/test_caepipe_write_script.py
 - tests/test_caepipe_command_lengths.py
 - tests/test_caepipe_data_boundary.py
 - tests/test_caepipe_private_correlation.py

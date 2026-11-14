@@ -58,7 +58,7 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
 )
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
 from tools.caepipe_correlation import run_pilot  # noqa: E402
-from tests.caepipe_fake_guest import FakeGuestModel, Program, classify, read_call, read_echo  # noqa: E402
+from tests.caepipe_fake_guest import FakeGuestModel, Program, classify, read_call, read_echo, write_call  # noqa: E402
 
 # The commands the embedded fake guest model answers (the attempt protocol).
 MODEL_KINDS = {"attempt", "fence", "claim_read", "finished_read", "cim", "job", "chunk"}
@@ -1167,13 +1167,19 @@ def _hex(text: str) -> str:
     return (text.encode("latin-1") + b"\x00").hex().upper()
 
 
-def _literal_payload(command: str) -> dict | None:
-    """The key, name, action and data of a literal-value step (`harness._literal_value_command`), else None."""
-    if not command.startswith("powershell ") or " -EncodedCommand " not in command:
+def _literal_payload(command: str, exchange_root: Path | None = None) -> dict | None:
+    """The key, name, action and data of a registry-API write (`harness._literal_write_command`: the write script's
+    regset or regdelete), its data read from the data file when it travels in one (given the exchange folder); else
+    None."""
+    call = write_call(command)
+    if call is None or call["op"] not in ("regset", "regdelete"):
         return None
-    script = base64.b64decode(command.rsplit(" ", 1)[1]).decode("utf-16-le")
-    encoded = re.search(r"FromBase64String\('([A-Za-z0-9+/=]*)'\)", script)[1]
-    return json.loads(base64.b64decode(encoded).decode("utf-8"))
+    payload = dict(call["payload"])
+    if call["data"] and exchange_root is not None:
+        payload |= json.loads((exchange_root / harness.HARNESS_DIR / harness.DATA_DIR / f"{call['data']}.json")
+                              .read_text(encoding="utf-8"))
+    return {"key": payload["key"], "name": payload["name"], "action": "set" if call["op"] == "regset" else "delete",
+            "data": payload.get("data")}
 
 
 class FakeGuest:
@@ -1278,7 +1284,7 @@ class FakeGuest:
                 if self.tick is not None:
                     self.tick()
                 return model.runner(argv, **kwargs)
-            literal = _literal_payload(command)
+            literal = _literal_payload(command, config.exchange_root)
             read = read_call(command)
             if read is not None:  # the read script's regread of the literal value
                 assert read["op"] == "regread", command
@@ -1352,16 +1358,17 @@ class FakeGuest:
                     self.timeouts.pop()
                     return subprocess.CompletedProcess(argv, code, out, err)
                 if literal:  # the registry API: the name and data exactly as passed, never parsed from command words
+                    echo = read_echo(config.exchange_root, config.guest_exchange_root, command)[0]
                     target = ("HKEY_CURRENT_USER\\" + literal["key"], literal["name"])
                     self.literal_writes.append(literal)
                     if literal["action"] == "delete" and target not in self.values:
-                        return subprocess.CompletedProcess(argv, 1, "", "ERROR: The system was unable to find the "
-                                                                        "specified registry key or value.")
+                        return subprocess.CompletedProcess(argv, 1, echo, "ERROR: The system was unable to find the "
+                                                                          "specified registry key or value.")
                     if self.apply_writes and literal["action"] == "set":
                         self.values[target] = ("REG_BINARY", literal["data"])
                     if self.apply_writes and literal["action"] == "delete":
                         del self.values[target]
-                    return subprocess.CompletedProcess(argv, 0, "The operation completed successfully.", "")
+                    return subprocess.CompletedProcess(argv, 0, echo + "The operation completed successfully.", "")
                 add = re.fullmatch(r'reg add "([^"]+)" /v "([^"]+)" /t (REG_\w+) /d "([^"]*)" /f', command)
                 delete = re.fullmatch(r'reg delete "([^"]+)" /v "([^"]+)" /f', command)
                 add_key = re.fullmatch(r'reg add "([^"]+)" /f', command)
@@ -2663,10 +2670,10 @@ def test_restore_plan_admits_only_the_exact_literal_value_and_writes_it_through_
         plan = harness._restore_plan(before, after, root, whole_key=True, literal=literal, config=config)
         assert [(entry["action"], entry["target"]) for entry in plan] == [(action, (RECENT, LITERAL))], how
         entry = plan[0]
-        # Never reg.exe, never the name as words: the write through the registry API (still an encoded script until
-        # piece B gives it a short form), the read-back through the read script's regread.
-        assert entry["command"].startswith("powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass "
-                                           "-EncodedCommand ")
+        # Never reg.exe, never the name as words: the write through the write script's registry API, the read-back
+        # through the read script's regread.
+        assert entry["command"].startswith("powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ")
+        assert write_call(entry["command"])["op"] == ("regset" if action == "set" else "regdelete")
         assert entry["readback_command"].startswith("powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass "
                                                     "-File ")
         for command in (entry["command"], entry["readback_command"]):
@@ -2677,8 +2684,8 @@ def test_restore_plan_admits_only_the_exact_literal_value_and_writes_it_through_
         read = read_call(entry["readback_command"])
         assert (read["op"], read["payload"], read["data"]) == (
             "regread", {"key": RECENT[len("HKEY_CURRENT_USER\\"):], "name": LITERAL}, None)
-        # Without the configuration the read-back cannot be built, and the plan is refused before any write.
-        with pytest.raises(ValueError, match="read back"):
+        # Without the configuration neither command can be built, and the plan is refused before any write.
+        with pytest.raises(ValueError, match="without the harness configuration"):
             harness._restore_plan(before, after, root, whole_key=True, literal=literal)
         # Without the literal admitted, the same difference is refused before any write.
         with pytest.raises(ValueError, match="exactly"):
@@ -2716,23 +2723,17 @@ def test_restore_plan_admits_only_the_exact_literal_value_and_writes_it_through_
     odd = harness._restore_plan(without_recent, snapshot(base, (RECENT, "C:\\Other\\", "REG_BINARY", "01")), root,
                                 whole_key=True, literal=literal)
     assert [(entry["action"], entry["command"]) for entry in odd] == [("delete_key", f'reg delete "{RECENT}" /f')]
-    # Both the write and its read-back command are bounded: the longest data whose set command fits is admitted
-    # only when its read-back fits too; a value too long for one guest command is refused while the plan is made.
-    for size in range(1, 4200):
-        try:
-            harness._literal_value_command(RECENT, LITERAL, "set", "AB" * size)
-        except ValueError:
-            break
-    assert harness._literal_value_command(RECENT, LITERAL, "set", "AB" * (size - 1))
-    plan = harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_BINARY", "AB" * (size - 1))),
-                                 snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal,
-                                 config=config)
-    assert len(plan[0]["command"]) <= harness.ENCODED_COMMAND_LIMIT
-    assert harness._guest_command_length(config.vm_name, plan[0]["readback_command"]) <= harness.GUEST_COMMAND_LIMIT
-    with pytest.raises(ValueError, match="too long"):
-        harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_BINARY", "AB" * 4096)),
-                              snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal,
-                              config=config)
+    # Both the write and its read-back command are bounded: data too long for one command travels in a
+    # content-addressed data file, which holds exactly that data, and both commands stay within the limit.
+    for data in ("AB" * 16, "AB" * 4096):
+        plan = harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_BINARY", data)),
+                                     snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal,
+                                     config=config)
+        for command in (plan[0]["command"], plan[0]["readback_command"]):
+            assert harness._guest_command_length(config.vm_name, command) <= harness.GUEST_COMMAND_LIMIT
+        call = write_call(plan[0]["command"])
+        assert (call["data"] is None) == (len(data) == 32)
+        assert _literal_payload(plan[0]["command"], config.exchange_root)["data"] == data
 
 
 @pytest.mark.parametrize("guard", [KEY_GUARD, RESTORING_GUARD], ids=["key", "recent_files"])

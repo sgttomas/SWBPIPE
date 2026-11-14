@@ -77,6 +77,10 @@ GUEST_SCRIPT_REPOSITORY_PATH = "core/handoff/caepipe_external/guest/Invoke-Caepi
 # The read-only queries' script (`_read_command`): installed and called like the guest script, by a short -File command.
 READ_SCRIPT = Path(__file__).resolve().parent / "guest" / "Read-SwbpipeGuest.ps1"
 READ_SCRIPT_REPOSITORY_PATH = "core/handoff/caepipe_external/guest/Read-SwbpipeGuest.ps1"
+# The changing operations' script (`_write_command`): the host's fence, the registry API writes and the exercise key,
+# each confined by pattern, installed and called the same way.
+WRITE_SCRIPT = Path(__file__).resolve().parent / "guest" / "Write-SwbpipeGuest.ps1"
+WRITE_SCRIPT_REPOSITORY_PATH = "core/handoff/caepipe_external/guest/Write-SwbpipeGuest.ps1"
 HARNESS_DIR = "_harness"
 RUN_RECORD_KIND = "openpipestress.caepipe_harness_run_record"
 BATCH_COMMAND_SHAPE = '<exe> "<mbf>";batchmode=yes'
@@ -111,47 +115,28 @@ RESTORABLE_DATA = {"REG_BINARY": re.compile(r"^[0-9A-Fa-f]*\Z"), "REG_DWORD": re
                    "REG_SZ": re.compile(r"^[A-Za-z0-9 \\._()*:-]*\Z")}
 # The one value name a restore may address outside REG_VALUE_NAME_PATTERN, and only in the recent-files subkey: the
 # folder of the configured executable with one trailing backslash, a value the tool writes there (observed format
-# behaviour). `reg` cannot carry a quoted argument that ends in a backslash, so this value alone is written
-# and read back through the registry API (LITERAL_VALUE_SCRIPT), its key, name and data passed as encoded data.
+# behaviour). `reg` cannot carry a quoted argument that ends in a backslash, so this value alone is written through
+# the write script's registry API operations and read back through the read script's `regread`, its key, name and
+# data passed as encoded data.
 LITERAL_VALUE_FOLDER = re.compile(r"^[A-Za-z]:(\\[A-Za-z0-9 ._()-]+)+\Z")
 # Every guest command the harness builds is at most GUEST_COMMAND_LIMIT characters, measured as the prlctl call's
 # argv joined with single spaces, the program named `prlctl` (`_guest_command_length`): a margin well inside the
 # lengths established on the route. It is enforced in one place (`_checked_command`), which every send passes through
 # (`_guest_argv`) and which the builders also call, so a plan is refused before anything is sent.
 GUEST_COMMAND_LIMIT = 850
-# Held only until they get short forms: the host's fence and the literal value's set and delete are still sent as
-# -EncodedCommand scripts, which `_checked_command` holds to cmd.exe's line limit (8191, less `cmd /c ` and a margin).
-# Delivery of these long commands is not established on the route.
-ENCODED_COMMAND_LIMIT = 8000
+# A changing command that would come within 50 characters of the limit does not rely on that margin: its variable
+# data (a registry value's data) travels in a content-addressed data file instead (`_write_command`).
+DATA_FILE_THRESHOLD = 800
+# The controlled exercise's own names (`exercise_names`): its folder below C:\oracle and its registry key, dated.
+EXERCISE_PREFIX = "SWBPIPE-harness-exercise-"
+EXERCISE_PARENT = "C:\\oracle"
 # Every PowerShell script the harness sends begins with POWERSHELL_QUIET, so Windows PowerShell writes no progress
 # record (a module's first-use preparation included), which it would otherwise serialise to the redirected stderr.
 # Nothing else is silenced: a warning or an error stays visible on stderr, and every reply judged fails closed on
 # any non-blank stderr (`_answered`).
 POWERSHELL_QUIET = "$ProgressPreference = 'SilentlyContinue'\n"
-# How every PowerShell command is started (-EncodedCommand and -File show no banner).
+# How every PowerShell command is started (-File shows no banner).
 POWERSHELL_COMMAND = "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass"
-LITERAL_VALUE_SCRIPT = POWERSHELL_QUIET + r"""$ErrorActionPreference = 'Stop'
-$missing = 'ERROR: The system was unable to find the specified registry key or value.'
-try {
-  $p = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@PAYLOAD@')) | ConvertFrom-Json
-  $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey($p.key, $true)
-  if ($null -eq $key) { [Console]::Error.Write($missing); exit 1 }
-  try {
-    $present = $key.GetValueNames() -ccontains $p.name
-    if ($p.action -eq 'set') {
-      $bytes = New-Object byte[] ($p.data.Length / 2)
-      for ($i = 0; $i -lt $bytes.Length; $i++) { $bytes[$i] = [Convert]::ToByte($p.data.Substring(2 * $i, 2), 16) }
-      $key.SetValue($p.name, $bytes, [Microsoft.Win32.RegistryValueKind]::Binary)
-      [Console]::Out.Write('The operation completed successfully.')
-    } elseif ($p.action -eq 'delete') {
-      if (-not $present) { [Console]::Error.Write($missing); exit 1 }
-      $key.DeleteValue($p.name, $true)
-      [Console]::Out.Write('The operation completed successfully.')
-    } else { exit 2 }
-  } finally { $key.Close() }
-} catch { [Console]::Error.Write($_.Exception.Message); exit 1 }
-exit 0
-"""
 # Written by the guest script in the case's work folder: one id per process it starts (guarded runs only).
 OWNED_PIDS_FILE = "owned_pids.txt"
 # The guard's result, with its write log, persisted on its own before the run record (guarded runs only).
@@ -542,24 +527,23 @@ def _literal_recent_value(config: HarnessConfig) -> tuple[str, str] | None:
     return _registry_key_id(guard.recent_files_key), folder + "\\"
 
 
-def _literal_value_command(printed_key: str, name: str, action: str, data: str | None = None) -> str:
-    """The guest command for one `set` (REG_BINARY `data`) or `delete` of the literal value: PowerShell's registry
-    API with the key, the name and the data passed as encoded data, never as quoted command words. It prints what
-    `reg` prints: `REG_WRITE_OK`, or `REG_NOT_FOUND` with exit 1. Its read-back is the read script's `regread`
-    (`_literal_readback_command`)."""
+def _literal_write_command(config: HarnessConfig, printed_key: str, name: str, action: str,
+                           data: str | None = None) -> str:
+    """The guest command for one `set` (REG_BINARY `data`, upper-case hex) or `delete` of a value through the write
+    script's registry API (`regset`, `regdelete`), the key, name and data passed as encoded data, never as quoted
+    command words. It prints what `reg` prints: `REG_WRITE_OK`, or `REG_NOT_FOUND_LINE` with exit 1. Data too long
+    for one command travels in a content-addressed data file (`_write_command`)."""
 
     if not REG_PRINTED_KEY_PATTERN.match(printed_key) or action not in ("set", "delete") \
             or (action == "set") != (data is not None) or (data is not None and not re.fullmatch(r"(?:[0-9A-F]{2})*",
                                                                                                 data)):
         raise ValueError(f"{printed_key}\\{name} cannot be written back exactly")
-    payload = json.dumps({"key": printed_key[len("HKEY_CURRENT_USER\\"):], "name": name, "action": action,
-                          "data": data}, sort_keys=True)
-    script = LITERAL_VALUE_SCRIPT.replace("@PAYLOAD@", base64.b64encode(payload.encode("utf-8")).decode("ascii"))
-    encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
-    command = f"{POWERSHELL_COMMAND} -EncodedCommand {encoded}"
-    if len(command) > ENCODED_COMMAND_LIMIT:  # cmd.exe would cut it: refused while the plan is made, before any write
-        raise ValueError(f"{printed_key}\\{name} cannot be written back exactly (its guest command is too long)")
-    return command
+    payload = {"key": printed_key[len("HKEY_CURRENT_USER\\"):], "name": name} | ({"data": data} if data is not None
+                                                                                  else {})
+    try:
+        return _write_command(config, "regset" if action == "set" else "regdelete", payload, spill=("data",))
+    except ValueError as error:
+        raise ValueError(f"{printed_key}\\{name} cannot be written back exactly ({error})") from error
 
 
 def _literal_readback_command(config: HarnessConfig, printed_key: str, name: str) -> str:
@@ -591,31 +575,12 @@ def _win(*parts: str) -> str:
 # ---------------------------------------------------------------------------------------------------------------
 # The attempt: one guest operation per token, its reconciliation by read-only queries, and host-pulled collection.
 # ---------------------------------------------------------------------------------------------------------------
-# The host's fence is still a fixed PowerShell script run with -EncodedCommand (until it gets a short form); its
-# parameters travel as encoded JSON data (`@PAYLOAD@`), never as command words. Every read-only query is an operation
-# of the read script (`_read_command`). Each prints exactly one answer in a fixed form beginning with its own
-# sentinel, and each answer is matched whole (`_answered`, `_body` and the patterns below); anything else is
-# unresolved.
-_QUERY_PRELUDE = POWERSHELL_QUIET + r"""$ErrorActionPreference = 'Stop'
-$p = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@PAYLOAD@')) | ConvertFrom-Json
-"""
-# The host's fence: the work folder (idempotent), then the exclusive create of <W>\<T>.claim with the host's content.
-FENCE_SCRIPT = _QUERY_PRELUDE + r"""try {
-  [void][IO.Directory]::CreateDirectory($p.work)
-  try { $s = [IO.File]::Open($p.path, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None) }
-  catch {
-    $e = $_.Exception
-    while ($e -and -not ($e -is [IO.IOException])) { $e = $e.InnerException }
-    if ($e -and $e.HResult -eq -2147024816) { [Console]::Out.Write("SWBPIPE-FENCE v1 exists`r`n"); exit 0 }
-    throw
-  }
-  try { $b = [Text.Encoding]::ASCII.GetBytes($p.content); $s.Write($b, 0, $b.Length); $s.Flush($true) }
-  finally { $s.Dispose() }
-  [Console]::Out.Write("SWBPIPE-FENCE v1 created`r`n")
-} catch { [Console]::Error.Write($_.Exception.Message); exit 1 }
-exit 0
-"""
-FENCE_ANSWER = re.compile(r"^SWBPIPE-FENCE v1 (?P<result>created|exists)\r?\n?\Z")
+# Every read-only query is an operation of the read script (`_read_command`), and every changing operation of the
+# run phase an operation of the write script (`_write_command`). Each prints exactly one answer in a fixed form
+# beginning with its own sentinel, after the echo of its script's digest, and each answer is matched whole
+# (`_answered`, `_body` and the patterns below); anything else is unresolved.
+# The host's fence (the write script's `claim`): created, exists (ERROR_FILE_EXISTS), or held (a sharing violation).
+CLAIM_ANSWER = re.compile(r"^SWBPIPE-CLAIM v1 (?P<result>created|exists|held)\r?\n?\Z")
 CIM_ANSWER = re.compile(r"^SWBPIPE-CIM v1 (?:none|pid=(?P<pid>[0-9]{1,10}) created=(?P<created>[0-9]{14}\.[0-9]{6}))"
                         r"\r?\n?\Z")
 JOB_ANSWER = re.compile(r"^SWBPIPE-JOB v1 (?P<state>absent|present active=(?:[0-9]{1,10}|unknown)|error=[0-9]{1,10})"
@@ -639,17 +604,6 @@ HASH_ANSWER = re.compile(r"^SWBPIPE-HASH v1 (?:absent|size=(?P<size>[0-9]{1,12})
                          r"\r?\n?\Z")
 
 
-def _encoded_query(script: str, payload: Mapping[str, Any]) -> str:
-    """The guest command running `script` with `payload` passed as encoded JSON data (never as command words). Used
-    only by the host's fence until it gets a short form."""
-    data = base64.b64encode(json.dumps(dict(payload), sort_keys=True).encode("utf-8")).decode("ascii")
-    encoded = base64.b64encode(script.replace("@PAYLOAD@", data).encode("utf-16-le")).decode("ascii")
-    command = f"{POWERSHELL_COMMAND} -EncodedCommand {encoded}"
-    if len(command) > ENCODED_COMMAND_LIMIT:
-        raise ValueError("a guest query would exceed the command-line limit")
-    return command
-
-
 # ---------------------------------------------------------------------------------------------------------------
 # The read script: every read-only query is a short -File call (`_read_command`), and every reply's first line is the
 # echo of the script's and the data file's computed digests, which the host checks against what it installed.
@@ -662,6 +616,17 @@ READ_COMMAND_FORM = re.compile(
     "^" + re.escape(POWERSHELL_COMMAND) + r' -File "(?P<path>[A-Za-z]:[^"]*\\' + re.escape(HARNESS_DIR)
     + r'\\(?P<script>[0-9a-f]{64})\\' + re.escape(READ_SCRIPT.name) + r')" -Op (?P<op>[a-z]+) '
     r"-Payload (?P<payload>[A-Za-z0-9+/]+={0,2})(?: -Data (?P<data>[0-9a-f]{64}))?\Z")
+# The write script: the same short form, its own echo sentinel.
+WRITE_OPS = ("claim", "regset", "regdelete", "keycreate", "keydelete")
+WRITE_SCRIPT_SHA256 = _sha256(WRITE_SCRIPT.read_bytes())
+WRITE_ECHO = re.compile(r"^SWBPIPE-WRITE v1 script=(?P<script>[0-9a-f]{64}) data=(?P<data>[0-9a-f]{64}|none)\r?\n")
+WRITE_COMMAND_FORM = re.compile(
+    "^" + re.escape(POWERSHELL_COMMAND) + r' -File "(?P<path>[A-Za-z]:[^"]*\\' + re.escape(HARNESS_DIR)
+    + r'\\(?P<script>[0-9a-f]{64})\\' + re.escape(WRITE_SCRIPT.name) + r')" -Op (?P<op>[a-z]+) '
+    r"-Payload (?P<payload>[A-Za-z0-9+/]+={0,2})(?: -Data (?P<data>[0-9a-f]{64}))?\Z")
+# (command form, echo, the digest the host installed) of each script whose replies carry an echo.
+_ECHOED_SCRIPTS = ((READ_COMMAND_FORM, READ_ECHO, READ_SCRIPT_SHA256),
+                   (WRITE_COMMAND_FORM, WRITE_ECHO, WRITE_SCRIPT_SHA256))
 
 
 def _guest_command_length(vm_name: str, command: str) -> int:
@@ -671,13 +636,8 @@ def _guest_command_length(vm_name: str, command: str) -> int:
 
 
 def _checked_command(config: HarnessConfig, command: str) -> str:
-    """The one length rule (`GUEST_COMMAND_LIMIT`): `command`, or ValueError before anything is sent. The fence and
-    the literal value's set and delete, still -EncodedCommand scripts until they get short forms, are held to
-    `ENCODED_COMMAND_LIMIT` instead."""
-    if command.startswith(f"{POWERSHELL_COMMAND} -EncodedCommand "):
-        if len(command) > ENCODED_COMMAND_LIMIT:
-            raise ValueError("an encoded guest command would exceed the command-line limit; nothing was sent")
-        return command
+    """The one length rule (`GUEST_COMMAND_LIMIT`), for every guest command without exception: `command`, or
+    ValueError before anything is sent."""
     length = _guest_command_length(config.vm_name, command)
     if length > GUEST_COMMAND_LIMIT:
         raise ValueError(f"a guest command of {length} characters exceeds GUEST_COMMAND_LIMIT "
@@ -717,19 +677,43 @@ def _read_command(config: HarnessConfig, op: str, payload: Mapping[str, Any], da
     return _checked_command(config, command)
 
 
+def _write_command(config: HarnessConfig, op: str, payload: Mapping[str, Any], *, spill: tuple[str, ...] = ()) -> str:
+    """The short guest command for one changing operation of the write script, in `_read_command`'s form. When the
+    command would exceed `DATA_FILE_THRESHOLD`, the payload members named in `spill` travel instead in a
+    content-addressed data file installed in the exchange folder (`_install_data_file`), whose digest the command
+    names. Checked against the one length rule as it is built."""
+    if op not in WRITE_OPS:
+        raise ValueError(f"no write operation {op!r}")
+    script = _quote(_win(config.guest_exchange_root, HARNESS_DIR, WRITE_SCRIPT_SHA256, WRITE_SCRIPT.name))
+    command = f"{POWERSHELL_COMMAND} -File {script} -Op {op} -Payload {_encode_payload(payload)}"
+    if _guest_command_length(config.vm_name, command) <= DATA_FILE_THRESHOLD or not any(key in payload for key in spill):
+        return _checked_command(config, command)
+    inline = {key: value for key, value in payload.items() if key not in spill}
+    root = config.exchange_root
+    digest = _install_data_file(root, contained_dir(root, root.resolve() / HARNESS_DIR),
+                                {key: payload[key] for key in spill if key in payload})
+    return _checked_command(config, f"{POWERSHELL_COMMAND} -File {script} -Op {op} -Payload "
+                                    f"{_encode_payload(inline)} -Data {digest}")
+
+
 def _settle_echo(record: dict[str, Any]) -> None:
-    """For a read-script reply: `echo` (what it named, whether it is the expected one) and `reply_body` (the reply
-    after the echo line). The echo must be the reply's first line, exactly `SWBPIPE-READ v1 script=<sha256>
-    data=<sha256|none>`, naming the read script the host installed (`READ_SCRIPT_SHA256`, which is also the digest in
-    the command's path) and the data file the command named (or none). Anything else leaves the reply unresolved
-    (`_answered`, `_not_found`), never an answer. Other commands are left as they are."""
-    form = READ_COMMAND_FORM.match(record.get("guest_command") or "")
-    if form is None:
+    """For a read-script or write-script reply: `echo` (what it named, whether it is the expected one) and
+    `reply_body` (the reply after the echo line). The echo must be the reply's first line, exactly
+    `SWBPIPE-READ v1 script=<sha256> data=<sha256|none>` (`SWBPIPE-WRITE v1 ...` for the write script), naming the
+    script the host installed (its digest, which is also the digest in the command's path) and the data file the
+    command named (or none). Anything else leaves the reply unresolved (`_answered`, `_not_found`), never an answer.
+    Other commands are left as they are."""
+    command = record.get("guest_command") or ""
+    for command_form, echo_form, installed in _ECHOED_SCRIPTS:
+        form = command_form.match(command)
+        if form is not None:
+            break
+    else:
         return
-    expected = (READ_SCRIPT_SHA256, form["data"] or "none")
+    expected = (installed, form["data"] or "none")
     stdout = record.get("stdout") or ""
-    seen = READ_ECHO.match(stdout) if isinstance(stdout, str) else None
-    verified = bool(seen) and form["script"] == READ_SCRIPT_SHA256 and (seen["script"], seen["data"]) == expected
+    seen = echo_form.match(stdout) if isinstance(stdout, str) else None
+    verified = bool(seen) and form["script"] == installed and (seen["script"], seen["data"]) == expected
     record["echo"] = {"expected": f"script={expected[0]} data={expected[1]}",
                       "seen": seen[0].rstrip("\r\n") if seen else None, "verified": verified}
     record["reply_body"] = stdout[seen.end():] if verified else ""
@@ -859,8 +843,11 @@ class _Reconciler:
     is never taken as more than its reading shows."""
 
     def __init__(self, config: HarnessConfig, runner: Callable[..., subprocess.CompletedProcess],
-                 steps: list[dict[str, Any]], work: str, token: str, deadline: float):
+                 steps: list[dict[str, Any]], work: str, token: str, deadline: float, prefix: str = ""):
         self.config, self.runner, self.steps, self.work, self.token = config, runner, steps, work, token
+        if prefix not in ("", EXERCISE_PREFIX):
+            raise ValueError("an attempt's names carry no prefix but the exercise's")
+        self.prefix = prefix  # the exercise's names only (EXERCISE_PREFIX); empty for every run
         self.deadline = deadline
         self.host_nonce = secrets.token_hex(16)  # constant for T: every fence of T writes the same bytes
         self.evidence: list[str] = []
@@ -885,7 +872,7 @@ class _Reconciler:
         return {"disposition": "unknown", "reason": reason, "evidence": self.evidence}
 
     def path(self, suffix: str) -> str:
-        return _win(self.work, self.token + suffix)
+        return _win(self.work, self.prefix + self.token + suffix)
 
     def run(self) -> dict[str, Any]:
         claim = self._claim()
@@ -931,11 +918,11 @@ class _Reconciler:
         decision is always the claim read that follows. Re-issuing it writes the same bytes and can never
         overwrite, so a late earlier fence changes nothing."""
         content = f"swbpipe-claim v1\r\ntoken={self.token}\r\nowner=host\r\nnonce={self.host_nonce}\r\n"
-        record = self._read("fence", _encoded_query(FENCE_SCRIPT, {"work": self.work, "path": self.path(".claim"),
-                                                                  "content": content}))
+        record = self._read("fence", _write_command(self.config, "claim", {
+            "folder": self.work, "name": self.prefix + self.token + ".claim", "content": content}))
         if record is None:
             return
-        match = FENCE_ANSWER.match(record["stdout"]) if _answered(record) else None
+        match = CLAIM_ANSWER.match(_body(record)) if _answered(record) else None
         record["answer"] = match["result"] if match else "unresolved"
         self.evidence.append(f"fence: {record['answer']}")
         if match is None:
@@ -1450,7 +1437,7 @@ def _guest_write(config: HarnessConfig, runner: Callable[..., subprocess.Complet
     record["attempt_log"] = [{"attempt": 1, "exit_status": completed.returncode}
                              | ({"transport_line": line} if line else {})]
     steps.append(record)
-    if _answered(record) and record["stdout"].strip() in REG_WRITE_OK_LINES:
+    if _answered(record) and _body(record).strip() in REG_WRITE_OK_LINES:
         record["outcome"] = "completed"
         return record
     # Exit 255 is the client's own failure: unknown whatever its text, but only a transport answer is settled.
@@ -1749,8 +1736,9 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
     ValueError (nothing is written) when any difference lies outside the scope, when a key or value name falls
     outside the allowed characters, or when a value cannot be written back exactly. The one exception is `literal`
     (`_literal_recent_value`): that exact (key id, value name), as REG_BINARY, is set or deleted through the
-    registry API (`_literal_value_command`), and its entry carries the command that reads it back (the read script's
-    `regread`, which needs `config`). With `config`, every command of the plan is checked against the one length
+    write script's registry API (`_literal_write_command`), and its entry carries the command that reads it back (the
+    read script's `regread`); both need `config`. With `config`, a REG_BINARY value whose `reg add` would exceed
+    `DATA_FILE_THRESHOLD` is set through the same registry API, its data in a data file. With `config`, every command of the plan is checked against the one length
     rule (`_checked_command`) while the plan is made: a command over it refuses the whole restore before any write.
     """
 
@@ -1768,6 +1756,11 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
         if config is None:
             raise ValueError(f"{printed}\\{name} cannot be read back without the harness configuration")
         return _literal_readback_command(config, printed, name)
+
+    def _literal_write(printed: str, name: str, action: str, data: str | None = None) -> str:
+        if config is None:
+            raise ValueError(f"{printed}\\{name} cannot be written back exactly without the harness configuration")
+        return _literal_write_command(config, printed, name, action, data)
 
     differing_values = [item for item in set(before["values"]) | set(after["values"])
                         if before["values"].get(item, (None,))[1:] != after["values"].get(item, (None,))[1:]]
@@ -1805,11 +1798,14 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
                     or not (REG_VALUE_NAME_PATTERN.match(item[1]) or exact):
                 raise ValueError(f"{printed}\\{item[1]} ({kind}) cannot be written back exactly")
             printed = printed_key(printed, item[0])
+            command = f"reg add {_quote(printed)} /v {_quote(item[1])} /t {kind} /d {_quote(data)} /f"
+            if exact or (config is not None and kind == "REG_BINARY"
+                         and _guest_command_length(config.vm_name, command) > DATA_FILE_THRESHOLD):
+                # Through the registry API, its data in a data file when it would not fit one command.
+                command = _literal_write(printed, item[1], "set", data.upper())
             entry = {"value": f"{printed}\\{item[1]}", "action": "set", "target": (printed, item[1]),
                      "restores": {"type": kind, "data": data},
-                     "replaces": {"type": found[1], "data": found[2]} if found else None,
-                     "command": f"reg add {_quote(printed)} /v {_quote(item[1])} /t {kind} /d {_quote(data)} /f"
-                     if not exact else _literal_value_command(printed, item[1], "set", data.upper())}
+                     "replaces": {"type": found[1], "data": found[2]} if found else None, "command": command}
             if exact:
                 entry["readback_command"] = _literal_readback(printed, item[1])
             plan.append(entry)
@@ -1823,7 +1819,7 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
                      "restores": None,
                      "replaces": {"type": kind, "data": data},
                      "command": f"reg delete {_quote(printed)} /v {_quote(item[1])} /f"
-                     if not exact else _literal_value_command(printed, item[1], "delete")}
+                     if not exact else _literal_write(printed, item[1], "delete")}
             if exact:
                 entry["readback_command"] = _literal_readback(printed, item[1])
             plan.append(entry)
@@ -2301,9 +2297,9 @@ def restore_recorded_settings(config: HarnessConfig, changed_values: list[Mappin
         try:
             plan = _restore_plan(intended, current, root, whole_key=True, literal=_literal_recent_value(config),
                                  config=config)
-            if any("readback_command" in entry for entry in plan):  # the read script must be in place to read back
-                exchange = config.exchange_root
-                _install_guest_script(exchange, contained_dir(exchange, exchange.resolve() / HARNESS_DIR), READ_SCRIPT)
+            exchange = config.exchange_root  # the read and write scripts in place before anything is sent
+            for guest_script in (READ_SCRIPT, WRITE_SCRIPT):
+                _install_guest_script(exchange, contained_dir(exchange, exchange.resolve() / HARNESS_DIR), guest_script)
         except ValueError as error:
             return finish({"status": "settings_restore_failed", "reason": f"{error}; nothing was written",
                            "write_log": []})
@@ -2318,6 +2314,248 @@ def restore_recorded_settings(config: HarnessConfig, changed_values: list[Mappin
             _attach_guard(failure, result)
             raise failure
         return result
+
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# For an outer caller: the session's settings record, the read-only state report, and the controlled exercise's
+# operations on harmless resources. All go through the same builders, the one length rule and the echo.
+# ---------------------------------------------------------------------------------------------------------------
+def read_settings_record(config: HarnessConfig, *, runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
+                         steps: list[dict[str, Any]] | None = None) -> dict[str, dict] | None:
+    """One read-only reading of the whole configured settings key, by the guard's own reader (`reg query <key> /s`,
+    `_settings_snapshot`), for a record an outer caller takes at the start of a session and again before it
+    suspends, and compares on the host (`settings_difference`). None when the key cannot be read whole."""
+    guard = config.settings_guard
+    if guard is None:
+        raise ValueError("no settings key is configured")
+    steps = [] if steps is None else steps
+    return _settings_snapshot(config, lambda name, command: _guest_read(config, runner, guard.call_timeout_s, steps,
+                                                                       name, command), "settings_record")
+
+
+# The small files the state report reads whole through the read script's `chunk`: a claim or a terminal report.
+STATE_FILE_MAX_BYTES = 1 << 16
+
+
+def _read_small_file(config: HarnessConfig, runner: Callable[..., subprocess.CompletedProcess],
+                     steps: list[dict[str, Any]], name: str, path: str) -> tuple[str, str]:
+    """("text", its ASCII text), ("absent", ""), or ("unreadable", "") for anything else (a sharing violation, a file
+    larger than one read, an answer out of form, a digest that does not match), through one `chunk` read."""
+    record = _guest_step(config, runner, RECONCILE_CALL_TIMEOUT_S, steps, name,
+                         _read_command(config, "chunk", {"path": path, "offset": 0, "length": STATE_FILE_MAX_BYTES}))
+    match = CHUNK_ANSWER.match(_body(record)) if _answered(record) else None
+    if match is None:
+        return "unreadable", ""
+    if match["size"] is None:
+        return "absent", ""
+    try:
+        data = base64.b64decode(match["data"], validate=True)
+        text = data.decode("ascii")
+    except (ValueError, UnicodeDecodeError):
+        return "unreadable", ""
+    whole = int(match["size"]) == len(data) == int(match["length"]) and int(match["offset"]) == 0
+    if not whole or _sha256(data) != match["sha256"] or _sha256(data) != match["chunk_sha256"]:
+        return "unreadable", ""
+    return "text", text
+
+
+def read_attempt_state(config: HarnessConfig, work: str, token: str, *,
+                       runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
+                       steps: list[dict[str, Any]] | None = None, prefix: str = "") -> dict[str, Any]:
+    """The attempt's state after a run, from the read script alone, in one pass and without the fence: independent
+    of what the attempt or any changing script reported about itself.
+
+    `claim` (the claim read whole): `script` (this token's claim in the script's form: owner, process id, creation
+    time and nonce), `host` (this token's claim as the host's fence writes it), `other` (present, not this token's
+    claim in either form), `absent` or `unreadable`. `launcher` (only for a script claim): `ended` (no process with
+    the claim's id, or one created at another time), `running`, or `unknown`. `job`: `absent` (no member, no
+    handle), `present`, or `unknown`. `terminal` (the terminal report read whole): `complete` (this token's report in
+    its form), `other`, `absent` or `unreadable`.
+
+    `classified`, in the reconciliation's own states: `completed` when the claim is the script's, the launcher has
+    ended, the job is absent and the terminal report is complete; `partial` when the same holds with no terminal
+    report; `fenced` when the claim is the host's (the reconciliation calls that not_started only for its own
+    fence's nonce); `unknown` for anything else. `success` is `classified == "completed"`."""
+    if prefix not in ("", EXERCISE_PREFIX) or not ATTEMPT_TOKEN_PATTERN.match(token):
+        raise ValueError("an attempt is named by a 32-hex token, with no prefix but the exercise's")
+    steps = [] if steps is None else steps
+    path = lambda suffix: _win(work, prefix + token + suffix)  # noqa: E731
+    state: dict[str, Any] = {"token": token, "work": work, "launcher": "not_applicable"}
+    found, text = _read_small_file(config, runner, steps, "state_claim", path(".claim"))
+    claim = _parse_claim(text, token) if found == "text" else None
+    state["claim"] = claim["owner"] if claim else ("other" if found == "text" else found)
+    if claim and claim["owner"] == "script":
+        state["claim_identity"] = {"pid": int(claim["pid"]), "created": claim["created"]}
+        record = _guest_step(config, runner, RECONCILE_CALL_TIMEOUT_S, steps, "state_launcher",
+                             _read_command(config, "cim", {"pid": int(claim["pid"])}))
+        match = CIM_ANSWER.match(_body(record)) if _answered(record) else None
+        state["launcher"] = "unknown" if match is None else (
+            "ended" if match["pid"] is None or match["created"] != claim["created"] else "running")
+    record = _guest_step(config, runner, RECONCILE_CALL_TIMEOUT_S, steps, "state_job",
+                         _read_command(config, "job", {"job": f"swbpipe-{token}"}))
+    match = JOB_ANSWER.match(_body(record)) if _answered(record) else None
+    state["job"] = "unknown" if match is None else ("absent" if match["state"] == "absent" else
+                                                   "present" if match["state"].startswith("present") else "unknown")
+    found, text = _read_small_file(config, runner, steps, "state_terminal", path(".finished"))
+    report = _parse_finished(text, token) if found == "text" else None
+    state["terminal"] = "complete" if report is not None else ("other" if found == "text" else found)
+    if report is not None:
+        state["terminal_status"] = report.get("status")
+    quiescent = state["claim"] == "script" and state["launcher"] == "ended" and state["job"] == "absent"
+    state["classified"] = ("completed" if quiescent and state["terminal"] == "complete" else
+                           "partial" if quiescent and state["terminal"] == "absent" else
+                           "fenced" if state["claim"] == "host" else "unknown")
+    state["success"] = state["classified"] == "completed"
+    return state
+
+
+def exercise_names(date: str) -> dict[str, str]:
+    """The exercise's own folder and registry key for the session's UTC date (YYYYMMDD): the folder
+    C:\\oracle\\SWBPIPE-harness-exercise-<date>, and HKCU\\Software\\SWBPIPE-harness-exercise-<date>."""
+    if not re.fullmatch(r"20[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])", date or ""):
+        raise ValueError("the exercise is named by the session's UTC date, YYYYMMDD")
+    return {"folder": f"{EXERCISE_PARENT}\\{EXERCISE_PREFIX}{date}",
+            "key": f"HKCU\\Software\\{EXERCISE_PREFIX}{date}",
+            "printed_key": f"HKEY_CURRENT_USER\\Software\\{EXERCISE_PREFIX}{date}",
+            "registry_key": f"Software\\{EXERCISE_PREFIX}{date}"}
+
+
+def exercise_claim_command(config: HarnessConfig, date: str, name: str) -> str:
+    """The exclusive create of one exercise claim, SWBPIPE-harness-exercise-<name>, in the exercise folder, through
+    the write script's `claim` (the host's fence's own operation). Its content says whose it is and what for."""
+    if not re.fullmatch(r"[A-Za-z0-9-]{1,40}", name or ""):
+        raise ValueError("an exercise claim is named by letters, digits and hyphens")
+    folder = exercise_names(date)["folder"]
+    content = (f"swbpipe-claim v1\r\nexercise={EXERCISE_PREFIX}{name}\r\n"
+               f"owner=SWBPIPE harness controlled exercise {date}\r\n")
+    return _write_command(config, "claim", {"folder": folder, "name": EXERCISE_PREFIX + name, "content": content})
+
+
+def exercise_registry_command(config: HarnessConfig, date: str, action: str, value_name: str | None = None,
+                              data: str | None = None) -> str:
+    """One registry operation on the exercise's own key, and on no other: `keycreate`, `keydelete`, and `set` (a
+    REG_BINARY value, upper-case hex), `delete` and `read` of one value in it, through the same operations the
+    restore uses (`_literal_write_command`, `regread`). The key comes from the date alone, so no other key, the
+    program's included, can be named."""
+    names = exercise_names(date)
+    if action in ("keycreate", "keydelete"):
+        if value_name is not None or data is not None:
+            raise ValueError("a key operation names no value")
+        return _write_command(config, action, {"key": names["registry_key"]})
+    if not REG_VALUE_NAME_PATTERN.match(value_name or "") or action not in ("set", "delete", "read"):
+        raise ValueError(f"no exercise registry operation {action!r} on {value_name!r}")
+    if action == "read":
+        return _read_command(config, "regread", {"key": names["registry_key"], "name": value_name})
+    return _literal_write_command(config, names["printed_key"], value_name, action, data)
+
+
+def exercise_start_command(config: HarnessConfig, date: str, token: str) -> str:
+    """The exercise's start: the round-trip script in its exercise mode, its claim, job and folder named with the
+    exercise prefix in the exercise folder, starting the fixed harmless process in place of the program."""
+    if not ATTEMPT_TOKEN_PATTERN.match(token or ""):
+        raise ValueError("an attempt is named by a 32-hex token")
+    script = _win(config.guest_exchange_root, HARNESS_DIR, _sha256(GUEST_SCRIPT.read_bytes()), GUEST_SCRIPT.name)
+    return _checked_command(config, f"{POWERSHELL_COMMAND} -File {_quote(script)} -Exercise -AttemptToken {token} "
+                                    f"-WorkRoot {_quote(exercise_names(date)['folder'])}")
+
+
+def install_guest_scripts(config: HarnessConfig) -> dict[str, str]:
+    """Put the round-trip, read and write scripts at their content-addressed paths (add-only); their digests."""
+    root = config.exchange_root
+    harness_dir = contained_dir(root, root.resolve() / HARNESS_DIR)
+    return {script.name: _install_guest_script(root, harness_dir, script)["sha256"]
+            for script in (GUEST_SCRIPT, READ_SCRIPT, WRITE_SCRIPT)}
+
+
+def run_exercise_start(config: HarnessConfig, date: str, *,
+                       runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
+                       token: str | None = None, timeout_s: float = 120.0) -> dict[str, Any]:
+    """Dispatch the exercise's start once (never retried) and reconcile it exactly as a run's attempt is reconciled,
+    in the exercise folder with the exercise prefix. Returns the token, the dispatch step, the disposition
+    (`disposition`, the reconciliation's state), the terminal report's status and every step. An outer caller that
+    wants to see the live job from a separate call passes its own `token` and queries `swbpipe-<token>` with the read
+    script's `job` while this call runs."""
+    install_guest_scripts(config)
+    token = token or secrets.token_hex(16)
+    folder = exercise_names(date)["folder"]
+    command = exercise_start_command(config, date, token)
+    steps: list[dict[str, Any]] = []
+    dispatch = _guest_step(config, runner, timeout_s, steps, "exercise_attempt", command, attempts=1)
+    resolution = _Reconciler(config, runner, steps, folder, token, time.monotonic() + RECONCILE_DEADLINE_S,
+                             prefix=EXERCISE_PREFIX).run()
+    settled = resolution["disposition"]
+    if settled == "completed" and _report_contradicted(resolution["report"], dispatch):
+        settled = "contradicted"
+    start = settled if settled != "unknown" else "unresolved"
+    return {"token": token, "dispatch": {key: dispatch.get(key) for key in ("exit_status", "stdout", "stderr")},
+            "disposition": disposition(start), "reason": resolution["reason"],
+            "report_status": (resolution.get("report") or {}).get("status"), "steps": steps}
+
+
+def read_state_report(config: HarnessConfig, *, runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
+                      case_id: str | None = None, token: str | None = None, exercise_date: str | None = None,
+                      settings_before: Mapping[str, Mapping] | None = None,
+                      storage_folders: tuple[str, ...] = ()) -> dict[str, Any]:
+    """The read-only state report after a run, independent of what any changing script reported about itself, for an
+    outer caller that needs no attempt to call it. Each part is present when asked for:
+
+    - `attempt` (with `token`; the case's work folder, or with `exercise_date` the exercise folder and prefix):
+      `read_attempt_state`, its `success` the predicate a run must meet;
+    - `settings` (with `settings_before`): the key read again whole and compared with that record;
+    - `storage` (with `storage_folders`): the read script's storage answer for each folder and the predicate;
+    - `exercise` (with `exercise_date`): the exercise key `absent` or `present` (or `unreadable`), and the exercise
+      folder's entries by name (`absent` when the folder is).
+
+    Reads only: the read script, `reg query` and `dir /b /a`."""
+    steps: list[dict[str, Any]] = []
+    report: dict[str, Any] = {"steps": steps}
+
+    def read(name: str, command: str) -> dict[str, Any]:
+        return _guest_step(config, runner, RECONCILE_CALL_TIMEOUT_S, steps, name, command)
+
+    if token is not None:
+        if exercise_date is not None:
+            work, prefix = exercise_names(exercise_date)["folder"], EXERCISE_PREFIX
+        elif case_id is not None and CASE_ID_PATTERN.match(case_id):
+            work, prefix = _win(config.guest_work_root, case_id), ""
+        else:
+            raise ValueError("an attempt's state is read for a case id or for the exercise")
+        report["attempt"] = read_attempt_state(config, work, token, runner=runner, steps=steps, prefix=prefix)
+    if settings_before is not None:
+        after = read_settings_record(config, runner=runner, steps=steps)
+        differences = settings_difference(settings_before, after) if after is not None else None
+        report["settings"] = {"read": after is not None, "differences": differences,
+                              "unchanged": differences == []}
+    folders = list(storage_folders) + ([exercise_names(exercise_date)["folder"]] if exercise_date else [])
+    entries = None
+    if folders:
+        record = read("state_storage", _read_command(config, "storage", {"folders": folders}))
+        entries = parse_storage(_body(record), folders) if _answered(record) else None
+    if storage_folders:
+        asked = None if entries is None else entries[:len(storage_folders)]
+        report["storage"] = {"entries": asked, "meets": asked is not None and all(item["meets"] for item in asked)}
+    if exercise_date is not None:
+        names = exercise_names(exercise_date)
+        key = read("state_exercise_key", f"reg query {_quote(names['key'])}")
+        exercise: dict[str, Any] = {"key": "absent" if _not_found(key) else "present" if _answered(key)
+                                    else "unreadable"}
+        folder = entries[-1] if entries is not None else None
+        if folder is None:
+            exercise["folder_entries"] = "unreadable"
+        elif folder["absent"]:
+            exercise["folder_entries"] = "absent"
+        else:
+            listing = read("state_exercise_folder", f"dir /b /a {_quote(names['folder'])}")
+            lines = [line.strip() for line in (listing.get("stdout") or "").splitlines() if line.strip()]
+            if _answered(listing) and all(re.fullmatch(r"[A-Za-z0-9 ._()-]+", line) for line in lines):
+                exercise["folder_entries"] = lines
+            elif listing["exit_status"] == 1 and not lines and (listing.get("stderr") or "").strip() == "File Not Found":
+                exercise["folder_entries"] = []
+            else:
+                exercise["folder_entries"] = "unreadable"
+        report["exercise"] = exercise
+    return report
 
 
 def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[str, Path], harness_dir: Path,
@@ -2351,6 +2589,7 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
     write_private(root, paths["caepipe_in"] / "model.mbf", mbf_bytes)
     script = _install_guest_script(root, harness_dir)
     read_script = _install_guest_script(root, harness_dir, READ_SCRIPT)  # every read-only query runs it
+    write_script = _install_guest_script(root, harness_dir, WRITE_SCRIPT)  # the fence and the registry API writes
     out = paths["caepipe_out"]
     _clear_outputs(root, out)
 
@@ -2630,6 +2869,9 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             "read_script": {"repository_path": READ_SCRIPT_REPOSITORY_PATH,
                             "exchange_copy": read_script["exchange_copy"], "sha256": read_script["sha256"],
                             "run_from": "exchange_share"},
+            "write_script": {"repository_path": WRITE_SCRIPT_REPOSITORY_PATH,
+                             "exchange_copy": write_script["exchange_copy"], "sha256": write_script["sha256"],
+                             "run_from": "exchange_share"},
             "command_shape": {
                 "batch": BATCH_COMMAND_SHAPE,
                 "gui_print_fallback": {
@@ -2645,7 +2887,9 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             },
             "attempt_token": token,
             "attempts": attempts,
-            "start": {"state": start, "reason": (resolution or {}).get("reason"),
+            # The classification an outer caller shows: a further attempt needs `retry_permitted`.
+            "start": {"state": start, "restore_permitted": disposition(start)["restore"],
+                      "retry_permitted": disposition(start)["retry"], "reason": (resolution or {}).get("reason"),
                       "claim": (resolution or {}).get("claim")},
             "steps": [{key: value for key, value in item.items() if key not in ("stdout", "stderr")}
                       | {"stdout_chars": len(item.get("stdout") or ""), "stderr_chars": len(item.get("stderr") or "")}
