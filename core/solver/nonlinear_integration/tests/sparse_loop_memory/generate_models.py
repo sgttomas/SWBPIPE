@@ -189,7 +189,7 @@ def every_node_lift_off(count, recovery):
     nodes, pipes = chain(count)
     supports = []
     if recovery:
-        supports.append(rigid("support:G0", "node:N0", "guide", ["UX", "UY", "RX", "RY", "RZ"]))
+        supports.append(rigid("support:G0", "node:N0", "anchor", ["UX", "UY", "RX", "RY", "RZ"]))
         supports.append(rigid(f"support:G{count - 1}", f"node:N{count - 1}", "line_stop", ["UY"]))
         rest = range(count)
     else:
@@ -208,15 +208,16 @@ def every_node_lift_off(count, recovery):
 
 
 def friction_many(count):
-    """Derived-normal friction at every interior node: a vertical support UZ (the normal source) and a friction
-    UX shoe at each, a chain anchored at node 0 and free at its tip, weight and a thermal expansion."""
+    """Derived-normal friction at every node but the anchor: a vertical support UZ (the normal source) and a
+    friction UX shoe at each, a chain anchored at node 0 and free at its tip, weight, and an axial force at every
+    node above mu times its normal reaction, so that the shoes slide and the derived-normal coupling is formed."""
     nodes, pipes = chain(count)
     supports = [rigid("support:A0", "node:N0", "anchor", ALL6)]
     for i in range(1, count):
         supports.append(rigid(f"support:V{i}", f"node:N{i}", "vertical_support", ["UZ"]))
         supports.append(nonlinear(f"support:FR{i}", f"node:N{i}", friction("UX", 0.3, f"support:V{i}")))
     loads = [weight(f"load:W{i}", p["id"], -1200.0) for i, p in enumerate(pipes)]
-    loads += [thermal(f"load:T{i}", p["id"], 160.0) for i, p in enumerate(pipes)]
+    loads += [force(f"load:x{i}", f"node:N{i}", "global_x", 1500.0) for i in range(1, count)]
     return document(f"friction-many-{count}", nodes, pipes, supports, [case("load:OPE", loads)])
 
 
@@ -246,14 +247,22 @@ def skew_with_nonlinear(count):
     return document(f"skew-nonlinear-{count}", nodes, pipes, supports, [case("load:OPE", loads)])
 
 
-def multicase(rack_document: dict, name: str, bases: list[float], material: dict) -> dict:
-    """The pressure-free rack with a sustained case S (weight, no modulus basis), operating cases O_t (weight +
-    thermal) at each modulus basis temperature t, and for each O_t a held-status (`minuend_final`) subtraction
-    O_t - S. `material` replaces the rack's (the pressure-free rack's material has no temperature points, so a
-    modulus basis needs the exact rack's E/nu points)."""
+def multicase(rack, rack_document: dict, name: str, bases: list[float], material: dict, gaps: bool = True) -> dict:
+    """The pressure-free rack with, at each modulus basis temperature t, a sustained case SUS_t (weight) and an
+    operating case OPE_t (weight + thermal), and a held-status (`minuend_final`) subtraction OPE_t - SUS_t (each
+    pair shares its basis, as gate G-2 requires). `material` replaces the rack's (the pressure-free rack's material
+    has no temperature points, so a modulus basis needs the exact rack's E/nu points), with an explicit shear
+    modulus E/2.6 on the material and on each point, as the pressure-free route requires."""
     out = json.loads(json.dumps(rack_document))
     model = out["model"]
+    shear = lambda record: q(rack.r6(record["elastic_modulus"]["value"] / 2.6), "GPa")
+    material = dict(material, shear_modulus=shear(material),
+                    temperature_points=[dict(point, shear_modulus=shear(point)) for point in material["temperature_points"]])
     model["materials"] = [material]
+    if not gaps:
+        # A gap support leaves a minuend unqualified (strict-gap proof unavailable on the rack), and a held-status
+        # solve needs a qualified minuend: without gaps the held solves run.
+        model["supports"] = [s for s in model["supports"] if (s.get("nonlinear") or {}).get("behavior") != "gap"]
     (ope,) = model["load_cases"]
     weights = [load for load in ope["primitive_loads"] if load["category"] == "weight"]
     thermals = [load for load in ope["primitive_loads"] if load["category"] == "thermal"]
@@ -266,21 +275,19 @@ def multicase(rack_document: dict, name: str, bases: list[float], material: dict
             result.append(load)
         return result
 
-    cases = [dict({key: value for key, value in ope.items() if key not in ("primitive_loads", "id", "label")},
-                  id="load:RK-SUS", label="SUS sustained: W", primitive_loads=renamed(weights, "SUS"))]
-    combinations = []
+    base = {key: value for key, value in ope.items() if key not in ("primitive_loads", "id", "label")}
+    cases, combinations = [], []
     for index, temperature in enumerate(bases):
-        tag = f"OPE{index}"
-        record = {key: value for key, value in ope.items() if key not in ("primitive_loads", "id", "label")}
-        record.update(id=f"load:RK-{tag}", label=f"{tag} operating: W + T at {temperature} degC",
-                      primitive_loads=renamed(weights, tag) + renamed(thermals, tag))
-        record["modulus_basis_temperature"] = q(temperature, "degC")
-        cases.append(record)
-        combinations.append({"id": f"comb:RK-EXP{index}", "label": f"{tag} - SUS held",
-                             "basis": "result_state_subtraction", "minuend_id": f"load:RK-{tag}",
-                             "subtrahend_id": "load:RK-SUS", "difference_basis": "operating_minus_sustained",
-                             "subtrahend_support_state": "minuend_final", "terms": [],
-                             "provenance": PROV})
+        sus, opr = f"SUS{index}", f"OPE{index}"
+        cases.append(dict(base, id=f"load:RK-{sus}", label=f"{sus} sustained: W at {temperature} degC",
+                          primitive_loads=renamed(weights, sus), modulus_basis_temperature=q(temperature, "degC")))
+        cases.append(dict(base, id=f"load:RK-{opr}", label=f"{opr} operating: W + T at {temperature} degC",
+                          primitive_loads=renamed(weights, opr) + renamed(thermals, opr),
+                          modulus_basis_temperature=q(temperature, "degC")))
+        combinations.append({"id": f"comb:RK-EXP{index}", "label": f"{opr} - {sus} held",
+                             "basis": "result_state_subtraction", "minuend_id": f"load:RK-{opr}",
+                             "subtrahend_id": f"load:RK-{sus}", "difference_basis": "operating_minus_sustained",
+                             "subtrahend_support_state": "minuend_final", "terms": [], "provenance": PROV})
     model["load_cases"] = cases
     model["combinations"] = combinations
     model["project"]["id"] = f"project:slm-{name}"
@@ -327,11 +334,12 @@ def build(quick: bool):
             every_node_lift_off(count, False), f"chain of {count} nodes, anchors at both ends, inactive lift-off rest "
                                               "at every interior node, alternating nodal loads")
         add(f"every-node-lift-off-recovery-{count}", "every node nonlinear (recovery trial)", ["loop", "product"],
-            every_node_lift_off(count, True), f"chain of {count} nodes, no rigid UZ, inactive lift-off rest at "
-                                              "every node (singular seed)")
+            every_node_lift_off(count, True), f"chain of {count} nodes, no rigid UZ (partial anchor at node 0), "
+                                              "inactive lift-off rest at every node (singular seed)")
     for count in (500, 1500) if not quick else (500,):
         add(f"friction-many-{count}", "derived-normal friction", ["loop", "product"], friction_many(count),
-            f"chain of {count} nodes, vertical support and derived-normal friction UX at every node but the anchor")
+            f"chain of {count} nodes, vertical support and derived-normal friction UX at every node but the anchor, "
+            "axial nodal forces above mu N")
     for count in (42, 43):
         add(f"gap-frame-{count}", "gap-only straight frame", ["loop", "product"], gap_frame(count),
             f"straight chain of {count} nodes ({6 * count} DOFs), anchor at node 0, UY gaps at every third node")
@@ -342,9 +350,16 @@ def build(quick: bool):
     pf = {size: rack.build("nonlinear-pf", size)[0] for size in ((250, 1000) if quick else (250, 1000, 1750))}
     for size, document in pf.items():
         add(f"multicase-pf-{size}", "multi-case, held status, several modulus bases", ["product"],
-            multicase(wrap_rack(document), f"multicase-pf-{size}", [180.0, 150.0, 250.0], rack.material(True)),
-            f"rack-pf-{size} with the exact rack's material (E/nu temperature points), SUS (W), OPE0..2 (W + T at "
-            "180, 150 and 250 degC modulus bases) and three minuend_final subtractions OPEi - SUS")
+            multicase(rack, wrap_rack(document), f"multicase-pf-{size}", [180.0, 150.0, 250.0], rack.material(True)),
+            f"rack-pf-{size} with the exact rack's material (E/nu temperature points); at each of 180, 150 and 250 "
+            "degC modulus bases SUSi (W) and OPEi (W + T); three minuend_final subtractions OPEi - SUSi")
+    for size in (250, 1000) if quick else (250, 1000, 1750):
+        document = pf[size]
+        add(f"multicase-pf-nogap-{size}", "multi-case, held status solved, several modulus bases", ["product"],
+            multicase(rack, wrap_rack(document), f"multicase-pf-nogap-{size}", [180.0, 150.0, 250.0],
+                      rack.material(True), gaps=False),
+            f"multicase-pf-{size} with the rack's gap supports removed, so that each minuend is qualified and its "
+            "held-status solve runs")
     return entries
 
 

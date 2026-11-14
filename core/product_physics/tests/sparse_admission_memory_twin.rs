@@ -28,7 +28,7 @@ use std::sync::atomic::{AtomicUsize, Ordering::SeqCst};
 use std::sync::Mutex;
 
 /// A safety net, not a measurement.
-const CAP_BYTES: usize = 24 << 30;
+const CAP_BYTES: usize = 16 << 30;
 
 static LIVE_REQ: AtomicUsize = AtomicUsize::new(0);
 static LIVE_RND: AtomicUsize = AtomicUsize::new(0);

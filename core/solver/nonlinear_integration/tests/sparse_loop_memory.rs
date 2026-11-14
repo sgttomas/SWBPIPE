@@ -76,7 +76,7 @@ use std::sync::Mutex;
 
 /// A safety net, not a measurement: a run whose requested live heap passes it
 /// aborts instead of exhausting the host.
-const CAP_BYTES: usize = 24 << 30;
+const CAP_BYTES: usize = 16 << 30;
 
 static LIVE_REQ: AtomicUsize = AtomicUsize::new(0);
 static LIVE_RND: AtomicUsize = AtomicUsize::new(0);
@@ -952,6 +952,18 @@ fn counts(model: &Model, input: &NonlinearFrameSolveInput) -> String {
     )
 }
 
+/// Counts of active, inactive, sticking and sliding states.
+fn state_tally(states: &[SupportStateRecord]) -> String {
+    let count = |wanted: ActiveSetState| states.iter().filter(|s| s.state == wanted).count();
+    format!(
+        "{{\"active\":{},\"inactive\":{},\"sticking\":{},\"sliding\":{}}}",
+        count(ActiveSetState::Active),
+        count(ActiveSetState::Inactive),
+        count(ActiveSetState::Sticking),
+        count(ActiveSetState::Sliding),
+    )
+}
+
 fn iterates(result: &NonlinearFrameSolveResult) -> String {
     let rows = result
         .iterations
@@ -966,7 +978,7 @@ fn iterates(result: &NonlinearFrameSolveResult) -> String {
                 }
             };
             format!(
-                "{{\"iteration\":{},\"reduced_dof_count\":{},\"active_restrained\":{},\"ordered_profile_entry_count\":{},\"original_profile_entry_count\":{},\"ordered_max_half_bandwidth\":{},\"original_max_half_bandwidth\":{},\"evidence_status\":{},\"strict_gap\":\"{gap}\",\"strict_gap_reason\":{},\"changed_supports\":{}}}",
+                "{{\"iteration\":{},\"reduced_dof_count\":{},\"active_restrained\":{},\"ordered_profile_entry_count\":{},\"original_profile_entry_count\":{},\"ordered_max_half_bandwidth\":{},\"original_max_half_bandwidth\":{},\"evidence_status\":{},\"strict_gap\":\"{gap}\",\"strict_gap_reason\":{},\"changed_supports\":{},\"states_after\":{},\"applied_sliding_forces\":{}}}",
                 it.iteration,
                 e.reduced_dof_count,
                 it.active_restrained_dofs.len(),
@@ -977,6 +989,8 @@ fn iterates(result: &NonlinearFrameSolveResult) -> String {
                 json_string(&format!("{:?}", e.status)),
                 json_string(&reason),
                 it.active_set.changed_supports.len(),
+                state_tally(&it.active_set.states),
+                it.applied_sliding_friction_forces.len(),
             )
         })
         .collect::<Vec<_>>();
