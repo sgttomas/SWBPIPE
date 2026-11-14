@@ -195,6 +195,48 @@ class ContainmentError(RuntimeError):
     """A path the pilot would write or delete is a symbolic link or lies outside the exchange folder."""
 
 
+# The attempt's disposition. The invocation-owned live record of a round trip holds it in ONE place, `live["start"]`,
+# written only by `_set_start` and read only through `_classify` (and, outside the harness, through `disposition` on
+# the state an error or a record carries outward). Absent or unknown is unresolved.
+START_STATES = ("not_dispatched", "unresolved", "not_started", "completed", "partial", "contradicted")
+# Restoration of the saved settings is permitted only for a start that cannot still be writing.
+RESTORE_PERMITTED = frozenset({"not_dispatched", "not_started", "completed", "partial", "contradicted"})
+# A retry is permitted only when the program was never started; completed, partial and contradicted have run it.
+RETRY_PERMITTED = frozenset({"not_dispatched", "not_started"})
+# The client's answer when it cannot open a session in the guest. Like a transport line, it leaves the terminal report
+# to decide; it is never a contradiction of it.
+SESSION_UNAVAILABLE_LINE = ("PrlVmGuest_RunProgram: Unable to open new session in this virtual machine. Make sure your "
+                            "virtual machine has finished booting, runs the latest version of Parallels Tools, and is "
+                            "not isolated from the host OS.")
+
+
+def disposition(start: Any) -> dict[str, Any]:
+    """The one rule table for an attempt's start: the state (anything absent or not a known state is "unresolved")
+    and whether restoration and retry are permitted."""
+    state = start if start in START_STATES else "unresolved"
+    return {"start": state, "restore": state in RESTORE_PERMITTED, "retry": state in RETRY_PERMITTED}
+
+
+def _set_start(live: dict[str, Any], state: str) -> None:
+    live["start"] = state
+
+
+def _classify(live: Mapping[str, Any] | None) -> dict[str, Any]:
+    """The one classifier over a round trip's live record: its start's `disposition`, and whether its run record
+    was saved (evidence only: a recording failure never changes the start)."""
+    live = live or {}
+    return disposition(live.get("start")) | {"evidence_saved": bool(live.get("record_saved"))}
+
+
+def _carry_disposition(error: BaseException, live: Mapping[str, Any] | None) -> None:
+    """Carry the live record's disposition outward on `error` (`disposition`, and `start_unresolved` derived from
+    it). The attributes are a copy for the caller, never a fact kept on their own."""
+    classified = _classify(live)
+    with contextlib.suppress(Exception):
+        error.disposition = classified
+        error.start_unresolved = classified["start"] == "unresolved"
+
+
 class StartUnresolved(RuntimeError):
     """The round trip's attempt could not be established as not started, completed, or failed and quiescent within
     its deadline (disposition 4, unknown). Nothing was collected and no restore write was issued. The run record,
@@ -928,10 +970,14 @@ def run_caepipe_round_trip(config: HarnessConfig, case_id: str, mbf_text: str, *
     No other guest command is issued. The host never prepares, stages or copies inside the guest.
 
     Routes for the start: `not_started` (two attempts, each established as not started); `start_partial` (the
-    script claimed, the attempt is quiescent, no terminal report; never retried); `start_unresolved` (not
-    established within the deadline: StartUnresolved is raised after the records, with nothing collected and no
-    restore write). A completed attempt's report then decides the route as before; outputs are collected only when
-    the guest reports solving an MBF whose SHA-256 equals the host's (otherwise `input_hash_mismatch`).
+    script claimed, the attempt is quiescent, no terminal report; never retried); `report_reply_contradiction`
+    (a success terminal report beside a nonzero dispatch reply that is neither a transport line nor the
+    session-unavailable line: quiescent, with a report, never retried, never compared; both kept whole);
+    `start_unresolved` (not established within the deadline: StartUnresolved is raised after the records, with
+    nothing collected and no restore write). The disposition is kept only in the live record and carried outward on
+    every exit (`_classify`, `_carry_disposition`). A completed attempt's report then decides the route as before;
+    outputs are collected only when the guest reports solving an MBF whose SHA-256 equals the host's (otherwise
+    `input_hash_mismatch`).
 
     `gui_fallback=False` tells the guest script not to fall back to printing through the GUI when the batch route
     leaves no CSV (route `batch_no_csv`); the fallback, when allowed, runs inside the same claim and job. With
@@ -1038,6 +1084,31 @@ def transport_line(exit_status: Any, stdout: str | None, stderr: str | None) -> 
     return lines[0] if len(lines) == 1 and lines[0] in TRANSPORT_LINES else None
 
 
+# The route of a success terminal report contradicted by its own dispatch reply (`_report_contradicted`).
+REPORT_REPLY_CONTRADICTION = "report_reply_contradiction"
+
+
+def reply_leaves_report_to_decide(exit_status: Any, stdout: str | None, stderr: str | None) -> bool:
+    """Whether a dispatch reply leaves the terminal report to decide: exit 0; no reply at all (a host timeout, or a
+    client that could not be started); a transport answer (`transport_line`); or exactly the client's
+    session-unavailable line (`SESSION_UNAVAILABLE_LINE`), with any exit. Any other nonzero reply contradicts a
+    success report."""
+    if not isinstance(exit_status, int) or isinstance(exit_status, bool) or exit_status == 0:
+        return True
+    if transport_line(exit_status, stdout, stderr) is not None:
+        return True
+    lines = [line.strip() for line in f"{stdout or ''}\n{stderr or ''}".splitlines() if line.strip()]
+    return len(lines) == 1 and lines[0] == SESSION_UNAVAILABLE_LINE
+
+
+def _report_contradicted(report: Any, dispatch: Mapping[str, Any]) -> bool:
+    """A success terminal report (a CSV status) beside a dispatch reply that does not leave the report to decide.
+    Total: it reads two values and raises nothing, so it may run before the reconciled start is set."""
+    status = report.get("status") if isinstance(report, dict) else None
+    return status in CSV_ROUTES and not reply_leaves_report_to_decide(
+        dispatch.get("exit_status"), dispatch.get("stdout"), dispatch.get("stderr"))
+
+
 def _guest_step(config: HarnessConfig, runner: Callable[..., subprocess.CompletedProcess], timeout_s: float,
                 steps: list[dict[str, Any]], name: str, command: str, deadline: float | None = None, *,
                 attempts: int = PRLCTL_ATTEMPTS, backoff_s: float = 0.0,
@@ -1114,6 +1185,8 @@ def _catchable_termination(active: bool, live: dict[str, Any] | None = None):
 
     def terminate(signum, frame):  # noqa: ARG001
         error = TerminationRequested(f"signal {signal.Signals(signum).name}")
+        if live is not None:
+            _carry_disposition(error, live)
         if live is not None and live.get("guard_state") is not None:
             try:
                 _attach_guard(error, _live_guard_result(live))
@@ -1889,8 +1962,10 @@ def _persist_guard_result(root: Path, out: Path, settings: dict[str, Any]) -> Ba
 def _live_guard_result(live: dict[str, Any]) -> dict[str, Any]:
     """The guard result as it stands, without guest or file I/O: the round trip's own result once it has one; else
     the restore's failure-path result; else one built from the write log (`settings_restore_failed` when the
-    restore was entered, else `settings_check_failed` with nothing written). The write log is always included."""
+    restore was entered, else `settings_check_failed` with nothing written). The write log is always included.
+    While the live record's start does not permit restoration (unresolved), the status is `start_unresolved`."""
 
+    classified = _classify(live)
     state = live.get("guard_state") or {}
     log = state.get("write_log") or []
     result = live.get("settings")
@@ -1910,6 +1985,9 @@ def _live_guard_result(live: dict[str, Any]) -> dict[str, Any]:
         result.setdefault("writes_completed", sum(1 for entry in result["write_log"] if entry["completed"]))
     if state.get("failed_write_stderr"):
         result.setdefault("failed_write_stderr", state["failed_write_stderr"])
+    if not classified["restore"]:
+        result = dict(result) | {"status": "start_unresolved",
+                                 "reason": "restoration inhibited: start unresolved; nothing was written"}
     return result
 
 
@@ -1932,7 +2010,7 @@ def _recover_guard_result(error: BaseException, live: dict[str, Any], root: Path
     result = live.get("settings")
     if result is None:
         result = getattr(error, "settings_guard", None)
-    if result is None:
+    if result is None or not _classify(live)["restore"]:  # an unresolved start takes precedence over anything else
         result = _live_guard_result(live)
     attach(result)
     result.setdefault("round_trip_error", f"{type(error).__name__}: {error}")
@@ -1958,9 +2036,10 @@ def _guard_check(config: HarnessConfig, step: Callable[[str, str], dict[str, Any
                  start_state: str | None = None) -> tuple[dict[str, Any], BaseException | None]:
     """The run record's `settings_guard`, and an exception (cancellation included) deferred from the restore.
 
-    `start_state` `"unresolved"` (the attempt is not established as not started, completed or failed and
-    quiescent, a cancellation during it included) inhibits every restore: the status is `start_unresolved`, nothing
-    is written, and the reading after the run and the process check are recorded for diagnosis only.
+    A `start_state` whose `disposition` does not permit restoration (unresolved: the attempt is not established
+    as not started, completed or failed and quiescent, a cancellation during it included) inhibits every restore:
+    the status is `start_unresolved`, nothing is written, and the reading after the run and the process check are
+    recorded for diagnosis only.
 
     `unchanged` when the whole snapshot is equal and no instance of the tool is left. A difference confined to the
     values of the recent-files subkey (or, with `restore_scope` `"key"`, any difference strictly inside the
@@ -1976,7 +2055,7 @@ def _guard_check(config: HarnessConfig, step: Callable[[str, str], dict[str, Any
         return {"status": "settings_check_failed", "reason": "the settings could not be read before the run; "
                                                              "nothing ran"}, None
     result: dict[str, Any] = {"owned_processes": processes}
-    if start_state == "unresolved":
+    if start_state is not None and not disposition(start_state)["restore"]:
         if after is not None:
             result["changed_values"] = settings_difference(settings_before, after)
         result.update(status="start_unresolved", reason="restoration inhibited: start unresolved (the attempt was not "
@@ -2119,12 +2198,13 @@ def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[
     # The same holds for an exception at any reporting or persistence step: it leaves with the guard result attached
     # and written once more (`_recover_guard_result`).
     guarded = config.settings_guard is not None
-    live: dict[str, Any] = {}
+    live: dict[str, Any] = {"start": "not_dispatched"}  # the invocation-owned live record
     with _catchable_termination(guarded, live):
         try:
             return _round_trip_body(config, case_id, mbf_text, paths, harness_dir, timeout_s, runner, gui_fallback,
                                     live)
         except BaseException as error:
+            _carry_disposition(error, live)  # on every exit, from the one source
             if guarded and live.get("guard_state") is not None:
                 _recover_guard_result(error, live, config.exchange_root, paths["caepipe_out"])
             raise
@@ -2158,7 +2238,7 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
 
     steps: list[dict[str, Any]] = []
     guard_state: dict[str, Any] = {}
-    live = {} if live is None else live
+    live = {"start": "not_dispatched"} if live is None else live
     live["guard_state"] = guard_state  # what the outer recovery and the termination handler report from
     # Every guard call (registry reads and writes, process queries) has the guard's own short timeout; the attempt
     # keeps `timeout_s`.
@@ -2177,10 +2257,10 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
         pre = _precondition(config, guard_step, "precondition_process_list")
         blocked = None if pre["status"] == "clear" else pre
     settings_before = _settings_snapshot(config, guard_step, "settings_before") if guarded and blocked is None else None
-    # The start's resolution: "not_dispatched" until an attempt is dispatched, then "unresolved" until its
-    # reconciliation establishes a disposition. Anything that interrupts in between leaves it unresolved, which
-    # inhibits every restore (`_guard_check`).
-    start_state = "not_dispatched"
+    # The start's disposition lives only in `live["start"]` (`_classify`): "not_dispatched" until an attempt is
+    # dispatched, "unresolved" from just before the dispatch until reconciliation establishes a disposition, which
+    # replaces it before any fallible line. Anything that interrupts in between leaves it unresolved, which inhibits
+    # every restore (`_guard_check`).
     attempts: list[dict[str, Any]] = []
     dispatches: list[tuple[Path, dict[str, Any]]] = []  # each attempt's folder and dispatch step, for the records
     resolution: dict[str, Any] | None = None
@@ -2201,26 +2281,28 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
                 attempt_out.mkdir()  # fresh: a token is never reused, and nothing already stored is rewritten
                 entry: dict[str, Any] = {"attempt_token": token, "dispatch": number}
                 attempts.append(entry)
-                start_state = "unresolved"
+                _set_start(live, "unresolved")  # before the dispatch can have any effect
                 # The attempt changes guest state, so it is dispatched once and never retried, whatever it answers.
                 dispatch = _guest_step(config, runner, timeout_s, steps, f"attempt_{number}", attempt_command(token),
                                        attempts=1)
-                entry["dispatch_exit_status"] = dispatch["exit_status"]
-                dispatches.append((attempt_out, dispatch))
                 # The one deadline, from the moment the reply arrived (or failed), through every nested read.
                 resolution = _Reconciler(config, runner, steps, work, token,
                                          time.monotonic() + RECONCILE_DEADLINE_S).run()
-                entry.update(disposition=resolution["disposition"], reason=resolution["reason"],
-                             evidence=list(resolution["evidence"]))
-                if resolution["disposition"] == "unknown":
-                    break  # start_state stays unresolved
-                start_state = resolution["disposition"]
-                if start_state != "not_started":
-                    break
-            if start_state == "completed":
-                guest_log = resolution["report"]
+                settled = resolution["disposition"]
+                if settled == "completed" and _report_contradicted(resolution["report"], dispatch):
+                    settled = "contradicted"
+                if settled != "unknown":
+                    _set_start(live, settled)  # the reconciled disposition replaces unresolved before anything else
+                entry["dispatch_exit_status"] = dispatch["exit_status"]
+                dispatches.append((attempt_out, dispatch))
+                entry.update(disposition=settled, reason=resolution["reason"], evidence=list(resolution["evidence"]))
+                if settled != "not_started":
+                    break  # unknown leaves the start unresolved
+            if _classify(live)["start"] in ("completed", "contradicted"):
+                guest_log = resolution["report"]  # retained whole, the contradicted one included
                 write_private(root, attempt_out / "guest_log.json", json.dumps(guest_log, indent=2, sort_keys=True)
                               + "\n")
+            if _classify(live)["start"] == "completed":
                 # The guest script reports the SHA-256 of the MBF it actually handed the program; outputs are
                 # attributed to this MBF only when that hash equals the host's.
                 reported = guest_log.get("mbf_sha256")
@@ -2250,7 +2332,8 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             try:
                 # The owned-process check only when an attempt may have started the program.
                 processes = (_owned_processes(config, guard_step, _win(work, token), guest_log)
-                             if token is not None and start_state in ("unresolved", "completed", "partial")
+                             if token is not None
+                             and _classify(live)["start"] in ("unresolved", "completed", "partial", "contradicted")
                              else {"status": "not_started"})
             except BaseException as failure:  # a callee's cancellation included: the reading still runs
                 if not isinstance(failure, Exception):
@@ -2268,7 +2351,7 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
                 settings = blocked
             else:
                 settings, deferred = _guard_check(config, guard_step, settings_before, after, processes, guard_state,
-                                                  write, start_state=start_state)
+                                                  write, start_state=_classify(live)["start"])
         except BaseException as caught:  # cancellation during the checks or escaping the restore's failure path
             primary = guard_state.get("primary_error")
             deferred = primary if primary is not None else caught
@@ -2289,7 +2372,7 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
                         settings["final_reading"] = "read" if final is not None else "could not be read"
                     except BaseException as late:
                         settings["final_reading"] = f"interrupted ({type(late).__name__})"
-            elif start_state == "unresolved":
+            elif not _classify(live)["restore"]:
                 settings = {"status": "start_unresolved",
                             "reason": f"restoration inhibited: start unresolved; the checks after the run were "
                                       f"interrupted ({type(caught).__name__}); nothing was written"}
@@ -2355,18 +2438,21 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
                     print_problem = _print_layout_problem(candidate)
                     observed = None if print_problem else observed
         status = guest_log.get("status") if isinstance(guest_log, dict) else None
+        start = _classify(live)["start"]
         if error is not None:
             route = "harness_error"
         elif blocked is not None:
             route = blocked["status"]
         elif guarded and settings_before is None:
             route = "settings_check_failed"
-        elif start_state == "unresolved":
+        elif start == "unresolved":
             route = "start_unresolved"
-        elif start_state == "not_started":
+        elif start == "not_started":
             route = "not_started"
-        elif start_state == "partial":
+        elif start == "partial":
             route = "start_partial"
+        elif start == "contradicted":
+            route = REPORT_REPLY_CONTRADICTION
         elif guest_mbf_sha256 is None:  # the guest reported no hash: nothing was compared, so nothing "mismatched"
             route = str(status) if status and status not in CSV_ROUTES else "input_hash_unreported"
         elif not input_verified:
@@ -2424,7 +2510,7 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             },
             "attempt_token": token,
             "attempts": attempts,
-            "start": {"state": start_state, "reason": (resolution or {}).get("reason"),
+            "start": {"state": start, "reason": (resolution or {}).get("reason"),
                       "claim": (resolution or {}).get("claim")},
             "steps": [{key: value for key, value in item.items() if key not in ("stdout", "stderr")}
                       | {"stdout_chars": len(item.get("stdout") or ""), "stderr_chars": len(item.get("stderr") or "")}
@@ -2464,6 +2550,7 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
     if record is not None:
         try:
             write_private(root, out / "run_record.json", json.dumps(record, indent=2, sort_keys=True) + "\n")
+            live["record_saved"] = True  # evidence only: the start is not touched
         except BaseException as caught:
             if error is None:
                 error = caught
@@ -2471,13 +2558,11 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             _secondary(settings, "run record", caught)
     live["reported"] = True  # the records are done: the outer recovery has nothing left to write
     if error is not None:
-        if start_state == "unresolved":
-            # A cancellation or a failure while the start is unresolved takes the same path as StartUnresolved.
-            with contextlib.suppress(Exception):
-                error.start_unresolved = True
+        _carry_disposition(error, live)  # whatever the start, from the one source
         raise error
-    if start_state == "unresolved":
+    if _classify(live)["start"] == "unresolved":
         unresolved = StartUnresolved(f"start unresolved: {(resolution or {}).get('reason')}", record)
+        _carry_disposition(unresolved, live)
         if settings is not None:
             _attach_guard(unresolved, settings)
         raise unresolved

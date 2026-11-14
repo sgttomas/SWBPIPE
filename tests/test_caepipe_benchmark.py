@@ -813,6 +813,11 @@ def command_sleep(replacement):
     return sleep
 
 
+# The start state the harness records with each start route (`harness._round_trip_body`).
+FAKE_ROUTE_STARTS = {"start_partial": "partial", "not_started": "not_started", "start_unresolved": "unresolved",
+                     "report_reply_contradiction": "contradicted"}
+
+
 @pytest.fixture
 def fake_benchmark(tmp_path, monkeypatch):
     """A configured harness with a fake SWBPIPE solve, a fake guarded round trip that prints an invented CSV, a fake
@@ -838,6 +843,8 @@ def fake_benchmark(tmp_path, monkeypatch):
         (out / "model.csv").write_text(invented_print(), encoding="utf-8")
         record = {"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch", "mbf": {"sha256": sha},
                   "guest_mbf_sha256": sha, "observed_csv_path": {"host": "caepipe_out/model.csv"}} | outcome
+        # As the harness writes it: the start state that goes with the route (a route the program ran on: completed).
+        record.setdefault("start", {"state": FAKE_ROUTE_STARTS.get(record["route"], "completed")})
         (out / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
         return record
 
@@ -1037,7 +1044,7 @@ def _collecting_round_trip(config_, case_id, mbf_text, **kwargs):
     (out / "model.csv").write_text(invented_print(), encoding="utf-8")
     record = {"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch", "mbf": {"sha256": sha},
               "guest_mbf_sha256": sha, "observed_csv_path": {"host": "caepipe_out/model.csv"},
-              "settings_guard": {"status": "unchanged"}}
+              "settings_guard": {"status": "unchanged"}, "start": {"state": "completed"}}
     (out / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
     return record
 
@@ -1266,7 +1273,9 @@ def test_the_batch_callable_raises_the_stop_naming_a_failed_write(fake_benchmark
 def test_a_settings_stop_on_the_raise_path_records_its_outcome(fake_benchmark):
     """The round trip raised with no clean settings check: the outcome settings_stop is recorded, saying so."""
     state = fake_benchmark
-    state["outcomes"][:] = [RuntimeError("invented")]
+    failure = RuntimeError("invented")
+    failure.disposition = harness.disposition("not_dispatched")  # the program was never started: the raise path
+    state["outcomes"][:] = [failure]
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     manifest = json.loads(
         (state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
@@ -1348,7 +1357,9 @@ def test_recorded_custody_without_a_request_digest_is_still_carried_and_compared
         replaced["bytes"] = (case / "case_manifest.json").read_bytes()
         return real(config, case_id, settings, emit)
     monkeypatch.setattr(run_pilot, "_guard_stop", guard)
-    with pytest.raises(run_pilot.CustodyChanged, match="custody differs .* the case manifest was not replaced"):
+    # The program has run (completed), so the refused write is a stop that names it, never a retry or not_run.
+    stopped = r"start_completed; its outcome could not be recorded \(CustodyChanged: .*custody differs .* not replaced"
+    with pytest.raises(run_pilot.RunStopped, match=stopped):
         run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
                                       emit=lambda line: None, collect_only=True)
     assert (case / "case_manifest.json").read_bytes() == replaced["bytes"]
@@ -1359,7 +1370,8 @@ def test_custody_malformed_between_admission_and_a_later_write_is_refused(fake_b
     """Custody well formed at admission and made malformed before a later write reads it (the collected write, a
     not-collected outcome, a stop's write): the later write refuses, treating malformed custody as unknown, never as
     absent, and the manifest is not replaced. Asserted through run_benchmark_model, the batch wrapper's callable:
-    the write's CustodyChanged is raised, and at a stop the stop wins and its text names the CustodyChanged."""
+    every one is a stop whose text names the CustodyChanged, since the program has run (completed) and a failure to
+    record its outcome is never a retry or not_run; at a stop the stop wins."""
     state = fake_benchmark
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
     state["outcomes"][:] = [{"collected": {"settings_guard": {"status": "unchanged"}},
@@ -1377,15 +1389,13 @@ def test_custody_malformed_between_admission_and_a_later_write_is_refused(fake_b
         corrupted["bytes"] = (case / "case_manifest.json").read_bytes()
         return real(config, case_id, settings, emit)
     monkeypatch.setattr(run_pilot, "_guard_stop", guard)
-    expected = run_pilot.RunStopped if write == "settings stop" else run_pilot.CustodyChanged
-    with pytest.raises(expected) as raised:
+    with pytest.raises(run_pilot.RunStopped) as raised:
         run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
                                       emit=lambda line: None, collect_only=True)
     text = f"{type(raised.value).__name__}: {raised.value}"
     assert "custody member is not an object; the case manifest was not replaced" in text
-    if write == "settings stop":
-        assert text.startswith("RunStopped: cpb-g1-01 (settings_stop; its outcome could not be recorded "
-                               "(CustodyChanged: ")
+    stop = {"collected": "start_completed", "not collected": "timeout", "settings stop": "settings_stop"}[write]
+    assert text.startswith(f"RunStopped: cpb-g1-01 ({stop}; its outcome could not be recorded (CustodyChanged: ")
     assert (case / "case_manifest.json").read_bytes() == corrupted["bytes"]
 
 
@@ -1460,6 +1470,7 @@ def test_the_retry_reuses_its_own_solve_and_replaces_nothing(fake_benchmark, mon
         {"invented": case["case_id"]}, {"payload": invented_payload()}, ""))
     failure = RuntimeError("invented transport failure")
     failure.settings_guard = {"status": "unchanged"}  # a clean settings check, so the model is retried
+    failure.disposition = harness.disposition("not_dispatched")  # and the program was never started
     state["outcomes"].append(failure)
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-01"] and solves == ["cpb-g1-01"]
@@ -1745,6 +1756,7 @@ def test_the_benchmark_run_stops_at_the_first_unclean_round_trip(fake_benchmark,
 def raised_after_a_clean_check() -> RuntimeError:
     error = RuntimeError("invented transport failure")
     error.settings_guard = {"status": "unchanged"}
+    error.disposition = harness.disposition("not_dispatched")  # the program was never started: retry is permitted
     return error
 
 
@@ -1762,7 +1774,9 @@ def test_a_failed_model_is_retried_once_after_two_minutes(fake_benchmark, capsys
 
 def test_a_model_that_leaves_no_csv_twice_is_recorded_and_the_run_goes_on(fake_benchmark, capsys):
     state = fake_benchmark
-    no_csv = {"route": "csv_missing", "observed_csv_path": {}, "settings_guard": {"status": "unchanged"}}
+    # Retried only because the program was never started; a completed attempt with no CSV stops (test_p1_5_...).
+    no_csv = {"route": "csv_missing", "observed_csv_path": {}, "settings_guard": {"status": "unchanged"},
+              "start": {"state": "not_dispatched"}}
     state["outcomes"][:] = [no_csv, no_csv]
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={}) == 1
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-01", "cpb-g1-02"]
@@ -1928,7 +1942,8 @@ def test_a_partial_start_is_recorded_never_retried_and_a_second_stops_the_run(fa
     first = _manifest_of(state)
     assert (first["outcome"], first["route"], first["attempt"]) == ("partial", "start_partial", 1)
     out = capsys.readouterr().out
-    assert "stopped after cpb-g1-02: a second partial start in this run" in out and "retrying" not in out
+    assert "stopped after cpb-g1-02: a second attempted run that did not agree in this run" in out and \
+        "retrying" not in out
 
 
 def test_two_not_started_attempts_are_not_run_and_never_retried(fake_benchmark):
@@ -1946,8 +1961,8 @@ def test_two_not_started_attempts_are_not_run_and_never_retried(fake_benchmark):
 # --------------------------------------------------------------------------------------------------------------
 # P1 regressions from the first independent reading of the run-phase change, written before their repair. Each
 # drives a real round trip against the fake guest, hands what it raised to run_pilot (the outer caller), and observes
-# there: the dispatch count, restore writes, whether the next model ran, and the disposition received. Each fails on
-# the head that was read; each is a strict xfail until the settled repair lands.
+# there: the dispatch count, restore writes, whether the next model ran, and the disposition received. Each failed
+# on the head that was read (60bb0d182 and before), and passes on the settled repair.
 # --------------------------------------------------------------------------------------------------------------
 import signal as _signal  # noqa: E402
 import sys as _sys  # noqa: E402
@@ -1961,7 +1976,6 @@ from tests.test_caepipe_start_reconciliation import (  # noqa: E402
     run as run_attempt)
 from tests.caepipe_fake_guest import Program as InventedProgram  # noqa: E402
 
-AWAITING_P1 = pytest.mark.xfail(strict=True, reason="awaiting the P1 repair shape")
 
 
 def _invented_clock(monkeypatch) -> dict:
@@ -2000,7 +2014,6 @@ def _partial_run_raising(tmp_path, monkeypatch, failing: str):
     return raised.value, guest, registry
 
 
-@AWAITING_P1
 @pytest.mark.parametrize("failing", ["guard result write", "dispatch stream write", "record construction",
                                      "record write"])
 def test_p1_1_a_partial_runs_reporting_error_never_becomes_retry(fake_benchmark, tmp_path, monkeypatch, capsys,
@@ -2019,7 +2032,6 @@ def test_p1_1_a_partial_runs_reporting_error_never_becomes_retry(fake_benchmark,
     assert "start_partial" in out  # the disposition the caller received
 
 
-@AWAITING_P1
 def test_p1_2_a_failure_to_record_partial_is_never_not_run(fake_benchmark, monkeypatch):
     state = fake_benchmark
     state["outcomes"][:] = [{"route": "start_partial", "settings_guard": {"status": "unchanged"},
@@ -2037,7 +2049,6 @@ def test_p1_2_a_failure_to_record_partial_is_never_not_run(fake_benchmark, monke
     assert len(state["calls"]) == 1
 
 
-@AWAITING_P1
 def test_p1_2_a_partial_whose_outcome_cannot_be_recorded_stops_the_list(fake_benchmark, monkeypatch, capsys):
     state = fake_benchmark
     partial = {"route": "start_partial", "settings_guard": {"status": "unchanged"}, "guest_mbf_sha256": None,
@@ -2113,7 +2124,6 @@ def _unresolved_run_terminated(tmp_path, monkeypatch, where: str, signum: int, a
     return raised.value, guest, registry, stored                                          # leave none
 
 
-@AWAITING_P1
 @pytest.mark.parametrize("where", sorted(BOUNDARIES))
 @pytest.mark.parametrize("signum, again", [(_signal.SIGTERM, False), (_signal.SIGINT, False), (_signal.SIGTERM, True)],
                          ids=["SIGTERM", "SIGINT", "SIGTERM then SIGTERM in recovery"])
@@ -2199,8 +2209,8 @@ def test_a_success_reply_with_a_nonzero_exit_never_becomes_a_success_route(fake_
     assert guest.kinds.count("attempt") == 1 and registry.writes == []
     if kind == "attempt":
         assert status[:2] == (run_pilot.PARTIAL, "start_partial"), status
-    elif kind == "chunk":  # completed, but nothing collected (what the pilot then does is the open family below)
-        assert status[1] == "collection_failed", status
+    elif kind == "chunk":  # completed, nothing collected: never retried, the list stops with the route named
+        assert status[0] == "stopped" and _manifest_of(state)["route"] == "collection_failed", status
     else:  # the start stays unresolved: a stop, the manifest left at custody_recorded
         assert status[0] == "stopped" and "start_unresolved" in status[1], status
         assert _manifest_of(state)["outcome"] == "custody_recorded"
@@ -2286,10 +2296,129 @@ def test_a_guest_refusal_with_its_nonzero_exit_keeps_its_route_name_at_the_pilot
     guest.runner = runner
     status_seen = _collect_one(state, _pilot_round_trip(state, guest))
     assert guest.kinds.count("attempt") == 1 and registry.writes == []
-    if status == "batch_no_csv":  # the GUI fallback is off for the batch: a stop, named
-        assert status_seen[0] == "stopped" and _manifest_of(state)["route"] == "batch_no_csv", status_seen
-    else:
-        assert status_seen[1] == status, status_seen
+    # Each is a stop under its own route name: batch_no_csv because the GUI fallback is off for the batch, the
+    # others because the program has run (completed), which is never a ground for retry.
+    assert status_seen[0] == "stopped" and _manifest_of(state)["route"] == status, status_seen
     stored = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "caepipe_out" / "run_record.json")
                         .read_text(encoding="utf-8"))
     assert stored["route"] == status and stored["exit_status"] == code
+
+
+# P1-5, the fifth row, found by the author's exit table: a COMPLETED attempt (the program ran) whose reporting raises,
+# or whose route carries no CSV, is never retried, and the list stops. Completed is never a ground for retry.
+def _completed_run_raising(tmp_path, monkeypatch) -> tuple[BaseException, InventedGuest]:
+    config = config_for(tmp_path / "completed", RECONCILE_GUARD)
+    with monkeypatch.context() as patch:
+        guest = guest_for(config, _invented_clock(patch))
+        InventedRegistry(guest, change_on_launch=False)
+        real_write = harness.write_private
+
+        def failing_write(root, path, data):
+            if Path(path).name == "run_record.json":
+                raise OSError("invented failure writing run_record.json")
+            return real_write(root, path, data)
+        patch.setattr(harness, "write_private", failing_write)
+        with pytest.raises(OSError) as raised:
+            run_attempt(config, guest)
+    assert guest.kinds.count("attempt") == 1 and len(guest.launches) == 1
+    return raised.value, guest
+
+
+@pytest.mark.parametrize("how", ["its reporting raises", "collection fails", "the guest reports no print"])
+def test_p1_5_a_completed_attempt_is_never_retried_and_the_list_stops(fake_benchmark, tmp_path, monkeypatch, capsys,
+                                                                      how):
+    state = fake_benchmark
+    if how == "its reporting raises":
+        outcome, guest = _completed_run_raising(tmp_path, monkeypatch)
+    else:
+        guest, _ = _pilot_guest(state, monkeypatch)
+        if how == "collection fails":
+            base = guest.runner
+
+            def runner(argv, **kwargs):  # every chunk read answers out of form: nothing is collected
+                result = base(argv, **kwargs)
+                return answer(argv, 1, result.stdout, "") if classify_command(argv[6]) == "chunk" else result
+            guest.runner = runner
+        else:
+            guest.programs[1] = InventedProgram(status="no_results_after_batch", print_name=None,
+                                                files={"model.res": b"RES"})
+        outcome = _pilot_round_trip(state, guest)
+    state["outcomes"][:] = [outcome]
+    exit_status = run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={})
+    out = capsys.readouterr().out
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"], out  # never retried; the next model not run
+    assert guest.kinds.count("attempt") == 1 and len(guest.launches) == 1  # one dispatch, one start
+    assert exit_status == 1 and "retrying" not in out
+
+
+# A success terminal report beside a nonzero dispatch reply that is neither a transport line nor the session-unavailable
+# line: no success route, never retried or compared; partial's permitted actions under its own route name.
+def _reply_replaced(guest, code: int, stdout: str | None = None, stderr: str | None = None):
+    base = guest.runner
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        if classify_command(argv[6]) != "attempt":
+            return result
+        return answer(argv, code, result.stdout if stdout is None else stdout, "" if stderr is None else stderr)
+    guest.runner = runner
+
+
+@pytest.mark.parametrize("code", (1, 3))
+def test_a_success_report_beside_a_nonzero_reply_is_a_contradiction_at_the_pilot(fake_benchmark, monkeypatch, code):
+    state = fake_benchmark
+    guest, registry = _pilot_guest(state, monkeypatch)
+    _reply_replaced(guest, code)  # the script's own report on stdout, with another exit
+    status = _collect_one(state, _pilot_round_trip(state, guest))
+    assert status[:2] == (run_pilot.PARTIAL, "report_reply_contradiction"), status
+    assert guest.kinds.count("attempt") == 1 and registry.writes == [] and "chunk" not in guest.kinds
+    out = state["config"].exchange_root / "cases" / "cpb-g1-01" / "caepipe_out"
+    record = json.loads((out / "run_record.json").read_text(encoding="utf-8"))
+    assert (record["route"], record["start"]["state"], record["exit_status"]) == (
+        "report_reply_contradiction", "contradicted", code)
+    assert record["observed_csv_path"]["host"] is None and record["outputs_collected"] == []  # never compared
+    token = record["attempt_token"]
+    report = json.loads((out / token / "guest_log.json").read_text(encoding="utf-8"))
+    assert report["status"] == "csv_from_batch" and report["attempt_token"] == token  # the report, kept whole
+    assert (out / token / "guest_stdout.txt").read_text(encoding="utf-8") == guest.attempts[0].stdout  # the reply too
+    assert (_manifest_of(state)["outcome"], _manifest_of(state)["route"]) == ("partial", "report_reply_contradiction")
+
+
+@pytest.mark.parametrize("code, line", [(255, harness.TRANSPORT_LINES[0]), (255, harness.TRANSPORT_LINES[1]),
+                                        (255, harness.SESSION_UNAVAILABLE_LINE), (1, harness.SESSION_UNAVAILABLE_LINE)],
+                         ids=["GetResult", "GetRetCode", "session unavailable, 255", "session unavailable, 1"])
+def test_a_lost_reply_beside_a_success_report_leaves_the_report_to_decide(fake_benchmark, monkeypatch, code, line):
+    state = fake_benchmark
+    guest, registry = _pilot_guest(state, monkeypatch)
+    _reply_replaced(guest, code, stdout="", stderr=line)
+    status = _collect_one(state, _pilot_round_trip(state, guest))
+    assert status[:2] == (run_pilot.COLLECTED, "csv_from_batch"), status
+    assert guest.kinds.count("attempt") == 1
+
+
+def _contradicting(state, monkeypatch):
+    guest, _ = _pilot_guest(state, monkeypatch)
+    _reply_replaced(guest, 1)
+    return guest, _pilot_round_trip(state, guest)
+
+
+def test_a_second_contradiction_stops_the_list(fake_benchmark, monkeypatch, capsys):
+    state = fake_benchmark
+    first, first_trip = _contradicting(state, monkeypatch)
+    second, second_trip = _contradicting(state, monkeypatch)
+    state["outcomes"][:] = [first_trip, second_trip]
+    assert run_pilot.main(state["argv"], environ={}) == 1
+    out = capsys.readouterr().out
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-02"], out
+    assert first.kinds.count("attempt") == 1 and second.kinds.count("attempt") == 1
+    assert "a second attempted run that did not agree" in out
+
+
+def test_a_partial_and_a_contradiction_count_together_for_the_stop_rule(fake_benchmark, monkeypatch, capsys):
+    state = fake_benchmark
+    partial = {"route": "start_partial", "settings_guard": {"status": "unchanged"}, "guest_mbf_sha256": None,
+               "observed_csv_path": {"host": None}}
+    _, contradiction = _contradicting(state, monkeypatch)
+    state["outcomes"][:] = [partial, contradiction]
+    assert run_pilot.main(state["argv"], environ={}) == 1
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-02"]

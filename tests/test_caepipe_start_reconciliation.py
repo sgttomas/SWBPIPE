@@ -997,3 +997,66 @@ def test_a_record_failure_while_the_start_is_unresolved_keeps_restoration_inhibi
         run(config, guest)
     assert raised.value.start_unresolved is True and raised.value.settings_guard["status"] == "start_unresolved"
     assert registry.writes == []
+
+
+# --------------------------------------------------------------------------------------------------------------
+# A success terminal report contradicted by its own dispatch reply: recorded apart from a run that left no report,
+# restoration permitted (quiescent, with a report), nothing collected.
+# --------------------------------------------------------------------------------------------------------------
+def _replying(guest, code, stdout=None, stderr=""):
+    base = guest.runner
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        if classify(argv[6]) != "attempt":
+            return result
+        return done(argv, code, result.stdout if stdout is None else stdout, stderr)
+    guest.runner = runner
+
+
+def test_a_contradicted_report_is_recorded_apart_from_a_run_that_left_no_report(tmp_path, clock):
+    contradicted_config = config_for(tmp_path / "contradicted")
+    guest = guest_for(contradicted_config, clock)
+    _replying(guest, 3)
+    contradicted = run(contradicted_config, guest)
+    partial_config = config_for(tmp_path / "partial")
+    guest = guest_for(partial_config, clock)
+    guest.plan = {1: {"kill_at": "launched", "reply": "transport"}}
+    partial = run(partial_config, guest)
+    assert (contradicted["route"], contradicted["start"]["state"]) == ("report_reply_contradiction", "contradicted")
+    assert (partial["route"], partial["start"]["state"]) == ("start_partial", "partial")
+    assert contradicted["guest_log"]["status"] == "csv_from_batch" and partial["guest_log"] is None
+    assert contradicted["outputs_collected"] == [] and contradicted["observed_csv_path"]["host"] is None
+
+
+def test_a_contradicted_report_permits_restoration(tmp_path, clock):
+    config = config_for(tmp_path, GUARD)
+    guest = guest_for(config, clock)
+    registry = Registry(guest)  # the program changed the saved settings
+    _replying(guest, 1)
+    record = run(config, guest)
+    assert record["route"] == "report_reply_contradiction"
+    assert record["settings_guard"]["status"] == "settings_restored" and registry.writes
+
+
+@pytest.mark.parametrize("answer, decides", [
+    ((0, "x", ""), True), ((255, "", TRANSPORT[0]), True), ((255, "", TRANSPORT[1]), True),
+    ((255, "", harness.SESSION_UNAVAILABLE_LINE), True), ((7, harness.SESSION_UNAVAILABLE_LINE, ""), True),
+    (("timeout", "", ""), True), (("launch_failed", "", "no prlctl"), True),
+    ((1, "", ""), False), ((3, "{}", ""), False), ((-9, "", ""), False), ((1, "", TRANSPORT[0]), False),
+    ((255, "", "PrlJob_GetResult"), False), ((255, "", harness.SESSION_UNAVAILABLE_LINE + " extra"), False),
+])
+def test_only_exit_0_no_reply_a_transport_answer_or_the_session_line_leave_the_report_to_decide(answer, decides):
+    assert harness.reply_leaves_report_to_decide(*answer) is decides
+
+
+def test_the_one_classifier_reads_only_the_live_record_and_absent_is_unresolved():
+    assert harness._classify({}) == {"start": "unresolved", "restore": False, "retry": False, "evidence_saved": False}
+    assert harness._classify({"start": "invented"})["start"] == "unresolved"
+    expected = {"not_dispatched": (True, True), "not_started": (True, True), "completed": (True, False),
+                "partial": (True, False), "contradicted": (True, False), "unresolved": (False, False)}
+    for start, (restore, retry) in expected.items():
+        assert harness.disposition(start) == {"start": start, "restore": restore, "retry": retry}
+    source = Path(harness.__file__).read_text(encoding="utf-8")
+    assert "start_state = " not in source  # no local copy of the disposition is kept anywhere
+    assert source.count('live["start"] = ') == 1  # written in one place
