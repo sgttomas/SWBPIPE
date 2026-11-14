@@ -355,7 +355,12 @@ test("samples sum per kind, keep per-process peaks and a peak since a stage", ()
 
 // A painted solve as the driver reports it: its first_paint mark within the 30 s gate.
 const painted = (paintAt = 12_000) => ({ ended: "first_paint", gate: { paint_ms: 30_000, started_at_ms: 1_000, deadline_at_ms: 31_000, first_paint_at_ms: paintAt, first_paint_timely: paintAt <= 31_000 }, timeline: { marks: [{ stage: "solve_requested", at_ms: 1_005 }, { stage: "first_paint", at_ms: paintAt }] }, shown: {} });
-const base = (over = {}) => ({
+// The run's nonce. classify judges a report-carrying launch by the one rule (launch-outcome.mjs), so a report must
+// carry the run's nonce; base() puts it in its own report and in any report a test gives that names none.
+const NONCE = "0123456789abcdef0123456789abcdef";
+const withRunNonce = (input) => (input.report && typeof input.report === "object" && !("nonce" in input.report) ? { ...input, report: { ...input.report, nonce: NONCE } } : input);
+const base = (over = {}) => withRunNonce({
+  nonce: NONCE,
   exit: { status: 0, signal: null, ended_ms: 10_000 },
   timedOut: false,
   progress: [],
@@ -396,6 +401,58 @@ test("a failed solve is a refusal quoting the window's message, with the timelin
   assert.deepEqual(result.findings[0], { class: "refused_with_message", step: "solve", message: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED: the received result is not bound.", code: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", stage: "reader_verdict_end", needs_review: true });
 });
 
+test("a report does not rescue a launch that did not end cleanly, or a report that is not this run's: launch_failed by the one rule, with the report still read (DEL-07-11)", () => {
+  const failed = (input) => {
+    const result = classify(input);
+    const finding = result.findings.find((item) => item.class === "launch_failed");
+    return { class: result.class, codes: finding ? finding.failures.map((line) => line.split(":")[0]) : [] };
+  };
+  assert.deepEqual(failed(base()), { class: "ok", codes: [] });
+  assert.deepEqual(failed(base({ exit: { status: 1, signal: null, ended_ms: 10_000 } })), { class: "launch_failed", codes: ["LAUNCH-EXIT-NOT-ZERO"] });
+  assert.deepEqual(failed(base({ exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 } })), { class: "launch_failed", codes: ["LAUNCH-SIGNALLED", "LAUNCH-EXIT-NOT-ZERO"] });
+  assert.deepEqual(failed(base({ timedOut: true, exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 } })).codes, ["LAUNCH-TIMED-OUT", "LAUNCH-SIGNALLED", "LAUNCH-EXIT-NOT-ZERO"]);
+  assert.deepEqual(failed(base({ report: { ...base().report, nonce: "another run" } })), { class: "launch_failed", codes: ["LAUNCH-REPORT-NOT-THIS-RUN"] });
+  // A run that gives no nonce is not let off the check: no real caller does, and the rule names it.
+  assert.deepEqual(failed(base({ nonce: undefined })), { class: "launch_failed", codes: ["LAUNCH-NO-NONCE"] });
+  const killed = classify(base({ exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 } }));
+  assert.equal(killed.findings[0].needs_review, true);
+  assert.match(killed.findings[0].detail, /^the launch did not end cleanly or its report is not this run's: LAUNCH-SIGNALLED: the app ended on SIGKILL; LAUNCH-EXIT-NOT-ZERO: .*The report's observations are still read\.$/);
+  // The report's own findings are still read beside it: an unsolved run that was also killed.
+  const both = classify(base({ exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 }, report: { solve: { ended: "timeout", timeline: { marks: [] } } } }));
+  assert.deepEqual(both.findings.map((finding) => finding.class).slice(0, 2), ["launch_failed", "hang"]);
+  assert.equal(both.class, "launch_failed");
+});
+
+test("without a report, every failed launch condition is named on the app's crash or hang finding, and the class stays crash or hang", () => {
+  const appFinding = (input) => {
+    const result = classify(input);
+    const finding = result.findings.find((item) => item.process === "app");
+    return { class: result.class, kind: finding.class, codes: finding.failures.map((line) => line.split(":")[0]) };
+  };
+  assert.deepEqual(appFinding(base({ report: null, reportProblem: "no report", exit: { status: 7, signal: null, ended_ms: 10_000 } })), { class: "crash", kind: "crash", codes: ["LAUNCH-EXIT-NOT-ZERO", "LAUNCH-NO-REPORT"] });
+  assert.deepEqual(appFinding(base({ report: null, reportProblem: "no report", exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 } })), { class: "crash", kind: "crash", codes: ["LAUNCH-SIGNALLED", "LAUNCH-EXIT-NOT-ZERO", "LAUNCH-NO-REPORT"] });
+  assert.deepEqual(appFinding(base({ report: null, reportProblem: "no report", timedOut: true, exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 } })), { class: "hang", kind: "hang", codes: ["LAUNCH-TIMED-OUT", "LAUNCH-SIGNALLED", "LAUNCH-EXIT-NOT-ZERO", "LAUNCH-NO-REPORT"] });
+  // A clean exit that wrote no report is still a crash, and names the missing report.
+  assert.deepEqual(appFinding(base({ report: null, reportProblem: "no report" })), { class: "crash", kind: "crash", codes: ["LAUNCH-NO-REPORT"] });
+  assert.match(appFinding(base({ report: null, reportProblem: "the report does not parse (x)", exit: { status: 1, signal: null, ended_ms: 10_000 } })).codes.join(","), /LAUNCH-NO-REPORT/);
+});
+
+test("a report that carries no nonce is not this run's, built explicitly and not through base()'s nonce", () => {
+  const report = { solve: painted(), record_run: { attempted: true, message: "Recorded run perf r." }, save_project: { message: "Saved current project model snapshot." } };
+  const input = { ...base(), report };
+  assert.equal(Object.hasOwn(input.report, "nonce"), false);
+  const result = classify(input);
+  assert.equal(result.class, "launch_failed");
+  assert.deepEqual(result.findings[0].failures.map((line) => line.split(":")[0]), ["LAUNCH-REPORT-NOT-THIS-RUN"]);
+});
+
+test("a report file that does not parse is judged, not thrown: the run is classified without a report, and the reason is named", () => {
+  const crashed = classify(base({ report: null, reportProblem: "the report does not parse (Unexpected token)", exit: { status: 1, signal: null, ended_ms: 10_000 } }));
+  assert.equal(crashed.class, "crash");
+  assert.match(crashed.findings[0].detail, /without a report \(the report does not parse \(Unexpected token\)\); last progress/);
+  assert.match(classify(base({ report: null, reportProblem: "no report", timedOut: true })).findings[0].detail, /^no report within 60 s; last progress/);
+});
+
 test("no report: a timeout is a hang, an early exit an app crash, a vanished WebContent a WebContent crash", () => {
   assert.equal(classify(base({ report: null, timedOut: true })).class, "hang");
   assert.equal(classify(base({ report: null, exit: { status: null, signal: "SIGSEGV", ended_ms: 10_000 } })).findings[0].process, "app");
@@ -420,7 +477,7 @@ test("a C1 run whose page was hidden during the solve is host_unobservable, not 
   const report = { error: "C1 host condition not established (during the solve: the page was visibilityState=hidden at a poll). …",
     solve: { ended: "host_unobservable", timeline: { marks: [{ stage: "result_committed", at_ms: 190000 }] }, gate: { started_at_ms: 455 }, shown: {} },
     c1: { completed: false, host: { established: false, step: "during the solve", detail: "the page was visibilityState=hidden at a poll", solve_started: true } } };
-  const base = { report, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, run };
+  const base = { report: { ...report, nonce: NONCE }, nonce: NONCE, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, run };
   const verdict = classify({ ...base, store: null });
   assert.equal(verdict.class, "host_unobservable");
   assert.deepEqual(verdict.findings.map((finding) => finding.class), ["host_unobservable"]);
@@ -430,7 +487,7 @@ test("a C1 run whose page was hidden during the solve is host_unobservable, not 
   assert.equal(torn.class, "half_written_save");
   assert.ok(torn.findings.some((finding) => finding.class === "host_unobservable"));
   // Without the host record, the same timeout is the gate's hang (the classifier's meaning is unchanged).
-  const hung = classify({ ...base, store: null, report: { ...report, solve: { ...report.solve, ended: "timeout" }, c1: { completed: false } } });
+  const hung = classify({ ...base, store: null, report: { ...base.report, solve: { ...report.solve, ended: "timeout" }, c1: { completed: false } } });
   assert.equal(hung.class, "hang");
 });
 
@@ -739,7 +796,7 @@ test("F1: a fallback later in the run is recorded, stops the next wait and fails
   await page.invoke("get_memory_pool_status", {});
   assert.equal(page.sent.fetch.length, fetched);
   assert.deepEqual(plain(trace.data.transport.fallback_counts), { lookup_preview_mechanics_job_rows: 1, get_memory_pool_status: 1 });
-  const verdict = classify({ report: { solve: { ended: "first_paint", timeline: { marks: [{ stage: "first_paint", at_ms: 10 }] }, gate: { started_at_ms: 0 } }, c1: { completed: false, trace: trace.data, host: { established: true } } }, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, store: null, run: { c1_probes: true, paint_ms: 1000, timeout_s: 10, project_id: "project:invented" } });
+  const verdict = classify({ nonce: NONCE, report: { nonce: NONCE, solve: { ended: "first_paint", timeline: { marks: [{ stage: "first_paint", at_ms: 10 }] }, gate: { started_at_ms: 0 } }, c1: { completed: false, trace: trace.data, host: { established: true } } }, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, store: null, run: { c1_probes: true, paint_ms: 1000, timeout_s: 10, project_id: "project:invented" } });
   assert.ok(verdict.findings.some((finding) => finding.step === "c1_observation" && /lost Tauri's IPC transport: an IPC fetch was rejected/.test(finding.message)), JSON.stringify(verdict.findings));
   trace.restore();
 });
@@ -1118,7 +1175,7 @@ async function wholeDriver(t, { visibility, frames, observeIpc = true, hideOnOpe
   let finished;
   const done = new Promise((resolve) => { finished = resolve; });
   const handler = async (command, args) => {
-    if (command === "native_smoke_plan") return { run_id: "c1-hidden", c1_probes: true, c1_reader_diagnostics: true, model_path: "/invented/rack.json", project_id: "project:invented", model_jcs_sha256: "sha256:invented", timeouts: { start_ms: 1000, open_ms: 1000, paint_ms: 1000, interaction_ms: 1000, csv_ms: 1000, record_ms: 1000, save_ms: 1000 } };
+    if (command === "native_smoke_plan") return { run_id: "c1-hidden", nonce: NONCE, c1_probes: true, c1_reader_diagnostics: true, model_path: "/invented/rack.json", project_id: "project:invented", model_jcs_sha256: "sha256:invented", timeouts: { start_ms: 1000, open_ms: 1000, paint_ms: 1000, interaction_ms: 1000, csv_ms: 1000, record_ms: 1000, save_ms: 1000 } };
     if (command === "get_memory_pool_status") return pool;
     if (command === "native_smoke_menu") { sent.menus.push(args.commandId); if (hideOnOpen && args.commandId === "file.open-model") hide(); return null; }
     if (command === "native_smoke_choose") { sent.chosen.push(args.path); return null; }
@@ -1146,7 +1203,9 @@ for (const [visibility, frames, why] of [["hidden", false, "a hidden page"], ["v
     assert.match(sent.report.error, new RegExp(`^C1 host condition not established \\(before opening the model: visibilityState=${visibility}, animation frames 0/2 within a 2000 ms timer that fired after \\d+ ms\\)\\. The display must be awake, the session unlocked and the App window uncovered and visible, delivering frames, for the whole observation\\. The run is unobservable: this is not evidence of a product hang, no solve was started, and the run is not retried\\.`));
     assert.deepEqual({ ...sent.report.c1.host, at_ms: typeof sent.report.c1.host.at_ms, detail: typeof sent.report.c1.host.detail }, { established: false, step: "before opening the model", detail: "string", at_ms: "number", solve_started: false });
     // Classified as unobservable: not a hang, not a product refusal.
-    const verdict = classify({ report: sent.report, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, store: null, run: { c1_probes: true, c1_profile_readers: true, paint_ms: 1000, timeout_s: 10, project_id: "project:invented" } });
+    // The driver hands back the plan's nonce (perf-driver.js), which the one rule then finds in its report.
+    assert.equal(sent.report.nonce, NONCE);
+    const verdict = classify({ report: sent.report, nonce: NONCE, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, store: null, run: { c1_probes: true, c1_profile_readers: true, paint_ms: 1000, timeout_s: 10, project_id: "project:invented" } });
     assert.equal(verdict.class, "host_unobservable");
     assert.deepEqual(verdict.findings.map((finding) => finding.class), ["host_unobservable"]);
     assert.match(verdict.findings[0].detail, /not evidence of a product hang; not retried/);
