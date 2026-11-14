@@ -68,6 +68,52 @@ no self-weight. The pressure-free route refuses a connector, so it is not used.
 In the mode where a one-way request is not a witness, the product reached the
 active state when it was observed, which is correct.
 
+## Magnitudes
+
+Each statement is marked by its basis. *Computed exactly* means computed by
+this generator. *Observed* means seen in a product run on main 946553b52.
+*Reasoned* means neither.
+
+**The wrong states.**
+
+- The deciding displacements at which a wrong state was published are of order
+  10⁻³⁴ to 10⁻³⁶ m. The exact inactive-state stop displacements are
+  +4.8·10⁻³⁵ m (dense) and −9.4·10⁻³⁸ m (sparse); this is computed exactly. The
+  product decided on +1.3·10⁻³⁶ m (sparse) and −8.3·10⁻³⁴ m (dense); this was
+  observed.
+- The tiny load terms that make those states wrong are 36 to 39 decimal orders
+  below the main loads, which are about 190 to 700 N. This is computed exactly.
+  - Dense: 1.9·10⁻³⁴ N, which is 2.7·10⁻³⁷ to 1.0·10⁻³⁶ of each main load.
+  - Sparse: 3.8·10⁻³⁷ N, which is 5.3·10⁻⁴⁰ to 2.0·10⁻³⁹ of each main load.
+- No witness without such a term was built. A wrong state needs a deciding
+  quantity below the twice-corrected solution's accuracy, which is about (κu)³
+  relative. This is reasoned.
+
+**The understated bound.**
+
+- The understatement of the inverse-norm bound does not depend on the tiny
+  term.
+  - It is a property of the matrix. 1024 × the estimate is 1/256 of the true
+    scaled inverse norm in every variant, including `linear`, which has no
+    tiny term. This is computed exactly, and the estimate was observed to be 1
+    in every run.
+- For the linear variant, the check's internal displacement-row radii are
+  exceeded by the actual error by 137 times (dense) and 256 times (sparse) on
+  UX, UY, UZ and RX. This was observed in a run with a print-only probe, and the
+  error was computed exactly from the corrections it printed.
+- The error is within 256 times the claimed radius, as the factor allows. This
+  is computed exactly from the same corrections.
+- The anchor's reaction bounds are not understated on this model. Their actual
+  error is about 10⁻⁴ to 10⁻⁵ of the claimed remainder. This is computed
+  exactly from the same corrections.
+  - The reason: a reaction through the connector reads K times the error, which
+    the weak direction does not amplify. This is reasoned.
+- This model has no member, because the span is replaced. Its result documents
+  print no bound. This was observed.
+- In general, a printed bound on a quantity cᵀu can be understated by up to the
+  factor (256 here) only in so far as c has a component along the weak
+  direction. This is reasoned.
+
 ## What is not established
 
 How far the failure reaches into ordinary models. The smallness of the tiny
