@@ -263,6 +263,10 @@ code_paths:
 - tools/validation/pressure_elongation_inventory.py
 - tools/validation/pressure_elongation_inventory.declarations.json
 - tools/validation/pressure_elongation_inventory.json
+# The before/after byte comparison of this entry's published results between two revisions, run
+# through DEL-04-05's release timing driver; its manifest names the maintained requests compared.
+- tools/byte_compare/**
+- tests/test_byte_compare_tool.py
 - validation/platform/windows_runner_startup_probe/**
 - validation/platform/windows_arena_probe/**
 - validation/platform/windows_worker_fixture/**
