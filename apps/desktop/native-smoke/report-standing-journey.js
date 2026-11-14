@@ -18,7 +18,9 @@
   const log = (line) => call("native_smoke_log", { line: String(line) }).catch(() => {});
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const settle = () => sleep(0);
-  const byTestId = (id, root = document) => root.querySelector(`[data-testid="${CSS.escape(id)}"]`);
+  // A missing root (the rendered report panel while the gate still reads the full result, say) holds no element:
+  // a probe over it waits instead of throwing.
+  const byTestId = (id, root = document) => root?.querySelector(`[data-testid="${CSS.escape(id)}"]`) ?? null;
   const text = (id, root) => byTestId(id, root)?.textContent?.trim() ?? null;
   const message = () => text("local-project-message") ?? "";
   const menu = (commandId) => call("native_smoke_menu", { commandId });

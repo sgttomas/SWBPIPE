@@ -39,7 +39,7 @@
 // native-smoke build on this host; not a product release qualification.
 import { createHash, randomBytes } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, writeSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync, writeSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -196,7 +196,8 @@ const state = { launched: false, termination: null, watchedBefore: null, tripwir
 process.on("exit", closeOnExit);
 
 // The evidence root, fresh; the throwaway home inside it, created empty.
-const root = mkdtempSync(path.join(os.tmpdir(), "swbpipe-report-standing-journey-"));
+// Resolved (no links), as the throwaway home is, so that containment is judged on the same names.
+const root = realpathSync(mkdtempSync(path.join(os.tmpdir(), "swbpipe-report-standing-journey-")));
 let home;
 let tmpdir;
 try {
