@@ -932,6 +932,7 @@ function AppSession() {
                     packageRedaction={reportPackageRedaction}
                     packageRoute={reportPackageRoute}
                     onPackagePrivateIntentChange={setReportPackagePrivateIntent}
+                    packageNeedsCurrent={currentSolvedResult === null}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
                     onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
                   />

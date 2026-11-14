@@ -7,8 +7,11 @@
  * from which the native render composes the standing line (shown by the Rust
  * connecting-path test `a_readable_solved_result_that_is_not_checks_passed_renders_with_its_standing`
  * on the render input this build step makes). The rendered document is shown and its print
- * view reached. The report package stays refused (no package controls are offered and the
- * menu's package command is disabled), and so do the result JSON export and the rule check. A replacement (a fresh solve) retires the shown report.
+ * view reached. The report package stays refused (the panel's save buttons are disabled with
+ * the reason stated, and the menu's package command is disabled), and so do the result JSON
+ * export and the rule check. A replacement (a fresh solve) retires the shown report. A second
+ * test opens Report while the run is going, so that completion arrives with Report visible: the
+ * solved result reaches the panel with no further action.
  *
  * Not made here, because App's UI offers no way to make them: a received copy of the result
  * and another run's record. Those removals are tested on the session state, where both
@@ -81,54 +84,86 @@ async function openReportStage() {
   return screen.findByTestId("rendered-report-panel");
 }
 
+/** Each mount's job ids are its own (the native host's are unique in a session). */
+let mountSequence = 0;
+/** The App over the replay transport. `hold`, when given, keeps the job's start pending until it
+ * settles, so that a test can act while the run is going. */
+async function mountApp(hold?: Promise<void>) {
+  const model = witnessModel();
+  const [storage, knowledge] = [await getLocalStorageCapability(), await loadDesignKnowledge()];
+  const raw = readFileSync(resolve(root, RAW), "utf8");
+  const transport = createSolveJobTransport(async () => { if (hold) await hold; return raw; }, { jobIdPrefix: `invented-rendered-report-gate-job:${++mountSequence}` });
+  const renders: Json[] = [];
+  // Any command outside the job contract is refused by name, as the native-replay App tests do; the
+  // App's startup chores it refuses (autosave, unit catalogue, model states) are tolerated by App, and
+  // the refused names are reported with any stalled step.
+  const refused: string[] = [];
+  const jobCommands = (): string[] => transport.commands().map((c: Json) => (typeof c === "string" ? c : c.command));
+  invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+    if (command === "get_local_storage_capability") return storage;
+    if (command === "load_design_knowledge") return knowledge;
+    if (command === "sync_native_shell_state") return null;
+    if (command === "load_preview_model") {
+      if (args !== undefined) throw new Error("RENDERED_REPORT_GATE_REQUEST_INVALID");
+      return structuredClone(model);
+    }
+    if (command === "render_calculation_report") { renders.push(args); return renderedOutcome(); }
+    // Every other command is the native mechanics job contract, or refused by name.
+    if (!REPLAY_COMMANDS.includes(command) && !transport.handles(command)) { refused.push(command); throw new Error(`RENDERED_REPORT_GATE_COMMAND_UNSUPPORTED: ${command}`); }
+    return transport.invoke(command, args, options);
+  });
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  await screen.findByTestId("workspace-toolbar");
+  await screen.findByTestId(`tree-row-project-${encodeURIComponent(model.project.id)}`);
+  const why = () => `refused commands: ${refused.join(", ")}; job commands: ${jobCommands().join(", ")}; status: ${screen.queryByTestId("local-project-message")?.textContent ?? ""}; alerts: ${[...document.querySelectorAll('[role="alert"], [data-testid*="error"], [data-testid*="refus"]')].map((e) => `${e.getAttribute("data-testid") ?? "alert"}=${(e.textContent ?? "").slice(0, 300)}`).join(" | ")}`;
+  return { raw, renders, jobCommands, why };
+}
+
+/** The solved result has reached the shown panel through the gate (its full copy read for it). */
+function expectSolvedInPanel(why: () => string) {
+  expect(screen.queryByTestId("c2-result-failed")?.textContent ?? null, why()).toBeNull();
+  expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-precondition"), why()).toBeNull();
+  expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-render"), why()).toBeEnabled();
+}
+
 describe("the rendered report of a solved exact-route result that is not numerically eligible, through App's gate", () => {
   it("is offered with its standing record; the package stays refused; a stale result is taken away again", async () => {
-    const model = witnessModel();
-    const [storage, knowledge] = [await getLocalStorageCapability(), await loadDesignKnowledge()];
-    const raw = readFileSync(resolve(root, RAW), "utf8");
-    const transport = createSolveJobTransport(() => raw, { jobIdPrefix: "invented-rendered-report-gate-job" });
-    const renders: Json[] = [];
-    // Any command outside the job contract is refused by name, as the native-replay App tests do; the
-    // App's startup chores it refuses (autosave, unit catalogue, model states) are tolerated by App, and
-    // the refused names are reported with any stalled step.
-    const refused: string[] = [];
-    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
-      if (command === "get_local_storage_capability") return storage;
-      if (command === "load_design_knowledge") return knowledge;
-      if (command === "sync_native_shell_state") return null;
-      if (command === "load_preview_model") {
-        if (args !== undefined) throw new Error("RENDERED_REPORT_GATE_REQUEST_INVALID");
-        return structuredClone(model);
-      }
-      if (command === "render_calculation_report") { renders.push(args); return renderedOutcome(); }
-      // Every other command is the native mechanics job contract, or refused by name.
-      if (!REPLAY_COMMANDS.includes(command) && !transport.handles(command)) { refused.push(command); throw new Error(`RENDERED_REPORT_GATE_COMMAND_UNSUPPORTED: ${command}`); }
-      return transport.invoke(command, args, options);
-    });
-    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    render(<App />);
-    await screen.findByTestId("desktop-preview-shell");
-    await screen.findByTestId("workspace-toolbar");
-    await screen.findByTestId(`tree-row-project-${encodeURIComponent(model.project.id)}`);
+    const { raw, renders, jobCommands, why } = await mountApp();
 
-    // Before any solve the panel has no result.
+    // Before any solve the panel has no result, and the native menu's package command says why
+    // nothing was saved.
     let panel = await openReportStage();
     expect(within(panel).getByTestId("rendered-report-precondition")).toBeInTheDocument();
+    act(() => nativeMenuCommand("file.save-report-package"));
+    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("report-package-save-status")).toHaveTextContent(
+      "Not saved: report-package save needs the current mechanics result and analysis-run record. Solve first."
+    ));
 
     act(() => nativeMenuCommand("analyze.run"));
-    // The solved result reaches the panel through the gate (its full copy read for it).
-    await waitFor(() => {
-      const why = `refused commands: ${refused.join(", ")}; job commands: ${transport.commands().map((c: Json) => (typeof c === "string" ? c : c.command)).join(", ")}; status: ${screen.queryByTestId("local-project-message")?.textContent ?? ""}; alerts: ${[...document.querySelectorAll('[role="alert"], [data-testid*="error"], [data-testid*="refus"]')].map((e) => `${e.getAttribute("data-testid") ?? "alert"}=${(e.textContent ?? "").slice(0, 300)}`).join(" | ")}`;
-      expect(screen.queryByTestId("c2-result-failed")?.textContent ?? null, why).toBeNull();
-      expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-precondition"), why).toBeNull();
-    }, { timeout: 60_000 });
+    // The run makes Solve the active section, and the hidden Report section keeps its props while
+    // dormant, so Report is opened again once the solve's run record has been read (as a person
+    // must, to see it); the solved result is then in the panel.
+    await waitFor(() => expect(jobCommands()).toContain("read_preview_mechanics_job_analysis_run_preview"), { timeout: 60_000 });
+    await openReportStage();
+    await waitFor(() => expectSolvedInPanel(why), { timeout: 60_000 });
     panel = screen.getByTestId("rendered-report-panel");
-    expect(within(panel).getByTestId("rendered-report-render")).toBeEnabled();
-    // The report package is not offered for it, and the menu's command is disabled.
-    expect(within(panel).queryByTestId("report-package-controls")).toBeNull();
-    fireEvent.click(screen.getByTestId("menu-file"));
-    expect(await screen.findByTestId("menu-item-file.save-report-package")).toBeDisabled();
-    fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
+    // The report package is refused for it: the panel's save buttons are disabled with the reason
+    // stated. The native File menu's two package commands are always enabled, so each is sent as
+    // the OS menu sends it: nothing is saved, and the panel says why.
+    for (const id of ["report-package-save", "report-package-user-release"]) {
+      expect(within(panel).getByTestId(id)).toBeDisabled();
+      expect(within(panel).getByTestId(id).getAttribute("title")).toContain("needs a numerically eligible result");
+    }
+    for (const command of ["file.save-report-package", "file.save-shareable-report-package"]) {
+      act(() => nativeMenuCommand(command));
+      await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("report-package-save-status")).toHaveTextContent(
+        "Not saved: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing."
+      ));
+    }
+    expect(screen.queryByTestId("user-release-dialog")).toBeNull();
+    expect(invokeMock.mock.calls.map(([command]) => command).filter((command) => /report_package|user_release/.test(String(command)))).toEqual([]);
     // The result JSON export and the rule check, which need numerical eligibility, are not offered.
     act(() => nativeMenuCommand("view.section.exports"));
     const exports = await screen.findByTestId("result-export-panel");
@@ -138,12 +173,15 @@ describe("the rendered report of a solved exact-route result that is not numeric
     expect(await screen.findByTestId("rule-check-run")).toBeDisabled();
     panel = await openReportStage();
 
-    // The render request carries the reader's standing record for this sensitive result.
-    fireEvent.click(within(panel).getByTestId("rendered-report-render"));
+    // The render request carries the reader's standing record for this sensitive result. It is
+    // rendered for the person's own local review, the context the committed witness render inputs
+    // were made in (`reportStandingWitness.test.tsx`); the public-report context withholds this
+    // invented model's private inputs, which is the redaction boundary's own behaviour.
+    fireEvent.click(within(panel).getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-render"));
     await waitFor(() => {
-      const why = `refused commands: ${refused.join(", ")}`;
-      expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-error")?.textContent ?? null, why).toBeNull();
-      expect(renders.length, why).toBe(1);
+      expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-error")?.textContent ?? null, why()).toBeNull();
+      expect(renders.length, why()).toBe(1);
     }, { timeout: 60_000 });
     const record = renders[0].input.numerical_standing;
     expect(record.record_version).toBe("historical_1");
@@ -156,10 +194,40 @@ describe("the rendered report of a solved exact-route result that is not numeric
     fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print"));
     expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print-frame")).toBeInTheDocument();
 
-    // A replacement (a fresh solve) retires the shown report: the panel shows no rendered
-    // document until it is rendered again for the new result.
+    // A replacement (a fresh solve) retires the shown report: once the new run record has been
+    // read, the Report section shows no rendered document until it is rendered again.
+    const runRecordsRead = jobCommands().filter((c) => c === "read_preview_mechanics_job_analysis_run_preview").length;
     act(() => nativeMenuCommand("analyze.run"));
-    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-preview")).toBeNull(), { timeout: 60_000 });
-    expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-print-frame")).toBeNull();
+    await waitFor(() => expect(jobCommands().filter((c) => c === "read_preview_mechanics_job_analysis_run_preview").length).toBe(runRecordsRead + 1), { timeout: 60_000 });
+    await openReportStage();
+    await waitFor(() => {
+      const shown = screen.getByTestId("rendered-report-panel");
+      expect(within(shown).queryByTestId("rendered-report-preview")).toBeNull();
+      expect(within(shown).queryByTestId("rendered-report-print-frame")).toBeNull();
+      expect(within(shown).getByTestId("rendered-report-render")).toBeEnabled();
+    }, { timeout: 60_000 });
+    expect(renders.length).toBe(1);
+  }, 240_000);
+
+  it("reaches a Report section that is open when the run completes, with no further action", async () => {
+    let release!: () => void;
+    const hold = new Promise<void>((resolveHold) => { release = resolveHold; });
+    const { jobCommands, why } = await mountApp(hold);
+
+    act(() => nativeMenuCommand("analyze.run"));
+    // The run makes Solve the active section; the job's start is held, so the run is still going.
+    await waitFor(() => expect(jobCommands()).toContain("start_preview_mechanics_job"));
+    expect(screen.getByTestId("workspace-section-solve").className).toBe("workspace-dock-section");
+    // The person opens Report during the run; it shows no result yet.
+    const panel = await openReportStage();
+    expect(within(panel).getByTestId("rendered-report-precondition")).toBeInTheDocument();
+    expect(jobCommands()).not.toContain("read_preview_mechanics_job_analysis_run_preview");
+
+    // Completion arrives while Report is the active, visible section. Nothing further is done: the
+    // solved result reaches the panel through the gate.
+    act(() => release());
+    await waitFor(() => expect(jobCommands(), why()).toContain("read_preview_mechanics_job_analysis_run_preview"), { timeout: 60_000 });
+    await waitFor(() => expectSolvedInPanel(why), { timeout: 60_000 });
+    expect(screen.getByTestId("workspace-section-report").className).toBe("workspace-dock-section");
   }, 240_000);
 });
