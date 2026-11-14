@@ -18,7 +18,8 @@
 // the app, exit 86, before any dialog), a non-persistent web view store, the run marker and the tripwire over the
 // real user's product-named Library paths. The `native-smoke` build uses the smoke Keychain backend (no Security
 // import, no item call); the embedded agent is never started. A hard timeout kills the app; the census then waits for
-// no process of the private copy. `expected.json` is neither read nor written.
+// no process of the private copy. `expected.json` is neither read nor written. Directly before the app is started the
+// runner checks the three marks of an agent operating the App on the screen and refuses to launch if any is present.
 //
 // The driver works the window as a person would (native menu commands through the menu dispatch, controls in the
 // window). Two presentations are substituted: the Open Model Document chooser (`native_smoke_choose`, as every
@@ -38,7 +39,7 @@
 // (`summary.json` names every step) unless --discard is given and every check passed. Unit of evidence: the launched
 // native-smoke build on this host; not a product release qualification.
 import { createHash, randomBytes } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync, writeSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -268,6 +269,33 @@ if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
   refuse(`${binary}, the private copy of the bound app, changed since it was checked; not launched`);
   await exitAfterSignals(2);
 }
+// The three marks of an agent operating the App on the host's screen, checked here, directly before the app is started
+// (Agent 0 and the Inter-Project): the supplier's window service under launchd, the Codex app-server helper on stdio, a
+// running App v4 candidate bundle. Any one present, or a check that cannot be made, refuses the launch.
+function marksCheck() {
+  const run = (command, commandArgs) => spawnSync(command, commandArgs, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 15000 });
+  const launchd = run("/bin/launchctl", ["list"]);
+  const sky = run("/usr/bin/pgrep", ["-f", "SkyComputerUseService"]);
+  const codex = run("/usr/bin/pgrep", ["-f", "codex app-server --listen stdio://"]);
+  const apps = run("/usr/bin/lsappinfo", ["list"]);
+  const failed = [["launchctl list", launchd, [0]], ["pgrep SkyComputerUseService", sky, [0, 1]], ["pgrep codex app-server", codex, [0, 1]], ["lsappinfo list", apps, [0]]]
+    .filter(([, result, ok]) => result.error || !ok.includes(result.status)).map(([name, result]) => `${name}: ${result.error?.message ?? `exit ${result.status}`}`);
+  return {
+    checked_at: new Date().toISOString(),
+    sky_computer_use_service_launchd: /SkyComputerUseService/i.test(launchd.stdout ?? ""),
+    sky_computer_use_service_process: sky.status === 0,
+    codex_app_server_stdio: codex.status === 0,
+    app_v4_candidate_bundle: /dev\.chirality\.app-v4\.candidate/i.test(apps.stdout ?? ""),
+    check_failures: failed
+  };
+}
+const marks = marksCheck();
+say(`marks, directly before the launch: ${JSON.stringify(marks)}`);
+if (marks.check_failures.length > 0 || marks.sky_computer_use_service_launchd || marks.sky_computer_use_service_process || marks.codex_app_server_stdio || marks.app_v4_candidate_bundle) {
+  refuse("REPORT-JOURNEY-MARK-PRESENT: an agent may be operating the App on the screen, or the marks could not be checked; not launched");
+  writeFileSync(path.join(root, "summary.json"), JSON.stringify({ marks, launched: false }, null, 2));
+  await exitAfterSignals(2);
+}
 state.watchedBefore = statWatched(WATCHED);
 writeRunMarker(RUN_MARKER, { pid: process.pid, started: processStartTime(process.pid), home, executable: binary, evidence_root: root, created: new Date().toISOString() });
 state.launched = true;
@@ -356,6 +384,7 @@ writeFileSync(path.join(root, "summary.json"), JSON.stringify({
   inputs: { [REQUEST_FIXTURE]: fileSha(path.join(project, REQUEST_FIXTURE)), [APP_REQUEST_FIXTURE]: fileSha(path.join(project, APP_REQUEST_FIXTURE)), [STATEMENTS_FIXTURE]: fileSha(path.join(project, STATEMENTS_FIXTURE)), [DEMO_FIXTURE]: fileSha(path.join(project, DEMO_FIXTURE)) },
   model_document: { path: modelPath, sha256: fileSha(modelPath) },
   expected,
+  marks,
   launch,
   observations: { path: report, sha256: fileSha(report) },
   steps: (seen?.steps ?? []).map((item) => ({ id: item.id, reached: item.reached === true, error: item.error ?? null })),
