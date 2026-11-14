@@ -537,3 +537,117 @@ fn the_formulation_basis_states_current_s6_admission_in_both_contexts() {
     assert!(text.contains(s6_identity) && !text.contains(s5_identity));
 }
 
+
+/// DEL-04-07 *Published displacement*, on the exact route and through the
+/// exact readers: C-1 (an objective joint with a one-way guide) and its
+/// tie-rod twin, every case, both modes. In the control the case is confirmed
+/// and its published reactions are the certified ones; in at least one case of
+/// each model, in each mode, they differ from the loop's own (where the guide
+/// is open both are zero). With a correction that cannot be formed (forced at the first
+/// DOF), the case's single publication-basis decision publishes nothing on the
+/// confirmation's basis: the reactions behind its nonlinear reaction and
+/// derived-normal rows are the loop's own, bit for bit; every other recovered
+/// row (member, section, support and the connector's own) equals the run with
+/// the bound removed, the binary64 recovery from the solve's own displacement;
+/// the case is sensitive with the named warning; and the pressure reader, with
+/// its exact nonlinear checks, admits the document with the model.
+/// `RT_A3_S6_CORRECTION_FIXTURE_OUT=<dir>` writes C-1's first case, dense, as
+/// the fixture the Python twin reads.
+#[test]
+fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
+    use crate::corrected_displacement_tests::{NonlinearReactionPublication, FORCED_CORRECTION_FAILURE, NONLINEAR_REACTION_PROBE};
+    use open_pipe_stress_frame_kernel::structural::DisplacementFailureKind::Certify;
+    let bits = |values: &[f64]| values.iter().map(|v| v.to_bits()).collect::<Vec<_>>();
+    let mut fixture_written = false;
+    for name in ["c1", "c1_tied"] {
+        let mut differing = [false; 2];
+        let (request, oracle) = bound(name);
+        for case in oracle["cases"].as_object().unwrap().keys() {
+            let wire = single_case(&request, case);
+            for mode in MODES {
+                let at = format!("{name} {case} {mode:?}");
+                let run = |forced: bool, force_binary64: bool| -> (Value, Vec<NonlinearReactionPublication>) {
+                    FORCED_CORRECTION_FAILURE.with(|f| f.set(forced.then_some((0, Certify))));
+                    U4A_FORCE_BINARY64.with(|f| f.set(force_binary64));
+                    NONLINEAR_REACTION_PROBE.with(|p| *p.borrow_mut() = Some(Vec::new()));
+                    let output = solve(&wire, mode);
+                    let reactions = NONLINEAR_REACTION_PROBE.with(|p| p.borrow_mut().take().unwrap());
+                    FORCED_CORRECTION_FAILURE.with(|f| f.set(None));
+                    U4A_FORCE_BINARY64.with(|f| f.set(false));
+                    (serde_json::to_value(output).unwrap(), reactions)
+                };
+                let integrity_of = |v: &Value| {
+                    v["diagnostics"].as_array().unwrap().iter().find(|d| d["id"] == format!("diagnostic:numerical-integrity:{case}")).unwrap().clone()
+                };
+                // The control: confirmed, and the two bases differ on the published reactions.
+                let (control, control_reactions) = run(false, false);
+                assert_eq!(control["status"]["mechanics"], "MECHANICS_SOLVED", "{at}");
+                assert!(integrity_of(&control)["message"].as_str().unwrap().contains(NONLINEAR_CONFIRMED_EVIDENCE_LINE), "{at}: not confirmed");
+                assert_eq!(control_reactions.len(), 1, "{at}");
+                let differs = bits(&control_reactions[0].published) != bits(&control_reactions[0].loop_reactions);
+                differing[usize::from(mode == PreviewSolverMode::DenseScrutiny)] |= differs;
+                // The correction fails: nothing on the confirmation's basis.
+                let (failed, reactions) = run(true, false);
+                assert_eq!(failed["status"]["mechanics"], "MECHANICS_SOLVED", "{at}");
+                assert_eq!(reactions.len(), 1, "{at}");
+                assert_eq!(bits(&reactions[0].published), bits(&reactions[0].loop_reactions), "{at}: a confirmation-basis reaction was published");
+                let integrity = integrity_of(&failed);
+                assert_eq!(integrity["code"], "NUMERICAL_INTEGRITY_SENSITIVE", "{at}");
+                assert!(!integrity["message"].as_str().unwrap().contains(NONLINEAR_CONFIRMED_EVIDENCE_LINE), "{at}");
+                assert!(failed["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "DISPLACEMENT_CORRECTION_UNAVAILABLE"), "{at}");
+                // Every other recovered row is the binary64 recovery from the solve's own displacement.
+                let (binary64, _) = run(false, true);
+                let rows = |v: &Value| -> Vec<(String, u64)> {
+                    v["results"].as_array().unwrap().iter()
+                        .filter(|r| { let id = r["id"].as_str().unwrap(); !id.starts_with("result:nonlinear-support:") })
+                        .map(|r| (r["id"].as_str().unwrap().to_string(), r["value"].as_f64().unwrap().to_bits()))
+                        .collect()
+                };
+                assert_eq!(rows(&failed), rows(&binary64), "{at}: a recovered row is not the solve's own");
+                let connector = |v: &Value| rows(v).into_iter().filter(|(id, _)| id.contains("JOINT") || id.contains("joint") || id.contains("tie-rod") || id.contains("tie_rod")).collect::<Vec<_>>();
+                assert!(!connector(&failed).is_empty(), "{at}: no connector row");
+                assert_ne!(connector(&failed), connector(&control), "{at}: the connector rows did not change basis");
+                // The exact readers admit it, and refuse the stale mixed form: the
+                // same document with its nonlinear rows put back on the
+                // confirmation's basis (the control's values), where they differ.
+                assert_eq!(reader(&failed, &request), None, "{at}");
+                let nonlinear_rows = |v: &Value| -> serde_json::Map<String, Value> {
+                    v["results"].as_array().unwrap().iter()
+                        .filter(|r| r["id"].as_str().unwrap().starts_with("result:nonlinear-support:"))
+                        .map(|r| (r["id"].as_str().unwrap().to_string(), r["value"].clone()))
+                        .collect()
+                };
+                let control_rows = nonlinear_rows(&control);
+                if differs {
+                    let mut mixed = failed.clone();
+                    for row in mixed["results"].as_array_mut().unwrap() {
+                        if let Some(value) = control_rows.get(row["id"].as_str().unwrap()) {
+                            row["value"] = value.clone();
+                        }
+                    }
+                    assert_ne!(nonlinear_rows(&mixed), nonlinear_rows(&failed), "{at}");
+                    assert!(reader(&mixed, &request).is_some(), "{at}: the reader admits confirmation-basis rows in a withdrawn case");
+                }
+                // The first C-1 case whose bases differ, dense, is the fixture the
+                // Python twin sends through both readers: compared here, or written
+                // with RT_A3_S6_CORRECTION_FIXTURE_OUT=<dir>.
+                if let (false, true, PreviewSolverMode::DenseScrutiny, "c1") = (fixture_written, differs, mode, name) {
+                    let document = serde_json::json!({"case": case, "request": wire, "envelope": failed, "control_nonlinear_rows": control_rows});
+                    match std::env::var("RT_A3_S6_CORRECTION_FIXTURE_OUT") {
+                        Ok(dir) => {
+                            let path = std::path::Path::new(&dir).join("rt_a3_s6_c1_correction_unavailable.json");
+                            std::fs::write(&path, serde_json::to_string_pretty(&document).unwrap() + "\n").unwrap();
+                        }
+                        Err(_) => {
+                            let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/results/rt_a3_s6_c1_correction_unavailable.json");
+                            let committed: Value = serde_json::from_str(&std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))).unwrap();
+                            assert_eq!(committed, document, "{at}: the committed fixture is not this output; rewrite it with RT_A3_S6_CORRECTION_FIXTURE_OUT");
+                        }
+                    }
+                    fixture_written = true;
+                }
+            }
+        }
+        assert_eq!(differing, [true, true], "{name}: in no case did the certified and the loop's reactions differ");
+    }
+}

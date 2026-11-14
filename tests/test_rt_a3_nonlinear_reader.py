@@ -341,6 +341,26 @@ def set_quality(envelope: dict, tokens: tuple) -> None:
         case.update(zip(("structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"), tokens))
 
 
+def test_a_withdrawn_confirmation_is_read_by_both_exact_readers():
+    """DEL-04-07 *Published displacement* (the Rust test
+    rt_a3_s6_tests::a_correction_failure_publishes_nothing_on_the_confirmation_basis writes the fixture): C-1's
+    document whose correction could not be formed, its nonlinear rows on the loop's own reactions, is admitted by
+    both readers with its model; the same document with those rows put back on the confirmation's basis (the
+    confirmed control's values, which differ) is refused by both."""
+    fixture = json.loads((ROOT / "fixtures/results/rt_a3_s6_c1_correction_unavailable.json").read_text(encoding="utf-8"))
+    envelope, request, control = fixture["envelope"], fixture["request"], fixture["control_nonlinear_rows"]
+    assert codes(envelope, request) == (None, None)
+    mixed = deepcopy(envelope)
+    changed = 0
+    for row in mixed["results"]:
+        if row["id"] in control and row["value"] != control[row["id"]]:
+            row["value"] = control[row["id"]]
+            changed += 1
+    assert changed > 0
+    without, with_model = codes(mixed, request)
+    assert with_model is not None, "both readers admit confirmation-basis rows in a withdrawn case"
+
+
 INSPECTION_ONLY = "NUMERICAL_INTEGRITY_INSPECTION_ONLY"
 LEAD = "Inspection only (prior_outcome="
 TAIL = ("): this document is blocked (MODEL_INCOMPLETE); no result of this case is published, and this evaluation is "

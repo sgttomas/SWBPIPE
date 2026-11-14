@@ -539,3 +539,73 @@ fn inspection_only_is_never_wrapped_twice() {
         assert_eq!((d.code.as_str(), d.message.as_str()), (code, "original"), "{code} is not a verdict on a published result and is kept");
     }
 }
+
+/// The held operand of op_mf_held_status's H-16a (a `minuend_final`
+/// subtraction on the V-1 bar, friction mu = 1/4 with a zero normal: E by an
+/// input decision), built as its test builds it.
+fn held_operand_request() -> Value {
+    const PROV: &str = "op_mf";
+    let (od, wall, k, length) = (0.12_f64, 0.01_f64, 1_048_576.0_f64, 4.0_f64);
+    let inner = od - 2.0 * wall;
+    let modulus = 4.0 * k / (std::f64::consts::PI / 4.0 * (od * od - inner * inner));
+    let fx = |id: &str, f: f64| serde_json::json!({"id":id,"category":"concentrated_force","target":{"type":"node","node":"node:b"},"direction":"global_x","magnitude":{"value":f,"unit":"N"},"dimension":"force","provenance":PROV});
+    let thermal = |id: &str, dt: f64| serde_json::json!({"id":id,"category":"thermal","target":{"type":"element","pipe":"pipe:a-b"},"direction":"global_x","magnitude":{"value":dt,"unit":"degC"},"dimension":"temperature_interval","provenance":PROV});
+    let case = |id: &str, loads: Vec<Value>| serde_json::json!({"id":id,"primitive_loads":loads,"provenance":PROV});
+    serde_json::json!({"model":{"schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
+        "project":{"id":"project:op-mf","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
+        "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
+        "nodes":[{"id":"node:a","position":{"x":0.0,"y":0.0,"z":0.0},"provenance":PROV},{"id":"node:b","position":{"x":length,"y":0.0,"z":0.0},"provenance":PROV}],
+        "pipe_segments":[{"id":"pipe:a-b","from":"node:a","to":"node:b","section":{"outside_diameter":{"value":od,"unit":"m"},"wall_thickness":{"value":wall,"unit":"m"}},
+            "material":"material:m","y_reference":{"x":0.0,"y":1.0,"z":0.0},"provenance":PROV}],
+        "supports":[{"id":"support:a","node":"node:a","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":PROV},
+            {"id":"support:t","node":"node:b","family":"nonlinear","restraints":[],"provenance":PROV,
+             "nonlinear":{"behavior":"friction","dof":"UX","initial_state":"sticking","friction_coefficient":{"value":0.25,"unit":"1"},"normal_reaction":{"value":0.0,"unit":"N"}}}],
+        "components":[],
+        "materials":[{"id":"material:m","elastic_modulus":{"value":modulus,"unit":"Pa"},"shear_modulus":{"value":modulus / 2.6,"unit":"Pa"},
+            "thermal_expansion_coefficient":{"value":1.0 / 65_536.0,"unit":"1/degC"},"provenance":"op_mf_invented_test_values"}],
+        "load_cases":[case("case:S", vec![fx("f-s", 512.0)]), case("case:O", vec![fx("f-o", 512.0), thermal("t-o", -16.0)])],
+        "combinations":[{"id":"comb:o-s-held","basis":"result_state_subtraction","minuend_id":"case:O","subtrahend_id":"case:S",
+            "difference_basis":"operating_minus_sustained","subtrahend_support_state":"minuend_final","provenance":PROV}]},"materials":[]})
+}
+
+/// DEL-04-07 *Published displacement* on the held route, both modes: the held
+/// record is staged, and the case's publication-basis decision withdraws it.
+/// In the control (H-16a) the record is established with its conditions. With
+/// a correction that cannot be formed, it is not established, with the named
+/// reason and no conditions, and the reader admits the document; the stale
+/// form (the control's established record put back) is refused, so a
+/// combination consumer cannot take established evidence from a withdrawn case.
+#[test]
+fn a_held_operand_whose_correction_fails_is_not_established() {
+    use open_pipe_stress_frame_kernel::structural::DisplacementFailureKind::Certify;
+    let request = held_operand_request();
+    let model = request["model"].clone();
+    let record = |v: &Value| v["contract_evidence"]["held_status_derivation"].as_array().unwrap_or_else(|| panic!("no held record: {:#}", v["diagnostics"]))[0].clone();
+    let validate = |v: &Value| crate::result_export::reader_verdict::validate("preview-physics", v, Some(&model), None);
+    for mode in MODES {
+        let run = |forced: bool| {
+            FORCED_CORRECTION_FAILURE.with(|f| f.set(forced.then_some((0, Certify))));
+            let v = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+            FORCED_CORRECTION_FAILURE.with(|f| f.set(None));
+            assert_eq!(v["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?} forced={forced}: {:#}", v["diagnostics"]);
+            v
+        };
+        let control = run(false);
+        let established = record(&control);
+        assert_eq!(established["standing"]["kind"], "established", "{mode:?}: {established:#}");
+        assert!(established.get("conditions").is_some(), "{mode:?}");
+        assert_eq!(validate(&control)["ok"], true, "{mode:?}: {}", validate(&control));
+        let failed = run(true);
+        let withdrawn = record(&failed);
+        assert_eq!(withdrawn["standing"]["kind"], "not_established", "{mode:?}: {withdrawn:#}");
+        let reason = withdrawn["standing"]["reason"].as_str().unwrap();
+        assert!(reason.starts_with("Not established: the corrected displacement of ") && reason.contains("could not be certified (forced by test)"), "{mode:?}: {reason}");
+        assert!(withdrawn.get("conditions").is_none(), "{mode:?}");
+        assert_eq!(validate(&failed)["ok"], true, "{mode:?}: {}", validate(&failed));
+        // The stale form: the control's established record in the withdrawn case's document.
+        let mut stale = failed.clone();
+        stale["contract_evidence"]["held_status_derivation"][0]["standing"] = established["standing"].clone();
+        stale["contract_evidence"]["held_status_derivation"][0]["conditions"] = established["conditions"].clone();
+        assert_ne!(validate(&stale)["ok"], true, "{mode:?}: the reader admits an established held record in a withdrawn case");
+    }
+}
