@@ -67,8 +67,9 @@ if (process.platform !== "darwin") {
   process.exit(2);
 }
 
-// The launch's hard limit: the app (caffeinate's process group) is killed at it, and the launch fails.
-const LAUNCH_TIMEOUT_MS = 15 * 60 * 1000;
+// The launch's hard limit: the app (caffeinate's process group) is killed at it, and the launch fails. Steps 1 to 7
+// took 35 s in the first launch; every driver wait is capped at 90 s.
+const LAUNCH_TIMEOUT_MS = 4 * 60 * 1000;
 const TERMINATION_BOUND_MS = 20 * 1000;
 const TAURI_CONF = JSON.parse(readFileSync(path.join(tauriDir, "tauri.conf.json"), "utf8"));
 const IDENTIFIER = TAURI_CONF.identifier;

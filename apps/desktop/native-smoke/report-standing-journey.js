@@ -30,7 +30,10 @@
   // rendered report panel. A probe that needs the panel requires it present and this line gone.
   const gateLoading = () => Boolean(byTestId("c2-result-loading", byTestId("workspace-section-report")));
 
-  async function waitFor(label, probe, timeoutMs = 120000) {
+  // Every wait is capped at WAIT_CAP_MS (90 s): a wait that can only fail fails quickly.
+  const WAIT_CAP_MS = 90000;
+  async function waitFor(label, probe, timeoutMs = WAIT_CAP_MS) {
+    timeoutMs = Math.min(timeoutMs, WAIT_CAP_MS);
     const started = Date.now();
     for (;;) {
       const value = probe();
@@ -90,14 +93,14 @@
       if (withheld) throw new Error(`${label}: ${withheld.textContent.trim().replace(/\s+/g, " ").slice(0, 2000)}`);
       const proof = proofText();
       return summary.includes("state=completed") && proof !== null && proof !== priorProof && proof.includes(`project=${projectId}`);
-    }, 600000);
+    }, WAIT_CAP_MS);
     return { summary: text("solve-job-summary"), prior_summary: priorSummary, proof_job: proofText()?.match(/job=([^;]+)/)?.[1] ?? null, prior_proof_job: priorProof?.match(/job=([^;]+)/)?.[1] ?? null };
   }
   // Render for local review and wait for the shown document or a named failure.
   async function renderReport(label) {
     await showSection("report");
-    await waitFor(`${label}: the panel present, the gate's loading line gone`, () => panel() && !gateLoading(), 300000);
-    await waitFor(`${label}: Render enabled`, () => byTestId("rendered-report-render", panel())?.disabled === false, 300000);
+    await waitFor(`${label}: the panel present, the gate's loading line gone`, () => panel() && !gateLoading(), WAIT_CAP_MS);
+    await waitFor(`${label}: Render enabled`, () => byTestId("rendered-report-render", panel())?.disabled === false, WAIT_CAP_MS);
     const intent = element("rendered-report-local-private-intent", panel());
     if (!intent.checked) intent.click();
     await waitFor(`${label}: local-private selected`, () => element("rendered-report-local-private-intent", panel()).checked);
@@ -113,7 +116,7 @@
       const blocked = byTestId("rendered-report-blocking-reasons", panel());
       if (blocked) throw new Error(`${label}: export blocked: ${blocked.textContent.trim().slice(0, 2000)}`);
       return byTestId("rendered-report-preview", panel());
-    }, 300000);
+    }, WAIT_CAP_MS);
     return byTestId("rendered-report-preview", panel());
   }
 
@@ -151,7 +154,7 @@
     });
     await step("report-gate", async () => {
       await showSection("report");
-      await waitFor("the solved result in the panel", () => panel() && !gateLoading() && !byTestId("rendered-report-precondition", panel()) && byTestId("rendered-report-render", panel())?.disabled === false, 300000);
+      await waitFor("the solved result in the panel", () => panel() && !gateLoading() && !byTestId("rendered-report-precondition", panel()) && byTestId("rendered-report-render", panel())?.disabled === false, WAIT_CAP_MS);
       const package_buttons = ["report-package-save", "report-package-user-release"].map((id) => {
         const button = byTestId(id, panel());
         return { id, present: Boolean(button), disabled: button?.disabled ?? null, title: button?.getAttribute("title") ?? null };
@@ -291,7 +294,7 @@
         const render = byTestId("rendered-report-render", shown);
         if (!render || render.disabled) return null;
         return { panel_present_after: true, gate_loading_after: false, precondition_after: false, render_enabled_after: true, preview_after: Boolean(byTestId("rendered-report-preview", shown)) };
-      }, 300000);
+      }, WAIT_CAP_MS);
       return { preview_before: Boolean(preview), rerendered_line, proof_job_before: again.proof_job, proof_job_after: fresh.proof_job, ...after, undo_message: message() };
     });
   }
@@ -302,7 +305,7 @@
       const plan = await call("native_smoke_plan");
       report.phase = plan.phase;
       report.nonce = plan.nonce;
-      await waitFor("desktop shell", () => byTestId("desktop-preview-shell"), 120000);
+      await waitFor("desktop shell", () => byTestId("desktop-preview-shell"), WAIT_CAP_MS);
       await log(`report standing journey started`);
       await journey(plan);
       report.ok = true;
