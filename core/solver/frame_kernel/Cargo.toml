@@ -39,3 +39,9 @@ census-probe = []
 # command passes `--features loaded-maximum-hooks`. It stays out of the
 # registered build identity, as `mutation-controls` does.
 loaded-maximum-hooks = []
+# The inverse-norm evidence carrier (DEL-04-01; carrier revision 4 §1.1):
+# test-only constructors of records and evaluations, so a consumer's tests can
+# exercise the carriage with verified and foreign evidence. Enabled only from
+# the dev-dependencies of nonlinear_integration and product_physics; no product
+# dependency edge may name it (product_physics's feature-guard test).
+test-synthetic-records = []

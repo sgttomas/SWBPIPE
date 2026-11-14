@@ -274,7 +274,7 @@ fn projection(iteration: &NonlinearFrameIteration, with_residuals: bool) -> Stri
 
 fn confirmation_outcome(confirmation: &Confirmation) -> String {
     match confirmation {
-        Confirmation::NotEstablished { reason } => format!("not established: {reason}"),
+        Confirmation::NotEstablished { reason, .. } => format!("not established: {reason}"),
         Confirmation::Established(state) => {
             let mut rows = state
                 .supports

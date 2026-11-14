@@ -380,7 +380,7 @@ impl AssemblyEvidence {
             }
         };
         let (solution, attempt) = structural::finish_confirmation(&factor)?;
-        let evaluate_at = |force: &AssembledForce, u: &[f64], judged: bool| {
+        let evaluate_at = |force: &AssembledForce, u: &[f64], judged: bool, binding: &structural::EvaluationBinding| {
             let mut source = formation_source(&self.formation, curved_sources);
             source.loads = force.load_primitives().into();
             let system = StructuralSystem::assembled(
@@ -392,7 +392,7 @@ impl AssemblyEvidence {
                 Some(symmetry()),
             ).with_contribution_groups(&self.contribution_groups)
             .with_formation_source(&source);
-            attempt.evaluate_at(&system, u, judged)
+            attempt.evaluate_at(&system, u, judged, binding)
         };
         let reaction = |force: &AssembledForce, dof: usize, u: &[f64], bound: &structural::MemberBoundInputs| {
             let mut source = formation_source(&self.formation, curved_sources);
@@ -401,7 +401,7 @@ impl AssemblyEvidence {
         };
         let context = ConfirmationContext {
             evaluate_at: &evaluate_at,
-            reaction: &reaction,
+            reaction: &reaction, matrix_digest: attempt.matrix_digest(),
         };
         Ok(evaluate(&solution, &context))
     }
@@ -599,10 +599,9 @@ impl AssemblyEvidence {
 }
 
 type FormationOutcome = Result<
-    (
-        Option<structural::FormationCheck>,
-        Option<structural::MemberBoundInputs>,
-    ),
+    // Carrier revision 4 §1.3: the evaluation carries the binding it was
+    // requested under, whichever way the formation check returned.
+    structural::FormationEvaluation,
     StructuralError,
 >;
 type ReactionBall = Result<structural::CertifiedRow, structural::RecoveryFailure>;
@@ -611,15 +610,16 @@ type ReactionBall = Result<structural::CertifiedRow, structural::RecoveryFailure
 /// kd5-nonlinear-active-set.md §1.5), every one on the attempt's single
 /// factor. It is built only inside `confirm_with_formation_check`.
 pub struct ConfirmationContext<'a> {
-    evaluate_at: &'a dyn Fn(&AssembledForce, &[f64], bool) -> FormationOutcome,
-    reaction: &'a dyn Fn(&AssembledForce, usize, &[f64], &structural::MemberBoundInputs) -> ReactionBall,
+    evaluate_at: &'a dyn Fn(&AssembledForce, &[f64], bool, &structural::EvaluationBinding) -> FormationOutcome,
+    reaction: &'a dyn Fn(&AssembledForce, usize, &[f64], &structural::MemberBoundInputs) -> ReactionBall, matrix_digest: u64,
 }
 impl ConfirmationContext<'_> {
-    /// K-D5 (kd5 §2) on the system with this ledger force, at `u`; `judged`
-    /// applies D5C-1.
-    pub fn evaluate_at(&self, force: &AssembledForce, u: &[f64], judged: bool) -> FormationOutcome {
-        (self.evaluate_at)(force, u, judged)
+    /// K-D5 (kd5 §2) on the system with this ledger force, at `u`, under the planned stage's `binding`; `judged` applies D5C-1.
+    pub fn evaluate_at(&self, force: &AssembledForce, u: &[f64], judged: bool, binding: &structural::EvaluationBinding) -> FormationOutcome {
+        (self.evaluate_at)(force, u, judged, binding)
     }
+    /// The attempt's matrix fingerprint (diagnostic; carrier revision 4 §1.5).
+    pub fn matrix_digest(&self) -> u64 { self.matrix_digest }
     /// `certify_support_reaction` at `dof` on the system with this force.
     pub fn reaction(
         &self,
@@ -1014,7 +1014,7 @@ impl SparseAssemblyEvidence {
             }
         };
         let (solution, attempt) = structural::finish_sparse_confirmation(&factor)?;
-        let evaluate_at = |force: &AssembledForce, u: &[f64], judged: bool| {
+        let evaluate_at = |force: &AssembledForce, u: &[f64], judged: bool, binding: &structural::EvaluationBinding| {
             let mut source = formation_source(&self.formation, curved_sources);
             source.loads = force.load_primitives().into();
             let system = SparseStructuralSystem::assembled(
@@ -1027,7 +1027,7 @@ impl SparseAssemblyEvidence {
             )
             .with_contribution_groups(&self.contribution_groups)
             .with_formation_source(&source);
-            attempt.evaluate_at(&system, u, judged)
+            attempt.evaluate_at(&system, u, judged, binding)
         };
         let reaction = |force: &AssembledForce, dof: usize, u: &[f64], bound: &structural::MemberBoundInputs| {
             let mut source = formation_source(&self.formation, curved_sources);
@@ -1036,7 +1036,7 @@ impl SparseAssemblyEvidence {
         };
         let context = ConfirmationContext {
             evaluate_at: &evaluate_at,
-            reaction: &reaction,
+            reaction: &reaction, matrix_digest: attempt.matrix_digest(),
         };
         Ok(evaluate(&solution, &context))
     }
