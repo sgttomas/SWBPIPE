@@ -30,11 +30,9 @@ jobs:
       matrix:
         include:
           - runner: windows-11-arm
-            arch: Arm64
             processor: ARM64
             python: arm64
           - runner: windows-2025
-            arch: X64
             processor: AMD64
             python: x64
     runs-on: ${{ matrix.runner }}
@@ -71,7 +69,6 @@ jobs:
       - name: Run the tree op's hosted proof
         env:
           OPENPIPESTRESS_NO_CARGO_BUILD: '1'
-          SWBPIPE_TREE_EXPECTED_ARCH: ${{ matrix.arch }}
           EXPECTED_PROCESSOR: ${{ matrix.processor }}
         run: |
           $machine = python -c "import platform; print(platform.machine())"

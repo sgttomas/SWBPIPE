@@ -464,7 +464,8 @@ def test_the_hosted_controls_mutate_the_script_exactly_where_they_say():
     assert b"\r" not in original  # committed with LF line ends: the digest is the checkout's on every platform
     for name, (anchor, replacement) in MUTANTS.items():
         mutant = mutant_source(name)
-        assert mutant != original and mutant.replace(replacement.encode(), anchor.encode(), 1) == original, name
+        assert original.count(anchor.encode()) == 1 and mutant != original, name
+        assert mutant == original.replace(anchor.encode(), replacement.encode(), 1), name  # that one place only
     guarded = _op(_code(mutant_source("no-creation-time-guard").decode()), "OpTree")
     assert "CompareOrdinal" not in guarded and "CompareOrdinal" in _op(_code(READ_SOURCE), "OpTree")
 

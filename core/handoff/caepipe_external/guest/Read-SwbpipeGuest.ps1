@@ -263,7 +263,7 @@ function OpHash($p) {
 
 # The attempt's living processes, from ONE snapshot of Win32_Process: the launcher the claim records (its pid with
 # exactly its creation time), each process descending from it through ParentProcessId, closed transitively within the
-# snapshot, whose creation time is at or after its parent's (a later one is not its child: pid reuse), and each
+# snapshot, whose creation time is at or after its parent's (one created earlier had another parent: pid reuse), and each
 # process whose ExecutablePath is one of the host's paths, exactly, case-insensitively. A process whose
 # ExecutablePath cannot be read matches as `unknown` when its Name is a listed path's file name, never as a non-match.
 # A process this answer needs whose creation time cannot be read is a partial answer (exit 3), never skipped.

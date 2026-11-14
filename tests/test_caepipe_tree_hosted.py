@@ -48,7 +48,7 @@ MUTANTS = {
                                "  # created before its parent: not its child\n", ""),
 }
 MEMBERS = ("tree-launcher.exe", "tree-child.exe", "tree-grandchild.exe")
-EXPECTED_ARCH = "SWBPIPE_TREE_EXPECTED_ARCH"  # Arm64 or X64, set by the workflow's job
+EXPECTED_PROCESSOR = "EXPECTED_PROCESSOR"  # ARM64 or AMD64, set by the workflow's job
 CALL_TIMEOUT_S = 180
 
 
@@ -132,7 +132,7 @@ class Member:
                                                       ctypes.byref(parent_handle), ctypes.sizeof(parent_handle),
                                                       None, None):
                 raise ctypes.WinError(ctypes.get_last_error())
-            startup.lpAttributeList = ctypes.cast(attributes, ctypes.c_void_p)
+            startup.lpAttributeList = ctypes.addressof(attributes)
             flags |= EXTENDED_STARTUPINFO_PRESENT
         command = ctypes.create_unicode_buffer(f'"{exe}" -n 3600 -w 1000 127.0.0.1')
         try:
@@ -243,8 +243,9 @@ def _runner_identity() -> str:
     script = (harness.POWERSHELL_QUIET + "$v = [Environment]::OSVersion.Version\n"
               "$nt = Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion'\n"
               "$nf = Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full'\n"
-              "$os = try { [Runtime.InteropServices.RuntimeInformation]::OSArchitecture } catch { 'unavailable' }\n"
-              "$pa = try { [Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture } catch { 'unavailable' }\n"
+              "$os = 'unavailable'; $pa = 'unavailable'\n"
+              "try { $os = [Runtime.InteropServices.RuntimeInformation]::OSArchitecture } catch { }\n"
+              "try { $pa = [Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture } catch { }\n"
               "[Console]::Out.Write('windows_build=' + $v.Major + '.' + $v.Minor + '.' + $nt.CurrentBuild + '.' + $nt.UBR"
               " + ' os_architecture=' + $os + ' process_architecture=' + $pa"
               " + ' processor_architecture=' + $env:PROCESSOR_ARCHITECTURE"
@@ -273,9 +274,9 @@ def test_the_tree_op_observes_the_tests_own_tree_and_each_control_fails(exchange
     print(f"\nrunner: {identity}")
     fields = dict(item.split("=", 1) for item in identity.split(" "))
     assert fields["powershell"].startswith("5.1.") and fields["edition"] == "Desktop", "not Windows PowerShell 5.1"
-    expected = os.environ.get(EXPECTED_ARCH)
-    if expected:
-        assert fields["os_architecture"] == fields["process_architecture"] == expected, "not the expected architecture"
+    expected = os.environ.get(EXPECTED_PROCESSOR)
+    if expected:  # the powershell that runs the script is native: under emulation it would see another architecture
+        assert fields["processor_architecture"] == expected, "Windows PowerShell is not native to the expected arch"
     config = harness.HarnessConfig(exchange_root=exchange, vm_name="hosted-runner", guest_executable="C:\\x.exe",
                                    guest_exchange_root=str(exchange), guest_work_root=str(exchange), prlctl=None,
                                    acknowledged=True, trial_first_launch_date=None)
