@@ -374,6 +374,49 @@
    }
   },
   {
+   "id": "report_standing_render_inputs",
+   "paths": [
+    "fixtures/reports/invented/report_standing_witnesses/pressure_3_*.render.json"
+   ],
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_render_exact_tests.rs"
+   ],
+   "anchor": {
+     "kind": "excluded",
+     "reason": "documents held as JSON text (exact intake text) inside render inputs"
+   }
+  },
+  {
+   "id": "report_standing_coupled_friction_request",
+   "paths": [
+    "fixtures/reports/invented/report_standing_witnesses/coupled_friction.request.json"
+   ],
+   "producer": {
+    "kind": "none",
+    "status": "frozen_copy",
+    "switch_plumbed": false,
+    "switch_route": "no producer: a trimmed copy of the RT-A3 S6 no-gap overlay (one case, RS-SUS); edit the document, then re-produce its raw file with core/product_physics/tests/report_standing_witnesses.rs and the render input with its writer"
+   },
+   "pinned_by": [
+    "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json (core/product_physics/tests/report_standing_witnesses.rs)",
+    "core/reporting/result_export/tests/report_standing.rs",
+    "apps/desktop/src/features/report/reportStandingWitness.test.tsx"
+   ],
+   "anchor": {
+    "kind": "raw_files",
+    "files": {
+     "sparse_interactive": "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json"
+    }
+   }
+  },
+  {
    "id": "user_release_exact",
    "paths": [
     "fixtures/reports/invented/user_release_exact/pressure_2_*.json"
