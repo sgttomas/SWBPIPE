@@ -323,7 +323,7 @@ check("report: the solved result reaches the panel, Render enabled", reached("re
 check("report: both package buttons disabled with the reason", gate?.package_buttons?.length === 2
   && gate.package_buttons.every((button) => button.disabled === true && button.title === expected.package_title), gate?.package_buttons);
 const refusals = step("package-refusals");
-check("package: the native menu's two package commands leave the \"Not saved\" line, with no dialog and no chooser (both lines read the same, so this run does not tell the second from the first; renderedReportGate.app.test.tsx does)",
+check("package: the native menu's two package commands leave the \"Not saved\" line, with no dialog and no chooser (both lines read the same, so this run does not tell the second from the first; renderedReportGate.app.test.tsx tells them apart in a fresh session)",
   reached("package-refusals") && refusals?.statuses?.length === 2 && refusals.statuses.every((text) => text === expected.not_saved) && refusals?.dialog === false, refusals);
 const outputs = step("other-outputs");
 check("outputs: the result JSON export and the rule check are not offered", reached("other-outputs") && outputs?.result_export_empty === true && outputs?.result_export_link === false && outputs?.rule_check_disabled === true, outputs);

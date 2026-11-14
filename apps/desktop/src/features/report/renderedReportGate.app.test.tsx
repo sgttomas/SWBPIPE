@@ -8,7 +8,7 @@
  * connecting-path test `a_readable_solved_result_that_is_not_checks_passed_renders_with_its_standing`
  * on the render input this build step makes). The rendered document is shown and its print
  * view reached. The report package stays refused (the panel's save buttons are disabled with
- * the reason stated, and the menu's package command is disabled), and so do the result JSON
+ * the reason stated, and the native menu commands are refused with a reason), and so do the result JSON
  * export and the rule check. A replacement (a fresh solve) retires the shown report. A second
  * test opens Report while the run is going, so that completion arrives with Report visible: the
  * solved result reaches the panel with no further action.
@@ -267,5 +267,20 @@ describe("the rendered report of a solved exact-route result that is not numeric
     await waitFor(() => expect(jobCommands(), why()).toContain("read_preview_mechanics_job_analysis_run_preview"), { timeout: 60_000 });
     await waitFor(() => expectSolvedInPanel(why), { timeout: 60_000 });
     expect(screen.getByTestId("workspace-section-report").className).toBe("workspace-dock-section");
+  }, 240_000);
+
+  it("the shareable menu refusal appears without a preceding private-save request", async () => {
+    const { jobCommands, why } = await mountApp();
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() => expect(jobCommands()).toContain("read_preview_mechanics_job_analysis_run_preview"), { timeout: 60_000 });
+    await openReportStage();
+    await waitFor(() => expectSolvedInPanel(why), { timeout: 60_000 });
+    expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("report-package-save-status")).toBeNull();
+    act(() => nativeMenuCommand("file.save-shareable-report-package"));
+    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("report-package-save-status")).toHaveTextContent(
+      "Not saved: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing."
+    ));
+    expect(screen.queryByTestId("user-release-dialog")).toBeNull();
+    expect(invokeMock.mock.calls.map(([command]) => command).filter((command) => /report_package|user_release/.test(String(command)))).toEqual([]);
   }, 240_000);
 });
