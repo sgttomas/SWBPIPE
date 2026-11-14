@@ -529,11 +529,13 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
 # Transport: wrapper, raw header, standing and identity binding
 # --------------------------------------------------------------------------
 
-def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple[dict, list[dict]]:
+def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT,
+           runner_input: bytes | None = None) -> tuple[dict, list[dict]]:
     """Controlled wrapper and exact pressure-2 raw0.2 envelope; anything else is refused."""
     require(mode in MODES, 'unsupported actual mode')
     doc = strict_json_limited(raw, limit)
-    require(type(doc) is dict and set(doc) == {'payload', 'decisions', 'findings', 'blocked', 'summary'}, 'unsupported controlled wrapper')
+    require(type(doc) is dict and set(doc) in (gate.CONTROL_MEMBERS, gate.CONTROL_MEMBERS | {gate.RUN_EVIDENCE}), 'unsupported controlled wrapper')
+    gate.admit_run_evidence(doc, runner_input, mode)  # an older wrapper: gate.UNBOUND_ADMISSION, binds nothing
     require(doc['blocked'] is False and type(doc['payload']) is dict, 'controlled output blocked')
     gate._diagnostics(doc['findings'], 'wrapper')
     summary = doc['summary']
@@ -1012,7 +1014,8 @@ def publish(ledger, output_dir, global_artifacts, case_artifacts, original_bindi
 def observe_case(case_ledger, prepared, stdout_bytes, mode, reader_binding, output_dir, prefix, artifacts,
                  output_limit_bytes, timeout_seconds):
     """Unwrap, compare, run the owned reader and assess the structural obligations of one completed process."""
-    mechanics, rows = unwrap(stdout_bytes, prepared['request'], mode, limit=output_limit_bytes)
+    mechanics, rows = unwrap(stdout_bytes, prepared['request'], mode, limit=output_limit_bytes,
+                                    runner_input=prepared['runner_input'])
     case_ledger['observed_result_identity'] = {k: mechanics[k] for k in ('document_kind', 'schema_version', 'run_id', 'model_ref')}
     try:
         standing, standing_error = numerical_standing(mechanics, prepared['request_cases']), None

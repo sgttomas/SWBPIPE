@@ -19,7 +19,8 @@ use open_pipe_stress_headless_runner::{
     redaction_binding::{
         control_local_private, ControlledExport, RedactionDecision, RedactionFinding, RedactionSummary,
     },
-    run_preview_model_value_with_mode_and_rule_check, validate_request, validate_result,
+    run_evidence, run_preview_model_value_with_mode_and_rule_check, validate_request,
+    validate_result,
     Diagnostic, JobStateKind, Reference, RunnerOperation, RunnerRequest, RunnerResult,
     RunnerValidation,
 };
@@ -182,8 +183,40 @@ fn main() -> ExitCode {
     } else {
         control_local_private(output, args.explicit_local_private_intent)
     };
-    let rendered = serde_json::to_string_pretty(&controlled)
-        .expect("controlled CLI output must serialize as JSON");
+    // Run evidence (REQ-017): formed only after the control has passed the
+    // output, over the controlled output exactly as it is emitted. A blocked
+    // output carries none (a digest of a private value would let a guess be
+    // confirmed), and neither does a run that exits 2 (no result is formed).
+    // The request itself is judged by the same control the output had, with the
+    // intent as invoked; where that control would block it, the request and
+    // model digests are withheld and the result digest is kept.
+    let evidence = (code != 2 && !controlled.blocked).then(|| {
+        let emitted = serde_json::to_value(&controlled)
+            .expect("controlled CLI output must serialize as JSON");
+        let intent = args.explicit_local_private_intent;
+        let judgment = run_evidence::judge_request(input.as_bytes(), |request| {
+            if args.verb == SIZE_HANGERS {
+                control_whole_document_private(request, intent).blocked
+            } else {
+                control_local_private(request, intent).blocked
+            }
+        });
+        run_evidence::form(
+            input.as_bytes(),
+            run_evidence::Invocation {
+                command: &args.verb,
+                solver_mode: (args.verb == "solve").then(|| args.solver_mode.as_str()),
+                explicit_local_private_intent: intent,
+            },
+            judgment,
+            &emitted,
+        )
+    });
+    let rendered = serde_json::to_string_pretty(&EmittedOutput {
+        controlled: &controlled,
+        run_evidence: evidence,
+    })
+    .expect("controlled CLI output must serialize as JSON");
     println!("{rendered}");
 
     if (args.verb != "export-results" || code == 0) && !controlled.blocked {
@@ -205,6 +238,17 @@ fn main() -> ExitCode {
 }
 
 const SIZE_HANGERS: &str = "size-hangers";
+
+/// What a verb or a hosted command that takes a request writes: the controlled
+/// output's members in their order, then `run_evidence` when the control passed
+/// the output.
+#[derive(Serialize)]
+struct EmittedOutput<'a> {
+    #[serde(flatten)]
+    controlled: &'a ControlledExport,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    run_evidence: Option<Value>,
+}
 
 /// `size-hangers` (DEL-04-11 design §8.3.2): hanger sizing on
 /// its own admission path. It takes no `CliInput.request` (no `RunnerRequest`,

@@ -75,6 +75,24 @@ def wrapper(mechanics, request):
                         'mechanics_envelope': mechanics}}
 
 
+def evidence_runner_code(outputs, mode, *, over_other_bytes=False, edit_result=False, withheld=False):
+    """A fake runner body that attaches run evidence (DEL-10-05 REQ-017) formed over the stdin it received, by
+    the test-only verifier's `form`; optionally over other bytes, with the result edited afterwards, or with
+    the request and model withheld as the local-private control states them."""
+    return ('import json, sys\n'
+            f'sys.path.insert(0, {str(PROJECT)!r})\n'
+            'from tests.verifiers import run_evidence as rv\n'
+            f'outputs = {outputs!r}\n'
+            'raw = sys.stdin.buffer.read()\n'
+            'out = json.loads(open(outputs[json.loads(raw)["request"]["request_id"]], "rb").read())\n'
+            f'formed_over = raw + b" " if {over_other_bytes!r} else raw\n'
+            'out["run_evidence"] = rv.form(formed_over, out, {"command": "solve", '
+            f'"solver_mode": {mode!r}, "explicit_local_private_intent": True}}'
+            + (', withheld="REQUEST_BLOCKED_BY_LOCAL_PRIVATE_CONTROL"' if withheld else '') + ')\n'
+            f'if {edit_result!r}:\n    out["summary"]["redacted_count"] = 7\n'
+            'sys.stdout.write(json.dumps(out))\n')
+
+
 def rule_id(family, unit):
     return f'rule:synthetic:{family}:{unit}'
 
@@ -1097,6 +1115,27 @@ class PureSemanticsTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             lr.evidence_semantics(dict(base, record='support_component', key={'support_id': 's', 'dof': 'RZ'}, field='prescribed_value',
                                        unit='rad', dimension='angle', definition={'global_dof': True}))
+
+
+
+
+class RunEvidenceTests(unittest.TestCase):
+    def test_run_evidence_over_the_sent_input_is_admitted_and_any_other_refused(self):
+        mode = 'sparse_interactive'
+        fixture = Fixture(self, mode, ('connected',))
+        fixture.write_process(evidence_runner_code(fixture.outputs, mode))
+        result, output = fixture.run()
+        # The evidence is admitted: every value assertion is compared (the reader's own checks are not this test's).
+        self.assertEqual(result['summary']['assertions']['matched'], result['summary']['required_assertions'], json.dumps(result['summary']))
+        stdout = json.loads(next(p for p in output.rglob('stdout.bin') if 'reader' not in p.parent.name).read_bytes())
+        self.assertIn('run_evidence', stdout)
+        for options, reason in (({'over_other_bytes': True}, 'run evidence does not verify: request'),
+                                ({'edit_result': True}, 'run evidence does not verify: result'),
+                                ({'withheld': True}, 'run evidence not bound: withheld')):
+            fixture.write_process(evidence_runner_code(fixture.outputs, mode, **options))
+            case = fixture.run()[0]['cases'][0]
+            self.assertEqual(case['state'], 'error', case['reason'])
+            self.assertIn(reason, case['reason'])
 
 
 if __name__ == '__main__':

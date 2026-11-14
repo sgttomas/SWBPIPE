@@ -273,9 +273,127 @@ def _diagnostics(value, label):
     require(not any(s.lower() in ('blocking', 'error', 'fatal') for s in severities), label + ' has blocking diagnostics')
 
 
-def unwrap(raw: bytes, request: dict, mode: str, *, transport: str = TRANSPORT) -> tuple[dict, list[dict]]:
+# The runner's run evidence (DEL-10-05 REQ-017): a sixth wrapper member, checked here against the
+# runner input bytes the gate sent. It is not a signature; it shows that the result answers that input.
+# Only RUN_EVIDENCE_BOUND supplies that binding. A wrapper without the member (an older output) is
+# admitted by these harnesses for their own value comparison only (UNBOUND_ADMISSION), which binds
+# nothing; withheld evidence binds nothing either and is refused.
+CONTROL_MEMBERS = frozenset({'payload', 'decisions', 'findings', 'blocked', 'summary'})
+RUN_EVIDENCE = 'run_evidence'
+RUN_EVIDENCE_DOMAIN = 'openpipestress_runner_evidence_v1'
+RUN_EVIDENCE_KEYS = {'evidence_version', 'canonical_profile', 'invocation', 'producer', 'request', 'model', 'result', 'binding_sha256'}
+RUN_EVIDENCE_WITHHELD_CODES = ('REQUEST_BLOCKED_BY_LOCAL_PRIVATE_CONTROL', 'REQUEST_NOT_JUDGED_BY_LOCAL_PRIVATE_CONTROL')
+RUN_EVIDENCE_BOUND = 'bound'
+NOT_BOUND_NO_RUN_EVIDENCE = 'not bound: no run evidence'
+NOT_BOUND_WITHHELD = 'not bound: withheld'
+UNBOUND_ADMISSION = ('admitted for this harness\'s own value comparison only; ' + NOT_BOUND_NO_RUN_EVIDENCE
+                     + ', so the output is not bound to the input sent')
+
+
+def _ecma_number(value: float) -> str:
+    """ECMAScript Number::toString of a finite binary64 (RFC 8785 §3.2.2.3)."""
+    if value == 0:
+        return '0'
+    mantissa, _, exponent = repr(abs(value)).partition('e')
+    whole, _, fraction = mantissa.partition('.')
+    raw = (whole + fraction).lstrip('0')
+    digits = raw.rstrip('0')
+    k = len(digits)
+    n = k + (int(exponent) if exponent else 0) - len(fraction) + (len(raw) - k)
+    sign = '-' if value < 0 else ''
+    if k <= n <= 21:
+        return sign + digits + '0' * (n - k)
+    if 0 < n <= 21:
+        return sign + digits[:n] + '.' + digits[n:]
+    if -6 < n <= 0:
+        return sign + '0.' + '0' * -n + digits
+    return sign + digits[0] + ('.' + digits[1:] if k > 1 else '') + 'e' + ('+' if n - 1 >= 0 else '-') + str(abs(n - 1))
+
+
+def _jcs(value) -> str:
+    """`openpipestress_jcs_ijson_v1` text (RFC 8785 with I-JSON numbers); outside the profile is refused."""
+    if value is None or type(value) is bool:
+        return json.dumps(value)
+    if type(value) is str:
+        require(not any(0xD800 <= ord(c) <= 0xDFFF for c in value), 'run evidence: lone surrogate')
+        return json.dumps(value, ensure_ascii=False)
+    if type(value) is int:
+        require(abs(value) <= 9_007_199_254_740_991, 'run evidence: integer outside the canonical profile')
+        return str(value)
+    if type(value) is float:
+        require(math.isfinite(value) and not (value.is_integer() and abs(value) > 9_007_199_254_740_991),
+                'run evidence: number outside the canonical profile')
+        return _ecma_number(value)
+    if type(value) is list:
+        return '[' + ','.join(_jcs(item) for item in value) + ']'
+    require(type(value) is dict, 'run evidence: not JSON')
+    keys = sorted(value, key=lambda key: key.encode('utf-16-be', 'surrogatepass'))
+    return '{' + ','.join(_jcs(key) + ':' + _jcs(value[key]) for key in keys) + '}'
+
+
+def run_evidence_binding(doc: dict, runner_input: bytes | None, mode: str) -> str:
+    """Whether the wrapper is bound to `runner_input` (the bytes sent to `solve`): RUN_EVIDENCE_BOUND only when
+    every digest is recomputed and equal; NOT_BOUND_NO_RUN_EVIDENCE without the member; NOT_BOUND_WITHHELD when
+    the control withheld the request and model digests (they cannot be compared). Evidence that does not verify
+    is refused (AdmissionError)."""
+    if RUN_EVIDENCE not in doc:
+        return NOT_BOUND_NO_RUN_EVIDENCE
+    require(runner_input is not None, 'run evidence present but the runner input was not supplied')
+    evidence = doc[RUN_EVIDENCE]
+    require(type(evidence) is dict and set(evidence) == RUN_EVIDENCE_KEYS, 'run evidence shape invalid')
+    invocation = evidence['invocation']
+    require(type(invocation) is dict and set(invocation) == {'command', 'solver_mode', 'explicit_local_private_intent'}
+            and invocation['command'] == 'solve' and invocation['solver_mode'] == mode
+            and type(invocation['explicit_local_private_intent']) is bool, 'run evidence names another invocation')
+    digest = lambda value: sha256_bytes(_jcs(value).encode('utf-8'))  # noqa: E731
+    withheld = [evidence[member] for member in ('request', 'model')]
+    if any(type(member) is dict and 'withheld' in member for member in withheld):
+        code = withheld[0].get('withheld') if type(withheld[0]) is dict else None
+        require(all(member == {'withheld': code} for member in withheld)
+                and code in RUN_EVIDENCE_WITHHELD_CODES, 'run evidence withheld form invalid')
+        expected = {'result': {'canonical_sha256': digest({k: v for k, v in doc.items() if k != RUN_EVIDENCE})},
+                    'binding_sha256': digest({'domain': RUN_EVIDENCE_DOMAIN,
+                                              'payload': {k: v for k, v in evidence.items() if k != 'binding_sha256'}})}
+        differing = sorted(key for key, value in expected.items() if evidence[key] != value)
+        require(not differing, 'run evidence does not verify: ' + ', '.join(differing))
+        return NOT_BOUND_WITHHELD
+    request = strict_json(runner_input)
+    model = request.get('solve', {}).get('preview_model', {}).get('model') if type(request.get('solve')) is dict else None
+    expected = {
+        'evidence_version': '1.0.0',
+        'canonical_profile': 'openpipestress_jcs_ijson_v1',
+        'request': {'raw_sha256': sha256_bytes(runner_input), 'canonical_sha256': digest(request)},
+        'model': ({'pointer': '/solve/preview_model/model', 'canonical_sha256': digest(model)} if model is not None
+                  else {'absent': 'MODEL_DOCUMENT_NOT_IN_REQUEST'}),
+        'result': {'canonical_sha256': digest({k: v for k, v in doc.items() if k != RUN_EVIDENCE})},
+        'binding_sha256': digest({'domain': RUN_EVIDENCE_DOMAIN,
+                                  'payload': {k: v for k, v in evidence.items() if k != 'binding_sha256'}}),
+    }
+    differing = sorted(key for key, value in expected.items() if evidence[key] != value)
+    require(not differing, 'run evidence does not verify: ' + ', '.join(differing))
+    return RUN_EVIDENCE_BOUND
+
+
+def require_run_evidence_binding(doc: dict, runner_input: bytes | None, mode: str) -> None:
+    """For a check that requires the binding: fails closed on withheld evidence and on a wrapper without it."""
+    status = run_evidence_binding(doc, runner_input, mode)
+    require(status == RUN_EVIDENCE_BOUND, 'run evidence binding required: ' + status)
+
+
+def admit_run_evidence(doc: dict, runner_input: bytes | None, mode: str) -> str:
+    """The harnesses' admission for their own value comparison: bound evidence, or UNBOUND_ADMISSION for an older
+    wrapper without the member (which binds nothing). Withheld evidence is refused: the result cannot be tied
+    to the input sent."""
+    status = run_evidence_binding(doc, runner_input, mode)
+    require(status != NOT_BOUND_WITHHELD, 'run evidence ' + NOT_BOUND_WITHHELD + '; the result cannot be tied to the input sent')
+    return RUN_EVIDENCE_BOUND if status == RUN_EVIDENCE_BOUND else UNBOUND_ADMISSION
+
+
+def unwrap(raw: bytes, request: dict, mode: str, *, transport: str = TRANSPORT,
+           runner_input: bytes | None = None) -> tuple[dict, list[dict]]:
     doc = strict_json(raw)
-    require(type(doc) is dict and set(doc) == {'payload', 'decisions', 'findings', 'blocked', 'summary'}, 'unsupported controlled wrapper')
+    require(type(doc) is dict and set(doc) in (CONTROL_MEMBERS, CONTROL_MEMBERS | {RUN_EVIDENCE}), 'unsupported controlled wrapper')
+    admit_run_evidence(doc, runner_input, mode)
     require(doc['blocked'] is False and type(doc['payload']) is dict, 'controlled output blocked')
     _diagnostics(doc['findings'], 'wrapper')
     summary = doc['summary']
@@ -632,8 +750,10 @@ def run_selection(manifest_path: Path, executable: Path, source_root: Path, outp
                 stdout_bytes = read_captured_bytes(output_dir / f'case-{index:04}' / 'stdout.bin',
                     process['stdout_sha256'], process['stdout_bytes'], min(output_limit_bytes, MAX_INPUT_BYTES))
                 # Decode exactly the bytes verified above, not a reopened archive.
-                mechanics, rows = (unwrap(stdout_bytes, prepared['request'], runner['solver_mode'], transport=transport)
-                                   if physical_binding else unwrap(stdout_bytes, prepared['request'], runner['solver_mode']))
+                mechanics, rows = (unwrap(stdout_bytes, prepared['request'], runner['solver_mode'], transport=transport,
+                                          runner_input=prepared['runner_input'])
+                                   if physical_binding else unwrap(stdout_bytes, prepared['request'], runner['solver_mode'],
+                                                                   runner_input=prepared['runner_input']))
                 case_ledger['observed_result_identity'] = {k: mechanics[k] for k in ('document_kind', 'schema_version', 'run_id', 'model_ref')}
                 evaluate_rows(case_ledger, prepared, rows)
                 if physical_binding:
