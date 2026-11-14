@@ -218,3 +218,80 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **What the user does instead:** none.
 - **Basis:** DEL-04-05 [scope](../execution/PKG-04/DEL-04-05/ScopeOfWork.md), AC-001, AX-003 and "Measured and not met, as of 2026-11-13". The entry was added with PR #311.
 - **Status:** not yet declared.
+
+### LIM-016 — A report of a result whose numerical standing is not eligible is refused
+
+- **Id:** LIM-016
+- **Exit criteria:** 4
+- **Requirement affected:** exit criterion 4, that a user can release, save and print a report for results on either route; DEL-08-01/REQ-017 ("Source binding": an exact-route result is reported only when "the product reader's standing for that result and model is eligible") and AC-009.
+- **Code:** `REPORT-EXACT-STANDING-NOT-ELIGIBLE`, from the desktop's save and render alike.
+- **What is refused:**
+  - On the exact route (`pressure`) and the pressure-free route's preview-physics result: on these routes, eligible standing requires numerical quality `checks_passed` and no other finding from the production reader; passing this standing gate does not establish that the remaining report gates will pass (`core/reporting/result_export/src/reader_verdict.rs`, `standing()`). The four other quality values, and how each is known:
+    - `unresolved`: observed. The test-only overlay of the reference system with RS-G1 (below) is refused at the desktop's production admission and rendering.
+    - `sensitive`: observed. The same overlay without RS-G1 is refused the same way.
+    - `not_assessed`: read from `standing()`'s rule, not observed.
+    - `failed`: read from `standing()`'s rule, not observed.
+  - On the pressure-source route the standing is decided by the source's own findings, not numerical quality. A pressure-source result whose diagnostics carry `NUMERICAL_INTEGRITY_SENSITIVE` is reportable: the maintained witness `pressure_source_1` is admitted with that warning named on its standing line.
+  - A pressure-free Timoshenko report that carries the native source binding is gated the same way; `report_render_pf_timoshenko_tests.rs` shows `REPORT-EXACT-STANDING-NOT-ELIGIBLE` for a crossed pair.
+  - An unbound pressure-free report reaches the renderer without the binding (DEL-08-01 line 149, which leaves open "whether such a report should exist or be bound"). What it does with an ineligible result is not established here.
+- **What it means in practice for a user:** a solved model whose results the product marks numerically unresolved or sensitive (on these routes) shows those results in the desktop, with their standing. These results cannot produce a report through the governed desktop route: production admission and rendering refuse their standing. Saving, printing and user-releasing such a report therefore remain unavailable. The refusal at admission and rendering is observed. That saving, printing and user release are unavailable follows from admission and rendering being their prerequisites; it was not exercised.
+  - Observed at source revision `9ce545040`, in both solver modes, on two test-only overlays of the reference system of exit criterion 1. Each is the committed fixture plus RS-R1, RS-CE1, RS-LO1 and RS-FR1, with RS-FR1's normal from the interim linear RS-FR1V:
+    - with RS-G1, every case is unresolved (LIM-017);
+    - without RS-G1, every case is sensitive (LIM-017).
+  - Both are refused.
+  - So neither tested overlay gives an exact-route result whose report is admitted. Neither contains every support the reference system specifies. Its intended one-way normal source for RS-FR1 is refused by the solve (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`), so the reference system with all its specified supports is not solved by the product.
+- **Why:** DEL-08-01 refuses rather than renders in doubt (AX-003: "A warning in place of a refusal is not an improvement"). A report preserves the eligible standing of the result it reports, with its required warnings, so a result whose standing is not eligible is not reported.
+- **What the user does instead:** none for the same results. Eligible standing clears this gate; source binding and the other report conditions still apply.
+- **Basis:**
+  - DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md) REQ-017 and AC-009;
+  - `apps/desktop/src-tauri/src/exact_source_binding.rs` step 4.
+  - The observation was made in a test-only probe at commit `9ce545040`. The probe called the desktop's production admission and rendering, with custody delivered by a scripted host and the straight witness's report material reused. It did not exercise a desktop journey, a file write, printing or a user-release interaction.
+  - Both overlays' results were refused at step 4 in both modes. The committed reference system passes the standing gate; it then fails the reused report's source-mismatch check. The genuine straight witness, the control, is admitted and rendered.
+  - The refusal was standing before this entry; the entry was added with PR #313.
+- **Not met by declaring it:** declaring this refusal acceptable does not meet exit criterion 4 for these results, and does not make an unmet criterion met.
+- **Status:** not yet declared.
+
+### LIM-017 — Nonlinear results of a model with a gap support are published unqualified and unresolved
+
+- **Id:** LIM-017
+- **Exit criteria:** 1, 4 (and 18, whose outcome rule it follows)
+- **Requirement affected:**
+  - exit criterion 1, that the reference system, with a gap, lift-off and friction among its supports, solves on the exact route with no admitted family refused;
+  - exit criterion 4, through LIM-016;
+  - DEL-04-01/REQ-016 and DEL-04-07/CLM-002, the confirmation of a converged nonlinear state;
+  - DEL-04-01/REQ-015, the case integrity check.
+- **Code:** `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` (warning), with numerical quality `unresolved`. The reader's standing gives `NUMERICAL_INTEGRITY_NOT_QUALIFIED` and `NUMERICAL_CASE_EVIDENCE_INCOMPLETE`.
+- **What is refused:** every load case that is published from a solve whose nonlinear input contains a `gap` support is published with its mechanics "for inspection only". Some models with a gap are refused before any case is published, for reasons of their own: an invalid friction normal source (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`), the nonlinear memory guard (`NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED`, LIM-014), failed qualification or non-convergence.
+  - **Model outside strict-gap scrutiny:** if the model has any of these, strict-gap proof is unavailable:
+    - a non-gap nonlinear support (lift-off, friction, one-way);
+    - a connector;
+    - a realized (curved) bend;
+    - a body outside the objective welded unreleased straight-frame family;
+    - a friction normal source, authored or derived;
+    - an applied sliding-friction force.
+    
+    Its message reads "strict-gap proof supports only gap-only objective straight-frame bodies with declared nodal loads and linear springs; mixed/curved/connector/affine source capability remains unqualified" (`core/solver/nonlinear_integration/src/structural_adapter.rs`, about lines 3379 to 3387).
+  - **Model inside it:** the strict-gap proof selects the support state, and displacement and support reactions are selected at exact ratio. Member fields are recovered from projected binary64 displacement, and that member recovery is not qualified. The case is published with the same code (`core/product_physics/src/lib.rs`, about lines 6065 to 6080).
+  - **Either way:** the support states of a gap model are not confirmed. The confirmation runs only on a qualified non-gap state (`lib.rs` about line 7676, `confirm && passed && !gap`). No member quantity is certified. A combination of such cases is published "not assessed against a stated bound … inspection results", and does not count toward eligibility.
+- **What it means in practice for a user:**
+  - The user sees displacements, reactions, member forces, stresses and support states for every case, under a red "quality unresolved" badge with the text that the support-state solution is kept for inspection (DEL-07-05 REQ-023).
+  - None of it is presented as checked or confirmed.
+  - A report of it is refused (LIM-016).
+  - Observed at source revision `9ce545040`, in both solver modes, on a test-only overlay of the reference system of exit criterion 1. The overlay is the committed fixture plus RS-R1, RS-CE1, RS-LO1, RS-FR1 (on the interim linear RS-FR1V) and RS-G1. Every case and both subtraction combinations behave this way.
+- **Why:** the strict-gap proof covers only gap-only objective straight-frame bodies with declared nodal loads and linear springs. Member recovery is not qualified for any published gap case, inside that scope or outside it. The state confirmation does not cover gap supports.
+- **What the user does instead:** none for a model that needs a gap. Removing the gap does not give an eligible result on the overlay tested. The same test-only overlay without RS-G1 was observed at source revision `9ce545040`, in both solver modes:
+  - each case's converged support state is confirmed ("established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound");
+  - its certified rows are published;
+  - both subtraction combinations are assessed and partially established. Their certificates keep apart groups established, groups not established, groups not assessed (below the floor) and rows not covered by any group. Rows not covered are inspection results, not withheld rows. The combination evidence states that these rows do not count toward the document's numerical eligibility.
+  - Each subtraction also withholds two RS-EJ1 tie-rod rows. The committed reference system withholds the same rows, so they belong to the model.
+  - The S11-G recovery guard demotes every case to `NUMERICAL_INTEGRITY_SENSITIVE`. At that revision it counted 495 (RS-SUS), 141 (RS-OPE) and 285 (RS-SAM) groups of the certified rows that "exceed the 1e-9 member-relative criterion or have an unavailable comparison". Its diagnostic names the first six in record order.
+  - A scratch record of every group at that revision found every failing group a finite exceedance, from 1.001 to 674 times the criterion.
+  - These are the guard's bounds. A bound is not a measured error.
+  - So the case standing is not eligible, and its report is refused (LIM-016).
+- **Basis:**
+  - the cited source: `core/solver/nonlinear_integration/src/structural_adapter.rs` and `core/product_physics/src/lib.rs`;
+  - `core/product_physics/tests/rt_a3_s6_reference_system.rs`. It asserts the unqualified recovery basis on every case of the overlay with RS-G1. Its known-limitation witness observes the overlay without RS-G1: every case confirmed and `NUMERICAL_INTEGRITY_SENSITIVE`, with the guard's counts printed, not asserted. Both are test-only overlays.
+  - `validation/references/w16_nonlinear_motion/README.md` (about line 155): "Gap cases (R1) are never confirmed".
+  - The behaviour was standing before this entry; the entry was added with PR #313.
+- **Not met by declaring it:** declaring this acceptable does not demonstrate exit criterion 1 or 4 for the reference system, and does not make either met. Criterion 1 is also not demonstrated for other reasons, assessed separately: the families and analyses pending in the reference system's ledger, and the interim linear friction-normal support.
+- **Status:** not yet declared.
