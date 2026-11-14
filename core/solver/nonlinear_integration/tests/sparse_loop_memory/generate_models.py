@@ -246,11 +246,14 @@ def skew_with_nonlinear(count):
     return document(f"skew-nonlinear-{count}", nodes, pipes, supports, [case("load:OPE", loads)])
 
 
-def multicase(rack_document: dict, name: str, bases: list[float]) -> dict:
-    """The pressure-free rack with a sustained case S (weight), operating cases O_t (weight + thermal) at each
-    modulus basis temperature t, and for each O_t a held-status (`minuend_final`) subtraction O_t - S."""
+def multicase(rack_document: dict, name: str, bases: list[float], material: dict) -> dict:
+    """The pressure-free rack with a sustained case S (weight, no modulus basis), operating cases O_t (weight +
+    thermal) at each modulus basis temperature t, and for each O_t a held-status (`minuend_final`) subtraction
+    O_t - S. `material` replaces the rack's (the pressure-free rack's material has no temperature points, so a
+    modulus basis needs the exact rack's E/nu points)."""
     out = json.loads(json.dumps(rack_document))
     model = out["model"]
+    model["materials"] = [material]
     (ope,) = model["load_cases"]
     weights = [load for load in ope["primitive_loads"] if load["category"] == "weight"]
     thermals = [load for load in ope["primitive_loads"] if load["category"] == "thermal"]
@@ -273,13 +276,11 @@ def multicase(rack_document: dict, name: str, bases: list[float]) -> dict:
                       primitive_loads=renamed(weights, tag) + renamed(thermals, tag))
         record["modulus_basis_temperature"] = q(temperature, "degC")
         cases.append(record)
-        combinations.append({"id": f"comb:RK-EXP{index}", "label": f"{tag} - SUS held", "kind": "user_combination",
+        combinations.append({"id": f"comb:RK-EXP{index}", "label": f"{tag} - SUS held",
                              "basis": "result_state_subtraction", "minuend_id": f"load:RK-{tag}",
                              "subtrahend_id": "load:RK-SUS", "difference_basis": "operating_minus_sustained",
                              "subtrahend_support_state": "minuend_final", "terms": [],
                              "provenance": PROV})
-    if "modulus_basis_temperature" in ope:
-        cases[0]["modulus_basis_temperature"] = ope["modulus_basis_temperature"]
     model["load_cases"] = cases
     model["combinations"] = combinations
     model["project"]["id"] = f"project:slm-{name}"
@@ -290,19 +291,23 @@ def build(quick: bool):
     rack = load_rack()
     entries = []
 
-    def add(name, family, levels, request, how):
-        entries.append((name, family, levels, request, how))
+    def add(name, family, levels, request, how, extra=None):
+        entries.append((name, family, levels, request, how, extra or {}))
+
+    def bare(document):
+        """The rack generator's own document hash (what `rack_model.py -o` writes)."""
+        return {"rack_document_sha256": hashlib.sha256(rack.canonical(document)).hexdigest()}
 
     sizes = [250, 1000] if quick else [250, 1000, 1500, 1750]
     for profile in ("nonlinear-ex", "nonlinear-pf"):
         for nodes in sizes:
             document, _ = rack.build(profile, nodes)
             add(f"rack-{profile[10:]}-{nodes}", "reference rack", ["loop", "product"], wrap_rack(document),
-                f"rack_model.py --profile {profile} --nodes {nodes}, wrapped as {{model, materials: []}}")
+                f"rack_model.py --profile {profile} --nodes {nodes}, wrapped as {{model, materials: []}}", bare(document))
     for profile in ("nonlinear-ex", "nonlinear-pf"):
         document, _ = rack.build(profile, 1775)
         add(f"rack-{profile[10:]}-1775", "refusal (guard edge)", ["refusal"], wrap_rack(document),
-            f"rack_model.py --profile {profile} --nodes 1775 (first refused size)")
+            f"rack_model.py --profile {profile} --nodes 1775 (first refused size)", bare(document))
     document, _ = rack.build("nonlinear-ex", 1000)
     for seed in (1, 2):
         add(f"rack-ex-1000-renum-s{seed}", "renumbered rack", ["loop", "product"],
@@ -337,9 +342,9 @@ def build(quick: bool):
     pf = {size: rack.build("nonlinear-pf", size)[0] for size in ((250, 1000) if quick else (250, 1000, 1750))}
     for size, document in pf.items():
         add(f"multicase-pf-{size}", "multi-case, held status, several modulus bases", ["product"],
-            multicase(wrap_rack(document), f"multicase-pf-{size}", [180.0, 100.0, 300.0]),
-            f"rack-pf-{size} with SUS (W), OPE0..2 (W + T at 180, 100 and 300 degC modulus bases) and three "
-            "minuend_final subtractions OPEi - SUS")
+            multicase(wrap_rack(document), f"multicase-pf-{size}", [180.0, 150.0, 250.0], rack.material(True)),
+            f"rack-pf-{size} with the exact rack's material (E/nu temperature points), SUS (W), OPE0..2 (W + T at "
+            "180, 150 and 250 degC modulus bases) and three minuend_final subtractions OPEi - SUS")
     return entries
 
 
@@ -350,12 +355,13 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     args.output.mkdir(parents=True, exist_ok=True)
     manifest = []
-    for name, family, levels, request, how in build(args.quick):
+    for name, family, levels, request, how, extra in build(args.quick):
         data = canonical(request)
         path = args.output / f"{name}.json"
         path.write_bytes(data)
         manifest.append({"name": name, "family": family, "levels": levels, "file": path.name,
-                         "sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data), "generated_by": how})
+                         "sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data), "generated_by": how,
+                         **extra})
     (args.output / "manifest.json").write_bytes(canonical({"generator": "generate_models.py", "models": manifest}))
     with open(args.output / "SHA256SUMS", "w", encoding="utf-8") as sums:
         for entry in manifest:
