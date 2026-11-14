@@ -9,6 +9,7 @@ otherwise, over one scan of the repository.
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import re
 import subprocess
@@ -227,24 +228,172 @@ def test_nothing_that_reads_the_mbf_parity_vectors_can_solve_them():
 
 
 # ----------------------------------------------------------------------------- pins on individual files
+# A fixed table in a consumer that requires the current bytes of the files it names to have a recorded SHA-256. Each
+# entry reads the paths the table names from the consumer's text: which files, never whether the digests agree. The
+# registration a pinned file needs therefore stays required while the consumer's digest is stale (the failure this
+# exists for: the three mixed source requests changed and the O4 twins' table did not), and only moving the table or
+# the file out of it removes it. The list is the tables the independent review found on inventoried files; a digest
+# held anywhere else is not covered.
+def _block(text: str, start: str) -> str:
+    """The text from the line starting `start` to the next line that closes it at the left margin."""
+    found = re.search(rf"^{start}.*?^[\]\}}]", text, re.M | re.S)
+    assert found, start
+    return found.group(0)
+
+
+def _relative(consumer: str, path: str) -> str:
+    return str((ROOT / consumer).parent.joinpath(path).resolve().relative_to(ROOT))
+
+
+def _twins(text):
+    tables = re.findall(r"^PINS(?:_ADMITTED)? = \{(.*?)^\}", text, re.M | re.S)
+    return {path for table in tables for path in re.findall(r'"([^"]+)":\s*"[0-9a-f]{64}"', table)}
+
+
+def _source_basis(text):
+    family = {"Physics": "physics_source", "LoadReference": "load_reference_source"}
+    rows = re.findall(r'\(Family::(\w+), "([^"]+)", "[0-9a-f]{64}", PreviewSolverMode::(\w+),',
+                      _block(text, "const CURRENT_SOURCE_BASIS"))
+    mode = {"SparseInteractive": "sparse_interactive", "DenseScrutiny": "dense_scrutiny"}
+    base = "fixtures/product_preview/pressure_source"
+    return ({f"{base}/{family[f]}/{name}.request.json" for f, name, _ in rows}
+            | {f"{base}/{family[f]}/{name}-{mode[m]}.raw.json" for f, name, m in rows})
+
+
+def _u4a(text):
+    assert re.search(r"^U4A_REQUESTS_SHA256 = \"[0-9a-f]{64}\"", text, re.M)
+    return {f"validation/references/t4_u4a/{name}"
+            for name in re.findall(r'os\.path\.join\(U4A_DIR, "([^"]+)"\)', _block(text, "def u4a_cross_check"))}
+
+
+def _u5a(text):
+    return {f"validation/references/t4_u5a/{name}"
+            for name in re.findall(r'"([^"]+)":\s*"[0-9a-f]{64}"', _block(text, "U5A_PINNED = "))}
+
+
+def _included(consumer, start, macro="include_str"):
+    return lambda text: {_relative(consumer, p) for p in re.findall(rf'{macro}!\("([^"]+)"\)', _block(text, start))}
+
+
+def _census(text):
+    assert 'pin["inputs_sha256"], sha(INPUTS.as_bytes())' in text
+    return {_relative(J7_CENSUS, p) for p in re.findall(r'^const INPUTS: &str = include_str!\("([^"]+)"\)', text, re.M)}
+
+
+def _eigen_motion(text):
+    assert re.search(r'hex, EIGEN_MOTION_SHA256', text)
+    return {_relative("core/product_physics/Cargo.toml", p.lstrip("/"))  # relative to CARGO_MANIFEST_DIR
+            for p in re.findall(r'const EIGEN_MOTION_REQUEST: &str = concat!\(\s*env!\("CARGO_MANIFEST_DIR"\),\s*"([^"]+)"',
+                                text)}
+
+
+def _witness_inputs(text):
+    names = re.findall(r'\("(\w+)", (\w+_EXACT), "[0-9a-f]{64}"\)', _block(text, "fn b3b_witness_inputs_and_routes"))
+    return {_relative(FACADE, path) for name, const in names
+            for path in re.findall(rf'^const {const}: &str = include_str!\("([^"]+)"\)', text, re.M)}
+
+
+def _b3_successors(text):
+    assert re.search(r"hashlib\.sha256\(raw\)\.hexdigest\(\) == EXACT_PINNED\[mode\]\[0\]", text)
+    template = re.search(r'ROOT / f"(fixtures/results/retained_precision_exact_successor_\{mode\}\.json)"', text).group(1)
+    return {template.replace("{mode}", mode) for mode in re.findall(r'"(\w+)": \("[0-9a-f]{64}"', _block(text, "EXACT_PINNED = "))}
+
+
+def _golden(text):
+    assert "expect(sha256(bytes)).toBe(golden.successorSha256)" in text and "expect(sha256(goldenText)).toBe(golden.sha256)" in text
+    return set(re.findall(r'(?:successor|path): "([^"]+)"', _block(text, "const EXACT_GOLDEN")))
+
+
+def _frozen(text):
+    return set(re.findall(r'"([^"]+)":\s*"[0-9a-f]{64}"', _block(text, "FROZEN = ")))
+
+
 TWINS = "validation/references/o4_retained_source/generators/o4_source_twins.py"
+J7_CENSUS = "core/product_physics/src/source_recovery/j7_rf_census.rs"
+FACADE = "core/product_physics/src/retained_facade_tests.rs"
+J7_I12 = "core/product_physics/src/source_recovery/j7_t4_consequences.rs"
+CONTRACT = "core/reporting/result_export/tests/retained_precision_contract.rs"
+DERIVATIVE = "core/reporting/result_export/tests/retained_precision_derivative_golden.rs"
+# (consumer, table, the paths it names, how many it names, how many of those the inventory holds)
+PIN_TABLES = [
+    # tools/fixtures/retained_precision_corpus.py names no pressure_regions
+    (TWINS, "PINS, PINS_ADMITTED", _twins, 14, 13),
+    # the 24 committed raw outputs name no pressure_regions
+    ("core/product_physics/tests/pressure_source_join.rs", "CURRENT_SOURCE_BASIS", _source_basis, 36, 12),
+    (FACADE, "b3b_witness_inputs_and_routes", _witness_inputs, 3, 3),
+    ("core/product_physics/tests/load_reference_state_runtime_extension.rs", "EIGEN_MOTION_SHA256", _eigen_motion, 1, 1),
+    # oracle.json names no pressure_regions
+    ("validation/references/t4_u4b/generators/u4b_reference.py", "U4A_REQUESTS_SHA256", _u4a, 2, 1),
+    ("validation/references/t4_u5b/generators/u5b_reference.py", "U5A_PINNED", _u5a, 10, 10),
+    (J7_CENSUS, "inputs_sha256", _census, 1, 1),
+    (J7_I12, "request", _included(J7_I12, "fn request", "include_bytes"), 1, 1),
+    # the four raw outputs name no pressure_regions
+    ("tests/test_load_reference_readers.py", "FROZEN", _frozen, 6, 2),
+    (FACADE, "EXACT_PINNED", _included(FACADE, "fn b3b_exact_successor_fixtures_are_the_live_successors"), 2, 2),
+    (CONTRACT, "M3X", _included(CONTRACT, "const M3X"), 2, 2),
+    (DERIVATIVE, "EXACT_PINNED", _included(DERIVATIVE, "const EXACT_PINNED"), 2, 2),
+    ("tests/test_retained_precision_b3.py", "EXACT_PINNED", _b3_successors, 2, 2),
+    # the two derivative goldens name no pressure_regions
+    ("apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx", "EXACT_GOLDEN", _golden, 4, 2),
+]
 
 
-def test_every_inventoried_file_the_o4_source_twins_pin_names_them(scanned):
-    """The twins' generator pins its inputs by SHA-256 (PINS, PINS_ADMITTED); a change to one of them without moving
-    its pin fails that check, so every one the inventory holds must say so, whether its claim is a group or an
-    exemption."""
-    tables = re.findall(r'^PINS(?:_ADMITTED)? = \{(.*?)^\}', (ROOT / TWINS).read_text(encoding="utf-8"), re.M | re.S)
-    pinned = {path for table in tables for path in re.findall(r'"([^"]+)":\s*"[0-9a-f]{64}"', table)}
-    assert len(pinned) == 14, sorted(pinned)
-    inventory = INV.build(scanned=scanned)
+def _names(pin: str, consumer: str) -> bool:
+    """A registered pin names `consumer`: the bare path (a group's) or the path and its table."""
+    return pin == consumer or pin.startswith(consumer + " ")
+
+
+def registrations(inventory: dict) -> dict[str, list[str]]:
+    """Every inventoried file's registered pins, whether its claim is a group or an exemption."""
     named = {e["path"]: e["pinned_by"] for e in inventory["entries"]}
     for record in inventory["exemptions"]:
         named.update({path: record.get("pinned_by", {}).get(path, []) for path in record["files"]})
-    held = sorted(pinned & set(named))
-    assert len(held) == 13, held  # tools/fixtures/retained_precision_corpus.py names no pressure_regions
-    for path in held:
-        assert any(pin.startswith(TWINS) for pin in named[path]), path
+    return named
+
+
+def unregistered(inventory: dict, root: Path = ROOT) -> list[tuple[str, str]]:
+    """(file, consumer) for every inventoried file a PIN_TABLES table names whose registration does not name that
+    consumer, reading the tables' consumers under `root`."""
+    named = registrations(inventory)
+    missing = []
+    for consumer, _, paths, _, _ in PIN_TABLES:
+        for path in sorted(paths((root / consumer).read_text(encoding="utf-8")) & set(named)):
+            if not any(_names(pin, consumer) for pin in named[path]):
+                missing.append((path, consumer))
+    return missing
+
+
+@pytest.mark.parametrize("consumer, table, paths, total, held", PIN_TABLES, ids=[f"{c.rsplit('/', 1)[1]}:{t}" for c, t, *_ in PIN_TABLES])
+def test_every_inventoried_file_a_fixed_pin_table_names_names_that_table(scanned, consumer, table, paths, total, held):
+    """A change to a pinned file without moving its pin fails the consumer's check, so every pinned file the inventory
+    holds must say which consumer pins it, whether its claim is a group or an exemption. The counts keep the reading
+    of each table honest: a table whose paths can no longer be read fails here, not silently."""
+    pinned = paths((ROOT / consumer).read_text(encoding="utf-8"))
+    assert len(pinned) == total and all((ROOT / p).exists() for p in pinned), sorted(pinned)
+    named = registrations(INV.build(scanned=scanned))
+    inventoried = sorted(pinned & set(named))
+    assert len(inventoried) == held, inventoried
+    for path in inventoried:
+        assert any(_names(pin, consumer) for pin in named[path]), (path, consumer, table)
+
+
+def test_a_pinned_file_changed_under_a_stale_table_still_needs_its_registration(scanned, tmp_path):
+    """The failure that happened, in a scratch copy: an inventoried input changes and its consumer's table does not, so
+    the consumer's digest no longer matches. Its registration is still demanded, and only the registration decides."""
+    changed = "fixtures/product_preview/pressure_source/physics_source/mixed.request.json"
+    consumer = "core/product_physics/tests/pressure_source_join.rs"
+    for path in {c for c, *_ in PIN_TABLES} | {changed}:
+        (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / path).write_bytes((ROOT / path).read_bytes())
+    document = json.loads((tmp_path / changed).read_text(encoding="utf-8"))
+    del document["model"]["model_settings"]["pressure_elongation"]  # the change that moved it, in reverse
+    (tmp_path / changed).write_text(json.dumps(document, indent=1) + "\n", encoding="utf-8")
+    recorded = re.search(r'\(Family::Physics, "mixed", "([0-9a-f]{64})"', (tmp_path / consumer).read_text()).group(1)
+    assert hashlib.sha256((tmp_path / changed).read_bytes()).hexdigest() != recorded  # the table is now stale
+    assert unregistered(INV.build(scanned=scanned), tmp_path) == []
+    dropped = [e for e in INV.PINNED_BY if not any(p.startswith(consumer) for p in e["pinned_by"])]
+    assert len(dropped) == len(INV.PINNED_BY) - 1
+    assert (changed, consumer) in unregistered(INV.build(scanned=scanned, pinned=dropped), tmp_path)
 
 
 def test_a_stale_pin_fails(scanned):

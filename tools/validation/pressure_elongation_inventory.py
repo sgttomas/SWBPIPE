@@ -32,6 +32,38 @@ The result, `pressure_elongation_inventory.json`, is also the re-production chec
 An unclaimed file, a file claimed twice, a claim that matches no file still naming `pressure_regions` (stale), an
 exemption without a reason, or an exemption of a data file that holds a pressurised document is an error: a new
 pressure input must be classified here before the inventory is current.
+
+What the committed check establishes. `--check` and `test_pressure_elongation_inventory.py` establish these
+structural properties and no others:
+1. every scanned file is claimed exactly once, by a group, an IN_CODE record or an exemption;
+2. no claim is stale: each group pattern matches a data file holding a pressurised document, each IN_CODE path and
+   each exemption or PINNED_BY pattern a tracked file still naming `pressure_regions`;
+3. the declarations have their required shape: an exemption has a reason and takes no data file holding a pressurised
+   document; an IN_CODE record names code files only and states its expectations, its cases_named and a detail; a
+   group whose documents are held only (JSON Lines, JSON text or DAG storage) has an excluded anchor;
+4. the generated copy, `pressure_elongation_inventory.json`, equals what this producer writes;
+5. each inventoried file names its registered pin consumers: every file that a fixed pin table listed in the test
+   module's PIN_TABLES names lists that table's consumer in its `pinned_by`, whether or not the table's digest still
+   matches the file;
+6. no code that reads the MBF parity vectors names a mechanics solve entry.
+
+What it does not establish. The source classifications (an IN_CODE record's cases_named and expectations, a group's
+producer) and the exemptions are curated assertions supported by review at identified revisions: an independent
+reading at a6392aafb, whose findings (a false exemption and nine false cases_named) were repaired in accdaf407; a
+second independent reading at 986096a03, which derived all 61 IN_CODE records and all 130 exempted code files from
+source and found them correct; and a scratch probe, run at 4854700d0, that logged at the pressure assembly site each
+solved case's pressure and whether the setting names it. The crates and Python sources the probe observed are
+identical at 4854700d0 and 986096a03, and its observations agreed with 56 IN_CODE files and 28 exempted files and
+disagreed with none. The probe is not committed and protects nothing. Regenerating the copy does not renew that
+evidence, and a green check does not maintain the assertions' truth. An assertion must be re-read when a change
+affects it: the case construction, the fixture inputs, the helpers, the callers, the naming or the dispatch of the
+file or of what it relies on, not only a change to the setting's semantics. Before the inventory is used for a
+rebuild, the affected assertions are reconciled with the source actually being used.
+
+These pass the committed check and are its limits: a flipped cases_named, after regeneration; a false exemption,
+after regeneration; an existing claimed source edited so that its classification becomes false; a pressurised solve
+added to an existing exempted file. The pins it checks are those of the tables PIN_TABLES lists, found by the
+independent review; a digest of an inventoried file held anywhere else is not checked.
 """
 from __future__ import annotations
 
@@ -352,6 +384,10 @@ DERIVED = [
 
 # Pins on individual scanned files beyond their group's `pinned_by`: each named file's group entry lists them after
 # the group's pins, and an exemption's record lists them per file. A pattern that matches no scanned file is stale.
+# Each is a fixed table in its consumer that requires a file's current bytes to have a recorded SHA-256 (a byte change
+# fails it until the table moves); provenance text and historical endpoint hashes are not pins. The list covers the
+# tables `test_pressure_elongation_inventory.py` names (PIN_TABLES), each of which it checks; it is not a census of
+# every digest in the repository.
 PINNED_BY = [
     # The O4 source twins' generator pins the twelve pressure-source request fixtures and the J7 census inputs by
     # SHA-256 (PINS and PINS_ADMITTED); a byte change to any of them fails its check.
@@ -359,6 +395,39 @@ PINNED_BY = [
                "fixtures/product_preview/pressure_source/load_reference_source/*.request.json",
                "fixtures/results/j7_rf_census_inputs.json"],
      "pinned_by": ["validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"]},
+    # The source join test requires all twelve current source requests (and their committed raw outputs) to equal
+    # its CURRENT_SOURCE_BASIS digests.
+    {"paths": ["fixtures/product_preview/pressure_source/physics_source/*.request.json",
+               "fixtures/product_preview/pressure_source/load_reference_source/*.request.json"],
+     "pinned_by": ["core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)"]},
+    {"paths": ["fixtures/product_preview/pressure_source/physics_source/n05.request.json",
+               "fixtures/product_preview/pressure_source/physics_source/n06.request.json",
+               "fixtures/product_preview/pressure_source/physics_source/fields.request.json"],
+     "pinned_by": ["core/product_physics/src/retained_facade_tests.rs (b3b_witness_inputs_and_routes)"]},
+    {"paths": ["fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"],
+     "pinned_by": ["core/product_physics/tests/load_reference_state_runtime_extension.rs (EIGEN_MOTION_SHA256)"]},
+    # The U4b and U5b reference generators refuse to run unless the U4a and U5a inputs they read are unchanged.
+    {"paths": ["validation/references/t4_u4a/requests.json"],
+     "pinned_by": ["validation/references/t4_u4b/generators/u4b_reference.py (U4A_REQUESTS_SHA256)"]},
+    {"paths": [f"validation/references/t4_u5a/requests/{case}.request.json"
+               for case in ("J3-1", "J3-3", "J3-5U", "J3-5UA", "J3-1R", "J3-1V", "J3-1T", "J3-R", "J3-RP")]
+              + ["validation/references/t4_u5a/oracle.json"],
+     "pinned_by": ["validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"]},
+    {"paths": ["fixtures/results/j7_rf_census_inputs.json"],
+     "pinned_by": ["core/product_physics/src/source_recovery/j7_rf_census.rs "
+                   "(inputs_sha256 of fixtures/results/j7_rf_census_expected.json)"]},
+    {"paths": ["core/product_physics/src/source_recovery/j7_i12_request.json"],
+     "pinned_by": ["core/product_physics/src/source_recovery/j7_t4_consequences.rs (request)"]},
+    {"paths": ["fixtures/product_preview/pressure/load_reference/connected.request.json"],
+     "pinned_by": ["tests/test_load_reference_readers.py (FROZEN)"]},
+    # The mixed exact base's two successor documents.
+    {"paths": ["fixtures/results/retained_precision_exact_successor_sparse_interactive.json",
+               "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"],
+     "pinned_by": ["core/product_physics/src/retained_facade_tests.rs (EXACT_PINNED)",
+                   "core/reporting/result_export/tests/retained_precision_contract.rs (M3X)",
+                   "core/reporting/result_export/tests/retained_precision_derivative_golden.rs (EXACT_PINNED)",
+                   "tests/test_retained_precision_b3.py (EXACT_PINNED)",
+                   "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx (EXACT_GOLDEN)"]},
 ]
 
 # Code files that build a pressurised document which is solved: the expectations their assertions rest on

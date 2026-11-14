@@ -245,7 +245,8 @@
     "validation/references/t4_u4a/SHA256SUMS",
     "core/product_physics/src/u4a_tests.rs",
     "core/product_physics/src/u4b_tests.rs",
-    "core/product_physics/tests/preview_physics_runtime.rs"
+    "core/product_physics/tests/preview_physics_runtime.rs",
+    "validation/references/t4_u4b/generators/u4b_reference.py (U4A_REQUESTS_SHA256)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -326,7 +327,8 @@
     "validation/references/t4_u5a/SHA256SUMS",
     "core/runner/headless/tests/untied_joint_pressure_references.rs",
     "core/product_physics/src/b7b_admission_tests.rs",
-    "core/product_physics/tests/common/t4_u5b.rs"
+    "core/product_physics/tests/common/t4_u5b.rs",
+    "validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -486,7 +488,8 @@
     "validation/references/t4_u5a/SHA256SUMS",
     "core/runner/headless/tests/untied_joint_pressure_references.rs",
     "core/product_physics/src/b7b_admission_tests.rs",
-    "core/product_physics/tests/common/t4_u5b.rs"
+    "core/product_physics/tests/common/t4_u5b.rs",
+    "validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -518,7 +521,8 @@
     "validation/references/t4_u5a/SHA256SUMS",
     "core/runner/headless/tests/untied_joint_pressure_references.rs",
     "core/product_physics/src/b7b_admission_tests.rs",
-    "core/product_physics/tests/common/t4_u5b.rs"
+    "core/product_physics/tests/common/t4_u5b.rs",
+    "validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -582,7 +586,8 @@
     "validation/references/t4_u5a/SHA256SUMS",
     "core/runner/headless/tests/untied_joint_pressure_references.rs",
     "core/product_physics/src/b7b_admission_tests.rs",
-    "core/product_physics/tests/common/t4_u5b.rs"
+    "core/product_physics/tests/common/t4_u5b.rs",
+    "validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -646,7 +651,8 @@
     "validation/references/t4_u5a/SHA256SUMS",
     "core/runner/headless/tests/untied_joint_pressure_references.rs",
     "core/product_physics/src/b7b_admission_tests.rs",
-    "core/product_physics/tests/common/t4_u5b.rs"
+    "core/product_physics/tests/common/t4_u5b.rs",
+    "validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -710,7 +716,8 @@
     "validation/references/t4_u5a/SHA256SUMS",
     "core/runner/headless/tests/untied_joint_pressure_references.rs",
     "core/product_physics/src/b7b_admission_tests.rs",
-    "core/product_physics/tests/common/t4_u5b.rs"
+    "core/product_physics/tests/common/t4_u5b.rs",
+    "validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -742,7 +749,8 @@
     "validation/references/t4_u5a/SHA256SUMS",
     "core/runner/headless/tests/untied_joint_pressure_references.rs",
     "core/product_physics/src/b7b_admission_tests.rs",
-    "core/product_physics/tests/common/t4_u5b.rs"
+    "core/product_physics/tests/common/t4_u5b.rs",
+    "validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -838,7 +846,8 @@
     "validation/references/t4_u5a/SHA256SUMS",
     "core/runner/headless/tests/untied_joint_pressure_references.rs",
     "core/product_physics/src/b7b_admission_tests.rs",
-    "core/product_physics/tests/common/t4_u5b.rs"
+    "core/product_physics/tests/common/t4_u5b.rs",
+    "validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -870,7 +879,8 @@
     "validation/references/t4_u5a/SHA256SUMS",
     "core/runner/headless/tests/untied_joint_pressure_references.rs",
     "core/product_physics/src/b7b_admission_tests.rs",
-    "core/product_physics/tests/common/t4_u5b.rs"
+    "core/product_physics/tests/common/t4_u5b.rs",
+    "validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -4352,7 +4362,8 @@
     "tests/test_load_reference_readers.py",
     "tests/test_load_reference_source_readers.py",
     "tests/test_base_reader_verifier.py",
-    "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+    "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+    "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)"
    ],
    "anchor": {
     "kind": "raw_files",
@@ -4387,7 +4398,8 @@
     "tests/test_load_reference_readers.py",
     "tests/test_load_reference_source_readers.py",
     "tests/test_base_reader_verifier.py",
-    "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+    "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+    "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)"
    ],
    "anchor": {
     "kind": "raw_files",
@@ -4422,7 +4434,8 @@
     "tests/test_load_reference_readers.py",
     "tests/test_load_reference_source_readers.py",
     "tests/test_base_reader_verifier.py",
-    "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+    "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+    "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)"
    ],
    "anchor": {
     "kind": "raw_files",
@@ -9690,7 +9703,12 @@
     "validation/references/rt_a3_nonlinear/references.json",
     "validation/references/t4_u5a/oracle.json",
     "validation/references/t4_u6/oracle.json"
-   ]
+   ],
+   "pinned_by": {
+    "validation/references/t4_u5a/oracle.json": [
+     "validation/references/t4_u5b/generators/u5b_reference.py (U5A_PINNED)"
+    ]
+   }
   },
   {
    "reason": "retained-route inputs: each edit sets a case's region list to empty",
@@ -9843,35 +9861,69 @@
     "validation/references/t4_u8/requests/S-E-SPRING-TIMOSHENKO.request.json"
    ],
    "pinned_by": {
+    "core/product_physics/src/source_recovery/j7_i12_request.json": [
+     "core/product_physics/src/source_recovery/j7_t4_consequences.rs (request)"
+    ],
+    "fixtures/product_preview/pressure/load_reference/connected.request.json": [
+     "tests/test_load_reference_readers.py (FROZEN)"
+    ],
     "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json": [
-     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+     "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)",
+     "core/product_physics/tests/load_reference_state_runtime_extension.rs (EIGEN_MOTION_SHA256)"
     ],
     "fixtures/product_preview/pressure_source/load_reference_source/fields.request.json": [
-     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+     "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)"
     ],
     "fixtures/product_preview/pressure_source/load_reference_source/n05.request.json": [
-     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+     "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)"
     ],
     "fixtures/product_preview/pressure_source/load_reference_source/n06.request.json": [
-     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+     "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)"
     ],
     "fixtures/product_preview/pressure_source/physics_source/fields.request.json": [
-     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+     "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)",
+     "core/product_physics/src/retained_facade_tests.rs (b3b_witness_inputs_and_routes)"
     ],
     "fixtures/product_preview/pressure_source/physics_source/n05.request.json": [
-     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+     "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)",
+     "core/product_physics/src/retained_facade_tests.rs (b3b_witness_inputs_and_routes)"
     ],
     "fixtures/product_preview/pressure_source/physics_source/n05_unicode.request.json": [
-     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+     "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)"
     ],
     "fixtures/product_preview/pressure_source/physics_source/n05_units.request.json": [
-     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+     "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)"
     ],
     "fixtures/product_preview/pressure_source/physics_source/n06.request.json": [
-     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+     "core/product_physics/tests/pressure_source_join.rs (CURRENT_SOURCE_BASIS)",
+     "core/product_physics/src/retained_facade_tests.rs (b3b_witness_inputs_and_routes)"
     ],
     "fixtures/results/j7_rf_census_inputs.json": [
-     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)"
+     "validation/references/o4_retained_source/generators/o4_source_twins.py (PINS, PINS_ADMITTED)",
+     "core/product_physics/src/source_recovery/j7_rf_census.rs (inputs_sha256 of fixtures/results/j7_rf_census_expected.json)"
+    ],
+    "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json": [
+     "core/product_physics/src/retained_facade_tests.rs (EXACT_PINNED)",
+     "core/reporting/result_export/tests/retained_precision_contract.rs (M3X)",
+     "core/reporting/result_export/tests/retained_precision_derivative_golden.rs (EXACT_PINNED)",
+     "tests/test_retained_precision_b3.py (EXACT_PINNED)",
+     "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx (EXACT_GOLDEN)"
+    ],
+    "fixtures/results/retained_precision_exact_successor_sparse_interactive.json": [
+     "core/product_physics/src/retained_facade_tests.rs (EXACT_PINNED)",
+     "core/reporting/result_export/tests/retained_precision_contract.rs (M3X)",
+     "core/reporting/result_export/tests/retained_precision_derivative_golden.rs (EXACT_PINNED)",
+     "tests/test_retained_precision_b3.py (EXACT_PINNED)",
+     "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx (EXACT_GOLDEN)"
     ]
    }
   },
