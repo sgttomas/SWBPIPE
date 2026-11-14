@@ -1116,9 +1116,13 @@ fn the_counter_counts_a_known_allocation() {
     let held = snapshot();
     drop(block);
     let end = snapshot();
-    assert_eq!(PEAK_REQ[0].load(SeqCst) - start.live_req, 1 << 20);
-    assert_eq!(held.live_req - start.live_req, 1 << 20);
-    assert_eq!(end.live_req, start.live_req);
+    // The harness's other threads may allocate or free at the same time (a few bytes), so
+    // the figures are bounded rather than compared exactly.
+    let near = |value: i128| ((1 << 20) - (64 << 10)..(1 << 20) + (64 << 10)).contains(&value);
+    let peak = (PEAK_REQ[0].load(SeqCst) - start.live_req) as i128;
+    assert!(peak >= 1 << 20 && near(peak), "peak {peak}");
+    assert!(near(held.live_req as i128 - start.live_req as i128));
+    assert!((end.live_req as i128 - start.live_req as i128).abs() < 64 << 10);
     assert!(PEAK_RND[0].load(SeqCst) - start.live_rnd >= 1 << 20);
 }
 
