@@ -14,7 +14,7 @@ The host refuses any reply whose echo is missing, malformed, or names digests
 other than the ones it installed. Then each operation prints exactly one answer
 in its fixed form, beginning with its own sentinel:
   cim      SWBPIPE-CIM v1 none | pid=<n> created=<yyyyMMddHHmmss.ffffff>
-  job      SWBPIPE-JOB v1 absent | present active=<n|unknown> | error=<n>
+  job      SWBPIPE-JOB v1 absent | present active=<n|unknown> | error=<n> | error=canary-<n>
   chunk    SWBPIPE-CHUNK v1 absent | size=.. sha256=.. offset=.. length=.. chunk_sha256=..<CRLF><base64>
   regread  the value as `reg query` prints it (REG_BINARY only); not found:
            stderr `ERROR: The system was unable to find the specified registry key or value.`, exit 1
@@ -40,7 +40,9 @@ profile data under %LOCALAPPDATA%, and its command discovery lists the folders
 on PSModulePath; these are not the script's operations.
 Native calls are made through Reflection.Emit in memory (DefineDynamicAssembly
 with Run access, DefinePInvokeMethod, CreateType): no compiler and no temporary
-file. The pattern is taken from NATIVE in the route check's fence_check.py
+file. The job query's helper (OpenJobChecked) is emitted the same way, with
+DefineMethod and its ILGenerator, so that OpenJobObject's last error, and a
+canary's before it, are read in the same frame as each call. The pattern is taken from NATIVE in the route check's fence_check.py
 (lines 85 to 96), with `::new` in place of the cmdlet that makes objects.
 #>
 param(
@@ -98,14 +100,41 @@ function Native {
     @('GetFinalPathNameByHandle', [UInt32], @([IntPtr], [Text.StringBuilder], [UInt32], [UInt32])),
     @('GetVolumePathName', [bool], @([string], [Text.StringBuilder], [UInt32]))
   )
+  $native = @{}
   foreach ($d in $defs) {
     $m = $tb.DefinePInvokeMethod($d[0], 'kernel32.dll', 'Public,Static,PinvokeImpl', 'Standard', $d[1],
                                  [Type[]]$d[2], 'Winapi', 'Unicode')
     $m.SetImplementationFlags('PreserveSig')
     $m.SetCustomAttribute([Reflection.Emit.CustomAttributeBuilder]::new($da.GetConstructor(@([string])),
                                                                        @('kernel32.dll'), $fields, $values))
+    $native[$d[0]] = $m
   }
-  return $tb.CreateType()
+  # OpenJobChecked(name, out error, out canary): in one frame, so no other call on the thread can overwrite the saved
+  # last error in between. First the canary: CloseHandle(NULL) fails with ERROR_INVALID_HANDLE (6), so a canary of 6
+  # shows the emitted SetLastError takes effect. Then OpenJobObject, its last error read at once. Returns the handle.
+  $o = [Reflection.Emit.OpCodes]
+  $lastError = [Runtime.InteropServices.Marshal].GetMethod('GetLastWin32Error')
+  $helper = $tb.DefineMethod('OpenJobChecked', 'Public,Static', [IntPtr],
+                             [Type[]]@([string], [int].MakeByRefType(), [int].MakeByRefType()))
+  $il = $helper.GetILGenerator()
+  $handle = $il.DeclareLocal([IntPtr])
+  $il.Emit($o::Ldarg_2)
+  $il.Emit($o::Ldsfld, [IntPtr].GetField('Zero'))
+  $il.Emit($o::Call, [Reflection.MethodInfo]$native['CloseHandle'])
+  $il.Emit($o::Pop)
+  $il.Emit($o::Call, $lastError)
+  $il.Emit($o::Stind_I4)
+  $il.Emit($o::Ldarg_1)
+  $il.Emit($o::Ldc_I4, [int]4)
+  $il.Emit($o::Ldc_I4_0)
+  $il.Emit($o::Ldarg_0)
+  $il.Emit($o::Call, [Reflection.MethodInfo]$native['OpenJobObject'])
+  $il.Emit($o::Stloc, $handle)
+  $il.Emit($o::Call, $lastError)
+  $il.Emit($o::Stind_I4)
+  $il.Emit($o::Ldloc, $handle)
+  $il.Emit($o::Ret)
+  return $tb.CreateType()  # once, after every method is defined
 }
 
 function OpCim($p) {
@@ -117,14 +146,20 @@ function OpCim($p) {
 }
 
 # The job by name: OpenJobObject fails with ERROR_FILE_NOT_FOUND (2) only when no member lives and no handle is open.
+# Its last error is captured in the same frame as the call (OpenJobChecked), behind a canary that must be 6.
 function OpJob($p) {
   if ($p.job -notmatch '^swbpipe-[0-9a-f]{32}$') { throw 'job name refused' }
   $n = Native
-  $job = $n::OpenJobObject(0x0004, $false, [string]$p.job)
+  [int]$openError = 0
+  [int]$canary = 0
+  $job = $n::OpenJobChecked([string]$p.job, [ref]$openError, [ref]$canary)
+  if ($canary -ne 6) {
+    if ($job -ne [IntPtr]::Zero) { [void]$n::CloseHandle($job) }
+    return "SWBPIPE-JOB v1 error=canary-$canary`r`n"
+  }
   if ($job -eq [IntPtr]::Zero) {
-    $e = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
-    if ($e -eq 2) { return "SWBPIPE-JOB v1 absent`r`n" }
-    return "SWBPIPE-JOB v1 error=$e`r`n"
+    if ($openError -eq 2) { return "SWBPIPE-JOB v1 absent`r`n" }
+    return "SWBPIPE-JOB v1 error=$openError`r`n"
   }
   try {
     $info = [Runtime.InteropServices.Marshal]::AllocHGlobal(48)

@@ -71,11 +71,11 @@ def test_each_change_of_the_write_script_lies_inside_its_own_confined_operation(
 def test_the_write_scripts_operations_are_confined_by_pattern():
     code = _code(WRITE_SOURCE)
     claim, value, key = _function(code, "OpClaim"), _function(code, "OpRegValue"), _function(code, "OpKey")
-    assert "OnC (" in claim and "'^(SWBPIPE-harness-exercise-)?[0-9a-f]{32}\\.claim$'" in claim
+    assert "OnC (" in claim and "'^(SWBPIPE-harness-exercise-)?[0-9a-f]{32}\\.claim\\z'" in claim
     assert "$exerciseFolder" in claim and "swbpipe-claim v1" in claim
     assert "RegKey (" in value and "RegistryValueKind]::Binary" in value
     assert "$exerciseKey" in key and "-cnotmatch $exerciseKey" in key
-    assert "$exerciseKey = '^Software\\\\SWBPIPE-harness-exercise-[0-9]{8}$'" in code
+    assert "$exerciseKey = '^Software\\\\SWBPIPE-harness-exercise-[0-9]{8}\\z'" in code
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -390,7 +390,8 @@ class ExerciseRegistry:
         presence = re.fullmatch(r'reg query "HKCU\\([^"]+)" >nul 2>nul & if errorlevel 1 \(echo SWBPIPE-KEY v1 absent\) '
                                 r'else \(echo SWBPIPE-KEY v1 present\)', command)
         if presence:  # reg's own output and message discarded; its exit status picks the sentinel
-            return done(argv, 0, f"SWBPIPE-KEY v1 {'present' if presence[1] in self.keys else 'absent'}\r\n", "")
+            present = presence[1] in self.keys
+            return done(argv, 0 if present else 1, f"SWBPIPE-KEY v1 {'present' if present else 'absent'}\r\n", "")
         listing = re.fullmatch(r'if exist "([^"]+)\\" \(dir /b /a "([^"]+)"( 2>nul)?\) else '
                                r'\(echo SWBPIPE-LIST v1 absent\)', command)
         if listing:
@@ -583,6 +584,7 @@ def test_the_folder_listing_is_classified_by_exit_status_and_the_shape_of_stdout
 
 @pytest.mark.parametrize("answer, expected", [
     ((0, "SWBPIPE-KEY v1 present\r\n", ""), "present"), ((0, "SWBPIPE-KEY v1 absent\r\n", ""), "absent"),
+    ((1, "SWBPIPE-KEY v1 absent\r\n", ""), "absent"), ((1, "SWBPIPE-KEY v1 present\r\n", ""), "unreadable"),
     ((1, "", NOT_FOUND), "unreadable"), ((1, "", "FEHLER: Der angegebene Registrierungsschluessel wurde nicht gefunden."),
                                          "unreadable"),
     ((0, "SWBPIPE-KEY v1 absent\r\n", "#< CLIXML"), "unreadable"), ((255, "", TRANSPORT[1]), "unreadable"),
@@ -600,3 +602,21 @@ def test_no_listing_or_presence_classification_matches_message_text():
         assert "File Not Found" not in source and "_not_found(" not in source and "REG_NOT_FOUND" not in source
     assert " 2>nul" in harness.exercise_folder_listing_command(NAMES["folder"])
     assert ">nul 2>nul" in harness.exercise_key_presence_command(NAMES["key"])
+
+
+# --------------------------------------------------------------------------------------------------------------
+# The second reading's remedies F2 and F3 (reviews/harness-second-reading/reader/review.md), as the reader wrote them.
+# --------------------------------------------------------------------------------------------------------------
+def test_regdelete_deletes_only_a_reg_binary_value():
+    source = harness.WRITE_SCRIPT.read_text(encoding="utf-8")
+    branch = source[source.index("    } else {\n      if (-not ($key.GetValueNames()"):source.index("$key.DeleteValue(")]
+    assert "GetValueKind" in branch and "RegistryValueKind]::Binary" in branch
+
+
+def test_every_confining_pattern_ends_at_the_end_of_the_string():
+    """.NET's `$` also matches before a final line feed; `\\z` does not. A pattern that confines a changing call must
+    end with `\\z` (or the string be refused for any control character first)."""
+    WRITE_SCRIPT = harness.WRITE_SCRIPT.read_text(encoding="utf-8")  # noqa: N806 - the reader's name
+    patterns = re.findall(r"'(\^[^']*)'", WRITE_SCRIPT)
+    loose = [pattern for pattern in patterns if pattern.endswith('$')]
+    assert not loose, loose

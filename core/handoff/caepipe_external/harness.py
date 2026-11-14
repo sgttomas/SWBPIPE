@@ -124,8 +124,9 @@ LITERAL_VALUE_FOLDER = re.compile(r"^[A-Za-z]:(\\[A-Za-z0-9 ._()-]+)+\Z")
 # lengths established on the route. It is enforced in one place (`_checked_command`), which every send passes through
 # (`_guest_argv`) and which the builders also call, so a plan is refused before anything is sent.
 GUEST_COMMAND_LIMIT = 850
-# A changing command that would come within 50 characters of the limit does not rely on that margin: its variable
-# data (a registry value's data) travels in a content-addressed data file instead (`_write_command`).
+# A write-script command carrying a REG_BINARY value's data that would come within 50 characters of the limit does
+# not rely on that margin: the data travels in a content-addressed data file instead (`_write_command`). Every other
+# command is refused at the limit.
 DATA_FILE_THRESHOLD = 800
 # The controlled exercise's own names (`exercise_names`): its folder below C:\oracle and its registry key, dated.
 EXERCISE_PREFIX = "SWBPIPE-harness-exercise-"
@@ -583,7 +584,10 @@ def _win(*parts: str) -> str:
 CLAIM_ANSWER = re.compile(r"^SWBPIPE-CLAIM v1 (?P<result>created|exists|held)\r?\n?\Z")
 CIM_ANSWER = re.compile(r"^SWBPIPE-CIM v1 (?:none|pid=(?P<pid>[0-9]{1,10}) created=(?P<created>[0-9]{14}\.[0-9]{6}))"
                         r"\r?\n?\Z")
-JOB_ANSWER = re.compile(r"^SWBPIPE-JOB v1 (?P<state>absent|present active=(?:[0-9]{1,10}|unknown)|error=[0-9]{1,10})"
+# `error=canary-<n>`: the job query's canary (CloseHandle(NULL)'s last error, which must be 6) was not 6, so no last
+# error it read can be trusted; never absent.
+JOB_ANSWER = re.compile(r"^SWBPIPE-JOB v1 (?P<state>absent|present active=(?:[0-9]{1,10}|unknown)"
+                        r"|error=(?:canary-)?-?[0-9]{1,10})"
                         r"\r?\n?\Z")
 CHUNK_ANSWER = re.compile(r"^SWBPIPE-CHUNK v1 (?:absent\r?\n?|size=(?P<size>[0-9]{1,12}) "
                           r"sha256=(?P<sha256>[0-9a-f]{64}) "
@@ -2258,7 +2262,9 @@ def restore_recorded_settings(config: HarnessConfig, changed_values: list[Mappin
                            | _failed_write_stderr(item) for item in steps]
         return result
 
-    live: dict[str, Any] = {"guard_state": state}
+    # No attempt is made in this call, so nothing of it can still be running: its guard result is never
+    # "start_unresolved", and a termination carries no unresolved start.
+    live: dict[str, Any] = {"start": "not_dispatched", "guard_state": state}
     with _catchable_termination(True, live):
         pre = _precondition(config, step, "precondition_process_list")
         if pre["status"] != "clear":
@@ -2516,9 +2522,14 @@ def exercise_folder_listing_command(folder: str) -> str:
 
 
 def _key_presence(record: Mapping[str, Any]) -> str:
-    """`present` or `absent` from the sentinel alone (exit 0, blank stderr); `unreadable` for anything else."""
-    match = KEY_PRESENCE_ANSWER.match((record.get("stdout") or "").strip() + "\n") if _answered(record) else None
-    return match["state"] if match else "unreadable"
+    """`present` or `absent` from the sentinel alone (blank stderr); `unreadable` for anything else. `present` needs
+    exit 0; `absent` is taken with exit 0 or 1, since `echo` leaves reg's errorlevel 1 and `cmd /c` may end with it."""
+    if (record.get("stderr") or "").strip() or record.get("echo"):
+        return "unreadable"
+    match = KEY_PRESENCE_ANSWER.match((record.get("stdout") or "").strip() + "\n")
+    if match is None or record.get("exit_status") not in ((0,) if match["state"] == "present" else (0, 1)):
+        return "unreadable"
+    return match["state"]
 
 
 def _folder_listing(record: Mapping[str, Any]) -> list[str] | str:

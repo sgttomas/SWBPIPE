@@ -121,8 +121,9 @@ round trip; and attempt 1's recorded outcome does not describe attempt 2 and can
 admit attempt 2's capture. Meanwhile the one permitted live caller is the wrapper
 used by the project's own first-comparison batch procedure, in a form independently
 reviewed against the harness's run phase as it now stands (it stops, restoring
-nothing, on an unresolved start; it counts partial starts across its session and
-stops at the second; it reads each run's files from that run's attempt folder); no
+nothing, on an unresolved start; it counts attempted runs that did not agree (routes
+start_partial and report_reply_contradiction) across its session and stops at the
+second; it reads each run's files from that run's attempt folder); no
 earlier form of it is covered. That procedure is maintained outside the public repository. The wrapper
 calls run_benchmark_model once per run with attempt 1, collect_only and the GUI
 fallback off, and never retries. Another caller is not covered, even with the same
@@ -1308,7 +1309,7 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     A live run paces the models `pace_s` apart, passes `_benchmark_gate` before each attempt, and retries a model
     once, BENCHMARK_RETRY_WAIT_S later, when its round trip raised or left no bound CSV with a clean settings check.
     A model that still left no CSV is recorded as such and the run goes on; a round trip that raised twice, a gate
-    that fails, an unclean settings check, an unresolved start, or a second partial start in this run stops the
+    that fails, an unclean settings check, an unresolved start, or a second attempted run that did not agree (partial or contradicted) in this run stops the
     run. A partial start (`partial`) and a start established as never made (`not_started`) are never retried.
     The GUI fallback is on only when the settings guard restores the whole key, whose restore covers the settings that route writes (Design §5)."""
     captures = [entry for entry in models if entry.get("capture_only")]

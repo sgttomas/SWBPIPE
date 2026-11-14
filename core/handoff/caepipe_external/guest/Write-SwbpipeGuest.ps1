@@ -18,7 +18,7 @@ other than the ones it installed. Then each operation prints one answer:
              ERROR_FILE_EXISTS, `held` is a sharing violation (another holds the name)
   regset     `The operation completed successfully.` after setting one REG_BINARY value
              of an existing key of the current user's hive
-  regdelete  the same after deleting one value
+  regdelete  the same after deleting one REG_BINARY value (a value of another type is refused)
   keycreate  the same after creating the harness's exercise key (only that key)
   keydelete  the same after deleting the harness's exercise key and its values (only that key)
 A missing key or value: stderr `ERROR: The system was unable to find the specified
@@ -26,7 +26,8 @@ registry key or value.`, exit 1. Any other error goes to stderr with a nonzero e
 
 What it may change, and nothing else:
   - a claim file named `<32 hex>.claim` (an attempt's fence) in a folder on C:\, or
-    `SWBPIPE-harness-exercise-<name>` in C:\oracle\SWBPIPE-harness-exercise-<YYYYMMDD>;
+    `SWBPIPE-harness-exercise-<name>` in C:\oracle\SWBPIPE-harness-exercise-<YYYYMMDD>, and that
+    folder, created with any missing parent when it is absent;
   - one REG_BINARY value of an existing key under HKCU\Software;
   - the key HKCU\Software\SWBPIPE-harness-exercise-<YYYYMMDD> (create, delete).
 It starts no process and reads or writes no other path.
@@ -40,8 +41,8 @@ $ProgressPreference = 'SilentlyContinue'
 $ErrorActionPreference = 'Stop'
 $missing = 'ERROR: The system was unable to find the specified registry key or value.'
 $ok = 'The operation completed successfully.'
-$exerciseFolder = '^C:\\oracle\\SWBPIPE-harness-exercise-[0-9]{8}$'
-$exerciseKey = '^Software\\SWBPIPE-harness-exercise-[0-9]{8}$'
+$exerciseFolder = '^C:\\oracle\\SWBPIPE-harness-exercise-[0-9]{8}\z'
+$exerciseKey = '^Software\\SWBPIPE-harness-exercise-[0-9]{8}\z'
 
 function Hex([byte[]]$bytes) { ([BitConverter]::ToString($bytes) -replace '-', '').ToLowerInvariant() }
 
@@ -54,24 +55,24 @@ $root = [IO.Path]::GetFullPath((Split-Path -Parent (Split-Path -Parent (Split-Pa
 
 # A folder on C:\ given whole: absolute, no stream name, no `.` or `..` component (its full path is itself).
 function OnC([string]$path) {
-  if ($path -notmatch '^C:\\[A-Za-z0-9 ._()\\-]+$' -or $path.EndsWith('\')) { throw "folder refused: $path" }
+  if ($path -notmatch '^C:\\[A-Za-z0-9 ._()\\-]+\z' -or $path.EndsWith('\')) { throw "folder refused: $path" }
   if ([IO.Path]::GetFullPath($path) -cne $path) { throw "folder refused: $path" }
   return $path
 }
 
 function RegKey([string]$key) {
-  if ($key -notmatch '^Software\\[A-Za-z0-9 ._()-]+(\\[A-Za-z0-9 ._()-]+)*$') { throw "key refused: $key" }
+  if ($key -notmatch '^Software\\[A-Za-z0-9 ._()-]+(\\[A-Za-z0-9 ._()-]+)*\z') { throw "key refused: $key" }
   return $key
 }
 
 function OpClaim($p) {
   $folder = OnC ([string]$p.folder)
   $name = [string]$p.name
-  $attempt = $name -cmatch '^(SWBPIPE-harness-exercise-)?[0-9a-f]{32}\.claim$'
-  $exercise = ($folder -cmatch $exerciseFolder) -and ($name -cmatch '^SWBPIPE-harness-exercise-[A-Za-z0-9-]{1,64}$')
+  $attempt = $name -cmatch '^(SWBPIPE-harness-exercise-)?[0-9a-f]{32}\.claim\z'
+  $exercise = ($folder -cmatch $exerciseFolder) -and ($name -cmatch '^SWBPIPE-harness-exercise-[A-Za-z0-9-]{1,64}\z')
   if (-not ($attempt -or $exercise)) { throw "claim name refused: $name" }
   $content = [string]$p.content
-  if ($content -cnotmatch '^swbpipe-claim v1\r\n([\x20-\x7e]*\r\n){1,8}$' -or $content.Length -gt 512) {
+  if ($content -cnotmatch '^swbpipe-claim v1\r\n([\x20-\x7e]*\r\n){1,8}\z' -or $content.Length -gt 512) {
     throw 'claim content refused'
   }
   [void][IO.Directory]::CreateDirectory($folder)
@@ -91,18 +92,21 @@ function OpClaim($p) {
 function OpRegValue($p, [string]$action) {
   $keyName = RegKey ([string]$p.key)
   $name = [string]$p.name
-  if ($name -notmatch '^[A-Za-z0-9 ._()\\:-]{1,260}$') { throw "value name refused" }
+  if ($name -notmatch '^[A-Za-z0-9 ._()\\:-]{1,260}\z') { throw "value name refused" }
   $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey($keyName, $true)
   if ($null -eq $key) { [Console]::Error.Write($missing); exit 1 }
   try {
     if ($action -eq 'set') {
       $hex = [string]$p.data
-      if ($hex -cnotmatch '^([0-9A-F]{2})*$') { throw 'data refused: REG_BINARY as upper-case hex' }
+      if ($hex -cnotmatch '^([0-9A-F]{2})*\z') { throw 'data refused: REG_BINARY as upper-case hex' }
       $bytes = [byte[]]::new($hex.Length / 2)
       for ($i = 0; $i -lt $bytes.Length; $i++) { $bytes[$i] = [Convert]::ToByte($hex.Substring(2 * $i, 2), 16) }
       $key.SetValue($name, $bytes, [Microsoft.Win32.RegistryValueKind]::Binary)
     } else {
       if (-not ($key.GetValueNames() -ccontains $name)) { [Console]::Error.Write($missing); exit 1 }
+      if ($key.GetValueKind($name) -ne [Microsoft.Win32.RegistryValueKind]::Binary) {
+        throw "only a REG_BINARY value may be deleted: $name"
+      }
       $key.DeleteValue($name, $true)
     }
   } finally { $key.Close() }
@@ -127,7 +131,7 @@ try {
   $script = FileSha $PSCommandPath
   $dataSha = 'none'
   if ($Data) {
-    if ($Data -notmatch '^[0-9a-f]{64}$') { throw 'data digest refused' }
+    if ($Data -notmatch '^[0-9a-f]{64}\z') { throw 'data digest refused' }
     $dataPath = $root.TrimEnd('\') + '\_harness\data\' + $Data + '.json'
     $dataSha = FileSha $dataPath
   }

@@ -359,3 +359,58 @@ def test_a_claim_read_through_a_reparse_point_is_unreadable_in_the_state_report(
                                       token=record["attempt_token"])["attempt"]
     assert (state["claim"], state["terminal"], state["classified"], state["success"]) == (
         "unreadable", "unreadable", "unknown", False)
+
+
+# --------------------------------------------------------------------------------------------------------------
+# Amendment 8: the job query's last error is captured in the same frame as OpenJobObject, behind a canary.
+# --------------------------------------------------------------------------------------------------------------
+def test_opjob_reads_no_last_error_itself_and_the_helper_captures_each_in_the_same_frame():
+    code = _code(READ_SOURCE)
+    job = code[code.index("function OpJob"):code.index("function OpChunk")]
+    assert "GetLastWin32Error" not in job and "$n::OpenJobChecked(" in job and "$n::OpenJobObject(" not in job
+    native = code[code.index("function Native"):code.index("function OpCim")]
+    emits = re.findall(r"\$il\.Emit\(\$o::(\w+)(?:, ([^)]*\)?))?\)", native)
+    calls = [(index, argument) for index, (op, argument) in enumerate(emits) if op == "Call"]
+    targets = [argument for _, argument in calls]
+    assert targets == ["[Reflection.MethodInfo]$native['CloseHandle']", "$lastError",
+                       "[Reflection.MethodInfo]$native['OpenJobObject']", "$lastError"]
+    for (native_call, _), (last_error, _) in ((calls[0], calls[1]), (calls[2], calls[3])):
+        between = [op for op, _ in emits[native_call + 1:last_error]]
+        assert set(between) <= {"Pop", "Stloc"}, between  # no call of any kind between a call and its last error
+    assert "DefineMethod('OpenJobChecked'" in native and "GetILGenerator()" in native
+    assert native.count("CreateType()") == 1 and native.rindex("CreateType()") > native.rindex("$il.Emit(")
+    assert "$native[$d[0]] = $m" in native  # the helper calls the P/Invoke methods of the same type, with SetLastError
+
+
+@pytest.mark.parametrize("canary", [0, 2, 5, 1450])
+def test_a_canary_of_anything_but_6_is_an_error_never_absent(tmp_path, clock, canary):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    guest.job_canary = canary
+    with pytest.raises(harness.StartUnresolved) as raised:
+        run(config, guest)
+    answers = {step.get("answer") for step in raised.value.record["steps"] if step["name"].startswith("job_query")}
+    assert answers == {f"error=canary-{canary}"}  # recorded as its error, re-polled, never absent
+    assert "chunk" not in guest.kinds  # nothing collected
+    state = harness.read_state_report(config, runner=guest.runner, case_id="cx-s",
+                                      token=raised.value.record["attempt_token"])["attempt"]
+    assert state["job"] == "unknown" and state["success"] is False
+
+
+def test_an_absent_job_with_any_last_error_but_2_is_an_error_never_absent(tmp_path, clock):
+    config = config_for(tmp_path)
+    guest = guest_for(config, clock)
+    guest.job_absent_error = 1450  # an invented code: only ERROR_FILE_NOT_FOUND (2) reads absent
+    with pytest.raises(harness.StartUnresolved) as raised:
+        run(config, guest)
+    answers = {step.get("answer") for step in raised.value.record["steps"] if step["name"].startswith("job_query")}
+    assert answers == {"error=1450"}
+
+
+@pytest.mark.parametrize("answer, state", [("SWBPIPE-JOB v1 absent", "absent"),
+                                           ("SWBPIPE-JOB v1 error=canary-0", "error=canary-0"),
+                                           ("SWBPIPE-JOB v1 error=2", "error=2"),
+                                           ("SWBPIPE-JOB v1 present active=1", "present active=1")])
+def test_the_job_answer_forms(answer, state):
+    assert harness.JOB_ANSWER.match(answer + "\r\n")["state"] == state
+    assert harness.JOB_ANSWER.match("SWBPIPE-JOB v1 error=canary-\r\n") is None

@@ -3505,3 +3505,22 @@ def test_an_interruption_after_the_restore_returned_keeps_failed_write_stderr(tm
         assert guard["status"] == "settings_restore_failed"
         assert [(item["step"], item["stderr_text"]) for item in guard["failed_write_stderr"]] == \
             [("settings_restore_2", TRANSPORT[2])]
+
+
+def test_a_termination_around_a_recorded_restore_is_never_an_unresolved_start(tmp_path):
+    config = dataclasses.replace(fake_config(tmp_path), settings_guard=KEY_GUARD)
+
+    def runner(argv, **kwargs):
+        signal.raise_signal(signal.SIGTERM)  # during the precondition's process list
+        return subprocess.CompletedProcess(argv, 0, '"other.exe","9999","Console","2","61,744 K"\r\n', "")
+
+    recorded = [{"value": INVENTED_KEY + "\\Options\\Use something", "before": None,
+                 "after": {"type": "REG_BINARY", "data": "00"}}]
+    with pytest.raises(harness.TerminationRequested) as raised:
+        harness.restore_recorded_settings(config, recorded, runner=runner)
+    assert getattr(raised.value, "start_unresolved", False) is False
+    assert raised.value.settings_guard["status"] == "settings_check_failed"
+    # With writes logged and no result yet, the live result names them.
+    state = {"restore_entered": True, "write_log": [{"value": "v", "completed": True}]}
+    result = harness._live_guard_result({"start": "not_dispatched", "guard_state": state})
+    assert result["status"] == "settings_restore_failed" and "1 of 1" in result["reason"]
