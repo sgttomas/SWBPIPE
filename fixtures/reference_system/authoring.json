@@ -1581,10 +1581,10 @@
       "entities": [
         "support:RS-FR1V"
       ],
-      "expected_until_then": "a nonlinear friction normal source is refused on both routes",
+      "expected_until_then": "the intended one-way normal source solves in the combined test overlay and is not confirmed: without RS-G1 each case is `NUMERICAL_INTEGRITY_SENSITIVE` (friction normal source is not a base restraint), with RS-G1 unqualified (core/product_physics/tests/rt_a3_s6_reference_system.rs)",
       "family": "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7",
       "in_tranche_1": false,
-      "row_lane": "RT-A3, R-4 stage S7, after increment 4 (DEL-04-07)",
+      "row_lane": "fixture adoption (DEL-09-01); the solve admits the one-way source (DEL-04-04 REQ-012)",
       "state": "interim: RS-FR1V authored as a linear `vertical_support` UZ (Agent 0, 2026-10-31)"
     },
     {

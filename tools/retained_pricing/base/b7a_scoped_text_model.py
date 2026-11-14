@@ -83,10 +83,13 @@ LN = {
     # the arc push's setting test and the wall recovery's flag argument precede them), unchanged text.
     # RT-L2 final source: +2 (unit_message: the test-module declaration) and +9 (the three helpers: that and
     # blocked_envelope's warning retain), unchanged text.
-    'unit_message': 10736, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15832,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15781,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15831,   # lib.rs fn stable_suffix (13613) [13618]
+    # One-way friction normal source (DEL-04-04 REQ-012): +17 (unit_message: the import, the nonlinear publication's
+    # call arguments and derived_friction_normal_source's admission precede it) and +30 (the three helpers:
+    # append_nonlinear_friction_normal_evidence's arguments and sign clause also precede them), unchanged text.
+    'unit_message': 10753, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15862,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15811,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15861,   # lib.rs fn stable_suffix (13613) [13618]
     # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
     # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
     # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.

@@ -109,7 +109,9 @@ REDUCED_PINS = {
     # Self-weight units repair (12f46a797, 0051e8a1a): lib.rs re-read: one intensity unit test in `mod tests` restates
     # its evidence literal (test-only); certified_loads.rs adds recorded_mass and its doc comment, called from intensity
     # in place of the closure over mass_inputs. No reduction's owner or lifetime changes; the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "3343fa7efd15a53e17a699aefd9f3af3e43c1c863e281ebe629da05ed491d429",
+    # One-way friction normal source (DEL-04-04 REQ-012): lib.rs re-read: the nonlinear friction source admission and the
+    # derived normal's publication, inside the loops over nonlinear supports; no reduction's owner or lifetime changes.
+    "core/product_physics/src/lib.rs": "5f03bfccaac2d013d4db8bfdb072f3c97eca2538f1a6e3bfdd8c4a3e0ef12e8f",
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",
