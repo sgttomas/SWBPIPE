@@ -28,9 +28,9 @@
    ".json",
    ".jsonl"
   ],
-  "files": 528,
+  "files": 529,
   "claimed_by": {
-   "group": 140,
+   "group": 141,
    "in_code": 62,
    "exemption": 326
   }
@@ -124,6 +124,13 @@
    "pressurised_load_cases": 0,
    "held_documents": 4,
    "held_pressurised_load_cases": 6
+  },
+  "report_standing_app_render_request": {
+   "files": 1,
+   "documents": 0,
+   "pressurised_load_cases": 0,
+   "held_documents": 2,
+   "held_pressurised_load_cases": 2
   },
   "report_standing_coupled_friction_request": {
    "files": 1,
@@ -3850,6 +3857,49 @@
    ]
   },
   {
+   "id": "report_standing_app_render_request",
+   "group": "report_standing_app_render_request",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.app_render_request.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/renderedReportGate.app.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_APP_RENDER_REQUEST), from the committed coupled-friction request and raw file, under a pinned clock; both tests hold its SHA-256",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer and update the SHA-256 both tests hold"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_render_exact_tests.rs",
+    "apps/desktop/src/features/report/renderedReportGate.app.test.tsx"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "documents held as JSON text (exact intake text) inside a render request"
+   },
+   "documents": [],
+   "held_documents": [
+    {
+     "pointer": "/exact_intake_text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/input_manifest_text",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ]
+  },
+  {
    "id": "report_standing_coupled_friction_request",
    "group": "report_standing_coupled_friction_request",
    "path": "fixtures/reports/invented/report_standing_witnesses/coupled_friction.request.json",
@@ -3857,12 +3907,13 @@
     "kind": "none",
     "status": "hand_authored",
     "switch_plumbed": false,
-    "switch_route": "no producer (made once as a trimmed copy of the RT-A3 S6 no-gap overlay, one case, RS-SUS): edit the document, then re-produce its raw file with core/product_physics/tests/report_standing_witnesses.rs and the render input with its writer"
+    "switch_route": "no producer (made once as a trimmed copy of the RT-A3 S6 no-gap overlay, one case, RS-SUS): edit the document, then re-produce its raw file with core/product_physics/tests/report_standing_witnesses.rs, the render input with its writer and the App render request with renderedReportGate.app.test.tsx"
    },
    "pinned_by": [
     "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json (core/product_physics/tests/report_standing_witnesses.rs)",
     "core/reporting/report_standing/tests/report_standing.rs",
-    "apps/desktop/src/features/report/reportStandingWitness.test.tsx"
+    "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "apps/desktop/src/features/report/renderedReportGate.app.test.tsx"
    ],
    "anchor": {
     "kind": "raw_files",
