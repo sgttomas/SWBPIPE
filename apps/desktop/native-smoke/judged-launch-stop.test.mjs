@@ -80,13 +80,19 @@ for (const form of ["run", "mbf"]) {
   });
 }
 
-test("each runner attaches exactly this handler to judgedPhase's result, and passes it no exit of its own", () => {
+test("each runner returns exactly this handler's promise from its launch function, awaits every launch, and passes no exit", () => {
   for (const [file, keys] of [["run.mjs", ["prefix", "phase", "state"]], ["mbf-journey.mjs", ["prefix", "phase", "evidenceRoot"]]]) {
     const text = readFileSync(path.join(here, file), "utf8");
     const starts = [...text.matchAll(/judgedPhase\(\{/g)];
     assert.equal(starts.length, 1, `${file}: one judgedPhase call`);
+    // The launch function RETURNS the handled promise: attached and ignored would be the uncalled handler again.
+    assert.equal(text.slice(starts[0].index - "return ".length, starts[0].index), "return ", `${file}: the launch function returns judgedPhase(...)`);
     const attached = /\n {2}\}\)\.then\(phaseContinuation\(\{([^{}]*)\}\)\);\n\}/.exec(text.slice(starts[0].index));
-    assert.ok(attached, `${file}: judgedPhase(...).then(phaseContinuation({...})); ends the launch function`);
+    assert.ok(attached, `${file}: return judgedPhase(...).then(phaseContinuation({...})); ends the launch function`);
+    // And every call of launch() is awaited before anything after it runs.
+    const calls = [...text.matchAll(/(^|[^\w.])launch\(/gm)].filter((match) => !text.slice(Math.max(0, match.index - 9), match.index + 1).includes("function"));
+    assert.ok(calls.length >= 2, `${file}: its launches are found`);
+    for (const call of calls) assert.equal(text.slice(call.index - 5, call.index + call[1].length), "await" + call[1], `${file}: launch() awaited at offset ${call.index}`);
     const between = text.slice(starts[0].index, starts[0].index + attached.index);
     assert.doesNotMatch(between, /\.(then|catch|finally)\(/, `${file}: nothing else is attached to judgedPhase's result`);
     const given = attached[1].split(",").map((part) => part.split(":")[0].trim()).filter(Boolean);
