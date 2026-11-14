@@ -65,16 +65,52 @@ def _verifier_imports(tree):
                 yield module
 
 
+# Modules outside `tests/` that name verifier files as data, each with its reason. Such a module may spell a
+# verifier's path. The import check still applies to it, and it may hold no means of loading a file as code.
+PATH_NAMERS = {
+    "tools/validation/pressure_elongation_inventory.py":
+        "the pressure-elongation inventory claims, by path, every tracked file that names pressure_regions, two "
+        "verifiers among them; it reads files as text and loads none",
+}
+_NAMES_A_VERIFIER_PATH = re.compile(r"tests[/\\.]verifiers|verifiers[/\\]retained_precision")
+_CAN_LOAD_BY_PATH = re.compile(r"importlib|runpy|spec_from_file_location|__import__|\bexec\s*\(|\beval\s*\(")
+
+
+def _path_findings(relative, text):
+    """What a module's text shows about reaching a verifier by path: nothing; a path named with no allowance; or
+    an allowed namer that also holds a means of loading a file as code."""
+    if not _NAMES_A_VERIFIER_PATH.search(text):
+        return []
+    if relative not in PATH_NAMERS:
+        return [(relative, "path")]
+    return [(relative, "an allowed path namer can load a file as code")] if _CAN_LOAD_BY_PATH.search(text) else []
+
+
 def test_no_module_outside_tests_imports_a_verifier():
-    found, count = [], 0
+    found, count, namers = [], 0, set()
     for relative, text in _product_modules():
         count += 1
         tree = ast.parse(text, filename=str(relative))
         found += [(str(relative), module) for module in _verifier_imports(tree)]
         # By path: spec_from_file_location, runpy, sys.path or exec over the verifiers directory.
-        if re.search(r"tests[/\\.]verifiers|verifiers[/\\]retained_precision", text):
-            found.append((str(relative), "path"))
+        found += _path_findings(relative.as_posix(), text)
+        if _NAMES_A_VERIFIER_PATH.search(text):
+            namers.add(relative.as_posix())
     assert count > 100 and found == []
+    # An allowance for a module that no longer names a verifier path is stale.
+    assert set(PATH_NAMERS) <= namers, sorted(set(PATH_NAMERS) - namers)
+
+
+def test_a_path_namer_allowance_is_narrow():
+    allowed = next(iter(PATH_NAMERS))
+    names = 'PATHS = ["tests/verifiers/physics_source.py"]\n'
+    assert _path_findings(allowed, names) == []
+    assert _path_findings("tools/other.py", names) == [("tools/other.py", "path")]
+    for loader in ("import importlib\n", "import runpy\n", "spec_from_file_location(name, path)\n",
+                   "__import__(name)\n", "exec(text)\n", "eval (text)\n"):
+        assert _path_findings(allowed, names + loader) == [(allowed, "an allowed path namer can load a file as code")], loader
+    # The import check is separate and has no allowance.
+    assert list(_verifier_imports(ast.parse("from tests.verifiers import physics_source\n")))
 
 
 def test_the_former_product_modules_are_gone():
