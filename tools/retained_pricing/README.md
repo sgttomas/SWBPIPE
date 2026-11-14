@@ -374,6 +374,13 @@ by-name edges into the two new modules' private functions (W16BC-BN); W16BC-ID c
 format arguments. `rules/sq2_decisions_E.py`'s B7b-LR zero follows the direct pass. See the governing rules' §8.27 and
 `tests/test_w16bc_combinations_equivalent_static.py`.
 
+The reader's dispatch has had three shapes, and W16B-RD guards each by its exact text, so earlier registered revisions
+still price and any other text stops. In the one-view shape (Way H B2), `validate_pressure_evidence_without_certificate`
+holds the dispatch itself. It asks `present` of the received document first, and calls `without_member` only in its
+no-combination arm. `present` reads only `exact_combinations` and the result rows, and `without_member` removes only
+the certificate member, so the arm taken is the RT-A3 §4 shape's. One per-call edge carries both former premises, W16B-RD's and
+RTA3C-WC's: of its three direct-pass calls, the `present` arm's is unreached on D1, and the other two are the arms of one match.
+
 ### W-16 stage 2 imposed displacement with nonlinear supports and on spring bases
 
 `base/w16_owners_model.py` adds W16S-SG: each case's spring-base vectors (`case_spring_ground`'s `ground` and `moved`,
