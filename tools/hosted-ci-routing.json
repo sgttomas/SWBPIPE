@@ -260,7 +260,7 @@
       "core/loads/self_weight_wasm/Cargo.toml": "7041b262bcf36c8b00d380e041d2375016101856a62c61551c0e8abb3d21dc7d",
       "core/loads/stress_recovery/Cargo.toml": "a8d181c7587101e60d9fcc9bc7006822f9ce77105707193933039458637198e4",
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
-      "core/model_operations/operation_applier/Cargo.toml": "2620691da2d08ebfbf82bf605b524a1978e12e1c40bc83500aa7c11e8ae85423",
+      "core/model_operations/operation_applier/Cargo.toml": "1ffa349e68d2fbffe96bf0f3b70f84bba4aa330fab0c7b6d20eb57a0d416794b",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
       "core/product_physics/Cargo.toml": "3ebb3c914c5f9473603c37dd75ee4f77ef15b4878f717794bb2533d799cd89f1",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",

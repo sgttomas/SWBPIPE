@@ -1945,7 +1945,7 @@ mod tests {
             };
             chain.push(json!({"id": format!("c{i}"), "basis_ref": {"ref_type": "combination", "ref_id": "combination:chain"}, "source_result_refs": [next]}));
         }
-        let long = json!({"numerical_quality": {"cases": [{"basis_ref": {"ref_type": "load_case", "ref_id": "a"}, "solve_quality": "checks_passed"}]},
+        let long = json!({"status": {"mechanics": "MECHANICS_SOLVED"}, "numerical_quality": {"cases": [{"basis_ref": {"ref_type": "load_case", "ref_id": "a"}, "solve_quality": "checks_passed"}]},
             "diagnostics": [], "results": chain});
         assert_eq!(
             health(&long, None)["combinations"][0]["state"],
