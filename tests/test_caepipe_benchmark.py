@@ -1021,7 +1021,11 @@ def test_a_parse_without_printed_resolution_is_unmatched_never_screened():
 
 
 def test_the_profile_states_the_formula_and_the_record_version_moves():
-    assert set(SCREENING_PROFILE) == {"basis", "relative", "floor", "floor_basis", "printed_decimals", "rule"}
+    assert set(SCREENING_PROFILE) == {"basis", "relative", "floor", "floor_basis", "printed_decimals", "limit",
+                                      "rule"}
+    # The stated limit names what is unmatched and what would establish it.
+    assert all(word in SCREENING_PROFILE["limit"] for word in ("English", "radians", "documented resolution per column",
+                                                               "real print", "not a defect", "widened"))
     assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3}
     assert SCREENING_PROFILE["printed_decimals"] == {"SI N": 0, "SI Nm": 0, "SI deg": 4, "SI mm": 3}
     assert SCREENING_PROFILE["rule"].startswith("|S - C| <= a + r * max(|S|, |C|);")

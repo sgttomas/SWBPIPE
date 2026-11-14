@@ -54,6 +54,11 @@ SCREENING_PROFILE = {
                     "established for SI prints in degrees (observed format behaviour); a value whose printed "
                     "resolution is not established or not shown is unmatched, never screened with a wider floor"),
     "printed_decimals": {f"{system} {label}": places for (system, label), places in sorted(PRINTED_DECIMALS.items())},
+    "limit": ("a stated limit, not a defect: values printed in English units (inch, lb, ft-lb, and degrees in an "
+              "English print) or in radians are unmatched until their printed resolution is established. What "
+              "establishes it, per unit system and angle unit: the print format's documented resolution per column "
+              "in that unit, seen on a real print. Until then the floor is never inferred from the printed text or "
+              "widened."),
     "rule": "|S - C| <= a + r * max(|S|, |C|); a the printed-resolution floor of the value's result kind, r the class "
             "tolerance",
 }
