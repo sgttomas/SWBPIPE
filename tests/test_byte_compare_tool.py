@@ -1612,5 +1612,5 @@ def test_a_committed_link_in_the_source_closure_is_refused(tmp_path, capsys, sid
     git(repo, "commit", "-q", "-m", "link")
     world[side] = git(repo, "rev-parse", "HEAD")
     code, out, scratch = run_real(world, capsys)
-    assert code == 2 and says(out.err, f"side {side} (") and says(out.err, "inner.rs is reached through a link"), out.err
+    assert code == 2 and says(out.err, f"side {side} (") and says(out.err, "inner.rs, which is a link"), out.err
     assert nothing_ran(scratch)
