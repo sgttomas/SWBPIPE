@@ -3004,6 +3004,57 @@ def test_pilot_authored_dir_refusals(tmp_path, monkeypatch, capsys):
     assert "CAEPIPE harness skipped: invented" in capsys.readouterr().out
 
 
+SOLVED_OUTPUT = {"payload": {"mechanics_envelope": {"status": {"mechanics": "MECHANICS_SOLVED"}, "results": []}}}
+
+
+def stand_in_runner(tmp_path: Path, stdout: str, *, exit_code: int = 0, kill: int | None = None) -> str:
+    """An executable that reads the request, writes `stdout` whole and flushed, then exits with `exit_code` or, with
+    `kill`, ends itself by that signal, so that the parent observes a negative exit as for a killed runner."""
+    script = tmp_path / "stand-in-runner"
+    ending = f"os.kill(os.getpid(), {kill})\ntime.sleep(30)\n" if kill is not None else f"sys.exit({exit_code})\n"
+    script.write_text(f"#!{sys.executable}\nimport os, sys, time\nsys.stdin.read()\n"
+                      f"sys.stdout.write({stdout!r})\nsys.stdout.flush()\n" + ending, encoding="utf-8")
+    script.chmod(0o755)
+    return str(script)
+
+
+SOLVE_CASE = {"case_id": "exit-status", "model": {"invented": True}}
+
+
+@pytest.mark.parametrize("exit_code, kill, named", [
+    (1, None, "runner exit 1"),
+    (2, None, "runner exit 2"),
+    (None, signal.SIGKILL, "runner exit -9 (killed by signal SIGKILL)"),
+    (None, signal.SIGTERM, "runner exit -15 (killed by signal SIGTERM)"),
+])
+def test_a_nonzero_runner_exit_is_not_a_solve_even_with_solved_output(tmp_path, exit_code, kill, named):
+    # The runner's documented exits (docs/validation_manual/headless_runner_reproduction.md): 0 only without a
+    # blocking diagnostic or blocked export, 1 with one, 2 for unusable input; a negative exit is a kill by signal.
+    # Complete solved JSON on stdout does not make any of these a clean solve; the parsed output is kept.
+    runner = stand_in_runner(tmp_path, json.dumps(SOLVED_OUTPUT), exit_code=exit_code or 0,
+                             kill=int(kill) if kill is not None else None)
+    _, output, error = run_pilot.solve_swbpipe(runner, SOLVE_CASE)
+    assert output == SOLVED_OUTPUT
+    assert error.startswith(named) and "MECHANICS_SOLVED" not in error, error
+
+
+def test_exit_zero_with_solved_output_is_a_solve(tmp_path):
+    runner = stand_in_runner(tmp_path, json.dumps(SOLVED_OUTPUT))
+    body, output, error = run_pilot.solve_swbpipe(runner, SOLVE_CASE)
+    assert (output, error) == (SOLVED_OUTPUT, "")
+    assert body["solve"]["preview_model"]["model"] == SOLVE_CASE["model"]
+
+
+def test_exit_zero_unsolved_and_stdout_not_json_are_refused_as_before(tmp_path):
+    unsolved = {"payload": {"mechanics_envelope": {"status": {"mechanics": "MECHANICS_BLOCKED"}}}}
+    _, output, error = run_pilot.solve_swbpipe(stand_in_runner(tmp_path, json.dumps(unsolved)), SOLVE_CASE)
+    assert (output, error) == (unsolved, "SWBPIPE mechanics status 'MECHANICS_BLOCKED' (runner exit 0)")
+    for exit_code in (0, 2):
+        _, output, error = run_pilot.solve_swbpipe(stand_in_runner(tmp_path, "usage", exit_code=exit_code),
+                                                   SOLVE_CASE)
+        assert (output, error) == (None, f"runner exit {exit_code}; stdout is not JSON")
+
+
 def offline_case(tmp_path, monkeypatch, *, run_record=None, csv=True):
     """Prepare an offline run of the cantilever case with a stubbed SWBPIPE solve and an invented CSV."""
     case = next(item for item in run_pilot.load_cases() if item["case_id"] == "cpc-01-cantilever-force")
