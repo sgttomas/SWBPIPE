@@ -21059,7 +21059,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/numerical_health.rs",
-   "line": 449,
+   "line": 451,
    "at": "field code",
    "why": "call map() returns no resolvable code",
    "expression": "code.map(String::from)",
