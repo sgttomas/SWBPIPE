@@ -204,7 +204,10 @@ needs:
     release-timing-v2 solve line on stdout stating the outcome and the written envelope's digest
     and length, and an entry error as its own status and exit. It also states its build identity
     (`--build-identity`): the source commit and tree, whether the source was dirty, the build
-    profile and the toolchain.
+    profile and the toolchain. The driver crate builds at cargo's default release profile from
+    its own Cargo.lock, within the build closure the tool's manifest names (its registry
+    packages, build scripts and generated sources), so that the tool can attest each build
+    against that closure.
   gating: false
 code_paths:
 # The product solve crate and the nonlinear iteration. Within core/product_physics/, modules that
