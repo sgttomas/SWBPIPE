@@ -25,20 +25,30 @@ same physical numbers as today, bit for bit.
   with a pressurised document each fail. The inventory is also the checklist for
   re-producing the fixtures. A registered pin on a single file beyond its group's (`PINNED_BY`:
   a fixed table in a consumer that requires the file's current SHA-256, such as the O4 source
-  twins' `PINS`) is listed on that file's entry or exemption record. For each table in its
-  `PIN_TABLES`, the test extracts every target path by the table's own path-construction
-  rules, however each digest is written and whether or not it still matches, refuses by name a
-  path form it does not support, and requires every inventoried target to list the table. What the scan does not read (escaped or UTF-16 keys, source
-  code, assembled blobs such as the MBF writer parity vectors' deltas) is stated in the script's
-  docstring. Regenerate it with `python3 tools/validation/pressure_elongation_inventory.py`;
+  twins' `PINS`) is listed on that file's entry or exemption record. The registrations are
+  curated. The check compares registrations with paths extracted by readers for fourteen named
+  tables (`PIN_TABLES` in the test). Their current targets have been reconciled by source
+  review. Changes to table construction, path resolution or use can evade these readers or
+  cause unsupported-form refusals; those changes require source reconciliation. A passing check
+  does not establish completeness or executing hash enforcement. Known forms the readers do not
+  see or refuse, by kind: an alias of a registered table, a property set after the TypeScript
+  initialiser, a locally shadowed Rust constant, and a digest written as an `include_str!` in a
+  table the shared Rust array reader reads. A reader's check that the consumer still contains
+  its hashing code is a spelling check, not evidence that the hashing runs. An omitted
+  registration can leave the rebuild checklist incomplete. The existing consumer checks reject
+  input bytes outside their admitted pins when those checks run. This inventory neither
+  schedules those checks nor establishes that their hash enforcement executes. What the scan
+  does not read (escaped or UTF-16 keys, source code, assembled blobs such as the MBF writer
+  parity vectors' deltas) is stated in the script's docstring. Regenerate it with `python3 tools/validation/pressure_elongation_inventory.py`;
   `test_pressure_elongation_inventory.py` fails until it is current.
 
   The committed check establishes general structural properties: every scanned file is claimed
   exactly once, by a record or an exemption; no claim is stale; the declarations have their
-  required shape; the generated copy equals what the producer writes; each inventoried file
-  names its registered pin consumers (the tables in `PIN_TABLES`); and no code file naming the
-  MBF parity vectors or their harvest modules, nor a Rust one's Cargo manifest, names a mechanics
-  solve entry (a literal-name guard, not reachability). It also asserts particular data facts on
+  required shape; the generated copy equals what the producer writes; registrations agree with
+  the paths the readers extract for the tables in `PIN_TABLES`; and no code file naming the MBF
+  parity vectors or their harvest modules, nor a Rust one's Cargo manifest, names a mechanics
+  solve entry, the inventory's producer and test module excepted (a literal-name guard, not
+  reachability). It also asserts particular data facts on
   the parsed fixtures: the K-D5 M3-T frozen subset's twelve pressurised documents, none naming
   the setting, and the locations, pressurised cases and naming of the five files whose documents
   are held only. It establishes nothing about source behaviour. The source classifications

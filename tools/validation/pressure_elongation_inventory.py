@@ -23,7 +23,8 @@ as full strings; the independent review of this change reconstructed 107 pressur
 assembled. Every one is an MBF writer input compared between the Python and Rust writers; none is solved, as
 source-reviewed at a6392aafb and 986096a03. What the committed test detects is narrower: it fails if a tracked code
 file (`.rs`, `.py`, `.ts`, `.tsx`, `.js`, `.mjs`) that names the parity vectors or their harvest modules, or the
-Cargo manifest of a Rust one's crate, names a mechanics solve entry. It matches names, not reachability.
+Cargo manifest of a Rust one's crate, names a mechanics solve entry. It excludes two files that name both, this
+producer and its test module. It matches names, not reachability.
 
 The result, `pressure_elongation_inventory.json`, is also the re-production checklist for the fixture rebuild.
 
@@ -44,13 +45,13 @@ properties:
    document; an IN_CODE record names code files only and states its expectations, its cases_named and a detail; a
    group whose documents are held only (JSON Lines, JSON text or DAG storage) has an excluded anchor;
 4. the generated copy, `pressure_elongation_inventory.json`, equals what this producer writes;
-5. each inventoried file names its registered pin consumers: for each fixed pin table listed in the test module's
-   PIN_TABLES, a reader extracts every target path by the table's own path-construction rules, independently of how
-   each digest is written and of whether it matches the file, and refuses by consumer and table any path-bearing
-   form it does not support; every inventoried target must list that consumer in its `pinned_by`;
+5. registrations agree with the readers: for each of the fourteen tables named in the test module's PIN_TABLES, the
+   inventoried paths its reader extracts (resolved to tracked repository files) list that table's consumer in their
+   `pinned_by` (see "The pin registrations" below);
 6. a literal-name guard over the MBF parity vectors: no tracked code file of the six suffixes above that names them
-   or their harvest modules, nor a Rust one's Cargo manifest, names a mechanics solve entry. It does not establish
-   that nothing reaches a solve.
+   or their harvest modules, nor a Rust one's Cargo manifest, names a mechanics solve entry, this producer and its
+   test module excepted (both name the vectors and a solve entry). It does not establish that nothing reaches a
+   solve.
 
 The data facts, asserted directly on the parsed fixtures: the K-D5 M3-T frozen subset holds twelve pressurised
 documents, one pressurised case each and twelve nonzero regions in all, none naming the setting; and the five files
@@ -76,8 +77,21 @@ rebuild, the affected assertions are reconciled with the source actually being u
 
 These pass the committed check and are its limits: a flipped cases_named, after regeneration; a false exemption,
 after regeneration; an existing claimed source edited so that its classification becomes false; a pressurised solve
-added to an existing exempted file. The pins it checks are those of the tables PIN_TABLES lists, found by the
-independent review; a digest of an inventoried file held anywhere else is not checked.
+added to an existing exempted file.
+
+The pin registrations. The registrations in PINNED_BY are curated, as the classifications are. The check compares
+registrations with paths extracted by readers for fourteen named tables. Their current targets have been reconciled
+by source review. Changes to table construction, path resolution or use can evade these readers or cause
+unsupported-form refusals; those changes require source reconciliation. A passing check does not establish
+completeness or executing hash enforcement. Known forms the readers do not see or refuse, by kind: an entry added
+through an alias of a registered table; a property set after the TypeScript initialiser; a Rust constant shadowed in
+a local scope; a digest written as an include_str! in a table read by the shared Rust array reader (refused as an
+unsupported form). Each reader's check that the
+consumer still contains its hashing code is a spelling check, not evidence that the hashing runs. A digest of an
+inventoried file held anywhere other than these fourteen tables is not compared at all. An omitted registration can
+leave the rebuild checklist incomplete. The existing consumer checks reject input bytes outside their admitted pins
+when those checks run. This inventory neither schedules those checks nor establishes that their hash enforcement
+executes.
 """
 from __future__ import annotations
 
@@ -399,9 +413,10 @@ DERIVED = [
 # Pins on individual scanned files beyond their group's `pinned_by`: each named file's group entry lists them after
 # the group's pins, and an exemption's record lists them per file. A pattern that matches no scanned file is stale.
 # Each is a fixed table in its consumer that requires a file's current bytes to have a recorded SHA-256 (a byte change
-# fails it until the table moves); provenance text and historical endpoint hashes are not pins. The list covers the
-# tables `test_pressure_elongation_inventory.py` names (PIN_TABLES), each of which it checks; it is not a census of
-# every digest in the repository.
+# fails it when that check runs, until the table moves); provenance text and historical endpoint hashes are not pins.
+# The registrations are curated: they cover the fourteen tables `test_pressure_elongation_inventory.py` names
+# (PIN_TABLES), whose current targets have been reconciled by source review, and are compared with what its readers
+# extract (the module docstring, "The pin registrations"). They are not a census of every digest in the repository.
 PINNED_BY = [
     # The O4 source twins' generator pins the twelve pressure-source request fixtures and the J7 census inputs by
     # SHA-256 (PINS and PINS_ADMITTED); a byte change to any of them fails its check.

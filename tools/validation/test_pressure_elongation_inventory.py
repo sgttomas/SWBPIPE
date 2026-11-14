@@ -15,7 +15,7 @@ import json
 import re
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -210,8 +210,8 @@ def test_no_code_naming_the_mbf_parity_vectors_names_a_solve_entry():
     (the module docstring). They are claimed as MBF writer inputs, none of them solved as source-reviewed. This is a
     literal-name guard, not reachability: every tracked code file of the CODE suffixes that names the vectors or their
     harvest modules, and the Cargo manifest of a Rust one's crate, names no mechanics solve entry (the product's
-    preview entry, the product or runner crate, or the runner binary). A solve reached without those names is not
-    detected."""
+    preview entry, the product or runner crate, or the runner binary). The inventory's producer and this module are
+    excepted: both name the vectors and a solve entry. A solve reached without those names is not detected."""
     done = subprocess.run(["git", "grep", "-l", "-E", PARITY_READERS, "--", *CODE], cwd=ROOT, capture_output=True,
                           text=True, check=True)
     own = {"tools/validation/pressure_elongation_inventory.py", "tools/validation/test_pressure_elongation_inventory.py"}
@@ -232,27 +232,46 @@ def test_no_code_naming_the_mbf_parity_vectors_names_a_solve_entry():
 
 # ----------------------------------------------------------------------------- pins on individual files
 # A fixed table in a consumer that requires the current bytes of the files it names to have a recorded SHA-256. Each
-# PIN_TABLES row has a reader that extracts every target path the table names by the consumer's own path-construction
-# rules: dictionary keys, tuple fields, a mode substituted into a filename template, an include_str! literal, a
-# `successor` or `path` value. It never reads, evaluates or compares a digest, so a digest written as a literal, a
-# named constant or any other expression names the same targets, and the registration a pinned file needs stays
-# required while the consumer's digest is stale (the failure this exists for: the three mixed source requests changed
-# and the O4 twins' table did not). A reader recognises one complete construct and refuses, by consumer and table,
-# any path-bearing form it does not support (a computed key, an unpacked mapping, a non-literal path field, a changed
-# construction rule) rather than dropping it. It is a reader of these registered forms, not an interpreter: nothing in
-# a consumer is executed. The tables are those the independent review found on inventoried files; a digest held
-# anywhere else is not covered.
+# PIN_TABLES row has a reader for that table's current construct: dictionary keys, tuple fields, a mode substituted
+# into a filename template, an include_str! literal, a `successor` or `path` value. A reader joins what it extracts
+# to the consumer's path base, and read_table resolves the result to a tracked repository file. Nothing in a consumer
+# is executed. The check compares registrations with paths extracted by readers for fourteen named tables. Their
+# current targets have been reconciled by source review. Changes to table construction, path resolution or use can
+# evade these readers or cause unsupported-form refusals; those changes require source reconciliation. A passing
+# check does not establish completeness or executing hash enforcement. The module docstring ("The pin
+# registrations") lists the known forms the readers miss or refuse. A reader's check that its consumer still contains
+# its hashing code is a spelling check. A registration does not depend on whether the consumer's digest still matches
+# the file: the failure first guarded here was a table left stale while the three mixed source requests changed.
 
 
 class UnsupportedPinForm(AssertionError):
-    """A registered table holds a path-bearing form its reader does not support."""
+    """A reader met a form it does not support, or a target that resolves outside the repository or to no tracked
+    file."""
 
 
 def read_table(consumer: str, table: str, reader, text: str) -> set[str]:
+    """The tracked repository paths of the table's extracted targets. Each reader joins a target to its consumer's own
+    path base (the repository root, a package directory, the including source file's directory or the crate
+    directory); here each joined path is resolved, so that equivalent spellings (`a/../a/x`, a symlink) name one file,
+    and a path that resolves outside the repository or to no tracked file is rejected."""
     try:
-        return reader(text)
+        return {_tracked_path(path) for path in reader(text)}
     except UnsupportedPinForm as refused:
         raise UnsupportedPinForm(f"{consumer} ({table}): {refused}") from None
+
+
+_TRACKED: set[str] = set()
+
+
+def _tracked_path(path: str) -> str:
+    if not _TRACKED:
+        _TRACKED.update(subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, check=True)
+                        .stdout.decode().split("\0"))
+    resolved = (ROOT / path).resolve()
+    _require(resolved.is_relative_to(ROOT.resolve()), f"rejected target {path!r}: it resolves outside the repository")
+    relative = resolved.relative_to(ROOT.resolve()).as_posix()
+    _require(relative in _TRACKED, f"rejected target {path!r}: it resolves to {relative!r}, which is not a tracked file")
+    return relative
 
 
 def _require(condition, what: str):
@@ -268,14 +287,17 @@ def _block(text: str, start: str) -> str:
 
 
 def _relative(consumer: str, path: str) -> str:
-    return str((ROOT / consumer).parent.joinpath(path).resolve().relative_to(ROOT))
+    """`path` joined to the directory of the source file `consumer`, as include_str! and include_bytes! resolve it (an
+    absolute path stands alone); read_table resolves the result."""
+    return str(PurePosixPath(consumer).parent / path)
 
 
 # -- Python: dictionary declarations are parsed, never evaluated; only literal string keys are read.
 def _py_keys(text: str, name: str) -> list[str]:
     """The literal string keys of the one module-level `name = {...}`. A computed key, an unpacked mapping, any other
-    binding of `name` anywhere in the module (nested, in a function, a loop or an import) or any later change to it
-    (item assignment, augmented assignment, a mutating method) is refused."""
+    binding of `name` anywhere in the module (nested, in a function, a loop or an import) or a later change made through
+    the name itself (item assignment, augmented assignment, a mutating method) is refused. A change made through an
+    alias is not seen."""
     tree = ast.parse(text)
     bound = [n for n in tree.body if isinstance(n, (ast.Assign, ast.AnnAssign))
              and any(isinstance(t, ast.Name) and t.id == name for t in (n.targets if isinstance(n, ast.Assign) else [n.target]))]
@@ -291,31 +313,31 @@ def _py_keys(text: str, name: str) -> list[str]:
         targets = node.targets if isinstance(node, ast.Assign) else [node.target] if isinstance(node, (ast.AugAssign, ast.AnnAssign)) else []
         for target in targets:
             _require(not (isinstance(target, ast.Subscript) and isinstance(target.value, ast.Name) and target.value.id == name),
-                     f"{name} gains an entry by item assignment (line {node.lineno})")
+                     f"unsupported form: item assignment to {name}[...] (line {node.lineno})")
             _require(not (isinstance(node, ast.AugAssign) and isinstance(target, ast.Name) and target.id == name),
-                     f"{name} is changed by augmented assignment (line {node.lineno})")
+                     f"unsupported form: augmented assignment to {name} (line {node.lineno})")
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) \
                 and node.func.value.id == name:
             _require(node.func.attr not in {"update", "setdefault", "__setitem__", "pop", "popitem", "clear", "__ior__"},
-                     f"{name} is changed by .{node.func.attr}() (line {node.lineno})")
+                     f"unsupported form: a call of {name}.{node.func.attr}() (line {node.lineno})")
     keys = []
     for key in value.keys:
         _require(key is not None, f"{name} unpacks a mapping (**) at line {value.lineno}")
         _require(isinstance(key, ast.Constant) and isinstance(key.value, str),
-                 f"{name} has a computed key at line {key.lineno}: {ast.unparse(key)}")
+                 f"unsupported form: a {name} key that is not a string literal at line {key.lineno}: {ast.unparse(key)}")
         keys.append(key.value)
     return keys
 
 
 def _source_line(text: str, line: str) -> None:
-    _require(re.search(rf"^{re.escape(line)}$", text, re.M), f"the path-construction rule {line!r} is not as registered")
+    _require(re.search(rf"^{re.escape(line)}$", text, re.M), f"unsupported form: the expected line {line!r} was not found")
 
 
 def _twins(text):
     """PINS and PINS_ADMITTED: repository paths as literal keys; check_pins hashes exactly PINS's keys."""
     _require("    if set(PINS) != set(input_files()):\n" in text
              and "if got != PINS[path] and got != PINS_ADMITTED.get(path):" in text,
-             "check_pins no longer hashes exactly PINS's keys against PINS and PINS_ADMITTED")
+             "unsupported form: check_pins's expected spelling (its PINS-keys and PINS/PINS_ADMITTED comparison lines) was not found")
     return set(_py_keys(text, "PINS")) | set(_py_keys(text, "PINS_ADMITTED"))
 
 
@@ -324,8 +346,8 @@ def _u5a(text):
     _source_line(text, "ROOT = Path(__file__).resolve().parent.parent")
     _source_line(text, 'U5A = ROOT.parent / "t4_u5a"')
     _require(re.search(r"for rel, h in U5A_PINNED\.items\(\):\n\s+b = \(U5A / rel\)\.read_bytes\(\)", text),
-             "U5A_PINNED's keys are no longer read as paths under U5A")
-    return {f"validation/references/t4_u5a/{key}" for key in _py_keys(text, "U5A_PINNED")}
+             "unsupported form: the expected spelling of the loop reading U5A_PINNED's keys under U5A was not found")
+    return {str(PurePosixPath("validation/references/t4_u5a") / key) for key in _py_keys(text, "U5A_PINNED")}
 
 
 def _u4a(text):
@@ -345,7 +367,7 @@ def _u4a(text):
             names.append(node.args[1].value)
     uses = sum(isinstance(n, ast.Name) and n.id == "U4A_DIR" for n in ast.walk(function[0]))
     _require(uses == len(names), "U4A_DIR is used outside os.path.join(U4A_DIR, <literal>)")
-    return {f"validation/references/t4_u4a/{name}" for name in names}
+    return {str(PurePosixPath("validation/references/t4_u4a") / name) for name in names}
 
 
 def _b3_successors(text):
@@ -354,7 +376,7 @@ def _b3_successors(text):
     function = [n for n in ast.parse(text).body if isinstance(n, ast.FunctionDef) and n.name == "m3x_producer"]
     _require(len(function) == 1, "no single m3x_producer")
     templates = [n for n in ast.walk(function[0]) if isinstance(n, ast.JoinedStr)]
-    _require(len(templates) == 1, f"m3x_producer builds {len(templates)} f-strings; one filename template is supported")
+    _require(len(templates) == 1, f"unsupported form: m3x_producer contains {len(templates)} f-strings; exactly one is supported")
     parts = []
     for value in templates[0].values:
         if isinstance(value, ast.Constant):
@@ -362,11 +384,11 @@ def _b3_successors(text):
         else:
             _require(isinstance(value, ast.FormattedValue) and isinstance(value.value, ast.Name) and value.value.id == "mode"
                      and value.conversion == -1 and value.format_spec is None,
-                     f"the filename template substitutes something other than mode: {ast.unparse(templates[0])}")
+                     f"unsupported form: m3x_producer's f-string substitutes something other than a plain mode: {ast.unparse(templates[0])}")
             parts.append("{mode}")
     template = "".join(parts)
     _require(template.count("{mode}") == 1 and "EXACT_PINNED[mode]" in ast.unparse(function[0]),
-             f"the template {template!r} is not keyed by EXACT_PINNED's mode")
+             f"unsupported form: m3x_producer's f-string {template!r} does not hold one mode, or EXACT_PINNED[mode] was not found in m3x_producer")
     return {template.replace("{mode}", mode) for mode in modes}
 
 
@@ -374,7 +396,7 @@ def _frozen(text):
     """FROZEN: repository paths as literal keys, whatever each value is (a literal or a named constant), each hashed
     by the loop over FROZEN.items()."""
     _require(re.search(r"^    for path, digest in FROZEN\.items\(\):\n\s+assert hashlib\.sha256\(\(PROJECT / path\)\.read_bytes\(\)\)"
-                       r"\.hexdigest\(\) == digest, path$", text, re.M), "FROZEN is no longer hashed by its loop as registered")
+                       r"\.hexdigest\(\) == digest, path$", text, re.M), "unsupported form: the expected spelling of the loop over FROZEN.items() was not found")
     return set(_py_keys(text, "FROZEN"))
 
 
@@ -459,16 +481,16 @@ def _macro_literal(field: str, macro: str = "include_str") -> str | None:
     if f"{macro}!" not in field:
         return None
     found = re.fullmatch(rf'{macro}!\(\s*"([^"\\]*)"\s*\)', field)
-    _require(found, f"{macro}! with a non-literal path: {field[:80]}")
+    _require(found, f"unsupported form: {macro}! not written as {macro}!(\"<plain literal>\"): {field[:80]}")
     return found.group(1)
 
 
 def _const_include(text: str, name: str) -> str:
     """The literal path of the module-level `const NAME: &str = include_str!("...");`."""
     found = re.findall(rf"^const {name}: &str = (.*?);$", _uncomment(text, "rust"), re.M | re.S)
-    _require(len(found) == 1, f"const {name} is not declared once")
+    _require(len(found) == 1, f"unsupported form: const {name} is not declared exactly once at the left margin")
     path = _macro_literal(found[0].strip())
-    _require(path is not None, f"const {name} is not include_str! of a literal path")
+    _require(path is not None, f"unsupported form: const {name}'s value is not written as include_str!(\"<plain literal>\")")
     return path
 
 
@@ -476,11 +498,11 @@ def _source_basis(text):
     """CURRENT_SOURCE_BASIS: each row's family, name and mode, through Family::request_path and the raw-output format."""
     for rule in ('format!("fixtures/product_preview/pressure_source/{}/{name}.request.json", self.name())',
                  '"fixtures/product_preview/pressure_source/{}/{name}-{}.raw.json",'):
-        _require(rule in text, f"the path-construction rule {rule!r} is not as registered")
+        _require(rule in text, f"unsupported form: the expected spelling {rule!r} was not found")
     _require(re.search(r'if self\.resolved\(\) \{\s*"load_reference_source"\s*\} else \{\s*"physics_source"\s*\}', text)
-             and "matches!(self, Self::LoadReference)" in text, "Family's directory names are not as registered")
+             and "matches!(self, Self::LoadReference)" in text, "unsupported form: the expected spelling of Family's directory names was not found")
     _require("for (family, name, request_sha256, mode, length, sha256) in CURRENT_SOURCE_BASIS {" in text,
-             "CURRENT_SOURCE_BASIS is no longer iterated by the join test as registered")
+             "unsupported form: the expected spelling of the loop over CURRENT_SOURCE_BASIS was not found")
     n, rows = _rust_array(text, r"const CURRENT_SOURCE_BASIS: \[.*?; (?P<n>\d+)\] = \[")
     _require(n == len(rows), f"declares {n} rows and holds {len(rows)}")
     family = {"Family::Physics": "physics_source", "Family::LoadReference": "load_reference_source"}
@@ -499,7 +521,7 @@ def _source_basis(text):
 def _witness_inputs(text):
     """b3b_witness_inputs_and_routes: each (name, CONST, digest) in its loop, CONST an include_str! of a literal path."""
     block = _block(text, "fn b3b_witness_inputs_and_routes")
-    _require("assert_eq!(sha(text.as_bytes()), file_sha" in block, "the witness loop no longer hashes the included text")
+    _require("assert_eq!(sha(text.as_bytes()), file_sha" in block, "unsupported form: the expected spelling `assert_eq!(sha(text.as_bytes()), file_sha` was not found in the text read as the witness function")
     _, rows = _rust_array(block, r"for \(name, text, file_sha\) in \[")
     paths = set()
     for row in rows:
@@ -515,14 +537,14 @@ def _include_array(consumer: str, start: str, const: str, use: str):
     include_str! of a literal path, and the declared length equals the elements. `use`, the site that hashes them, must
     appear as registered."""
     def read(text):
-        _require(use in text, f"{const} is no longer used as registered ({use})")
+        _require(use in text, f"unsupported form: the expected use-site spelling {use!r} was not found")
         n, elements = _rust_array(_block(text, start), rf"const {const}: \[.*?; (?P<n>\d+)\] = \[")
         _require(n == len(elements), f"{const} declares {n} elements and holds {len(elements)}")
         paths = set()
         for element in elements:
             fields = _fields(element) if element.startswith("(") else [element]
             found = [p for p in (_macro_literal(f) for f in fields) if p is not None]
-            _require(len(found) == 1, f"a {const} element without exactly one include_str! literal: {element[:120]}")
+            _require(len(found) == 1, f"unsupported form: a {const} element with {len(found)} include_str! fields; exactly one is supported: {element[:120]}")
             paths.add(_relative(consumer, found[0]))
         return paths
     return read
@@ -530,34 +552,34 @@ def _include_array(consumer: str, start: str, const: str, use: str):
 
 def _census(text):
     """INPUTS, the include_str! of a literal path, hashed against j7_rf_census_expected.json's inputs_sha256."""
-    _require('pin["inputs_sha256"], sha(INPUTS.as_bytes())' in text, "INPUTS is no longer what inputs_sha256 pins")
+    _require('pin["inputs_sha256"], sha(INPUTS.as_bytes())' in text, "unsupported form: the expected spelling `pin[\"inputs_sha256\"], sha(INPUTS.as_bytes())` was not found")
     return {_relative(J7_CENSUS, _const_include(text, "INPUTS"))}
 
 
 def _j7_i12(text):
     """fn request: every include_bytes! of a literal path, hashed as `bytes`."""
     block = _uncomment(_block(text, "fn request"), "rust")
-    _require("assert_eq!(sha(bytes)," in block, "fn request no longer hashes the included bytes")
+    _require("assert_eq!(sha(bytes)," in block, "unsupported form: the expected spelling `assert_eq!(sha(bytes),` was not found in fn request")
     arguments = [_enclosed(block, m.end() - 1, "rust").strip() for m in re.finditer(r"include_bytes!\s*\(", block)]
-    _require(len(arguments) == 1, f"fn request includes {len(arguments)} byte files; one is supported")
-    _require(_LITERAL.fullmatch(arguments[0]), f"include_bytes! with a non-literal path: {arguments[0][:80]}")
+    _require(len(arguments) == 1, f"unsupported form: fn request contains {len(arguments)} include_bytes! calls; exactly one is supported")
+    _require(_LITERAL.fullmatch(arguments[0]), f"unsupported form: the include_bytes! argument is not a plain double-quoted literal: {arguments[0][:80]}")
     return {_relative(J7_I12, _LITERAL.fullmatch(arguments[0]).group(1))}
 
 
 def _eigen_motion(text):
     """EIGEN_MOTION_REQUEST: concat!(env!("CARGO_MANIFEST_DIR"), "<literal>"), hashed against EIGEN_MOTION_SHA256."""
-    _require("hex, EIGEN_MOTION_SHA256" in text, "EIGEN_MOTION_SHA256 no longer pins the request it reads")
+    _require("hex, EIGEN_MOTION_SHA256" in text, "unsupported form: the expected spelling `hex, EIGEN_MOTION_SHA256` was not found")
     found = re.findall(r"^const EIGEN_MOTION_REQUEST: &str = (.*?);$", _uncomment(text, "rust"), re.M | re.S)
-    _require(len(found) == 1, "const EIGEN_MOTION_REQUEST is not declared once")
+    _require(len(found) == 1, "unsupported form: const EIGEN_MOTION_REQUEST is not declared exactly once at the left margin")
     path = re.fullmatch(r'concat!\(\s*env!\("CARGO_MANIFEST_DIR"\),\s*"(/[^"\\]*)"\s*,?\s*\)', found[0].strip())
     _require(path, f"EIGEN_MOTION_REQUEST is not concat!(env!(\"CARGO_MANIFEST_DIR\"), \"<literal>\"): {found[0][:120]}")
-    return {_relative("core/product_physics/Cargo.toml", path.group(1).lstrip("/"))}
+    return {"core/product_physics" + path.group(1)}  # concat!: CARGO_MANIFEST_DIR followed by the literal
 
 
 def _golden(text):
     """EXACT_GOLDEN: each `<mode>: { ... }` entry's `successor` and `path`, each a plain string literal."""
     _require("expect(sha256(bytes)).toBe(golden.successorSha256)" in text
-             and "expect(sha256(goldenText)).toBe(golden.sha256)" in text, "EXACT_GOLDEN's files are no longer hashed")
+             and "expect(sha256(goldenText)).toBe(golden.sha256)" in text, "unsupported form: the expected spellings of EXACT_GOLDEN's two sha256 expectations were not found")
     code = _uncomment(text, "ts")
     found = list(re.finditer(r"const EXACT_GOLDEN: [^=]*= \{", code))
     _require(len(found) == 1, "EXACT_GOLDEN is not declared once as an object literal")
@@ -572,7 +594,7 @@ def _golden(text):
             properties[named.group(1)] = named.group(2).strip()
         for key in ("successor", "path"):
             _require(key in properties and _LITERAL.fullmatch(properties[key]),
-                     f"{head.group(1)}.{key} is not a plain string literal: {properties.get(key, '(absent)')[:80]}")
+                     f"unsupported form: {head.group(1)}.{key} is absent or not a plain double-quoted string literal: {properties.get(key, '(absent)')[:80]}")
             paths.add(_LITERAL.fullmatch(properties[key]).group(1))
     return paths
 
@@ -585,7 +607,7 @@ CONTRACT = "core/reporting/result_export/tests/retained_precision_contract.rs"
 DERIVATIVE = "core/reporting/result_export/tests/retained_precision_derivative_golden.rs"
 FROZEN_CONSUMER = "tests/test_load_reference_readers.py"
 # (consumer, table, reader, how many paths it names, how many of those the inventory holds). The counts cross-check
-# the readings against the tables as committed; they cannot show a reading is complete, which is the readers' job.
+# the readings against the tables as committed; they cannot show a reading is complete.
 PIN_TABLES = [
     # tools/fixtures/retained_precision_corpus.py names no pressure_regions
     (TWINS, "PINS, PINS_ADMITTED", _twins, 14, 13),
@@ -638,9 +660,10 @@ def unregistered(inventory: dict, root: Path = ROOT) -> list[tuple[str, str]]:
 @pytest.mark.parametrize("consumer, table, reader, total, held", PIN_TABLES,
                          ids=[f"{c.rsplit('/', 1)[1]}:{t}" for c, t, *_ in PIN_TABLES])
 def test_every_inventoried_file_a_fixed_pin_table_names_names_that_table(scanned, consumer, table, reader, total, held):
-    """A change to a pinned file without moving its pin fails the consumer's check, so every pinned file the inventory
-    holds must say which consumer pins it, whether its claim is a group or an exemption. The reader refuses a form it
-    does not support; the counts cross-check the reading against the table as committed."""
+    """A change to a pinned file without moving its pin fails the consumer's check when that check runs, so every
+    pinned file the inventory holds is registered with the consumer that pins it, whether its claim is a group or an
+    exemption. This compares the registrations with the paths the reader extracts; it does not establish that the
+    reading is complete. The counts cross-check the reading against the table as committed."""
     pinned = read_table(consumer, table, reader, (ROOT / consumer).read_text(encoding="utf-8"))
     assert len(pinned) == total and all((ROOT / p).exists() for p in pinned), sorted(pinned)
     named = registrations(INV.build(scanned=scanned))
@@ -675,8 +698,8 @@ def test_a_pinned_file_changed_under_a_stale_table_still_needs_its_registration(
 
 def test_a_target_pinned_through_a_named_constant_still_needs_its_registration(scanned, tmp_path):
     """F5, in a scratch copy: an inventoried file is added to FROZEN with its digest held in a named constant, as two
-    of FROZEN's committed entries are. The reader takes the key whatever the value is, so the missing registration is
-    named."""
+    of FROZEN's committed entries are. The FROZEN reader reads the literal key and not its value, so the missing
+    registration is named."""
     added = "fixtures/results/j7_rf_census_inputs.json"
     _scratch_consumers(tmp_path)
     text = (tmp_path / FROZEN_CONSUMER).read_text(encoding="utf-8")
@@ -688,14 +711,40 @@ def test_a_target_pinned_through_a_named_constant_still_needs_its_registration(s
     assert unregistered(INV.build(scanned=scanned), tmp_path) == [(added, FROZEN_CONSUMER)]
 
 
+def test_an_equivalent_spelling_of_a_pinned_path_still_needs_its_registration(scanned, tmp_path):
+    """F8, in a scratch copy: FROZEN names the inventoried U4a requests as
+    `validation/references/t4_u4a/../t4_u4a/requests.json`, which its loop opens as the same file. The extracted path
+    is resolved before it is compared with the inventory, so the missing registration is named."""
+    spelled, target = "validation/references/t4_u4a/../t4_u4a/requests.json", "validation/references/t4_u4a/requests.json"
+    _scratch_consumers(tmp_path)
+    text = (tmp_path / FROZEN_CONSUMER).read_text(encoding="utf-8")
+    digest = hashlib.sha256((ROOT / target).read_bytes()).hexdigest()
+    mutated = text.replace("FROZEN = {\n", f'FROZEN = {{\n    "{spelled}": "{digest}",\n', 1)
+    assert mutated != text
+    (tmp_path / FROZEN_CONSUMER).write_text(mutated, encoding="utf-8")
+    assert target in read_table(FROZEN_CONSUMER, "FROZEN", _frozen, mutated)
+    assert unregistered(INV.build(scanned=scanned), tmp_path) == [(target, FROZEN_CONSUMER)]
+
+
+@pytest.mark.parametrize("key, cause", [("../outside.json", "outside the repository"),
+                                        ("/etc/hosts", "outside the repository"),
+                                        ("fixtures/no_such_fixture.json", "not a tracked file")])
+def test_a_target_outside_the_repository_or_untracked_is_rejected(key, cause):
+    text = (ROOT / FROZEN_CONSUMER).read_text(encoding="utf-8")
+    mutated = text.replace("FROZEN = {\n", f'FROZEN = {{\n    "{key}": "0",\n', 1)
+    assert mutated != text
+    with pytest.raises(UnsupportedPinForm, match=rf"^{re.escape(FROZEN_CONSUMER)} \(FROZEN\): rejected target .*{cause}"):
+        read_table(FROZEN_CONSUMER, "FROZEN", _frozen, mutated)
+
+
 @pytest.mark.parametrize("form, mutate", [
     ("computed key", lambda t: t.replace("FROZEN = {\n", 'FROZEN = {\n    "fixtures/results/" + "j7_rf_census_inputs.json": "0",\n', 1)),
     ("unpacked mapping", lambda t: t.replace("FROZEN = {\n", "MORE = {}\nFROZEN = {\n    **MORE,\n", 1)),
     ("item assignment", lambda t: t + '\nFROZEN["fixtures/results/j7_rf_census_inputs.json"] = "0"\n'),
 ])
 def test_an_unsupported_path_form_is_refused_by_consumer_and_table(form, mutate):
-    """A path-bearing form the FROZEN reader does not support refuses, naming the consumer and the table, rather than
-    dropping out of the result."""
+    """Three forms the FROZEN reader recognises and does not support are refused, naming the consumer and the table,
+    rather than dropped. Not every unsupported form is recognised (the module docstring, "The pin registrations")."""
     text = (ROOT / FROZEN_CONSUMER).read_text(encoding="utf-8")
     mutated = mutate(text)
     assert mutated != text
