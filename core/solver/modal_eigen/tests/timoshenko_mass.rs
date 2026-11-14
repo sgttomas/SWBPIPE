@@ -114,15 +114,11 @@ fn the_element_matches_its_exact_references_in_global_axes() {
     let mut worst = 0.0f64;
     for c in &all {
         let m = form(c, &shear(c)).unwrap();
-        // The reference is exactly symmetric (its generator checks it). The
-        // turn to global axes sums (r, c) and (c, r) in different orders, as
-        // for the Euler–Bernoulli straight, so the lower triangle is held to
-        // the same normwise tolerance rather than to bitwise equality.
-        let scale = c.global.values().fold(0.0f64, |a, v| a.max(v.abs().to_f64()));
+        // The turn forms the upper triangle exactly and mirrors it, so the
+        // returned matrix is bitwise symmetric.
         for r in 0..12 {
             for k in 0..r {
-                let d = m[r][k].sub(m[k][r]).abs().to_f64() / scale;
-                assert!(d <= NORMWISE, "{}: asymmetry {d:e} at ({r}, {k})", c.id);
+                assert_eq!(m[r][k], m[k][r], "{}: asymmetry at ({r}, {k})", c.id);
             }
         }
         let e = normwise_upper(&m, &c.global);
@@ -209,11 +205,10 @@ fn a_representable_plane_survives_tiny_prefactors() {
     }
 }
 
-/// An entry that cannot be held at double-double precision is refused by
-/// name, never returned as zero: m̄ = ī = 2⁻¹⁰⁰⁰ on the same member puts every
-/// bending entry far below 2⁻⁹⁶⁹.
+/// At m̄ = ī = 2^-1000 and Φ = 2^400, completed bending entries cannot
+/// narrow within the conversion precision budget. Refuse by name.
 #[test]
-fn an_unrepresentable_plane_is_refused_by_name() {
+fn a_plane_outside_the_conversion_precision_budget_is_refused_by_name() {
     let tiny = Dd::from_f64(2.0f64.powi(-1000));
     let one = Dd::from_f64(1.0);
     let shear = TimoshenkoShear {
@@ -231,6 +226,74 @@ fn an_unrepresentable_plane_is_refused_by_name() {
         tiny,
         one,
         &shear,
+    );
+    assert_eq!(r, Err(GeometryError::TimoshenkoMassRange));
+}
+
+fn unit_shear() -> TimoshenkoShear {
+    let one = Dd::from_f64(1.0);
+    TimoshenkoShear {
+        elastic_modulus: one,
+        shear_modulus: one,
+        shear_area: Dd::from_f64(12.0),
+        second_moment_y: one,
+        second_moment_z: one,
+    }
+}
+
+/// The round-2 reader's finding-2 witness 1: Φ = 1 in both planes and both
+/// planes representable, but the exact torsional diagonal j̄L/3 = 2⁻¹¹⁰⁰/3 is
+/// outside double-double range. It is refused, not returned as zero.
+#[test]
+fn an_unrepresentable_torsional_entry_is_refused_by_name() {
+    let mut s = unit_shear();
+    s.elastic_modulus = Dd::from_f64(2.0f64.powi(-200));
+    let r = straight_mass_timoshenko(
+        [0.0, 0.0, 0.0],
+        [2.0f64.powi(-100), 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        Dd::from_f64(2.0f64.powi(200)),
+        Dd::from_f64(1.0),
+        Dd::from_f64(2.0f64.powi(-1000)),
+        &s,
+    );
+    assert_eq!(r, Err(GeometryError::TimoshenkoMassRange));
+}
+
+/// The round-2 reader's finding-2 witness 2: a skew member at m̄ = ī = j̄ =
+/// 2⁻⁹⁶⁰ whose global (0, 1) entry, turned in plain double-double, came back
+/// with a normal high word and 3.85e-23 relative error. It must now be
+/// returned within the conversion budget or refused, never silently degraded:
+/// the reader's expected behaviour is refusal.
+#[test]
+fn a_degraded_global_entry_is_refused_by_name() {
+    let tiny = Dd::from_f64(2.0f64.powi(-960));
+    let r = straight_mass_timoshenko(
+        [0.0, 0.0, 0.0],
+        [1.0, 2.0f64.powi(-40), 0.0],
+        [0.0, 0.0, 1.0],
+        tiny,
+        tiny,
+        tiny,
+        &unit_shear(),
+    );
+    assert_eq!(r, Err(GeometryError::TimoshenkoMassRange));
+}
+
+/// The round-2 reader's finding-2 witness 3: the exact global (0, 1) entry is
+/// nonzero, of order 2⁻¹⁵⁰⁰, and every plain double-double term underflowed
+/// to a finite zero. It is refused, not returned as zero.
+#[test]
+fn a_nonzero_global_entry_below_range_is_refused_by_name() {
+    let tiny = Dd::from_f64(2.0f64.powi(-900));
+    let r = straight_mass_timoshenko(
+        [0.0, 0.0, 0.0],
+        [1.0, 2.0f64.powi(-600), 0.0],
+        [0.0, 0.0, 1.0],
+        tiny,
+        tiny,
+        tiny,
+        &unit_shear(),
     );
     assert_eq!(r, Err(GeometryError::TimoshenkoMassRange));
 }
