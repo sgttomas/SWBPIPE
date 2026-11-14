@@ -458,9 +458,13 @@ points enter only through its own modulus basis.
 **What remains.** These twins are re-authorings of the source inputs as they
 were committed at the freeze (`f47ba3360`); the frozen files record those
 inputs' hashes. The twelve J2 request files have since changed in one line
-each, the model document version. The generator admits exactly those
-successors, named with their difference, and reproduces every frozen byte from
-them. Any other change to J2's or RF's inputs is refused, and the twins then
+each, the model document version. The three `mixed` files (physics_source
+mixed and mixed_units, load_reference_source mixed) have also gained a
+`model_settings.pressure_elongation` member naming `case:ordinary-pressure`
+(`04de5e11f`). That case is out of scope here (a present pressure region),
+and the re-authoring reads neither the version nor `model_settings`. The
+generator admits exactly those successors, named with their whole difference
+(`PINS_ADMITTED_DIFFERENCE`), and reproduces every frozen byte from them. Any other change to J2's or RF's inputs is refused, and the twins then
 need a re-freeze and a new refutation.
 `exact_readouts()` (`o4_reference.py --solve DOC.json`) still gives both
 readouts of any other document by the same code path; such values are not

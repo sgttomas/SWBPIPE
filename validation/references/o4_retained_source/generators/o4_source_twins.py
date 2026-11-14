@@ -91,8 +91,12 @@ PINS = {
 # input is again a finding and not a silent pass.
 PINS_ADMITTED_DIFFERENCE = (
     'one line in each file, "schema_version": "0.6.0" to "0.9.0", by d2778886f (0.7.0, 2026-10-23), '
-    "70f87a7ff (0.8.0, 2026-10-26) and ec2e3f6d6 (0.9.0, 2026-10-31); nothing else. The freeze's files are "
-    "those of f47ba3360 (2026-10-17). The re-authoring reads no version."
+    "70f87a7ff (0.8.0, 2026-10-26) and ec2e3f6d6 (0.9.0, 2026-10-31); in physics_source mixed and "
+    "mixed_units and load_reference_source mixed also seven lines inserted before \"nodes\", the member "
+    '"model_settings": {"pressure_elongation": {"operating_load_cases": ["case:ordinary-pressure"]}}, by '
+    "04de5e11f (2026-11-09); nothing else. The freeze's files are those of f47ba3360 (2026-10-17). The "
+    "re-authoring reads neither the version nor model_settings, and the one case the member names is out of "
+    "scope here (a present pressure region)."
 )
 PINS_ADMITTED = {
     "fixtures/product_preview/pressure_source/physics_source/n05.request.json":
@@ -106,9 +110,9 @@ PINS_ADMITTED = {
     "fixtures/product_preview/pressure_source/physics_source/fields.request.json":
         "1cd5959a4c3c832d25ad18e62e8d2ead77a20ff93bc0ac0c02373c33606eb58e",
     "fixtures/product_preview/pressure_source/physics_source/mixed.request.json":
-        "e8afa2bb836793e7c7e08eaa47c76d5c1ee4310919148ef25ba39f1e0fe3d70a",
+        "5a18bece8c0a601404b782fc89d280a7d290bd3133f879146d68315720815aa6",
     "fixtures/product_preview/pressure_source/physics_source/mixed_units.request.json":
-        "a53a068b6760302cb28eb53906735d2d030e491b7e571a516bff2bb236a02173",
+        "4280a1b703216170898ee9c6b6e1e1c529f4afe03f2c52d5a7a1c74c83c37dbd",
     "fixtures/product_preview/pressure_source/load_reference_source/n05.request.json":
         "9bb4453b6251a37d7027608a26fe07373e0b2aaf39b8a0cba147bfe01815c067",
     "fixtures/product_preview/pressure_source/load_reference_source/n06.request.json":
@@ -118,7 +122,7 @@ PINS_ADMITTED = {
     "fixtures/product_preview/pressure_source/load_reference_source/fields.request.json":
         "947fb8ef33732123514db9c53ac03f91045bd82988b8b2bdb5f33b3f9387fbeb",
     "fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json":
-        "97556596c03da64534ff962bd7d3a07100702e6e867dffe200a46d5e72c9977b",
+        "f037e7832e81bfb6c42723fcef2affbe7676c83077d953e1eb1724f1d4bfa895",
 }
 
 THEORY_VARIANTS = (("zero", "eb"), ("zero", "timo"), ("mill", "eb"), ("ca", "eb"), ("both", "eb"),

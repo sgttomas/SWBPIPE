@@ -228,9 +228,11 @@ check) rather than taking the recorded magnitude.
 ## Reproduce
 
 ```
-python3 -I -B generators/u6_reference.py           # verify every file byte for byte
-python3 -I -B generators/u6_reference.py --write   # rewrite them (intentional changes only)
+python3 -I -B generators/u6_reference.py --pressure-elongation all           # verify every file byte for byte
+python3 -I -B generators/u6_reference.py --write --pressure-elongation all   # rewrite them (intentional changes only)
 ```
+
+The switch is there because the committed requests name every pressurised load case in `model_settings.pressure_elongation` (DEL-04-07); without it the generator builds them without that member and reports a mismatch.
 
 These references are independent derivations; before code relies on them, a
 second TASK that did not write them refutes them (plan 01 §5; see Status). No product
