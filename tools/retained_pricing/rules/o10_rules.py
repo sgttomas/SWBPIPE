@@ -4998,6 +4998,16 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         _loop = _fn_text("append_nonlinear_support_loop_results", _LIB)
         _case = _fn_text("solve_prepared_load_case", _LIB)
         _lib_text = _text_of(_LIB)
+        # SEAM-ST (DEL-04-07 *Published displacement*, re-read at the publication-basis decision): the loop now also
+        # returns `nonlinear_staged`, the confirmation-basis rows staged for the case's one release. On D1 the loop
+        # returns None first, so the None arm sets all four members to None and allocates nothing; nonlinear_staged is
+        # read only by `released` (false), a test probe and the `if let Some(staged)` that alone calls
+        # release_confirmed_rows (not entered), and is never re-assigned. base/nonlinear_seams.py binds the tuple, the
+        # arms and every read by exact text (the earlier three-member form is accepted unchanged); any other form stops.
+        _seam_st = __import__("runpy").run_path(
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "nonlinear_seams.py"))["standing_failures"](_case)
+        if _seam_st:
+            raise SystemExit(f"MODAL-SEAM: {_seam_st}; re-review (§8.43)")
         if (_modal_hashlib.sha256(_seam.encode()).hexdigest()
                 # RT-A3 S6 D3 (§8.59): the capture takes the loop's consumed motion as an argument (S6-ME, priced positively); its
                 # first statement is unchanged and it still returns None there on D1.
@@ -5006,13 +5016,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                 or not _re.search(r"\{\n    if built\.nonlinear_supports\.is_empty\(\) \{\n        return None;\n    \}\n", _loop)
                 or _case.count("capture_nonlinear_state_evidence(\n        &load_case.id,\n        solver_mode,\n"
                                "        selected_nonlinear.as_ref(),\n") != 1
-                or _case.count("let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) =\n"
-                               "        match append_nonlinear_support_loop_results(") != 1
                 or _re.search(r"\bselected_nonlinear\s*=[^=]", _case)
-                or _case.count("Some((solve, nonlinear, qualification)) => {\n"
-                               "                (Some(solve), Some(nonlinear), qualification)\n"
-                               "            }\n"
-                               "            None => (None, None, None),") != 1
                 or len(_re.findall(r"\bcapture_nonlinear_state_evidence\b", _lib_text)) != 2):
             raise SystemExit("MODAL-SEAM: the capture, its call or the nonlinear loop's early return changed; re-review (§8.43)")
         O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), fnkey("capture_nonlinear_state_evidence", _LIB),
@@ -5647,14 +5651,24 @@ if fnkey("read_case", _NL_EV):
     _nl_fc = _fn_text("family_clauses", _W16_RM) if fnkey("family_clauses", _W16_RM) else ""
     _nl_prod = _production(_NL_EV)
     _nl_dpe = _fn_text("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs")
+    # NL-RD/NL-RQ (DEL-04-07, re-read at the publication-basis decision): `read` binds the case list as `cases` and
+    # first requires `cases.is_empty() || <mechanics solved>`; read_case requires `code != INSPECTION_ONLY_CODE` per
+    # case. `require` is `fn require(ok: bool, code: &str) -> Check`: the message is a static &str and its one
+    # allocation, `Err(format!(..))`, is in the else branch. On D1 the case list is empty, so `ok` holds by the `||`
+    # short circuit and nothing is allocated at the call; read_case's require is inside the map over the empty list.
+    # base/nonlinear_seams.py binds both bodies, require's signature and body and each call's literal message (the
+    # earlier `read` is accepted unchanged); it also gives read's case-map loop header for RTA3NL-RD below.
+    _nl_failed, _nl_read_loop = __import__("runpy").run_path(
+        _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "nonlinear_seams.py"))["reader_failures"](
+        _nl_prod, _fn_text("read", _NL_EV))
+    if _nl_failed:
+        raise SystemExit(f"RTA3NL-RD: {_nl_failed}; re-review the nonlinear reader's D1 premise (§8.49)")
     _nl_guard = (
         # D1.6: a nonlinear support record is refused by name on every retained branch.
         _nl_fc.count("        if support.nonlinear.is_some() {\n") == 1,
         # The retained graph reaches the reader once per direct pass, through `check`, a no-op without nonlinear rows.
         _nl_dpe.count("crate::nonlinear_support_evidence::check(source)") == 1,
         _nl_prod.count("pub(crate) fn check(source: &Value) -> Check {\n    read(source).map(|_| ())\n}\n") == 1,
-        _nl_prod.count("    let rows = items(&source[\"results\"]);\n"
-                       "    case_ids(rows)?.into_iter().map(|case| read_case(source, case)).collect()\n") == 1,
         _nl_prod.count("    let mut cases: Vec<&str> = Vec::new();\n") == 1
         and _nl_prod.count("    for row in rows.iter().filter(|r| kind(r).starts_with(\"nonlinear_support_\") "
                            "&& r[\"basis_ref\"][\"ref_type\"] != \"combination\") {\n") == 1,
@@ -5675,7 +5689,7 @@ if fnkey("read_case", _NL_EV):
     O10_LOOPS_LAST += [
         ('for row in rows.iter().filter(|r| kind(r).starts_with(" ") && r[" "][" "] != " ")', "0", _NL_RD,
          ["nonlinear_support_evidence.rs:case_ids"]),
-        ("iter:case_ids(rows)?.into_iter().map", "0", _NL_RD, ["nonlinear_support_evidence.rs:read"]),
+        (_nl_read_loop, "0", _NL_RD, ["nonlinear_support_evidence.rs:read"]),
     ]
     # RTA3NL-ID: read_case's state-review message names a support's state, one of STATES (at most 8 B). The site is
     # unreached on D1 (multiplicity 0); the chain classifies every format row's arguments regardless.
