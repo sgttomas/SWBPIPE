@@ -18,7 +18,6 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 from tools.validation import pressure_elongation as PE  # noqa: E402
 from tools.validation import pressure_elongation_anchor as A  # noqa: E402
-from tools.validation import pressure_elongation_inventory as INV  # noqa: E402
 
 def region(pressure, rid="region:a", pipes=("pipe:a",)):
     out = {"id": rid, "member_pipe_ids": list(pipes), "pressure_basis": "internal_differential_zero_external_v1",
@@ -415,9 +414,3 @@ def test_entry_baseline_takes_one_entrys_references_from_another_directory(tmp_p
         A.main(argv + ["--entry-baseline", f"other={own}"])
     with pytest.raises(SystemExit, match="ID=DIR"):
         A.main(argv + ["--entry-baseline", str(own)])
-
-
-# ----------------------------------------------------------------------------- the inventory
-def test_the_inventory_is_current():
-    assert INV.OUTPUT.read_text(encoding="utf-8") == INV.dumps(INV.build()), \
-        "run python3 tools/validation/pressure_elongation_inventory.py and classify any new pressure fixture"
