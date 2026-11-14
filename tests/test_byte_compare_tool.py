@@ -281,6 +281,14 @@ STUB_CARGO = textwrap.dedent('''\
             os.symlink(frozen, where) if kind == "symlink" else os.link(frozen, where)
         except FileExistsError:   # the tool already holds the name
             open(os.environ["STUB_CARGO_LOG"] + ".plant-refused", "w").close()
+    if side == "A" and os.environ.get("STUB_REPLACE_BUILD"):
+        replaced = os.path.join(scratch, os.environ["STUB_REPLACE_BUILD"])
+        if os.environ.get("STUB_REPLACE_MODE") == "rename":
+            os.rename(replaced, replaced + ".away")
+            open(replaced, "w").write("a new file at the reserved name")
+        else:
+            os.unlink(replaced)
+            os.link(os.environ["STUB_FROZEN"], replaced)
     if side == "A" and os.environ.get("STUB_SWAP"):
         where = os.path.normpath(os.path.join(scratch, os.environ["STUB_SWAP"]))
         os.rename(where, where + ".moved")
@@ -353,17 +361,33 @@ STUB_CARGO = textwrap.dedent('''\
     sys.stderr.write(f"   Compiling open_pipe_stress_release_timing v0.1.0 ({crate})\\n"
                      f"     Running `{shlex.join(command)}`\\n"
                      "    Finished `release` profile [optimized] target(s) in 0.01s\\n")
+    # After side A's whole record is written: rename a log away and put an identical copy at its name.
+    if side == "A" and os.environ.get("STUB_REPLACE_BUILD_END"):
+        sys.stdout.flush()
+        sys.stderr.flush()
+        replaced = os.path.join(scratch, os.environ["STUB_REPLACE_BUILD_END"])
+        os.rename(replaced, replaced + ".away")
+        with open(replaced + ".away", "rb") as old, open(replaced, "wb") as new:
+            new.write(old.read())
 ''')
 
 STUB_DRIVER = textwrap.dedent('''\
     import hashlib, json, os, sys
     with open(os.environ["STUB_RUN_LOG"], "a") as handle:
         handle.write(json.dumps(sys.argv[1:]) + "\\n")
-    # At its first solve, replace a later run's reserved output with a hard link to a frozen request.
-    if os.environ.get("STUB_REPLACE") and sys.argv[1:] != ["--build-identity"] and not os.path.exists(os.environ["STUB_REPLACE"] + ".done"):
-        open(os.environ["STUB_REPLACE"] + ".done", "w").close()
-        os.unlink(os.environ["STUB_REPLACE"])
-        os.link(os.environ["STUB_FROZEN"], os.environ["STUB_REPLACE"])
+    # At its first solve (or, with STUB_REPLACE_WRITTEN, the first once the file holds bytes), replace a
+    # reserved file: by a hard link to a frozen request, or (STUB_REPLACE_MODE=rename) by renaming it away
+    # and creating a new regular file at its name.
+    target = os.environ.get("STUB_REPLACE")
+    if target and sys.argv[1:] != ["--build-identity"] and not os.path.exists(target + ".done") \\
+            and (not os.environ.get("STUB_REPLACE_WRITTEN") or os.path.getsize(target) > 0):
+        open(target + ".done", "w").close()
+        if os.environ.get("STUB_REPLACE_MODE") == "rename":
+            os.rename(target, target + ".away")
+            open(target, "w").write("a new file at the reserved name")
+        else:
+            os.unlink(target)
+            os.link(os.environ["STUB_FROZEN"], target)
     if os.environ.get("STUB_OUTSIDE_LOG") and not os.environ.get("UNDER_RUN_WRAPPER"):
         with open(os.environ["STUB_OUTSIDE_LOG"], "a") as handle:
             handle.write(json.dumps(sys.argv) + "\\n")
@@ -755,6 +779,67 @@ def test_a_run_output_replaced_after_its_reservation_is_refused(world, capsys):
     assert frozen(world).read_bytes() == before[0]
 
 
+@pytest.mark.parametrize("swapped", ["inputs", "runs/A", "build/bin/B-{b}"])
+def test_a_reserved_directory_swapped_for_a_link_back_to_itself_is_refused(world, swapped, capsys):
+    # The held directory is renamed and a link to it put at its name: the same inode is still reached by
+    # the path, so only a no-link reopening from the root sees the substitution. For "inputs", the
+    # deeper reserved inputs/A and inputs/B are also reached through the substituted parent.
+    before = snapshot(world)
+    scratch = world["tmp"] / "scratch-self-link"
+    where = scratch / swapped.format(b=world["b"])
+    code, _, _ = world["run"](scratch=scratch, env={"STUB_SWAP": str(where.relative_to(scratch)),
+                                                    "STUB_SWAP_TO": str(where) + ".moved"})
+    assert code == 2 and says(capsys.readouterr().err, "no longer names the directory")
+    assert snapshot(world) == before and not ran_a_solve(world)
+    moved = Path(str(where) + ".moved")
+    assert where.is_symlink() and not [p for p in moved.rglob("*") if p.is_file()]   # nothing written through it
+
+
+def test_a_deeper_reserved_directory_reached_through_a_substituted_parent_is_refused(tmp_path):
+    area = bc.Area.reserve(str(tmp_path / "area"), "--scratch")
+    try:
+        inputs = area.directory("inputs")
+        side = inputs.directory("A")
+        os.rename(tmp_path / "area" / "inputs", tmp_path / "area" / "inputs.moved")
+        (tmp_path / "area" / "inputs").symlink_to("inputs.moved", target_is_directory=True)
+        # inputs/A itself is a real directory; only its parent has become a link back to the same place.
+        assert not bc.same_directory(side.path, side.fd) and not bc.same_directory(inputs.path, inputs.fd)
+        with pytest.raises(bc.SetupError):
+            area.verify()
+    finally:
+        area.close()
+
+
+@pytest.mark.parametrize("target, when, mode", [
+    ("table.md", "solve", "hardlink"), ("results.json", "solve", "hardlink"), ("plan.json", "build", "hardlink"),
+    ("table.md", "solve", "rename"), ("results.json", "solve", "rename"), ("plan.json", "build", "rename"),
+    ("build-A.log", "build", "hardlink"), ("build-A.jsonl", "build", "rename"),
+    ("build-A.log", "build-end", "copy"), ("build-A.jsonl", "build-end", "copy"),
+    ("runs/A/f__old.json.sparse.stdout", "written", "hardlink"), ("runs/A/f__old.json.sparse.status.json", "written", "rename"),
+    ("inputs/B/f__old.json.json", "solve", "rename"),
+])
+def test_a_reserved_file_replaced_before_it_is_written_or_read_is_refused(world, target, when, mode, capsys):
+    # A reserved file's name is made to point elsewhere: a hard link to the frozen request, or a new
+    # regular file after the reserved one is renamed away. The tool refuses rather than writing to (or
+    # reading from) anything but the file it reserved, and the frozen request's bytes are unchanged.
+    before = snapshot(world)
+    scratch = world["tmp"] / "scratch-replace-file"
+    env = {"STUB_REPLACE_MODE": mode}
+    if when == "build":
+        env["STUB_REPLACE_BUILD"] = target
+    elif when == "build-end":   # an identical copy: only the identity check can tell it from the original
+        env["STUB_REPLACE_BUILD_END"] = target
+    else:
+        env["STUB_REPLACE"] = str(scratch / target)
+        if when == "written":
+            env["STUB_REPLACE_WRITTEN"] = "1"
+    code, _, _ = world["run"](scratch=scratch, env=env)
+    needle = "is not the input the comparison wrote" if target.startswith("inputs/") else "after it was reserved"
+    err = capsys.readouterr().err
+    assert code == 2 and says(err, needle), err
+    assert frozen(world).read_bytes() == before[0] and git(world["repo"], "status", "--porcelain") == ""
+
+
 @pytest.mark.parametrize("name", ["/elsewhere/table.md", "../escape.md", "sub/table.md", "results.json", "build", ".."])
 def test_a_table_name_that_is_not_a_new_plain_name_in_the_area_is_refused(world, name, capsys):
     before = snapshot(world)
@@ -978,7 +1063,7 @@ def attest_captured(stdout=lambda t: t, stderr=lambda t: t, lock=lambda t: t, ob
     return bc.attest_build(parsed, tree="/WT", target="/TARGET", lock_text=lock((CAPTURED / "Cargo.lock").read_text()),
                            settings=manifest["build_settings"], closure=manifest["build_closure"], rustc=rustc,
                            committed=seen["committed"], list_generated=lambda out_dir: seen["out_dirs"][out_dir],
-                           verify_registry=verify, read_dep_info=lambda path: deps[path], realpath=os.path.normpath)
+                           verify_registry=verify, read_dep_info=lambda path: deps[path], find_link=lambda path: None)
 
 
 def test_the_captured_build_of_the_driver_is_attested():
@@ -1233,14 +1318,18 @@ def test_entries_whose_derived_ids_collide_are_refused():
 
 @pytest.fixture()
 def closure_tree(tmp_path):
-    """A tree with committed files, one committed link to a directory outside it, and outside files."""
-    tree, outside = tmp_path / "tree", tmp_path / "outside"
-    (tree / "core" / "a").mkdir(parents=True)
+    """A tree with committed files and committed links: `core/a/link` to a directory outside it,
+    `core/a/self` to the sibling directory `sub` (so `self/..` lands where `a/..` would), and `top` at the
+    first component under the tree, to `core`; and files outside it."""
+    tree, outside = (tmp_path / "tree").resolve(), (tmp_path / "outside").resolve()
+    (tree / "core" / "a" / "sub" / "sub2").mkdir(parents=True)
     (outside / "deep").mkdir(parents=True)
     (tree / "core" / "a" / "x.rs").write_text("committed\n")
     (outside / "x.rs").write_text("outside\n")
     (tree / "core" / "a" / "link").symlink_to(outside / "deep", target_is_directory=True)
-    committed = {"core/a/x.rs": "100644", "core/a/link": "120000"}
+    (tree / "core" / "a" / "self").symlink_to("sub", target_is_directory=True)
+    (tree / "top").symlink_to("core", target_is_directory=True)
+    committed = {"core/a/x.rs": "100644", "core/a/link": "120000", "core/a/self": "120000", "top": "120000"}
     return tree, outside, committed
 
 
@@ -1251,16 +1340,26 @@ def closure(tree, committed, paths, generated=()):
 
 def test_committed_sources_reached_without_a_link_are_accepted(closure_tree):
     tree, _, committed = closure_tree
-    closure(tree, committed, [tree / "core" / "a" / "x.rs", tree / "core" / "a" / ".." / "a" / "x.rs"])
+    # `..` through real directories is not a link: rustc reports such paths for include_str! sources.
+    closure(tree, committed, [tree / "core" / "a" / "x.rs", tree / "core" / "a" / ".." / "a" / "x.rs",
+                              tree / "core" / "a" / "sub" / "sub2" / ".." / ".." / "x.rs"])
 
 
-@pytest.mark.parametrize("case", ["through a link and ..", "a committed link", "outside", "uncommitted"])
+@pytest.mark.parametrize("case", ["through a link and ..", "a link canceled by .., same endpoint",
+                                  "a link canceled two levels down", "a link at the first component",
+                                  "a committed link", "outside", "uncommitted"])
 def test_a_source_the_closure_does_not_hold_is_refused(closure_tree, case):
     tree, outside, committed = closure_tree
     # "through a link and ..": written plainly it names committed core/a/x.rs, but the file system goes
-    # through the committed link and reads outside/x.rs.
-    path, needle = {"through a link and ..": (tree / "core" / "a" / "link" / ".." / "x.rs", "is reached through a link"),
-                    "a committed link": (tree / "core" / "a" / "link", "is reached through a link"),
+    # through the committed link and reads outside/x.rs (the endpoints differ).
+    # The next three resolve to exactly the committed core/a/x.rs that their plain form names (equal
+    # endpoints): a link was traversed all the same, canceled by `..` at different depths.
+    link = "a link anywhere on a source's path refuses"
+    path, needle = {"through a link and ..": (tree / "core" / "a" / "link" / ".." / "x.rs", link),
+                    "a link canceled by .., same endpoint": (tree / "core" / "a" / "self" / ".." / "x.rs", link),
+                    "a link canceled two levels down": (tree / "core" / "a" / "self" / "sub2" / ".." / ".." / "x.rs", link),
+                    "a link at the first component": (tree / "top" / ".." / "core" / "a" / "x.rs", link),
+                    "a committed link": (tree / "core" / "a" / "link", link),
                     "outside": (outside / "x.rs", "is neither committed"),
                     "uncommitted": (tree / "core" / "a" / "y.rs", "is not a committed file")}[case]
     if case == "uncommitted":

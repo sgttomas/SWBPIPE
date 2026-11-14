@@ -235,11 +235,17 @@ def open_directory(path: Path) -> int:
 
 
 def same_directory(path: Path, fd: int) -> bool:
-    """Whether `path`, as the file system resolves it now, is the directory open as `fd`."""
+    """Whether the absolute `path`, reopened now one component at a time from the root with no link
+    followed (a link at any ancestor or at the directory itself fails), is the directory open as `fd`.
+    A directory reached through a link never matches, even one that leads back to the held directory."""
     try:
-        named, held = os.stat(path), os.fstat(fd)
-    except OSError:
+        reopened = open_directory(path)
+    except SetupError:
         return False
+    try:
+        named, held = os.fstat(reopened), os.fstat(fd)
+    finally:
+        os.close(reopened)
     return (named.st_dev, named.st_ino) == (held.st_dev, held.st_ino)
 
 
@@ -324,6 +330,48 @@ class Area:
                 raise SetupError(f"{self.path / name} is not a regular file")
             return handle.read()
 
+    def identity_of(self, name: str) -> tuple[int, int]:
+        """(device, inode) of `name` below this area, opened with no link followed; it must be a regular
+        file with a single link, or this refuses."""
+        try:
+            fd = os.open(plain_name(name, f"a file in {self.path}"), os.O_RDONLY | os.O_NOFOLLOW, dir_fd=self.fd)
+        except OSError as error:
+            raise SetupError(f"{self.path / name} is no longer the file this comparison reserved ({error}); "
+                             "nothing was written to it") from error
+        try:
+            info = os.fstat(fd)
+        finally:
+            os.close(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+            raise SetupError(f"{self.path / name} was replaced or linked after it was reserved; nothing was written to it")
+        return info.st_dev, info.st_ino
+
+    def check_held(self, name: str, held: tuple[int, int]) -> None:
+        """Refuses unless `name` is still the regular, singly linked file reserved as `held`."""
+        if self.identity_of(name) != tuple(held):
+            raise SetupError(f"{self.path / name} was replaced after it was reserved; nothing was written to it")
+
+    def write_held(self, name: str, handle, data: bytes) -> None:
+        """Writes a reserved file through its held handle, after checking that its name still names it."""
+        try:
+            held = os.fstat(handle.fileno())
+            self.check_held(name, (held.st_dev, held.st_ino))
+            handle.write(data)
+        finally:
+            handle.close()
+
+    def read_held(self, name: str, held: tuple[int, int]) -> bytes:
+        """A reserved file's bytes, read with no link followed, from the file reserved as `held` only."""
+        try:
+            fd = os.open(plain_name(name, f"a file in {self.path}"), os.O_RDONLY | os.O_NOFOLLOW, dir_fd=self.fd)
+        except OSError as error:
+            raise SetupError(f"{self.path / name} is no longer the file this comparison reserved ({error})") from error
+        with os.fdopen(fd, "rb") as handle:
+            info = os.fstat(handle.fileno())
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or (info.st_dev, info.st_ino) != tuple(held):
+                raise SetupError(f"{self.path / name} was replaced after it was reserved; it is not read")
+            return handle.read()
+
     def verify(self) -> None:
         """Refuses unless every area of this reservation is still named by its path (no directory on the
         way replaced, by a link or otherwise)."""
@@ -353,6 +401,24 @@ def read_plain(path: Path) -> bytes:
         if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
             raise BuildRefused(f"{path} is not a regular file")
         return handle.read()
+
+
+def file_identity(path: Path) -> tuple[int, int] | None:
+    """(device, inode) of the regular, singly linked file at the absolute `path`, reached with no link
+    followed anywhere on the way; None otherwise."""
+    try:
+        parent = open_directory(path.parent)
+    except SetupError:
+        return None
+    try:
+        info = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+    except OSError:
+        return None
+    finally:
+        os.close(parent)
+    if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+        return None
+    return info.st_dev, info.st_ino
 
 
 # What the tool itself writes directly in the scratch area; the table may not take one of these names.
@@ -942,17 +1008,44 @@ def parse_dep_info(text: str, where: str) -> list[str]:
     return list(dict.fromkeys(deps))
 
 
+def link_on_path(path: str, lstat=os.lstat) -> tuple[str, str] | None:
+    """Walks the absolute `path` exactly as written, one component at a time and `..` included, without
+    following any link: each prefix is examined with lstat, and `..` steps back to the parent of the
+    prefix walked so far (which holds no link, so its parent is its lexical parent). Returns the first
+    prefix that is a link or does not exist, with which; None when every component is a real entry. A
+    link is found even where a later `..` cancels it."""
+    current = "/"
+    for part in PurePosixPath(path).parts[1:]:
+        if part == ".":
+            continue
+        if part == "..":
+            current = os.path.dirname(current)
+            continue
+        current = os.path.join(current, part)
+        try:
+            mode = lstat(current).st_mode
+        except OSError:
+            return current, "which does not exist"
+        if stat.S_ISLNK(mode):
+            return current, "which is a link"
+    return None
+
+
 def check_source_closure(paths: list[str], *, tree: str, committed: dict, registry: dict, generated: set,
-                         realpath=os.path.realpath) -> None:
-    """A list comparison over what rustc reported (README "Source closure"). Each file, as the file
-    system resolves it, must be the path written plainly (so no link lies anywhere on the way) and must
-    be one of: a committed regular file of this side's worktree, a file of a registry package this side
-    verified, or a generated file the manifest allows. Anything else refuses."""
+                         find_link=link_on_path) -> None:
+    """A list comparison over what rustc reported (README "Source closure"). Every path is first walked
+    as written, component by component, with no link followed: a link at any component (even one a later
+    `..` cancels) refuses. Each file must then be one of: a committed regular file of this side's
+    worktree, a file of a registry package this side verified, or a generated file the manifest allows.
+    Anything else refuses. The same operations apply to every reported path."""
     for path in paths:
+        if not os.path.isabs(path):
+            raise BuildRefused(f"the source {path} is not an absolute path")
+        found = find_link(path)
+        if found is not None:
+            raise BuildRefused(f"the source {path} passes through {found[0]}, {found[1]}; "
+                               "a link anywhere on a source's path refuses")
         plain = os.path.normpath(path)
-        if realpath(path) != plain:
-            raise BuildRefused(f"the source {path} is reached through a link ({realpath(path)}); "
-                               "a link anywhere in the source closure refuses")
         if plain in generated:
             continue
         if _inside(plain, tree):
@@ -971,7 +1064,7 @@ def check_source_closure(paths: list[str], *, tree: str, committed: dict, regist
 
 def attest_build(parsed: dict, *, tree: str, target: str, lock_text: str, settings: dict, closure: dict,
                  rustc: dict, committed: dict, list_generated=generated_files, verify_registry=verify_registry_package,
-                 read_dep_info=lambda path: Path(path).read_text(encoding="utf-8"), realpath=os.path.realpath) -> dict:
+                 read_dep_info=lambda path: Path(path).read_text(encoding="utf-8"), find_link=link_on_path) -> dict:
     """Attests a parsed build (README "Build attestation"); raises BuildRefused on any departure.
 
     Runtime profile checks: the runner and every unit it links, followed through --extern, have the
@@ -1204,7 +1297,7 @@ def attest_build(parsed: dict, *, tree: str, target: str, lock_text: str, settin
     generated = {os.path.join(s["message"]["out_dir"], name) for s in scripts.values() for name in s["generated"]}
     check_source_closure(list(dict.fromkeys(sources)), tree=tree, committed=committed,
                          registry={r["root"]: r["files"] for r in registry.values()}, generated=generated,
-                         realpath=realpath)
+                         find_link=find_link)
     rustc_output = os.path.join(runner["args"]["out_dir"],
                                 runner["args"]["crate_name"] + str(runner["args"]["codegen"].get("extra-filename", "")))
     return {
@@ -1246,12 +1339,15 @@ def build_driver(info: dict, cargo: list[str], jobs: int, scratch: "Area", side:
                str(tree / DRIVER_CRATE / "Cargo.toml"), "--target-dir", str(target), "--bin", DRIVER_BIN, "-j", str(jobs)]
     started = time.time()
     with scratch.open_new(f"build-{side}.jsonl") as out, scratch.open_new(f"build-{side}.log") as err:
+        held = {f"build-{side}.jsonl": os.fstat(out.fileno()), f"build-{side}.log": os.fstat(err.fileno())}
         scratch.verify()
         try:
             result = subprocess.run(command, cwd=tree / DRIVER_CRATE, stdout=out, stderr=err, env=clean_env())
         except OSError as error:
             raise SetupError(f"the cargo command {cargo[0]} could not be started: {error}") from error
     scratch.verify()
+    for name, log_info in held.items():   # the logs read below are the files cargo wrote into
+        scratch.check_held(name, (log_info.st_dev, log_info.st_ino))
     messages, log = scratch.path / f"build-{side}.jsonl", scratch.path / f"build-{side}.log"
     if result.returncode in WRAPPER_REFUSALS and cargo and os.path.basename(cargo[0]) != "cargo":
         raise SetupError(f"the cargo wrapper {cargo[0]} refused the build of {sha} (exit {result.returncode}, "
@@ -1321,8 +1417,10 @@ RUN_OUTPUTS = (".stdout", ".stderr", ".status.json")
 def run_batch(plan: dict) -> int:
     """Executes a plan's runs one at a time, keeping stdout, stderr, exit status and envelope. It reopens
     the scratch area from the root with no link followed and requires it to be the directory the plan
-    names; it reserves every output of every run, exclusively, before the first run starts; and before
-    each run it checks that the area and the run's directory are still the ones it holds."""
+    names. Every run's outputs were reserved by the comparison before the batch; each is reopened with no
+    link followed and must be the reserved file with a single link, and no envelope may exist yet, before
+    the first run starts. Before each run it checks that the area and the run's directory are still the
+    held ones, and that the run's input and binary are still the files the comparison wrote."""
     root = Path(plan["root"])
     fd = open_directory(root)
     dirs: dict[str, int] = {}
@@ -1330,7 +1428,21 @@ def run_batch(plan: dict) -> int:
         held = os.fstat(fd)
         if [held.st_dev, held.st_ino] != plan["root_id"]:
             raise SetupError(f"{root} is not the scratch area the comparison reserved")
-        reserved = {}
+        outputs = {key: tuple(value) for key, value in plan["outputs"].items()}
+
+        def reopen(run: dict, suffix: str, flags: int) -> int:
+            name = run["name"] + suffix
+            try:
+                out = os.open(name, flags | os.O_NOFOLLOW, dir_fd=dirs[run["dir"]])
+            except OSError as error:
+                raise SetupError(f"{root / run['dir'] / name} is not the reserved output ({error})") from error
+            info = os.fstat(out)
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 \
+                    or (info.st_dev, info.st_ino) != outputs[f"{run['dir']}/{name}"]:
+                os.close(out)
+                raise SetupError(f"{root / run['dir'] / name} was replaced after it was reserved")
+            return out
+
         for run in plan["runs"]:
             if run["dir"] not in dirs:
                 parent = fd
@@ -1340,37 +1452,24 @@ def run_batch(plan: dict) -> int:
                         os.close(parent)
                     parent = child
                 dirs[run["dir"]] = parent
-            where = dirs[run["dir"]]
             for suffix in RUN_OUTPUTS:
-                name = plain_name(run["name"] + suffix, "a run output")
-                try:
-                    out = os.open(name, NEW_FILE_FLAGS, 0o644, dir_fd=where)
-                except FileExistsError as error:
-                    raise SetupError(f"{root / run['dir'] / name} already exists; nothing was run") from error
-                info = os.fstat(out)
-                os.close(out)
-                reserved[(run["dir"], name)] = (info.st_dev, info.st_ino)
+                os.close(reopen(run, suffix, os.O_RDONLY))
             try:
-                os.stat(run["name"] + ".envelope.json", dir_fd=where, follow_symlinks=False)
+                os.stat(run["name"] + ".envelope.json", dir_fd=dirs[run["dir"]], follow_symlinks=False)
                 raise SetupError(f"{root / run['dir'] / (run['name'] + '.envelope.json')} already exists; nothing was run")
             except FileNotFoundError:
                 pass
 
-        def reopen(run: dict, suffix: str) -> int:
-            name = run["name"] + suffix
-            out = os.open(name, os.O_WRONLY | os.O_NOFOLLOW, dir_fd=dirs[run["dir"]])
-            info = os.fstat(out)
-            if (info.st_dev, info.st_ino) != reserved[(run["dir"], name)] or info.st_nlink != 1:
-                os.close(out)
-                raise SetupError(f"{root / run['dir'] / name} was replaced after it was reserved")
-            return out
-
         for run in plan["runs"]:
             if not same_directory(root, fd) or not same_directory(root / run["dir"], dirs[run["dir"]]):
                 raise SetupError(f"{root / run['dir']} no longer names the directory reserved for the runs")
+            for key in ("input", "binary"):
+                if file_identity(Path(run[key])) != tuple(plan["files"][run[key]]):
+                    raise SetupError(f"{run[key]} is not the {key} the comparison wrote; nothing more is run")
             envelope = root / run["dir"] / (run["name"] + ".envelope.json")
             started = time.monotonic()
-            with os.fdopen(reopen(run, ".stdout"), "wb") as out, os.fdopen(reopen(run, ".stderr"), "wb") as err:
+            with os.fdopen(reopen(run, ".stdout", os.O_WRONLY), "wb") as out, \
+                    os.fdopen(reopen(run, ".stderr", os.O_WRONLY), "wb") as err:
                 process = subprocess.Popen([run["binary"], run["input"], "--mode", run["mode"], "--write", str(envelope)],
                                            stdout=out, stderr=err, cwd=str(root), env=clean_env())
                 try:
@@ -1379,7 +1478,7 @@ def run_batch(plan: dict) -> int:
                     process.kill()
                     code, timed_out = process.wait(), True
             status = {"exit": code, "timed_out": timed_out, "seconds": round(time.monotonic() - started, 3)}
-            with os.fdopen(reopen(run, ".status.json"), "wb") as handle:
+            with os.fdopen(reopen(run, ".status.json", os.O_WRONLY), "wb") as handle:
                 handle.write((json.dumps(status) + "\n").encode())
     finally:
         for where in dirs.values():
@@ -1389,13 +1488,15 @@ def run_batch(plan: dict) -> int:
 
 
 def execute_plan(plan: dict, plan_handle, scratch: "Area", wrapper: list[str]) -> None:
-    """Writes the plan into its reserved file and runs the batch, under the run wrapper when given."""
-    with plan_handle:
-        plan_handle.write((json.dumps(plan, indent=1) + "\n").encode())
+    """Writes the plan into its reserved file (checked to be still the reserved file) and runs the batch,
+    under the run wrapper when given."""
+    held = os.fstat(plan_handle.fileno())
+    scratch.write_held("plan.json", plan_handle, (json.dumps(plan, indent=1) + "\n").encode())
     scratch.verify()
     if not wrapper:
         run_batch(plan)
         return
+    scratch.check_held("plan.json", (held.st_dev, held.st_ino))   # the batch reads it by name
     command = [*wrapper, sys.executable, "-I", str(Path(__file__).resolve()), "run-batch", str(scratch.path / "plan.json")]
     result = subprocess.run(command, env=clean_env())
     if result.returncode != 0:
@@ -1403,12 +1504,14 @@ def execute_plan(plan: dict, plan_handle, scratch: "Area", wrapper: list[str]) -
                          + (" (a host condition: the slot wrapper refused)" if result.returncode in (97, 98) else ""))
 
 
-def read_run(runs: "Area", name: str) -> tuple[dict, str, bytes | None]:
-    """A run's saved status, stdout and envelope, each read below the held runs directory with no link
-    followed."""
-    status_bytes = runs.read(name + ".status.json")
+def read_run(runs: "Area", name: str, outputs: dict) -> tuple[dict, str, bytes | None]:
+    """A run's saved status, stdout and envelope, read below the held runs directory with no link
+    followed. The status and stdout must be the files reserved for this run. The envelope is the driver's
+    own file, and counts only where its digest and length are the ones the run's stdout report gives."""
+    prefix = runs.path.relative_to(runs.root.path).as_posix()
+    status_bytes = runs.read_held(name + ".status.json", outputs[f"{prefix}/{name}.status.json"])
     status = json.loads(status_bytes) if status_bytes else {"exit": None, "missing": True}
-    stdout = (runs.read(name + ".stdout") or b"").decode("utf-8", "replace")
+    stdout = runs.read_held(name + ".stdout", outputs[f"{prefix}/{name}.stdout"]).decode("utf-8", "replace")
     return status, stdout, runs.read(name + ".envelope.json")
 
 
@@ -1488,7 +1591,7 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
         info["identity"] = check_identity(info["binary"], info["sha"], info["tree_sha"], wrapper)
     # Inputs: the lift applied to temporary copies under the scratch directory only.
     records = {}
-    runs = []
+    runs, outputs, files = [], {}, {}
     for entry in manifest["entries"]:
         record = records[entry["path"]] = {"entry": entry, "sides": {}}
         for side, info in sides.items():
@@ -1496,7 +1599,7 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
             facts = {"expected": entry["expect"][side]["disposition"], "source": str(source)}
             record["sides"][side] = facts
             if info["committed"].get(entry["path"]) not in ("100644", "100755") or \
-                    os.path.realpath(source) != os.path.normpath(source):
+                    link_on_path(str(source)) is not None:
                 facts.update(pre_class=MISSING, pre_detail="not a committed regular file reached without a link")
                 continue
             data = read_plain(source)
@@ -1513,11 +1616,19 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
                 continue
             temp = info["inputs"].write(f"{entry_id(entry['path'])}.json", serialize_request(lifted["request"]))
             facts["input"] = str(temp)
+            files[str(temp)] = info["inputs"].identity_of(temp.name)
+            files[str(info["binary"])] = info["bin_dir"].identity_of(DRIVER_BIN)
             for mode in MODES:
+                name = f"{entry_id(entry['path'])}.{mode}"
+                # Every output of the run is reserved here, by the comparison, before the batch starts.
+                for suffix in RUN_OUTPUTS:
+                    os.close(info["runs"].new_file(name + suffix))
+                    outputs[f"runs/{side}/{name}{suffix}"] = info["runs"].identity_of(name + suffix)
                 runs.append({"binary": str(info["binary"]), "input": str(temp), "mode": mode, "dir": f"runs/{side}",
-                             "name": f"{entry_id(entry['path'])}.{mode}"})
+                             "name": name})
     held = os.fstat(scratch.fd)
-    plan = {"root": str(scratch.path), "root_id": [held.st_dev, held.st_ino], "timeout": args.timeout, "runs": runs}
+    plan = {"root": str(scratch.path), "root_id": [held.st_dev, held.st_ino], "timeout": args.timeout, "runs": runs,
+            "outputs": outputs, "files": files}
     execute_plan(plan, reserved.pop("plan.json"), scratch, wrapper)
     scratch.verify()
     # Integrity after the runs: binaries, sources and worktrees as they were.
@@ -1543,7 +1654,7 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
                     observed[side] = {"cls": facts["pre_class"], "detail": facts["pre_detail"], "envelope": None,
                                       "facts": {}}
                 else:
-                    status, stdout, envelope = read_run(sides[side]["runs"], f"{entry_id(path)}.{mode}")
+                    status, stdout, envelope = read_run(sides[side]["runs"], f"{entry_id(path)}.{mode}", outputs)
                     cls, detail, run_facts = classify_run(status, stdout, envelope)
                     observed[side] = {"cls": cls, "detail": detail, "envelope": envelope, "facts": run_facts,
                                       "seconds": status.get("seconds"), "exit": status.get("exit")}
@@ -1565,11 +1676,10 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
                          for side, info in sides.items()},
                "pairs": pairs, "failures": failures}
     scratch.verify()
-    with reserved.pop("results.json") as handle:
-        handle.write((json.dumps(results, indent=1, default=str) + "\n").encode())
+    scratch.write_held("results.json", reserved.pop("results.json"),
+                       (json.dumps(results, indent=1, default=str) + "\n").encode())
     if args.table:
-        with reserved.pop(args.table) as handle:
-            handle.write(table.encode())
+        scratch.write_held(args.table, reserved.pop(args.table), table.encode())
     else:
         sys.stdout.write(table)
     return EXIT_FAILED if failures else EXIT_OK
