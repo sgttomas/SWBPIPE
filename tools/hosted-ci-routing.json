@@ -4261,6 +4261,7 @@
               "core/solver/nonlinear_integration/src/dense_memory_guard_tests.rs",
               "core/solver/nonlinear_integration/src/held_tests.rs",
               "core/solver/nonlinear_integration/src/lib.rs",
+              "core/solver/nonlinear_integration/src/oneway_source_tests.rs",
               "core/solver/nonlinear_integration/src/p_tests.rs",
               "core/solver/nonlinear_integration/src/product_equilibrium.rs",
               "core/solver/nonlinear_integration/src/s11k_tests.rs",
