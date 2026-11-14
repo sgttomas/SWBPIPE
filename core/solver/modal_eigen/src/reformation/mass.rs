@@ -24,12 +24,23 @@
 //! (−1 − 5Φ + 5Φ²)L²; …], each symmetric with the Euler–Bernoulli
 //! element's sign pattern; at Φ = 0 they are the Hermitian and Rayleigh
 //! planes. Axial and torsional mass, the x–z sign map and the turn to
-//! global axes are the Euler–Bernoulli element's. Φ and the local matrix
-//! are evaluated in `WideDd`; the global turn accumulates the computed
-//! entries' products exactly. Final conversion accepts exact values or
-//! certifies less than 2^-106 relative conversion error, otherwise refusing
-//! the member (`GeometryError::TimoshenkoMassRange`). This conversion check
-//! does not bound the preceding arithmetic's forward error. The references are
+//! global axes are the Euler–Bernoulli element's. Three steps are distinct:
+//! - Φ and the local matrix are evaluated in `WideDd`, each operation
+//!   rounded; the global turn then accumulates the computed local entries'
+//!   expanded products EXACTLY in an `ExactSum`, upper triangle mirrored.
+//! - Each exact sum is converted once to a double-double: `hi` is the sum
+//!   rounded once to binary64, then the residual sum − hi is formed exactly
+//!   and rounded once for `lo`. (`ExactSum::to_wide`'s low word is not used
+//!   as `lo`: it is good to about 97 bits when the top limb is sparse.)
+//! - The final check forms the remaining loss sum − hi − lo exactly. It
+//!   refuses when the final conversion cannot be certified within the stated
+//!   conversion-error budget, 2^-106 relative (`GeometryError::
+//!   TimoshenkoMassRange`). The check is sufficient, not exact: it may refuse
+//!   a borderline value that meets the budget.
+//!
+//! The final check bounds only the conversion's own loss. It does not bound
+//! the forward error of the `WideDd` arithmetic before the turn, and the
+//! entries are not claimed to be correctly rounded. The references are
 //! `validation/references/modal_timoshenko_mass`.
 //!
 //! **Realized arc** (§2.4). With d = x_j − x_i, L = |d|, n̂ the unit part of

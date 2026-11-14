@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Operands and frozen expectations for tests/timoshenko_mass.rs.
 
-Source, read-only: validation/references/modal_timoshenko_mass/references.json (DEL-04-09 AC-012). The
-operands are each case's binary64 bit patterns, verbatim. The expectations are the reference's
-double-double pairs of Φ_y, Φ_z and the global 12x12 upper triangle; nothing is recomputed here.
+Sources, read-only, in validation/references/modal_timoshenko_mass (DEL-04-09 AC-012): the source-blind
+derivation's two outputs, timoshenko_consistent_mass.json (the frozen problem statement's five cases) and
+timoshenko_consistent_mass_addendum1.json (Addendum 1's three cases). The operands are each case's binary64
+bit patterns, verbatim. The expectations are the references' double-double pairs of Φ_y, Φ_z (where the
+reference gives a pair; a Φ outside binary64 is given there as an exact rational and is not carried here)
+and of the global 12x12 upper triangle; nothing is recomputed here.
 
 Usage (from the repository root):
   python3 -I -B core/solver/modal_eigen/tests/fixtures/timoshenko_mass_cases.py          # check
@@ -12,10 +15,10 @@ Usage (from the repository root):
 Records, one per line:
   source <file> <sha256>
   case <id>
-  point <xi | xj | y_reference> <x bits> <y bits> <z bits>
+  point <x_i | x_j | v> <x bits> <y bits> <z bits>
   op <E | G | A_s | I_y | I_z | mbar | ibar | jbar> <bits>
-  phi <y | z> <hi> <lo>
-  g <r> <c> <hi> <lo>          global 12x12, upper nonzero
+  phi <y | z> <hi> <lo>        only where the reference gives a pair
+  g <r> <c> <hi> <lo>          global 12x12, upper nonzero, diagonal included
   end
 """
 import hashlib
@@ -25,26 +28,31 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[4]
-SOURCE = "validation/references/modal_timoshenko_mass/references.json"
+PACKAGE = "validation/references/modal_timoshenko_mass"
+SOURCES = (f"{PACKAGE}/timoshenko_consistent_mass.json", f"{PACKAGE}/timoshenko_consistent_mass_addendum1.json")
 OUT = HERE / "timoshenko_mass_cases.txt"
 
 
 def build():
-    raw = (ROOT / SOURCE).read_bytes()
-    doc = json.loads(raw)
-    lines = [f"source {SOURCE} {hashlib.sha256(raw).hexdigest()}"]
-    for case in doc["cases"]:
+    lines = []
+    cases = []
+    for source in SOURCES:
+        raw = (ROOT / source).read_bytes()
+        lines.append(f"source {source} {hashlib.sha256(raw).hexdigest()}")
+        cases.extend(json.loads(raw)["cases"])
+    for case in cases:
         ops = case["operands"]
         lines.append(f"case {case['id']}")
-        for name in ("xi", "xj", "y_reference"):
-            lines.append(f"point {name} " + " ".join(ops[name]["bits"]))
+        for name in ("x_i", "x_j", "v"):
+            lines.append(f"point {name} " + " ".join(ops[name]))
         for name in ("E", "G", "A_s", "I_y", "I_z", "mbar", "ibar", "jbar"):
-            lines.append(f"op {name} {ops[name]['bits']}")
+            lines.append(f"op {name} {ops[name]}")
         for axis in ("y", "z"):
-            hi, lo = case[f"phi_{axis}"][1]
-            lines.append(f"phi {axis} {hi} {lo}")
-        for r, c, _decimal, (hi, lo) in case["global_upper"]:
-            lines.append(f"g {r} {c} {hi} {lo}")
+            phi = case[f"Phi_{axis}"]
+            if "hi" in phi:
+                lines.append(f"phi {axis} {phi['hi']} {phi['lo']}")
+        for entry in case["global_upper_nonzero"]:
+            lines.append(f"g {entry['r']} {entry['c']} {entry['hi']} {entry['lo']}")
         lines.append("end")
     return ("\n".join(lines) + "\n").encode("ascii")
 

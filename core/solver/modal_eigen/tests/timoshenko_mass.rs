@@ -2,7 +2,9 @@
 //! exact element references of `validation/references/modal_timoshenko_mass/`.
 //!
 //! Source: `tests/fixtures/timoshenko_mass_cases.txt`, written by
-//! `timoshenko_mass_cases.py` beside it from the references' `references.json`.
+//! `timoshenko_mass_cases.py` beside it from the package's two outputs, the
+//! source-blind derivation of the frozen problem statement's five cases and of
+//! its Addendum 1's three.
 //! The element is formed in double-double from the cases' binary64 operands
 //! and compared normwise with the references' global 12×12, which covers both
 //! bending planes, the axial and torsional terms and the turn to global axes.
@@ -85,9 +87,9 @@ fn shear(c: &Case) -> TimoshenkoShear {
 
 fn form(c: &Case, s: &TimoshenkoShear) -> Result<[[Dd; 12]; 12], GeometryError> {
     straight_mass_timoshenko(
-        c.points["xi"],
-        c.points["xj"],
-        c.points["y_reference"],
+        c.points["x_i"],
+        c.points["x_j"],
+        c.points["v"],
         Dd::from_f64(c.ops["mbar"]),
         Dd::from_f64(c.ops["ibar"]),
         Dd::from_f64(c.ops["jbar"]),
@@ -110,7 +112,7 @@ fn normwise_upper(m: &[[Dd; 12]; 12], expected: &BTreeMap<(usize, usize), Dd>) -
 #[test]
 fn the_element_matches_its_exact_references_in_global_axes() {
     let all = cases();
-    assert_eq!(all.len(), 4, "the reference's four cases");
+    assert_eq!(all.len(), 8, "the statement's five cases and the addendum's three");
     let mut worst = 0.0f64;
     for c in &all {
         let m = form(c, &shear(c)).unwrap();
@@ -149,9 +151,9 @@ fn the_element_approaches_the_euler_bernoulli_element() {
     assert!(phi > 0.0 && phi < 1e-12);
     let t = form(&c, &shear(&c)).unwrap();
     let eb = straight_mass(
-        c.points["xi"],
-        c.points["xj"],
-        c.points["y_reference"],
+        c.points["x_i"],
+        c.points["x_j"],
+        c.points["v"],
         Dd::from_f64(c.ops["mbar"]),
         Dd::from_f64(c.ops["ibar"]),
         Dd::from_f64(c.ops["jbar"]),
@@ -169,40 +171,71 @@ fn the_element_approaches_the_euler_bernoulli_element() {
     assert!(e <= 10.0 * phi, "Timoshenko against Euler-Bernoulli at phi {phi:e}: {e:e}");
 }
 
-/// The PR 335 reader's witness: every operand normal, Φ = 2⁴⁰⁰ in both
-/// planes, m̄ = ī = j̄ = 2⁻⁷⁰⁰. A prefactor formed in double-double before its
-/// numerator underflowed to zero and lost the whole bending plane; the plane's
-/// displacement diagonal is normal. Expected: the exact integral of the
-/// static shapes, rounded to hi and lo (the reader's independent calculation).
+/// The first PR 335 reader's witness, now the package's case T-RANGE-TINY-MASS:
+/// every operand normal, Φ = 2⁴⁰⁰ in both planes, m̄ = ī = j̄ = 2⁻⁷⁰⁰. A prefactor
+/// formed in double-double before its numerator underflowed to zero and lost
+/// the whole bending plane. The displacement diagonals (1, 1) and (2, 2) are
+/// held entrywise to the package's values.
 #[test]
 fn a_representable_plane_survives_tiny_prefactors() {
-    let small = Dd::from_f64(2.0f64.powi(-700));
-    let one = Dd::from_f64(1.0);
-    let shear = TimoshenkoShear {
-        elastic_modulus: one,
-        shear_modulus: one,
-        shear_area: Dd::from_f64(12.0 * 2.0f64.powi(-400)),
-        second_moment_y: one,
-        second_moment_z: one,
-    };
-    let m = straight_mass_timoshenko(
-        [0.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        small,
-        small,
-        small,
-        &shear,
-    )
-    .unwrap();
-    let expected = Dd {
-        hi: f64::from_bits(0x1415_5555_5555_5555),
-        lo: f64::from_bits(0x10b5_5555_5555_5555),
-    };
+    let c = cases().into_iter().find(|c| c.id == "T-RANGE-TINY-MASS").unwrap();
+    let m = form(&c, &shear(&c)).unwrap();
     for r in [1usize, 2usize] {
+        let expected = c.global[&(r, r)];
         let relative = m[r][r].sub(expected).abs().to_f64() / expected.abs().to_f64();
         assert!(relative <= NORMWISE, "({r}, {r}): {relative:e}");
     }
+}
+
+/// Addendum 1's three cases, each formed and held ENTRYWISE (not only
+/// normwise) to the package: an exactly representable plane below 2⁻⁹⁶⁹, and
+/// Φ = 2²⁰⁰⁰ and 2⁻²⁰⁰⁰, which no longer have to fit a double-double.
+#[test]
+fn the_addendum_cases_are_formed_and_match_entrywise() {
+    for id in ["T-RANGE-SUBFLOOR", "T-RANGE-PHI-HUGE", "T-RANGE-PHI-TINY"] {
+        let c = cases().into_iter().find(|c| c.id == id).unwrap();
+        let m = form(&c, &shear(&c)).unwrap();
+        for r in 0..12 {
+            for k in r..12 {
+                let e = c.global.get(&(r, k)).copied().unwrap_or(Dd::ZERO);
+                if e.is_zero() {
+                    assert!(m[r][k].is_zero(), "{id} ({r}, {k}): expected zero, got {:?}", m[r][k]);
+                } else {
+                    let relative = m[r][k].sub(e).abs().to_f64() / e.abs().to_f64();
+                    assert!(relative <= NORMWISE, "{id} ({r}, {k}): {relative:e}");
+                }
+            }
+        }
+    }
+}
+
+/// A sparse-tailed shear parameter, Φ = (1 + 2⁻¹¹⁰)·2⁻⁹⁶⁸, which the earlier
+/// repair refused because Φ itself did not narrow exactly. It is formed now.
+/// It is an arithmetic test, not a member reference: at this Φ the element
+/// equals the Euler–Bernoulli straight to far below the comparison threshold.
+#[test]
+fn a_sparse_tailed_shear_parameter_is_formed() {
+    let one = Dd::from_f64(1.0);
+    let s = TimoshenkoShear {
+        elastic_modulus: Dd { hi: 1.0, lo: 2.0f64.powi(-110) },
+        shear_modulus: one,
+        shear_area: Dd::from_f64(12.0),
+        second_moment_y: Dd::from_f64(2.0f64.powi(-968)),
+        second_moment_z: Dd::from_f64(2.0f64.powi(-968)),
+    };
+    let (xi, xj, y) = ([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+    let t = straight_mass_timoshenko(xi, xj, y, one, one, one, &s).unwrap();
+    let eb = straight_mass(xi, xj, y, one, one, one).unwrap();
+    let mut expected = BTreeMap::new();
+    for r in 0..12 {
+        for k in r..12 {
+            if !eb[r][k].is_zero() {
+                expected.insert((r, k), eb[r][k]);
+            }
+        }
+    }
+    let e = normwise_upper(&t, &expected);
+    assert!(e <= NORMWISE, "Timoshenko against Euler-Bernoulli at a sparse-tailed tiny phi: {e:e}");
 }
 
 /// At m̄ = ī = 2^-1000 and Φ = 2^400, completed bending entries cannot
