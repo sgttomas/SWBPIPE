@@ -343,6 +343,71 @@ locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
 target directory).
 
+The headless artifact readers (`tests/test_pressure_headless_artifacts.py`,
+`tests/test_load_reference_headless_artifacts.py`) read the files that the
+headless runner's Rust tests write at the tested head; without them they skip.
+When the reporting-runner shard's plan selects `core/runner/headless`, a step
+after its suite, in the same job, runs `pressure_export.rs`,
+`load_reference_cli.rs` and the lib's `load_reference_route_tests` with the three
+artifact folders set to fresh folders, reusing the suite's build. It then runs
+both readers with `HEADLESS_ARTIFACTS_REQUIRED=1`, which turns a skip into a
+failure, and fails unless every reader test ran and passed; its log gives the
+artifact and test counts. The shard's existing selection covers the runner and
+the result contract. `piping_artifact_readers` in `tools/hosted-ci-routing.json`
+declares the readers and the step's inputs. A change to any input listed in the
+next paragraph adds the headless crate to whatever else that path selects, so
+the rule only adds to a selection. Such a change also runs the headless crate's
+whole Cargo suite on that shard, an accepted cost. Every crate is selected when
+the declaration is not a mapping (including null), when a declared reader,
+input or producer does not resolve, when a project module the readers import
+does not resolve, or when their imports cannot be derived. The production
+profile's entries are held by `tests/test_ci_numerical.py`; a profile without
+the section has no such rule.
+
+The rule detects these inputs of the two readers in the complete diff:
+- the readers and their local import closure, derived at selection time by
+  `tools/ci/python_test_reads.py`: the project files their imports resolve to,
+  and the non-test Python files they name and may load by path, transitively;
+- the package `__init__.py` files those imports pass through, and those in the
+  readers' directory and its ancestors, which pytest runs when it imports a test
+  as part of a package, each with its own imports. An added initializer selects
+  the producer through the closure, an edited one selects it, and a diff that
+  deletes one selects every crate;
+- the `conftest.py` files pytest loads for the readers (today only
+  `tests/conftest.py`), under the same rules;
+- the dependency list the step installs (`requirements-dev.txt`), declared as an
+  input; `tools/software_workflow/test_headless_readers_step.py` keeps the
+  declared inputs equal to the step's `pip install -r` arguments;
+- the tracked resources the readers read: a non-Python path, added, edited or
+  deleted, at or under a read root that the derivation gives for those files
+  with a known leading directory. Examples are the schemas that
+  `tests/schema_validation.py` loads into its registry and the fixtures and
+  contract tables the readers name.
+
+Existing rules already send the configuration, workflow and setup inputs to the
+full plan, which includes the headless crate. Each of these was checked by
+selecting it alone when the rule was built: both workflow files, the shared
+build-cache action, the selectors and their routing (`tools/ci/numerical_ci.py`,
+`tools/ci/python_test_reads.py`, `tools/software_workflow/hosted_ci.py`,
+`tools/hosted-ci-routing.json`), `tools/software_workflow/result_cache.py`, the
+session build helpers under `tools/runner/`, `tools/serialization/` and
+`tools/units/`, and, though none is tracked today, `pytest.ini`,
+`pyproject.toml`, `setup.cfg`, `tox.ini` and a root `conftest.py`.
+
+The rule claims nothing it does not derive. A dynamic import, plugin discovery,
+or a path assembled at run time whose leading directory the derivation cannot
+place is not claimed as detected. A change to such an input gets only the
+selection its own path has, and in the Python job the readers skip.
+Change-based selection also cannot see a change to the runner image, the
+installed interpreter, a package version the dependency list leaves open, or
+the environment when no repository diff comes with it. Verification reuse is a
+separate matter. Its key includes the runner image and the Python version, so a
+change to either invalidates a reused pass, but that does not select a job the
+diff did not select, and installed package versions are not in the key. This
+paragraph describes what the selector detects. It does not narrow DEL-10-04
+AC-003: a tracked input that the readers load and the selector misses is a gap
+to repair, not an exclusion.
+
 No post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or
 unresolved concern. Failure diagnostics stay in CI artifacts. The optional
