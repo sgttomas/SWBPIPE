@@ -610,7 +610,7 @@ fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
                 // The exact readers admit it, and refuse the stale mixed form: the
                 // same document with its nonlinear rows put back on the
                 // confirmation's basis (the control's values), where they differ.
-                assert_eq!(reader(&failed, &request), None, "{at}");
+                assert_eq!(reader(&failed, &wire), None, "{at}");
                 let nonlinear_rows = |v: &Value| -> serde_json::Map<String, Value> {
                     v["results"].as_array().unwrap().iter()
                         .filter(|r| r["id"].as_str().unwrap().starts_with("result:nonlinear-support:"))
@@ -626,7 +626,7 @@ fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
                         }
                     }
                     assert_ne!(nonlinear_rows(&mixed), nonlinear_rows(&failed), "{at}");
-                    assert!(reader(&mixed, &request).is_some(), "{at}: the reader admits confirmation-basis rows in a withdrawn case");
+                    assert!(reader(&mixed, &wire).is_some(), "{at}: the reader admits confirmation-basis rows in a withdrawn case");
                 }
                 // The first C-1 case whose bases differ, dense, is the fixture the
                 // Python twin sends through both readers: compared here, or written
