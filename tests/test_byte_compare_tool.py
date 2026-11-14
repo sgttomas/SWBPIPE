@@ -272,6 +272,8 @@ STUB_CARGO = textwrap.dedent('''\
         handle.write(json.dumps(args) + "\\n")
     side = target.name.split("-")[0]
     scratch = os.environ.get("STUB_SCRATCH")
+    if os.environ.get("STUB_CARGO_HOOK"):   # a test's interleaving, run inside this build
+        exec(open(os.environ["STUB_CARGO_HOOK"]).read())
     # During side A's build: plant a link where the tool will write later (STUB_PLANT = path:kind), or
     # swap a reserved directory for a link elsewhere (STUB_SWAP = path, STUB_SWAP_TO = destination).
     if side == "A" and os.environ.get("STUB_PLANT"):
@@ -329,6 +331,7 @@ STUB_CARGO = textwrap.dedent('''\
     rustc.write_text("#!" + sys.executable + "\\nimport json, os, sys\\n"
                      + "if os.environ.get('STUB_OUTSIDE_LOG') and not os.environ.get('UNDER_RUN_WRAPPER'):\\n"
                      + "    open(os.environ['STUB_OUTSIDE_LOG'], 'a').write(json.dumps(sys.argv) + '\\\\n')\\n"
+                     + "if os.environ.get('STUB_RUSTC_HOOK'): exec(open(os.environ['STUB_RUSTC_HOOK']).read())\\n"
                      + f"if sys.argv[1:] == ['-vV']: sys.stdout.write({version!r})\\n"
                      + f"elif sys.argv[1:] == ['--print', 'sysroot']: print({str(sysroot)!r})\\n"
                      + "else: sys.exit(1)\\n")
@@ -375,6 +378,8 @@ STUB_DRIVER = textwrap.dedent('''\
     import hashlib, json, os, sys
     with open(os.environ["STUB_RUN_LOG"], "a") as handle:
         handle.write(json.dumps(sys.argv[1:]) + "\\n")
+    if os.environ.get("STUB_DRIVER_HOOK"):   # a test's interleaving, run inside this start of the driver
+        exec(open(os.environ["STUB_DRIVER_HOOK"]).read())
     # At its first solve (or, with STUB_REPLACE_WRITTEN, the first once the file holds bytes), replace a
     # reserved file: by a hard link to a frozen request, or (STUB_REPLACE_MODE=rename) by renaming it away
     # and creating a new regular file at its name.
@@ -838,6 +843,84 @@ def test_a_reserved_file_replaced_before_it_is_written_or_read_is_refused(world,
     err = capsys.readouterr().err
     assert code == 2 and says(err, needle), err
     assert frozen(world).read_bytes() == before[0] and git(world["repo"], "status", "--porcelain") == ""
+
+
+# A's copied binary renamed away and replaced by a new file with identical bytes and mode 0755: the same
+# digest, a different inode (the reading's C1 case and two later points of the same substitution).
+SWAP_A_BINARY = """
+import glob
+victim = glob.glob(os.path.join(os.environ["STUB_SCRATCH"], "build/bin/A-*/release_timing"))[0]
+if not os.path.exists(victim + ".away"):
+    os.rename(victim, victim + ".away")
+    with open(victim + ".away", "rb") as old, open(victim, "wb") as new:
+        new.write(old.read())
+    os.chmod(victim, 0o755)
+"""
+BINARY_SWAP_HOOKS = {
+    "during side B's cargo": ("STUB_CARGO_HOOK", "if side == 'B':\n" + textwrap.indent(SWAP_A_BINARY, "    ")),
+    "during side B's identity check": ("STUB_DRIVER_HOOK", "if sys.argv[1:] == ['--build-identity'] and '/B-' in sys.argv[0]:\n"
+                                       + textwrap.indent(SWAP_A_BINARY, "    ")),
+    "during the last run": ("STUB_DRIVER_HOOK", "if '/B/f__blocked.json.json' in ' '.join(sys.argv) and 'dense' in sys.argv:\n"
+                            + textwrap.indent(SWAP_A_BINARY, "    ")),
+}
+
+
+@pytest.mark.parametrize("when", sorted(BINARY_SWAP_HOOKS))
+def test_the_copied_binary_replaced_by_identical_bytes_is_refused(world, when, capsys):
+    before = snapshot(world)
+    variable, code_text = BINARY_SWAP_HOOKS[when]
+    hook = world["tmp"] / "hook.py"
+    hook.write_text(code_text)
+    code, _, scratch = world["run"](scratch=world["tmp"] / "scratch-binary", env={variable: str(hook)})
+    victim = next((scratch / "build" / "bin").glob("A-*/release_timing"))
+    assert Path(str(victim) + ".away").is_file() and victim.read_bytes() == Path(str(victim) + ".away").read_bytes()
+    err = capsys.readouterr().err
+    needle = "is not the binary the comparison wrote" if when == "during side B's identity check" else "after it was reserved"
+    assert code == 2 and says(err, needle), err
+    assert snapshot(world) == before
+    if when == "during side B's cargo":   # refused before any binary is started at all
+        assert not ran(world)
+
+
+def test_a_build_log_replaced_by_an_identical_copy_after_it_was_parsed_is_refused(world, capsys):
+    # The reading's C2 case: after the parse read, during the rustc -vV probe, build-A.log is renamed away
+    # and an identical copy put at its name; the later hash read must not take the copy.
+    hook = world["tmp"] / "hook.py"
+    hook.write_text("""
+if sys.argv[1:] == ['-vV'] and '/A/bin/rustc' in sys.argv[0]:
+    victim = os.path.join(os.environ['STUB_SCRATCH'], 'build-A.log')
+    if not os.path.exists(victim + '.away'):
+        os.rename(victim, victim + '.away')
+        with open(victim + '.away', 'rb') as old, open(victim, 'wb') as new:
+            new.write(old.read())
+""")
+    code, _, scratch = world["run"](scratch=world["tmp"] / "scratch-log", env={"STUB_RUSTC_HOOK": str(hook)})
+    assert (scratch / "build-A.log.away").read_bytes() == (scratch / "build-A.log").read_bytes()
+    err = capsys.readouterr().err
+    assert code == 2 and says(err, "after it was reserved"), err
+    assert not ran(world)
+
+
+@pytest.mark.parametrize("target, needle", [("f__old.json.json", "is not the input the comparison wrote"),
+                                            ("f__old.json.sparse.stdout", "after it was reserved")])
+def test_a_file_replaced_right_after_the_tool_created_it_is_refused(world, monkeypatch, target, needle, capsys):
+    # The identity recorded for an input or a run output is the one of the file the tool created: replace
+    # the file at its name the moment it is created (the tool keeps writing through its descriptor) and the
+    # replacement is never taken for it.
+    original = bc.Area.new_file
+
+    def new_file(self, name, mode=0o644):
+        fd = original(self, name, mode)
+        if name == target and self.path.name == "A":
+            os.rename(self.path / name, self.path / (name + ".away"))
+            (self.path / name).write_bytes(b"")
+        return fd
+
+    monkeypatch.setattr(bc.Area, "new_file", new_file)
+    code, _, _ = world["run"]()
+    err = capsys.readouterr().err
+    assert code == 2 and says(err, needle), err
+    assert not ran_a_solve(world)
 
 
 @pytest.mark.parametrize("name", ["/elsewhere/table.md", "../escape.md", "sub/table.md", "results.json", "build", ".."])

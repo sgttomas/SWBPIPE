@@ -1346,8 +1346,13 @@ def build_driver(info: dict, cargo: list[str], jobs: int, scratch: "Area", side:
         except OSError as error:
             raise SetupError(f"the cargo command {cargo[0]} could not be started: {error}") from error
     scratch.verify()
-    for name, log_info in held.items():   # the logs read below are the files cargo wrote into
-        scratch.check_held(name, (log_info.st_dev, log_info.st_ino))
+
+    def read_log(name):
+        # Every read of a build log (the parse reads and the hash reads) is of the file cargo wrote into,
+        # by the identity taken from the descriptor that created it, before cargo started.
+        original = held[name]
+        return scratch.read_held(name, (original.st_dev, original.st_ino))
+
     messages, log = scratch.path / f"build-{side}.jsonl", scratch.path / f"build-{side}.log"
     if result.returncode in WRAPPER_REFUSALS and cargo and os.path.basename(cargo[0]) != "cargo":
         raise SetupError(f"the cargo wrapper {cargo[0]} refused the build of {sha} (exit {result.returncode}, "
@@ -1360,7 +1365,7 @@ def build_driver(info: dict, cargo: list[str], jobs: int, scratch: "Area", side:
     if status:
         raise SetupError(f"worktree {tree} is not clean after the build:\n{status}")
     try:
-        parsed = parse_build_output(scratch.read(messages.name).decode("utf-8"), scratch.read(log.name).decode("utf-8"))
+        parsed = parse_build_output(read_log(messages.name).decode("utf-8"), read_log(log.name).decode("utf-8"))
         rustc = rustc_identity(compiler_program(parsed), wrapper)
         attestation = attest_build(parsed, tree=str(tree), target=str(target),
                                    lock_text=read_plain(tree / DRIVER_CRATE / "Cargo.lock").decode("utf-8"),
@@ -1380,8 +1385,8 @@ def build_driver(info: dict, cargo: list[str], jobs: int, scratch: "Area", side:
     if output_sha256 != binary_sha256:
         raise BuildRefused(f"side {side}: the binary {binary} is not the file rustc wrote, {runner['rustc_output']}")
     return {"command": command, "binary": str(binary), "seconds": round(time.time() - started, 1),
-            "log": str(log), "log_sha256": sha256_bytes(scratch.read(log.name)), "messages": str(messages),
-            "messages_sha256": sha256_bytes(scratch.read(messages.name)), "rustc_output_sha256": output_sha256,
+            "log": str(log), "log_sha256": sha256_bytes(read_log(log.name)), "messages": str(messages),
+            "messages_sha256": sha256_bytes(read_log(messages.name)), "rustc_output_sha256": output_sha256,
             "binary_sha256": binary_sha256, "attestation": attestation, "data": data}
 
 
@@ -1578,9 +1583,13 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
     for side, info in sides.items():
         info["build"] = build_driver(info, cargo, args.jobs, scratch, side, manifest, wrapper)
         data = info["build"].pop("data")
-        binary = info["bin_dir"].write(DRIVER_BIN, data, 0o755)
+        with os.fdopen(info["bin_dir"].new_file(DRIVER_BIN, 0o755), "wb") as handle:
+            handle.write(data)
+            created = os.fstat(handle.fileno())
+            info["binary_id"] = (created.st_dev, created.st_ino)
+        binary = info["bin_dir"].path / DRIVER_BIN
         info["binary"] = binary
-        info["binary_sha256"] = sha256_bytes(info["bin_dir"].read(DRIVER_BIN))
+        info["binary_sha256"] = sha256_bytes(info["bin_dir"].read_held(DRIVER_BIN, info["binary_id"]))
         if info["binary_sha256"] != info["build"]["binary_sha256"]:
             raise BuildRefused(f"side {side}: the copy that runs, {binary}, is not the binary the build attested")
     versions = {side: info["build"]["attestation"]["rustc"]["version"] for side, info in sides.items()}
@@ -1588,6 +1597,7 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
         raise BuildRefused(f"rustc -vV differs between the sides:\nA:\n{versions['A']}B:\n{versions['B']}")
     for side, info in sides.items():
         scratch.verify()
+        info["bin_dir"].check_held(DRIVER_BIN, info["binary_id"])
         info["identity"] = check_identity(info["binary"], info["sha"], info["tree_sha"], wrapper)
     # Inputs: the lift applied to temporary copies under the scratch directory only.
     records = {}
@@ -1614,16 +1624,21 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
             if lifted["outside"]:
                 facts.update(pre_class=OUTSIDE_RUNNER_INPUT, pre_detail=lifted["outside"])
                 continue
-            temp = info["inputs"].write(f"{entry_id(entry['path'])}.json", serialize_request(lifted["request"]))
+            temp = info["inputs"].path / f"{entry_id(entry['path'])}.json"
+            with os.fdopen(info["inputs"].new_file(temp.name), "wb") as handle:
+                handle.write(serialize_request(lifted["request"]))
+                created = os.fstat(handle.fileno())
             facts["input"] = str(temp)
-            files[str(temp)] = info["inputs"].identity_of(temp.name)
-            files[str(info["binary"])] = info["bin_dir"].identity_of(DRIVER_BIN)
+            files[str(temp)] = (created.st_dev, created.st_ino)
+            files[str(info["binary"])] = info["binary_id"]
             for mode in MODES:
                 name = f"{entry_id(entry['path'])}.{mode}"
                 # Every output of the run is reserved here, by the comparison, before the batch starts.
                 for suffix in RUN_OUTPUTS:
-                    os.close(info["runs"].new_file(name + suffix))
-                    outputs[f"runs/{side}/{name}{suffix}"] = info["runs"].identity_of(name + suffix)
+                    reserved_fd = info["runs"].new_file(name + suffix)
+                    created = os.fstat(reserved_fd)
+                    os.close(reserved_fd)
+                    outputs[f"runs/{side}/{name}{suffix}"] = (created.st_dev, created.st_ino)
                 runs.append({"binary": str(info["binary"]), "input": str(temp), "mode": mode, "dir": f"runs/{side}",
                              "name": name})
     held = os.fstat(scratch.fd)
@@ -1633,7 +1648,7 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
     scratch.verify()
     # Integrity after the runs: binaries, sources and worktrees as they were.
     for side, info in sides.items():
-        if sha256_bytes(info["bin_dir"].read(DRIVER_BIN) or b"") != info["binary_sha256"]:
+        if sha256_bytes(info["bin_dir"].read_held(DRIVER_BIN, info["binary_id"])) != info["binary_sha256"]:
             failures.append(f"{side}: the binary changed during the runs")
         status = worktree_status(info["worktree"].path)
         if status:
