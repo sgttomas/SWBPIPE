@@ -77,18 +77,35 @@ once 2 min later. The run stops at the first unclean settings check, a failed
 check before a model, or a round trip that raised twice; the GUI print fallback
 is used only with restore_scope "key" (Design §5). --offline builds the records
 from the stored, bound CSVs. Each case's SWBPIPE request and result are created
-once and never replaced: a case that already holds either is refused by name,
-live or offline, at admission, before anything is solved or any folder is created:
-already_recorded when a readable case manifest records custody for it (the reason
-carrying that manifest's outcome and route), manifest_unreadable when the manifest
-cannot be read, and half_made otherwise. Offline, a case with no folder is refused
-as no_stored_case. The one retry of a model reuses its own solve. The case manifest's custody member
-records the SWBPIPE commit and whether its tree was clean, the runner binary's
-SHA-256, and the SHA-256 of the request and result the run created.
+once and never replaced. A case is admitted only when it holds neither and its
+case manifest, if any, is readable and records no custody; any other case is
+refused by name, live or offline, before anything is solved or any folder or file
+is created: manifest_unreadable when the manifest cannot be read or its custody
+member is not an object (custody unknown, not absent), already_recorded when it
+records custody, whether or not the request and result are still present (the
+reason carrying the manifest's outcome and route), and half_made when either file
+exists and no manifest records custody. The route only classifies the refusal.
+Offline, a case with no folder is refused as no_stored_case. The one retry of a
+model reuses its own solve. The case manifest's custody member records the SWBPIPE
+commit and whether its tree was clean, the runner binary's SHA-256, and the SHA-256
+of the request and result the run created.
 --collect-only (live only) stops each model once its SWBPIPE request and result are
 created and its CAEPIPE print is collected and bound to the MBF: the print is not
 parsed and no comparison is written (outcome "collected"), and the GUI print
 fallback is off. Screening such a case later is a separate step.
+
+Live use is held (DEL-17-05, Scope of work, Not met). Until a reviewed change
+closes the items below, this command's own live run of a model list (--benchmark
+without --offline) is not to be used. Open: a containment error while writing the
+outcome of a round trip that raised, before its retry or before the stop after a
+second raise, is returned as not run, so that retry or stop is lost and the next
+model runs; a retry's second attempt writes no custody_recorded state before its
+round trip; and attempt 1's recorded outcome does not describe attempt 2 and cannot
+admit attempt 2's capture. Meanwhile the one permitted live caller is one that calls
+run_benchmark_model once per run with attempt 1, collect_only and the GUI fallback
+off, and never retries: the project's batch wrapper for the first comparison batch,
+kept outside the repository. This is a project instruction: the command does not
+itself refuse such a run.
 
 Standard output carries operational status only: per case its id, route and
 either the comparison record's path relative to the exchange folder or the
@@ -441,16 +458,28 @@ def _resolve_runner(runner: str) -> str:
     return str(path.resolve())
 
 
-def _recorded_manifest(path: Path) -> dict[str, Any] | None:
-    """A case manifest as read at admission: {} when there is none, the manifest when it reads as a JSON object,
-    None when it exists and cannot be read as one."""
+def _manifest_custody(path: Path) -> tuple[str, dict[str, Any] | None, dict[str, Any] | None]:
+    """(state, manifest, custody) of a case manifest, as both admission and every later manifest write read it:
+    "absent" (no manifest); "unknown" (it cannot be read as a JSON object, is a link, or its custody member is
+    present and not an object: the custody is unknown, not absent); "recorded" (a custody member with a value);
+    "none" (a readable manifest whose custody member is missing or has no value). A classification only: it
+    validates nothing of the stored case."""
     if not os.path.lexists(path):
-        return {}
+        return "absent", None, None
+    if os.path.islink(path):
+        return "unknown", None, None
     try:
         value = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        return None
-    return value if isinstance(value, dict) else None
+        return "unknown", None, None
+    if not isinstance(value, dict):
+        return "unknown", None, None
+    if "custody" not in value:
+        return "none", value, None
+    custody = value["custody"]
+    if not isinstance(custody, dict):
+        return "unknown", value, None
+    return ("recorded" if any(item is not None for item in custody.values()) else "none"), value, custody
 
 
 class CustodyChanged(RuntimeError):
@@ -847,9 +876,8 @@ def benchmark_batches(models: list[Mapping[str, Any]], size: int) -> list[list[M
 RECORDED, NOT_RUN, RETRY = "recorded", "not_run", "retry"
 # The case manifest's state between custody and a terminal outcome. Defined once (here, in DEL-17-05's scope and in the
 # batch's session statements): custody was recorded; no terminal outcome is recorded; the case is named and is not
-# made again under its id; its capture is not admitted for use. It shows no more: an interrupt or an uncaught error
-# may have come before the round trip started, during it, or after it returned and before the final manifest update,
-# and it does not show that SWBPIPE's solve succeeded (it is written before that is checked).
+# made again under its id; its capture is not admitted for use. It shows no more than that: not where or why execution
+# stopped, nor that SWBPIPE's solve succeeded (it is written before that is checked).
 CUSTODY_RECORDED = "custody_recorded"
 # A collect-only run ends here: SWBPIPE solved and bound, the CAEPIPE print collected, nothing parsed or compared.
 COLLECTED = "collected"
@@ -914,21 +942,20 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
                         **extra: Any) -> None:
     """The model's private run record (the case manifest), written for every live attempt and every record. Its
     `custody` names the SWBPIPE revision and runner that produced the case's request and result and their digests.
-    Once a manifest holding a custody member is on disk, a later write carries that member forward unchanged and
-    refuses (CustodyChanged, nothing written) when the custody this process holds differs from it."""
+    Once a manifest recording custody is on disk, a later write carries that member forward unchanged and refuses
+    (CustodyChanged; the case manifest is not replaced) when the custody this process holds differs from it, and
+    equally when the manifest on disk cannot be read or its custody member is not an object: malformed custody is
+    unknown custody, never treated as absent."""
     held = {key: (custody or {}).get(key) for key in BENCHMARK_CUSTODY_KEYS}
-    on_disk = None
     manifest_path = contained(root, paths["manifest"])
-    if manifest_path.is_file():
-        try:
-            on_disk = json.loads(manifest_path.read_text(encoding="utf-8")).get("custody")
-        except (OSError, ValueError, AttributeError) as error:
-            raise CustodyChanged(f"{benchmark_run_id(entry)}: the case manifest on disk cannot be read "
-                                 f"({type(error).__name__}); nothing written") from error
-    if isinstance(on_disk, dict) and any(value is not None for value in on_disk.values()):
+    state, _, on_disk = _manifest_custody(manifest_path)
+    if state == "unknown":
+        raise CustodyChanged(f"{benchmark_run_id(entry)}: the case manifest on disk cannot be read, or its custody "
+                             "member is not an object; the case manifest was not replaced")
+    if state == "recorded":
         if on_disk != held:
             raise CustodyChanged(f"{benchmark_run_id(entry)}: the case manifest's custody differs from the custody "
-                                 "this process recorded; nothing written")
+                                 "this process recorded; the case manifest was not replaced")
         held = on_disk
     _replace_private_json(root, paths["manifest"], {
         "document_kind": MANIFEST_KIND,
@@ -968,29 +995,31 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     request_path, result_path = case_root / "swbpipe" / "request.json", case_root / "swbpipe" / "result.json"
     # Only the retry (attempt 2) of a model reuses the solve its own first attempt made in this process.
     solved = _SOLVED_THIS_PROCESS.get(str(case_root)) if attempt > 1 else None
-    if solved is None and (os.path.lexists(request_path) or os.path.lexists(result_path)):
+    if solved is None:
         # The SWBPIPE request and result of a case are created once and never replaced: a later revision is a
-        # separately identified comparison in case folders of its own, never a rewrite of the first.
-        # A classification of the refusal only: whether a readable case manifest records custody (a request digest),
-        # not whether a manifest file exists (one written before the solve, at an MBF refusal, records none). It
-        # validates nothing about the stored case and permits no overwrite: every class is refused. An unreadable
-        # manifest leaves the custody unknown, not absent; a malformed custody member is classed half-made for this
-        # refusal only, and nothing of it is overwritten or reconstructed.
-        recorded = _recorded_manifest(case_root / "case_manifest.json")
-        if recorded is None:
-            route, reason = "manifest_unreadable", ("this case holds a SWBPIPE request or result and its case manifest "
-                                                    "cannot be read, so its custody is unknown (not absent); it is "
-                                                    "never made again under its id")
-        elif isinstance(recorded.get("custody"), dict) and isinstance(recorded["custody"].get("request_sha256"), str):
+        # separately identified comparison in case folders of its own, never a rewrite of the first. A case is
+        # admitted only when it holds neither file and its case manifest, if any, is readable and records no custody;
+        # every other case is refused here, before anything is solved or any folder or file is created. The route
+        # only classifies the refusal (by the same reading of the manifest as every later write): it validates nothing
+        # of the stored case and permits no overwrite or reconstruction.
+        state, recorded, _ = _manifest_custody(case_root / "case_manifest.json")
+        stored = os.path.lexists(request_path) or os.path.lexists(result_path)
+        route = None
+        if state == "unknown":
+            route, reason = "manifest_unreadable", (
+                "this case's manifest cannot be read, or its custody member is not an object, so its custody is "
+                "unknown (not absent); it is never made again under its id")
+        elif state == "recorded":
             route, reason = "already_recorded", (
-                "this case already holds a SWBPIPE request or result, which are never replaced; its case manifest "
-                f"records custody, outcome {recorded.get('outcome')!r}, route {recorded.get('route')!r} (this names the "
-                "refusal and validates nothing of the stored case)")
-        else:
+                "this case's manifest records custody, so it is never made again under its id, whether or not its "
+                f"SWBPIPE request and result are still present; the manifest records outcome {recorded.get('outcome')!r}, "
+                f"route {recorded.get('route')!r} (this names the refusal and validates nothing of the stored case)")
+        elif stored:
             route, reason = "half_made", ("this case is half-made: a SWBPIPE request or result exists and no case "
                                           "manifest records custody for it; it is never made again under its id")
-        emit(f"{model_id}: route={route}; {reason}; not run")
-        return NOT_RUN, route, reason
+        if route is not None:
+            emit(f"{model_id}: route={route}; {reason}; not run")
+            return NOT_RUN, route, reason
     if offline and not os.path.lexists(case_root):
         reason = "offline, this case has no stored folder"
         emit(f"{model_id}: route=no_stored_case; {reason}; no benchmark record")
@@ -1250,7 +1279,8 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     parser.add_argument("--runner", help=f"openpipestress-runner executable (default: ${RUNNER_ENV})")
     parser.add_argument("--benchmark", metavar="MANIFEST",
                         help="run the generated benchmark models of this manifest (two-way comparison, guarded "
-                             "round trips, paced one at a time)")
+                             "round trips, paced one at a time); live use is held under DEL-17-05 (see this "
+                             "module's documentation), which the command does not itself enforce")
     parser.add_argument("--series", metavar="NAME",
                         help="with --benchmark, run each model's declared run of this series (required for a model "
                              "that declares runs)")

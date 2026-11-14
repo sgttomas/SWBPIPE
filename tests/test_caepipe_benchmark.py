@@ -965,7 +965,8 @@ def test_a_half_made_case_is_refused_by_name_and_left_as_it_is(fake_benchmark, m
             (folder.parent / "case_manifest.json").write_text(manifest, encoding="utf-8")
     before = tree_bytes(root)
     for case_id in seeds:
-        expected = "manifest_unreadable; this case holds" if case_id == "cpb-g1-05" else "half_made; this case is half-made"
+        expected = ("manifest_unreadable; this case's manifest cannot be read" if case_id == "cpb-g1-05"
+                    else "half_made; this case is half-made")
         assert run_pilot.main(state["argv"] + ["--case", case_id], environ={}) == 1
         assert f"{case_id}: route={expected}" in capsys.readouterr().out
     assert solves == [] and state["calls"] == [] and tree_bytes(root) == before
@@ -1159,7 +1160,7 @@ def test_a_changed_runner_or_checkout_refuses_before_the_round_trip(fake_benchma
         _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
         round_trip=lambda *a, **k: calls.append(1), gui_fallback=False, attempt=1, collect_only=True)
     assert (status, route, calls) == (run_pilot.NOT_RUN, "already_recorded", [])
-    assert "records custody, outcome 'no_record', route 'identity_changed'" in reason
+    assert "the manifest records outcome 'no_record', route 'identity_changed'" in reason
     assert tree_bytes(state["config"].exchange_root) == before
 
 
@@ -1271,21 +1272,98 @@ def test_a_settings_stop_on_the_raise_path_records_its_outcome(fake_benchmark):
     assert "the round trip raised" in manifest["reason"] and manifest["custody"]["request_sha256"]
 
 
-@pytest.mark.parametrize("content, route", [(json.dumps({"custody": "invented"}), "half_made"),
-                                            (json.dumps({"custody": ["invented"]}), "half_made"),
-                                            ("[]", "manifest_unreadable"), ('"invented"', "manifest_unreadable")])
-def test_a_malformed_manifest_at_admission_is_refused_by_name(fake_benchmark, content, route):
-    """A readable manifest whose custody member is not an object records no custody (half-made); a manifest that is
-    JSON but not an object cannot be read as a manifest. Each is refused by name, and nothing is written."""
+RECORDED_CUSTODY = json.dumps({"outcome": "invented", "route": "invented",
+                               "custody": {"request_sha256": "0" * 64, "result_sha256": None}})
+
+
+@pytest.mark.parametrize("stored", [True, False], ids=["with a stored request", "with no stored file"])
+@pytest.mark.parametrize("content, route", [
+    (json.dumps({"custody": "invented"}), "manifest_unreadable"),
+    (json.dumps({"custody": ["invented"]}), "manifest_unreadable"),
+    (json.dumps({"custody": None}), "manifest_unreadable"),
+    ("[]", "manifest_unreadable"), ('"invented"', "manifest_unreadable"), ("{ NOT JSON", "manifest_unreadable"),
+    (RECORDED_CUSTODY, "already_recorded"),
+], ids=["custody a string", "custody a list", "custody null", "a list", "a string", "not JSON", "recorded custody"])
+def test_a_manifest_of_unknown_or_recorded_custody_is_refused_at_admission(fake_benchmark, monkeypatch, content,
+                                                                            route, stored):
+    """Through run_benchmark_model, the batch wrapper's callable: a case manifest that cannot be read, or whose
+    custody member is not an object, leaves the custody unknown; one that records custody keeps the case recorded even
+    with its request and result gone. Each is refused by name, with or without stored files, before anything is
+    solved or any file is created, and nothing is written or reconstructed."""
     state = fake_benchmark
+    solves = []
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
+        {"invented": True}, {"payload": invented_payload()}, ""))
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
-    (case / "swbpipe").mkdir(parents=True)
-    (case / "swbpipe" / "request.json").write_text("INVENTED\n", encoding="utf-8")
+    case.mkdir(parents=True)
+    if stored:
+        (case / "swbpipe").mkdir()
+        (case / "swbpipe" / "request.json").write_text("INVENTED\n", encoding="utf-8")
     (case / "case_manifest.json").write_text(content, encoding="utf-8")
     before = tree_bytes(state["config"].exchange_root)
     assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
                                          emit=lambda line: None, collect_only=True)[:2] == (run_pilot.NOT_RUN, route)
-    assert tree_bytes(state["config"].exchange_root) == before
+    assert solves == [] and state["calls"] == [] and tree_bytes(state["config"].exchange_root) == before
+
+
+def test_a_manifest_that_is_a_link_is_refused_as_unknown_custody(fake_benchmark):
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    case.mkdir(parents=True)
+    (case / "elsewhere.json").write_text(RECORDED_CUSTODY, encoding="utf-8")
+    os.symlink("elsewhere.json", case / "case_manifest.json")
+    before = tree_bytes(state["config"].exchange_root)
+    assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                         emit=lambda line: None, collect_only=True)[:2] == (
+        run_pilot.NOT_RUN, "manifest_unreadable")
+    assert state["calls"] == [] and tree_bytes(state["config"].exchange_root) == before
+
+
+def test_a_manifest_recording_no_custody_and_no_stored_file_is_admitted(fake_benchmark):
+    """A manifest written before any solve (an MBF refusal records custody with no value) does not hold the case."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    case.mkdir(parents=True)
+    (case / "case_manifest.json").write_text(json.dumps({
+        "outcome": "no_record", "route": "not_run", "custody": dict.fromkeys(run_pilot.BENCHMARK_CUSTODY_KEYS)}),
+        encoding="utf-8")
+    assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                         emit=lambda line: None, collect_only=True)[0] == run_pilot.COLLECTED
+
+
+@pytest.mark.parametrize("write", ["collected", "not collected", "settings stop"])
+def test_custody_malformed_between_admission_and_a_later_write_is_refused(fake_benchmark, monkeypatch, write):
+    """Custody well formed at admission and made malformed before a later write reads it (the collected write, a
+    not-collected outcome, a stop's write): the later write refuses, treating malformed custody as unknown, never as
+    absent, and the manifest is not replaced. Asserted through run_benchmark_model, the batch wrapper's callable:
+    the write's CustodyChanged is raised, and at a stop the stop wins and its text names the CustodyChanged."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    state["outcomes"][:] = [{"collected": {"settings_guard": {"status": "unchanged"}},
+                             "not collected": {"route": "timeout", "settings_guard": {"status": "unchanged"}},
+                             "settings stop": {"route": "timeout",
+                                               "settings_guard": {"status": "owned_process_running"}}}[write]]
+    real = run_pilot._guard_stop
+    corrupted = {}
+
+    def guard(config, case_id, settings, emit):
+        manifest = json.loads((case / "case_manifest.json").read_text())
+        assert manifest["outcome"] == "custody_recorded" and manifest["custody"]["request_sha256"]
+        manifest["custody"] = "invented"  # made malformed between admission and the later write
+        (case / "case_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        corrupted["bytes"] = (case / "case_manifest.json").read_bytes()
+        return real(config, case_id, settings, emit)
+    monkeypatch.setattr(run_pilot, "_guard_stop", guard)
+    expected = run_pilot.RunStopped if write == "settings stop" else run_pilot.CustodyChanged
+    with pytest.raises(expected) as raised:
+        run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                      emit=lambda line: None, collect_only=True)
+    text = f"{type(raised.value).__name__}: {raised.value}"
+    assert "custody member is not an object; the case manifest was not replaced" in text
+    if write == "settings stop":
+        assert text.startswith("RunStopped: cpb-g1-01 (settings_stop; its outcome could not be recorded "
+                               "(CustodyChanged: ")
+    assert (case / "case_manifest.json").read_bytes() == corrupted["bytes"]
 
 
 def test_an_unreadable_manifest_is_refused_on_a_later_write(fake_benchmark):
