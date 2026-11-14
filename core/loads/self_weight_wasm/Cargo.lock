@@ -156,12 +156,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_numerical_vocabulary"
+version = "0.1.0"
+
+[[package]]
 name = "open_pipe_stress_operation_applier"
 version = "0.1.0"
 dependencies = [
  "open_pipe_stress_canonical_json",
  "open_pipe_stress_frame_kernel",
  "open_pipe_stress_product_physics",
+ "open_pipe_stress_report_standing",
  "open_pipe_stress_units",
  "serde",
  "serde_json",
@@ -199,6 +204,16 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+]
+
+[[package]]
+name = "open_pipe_stress_report_standing"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_numerical_vocabulary",
+ "open_pipe_stress_result_export",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

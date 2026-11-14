@@ -38,7 +38,7 @@ describe("numerical health text pins", () => {
       "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
     );
     expect(text.outputSentence(2)).toBe(
-      "No results of this run can be exported or used by rule checks while 2 load case(s) are not checks passed."
+      "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 2 load case(s) are not checks passed; results tables, CSV export and the rendered report carry each case's standing."
     );
     expect(text.BOUNDARY_SENTENCE).toBe(
       "These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right."

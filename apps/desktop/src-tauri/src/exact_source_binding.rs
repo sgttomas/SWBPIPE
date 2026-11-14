@@ -28,12 +28,21 @@
 
 use crate::solve_jobs::{sha256_in_place, CustodyDigests};
 use open_pipe_stress_result_export::derivative::{digest, guard_json};
+use open_pipe_stress_report_standing::reader_readability;
 use open_pipe_stress_result_export::reader_verdict;
 use serde_json::{json, Value};
 
 pub(crate) const CUSTODY_RELEASED: &str = "REPORT-EXACT-CUSTODY-RELEASED";
 pub(crate) const SOURCE_NOT_DELIVERED: &str = "REPORT-EXACT-SOURCE-NOT-DELIVERED";
+/// The package save's and user release's refusal of a result that is not
+/// numerically eligible. DEL-08-01 REQ-024's present account: until those
+/// emissions state numerical standing, they keep this refusal (LIM-016); the
+/// rendered report and its print view do not.
 pub(crate) const STANDING_NOT_ELIGIBLE: &str = "REPORT-EXACT-STANDING-NOT-ELIGIBLE";
+/// A result the product reader cannot read with its model (DEL-05-02 Standing).
+pub(crate) const RESULT_NOT_READABLE: &str = "REPORT-RESULT-NOT-READABLE";
+/// A result whose mechanics are not solved.
+pub(crate) const MECHANICS_NOT_SOLVED: &str = "REPORT-MECHANICS-NOT-SOLVED";
 pub(crate) const SECTIONS_MISMATCH: &str = "REPORT-EXACT-SECTIONS-MISMATCH";
 
 /// A refusal of the binding: its code and its full message (`<code>: ...`).
@@ -130,19 +139,36 @@ pub(crate) struct BoundSource {
     pub model: Value,
     /// `digest(model)`: the solved model's canonical SHA-256.
     pub model_sha256: String,
+    /// The native reading's standing (`reader_verdict::standing`), whose
+    /// standing findings the report's standing record carries.
+    pub standing: Value,
+}
+
+/// What a binding admits the delivered result for (DEL-08-01 REQ-017 and
+/// REQ-024's present account).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SourceAdmission {
+    /// The rendered report and its print view: any solved result the reader reads.
+    Render,
+    /// The package save and the user release: still a numerically eligible result,
+    /// refused at step 4 as before (LIM-016).
+    Eligible,
 }
 
 /// Steps 3-5, after the command's lease covers the priced parse of
-/// both texts and its working memory: parse and guard both texts, require
-/// eligible native standing with the invocation built from the recorded mode
+/// both texts and its working memory: parse and guard both texts, read the
+/// result with the invocation built from the recorded mode
 /// (`{request: {model, materials: []}, solver_mode}`, the form of the
-/// desktop's `NativeMechanicsInvocation`), then bind the admission's result
-/// and model digests to them.
+/// desktop's `NativeMechanicsInvocation`), require that the native reader
+/// reads it and that its mechanics are solved (DEL-08-01 REQ-017), require
+/// eligible native standing where `kind` is [`SourceAdmission::Eligible`],
+/// then bind the admission's result and model digests to them.
 pub(crate) fn read_delivered_source(
     admission: &Value,
     digests: &CustodyDigests,
     result_text: &str,
     intake_text: &str,
+    kind: SourceAdmission,
 ) -> Result<BoundSource, ExactRefusal> {
     let source: Value = serde_json::from_str(result_text).map_err(|_| not_delivered("result"))?;
     guard_json(&source).map_err(|_| not_delivered("result"))?;
@@ -151,11 +177,27 @@ pub(crate) fn read_delivered_source(
     let invocation = json!({"request": {"model": model.clone(), "materials": []}, "solver_mode": digests.solver_mode.as_str()});
     let standing = reader_verdict::standing(&source, Some(&model), Some(&invocation));
     drop(invocation);
-    if standing["eligible"] != Value::Bool(true) {
+    // DEL-08-01 REQ-017: the result is admitted when the reader reads it with its
+    // model and its mechanics are solved, whatever its numerical standing, which
+    // the report states (REQ-024). The reader's findings are quoted, never read
+    // as codes: a route refusal's finding can be the reader's own text.
+    let readability = reader_readability::readability(&source, &standing);
+    if readability["readable"] != Value::Bool(true) {
+        let findings: Vec<&str> = readability["unreadable"].as_array().map(Vec::as_slice).unwrap_or(&[]).iter().filter_map(Value::as_str).collect();
         return Err(ExactRefusal {
-            code: STANDING_NOT_ELIGIBLE,
-            message: format!("{STANDING_NOT_ELIGIBLE}: the native reading of the delivered result is not numerically eligible."),
+            code: RESULT_NOT_READABLE,
+            message: format!("{RESULT_NOT_READABLE}: the product reader cannot read the delivered result with its model (reader findings: {findings:?})."),
         });
+    }
+    if readability["solved"] != Value::Bool(true) {
+        return Err(ExactRefusal {
+            code: MECHANICS_NOT_SOLVED,
+            message: format!("{MECHANICS_NOT_SOLVED}: the delivered result's mechanics are not solved."),
+        });
+    }
+    let eligible = standing["eligible"] == Value::Bool(true);
+    if kind == SourceAdmission::Eligible && !eligible {
+        return Err(not_eligible());
     }
     let source_sha256 = digest(&source).map_err(|_| not_delivered("result"))?;
     if source_sha256 != binding_text(admission, "received_result_sha256") {
@@ -165,5 +207,15 @@ pub(crate) fn read_delivered_source(
     if model_sha256 != binding_text(admission, "model_sha256") {
         return Err(not_delivered("model"));
     }
-    Ok(BoundSource { source, model, model_sha256 })
+    Ok(BoundSource { source, model, model_sha256, standing })
+}
+
+/// DEL-08-01 REQ-024's present account (LIM-016): the package save and the
+/// user release still refuse a result that is not numerically eligible, with
+/// today's refusal at today's step; the rendered report does not.
+fn not_eligible() -> ExactRefusal {
+    ExactRefusal {
+        code: STANDING_NOT_ELIGIBLE,
+        message: format!("{STANDING_NOT_ELIGIBLE}: the native reading of the delivered result is not numerically eligible."),
+    }
 }

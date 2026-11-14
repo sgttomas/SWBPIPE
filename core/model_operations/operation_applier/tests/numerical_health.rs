@@ -862,3 +862,11 @@ const RESULT_FIXTURES: [&str; 112] = [
     "results/retained_precision_w_c2_successor_dense_scrutiny.json",
     "results/retained_precision_w_c2_successor_sparse_interactive.json",
 ];
+
+/// The JSON-text entry refuses input that is not JSON (the projection itself is
+/// `report_standing::historical_health`).
+#[test]
+fn input_that_is_not_json_is_refused() {
+    assert!(numerical_health_json("not json", None).is_err());
+    assert!(numerical_health_json("{}", Some("not json")).is_err());
+}

@@ -127,6 +127,7 @@ fn fixture_input() -> RenderableReportInput {
         library_references: None,
         report_composition: None,
         model_input_tables: None,
+        numerical_standing: None,
     }
 }
 
@@ -673,19 +674,19 @@ fn exact_block_and_library_records_render_with_the_composed_standing_line() {
     assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
     let html = &outcome.html;
     let binding = &input.exact_route.as_ref().unwrap().admission;
-    let standing = format!(
-        "integrity checked (the Rust reader&#39;s standing for the result Export Result JSON admitted in this session: received result sha256 {RECEIVED}, model sha256 {MODEL}, input manifest {} sha256 {MANIFEST})",
+    let reading = format!(
+        "read by the Rust reader for the result Export Result JSON admitted in this session (received result sha256 {RECEIVED}, model sha256 {MODEL}, input manifest {} sha256 {MANIFEST}); its numerical health is stated at the start of Results and by load case",
         binding.input_manifest_ref
     );
-    assert_eq!(
-        exact_standing_line(binding),
-        format!("integrity checked (the Rust reader's standing for the result Export Result JSON admitted in this session: received result sha256 {RECEIVED}, model sha256 {MODEL}, input manifest {} sha256 {MANIFEST})", binding.input_manifest_ref)
-    );
+    assert_eq!(exact_standing_line(binding), reading);
+    let standing = escape_html(&reading);
+    // DEL-08-01 REQ-024: the standing line, composed from the standing record, opens Results.
+    let line = escape_html(&open_pipe_stress_report_renderer::standing::standing_line(input.numerical_standing.as_ref().unwrap()));
     let block = format!(
         "<h3>{EXACT_ROUTE_SUBHEADING}</h3>\n<p class=\"meta\">Semantic contract: {PRESSURE_3} · Numerical standing: {standing}</p>\n<p>{LOAD_REFERENCE_LINE}</p>\n<h3>{EXACT_HEADLINES_SUBHEADING}</h3>\n<table>\n<tr><th>Section basis</th><th>Stress maximum</th><th>Location</th><th>Source</th></tr>\n<tr><td>Nominal section (nominal wall)</td><td>41.3549 MPa</td><td>pipe:invented-span</td><td>result:invented-nominal-maximum</td></tr>\n<tr><td>Reduced section (wall minus mill tolerance and corrosion allowance)</td><td>{WITHHELD}</td><td>{NOT_AVAILABLE}</td><td>{NOT_AVAILABLE}</td></tr>\n</table>\n<p>{EXACT_HEADLINES_PARAGRAPH}</p>\n"
     );
     // At the start of the Results section, before the rows.
-    assert!(html.contains(&format!("<h2>Results</h2>\n{block}<table>\n<tr><th>Result</th>")), "{html}");
+    assert!(html.contains(&format!("<h2>Results</h2>\n<p>{line}</p>\n{block}<table>\n<tr><th>Result</th>")), "{html}");
     assert!(html.contains("<h3>Library Records</h3>\n<table>\n<tr><th>Library kind</th><th>Library</th><th>Version</th><th>Record</th><th>Referenced by</th></tr>\n<tr><td>material</td><td>invented-material-library</td><td>sha256:7777777777777777777777777777777777777777777777777777777777777777</td><td>not recorded</td><td>material:invented-a, material:invented-b</td></tr>\n</table>\n"));
     let provenance = html.find("<h3>Provenance Notes</h3>").unwrap();
     assert!(html.find("<h3>Library Records</h3>").unwrap() > provenance);
@@ -1683,10 +1684,12 @@ fn the_display_rule_is_stated_once_near_the_results_when_the_report_declares_it(
     assert_eq!(display_rule_statement(&input), Some(DISPLAY_RULE_STATEMENT));
     let html = render_calculation_report(&input).html;
     assert_eq!(html.matches(DISPLAY_RULE_STATEMENT).count(), 1);
-    // At the start of the Results section, before the exact block and the rows.
-    assert!(html.contains(&format!("<h2>Results</h2>\n<p>{}</p>\n<h3>{EXACT_ROUTE_SUBHEADING}</h3>", escape_html(DISPLAY_RULE_STATEMENT))));
+    // At the start of the Results section, after the standing line (DEL-08-01 REQ-024) and
+    // before the exact block and the rows.
+    let line = open_pipe_stress_report_renderer::standing::standing_line(input.numerical_standing.as_ref().unwrap());
+    assert!(html.contains(&format!("<h2>Results</h2>\n<p>{}</p>\n<p>{}</p>\n<h3>{EXACT_ROUTE_SUBHEADING}</h3>", escape_html(&line), escape_html(DISPLAY_RULE_STATEMENT))));
     let assembled = assemble_report_sections(&input);
-    assert_eq!(section(&assembled, "results")[0], SectionBlock::Paragraph { text: DISPLAY_RULE_STATEMENT.to_string(), meta: false });
+    assert_eq!(section(&assembled, "results")[1], SectionBlock::Paragraph { text: DISPLAY_RULE_STATEMENT.to_string(), meta: false });
     // The policy text is shown verbatim in the Model Input Summary as before.
     assert!(html.contains(&escape_html(QUANTITY_DISPLAY_POLICY)));
     // A report declaring another policy (the committed invented fixture's) states none.

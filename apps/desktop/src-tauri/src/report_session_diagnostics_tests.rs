@@ -318,6 +318,13 @@ fn pf_render(session: &[Value]) -> PfRender {
             "native_job_id": live.job,
             "received_bytes_sha256": sha256_hex(&result),
         }});
+    // DEL-08-01 REQ-024: the standing record the desktop's builder carries, as the reader
+    // derives it from this source and model; the native host re-derives it and requires
+    // equality.
+    let invocation = json!({"request": {"model": model.clone(), "materials": []}, "solver_mode": MODE});
+    let standing = open_pipe_stress_result_export::reader_verdict::standing(&source, Some(&model), Some(&invocation));
+    input["numerical_standing"] = open_pipe_stress_report_standing::report_standing::historical_standing_record(&source, &model, &standing)
+        .expect("the stand-in's standing record derives");
     PfRender { live, input, result, intake, manifest: manifest_text }
 }
 

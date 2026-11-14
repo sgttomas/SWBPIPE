@@ -25,7 +25,7 @@ describe("numerical health over the wasm export", () => {
     expect(health!.cases.map((c) => c.state)).toEqual(["sensitive"]);
     const view = numericalHealthView(health, { eligible: false, verdictHold: true })!;
     expect(view.headline).toBe("Numerical health: 1 sensitive");
-    expect(view.outputSentence).toBe("No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed.");
+    expect(view.outputSentence).toBe("Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and the rendered report carry each case's standing.");
     // Without the model the reader cannot cover the requested cases: no verdict-only flag.
     expect(readNumericalHealth(result, numericalResultStanding(result).findings)!.verdict_only).toBe(false);
     expect(readNumericalHealth(result, null)!.verdict_only).toBe(false);

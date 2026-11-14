@@ -1,3 +1,8 @@
+//! The historical health reader (DEL-05-02, DEL-07-05). It reads results that
+//! carry no typed numerical evidence: every result made before the producer
+//! emits typed causes and confirmation outcomes. It is kept as the supported way
+//! to read those results, and is never the typed producer vocabulary.
+//!
 //! Numerical health indicator:
 //! a presentation projection of the ordinary solve's existing diagnostics, per
 //! load case, for the desktop. Nothing here changes a state, a threshold, a
@@ -17,7 +22,7 @@
 //!   admission or standing.
 //!
 //! Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
-use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+use open_pipe_stress_result_export::reader_verdict as rv;
 use serde::Serialize;
 use serde_json::Value;
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -106,35 +111,35 @@ const NAMED: usize = 6;
 pub(crate) const NONLINEAR_CONFIRMED_LINE: &str = "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; the published nodal displacements, and the support displacement rows that follow them, are the formation check's corrected displacements; the iteration's residual rows are its own.";
 
 #[derive(Debug, Serialize)]
-struct Health {
+pub(crate) struct Health {
     route: &'static str,
     verdict_only: bool,
-    cases: Vec<CaseHealth>,
+    pub(crate) cases: Vec<CaseHealth>,
     combinations: Vec<CombinationHealth>,
 }
 
 #[derive(Debug, Serialize)]
-struct CaseHealth {
-    case_id: String,
-    state: &'static str,
-    code: Option<String>,
-    integrity_diagnostic_id: Option<String>,
+pub(crate) struct CaseHealth {
+    pub(crate) case_id: String,
+    pub(crate) state: &'static str,
+    pub(crate) code: Option<String>,
+    pub(crate) integrity_diagnostic_id: Option<String>,
     rcond: Option<f64>,
     digits: Option<f64>,
     conditioning_sensitive: bool,
-    causes: Vec<Cause>,
+    pub(crate) causes: Vec<Cause>,
 }
 
 #[derive(Debug, Serialize)]
-struct Cause {
-    kind: &'static str,
-    diagnostic_id: Option<String>,
-    locations: Vec<Location>,
+pub(crate) struct Cause {
+    pub(crate) kind: &'static str,
+    pub(crate) diagnostic_id: Option<String>,
+    pub(crate) locations: Vec<Location>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
-enum Location {
+pub(crate) enum Location {
     NodeDof {
         node: String,
         dof: String,
@@ -158,18 +163,13 @@ struct CombinationHealth {
 }
 
 /// The numerical health of a result envelope, as JSON text.
-/// `reader_findings_json` is the Rust reader's findings for the same result:
+/// `reader_findings` is the Rust reader's findings for the same result:
 /// an array of finding codes (or of objects with a `code`), or the
-/// `reader_dispatch_json` outcome itself (its `standing.findings`). `None`, or
-/// the text `null`, gives `verdict_only = false`. Errors only on input that is
-/// not JSON.
-pub fn numerical_health_json(
-    source_json: &str,
-    reader_findings_json: Option<&str>,
-) -> Result<String, String> {
-    let source = super::parse_reader_input("source", source_json)?;
-    let findings = super::optional_reader_input("reader_findings", reader_findings_json)?;
-    serde_json::to_string(&numerical_health(&source, findings.as_ref()))
+/// `reader_dispatch_json` outcome itself (its `standing.findings`). `None`
+/// gives `verdict_only = false`. The desktop's JSON-text entry is
+/// `operation_applier::numerical_health_json`.
+pub fn numerical_health_json(source: &Value, reader_findings: Option<&Value>) -> Result<String, String> {
+    serde_json::to_string(&numerical_health(source, reader_findings))
         .map_err(|error| format!("NUMERICAL_HEALTH_SERIALIZATION: {error}"))
 }
 
@@ -240,7 +240,7 @@ impl<'a> Diagnostics<'a> {
     }
 }
 
-fn numerical_health(source: &Value, reader_findings: Option<&Value>) -> Health {
+pub(crate) fn numerical_health(source: &Value, reader_findings: Option<&Value>) -> Health {
     let route = route_of(source);
     let index = Diagnostics::new(source);
     let mut cases = Vec::new();
@@ -1205,8 +1205,8 @@ mod tests {
     }
 
     fn health(source: &Value, findings: Option<&str>) -> Value {
-        serde_json::from_str(&numerical_health_json(&source.to_string(), findings).unwrap())
-            .unwrap()
+        let findings: Option<Value> = findings.map(|text| serde_json::from_str(text).unwrap()).filter(|v: &Value| !v.is_null());
+        serde_json::from_str(&numerical_health_json(source, findings.as_ref()).unwrap()).unwrap()
     }
 
     fn one_case(case: &str, code: &str, solve_quality: &str, message: String) -> Value {
@@ -2036,8 +2036,6 @@ mod tests {
                 "{findings:?}"
             );
         }
-        assert!(numerical_health_json(MULTICASE, Some("not json")).is_err());
-        assert!(numerical_health_json("not json", None).is_err());
     }
 
     /// The multicase result with its first case made a passing companion.

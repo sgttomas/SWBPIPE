@@ -41,7 +41,7 @@ export const ELIGIBLE_RECOVERY_TEXT =
 
 /** The header's output sentence, when the generic-route result is not Current because of the verdict. */
 export function outputSentence(notPassedCount: number): string {
-  return `No results of this run can be exported or used by rule checks while ${notPassedCount} load case(s) are not checks passed.`;
+  return `Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while ${notPassedCount} load case(s) are not checks passed; results tables, CSV export and the rendered report carry each case's standing.`;
 }
 
 /** The boundary sentence (claims registry NQ-HEALTH, owner text pending). */

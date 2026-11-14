@@ -28,9 +28,9 @@
    ".json",
    ".jsonl"
   ],
-  "files": 521,
+  "files": 524,
   "claimed_by": {
-   "group": 137,
+   "group": 140,
    "in_code": 62,
    "exemption": 322
   }
@@ -117,6 +117,18 @@
    "pressurised_load_cases": 10,
    "held_documents": 4,
    "held_pressurised_load_cases": 5
+  },
+  "report_standing_render_inputs": {
+   "files": 2,
+   "documents": 0,
+   "pressurised_load_cases": 0,
+   "held_documents": 4,
+   "held_pressurised_load_cases": 6
+  },
+  "report_standing_coupled_friction_request": {
+   "files": 1,
+   "documents": 1,
+   "pressurised_load_cases": 1
   },
   "user_release_exact": {
    "files": 1,
@@ -1292,7 +1304,8 @@
     "core/product_physics/tests/rt_a3_s6_reference_system.rs",
     "core/product_physics/tests/exact_admission_seam.rs",
     "core/product_physics/src/modal/tests_state.rs",
-    "tests/test_rt_a3_nonlinear_reader.py"
+    "tests/test_rt_a3_nonlinear_reader.py",
+    "core/product_physics/tests/report_standing_witnesses.rs (fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json, and through apps/desktop/src/features/report/reportStandingWitness.test.tsx the render input that holds this request as exact intake text)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -3746,6 +3759,123 @@
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
       "case:closed-pressure"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_render_inputs/pressure_3_coupled_friction_sensitive.render",
+   "group": "report_standing_render_inputs",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.render.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_render_exact_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "documents held as JSON text (exact intake text) inside render inputs"
+   },
+   "documents": [],
+   "held_documents": [
+    {
+     "pointer": "/exact_intake_text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/input_manifest_text",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_render_inputs/pressure_3_gap_unresolved.render",
+   "group": "report_standing_render_inputs",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.render.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_render_exact_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "documents held as JSON text (exact intake text) inside render inputs"
+   },
+   "documents": [],
+   "held_documents": [
+    {
+     "pointer": "/exact_intake_text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    },
+    {
+     "pointer": "/input_manifest_text",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_coupled_friction_request",
+   "group": "report_standing_coupled_friction_request",
+   "path": "fixtures/reports/invented/report_standing_witnesses/coupled_friction.request.json",
+   "producer": {
+    "kind": "none",
+    "status": "hand_authored",
+    "switch_plumbed": false,
+    "switch_route": "no producer (made once as a trimmed copy of the RT-A3 S6 no-gap overlay, one case, RS-SUS): edit the document, then re-produce its raw file with core/product_physics/tests/report_standing_witnesses.rs and the render input with its writer"
+   },
+   "pinned_by": [
+    "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json (core/product_physics/tests/report_standing_witnesses.rs)",
+    "core/reporting/report_standing/tests/report_standing.rs",
+    "apps/desktop/src/features/report/reportStandingWitness.test.tsx"
+   ],
+   "anchor": {
+    "kind": "raw_files",
+    "files": {
+     "sparse_interactive": "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json"
+    }
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
      ]
     }
    ]

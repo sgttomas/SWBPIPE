@@ -42,6 +42,12 @@ pub mod composer;
 pub mod exact_statements;
 pub mod model_input;
 pub mod object_form;
+pub mod standing;
+
+/// The Load Cases subsection of the standing record (DEL-08-01 REQ-024).
+pub const STANDING_BY_LOAD_CASE_SUBHEADING: &str = "Numerical Standing by Load Case";
+/// The Results subsection of the nonlinear support states (DEL-08-01 REQ-024).
+pub const SUPPORT_STATES_SUBHEADING: &str = "Nonlinear Support States";
 
 /// Fixed render order: mirrors the required-section contract of
 /// `report_generator` (`REQUIRED_SECTION_KINDS`); rendering never reorders
@@ -482,6 +488,12 @@ pub struct RenderableReportInput {
     /// to an input without the member.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub model_input_tables: Option<model_input::ModelInputTables>,
+    /// The result's standing record (DEL-08-01 REQ-024), as the product reader
+    /// derives it from the bound result and model (`standing`). Absent, the
+    /// input renders byte-identically to an input without the member; an
+    /// exact-route input without it is blocked.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub numerical_standing: Option<standing::NumericalStanding>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -1059,6 +1071,16 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                     })
                     .collect();
                 let mut blocks = vec![table(&["Load case", "Label", "Basis", "Source"], rows)];
+                if let Some(record) = &input.numerical_standing {
+                    blocks.push(subheading(STANDING_BY_LOAD_CASE_SUBHEADING));
+                    if let Some(findings) = standing::standing_findings_paragraph(record) {
+                        blocks.push(paragraph(&findings));
+                    }
+                    blocks.push(table(
+                        &["Load case", "Numerical health", "Integrity code", "Reasons", "Support-state confirmation", "Error figures"],
+                        standing::case_rows(record),
+                    ));
+                }
                 if let Some((_, composed)) = &composition {
                     blocks.extend(composer::model_input_blocks(key, composed, input.model_input_tables.as_ref()));
                 }
@@ -1066,6 +1088,9 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
             }
             "results" => {
                 let mut blocks = Vec::new();
+                if let Some(line) = standing_banner_text(input) {
+                    blocks.push(paragraph(&line));
+                }
                 if let Some(statement) = display_rule_statement(input) {
                     blocks.push(paragraph(statement));
                 }
@@ -1107,6 +1132,13 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                     &["Referenced result export", "Checksum"],
                     export_rows,
                 ));
+                if let Some(record) = &input.numerical_standing {
+                    let rows = standing::support_rows(record);
+                    if !rows.is_empty() {
+                        blocks.push(subheading(SUPPORT_STATES_SUBHEADING));
+                        blocks.push(table(&["Load case", "Support", "Behaviour", "State and confirmation"], rows));
+                    }
+                }
                 ("Results", blocks)
             }
             "warnings_assumptions_provenance" => {
@@ -1372,14 +1404,16 @@ cannot appear inside the bytes it binds.",
                         ]
                     })
                     .collect();
-                (
-                    "Limitations",
-                    vec![
-                        table(&["Limitation", "Statement", "Scope"], limitation_rows),
-                        subheading("Unresolved TBDs"),
-                        table(&["TBD", "Description", "Review needed"], tbd_rows),
-                    ],
-                )
+                let mut blocks = vec![table(&["Limitation", "Statement", "Scope"], limitation_rows)];
+                if input.numerical_standing.is_some() {
+                    blocks.push(subheading(standing::ERROR_FIGURE_BASIS_TITLE));
+                    blocks.push(paragraph(standing::ERROR_FIGURE_BASIS));
+                    blocks.push(paragraph(standing::DISPLACEMENT_ESTIMATE));
+                    blocks.push(paragraph(standing::MAX_INTERVAL));
+                }
+                blocks.push(subheading("Unresolved TBDs"));
+                blocks.push(table(&["TBD", "Description", "Review needed"], tbd_rows));
+                ("Limitations", blocks)
             }
             "professional_boundary_notice" => {
                 let signoff_rows = [
@@ -1531,6 +1565,30 @@ pub fn status_banner_text(input: &RenderableReportInput) -> String {
         .collect();
     format!("Analysis status: {}", labels.join(", "))
 }
+
+/// The frame's standing line (DEL-08-01 REQ-017, REQ-024): the result's
+/// numerical health as the solver reports it, composed from the standing
+/// record. `None` without a record.
+pub fn standing_banner_text(input: &RenderableReportInput) -> Option<String> {
+    input.numerical_standing.as_ref().map(standing::standing_line)
+}
+
+/// Blocking reasons of the standing record: an exact-route input without one,
+/// or a record of a form this renderer does not read.
+pub fn standing_blocking_reasons(input: &RenderableReportInput) -> Vec<String> {
+    match &input.numerical_standing {
+        None if input.exact_route.is_some() => vec![format!("{REPORT_NUMERICAL_STANDING_MISSING}: an exact-route report states its numerical standing")],
+        Some(record) if record.record_version != standing::HISTORICAL_RECORD_VERSION || record.evidence_member != "absent" => {
+            vec![format!("{REPORT_NUMERICAL_STANDING_UNSUPPORTED}: record_version")]
+        }
+        _ => Vec::new(),
+    }
+}
+
+/// An exact-route input that carries no standing record.
+pub const REPORT_NUMERICAL_STANDING_MISSING: &str = "REPORT-NUMERICAL-STANDING-MISSING";
+/// A standing record of a form this renderer does not read.
+pub const REPORT_NUMERICAL_STANDING_UNSUPPORTED: &str = "REPORT-NUMERICAL-STANDING-UNSUPPORTED";
 
 /// Emission-neutral export-blocked banner text shared by the HTML and PDF
 /// emissions.
@@ -1770,14 +1828,16 @@ pub fn exact_admission_mismatches(input: &RenderableReportInput, route: &ExactRo
     fields
 }
 
-/// The standing line composed from a binding that holds (§3.2). "integrity
-/// checked" is the session's label (`LoadReferenceStatesBlock.tsx`). When the
-/// Diagnostics carry an integrity warning, the rendered line is preceded by
-/// [`exact_integrity_warning_lead`].
+/// The exact block's reading line, composed from a binding that holds (§3.2):
+/// the identities the report is bound to. It no longer says "integrity
+/// checked": the native host admits any solved result the reader reads, and
+/// the numerical health is the standing line's (DEL-08-01 REQ-017, REQ-024).
+/// When the Diagnostics carry an integrity warning, the rendered line is
+/// preceded by [`exact_integrity_warning_lead`].
 pub fn exact_standing_line(binding: &ExactAdmissionBinding) -> String {
     format!(
-        "integrity checked (the Rust reader's standing for the result Export Result JSON admitted in this session: \
-received result sha256 {}, model sha256 {}, input manifest {} sha256 {})",
+        "read by the Rust reader for the result Export Result JSON admitted in this session (received result sha256 {}, \
+model sha256 {}, input manifest {} sha256 {}); its numerical health is stated at the start of Results and by load case",
         binding.received_result_sha256, binding.model_sha256, binding.input_manifest_ref, binding.input_manifest_sha256
     )
 }
@@ -2250,6 +2310,7 @@ pub fn decode_renderable_report_input_as(value: serde_json::Value, code: &str, r
                 "library_references",
                 "report_composition",
                 "model_input_tables",
+                "numerical_standing",
             ],
             4,
         )
@@ -2290,6 +2351,7 @@ pub fn decode_renderable_report_input_as(value: serde_json::Value, code: &str, r
         library_references: optional(&mut fields, "library_references").map_err(at)?,
         report_composition: optional(&mut fields, "report_composition").map_err(at)?,
         model_input_tables: optional(&mut fields, "model_input_tables").map_err(at)?,
+        numerical_standing: optional(&mut fields, "numerical_standing").map_err(at)?,
     })
 }
 
@@ -2389,6 +2451,7 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
     for reason in exact_route_blocking_reasons(input, exact_statements::exact_statement_table()) {
         blocking_reasons.push(reason);
     }
+    blocking_reasons.extend(standing_blocking_reasons(input));
     for reason in composer::composition_blocking_reasons(input) {
         blocking_reasons.push(format!("report composition: {reason}"));
     }
@@ -2412,6 +2475,9 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
         "<div class=\"status-banner\">{}</div>\n",
         escape_html(&status_banner_text(input)),
     ));
+    if let Some(line) = standing_banner_text(input) {
+        body.push_str(&format!("<div class=\"standing-line\">{}</div>\n", escape_html(&line)));
+    }
     if let Some(notice) = local_private_notice_text(input) {
         body.push_str(&format!(
             "<div class=\"local-private-banner\" data-export-context=\"local_private\">{}</div>\n",

@@ -275,7 +275,7 @@ fn bind_render_admission(
     let growth = exact_render_growth_bytes(result, intake, manifest_text).map_err(CommandError::Command)?;
     lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
     // Steps 3-5: parse, the native standing, the result and model digests.
-    let bound = binding::read_delivered_source(admission, &digests, result, intake).map_err(refused)?;
+    let bound = binding::read_delivered_source(admission, &digests, result, intake, binding::SourceAdmission::Render).map_err(refused)?;
     // The input manifest, parsed as the save parses its own: its SHA-256 is the
     // binding's, and its model is the bound model.
     let manifest = crate::report_package_save::parse_canonical("input_manifest", manifest_text)
@@ -288,6 +288,9 @@ fn bind_render_admission(
         .map_err(|_| refused(sections_mismatch("input_manifest.model_basis")))?;
     drop(manifest);
     rederive(input, &bound.source, &bound.model_sha256, &digests).map_err(|section| refused(sections_mismatch(&section)))?;
+    // DEL-08-01 REQ-024: the standing record the report states is the one the
+    // reader derives from the bound result and model, exactly.
+    check_numerical_standing(input, &bound.source, &bound.model, &bound.standing).map_err(|section| refused(sections_mismatch(&section)))?;
     // The Diagnostics after the result's are the session entries the host
     // derives from the bound model, and none copies a result diagnostic
     // (review of f3d02469c, finding 2; `report_session_diagnostics`). The
@@ -304,6 +307,18 @@ fn bind_render_admission(
     // model-input tables are P(M, C) of the bound intake model and the input's
     // own composition; the refusal names a JSON pointer, never a value.
     open_pipe_stress_report_package::model_input::check_model_input_tables(&bound.model, input).map_err(CommandError::Command)
+}
+
+/// DEL-08-01 REQ-024: the input's `numerical_standing` equals the standing
+/// record the reader derives from the bound result and model
+/// (`report_standing::report_standing`). `Err` names the section.
+fn check_numerical_standing(input: &Value, source: &Value, model: &Value, standing: &Value) -> Result<(), String> {
+    let derived = open_pipe_stress_report_standing::report_standing::historical_standing_record(source, model, standing)
+        .map_err(|_| "numerical_standing".to_string())?;
+    if input.get("numerical_standing") != Some(&derived) {
+        return Err("numerical_standing".to_string());
+    }
+    Ok(())
 }
 
 /// The re-derivation (§3.6) with the functions the package's items 5, 6 and 9

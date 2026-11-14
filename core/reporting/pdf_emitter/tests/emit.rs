@@ -95,6 +95,7 @@ fn fixture_input() -> RenderableReportInput {
         library_references: None,
         report_composition: None,
         model_input_tables: None,
+        numerical_standing: None,
     }
 }
 
@@ -425,9 +426,13 @@ fn exact_block_and_library_records_emit_in_the_pdf() {
         assert!(pdf_contains(&pdf.pdf_bytes, needle), "PDF emission must carry {needle:?}");
         assert!(render.html.contains(needle), "{needle}");
     }
-    // The section model is shared: the exact block opens the Results section.
+    // The section model is shared: the standing line opens the Results section
+    // (DEL-08-01 REQ-024), then the exact block; the frame carries the same line.
     let results = assemble_report_sections(&input).into_iter().find(|section| section.key == "results").unwrap();
-    assert!(matches!(&results.blocks[0], open_pipe_stress_report_renderer::SectionBlock::Subheading { text } if text == "Exact-Route Result"));
+    let line = open_pipe_stress_report_renderer::standing::standing_line(input.numerical_standing.as_ref().unwrap());
+    assert!(matches!(&results.blocks[0], open_pipe_stress_report_renderer::SectionBlock::Paragraph { text, .. } if *text == line));
+    assert!(matches!(&results.blocks[1], open_pipe_stress_report_renderer::SectionBlock::Subheading { text } if text == "Exact-Route Result"));
+    assert!(pdf_contains(&pdf.pdf_bytes, "Numerical health, as the solver reports it"), "the PDF frame carries the standing line");
     // A binding mismatch blocks the PDF as it blocks the HTML.
     let mut mismatched = input.clone();
     mismatched.exact_route.as_mut().unwrap().admission.run_ref = "invented-other-run".to_string();
