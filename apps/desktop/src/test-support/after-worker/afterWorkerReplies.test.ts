@@ -115,13 +115,15 @@ describe("the after-worker reply judge applies the session's connecting gates", 
   const PRODUCER = { component_name: "invented", component_version: "1", semantic_contract_id: PRESSURE_CONTRACT_ID };
   const standingArgs = { jobId: JOB, modelJson: S };
   const summaryArgs = { jobId: JOB, modelJson: S, standing: { eligible: false, findings: [] } };
-  const step = (call: string, reply: unknown, args: Record<string, unknown>, kind?: Step["kind"]): Step => ({ call, reply, args, kind: kind ?? (reply instanceof Uint8Array ? "bin" : "json") });
+  const step = (call: string, reply: unknown, args: Record<string, unknown>, kind?: Step["kind"]): Step => ({ call, reply, args, kind: kind ?? (ArrayBuffer.isView(reply) ? "bin" : "json") });
   async function judged(steps: Step[]) {
     const directory = mkdtempSync(path.join(tmpdir(), "after-worker-gate-"));
     try {
       const entries = steps.map((s, i) => {
         const file = `${String(i + 1).padStart(2, "0")}-${s.call}.${s.kind}`;
-        const bytes = s.reply instanceof Uint8Array ? s.reply : utf8(s.reply);
+        // ArrayBuffer.isView, not instanceof: under the desktop suite's jsdom environment TextEncoder's
+        // bytes belong to another realm, which instanceof Uint8Array does not recognize.
+        const bytes = ArrayBuffer.isView(s.reply) ? (s.reply as Uint8Array) : utf8(s.reply);
         writeFileSync(path.join(directory, file), bytes);
         writeFileSync(path.join(directory, `${file}.args.json`), JSON.stringify(s.args));
         return { seq: i + 1, call: s.call, file, kind: s.kind!, bytes: bytes.length, args_file: `${file}.args.json` };
