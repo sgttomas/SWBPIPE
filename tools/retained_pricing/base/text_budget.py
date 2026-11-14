@@ -422,22 +422,112 @@ CANDIDATES = []   # (site, key, expr) of every identifier-bearing expression at 
 # candidacy, so the non-candidates can be swept by type at each re-qualification (TB_NONCAND_OUT)
 NONC = []
 
-def hasher_type(site, name):
-    """The type a local hasher `name` is built from, read backwards from `site` (`file:line`) to the
-    enclosing `fn` header: the `Type` of `let [mut] name = [path::]Type::new()`, or None when no such
-    construction precedes the site in its function."""
+# ---- SHA-256 proof for hex placeholders (a hasher's finalize(); a binding of a Sha256::digest call) ----
+# Deliberately narrow: it recognises only the constructions the priced sources use, and answers "not
+# proved" (None) to anything else, which leaves the placeholder unclassified so the run stops. It is not a
+# general Rust analyser; the census (D3 entry, section 8) is what shows it covers what is priced.
+import rust_literals as _rl
+_CODE = {}
+
+def _code_text(f):
+    """`f`'s text with every comment and literal (strings, raw strings, byte strings, chars) blanked to
+    spaces, newlines kept, so offsets and lines are the source's; None when the lexer refuses the file."""
+    if f not in _CODE:
+        L = filetext.setdefault(f, open(os.path.join(proot, f), encoding="utf-8").read().split("\n"))
+        raw = "\n".join(L)
+        try:
+            toks, comments = _rl.scan(raw, f)
+        except Exception:
+            _CODE[f] = None
+        else:
+            out = list(raw)
+            for s, e in [(t["start"], t["end"]) for t in toks] + list(comments):
+                for j in range(s, e):
+                    if out[j] != "\n":
+                        out[j] = " "
+            _CODE[f] = "".join(out)
+    return _CODE[f]
+
+def _open_braces(code, pos):
+    """Offsets of the code braces still open at `pos`, outermost first."""
+    stack = []
+    for i in range(pos):
+        if code[i] == "{":
+            stack.append(i)
+        elif code[i] == "}" and stack:
+            stack.pop()
+    return stack
+
+def _sha256_resolves(code):
+    """Whether `Sha256` in this file means sha2's type: imported from `sha2` and not aliased or defined."""
+    if re.search(r"\b(type|struct|enum|trait|union)\s+Sha256\b|\bas\s+Sha256\b", code):
+        return False
+    for use in re.finditer(r"\buse\s+([^;]*\bSha256\b[^;]*);", code):
+        if not re.match(r"sha2\s*::", use.group(1)):
+            return False
+    return bool(re.search(r"\buse\s+sha2\s*::\s*(\{[^}]*\bSha256\b[^}]*\}|Sha256)\s*;", code))
+
+_SHA256 = r"(?:sha2\s*::\s*)?Sha256"
+_INITS = {
+    "hasher": re.compile(_SHA256 + r"\s*::\s*(?:new|default)\s*\(\s*\)"),
+    "digest": re.compile(_SHA256 + r"\s*::\s*digest\s*\((?:[^()]|\([^()]*\))*\)"),
+}
+
+def proved_sha256(site, name, kind, use_re):
+    """Whether `name`, used at `site` (`file:line`) where `use_re` matches its use, is proved to be a SHA-256
+    value: `kind` "hasher" requires `let [mut] name [: [sha2::]Sha256] = [sha2::]Sha256::new()` or
+    `::default()`; `kind` "digest" requires `let name = [sha2::]Sha256::digest(...)`. The binding must be the
+    only binding of `name` in the enclosing function (no parameter, no shadowing, no binding in another
+    scope), in a block still open at the use, and every use of `name` between the binding and the site must
+    be a method call on it. Comments, strings and raw strings are not code. Anything else is not proved."""
     if not site:
-        return None
+        return False
     f, l = site.rsplit(":", 1)
-    L = filetext.setdefault(f, open(os.path.join(proot, f), encoding="utf-8").read().split("\n"))
-    built = re.compile(r"\blet\s+(mut\s+)?" + re.escape(name) + r"\s*(:\s*[\w:<>]+\s*)?=\s*([\w:]+)::new\(\)")
-    for i in range(int(l) - 1, -1, -1):
-        m = built.search(L[i])
-        if m:
-            return m.group(3).rsplit("::", 1)[-1]
-        if re.match(r"\s*(pub(\([^)]*\))?\s+)?(const\s+)?(async\s+)?fn\s", L[i]):
-            return None
-    return None
+    code = _code_text(f)
+    if code is None:
+        return False
+    starts = [0]
+    for i, ch in enumerate(code):
+        if ch == "\n":
+            starts.append(i + 1)
+    line = int(l)
+    if line > len(starts):
+        return False
+    window_end = starts[min(line + 40, len(starts)) - 1]
+    use = re.compile(use_re).search(code, starts[line - 1], window_end)
+    if not use:
+        return False
+    pos = use.start()
+    opened = _open_braces(code, pos)
+    body = None
+    for b in reversed(opened):
+        head = code[max(code.rfind(";", 0, b), code.rfind("}", 0, b), code.rfind("{", 0, b)) + 1:b]
+        if re.search(r"\bfn\b", head):
+            body, signature = b, head
+            break
+    if body is None or re.search(r"\b" + re.escape(name) + r"\s*:", signature):
+        return False
+    lets = [m for m in re.finditer(r"\blet\s+(?:mut\s+)?" + re.escape(name) + r"\b", code[:pos]) if m.start() > body]
+    if len(lets) != 1:
+        return False
+    let = lets[0]
+    inner = _open_braces(code, let.start())
+    if not inner or inner[-1] not in opened:
+        return False
+    stmt = re.compile(r"\blet\s+(?:mut\s+)?" + re.escape(name) + r"\s*(?::\s*(?P<ty>[^=;]+?)\s*)?=\s*(?P<init>[^;]*);")
+    m = stmt.match(code, let.start())
+    if not m or not _INITS[kind].fullmatch(m.group("init").strip()):
+        return False
+    if m.group("ty") is not None and (kind != "hasher" or not re.fullmatch(_SHA256, m.group("ty").strip())):
+        return False
+    for other in re.compile(r"\b" + re.escape(name) + r"\b").finditer(code, m.end(), pos):
+        if re.search(r"\blet\s+(?:mut\s+)?$", code[max(0, other.start() - 16):other.start()]):
+            continue  # a later `let` of the name is shadowing, refused by the single-binding rule above
+        if not re.match(r"\s*\.\s*[A-Za-z_]\w*\s*\(", code[other.end():]):
+            return False
+    if "sha2" not in m.group("init") and not _sha256_resolves(code):
+        return False
+    return True
 
 def arg_max(spec, arg, lex=False):
     a1 = " ".join(arg.split())
@@ -448,17 +538,31 @@ def arg_max(spec, arg, lex=False):
         return TA["classes"]["f64_exp"]
     if "x" in spec:
         w = re.search(r"0?(\d+)x", spec)
-        # A streaming hasher's finalize(), formatted as hex. A SHA-256 digest in lowercase hex is 64
-        # characters, whatever expression produced it; the hasher's type is read from its construction
-        # in the enclosing function. A finalize() of any other or unproven hasher (a wider hash among
-        # them) is left unclassified, so the run stops instead of sizing it silently.
-        fin = re.fullmatch(r"(\w+)\.finalize\(\)", a1)
-        if fin:
-            if hasher_type(CUR[0], fin.group(1)) == "Sha256":
+        # A SHA-256 digest in lowercase hex is 64 characters, whatever expression produced it. In this
+        # order, and before every other hex rule, so no finalize() and no digest-named value is ever sized
+        # by its name (tests/test_hex_digest_sizing.py tests the order):
+        #  1. Any argument containing a finalize call: 64 only for `NAME.finalize()` whose NAME is proved a
+        #     local Sha256 hasher (proved_sha256); anything else (a field, an inline construction,
+        #     parentheses, whitespace, a wider or unproven hasher) is not proved.
+        #  2. An argument whose own text is the call `[sha2::]Sha256::digest(...)`: 64, proved by that text.
+        #  3. A bare name proved bound to a `Sha256::digest(...)` call (proved_sha256, by the call, not the
+        #     name): 64.
+        #  4. Any other argument naming digest or Sha256: not proved.
+        # Not proved returns None: the placeholder is unclassified and the run stops.
+        if re.search(r"\bfinalize\w*\s*\(", a1):
+            fin = re.fullmatch(r"([A-Za-z_]\w*)\.finalize\(\)", a1)
+            if fin and proved_sha256(CUR[0], fin.group(1), "hasher",
+                                     r"\b" + re.escape(fin.group(1)) + r"\.finalize\(\)"):
                 return max(64, int(w.group(1)) if w else 0)
             return None
-        if re.search(r"digest|Sha256", a1):
+        if _INITS["digest"].fullmatch(a1):
             return max(64, int(w.group(1)) if w else 0)
+        bare = re.fullmatch(r"[A-Za-z_]\w*", a1)
+        # (the format string is a literal, blanked in the code text, so the use is `format!(` then `, NAME`)
+        if bare and proved_sha256(CUR[0], a1, "digest", r"\bformat\s*!\s*\(\s*,\s*" + re.escape(a1) + r"\b"):
+            return max(64, int(w.group(1)) if w else 0)
+        if re.search(r"digest|Sha256", a1):
+            return None  # step 4: named digest or Sha256, not proved
         if re.search(r"u128|identity_hash|hash128", a1):
             return max(32, int(w.group(1)) if w else 0)
         return max(16, int(w.group(1)) if w else 0)

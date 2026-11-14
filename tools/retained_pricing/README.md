@@ -678,29 +678,43 @@ composite publication charge 24E, so each moves by 2,232.
 ### SHA-256 finalize() hex sizing (upward re-pricing on main 053bde0b3)
 
 **The change.** A SHA-256 digest in lowercase hex is 64 characters, whatever expression produced it. The text
-budget's `{:x}` rule (`base/text_budget.py` `arg_max`) gave 64 B only to an argument naming `digest` or `Sha256`, so
-a streaming hasher's `hasher.finalize()` fell to the 16 B default, below the string's 64 characters. `arg_max` now
-reads the hasher's construction in the enclosing function (`hasher_type`: `let [mut] NAME [: T] = [path::]Type::new()`
-between the site and its `fn` header) and sizes a `Sha256`'s `finalize()` at 64 B. An argument of exactly that
-shape whose receiver is not found built so (a wider hash, one built in another function, one passed in) is left
-unclassified, so the run stops. At this revision the check covers only an argument of exactly the shape
-`NAME.finalize()`, and its backward scan does not yet refuse shadowing, a closed inner scope or a commented-out
-construction; the independent reading found both (its findings 1 and 2), and the repair is pending. The
-`{:x}` placeholders that format a `finalize()` in the priced sources are the five below, all of that shape and all
-proved `Sha256`. Other hex arguments keep their sizes. `tests/test_hex_digest_sizing.py` holds the
-64 B case, the unchanged sizes, the unclassified cases and the premise over the priced crates (every hex
-`finalize()` there formats a hasher built as a `Sha256`).
+budget's `{:x}` rule (`base/text_budget.py` `arg_max`) gave 64 B to any argument whose text named `digest` or
+`Sha256`, without proving what it was, and the 16 B default to a streaming hasher's `hasher.finalize()`, below the
+string's 64 characters. `arg_max` now sizes a hex placeholder at 64 B only when it proves the value is SHA-256, in
+this order and before every other hex rule:
+1. an argument containing a finalize call is 64 B only when it is exactly `NAME.finalize()` and `NAME` is proved a
+   local `[sha2::]Sha256::new()` or `::default()` hasher;
+2. an argument whose own text is the call `[sha2::]Sha256::digest(...)` is 64 B, proved by that text (the fifteen
+   such placeholders below);
+3. a bare name proved bound to a `[sha2::]Sha256::digest(...)` call is 64 B, identified by the call, not the name;
+4. any other argument naming `digest` or `Sha256` is not proved.
+
+The proof (`proved_sha256`) is deliberately narrow. It reads the file through the tool's own fail-closed lexer
+(`rust_literals`), so comments, strings and raw strings are not code. It requires the binding to be the only binding
+of the name in the enclosing function (no parameter of that name and no shadowing), in a block still open at the use,
+with every use between them a method call on it; `Sha256` must resolve to `sha2`'s type, by a `sha2::` path or a `use
+sha2::` import, with no alias or local definition of that name. Anything else, a field or inline receiver,
+parentheses, whitespace, a wider or unproven hasher, is not proved: the placeholder is unclassified and the run stops.
+It recognises only the constructions the priced sources use; the census in the D3 entry is what shows it covers what is
+priced. `tests/test_hex_digest_sizing.py` holds the five real shapes and this binding, each refusal the independent
+reading named (shadowing, a closed inner block, a commented-out construction, `self.digest.finalize()`,
+`Sha512::new().finalize()`, `(hasher.finalize())`, `hasher .finalize()`) with a construction inside a string, inside
+a raw string and in a nested closed scope, the name-only `digest` refusals, the order, the unchanged sizes, and the
+premise over the priced crates.
 
 **The sites.** Of main's 47 priced hex placeholders, five format a streaming `Sha256::new()` hasher's `finalize()`,
 each built in the same function: product_physics `retained_wire.rs:239` (built :237), `source_receipt.rs:41`
 (:38) and `source_recovery/j7_rf_census.rs:239` (:227, not reached on D1); result_export
 `declared_member_load.rs:500` (:459) and `source_blocks.rs:191` (:189). No wider hash is formatted in the priced
-crates. Of the other 42, 41 are scalar placeholders sized correctly or over (16 B for `016x` of f64 bits and limbs
-and per `02x` byte, 32 B for `032x` of a u128, 64 B for `Sha256::digest(...)` and for a value named `digest`, which
-is sized by its name; the one such value, `retained_precision.rs:5935`, is bound to `Sha256::digest(&encoded)` at
-:5934). The 42nd, `modal/tests_resource.rs:575`, formats a `Vec<u64>` with `{:x?}`; the hex rule's 16 B does not
-bound a vector. Its multiplicity is 0, so it costs nothing in the registered price; it is a remaining item, not
-repaired here.
+crates. Sixteen placeholders were sized 64 B by the old name heuristic: fifteen are the `Sha256::digest(...)` call in
+their own text and stay proved by it; one, `retained_precision.rs:5935` (`format!("{:x}", digest)`), is now proved by
+its binding at :5934, `let digest = Sha256::digest(&encoded);`. Its size is unchanged (64 B). The remaining 26 are
+scalar placeholders sized correctly or over (16 B for `016x` of f64 bits and limbs and per `02x` byte, 32 B for `032x`
+of a u128), except `modal/tests_resource.rs:575`, which formats a `Vec<u64>` with `{:x?}`; the hex rule's 16 B does
+not bound a vector. Its multiplicity is 0, so it costs nothing in the registered price.
+
+**Remaining item.** `modal/tests_resource.rs:575`: a `{:x?}` of a `Vec<u64>`, not bounded by the hex rule, at
+multiplicity 0 on D1. Not repaired here.
 
 **Derivation.** This tool on main `053bde0b3` against main's registered tree (`d5e8063f4`'s run, which main's own
 `generate --check` reproduces against `053bde0b3`'s block with its committed basis): the four points complete,
