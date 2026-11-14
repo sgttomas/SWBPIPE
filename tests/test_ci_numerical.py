@@ -658,6 +658,9 @@ class ReachabilitySafetyTests(unittest.TestCase):
             extra = ['validation/benchmarks/numerical_robustness/Cargo.toml'] if head == 'c986759b21605293e29383dd2b660ab5acb7c3fb' else []
             self.assertEqual(sorted(selected['manifests']), readers_and_product_callers(readers + extra))
             self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
+            # Named literally, not only through the Cargo graph the planner also reads: a
+            # dependent of result_export outside product_physics' callers (#328's review).
+            self.assertIn('core/reporting/report_standing/Cargo.toml', selected['manifests'])
         for path in ['fixtures/unknown-new-input.json','tools/unknown-new-input.py']:
             selected = hosted_ci.select_paths([ci.PROJECT + path], profile)['piping_numerical_selection']
             self.assertEqual(selected['classification'], 'full-fallback')

@@ -177,6 +177,13 @@ pub(crate) fn read_delivered_source(
     let invocation = json!({"request": {"model": model.clone(), "materials": []}, "solver_mode": digests.solver_mode.as_str()});
     let standing = reader_verdict::standing(&source, Some(&model), Some(&invocation));
     drop(invocation);
+    // The package save and the user release keep today's refusal set: a result that
+    // is not numerically eligible (every unreadable or unsolved result is not) is
+    // refused here as before, by the same code (LIM-016).
+    let eligible = standing["eligible"] == Value::Bool(true);
+    if kind == SourceAdmission::Eligible && !eligible {
+        return Err(not_eligible());
+    }
     // DEL-08-01 REQ-017: the result is admitted when the reader reads it with its
     // model and its mechanics are solved, whatever its numerical standing, which
     // the report states (REQ-024). The reader's findings are quoted, never read
@@ -194,10 +201,6 @@ pub(crate) fn read_delivered_source(
             code: MECHANICS_NOT_SOLVED,
             message: format!("{MECHANICS_NOT_SOLVED}: the delivered result's mechanics are not solved."),
         });
-    }
-    let eligible = standing["eligible"] == Value::Bool(true);
-    if kind == SourceAdmission::Eligible && !eligible {
-        return Err(not_eligible());
     }
     let source_sha256 = digest(&source).map_err(|_| not_delivered("result"))?;
     if source_sha256 != binding_text(admission, "received_result_sha256") {

@@ -207,6 +207,33 @@ fn refusal_text(outcome: Result<impl std::fmt::Debug, CommandError>) -> String {
     }
 }
 
+/// An invented standing record, well formed: one load case, checks passed.
+fn invented_standing_record() -> Value {
+    json!({
+        "record_version": "historical_1", "evidence_member": "absent",
+        "figures": {"status": "unavailable", "reason": "older_document"}, "standing_findings": [],
+        "counts": [{"health": "checks_passed", "cases": 1}, {"health": "sensitive", "cases": 0}, {"health": "quality_unresolved", "cases": 0}, {"health": "solve_failed", "cases": 0}, {"health": "not_assessed", "cases": 0}],
+        "cases": [{"case_id": "case:invented-a", "health": "checks_passed", "integrity_code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+            "integrity_diagnostic_id": "diagnostic:numerical-integrity:case:invented-a", "causes": [],
+            "confirmation": {"outcome": "not_applicable", "detail": null, "status": null, "premises": []}, "supports": []}]
+    })
+}
+
+/// Scrutiny of PR 328, finding 1: an input the host binds to no result (no exact
+/// route, no pressure-free Timoshenko section) carries no standing record. One it
+/// carried would be rendered without any re-derivation, so it is refused by name;
+/// a null member carries none and renders as before.
+#[test]
+fn an_unbound_input_carrying_a_standing_record_is_refused() {
+    let mut input = pressure_free_input();
+    input["numerical_standing"] = invented_standing_record();
+    assert_eq!(refusal_text(command_body(&json!({"input": input}))), "REPORT-EXACT-SECTIONS-MISMATCH: numerical_standing");
+    let mut input = pressure_free_input();
+    input["numerical_standing"] = Value::Null;
+    let rendered: Value = serde_json::from_str(&command_body(&json!({"input": input})).expect("the render answers")).unwrap();
+    assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
+}
+
 /// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2),
 /// Codex review round 1 of #1639: the production native command, called
 /// directly with a pressure-free input that carries a private FR-REP-003
@@ -389,14 +416,7 @@ fn production_native_render_binds_a_coherent_exact_input_before_rendering() {
     let mut exact = with_exact_route(pressure_free_input());
     // A renderer-only input states a standing record (DEL-08-01 REQ-024); the native
     // binding is what re-derives one from a bound result.
-    exact["numerical_standing"] = json!({
-        "record_version": "historical_1", "evidence_member": "absent",
-        "figures": {"status": "unavailable", "reason": "older_document"}, "standing_findings": [],
-        "counts": [{"health": "checks_passed", "cases": 1}, {"health": "sensitive", "cases": 0}, {"health": "quality_unresolved", "cases": 0}, {"health": "solve_failed", "cases": 0}, {"health": "not_assessed", "cases": 0}],
-        "cases": [{"case_id": "case:invented-a", "health": "checks_passed", "integrity_code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
-            "integrity_diagnostic_id": "diagnostic:numerical-integrity:case:invented-a", "causes": [],
-            "confirmation": {"outcome": "not_applicable", "detail": null, "status": null, "premises": []}, "supports": []}]
-    });
+    exact["numerical_standing"] = invented_standing_record();
     // Coherent: the renderer itself renders it unblocked, with the exact block
     // and the composed standing line.
     let rendered = crate::render_calculation_report_value(exact.clone()).expect("the renderer renders it");
@@ -1640,6 +1660,29 @@ mod direct_native {
         // its request passes the binding and is admitted.
         let genuine = live_on(ScriptedHost::normal(), &w.intake, &w.mode, &w.result);
         save_admitted(&genuine, save_args(&bound(&w.request, &genuine.job), &w, &w.model, Some(&w.result), Some(&w.intake)), "pressure_source_1");
+    }
+
+    /// Scrutiny of PR 328, finding 2: the package save keeps today's refusal set. A
+    /// delivered result whose mechanics are not solved is not numerically eligible, so
+    /// the save refuses it as before (`REPORT-EXACT-STANDING-NOT-ELIGIBLE`, LIM-016),
+    /// before the digest binding. The render refuses it by name and never renders it.
+    #[test]
+    fn an_unsolved_delivered_result_keeps_the_saves_refusal_and_never_renders() {
+        let w = witness(STRAIGHT);
+        let mut raw: Value = serde_json::from_str(&w.result).unwrap();
+        assert_eq!(raw["status"]["mechanics"], "MECHANICS_SOLVED");
+        raw["status"]["mechanics"] = json!("MECHANICS_BLOCKED");
+        let raw = serde_json::to_string(&raw).unwrap();
+        let live = live_on(ScriptedHost::normal(), &w.intake, &w.mode, &raw);
+        let mut request = bound(&w.request, &live.job);
+        request["report"]["exact_route"]["admission"]["received_bytes_sha256"] = json!(sha256_hex(&raw));
+        let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&raw), Some(&w.intake)));
+        assert_eq!(code, STANDING_NOT_ELIGIBLE, "{message}");
+        let refused = refusal_text(production_render_on(&live, &render_args(&request["report"], Some(&raw), Some(&w.intake), Some(&canonical_json(&w.manifest)))));
+        assert!(
+            refused.starts_with("REPORT-MECHANICS-NOT-SOLVED: ") || refused.starts_with("REPORT-RESULT-NOT-READABLE: "),
+            "{refused}"
+        );
     }
 
     /// The DEL-08-01 REQ-024 connecting-path witnesses: the render arguments the

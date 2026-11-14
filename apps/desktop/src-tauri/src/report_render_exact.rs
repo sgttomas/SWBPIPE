@@ -139,6 +139,11 @@ pub(crate) fn render_calculation_report_args_in(
         bind_pf_timoshenko_render_input(&input, &texts, registry, lease)?;
     } else if texts.any() {
         return Err(CommandError::Command(sections_mismatch("exact_route").message));
+    } else if input.get("numerical_standing").is_some_and(|record| !record.is_null()) {
+        // DEL-08-01 REQ-024: a standing record is rendered only where this host
+        // re-derives it from a bound result (the exact and pressure-free Timoshenko
+        // bindings above); an unbound input carries none.
+        return Err(CommandError::Command(sections_mismatch("numerical_standing").message));
     } else if limitations(&input).filter_map(|item| item.get("limitation_id").and_then(Value::as_str)).any(is_pf_timoshenko_limitation_id) {
         return Err(CommandError::Command(sections_mismatch(PF_TIMOSHENKO_SECTION).message));
     }
