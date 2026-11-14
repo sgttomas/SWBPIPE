@@ -541,15 +541,15 @@ fn the_formulation_basis_states_current_s6_admission_in_both_contexts() {
 /// DEL-04-07 *Published displacement*, on the exact route and through the
 /// exact readers: C-1 (an objective joint with a one-way guide) and its
 /// tie-rod twin, every case, both modes. In the control the case is confirmed
-/// and its published reactions are the certified ones; in at least one case of
-/// each model, in each mode, they differ from the loop's own (where the guide
-/// is open both are zero). With a correction that cannot be formed (forced at the first
+/// and its published reactions are the certified ones, which differ from the
+/// loop's own case by case as BASES pins. With a correction that cannot be formed (forced at the first
 /// DOF), the case's single publication-basis decision publishes nothing on the
 /// confirmation's basis: the reactions behind its nonlinear reaction and
 /// derived-normal rows are the loop's own, bit for bit; every other recovered
 /// row (member, section, support and the connector's own) equals the run with
-/// the bound removed (and, in at least one case of each model and mode, the
-/// connector rows differ from the control's), the binary64 recovery from the solve's own displacement;
+/// the bound removed (which cases' reactions and connector rows differ from the
+/// control's is pinned case by case in BASES, with the reason for each shared
+/// one), the binary64 recovery from the solve's own displacement;
 /// the case is sensitive with the named warning; and the pressure reader, with
 /// its exact nonlinear checks, admits the document with the model.
 /// `RT_A3_S6_CORRECTION_FIXTURE_OUT=<dir>` writes C-1's first case, dense, as
@@ -560,9 +560,12 @@ fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
     use open_pipe_stress_frame_kernel::structural::DisplacementFailureKind::Certify;
     let bits = |values: &[f64]| values.iter().map(|v| v.to_bits()).collect::<Vec<_>>();
     let mut fixture_written = false;
+    // Per case: whether the certified reactions differ from the loop's own, and
+    // whether the connector rows differ between the confirmed control and the
+    // withdrawn run. Compared whole with BASES below, so a case that should
+    // differ and coincides is caught, as is the reverse.
+    let mut observed: Vec<(String, String, &str, bool, bool)> = Vec::new();
     for name in ["c1", "c1_tied"] {
-        let mut differing = [false; 2];
-        let mut connector_differing = [false; 2];
         let (request, oracle) = bound(name);
         for case in oracle["cases"].as_object().unwrap().keys() {
             let wire = single_case(&request, case);
@@ -587,7 +590,6 @@ fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
                 assert!(integrity_of(&control)["message"].as_str().unwrap().contains(NONLINEAR_CONFIRMED_EVIDENCE_LINE), "{at}: not confirmed");
                 assert_eq!(control_reactions.len(), 1, "{at}");
                 let differs = bits(&control_reactions[0].published) != bits(&control_reactions[0].loop_reactions);
-                differing[usize::from(mode == PreviewSolverMode::DenseScrutiny)] |= differs;
                 // The correction fails: nothing on the confirmation's basis.
                 let (failed, reactions) = run(true, false);
                 assert_eq!(failed["status"]["mechanics"], "MECHANICS_SOLVED", "{at}");
@@ -609,7 +611,7 @@ fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
                 let connector = |v: &Value| rows(v).into_iter().filter(|(id, _)| id.contains("JOINT") || id.contains("joint") || id.contains("tie-rod") || id.contains("tie_rod")).collect::<Vec<_>>();
                 assert!(!connector(&failed).is_empty(), "{at}: no connector row");
                 let connector_differs = connector(&failed) != connector(&control);
-                connector_differing[usize::from(mode == PreviewSolverMode::DenseScrutiny)] |= connector_differs;
+                observed.push((name.to_string(), case.to_string(), if mode == PreviewSolverMode::DenseScrutiny { "dense" } else { "sparse" }, differs, connector_differs));
                 // The exact readers admit it, and refuse the stale mixed form: the
                 // same document with its nonlinear rows put back on the
                 // confirmation's basis (the control's values), where they differ.
@@ -651,7 +653,30 @@ fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
                 }
             }
         }
-        assert_eq!(differing, [true, true], "{name}: in no case did the certified and the loop's reactions differ");
-        assert_eq!(connector_differing, [true, true], "{name}: in no case did the connector rows change basis");
     }
+    let expected: Vec<(String, String, &str, bool, bool)> =
+        BASES.iter().map(|(n, c, m, r, k)| (n.to_string(), c.to_string(), *m, *r, *k)).collect();
+    assert_eq!(observed, expected, "the cases whose bases differ (reactions, connector rows)");
 }
+
+/// For `a_correction_failure_publishes_nothing_on_the_confirmation_basis`:
+/// (model, case, mode, the certified reactions differ from the loop's own, the
+/// connector rows differ between the confirmed and the withdrawn run), observed
+/// at 2026-11-14. Where a basis is shared, the reason:
+/// - load:PRESSURE, reactions: the guide is inactive, so its certified reaction
+///   is exactly 0; the loop's is also 0 in c1 sparse and in c1_tied in both
+///   modes (shared), and 3.64e-12 N in c1 dense (differs);
+/// - c1 load:PRESSURE dense, connector rows: the corrected displacement rounds
+///   to the solve's own in every component, so every row recovered from the
+///   displacement is the same on both bases (shared).
+/// Every other entry differs, and must keep differing.
+const BASES: &[(&str, &str, &str, bool, bool)] = &[
+    ("c1", "load:PRESSURE", "sparse", false, true),
+    ("c1", "load:PRESSURE", "dense", true, false),
+    ("c1", "load:VACUUM", "sparse", true, true),
+    ("c1", "load:VACUUM", "dense", true, true),
+    ("c1_tied", "load:PRESSURE", "sparse", false, true),
+    ("c1_tied", "load:PRESSURE", "dense", false, true),
+    ("c1_tied", "load:VACUUM", "sparse", true, true),
+    ("c1_tied", "load:VACUUM", "dense", true, true),
+];
