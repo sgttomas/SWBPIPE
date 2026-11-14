@@ -40,7 +40,7 @@ For each mode it publishes the frequency, circular frequency and period; the sha
 ### CLM-003 — What is outside these commitments
 
 - Response-spectrum analysis is DEL-04-10's, on this deliverable's modal basis. Time-history and harmonic analysis are not part of either (PRD §12.9).
-- A Timoshenko consistent mass, a mass-point helper and a concentrated-mass field are not committed here; a model that needs one is refused by name.
+- A Timoshenko consistent mass, a mass-point helper and a concentrated-mass field are not committed here; a model that needs one is refused by name. This limits modal analysis of the same linear model described by PRD FR-SOL-016 and §§12.1 and 12.9: the Timoshenko straight-member models admitted by the static solve, including the exact-route authoring default, are excluded; §12.9 requires the exclusion to be refused by name, and `docs/RELEASE_LIMITATIONS_v1.0.md` LIM-020 states it.
 - The product's second, seismic mass basis is outside this deliverable.
 
 ## Completion and Reliance Basis — Epistemology
