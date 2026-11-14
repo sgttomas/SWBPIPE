@@ -1,0 +1,554 @@
+{
+ "schema": "swbpipe.validation_reference/inverse_norm_witness/1",
+ "status": "known-limitation witness of an unproved premise; not a requirement; no product conformance, acceptance or release is asserted",
+ "independence": "Python standard library only; no product code, product output, fixture or schema read, imported or run",
+ "governing_text": [
+  "execution/PKG-04/DEL-04-01/ScopeOfWork.md: REQ-015, REQ-016, AC-013 and the OUT-001 row of REQ-015",
+  "docs/RELEASE_TARGET_v1.0.md exit criterion 18"
+ ],
+ "assumptions": {
+  "connector formation": "Ke = B^T K B with B = Q^T[-I, S(a_i)+S(r)/2, I, -S(a_j)+S(r)/2] on translations and Q^T[0, -I, 0, I] on rotations, S(v)w = v x w, r = (x_j - x_i) + (a_j - a_i); K = D^-1 H D^-1, D = diag(Ls, Ls, Ls, 1, 1, 1); each entry one exact sum rounded once (core/solver/frame_kernel/src/connector.rs module comment and b(), global_stiffness(), decode_work_matrix()). Checked here: every entry of B, K and Ke is exact in binary64, so the product's formed and intended systems are this exact system.",
+  "replaced span": "the replaced pipe A-B contributes no stiffness, self-weight or load (execution/PKG-03/DEL-03-06/ScopeOfWork.md, Replaced span; AC-004). No case here has self-weight or thermal load.",
+  "free system": "node A anchored on all six DOFs with zero prescribed motion; the free DOFs are B's six in the order UX, UY, UZ, RX, RY, RZ; an active stop makes B's UZ a prescribed row at its ground 0.",
+  "scaling": "row exponent e_i = -floor(floor(log2 K_ii) / 2), K_s = D K D with D = diag(2^e_i) (core/solver/frame_kernel/src/structural.rs prepare_bound and binary_exponent); an even force scale 2^b shifts every e_i by -b/2 and leaves K_s unchanged (structural.rs unscale_structural_solution comment).",
+  "estimator": "Hager iteration from x = e/n, at most five passes, stopping on no increase, on |z_j| <= z.x or a repeated index (ties: the last maximal index), then the alternating vector (-1)^i (1 + i/(n-1)) scaled by 2/(3n); est = the larger (structural.rs ConditionMatrix::estimate_condition). The replay below is in exact arithmetic; the product's is binary64.",
+  "premise": "Lambda = 1024 est / (1 - 1024 est eps_E), used as the bound on ||K_s^-1||_inf (core/solver/frame_kernel/src/structural/formation_check.rs, after the second correction).",
+  "loads": "each load term enters the intended force exactly: a DOF's force is the exact sum of its terms (core/solver/frame_kernel/src/load_ledger.rs accumulate_dof).",
+  "one-way law": "a stop bearing with a positive (negative) reaction is admissible active when its reaction K u - f at its DOF is > 0 (< 0), and admissible inactive when its displacement is > 0 (< 0) with ground 0 (core/solver/nonlinear_integration/src/confirmation.rs support_reason; execution/PKG-04/DEL-04-04/ScopeOfWork.md one-way law)."
+ },
+ "construction": {
+  "K0": {
+   "exact": "1048576",
+   "binary64": 1048576.0
+  },
+  "weak_eigenvalue_of_M": {
+   "exact": "1/1048576",
+   "binary64": 9.5367431640625e-07
+  },
+  "weak_direction": [
+   "1/2",
+   "1/2",
+   "-1/2",
+   "-1/2",
+   "0",
+   "0"
+  ],
+  "chord_m": {
+   "exact": "1",
+   "binary64": 1.0
+  },
+  "x_main": [
+   "3/4096",
+   "1/4096",
+   "0",
+   "-5/4096",
+   "1/2048",
+   "1/4096"
+  ],
+  "free_order": [
+   "UX",
+   "UY",
+   "UZ",
+   "RX",
+   "RY",
+   "RZ"
+  ],
+  "K_free": [
+   [
+    "3145729/4",
+    "-1048575/4",
+    "1048575/4",
+    "1048575/4",
+    "0",
+    "0"
+   ],
+   [
+    "-1048575/4",
+    "3145729/4",
+    "1048575/4",
+    "1048575/4",
+    "0",
+    "0"
+   ],
+   [
+    "1048575/4",
+    "1048575/4",
+    "3145729/4",
+    "-1048575/4",
+    "0",
+    "0"
+   ],
+   [
+    "1048575/4",
+    "1048575/4",
+    "-1048575/4",
+    "3145729/4",
+    "0",
+    "0"
+   ],
+   [
+    "0",
+    "0",
+    "0",
+    "0",
+    "1048576",
+    "0"
+   ],
+   [
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "1048576"
+   ]
+  ],
+  "connector_K_equals_H": [
+   [
+    "3145729/4",
+    "-1048575/4",
+    "1048575/4",
+    "1048575/4",
+    "-1048575/8",
+    "-1048575/8"
+   ],
+   [
+    "-1048575/4",
+    "3145729/4",
+    "1048575/4",
+    "1048575/4",
+    "-1048575/8",
+    "3145729/8"
+   ],
+   [
+    "1048575/4",
+    "1048575/4",
+    "3145729/4",
+    "-1048575/4",
+    "-3145729/8",
+    "1048575/8"
+   ],
+   [
+    "1048575/4",
+    "1048575/4",
+    "-1048575/4",
+    "3145729/4",
+    "1048575/8",
+    "1048575/8"
+   ],
+   [
+    "-1048575/8",
+    "-1048575/8",
+    "-3145729/8",
+    "1048575/8",
+    "19922945/16",
+    "-1048575/16"
+   ],
+   [
+    "-1048575/8",
+    "3145729/8",
+    "1048575/8",
+    "1048575/8",
+    "-1048575/16",
+    "19922945/16"
+   ]
+  ]
+ },
+ "scaled_system": {
+  "row_exponents": [
+   -9,
+   -9,
+   -9,
+   -9,
+   -10,
+   -10
+  ],
+  "K_s": [
+   [
+    "3145729/1048576",
+    "-1048575/1048576",
+    "1048575/1048576",
+    "1048575/1048576",
+    "0",
+    "0"
+   ],
+   [
+    "-1048575/1048576",
+    "3145729/1048576",
+    "1048575/1048576",
+    "1048575/1048576",
+    "0",
+    "0"
+   ],
+   [
+    "1048575/1048576",
+    "1048575/1048576",
+    "3145729/1048576",
+    "-1048575/1048576",
+    "0",
+    "0"
+   ],
+   [
+    "1048575/1048576",
+    "1048575/1048576",
+    "-1048575/1048576",
+    "3145729/1048576",
+    "0",
+    "0"
+   ],
+   [
+    "0",
+    "0",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   [
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "1"
+   ]
+  ],
+  "inverse_norm_inf": {
+   "exact": "262144",
+   "binary64": 262144.0
+  },
+  "estimator_exact_replay": {
+   "estimate": {
+    "exact": "1",
+    "binary64": 1.0
+   },
+   "hager_passes": [
+    "1/2",
+    "1"
+   ],
+   "alternating_vector_estimate": {
+    "exact": "17/30",
+    "binary64": 0.5666666666666667
+   }
+  },
+  "premise_1024_est": {
+   "exact": "1024",
+   "binary64": 1024.0
+  },
+  "ratio_1024_est_to_true": {
+   "exact": "1/256",
+   "binary64": 0.00390625
+  }
+ },
+ "variants": {
+  "linear": {
+   "request": "requests/linear.request.json",
+   "request_sha256": "e78bc7d1055520b6c85b904342ea3e1b6c3c3eada9efde512be726a22036cd29",
+   "loads": {
+    "main": {
+     "UX": {
+      "exact": "3145737/16384",
+      "binary64": 192.00054931640625
+     },
+     "UY": {
+      "exact": "-5242871/16384",
+      "binary64": -319.99945068359375
+     },
+     "UZ": {
+      "exact": "9437175/16384",
+      "binary64": 575.9994506835938
+     },
+     "RX": {
+      "exact": "-11534345/16384",
+      "binary64": -704.0005493164062
+     },
+     "RY": {
+      "exact": "512",
+      "binary64": 512.0
+     },
+     "RZ": {
+      "exact": "256",
+      "binary64": 256.0
+     }
+    },
+    "tiny_uz": null
+   },
+   "exact_displacement_B": {
+    "UX": {
+     "exact": "3/4096",
+     "binary64": 0.000732421875
+    },
+    "UY": {
+     "exact": "1/4096",
+     "binary64": 0.000244140625
+    },
+    "UZ": {
+     "exact": "0",
+     "binary64": 0.0
+    },
+    "RX": {
+     "exact": "-5/4096",
+     "binary64": -0.001220703125
+    },
+    "RY": {
+     "exact": "1/2048",
+     "binary64": 0.00048828125
+    },
+    "RZ": {
+     "exact": "1/4096",
+     "binary64": 0.000244140625
+    }
+   },
+   "exact_anchor_reaction_A": {
+    "UX": {
+     "exact": "-3145737/16384",
+     "binary64": -192.00054931640625
+    },
+    "UY": {
+     "exact": "5242871/16384",
+     "binary64": 319.99945068359375
+    },
+    "UZ": {
+     "exact": "-9437175/16384",
+     "binary64": -575.9994506835938
+    },
+    "RX": {
+     "exact": "11534345/16384",
+     "binary64": 704.0005493164062
+    },
+    "RY": {
+     "exact": "1048567/16384",
+     "binary64": 63.99945068359375
+    },
+    "RZ": {
+     "exact": "1048567/16384",
+     "binary64": 63.99945068359375
+    }
+   }
+  },
+  "one_way_negative": {
+   "request": "requests/one_way_negative.request.json",
+   "request_sha256": "f96aedff3178f080531f6dc364fdea0d5bb01af5c7a546e7b077b736f06b59bd",
+   "loads": {
+    "main": {
+     "UX": {
+      "exact": "3145737/16384",
+      "binary64": 192.00054931640625
+     },
+     "UY": {
+      "exact": "-5242871/16384",
+      "binary64": -319.99945068359375
+     },
+     "UZ": {
+      "exact": "9437175/16384",
+      "binary64": 575.9994506835938
+     },
+     "RX": {
+      "exact": "-11534345/16384",
+      "binary64": -704.0005493164062
+     },
+     "RY": {
+      "exact": "512",
+      "binary64": 512.0
+     },
+     "RZ": {
+      "exact": "256",
+      "binary64": 256.0
+     }
+    },
+    "tiny_uz": {
+     "exact": "1/5192296858534827628530496329220096",
+     "binary64": 1.925929944387236e-34
+    }
+   },
+   "stop": {
+    "support": "support:STOP",
+    "node": "node:B",
+    "dof": "UZ",
+    "active_when": "negative_reaction",
+    "ground": "0 (no imposed movement)",
+    "initial_state": "inactive"
+   },
+   "exact_state": "active",
+   "inactive_state": {
+    "displacement_B": {
+     "UX": {
+      "exact": "15950735949418990474845684723363086337/21778071482940061661655974875633165533184",
+      "binary64": 0.000732421875
+     },
+     "UY": {
+      "exact": "5316911983139663491615228241120329729/21778071482940061661655974875633165533184",
+      "binary64": 0.000244140625
+     },
+     "UZ": {
+      "exact": "1048579/21778071482940061661655974875633165533184",
+      "binary64": 4.814838636292513e-35
+     },
+     "RX": {
+      "exact": "-26584559915698317458076141205605842945/21778071482940061661655974875633165533184",
+      "binary64": -0.001220703125
+     },
+     "RY": {
+      "exact": "1/2048",
+      "binary64": 0.00048828125
+     },
+     "RZ": {
+      "exact": "1/4096",
+      "binary64": 0.000244140625
+     }
+    },
+    "stop_displacement": {
+     "exact": "1048579/21778071482940061661655974875633165533184",
+     "binary64": 4.814838636292513e-35
+    },
+    "admissible": false,
+    "why": "the stop's displacement is on its closed side"
+   },
+   "active_state": {
+    "displacement_B": {
+     "UX": {
+      "exact": "3/4096",
+      "binary64": 0.000732421875
+     },
+     "UY": {
+      "exact": "1/4096",
+      "binary64": 0.000244140625
+     },
+     "UZ": {
+      "exact": "0",
+      "binary64": 0.0
+     },
+     "RX": {
+      "exact": "-5/4096",
+      "binary64": -0.001220703125
+     },
+     "RY": {
+      "exact": "1/2048",
+      "binary64": 0.00048828125
+     },
+     "RZ": {
+      "exact": "1/4096",
+      "binary64": 0.000244140625
+     }
+    },
+    "stop_reaction": {
+     "exact": "-1/5192296858534827628530496329220096",
+     "binary64": -1.925929944387236e-34
+    },
+    "admissible": true
+   }
+  },
+  "one_way_positive": {
+   "request": "requests/one_way_positive.request.json",
+   "request_sha256": "ca6596a39a50a3540368f7759fd5e29246b4ea3b78c80d87f3c73471ae086ff7",
+   "loads": {
+    "main": {
+     "UX": {
+      "exact": "3145737/16384",
+      "binary64": 192.00054931640625
+     },
+     "UY": {
+      "exact": "-5242871/16384",
+      "binary64": -319.99945068359375
+     },
+     "UZ": {
+      "exact": "9437175/16384",
+      "binary64": 575.9994506835938
+     },
+     "RX": {
+      "exact": "-11534345/16384",
+      "binary64": -704.0005493164062
+     },
+     "RY": {
+      "exact": "512",
+      "binary64": 512.0
+     },
+     "RZ": {
+      "exact": "256",
+      "binary64": 256.0
+     }
+    },
+    "tiny_uz": {
+     "exact": "-1/2658455991569831745807614120560689152",
+     "binary64": -3.76158192263132e-37
+    }
+   },
+   "stop": {
+    "support": "support:STOP",
+    "node": "node:B",
+    "dof": "UZ",
+    "active_when": "positive_reaction",
+    "ground": "0 (no imposed movement)",
+    "initial_state": "inactive"
+   },
+   "exact_state": "active",
+   "inactive_state": {
+    "displacement_B": {
+     "UX": {
+      "exact": "8166776806102523123120990578362438123519/11150372599265311570767859136324180752990208",
+      "binary64": 0.000732421875
+     },
+     "UY": {
+      "exact": "2722258935367507707706996859454146740223/11150372599265311570767859136324180752990208",
+      "binary64": 0.000244140625
+     },
+     "UZ": {
+      "exact": "-1048579/11150372599265311570767859136324180752990208",
+      "binary64": -9.403981711508815e-38
+     },
+     "RX": {
+      "exact": "-13611294676837538538534984297270729506815/11150372599265311570767859136324180752990208",
+      "binary64": -0.001220703125
+     },
+     "RY": {
+      "exact": "1/2048",
+      "binary64": 0.00048828125
+     },
+     "RZ": {
+      "exact": "1/4096",
+      "binary64": 0.000244140625
+     }
+    },
+    "stop_displacement": {
+     "exact": "-1048579/11150372599265311570767859136324180752990208",
+     "binary64": -9.403981711508815e-38
+    },
+    "admissible": false,
+    "why": "the stop's displacement is on its closed side"
+   },
+   "active_state": {
+    "displacement_B": {
+     "UX": {
+      "exact": "3/4096",
+      "binary64": 0.000732421875
+     },
+     "UY": {
+      "exact": "1/4096",
+      "binary64": 0.000244140625
+     },
+     "UZ": {
+      "exact": "0",
+      "binary64": 0.0
+     },
+     "RX": {
+      "exact": "-5/4096",
+      "binary64": -0.001220703125
+     },
+     "RY": {
+      "exact": "1/2048",
+      "binary64": 0.00048828125
+     },
+     "RZ": {
+      "exact": "1/4096",
+      "binary64": 0.000244140625
+     }
+    },
+    "stop_reaction": {
+     "exact": "1/2658455991569831745807614120560689152",
+     "binary64": 3.76158192263132e-37
+    },
+    "admissible": true
+   }
+  }
+ }
+}

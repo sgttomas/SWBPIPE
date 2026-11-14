@@ -398,6 +398,7 @@ PACKAGES: dict[str, Package] = {
     "exact_difference_basis": _plain("exact_difference_basis_reference.py", deliverables="DEL-05-02"),
     "exact_load_state_equivalent_static": _plain("exact_load_state_reference.py", deliverables="DEL-05-01"),
     "friction_one_way_normal": _plain("friction_one_way_normal_reference.py", deliverables="DEL-04-04"),
+    "inverse_norm_witness": _plain("inverse_norm_witness_reference.py", deliverables="DEL-04-01"),
     "hydrostatic_test": _plain("hydrostatic_test_reference.py", deliverables="DEL-05-01"),
     "reference_system_pending_cases": _plain(
         "rs_pending_reference.py", deliverables="DEL-09-01"),
