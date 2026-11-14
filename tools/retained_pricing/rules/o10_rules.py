@@ -6128,13 +6128,33 @@ _H_PP = PP_ + "held_status.rs"
 _H_RE = RE_ + "preview_held_status.rs"
 if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
     import hashlib as _h_hashlib
-    # RTA5-PIN: both modules' complete bytes, read before these rules were written; a change stops the run.
-    for _f, _h in {_H_PP: "4e28fd1c40df1f9ce50add83c15f64b403c708a54c0a752f72e9e7beadf779bb",
+    # RTA5-PIN: both modules' complete bytes, read before these rules were written; a change stops the run. PP's was
+    # re-read and re-bound for the publication-basis decision: it adds `HeldRequest::withdraw_established` (RTA5-HR,
+    # RTA5-WE below) and `held_solve` returns `crate::NonlinearCaseSolve` with no staged rows (`None`); the texts
+    # RTA5-DZ rests on (is_minuend_final, wanted, solve_held_combinations' filter, the two difference_basis uses) are
+    # unchanged.
+    for _f, _h in {_H_PP: "94a29d3fc161bcb2e7be3f80e249b5aeb0886a62611bf4ac5bdc26cf5ffd1021",
                    _H_RE: "486718ea649ddc185518ae1f205e5f4a0a7d35cdc461d84f2eac39674ec5fec9"}.items():
         if _h_hashlib.sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
             raise SystemExit(f"RTA5-PIN: {_f} changed; re-review §8.54's rules")
     _h_nc = lambda text: _re.sub(r"//[^\n]*", "", text)
     _h_lib, _h_pp, _h_hs = _h_nc(_text_of(_LIB)), _h_nc(_text_of(_A4_PP)), _h_nc(_text_of(_H_PP))
+    # RTA5-HR (DEL-04-07 *Published displacement*): the case's publication-basis decision in solve_prepared_load_case
+    # withdraws a held record staged as established (`HeldRequest::withdraw_established`) when the case does not stay
+    # confirmed. Its `if let held_status::CaseRole::Held(request) = &mut role` destructures a role that already exists
+    # and creates none, so RTA5-DZ's premise (a held case solve is created only inside solve_held_combinations'
+    # closure) holds. A count of `CaseRole::Held(` was a proxy for that premise; base/rta5_held_role.py replaces it by
+    # binding the one construction (HR-C, inside the closure), the loop's destructuring (HR-L) and the withdrawal's
+    # (HR-W, directly inside `if confirmed_state.is_some() && confirmed.is_none()`), each by exact text and place,
+    # with every `Held(` in lib.rs one of the three (HR-ALL). Any further occurrence of either kind, or HR-W moved or
+    # its condition changed, stops the run here.
+    _h_we = fnkey("withdraw_established", _H_PP)
+    if _h_we:
+        _h_role = __import__("runpy").run_path(
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "rta5_held_role.py"))
+        _h_failed = _h_role["failures"](_text_of(_LIB), _fn_text("family_clauses", _W16_RM))
+        if _h_failed:
+            raise SystemExit(f"RTA5-HR: lib.rs's held roles or the withdrawal's grounds changed; re-review §8.54: {_h_failed}")
     _h_guard = (
         # DZ: is_minuend_final is declared() and a minuend_final subtrahend (PF1B-DZ's census reads it); wanted is any
         # combination's is_minuend_final with that minuend.
@@ -6163,7 +6183,10 @@ if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
             "            nonlinear_frame_input(built, restrained_dofs, base_motion, &ground_motion, &force).ok().and_then(|input| {") == 1
         and _h_lib.count("held_status::CaseRole::Held(request),") == 1
         and _h_lib.index("held_status::CaseRole::Held(request),") > _h_lib.index("held_status::solve_held_combinations(")
-        and len(_re.findall(r"CaseRole::Held\(", _h_lib)) == 2 and _h_lib.count("if let held_status::CaseRole::Held(request) = role {") == 1
+        # RTA5-HR (below) binds each `Held(` in lib.rs by kind, text and place where the publication-basis withdrawal
+        # exists; a source without it keeps the original two: the construction and the loop's destructuring.
+        and (_h_we or (len(_re.findall(r"CaseRole::Held\(", _h_lib)) == 2
+                       and _h_lib.count("if let held_status::CaseRole::Held(request) = role {") == 1))
         and not any("CaseRole::Held(" in _h_nc(_text_of(PP_ + _pf)) for _pf in __import__("os").listdir(_os.path.join(_SNAP, PP_))
                     if _pf.endswith(".rs") and _pf not in ("lib.rs", "held_status.rs")),
         # DZ: the preview producer reads the held map only through `held.get(&combination.id)` (empty on D1).
@@ -6200,6 +6223,18 @@ if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
     O10_EDGE_ZERO += [(fnkey("append_combination_results", _A4_PP), _hp(_n), _H_DZ + " (`held.get` is None)")
                       for _n in ("lookup_rows", "cited_rows", "released_message")]
     O10_EDGE_ZERO += [(fnkey("append_operand_standing", _A4_PP), _hp("kind"), _H_DZ + " (`held.get` is None)")]
+    # RTA5-WE: solve_prepared_load_case -> withdraw_established is zeroed because it is unreached on D1, on two grounds,
+    # both bound by RTA5-HR above (the zero is added only after they pass, so a changed ground stops, never carries):
+    # WE-1 (RTA5-DZ) the call runs only with a held role, which exists only inside the held closure; WE-2 (D1.6) it runs
+    # only with `confirmed_state` set, which comes only from the nonlinear loop's Confirmed standing, and the loop
+    # returns None first without nonlinear supports, which D1.6 refuses. Reached, it would cost one allocation per held
+    # case that does not scale with the model: the reason String (`not_established`'s format of a fixed text and the
+    # reason); it drops the conditions and has no loop.
+    if _h_we:
+        O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), _h_we,
+                           O10 + "RTA5-WE: unreached on D1: a held role exists only inside the held closure (RTA5-DZ) and "
+                           "confirmed_state needs a nonlinear support, which D1.6 refuses; reached, it would cost one "
+                           "non-scaling reason String per held case")]
     O10_EDGE_ZERO += [(_hr("check"), _hr(_n), _H_FZ) for _n in ("read", "rows_check", "model_check", "require")]
     O10_EDGE_ZERO += [(fnkey("free_check", _B1_RD), _hr("stated_gate"), _B1_FZ)]
     # RTA5-BN (S1-BN's and PF1B-BN's EDGE_ZERO; sq2_decisions_common's FV): the by-name call graph adds false edges into
