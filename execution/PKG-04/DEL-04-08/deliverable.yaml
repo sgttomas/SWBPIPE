@@ -52,6 +52,15 @@ needs:
     a retained combination reproduces, and its base-route reader gives the standing of an ordinary
     statement, which the reader applies to each successor's projected statement.
   gating: true
+- from: DEL-05-02
+  when: Reproducing the source twins of `validation/references/o4_retained_source`
+  condition: >-
+    The twelve committed pressure-source request fixtures
+    (`fixtures/product_preview/pressure_source/{physics_source,load_reference_source}/*.request.json`)
+    that the twins re-author are read as inputs only. Each stands at the bytes the twins were frozen
+    from or at the one successor the twins' generator admits with its whole difference stated, and
+    a change to one leaves each load case the twins re-author the same problem.
+  gating: false
 - from: DEL-02-02
   when: Forming the reader's raw and normalized projections
   condition: >-

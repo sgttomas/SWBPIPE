@@ -147,9 +147,11 @@ Floor family by key:
 ## Reproduce and change
 
 ```
-python3 -I generators/u5a_reference.py          # verify every file byte for byte
-python3 -I generators/u5a_reference.py --write  # rewrite them (intentional changes only)
+python3 -I generators/u5a_reference.py --pressure-elongation all          # verify every file byte for byte
+python3 -I generators/u5a_reference.py --write --pressure-elongation all  # rewrite them (intentional changes only)
 ```
+
+The switch is there because the committed requests name every pressurised load case in `model_settings.pressure_elongation` (DEL-04-07); without it the generator builds them without that member and reports a mismatch.
 
 Under HELP_HUMAN's 2026-10-12 DEC-033 ruling, the U5a fields
 (`member_connector_ids` and `constant_effective_area_reference_v1`) exist only
