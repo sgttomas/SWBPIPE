@@ -604,7 +604,7 @@ function AppSession() {
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
               />
-              <HangerSizingForm key={`hanger-sizing:${projectSessionGeneration}`} model={model} busy={operationBusy} />
+              <HangerSizingForm key={`hanger-sizing:${projectSessionGeneration}`} model={model} busy={operationBusy} onQueueBatch={handleQueueOperationBatch} />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "weight"}>
               <SelfWeightPlanPanel

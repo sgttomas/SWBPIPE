@@ -180,6 +180,7 @@ import {
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 import type { RuleCheckRunBasis } from "../rule-check/RuleCheckRunPanel";
 import { batchRequiresPreview, operationRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
+import { SUPPORT_HANGER_WRITE_REFUSED_TEXT, writesSupportHangerSelection } from "../hanger-selection/hangerSelection";
 import { capabilityAvailability, capabilityRoute } from "../toolkit/capabilityCatalog";
 import type { ToolkitCapability } from "../toolkit/capabilityCatalog";
 import type { CreationTool, ViewportExposureInteraction } from "../viewport/PipeViewport";
@@ -1893,8 +1894,11 @@ export function useWorkspaceSession() {
     return () => { retained.status = event.type === "withdrawn" ? "withdrawn" : "unknown"; };
   }), [sessionEvents]);
 
-  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext } = {}): Promise<void> {
-    await registerOperationBatch(batch, options.importContext ? { importContext: options.importContext } : {});
+  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<void> {
+    await registerOperationBatch(batch, {
+      ...(options.importContext ? { importContext: options.importContext } : {}),
+      ...(options.precondition ? { precondition: options.precondition } : {})
+    });
   }
 
   /** Requeue a stored record with its author re-derived host-side (DEL-16-03).
@@ -1902,14 +1906,28 @@ export function useWorkspaceSession() {
   async function handleRequeueRetainedRecord(intent: unknown, index: number): Promise<string | null> {
     const result = requeueRetainedRecord(intent, index);
     if ("refused" in result) { setBatchMessage(`Record could not be requeued: ${result.refused}`); return result.refused; }
+    // A support's hanger selection is applied only from the hanger form or its sizing result, never requeued; read by
+    // the batch's structure, after requeue's own refusals.
+    if (writesSupportHangerSelection(result.batch)) {
+      setBatchMessage(`Record could not be requeued: ${SUPPORT_HANGER_WRITE_REFUSED_TEXT}`);
+      return SUPPORT_HANGER_WRITE_REFUSED_TEXT;
+    }
     await registerOperationBatch(result.batch);
     return null;
   }
 
   /** Queue a batch and return its registration key, or null when it was not registered.
-   * `reveal: false` (the run sheet, §5.1) leaves the section and focus where they are. */
-  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext; importContext?: ImportContext } = {}): Promise<string | null> {
+   * `reveal: false` (the run sheet, §5.1) leaves the section and focus where they are.
+   * `precondition`, made only by the host's own code, is kept beside the registration in this session and asked at
+   * the final Apply (`handleRunOperationBatch`); it is in no batch document, receipt, history or stored record. */
+  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext; importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<string | null> {
     if (!model) return null;
+    // Offline intake (the only producer passing importContext) never registers a write of a support's hanger
+    // selection, read by the batch's structure; the host's own features and an agent's proposals register as before.
+    if (options.importContext && writesSupportHangerSelection(batch)) {
+      setBatchMessage(SUPPORT_HANGER_WRITE_REFUSED_TEXT);
+      return null;
+    }
     const revision = modelRevision.current;
     const epoch = requestEpochRef.current;
     const queueEpoch = batchQueueEpoch.current;
@@ -1928,7 +1946,7 @@ export function useWorkspaceSession() {
       const registered = deepFreeze({ key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview,
         ...(options.agentContext ? { agentContext: structuredClone(options.agentContext) } : {}),
         ...(options.importContext ? { importContext: structuredClone(options.importContext) } : {}) });
-      batchRegistrations.current.set(key, { entry: registered, epoch: queueEpoch });
+      batchRegistrations.current.set(key, { entry: registered, epoch: queueEpoch, ...(options.precondition ? { precondition: options.precondition } : {}) });
       if (options.agentContext) agentProposalStandingRef.current.set(key, {status:"pending_review",outcomeModelHash:null});
       setQueuedBatches((current) => [...current, registered]);
       setBatchMessage("Batch queued for validation and explicit application.");
@@ -1991,6 +2009,18 @@ export function useWorkspaceSession() {
       const initialHash = await computeModelHash(currentModel.current);
       if (!stillCurrent()) return abandon("The request was superseded before the batch ran.");
       if (!initialHash || initialHash.value !== entry.basisHash.value) throw new Error("The model changed. Prepare a new batch.");
+      // The host's own precondition, asked only at the final Apply, immediately before the host is asked to apply.
+      // The run's standing is read again after it answers; a refusal applies nothing and leaves the batch queued.
+      if (apply && registration.precondition) {
+        const refusal = await checkBatchPrecondition(registration.precondition);
+        if (!stillCurrent()) return abandon("The request was superseded before the batch ran.");
+        if (!registered()) throw new Error("The batch was withdrawn from the review queue; it was not run.");
+        if (refusal !== null) {
+          setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${refusal}`);
+          setQueuedBatches((current) => withApplyRefusal(current, entry.key, { kind: "precondition", reason: refusal }));
+          return;
+        }
+      }
       const outcome = await (apply ? applyOperationBatch : validateOperationBatch)(entry.basisModel, entry.batch, entry.basisHash);
       if (!stillCurrent() || !currentModel.current) return abandon("The request was superseded while the batch ran; its result was discarded.");
       const currentHash = await computeModelHash(currentModel.current);
@@ -2012,6 +2042,7 @@ export function useWorkspaceSession() {
       // preparation keeps the earlier preview and its Apply gate.
       if (!apply || outcome.validation.application_status !== "applied_to_session_model") {
         setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
+        setQueuedBatches((current) => withApplyRefusal(current, entry.key, null));
         const passed = outcome.validation.batch_validation_status === "passed" && outcome.simulation_disposition !== "rolled_back_no_model_published";
         sessionEvents.emit({ type: passed ? "validated" : "refused", batchId: entry.batch.batch_id, key: entry.key, outcome });
         return;
@@ -5231,4 +5262,55 @@ type BatchRegistration = {
   entry: QueuedBatch;
   epoch: number;
   validated?: { fingerprint: string; outcome: OperationBatchOutcome };
+  /** The host's own precondition for applying this batch, kept only here in the session. */
+  precondition?: BatchPrecondition;
 };
+
+/** A host-made check asked at the final Apply of a queued batch: null to go on, or the refusal text. */
+export type BatchPrecondition = () => Promise<string | null>;
+/** How long a precondition may take before the Apply is refused. */
+export const PRECONDITION_TIMEOUT_MS = 10000;
+/** The refusal when a precondition throws, answers with anything but null or a text, or does not answer in time. */
+export const PRECONDITION_UNCHECKED_REASON = "Its precondition could not be checked.";
+
+/** The precondition's answer within the bound: null, its refusal text, or the unchecked reason. What is measured is
+ * the elapsed time on a monotonic clock (`now`, performance.now by default) from when this helper starts, which is
+ * when the precondition is asked, to when its answer arrives. An answer that arrives at or after `timeoutMs` is not
+ * accepted, whatever it says, and is the unchecked reason, whether or not the bound's timer has run yet; a late refusal
+ * text is reported as the unchecked reason too, so that no answer after the bound is taken as the precondition's. The
+ * timer refuses a precondition that never settles at the bound, so it cannot hold the caller. Every outcome goes
+ * through `decide`, which takes the first and drops every later one. */
+export function checkBatchPrecondition(
+  precondition: BatchPrecondition,
+  timeoutMs: number = PRECONDITION_TIMEOUT_MS,
+  now: () => number = () => performance.now()
+): Promise<string | null> {
+  const deadline = now() + timeoutMs;
+  return new Promise<string | null>((resolve) => {
+    let decided = false;
+    const decide = (value: string | null) => {
+      if (decided) return;
+      decided = true;
+      clearTimeout(timer);
+      resolve(value);
+    };
+    const timer = setTimeout(() => decide(PRECONDITION_UNCHECKED_REASON), timeoutMs);
+    const answered = (value: string | null) => decide(now() < deadline ? value : PRECONDITION_UNCHECKED_REASON);
+    Promise.resolve()
+      .then(() => precondition())
+      .then(
+        (result: unknown) => answered(result === null ? null : typeof result === "string" && result.trim() !== "" ? result : PRECONDITION_UNCHECKED_REASON),
+        () => decide(PRECONDITION_UNCHECKED_REASON)
+      );
+  });
+}
+
+/** The queue with entry `key`'s last-apply refusal set, or cleared when `refusal` is null. */
+function withApplyRefusal(entries: QueuedBatch[], key: string, refusal: NonNullable<QueuedBatch["lastApplyRefusal"]> | null): QueuedBatch[] {
+  if (refusal === null && !entries.some((entry) => entry.key === key && entry.lastApplyRefusal)) return entries;
+  return entries.map((entry) => {
+    if (entry.key !== key) return entry;
+    const { lastApplyRefusal: _cleared, ...rest } = entry;
+    return refusal === null ? rest : { ...rest, lastApplyRefusal: refusal };
+  });
+}

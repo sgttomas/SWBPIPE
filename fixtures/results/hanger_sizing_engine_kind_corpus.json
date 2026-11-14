@@ -1,0 +1,439 @@
+{
+  "cases": [
+    {
+      "engine": "variable_spring",
+      "gate": true,
+      "name": "hanger_type variable_spring_hanger",
+      "support": {
+        "family": "vertical_support",
+        "hanger": {
+          "hanger_type": "variable_spring_hanger"
+        },
+        "id": "support:K1",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "variable_spring",
+      "gate": true,
+      "name": "hanger_type spring_hanger",
+      "support": {
+        "family": "vertical_support",
+        "hanger": {
+          "hanger_type": "spring_hanger"
+        },
+        "id": "support:K2",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "constant_effort",
+      "gate": true,
+      "name": "hanger_type constant_effort_support",
+      "support": {
+        "family": "vertical_support",
+        "hanger": {
+          "hanger_type": "constant_effort_support"
+        },
+        "id": "support:K3",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "variable_spring",
+      "gate": true,
+      "name": "family variable_spring_hanger, no hanger member",
+      "support": {
+        "family": "variable_spring_hanger",
+        "id": "support:K4",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "variable_spring",
+      "gate": true,
+      "name": "family spring_hanger, no hanger member",
+      "support": {
+        "family": "spring_hanger",
+        "id": "support:K5",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "constant_effort",
+      "gate": true,
+      "name": "family constant_effort_support, no hanger member",
+      "support": {
+        "family": "constant_effort_support",
+        "id": "support:K6",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "variable_spring",
+      "gate": true,
+      "name": "blank hanger_type falls back to a hanger family",
+      "support": {
+        "family": "spring_hanger",
+        "hanger": {
+          "hanger_type": "   "
+        },
+        "id": "support:K7",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "none",
+      "gate": true,
+      "name": "empty hanger_type falls back to a non-hanger family",
+      "support": {
+        "family": "guide",
+        "hanger": {
+          "hanger_type": ""
+        },
+        "id": "support:K8",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "constant_effort",
+      "gate": true,
+      "name": "null hanger_type falls back to a hanger family",
+      "support": {
+        "family": "constant_effort_support",
+        "hanger": {
+          "hanger_type": null
+        },
+        "id": "support:K9",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "variable_spring",
+      "gate": true,
+      "name": "hanger_type naming a hanger with a non-hanger family",
+      "support": {
+        "family": "guide",
+        "hanger": {
+          "hanger_type": "variable_spring_hanger"
+        },
+        "id": "support:K10",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "none",
+      "gate": false,
+      "name": "family spring with a top-level stiffness and no hanger member",
+      "support": {
+        "family": "spring",
+        "id": "support:K11",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ],
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "unit": "N/m",
+            "value": 200000.0
+          }
+        }
+      }
+    },
+    {
+      "engine": "none",
+      "gate": true,
+      "name": "family spring with a hanger member and no hanger_type",
+      "support": {
+        "family": "spring",
+        "hanger": {
+          "source_reference": "invented"
+        },
+        "id": "support:K12",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ],
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "unit": "N/m",
+            "value": 200000.0
+          }
+        }
+      }
+    },
+    {
+      "engine": "none",
+      "gate": false,
+      "name": "a plain guide",
+      "support": {
+        "family": "guide",
+        "id": "support:K13",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UY"
+        ]
+      }
+    },
+    {
+      "engine": "constant_effort",
+      "gate": true,
+      "name": "hanger_type padded with ordinary spaces",
+      "support": {
+        "family": "guide",
+        "hanger": {
+          "hanger_type": "  constant_effort_support  "
+        },
+        "id": "support:K14",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "variable_spring",
+      "gate": true,
+      "name": "hanger_type padded with U+0085, White_Space to the engine",
+      "support": {
+        "family": "guide",
+        "hanger": {
+          "hanger_type": "\u0085variable_spring_hanger\u0085"
+        },
+        "id": "support:K15",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "variable_spring",
+      "gate": true,
+      "name": "hanger_type of U+0085 alone is blank to the engine and falls back to a hanger family",
+      "support": {
+        "family": "spring_hanger",
+        "hanger": {
+          "hanger_type": "\u0085"
+        },
+        "id": "support:K16",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "none",
+      "gate": true,
+      "name": "hanger_type padded with U+FEFF, which the engine does not trim",
+      "support": {
+        "family": "guide",
+        "hanger": {
+          "hanger_type": "\ufeffvariable_spring_hanger"
+        },
+        "id": "support:K17",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "none",
+      "gate": true,
+      "name": "hanger_type of U+FEFF alone is not blank to the engine, so no fall back to a hanger family",
+      "support": {
+        "family": "spring_hanger",
+        "hanger": {
+          "hanger_type": "\ufeff"
+        },
+        "id": "support:K18",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "none",
+      "gate": true,
+      "name": "hanger_type in another letter case",
+      "support": {
+        "family": "guide",
+        "hanger": {
+          "hanger_type": "Variable_Spring_Hanger"
+        },
+        "id": "support:K19",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "none",
+      "gate": true,
+      "name": "hanger null with a non-hanger family",
+      "support": {
+        "family": "guide",
+        "hanger": null,
+        "id": "support:K20",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "none",
+      "gate": true,
+      "name": "hanger empty with a non-hanger family",
+      "support": {
+        "family": "guide",
+        "hanger": {},
+        "id": "support:K21",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "document_refused",
+      "gate": true,
+      "name": "hanger_type a number",
+      "support": {
+        "family": "guide",
+        "hanger": {
+          "hanger_type": 5
+        },
+        "id": "support:K22",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "document_refused",
+      "gate": true,
+      "name": "hanger_type true",
+      "support": {
+        "family": "spring_hanger",
+        "hanger": {
+          "hanger_type": true
+        },
+        "id": "support:K23",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "document_refused",
+      "gate": true,
+      "name": "hanger_type an object",
+      "support": {
+        "family": "guide",
+        "hanger": {
+          "hanger_type": {
+            "name": "variable_spring_hanger"
+          }
+        },
+        "id": "support:K24",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "document_refused",
+      "gate": true,
+      "name": "hanger a text, not an object",
+      "support": {
+        "family": "guide",
+        "hanger": "variable_spring_hanger",
+        "id": "support:K25",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    },
+    {
+      "engine": "document_refused",
+      "gate": true,
+      "name": "family a number, with no hanger member",
+      "support": {
+        "family": 7,
+        "id": "support:K26",
+        "node": "node:B",
+        "provenance": "invented_test_value",
+        "restraints": [
+          "UZ"
+        ]
+      }
+    }
+  ],
+  "description": "Invented support values and how the engine classifies each, shared by the desktop's hanger-write predicate test and, in a later change, a test on the engine's side. \"engine\" is what is_variable_spring_hanger and is_constant_effort_support (core/product_physics/src/lib.rs, through support_hanger_type) return for the support decoded as PreviewSupport: variable_spring, constant_effort or none; document_refused where the typed decode refuses the value. Validation diagnostics that a solve adds later (missing hanger data, family tokens) are not part of it. \"gate\" is whether writesSupportHangerSelection must treat a write of the value on a support's configuration or as a created support as a hanger write; wherever engine is a hanger kind or document_refused, gate is true."
+}
