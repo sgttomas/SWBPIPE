@@ -27,6 +27,11 @@ exchange folder; every case whose declarations name an evaluated hypothesis and
 whose stored record carries a different series status is then rebuilt offline
 from its stored CSV, so its causes use the series status (Design §6, §7).
 
+The export modes described below are held: the guest script returns
+`export_held` and starts nothing until the export adopts the attempt's claim
+and job. The export descriptions state the retained path, not currently
+available behavior.
+
 --export-mbf adds the export step after each case's live round trip: the guest
 opens the case's solved model in a CAEPIPE instance it starts, writes it back to
 MBF with File > Export to MBF... and stops that instance; the harness collects
@@ -73,9 +78,17 @@ model it stops if the freeze file exists, holds while the exclusive file names a
 running process (up to 30 min), checks that the guest answers `cmd /c ver`
 (once more after 2 min) and that no instance of the tool is running. A model
 whose round trip raised or left no CSV, with a clean settings check, is retried
-once 2 min later. The run stops at the first unclean settings check, a failed
-check before a model, or a round trip that raised twice; the GUI print fallback
-is used only with restore_scope "key" (Design §5). --offline builds the records
+once 2 min later only when its program was never started. A model whose round
+trip's attempt claimed and ended without its terminal report (route start_partial)
+or whose success report is contradicted by its own nonzero dispatch reply (route
+report_reply_contradiction), both outcome partial, and one whose two attempts were
+each established as never started (route not_started) are never retried. The run
+stops at the first unclean settings check, a failed check before a model, a round
+trip that raised twice, a round trip whose start is unresolved (its case manifest
+then stays at custody_recorded, and nothing is restored), a round trip whose
+program ran and that raised or left no CSV (completed is never a ground for retry),
+or a second attempted run that did not agree (partial or contradicted); the GUI
+print fallback is used only with restore_scope "key" (Design §5). --offline builds the records
 from the stored, bound CSVs. Each case's SWBPIPE request and result are created
 once and never replaced. At admission a case may proceed only when it holds
 neither and its case manifest is absent or readable as recording no custody (the
@@ -105,9 +118,13 @@ outcome of a round trip that raised, before its retry or before the stop after a
 second raise, is returned as not run, so that retry or stop is lost and the next
 model runs; a retry's second attempt writes no custody_recorded state before its
 round trip; and attempt 1's recorded outcome does not describe attempt 2 and cannot
-admit attempt 2's capture. Meanwhile the one permitted live caller is the
-independently reviewed wrapper used by the project's own first-comparison batch
-procedure. That procedure is maintained outside the public repository. The wrapper
+admit attempt 2's capture. Meanwhile the one permitted live caller is the wrapper
+used by the project's own first-comparison batch procedure, in a form independently
+reviewed against the harness's run phase as it now stands (it stops, restoring
+nothing, on an unresolved start; it counts attempted runs that did not agree (routes
+start_partial and report_reply_contradiction) across its session and stops at the
+second; it reads each run's files from that run's attempt folder); no
+earlier form of it is covered. That procedure is maintained outside the public repository. The wrapper
 calls run_benchmark_model once per run with attempt 1, collect_only and the GUI
 fallback off, and never retries. Another caller is not covered, even with the same
 arguments. This is a project instruction: the command does not itself enforce it.
@@ -170,7 +187,10 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     CSV_ROUTES,
     EXPORT_ROUTE,
     EXPORTED_MBF,
+    REPORT_REPLY_CONTRADICTION,
     ContainmentError,
+    StartUnresolved,
+    disposition as start_disposition,
     contained,
     contained_dir,
     stored_run_record,
@@ -898,6 +918,27 @@ def benchmark_batches(models: list[Mapping[str, Any]], size: int) -> list[list[M
 
 
 RECORDED, NOT_RUN, RETRY = "recorded", "not_run", "retry"
+# The route under which each settled start that has run the program, and does not agree, is recorded.
+ATTEMPTED_ROUTES = {"partial": "start_partial", "contradicted": REPORT_REPLY_CONTRADICTION}
+
+
+def round_trip_disposition(record: Mapping[str, Any] | None = None,
+                           error: BaseException | None = None) -> dict[str, Any]:
+    """The one disposition function: what a round trip handed back about its attempt's start, through the
+    harness's one rule table (`disposition`). From an error, only the disposition the harness carried on it (a
+    StartUnresolved is unresolved); from a record, its `start.state`. Anything absent or unusable is unresolved,
+    which is never a ground for retry or restoration. Both of run_benchmark_model's handlers consult it."""
+    if error is not None:
+        carried = getattr(error, "disposition", None)
+        start = "unresolved" if isinstance(error, StartUnresolved) else (
+            carried.get("start") if isinstance(carried, Mapping) else None)
+    else:
+        held = (record or {}).get("start")
+        start = held.get("state") if isinstance(held, Mapping) else None
+    return start_disposition(start)
+# A model whose round trip's attempt claimed and is quiescent but left no terminal report (route start_partial): an
+# attempted partial run, terminal, excluded from comparison, and never retried by any loop.
+PARTIAL = "partial"
 # The case manifest's state between custody and a terminal outcome. Defined once (here, in DEL-17-05's scope and in the
 # batch's session statements): custody was recorded; no terminal outcome is recorded; the case is named and is not
 # made again under its id; its capture is not admitted for use. It shows no more than that: not where or why execution
@@ -943,15 +984,31 @@ def run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runn
                         collect_only: bool = False) -> tuple[str, str, str]:
     """One benchmark model: solve, write, guarded batch round trip (or the stored bound CSV), parse, compare.
 
-    Returns (status, route, reason): `recorded`, `not_run` (SWBPIPE not solved, MBF refused, containment, or no
-    stored bound CSV offline), or `retry` (the round trip raised, or left no bound CSV, with a clean settings check).
-    Raises RunStopped when the round trip's saved-settings check is not clean, or when the batch run left no CSV and
-    the GUI fallback is off."""
+    Returns (status, route, reason): `recorded`, `not_run` (SWBPIPE not solved, MBF refused, containment before
+    the program could have started, no stored bound CSV offline, or route `not_started`: the round trip
+    established, twice, that its attempt never started), `partial` (route `start_partial` or
+    `report_reply_contradiction`: an attempted run that does not agree; never retried), or `retry` (only when the
+    program was never started: the round trip raised, or left no bound CSV, with a clean settings check). Raises
+    RunStopped when the round trip's saved-settings check is not clean, when the batch run left no CSV and the GUI
+    fallback is off, when the start is unresolved, when the program has run and either the round trip raised or it
+    left no bound CSV (completed is never a ground for retry), and when an attempted run's outcome cannot be
+    recorded. A stop after the round trip raised writes no outcome, so the case manifest stays at
+    custody_recorded."""
     model_id = benchmark_run_id(entry)
+    held = {"disposition": start_disposition("not_dispatched")}  # nothing called yet; updated around the round trip
     try:
         return _run_benchmark_model(entry, config, runner=runner, offline=offline, emit=emit, round_trip=round_trip,
-                                    gui_fallback=gui_fallback, attempt=attempt, collect_only=collect_only)
-    except ContainmentError as error:
+                                    gui_fallback=gui_fallback, attempt=attempt, collect_only=collect_only, held=held)
+    except RunStopped:
+        raise
+    except Exception as error:
+        settled = held["disposition"]
+        if not settled["retry"]:  # the program may be running or has run: a failure here stops, it is never not_run
+            note = f"its outcome could not be recorded ({type(error).__name__}: {error})"
+            emit(f"{model_id}: route=start_{settled['start']}; {note}; stopped")
+            raise RunStopped(f"{model_id} (start_{settled['start']}; {note})") from error
+        if not isinstance(error, ContainmentError):
+            raise
         emit(f"{model_id}: route=containment_violation; {error}; no benchmark record")
         return NOT_RUN, "containment_violation", str(error)
 
@@ -1004,7 +1061,9 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
 
 def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runner: str, offline: bool,
                          emit: Callable[[str], None], round_trip: Callable[..., dict[str, Any]], gui_fallback: bool,
-                         attempt: int, collect_only: bool = False) -> tuple[str, str, str]:
+                         attempt: int, collect_only: bool = False,
+                         held: dict[str, Any] | None = None) -> tuple[str, str, str]:
+    held = {} if held is None else held
     model_id = benchmark_run_id(entry)
     if entry.get("capture_only"):
         # Refused before anything is resolved or written (capture_refusal says why).
@@ -1053,9 +1112,10 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
 
     def outcome(status: str, route: str, reason: str, **extra: Any) -> tuple[str, str, str]:
         if not offline:
-            _benchmark_manifest(root, paths, entry, offline=offline, outcome="no_record", route=route,
+            _benchmark_manifest(root, paths, entry, offline=offline,
+                                outcome="partial" if status == PARTIAL else "no_record", route=route,
                                 attempt=attempt, reason=reason, custody=custody, **extra)
-        if status == NOT_RUN:
+        if status in (NOT_RUN, PARTIAL):
             emit(f"{model_id}: route={route}; {reason}; no benchmark record")
         return status, route, reason
 
@@ -1134,20 +1194,46 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         if _runner_identity(identity["path"]) != identity \
                 or _source_identity().get("source_commit") != custody.get("source_commit"):
             return outcome(NOT_RUN, "identity_changed", "the runner or the SWBPIPE checkout changed after the solve")
+        held["disposition"] = round_trip_disposition()  # absent while the round trip runs: unresolved
         try:
             record = round_trip(config, model_id, mbf_text, gui_fallback=gui_fallback)
         except Exception as error:
+            settled = held["disposition"] = round_trip_disposition(error=error)
+            if not settled["retry"]:
+                # Never a retry: the program may still be running (unresolved) or has run (completed, partial,
+                # contradicted). No outcome is written, so the case manifest stays at custody_recorded (never made
+                # again under its id, its capture not admitted), and the run stops.
+                emit(f"{model_id}: route=start_{settled['start']}; the round trip raised {type(error).__name__}: "
+                     f"{error}; stopped")
+                raise RunStopped(f"{model_id} (start_{settled['start']})") from error
             emit(f"{model_id}: round trip raised {type(error).__name__}: {error}")
             guard_stop(getattr(error, "settings_guard", None), raised=True)
             return outcome(RETRY, "round_trip_raised", f"the round trip raised {type(error).__name__}")
+        settled = held["disposition"] = round_trip_disposition(record=record)
         # The guard comes first: any other outcome still stops the run on it.
         guard_stop(record.get("settings_guard"))
+        if settled["start"] == "unresolved":  # a returned record naming no usable start
+            emit(f"{model_id}: route=start_unresolved; the round trip's record names no usable start; stopped")
+            raise RunStopped(f"{model_id} (start_unresolved)")
         if not gui_fallback and record.get("route") == "batch_no_csv":
             emit(f"{model_id}: route=batch_no_csv; the GUI fallback is off for this run; stopped")
             stop("batch_no_csv", "the batch run left no CSV and the GUI fallback is off")
+        if settled["start"] in ATTEMPTED_ROUTES:
+            reason = ("the attempt claimed and is quiescent but left no terminal report; an attempted partial run, "
+                      "not retried") if settled["start"] == "partial" else (
+                "the attempt's success report is contradicted by its own nonzero dispatch reply; an attempted run "
+                "that does not agree, not retried and never compared")
+            return outcome(PARTIAL, ATTEMPTED_ROUTES[settled["start"]], reason)
+        if settled["start"] == "not_started":
+            return outcome(NOT_RUN, "not_started", "two attempts were each established as never started; nothing "
+                                                   "was made")
         csv_path, route, reason = bound_csv(root, paths, record, mbf_sha256)
         if csv_path is None:
-            return outcome(RETRY, route, reason)
+            if settled["retry"]:
+                return outcome(RETRY, route, reason)
+            # Completed: the program has run, so it is never retried; the list stops.
+            emit(f"{model_id}: route={route}; {reason}; the program has run, so it is never retried; stopped")
+            stop(route, f"{reason}; the program has run, so it is never retried")
         if collect_only:
             # Bind first, capture now, screen later: the print is collected and bound, and not read.
             _benchmark_manifest(root, paths, entry, offline=offline, outcome=COLLECTED, route=route, attempt=attempt,
@@ -1223,8 +1309,9 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     A live run paces the models `pace_s` apart, passes `_benchmark_gate` before each attempt, and retries a model
     once, BENCHMARK_RETRY_WAIT_S later, when its round trip raised or left no bound CSV with a clean settings check.
     A model that still left no CSV is recorded as such and the run goes on; a round trip that raised twice, a gate
-    that fails, or an unclean settings check stops the run. The GUI fallback is on only when the settings guard
-    restores the whole key, whose restore covers the settings that route writes (Design §5)."""
+    that fails, an unclean settings check, an unresolved start, or a second attempted run that did not agree (partial or contradicted) in this run stops the
+    run. A partial start (`partial`) and a start established as never made (`not_started`) are never retried.
+    The GUI fallback is on only when the settings guard restores the whole key, whose restore covers the settings that route writes (Design §5)."""
     captures = [entry for entry in models if entry.get("capture_only")]
     if captures:
         for entry in captures:
@@ -1246,7 +1333,7 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     # A collect-only run never prints through the program's window.
     gui_fallback = bool(not collect_only and config.settings_guard is not None
                         and config.settings_guard.restores_whole_key)
-    results, started = [], False
+    results, started, partials = [], False, 0
     for number, members in chosen:
         emit(f"batch {number}/{len(batches)}: {', '.join(benchmark_run_id(entry) for entry in members)}")
         for entry in members:
@@ -1274,6 +1361,12 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
             except RunStopped as stopped:
                 emit(f"stopped after {stopped}: the guarded round trip did not end cleanly; no further model ran")
                 return 1
+            if status == PARTIAL:  # an attempted run that does not agree: start_partial or report_reply_contradiction
+                partials += 1
+                if partials > 1:
+                    emit(f"stopped after {model_id}: a second attempted run that did not agree in this run (partial "
+                         "or contradicted); no further model ran")
+                    return 1
             if status == RETRY:
                 if route == "round_trip_raised":
                     emit(f"stopped after {model_id}: the round trip raised again after one retry; no further model ran")
