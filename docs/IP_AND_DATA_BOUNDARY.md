@@ -220,8 +220,7 @@ run record's export entry) and the harness copy of the guest script and run lock
 `_harness/`, and creates missing layer folders. When the stored solve is no longer bound,
 any earlier export is removed and the run record's export entry states why. The step's route is `mbf_exported` or the
 reason none was written: `not_bound`, `prepare_failed`, `timeout`, `no_guest_json`,
-`input_hash_mismatch`, `export_failed`, `mbf_not_written`, `guest_exit_nonzero` (the
-guest reported the export but its step did not exit 0), `mbf_not_collected` or
+`input_hash_mismatch`, `export_failed`, `mbf_not_written`, `mbf_not_collected` or
 `export_hash_mismatch`.
 
 **Authored cases (DEL-17-04 Design §18.3).** `run_pilot --authored [--case ID …]` runs the

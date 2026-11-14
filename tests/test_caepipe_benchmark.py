@@ -176,6 +176,7 @@ def solve(model: dict) -> dict:
                                                                                                 "materials": []}}}
     completed = subprocess.run([runner, "solve", "--explicit-local-private-intent", "--input", "-"],
                                input=json.dumps(body), capture_output=True, text=True, check=False)
+    assert completed.returncode == 0, (completed.returncode, completed.stderr)
     output = json.loads(completed.stdout)
     assert output["payload"]["mechanics_envelope"]["status"]["mechanics"] == "MECHANICS_SOLVED"
     return output["payload"]

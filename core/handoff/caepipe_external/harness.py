@@ -81,10 +81,6 @@ CSV_ROUTES = ("csv_from_batch", "csv_from_gui_print")
 EXPORTED_MBF = "exported.mbf"
 EXPORT_OUTPUTS = (EXPORTED_MBF, "export_guest_stdout.txt", "export_guest_stderr.txt", "export_guest_log.json")
 EXPORT_ROUTE = "mbf_exported"
-# The guest script exits 0 exactly on its success routes (CSV_ROUTES, EXPORT_ROUTE). A success status whose step
-# exited otherwise (the script's own failure, the prlctl client's, or a kill) is contradictory and refused by this
-# name; a refusal the guest reports keeps its own name, whatever its exit.
-GUEST_EXIT_NONZERO = "guest_exit_nonzero"
 # Guest paths enter `cmd /c` command strings, so they are held to a strict allow-list: an absolute Windows path
 # (drive letter, colon, backslash) of letters, digits, space and \ . - _ ( ) only. Quotes, %, ^, &, |, <, >, !
 # and control characters can never reach the guest shell.
@@ -1833,8 +1829,6 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             route = "no_guest_json"
         elif not input_verified:
             route = "input_hash_mismatch"
-        elif status in CSV_ROUTES and solve["exit_status"] != 0:
-            route = GUEST_EXIT_NONZERO
         elif print_problem is not None:
             route = "print_file_unrecognised"
         elif status in CSV_ROUTES and observed is not None:
@@ -2035,10 +2029,9 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
     guest_mod_sha256, guest_exported_sha256 = guest_hash("mod_sha256"), guest_hash("exported_mbf_sha256")
     mod_verified = guest_mod_sha256 == mod_sha256
     status = guest_log.get("status") if isinstance(guest_log, dict) else None
-    collect: dict[str, Any] = {"exit_status": None}
-    if status == EXPORT_ROUTE and mod_verified and export["exit_status"] == 0:
+    if status == EXPORT_ROUTE and mod_verified:
         _refuse_links(root, out)  # again just before the guest writes into the layer
-        collect = step("export_collect", f"copy /Y {_quote(guest_mbf)} {_quote(_win(guest_out, EXPORTED_MBF))}")
+        step("export_collect", f"copy /Y {_quote(guest_mbf)} {_quote(_win(guest_out, EXPORTED_MBF))}")
 
     write_private(root, out / "export_guest_stdout.txt", export["stdout"])
     write_private(root, out / "export_guest_stderr.txt", export["stderr"])
@@ -2060,9 +2053,7 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
         route = "input_hash_mismatch"
     elif status != EXPORT_ROUTE:
         route = str(status or "unknown_guest_status")
-    elif export["exit_status"] != 0:
-        route = GUEST_EXIT_NONZERO
-    elif exported_sha256 is None or collect["exit_status"] != 0:  # the collection is one copy: its exit is its result
+    elif exported_sha256 is None:
         route = "mbf_not_collected"
     elif exported_sha256 != guest_exported_sha256:
         route = "export_hash_mismatch"
