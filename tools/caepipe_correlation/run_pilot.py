@@ -136,6 +136,7 @@ import os
 from pathlib import Path
 import secrets
 import shutil
+import signal
 import subprocess
 import sys
 import time
@@ -340,7 +341,12 @@ def runner_request(case_id: str, source_location: str | None = None) -> dict[str
 
 
 def solve_swbpipe(runner: str, case: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any] | None, str]:
-    """Run `<runner> solve --explicit-local-private-intent --input -`; return (request body, output, error)."""
+    """Run `<runner> solve --explicit-local-private-intent --input -`; return (request body, output, error).
+
+    A solve is clean only when the runner exits 0 and its output reports the mechanics solved. Any other exit is an
+    error, whatever stdout holds, and its parsed output is kept: the runner exits 1 with a blocking diagnostic or a
+    blocked export and 2 for unusable input (docs/validation_manual/headless_runner_reproduction.md), and a negative
+    exit is the signal that ended it."""
     body = {"request": runner_request(case["case_id"], case.get("source_location")),
             "solve": {"preview_model": {"model": case["model"], "materials": []}}}
     completed = subprocess.run([runner, "solve", "--explicit-local-private-intent", "--input", "-"],
@@ -349,10 +355,22 @@ def solve_swbpipe(runner: str, case: Mapping[str, Any]) -> tuple[dict[str, Any],
         output = json.loads(completed.stdout)
     except json.JSONDecodeError:
         return body, None, f"runner exit {completed.returncode}; stdout is not JSON"
+    if completed.returncode != 0:
+        return body, output, f"runner exit {completed.returncode}{_ended_by(completed.returncode)}; not a clean solve"
     mechanics = (((output.get("payload") or {}).get("mechanics_envelope") or {}).get("status") or {}).get("mechanics")
     if mechanics != "MECHANICS_SOLVED":
         return body, output, f"SWBPIPE mechanics status {mechanics!r} (runner exit {completed.returncode})"
     return body, output, ""
+
+
+def _ended_by(returncode: int) -> str:
+    """For a negative exit, the signal that ended the process, as subprocess reports it; otherwise nothing."""
+    if returncode >= 0:
+        return ""
+    try:
+        return f" (killed by signal {signal.Signals(-returncode).name})"
+    except ValueError:
+        return f" (killed by signal {-returncode})"
 
 
 def apply_fault_injection(mbf_text: str, fault: Mapping[str, Any]) -> str:
