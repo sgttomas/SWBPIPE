@@ -548,7 +548,8 @@ fn the_formulation_basis_states_current_s6_admission_in_both_contexts() {
 /// confirmation's basis: the reactions behind its nonlinear reaction and
 /// derived-normal rows are the loop's own, bit for bit; every other recovered
 /// row (member, section, support and the connector's own) equals the run with
-/// the bound removed, the binary64 recovery from the solve's own displacement;
+/// the bound removed (and, in at least one case of each model and mode, the
+/// connector rows differ from the control's), the binary64 recovery from the solve's own displacement;
 /// the case is sensitive with the named warning; and the pressure reader, with
 /// its exact nonlinear checks, admits the document with the model.
 /// `RT_A3_S6_CORRECTION_FIXTURE_OUT=<dir>` writes C-1's first case, dense, as
@@ -561,6 +562,7 @@ fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
     let mut fixture_written = false;
     for name in ["c1", "c1_tied"] {
         let mut differing = [false; 2];
+        let mut connector_differing = [false; 2];
         let (request, oracle) = bound(name);
         for case in oracle["cases"].as_object().unwrap().keys() {
             let wire = single_case(&request, case);
@@ -606,7 +608,8 @@ fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
                 assert_eq!(rows(&failed), rows(&binary64), "{at}: a recovered row is not the solve's own");
                 let connector = |v: &Value| rows(v).into_iter().filter(|(id, _)| id.contains("JOINT") || id.contains("joint") || id.contains("tie-rod") || id.contains("tie_rod")).collect::<Vec<_>>();
                 assert!(!connector(&failed).is_empty(), "{at}: no connector row");
-                assert_ne!(connector(&failed), connector(&control), "{at}: the connector rows did not change basis");
+                let connector_differs = connector(&failed) != connector(&control);
+                connector_differing[usize::from(mode == PreviewSolverMode::DenseScrutiny)] |= connector_differs;
                 // The exact readers admit it, and refuse the stale mixed form: the
                 // same document with its nonlinear rows put back on the
                 // confirmation's basis (the control's values), where they differ.
@@ -631,7 +634,7 @@ fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
                 // The first C-1 case whose bases differ, dense, is the fixture the
                 // Python twin sends through both readers: compared here, or written
                 // with RT_A3_S6_CORRECTION_FIXTURE_OUT=<dir>.
-                if let (false, true, PreviewSolverMode::DenseScrutiny, "c1") = (fixture_written, differs, mode, name) {
+                if let (false, true, true, PreviewSolverMode::DenseScrutiny, "c1") = (fixture_written, differs, connector_differs, mode, name) {
                     let document = serde_json::json!({"case": case, "request": wire, "envelope": failed, "control_nonlinear_rows": control_rows});
                     match std::env::var("RT_A3_S6_CORRECTION_FIXTURE_OUT") {
                         Ok(dir) => {
@@ -649,5 +652,6 @@ fn a_correction_failure_publishes_nothing_on_the_confirmation_basis() {
             }
         }
         assert_eq!(differing, [true, true], "{name}: in no case did the certified and the loop's reactions differ");
+        assert_eq!(connector_differing, [true, true], "{name}: in no case did the connector rows change basis");
     }
 }
