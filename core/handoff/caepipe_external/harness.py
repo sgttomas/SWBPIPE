@@ -606,13 +606,25 @@ FINISHED_FORM = re.compile(r"^swbpipe-finished v1\r?\ntoken=(?P<token>[0-9a-f]{3
 STORAGE_ANSWER = re.compile(r"^SWBPIPE-STORAGE v1 (?P<json>\[[\x20-\x7e]*\])\r?\n?\Z")
 HASH_ANSWER = re.compile(r"^SWBPIPE-HASH v1 (?:absent|size=(?P<size>[0-9]{1,12}) sha256=(?P<sha256>[0-9a-f]{64}))"
                          r"\r?\n?\Z")
+# The process-tree observer (`tree`): `none`, or one line per matched living process by ascending pid, each naming
+# the rules that matched it, in order: `launcher` (the claim's pid with exactly its creation time) or `descendant`
+# (through ParentProcessId, created at or after its parent), then `path` (its ExecutablePath is a listed path) or
+# `unknown` (its ExecutablePath unreadable and its Name a listed path's file name). A partial answer is exit 3.
+_TREE_LINE = (r"SWBPIPE-TREE v1 pid=[0-9]{1,10} parent=[0-9]{1,10} created=[0-9]{14}\.[0-9]{6} "
+              r"match=(?:(?:launcher|descendant)(?:,(?:path|unknown))?|path|unknown)")
+TREE_LINE = re.compile(r"^SWBPIPE-TREE v1 pid=(?P<pid>[0-9]{1,10}) parent=(?P<parent>[0-9]{1,10}) "
+                       r"created=(?P<created>[0-9]{14}\.[0-9]{6}) match=(?P<match>[a-z,]+)\Z")
+TREE_ANSWER = re.compile(r"^(?:SWBPIPE-TREE v1 none|" + _TREE_LINE + r"(?:\r?\n" + _TREE_LINE + r")*)\r?\n?\Z")
+# A path the host lists for the observer: the configured executable's allow-list (GUEST_PATH_PATTERN), not empty.
+TREE_PATH_PATTERN = re.compile(r"^[A-Za-z]:\\[A-Za-z0-9 \\._()-]+\Z")
+TREE_CREATED_PATTERN = re.compile(r"^[0-9]{14}\.[0-9]{6}\Z")
 
 
 # ---------------------------------------------------------------------------------------------------------------
 # The read script: every read-only query is a short -File call (`_read_command`), and every reply's first line is the
 # echo of the script's and the data file's computed digests, which the host checks against what it installed.
 # ---------------------------------------------------------------------------------------------------------------
-READ_OPS = ("cim", "job", "chunk", "regread", "storage", "hash")
+READ_OPS = ("cim", "job", "chunk", "regread", "storage", "hash", "tree")
 READ_SCRIPT_SHA256 = _sha256(READ_SCRIPT.read_bytes())
 DATA_DIR = "data"  # data files: `_harness/data/<sha256>.json`
 READ_ECHO = re.compile(r"^SWBPIPE-READ v1 script=(?P<script>[0-9a-f]{64}) data=(?P<data>[0-9a-f]{64}|none)\r?\n")
@@ -679,6 +691,45 @@ def _read_command(config: HarnessConfig, op: str, payload: Mapping[str, Any], da
     command = (f"{POWERSHELL_COMMAND} -File {_quote(script)} -Op {op} -Payload {_encode_payload(payload)}"
                + (f" -Data {data}" if data else ""))
     return _checked_command(config, command)
+
+
+def _tree_command(config: HarnessConfig, launcher_pid: int, launcher_created: str, paths: list[str]) -> str:
+    """The process-tree observer's read command (`tree`): the launcher the claim records (its pid and its `created=`
+    time) and the host's executable paths. When the command would exceed `DATA_FILE_THRESHOLD` the paths travel in a
+    content-addressed data file (`_install_data_file`). Checked against the one length rule as it is built."""
+    if isinstance(launcher_pid, bool) or not isinstance(launcher_pid, int) or not 1 <= launcher_pid <= 0xFFFFFFFF \
+            or not isinstance(launcher_created, str) or not TREE_CREATED_PATTERN.match(launcher_created):
+        raise ValueError("the observer needs the claim's launcher pid and creation time in their recorded forms")
+    if not isinstance(paths, list) or not all(isinstance(path, str) and TREE_PATH_PATTERN.match(path) for path in paths):
+        raise ValueError("an observer path outside the allow-list would enter a guest command")
+    inline = {"pid": launcher_pid, "created": launcher_created}
+    script = _quote(_win(config.guest_exchange_root, HARNESS_DIR, READ_SCRIPT_SHA256, READ_SCRIPT.name))
+    whole = f"{POWERSHELL_COMMAND} -File {script} -Op tree -Payload {_encode_payload(inline | {'paths': paths})}"
+    if _guest_command_length(config.vm_name, whole) <= DATA_FILE_THRESHOLD:
+        return _read_command(config, "tree", inline | {"paths": paths})
+    root = config.exchange_root
+    digest = _install_data_file(root, contained_dir(root, root.resolve() / HARNESS_DIR), {"paths": paths})
+    return _read_command(config, "tree", inline, data=digest)
+
+
+def read_tree(record: Mapping[str, Any]) -> dict[str, Any]:
+    """The observer's reading of one `tree` reply: `absent` (none living), `present` with the pids and each line, or
+    `unreadable` (a reply not answered in form: a partial answer, anything on stderr, an echo not verified, or a body
+    out of form, pids not strictly ascending or a rule out of order included). Never absent but from `none`."""
+    if not _answered(record):
+        return {"state": "unreadable"}
+    body = _body(record)
+    if TREE_ANSWER.match(body) is None:
+        return {"state": "unreadable"}
+    if body.startswith("SWBPIPE-TREE v1 none"):
+        return {"state": "absent"}
+    processes = [TREE_LINE.match(line).groupdict() for line in body.rstrip("\r\n").replace("\r\n", "\n").split("\n")]
+    pids = [int(process["pid"]) for process in processes]
+    if any(later <= earlier for earlier, later in zip(pids, pids[1:])):
+        return {"state": "unreadable"}
+    return {"state": "present", "pids": pids,
+            "processes": [{"pid": int(item["pid"]), "parent": int(item["parent"]), "created": item["created"],
+                           "match": item["match"].split(",")} for item in processes]}
 
 
 def _write_command(config: HarnessConfig, op: str, payload: Mapping[str, Any], *, spill: tuple[str, ...] = ()) -> str:

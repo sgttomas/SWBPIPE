@@ -1,0 +1,82 @@
+name: CAEPIPE tree observer (Windows)
+
+# The hosted proof of the read script's process-tree observer (DEL-17-05, `tests/test_caepipe_tree_hosted.py`): the
+# maintained script under Windows PowerShell 5.1 on the deployed guest's architecture (Arm64) and on x64. It reports
+# beside the required `harness` check and is not part of it; the repository's required-check setting is unchanged.
+# It proves the op on a hosted runner, not on the deployed guest.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/caepipe-tree-observer-windows.yml
+      - .gitattributes
+      - core/handoff/caepipe_external/**
+      - core/handoff/external_prover/**
+      - core/security/**
+      - tests/conftest.py
+      - tests/test_caepipe_tree_hosted.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: caepipe-tree-observer-windows-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  tree:
+    name: tree op on ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-11-arm
+            arch: Arm64
+            processor: ARM64
+            python: arm64
+          - runner: windows-2025
+            arch: X64
+            processor: AMD64
+            python: x64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          # Historical execution records are not inputs and include paths beyond Windows MAX_PATH.
+          sparse-checkout: |
+            /*
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - name: Verify candidate and native architecture
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          EXPECTED_PROCESSOR: ${{ matrix.processor }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ([Environment]::OSVersion.Platform -ne 'Win32NT' -or (git rev-parse HEAD) -ne $env:EXPECTED_HEAD) { throw 'wrong checkout candidate' }
+          if ($env:PROCESSOR_ARCHITECTURE -ne $env:EXPECTED_PROCESSOR -or $env:PROCESSOR_ARCHITEW6432) { throw "native $env:EXPECTED_PROCESSOR Windows PowerShell required" }
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: ${{ matrix.python }}
+      - name: Install pytest
+        run: |
+          python -m pip install --disable-pip-version-check pytest
+          if ($LASTEXITCODE -ne 0) { throw 'pytest could not be installed' }
+      - name: Run the tree op's hosted proof
+        env:
+          OPENPIPESTRESS_NO_CARGO_BUILD: '1'
+          SWBPIPE_TREE_EXPECTED_ARCH: ${{ matrix.arch }}
+          EXPECTED_PROCESSOR: ${{ matrix.processor }}
+        run: |
+          $machine = python -c "import platform; print(platform.machine())"
+          if ($LASTEXITCODE -ne 0 -or $machine -ne $env:EXPECTED_PROCESSOR) { throw "Python is not native $env:EXPECTED_PROCESSOR" }
+          python -m pytest tests/test_caepipe_tree_hosted.py -v -s -p no:cacheprovider | Tee-Object -Variable output
+          if ($LASTEXITCODE -ne 0) { throw 'the tree op hosted proof failed' }
+          # A skip exits 0 too: the proof counts only when its one test ran and passed.
+          if (-not ($output -match '\b1 passed\b') -or ($output -match '\bskipped\b')) { throw 'the tree op hosted proof did not run' }

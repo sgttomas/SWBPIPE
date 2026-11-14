@@ -176,3 +176,17 @@ def test_every_guest_command_of_every_batch_run_is_within_the_limit(tmp_path, mo
     for row in rows:  # every command, without exception
         assert row["length"] <= harness.GUEST_COMMAND_LIMIT and " -EncodedCommand " not in row["command"], row
     assert {row["run"] for row in rows} == set(batch_runs())
+
+
+def test_the_tree_observers_command_is_within_the_limit_for_the_configured_executable_and_helpers(tmp_path):
+    """The process-tree observer's command (`harness._tree_command`) for the longest invented configuration: the
+    configured executable and invented helpers of the same folder travel inline while they fit within
+    `DATA_FILE_THRESHOLD`, and in a data file beyond it; every command is within the limit."""
+    config = _config(tmp_path / "tree")
+    folder = EXE.rsplit("\\", 1)[0]
+    for count in (0, 1, 3, 8, 64):
+        paths = [EXE] + [f"{folder}\\invented-helper-{n:02d}.exe" for n in range(count)]
+        command = harness._tree_command(config, 4294967295, "20261114235959.999999", paths)
+        length = harness._guest_command_length(config.vm_name, command)
+        assert length <= harness.GUEST_COMMAND_LIMIT, (count, length)
+        assert (" -Data " in command) == (count >= 3), (count, length)  # inline up to the threshold, then a data file

@@ -431,3 +431,171 @@ def test_opjob_decides_on_the_canary_first_and_reads_absent_only_from_error_2():
         "Ldarg_2", "Ldsfld", "Call", "Pop", "Call", "Stind_I4",  # canary (argument 2) <- CloseHandle(NULL)'s error
         "Ldarg_1", "Ldc_I4", "Ldc_I4_0", "Ldarg_0", "Call", "Stloc", "Call", "Stind_I4",  # error (argument 1)
         "Ldloc", "Ret"]
+
+
+# --------------------------------------------------------------------------------------------------------------
+# The process-tree observer (`tree`): a fallback for the job query, read-only through WMI, proved on hosted runners
+# by tests/test_caepipe_tree_hosted.py. Here: its source, its answer forms, its command and the fake guest's model.
+# --------------------------------------------------------------------------------------------------------------
+def _op(code: str, name: str) -> str:
+    body = code[code.index(f"function {name}"):]
+    return body[:body.index("\nfunction ", 1)] if "\nfunction " in body[1:] else body[:body.index("\ntry {")]
+
+
+def test_optree_reads_one_wmi_snapshot_and_nothing_else():
+    code = _code(READ_SOURCE)
+    tree = _op(code, "OpTree")
+    assert tree.count("Get-CimInstance") == 1 and "Get-CimInstance -ClassName Win32_Process)" in tree  # no filter
+    for absent in ("Native", "$n::", "GetLastWin32Error", "Add-Type", "[IO.File]", "OpenSubKey", "Invoke-"):
+        assert absent not in tree, absent
+    assert "Confined $x" in tree  # every listed path is confined (a lexical check; nothing is opened)
+    assert re.search(r"'tree' \{ \$answer = OpTree \$p \}", code)
+    assert code.index("function OpHash") < code.index("function OpTree")  # after every earlier op, a localised change
+    header = READ_SOURCE[:READ_SOURCE.index("#>")]
+    assert "  tree     SWBPIPE-TREE v1 none | " in header and "`cim` and `tree` queries" in header
+    # Every member of the payload is held to an anchored pattern ending in \z before it is used.
+    for pattern in ("'^[1-9][0-9]{0,9}\\z'", "'^[0-9]{14}\\.[0-9]{6}\\z'", "'^[A-Za-z]:\\\\[A-Za-z0-9 \\\\._()-]+\\z'"):
+        assert pattern in tree, pattern
+
+
+def test_the_hosted_controls_mutate_the_script_exactly_where_they_say():
+    from tests.test_caepipe_tree_hosted import MUTANTS, mutant_source
+    original = harness.READ_SCRIPT.read_bytes()
+    assert b"\r" not in original  # committed with LF line ends: the digest is the checkout's on every platform
+    for name, (anchor, replacement) in MUTANTS.items():
+        mutant = mutant_source(name)
+        assert mutant != original and mutant.replace(replacement.encode(), anchor.encode(), 1) == original, name
+    guarded = _op(_code(mutant_source("no-creation-time-guard").decode()), "OpTree")
+    assert "CompareOrdinal" not in guarded and "CompareOrdinal" in _op(_code(READ_SOURCE), "OpTree")
+
+
+def _tree_reply(config, stdout: str, code: int = 0, stderr: str = "") -> dict:
+    command = harness._tree_command(config, 3004, "20261114000001.000000", [])
+    return _reply(config, command, stdout, code, stderr)
+
+
+@pytest.mark.parametrize("answer, reading", [
+    ("SWBPIPE-TREE v1 none\r\n", {"state": "absent"}),
+    ("SWBPIPE-TREE v1 none", {"state": "absent"}),
+    ("SWBPIPE-TREE v1 pid=8 parent=4 created=20261114000001.000000 match=launcher\r\n"
+     "SWBPIPE-TREE v1 pid=12 parent=8 created=20261114000002.000000 match=descendant,path\r\n"
+     "SWBPIPE-TREE v1 pid=40 parent=99 created=20261114000003.000000 match=unknown\r\n",
+     {"state": "present", "pids": [8, 12, 40]}),
+])
+def test_the_tree_answer_forms(tmp_path, answer, reading):
+    got = harness.read_tree(_tree_reply(config_for(tmp_path), ECHO + answer))
+    assert {key: got[key] for key in reading} == reading
+    if got["state"] == "present":
+        assert got["processes"][1] == {"pid": 12, "parent": 8, "created": "20261114000002.000000",
+                                       "match": ["descendant", "path"]}
+
+
+@pytest.mark.parametrize("answer, code, stderr", [
+    ("", 3, "partial answer"),                                                                  # a partial answer
+    ("SWBPIPE-TREE v1 none\r\n", 0, "WARNING: something"),                                     # anything on stderr
+    ("SWBPIPE-TREE v1 none\r\n", 1, ""),                                                        # a nonzero exit
+    ("SWBPIPE-TREE v1 none\r\nSWBPIPE-TREE v1 none\r\n", 0, ""),                               # two none lines
+    ("SWBPIPE-TREE v1 absent\r\n", 0, ""),                                                      # another word
+    ("SWBPIPE-TREE v1 pid=12 parent=8 created=20261114000002.000000 match=launcher\r\n"
+     "SWBPIPE-TREE v1 pid=8 parent=4 created=20261114000001.000000 match=launcher\r\n", 0, ""),  # not ascending
+    ("SWBPIPE-TREE v1 pid=8 parent=4 created=20261114000001.000000 match=launcher\r\n" * 2, 0, ""),  # repeated
+    ("SWBPIPE-TREE v1 pid=8 parent=4 created=20261114000001.000000 match=path,descendant\r\n", 0, ""),  # rule order
+    ("SWBPIPE-TREE v1 pid=8 parent=4 created=20261114000001.000000 match=launcher,descendant\r\n", 0, ""),
+    ("SWBPIPE-TREE v1 pid=8 parent=4 created=20261114000001.000000 match=\r\n", 0, ""),       # no rule
+    ("SWBPIPE-TREE v1 pid=8 parent=4 created= match=path\r\n", 0, ""),                         # no creation time
+    ("SWBPIPE-TREE v1 none\r\nSWBPIPE-TREE v1 pid=8 parent=4 created=20261114000001.000000 match=path\r\n", 0, ""),
+], ids=["partial", "stderr", "exit 1", "two none", "absent word", "unsorted", "repeated", "rule order",
+        "launcher and descendant", "no rule", "no creation time", "none and a process"])
+def test_a_tree_reply_out_of_form_is_unreadable_never_absent(tmp_path, answer, code, stderr):
+    assert harness.read_tree(_tree_reply(config_for(tmp_path), ECHO + answer, code, stderr)) == {"state": "unreadable"}
+
+
+def test_a_tree_reply_without_its_echo_is_unreadable(tmp_path):
+    config = config_for(tmp_path)
+    assert harness.read_tree(_tree_reply(config, "SWBPIPE-TREE v1 none\r\n")) == {"state": "unreadable"}
+
+
+def test_the_tree_command_carries_its_payload_and_refuses_what_its_patterns_refuse(tmp_path):
+    config = config_for(tmp_path)
+    paths = ["C:\\Invented\\tool.exe", "C:\\Invented Helper (x86)\\helper-2.exe"]
+    command = harness._tree_command(config, 4294967295, "20261114000001.000000", paths)
+    form = harness.READ_COMMAND_FORM.match(command)
+    assert form["op"] == "tree" and form["data"] is None
+    assert harness._decode_payload(form["payload"]) == {"pid": 4294967295, "created": "20261114000001.000000",
+                                                        "paths": paths}
+    for pid, created, listed in ((0, "20261114000001.000000", []), (4294967296, "20261114000001.000000", []),
+                                 (True, "20261114000001.000000", []), ("12", "20261114000001.000000", []),
+                                 (12, "20261114000001", []), (12, "20261114000001.000000\n", []),
+                                 (12, "20261114000001.000000", ["relative\\tool.exe"]),
+                                 (12, "20261114000001.000000", ["C:\\"]),
+                                 (12, "20261114000001.000000", ["C:\\a&b.exe"]),
+                                 (12, "20261114000001.000000", ["C:\\a\\b.exe\n"]),
+                                 (12, "20261114000001.000000", ("C:\\a.exe",))):
+        with pytest.raises(ValueError):
+            harness._tree_command(config, pid, created, listed)
+
+
+def test_a_long_path_list_travels_in_a_data_file_and_the_command_stays_within_the_limit(tmp_path):
+    config = config_for(tmp_path)
+    harness_dir = config.exchange_root / harness.HARNESS_DIR
+    harness._install_guest_script(config.exchange_root, harness_dir, harness.READ_SCRIPT)
+    paths = [f"C:\\Program Files (x86)\\Invented Vendor\\Invented Tool 12.00\\helper-{n:02d}.exe" for n in range(40)]
+    command = harness._tree_command(config, 9999, "20261114000001.000000", paths)
+    form = harness.READ_COMMAND_FORM.match(command)
+    assert form["data"] and harness._decode_payload(form["payload"]) == {"pid": 9999,
+                                                                        "created": "20261114000001.000000"}
+    assert harness._guest_command_length(config.vm_name, command) <= harness.GUEST_COMMAND_LIMIT
+    data = json.loads((harness_dir / harness.DATA_DIR / f"{form['data']}.json").read_text(encoding="utf-8"))
+    assert data == {"paths": paths}
+    assert harness._tree_command(config, 9999, "20261114000001.000000", paths) == command  # re-polled: the same file
+    guest = FakeGuestModel(config.exchange_root)
+    helper = guest.spawn(path=paths[39])
+    record = harness._guest_step(config, guest.runner, 5.0, [], "tree", command, attempts=1)
+    assert harness.read_tree(record)["pids"] == [helper.pid]  # the guest merged the data file's paths
+
+
+def _tree_guest(tmp_path):
+    config = config_for(tmp_path)
+    harness._install_guest_script(config.exchange_root, config.exchange_root / harness.HARNESS_DIR,
+                                  harness.READ_SCRIPT)
+    guest = FakeGuestModel(config.exchange_root)
+
+    def observe(launcher, paths, created=None) -> dict:
+        command = harness._tree_command(config, launcher.pid, created or launcher.created, paths)
+        return harness.read_tree(harness._guest_step(config, guest.runner, 5.0, [], "tree", command, attempts=1))
+    return guest, observe
+
+
+def test_the_fake_guest_observes_descent_with_its_guard_and_misses_an_unlisted_orphan(tmp_path):
+    guest, observe = _tree_guest(tmp_path)
+    older = guest.spawn(path="C:\\Invented\\older.exe")  # a process created before the launcher
+    launcher = guest.spawn(path="C:\\Invented\\launcher.exe")
+    older.parent = launcher.pid  # its parent pid names the launcher, but it is older: pid reuse, not a child
+    child = guest.spawn(parent=launcher.pid, path="C:\\Invented\\child.exe")
+    grandchild = guest.spawn(parent=child.pid, path="C:\\Invented\\grandchild.exe")
+    other = guest.spawn(path="C:\\Invented\\child.exe")  # unrelated, but running a listed path
+    seen = observe(launcher, [])
+    assert seen["pids"] == [launcher.pid, child.pid, grandchild.pid]
+    assert [item["match"] for item in seen["processes"]] == [["launcher"], ["descendant"], ["descendant"]]
+    assert observe(launcher, [], created=grandchild.created)["state"] == "absent"  # every child is older
+    assert observe(launcher, ["C:\\INVENTED\\CHILD.EXE"])["pids"] == [launcher.pid, child.pid, grandchild.pid,
+                                                                      other.pid]  # exact, case-insensitive
+    child.alive = False  # the grandchild is orphaned: its parent's pid names no living process
+    assert observe(launcher, [])["pids"] == [launcher.pid]  # not found by descent: the stated weakness
+    assert observe(launcher, ["C:\\Invented\\grandchild.exe"])["pids"] == [launcher.pid, grandchild.pid]
+    for process in (launcher, grandchild, other, older):
+        process.alive = False
+    assert observe(launcher, ["C:\\Invented\\grandchild.exe", "C:\\Invented\\child.exe"]) == {"state": "absent"}
+
+
+def test_an_unreadable_executable_path_is_unknown_and_a_missing_creation_time_is_partial(tmp_path):
+    guest, observe = _tree_guest(tmp_path)
+    launcher = guest.spawn()
+    hidden = guest.spawn(path=None, name="helper.exe")  # its ExecutablePath cannot be read
+    guest.spawn(path=None, name="unrelated.exe")
+    seen = observe(launcher, ["C:\\Invented\\helper.exe"])
+    assert seen["pids"] == [launcher.pid, hidden.pid] and seen["processes"][1]["match"] == ["unknown"]
+    assert observe(launcher, [])["pids"] == [launcher.pid]  # no listed path, nothing to be unknown about
+    child = guest.spawn(parent=launcher.pid)
+    child.created = ""  # its creation time cannot be read: the guard cannot be applied
+    assert observe(launcher, [])["state"] == "unreadable"

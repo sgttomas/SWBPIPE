@@ -22,6 +22,10 @@ in its fixed form, beginning with its own sentinel:
            DriveFormat, DriveType and each path component's reparse and directory attributes; at a
            reparse component the walk stops, and final, volume, format and type are null>
   hash     SWBPIPE-HASH v1 absent | size=<n> sha256=<hex>
+  tree     SWBPIPE-TREE v1 none | one line per matched living process, by ascending pid:
+           SWBPIPE-TREE v1 pid=<n> parent=<n> created=<yyyyMMddHHmmss.ffffff> match=<rule>[,<rule>]
+           (rules, in this order: launcher or descendant, then path or unknown); a partial answer
+           (a needed creation time unreadable): stderr `partial answer`, exit 3
 Any error goes to stderr with a nonzero exit.
 
 Read-only by construction: the script's own operations write, create, delete and
@@ -30,7 +34,7 @@ exchange root (`Confined`, a lexical check), and it refuses a path through a
 reparse point before opening it (`Unreparsed`, which walks the path's components
 by their attributes and does not follow the last); the storage answer reports a
 reparse component and stops its walk there, opening nothing through it. In
-answering the `cim` query the WMI service may start its own provider host
+answering the `cim` and `tree` queries the WMI service may start its own provider host
 (WmiPrvSE.exe); `job`'s OpenJobObject, `regread`'s read-only OpenSubKey and the
 storage, chunk and hash opens create nothing and start nothing. Windows
 PowerShell itself, as on every call, may write its own event-log records (for
@@ -257,6 +261,59 @@ function OpHash($p) {
   return "SWBPIPE-HASH v1 size=$size sha256=" + (FileSha $path) + "`r`n"
 }
 
+# The attempt's living processes, from ONE snapshot of Win32_Process: the launcher the claim records (its pid with
+# exactly its creation time), each process descending from it through ParentProcessId, closed transitively within the
+# snapshot, whose creation time is at or after its parent's (a later one is not its child: pid reuse), and each
+# process whose ExecutablePath is one of the host's paths, exactly, case-insensitively. A process whose
+# ExecutablePath cannot be read matches as `unknown` when its Name is a listed path's file name, never as a non-match.
+# A process this answer needs whose creation time cannot be read is a partial answer (exit 3), never skipped.
+function OpTree($p) {
+  if ([string]$p.pid -notmatch '^[1-9][0-9]{0,9}\z' -or [int64]$p.pid -gt 4294967295) { throw 'pid refused' }
+  if ([string]$p.created -notmatch '^[0-9]{14}\.[0-9]{6}\z') { throw 'creation time refused' }
+  if ($p.paths -isnot [array]) { throw 'paths refused' }
+  $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+  $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+  foreach ($x in $p.paths) {
+    if ($x -isnot [string] -or $x -notmatch '^[A-Za-z]:\\[A-Za-z0-9 \\._()-]+\z') { throw 'path refused' }
+    if (-not (Confined $x).Equals($x, [StringComparison]::OrdinalIgnoreCase)) { throw "path not in full form refused: $x" }
+    [void]$paths.Add($x)
+    [void]$names.Add([IO.Path]::GetFileName($x))
+  }
+  $rows = @{}
+  foreach ($q in @(Get-CimInstance -ClassName Win32_Process)) {
+    $c = $null
+    if ($q.CreationDate) { $c = ([DateTime]$q.CreationDate).ToUniversalTime().ToString('yyyyMMddHHmmss.ffffff') }
+    $rows[[int64]$q.ProcessId] = @{ pid = [int64]$q.ProcessId; parent = [int64]$q.ParentProcessId; created = $c
+                                    path = $q.ExecutablePath; name = $q.Name; match = [Collections.ArrayList]::new() }
+  }
+  $top = $rows[[int64]$p.pid]
+  if ($top -and $null -eq $top.created) { [Console]::Error.Write('partial answer'); exit 3 }
+  if ($top -and $top.created -eq [string]$p.created) { [void]$top.match.Add('launcher') }
+  $queue = [Collections.Generic.Queue[object]]::new()
+  $queue.Enqueue(@{ pid = [int64]$p.pid; created = [string]$p.created })
+  while ($queue.Count -gt 0) {
+    $node = $queue.Dequeue()
+    foreach ($r in @($rows.Values)) {
+      if ($r.parent -ne $node.pid -or $r.pid -eq $node.pid -or $r.match.Contains('descendant')) { continue }
+      if ($null -eq $r.created) { [Console]::Error.Write('partial answer'); exit 3 }
+      if ([string]::CompareOrdinal($r.created, $node.created) -lt 0) { continue }  # created before its parent: not its child
+      [void]$r.match.Add('descendant')
+      $queue.Enqueue(@{ pid = $r.pid; created = $r.created })
+    }
+  }
+  foreach ($r in @($rows.Values)) {
+    if ($r.path) { if ($paths.Contains([string]$r.path)) { [void]$r.match.Add('path') } }
+    elseif ($paths.Count -gt 0 -and ($null -eq $r.name -or $names.Contains([string]$r.name))) { [void]$r.match.Add('unknown') }
+  }
+  $found = @($rows.Values | Where-Object { $_.match.Count -gt 0 } | Sort-Object { $_.pid })
+  if ($found.Count -eq 0) { return "SWBPIPE-TREE v1 none`r`n" }
+  $lines = foreach ($r in $found) {
+    if ($null -eq $r.created) { [Console]::Error.Write('partial answer'); exit 3 }
+    'SWBPIPE-TREE v1 pid=' + $r.pid + ' parent=' + $r.parent + ' created=' + $r.created + ' match=' + ($r.match -join ',')
+  }
+  return ($lines -join "`r`n") + "`r`n"
+}
+
 try {
   $script = FileSha $PSCommandPath
   $dataSha = 'none'
@@ -286,6 +343,7 @@ try {
     'regread' { $answer = OpRegread $p }
     'storage' { $answer = OpStorage $p }
     'hash' { $answer = OpHash $p }
+    'tree' { $answer = OpTree $p }
     default { throw "unknown operation: $Op" }
   }
   [Console]::Out.Write($answer)

@@ -36,7 +36,7 @@ def done(argv, code: int = 0, stdout: str = "", stderr: str = "") -> subprocess.
 # the operation, its parameters as base64 JSON, and optionally a data file's SHA-256.
 READ_CALL = re.compile(r'^powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "(?P<script>[^"]+)" '
                        r"-Op (?P<op>[a-z]+) -Payload (?P<payload>[A-Za-z0-9+/=]+)(?: -Data (?P<data>[0-9a-f]{64}))?\Z")
-READ_KINDS = {"cim", "job", "chunk", "regread", "storage", "hash"}  # each read op is its own kind
+READ_KINDS = {"cim", "job", "chunk", "regread", "storage", "hash", "tree"}  # each read op is its own kind
 # The write script's ops, by the kind each is counted under: the fence, the registry API writes, the exercise key.
 WRITE_KINDS = {"claim": "fence", "regset": "literal", "regdelete": "literal", "keycreate": "keywrite",
                "keydelete": "keywrite"}
@@ -133,7 +133,7 @@ def classify(command: str) -> str:
 # What the run phase may issue: the attempt, the host's fence (an exclusive create that never overwrites), and
 # read-only queries. Nothing that prepares, stages or copies in the guest.
 RUN_PHASE_KINDS = {"attempt", "fence", "claim_read", "finished_read", "cim", "job", "chunk", "owned_pids", "tasklist",
-                   "reg_query", "regread", "storage", "hash"}
+                   "reg_query", "regread", "storage", "hash", "tree"}
 SCRIPTED_KINDS = READ_KINDS | {"fence", "literal", "keywrite"}
 
 
@@ -143,6 +143,9 @@ class Process:
     created: str
     job: str | None = None
     alive: bool = True
+    parent: int | None = None  # ParentProcessId
+    path: str | None = "C:\\Invented\\process.exe"  # ExecutablePath; None when the query cannot read it
+    name: str | None = "process.exe"  # Name
 
 
 @dataclass
@@ -231,7 +234,7 @@ class Attempt:
         guest.dirs.add(folder)
         yield "folder"
         if self.exercise:  # the fixed harmless process in place of the program, in the same job
-            process = guest.spawn(job=job)
+            process = guest.spawn(job=job, parent=self.launcher.pid)
             guest.exercise_starts.append(self.token)
             yield "launched"
             if not guest.exercise_lingers:
@@ -263,7 +266,7 @@ class Attempt:
             report["status"] = "input_mismatch"
         else:
             program = guest.program_for(self)
-            process = guest.spawn(job=job, pid=program.pid)
+            process = guest.spawn(job=job, pid=program.pid, parent=self.launcher.pid)
             guest.launches.append(self.token)
             report["owned_pids"] = [process.pid]
             if self.pid_file:
@@ -338,12 +341,14 @@ class FakeGuestModel:
         self.job_absent_error = 2
 
     # -- state ---------------------------------------------------------------------------------------------------
-    def spawn(self, job: str | None = None, pid: int | None = None) -> Process:
+    def spawn(self, job: str | None = None, pid: int | None = None, parent: int | None = None,
+              path: str | None = "C:\\Invented\\process.exe", name: str | None = None) -> Process:
         self.clock += 1
         if pid is None:
             self.next_pid += 4
             pid = self.next_pid
-        process = Process(pid=pid, created=f"20261114{self.clock:06d}.000000", job=job)
+        process = Process(pid=pid, created=f"20261114{self.clock:06d}.000000", job=job, parent=parent, path=path,
+                          name=name if name is not None or path is None else path.rsplit("\\", 1)[-1])
         self.processes[pid] = process
         return process
 
@@ -493,6 +498,8 @@ class FakeGuestModel:
                     return done(argv, 0, f"SWBPIPE-JOB v1 error={self.job_absent_error}\r\n", "")
                 return done(argv, 0, "SWBPIPE-JOB v1 absent\r\n", "")
             return done(argv, 0, f"SWBPIPE-JOB v1 present active={len(members)}\r\n", "")
+        if kind == "tree":
+            return self.tree_answer(argv, payload)
         if kind in ("chunk", "hash") and self.through_reparse(payload["path"]):  # `Unreparsed`: refused, not opened
             return done(argv, 1, "", f"path through a reparse point refused: {self.through_reparse(payload['path'])}")
         if kind == "chunk":
@@ -535,6 +542,47 @@ class FakeGuestModel:
         if kind == "ver":
             return done(argv, 0, "\r\nMicrosoft Windows [Version 10.0.19045.5011]\r\n", "")
         raise AssertionError(f"unexpected guest command: {command[:120]}")
+
+    def tree_answer(self, argv, payload: dict) -> subprocess.CompletedProcess:
+        """The read script's `tree` op over the living processes, as one snapshot: the launcher (its pid with exactly
+        its creation time), its descendants through `parent` each created at or after its parent, and the processes
+        whose path is listed (case-insensitively), or whose path is unknown and whose name is a listed file name. A
+        needed creation time that is empty is a partial answer (exit 3)."""
+        partial = done(argv, 3, "", "partial answer")
+        living = {p.pid: p for p in self.processes.values() if p.alive}
+        paths = {path.lower() for path in payload["paths"]}
+        names = {path.rsplit("\\", 1)[-1].lower() for path in payload["paths"]}
+        match: dict[int, list[str]] = {pid: [] for pid in living}
+        top = living.get(payload["pid"])
+        if top is not None and not top.created:
+            return partial
+        if top is not None and top.created == payload["created"]:
+            match[top.pid].append("launcher")
+        queue = [(payload["pid"], payload["created"])]
+        while queue:
+            node_pid, node_created = queue.pop(0)
+            for process in living.values():
+                if process.parent != node_pid or process.pid == node_pid or "descendant" in match[process.pid]:
+                    continue
+                if not process.created:
+                    return partial
+                if process.created < node_created:  # created before its parent: not its child
+                    continue
+                match[process.pid].append("descendant")
+                queue.append((process.pid, process.created))
+        for process in living.values():
+            if process.path is not None:
+                if process.path.lower() in paths:
+                    match[process.pid].append("path")
+            elif paths and (process.name is None or process.name.lower() in names):
+                match[process.pid].append("unknown")
+        found = [living[pid] for pid in sorted(match) if match[pid]]
+        if not found:
+            return done(argv, 0, "SWBPIPE-TREE v1 none\r\n", "")
+        if any(not process.created for process in found):
+            return partial
+        return done(argv, 0, "".join(f"SWBPIPE-TREE v1 pid={p.pid} parent={p.parent or 0} created={p.created} "
+                                     f"match={','.join(match[p.pid])}\r\n" for p in found), "")
 
     # -- what a test asserts ---------------------------------------------------------------------------------------
     def writes_outside_reads(self) -> list[str]:
