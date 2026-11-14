@@ -1672,6 +1672,12 @@
    ]
   },
   {
+   "reason": "independent reference generator (standard library only, imports no product code) whose documents' one load case has an empty region list, so it builds no pressurised case; its committed requests are claimed with the empty-region model documents",
+   "paths": [
+    "validation/references/inverse_norm_witness/generators/inverse_norm_witness_reference.py"
+   ]
+  },
+  {
    "reason": "historical run record of a frozen reference (groups t4_i7 and t4_i8)",
    "paths": [
     "validation/references/t4_i7/_run_records/u2_generate.py",
@@ -1743,6 +1749,9 @@
     "fixtures/results/retained_precision_*_successor_*.json",
     "validation/qualification/fixtures/first_static/*.json",
     "validation/qualification/fixtures/load_reference/*.json",
+    "validation/references/inverse_norm_witness/requests/linear.request.json",
+    "validation/references/inverse_norm_witness/requests/one_way_negative.request.json",
+    "validation/references/inverse_norm_witness/requests/one_way_positive.request.json",
     "validation/references/kd5_member_bound/request.json",
     "validation/references/kd5_member_bound/two_body_request.json",
     "validation/references/rt_a3_s6/requests/ls1_*.json",
