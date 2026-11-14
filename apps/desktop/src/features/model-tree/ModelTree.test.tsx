@@ -512,9 +512,13 @@ describe("ModelTree virtual typed selection", () => {
       change: expect.objectContaining({ change_kind: "delete_node" })
     }));
 
+    // Sources start empty; the person types them.
+    fireEvent.change(screen.getByTestId("create-support-provenance"), { target: { value: "invented source" } });
     fireEvent.click(screen.getByTestId("queue-create-support-intent"));
     expect(screen.getByLabelText("New support node current value")).toHaveTextContent("Node 1 (n/1)");
 
+    fireEvent.change(screen.getByTestId("create-component-source"), { target: { value: "invented geometry source" } });
+    fireEvent.change(screen.getByTestId("create-component-provenance"), { target: { value: "invented source" } });
     fireEvent.change(screen.getByTestId("create-component-radius"), { target: { value: "1" } });
     fireEvent.change(screen.getByTestId("create-component-angle"), { target: { value: "90" } });
     fireEvent.click(screen.getByTestId("queue-create-component-intent"));

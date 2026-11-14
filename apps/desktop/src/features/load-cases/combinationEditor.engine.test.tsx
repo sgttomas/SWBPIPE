@@ -95,6 +95,8 @@ describe("the end-to-end path: one nested SRSS over two differences", () => {
     const start = seismicModel();
     const slotsBefore = blockingSlotCodes(start);
     const panel = mountPanel(start);
+    // The source starts empty; the person types it.
+    type("load-manager-create-combination-provenance", "user_entered_local_preview");
 
     // Difference 1: X state minus base; difference 2: Y state minus base (no difference_basis).
     createSubtraction("load:EQ-X", "load:L-100");
@@ -144,6 +146,8 @@ describe("typed terms", () => {
     let model = seismicModel();
     model = await apply(model, createCombinationIntent({ model, payload: { id: "combination:D-X", label: "dx", basis: "result_state_subtraction", provenance: "test", minuend_id: "load:EQ-X", subtrahend_id: "load:L-100", terms: [] }, rationale: "test", sourceNote: "test" }));
     const panel = mountPanel(model);
+    // The source starts empty; the person types it.
+    type("load-manager-create-combination-provenance", "user_entered_local_preview");
     type("load-manager-create-combination-basis", "absolute_sum");
     chooseVirtualTarget("load-manager-create-combination-load-case", "load:L-100");
     type("load-manager-create-combination-factor", "-2.5");
@@ -191,6 +195,8 @@ describe("typed terms", () => {
     // A combination shadowed by a load case id is not offered to a bare reference.
     model.combinations!.push({ id: "load:L-200", label: "shadowed", basis: "mechanics", terms: [{ load_case: "load:L-100", factor: 1 }], provenance: "test" });
     const panel = mountPanel(model);
+    // The source starts empty; the person types it.
+    type("load-manager-create-combination-provenance", "user_entered_local_preview");
     type("load-manager-create-combination-basis", "range_envelope");
     chooseVirtualMultiTarget("load-manager-create-combination-operands", "load:L-100");
     chooseVirtualMultiTarget("load-manager-create-combination-operands", "combination:D-X");
@@ -282,6 +288,8 @@ describe("the three-axis static seismic template", () => {
     start.supports.find((support) => support.id === "support:CE-120")!.restraints = ["UZ"];
     const slotsBefore = blockingSlotCodes(start);
     const panel = mountPanel(start);
+    // The source starts empty; the person types it.
+    type("load-manager-create-combination-provenance", "user_entered_local_preview");
     expect(byId("seismic-template-status")).toHaveTextContent("Not ready: choose the base case.");
     expect(byId("seismic-template-basis")).toHaveValue("");
     expect(byId("seismic-template-queue")).toBeDisabled();

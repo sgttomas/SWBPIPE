@@ -20,6 +20,8 @@ async function emitted(choose: (() => void) | null) {
   const node = model.nodes[0].id;
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
   render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: node }} onQueueIntent={queue} /></DisplayUnitsProvider>);
+  // The source starts empty; the person types it.
+  fireEvent.change(screen.getByTestId("create-support-provenance"), { target: { value: "invented support source" } });
   for (const dof of ["RX", "RY", "RZ"]) fireEvent.click(screen.getByTestId(`create-support-restraint-${dof}`));
   choose?.();
   fireEvent.click(screen.getByTestId("queue-create-support-intent"));

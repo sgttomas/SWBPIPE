@@ -757,6 +757,7 @@ function AppSession() {
               {activeSection === "loads" || activatedExpensiveSections.has("loads") ? (
               <DormantSection active={activeSection === "loads"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <LoadCaseManagerPanel
+                key={`load-cases:${projectSessionGeneration}`}
                 model={model}
                 queuedIntents={editorIntents}
                 operationBusy={operationBusy}

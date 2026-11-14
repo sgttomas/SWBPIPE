@@ -1,3 +1,4 @@
+import type { GuardedEntry } from "../workspace/entryRules";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import { isPressureV3 } from "../pressure-authoring/pressureContract";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
@@ -43,7 +44,67 @@ export type ComponentDraft = {
   rigidSolverConsumption: string;
   geometrySourceReference: string;
   provenance: string;
+  /** The project-derived units the user changed; every other one follows the project units (DEL-02-02 REQ-022). */
+  userUnits?: ComponentProjectUnitKey[];
 } & ConnectorDraft;
+
+/** The draft units that start from a project key. */
+export const COMPONENT_PROJECT_UNIT_KEYS = ["lengthUnit", "endASizeUnit", "endBSizeUnit", "centerOfGravityUnit", "angleUnit", "forceUnit"] as const;
+export type ComponentProjectUnitKey = typeof COMPONENT_PROJECT_UNIT_KEYS[number];
+
+function projectUnitFor(model: PreviewModel, key: ComponentProjectUnitKey): string {
+  const units = model.project.units as PreviewModel["project"]["units"] | undefined;
+  // an absent project key leaves the unit unselected ("TBD"); nothing is assumed.
+  return (key === "angleUnit" ? units?.angle : key === "forceUnit" ? units?.force : units?.length) ?? "TBD";
+}
+
+/** The numbers typed beside each project-derived unit, and how a notice names the unit. */
+export const COMPONENT_UNIT_FIELDS: Record<ComponentProjectUnitKey, { label: string; fields: Array<keyof ComponentDraft> }> = {
+  lengthUnit: { label: "length", fields: ["bendRadius", "branchRunSize", "branchHeaderSize", "rigidBodyLength"] },
+  endASizeUnit: { label: "end A size", fields: ["endASize"] },
+  endBSizeUnit: { label: "end B size", fields: ["endBSize"] },
+  centerOfGravityUnit: { label: "centre of gravity", fields: ["centerOfGravityX", "centerOfGravityY", "centerOfGravityZ"] },
+  angleUnit: { label: "angle", fields: ["bendAngle", "branchConnectionAngle"] },
+  forceUnit: { label: "weight", fields: ["weight"] }
+};
+
+/** Each project-derived unit of a shown draft and the numbers typed beside it, for the one
+ * rule in `useClearOnUnitMove`. Whether the person chose a unit is told by the unit control
+ * itself (`chose`), not here. */
+export function componentGuardedEntries(draft: ComponentDraft): Record<string, GuardedEntry> {
+  return Object.fromEntries(COMPONENT_PROJECT_UNIT_KEYS.map((key) => [key, {
+    label: COMPONENT_UNIT_FIELDS[key].label,
+    unit: draft[key],
+    values: COMPONENT_UNIT_FIELDS[key].fields.map((field) => String(draft[field] ?? ""))
+  }]));
+}
+
+/** The draft with the numbers beside the given units cleared; everything else is kept. */
+export function componentDraftClearingBeside(draft: ComponentDraft, keys: string[]): ComponentDraft {
+  const next = { ...draft } as Record<string, unknown>;
+  for (const key of keys) {
+    for (const field of COMPONENT_UNIT_FIELDS[key as ComponentProjectUnitKey]?.fields ?? []) next[field] = "";
+  }
+  return next as ComponentDraft;
+}
+
+/** The draft as shown: each unit the user did not change is the current project's. */
+export function componentDraftWithProjectUnits(model: PreviewModel, draft: ComponentDraft): ComponentDraft {
+  const changed = new Set(draft.userUnits ?? []);
+  const next = { ...draft };
+  for (const key of COMPONENT_PROJECT_UNIT_KEYS) if (!changed.has(key)) next[key] = projectUnitFor(model, key);
+  return next;
+}
+
+/** A field edit; a unit edit marks that unit as the user's own. */
+export function componentDraftWithField<K extends keyof ComponentDraft>(draft: ComponentDraft, key: K, value: ComponentDraft[K]): ComponentDraft {
+  const unitKey = (COMPONENT_PROJECT_UNIT_KEYS as readonly string[]).includes(key as string) ? (key as ComponentProjectUnitKey) : null;
+  return {
+    ...draft,
+    [key]: value,
+    ...(unitKey && !(draft.userUnits ?? []).includes(unitKey) ? { userUnits: [...(draft.userUnits ?? []), unitKey] } : {})
+  };
+}
 
 /** W-15: the consumption modes offered for a valve, flange or reducer: the
  * DEC-045 mode (stiffness scale and component weight are applied) and the
@@ -150,6 +211,21 @@ function tieRodsValid(text: string): boolean {
 }
 export const CONNECTOR_PRESSURE_MODELS = ["unpressurized"] as const;
 export const CURRENT_CONNECTOR_PRESSURE_MODELS = ["unpressurized", "constant_effective_area_reference_v1"] as const;
+/** Every source a component draft needs, named as a reason names them (DEL-07-03 AC-001):
+ * an expansion joint's stiffness source, its pressure area source and each tie rod's source
+ * where they apply; any other kind's geometry source; and the provenance. */
+export function componentSourceFields(draft: ComponentDraft): Array<{ name: string; value: string }> {
+  if (draft.kind !== "expansion_joint") {
+    return [{ name: "geometry source", value: draft.geometrySourceReference }, { name: "provenance", value: draft.provenance }];
+  }
+  const rods = draft.hardwareKind === "explicit_axial_rods_v1" ? tieRodDrafts(draft.tieRods) : [];
+  return [
+    { name: "stiffness source", value: draft.stiffnessSourceReference },
+    ...(draft.pressureModel === "constant_effective_area_reference_v1" ? [{ name: "pressure area source", value: draft.pressureSourceReference }] : []),
+    ...rods.map((row, index) => ({ name: `tie rod ${row.id.trim() || index + 1} source`, value: row.sourceReference })),
+    { name: "provenance", value: draft.provenance }
+  ];
+}
 export function connectorPressureModels(model: PreviewModel): readonly string[] {
   return model.schema_version === MODEL_SCHEMA_VERSION ? CURRENT_CONNECTOR_PRESSURE_MODELS : CONNECTOR_PRESSURE_MODELS;
 }
@@ -310,9 +386,20 @@ export function defaultComponentDraft(
     rigidScaleSourceReference: "",
     rigidSolverConsumption: "",
     ...emptyConnectorDraft(),
-    geometrySourceReference: kind === "expansion_joint" ? "" : "user_entered_component_form",
-    provenance: kind === "expansion_joint" ? "" : "user_entered_local_preview"
+    // Sources are the user's own statements: they start empty (PRD §5.5; DEL-07-03 AC-001).
+    geometrySourceReference: "",
+    provenance: ""
   };
+}
+
+/** The next component draft after a queue shows the user's own last sources and each
+ * unit the user changed (DEL-02-02 REQ-022), visible and editable before the next record
+ * is queued; nothing else carries. */
+export function keepComponentSources(next: ComponentDraft, previous: ComponentDraft): ComponentDraft {
+  const kept: Partial<ComponentDraft> = { geometrySourceReference: previous.geometrySourceReference, provenance: previous.provenance };
+  const userUnits = previous.userUnits ?? [];
+  for (const key of userUnits) kept[key] = previous[key];
+  return { ...next, ...kept, ...(userUnits.length > 0 ? { userUnits: [...userUnits] } : {}) };
 }
 
 export function componentDraftForKind(
@@ -325,12 +412,7 @@ export function componentDraftForKind(
   return {
     ...draft,
     ...(kind === "expansion_joint" ? emptyExpansionJointInputs() : {}),
-    ...(leavingExpansionJoint
-      ? {
-          geometrySourceReference: "user_entered_component_form",
-          provenance: "user_entered_local_preview"
-        }
-      : {}),
+    ...(leavingExpansionJoint ? { geometrySourceReference: "", provenance: "" } : {}),
     kind,
     label: `${componentKindLabel(kind)} ${shortEntityToken(draft.id)}`,
     primaryPipeRef,

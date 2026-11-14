@@ -103,6 +103,8 @@ describe("LoadCaseManagerPanel load-case creation", () => {
     const model = inventedModel();
     model.load_cases.push({ id: "load:L-300", label: "Taken", kind: "sustained", status: "draft", provenance: "invented" });
     const { queue } = mount(model);
+    // The source starts empty; the person types it.
+    type("load-manager-create-load-provenance", "user_entered_local_preview");
     expect(byId("load-manager-create-load-id")).toHaveValue("load:L-301");
     type("load-manager-create-load-id", "  load:new case  ");
     type("load-manager-create-load-label", "  New case ");
@@ -125,6 +127,8 @@ describe("LoadCaseManagerPanel load-case creation", () => {
 
   it("refuses blank fields and existing ids with a reason", () => {
     mount();
+    // The source starts empty; the person types it.
+    type("load-manager-create-load-provenance", "user_entered_local_preview");
     const button = byId("queue-create-load-case-intent");
     expect(button).toBeEnabled();
     for (const field of ["label", "kind", "status", "provenance"]) {
@@ -142,6 +146,8 @@ describe("LoadCaseManagerPanel load-case creation", () => {
 
   it("re-proposes the draft id when a model update takes it, as the combination draft does", () => {
     const { model, rerender } = mount();
+    // The source starts empty; the person types it.
+    type("load-manager-create-load-provenance", "user_entered_local_preview");
     expect(byId("load-manager-create-load-id")).toHaveValue("load:L-300");
     const next = structuredClone(model);
     next.load_cases.push({ id: "load:L-300", label: "Applied", kind: "sustained", status: "draft", provenance: "invented" });
@@ -207,6 +213,8 @@ describe("LoadCaseManagerPanel load-case metadata and deletion", () => {
 describe("LoadCaseManagerPanel primitive-load creation", () => {
   it("defaults a concentrated force on the first node of the first case", async () => {
     const { queue } = mount();
+    // The source starts empty; the person types it.
+    type("load-manager-create-primitive-provenance", "user_entered_local_preview");
     expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("load:dead-F300");
     expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("concentrated_force; target=node:A; unit=kN");
     expect(byId("load-manager-create-primitive-direction")).toHaveValue("global_y");
@@ -228,6 +236,8 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
 
   it("re-derives target, direction, id and unit when the category or DOF changes", async () => {
     const { queue } = mount();
+    // The source starts empty; the person types it.
+    type("load-manager-create-primitive-provenance", "user_entered_local_preview");
     type("load-manager-create-primitive-category", "imposed_displacement");
     expect(byId("load-manager-create-primitive-support")).toBeInTheDocument();
     expect(screen.queryByTestId("load-manager-create-primitive-node")).not.toBeInTheDocument();
@@ -235,8 +245,14 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
     expect(byId("load-manager-create-primitive-direction")).toHaveValue("UZ");
     expect(optionValues("load-manager-create-primitive-direction")).toEqual(["UX", "UY", "UZ", "RX", "RY", "RZ"]);
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("mm");
+    type("load-manager-create-primitive-magnitude", "12");
     type("load-manager-create-primitive-direction", "RX");
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("rad");
+    // The unit moved (mm to rad) by the direction, not by the person's choice of the unit:
+    // the magnitude is cleared and the form says so (DEL-02-02 REQ-022). The person enters it.
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-unit-cleared")).toHaveTextContent("The magnitude unit changed from mm to rad; the values beside it were cleared.");
+    type("load-manager-create-primitive-magnitude", "250");
     await waitFor(() => expect(convert).toHaveBeenLastCalledWith([expect.objectContaining({ from_unit: "rad", dimension_id: "rotation" })]));
     await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
     fireEvent.click(byId("queue-create-primitive-intent"));
@@ -272,6 +288,8 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
 
   it("re-proposes the draft id when a model update takes it, as the load-case draft does", async () => {
     const { model, rerender } = mount();
+    // The source starts empty; the person types it.
+    type("load-manager-create-primitive-provenance", "user_entered_local_preview");
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-F300");
     const next = structuredClone(model);
     next.load_cases[0].primitive_loads!.push({
@@ -289,6 +307,8 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
 
   it("refuses zero, non-numeric, duplicate and incomplete primitive drafts", async () => {
     mount();
+    // The source starts empty; the person types it.
+    type("load-manager-create-primitive-provenance", "user_entered_local_preview");
     const button = byId("queue-create-primitive-intent");
     await waitFor(() => expect(button).toBeEnabled());
     const help = "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load";
@@ -403,6 +423,8 @@ describe("LoadCaseManagerPanel existing primitive editing", () => {
 describe("LoadCaseManagerPanel combination creation", () => {
   it("queues an explicitly entered mechanics combination and refuses a non-finite factor or existing id", () => {
     const { queue } = mount();
+    // The source starts empty; the person types it.
+    type("load-manager-create-combination-provenance", "user_entered_local_preview");
     expect(byId("load-manager-create-combination-heading")).toHaveTextContent("combination:C-300");
     // Nothing is proposed: no first case, no factor 1.
     expect(byId("load-manager-create-combination-heading")).toHaveTextContent("basis=mechanics; term=TBD x TBD");
@@ -439,6 +461,8 @@ describe("LoadCaseManagerPanel combination creation", () => {
 
   it("requires distinct minuend and subtrahend for a subtraction", () => {
     const { queue } = mount();
+    // The source starts empty; the person types it.
+    type("load-manager-create-combination-provenance", "user_entered_local_preview");
     type("load-manager-create-combination-basis", "result_state_subtraction");
     expect(byId("load-manager-create-combination-heading")).toHaveTextContent("minuend=TBD; subtrahend=TBD");
     expect(byId("queue-create-combination-intent")).toBeDisabled();
@@ -469,6 +493,8 @@ describe("LoadCaseManagerPanel combination creation", () => {
 
   it("queues a range envelope with its operands and mode", () => {
     const { queue } = mount();
+    // The source starts empty; the person types it.
+    type("load-manager-create-combination-provenance", "user_entered_local_preview");
     type("load-manager-create-combination-basis", "range_envelope");
     expect(byId("load-manager-create-combination-heading")).toHaveTextContent("mode=TBD; operands=TBD");
     expect(byId("queue-create-combination-intent")).toBeDisabled();
@@ -486,6 +512,8 @@ describe("LoadCaseManagerPanel combination creation", () => {
 
   it("re-proposes the draft id when a model update takes it", () => {
     const { model, rerender } = mount();
+    // The source starts empty; the person types it.
+    type("load-manager-create-combination-provenance", "user_entered_local_preview");
     const next = structuredClone(model);
     next.combinations!.push({ id: "combination:C-300", label: "Applied", basis: "mechanics", terms: [], provenance: "invented" });
     rerender(next);
@@ -604,3 +632,132 @@ describe("LoadCaseManagerPanel combination editing", () => {
     expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("load=TBD");
   });
 });
+
+// PRD §5.5; DEL-07-03 AC-001: each creation form's source is the user's own statement.
+describe("LoadCaseManagerPanel creation sources", () => {
+  it.each([
+    ["load-manager-create-load-provenance", "queue-create-load-case-intent"],
+    ["load-manager-create-primitive-provenance", "queue-create-primitive-intent"],
+    ["load-manager-create-combination-provenance", "queue-create-combination-intent"]
+  ])("%s starts empty", (field) => {
+    mount();
+    expect(byId(field)).toHaveValue("");
+  });
+
+  it("an untouched load case is refused; the next record shows the user's source and an edit changes only it", () => {
+    const { queue } = mount();
+    expect(byId("queue-create-load-case-intent")).toBeDisabled();
+    expect(byId("load-manager-create-load-preview")).toHaveTextContent("complete id/label/kind/status/provenance to queue an empty load case");
+    type("load-manager-create-load-provenance", "source A");
+    fireEvent.click(byId("queue-create-load-case-intent"));
+    const first = JSON.parse(lastIntent(queue).change.after);
+    expect(first.provenance).toBe("source A");
+    expect(byId("load-manager-create-load-provenance")).toHaveValue("source A");
+    type("load-manager-create-load-id", "load:second");
+    type("load-manager-create-load-provenance", "source B");
+    fireEvent.click(byId("queue-create-load-case-intent"));
+    const second = JSON.parse(lastIntent(queue).change.after);
+    expect(second.provenance).toBe("source B");
+    expect(Object.keys(second).sort()).toEqual(Object.keys(first).sort());
+    expect(JSON.parse(queue.mock.calls[0][0].change.after).provenance).toBe("source A");
+  });
+
+  it("an untouched primitive load is refused", async () => {
+    mount();
+    await waitFor(() => expect(byId("load-manager-create-primitive-unit")).toHaveValue("kN"));
+    expect(byId("queue-create-primitive-intent")).toBeDisabled();
+    type("load-manager-create-primitive-provenance", "source A");
+    await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
+  });
+
+  it("an untouched combination is refused", () => {
+    mount();
+    chooseVirtualTarget("load-manager-create-combination-load-case", "load:dead");
+    type("load-manager-create-combination-factor", "1");
+    expect(byId("queue-create-combination-intent")).toBeDisabled();
+    type("load-manager-create-combination-provenance", "source A");
+    expect(byId("queue-create-combination-intent")).toBeEnabled();
+  });
+});
+
+// A typed number when the project unit moves (decided by the SWBPIPE Agent 0; DEL-02-02
+// AC-011): the magnitude beside a unit the user did not change is cleared when that unit
+// moves by anything other than the person's own choice of it, and the form says so.
+describe("A typed number when the project unit moves (primitive load)", () => {
+  it("the magnitude is cleared and the form says so; the source and target are kept", () => {
+    const { model, rerender } = mount();
+    type("load-manager-create-primitive-magnitude", "12");
+    type("load-manager-create-primitive-provenance", "load source");
+    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("unit=kN");
+    const next = structuredClone(model);
+    next.project.units = { ...next.project.units, force: "N" };
+    rerender(next);
+    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent(/unit=N$/);
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-provenance")).toHaveValue("load source");
+    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("target=node:A");
+    expect(byId("load-manager-create-primitive-unit-cleared")).toHaveTextContent(
+      "The magnitude unit changed from kN to N; the values beside it were cleared."
+    );
+  });
+
+  it("a change that leaves the force unit clears nothing", () => {
+    const { model, rerender } = mount();
+    type("load-manager-create-primitive-magnitude", "12");
+    const next = structuredClone(model);
+    next.project.units = { ...next.project.units, length: "m" };
+    rerender(next);
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("12");
+    expect(screen.queryByTestId("load-manager-create-primitive-unit-cleared")).toBeNull();
+  });
+});
+
+// The second independent reading, finding 2: choosing another case is not choosing a direction.
+describe("choosing another case for a primitive load", () => {
+  it("keeps the direction, the unit and the typed magnitude; only the identifier is regenerated", async () => {
+    // The reviewer's case: a support restraining both translations and rotations.
+    const model = inventedModel();
+    model.supports = [{ ...model.supports[0], restraints: ["UX", "UY", "UZ", "RX", "RY", "RZ"] }];
+    mount(model);
+    type("load-manager-create-primitive-category", "imposed_displacement");
+    type("load-manager-create-primitive-direction", "RX");
+    type("load-manager-create-primitive-magnitude", "0.01");
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("rad");
+    chooseVirtualTarget("load-manager-create-primitive-load-case", "load:hot");
+    expect(byId("load-manager-create-primitive-direction")).toHaveValue("RX");
+    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent(/unit=rad$/);
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("0.01");
+    expect(byId("load-manager-create-primitive-id")).toHaveValue("load:hot-I300");
+    expect(screen.queryByTestId("load-manager-create-primitive-unit-cleared")).toBeNull();
+  });
+});
+
+// The one rule on the primitive load (DEL-02-02 REQ-022). The exception that once kept the
+// magnitude across a category or direction change was decided and then withdrawn: a force
+// of 250 becoming a moment of 250 because the category moved is the same wrong output.
+describe("the one rule on the primitive load", () => {
+  it("a category change clears the magnitude and says so", () => {
+    mount();
+    type("load-manager-create-primitive-magnitude", "12");
+    type("load-manager-create-primitive-category", "concentrated_moment");
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-unit-cleared")).toHaveTextContent("The magnitude unit changed from kN to kN*m; the values beside it were cleared.");
+  });
+
+  it("a direction change that moves the unit clears the magnitude; one that leaves it clears nothing", () => {
+    const model = inventedModel();
+    model.supports = [{ ...model.supports[0], restraints: ["UX", "UY", "UZ", "RX", "RY", "RZ"] }];
+    mount(model);
+    type("load-manager-create-primitive-category", "imposed_displacement");
+    type("load-manager-create-primitive-magnitude", "3");
+    type("load-manager-create-primitive-direction", "UX");
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("3");
+    type("load-manager-create-primitive-direction", "RX");
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-unit-cleared")).toHaveTextContent("The magnitude unit changed from mm to rad; the values beside it were cleared.");
+  });
+
+  // The person's own choice of the unit is tested where a catalog offers more than one unit
+  // (composedDefaultForms.test.tsx).
+});
+

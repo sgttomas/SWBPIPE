@@ -450,6 +450,10 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 5 primitive loads; 1 combinations"
   );
+  // Each source starts empty; the person types it (PRD §5.5; DEL-07-03 AC-001).
+  await page.getByTestId("load-manager-create-load-provenance").fill("invented_synthetic_ui_acceptance_input");
+  await page.getByTestId("load-manager-create-primitive-provenance").fill("invented_synthetic_ui_acceptance_input");
+  await page.getByTestId("load-manager-create-combination-provenance").fill("invented_synthetic_ui_acceptance_input");
   await expect(page.getByTestId("load-manager-create-load-id")).toHaveValue("load:L-300");
   await expect(page.getByTestId("load-manager-create-load-preview")).toContainText(
     "op:load-manager-create-load:L-300"
@@ -467,6 +471,9 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
     "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
   await page.getByTestId("load-manager-create-primitive-category").selectOption("distributed_force");
+  // The unit beside the magnitude moved with the category or direction, so the magnitude
+  // was cleared (DEL-02-02 REQ-022); the person enters it.
+  await page.getByTestId("load-manager-create-primitive-magnitude").fill("250");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-D300");
   await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
@@ -476,6 +483,9 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
     "target=pipe:P-100; direction=global_y; unit=N/m; force_per_length"
   );
   await page.getByTestId("load-manager-create-primitive-category").selectOption("concentrated_moment");
+  // The unit beside the magnitude moved with the category or direction, so the magnitude
+  // was cleared (DEL-02-02 REQ-022); the person enters it.
+  await page.getByTestId("load-manager-create-primitive-magnitude").fill("250");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-M300");
   await expectVirtualTarget(page, "load-manager-create-primitive-node", "node:N-100");
   await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("rotation_z");
@@ -489,6 +499,9 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("load-manager-create-primitive-category").locator('option[value="pressure"]')).toHaveCount(0);
   await expect(page.getByTestId("load-manager-pressure-primitive-retired")).toContainText("Legacy pressure primitives are retired");
   await page.getByTestId("load-manager-create-primitive-category").selectOption("thermal");
+  // The unit beside the magnitude moved with the category or direction, so the magnitude
+  // was cleared (DEL-02-02 REQ-022); the person enters it.
+  await page.getByTestId("load-manager-create-primitive-magnitude").fill("250");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-T300");
   await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
   await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_z");
@@ -499,6 +512,9 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
     "target=pipe:P-100; direction=global_z; unit=degC; temperature_interval"
   );
   await page.getByTestId("load-manager-create-primitive-category").selectOption("imposed_displacement");
+  // The unit beside the magnitude moved with the category or direction, so the magnitude
+  // was cleared (DEL-02-02 REQ-022); the person enters it.
+  await page.getByTestId("load-manager-create-primitive-magnitude").fill("250");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-I300");
   await expectVirtualTarget(page, "load-manager-create-primitive-support", "support:S-100");
   await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("UZ");
@@ -509,6 +525,9 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
     "target=support:S-100; direction=UZ; unit=m; displacement"
   );
   await page.getByTestId("load-manager-create-primitive-direction").selectOption("RX");
+  // The unit beside the magnitude moved with the category or direction, so the magnitude
+  // was cleared (DEL-02-02 REQ-022); the person enters it.
+  await page.getByTestId("load-manager-create-primitive-magnitude").fill("250");
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "target=support:S-100; direction=RX; unit=rad; rotation"
   );
@@ -887,6 +906,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await chooseVirtualTarget(page, "load-manager-create-combination-minuend", "load:L-100");
   await chooseVirtualTarget(page, "load-manager-create-combination-subtrahend", "load:L-200");
   await page.getByTestId("load-manager-create-combination-label").fill("Operating minus alternate subtraction");
+  await page.getByTestId("load-manager-create-combination-provenance").fill("invented_synthetic_ui_acceptance_input");
   await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
     "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless"
   );

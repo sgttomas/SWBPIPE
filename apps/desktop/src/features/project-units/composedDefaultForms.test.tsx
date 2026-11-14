@@ -43,12 +43,16 @@ const choose = (testId: string, value: string) => fireEvent.change(byId(testId),
 function mountLoads(model: PreviewModel) {
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
   render(<LoadCaseManagerPanel model={model} onQueueIntent={queue} onSelect={vi.fn()} selection={{ type: "project", id: model.project.id }} />);
+  // Sources start empty; the person types them.
+  fireEvent.change(byId("load-manager-create-primitive-provenance"), { target: { value: "invented source" } });
   return queue;
 }
 
 function mountInspector(model: PreviewModel) {
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
   render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:B" }} onQueueIntent={queue} /></DisplayUnitsProvider>);
+  // Sources start empty; the person types them.
+  fireEvent.change(byId("create-support-provenance"), { target: { value: "invented source" } });
   return queue;
 }
 
@@ -67,6 +71,9 @@ describe("load form composed defaults", () => {
     expect(offered).not.toContain("N/in");
     choose("load-manager-create-primitive-unit", "lbf/in");
     expect(screen.queryByTestId("load-manager-create-primitive-unit-notice")).not.toBeInTheDocument();
+    // The category or direction moved the unit beside the magnitude, so it was cleared
+    // (DEL-02-02 REQ-022); the person enters it.
+    fireEvent.change(byId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
     fireEvent.click(byId("queue-create-primitive-intent"));
     expect(queue.mock.calls.at(-1)![0].change).toMatchObject({ unit: "lbf/in", dimension: "force_per_length" });
@@ -89,6 +96,9 @@ describe("load form composed defaults", () => {
     const queue = mountLoads(model);
     choose("load-manager-create-primitive-category", "concentrated_moment");
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("N*m");
+    // The category or direction moved the unit beside the magnitude, so it was cleared
+    // (DEL-02-02 REQ-022); the person enters it.
+    fireEvent.change(byId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
     fireEvent.click(byId("queue-create-primitive-intent"));
     const intent = queue.mock.calls.at(-1)![0];
@@ -119,6 +129,9 @@ describe("load form composed defaults", () => {
     expect(byId("load-manager-create-primitive-unit-notice")).toHaveTextContent("N*mm is not a catalog unit; choose one");
     expect(byId("queue-create-primitive-intent")).toBeDisabled();
     choose("load-manager-create-primitive-unit", "lbf*ft");
+    // The category or direction moved the unit beside the magnitude, so it was cleared
+    // (DEL-02-02 REQ-022); the person enters it.
+    fireEvent.change(byId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
     fireEvent.click(byId("queue-create-primitive-intent"));
     expect(queue.mock.calls.at(-1)![0].change).toMatchObject({ unit: "lbf*ft", dimension: "moment" });
@@ -199,6 +212,8 @@ describe("a replaced project never keeps an inherited default unit (Codex P2 on 
     const view = render(<LoadCaseManagerPanel model={model} onQueueIntent={queue} onSelect={vi.fn()} selection={{ type: "project", id: model.project.id }} />);
     const replace = (next: PreviewModel) =>
       view.rerender(<LoadCaseManagerPanel model={next} onQueueIntent={queue} onSelect={vi.fn()} selection={{ type: "project", id: next.project.id }} />);
+    // Sources start empty; the person types them.
+    fireEvent.change(byId("load-manager-create-primitive-provenance"), { target: { value: "invented source" } });
     return { queue, replace };
   }
 
@@ -270,6 +285,9 @@ describe("a replaced project never keeps an inherited default unit (Codex P2 on 
     await waitFor(() => expect(byId("load-manager-create-primitive-unit").querySelectorAll("option").length).toBeGreaterThan(1));
     choose("load-manager-create-primitive-category", "concentrated_moment");
     choose("load-manager-create-primitive-unit", "lbf*ft");
+    // The category or direction moved the unit beside the magnitude, so it was cleared
+    // (DEL-02-02 REQ-022); the person enters it.
+    fireEvent.change(byId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     const next = blankWith(SI_PROJECT_UNITS);
     next.project.units.moment = "";
     replace(next);
@@ -285,6 +303,8 @@ describe("a replaced project never keeps an inherited default unit (Codex P2 on 
     const first = blankWith(SI_PROJECT_UNITS);
     const tree = (model: PreviewModel) => <DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:B" }} onQueueIntent={queue} /></DisplayUnitsProvider>;
     const view = render(tree(first));
+    // Sources start empty; the person types them.
+    fireEvent.change(byId("create-support-provenance"), { target: { value: "invented source" } });
     expectFormControlValue(byId("create-support-stiffness-unit"), "N/m");
     expectFormControlValue(byId("create-material-thermal-unit"), "1/degC");
     fireEvent.change(byId("create-support-stiffness"), { target: { value: "1500" } });
@@ -297,9 +317,16 @@ describe("a replaced project never keeps an inherited default unit (Codex P2 on 
     expect(byId("create-support-stiffness-unit-notice")).toHaveTextContent("project.units.length is empty; choose one");
     expectFormControlValue(byId("create-material-thermal-unit"), "");
     expect(byId("create-material-thermal-unit-notice")).toHaveTextContent("project.units.temperature is empty; choose one");
-    expect(byId("queue-create-support-intent")).toBeDisabled();
+    // The typed stiffness stood beside the inherited unit: it is cleared and the form says so
+    // (DEL-02-02 AC-011), so nothing can be queued with the inherited N/m. Stiffness is
+    // optional: what remains queueable is a support with no stiffness, which the person sees.
+    expect(byId("create-support-stiffness")).toHaveValue("");
+    expect(byId("create-support-unit-cleared")).toHaveTextContent("The stiffness unit changed from N/m to none; the values beside it were cleared.");
     fireEvent.click(byId("queue-create-support-intent"));
-    expect(queue).not.toHaveBeenCalled();
+    for (const [intent] of queue.mock.calls) {
+      expect(intent.change.after).not.toContain("N/m");
+      expect(JSON.parse(intent.change.after)).not.toHaveProperty("properties");
+    }
   });
 });
 
@@ -343,6 +370,9 @@ describe("angle on a new blank document", () => {
     choose("load-manager-create-primitive-category", "imposed_displacement");
     choose("load-manager-create-primitive-direction", "RX");
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("rad");
+    // The category or direction moved the unit beside the magnitude, so it was cleared
+    // (DEL-02-02 REQ-022); the person enters it.
+    fireEvent.change(byId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
     fireEvent.click(byId("queue-create-primitive-intent"));
     const intent = queue.mock.calls.at(-1)![0];
@@ -356,3 +386,18 @@ describe("angle on a new blank document", () => {
     expect(refused.diagnostics.map((diagnostic) => diagnostic.code)).toContain("OP-UNIT-METADATA-MISSING");
   });
 });
+
+// DEL-02-02 REQ-022: the person's own choice of the primitive load's unit is the one exemption.
+describe("the primitive load's own unit choice", () => {
+  it("clears nothing when the person chooses another unit beside a typed magnitude", async () => {
+    route.current = CATALOG;
+    mountLoads(blankWith(SI_PROJECT_UNITS));
+    await waitFor(() => expect(byId("load-manager-create-primitive-unit").querySelectorAll("option").length).toBeGreaterThan(1));
+    fireEvent.change(byId("load-manager-create-primitive-magnitude"), { target: { value: "12" } });
+    choose("load-manager-create-primitive-unit", "kN");
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("kN");
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("12");
+    expect(screen.queryByTestId("load-manager-create-primitive-unit-cleared")).toBeNull();
+  });
+});
+

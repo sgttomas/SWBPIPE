@@ -48,15 +48,23 @@ import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selec
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import { RigidDraftFields } from "../component-creation/RigidDraftFields";
+import { missingSourceReason, supersedeMoves, unitMoveNotice, useClearOnUnitMove, useIdentifiedDraft, type UnitMove } from "../workspace/entryRules";
+import { DisabledReason } from "../workspace/shell/DisabledReason";
 import { ECCENTRIC_OFFSET_CONVENTION } from "../component-creation/eccentricOffsetConvention";
 import {
   buildCreateComponentIntent,
   CENTER_OF_GRAVITY_CONVENTION,
   componentDraftForKind,
+  componentDraftClearingBeside,
   componentDraftForNode,
+  componentDraftWithField,
+  componentDraftWithProjectUnits,
+  componentGuardedEntries,
+  componentSourceFields,
   creatableComponentKinds,
   defaultComponentDraft,
   isComponentDraftValid,
+  keepComponentSources,
   type ComponentDraft,
   type CreatableComponentKind
 } from "../component-creation/componentIntent";
@@ -107,29 +115,35 @@ export function PropertyInspector({
   const [taskActive, setTaskActive] = useState(false);
   const taskGenerationRef = useRef(0);
   const [propertiesTarget, setPropertiesTarget] = useState<EntityRef>(() => ({ ...selection }));
-  const [draftTarget, setDraftTarget] = useState<EntityRef>(() => ({ ...selection }));
   const properties = selectedProperties(model, propertiesTarget);
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  // The property task's draft: one object with its own identity (DEL-02-02 REQ-022). It holds
+  // the target and field, the person's entry (null until they edit it: editing is an event),
+  // their own choice of unit, and the stored basis their entry was made against. Every
+  // replacement passes a whole new draft and so takes a new identity in the same update; the
+  // clearing below reads its baseline from that identity.
+  const [taskDraft, taskDraftIdentity, setTaskDraft] = useIdentifiedDraft<TaskDraft>(() => newTaskDraft(selection, editorFieldOptions(model, selection, null)[0]));
+  const draftTarget = taskDraft.target;
+  const selectedFieldPath = taskDraft.fieldPath;
+  const chosenUnit = taskDraft.chosenUnit;
   const editableFields = useMemo(() => editorFieldOptions(model, draftTarget, unitCatalogRoute), [draftTarget, model, unitCatalogRoute]);
-  const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
-  // The task's value as the person entered it, or null while they have not edited it. An
-  // unedited entry is the field's own stored entry, read on every render, so it follows the
-  // stored value and its unit together when the model changes under an open task. Editing
-  // is an event: retyping the stored digits is still an edit, and so is choosing a unit,
-  // which makes the entry as shown the person's own (chooseProposedUnit).
-  const [enteredValue, setEnteredValue] = useState<string | null>(null);
-  // a unit the user picks is kept; until then the field's own
-  // (inherited) default is used, recomputed whenever the field is, so a catalog that
-  // arrives late, or a project-unit change, replaces an inherited default but never a
-  // chosen unit. A stored unit is the field's default and is kept.
-  const [chosenUnit, setChosenUnit] = useState<string | null>(null);
+  const [taskUnitNotice, setTaskUnitNotice] = useState<UnitMove[] | null>(null);
+  // Called only by the task's two unit controls: the person's own choice of the unit.
+  // Choosing a unit is an edit: the digits then shown become the person's entry beside the
+  // unit they chose, made against the stored basis shown now.
+  const chooseProposedUnit = (unit: string) => {
+    taskGuard.chose("value");
+    setTaskUnitNotice(null);
+    setTaskDraft((current) => ({ ...current, chosenUnit: unit, ...(current.entered === null ? { entered: proposedValue, basis: currentBasis } : {}) }));
+  };
   const [rationale, setRationale] = useState("user_entered_preview_change");
-  const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
-  const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
-  const [supportDraftState, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
-  const [componentDraft, setComponentDraft] = useState(() =>
+  const [sectionDraftState, sectionDraftIdentity, setSectionDraft] = useIdentifiedDraft(() => defaultSectionDraft(model, queuedIntents));
+  const [materialDraftState, materialDraftIdentity, setMaterialDraft] = useIdentifiedDraft(() => defaultMaterialDraft(model, queuedIntents));
+  const [supportDraftState, supportDraftIdentity, setSupportDraft] = useIdentifiedDraft(() => defaultSupportDraft(model, selection, queuedIntents));
+  const [componentDraftState, componentDraftIdentity, setComponentDraft] = useIdentifiedDraft(() =>
     defaultComponentDraft(model, selection, queuedIntents)
   );
+  const componentDraft = componentDraftWithProjectUnits(model, componentDraftState);
   const aggregateRefs = selectionState?.orderedKeys.flatMap((key) => {
     const ref = entityRefFromKey(key);
     return ref ? [ref] : [];
@@ -138,9 +152,15 @@ export function PropertyInspector({
   // Default-sourced composed units follow the current project's rule on every render
   // (W-17 §2.4), so a replaced project, a project-unit change or a catalog that arrives
   // later never leaves an inherited unit in place. Explicit choices are kept.
-  const materialDraft: MaterialDraft = materialDraftState.thermalExpansionUnitSource === "default"
-    ? { ...materialDraftState, thermalExpansionUnit: thermalExpansionUnit(model, unitCatalogRoute) }
-    : materialDraftState;
+  // A section unit the user did not change follows the project's length unit (DEL-02-02 REQ-022).
+  const sectionDraft: SectionDraft = sectionDraftState.lengthUnitSource === "default"
+    ? { ...sectionDraftState, lengthUnit: lengthUnit(model) }
+    : sectionDraftState;
+  const materialDraft: MaterialDraft = {
+    ...materialDraftState,
+    ...(materialDraftState.stressUnitSource === "default" ? { stressUnit: stressUnit(model) } : {}),
+    ...(materialDraftState.thermalExpansionUnitSource === "default" ? { thermalExpansionUnit: thermalExpansionUnit(model, unitCatalogRoute) } : {})
+  };
   const supportDraft: SupportDraft = supportDraftState.linearStiffnessUnitSource === "default"
     ? { ...supportDraftState, linearStiffnessUnit: linearStiffnessUnit(model, unitCatalogRoute) }
     : supportDraftState;
@@ -196,15 +216,18 @@ export function PropertyInspector({
     .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
     .map((pipe) => ({ value: pipe.id, label: pipe.label || pipe.id, keywords: [pipe.from, pipe.to] })),
   [componentDraft.node, model.pipe_segments]);
-  const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
-  const proposedValue = enteredValue ?? fieldEntryValue(selectedField);
+  // The draft's own field; none while its target or field is not in the model (nothing is
+  // substituted for it).
+  const selectedField = selectedFieldPath === "" ? editableFields[0] : editableFields.find((field) => field.fieldPath === selectedFieldPath);
   const proposedUnit = chosenUnit ?? selectedField?.unit ?? "";
-  // Choosing a unit is an edit of the entry: the digits shown beside it at that moment are
-  // recorded as entered, so nothing the person did not see can later stand beside their unit.
-  const chooseProposedUnit = (unit: string) => {
-    setChosenUnit(unit);
-    setEnteredValue((current) => current ?? proposedValue);
-  };
+  // The field's stored entry and unit now. An entry the person has not edited IS this entry,
+  // read on every render, so it follows the stored value and unit together.
+  const currentBasis = taskBasisOf(selectedField);
+  const proposedValue = taskDraft.entered ?? fieldEntryValue(selectedField);
+  // An entry the person edited is stale when the stored entry it was made against has changed
+  // (a change that also moved the unit shown clears it instead): it cannot be queued until the
+  // person edits it again or keeps it against the changed stored value.
+  const taskStale = taskDraft.entered !== null && taskDraft.entered.trim() !== "" && !sameTaskBasis(taskDraft.basis, currentBasis);
   const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
   const requiredFlags = requiredFlagsForSelection(model, propertiesTarget, properties);
   const selectedFieldUnitOptions = selectedField
@@ -224,6 +247,93 @@ export function PropertyInspector({
         unitCatalogRoute
       })
     : null;
+  // A number typed beside a unit is cleared when the unit shown moves by anything other than
+  // the person's own choice of it; the form says which unit changed (DEL-02-02 REQ-022, AC-011).
+  const [unitClearNotices, setUnitClearNotices] = useState<Record<CreationForm, UnitMove[] | null>>(NO_UNIT_CLEAR_NOTICES);
+  const supersede = (form: CreationForm) => (moves: UnitMove[]) =>
+    setUnitClearNotices((current) => {
+      const next = supersedeMoves(current[form], moves);
+      return next === current[form] ? current : { ...current, [form]: next };
+    });
+  // Support and material: a clearing can leave a different record that could be queued (a
+  // support without its stiffness, a material without its expansion). Queue is withheld
+  // until the person edits the form or confirms the cleared fields are meant to be empty.
+  const [queueHolds, setQueueHolds] = useState<{ support: boolean; material: boolean }>({ support: false, material: false });
+  const releaseHold = (form: "support" | "material") => setQueueHolds((current) => (current[form] ? { ...current, [form]: false } : current));
+  const clearNotice = (form: CreationForm) => setUnitClearNotices((current) => (current[form] === null ? current : { ...current, [form]: null }));
+  // A new project session replaces every draft in the render that first sees it, not in an
+  // effect after it: React discards this render and renders again with the replaced drafts
+  // before anything is committed, so no committed render, and no clearing, ever pairs the new
+  // session with an old draft or an old baseline (DEL-02-02 REQ-022).
+  const [draftsSession, setDraftsSession] = useState(projectSessionGeneration);
+  if (draftsSession !== projectSessionGeneration) {
+    setDraftsSession(projectSessionGeneration);
+    taskGenerationRef.current += 1;
+    setTaskDraft(newTaskDraft(selection, editorFieldOptions(model, selection, unitCatalogRoute)[0]));
+    setTaskUnitNotice(null);
+    setRationale("user_entered_preview_change");
+    setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
+    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
+    setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
+    setSectionDraft(defaultSectionDraft(model, queuedIntents));
+    setUnitClearNotices(NO_UNIT_CLEAR_NOTICES);
+    setQueueHolds({ support: false, material: false });
+    setInspectorView("properties");
+    setTaskActive(false);
+  }
+  // One rule (DEL-02-02 REQ-022): a unit shown beside typed digits that moves by anything other
+  // than the person's own choice of it (`…Guard.chose`, called only from its unit control)
+  // clears the digits and says so. Each guard's baseline is its draft's own identity, so a
+  // replaced draft (a new project session, the next record after Queue) is never compared
+  // with the one it replaced.
+  const sectionGuard = useClearOnUnitMove({
+    length: { label: "length", unit: sectionDraft.lengthUnit, values: [sectionDraft.outsideDiameter, sectionDraft.wallThickness] }
+  }, sectionDraftIdentity, (moves) => {
+    setSectionDraft((current) => ({ ...current, outsideDiameter: "", wallThickness: "" }));
+    setUnitClearNotices((current) => ({ ...current, section: moves }));
+  }, supersede("section"));
+  const materialGuard = useClearOnUnitMove({
+    modulus: { label: "modulus", unit: materialDraft.stressUnit, values: [materialDraft.elasticModulus, materialDraft.shearModulus] },
+    expansion: { label: "thermal expansion", unit: materialDraft.thermalExpansionUnit, values: [materialDraft.thermalExpansion] }
+  }, materialDraftIdentity, (moves) => {
+    const moved = new Set(moves.map((move) => move.key));
+    setMaterialDraft((current) => ({
+      ...current,
+      ...(moved.has("modulus") ? { elasticModulus: "", shearModulus: "" } : {}),
+      ...(moved.has("expansion") ? { thermalExpansion: "" } : {})
+    }));
+    setUnitClearNotices((current) => ({ ...current, material: moves }));
+    if (moved.has("expansion")) setQueueHolds((current) => ({ ...current, material: true }));
+  }, supersede("material"));
+  const supportGuard = useClearOnUnitMove({
+    stiffness: { label: "stiffness", unit: supportDraft.linearStiffnessUnit, values: [supportDraft.linearStiffness] }
+  }, supportDraftIdentity, (moves) => {
+    setSupportDraft((current) => ({ ...current, linearStiffness: "" }));
+    setUnitClearNotices((current) => ({ ...current, support: moves }));
+    setQueueHolds((current) => ({ ...current, support: true }));
+  }, supersede("support"));
+  const componentGuard = useClearOnUnitMove(componentGuardedEntries(componentDraft), componentDraftIdentity, (moves) => {
+    setComponentDraft((current) => componentDraftClearingBeside(current, moves.map((move) => move.key)));
+    setUnitClearNotices((current) => ({ ...current, component: moves }));
+  }, supersede("component"));
+  // The property task: whatever moves the unit shown beside the person's entry (the project
+  // units, the stored value replaced, an absent member becoming stored, the target leaving the
+  // model), other than their own choice in the task's unit control, clears the entry. The
+  // baseline is the task draft's identity.
+  const taskGuard = useClearOnUnitMove({
+    value: {
+      label: selectedField ? selectedFieldLabel.toLowerCase() : "property",
+      unit: proposedUnit,
+      values: [taskDraft.entered ?? ""]
+    }
+  }, taskDraftIdentity, (moves) => {
+    setTaskDraft((current) => ({ ...current, entered: null, basis: null }));
+    setTaskUnitNotice(moves);
+  }, (moves) => setTaskUnitNotice((current) => supersedeMoves(current, moves)));
+  const sectionSourceReason = missingSourceReason("section", [{ name: "provenance", value: sectionDraft.provenance }]);
+  const materialSourceReason = missingSourceReason("material", [{ name: "provenance", value: materialDraft.provenance }]);
+  const supportSourceReason = missingSourceReason("support", [{ name: "provenance", value: supportDraft.provenance }]);
+  const componentSourceReason = missingSourceReason("component", componentSourceFields(componentDraft));
   const sectionCreateIntent = isSectionDraftValid(model, sectionDraft)
     ? buildCreateSectionIntent(sectionDraft, model, unitCatalogRoute)
     : null;
@@ -245,37 +355,30 @@ export function PropertyInspector({
   const nodeDeleteIntent = mutationNode ? buildDeleteNodeIntent(mutationNode, model) : null;
   const pipeDeleteIntent = mutationPipe ? buildDeletePipeIntent(mutationPipe, model) : null;
   const supportDeleteIntent = mutationSupport ? buildDeleteSupportIntent(mutationSupport, model) : null;
-  const inlineValidationOutcome = operationIntent
+  // A review result belongs to the draft and the stored entry it was obtained against
+  // (DEL-02-02 AC-011). In the render where the task's draft is replaced or its stored entry
+  // changes, every result that exists then is set aside and never shown for it again, even one
+  // that still matches the rebuilt operation (a blocked result carries no prior value to tell
+  // it apart), so the person must Review again.
+  const reviewBasisKey = `${taskDraftIdentity}\u0000${currentBasis ? `${currentBasis.value}\u0000${currentBasis.unit}` : ""}`;
+  const [reviewBasis, setReviewBasis] = useState(() => ({ key: reviewBasisKey, earlier: new Set(Object.values(operationOutcomes)) }));
+  if (reviewBasis.key !== reviewBasisKey) setReviewBasis({ key: reviewBasisKey, earlier: new Set(Object.values(operationOutcomes)) });
+  const matchedValidationOutcome = operationIntent
     ? matchingInlineValidationOutcome(operationOutcomes[operationIntentKey(operationIntent)], operationIntent)
     : null;
+  const inlineValidationOutcome = matchedValidationOutcome && !reviewBasis.earlier.has(matchedValidationOutcome) ? matchedValidationOutcome : null;
   const fieldChanged = Boolean(
     operationIntent &&
     selectedField &&
-    // A value is a change only once the person has entered one: an unedited entry is the
-    // stored entry, whatever its text normalizes to.
-    ((enteredValue !== null && (proposedValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before)) ||
+    // A value is a change only once the person has entered one (typed, or kept beside a unit
+    // they chose): an unedited entry is the stored entry, whatever its text normalizes to.
+    ((taskDraft.entered !== null && (proposedValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before)) ||
       // Likewise a unit is a change only once the person has chosen one.
       (chosenUnit !== null && selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
   );
   const unitRefusal = missingProjectUnitRefusal(model, selectedField, proposedUnit);
   const currentIntentComplete = Boolean(operationIntent && fieldChanged && !unitRefusal && operationIntentIsComplete(operationIntent));
 
-  useLayoutEffect(() => {
-    taskGenerationRef.current += 1;
-    const nextTarget = { ...selection };
-    const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
-    setDraftTarget(nextTarget);
-    setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setEnteredValue(null);
-    setChosenUnit(null);
-    setRationale("user_entered_preview_change");
-    setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
-    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
-    setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
-    setSectionDraft(defaultSectionDraft(model, queuedIntents));
-    setInspectorView("properties");
-    setTaskActive(false);
-  }, [projectSessionGeneration]);
 
   useLayoutEffect(() => {
     if (!multiSelection) setPropertiesTarget({ ...selection });
@@ -286,11 +389,8 @@ export function PropertyInspector({
     if (taskRequest.view === "task") {
       taskGenerationRef.current += 1;
       const nextTarget = { ...taskRequest.target };
-      const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
-      setDraftTarget(nextTarget);
-      setSelectedFieldPath(firstField?.fieldPath ?? "");
-      setEnteredValue(null);
-      setChosenUnit(null);
+      setTaskDraft(newTaskDraft(nextTarget, editorFieldOptions(model, nextTarget, unitCatalogRoute)[0]));
+      setTaskUnitNotice(null);
       setRationale("user_entered_preview_change");
       setTaskActive(true);
     } else if (!multiSelection) {
@@ -339,19 +439,15 @@ export function PropertyInspector({
   function handleFieldChange(fieldPath: string) {
     taskGenerationRef.current += 1;
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
-    setSelectedFieldPath(fieldPath);
-    setEnteredValue(null);
-    setChosenUnit(null);
+    setTaskDraft(newTaskDraft(draftTarget, nextField));
+    setTaskUnitNotice(null);
   }
 
   function beginPropertyTaskFromSelection() {
     taskGenerationRef.current += 1;
     const nextTarget = { ...selection };
-    const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
-    setDraftTarget(nextTarget);
-    setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setEnteredValue(null);
-    setChosenUnit(null);
+    setTaskDraft(newTaskDraft(nextTarget, editorFieldOptions(model, nextTarget, unitCatalogRoute)[0]));
+    setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
     setInspectorView("task");
     setTaskActive(true);
@@ -359,21 +455,19 @@ export function PropertyInspector({
 
   function cancelPropertyTask() {
     taskGenerationRef.current += 1;
-    const firstField = editorFieldOptions(model, draftTarget, unitCatalogRoute)[0];
-    setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setEnteredValue(null);
-    setChosenUnit(null);
+    setTaskDraft(newTaskDraft(draftTarget, editorFieldOptions(model, draftTarget, unitCatalogRoute)[0]));
+    setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
     setTaskActive(false);
   }
 
   function handleQueueIntent() {
-    if (multiSelection || !operationIntent || !fieldChanged || unitRefusal) return;
+    if (multiSelection || !operationIntent || !fieldChanged || unitRefusal || taskStale) return;
     onQueueIntent(deepFreezeIntent(structuredClone(operationIntent)));
   }
 
   async function handleApplyCurrentIntent() {
-    if (multiSelection || !operationIntent || !onApplyIntent || unitRefusal) return;
+    if (multiSelection || !operationIntent || !onApplyIntent || unitRefusal || taskStale) return;
     const taskGeneration = taskGenerationRef.current;
     try {
       if (await onApplyIntent(operationIntent) && taskGenerationRef.current === taskGeneration) setTaskActive(false);
@@ -386,15 +480,28 @@ export function PropertyInspector({
   function handleQueueSupportIntent() {
     if (multiSelection || !supportCreateIntent) return;
     onQueueIntent(supportCreateIntent);
-    setSupportDraft(defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent], unitCatalogRoute));
+    // The next record shows the user's own last source and a unit the user changed,
+    // editable before it is queued (DEL-02-02 REQ-022).
+    setSupportDraft({
+      ...defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent], unitCatalogRoute),
+      ...(supportDraft.linearStiffnessUnitSource === "user"
+        ? { linearStiffnessUnit: supportDraft.linearStiffnessUnit, linearStiffnessUnitSource: "user" as const }
+        : {}),
+      provenance: supportDraft.provenance
+    });
+    clearNotice("support");
   }
 
   function handleQueueComponentIntent() {
     if (multiSelection || !componentCreateIntent) return;
     onQueueIntent(componentCreateIntent);
     setComponentDraft(
-      defaultComponentDraft(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind)
+      keepComponentSources(
+        defaultComponentDraft(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind),
+        componentDraft
+      )
     );
+    clearNotice("component");
   }
 
   function handleQueueDeleteSupportIntent() {
@@ -415,28 +522,49 @@ export function PropertyInspector({
   function handleQueueMaterialIntent() {
     if (multiSelection || !materialCreateIntent) return;
     onQueueIntent(materialCreateIntent);
-    setMaterialDraft(defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent], unitCatalogRoute));
+    setMaterialDraft({
+      ...defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent], unitCatalogRoute),
+      ...(materialDraft.stressUnitSource === "user" ? { stressUnit: materialDraft.stressUnit, stressUnitSource: "user" as const } : {}),
+      ...(materialDraft.thermalExpansionUnitSource === "user"
+        ? { thermalExpansionUnit: materialDraft.thermalExpansionUnit, thermalExpansionUnitSource: "user" as const }
+        : {}),
+      provenance: materialDraft.provenance
+    });
+    clearNotice("material");
   }
 
   function handleQueueSectionIntent() {
     if (multiSelection || !sectionCreateIntent) return;
     onQueueIntent(sectionCreateIntent);
-    setSectionDraft(defaultSectionDraftWithReserved(model, [...queuedIntents, sectionCreateIntent]));
+    // The user's own last source stays, shown and editable; so does a length unit the
+    // user changed. An unchanged unit keeps following the project units (DEL-02-02 REQ-022).
+    setSectionDraft({
+      ...defaultSectionDraftWithReserved(model, [...queuedIntents, sectionCreateIntent]),
+      ...(sectionDraft.lengthUnitSource === "user" ? { lengthUnit: sectionDraft.lengthUnit, lengthUnitSource: "user" as const } : {}),
+      provenance: sectionDraft.provenance
+    });
+    clearNotice("section");
   }
 
   function updateSectionDraft<K extends keyof SectionDraft>(key: K, value: SectionDraft[K]) {
-    setSectionDraft((current) => ({ ...current, [key]: value }));
+    clearNotice("section");
+    setSectionDraft((current) => ({ ...current, [key]: value, ...(key === "lengthUnit" ? { lengthUnitSource: "user" as const } : {}) }));
   }
 
   function updateMaterialDraft<K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) {
+    clearNotice("material");
+    releaseHold("material");
     setMaterialDraft((current) => ({
       ...current,
       [key]: value,
-      ...(key === "thermalExpansionUnit" ? { thermalExpansionUnitSource: "user" as const } : {})
+      ...(key === "thermalExpansionUnit" ? { thermalExpansionUnitSource: "user" as const } : {}),
+      ...(key === "stressUnit" ? { stressUnitSource: "user" as const } : {})
     }));
   }
 
   function updateSupportDraft<K extends keyof SupportDraft>(key: K, value: SupportDraft[K]) {
+    clearNotice("support");
+    releaseHold("support");
     setSupportDraft((current) => ({
       ...current,
       [key]: value,
@@ -445,10 +573,13 @@ export function PropertyInspector({
   }
 
   function updateComponentDraft<K extends keyof ComponentDraft>(key: K, value: ComponentDraft[K]) {
-    setComponentDraft((current) => ({ ...current, [key]: value }));
+    clearNotice("component");
+    setComponentDraft((current) => componentDraftWithField(current, key, value));
   }
 
   function toggleSupportRestraint(restraint: string) {
+    clearNotice("support");
+    releaseHold("support");
     setSupportDraft((current) => {
       const present = current.restraints.includes(restraint);
       return {
@@ -549,7 +680,10 @@ export function PropertyInspector({
                   inputMode={selectedField?.valueKind === "quantity" ? "decimal" : "text"}
                   onChange={(event) => {
                     taskGenerationRef.current += 1;
-                    setEnteredValue(event.target.value);
+                    setTaskUnitNotice(null);
+                    // Editing is an event: the entry is the person's, made against the stored
+                    // entry shown now, whatever its digits.
+                    setTaskDraft((current) => ({ ...current, entered: event.target.value, basis: currentBasis }));
                   }}
                   value={proposedValue}
                 />
@@ -576,11 +710,22 @@ export function PropertyInspector({
                   <datalist id="mass-unit-options">{selectedFieldUnitOptions.filter((option) => option.symbol && option.symbol !== "TBD").map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}</datalist>
                 </label>
               ) : null}
+              {taskUnitNotice ? <p role="status" data-testid="editor-intent-unit-cleared">{unitMoveNotice(taskUnitNotice)}</p> : null}
+              {taskStale && currentBasis ? (
+                <p role="status" data-testid="editor-intent-stale">
+                  {staleTaskEntryText(selectedFieldLabel, taskDraft.basis, currentBasis)}{" "}
+                  <button type="button" data-testid="editor-intent-stale-confirm" onClick={() => setTaskDraft((current) => ({ ...current, basis: currentBasis }))}>
+                    Keep my entry against {currentBasis.value} {currentBasis.unit}
+                  </button>
+                </p>
+              ) : null}
               {unitRefusal ? <p role={unitRefusal.hardLock ? "alert" : "status"} data-testid="editor-intent-missing-project-unit" data-key={selectedField?.missingProjectUnit?.key}>{unitRefusal.text}</p> : null}
               <footer className="task-action-footer" aria-label="Task actions" data-testid="task-action-footer">
+                <span className="queue-with-reason">
                 <button
+                  aria-describedby={taskStale ? "editor-intent-stale-reason" : undefined}
                   data-testid="queue-editor-intent"
-                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal)}
+                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal) || taskStale}
                   onClick={handleQueueIntent}
                   title="Add this change to the review queue"
                   type="button"
@@ -588,11 +733,13 @@ export function PropertyInspector({
                   <ListPlus size={14} aria-hidden="true" />
                   Add
                 </button>
+                {taskStale ? <DisabledReason id="editor-intent-stale-reason" text={STALE_TASK_ENTRY_REASON} /> : null}
+                </span>
                 <button data-testid="cancel-editor-intent" onClick={cancelPropertyTask} type="button">Cancel</button>
                 <button
                   data-testid="validate-editor-intent-inline"
-                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal) || operationBusy || !onValidateIntent}
-                  onClick={() => operationIntent && !unitRefusal && onValidateIntent?.(operationIntent)}
+                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal) || taskStale || operationBusy || !onValidateIntent}
+                  onClick={() => operationIntent && !unitRefusal && !taskStale && onValidateIntent?.(operationIntent)}
                   title="Validate without applying"
                   type="button"
                 >
@@ -601,7 +748,7 @@ export function PropertyInspector({
                 </button>
                 <button
                   data-testid="apply-editor-intent-inline"
-                  disabled={multiSelection || !currentIntentComplete || operationBusy || !onApplyIntent}
+                  disabled={multiSelection || !currentIntentComplete || taskStale || operationBusy || !onApplyIntent}
                   onClick={() => { void handleApplyCurrentIntent(); }}
                   title="Apply this exact displayed intent through the operation service"
                   type="button"
@@ -630,6 +777,13 @@ export function PropertyInspector({
             </details>
             <InlineValidationPreview intent={operationIntent} outcome={inlineValidationOutcome} />
           </>
+        ) : selectedFieldPath !== "" ? (
+          <div data-testid="editor-intent-target-absent">
+            <p role="status">{editableFields.length === 0
+              ? `The task's target, ${draftTarget.type}: ${draftTarget.id}, is not in the model, so nothing can be added.`
+              : `The task's field, ${selectedFieldPath}, is not on ${draftTarget.type}: ${draftTarget.id}, so nothing can be added.`}</p>
+            <button data-testid="cancel-editor-intent" onClick={cancelPropertyTask} type="button">Cancel</button>
+          </div>
         ) : (
           <p className="muted" data-testid="editor-intent-empty">
             Select a model entity to edit its properties.
@@ -712,7 +866,7 @@ export function PropertyInspector({
             <CompactSelect
               aria-label="New section length unit"
               data-testid="create-section-length-unit"
-              onValueChange={(value) => updateSectionDraft("lengthUnit", value)}
+              onValueChange={(value) => { sectionGuard.chose("length"); updateSectionDraft("lengthUnit", value); }}
               value={sectionDraft.lengthUnit}
               options={lengthUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
@@ -746,7 +900,10 @@ export function PropertyInspector({
               value={sectionDraft.provenance}
             />
           </label>
+          {unitClearNotices.section ? <p role="status" data-testid="create-section-unit-cleared">{unitMoveNotice(unitClearNotices.section)}</p> : null}
+          {sectionSourceReason ? <small id="create-section-source-reason" data-testid="create-section-source-reason">{sectionSourceReason}</small> : null}
           <button
+            aria-describedby={sectionSourceReason ? "create-section-source-reason" : undefined}
             data-testid="queue-create-section-intent"
             disabled={multiSelection || !sectionCreateIntent}
             onClick={handleQueueSectionIntent}
@@ -787,7 +944,7 @@ export function PropertyInspector({
             <CompactSelect
               aria-label="New material modulus unit"
               data-testid="create-material-stress-unit"
-              onValueChange={(value) => updateMaterialDraft("stressUnit", value)}
+              onValueChange={(value) => { materialGuard.chose("modulus"); updateMaterialDraft("stressUnit", value); }}
               value={materialDraft.stressUnit}
               options={stressUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
@@ -817,7 +974,7 @@ export function PropertyInspector({
             <CompactSelect
               aria-label="New material thermal expansion unit"
               data-testid="create-material-thermal-unit"
-              onValueChange={(value) => updateMaterialDraft("thermalExpansionUnit", value)}
+              onValueChange={(value) => { materialGuard.chose("expansion"); updateMaterialDraft("thermalExpansionUnit", value); }}
               value={materialDraft.thermalExpansionUnit}
               options={thermalExpansionUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
@@ -842,9 +999,22 @@ export function PropertyInspector({
               value={materialDraft.provenance}
             />
           </label>
+          {unitClearNotices.material ? (
+            <p role="status" data-testid="create-material-unit-cleared">
+              {unitMoveNotice(unitClearNotices.material)}
+              {queueHolds.material ? (
+                <button data-testid="create-material-unit-cleared-confirm" onClick={() => { releaseHold("material"); clearNotice("material"); }} type="button">
+                  Leave the cleared values empty
+                </button>
+              ) : null}
+            </p>
+          ) : null}
+          {materialSourceReason ? <small id="create-material-source-reason" data-testid="create-material-source-reason">{materialSourceReason}</small> : null}
+          <span className="queue-with-reason">
           <button
+            aria-describedby={[materialSourceReason ? "create-material-source-reason" : "", queueHolds.material ? "create-material-queue-hold-reason" : ""].filter(Boolean).join(" ") || undefined}
             data-testid="queue-create-material-intent"
-            disabled={multiSelection || !materialCreateIntent}
+            disabled={multiSelection || !materialCreateIntent || queueHolds.material}
             onClick={handleQueueMaterialIntent}
             title="Queue material create intent"
             type="button"
@@ -852,6 +1022,8 @@ export function PropertyInspector({
             <PlusCircle size={14} aria-hidden="true" />
             Queue material
           </button>
+          {queueHolds.material ? <DisabledReason id="create-material-queue-hold-reason" text={QUEUE_HOLD_REASONS.material} /> : null}
+          </span>
         </div>
         {materialCreateIntent ? <OperationIntentPreview intent={materialCreateIntent} /> : null}
       </section>
@@ -912,7 +1084,7 @@ export function PropertyInspector({
             <CompactSelect
               aria-label="New support linear stiffness unit"
               data-testid="create-support-stiffness-unit"
-              onValueChange={(value) => updateSupportDraft("linearStiffnessUnit", value)}
+              onValueChange={(value) => { supportGuard.chose("stiffness"); updateSupportDraft("linearStiffnessUnit", value); }}
               value={supportDraft.linearStiffnessUnit}
               options={supportStiffnessUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
@@ -937,9 +1109,22 @@ export function PropertyInspector({
               value={supportDraft.provenance}
             />
           </label>
+          {unitClearNotices.support ? (
+            <p role="status" data-testid="create-support-unit-cleared">
+              {unitMoveNotice(unitClearNotices.support)}
+              {queueHolds.support ? (
+                <button data-testid="create-support-unit-cleared-confirm" onClick={() => { releaseHold("support"); clearNotice("support"); }} type="button">
+                  Leave the cleared values empty
+                </button>
+              ) : null}
+            </p>
+          ) : null}
+          {supportSourceReason ? <small id="create-support-source-reason" data-testid="create-support-source-reason">{supportSourceReason}</small> : null}
+          <span className="queue-with-reason">
           <button
+            aria-describedby={[supportSourceReason ? "create-support-source-reason" : "", queueHolds.support ? "create-support-queue-hold-reason" : ""].filter(Boolean).join(" ") || undefined}
             data-testid="queue-create-support-intent"
-            disabled={multiSelection || !supportCreateIntent}
+            disabled={multiSelection || !supportCreateIntent || queueHolds.support}
             onClick={handleQueueSupportIntent}
             title="Queue support create intent"
             type="button"
@@ -947,6 +1132,8 @@ export function PropertyInspector({
             <PlusCircle size={14} aria-hidden="true" />
             Queue support
           </button>
+          {queueHolds.support ? <DisabledReason id="create-support-queue-hold-reason" text={QUEUE_HOLD_REASONS.support} /> : null}
+          </span>
         </div>
         {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
       </section>
@@ -979,11 +1166,13 @@ export function PropertyInspector({
               aria-label="New component kind"
               data-testid="create-component-kind"
               value={componentDraft.kind}
-              onValueChange={(value) =>
+              onValueChange={(value) => {
+                // Another kind replaces the entries a clearing notice spoke of (third reading, finding 4).
+                clearNotice("component");
                 setComponentDraft((current) =>
                   componentDraftForKind(model, current, value as CreatableComponentKind)
-                )
-              }
+                );
+              }}
               options={creatableComponentKinds.map((kind) => ({ value: kind, label: kind }))}
             />
           </label>
@@ -995,18 +1184,18 @@ export function PropertyInspector({
           {componentDraft.kind === "bend" ? (
             <>
               <ComponentTextInput label="Radius" testId="create-component-radius" value={componentDraft.bendRadius} onChange={(value) => updateComponentDraft("bendRadius", value)} />
-              <ComponentUnitSelect label="Radius unit" testId="create-component-radius-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentUnitSelect label="Radius unit" testId="create-component-radius-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("lengthUnit"); updateComponentDraft("lengthUnit", value); }} />
               <ComponentTextInput label="Angle" testId="create-component-angle" value={componentDraft.bendAngle} onChange={(value) => updateComponentDraft("bendAngle", value)} />
-              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => { componentGuard.chose("angleUnit"); updateComponentDraft("angleUnit", value); }} />
             </>
           ) : null}
           {componentDraft.kind === "tee" ? (
             <>
               <ComponentTextInput label="Run size" testId="create-component-run-size" value={componentDraft.branchRunSize} onChange={(value) => updateComponentDraft("branchRunSize", value)} />
               <ComponentTextInput label="Header size" testId="create-component-header-size" value={componentDraft.branchHeaderSize} onChange={(value) => updateComponentDraft("branchHeaderSize", value)} />
-              <ComponentUnitSelect label="Size unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentUnitSelect label="Size unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("lengthUnit"); updateComponentDraft("lengthUnit", value); }} />
               <ComponentTextInput label="Connection angle" testId="create-component-connection-angle" value={componentDraft.branchConnectionAngle} onChange={(value) => updateComponentDraft("branchConnectionAngle", value)} />
-              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => { componentGuard.chose("angleUnit"); updateComponentDraft("angleUnit", value); }} />
               <ComponentTextInput label="Connection type" testId="create-component-connection-type" value={componentDraft.branchConnectionType} onChange={(value) => updateComponentDraft("branchConnectionType", value)} />
               <ComponentTextInput label="Reinforcement reference" testId="create-component-reinforcement" value={componentDraft.branchReinforcementReference} onChange={(value) => updateComponentDraft("branchReinforcementReference", value)} />
             </>
@@ -1017,17 +1206,17 @@ export function PropertyInspector({
           {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
             <>
               <ComponentTextInput label="Body length" testId="create-component-body-length" value={componentDraft.rigidBodyLength} onChange={(value) => updateComponentDraft("rigidBodyLength", value)} />
-              <ComponentUnitSelect label="Body length unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentUnitSelect label="Body length unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("lengthUnit"); updateComponentDraft("lengthUnit", value); }} />
               <ComponentTextInput label="End A size" testId="create-component-end-a-size" value={componentDraft.endASize} onChange={(value) => updateComponentDraft("endASize", value)} />
-              <ComponentUnitSelect label="End A size unit" testId="create-component-end-a-size-unit" value={componentDraft.endASizeUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("endASizeUnit", value)} />
+              <ComponentUnitSelect label="End A size unit" testId="create-component-end-a-size-unit" value={componentDraft.endASizeUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("endASizeUnit"); updateComponentDraft("endASizeUnit", value); }} />
               <ComponentTextInput label="End B size" testId="create-component-end-b-size" value={componentDraft.endBSize} onChange={(value) => updateComponentDraft("endBSize", value)} />
-              <ComponentUnitSelect label="End B size unit" testId="create-component-end-b-size-unit" value={componentDraft.endBSizeUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("endBSizeUnit", value)} />
+              <ComponentUnitSelect label="End B size unit" testId="create-component-end-b-size-unit" value={componentDraft.endBSizeUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("endBSizeUnit"); updateComponentDraft("endBSizeUnit", value); }} />
               <ComponentTextInput label="Weight" testId="create-component-weight" value={componentDraft.weight} onChange={(value) => updateComponentDraft("weight", value)} />
-              <ComponentUnitSelect label="Weight unit" testId="create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => updateComponentDraft("forceUnit", value)} />
+              <ComponentUnitSelect label="Weight unit" testId="create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => { componentGuard.chose("forceUnit"); updateComponentDraft("forceUnit", value); }} />
               <ComponentTextInput label="COG X" testId="create-component-cog-x" value={componentDraft.centerOfGravityX} onChange={(value) => updateComponentDraft("centerOfGravityX", value)} />
               <ComponentTextInput label="COG Y" testId="create-component-cog-y" value={componentDraft.centerOfGravityY} onChange={(value) => updateComponentDraft("centerOfGravityY", value)} />
               <ComponentTextInput label="COG Z" testId="create-component-cog-z" value={componentDraft.centerOfGravityZ} onChange={(value) => updateComponentDraft("centerOfGravityZ", value)} />
-              <ComponentUnitSelect label="COG unit" testId="create-component-cog-unit" value={componentDraft.centerOfGravityUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("centerOfGravityUnit", value)} />
+              <ComponentUnitSelect label="COG unit" testId="create-component-cog-unit" value={componentDraft.centerOfGravityUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("centerOfGravityUnit"); updateComponentDraft("centerOfGravityUnit", value); }} />
               <ComponentTextInput label="End A reference" testId="create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
               <ComponentTextInput label="End B reference" testId="create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
               <ComponentTextInput label="Stiffness behavior reference" testId="create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
@@ -1055,7 +1244,10 @@ export function PropertyInspector({
           {componentUnitNotices.map(({ key, text }) => (
             <p key={key} role="status" data-testid={`create-component-missing-project-unit-${key}`}>{text}</p>
           ))}
+          {unitClearNotices.component ? <p role="status" data-testid="create-component-unit-cleared">{unitMoveNotice(unitClearNotices.component)}</p> : null}
+          {componentSourceReason ? <small id="create-component-source-reason" data-testid="create-component-source-reason">{componentSourceReason}</small> : null}
           <button
+            aria-describedby={componentSourceReason ? "create-component-source-reason" : undefined}
             data-testid="queue-create-component-intent"
             disabled={multiSelection || !componentCreateIntent}
             onClick={handleQueueComponentIntent}
@@ -1273,6 +1465,42 @@ function fieldEntryValue(field: EditableField | undefined): string {
   return field ? (field.initialValue ?? field.before ?? "") : "";
 }
 
+/** The stored entry and unit an entry of the property task is measured against. */
+type TaskBasis = { value: string; unit: string };
+
+/** The property task's draft (its identity is held beside it by `useIdentifiedDraft`). */
+type TaskDraft = {
+  target: EntityRef;
+  fieldPath: string;
+  /** The person's entry, or null until they edit it. */
+  entered: string | null;
+  /** The person's own choice of unit, or null for the field's unit. */
+  chosenUnit: string | null;
+  /** The stored entry the person's entry was made against (or last kept against). */
+  basis: TaskBasis | null;
+};
+
+function newTaskDraft(target: EntityRef, field: EditableField | undefined): TaskDraft {
+  return { target: { ...target }, fieldPath: field?.fieldPath ?? "", entered: null, chosenUnit: null, basis: taskBasisOf(field) };
+}
+
+function taskBasisOf(field: EditableField | undefined): TaskBasis | null {
+  return field ? { value: fieldEntryValue(field), unit: field.unit } : null;
+}
+
+function sameTaskBasis(a: TaskBasis | null, b: TaskBasis | null): boolean {
+  return a === b || (a !== null && b !== null && a.value === b.value && a.unit === b.unit);
+}
+
+const STALE_TASK_ENTRY_REASON = "Not added: the stored value changed after this entry was made. Edit the entry, or keep it against the changed stored value.";
+
+function staleTaskEntryText(fieldLabel: string, was: TaskBasis | null, now: TaskBasis): string {
+  const label = fieldLabel.toLowerCase();
+  return was
+    ? `The stored ${label} is now ${now.value} ${now.unit}; this entry was made against ${was.value} ${was.unit}.`
+    : `The stored ${label} is now ${now.value} ${now.unit}; this entry was made while the ${label} was not in the model.`;
+}
+
 type SupportDraft = {
   id: string;
   label: string;
@@ -1291,6 +1519,8 @@ type MaterialDraft = {
   id: string;
   label: string;
   stressUnit: string;
+  /** "default" follows the project's stress unit; "user" is an explicit choice (DEL-02-02 REQ-022). */
+  stressUnitSource: "default" | "user";
   elasticModulus: string;
   shearModulus: string;
   thermalExpansionUnit: string;
@@ -1300,11 +1530,20 @@ type MaterialDraft = {
   provenance: string;
 };
 
+type CreationForm = "section" | "material" | "support" | "component";
+const QUEUE_HOLD_REASONS = {
+  support: "Not queued: the stiffness was cleared when its unit changed, and a support without a stiffness is a different record. Enter the stiffness again, or confirm it is meant to be empty.",
+  material: "Not queued: the thermal expansion was cleared when its unit changed, and a material without it is a different record. Enter it again, or confirm it is meant to be empty."
+} as const;
+const NO_UNIT_CLEAR_NOTICES: Record<CreationForm, UnitMove[] | null> = { section: null, material: null, support: null, component: null };
+
 type SectionDraft = {
   id: string;
   name: string;
   sectionType: string;
   lengthUnit: string;
+  /** "user" once the user changes the unit; a "default" unit follows the project units. */
+  lengthUnitSource: "default" | "user";
   outsideDiameter: string;
   wallThickness: string;
   provenance: string;
@@ -3101,9 +3340,11 @@ function defaultSectionDraftWithReserved(model: PreviewModel, queuedIntents: Edi
     name: `Section ${shortEntityToken(id)}`,
     sectionType: "pipe",
     lengthUnit: lengthUnit(model),
+    lengthUnitSource: "default",
     outsideDiameter: "",
     wallThickness: "",
-    provenance: "user_entered_local_preview"
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: ""
   };
 }
 
@@ -3117,12 +3358,14 @@ function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: Ed
     id,
     label: `Material ${shortEntityToken(id)}`,
     stressUnit: stressUnit(model),
+    stressUnitSource: "default",
     elasticModulus: "",
     shearModulus: "",
     thermalExpansionUnit: thermalExpansionUnit(model, route),
     thermalExpansionUnitSource: "default",
     thermalExpansion: "",
-    provenance: "user_entered_local_preview"
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: ""
   };
 }
 
@@ -3154,7 +3397,8 @@ function defaultSupportDraftWithReserved(
     linearStiffnessUnitSource: "default",
     linearStiffness: "",
     familyChoice: null,
-    provenance: "user_entered_local_preview"
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: ""
   };
 }
 
