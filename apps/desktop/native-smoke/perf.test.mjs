@@ -396,6 +396,29 @@ test("a failed solve is a refusal quoting the window's message, with the timelin
   assert.deepEqual(result.findings[0], { class: "refused_with_message", step: "solve", message: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED: the received result is not bound.", code: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", stage: "reader_verdict_end", needs_review: true });
 });
 
+test("a report does not rescue a launch that did not end cleanly: launch_failed, with the report still read (DEL-07-11)", () => {
+  const nonce = "0123456789abcdef0123456789abcdef";
+  const withNonce = (over = {}) => base({ nonce, report: { ...base().report, nonce }, ...over });
+  assert.equal(classify(withNonce()).class, "ok");
+  const exited = classify(withNonce({ exit: { status: 1, signal: null, ended_ms: 10_000 } }));
+  assert.equal(exited.class, "launch_failed");
+  assert.match(exited.findings[0].detail, /ended with status 1/);
+  const killed = classify(withNonce({ exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 } }));
+  assert.equal(killed.class, "launch_failed");
+  assert.match(killed.findings[0].detail, /ended on SIGKILL; ended with status none/);
+  const timedOut = classify(withNonce({ timedOut: true, exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 } }));
+  assert.match(timedOut.findings[0].detail, /^the launch did not end cleanly: killed at the 60 s limit; ended on SIGKILL/);
+  const notThisRun = classify(base({ nonce, report: { ...base().report, nonce: "another run" } }));
+  assert.equal(notThisRun.class, "launch_failed");
+  assert.match(notThisRun.findings[0].detail, /does not carry this run's nonce/);
+  // The report's own findings are still read beside it: an unsolved run that was also killed.
+  const both = classify(withNonce({ exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 }, report: { nonce, solve: { ended: "timeout", timeline: { marks: [] } } } }));
+  assert.deepEqual(both.findings.map((finding) => finding.class).slice(0, 2), ["launch_failed", "hang"]);
+  assert.equal(both.class, "launch_failed");
+  // A caller that gives no nonce is judged on the launch's end alone, as before.
+  assert.equal(classify(base()).class, "ok");
+});
+
 test("no report: a timeout is a hang, an early exit an app crash, a vanished WebContent a WebContent crash", () => {
   assert.equal(classify(base({ report: null, timedOut: true })).class, "hang");
   assert.equal(classify(base({ report: null, exit: { status: null, signal: "SIGSEGV", ended_ms: 10_000 } })).findings[0].process, "app");

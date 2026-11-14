@@ -1041,10 +1041,12 @@
   }
 
   (async () => {
-    const report = { phase: null, ok: false, refusals: [], opened: [], observations: [], exports: [], saved: [], prompts: [], user_agent: navigator.userAgent, location: String(window.location) };
+    const report = { phase: null, nonce: null, ok: false, refusals: [], opened: [], observations: [], exports: [], saved: [], prompts: [], user_agent: navigator.userAgent, location: String(window.location) };
     try {
       const plan = await call("native_smoke_plan");
       report.phase = plan.phase;
+      // The runner's nonce for this launch, handed back so that it can tell this run's report from any other.
+      report.nonce = plan.nonce ?? null;
       await waitFor("bundled demo session", () => byTestId("desktop-preview-shell") && treeRow(plan.bundled_project_id), 120000);
       await log(`phase ${plan.phase} started`);
       if (plan.phase === "open-solve-save") await phaseOpenSolveSave(plan, report);
