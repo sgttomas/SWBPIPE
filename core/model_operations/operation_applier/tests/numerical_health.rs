@@ -900,6 +900,7 @@ fn a_blocked_document_with_passing_evidence_shows_no_passing_indicator() {
             assert_eq!(case["state"], "not_assessed", "{wire}: {}", case["case_id"]);
             assert!(case["rcond"].is_null() && case["digits"].is_null(), "{wire}");
             assert_eq!(case["causes"], json!([]), "{wire}");
+            assert!(case["code"].is_null(), "{wire}: no passing code beside a not-assessed state");
         }
     }
 }

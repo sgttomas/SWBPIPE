@@ -248,27 +248,36 @@ impl<'a> Diagnostics<'a> {
 const SOLVED_LIST_STATUSES: [&str; 5] =
     ["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED", "HUMAN_REVIEW_REQUIRED"];
 
-/// Whether the document states its mechanics solved, for the indicator. Each
-/// status field it carries must say so: the mechanics envelope's
-/// `status.mechanics`, and a result envelope's `analysis_status` list, which
-/// must name `MECHANICS_SOLVED` and carry nothing outside the solved
-/// vocabulary (an unsolved status, an unknown string or a non-string member is
-/// not solved). A blocked document, a malformed field, or two fields that
-/// disagree is not solved. A document carrying neither field is solved only if
-/// it is an export package (it states `package_status` and `package_id`),
-/// which is made only from a solved result; any other is not solved.
-pub fn mechanics_solved(source: &Value) -> bool {
+/// What the document's own status fields say about its mechanics: `None` when
+/// it carries neither `status` nor `analysis_status`; otherwise whether every
+/// field it carries says solved. The mechanics envelope's `status.mechanics`
+/// must be `MECHANICS_SOLVED`, and a result envelope's `analysis_status` list
+/// must name `MECHANICS_SOLVED` and carry nothing outside the solved vocabulary
+/// (an unsolved status, an unknown string or a non-string member is not
+/// solved). A blocked document, a malformed field, or two fields that disagree
+/// gives `Some(false)`.
+pub fn status_fields_say_solved(source: &Value) -> Option<bool> {
     let (status, list) = (source.get("status"), source.get("analysis_status"));
     if status.is_none() && list.is_none() {
-        return source["package_status"].is_string() && source["package_id"].is_string();
+        return None;
     }
-    status.is_none_or(|status| status["mechanics"] == "MECHANICS_SOLVED")
-        && list.is_none_or(|list| {
-            list.as_array().is_some_and(|list| {
-                list.iter().any(|s| s == "MECHANICS_SOLVED")
-                    && list.iter().all(|s| s.as_str().is_some_and(|s| SOLVED_LIST_STATUSES.contains(&s)))
-            })
-        })
+    Some(
+        status.is_none_or(|status| status["mechanics"] == "MECHANICS_SOLVED")
+            && list.is_none_or(|list| {
+                list.as_array().is_some_and(|list| {
+                    list.iter().any(|s| s == "MECHANICS_SOLVED")
+                        && list.iter().all(|s| s.as_str().is_some_and(|s| SOLVED_LIST_STATUSES.contains(&s)))
+                })
+            }),
+    )
+}
+
+/// Whether the document states its mechanics solved, for the indicator: its
+/// status fields, or, where it carries neither, the export-package exception
+/// (it states `package_status` and `package_id`, and is made only from a solved
+/// result); any other document carrying neither field is not solved.
+pub fn mechanics_solved(source: &Value) -> bool {
+    status_fields_say_solved(source).unwrap_or_else(|| source["package_status"].is_string() && source["package_id"].is_string())
 }
 
 /// The projection with no mechanics gate, for `historical_standing_record`
@@ -454,7 +463,9 @@ fn case_health(index: &Diagnostics, case_id: &str, state: &'static str, solved: 
     CaseHealth {
         case_id: case_id.to_string(),
         state,
-        code: code.map(String::from),
+        // A case the gate made not assessed carries no integrity code: no reader of
+        // this record sees a passing code beside a not-assessed state.
+        code: code.filter(|_| solved).map(String::from),
         integrity_diagnostic_id: integrity_id,
         rcond,
         // `0.0 -` keeps rcond = 1 at +0 (the display is the desktop's).
@@ -1275,7 +1286,11 @@ mod tests {
         assert_eq!(case["state"], "not_assessed");
         assert!(case["rcond"].is_null() && case["digits"].is_null());
         assert_eq!(case["causes"], json!([]));
+        assert!(case["code"].is_null(), "no passing code beside a not-assessed state");
+        assert_eq!(solved["cases"][0]["code"], CHECKS_PASSED);
         assert_eq!(out["verdict_only"], false);
+        assert_eq!(status_fields_say_solved(&blocked), Some(false));
+        assert_eq!(status_fields_say_solved(&base), Some(true));
         // The record's projection is not gated (its callers admit only solved documents).
         assert_eq!(numerical_health(&blocked, None).cases[0].state, "checks_passed");
         // A field that is present but does not say solved is not solved.
@@ -1311,6 +1326,7 @@ mod tests {
         // Neither field: not solved, unless an export package.
         let mut bare = base.clone();
         bare.as_object_mut().unwrap().remove("status");
+        assert_eq!(status_fields_say_solved(&bare), None);
         assert_eq!(health(&bare, None)["cases"][0]["state"], "not_assessed", "no status, not a package");
         for list in [
             json!(["MECHANICS_SOLVED", null]),
