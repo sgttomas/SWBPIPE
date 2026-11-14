@@ -956,8 +956,9 @@ def verify_registry_package(home: str, index: str, name: str, version: str, chec
 
 
 def generated_files(out_dir: str) -> dict:
-    """Every file a build script left in its OUT_DIR, with its SHA-256. A link or other non-regular
-    entry there refuses: a generated file is read as itself, never through a link."""
+    """Every file a build script left in its OUT_DIR, with its SHA-256. The OUT_DIR leaf and each walked
+    entry must not be a link or other non-regular entry, or this refuses; an ancestor link is not checked
+    (README, "Also outside the model")."""
     root = Path(out_dir)
     if root.is_symlink() or not root.is_dir():
         raise BuildRefused(f"the build-script output directory {out_dir} is absent or a link")
