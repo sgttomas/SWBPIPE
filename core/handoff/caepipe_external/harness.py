@@ -185,6 +185,8 @@ COLLECT_MAX_FILE_BYTES = 1 << 30
 # The print file names the host collects from an attempt folder besides OUTPUT_NAMES (the guest reports which).
 PRINT_NAME_PATTERN = re.compile(r"^model[A-Za-z0-9_]*\.(?:csv|txt)\Z", re.IGNORECASE)
 GUEST_REPORT_SCHEMA = "openpipestress.caepipe_guest_round_trip.v1"
+# What `copy` prints on stdout when it copied the one file it was given (the held export's prepare and collect).
+COPY_ONE_FILE = re.compile(r"^[ \t]*1 file\(s\) copied\.[ \t]*\Z")
 # What `type` prints, exit 1, for a file (or its folder) that does not exist.
 TYPE_NOT_FOUND = ("The system cannot find the file specified.", "The system cannot find the path specified.")
 
@@ -1301,6 +1303,22 @@ def _transport_failure(error: BaseException) -> bool:
 # What `reg query` reports, exit 1, for a key or value that does not exist; any other failure is unreadable.
 REG_NOT_FOUND = "unable to find the specified registry key or value"
 REG_NOT_FOUND_LINE = "ERROR: The system was unable to find the specified registry key or value."
+
+
+def _copied_one_file(record: Mapping[str, Any]) -> bool:
+    """A `copy` of one file answered in its form: exit 0, blank stderr, and stdout exactly one non-blank line,
+    `1 file(s) copied.` (`COPY_ONE_FILE`). Anything else, a sign-in text with exit 0 included, is not a copy."""
+    lines = [line for line in (record.get("stdout") or "").splitlines() if line.strip()]
+    return _answered(record) and len(lines) == 1 and bool(COPY_ONE_FILE.match(lines[0]))
+
+
+def _single_json_object(text: str) -> dict[str, Any] | None:
+    """`text`, blank space aside, as exactly one JSON object and nothing else; else None."""
+    try:
+        value = json.loads(text.strip())
+    except json.JSONDecodeError:
+        return None
+    return value if isinstance(value, dict) else None
 
 
 def _not_found(record: Mapping[str, Any]) -> bool:
@@ -2570,10 +2588,11 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
                                      f"{_quote(guest_mod)}")
     export: dict[str, Any] = {"exit_status": None, "stdout": "", "stderr": ""}
     guest_log = None
-    if _answered(prepare):
+    # Each reply counts only in its form: prepare and collect a one-file copy each (`_copied_one_file`), the export
+    # a single JSON object on stdout with nothing on stderr.
+    if _copied_one_file(prepare):
         export = step("export", export_command(share_script))
-        # The report counts only when nothing is on stderr.
-        guest_log = last_json_object(export["stdout"]) if not (export["stderr"] or "").strip() else None
+        guest_log = _single_json_object(export["stdout"]) if not (export["stderr"] or "").strip() else None
 
     def guest_hash(key: str) -> str | None:
         value = guest_log.get(key) if isinstance(guest_log, dict) else None
@@ -2597,7 +2616,7 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
     if exported.is_file() and not exported.is_symlink():
         data = exported.read_bytes()
         exported_sha256, exported_bytes = _sha256(data), len(data)
-    if not _answered(prepare):
+    if not _copied_one_file(prepare):
         route = "prepare_failed"
     elif export["exit_status"] == "timeout":
         route = "timeout"
@@ -2607,7 +2626,7 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
         route = "input_hash_mismatch"
     elif status != EXPORT_ROUTE:
         route = str(status or "unknown_guest_status")
-    elif exported_sha256 is None or not (collect is not None and _answered(collect)):
+    elif exported_sha256 is None or not (collect is not None and _copied_one_file(collect)):
         route = "mbf_not_collected"
     elif exported_sha256 != guest_exported_sha256:
         route = "export_hash_mismatch"

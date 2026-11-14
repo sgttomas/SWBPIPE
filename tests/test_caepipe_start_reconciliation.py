@@ -760,3 +760,60 @@ def test_the_registry_api_read_and_write_fail_closed_on_any_serialised_record(tm
             harness._guest_write(config, lambda argv, **k: done(argv, 0, "The operation completed successfully.",
                                                                 PROGRESS), 20.0, steps, "w", command)
         assert raised.value.outcome == "unknown" and not raised.value.transport  # stopped, never reissued
+
+
+# --------------------------------------------------------------------------------------------------------------
+# The held export's three replies (prepare, report, collect) and the subtree read-back: each counts only in its form.
+# --------------------------------------------------------------------------------------------------------------
+def _export_site(command: str) -> str:
+    return {"(if": "export_prepare", "powershell": "export", "copy": "export_collect"}[command.split(" ")[0]]
+
+
+@pytest.mark.parametrize("site, route", [("export_prepare", "prepare_failed"), ("export", "no_guest_json"),
+                                         ("export_collect", "mbf_not_collected")])
+@pytest.mark.parametrize("reply", ["sign-in text, exit 0", "serialised progress record on stderr"])
+def test_each_held_export_reply_counts_only_in_its_form(tmp_path, site, route, reply):
+    from tests.test_caepipe_correlation import export_runner, solved_case
+    config, out = solved_case(tmp_path, "cpc-e")
+    base = export_runner(out, [])
+    seen = []
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        seen.append(_export_site(argv[6]))
+        if _export_site(argv[6]) == site:
+            result = done(argv, 0, SIGN_IN_TEXT, "") if reply.startswith("sign-in") else \
+                done(argv, result.returncode, result.stdout, PROGRESS)
+        return result
+    entry = harness.run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=runner)
+    assert entry["route"] == route and entry["exported_mbf"]["sha256"] is None
+    assert not (out / "exported.mbf").exists()  # nothing out of form is left where the import regression reads
+    assert seen.count(site) == 1  # never retried: not a transport answer
+
+
+def test_the_held_exports_report_counts_only_alone_on_stdout(tmp_path):
+    from tests.test_caepipe_correlation import EXPORTED_SHA, MOD_SHA, export_runner, solved_case
+    config, out = solved_case(tmp_path, "cpc-e")
+    report = json.dumps({"status": "mbf_exported", "mod_sha256": MOD_SHA, "exported_mbf_sha256": EXPORTED_SHA})
+    base = export_runner(out, [])
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        return done(argv, 0, SIGN_IN_TEXT + "\r\n" + report, "") if _export_site(argv[6]) == "export" else result
+    assert harness.run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=runner)["route"] == "no_guest_json"
+    assert harness.run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=base)["route"] == "mbf_exported"
+
+
+def test_a_serialised_record_on_a_subtree_read_back_fails_closed():
+    key = KEY + "\\Recent list"
+    shown = f"\r\n{key}\r\n    1    REG_BINARY    01\r\n"
+
+    def step_answering(stdout, stderr, code=0):
+        return lambda name, command: {"name": name, "guest_command": command, "exit_status": code,
+                                      "stdout": stdout, "stderr": stderr}
+    assert harness._read_subtree(step_answering(shown, ""), "r", key) == (
+        "present", {(harness._registry_key_id(key), "1"): ("REG_BINARY", "01")})
+    assert harness._read_subtree(step_answering("", ""), "r", key) == ("present", {})
+    for stdout, stderr, code in ((shown, PROGRESS, 0), ("", PROGRESS, 0),
+                                 ("", PROGRESS + harness.REG_NOT_FOUND_LINE, 1)):
+        assert harness._read_subtree(step_answering(stdout, stderr, code), "r", key) == ("unreadable", None)

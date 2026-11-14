@@ -882,6 +882,9 @@ def solved_case(tmp_path: Path, case_id: str, *, hashed: bool = True, **extra) -
     return config, out
 
 
+COPIED = "        1 file(s) copied.\r\n"  # what `copy` prints for one file
+
+
 def export_runner(out: Path, commands: list[str], *, guest: dict | None = None, collected: bytes = EXPORTED_BYTES,
                   on_export=None):
     """A fake prlctl: the export step reports the invented hashes, the collect step writes the invented export."""
@@ -890,11 +893,12 @@ def export_runner(out: Path, commands: list[str], *, guest: dict | None = None, 
         assert argv[:6] == ["/invented/prlctl", "exec", "invented-vm", "--current-user", "cmd", "/c"]
         command = argv[6]
         commands.append(command)
-        stdout = ""
+        stdout = COPIED  # the prepare and the collect each copy one file
         if command.startswith("powershell"):
             if on_export:
                 on_export()
-            stdout = "banner\n" + json.dumps(guest if guest is not None else {
+            # The report alone on stdout: text around it is out of its form.
+            stdout = json.dumps(guest if guest is not None else {
                 "status": "mbf_exported", "mod_sha256": MOD_SHA.upper(), "exported_mbf_sha256": EXPORTED_SHA,
                 "exported_mbf_path": "C:\\invented-work\\cpc-e\\export\\exported.mbf"})
         elif command.startswith("copy") and "caepipe_out" in command:
@@ -987,8 +991,10 @@ def test_mbf_export_records_a_guest_failure_and_retries_the_prlctl_client(tmp_pa
         calls.append(argv[6])
         if len(calls) == 1:  # the client's own transport answer (one listed line)
             return subprocess.CompletedProcess(argv, 255, "", harness.TRANSPORT_LINES[0])
-        stdout = json.dumps({"status": "export_failed", "mod_sha256": MOD_SHA}) if argv[6].startswith("powershell") else ""
-        return subprocess.CompletedProcess(argv, 0 if not stdout else 4, stdout, "")
+        if argv[6].startswith("powershell"):
+            return subprocess.CompletedProcess(argv, 4, json.dumps({"status": "export_failed", "mod_sha256": MOD_SHA}),
+                                               "")
+        return subprocess.CompletedProcess(argv, 0, COPIED, "")
 
     entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=runner)
     assert entry["route"] == "export_failed"
