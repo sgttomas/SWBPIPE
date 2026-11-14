@@ -1,6 +1,64 @@
 {
   "schema": "swbpipe-byte-compare-manifest/v1",
   "description": "Maintained solve requests whose results a numerical change must not move unless it means to. Each entry names its document's model schema_version before the lift and the disposition expected on each side; tools/byte_compare/README.md states the classes.",
+  "build_settings": {
+    "ground": "Cargo's documented default release profile at the toolchain the identity records (rustc and cargo 1.97.1; the toolchain's cargo reference, profiles.html): [profile.release] opt-level = 3, debug = false, debug-assertions = false, overflow-checks = false, lto = false, panic = 'unwind', codegen-units = 16; and its documented default for build-time dependencies, [profile.release.build-override] opt-level = 0, codegen-units = 256, other settings inherited from release. The flags below are how that cargo renders those defaults: no -C flag where rustc's own default is the setting, -C strip=debuginfo because no debuginfo is requested, -C embed-bitcode=no because LTO is off, -C debug-assertions=off at opt-level 0 because rustc would otherwise enable them there. tests/test_byte_compare_tool.py builds a synthetic repository at cargo's default release profile under controlled configuration and fails if this block and that build disagree.",
+    "runtime": {
+      "why": "The runner and every unit it links (followed through --extern): the code that runs.",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false
+      },
+      "codegen": {
+        "opt-level": "3",
+        "debug-assertions": null,
+        "overflow-checks": null,
+        "lto": null,
+        "codegen-units": null,
+        "panic": null,
+        "debuginfo": null,
+        "strip": "debuginfo",
+        "embed-bitcode": "no"
+      }
+    },
+    "host": {
+      "why": "Build scripts, proc macros and the units they link: build-time code, which never runs in the binary but can change what is compiled into it.",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false
+      },
+      "codegen": {
+        "opt-level": null,
+        "debug-assertions": "off",
+        "overflow-checks": null,
+        "lto": null,
+        "codegen-units": null,
+        "panic": null,
+        "debuginfo": null,
+        "strip": "debuginfo",
+        "embed-bitcode": "no"
+      },
+      "proc_macro_codegen": {
+        "prefer-dynamic": true
+      }
+    }
+  },
+  "build_closure": {
+    "why": "The runner's supported build closure, bounded to what its build uses: registry packages from crates.io only, and build scripts that generate no files except serde's and serde_core's private.rs (the generated module those crates include). Any other generated file refuses.",
+    "registry": "registry+https://github.com/rust-lang/crates.io-index",
+    "generated_sources": {
+      "serde": [
+        "private.rs"
+      ],
+      "serde_core": [
+        "private.rs"
+      ]
+    }
+  },
   "roots": [
     {
       "pattern": "validation/references/kd5_nonlinear/*_request.json",

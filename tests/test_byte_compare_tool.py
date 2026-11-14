@@ -5,18 +5,25 @@
 (c) no frozen request is modified on disk;
 (d) coverage cannot be lost silently through the manifest.
 
-No cargo build runs here. A stub cargo writes a stub driver whose embedded identity it reads from the
-worktree it was asked to build, in a two-commit repository under pytest's temporary folder. The
-maintained manifest itself is checked against the current tree.
+Most tests run no cargo build. A stub cargo writes a stub driver whose embedded identity it reads from
+the worktree it was asked to build, in a two-commit repository under pytest's temporary folder, and
+prints the -vv JSON record of that build. The build attestation is tested on a maintained captured
+build of the real driver (tools/byte_compare/captured_build, paths cleaned), which pins the format.
+The tests marked `runs_cargo` build a synthetic two-crate repository with real cargo, for the
+inherited-configuration routes and the default-release control. The maintained manifest itself is
+checked against the current tree.
 """
 from __future__ import annotations
 
+import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
+import tarfile
 import textwrap
 
 import pytest
@@ -41,6 +48,10 @@ CI_READS = (
 spec = importlib.util.spec_from_file_location("byte_compare", TOOL)
 bc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(bc)
+
+# The maintained manifest's build blocks, stated once there and used by every manifest made here.
+MAINTAINED = json.loads(MANIFEST.read_text())
+BUILD_BLOCKS = {key: MAINTAINED[key] for key in ("build_settings", "build_closure")}
 
 
 # ------------------------------------------------------------------ envelopes and runs
@@ -174,7 +185,7 @@ def test_the_target_version_comes_from_the_revision(tmp_path):
 
 def manifest_text(entries, roots=None):
     return json.dumps({"schema": bc.MANIFEST_SCHEMA, "roots": roots or [{"pattern": "f/*.json", "why": "w"}],
-                       "entries": entries})
+                       "entries": entries, **BUILD_BLOCKS})
 
 
 NUMERICAL = {"disposition": "numerical_work", "numerical": True}
@@ -218,7 +229,7 @@ def test_the_maintained_manifest_covers_the_current_tree():
 # ------------------------------------------------------------------ end to end, with stubs
 
 STUB_CARGO = textwrap.dedent('''\
-    import json, os, subprocess, sys
+    import json, os, shlex, subprocess, sys
     from pathlib import Path
     args = sys.argv[1:]
     LEAK_NAMES = {"RUSTFLAGS", "CARGO_ENCODED_RUSTFLAGS", "RUSTDOCFLAGS", "CARGO_INCREMENTAL", "RUSTC_WRAPPER",
@@ -241,12 +252,59 @@ STUB_CARGO = textwrap.dedent('''\
                 "build_profile": os.environ.get("STUB_PROFILE") or ("release" if "--release" in args else "debug"),
                 "rustc": ["rustc 0.0.0-stub"], "cargo": ["cargo 0.0.0-stub"]}
     perturb = (tree / "perturb").exists()
-    binary = target / "release" / "release_timing"
-    binary.parent.mkdir(parents=True, exist_ok=True)
-    binary.write_text("#!" + sys.executable + "\\n" + "IDENTITY = " + repr(json.dumps(identity)) + "\\n"
-                      + "PERTURB = " + repr(perturb) + "\\nTREE = " + repr(str(tree)) + "\\n"
-                      + open(os.environ["STUB_DRIVER"]).read())
-    binary.chmod(0o755)
+    side = target.name.split("-")[0]
+    crate = manifest.parent
+    deps = target / "release" / "deps"
+    deps.mkdir(parents=True, exist_ok=True)
+    extra = "-0123456789abcdef"
+    body = ("#!" + sys.executable + "\\n" + "IDENTITY = " + repr(json.dumps(identity)) + "\\n"
+            + "PERTURB = " + repr(perturb) + "\\nTREE = " + repr(str(tree)) + "\\n"
+            + open(os.environ["STUB_DRIVER"]).read())
+    written = deps / ("release_timing" + extra)   # what rustc writes
+    binary = target / "release" / "release_timing"  # what cargo uplifts
+    written.write_text(body)
+    binary.write_text(body + ("# not the file rustc wrote\\n" if os.environ.get("STUB_UPLIFT_DIFFERS") else ""))
+    for path in (written, binary):
+        path.chmod(0o755)
+    # A stand-in rustc in its own sysroot, answering -vV and --print sysroot.
+    sysroot = Path(os.environ["STUB_SYSROOT"]) / side
+    rustc = sysroot / "bin" / "rustc"
+    rustc.parent.mkdir(parents=True, exist_ok=True)
+    release = "0.0.1" if side == "B" and os.environ.get("STUB_RUSTC_B") else "0.0.0"
+    version = f"rustc {release}-stub\\nbinary: rustc\\nhost: stub-host\\nrelease: {release}\\n"
+    rustc.write_text("#!" + sys.executable + "\\nimport sys\\n"
+                     + f"if sys.argv[1:] == ['-vV']: sys.stdout.write({version!r})\\n"
+                     + f"elif sys.argv[1:] == ['--print', 'sysroot']: print({str(sysroot)!r})\\n"
+                     + "else: sys.exit(1)\\n")
+    rustc.chmod(0o755)
+    # The build's record: one compiler-artifact message and the -vv invocation, at the manifest's
+    # runtime settings (STUB_BUILD), with whatever a test adds.
+    build = json.loads(os.environ["STUB_BUILD"])
+    artifact = {"reason": "compiler-artifact", "manifest_path": str(manifest),
+                "package_id": f"path+file://{crate}#open_pipe_stress_release_timing@0.1.0",
+                "target": {"kind": ["bin"], "crate_types": ["bin"], "name": "release_timing",
+                           "src_path": str(crate / "src" / "main.rs"), "edition": "2021"},
+                "profile": dict(build["profile"], test=False), "features": [], "filenames": [str(binary)],
+                "executable": str(binary), "fresh": bool(os.environ.get("STUB_FRESH"))}
+    env = {"CARGO": "/stub/cargo", "CARGO_BIN_NAME": "release_timing", "CARGO_CRATE_NAME": "release_timing",
+           "CARGO_MANIFEST_DIR": str(crate), "CARGO_MANIFEST_PATH": str(manifest),
+           "CARGO_PKG_NAME": "open_pipe_stress_release_timing", "CARGO_PKG_VERSION": "0.1.0",
+           "CARGO_PRIMARY_PACKAGE": "1"}
+    env.update(dict(item.split("=", 1) for item in os.environ.get("STUB_RUSTC_ENV", "").split()))
+    codegen = []
+    for key, value in build["codegen"].items():
+        if value is not None:
+            codegen += ["-C", key if value is True else f"{key}={value}"]
+    argv = ["--crate-name", "release_timing", "--edition=2021", "src/main.rs", "--error-format=json",
+            "--json=diagnostic-rendered-ansi,artifacts,future-incompat", "--crate-type", "bin", "--emit=dep-info,link",
+            *codegen, "-C", "metadata=0123", "-C", "extra-filename=" + extra, "--out-dir", str(deps),
+            "-L", f"dependency={deps}", *shlex.split(os.environ.get("STUB_RUSTC_ARGS", ""))]
+    command = [f"{k}={v}" for k, v in env.items()] + [str(rustc)] + argv
+    print(json.dumps(artifact))
+    print(json.dumps({"reason": "build-finished", "success": True}))
+    sys.stderr.write(f"   Compiling open_pipe_stress_release_timing v0.1.0 ({crate})\\n"
+                     f"     Running `{shlex.join(command)}`\\n"
+                     "    Finished `release` profile [optimized] target(s) in 0.01s\\n")
 ''')
 
 STUB_DRIVER = textwrap.dedent('''\
@@ -318,7 +376,7 @@ def manifest_for(fixtures=FIXTURES, expect=EXPECT, extra=()):
                 "expect": {"disposition": expect[path], "numerical": expect[path] == "numerical_work"}}
                for path, doc in fixtures.items()]
     return json.dumps({"schema": bc.MANIFEST_SCHEMA, "roots": [{"pattern": "f/*.json", "why": "stub"}],
-                       "entries": entries + list(extra)})
+                       "entries": entries + list(extra), **BUILD_BLOCKS})
 
 
 @pytest.fixture()
@@ -328,6 +386,8 @@ def world(tmp_path):
     git(repo, "init", "-q")
     write(repo, bc.VERSION_SOURCE, 'pub const MODEL_SCHEMA_VERSION: &str = "2.0.0";\n')
     write(repo, bc.DRIVER_CRATE + "/Cargo.toml", "[package]\n")
+    write(repo, bc.DRIVER_CRATE + "/Cargo.lock",
+          'version = 4\n\n[[package]]\nname = "open_pipe_stress_release_timing"\nversion = "0.1.0"\n')
     for rel, doc in FIXTURES.items():
         write(repo, rel, json.dumps(doc, indent=1))
     git(repo, "add", "-A")
@@ -348,7 +408,8 @@ def world(tmp_path):
         scratch = scratch or tmp_path / f"scratch-{len(list(tmp_path.glob('scratch-*')))}"
         table = table or tmp_path / f"table-{len(list(tmp_path.glob('table-*.md')))}.md"
         saved = dict(os.environ)
-        os.environ.update({"STUB_DRIVER": str(tools / "driver.py"), **(env or {})})
+        os.environ.update({"STUB_DRIVER": str(tools / "driver.py"), "STUB_SYSROOT": str(tmp_path / "sysroot"),
+                           "STUB_BUILD": json.dumps(BUILD_BLOCKS["build_settings"]["runtime"]), **(env or {})})
         try:
             code = bc.main(["compare", "--a", a_rev, "--b", b_rev, "--scratch", str(scratch), "--repo", str(repo),
                             "--manifest", str(manifest_path), "--cargo", f"{sys.executable} {tools / 'cargo.py'}",
@@ -453,12 +514,15 @@ def test_a_binary_not_built_as_stated_is_never_run(world, env, needle, capsys):
 
 
 def test_a_stale_binary_in_the_target_directory_is_not_used(world, capsys):
+    # Each build is into a fresh, empty target directory: one holding an earlier binary is refused
+    # before anything is built (round 3, threat (b): every unit attested was compiled by this build).
     work = world["tmp"] / "work"
     target = work / "target" / f"A-{world['a']}" / "release"
     target.mkdir(parents=True)
     (target / "release_timing").write_text("stale")
-    code, _, _ = world["run"](env={"STUB_NO_LINK": "1"}, work=work)
-    assert code == 2 and "did not link" in capsys.readouterr().err
+    code, _, scratch = world["run"](env={"STUB_NO_LINK": "1"}, work=work)
+    assert code == 2 and "is not an empty directory; each build is fresh" in capsys.readouterr().err
+    assert not (scratch / "runs").exists()
 
 
 def test_a_frozen_request_changed_during_the_run_fails(world):
@@ -576,3 +640,509 @@ def test_hosted_selection_runs_this_test_when_the_tool_or_its_manifest_changes()
         assert "piping-python" in python_ci.hosted_ci.route_paths([path], routing)["checks"], path
         selected = python_ci.select(PROJECT, {"event": "pull_request", "paths": [python_ci.PREFIX + path]})
         assert "tests/test_byte_compare_tool.py" in selected, path
+
+
+# ------------------------------------------------------------------ build attestation (threat (b)), stubbed
+
+@pytest.mark.parametrize("env, needle", [
+    ({"STUB_RUSTC_ARGS": "-Zshare-generics"}, "unknown rustc argument '-Zshare-generics'"),
+    ({"STUB_RUSTC_ARGS": "--target aarch64-apple-darwin"}, "unknown rustc argument '--target'"),
+    ({"STUB_RUSTC_ARGS": "-C linker=/usr/bin/cc"}, "not the runtime settings"),
+    ({"STUB_RUSTC_ARGS": "--cfg stray"}, "that its build script did not declare"),
+    ({"STUB_RUSTC_ENV": "SNEAKY=1"}, "unexpected environment variable SNEAKY"),
+    ({"STUB_FRESH": "1"}, "(fresh)"),
+    ({"STUB_UPLIFT_DIFFERS": "1"}, "is not the file rustc wrote"),
+    ({"STUB_RUSTC_B": "1"}, "rustc -vV differs between the sides"),
+])
+def test_a_build_the_attestation_does_not_establish_is_refused_before_any_run(world, env, needle, capsys):
+    code, table, scratch = world["run"](env=env)
+    err = capsys.readouterr().err
+    assert code == 2 and table == "" and needle in err, err
+    assert not (scratch / "runs").exists() and not (scratch / "results.json").exists()
+    assert "wt-" not in git(world["repo"], "worktree", "list")
+
+
+def test_the_build_log_is_kept_with_its_digest_beside_the_binarys(world):
+    code, table, scratch = world["run"]()
+    assert code == 0, table
+    results = json.loads((scratch / "results.json").read_text())
+    for side in ("A", "B"):
+        build = results["sides"][side]["build"]
+        assert bc.sha256_file(scratch / f"build-{side}.log") == build["log_sha256"]
+        assert bc.sha256_file(scratch / f"build-{side}.jsonl") == build["messages_sha256"]
+        assert build["rustc_output_sha256"] == build["binary_sha256"] == results["sides"][side]["binary_sha256"]
+        assert build["attestation"]["runtime_units"] == ["open_pipe_stress_release_timing 0.1.0 release_timing"]
+    assert "rustc output = uplifted binary = copy run" in table
+
+
+def test_the_build_blocks_are_closed():
+    good = json.loads(manifest_text([{"path": "f/a.json", "source_version": "1", "expect": NUMERICAL}]))
+    bc.load_manifest(json.dumps(good))
+    for mutate in (lambda m: m.pop("build_settings"),
+                   lambda m: m["build_settings"]["runtime"]["codegen"].pop("lto"),
+                   lambda m: m["build_settings"]["runtime"]["codegen"].update({"target-cpu": "native"}),
+                   lambda m: m["build_settings"]["host"]["proc_macro_codegen"].update({"opt-level": "3"}),
+                   lambda m: m["build_settings"]["host"]["profile"].update({"opt_level": 0}),
+                   lambda m: m["build_closure"].update({"registry": "git+https://example.invalid/index"})):
+        bad = json.loads(json.dumps(good))
+        mutate(bad)
+        with pytest.raises(bc.ManifestError):
+            bc.load_manifest(json.dumps(bad))
+
+
+# ------------------------------------------------------------------ the captured build of the real driver
+
+CAPTURED = PROJECT / "tools" / "byte_compare" / "captured_build"
+
+
+def edit(text, old, new, count=1):
+    assert text.count(old) == count, (old, text.count(old))
+    return text.replace(old, new)
+
+
+def edit_line(text, marker, old, new):
+    """Replaces `old` with `new` in the one line containing `marker`."""
+    lines = text.split("\n")
+    hits = [i for i, line in enumerate(lines) if marker in line]
+    assert len(hits) == 1, (marker, len(hits))
+    lines[hits[0]] = edit(lines[hits[0]], old, new)
+    return "\n".join(lines)
+
+
+def edit_message(text, package_id, kind, change):
+    """Applies `change` to the one JSON message for `package_id` of the given target kind (or reason)."""
+    lines, hits = text.split("\n"), 0
+    for i, line in enumerate(lines):
+        if not line.startswith("{"):
+            continue
+        message = json.loads(line)
+        if message.get("package_id") == package_id and kind in (message.get("reason"), tuple(message.get("target", {}).get("kind", []))):
+            change(message)
+            lines[i], hits = json.dumps(message), hits + 1
+    assert hits == 1, (package_id, kind, hits)
+    return "\n".join(lines)
+
+
+REGISTRY = "registry+https://github.com/rust-lang/crates.io-index"
+BIN_LINE = "--crate-name release_timing --edition=2021 src/main.rs"
+
+
+def attest_captured(stdout=lambda t: t, stderr=lambda t: t, lock=lambda t: t, observed=lambda o: o, calls=None):
+    seen = json.loads((CAPTURED / "observed.json").read_text())
+    seen = observed(seen)
+    parsed = bc.parse_build_output(stdout((CAPTURED / "stdout.jsonl").read_text()),
+                                   stderr((CAPTURED / "stderr.log").read_text()))
+    rustc = {"program": "/SYSROOT/bin/rustc", "version": seen["rustc_version"], "sysroot": "/SYSROOT", "host": seen["host"]}
+    manifest = bc.load_manifest(MANIFEST.read_text())
+    record = calls if calls is not None else []
+    return bc.attest_build(parsed, tree="/WT", target="/TARGET", lock_text=lock((CAPTURED / "Cargo.lock").read_text()),
+                           settings=manifest["build_settings"], closure=manifest["build_closure"], rustc=rustc,
+                           list_generated=lambda out_dir: seen["out_dirs"][out_dir],
+                           verify_registry=lambda *args: record.append(args))
+
+
+def test_the_captured_build_of_the_driver_is_attested():
+    calls = []
+    attestation = attest_captured(calls=calls)
+    assert len(attestation["runtime_units"]) == 36 and len(attestation["host_units"]) == 16
+    assert attestation["build_scripts"] == 10 and attestation["registry_packages"] == 22 == len(calls)
+    assert "serde_json 1.0.149 serde_json" in attestation["runtime_units"]
+    assert {"serde_derive 1.0.228 serde_derive", "syn 2.0.117 syn", "libc 0.2.186 build_script_build"} \
+        <= set(attestation["host_units"])
+    assert sorted(attestation["generated"]) == [f"{REGISTRY}#serde@1.0.228", f"{REGISTRY}#serde_core@1.0.228"]
+    assert attestation["runner"] == {"rustc_output": "/TARGET/release/deps/release_timing-5593dae461ac0171",
+                                     "executable": "/TARGET/release/release_timing"}
+    # Each registry package is verified with the source, name, version and checksum Cargo.lock gives.
+    assert ("/CARGO_HOME", "index.crates.io-1949cf8c6b5b557f", "serde_json", "1.0.149",
+            "83fc039473c5595ace860d8c4fafa220ff474b3fc6bfdb4293327f1a37e94d86") in calls
+
+
+ITOA = f"{REGISTRY}#itoa@1.0.18"
+CAPTURED_REFUSALS = {
+    # Runtime profile checks: a unit the runner links (transitively, through serde_json) at another setting.
+    "a linked dependency at opt-level 0": (dict(
+        stdout=lambda t: edit_message(t, ITOA, ("lib",), lambda m: m["profile"].update(opt_level="0")),
+        stderr=lambda t: edit_line(t, "--crate-name itoa ", "-C opt-level=3", "-C opt-level=0")),
+        "itoa@1.0.18 (itoa, runtime) was built with profile"),
+    "a linked dependency's -C flags alone": (dict(
+        stderr=lambda t: edit_line(t, "--crate-name itoa ", "-C embed-bitcode=no", "-C embed-bitcode=no -C lto=fat")),
+        "itoa@1.0.18 (itoa, runtime) was compiled with -C"),
+    "a linker on the runner": (dict(stderr=lambda t: edit_line(t, BIN_LINE, "--out-dir", "-C linker=/usr/bin/cc --out-dir")),
+                               "(release_timing, runtime) was compiled with -C"),
+    # Build-time dependency checks.
+    "a build script under a build-override": (dict(
+        stdout=lambda t: edit_message(t, f"{REGISTRY}#proc-macro2@1.0.106", ("custom-build",),
+                                      lambda m: m["profile"].update(debug_assertions=True)),
+        stderr=lambda t: edit_line(t, "--crate-name build_script_build --edition=2021 /CARGO_HOME/registry/src/"
+                                      "index.crates.io-1949cf8c6b5b557f/proc-macro2", "debug-assertions=off", "debug-assertions=on")),
+        "proc-macro2@1.0.106 (build_script_build, host) was built with profile"),
+    "a proc macro optimised": (dict(stderr=lambda t: edit_line(t, "--crate-name serde_derive ", "-C embed-bitcode=no",
+                                                               "-C opt-level=3 -C embed-bitcode=no")),
+                               "serde_derive@1.0.228 (serde_derive, host) was compiled with -C"),
+    "a build script's link input": (dict(stdout=lambda t: edit_message(
+        t, f"{REGISTRY}#serde@1.0.228", "build-script-executed", lambda m: m.update(linked_libs=["evil"]))),
+        "adds link inputs"),
+    "an unknown build-script output": (dict(stdout=lambda t: t + "[serde 1.0.228] cargo:rustc-link-lib=evil\n"),
+                                       "unknown build-script output"),
+    "a build-script line that is no directive": (dict(stdout=lambda t: t + "[serde 1.0.228] hello\n"),
+                                                 "unknown build-script output"),
+    "an unknown generated file": (dict(observed=lambda o: (o["out_dirs"][next(k for k in o["out_dirs"] if "/zmij-" in k)]
+                                                            .update({"gen.rs": "0" * 64}), o)[1]),
+                                  "zmij@1.0.21's build script generated ['gen.rs']"),
+    "a build script run with rustflags": (dict(stderr=lambda t: edit_line(
+        t, "proc-macro2-5d24402fc79aac90/build-script-build`", "CARGO_ENCODED_RUSTFLAGS=''",
+        "CARGO_ENCODED_RUSTFLAGS=-Ctarget-cpu=native")), "ran with CARGO_ENCODED_RUSTFLAGS='-Ctarget-cpu=native'"),
+    "a build script run beside a wrapper": (dict(stderr=lambda t: edit_line(
+        t, "proc-macro2-5d24402fc79aac90/build-script-build`", "CARGO_ENCODED_RUSTFLAGS=''",
+        "CARGO_ENCODED_RUSTFLAGS='' RUSTC_WRAPPER=/HOME/bin/wrap")), "unexpected environment variable RUSTC_WRAPPER"),
+    # Flags and environment.
+    "-Z": (dict(stderr=lambda t: edit_line(t, BIN_LINE, "--out-dir", "-Zshare-generics --out-dir")),
+           "unknown rustc argument '-Zshare-generics'"),
+    "--target": (dict(stderr=lambda t: edit_line(t, BIN_LINE, "--out-dir", "--target aarch64-apple-darwin --out-dir")),
+                 "unknown rustc argument '--target'"),
+    "a library": (dict(stderr=lambda t: edit_line(t, BIN_LINE, "--out-dir", "-l evil --out-dir")), "unknown rustc argument '-l'"),
+    "-L native": (dict(stderr=lambda t: edit_line(t, BIN_LINE, "--out-dir", "-L native=/HOME/lib --out-dir")),
+                  "searches -L native=/HOME/lib"),
+    "a stray --cfg": (dict(stderr=lambda t: edit_line(t, BIN_LINE, "--out-dir", "--cfg stray --out-dir")),
+                      "that its build script did not declare"),
+    "a feature cargo did not resolve": (dict(stderr=lambda t: edit_line(t, "--crate-name itoa ", "--out-dir",
+                                                                         "--cfg 'feature=\"extra\"' --out-dir")),
+                                        "feature cfgs are not cargo's resolved features"),
+    "an unexpected environment variable": (dict(stderr=lambda t: edit_line(t, BIN_LINE, "CARGO_BIN_NAME=", "SNEAKY=1 CARGO_BIN_NAME=")),
+                                           "unexpected environment variable SNEAKY"),
+    "a second compiler": (dict(stderr=lambda t: edit_line(t, "--crate-name itoa ", "/SYSROOT/bin/rustc", "/HOME/other/bin/rustc")),
+                          "runs /HOME/other/bin/rustc, not the build's rustc"),
+    "a prebuilt library linked": (dict(stderr=lambda t: edit_line(t, BIN_LINE, "/TARGET/release/deps/libsha2-071a591afd31b5ab.rlib",
+                                                                  "/HOME/prebuilt/libsha2.rlib")),
+                                  "links /HOME/prebuilt/libsha2.rlib, which this build did not produce"),
+    # Provenance.
+    "a registry package not in Cargo.lock": (dict(lock=lambda t: edit(t, 'name = "itoa"\nversion = "1.0.18"',
+                                                                      'name = "itoa"\nversion = "1.0.17"')),
+                                             "itoa@1.0.18 is not in Cargo.lock with that source"),
+    "a registry package without a checksum": (dict(lock=lambda t: edit(
+        t, 'name = "itoa"\nversion = "1.0.18"\nsource = "registry+https://github.com/rust-lang/crates.io-index"\nchecksum',
+        'name = "itoa"\nversion = "1.0.18"\nsource = "registry+https://github.com/rust-lang/crates.io-index"\nnochecksum')),
+        "itoa@1.0.18 has no checksum in Cargo.lock"),
+    "source replacement": (dict(stdout=lambda t: edit_message(t, ITOA, ("lib",), lambda m: (
+        m["target"].update(src_path="/HOME/vendor/itoa-1.0.18/src/lib.rs"),
+        m.update(manifest_path="/HOME/vendor/itoa-1.0.18/Cargo.toml")))), "is not compiled from its registry source"),
+    "a git source": (dict(stdout=lambda t: edit(t, ITOA, "git+https://example.invalid/itoa#itoa@1.0.18")),
+                     "comes from neither the generated worktree nor"),
+    "a path source outside the worktree": (dict(stdout=lambda t: edit(t, "path+file:///WT/core/units#",
+                                                                      "path+file:///ELSEWHERE/core/units#")),
+                                           "is a path source outside the generated worktree"),
+    # The record itself.
+    "a fresh unit": (dict(stdout=lambda t: edit_message(t, ITOA, ("lib",), lambda m: m.update(fresh=True))), "(fresh)"),
+    "a unit with no invocation": (dict(stderr=lambda t: "\n".join(l for l in t.split("\n") if "--crate-name itoa " not in l)),
+                                  "itoa@1.0.18 (itoa) has no compiler invocation"),
+    "an unparseable stdout line": (dict(stdout=lambda t: t + "garbage\n"), "neither cargo JSON nor build-script output"),
+    "an unknown message": (dict(stdout=lambda t: t + '{"reason": "something-new"}\n'), "unknown build message 'something-new'"),
+    "an unknown stderr line": (dict(stderr=lambda t: t + "warning: unused manifest key\n"), "unknown build output on stderr"),
+    "a build that never finished": (dict(stdout=lambda t: edit(t, '{"reason":"build-finished","success":true}', "")),
+                                    "exactly one successful build-finished"),
+}
+
+
+@pytest.mark.parametrize("case", sorted(CAPTURED_REFUSALS))
+def test_a_departure_in_the_captured_build_is_refused(case):
+    edits, needle = CAPTURED_REFUSALS[case]
+    with pytest.raises(bc.BuildRefused) as refused:
+        attest_captured(**edits)
+    assert needle in str(refused.value), str(refused.value)
+
+
+def test_a_wrapper_or_second_compiler_is_not_the_build_compiler():
+    stdout = (CAPTURED / "stdout.jsonl").read_text()
+    stderr = (CAPTURED / "stderr.log").read_text()
+    assert bc.compiler_program(bc.parse_build_output(stdout, stderr)) == "/SYSROOT/bin/rustc"
+    for old, new, needle in (("/SYSROOT/bin/rustc --crate-name itoa ", "/HOME/bin/sccache /SYSROOT/bin/rustc --crate-name itoa ",
+                              "compiled by 2 programs"),
+                             ("/SYSROOT/bin/rustc", "/HOME/bin/wrap", "not rustc named by an absolute path")):
+        changed = stderr.replace(old, new)
+        assert changed != stderr
+        with pytest.raises(bc.BuildRefused, match=needle):
+            bc.compiler_program(bc.parse_build_output(stdout, changed))
+
+
+def test_the_compiler_must_be_its_own_sysroots_rustc(tmp_path):
+    def fake(sysroot_printed):
+        rustc = tmp_path / "bin" / "rustc"
+        rustc.parent.mkdir(parents=True, exist_ok=True)
+        rustc.write_text(f"#!{sys.executable}\nimport sys\nif sys.argv[1:] == ['-vV']: print('rustc 9.9.9\\nhost: h')\n"
+                         f"else: print({sysroot_printed!r})\n")
+        rustc.chmod(0o755)
+        return str(rustc)
+    assert bc.rustc_identity(fake(str(tmp_path)))["host"] == "h"
+    with pytest.raises(bc.BuildRefused, match="is not the rustc of its own sysroot"):
+        bc.rustc_identity(fake(str(tmp_path / "elsewhere")))
+
+
+# ------------------------------------------------------------------ registry provenance
+
+def registry_home(tmp_path, files=None):
+    """A Cargo home holding demo 1.0.0's archive and its extracted source; returns (home, checksum)."""
+    files = files or {"Cargo.toml": b"[package]\nname = \"demo\"\n", "src/lib.rs": b"pub fn f() {}\n"}
+    index = "index.crates.io-0123456789abcdef"
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w:gz") as archive:
+        for name, data in files.items():
+            info = tarfile.TarInfo(f"demo-1.0.0/{name}")
+            info.size = len(data)
+            archive.addfile(info, io.BytesIO(data))
+    home = tmp_path / "cargo-home"
+    crate = home / "registry" / "cache" / index / "demo-1.0.0.crate"
+    crate.parent.mkdir(parents=True)
+    crate.write_bytes(buffer.getvalue())
+    root = home / "registry" / "src" / index / "demo-1.0.0"
+    for name, data in files.items():
+        (root / name).parent.mkdir(parents=True, exist_ok=True)
+        (root / name).write_bytes(data)
+    (root / ".cargo-ok").write_text('{"v":1}')
+    return home, index, hashlib.sha256(buffer.getvalue()).hexdigest(), root
+
+
+def test_a_registry_package_matching_its_locked_archive_is_accepted(tmp_path):
+    home, index, checksum, _ = registry_home(tmp_path)
+    bc.verify_registry_package(str(home), index, "demo", "1.0.0", checksum)
+
+
+@pytest.mark.parametrize("tamper, needle", [
+    ("checksum", "is not Cargo.lock's checksum"),
+    ("edited", "is not the locked archive"),
+    ("added", "is not the locked archive"),
+    ("no archive", "no cached archive"),
+])
+def test_a_registry_package_that_is_not_its_locked_archive_is_refused(tmp_path, tamper, needle):
+    home, index, checksum, root = registry_home(tmp_path)
+    if tamper == "checksum":
+        checksum = "0" * 64
+    elif tamper == "edited":
+        (root / "src" / "lib.rs").write_bytes(b"pub fn f() { evil() }\n")
+    elif tamper == "added":
+        (root / "build.rs").write_bytes(b"fn main() {}\n")
+    else:
+        next((home / "registry" / "cache").rglob("*.crate")).unlink()
+    with pytest.raises(bc.BuildRefused, match=needle):
+        bc.verify_registry_package(str(home), index, "demo", "1.0.0", checksum)
+
+
+# ------------------------------------------------------------------ real cargo: inherited configuration
+
+RUNS_CARGO = pytest.mark.runs_cargo("cargo builds of a synthetic two-crate repository through the tool")
+
+SYNTHETIC = {
+    bc.VERSION_SOURCE: 'pub const MODEL_SCHEMA_VERSION: &str = "2.0.0";\n',
+    "f/one.json": json.dumps({"model": {"schema_version": "2.0.0"}}),
+    f"{bc.DRIVER_CRATE}/Cargo.toml": textwrap.dedent('''\
+        [package]
+        name = "open_pipe_stress_release_timing"
+        version = "0.1.0"
+        edition = "2021"
+        publish = false
+
+        [workspace]
+
+        [[bin]]
+        name = "release_timing"
+        path = "src/main.rs"
+
+        [dependencies]
+        dep = { path = "../dep" }
+        '''),
+    f"{bc.DRIVER_CRATE}/Cargo.lock": textwrap.dedent('''\
+        # This file is automatically @generated by Cargo.
+        # It is not intended for manual editing.
+        version = 4
+
+        [[package]]
+        name = "dep"
+        version = "0.1.0"
+
+        [[package]]
+        name = "open_pipe_stress_release_timing"
+        version = "0.1.0"
+        dependencies = [
+         "dep",
+        ]
+        '''),
+    # The driver's identity, embedded by its build script from the tree it is built in.
+    f"{bc.DRIVER_CRATE}/build.rs": textwrap.dedent('''\
+        use std::process::Command;
+        fn git(args: &[&str]) -> String {
+            let dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+            let out = Command::new("git").arg("-C").arg(&dir).args(args).output().expect("git");
+            String::from_utf8(out.stdout).unwrap().trim().to_string()
+        }
+        fn main() {
+            println!("cargo:rerun-if-changed=identity-is-read-on-every-build.absent");
+            println!("cargo:rustc-env=SYN_COMMIT={}", git(&["rev-parse", "HEAD"]));
+            println!("cargo:rustc-env=SYN_TREE={}", git(&["rev-parse", "HEAD^{tree}"]));
+            println!("cargo:rustc-env=SYN_DIRTY={}", !git(&["status", "--porcelain"]).is_empty());
+            println!("cargo:rustc-env=SYN_PROFILE={}", std::env::var("PROFILE").unwrap());
+        }
+        '''),
+    f"{bc.DRIVER_CRATE}/src/main.rs": textwrap.dedent('''\
+        fn main() {
+            let args: Vec<String> = std::env::args().skip(1).collect();
+            if args == ["--build-identity"] {
+                println!("{{\\"source_commit\\": \\"{}\\", \\"source_tree\\": \\"{}\\", \\"source_dirty\\": {}, \\"build_profile\\": \\"{}\\", \\"generated\\": {}}}",
+                         env!("SYN_COMMIT"), env!("SYN_TREE"), env!("SYN_DIRTY"), env!("SYN_PROFILE"), dep::built_with_debug_assertions());
+                return;
+            }
+            println!("{{\\"schema\\": \\"release-timing-v2\\", \\"invocation\\": \\"solve\\", \\"status\\": \\"entry_error\\", \\"entry_error\\": {{\\"stage\\": \\"entry\\", \\"message\\": \\"synthetic\\"}}}}");
+            std::process::exit(3);
+        }
+        '''),
+    # The path dependency: its build script generates source the library includes, and what it
+    # generates depends on the settings the build script itself was compiled with.
+    "core/solver/dep/Cargo.toml": '[package]\nname = "dep"\nversion = "0.1.0"\nedition = "2021"\npublish = false\n',
+    "core/solver/dep/build.rs": textwrap.dedent('''\
+        fn main() {
+            let out = std::env::var("OUT_DIR").unwrap();
+            std::fs::write(format!("{}/gen.rs", out),
+                           format!("pub const BUILT_WITH_DEBUG_ASSERTIONS: bool = {};\\n", cfg!(debug_assertions))).unwrap();
+            println!("cargo:rerun-if-changed=build.rs");
+        }
+        '''),
+    "core/solver/dep/src/lib.rs": textwrap.dedent('''\
+        include!(concat!(env!("OUT_DIR"), "/gen.rs"));
+        pub fn built_with_debug_assertions() -> bool { BUILT_WITH_DEBUG_ASSERTIONS }
+        '''),
+}
+
+
+def cargo_world(tmp_path, side_files=None):
+    """The synthetic repository: a base commit, and A and B each the base plus their own files."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    git(repo, "init", "-q")
+    for rel, text in SYNTHETIC.items():
+        write(repo, rel, text)
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", "base")
+    base = git(repo, "rev-parse", "HEAD")
+    revisions = {}
+    for side in ("A", "B"):
+        files = (side_files or {}).get(side, {})
+        git(repo, "checkout", "-q", "--detach", base)
+        if files:
+            for rel, text in files.items():
+                write(repo, rel, text)
+            git(repo, "add", "-A")
+            git(repo, "commit", "-q", "-m", side)
+        revisions[side] = git(repo, "rev-parse", "HEAD")
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({
+        "schema": bc.MANIFEST_SCHEMA, "roots": [{"pattern": "f/*.json", "why": "synthetic"}],
+        "entries": [{"path": "f/one.json", "source_version": "2.0.0",
+                     "expect": {"disposition": "entry_refusal", "numerical": False}}],
+        "build_settings": BUILD_BLOCKS["build_settings"],
+        "build_closure": dict(BUILD_BLOCKS["build_closure"], generated_sources={"dep": ["gen.rs"]})}))
+    home = tmp_path / "cargo-home"
+    home.mkdir()
+    return {"repo": repo, "manifest": manifest, "home": home, "tmp": tmp_path, **revisions}
+
+
+def reachable_cargo_configs(world):
+    """Cargo configuration files cargo could read for builds under the synthetic world: in any ancestor
+    of its folder (where the repository, worktrees and target directories are) and in its Cargo home."""
+    found = [world["home"] / name for name in ("config", "config.toml")]
+    for place in [world["tmp"], *world["tmp"].resolve().parents]:
+        found += [place / ".cargo" / name for name in ("config", "config.toml")]
+    return [path for path in found if path.is_file()]
+
+
+def run_real(world, capsys):
+    saved = dict(os.environ)
+    os.environ.update(CARGO_HOME=str(world["home"]), CARGO_NET_OFFLINE="true")
+    scratch = world["tmp"] / "scratch"
+    try:
+        code = bc.main(["compare", "--a", world["A"], "--b", world["B"], "--scratch", str(scratch),
+                        "--repo", str(world["repo"]), "--manifest", str(world["manifest"]), "--cargo", "cargo",
+                        "--jobs", "2", "--timeout", "60"])
+    finally:
+        os.environ.clear()
+        os.environ.update(saved)
+    return code, capsys.readouterr(), scratch
+
+
+def generated_source(world, side):
+    found = list((world["tmp"] / "scratch" / "build" / "target").glob(f"{side}-*/release/build/dep-*/out/gen.rs"))
+    assert len(found) == 1, found
+    return found[0].read_text()
+
+
+@RUNS_CARGO
+def test_the_default_release_build_attests_under_controlled_configuration(tmp_path, capsys):
+    # The control for the manifest's build_settings block: cargo's default release build of the
+    # synthetic repository, with the tool's clean environment, an empty Cargo home and no cargo
+    # configuration in any ancestor, must attest with exactly that block.
+    world = cargo_world(tmp_path)
+    assert reachable_cargo_configs(world) == [], "a cargo configuration is reachable; the control is not controlled"
+    code, out, scratch = run_real(world, capsys)
+    assert code == 0, out.err + out.out
+    results = json.loads((scratch / "results.json").read_text())
+    for side in ("A", "B"):
+        attestation = results["sides"][side]["build"]["attestation"]
+        assert attestation["runtime_units"] == ["dep 0.1.0 dep", "open_pipe_stress_release_timing 0.1.0 release_timing"]
+        assert attestation["host_units"] == ["dep 0.1.0 build_script_build",
+                                             "open_pipe_stress_release_timing 0.1.0 build_script_build"]
+        assert list(attestation["generated"].values()) == [{"gen.rs": bc.sha256_bytes(generated_source(world, side).encode())}]
+        assert "= false;" in generated_source(world, side)
+
+
+@RUNS_CARGO
+@pytest.mark.parametrize("where", ["A", "B", "outside"])
+def test_an_ancestor_cargo_config_with_opt_level_0_is_refused(tmp_path, capsys, where):
+    config = "[profile.release]\nopt-level = 0\n"
+    if where == "outside":
+        write(tmp_path, ".cargo/config.toml", config)   # an ancestor of every worktree: side A meets it first
+        world = cargo_world(tmp_path)
+    else:
+        world = cargo_world(tmp_path, {where: {".cargo/config.toml": config}})  # an ancestor of that side's crate
+    code, out, scratch = run_real(world, capsys)
+    refused = "B" if where == "B" else "A"
+    assert code == 2 and f"side {refused} (" in out.err and "runtime) was built with profile" in out.err, out.err
+    assert not (scratch / "runs").exists()
+
+
+@RUNS_CARGO
+def test_a_cargo_home_config_adding_rustflags_is_refused(tmp_path, capsys):
+    world = cargo_world(tmp_path)
+    write(world["home"], "config.toml", '[build]\nrustflags = ["-C", "target-cpu=native"]\n')
+    code, out, scratch = run_real(world, capsys)
+    assert code == 2 and "side A (" in out.err and "'target-cpu': 'native'" in out.err, out.err
+    assert not (scratch / "runs").exists()
+
+
+@RUNS_CARGO
+def test_a_dependency_specific_profile_override_is_refused(tmp_path, capsys):
+    world = cargo_world(tmp_path)
+    write(world["home"], "config.toml", "[profile.release.package.dep]\nopt-level = 0\n")
+    code, out, scratch = run_real(world, capsys)
+    assert code == 2 and "side A (" in out.err and "/core/solver/dep#0.1.0 (dep, runtime) was built with profile" in out.err, out.err
+    assert not (scratch / "runs").exists()
+
+
+@RUNS_CARGO
+def test_a_rustc_wrapper_is_refused(tmp_path, capsys):
+    world = cargo_world(tmp_path)
+    wrapper = tmp_path / "wrap.sh"
+    wrapper.write_text('#!/bin/sh\nexec "$@"\n')
+    wrapper.chmod(0o755)
+    write(world["home"], "config.toml", f'[build]\nrustc-wrapper = "{wrapper}"\n')
+    code, out, scratch = run_real(world, capsys)
+    assert code == 2 and "side A (" in out.err and f"the compiler {wrapper} is not rustc" in out.err, out.err
+    assert not (scratch / "runs").exists()
+
+
+@RUNS_CARGO
+@pytest.mark.parametrize("side", ["A", "B"])
+def test_a_build_override_that_changes_generated_source_is_refused(tmp_path, capsys, side):
+    # The build script is compiled with debug assertions on, so the source it generates for the
+    # dependency differs, while every runtime unit's own flags stay exactly the release settings.
+    world = cargo_world(tmp_path, {side: {".cargo/config.toml": "[profile.release.build-override]\ndebug-assertions = true\n"}})
+    code, out, scratch = run_real(world, capsys)
+    assert code == 2 and f"side {side} (" in out.err and "build_script_build, host) was built with profile" in out.err, out.err
+    assert not (scratch / "runs").exists()
+    assert "= true;" in generated_source(world, side)

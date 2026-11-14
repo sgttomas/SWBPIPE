@@ -6,8 +6,10 @@ codes, the lift and the threat model this tool is reviewed against.
 
 For each of revisions A and B it makes a clean detached worktree of exactly that commit, builds the
 release timing driver (`core/solver/release_timing`, the desktop solve worker's engine stages at the
-desktop's build) there with `cargo build --release --locked`, checks the binary's embedded build
-identity against the commit, and runs every manifest fixture through the driver in both solver modes.
+desktop's build) there with `cargo build -vv --message-format=json --release --locked` into a fresh
+target directory, attests from that build's own output that every unit was compiled with the
+manifest's build settings from the stated sources, checks the binary's embedded build identity
+against the commit, and runs every manifest fixture through the driver in both solver modes.
 A pair is COMPARED only where both sides reached numerical work; every other pair is reported by its
 class, and a pair whose observed class differs from the manifest fails.
 """
@@ -16,6 +18,7 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import io
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -24,7 +27,10 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tarfile
 import time
+import tomllib
+from urllib.parse import unquote
 
 # Every directory this tool scans is a worktree or scratch directory its caller names, outside this
 # checkout; a test that points it at project paths declares those paths itself.
@@ -80,6 +86,36 @@ CLEARED_ENV = frozenset({
 })
 CLEARED_PREFIXES = ("GIT_", "CARGO_PROFILE_", "CARGO_BUILD_", "CARGO_TARGET_")
 
+# The build attestation (threat (b); README "Build attestation"). The code-generation options every
+# attested unit's settings are compared on (the manifest states each, null meaning cargo passes none),
+# and the two that only name a unit and are never compared.
+CODEGEN_KEYS = ("opt-level", "debug-assertions", "overflow-checks", "lto", "codegen-units", "panic", "debuginfo",
+                "strip", "embed-bitcode")
+UNIT_ID_KEYS = ("metadata", "extra-filename")
+# The profile fields of cargo's JSON artifact message, its primary record of a unit's settings.
+PROFILE_KEYS = ("opt_level", "debuginfo", "debug_assertions", "overflow_checks")
+# Environment cargo itself gives a compiler invocation; anything else there must be a variable the
+# package's build script declared (`cargo:rustc-env`), or the build is refused.
+RUSTC_ENV = frozenset({"CARGO", "CARGO_CRATE_NAME", "CARGO_MANIFEST_DIR", "CARGO_MANIFEST_PATH",
+                       "CARGO_PRIMARY_PACKAGE", "CARGO_BIN_NAME", "OUT_DIR"})
+# Environment cargo gives a build-script run.
+BUILD_SCRIPT_ENV = frozenset({"CARGO", "CARGO_ENCODED_RUSTFLAGS", "CARGO_MANIFEST_DIR", "CARGO_MANIFEST_PATH",
+                              "DEBUG", "HOST", "NUM_JOBS", "OPT_LEVEL", "OUT_DIR", "PROFILE", "RUSTC", "RUSTDOC",
+                              "TARGET"})
+BUILD_SCRIPT_ENV_PREFIXES = ("CARGO_CFG_", "CARGO_FEATURE_", "CARGO_PKG_")
+# The dynamic-library search path cargo sets for every process it starts (macOS, Linux).
+LIBRARY_PATH_ENV = frozenset({"DYLD_FALLBACK_LIBRARY_PATH", "LD_LIBRARY_PATH"})
+# Build-script output cargo acts on that this runner's closure may use; any other line refuses.
+BUILD_SCRIPT_DIRECTIVES = frozenset({"rerun-if-changed", "rerun-if-env-changed", "rustc-check-cfg", "rustc-cfg",
+                                     "rustc-env", "warning"})
+BUILD_SCRIPT_LINE = re.compile(r"^\[(\S+) (\S+)\] (.*)$")
+STDERR_STATUS = re.compile(r"^\s+(Compiling \S+ v\S+( \(.*\))?|Finished `release` profile .*|"
+                           r"Blocking waiting for file lock on .*)$")
+ENV_ASSIGNMENT = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=(.*)$", re.S)
+EMIT_KINDS = frozenset({"dep-info", "metadata", "link"})
+REGISTRY_SRC = re.compile(r"^(?P<home>/.+)/registry/src/(?P<index>index\.crates\.io-[0-9a-f]{16})/"
+                          r"(?P<dir>[^/]+)/(?P<rest>.+)$")
+
 EXIT_OK, EXIT_FAILED, EXIT_SETUP = 0, 1, 2
 
 
@@ -89,6 +125,10 @@ class SetupError(Exception):
 
 class ManifestError(SetupError):
     pass
+
+
+class BuildRefused(SetupError):
+    """The build's own record does not establish the settings and sources it must have."""
 
 
 class LiftError(Exception):
@@ -139,7 +179,8 @@ def ensure_outside_work_trees(path: Path, what: str) -> None:
 
 
 # What the tool itself writes directly in the scratch directory; the table may not take one of these names.
-SCRATCH_EVIDENCE = frozenset({"plan.json", "results.json", "build-A.log", "build-B.log", "inputs", "runs", "build"})
+SCRATCH_EVIDENCE = frozenset({"plan.json", "results.json", "build-A.log", "build-B.log", "build-A.jsonl",
+                              "build-B.jsonl", "inputs", "runs", "build"})
 
 
 def table_destination(given: str, scratch: Path, work: Path) -> Path:
@@ -218,7 +259,8 @@ def load_manifest(text: str) -> dict:
         raw = json.loads(text)
     except json.JSONDecodeError as error:
         raise ManifestError(f"the manifest is not JSON: {error}") from error
-    _closed(raw, {"schema", "description", "roots", "entries"}, {"schema", "roots", "entries"}, "the manifest")
+    _closed(raw, {"schema", "description", "roots", "entries", "build_settings", "build_closure"},
+            {"schema", "roots", "entries", "build_settings", "build_closure"}, "the manifest")
     if raw["schema"] != MANIFEST_SCHEMA:
         raise ManifestError(f"manifest schema {raw['schema']!r} is not {MANIFEST_SCHEMA!r}")
     if not isinstance(raw["roots"], list) or not raw["roots"]:
@@ -247,7 +289,61 @@ def load_manifest(text: str) -> dict:
             sides = {"A": dict(both), "B": dict(both)}
         entries.append({"path": path, "source_version": entry["source_version"], "expect": sides,
                         "why": entry.get("why", "")})
-    return {"roots": roots, "entries": entries}
+    return {"roots": roots, "entries": entries, "build_settings": _build_settings(raw["build_settings"]),
+            "build_closure": _build_closure(raw["build_closure"])}
+
+
+def _codegen(record, what: str, keys: tuple[str, ...] | None) -> dict:
+    if not isinstance(record, dict):
+        raise ManifestError(f"{what} must be an object")
+    if keys is not None and sorted(record) != sorted(keys):
+        raise ManifestError(f"{what} must state exactly {list(keys)}")
+    for key, value in record.items():
+        if keys is None and key in CODEGEN_KEYS + UNIT_ID_KEYS:
+            raise ManifestError(f"{what} may not restate {key}")
+        if not (value is None or value is True or (isinstance(value, str) and value)):
+            raise ManifestError(f"{what}.{key} must be a string, true (a flag with no value) or null (absent)")
+    return dict(record)
+
+
+def _profile(record, what: str) -> dict:
+    _closed(record, set(PROFILE_KEYS), set(PROFILE_KEYS), what)
+    if not isinstance(record["opt_level"], str) or not isinstance(record["debuginfo"], int) \
+            or not all(isinstance(record[key], bool) for key in ("debug_assertions", "overflow_checks")):
+        raise ManifestError(f"{what}: opt_level is a string, debuginfo an integer, the assertions booleans")
+    return dict(record)
+
+
+def _build_settings(raw) -> dict:
+    """The build settings every attested unit must have been compiled with, stated once."""
+    _closed(raw, {"ground", "runtime", "host"}, {"ground", "runtime", "host"}, "build_settings")
+    blocks = {}
+    for name, extra in (("runtime", set()), ("host", {"proc_macro_codegen"})):
+        what = f"build_settings.{name}"
+        _closed(raw[name], {"why", "profile", "codegen"} | extra, {"why", "profile", "codegen"} | extra, what)
+        blocks[name] = {"profile": _profile(raw[name]["profile"], f"{what}.profile"),
+                        "codegen": _codegen(raw[name]["codegen"], f"{what}.codegen", CODEGEN_KEYS)}
+        if extra:
+            blocks[name]["proc_macro_codegen"] = _codegen(raw[name]["proc_macro_codegen"],
+                                                          f"{what}.proc_macro_codegen", None)
+    return blocks
+
+
+def _build_closure(raw) -> dict:
+    """The runner's supported build closure: its one registry, and which build scripts may leave
+    which generated files in their OUT_DIR."""
+    _closed(raw, {"why", "registry", "generated_sources"}, {"registry", "generated_sources"}, "build_closure")
+    if not isinstance(raw["registry"], str) or not raw["registry"].startswith("registry+"):
+        raise ManifestError("build_closure.registry must be a registry source id")
+    generated = raw["generated_sources"]
+    if not isinstance(generated, dict):
+        raise ManifestError("build_closure.generated_sources must be an object")
+    for package, files in generated.items():
+        if not isinstance(files, list) or not files:
+            raise ManifestError(f"build_closure.generated_sources.{package} must list at least one file")
+        for name in files:
+            relative_posix(name, f"build_closure.generated_sources.{package} file")
+    return {"registry": raw["registry"], "generated_sources": {k: sorted(v) for k, v in generated.items()}}
 
 
 def coverage(tree: Path, manifest: dict) -> dict:
@@ -426,18 +522,488 @@ def remove_worktree(repo: Path, path: Path) -> str | None:
     return None if result.returncode == 0 else result.stderr.strip()
 
 
-def build_driver(tree: Path, sha: str, target: Path, cargo: list[str], jobs: int, log: Path) -> dict:
-    """Builds the driver from `tree` and checks the binary's identity. Returns the build record."""
+# ------------------------------------------------------------------ build attestation (threat (b))
+#
+# Everything here is read from the build cargo performed: its JSON messages (stdout), its -vv text
+# (the compiler invocations on stderr; build-script output on stdout) and the target directory. The
+# tree is never edited, so a historical revision is attested exactly as committed.
+
+def _inside(path: str, root: str) -> bool:
+    path, root = os.path.normpath(path), os.path.normpath(root)
+    return os.path.isabs(path) and os.path.commonpath([path, root]) == root
+
+
+def parse_build_output(stdout: str, stderr: str) -> dict:
+    """The build's messages and invocations. Anything this format does not account for refuses: a line
+    that is neither cargo JSON nor build-script output, an unknown message, an unknown stderr line, a
+    unit cargo reports as fresh, or a build that did not finish successfully exactly once."""
+    artifacts, scripts, finished, directives = [], [], [], {}
+    for number, line in enumerate(stdout.splitlines(), 1):
+        if not line.strip():
+            continue
+        if line.startswith("{"):
+            try:
+                message = json.loads(line)
+            except json.JSONDecodeError as error:
+                raise BuildRefused(f"build stdout line {number} is not JSON: {error}") from error
+            reason = message.get("reason") if isinstance(message, dict) else None
+            if reason == "compiler-artifact":
+                artifacts.append(message)
+            elif reason == "build-script-executed":
+                scripts.append(message)
+            elif reason == "build-finished":
+                finished.append(message)
+            elif reason != "compiler-message":
+                raise BuildRefused(f"unknown build message {reason!r} on stdout line {number}")
+            continue
+        match = BUILD_SCRIPT_LINE.match(line)
+        if not match:
+            raise BuildRefused(f"build stdout line {number} is neither cargo JSON nor build-script output: {line[:160]!r}")
+        directives.setdefault((match[1], match[2]), []).append(match[3])
+    if [message.get("success") for message in finished] != [True]:
+        raise BuildRefused("the build did not report exactly one successful build-finished message")
+    invocations, pending, start = [], None, 0
+    for number, line in enumerate(stderr.split("\n"), 1):
+        if pending is None:
+            stripped = line.strip()
+            if stripped.startswith("Running `"):
+                pending, start = stripped[len("Running `"):], number
+            elif stripped.startswith("Fresh "):
+                raise BuildRefused(f"cargo reports a fresh unit, not compiled by this build: {stripped}")
+            elif stripped and not STDERR_STATUS.match(line):
+                raise BuildRefused(f"unknown build output on stderr line {number}: {stripped[:160]!r}")
+        else:
+            pending += "\n" + line
+        if pending is not None and pending.endswith("`"):
+            try:
+                tokens = shlex.split(pending[:-1])
+            except ValueError:
+                continue  # a quoted value spans lines; the invocation continues
+            invocations.append(_split_invocation(tokens, start))
+            pending = None
+    if pending is not None:
+        raise BuildRefused(f"the invocation starting on stderr line {start} never ends")
+    for artifact in artifacts:
+        if artifact.get("fresh") is not False:
+            raise BuildRefused(f"{artifact.get('package_id')} is not reported as compiled by this build (fresh)")
+    return {"artifacts": artifacts, "scripts": scripts, "directives": directives, "invocations": invocations}
+
+
+def _split_invocation(tokens: list[str], line: int) -> dict:
+    env, index = {}, 0
+    while index < len(tokens) and (match := ENV_ASSIGNMENT.match(tokens[index])):
+        env[match[1]] = match[2]
+        index += 1
+    if index >= len(tokens):
+        raise BuildRefused(f"the invocation on stderr line {line} names no program")
+    return {"env": env, "program": tokens[index], "args": tokens[index + 1:], "line": line}
+
+
+def parse_rustc_args(args: list[str], line: int) -> dict:
+    """One compiler invocation's arguments. An argument this runner's build does not use refuses: -Z,
+    --target, a library (-l), a sysroot, an output path, a print request and anything else unknown."""
+    unit = {"crate_name": None, "crate_types": [], "sources": [], "codegen": {}, "cfgs": [], "out_dir": None,
+            "lib_paths": [], "externs": []}
+    index = 0
+
+    def take() -> str:
+        nonlocal index
+        index += 1
+        if index >= len(args):
+            raise BuildRefused(f"rustc argument {args[index - 1]!r} on stderr line {line} has no value")
+        return args[index]
+
+    while index < len(args):
+        arg = args[index]
+        if arg == "--crate-name":
+            unit["crate_name"] = take()
+        elif arg == "--crate-type":
+            unit["crate_types"].append(take())
+        elif arg.startswith("--emit="):
+            kinds = set(arg[len("--emit="):].split(","))
+            if not kinds <= EMIT_KINDS:
+                raise BuildRefused(f"rustc on stderr line {line} emits {sorted(kinds - EMIT_KINDS)}")
+        elif arg.startswith("--edition=") or arg == "--error-format=json" or arg.startswith("--json="):
+            pass
+        elif arg == "-C" or (arg.startswith("-C") and len(arg) > 2):
+            text = take() if arg == "-C" else arg[2:]
+            key, has_value, value = text.partition("=")
+            if key in unit["codegen"]:
+                raise BuildRefused(f"rustc on stderr line {line} sets -C {key} twice")
+            unit["codegen"][key] = value if has_value else True
+        elif arg == "--cfg":
+            unit["cfgs"].append(take())
+        elif arg in ("--check-cfg", "--cap-lints"):
+            take()
+        elif arg.startswith(("--allow=", "--warn=", "--deny=", "--forbid=")):
+            pass  # lint levels from the packages' [lints] tables
+        elif arg == "--out-dir":
+            unit["out_dir"] = take()
+        elif arg == "-L":
+            unit["lib_paths"].append(take())
+        elif arg == "--extern":
+            unit["externs"].append(take())
+        elif not arg.startswith("-"):
+            unit["sources"].append(arg)
+        else:
+            raise BuildRefused(f"unknown rustc argument {arg!r} on stderr line {line}")
+        index += 1
+    if not unit["crate_name"] or not unit["crate_types"] or len(unit["sources"]) != 1 or not unit["out_dir"]:
+        raise BuildRefused(f"the compiler invocation on stderr line {line} does not name one crate, source and output")
+    return unit
+
+
+def compiler_program(parsed: dict) -> str:
+    """The one compiler every unit was compiled with: every invocation that is not a build-script run
+    names the same program, and that program is rustc itself (not a wrapper)."""
+    scripts = {name for artifact in parsed["artifacts"] if artifact["target"]["kind"] == ["custom-build"]
+               for name in artifact.get("filenames", [])}
+    programs = {inv["program"] for inv in parsed["invocations"] if inv["program"] not in scripts}
+    if len(programs) != 1:
+        raise BuildRefused(f"the units were compiled by {len(programs)} programs, not one rustc: {sorted(programs)}")
+    program = programs.pop()
+    if os.path.basename(program) not in ("rustc", "rustc.exe") or not os.path.isabs(program):
+        raise BuildRefused(f"the compiler {program} is not rustc named by an absolute path (a wrapper?)")
+    return program
+
+
+def rustc_identity(program: str) -> dict:
+    """`rustc -vV` and the sysroot of the compiler the build used. The prebuilt standard library in that
+    sysroot is the trusted part of the toolchain (cargo compiles it nowhere in the build); what identifies
+    it is this output and the sysroot path, and the compiler must be that sysroot's own `bin/rustc`."""
+    version = subprocess.run([program, "-vV"], capture_output=True, text=True, env=clean_env())
+    sysroot = subprocess.run([program, "--print", "sysroot"], capture_output=True, text=True, env=clean_env())
+    if version.returncode != 0 or sysroot.returncode != 0 or not version.stdout.startswith("rustc "):
+        raise BuildRefused(f"{program} gives no rustc -vV and sysroot")
+    root = sysroot.stdout.strip()
+    if os.path.normpath(program) != os.path.join(os.path.normpath(root), "bin", os.path.basename(program)):
+        raise BuildRefused(f"the compiler {program} is not the rustc of its own sysroot {root}")
+    hosts = [line[len("host: "):] for line in version.stdout.splitlines() if line.startswith("host: ")]
+    if len(hosts) != 1:
+        raise BuildRefused(f"{program} -vV names no single host")
+    return {"program": program, "version": version.stdout, "sysroot": root, "host": hosts[0]}
+
+
+def _package(package_id: str, closure: dict, tree: str) -> dict:
+    source, _, tail = package_id.partition("#")
+    if "@" in tail:
+        name, version = tail.rsplit("@", 1)
+    else:
+        name, version = source.rstrip("/").rsplit("/", 1)[-1], tail
+    if source.startswith("path+file://"):
+        path = unquote(source[len("path+file://"):])
+        if not _inside(path, tree):
+            raise BuildRefused(f"{package_id} is a path source outside the generated worktree")
+        return {"id": package_id, "name": name, "version": version, "kind": "path", "source": None}
+    if source == closure["registry"]:
+        return {"id": package_id, "name": name, "version": version, "kind": "registry", "source": source}
+    raise BuildRefused(f"{package_id} comes from neither the generated worktree nor {closure['registry']}")
+
+
+# Registry packages already verified in this process (each archive is read once).
+_REGISTRY_VERIFIED: dict = {}
+
+
+def verify_registry_package(home: str, index: str, name: str, version: str, checksum: str) -> None:
+    """The registry package compiled is exactly the one Cargo.lock names: its cached archive's SHA-256
+    is the lock's checksum, and the extracted source cargo compiled holds exactly the archive's files
+    and bytes (plus cargo's own `.cargo-ok` marker)."""
+    key = (home, index, name, version, checksum)
+    if key in _REGISTRY_VERIFIED:
+        return
+    stem = f"{name}-{version}"
+    archive_path = Path(home) / "registry" / "cache" / index / f"{stem}.crate"
+    root = Path(home) / "registry" / "src" / index / stem
+    if not archive_path.is_file() or not root.is_dir():
+        raise BuildRefused(f"{stem}: no cached archive {archive_path} beside its source")
+    data = archive_path.read_bytes()
+    if sha256_bytes(data) != checksum:
+        raise BuildRefused(f"{stem}: the cached archive's SHA-256 is not Cargo.lock's checksum")
+    expected = {}
+    with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as archive:
+        for member in archive.getmembers():
+            if member.isdir():
+                continue
+            parts = PurePosixPath(member.name).parts
+            if not member.isfile() or len(parts) < 2 or parts[0] != stem or ".." in parts:
+                raise BuildRefused(f"{stem}: the archive holds an entry this tool does not accept: {member.name}")
+            expected["/".join(parts[1:])] = sha256_bytes(archive.extractfile(member).read())
+    actual = {}
+    for path in root.rglob("*"):
+        if path.is_symlink():
+            raise BuildRefused(f"{stem}: the extracted source holds a symbolic link {path}")
+        if path.is_file():
+            actual[path.relative_to(root).as_posix()] = sha256_file(path)
+    actual.pop(".cargo-ok", None)
+    if actual != expected:
+        changed = sorted(k for k in set(actual) | set(expected) if actual.get(k) != expected.get(k))
+        raise BuildRefused(f"{stem}: the extracted source is not the locked archive: {changed[:5]}")
+    _REGISTRY_VERIFIED[key] = True
+
+
+def generated_files(out_dir: str) -> dict:
+    """Every file a build script left in its OUT_DIR, with its SHA-256."""
+    root = Path(out_dir)
+    if not root.is_dir():
+        raise BuildRefused(f"the build-script output directory {out_dir} is absent")
+    return {path.relative_to(root).as_posix(): sha256_file(path) for path in sorted(root.rglob("*"))
+            if path.is_file() or path.is_symlink()}
+
+
+def attest_build(parsed: dict, *, tree: str, target: str, lock_text: str, settings: dict, closure: dict,
+                 rustc: dict, list_generated=generated_files, verify_registry=verify_registry_package) -> dict:
+    """Attests a parsed build (README "Build attestation"); raises BuildRefused on any departure.
+
+    Runtime profile checks: the runner and every unit it links, followed through --extern, have the
+    manifest's runtime settings. Build-time dependency checks: build scripts, proc macros and what they
+    link have its host settings. Every unit's source is in the generated worktree or is the exact
+    Cargo.lock registry package; every flag and environment variable is accounted for."""
+    try:
+        lock = tomllib.loads(lock_text)
+    except tomllib.TOMLDecodeError as error:
+        raise BuildRefused(f"Cargo.lock is not TOML: {error}") from error
+    locked = {}
+    for entry in lock.get("package", []):
+        key = (entry.get("name"), entry.get("version"))
+        if key in locked:
+            raise BuildRefused(f"Cargo.lock names {key[0]} {key[1]} twice")
+        locked[key] = entry
+    program = rustc["program"]
+    # Units: each compiler invocation is exactly one artifact message, and the reverse.
+    by_key, by_file, packages = {}, {}, {}
+    registry_checked = set()
+    for artifact in parsed["artifacts"]:
+        package = packages.setdefault(artifact["package_id"], _package(artifact["package_id"], closure, tree))
+        entry = locked.get((package["name"], package["version"]))
+        if entry is None or entry.get("source") != package["source"]:
+            raise BuildRefused(f"{package['id']} is not in Cargo.lock with that source")
+        target_info = artifact["target"]
+        if package["kind"] == "path":
+            if not _inside(target_info["src_path"], tree) or not _inside(artifact["manifest_path"], tree):
+                raise BuildRefused(f"{package['id']} compiles a source outside the generated worktree")
+        else:
+            match = REGISTRY_SRC.match(target_info["src_path"])
+            if not match or match["dir"] != f"{package['name']}-{package['version']}" or artifact["manifest_path"] != \
+                    os.path.join(match["home"], "registry", "src", match["index"], match["dir"], "Cargo.toml"):
+                raise BuildRefused(f"{package['id']} is not compiled from its registry source (source replacement?)")
+            checksum = entry.get("checksum")
+            if not isinstance(checksum, str) or not re.fullmatch(r"[0-9a-f]{64}", checksum):
+                raise BuildRefused(f"{package['id']} has no checksum in Cargo.lock")
+            if package["id"] not in registry_checked:
+                verify_registry(match["home"], match["index"], package["name"], package["version"], checksum)
+                registry_checked.add(package["id"])
+        crate = "build_script_build" if target_info["kind"] == ["custom-build"] else target_info["name"].replace("-", "_")
+        key = (artifact["manifest_path"], crate, tuple(target_info["crate_types"]))
+        if key in by_key:
+            raise BuildRefused(f"{package['id']} compiles {crate} twice; outside this runner's supported closure")
+        unit = {"artifact": artifact, "package": package, "key": key, "invocation": None,
+                "kind": target_info["kind"], "crate_types": target_info["crate_types"]}
+        by_key[key] = unit
+        for name in artifact.get("filenames", []):
+            by_file[name] = unit
+    scripts_by_program = {name: unit for unit in by_key.values() if unit["kind"] == ["custom-build"]
+                          for name in unit["artifact"].get("filenames", [])}
+    runs = []
+    for invocation in parsed["invocations"]:
+        if invocation["program"] in scripts_by_program:
+            runs.append(invocation)
+            continue
+        if invocation["program"] != program:
+            raise BuildRefused(f"stderr line {invocation['line']} runs {invocation['program']}, not the build's rustc")
+        args = parse_rustc_args(invocation["args"], invocation["line"])
+        key = (invocation["env"].get("CARGO_MANIFEST_PATH"), args["crate_name"], tuple(args["crate_types"]))
+        unit = by_key.get(key)
+        if unit is None or unit["invocation"] is not None:
+            raise BuildRefused(f"the compiler invocation on stderr line {invocation['line']} ({key[1]}) is not "
+                               "exactly one artifact of this build")
+        unit["invocation"], unit["args"] = invocation, args
+    for unit in by_key.values():
+        if unit["invocation"] is None:
+            raise BuildRefused(f"{unit['package']['id']} ({unit['key'][1]}) has no compiler invocation in the -vv output")
+    # The attested sets, from the link graph.
+    manifest_path = os.path.join(tree, DRIVER_CRATE, "Cargo.toml")
+    runners = [u for u in by_key.values() if u["kind"] == ["bin"] and u["artifact"]["target"]["name"] == DRIVER_BIN
+               and u["artifact"]["manifest_path"] == manifest_path]
+    if len(runners) != 1:
+        raise BuildRefused(f"the build has {len(runners)} {DRIVER_BIN} binaries from {manifest_path}, not one")
+    runner = runners[0]
+
+    def links(unit: dict) -> list[dict]:
+        found = []
+        for extern in unit["args"]["externs"]:
+            name, has_path, path = extern.partition("=")
+            if not has_path:
+                if name != "proc_macro" or unit["crate_types"] != ["proc-macro"]:
+                    raise BuildRefused(f"{unit['key'][1]} names --extern {extern} with no file")
+                continue
+            if path not in by_file:
+                raise BuildRefused(f"{unit['key'][1]} links {path}, which this build did not produce")
+            found.append(by_file[path])
+        return found
+
+    runtime, queue = {id(runner): runner}, [runner]
+    while queue:
+        for linked in links(queue.pop()):
+            if linked["crate_types"] != ["proc-macro"] and id(linked) not in runtime:
+                runtime[id(linked)] = linked
+                queue.append(linked)
+    host = {id(u): u for u in by_key.values() if u["kind"] == ["custom-build"] or u["crate_types"] == ["proc-macro"]}
+    queue = list(host.values())
+    while queue:
+        for linked in links(queue.pop()):
+            if id(linked) not in host:
+                host[id(linked)] = linked
+                queue.append(linked)
+    both = sorted(u["key"][1] for k, u in runtime.items() if k in host)
+    if both:
+        raise BuildRefused(f"units linked both at runtime and at build time: {both}")
+    outside = sorted(u["key"][1] for k, u in ((id(u), u) for u in by_key.values()) if k not in runtime and k not in host)
+    if outside:
+        raise BuildRefused(f"units neither linked by the runner nor used at build time: {outside}")
+    # Build scripts: what they told cargo, what they generated, and how they ran.
+    scripts = {}
+    for message in parsed["scripts"]:
+        package = packages.get(message.get("package_id"))
+        if package is None or package["id"] in scripts:
+            raise BuildRefused(f"build-script output for {message.get('package_id')} is not one script of this build")
+        if message.get("linked_libs") or message.get("linked_paths"):
+            raise BuildRefused(f"{package['id']}'s build script adds link inputs {message.get('linked_libs')} "
+                               f"{message.get('linked_paths')}; outside this runner's supported closure")
+        if not _inside(message.get("out_dir", ""), target):
+            raise BuildRefused(f"{package['id']}'s build-script output directory is outside the target directory")
+        cfgs, env = [], []
+        for text in parsed["directives"].pop((package["name"], package["version"]), []):
+            match = re.fullmatch(r"cargo::?([a-z-]+)=(.*)", text, re.S)
+            if not match or match[1] not in BUILD_SCRIPT_DIRECTIVES:
+                raise BuildRefused(f"unknown build-script output from {package['id']}: {text[:160]!r}")
+            if match[1] == "rustc-cfg":
+                cfgs.append(match[2])
+            elif match[1] == "rustc-env":
+                name, has_value, value = match[2].partition("=")
+                if not has_value:
+                    raise BuildRefused(f"{package['id']} declares rustc-env {match[2]!r} with no value")
+                env.append([name, value])
+        if cfgs != message.get("cfgs") or env != message.get("env"):
+            raise BuildRefused(f"{package['id']}'s build-script output and cargo's record of it disagree")
+        files = list_generated(message["out_dir"])
+        allowed = set(closure["generated_sources"].get(package["name"], []))
+        unknown = sorted(set(files) - allowed)
+        if unknown:
+            raise BuildRefused(f"{package['id']}'s build script generated {unknown}, an arrangement outside this "
+                               "runner's supported closure")
+        scripts[package["id"]] = {"message": message, "env": dict(env), "generated": files, "run": None}
+    if parsed["directives"]:
+        raise BuildRefused(f"build-script output from {sorted(parsed['directives'])} that cargo did not record")
+    # Each attested unit: its settings, its flags, its environment.
+    blocks = {"runtime": settings["runtime"], "host": settings["host"]}
+    served: dict[str, set] = {}
+    for unit in by_key.values():
+        cls = "runtime" if id(unit) in runtime else "host"
+        block, artifact, args, env = blocks[cls], unit["artifact"], unit["args"], unit["invocation"]["env"]
+        what = f"{unit['package']['id']} ({unit['key'][1]}, {cls})"
+        check_settings(what, cls, block, unit)
+        for path in args["lib_paths"]:
+            kind, _, where = path.partition("=")
+            if kind != "dependency" or not _inside(where, target):
+                raise BuildRefused(f"{what} searches -L {path}; only this build's own dependency directory is accepted")
+        if not _inside(args["out_dir"], target):
+            raise BuildRefused(f"{what} writes outside the target directory")
+        source = args["sources"][0]
+        if source != artifact["target"]["src_path"] and \
+                os.path.join(env.get("CARGO_MANIFEST_DIR", ""), source) != artifact["target"]["src_path"]:
+            raise BuildRefused(f"{what} compiles {source}, not {artifact['target']['src_path']}")
+        if env.get("CARGO_MANIFEST_PATH") != artifact["manifest_path"] or env.get("CARGO_PKG_NAME") != \
+                unit["package"]["name"] or env.get("CARGO_PKG_VERSION") != unit["package"]["version"]:
+            raise BuildRefused(f"{what}'s compiler environment names another package")
+        features = sorted(c for c in args["cfgs"] if c.startswith("feature="))
+        if features != sorted(f'feature="{f}"' for f in artifact["features"]):
+            raise BuildRefused(f"{what}'s feature cfgs are not cargo's resolved features {artifact['features']}")
+        other_cfgs = sorted(c for c in args["cfgs"] if not c.startswith("feature="))
+        script = None
+        if "OUT_DIR" in env:
+            script = scripts.get(unit["package"]["id"])
+            if script is None or script["message"]["out_dir"] != env["OUT_DIR"] or unit["kind"] == ["custom-build"]:
+                raise BuildRefused(f"{what}'s OUT_DIR is not its package's build-script output")
+            served.setdefault(unit["package"]["id"], set()).add(cls)
+        if other_cfgs != sorted(script["message"]["cfgs"] if script else []):
+            raise BuildRefused(f"{what} has --cfg {other_cfgs} that its build script did not declare")
+        declared = script["env"] if script else {}
+        for name, value in env.items():
+            if name in RUSTC_ENV or name in LIBRARY_PATH_ENV or name.startswith("CARGO_PKG_"):
+                continue
+            if declared.get(name) != value:
+                raise BuildRefused(f"{what} was compiled with an unexpected environment variable {name}")
+        unit["class"] = cls
+    for package_id, script in scripts.items():
+        if len(served.get(package_id, ())) != 1:
+            raise BuildRefused(f"{package_id}'s build script serves {sorted(served.get(package_id, ()))} units, not one class")
+    for run in runs:
+        compile_unit = scripts_by_program[run["program"]]
+        env = run["env"]
+        script = scripts.get(compile_unit["package"]["id"])
+        if script is None or script["run"] is not None or env.get("OUT_DIR") != script["message"]["out_dir"]:
+            raise BuildRefused(f"the build-script run on stderr line {run['line']} is not one script's run")
+        script["run"] = run
+        cls = served[compile_unit["package"]["id"]].copy().pop()
+        block = blocks[cls]["profile"]
+        wanted = {"CARGO_ENCODED_RUSTFLAGS": "", "RUSTC": program, "HOST": rustc["host"], "TARGET": rustc["host"],
+                  "PROFILE": PROFILE, "OPT_LEVEL": block["opt_level"], "DEBUG": "true" if block["debuginfo"] else "false"}
+        for name, value in wanted.items():
+            if env.get(name) != value:
+                raise BuildRefused(f"{compile_unit['package']['id']}'s build script ran with {name}={env.get(name)!r}, "
+                                   f"not {value!r}")
+        for name in env:
+            if name not in BUILD_SCRIPT_ENV and name not in LIBRARY_PATH_ENV and not name.startswith(BUILD_SCRIPT_ENV_PREFIXES):
+                raise BuildRefused(f"{compile_unit['package']['id']}'s build script ran with an unexpected environment "
+                                   f"variable {name}")
+        if run["args"]:
+            raise BuildRefused(f"the build-script run on stderr line {run['line']} has arguments")
+    for package_id, script in scripts.items():
+        if script["run"] is None:
+            raise BuildRefused(f"{package_id}'s build script has no run in the -vv output")
+    rustc_output = os.path.join(runner["args"]["out_dir"],
+                                runner["args"]["crate_name"] + str(runner["args"]["codegen"].get("extra-filename", "")))
+    return {
+        "rustc": rustc,
+        "runtime_units": sorted(f"{u['package']['name']} {u['package']['version']} {u['key'][1]}" for u in runtime.values()),
+        "host_units": sorted(f"{u['package']['name']} {u['package']['version']} {u['key'][1]}" for u in host.values()),
+        "build_scripts": len(scripts),
+        "registry_packages": len(registry_checked),
+        "generated": {pid: s["generated"] for pid, s in sorted(scripts.items()) if s["generated"]},
+        "runner": {"rustc_output": rustc_output, "executable": runner["artifact"].get("executable")},
+    }
+
+
+def check_settings(what: str, cls: str, block: dict, unit: dict) -> None:
+    """A unit's settings, from its JSON profile and its -C options (all but the two that name it), must be
+    exactly its class's block; a proc macro also carries the block's proc_macro_codegen."""
+    artifact, args = unit["artifact"], unit["args"]
+    profile = {key: artifact["profile"].get(key) for key in PROFILE_KEYS}
+    if profile != block["profile"] or artifact["profile"].get("test") is not False:
+        raise BuildRefused(f"{what} was built with profile {artifact['profile']}, not the {cls} settings {block['profile']}")
+    expected = {k: v for k, v in block["codegen"].items() if v is not None}
+    if cls == "host" and unit["crate_types"] == ["proc-macro"]:
+        expected.update({k: v for k, v in block["proc_macro_codegen"].items() if v is not None})
+    actual = {k: v for k, v in args["codegen"].items() if k not in UNIT_ID_KEYS}
+    if actual != expected:
+        raise BuildRefused(f"{what} was compiled with -C {actual}, not the {cls} settings {expected}")
+
+
+def build_driver(tree: Path, sha: str, target: Path, cargo: list[str], jobs: int, scratch: Path, side: str,
+                 manifest: dict) -> dict:
+    """Builds the driver from `tree` into the fresh target directory `target` and attests the build.
+    Returns the build record; raises SetupError (exit 2, before any run) on any refusal."""
+    if target.exists() and (not target.is_dir() or any(target.iterdir())):
+        raise SetupError(f"target directory {target} exists and is not an empty directory; each build is fresh")
+    target.mkdir(parents=True, exist_ok=True)
+    tree, target = tree.resolve(), target.resolve()
     binary = target / PROFILE / DRIVER_BIN
-    # A binary left by an earlier build is removed first: the binary used is one this build linked.
-    if binary.exists():
-        binary.unlink()
-    command = [*cargo, "build", "--release", "--locked", "--manifest-path", str(tree / DRIVER_CRATE / "Cargo.toml"),
-               "--target-dir", str(target), "--bin", DRIVER_BIN, "-j", str(jobs)]
+    command = [*cargo, "build", "-vv", "--message-format=json", "--release", "--locked", "--manifest-path",
+               str(tree / DRIVER_CRATE / "Cargo.toml"), "--target-dir", str(target), "--bin", DRIVER_BIN, "-j", str(jobs)]
+    messages, log = scratch / f"build-{side}.jsonl", scratch / f"build-{side}.log"
     started = time.time()
-    with open(log, "wb") as handle:
-        result = subprocess.run(command, cwd=tree / DRIVER_CRATE, stdout=handle, stderr=subprocess.STDOUT,
-                                env=clean_env())
+    with open(messages, "wb") as out, open(log, "wb") as err:
+        result = subprocess.run(command, cwd=tree / DRIVER_CRATE, stdout=out, stderr=err, env=clean_env())
     if result.returncode != 0:
         raise SetupError(f"the build of {sha} exited {result.returncode}; see {log}")
     if not binary.is_file() or binary.stat().st_mtime < started - 1:
@@ -445,7 +1011,27 @@ def build_driver(tree: Path, sha: str, target: Path, cargo: list[str], jobs: int
     status = worktree_status(tree)
     if status:
         raise SetupError(f"worktree {tree} is not clean after the build:\n{status}")
-    return {"command": command, "binary": str(binary), "seconds": round(time.time() - started, 1)}
+    try:
+        parsed = parse_build_output(messages.read_text(encoding="utf-8"), log.read_text(encoding="utf-8"))
+        rustc = rustc_identity(compiler_program(parsed))
+        lock = tree / DRIVER_CRATE / "Cargo.lock"
+        attestation = attest_build(parsed, tree=str(tree), target=str(target), lock_text=lock.read_text(encoding="utf-8"),
+                                   settings=manifest["build_settings"], closure=manifest["build_closure"], rustc=rustc)
+    except (OSError, UnicodeDecodeError, KeyError, TypeError, AttributeError) as error:
+        raise BuildRefused(f"the build of {sha} could not be attested: {type(error).__name__}: {error}") from error
+    except BuildRefused as error:
+        raise BuildRefused(f"side {side} ({sha}): {error}") from error
+    # Binding: what rustc wrote, what cargo uplifted, and (by the caller) the copy that runs.
+    runner = attestation["runner"]
+    if runner["executable"] is None or Path(runner["executable"]).resolve() != binary:
+        raise BuildRefused(f"side {side}: cargo's executable {runner['executable']} is not {binary}")
+    output_sha256, binary_sha256 = sha256_file(Path(runner["rustc_output"])), sha256_file(binary)
+    if output_sha256 != binary_sha256:
+        raise BuildRefused(f"side {side}: the binary {binary} is not the file rustc wrote, {runner['rustc_output']}")
+    return {"command": command, "binary": str(binary), "seconds": round(time.time() - started, 1),
+            "log": str(log), "log_sha256": sha256_file(log), "messages": str(messages),
+            "messages_sha256": sha256_file(messages), "rustc_output_sha256": output_sha256,
+            "binary_sha256": binary_sha256, "attestation": attestation}
 
 
 def check_identity(binary: Path, sha: str, tree_sha: str) -> dict:
@@ -564,17 +1150,22 @@ def _compare_in_worktrees(args, repo, scratch, manifest, manifest_path, cargo, w
             failures.append(f"{side}: {path} is under a stated root and not in the manifest")
         for path in info["coverage"]["missing"]:
             failures.append(f"{side}: manifest path {path} does not exist")
-    # Build and check both sides before anything runs.
+    # Build, attest and check both sides before anything runs.
     for side, info in sides.items():
-        info["target"].mkdir(parents=True, exist_ok=True)
-        info["build"] = build_driver(info["worktree"], info["sha"], info["target"], cargo, args.jobs,
-                                     scratch / f"build-{side}.log")
+        info["build"] = build_driver(info["worktree"], info["sha"], info["target"], cargo, args.jobs, scratch, side,
+                                     manifest)
         info["bin_dir"].mkdir(parents=True, exist_ok=True)
         binary = info["bin_dir"] / DRIVER_BIN
         shutil.copy2(info["build"]["binary"], binary)
         info["binary"] = binary
         info["binary_sha256"] = sha256_file(binary)
-        info["identity"] = check_identity(binary, info["sha"], info["tree_sha"])
+        if info["binary_sha256"] != info["build"]["binary_sha256"]:
+            raise BuildRefused(f"side {side}: the copy that runs, {binary}, is not the binary the build attested")
+    versions = {side: info["build"]["attestation"]["rustc"]["version"] for side, info in sides.items()}
+    if versions["A"] != versions["B"]:
+        raise BuildRefused(f"rustc -vV differs between the sides:\nA:\n{versions['A']}B:\n{versions['B']}")
+    for side, info in sides.items():
+        info["identity"] = check_identity(info["binary"], info["sha"], info["tree_sha"])
     # Inputs: the lift applied to temporary copies under the scratch directory only.
     records = {}
     runs = []
@@ -674,9 +1265,22 @@ def render_table(sides, manifest, manifest_path, records, pairs, failures, cargo
         out.append(f"| {side} | {info['rev']} | {info['sha']} | {info.get('binary_sha256', '-')} | "
                    f"{str(identity.get('source_commit', '-'))[:12]}, {identity.get('source_dirty')}, "
                    f"{identity.get('build_profile')} | {info.get('target_version', '-')} |")
-    rustc = next((line for line in sides["A"].get("identity", {}).get("rustc", []) if line.startswith("rustc ")), "")
-    if rustc:
-        out.append(f"\nToolchain (A): {rustc}")
+    out.append("")
+    out.append("Build attestation (every unit compiled by this build, from its JSON messages and -vv output):")
+    for side, info in sides.items():
+        build = info.get("build", {})
+        attestation = build.get("attestation", {})
+        rustc = attestation.get("rustc", {})
+        out.append(f"- {side}: {len(attestation.get('runtime_units', []))} runtime units at the runtime settings, "
+                   f"{len(attestation.get('host_units', []))} build-time units at the host settings, "
+                   f"{attestation.get('build_scripts', 0)} build scripts, "
+                   f"{attestation.get('registry_packages', 0)} registry packages matched to Cargo.lock; "
+                   f"rustc output = uplifted binary = copy run ({build.get('rustc_output_sha256', '-')}); "
+                   f"-vv log {build.get('log_sha256', '-')}, JSON messages {build.get('messages_sha256', '-')}; "
+                   f"compiler {rustc.get('program', '-')}, sysroot {rustc.get('sysroot', '-')} (trusted)")
+    version = sides["A"].get("build", {}).get("attestation", {}).get("rustc", {}).get("version", "")
+    if version:
+        out.append(f"- rustc -vV, identical on both sides: {' | '.join(version.strip().splitlines())}")
     out.append("")
     out.append("| fixture | mode | A | B | verdict |")
     out.append("|---|---|---|---|---|")
