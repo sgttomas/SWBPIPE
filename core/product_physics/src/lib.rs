@@ -6025,7 +6025,7 @@ fn solve_prepared_load_case(
     }
     // RT-A5 (operating-case §7.3): a held solve takes the held step in place of the loop.
     let held = role.held();
-    let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) =
+    let (selected_nonlinear, nonlinear_standing, nonlinear_qualification, nonlinear_staged) =
         match append_nonlinear_support_loop_results(
             &mut results,
             diagnostics,
@@ -6041,10 +6041,10 @@ fn solve_prepared_load_case(
             load_row_finding.is_none(),
             &mut role,
         ) {
-            Some((solve, nonlinear, qualification)) => {
-                (Some(solve), Some(nonlinear), qualification)
+            Some((solve, nonlinear, qualification, staged)) => {
+                (Some(solve), Some(nonlinear), qualification, staged)
             }
-            None => (None, None, None),
+            None => (None, None, None, None),
         };
     if !built.nonlinear_supports.is_empty() {
         match &selected_nonlinear {
@@ -6181,6 +6181,36 @@ fn solve_prepared_load_case(
     };
     let member_bound = linear_bound.filter(|_| correction_failure.is_none());
     let confirmed = confirmed_candidate.filter(|_| correction_failure.is_none());
+    // DEL-04-07 *Published displacement*: the case's single publication-basis
+    // decision. Everything that depends on the confirmation follows `confirmed`
+    // from here, and nothing on its basis was committed before: the staged
+    // confirmation-basis rows are released only if the case stays confirmed; a
+    // held case's record that was staged as established is withdrawn, with the
+    // reason, if not; the state evidence, the held-status source, the bound and
+    // the integrity sentence below read `confirmed`.
+    let released = confirmed.is_some() && nonlinear_staged.is_some();
+    #[cfg(test)]
+    corrected_displacement_tests::NONLINEAR_REACTION_PROBE.with(|probe| {
+        if let (Some(records), Some(solve)) = (probe.borrow_mut().as_mut(), selected_nonlinear.as_ref()) {
+            records.push(corrected_displacement_tests::NonlinearReactionPublication {
+                case_id: load_case.id.clone(),
+                loop_reactions: solve.reactions.clone(),
+                published: nonlinear_staged.as_ref().filter(|_| released).map_or_else(|| solve.reactions.clone(), |staged| staged.reactions.clone()),
+            });
+        }
+    });
+    if let Some(staged) = nonlinear_staged.filter(|_| released) {
+        release_confirmed_rows(&mut results, staged);
+    }
+    if confirmed_state.is_some() && confirmed.is_none() {
+        if let held_status::CaseRole::Held(request) = &mut role {
+            let reason = match &correction_failure {
+                Some(failure) => displacement_correction_failed(model, failure),
+                None => "the case's integrity verdict after the publication guards is not NUMERICAL_INTEGRITY_CHECKS_PASSED".to_string(),
+            };
+            request.withdraw_established(&reason);
+        }
+    }
     let nonlinear_sentence = correction_failure
         .as_ref()
         .map(|failure| displacement_correction_sentence(model, failure))
@@ -7704,7 +7734,7 @@ fn append_nonlinear_support_loop_results(
     confirm: bool,
     // RT-A5 (operating-case §7.3): a held solve takes the held step in place of the loop.
     role: &mut held_status::CaseRole<'_, '_>,
-) -> Option<(NonlinearFrameSolveResult, NonlinearStanding, Option<NonlinearQualification>)> {
+) -> Option<NonlinearCaseSolve> {
     if built.nonlinear_supports.is_empty() {
         return None;
     }
@@ -7863,26 +7893,118 @@ fn append_nonlinear_support_loop_results(
                     solver_mode,
                 );
             }
-            // §3.1: a confirmed state publishes each nonlinear support's
-            // certified slot row and the certified source reaction of each
-            // derived normal; otherwise the loop's reported reactions.
-            let mut published_reactions = solve.reactions.clone();
-            if let Some(Confirmation::Established(state)) = &confirmation {
-                for row in state.supports.values().chain(state.derived_normals.values()) {
-                    published_reactions[row.global_dof] = row.row.published;
+            // DEL-04-07 *Published displacement*: one publication-basis decision
+            // per case, made in `run_case` after every publication guard and the
+            // corrected displacement. Nothing here commits a value on the
+            // confirmation's basis: the dependent rows (the derived-normal
+            // evidence and each support's state, displacement and reaction rows)
+            // are written on the loop's own reactions, and the same rows on the
+            // confirmed state's certified reactions (§3.1: each nonlinear
+            // support's certified slot row and the certified source reaction of
+            // each derived normal) are staged, for that decision alone to release.
+            let emit_dependent_rows = |results: &mut Vec<ResultItem>, reactions: &[f64]| {
+                append_nonlinear_friction_normal_evidence(
+                    results,
+                    &built.nonlinear_friction_normal_reactions,
+                    &built.nonlinear_derived_friction_normal_reactions,
+                    &built.nonlinear_supports,
+                    &solve.final_states,
+                    reactions,
+                    &solve.policy_ref,
+                    solver_mode,
+                );
+                for state in &solve.final_states {
+                    let Some(support) = built
+                        .nonlinear_supports
+                        .iter()
+                        .find(|candidate| candidate.support_id == state.support_id)
+                    else {
+                        continue;
+                    };
+                    let global = support.node_index * DOF_PER_NODE + dof_index(support.dof);
+                    let suffix = stable_suffix(&support.support_id);
+                    let dof = support.dof.as_str();
+                    append_nonlinear_scalar_result(
+                        results,
+                        &format!("result:nonlinear-support:{suffix}:state-code"),
+                        "nonlinear_support_active_set_state_code",
+                        active_set_state_code(state.state),
+                        "state_code",
+                        &support.support_id,
+                        "active_set_state_code",
+                        dof,
+                        &format!(
+                            "{}_active_set_loop; policy_ref={}; final_state={}",
+                            solver_mode.as_str(),
+                            solve.policy_ref,
+                            state.state.as_str()
+                        ),
+                        "0=inactive, 1=active, 2=sticking, 3=sliding",
+                    );
+                    let displacement_scale = if support.dof.is_translational() {
+                        1000.0
+                    } else {
+                        1.0
+                    };
+                    let displacement_unit = if support.dof.is_translational() {
+                        "mm"
+                    } else {
+                        "rad"
+                    };
+                    append_nonlinear_scalar_result(
+                        results,
+                        &format!("result:nonlinear-support:{suffix}:{dof}-displacement"),
+                        "nonlinear_support_final_displacement",
+                        solve.displacements[global] * displacement_scale,
+                        displacement_unit,
+                        &support.support_id,
+                        "nonlinear_support_final_displacement",
+                        dof,
+                        &format!(
+                            "{}_active_set_loop; policy_ref={}; final_state={}",
+                            solver_mode.as_str(),
+                            solve.policy_ref,
+                            state.state.as_str()
+                        ),
+                        "positive value follows the global frame DOF sign convention",
+                    );
+                    let reaction_unit = if support.dof.is_translational() {
+                        "N"
+                    } else {
+                        "N*m"
+                    };
+                    append_nonlinear_scalar_result(
+                        results,
+                        &format!("result:nonlinear-support:{suffix}:{dof}-reaction"),
+                        "nonlinear_support_final_reaction",
+                        reactions[global],
+                        reaction_unit,
+                        &support.support_id,
+                        "nonlinear_support_final_reaction",
+                        dof,
+                        &format!(
+                            "{}_active_set_loop; policy_ref={}; final_state={}",
+                            solver_mode.as_str(),
+                            solve.policy_ref,
+                            state.state.as_str()
+                        ),
+                        "positive value follows the global frame DOF reaction sign convention",
+                    );
                 }
-            }
-            append_nonlinear_friction_normal_evidence(
-                results,
-                &built.nonlinear_friction_normal_reactions,
-                &built.nonlinear_derived_friction_normal_reactions,
-                &built.nonlinear_supports,
-                &solve.final_states,
-                &published_reactions,
-                &solve.policy_ref,
-                solver_mode,
-            );
-
+            };
+            emit_dependent_rows(results, &solve.reactions);
+            let staged = match &confirmation {
+                Some(Confirmation::Established(state)) => {
+                    let mut certified = solve.reactions.clone();
+                    for row in state.supports.values().chain(state.derived_normals.values()) {
+                        certified[row.global_dof] = row.row.published;
+                    }
+                    let mut rows = Vec::new();
+                    emit_dependent_rows(&mut rows, &certified);
+                    Some(StagedConfirmedRows { reactions: certified, rows })
+                }
+                _ => None,
+            };
             for state in &solve.final_states {
                 let Some(support) = built
                     .nonlinear_supports
@@ -7891,75 +8013,7 @@ fn append_nonlinear_support_loop_results(
                 else {
                     continue;
                 };
-                let global = support.node_index * DOF_PER_NODE + dof_index(support.dof);
                 let suffix = stable_suffix(&support.support_id);
-                let dof = support.dof.as_str();
-                append_nonlinear_scalar_result(
-                    results,
-                    &format!("result:nonlinear-support:{suffix}:state-code"),
-                    "nonlinear_support_active_set_state_code",
-                    active_set_state_code(state.state),
-                    "state_code",
-                    &support.support_id,
-                    "active_set_state_code",
-                    dof,
-                    &format!(
-                        "{}_active_set_loop; policy_ref={}; final_state={}",
-                        solver_mode.as_str(),
-                        solve.policy_ref,
-                        state.state.as_str()
-                    ),
-                    "0=inactive, 1=active, 2=sticking, 3=sliding",
-                );
-                let displacement_scale = if support.dof.is_translational() {
-                    1000.0
-                } else {
-                    1.0
-                };
-                let displacement_unit = if support.dof.is_translational() {
-                    "mm"
-                } else {
-                    "rad"
-                };
-                append_nonlinear_scalar_result(
-                    results,
-                    &format!("result:nonlinear-support:{suffix}:{dof}-displacement"),
-                    "nonlinear_support_final_displacement",
-                    solve.displacements[global] * displacement_scale,
-                    displacement_unit,
-                    &support.support_id,
-                    "nonlinear_support_final_displacement",
-                    dof,
-                    &format!(
-                        "{}_active_set_loop; policy_ref={}; final_state={}",
-                        solver_mode.as_str(),
-                        solve.policy_ref,
-                        state.state.as_str()
-                    ),
-                    "positive value follows the global frame DOF sign convention",
-                );
-                let reaction_unit = if support.dof.is_translational() {
-                    "N"
-                } else {
-                    "N*m"
-                };
-                append_nonlinear_scalar_result(
-                    results,
-                    &format!("result:nonlinear-support:{suffix}:{dof}-reaction"),
-                    "nonlinear_support_final_reaction",
-                    published_reactions[global],
-                    reaction_unit,
-                    &support.support_id,
-                    "nonlinear_support_final_reaction",
-                    dof,
-                    &format!(
-                        "{}_active_set_loop; policy_ref={}; final_state={}",
-                        solver_mode.as_str(),
-                        solve.policy_ref,
-                        state.state.as_str()
-                    ),
-                    "positive value follows the global frame DOF reaction sign convention",
-                );
                 diagnostics.push(diag(
                     &format!(
                         "diagnostic:nonlinear:{}:{}:state",
@@ -8014,7 +8068,7 @@ fn append_nonlinear_support_loop_results(
                     "confirmation attempt: not run",
                 )),
             };
-            Some((solve, standing, qualification))
+            Some((solve, standing, qualification, staged))
         }
         Err(error) => {
             if let NonlinearIntegrationError::Structural(structural) = &error {
@@ -15559,6 +15613,39 @@ struct DisplacementCorrectionFailure {
 
 /// Every component's corrected displacement (`certify_displacement`'s published
 /// value), or the first component that cannot be formed.
+/// A nonlinear case's solve, standing, qualification and, where its
+/// confirmation was established, its staged confirmation-basis rows.
+pub(crate) type NonlinearCaseSolve = (
+    NonlinearFrameSolveResult,
+    NonlinearStanding,
+    Option<NonlinearQualification>,
+    Option<StagedConfirmedRows>,
+);
+
+/// A confirmed nonlinear case's rows on the confirmation's basis (DEL-04-07
+/// *Published displacement*): the certified reactions, and the rows that
+/// depend on them, built but not committed. The case's single
+/// publication-basis decision in `run_case` releases them, each in place of
+/// the row of the same id written on the loop's own reactions, only if the
+/// case stays confirmed.
+#[derive(Debug, Clone)]
+pub(crate) struct StagedConfirmedRows {
+    pub reactions: Vec<f64>,
+    pub rows: Vec<ResultItem>,
+}
+
+/// Releases the staged rows: each replaces the committed row of the same id
+/// and kind, which must exist exactly once.
+fn release_confirmed_rows(results: &mut [ResultItem], staged: StagedConfirmedRows) {
+    for row in staged.rows {
+        let mut matching = results.iter_mut().filter(|committed| committed.id == row.id);
+        let committed = matching.next().unwrap_or_else(|| panic!("staged row {} has no committed row", row.id));
+        assert!(matching.next().is_none(), "staged row {} is not unique", row.id);
+        assert_eq!(committed.kind, row.kind, "staged row {} changed kind", row.id);
+        *committed = row;
+    }
+}
+
 fn corrected_nodal_displacements(
     displacements: &[f64],
     bound: &MemberBoundInputs,

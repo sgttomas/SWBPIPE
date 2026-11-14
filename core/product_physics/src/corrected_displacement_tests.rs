@@ -29,7 +29,19 @@ pub(crate) struct DisplacementPublication {
     pub confirmed_evidence: Option<bool>,
 }
 
+/// One nonlinear case's reaction vector as published (the source of its
+/// nonlinear reaction rows and derived-normal evidence), beside the loop's own
+/// reactions (test-only probe in `append_nonlinear_support_loop_results`).
+#[derive(Debug, Clone)]
+pub(crate) struct NonlinearReactionPublication {
+    pub case_id: String,
+    pub loop_reactions: Vec<f64>,
+    pub published: Vec<f64>,
+}
+
 thread_local! {
+    /// Records each nonlinear case's published reaction vector beside the loop's own.
+    pub(crate) static NONLINEAR_REACTION_PROBE: std::cell::RefCell<Option<Vec<NonlinearReactionPublication>>> = const { std::cell::RefCell::new(None) };
     /// Makes the named case's solve displacement non-finite before publication.
     pub(crate) static FORCED_NONFINITE_DISPLACEMENT: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
     /// Forces `corrected_nodal_displacements` to fail at this DOF with this step.

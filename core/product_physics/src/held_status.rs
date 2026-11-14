@@ -549,6 +549,22 @@ pub(crate) struct HeldRequest<'s> {
     pub outcome: Option<Result<HeldRun, HeldStatusRefusal>>,
 }
 
+impl HeldRequest<'_> {
+    /// DEL-04-07 *Published displacement*: the case's publication-basis decision
+    /// withdraws a record staged as established when the case does not stay
+    /// confirmed. It is then not established, with `reason`, and carries no
+    /// conditions, so no certified bit is recorded; any other record is unchanged.
+    pub(crate) fn withdraw_established(&mut self, reason: &str) {
+        if let Some(Ok(run)) = &mut self.outcome {
+            if run.evidence.outcome == Outcome::Established {
+                run.evidence.outcome = Outcome::NotEstablished;
+                run.evidence.standing = not_established(reason);
+                run.evidence.conditions = None;
+            }
+        }
+    }
+}
+
 /// What a held solve that ran states: its evidence, and whether the held iterate converged,
 /// with the loop's exit diagnostic when it did not (a release is never promoted).
 #[derive(Debug, Clone)]
@@ -604,7 +620,7 @@ pub(crate) fn held_solve(
     solver_mode: PreviewSolverMode,
     spring_entries: &[SpringEntry],
     confirm: bool,
-) -> Option<(NonlinearFrameSolveResult, NonlinearStanding, Option<NonlinearQualification>)> {
+) -> Option<crate::NonlinearCaseSolve> {
     let input = match crate::nonlinear_frame_input(built, restrained_dofs, base_motion, ground_motion, force) {
         Ok(input) => input,
         Err(error) => {
@@ -650,12 +666,15 @@ pub(crate) fn held_solve(
     let converged = held.result.converged;
     let HeldStatusSolve { result, confirmation, .. } = held;
     // Only E publishes the certified rows; every other outcome's rows are binary64 recoveries.
+    // An E record is staged: the case's publication-basis decision in `run_case`
+    // withdraws it (`HeldRequest::withdraw_established`) if the case does not
+    // stay confirmed. The held route writes no confirmation-basis row itself.
     let standing = match (evidence.outcome, confirmation) {
         (Outcome::Established, Confirmation::Established(state)) => NonlinearStanding::Confirmed(state),
         _ => NonlinearStanding::NotEstablished(evidence.standing.clone()),
     };
     request.outcome = Some(Ok(HeldRun { evidence, converged, exit }));
-    Some((result, standing, None))
+    Some((result, standing, None, None))
 }
 
 /// A `minuend_final` combination's held operand.
