@@ -261,6 +261,7 @@ code_paths:
 - tools/validation/pressure_elongation.py
 - tools/validation/pressure_elongation_anchor.py
 - tools/validation/pressure_elongation_inventory.py
+- tools/validation/pressure_elongation_inventory.declarations.json
 - tools/validation/pressure_elongation_inventory.json
 - validation/platform/windows_runner_startup_probe/**
 - validation/platform/windows_arena_probe/**
@@ -321,6 +322,7 @@ checks:
 - tests/test_pressure_elongation_readers.py
 - tests/test_pressure_cancellation_exception_readers.py
 - tools/validation/test_pressure_elongation_anchor.py
+- tools/validation/test_pressure_elongation_inventory.py
 - validation/platform/windows_runner_startup_probe/run.ps1
 - validation/platform/windows_arena_probe/run.ps1
 - validation/platform/windows_worker_fixture/run.ps1
