@@ -1132,7 +1132,7 @@ def attest_captured(stdout=lambda t: t, stderr=lambda t: t, lock=lambda t: t, ob
     file-system resolution is the plain path (the link check is tested below on real links)."""
     seen = observed(json.loads((CAPTURED / "observed.json").read_text()))
     deps = dep_info(json.loads((CAPTURED / "dep_info.json").read_text()))
-    parsed = bc.parse_build_output(stdout((CAPTURED / "stdout.jsonl").read_text()),
+    parsed = bc.parse_build_output(stdout((CAPTURED / "stdout.log").read_text()),
                                    stderr((CAPTURED / "stderr.log").read_text()))
     rustc = {"program": "/SYSROOT/bin/rustc", "version": seen["rustc_version"], "sysroot": "/SYSROOT", "host": seen["host"]}
     manifest = bc.load_manifest(MANIFEST.read_text())
@@ -1309,7 +1309,7 @@ def test_a_departure_in_the_captured_build_is_refused(case):
 
 
 def test_a_wrapper_or_second_compiler_is_not_the_build_compiler():
-    stdout = (CAPTURED / "stdout.jsonl").read_text()
+    stdout = (CAPTURED / "stdout.log").read_text()
     stderr = (CAPTURED / "stderr.log").read_text()
     assert bc.compiler_program(bc.parse_build_output(stdout, stderr)) == "/SYSROOT/bin/rustc"
     for old, new, needle in (("/SYSROOT/bin/rustc --crate-name itoa ", "/HOME/bin/sccache /SYSROOT/bin/rustc --crate-name itoa ",
