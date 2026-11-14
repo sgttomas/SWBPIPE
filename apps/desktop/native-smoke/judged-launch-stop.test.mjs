@@ -2,8 +2,9 @@
 // child Node processes with the real exit (`exitAfterSignals`), as `run.mjs` and `mbf-journey.mjs` attach it: a stop
 // must end the process before the next phase. Each child feeds a judgedPhase-shaped result through
 // `Promise.resolve(result).then(handler)`, awaits it as the runners await `launch()`, and then writes a second-start
-// marker; the marker exists only if the handler let the run go on. It also checks, in the runners' source, that each
-// attaches exactly this handler to `judgedPhase`'s result and passes it no exit of its own. Nothing is launched.
+// marker; the marker exists only if the handler let the run go on. It also checks the runners' syntax tree: each
+// launch function returns `judgedPhase(...)` with exactly this handler attached, every launch is awaited, and no exit
+// is passed. Nothing is launched.
 // Runs on macOS and Linux.
 //
 //   node --test apps/desktop/native-smoke/judged-launch-stop.test.mjs
@@ -14,6 +15,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import ts from "typescript";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 let dir, child;
@@ -80,23 +82,83 @@ for (const form of ["run", "mbf"]) {
   });
 }
 
-test("each runner returns exactly this handler's promise from its launch function, awaits every launch, and passes no exit", () => {
-  for (const [file, keys] of [["run.mjs", ["prefix", "phase", "state"]], ["mbf-journey.mjs", ["prefix", "phase", "evidenceRoot"]]]) {
-    const text = readFileSync(path.join(here, file), "utf8");
-    const starts = [...text.matchAll(/judgedPhase\(\{/g)];
-    assert.equal(starts.length, 1, `${file}: one judgedPhase call`);
-    // The launch function RETURNS the handled promise: attached and ignored would be the uncalled handler again.
-    assert.equal(text.slice(starts[0].index - "return ".length, starts[0].index), "return ", `${file}: the launch function returns judgedPhase(...)`);
-    const attached = /\n {2}\}\)\.then\(phaseContinuation\(\{([^{}]*)\}\)\);\n\}/.exec(text.slice(starts[0].index));
-    assert.ok(attached, `${file}: return judgedPhase(...).then(phaseContinuation({...})); ends the launch function`);
-    // And every call of launch() is awaited before anything after it runs.
-    const calls = [...text.matchAll(/(^|[^\w.])launch\(/gm)].filter((match) => !text.slice(Math.max(0, match.index - 9), match.index + 1).includes("function"));
-    assert.ok(calls.length >= 2, `${file}: its launches are found`);
-    for (const call of calls) assert.equal(text.slice(call.index - 5, call.index + call[1].length), "await" + call[1], `${file}: launch() awaited at offset ${call.index}`);
-    const between = text.slice(starts[0].index, starts[0].index + attached.index);
-    assert.doesNotMatch(between, /\.(then|catch|finally)\(/, `${file}: nothing else is attached to judgedPhase's result`);
-    const given = attached[1].split(",").map((part) => part.split(":")[0].trim()).filter(Boolean);
-    assert.deepEqual(given, keys, `${file}: phaseContinuation's arguments`);
-    assert.ok(!given.includes("exit"), `${file}: the runner passes no exit`);
+// The runners' glue, read from their syntax tree (TypeScript's parser, a desktop devDependency), not their text, so
+// that spacing, comments and strings cannot satisfy it. Returns the problems found; empty when the source is right.
+function glueProblems(text, keys) {
+  const file = ts.createSourceFile("runner.mjs", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const problems = [];
+  const identifiers = [];
+  const visit = (node) => { if (ts.isIdentifier(node)) identifiers.push(node); ts.forEachChild(node, visit); };
+  visit(file);
+  const named = (name) => identifiers.filter((id) => id.text === name);
+  // Both names are the shared module's own bindings, imported once and never declared again.
+  for (const name of ["judgedPhase", "phaseContinuation"]) {
+    const imported = file.statements.filter((statement) => ts.isImportDeclaration(statement) && statement.moduleSpecifier.text === "./judged-launch.mjs"
+      && statement.importClause?.namedBindings?.elements?.some((element) => element.name.text === name && !element.propertyName));
+    if (imported.length !== 1) problems.push(`${name} is not imported once from ./judged-launch.mjs`);
+    const declared = named(name).filter((id) => id.parent && (ts.isVariableDeclaration(id.parent) || ts.isFunctionDeclaration(id.parent) || ts.isParameter(id.parent) || ts.isClassDeclaration(id.parent)) && id.parent.name === id);
+    if (declared.length > 0) problems.push(`${name} is declared again in the runner`);
+  }
+  // One judgedPhase call, inside the launch function, whose result has exactly phaseContinuation({...}) attached,
+  // directly, and that handled promise is what the launch function returns.
+  const launchFunction = file.statements.find((statement) => ts.isFunctionDeclaration(statement) && statement.name?.text === "launch");
+  if (!launchFunction) problems.push("no top-level function launch");
+  const calls = named("judgedPhase").filter((id) => ts.isCallExpression(id.parent) && id.parent.expression === id);
+  if (calls.length !== 1 || named("judgedPhase").length !== 2) problems.push(`judgedPhase is used other than in one call (${calls.length} calls)`);
+  const call = calls[0]?.parent;
+  const attach = call?.parent;
+  const handled = attach?.parent;
+  const okAttach = attach && ts.isPropertyAccessExpression(attach) && attach.expression === call && attach.name.text === "then"
+    && handled && ts.isCallExpression(handled) && handled.expression === attach && handled.arguments.length === 1;
+  if (!okAttach) problems.push("judgedPhase's result does not have exactly one .then(...) attached directly");
+  const continuation = okAttach ? handled.arguments[0] : null;
+  const okContinuation = continuation && ts.isCallExpression(continuation) && ts.isIdentifier(continuation.expression) && continuation.expression.text === "phaseContinuation"
+    && continuation.arguments.length === 1 && ts.isObjectLiteralExpression(continuation.arguments[0]);
+  if (!okContinuation) problems.push("the attached handler is not phaseContinuation({...})");
+  if (named("phaseContinuation").length !== 2) problems.push("phaseContinuation is used other than in that one call");
+  if (okAttach && !(ts.isReturnStatement(handled.parent) && handled.parent.expression === handled)) problems.push("the launch function does not return the handled promise itself");
+  if (okAttach && launchFunction) {
+    let owner = handled.parent;
+    while (owner && !ts.isFunctionLike(owner)) owner = owner.parent;
+    if (owner !== launchFunction) problems.push("the handled promise is not returned by the launch function");
+  }
+  if (okContinuation) {
+    const given = continuation.arguments[0].properties.map((property) => property.name && ts.isIdentifier(property.name) ? property.name.text : `<${ts.SyntaxKind[property.kind]}>`);
+    if (JSON.stringify(given) !== JSON.stringify(keys)) problems.push(`phaseContinuation's arguments are ${JSON.stringify(given)}, not ${JSON.stringify(keys)}`);
+  }
+  // Every use of launch other than its declaration is a call that is awaited.
+  const uses = named("launch").filter((id) => id !== launchFunction?.name);
+  if (uses.length < 2) problems.push("its launches are not found");
+  for (const id of uses) {
+    const used = id.parent;
+    if (!(ts.isCallExpression(used) && used.expression === id && ts.isAwaitExpression(used.parent) && used.parent.expression === used)) problems.push(`launch is used other than in an awaited call at line ${file.getLineAndCharacterOfPosition(id.getStart()).line + 1}`);
+  }
+  return problems;
+}
+
+const RUNNERS = [["run.mjs", ["prefix", "phase", "state"]], ["mbf-journey.mjs", ["prefix", "phase", "evidenceRoot"]]];
+
+test("each runner returns exactly this handler's promise from its launch function, awaits every launch, and passes no exit (syntax tree)", () => {
+  for (const [file, keys] of RUNNERS) assert.deepEqual(glueProblems(readFileSync(path.join(here, file), "utf8"), keys), [], file);
+});
+
+test("the glue check refuses each way around it the readers found or that would bring back an ignored stop", () => {
+  const text = readFileSync(path.join(here, "run.mjs"), "utf8");
+  const keys = RUNNERS[0][1];
+  const glue = '  }).then(phaseContinuation({ prefix: "native smoke", phase, state }));';
+  assert.ok(text.includes(glue), "the run.mjs glue line is where these mutations expect it");
+  const mutations = {
+    // The reader's R1: a handler before the shared one that removes the stop, spaced past a text match.
+    "an intervening handler": text.replace(glue, '  }).then ((result) => { delete result.stop; return result; }).then(phaseContinuation({ prefix: "native smoke", phase, state }));'),
+    "a handler after it": text.replace(glue, glue.replace("}));", "})).then((report) => report);")),
+    "the handled promise not returned": text.replace("  return judgedPhase({", "  void judgedPhase({").replace(glue, glue + "\n  // return judgedPhase({...}).then(phaseContinuation({ prefix, phase, state }));"),
+    "a launch not awaited": text.replace("const second = await launch(", "// const second = await launch(\nconst second = launch ("),
+    "an exit passed": text.replace(glue, glue.replace("phase, state }", "phase, state, exit: (code) => code }")),
+    "the glue only in a string": text.replace(glue, '  });\n  const glue = "}).then(phaseContinuation({ prefix, phase, state }))";').replace("  return judgedPhase({", "  return judgedPhase({"),
+    "a local phaseContinuation": text.replace("function launch(", "const phaseContinuation = () => (result) => result.report ?? result.read?.report;\nfunction launch(")
+  };
+  for (const [name, mutated] of Object.entries(mutations)) {
+    assert.notEqual(mutated, text, `${name}: the mutation applied`);
+    assert.ok(glueProblems(mutated, keys).length > 0, `${name}: refused`);
   }
 });
