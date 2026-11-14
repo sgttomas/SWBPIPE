@@ -50,8 +50,10 @@ export type RunVerdict = { calls: string[]; ended: string; refusal: { kind: stri
 const FIRST_PAGE_ROWS = 50;
 /** The session's solver mode (`resultsSessionState.ts:170`). */
 const SOLVER_MODE = "sparse_interactive";
-/** The decoder files a run's replies are judged by; a run from another head is judged only if these are unchanged. */
-const DECODER_PATHS = ["apps/desktop/src/services", "apps/desktop/src/features/results", "apps/desktop/src/test-support/after-worker"];
+/** The web's decoder trees (the services and the result readers they import). A run from another
+ * head is judged only if these are unchanged since it; this judge's own connecting checks are the
+ * current code, applied to every run. */
+const DECODER_PATHS = ["apps/desktop/src/services", "apps/desktop/src/features/results"];
 
 function fail(reason: string): never {
   throw new Error(`AFTER-WORKER-REPLY-REFUSED: ${reason}`);
