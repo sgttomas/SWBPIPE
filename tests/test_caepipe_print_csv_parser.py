@@ -18,6 +18,7 @@ from core.handoff.caepipe_external import (  # noqa: E402
     parse_caepipe_print_csv,
     read_caepipe_print_csv,
 )
+from core.handoff.caepipe_external.print_csv import PRINTED_DECIMALS, printed_resolution  # noqa: E402
 
 
 FIXTURE = ROOT / "fixtures" / "caepipe_external" / "invented" / "print_to_file_results.csv"
@@ -310,3 +311,63 @@ def test_a_value_that_overflows_on_conversion_is_refused():
         assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-VALUE-UNREPRESENTABLE"]
         assert result["load_cases"][SUSTAINED]["displacements"] == {}  # the row is not read
         json.dumps(result, allow_nan=False)                              # strictly serializable
+
+
+# -- printed resolution (invented text) -------------------------------------------------------------------------------
+def test_the_established_printed_resolution_is_si_in_degrees_only():
+    assert PRINTED_DECIMALS == {("SI", "mm"): 3, ("SI", "deg"): 4, ("SI", "N"): 0, ("SI", "Nm"): 0}
+
+
+def test_each_value_carries_its_printed_resolution_from_its_text():
+    result = read_caepipe_print_csv(FIXTURE)
+    printed = result["printed_resolution"][SUSTAINED]
+    # 0.001 mm and 0.0001 deg, in the output units; a blank field takes the column's resolution.
+    assert printed["displacements"]["20"] == {"ux": {"resolution": 0.001}, "uy": {"resolution": 0.001},
+                                              "uz": {"resolution": 0.001}, "rx": {"resolution": 0.0001},
+                                              "ry": {"resolution": 0.0001}, "rz": {"resolution": 0.0001}}
+    anchor = printed["anchor_loads_global"]["10"]
+    assert anchor["fx"] == {"resolution": 1.0} and anchor["mz"]["resolution"] is None  # "-40.5" N*m
+    assert "more than the 0" in anchor["mz"]["reason"]
+    # Element pairs, parallel to the element list by element_index.
+    elements = printed["element_forces_global"]
+    assert len(elements) == len(result["load_cases"][SUSTAINED]["element_forces_global"]) == 3
+    assert set(elements[0]) == {"from", "to"} and elements[0]["from"]["fx"] == {"resolution": 1.0}
+    assert set(printed) == set(result["load_cases"][SUSTAINED])
+
+
+def test_summed_restraint_rows_keep_the_column_resolution_or_lose_it():
+    def text(second: str) -> str:
+        return text_of(f"{SUSTAINED}: Loads on restraints,", "Node,Tag,FX (N),FY (N),FZ (N),,", "40,,1,2,,,", second)
+    result = parse_caepipe_print_csv(text("40,,3,4,,,"))
+    assert result["load_cases"][SUSTAINED]["restraint_loads_global"]["40"] == {"fx": 4.0, "fy": 6.0, "fz": 0.0}
+    assert result["printed_resolution"][SUSTAINED]["restraint_loads_global"]["40"]["fx"] == {"resolution": 1.0}
+    lost = parse_caepipe_print_csv(text("40,,3.5,4,,,"))["printed_resolution"][SUSTAINED]["restraint_loads_global"]
+    assert lost["40"]["fx"]["resolution"] is None and lost["40"]["fy"] == {"resolution": 1.0}
+
+
+def test_english_and_radian_values_carry_no_resolution_with_the_reason():
+    text = text_of(*anchor_block(SUSTAINED, "lb", "ft-lb"),
+                   *displacement_block(SUSTAINED, "Node,(inch),(inch),(inch),(deg),(deg),(deg),,")[:4],
+                   "20,1.000,-0.250,,0.5000,,,,")
+    printed = parse_caepipe_print_csv(text)["printed_resolution"][SUSTAINED]
+    for entry, label in ((printed["anchor_loads_global"]["10"]["fx"], "'lb'"),
+                         (printed["anchor_loads_global"]["10"]["my"], "'ft-lb'"),
+                         (printed["displacements"]["20"]["ux"], "'inch'"),
+                         (printed["displacements"]["20"]["rx"], "'deg'")):
+        assert entry["resolution"] is None and label in entry["reason"] and "English" in entry["reason"]
+    radians = parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED, "Node,(mm),(mm),(mm),(rad),(rad),(rad),,")[:4],
+                                              "20,1.500,,,1.0000,-0.5000,,,"))
+    node = radians["printed_resolution"][SUSTAINED]["displacements"]["20"]
+    assert node["ux"] == {"resolution": 0.001} and node["rx"]["resolution"] is None and "'rad'" in node["rx"]["reason"]
+
+
+def test_printed_resolution_never_infers_a_coarse_floor_from_the_text():
+    for text in ("", "0", "-0", "+0", "4.8", "4.80", "4.800", "-.5", "12."):
+        assert printed_resolution(text, "mm", "SI") == {"resolution": 0.001}, text
+    assert printed_resolution("1200", "N", "SI") == {"resolution": 1.0}
+    for text, words in (("4.8000", "more than the 3"), ("1E+00", "coarser than the 3"), ("1.5E+03", "coarser"),
+                        ("1.0E-03", "not in the fixed-point form"), ("1.2345E-01", "not in the fixed-point form"),
+                        ("1_0", "not in the fixed-point form"), (" 1", "not in the fixed-point form")):
+        entry = printed_resolution(text, "mm", "SI")
+        assert entry["resolution"] is None and words in entry["reason"], text
+    assert printed_resolution("1", "N", None)["resolution"] is None  # no system: not established

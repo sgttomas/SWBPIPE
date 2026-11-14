@@ -8,8 +8,11 @@ unit is ever assumed: every unit label must be one the layout prints for that
 column's quantity (SI or English; angles in deg or rad), one system and one angle
 unit per file. English and radian values are normalized to the parser's output
 units (mm, deg, N, N*m) with the unit catalog's exact definitions, and each
-section records the label every value was printed in. Unknown sections are skipped
-with an info diagnostic.
+section records the label every value was printed in. Each value also carries its
+printed resolution, taken from its printed text before conversion (`printed_resolution`):
+one unit in the last decimal place the format prints for its column's unit label, or none,
+with the reason, where that resolution is not established or the text does not show it.
+Unknown sections are skipped with an info diagnostic.
 
 Parsed values are correlation evidence only. Nothing here asserts agreement or
 compatibility with CAEPIPE, solver validation, code compliance or professional
@@ -26,7 +29,7 @@ import re
 from typing import Any
 
 
-PARSER_VERSION = "caepipe-print-csv-4"
+PARSER_VERSION = "caepipe-print-csv-5"
 DOCUMENT_KIND = "openpipestress.caepipe_print_csv.parsed"
 PAIRING_BASIS = "row_order_from_to_pairs"
 BINDING_BASIS = "writer_id_map_node_pairs"
@@ -66,6 +69,14 @@ _KEY_QUANTITY = {**{key: "force" for key in ("fx", "fy", "fz", "axial", "shear_y
                  **{key: "moment" for key in ("mx", "my", "mz", "torque", "moment_in_plane", "moment_out_of_plane")},
                  **{key: "length" for key in ("ux", "uy", "uz")}, **{key: "rotation" for key in ("rx", "ry", "rz")}}
 _SLOT = re.compile(r"\((N|Nm|mm|deg|MPa)\)")
+
+# The printed resolution of a value: one unit in the last decimal place the print format prints for its column's
+# unit label, in the file's system. Only what the format is established to print is listed (observed format
+# behaviour of SI prints in degrees: 0.001 mm, 0.0001 deg, 1 N, 1 N*m). A label not listed (the English labels and
+# radians) has no established resolution, so its values carry none and are never screened with a guessed floor.
+PRINTED_DECIMALS = {("SI", "mm"): 3, ("SI", "deg"): 4, ("SI", "N"): 0, ("SI", "Nm"): 0}
+_FIXED_POINT = re.compile(r"[+-]?(?:[0-9]+(?:\.(?P<a>[0-9]*))?|\.(?P<b>[0-9]+))\Z")
+_EXPONENT = re.compile(r"[+-]?(?:[0-9]+(?:\.(?P<a>[0-9]*))?|\.(?P<b>[0-9]+))[eE](?P<e>[+-]?[0-9]+)\Z")
 
 _FORCE_KEYS = ("fx", "fy", "fz", "mx", "my", "mz")
 _LOCAL_KEYS = ("axial", "shear_y", "shear_z", "torque", "moment_in_plane", "moment_out_of_plane")
@@ -158,7 +169,10 @@ def _coverage() -> list[dict[str, Any]]:
         notes = f"Output member {kind}. Header and unit rows must match exactly after stripping spaces, each unit " \
                 "label being one the layout prints for that quantity (SI or English; deg or rad), one system and " \
                 "one angle unit per file; otherwise the section is not parsed. English and radian values are " \
-                f"normalized to mm, deg, N and N*m by the unit catalog's exact definitions. {_BLANK_NOTE}"
+                f"normalized to mm, deg, N and N*m by the unit catalog's exact definitions. {_BLANK_NOTE} Each " \
+                "value carries its printed resolution (printed_resolution): one unit in the last decimal place the " \
+                "format prints for its label, established for SI prints in degrees only; otherwise none, with the " \
+                "reason."
         if kind == "element_forces_local":
             unit_row = " | ".join(",".join(variant[-1]) for variant in variants)
             notes += (" Accepted stress-column variants: none (Empty Weight), SL, SE, Sopr. Columns read: axial, "
@@ -235,6 +249,7 @@ class _Parser:
         self.system: str | None = None  # "SI" or "English", fixed by the first section read
         self.angle: str | None = None   # "deg" or "rad", likewise
         self.section_units: dict[str, str] = {}
+        self.printed_resolution: dict[str, dict[str, Any]] = {}
 
     def diag(self, code: str, severity: str, section: str | None, line: int | None, message: str) -> None:
         self.diagnostics.append({"code": code, "severity": severity, "section": section, "line": line, "message": message})
@@ -270,6 +285,7 @@ class _Parser:
             "units": dict(UNITS),
             "source_units": {"system": self.system, "rotation": self.angle},
             "load_cases": self.load_cases,
+            "printed_resolution": self.printed_resolution,
             "pairing_basis": PAIRING_BASIS,
             "sections_parsed": self.sections_parsed,
             "sections_skipped": self.sections_skipped,
@@ -372,7 +388,7 @@ class _Parser:
         self.angle = next(iter(angles), self.angle)
         self.section_units = {key: matched[position][1] for position, key in spec["columns"]}
         header_width = max(len(row) for row in found)
-        data: list[tuple[int, str, dict[str, float] | None]] = []
+        data: list[tuple[int, str, tuple[dict[str, float], dict[str, dict[str, Any]]] | None]] = []
         while cursor < len(self.rows):
             row = self.rows[cursor]
             if not row:
@@ -387,7 +403,8 @@ class _Parser:
         return cursor
 
     def read_row(self, row: tuple[str, ...], columns: list[tuple[int, str]], width: int, title: str,
-                 line: int) -> dict[str, float] | None:
+                 line: int) -> tuple[dict[str, float], dict[str, dict[str, Any]]] | None:
+        """The row's values in the output units and each value's printed resolution, or None when it is refused."""
         needed = max(position for position, _ in columns) + 1
         if len(row) < needed:
             self.diag("CAEPIPE-PRINT-ROW-SHORT", "error", title, line,
@@ -397,8 +414,10 @@ class _Parser:
             self.diag("CAEPIPE-PRINT-ROW-EXTRA-FIELDS", "warning", title, line,
                       f"data row has non-empty fields beyond the {width} header columns; they are not read")
         values: dict[str, float] = {}
+        printed: dict[str, dict[str, Any]] = {}
         for position, key in columns:
             text = row[position]
+            printed[key] = printed_resolution(text, self.section_units.get(key), self.system)
             if text == "":
                 values[key] = 0.0
                 continue
@@ -417,7 +436,7 @@ class _Parser:
                           "the output unit; the row is not read")
                 return None
             values[key] = converted
-        return values
+        return values, printed
 
     def case_tables(self, case: str) -> dict[str, Any]:
         return self.load_cases.setdefault(case, {
@@ -429,8 +448,12 @@ class _Parser:
             "element_forces_global": [],
         })
 
+    def case_printed(self, case: str) -> dict[str, Any]:
+        return self.printed_resolution.setdefault(case, {kind: [] if kind.startswith("element_forces") else {}
+                                                         for kind in self.case_tables(case)})
+
     def store(self, kind: str, case: str, title: str, line: int,
-              data: list[tuple[int, str, dict[str, float] | None]]) -> None:
+              data: list[tuple[int, str, tuple[dict[str, float], dict[str, dict[str, Any]]] | None]]) -> None:
         if any(item["kind"] == kind and item["load_case"] == case for item in self.sections_parsed):
             self.diag("CAEPIPE-PRINT-SECTION-DUPLICATE", "error", title, line,
                       f"a second {kind} section for {case!r}; it is not parsed")
@@ -448,20 +471,29 @@ class _Parser:
                     "element_index": number,
                     "node_from": data[2 * number][1],
                     "node_to": data[2 * number + 1][1],
-                    "from": data[2 * number][2],
-                    "to": data[2 * number + 1][2],
+                    "from": data[2 * number][2][0],
+                    "to": data[2 * number + 1][2][0],
                 }
                 for number in range(len(data) // 2)
             ]
             self.case_tables(case)[kind] = elements
+            # Parallel to the element list, by element_index.
+            self.case_printed(case)[kind] = [{"from": data[2 * number][2][1], "to": data[2 * number + 1][2][1]}
+                                             for number in range(len(data) // 2)]
         else:
             table = self.case_tables(case)[kind]
-            for row_line, node, values in data:
-                if values is None:
+            resolutions = self.case_printed(case)[kind]
+            for row_line, node, read in data:
+                if read is None:
                     continue
+                values, printed = read
                 if node in table:
                     if kind == "restraint_loads_global":
                         table[node] = {key: table[node][key] + values[key] for key in values}
+                        # A sum of printed values of one column keeps that column's resolution; a part without one
+                        # leaves the sum without one.
+                        resolutions[node] = {key: _sum_resolution(resolutions[node][key], printed[key])
+                                             for key in printed}
                         self.diag("CAEPIPE-PRINT-RESTRAINT-ROWS-SUMMED", "info", title, row_line,
                                   f"restraint rows at node {node} are summed")
                         continue
@@ -469,6 +501,7 @@ class _Parser:
                               f"node {node} appears twice; the later row is not read")
                     continue
                 table[node] = values
+                resolutions[node] = printed
         self.sections_parsed.append({"title": title, "kind": kind, "load_case": case, "line": line, "rows": len(data),
                                      "source_units": dict(self.section_units)})
 
@@ -508,6 +541,45 @@ def _match_headers(variants, found: tuple[tuple[str, ...], ...]) -> dict[int, tu
         if ok:
             return labels
     return None
+
+
+def printed_resolution(text: str, label: str | None, system: str | None) -> dict[str, Any]:
+    """The printed resolution of one value from its printed text, before conversion: {"resolution": r} with r one unit
+    in the last decimal place the format prints for `label` in a `system` print (PRINTED_DECIMALS), in the parser's
+    output unit; or {"resolution": None, "reason": ...} when that resolution is not established or the text does not
+    show it. A blank field, a zero printed "0" and omitted trailing zeros take the column's resolution, never a coarser
+    one inferred from the text; text with more decimal places than the column prints, or in exponent form, is not
+    taken at the column's resolution."""
+    decimals = PRINTED_DECIMALS.get((system, label)) if label is not None else None
+    if decimals is None:
+        return {"resolution": None,
+                "reason": f"the print format's resolution for {label!r} values (system {system}) is not established"}
+    fixed = _FIXED_POINT.match(text)
+    if text == "" or fixed is not None:
+        places = len((fixed.group("a") or fixed.group("b") or "") if fixed is not None else "")
+        if places > decimals:
+            return {"resolution": None,
+                    "reason": f"{text!r} prints {places} decimal places, more than the {decimals} the format prints "
+                              f"for {label!r}: its printed resolution is indeterminate"}
+        return {"resolution": _to_output(float(Fraction(1, 10 ** decimals)), label)}
+    exponent = _EXPONENT.match(text)
+    if exponent is not None:
+        place = int(exponent.group("e")) - len(exponent.group("a") or exponent.group("b") or "")
+        if place > -decimals:
+            return {"resolution": None,
+                    "reason": f"{text!r} is printed coarser than the {decimals} decimal places the format prints for "
+                              f"{label!r}"}
+    return {"resolution": None,
+            "reason": f"{text!r} is not in the fixed-point form the format prints for {label!r}: its printed "
+                      "resolution is indeterminate"}
+
+
+def _sum_resolution(first: dict[str, Any], second: dict[str, Any]) -> dict[str, Any]:
+    if first.get("resolution") is None:
+        return first
+    if second.get("resolution") is None:
+        return second
+    return {"resolution": max(first["resolution"], second["resolution"])}
 
 
 def _to_output(value: float, label: str | None) -> float:
