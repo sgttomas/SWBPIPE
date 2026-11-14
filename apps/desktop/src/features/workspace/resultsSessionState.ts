@@ -4,6 +4,7 @@ import { numericalResultStanding, type NumericalStanding } from "../results/resu
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { isExactReportSource } from "../report/exactReportSections";
+import { renderableReportSource } from "../report/renderableReportSource";
 import { useMemo, useRef, useState } from "react";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
@@ -125,12 +126,19 @@ export function useResultsSessionState() {
   // other identities stay readable, never Current.
   const currentSolvedResult = result && otherCurrentRequirementsHold && numericallyEligible ? result : null;
   // DEL-08-01 REQ-017, REQ-024: the rendered report (and its print view) also takes an
-  // exact-route result that meets every other Current requirement and has a standing,
-  // whatever that standing is; its build step and the native host each require that the
-  // reader reads the result and that its mechanics are solved, and the report states the
-  // standing. Every other output, the report package included, keeps `currentSolvedResult`.
-  const renderableSolvedResult = currentSolvedResult
-    ?? (result && otherCurrentRequirementsHold && standing !== null && isExactReportSource(result as MechanicsResult) ? result : null);
+  // exact-route result that meets every other Current requirement, whose mechanics are
+  // solved and whose standing names only standing findings, whatever that standing is: a
+  // candidate, which the build step and the native host each read in full before any
+  // render (`renderableReportSource`). Every other output, the report package included,
+  // keeps `currentSolvedResult`.
+  const renderableSolvedResult = renderableReportSource({
+    current: currentSolvedResult,
+    result,
+    otherCurrentRequirementsHold,
+    exactRoute: result !== null && isExactReportSource(result as MechanicsResult),
+    mechanicsSolved: result?.status?.mechanics === "MECHANICS_SOLVED",
+    standing
+  });
   // DEL-07-05 numerical health: the Rust indicator for this result with the reader's
   // findings from the standing above. Presentation only; it reads nothing back into
   // Current standing or any output gate.
