@@ -16,6 +16,7 @@ mod held_tests;
 mod p_tests;
 #[cfg(test)]
 mod s11k_tests;
+mod sparse_admission;
 pub mod structural_adapter;
 use open_pipe_stress_frame_kernel::load_ledger::AssembledForce;
 use open_pipe_stress_frame_kernel::structural::{
