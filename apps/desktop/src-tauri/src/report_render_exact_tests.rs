@@ -1617,9 +1617,12 @@ mod direct_native {
     }
 
     /// DEL-08-01 REQ-017 and REQ-024's present account: a pressure-source-1 result with
-    /// load/reference states is not numerically eligible but is readable, so the render
-    /// passes step 4 and refuses only where this request, made for another result, fails
-    /// the re-derivation; the package save still refuses it as not eligible (LIM-016).
+    /// load/reference states is not numerically eligible but is readable. The package
+    /// save still refuses it at step 4 as not eligible (LIM-016). The render does not
+    /// refuse it at step 4; it refuses at step 5, because this request's admission
+    /// binds the witness's result digest, not this result's. That a readable,
+    /// non-eligible result renders when its admission binds it is shown by the
+    /// connecting-path witnesses below.
     #[test]
     fn a_delivered_pressure_source_1_result_with_load_reference_states_is_read_for_render_and_refused_for_save() {
         let w = witness(SOURCE_1);
@@ -1632,7 +1635,7 @@ mod direct_native {
         let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&lr_raw), Some(&intake)));
         assert_eq!(code, STANDING_NOT_ELIGIBLE, "{message}");
         let refused = refusal_text(production_render_on(&live, &render_args(&request["report"], Some(&lr_raw), Some(&intake), Some(&canonical_json(&w.manifest)))));
-        assert!(refused.starts_with(&format!("{SECTIONS_MISMATCH}: ")), "{refused}");
+        assert!(refused.starts_with(&format!("{SOURCE_NOT_DELIVERED}: result:")), "{refused}");
         // The genuine pressure-source-1 witness without load/reference states is eligible:
         // its request passes the binding and is admitted.
         let genuine = live_on(ScriptedHost::normal(), &w.intake, &w.mode, &w.result);
