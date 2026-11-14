@@ -400,7 +400,7 @@ def test_capture_provider_failed_construction_closes_the_mock_server(monkeypatch
 def test_original_stub_provider_post_seam_preserves_its_script_without_a_listener():
     from tools import agent_journey_fixture as journey
     provider = journey.StubProvider.__new__(journey.StubProvider)
-    provider.script, provider.requests = journey.Script(journey.TURNS), []
+    provider.script, provider.requests = journey.Script(journey.W9A), []
     body = adapter.encoded(first_request())
     handler = SimpleNamespace(path='/v1/responses', headers={'Content-Length': str(len(body))},
                               rfile=io.BytesIO(body), reply=Mock())

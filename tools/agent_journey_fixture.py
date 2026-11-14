@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
-"""The embedded agent's W9-A journey in the real app window (RT-E1 D4).
+"""A named embedded-agent use case in the real app window (DEL-16-06; DEL-07-06 REQ-016).
 
-DEL-16-06: launch a native-smoke build of the
-app (a private copy whose bundle holds the pinned stock supplier) with
-`apps/desktop/native-smoke/agent-journey.js` on stdin. The driver works the
-window as a person would and clicks Batch review's own Apply as a
-qualification stand-in for the person; this controller judges what it saw.
+Launch a native-smoke build of the app (a private copy whose bundle holds the
+pinned stock supplier) with `apps/desktop/native-smoke/agent-journey.js` on
+stdin. The driver reaches the use case's stated start through the app's own
+commands, enters the provider in the Agent panel, types the person's requests
+in order and, between them, acts as a stand-in for the person only through the
+desktop's own controls (today: Batch review's own Validate and Apply). This
+controller judges what the window showed against the use case's expectations.
+
+Use cases are data: `fixtures/embedded_agent/use_cases/<id>/use_case.json`
+(start, requests, acts, what to observe, expectations; no provider) and, beside
+it, `scripted_provider.json` (model output for stub mode only). The README in
+that directory gives the format. `--use-case` selects one (default
+`w9a-journey`).
 
 Process discipline is the live-session controller's
 (`tools/agent_live_session_fixture.py`), imported, not copied: the app is an
@@ -16,14 +24,59 @@ PID. A standalone preflight (no supplier, no relay) precedes the launch, and
 afterwards no app, supplier or helper process may remain.
 
 Two provider modes:
-- `stub`: a loopback Responses-API script that replays the W9-A proposal and
-  the solve and results calls as model output, so the scenario's plumbing is
-  qualified with no model, no network and no key. It qualifies plumbing, not
-  model behaviour.
-- `live`: a person-configured endpoint and model. With `--key-stdin` the
-  controller reads one key line from its own stdin and passes it to the app on
-  the app's stdin (`SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY=stdin`); the key is never
-  written, logged or put in the plan, the environment or the report.
+- `stub`: a loopback Responses-API scripted provider replays the use case's
+  `scripted_provider.json` as model output, so the route is examined under a
+  scripted provider with no model, no network and no key. A stub run says
+  nothing about what a model does and is no evidence of the embedded agent
+  carrying out a use case.
+- `live`: a person-configured endpoint and model; the script is never read.
+  With `--key-stdin` the controller reads one key line from its own stdin and
+  passes it to the app on the app's stdin
+  (`SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY=stdin`); the key is never written, logged
+  or put in the plan, the environment or the report.
+
+Running a use case in stub mode on macOS (the repository root is the checkout
+under test). Host job limits apply throughout: every build, test and launch
+runs inside the host's slot wrapper; pytest uses at most 4 parallel workers
+(`-n 4` or fewer); cargo, including the cargo that `npm run build:wasm` and
+`npm run build` drive, gets CARGO_BUILD_JOBS=4 and RUST_TEST_THREADS=4 through
+the environment.
+1. Build from the head under test as `apps/desktop/native-smoke/run.mjs` does,
+   without running its journeys: `npm ci`; in `apps/desktop`, `npm run
+   build:wasm` and `npm run build`; then in `apps/desktop/src-tauri`, with
+   CARGO_TARGET_DIR, CARGO_BUILD_TARGET_DIR and CARGO_BUILD_BUILD_DIR set to
+   `src-tauri/target` and TAURI_CONFIG set to the smoke's window override
+   (`backgroundThrottling: "disabled"`, as run.mjs forms it), `cargo build
+   --locked --offline --features native-smoke,tauri/custom-protocol`.
+2. Build the two probes: `clang -O2 -o <dir>/agent_host_process_probe
+   tools/agent_host_process_probe.c` and `rustc -O --edition 2021 -o
+   <dir>/agent_host_sandbox_probe tools/agent_host_sandbox_probe.rs`.
+3. The window takes the foreground of a shared screen, so a launch goes in
+   this order: slot first (a job inside the slot wrapper that, once it holds a
+   slot, opens nothing and waits for a go signal), then the foreground (agree
+   the screen with whoever else uses it), then go. One run per go; a job not
+   given its go within its wait exits having launched nothing.
+4. On go, first check that the screen session is not locked (`/usr/sbin/ioreg
+   -n Root -d1 -a`: no `CGSSessionScreenIsLocked` true; a locked session paints
+   no window); if it is locked, launch nothing. Then copy a bundle that
+   already holds the pinned supplier (never modify the original; never
+   download, re-sign or alter the supplier) to a fresh private directory with
+   `ditto`, replace `Contents/MacOS/openpipestress-desktop` in the copy with
+   the executable from step 1, and confirm the copy's
+   `Contents/Resources/agent-supplier/codex*` has the SHA-256 in
+   `fixtures/embedded_agent/agent-witness-pin.json` (the controller refuses
+   otherwise).
+5. Run `python3 tools/agent_journey_fixture.py --mode stub --use-case <id>
+   --app <copy>/Contents/MacOS/openpipestress-desktop --process-probe <probe>
+   --boundary-probe <probe> --output <fresh directory>`, bounded with
+   `--deadline` and `--release-grace` to the time agreed for the screen;
+   `--min-free-gib` lowers the free-memory gate when no model runs. The result
+   is `<output>/result.json`; the last line printed summarises it.
+6. Confirm with `ps` that nothing runs from the copy or the run's HOME, then
+   remove the copy and the output's private `home`.
+A run that fails by a timeout while the host is heavily loaded is reported as
+a possible load effect, not chased as a defect, until it has also failed on a
+quiet host.
 """
 from __future__ import annotations
 
@@ -40,6 +93,7 @@ import subprocess
 import sys
 import threading
 import time
+from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.agent_live_session_fixture import (  # noqa: E402  (the live-session discipline, reused)
@@ -48,36 +102,384 @@ from tools.agent_live_session_fixture import (  # noqa: E402  (the live-session 
 from tools import agent_journey_memory_monitor as memory_monitor  # noqa: E402
 
 PROJECT = Path(__file__).resolve().parents[1]
-FIXTURE = PROJECT / "fixtures" / "model_operations" / "agent_w9a_journey.json"
-REFERENCES = PROJECT / "validation" / "references" / "w9_benchmarks" / "references.json"
+USE_CASES = PROJECT / "fixtures" / "embedded_agent" / "use_cases"
 PIN = PROJECT / "fixtures" / "embedded_agent" / "agent-witness-pin.json"
 DRIVER = PROJECT / "apps" / "desktop" / "native-smoke" / "agent-journey.js"
-STEPS = ["new blank", "provider and start", "turn 1", "apply", "turn 2", "observe", "stop"]
-TURNS = [
-    "Build the W9-A L-frame from the blank model as one batch for my review: material W9 steel "
-    "(E 200 GPa, G 76.923 GPa, alpha 1.2e-5 per degC), nodes node:a (0,0,0), node:c (4,0,0) and "
-    "node:d (4,3,0) m, pipes pipe:a-c and pipe:c-d (OD 0.2 m, wall 0.01 m), anchors at node:a and "
-    "node:d, and one thermal load case raising both pipes by 100 degC. Do not solve yet.",
-    "I applied the batch. Confirm it was applied, solve the model and report node:c's six displacements "
-    "and rotations, one per line as `node:c <component> = <value> <unit>` for ux, uy, uz in mm and rx, ry, rz "
-    "in rad, each to at least six significant digits.",
-]
-NODAL_KINDS = [f"global_nodal_{q}_{axis}" for q in ("displacement", "rotation") for axis in "xyz"]
-# The tree rows the driver enumerates, by the operation that creates each.
-TREE_TYPES = {"Node": "node", "Element": "pipe", "Support": "support"}
 LINE_LIMIT, OUTPUT_LIMIT = 16384, 2 * 1024 * 1024
+# A nodal motion result kind and the component name the product and the report use for it.
 COMPONENT = {f"global_nodal_{q}_{axis}": f"{q[0] if q == 'rotation' else 'u'}{axis}"
              for q in ("displacement", "rotation") for axis in "xyz"}
-REPORT_RECORD = re.compile(r"node:c\s+(ux|uy|uz|rx|ry|rz)\s*=\s*([-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?)\s*(mm|rad)\b")
-
-
-def w9a_reference():
-    case = next(c for c in json.loads(REFERENCES.read_text())["cases"] if c["id"] == "W9-A-LFRAME-THERMAL")
-    return case
 
 
 # ---------------------------------------------------------------------------
-# The scripted provider (stub mode).
+# Use-case definitions (fixtures/embedded_agent/use_cases/<id>/).
+#
+# A definition (`use_case.json`) states the start, the person's requests in order with the
+# stand-in's acts between them, what to observe in the window, and the expectations the judge
+# applies to the window, the conversation and their agreement. It names no provider. The
+# scripted provider's model output (`scripted_provider.json`, beside it) is read in stub mode
+# only. The format is described in fixtures/embedded_agent/use_cases/README.md.
+
+USE_CASE_SCHEMA = "swbpipe-embedded-agent-use-case/1"
+SCRIPT_SCHEMA = "swbpipe-embedded-agent-scripted-provider/1"
+DEFAULT_USE_CASE = "w9a-journey"
+USE_CASE_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,62}")
+# What the driver implements (`STARTS` and `ACTS` in agent-journey.js), with the step name
+# each reports. A definition naming any other kind is refused before anything is launched.
+START_KINDS = {"new_blank": "new blank"}
+ACT_KINDS = {"apply_agent_batch": "apply"}
+CATEGORIES = ("window", "conversation", "agreement")
+# Requested acts (DEL-16-06 Request): an act the agent asks the person to perform, which the
+# person performs at the desktop's own control; in a run the driver stands for the person.
+# A request is settled as performed only on the owning route's receipt, so a use case with a
+# requested act is unfinished for the agent unless the conversation shows the agent was given
+# the standing "performed" for each. Print is never performed: its best standing is "sent to
+# the print dialog".
+REQUESTABLE_ACTS = ("save_model_state", "record_run", "save_project", "export_table", "save_report",
+                    "print_report", "user_release")
+# Requested acts the driver can perform at the desktop's own control (`PERFORMS` in
+# agent-journey.js). None yet: a definition with a requested act validates, and is refused at
+# launch until the driver performs that act.
+PERFORMED_BY_DRIVER = {}
+PERFORMED = "performed"
+REQUEST_STANDINGS = ("pending", "declined", "refused", "stale", "withdrawn", "unknown", PERFORMED,
+                     "sent to the print dialog")
+# Where a tool outcome observing a request carries the act and its standing. Provisional: the
+# catalog defines no request observation yet; follow it when it does. The catalog will list the
+# standings each act's request can reach; the judge reads the standing it is given and assumes
+# none reachable. The one fixed rule is print's: never performed (DEL-16-06 Request standing).
+REQUEST_OBSERVATION = {"act": "data.requestedAct", "standing": "data.requestStanding"}
+# Things a person's hands observe that the runner cannot. An `observed_by_person` expectation
+# names one, says what the machine observed short of it and names the expectation that judged
+# that; the judge never passes or fails it, and lists it for a person.
+PERSON_OBSERVED = {
+    "copy_pressed_on_selected_table": "pressing Copy on a selected table and what Copy took (DEL-07-06 AC-006)",
+    "print_dialog_outcome": "what the person did in the system print dialog after the report was handed to it",
+}
+# The runner's modes, each recorded in the result's `runnerMode` so that no run's outcome is read
+# as another mode's. The harness alone, with no supplier, is a third mode not built yet.
+RUNNER_MODE = {"stub": "agent with a scripted provider", "live": "agent with a model"}
+# The pass, worded by mode: under a scripted provider a pass is the route examined, never the use
+# case done by the agent.
+PASS_WORDS = {"stub": "route examined under a scripted provider", "live": "passed"}
+# The result's `outcome` and the controller's exit status for each. Only a mode's pass word is a
+# pass. "unfinished": the route passed, but a requested act was not shown to the agent as
+# performed (closed by the route's receipt). "awaiting a person": the route passed and every
+# requested act was performed, but a thing only a person can observe is listed (closed by a
+# person's observation). Precedence: failed, unfinished, awaiting a person, the pass word.
+OUTCOME_EXIT = {PASS_WORDS["stub"]: 0, PASS_WORDS["live"]: 0, "failed": 1, "unfinished": 3, "awaiting a person": 4}
+# A definition states the person's side only; which provider answers is the run's choice.
+PROVIDER_KEYS = {"provider", "endpoint", "model", "apiKey", "key", "contextWindow", "stub", "scripted_provider"}
+STANDING = {
+    "stub": "the route is examined under a scripted provider; no model ran",
+    "live": "observed with a person-configured provider",
+}
+
+
+class Unresolved(Exception):
+    """A reference in a definition or script that names nothing."""
+
+
+def pluck(value, path):
+    """Follow `path` (keys, list indices, "*" to map over a list) from `value`."""
+    try:
+        for index, segment in enumerate(path):
+            if segment == "*":
+                return [pluck(item, path[index + 1:]) for item in value]
+            value = value[segment]
+        return value
+    except (KeyError, IndexError, TypeError) as error:
+        raise Unresolved(f"path {path}") from error
+
+
+def project_file(name):
+    """A repository-relative file that must exist inside the repository."""
+    if not isinstance(name, str) or not name or Path(name).is_absolute() or ".." in Path(name).parts:
+        raise Unresolved(f"file {name!r} is not a repository path")
+    path = PROJECT / name
+    if not path.is_file():
+        raise Unresolved(f"file {name} does not exist")
+    return path
+
+
+def provider_keys(value, where="$"):
+    found = []
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if key in PROVIDER_KEYS:
+                found.append(f"{where}.{key}")
+            found += provider_keys(item, f"{where}.{key}")
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            found += provider_keys(item, f"{where}[{index}]")
+    return found
+
+
+class UseCase:
+    """A validated definition and what the controller and driver derive from it."""
+
+    def __init__(self, directory, definition):
+        self.directory, self.definition = directory, definition
+        self.id = definition["id"]
+        self.expectations = definition["expectations"]
+        self.requests = [entry["request"] for entry in definition["sequence"] if "request" in entry]
+        self.sequence, requests, applies, requested = [], 0, 0, 0
+        for entry in definition["sequence"]:
+            if "request" in entry:
+                requests += 1
+                self.sequence.append({"step": f"turn {requests}", "report": f"turn{requests}", "request": entry["request"]})
+            elif "requested_act" in entry:
+                requested += 1
+                self.sequence.append({"step": f"perform {entry['requested_act']}", "requestedAct": entry["requested_act"],
+                                      "report": requested_report_key(requested)})
+            else:
+                applies += entry["act"] == "apply_agent_batch"
+                self.sequence.append({"step": ACT_KINDS[entry["act"]], "act": entry["act"],
+                                      "report": apply_report_key(applies) if entry["act"] == "apply_agent_batch" else entry["act"]})
+        start = definition["start"]["kind"]
+        self.steps = [START_KINDS[start], "provider and start", *[e["step"] for e in self.sequence], "observe", "stop"]
+
+    @property
+    def requested_acts(self):
+        return [entry["requestedAct"] for entry in self.sequence if "requestedAct" in entry]
+
+    @property
+    def path(self):
+        return self.directory / "use_case.json"
+
+    @property
+    def script_path(self):
+        return self.directory / "scripted_provider.json"
+
+    def reference(self, name):
+        """A named reference: a file path within a file, or a benchmark case of a reference file."""
+        ref = self.definition["references"][name]
+        data = json.loads(project_file(ref["file"]).read_text())
+        if "case" in ref:
+            matches = [case for case in data["cases"] if case.get("id") == ref["case"]]
+            if len(matches) != 1:
+                raise Unresolved(f"reference {name}: case {ref['case']}")
+            return matches[0]
+        return pluck(data, ref.get("path", []))
+
+    def plan(self, provider, timeouts):
+        """What the driver is given: no expectation, reference or script reaches the window."""
+        observe = self.definition["observe"]
+        return {"useCase": self.id, "provider": provider,
+                "start": {"kind": self.definition["start"]["kind"], "step": self.steps[0]},
+                "sequence": self.sequence,
+                "observe": {"treeTypes": sorted(observe["tree_types"]), "resultProbe": observe["result_filter"]},
+                "timeoutsMs": timeouts}
+
+
+def apply_report_key(occurrence):
+    return "batch" if occurrence == 1 else f"batch_{occurrence}"
+
+
+def requested_report_key(occurrence):
+    return f"requested{occurrence}"
+
+
+def refuse_unperformable(case):
+    """At launch: a requested act the driver cannot yet perform at the desktop's control."""
+    missing = [act for act in case.requested_acts if act not in PERFORMED_BY_DRIVER]
+    if missing:
+        raise Refusal(f"requested_act_not_performable {case.id}: {', '.join(missing)}")
+
+
+def use_case_names():
+    return sorted(p.parent.name for p in USE_CASES.glob("*/use_case.json"))
+
+
+def load_use_case(name):
+    """The named definition, validated; any problem refuses before anything is launched."""
+    if not isinstance(name, str) or not USE_CASE_ID.fullmatch(name):
+        raise Refusal(f"use_case_name {name!r}")
+    directory = USE_CASES / name
+    try:
+        definition = json.loads((directory / "use_case.json").read_text())
+    except (OSError, ValueError) as error:
+        raise Refusal(f"use_case_unreadable {name}: {type(error).__name__}") from None
+    problems = validate_definition(definition, name)
+    if problems:
+        raise Refusal(f"use_case_invalid {name}: " + "; ".join(problems))
+    return UseCase(directory, definition)
+
+
+def validate_definition(definition, name=None):
+    """Problems with a definition; empty means the controller, judge and driver can use it."""
+    if not isinstance(definition, dict):
+        return ["not an object"]
+    problems = []
+    extra = set(definition) - {"schema", "id", "summary", "data", "start", "sequence", "observe", "references", "expectations"}
+    if extra:
+        problems.append(f"unknown members {sorted(extra)}")
+    if definition.get("schema") != USE_CASE_SCHEMA:
+        problems.append(f"schema {definition.get('schema')!r}")
+    if not isinstance(definition.get("id"), str) or not USE_CASE_ID.fullmatch(definition["id"]) or (name and definition["id"] != name):
+        problems.append(f"id {definition.get('id')!r} is not the directory name {name!r}")
+    problems += [f"{where} names a provider" for where in provider_keys(definition)]
+    start = definition.get("start")
+    if not isinstance(start, dict) or set(start) != {"kind"} or start.get("kind") not in START_KINDS:
+        problems.append(f"start {start!r}: the driver implements {sorted(START_KINDS)}")
+    sequence = definition.get("sequence")
+    if not isinstance(sequence, list) or not sequence:
+        return problems + ["sequence is empty"]
+    requests, applies, requested = [], 0, []
+    for index, entry in enumerate(sequence):
+        if isinstance(entry, dict) and set(entry) == {"request"} and isinstance(entry["request"], str) and entry["request"].strip():
+            requests.append(entry["request"])
+        elif isinstance(entry, dict) and set(entry) == {"act"} and entry["act"] in ACT_KINDS:
+            applies += entry["act"] == "apply_agent_batch"
+        elif isinstance(entry, dict) and set(entry) == {"requested_act"} and entry["requested_act"] in REQUESTABLE_ACTS:
+            requested.append(entry["requested_act"])
+        else:
+            problems.append(f"sequence[{index}] {entry!r}: a request text, an act the driver implements ({sorted(ACT_KINDS)}) "
+                            f"or a requested act ({', '.join(REQUESTABLE_ACTS)})")
+    if not requests:
+        problems.append("sequence has no request")
+    # The scripted provider and the controller recognise a request by its text.
+    for a, first in enumerate(requests):
+        for b, second in enumerate(requests):
+            if a != b and first in second:
+                problems.append(f"request {a + 1} is contained in request {b + 1}")
+    observe = definition.get("observe")
+    if (not isinstance(observe, dict) or set(observe) != {"tree_types", "result_filter"}
+            or not isinstance(observe.get("tree_types"), list) or not all(isinstance(t, str) and t for t in observe["tree_types"])
+            or not isinstance(observe.get("result_filter"), str)):
+        problems.append(f"observe {observe!r}")
+        observe = {"tree_types": [], "result_filter": ""}
+    references = definition.get("references")
+    if not isinstance(references, dict):
+        problems.append("references is not an object")
+        references = {}
+    for ref_name, ref in references.items():
+        try:
+            if not isinstance(ref, dict) or set(ref) - {"file", "path", "case"} or ("path" in ref and "case" in ref):
+                raise Unresolved("a file with a path or a case")
+            UseCase.reference(SimpleNamespace(definition=definition), ref_name)
+        except (Unresolved, ValueError, KeyError) as error:
+            problems.append(f"reference {ref_name}: {error}")
+    expectations = definition.get("expectations")
+    if not isinstance(expectations, list) or not expectations:
+        return problems + ["no expectations"]
+    seen, covered = {}, set()
+    context = {"requests": len(requests), "applies": applies, "requested": requested, "references": references, "observe": observe}
+    for index, expectation in enumerate(expectations):
+        if not isinstance(expectation, dict):
+            problems.append(f"expectations[{index}] is not an object")
+            continue
+        ident, kind = expectation.get("id"), expectation.get("kind")
+        check = CHECKS.get(kind)
+        if not isinstance(ident, str) or not ident or ident in seen:
+            problems.append(f"expectations[{index}] id {ident!r} is missing or repeated")
+        if check is None:
+            problems.append(f"expectation {ident}: kind {kind!r} is not one the judge implements")
+            continue
+        if expectation.get("on") != check.category:
+            problems.append(f"expectation {ident}: {kind} judges the {check.category}, not {expectation.get('on')!r}")
+        params = set(expectation) - {"id", "kind", "on"}
+        if params != set(check.params):
+            problems.append(f"expectation {ident}: parameters {sorted(params)}, {kind} takes {sorted(check.params)}")
+            continue
+        for problem in check.validate(expectation, context, seen):
+            problems.append(f"expectation {ident}: {problem}")
+        seen[ident] = expectation
+        if not check.needs_tool_outcomes:
+            covered.add(check.category)
+    # Each of the window, the conversation and their agreement must be judged in every mode,
+    # so that no definition can pass with one of them unexamined.
+    for category in CATEGORIES:
+        if category not in covered:
+            problems.append(f"no expectation judges the {category} in every mode")
+    # A requested act whose standing nothing judges could let the use case read as complete.
+    for number, act in enumerate(requested, start=1):
+        judging = [e for e in seen.values() if e["kind"] == "requested_act_standing" and e["requested"] == number]
+        if len(judging) != 1:
+            problems.append(f"requested act {number} ({act}) needs exactly one requested_act_standing expectation, has {len(judging)}")
+    return problems
+
+
+def load_scripted_provider(case, mode):
+    """The use case's scripted model output. Stub mode only: a live run never reads it."""
+    if mode != "stub":
+        raise Refusal("scripted_provider_outside_stub_mode")
+    try:
+        program = json.loads(case.script_path.read_text())
+    except (OSError, ValueError) as error:
+        raise Refusal(f"scripted_provider_unreadable {case.id}: {type(error).__name__}") from None
+    problems = validate_scripted_provider(program, case)
+    if problems:
+        raise Refusal(f"scripted_provider_invalid {case.id}: " + "; ".join(problems))
+    inputs = {name: pluck(json.loads(project_file(ref["file"]).read_text()), ref.get("path", []))
+              for name, ref in program.get("inputs", {}).items()}
+    return program, inputs
+
+
+def template_refs(value):
+    """Every ($bound or $input, name) a template refers to."""
+    if isinstance(value, dict):
+        if "$bound" in value:
+            return [("$bound", value["$bound"])]
+        if "$input" in value:
+            return [("$input", value["$input"])]
+        return [ref for item in value.values() for ref in template_refs(item)]
+    if isinstance(value, list):
+        return [ref for item in value for ref in template_refs(item)]
+    return []
+
+
+def validate_scripted_provider(program, case):
+    if not isinstance(program, dict):
+        return ["not an object"]
+    problems = []
+    if program.get("schema") != SCRIPT_SCHEMA:
+        problems.append(f"schema {program.get('schema')!r}")
+    if program.get("use_case") != case.id:
+        problems.append(f"use_case {program.get('use_case')!r} is not {case.id}")
+    inputs = program.get("inputs", {})
+    for name, ref in inputs.items() if isinstance(inputs, dict) else []:
+        try:
+            pluck(json.loads(project_file(ref["file"]).read_text()), ref.get("path", []))
+        except (Unresolved, ValueError, KeyError, TypeError) as error:
+            problems.append(f"input {name}: {error}")
+    entries = program.get("requests")
+    if not isinstance(entries, list) or [e.get("request") if isinstance(e, dict) else None for e in entries] != list(range(1, len(case.requests) + 1)):
+        return problems + [f"requests must script each of the definition's {len(case.requests)} requests in order"]
+    bound = set()
+    for entry in entries:
+        where = f"request {entry['request']}"
+        for need in entry.get("requires", []):
+            if need.get("bound") not in bound or not isinstance(need.get("expect"), dict) or not isinstance(need.get("unexpected"), str):
+                problems.append(f"{where}: requires {need!r}")
+        steps = entry.get("steps")
+        if not isinstance(steps, list):
+            problems.append(f"{where}: steps")
+            continue
+        for index, step in enumerate(steps):
+            if (not isinstance(step, dict) or set(step) - {"bind", "call", "arguments", "expect", "unexpected"}
+                    or not isinstance(step.get("call"), str) or not step["call"].startswith("swbpipe_")
+                    or not isinstance(step.get("arguments"), dict) or not isinstance(step.get("bind"), str) or step["bind"] in bound
+                    or ("expect" in step) != ("unexpected" in step) or not isinstance(step.get("expect", {}), dict)):
+                problems.append(f"{where} step {index + 1}: {step!r}")
+                continue
+            for kind, name in template_refs(step["arguments"]):
+                if (kind == "$bound" and name not in bound) or (kind == "$input" and name not in inputs):
+                    problems.append(f"{where} step {index + 1}: {kind} {name} is not available")
+            bound.add(step["bind"])
+        reply = entry.get("reply")
+        if not isinstance(reply, dict) or not isinstance(reply.get("text"), str) or set(reply) - {"text", "records"}:
+            problems.append(f"{where}: reply {reply!r}")
+        elif "records" in reply:
+            records = reply["records"]
+            if (not isinstance(records, dict) or set(records) != {"each", "format", "fields"}
+                    or any(k != "$bound" or n not in bound for k, n in template_refs(records.get("each")))):
+                problems.append(f"{where}: records {records!r}")
+    return problems
+
+
+# ---------------------------------------------------------------------------
+# The scripted provider (stub mode): model output replayed from a use case's script.
 
 def tool_output(item):
     """A function_call_output's tool outcome, parsed from its text."""
@@ -99,22 +501,42 @@ def user_text(item):
     return "".join(part.get("text", "") for part in content or [] if isinstance(part, dict))
 
 
-class Script:
-    """Replays W9-A from the actual tool outcomes; every call it makes is derived
-    from what the product returned, and anything unexpected ends the turn."""
+def matches(outcome, expect):
+    """A tool outcome meets a step's expectation field by field (dotted paths), not as a whole
+    object, so members the product adds later do not disturb a script."""
+    for path, wanted in expect.items():
+        try:
+            if pluck(outcome, path.split(".")) != wanted:
+                return False
+        except Unresolved:
+            return False
+    return True
 
-    def __init__(self, turns):
-        fixture = json.loads(FIXTURE.read_text())
-        self.operations = fixture["routes"]["PF"]["operations"]
-        self.turns = turns
+
+class Fields(dict):
+    def __missing__(self, key):
+        return None
+
+
+class Script:
+    """Replays a use case's scripted provider from the actual tool outcomes; every call it
+    makes is derived from what the product returned, and anything unexpected ends the turn."""
+
+    def __init__(self, case):
+        self.case = case
+        self.program, self.inputs = load_scripted_provider(case, "stub")
+        self.turns = case.requests
         self.captured = []
         self.failures = []
 
     @staticmethod
     def tool_name(tools, suffix):
         names = [t.get("name") for t in tools or [] if isinstance(t, dict)]
-        matches = [n for n in names if isinstance(n, str) and n.endswith(suffix)]
-        return matches[0] if len(matches) == 1 else None
+        matches_ = [n for n in names if isinstance(n, str) and n.endswith(suffix)]
+        return matches_[0] if len(matches_) == 1 else None
+
+    def turn_of(self, text):
+        return next((n for n, t in enumerate(self.turns) if t in text), None)
 
     def next_item(self, request):
         items = request.get("input") or []
@@ -122,19 +544,72 @@ class Script:
         if not users:
             return self.fail("no user message")
         last = users[-1]
-        text = user_text(items[last])
-        turn = next((n for n, t in enumerate(self.turns) if t in text), None)
+        turn = self.turn_of(user_text(items[last]))
         if turn is None:
             return self.fail("unrecognized user message")
         outputs = [tool_output(item) for item in items[last + 1:] if item.get("type") == "function_call_output"]
-        earlier = [tool_output(item) for item in items[:last] if item.get("type") == "function_call_output"]
-        tools = request.get("tools")
-        name = lambda suffix: self.tool_name(tools, suffix)  # noqa: E731
         if outputs:
             self.captured.append({"turn": turn + 1, "step": len(outputs), "outcome": outputs[-1]})
-        if turn == 0:
-            return self.turn_one(outputs, name)
-        return self.turn_two(outputs, earlier, name)
+        # Earlier requests' outcomes, bound by position to the steps their script called.
+        bindings, group = {}, None
+        for item in items[:last]:
+            if item.get("type", "message") == "message" and item.get("role") == "user":
+                index = self.turn_of(user_text(item))
+                if index is not None:
+                    group = [self.program["requests"][index]["steps"], 0]
+            elif item.get("type") == "function_call_output" and group is not None:
+                steps, position = group
+                if position < len(steps):
+                    bindings[steps[position]["bind"]] = tool_output(item)
+                group[1] += 1
+        entry = self.program["requests"][turn]
+        steps = entry["steps"]
+        for position, outcome in enumerate(outputs[:len(steps)]):
+            bindings[steps[position]["bind"]] = outcome
+        for need in entry.get("requires", []):
+            if need["bound"] not in bindings or not matches(bindings[need["bound"]], need["expect"]):
+                return self.fail(need["unexpected"])
+        tools = request.get("tools")
+        count = len(outputs)
+        if count > len(steps):
+            return self.fail("more tool outcomes than the script's calls")
+        if count:
+            step = steps[count - 1]
+            if "expect" in step and not matches(outputs[-1], step["expect"]):
+                return self.fail(step["unexpected"].format_map(Fields(outputs[-1] if isinstance(outputs[-1], dict) else {})))
+        try:
+            if count < len(steps):
+                return self.call(self.tool_name(tools, steps[count]["call"]), self.resolve(steps[count]["arguments"], bindings))
+            return {"type": "message", "text": self.reply(entry["reply"], bindings)}
+        except Unresolved as error:
+            return self.fail(f"unresolved {error}")
+
+    def resolve(self, template, bindings):
+        if isinstance(template, dict):
+            if "$bound" in template:
+                if template["$bound"] not in bindings:
+                    raise Unresolved(template["$bound"])
+                return pluck(bindings[template["$bound"]], template.get("path", []))
+            if "$input" in template:
+                return pluck(self.inputs[template["$input"]], template.get("path", []))
+            return {key: self.resolve(value, bindings) for key, value in template.items()}
+        if isinstance(template, list):
+            return [self.resolve(value, bindings) for value in template]
+        return template
+
+    def reply(self, reply, bindings):
+        if "records" not in reply:
+            return reply["text"]
+        records = reply["records"]
+        lines = []
+        for item in self.resolve(records["each"], bindings):
+            fields = {}
+            for name, spec in records["fields"].items():
+                value = pluck(item, spec["path"])
+                value = spec.get("map", {}).get(value, value) if isinstance(value, str) else value
+                fields[name] = repr(value) if spec.get("repr") else str(value)
+            lines.append(records["format"].format(**fields))
+        return reply["text"] + "\n" + "\n".join(lines)
 
     def fail(self, why):
         self.failures.append(why)
@@ -144,53 +619,6 @@ class Script:
         if name is None:
             return self.fail("tool not declared")
         return {"type": "function_call", "name": name, "arguments": arguments}
-
-    def turn_one(self, outputs, name):
-        if not outputs:
-            return self.call(name("swbpipe_read_model_summary"), {})
-        summary = outputs[0]
-        if len(outputs) == 1:
-            if summary.get("status") != "ok":
-                return self.fail("summary not ok")
-            basis = summary["basis"]
-            return self.call(name("swbpipe_propose_operations"), {
-                "workspaceHandle": summary["data"]["workspaceHandle"], "basis": basis,
-                "claimedModelHash": basis["modelHash"], "operations": self.operations,
-                "assumptions": [{"assumptionId": "a1", "statement": "Every input is the person's stated W9-A input.",
-                                 "affectedOperationIds": [op["operation_id"] for op in self.operations]}]})
-        proposed = outputs[1]
-        if proposed.get("status") != "pending_review":
-            return self.fail(f"proposal {proposed.get('status')}")
-        return {"type": "message", "text": "I proposed the W9-A build as one batch. Review it in Batch review and apply it if it is right."}
-
-    def turn_two(self, outputs, earlier, name):
-        proposal = next((o for o in earlier if o.get("status") == "pending_review"), None)
-        if proposal is None:
-            return self.fail("no proposal from turn 1")
-        if not outputs:
-            return self.call(name("swbpipe_read_model_summary"), {})
-        summary = outputs[0]
-        workspace = summary.get("data", {}).get("workspaceHandle")
-        if len(outputs) == 1:
-            return self.call(name("swbpipe_observe_proposal"), {
-                "workspaceHandle": workspace, "basis": proposal["basis"],
-                "proposalHandle": proposal["data"]["proposalHandle"]})
-        if len(outputs) == 2:
-            if outputs[1].get("status") != "applied":
-                return self.fail(f"proposal standing {outputs[1].get('status')}")
-            return self.call(name("swbpipe_solve"), {
-                "workspaceHandle": workspace, "basis": summary["basis"], "claimedModelHash": summary["basis"]["modelHash"]})
-        if len(outputs) == 3:
-            if outputs[2].get("status") != "completed":
-                return self.fail(f"solve {outputs[2].get('status')}")
-            return self.call(name("swbpipe_read_results"), {
-                "workspaceHandle": workspace, "basis": outputs[2]["basis"], "runHandle": outputs[2]["data"]["runHandle"],
-                "page": {"cursor": None, "limit": 50}, "filter": {"kinds": NODAL_KINDS, "entityRefs": ["node:c"]}})
-        if outputs[3].get("status") != "ok":
-            return self.fail(f"results {outputs[3].get('status')}")
-        records = "\n".join(f"node:c {COMPONENT.get(v['kind'], v['kind'])} = {v['value']!r} {v['unit']}"
-                             for v in outputs[3]["data"]["values"])
-        return {"type": "message", "text": f"The batch is applied and the model solved.\n{records}"}
 
 
 def sse(item, sequence):
@@ -217,10 +645,10 @@ def sse(item, sequence):
 
 
 class StubProvider:
-    """127.0.0.1 only; answers POST /v1/responses from the Script and 404 otherwise."""
+    """127.0.0.1 only; answers POST /v1/responses from the use case's Script and 404 otherwise."""
 
-    def __init__(self, turns):
-        self.script = Script(turns)
+    def __init__(self, case):
+        self.script = Script(case)
         self.requests = []
         stub = self
 
@@ -307,51 +735,97 @@ class StubProvider:
         self.thread.join(timeout=5)
 
 
+def scripted_provider_for(mode, case):
+    """The loopback scripted provider in stub mode; nothing at all in live mode, where the
+    use case's script is never read and a person-configured endpoint answers."""
+    if mode == "stub":
+        return StubProvider(case)
+    if mode == "live":
+        return None
+    raise Refusal(f"mode {mode!r}")
+
+
 # ---------------------------------------------------------------------------
-# Judging what the window showed.
+# Judging what the window showed, against the use case's expectations.
 
 def entered_value(text):
     match = re.fullmatch(r"Entered: (\S+) (\S+)", (text or "").strip())
     return (float(match.group(1)), match.group(2)) if match else None
 
 
-def judge(report, reference, operations, captured=None):
-    """Named failures; empty means the journey was observed as expected."""
-    failures = []
-    if report.get("error"):
-        failures.append(f"driver: {report['error']}")
-    if report.get("steps") != STEPS:
-        failures.append(f"steps {report.get('steps')}")
+def report_record(entity):
+    """`<entity> <component> = <value> <unit>` records in the agent's report."""
+    return re.compile(re.escape(entity) + r"\s+(ux|uy|uz|rx|ry|rz)\s*=\s*([-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?)\s*(mm|rad)\b")
+
+
+class Check:
+    """One kind of expectation: what it judges, its parameters, whether it needs the tool
+    outcomes only a scripted provider exposes, and the judging function, which returns its
+    named failures and how many comparisons it made (none is a failure)."""
+
+    def __init__(self, category, params, judge_fn, validate=None, needs_tool_outcomes=False):
+        self.category, self.params, self.judge = category, params, judge_fn
+        self.needs_tool_outcomes = needs_tool_outcomes
+        self.validate = validate or (lambda expectation, context, seen: [])
+
+
+def request_report_key(number):
+    return f"turn{number}"
+
+
+def judge_requests_answered(expectation, report, case, context, captured):
     # Each turn completed (the bare standing "Ready."; a failed or interrupted turn is not)
     # and the agent answered in the window.
-    for name in ("turn1", "turn2"):
+    failures = []
+    for number in range(1, len(case.requests) + 1):
+        name = request_report_key(number)
         turn = report.get(name) or {}
         if turn.get("standing") != "Ready.":
             failures.append(f"{name} standing {turn.get('standing')!r}")
         if not any(str(line).startswith("Agent:") for line in turn.get("messages") or []):
             failures.append(f"{name}: no agent message in the window")
-    batch = report.get("batch") or {}
+    return failures, len(case.requests)
+
+
+def judge_agent_batch_shown(expectation, report, case, context, captured):
+    failures = []
+    operations = case.reference(expectation["operations"])
+    batch = report.get(apply_report_key(expectation["apply"])) or {}
     if not str(batch.get("batch_id", "")).startswith("agent-") or batch.get("batches_shown") != 1:
         failures.append("batch review did not show exactly one agent batch")
     count = re.match(r"(\d+) proposed changes\b", str(batch.get("summary") or ""))
     if not count or int(count.group(1)) != len(operations):
         failures.append(f"batch summary {batch.get('summary')!r}")
-    # The batch as Batch review shows it submitted: the fixture's operations, in order.
+    # The batch as Batch review shows it submitted: the referenced operations, in order.
     if batch.get("submitted") != [operation_key(op) for op in operations]:
         failures.append("the submitted batch is not the fixture's operations in order")
     if not batch.get("apply_message"):
         failures.append("no batch receipt after Apply")
-    # Every node, pipe and support row the tree shows, against the entities the batch creates.
-    expected_rows = sorted([TREE_TYPES[op["target"]["object_type"]], op["target"]["ref"]]
-                           for op in operations if op["target"]["object_type"] in TREE_TYPES)
+    return failures, len(operations)
+
+
+def judge_tree_rows(expectation, report, case, context, captured):
+    # Every row of the observed types the tree shows, against the entities the batch creates.
+    types = expectation["object_types"]
+    expected_rows = sorted([types[op["target"]["object_type"]], op["target"]["ref"]]
+                           for op in case.reference(expectation["operations"]) if op["target"]["object_type"] in types)
     if sorted(list(row) for row in report.get("tree_rows") or []) != expected_rows:
-        failures.append(f"model tree rows {report.get('tree_rows')}, expected {expected_rows}")
+        return [f"model tree rows {report.get('tree_rows')}, expected {expected_rows}"], len(expected_rows)
+    return [], len(expected_rows)
+
+
+def judge_nodal_motions(expectation, report, case, context, captured):
+    """The entity's nodal motions as the Results section shows them, each finite and in its
+    unit, against the reference under its criterion (relative, zero rows on the family scale)."""
+    failures, entity = [], expectation["entity"]
+    reference = case.reference(expectation["reference"])
+    reference_rows = [r for r in reference["rows"] if r["quantity"] == "nodal_motion" and r["entity"] == entity]
+    if len(reference_rows) != expectation["rows"]:
+        failures.append(f"the reference has {len(reference_rows)} nodal motions of {entity}, the use case expects {expectation['rows']}")
     rows = (report.get("results") or {}).get("rows") or []
     shown = {}
     scales = reference["zero_scales"]
-    for r in reference["rows"]:
-        if r["quantity"] != "nodal_motion" or r["entity"] != "node:c":
-            continue
+    for r in reference_rows:
         q = "displacement" if r["component"].startswith("u") else "rotation"
         unit = "mm" if q == "displacement" else "rad"
         # The Results section's row id for a nodal motion component, as the product forms it.
@@ -359,59 +833,240 @@ def judge(report, reference, operations, captured=None):
         found = [row for row in rows if row["id"] == row_id]
         parsed = entered_value(found[0]["text"]) if len(found) == 1 else None
         if parsed is None:
-            failures.append(f"node:c {r['component']}: {len(found)} rows shown")
+            failures.append(f"{entity} {r['component']}: {len(found)} rows shown")
             continue
         if not math.isfinite(parsed[0]):
-            failures.append(f"node:c {r['component']}: shown {parsed[0]!r} is not finite")
+            failures.append(f"{entity} {r['component']}: shown {parsed[0]!r} is not finite")
             continue
         if parsed[1] != unit:
-            failures.append(f"node:c {r['component']}: unit {parsed[1]}")
+            failures.append(f"{entity} {r['component']}: unit {parsed[1]}")
         observed = parsed[0] / 1000.0 if q == "displacement" else parsed[0]
         family = "translation" if q == "displacement" else "rotation"
-        tolerance = 1e-9 * (abs(r["value"]) if r["value"] != 0 else abs(scales[family]["value"]))
+        tolerance = expectation["relative"] * (abs(r["value"]) if r["value"] != 0 else abs(scales[family]["value"]))
         shown[row_id] = (f"global_nodal_{q}_{r['component'][1]}", parsed[0], unit)
         if abs(observed - r["value"]) > tolerance:
-            failures.append(f"node:c {r['component']}: shown {observed!r}, reference {r['value']!r}")
-    if captured is not None:
-        outcomes = [c["outcome"] for c in captured]
-        observe = next((o for o in outcomes if o.get("status") == "applied"), None)
-        solve = next((o for o in outcomes if o.get("status") == "completed"), None)
-        results = next((o for o in outcomes if o.get("status") == "ok" and "values" in (o.get("data") or {})), None)
-        if not observe or not solve or not results:
-            failures.append("stub did not capture applied, completed and results outcomes")
-        else:
-            if observe["data"]["outcomeModelHash"] != solve["data"]["evaluatedModelHash"]:
-                failures.append("solve was not on the applied model's hash")
-            shown_hash = ((report.get("results") or {}).get("model_sha256") or "").removeprefix("sha256:")
-            if shown_hash != (solve["data"]["evaluatedModelHash"] or {}).get("value"):
-                failures.append("the window's solve proof names another model hash")
-            # The agent read exactly the six rows the window shows: same ids, kinds,
-            # entity, units and values.
-            read = {value.get("id"): value for value in results["data"]["values"]}
-            if len(read) != len(results["data"]["values"]) or set(read) != set(shown) or len(shown) != 6:
-                failures.append(f"agent read {sorted(read)}, the window shows {sorted(shown)}")
-            for row_id, (kind, value, unit) in shown.items():
-                item = read.get(row_id)
-                if item and (item.get("kind"), item.get("entityRef"), item.get("unit"), item.get("value")) != (kind, "node:c", unit, value):
-                    failures.append(f"agent value {row_id} differs from the window")
-    # The agent's report in the window gives one `node:c <component> = <value> <unit>`
-    # record per motion the window shows, in its unit: exactly with the stub, to four
-    # significant figures live (a model may round); a zero is reported as zero.
-    agent_text = "\n".join(str(line) for line in (report.get("turn2") or {}).get("messages") or [] if str(line).startswith("Agent:"))
+            failures.append(f"{entity} {r['component']}: shown {observed!r}, reference {r['value']!r}")
+    context.setdefault("shown", {})[entity] = (shown, expectation["rows"])
+    return failures, len(reference_rows)
+
+
+def judge_tool_outcomes(expectation, report, case, context, captured):
+    """Stub mode: the solve was on the applied model, the window's solve proof names that
+    model, and the agent read exactly the rows the window shows (ids, kinds, entity, units,
+    values)."""
+    failures, entity = [], expectation["entity"]
+    shown, rows = context["shown"][entity]
+    outcomes = [c["outcome"] for c in captured]
+    observe = next((o for o in outcomes if o.get("status") == "applied"), None)
+    solve = next((o for o in outcomes if o.get("status") == "completed"), None)
+    results = next((o for o in outcomes if o.get("status") == "ok" and "values" in (o.get("data") or {})), None)
+    if not observe or not solve or not results:
+        return ["stub did not capture applied, completed and results outcomes"], 1
+    if observe["data"]["outcomeModelHash"] != solve["data"]["evaluatedModelHash"]:
+        failures.append("solve was not on the applied model's hash")
+    shown_hash = ((report.get("results") or {}).get("model_sha256") or "").removeprefix("sha256:")
+    if shown_hash != (solve["data"]["evaluatedModelHash"] or {}).get("value"):
+        failures.append("the window's solve proof names another model hash")
+    read = {value.get("id"): value for value in results["data"]["values"]}
+    if len(read) != len(results["data"]["values"]) or set(read) != set(shown) or len(shown) != rows:
+        failures.append(f"agent read {sorted(read)}, the window shows {sorted(shown)}")
+    for row_id, (kind, value, unit) in shown.items():
+        item = read.get(row_id)
+        if item and (item.get("kind"), item.get("entityRef"), item.get("unit"), item.get("value")) != (kind, entity, unit, value):
+            failures.append(f"agent value {row_id} differs from the window")
+    return failures, 2 + len(shown)
+
+
+def judge_report_states_window(expectation, report, case, context, captured):
+    """The agent's report in the window gives one `<entity> <component> = <value> <unit>`
+    record per motion the window shows, in its unit: exactly under the scripted provider, to
+    the stated relative tolerance live (a model may round); a zero is reported as zero."""
+    failures, entity = [], expectation["entity"]
+    shown, _ = context["shown"][entity]
+    turn = report.get(request_report_key(expectation["request"])) or {}
+    agent_text = "\n".join(str(line) for line in turn.get("messages") or [] if str(line).startswith("Agent:"))
     records = {}
-    for component, number, unit in REPORT_RECORD.findall(agent_text):
+    for component, number, unit in report_record(entity).findall(agent_text):
         records.setdefault(component, []).append((float(number), unit))
+    relative = expectation["relative"]
     for row_id, (kind, value, unit) in sorted(shown.items()):
         component = COMPONENT[kind]
         stated = records.get(component, [])
         if len(stated) != 1:
-            failures.append(f"the agent's report states node:c {component} {len(stated)} times")
+            failures.append(f"the agent's report states {entity} {component} {len(stated)} times")
             continue
         number, stated_unit = stated[0]
-        close = number == value if captured is not None else (abs(number - value) <= 5e-4 * abs(value) if value else number == 0)
+        close = number == value if captured is not None else (abs(number - value) <= relative * abs(value) if value else number == 0)
         if stated_unit != unit or not math.isfinite(number) or not close:
-            failures.append(f"the agent's report states node:c {component} = {number!r} {stated_unit}, the window {value!r} {unit}")
+            failures.append(f"the agent's report states {entity} {component} = {number!r} {stated_unit}, the window {value!r} {unit}")
+    return failures, len(shown)
+
+
+def validate_operations_ref(expectation, context, seen):
+    ref = context["references"].get(expectation["operations"])
+    return [] if isinstance(ref, dict) and "case" not in ref else [f"operations names no file reference {expectation['operations']!r}"]
+
+
+def validate_apply(expectation, context, seen):
+    problems = validate_operations_ref(expectation, context, seen)
+    if not isinstance(expectation["apply"], int) or not 1 <= expectation["apply"] <= context["applies"]:
+        problems.append(f"apply {expectation['apply']!r}: the sequence has {context['applies']} apply acts")
+    return problems
+
+
+def validate_tree(expectation, context, seen):
+    problems = validate_operations_ref(expectation, context, seen)
+    types = expectation["object_types"]
+    if not isinstance(types, dict) or not types or set(types.values()) != set(context["observe"]["tree_types"]):
+        problems.append(f"object_types {types!r} must map onto exactly the observed tree types")
+    return problems
+
+
+def validate_motions(expectation, context, seen):
+    problems = []
+    ref = context["references"].get(expectation["reference"])
+    if not isinstance(ref, dict) or "case" not in ref:
+        problems.append(f"reference {expectation['reference']!r} names no benchmark case")
+    if not isinstance(expectation["entity"], str) or not expectation["entity"]:
+        problems.append("entity")
+    if not isinstance(expectation["rows"], int) or expectation["rows"] < 1:
+        problems.append(f"rows {expectation['rows']!r}")
+    if not isinstance(expectation["relative"], (int, float)) or not 0 < expectation["relative"] < 1:
+        problems.append(f"relative {expectation['relative']!r}")
+    return problems
+
+
+def needs_motions(expectation, seen):
+    if not any(e["kind"] == "nodal_motions_match_reference" and e["entity"] == expectation["entity"] for e in seen.values()):
+        return [f"needs an earlier nodal_motions_match_reference expectation for {expectation['entity']}"]
+    return []
+
+
+def validate_report(expectation, context, seen):
+    problems = needs_motions(expectation, seen)
+    if not isinstance(expectation["request"], int) or not 1 <= expectation["request"] <= context["requests"]:
+        problems.append(f"request {expectation['request']!r}: the sequence has {context['requests']} requests")
+    if not isinstance(expectation["relative"], (int, float)) or not 0 < expectation["relative"] < 1:
+        problems.append(f"relative {expectation['relative']!r}")
+    return problems
+
+
+def judge_requested_act_standing(expectation, report, case, context, captured):
+    """The standing the agent was given for a requested act, as the tool outcomes it received
+    show it. Only "performed" settles the act; any other standing, or none seen (always so in a
+    live run, whose tool outcomes the controller does not see), leaves the use case unfinished
+    for the agent. That is not a failure of the route. A print request reported as performed is
+    a failure: print is settled at best as sent to the print dialog."""
+    number = expectation["requested"]
+    act = case.requested_acts[number - 1]
+    seen = []
+    for item in captured or []:
+        outcome = item.get("outcome")
+        try:
+            if isinstance(outcome, dict) and pluck(outcome, REQUEST_OBSERVATION["act"].split(".")) == act:
+                seen.append(pluck(outcome, REQUEST_OBSERVATION["standing"].split(".")))
+        except Unresolved:
+            continue
+    standing = seen[-1] if seen else "not observed"
+    standing = standing if isinstance(standing, str) and standing in REQUEST_STANDINGS + ("not observed",) else "unrecognized"
+    context.setdefault("requested", []).append({"requested": number, "act": act, "standing": standing})
+    if act == "print_report" and standing == PERFORMED:
+        return ["print_report was reported performed; a print request is settled at most as sent to the print dialog"], 1
+    return [], 1
+
+
+def validate_by_person(expectation, context, seen):
+    """A person-observed thing must say what the machine observed short of it, and name the
+    machine expectation that judged that, so it cannot stand in for a check the machine can make."""
+    problems = []
+    if expectation["thing"] not in PERSON_OBSERVED:
+        problems.append(f"thing {expectation['thing']!r} is not one a person observes ({', '.join(PERSON_OBSERVED)})")
+    said = expectation["machine_observed"]
+    if not isinstance(said, str) or len(said.split()) < 4:
+        problems.append("machine_observed must say, in a sentence, what the machine observed short of it")
+    check = seen.get(expectation["machine_check"])
+    if check is None or check["kind"] == "observed_by_person":
+        problems.append(f"machine_check {expectation['machine_check']!r} names no earlier expectation the machine judges")
+    return problems
+
+
+def validate_requested(expectation, context, seen):
+    number = expectation["requested"]
+    if not isinstance(number, int) or not 1 <= number <= len(context["requested"]):
+        return [f"requested {number!r}: the sequence has {len(context['requested'])} requested acts"]
+    return []
+
+
+CHECKS = {
+    # Never judged: listed for a person (see PERSON_OBSERVED).
+    "observed_by_person": Check("person", ("thing", "machine_observed", "machine_check"), None, validate_by_person),
+    "requested_act_standing": Check("conversation", ("requested",), judge_requested_act_standing, validate_requested),
+    "requests_answered": Check("conversation", (), judge_requests_answered),
+    "agent_batch_shown": Check("window", ("apply", "operations"), judge_agent_batch_shown, validate_apply),
+    "tree_rows_are_batch_targets": Check("window", ("operations", "object_types"), judge_tree_rows, validate_tree),
+    "nodal_motions_match_reference": Check("window", ("reference", "entity", "rows", "relative"), judge_nodal_motions, validate_motions),
+    "tool_outcomes_agree_with_window": Check("agreement", ("entity",), judge_tool_outcomes,
+                                             lambda e, c, s: needs_motions(e, s), needs_tool_outcomes=True),
+    "report_states_window_motions": Check("agreement", ("request", "entity", "relative"), judge_report_states_window, validate_report),
+}
+
+
+def judge(report, case, captured=None, judgement=None):
+    """Named failures; empty means the window, the conversation and their agreement were as the
+    use case expects. `captured` is the scripted provider's view of the tool outcomes (stub
+    mode only). `judgement`, when given, receives which expectations were judged and which
+    could not be in this mode."""
+    failures, judged, unjudged, context = [], [], [], {}
+    if report.get("error"):
+        failures.append(f"driver: {report['error']}")
+    if report.get("steps") != case.steps:
+        failures.append(f"steps {report.get('steps')}")
+    by_person = []
+    for expectation in case.expectations:
+        check = CHECKS[expectation["kind"]]
+        if check.category == "person":
+            by_person.append({"id": expectation["id"], "thing": expectation["thing"],
+                              "machineObserved": expectation["machine_observed"],
+                              "machineCheck": expectation["machine_check"],
+                              "machineCheckJudged": expectation["machine_check"] in judged})
+            continue
+        if check.needs_tool_outcomes and captured is None:
+            unjudged.append(expectation["id"])
+            continue
+        try:
+            found, compared = check.judge(expectation, report, case, context, captured)
+        except (Unresolved, KeyError, TypeError, ValueError) as error:
+            found, compared = [f"expectation {expectation['id']} could not be judged: {type(error).__name__}"], 1
+        failures += found
+        if compared < 1:
+            failures.append(f"expectation {expectation['id']} compared nothing")
+        judged.append(expectation["id"])
+    acts = context.get("requested", [])
+    if len(acts) != len(case.requested_acts):
+        failures.append(f"{len(case.requested_acts)} requested acts, {len(acts)} judged")
+    if judgement is not None:
+        judgement.update(judged=judged, notJudged=unjudged, observedByPerson=by_person, requestedActs={
+            "standing": "none" if not case.requested_acts
+            else "all performed" if len(acts) == len(case.requested_acts) and all(a["standing"] == PERFORMED for a in acts)
+            else "unfinished",
+            "acts": acts})
     return failures
+
+
+def settle(result):
+    """The run's one word (OUTCOME_EXIT). "passed" needs the route examined with no failure, every
+    requested act shown to the agent as performed and nothing left for a person; "unfinished" and
+    "awaiting a person" are no pass: `passed` is then false, with no failure named."""
+    route_passed = bool(result.get("passed"))
+    expectations = result.get("expectations") or {}
+    unfinished = (expectations.get("requestedActs") or {}).get("standing") == "unfinished"
+    awaiting = bool(expectations.get("observedByPerson"))
+    mode = result.get("mode")
+    result["runnerMode"] = RUNNER_MODE[mode]
+    result["outcome"] = ("failed" if not route_passed else "unfinished" if unfinished
+                         else "awaiting a person" if awaiting else PASS_WORDS[mode])
+    result["passed"] = result["outcome"] == PASS_WORDS[mode]
+    return result["outcome"]
 
 
 def operation_key(operation):
@@ -419,6 +1074,16 @@ def operation_key(operation):
     change, target = operation.get("change") or {}, operation.get("target") or {}
     return [operation.get("operation_id"), f"{operation.get('operation_kind')}/{target.get('object_type')}/"
             f"{change.get('change_kind')}/{change.get('field_path')}", target.get("ref")]
+
+
+# The W9-A journey, the first use case. These names keep the supplier capture working.
+W9A = load_use_case(DEFAULT_USE_CASE)
+TURNS = W9A.requests
+FIXTURE = PROJECT / W9A.definition["references"]["batch"]["file"]
+
+
+def w9a_reference():
+    return W9A.reference("motions")
 
 
 # ---------------------------------------------------------------------------
@@ -513,8 +1178,10 @@ def preflight(args, root):
 
 
 def run(args, key, root):
+    case = getattr(args, "case", None) or W9A
     result = {"passed": False, "mode": args.mode, "startedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-              "appSha256": sha256(args.app), "cleanup": "unknown"}
+              "appSha256": sha256(args.app), "cleanup": "unknown", "standing": STANDING[args.mode],
+              "useCase": {"id": case.id, "definitionSha256": sha256(case.path)}}
     supplier = args.app.parents[1] / "Resources" / "agent-supplier"
     pin = json.loads(PIN.read_text())["codex"]["binarySha256"]
     found = [p for p in supplier.glob("codex*") if p.is_file()]
@@ -526,20 +1193,18 @@ def run(args, key, root):
         raise Refusal("preflight")
     home, gate, report_path = root / "home", root / "gate", root / "report.json"
     home.mkdir(mode=0o700)
-    reference = w9a_reference()
-    operations = json.loads(FIXTURE.read_text())["routes"]["PF"]["operations"]
-    stub = StubProvider(TURNS) if args.mode == "stub" else None
+    stub = scripted_provider_for(args.mode, case)
+    if stub:
+        result["useCase"]["scriptedProviderSha256"] = sha256(case.script_path)
     app = anchor = observer = lines = None
     sdk = None
     try:
         check_memory_monitor(args)
         if stub:
             stub.__enter__()
-        plan = {"provider": {"endpoint": stub.endpoint if stub else args.endpoint, "model": args.model,
-                             "contextWindow": args.context_window},
-                "turns": TURNS, "resultProbe": "node:c",
-                "treeTypes": sorted(TREE_TYPES.values()),
-                "timeoutsMs": {"ui": 60000, "start": 60000, "turn": args.turn_timeout * 1000}}
+        plan = case.plan({"endpoint": stub.endpoint if stub else args.endpoint, "model": args.model,
+                          "contextWindow": args.context_window},
+                         {"ui": 60000, "start": 60000, "turn": args.turn_timeout * 1000})
         env = {"PATH": "/usr/bin:/bin", "HOME": str(home), "SWBPIPE_NATIVE_SMOKE_DRIVER": "-",
                "SWBPIPE_NATIVE_SMOKE_PLAN": json.dumps(plan), "SWBPIPE_NATIVE_SMOKE_REPORT": str(report_path),
                "SWBPIPE_NATIVE_SMOKE_AGENT_GATE": str(gate), "SWBPIPE_NATIVE_SMOKE_AGENT_GATE_MODE": "handshake"}
@@ -614,7 +1279,9 @@ def run(args, key, root):
         result["cleanup"] = "qualified_native_owned_group"
         report = json.loads(report_path.read_text())
         result["report"] = report
-        failures = judge(report, reference, operations, stub.script.captured if stub else None)
+        judgement = {}
+        failures = judge(report, case, stub.script.captured if stub else None, judgement)
+        result["expectations"] = judgement
         if stub:
             result["stub"] = {"requests": stub.requests, "captured": stub.script.captured, "failures": stub.script.failures}
             failures += [f"stub: {why}" for why in stub.script.failures]
@@ -748,6 +1415,8 @@ def main():
     parser.add_argument("--process-probe", type=Path, required=True)
     parser.add_argument("--boundary-probe", type=Path, required=True)
     parser.add_argument("--mode", choices=["stub", "live"], required=True)
+    parser.add_argument("--use-case", default=DEFAULT_USE_CASE,
+                        help=f"a use case under fixtures/embedded_agent/use_cases ({', '.join(use_case_names())})")
     parser.add_argument("--endpoint", help="live mode: the provider endpoint")
     parser.add_argument("--model", default="stub-model")
     parser.add_argument("--context-window", type=int, default=32768)
@@ -771,6 +1440,8 @@ def main():
         parser.error("live mode needs --endpoint")
     if args.mode == "stub" and args.key_stdin:
         parser.error("stub mode takes no key")
+    if args.mode == "stub" and args.endpoint:
+        parser.error("stub mode takes no endpoint: the scripted provider answers on loopback")
     if args.mode == "live" and not args.memory_heartbeat:
         parser.error("live mode needs --memory-heartbeat and --cancel-file")
     if args.memory_heartbeat and not args.cancel_file:
@@ -790,6 +1461,8 @@ def main():
               f"normally, confirm no process remains under its output directory, then remove {RETAINED}.", file=sys.stderr)
         return 2
     try:
+        args.case = load_use_case(args.use_case)  # An invalid definition refuses before anything is created.
+        refuse_unperformable(args.case)
         check_memory_monitor(args)  # Refuse unhealthy admission before consuming the single key read.
         key = read_key(sys.stdin.buffer) if args.key_stdin else None
     except Refusal as refusal:
@@ -800,7 +1473,7 @@ def main():
     for name in ("app", "process_probe", "boundary_probe"):
         setattr(args, name, getattr(args, name).resolve(strict=True))
     free = free_bytes()
-    result = {"passed": False, "freeBytesAtStart": free, "minFreeBytes": int(args.min_free_gib * 1024 ** 3)}
+    result = {"passed": False, "mode": args.mode, "freeBytesAtStart": free, "minFreeBytes": int(args.min_free_gib * 1024 ** 3)}
     if free < result["minFreeBytes"]:
         result["failure"] = "memory_gate"
     else:
@@ -809,9 +1482,11 @@ def main():
         except Exception as error:  # noqa: BLE001
             result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
     key = None
+    settle(result)
     (root / "result.json").write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps({k: result.get(k) for k in ("passed", "failure", "failures", "rescue", "release", "residents", "startedAt", "endedAt")}))
-    return 0 if result["passed"] else 1
+    print(json.dumps({k: result.get(k) for k in ("useCase", "runnerMode", "standing", "outcome", "passed", "failure", "failures", "expectations",
+                                                 "rescue", "release", "residents", "startedAt", "endedAt")}))
+    return OUTCOME_EXIT[result["outcome"]]
 
 
 if __name__ == "__main__":

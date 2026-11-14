@@ -25,7 +25,7 @@ import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools import agent_host_witness as witness  # noqa: E402
-from tools.agent_journey_fixture import Script, StubProvider, TURNS, sse, residents, FIXTURE  # noqa: E402
+from tools.agent_journey_fixture import Script, StubProvider, TURNS, W9A, sse, residents, FIXTURE  # noqa: E402
 from tools.agent_journey_fixture import tool_output, user_text  # noqa: E402
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -186,7 +186,7 @@ class Capture:
     """Single serialized script, eight bodies maximum. Failed bodies are never retained."""
     def __init__(self, output, deadline, clock=time.monotonic):
         self.output, self.deadline, self.clock = output, deadline, clock
-        self.script = Script(TURNS)
+        self.script = Script(W9A)
         self.bodies, self.calls, self.total, self.discovery = [], [], 0, False
         self.failure = None
         self.tools_diagnostic = None
@@ -298,7 +298,7 @@ class CaptureProvider(StubProvider):
     def __init__(self, capture):
         self.capture = capture
         try:
-            super().__init__(TURNS)
+            super().__init__(W9A)
             # server_close must join all handlers before the final failure latch is read.
             self.server.daemon_threads = False
             self.server.block_on_close = True
@@ -460,7 +460,8 @@ def run(binary, output, *, initialize=CaptureNative.__init__, provider_factory=C
               'inputRevision': revision, 'inputCheckoutClean': True,
               'supplierSha256': witness.BINARY_SHA256, 'inputs': {str(p.relative_to(PROJECT)): witness.digest(p)
                   for p in [CATALOG, OUTCOMES, FIXTURE, RUNTIME, MACOS, MANIFEST, Path(__file__),
-                            PROJECT / 'tools/agent_host_witness.py', PROJECT / 'tools/agent_journey_fixture.py']}}
+                            PROJECT / 'tools/agent_host_witness.py', PROJECT / 'tools/agent_journey_fixture.py',
+                            W9A.path, W9A.script_path]}}
     native = CaptureNative.__new__(CaptureNative)
     provider = watchdog = None
     runtime = Path(tempfile.mkdtemp(prefix='swbpipe-d4-capture-', dir='/private/tmp'))

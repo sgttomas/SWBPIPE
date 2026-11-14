@@ -89,6 +89,11 @@ code_paths:
 # module with its own contract test. No criterion of this scope covers either.
 - apps/desktop/src/features/accessibility-baseline/**
 - core/gui/accessibility/**
+# The use cases of AC-007 as the embedded agent is run through them (REQ-016): definitions under
+# use_cases/, run by DEL-16-06's journey controller and driver, which these paths name for relevance.
+- fixtures/embedded_agent/use_cases/**
+- tools/agent_journey_fixture.py
+- apps/desktop/native-smoke/agent-journey.js
 checks:
 - apps/desktop/e2e/b3-accessibility.spec.ts
 - apps/desktop/e2e/ui-foundation.spec.ts
@@ -99,3 +104,4 @@ checks:
 - tests/test_accessibility_usability_baseline.py
 - apps/desktop/src/features/workspace/contextMenu/ContextMenu.test.tsx
 - apps/desktop/src/App.deadControls.test.tsx
+- tools/agent_journey_fixture_test.py

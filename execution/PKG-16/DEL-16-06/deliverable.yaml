@@ -228,6 +228,8 @@ code_paths:
 # The agent's journey fixtures and the tools that qualify the host. tools/agent_supplier_bundle.py
 # is DEL-10-04's.
 - fixtures/embedded_agent/agent-witness-pin.json
+# The use cases the journey controller runs by name: each a definition and its scripted provider.
+- fixtures/embedded_agent/use_cases/**
 - fixtures/model_operations/agent_w9a_journey.json
 - fixtures/model_operations/agent_m2_component_journey.json
 - fixtures/model_operations/agent_w9a_capture_outcomes.json
