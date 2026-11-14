@@ -64,6 +64,7 @@ mod native_replay_tests;
 #[cfg(test)]
 #[path = "native_ledger_tests.rs"]
 mod native_ledger_tests;
+#[cfg(test)] #[path = "after_worker_perf_tests.rs"] mod after_worker_perf_tests;
 mod report_package_bridge;
 mod report_package_save;
 mod report_session_diagnostics;
