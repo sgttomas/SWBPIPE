@@ -86,7 +86,8 @@ ASSUMPTIONS = {
     "replaced span": "the replaced pipe A-B contributes no stiffness, self-weight or load (execution/PKG-03/DEL-03-06/"
                      "ScopeOfWork.md, Replaced span; AC-004). No case here has self-weight or thermal load.",
     "free system": "node A anchored on all six DOFs with zero prescribed motion; the free DOFs are B's six in the "
-                   "order UX, UY, UZ, RX, RY, RZ; an active stop makes B's UZ a prescribed row at its ground 0.",
+                   "order UX, UY, UZ, RX, RY, RZ; an active stop makes B's UZ a prescribed row at its ground 0. "
+                   "(execution/PKG-04/DEL-04-01/ScopeOfWork.md, Ontology; core/solver/nonlinear_integration/src/lib.rs active_boundary() and prescribed_displacement_for_state()).",
     "scaling": "row exponent e_i = -floor(floor(log2 K_ii) / 2), K_s = D K D with D = diag(2^e_i) "
                "(core/solver/frame_kernel/src/structural.rs prepare_bound and binary_exponent); an even force scale "
                "2^b shifts every e_i by -b/2 and leaves K_s unchanged (structural.rs unscale_structural_solution "
