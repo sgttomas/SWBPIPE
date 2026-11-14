@@ -245,9 +245,10 @@ changed-specification check, and the conflict and run-record checks) is one
 maintained script, `tools/ci/repository_checks.py`, which the job calls after
 setting up Python, Rust and the check dependencies. The routing invariants are
 the tests in `tests/test_ci_python.py` whose truth an edit outside `tools/ci/` can
-change (`ROUTING_INVARIANT_TESTS`). That file is otherwise selected only by
-`tools/ci/` changes, so without this step such an invariant would be green on the
-pull request that breaks it and red on `main` after it. Its remaining tests test
+change (`ROUTING_INVARIANT_TESTS`). Otherwise a pull request selects that file
+only through `tools/ci/`, an edit to the file itself, or a full run, so without this
+step such an invariant would be green on the pull request that breaks it and red on
+`main` after it. Its remaining tests test
 the selector's own algorithm and stay scoped to `tools/ci/` changes; the file
 keeps the two sets a partition of its tests. Before a push, run it
 locally from a clean checkout at the repository root:

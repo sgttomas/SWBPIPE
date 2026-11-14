@@ -450,10 +450,13 @@ def test_repository_check_tests_are_the_governance_step_s():
     assert _repository_checks().REGRESSION_TARGETS == ci.python_test_reads.REPOSITORY_CHECK_TESTS
 
 
-# Each test here answers one question: can an edit outside tools/ci/ change this invariant's truth? Yes: it runs on
-# every pull request (`EVERY_PULL_REQUEST`, the Repository checks job's `ROUTING_INVARIANT_TESTS`). No, it tests the
-# selector's own algorithm: it stays scoped to tools/ci/ changes (`SELECTOR_ONLY`). A new test joins one of the two.
+# Each collected test here (a function, or a class method as `Class::method`) answers one question: can an edit
+# outside tools/ci/ change this invariant's truth? Yes: it runs on every pull request (`EVERY_PULL_REQUEST`, the
+# Repository checks job's `ROUTING_INVARIANT_TESTS`). No, it tests the selector's own algorithm: it stays scoped to
+# tools/ci/ changes (`SELECTOR_ONLY`). A new test joins one of the two.
 EVERY_PULL_REQUEST = frozenset((
+    'test_repository_numerical_routing_checks_are_not_duplicated_in_product_job',
+    'test_merge_group_selects_python_tests_as_a_pull_request',
     'test_sensitive_families_follow_their_inputs',
     'test_unrelated_security_change_does_not_expand_to_full_suite',
     'test_dispatch_and_shared_runner_edits_keep_broad_coverage',
@@ -494,8 +497,6 @@ SELECTOR_ONLY = frozenset((
     'test_repeated_full_selection_does_not_mutate_the_cached_cohort',
     'test_known_helper_import_forms_are_selected_without_unrelated_tests',
     'test_test_tree_imports_are_followed_without_unrelated_tests',
-    'test_repository_numerical_routing_checks_are_not_duplicated_in_product_job',
-    'test_merge_group_selects_python_tests_as_a_pull_request',
     'test_the_repository_checks_job_runs_the_routing_invariant_on_every_pull_request',
     'test_too_many_pattern_forms_collapse_to_a_covering_prefix',
     'test_a_printf_specification_is_consumed_whole',
@@ -511,15 +512,25 @@ SELECTOR_ONLY = frozenset((
 
 
 def test_the_repository_checks_job_runs_the_routing_invariant_on_every_pull_request():
-    """Adding or changing a maintained test, a workflow, a fixture or a product file selects neither `tools/ci/` nor
-    this file, so every invariant here whose truth such an edit can change runs in the Repository checks job, which
-    every product pull request runs; the rest test the selector's own algorithm. The two sets partition this file's
-    tests, and the job's list is exactly the first."""
+    """Every collected test belongs to exactly one routing set, and the job runs the first set.
+
+    Collect with pytest itself so methods, imported tests and generated tests have the same identifiers here
+    as in the job. Parametrized instances share their unparametrized selector.
+    """
+    import subprocess
+    import sys
+
     checks = _repository_checks()
-    tests = {name for name, value in globals().items() if name.startswith('test_') and callable(value)}
+    module = 'tests/test_ci_python.py'
+    result = subprocess.run([sys.executable, '-m', 'pytest', '--collect-only', '-q', module],
+                            cwd=PROJECT, capture_output=True, text=True, check=True)
+    prefix = module + '::'
+    tests = {line[len(prefix):].split('[', 1)[0] for line in result.stdout.splitlines()
+             if line.startswith(prefix)}
+    assert tests, result.stdout
     assert not EVERY_PULL_REQUEST & SELECTOR_ONLY
     assert EVERY_PULL_REQUEST | SELECTOR_ONLY == tests, sorted(tests ^ (EVERY_PULL_REQUEST | SELECTOR_ONLY))
-    assert set(checks.ROUTING_INVARIANT_TESTS) == {f'tests/test_ci_python.py::{name}' for name in EVERY_PULL_REQUEST}
+    assert set(checks.ROUTING_INVARIANT_TESTS) == {f'{module}::{name}' for name in EVERY_PULL_REQUEST}
     assert len(checks.ROUTING_INVARIANT_TESTS) == len(EVERY_PULL_REQUEST)
 
 

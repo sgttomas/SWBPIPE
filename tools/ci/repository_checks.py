@@ -37,6 +37,8 @@ REGRESSION_TARGETS = ("tools/software_workflow", "tools/deliverables", "tools/va
 # the pull request that breaks it and red on main after it. The rest of that file tests the selector's own algorithm
 # and stays scoped to tools/ci/ changes; tests/test_ci_python.py keeps the two sets a partition of its tests.
 ROUTING_INVARIANT_TESTS = tuple(f"tests/test_ci_python.py::{name}" for name in (
+    "test_repository_numerical_routing_checks_are_not_duplicated_in_product_job",
+    "test_merge_group_selects_python_tests_as_a_pull_request",
     "test_sensitive_families_follow_their_inputs",
     "test_unrelated_security_change_does_not_expand_to_full_suite",
     "test_dispatch_and_shared_runner_edits_keep_broad_coverage",
