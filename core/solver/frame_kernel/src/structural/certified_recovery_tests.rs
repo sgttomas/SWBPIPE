@@ -1282,6 +1282,67 @@ fn coupled_sliding_friction_re_forms_as_its_stage_a_ball() {
     }
 }
 
+/// Member certification's force is the solve's own member force (kd5-nonlinear-active-set.md §1.6, §3.1).
+/// A confirmed state's force is the solve's force with its sliding friction terms appended
+/// (`AssembledForce::with_appended`): every original primitive keeps its index and identity, and the
+/// sliding formulas are nodal (`member_pair`), so a member's certified loads formed from the confirmed
+/// force are, bit for bit, the ones formed from the solve's force.
+#[test]
+fn a_confirmed_force_leaves_member_certification_loads_unchanged() {
+    use crate::load_ledger::LoadLedger;
+    let frame = frame();
+    let mut solve = LoadLedger::new();
+    for row in 0..12 {
+        solve.push("invented", row, 0.0);
+        solve.attach_load_primitive(LoadPrimitive {
+            term_index: row,
+            identity: LoadSummandIdentity { family: "uniform_straight".into(), source: "invented".into(), ordinal: row },
+            local_row: row,
+            formula: LoadFormula::UniformStraight {
+                frame: frame.clone(),
+                intensity: IntensityPrimitive::Authored([0.0, -6.0, 0.0]),
+                start_fraction: 0.0,
+                end_fraction: 1.0,
+            },
+            force_scale_exponent: 0,
+        });
+    }
+    let solve = solve.finish(12).unwrap();
+    let mut sliding = LoadLedger::new();
+    sliding.push("NL", 6, -21.0);
+    sliding.attach_load_primitive(friction_primitive(LoadFormula::SlidingFrictionExplicit {
+        global_dof: 6,
+        coefficient: 0.3,
+        normal: -70.0,
+        direction: 1.0,
+    }));
+    sliding.push("NL", 7, -0.25);
+    let mut coupled = friction_primitive(LoadFormula::SlidingFrictionCoupled {
+        global_dof: 7,
+        coefficient: 0.5,
+        direction: 1.0,
+        beta: -1.0,
+        source_dof: 6,
+        midpoint: -0.25,
+        radius: 2.0_f64.powi(-60),
+    });
+    coupled.term_index = 1;
+    coupled.identity.ordinal = 1;
+    sliding.attach_load_primitive(coupled);
+    let confirmed = solve.with_appended(sliding).unwrap();
+    assert_eq!(confirmed.load_primitives().len(), 14);
+    assert_eq!(&confirmed.load_primitives()[..12], solve.load_primitives());
+    let from_solve = CertifiedMemberLoads::from_primitives(0, 1, solve.load_primitives()).unwrap();
+    let from_confirmed = CertifiedMemberLoads::from_primitives(0, 1, confirmed.load_primitives()).unwrap();
+    // Debug prints each binary64 in its shortest round-trip form, so equal text is equal bits (signed zeros included).
+    assert_eq!(format!("{:?}", from_confirmed.equivalent), format!("{:?}", from_solve.equivalent));
+    assert_eq!(
+        from_confirmed.equivalent_scale.map(f64::to_bits),
+        from_solve.equivalent_scale.map(f64::to_bits)
+    );
+    assert_eq!(from_confirmed.uniform_loads().count(), from_solve.uniform_loads().count());
+}
+
 /// the displacement ball u + w + w2 with the remainder 2^e*LambdaSigma,
 /// and an exact value at a prescribed DOF.
 #[test]
