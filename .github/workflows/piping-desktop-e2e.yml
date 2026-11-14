@@ -409,6 +409,48 @@ jobs:
       - name: Locked Cargo numerical suite
         if: steps.verified.outputs.cache-hit != 'true'
         run: python3 tools/ci/numerical_ci.py --plan piping-ci-plan.json --evidence-dir piping-numerical-evidence --shard "${{ matrix.shard }}"
+      # The headless artifact readers (owner-approved, 2026-11-13; docs/CI_STRATEGY.md). tests/test_pressure_headless_artifacts.py
+      # and tests/test_load_reference_headless_artifacts.py read the files the headless runner's Rust tests write, and skip
+      # without them. This step acts only on the reporting-runner shard and only when its plan selects the headless runner:
+      # it writes the artifacts at the tested head into fresh folders, reusing the suite's build, and reads them with
+      # HEADLESS_ARTIFACTS_REQUIRED=1, which turns a skip into a failure. Any skip, failure or empty run fails the step.
+      - name: Write the headless artifacts at the tested head and read them
+        if: steps.verified.outputs.cache-hit != 'true'
+        shell: bash
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: |
+          set -euo pipefail
+          # The shard is tested here, not in `if`, so no step condition names matrix.shard
+          # (test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage). The other shards do nothing.
+          if [ "$SHARD" != reporting-runner ]; then echo "no headless artifact readers for shard $SHARD"; exit 0; fi
+          selected=$(python3 -c "import json; plan = json.load(open('piping-ci-plan.json')); print('yes' if 'core/runner/headless/Cargo.toml' in plan['piping_numerical_selection']['manifests'] else 'no')")
+          if [ "$selected" != yes ]; then echo "headless runner not selected; no headless artifact readers"; exit 0; fi
+          python3 -m pip install -r requirements-dev.txt
+          out="$RUNNER_TEMP/headless-artifacts"
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/piping-numerical-evidence/target"
+          export HEADLESS_PRESSURE_OUTPUT_DIR="$out/pressure"
+          export HEADLESS_LOAD_REFERENCE_OUTPUT_DIR="$out/load-reference"
+          export HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR="$out/load-reference-source"
+          rm -rf "$out"
+          mkdir -p "$HEADLESS_PRESSURE_OUTPUT_DIR" "$HEADLESS_LOAD_REFERENCE_OUTPUT_DIR" "$HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR"
+          cargo test --offline --locked --manifest-path core/runner/headless/Cargo.toml --test pressure_export --test load_reference_cli
+          cargo test --offline --locked --manifest-path core/runner/headless/Cargo.toml --lib load_reference_route_tests
+          for d in "$HEADLESS_PRESSURE_OUTPUT_DIR" "$HEADLESS_LOAD_REFERENCE_OUTPUT_DIR" "$HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR"; do
+            echo "$(find "$d" -type f | wc -l) artifacts in $d"
+          done
+          HEADLESS_ARTIFACTS_REQUIRED=1 python3 -m pytest -q -rs -p no:cacheprovider -n auto --junitxml="$out/readers.xml" \
+            tests/test_pressure_headless_artifacts.py tests/test_load_reference_headless_artifacts.py
+          python3 - "$out/readers.xml" <<'PYTHON'
+          import sys
+          import xml.etree.ElementTree as ET
+          root = ET.parse(sys.argv[1]).getroot()
+          suites = [root] if root.tag == 'testsuite' else root.findall('testsuite')
+          counts = {key: sum(int(s.get(key, 0)) for s in suites) for key in ('tests', 'failures', 'errors', 'skipped')}
+          print('headless artifact readers:', counts)
+          if not counts['tests'] or counts['failures'] or counts['errors'] or counts['skipped']:
+              raise SystemExit('headless artifact readers must all run and pass, none skipped')
+          PYTHON
       - uses: actions/upload-artifact@v4
         if: always() && steps.verified.outputs.cache-hit != 'true'
         with:

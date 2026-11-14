@@ -9,11 +9,17 @@ owner under DEC-058; here the output directory is always a temp directory.
 
 from __future__ import annotations
 
+import contextlib
+import errno
+import hashlib
 import importlib.util
 import json
+import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import time
 from pathlib import Path
 
 import pytest
@@ -36,6 +42,100 @@ ACCEPTED_PROVENANCE = {
     "redistribution_status": "public_permissive",
     "review_status": "accepted",
 }
+
+
+LINTER_TARGET = ROOT / "core" / "reporting" / "protected_content_linter" / "target"
+
+
+def lint_engine_lock_path() -> Path:
+    """One lock file per Cargo target directory the lint engine is built in."""
+    target = Path(os.environ.get("CARGO_TARGET_DIR") or LINTER_TARGET).resolve()
+    name = hashlib.sha256(str(target).encode("utf-8")).hexdigest()[:16]
+    return Path(tempfile.gettempdir()) / f"openpipestress-lint-engine-{name}.lock"
+
+
+# How long a test waits for the lint engine's Cargo lock: well beyond the engine's first,
+# cold build, which another worker may be making while it holds the lock.
+LINT_ENGINE_LOCK_WAIT_SECONDS = 900.0
+
+
+def _try_lock(handle) -> bool:
+    """One non-blocking attempt at the exclusive lock; False only when another holder has it."""
+    if os.name == "nt":
+        import msvcrt
+
+        handle.seek(0)
+        try:
+            msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError as error:
+            if error.errno in (errno.EACCES, errno.EDEADLK):
+                return False
+            raise
+        return True
+    import fcntl
+
+    try:
+        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        return False
+    return True
+
+
+def _unlock(handle) -> None:
+    if os.name == "nt":
+        import msvcrt
+
+        handle.seek(0)
+        msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(handle, fcntl.LOCK_UN)
+
+
+@contextlib.contextmanager
+def lint_engine_cargo_lock(blocking: bool = True, wait_seconds: float = LINT_ENGINE_LOCK_WAIT_SECONDS):
+    """Hold the lint engine's `cargo run` to one process at a time.
+
+    Observed: when two test processes (pytest-xdist workers) run it at once, one
+    can fail with exit 101 and "No such file or directory" for the built
+    executable. The suspected cause is that `cargo run` re-links the executable
+    into the target directory, even when the build is fresh, after Cargo has
+    released its own build lock, so one process removes the file as another
+    starts it. Holding this lock for the whole run removes the concurrency
+    whatever the cause.
+
+    A blocking caller retries a non-blocking attempt until `wait_seconds` have
+    passed and then raises TimeoutError; the same loop runs on every platform,
+    and no platform's own blocking call is used (Windows' gives up after ten
+    seconds). Yields whether the lock was taken; a non-blocking caller that
+    finds it held yields False. The key is `CARGO_TARGET_DIR`, else the linter
+    crate's own `target`; a target directory set only in Cargo configuration is
+    not seen.
+    """
+    path = lint_engine_lock_path()
+    with open(path, "a+b") as handle:
+        deadline = time.monotonic() + wait_seconds
+        while not _try_lock(handle):
+            if not blocking:
+                yield False
+                return
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    f"waited {wait_seconds:.0f} s for the lint engine's Cargo lock at {path}; "
+                    "another process still holds it"
+                )
+            time.sleep(0.2)
+        try:
+            yield True
+        finally:
+            _unlock(handle)
+
+
+@pytest.fixture
+def lint_engine_cargo():
+    with lint_engine_cargo_lock():
+        yield
 
 
 def load_module():
@@ -669,7 +769,7 @@ def test_record_makes_no_release_readiness_claim(tmp_path):
     shutil.which("cargo") is None, reason="cargo unavailable; engine CLI not built"
 )
 @pytest.mark.runs_cargo("cargo run of the protected-content lint engine")
-def test_engine_lint_integration_flags_invented_lookalike(tmp_path):
+def test_engine_lint_integration_flags_invented_lookalike(tmp_path, lint_engine_cargo):
     """End-to-end check (b): the DEL-08-05 engine CLI flags an INVENTED
     standards-table lookalike (designator name plus synthetic values only)
     and the record fails toward owner review."""
@@ -708,7 +808,7 @@ def test_engine_lint_integration_flags_invented_lookalike(tmp_path):
     shutil.which("cargo") is None, reason="cargo unavailable; engine CLI not built"
 )
 @pytest.mark.runs_cargo("cargo run of the protected-content lint engine")
-def test_engine_cli_reports_clean_content_without_findings(tmp_path):
+def test_engine_cli_reports_clean_content_without_findings(tmp_path, lint_engine_cargo):
     """Negative path for check (b): legitimate invented content with no
     standards-table signature produces no engine findings."""
     clean = tmp_path / "clean.txt"
@@ -739,6 +839,111 @@ def test_engine_cli_reports_clean_content_without_findings(tmp_path):
     payload = json.loads(completed.stdout)
     assert payload["summary"]["finding_count"] == 0
     assert payload["summary"]["clean_scan_is_clearance"] is False
+
+
+def test_lint_engine_cargo_lock_excludes_a_second_process(lint_engine_cargo):
+    """While a test holds the lint engine's Cargo lock, another process cannot take it;
+    without this the two `cargo run` tests race."""
+    probe = (
+        "import importlib.util, sys\n"
+        "spec = importlib.util.spec_from_file_location('scan_tests', sys.argv[1])\n"
+        "module = importlib.util.module_from_spec(spec)\n"
+        "spec.loader.exec_module(module)\n"
+        "with module.lint_engine_cargo_lock(blocking=False) as taken:\n"
+        "    print('taken' if taken else 'held')\n"
+    )
+    def attempt() -> str:
+        completed = subprocess.run([sys.executable, "-c", probe, str(Path(__file__).resolve())],
+                                   cwd=ROOT, capture_output=True, text=True, check=True)
+        return completed.stdout.strip()
+    assert attempt() == "held"
+
+
+# A holder process for the lock tests. It takes the lock, writes the `ready` file, then keeps the
+# lock until the test writes the `go` file and for `hold` seconds after that, so the test decides
+# when the timed hold begins and no assertion depends on how late the test saw `ready`.
+LOCK_HOLDER = (
+    "import importlib.util, sys, time\n"
+    "from pathlib import Path\n"
+    "spec = importlib.util.spec_from_file_location('scan_tests', sys.argv[1])\n"
+    "module = importlib.util.module_from_spec(spec)\n"
+    "spec.loader.exec_module(module)\n"
+    "ready, go, hold = Path(sys.argv[2]), Path(sys.argv[3]), float(sys.argv[4])\n"
+    "with module.lint_engine_cargo_lock() as taken:\n"
+    "    assert taken\n"
+    "    ready.write_text('held')\n"
+    "    limit = time.monotonic() + 120\n"
+    "    while not go.exists():\n"
+    "        assert time.monotonic() < limit, 'the test never released the holder'\n"
+    "        time.sleep(0.02)\n"
+    "    time.sleep(hold)\n"
+)
+
+
+@contextlib.contextmanager
+def lock_holder(tmp_path: Path, hold: float):
+    """Start a holder and yield (process, go) once it has the lock; the caller writes `go`."""
+    ready, go = tmp_path / "holder-has-the-lock", tmp_path / "holder-may-release"
+    holder = subprocess.Popen(
+        [sys.executable, "-c", LOCK_HOLDER, str(Path(__file__).resolve()), str(ready), str(go), str(hold)],
+        cwd=ROOT,
+    )
+    try:
+        limit = time.monotonic() + 60
+        while not ready.exists():
+            assert holder.poll() is None, "the holder ended before taking the lock"
+            assert time.monotonic() < limit, "the holder never took the lock"
+            time.sleep(0.02)
+        yield holder, go
+    finally:
+        go.write_text("go")
+        holder.wait(timeout=hold + 150)
+    assert holder.returncode == 0
+
+
+def test_a_blocking_waiter_takes_the_lock_after_a_holder_that_keeps_it_past_ten_seconds(tmp_path, monkeypatch):
+    """A holder in another process keeps the lock, then releases; the blocking waiter then has it.
+
+    On Windows the holder keeps it for more than ten seconds after the waiter starts, the
+    point at which that platform's own blocking call gives up; elsewhere a shorter hold
+    exercises the same loop. The lock file is this test's own, so it neither waits on nor
+    delays the Cargo tests.
+    """
+    monkeypatch.setenv("CARGO_TARGET_DIR", str(tmp_path / "target"))
+    hold = 11.0 if os.name == "nt" else 1.5
+    with lock_holder(tmp_path, hold) as (holder, go):
+        with lint_engine_cargo_lock(blocking=False) as taken:
+            assert taken is False
+        started = time.monotonic()
+        go.write_text("go")  # the holder's timed hold begins only now, after `started`
+        with lint_engine_cargo_lock(wait_seconds=hold + 120) as taken:
+            assert taken is True
+            waited = time.monotonic() - started
+        assert waited >= hold, f"the waiter had the lock after {waited:.2f} s of a {hold} s hold"
+
+
+def test_a_blocking_waiter_gives_up_with_a_named_timeout(tmp_path, monkeypatch):
+    """The holder keeps the lock until this test releases it, so the waiter's deadline passes first."""
+    monkeypatch.setenv("CARGO_TARGET_DIR", str(tmp_path / "target"))
+    with lock_holder(tmp_path, 0.0):
+        with pytest.raises(TimeoutError, match="lint engine's Cargo lock"):
+            with lint_engine_cargo_lock(wait_seconds=0.5):
+                pytest.fail("the lock was taken while another process held it")
+
+
+def test_both_cargo_running_tests_take_the_lint_engine_lock():
+    """Every test of this module marked as running Cargo itself takes the lock."""
+    import ast
+
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    marked = [
+        node for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+        and any("runs_cargo" in ast.unparse(decorator) for decorator in node.decorator_list)
+    ]
+    assert len(marked) >= 2
+    for node in marked:
+        assert "lint_engine_cargo" in [argument.arg for argument in node.args.args], node.name
 
 
 def test_lint_batches_cover_every_input_and_preserve_summary_types(monkeypatch):
