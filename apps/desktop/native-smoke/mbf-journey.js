@@ -228,10 +228,12 @@
   }
 
   (async () => {
-    const report = { phase: null, ok: false, user_agent: navigator.userAgent };
+    const report = { phase: null, nonce: null, ok: false, user_agent: navigator.userAgent };
     try {
       const plan = await call("native_smoke_plan");
       report.phase = plan.phase;
+      // The runner's nonce for this launch, handed back so that it can tell this run's report from any other.
+      report.nonce = plan.nonce ?? null;
       await waitFor("desktop shell", () => byTestId("desktop-preview-shell"), 120000);
       await log(`mbf journey phase ${plan.phase} started`);
       if (plan.phase === "bound") await phaseBound(plan, report);
