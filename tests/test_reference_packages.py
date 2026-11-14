@@ -71,6 +71,18 @@ def test_a_known_defect_is_still_there(name):
     assert not problems, f"{name}:\n" + "\n".join(problems)
 
 
+def test_a_defect_entry_fails_once_its_text_is_gone(monkeypatch):
+    """The mechanism, whether or not a package records a defect: an entry holds while its text is in the file
+    and fails, asking for its removal, once the text is gone."""
+    pkg = PACKAGES["kd5_timoshenko"]
+    held = (("runner/build.sh", "REL=validation/references/kd5_timoshenko/runner", "a synthetic defect"),)
+    gone = (("runner/build.sh", "a text the file does not hold", "a synthetic defect"),)
+    monkeypatch.setitem(PACKAGES, "kd5_timoshenko", replace(pkg, defects=held))
+    assert R.defect_problems("kd5_timoshenko") == []
+    monkeypatch.setitem(PACKAGES, "kd5_timoshenko", replace(pkg, defects=gone))
+    assert any("the defect looks repaired" in p for p in R.defect_problems("kd5_timoshenko"))
+
+
 def test_the_time_limit_is_set_from_the_slowest_observed_time():
     """One limit for every command: the margin over the slowest command observed, rounded up to 10 s."""
     observed, where = R.SLOWEST_OBSERVED
@@ -159,22 +171,25 @@ def test_a_regeneration_gap_is_counted():
 
 
 # ------------------------------------------------------------------------------------- deferred commands
+# No package holds a deferred command now; the mechanism is tested on a synthetic entry.
+SYNTHETIC_DEFERRED = R.Deferred(("a_command.py", "check"), "a synthetic blocker", "0" * 40)
 
-def test_each_deferred_command_is_printed_and_counted():
+
+def test_a_deferred_command_is_printed_and_counted(monkeypatch):
+    pkg = PACKAGES["kd5_timoshenko"]
+    monkeypatch.setitem(PACKAGES, "kd5_timoshenko", replace(pkg, deferred=(SYNTHETIC_DEFERRED,)))
+    text = R.deferred_text(SYNTHETIC_DEFERRED)
+    assert ("kd5_timoshenko", text, "deferred, not run") in R.taken_on_trust()
+    assert R.NOT_ESTABLISHED in text
+    assert not any(p.startswith("kd5_timoshenko") for p in R.classification_problems())  # beside retained checks
+
+
+def test_every_deferred_command_is_printed_and_counted():
     rows = [(name, d) for name, pkg in sorted(PACKAGES.items()) for d in pkg.deferred]
-    print("\nDeferred commands (not run; counted in TAKEN_ON_TRUST_COUNT):")
+    print("\nDeferred commands (not run; counted in TAKEN_ON_TRUST_COUNT):" + ("" if rows else " none"))
     for name, d in rows:
         print(f"  {name}: {R.deferred_text(d)}")
         assert (name, R.deferred_text(d), "deferred, not run") in R.taken_on_trust()
-        assert R.NOT_ESTABLISHED in R.deferred_text(d)
-    assert rows
-
-
-def test_a_package_may_carry_retained_checks_beside_a_deferred_command():
-    names = ("kd5_timoshenko", "pf_timoshenko_m3t", "m3_judge")
-    for name in names:
-        assert PACKAGES[name].checks and PACKAGES[name].deferred, name
-    assert not any(p.startswith(names) for p in R.classification_problems())
 
 
 @pytest.mark.parametrize("change, expected", [
@@ -184,11 +199,11 @@ def test_a_package_may_carry_retained_checks_beside_a_deferred_command():
 ])
 def test_a_malformed_deferred_entry_fails_classification(monkeypatch, change, expected):
     pkg = PACKAGES["kd5_timoshenko"]
-    monkeypatch.setitem(PACKAGES, "kd5_timoshenko", replace(pkg, deferred=(replace(pkg.deferred[0], **change),)))
+    monkeypatch.setitem(PACKAGES, "kd5_timoshenko", replace(pkg, deferred=(replace(SYNTHETIC_DEFERRED, **change),)))
     assert any(expected in p for p in R.classification_problems())
 
 
 def test_a_regeneration_gap_beside_a_deferred_command_fails_classification(monkeypatch):
     pkg = PACKAGES["m3_judge"]
-    monkeypatch.setitem(PACKAGES, "m3_judge", replace(pkg, checks=(), regeneration_gap="a reason"))
+    monkeypatch.setitem(PACKAGES, "m3_judge", replace(pkg, checks=(), deferred=(SYNTHETIC_DEFERRED,), regeneration_gap="a reason"))
     assert any(p.startswith("m3_judge: a regeneration gap beside") for p in R.classification_problems())

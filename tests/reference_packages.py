@@ -93,10 +93,6 @@ class Deferred:
 
 
 NOT_ESTABLISHED = "what the command checks after that point is not established"
-# The shared M3 judge's schema reader, where the three deferred commands were last observed to stop.
-M3_SCHEMA_BLOCKER = ("the shared M3 judge's schema reader (m3_judge/m3_view.py) refuses the allOf keyword, which "
-                     "schemas/load_reference_state.schema.json has held since 0c480a9e5 (2026-11-07)")
-M3_OBSERVED = "feffd237f2b2d15ad9741b8c42f7f4970d0ad5e6"
 
 # Five packages whose committed outputs were generated with --pressure-elongation all (pull request 217, eff19a897);
 # their READMEs give the check command with the switch.
@@ -347,11 +343,7 @@ PACKAGES: dict[str, Package] = {
         Membership("README file table: `SHA256SUMS` | Digests of the files above, except this README",
                    unlisted={"README.md": "excepted by the README"}),
         sums=(Sums("SHA256SUMS"),),
-        defects=(("runner/build.sh", "REL=projects/chirality-piping/validation/references/kd5_timoshenko/runner",
-                  "lines 15-16 still use paths from before the repository split (projects/chirality-piping/), so the "
-                  "runner build script cannot work as written; to be repaired with the judge repair after PR 217"),),
-        checks=(Check(("kd5t_engine.py", "--check")),),
-        deferred=(Deferred(("kd5t_generate.py", "check"), M3_SCHEMA_BLOCKER, M3_OBSERVED),)),
+        checks=(Check(("kd5t_engine.py", "--check")), Check(("kd5t_generate.py", "check")))),
     "pf_timoshenko_m3t": Package(
         "DEL-05-03",
         Membership("README file table: `SHA256SUMS` | Digests of the files above, except this README",
@@ -361,16 +353,14 @@ PACKAGES: dict[str, Package] = {
                                                    "its SHA-256 instead"},
                    stated={"census-probe.patch": "a8b2b9de4da1b3f82d28203d493ae7406c27233d416b0166bc2f9292cf858fd5"}),
         sums=(Sums("SHA256SUMS"),),
-        checks=(Check(("pft_engine.py", "--check")),),
-        deferred=(Deferred(("pft_generate.py", "check"), M3_SCHEMA_BLOCKER, M3_OBSERVED),)),
+        checks=(Check(("pft_engine.py", "--check")), Check(("pft_generate.py", "check")))),
     "m3_judge": Package(
         "DEL-04-01",
         Membership("README file table: `SHA256SUMS` | Digests of the files above, except this README",
                    unlisted={"README.md": "excepted by the README"}),
         sums=(Sums("SHA256SUMS"),
               Sums("REFERENCE_SHA256SUMS", base="..", pins=3)),
-        checks=(Check(("m3_reproduce.py", TMP)),),
-        deferred=(Deferred(("m3_selftest.py",), M3_SCHEMA_BLOCKER, M3_OBSERVED),)),
+        checks=(Check(("m3_reproduce.py", TMP)), Check(("m3_selftest.py",)))),
     "o4_retained_source": Package(
         "DEL-04-08",
         Membership("generator: generators/o4_reference.py writes SHA256SUMS over SUMMED (this README and the seven "
@@ -407,7 +397,7 @@ PACKAGES: dict[str, Package] = {
 
 # Outputs not regenerated, regeneration gaps, deferred commands and stdout comparisons made only on named
 # platforms, each a row of taken_on_trust().
-TAKEN_ON_TRUST_COUNT = 13
+TAKEN_ON_TRUST_COUNT = 10
 MEMBERSHIP_ON_TRUST_COUNT = 2
 
 
