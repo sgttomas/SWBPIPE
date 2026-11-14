@@ -15,8 +15,9 @@
 //! 3. the standing (the dispatch, with the session model's text);
 //! 4. the summary (`read_preview_mechanics_job_summary`, with that standing);
 //!    then, only where the web does, the standing and summary again (an
-//!    envelope refusal after the readers passed), the dispatch again (a
-//!    changed key; the web's cache answers it otherwise) and the source
+//!    envelope refusal after the readers passed) and the dispatch again,
+//!    each sent natively only when its cache key was not read before (the
+//!    web's per-job reading cache answers it otherwise), and the source
 //!    recovery;
 //! 5. run_preview (`read_preview_mechanics_job_analysis_run_preview`, with the
 //!    input manifest the session builds);
@@ -692,6 +693,32 @@ impl Sequence<'_> {
         args
     }
 
+    /// A dispatch read as the web reads it (`readNativeVerdict`, nativeResult.ts:389-397): the
+    /// web's per-job cache (`cached`, :349-360) answers a key it has read before, and then nothing
+    /// is sent natively. The key is keyOf("dispatch", modelText, invocationText); the model text is
+    /// the session's throughout, so it is whether the request carries the invocation.
+    fn dispatch_cached(&mut self, cache: &mut Vec<(bool, Value)>, name: &str, with_invocation: bool) -> Result<Value, Value> {
+        if let Some((_, reading)) = cache.iter().find(|(key, _)| *key == with_invocation) {
+            return Ok(reading.clone());
+        }
+        let reading = self.verdict(name, self.standing_args(with_invocation), accept_dispatch)?;
+        cache.push((with_invocation, reading.clone()));
+        Ok(reading)
+    }
+
+    /// S read as the web reads it (`readNativeSummary`, nativeResult.ts:409-416): cached by
+    /// keyOf("summary", modelText, JSON.stringify(standing)); the model text is the session's, so
+    /// the key is the standing's JSON text.
+    fn summary_cached(&mut self, cache: &mut Vec<(String, Value)>, standing: &Value) -> Result<Value, Value> {
+        let key = serde_json::to_string(&json!({"eligible": standing["eligible"], "findings": standing["findings"]})).unwrap();
+        if let Some((_, reading)) = cache.iter().find(|(k, _)| *k == key) {
+            return Ok(reading.clone());
+        }
+        let reading = self.summary(standing)?;
+        cache.push((key, reading.clone()));
+        Ok(reading)
+    }
+
     fn run(&mut self) -> Value {
         match self.replay() {
             Ok(done) => done,
@@ -720,23 +747,21 @@ impl Sequence<'_> {
                 Err(ended) => return Err(ended),
             },
         };
-        // 3. standing, 4. summary. Only whether each standing carried the invocation is kept
-        // between calls (the request Values are not held).
-        let mut last_invocation = self.standing_invocation(&route, readers.is_none());
-        let mut verdict = self.verdict("standing", self.standing_args(last_invocation), accept_dispatch)?;
-        let mut summary = self.summary(&verdict["standing"])?;
+        // 3. standing, 4. summary, through the web's reading cache: a reading whose key was read
+        // before makes no native call. The cache keeps the pre-checks' small decoded readings,
+        // not the requests (whose Values are not held).
+        let mut dispatches: Vec<(bool, Value)> = Vec::new();
+        let mut summaries: Vec<(String, Value)> = Vec::new();
+        let mut verdict = self.dispatch_cached(&mut dispatches, "standing", self.standing_invocation(&route, readers.is_none()))?;
+        let mut summary = self.summary_cached(&mut summaries, &verdict["standing"])?;
         let envelope_refusal = envelope_refusal(&summary["envelope"], &route, &self.texts.model);
         let unregistered = readers.clone().or(envelope_refusal);
         if unregistered.is_some() && readers.is_none() {
-            last_invocation = self.standing_invocation(&route, false);
-            verdict = self.verdict("standing_again", self.standing_args(last_invocation), accept_dispatch)?;
-            summary = self.summary(&verdict["standing"])?;
+            verdict = self.dispatch_cached(&mut dispatches, "standing_again", self.standing_invocation(&route, false))?;
+            summary = self.summary_cached(&mut summaries, &verdict["standing"])?;
         }
-        // The dispatch read again with the final inputs: the web's cache answers an unchanged key.
-        let final_invocation = self.standing_invocation(&route, unregistered.is_none());
-        if final_invocation != last_invocation {
-            verdict = self.verdict("dispatch_again", self.standing_args(final_invocation), accept_dispatch)?;
-        }
+        // The dispatch with the final inputs (previewService.ts:659-660).
+        verdict = self.dispatch_cached(&mut dispatches, "dispatch_again", self.standing_invocation(&route, unregistered.is_none()))?;
         if let Err(why) = route_header_agreement(&header, &verdict) {
             return Err(json!({"ended_at": "header_agreement", "kind": "pre_check_failed", "why": why}));
         }
@@ -749,7 +774,7 @@ impl Sequence<'_> {
                 result_detail::run_recovery(registry.clone(), raw, lease)
             }, |reply| accept_detail(reply, "swbpipe.desktop.result_source_recovery").map(|_| Value::Null))?;
         }
-        // The session's gates before run_preview (workspaceSession.ts:1563-1567), for fidelity
+        // The session's gates before run_preview (workspaceSession.ts:1563-1568), for fidelity
         // only: the judge (afterWorkerReplies.ts) is the acceptance. `hasNativeMechanicsInvocation`
         // holds for a fresh native result only when it registered (previewService.ts:676,
         // `nativeRegistrations` is set only when nothing refused it); `hasCurrentSourceContract`
@@ -768,7 +793,7 @@ impl Sequence<'_> {
             let (raw, lease) = analysis_run_v03_build::reserve(registry, body, &headers(Some(INGRESS_ARGS_JSON_V1)))?;
             analysis_run_v03_build::run(registry.clone(), raw, lease)
         }, |reply| accept_run_preview(reply))?;
-        // The session's model-reference check before it commits the result (workspaceSession.ts:1614).
+        // The session's model-reference check before it commits the result (workspaceSession.ts:1612-1616).
         if summary["envelope"]["model_ref"] != self.texts.model["project"]["id"] {
             return Err(json!({"ended_at": "session_gate", "kind": "session_gate", "code": "SOLVE-RESULT-MODEL-MISMATCH"}));
         }
