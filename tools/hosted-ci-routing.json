@@ -5366,6 +5366,7 @@
               "fixtures/reports/invented/report_sections_provenance_records.json",
               "fixtures/reports/invented/report_standing_witnesses/coupled_friction.request.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.app_render_request.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.render.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.render.json",

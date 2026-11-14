@@ -22,7 +22,7 @@
  * answer is a unit simulation. NOT a native UI qualification witness. All data are invented. */
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -40,6 +40,16 @@ const root = resolve(__dirname, "../../../../../");
 const DIR = "fixtures/reports/invented/report_standing_witnesses";
 const RAW = `${DIR}/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json`;
 const REQUEST = `${DIR}/coupled_friction.request.json`;
+/** The render request this App sends through its gate, committed (stale fails;
+ * `OPENPIPESTRESS_WRITE_APP_RENDER_REQUEST=<dir>` writes it), and consumed through the native
+ * production render command with live custody by `report_render_exact_tests.rs`
+ * (`the_app_gate_render_request_renders_through_production_with_its_standing`). Both tests hold
+ * its SHA-256, so each reads exactly the bytes the other makes or checks. */
+const APP_RENDER_REQUEST = `${DIR}/pressure_3_coupled_friction_sensitive.app_render_request.json`;
+const APP_RENDER_REQUEST_SHA256 = "7072ee35b1fdc822932613792b89b7b2cf3738fe97982d5b10da02e3a0295a4a";
+const WRITE_APP_RENDER_REQUEST = "OPENPIPESTRESS_WRITE_APP_RENDER_REQUEST";
+/** The render's clock, pinned so the request's generated_at is reproducible. */
+const PINNED_RENDER_TIME = new Date("2026-11-14T12:00:00.000Z");
 
 // jsdom does no layout: the shell's `.inactive` sections are modelled as hidden.
 useModelledVisibility();
@@ -178,17 +188,45 @@ describe("the rendered report of a solved exact-route result that is not numeric
     // were made in (`reportStandingWitness.test.tsx`); the public-report context withholds this
     // invented model's private inputs, which is the redaction boundary's own behaviour.
     fireEvent.click(within(panel).getByTestId("rendered-report-local-private-intent"));
-    fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-render"));
-    await waitFor(() => {
-      expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-error")?.textContent ?? null, why()).toBeNull();
-      expect(renders.length, why()).toBe(1);
-    }, { timeout: 60_000 });
+    vi.useFakeTimers({ toFake: ["Date"], now: PINNED_RENDER_TIME });
+    try {
+      fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-render"));
+      await waitFor(() => {
+        expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-error")?.textContent ?? null, why()).toBeNull();
+        expect(renders.length, why()).toBe(1);
+      }, { timeout: 60_000 });
+    } finally {
+      vi.useRealTimers();
+    }
     const record = renders[0].input.numerical_standing;
     expect(record.record_version).toBe("historical_1");
     expect(record.cases.map((c: Json) => c.health)).toEqual(["sensitive"]);
     expect(record.cases[0].confirmation.outcome).toBe("solver_reported_established");
     expect(record.cases[0].confirmation.status).toBe("conditional");
     expect(renders[0].exactResultText).toBe(raw);
+    // The request as sent, committed and bound by digest: the delivered result is named by its
+    // committed raw file (the bytes asserted equal above), the rest is carried whole.
+    expect(Object.keys(renders[0]).sort()).toEqual(["exactIntakeText", "exactResultText", "input", "inputManifestText"]);
+    expect(JSON.stringify(renders[0].input)).toContain(`"generated_at":"${PINNED_RENDER_TIME.toISOString()}"`);
+    const requestFile = `${JSON.stringify({
+      description: "DEL-08-01 REQ-017 and REQ-024: the render request the desktop App sends through its gate (renderableSolvedResult) for a solved exact-route result that is not numerically eligible, rendered for local review under a pinned clock. The delivered result bytes are the committed raw file. Written by renderedReportGate.app.test.tsx; job ids are invented; unit transport replay of committed producer bytes, not a native UI qualification witness.",
+      shape: "pressure_3_coupled_friction_sensitive",
+      raw_path: RAW,
+      solver_mode: "sparse_interactive",
+      exact_intake_text: renders[0].exactIntakeText,
+      input_manifest_text: renders[0].inputManifestText,
+      input: renders[0].input
+    })}\n`;
+    const requestSha256 = createHash("sha256").update(requestFile).digest("hex");
+    const outDir = process.env[WRITE_APP_RENDER_REQUEST];
+    if (outDir) {
+      mkdirSync(outDir, { recursive: true });
+      writeFileSync(resolve(outDir, APP_RENDER_REQUEST.split("/").pop()!), requestFile);
+      console.info(`APP_RENDER_REQUEST_SHA256=${requestSha256}`);
+    } else {
+      expect(requestFile === readFileSync(resolve(root, APP_RENDER_REQUEST), "utf8"), `${APP_RENDER_REQUEST} is stale; ${WRITE_APP_RENDER_REQUEST}=<dir> rewrites it`).toBe(true);
+      expect(requestSha256).toBe(APP_RENDER_REQUEST_SHA256);
+    }
     // The rendered report is shown, and its print view is reached (the derived view's frame).
     await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-preview")).toBeInTheDocument());
     fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print"));
