@@ -413,6 +413,9 @@ def test_the_gui_fallback_flag_reaches_the_attempt_only_when_refused(tmp_path, c
 # The guest script: every launch needs a won claim; the export and the unclaimed solve refuse
 # --------------------------------------------------------------------------------------------------------------
 SCRIPT = harness.GUEST_SCRIPT.read_text(encoding="utf-8")
+READ_SCRIPT = harness.READ_SCRIPT.read_text(encoding="utf-8")
+# The echo the installed read script prints first, which an injected answer in form carries.
+ECHO = f"SWBPIPE-READ v1 script={harness.READ_SCRIPT_SHA256} data=none\r\n"
 
 
 def test_the_export_and_an_unclaimed_solve_refuse_before_anything_can_start():
@@ -665,19 +668,26 @@ def _clixml(*kinds: str) -> str:
 PROGRESS = _clixml("progress")
 
 
-def test_every_powershell_script_turns_progress_off_as_its_first_statement_and_nothing_else():
-    for script in (harness.FENCE_SCRIPT, harness.CIM_SCRIPT, harness.JOB_SCRIPT, harness.CHUNK_SCRIPT,
-                   harness.LITERAL_VALUE_SCRIPT):
+def test_every_powershell_script_turns_progress_off_as_its_first_statement_and_nothing_else(tmp_path):
+    for script in (harness.FENCE_SCRIPT, harness.LITERAL_VALUE_SCRIPT):
         assert script.startswith("$ProgressPreference = 'SilentlyContinue'\n"), script[:60]
         assert "WarningPreference" not in script and "Write-Host" not in script  # warnings stay visible
-    after_params = SCRIPT[SCRIPT.index("\n)\n", SCRIPT.index("param(")) + 3:]
-    statements = [line for line in after_params.splitlines() if line.strip() and not line.lstrip().startswith("#")]
-    assert statements[0] == "$ProgressPreference = 'SilentlyContinue'"
-    assert "WarningPreference" not in SCRIPT and "Write-Host" not in SCRIPT
+    for text in (SCRIPT, READ_SCRIPT):  # both -File scripts: the first statement after their parameters
+        after_params = text[text.index("\n)\n", text.index("param(")) + 3:]
+        statements = [line for line in after_params.splitlines()
+                      if line.strip() and not line.lstrip().startswith("#")]
+        assert statements[:2] == ["$ProgressPreference = 'SilentlyContinue'", "$ErrorActionPreference = 'Stop'"] \
+            or (text is SCRIPT and statements[0] == "$ProgressPreference = 'SilentlyContinue'")
+        assert "WarningPreference" not in text and "Write-Host" not in text
     assert harness.POWERSHELL_COMMAND == "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass"
-    for command in (harness._encoded_query(harness.CIM_SCRIPT, {"pid": 1}),
-                    harness._literal_value_command(KEY + "\\Recent list", "C:\\Invented\\", "read")):
-        assert command.startswith(harness.POWERSHELL_COMMAND + " -EncodedCommand ")
+    config = config_for(tmp_path)
+    assert harness._encoded_query(harness.FENCE_SCRIPT, {"work": "C:\\w", "path": "C:\\w\\t.claim", "content": "x"}) \
+        .startswith(harness.POWERSHELL_COMMAND + " -EncodedCommand ")
+    assert harness._literal_value_command(KEY + "\\Recent list", "C:\\Invented\\", "set", "0A") \
+        .startswith(harness.POWERSHELL_COMMAND + " -EncodedCommand ")
+    for command in (harness._read_command(config, "cim", {"pid": 1}),
+                    harness._literal_readback_command(config, KEY + "\\Recent list", "C:\\Invented\\")):
+        assert command.startswith(harness.POWERSHELL_COMMAND + " -File ")
 
 
 @pytest.mark.parametrize("kind", ["cim", "job"])
@@ -744,18 +754,27 @@ def test_a_serialised_record_on_a_guard_read_fails_closed(tmp_path, clock, read)
 def test_the_registry_api_read_and_write_fail_closed_on_any_serialised_record(tmp_path):
     config = config_for(tmp_path, GUARD)
     key = KEY + "\\Recent list"
-    read = harness._literal_value_command(key, "C:\\Invented\\", "read")
+    read = harness._literal_readback_command(config, key, "C:\\Invented\\")
     write = harness._literal_value_command(key, "C:\\Invented\\", "set", "0A")
-    shown = f"\r\n{key}\r\n    C:\\Invented\\    REG_BINARY    0A\r\n"
+    shown = f"{ECHO}\r\n{key}\r\n    C:\\Invented\\    REG_BINARY    0A\r\n"
 
     def step_answering(stdout, stderr, code=0):
-        return lambda name, command: {"name": name, "guest_command": command, "exit_status": code,
-                                      "stdout": stdout, "stderr": stderr}
+        def step(name, command):
+            record = {"name": name, "guest_command": command, "exit_status": code, "stdout": stdout, "stderr": stderr}
+            harness._settle_echo(record)  # as `_guest_step` does for every reply
+            return record
+        return step
     assert harness._read_value(step_answering(shown, ""), "r", key, "C:\\Invented\\", read) == (
         "present", ("REG_BINARY", "0A"))
     assert harness._read_value(step_answering(shown, PROGRESS), "r", key, "C:\\Invented\\", read)[0] == "unreadable"
-    assert harness._read_value(step_answering("", PROGRESS + harness.REG_NOT_FOUND_LINE, 1), "r", key,
+    assert harness._read_value(step_answering(ECHO, PROGRESS + harness.REG_NOT_FOUND_LINE, 1), "r", key,
                                "C:\\Invented\\", read)[0] == "unreadable"  # never read as "absent"
+    assert harness._read_value(step_answering(ECHO, harness.REG_NOT_FOUND_LINE, 1), "r", key,
+                               "C:\\Invented\\", read)[0] == "absent"
+    # Without the echo, the same answers are unresolved: never present, never absent.
+    for stdout, stderr, code in ((shown[len(ECHO):], "", 0), ("", harness.REG_NOT_FOUND_LINE, 1)):
+        assert harness._read_value(step_answering(stdout, stderr, code), "r", key, "C:\\Invented\\",
+                                   read)[0] == "unreadable"
     steps: list = []
     for command in (write, 'reg add "x" /f'):
         with pytest.raises(harness.RestoreWriteFailed) as raised:
@@ -936,7 +955,7 @@ def test_a_missing_creation_time_never_establishes_the_launchers_end(tmp_path, c
     config = config_for(tmp_path)
     guest = guest_for(config, clock)
     for number in range(1, 500):
-        guest.answers[("cim", number)] = (0, "SWBPIPE-CIM v1 pid=3004 created=\r\n", "")
+        guest.answers[("cim", number)] = (0, ECHO + "SWBPIPE-CIM v1 pid=3004 created=\r\n", "")
     with pytest.raises(StartUnresolved):
         run(config, guest)
     assert "job" not in guest.kinds
@@ -960,7 +979,7 @@ def test_a_denied_job_query_is_unknown_never_absent(tmp_path, clock):
     config = config_for(tmp_path)
     guest = guest_for(config, clock)
     for number in range(1, 500):
-        guest.answers[("job", number)] = (0, "SWBPIPE-JOB v1 error=5\r\n", "")
+        guest.answers[("job", number)] = (0, ECHO + "SWBPIPE-JOB v1 error=5\r\n", "")
     with pytest.raises(StartUnresolved):
         run(config, guest)
     assert "chunk" not in guest.kinds

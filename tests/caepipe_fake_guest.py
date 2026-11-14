@@ -32,17 +32,60 @@ def done(argv, code: int = 0, stdout: str = "", stderr: str = "") -> subprocess.
     return subprocess.CompletedProcess(argv, code, stdout, stderr)
 
 
+# The read script's short form, as the harness builds it (`harness._read_command`): -File naming the installed copy,
+# the operation, its parameters as base64 JSON, and optionally a data file's SHA-256.
+READ_CALL = re.compile(r'^powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "(?P<script>[^"]+)" '
+                       r"-Op (?P<op>[a-z]+) -Payload (?P<payload>[A-Za-z0-9+/=]+)(?: -Data (?P<data>[0-9a-f]{64}))?\Z")
+READ_KINDS = {"cim", "job", "chunk", "regread", "storage", "hash"}  # each op is its own kind
+
+
+def read_call(command: str) -> dict | None:
+    """The read script's call: {op, payload (decoded), data, script (the guest path)}, else None."""
+    match = READ_CALL.match(command)
+    if match is None:
+        return None
+    return {"op": match["op"], "payload": json.loads(base64.b64decode(match["payload"]).decode("utf-8")),
+            "data": match["data"], "script": match["script"]}
+
+
+def host_path(exchange_root: Path, guest_exchange_root: str, guest_path: str) -> Path | None:
+    """The host file behind a guest path inside the exchange folder, else None."""
+    if not guest_path.lower().startswith(guest_exchange_root.lower() + "\\"):
+        return None
+    return Path(exchange_root) / guest_path[len(guest_exchange_root) + 1:].replace("\\", "/")
+
+
+def read_echo(exchange_root: Path, guest_exchange_root: str, command: str) -> tuple[str, dict | None]:
+    """What the read script does before its operation: (its echo line, the data file's object or None). Like the
+    real script it hashes its own file (absent: no echo at all, as when PowerShell cannot run it) and the data file it
+    was named; ("", None) when there is no script to run."""
+    call = read_call(command)
+    script = host_path(exchange_root, guest_exchange_root, call["script"])
+    if script is None or not script.is_file():
+        return "", None
+    data_sha, data = "none", None
+    if call["data"]:
+        path = Path(exchange_root) / harness.HARNESS_DIR / harness.DATA_DIR / f"{call['data']}.json"
+        if path.is_file():
+            raw = path.read_bytes()
+            data_sha = hashlib.sha256(raw).hexdigest()
+            data = json.loads(raw.decode("utf-8")) if data_sha == call["data"] else None
+    return f"SWBPIPE-READ v1 script={hashlib.sha256(script.read_bytes()).hexdigest()} data={data_sha}\r\n", data
+
+
 def query_payload(command: str) -> tuple[str, dict] | None:
-    """(kind, payload) of a host query (`harness._encoded_query`): fence, cim, job or chunk; else None."""
+    """(kind, payload) of a host query: the fence (`harness._encoded_query`), a read operation (`read_call`, its
+    kind the op's name), or the literal value's set or delete ("literal"); else None."""
+    call = read_call(command)
+    if call is not None:
+        return call["op"], call["payload"]
     if not command.startswith("powershell ") or " -EncodedCommand " not in command:
         return None
     script = base64.b64decode(command.rsplit(" ", 1)[1]).decode("utf-16-le")
     found = re.search(r"FromBase64String\('([A-Za-z0-9+/=]*)'\)", script)
     payload = json.loads(base64.b64decode(found[1]).decode("utf-8")) if found else {}
-    for kind, sentinel in (("fence", "SWBPIPE-FENCE"), ("cim", "SWBPIPE-CIM"), ("job", "SWBPIPE-JOB"),
-                           ("chunk", "SWBPIPE-CHUNK")):
-        if sentinel in script:
-            return kind, payload
+    if "SWBPIPE-FENCE" in script:
+        return "fence", payload
     return "literal", payload
 
 
@@ -75,7 +118,7 @@ def classify(command: str) -> str:
 # What the run phase may issue: the attempt, the host's fence (an exclusive create that never overwrites), and
 # read-only queries. Nothing that prepares, stages or copies in the guest.
 RUN_PHASE_KINDS = {"attempt", "fence", "claim_read", "finished_read", "cim", "job", "chunk", "owned_pids", "tasklist",
-                   "reg_query"}
+                   "reg_query", "regread", "storage", "hash"}
 
 
 @dataclass
@@ -246,6 +289,7 @@ class FakeGuestModel:
         self.dispatch_raise: BaseException | None = None
         self.stderr_added: dict[str, str] = {}  # kind -> text appended to stderr of every answer of that kind
         self.program_hook: Callable[[Attempt], Program] | None = None  # decides the program at launch when set
+        self.storage: dict[str, dict[str, Any]] = {}  # folder -> its storage entry (default: a plain NTFS C: folder)
 
     # -- state ---------------------------------------------------------------------------------------------------
     def spawn(self, job: str | None = None, pid: int | None = None) -> Process:
@@ -303,7 +347,10 @@ class FakeGuestModel:
         if (kind, number) in self.answers and kind not in ("fence",):
             code, out, err = self.answers[(kind, number)]
             return done(argv, code, out, err)
-        result = self._answer(argv, command, kind)
+        if kind in READ_KINDS:
+            result = self._read(argv, command, kind)
+        else:
+            result = self._answer(argv, command, kind, query_payload(command)[1] if kind == "fence" else {})
         if (kind, number) in self.answers:  # a fence whose effect happened, answered otherwise
             code, out, err = self.answers[(kind, number)]
             return done(argv, code, out, err)
@@ -340,7 +387,23 @@ class FakeGuestModel:
             return done(argv, 255, "", TRANSPORT[0])
         return done(argv, attempt.exit, attempt.stdout, "")
 
-    def _answer(self, argv, command: str, kind: str) -> subprocess.CompletedProcess:
+    def echo(self, command: str) -> str:
+        """The echo line the read script prints first for `command` (for a test that injects an answer in form)."""
+        return read_echo(self.exchange_root, self.guest_exchange_root, command)[0]
+
+    def _read(self, argv, command: str, kind: str) -> subprocess.CompletedProcess:
+        """A read-script call: its echo first, then the operation's answer, as the real script prints them."""
+        echo, data = read_echo(self.exchange_root, self.guest_exchange_root, command)
+        if not echo:
+            return done(argv, 1, "", "The term is not recognized as the name of a script file.")
+        call = read_call(command)
+        if call["data"] and data is None:
+            return done(argv, 1, echo, "the data file differs from its digest")
+        payload = dict(call["payload"]) | (data or {})
+        result = self._answer(argv, command, kind, payload)
+        return done(argv, result.returncode, echo + (result.stdout or ""), result.stderr or "")
+
+    def _answer(self, argv, command: str, kind: str, payload: dict) -> subprocess.CompletedProcess:
         if kind in ("claim_read", "finished_read", "owned_pids"):
             path = re.fullmatch(r'type "([^"]+)"', command)[1]
             if path in self.locked:
@@ -350,27 +413,23 @@ class FakeGuestModel:
                 return done(argv, 1, "", "The system cannot find the file specified.")
             return done(argv, 0, self.files[path].decode("ascii"), "")
         if kind == "fence":
-            _, payload = query_payload(command)
             self.dirs.add(payload["work"])
             created = self.create_new(payload["path"], payload["content"].encode("ascii"))
             return done(argv, 0, f"SWBPIPE-FENCE v1 {'created' if created else 'exists'}\r\n", "")
         if kind == "cim":
             if self.cim_unavailable:
                 return done(argv, 1, "", "The RPC server is unavailable.")
-            _, payload = query_payload(command)
             process = self.processes.get(payload["pid"])
             if process is None or not process.alive:
                 return done(argv, 0, "SWBPIPE-CIM v1 none\r\n", "")
             return done(argv, 0, f"SWBPIPE-CIM v1 pid={process.pid} created={process.created}\r\n", "")
         if kind == "job":
-            _, payload = query_payload(command)
             name = payload["job"]
             members = self.job_members(name)
             if name not in self.jobs or (not members and not self.jobs[name]):
                 return done(argv, 0, "SWBPIPE-JOB v1 absent\r\n", "")
             return done(argv, 0, f"SWBPIPE-JOB v1 present active={len(members)}\r\n", "")
         if kind == "chunk":
-            _, payload = query_payload(command)
             data = self.files.get(payload["path"])
             if data is None:
                 return done(argv, 0, "SWBPIPE-CHUNK v1 absent\r\n", "")
@@ -379,6 +438,21 @@ class FakeGuestModel:
                                  f"offset={payload['offset']} length={len(part)} "
                                  f"chunk_sha256={hashlib.sha256(part).hexdigest()}\r\n"
                                  f"{base64.b64encode(part).decode('ascii')}\r\n", "")
+        if kind == "hash":
+            data = self.files.get(payload["path"])
+            if data is None:
+                return done(argv, 0, "SWBPIPE-HASH v1 absent\r\n", "")
+            return done(argv, 0, f"SWBPIPE-HASH v1 size={len(data)} sha256={hashlib.sha256(data).hexdigest()}\r\n", "")
+        if kind == "storage":
+            entries = []
+            for folder in payload["folders"]:
+                default = {"folder": folder, "absent": False, "final": "\\\\?\\" + folder, "volume": "C:\\",
+                           "format": "NTFS", "type": "Fixed",
+                           "components": [{"path": "\\".join(folder.split("\\")[:i]), "reparse": False,
+                                           "directory": True} for i in range(2, len(folder.split("\\")) + 1)]}
+                entries.append(self.storage.get(folder, default if folder in self.dirs else
+                                                {"folder": folder, "absent": True}))
+            return done(argv, 0, "SWBPIPE-STORAGE v1 " + json.dumps(entries, separators=(",", ":")) + "\r\n", "")
         if self.extra is not None:
             result = self.extra(argv, command, kind)
             if result is not None:

@@ -58,7 +58,7 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
 )
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
 from tools.caepipe_correlation import run_pilot  # noqa: E402
-from tests.caepipe_fake_guest import FakeGuestModel, Program, classify  # noqa: E402
+from tests.caepipe_fake_guest import FakeGuestModel, Program, classify, read_call, read_echo  # noqa: E402
 
 # The commands the embedded fake guest model answers (the attempt protocol).
 MODEL_KINDS = {"attempt", "fence", "claim_read", "finished_read", "cim", "job", "chunk"}
@@ -1279,6 +1279,10 @@ class FakeGuest:
                     self.tick()
                 return model.runner(argv, **kwargs)
             literal = _literal_payload(command)
+            read = read_call(command)
+            if read is not None:  # the read script's regread of the literal value
+                assert read["op"] == "regread", command
+                literal = {"key": read["payload"]["key"], "name": read["payload"]["name"], "action": "read"}
             kind = ("readback" if literal and literal["action"] == "read" else "write" if literal else "readback" if command.startswith("reg query ") and (" /v " in command
                                                                        or command.startswith('reg query "HKEY_'))
                     else "query" if command.startswith("reg query ") else "write" if command.startswith(("reg add", "reg delete"))
@@ -1306,8 +1310,11 @@ class FakeGuest:
                 not_found = subprocess.CompletedProcess(argv, 1, "", "ERROR: The system was unable to find the "
                                                                      "specified registry key or value.")
                 one = re.fullmatch(r'reg query "([^"]+)" /v "([^"]+)"', command)
-                if literal:  # the registry-API read prints the value as `reg query` does; only REG_BINARY is read
+                echo = ""
+                if literal:  # the regread prints its echo, then the value as `reg query` does (REG_BINARY only)
                     one = SimpleNamespace(groups=lambda: ("HKEY_CURRENT_USER\\" + literal["key"], literal["name"]))
+                    echo = read_echo(config.exchange_root, config.guest_exchange_root, command)[0]
+                    not_found = subprocess.CompletedProcess(argv, 1, echo, not_found.stderr)
                 override = self.readback.get(self.counts["readback"], "none")
                 if override == "unreadable":
                     return subprocess.CompletedProcess(argv, 2, "garbled", "")
@@ -1316,7 +1323,7 @@ class FakeGuest:
                     found = self.values.get((key, name)) if override == "none" else override
                     if found is None:
                         return not_found
-                    return subprocess.CompletedProcess(argv, 0, f"\r\n{key}\r\n    {name}    {found[0]}    "
+                    return subprocess.CompletedProcess(argv, 0, f"{echo}\r\n{key}\r\n    {name}    {found[0]}    "
                                                                 f"{found[1]}\r\n\r\n", "")
                 key = re.fullmatch(r'reg query "([^"]+)" /s', command)[1]
                 inside = lambda k: k == key or k.startswith(key + "\\")  # noqa: E731
@@ -2637,6 +2644,7 @@ def test_literal_recent_value_is_derived_from_the_configured_executable_only(tmp
 def test_restore_plan_admits_only_the_exact_literal_value_and_writes_it_through_the_registry_api(tmp_path):
     root = harness._registry_key_id(INVENTED_GUARD.key)
     literal = (harness._registry_key_id(RECENT), LITERAL)
+    config = dataclasses.replace(fake_config(tmp_path), settings_guard=KEY_GUARD)
 
     def snapshot(*values):
         found = {(harness._registry_key_id(key), name): (key, kind, data) for key, name, kind, data in values}
@@ -2652,16 +2660,26 @@ def test_restore_plan_admits_only_the_exact_literal_value_and_writes_it_through_
         "removed": (snapshot(base, (RECENT, LITERAL, *old)), snapshot(base), "set"),
     }
     for how, (before, after, action) in cases.items():
-        plan = harness._restore_plan(before, after, root, whole_key=True, literal=literal)
+        plan = harness._restore_plan(before, after, root, whole_key=True, literal=literal, config=config)
         assert [(entry["action"], entry["target"]) for entry in plan] == [(action, (RECENT, LITERAL))], how
         entry = plan[0]
-        for command in (entry["command"], entry["readback_command"]):  # never reg.exe, never the name as words
-            assert command.startswith("powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass "
-                                      "-EncodedCommand ") and LITERAL not in command and "reg " not in command
+        # Never reg.exe, never the name as words: the write through the registry API (still an encoded script until
+        # piece B gives it a short form), the read-back through the read script's regread.
+        assert entry["command"].startswith("powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass "
+                                           "-EncodedCommand ")
+        assert entry["readback_command"].startswith("powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass "
+                                                    "-File ")
+        for command in (entry["command"], entry["readback_command"]):
+            assert LITERAL not in command and "reg " not in command
         sent = _literal_payload(entry["command"])
         assert sent == {"key": RECENT[len("HKEY_CURRENT_USER\\"):], "name": LITERAL, "action": action,
                         "data": old[1] if action == "set" else None}, how
-        assert _literal_payload(entry["readback_command"])["action"] == "read"
+        read = read_call(entry["readback_command"])
+        assert (read["op"], read["payload"], read["data"]) == (
+            "regread", {"key": RECENT[len("HKEY_CURRENT_USER\\"):], "name": LITERAL}, None)
+        # Without the configuration the read-back cannot be built, and the plan is refused before any write.
+        with pytest.raises(ValueError, match="read back"):
+            harness._restore_plan(before, after, root, whole_key=True, literal=literal)
         # Without the literal admitted, the same difference is refused before any write.
         with pytest.raises(ValueError, match="exactly"):
             harness._restore_plan(before, after, root, whole_key=True)
@@ -2707,12 +2725,14 @@ def test_restore_plan_admits_only_the_exact_literal_value_and_writes_it_through_
             break
     assert harness._literal_value_command(RECENT, LITERAL, "set", "AB" * (size - 1))
     plan = harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_BINARY", "AB" * (size - 1))),
-                                 snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal)
-    assert all(len(command) <= harness.LITERAL_COMMAND_LIMIT
-               for command in (plan[0]["command"], plan[0]["readback_command"]))
+                                 snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal,
+                                 config=config)
+    assert len(plan[0]["command"]) <= harness.ENCODED_COMMAND_LIMIT
+    assert harness._guest_command_length(config.vm_name, plan[0]["readback_command"]) <= harness.GUEST_COMMAND_LIMIT
     with pytest.raises(ValueError, match="too long"):
         harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_BINARY", "AB" * 4096)),
-                              snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal)
+                              snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal,
+                              config=config)
 
 
 @pytest.mark.parametrize("guard", [KEY_GUARD, RESTORING_GUARD], ids=["key", "recent_files"])
@@ -2768,8 +2788,9 @@ def test_settings_restore_settles_an_unknown_literal_write_by_reading_it_back(tm
         assert [item["outcome"] for item in entry["attempt_log"]] == ["unknown", "completed"]
     else:
         assert entry["readback"] == "target" and entry["attempt_log"][0]["outcome"] == "completed (read back)"
-    readbacks = [command for command in guest.commands if (_literal_payload(command) or {}).get("action") == "read"]
-    assert len(readbacks) == 1 and _literal_payload(readbacks[0])["name"] == LITERAL
+    # The read-back is the read script's regread (no longer an encoded registry-API script).
+    readbacks = [command for command in guest.commands if (read_call(command) or {}).get("op") == "regread"]
+    assert len(readbacks) == 1 and read_call(readbacks[0])["payload"]["name"] == LITERAL
 
 
 @pytest.mark.parametrize("found", [("REG_BINARY", "FF"), "unreadable"])

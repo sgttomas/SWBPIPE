@@ -74,6 +74,9 @@ REQUIRED_KEYS = ("vm_name", "guest_executable", "guest_exchange_root", "guest_wo
 CASE_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}\Z")
 GUEST_SCRIPT = Path(__file__).resolve().parent / "guest" / "Invoke-CaepipeRoundTrip.ps1"
 GUEST_SCRIPT_REPOSITORY_PATH = "core/handoff/caepipe_external/guest/Invoke-CaepipeRoundTrip.ps1"
+# The read-only queries' script (`_read_command`): installed and called like the guest script, by a short -File command.
+READ_SCRIPT = Path(__file__).resolve().parent / "guest" / "Read-SwbpipeGuest.ps1"
+READ_SCRIPT_REPOSITORY_PATH = "core/handoff/caepipe_external/guest/Read-SwbpipeGuest.ps1"
 HARNESS_DIR = "_harness"
 RUN_RECORD_KIND = "openpipestress.caepipe_harness_run_record"
 BATCH_COMMAND_SHAPE = '<exe> "<mbf>";batchmode=yes'
@@ -111,8 +114,15 @@ RESTORABLE_DATA = {"REG_BINARY": re.compile(r"^[0-9A-Fa-f]*\Z"), "REG_DWORD": re
 # behaviour). `reg` cannot carry a quoted argument that ends in a backslash, so this value alone is written
 # and read back through the registry API (LITERAL_VALUE_SCRIPT), its key, name and data passed as encoded data.
 LITERAL_VALUE_FOLDER = re.compile(r"^[A-Za-z]:(\\[A-Za-z0-9 ._()-]+)+\Z")
-# cmd.exe takes a command line of at most 8191 characters; `cmd /c ` and a margin come off it.
-LITERAL_COMMAND_LIMIT = 8000
+# Every guest command the harness builds is at most GUEST_COMMAND_LIMIT characters, measured as the prlctl call's
+# argv joined with single spaces, the program named `prlctl` (`_guest_command_length`): a margin well inside the
+# lengths established on the route. It is enforced in one place (`_checked_command`), which every send passes through
+# (`_guest_argv`) and which the builders also call, so a plan is refused before anything is sent.
+GUEST_COMMAND_LIMIT = 850
+# Held only until they get short forms: the host's fence and the literal value's set and delete are still sent as
+# -EncodedCommand scripts, which `_checked_command` holds to cmd.exe's line limit (8191, less `cmd /c ` and a margin).
+# Delivery of these long commands is not established on the route.
+ENCODED_COMMAND_LIMIT = 8000
 # Every PowerShell script the harness sends begins with POWERSHELL_QUIET, so Windows PowerShell writes no progress
 # record (a module's first-use preparation included), which it would otherwise serialise to the redirected stderr.
 # Nothing else is silenced: a warning or an error stays visible on stderr, and every reply judged fails closed on
@@ -124,16 +134,11 @@ LITERAL_VALUE_SCRIPT = POWERSHELL_QUIET + r"""$ErrorActionPreference = 'Stop'
 $missing = 'ERROR: The system was unable to find the specified registry key or value.'
 try {
   $p = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@PAYLOAD@')) | ConvertFrom-Json
-  $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey($p.key, ($p.action -ne 'read'))
+  $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey($p.key, $true)
   if ($null -eq $key) { [Console]::Error.Write($missing); exit 1 }
   try {
     $present = $key.GetValueNames() -ccontains $p.name
-    if ($p.action -eq 'read') {
-      if (-not $present) { [Console]::Error.Write($missing); exit 1 }
-      if ($key.GetValueKind($p.name) -ne [Microsoft.Win32.RegistryValueKind]::Binary) { exit 2 }
-      $hex = ([BitConverter]::ToString([byte[]]$key.GetValue($p.name))) -replace '-', ''
-      [Console]::Out.Write("`r`nHKEY_CURRENT_USER\" + $p.key + "`r`n    " + $p.name + "    REG_BINARY    " + $hex + "`r`n")
-    } elseif ($p.action -eq 'set') {
+    if ($p.action -eq 'set') {
       $bytes = New-Object byte[] ($p.data.Length / 2)
       for ($i = 0; $i -lt $bytes.Length; $i++) { $bytes[$i] = [Convert]::ToByte($p.data.Substring(2 * $i, 2), 16) }
       $key.SetValue($p.name, $bytes, [Microsoft.Win32.RegistryValueKind]::Binary)
@@ -538,11 +543,12 @@ def _literal_recent_value(config: HarnessConfig) -> tuple[str, str] | None:
 
 
 def _literal_value_command(printed_key: str, name: str, action: str, data: str | None = None) -> str:
-    """The guest command for one `read`, `set` (REG_BINARY `data`) or `delete` of the literal value: PowerShell's
-    registry API with the key, the name and the data passed as encoded data, never as quoted command words. It
-    prints what `reg` prints: the value as `reg query` shows it, `REG_WRITE_OK`, or `REG_NOT_FOUND` with exit 1."""
+    """The guest command for one `set` (REG_BINARY `data`) or `delete` of the literal value: PowerShell's registry
+    API with the key, the name and the data passed as encoded data, never as quoted command words. It prints what
+    `reg` prints: `REG_WRITE_OK`, or `REG_NOT_FOUND` with exit 1. Its read-back is the read script's `regread`
+    (`_literal_readback_command`)."""
 
-    if not REG_PRINTED_KEY_PATTERN.match(printed_key) or action not in ("read", "set", "delete") \
+    if not REG_PRINTED_KEY_PATTERN.match(printed_key) or action not in ("set", "delete") \
             or (action == "set") != (data is not None) or (data is not None and not re.fullmatch(r"(?:[0-9A-F]{2})*",
                                                                                                 data)):
         raise ValueError(f"{printed_key}\\{name} cannot be written back exactly")
@@ -551,9 +557,17 @@ def _literal_value_command(printed_key: str, name: str, action: str, data: str |
     script = LITERAL_VALUE_SCRIPT.replace("@PAYLOAD@", base64.b64encode(payload.encode("utf-8")).decode("ascii"))
     encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
     command = f"{POWERSHELL_COMMAND} -EncodedCommand {encoded}"
-    if len(command) > LITERAL_COMMAND_LIMIT:  # cmd.exe would cut it: refused while the plan is made, before any write
+    if len(command) > ENCODED_COMMAND_LIMIT:  # cmd.exe would cut it: refused while the plan is made, before any write
         raise ValueError(f"{printed_key}\\{name} cannot be written back exactly (its guest command is too long)")
     return command
+
+
+def _literal_readback_command(config: HarnessConfig, printed_key: str, name: str) -> str:
+    """The read-back of the literal value: the read script's `regread`, which prints the value as `reg query` does
+    (REG_BINARY only), or `REG_NOT_FOUND_LINE` on stderr with exit 1."""
+    if not REG_PRINTED_KEY_PATTERN.match(printed_key):
+        raise ValueError(f"{printed_key}\\{name} cannot be read back exactly")
+    return _read_command(config, "regread", {"key": printed_key[len("HKEY_CURRENT_USER\\"):], "name": name})
 
 
 def _quote(path: str) -> str:
@@ -577,9 +591,11 @@ def _win(*parts: str) -> str:
 # ---------------------------------------------------------------------------------------------------------------
 # The attempt: one guest operation per token, its reconciliation by read-only queries, and host-pulled collection.
 # ---------------------------------------------------------------------------------------------------------------
-# Every host query below is a fixed PowerShell script run with -EncodedCommand; its parameters travel as encoded
-# JSON data (`@PAYLOAD@`), never as command words. Each prints exactly one answer in a fixed form beginning with its
-# own sentinel, and each answer is matched whole (`_answered` and the patterns below); anything else is unresolved.
+# The host's fence is still a fixed PowerShell script run with -EncodedCommand (until it gets a short form); its
+# parameters travel as encoded JSON data (`@PAYLOAD@`), never as command words. Every read-only query is an operation
+# of the read script (`_read_command`). Each prints exactly one answer in a fixed form beginning with its own
+# sentinel, and each answer is matched whole (`_answered`, `_body` and the patterns below); anything else is
+# unresolved.
 _QUERY_PRELUDE = POWERSHELL_QUIET + r"""$ErrorActionPreference = 'Stop'
 $p = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@PAYLOAD@')) | ConvertFrom-Json
 """
@@ -596,63 +612,6 @@ FENCE_SCRIPT = _QUERY_PRELUDE + r"""try {
   try { $b = [Text.Encoding]::ASCII.GetBytes($p.content); $s.Write($b, 0, $b.Length); $s.Flush($true) }
   finally { $s.Dispose() }
   [Console]::Out.Write("SWBPIPE-FENCE v1 created`r`n")
-} catch { [Console]::Error.Write($_.Exception.Message); exit 1 }
-exit 0
-"""
-# The launcher's identity: the CIM process with that id, if any, and its creation time as the script records it.
-CIM_SCRIPT = _QUERY_PRELUDE + r"""try {
-  $found = @(Get-CimInstance -ClassName Win32_Process -Filter ("ProcessId=" + [int]$p.pid))
-  if ($found.Count -eq 0) { [Console]::Out.Write("SWBPIPE-CIM v1 none`r`n"); exit 0 }
-  if ($found.Count -ne 1 -or -not $found[0].CreationDate) { [Console]::Error.Write("partial answer"); exit 3 }
-  $c = ([DateTime]$found[0].CreationDate).ToUniversalTime().ToString('yyyyMMddHHmmss.ffffff')
-  [Console]::Out.Write("SWBPIPE-CIM v1 pid=" + [int]$found[0].ProcessId + " created=" + $c + "`r`n")
-} catch { [Console]::Error.Write($_.Exception.Message); exit 1 }
-exit 0
-"""
-# The job by name: OpenJobObject fails with ERROR_FILE_NOT_FOUND (2) only when no member lives and no handle is open.
-JOB_SCRIPT = _QUERY_PRELUDE + r"""try {
-Add-Type @"
-using System; using System.Runtime.InteropServices;
-public class SwbpipeJobQuery {
-  [DllImport("kernel32.dll", SetLastError=true, CharSet=CharSet.Unicode)] static extern IntPtr OpenJobObject(uint access, bool inherit, string name);
-  [DllImport("kernel32.dll", SetLastError=true)] static extern bool QueryInformationJobObject(IntPtr job, int cls, IntPtr info, int length, IntPtr returned);
-  [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);
-  public static string Query(string name) {
-    IntPtr job = OpenJobObject(0x0004, false, name);
-    if (job == IntPtr.Zero) { int e = Marshal.GetLastWin32Error(); return e == 2 ? "absent" : "error=" + e; }
-    try {
-      IntPtr info = Marshal.AllocHGlobal(48);
-      try {
-        if (!QueryInformationJobObject(job, 1, info, 48, IntPtr.Zero)) return "present active=unknown";
-        return "present active=" + Marshal.ReadInt32(info, 40);
-      } finally { Marshal.FreeHGlobal(info); }
-    } finally { CloseHandle(job); }
-  }
-}
-"@
-  [Console]::Out.Write("SWBPIPE-JOB v1 " + [SwbpipeJobQuery]::Query($p.job) + "`r`n")
-} catch { [Console]::Error.Write($_.Exception.Message); exit 1 }
-exit 0
-"""
-# One chunk of one file of a quiescent attempt folder, opened for reading only: the whole file's size and SHA-256,
-# the chunk's offset, length and SHA-256, then the chunk in base64. A missing file is `absent`.
-CHUNK_SCRIPT = _QUERY_PRELUDE + r"""try {
-  if (-not [IO.File]::Exists($p.path)) { [Console]::Out.Write("SWBPIPE-CHUNK v1 absent`r`n"); exit 0 }
-  $fs = [IO.File]::Open($p.path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
-  try {
-    $size = $fs.Length
-    $sha = [Security.Cryptography.SHA256]::Create()
-    $whole = ([BitConverter]::ToString($sha.ComputeHash($fs)) -replace '-', '').ToLowerInvariant()
-    $offset = [int64]$p.offset
-    $n = [int][Math]::Max(0, [Math]::Min([int64]$p.length, $size - $offset))
-    $buf = New-Object byte[] $n
-    $fs.Position = $offset
-    $read = 0
-    while ($read -lt $n) { $k = $fs.Read($buf, $read, $n - $read); if ($k -le 0) { throw "short read" }; $read += $k }
-    $part = ([BitConverter]::ToString($sha.ComputeHash($buf)) -replace '-', '').ToLowerInvariant()
-    [Console]::Out.Write("SWBPIPE-CHUNK v1 size=$size sha256=$whole offset=$offset length=$n chunk_sha256=$part`r`n" +
-                         [Convert]::ToBase64String($buf) + "`r`n")
-  } finally { $fs.Dispose() }
 } catch { [Console]::Error.Write($_.Exception.Message); exit 1 }
 exit 0
 """
@@ -675,14 +634,147 @@ FINISHED_FORM = re.compile(r"^swbpipe-finished v1\r?\ntoken=(?P<token>[0-9a-f]{3
                            r"report=(?P<report>\{[\x20-\x7e]*\})\r?\n?\Z")
 
 
+STORAGE_ANSWER = re.compile(r"^SWBPIPE-STORAGE v1 (?P<json>\[[\x20-\x7e]*\])\r?\n?\Z")
+HASH_ANSWER = re.compile(r"^SWBPIPE-HASH v1 (?:absent|size=(?P<size>[0-9]{1,12}) sha256=(?P<sha256>[0-9a-f]{64}))"
+                         r"\r?\n?\Z")
+
+
 def _encoded_query(script: str, payload: Mapping[str, Any]) -> str:
-    """The guest command running `script` with `payload` passed as encoded JSON data (never as command words)."""
+    """The guest command running `script` with `payload` passed as encoded JSON data (never as command words). Used
+    only by the host's fence until it gets a short form."""
     data = base64.b64encode(json.dumps(dict(payload), sort_keys=True).encode("utf-8")).decode("ascii")
     encoded = base64.b64encode(script.replace("@PAYLOAD@", data).encode("utf-16-le")).decode("ascii")
     command = f"{POWERSHELL_COMMAND} -EncodedCommand {encoded}"
-    if len(command) > LITERAL_COMMAND_LIMIT:
+    if len(command) > ENCODED_COMMAND_LIMIT:
         raise ValueError("a guest query would exceed the command-line limit")
     return command
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# The read script: every read-only query is a short -File call (`_read_command`), and every reply's first line is the
+# echo of the script's and the data file's computed digests, which the host checks against what it installed.
+# ---------------------------------------------------------------------------------------------------------------
+READ_OPS = ("cim", "job", "chunk", "regread", "storage", "hash")
+READ_SCRIPT_SHA256 = _sha256(READ_SCRIPT.read_bytes())
+DATA_DIR = "data"  # data files: `_harness/data/<sha256>.json`
+READ_ECHO = re.compile(r"^SWBPIPE-READ v1 script=(?P<script>[0-9a-f]{64}) data=(?P<data>[0-9a-f]{64}|none)\r?\n")
+READ_COMMAND_FORM = re.compile(
+    "^" + re.escape(POWERSHELL_COMMAND) + r' -File "(?P<path>[A-Za-z]:[^"]*\\' + re.escape(HARNESS_DIR)
+    + r'\\(?P<script>[0-9a-f]{64})\\' + re.escape(READ_SCRIPT.name) + r')" -Op (?P<op>[a-z]+) '
+    r"-Payload (?P<payload>[A-Za-z0-9+/]+={0,2})(?: -Data (?P<data>[0-9a-f]{64}))?\Z")
+
+
+def _guest_command_length(vm_name: str, command: str) -> int:
+    """A guest command's length as the route measures it: the prlctl call's argv joined with single spaces, the
+    program named `prlctl` (the host's path to it never reaches the guest)."""
+    return len(" ".join(["prlctl", "exec", vm_name, "--current-user", "cmd", "/c", command]))
+
+
+def _checked_command(config: HarnessConfig, command: str) -> str:
+    """The one length rule (`GUEST_COMMAND_LIMIT`): `command`, or ValueError before anything is sent. The fence and
+    the literal value's set and delete, still -EncodedCommand scripts until they get short forms, are held to
+    `ENCODED_COMMAND_LIMIT` instead."""
+    if command.startswith(f"{POWERSHELL_COMMAND} -EncodedCommand "):
+        if len(command) > ENCODED_COMMAND_LIMIT:
+            raise ValueError("an encoded guest command would exceed the command-line limit; nothing was sent")
+        return command
+    length = _guest_command_length(config.vm_name, command)
+    if length > GUEST_COMMAND_LIMIT:
+        raise ValueError(f"a guest command of {length} characters exceeds GUEST_COMMAND_LIMIT "
+                         f"({GUEST_COMMAND_LIMIT}); nothing was sent")
+    return command
+
+
+def _guest_argv(config: HarnessConfig, command: str) -> list[str]:
+    """The prlctl call for `command`: every guest command the harness sends is built here, through the one length
+    rule (`_checked_command`)."""
+    return [config.prlctl, "exec", config.vm_name, "--current-user", "cmd", "/c", _checked_command(config, command)]
+
+
+def _encode_payload(payload: Mapping[str, Any]) -> str:
+    """A read operation's parameters as `-Payload`: base64 of compact, key-sorted UTF-8 JSON (`_decode_payload`)."""
+    text = json.dumps(dict(payload), sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return base64.b64encode(text.encode("utf-8")).decode("ascii")
+
+
+def _decode_payload(encoded: str) -> dict[str, Any]:
+    """The exact inverse of `_encode_payload`."""
+    value = json.loads(base64.b64decode(encoded, validate=True).decode("utf-8"))
+    if not isinstance(value, dict):
+        raise ValueError("a read payload is a JSON object")
+    return value
+
+
+def _read_command(config: HarnessConfig, op: str, payload: Mapping[str, Any], data: str | None = None) -> str:
+    """The short guest command for one read operation: the installed read script by -File, the operation, its
+    parameters as `-Payload`, and with `data` the SHA-256 of an installed data file (`_install_data_file`) whose
+    object the script merges into them. Checked against the one length rule as it is built."""
+    if op not in READ_OPS or (data is not None and not re.fullmatch(r"[0-9a-f]{64}", data)):
+        raise ValueError(f"no read operation {op!r} with data {data!r}")
+    script = _win(config.guest_exchange_root, HARNESS_DIR, READ_SCRIPT_SHA256, READ_SCRIPT.name)
+    command = (f"{POWERSHELL_COMMAND} -File {_quote(script)} -Op {op} -Payload {_encode_payload(payload)}"
+               + (f" -Data {data}" if data else ""))
+    return _checked_command(config, command)
+
+
+def _settle_echo(record: dict[str, Any]) -> None:
+    """For a read-script reply: `echo` (what it named, whether it is the expected one) and `reply_body` (the reply
+    after the echo line). The echo must be the reply's first line, exactly `SWBPIPE-READ v1 script=<sha256>
+    data=<sha256|none>`, naming the read script the host installed (`READ_SCRIPT_SHA256`, which is also the digest in
+    the command's path) and the data file the command named (or none). Anything else leaves the reply unresolved
+    (`_answered`, `_not_found`), never an answer. Other commands are left as they are."""
+    form = READ_COMMAND_FORM.match(record.get("guest_command") or "")
+    if form is None:
+        return
+    expected = (READ_SCRIPT_SHA256, form["data"] or "none")
+    stdout = record.get("stdout") or ""
+    seen = READ_ECHO.match(stdout) if isinstance(stdout, str) else None
+    verified = bool(seen) and form["script"] == READ_SCRIPT_SHA256 and (seen["script"], seen["data"]) == expected
+    record["echo"] = {"expected": f"script={expected[0]} data={expected[1]}",
+                      "seen": seen[0].rstrip("\r\n") if seen else None, "verified": verified}
+    record["reply_body"] = stdout[seen.end():] if verified else ""
+
+
+def _body(record: Mapping[str, Any]) -> str:
+    """The text a reply's form is matched against: after the verified echo for a read-script reply (empty when the
+    echo is not verified), else the whole stdout."""
+    if "echo" in record:
+        return record.get("reply_body") or ""
+    return record.get("stdout") or ""
+
+
+def storage_meets(entry: Mapping[str, Any]) -> bool:
+    """The storage predicate for one folder of a `storage` answer: present; its final path on C: (`\\\\?\\C:\\...`);
+    its volume path exactly `C:\\`; NTFS; Fixed; and no path component a reparse point (each a directory)."""
+    final = entry.get("final")
+    components = entry.get("components")
+    return (entry.get("absent") is False and isinstance(final, str) and final.upper().startswith("\\\\?\\C:\\")
+            and entry.get("volume") == "C:\\" and entry.get("format") == "NTFS" and entry.get("type") == "Fixed"
+            and isinstance(components, list) and bool(components)
+            and all(isinstance(item, dict) and item.get("reparse") is False and item.get("directory") is True
+                    for item in components))
+
+
+def parse_storage(body: str, folders: list[str]) -> list[dict[str, Any]] | None:
+    """A `storage` answer whole: one entry per folder asked, in order, each `absent` or with every member; with
+    `meets` (`storage_meets`) added. None for anything out of form."""
+    match = STORAGE_ANSWER.match(body)
+    if match is None:
+        return None
+    try:
+        entries = json.loads(match["json"])
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(entries, list) or len(entries) != len(folders):
+        return None
+    keys = {"folder", "absent", "final", "volume", "format", "type", "components"}
+    for entry, folder in zip(entries, folders):
+        if not isinstance(entry, dict) or not isinstance(entry.get("folder"), str) \
+                or entry["folder"].lower() != folder.lower() or not isinstance(entry.get("absent"), bool) \
+                or set(entry) != ({"folder", "absent"} if entry["absent"] else keys):
+            return None
+        entry["meets"] = storage_meets(entry)
+    return entries
 
 
 def _type_answer(record: Mapping[str, Any]) -> tuple[str, str]:
@@ -721,25 +813,41 @@ def _parse_finished(text: str, token: str) -> dict[str, Any] | None:
     return report
 
 
-def _install_guest_script(root: Path, harness_dir: Path) -> dict[str, str]:
-    """Put the guest script at its content-addressed, add-only path `_harness/<sha256>/<name>` in the exchange folder:
-    created when absent, verified byte for byte when present, refused when it differs; never overwritten. The
-    earlier flat copy `_harness/<name>` is left as it is."""
-
-    data = GUEST_SCRIPT.read_bytes()
-    digest = _sha256(data)
-    folder = contained(root, harness_dir / digest)
-    target = contained(root, folder / GUEST_SCRIPT.name)
+def _install_add_only(root: Path, folder: Path, name: str, data: bytes, shown: str) -> None:
+    """Put `data` at `folder/name` in the exchange folder: created exclusively when absent, verified byte for byte
+    when present, refused when it differs; never overwritten."""
+    target = contained(root, folder / name)
     if os.path.lexists(target):
         if target.is_symlink() or not target.is_file() or target.read_bytes() != data:
-            raise ContainmentError(f"{HARNESS_DIR}/{digest}/{GUEST_SCRIPT.name} in the exchange folder differs from "
-                                   "the guest script of that digest; refused (it is never overwritten)")
-    else:
-        contained_dir(root, folder)
-        handle = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-        with os.fdopen(handle, "wb") as stream:
-            stream.write(data)
-    return {"sha256": digest, "exchange_copy": f"{HARNESS_DIR}/{digest}/{GUEST_SCRIPT.name}"}
+            raise ContainmentError(f"{shown} in the exchange folder differs from the content of that digest; refused "
+                                   "(it is never overwritten)")
+        return
+    contained_dir(root, folder)
+    handle = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    with os.fdopen(handle, "wb") as stream:
+        stream.write(data)
+
+
+def _install_guest_script(root: Path, harness_dir: Path, script: Path = GUEST_SCRIPT) -> dict[str, str]:
+    """Put a guest script (the round-trip script, or the read script) at its content-addressed, add-only path
+    `_harness/<sha256>/<name>` in the exchange folder (`_install_add_only`). The earlier flat copy `_harness/<name>`
+    is left as it is."""
+
+    data = script.read_bytes()
+    digest = _sha256(data)
+    shown = f"{HARNESS_DIR}/{digest}/{script.name}"
+    _install_add_only(root, contained(root, harness_dir / digest), script.name, data, shown)
+    return {"sha256": digest, "exchange_copy": shown}
+
+
+def _install_data_file(root: Path, harness_dir: Path, value: Mapping[str, Any]) -> str:
+    """Put a read operation's data (a JSON object) at `_harness/data/<sha256>.json` by the same add-only rules, and
+    return its SHA-256 for `_read_command`. Used only where the payload would take a command over the limit."""
+    data = (json.dumps(dict(value), sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
+    digest = _sha256(data)
+    _install_add_only(root, contained(root, harness_dir / DATA_DIR), f"{digest}.json", data,
+                      f"{HARNESS_DIR}/{DATA_DIR}/{digest}.json")
+    return digest
 
 
 class _Reconciler:
@@ -837,10 +945,10 @@ class _Reconciler:
         """(a): the CIM query for the claim's pid shows no process, or one created at another time (pid reuse).
         Re-polled while the launcher runs or the answer is not in its form; None once ended."""
         while True:
-            record = self._read("launcher_query", _encoded_query(CIM_SCRIPT, {"pid": int(claim["pid"])}))
+            record = self._read("launcher_query", _read_command(self.config, "cim", {"pid": int(claim["pid"])}))
             if record is None:
                 return self._unknown("the launcher was not established as ended before the deadline")
-            match = CIM_ANSWER.match(record["stdout"]) if _answered(record) else None
+            match = CIM_ANSWER.match(_body(record)) if _answered(record) else None
             if match and (match["pid"] is None or match["created"] != claim["created"]):
                 self.evidence.append("launcher ended" + ("" if match["pid"] is None else " (its pid now names "
                                                                                            "another process)"))
@@ -853,10 +961,10 @@ class _Reconciler:
         """(b): opening the job swbpipe-T by name fails with ERROR_FILE_NOT_FOUND. Any other answer (a member, an
         open handle, another error, an answer out of form) is re-polled; None once absent."""
         while True:
-            record = self._read("job_query", _encoded_query(JOB_SCRIPT, {"job": f"swbpipe-{self.token}"}))
+            record = self._read("job_query", _read_command(self.config, "job", {"job": f"swbpipe-{self.token}"}))
             if record is None:
                 return self._unknown("no remaining job member was not established before the deadline")
-            match = JOB_ANSWER.match(record["stdout"]) if _answered(record) else None
+            match = JOB_ANSWER.match(_body(record)) if _answered(record) else None
             if match and match["state"] == "absent":
                 self.evidence.append("job: no member, no handle")
                 return None
@@ -905,10 +1013,10 @@ def _collect_attempt(config: HarnessConfig, runner: Callable[..., subprocess.Com
                 return files, f"{name} could not be read in full before the collection deadline"
             reads += 1
             record = _guest_step(config, runner, COLLECT_CALL_TIMEOUT_S, steps, f"collect_{name}_{offset}_{reads}",
-                                 _encoded_query(CHUNK_SCRIPT, {"path": _win(attempt_dir, name), "offset": offset,
-                                                               "length": COLLECT_CHUNK_BYTES}),
+                                 _read_command(config, "chunk", {"path": _win(attempt_dir, name), "offset": offset,
+                                                                 "length": COLLECT_CHUNK_BYTES}),
                                  deadline, attempts=1)
-            match = CHUNK_ANSWER.match(record["stdout"]) if _answered(record) else None
+            match = CHUNK_ANSWER.match(_body(record)) if _answered(record) else None
             chunk = None
             if match and match["size"] is None:
                 if offset == 0:
@@ -1123,7 +1231,7 @@ def _guest_step(config: HarnessConfig, runner: Callable[..., subprocess.Complete
     result is then returned. `attempt_log` lists every attempt's exit and, for a transport answer, its line.
     """
 
-    argv = [config.prlctl, "exec", config.vm_name, "--current-user", "cmd", "/c", command]
+    argv = _guest_argv(config, command)  # the one length rule, before anything is sent
     record: dict[str, Any] = {"name": name, "guest_command": command, "started": _now(), "attempts": 0,
                               "attempt_log": []}
     limit = deadline
@@ -1151,15 +1259,18 @@ def _guest_step(config: HarnessConfig, runner: Callable[..., subprocess.Complete
         if backoff_s:
             _backoff(backoff_s)
     record["finished"] = _now()
+    _settle_echo(record)
     steps.append(record)
     return record
 
 
 def _answered(record: Mapping[str, Any]) -> bool:
     """Exit 0 with nothing but blank space on stderr: the precondition of every judged reply's form, reads and
-    changing commands alike (each then matches its stdout against its own exact form). Anything on stderr, a
-    PowerShell warning or a serialised record included, fails it."""
-    return record["exit_status"] == 0 and not (record.get("stderr") or "").strip()
+    changing commands alike (each then matches its stdout, or for a read-script reply the text after its echo
+    (`_body`), against its own exact form). Anything on stderr, a PowerShell warning or a serialised record included,
+    fails it, and so does a read-script reply whose echo is missing, malformed or not the expected one."""
+    return record["exit_status"] == 0 and not (record.get("stderr") or "").strip() \
+        and record.get("echo", {}).get("verified", True)
 
 
 class TerminationRequested(KeyboardInterrupt):
@@ -1311,7 +1422,7 @@ def _guest_write(config: HarnessConfig, runner: Callable[..., subprocess.Complet
     there), then recorded under a guard whose own failure is kept as secondary, and re-raised unchanged.
     """
 
-    argv = [config.prlctl, "exec", config.vm_name, "--current-user", "cmd", "/c", command]
+    argv = _guest_argv(config, command)  # the one length rule, before anything is sent
     # Complete from the start, so the step stays recordable however its own logging ends.
     record: dict[str, Any] = {"name": name, "guest_command": command, "started": _now(), "attempts": 1,
                               "mutating": True, "exit_status": "not_returned", "stdout": "", "stderr": ""}
@@ -1334,6 +1445,7 @@ def _guest_write(config: HarnessConfig, runner: Callable[..., subprocess.Complet
         raise error
     record.update(exit_status=completed.returncode, stdout=completed.stdout or "", stderr=completed.stderr or "",
                   finished=_now())
+    _settle_echo(record)
     line = transport_line(completed.returncode, record["stdout"], record["stderr"])
     record["attempt_log"] = [{"attempt": 1, "exit_status": completed.returncode}
                              | ({"transport_line": line} if line else {})]
@@ -1395,9 +1507,10 @@ def _single_json_object(text: str) -> dict[str, Any] | None:
 
 
 def _not_found(record: Mapping[str, Any]) -> bool:
-    """`reg`'s not-found answer exactly: exit 1, nothing on stdout, stderr exactly `REG_NOT_FOUND_LINE`."""
-    return record["exit_status"] == 1 and not (record.get("stdout") or "").strip() \
-        and (record.get("stderr") or "").strip() == REG_NOT_FOUND_LINE
+    """`reg`'s not-found answer exactly: exit 1, nothing on stdout (for a read-script reply: its verified echo and
+    nothing after it), stderr exactly `REG_NOT_FOUND_LINE`."""
+    return record["exit_status"] == 1 and record.get("echo", {}).get("verified", True) \
+        and not _body(record).strip() and (record.get("stderr") or "").strip() == REG_NOT_FOUND_LINE
 
 
 def _read_value(step: Callable[..., dict[str, Any]], name: str, key: str,
@@ -1409,7 +1522,7 @@ def _read_value(step: Callable[..., dict[str, Any]], name: str, key: str,
     record = step(name, command or f"reg query {_quote(key)} /v {_quote(value_name)}")
     if _not_found(record):
         return "absent", None
-    parsed = parse_reg_query(record["stdout"]) if _answered(record) else None
+    parsed = parse_reg_query(_body(record)) if _answered(record) else None
     if parsed is None or list(parsed["values"]) != [(_registry_key_id(key), value_name)]:
         return "unreadable", None
     found = parsed["values"][(_registry_key_id(key), value_name)]
@@ -1623,7 +1736,8 @@ def _owned_processes(config: HarnessConfig, step: Callable[[str, str], dict[str,
 
 
 def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], scope_id: str, *,
-                  whole_key: bool = False, literal: tuple[str, str] | None = None) -> list[dict[str, Any]]:
+                  whole_key: bool = False, literal: tuple[str, str] | None = None,
+                  config: HarnessConfig | None = None) -> list[dict[str, Any]]:
     """The writes that take the restore scope back to `before`.
 
     The scope is the key `scope_id`: its own values alone, or (`whole_key`) its values and everything strictly
@@ -1635,7 +1749,9 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
     ValueError (nothing is written) when any difference lies outside the scope, when a key or value name falls
     outside the allowed characters, or when a value cannot be written back exactly. The one exception is `literal`
     (`_literal_recent_value`): that exact (key id, value name), as REG_BINARY, is set or deleted through the
-    registry API (`_literal_value_command`), and its entry carries the command that reads it back.
+    registry API (`_literal_value_command`), and its entry carries the command that reads it back (the read script's
+    `regread`, which needs `config`). With `config`, every command of the plan is checked against the one length
+    rule (`_checked_command`) while the plan is made: a command over it refuses the whole restore before any write.
     """
 
     def inside(key_id: str, *, strictly: bool = False) -> bool:
@@ -1647,6 +1763,11 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
         if not REG_PRINTED_KEY_PATTERN.match(printed) or _registry_key_id(printed) != key_id:
             raise ValueError(f"{printed} cannot be named in a guest command")
         return printed
+
+    def _literal_readback(printed: str, name: str) -> str:
+        if config is None:
+            raise ValueError(f"{printed}\\{name} cannot be read back without the harness configuration")
+        return _literal_readback_command(config, printed, name)
 
     differing_values = [item for item in set(before["values"]) | set(after["values"])
                         if before["values"].get(item, (None,))[1:] != after["values"].get(item, (None,))[1:]]
@@ -1690,7 +1811,7 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
                      "command": f"reg add {_quote(printed)} /v {_quote(item[1])} /t {kind} /d {_quote(data)} /f"
                      if not exact else _literal_value_command(printed, item[1], "set", data.upper())}
             if exact:
-                entry["readback_command"] = _literal_value_command(printed, item[1], "read")
+                entry["readback_command"] = _literal_readback(printed, item[1])
             plan.append(entry)
     for item, (printed, kind, data) in after["values"].items():
         if item not in before["values"] and item[0] not in added:
@@ -1704,7 +1825,7 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
                      "command": f"reg delete {_quote(printed)} /v {_quote(item[1])} /f"
                      if not exact else _literal_value_command(printed, item[1], "delete")}
             if exact:
-                entry["readback_command"] = _literal_value_command(printed, item[1], "read")
+                entry["readback_command"] = _literal_readback(printed, item[1])
             plan.append(entry)
     for key_id in added:
         printed = printed_key(after["keys"][key_id], key_id)
@@ -1713,6 +1834,11 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
         plan.append({"key": printed, "action": "delete_key", "subtree": subtree, "restores": None,
                      "replaces": "present",
                      "command": f"reg delete {_quote(printed)} /f"})
+    if config is not None:
+        for entry in plan:
+            for key in ("command", "readback_command"):
+                if key in entry:
+                    _checked_command(config, entry[key])
     return plan
 
 
@@ -2095,7 +2221,7 @@ def _guard_check(config: HarnessConfig, step: Callable[[str, str], dict[str, Any
         return result, None
     try:
         plan = _restore_plan(settings_before, after, scope_id, whole_key=guard.restores_whole_key,
-                             literal=_literal_recent_value(config))
+                             literal=_literal_recent_value(config), config=config)
     except ValueError as error:
         result.update(status="settings_restore_failed", reason=f"{error}; nothing was written")
         return result, None
@@ -2173,7 +2299,11 @@ def restore_recorded_settings(config: HarnessConfig, changed_values: list[Mappin
                            "values": [{"value": value, "status": "changed_since_record"} for value in differs],
                            "write_log": []})
         try:
-            plan = _restore_plan(intended, current, root, whole_key=True, literal=_literal_recent_value(config))
+            plan = _restore_plan(intended, current, root, whole_key=True, literal=_literal_recent_value(config),
+                                 config=config)
+            if any("readback_command" in entry for entry in plan):  # the read script must be in place to read back
+                exchange = config.exchange_root
+                _install_guest_script(exchange, contained_dir(exchange, exchange.resolve() / HARNESS_DIR), READ_SCRIPT)
         except ValueError as error:
             return finish({"status": "settings_restore_failed", "reason": f"{error}; nothing was written",
                            "write_log": []})
@@ -2220,6 +2350,7 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
     # The inputs are staged, and immutable, before any dispatch: the MBF once per round trip, the script add-only.
     write_private(root, paths["caepipe_in"] / "model.mbf", mbf_bytes)
     script = _install_guest_script(root, harness_dir)
+    read_script = _install_guest_script(root, harness_dir, READ_SCRIPT)  # every read-only query runs it
     out = paths["caepipe_out"]
     _clear_outputs(root, out)
 
@@ -2230,11 +2361,12 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
     guarded = config.settings_guard is not None
 
     def attempt_command(token: str) -> str:
-        return (f"{POWERSHELL_COMMAND} -File {_quote(share_script)} "
-                f"-Exe {_quote(config.guest_executable)} -Mbf {_quote(staged_mbf)} -AttemptToken {token} "
-                f"-ExpectedMbfSha256 {mbf_sha256} -WorkRoot {_quote(work)}"
-                + (f" -PidFile {_quote(_win(work, token, OWNED_PIDS_FILE))}" if guarded else "")
-                + ("" if gui_fallback else " -NoGuiFallback"))
+        return _checked_command(config, (
+            f"{POWERSHELL_COMMAND} -File {_quote(share_script)} "
+            f"-Exe {_quote(config.guest_executable)} -Mbf {_quote(staged_mbf)} -AttemptToken {token} "
+            f"-ExpectedMbfSha256 {mbf_sha256} -WorkRoot {_quote(work)}"
+            + (f" -PidFile {_quote(_win(work, token, OWNED_PIDS_FILE))}" if guarded else "")
+            + ("" if gui_fallback else " -NoGuiFallback")))
 
     steps: list[dict[str, Any]] = []
     guard_state: dict[str, Any] = {}
@@ -2281,10 +2413,10 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
                 attempt_out.mkdir()  # fresh: a token is never reused, and nothing already stored is rewritten
                 entry: dict[str, Any] = {"attempt_token": token, "dispatch": number}
                 attempts.append(entry)
+                command = attempt_command(token)  # built and checked while nothing of this attempt is sent
                 _set_start(live, "unresolved")  # before the dispatch can have any effect
                 # The attempt changes guest state, so it is dispatched once and never retried, whatever it answers.
-                dispatch = _guest_step(config, runner, timeout_s, steps, f"attempt_{number}", attempt_command(token),
-                                       attempts=1)
+                dispatch = _guest_step(config, runner, timeout_s, steps, f"attempt_{number}", command, attempts=1)
                 # The one deadline, from the moment the reply arrived (or failed), through every nested read.
                 resolution = _Reconciler(config, runner, steps, work, token,
                                          time.monotonic() + RECONCILE_DEADLINE_S).run()
@@ -2495,6 +2627,9 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             "guest_script": {"repository_path": GUEST_SCRIPT_REPOSITORY_PATH,
                              "exchange_copy": script["exchange_copy"], "sha256": script["sha256"],
                              "run_from": "exchange_share"},
+            "read_script": {"repository_path": READ_SCRIPT_REPOSITORY_PATH,
+                            "exchange_copy": read_script["exchange_copy"], "sha256": read_script["sha256"],
+                            "run_from": "exchange_share"},
             "command_shape": {
                 "batch": BATCH_COMMAND_SHAPE,
                 "gui_print_fallback": {
