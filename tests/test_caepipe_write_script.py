@@ -339,12 +339,19 @@ def test_the_run_record_shows_the_retry_classification(tmp_path, clock):
 # --------------------------------------------------------------------------------------------------------------
 # The controlled exercise: the final operations on harmless resources, confined to the exercise's own names.
 # --------------------------------------------------------------------------------------------------------------
-class ExerciseRegistry:
-    """The current user's hive as far as the exercise touches it, and `dir /b /a` of the exercise folder."""
+# What `dir` prints on stderr for a folder with nothing in it, in a few display languages (invented renderings of the
+# kind each language shows; the classification must never depend on any of them).
+DIR_EMPTY_MESSAGES = {"English": "File Not Found", "Deutsch": "Datei nicht gefunden",
+                      "Francais": "Fichier introuvable", "Espanol": "No se encuentra el archivo"}
 
-    def __init__(self, guest: FakeGuestModel, *, denied: bool = False):
+
+class ExerciseRegistry:
+    """The current user's hive as far as the exercise touches it, and cmd running the key-presence and folder-listing
+    forms: a redirection `2>nul` discards what the command writes on stderr, in the guest's display language."""
+
+    def __init__(self, guest: FakeGuestModel, *, denied: bool = False, language: str = "English"):
         self.keys: dict[str, dict[str, str]] = {}
-        self.guest, self.denied = guest, denied
+        self.guest, self.denied, self.language = guest, denied, language
         self.changes: list[str] = []
         guest.extra = self.answer
 
@@ -380,16 +387,23 @@ class ExerciseRegistry:
                 return done(argv, 1, "", NOT_FOUND)
             return done(argv, 0, f"\r\nHKEY_CURRENT_USER\\{call['payload']['key']}\r\n    {name}    REG_BINARY    "
                                  f"{values[name]}\r\n", "")
-        if command.startswith("reg query "):
-            key = command[len('reg query "HKCU\\'):-1]
-            return done(argv, 0, f"\r\nHKEY_CURRENT_USER\\{key}\r\n", "") if key in self.keys else done(
-                argv, 1, "", NOT_FOUND)
-        if command.startswith("dir /b /a "):
-            folder = command[len('dir /b /a "'):-1]
-            names = sorted(path.rsplit("\\", 1)[1] for path in self.guest.files if path.rsplit("\\", 1)[0] == folder)
-            names += sorted(path.rsplit("\\", 1)[1] for path in self.guest.dirs if path.rsplit("\\", 1)[0] == folder)
-            return done(argv, 0, "".join(f"{name}\r\n" for name in names), "") if names else done(
-                argv, 1, "", "File Not Found")
+        presence = re.fullmatch(r'reg query "HKCU\\([^"]+)" >nul 2>nul & if errorlevel 1 \(echo SWBPIPE-KEY v1 absent\) '
+                                r'else \(echo SWBPIPE-KEY v1 present\)', command)
+        if presence:  # reg's own output and message discarded; its exit status picks the sentinel
+            return done(argv, 0, f"SWBPIPE-KEY v1 {'present' if presence[1] in self.keys else 'absent'}\r\n", "")
+        listing = re.fullmatch(r'if exist "([^"]+)\\" \(dir /b /a "([^"]+)"( 2>nul)?\) else '
+                               r'\(echo SWBPIPE-LIST v1 absent\)', command)
+        if listing:
+            folder = listing[2]
+            assert listing[1] == folder
+            if folder not in self.guest.dirs:
+                return done(argv, 0, "SWBPIPE-LIST v1 absent\r\n", "")
+            names = sorted({path.rsplit("\\", 1)[1] for path in (*self.guest.files, *self.guest.dirs)
+                            if path.rsplit("\\", 1)[0] == folder})
+            if names:
+                return done(argv, 0, "".join(f"{name}\r\n" for name in names), "")
+            # dir found nothing: exit 1, its message on stderr in the display language, unless discarded
+            return done(argv, 1, "", "" if listing[3] else DIR_EMPTY_MESSAGES[self.language])
         return None
 
 
@@ -475,7 +489,7 @@ def test_the_exercise_start_uses_the_runs_own_start_path_and_is_seen_live_then_q
     assert report["attempt"]["success"] and report["attempt"]["terminal_status"] == "exercise_ended"
     assert report["exercise"]["folder_entries"] == sorted(
         [f"SWBPIPE-harness-exercise-{token}.claim", f"SWBPIPE-harness-exercise-{token}.finished",
-         f"SWBPIPE-harness-exercise-{token}.job"]) + [f"SWBPIPE-harness-exercise-{token}"]
+         f"SWBPIPE-harness-exercise-{token}.job", f"SWBPIPE-harness-exercise-{token}"])
 
 
 def test_the_exercise_registry_steps_answer_as_required_and_leave_the_key_absent_again(tmp_path, clock):
@@ -524,3 +538,65 @@ def test_every_command_of_the_exercise_and_the_report_is_within_the_limit(tmp_pa
                 harness._read_command(config, "storage", {"folders": [NAMES["folder"], "C:\\oracle\\work"]})]
     assert all(harness._guest_command_length(config.vm_name, command) <= harness.GUEST_COMMAND_LIMIT
                for command in commands)
+
+
+# --------------------------------------------------------------------------------------------------------------
+# Amendment 6: the exercise folder's listing and the exercise key's presence read no message text, in any language.
+# --------------------------------------------------------------------------------------------------------------
+@pytest.mark.parametrize("language", list(DIR_EMPTY_MESSAGES))
+def test_the_folder_listing_is_absent_empty_or_its_entries_in_any_display_language(tmp_path, clock, language):
+    config, guest, _, send, _ = _exercise(tmp_path, clock, language=language)
+    listing = lambda: harness.read_state_report(config, runner=guest.runner, exercise_date=DATE)[  # noqa: E731
+        "exercise"]["folder_entries"]
+    assert listing() == "absent"
+    guest.dirs.add(NAMES["folder"])  # present, with nothing in it
+    assert listing() == []
+    send("claim", harness.exercise_claim_command(config, DATE, "left"))
+    assert listing() == ["SWBPIPE-harness-exercise-left"]
+
+
+@pytest.mark.parametrize("language", list(DIR_EMPTY_MESSAGES))
+def test_the_exercise_key_presence_reads_no_message_text(tmp_path, clock, language):
+    config, guest, registry, _, write = _exercise(tmp_path, clock, language=language)
+    presence = lambda: harness.read_state_report(config, runner=guest.runner, exercise_date=DATE)[  # noqa: E731
+        "exercise"]["key"]
+    assert presence() == "absent"
+    write("create", harness.exercise_registry_command(config, DATE, "keycreate"))
+    assert presence() == "present"
+
+
+@pytest.mark.parametrize("answer, expected", [
+    ((0, "SWBPIPE-LIST v1 absent\r\n", ""), "absent"),
+    ((0, "a.claim\r\nSWBPIPE-harness-exercise-x\r\n", ""), ["a.claim", "SWBPIPE-harness-exercise-x"]),
+    ((1, "", ""), []),
+    ((1, "", "File Not Found"), "unreadable"),          # any text on stderr, in any wording: never read as empty
+    ((1, "", "Datei nicht gefunden"), "unreadable"),
+    ((0, "", ""), "unreadable"),                         # exit 0 with nothing: neither the sentinel nor names
+    ((0, "SWBPIPE-LIST v1 absent\r\nx\r\n", ""), "unreadable"),
+    ((255, "", TRANSPORT[0]), "unreadable"),
+    ((2, "", ""), "unreadable"),
+])
+def test_the_folder_listing_is_classified_by_exit_status_and_the_shape_of_stdout(answer, expected):
+    code, stdout, stderr = answer
+    assert harness._folder_listing({"exit_status": code, "stdout": stdout, "stderr": stderr}) == expected
+
+
+@pytest.mark.parametrize("answer, expected", [
+    ((0, "SWBPIPE-KEY v1 present\r\n", ""), "present"), ((0, "SWBPIPE-KEY v1 absent\r\n", ""), "absent"),
+    ((1, "", NOT_FOUND), "unreadable"), ((1, "", "FEHLER: Der angegebene Registrierungsschluessel wurde nicht gefunden."),
+                                         "unreadable"),
+    ((0, "SWBPIPE-KEY v1 absent\r\n", "#< CLIXML"), "unreadable"), ((255, "", TRANSPORT[1]), "unreadable"),
+])
+def test_the_key_presence_is_classified_by_its_sentinel_alone(answer, expected):
+    code, stdout, stderr = answer
+    assert harness._key_presence({"exit_status": code, "stdout": stdout, "stderr": stderr}) == expected
+
+
+def test_no_listing_or_presence_classification_matches_message_text():
+    import inspect
+    for function in (harness._folder_listing, harness._key_presence, harness.read_state_report,
+                     harness.exercise_folder_listing_command, harness.exercise_key_presence_command):
+        source = inspect.getsource(function)
+        assert "File Not Found" not in source and "_not_found(" not in source and "REG_NOT_FOUND" not in source
+    assert " 2>nul" in harness.exercise_folder_listing_command(NAMES["folder"])
+    assert ">nul 2>nul" in harness.exercise_key_presence_command(NAMES["key"])

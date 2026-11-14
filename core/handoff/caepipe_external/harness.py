@@ -2493,6 +2493,52 @@ def run_exercise_start(config: HarnessConfig, date: str, *,
             "report_status": (resolution.get("report") or {}).get("status"), "steps": steps}
 
 
+
+# The exercise key's presence and the exercise folder's listing, decided without any message text: what Windows prints
+# on stderr is in its display language, so each command discards it (`2>nul`) and prints, on stdout, either fixed ASCII
+# sentinels of its own or bare names. Only the exit status and the shape of stdout are judged.
+KEY_PRESENCE_ANSWER = re.compile(r"^SWBPIPE-KEY v1 (?P<state>present|absent)\r?\n?\Z")
+FOLDER_ABSENT_ANSWER = re.compile(r"^SWBPIPE-LIST v1 absent\r?\n?\Z")
+
+
+def exercise_key_presence_command(key: str) -> str:
+    """`reg query` of the key with both streams discarded, then a fixed sentinel chosen by reg's exit status (0 when
+    the key was read, 1 otherwise), which `if errorlevel` tests when it runs."""
+    return (f"reg query {_quote(key)} >nul 2>nul & if errorlevel 1 (echo SWBPIPE-KEY v1 absent) "
+            f"else (echo SWBPIPE-KEY v1 present)")
+
+
+def exercise_folder_listing_command(folder: str) -> str:
+    """The folder's entries by bare name (`dir /b /a`, its message discarded), or a fixed sentinel when the folder
+    does not exist (`if exist "<folder>\\"`, a test of the file system, true only for a folder)."""
+    return (f"if exist {_quote(folder + chr(92))} (dir /b /a {_quote(folder)} 2>nul) "
+            f"else (echo SWBPIPE-LIST v1 absent)")
+
+
+def _key_presence(record: Mapping[str, Any]) -> str:
+    """`present` or `absent` from the sentinel alone (exit 0, blank stderr); `unreadable` for anything else."""
+    match = KEY_PRESENCE_ANSWER.match((record.get("stdout") or "").strip() + "\n") if _answered(record) else None
+    return match["state"] if match else "unreadable"
+
+
+def _folder_listing(record: Mapping[str, Any]) -> list[str] | str:
+    """The listing's answer: `absent` (exit 0, stdout the sentinel alone); the entries (exit 0, every line a bare
+    name); `[]` (exit 1, stdout empty: `dir` found nothing in a folder that exists); `unreadable` for anything else,
+    any text on stderr included. No message text is read."""
+    stdout = record.get("stdout") or ""
+    lines = [line.strip() for line in stdout.splitlines() if line.strip()]
+    if (record.get("stderr") or "").strip() or record.get("echo"):
+        return "unreadable"
+    if record["exit_status"] == 0 and FOLDER_ABSENT_ANSWER.match(stdout.strip() + "\n"):
+        return "absent"
+    if record["exit_status"] == 0 and lines and all(re.fullmatch(r"[A-Za-z0-9 ._()-]+", line) for line in lines) \
+            and not any(line.startswith("SWBPIPE-LIST") for line in lines):
+        return lines
+    if record["exit_status"] == 1 and not lines:
+        return []
+    return "unreadable"
+
+
 def read_state_report(config: HarnessConfig, *, runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
                       case_id: str | None = None, token: str | None = None, exercise_date: str | None = None,
                       settings_before: Mapping[str, Mapping] | None = None,
@@ -2507,7 +2553,9 @@ def read_state_report(config: HarnessConfig, *, runner: Callable[..., subprocess
     - `exercise` (with `exercise_date`): the exercise key `absent` or `present` (or `unreadable`), and the exercise
       folder's entries by name (`absent` when the folder is).
 
-    Reads only: the read script, `reg query` and `dir /b /a`."""
+    Reads only: the read script, `reg query` and `dir /b /a`; the key's presence and the folder's listing are decided
+    from exit status and the shape of stdout, never from message text (`exercise_key_presence_command`,
+    `exercise_folder_listing_command`)."""
     steps: list[dict[str, Any]] = []
     report: dict[str, Any] = {"steps": steps}
 
@@ -2527,34 +2575,18 @@ def read_state_report(config: HarnessConfig, *, runner: Callable[..., subprocess
         differences = settings_difference(settings_before, after) if after is not None else None
         report["settings"] = {"read": after is not None, "differences": differences,
                               "unchanged": differences == []}
-    folders = list(storage_folders) + ([exercise_names(exercise_date)["folder"]] if exercise_date else [])
-    entries = None
-    if folders:
+    if storage_folders:
+        folders = list(storage_folders)
         record = read("state_storage", _read_command(config, "storage", {"folders": folders}))
         entries = parse_storage(_body(record), folders) if _answered(record) else None
-    if storage_folders:
-        asked = None if entries is None else entries[:len(storage_folders)]
-        report["storage"] = {"entries": asked, "meets": asked is not None and all(item["meets"] for item in asked)}
+        report["storage"] = {"entries": entries,
+                             "meets": entries is not None and all(item["meets"] for item in entries)}
     if exercise_date is not None:
         names = exercise_names(exercise_date)
-        key = read("state_exercise_key", f"reg query {_quote(names['key'])}")
-        exercise: dict[str, Any] = {"key": "absent" if _not_found(key) else "present" if _answered(key)
-                                    else "unreadable"}
-        folder = entries[-1] if entries is not None else None
-        if folder is None:
-            exercise["folder_entries"] = "unreadable"
-        elif folder["absent"]:
-            exercise["folder_entries"] = "absent"
-        else:
-            listing = read("state_exercise_folder", f"dir /b /a {_quote(names['folder'])}")
-            lines = [line.strip() for line in (listing.get("stdout") or "").splitlines() if line.strip()]
-            if _answered(listing) and all(re.fullmatch(r"[A-Za-z0-9 ._()-]+", line) for line in lines):
-                exercise["folder_entries"] = lines
-            elif listing["exit_status"] == 1 and not lines and (listing.get("stderr") or "").strip() == "File Not Found":
-                exercise["folder_entries"] = []
-            else:
-                exercise["folder_entries"] = "unreadable"
-        report["exercise"] = exercise
+        report["exercise"] = {
+            "key": _key_presence(read("state_exercise_key", exercise_key_presence_command(names["key"]))),
+            "folder_entries": _folder_listing(read("state_exercise_folder",
+                                                   exercise_folder_listing_command(names["folder"])))}
     return report
 
 
