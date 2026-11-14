@@ -2,6 +2,7 @@
 import errno
 import importlib.util
 import io
+from contextlib import contextmanager
 from functools import cache
 import hashlib
 import json
@@ -41,6 +42,15 @@ def real_graph():
     return ci.source_read_dependencies(project, manifests), ci.cargo_dependencies(project, manifests)
 
 
+@cache
+def real_artifact_derivation():
+    """The artifact-reader derivation of the real profile's declaration on this snapshot: (readers, inputs, result)."""
+    project = MODULE.parents[2]
+    section = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]['piping_artifact_readers']
+    readers, inputs = section['readers'], section['inputs']
+    return readers, inputs, ci.artifact_producers(project, ci.readiness.discover_cargo_manifests(project), readers, inputs)
+
+
 EMPTY_READS = {'source_trees': {}, 'reads': {}}
 
 
@@ -52,13 +62,28 @@ def wrapped_reads(reads):
     return {'source_trees': trees, 'reads': reads}
 
 
-def numerical_input(path):
-    # These exhaustive existing assertions inspect one immutable repository
-    # snapshot. Reuse its verified graph, while exercising routing for each path.
+@contextmanager
+def real_snapshot():
+    """Route against this immutable repository snapshot reusing its verified graph and its artifact-reader derivation
+    (about a second each to compute, and some tests route hundreds of paths), while exercising routing for each path.
+    Only the real declaration's derivation is reused; any other declaration is derived afresh."""
     resources, dependencies = real_graph()
+    readers, inputs, derivation = real_artifact_derivation()
+    derive = ci.artifact_producers
+    def producers(project, manifests, declared_readers, declared_inputs=ci.UNDECLARED):
+        if (declared_readers, declared_inputs) == (readers, inputs):
+            return derivation
+        return derive(project, manifests, declared_readers, declared_inputs)
     with patch.object(hosted_ci, 'numerical_module', return_value=ci), \
          patch.object(ci, 'source_read_dependencies', return_value=resources), \
-         patch.object(ci, 'cargo_dependencies', return_value=dependencies):
+         patch.object(ci, 'cargo_dependencies', return_value=dependencies), \
+         patch.object(ci, 'artifact_producers', side_effect=producers):
+        yield
+
+
+def numerical_input(path):
+    # These exhaustive existing assertions inspect one immutable repository snapshot.
+    with real_snapshot():
         return hosted_ci.select_paths([path], load_profile(ROOT / 'tools/hosted-ci-routing.json')[1])['modes']['piping-numerical'] == 'full'
 
 
@@ -854,47 +879,49 @@ class ReachabilitySafetyTests(unittest.TestCase):
                 self.assertEqual(select('tests/test_other.py', bad)['classification'], 'full-fallback', bad)
 
     def test_headless_artifact_readers_their_conftest_and_their_test_imports_select_the_headless_runner(self):
-        profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
-        headless = 'core/runner/headless/Cargo.toml'
-        self.assertEqual(ci.manifest_shard(headless), 'reporting-runner')
-        for path in ('tests/test_pressure_headless_artifacts.py', 'tests/test_load_reference_headless_artifacts.py',
-                     'tests/verifiers/pressure_3.py', 'tests/schema_validation.py', 'tests/conftest.py'):
-            result = hosted_ci.select_paths([ci.PROJECT + path], profile)
-            self.assertEqual(result['modes']['piping-numerical'], 'full', path)
-            self.assertEqual(result['piping_numerical_selection']['manifests'], [headless], path)
-            self.assertIn({'path': path, 'kind': 'artifact-reader', 'manifest': headless}, result['piping_numerical_selection']['reasons'])
-        # A schema tests/schema_validation.py loads into its registry: its Rust readers, and the producer.
-        result = hosted_ci.select_paths([ci.PROJECT + 'schemas/constraint.schema.json'], profile)['piping_numerical_selection']
-        self.assertIn(headless, result['manifests'])
-        self.assertIn({'path': 'schemas/constraint.schema.json', 'kind': 'artifact-reader', 'manifest': headless}, result['reasons'])
-        self.assertIn('exact-file-reader', {r['kind'] for r in result['reasons']})
-        # The dependency list the artifact-fed step installs adds the producer and keeps its Python selection.
-        result = hosted_ci.select_paths([ci.PROJECT + 'requirements-dev.txt'], profile)
-        self.assertEqual((result['modes']['piping-numerical'], result['modes']['piping-python']), ('full', 'full'))
-        self.assertEqual(result['piping_numerical_selection']['manifests'], [headless])
-        self.assertIn('piping-python', result['reasons'])
-        self.assertIn({'path': 'requirements-dev.txt', 'kind': 'artifact-reader', 'manifest': headless}, result['piping_numerical_selection']['reasons'])
-        self.assertIn({'path': 'requirements-dev.txt', 'kind': 'mapped-other-checks'}, result['piping_numerical_selection']['reasons'])
-        # A tests/ file neither reader loads stays a Python check.
-        result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], profile)
-        self.assertEqual(result['modes']['piping-numerical'], 'not-applicable')
-        self.assertEqual(result['piping_numerical_selection']['manifests'], [])
-        # An explicit null declaration selects every crate.
-        nulled = json.loads(json.dumps(profile))
-        nulled['piping_artifact_readers']['readers'] = None
-        result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], nulled)
-        self.assertEqual(result['piping_numerical_selection']['classification'], 'full-fallback')
-        nulled = json.loads(json.dumps(profile))
-        nulled['piping_artifact_readers']['inputs'] = None
-        result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], nulled)
-        self.assertEqual(result['piping_numerical_selection']['classification'], 'full-fallback')
-        # Declaring a path never narrows its selection: tests/test_ci_numerical.py keeps every crate.
-        widened = json.loads(json.dumps(profile))
-        widened['piping_artifact_readers']['readers']['tests/test_ci_numerical.py'] = [headless]
-        before = hosted_ci.select_paths([ci.PROJECT + 'tests/test_ci_numerical.py'], profile)['piping_numerical_selection']
-        after = hosted_ci.select_paths([ci.PROJECT + 'tests/test_ci_numerical.py'], widened)['piping_numerical_selection']
-        self.assertEqual(before['classification'], 'full-fallback')
-        self.assertEqual((after['classification'], after['manifests']), (before['classification'], before['manifests']))
+        # Every call routes on this snapshot's graph; altered declarations below are derived afresh.
+        with real_snapshot():
+            profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
+            headless = 'core/runner/headless/Cargo.toml'
+            self.assertEqual(ci.manifest_shard(headless), 'reporting-runner')
+            for path in ('tests/test_pressure_headless_artifacts.py', 'tests/test_load_reference_headless_artifacts.py',
+                         'tests/verifiers/pressure_3.py', 'tests/schema_validation.py', 'tests/conftest.py'):
+                result = hosted_ci.select_paths([ci.PROJECT + path], profile)
+                self.assertEqual(result['modes']['piping-numerical'], 'full', path)
+                self.assertEqual(result['piping_numerical_selection']['manifests'], [headless], path)
+                self.assertIn({'path': path, 'kind': 'artifact-reader', 'manifest': headless}, result['piping_numerical_selection']['reasons'])
+            # A schema tests/schema_validation.py loads into its registry: its Rust readers, and the producer.
+            result = hosted_ci.select_paths([ci.PROJECT + 'schemas/constraint.schema.json'], profile)['piping_numerical_selection']
+            self.assertIn(headless, result['manifests'])
+            self.assertIn({'path': 'schemas/constraint.schema.json', 'kind': 'artifact-reader', 'manifest': headless}, result['reasons'])
+            self.assertIn('exact-file-reader', {r['kind'] for r in result['reasons']})
+            # The dependency list the artifact-fed step installs adds the producer and keeps its Python selection.
+            result = hosted_ci.select_paths([ci.PROJECT + 'requirements-dev.txt'], profile)
+            self.assertEqual((result['modes']['piping-numerical'], result['modes']['piping-python']), ('full', 'full'))
+            self.assertEqual(result['piping_numerical_selection']['manifests'], [headless])
+            self.assertIn('piping-python', result['reasons'])
+            self.assertIn({'path': 'requirements-dev.txt', 'kind': 'artifact-reader', 'manifest': headless}, result['piping_numerical_selection']['reasons'])
+            self.assertIn({'path': 'requirements-dev.txt', 'kind': 'mapped-other-checks'}, result['piping_numerical_selection']['reasons'])
+            # A tests/ file neither reader loads stays a Python check.
+            result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], profile)
+            self.assertEqual(result['modes']['piping-numerical'], 'not-applicable')
+            self.assertEqual(result['piping_numerical_selection']['manifests'], [])
+            # An explicit null declaration selects every crate.
+            nulled = json.loads(json.dumps(profile))
+            nulled['piping_artifact_readers']['readers'] = None
+            result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], nulled)
+            self.assertEqual(result['piping_numerical_selection']['classification'], 'full-fallback')
+            nulled = json.loads(json.dumps(profile))
+            nulled['piping_artifact_readers']['inputs'] = None
+            result = hosted_ci.select_paths([ci.PROJECT + 'tests/test_persistence_schema.py'], nulled)
+            self.assertEqual(result['piping_numerical_selection']['classification'], 'full-fallback')
+            # Declaring a path never narrows its selection: tests/test_ci_numerical.py keeps every crate.
+            widened = json.loads(json.dumps(profile))
+            widened['piping_artifact_readers']['readers']['tests/test_ci_numerical.py'] = [headless]
+            before = hosted_ci.select_paths([ci.PROJECT + 'tests/test_ci_numerical.py'], profile)['piping_numerical_selection']
+            after = hosted_ci.select_paths([ci.PROJECT + 'tests/test_ci_numerical.py'], widened)['piping_numerical_selection']
+            self.assertEqual(before['classification'], 'full-fallback')
+            self.assertEqual((after['classification'], after['manifests']), (before['classification'], before['manifests']))
 
 
     def test_known_fixture_keeps_second_reader_with_unmodeled_filesystem_imports(self):
