@@ -2394,25 +2394,23 @@ fn derived_friction_normal_map(
                 ),
             });
         }
-        // DEL-04-04 REQ-012: a source that is itself a nonlinear support must be
-        // a translational one-way or lift-off support named on its own DOF.
-        if let Some(named) = input
-            .nonlinear_supports
-            .iter()
-            .find(|support| support.support_id == source.source_ref)
-        {
-            let bearing = matches!(
-                named.behavior,
-                NonlinearSupportBehavior::OneWay { .. } | NonlinearSupportBehavior::LiftOff { .. }
-            );
-            if !bearing
-                || named.node_index != source.source_node_index
+        // DEL-04-04 REQ-012: a one-way or lift-off source is named on its own
+        // translational DOF. Any other source keeps the rule it always had
+        // (|R| at its DOF); the product admits no gap or friction source.
+        if let Some(named) = input.nonlinear_supports.iter().find(|support| {
+            support.support_id == source.source_ref
+                && matches!(
+                    support.behavior,
+                    NonlinearSupportBehavior::OneWay { .. } | NonlinearSupportBehavior::LiftOff { .. }
+                )
+        }) {
+            if named.node_index != source.source_node_index
                 || named.dof != source.source_dof
                 || !is_translation_dof_index(global_dof)
             {
                 return Err(NonlinearIntegrationError::InvalidInput {
                     detail: format!(
-                        "derived friction normal source {} must be a translational one-way or lift-off support named on its own DOF",
+                        "derived friction normal source {} is a one-way or lift-off support and must be named on its own translational DOF",
                         source.source_ref
                     ),
                 });

@@ -223,24 +223,17 @@ fn a_lift_off_friction_cycle_ends_in_named_non_convergence() {
     }
 }
 
+/// A one-way or lift-off source is named on its own translational DOF. A gap
+/// source keeps the rule it had before this change, |R| at its DOF, bit for bit
+/// (`s11k_tests::kd5_friction_probe_input` relies on it); the product admits no
+/// gap or friction source (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`).
 #[test]
-fn a_nonlinear_source_must_be_a_translational_one_way_or_lift_off_on_its_own_dof() {
+fn a_one_way_or_lift_off_source_is_named_on_its_own_translational_dof() {
     let refused = |input: &NonlinearFrameSolveInput| {
         let error = solve_active_set_frame(input).unwrap_err().to_string();
-        assert!(error.contains("must be a translational one-way or lift-off support named on its own DOF"), "{error}");
+        assert!(error.contains("is a one-way or lift-off support and must be named on its own translational DOF"), "{error}");
     };
     let base = chord(10.0, -10.0, 0.3, Source::OneWay(ActivationSense::PositiveReaction), ActiveSetState::Sticking, 4);
-    // A gap support as the source.
-    let mut gap = base.clone();
-    gap.nonlinear_supports[1] = NonlinearSupport::gap("W", 1, FrameDof::Uy, 0.0, GapDirection::NegativeDisplacement).unwrap();
-    gap.initial_states[1] = record("W", ActiveSetState::Active);
-    refused(&gap);
-    // A friction support as the source.
-    let mut friction = base.clone();
-    friction.nonlinear_supports[1] = NonlinearSupport::friction("W", 1, FrameDof::Uy, 0.3).unwrap();
-    friction.initial_states[1] = record("W", ActiveSetState::Sticking);
-    friction.friction_normal_reactions = vec![FrictionNormalReaction::new("W", 1.0).unwrap()];
-    refused(&friction);
     // The one-way named on a DOF that is not its own.
     let mut elsewhere = base.clone();
     elsewhere.derived_friction_normal_reactions = vec![DerivedFrictionNormalReaction::from_support_reaction("F", 1, FrameDof::Uz, "W").unwrap()];
@@ -252,11 +245,21 @@ fn a_nonlinear_source_must_be_a_translational_one_way_or_lift_off_on_its_own_dof
     rotational.derived_friction_normal_reactions = vec![DerivedFrictionNormalReaction::from_support_reaction("F", 1, FrameDof::Rz, "W").unwrap()];
     refused(&rotational);
     // A lift-off support is admitted like a one-way.
-    let mut lift_off = base;
+    let mut lift_off = base.clone();
     lift_off.nonlinear_supports[1] = NonlinearSupport::lift_off("W", 1, FrameDof::Uy, ActivationSense::PositiveReaction);
     let result = solve_active_set_frame(&lift_off).unwrap();
     assert!(result.converged);
     assert_eq!(state_of(&result.final_states, "W"), ActiveSetState::Active);
+    // A gap source keeps |R|, whatever its state.
+    let mut gap = base;
+    gap.nonlinear_supports[1] = NonlinearSupport::gap("W", 1, FrameDof::Uy, 0.0, GapDirection::NegativeDisplacement).unwrap();
+    let source = &gap.derived_friction_normal_reactions[0];
+    for state in [ActiveSetState::Active, ActiveSetState::Inactive] {
+        let states = [record("F", ActiveSetState::Sticking), record("W", state)];
+        for reaction in [5.0, -5.0, 3.637978807091713e-12] {
+            assert_eq!(derived_friction_normal(&gap.nonlinear_supports, &states, source, reaction).to_bits(), f64::abs(reaction).to_bits());
+        }
+    }
 }
 
 #[test]
