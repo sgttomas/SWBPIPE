@@ -12,8 +12,8 @@ HERE=$(cd "$(dirname "$0")" && pwd -P)
 ROOT=$(cd "$1" && pwd -P)
 TARGET=$2
 OUT=$3
-REL=projects/chirality-piping/validation/references/kd5_timoshenko/runner
-[ -f "$ROOT/projects/chirality-piping/core/product_physics/Cargo.toml" ] || { echo "no product_physics crate under $ROOT" >&2; exit 2; }
+REL=validation/references/kd5_timoshenko/runner
+[ -f "$ROOT/core/product_physics/Cargo.toml" ] || { echo "no product_physics crate under $ROOT" >&2; exit 2; }
 DEST=$ROOT/$REL
 if [ "$(cd "$DEST" 2>/dev/null && pwd -P)" != "$HERE" ]; then
   for f in Cargo.toml Cargo.lock src/main.rs; do
