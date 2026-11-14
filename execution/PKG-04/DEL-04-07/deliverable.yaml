@@ -207,7 +207,9 @@ needs:
     profile and the toolchain. The driver crate builds at cargo's default release profile from
     its own Cargo.lock, within the build closure the tool's manifest names (its registry
     packages, build scripts and generated sources), so that the tool can attest each build
-    against that closure.
+    against that closure. Every source the driver build compiles, as rustc's dep-info reports it,
+    is a committed regular file of the tree, a locked registry file or an allowed generated file,
+    with no link in its path.
   gating: false
 code_paths:
 # The product solve crate and the nonlinear iteration. Within core/product_physics/, modules that
