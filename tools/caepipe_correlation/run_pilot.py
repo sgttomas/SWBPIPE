@@ -845,6 +845,12 @@ def benchmark_batches(models: list[Mapping[str, Any]], size: int) -> list[list[M
 
 
 RECORDED, NOT_RUN, RETRY = "recorded", "not_run", "retry"
+# The case manifest's state between custody and a terminal outcome. Defined once (here, in DEL-17-05's scope and in the
+# batch's session statements): custody was recorded; no terminal outcome is recorded; the case is named and is not
+# made again under its id; its capture is not admitted for use. It shows no more: an interrupt may have come before
+# the round trip started, during it, or after it returned and before the final manifest update, and it does not show
+# that SWBPIPE's solve succeeded (it is written before that is checked).
+CUSTODY_RECORDED = "custody_recorded"
 # A collect-only run ends here: SWBPIPE solved and bound, the CAEPIPE print collected, nothing parsed or compared.
 COLLECTED = "collected"
 # The SWBPIPE solve of each case folder made in this process, with its custody digests, so that the one retry of a
@@ -965,8 +971,9 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     if solved is None and (os.path.lexists(request_path) or os.path.lexists(result_path)):
         # The SWBPIPE request and result of a case are created once and never replaced: a later revision is a
         # separately identified comparison in case folders of its own, never a rewrite of the first.
-        # Classified by whether a readable case manifest records custody (a request digest), not by whether a
-        # manifest file exists: one written before the solve (an MBF refusal) records none.
+        # A classification of the refusal only: whether a readable case manifest records custody (a request digest),
+        # not whether a manifest file exists (one written before the solve, at an MBF refusal, records none). It
+        # validates nothing about the stored case and permits no overwrite: every class is refused.
         recorded = _recorded_manifest(case_root / "case_manifest.json")
         if recorded is None:
             route, reason = "manifest_unreadable", ("this case holds a SWBPIPE request or result and its case manifest "
@@ -974,7 +981,8 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         elif isinstance((recorded.get("custody") or {}).get("request_sha256"), str):
             route, reason = "already_recorded", (
                 "this case already holds a SWBPIPE request or result, which are never replaced; its case manifest "
-                f"records outcome {recorded.get('outcome')!r}, route {recorded.get('route')!r}")
+                f"records custody, outcome {recorded.get('outcome')!r}, route {recorded.get('route')!r} (this names the "
+                "refusal and validates nothing of the stored case)")
         else:
             route, reason = "half_made", ("this case is half-made: a SWBPIPE request or result exists and no case "
                                           "manifest records custody for it; it is never made again under its id")
@@ -1034,9 +1042,10 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
                                       else None))
         _SOLVED_THIS_PROCESS[str(case_root)] = (body, output, error, dict(custody), identity)
         if not offline:
-            # The custody is on disk before the round trip: an interrupt from here on leaves it recorded.
-            _benchmark_manifest(root, paths, entry, offline=offline, outcome="solved", route="solved",
-                                attempt=attempt, custody=custody)
+            # The custody is on disk before the round trip: an interrupt from here on leaves it recorded, in the
+            # custody_recorded state until a terminal outcome replaces it.
+            _benchmark_manifest(root, paths, entry, offline=offline, outcome=CUSTODY_RECORDED,
+                                route=CUSTODY_RECORDED, attempt=attempt, custody=custody)
     else:
         body, output, error, recorded, identity = solved
         custody.update(recorded)

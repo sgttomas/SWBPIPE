@@ -958,6 +958,24 @@ def test_a_half_made_case_is_refused_by_name_and_left_as_it_is(fake_benchmark, m
     assert solves == [] and state["calls"] == [] and tree_bytes(root) == before
 
 
+def test_a_stored_request_or_result_is_never_replaced(fake_benchmark, monkeypatch, capsys):
+    """Seeded (round 1's seeds, kept beside the half-made test): a case folder already holding only a request, or only
+    a result, with no case manifest, is refused by name before any solve and left exactly as it is."""
+    state = fake_benchmark
+    solves = []
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case) or (
+        {"invented": True}, {"payload": invented_payload()}, ""))
+    root = state["config"].exchange_root
+    for case_id, name in (("cpb-g1-01", "request.json"), ("cpb-g1-02", "result.json")):
+        stored = case_paths(state["config"], case_id)["swbpipe"] / name
+        stored.write_text("INVENTED STORED FILE\n", encoding="utf-8")
+    before = tree_bytes(root)
+    for case_id in ("cpb-g1-01", "cpb-g1-02"):
+        assert run_pilot.main(state["argv"] + ["--case", case_id], environ={}) == 1
+        assert f"{case_id}: route=half_made;" in capsys.readouterr().out
+    assert solves == [] and state["calls"] == [] and tree_bytes(root) == before
+
+
 def test_an_admission_refusal_of_a_recorded_case_creates_no_folder(fake_benchmark, capsys):
     """A recorded case (stored files and a case manifest) missing its other layer folders is refused at admission,
     before anything of it is authorised: no folder is created."""
@@ -1010,8 +1028,8 @@ def _collecting_round_trip(config_, case_id, mbf_text, **kwargs):
 
 def test_the_custody_is_on_disk_when_the_round_trip_starts(fake_benchmark):
     """At the moment the round trip is invoked, the persisted case manifest already binds the two stored files; an
-    interrupt there leaves that custody recorded, with the manifest still at outcome "solved": a round trip that did
-    not conclude."""
+    interrupt there leaves that custody recorded, the manifest in the custody_recorded state (no terminal outcome
+    recorded)."""
     state = fake_benchmark
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
     seen = {}
@@ -1027,8 +1045,33 @@ def test_the_custody_is_on_disk_when_the_round_trip_starts(fake_benchmark):
         run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
                                        emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
                                        collect_only=True)
-    assert seen == {"outcome": "solved", "request": True, "result": True}
-    assert json.loads((case / "case_manifest.json").read_text())["outcome"] == "solved"
+    assert seen == {"outcome": "custody_recorded", "request": True, "result": True}
+    assert json.loads((case / "case_manifest.json").read_text())["outcome"] == "custody_recorded"
+
+
+@pytest.mark.parametrize("side", ["before the round trip starts", "after it returns, before the final update"])
+def test_an_interrupt_on_either_side_of_the_round_trip_leaves_custody_recorded(fake_benchmark, monkeypatch, side):
+    """The custody_recorded state shows only that no terminal outcome was recorded: an interrupt after the custody is
+    on disk and before the round trip is called, or after it returns and before the final manifest update, leaves
+    it so, with the custody readable."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    calls = []
+
+    def interrupt(*args, **kwargs):
+        raise KeyboardInterrupt
+    if side.startswith("before"):
+        monkeypatch.setattr(run_pilot, "write_private", interrupt)  # the MBF write, after the custody write
+    else:
+        monkeypatch.setattr(run_pilot, "bound_csv", interrupt)  # after the round trip has returned
+    with pytest.raises(KeyboardInterrupt):
+        run_pilot._run_benchmark_model(
+            _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
+            round_trip=lambda *a, **k: calls.append(1) or _collecting_round_trip(*a, **k), gui_fallback=False,
+            attempt=1, collect_only=True)
+    assert calls == ([] if side.startswith("before") else [1])
+    manifest = json.loads((case / "case_manifest.json").read_text())
+    assert manifest["outcome"] == "custody_recorded" and manifest["custody"]["request_sha256"]
 
 
 def test_an_interrupted_later_manifest_write_leaves_the_custody_readable(fake_benchmark, monkeypatch):
@@ -1101,19 +1144,49 @@ def test_a_changed_runner_or_checkout_refuses_before_the_round_trip(fake_benchma
         _bench_entry(state), state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
         round_trip=lambda *a, **k: calls.append(1), gui_fallback=False, attempt=1, collect_only=True)
     assert (status, route, calls) == (run_pilot.NOT_RUN, "already_recorded", [])
-    assert "records outcome 'no_record', route 'identity_changed'" in reason
+    assert "records custody, outcome 'no_record', route 'identity_changed'" in reason
     assert tree_bytes(state["config"].exchange_root) == before
 
 
 def test_a_settings_stop_records_its_outcome_before_it_stops(fake_benchmark):
     """A round trip that concluded with an unclean settings check: the outcome is written (keeping the custody)
-    before the run stops, so the manifest is not left at "solved"."""
+    before the run stops, so the manifest is not left in the custody_recorded state."""
     state = fake_benchmark
     state["outcomes"][:] = [{"route": "timeout", "settings_guard": {"status": "owned_process_running"}}]
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     manifest = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
     assert (manifest["outcome"], manifest["route"]) == ("no_record", "settings_stop")
     assert manifest["custody"]["request_sha256"]
+
+
+def test_a_failed_settings_stop_write_keeps_the_custody_and_the_stopping_reason(fake_benchmark, monkeypatch):
+    """When writing the settings stop's outcome fails, the custody already on disk stays readable, and the original
+    stop is still discoverable: in the raised error's context and in the run record's settings check."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    first = {}
+
+    def round_trip(config_, case_id, mbf_text, **kwargs):
+        first["bytes"] = (case / "case_manifest.json").read_bytes()
+
+        def failing(descriptor, data):
+            os.close(descriptor)
+            raise OSError("invented failure while writing the outcome")
+        monkeypatch.setattr(run_pilot, "_write_fd", failing)
+        record = _collecting_round_trip(config_, case_id, mbf_text, **kwargs)
+        record["settings_guard"] = {"status": "owned_process_running"}
+        (case / "caepipe_out" / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
+        return record
+    with pytest.raises(OSError, match="invented failure") as raised:
+        run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                       emit=lambda line: None, round_trip=round_trip, gui_fallback=False, attempt=1,
+                                       collect_only=True)
+    assert isinstance(raised.value.__context__, run_pilot.RunStopped)
+    assert (case / "case_manifest.json").read_bytes() == first["bytes"]
+    assert json.loads(first["bytes"])["custody"]["request_sha256"]
+    record = json.loads((case / "caepipe_out" / "run_record.json").read_text())
+    assert record["settings_guard"]["status"] == "owned_process_running"
+    assert not [path for path in case.iterdir() if path.name.endswith(".tmp")]
 
 
 def test_an_unreadable_manifest_is_refused_on_a_later_write(fake_benchmark):
