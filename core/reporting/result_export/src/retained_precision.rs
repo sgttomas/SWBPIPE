@@ -1429,15 +1429,6 @@ fn g4(source: &Value) -> VResult {
     let combos = list(&source["retained_precision"]["body"]["combinations"]);
     let ds = list(&source["diagnostics"]);
     let fail = |ok| need(ok, "G4", "DIAGNOSTIC_MISMATCH");
-    // DEL-04-07: an inspection-only evaluation belongs only to a blocked
-    // document (which G7 refuses), so in a solved successor it is named and
-    // never read as an outcome.
-    let solved = source["status"]["mechanics"] == "MECHANICS_SOLVED";
-    need(
-        !solved || !ds.iter().any(|d| d["code"] == crate::semantic_contract::INSPECTION_ONLY_CODE),
-        "G4",
-        "INSPECTION_ONLY_IN_SOLVED_DOCUMENT",
-    )?;
     let mut ids = BTreeSet::new();
     for d in ds {
         fail(
@@ -6606,6 +6597,16 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
     let normalized = integral_receipt(source);
     let source: &Value = &normalized;
     g3(source, actual_invocation)?;
+    // DEL-04-07, G4: an inspection-only evaluation belongs only to a blocked
+    // document (which G7 refuses), so in a solved successor it is named and
+    // never read as an outcome. (Here rather than in `g4`, so that no line the
+    // retained pricing keys moves.)
+    need(
+        source["status"]["mechanics"] != "MECHANICS_SOLVED"
+            || !list(&source["diagnostics"]).iter().any(|d| d["code"] == crate::semantic_contract::INSPECTION_ONLY_CODE),
+        "G4",
+        "INSPECTION_ONLY_IN_SOLVED_DOCUMENT",
+    )?;
     g4(source)?;
     let body = &source["retained_precision"]["body"];
     g5_native(body)?;
