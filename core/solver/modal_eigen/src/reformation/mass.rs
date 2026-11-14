@@ -24,7 +24,11 @@
 //! (−1 − 5Φ + 5Φ²)L²; …], each symmetric with the Euler–Bernoulli
 //! element's sign pattern; at Φ = 0 they are the Hermitian and Rayleigh
 //! planes. Axial and torsional mass, the x–z sign map and the turn to
-//! global axes are the Euler–Bernoulli element's. The exact references are
+//! global axes are the Euler–Bernoulli element's. Φ and each plane are
+//! evaluated in `WideDd`, so no prefactor underflows before its numerator
+//! restores the scale; a Φ or completed local entry that does not narrow
+//! exactly to a double-double, or a nonzero entry below 2⁻⁹⁶⁹, refuses the
+//! member (`GeometryError::TimoshenkoMassRange`). The exact references are
 //! `validation/references/modal_timoshenko_mass`.
 //!
 //! **Realized arc** (§2.4). With d = x_j − x_i, L = |d|, n̂ the unit part of
@@ -79,7 +83,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::dd::{atan_unit, Dd};
+use crate::dd::{atan_unit, Dd, WideDd};
 
 pub type Vec3 = [Dd; 3];
 pub type Block6 = [[Dd; 6]; 6];
@@ -97,9 +101,14 @@ pub enum GeometryError {
     /// The half-angle is so small that an entry of the half-arc's local
     /// mass is below 2⁻⁹⁶⁹ in magnitude (module docs).
     ArcAngleRange,
-    /// A Timoshenko shear operand (E, G, A_s, I_y or I_z) is not positive
-    /// and finite, or its Φ is not finite.
+    /// A Timoshenko shear input operand (E, G, A_s, I_y or I_z) is not
+    /// positive and finite.
     ShearOperand,
+    /// A Timoshenko intermediate (Φ) or completed local mass entry cannot be
+    /// represented at the precision this re-formation requires: a nonzero
+    /// entry below 2⁻⁹⁶⁹ in magnitude, or one that does not narrow exactly
+    /// from its wide-exponent value to a double-double (module docs).
+    TimoshenkoMassRange,
 }
 
 impl fmt::Display for GeometryError {
@@ -116,6 +125,10 @@ impl fmt::Display for GeometryError {
             Self::ShearOperand => write!(
                 f,
                 "a Timoshenko shear operand is not positive and finite"
+            ),
+            Self::TimoshenkoMassRange => write!(
+                f,
+                "the Timoshenko mass cannot be represented at double-double precision"
             ),
         }
     }
@@ -352,14 +365,27 @@ fn positive_finite(x: Dd) -> bool {
 }
 
 /// One bending plane of the Timoshenko consistent mass on (w_i, θ_i, w_j,
-/// θ_j), θ the section rotation, at shear parameter Φ (module docs).
-fn timoshenko_plane(l: Dd, phi: Dd, mbar: Dd, ibar: Dd) -> [[Dd; 4]; 4] {
-    let powers = [Dd::from_f64(1.0), l, l.mul(l)];
-    let one_plus = phi.add_f64(1.0);
+/// θ_j), θ the section rotation, at shear parameter Φ (module docs). It is
+/// evaluated in [`WideDd`], so the prefactors m̄L/(840(1+Φ)²) and
+/// ī/(30L(1+Φ)²) cannot underflow before their numerators restore the scale;
+/// each completed entry is narrowed once, and an entry that is nonzero below
+/// 2⁻⁹⁶⁹ or does not narrow exactly refuses the member
+/// ([`GeometryError::TimoshenkoMassRange`]).
+fn timoshenko_plane(l: Dd, phi: Dd, mbar: Dd, ibar: Dd) -> Result<[[Dd; 4]; 4], GeometryError> {
+    let l = WideDd::from_dd(l);
+    let phi = WideDd::from_dd(phi);
+    let powers = [WideDd::from_f64(1.0), l, l.mul(l)];
+    let one_plus = phi.add(WideDd::from_f64(1.0));
     let denominator = one_plus.mul(one_plus);
-    let translation = mbar.mul(l).div(denominator.mul_f64(840.0));
-    let rotary = ibar.div(l.mul(denominator).mul_f64(30.0));
-    let poly = |c: [f64; 3]| Dd::from_f64(c[2]).mul(phi).add_f64(c[1]).mul(phi).add_f64(c[0]);
+    let translation = WideDd::from_dd(mbar).mul(l).div(denominator.mul_f64(840.0));
+    let rotary = WideDd::from_dd(ibar).div(l.mul(denominator).mul_f64(30.0));
+    let poly = |c: [f64; 3]| {
+        WideDd::from_f64(c[2])
+            .mul(phi)
+            .add(WideDd::from_f64(c[1]))
+            .mul(phi)
+            .add(WideDd::from_f64(c[0]))
+    };
     let mut plane = [[Dd::ZERO; 4]; 4];
     for r in 0..4 {
         for c in 0..4 {
@@ -367,10 +393,19 @@ fn timoshenko_plane(l: Dd, phi: Dd, mbar: Dd, ibar: Dd) -> [[Dd; 4]; 4] {
             let (cr, pr) = TIMOSHENKO_ROTARY[r][c];
             let a = translation.mul(poly(ct)).mul(powers[pt as usize]);
             let b = rotary.mul(poly(cr)).mul(powers[pr as usize]);
-            plane[r][c] = a.add(b);
+            let value = a.add(b);
+            let entry = value.to_dd();
+            if !value.is_finite()
+                || !(entry.hi.is_finite() && entry.lo.is_finite())
+                || (!value.is_zero() && entry.hi.abs() < LOCAL_ENTRY_MIN)
+                || WideDd::from_dd(entry) != value
+            {
+                return Err(GeometryError::TimoshenkoMassRange);
+            }
+            plane[r][c] = entry;
         }
     }
-    plane
+    Ok(plane)
 }
 
 /// A Timoshenko straight member's consistent mass in global axes: in each
@@ -400,15 +435,28 @@ pub fn straight_mass_timoshenko(
     let ey = ch.normal;
     let ez = cross3(&ex, &ey);
     let l = ch.length;
-    let rigidity = s.shear_modulus.mul(s.shear_area).mul(l.mul(l));
-    let phi_of = |i: Dd| s.elastic_modulus.mul(i).mul_f64(12.0).div(rigidity);
-    let (phi_y, phi_z) = (phi_of(s.second_moment_y), phi_of(s.second_moment_z));
-    if !(phi_y.hi.is_finite() && phi_z.hi.is_finite() && phi_y.hi >= 0.0 && phi_z.hi >= 0.0) {
-        return Err(GeometryError::ShearOperand);
-    }
+    let wl = WideDd::from_dd(l);
+    let rigidity = WideDd::from_dd(s.shear_modulus)
+        .mul(WideDd::from_dd(s.shear_area))
+        .mul(wl.mul(wl));
+    let phi_of = |i: Dd| -> Result<Dd, GeometryError> {
+        let wide = WideDd::from_dd(s.elastic_modulus)
+            .mul(WideDd::from_dd(i))
+            .mul_f64(12.0)
+            .div(rigidity);
+        let value = wide.to_dd();
+        if !wide.is_positive()
+            || !(value.hi.is_finite() && value.lo.is_finite())
+            || WideDd::from_dd(value) != wide
+        {
+            return Err(GeometryError::TimoshenkoMassRange);
+        }
+        Ok(value)
+    };
+    let (phi_y, phi_z) = (phi_of(s.second_moment_y)?, phi_of(s.second_moment_z)?);
     // The x–y plane bends about z (I_z); the x–z plane about y (I_y).
-    let plane_xy = timoshenko_plane(l, phi_z, mbar, ibar);
-    let plane_xz = timoshenko_plane(l, phi_y, mbar, ibar);
+    let plane_xy = timoshenko_plane(l, phi_z, mbar, ibar)?;
+    let plane_xz = timoshenko_plane(l, phi_y, mbar, ibar)?;
     let mut k = [[Dd::ZERO; 12]; 12];
     let third = |x: Dd| x.mul(l).div(Dd::from_f64(3.0));
     let sixth = |x: Dd| x.mul(l).div(Dd::from_f64(6.0));
@@ -439,8 +487,9 @@ pub fn straight_mass_timoshenko(
 const SERIES_STOP: f64 = 7.703719777548943e-34; // 2^-110
 const SERIES_MAX_TERMS: u32 = 60;
 
-/// The smallest magnitude a half-arc local entry may have: below 2⁻⁹⁶⁹ a
-/// double-double's low word is subnormal.
+/// The smallest magnitude a nonzero local mass entry (a half-arc's, or a
+/// Timoshenko plane's) may have: below 2⁻⁹⁶⁹ a double-double's low word is
+/// subnormal.
 const LOCAL_ENTRY_MIN: f64 = 2.004168360008973e-292; // 2^-969
 
 /// f₁(α)/α³ = Σ_{k≥1} (−1)^{k+1} α^{2k−2}/(2k+1)! by its series. The sum
@@ -754,7 +803,7 @@ mod tests {
     fn the_timoshenko_plane_at_zero_phi_is_the_euler_bernoulli_plane() {
         for (l, mbar, ibar) in [(3.0, 81.5, 1.035), (0.8125, 50.0, 0.25), (2.0, 1.0, 0.0)] {
             let (l, mbar, ibar) = (Dd::from_f64(l), Dd::from_f64(mbar), Dd::from_f64(ibar));
-            let t = timoshenko_plane(l, Dd::ZERO, mbar, ibar);
+            let t = timoshenko_plane(l, Dd::ZERO, mbar, ibar).unwrap();
             let powers = [Dd::from_f64(1.0), l, l.mul(l)];
             let translation = mbar.mul(l).div(Dd::from_f64(420.0));
             let rotary = ibar.div(l.mul_f64(30.0));

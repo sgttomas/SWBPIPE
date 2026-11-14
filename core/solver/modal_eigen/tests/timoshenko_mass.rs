@@ -173,6 +173,68 @@ fn the_element_approaches_the_euler_bernoulli_element() {
     assert!(e <= 10.0 * phi, "Timoshenko against Euler-Bernoulli at phi {phi:e}: {e:e}");
 }
 
+/// The PR 335 reader's witness: every operand normal, Φ = 2⁴⁰⁰ in both
+/// planes, m̄ = ī = j̄ = 2⁻⁷⁰⁰. A prefactor formed in double-double before its
+/// numerator underflowed to zero and lost the whole bending plane; the plane's
+/// displacement diagonal is normal. Expected: the exact integral of the
+/// static shapes, rounded to hi and lo (the reader's independent calculation).
+#[test]
+fn a_representable_plane_survives_tiny_prefactors() {
+    let small = Dd::from_f64(2.0f64.powi(-700));
+    let one = Dd::from_f64(1.0);
+    let shear = TimoshenkoShear {
+        elastic_modulus: one,
+        shear_modulus: one,
+        shear_area: Dd::from_f64(12.0 * 2.0f64.powi(-400)),
+        second_moment_y: one,
+        second_moment_z: one,
+    };
+    let m = straight_mass_timoshenko(
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        small,
+        small,
+        small,
+        &shear,
+    )
+    .unwrap();
+    let expected = Dd {
+        hi: f64::from_bits(0x1415_5555_5555_5555),
+        lo: f64::from_bits(0x10b5_5555_5555_5555),
+    };
+    for r in [1usize, 2usize] {
+        let relative = m[r][r].sub(expected).abs().to_f64() / expected.abs().to_f64();
+        assert!(relative <= NORMWISE, "({r}, {r}): {relative:e}");
+    }
+}
+
+/// An entry that cannot be held at double-double precision is refused by
+/// name, never returned as zero: m̄ = ī = 2⁻¹⁰⁰⁰ on the same member puts every
+/// bending entry far below 2⁻⁹⁶⁹.
+#[test]
+fn an_unrepresentable_plane_is_refused_by_name() {
+    let tiny = Dd::from_f64(2.0f64.powi(-1000));
+    let one = Dd::from_f64(1.0);
+    let shear = TimoshenkoShear {
+        elastic_modulus: one,
+        shear_modulus: one,
+        shear_area: Dd::from_f64(12.0 * 2.0f64.powi(-400)),
+        second_moment_y: one,
+        second_moment_z: one,
+    };
+    let r = straight_mass_timoshenko(
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        tiny,
+        tiny,
+        one,
+        &shear,
+    );
+    assert_eq!(r, Err(GeometryError::TimoshenkoMassRange));
+}
+
 #[test]
 fn shear_operands_that_are_not_positive_and_finite_are_refused() {
     let c = cases().into_iter().next().unwrap();
