@@ -412,7 +412,8 @@ def artifact_producers(project, manifests, readers, inputs=UNDECLARED):
         tracked = reads.tracked(project)
     except Exception as exc:
         raise ValueError(f'Artifact reader imports cannot be derived: {type(exc).__name__}: {exc}') from exc
-    producers, missing, resources = {}, set(), []
+    # The readers share most of their loads; each file is analysed once per call (the tree cannot change within it).
+    producers, missing, resources, analysed = {}, set(), [], {}
     for name, producing in inputs.items():
         if not isinstance(name, str) or name not in tracked or not (project / name).is_file():
             raise ValueError('Unresolved artifact reader input: ' + str(name))
@@ -438,7 +439,9 @@ def artifact_producers(project, manifests, readers, inputs=UNDECLARED):
                 closure.add(local)
                 roots, loaded_files, imported = reads.file_reads(project, local)
                 resources.extend((root, crates) for root in sorted(roots) if not root.startswith('*'))
-                unresolved, initializers = _artifact_reader_files(reads, project, tracked, local)
+                if local not in analysed:
+                    analysed[local] = _artifact_reader_files(reads, project, tracked, local)
+                unresolved, initializers = analysed[local]
                 missing |= unresolved
                 pending.extend(sorted(set(loaded_files) | set(imported) | initializers))
         except ValueError:

@@ -66,12 +66,13 @@ def wrapped_reads(reads):
 def real_snapshot():
     """Route against this immutable repository snapshot reusing its verified graph and its artifact-reader derivation
     (about a second each to compute, and some tests route hundreds of paths), while exercising routing for each path.
-    Only the real declaration's derivation is reused; any other declaration is derived afresh."""
+    Only the real declaration's derivation on this snapshot's root is reused; any other declaration or root is derived
+    afresh, and tests that build or change a tree call the selector directly, outside this helper."""
     resources, dependencies = real_graph()
     readers, inputs, derivation = real_artifact_derivation()
     derive = ci.artifact_producers
     def producers(project, manifests, declared_readers, declared_inputs=ci.UNDECLARED):
-        if (declared_readers, declared_inputs) == (readers, inputs):
+        if Path(project).resolve() == ROOT.resolve() and (declared_readers, declared_inputs) == (readers, inputs):
             return derivation
         return derive(project, manifests, declared_readers, declared_inputs)
     with patch.object(hosted_ci, 'numerical_module', return_value=ci), \
@@ -877,6 +878,23 @@ class ReachabilitySafetyTests(unittest.TestCase):
             for bad in (None, [], {'absent.txt': [producer.as_posix()]}, {'tests/untracked.py': [producer.as_posix()]},
                         {'requirements.txt': []}, {'requirements.txt': ['core/absent/Cargo.toml']}):
                 self.assertEqual(select('tests/test_other.py', bad)['classification'], 'full-fallback', bad)
+
+    def test_the_reused_artifact_derivation_is_a_fresh_one_and_stays_on_its_snapshot(self):
+        readers, inputs, (producers, missing, resource_crates) = real_artifact_derivation()
+        fresh_producers, fresh_missing, fresh_resources = ci.artifact_producers(
+            ROOT, ci.readiness.discover_cargo_manifests(ROOT), readers, inputs)
+        self.assertEqual(producers, fresh_producers)
+        self.assertEqual(missing, fresh_missing)
+        tracked = subprocess.run(['git', '-C', str(ROOT), 'ls-files'], capture_output=True, text=True, check=True).stdout.split()
+        self.assertEqual([resource_crates(p) for p in tracked], [fresh_resources(p) for p in tracked])
+        # Inside the snapshot helper, another declaration or another root is derived afresh.
+        with real_snapshot():
+            manifests = ci.readiness.discover_cargo_manifests(ROOT)
+            self.assertIs(ci.artifact_producers(ROOT, manifests, readers, inputs)[0], producers)
+            self.assertEqual(ci.artifact_producers(ROOT, manifests, {}, {})[:2], ({}, frozenset()))
+            with tempfile.TemporaryDirectory() as tmp:
+                with self.assertRaises(ValueError):
+                    ci.artifact_producers(Path(tmp), manifests, readers, inputs)
 
     def test_headless_artifact_readers_their_conftest_and_their_test_imports_select_the_headless_runner(self):
         # Every call routes on this snapshot's graph; altered declarations below are derived afresh.
