@@ -579,14 +579,35 @@ fn validate_nonlinear(model: &Value, v: &Value) -> Result<()> {
             "supports",
             text(s.get("support_ref"), "support_ref")?,
         )?;
-        if target.get("nonlinear").is_some_and(|n| !n.is_null()) {
-            return Err(err("Friction normal source must be a linear support"));
+        // DEL-04-04 REQ-012: a linear support's restrained translational DOF, or
+        // a one-way or lift-off support's own translational DOF.
+        let bearing = target.get("nonlinear").filter(|n| !n.is_null());
+        if let Some(n) = bearing {
+            let kind = n.get("behavior").and_then(Value::as_str).unwrap_or("");
+            if !matches!(
+                kind,
+                "one_way" | "one-way" | "oneway" | "lift_off" | "lift-off" | "liftoff"
+            ) {
+                return Err(err(
+                    "Friction normal source must be a linear support or a one-way or lift-off support",
+                ));
+            }
         }
         let d = dof(s.get("dof"))?.to_ascii_uppercase();
         if !d.starts_with('U') {
             return Err(err("Friction normal source DOF must be translational"));
         }
-        if !target
+        if let Some(n) = bearing {
+            if !n
+                .get("dof")
+                .and_then(Value::as_str)
+                .is_some_and(|own| own.eq_ignore_ascii_case(&d))
+            {
+                return Err(err(
+                    "Friction normal source DOF must be the one-way or lift-off support's own DOF",
+                ));
+            }
+        } else if !target
             .get("restraints")
             .and_then(Value::as_array)
             .is_some_and(|a| {

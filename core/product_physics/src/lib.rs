@@ -115,8 +115,8 @@ use open_pipe_stress_nonlinear_integration::{
     dense_loop_memory_guard, eligible_contact_dofs,
     solve_active_set_frame_with_mode_and_springs_assembled, DENSE_LOOP_MEMORY_CEILING_BYTES,
     ConvergenceControl, ConvergencePolicyStatus, CurvedBendStiffnessElement,
-    DerivedFrictionNormalReaction, FrictionNormalReaction, LinearSolveMode,
-    NonlinearFrameSolveInput, NonlinearFrameSolveResult, NonlinearIntegrationError,
+    derived_friction_normal, DerivedFrictionNormalReaction, FrictionNormalReaction,
+    LinearSolveMode, NonlinearFrameSolveInput, NonlinearFrameSolveResult, NonlinearIntegrationError,
     NonlinearResidualObservation,
 };
 use open_pipe_stress_nonlinear_supports::{
@@ -7799,6 +7799,8 @@ fn append_nonlinear_support_loop_results(
                 results,
                 &built.nonlinear_friction_normal_reactions,
                 &built.nonlinear_derived_friction_normal_reactions,
+                &built.nonlinear_supports,
+                &solve.final_states,
                 &published_reactions,
                 &solve.policy_ref,
                 solver_mode,
@@ -8420,18 +8422,29 @@ fn derived_friction_normal_source(
             vec![friction_support_id.to_string(), source.support_ref.clone()],
         ));
     };
-    if source_support.nonlinear.is_some() {
-        return Err(diag(
-            &format!(
-                "diagnostic:nonlinear-support:{}:normal-source",
-                stable_suffix(friction_support_id)
-            ),
-            "NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID",
-            "blocking",
-            "friction normal_reaction_source must reference a linear support restraint",
-            vec![friction_support_id.to_string(), source.support_ref.clone()],
-        ));
-    }
+    // DEL-04-04 REQ-012: a linear support's restrained translational DOF, or a
+    // one-way or lift-off support's own translational DOF; no other nonlinear
+    // support (gap, friction) is a normal source.
+    let bearing_source = match source_support.nonlinear.as_ref() {
+        None => None,
+        Some(nonlinear)
+            if matches!(nonlinear.behavior.as_str(), "one_way" | "one-way" | "oneway" | "lift_off" | "lift-off" | "liftoff") =>
+        {
+            Some(nonlinear)
+        }
+        Some(_) => {
+            return Err(diag(
+                &format!(
+                    "diagnostic:nonlinear-support:{}:normal-source",
+                    stable_suffix(friction_support_id)
+                ),
+                "NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID",
+                "blocking",
+                "friction normal_reaction_source must reference a linear support restraint or a one-way or lift-off support",
+                vec![friction_support_id.to_string(), source.support_ref.clone()],
+            ));
+        }
+    };
     let source_dof = parse_dof(&source.dof).map_err(|message| {
         diag(
             &format!(
@@ -8456,11 +8469,15 @@ fn derived_friction_normal_source(
             vec![friction_support_id.to_string(), source.dof.clone()],
         ));
     }
-    let source_has_restraint = source_support
-        .restraints
-        .iter()
-        .filter_map(|dof| parse_dof(dof).ok())
-        .any(|dof| dof == source_dof);
+    let source_has_restraint = match bearing_source {
+        // A one-way or lift-off support restrains only its own DOF, and only while active.
+        Some(nonlinear) => parse_dof(&nonlinear.dof).is_ok_and(|dof| dof == source_dof),
+        None => source_support
+            .restraints
+            .iter()
+            .filter_map(|dof| parse_dof(dof).ok())
+            .any(|dof| dof == source_dof),
+    };
     if !source_has_restraint {
         return Err(diag(
             &format!(
@@ -15218,6 +15235,8 @@ fn append_nonlinear_friction_normal_evidence(
     results: &mut Vec<ResultItem>,
     friction_normal_reactions: &[FrictionNormalReaction],
     derived_friction_normal_reactions: &[DerivedFrictionNormalReaction],
+    nonlinear_supports: &[NonlinearSupport],
+    final_states: &[SupportStateRecord],
     reactions: &[f64],
     policy_ref: &str,
     solver_mode: PreviewSolverMode,
@@ -15243,14 +15262,25 @@ fn append_nonlinear_friction_normal_evidence(
     for source in derived_friction_normal_reactions {
         let suffix = stable_suffix(&source.support_id);
         let global = source.source_node_index * DOF_PER_NODE + dof_index(source.source_dof);
-        let Some(reaction) = reactions.get(global) else {
+        let Some(&reaction) = reactions.get(global) else {
             continue;
+        };
+        // DEL-04-04 REQ-012: |R| from a linear source; from a one-way or lift-off
+        // source, its bearing reaction while active and +0 otherwise.
+        let bearing_source = nonlinear_supports.iter().any(|support| {
+            support.support_id == source.source_ref
+                && matches!(support.behavior, NonlinearSupportBehavior::OneWay { .. } | NonlinearSupportBehavior::LiftOff { .. })
+        });
+        let sign = if bearing_source {
+            "positive value is the named one-way or lift-off support's reaction in its bearing sense while that support is active, and +0 while it is inactive or would pull"
+        } else {
+            "positive value is the absolute support reaction at the named normal-source DOF"
         };
         append_nonlinear_scalar_result(
             results,
             &format!("result:nonlinear-support:{suffix}:friction-normal-reaction"),
             "nonlinear_support_friction_normal_reaction_derived",
-            reaction.abs(),
+            derived_friction_normal(nonlinear_supports, final_states, source, reaction),
             "N",
             &source.support_id,
             "friction_normal_reaction_derived",
@@ -15261,7 +15291,7 @@ fn append_nonlinear_friction_normal_evidence(
                 source.source_ref,
                 source.source_dof.as_str()
             ),
-            "positive value is the absolute support reaction at the named normal-source DOF",
+            sign,
         );
     }
 }
