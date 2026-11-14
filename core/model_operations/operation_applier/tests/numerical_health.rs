@@ -865,6 +865,45 @@ const RESULT_FIXTURES: [&str; 112] = [
 
 /// The JSON-text entry refuses input that is not JSON (the projection itself is
 /// `report_standing::historical_health`).
+/// DEL-07-05, through the desktop's own caller (`operation_applier::numerical_health_json`,
+/// which the desktop reaches in wasm and natively): a live document whose mechanics are
+/// not solved, though a case before the refusal retained a passed integrity evaluation and
+/// a checks_passed quality, shows no passing indicator. Its first case is not assessed,
+/// with no figure and no cause; the control (the same request without the refused case)
+/// passes through the same caller.
+#[test]
+fn a_blocked_document_with_passing_evidence_shows_no_passing_indicator() {
+    let control = model_request("product_preview/invented_demo_model.json");
+    let first = control["model"]["load_cases"][0]["id"].as_str().unwrap().to_string();
+    let mut request = control.clone();
+    let mut refused = request["model"]["load_cases"][0].clone();
+    refused["id"] = json!("load:indicator-gate-refused");
+    for load in refused["primitive_loads"].as_array_mut().unwrap() {
+        let id = format!("{}:refused", load["id"].as_str().unwrap());
+        load["id"] = json!(id);
+    }
+    refused["modulus_basis_ref"] = json!("temperature-point:intentionally-missing");
+    request["model"]["load_cases"].as_array_mut().unwrap().push(refused);
+    for (mode, wire) in MODES {
+        let solved = serde_json::to_value(run_linear_static_preview_value_with_mode(control.clone(), mode).unwrap()).unwrap();
+        assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{wire}");
+        assert_eq!(health(&solved, None)["cases"][0]["state"], "checks_passed", "{wire}: control");
+        let blocked = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+        assert_eq!(blocked["status"]["mechanics"], "MODEL_INCOMPLETE", "{wire}");
+        // The evidence looks passing: the first case's own record and quality.
+        let quality = blocked["numerical_quality"]["cases"].as_array().unwrap().iter()
+            .find(|c| c["basis_ref"]["ref_id"] == first.as_str()).unwrap();
+        assert_eq!(quality["solve_quality"], "checks_passed", "{wire}");
+        assert_eq!(integrity(&blocked, &first)[0]["code"], "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{wire}");
+        let out = health(&blocked, None);
+        for case in out["cases"].as_array().unwrap() {
+            assert_eq!(case["state"], "not_assessed", "{wire}: {}", case["case_id"]);
+            assert!(case["rcond"].is_null() && case["digits"].is_null(), "{wire}");
+            assert_eq!(case["causes"], json!([]), "{wire}");
+        }
+    }
+}
+
 #[test]
 fn input_that_is_not_json_is_refused() {
     assert!(numerical_health_json("not json", None).is_err());
