@@ -48,6 +48,7 @@ enum StageState {
 #[derive(Debug, PartialEq)]
 enum OutputState {
     Withdrawn,
+    InspectionOnly,
     NoRequirement,
     Discharged,
     NotVerified,
@@ -61,6 +62,7 @@ fn verdict_matches(verdict: &VerdictMirror, code: Option<&str>) -> bool {
         (VerdictMirror::Sensitive, Some("NUMERICAL_INTEGRITY_SENSITIVE")) => true,
         (VerdictMirror::RecoveryBasisUnqualified, Some("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED")) => true,
         (VerdictMirror::Failed { code: closed }, Some(code)) => IntegrityFailureCode::of(code) == Some(*closed),
+        (VerdictMirror::InspectionOnly { .. }, Some("NUMERICAL_INTEGRITY_INSPECTION_ONLY")) => true,
         _ => false,
     }
 }
@@ -147,6 +149,9 @@ fn output_state(case: &CaseEvidence) -> OutputState {
     let association = case.confirmation.as_ref().is_some_and(|c| !c.association.is_empty());
     if case.withdrawn.is_some() || (association && rests_on_confirmation) {
         return OutputState::Withdrawn;
+    }
+    if matches!(case.verdict, VerdictMirror::InspectionOnly { .. }) {
+        return OutputState::InspectionOnly;
     }
     if required.is_empty() {
         return OutputState::NoRequirement;
@@ -377,4 +382,36 @@ fn the_progress_value_of_this_build_never_reads_as_an_attempt() {
     assert_eq!(stage_state(&case, &stage(StageTag::ConfirmationStageB, None)), StageState::NotRecorded);
     assert_eq!(output_state(&case), OutputState::NotRecorded);
     assert_eq!(serde_json::to_value(ProgressView::NoVerifierInThisBuild).unwrap(), "no_verifier_in_this_build");
+}
+
+#[test]
+fn an_inspection_only_case_discharges_nothing_published_and_pairs_only_with_its_code() {
+    let mut retained = coupled_case("load:retained", [Some(RecordStatus::Verified), Some(RecordStatus::Verified), Some(RecordStatus::Verified)]);
+    retained.verdict = VerdictMirror::InspectionOnly { prior: PriorVerdict::ChecksPassed };
+    let doc = document(&[("load:retained", Some("NUMERICAL_INTEGRITY_INSPECTION_ONLY"))]);
+    let projection = evidence(vec![retained.clone()]);
+    assert_eq!(inconsistencies(&doc, &projection), Vec::<String>::new());
+    assert_eq!(output_state(&projection.cases[0]), OutputState::InspectionOnly, "even with every stage verified");
+    // Its stage states are still read, as retained evidence.
+    assert_eq!(stage_state(&projection.cases[0], &stage(StageTag::ConfirmationStageB, None)), StageState::Verified);
+    // Withdrawn comes first.
+    let mut both = retained.clone();
+    both.withdrawn = Some(WithdrawalView::MirrorMismatch);
+    assert_eq!(output_state(&both), OutputState::Withdrawn);
+    // Inspection-only pairs only with the inspection-only code.
+    let doc_passed = document(&[("load:retained", PASSED)]);
+    assert!(inconsistencies(&doc_passed, &projection).iter().any(|r| r.contains("verdict")));
+    assert_eq!(serde_json::to_value(&retained.verdict).unwrap(), serde_json::json!({"inspection_only": {"prior": "checks_passed"}}));
+}
+
+#[test]
+fn a_discard_carries_a_closed_reason() {
+    for (tag, spelled) in [
+        (DiscardTag::LoadRowFinding, "load_row_finding"),
+        (DiscardTag::PreGuardNotPassed, "pre_guard_not_passed"),
+        (DiscardTag::DisplacementCorrectionUnavailable, "displacement_correction_unavailable"),
+    ] {
+        let view = PublicationView::Discarded { reason: tag };
+        assert_eq!(serde_json::to_value(&view).unwrap(), serde_json::json!({"discarded": {"reason": spelled}}));
+    }
 }

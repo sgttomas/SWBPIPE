@@ -220,7 +220,7 @@ fn publication_use_never_replaces_stage_progress() {
     let offer = own_verified(&e, 0);
     e.collect(0, Ok(offer)).unwrap();
     assert_eq!(e.publication(), &PublicationUse::NotConsulted);
-    e.set_publication(PublicationUse::Discarded { reason: "load-row finding".into() });
+    e.set_publication(PublicationUse::Discarded { reason: DiscardReason::LoadRowFinding });
     assert_eq!(e.stages()[0].progress(), &StageProgress::Evaluated(VerificationProgress::VerifierReached));
     assert!(e.stages()[0].record().is_some());
     assert!(e.verifies_all_required_premises(), "coverage is independent of publication use");

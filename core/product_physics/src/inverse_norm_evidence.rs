@@ -29,7 +29,7 @@ use open_pipe_stress_frame_kernel::structural::{
     StageKey, VerificationProgress,
 };
 use open_pipe_stress_nonlinear_integration::confirmation::{
-    AssociationKind, ConfirmationRun, PublicationUse, RequiredPlan, StageEvidence, StageProgress,
+    AssociationKind, ConfirmationRun, DiscardReason, PublicationUse, RequiredPlan, StageEvidence, StageProgress,
 };
 use serde::Serialize;
 
@@ -74,6 +74,17 @@ pub enum VerdictMirror {
     Failed { code: IntegrityFailureCode },
     RecoveryBasisUnqualified,
     NotAssessed,
+    /// A blocked document's retained evaluation (NUMERICAL_INTEGRITY_INSPECTION_ONLY):
+    /// no published result relies on it; `prior` is its outcome before the block.
+    InspectionOnly { prior: PriorVerdict },
+}
+
+/// An inspection-only case's outcome before its document was blocked.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PriorVerdict {
+    ChecksPassed,
+    Sensitive,
 }
 
 /// The closed integrity failure codes (`integrity_failure_code` and the
@@ -190,7 +201,16 @@ pub enum EstablishmentView {
 pub enum PublicationView {
     NotConsulted,
     UsedForPublishedBasis,
-    Discarded { reason: String },
+    Discarded { reason: DiscardTag },
+}
+
+/// The closed reasons a confirmation that ran was discarded at publication.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DiscardTag {
+    LoadRowFinding,
+    PreGuardNotPassed,
+    DisplacementCorrectionUnavailable,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -472,7 +492,13 @@ pub(crate) fn confirmation_view(evidence: &StageEvidence, established: Establish
     let publication = match evidence.publication() {
         PublicationUse::NotConsulted => PublicationView::NotConsulted,
         PublicationUse::UsedForPublishedBasis => PublicationView::UsedForPublishedBasis,
-        PublicationUse::Discarded { reason } => PublicationView::Discarded { reason: reason.clone() },
+        PublicationUse::Discarded { reason } => PublicationView::Discarded {
+            reason: match reason {
+                DiscardReason::LoadRowFinding => DiscardTag::LoadRowFinding,
+                DiscardReason::PreGuardNotPassed => DiscardTag::PreGuardNotPassed,
+                DiscardReason::DisplacementCorrectionUnavailable => DiscardTag::DisplacementCorrectionUnavailable,
+            },
+        },
     };
     let attempt = match evidence.attempt() {
         ConfirmationRun::NotRun => AttemptState::NotRun,

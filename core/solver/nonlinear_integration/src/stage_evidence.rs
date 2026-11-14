@@ -37,8 +37,21 @@ pub enum PublicationUse {
     NotConsulted,
     /// The published rows rest on this confirmation's Stage B.
     UsedForPublishedBasis,
-    /// The confirmation ran, then publication discarded it, with the reason.
-    Discarded { reason: String },
+    /// The confirmation ran, then publication discarded it, for a closed reason.
+    Discarded { reason: DiscardReason },
+}
+
+/// Why publication discarded a confirmation that ran (carrier revision 5):
+/// the eligibility filter's two conditions, and the displacement fallback,
+/// decided before the confirmed-for-publication decision.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DiscardReason {
+    /// The case's load-row finding made it ineligible.
+    LoadRowFinding,
+    /// The case's integrity diagnostic was not checks-passed before the guard.
+    PreGuardNotPassed,
+    /// The corrected displacement could not be formed; every row is the solve's own.
+    DisplacementCorrectionUnavailable,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

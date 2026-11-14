@@ -15,7 +15,7 @@
 //! allows it, so every product test that assembles a document guards the pair.
 
 use crate::inverse_norm_evidence::{
-    self, CaseEvidence, IntegrityFailureCode, ConfirmationView, EstablishmentView, InverseNormEvidence, PublishedBasisView,
+    self, CaseEvidence, IntegrityFailureCode, PriorVerdict, ConfirmationView, EstablishmentView, InverseNormEvidence, PublishedBasisView,
     VerdictMirror, WithdrawalView,
 };
 use crate::Diagnostic;
@@ -120,7 +120,7 @@ impl InverseNormSink {
                     &owned
                 }
             };
-            let verdict = find(diagnostics, case_id).map_or(VerdictMirror::NotAssessed, |d| verdict_of(&d.code));
+            let verdict = find(diagnostics, case_id).map_or(VerdictMirror::NotAssessed, |d| verdict_of(&d.code, &d.message));
             let withdrawn = entry.withdrawn.map(|w| match w {
                 Withdrawal::MissingEntry => WithdrawalView::MissingEntry,
                 Withdrawal::OrphanEntry => WithdrawalView::OrphanEntry,
@@ -177,7 +177,14 @@ pub(crate) fn confirmation_of(entry: &ConfirmationEntry) -> ConfirmationView {
 /// The verdict of a closed integrity code. An unknown code is withdrawn at
 /// the checkpoint, so its projection never carries evidence; it reads as
 /// unresolved here only so that the projection stays total.
-fn verdict_of(code: &str) -> VerdictMirror {
+fn verdict_of(code: &str, message: &str) -> VerdictMirror {
+    if code == INSPECTION_ONLY {
+        return match inspection_prior(message) {
+            Some(prior) => VerdictMirror::InspectionOnly { prior },
+            // Withdrawn at the checkpoint (UnknownCode); total here only.
+            None => VerdictMirror::Failed { code: IntegrityFailureCode::Unresolved },
+        };
+    }
     match code {
         "NUMERICAL_INTEGRITY_CHECKS_PASSED" => VerdictMirror::ChecksPassed,
         "NUMERICAL_INTEGRITY_SENSITIVE" => VerdictMirror::Sensitive,
@@ -186,6 +193,29 @@ fn verdict_of(code: &str) -> VerdictMirror {
             code: IntegrityFailureCode::of(other).unwrap_or(IntegrityFailureCode::Unresolved),
         },
     }
+}
+
+/// The inspection-only code (the exact-route lane's blocked-document repair).
+const INSPECTION_ONLY: &str = "NUMERICAL_INTEGRITY_INSPECTION_ONLY";
+
+/// An inspection-only diagnostic's prior outcome: the closed token at the start
+/// of its message, `Inspection only (prior_outcome=<code>)`, where <code> is
+/// exactly checks-passed or sensitive. Anything else is `None`. (If the prior
+/// moves to a diagnostic field, only this parse moves.)
+fn inspection_prior(message: &str) -> Option<PriorVerdict> {
+    let rest = message.strip_prefix("Inspection only (prior_outcome=")?;
+    match &rest[..rest.find(')')?] {
+        "NUMERICAL_INTEGRITY_CHECKS_PASSED" => Some(PriorVerdict::ChecksPassed),
+        "NUMERICAL_INTEGRITY_SENSITIVE" => Some(PriorVerdict::Sensitive),
+        _ => None,
+    }
+}
+
+fn is_closed_diagnostic(diagnostic: &Diagnostic) -> bool {
+    if diagnostic.code == INSPECTION_ONLY {
+        return inspection_prior(&diagnostic.message).is_some();
+    }
+    is_closed_code(&diagnostic.code)
 }
 
 fn is_closed_code(code: &str) -> bool {
@@ -322,7 +352,7 @@ pub(crate) fn reconcile(diagnostics: &[Diagnostic], sink: &mut InverseNormSink) 
             Some(Withdrawal::MissingEntry)
         } else if entry.mirror != mirror_of(diagnostic) {
             Some(Withdrawal::MirrorMismatch)
-        } else if !is_closed_code(&diagnostic.code) {
+        } else if !is_closed_diagnostic(diagnostic) {
             Some(Withdrawal::UnknownCode)
         } else {
             None

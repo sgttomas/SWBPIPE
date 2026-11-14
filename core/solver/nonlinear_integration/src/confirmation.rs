@@ -19,7 +19,7 @@ use open_pipe_stress_frame_kernel::structural::{
 };
 use open_pipe_stress_frame_kernel::{node_dof_index, FrameDof};
 pub use crate::stage_evidence::{
-    AssociationFailure, AssociationKind, ConfirmationRun, PlannedStage, PublicationUse, RequiredPlan, StageEvidence,
+    AssociationFailure, AssociationKind, ConfirmationRun, DiscardReason, PlannedStage, PublicationUse, RequiredPlan, StageEvidence,
     StageProgress,
 };
 use crate::stage_evidence::CollectRefusal;

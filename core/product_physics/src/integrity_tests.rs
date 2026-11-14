@@ -210,3 +210,47 @@ fn an_unknown_integrity_code_is_withdrawn_and_failure_codes_are_closed() {
     assert_eq!(case(&evidence, "load:B").verdict, VerdictMirror::Failed { code: IntegrityFailureCode::NegativeEnergy });
     assert_eq!(case(&evidence, "load:B").withdrawn, None);
 }
+
+#[test]
+fn an_inspection_only_diagnostic_carries_its_prior_outcome_and_a_malformed_one_is_withdrawn() {
+    let _allow = AllowWithdrawal::new();
+    let mut diagnostics = Vec::new();
+    let mut sink = InverseNormSink::default();
+    let mut good = integrity("load:A", "NUMERICAL_INTEGRITY_INSPECTION_ONLY");
+    good.message = format!("Inspection only (prior_outcome=NUMERICAL_INTEGRITY_SENSITIVE): this document is blocked (MODEL_INCOMPLETE). {}", good.message);
+    let mut bad = integrity("load:B", "NUMERICAL_INTEGRITY_INSPECTION_ONLY");
+    bad.message = format!("Inspection only (prior_outcome=NUMERICAL_INTEGRITY_FAILED): {}", bad.message);
+    publish(&mut diagnostics, &mut sink, "load:A", good, EntryUpdate::Linear(Some(record())));
+    publish(&mut diagnostics, &mut sink, "load:B", bad, EntryUpdate::Linear(Some(record())));
+    reconcile(&diagnostics, &mut sink);
+    let evidence = sink.projection(&diagnostics, AB);
+    let a = case(&evidence, "load:A");
+    assert_eq!(a.verdict, VerdictMirror::InspectionOnly { prior: PriorVerdict::Sensitive });
+    assert_eq!(a.withdrawn, None);
+    assert!(a.linear.is_some(), "the retained record is kept, not discarded");
+    let b = case(&evidence, "load:B");
+    assert_eq!(b.withdrawn, Some(WithdrawalView::UnknownCode), "a prior outside the two values is never guessed");
+    assert!(b.linear.is_none());
+}
+
+#[test]
+fn the_inspection_only_grammar_accepts_exactly_two_priors_at_the_start_and_nothing_near_them() {
+    let ok = |m: &str| inspection_prior(m);
+    assert_eq!(ok("Inspection only (prior_outcome=NUMERICAL_INTEGRITY_CHECKS_PASSED): blocked. x"), Some(PriorVerdict::ChecksPassed));
+    assert_eq!(ok("Inspection only (prior_outcome=NUMERICAL_INTEGRITY_SENSITIVE): blocked. x"), Some(PriorVerdict::Sensitive));
+    for near in [
+        "inspection only (prior_outcome=NUMERICAL_INTEGRITY_CHECKS_PASSED): x", // case
+        "Inspection only(prior_outcome=NUMERICAL_INTEGRITY_CHECKS_PASSED): x",  // missing space
+        "Inspection only (prior_outcome= NUMERICAL_INTEGRITY_CHECKS_PASSED): x", // space in token
+        "Inspection only (prior_outcome=NUMERICAL_INTEGRITY_CHECKS_PASSED: x",   // no closing parenthesis
+        "Inspection only (prior_outcome=NUMERICAL_INTEGRITY_FAILED): x",         // another code
+        "Inspection only (prior_outcome=NUMERICAL_INTEGRITY_INSPECTION_ONLY): x",
+        "Inspection only (prior_outcome=CHECKS_PASSED): x",
+        "Inspection only (prior_outcome=): x",
+        " Inspection only (prior_outcome=NUMERICAL_INTEGRITY_SENSITIVE): x",    // not at the start
+        "Load case c: Inspection only (prior_outcome=NUMERICAL_INTEGRITY_SENSITIVE): x",
+        "",
+    ] {
+        assert_eq!(ok(near), None, "{near:?}");
+    }
+}
