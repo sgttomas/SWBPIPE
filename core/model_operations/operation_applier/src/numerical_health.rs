@@ -337,23 +337,30 @@ fn named_load_cases(source: &Value) -> Vec<&str> {
         .collect()
 }
 
-/// Whether the document states its mechanics solved, in either published
-/// shape: the mechanics envelope's `status.mechanics`, or a result envelope's
-/// `analysis_status` list. A document carrying either field is solved only if
-/// that field says so: a blocked one (old or new), or a malformed field, is
-/// not. A projection carrying neither (an export package, which is made only
-/// from a solved result and states its own `package_status`) is read on its
-/// quality as before.
+/// The mechanics statuses other than solved that a result envelope's
+/// `analysis_status` list can carry.
+const UNSOLVED_MECHANICS: [&str; 3] = ["MODEL_INCOMPLETE", "MECHANICS_FAILED", "NOT_RUN"];
+
+/// Whether the document states its mechanics solved. Each status field it
+/// carries must say so: the mechanics envelope's `status.mechanics`, and a
+/// result envelope's `analysis_status` list, which must name
+/// `MECHANICS_SOLVED` and no other mechanics status. A blocked document (old or
+/// new), a malformed field, or two fields that disagree is not solved. A
+/// document carrying neither field is solved only if it is an export package
+/// (it states `package_status` and `package_id`), which is made only from a
+/// solved result; any other is not solved.
 fn mechanics_solved(source: &Value) -> bool {
-    match (source.get("status"), source.get("analysis_status")) {
-        (None, None) => true,
-        (status, list) => {
-            status.is_some_and(|status| status["mechanics"] == "MECHANICS_SOLVED")
-                || list
-                    .and_then(Value::as_array)
-                    .is_some_and(|list| list.iter().any(|s| s == "MECHANICS_SOLVED"))
-        }
+    let (status, list) = (source.get("status"), source.get("analysis_status"));
+    if status.is_none() && list.is_none() {
+        return source["package_status"].is_string() && source["package_id"].is_string();
     }
+    status.is_none_or(|status| status["mechanics"] == "MECHANICS_SOLVED")
+        && list.is_none_or(|list| {
+            list.as_array().is_some_and(|list| {
+                list.iter().any(|s| s == "MECHANICS_SOLVED")
+                    && !list.iter().any(|s| s.as_str().is_some_and(|s| UNSOLVED_MECHANICS.contains(&s)))
+            })
+        })
 }
 
 fn case_health(index: &Diagnostics, case_id: &str, state: &'static str, solved: bool) -> CaseHealth {
@@ -1235,7 +1242,7 @@ mod tests {
         json!({
             "numerical_quality": {"status": solve_quality, "cases": [{"basis_ref": {"ref_type": "load_case", "ref_id": case},
                 "solve_quality": solve_quality, "evidence_refs": [format!("{INTEGRITY_ID_PREFIX}{case}")]}]},
-            "diagnostics": diagnostics, "results": []
+            "diagnostics": diagnostics, "results": [], "status": {"mechanics": "MECHANICS_SOLVED"}
         })
     }
 
@@ -1288,10 +1295,30 @@ mod tests {
             assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{label}");
         }
         let mut listed = base.clone();
-        listed["analysis_status"] = json!(["MECHANICS_SOLVED"]);
+        listed["analysis_status"] = json!(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"]);
         assert_eq!(health(&listed, None)["cases"][0]["state"], "checks_passed", "a solved list");
-        // A projection stating neither field is read on its quality.
-        assert_eq!(health(&base, None)["cases"][0]["state"], "checks_passed", "a projection");
+        // Two fields that disagree, either way, and a list naming both, are not solved.
+        for (label, status, list) in [
+            ("status blocked, list solved", json!({"mechanics": "MODEL_INCOMPLETE"}), json!(["MECHANICS_SOLVED"])),
+            ("status solved, list blocked", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MODEL_INCOMPLETE"])),
+            ("status solved, list malformed", json!({"mechanics": "MECHANICS_SOLVED"}), json!("MECHANICS_SOLVED")),
+            ("list naming both", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", "MODEL_INCOMPLETE"])),
+        ] {
+            let mut source = base.clone();
+            source["status"] = status;
+            source["analysis_status"] = list;
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{label}");
+        }
+        // A document stating neither field is not solved (a mechanics envelope
+        // stripped of its status included), unless it is an export package.
+        let mut bare = base.clone();
+        bare.as_object_mut().unwrap().remove("status");
+        assert_eq!(health(&bare, None)["cases"][0]["state"], "not_assessed", "no status, not a package");
+        let mut package = bare.clone();
+        package["package_status"] = json!("complete");
+        assert_eq!(health(&package, None)["cases"][0]["state"], "not_assessed", "package_status alone");
+        package["package_id"] = json!("package:test");
+        assert_eq!(health(&package, None)["cases"][0]["state"], "checks_passed", "an export package");
     }
 
     fn one_case_source(case: &str, code: &str, solve_quality: &str, message: String, mechanics: &str) -> Value {
