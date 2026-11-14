@@ -859,75 +859,76 @@ def test_lint_engine_cargo_lock_excludes_a_second_process(lint_engine_cargo):
     assert attempt() == "held"
 
 
-LOCK_PROBE_PRELUDE = (
+# A holder process for the lock tests. It takes the lock, writes the `ready` file, then keeps the
+# lock until the test writes the `go` file and for `hold` seconds after that, so the test decides
+# when the timed hold begins and no assertion depends on how late the test saw `ready`.
+LOCK_HOLDER = (
     "import importlib.util, sys, time\n"
+    "from pathlib import Path\n"
     "spec = importlib.util.spec_from_file_location('scan_tests', sys.argv[1])\n"
     "module = importlib.util.module_from_spec(spec)\n"
     "spec.loader.exec_module(module)\n"
+    "ready, go, hold = Path(sys.argv[2]), Path(sys.argv[3]), float(sys.argv[4])\n"
+    "with module.lint_engine_cargo_lock() as taken:\n"
+    "    assert taken\n"
+    "    ready.write_text('held')\n"
+    "    limit = time.monotonic() + 120\n"
+    "    while not go.exists():\n"
+    "        assert time.monotonic() < limit, 'the test never released the holder'\n"
+    "        time.sleep(0.02)\n"
+    "    time.sleep(hold)\n"
 )
+
+
+@contextlib.contextmanager
+def lock_holder(tmp_path: Path, hold: float):
+    """Start a holder and yield (process, go) once it has the lock; the caller writes `go`."""
+    ready, go = tmp_path / "holder-has-the-lock", tmp_path / "holder-may-release"
+    holder = subprocess.Popen(
+        [sys.executable, "-c", LOCK_HOLDER, str(Path(__file__).resolve()), str(ready), str(go), str(hold)],
+        cwd=ROOT,
+    )
+    try:
+        limit = time.monotonic() + 60
+        while not ready.exists():
+            assert holder.poll() is None, "the holder ended before taking the lock"
+            assert time.monotonic() < limit, "the holder never took the lock"
+            time.sleep(0.02)
+        yield holder, go
+    finally:
+        go.write_text("go")
+        holder.wait(timeout=hold + 150)
+    assert holder.returncode == 0
 
 
 def test_a_blocking_waiter_takes_the_lock_after_a_holder_that_keeps_it_past_ten_seconds(tmp_path, monkeypatch):
     """A holder in another process keeps the lock, then releases; the blocking waiter then has it.
 
-    On Windows the holder keeps it for more than ten seconds, the point at which that
-    platform's own blocking call gives up; elsewhere a shorter hold exercises the same loop.
-    The lock file is this test's own, so it neither waits on nor delays the Cargo tests.
+    On Windows the holder keeps it for more than ten seconds after the waiter starts, the
+    point at which that platform's own blocking call gives up; elsewhere a shorter hold
+    exercises the same loop. The lock file is this test's own, so it neither waits on nor
+    delays the Cargo tests.
     """
     monkeypatch.setenv("CARGO_TARGET_DIR", str(tmp_path / "target"))
     hold = 11.0 if os.name == "nt" else 1.5
-    ready = tmp_path / "holder-has-the-lock"
-    holder = subprocess.Popen(
-        [sys.executable, "-c", LOCK_PROBE_PRELUDE + (
-            "from pathlib import Path\n"
-            "with module.lint_engine_cargo_lock() as taken:\n"
-            "    assert taken\n"
-            "    Path(sys.argv[2]).write_text('held')\n"
-            "    time.sleep(float(sys.argv[3]))\n"
-        ), str(Path(__file__).resolve()), str(ready), str(hold)],
-        cwd=ROOT,
-    )
-    try:
-        waited = time.monotonic() + 60
-        while not ready.exists():
-            assert holder.poll() is None, "the holder ended before taking the lock"
-            assert time.monotonic() < waited, "the holder never took the lock"
-            time.sleep(0.05)
+    with lock_holder(tmp_path, hold) as (holder, go):
         with lint_engine_cargo_lock(blocking=False) as taken:
             assert taken is False
         started = time.monotonic()
-        with lint_engine_cargo_lock(wait_seconds=hold + 60) as taken:
+        go.write_text("go")  # the holder's timed hold begins only now, after `started`
+        with lint_engine_cargo_lock(wait_seconds=hold + 120) as taken:
             assert taken is True
-        assert time.monotonic() - started >= hold / 2
-    finally:
-        holder.wait(timeout=hold + 60)
-    assert holder.returncode == 0
+            waited = time.monotonic() - started
+        assert waited >= hold, f"the waiter had the lock after {waited:.2f} s of a {hold} s hold"
 
 
 def test_a_blocking_waiter_gives_up_with_a_named_timeout(tmp_path, monkeypatch):
+    """The holder keeps the lock until this test releases it, so the waiter's deadline passes first."""
     monkeypatch.setenv("CARGO_TARGET_DIR", str(tmp_path / "target"))
-    ready = tmp_path / "holder-has-the-lock"
-    holder = subprocess.Popen(
-        [sys.executable, "-c", LOCK_PROBE_PRELUDE + (
-            "from pathlib import Path\n"
-            "with module.lint_engine_cargo_lock():\n"
-            "    Path(sys.argv[2]).write_text('held')\n"
-            "    time.sleep(3)\n"
-        ), str(Path(__file__).resolve()), str(ready)],
-        cwd=ROOT,
-    )
-    try:
-        waited = time.monotonic() + 60
-        while not ready.exists():
-            assert holder.poll() is None, "the holder ended before taking the lock"
-            assert time.monotonic() < waited, "the holder never took the lock"
-            time.sleep(0.05)
+    with lock_holder(tmp_path, 0.0):
         with pytest.raises(TimeoutError, match="lint engine's Cargo lock"):
             with lint_engine_cargo_lock(wait_seconds=0.5):
                 pytest.fail("the lock was taken while another process held it")
-    finally:
-        holder.wait(timeout=60)
-    assert holder.returncode == 0
 
 
 def test_both_cargo_running_tests_take_the_lint_engine_lock():
