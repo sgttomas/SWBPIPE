@@ -124,6 +124,34 @@ DECLARATIONS = Path(__file__).with_name("pressure_elongation_inventory.declarati
 DECLARATIONS_KIND = "swbpipe.pressure_elongation_inventory.declarations"
 TABLES = ("groups", "derived", "pinned_by", "in_code", "exempt")
 NOTE_KINDS = ("section", "record")
+# The fields each declaration may carry, as (required, optional), each with its value's kind: "text" (a non-empty
+# string), "texts" (a non-empty list of non-empty strings), "flag" (true or false), "count" (an integer, not a
+# boolean), "mode_files" (a non-empty object of non-empty strings by non-empty string), or a nested "producer" or
+# "anchor" object, whose fields depend on its kind. The sets are those the committed records carry: a field every
+# record of a table (or of a producer or anchor kind) carries is required; any other one they carry is optional.
+RECORD_FIELDS = {
+    "groups": ({"id": "text", "paths": "texts", "producer": "producer", "pinned_by": "texts", "anchor": "anchor"}, {}),
+    "derived": ({"path": "text", "producer": "text", "from": "texts", "reader": "text"}, {}),
+    "pinned_by": ({"paths": "texts", "pinned_by": "texts"}, {}),
+    "in_code": ({"paths": "texts", "expectations": "text", "cases_named": "text", "detail": "text"}, {"reference": "text"}),
+    "exempt": ({"reason": "text", "paths": "texts"}, {}),
+}
+_WRITER_FIELDS = ({"kind": "text", "path": "text", "write": "text", "switch_plumbed": "flag", "switch_route": "text"}, {})
+PRODUCER_FIELDS = {
+    "python_generator": ({"kind": "text", "path": "text", "write": "text", "switch_plumbed": "flag"},
+                         {"verify": "text", "switch": "text", "switch_route": "text", "status": "text"}),
+    "rust_builder": _WRITER_FIELDS, "rust_test": _WRITER_FIELDS, "ts_test": _WRITER_FIELDS,
+    "rust_and_ts_tests": _WRITER_FIELDS,
+    "none": ({"kind": "text", "status": "text", "switch_plumbed": "flag", "switch_route": "text"}, {}),
+}
+ANCHOR_FIELDS = {
+    "baseline": ({"kind": "text"}, {}),
+    "inline": ({"kind": "text", "case_depth": "count", "envelope": "text"}, {"mode": "text", "mode_member": "text"}),
+    "raw_files": ({"kind": "text"}, {"files_from": "text", "files": "mode_files", "example": "text"}),
+    "excluded": ({"kind": "text", "reason": "text"}, {}),
+}
+# An anchor of these kinds carries exactly one of the two members (the anchor harness reads one or the other).
+ANCHOR_ONE_OF = {"inline": ("mode", "mode_member"), "raw_files": ("files_from", "files")}
 
 
 class InventoryError(Exception):
@@ -155,10 +183,62 @@ def declaration_key(table: str, record: dict):
         return None
 
 
+def _value_problem(value, kind: str) -> str | None:
+    """Why `value` is not of `kind` (exact types: a boolean is not an integer), or None."""
+    def text(item) -> bool:
+        return type(item) is str and bool(item.strip())
+    if kind == "text":
+        return None if text(value) else "must be a non-empty string"
+    if kind == "texts":
+        return None if type(value) is list and value and all(text(item) for item in value) else \
+            "must be a non-empty list of non-empty strings"
+    if kind == "flag":
+        return None if type(value) is bool else "must be true or false"
+    if kind == "count":
+        return None if type(value) is int else "must be an integer"
+    if kind == "mode_files":
+        return None if type(value) is dict and value and all(text(k) and text(v) for k, v in value.items()) else \
+            "must be a non-empty object of non-empty strings"
+    raise ValueError(kind)
+
+
+def _field_problems(value: dict, fields: tuple[dict, dict], prefix: str = "") -> list[str]:
+    """Each missing, unknown or wrongly typed field of `value`, named with `prefix` (for a nested object)."""
+    required, optional = fields
+    problems = [f"field {prefix + name!r} is required" for name in required if name not in value]
+    problems += [f"field {prefix + name!r} is not a field of this declaration" for name in value
+                 if name not in required and name not in optional]
+    for name, kind in {**required, **optional}.items():
+        if name not in value:
+            continue
+        if kind in ("producer", "anchor"):
+            problems += _nested_problems(value[name], kind, prefix + name + ".")
+        elif (problem := _value_problem(value[name], kind)) is not None:
+            problems.append(f"field {prefix + name!r} {problem}")
+    return problems
+
+
+def _nested_problems(value, kind: str, prefix: str) -> list[str]:
+    """A producer's or an anchor's fields, which depend on its `kind`."""
+    variants = PRODUCER_FIELDS if kind == "producer" else ANCHOR_FIELDS
+    if type(value) is not dict:
+        return [f"field {prefix[:-1]!r} must be an object"]
+    variant = value.get("kind")
+    if type(variant) is not str or variant not in variants:
+        return [f"field {prefix + 'kind'!r} must be one of {', '.join(variants)}"]
+    problems = _field_problems(value, variants[variant], prefix)
+    if kind == "anchor" and variant in ANCHOR_ONE_OF and sum(name in value for name in ANCHOR_ONE_OF[variant]) != 1:
+        first, second = (prefix + name for name in ANCHOR_ONE_OF[variant])
+        problems.append(f"fields {first!r} and {second!r}: a {variant} anchor carries exactly one")
+    return problems
+
+
 def load_declarations(path: Path = DECLARATIONS) -> dict:
     """The declarations file, read as data. Every field is data: nothing in it is executed. A missing file, invalid
-    JSON, a key given twice in one object, a top level other than the expected object of tables, or a note naming no
-    single declaration raises DeclarationsError naming the file and the problem."""
+    JSON, a key given twice in one object, a top level other than the expected object of tables, a declaration with a
+    missing, unknown or wrongly typed field (RECORD_FIELDS, and PRODUCER_FIELDS and ANCHOR_FIELDS for its nested
+    objects), or a note naming no single declaration raises DeclarationsError naming the file, and for a declaration
+    the table, the record's index and key, and the field."""
     def refuse(problem: str):
         raise DeclarationsError(f"{path}: {problem}")
     try:
@@ -177,17 +257,29 @@ def load_declarations(path: Path = DECLARATIONS) -> dict:
     if not isinstance(value, dict) or set(value) != set(members):
         found = sorted(value) if isinstance(value, dict) else type(value).__name__
         refuse(f"the top level must be an object with exactly the members {', '.join(members)}; found {found}")
-    if value["document_kind"] != DECLARATIONS_KIND or value["version"] != 1:
-        refuse(f"document_kind must be {DECLARATIONS_KIND!r} and version 1")
+    if type(value["document_kind"]) is not str or value["document_kind"] != DECLARATIONS_KIND:
+        refuse(f"field 'document_kind' must be {DECLARATIONS_KIND!r}")
+    if type(value["version"]) is not int or value["version"] != 1:
+        refuse("field 'version' must be the integer 1")
     for table in (*TABLES, "notes"):
-        if not isinstance(value[table], list) or not all(isinstance(record, dict) for record in value[table]):
+        if type(value[table]) is not list or not all(type(record) is dict for record in value[table]):
             refuse(f"{table} must be a list of objects")
+    problems = []
+    for table in TABLES:
+        for index, record in enumerate(value[table]):
+            problems += [f"{table}[{index}] ({declaration_key(table, record)!r}): {problem}"
+                         for problem in _field_problems(record, RECORD_FIELDS[table])]
+    if problems:
+        refuse("malformed declarations:\n  " + "\n  ".join(problems))
     for index, note in enumerate(value["notes"]):
-        if set(note) != {"table", "kind", "declarations", "comment"} or note["table"] not in TABLES \
-                or note["kind"] not in NOTE_KINDS or not isinstance(note["declarations"], list) or not note["declarations"] \
-                or not isinstance(note["comment"], list) or not all(isinstance(line, str) for line in note["comment"]):
+        if set(note) != {"table", "kind", "declarations", "comment"} \
+                or type(note["table"]) is not str or note["table"] not in TABLES \
+                or type(note["kind"]) is not str or note["kind"] not in NOTE_KINDS \
+                or _value_problem(note["declarations"], "texts") is not None \
+                or type(note["comment"]) is not list or not note["comment"] \
+                or not all(type(line) is str for line in note["comment"]):
             refuse(f"notes[{index}] must be an object of table, kind ({', '.join(NOTE_KINDS)}), declarations (a "
-                   "non-empty list) and comment (a list of lines)")
+                   "non-empty list of keys) and comment (a non-empty list of lines)")
         for key in note["declarations"]:
             matched = [record for record in value[note["table"]] if declaration_key(note["table"], record) == key]
             if len(matched) != 1:

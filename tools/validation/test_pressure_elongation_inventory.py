@@ -820,7 +820,7 @@ def test_a_wrong_top_level_shape_fails_visibly(tmp_path, label, mutate):
     message = _refusal(wrong)
     assert message.startswith(f"{wrong}: ") and any(phrase in message for phrase in (
         "the top level must be an object with exactly the members", "must be a list of objects",
-        "document_kind must be")), (label, message)
+        "field 'document_kind' must be")), (label, message)
 
 
 def test_a_note_must_name_exactly_one_declaration(tmp_path):
@@ -832,26 +832,88 @@ def test_a_note_must_name_exactly_one_declaration(tmp_path):
 
 
 def test_the_loaded_tables_are_the_declarations_and_have_the_required_shapes():
-    """The module's tables are the file's, and each record has the fields build() and claims() read."""
+    """The module's tables are the file's. Every record has exactly the fields its table allows, with the declared
+    value types (RECORD_FIELDS, and PRODUCER_FIELDS and ANCHOR_FIELDS for the nested objects), and every producer
+    and anchor kind those tables define is used by at least one record, so each variant is exercised positively."""
     loaded = INV.load_declarations()
     assert (INV.GROUPS, INV.DERIVED, INV.PINNED_BY, INV.IN_CODE, INV.EXEMPT) == \
         tuple(loaded[table] for table in INV.TABLES)
-    for group in INV.GROUPS:
-        assert set(group) == {"id", "paths", "producer", "pinned_by", "anchor"}, group.get("id")
-        assert isinstance(group["id"], str) and group["paths"] and all(isinstance(p, str) for p in group["paths"])
-        assert isinstance(group["producer"], dict) and isinstance(group["anchor"], dict) and "kind" in group["anchor"]
-        assert all(isinstance(p, str) for p in group["pinned_by"])
-    for record in INV.DERIVED:
-        assert set(record) == {"path", "producer", "from", "reader"}, record
-    for entry in INV.PINNED_BY:
-        assert set(entry) == {"paths", "pinned_by"} and entry["paths"] and entry["pinned_by"], entry
-        assert all(isinstance(p, str) for p in entry["paths"] + entry["pinned_by"])
+    for table in INV.TABLES:
+        for record in loaded[table]:
+            assert INV._field_problems(record, INV.RECORD_FIELDS[table]) == [], (table, record)
+    assert {g["producer"]["kind"] for g in INV.GROUPS} == set(INV.PRODUCER_FIELDS)
+    assert {g["anchor"]["kind"] for g in INV.GROUPS} == set(INV.ANCHOR_FIELDS)
+    assert any("reference" in r for r in INV.IN_CODE) and not all("reference" in r for r in INV.IN_CODE)
+    for kind, members in INV.ANCHOR_ONE_OF.items():  # both forms of each two-form anchor are in use
+        assert {m for g in INV.GROUPS if g["anchor"]["kind"] == kind for m in members if m in g["anchor"]} == set(members)
     for record in INV.IN_CODE:
-        assert {"paths", "expectations", "cases_named", "detail"} <= set(record), record
         assert record["expectations"] in INV.EXPECTATIONS and record["cases_named"] in INV.CASES_NAMED
-        assert record["paths"] and all(isinstance(p, str) for p in record["paths"]) and record["detail"].strip()
-    for entry in INV.EXEMPT:
-        assert set(entry) == {"reason", "paths"} and entry["reason"].strip() and entry["paths"], entry
     for note in loaded["notes"]:
         for key in note["declarations"]:
             assert [r for r in loaded[note["table"]] if INV.declaration_key(note["table"], r) == key], (note, key)
+
+
+def _first(value: dict, table: str, where=lambda record: True) -> tuple[int, dict]:
+    return next((i, r) for i, r in enumerate(value[table]) if where(r))
+
+
+def _with_raw_files_anchor(member: str):
+    return lambda r: r["anchor"]["kind"] == "raw_files" and member in r["anchor"]
+
+
+# (label, table, which record, the change, the field the refusal names, the problem it states)
+MALFORMED = [
+    ("unknown field: group", "groups", None, lambda r: r.update(unexpected="x"), "unexpected", "is not a field of this declaration"),
+    ("unknown field: derived", "derived", None, lambda r: r.update(unexpected="x"), "unexpected", "is not a field of this declaration"),
+    ("unknown field: pin registration", "pinned_by", None, lambda r: r.update(unexpected="x"), "unexpected", "is not a field of this declaration"),
+    ("unknown field: in-code", "in_code", None, lambda r: r.update(unexpected="x"), "unexpected", "is not a field of this declaration"),
+    ("unknown field: exemption", "exempt", None, lambda r: r.update(unexpected="x"), "unexpected", "is not a field of this declaration"),
+    ("unknown field: producer", "groups", None, lambda r: r["producer"].update(unexpected=123), "producer.unexpected", "is not a field of this declaration"),
+    ("unknown field: anchor", "groups", None, lambda r: r["anchor"].update(unexpected=1), "anchor.unexpected", "is not a field of this declaration"),
+    ("wrong type: group id", "groups", None, lambda r: r.update(id=42), "id", "must be a non-empty string"),
+    ("wrong type: derived producer", "derived", None, lambda r: r.update(producer=42), "producer", "must be a non-empty string"),
+    ("wrong type: derived path", "derived", None, lambda r: r.update(path=42), "path", "must be a non-empty string"),
+    ("wrong type: pin registration paths", "pinned_by", None, lambda r: r.update(paths="fixtures/x.json"), "paths", "must be a non-empty list of non-empty strings"),
+    ("wrong type: in-code reference", "in_code", lambda r: "reference" in r, lambda r: r.update(reference=42), "reference", "must be a non-empty string"),
+    ("wrong type: in-code detail", "in_code", None, lambda r: r.update(detail=42), "detail", "must be a non-empty string"),
+    ("wrong type: exemption reason", "exempt", None, lambda r: r.update(reason=42), "reason", "must be a non-empty string"),
+    ("wrong type: producer switch_plumbed", "groups", None, lambda r: r["producer"].update(switch_plumbed="false"), "producer.switch_plumbed", "must be true or false"),
+    ("wrong type: anchor case_depth", "groups", lambda r: r["anchor"]["kind"] == "inline", lambda r: r["anchor"].update(case_depth=True), "anchor.case_depth", "must be an integer"),
+    ("missing field: in-code detail", "in_code", None, lambda r: r.pop("detail"), "detail", "is required"),
+    ("missing field: producer switch_plumbed", "groups", None, lambda r: r["producer"].pop("switch_plumbed"), "producer.switch_plumbed", "is required"),
+    ("unknown producer kind", "groups", None, lambda r: r["producer"].update(kind="shell_script"), "producer.kind", "must be one of"),
+]
+
+
+@pytest.mark.parametrize("label, table, where, change, field, problem", MALFORMED, ids=[m[0] for m in MALFORMED])
+def test_a_malformed_declaration_is_refused_by_the_loader_naming_table_record_and_field(
+        tmp_path, label, table, where, change, field, problem):
+    value = json.loads(_declarations_text())
+    index, record = _first(value, table, where or (lambda r: True))
+    change(record)
+    wrong = tmp_path / "declarations.json"
+    wrong.write_text(json.dumps(value, indent=1), encoding="utf-8")
+    key = INV.declaration_key(table, record)
+    message = _refusal(wrong)
+    assert message.startswith(f"{wrong}: malformed declarations:\n"), message
+    assert f"{table}[{index}] ({key!r}): field {field!r} {problem}" in message, message
+
+
+def test_a_two_form_anchor_with_both_forms_is_refused(tmp_path):
+    value = json.loads(_declarations_text())
+    index, record = _first(value, "groups", _with_raw_files_anchor("files_from"))
+    record["anchor"]["files"] = {"sparse_interactive": "fixtures/x.json"}
+    wrong = tmp_path / "declarations.json"
+    wrong.write_text(json.dumps(value), encoding="utf-8")
+    assert f"groups[{index}] ({record['id']!r}): fields 'anchor.files_from' and 'anchor.files': a raw_files anchor " \
+           "carries exactly one" in _refusal(wrong)
+
+
+@pytest.mark.parametrize("version", [True, 1.0, "1", 2])
+def test_the_version_must_be_the_integer_one(tmp_path, version):
+    """`true == 1` in Python: the version is checked by type as well as value."""
+    value = json.loads(_declarations_text())
+    value["version"] = version
+    wrong = tmp_path / "declarations.json"
+    wrong.write_text(json.dumps(value), encoding="utf-8")
+    assert _refusal(wrong) == f"{wrong}: field 'version' must be the integer 1"

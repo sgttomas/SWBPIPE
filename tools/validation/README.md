@@ -21,7 +21,10 @@ same physical numbers as today, bit for bit.
   pressurised document is claimed by an `IN_CODE` entry. The entry states what its
   assertions rest on (a closed form, a reference file, the product's own output or no
   response value) and whether its pressurised cases are named. Every other file is
-  claimed by an `EXEMPT` entry with a one-line reason. An unclaimed file, a file claimed
+  claimed by an `EXEMPT` entry with a one-line reason. The `derived` declarations name
+  consumers that hold no model document of their own but re-derive from the groups; their
+  path entries are descriptive selectors (some with wildcards or braces), not checked for
+  existence. An unclaimed file, a file claimed
   twice, a stale claim, an exemption without a reason, and an exemption of a data file
   with a pressurised document each fail. The inventory is also the checklist for
   re-producing the fixtures. A registered pin on a single file beyond its group's (`PINNED_BY`:
@@ -52,8 +55,8 @@ same physical numbers as today, bit for bit.
   `python3 tools/validation/pressure_elongation_inventory.py` (it writes the inventory),
   `python3 tools/validation/pressure_elongation_inventory.py --check` and
   `python3 -m pytest -q tools/validation/test_pressure_elongation_inventory.py`. A missing or
-  malformed declarations file, or a key given twice in one object, fails with its name and
-  the problem. If the declarations file itself ever names `pressure_regions`, the check reports
+  malformed declarations file, a key given twice in one object, or a declaration with a
+  missing, unknown or wrongly typed field fails, naming the file, the record and the field. If the declarations file itself ever names `pressure_regions`, the check reports
   it unclaimed: add it to the inventory's own exemption.
 
   The committed check establishes general structural properties: every scanned file is claimed
