@@ -1,0 +1,12 @@
+[package]
+name = "open_pipe_stress_numerical_vocabulary"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "The closed numerical vocabulary of SWBPIPE's numerical standing: tags only, no logic, no dependencies (DEL-08-01 REQ-024, AC-016)"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]

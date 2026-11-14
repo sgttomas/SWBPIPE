@@ -318,6 +318,13 @@ fn pf_render(session: &[Value]) -> PfRender {
             "native_job_id": live.job,
             "received_bytes_sha256": sha256_hex(&result),
         }});
+    // DEL-08-01 REQ-024: the standing record the desktop's builder carries, as the reader
+    // derives it from this source and model; the native host re-derives it and requires
+    // equality.
+    let invocation = json!({"request": {"model": model.clone(), "materials": []}, "solver_mode": MODE});
+    let standing = open_pipe_stress_result_export::reader_verdict::standing(&source, Some(&model), Some(&invocation));
+    input["numerical_standing"] = open_pipe_stress_report_standing::report_standing::historical_standing_record(&source, &model, &standing)
+        .expect("the stand-in's standing record derives");
     PfRender { live, input, result, intake, manifest: manifest_text }
 }
 
@@ -424,6 +431,21 @@ fn the_pf_timoshenko_save_admits_only_the_session_entries_the_host_derives() {
     assert_eq!(save(None, pf_save_args(&[copied])), save_refusal(results.len(), COPIES));
     assert_eq!(save(None, pf_save_args(&[material.clone(), material.clone()])), save_refusal(results.len() + 1, NOT_DERIVED));
     assert_eq!(save(None, pf_save_args(&[changed.clone(), not_held.clone()])), save_refusal(results.len() + 1, NOT_DERIVED));
+}
+
+/// Scrutiny of PR 328, finding 1: a pressure-free save request carries no standing
+/// record (the desktop builds one only for an exact source, which this save binds
+/// and re-derives). One it carried would be packaged unverified, so it is refused
+/// by name before the save's content checks.
+#[test]
+fn a_pressure_free_save_carrying_a_standing_record_is_refused() {
+    let (model, source) = (pf_model(), pf_source());
+    let manifest = open_pipe_stress_report_package::user_release::derive_input_manifest(&model, &source, MODE).unwrap();
+    let mut request = pf_request(&model, &manifest, &source, &[]);
+    request["report"]["numerical_standing"] = json!({"record_version": "historical_1", "evidence_member": "absent", "cases": []});
+    let (code, message) = save(None, save_request_with(&request, &model, &manifest)).unwrap_err();
+    assert_eq!(code, SECTIONS_MISMATCH, "{message}");
+    assert!(message.contains("numerical_standing"), "{message}");
 }
 
 /// The render and the save of the stand-in with its session entries, each

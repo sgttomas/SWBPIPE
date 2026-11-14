@@ -17,3 +17,5 @@ serde = { version = "1", features = ["derive"] }
 # W-11: the embedded exact-route statement table (`src/exact_statements.rs`).
 serde_json = "1"
 sha2 = "0.10"
+# DEL-08-01 REQ-024: the closed numerical vocabulary of the standing record.
+open_pipe_stress_numerical_vocabulary = { path = "../numerical_vocabulary" }
