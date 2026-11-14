@@ -60,15 +60,17 @@ def test_complete_choice_once_and_all_auxiliaries_positive(actual):
     assert total==676*actual+sum(row["req"] for row in rows[12:])
 
 
+# The sites are the model's own rows (one complete group row, every auxiliary and helper row, and the error rows
+# after the first), read from PREIMAGES rather than restated, so a carry of the model's line keys carries the test.
+ALIAS_SITES=[(MODEL["FK"]+"structural.rs",MODEL["SOURCE_LINE"],"clone_text")]+[
+    (row["file"],row["line"],row["kind"]) for row in
+    MODEL["PREIMAGES"]["group_rows"][:1]+MODEL["PREIMAGES"]["aux_rows"]+MODEL["PREIMAGES"]["helper_rows"]
+    +MODEL["PREIMAGES"]["error_rows"][1:]]
 @pytest.mark.parametrize("family",["site_zero","site_from","site_total","site_aggregate","site_size","lex_site_size"])
-# T4-U6/U8: the same sites at the priced source's lines, unchanged text (B7b: structural.rs 1124; retained_product.rs
-# 3057, 3071, 3073, 3185, 3194, 3217, 3005, 3227; lib.rs helpers 13244/13619; 433fc1f1e4: 13587/13966; addbdc030e:
-# 13623/14002; T4-U6/U8 final: 3208, 3222, 3224, 3336, 3345, 3375, 13630, 14009, 3156, 3385; T4-S5 epoch 4 below).
-@pytest.mark.parametrize("line",[MODEL["SOURCE_LINE"],3418,3432,3434,3546,3555,3621,15346,15862,3366,3631])   # one-way normal source: lib.rs +30; RT-L2 final source: lib.rs +2/+9; RT-L2: lib.rs +10; RT-S3 CE fallback: lib.rs +6; RT-A3 S6 D3 (§8.59): lib.rs +16/+52; RT-A5 minuend_final D3 (§8.54): lib.rs +135; RT-A3 §4 D3 (§8.53): lib.rs +27; model document 0.9.0 S2 (§8.40): lib.rs +49; model document 0.9.0 (§8.36): lib.rs +83; §8.33: lib.rs +12; O4 S5: retained_product.rs +167; pre-0.4 unification: lib.rs +103; W-8: +2; silent-zero guard: +1; model document 0.7.0: +7; W-7: retained_product.rs +16/+29, lib.rs +156; W-15: lib.rs +111; W-16 slice a: lib.rs +39; nested-record closure: lib.rs +106; model document 0.8.0: lib.rs +36; W-16 slices b and c: lib.rs +198; W-16 stage 2: lib.rs +55/+106; §8.30: lib.rs +2
-def test_complete_group_source_error_and_auxiliary_alias_refusal(family,line):
+@pytest.mark.parametrize("site",ALIAS_SITES,ids=lambda site:f"{site[0].rsplit('/',1)[1]}:{site[1]}")
+def test_complete_group_source_error_and_auxiliary_alias_refusal(family,site):
     args=inputs();table=args[0]
-    file=MODEL["FK"]+"structural.rs" if line==MODEL["SOURCE_LINE"] else MODEL["PP"]+("lib.rs" if line in (15346,15862) else "retained_product.rs")
-    kind={MODEL["SOURCE_LINE"]:"clone_text",3546:"to_string",15862:"replace"}.get(line,"format")
+    file,line,kind=site
     table.setdefault(family,{})[file+":"+str(line)+":"+kind]={"bytes":0}
     with pytest.raises(ValueError):MODEL["state"](SOURCE,*args)
 

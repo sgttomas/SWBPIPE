@@ -2,6 +2,7 @@
 from copy import deepcopy
 import hashlib
 import os
+import re
 from pathlib import Path
 import runpy
 import shutil
@@ -193,40 +194,58 @@ def test_exact_loop_owner_headers_use_the_existing_scanner():
             observed = {h for _, _, h in scanner["loop_spans"](scanner["blank_rust"](body))}
             assert header in observed, (owner, header, observed)
 
+# The uniform-load identifier sites, pinned by the TEXT of each line rather than its number: (function, the
+# line's stripped text, which occurrence of that text in the function, the identifier arguments priced there).
+# The model keys these sites by line; this test finds each line by its text in the priced source and requires the
+# model's key there, so a line shift is the model's carry alone, and a key left on the wrong line still fails.
+UNIFORM_LOADS = "add_uniform_element_loads"
+GENERATED = "is_generated_equivalent_static_load"
+UNIFORM_IDENTIFIER_SITES = [
+    (UNIFORM_LOADS, '.starts_with(&format!("{load_case_id}:generated:"));', 0, {"load_case_id"}),
+    (UNIFORM_LOADS, "&format!(", 0, {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"}),
+    (UNIFORM_LOADS, "format!(", 0, {"load.load_id", "bend.pipe_id"}),
+    (UNIFORM_LOADS, "load.load_id.clone(),", 0, {"load.load_id"}),
+    (UNIFORM_LOADS, "bend.pipe_id.clone(),", 0, {"bend.pipe_id"}),
+    (UNIFORM_LOADS, "bend.component_id.clone(),", 0, {"bend.component_id"}),
+    (UNIFORM_LOADS, "load_case_id.to_string(),", 0, {"load_case_id"}),
+    (UNIFORM_LOADS, "&format!(", 1, {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"}),
+    (UNIFORM_LOADS, "format!(", 1, {"load.load_id", "bend.pipe_id"}),
+    (UNIFORM_LOADS, "load.load_id.clone(),", 1, {"load.load_id"}),
+    (UNIFORM_LOADS, "bend.pipe_id.clone(),", 1, {"bend.pipe_id"}),
+    (UNIFORM_LOADS, "bend.component_id.clone(),", 1, {"bend.component_id"}),
+    (UNIFORM_LOADS, "load_case_id.to_string(),", 1, {"load_case_id"}),
+    (UNIFORM_LOADS, "&format!(", 2, {"stable_suffix(&load.load_id)"}),
+    (UNIFORM_LOADS, "vec![load.load_id.clone(), load_case_id.to_string()],", 0, {"load.load_id", "load_case_id"}),
+    (GENERATED, 'Some(kind) => load_id.starts_with(&format!("{}:generated:{kind}:", load_case.id)),', 0, {"load_case.id"}),
+    (GENERATED, 'None => load_id.starts_with(&format!("{}:generated:", load_case.id)),', 0, {"load_case.id"}),
+]
+
+
+def line_of(source, function, text, occurrence):
+    """The 1-based line of the `occurrence`-th line whose stripped text is `text` within the top-level
+    `fn function` of `source` (from its signature to its closing `}` in column 0)."""
+    lines = source.split("\n")
+    start = [i for i, line in enumerate(lines) if re.match(rf"^(pub(\([^)]*\))? )?fn {function}\(", line)]
+    assert len(start) == 1, (function, len(start))
+    end = next(i for i in range(start[0] + 1, len(lines)) if lines[i] == "}")
+    found = [i + 1 for i in range(start[0], end) if lines[i].strip() == text]
+    assert occurrence < len(found), (function, text, occurrence, len(found))
+    return found[occurrence]
+
+
 def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     _, audits, _ = MODEL["text_decisions"](SOURCE, lambda key: key)
     actual = dict(audits)
-    pp = "core/product_physics/src/"
-    # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3;
-    # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2; silent-zero guard: + 1; model document 0.7.0: + 7; W-7: + 37; W-15: + 103; W-16 slices b and c: + 193; W-16 stage 2: + 55; §8.30: + 2 (+ 23 for the two prefix formats); model document 0.9.0 (§8.36): + 83, unchanged text; model document 0.9.0 S2 (§8.40): + 49, unchanged text (the closed wind wire precedes them); certified_loads' two prefix formats moved into lib.rs's is_generated_equivalent_static_load). RT-A5 minuend_final (§8.54): + 135, unchanged text.
-    # RT-L2: +3 (the formulation basis's elongation statement precedes them), unchanged text.
-    # RT-L2 final source: +2 (the cap remainder publication tests' module declaration), unchanged text.
-    # One-way normal source: +17 (the friction normal admission and the publication call's supports and final
-    # states precede them), unchanged text.
-    sites = {
-        "lib.rs:12493": {"load_case_id"},
-        "lib.rs:12507": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:12514": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:12519": {"load.load_id"},
-        "lib.rs:12520": {"bend.pipe_id"},
-        "lib.rs:12521": {"bend.component_id"},
-        "lib.rs:12522": {"load_case_id"},
-        "lib.rs:12581": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:12588": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:12593": {"load.load_id"},
-        "lib.rs:12594": {"bend.pipe_id"},
-        "lib.rs:12595": {"bend.component_id"},
-        "lib.rs:12596": {"load_case_id"},
-        "lib.rs:12635": {"stable_suffix(&load.load_id)"},
-        "lib.rs:12642": {"load.load_id", "load_case_id"},
-        "lib.rs:11056": {"load_case.id"},
-        "lib.rs:11057": {"load_case.id"},
-    }
-    assert sum(map(len, sites.values())) == 22
-    for key, args in sites.items():
-        assert set(actual[pp + key]) == args
+    lib = "core/product_physics/src/lib.rs"
+    source = (SOURCE / lib).read_bytes().decode()
+    keys = [f"{lib}:{line_of(source, f, text, n)}" for f, text, n, _ in UNIFORM_IDENTIFIER_SITES]
+    assert len(set(keys)) == len(keys)
+    assert sum(len(args) for *_, args in UNIFORM_IDENTIFIER_SITES) == 22
+    for key, (*_, args) in zip(keys, UNIFORM_IDENTIFIER_SITES):
+        assert key in actual, key
+        assert set(actual[key]) == args, key
         assert all(value == {"bytes": 128, "source": "IN128"}
-                   for value in actual[pp + key].values())
+                   for value in actual[key].values()), key
 
 def test_actual_reader_cached_allocations_include_all_live_owners_and_duplicates():
     import json
