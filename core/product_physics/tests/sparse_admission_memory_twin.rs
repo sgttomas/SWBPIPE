@@ -12,6 +12,13 @@
 //! bytes (`Layout::size`) and, on macOS, `malloc_size` of each block; thread
 //! stacks and other memory not taken through the global allocator are not seen.
 //!
+//! Counters: this entry takes the ordinary route on the calling thread (it passes no
+//! retained entry, so the reserved-stack thread is never spawned), so the figures are the
+//! measuring thread's own tally of requested bytes (fields prefixed `thread_`), which the
+//! self-tests check exactly. The process-wide counters (prefix `process_`) are diagnostics;
+//! every record says so in its `counters` field. The call's peaks and counters are read
+//! before any report is formed, and the report's own allocations are counted apart.
+//!
 //! Models: the manifest written by NI's `tests/sparse_loop_memory/generate_models.py`,
 //! in the directory named by `SWBPIPE_SPARSE_MEMORY_MODELS`; each file's SHA-256 is
 //! checked against the manifest. One JSON line per model goes to the file named
@@ -183,6 +190,35 @@ fn reset_peaks() -> Snapshot {
     snapshot()
 }
 
+/// The call's end: every counter and peak, read at once and without allocating, before any
+/// report is formed.
+#[derive(Clone, Copy)]
+struct Endpoint {
+    at: Snapshot,
+    peak_req: usize,
+    peak_rnd: usize,
+    peak_move: usize,
+    thread_peak: isize,
+}
+
+fn endpoint() -> Endpoint {
+    Endpoint {
+        thread_peak: thread_peak(),
+        peak_req: PEAK_REQ.load(SeqCst),
+        peak_rnd: PEAK_RND.load(SeqCst),
+        peak_move: PEAK_MOVE.load(SeqCst),
+        at: snapshot(),
+    }
+}
+
+/// What the field prefixes of each record name, carried in every record.
+fn counters() -> Value {
+    json!({
+        "thread_": "the measuring thread's own tally of requested bytes (Layout::size); exactly self-tested; authoritative",
+        "process_": "process-wide counters shared by every thread: diagnostics only, not exactly self-tested (the self-test bounds the requested peak within 64 KiB); rounded bytes are malloc_size of each block, the moving-realloc peak adds each moved block's new size to the live total, and event counts include any thread's events",
+    })
+}
+
 fn wait_for_timing_window() {
     let Some(path) = std::env::var_os("SWBPIPE_TIMING_WINDOW_FILE") else { return };
     while std::path::Path::new(&path).exists() {
@@ -249,52 +285,64 @@ fn envelope_facts(envelope: &Value) -> Value {
 
 fn measure(name: &str, family: &str, sha: &str, bytes: Vec<u8>) {
     wait_for_timing_window();
-    let before_parse = snapshot();
+    // The parsed request's size: the increment across the parse, while the file buffer is
+    // still held on both sides.
+    let before_parse = thread_live();
     let request: Value = serde_json::from_slice(&bytes).unwrap();
+    let after_parse = thread_live();
     drop(bytes);
     let start = reset_peaks();
-    let request_live = start.live_req as i128 - before_parse.live_req as i128;
+    let request_live = after_parse - before_parse;
     let started = std::time::Instant::now();
     let outcome = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::SparseInteractive);
+    // The end is read before anything is formatted.
+    let end = endpoint();
     let seconds = started.elapsed().as_secs_f64();
-    let end = snapshot();
+    // The report's values are formed after the end; their bytes are counted apart
+    // (`thread_report_values_live`) and excluded from the residual below.
+    let report_start = thread_live();
     let boundary = json!({
-        "peak_requested": PEAK_REQ.load(SeqCst) - start.live_req,
-        "peak_rounded": PEAK_RND.load(SeqCst) - start.live_rnd,
-        "peak_requested_moving_realloc": PEAK_MOVE.load(SeqCst) - start.live_req,
-        "live_requested_after_call": end.live_req as i128 - start.live_req as i128,
-        "live_rounded_after_call": end.live_rnd as i128 - start.live_rnd as i128,
-        "allocations": end.allocs - start.allocs,
-        "deallocations": end.deallocs - start.deallocs,
-        "reallocations": end.reallocs - start.reallocs,
-        "moved_reallocations": end.moved - start.moved,
-        "thread_peak_requested": thread_peak() - start.thread_live,
-        "thread_live_requested_after_call": end.thread_live - start.thread_live,
+        "thread_peak_requested": end.thread_peak - start.thread_live,
+        "thread_live_requested_after_call": end.at.thread_live - start.thread_live,
+        "process_peak_requested": end.peak_req - start.live_req,
+        "process_peak_rounded": end.peak_rnd - start.live_rnd,
+        "process_peak_requested_moving_realloc": end.peak_move - start.live_req,
+        "process_live_requested_after_call": end.at.live_req as i128 - start.live_req as i128,
+        "process_live_rounded_after_call": end.at.live_rnd as i128 - start.live_rnd as i128,
+        "process_allocations": end.at.allocs - start.allocs,
+        "process_deallocations": end.at.deallocs - start.deallocs,
+        "process_reallocations": end.at.reallocs - start.reallocs,
+        "process_moved_reallocations": end.at.moved - start.moved,
     });
     // The facts are read from a serialized copy, after the boundary.
     let (facts, envelope_error) = match &outcome {
         Ok(envelope) => (envelope_facts(&serde_json::to_value(envelope).unwrap()), Value::Null),
         Err(error) => (Value::Null, json!(error)),
     };
-    let held = snapshot();
+    let report_live = thread_live() - report_start;
+    // Release: nothing but the drop lies between the two readings.
+    let held = thread_live();
     drop(outcome);
-    let after_drop = snapshot();
+    let after_drop = thread_live();
     let line = json!({
         "level": "product",
         "model": name,
         "family": family,
         "sha256": sha,
         "mode": "sparse_interactive",
-        "request_value_live_requested": request_live,
+        "counters": counters(),
+        "thread_request_value_live_requested": request_live,
         "call": boundary,
-        "envelope_live_requested": held.live_req as i128 - after_drop.live_req as i128,
-        "live_after_envelope_drop_vs_call_start": after_drop.live_req as i128 - start.live_req as i128,
+        "thread_envelope_live_requested": held - after_drop,
+        "thread_report_values_live": report_live,
+        "thread_live_after_envelope_drop_vs_call_start_excluding_report_values":
+            after_drop - start.thread_live - report_live,
         "envelope": facts,
         "entry_error": envelope_error,
         "call_seconds": (seconds * 1000.0).round() / 1000.0,
     });
     emit(&line.to_string());
-    eprintln!("{name}: peak {} B", line["call"]["peak_requested"]);
+    eprintln!("{name}: peak {} B", line["call"]["thread_peak_requested"]);
 }
 
 fn models(levels: &[&str]) -> Vec<(String, String, String, std::path::PathBuf)> {
@@ -328,14 +376,32 @@ fn the_counter_counts_a_known_allocation() {
     let block = vec![0u8; 1 << 20];
     let held = snapshot();
     drop(block);
-    let end = snapshot();
-    // Exact on this thread's own tally, which no other thread touches.
-    assert_eq!(thread_peak() - start.thread_live, 1 << 20);
+    let end = endpoint();
+    // Exact on this thread's own tally, which no other thread touches, read as the
+    // measurement reads it (`endpoint`).
+    assert_eq!(end.thread_peak - start.thread_live, 1 << 20);
     assert_eq!(held.thread_live - start.thread_live, 1 << 20);
-    assert_eq!(end.thread_live, start.thread_live);
+    assert_eq!(end.at.thread_live, start.thread_live);
     // The global counters, which the harness's other threads share: bounded within 64 KiB.
-    let peak = PEAK_REQ.load(SeqCst) as i128 - start.live_req as i128;
+    let peak = end.peak_req as i128 - start.live_req as i128;
     assert!(((1 << 20) - (64 << 10)..(1 << 20) + (64 << 10)).contains(&peak), "peak {peak}");
+}
+
+#[test]
+fn the_thread_tally_counts_a_reallocation() {
+    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    let start = reset_peaks();
+    let mut block: Vec<u8> = Vec::with_capacity(1 << 19);
+    block.reserve_exact(1 << 20);
+    let grown = snapshot();
+    let capacity = block.capacity();
+    drop(block);
+    let end = endpoint();
+    // A reallocation leaves the new size live and the old one released; the peak is the new size.
+    assert_eq!(grown.thread_live - start.thread_live, capacity as isize);
+    assert_eq!(end.thread_peak - start.thread_live, capacity as isize);
+    assert_eq!(end.at.thread_live, start.thread_live);
+    assert!(grown.reallocs > start.reallocs);
 }
 
 /// Every manifest model marked `product` or `refusal`, through the headless

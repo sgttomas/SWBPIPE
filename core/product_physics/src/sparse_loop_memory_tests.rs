@@ -18,6 +18,12 @@
 //! support's final state code must agree (`product_agrees`). It asserts no bound. Documents
 //! with load/reference states are not covered (their prefix resolves cases; refused by name).
 //!
+//! Counters: the loop runs on the measuring thread, so the figures are that thread's own
+//! tally of requested bytes (fields prefixed `thread_`), which the self-tests check exactly.
+//! The process-wide counters (prefix `process_`) are diagnostics; every record says so in
+//! its `counters` field. Each region's peaks and counters are read before any report is
+//! formed, and the report's own allocations are counted apart.
+//!
 //! Test-only and absent from every debug-assertions build: the module is
 //! `cfg(all(test, not(debug_assertions)))`, so neither it nor its `#[global_allocator]` is in
 //! the registered lib test binary (debug, debug assertions on) in which the AC-004 stack
@@ -56,6 +62,8 @@ static ALLOCS: AtomicUsize = AtomicUsize::new(0);
 static DEALLOCS: AtomicUsize = AtomicUsize::new(0);
 static REALLOCS: AtomicUsize = AtomicUsize::new(0);
 static MOVED_REALLOCS: AtomicUsize = AtomicUsize::new(0);
+/// The module's tests share the global counters: one runs at a time.
+static SERIAL: Mutex<()> = Mutex::new(());
 
 #[cfg(target_os = "macos")]
 extern "C" {
@@ -207,19 +215,48 @@ fn reset_peaks(slot: usize) -> Snapshot {
     snapshot()
 }
 
-fn measured(slot: usize, start: Snapshot, end: Snapshot) -> Value {
+/// A region's end: every counter and peak, read at once and without allocating, before any
+/// report is formed.
+#[derive(Debug, Clone, Copy)]
+struct Endpoint {
+    at: Snapshot,
+    peak_req: usize,
+    peak_rnd: usize,
+    peak_move: usize,
+    thread_peak: isize,
+}
+
+fn endpoint(slot: usize) -> Endpoint {
+    Endpoint {
+        thread_peak: thread_peak(slot),
+        peak_req: PEAK_REQ[slot].load(SeqCst),
+        peak_rnd: PEAK_RND[slot].load(SeqCst),
+        peak_move: PEAK_MOVE[slot].load(SeqCst),
+        at: snapshot(),
+    }
+}
+
+/// What the field prefixes of each record name, carried in every record.
+fn counters() -> Value {
     json!({
-        "peak_requested": PEAK_REQ[slot].load(SeqCst) - start.live_req,
-        "peak_rounded": PEAK_RND[slot].load(SeqCst) - start.live_rnd,
-        "peak_requested_moving_realloc": PEAK_MOVE[slot].load(SeqCst) - start.live_req,
-        "live_requested_at_end": end.live_req as i128 - start.live_req as i128,
-        "live_rounded_at_end": end.live_rnd as i128 - start.live_rnd as i128,
-        "allocations": end.allocs - start.allocs,
-        "deallocations": end.deallocs - start.deallocs,
-        "reallocations": end.reallocs - start.reallocs,
-        "moved_reallocations": end.moved - start.moved,
-        "thread_peak_requested": thread_peak(slot) - start.thread_live,
-        "thread_live_requested_at_end": end.thread_live - start.thread_live,
+        "thread_": "the measuring thread's own tally of requested bytes (Layout::size); exactly self-tested; authoritative",
+        "process_": "process-wide counters shared by every thread: diagnostics only, not exactly self-tested (the self-test bounds the requested peak within 64 KiB); rounded bytes are malloc_size of each block, the moving-realloc peak adds each moved block's new size to the live total, and event counts include any thread's events",
+    })
+}
+
+fn measured(start: Snapshot, end: Endpoint) -> Value {
+    json!({
+        "thread_peak_requested": end.thread_peak - start.thread_live,
+        "thread_live_requested_at_end": end.at.thread_live - start.thread_live,
+        "process_peak_requested": end.peak_req - start.live_req,
+        "process_peak_rounded": end.peak_rnd - start.live_rnd,
+        "process_peak_requested_moving_realloc": end.peak_move - start.live_req,
+        "process_live_requested_at_end": end.at.live_req as i128 - start.live_req as i128,
+        "process_live_rounded_at_end": end.at.live_rnd as i128 - start.live_rnd as i128,
+        "process_allocations": end.at.allocs - start.allocs,
+        "process_deallocations": end.at.deallocs - start.deallocs,
+        "process_reallocations": end.at.reallocs - start.reallocs,
+        "process_moved_reallocations": end.at.moved - start.moved,
     })
 }
 
@@ -495,6 +532,8 @@ fn state_code(state: ActiveSetState) -> f64 {
 
 fn measure_document(name: &str, family: &str, sha: &str, request: Value) {
     let mode = PreviewSolverMode::SparseInteractive;
+    // The product's own call is a solve too: it waits for the timing window like each case.
+    wait_for_timing_window();
     let facts = product_facts(request.clone(), mode);
     let prepared = match prepare(request, mode) {
         Ok(prepared) => prepared,
@@ -516,14 +555,18 @@ fn measure_document(name: &str, family: &str, sha: &str, request: Value) {
         let solved = input.as_ref().map_err(Clone::clone).and_then(|input| {
             solve_active_set_frame_with_mode_and_springs_assembled(input, &case.force, mode.nonlinear_mode(), &springs)
         });
-        let inner_end = snapshot();
+        // Both ends are read before anything is formatted: nothing allocates between them.
+        let inner_end = endpoint(1);
         let seconds = started.elapsed().as_secs_f64();
-        let outer_end = snapshot();
+        let outer_end = endpoint(0);
         ARMED.store(false, SeqCst);
-        let outer = measured(0, outer_start, outer_end);
-        let inner = measured(1, inner_start, inner_end);
-        let result_live = inner_end.live_req as i128 - inner_start.live_req as i128;
-        let input_live = inner_start.live_req as i128 - outer_start.live_req as i128;
+        // The report's values are formed after both ends; their bytes are counted apart
+        // (`thread_report_values_live`) and excluded from the residual below.
+        let report_start = thread_live();
+        let outer = measured(outer_start, outer_end);
+        let inner = measured(inner_start, inner_end);
+        let result_live = inner_end.at.thread_live - inner_start.thread_live;
+        let input_live = inner_start.thread_live - outer_start.thread_live;
         let product = facts.get(&case.id);
         let (outcome, agrees) = match &solved {
             Ok(result) => {
@@ -545,27 +588,35 @@ fn measure_document(name: &str, family: &str, sha: &str, request: Value) {
                 json!({"product_has_case_rows": product.is_some()}),
             ),
         };
-        let release = snapshot();
-        drop(solved);
-        let after_result = snapshot();
         let counts = input.as_ref().ok().map(|input| counts(input, &springs));
+        let report_live = thread_live() - report_start;
+        // Release: nothing but the drops lies between each pair of readings.
+        let before_result_drop = thread_live();
+        drop(solved);
+        let after_result_drop = thread_live();
         drop(input);
-        let after_all = snapshot();
+        drop(springs);
+        let after_input_drop = thread_live();
         emit(&json!({
             "level": "product-loop", "model": name, "family": family, "sha256": sha, "case": case.id,
+            "counters": counters(),
             "modulus_basis": basis_key, "counts": counts, "result": outcome, "product_agrees": agrees,
-            "boundary": outer, "call": inner, "input_live_requested": input_live,
-            "result_live_requested": result_live,
-            "released_by_result_drop": release.live_req as i128 - after_result.live_req as i128,
-            "live_after_all_drops": after_all.live_req as i128 - outer_start.live_req as i128,
+            "boundary": outer, "call": inner, "thread_input_live_requested": input_live,
+            "thread_result_live_requested": result_live,
+            "thread_released_by_result_drop": before_result_drop - after_result_drop,
+            "thread_released_by_input_and_springs_drop": after_result_drop - after_input_drop,
+            "thread_report_values_live": report_live,
+            "thread_live_after_drops_excluding_report_values":
+                after_input_drop - outer_start.thread_live - report_live,
             "call_seconds": (seconds * 1000.0).round() / 1000.0,
         }));
-        eprintln!("{name} {}: boundary peak {}", case.id, outer["peak_requested"]);
+        eprintln!("{name} {}: boundary peak {}", case.id, outer["thread_peak_requested"]);
     }
 }
 
 #[test]
 fn product_loop_peaks_over_the_model_family() {
+    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
     let Some(dir) = std::env::var_os("SWBPIPE_SPARSE_MEMORY_MODELS").map(std::path::PathBuf::from) else {
         eprintln!("SWBPIPE_SPARSE_MEMORY_MODELS is not set: no model is measured");
         return;
@@ -589,17 +640,36 @@ fn product_loop_peaks_over_the_model_family() {
 
 #[test]
 fn the_counter_counts_a_known_allocation() {
+    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
     let start = reset_peaks(0);
     let block = vec![0u8; 1 << 20];
     let held = snapshot();
     drop(block);
-    let end = snapshot();
-    // Exact on this thread's own tally, which no other thread touches.
-    assert_eq!(thread_peak(0) - start.thread_live, 1 << 20);
+    let end = endpoint(0);
+    // Exact on this thread's own tally, which no other thread touches, read as the
+    // measurement reads it (`endpoint`).
+    assert_eq!(end.thread_peak - start.thread_live, 1 << 20);
     assert_eq!(held.thread_live - start.thread_live, 1 << 20);
-    assert_eq!(end.thread_live, start.thread_live);
+    assert_eq!(end.at.thread_live, start.thread_live);
     // The global counters, which other threads (the harness, other unit tests) share: bounded
     // within 64 KiB of the block.
-    let peak = PEAK_REQ[0].load(SeqCst) as i128 - start.live_req as i128;
+    let peak = end.peak_req as i128 - start.live_req as i128;
     assert!(((1 << 20) - (64 << 10)..(1 << 20) + (64 << 10)).contains(&peak), "peak {peak}");
+}
+
+#[test]
+fn the_thread_tally_counts_a_reallocation() {
+    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    let start = reset_peaks(0);
+    let mut block: Vec<u8> = Vec::with_capacity(1 << 19);
+    block.reserve_exact(1 << 20);
+    let grown = snapshot();
+    let capacity = block.capacity();
+    drop(block);
+    let end = endpoint(0);
+    // A reallocation leaves the new size live and the old one released; the peak is the new size.
+    assert_eq!(grown.thread_live - start.thread_live, capacity as isize);
+    assert_eq!(end.thread_peak - start.thread_live, capacity as isize);
+    assert_eq!(end.at.thread_live, start.thread_live);
+    assert!(grown.reallocs > start.reallocs);
 }

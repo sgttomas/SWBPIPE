@@ -26,9 +26,16 @@
 //! Heap figures are requested bytes (`Layout::size`) and, on macOS, the
 //! allocator's `malloc_size` of each block. Peaks are increments over the live
 //! heap at the boundary's start. A realloc moves live bytes by its size change;
-//! `peak_requested_moving_realloc` also counts a moved block's old and new
-//! copies together for the instant of the copy. The counters are static atomics:
-//! their bookkeeping allocates nothing.
+//! `process_peak_requested_moving_realloc` also counts a moved block's old and new
+//! copies together for the instant of the copy. The counters are static atomics and a
+//! const thread-local tally: their bookkeeping allocates nothing.
+//!
+//! Counters: the loop runs on the measuring thread, so the figures are that thread's own
+//! tally of requested bytes (fields prefixed `thread_`), which the self-tests check exactly.
+//! The process-wide counters (prefix `process_`: rounded bytes, the moving-realloc peak,
+//! event counts) are diagnostics; every record says so in its `counters` field. Each
+//! boundary's peaks and counters are read before any report is formed, and the report's
+//! own allocations are counted apart.
 //!
 //! Models: the documents written by `sparse_loop_memory/generate_models.py`,
 //! translated here (the product's model build is private to the product crate),
@@ -248,21 +255,45 @@ fn reset_peaks(slot: usize) -> Snapshot {
     snapshot()
 }
 
+/// A boundary's end: every counter and peak of `slot`, read at once and without
+/// allocating, before any report is formed.
+#[derive(Debug, Clone, Copy)]
+struct Endpoint {
+    at: Snapshot,
+    peak_req: usize,
+    peak_rnd: usize,
+    peak_move: usize,
+    thread_peak: isize,
+}
+
+fn endpoint(slot: usize) -> Endpoint {
+    Endpoint {
+        thread_peak: thread_peak(slot),
+        peak_req: PEAK_REQ[slot].load(SeqCst),
+        peak_rnd: PEAK_RND[slot].load(SeqCst),
+        peak_move: PEAK_MOVE[slot].load(SeqCst),
+        at: snapshot(),
+    }
+}
+
+/// What the field prefixes of each record name, carried in every record.
+const COUNTERS: &str = "\"counters\":{\"thread_\":\"the measuring thread's own tally of requested bytes (Layout::size); exactly self-tested; authoritative\",\"process_\":\"process-wide counters shared by every thread: diagnostics only, not exactly self-tested (the self-test bounds the requested peak within 64 KiB); rounded bytes are malloc_size of each block, the moving-realloc peak adds each moved block's new size to the live total, and event counts include any thread's events\"}";
+
 /// One boundary's figures, increments over its start.
-fn measured(slot: usize, start: Snapshot, end: Snapshot) -> String {
+fn measured(start: Snapshot, end: Endpoint) -> String {
     format!(
-        "{{\"peak_requested\":{},\"peak_rounded\":{},\"peak_requested_moving_realloc\":{},\"live_requested_at_end\":{},\"live_rounded_at_end\":{},\"allocations\":{},\"deallocations\":{},\"reallocations\":{},\"moved_reallocations\":{},\"thread_peak_requested\":{},\"thread_live_requested_at_end\":{}}}",
-        PEAK_REQ[slot].load(SeqCst) - start.live_req,
-        PEAK_RND[slot].load(SeqCst) - start.live_rnd,
-        PEAK_MOVE[slot].load(SeqCst) - start.live_req,
-        end.live_req as i128 - start.live_req as i128,
-        end.live_rnd as i128 - start.live_rnd as i128,
-        end.allocs - start.allocs,
-        end.deallocs - start.deallocs,
-        end.reallocs - start.reallocs,
-        end.moved - start.moved,
-        thread_peak(slot) - start.thread_live,
-        end.thread_live - start.thread_live,
+        "{{\"thread_peak_requested\":{},\"thread_live_requested_at_end\":{},\"process_peak_requested\":{},\"process_peak_rounded\":{},\"process_peak_requested_moving_realloc\":{},\"process_live_requested_at_end\":{},\"process_live_rounded_at_end\":{},\"process_allocations\":{},\"process_deallocations\":{},\"process_reallocations\":{},\"process_moved_reallocations\":{}}}",
+        end.thread_peak - start.thread_live,
+        end.at.thread_live - start.thread_live,
+        end.peak_req - start.live_req,
+        end.peak_rnd - start.live_rnd,
+        end.peak_move - start.live_req,
+        end.at.live_req as i128 - start.live_req as i128,
+        end.at.live_rnd as i128 - start.live_rnd as i128,
+        end.at.allocs - start.allocs,
+        end.at.deallocs - start.deallocs,
+        end.at.reallocs - start.reallocs,
+        end.at.moved - start.moved,
     )
 }
 
@@ -1072,14 +1103,18 @@ fn measure(name: &str, family: &str, sha: &str, model: &Model) -> Result<(), Str
         LinearSolveMode::SparseInteractive,
         &model.springs,
     );
-    let inner_end = snapshot();
+    // Both ends are read before anything is formatted: nothing allocates between them.
+    let inner_end = endpoint(1);
     let seconds = started.elapsed().as_secs_f64();
-    let outer_end = snapshot();
-    let outer = measured(0, outer_start, outer_end);
-    let inner = measured(1, inner_start, inner_end);
+    let outer_end = endpoint(0);
+    // The report's values are formed after both ends; their bytes are counted apart
+    // (`thread_report_values_live`) and excluded from the residual below.
+    let report_start = thread_live();
+    let outer = measured(outer_start, outer_end);
+    let inner = measured(inner_start, inner_end);
     // The held result's and input's shares of the end-of-boundary live heap.
-    let result_live = inner_end.live_req as i128 - inner_start.live_req as i128;
-    let input_live = inner_start.live_req as i128 - outer_start.live_req as i128;
+    let result_live = inner_end.at.thread_live - inner_start.thread_live;
+    let input_live = inner_start.thread_live - outer_start.thread_live;
     let outcome = match &solved {
         Ok(result) => format!("\"outcome\":\"solved\",{}", iterates(result)),
         Err(error) => format!(
@@ -1094,18 +1129,22 @@ fn measure(name: &str, family: &str, sha: &str, model: &Model) -> Result<(), Str
             json_string(&error.to_string()),
         ),
     };
-    let release = snapshot();
-    drop(solved);
-    let after_result = snapshot();
     let counts = counts(model, &input);
+    let report_live = thread_live() - report_start;
+    // Release: nothing but the drops lies between each pair of readings. The springs belong
+    // to the translated model, formed before the boundary, and are not in it.
+    let before_result_drop = thread_live();
+    drop(solved);
+    let after_result_drop = thread_live();
     drop(input);
-    let after_all = snapshot();
+    let after_input_drop = thread_live();
     let line = format!(
-        "{{\"level\":\"loop\",\"model\":{},\"family\":{},\"sha256\":\"{sha}\",{counts},{outcome},\"boundary\":{outer},\"call\":{inner},\"input_live_requested\":{input_live},\"result_live_requested\":{result_live},\"released_by_result_drop\":{},\"live_after_all_drops\":{},\"call_seconds\":{seconds:.3}}}",
+        "{{\"level\":\"loop\",\"model\":{},\"family\":{},\"sha256\":\"{sha}\",{COUNTERS},{counts},{outcome},\"boundary\":{outer},\"call\":{inner},\"thread_input_live_requested\":{input_live},\"thread_result_live_requested\":{result_live},\"thread_released_by_result_drop\":{},\"thread_released_by_input_drop\":{},\"thread_report_values_live\":{report_live},\"thread_live_after_drops_excluding_report_values\":{},\"call_seconds\":{seconds:.3}}}",
         json_string(name),
         json_string(family),
-        release.live_req as i128 - after_result.live_req as i128,
-        after_all.live_req as i128 - outer_start.live_req as i128,
+        before_result_drop - after_result_drop,
+        after_result_drop - after_input_drop,
+        after_input_drop - outer_start.thread_live - report_live,
     );
     emit(&line);
     eprintln!("{name}: boundary {outer}");
@@ -1153,20 +1192,38 @@ fn the_counter_counts_a_known_allocation() {
     let block = vec![0u8; 1 << 20];
     let held = snapshot();
     drop(block);
-    let end = snapshot();
-    // Exact on this thread's own tally, which no other thread touches: the counter counts the
-    // block's requested size at its allocation, in the peak, and at its release.
-    assert_eq!(thread_peak(0) - start.thread_live, 1 << 20);
+    let end = endpoint(0);
+    // Exact on this thread's own tally, which no other thread touches, read as the
+    // measurement reads it (`endpoint`): the counter counts the block's requested size at its
+    // allocation, in the peak, and at its release.
+    assert_eq!(end.thread_peak - start.thread_live, 1 << 20);
     assert_eq!(held.thread_live - start.thread_live, 1 << 20);
-    assert_eq!(end.thread_live, start.thread_live);
+    assert_eq!(end.at.thread_live, start.thread_live);
     // The global counters, which the harness's other threads share (a few bytes may be
     // allocated or freed there at the same time): bounded within 64 KiB.
     let near = |value: i128| ((1 << 20) - (64 << 10)..(1 << 20) + (64 << 10)).contains(&value);
-    let peak = PEAK_REQ[0].load(SeqCst) as i128 - start.live_req as i128;
+    let peak = end.peak_req as i128 - start.live_req as i128;
     assert!(near(peak), "peak {peak}");
     assert!(near(held.live_req as i128 - start.live_req as i128));
-    assert!((end.live_req as i128 - start.live_req as i128).abs() < 64 << 10);
-    assert!(near(PEAK_RND[0].load(SeqCst) as i128 - start.live_rnd as i128));
+    assert!((end.at.live_req as i128 - start.live_req as i128).abs() < 64 << 10);
+    assert!(near(end.peak_rnd as i128 - start.live_rnd as i128));
+}
+
+#[test]
+fn the_thread_tally_counts_a_reallocation() {
+    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    let start = reset_peaks(0);
+    let mut block: Vec<u8> = Vec::with_capacity(1 << 19);
+    block.reserve_exact(1 << 20);
+    let grown = snapshot();
+    let capacity = block.capacity();
+    drop(block);
+    let end = endpoint(0);
+    // A reallocation leaves the new size live and the old one released; the peak is the new size.
+    assert_eq!(grown.thread_live - start.thread_live, capacity as isize);
+    assert_eq!(end.thread_peak - start.thread_live, capacity as isize);
+    assert_eq!(end.at.thread_live, start.thread_live);
+    assert!(grown.reallocs > start.reallocs);
 }
 
 /// Every manifest model marked `loop`, then the Rust-generated tie-rod chains, then the
