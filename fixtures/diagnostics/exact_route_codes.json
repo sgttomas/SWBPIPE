@@ -10762,8 +10762,11 @@
    "reason": "Modal analysis of a model with Timoshenko straight members is refused: the modal mass is Euler-Bernoulli consistent and the pairing is not built.",
    "unsure": false,
    "candidates": null,
-   "named_by": "unnamed",
-   "named_by_coverage": null,
+   "named_by": "LIM-020",
+   "named_by_coverage": {
+    "coverage": "whole",
+    "reason": "LIM-020 describes exactly the refusal the code raises: a model selecting Timoshenko straight members, on either route, is refused modal analysis."
+   },
    "named_by_statement": null
   },
   {
@@ -21115,8 +21118,8 @@
   {
    "literal": "DEC-053",
    "sites": [
-    "core/solver/nonlinear_integration/src/lib.rs:3215",
-    "core/solver/nonlinear_integration/src/lib.rs:3278"
+    "core/solver/nonlinear_integration/src/lib.rs:3214",
+    "core/solver/nonlinear_integration/src/lib.rs:3277"
    ]
   },
   {
