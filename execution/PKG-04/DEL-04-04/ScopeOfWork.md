@@ -42,7 +42,7 @@ What the admissibility confirmation requires is this deliverable's state law (RE
 
 ## Completion and Reliance Basis — Epistemology
 
-A classified state is a statement about the discrete model under the friction law above. It is not a statement about the physical support. For a frictionless case with strict contact and a nonsingular reduced matrix the admissible state is unique, by linear complementarity theory; that does not guarantee convergence from every starting state. With friction, a converged state is one admissible state: it may depend on the starting states, and it says nothing about reachability through a loading history.
+A classified state is a statement about the discrete model under the friction law above. It is not a statement about the physical support. For a frictionless case with strict contact and a nonsingular reduced matrix the admissible state is unique, by linear complementarity theory; that does not guarantee convergence from every starting state. With friction, a converged state is one admissible state: it may depend on the starting states, and it says nothing about reachability through a loading history. With a friction normal taken from a one-way support, the iteration has been shown to cycle on a case that has an admissible state, and that case is reported not converged (`docs/RELEASE_LIMITATIONS_v1.0.md` LIM-019); convergence for that source class is not established.
 
 ### Requirements
 

@@ -527,9 +527,11 @@ because a published case of a solve with a gap support is never qualified or con
 its report is refused (LIM-017 and LIM-016 in
 [`docs/RELEASE_LIMITATIONS_v1.0.md`](../../docs/RELEASE_LIMITATIONS_v1.0.md)). Removing
 RS-G1 does not restore eligibility: the same overlay without RS-G1 publishes every case
-`NUMERICAL_INTEGRITY_SENSITIVE`, and its report is refused too (LIM-017). RS-FR1's intended
-one-way normal source is still refused (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`), so both
-overlays use the interim linear RS-FR1V. The published support states are reported, not
+`NUMERICAL_INTEGRITY_SENSITIVE`, and its report is refused too (LIM-017). Both overlays use
+the interim linear RS-FR1V. With RS-FR1's intended one-way normal source, they solve and are
+not confirmed: the confirmation admits only a base restraint as a derived normal's source, so
+without RS-G1 each case is `NUMERICAL_INTEGRITY_SENSITIVE` with that named reason. The
+published support states are reported, not
 verified (KR-04). None of these families is in the fixture until this specification adopts
 it.
 
