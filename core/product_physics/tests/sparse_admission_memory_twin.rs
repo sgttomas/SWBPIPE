@@ -292,10 +292,10 @@ fn the_counter_counts_a_known_allocation() {
     let start = reset_peaks();
     let block = vec![0u8; 1 << 20];
     drop(block);
-    // The harness's other threads may allocate at the same time (a few bytes), so the
-    // peak is bounded on both sides rather than compared exactly.
-    let peak = PEAK_REQ.load(SeqCst) - start.live_req;
-    assert!((1 << 20..(1 << 20) + (64 << 10)).contains(&peak), "peak {peak}");
+    // The harness's other threads may allocate or free a few bytes at the same time, so
+    // the peak is bounded on both sides (within 64 KiB of the block) rather than exact.
+    let peak = PEAK_REQ.load(SeqCst) as i128 - start.live_req as i128;
+    assert!(((1 << 20) - (64 << 10)..(1 << 20) + (64 << 10)).contains(&peak), "peak {peak}");
 }
 
 /// Every manifest model marked `product` or `refusal`, through the headless

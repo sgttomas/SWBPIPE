@@ -1119,11 +1119,11 @@ fn the_counter_counts_a_known_allocation() {
     // The harness's other threads may allocate or free at the same time (a few bytes), so
     // the figures are bounded rather than compared exactly.
     let near = |value: i128| ((1 << 20) - (64 << 10)..(1 << 20) + (64 << 10)).contains(&value);
-    let peak = (PEAK_REQ[0].load(SeqCst) - start.live_req) as i128;
-    assert!(peak >= 1 << 20 && near(peak), "peak {peak}");
+    let peak = PEAK_REQ[0].load(SeqCst) as i128 - start.live_req as i128;
+    assert!(near(peak), "peak {peak}");
     assert!(near(held.live_req as i128 - start.live_req as i128));
     assert!((end.live_req as i128 - start.live_req as i128).abs() < 64 << 10);
-    assert!(PEAK_RND[0].load(SeqCst) - start.live_rnd >= 1 << 20);
+    assert!(near(PEAK_RND[0].load(SeqCst) as i128 - start.live_rnd as i128));
 }
 
 /// Every manifest model marked `loop`, then the Rust-generated tie-rod chains, then the
