@@ -473,3 +473,43 @@ fn the_reader_refuses_a_normal_the_rule_does_not_give() {
         assert_eq!(code(reader(&envelope, Some(&model_document))).as_deref(), with, "{id}: {forge}, with the model");
     }
 }
+
+/// LIM-019's product witness: the NI cycle's off-axis chord
+/// (`oneway_source_tests.rs`, `a_lift_off_friction_cycle_ends_in_named_non_convergence`)
+/// as a document, with this file's section, material, one-way source and friction
+/// support (μ = 3/10). One member A(0,0,0)→S(3,−4,0); S's UZ and rotations are
+/// held; −100 N along global X and +3 N along global Y at S. The iteration cycles
+/// although an admissible state exists, and both modes refuse the mechanics
+/// result by name: non-convergence, the blocked solve, and no result row. This
+/// asserts the refusal only, not the iteration's path or its last iterate.
+#[test]
+fn a_lift_off_friction_cycle_is_refused_by_name_with_no_result() {
+    let references = references();
+    let mut document = document(&references, case(&references, "STICK"));
+    let model = &mut document["model"];
+    model["nodes"] = json!([
+        {"id": node_id("A"), "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": PROVENANCE},
+        {"id": node_id("S"), "position": {"x": 3.0, "y": -4.0, "z": 0.0}, "provenance": PROVENANCE},
+    ]);
+    let pipe = model["pipe_segments"][0].clone();
+    model["pipe_segments"] = json!([pipe]);
+    model["pipe_segments"][0]["to"] = json!(node_id("S"));
+    model["supports"][1]["nonlinear"]["dof"] = json!("UY");
+    model["supports"][2]["nonlinear"]["normal_reaction_source"]["dof"] = json!("UY");
+    model["supports"][2]["nonlinear"]["friction_coefficient"] = quantity(0.3, "1");
+    model["supports"].as_array_mut().unwrap().push(json!({"id": "support:out-of-plane-S", "node": node_id("S"), "family": "anchor",
+        "restraints": ["UZ", "RX", "RY", "RZ"], "provenance": PROVENANCE}));
+    model["load_cases"][0]["primitive_loads"] = json!([
+        {"id": "load:x", "category": "concentrated_force", "target": {"type": "node", "node": node_id("S")}, "direction": "global_x",
+            "magnitude": quantity(-100.0, "N"), "dimension": "force", "provenance": PROVENANCE},
+        {"id": "load:y", "category": "concentrated_force", "target": {"type": "node", "node": node_id("S")}, "direction": "global_y",
+            "magnitude": quantity(3.0, "N"), "dimension": "force", "provenance": PROVENANCE},
+    ]);
+    for mode in MODES {
+        let envelope = solve(&document, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        let codes = blocking(&envelope).iter().map(|d| d["code"].as_str().unwrap()).collect::<Vec<_>>();
+        assert_eq!(codes, ["NONLINEAR_SUPPORT_NONCONVERGENCE", "SOLVER_SYSTEM_BLOCKED"], "{mode:?}");
+        assert!(envelope["results"].as_array().unwrap().is_empty(), "{mode:?}");
+    }
+}

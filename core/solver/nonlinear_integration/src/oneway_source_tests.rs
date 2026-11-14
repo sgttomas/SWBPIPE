@@ -199,9 +199,17 @@ fn a_lifted_source_releases_the_friction_support_with_no_force() {
 /// in its named non-convergence at the cap.
 ///
 /// Not established by the loop: the state (W active, F sliding −) is admissible
-/// here by hand (N = 34.41/1.1122 ≈ 30.9 N > 0, u_x ≈ −6.8 < 0, slipping
-/// against +μN). The loop's simultaneous update does not reach it; the case
-/// fails closed rather than publishing a wrong state.
+/// here. On the nominal chord (Kxx = 1668/125, Kxy = −624/125, μ = 3/10) it is
+/// N = 23915/773, T = 14349/1546, u_x = −126125/18552: N > 0, u_y = 0 at W,
+/// u_x < 0, and the friction force opposes the slip. Those values were computed
+/// exactly and independently by the one-way normal source's numerical reading.
+/// The loop's simultaneous update does not reach that state; the case fails
+/// closed rather than publishing a wrong state (LIM-019).
+///
+/// The period-three assertions describe that present limitation. They are not a
+/// requirement that a future solver keep this path. When the loop is repaired,
+/// this test turns to the admissible state above, which is the repair's
+/// reference. The last iterate is never an expected answer.
 #[test]
 fn a_lift_off_friction_cycle_ends_in_named_non_convergence() {
     for mode in MODES {
