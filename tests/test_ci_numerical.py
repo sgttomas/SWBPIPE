@@ -885,7 +885,10 @@ class ReachabilitySafetyTests(unittest.TestCase):
             ROOT, ci.readiness.discover_cargo_manifests(ROOT), readers, inputs)
         self.assertEqual(producers, fresh_producers)
         self.assertEqual(missing, fresh_missing)
-        tracked = subprocess.run(['git', '-C', str(ROOT), 'ls-files'], capture_output=True, text=True, check=True).stdout.split()
+        # NUL-delimited: tracked paths may hold spaces, and a whitespace split would skip them.
+        listed = subprocess.run(['git', '-C', str(ROOT), 'ls-files', '-z'], capture_output=True, text=True, check=True).stdout
+        tracked = [path for path in listed.split('\0') if path]
+        self.assertTrue(any(' ' in path for path in tracked), 'expected at least one tracked path with a space')
         self.assertEqual([resource_crates(p) for p in tracked], [fresh_resources(p) for p in tracked])
         # Inside the snapshot helper, another declaration or another root is derived afresh.
         with real_snapshot():
