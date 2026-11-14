@@ -862,7 +862,9 @@ def _install_add_only(root: Path, folder: Path, name: str, data: bytes, shown: s
                                    "(it is never overwritten)")
         return
     contained_dir(root, folder)
-    handle = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    # O_BINARY (Windows only; 0 elsewhere): without it a Windows host would open in text mode and write LF as CRLF,
+    # so the installed bytes, which the guest script hashes for its echo, would differ from `data`.
+    handle = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0), 0o600)
     with os.fdopen(handle, "wb") as stream:
         stream.write(data)
 

@@ -1,14 +1,18 @@
 """The read script's job query on hosted Windows (DEL-17-05): the exact maintained script, by digest, invoked as the
 harness invokes it, through `cmd /c` and Windows PowerShell 5.1, against named jobs this test creates and closes.
 
-It runs only on Windows (`.github/workflows/piping-windows-read-script.yml`, on windows-11-arm and windows-2025) and is
-skipped elsewhere. It shows, on the runner, that the job query answers `absent` for a name that does not exist (which
-needs the canary to read CloseHandle(NULL)'s 6), live while a separately created job is held, and `absent` again once
-every handle is closed; and that each control fails: a script that always answers absent, a script whose helper reads
-the last error before the open, and the previous definition form (DefinePInvokeMethod, then the attribute).
+It runs on Windows (`.github/workflows/piping-windows-read-script.yml`, on windows-11-arm and windows-2025); its
+Windows tests are skipped elsewhere. It shows, on the runner, that the job query answers `absent` for a name that does
+not exist (which needs the canary to read CloseHandle(NULL)'s 6), live while a separately created job is held, and
+`absent` again once every handle is closed. Then, and only then, each control is evaluated against ITS exact answers
+(`CONTROL_ANSWERS`); before the maintained script has passed on the runner a control is not evaluated.
 
-What it prints is public: the test's own outcomes, one line per script variant. The runner's versions are printed by
-the workflow's own step.
+The command line reaches cmd verbatim, as one string: `cmd /c <command>`. (A list would be joined by `list2cmdline`,
+which escapes the command's own double quotes as `\\"`; cmd keeps those, and PowerShell would read `-File` as a path
+with quote characters in it.) Every installed script is read back and hashed before it runs.
+
+What it prints is public: the test's own outcomes, one line per script variant, and on an unresolved answer the exit
+code and the bounded repr of stdout and stderr. The runner's versions are printed by the workflow's own step.
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ import re
 import secrets
 import subprocess
 import sys
+from types import SimpleNamespace
 from pathlib import Path
 
 import pytest
@@ -30,7 +35,7 @@ if str(ROOT) not in sys.path:
 from core.handoff.caepipe_external import harness  # noqa: E402
 from core.handoff.caepipe_external.harness import HarnessConfig  # noqa: E402
 
-pytestmark = pytest.mark.skipif(sys.platform != "win32", reason="the read script's job query runs on Windows only")
+windows_only = pytest.mark.skipif(sys.platform != "win32", reason="the read script's job query runs on Windows only")
 
 SCRIPT_RELATIVE = "core/handoff/caepipe_external/guest/Read-SwbpipeGuest.ps1"
 ERROR_ALREADY_EXISTS = 183
@@ -78,6 +83,18 @@ def _previous_definition_form(text: str) -> str:
 
 VARIANTS = {"maintained": None, "control: always absent": _always_absent,
             "control: stale error": _stale_error, "control: previous definition form": _previous_definition_form}
+PRESENT = r"present active=(?:[0-9]+|unknown)"
+CANARY_NOT_6 = r"error=canary-(?!6\Z)-?[0-9]+"
+# Each control's exact answers (fresh name, held job, after close), each a full-match pattern. Its reason:
+# - always absent: it answers absent even for the job the test holds;
+# - stale error: its helper stores the last error before the open, which is the canary's 6, so a job it cannot open
+#   reads error=6 (never absent), and a job it can open is still present (a handle is presence);
+# - previous definition form: DefinePInvokeMethod writes the P/Invoke map without the last-error flag, so the canary
+#   does not read 6 and a job it cannot open reads error=canary-<n>, n not 6; a job it can open is still present.
+CONTROL_ANSWERS = {"control: always absent": ("absent", "absent", "absent"),
+                   "control: stale error": ("error=6", PRESENT, "error=6"),
+                   "control: previous definition form": (CANARY_NOT_6, PRESENT, CANARY_NOT_6)}
+MAINTAINED_ANSWERS = ("absent", PRESENT, "absent")
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -114,30 +131,46 @@ def _repository_bytes() -> bytes:
 
 
 def _install(root: Path, text: bytes | None) -> str:
-    """Put the maintained script (or a variant's bytes) at its content-addressed path; its digest."""
+    """Put the maintained script (or a variant's bytes) at its content-addressed path, then read the installed file
+    back and hash it: its digest, the one the script will echo."""
     harness_dir = root / harness.HARNESS_DIR
+    intended = harness.READ_SCRIPT.read_bytes() if text is None else text
     if text is None:
-        return harness._install_guest_script(root, harness_dir, harness.READ_SCRIPT)["sha256"]
-    digest = hashlib.sha256(text).hexdigest()
-    harness._install_add_only(root, harness_dir / digest, harness.READ_SCRIPT.name, text, digest)
+        digest = harness._install_guest_script(root, harness_dir, harness.READ_SCRIPT)["sha256"]
+    else:
+        digest = hashlib.sha256(text).hexdigest()
+        harness._install_add_only(root, harness_dir / digest, harness.READ_SCRIPT.name, text, digest)
+    on_disk = (harness_dir / digest / harness.READ_SCRIPT.name).read_bytes()
+    assert on_disk == intended and hashlib.sha256(on_disk).hexdigest() == digest, "the installed bytes differ"
     return digest
+
+
+def invocation(command: str) -> str:
+    """The command line as the guest's cmd receives it: `cmd /c <command>`, one string, passed verbatim."""
+    return "cmd /c " + command
+
+
+def _bounded(text: str | None) -> str:
+    return repr((text or "")[:400])
 
 
 def _job_state(config: HarnessConfig, digest: str, name: str) -> str:
     command = harness._read_command(config, "job", {"job": name}).replace(harness.READ_SCRIPT_SHA256, digest)
-    completed = subprocess.run(["cmd", "/c", command], capture_output=True, text=True, timeout=120)
+    completed = subprocess.run(invocation(command), capture_output=True, text=True, timeout=120)
     record = {"guest_command": command, "exit_status": completed.returncode, "stdout": completed.stdout,
               "stderr": completed.stderr}
+    detail = (f"exit {completed.returncode}, stdout {_bounded(completed.stdout)}, "
+              f"stderr {_bounded(completed.stderr)}")
     echo = harness.READ_ECHO.match(completed.stdout or "")
     if echo is None or echo["script"] != digest or echo["data"] != "none":
-        return "unresolved (echo)"
+        return f"unresolved (echo; {detail})"
     body = completed.stdout[echo.end():]
     if digest == harness.READ_SCRIPT_SHA256:
         harness._settle_echo(record)  # the harness's own reading, for the maintained script
         assert record["echo"]["verified"]
         body = harness._body(record)
     match = harness.JOB_ANSWER.match(body) if completed.returncode == 0 and not completed.stderr.strip() else None
-    return match["state"] if match else f"unresolved (exit {completed.returncode})"
+    return match["state"] if match else f"unresolved ({detail})"
 
 
 def _three_answers(config: HarnessConfig, digest: str) -> tuple[str, str, str]:
@@ -153,10 +186,12 @@ def _three_answers(config: HarnessConfig, digest: str) -> tuple[str, str, str]:
     return first, held, released
 
 
-def _passes(answers: tuple[str, str, str]) -> bool:
-    first, held, released = answers
-    return first == "absent" and re.fullmatch(r"present active=(?:[0-9]+|unknown)", held) is not None \
-        and released == "absent"
+def _matches(answers: tuple[str, str, str], expected: tuple[str, str, str]) -> bool:
+    return all(re.fullmatch(pattern, answer) is not None for answer, pattern in zip(answers, expected))
+
+
+def _report(variant: str, answers: tuple[str, str, str], verdict: str) -> None:
+    print(f"\n{variant}: fresh name -> {answers[0]}; held job -> {answers[1]}; after close -> {answers[2]}: {verdict}")
 
 
 @pytest.fixture(scope="module")
@@ -167,30 +202,68 @@ def config(tmp_path_factory) -> HarnessConfig:
                          acknowledged=True, trial_first_launch_date=None)
 
 
+@pytest.fixture(scope="module")
+def maintained(config) -> tuple[str, str, str]:
+    """The maintained script's three answers on this runner, taken once."""
+    digest = _install(config.exchange_root, None)
+    assert digest == harness.READ_SCRIPT_SHA256
+    return _three_answers(config, digest)
+
+
+@windows_only
 def test_the_script_run_is_the_maintained_script_byte_for_byte():
     data = harness.READ_SCRIPT.read_bytes()
     assert data == _repository_bytes(), "the checkout changed the read script's bytes"
     assert hashlib.sha256(data).hexdigest() == harness.READ_SCRIPT_SHA256
 
 
-@pytest.mark.parametrize("variant", list(VARIANTS))
-def test_the_job_query_on_this_runner(config, variant):
-    mutate = VARIANTS[variant]
-    text = None if mutate is None else mutate(_repository_bytes().decode("utf-8")).encode("utf-8")
-    digest = _install(config.exchange_root, text)
-    if mutate is None:
-        assert digest == harness.READ_SCRIPT_SHA256
-    answers = _three_answers(config, digest)
-    outcome = "passes" if _passes(answers) else "fails"
-    print(f"\n{variant}: fresh name -> {answers[0]}; held job -> {answers[1]}; after close -> {answers[2]}: {outcome}")
-    if mutate is None:
-        assert outcome == "passes", answers
-    else:
-        assert outcome == "fails", f"the control did not fail: {answers}"
+@windows_only
+def test_the_maintained_job_query_on_this_runner(maintained):
+    passed = _matches(maintained, MAINTAINED_ANSWERS)
+    _report("maintained", maintained, "passes" if passed else "FAILS")
+    assert passed, maintained
+
+
+@windows_only
+@pytest.mark.parametrize("variant", list(CONTROL_ANSWERS))
+def test_each_control_gives_its_own_answers_on_this_runner(config, maintained, variant):
+    if not _matches(maintained, MAINTAINED_ANSWERS):
+        print(f"\n{variant}: not evaluated (the maintained script has not passed on this runner)")
+        pytest.skip("not evaluated: the maintained script has not passed on this runner")
+    text = VARIANTS[variant](_repository_bytes().decode("utf-8")).encode("utf-8")
+    answers = _three_answers(config, _install(config.exchange_root, text))
+    if _matches(answers, CONTROL_ANSWERS[variant]):
+        _report(variant, answers, "killed for its reason")
+        return
+    if variant == "control: previous definition form" and _matches(answers, MAINTAINED_ANSWERS):
+        _report(variant, answers, "FINDING: the previous definition form saved the last error on this runner")
+        pytest.fail("FINDING: the previous definition form saved the last error on this runner")
+    _report(variant, answers, "not killed for its reason")
+    pytest.fail(f"{variant} did not give its own answers {CONTROL_ANSWERS[variant]}: {answers}")
+
+
+def test_the_runner_passes_the_command_line_verbatim():
+    command = harness._read_command(SimpleNamespace(vm_name="hosted-runner", guest_exchange_root="D:\\a\\x"), "job",
+                                    {"job": "swbpipe-" + "0" * 32})
+    line = invocation(command)
+    assert isinstance(line, str) and line == "cmd /c " + command and '\\"' not in line
+    # What a list would have become: the command's own quotes escaped, which cmd keeps and PowerShell misreads.
+    assert '\\"' in subprocess.list2cmdline(["cmd", "/c", command])
+    # And every query this test sends goes through that one string, never a list.
+    import inspect
+    source = inspect.getsource(_job_state)
+    assert "subprocess.run(invocation(command)," in source and '["cmd"' not in source
+
+
+def test_each_control_names_answers_that_differ_from_the_maintained_script():
+    for variant, expected in CONTROL_ANSWERS.items():
+        assert expected != MAINTAINED_ANSWERS, variant
+    assert re.fullmatch(CANARY_NOT_6, "error=canary-0") and not re.fullmatch(CANARY_NOT_6, "error=canary-6")
+    assert re.fullmatch(CANARY_NOT_6, "error=canary-60") and not re.fullmatch(CANARY_NOT_6, "error=6")
 
 
 def test_the_controls_differ_from_the_maintained_script():
-    text = _repository_bytes().decode("utf-8")
+    text = harness.READ_SCRIPT.read_text(encoding="utf-8")
     for name, mutate in VARIANTS.items():
         if mutate is not None:
             assert mutate(text) != text, name

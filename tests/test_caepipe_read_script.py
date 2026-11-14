@@ -4,6 +4,7 @@ read-only construction. Against the fake guest only: no prlctl, no virtual machi
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import dataclasses
 import re
@@ -481,6 +482,43 @@ def test_a_held_job_is_present_whatever_the_canary_says(tmp_path, clock):
     record = harness._guest_step(config, guest.runner, 5.0, [], "job",
                                  harness._read_command(config, "job", {"job": f"swbpipe-{token}"}), attempts=1)
     assert harness.JOB_ANSWER.match(harness._body(record))["state"] == "error=canary-0"
+
+
+# --------------------------------------------------------------------------------------------------------------
+# The installer opens its file in binary mode where the platform has one (Windows' O_BINARY), so an installed script
+# hashes to the digest its echo must name; on macOS the flags, and so the bytes, are unchanged.
+# --------------------------------------------------------------------------------------------------------------
+def _install_capturing_flags(tmp_path, monkeypatch, o_binary: int | None) -> tuple[list[int], bytes, str]:
+    import os as real_os
+    if o_binary is None:
+        monkeypatch.delattr(real_os, "O_BINARY", raising=False)
+    else:
+        monkeypatch.setattr(real_os, "O_BINARY", o_binary, raising=False)
+    opened: list[int] = []
+    real_open = real_os.open
+
+    def recording_open(path, flags, mode=0o777, *args, **kwargs):
+        opened.append(flags)
+        return real_open(path, flags & ~(o_binary or 0), mode, *args, **kwargs)  # the simulated flag is not passed on
+    monkeypatch.setattr(harness.os, "open", recording_open)
+    root = tmp_path / "exchange"
+    root.mkdir()
+    digest = harness._install_guest_script(root, root / harness.HARNESS_DIR, harness.READ_SCRIPT)["sha256"]
+    return opened, (root / harness.HARNESS_DIR / digest / harness.READ_SCRIPT.name).read_bytes(), digest
+
+
+def test_the_installer_opens_in_binary_mode_where_the_platform_has_one(tmp_path, monkeypatch):
+    opened, installed, digest = _install_capturing_flags(tmp_path, monkeypatch, 0x8000)  # Windows' O_BINARY value
+    assert opened and all(flags & 0x8000 for flags in opened), opened
+    assert installed == harness.READ_SCRIPT.read_bytes() and digest == harness.READ_SCRIPT_SHA256
+
+
+def test_the_installers_flags_and_bytes_are_unchanged_without_o_binary(tmp_path, monkeypatch):
+    import os as real_os
+    opened, installed, digest = _install_capturing_flags(tmp_path, monkeypatch, None)  # macOS: no O_BINARY
+    assert opened == [real_os.O_CREAT | real_os.O_EXCL | real_os.O_WRONLY]
+    assert installed == harness.READ_SCRIPT.read_bytes()
+    assert hashlib.sha256(installed).hexdigest() == digest == harness.READ_SCRIPT_SHA256
 
 
 # --------------------------------------------------------------------------------------------------------------
