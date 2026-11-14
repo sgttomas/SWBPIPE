@@ -49,7 +49,11 @@ SOURCE_FILES = {
     # DEL-04-09 dynamics D3 (read 393a11ee7..0468d2ca2): structural.rs only declares `pub mod element_reformation;`
     # (+2 lines after line 4; every later line moves with unchanged text). The module's reform_* entries and wide
     # leaves are reached only from modal_eigen, outside crate_dirs. No formed-load traversal or finding owner changes.
-    "core/solver/frame_kernel/src/structural.rs": "aa0080f73bd4b2e7b5e47a330afaab8a808e10ad55aa040ab61d52dc039755b7",
+    # DEL-04-01 VER-007 (structural.rs diff from 053bde0b3 read before re-binding): line 4 also declares two
+    # #[cfg(test)] modules, and lines 1924 and 2027 add #[cfg(test)] calls of the test-only residual seam beside
+    # the refinement solves (the delta binding becomes #[cfg(not(test))] / #[cfg(test)]). No line moves; a
+    # non-test build has neither the modules nor the calls. No formed-load traversal or finding owner changes.
+    "core/solver/frame_kernel/src/structural.rs": "270f50bc8892a7da62b67666a233c83d781988b0b9da2737542537ed3383f648",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
