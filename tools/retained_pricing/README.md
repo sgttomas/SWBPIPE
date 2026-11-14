@@ -716,32 +716,95 @@ multiplicity. Each of these makes the run incomplete, so the point fails and the
 - a placeholder with no entry (`hex-unregistered`);
 - an entry with no placeholder (`hex-stale-entry`);
 - a count, duplicate or pin mismatch (`hex-count`, `hex-entry-duplicate`, `hex-pin`, `hex-dependency-pin`);
+- a file-level shadow of a name an entry resolves through a named use item (`hex-name-shadow`; see the pin);
 - a scalar entry whose argument names a finalize, digest or sha (`hex-tripwire`). This is a second tripwire, not the
   boundary.
 
 `arg_max` sizes a hex placeholder only through its entry. Where the G6 audit also prices that placeholder, `arg_max`
 takes the larger of the two. Without a matching entry the size is None, so the placeholder is unclassified.
+
 `tests/test_hex_inventory.py` reconciles all 47 against the priced crates, carried to HEAD as pricing carries them.
+Measured facts about that test:
+- **Selection.** Its derived read roots include `**`, through its import of `price.py` (`CI_READS = ("**",)`), so the
+  hosted Python selection (`tools/ci/python_ci.py` `select`) picks it whenever the hosted Python job runs, for any
+  changed path, as it already picks `test_w1_reductions.py`. The selection is kept as it is, decided as option (A): the
+  test is cheap and goes red only when a pin really changed, which is the signal wanted at PR time.
+- **Cost.** About 6 s locally (5.92 s for the test, on a full clone).
+- **Partial clones.** The line-map constructor reads diffs for every changed priced Rust file. On this branch that
+  includes `retained_memory.rs`, even though no inventory key names it. After a merge of main it adds
+  `exact_combination_evidence.rs` and `physics_evidence.rs`: 1 old blob at this head and 3 after the merge, growing
+  until a re-audit moves the revision. The changed-file set determines the required blob reads. Hosted checkouts are
+  full-history with `filter: blob:none`, and `lib/pinned_git.py` leaves lazy fetch on. The test fails when a required
+  object is absent locally and cannot be fetched.
 
-**The pin.** Each entry pins:
-- the SHA-256 of its enclosing function's whole text, from the first attribute line directly above it to its closing
-  brace. This covers any `use` inside the function;
-- the SHA-256 of the file's top-level `use` items.
+**The pin.** Each entry pins the SHA-256 of its enclosing function's whole text, from its first attached outer
+attribute to its closing brace. This covers any `use` inside the function.
+- **Finding the start.** The first attribute is found by a bracket walk backwards over the masked source, which crosses
+  whitespace and comments and takes multiline attributes whole.
+- **Refusal.** The function is refused, as a `hex-pin` naming the site, when that boundary cannot be located safely:
+  - anything but qualifiers before `fn` on its line;
+  - a `]` that does not end a `#[..]`;
+  - a preceding token that ends no item, block or file.
 
-What an entry relies on outside those two it names in `depends`, and each dependency is pinned by the SHA-256 of the
-item's text. That text is the whole item for a struct, enum or type alias, and the header up to the body for a
-function signature or `impl` header. The named dependencies are:
-- the struct fields `Content` (`difference_basis.rs`), `LoadFidelityRow` and `LoadFidelityReport` (frame_kernel
-  `structural.rs`), `Quantity` and `PreviewLoadCase` (product_physics `lib.rs`), and `Wide` (`wide.rs`);
+What an entry relies on outside its function it names in `depends`, and each dependency is pinned by the SHA-256 of
+that item's text:
+- the whole item for a struct, enum or type alias (form `item`);
+- the header up to the body for a function signature or `impl` header (form `signature`);
+- the statement through its `;` for a use item the reason resolves a name through (form `use`).
+
+The named dependencies are:
+- the structs `Content` (`difference_basis.rs`), `LoadFidelityRow` and `LoadFidelityReport` (frame_kernel
+  `structural.rs`), `Quantity` and `PreviewLoadCase` (product_physics `lib.rs`), `Wide` (`wide.rs`) and
+  `SelectedSourceRecovery` (`source_recovery.rs`);
 - the alias `FactorKey` and the enum `FactorArea` (`pressure_runtime.rs`);
 - the enum `AccuracyClass` (`retained_precision.rs`);
-- the signatures `SelectedSourceRecovery::retained`, `RetainedFunctionalSet::projections` and
-  `RetainedFunctionalProjection::value`, then `normalized_quantity` (`physics_source.rs`), `number` (`source_blocks.rs`)
-  and `Wide<2>::sig`;
-- the two `impl fmt::Debug for Wide` headers.
+- the signatures:
+  - `SelectedSourceRecovery::retained`, `RetainedFunctionalSet::projections` and `RetainedFunctionalProjection::value`;
+  - `normalized_quantity` (`physics_source.rs`), `number` (`source_blocks.rs`), `items`
+    (`preview_difference_basis.rs`) and `Wide<2>::sig`;
+- the `impl` headers:
+  - `impl SelectedSourceRecovery`;
+  - `impl RetainedFunctionalProjection`;
+  - `impl RetainedFunctionalSet`;
+  - `impl Wide<2>`;
+  - the two `impl fmt::Debug for Wide` headers;
+- 22 use items:
+  - the `use sha2::{Digest, Sha256};` of each of the eleven hash sites that import at file level, and of
+    `modal/document.rs`;
+  - the imports of `BTreeMap`, `LoadFidelityReport`, `AccuracyClass`, `serde_json::Value` and `Wide`;
+  - the two globs through which `SelectedSourceRecovery` reaches `j7_rf_census.rs`.
 
-The tool discovers no dependency: the audit names each one. The function and `use` pins do not by themselves show that
-nothing else is relied on. That is the audit's statement, in each entry's premises.
+**Why use items are pinned one at a time.** The file's other use items are not pinned. In Rust an explicit import
+cannot be silently overridden:
+- a second explicit import or definition of the same name in the same scope is a compile error;
+- a glob import never shadows an explicit one.
+
+So if the named use item's text is unchanged and the function is unchanged, the name resolves as audited. The argument
+has one limit: it relies on the file compiling, which the pricing run's own build establishes.
+
+A name that reaches a file only through a glob is not protected by that argument. `j7_rf_census.rs`'s
+`SelectedSourceRecovery`, through `use super::*;`, is the one such case. For it the entry pins the globs and the parent
+module's struct, and the tripwires below refuse a later explicit import or definition in the file.
+
+The file-level tripwires (`hex-name-shadow`), for each name an entry resolves through a named use item, refuse:
+- an alias or top-level definition of the name;
+- a local module named like its path root;
+- another top-level use item naming it.
+
+**The narrowing.** Until the third independent reading, an entry pinned all of its file's top-level use items. On
+Agent 0's decision after that reading, it pins only the use items its reason names. The reason: a routine red from an
+unrelated use edit gets waved through, and a stop that is waved through protects nothing.
+
+From history since 2026-10-17 (`git log -L` over the pinned regions, at main `bbf13d190`):
+- **The 21 hash sites:** 11 site-commits from 6 distinct commits would have forced a re-audit. Under the blanket use
+  pin that was 21 from 10. Eight of the 11 introduced or reshaped a site.
+- **The 26 scalars:** 50 site-commits from 22 distinct commits, against 83 from 38 under the blanket pin. Of the 50, 36
+  come from one busy function, `pressure_runtime.rs`'s `finish_source_groups`, which holds four entries and changed in
+  9 commits. Every other entry had 1 to 3.
+- **All 47:** 61 site-commits from 27 distinct commits, against 104 from 44 under the blanket pin.
+
+The tool discovers no dependency: the audit names each one. The function pin and the named items do not by themselves
+show that nothing else is relied on. That is the audit's statement, in each entry's premises.
 
 **Threat model and claim.** The priced sources are our own code under ordinary maintenance. Comments, aliases,
 shadowing and innocently named variables are ordinary maintenance and are inside the model. A test constructed to
@@ -750,12 +813,14 @@ narrowed to what holds: each size is a reviewed bound on identified source premi
 those premises were audited on changes. The proof is the independent source audit recorded in each entry; the pin only
 detects a change to what was audited. "Fails closed" is claimed within this model and nowhere wider.
 
-**Not covered by any pin.** These premises are named in the entries but not pinned:
-- external ones: sha2's 32-byte output, serde_json's `as_f64`, std's `to_bits` and `parse::<f64>`;
-- a crate-level rename of `sha2` (Cargo.toml, `extern crate`);
-- file-level items other than `use` (`mod sha2`, `type Sha256`);
-- a trait elsewhere in the crate supplying a same-named method;
-- the enclosing `impl` or `mod` headers of the other entries.
+**Not covered by any pin.**
+- **External assumptions actually named in entries:** sha2's 32-byte output, serde_json's `Value::as_f64`, std's
+  `f64::to_bits` and `str::parse::<f64>`.
+- **Additional unpinned source-resolution contexts.** The entries do not individually name these:
+  - a Cargo remapping of a crate (Cargo.toml, `extern crate`);
+  - file-level items other than the named use items and the tripwires' names;
+  - a trait added elsewhere that supplies a same-named method;
+  - the enclosing `impl` or `mod` headers of entries that do not name them.
 
 **Re-key, not re-audit.** An entry's keys are written at the inventory's `revision`. `price.py run` carries them to
 the priced revision with the rule tables' own line map (`lib/linemap_rules.py`), without pruning, before the points
@@ -767,7 +832,8 @@ run. A key whose line moved while all its pins still match is a re-key: pricing 
 - a key the line map cannot place (deleted, rewritten or not unique). The run stops there with exit 4.
 
 **Re-audit.** A re-audit is a re-reading, also after an unrelated edit:
-1. Read the diff of the function, the file's `use` items and each named dependency, from `revision` to the new head.
+1. Read the diff of the function and of each named dependency (its use items included), from `revision` to the new
+   head.
 2. Confirm that each recorded premise survives. Correct `reason`, `premises` and `depends` where the audit changes
    them; a new hex placeholder needs a new entry.
 3. Carry the keys: `python3 lib/linemap_rules.py <repo> <revision> <head> <out> base/hex_inventory.json`, then copy
@@ -783,8 +849,9 @@ conceded:
 - first a shadowed, closed-scope or commented-out binding, and receivers it did not check;
 - then a comment before the call, an aliased direct digest, a same-line shadowing and a macro token tree.
 
-The inventory recognises nothing. A placeholder of any shape that has no entry stops the run, and
-`tests/test_hex_inventory.py` keeps each shape the readings named as a refusal case.
+The inventory recognises nothing: a placeholder of any shape that has no entry stops the run. The maintained tests
+cover representative argument shapes from the readings and same-line shadowing. The macro token tree was checked by a
+separate probe, recorded in the D3 entry.
 
 **Remaining items.**
 - `modal/tests_resource.rs:575` is recorded as unbounded at multiplicity 0, and the run stops if that multiplicity

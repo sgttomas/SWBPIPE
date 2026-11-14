@@ -16,11 +16,18 @@ change to what was audited. "Fails closed" is claimed within this model and nowh
 
 Identity: the site key text_budget.py keys sites by (`CUR[0]`, `file:line` of the inventory row, the line its format
 macro starts on), the argument key (`arg_key`: G6's `audit_key` for a format placeholder) and the format spec, exactly.
-Pin: SHA-256 of the enclosing function's whole text, from its first attribute line (where it has attributes) to its
-closing brace, which includes any function-local `use`; SHA-256 of the file's top-level `use` items; and, for each
-dependency an entry names outside those (a struct, enum, type alias or a function's signature), SHA-256 of that item's
-text. The pins are recorded by `record` below and compared by `check`. Nothing here discovers dependencies: each one is
-named in its entry by the audit.
+Pin: SHA-256 of the enclosing function's whole text, from its first attached outer attribute (located by a bracket
+walk, multiline attributes included; the function is refused when that boundary cannot be located safely) to its
+closing brace, which includes any function-local `use`; and, for each dependency an entry names outside the function,
+SHA-256 of that item's text: a struct, enum or type alias (form "item"), a function signature or impl header (form
+"signature"), or a use item the reason resolves a name through (form "use"). The file's other use items are not pinned:
+in Rust an explicit import cannot be silently overridden (a second explicit import or definition of the same name in
+the same scope does not compile, and a glob import never shadows an explicit one), so an unchanged named use item and an
+unchanged function resolve the name as audited, given that the file compiles, which the pricing run's build
+establishes. File-level tripwires (`shadowing`) refuse a top-level definition or alias of a name the entry resolves, a
+second top-level use item naming it (which would shadow a glob), and a local module named like its path root. The pins
+are recorded by `record` below and compared by `check`. Nothing here discovers dependencies: each one is named in its
+entry by the audit.
 
 Usage: python3 hex_inventory.py record <source root> <hex_inventory.json>    (re-record every pin after a re-audit)
        python3 hex_inventory.py check <source root> <hex_inventory.json> <template inventory json>
@@ -135,10 +142,52 @@ def _line_of(starts, off):
     return lo + 1
 
 
+QUALIFIERS = re.compile(r"\s*(?:(?:pub(?:\s*\([^)]*\))?|const|async|unsafe|extern|default)\s+)*")
+
+
+def pin_start(s, fn_off):
+    """Where a function's pinned text starts: the line of its first attached outer attribute, found by a bracket walk
+    backwards over the masked source (comments and literals are blank there, so whitespace and comments are crossed),
+    or the `fn` line when it has none. None when the boundary cannot be located safely: anything but qualifiers
+    before `fn` on its line, a `]` that is not the end of a `#[..]` attribute, or a preceding token that does not end
+    an item, a block or the file (`}`, `;`, `{`) or an inner attribute (`#![..]`)."""
+    code, starts = s["code"], s["starts"]
+    a = starts[_line_of(starts, fn_off) - 1]
+    if not QUALIFIERS.fullmatch(code[a:fn_off]):
+        return None
+    while True:
+        j = a - 1
+        while j >= 0 and code[j].isspace():
+            j -= 1
+        if j < 0 or code[j] in "{};":
+            return a
+        if code[j] != "]":
+            return None
+        depth, k = 0, j
+        while k >= 0:
+            depth += {"]": 1, "[": -1}.get(code[k], 0)
+            if depth == 0:
+                break
+            k -= 1
+        h = k - 1
+        while h >= 0 and code[h].isspace():
+            h -= 1
+        if k < 0 or h < 0:
+            return None
+        if code[h] == "!" and h > 0 and code[h - 1] == "#":
+            return a                                    # an inner attribute belongs to the enclosing module
+        if code[h] != "#":
+            return None
+        b = starts[_line_of(starts, h) - 1]
+        if code[b:h].strip():
+            return None
+        a = b
+
+
 def enclosing_fn(s, line, kind):
     """The innermost function whose body holds the site's format macro (the first `format!`/`write!` on the site
-    line): (name, pinned text), the text from the first attribute line directly above the `fn` line to the closing
-    brace. None when the macro or an enclosing function is not found."""
+    line): (name, pinned text), the text from its first attached outer attribute (pin_start) to the closing brace.
+    None when the macro, an enclosing function or its attribute boundary is not found."""
     starts, code = s["starts"], s["code"]
     if not 1 <= line <= len(starts):
         return None
@@ -150,16 +199,18 @@ def enclosing_fn(s, line, kind):
     if not holders:
         return None
     name, fn_off, _, close = max(holders, key=lambda f: f[2])
-    first = _line_of(starts, fn_off)
-    while first > 1 and code[starts[first - 2]:starts[first - 1]].strip().startswith("#["):
-        first -= 1
-    return name, s["raw"][starts[first - 1]:close + 1]
+    a = pin_start(s, fn_off)
+    if a is None:
+        return None
+    return name, s["raw"][a:close + 1]
 
 
-def use_items(s):
-    """The file's top-level `use` items (brace depth 0), each as written, joined by newlines."""
-    code, raw, out, depth, i = s["code"], s["raw"], [], 0, 0
-    pat = re.compile(r"(?:pub(?:\([^)]*\))?\s+)?use\b")
+USE = re.compile(r"(?:pub(?:\([^)]*\))?\s+)?use\b")
+
+
+def use_spans(s):
+    """(start, end) of each of the file's top-level `use` items (brace depth 0), end after its `;`."""
+    code, out, depth, i = s["code"], [], 0, 0
     while i < len(code):
         c = code[i]
         if c == "{":
@@ -167,24 +218,69 @@ def use_items(s):
         elif c == "}":
             depth -= 1
         elif depth == 0 and (i == 0 or not (code[i - 1].isalnum() or code[i - 1] == "_")):
-            m = pat.match(code, i)
+            m = USE.match(code, i)
             if m:
                 j = code.find(";", m.end())
                 if j < 0:
                     break
-                out.append(raw[i:j + 1])
+                out.append((i, j + 1))
                 i = j
         i += 1
-    return "\n".join(out)
+    return out
+
+
+def use_items(s):
+    """The file's top-level `use` items, each as written, joined by newlines (no longer pinned as a whole: an entry pins
+    only the use items its reason names, as dependencies of form "use")."""
+    return "\n".join(s["raw"][a:b] for a, b in use_spans(s))
+
+
+def top_level(code):
+    """The masked code with everything inside braces blanked (newlines kept): the file's top-level items only."""
+    out, depth = list(code), 0
+    for i, c in enumerate(code):
+        if c == "}":
+            depth -= 1
+        if depth > 0 and c != "\n":
+            out[i] = " "
+        if c == "{":
+            depth += 1
+    return "".join(out)
+
+
+def shadowing(s, names, modules, own):
+    """The file-level tripwires for the names an entry resolves through its named use items: a top-level definition
+    or alias of an audited name, another top-level use item naming it (which would shadow a glob import), or a local
+    module named like an audited path root. `own` holds the start offsets of the entry's own named use items."""
+    code, top, found = s["code"], top_level(s["code"]), []
+    spans = use_spans(s)
+    for n in names:
+        w = re.escape(n)
+        if re.search(r"\b(?:type|struct|enum|trait|union)\s+" + w + r"\b", top):
+            found.append(f"a top-level definition of {n}")
+        for a, b in spans:
+            if re.search(r"\bas\s+" + w + r"\b", code[a:b]):
+                found.append(f"an alias to {n}")
+            elif a not in own and re.search(r"\b" + w + r"\b", code[a:b]):
+                found.append(f"another use item naming {n}")
+    for m in modules:
+        if re.search(r"\bmod\s+" + re.escape(m) + r"\b", top):
+            found.append(f"a local module {m}")
+    return found
 
 
 def item_text(s, line, form):
     """A named dependency's text from the start of its key line: form "item" runs through the item's closing `}` (or its
-    `;`: a type alias, a tuple or unit struct); form "signature" runs up to a function body's `{`, excluded."""
+    `;`: a type alias, a tuple or unit struct); form "signature" runs up to a function body's or an impl's `{`,
+    excluded; form "use" is a use item, through its `;`."""
     starts, code = s["starts"], s["code"]
     if not 1 <= line <= len(starts):
         return None
     a = starts[line - 1]
+    if form == "use":
+        m = re.compile(r"\s*" + USE.pattern).match(code, a)
+        j = code.find(";", a) if m else -1
+        return None if j < 0 else s["raw"][a:j + 1]
     j, c = _terminator(code, a)
     if c == ";":
         return s["raw"][a:j + 1]
@@ -210,7 +306,19 @@ def pins(src, entry, kind):
         ds = src.get(df)
         t = item_text(ds, int(dl), d["form"]) if ds else None
         deps.append(None if t is None else sha(t))
-    return {"fn": fn[0], "fn_sha256": sha(fn[1]), "uses_sha256": sha(use_items(s)), "depends": deps}
+    return {"fn": fn[0], "fn_sha256": sha(fn[1]), "depends": deps}
+
+
+def own_use_offsets(src, entry):
+    """The start offsets (at the `use` token) of the use items an entry names as dependencies, in its site's file."""
+    f = entry["site"].rsplit(":", 1)[0]
+    s, out = src.get(f), set()
+    for d in entry.get("depends", []):
+        df, dl = d["key"].rsplit(":", 1)
+        if d["form"] == "use" and df == f and s and 1 <= int(dl) <= len(s["starts"]):
+            a = s["starts"][int(dl) - 1]
+            out.add(a + len(s["code"][a:]) - len(s["code"][a:].lstrip(" \t")))
+    return out
 
 
 Result = collections.namedtuple("Result", "sizes unbounded problems")
@@ -261,15 +369,17 @@ def check(path, root, rows):
         bad = []
         got, want = pins(src, e, found[k][1]), e.get("pin", {})
         if got is None:
-            bad.append(("hex-pin", f"{e['site']}: its enclosing function is not found"))
+            bad.append(("hex-pin", f"{e['site']}: its enclosing function or its attribute boundary cannot be located safely"))
         else:
             if (got["fn"], got["fn_sha256"]) != (want.get("fn"), want.get("fn_sha256")):
                 bad.append(("hex-pin", f"{e['site']}: the text of fn {got['fn']} is not as audited"))
-            if got["uses_sha256"] != want.get("uses_sha256"):
-                bad.append(("hex-pin", f"{e['site']}: the file's use items are not as audited"))
             for d, h in zip(e.get("depends", []), got["depends"]):
                 if h is None or h != d.get("sha256"):
                     bad.append(("hex-dependency-pin", f"{e['site']}: {d['key']} is not as audited"))
+        if e.get("names") or e.get("modules"):
+            s = src.get(e["site"].rsplit(":", 1)[0])
+            for what in (shadowing(s, e.get("names", []), e.get("modules", []), own_use_offsets(src, e)) if s else ["its file is unreadable"]):
+                bad.append(("hex-name-shadow", f"{e['site']}: {what}"))
         if SUSPECT.search(e["arg"]) and e.get("kind") != "hash":
             bad.append(("hex-tripwire", f"{e['site']}: a scalar entry's argument names a finalize, digest or sha"))
         problems += bad
@@ -300,7 +410,7 @@ def record(root, path):
         if got is None or None in got["depends"]:
             missing.append(e["site"])
             continue
-        e["pin"] = {"fn": got["fn"], "fn_sha256": got["fn_sha256"], "uses_sha256": got["uses_sha256"]}
+        e["pin"] = {"fn": got["fn"], "fn_sha256": got["fn_sha256"]}
         for d, h in zip(e.get("depends", []), got["depends"]):
             d["sha256"] = h
     if missing:

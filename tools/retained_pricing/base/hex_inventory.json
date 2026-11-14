@@ -1,5 +1,5 @@
 {
- "about": "The closed inventory of the priced sources' hex placeholders (base/hex_inventory.py; README section 'Hex placeholders: the closed inventory'). Every {:x}-family placeholder the run's template inventory holds, at any multiplicity, has exactly one entry here, keyed by its site (file:line, the line its format macro starts on), its argument key (G6's audit_key) and its format spec; text_budget.py stops the run on a placeholder with no entry, an entry with no placeholder, or a pin that does not match. The keys are written at `revision` and carried to the priced revision by the rule tables' own line map (lib/linemap_rules.py, without pruning); a carried key whose pins all match is a re-key, recorded in summary.json, not a re-audit. Threat model: the priced sources are our own code under ordinary maintenance (comments, aliases, shadowing and innocently named variables are inside the model, and so is a test constructed to expose a defect); source arranged to match a pin while changing its meaning is outside it. Each size is a reviewed bound on the premises its entry names; the proof is the audit recorded in the entry (its reason and premises), and the pins only detect a change to what was audited. Line numbers in a reason are at `revision`.",
+ "about": "The closed inventory of the priced sources' hex placeholders (base/hex_inventory.py; README section 'Hex placeholders: the closed inventory'). Every {:x}-family placeholder the run's template inventory holds, at any multiplicity, has exactly one entry here, keyed by its site (file:line, the line its format macro starts on), its argument key (G6's audit_key) and its format spec; text_budget.py stops the run on a placeholder with no entry, an entry with no placeholder, or a pin that does not match. The keys are written at `revision` and carried to the priced revision by the rule tables' own line map (lib/linemap_rules.py, without pruning); a carried key whose pins all match is a re-key, recorded in summary.json, not a re-audit. Threat model: the priced sources are our own code under ordinary maintenance (comments, aliases, shadowing and innocently named variables are inside the model, and so is a test constructed to expose a defect); source arranged to match a pin while changing its meaning is outside it. Use items are pinned only where an entry's reason names them (form \"use\"), not as a whole file. Each size is a reviewed bound on the premises its entry names; the proof is the audit recorded in the entry (its reason and premises), and the pins only detect a change to what was audited. Line numbers in a reason are at `revision`.",
  "revision": "053bde0b35b0c23110bdb45da7a16ee261503d51",
  "entries": [
   {
@@ -12,15 +12,28 @@
    "reason": "SHA-256 by its own text: the call Sha256::digest(text.as_bytes()) in fn reference_geometry_sha256; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 23).",
    "premises": [
     "the argument is itself a Sha256::digest(..) call",
-    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned), with no item or use of those names in the function; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/product_physics/src/case_state/resolve.rs:23",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "reference_geometry_sha256",
-    "fn_sha256": "345f95105dd08e3726b1d7f72735dcb054e6384b81ad30c99f6c76dfe60a25b2",
-    "uses_sha256": "7a53f1be030b7825bd1b699f65661c097381bb91a71542b901d245d9eb210c01"
-   }
+    "fn_sha256": "345f95105dd08e3726b1d7f72735dcb054e6384b81ad30c99f6c76dfe60a25b2"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/product_physics/src/retained_wire.rs:229",
@@ -32,15 +45,28 @@
    "reason": "SHA-256 by its own text: Sha256::digest(bytes) in fn sha_hex; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 16).",
    "premises": [
     "the argument is itself a Sha256::digest(..) call",
-    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned), with no item or use of those names in the function; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/product_physics/src/retained_wire.rs:16",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "sha_hex",
-    "fn_sha256": "a51e5fa3211a3b898c1291963efc405f0ea3d8955bd72925699268f868e20653",
-    "uses_sha256": "fd27e001cb5b5bf0b0061c709f8efbebfeb3b2c7d68d4990ed21bc714c39457e"
-   }
+    "fn_sha256": "a51e5fa3211a3b898c1291963efc405f0ea3d8955bd72925699268f868e20653"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/product_physics/src/retained_wire.rs:239",
@@ -53,15 +79,28 @@
    "premises": [
     "hasher is bound once in this function, by Sha256::new(), in a block still open at the placeholder",
     "hasher is used before the placeholder only as a method receiver",
-    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned), with no item or use of those names in the function; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/product_physics/src/retained_wire.rs:16",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "domain_hash",
-    "fn_sha256": "b9dcbf535bfb76a3d12ede3e98af43edfbf64da06ea337f59093de184e3051d1",
-    "uses_sha256": "fd27e001cb5b5bf0b0061c709f8efbebfeb3b2c7d68d4990ed21bc714c39457e"
-   }
+    "fn_sha256": "b9dcbf535bfb76a3d12ede3e98af43edfbf64da06ea337f59093de184e3051d1"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/product_physics/src/source_receipt.rs:41",
@@ -74,15 +113,28 @@
    "premises": [
     "hasher is bound once in this function, by Sha256::new(), in a block still open at the placeholder",
     "hasher is used before the placeholder only as a method receiver",
-    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned), with no item or use of those names in the function; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/product_physics/src/source_receipt.rs:10",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "hash",
-    "fn_sha256": "64adf03a34edecafb27dcae32f8df064bcae89d379f79f38d00cdd28d7f614e6",
-    "uses_sha256": "f6d246d6a8c9c28895253cc408344c93b164a5073f4031bd3ef42f2a77509067"
-   }
+    "fn_sha256": "64adf03a34edecafb27dcae32f8df064bcae89d379f79f38d00cdd28d7f614e6"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/product_physics/src/source_recovery.rs:252",
@@ -100,8 +152,7 @@
    "depends": [],
    "pin": {
     "fn": "retained_identity_digest",
-    "fn_sha256": "52cd92a86811676b3a6cab77d9f14bf3728696983231c8199bfcc1f9c3265a04",
-    "uses_sha256": "8e858bdac9b216bff3dafa4e0b575696955e0aae95e63c6b354e83dfd01c67b0"
+    "fn_sha256": "52cd92a86811676b3a6cab77d9f14bf3728696983231c8199bfcc1f9c3265a04"
    }
   },
   {
@@ -114,15 +165,28 @@
    "reason": "SHA-256 by its own text: Sha256::digest(bytes) in fn sha; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 35).",
    "premises": [
     "the argument is itself a Sha256::digest(..) call",
-    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned), with no item or use of those names in the function; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/product_physics/src/source_recovery/j7_rf_census.rs:35",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "sha",
-    "fn_sha256": "e8d6985b6b28357f1c7b7ca9fa9c6ac65e64103f74e532fba0b28aacfa59418e",
-    "uses_sha256": "61fe5977ebfc1ce143ee8068dd68869a8b55237f8fb9ef61ac254290d4dbec00"
-   }
+    "fn_sha256": "e8d6985b6b28357f1c7b7ca9fa9c6ac65e64103f74e532fba0b28aacfa59418e"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/product_physics/src/source_recovery/j7_rf_census.rs:239",
@@ -135,15 +199,28 @@
    "premises": [
     "h is bound once in this function, by Sha256::new(), in a block still open at the placeholder",
     "h is used before the placeholder only as a method receiver",
-    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned), with no item or use of those names in the function; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/product_physics/src/source_recovery/j7_rf_census.rs:35",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "response_digest",
-    "fn_sha256": "9b22f4289318aff79f59c16be38b467d009a63107f3cd6052bc7bacd39dd9e03",
-    "uses_sha256": "61fe5977ebfc1ce143ee8068dd68869a8b55237f8fb9ef61ac254290d4dbec00"
-   }
+    "fn_sha256": "9b22f4289318aff79f59c16be38b467d009a63107f3cd6052bc7bacd39dd9e03"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/product_physics/src/source_recovery/j7_t4_consequences.rs:9",
@@ -155,15 +232,28 @@
    "reason": "SHA-256 by its own text: Sha256::digest(bytes) in the one-line fn sha; Sha256 is imported by the file's use sha2::{Digest,Sha256}; (line 6), which takes precedence over the file's glob imports use super::*; and use crate::*;.",
    "premises": [
     "the argument is itself a Sha256::digest(..) call",
-    "Sha256 resolves to sha2::Sha256 through the file's explicit top-level use item, which takes precedence over its glob imports",
+    "Sha256 and Digest resolve to sha2's through the named explicit use item (pinned), which takes precedence over the file's glob imports; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/product_physics/src/source_recovery/j7_t4_consequences.rs:6",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "c3a15125e341a909ab731c6e862c6cf2bd9bdd0f9bd9ff8dcc0b6a1ec4496b3e"
+    }
+   ],
    "pin": {
     "fn": "sha",
-    "fn_sha256": "e52484e208de7bef7fe4f5e67dfa534db4247368860b926672862bd2bfdb9cd5",
-    "uses_sha256": "01217cd5ad437dde486513e7ab34f41f070a92333eaee74bcf43036f2f67b162"
-   }
+    "fn_sha256": "e52484e208de7bef7fe4f5e67dfa534db4247368860b926672862bd2bfdb9cd5"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/reporting/result_export/src/declared_member_load.rs:500",
@@ -176,15 +266,28 @@
    "premises": [
     "hash is bound once in this function, by Sha256::new(), in a block still open at the placeholder",
     "hash is used before the placeholder only as a method receiver",
-    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned), with no item or use of those names in the function; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/reporting/result_export/src/declared_member_load.rs:9",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "recompute",
-    "fn_sha256": "97747ee5df7eb4887998e79ea81eaf57cd09fcd3d883204cffba92bbd7225bb5",
-    "uses_sha256": "f0b3bac955ee57f205ec1cf01ef23eebacab04b28850d909cff7fbc2c198e424"
-   }
+    "fn_sha256": "97747ee5df7eb4887998e79ea81eaf57cd09fcd3d883204cffba92bbd7225bb5"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/reporting/result_export/src/derivative.rs:94",
@@ -196,15 +299,28 @@
    "reason": "SHA-256 by its own text: Sha256::digest(canonical_json(v).as_bytes()) in fn digest; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 11).",
    "premises": [
     "the argument is itself a Sha256::digest(..) call",
-    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned), with no item or use of those names in the function; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/reporting/result_export/src/derivative.rs:11",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "digest",
-    "fn_sha256": "3a1f6b006716d3408952e8f2c35db626c7b3f5a7cf2d57007a5f9b88c142da83",
-    "uses_sha256": "e0b33b7ff8bbdac6fe25a0fbbc6cf68121082c816c401462e295461999ffc9f6"
-   }
+    "fn_sha256": "3a1f6b006716d3408952e8f2c35db626c7b3f5a7cf2d57007a5f9b88c142da83"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/reporting/result_export/src/load_reference.rs:320",
@@ -216,15 +332,28 @@
    "reason": "SHA-256 by its own text: Sha256::digest(TRANSPORT_SCHEMA_BYTES.as_bytes()) inside the get_or_init closure of fn transport_schema; Sha256 is imported by the file's use sha2::{Digest, Sha256}; (line 20).",
    "premises": [
     "the argument is itself a Sha256::digest(..) call",
-    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned), with no item or use of those names in the function; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/reporting/result_export/src/load_reference.rs:20",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "transport_schema",
-    "fn_sha256": "1a65328ab474af395cb33805a8f2a959cf0e907404139c07f201f212a10fc4e4",
-    "uses_sha256": "bcbba80166fc2ee9417bf35e5f01cfcbd3bf2714745c3b26d4fe51b1bc4a72ed"
-   }
+    "fn_sha256": "1a65328ab474af395cb33805a8f2a959cf0e907404139c07f201f212a10fc4e4"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/reporting/result_export/src/recorded_tables.rs:226",
@@ -242,8 +371,7 @@
    "depends": [],
    "pin": {
     "fn": "sha256_hex",
-    "fn_sha256": "5cbd3402dfbe7e4407bb437899d07570576eae2e41a17be237abcb5886d4f464",
-    "uses_sha256": "e8529977bc80a8260e7417647ee8b0fd5201776674ff5f32313993bbbafff9d4"
+    "fn_sha256": "5cbd3402dfbe7e4407bb437899d07570576eae2e41a17be237abcb5886d4f464"
    }
   },
   {
@@ -262,8 +390,7 @@
    "depends": [],
    "pin": {
     "fn": "native_source_digest",
-    "fn_sha256": "c31557b000758b219c778eb1800d4316b966e48ca00fa1f639d25acff1714922",
-    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+    "fn_sha256": "c31557b000758b219c778eb1800d4316b966e48ca00fa1f639d25acff1714922"
    }
   },
   {
@@ -282,8 +409,7 @@
    "depends": [],
    "pin": {
     "fn": "g8_combinations",
-    "fn_sha256": "47fd507f24d53f56c240b85b8f85e13e29739a6076f62a0cc8df408621dda0e6",
-    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+    "fn_sha256": "47fd507f24d53f56c240b85b8f85e13e29739a6076f62a0cc8df408621dda0e6"
    }
   },
   {
@@ -302,8 +428,7 @@
    "depends": [],
    "pin": {
     "fn": "verify_native_source_hashes",
-    "fn_sha256": "f73ea8eff0923aa74a43b8ed7119534af57e8b9d9004a193f6868474783794a9",
-    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+    "fn_sha256": "f73ea8eff0923aa74a43b8ed7119534af57e8b9d9004a193f6868474783794a9"
    }
   },
   {
@@ -322,8 +447,7 @@
    "depends": [],
    "pin": {
     "fn": "verify_preview_physics_retained_table",
-    "fn_sha256": "5a50d55d650f5deb7c4db875362bc6905476f8a3d19c3c5ad6f1500a85c34fc2",
-    "uses_sha256": "3a2812fc7f91e0047a41599c2857772ef1cb77d35bb47e98c2dc43ae693b10a8"
+    "fn_sha256": "5a50d55d650f5deb7c4db875362bc6905476f8a3d19c3c5ad6f1500a85c34fc2"
    }
   },
   {
@@ -342,8 +466,7 @@
    "depends": [],
    "pin": {
     "fn": "verify_physics_retained_table",
-    "fn_sha256": "62634909a0cc68afbce561af9a2dee9a2f93a3ca4d8c4c6e96b87fe631d567fa",
-    "uses_sha256": "3a2812fc7f91e0047a41599c2857772ef1cb77d35bb47e98c2dc43ae693b10a8"
+    "fn_sha256": "62634909a0cc68afbce561af9a2dee9a2f93a3ca4d8c4c6e96b87fe631d567fa"
    }
   },
   {
@@ -362,8 +485,7 @@
    "depends": [],
    "pin": {
     "fn": "verify_pressure_table",
-    "fn_sha256": "29ed182a09ce52d8032e9b95dcad53e6cb2a930b00ad623379c264f195e8e1f7",
-    "uses_sha256": "3a2812fc7f91e0047a41599c2857772ef1cb77d35bb47e98c2dc43ae693b10a8"
+    "fn_sha256": "29ed182a09ce52d8032e9b95dcad53e6cb2a930b00ad623379c264f195e8e1f7"
    }
   },
   {
@@ -382,8 +504,7 @@
    "depends": [],
    "pin": {
     "fn": "verify_preview_physics_timoshenko_table",
-    "fn_sha256": "f220f3dfa928d1cf18d227bae90ed1fcbc901a109eafd19d116ba9bd8a60b5c3",
-    "uses_sha256": "3a2812fc7f91e0047a41599c2857772ef1cb77d35bb47e98c2dc43ae693b10a8"
+    "fn_sha256": "f220f3dfa928d1cf18d227bae90ed1fcbc901a109eafd19d116ba9bd8a60b5c3"
    }
   },
   {
@@ -402,8 +523,7 @@
    "depends": [],
    "pin": {
     "fn": "verify_pressure_source_table",
-    "fn_sha256": "5e7ee1100549d30f9e5b4297479b82e0560f041f3e9660a09b85ec30ea3af928",
-    "uses_sha256": "3a2812fc7f91e0047a41599c2857772ef1cb77d35bb47e98c2dc43ae693b10a8"
+    "fn_sha256": "5e7ee1100549d30f9e5b4297479b82e0560f041f3e9660a09b85ec30ea3af928"
    }
   },
   {
@@ -417,15 +537,28 @@
    "premises": [
     "hasher is bound once in this function, by Sha256::new(), in a block still open at the placeholder",
     "hasher is used before the placeholder only as a method receiver",
-    "Sha256 resolves to sha2::Sha256 through the file's top-level use items, with no item or use of that name in the function",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned), with no item or use of those names in the function; no top-level definition, alias or other use item of those names, and no local module sha2 (tripwires)",
     "sha2's Sha256 output is 32 bytes, 64 lowercase hex characters (external: the sha2 crate)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/reporting/result_export/src/source_blocks.rs:10",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256}; (Sha256 and its Digest methods)",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "domain_digest",
-    "fn_sha256": "70026a9142580b04c1b445501b59712f59ba3776caa3470ca19a0d8817df1c59",
-    "uses_sha256": "0c8368189f6b2d45f10648b66bfde1c1191e356ca0bd19757369be67a8ab355b"
-   }
+    "fn_sha256": "70026a9142580b04c1b445501b59712f59ba3776caa3470ca19a0d8817df1c59"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/product_physics/src/difference_basis.rs:140",
@@ -437,7 +570,8 @@
    "reason": "u64: c iterates contents: &BTreeMap<Content, usize> (the signature of fn contents_evidence) and Content.value_bits is a u64 (struct Content, line 57). The hex rule bounds a u64 at 16 characters; 016x pads to exactly 16.",
    "premises": [
     "c is a Content, from the function's signature",
-    "the field value_bits of struct Content is a u64"
+    "the field value_bits of struct Content is a u64",
+    "BTreeMap is std's, by the named use item (pinned); iterating it yields (&K, &V)"
    ],
    "depends": [
     {
@@ -445,13 +579,24 @@
      "form": "item",
      "note": "struct Content (value_bits: u64)",
      "sha256": "aad2d6c035f6f40f99a04f3d55a83e91ba8a20f80a00e3f5e90a1e17acd0c112"
+    },
+    {
+     "key": "core/product_physics/src/difference_basis.rs:28",
+     "form": "use",
+     "note": "use std::collections::BTreeMap;",
+     "sha256": "1945baf9a09f2fbb9cfecdca5ef416884a7cc3a3806802f55da2b9f17bb6413a"
     }
    ],
    "pin": {
     "fn": "contents_evidence",
-    "fn_sha256": "5948df8c98076253fc649d663e2e72d8afd687295ac417429b5dc532062a7342",
-    "uses_sha256": "a5a878b4cfd2c69b5e0f031061335963400555e5123ba9fbef17c9385f90fb49"
-   }
+    "fn_sha256": "5948df8c98076253fc649d663e2e72d8afd687295ac417429b5dc532062a7342"
+   },
+   "names": [
+    "BTreeMap"
+   ],
+   "modules": [
+    "std"
+   ]
   },
   {
    "site": "core/product_physics/src/held_status.rs:310",
@@ -468,8 +613,7 @@
    "depends": [],
    "pin": {
     "fn": "hex",
-    "fn_sha256": "baa673ef6eff9cf8f2682578ecd545f62f492aa61ecc7d891182434b850064f1",
-    "uses_sha256": "6c392a46a7574058f47b4d097d7dda78ceb9339668208eb373f76cd391dc0ce0"
+    "fn_sha256": "baa673ef6eff9cf8f2682578ecd545f62f492aa61ecc7d891182434b850064f1"
    }
   },
   {
@@ -483,7 +627,8 @@
    "premises": [
     "report is a LoadFidelityReport, from the function's signature",
     "the field rows of struct LoadFidelityReport is a Vec<LoadFidelityRow>",
-    "the field exact_net_bits of struct LoadFidelityRow is a u64"
+    "the field exact_net_bits of struct LoadFidelityRow is a u64",
+    "LoadFidelityReport is frame_kernel's structural::LoadFidelityReport, by the named use item (pinned)"
    ],
    "depends": [
     {
@@ -497,13 +642,24 @@
      "form": "item",
      "note": "struct LoadFidelityReport (rows: Vec<LoadFidelityRow>)",
      "sha256": "4ffac22d5fd5e0c68911230e667dabea190286b9ea6fafaf33b57a9d982a9309"
+    },
+    {
+     "key": "core/product_physics/src/lib.rs:82",
+     "form": "use",
+     "note": "use open_pipe_stress_frame_kernel::structural::{.. LoadFidelityReport ..};",
+     "sha256": "c47e18e651326a325db5a769605b8e96a55830c54c364f5aeba91e7a8ff74103"
     }
    ],
    "pin": {
     "fn": "append_load_contribution_absorbed",
-    "fn_sha256": "d9ccdebbe431b63b584a26ddeb83a6bc75008918093b03904f52df81a023bad8",
-    "uses_sha256": "85fbd46c38e799f4fdedaa8c7e198dda1cd095da23a7a7ac1c596eeea2d32fbf"
-   }
+    "fn_sha256": "d9ccdebbe431b63b584a26ddeb83a6bc75008918093b03904f52df81a023bad8"
+   },
+   "names": [
+    "LoadFidelityReport"
+   ],
+   "modules": [
+    "open_pipe_stress_frame_kernel"
+   ]
   },
   {
    "site": "core/product_physics/src/lib.rs:1727",
@@ -516,7 +672,8 @@
    "premises": [
     "report is a LoadFidelityReport, from the function's signature",
     "the field rows of struct LoadFidelityReport is a Vec<LoadFidelityRow>",
-    "the field actual_bits of struct LoadFidelityRow is a u64"
+    "the field actual_bits of struct LoadFidelityRow is a u64",
+    "LoadFidelityReport is frame_kernel's structural::LoadFidelityReport, by the named use item (pinned)"
    ],
    "depends": [
     {
@@ -530,13 +687,24 @@
      "form": "item",
      "note": "struct LoadFidelityReport (rows: Vec<LoadFidelityRow>)",
      "sha256": "4ffac22d5fd5e0c68911230e667dabea190286b9ea6fafaf33b57a9d982a9309"
+    },
+    {
+     "key": "core/product_physics/src/lib.rs:82",
+     "form": "use",
+     "note": "use open_pipe_stress_frame_kernel::structural::{.. LoadFidelityReport ..};",
+     "sha256": "c47e18e651326a325db5a769605b8e96a55830c54c364f5aeba91e7a8ff74103"
     }
    ],
    "pin": {
     "fn": "append_load_contribution_absorbed",
-    "fn_sha256": "d9ccdebbe431b63b584a26ddeb83a6bc75008918093b03904f52df81a023bad8",
-    "uses_sha256": "85fbd46c38e799f4fdedaa8c7e198dda1cd095da23a7a7ac1c596eeea2d32fbf"
-   }
+    "fn_sha256": "d9ccdebbe431b63b584a26ddeb83a6bc75008918093b03904f52df81a023bad8"
+   },
+   "names": [
+    "LoadFidelityReport"
+   ],
+   "modules": [
+    "open_pipe_stress_frame_kernel"
+   ]
   },
   {
    "site": "core/product_physics/src/lib.rs:11521",
@@ -568,8 +736,7 @@
    ],
    "pin": {
     "fn": "modulus_basis_key",
-    "fn_sha256": "6db3495dcf1eb6f0b61b458846688d447126f789984f2d3b1e79a5c08ab38bae",
-    "uses_sha256": "85fbd46c38e799f4fdedaa8c7e198dda1cd095da23a7a7ac1c596eeea2d32fbf"
+    "fn_sha256": "6db3495dcf1eb6f0b61b458846688d447126f789984f2d3b1e79a5c08ab38bae"
    }
   },
   {
@@ -582,14 +749,28 @@
    "reason": "u8, over-priced: b is the item of Sha256::digest(canonical.as_bytes()).iter() in fn modal_doc_sha256, a byte of the digest, at most 2 hex characters; the hex rule prices it 16, 14 more than it can be.",
    "premises": [
     "b is the closure parameter over the digest's iter(), inside the pinned function",
-    "the digest's items are bytes (external: the sha2 crate's output array)"
+    "the digest's items are bytes (external: the sha2 crate's output array)",
+    "Sha256 and Digest resolve to sha2's through the named use item (pinned)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/product_physics/src/modal/document.rs:45",
+     "form": "use",
+     "note": "use sha2::{Digest, Sha256};",
+     "sha256": "cd8307993855f074c4393826f2701e81f37cc7f221390da9721816b0457e272e"
+    }
+   ],
    "pin": {
     "fn": "modal_doc_sha256",
-    "fn_sha256": "ce7028de94fc1c43b11c06f49b1ae5074b2e3b8033302edade18e9cdf1356d9c",
-    "uses_sha256": "ffe09adb4a87e9b0df16d54f73f0db8ea5d7d9fffe83454468d1017fe521ea7e"
-   }
+    "fn_sha256": "ce7028de94fc1c43b11c06f49b1ae5074b2e3b8033302edade18e9cdf1356d9c"
+   },
+   "names": [
+    "Sha256",
+    "Digest"
+   ],
+   "modules": [
+    "sha2"
+   ]
   },
   {
    "site": "core/product_physics/src/modal/tests_resource.rs:575",
@@ -606,8 +787,7 @@
    "depends": [],
    "pin": {
     "fn": "solution_bits",
-    "fn_sha256": "4d54c4456df5c66c503601512c1089c8ff86ae095fc93fdd3794c5ab9e609a65",
-    "uses_sha256": "7da435b6e2ad2caa6f2209eee265b9b2b12d413b1e446881729a2edac956f113"
+    "fn_sha256": "4d54c4456df5c66c503601512c1089c8ff86ae095fc93fdd3794c5ab9e609a65"
    }
   },
   {
@@ -621,7 +801,8 @@
    "premises": [
     "groups is a BTreeMap<FactorKey, FactorGroup>, from the function's signature",
     "pbits is bound by the for pattern over the map's keys",
-    "the type alias FactorKey's second element is a u64"
+    "the type alias FactorKey's second element is a u64",
+    "BTreeMap is std's, by the named use item (pinned); iterating &BTreeMap<K, V> yields (&K, &V)"
    ],
    "depends": [
     {
@@ -629,13 +810,24 @@
      "form": "item",
      "note": "type FactorKey = (usize, u64, FactorArea, u64)",
      "sha256": "13f66b931a18c4beaee1e474e27b041870a5bce6ceafa65bd009e9096ef329ed"
+    },
+    {
+     "key": "core/product_physics/src/pressure_runtime.rs:24",
+     "form": "use",
+     "note": "use std::collections::{BTreeMap, HashMap, HashSet};",
+     "sha256": "b0619d0278e428f67c6b98d96cfb77529c889bfb7585d051270a5815b2ceb4ee"
     }
    ],
    "pin": {
     "fn": "finish_source_groups",
-    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4",
-    "uses_sha256": "5d35fe2f0d39f8cf671454c566d507e3748744668474c2a73eaffd8c57a4fcf4"
-   }
+    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4"
+   },
+   "names": [
+    "BTreeMap"
+   ],
+   "modules": [
+    "std"
+   ]
   },
   {
    "site": "core/product_physics/src/pressure_runtime.rs:1587",
@@ -659,8 +851,7 @@
    ],
    "pin": {
     "fn": "finish_source_groups",
-    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4",
-    "uses_sha256": "5d35fe2f0d39f8cf671454c566d507e3748744668474c2a73eaffd8c57a4fcf4"
+    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4"
    }
   },
   {
@@ -685,8 +876,7 @@
    ],
    "pin": {
     "fn": "finish_source_groups",
-    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4",
-    "uses_sha256": "5d35fe2f0d39f8cf671454c566d507e3748744668474c2a73eaffd8c57a4fcf4"
+    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4"
    }
   },
   {
@@ -711,8 +901,7 @@
    ],
    "pin": {
     "fn": "finish_source_groups",
-    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4",
-    "uses_sha256": "5d35fe2f0d39f8cf671454c566d507e3748744668474c2a73eaffd8c57a4fcf4"
+    "fn_sha256": "0d4f503a7191fee201fe1d392aa7ddad0de4a27fe781cca4e960e82d2c1b46a4"
    }
   },
   {
@@ -730,8 +919,7 @@
    "depends": [],
    "pin": {
     "fn": "bits",
-    "fn_sha256": "670d60dd0512b06750e123669a5d66ca0a6204a85c3b40b734e22d22bbe44ebc",
-    "uses_sha256": "fd27e001cb5b5bf0b0061c709f8efbebfeb3b2c7d68d4990ed21bc714c39457e"
+    "fn_sha256": "670d60dd0512b06750e123669a5d66ca0a6204a85c3b40b734e22d22bbe44ebc"
    }
   },
   {
@@ -748,8 +936,7 @@
    "depends": [],
    "pin": {
     "fn": "proof_trace",
-    "fn_sha256": "01e6ec1ce6ac28d4cbe97a8b041fc880c7ec88cd975d43e1586b585c5af9ede0",
-    "uses_sha256": "fd27e001cb5b5bf0b0061c709f8efbebfeb3b2c7d68d4990ed21bc714c39457e"
+    "fn_sha256": "01e6ec1ce6ac28d4cbe97a8b041fc880c7ec88cd975d43e1586b585c5af9ede0"
    }
   },
   {
@@ -767,8 +954,7 @@
    "depends": [],
    "pin": {
     "fn": "bits",
-    "fn_sha256": "1d3fbcaa762d72f888bf2246411aa091d58a752fe27c68b27bf149fbd1db34da",
-    "uses_sha256": "f6d246d6a8c9c28895253cc408344c93b164a5073f4031bd3ef42f2a77509067"
+    "fn_sha256": "1d3fbcaa762d72f888bf2246411aa091d58a752fe27c68b27bf149fbd1db34da"
    }
   },
   {
@@ -784,7 +970,9 @@
     "SelectedSourceRecovery::retained returns a RetainedFunctionalSet",
     "RetainedFunctionalSet::projections returns a slice of RetainedFunctionalProjection",
     "RetainedFunctionalProjection::value returns an f64",
-    "f64::to_bits returns a u64 (std)"
+    "f64::to_bits returns a u64 (std)",
+    "SelectedSourceRecovery reaches this file only through the glob use super::* (pinned), resolving to the parent module's struct (pinned); no top-level definition, alias or other use item of that name here (tripwires)",
+    "retained, projections and value are inherent methods of the types their impl headers name (pinned)"
    ],
    "depends": [
     {
@@ -804,13 +992,52 @@
      "form": "signature",
      "note": "pub fn value(&self) -> f64 (impl RetainedFunctionalProjection)",
      "sha256": "a6f9d25b62f9c76ce67365b01b344a39cec6b57f4d459850f4ea844f8f114f98"
+    },
+    {
+     "key": "core/product_physics/src/source_recovery/j7_rf_census.rs:32",
+     "form": "use",
+     "note": "use super::*; (the glob through which SelectedSourceRecovery reaches this file)",
+     "sha256": "df1fb510b21459d3fb842c16a1910a058db28e02e19475bbcccf08b6ca3a0600"
+    },
+    {
+     "key": "core/product_physics/src/source_recovery/j7_rf_census.rs:33",
+     "form": "use",
+     "note": "use crate::*; (the second glob in scope)",
+     "sha256": "b996c43458e3da57ce4e07ef40d26d0dd7aa449c98907fcb6665388c31a025c1"
+    },
+    {
+     "key": "core/product_physics/src/source_recovery.rs:187",
+     "form": "item",
+     "note": "pub(super) struct SelectedSourceRecovery (the parent module's item the glob resolves to)",
+     "sha256": "4acfa2a294a1d4699f294f91c135b8b4ac75e1a83c9a95b2098d870fa4e1a47a"
+    },
+    {
+     "key": "core/product_physics/src/source_recovery.rs:201",
+     "form": "signature",
+     "note": "impl SelectedSourceRecovery (retained belongs to it)",
+     "sha256": "991d7a620eb8b0c925a0013ff06298478f582c456573437ae712140aa891640f"
+    },
+    {
+     "key": "core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs:947",
+     "form": "signature",
+     "note": "impl RetainedFunctionalProjection (value belongs to it)",
+     "sha256": "49dd54ff3c7ca9db9d5b47b257131852f1e8de31553d23228e7a6b0c3aed4456"
+    },
+    {
+     "key": "core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs:1012",
+     "form": "signature",
+     "note": "impl RetainedFunctionalSet (projections belongs to it)",
+     "sha256": "5f652d77c0515a95933046b2fc84073b524445980ea4f7839deff220cb472801"
     }
    ],
    "pin": {
     "fn": "check_public_source",
-    "fn_sha256": "d4543e8c73d8e4cd02295ff67b20c17c1bab4009499c6cf0210e4f32a3703c8d",
-    "uses_sha256": "61fe5977ebfc1ce143ee8068dd68869a8b55237f8fb9ef61ac254290d4dbec00"
-   }
+    "fn_sha256": "d4543e8c73d8e4cd02295ff67b20c17c1bab4009499c6cf0210e4f32a3703c8d"
+   },
+   "names": [
+    "SelectedSourceRecovery"
+   ],
+   "modules": []
   },
   {
    "site": "core/reporting/result_export/src/derivative.rs:59",
@@ -822,7 +1049,8 @@
    "reason": "u64: bound_bits is bound by AccuracyClass::AbsoluteVerified { bound_bits } (line 56) in fn class_disclosure, and enum AccuracyClass holds AbsoluteVerified { bound_bits: u64 } (retained_precision.rs, line 46). The hex rule bounds a u64 at 16 characters.",
    "premises": [
     "bound_bits is bound by the match arm AccuracyClass::AbsoluteVerified { bound_bits }",
-    "AccuracyClass::AbsoluteVerified's bound_bits is a u64"
+    "AccuracyClass::AbsoluteVerified's bound_bits is a u64",
+    "AccuracyClass is retained_precision's, by the named use item (pinned)"
    ],
    "depends": [
     {
@@ -830,13 +1058,22 @@
      "form": "item",
      "note": "enum AccuracyClass (AbsoluteVerified { bound_bits: u64 })",
      "sha256": "b8c039331c565947eb04036a0ce78b09eb10cb1165e9a8316b6f0a89bdebb9e8"
+    },
+    {
+     "key": "core/reporting/result_export/src/derivative.rs:4",
+     "form": "use",
+     "note": "use crate::retained_precision::AccuracyClass;",
+     "sha256": "2bd9c17f84635083f3515a70d4b344b4f41f84254d938480715d361725055ad5"
     }
    ],
    "pin": {
     "fn": "class_disclosure",
-    "fn_sha256": "9660df6d218b02033820a396b273227ef7acc49d10a6c6e945121b8e633e6f08",
-    "uses_sha256": "e0b33b7ff8bbdac6fe25a0fbbc6cf68121082c816c401462e295461999ffc9f6"
-   }
+    "fn_sha256": "9660df6d218b02033820a396b273227ef7acc49d10a6c6e945121b8e633e6f08"
+   },
+   "names": [
+    "AccuracyClass"
+   ],
+   "modules": []
   },
   {
    "site": "core/reporting/result_export/src/exact_combination_evidence.rs:653",
@@ -848,14 +1085,27 @@
    "reason": "u64: let value = t[\"value\"].as_f64().filter(..).ok_or_else(..)?; (line 652) in fn modulus_key: serde_json's Value::as_f64 gives an f64, and f64::to_bits returns a u64. The hex rule bounds a u64 at 16 characters.",
    "premises": [
     "value is the f64 from Value::as_f64 (external: serde_json), bound in the pinned function",
-    "f64::to_bits returns a u64 (std)"
+    "f64::to_bits returns a u64 (std)",
+    "operand: &Value is serde_json's Value, by the named use item (pinned)"
    ],
-   "depends": [],
+   "depends": [
+    {
+     "key": "core/reporting/result_export/src/exact_combination_evidence.rs:42",
+     "form": "use",
+     "note": "use serde_json::{json, Value};",
+     "sha256": "db4766e01678e32214ea7eadcc0668e61357d8a8c23f92997333a9550131eb53"
+    }
+   ],
    "pin": {
     "fn": "modulus_key",
-    "fn_sha256": "c51b30e6a0db13cb90c4245c1651d6c576db48cd5a4eb076ebd88af999c4c307",
-    "uses_sha256": "3782344fc87e73c48e47db5d7148b97440f98afecc8b4bbb938b3ec64dc72711"
-   }
+    "fn_sha256": "c51b30e6a0db13cb90c4245c1651d6c576db48cd5a4eb076ebd88af999c4c307"
+   },
+   "names": [
+    "Value"
+   ],
+   "modules": [
+    "serde_json"
+   ]
   },
   {
    "site": "core/reporting/result_export/src/preview_combination_gates.rs:430",
@@ -880,8 +1130,7 @@
    ],
    "pin": {
     "fn": "modulus_key",
-    "fn_sha256": "9e9c0e76fff39fd205834193165d3c71456fcffc3856eb649fcbf8ff9f1aa9a9",
-    "uses_sha256": "3d434f15991a759bed6622ef2b0202e844c7e4d8e059ae7d5b45b78ebae35869"
+    "fn_sha256": "9e9c0e76fff39fd205834193165d3c71456fcffc3856eb649fcbf8ff9f1aa9a9"
    }
   },
   {
@@ -896,7 +1145,9 @@
     "value is bound by the match whose arms are both f64",
     "physics_source::normalized_quantity returns Result<f64, String>",
     "the other arm is Value::as_f64 (external: serde_json)",
-    "f64::to_bits returns a u64 (std)"
+    "f64::to_bits returns a u64 (std)",
+    "load is an item of this file's fn items, which returns &[Value] (pinned)",
+    "Value is serde_json's, by the named use item (pinned)"
    ],
    "depends": [
     {
@@ -904,13 +1155,30 @@
      "form": "signature",
      "note": "pub(crate) fn normalized_quantity(..) -> Result<f64, String>",
      "sha256": "dfb5b65e0e25cdf168e5fc92ca353b94da7ff61511d0289038486fc65107f826"
+    },
+    {
+     "key": "core/reporting/result_export/src/preview_difference_basis.rs:38",
+     "form": "use",
+     "note": "use serde_json::{json, Value};",
+     "sha256": "db4766e01678e32214ea7eadcc0668e61357d8a8c23f92997333a9550131eb53"
+    },
+    {
+     "key": "core/reporting/result_export/src/preview_difference_basis.rs:69",
+     "form": "signature",
+     "note": "fn items(v: &Value) -> &[Value] (load is one of its items)",
+     "sha256": "5e76227eaf5fdb848f9667789572a712f0a44a522eda3e206f12cf755ec2b4c3"
     }
    ],
    "pin": {
     "fn": "model_multiset",
-    "fn_sha256": "6833acf699e8c5c9b91cffaf950235390d193f3a4fd675c706cf1de08ed27036",
-    "uses_sha256": "62533468cd091b33d5af71ca7c668d6d5eec54ca190184e7a09557c5bc0b0554"
-   }
+    "fn_sha256": "6833acf699e8c5c9b91cffaf950235390d193f3a4fd675c706cf1de08ed27036"
+   },
+   "names": [
+    "Value"
+   ],
+   "modules": [
+    "serde_json"
+   ]
   },
   {
    "site": "core/reporting/result_export/src/preview_held_status.rs:526",
@@ -927,8 +1195,7 @@
    "depends": [],
    "pin": {
     "fn": "modulus_label_states",
-    "fn_sha256": "e6ed1566835624dc117d54321646284108ce782fa4c5dffaea07fc4d48b28acd",
-    "uses_sha256": "c164db319ce973afae26917e2dbe15f16228388d26f579e1be438d8533195b0a"
+    "fn_sha256": "e6ed1566835624dc117d54321646284108ce782fa4c5dffaea07fc4d48b28acd"
    }
   },
   {
@@ -946,8 +1213,7 @@
    "depends": [],
    "pin": {
     "fn": "bits",
-    "fn_sha256": "fad4e22639668bf4b77f4ae4967ddf67b1e05f46ac1e58a61a903e75f2c7c1e0",
-    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+    "fn_sha256": "fad4e22639668bf4b77f4ae4967ddf67b1e05f46ac1e58a61a903e75f2c7c1e0"
    }
   },
   {
@@ -965,8 +1231,7 @@
    "depends": [],
    "pin": {
     "fn": "sha256_hex",
-    "fn_sha256": "35fc81c4661577b8cb858c39e4f020a50f4c80cbf4a8d957da2a267b1a8da6ed",
-    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+    "fn_sha256": "35fc81c4661577b8cb858c39e4f020a50f4c80cbf4a8d957da2a267b1a8da6ed"
    }
   },
   {
@@ -983,8 +1248,7 @@
    "depends": [],
    "pin": {
     "fn": "outcome_json",
-    "fn_sha256": "6b4adbeb5565bb216d524275d0603aff53587d26797f53d0110f2d52c7681b69",
-    "uses_sha256": "0f66a21f24d868ba8bacc3b3cb1a4cd8bc420f6c4ad2ee4db24543c0bf5fccb8"
+    "fn_sha256": "6b4adbeb5565bb216d524275d0603aff53587d26797f53d0110f2d52c7681b69"
    }
   },
   {
@@ -1010,8 +1274,7 @@
    ],
    "pin": {
     "fn": "projection",
-    "fn_sha256": "06d2a384821351f7ca768df304c56a3ecf093e95f4c5841dc55f0621ba7e831b",
-    "uses_sha256": "0c8368189f6b2d45f10648b66bfde1c1191e356ca0bd19757369be67a8ab355b"
+    "fn_sha256": "06d2a384821351f7ca768df304c56a3ecf093e95f4c5841dc55f0621ba7e831b"
    }
   },
   {
@@ -1024,7 +1287,8 @@
    "reason": "u128: Wide<2>::sig returns a u128 (line 273), called in fmt of impl fmt::Debug for Wide<2>. A u128 is at most 32 hex characters; 032x pads to exactly 32, which is what the rule gives (the spec's width).",
    "premises": [
     "self is a Wide<2>, from the impl the function is in",
-    "Wide's fn sig returns a u128"
+    "Wide's fn sig returns a u128",
+    "sig is an inherent method of Wide<2>, by its impl header (pinned)"
    ],
    "depends": [
     {
@@ -1038,12 +1302,17 @@
      "form": "signature",
      "note": "fn sig(&self) -> u128",
      "sha256": "156e26c29dca5a8ce896f8fc8f51fd34bab7b48c2523f2f817f27e54e7f18282"
+    },
+    {
+     "key": "core/solver/frame_kernel/src/structural/retained/wide.rs:246",
+     "form": "signature",
+     "note": "impl Wide<2> (sig belongs to it)",
+     "sha256": "cc2570bc35cb618113b98f2e839d55203b3ee9ed504f4669abed9fae90026d00"
     }
    ],
    "pin": {
     "fn": "fmt",
-    "fn_sha256": "cd3aee6b6a7530eaf783c995990248a367ecfc527ccc027a84bfee8e4bc97aae",
-    "uses_sha256": "a08768b764f4a76fb98c794a3dd79d998a217a52b6a36fb6b82240d45e6aa201"
+    "fn_sha256": "cd3aee6b6a7530eaf783c995990248a367ecfc527ccc027a84bfee8e4bc97aae"
    }
   },
   {
@@ -1056,7 +1325,8 @@
    "reason": "u64: for limb in self.significand.iter().rev() (line 943) in fmt of impl fmt::Debug for Wide<L>, and struct Wide's significand is a [u64; L] (wide.rs, line 204). The hex rule bounds a u64 at 16 characters.",
    "premises": [
     "self is a Wide<L>, from the impl the function is in",
-    "the field significand of struct Wide is a [u64; L]"
+    "the field significand of struct Wide is a [u64; L]",
+    "Wide is the parent module's struct, by the named use item (pinned)"
    ],
    "depends": [
     {
@@ -1070,13 +1340,22 @@
      "form": "item",
      "note": "struct Wide<const L: usize> (significand: [u64; L])",
      "sha256": "a4d3876512a0d96373eb5cc1a0bfe6315a30d90fbbceac656ab46f55b64732ad"
+    },
+    {
+     "key": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs:99",
+     "form": "use",
+     "note": "use super::{checked_exponent, Wide, WideError, EXPONENT_LIMIT, MIN_PRECISION};",
+     "sha256": "61d4faa20cfc11fac4293575355625391479784612be646c163059b290f3d052"
     }
    ],
    "pin": {
     "fn": "fmt",
-    "fn_sha256": "ceacf6bb846055d0d0adf5a699a38f265f37279fb184eda3faa3883cf94227d1",
-    "uses_sha256": "2f053aed7acdc7221ddbef9d74fa766805efbff1ca0bc5b52042b4961c37d856"
-   }
+    "fn_sha256": "ceacf6bb846055d0d0adf5a699a38f265f37279fb184eda3faa3883cf94227d1"
+   },
+   "names": [
+    "Wide"
+   ],
+   "modules": []
   }
  ]
 }
