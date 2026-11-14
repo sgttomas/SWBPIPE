@@ -310,10 +310,12 @@ check("print: the substitution was installed before Print was pressed", printed?
 check("print: print was called exactly once, by the substitution's own record", reached("print") && printed?.print_calls === 1, printed && { print_calls: printed.print_calls });
 check("print: the printed document is the derived print view, with the same standing line", printed?.printed_standing_line === rendered?.standing_line && printed?.printed_is_srcdoc === true, printed && { printed_standing_line: printed.printed_standing_line, printed_is_srcdoc: printed.printed_is_srcdoc });
 const edited = step("edit-invalidates");
-check("edit: an edit applied, and the Report shows no rendered document and the precondition", reached("edit-invalidates") && edited?.applied === true && edited?.preview === false && edited?.precondition === true, edited);
+check("edit: an edit applied; the panel, present, shows the precondition and no rendered document", reached("edit-invalidates") && edited?.applied === true && edited?.panel_present === true && edited?.precondition === true && edited?.preview === false, edited);
 const resolved = step("resolve-invalidates");
-check("re-solve: after rendering again, a fresh solve leaves no rendered document until it is rendered again",
-  reached("resolve-invalidates") && resolved?.preview_before === true && resolved?.preview_after === false && resolved?.render_enabled_after === true, resolved);
+check("re-solve: rendered again with the witness record's standing line", reached("resolve-invalidates") && resolved?.preview_before === true && (resolved?.rerendered_line ?? "").startsWith(expected.standing_lead), resolved && { preview_before: resolved.preview_before, rerendered_line: resolved.rerendered_line });
+check("re-solve: the fresh solve published a new result (a new solve proof job)", typeof resolved?.proof_job_before === "string" && typeof resolved?.proof_job_after === "string" && resolved.proof_job_before !== resolved.proof_job_after, resolved && { before: resolved.proof_job_before, after: resolved.proof_job_after });
+check("re-solve: with the panel present for the fresh result (no loading line, no precondition, Render enabled), no rendered document is shown",
+  reached("resolve-invalidates") && resolved?.panel_present_after === true && resolved?.gate_loading_after === false && resolved?.precondition_after === false && resolved?.render_enabled_after === true && resolved?.preview_after === false, resolved);
 for (const item of seen?.steps ?? []) if (item.reached !== true) check(`step ${item.id}: reached`, false, item.error ?? "not reached");
 
 // Everything the run wrote lies in the evidence root, the home among it; the real user's product-named paths are unchanged.

@@ -26,6 +26,9 @@
   const menu = (commandId) => call("native_smoke_menu", { commandId });
   const treeRow = (projectId) => byTestId(`tree-row-project-${encodeURIComponent(projectId)}`);
   const panel = () => byTestId("rendered-report-panel");
+  // Right after a solve the Report section shows the gate's loading line while the full result is read, and no
+  // rendered report panel. A probe that needs the panel requires it present and this line gone.
+  const gateLoading = () => Boolean(byTestId("c2-result-loading", byTestId("workspace-section-report")));
 
   async function waitFor(label, probe, timeoutMs = 120000) {
     const started = Date.now();
@@ -70,24 +73,29 @@
 
   const UNSOLVED_STATE = /\bstate=(failed|cancelled|refused)(?:;|$)/;
   const proofText = () => byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
-  // Run the solve from the menu and wait for a job summary other than the one before it, completed, with a solve
-  // proof of the project; a job that ended any other way, or a withheld Run, ends the wait with its statement.
+  // Run the solve from the menu and wait for a completed job summary other than the one before it AND a solve proof
+  // other than the one before it. The proof names its job and is shown only while the session's published result
+  // matches it (solveProof.ts), so a new proof means the new result is the session's. A job that ended any other way,
+  // or a withheld Run, ends the wait with its statement.
   async function solve(label, projectId) {
     await showSection("solve");
     const priorSummary = text("solve-job-summary") ?? "";
+    const priorProof = proofText();
     await menu("analyze.run");
-    await waitFor(`${label}: solve completed`, () => {
+    await waitFor(`${label}: solve completed and its result published`, () => {
       const summary = text("solve-job-summary") ?? "";
       if (summary !== priorSummary && UNSOLVED_STATE.test(summary)) throw new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`);
       const withheld = byTestId("solve-withheld-notice");
       if (withheld) throw new Error(`${label}: ${withheld.textContent.trim().replace(/\s+/g, " ").slice(0, 2000)}`);
-      return summary !== priorSummary && summary.includes("state=completed") && (proofText() ?? "").includes(`project=${projectId}`);
+      const proof = proofText();
+      return summary !== priorSummary && summary.includes("state=completed") && proof !== null && proof !== priorProof && proof.includes(`project=${projectId}`);
     }, 600000);
-    return text("solve-job-summary");
+    return { summary: text("solve-job-summary"), proof_job: proofText()?.match(/job=([^;]+)/)?.[1] ?? null };
   }
   // Render for local review and wait for the shown document or a named failure.
   async function renderReport(label) {
     await showSection("report");
+    await waitFor(`${label}: the panel present, the gate's loading line gone`, () => panel() && !gateLoading(), 300000);
     await waitFor(`${label}: Render enabled`, () => byTestId("rendered-report-render", panel())?.disabled === false, 300000);
     const intent = element("rendered-report-local-private-intent", panel());
     if (!intent.checked) intent.click();
@@ -135,11 +143,12 @@
         return now !== before && now.includes(`Opened model document ${name} `) ? now : null;
       });
       await waitFor("the project in the model tree", () => treeRow(plan.model.project_id));
-      return { opened, solve_summary: await solve("first solve", plan.model.project_id) };
+      const solved = await solve("first solve", plan.model.project_id);
+      return { opened, solve_summary: solved.summary, proof_job: solved.proof_job };
     });
     await step("report-gate", async () => {
       await showSection("report");
-      await waitFor("the solved result in the panel", () => panel() && !byTestId("rendered-report-precondition", panel()) && byTestId("rendered-report-render", panel())?.disabled === false, 300000);
+      await waitFor("the solved result in the panel", () => panel() && !gateLoading() && !byTestId("rendered-report-precondition", panel()) && byTestId("rendered-report-render", panel())?.disabled === false, 300000);
       const package_buttons = ["report-package-save", "report-package-user-release"].map((id) => {
         const button = byTestId(id, panel());
         return { id, present: Boolean(button), disabled: button?.disabled ?? null, title: button?.getAttribute("title") ?? null };
@@ -249,20 +258,34 @@
       apply.click();
       const summary = await waitFor("operation applied", () => /1 applied/.test(text("operation-apply-summary") ?? "") && text("operation-apply-summary"), 30000);
       await showSection("report");
-      await waitFor("the report retired", () => panel() && !byTestId("rendered-report-preview", panel()), 30000);
-      return { applied: true, summary, preview: Boolean(byTestId("rendered-report-preview", panel())), precondition: Boolean(byTestId("rendered-report-precondition", panel())) };
+      // One snapshot: the panel present (no loading line) and showing the precondition, which an edit's cleared result
+      // gives; the preview is read in that same snapshot.
+      const seen = await waitFor("the panel with the precondition", () => {
+        const shown = panel();
+        if (!shown || gateLoading() || !byTestId("rendered-report-precondition", shown)) return null;
+        return { panel_present: true, precondition: true, preview: Boolean(byTestId("rendered-report-preview", shown)) };
+      }, 30000);
+      return { applied: true, summary, ...seen };
     });
     await step("resolve-invalidates", async () => {
       await menu("edit.undo");
       await sleep(1000);
-      await solve("solve after undo", plan.model.project_id);
+      const again = await solve("solve after undo", plan.model.project_id);
       const preview = await renderReport("render again");
-      const preview_before = Boolean(preview);
-      await solve("fresh solve", plan.model.project_id);
+      const rerendered_line = standingLineOf(parse(preview.getAttribute("srcdoc") ?? ""));
+      const fresh = await solve("fresh solve", plan.model.project_id);
       await showSection("report");
-      await waitFor("the report retired by the fresh solve", () => panel() && !byTestId("rendered-report-preview", panel()), 60000);
-      await waitFor("Render enabled for the fresh result", () => byTestId("rendered-report-render", panel())?.disabled === false, 300000);
-      return { preview_before, preview_after: Boolean(byTestId("rendered-report-preview", panel())), render_enabled_after: byTestId("rendered-report-render", panel())?.disabled === false, undo_message: message() };
+      // One snapshot, positive on every side: the panel present, the gate's loading line gone, no precondition and
+      // Render enabled, so the panel holds the fresh result (published, by the new proof); only then is the preview's
+      // absence read, from that same snapshot. "Not back yet" never satisfies this probe.
+      const after = await waitFor("the fresh result in the panel", () => {
+        const shown = panel();
+        if (!shown || gateLoading() || byTestId("rendered-report-precondition", shown)) return null;
+        const render = byTestId("rendered-report-render", shown);
+        if (!render || render.disabled) return null;
+        return { panel_present_after: true, gate_loading_after: false, precondition_after: false, render_enabled_after: true, preview_after: Boolean(byTestId("rendered-report-preview", shown)) };
+      }, 300000);
+      return { preview_before: Boolean(preview), rerendered_line, proof_job_before: again.proof_job, proof_job_after: fresh.proof_job, ...after, undo_message: message() };
     });
   }
 
