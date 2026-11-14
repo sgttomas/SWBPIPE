@@ -2500,6 +2500,22 @@ fn assessed_numerical_quality(
     quality
 }
 
+/// A blocked document's numerical quality (DEL-04-07 *Blocked document*): every
+/// case and the aggregate are not assessed, whatever the retained integrity
+/// codes. Each case keeps its basis and its evidence reference, so the retained
+/// diagnostics (unchanged, apart from the inspection-only rewrite) stay reachable.
+fn blocked_numerical_quality(model: &PreviewModel, diagnostics: &[Diagnostic]) -> NumericalQuality {
+    let mut quality = assessed_numerical_quality(model, diagnostics);
+    for case in &mut quality.cases {
+        case.structural_status = StructuralStatus::NumericallyUnresolved;
+        case.solve_quality = NumericalQualityStatus::NotAssessed;
+        case.model_matrix_fidelity = ModelMatrixFidelity::NotAssessed;
+        case.accuracy_evidence = AccuracyEvidence::NotClaimed;
+    }
+    quality.status = NumericalQualityStatus::NotAssessed;
+    quality
+}
+
 pub fn unassessed_numerical_quality() -> NumericalQuality {
     NumericalQuality {
         value_representation: "finite_binary64".to_string(),
@@ -15434,8 +15450,10 @@ fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> Me
     // DEL-04-07: a blocked document publishes no result, so no case verdict
     // stands in it. Each retained passed or sensitive integrity evaluation is
     // kept for inspection under its own code, its prior outcome a closed token
-    // at the message start; the case and document quality are then not
-    // assessed. Only those two codes are rewritten, so nothing is wrapped twice.
+    // at the message start. Only those two codes are rewritten, so nothing is
+    // wrapped twice; every other retained diagnostic (a mechanism refusal, say)
+    // is kept as it is. Every case and the document are not assessed, whatever
+    // the retained codes (`blocked_numerical_quality`).
     for diagnostic in diagnostics.iter_mut().filter(|d| d.id.starts_with(INTEGRITY_DIAGNOSTIC_PREFIX)) {
         inspection_only(diagnostic);
     }
@@ -15459,7 +15477,7 @@ fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> Me
         }),
         schema_version: MECHANICS_SCHEMA_VERSION.to_string(),
         producer: mechanics_producer_for_model(&model),
-        numerical_quality: assessed_numerical_quality(&model, &diagnostics),
+        numerical_quality: blocked_numerical_quality(&model, &diagnostics),
         source_block_recovery: None,
         formulation_basis: formulation_basis_for_model(&model),
         document_kind: "openpipestress.product_preview.mechanics_result".to_string(),
@@ -16914,14 +16932,15 @@ mod tests {
                                 | NumericalQualityStatus::Sensitive
                         ));
                     } else {
+                        // DEL-04-07 *Blocked document*: the refused case is not
+                        // assessed; its mechanism refusal is kept, unrelabelled,
+                        // as its evidence (checked below).
                         assert_ne!(output.status.mechanics, "MECHANICS_SOLVED");
-                        assert_eq!(
-                            case.structural_status,
-                            StructuralStatus::PhysicalMechanismWitnessed,
-                            "{:?}",
-                            output.diagnostics
-                        );
-                        assert_eq!(case.solve_quality, NumericalQualityStatus::Failed);
+                        assert_eq!(case.structural_status, StructuralStatus::NumericallyUnresolved, "{:?}", output.diagnostics);
+                        assert_eq!(case.solve_quality, NumericalQualityStatus::NotAssessed);
+                        assert_eq!(output.numerical_quality.status, NumericalQualityStatus::NotAssessed);
+                        assert!(output.diagnostics.iter().any(|d| d.id == case.evidence_refs[0]
+                            && d.code == "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM"));
                     }
                     assert_eq!(case.evidence_refs.len(), 1);
                     assert!(output
