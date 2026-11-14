@@ -782,9 +782,14 @@ cannot be silently overridden:
 So if the named use item's text is unchanged and the function is unchanged, the name resolves as audited. The argument
 has one limit: it relies on the file compiling, which the pricing run's own build establishes.
 
-A name that reaches a file only through a glob is not protected by that argument. `j7_rf_census.rs`'s
-`SelectedSourceRecovery`, through `use super::*;`, is the one such case. For it the entry pins the globs and the parent
-module's struct, and the tripwires below refuse a later explicit import or definition in the file.
+**The exception: a name reached only through a glob.** The argument assumes an explicit import.
+- A name that reaches a file only through a glob import (`use super::*`, `use crate::*`) can be silently shadowed by a
+  later explicit import or definition, so for that case the argument does not hold.
+- It is covered instead by pinning the glob use items and the item the glob supplies, together with the
+  `hex-name-shadow` tripwires that refuse another top-level use item, a definition or an alias of the name.
+- One entry relies on this today: `j7_rf_census.rs:390`. `SelectedSourceRecovery` reaches that file through
+  `use super::*;` and `use crate::*;`, and the entry pins both globs and the parent module's
+  `struct SelectedSourceRecovery`.
 
 The file-level tripwires (`hex-name-shadow`), for each name an entry resolves through a named use item, refuse:
 - an alias or top-level definition of the name;
@@ -801,6 +806,13 @@ From history since 2026-10-17 (`git log -L` over the pinned regions, at main `bb
 - **The 26 scalars:** 50 site-commits from 22 distinct commits, against 83 from 38 under the blanket pin. Of the 50, 36
   come from one busy function, `pressure_runtime.rs`'s `finish_source_groups`, which holds four entries and changed in
   9 commits. Every other entry had 1 to 3.
+
+**The known source of re-audits.** `pressure_runtime.rs`'s `finish_source_groups` holds four entries (`pbits`, `hi`,
+`lo`, `bits`). It changed in 9 commits since 2026-10-17, which gave 36 of the scalars' 50 re-audit site-commits.
+- A red there is expected. A re-audit of it means reading the diff, confirming the four entries' premises, then
+  re-recording the pins.
+- If it becomes a nuisance, the remedy is to move the four formatted lines into a small helper whose text is stable.
+  That is a product refactor for its owner, not a change to the tool.
 - **All 47:** 61 site-commits from 27 distinct commits, against 104 from 44 under the blanket pin.
 
 The tool discovers no dependency: the audit names each one. The function pin and the named items do not by themselves
