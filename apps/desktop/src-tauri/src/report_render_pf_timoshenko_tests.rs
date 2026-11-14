@@ -147,6 +147,25 @@ fn a_coherent_timoshenko_input_binds_and_renders_its_projection() {
     assert!(html.contains(&open_pipe_stress_report_renderer::escape_html(ARC_MESSAGE)) && html.contains(REALIZED_ARCS_DIAGNOSTIC));
 }
 
+/// DEL-08-01 REQ-024: the pressure-free Timoshenko render re-derives the standing record from the
+/// bound result and requires equality, as the exact render does: an altered, absent or null record
+/// is refused by name, and the coherent one renders (above).
+#[test]
+fn an_altered_or_absent_standing_record_is_refused_on_the_timoshenko_render() {
+    let case = case("timoshenko_annulus_energy_v1");
+    assert!(case.input["numerical_standing"].is_object(), "the coherent input carries the derived record");
+    let mut altered = case.input.clone();
+    let health = altered["numerical_standing"]["cases"][0]["health"].as_str().unwrap().to_string();
+    altered["numerical_standing"]["cases"][0]["health"] = json!(if health == "checks_passed" { "sensitive" } else { "checks_passed" });
+    refused(&case, &altered, true, SECTIONS_MISMATCH, "standing record altered");
+    let mut absent = case.input.clone();
+    absent.as_object_mut().unwrap().remove("numerical_standing");
+    refused(&case, &absent, true, SECTIONS_MISMATCH, "standing record absent");
+    let mut null = case.input.clone();
+    null["numerical_standing"] = Value::Null;
+    refused(&case, &null, true, SECTIONS_MISMATCH, "standing record null");
+}
+
 #[test]
 fn removing_or_altering_the_limitation_keeping_the_result_is_refused() {
     let case = case("timoshenko_annulus_energy_v1");
