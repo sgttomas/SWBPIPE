@@ -1,0 +1,7 @@
+{
+  "witness": "supported-subset MBF round trip in the launched native-smoke app; chooser presentation substituted",
+  "note": "Invented for launch-outcome.test.mjs: the shape of a summary.json written before runners recorded each launch's outcome. Every check passed and each report reads ok, yet nothing records how the app ended.",
+  "source_revision": "0000000000000000000000000000000000000000",
+  "checks": [{ "name": "bound: the review shows the identity block", "ok": true }],
+  "reports": { "bound": { "ok": true }, "unbound": { "ok": true } }
+}

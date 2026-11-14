@@ -45,7 +45,7 @@ import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
 import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
 import { awaitNoProcesses } from "./launch-env.mjs";
-import { launchFailures, newNonce, readReport, recordedFailures, recordedOutcome } from "./launch-outcome.mjs";
+import { keptPhaseFailures, launchFailures, newNonce, readReport, recordedOutcome } from "./launch-outcome.mjs";
 import { marksCheck, marksRefuse } from "./marks-check.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
@@ -234,7 +234,7 @@ function launch(given) {
   if (judgeDir) {
     const read = readReport(report);
     const outcome = recorded?.launches?.[given.phase]?.outcome ?? null;
-    return Promise.resolve(judged(given.phase, outcome, read, recordedFailures(outcome, read.report, read.problem)));
+    return Promise.resolve(judged(given.phase, outcome, read, keptPhaseFailures(recorded, given.phase, read.report, read.problem)));
   }
   const plan = { ...given, nonce: newNonce() };
   console.log(`\n== phase ${plan.phase} (HOME=${home})`);

@@ -50,3 +50,9 @@ export function recordedFailures(outcome, report, problem = null) {
   if (!outcome || typeof outcome !== "object") return ["LAUNCH-OUTCOME-NOT-RECORDED: this evidence records no launch outcome, so it cannot be judged a pass"];
   return launchFailures({ status: outcome.status, signal: outcome.signal, timedOut: outcome.timed_out, census: outcome.census ?? undefined, report, problem, nonce: outcome.nonce });
 }
+
+/** The named failures of one phase of kept evidence, from the run's `summary.json` (its `launches` record) and
+ * the phase's report. A summary written before runners recorded launch outcomes has no such record: not a pass. */
+export function keptPhaseFailures(summary, phase, report, problem = null) {
+  return recordedFailures(summary?.launches?.[phase]?.outcome ?? null, report, problem);
+}

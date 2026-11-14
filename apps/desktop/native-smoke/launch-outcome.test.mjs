@@ -5,10 +5,10 @@
 //   node --test apps/desktop/native-smoke/launch-outcome.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { launchFailures, newNonce, readReport, recordedFailures, recordedOutcome } from "./launch-outcome.mjs";
+import { keptPhaseFailures, launchFailures, newNonce, readReport, recordedFailures, recordedOutcome } from "./launch-outcome.mjs";
 
 const NONCE = "0123456789abcdef0123456789abcdef";
 const clean = { status: 0, signal: null, timedOut: false, census: { resolved: true }, report: { nonce: NONCE, ok: true }, nonce: NONCE };
@@ -64,4 +64,15 @@ test("each run gets a fresh nonce", () => {
   const first = newNonce();
   assert.match(first, /^[0-9a-f]{32}$/);
   assert.notEqual(first, newNonce());
+});
+
+test("a kept summary written before launch outcomes were recorded is judged not recorded, though its checks and report read well", () => {
+  const old = JSON.parse(readFileSync(new URL("./test-fixtures/kept-evidence/summary-without-launch-outcome.json", import.meta.url), "utf8"));
+  assert.ok(old.checks.every((item) => item.ok) && old.reports.bound.ok);
+  for (const phase of ["bound", "unbound"]) assert.deepEqual(codes(keptPhaseFailures(old, phase, clean.report)), ["LAUNCH-OUTCOME-NOT-RECORDED"]);
+  // The same summary once it records a clean launch for the phase is judged on that record.
+  const recorded = { ...old, launches: { bound: { outcome: recordedOutcome({ ...clean, started: "s", ended: "e" }) } } };
+  assert.deepEqual(keptPhaseFailures(recorded, "bound", clean.report), []);
+  assert.deepEqual(codes(keptPhaseFailures(recorded, "unbound", clean.report)), ["LAUNCH-OUTCOME-NOT-RECORDED"]);
+  assert.deepEqual(codes(keptPhaseFailures(recorded, "bound", { ...clean.report, nonce: "another run" })), ["LAUNCH-REPORT-NOT-THIS-RUN"]);
 });
