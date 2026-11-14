@@ -8,10 +8,12 @@ unit is ever assumed: every unit label must be one the layout prints for that
 column's quantity (SI or English; angles in deg or rad), one system and one angle
 unit per file. English and radian values are normalized to the parser's output
 units (mm, deg, N, N*m) with the unit catalog's exact definitions, and each
-section records the label every value was printed in. Each value also carries its
-printed resolution, taken from its printed text before conversion (`printed_resolution`):
-one unit in the last decimal place the format prints for its column's unit label, or none,
-with the reason, where that resolution is not established or the text does not show it.
+section records the label every value was printed in. Each value also carries the facts of
+its printed token, taken before conversion, and the printed resolution the section rule
+(`resolve_section`) gives it (`printed_resolution`): per section and printed unit, a nonzero
+fixed-point token showing the candidate places (PRINTED_DECIMALS, a candidate, not proof)
+establishes them for the section's values of that unit; otherwise each value has none, with
+its cause and reason.
 Unknown sections are skipped with an info diagnostic.
 
 Parsed values are correlation evidence only. Nothing here asserts agreement or
@@ -26,7 +28,7 @@ from fractions import Fraction
 import math
 from pathlib import Path
 import re
-from typing import Any
+from typing import Any, Mapping
 
 
 PARSER_VERSION = "caepipe-print-csv-5"
@@ -70,13 +72,25 @@ _KEY_QUANTITY = {**{key: "force" for key in ("fx", "fy", "fz", "axial", "shear_y
                  **{key: "length" for key in ("ux", "uy", "uz")}, **{key: "rotation" for key in ("rx", "ry", "rz")}}
 _SLOT = re.compile(r"\((N|Nm|mm|deg|MPa)\)")
 
-# The printed resolution of a value: one unit in the last decimal place the print format prints for its column's
-# unit label, in the file's system. Only what the format is established to print is listed (observed format
-# behaviour of SI prints in degrees: 0.001 mm, 0.0001 deg, 1 N, 1 N*m). A label not listed (the English labels and
-# radians) has no established resolution, so its values carry none and are never screened with a guessed floor.
+# Candidate fixed-point precision per unit label, in the file's system: the decimal places the print format is
+# taken to print for that label (observed format behaviour: 0.001 mm, 0.0001 deg, 1 N, 1 N*m for the SI labels).
+# A candidate is not proof of a print's resolution. A label not listed has no candidate: the English labels
+# (inch, lb, ft-lb, and deg in an English print) and rad. In an SI print with radians only the rotations, printed in
+# rad, have none; its mm, N and Nm values keep their candidates. A value without one is never given a guessed floor.
 PRINTED_DECIMALS = {("SI", "mm"): 3, ("SI", "deg"): 4, ("SI", "N"): 0, ("SI", "Nm"): 0}
-_FIXED_POINT = re.compile(r"[+-]?(?:[0-9]+(?:\.(?P<a>[0-9]*))?|\.(?P<b>[0-9]+))\Z")
-_EXPONENT = re.compile(r"[+-]?(?:[0-9]+(?:\.(?P<a>[0-9]*))?|\.(?P<b>[0-9]+))[eE](?P<e>[+-]?[0-9]+)\Z")
+_FIXED_POINT = re.compile(r"[+-]?(?:(?P<i>[0-9]+)(?:\.(?P<a>[0-9]*))?|\.(?P<b>[0-9]+))\Z")
+_EXPONENT = re.compile(r"[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)[eE][+-]?[0-9]+\Z")
+
+# Why a value has no printed resolution. The section rule (resolve_section) gives the first five; the comparison gives
+# resolution_absent to a value whose parse carries no token for it.
+NO_WITNESS = "no_witness"                                   # no nonzero token of the unit in the section
+SHORTER_THAN_FORMAT = "shorter_than_format"                 # every nonzero token shows fewer places than the candidate
+UNSUPPORTED_BY_THIS_SCREEN = "unsupported_by_this_screen"   # a token shows more places, or is in exponent form
+UNSUPPORTED_UNITS_OR_ANGLE = "unsupported_units_or_angle"   # no candidate for the label (English labels, rad)
+MALFORMED_OUTPUT = "malformed_output"                       # a number the format's decimal forms do not describe
+RESOLUTION_ABSENT = "resolution_absent"                     # the parse carries no printed token for the value
+RESOLUTION_CAUSES = (NO_WITNESS, SHORTER_THAN_FORMAT, UNSUPPORTED_BY_THIS_SCREEN, UNSUPPORTED_UNITS_OR_ANGLE,
+                     MALFORMED_OUTPUT, RESOLUTION_ABSENT)
 
 _FORCE_KEYS = ("fx", "fy", "fz", "mx", "my", "mz")
 _LOCAL_KEYS = ("axial", "shear_y", "shear_z", "torque", "moment_in_plane", "moment_out_of_plane")
@@ -170,9 +184,10 @@ def _coverage() -> list[dict[str, Any]]:
                 "label being one the layout prints for that quantity (SI or English; deg or rad), one system and " \
                 "one angle unit per file; otherwise the section is not parsed. English and radian values are " \
                 f"normalized to mm, deg, N and N*m by the unit catalog's exact definitions. {_BLANK_NOTE} Each " \
-                "value carries its printed resolution (printed_resolution): one unit in the last decimal place the " \
-                "format prints for its label, established for SI prints in degrees only; otherwise none, with the " \
-                "reason."
+                "value carries its token's facts and a printed resolution by the section rule (printed_resolution): " \
+                "per section and unit, over the rows kept, a nonzero token showing the candidate places of its label " \
+                "(SI mm, deg, N and Nm; a candidate, not proof) establishes them; otherwise none, with the cause; " \
+                "the English labels and rad have no candidate."
         if kind == "element_forces_local":
             unit_row = " | ".join(",".join(variant[-1]) for variant in variants)
             notes += (" Accepted stress-column variants: none (Empty Weight), SL, SE, Sopr. Columns read: axial, "
@@ -417,7 +432,7 @@ class _Parser:
         printed: dict[str, dict[str, Any]] = {}
         for position, key in columns:
             text = row[position]
-            printed[key] = printed_resolution(text, self.section_units.get(key), self.system)
+            printed[key] = {"label": self.section_units.get(key), "system": self.system, "tokens": [token_facts(text)]}
             if text == "":
                 values[key] = 0.0
                 continue
@@ -477,9 +492,11 @@ class _Parser:
                 for number in range(len(data) // 2)
             ]
             self.case_tables(case)[kind] = elements
-            # Parallel to the element list, by element_index.
-            self.case_printed(case)[kind] = [{"from": data[2 * number][2][1], "to": data[2 * number + 1][2][1]}
-                                             for number in range(len(data) // 2)]
+            # Parallel to the element list, by element_index; the section rule runs over every kept row.
+            pairs = [{"from": data[2 * number][2][1], "to": data[2 * number + 1][2][1]}
+                     for number in range(len(data) // 2)]
+            _resolve_in_place([row for pair in pairs for row in pair.values()])
+            self.case_printed(case)[kind] = pairs
         else:
             table = self.case_tables(case)[kind]
             resolutions = self.case_printed(case)[kind]
@@ -490,10 +507,9 @@ class _Parser:
                 if node in table:
                     if kind == "restraint_loads_global":
                         table[node] = {key: table[node][key] + values[key] for key in values}
-                        # A sum of printed values of one column keeps that column's resolution; a part without one
-                        # leaves the sum without one.
-                        resolutions[node] = {key: _sum_resolution(resolutions[node][key], printed[key])
-                                             for key in printed}
+                        # The summed value keeps the tokens of every row it sums; each is evidence of the section.
+                        for key in printed:
+                            resolutions[node][key]["tokens"].extend(printed[key]["tokens"])
                         self.diag("CAEPIPE-PRINT-RESTRAINT-ROWS-SUMMED", "info", title, row_line,
                                   f"restraint rows at node {node} are summed")
                         continue
@@ -502,6 +518,8 @@ class _Parser:
                     continue
                 table[node] = values
                 resolutions[node] = printed
+            # Over the rows kept: a refused row or a later duplicate node's row supplies nothing.
+            _resolve_in_place(list(resolutions.values()))
         self.sections_parsed.append({"title": title, "kind": kind, "load_case": case, "line": line, "rows": len(data),
                                      "source_units": dict(self.section_units)})
 
@@ -543,47 +561,100 @@ def _match_headers(variants, found: tuple[tuple[str, ...], ...]) -> dict[int, tu
     return None
 
 
-def printed_resolution(text: str, label: str | None, system: str | None) -> dict[str, Any]:
-    """The printed resolution of one value from its printed text, before conversion: {"resolution": r} with r one unit
-    in the last decimal place the format prints for `label` in a `system` print (PRINTED_DECIMALS), in the parser's
-    output unit; or {"resolution": None, "reason": ...} when that resolution is not established or the text does not
-    show it. A blank field, a zero printed "0" and omitted trailing zeros take the column's resolution, never a coarser
-    one inferred from the text; text with more decimal places than the column prints, or in exponent form, is not
-    taken at the column's resolution."""
+def token_facts(text: str) -> dict[str, Any]:
+    """The facts of one printed token that the section rule reads: its form (blank, fixed, exponent or malformed) and,
+    for a fixed-point token, its decimal places, whether it is nonzero and its integer digits (leading zeros not
+    counted). An exponent is never converted to a number here."""
+    if text == "":
+        return {"form": "blank"}
+    fixed = _FIXED_POINT.match(text)
+    if fixed is not None:
+        return {"form": "fixed", "places": len(fixed.group("a") or fixed.group("b") or ""),
+                "nonzero": any(digit in "123456789" for digit in text),
+                "integer_digits": len((fixed.group("i") or "").lstrip("0"))}
+    return {"form": "exponent" if _EXPONENT.match(text) else "malformed"}
+
+
+def _unresolved(cause: str, reason: str) -> dict[str, Any]:
+    return {"resolution": None, "cause": cause, "reason": reason}
+
+
+def _verdict(label: str | None, system: str | None, tokens: list[Mapping[str, Any]]) -> dict[str, Any]:
+    """The section rule for the tokens of one printed unit in one section."""
     decimals = PRINTED_DECIMALS.get((system, label)) if label is not None else None
     if decimals is None:
-        return {"resolution": None,
-                "reason": f"the print format's resolution for {label!r} values (system {system}) is not established"}
-    fixed = _FIXED_POINT.match(text)
-    if text == "" or fixed is not None:
-        places = len((fixed.group("a") or fixed.group("b") or "") if fixed is not None else "")
-        if places > decimals:
-            return {"resolution": None,
-                    "reason": f"{text!r} prints {places} decimal places, more than the {decimals} the format prints "
-                              f"for {label!r}: its printed resolution is indeterminate"}
-        return {"resolution": _to_output(float(Fraction(1, 10 ** decimals)), label)}
-    exponent = _EXPONENT.match(text)
-    if exponent is not None:
-        try:
-            place = int(exponent.group("e")) - len(exponent.group("a") or exponent.group("b") or "")
-        except ValueError:
-            return {"resolution": None,
-                    "reason": "the printed exponent is outside the supported range: its printed resolution is indeterminate"}
-        if place > -decimals:
-            return {"resolution": None,
-                    "reason": f"{text!r} is printed coarser than the {decimals} decimal places the format prints for "
-                              f"{label!r}"}
-    return {"resolution": None,
-            "reason": f"{text!r} is not in the fixed-point form the format prints for {label!r}: its printed "
-                      "resolution is indeterminate"}
+        return _unresolved(UNSUPPORTED_UNITS_OR_ANGLE,
+                           f"no candidate printed resolution is established for {label!r} values (system {system})")
+    fixed = [token for token in tokens if token.get("form") == "fixed"]
+    most = max((token["places"] for token in fixed), default=None)
+    unsupported = (["exponent form"] if any(token.get("form") == "exponent" for token in tokens) else []) + (
+        [f"print shows {most} places, format expects {decimals}"] if most is not None and most > decimals else [])
+    if unsupported:
+        return _unresolved(UNSUPPORTED_BY_THIS_SCREEN, "; ".join(unsupported))
+    nonzero = [token["places"] for token in fixed if token["nonzero"]]
+    if not nonzero:
+        return _unresolved(NO_WITNESS, f"no nonzero {label!r} token in the section")
+    if max(nonzero) < decimals:
+        return _unresolved(SHORTER_THAN_FORMAT, f"print shows at most {max(nonzero)} places, format expects {decimals}")
+    return {"resolution": _to_output(float(Fraction(1, 10 ** decimals)), label)}
 
 
-def _sum_resolution(first: dict[str, Any], second: dict[str, Any]) -> dict[str, Any]:
-    if first.get("resolution") is None:
-        return first
-    if second.get("resolution") is None:
-        return second
-    return {"resolution": max(first["resolution"], second["resolution"])}
+def resolve_section(entries: list[Mapping[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """The section rule over the printed entries of one section (each {"label", "system", "tokens"}): per printed
+    unit, the resolution is established only when the most places any nonzero fixed-point token shows equal the
+    candidate places (PRINTED_DECIMALS); the unit's zero, blank and shorter tokens then take it. Otherwise every value
+    of that unit has none, with the cause: no_witness, shorter_than_format, unsupported_by_this_screen (a token with
+    more places, or in exponent form) or unsupported_units_or_angle (no candidate for the label). A value whose token
+    is malformed has none, cause malformed_output. The caller passes only evidence it keeps: the parser the rows it
+    kept, the comparison the rows that bound.
+
+    Returns each entry's outcome ({"resolution": r} in the parser's output unit, or {"resolution": None, "cause",
+    "reason"}) and the integer digit count witness: for each shorter nonzero token in a unit whose resolution is
+    established, whether the section has a full-places nonzero token whose integer part has at least as many digits.
+    The count is evidence against one specified alternative only (a significant-digit limit no wider than that
+    witness); it establishes no maximum printing precision and changes no outcome."""
+    groups: dict[tuple[Any, Any], list[Mapping[str, Any]]] = {}
+    for entry in entries:
+        groups.setdefault((entry.get("label"), entry.get("system")), []).extend(entry.get("tokens") or [])
+    verdicts = {group: _verdict(group[0], group[1], tokens) for group, tokens in groups.items()}
+    outcomes = []
+    for entry in entries:
+        verdict = verdicts[(entry.get("label"), entry.get("system"))]
+        tokens = entry.get("tokens") or []
+        if verdict.get("cause") == UNSUPPORTED_UNITS_OR_ANGLE:
+            outcome = verdict
+        elif not tokens:
+            outcome = _unresolved(RESOLUTION_ABSENT, "the value carries no printed token")
+        elif any(token.get("form") not in ("blank", "fixed", "exponent") for token in tokens):
+            outcome = _unresolved(MALFORMED_OUTPUT, "a printed token is a number in none of the format's decimal forms")
+        else:
+            outcome = verdict
+        outcomes.append(dict(outcome))
+    witnessed = not_witnessed = 0
+    for (label, system), tokens in groups.items():
+        if verdicts[(label, system)].get("resolution") is None:
+            continue
+        decimals = PRINTED_DECIMALS[(system, label)]
+        full = [token["integer_digits"] for token in tokens
+                if token.get("form") == "fixed" and token["nonzero"] and token["places"] == decimals]
+        for token in tokens:
+            if token.get("form") == "fixed" and token["nonzero"] and token["places"] < decimals:
+                if any(digits >= token["integer_digits"] for digits in full):
+                    witnessed += 1
+                else:
+                    not_witnessed += 1
+    return outcomes, {"witnessed_by_integer_digit_count": witnessed,
+                      "not_witnessed_by_integer_digit_count": not_witnessed}
+
+
+def _resolve_in_place(rows: list[dict[str, dict[str, Any]]]) -> None:
+    """Applies the section rule to the kept rows of one section, recording each entry's outcome on it."""
+    entries = [entry for row in rows for entry in row.values()]
+    outcomes, _ = resolve_section(entries)
+    for entry, outcome in zip(entries, outcomes):
+        for stale in ("resolution", "cause", "reason"):
+            entry.pop(stale, None)
+        entry.update(outcome)
 
 
 def _to_output(value: float, label: str | None) -> float:

@@ -20,7 +20,12 @@ from core.handoff.caepipe_external import (  # noqa: E402
     parse_caepipe_print_csv,
     read_caepipe_print_csv,
 )
-from core.handoff.caepipe_external.print_csv import PRINTED_DECIMALS, printed_resolution  # noqa: E402
+from core.handoff.caepipe_external.print_csv import (  # noqa: E402
+    PRINTED_DECIMALS,
+    RESOLUTION_CAUSES,
+    resolve_section,
+    token_facts,
+)
 
 
 FIXTURE = ROOT / "fixtures" / "caepipe_external" / "invented" / "print_to_file_results.csv"
@@ -315,39 +320,160 @@ def test_a_value_that_overflows_on_conversion_is_refused():
         json.dumps(result, allow_nan=False)                              # strictly serializable
 
 
-# -- printed resolution (invented text) -------------------------------------------------------------------------------
-def test_the_established_printed_resolution_is_si_in_degrees_only():
+# -- printed resolution: the section rule (invented text) -------------------------------------------------------------
+CAUSES = ("no_witness", "shorter_than_format", "unsupported_by_this_screen", "unsupported_units_or_angle",
+          "malformed_output", "resolution_absent")
+MM = ("ux", "uy", "uz")
+LONG = "1" * 5000  # 5,000 exponent digits: beyond int()'s default digit limit
+
+
+def test_candidate_printed_resolutions_are_listed_for_the_si_labels_only():
+    """Policy boundary: candidates (observed format behaviour, not proof) exist for the SI labels only."""
     assert PRINTED_DECIMALS == {("SI", "mm"): 3, ("SI", "deg"): 4, ("SI", "N"): 0, ("SI", "Nm"): 0}
+    assert RESOLUTION_CAUSES == CAUSES
 
 
-def test_each_value_carries_its_printed_resolution_from_its_text():
+def displacement_section(*rows: str, case: str = SUSTAINED) -> list[str]:
+    """One SI displacement section of `rows`."""
+    return [*displacement_block(case)[:4], *rows]
+
+
+def mm_entries(result: dict, case: str = SUSTAINED) -> dict:
+    """{(node, key): printed entry} for every mm value of the case's displacement section."""
+    table = result["printed_resolution"][case]["displacements"]
+    return {(node, key): row[key] for node, row in table.items() for key in MM}
+
+
+def assert_all(entries: dict, nodes: set, cause: str | None, resolution: float | None = None) -> None:
+    assert {node for node, _ in entries} == nodes
+    for where, entry in entries.items():
+        if cause is None:
+            assert entry["resolution"] == resolution, where
+        else:
+            assert entry["resolution"] is None and entry["cause"] == cause and entry["reason"], where
+
+
+def test_each_value_carries_its_token_facts_and_the_sections_outcome():
+    """Policy boundary: the parse records each value's token facts and the section rule's outcome over the kept rows.
+    In the invented fixture the displacement mm columns are witnessed; its degrees show at most 3 places of 4; its
+    forces print decimals the candidate does not, so that unit is unsupported by this screen."""
     result = read_caepipe_print_csv(FIXTURE)
     printed = result["printed_resolution"][SUSTAINED]
-    # 0.001 mm and 0.0001 deg, in the output units; a blank field takes the column's resolution.
-    assert printed["displacements"]["20"] == {"ux": {"resolution": 0.001}, "uy": {"resolution": 0.001},
-                                              "uz": {"resolution": 0.001}, "rx": {"resolution": 0.0001},
-                                              "ry": {"resolution": 0.0001}, "rz": {"resolution": 0.0001}}
-    anchor = printed["anchor_loads_global"]["10"]
-    assert anchor["fx"] == {"resolution": 1.0} and anchor["mz"]["resolution"] is None  # "-40.5" N*m
-    assert "more than the 0" in anchor["mz"]["reason"]
-    # Element pairs, parallel to the element list by element_index.
+    entry = printed["displacements"]["20"]["ux"]
+    assert entry["label"] == "mm" and entry["system"] == "SI" and entry["resolution"] == 0.001
+    assert entry["tokens"] == [{"form": "fixed", "places": 3, "nonzero": True, "integer_digits": 0}]  # "0.125"
+    assert printed["displacements"]["10"]["uz"]["tokens"] == [{"form": "blank"}]
+    assert printed["displacements"]["20"]["rx"]["cause"] == "shorter_than_format"
+    assert printed["anchor_loads_global"]["10"]["fx"]["cause"] == "unsupported_by_this_screen"  # "1.25" N beside it
     elements = printed["element_forces_global"]
     assert len(elements) == len(result["load_cases"][SUSTAINED]["element_forces_global"]) == 3
-    assert set(elements[0]) == {"from", "to"} and elements[0]["from"]["fx"] == {"resolution": 1.0}
-    assert set(printed) == set(result["load_cases"][SUSTAINED])
+    assert set(elements[0]) == {"from", "to"} and set(printed) == set(result["load_cases"][SUSTAINED])
 
 
-def test_summed_restraint_rows_keep_the_column_resolution_or_lose_it():
+def test_a_section_of_zeros_and_blanks_only_establishes_nothing():  # (a)
+    """Policy boundary (no witness)."""
+    result = parse_caepipe_print_csv(text_of(f"{SUSTAINED}: Loads on restraints,", "Node,Tag,FX (N),FY (N),FZ (N),,",
+                                             "40,,0,,-0,,", "50,,,0,,,"))
+    table = result["printed_resolution"][SUSTAINED]["restraint_loads_global"]
+    assert_all({(node, key): row[key] for node, row in table.items() for key in ("fx", "fy", "fz")}, {"40", "50"},
+               "no_witness")
+
+
+def test_a_witness_at_the_candidate_places_carries_zero_blank_and_shorter_tokens():  # (b)
+    """Policy boundary (established)."""
+    result = parse_caepipe_print_csv(text_of(*displacement_section("10,1.250,0,,,,,,", "20,0.05,,-0,,,,,",
+                                                                   "30,,4.8,0.001,,,,,")))
+    assert_all(mm_entries(result), {"10", "20", "30"}, None, 0.001)
+
+
+def test_a_section_whose_nonzero_tokens_are_all_shorter_establishes_nothing():  # (c)
+    """Policy boundary (all shorter): the reason states the disagreement."""
+    result = parse_caepipe_print_csv(text_of(*displacement_section("10,0.05,1.2,,,,,,", "20,4.8,0,-0.5,,,,,")))
+    entries = mm_entries(result)
+    assert_all(entries, {"10", "20"}, "shorter_than_format")
+    assert entries[("10", "ux")]["reason"] == "print shows at most 2 places, format expects 3"
+
+
+def test_a_token_with_more_places_than_the_candidate_unmatches_the_section():  # (d)
+    """Policy boundary (more places), beside a witness (1.250)."""
+    result = parse_caepipe_print_csv(text_of(*displacement_section("10,1.250,0,,,,,,", "20,0.1250,,0.5,,,,,")))
+    entries = mm_entries(result)
+    assert_all(entries, {"10", "20"}, "unsupported_by_this_screen")
+    assert entries[("10", "ux")]["reason"] == "print shows 4 places, format expects 3"
+
+
+def test_an_exponent_form_token_unmatches_the_section():  # (e)
+    """Policy boundary (exponent form), beside a witness (1.250); finite values are kept."""
+    result = parse_caepipe_print_csv(text_of(*displacement_section("10,1.250,0,,,,,,", "20,1.25E+00,,0.5,,,,,")))
+    entries = mm_entries(result)
+    assert_all(entries, {"10", "20"}, "unsupported_by_this_screen")
+    assert entries[("20", "ux")]["reason"] == "exponent form"
+    assert result["load_cases"][SUSTAINED]["displacements"]["20"]["ux"] == 1.25
+
+
+def test_a_long_negative_exponent_unmatches_the_section_and_keeps_its_finite_value():  # (f)
+    """Defect: a long exponent raised an uncaught ValueError. It is exponent form: unsupported by this screen, the
+    exponent never converted; its value underflows to a finite number, which is kept."""
+    result = parse_caepipe_print_csv(text_of(*displacement_section("10,1.250,0,,,,,,", f"20,-1.5e-{LONG},,0.5,,,,,")))
+    assert errors(result) == []
+    assert_all(mm_entries(result), {"10", "20"}, "unsupported_by_this_screen")
+    assert result["load_cases"][SUSTAINED]["displacements"]["20"]["ux"] == 0.0
+
+
+@pytest.mark.parametrize("token", [f"-1.5e{LONG}", f"+1.5e+{LONG}"])
+def test_a_long_positive_exponent_is_refused_as_a_number_never_an_exception(token):
+    """Defect: a long exponent raised an uncaught ValueError. The token is exponent form; its value overflows, so the
+    existing finite-number check refuses the row and parsing goes on."""
+    assert token_facts(token) == {"form": "exponent"}
+    result = parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED), f"20,{token},,,,,,,"))
+    assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-NUMBER-INVALID"]
+    assert set(result["load_cases"][SUSTAINED]["displacements"]) == {"10"}
+
+
+def test_a_refused_row_never_witnesses_the_section():  # (g)
+    """Policy boundary (evidence stays local): row 20 would witness (0.125) but is refused for its invalid field."""
+    result = parse_caepipe_print_csv(text_of(*displacement_section("10,0,,0.5,,,,,", "20,0.125,*****,,,,,,")))
+    assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-NUMBER-INVALID"]
+    assert_all(mm_entries(result), {"10"}, "shorter_than_format")
+
+
+def test_a_rejected_duplicate_row_or_section_never_witnesses():
+    """Policy boundary (evidence stays local): a later row for the same node, and a second section for the same case,
+    are not read, and their witnesses establish nothing."""
+    result = parse_caepipe_print_csv(text_of(*displacement_section("10,0,,0.5,,,,,", "10,1.250,,,,,,,")))
+    assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-DUPLICATE-NODE"]
+    assert_all(mm_entries(result), {"10"}, "shorter_than_format")
+    result = parse_caepipe_print_csv(text_of(*displacement_section("10,0,,,,,,,"), "",
+                                             *displacement_section("10,1.250,,,,,,,")))
+    assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-SECTION-DUPLICATE"]
+    assert_all(mm_entries(result), {"10"}, "no_witness")
+
+
+def test_no_resolution_is_borrowed_across_case_or_quantity():
+    """Policy boundary (evidence stays local): a sustained witness does not reach the expansion case, and an mm
+    witness does not reach the degrees of the same section."""
+    result = parse_caepipe_print_csv(text_of(*displacement_section("10,1.250,,,,,,,"), "",
+                                             *displacement_section("10,0,,,,,,,", case=EXPANSION)))
+    assert_all(mm_entries(result), {"10"}, None, 0.001)
+    assert_all(mm_entries(result, EXPANSION), {"10"}, "no_witness")
+    assert result["printed_resolution"][SUSTAINED]["displacements"]["10"]["rx"]["cause"] == "no_witness"
+
+
+def test_summed_restraint_rows_keep_every_rows_token():
+    """Policy boundary: a node's summed restraint value keeps the tokens of each row it sums, and each is evidence."""
     def text(second: str) -> str:
         return text_of(f"{SUSTAINED}: Loads on restraints,", "Node,Tag,FX (N),FY (N),FZ (N),,", "40,,1,2,,,", second)
     result = parse_caepipe_print_csv(text("40,,3,4,,,"))
     assert result["load_cases"][SUSTAINED]["restraint_loads_global"]["40"] == {"fx": 4.0, "fy": 6.0, "fz": 0.0}
-    assert result["printed_resolution"][SUSTAINED]["restraint_loads_global"]["40"]["fx"] == {"resolution": 1.0}
+    entry = result["printed_resolution"][SUSTAINED]["restraint_loads_global"]["40"]["fx"]
+    assert entry["resolution"] == 1.0 and len(entry["tokens"]) == 2
     lost = parse_caepipe_print_csv(text("40,,3.5,4,,,"))["printed_resolution"][SUSTAINED]["restraint_loads_global"]
-    assert lost["40"]["fx"]["resolution"] is None and lost["40"]["fy"] == {"resolution": 1.0}
+    assert all(lost["40"][key]["cause"] == "unsupported_by_this_screen" for key in ("fx", "fy", "fz"))
 
 
-def test_english_and_radian_values_carry_no_resolution_with_the_reason():
+def test_english_and_radian_values_have_no_candidate():
+    """Policy boundary (unsupported units or angle): English labels, degrees in an English print, and rad. The SI
+    lengths of a print with radian rotations keep their candidate."""
     text = text_of(*anchor_block(SUSTAINED, "lb", "ft-lb"),
                    *displacement_block(SUSTAINED, "Node,(inch),(inch),(inch),(deg),(deg),(deg),,")[:4],
                    "20,1.000,-0.250,,0.5000,,,,")
@@ -356,120 +482,39 @@ def test_english_and_radian_values_carry_no_resolution_with_the_reason():
                          (printed["anchor_loads_global"]["10"]["my"], "'ft-lb'"),
                          (printed["displacements"]["20"]["ux"], "'inch'"),
                          (printed["displacements"]["20"]["rx"], "'deg'")):
-        assert entry["resolution"] is None and label in entry["reason"] and "English" in entry["reason"]
+        assert entry["cause"] == "unsupported_units_or_angle" and label in entry["reason"]
+        assert "English" in entry["reason"]
     radians = parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED, "Node,(mm),(mm),(mm),(rad),(rad),(rad),,")[:4],
                                               "20,1.500,,,1.0000,-0.5000,,,"))
     node = radians["printed_resolution"][SUSTAINED]["displacements"]["20"]
-    assert node["ux"] == {"resolution": 0.001} and node["rx"]["resolution"] is None and "'rad'" in node["rx"]["reason"]
+    assert node["ux"]["resolution"] == 0.001
+    assert node["rx"]["cause"] == "unsupported_units_or_angle" and "'rad'" in node["rx"]["reason"]
 
 
-def test_printed_resolution_never_infers_a_coarse_floor_from_the_text():
-    for text in ("", "0", "-0", "+0", "4.8", "4.80", "4.800", "-.5", "12."):
-        assert printed_resolution(text, "mm", "SI") == {"resolution": 0.001}, text
-    assert printed_resolution("1200", "N", "SI") == {"resolution": 1.0}
-    for text, words in (("4.8000", "more than the 3"), ("1E+00", "coarser than the 3"), ("1.5E+03", "coarser"),
-                        ("1.0E-03", "not in the fixed-point form"), ("1.2345E-01", "not in the fixed-point form"),
-                        ("1_0", "not in the fixed-point form"), (" 1", "not in the fixed-point form")):
-        entry = printed_resolution(text, "mm", "SI")
-        assert entry["resolution"] is None and words in entry["reason"], text
-    assert printed_resolution("1", "N", None)["resolution"] is None  # no system: not established
+def test_token_facts_read_the_printed_form_without_converting_it():
+    """Policy boundary: token forms. Zero and blank are not witnesses; a number in none of the decimal forms is
+    malformed, apart from exponent form."""
+    assert token_facts("") == {"form": "blank"}
+    assert token_facts("-0.000") == {"form": "fixed", "places": 3, "nonzero": False, "integer_digits": 0}
+    assert token_facts("12.50") == {"form": "fixed", "places": 2, "nonzero": True, "integer_digits": 2}
+    assert token_facts("-.5") == {"form": "fixed", "places": 1, "nonzero": True, "integer_digits": 0}
+    assert token_facts("12.") == {"form": "fixed", "places": 0, "nonzero": True, "integer_digits": 2}
+    for text in ("1E+00", "1.5e-3", "-.5E2", f"1e{LONG}"):
+        assert token_facts(text) == {"form": "exponent"}, text
+    for text in ("1_0", "١", "1.2.3"):
+        assert token_facts(text) == {"form": "malformed"}, text
 
 
-
-# -- long exponents (P2): never an uncaught exception ------------------------------------------------------------------
-LONG = "1" * 5000  # 5,000 exponent digits: beyond int()'s default digit limit, so the place cannot be computed
-
-
-@pytest.mark.parametrize("token", [f"-1.5e{LONG}", f"+1.5e+{LONG}"])
-def test_a_long_positive_exponent_is_refused_as_a_number_never_an_exception(token):
-    entry = printed_resolution(token, "mm", "SI")
-    assert entry["resolution"] is None and "exponent is outside the supported range" in entry["reason"]
-    # The value overflows binary64: the row is refused by the existing finite-number check, and parsing goes on.
-    result = parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED), f"20,{token},,,,,,,"))
-    assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-NUMBER-INVALID"]
-    assert set(result["load_cases"][SUSTAINED]["displacements"]) == {"10"}
-
-
-def test_a_long_negative_exponent_keeps_its_finite_value_with_indeterminate_resolution():
-    token = f"-1.5e-{LONG}"
-    entry = printed_resolution(token, "mm", "SI")
-    assert entry["resolution"] is None and "exponent is outside the supported range" in entry["reason"]
-    result = parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED), f"20,{token},,,,,,,"))
-    assert errors(result) == []
-    assert result["load_cases"][SUSTAINED]["displacements"]["20"]["ux"] == 0.0  # underflows to a finite value, kept
-    kept = result["printed_resolution"][SUSTAINED]["displacements"]["20"]["ux"]
-    assert kept["resolution"] is None and "exponent is outside the supported range" in kept["reason"]
-
-
-# -- the section rule for printed resolution (P1): scaffolding only ----------------------------------------------------
-# Each case is an invented section; the assertions cover every value of the named unit in it. The rule itself awaits
-# the Agent 0's P1 ruling: until it is implemented these cases fail, strictly.
-P1_PENDING = pytest.mark.xfail(strict=True, reason="awaiting the Agent 0's P1 ruling")
-MM = ("ux", "uy", "uz")
-
-
-def displacement_section(*rows: str) -> dict:
-    """The parse of one SI displacement section of `rows` (rotations blank)."""
-    return parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED)[:4], *rows))
-
-
-def mm_entries(result: dict) -> dict:
-    """{(node, key): printed-resolution entry} for every mm value of the section."""
-    table = result["printed_resolution"][SUSTAINED]["displacements"]
-    return {(node, key): row[key] for node, row in table.items() for key in MM}
-
-
-def assert_all_unmatched(entries: dict, nodes: set) -> None:
-    assert {node for node, _ in entries} == nodes
-    for where, entry in entries.items():
-        assert entry["resolution"] is None, where
-        assert isinstance(entry.get("reason"), str) and entry["reason"], where  # a stated cause
-
-
-@P1_PENDING
-def test_p1_a_section_of_zeros_and_blanks_only_establishes_nothing():  # (a)
-    result = parse_caepipe_print_csv(text_of(f"{SUSTAINED}: Loads on restraints,", "Node,Tag,FX (N),FY (N),FZ (N),,",
-                                             "40,,0,,-0,,", "50,,,0,,,"))
-    table = result["printed_resolution"][SUSTAINED]["restraint_loads_global"]
-    entries = {(node, key): row[key] for node, row in table.items() for key in ("fx", "fy", "fz")}
-    assert_all_unmatched(entries, {"40", "50"})
-
-
-def test_p1_a_witness_at_the_tables_places_carries_zero_blank_and_shorter_tokens():  # (b)
-    # Not marked xfail: the current head already gives every value the table's places here, so a strict xfail would
-    # pass unexpectedly. It must keep passing once the rule is in.
-    result = displacement_section("10,1.250,0,,,,,,", "20,0.05,,-0,,,,,", "30,,4.8,0.001,,,,,")
-    entries = mm_entries(result)
-    assert {node for node, _ in entries} == {"10", "20", "30"}
-    assert all(entry == {"resolution": 0.001} for entry in entries.values()), entries
-
-
-@P1_PENDING
-def test_p1_a_section_whose_nonzero_tokens_are_all_shorter_establishes_nothing():  # (c)
-    assert_all_unmatched(mm_entries(displacement_section("10,0.05,1.2,,,,,,", "20,4.8,0,-0.5,,,,,")), {"10", "20"})
-
-
-@P1_PENDING
-def test_p1_a_token_with_more_places_than_the_table_unmatches_the_section():  # (d)
-    # A would-be witness (1.250) is present; the token with four places still leaves every mm value unmatched.
-    assert_all_unmatched(mm_entries(displacement_section("10,1.250,0,,,,,,", "20,0.1250,,0.5,,,,,")), {"10", "20"})
-
-
-@P1_PENDING
-def test_p1_an_exponent_form_token_unmatches_the_section():  # (e)
-    assert_all_unmatched(mm_entries(displacement_section("10,1.250,0,,,,,,", "20,1.25E+00,,0.5,,,,,")), {"10", "20"})
-
-
-@P1_PENDING
-def test_p1_a_long_exponent_token_unmatches_the_section():  # (f)
-    # A negative long exponent keeps its row (a finite value), so the section is read with it.
-    assert_all_unmatched(mm_entries(displacement_section("10,1.250,0,,,,,,", f"20,-1.5e-{LONG},,0.5,,,,,")),
-                         {"10", "20"})
-
-
-@P1_PENDING
-def test_p1_a_refused_row_never_witnesses_the_section():  # (g)
-    # Row 20 would witness (0.125 at three places) but is refused for its invalid field; it establishes nothing.
-    result = displacement_section("10,0,,0.5,,,,,", "20,0.125,*****,,,,,,")
-    assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-NUMBER-INVALID"]
-    assert_all_unmatched(mm_entries(result), {"10"})
+def test_the_integer_digit_count_witness_compares_integer_digits_only():
+    """Policy boundary: the integer digit count witness counts, per shorter nonzero token of an established unit,
+    whether a full-places token has at least as many integer digits; it changes no outcome."""
+    def entry(*tokens: str) -> dict:
+        return {"label": "mm", "system": "SI", "tokens": [token_facts(token) for token in tokens]}
+    outcomes, counts = resolve_section([entry("0.050"), entry("4.8"), entry("12.5"), entry("0")])
+    assert all(outcome == {"resolution": 0.001} for outcome in outcomes)
+    assert counts == {"witnessed_by_integer_digit_count": 0, "not_witnessed_by_integer_digit_count": 2}
+    outcomes, counts = resolve_section([entry("10.050"), entry("4.8"), entry("12.5"), entry("123.4")])
+    assert all(outcome == {"resolution": 0.001} for outcome in outcomes)
+    assert counts == {"witnessed_by_integer_digit_count": 2, "not_witnessed_by_integer_digit_count": 1}
+    _, counts = resolve_section([entry("4.8"), entry("0")])  # not established: nothing is counted
+    assert counts == {"witnessed_by_integer_digit_count": 0, "not_witnessed_by_integer_digit_count": 0}

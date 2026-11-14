@@ -203,6 +203,17 @@ def csv_text(cases: dict[str, dict]) -> str:
     return "\r\n".join(lines) + "\r\n"
 
 
+def assert_within_or_unwitnessed(record: dict, label: str = "") -> None:
+    """Policy boundary (the section rule's no-witness branch): every quantity is screened within the profile, or is
+    unmatched only because its section of the print has no nonzero token of its unit, so it prints zero; there is no
+    finding and no other unmatched or status row."""
+    for row in record["results"]:
+        if row["classification"] == WITHIN:
+            continue
+        assert row["classification"] == UNMATCHED and row.get("resolution_cause") == "no_witness", (label, row)
+        assert row["values"]["caepipe"] == 0.0, (label, row)
+
+
 def mirror_tables(payload: dict, mbf, case_ids: list[str]) -> dict:
     """Invented printed tables formed from SWBPIPE's own results, rounded to the printed resolution: what a program
     that agreed exactly with SWBPIPE would print. The support rows are the pipe's load on the support."""
@@ -251,7 +262,7 @@ def test_every_model_solves_and_its_closed_forms_match_swbpipe_and_a_mirror_scre
         mbf, text = mirror_csv(document, payload)
         record = build_benchmark_record(document, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf.text,
                                         parsed_caepipe=parse_caepipe_print_csv(text))
-        assert record["summary"]["by_classification"] == {WITHIN: record["summary"]["results"]}, document["model_id"]
+        assert_within_or_unwitnessed(record, document["model_id"])
         assert [case["case"] for case in record["load_cases"]] == ["case:expansion", "case:sustained", "operating"]
         for row in record["results"]:
             if "closed_form" in row:
@@ -623,9 +634,15 @@ def invented_payload() -> dict:
     return {"mechanics_envelope": {"results": rows}}
 
 
-def invented_print(*, sustained_uy="-4", drop_label=None, extra_anchor=False, override=None) -> str:
+def invented_print(*, sustained_uy="-4.000", drop_label=None, extra_anchor=False, override=None) -> str:
     """Invented print of the invented cantilever (nodes 10, 20, 30 for A, M, B). `override`: {label: {section:
     {node: printed values}}} replaces those rows."""
+    return csv_text(invented_cases(sustained_uy=sustained_uy, drop_label=drop_label, extra_anchor=extra_anchor,
+                                   override=override))
+
+
+def invented_cases(*, sustained_uy="-4.000", drop_label=None, extra_anchor=False, override=None) -> dict:
+    """The tables of invented_print, before they are written as text."""
     def tables(uy: str, ux: str, fy: str, mz: str) -> dict:
         element = {"10": ["0", fy, "0", "0", "0", "0"], "20": ["0", f"{-float(fy):g}", "0", "0", "0", "0"]}
         return {
@@ -635,14 +652,14 @@ def invented_print(*, sustained_uy="-4", drop_label=None, extra_anchor=False, ov
             "displacements": {"10": ["0"] * 6, "20": ["0"] * 6, "30": [ux, uy, "0", "0", "0", "0"]},
         }
     cases = {"Sustained (W+P)": tables(sustained_uy, "0", "1000", "-4000"),
-             "Expansion (T1)": tables("0", "4.8", "0", "0"),
-             OPERATING_LABEL: tables(sustained_uy, "4.8", "1000", "-4000")}
+             "Expansion (T1)": tables("0", "4.800", "0", "0"),
+             OPERATING_LABEL: tables(sustained_uy, "4.800", "1000", "-4000")}
     for label, sections in (override or {}).items():
         for section, rows in sections.items():
             cases[label][section].update(rows)
     if drop_label:
         cases.pop(drop_label)
-    return csv_text(cases)
+    return cases
 
 
 def compare(text: str, document: dict | None = None) -> dict:
@@ -661,7 +678,7 @@ def find(record: dict, case: str, kind: str, entity: str, component: str, end: s
 def test_the_two_way_record_screens_every_bound_scalar_without_an_analytic_value():
     record = compare(invented_print())
     assert record["document_kind"] == BENCHMARK_RECORD_KIND
-    assert record["summary"]["by_classification"] == {WITHIN: record["summary"]["results"]}
+    assert_within_or_unwitnessed(record)
     assert [(case["case"], case["screening_class"]) for case in record["load_cases"]] == [
         ("case:expansion", "exact"), ("case:sustained", "named_inexact"), ("operating", "named_inexact")]
     tip = find(record, "case:sustained", "displacement", "node:B", "y")
@@ -684,7 +701,7 @@ def test_the_two_way_record_screens_every_bound_scalar_without_an_analytic_value
 def test_a_difference_outside_the_profile_is_a_finding_and_inside_is_not():
     within = compare(invented_print(sustained_uy="-4.019"))  # 19 um on 4 mm: under 5e-3 * 4 mm + 1 um
     assert find(within, "case:sustained", "displacement", "node:B", "y")["classification"] == WITHIN
-    record = compare(invented_print(sustained_uy="-4.03"))
+    record = compare(invented_print(sustained_uy="-4.030"))
     row = find(record, "case:sustained", "displacement", "node:B", "y")
     assert row["classification"] == FINDING
     assert row["screen"]["allowed"] == pytest.approx(1e-6 + 5e-3 * 0.00403)
@@ -719,7 +736,7 @@ def test_unmatched_rows_and_status_mismatches_are_findings_never_dropped():
     assert {(row["case"], row["entity"], row["section"]) for row in extra} == {
         ("case:sustained", "90", "anchor_loads_global"), ("operating", "90", "anchor_loads_global")}
     assert all(row["classification"] == UNMATCHED for row in extra)
-    missing = compare(invented_print().replace("30,4.8,", "31,4.8,").replace("30,0,-4,", "31,0,-4,"))
+    missing = compare(invented_print().replace("30,4.800,", "31,4.800,").replace("30,0,-4.000,", "31,0,-4.000,"))
     only = find(missing, "case:sustained", "displacement", "node:B", "y")
     assert only["classification"] == UNMATCHED and only["reason"] == "only SWBPIPE has this value"
 
@@ -787,7 +804,7 @@ def test_co_located_supports_are_complete_per_support_before_the_node_sum():
 
 
 def test_a_parser_error_is_counted_unmatched_never_dropped():
-    text = invented_print().replace("30,0,-4,0,0,0,0,,", "30,0,-4,0,0,0,0,,\r\n30,0,-5,0,0,0,0,,", 1)
+    text = invented_print().replace("30,0,-4.000,0,0,0,0,,", "30,0,-4.000,0,0,0,0,,\r\n30,0,-5.000,0,0,0,0,,", 1)
     parsed = parse_caepipe_print_csv(text)
     assert [item for item in parsed["diagnostics"] if item["severity"] == "error"]
     record = compare_payload(invented_payload(), text)
@@ -830,10 +847,18 @@ def compared_rows(record: dict) -> list[dict]:
             and row["values"]["swbpipe"] is not None and row["values"]["caepipe"] is not None]
 
 
+def rows_of(record: dict, case: str, kind: str, entities: set[str]) -> list[dict]:
+    return [row for row in record["results"] if row["case"] == case and row["kind"] == kind
+            and row["entity"] in entities]
+
+
 # Node B's x displacement made 1000 m on both sides of the expansion and operating cases (SWBPIPE's value in mm).
 LARGE_TIP = set_value("global_nodal_displacement_x", "node:B", "case:expansion", 1.0e6)
 LARGE_TIP_PRINT = {"Expansion (T1)": {"displacements": {"30": ["1000000", "0", "0", "0", "0", "0"]}},
-                   OPERATING_LABEL: {"displacements": {"30": ["1000000", "-4", "0", "0", "0", "0"]}}}
+                   OPERATING_LABEL: {"displacements": {"30": ["1000000", "-4.000", "0", "0", "0", "0"]}}}
+CAUSES = ["no_witness", "shorter_than_format", "unsupported_by_this_screen", "unsupported_units_or_angle",
+          "malformed_output", "resolution_absent"]
+DISPLACEMENT_NODES = {"node:A", "node:M", "node:B"}
 
 
 def with_print(base: dict, **sections) -> dict:
@@ -845,8 +870,9 @@ def with_print(base: dict, **sections) -> dict:
 
 
 def test_the_readers_example_is_a_finding_whatever_the_case_maximum():
-    """S = 0 and C = 5e-5 m in a case whose largest displacement is 1000 m: the stated formula allows
-    a + r * 5e-5 m, about 1e-6 m, so the difference is a finding. The near-zero term (r * 1e-3 * 1000 m) passed it."""
+    """Defect: the near-zero term. S = 0 and C = 5e-5 m in a case whose largest displacement is 1000 m: the stated
+    formula allows a + r * 5e-5 m, about 1e-6 m, so the difference is a finding. The near-zero term (r * 1e-3 *
+    1000 m) passed it."""
     text = invented_print(override=with_print(LARGE_TIP_PRINT, displacements={"20": ["0", "0.050", "0", "0", "0", "0"]}))
     record = record_of(text, payload_with(LARGE_TIP), without_closed_forms())
     row = find(record, "case:expansion", "displacement", "node:M", "y")
@@ -860,6 +886,7 @@ def test_the_readers_example_is_a_finding_whatever_the_case_maximum():
 
 
 def test_an_unrelated_large_pair_cannot_change_an_existing_pairs_verdict():
+    """Defect: the case maximum. Adding a large, agreeing pair elsewhere in the case leaves a pair's screen as it was."""
     restraint = {"Sustained (W+P)": {"restraints": {"20": ["0", "-3", "0"]}}}  # C = 3 N where SWBPIPE has 0
     base = record_of(invented_print(override=restraint))
     anchor = ["-10000000", "-1000", "0", "0", "0", "-4000"]  # a 1e7 N anchor force, equal on both sides
@@ -873,9 +900,8 @@ def test_an_unrelated_large_pair_cannot_change_an_existing_pairs_verdict():
     assert find(record, "case:sustained", "support_force", "node:10", "x")["classification"] == WITHIN
 
 
-# (section, node label, column, kind, entity, component, decimals printed, floor in SI) for each kind of an SI print
-# in degrees, the one print the format's resolution is established for: 0.001 mm = 1e-6 m, 0.0001 deg in rad, 1 N,
-# 1 N*m.
+# (section, node label, column, kind, entity, component, decimals printed, floor in SI) for each SI label that has a
+# candidate precision: 0.001 mm = 1e-6 m, 0.0001 deg in rad, 1 N, 1 N*m.
 SI_FLOORS = [
     ("displacements", "20", 1, "displacement", "node:M", "y", 3, 1.0e-6),
     ("displacements", "20", 5, "rotation", "node:M", "z", 4, math.radians(1.0e-4)),
@@ -886,6 +912,8 @@ SI_FLOORS = [
 
 @pytest.mark.parametrize("section, node, column, kind, entity, component, places, floor", SI_FLOORS)
 def test_the_floor_is_one_printed_unit_of_the_si_print(section, node, column, kind, entity, component, places, floor):
+    """Policy boundary: a = one printed unit, for each SI label and its conversion to SI. The printed value is itself
+    the section's witness: one unit is within, two are a finding."""
     for units, expected in ((1, WITHIN), (2, FINDING)):  # where SWBPIPE has 0: one printed unit, then two
         row = ["0"] * (3 if section == "restraints" else 6)
         row[column] = f"{units * 10.0 ** -places:.{places}f}"
@@ -897,9 +925,10 @@ def test_the_floor_is_one_printed_unit_of_the_si_print(section, node, column, ki
 
 
 @pytest.mark.parametrize("printed, swbpipe_mm", [("0.05", 0.052), ("0", 0.002), ("-0", 0.002), ("", 0.002)])
-def test_a_short_zero_or_blank_print_keeps_the_columns_resolution(printed, swbpipe_mm):
-    """Omitted trailing zeros, a zero printed "0" and a blank field do not make the floor coarser: 2 um against
-    0.05 mm or 0 is a finding at the column's 0.001 mm, which a floor read from the text (0.01 or 1 mm) would pass."""
+def test_a_witnessed_section_gives_its_short_zero_and_blank_tokens_its_resolution(printed, swbpipe_mm):
+    """Policy boundary (the section rule's established branch): node B's 4.800 witnesses three places, so 0.05, 0, -0
+    and a blank in the same section take 0.001 mm; 2 um is then a finding, which a floor read from the token alone
+    (0.01 or 1 mm) would pass."""
     payload = payload_with(set_value("global_nodal_displacement_y", "node:M", "case:expansion", swbpipe_mm))
     text = invented_print(override={"Expansion (T1)": {"displacements": {"20": ["0", printed, "0", "0", "0", "0"]}}})
     row = find(record_of(text, payload), "case:expansion", "displacement", "node:M", "y")
@@ -907,25 +936,84 @@ def test_a_short_zero_or_blank_print_keeps_the_columns_resolution(printed, swbpi
     assert row["classification"] == FINDING
 
 
-@pytest.mark.parametrize("section, node, column, kind, entity, component, printed, words", [
-    ("displacements", "20", 1, "displacement", "node:M", "y", "0.0010", "more than the 3"),  # finer than printed
-    ("displacements", "20", 1, "displacement", "node:M", "y", "1E+00", "coarser than the 3"),
-    ("displacements", "20", 1, "displacement", "node:M", "y", "1.0E-03", "not in the fixed-point form"),
-    ("displacements", "20", 1, "displacement", "node:M", "y", "1_0", "not in the fixed-point form"),
-    ("restraints", "20", 1, "support_force", "node:20", "y", "-0.5", "more than the 0"),
-    ("restraints", "20", 1, "support_force", "node:20", "y", "-1E+02", "coarser than the 0"),
+def test_an_unwitnessed_or_shorter_section_leaves_its_unit_unmatched():
+    """Policy boundary (no witness; all shorter): a section with no nonzero token of a unit, or whose nonzero tokens
+    all show fewer places than the candidate, screens none of that unit's values."""
+    shorter = record_of(invented_print(override={"Expansion (T1)": {"displacements": {"30": ["4.8", "0", "0", "0", "0",
+                                                                                              "0"]}}}))
+    rows = rows_of(shorter, "case:expansion", "displacement", DISPLACEMENT_NODES)
+    assert len(rows) == 9 and all(row["resolution_cause"] == "shorter_than_format" for row in rows)
+    assert "print shows at most 1 places, format expects 3" in rows[0]["reason"]
+    # The expansion case prints no nonzero rotation: every rotation is unmatched for want of a witness.
+    rotations = rows_of(shorter, "case:expansion", "rotation", DISPLACEMENT_NODES)
+    assert len(rotations) == 9 and all(row["resolution_cause"] == "no_witness" for row in rotations)
+
+
+@pytest.mark.parametrize("section, node, column, kind, entities, printed, cause, words", [
+    ("displacements", "20", 1, "displacement", DISPLACEMENT_NODES, "0.0010", "unsupported_by_this_screen",
+     "print shows 4 places, format expects 3"),
+    ("displacements", "20", 1, "displacement", DISPLACEMENT_NODES, "1E+00", "unsupported_by_this_screen",
+     "exponent form"),
+    ("displacements", "20", 1, "displacement", DISPLACEMENT_NODES, "1.0E-03", "unsupported_by_this_screen",
+     "exponent form"),
+    ("restraints", "20", 1, "support_force", {"node:20"}, "-0.5", "unsupported_by_this_screen",
+     "print shows 1 places, format expects 0"),
+    ("restraints", "20", 1, "support_force", {"node:20"}, "-1E+02", "unsupported_by_this_screen", "exponent form"),
 ])
-def test_an_indeterminate_or_coarser_print_is_unmatched_for_resolution(section, node, column, kind, entity, component,
-                                                                       printed, words):
+def test_more_places_or_exponent_form_leaves_the_whole_unit_of_the_section_unmatched(section, node, column, kind,
+                                                                                     entities, printed, cause, words):
+    """Policy boundary (more places or exponent form): one such token leaves every value of that unit in the section
+    unmatched, cause unsupported_by_this_screen, even beside a witness (node B's 4.800); finite values are kept."""
     row = ["0"] * (3 if section == "restraints" else 6)
     row[column] = printed
     record = record_of(invented_print(override={"Expansion (T1)": {section: {node: row}}}))
-    found = find(record, "case:expansion", kind, entity, component)
-    assert found["classification"] == UNMATCHED and found["unmatched_cause"] == PRINTED_RESOLUTION
-    assert words in found["reason"] and "screen" not in found
-    assert found["values"]["caepipe"] is not None  # the value is kept, not screened
-    assert record["summary"]["unmatched_for_resolution"] == {"total": 1, "by_case": {"case:expansion": 1}}
+    rows = rows_of(record, "case:expansion", kind, entities)
+    assert len(rows) == 3 * len(entities)
+    for found in rows:
+        assert found["classification"] == UNMATCHED and found["unmatched_cause"] == PRINTED_RESOLUTION
+        assert found["resolution_cause"] == cause and words in found["reason"] and "screen" not in found
+        assert found["values"]["caepipe"] is not None  # the value is kept, not screened
+    counts = record["summary"]["unmatched_for_resolution"]["by_case"]["case:expansion"]["by_cause"]
+    assert counts[cause] == len(rows)
     assert FINDING not in record["summary"]["by_classification"]
+
+
+def test_a_malformed_token_is_its_own_cause_and_does_not_unseat_the_witness():
+    """Policy boundary (malformed output): a number in none of the format's decimal forms is unmatched as malformed
+    output, apart from unsupported forms; the section's other values keep the witnessed resolution."""
+    record = record_of(invented_print(override={"Expansion (T1)": {"displacements": {"20": ["0", "1_0", "0", "0", "0",
+                                                                                             "0"]}}}))
+    assert find(record, "case:expansion", "displacement", "node:M", "y")["resolution_cause"] == "malformed_output"
+    assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
+
+
+def test_a_row_that_does_not_bind_supplies_no_resolution():
+    """Policy boundary (evidence stays local): an element row pair that binds to no member and a displacement row at
+    a label no node maps to carry witnesses, but bound values of the section stay unwitnessed."""
+    cases = invented_cases()
+    cases["Expansion (T1)"]["elements"] += [("10", ["0", "5", "0", "0", "0", "7"]), ("90", ["0", "-5", "0", "0", "0", "7"])]
+    cases["Expansion (T1)"]["displacements"]["99"] = ["0", "0", "0", "0", "0", "0.1250"]
+    record = record_of(csv_text(cases))
+    assert {row["section"] for row in record["results"] if row["kind"] == "unbound_row" and row["case"] ==
+            "case:expansion"} == {"element_forces_global", "displacements"}
+    for kind in ("element_force", "element_moment"):
+        rows = [row for row in record["results"] if row["case"] == "case:expansion" and row["kind"] == kind]
+        assert rows and all(row["resolution_cause"] == "no_witness" for row in rows), kind
+    rotations = rows_of(record, "case:expansion", "rotation", DISPLACEMENT_NODES)
+    assert all(row["resolution_cause"] == "no_witness" for row in rotations)
+
+
+def test_no_resolution_is_borrowed_across_section_case_or_quantity():
+    """Policy boundary (evidence stays local): the sustained anchor section's force witness does not reach its
+    restraint section; the expansion case's mm witness does not reach its rotations; the sustained case's witnesses do
+    not reach the expansion case's unwitnessed sections."""
+    record = record_of(invented_print())
+    assert find(record, "case:sustained", "support_force", "node:10", "y")["classification"] == WITHIN
+    assert find(record, "case:sustained", "support_force", "node:20", "y")["resolution_cause"] == "no_witness"
+    assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
+    assert find(record, "case:expansion", "rotation", "node:B", "z")["resolution_cause"] == "no_witness"
+    assert find(record, "case:sustained", "element_force", "pipe:P1", "y", "end_i")["classification"] == WITHIN
+    assert find(record, "case:expansion", "element_force", "pipe:P1", "y", "end_i")["resolution_cause"] == "no_witness"
 
 
 # The SI labels of the invented print replaced by the English ones, and the degree labels by radians.
@@ -939,37 +1027,35 @@ def relabel(text: str, pairs) -> str:
     return text
 
 
-def test_english_and_radian_prints_are_unmatched_for_resolution_never_screened():
-    """The format's printed resolution is established for SI prints in degrees only: a value printed in inches,
-    pounds, foot-pounds, or degrees of an English print, or in radians, is unmatched with its reason, its normalized
-    value kept, and counted apart from findings."""
+def test_english_units_and_radian_rotations_are_unmatched_never_screened():
+    """Policy boundary (unsupported units or angle): no candidate exists for the English labels or rad. Every value
+    of an English print, degrees included, and every rotation printed in radians is unmatched with that cause, its
+    normalized value kept; the other SI quantities of a print with radian rotations stay screenable."""
     english = record_of(relabel(invented_print(), ENGLISH))
     rows = compared_rows(english)
-    assert rows and all(row["classification"] == UNMATCHED and row["unmatched_cause"] == PRINTED_RESOLUTION
-                        for row in rows)
-    assert english["summary"]["unmatched_for_resolution"]["total"] == len(rows)
-    assert not {WITHIN, FINDING} & set(english["summary"]["by_classification"])
+    assert rows and all(row["resolution_cause"] == "unsupported_units_or_angle" for row in rows)
+    assert english["summary"]["unmatched_for_resolution"]["by_cause"]["unsupported_units_or_angle"] == len(rows)
     tip = find(english, "case:expansion", "displacement", "node:B", "x")
-    assert tip["values"]["caepipe"] == pytest.approx(4.8 * 0.0254, rel=1e-15)  # 4.8 in, by the exact definition
+    assert tip["values"]["caepipe"] == pytest.approx(4.8 * 0.0254, rel=1e-15)  # 4.800 in, by the exact definition
+    # The stated cause names the label and the system.
     assert "'inch'" in tip["reason"] and "English" in tip["reason"]
     assert "'deg'" in find(english, "case:expansion", "rotation", "node:M", "z")["reason"]
     assert "'lb'" in find(english, "case:sustained", "support_force", "node:10", "y")["reason"]
     assert "'ft-lb'" in find(english, "case:sustained", "support_moment", "node:10", "z")["reason"]
     radians = record_of(relabel(invented_print(), RADIANS))
-    for row in compared_rows(radians):
-        if row["kind"] == "rotation":
-            assert row["classification"] == UNMATCHED and "'rad'" in row["reason"]
-        else:
-            assert row["classification"] == WITHIN, row
-    assert radians["summary"]["unmatched_for_resolution"]["total"] == sum(
-        row["kind"] == "rotation" for row in compared_rows(radians))
+    rotations = [row for row in compared_rows(radians) if row["kind"] == "rotation"]
+    assert rotations and all(row["resolution_cause"] == "unsupported_units_or_angle" and "'rad'" in row["reason"]
+                             for row in rotations)
+    others = [row for row in compared_rows(radians) if row["kind"] != "rotation"]
+    assert find(radians, "case:sustained", "displacement", "node:B", "y")["classification"] == WITHIN
+    assert all(row["classification"] == WITHIN or row.get("resolution_cause") == "no_witness" for row in others)
 
 
 @pytest.mark.parametrize("units, expected", [(1, WITHIN), (2, FINDING)])
 def test_each_unit_conversion_carries_one_printed_unit_into_si(monkeypatch, units, expected):
-    """The conversion path for a label once its resolution is established (here by hypothetical entries; the shipped
-    table has SI prints in degrees only): the floor is one printed unit by the unit catalog's exact definitions:
-    1 in = 0.0254 m, 1 lbf = 4.4482216152605 N, 1 ft-lb = 1.3558179483314004 N*m, 1 deg = pi/180 rad."""
+    """Policy boundary: the conversion path for a label once a candidate exists for it (here hypothetical entries; the
+    shipped table has candidates for the SI labels only). The floor is one printed unit by the unit catalog's exact
+    definitions: 1 in = 0.0254 m, 1 lbf = 4.4482216152605 N, 1 ft-lb = 1.3558179483314004 N*m, 1 deg = pi/180 rad."""
     from core.handoff.caepipe_external import print_csv
 
     for key, places in ((("English", "inch"), 4), (("English", "lb"), 0), (("English", "ft-lb"), 0),
@@ -993,6 +1079,7 @@ def test_each_unit_conversion_carries_one_printed_unit_into_si(monkeypatch, unit
 
 
 def test_the_closed_form_against_the_program_takes_the_same_screen():
+    """Defect: the near-zero term in the closed-form check against the program. It uses the same screen and floor."""
     document = without_closed_forms()
     document["closed_form"] = [{"quantity": "displacement", "component": "y", "load_case": "case:expansion",
                                 "node": "node:M", "value": 0.0, "unit": "m", "formula": "invented", "basis": "invented"}]
@@ -1005,10 +1092,12 @@ def test_the_closed_form_against_the_program_takes_the_same_screen():
         assert verdict == ("agree" if within else "disagree")
     english = record_of(relabel(invented_print(), ENGLISH), document=document)
     closed = find(english, "case:expansion", "displacement", "node:M", "y")["closed_form"]
-    assert closed["closed_form_vs_caepipe"] == UNMATCHED and "'inch'" in closed["closed_form_vs_caepipe_reason"]
+    assert closed["closed_form_vs_caepipe"] == UNMATCHED
+    assert closed["closed_form_vs_caepipe_cause"] == "unsupported_units_or_angle"
 
 
-def test_a_parse_without_printed_resolution_is_unmatched_never_screened():
+def test_a_parse_without_printed_tokens_is_unmatched_never_screened():
+    """Policy boundary (resolution absent): a parse that carries no printed tokens screens nothing."""
     document = invented_cantilever()
     mbf = render_caepipe_mbf_si(document["model"], title="INVENTED", piping_code=document["piping_code"])
     parsed = parse_caepipe_print_csv(invented_print())
@@ -1016,25 +1105,81 @@ def test_a_parse_without_printed_resolution_is_unmatched_never_screened():
     record = build_benchmark_record(document, swbpipe_result_payload=invented_payload(), mbf_result=mbf,
                                     mbf_text=mbf.text, parsed_caepipe=parsed)
     rows = compared_rows(record)
-    assert rows and all(row.get("unmatched_cause") == PRINTED_RESOLUTION for row in rows)
-    assert all("carries no printed resolution" in row["reason"] for row in rows)
+    assert rows and all(row.get("resolution_cause") == "resolution_absent" for row in rows)
+    assert record["summary"]["quantities"]["screened"] == 0
+
+
+def test_the_counts_name_every_cause_and_their_denominator():
+    """Policy boundary (counts with their denominator): per case and over the record, expected = screened + unmatched
+    (+ not compared), and the unmatched for resolution are counted per cause, all six listed."""
+    record = record_of(invented_print())
+    resolution = record["summary"]["unmatched_for_resolution"]
+    assert list(resolution["by_cause"]) == CAUSES
+    assert set(resolution["by_case"]) == {"case:expansion", "case:sustained", "operating"}
+    rows = [row for row in record["results"] if row.get("unmatched_cause") == PRINTED_RESOLUTION]
+    assert resolution["total"] == len(rows) == sum(resolution["by_cause"].values())
+    quantities = record["summary"]["quantities"]
+    for case, tally in quantities["by_case"].items():
+        case_rows = [row for row in record["results"] if row["case"] == case and "values" in row]
+        assert tally["expected"] == len(case_rows) == tally["screened"] + tally["unmatched"] + tally["not_compared"]
+        assert tally["screened"] == sum("screen" in row for row in case_rows) > 0
+        assert tally["outcome"] == "every_screened_quantity_within", case
+    assert quantities["expected"] == sum(tally["expected"] for tally in quantities["by_case"].values())
+
+
+def test_an_empty_screened_set_is_never_read_as_within_the_profile():
+    """Policy boundary: a case, or a record, with no screened quantity says so, and never concludes that everything is
+    within the profile; nor does a case that is not compared."""
+    english = record_of(relabel(invented_print(), ENGLISH))
+    quantities = english["summary"]["quantities"]
+    for tally in [*quantities["by_case"].values(), quantities]:
+        assert tally["screened"] == 0 and tally["outcome"] == "no_quantity_screened" and tally["note"]
+    assert FINDING not in english["summary"]["by_classification"]  # no finding, yet nothing is within
+    dropped = record_of(invented_print(drop_label="Expansion (T1)"))
+    tally = dropped["summary"]["quantities"]["by_case"]["case:expansion"]
+    assert tally["screened"] == 0 and tally["not_compared"] == tally["expected"] > 0
+    assert tally["outcome"] == "no_quantity_screened"
+
+
+def test_the_integer_digit_count_witness_counts_and_changes_no_verdict():
+    """Policy boundary: for each shorter nonzero token a witnessed section covers, whether a full-places token's
+    integer part has at least as many digits. It counts only: the shorter token is screened either way."""
+    def expansion(record: dict) -> dict:
+        return record["summary"]["integer_digit_count_witness"]["by_case"]["case:expansion"]
+
+    # Node B prints 4.8 (shorter, one integer digit); node M's witness 0.001 has none, 1.001 has one.
+    for witness, counts in (("0.001", (0, 1)), ("1.001", (1, 0))):
+        record = record_of(invented_print(override={"Expansion (T1)": {"displacements": {
+            "20": ["0", witness, "0", "0", "0", "0"], "30": ["4.8", "0", "0", "0", "0", "0"]}}}))
+        assert (expansion(record)["witnessed_by_integer_digit_count"],
+                expansion(record)["not_witnessed_by_integer_digit_count"]) == counts, witness
+        assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
+    totals = record["summary"]["integer_digit_count_witness"]
+    assert totals["witnessed_by_integer_digit_count"] == sum(
+        case["witnessed_by_integer_digit_count"] for case in totals["by_case"].values())
 
 
 def test_the_profile_states_the_formula_and_the_record_version_moves():
-    assert set(SCREENING_PROFILE) == {"basis", "relative", "floor", "floor_basis", "printed_decimals", "limit",
-                                      "rule"}
-    # The stated limit names what is unmatched and what would establish it.
-    assert all(word in SCREENING_PROFILE["limit"] for word in ("English", "radians", "documented resolution per column",
-                                                               "real print", "not a defect", "widened"))
+    """Policy boundary: the profile's metadata, its rule as computed, and the record version."""
+    assert set(SCREENING_PROFILE) == {"basis", "relative", "floor", "floor_basis", "printed_decimals",
+                                      "resolution_judgment", "resolution_causes", "limit", "rule"}
     assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3}
+    # Candidates exist for the SI labels only: none for an English label or for rad.
     assert SCREENING_PROFILE["printed_decimals"] == {"SI N": 0, "SI Nm": 0, "SI deg": 4, "SI mm": 3}
-    assert SCREENING_PROFILE["rule"].startswith("|S - C| <= a + r * max(|S|, |C|);")
-    assert "near" not in json.dumps(SCREENING_PROFILE) and "case maximum" not in json.dumps(SCREENING_PROFILE)
-    assert "DEL-17-05/ScopeOfWork.md" in SCREENING_PROFILE["basis"]
+    assert SCREENING_PROFILE["resolution_causes"] == CAUSES
+    assert set(SCREENING_PROFILE["resolution_judgment"]) == {
+        "format_family", "witness_establishes", "witness_does_not_establish", "if_the_print_is_coarser",
+        "if_the_print_is_finer", "evidence"}
+    # The rule as computed: allowed = a + r * max(|S|, |C|), with no other scale.
+    for swb, cae, floor, cls in ((0.0, 5e-5, 1e-6, "exact"), (-3.0, 2.0, 1.0, "named_inexact"),
+                                 (1e6, 1e6 + 7.0, 1.0, "exact"), (0.0, 0.0, 1e-6, "named_inexact")):
+        check = screen(swb, cae, floor, cls)
+        rel = SCREENING_PROFILE["relative"][cls]
+        assert check["allowed"] == floor + rel * max(abs(swb), abs(cae))
+        assert check["within"] == (abs(cae - swb) <= floor + rel * max(abs(swb), abs(cae)))
     record = compare(invented_print())
     assert BENCHMARK_RECORD_VERSION == "3" and record["record_version"] == "3"
     assert record["screening_profile"] == SCREENING_PROFILE
-    assert record["summary"]["unmatched_for_resolution"] == {"total": 0, "by_case": {}}
 
 
 # -- run_pilot --benchmark -------------------------------------------------------------------------------------------

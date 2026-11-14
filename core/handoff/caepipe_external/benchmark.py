@@ -5,9 +5,9 @@ displacement, rotation, element end force and moment, and support load SWBPIPE s
 printed, bound through the writer's id maps (nodes, members by `bind_element_rows`, supports by node). No analytic
 value is needed. Each scalar is screened against the screening profile of the "Benchmark method" section of
 docs/RELEASE_TARGET_v1.0.md and classified as `within_profile`, `finding`, `unmatched` or `status_mismatch`. The
-floor of each screen is one printed unit of CAEPIPE's value, which the parser carries from the printed text; a value
-whose printed resolution is not established or not shown is unmatched for that reason, never screened with a wider
-floor. A closed-form value the benchmark model carries is kept as the third value with its own checks.
+floor of each screen is one printed unit of CAEPIPE's value, which the parser carries from the printed text against a
+candidate fixed-point precision per unit label; a value with no candidate for its label, or whose text does not fit
+it, is unmatched for that reason, never screened with a wider floor. A closed-form value the benchmark model carries is kept as the third value with its own checks.
 
 The record is built from CAEPIPE output and is private (docs/IP_AND_DATA_BOUNDARY.md §6.2): it stays in the exchange
 folder. It is screening evidence for Agent 0 and the owner's review of the full record, not validation,
@@ -22,7 +22,7 @@ import math
 from typing import Any, Mapping
 
 from .correlation import canonical_model_hash
-from .print_csv import PRINTED_DECIMALS, bind_element_rows
+from .print_csv import PRINTED_DECIMALS, RESOLUTION_ABSENT, RESOLUTION_CAUSES, bind_element_rows, resolve_section
 
 
 BENCHMARK_RECORD_KIND = "openpipestress.caepipe_benchmark.comparison_record"
@@ -48,17 +48,35 @@ SCREENING_PROFILE = {
               "profile definition of execution/PKG-17/DEL-17-05/ScopeOfWork.md states it; proposed by the validation "
               "lane; the owner's review of the full record decides, not the profile; values are only tightened"),
     "relative": {EXACT: 1.0e-4, NAMED_INEXACT: 5.0e-3},
-    "floor": ("a: one printed unit of CAEPIPE's value, one unit in the last decimal place the print format prints for "
-              "its column's unit label, converted to SI"),
-    "floor_basis": ("the printed resolution of the prover's output, carried by the parser from the printed text; "
-                    "established for SI prints in degrees (observed format behaviour); a value whose printed "
-                    "resolution is not established or not shown is unmatched, never screened with a wider floor"),
+    "floor": ("a: one printed unit of CAEPIPE's value, one unit in the last decimal place of the candidate fixed-point "
+              "precision for its column's unit label, converted to SI"),
+    "floor_basis": ("the printed resolution of the prover's output, established per section of the print and printed "
+                    "unit by the resolution judgment below, against a candidate fixed-point precision per unit label "
+                    "(printed_decimals; observed format behaviour), which is a candidate, not proof of a print's "
+                    "resolution; a value without an established resolution is unmatched with its cause, never "
+                    "screened with a wider floor"),
     "printed_decimals": {f"{system} {label}": places for (system, label), places in sorted(PRINTED_DECIMALS.items())},
-    "limit": ("a stated limit, not a defect: values printed in English units (inch, lb, ft-lb, and degrees in an "
-              "English print) or in radians are unmatched until their printed resolution is established. What "
-              "establishes it, per unit system and angle unit: the print format's documented resolution per column "
-              "in that unit, seen on a real print. Until then the floor is never inferred from the printed text or "
-              "widened."),
+    "resolution_judgment": {
+        "format_family": ("fixed-place printing at the candidate places for each unit, trailing zeros omitted, uniform "
+                          "within a section of the print"),
+        "witness_establishes": ("a nonzero fixed-point token in the section showing the candidate places establishes "
+                                "that those places occur; the section's zero, blank and shorter tokens of that unit "
+                                "then take that resolution"),
+        "witness_does_not_establish": ("that those places are the most the print can show, or that every component of "
+                                       "the section is printed alike"),
+        "if_the_print_is_coarser": "extra findings to examine",
+        "if_the_print_is_finer": "a difference smaller than one printed unit of the candidate places could pass",
+        "evidence": ("per section and printed unit, over the rows kept and bound; a rejected section or row, or an "
+                     "invalid binding, supplies nothing; nothing is borrowed across section, case, quantity or unit "
+                     "system"),
+    },
+    "resolution_causes": list(RESOLUTION_CAUSES),
+    "limit": ("a stated limit: quantities printed in English units (inch, lb, ft-lb, and degrees in an English print) "
+              "and rotations printed in radians are unmatched until their printed resolution is established; the "
+              "other SI quantities of a print with radian rotations keep their candidates. What establishes it, per "
+              "unit system and angle unit: the print format's documented resolution per column in that unit, seen on "
+              "a real print. Until then the floor is never inferred from the printed text or widened, and the "
+              "unmatched rows are this limit, not defects."),
     "rule": "|S - C| <= a + r * max(|S|, |C|); a the printed-resolution floor of the value's result kind, r the class "
             "tolerance",
 }
@@ -184,26 +202,26 @@ def swbpipe_values(results: list[Any], case_ids: list[str], support_nodes: Mappi
 
 def caepipe_values(tables: Mapping[str, Any], units: Mapping[str, Any], mbf: Mapping[str, Any],
                    printed: Mapping[str, Any] | None = None
-                   ) -> tuple[dict[Key, float], list[dict[str, Any]], dict[str, Any], dict[Key, float], dict[Key, str]]:
+                   ) -> tuple[dict[Key, float], list[dict[str, Any]], dict[str, Any], dict[Key, float],
+                              dict[Key, tuple[str, str]], dict[str, int]]:
     """CAEPIPE's values of one load case bound to SWBPIPE ids, the rows that did not bind, the element binding, the
-    floor of each value (one printed unit in SI, from the parser's printed resolution of the case, `printed`), and
-    why a value has no floor. A value printed in several rows (a node's restraint rows) takes the coarsest floor of
-    its rows, and none when one of them has none."""
-    values: dict[Key, float] = {}
-    floors: dict[Key, float] = {}
-    unresolved: dict[Key, str] = {}
-    printed = printed or {}
+    floor of each value (one printed unit in SI), why a value has no floor ({key: (cause, reason)}), and the integer
+    digit count witness.
 
-    def add(key: Key, row: Mapping[str, Any], field: str, unit: Any, sign: float,
+    The floor comes from the section rule (print_csv.resolve_section) applied per section of the print to the printed
+    tokens (`printed`, the parse's printed_resolution of the case) of the rows that bound: a row that binds to nothing,
+    or a second pair for one member, supplies nothing. A value printed in several rows (a node's restraint rows, or an
+    anchor and a restraint at one node) takes the coarsest floor of its rows, and none when one of them has none."""
+    values: dict[Key, float] = {}
+    printed = printed or {}
+    # (key, unit, section, printed entry or None), one per printed field that contributes to a bound value.
+    contributions: list[tuple[Key, Any, str, Mapping[str, Any] | None]] = []
+
+    def add(key: Key, row: Mapping[str, Any], field: str, unit: Any, sign: float, section: str,
             resolution: Mapping[str, Any] | None) -> None:
         add_value(values, key, _si(row.get(field), unit), sign)
-        entry = (resolution or {}).get(field)
-        floor = _si(entry.get("resolution"), unit) if isinstance(entry, Mapping) else None
-        if floor is None or not floor > 0:
-            reason = entry.get("reason") if isinstance(entry, Mapping) else None
-            unresolved.setdefault(key, reason or "the parsed print carries no printed resolution for this value")
-        elif key not in unresolved:
-            floors[key] = max(floors.get(key, 0.0), floor)
+        entry = (resolution or {}).get(field) if isinstance(resolution, Mapping) else None
+        contributions.append((key, unit, section, entry if isinstance(entry, Mapping) else None))
 
     unbound: list[dict[str, Any]] = []
     by_label: dict[str, list[str]] = {}
@@ -219,8 +237,8 @@ def caepipe_values(tables: Mapping[str, Any], units: Mapping[str, Any], mbf: Map
             continue
         resolution = (printed.get("displacements") or {}).get(label)
         for axis in _AXES:
-            add(("displacement", nodes[0], "", axis), row, f"u{axis}", length, 1.0, resolution)
-            add(("rotation", nodes[0], "", axis), row, f"r{axis}", rotation, 1.0, resolution)
+            add(("displacement", nodes[0], "", axis), row, f"u{axis}", length, 1.0, "displacements", resolution)
+            add(("rotation", nodes[0], "", axis), row, f"r{axis}", rotation, 1.0, "displacements", resolution)
     elements = list(tables.get("element_forces_global") or [])
     element_printed = list(printed.get("element_forces_global") or [])
     binding = bind_element_rows(elements, dict(mbf.get("element_map") or {}))
@@ -233,8 +251,10 @@ def caepipe_values(tables: Mapping[str, Any], units: Mapping[str, Any], mbf: Map
             side = "from" if ends[end]["caepipe_node"] == str(elements[index].get("node_from")) else "to"
             resolution = pair.get(side) if isinstance(pair, Mapping) else None
             for axis in _AXES:
-                add(("element_force", member, end, axis), row, f"f{axis}", force, 1.0, resolution)
-                add(("element_moment", member, end, axis), row, f"m{axis}", moment, 1.0, resolution)
+                add(("element_force", member, end, axis), row, f"f{axis}", force, 1.0, "element_forces_global",
+                    resolution)
+                add(("element_moment", member, end, axis), row, f"m{axis}", moment, 1.0, "element_forces_global",
+                    resolution)
     for item in binding["unmatched_rows"]:
         unbound.append({"section": "element_forces_global", **item})
     support_nodes = {str(entry.get("node")): entry.get("caepipe_kind")
@@ -248,10 +268,36 @@ def caepipe_values(tables: Mapping[str, Any], units: Mapping[str, Any], mbf: Map
             # The printed load is the pipe's load on the support: sign-flipped to the support's action on the pipe.
             resolution = (printed.get(section) or {}).get(label)
             for axis in _AXES:
-                add(("support_force", f"node:{label}", "", axis), row, f"f{axis}", force, -1.0, resolution)
+                add(("support_force", f"node:{label}", "", axis), row, f"f{axis}", force, -1.0, section, resolution)
                 if section == "anchor_loads_global":
-                    add(("support_moment", f"node:{label}", "", axis), row, f"m{axis}", moment, -1.0, resolution)
-    return values, unbound, binding, floors, unresolved
+                    add(("support_moment", f"node:{label}", "", axis), row, f"m{axis}", moment, -1.0, section,
+                        resolution)
+
+    # The section rule over the bound rows of each section; evidence never crosses a section.
+    outcomes: list[Mapping[str, Any]] = [{}] * len(contributions)
+    digit_witness = {"witnessed_by_integer_digit_count": 0, "not_witnessed_by_integer_digit_count": 0}
+    for section in {section for _, _, section, _ in contributions}:
+        positions = [number for number, item in enumerate(contributions) if item[2] == section and item[3] is not None]
+        section_outcomes, counts = resolve_section([contributions[number][3] for number in positions])
+        for number, outcome in zip(positions, section_outcomes):
+            outcomes[number] = outcome
+        for name in digit_witness:
+            digit_witness[name] += counts[name]
+    floors: dict[Key, float] = {}
+    unresolved: dict[Key, tuple[str, str]] = {}
+    for (key, unit, _, entry), outcome in zip(contributions, outcomes):
+        if entry is None:
+            unresolved.setdefault(key, (RESOLUTION_ABSENT, "the parsed print carries no printed token for this value"))
+            continue
+        floor = _si(outcome.get("resolution"), unit)
+        if floor is None or not floor > 0:
+            unresolved.setdefault(key, (str(outcome.get("cause") or RESOLUTION_ABSENT),
+                                        str(outcome.get("reason") or "no printed resolution")))
+        else:
+            floors[key] = max(floors.get(key, 0.0), floor)
+    for key in unresolved:
+        floors.pop(key, None)
+    return values, unbound, binding, floors, unresolved, digit_witness
 
 
 def add_value(values: dict[Key, float], key: Key, value: float | None, sign: float) -> None:
@@ -300,6 +346,59 @@ def _closed_form_key(entry: Mapping[str, Any], mbf: Mapping[str, Any]) -> Key | 
 
 
 # -- record ----------------------------------------------------------------------------------------------------------
+NO_QUANTITY_SCREENED = "no_quantity_screened"
+FINDINGS_PRESENT = "findings_present"
+EVERY_SCREENED_WITHIN = "every_screened_quantity_within"
+
+
+def _resolution_counts(rows: list[dict[str, Any]], cases: list[str]) -> dict[str, Any]:
+    """Unmatched quantities for want of a printed resolution, apart from findings and the other unmatched rows: in
+    total, by cause, and per case in total and by cause; every cause is listed, zero when none."""
+    counts: dict[str, Any] = {"total": 0, "by_cause": dict.fromkeys(RESOLUTION_CAUSES, 0),
+                              "by_case": {case: {"total": 0, "by_cause": dict.fromkeys(RESOLUTION_CAUSES, 0)}
+                                          for case in cases}}
+    for row in rows:
+        if row.get("unmatched_cause") != PRINTED_RESOLUTION:
+            continue
+        per_case = counts["by_case"].setdefault(row["case"], {"total": 0,
+                                                              "by_cause": dict.fromkeys(RESOLUTION_CAUSES, 0)})
+        for tally in (counts, per_case):
+            tally["total"] += 1
+            tally["by_cause"][row["resolution_cause"]] = tally["by_cause"].get(row["resolution_cause"], 0) + 1
+    return counts
+
+
+def _outcome(screened: int, findings: int) -> tuple[str, str]:
+    """What the screened set allows to be said. An empty screened set is never read as within the profile."""
+    if screened == 0:
+        return NO_QUANTITY_SCREENED, "no quantity is screened; nothing here is within the profile"
+    if findings:
+        return FINDINGS_PRESENT, f"{findings} of {screened} screened quantities are findings"
+    return EVERY_SCREENED_WITHIN, f"each of the {screened} screened quantities is within the profile"
+
+
+def _quantity_counts(rows: list[dict[str, Any]], cases: list[str], not_compared: Mapping[str, int]) -> dict[str, Any]:
+    """Per case and over the record: the quantities expected, screened (within the profile or a finding) and
+    unmatched, and those of a case that is not compared (a status mismatch), with what the screened set allows."""
+    per_case: dict[str, dict[str, int]] = {case: {"expected": 0, "screened": 0, "unmatched": 0, "findings": 0,
+                                                   "not_compared": not_compared.get(case, 0)} for case in cases}
+    for row in rows:
+        if "values" not in row or row["case"] not in per_case:
+            continue  # parser errors, unbound rows and status rows are not quantities
+        tally = per_case[row["case"]]
+        tally["screened" if "screen" in row else "unmatched"] += 1
+        tally["findings"] += row["classification"] == FINDING
+    total = {name: sum(tally[name] for tally in per_case.values())
+             for name in ("screened", "unmatched", "findings", "not_compared")}
+    out: dict[str, Any] = {}
+    for tally in [*per_case.values(), total]:
+        tally["expected"] = tally["screened"] + tally["unmatched"] + tally["not_compared"]
+        tally["outcome"], tally["note"] = _outcome(tally["screened"], tally["findings"])
+    out.update(total)
+    out["by_case"] = per_case
+    return out
+
+
 def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result_payload: Mapping[str, Any],
                            mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None) -> dict[str, Any]:
     """The two-way comparison record of one benchmark model (private)."""
@@ -324,6 +423,8 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
     expected = _expected_keys(mbf)
 
     cases_out, rows, unbound_rows, bindings = [], [], [], {}
+    not_compared: dict[str, int] = {}                 # expected quantities of a case that is not compared
+    digit_witness_by_case: dict[str, dict[str, int]] = {}
     for case_name, swbpipe_cases, label in compared:
         inputs = list(inexact.get(case_name) or [])
         cls = screening_class(inputs)
@@ -341,10 +442,12 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                       "neither side has the case")
             rows.append({"case": case_name, "kind": "load_case", "entity": label, "classification": STATUS_MISMATCH,
                          "reason": reason})
+            not_compared[case_name] = len(expected)
             continue
         swb, swb_invalid = swbpipe_values(results, swbpipe_cases, support_nodes, anchor_nodes)
-        cae, unbound, binding, floors, unresolved = caepipe_values(parsed_cases[label], units, mbf,
-                                                                   parsed_printed.get(label))
+        cae, unbound, binding, floors, unresolved, digit_witness = caepipe_values(parsed_cases[label], units, mbf,
+                                                                                  parsed_printed.get(label))
+        digit_witness_by_case[case_name] = digit_witness
         bindings[case_name] = {key: binding[key] for key in ("basis", "unmatched_rows", "unmatched_members", "notes")}
         unbound_rows.extend({"case": case_name, **item} for item in unbound)
         case_closed = {}
@@ -362,9 +465,11 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                                    "values": {"swbpipe": swb.get(key), "caepipe": cae.get(key)}}
             if key in swb and key in cae and key in unresolved:
                 # Not screened: no floor is established for CAEPIPE's value, and none is guessed or widened.
+                cause, why = unresolved[key]
                 row["classification"] = UNMATCHED
                 row["unmatched_cause"] = PRINTED_RESOLUTION
-                row["reason"] = f"CAEPIPE's value has no established printed resolution: {unresolved[key]}"
+                row["resolution_cause"] = cause
+                row["reason"] = f"CAEPIPE's value has no established printed resolution ({cause}): {why}"
             elif key in swb and key in cae:
                 check = screen(swb[key], cae[key], floors[key], cls)
                 row["screen"] = {name: check[name] for name in ("difference", "allowed", "relative", "floor")}
@@ -382,7 +487,8 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                     closed["closed_form_vs_swbpipe"] = "agree" if _close(value, swb[key], unit) else "disagree"
                 if key in cae and key in unresolved:
                     closed["closed_form_vs_caepipe"] = UNMATCHED
-                    closed["closed_form_vs_caepipe_reason"] = unresolved[key]
+                    closed["closed_form_vs_caepipe_cause"] = unresolved[key][0]
+                    closed["closed_form_vs_caepipe_reason"] = unresolved[key][1]
                 elif key in cae:
                     within = screen(value, cae[key], floors[key], cls)["within"]
                     closed["closed_form_vs_caepipe"] = "agree" if within else "disagree"
@@ -402,18 +508,22 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                      f"{item.get('node_from')}-{item.get('node_to')}"), "classification": UNMATCHED,
                      "section": item.get("section"), "reason": item.get("reason")})
 
-    # Unmatched rows for want of a printed resolution are counted apart from findings and from the other unmatched rows.
-    summary: dict[str, Any] = {"results": len(rows), "by_classification": {}, "by_case": {},
-                               "unmatched_for_resolution": {"total": 0, "by_case": {}}}
+    summary: dict[str, Any] = {"results": len(rows), "by_classification": {}, "by_case": {}}
     for row in rows:
         summary["by_classification"][row["classification"]] = summary["by_classification"].get(
             row["classification"], 0) + 1
         per_case = summary["by_case"].setdefault(row["case"], {})
         per_case[row["classification"]] = per_case.get(row["classification"], 0) + 1
-        if row.get("unmatched_cause") == PRINTED_RESOLUTION:
-            resolution = summary["unmatched_for_resolution"]
-            resolution["total"] += 1
-            resolution["by_case"][row["case"]] = resolution["by_case"].get(row["case"], 0) + 1
+    summary["unmatched_for_resolution"] = _resolution_counts(rows, [case for case, _, _ in compared])
+    summary["quantities"] = _quantity_counts(rows, [case for case, _, _ in compared], not_compared)
+    summary["integer_digit_count_witness"] = {
+        "basis": ("for each shorter nonzero token a section's established resolution covers: whether the section has "
+                  "a full-places token whose integer part has at least as many digits; evidence against one specified "
+                  "alternative only (a significant-digit limit no wider than that witness); it establishes no maximum "
+                  "printing precision and changes no verdict"),
+        **{name: sum(counts[name] for counts in digit_witness_by_case.values())
+           for name in ("witnessed_by_integer_digit_count", "not_witnessed_by_integer_digit_count")},
+        "by_case": digit_witness_by_case}
     return {
         "document_kind": BENCHMARK_RECORD_KIND,
         "record_version": BENCHMARK_RECORD_VERSION,
