@@ -1331,6 +1331,27 @@ def test_a_manifest_recording_no_custody_and_no_stored_file_is_admitted(fake_ben
                                          emit=lambda line: None, collect_only=True)[0] == run_pilot.COLLECTED
 
 
+def test_recorded_custody_without_a_request_digest_is_still_carried_and_compared(fake_benchmark, monkeypatch):
+    """A custody member with any value records custody, the same reading admission makes: a later write compares it
+    and refuses when it differs, even when it holds no request digest. The manifest is not replaced."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    real = run_pilot._guard_stop
+    replaced = {}
+
+    def guard(config, case_id, settings, emit):
+        manifest = json.loads((case / "case_manifest.json").read_text())
+        manifest["custody"] = {**dict.fromkeys(run_pilot.BENCHMARK_CUSTODY_KEYS), "source_commit": "f" * 40}
+        (case / "case_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        replaced["bytes"] = (case / "case_manifest.json").read_bytes()
+        return real(config, case_id, settings, emit)
+    monkeypatch.setattr(run_pilot, "_guard_stop", guard)
+    with pytest.raises(run_pilot.CustodyChanged, match="custody differs .* the case manifest was not replaced"):
+        run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                      emit=lambda line: None, collect_only=True)
+    assert (case / "case_manifest.json").read_bytes() == replaced["bytes"]
+
+
 @pytest.mark.parametrize("write", ["collected", "not collected", "settings stop"])
 def test_custody_malformed_between_admission_and_a_later_write_is_refused(fake_benchmark, monkeypatch, write):
     """Custody well formed at admission and made malformed before a later write reads it (the collected write, a
