@@ -469,6 +469,17 @@ fn item_9_binds_the_identity_to_the_presence_of_exact_sections() {
     let mut null_route = plain.clone();
     null_route["exact_route"] = Value::Null;
     check_exact_sections(&preview, &preview_document, &audit, &null_route).unwrap();
+    // PR 328 scrutiny, finding 1 (DEL-08-01 REQ-024): a standing record is packaged only where a
+    // boundary re-derives it from a bound exact-route result. On a pressure-free document a supplied
+    // record is refused by name, whatever its contents; an absent or null member passes as before.
+    let mut with_record = plain.clone();
+    with_record["numerical_standing"] = json!({"record_version": "historical_1", "evidence_member": "absent", "cases": []});
+    refuses(check_exact_sections(&preview, &preview_document, &audit, &with_record), EXACT_SECTIONS_MISMATCH, "preview with a standing record");
+    let error = check_exact_sections(&preview, &preview_document, &audit, &with_record).unwrap_err();
+    assert!(error.ends_with("numerical_standing: the result is not an exact-route result"), "{error}");
+    let mut null_record = plain.clone();
+    null_record["numerical_standing"] = Value::Null;
+    check_exact_sections(&preview, &preview_document, &audit, &null_record).unwrap();
 }
 
 #[test]

@@ -1,0 +1,440 @@
+{
+  "schema": "swbpipe-byte-compare-manifest/v1",
+  "description": "Maintained solve requests whose results a numerical change must not move unless it means to. Each entry names its document's model schema_version before the lift and the disposition expected on each side; tools/byte_compare/README.md states the classes.",
+  "build_settings": {
+    "ground": "Cargo's documented default release profile at the toolchain the identity records (rustc and cargo 1.97.1; the toolchain's cargo reference, profiles.html): [profile.release] opt-level = 3, debug = false, debug-assertions = false, overflow-checks = false, lto = false, panic = 'unwind', codegen-units = 16; and its documented default for build-time dependencies, [profile.release.build-override] opt-level = 0, codegen-units = 256, other settings inherited from release. The flags below are how that cargo renders those defaults: no -C flag where rustc's own default is the setting, -C strip=debuginfo because no debuginfo is requested, -C embed-bitcode=no because LTO is off, -C debug-assertions=off at opt-level 0 because rustc would otherwise enable them there. tests/test_byte_compare_tool.py builds a synthetic repository at cargo's default release profile under controlled configuration and fails if this block and that build disagree.",
+    "runtime": {
+      "why": "The runner and every unit it links (followed through --extern): the code that runs.",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false
+      },
+      "codegen": {
+        "opt-level": "3",
+        "debug-assertions": null,
+        "overflow-checks": null,
+        "lto": null,
+        "codegen-units": null,
+        "panic": null,
+        "debuginfo": null,
+        "strip": "debuginfo",
+        "embed-bitcode": "no"
+      }
+    },
+    "host": {
+      "why": "Build scripts, proc macros and the units they link: build-time code, which never runs in the binary but can change what is compiled into it.",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false
+      },
+      "codegen": {
+        "opt-level": null,
+        "debug-assertions": "off",
+        "overflow-checks": null,
+        "lto": null,
+        "codegen-units": null,
+        "panic": null,
+        "debuginfo": null,
+        "strip": "debuginfo",
+        "embed-bitcode": "no"
+      },
+      "proc_macro_codegen": {
+        "prefer-dynamic": true
+      }
+    }
+  },
+  "build_closure": {
+    "why": "The runner's supported build closure, bounded to what its build uses: registry packages from crates.io only, and build scripts that generate no files except serde's and serde_core's private.rs (the generated module those crates include). Any other generated file refuses.",
+    "registry": "registry+https://github.com/rust-lang/crates.io-index",
+    "generated_sources": {
+      "serde": [
+        "private.rs"
+      ],
+      "serde_core": [
+        "private.rs"
+      ]
+    }
+  },
+  "roots": [
+    {
+      "pattern": "validation/references/kd5_nonlinear/*_request.json",
+      "why": "The K-D5 exact nonlinear references' frozen requests (model document 0.1.0), as kd5_nonlinear_tests.rs consumes them."
+    },
+    {
+      "pattern": "validation/references/w16_nonlinear_motion/requests/*.json",
+      "why": "The W16 nonlinear imposed-motion references' frozen requests (model document 0.8.0), as w16_nonlinear_motion_tests.rs consumes them."
+    },
+    {
+      "pattern": "fixtures/product_preview/invented_demo_model.json",
+      "why": "A single maintained model or request named by the earlier hand comparison; this root closes its existence only."
+    },
+    {
+      "pattern": "core/product_physics/tests/fixtures/preview_physics_invented_model.json",
+      "why": "A single maintained model or request named by the earlier hand comparison; this root closes its existence only."
+    },
+    {
+      "pattern": "core/product_physics/tests/fixtures/preview_physics_range_envelope_model.json",
+      "why": "A single maintained model or request named by the earlier hand comparison; this root closes its existence only."
+    },
+    {
+      "pattern": "fixtures/results/modal_state_friction_sliding.request.json",
+      "why": "A single maintained model or request named by the earlier hand comparison; this root closes its existence only."
+    },
+    {
+      "pattern": "fixtures/reference_system/reference_system.json",
+      "why": "A single maintained model or request named by the earlier hand comparison; this root closes its existence only."
+    }
+  ],
+  "entries": [
+    {
+      "path": "validation/references/kd5_nonlinear/f1_explicit_request.json",
+      "source_version": "0.1.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/kd5_nonlinear/f1_mu0_request.json",
+      "source_version": "0.1.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/kd5_nonlinear/f1_request.json",
+      "source_version": "0.1.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/kd5_nonlinear/f2_request.json",
+      "source_version": "0.1.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/kd5_nonlinear/u1_request.json",
+      "source_version": "0.1.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/kd5_nonlinear/u1_rx_request.json",
+      "source_version": "0.1.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/kd5_nonlinear/u1_spring_request.json",
+      "source_version": "0.1.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/a1.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "model_incomplete",
+        "numerical": false
+      },
+      "why": "Its s* load case is the reference's loop-not-converged case: w16_nonlinear_motion_tests.rs run_case requires that case, solved alone, to be MODEL_INCOMPLETE with no rows and blocking NONLINEAR_SUPPORT_NONCONVERGENCE and SOLVER_SYSTEM_BLOCKED. The whole request carries that case, and the earlier hand comparison observed the whole solve blocked the same way in both modes."
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/a2.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/a2_translated.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/a3.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b1.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b1_rot.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b1_spring.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b1_translated.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b2.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b2_negative_clearance.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b2_positive.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b2_translated.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b3.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b3_explicit.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b3_px.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/b3_translated.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/c1.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/c1_hanger.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/c1_rot.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/c2.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/c3.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/c3_equivalent.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/c5.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/c5_translated.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/c6.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/c7.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/d1.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/d1_translated.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/d2.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/d2_twin.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "validation/references/w16_nonlinear_motion/requests/d3.json",
+      "source_version": "0.8.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "fixtures/product_preview/invented_demo_model.json",
+      "source_version": "0.9.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "core/product_physics/tests/fixtures/preview_physics_invented_model.json",
+      "source_version": "0.9.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "core/product_physics/tests/fixtures/preview_physics_range_envelope_model.json",
+      "source_version": "0.9.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "fixtures/reference_system/reference_system.json",
+      "source_version": "0.9.0",
+      "expect": {
+        "disposition": "numerical_work",
+        "numerical": true
+      }
+    },
+    {
+      "path": "fixtures/results/modal_state_friction_sliding.request.json",
+      "source_version": "0.9.0",
+      "expect": {
+        "disposition": "outside_runner_input",
+        "numerical": false
+      },
+      "why": "A modal entry request: its top-level mode_count and state_case are not the mechanics entry's input, and the runner (the desktop worker's route) passes the entry only {model, materials: []}. Passing the request through would change it beyond the lift, so it is not run; its model's mechanics are the kd5 f1 friction-sliding model's."
+    }
+  ]
+}
