@@ -339,14 +339,14 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Kind:** applicability limitation. It causes no automatic refusal.
 - **Exit criteria:** 1
 - **Requirement affected:** DEL-03-03's method for a realized bend: REQ-012, and AC-002's closed-form end flexibility of a circular curved beam with the user's factors on the two bending terms. Exit criterion 1 includes the realized bends of the reference system.
-- **Code:** none. No refusal code is emitted for this limitation. A result records each realized arc's `beam_theory` as `euler_bernoulli`. Under the pressure-free route's Timoshenko selection, a result also carries the information diagnostic `PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI`. Neither states what the element omits, nor that its application range is not established.
+- **Code:** none. No refusal code is emitted for this limitation. A result records each realized arc's `beam_theory` as `euler_bernoulli`. Under the pressure-free route's Timoshenko selection, a result also carries the information diagnostic `PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI`. The diagnostic states that realized arcs omit shear deformation. Neither the diagnostic nor the recorded field states the curved-bar or ovalization omissions, or that the element's application range is not established.
 - **What is refused:** nothing is refused. A realized bend is solved with the end flexibility of a thin curved beam. That flexibility includes bending, multiplied by the user's in-plane and out-of-plane flexibility factors, together with axial and torsional flexibility. It omits two kinds of term, of the same order as each other:
   - transverse shear deformation;
   - the curved-bar terms: the offset of the neutral axis from the centroid, and the coupling between axial force and bending moment.
 
   The element also omits cross-section ovalization and its restraint. How much that matters, and how far the user's flexibility factor represents it, has not been established here. SWBPIPE's verification has not established an annular application range for this element.
 - **What it means in practice for a user:**
-  - The omitted beam terms grow with:
+  - The comparisons below depend on the loading and on:
     - the section's radius of gyration over the bend radius, r_g/R. For a thin wall r_g ≈ 0.354·D, so r_g/R is about 0.24 when R = 1.5·D and 0.35 when R = D;
     - r_g over the lengths of the legs that carry moment into the bend;
     - the section's wall ratio D/t.
@@ -363,10 +363,10 @@ Entries are added in the same PR that makes the refusal standing. A previously u
          - the total, thin bending without shear: −0.07%, −0.57% and −1.9%;
          - the total, thin bending with shear added: +0.19%, +1.7% and +7.0%.
     2. **Annular curved-bar model, one loading.**
-       - *Geometry and loading:* a quarter-circle arc of annular section under a radial force at its tip, the other end fixed.
+       - *Geometry and loading:* a quarter-circle arc of annular section, outside diameter D and wall thickness t, under an in-plane radial force at its tip, the other end fixed. The sampled values are D/t = 5, 10, 20, 50 and 100, and R/r_o = 2, 3, 4, 6 and 10, where R is the centreline bend radius and r_o = D/2.
        - *Model:* elementary curved-bar energy with plane sections, the annulus's neutral axis in closed form, and the product's energy-matched annular shear factor (Poisson's ratio 0.3).
        - *Normalized as:* the change in the arc's radial tip flexibility from each omitted term, divided by its thin bending flexibility with a factor of 1.
-       - *Results:* transverse shear about +5.2·(r_g/R)² and the curvature terms about −2.5·(r_g/R)², for D/t from 10 to 100 (about +4.7 and −2.7 at D/t = 5). Positive means more flexible.
+       - *Results:* over the sampled D/t values from 10 to 100, the transverse-shear contribution is about +(5.10 to 5.20)·(r_g/R)² and the curvature contribution about −(2.50 to 2.56)·(r_g/R)². At D/t = 5 they are about +4.73·(r_g/R)² and −(2.61 to 2.66)·(r_g/R)². These summarize the stated samples. Positive means more flexible.
     3. **Invented assembled systems.**
        - *Geometry and loading:* a planar L-shaped pipe run, two straight legs of equal length L joined by a 90° bend of radius R. Both ends are anchored. The run is loaded by a free thermal growth of 0.1% of the anchor-to-anchor offset in each direction. D = 0.3 m, sampled at R of 1, 1.5 and 3 diameters, D/t of 5, 20 and 100, and factors of 1 and 5. The legs are the same thin beams in every model; only the bend's model changes.
        - *Compared:* the six anchor reaction components of both anchors (moments divided by L), between the thin bend and the bend with an omitted term added.
@@ -375,7 +375,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
          - transverse shear alone: up to 4.9%, 0.36% and 0.02% for legs of 3, 10 and 30 diameters, decreasing the largest reaction;
          - the curvature terms, with the factor scaling the curved-bar bending term: up to 10.7%, 3.0%, 1.7% and 0.67% for legs of 3, 10, 30 and 100 diameters, increasing it;
          - both together: at legs of 3 diameters, the sign varied with geometry;
-         - a second definition of what the factor scales changed the curvature terms' effect at a factor of 5 by factors of 1.18 to 4.75 across the sampled runs.
+         - at a factor of 5, the curvature-only reaction-change measure with the factor on the curved-bar bending term was 1.18 to 4.73 times that with the factor on the thin bending term only, with the curvature correction and axial–moment coupling added unscaled, across the sampled runs.
   - The examined comparisons do not justify adding transverse shear alone as an accuracy improvement for annular bends. In illustration 1, adding shear alone moved the total energy further from the exact value than leaving it out, at every sampled ratio (h/R from 0.02 to 1.6). That is a counterexample to a general improvement; it does not show that adding shear is harmful throughout the annular domain.
   - Nothing shown here says that the present element is more accurate than an alternative, or that its errors are conservative.
 - **Why:** DEL-03-03 defines the element as the thin curved beam's closed-form end flexibility, with the factors on the bending terms only. VER-002 compares the element with closed-form values of that same model (`validation/references/t4_i6`). That comparison shows agreement with the model, not the model's adequacy for a given bend. No reference of a more complete model has been identified for annular bends, whether a beam model with shear and curvature terms or an elasticity solution. What the user's flexibility factor would mean against such a model is not defined.
