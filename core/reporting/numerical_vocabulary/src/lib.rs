@@ -53,7 +53,29 @@ macro_rules! vocabulary {
                 }
             }
         }
+
+        impl VocabularyTag for $name {
+            const VOCABULARY: &'static str = $vocabulary;
+            fn as_str(self) -> &'static str {
+                <$name>::as_str(self)
+            }
+            fn parse(text: &str) -> Option<Self> {
+                <$name>::parse(text)
+            }
+        }
     };
+}
+
+/// A vocabulary a reader decodes tags from, implemented by every vocabulary
+/// here, so a reader can decode any of them strictly through one generic path
+/// (the renderer's `Tag<T>`).
+pub trait VocabularyTag: Copy + Sized + 'static {
+    /// This vocabulary's name in the catalogue.
+    const VOCABULARY: &'static str;
+    /// The tag's wire text.
+    fn as_str(self) -> &'static str;
+    /// The tag whose wire text is exactly `text`; `None` for any other text.
+    fn parse(text: &str) -> Option<Self>;
 }
 
 vocabulary!(

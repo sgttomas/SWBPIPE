@@ -13,39 +13,9 @@
 //! emission, and never interpreted.
 use open_pipe_stress_numerical_vocabulary::{
     CaseHealth, EvidenceStatus, FrictionNormal, HistoricalCause, HistoricalConfirmation, HistoricalIntegrityCode, NoFigureReason, Premise,
-    StandingFinding, SupportBehavior, SupportState,
+    StandingFinding, SupportBehavior, SupportState, VocabularyTag,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-/// A vocabulary the input's tags are drawn from.
-pub trait VocabularyTag: Copy + Sized + 'static {
-    const VOCABULARY: &'static str;
-    fn as_str(self) -> &'static str;
-    fn parse(text: &str) -> Option<Self>;
-}
-
-macro_rules! vocabulary_tag {
-    ($($t:ty),+) => {$(
-        impl VocabularyTag for $t {
-            const VOCABULARY: &'static str = <$t>::VOCABULARY;
-            fn as_str(self) -> &'static str { <$t>::as_str(self) }
-            fn parse(text: &str) -> Option<Self> { <$t>::parse(text) }
-        }
-    )+};
-}
-vocabulary_tag!(
-    CaseHealth,
-    EvidenceStatus,
-    FrictionNormal,
-    HistoricalCause,
-    HistoricalConfirmation,
-    HistoricalIntegrityCode,
-    NoFigureReason,
-    Premise,
-    StandingFinding,
-    SupportBehavior,
-    SupportState
-);
 
 /// A tag on the wire: its vocabulary's text, decoded strictly.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

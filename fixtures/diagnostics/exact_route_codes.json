@@ -98,7 +98,7 @@
    "flows_to_callers": "RESTS ON A PREMISE NOT ESTABLISHED: that every use of a function with a text code parameter is a direct call the scanner finds, so the value is recorded at each caller's argument. A call through a function pointer or a closure object defeats it.",
    "enum_code_field": "RESTS ON A PREMISE NOT ESTABLISHED: that an enum at a code field declared with that enum has an as_str the scanner reads as an enum code producer. An enum with no as_str yields neither a code nor an unresolved site."
   },
-  "listed_unresolved": "37 code positions are listed as unresolved (listed_unresolved_sites), 2 of them marked not known; 13 are operation applier positions outside the unit.",
+  "listed_unresolved": "36 code positions are listed as unresolved (listed_unresolved_sites), 2 of them marked not known; 13 are operation applier positions outside the unit.",
   "crates": [
    "core/product_physics",
    "core/solver/*",
@@ -5194,7 +5194,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -6493,13 +6493,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/lib.rs",
-    "line": 5690,
+    "line": 5739,
     "via": "refuse_interim_member()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5690,
+     "line": 5739,
      "via": "refuse_interim_member()",
      "severity": "blocking",
      "through": [
@@ -11310,7 +11310,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 1617,
+     "line": 1666,
      "via": "push()",
      "severity": "blocking",
      "by_name": true,
@@ -18556,7 +18556,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18612,7 +18612,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18668,7 +18668,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18724,7 +18724,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18876,13 +18876,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/lib.rs",
-    "line": 5578,
+    "line": 5627,
     "via": "push()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18928,7 +18928,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18981,13 +18981,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/lib.rs",
-    "line": 5578,
+    "line": 5627,
     "via": "push()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19033,7 +19033,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19337,7 +19337,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19393,7 +19393,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19449,7 +19449,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5578,
+     "line": 5627,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -20679,16 +20679,6 @@
    "relay_of": "ModelSettingError records of model_settings::pressure_elongation_refusals (core/product_physics/src/model_settings.rs 110), built at 117 to 145 from the MODEL_SETTING_PRESSURE_ELONGATION_* constants of that file, relayed unchanged"
   },
   {
-   "file": "core/model_operations/operation_applier/src/numerical_health.rs",
-   "line_text": "code: code.map(String::from),",
-   "at": "field code",
-   "expression": "code.map(String::from)",
-   "form": "a code read back from a published diagnostic's JSON",
-   "outside_unit": false,
-   "not_known": false,
-   "relay_of": "the \"code\" of the case's integrity diagnostic in the solve's output (numerical_health.rs 334, d[\"code\"]): the solve's published diagnostics, the product_physics Diagnostic records, built at diag() (core/product_physics/src/lib.rs, fn diag) and at the Diagnostic literals the scanner reads; the name Diagnostic is also a type of core/reporting/result_export, so the scanner cannot prove which"
-  },
-  {
    "file": "core/product_physics/src/case_state/resolve.rs",
    "line_text": "block(",
    "at": "block()",
@@ -20878,7 +20868,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1708,
+   "line": 1757,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -20886,7 +20876,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1733,
+   "line": 1782,
    "at": "push()",
    "why": "the code field of warning, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "warning.code",
@@ -20894,7 +20884,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1742,
+   "line": 1791,
    "at": "push()",
    "why": "the code field of block, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "block.code",
@@ -20902,7 +20892,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1789,
+   "line": 1838,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -20910,7 +20900,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1818,
+   "line": 1867,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -20918,7 +20908,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1844,
+   "line": 1893,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -20926,7 +20916,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1880,
+   "line": 1929,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -20934,7 +20924,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 2039,
+   "line": 2088,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -20942,7 +20932,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 2725,
+   "line": 2774,
    "at": "push()",
    "why": "the code field of finding, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "finding.code",
@@ -20950,7 +20940,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5190,
+   "line": 5239,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -20958,7 +20948,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5513,
+   "line": 5562,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -20966,7 +20956,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5559,
+   "line": 5608,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -20974,7 +20964,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5684,
+   "line": 5733,
    "at": "refuse_interim_member()",
    "why": "the code field of refusal, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "refusal.code",
@@ -20982,7 +20972,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 6328,
+   "line": 6377,
    "at": "refuse_interim_member()",
    "why": "a tuple source the scanner cannot follow",
    "expression": "code",
@@ -20995,14 +20985,6 @@
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
    "line_text": "return Err(refusal(error.code, error.message, &refs));"
-  },
-  {
-   "file": "core/model_operations/operation_applier/src/numerical_health.rs",
-   "line": 407,
-   "at": "field code",
-   "why": "call map() returns no resolvable code",
-   "expression": "code.map(String::from)",
-   "line_text": "code: code.map(String::from),"
   },
   {
    "file": "core/product_physics/src/case_state/resolve.rs",
@@ -21135,7 +21117,7 @@
   {
    "literal": "FAILED_MANIFEST_COPY",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:2988"
+    "core/product_physics/src/retained_memory.rs:2991"
    ]
   },
   {
@@ -21147,7 +21129,7 @@
   {
    "literal": "FORMATION_VALUE_BUILD",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:2989"
+    "core/product_physics/src/retained_memory.rs:2992"
    ]
   },
   {
@@ -21447,115 +21429,115 @@
   {
    "literal": "T16_P1",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3007"
+    "core/product_physics/src/retained_memory.rs:3010"
    ]
   },
   {
    "literal": "T16_P2",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3008"
+    "core/product_physics/src/retained_memory.rs:3011"
    ]
   },
   {
    "literal": "T16_P3",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3009"
+    "core/product_physics/src/retained_memory.rs:3012"
    ]
   },
   {
    "literal": "T16_P4",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3010"
+    "core/product_physics/src/retained_memory.rs:3013"
    ]
   },
   {
    "literal": "T17_V1",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3012"
+    "core/product_physics/src/retained_memory.rs:3015"
    ]
   },
   {
    "literal": "T17_V3",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3015"
+    "core/product_physics/src/retained_memory.rs:3018"
    ]
   },
   {
    "literal": "T17_V4",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3016"
+    "core/product_physics/src/retained_memory.rs:3019"
    ]
   },
   {
    "literal": "T17_V5",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3017"
+    "core/product_physics/src/retained_memory.rs:3020"
    ]
   },
   {
    "literal": "T17_V6",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3018"
+    "core/product_physics/src/retained_memory.rs:3021"
    ]
   },
   {
    "literal": "T25_I1",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3023"
+    "core/product_physics/src/retained_memory.rs:3026"
    ]
   },
   {
    "literal": "T25_I2",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3024"
+    "core/product_physics/src/retained_memory.rs:3027"
    ]
   },
   {
    "literal": "T25_I3",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3025"
+    "core/product_physics/src/retained_memory.rs:3028"
    ]
   },
   {
    "literal": "T25_S1",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3026"
+    "core/product_physics/src/retained_memory.rs:3029"
    ]
   },
   {
    "literal": "T25_S2",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3027"
+    "core/product_physics/src/retained_memory.rs:3030"
    ]
   },
   {
    "literal": "T25_S3",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3028"
+    "core/product_physics/src/retained_memory.rs:3031"
    ]
   },
   {
    "literal": "T25_S4",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3029"
+    "core/product_physics/src/retained_memory.rs:3032"
    ]
   },
   {
    "literal": "T25_S5",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3030"
+    "core/product_physics/src/retained_memory.rs:3033"
    ]
   },
   {
    "literal": "TAV_W",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3033"
+    "core/product_physics/src/retained_memory.rs:3036"
    ]
   },
   {
    "literal": "TAV_X",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3034"
+    "core/product_physics/src/retained_memory.rs:3037"
    ]
   },
   {
@@ -21658,7 +21640,7 @@
   {
    "literal": "W1_MEMBER_READER",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3036"
+    "core/product_physics/src/retained_memory.rs:3039"
    ]
   },
   {

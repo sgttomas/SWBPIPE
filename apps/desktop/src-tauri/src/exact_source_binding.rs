@@ -144,14 +144,6 @@ pub(crate) struct BoundSource {
     pub standing: Value,
 }
 
-/// Steps 3-5, after the command's lease covers the priced parse of
-/// both texts and its working memory: parse and guard both texts, require
-/// that the native reader reads the result and that its mechanics are solved
-/// (DEL-08-01 REQ-017; eligibility is recorded, not required: see
-/// [`require_eligible`]), with the invocation built from the recorded mode
-/// (`{request: {model, materials: []}, solver_mode}`, the form of the
-/// desktop's `NativeMechanicsInvocation`), then bind the admission's result
-/// and model digests to them.
 /// What a binding admits the delivered result for (DEL-08-01 REQ-017 and
 /// REQ-024's present account).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -163,6 +155,14 @@ pub(crate) enum SourceAdmission {
     Eligible,
 }
 
+/// Steps 3-5, after the command's lease covers the priced parse of
+/// both texts and its working memory: parse and guard both texts, read the
+/// result with the invocation built from the recorded mode
+/// (`{request: {model, materials: []}, solver_mode}`, the form of the
+/// desktop's `NativeMechanicsInvocation`), require that the native reader
+/// reads it and that its mechanics are solved (DEL-08-01 REQ-017), require
+/// eligible native standing where `kind` is [`SourceAdmission::Eligible`],
+/// then bind the admission's result and model digests to them.
 pub(crate) fn read_delivered_source(
     admission: &Value,
     digests: &CustodyDigests,

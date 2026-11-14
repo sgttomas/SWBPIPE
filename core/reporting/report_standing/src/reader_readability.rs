@@ -123,16 +123,19 @@ fn case_record_consistent(case: &Value, codes: &HashMap<&str, Vec<Option<&str>>>
 /// default arm). `None`: a code the producer does not publish. Held here, not
 /// borrowed from result_export, so that the priced reader is unchanged; the
 /// tests compare it, entry for entry, with the priced reader's table.
+pub const STANDING_QUALITY: [(&str, [&str; 4]); 8] = [
+    ("NUMERICAL_INTEGRITY_CHECKS_PASSED", ["passive_model_basis", "checks_passed", "represented_equations_retained", "not_claimed"]),
+    ("NUMERICAL_INTEGRITY_SENSITIVE", ["passive_model_basis", "sensitive", "represented_equations_retained", "not_claimed"]),
+    ("NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM", ["physical_mechanism_witnessed", "failed", "not_assessed", "not_claimed"]),
+    ("NUMERICAL_INTEGRITY_NEGATIVE_ENERGY", ["negative_energy_witnessed", "failed", "not_assessed", "not_claimed"]),
+    ("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED", ["numerically_unresolved", "unresolved", "not_assessed", "unresolved"]),
+    ("NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED", ["numerically_unresolved", "unresolved", "assembly_loss_detected", "unresolved"]),
+    ("NUMERICAL_INTEGRITY_FAILED", ["numerically_unresolved", "failed", "assembly_uncertainty", "unresolved"]),
+    ("NUMERICAL_INTEGRITY_UNRESOLVED", ["numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"]),
+];
+
+/// The record [`STANDING_QUALITY`] holds for `code`; `None`: a code the
+/// producer does not publish.
 pub fn standing_quality(code: &str) -> Option<[&'static str; 4]> {
-    Some(match code {
-        "NUMERICAL_INTEGRITY_CHECKS_PASSED" => ["passive_model_basis", "checks_passed", "represented_equations_retained", "not_claimed"],
-        "NUMERICAL_INTEGRITY_SENSITIVE" => ["passive_model_basis", "sensitive", "represented_equations_retained", "not_claimed"],
-        "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM" => ["physical_mechanism_witnessed", "failed", "not_assessed", "not_claimed"],
-        "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY" => ["negative_energy_witnessed", "failed", "not_assessed", "not_claimed"],
-        "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED" => ["numerically_unresolved", "unresolved", "not_assessed", "unresolved"],
-        "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED" => ["numerically_unresolved", "unresolved", "assembly_loss_detected", "unresolved"],
-        "NUMERICAL_INTEGRITY_FAILED" => ["numerically_unresolved", "failed", "assembly_uncertainty", "unresolved"],
-        "NUMERICAL_INTEGRITY_UNRESOLVED" => ["numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"],
-        _ => return None,
-    })
+    STANDING_QUALITY.iter().find(|(known, _)| *known == code).map(|(_, record)| *record)
 }
