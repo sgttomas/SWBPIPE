@@ -8,6 +8,23 @@ needs:
     support's converged state. A modified copy of a stored document is admitted on the same terms
     as the stored document.
   gating: true
+- from: DEL-04-07
+  when: Before projecting the authored source into sizing cases
+  condition: >-
+    Public no-solve admission checks preserve the product's named refusals for the authored
+    settings, identifiers and references that case or combination projection could hide.
+    They examine the complete authored case set without imposing the candidate family and
+    hanger-data checks that REQ-002 deliberately replaces. The pressure-elongation selection
+    check is provided; complete identifier and reference admission is not yet provided.
+  gating: true
+- from: DEL-02-01
+  when: Before projecting the authored source into sizing cases
+  condition: >-
+    The public operating-condition preview applies the ordinary product's document-member,
+    condition-use and combination judgement to the complete source without solving it,
+    preserving its named refusals before sizing removes cases and combinations. This preview
+    does not establish complete physical admission.
+  gating: true
 - from: DEL-04-03
   condition: >-
     The linear support model provides a rigid restraint of a single translational degree of freedom,

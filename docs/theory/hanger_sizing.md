@@ -164,6 +164,14 @@ therefore applies exactly as in the model's own solve. A copy keeps only the cas
 solves. It is never saved, never returned as a model and never passes through the
 operation route, so the stored model is unchanged by a sizing run.
 
+Before projection, the complete authored document is checked by the product's
+operating-condition judgement and its pressure-elongation selection check. An invalid
+selection or an unsupported condition or combination must not disappear when cases
+or combinations are removed. These checks perform no solve. A refusal uses
+`HANGER_SIZING_DERIVED_SOLVE_FAILED`, names `source`, and carries the product's own
+diagnostic codes. These checks are not a complete physical-admission proof of the
+source; every derived solve still performs the ordinary solve's checks.
+
 If a derived solve is refused, fails to converge, publishes a blocking diagnostic or
 omits a value sizing needs, the whole request is refused, carrying that solve's
 diagnostics (`HANGER_SIZING_DERIVED_SOLVE_FAILED`). No partial table is produced. A
@@ -174,7 +182,11 @@ was carrying stability, not only load.
 
 A request on the exact pressure route (a model with a `pressure_contract`) is sized as
 one on the pressure-free route, and the result states its route: `pressure_free` or
-`exact_pressure`. Each derived solve keeps the model's route and settings.
+`exact_pressure`. Each derived solve keeps the model's route and the settings that
+apply to its retained case. Pressure elongation is included precisely when the
+authored selection names that case: the derived selection then names only that case.
+Otherwise the derived document omits the setting, whose absent form means off;
+it never writes an empty selection. Other model settings are preserved.
 
 On a load/reference-state document each case carries a ledger of the stored loads it
 applies (`load_sources`) and a state for every support. A derived document keeps them

@@ -195,6 +195,8 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** the solve cannot be made to hold another case's nonlinear states; forming the basis that way would need a second assembly, which the deliverable's one solve path excludes.
 - **What the user does instead:** read the published states and the warning; where the difference matters, model the support in its operating state for the sizing run.
 - **Basis:** DEL-04-11 [scope](../execution/PKG-04/DEL-04-11/ScopeOfWork.md), REQ-003. On the pressure-free route the refusal was standing before this entry, as `HANGER_SIZING_REQUEST_INVALID` naming the weight support state. PR #272 extends hanger sizing, and this refusal with it, to the exact route, gives the refusal its own code, and adds the entry.
+- **Status:** not yet declared.
+
 ### LIM-010 — Outputs that need a full copy of the result cannot be made above 64 MiB, and report generation beyond the committed witnesses is not established
 
 - **Id:** LIM-010

@@ -510,7 +510,6 @@ fn all_ids(value: &Value, out: &mut BTreeSet<String>) {
     }
 }
 
-/// The one call site of every derived solve.
 /// The source model's own admission of what a derived document no longer carries,
 /// judged before any derived solve and without solving (REQ-009: what the solve
 /// refuses refuses the request with the solve's code). A derived document keeps one
@@ -525,8 +524,9 @@ fn all_ids(value: &Value, out: &mut BTreeSet<String>) {
 /// - `pressure_elongation_refusals`, on the authored setting and every authored case
 ///   id, exactly as the solve's validation calls it.
 ///
-/// They run after the candidate rules (REQ-002) have admitted the candidates, so a
-/// candidate is never refused here for a member sizing replaces. Each refusal is
+/// They run after the candidate rules (REQ-002) have admitted the candidates.
+/// These judgements do not cover all source identities or case-state references;
+/// they do not establish complete source admission. Each refusal is
 /// `HANGER_SIZING_DERIVED_SOLVE_FAILED` naming `source`, carrying the product's own
 /// codes and messages. It is not a solve and counts against no solve bound.
 fn check_source(request_doc: &Value) -> Option<Refusal> {
@@ -552,6 +552,7 @@ fn check_source(request_doc: &Value) -> Option<Refusal> {
     (!found.is_empty()).then(|| refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec!["source".to_string()], found.join("; ")))
 }
 
+/// The one call site of every derived solve.
 fn solve(doc: Value, mode: PreviewSolverMode, label: &str) -> Result<MechanicsEnvelope, Refusal> {
     let envelope = run_linear_static_preview_value_with_mode(doc, mode)
         .map_err(|error| refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec![label.to_string()], error))?;

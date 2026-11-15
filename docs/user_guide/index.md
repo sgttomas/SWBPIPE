@@ -780,7 +780,7 @@ every finding listed and run again.
 | `HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED`, `HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED` | The support state W is formed in is absent, or is not `own_solve`. W is formed only in the weight case's own state, a standing limitation ([LIM-009](../RELEASE_LIMITATIONS_v1.0.md#lim-009--the-hot-load-basis-is-formed-only-in-the-weight-cases-own-support-state)). | State `own_solve`; the desktop sets it for you. |
 | `HANGER_SIZING_ID_COLLISION` | The model already uses an id `load:hanger-sizing:<support>`, which sizing reserves. | Rename the model object. |
 | `HANGER_SIZING_LOAD_NOT_POSITIVE` | A candidate's hot-load basis W is not positive along its DOF; every such candidate is named. | Remove the named candidates and run again. |
-| `HANGER_SIZING_DERIVED_SOLVE_FAILED` | One of the run's solves was refused, published a blocking diagnostic or lacked a needed result. `names` gives the solve (such as `S_W`), and the message carries the solve's own diagnostic codes. | Read the solve's diagnostics and correct the model or the candidates. |
+| `HANGER_SIZING_DERIVED_SOLVE_FAILED` | The source's settings or operating-condition admission was refused, or one of the run's solves was refused, published a blocking diagnostic or lacked a needed result. `names` gives `source` for the check before projection, or the solve (such as `S_W`); the message carries the product's own diagnostic codes. | Read the diagnostics and correct the model or the candidates. |
 
 #### Applying a run's selections in the desktop
 
