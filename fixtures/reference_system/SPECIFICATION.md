@@ -280,9 +280,10 @@ travel range or movement limit (`SPRING_HANGER_LOAD_MISSING`, `SPRING_HANGER_TRA
 so RS-VS1 carries invented ones. They are review metadata: only the stiffness is consumed,
 and each entered load warns `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`. Like the
 constant-effort load, they are inputs; hanger sizing reports its own sized loads and travel
-as results (§8.8) and does not overwrite them. Every static solve refuses a model with a
-snubber (`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`), so RS-SN1 enters only with the response
-spectrum (§8.5).
+as results (§8.8) and does not overwrite them. Every static solve currently refuses a model
+with a snubber (`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`). In the intended system, RS-SN1 is
+omitted from static solves and enters the shared modal and response-spectrum dynamic
+basis (§§8.4–8.5); its fixture entry remains pending (§10).
 
 ## 7. Pressure regions
 
