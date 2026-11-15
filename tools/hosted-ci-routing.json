@@ -260,7 +260,7 @@
       "core/loads/self_weight_wasm/Cargo.toml": "7041b262bcf36c8b00d380e041d2375016101856a62c61551c0e8abb3d21dc7d",
       "core/loads/stress_recovery/Cargo.toml": "a8d181c7587101e60d9fcc9bc7006822f9ce77105707193933039458637198e4",
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
-      "core/model_operations/operation_applier/Cargo.toml": "453f8cee29e4f133a2bba3a5c51619bd94f5e88f592ea71af9dd5891133f2654",
+      "core/model_operations/operation_applier/Cargo.toml": "26366d3b56c0b35b1daa9c395b5b654edc5ae059180c691d59487547313a23e3",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
       "core/product_physics/Cargo.toml": "348ad0f137972e10775dda07779f3bb80b27d1d3d91cf33921ec348f0af1cfb4",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
@@ -615,7 +615,7 @@
         ]
       },
       "core/model_operations/operation_applier/tests/numerical_health.rs": {
-        "sha256": "b338f1e3d603d9433f5724a7d384dbf638ff6246a35c3c60f7c035224d1154eb",
+        "sha256": "79712698cf8417d77967b8e6abd7bd02d52d87b905e552415666184f900f8b4f",
         "source_trees": [
           "core/model_operations/operation_applier/Cargo.toml"
         ],
