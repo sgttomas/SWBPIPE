@@ -752,6 +752,12 @@ charge `ordinary_published_displacements(N)` is unchanged: at most one N-vector 
     call, macro, loop, closure or text site. The field sizes are priced by `size_of` probes (T11), the constant's
     literal by the static-literal pass (`rust_literals.production_literals`, its own lexer), and its uses by raw-text
     constant reads.
+  - What the visibility moves: `callgraph_g5` reads struct fields from this text to type `self.<field>` receivers.
+    With ProductCapture's fields hidden, its impls' field calls (`self.adapter.reserve(..)`, `self.parked.len()`, ..)
+    were unknown receivers fanned out by name to every scanned method of that name. Now they resolve to the field's
+    type (418 edges fewer, none added). The fan-out reached lib.rs's `ReservedNotice::reserve`, a diagnostic literal,
+    from 21 functions; it now has its one real caller. D and the diagnostic and TAV text fall on main and PR-A's
+    source alike (an over-approximation removed, not a charge dropped).
   - Test-only code is blanked in addition: the `else` tails of `let x = if .. {..} else {..};` and `use` semicolons.
 - **Regressions.** These are in `tests/test_862_pr_a.py`: nested test modules, a test statement inside a function,
   `cfg(not(test))`, attribute stacks, fields, arms, literals, and the real lib.rs case.
