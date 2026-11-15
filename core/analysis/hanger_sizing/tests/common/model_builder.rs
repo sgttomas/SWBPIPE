@@ -331,17 +331,29 @@ pub fn exs_request(reference: &Value) -> Value {
         .unwrap()
         .iter()
         .map(|lc| {
+            // A primitive-load or pressure-region id is unique across the model, so
+            // each case's copy of a stored load is qualified by its case, and the
+            // ledger names that copy. A load's description is the reference's.
+            let qualified = |id: &Value| Value::String(format!("{}:{}", lc["id"].as_str().unwrap(), id.as_str().unwrap()));
+            let primitives: Vec<Value> = stored
+                .iter()
+                .map(|l| {
+                    let mut l = l.clone();
+                    l["id"] = qualified(&l["id"]);
+                    l
+                })
+                .collect();
             let sources: Vec<Value> = lc["includes"]
                 .as_array()
                 .unwrap()
                 .iter()
                 .filter(|i| stored.iter().any(|l| l["id"] == i["load"]))
-                .map(|i| json!({"source_ref": i["load"], "factor": i["factor"]}))
+                .map(|i| json!({"source_ref": qualified(&i["load"]), "factor": i["factor"]}))
                 .collect();
             let included_pressure = pressure.filter(|p| lc["includes"].as_array().unwrap().iter().any(|i| i["load"] == p["id"]));
             let regions: Vec<Value> = included_pressure
                 .map(|p| json!({
-                    "id": p["id"], "member_pipe_ids": p["members"], "pressure_basis": "internal_differential_zero_external_v1",
+                    "id": qualified(&p["id"]), "member_pipe_ids": p["members"], "pressure_basis": "internal_differential_zero_external_v1",
                     "pressure": {"value": p["value_pa"], "unit": "Pa"},
                     "terminals": p["closed_ends"].as_array().unwrap().iter().map(|n| json!({"node_ref": n,
                         "closure_transfer": "transfers_to_wall", "provenance": "invented_test_value"})).collect::<Vec<_>>(),
@@ -366,7 +378,7 @@ pub fn exs_request(reference: &Value) -> Value {
                 })
                 .collect();
             json!({
-                "id": lc["id"], "kind": "primitive_user_load", "primitive_loads": stored, "pressure_regions": regions,
+                "id": lc["id"], "kind": "primitive_user_load", "primitive_loads": primitives, "pressure_regions": regions,
                 "analysis_state": {
                     "contract": "openpipestress.load_reference_state/1.0.0",
                     "reference_configuration_ref": "reference:installed",

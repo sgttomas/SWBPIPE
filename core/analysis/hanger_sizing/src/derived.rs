@@ -8,6 +8,8 @@ use crate::{
     check_method, size, verification_standing, verify, Candidate, CandidateResult, Dof, FamilyPolicy, Method,
     Positions, Record, Refusal, Selected, Verification, VerificationStanding,
 };
+use open_pipe_stress_product_physics::model_settings::pressure_elongation_refusals;
+use open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode};
 use open_pipe_stress_units::{canonical_unit, convert, unit_by_symbol, Dimension};
 use serde_json::{json, Value};
@@ -426,6 +428,26 @@ pub fn derived_document(request_doc: &Value, case: &str, sites: &[Site], roles: 
     if model.contains_key("combinations") {
         model.insert("combinations".into(), json!([]));
     }
+    // Pressure elongation names the operating cases it applies in. The derived
+    // document keeps that choice for its one case: the case stays selected when the
+    // source selects it, and otherwise the setting is removed (absent means off),
+    // never left naming cases the document no longer has nor emptied, which the
+    // product never writes. Every other setting is kept. The source's own setting
+    // was judged before any derived document was formed (`check_source`).
+    if let Some(Value::Object(settings)) = model.get_mut("model_settings") {
+        let selected = settings.get("pressure_elongation").map(|setting| {
+            setting["operating_load_cases"].as_array().is_some_and(|ids| ids.iter().any(|id| id.as_str() == Some(case)))
+        });
+        match selected {
+            Some(true) => {
+                settings.insert("pressure_elongation".into(), json!({"operating_load_cases": [case]}));
+            }
+            Some(false) => {
+                settings.remove("pressure_elongation");
+            }
+            None => {}
+        }
+    }
     let mut added = Vec::new();
     let mut removed = Vec::new();
     if let Some(Value::Array(supports)) = model.get_mut("supports") {
@@ -489,6 +511,47 @@ fn all_ids(value: &Value, out: &mut BTreeSet<String>) {
 }
 
 /// The one call site of every derived solve.
+/// The source model's own admission of what a derived document no longer carries,
+/// judged before any derived solve and without solving (REQ-009: what the solve
+/// refuses refuses the request with the solve's code). A derived document keeps one
+/// case and no combinations, so an authored case, combination or setting that the
+/// model's own solve refuses must be judged on the source, or projection would hide
+/// it. Two public judgements of the product are used as they stand:
+///
+/// - `preview_operating_conditions`: the solve's request parse, its namespace checks
+///   and the operating-condition judgement its lowering applies (document members,
+///   condition use, the interim support and combination refusals) over every
+///   authored case and combination;
+/// - `pressure_elongation_refusals`, on the authored setting and every authored case
+///   id, exactly as the solve's validation calls it.
+///
+/// They run after the candidate rules (REQ-002) have admitted the candidates, so a
+/// candidate is never refused here for a member sizing replaces. Each refusal is
+/// `HANGER_SIZING_DERIVED_SOLVE_FAILED` naming `source`, carrying the product's own
+/// codes and messages. It is not a solve and counts against no solve bound.
+fn check_source(request_doc: &Value) -> Option<Refusal> {
+    let model = &request_doc["model"];
+    let preview = preview_operating_conditions(model);
+    let mut found = Vec::new();
+    if let Some(text) = preview["refusal"].as_str() {
+        found.push(text.to_string());
+    }
+    for diagnostic in preview["diagnostics"].as_array().into_iter().flatten() {
+        if diagnostic["severity"] == "blocking" {
+            found.push(format!("{}: {}", diagnostic["code"].as_str().unwrap_or(""), diagnostic["message"].as_str().unwrap_or("")));
+        }
+    }
+    // A malformed setting is refused by the request parse above.
+    if let Some(ids) = model["model_settings"]["pressure_elongation"]["operating_load_cases"].as_array() {
+        let ids: Vec<&str> = ids.iter().filter_map(Value::as_str).collect();
+        let cases: HashSet<&str> = model["load_cases"].as_array().into_iter().flatten().filter_map(|c| c["id"].as_str()).collect();
+        for error in pressure_elongation_refusals(ids, is_exact(request_doc), &cases) {
+            found.push(format!("{}: {}", error.code, error.message));
+        }
+    }
+    (!found.is_empty()).then(|| refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec!["source".to_string()], found.join("; ")))
+}
+
 fn solve(doc: Value, mode: PreviewSolverMode, label: &str) -> Result<MechanicsEnvelope, Refusal> {
     let envelope = run_linear_static_preview_value_with_mode(doc, mode)
         .map_err(|error| refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec![label.to_string()], error))?;
@@ -607,6 +670,9 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
     let collisions: Vec<String> = sites.iter().map(load_id).filter(|id| ids.contains(id)).collect();
     if !collisions.is_empty() {
         refusals.push(refusal("HANGER_SIZING_ID_COLLISION", collisions, "a reserved derived-load id already exists in the model"));
+    }
+    if refusals.is_empty() {
+        refusals.extend(check_source(request_doc));
     }
     if !refusals.is_empty() {
         return Err(refusals);

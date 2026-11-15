@@ -431,11 +431,11 @@
             "load_sources": [
               {
                 "factor": 1.0,
-                "source_ref": "F-T"
+                "source_ref": "W:F-T"
               },
               {
                 "factor": 1.0,
-                "source_ref": "F-M"
+                "source_ref": "W:F-M"
               }
             ],
             "provenance": "invented_test_value",
@@ -463,7 +463,7 @@
               "category": "concentrated_force",
               "dimension": "force",
               "direction": "global_z",
-              "id": "F-T",
+              "id": "W:F-T",
               "magnitude": {
                 "unit": "N",
                 "value": -9000.0
@@ -478,7 +478,7 @@
               "category": "concentrated_force",
               "dimension": "force",
               "direction": "global_z",
-              "id": "F-M",
+              "id": "W:F-M",
               "magnitude": {
                 "unit": "N",
                 "value": -4000.0
@@ -535,11 +535,11 @@
             "load_sources": [
               {
                 "factor": 1.0,
-                "source_ref": "F-T"
+                "source_ref": "O1:F-T"
               },
               {
                 "factor": 1.0,
-                "source_ref": "F-M"
+                "source_ref": "O1:F-M"
               }
             ],
             "provenance": "invented_test_value",
@@ -567,7 +567,7 @@
               "category": "concentrated_force",
               "dimension": "force",
               "direction": "global_z",
-              "id": "F-T",
+              "id": "O1:F-T",
               "magnitude": {
                 "unit": "N",
                 "value": -9000.0
@@ -582,7 +582,7 @@
               "category": "concentrated_force",
               "dimension": "force",
               "direction": "global_z",
-              "id": "F-M",
+              "id": "O1:F-M",
               "magnitude": {
                 "unit": "N",
                 "value": -4000.0
@@ -639,11 +639,11 @@
             "load_sources": [
               {
                 "factor": 1.0,
-                "source_ref": "F-T"
+                "source_ref": "O2:F-T"
               },
               {
                 "factor": 1.0,
-                "source_ref": "F-M"
+                "source_ref": "O2:F-M"
               }
             ],
             "provenance": "invented_test_value",
@@ -671,7 +671,7 @@
               "category": "concentrated_force",
               "dimension": "force",
               "direction": "global_z",
-              "id": "F-T",
+              "id": "O2:F-T",
               "magnitude": {
                 "unit": "N",
                 "value": -9000.0
@@ -686,7 +686,7 @@
               "category": "concentrated_force",
               "dimension": "force",
               "direction": "global_z",
-              "id": "F-M",
+              "id": "O2:F-M",
               "magnitude": {
                 "unit": "N",
                 "value": -4000.0

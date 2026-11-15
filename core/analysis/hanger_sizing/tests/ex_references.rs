@@ -258,116 +258,122 @@ fn the_weight_solve_reproduces_the_rigid_reactions_and_the_force_solves_their_po
 fn every_run_reproduces_the_loads_fit_selection_and_verification() {
     for model in reference()["models"].as_array().unwrap() {
         let doc = exs_request(model);
-        let records = records(model);
         for run_ref in model["runs"].as_array().unwrap() {
             for mode in MODES {
                 let who = format!("{} {} {mode:?}", model["id"].as_str().unwrap(), run_ref["id"].as_str().unwrap());
-                let request = sizing_request(run_ref, mode);
-                let operating: Vec<String> = request.operating_cases().iter().map(|c| c.to_string()).collect();
-                let run = run(&doc, &records, &request).unwrap_or_else(|r| panic!("{who}: {r:?}"));
-                // REQ-011: 2n + 3 ordinary solves.
-                assert_eq!(run.states.len(), 2 * operating.len() + 3, "{who}");
-                let expected = &run_ref["expected"];
-                let standing = match run.standing {
-                    VerificationStanding::Unconditional => "unconditional",
-                    VerificationStanding::Conditional => "conditional",
-                };
-                assert_eq!(standing, expected["verification_standing"], "{who}");
-                let expected_candidates = expected["candidates"].as_array().unwrap();
-                assert_eq!(run.candidates.len(), expected_candidates.len(), "{who}");
-                let floor_by_case: Vec<f64> = operating
-                    .iter()
-                    .map(|case| position_floor(expected_candidates.iter().map(|e| &e["u_operating_m"][case])))
-                    .collect();
-                let cold_floor = position_floor(expected_candidates.iter().map(|e| &e["u_cold_m"]));
-                for (((candidate, result), verification), e) in
-                    run.candidates.iter().zip(&run.results).zip(&run.verifications).zip(expected_candidates)
-                {
-                    let who = format!("{who} {}", candidate.id);
-                    assert_eq!(candidate.id, e["support"].as_str().unwrap());
-                    assert_eq!(outcome_token(result.outcome), e["outcome"], "{who}");
-                    let w = num(&e["w_n"]);
-                    let force_floor = (1e-9 * w.abs()).max(1e-12);
-                    near(candidate.w_n, w, force_floor, &format!("{who} W"));
-                    near(candidate.positions.u_cold_m, num(&e["u_cold_m"]), cold_floor, &format!("{who} u_C"));
-                    for (i, case) in operating.iter().enumerate() {
-                        near(candidate.positions.u_operating_m[i], num(&e["u_operating_m"][case]), floor_by_case[i], &format!("{who} u_{case}"));
-                    }
-                    let span_floor = position_floor(e["span_m"].as_array().unwrap().iter());
-                    near(result.span.min_m, num(&e["span_m"][0]), span_floor, &format!("{who} span min"));
-                    near(result.span.max_m, num(&e["span_m"][1]), span_floor, &format!("{who} span max"));
-                    near(result.required_travel_m, num(&e["required_travel_m"]), span_floor, &format!("{who} required travel"));
-                    // Failure counts: the reference states the families it tested.
-                    let published = json!({"variable": counts(&result.variable_failures), "constant": counts(&result.constant_failures)});
-                    for (family, expected_counts) in e["failure_counts"].as_object().unwrap() {
-                        assert_eq!(&published[family], expected_counts, "{who} failure counts {family}");
-                    }
-                    assert_eq!(first_failed(candidate, &records, &request.method, &e["first_failed_test"]), e["first_failed_test"], "{who}");
-                    match &result.selected {
-                        // The listed exception: no record selected, nothing assumed in its place.
-                        None => assert!(e["hanger_id"].is_null(), "{who}: the reference selects {}", e["hanger_id"]),
-                        Some(selection) => {
-                            assert_eq!(records[selection.record_index()].hanger_id, e["hanger_id"].as_str().unwrap(), "{who}");
-                            match selection {
-                                Selected::Variable { loads, .. } => {
-                                    near(loads.f_cold_n, num(&e["f_cold_n"]), force_floor, &format!("{who} F_cold"));
-                                    near(loads.f_cold_condition_n, num(&e["f_cold_condition_n"]), force_floor, &format!("{who} F_C"));
-                                    near(loads.envelope_n.0, num(&e["envelope_n"][0]), force_floor, &format!("{who} envelope low"));
-                                    near(loads.envelope_n.1, num(&e["envelope_n"][1]), force_floor, &format!("{who} envelope high"));
-                                    for (i, case) in operating.iter().enumerate() {
-                                        near(loads.f_operating_n[i], num(&e["f_operating_n"][case]), force_floor, &format!("{who} F_{case}"));
-                                        near(loads.variation[i], num(&e["variation"][case]), RATIO_FLOOR, &format!("{who} variation {case}"));
-                                    }
-                                    // The governing variation, derived from the published per-case variations.
-                                    let governing = loads.variation.iter().copied().fold(f64::NEG_INFINITY, f64::max);
-                                    near(governing, num(&e["governing_variation"]), RATIO_FLOOR, &format!("{who} governing variation"));
-                                }
-                                Selected::Constant { load_n, .. } => {
-                                    // Its loads, variation, envelope and governing 0 supply no published expectation.
-                                    near(*load_n, num(&e["f_cold_n"]), force_floor, &format!("{who} constant load"));
-                                }
-                            }
+                assert_run_reproduces(&doc, model, run_ref, mode, &who);
+            }
+        }
+    }
+}
+
+/// One reference run of `model` on the solve request `doc`, compared with the
+/// run's frozen expectations as the module states.
+fn assert_run_reproduces(doc: &Value, model: &Value, run_ref: &Value, mode: PreviewSolverMode, who: &str) {
+    let records = records(model);
+    let request = sizing_request(run_ref, mode);
+    let operating: Vec<String> = request.operating_cases().iter().map(|c| c.to_string()).collect();
+    let run = run(doc, &records, &request).unwrap_or_else(|r| panic!("{who}: {r:?}"));
+    // REQ-011: 2n + 3 ordinary solves.
+    assert_eq!(run.states.len(), 2 * operating.len() + 3, "{who}");
+    let expected = &run_ref["expected"];
+    let standing = match run.standing {
+        VerificationStanding::Unconditional => "unconditional",
+        VerificationStanding::Conditional => "conditional",
+    };
+    assert_eq!(standing, expected["verification_standing"], "{who}");
+    let expected_candidates = expected["candidates"].as_array().unwrap();
+    assert_eq!(run.candidates.len(), expected_candidates.len(), "{who}");
+    let floor_by_case: Vec<f64> = operating
+        .iter()
+        .map(|case| position_floor(expected_candidates.iter().map(|e| &e["u_operating_m"][case])))
+        .collect();
+    let cold_floor = position_floor(expected_candidates.iter().map(|e| &e["u_cold_m"]));
+    for (((candidate, result), verification), e) in
+        run.candidates.iter().zip(&run.results).zip(&run.verifications).zip(expected_candidates)
+    {
+        let who = format!("{who} {}", candidate.id);
+        assert_eq!(candidate.id, e["support"].as_str().unwrap());
+        assert_eq!(outcome_token(result.outcome), e["outcome"], "{who}");
+        let w = num(&e["w_n"]);
+        let force_floor = (1e-9 * w.abs()).max(1e-12);
+        near(candidate.w_n, w, force_floor, &format!("{who} W"));
+        near(candidate.positions.u_cold_m, num(&e["u_cold_m"]), cold_floor, &format!("{who} u_C"));
+        for (i, case) in operating.iter().enumerate() {
+            near(candidate.positions.u_operating_m[i], num(&e["u_operating_m"][case]), floor_by_case[i], &format!("{who} u_{case}"));
+        }
+        let span_floor = position_floor(e["span_m"].as_array().unwrap().iter());
+        near(result.span.min_m, num(&e["span_m"][0]), span_floor, &format!("{who} span min"));
+        near(result.span.max_m, num(&e["span_m"][1]), span_floor, &format!("{who} span max"));
+        near(result.required_travel_m, num(&e["required_travel_m"]), span_floor, &format!("{who} required travel"));
+        // Failure counts: the reference states the families it tested.
+        let published = json!({"variable": counts(&result.variable_failures), "constant": counts(&result.constant_failures)});
+        for (family, expected_counts) in e["failure_counts"].as_object().unwrap() {
+            assert_eq!(&published[family], expected_counts, "{who} failure counts {family}");
+        }
+        assert_eq!(first_failed(candidate, &records, &request.method, &e["first_failed_test"]), e["first_failed_test"], "{who}");
+        match &result.selected {
+            // The listed exception: no record selected, nothing assumed in its place.
+            None => assert!(e["hanger_id"].is_null(), "{who}: the reference selects {}", e["hanger_id"]),
+            Some(selection) => {
+                assert_eq!(records[selection.record_index()].hanger_id, e["hanger_id"].as_str().unwrap(), "{who}");
+                match selection {
+                    Selected::Variable { loads, .. } => {
+                        near(loads.f_cold_n, num(&e["f_cold_n"]), force_floor, &format!("{who} F_cold"));
+                        near(loads.f_cold_condition_n, num(&e["f_cold_condition_n"]), force_floor, &format!("{who} F_C"));
+                        near(loads.envelope_n.0, num(&e["envelope_n"][0]), force_floor, &format!("{who} envelope low"));
+                        near(loads.envelope_n.1, num(&e["envelope_n"][1]), force_floor, &format!("{who} envelope high"));
+                        for (i, case) in operating.iter().enumerate() {
+                            near(loads.f_operating_n[i], num(&e["f_operating_n"][case]), force_floor, &format!("{who} F_{case}"));
+                            near(loads.variation[i], num(&e["variation"][case]), RATIO_FLOOR, &format!("{who} variation {case}"));
                         }
+                        // The governing variation, derived from the published per-case variations.
+                        let governing = loads.variation.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+                        near(governing, num(&e["governing_variation"]), RATIO_FLOOR, &format!("{who} governing variation"));
                     }
-                    // A null verification in the reference supplies no expectation.
-                    let ev = &e["verification"];
-                    if ev.is_null() {
-                        continue;
+                    Selected::Constant { load_n, .. } => {
+                        // Its loads, variation, envelope and governing 0 supply no published expectation.
+                        near(*load_n, num(&e["f_cold_n"]), force_floor, &format!("{who} constant load"));
                     }
-                    let v = verification.as_ref().unwrap_or_else(|| panic!("{who}: no verification"));
-                    let vfloor = position_floor(std::iter::once(&ev["u_cold_m"]).chain(ev["u_operating_m"].as_object().unwrap().values()));
-                    near(v.positions.u_cold_m, num(&ev["u_cold_m"]), vfloor, &format!("{who} verified u_C"));
-                    for (i, case) in operating.iter().enumerate() {
-                        near(v.positions.u_operating_m[i], num(&ev["u_operating_m"][case]), vfloor, &format!("{who} verified u_{case}"));
-                    }
-                    near(v.span.min_m, num(&ev["span_m"][0]), vfloor, &format!("{who} verified span min"));
-                    near(v.span.max_m, num(&ev["span_m"][1]), vfloor, &format!("{who} verified span max"));
-                    near(v.required_travel_m, num(&ev["required_travel_m"]), vfloor, &format!("{who} verified required travel"));
-                    assert_eq!(json!(v.t_pass), ev["t_pass"], "{who}");
-                    let failed: Vec<&str> = v.failed_tests.iter().map(|t| t.name()).collect();
-                    assert_eq!(json!(failed), ev["failed_tests"], "{who}");
-                    match &v.variable {
-                        Some(vv) => {
-                            assert_eq!(ev["configuration"]["kind"], "spring_plus_force", "{who}");
-                            near(vv.f_cold_condition_n, num(&ev["f_cold_condition_n"]), force_floor, &format!("{who} verified F_C"));
-                            near(vv.departure_n, num(&ev["departure_n"]), force_floor, &format!("{who} departure"));
-                            for (i, case) in operating.iter().enumerate() {
-                                near(vv.f_operating_n[i], num(&ev["f_operating_n"][case]), force_floor, &format!("{who} verified F_{case}"));
-                                let ratio = vv.variation[i].unwrap_or_else(|| panic!("{who}: verified variation {case} absent"));
-                                near(ratio, num(&ev["variation"][case]), RATIO_FLOOR, &format!("{who} verified variation {case}"));
-                            }
-                        }
-                        // A constant selection's verified loads, variation and departure supply no expectation.
-                        None => assert_eq!(ev["configuration"]["kind"], "force", "{who}"),
-                    }
-                }
-                // An unfitted candidate is verified as a force W, and the other candidates' verified values include it.
-                for unfitted in expected["unfitted_verified_as_force_w"].as_array().unwrap() {
-                    let index = run.candidates.iter().position(|c| c.id == unfitted.as_str().unwrap()).unwrap();
-                    assert_eq!(run.results[index].outcome, Outcome::NoRecordFits, "{who}");
                 }
             }
         }
+        // A null verification in the reference supplies no expectation.
+        let ev = &e["verification"];
+        if ev.is_null() {
+            continue;
+        }
+        let v = verification.as_ref().unwrap_or_else(|| panic!("{who}: no verification"));
+        let vfloor = position_floor(std::iter::once(&ev["u_cold_m"]).chain(ev["u_operating_m"].as_object().unwrap().values()));
+        near(v.positions.u_cold_m, num(&ev["u_cold_m"]), vfloor, &format!("{who} verified u_C"));
+        for (i, case) in operating.iter().enumerate() {
+            near(v.positions.u_operating_m[i], num(&ev["u_operating_m"][case]), vfloor, &format!("{who} verified u_{case}"));
+        }
+        near(v.span.min_m, num(&ev["span_m"][0]), vfloor, &format!("{who} verified span min"));
+        near(v.span.max_m, num(&ev["span_m"][1]), vfloor, &format!("{who} verified span max"));
+        near(v.required_travel_m, num(&ev["required_travel_m"]), vfloor, &format!("{who} verified required travel"));
+        assert_eq!(json!(v.t_pass), ev["t_pass"], "{who}");
+        let failed: Vec<&str> = v.failed_tests.iter().map(|t| t.name()).collect();
+        assert_eq!(json!(failed), ev["failed_tests"], "{who}");
+        match &v.variable {
+            Some(vv) => {
+                assert_eq!(ev["configuration"]["kind"], "spring_plus_force", "{who}");
+                near(vv.f_cold_condition_n, num(&ev["f_cold_condition_n"]), force_floor, &format!("{who} verified F_C"));
+                near(vv.departure_n, num(&ev["departure_n"]), force_floor, &format!("{who} departure"));
+                for (i, case) in operating.iter().enumerate() {
+                    near(vv.f_operating_n[i], num(&ev["f_operating_n"][case]), force_floor, &format!("{who} verified F_{case}"));
+                    let ratio = vv.variation[i].unwrap_or_else(|| panic!("{who}: verified variation {case} absent"));
+                    near(ratio, num(&ev["variation"][case]), RATIO_FLOOR, &format!("{who} verified variation {case}"));
+                }
+            }
+            // A constant selection's verified loads, variation and departure supply no expectation.
+            None => assert_eq!(ev["configuration"]["kind"], "force", "{who}"),
+        }
+    }
+    // An unfitted candidate is verified as a force W, and the other candidates' verified values include it.
+    for unfitted in expected["unfitted_verified_as_force_w"].as_array().unwrap() {
+        let index = run.candidates.iter().position(|c| c.id == unfitted.as_str().unwrap()).unwrap();
+        assert_eq!(run.results[index].outcome, Outcome::NoRecordFits, "{who}");
     }
 }
 
@@ -503,4 +509,56 @@ fn pressure_free_expression(model: &Value) -> Value {
         })
         .collect();
     request(&node_refs, &members, supports, cases)
+}
+
+/// EXS-A with pressure elongation authored in its design operating case O1, through
+/// the same sizing run and the same comparison as every other run.
+///
+/// The reference's own derivation (README, "Pressure independence, by design", and
+/// its self-check repeating every EXS-A solve with end-cap thrusts and a Poisson
+/// strain) makes every vertical quantity of EXS-A independent of whether pressure
+/// elongation is modelled: the run is straight along X, closed at both ends and
+/// restrained axially only at N1, and its axial and bending responses are
+/// uncoupled. So the frozen EXS-A expectations apply unchanged with the setting
+/// selected. This is evidence that the setting is admitted, projected and solved
+/// without disturbing those pressure-independent vertical quantities. It is not
+/// evidence of pressure mechanics, nor of sizing where pressure elongation moves a
+/// vertical quantity; no reference here covers that.
+///
+/// That the setting acts at all is observed, not assumed: the O1 solve's axial
+/// position of the free end N7 differs with and without it. Nothing is asserted of
+/// that axial value beyond the difference.
+#[test]
+fn exs_a_with_pressure_elongation_in_o1_reproduces_its_pressure_independent_expectations() {
+    let reference = reference();
+    let model = reference["models"].as_array().unwrap().iter().find(|m| m["id"] == "EXS-A").unwrap();
+    let plain = exs_request(model);
+    assert!(plain["model"].get("model_settings").is_none());
+    let mut doc = plain.clone();
+    doc["model"]["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": ["O1"]}});
+    let sites = sites(model);
+    let rigid = vec![Role::Rigid; sites.len()];
+    for case in ["W", "O1", "O2"] {
+        let expected = if case == "O1" { json!({"pressure_elongation": {"operating_load_cases": ["O1"]}}) } else { json!({}) };
+        assert_eq!(derived_document(&doc, case, &sites, &rigid)["model"]["model_settings"], expected, "{case}");
+    }
+    let axial = |envelope: &MechanicsEnvelope| {
+        let row = envelope.results.iter().find(|r| r.kind == "global_nodal_displacement_x" && r.entity_ref == "N7").expect("UX at N7");
+        match row.unit.as_str() {
+            "mm" => row.value / 1000.0,
+            "m" => row.value,
+            other => panic!("unit {other}"),
+        }
+    };
+    for mode in MODES {
+        let with = axial(&solve(derived_document(&doc, "O1", &sites, &rigid), mode, "O1 with the setting"));
+        let without = axial(&solve(derived_document(&plain, "O1", &sites, &rigid), mode, "O1 without it"));
+        assert!((with - without).abs() > 1e-9 * with.abs().max(without.abs()) + 1e-12,
+            "{mode:?}: pressure elongation did not reach the O1 solve ({with} m and {without} m)");
+        eprintln!("EXS-A O1 {mode:?}: UX at N7 {with} m with pressure elongation, {without} m without");
+        for run_ref in model["runs"].as_array().unwrap() {
+            let who = format!("EXS-A {} {mode:?} with pressure elongation in O1", run_ref["id"].as_str().unwrap());
+            assert_run_reproduces(&doc, model, run_ref, mode, &who);
+        }
+    }
 }
