@@ -254,6 +254,7 @@ export function watchWindow(child, { budgetMs, killGraceMs = 5000, finalGraceMs 
         owned_pids: owned, group_errors: groupErrors, events,
         trigger_sample: triggerSample, latest_sample: latestSample,
         completed_run_files: completedRuns, launches_started: launchesStarted,
+        // Supervisor evidence is complete; this is not a pass, and a window can fail with this field true.
         evidence_complete: reason === null && code === 0 && reaped && live === false && workersVerified && owned.every(({pid}) => !pidLive(pid)) });
     };
     const message = (event) => {
