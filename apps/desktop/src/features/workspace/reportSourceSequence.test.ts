@@ -131,6 +131,24 @@ describe("report source sequence", () => {
     await expect(source.registeredFor(2)).resolves.toEqual({ incarnation: 1, sequence: 2 });
   });
 
+  it("allocates render request ordinals synchronously and monotonically, sending and advancing nothing (M04/M06)", async () => {
+    const model = nativeModel();
+    const source = new ReportSourceSequence(model.transport, new ReportSourceCoordinator());
+    source.start();
+    await settle();
+    const callsBefore = [...model.calls];
+    const sequenceBefore = source.sequence;
+    expect([source.nextRenderRequest(), source.nextRenderRequest(), source.nextRenderRequest()]).toEqual([1, 2, 3]);
+    await settle();
+    expect({ calls: model.calls, sequence: source.sequence, registered: source.registered })
+      .toEqual({ calls: callsBefore, sequence: sequenceBefore, registered: { incarnation: 1, sequence: 0 } });
+    // A replaced lifetime (remount) continues the same owner's ordinals; none is reused.
+    source.stop();
+    source.start();
+    await settle();
+    expect(source.nextRenderRequest()).toBe(4);
+  });
+
   it("outside the desktop application nothing is sent and output is not held", async () => {
     const source = new ReportSourceSequence(null, new ReportSourceCoordinator());
     source.start();

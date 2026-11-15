@@ -33,12 +33,19 @@
 //! not yet registered and is refused rather than taken as authority. A
 //! registered advance retires the current render and its print window.
 //!
-//! A render request takes a ticket at entry ([`RenderCustody::begin_render`]),
-//! which retires the current render; its completion is recorded only while
-//! both its ticket (no later render request and no retirement since) and its
-//! source number are current. The report panel retires its render whenever it
-//! discards it ([`retire_rendered_report`]), which also invalidates pending
-//! tickets.
+//! A render request is identified by its source and an ordinal its source
+//! owner allocated when its preparation began ([`RenderRequest`]). It takes a
+//! ticket at entry ([`RenderCustody::begin_render`]), which retires the
+//! current render; its completion is recorded only while both its ticket (no
+//! later render request and no retirement since) and its source number are
+//! current. Entry also requires its ordinal to be above the incarnation's
+//! entry watermark, the highest ordinal entered or retired before entry, so an
+//! older request delivered late, or one retired before it entered, cannot
+//! mint authority. The report panel retires a render it discards by naming
+//! that request ([`retire_rendered_report`]): only the exact pending or
+//! completed request is retired; one not yet entered raises the watermark
+//! without touching the current render; another incarnation's, or an older
+//! request's, retirement changes nothing.
 //!
 //! The save re-checks the record after its chooser, and then the atomic
 //! writer renames the synced temporary file over the destination only inside
@@ -144,6 +151,16 @@ pub(crate) struct RenderRecord {
     pub(crate) source: SourceMark,
 }
 
+/// A render request's identity: the registered source it was prepared for and
+/// the ordinal its source owner allocated, monotonically, when its preparation
+/// began. Two renders of the same source have different ordinals.
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct RenderRequest {
+    pub(crate) source: SourceMark,
+    pub(crate) ordinal: u64,
+}
+
 /// A render request's ticket, taken at entry ([`RenderCustody::begin_render`]).
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct RenderTicket {
@@ -159,6 +176,13 @@ struct Slot {
     last_incarnation: u64,
     /// The latest render ticket issued; a retirement advances it.
     ticket: u64,
+    /// The request the current ticket was issued to, pending or completed;
+    /// cleared by every retirement.
+    active: Option<RenderRequest>,
+    /// The highest request ordinal entered, or retired before entry, in the
+    /// current incarnation; an entry at or below it is refused. Reset by
+    /// activation. It is not the active request's identity.
+    entry_watermark: u64,
     /// A print hand-off is in progress ([`RenderCustody::hand_off_if_current`]).
     handoff: bool,
 }
@@ -180,7 +204,7 @@ fn source_error(code: &str, message: impl Into<String>) -> RouteError {
 impl RenderCustody {
     pub(crate) const fn new() -> Self {
         Self {
-            slot: Mutex::new(Slot { generation: 0, current: None, source: SourceMark { incarnation: 0, sequence: 0 }, last_incarnation: 0, ticket: 0, handoff: false }),
+            slot: Mutex::new(Slot { generation: 0, current: None, source: SourceMark { incarnation: 0, sequence: 0 }, last_incarnation: 0, ticket: 0, active: None, entry_watermark: 0, handoff: false }),
             handoff_done: Condvar::new(),
         }
     }
@@ -218,6 +242,7 @@ impl RenderCustody {
     fn retire_locked(slot: &mut Slot) -> bool {
         slot.generation += 1;
         slot.ticket += 1;
+        slot.active = None;
         slot.current.take().is_some()
     }
 
@@ -244,6 +269,7 @@ impl RenderCustody {
         slot.last_incarnation += 1;
         slot.source = SourceMark { incarnation: slot.last_incarnation, sequence: 0 };
         Self::retire_locked(&mut slot);
+        slot.entry_watermark = 0;
         Ok(slot.source)
     }
 
@@ -274,14 +300,22 @@ impl RenderCustody {
         Ok((slot.source, retired))
     }
 
-    /// A render request's entry: refused unless `mark` is the registered
-    /// source; otherwise retires the current render and any earlier pending
-    /// request, and returns this request's ticket.
-    pub(crate) fn begin_render(&self, mark: SourceMark) -> Result<RenderTicket, RouteError> {
+    /// A render request's entry: refused unless its source is the registered
+    /// one and its ordinal is above the entry watermark (a later request has
+    /// entered, or this one was retired before it entered); otherwise raises
+    /// the watermark to its ordinal, retires the current render and any
+    /// earlier pending request, makes it the active request and returns its
+    /// ticket.
+    pub(crate) fn begin_render(&self, request: RenderRequest) -> Result<RenderTicket, RouteError> {
         let mut slot = self.lock_for_change();
-        Self::check_source(&slot, mark)?;
+        Self::check_source(&slot, request.source)?;
+        if request.ordinal <= slot.entry_watermark {
+            return Err(RouteError::at(RENDER_SUPERSEDED, "render", "A later render request entered, or this request was retired before it entered; it is not rendered."));
+        }
+        slot.entry_watermark = request.ordinal;
         Self::retire_locked(&mut slot);
-        Ok(RenderTicket { id: slot.ticket, source: mark })
+        slot.active = Some(request);
+        Ok(RenderTicket { id: slot.ticket, source: request.source })
     }
 
     /// Records a completed render as the current one, only while its ticket
@@ -303,10 +337,39 @@ impl RenderCustody {
         Ok(generation)
     }
 
-    /// Retires the current render, if any, and every pending render ticket.
-    /// Returns whether a render was current.
-    pub(crate) fn retire(&self) -> bool {
-        Self::retire_locked(&mut self.lock_for_change())
+    /// The panel's retirement of the render request it names (module docs).
+    /// Another incarnation's request changes nothing. The exact active request,
+    /// pending or completed, is retired with its ticket. A request above the
+    /// entry watermark has not entered: the watermark is raised to it, so it
+    /// cannot enter later, and the current render, which is another request's,
+    /// stays. Any other request (older than one that has entered) changes
+    /// nothing. Returns whether a completed render was retired.
+    pub(crate) fn retire_request(&self, request: RenderRequest) -> bool {
+        let mut slot = self.lock_for_change();
+        if slot.source.incarnation == 0 || request.source.incarnation != slot.source.incarnation {
+            return false;
+        }
+        if slot.active == Some(request) {
+            return Self::retire_locked(&mut slot);
+        }
+        if request.ordinal > slot.entry_watermark {
+            slot.entry_watermark = request.ordinal;
+        }
+        false
+    }
+
+    /// Runs `read` with the custody mutex held for reading, giving it whether
+    /// a generation is the current one; no change of custody can intervene
+    /// while it runs, and it never waits for a print hand-off. The print
+    /// record's installation runs here under the open-window lock (the
+    /// established order); `read` must not take the custody mutex or perform
+    /// window operations.
+    pub(crate) fn read_currency<T>(&self, read: impl FnOnce(&dyn Fn(u64) -> bool) -> T) -> T {
+        let slot = self.lock();
+        let current = slot.current.as_ref().map(|record| record.generation);
+        let answer = read(&|generation| current == Some(generation));
+        drop(slot);
+        answer
     }
 
     /// Whether the render of `generation` is still the current one.
@@ -420,6 +483,26 @@ impl RenderCustody {
         self.lock().source
     }
 
+    /// Tests' next request on `mark`, as a source owner allocating ordinals in
+    /// order would make it.
+    #[cfg(test)]
+    pub(crate) fn next_request(&self, mark: SourceMark) -> RenderRequest {
+        RenderRequest { source: mark, ordinal: self.lock().entry_watermark + 1 }
+    }
+
+    /// Tests' entry of the next request on `mark`.
+    #[cfg(test)]
+    pub(crate) fn begin_next(&self, mark: SourceMark) -> Result<RenderTicket, RouteError> {
+        self.begin_render(self.next_request(mark))
+    }
+
+    /// Tests' retirement, by the panel, of the request that is active now (if any).
+    #[cfg(test)]
+    pub(crate) fn retire_active(&self) -> bool {
+        let active = self.lock().active;
+        active.is_some_and(|request| self.retire_request(request))
+    }
+
     /// Tests' completed render under the registered source (activating an
     /// incarnation first when none is), as a render request and its
     /// completion would record it.
@@ -428,7 +511,7 @@ impl RenderCustody {
         if self.source().incarnation == 0 {
             self.activate();
         }
-        let ticket = self.begin_render(self.source()).expect("the registered source admits a render");
+        let ticket = self.begin_next(self.source()).expect("the registered source admits a render");
         self.complete(ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld).expect("an unsuperseded render completes")
     }
 }
@@ -484,25 +567,21 @@ pub(crate) fn record_render(export_context: Option<&str>, html: &str, renderer_s
 /// A render request's entry (the render command's first step after its
 /// arguments): takes its ticket and closes the print window of the render it
 /// retires.
-pub(crate) fn begin_render(source: SourceMark) -> Result<RenderTicket, String> {
-    let ticket = CUSTODY.begin_render(source).map_err(|error| format!("{}: {}", error.code, error.message))?;
+pub(crate) fn begin_render(request: RenderRequest) -> Result<RenderTicket, String> {
+    let ticket = CUSTODY.begin_render(request).map_err(|error| format!("{}: {}", error.code, error.message))?;
     crate::rendered_report_print::close_retired();
     Ok(ticket)
 }
 
-/// Retires the desktop's current render and closes its print window.
-pub(crate) fn retire_render() {
-    CUSTODY.retire();
-    crate::rendered_report_print::close_retired();
-}
-
-/// The report panel discards the render it shows (its selection or
-/// composition changed, it rendered again or it unmounted). It runs off the
-/// main thread, as every change of custody does, so that it can wait for a
-/// print hand-off.
+/// The report panel retires a render request it issued and no longer shows
+/// (it unmounted, or a render it had replaced completed): only that request,
+/// [`RenderCustody::retire_request`], then the print window of a render now
+/// retired. It runs off the main thread, as every change of custody does, so
+/// that it can wait for a print hand-off.
 #[tauri::command]
-pub(crate) async fn retire_rendered_report() {
-    retire_render();
+pub(crate) async fn retire_rendered_report(source: SourceMark, request: u64) {
+    CUSTODY.retire_request(RenderRequest { source, ordinal: request });
+    crate::rendered_report_print::close_retired();
 }
 
 /// The registered report source as it is now (module docs); it authorises
@@ -796,7 +875,7 @@ mod tests {
         custody.activate();
         assert_eq!(refused(&custody, request(HTML, PUBLIC_REPORT, false)).code, NOT_CURRENT);
         let custody = rendered(Some(PUBLIC_REPORT));
-        assert!(custody.retire());
+        assert!(custody.retire_active());
         assert_eq!(refused(&custody, request(HTML, PUBLIC_REPORT, false)).code, NOT_CURRENT);
     }
 
@@ -904,7 +983,7 @@ mod tests {
                 if replace {
                     custody.record(Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
                 } else {
-                    custody.retire();
+                    custody.retire_active();
                 }
                 Some(Ok(dir.join(name)))
             }, |_, _, _| panic!("no write after retirement"))
@@ -1011,7 +1090,7 @@ mod tests {
 
     /// A render request's entry and completion under `mark`, as the render command makes them.
     fn render_at(custody: &RenderCustody, mark: SourceMark, html: &str) -> Result<u64, RouteError> {
-        let ticket = custody.begin_render(mark)?;
+        let ticket = custody.begin_next(mark)?;
         custody.complete(ticket, Some(LOCAL_PRIVATE), html, &sha256_hex(html.as_bytes()), false, false)
     }
 
@@ -1047,7 +1126,7 @@ mod tests {
     fn make_change(custody: &RenderCustody, change: Change) {
         match change {
             Change::Retire => {
-                custody.retire();
+                custody.retire_active();
             }
             Change::Replace => {
                 complete(custody, REPORT_B);
@@ -1229,8 +1308,8 @@ mod tests {
         use crate::rendered_report_print::{admit_print_in, on_load_in, served_document_in, OnLoad, OpenPrint};
         let custody = RenderCustody::new();
         custody.activate();
-        let ticket_a = custody.begin_render(FIRST).unwrap(); // request A enters; its worker is still rendering
-        let ticket_b = custody.begin_render(FIRST).unwrap(); // request B enters
+        let ticket_a = custody.begin_next(FIRST).unwrap(); // request A enters; its worker is still rendering
+        let ticket_b = custody.begin_next(FIRST).unwrap(); // request B enters
         custody.complete(ticket_b, Some(LOCAL_PRIVATE), REPORT_B, &sha256_hex(REPORT_B.as_bytes()), false, false).unwrap();
         let document = admit_print_in(&custody, &at(REPORT_B, FIRST)).expect("B is current once it completes");
         let path = format!("/{}", document.print_sha256_hex);
@@ -1260,8 +1339,9 @@ mod tests {
     fn a_completion_after_explicit_retirement_does_not_make_the_render_current_again() {
         let custody = RenderCustody::new();
         custody.activate();
-        let ticket = custody.begin_render(FIRST).unwrap(); // request A enters
-        custody.retire(); // the panel retires (`retire_rendered_report`) while A is in flight
+        let a = custody.next_request(FIRST);
+        let ticket = custody.begin_render(a).unwrap(); // request A enters
+        assert!(!custody.retire_request(a), "A was pending, not completed"); // the panel retires A (`retire_rendered_report`) while it is in flight
         let late = custody.complete(ticket, Some(LOCAL_PRIVATE), REPORT_A, &sha256_hex(REPORT_A.as_bytes()), false, false);
         assert_eq!(late.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()));
         assert_eq!(custody.admit(&at(REPORT_A, FIRST)).unwrap_err().code, NOT_CURRENT, "a render retired while in flight is refused as not current");
@@ -1274,13 +1354,13 @@ mod tests {
     fn a_registered_source_advance_retires_old_requests_and_pending_completions() {
         let custody = RenderCustody::new();
         custody.activate();
-        let pending = custody.begin_render(FIRST).unwrap();
+        let pending = custody.begin_next(FIRST).unwrap();
         assert_eq!(custody.advance(NEXT).unwrap(), (NEXT, false));
         let late = custody.complete(pending, Some(LOCAL_PRIVATE), REPORT_A, &sha256_hex(REPORT_A.as_bytes()), false, false);
         assert_eq!(late.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()), "the advance superseded the pending ticket");
         assert_eq!(custody.admit(&at(REPORT_A, FIRST)).unwrap_err().code, SOURCE_RETIRED);
         // An old request delivered after the advance is refused at entry.
-        assert_eq!(custody.begin_render(FIRST).unwrap_err().code, SOURCE_RETIRED);
+        assert_eq!(custody.begin_next(FIRST).unwrap_err().code, SOURCE_RETIRED);
         // A request on the registered source renders and is admitted.
         render_at(&custody, NEXT, REPORT_B).unwrap();
         assert!(custody.admit(&at(REPORT_B, NEXT)).is_ok());
@@ -1291,9 +1371,9 @@ mod tests {
     #[test]
     fn a_request_ahead_of_registration_is_refused() {
         let custody = RenderCustody::new();
-        assert_eq!(custody.begin_render(FIRST).unwrap_err().code, SOURCE_NOT_ACTIVE, "no incarnation yet");
+        assert_eq!(custody.begin_next(FIRST).unwrap_err().code, SOURCE_NOT_ACTIVE, "no incarnation yet");
         custody.activate();
-        assert_eq!(custody.begin_render(NEXT).unwrap_err().code, SOURCE_NOT_REGISTERED);
+        assert_eq!(custody.begin_next(NEXT).unwrap_err().code, SOURCE_NOT_REGISTERED);
         complete(&custody, REPORT_A);
         let refusal = save_in(&custody, at(REPORT_A, NEXT), |_| panic!("no chooser"), |_, _, _| panic!("no write")).unwrap_err();
         assert_eq!((refusal.code.as_str(), refusal.destination), (SOURCE_NOT_REGISTERED, "untouched"));
@@ -1313,7 +1393,7 @@ mod tests {
         assert_eq!(custody.advance(three).unwrap(), (five, false));
         assert_eq!(custody.advance(five).unwrap(), (five, false));
         assert!(custody.is_current(generation));
-        assert_eq!(custody.begin_render(three).unwrap_err().code, SOURCE_RETIRED);
+        assert_eq!(custody.begin_next(three).unwrap_err().code, SOURCE_RETIRED);
     }
 
     /// Activating an incarnation retires its predecessor: the earlier incarnation's render and
@@ -1324,14 +1404,14 @@ mod tests {
         let custody = RenderCustody::new();
         assert_eq!(custody.activate(), FIRST);
         let generation = complete(&custody, REPORT_A);
-        let pending = custody.begin_render(FIRST).unwrap();
+        let pending = custody.begin_next(FIRST).unwrap();
         let second = custody.activate();
         assert_eq!(second, SourceMark { incarnation: 2, sequence: 0 });
         assert!(!custody.is_current(generation));
         let late = custody.complete(pending, Some(LOCAL_PRIVATE), REPORT_A, &sha256_hex(REPORT_A.as_bytes()), false, false);
         assert_eq!(late.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()));
         assert_eq!(custody.advance(SourceMark { incarnation: 1, sequence: 9 }).unwrap_err().code, SOURCE_INCARNATION_RETIRED);
-        assert_eq!(custody.begin_render(FIRST).unwrap_err().code, SOURCE_INCARNATION_RETIRED);
+        assert_eq!(custody.begin_next(FIRST).unwrap_err().code, SOURCE_INCARNATION_RETIRED);
         assert_eq!(custody.source(), second, "the delayed message registered nothing");
         render_at(&custody, second, REPORT_B).unwrap();
         assert!(custody.admit(&at(REPORT_B, second)).is_ok());
@@ -1367,7 +1447,7 @@ mod tests {
         assert_eq!(custody.activate_if(0).unwrap(), FIRST);
         custody.advance(NEXT).unwrap();
         let generation = render_at(&custody, NEXT, REPORT_A).unwrap();
-        let pending = custody.begin_render(NEXT).unwrap();
+        let pending = custody.begin_next(NEXT).unwrap();
         let conflict = custody.activate_if(0).unwrap_err();
         assert_eq!((conflict.code.as_str(), conflict.stage.as_str()), (SOURCE_ACTIVATION_CONFLICT, "source"));
         assert_eq!(custody.observe(), NEXT, "a refused activation changes nothing");
@@ -1399,7 +1479,7 @@ mod tests {
         let live = custody.activate_if(custody.observe().incarnation).unwrap();
         assert_eq!((old.incarnation, live.incarnation), (2, 3));
         assert_eq!(custody.advance(SourceMark { incarnation: old.incarnation, sequence: 4 }).unwrap_err().code, SOURCE_INCARNATION_RETIRED);
-        assert_eq!(custody.begin_render(old).unwrap_err().code, SOURCE_INCARNATION_RETIRED);
+        assert_eq!(custody.begin_next(old).unwrap_err().code, SOURCE_INCARNATION_RETIRED);
     }
 
     /// Two activations racing on the same expectation: exactly one succeeds.
@@ -1421,5 +1501,139 @@ mod tests {
             let won: usize = racers.into_iter().map(|racer| usize::from(racer.join().unwrap())).sum();
             assert_eq!((won, custody.observe().incarnation), (1, 2));
         }
+    }
+
+    // M06 and M04 (round-three response): a retirement names its render request (source and the
+    // ordinal its owner allocated when preparation began), and entry refuses an ordinal at or
+    // below the incarnation's entry watermark. The expected outcomes are the settled design's.
+
+    const fn req(source: SourceMark, ordinal: u64) -> RenderRequest {
+        RenderRequest { source, ordinal }
+    }
+
+    fn render_request(custody: &RenderCustody, request: RenderRequest, html: &str) -> Result<u64, RouteError> {
+        let ticket = custody.begin_render(request)?;
+        custody.complete(ticket, Some(LOCAL_PRIVATE), html, &sha256_hex(html.as_bytes()), false, false)
+    }
+
+    /// 1. An old panel's retirement processed after its replacement activated, rendered and
+    /// opened a print leaves the replacement untouched; the new incarnation's watermark starts
+    /// afresh.
+    #[test]
+    fn an_old_retirement_after_a_replacement_incarnation_changes_nothing() {
+        use crate::rendered_report_print::{admit_print_in, select_retired_in, OpenPrint};
+        let custody = RenderCustody::new();
+        custody.activate();
+        let old = req(FIRST, 5);
+        render_request(&custody, old, REPORT_A).unwrap();
+        let second = custody.activate();
+        let replacement = req(second, 1);
+        let generation = render_request(&custody, replacement, REPORT_B).expect("a new incarnation's watermark starts at 0");
+        let document = admit_print_in(&custody, &at(REPORT_B, second)).unwrap();
+        let open = std::sync::Mutex::new(Some(OpenPrint { label: "report-print-1".to_string(), document: std::sync::Arc::new(document), served: false, printed: false }));
+        assert!(!custody.retire_request(old), "another incarnation's retirement changes nothing");
+        assert!(custody.is_current(generation));
+        assert!(custody.admit(&at(REPORT_B, second)).is_ok());
+        assert_eq!(select_retired_in(&open, &custody), None, "the replacement's print window is kept");
+    }
+
+    /// 2. A retirement of an earlier request processed after a newer render on the same source
+    /// leaves the newer ticket, custody and window untouched.
+    #[test]
+    fn an_old_retirement_after_a_newer_same_basis_render_changes_nothing() {
+        use crate::rendered_report_print::{admit_print_in, select_retired_in, OpenPrint};
+        let custody = RenderCustody::new();
+        custody.activate();
+        let (a, b) = (req(FIRST, 1), req(FIRST, 2));
+        render_request(&custody, a, REPORT_A).unwrap();
+        let generation = render_request(&custody, b, REPORT_A).unwrap(); // the same basis and bytes, a different request
+        let document = admit_print_in(&custody, &at(REPORT_A, FIRST)).unwrap();
+        let open = std::sync::Mutex::new(Some(OpenPrint { label: "report-print-2".to_string(), document: std::sync::Arc::new(document), served: false, printed: false }));
+        assert!(!custody.retire_request(a));
+        assert!(custody.is_current(generation));
+        assert_eq!(select_retired_in(&open, &custody), None);
+        // B's pending successor is likewise kept when A's retirement arrives during it.
+        let c = req(FIRST, 3);
+        let ticket = custody.begin_render(c).unwrap();
+        assert!(!custody.retire_request(b), "B is no longer active; its retirement does not reach C");
+        assert!(custody.complete(ticket, Some(LOCAL_PRIVATE), REPORT_B, &sha256_hex(REPORT_B.as_bytes()), false, false).is_ok());
+    }
+
+    /// 3 and 7. A retirement that arrives before its request entered raises the watermark: the
+    /// later entry is refused and nothing is resurrected. The already-admitted earlier render,
+    /// pending or completed, stays valid (its completion checks its ticket and source, not the
+    /// watermark), and a genuinely newer request still enters.
+    #[test]
+    fn a_retirement_before_entry_refuses_that_entry_and_keeps_an_unrelated_admitted_render() {
+        let custody = RenderCustody::new();
+        custody.activate();
+        let (a, b, c) = (req(FIRST, 1), req(FIRST, 2), req(FIRST, 3));
+        let pending_a = custody.begin_render(a).unwrap(); // A admitted and still rendering
+        assert!(!custody.retire_request(b), "B had not entered: nothing completed was retired");
+        let generation_a = custody.complete(pending_a, Some(LOCAL_PRIVATE), REPORT_A, &sha256_hex(REPORT_A.as_bytes()), false, false).expect("A's completion is unaffected by B's cancellation");
+        assert!(custody.admit(&at(REPORT_A, FIRST)).is_ok());
+        let entry = custody.begin_render(b).unwrap_err();
+        assert_eq!((entry.code.as_str(), entry.stage.as_str()), (RENDER_SUPERSEDED, "render"));
+        assert!(custody.is_current(generation_a), "B's refused entry retired nothing");
+        assert!(!custody.retire_request(b), "a repeated retirement of B changes nothing");
+        assert!(custody.is_current(generation_a));
+        render_request(&custody, c, REPORT_B).expect("a newer request still enters");
+        assert!(!custody.is_current(generation_a));
+    }
+
+    /// 4. Entry, then the targeted retirement, then completion: the completion is refused.
+    #[test]
+    fn a_targeted_retirement_after_entry_refuses_the_completion() {
+        let custody = RenderCustody::new();
+        custody.activate();
+        let a = req(FIRST, 1);
+        let generation = render_request(&custody, a, REPORT_A).unwrap();
+        assert!(custody.retire_request(a), "the exact completed request is retired");
+        assert!(!custody.is_current(generation));
+        let b = req(FIRST, 2);
+        let ticket = custody.begin_render(b).unwrap();
+        assert!(!custody.retire_request(b), "the exact pending request is retired with its ticket");
+        let late = custody.complete(ticket, Some(LOCAL_PRIVATE), REPORT_B, &sha256_hex(REPORT_B.as_bytes()), false, false);
+        assert_eq!(late.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()));
+        assert_eq!(custody.admit(&at(REPORT_B, FIRST)).unwrap_err().code, NOT_CURRENT);
+        assert_eq!(custody.begin_render(b).unwrap_err().code, RENDER_SUPERSEDED, "a retired request cannot enter again");
+    }
+
+    /// 6. Same-basis requests A then B, prepared in that order. B enters first: A, delivered
+    /// late, is refused at entry and B stays bound. A enters first: B supersedes it and A's late
+    /// completion is refused.
+    #[test]
+    fn same_basis_requests_are_ordered_by_their_ordinals_in_either_entry_order() {
+        let (a, b) = (req(FIRST, 1), req(FIRST, 2));
+        let custody = RenderCustody::new();
+        custody.activate();
+        let generation_b = render_request(&custody, b, REPORT_B).unwrap();
+        assert_eq!(custody.begin_render(a).unwrap_err().code, RENDER_SUPERSEDED);
+        assert!(custody.is_current(generation_b));
+        assert!(custody.admit(&at(REPORT_B, FIRST)).is_ok());
+
+        let custody = RenderCustody::new();
+        custody.activate();
+        let ticket_a = custody.begin_render(a).unwrap();
+        let generation_b = render_request(&custody, b, REPORT_B).unwrap();
+        let late = custody.complete(ticket_a, Some(LOCAL_PRIVATE), REPORT_A, &sha256_hex(REPORT_A.as_bytes()), false, false);
+        assert_eq!(late.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()));
+        assert!(custody.is_current(generation_b));
+    }
+
+    /// A source advance retires the active request; the watermark stays, so an older ordinal
+    /// cannot enter on the newer source either, and a retirement of the retired request is
+    /// harmless.
+    #[test]
+    fn an_advance_retires_the_active_request_and_keeps_the_entry_watermark() {
+        let custody = RenderCustody::new();
+        custody.activate();
+        let a = req(FIRST, 4);
+        render_request(&custody, a, REPORT_A).unwrap();
+        custody.advance(NEXT).unwrap();
+        assert_eq!(custody.begin_render(req(NEXT, 3)).unwrap_err().code, RENDER_SUPERSEDED);
+        let generation = render_request(&custody, req(NEXT, 5), REPORT_B).unwrap();
+        assert!(!custody.retire_request(a));
+        assert!(custody.is_current(generation));
     }
 }

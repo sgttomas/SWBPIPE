@@ -246,6 +246,61 @@ pub(crate) fn select_retired_in(open: &Mutex<Option<OpenPrint>>, custody: &Rende
     }
 }
 
+/// How a print record's installation went ([`reserve_in`]).
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum Reservation {
+    /// Installed under this new label. `displaced` is the label of a record
+    /// whose render is no longer current, removed to make room, for the caller
+    /// to destroy after the locks are released.
+    Reserved { label: String, displaced: Option<String> },
+    /// A print of the current render is open under this label; it is kept.
+    AlreadyOpen(String),
+    /// The document's render is no longer current: nothing was installed.
+    Retired,
+}
+
+/// Installs the print record of an admitted `document` into the one open
+/// slot, deciding under the open-window lock and, inside it, a custody read
+/// guard held through the insertion itself (the established order; no change
+/// of custody can intervene, and no custody change is waited for). A
+/// document whose render is no longer current installs nothing; a record of
+/// the current render is kept; a record whose render is no longer current is
+/// removed and its label returned. Only the record and its label (from
+/// `label`) are decided here; no window is built, destroyed or focused.
+pub(crate) fn reserve_in(open: &Mutex<Option<OpenPrint>>, custody: &RenderCustody, document: PrintDocument, label: impl FnOnce() -> String) -> Reservation {
+    let mut open = lock(open);
+    custody.read_currency(|is_current| {
+        if !is_current(document.generation) {
+            return Reservation::Retired;
+        }
+        let displaced = match open.as_ref() {
+            Some(print) if is_current(print.document.generation) => return Reservation::AlreadyOpen(print.label.clone()),
+            Some(_) => open.take().map(|print| print.label),
+            None => None,
+        };
+        let label = label();
+        *open = Some(OpenPrint { label: label.clone(), document: Arc::new(document), served: false, printed: false });
+        Reservation::Reserved { label, displaced }
+    })
+}
+
+/// Removes the open record only while it is the window named `label` (its
+/// own construction failure or `Destroyed` event); a newer record is kept.
+pub(crate) fn release_label_in(open: &Mutex<Option<OpenPrint>>, label: &str) -> bool {
+    let mut open = lock(open);
+    if open.as_ref().is_some_and(|print| print.label == label) {
+        *open = None;
+        return true;
+    }
+    false
+}
+
+/// Forced selection: takes the open record, current or not, and returns its
+/// label, under one hold of the open-window lock.
+pub(crate) fn take_open_in(open: &Mutex<Option<OpenPrint>>) -> Option<String> {
+    lock(open).take().map(|print| print.label)
+}
+
 /// Closes the print window whose render custody has retired (a retirement,
 /// a later render's entry or completion, a registered source advance or an
 /// activation), judged against current custody when the close runs, never
@@ -262,21 +317,17 @@ pub(crate) fn close_retired() -> bool {
 }
 
 /// Forced closing (the main window's destruction, the native-smoke close
-/// request): removes and destroys the open print window, current or not.
-pub(crate) fn close_open_print() -> bool {
-    let label = lock(&OPEN).take().map(|print| print.label);
-    let closed = label.is_some();
-    if let Some(label) = label {
-        destroy_window(&label);
+/// request): selects and takes the open record, current or not
+/// ([`take_open_in`]), then, with the lock released, requests destruction of
+/// that exact label and returns it, so a caller can confirm the window it
+/// actually closed. A record installed afterwards has another label and is
+/// not touched. Returning the label does not confirm destruction.
+pub(crate) fn close_open_print() -> Option<String> {
+    let label = take_open_in(&OPEN);
+    if let Some(label) = &label {
+        destroy_window(label);
     }
-    closed
-}
-
-/// The print window currently held by the native print path, for the smoke
-/// close operation to observe that exact handle disappearing.
-#[cfg(feature = "native-smoke")]
-pub(crate) fn open_window_label() -> Option<String> {
-    lock(&OPEN).as_ref().map(|print| print.label.clone())
+    label
 }
 
 fn destroy_window(label: &str) {
@@ -333,27 +384,34 @@ fn open_print_window_macos(app: &AppHandle, document: PrintDocument) -> Result<P
         canonical_sha256_hex: document.canonical_sha256_hex.clone(),
         print_sha256_hex: document.print_sha256_hex.clone(),
     };
-    let label = {
-        let mut open = lock(&OPEN);
-        if let Some(print) = open.as_ref() {
-            let label = print.label.clone();
-            drop(open);
+    // DEL-08-01 REQ-022 (M10): the record is installed only while its render is
+    // still current, decided with custody held through the insertion; every
+    // window operation below runs after both locks are released.
+    let label = match reserve_in(&OPEN, &routes::CUSTODY, document, || format!("{LABEL_PREFIX}{}", NEXT_LABEL.fetch_add(1, Ordering::Relaxed))) {
+        Reservation::Retired => {
+            return Err(RouteError::at(
+                routes::NOT_CURRENT,
+                "print",
+                "The report was retired, rendered again or its source changed before its print window opened; nothing was printed. Render the report again.",
+            ))
+        }
+        Reservation::AlreadyOpen(label) => {
             if let Some(window) = app.get_webview_window(&label) {
                 let _ = window.set_focus();
             }
             return Err(RouteError::at(PRINT_ALREADY_OPEN, "print", "A print window is already open; it was brought forward. Close it to print again."));
         }
-        let label = format!("{LABEL_PREFIX}{}", NEXT_LABEL.fetch_add(1, Ordering::Relaxed));
-        *open = Some(OpenPrint { label: label.clone(), document: Arc::new(document), served: false, printed: false });
-        label
+        Reservation::Reserved { label, displaced } => {
+            if let Some(displaced) = displaced {
+                destroy_window(&displaced);
+            }
+            label
+        }
     };
     *lock(&APP) = Some(app.clone());
     install_main_hook(app);
     let failed = |label: &str| {
-        let mut open = lock(&OPEN);
-        if open.as_ref().is_some_and(|print| print.label == label) {
-            *open = None;
-        }
+        release_label_in(&OPEN, label);
         RouteError::at(PRINT_WINDOW_FAILED, "print", "The print window could not be opened; nothing was printed.")
     };
     let url = print_address(&receipt.print_sha256_hex).ok_or_else(|| failed(&label))?;
@@ -372,10 +430,7 @@ fn open_print_window_macos(app: &AppHandle, document: PrintDocument) -> Result<P
     let own = label.clone();
     window.on_window_event(move |event| {
         if let WindowEvent::Destroyed = event {
-            let mut open = lock(&OPEN);
-            if open.as_ref().is_some_and(|print| print.label == own) {
-                *open = None;
-            }
+            release_label_in(&OPEN, &own);
         }
     });
     Ok(receipt)
@@ -387,7 +442,8 @@ fn install_main_hook(app: &AppHandle) {
     MAIN_HOOK.call_once(move || {
         main.on_window_event(|event| {
             if let tauri::WindowEvent::Destroyed = event {
-                close_open_print();
+                // Terminal owner shutdown: whichever print is open closes.
+                let _ = close_open_print();
             }
         });
     });
@@ -489,7 +545,7 @@ mod tests {
         let served = served_document_in(&open, &custody, "report-print-7", &path).unwrap();
         assert_eq!(served.print_html, document.print_html);
         assert!(lock(&open).as_ref().unwrap().served);
-        custody.retire();
+        custody.retire_active();
         assert!(served_document_in(&open, &custody, "report-print-7", &path).is_none());
         assert!(served_document_in(&Mutex::new(None), &custody, "report-print-7", &path).is_none());
     }
@@ -587,7 +643,7 @@ mod tests {
         assert_eq!(header(&served, "Cache-Control").as_deref(), Some("no-store"));
         assert_eq!(header(&served, "Content-Type").as_deref(), Some("text/html; charset=utf-8"));
         assert!(lock(&open).as_ref().unwrap().served);
-        custody.retire();
+        custody.retire_active();
         refused(respond_in(&open, &custody, "report-print-7", &path));
     }
 
@@ -600,7 +656,7 @@ mod tests {
             let custody = rendered(PUBLIC_REPORT);
             let document = admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
             if change == "retire" {
-                custody.retire();
+                custody.retire_active();
             } else {
                 custody.advance(SourceMark { incarnation: 1, sequence: 1 }).unwrap();
             }
@@ -643,7 +699,7 @@ mod tests {
         let one = SourceMark { incarnation: 1, sequence: 1 };
         assert!(custody.advance(one).unwrap().1, "advance A retires the old render; its close is delayed");
         assert_eq!(custody.advance(one).unwrap(), (one, false), "a duplicate advance retires nothing");
-        let ticket = custody.begin_render(one).unwrap();
+        let ticket = custody.begin_next(one).unwrap();
         assert_eq!(select_retired_in(&open, &custody).as_deref(), Some("report-print-7"), "the new render's entry closes the retired window");
         custody.complete(ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false).unwrap();
         let newer = admit_print_in(&custody, &RouteRequest { source: one, ..request(HTML, PUBLIC_REPORT, false) }).unwrap();
@@ -651,14 +707,147 @@ mod tests {
         assert_eq!(select_retired_in(&open, &custody), None, "A's delayed close keeps the newer current print");
         assert_eq!(lock(&open).as_ref().map(|print| print.label.clone()).as_deref(), Some("report-print-8"));
         // An earlier render's completion closing: the window of a replaced render closes.
-        let ticket = custody.begin_render(one).unwrap();
+        let ticket = custody.begin_next(one).unwrap();
         custody.complete(ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false).unwrap();
         assert_eq!(select_retired_in(&open, &custody).as_deref(), Some("report-print-8"));
         assert!(lock(&open).is_none());
         // A retired print still closes.
         let current = admit_print_in(&custody, &RouteRequest { source: one, ..request(HTML, PUBLIC_REPORT, false) }).unwrap();
         *lock(&open) = Some(OpenPrint { label: "report-print-9".to_string(), document: Arc::new(current), served: false, printed: false });
-        custody.retire();
+        custody.retire_active();
         assert_eq!(select_retired_in(&open, &custody).as_deref(), Some("report-print-9"));
+    }
+
+    // M10 (round-three response): the record is installed only while its document's render is
+    // current, decided with custody held through the insertion.
+
+    fn label_from(next: &'static str) -> impl FnOnce() -> String {
+        move || next.to_string()
+    }
+
+    /// A retirement, or a new render, between admission and installation: the old document
+    /// installs nothing and the slot stays free for a valid print.
+    #[test]
+    fn a_document_retired_between_admission_and_installation_installs_nothing() {
+        for change in ["retire", "advance", "new render"] {
+            let custody = rendered(PUBLIC_REPORT);
+            let document = admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
+            let mut source = SourceMark { incarnation: 1, sequence: 0 };
+            match change {
+                "retire" => assert!(custody.retire_active()),
+                "advance" => {
+                    source.sequence = 1;
+                    custody.advance(source).unwrap();
+                }
+                _ => {
+                    custody.record(Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+                }
+            }
+            let open = Mutex::new(None);
+            assert_eq!(reserve_in(&open, &custody, document, || panic!("no label for a retired document")), Reservation::Retired, "{change}");
+            assert!(lock(&open).is_none(), "{change}: the slot stays free");
+            if change == "retire" || change == "advance" {
+                custody.record(Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+            }
+            let valid = admit_print_in(&custody, &RouteRequest { source, ..request(HTML, PUBLIC_REPORT, false) }).unwrap();
+            assert_eq!(reserve_in(&open, &custody, valid, label_from("report-print-2")), Reservation::Reserved { label: "report-print-2".to_string(), displaced: None }, "{change}");
+        }
+    }
+
+    /// The opposite order: installed first, then retired. The existing cleanup selects it and
+    /// the hand-off gate refuses its submission.
+    #[test]
+    fn a_document_installed_before_its_retirement_is_cleaned_up_and_never_submitted() {
+        let custody = rendered(PUBLIC_REPORT);
+        let document = admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
+        let open = Mutex::new(None);
+        assert_eq!(reserve_in(&open, &custody, document.clone(), label_from("report-print-3")), Reservation::Reserved { label: "report-print-3".to_string(), displaced: None });
+        assert!(custody.retire_active());
+        assert!(!submit_in(&custody, &document, || panic!("no submission after retirement")));
+        assert_eq!(select_retired_in(&open, &custody).as_deref(), Some("report-print-3"));
+    }
+
+    /// An occupied slot of the current render is kept and named; a slot whose render is no
+    /// longer current (its cleanup still pending) neither blocks nor survives a current print,
+    /// and the delayed cleanup then keeps the newer record.
+    #[test]
+    fn a_current_occupied_slot_is_kept_and_a_retired_one_gives_way() {
+        let custody = rendered(PUBLIC_REPORT);
+        let document = admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
+        let open = Mutex::new(None);
+        reserve_in(&open, &custody, document.clone(), label_from("report-print-4"));
+        assert_eq!(reserve_in(&open, &custody, document, || panic!("no label while a current print is open")), Reservation::AlreadyOpen("report-print-4".to_string()));
+        assert_eq!(lock(&open).as_ref().map(|print| print.label.clone()).as_deref(), Some("report-print-4"));
+        custody.record(Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false); // its cleanup is delayed
+        let newer = admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
+        assert_eq!(
+            reserve_in(&open, &custody, newer, label_from("report-print-5")),
+            Reservation::Reserved { label: "report-print-5".to_string(), displaced: Some("report-print-4".to_string()) }
+        );
+        assert_eq!(select_retired_in(&open, &custody), None, "the delayed cleanup keeps the newer current print");
+        assert!(!release_label_in(&open, "report-print-4"), "the displaced window's own Destroyed event keeps the newer record");
+        assert_eq!(lock(&open).as_ref().map(|print| print.label.clone()).as_deref(), Some("report-print-5"));
+    }
+
+    /// Installation racing a source advance followed by its cleanup, as the advance command
+    /// makes them: whichever runs first, no record of the retired render remains.
+    #[test]
+    fn an_installation_racing_an_advance_and_its_cleanup_leaves_no_retired_record() {
+        for round in 0..50u64 {
+            let custody = Arc::new(rendered(PUBLIC_REPORT));
+            let document = admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
+            let open = Arc::new(Mutex::new(None));
+            let barrier = Arc::new(std::sync::Barrier::new(2));
+            let installer = {
+                let (custody, open, barrier) = (Arc::clone(&custody), Arc::clone(&open), Arc::clone(&barrier));
+                std::thread::spawn(move || {
+                    barrier.wait();
+                    reserve_in(&open, &custody, document, move || format!("report-print-{round}"))
+                })
+            };
+            let changer = {
+                let (custody, open, barrier) = (Arc::clone(&custody), Arc::clone(&open), Arc::clone(&barrier));
+                std::thread::spawn(move || {
+                    barrier.wait();
+                    custody.advance(SourceMark { incarnation: 1, sequence: 1 }).unwrap();
+                    select_retired_in(&open, &custody)
+                })
+            };
+            let (installed, closed) = (installer.join().unwrap(), changer.join().unwrap());
+            assert!(lock(&open).is_none(), "round {round}: installed {installed:?}, closed {closed:?}");
+            match installed {
+                Reservation::Reserved { label, .. } => assert_eq!(closed, Some(label), "round {round}: installed first, so the cleanup took it"),
+                other => assert_eq!((other, closed), (Reservation::Retired, None), "round {round}"),
+            }
+        }
+    }
+
+    // M20 (round-three response): the forced close selects and takes one record and returns its
+    // label; a record installed afterwards is untouched.
+
+    fn record_in(open: &Mutex<Option<OpenPrint>>, custody: &RenderCustody, label: &str) {
+        let document = admit_print_in(custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
+        *lock(open) = Some(OpenPrint { label: label.to_string(), document: Arc::new(document), served: false, printed: false });
+    }
+
+    #[test]
+    fn the_forced_selection_returns_the_record_it_took() {
+        let custody = rendered(PUBLIC_REPORT);
+        let open = Mutex::new(None);
+        assert_eq!(take_open_in(&open), None, "no record: nothing selected");
+        // Replacement before selection: B is the record taken.
+        record_in(&open, &custody, "report-print-10");
+        custody.record(Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        record_in(&open, &custody, "report-print-11");
+        assert_eq!(take_open_in(&open).as_deref(), Some("report-print-11"));
+        assert!(lock(&open).is_none());
+        // Replacement after selection: A was taken; B, installed afterwards, stays, and A's own
+        // Destroyed event does not clear it.
+        record_in(&open, &custody, "report-print-12");
+        let selected = take_open_in(&open);
+        record_in(&open, &custody, "report-print-13");
+        assert_eq!(selected.as_deref(), Some("report-print-12"));
+        assert!(!release_label_in(&open, "report-print-12"));
+        assert_eq!(lock(&open).as_ref().map(|print| print.label.clone()).as_deref(), Some("report-print-13"));
     }
 }

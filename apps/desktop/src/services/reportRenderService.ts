@@ -64,6 +64,9 @@ export async function renderCalculationReport(
     /** DEL-08-01 REQ-022: the registered report source number the render is prepared
      * for; the native render takes its ticket for it and refuses another. */
     source?: ReportSourceMark;
+    /** The request ordinal its source owner allocated when preparation began; the native
+     * render refuses one at or below the highest it has entered or seen retired. */
+    request?: number;
   } = {}
 ): Promise<RenderReportRoute> {
   if (!isControlledReportInput(input)) {
@@ -109,7 +112,8 @@ export async function renderCalculationReport(
       {
         input: input.payload,
         ...(options.exactSubmission ?? {}),
-        source: options.source ? { incarnation: options.source.incarnation, sequence: options.source.sequence } : { incarnation: 0, sequence: 0 }
+        source: options.source ? { incarnation: options.source.incarnation, sequence: options.source.sequence } : { incarnation: 0, sequence: 0 },
+        request: options.request ?? 0
       },
       { stillCurrent: options.stillCurrent }
     );

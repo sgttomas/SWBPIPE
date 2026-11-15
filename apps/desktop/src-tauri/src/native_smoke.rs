@@ -531,22 +531,31 @@ pub fn native_smoke_take_report_prints() -> Vec<ReportPrintObservation> {
     std::mem::take(&mut *REPORT_PRINTS.lock().unwrap_or_else(std::sync::PoisonError::into_inner))
 }
 
-/// Requests closure of the open report print window and confirms that its
-/// exact handle leaves Tauri's window registry. No system dialog is presented.
-/// A close request alone is not evidence that the window closed.
+/// Requests closure of the open report print window and confirms that the
+/// exact handle the close selected leaves Tauri's window registry: the label
+/// confirmed is the one `close_open_print` took and destroyed, never one
+/// observed separately. No system dialog is presented. A close request alone
+/// is not evidence that the window closed.
 #[tauri::command]
 pub async fn native_smoke_close_report_print(app: AppHandle) -> Result<bool, String> {
-    let Some(label) = crate::rendered_report_print::open_window_label() else {
+    let selected = crate::rendered_report_print::close_open_print();
+    confirm_closed(selected, |label| app.get_webview_window(label).is_some(), std::time::Duration::from_secs(2)).await
+}
+
+/// `false` when no print window was selected; `true` once the selected label
+/// is no longer `registered`; an error when it remains registered at the
+/// deadline.
+async fn confirm_closed(selected: Option<String>, registered: impl Fn(&str) -> bool, within: std::time::Duration) -> Result<bool, String> {
+    let Some(label) = selected else {
         return Ok(false);
     };
-    crate::rendered_report_print::close_open_print();
-    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    let deadline = std::time::Instant::now() + within;
     loop {
-        if app.get_webview_window(&label).is_none() {
+        if !registered(&label) {
             return Ok(true);
         }
         if std::time::Instant::now() >= deadline {
-            return Err("The print window remains registered after its close request.".to_string());
+            return Err(format!("The print window {label} remains registered after its close request."));
         }
         tokio::time::sleep(std::time::Duration::from_millis(10)).await;
     }
@@ -1273,5 +1282,31 @@ mod reader_phase_tests {
             assert!(panic.is_err());
             assert_eq!(take(), vec![(phase, "exit", "incomplete")]);
         }
+    }
+}
+
+#[cfg(test)]
+mod report_print_close_tests {
+    use super::confirm_closed;
+    use std::cell::RefCell;
+    use std::time::Duration;
+
+    /// M20: the close confirms the label it was handed (the one `close_open_print` took and
+    /// destroyed), not whichever window is open when it polls.
+    #[test]
+    fn the_close_confirms_the_selected_label_and_reports_a_lingering_one_as_an_error() {
+        let registry = RefCell::new(vec!["report-print-1".to_string(), "report-print-2".to_string()]);
+        let registered = |label: &str| registry.borrow().iter().any(|open| open == label);
+        // The selected window A is destroyed; the replacement B stays registered.
+        registry.borrow_mut().retain(|label| label != "report-print-1");
+        let confirmed = tauri::async_runtime::block_on(confirm_closed(Some("report-print-1".to_string()), registered, Duration::from_millis(50)));
+        assert_eq!(confirmed, Ok(true));
+        assert!(registered("report-print-2"), "the replacement is untouched");
+        // Nothing selected: the existing no-window outcome.
+        assert_eq!(tauri::async_runtime::block_on(confirm_closed(None, registered, Duration::from_millis(50))), Ok(false));
+        // The selected window does not leave the registry: an error, never success, even though
+        // another window is gone.
+        let lingering = tauri::async_runtime::block_on(confirm_closed(Some("report-print-2".to_string()), registered, Duration::from_millis(30)));
+        assert_eq!(lingering, Err("The print window report-print-2 remains registered after its close request.".to_string()));
     }
 }

@@ -1901,11 +1901,13 @@ async fn render_calculation_report(
 ) -> Result<tauri::ipc::Response, CommandError> {
     let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
     // DEL-08-01 REQ-022: the request takes its ticket at entry, for the report
-    // source number it names; an unregistered or retired source is refused, and
+    // source number and request ordinal it names; an unregistered or retired
+    // source, and an ordinal at or below the entry watermark, are refused, and
     // the ticket retires the current render (`rendered_report_routes`). Its
     // completion is recorded only while the ticket and the source are current.
     let source: rendered_report_routes::SourceMark = args.decode("source")?;
-    let ticket = rendered_report_routes::begin_render(source).map_err(CommandError::Command)?;
+    let ordinal: u64 = args.decode("request")?;
+    let ticket = rendered_report_routes::begin_render(rendered_report_routes::RenderRequest { source, ordinal }).map_err(CommandError::Command)?;
     let registry = registry.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
         let outcome = rendered_report_routes::with_render_ticket(ticket, || render_calculation_report_args(&mut args, &registry, &mut lease));

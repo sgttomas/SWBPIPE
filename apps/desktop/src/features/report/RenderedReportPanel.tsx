@@ -37,7 +37,7 @@ import {
   saveOutcomeText,
   saveRenderedReportHtml
 } from "../../services/renderedReportRoutes";
-import type { ReportSourceMark, ReportSourceSequence } from "../workspace/reportSourceSequence";
+import type { ReportRenderRequest, ReportSourceMark, ReportSourceSequence } from "../workspace/reportSourceSequence";
 import { currentLibraryRefFindings, NO_LIBRARY_REF_FINDINGS, type LibraryRefFindingsState } from "../library/libraryRefFindings";
 import {
   notSentSettlement,
@@ -83,8 +83,14 @@ import {
 // request; the native side refuses a retired or unregistered number. The panel's own
 // export-context and composition changes advance the number. Every save and print is
 // started and settled through the session's report output outcomes (`reportOutputs`),
-// shown outside this panel, so its outcome survives this panel and its render. On
-// unmount the panel retires a render it holds or has pending natively.
+// shown outside this panel, so its outcome survives this panel and its render.
+//
+// Each render request carries an ordinal the source owner allocates when its preparation
+// begins (`nextRenderRequest`, before any await), and the panel keeps that request's
+// identity (source and ordinal) from before it is sent. A retirement names that exact
+// request: on unmount the panel retires the render it holds and every request it sent whose
+// answer is outstanding, and it retires at once a request whose answer arrives after the
+// panel has discarded it or whose outcome is not known. It never retires globally.
 
 /** Whether a saved package records the user's per-report user release. Only a saved outcome
  * wrote a package, so no other outcome shows a user release, whatever its members say. The
@@ -204,23 +210,24 @@ export function RenderedReportPanel({
   } | null>(null);
   const renderGeneration = useRef(0);
   const nativeRoutes = isNativeRenderedReportRuntime();
-  // Whether a render the panel shows is held in the desktop's custody, or a render
-  // request is pending there.
-  const nativeHeld = useRef(false);
-  const renderPending = useRef(false);
+  // The render request whose render the panel shows from the desktop's custody, and the
+  // requests it has sent there whose answers are outstanding, each by its exact identity.
+  const heldRequest = useRef<ReportRenderRequest | null>(null);
+  const outstandingRequests = useRef(new Set<ReportRenderRequest>());
   const routeInFlight = useRef(false);
   const [routeBusy, setRouteBusy] = useState<"save" | "print" | null>(null);
   const [routeStatus, setRouteStatus] = useState<{ generation: number; save?: string; print?: string } | null>(null);
   // The native side retires a held render when its source advances (a registered
-  // source change), when another render request enters, or here on unmount.
+  // source change) or another render request enters; here, on unmount, the panel
+  // retires the exact requests it holds or has outstanding.
   function retireOnUnmount() {
-    if (!nativeHeld.current && !renderPending.current) return;
-    nativeHeld.current = false;
-    renderPending.current = false;
-    retireRenderedReport();
+    const requests = [...outstandingRequests.current, ...(heldRequest.current ? [heldRequest.current] : [])];
+    outstandingRequests.current.clear();
+    heldRequest.current = null;
+    for (const request of requests) retireRenderedReport(request);
   }
   function forgetNativeRender() {
-    nativeHeld.current = false;
+    heldRequest.current = null;
   }
 
   // A render (or its redaction evidence) is shown only under the selection
@@ -329,8 +336,10 @@ export function RenderedReportPanel({
     const intent = localPrivateIntent;
     const context: ReportExportContext = intent ? "local_private" : "public_report";
     const isCurrent = () => renderGeneration.current === generation;
-    // The basis's number, committed with the props this render reads.
+    // The basis's number, committed with the props this render reads, and this render
+    // request's ordinal, allocated as its preparation begins (before any await).
     const viewSequence = reportSourceSequence;
+    const requestOrdinal = reportSource ? reportSource.nextRenderRequest() : 0;
     forgetNativeRender();
     setRendering(true);
     setRenderError(null);
@@ -371,15 +380,24 @@ export function RenderedReportPanel({
       // and re-checks that it is still the latest; editing never waits for it.
       const source = reportSource ? await reportSource.registeredFor(viewSequence) : { incarnation: 0, sequence: viewSequence };
       if (!isCurrent()) return;
-      renderPending.current = isNativeRenderedReportRuntime();
+      // The request's identity is kept before it is sent, so an unmount while it is
+      // outstanding retires exactly it.
+      const request: ReportRenderRequest | null = isNativeRenderedReportRuntime() ? { source, request: requestOrdinal } : null;
+      if (request) outstandingRequests.current.add(request);
       let next: RenderReportRoute;
       try {
-        next = await renderCalculationReport(controlled, { stillCurrent, exactSubmission: submission, source });
-      } finally {
-        if (isCurrent()) renderPending.current = false;
+        next = await renderCalculationReport(controlled, { stillCurrent, exactSubmission: submission, source, request: requestOrdinal });
+      } catch (error) {
+        // Its outcome is not known to the panel: retire exactly this request.
+        if (request && outstandingRequests.current.delete(request)) retireRenderedReport(request);
+        throw error;
+      }
+      if (request && outstandingRequests.current.delete(request)) {
+        if (isCurrent() && next.route === "tauri_renderer") heldRequest.current = request;
+        // Discarded while it was outstanding, or never rendered: retire exactly this request.
+        else retireRenderedReport(request);
       }
       if (!isCurrent()) return;
-      if (next.route === "tauri_renderer" && isNativeRenderedReportRuntime()) nativeHeld.current = true;
       setRenderState({ context, route: next, source });
     } catch (error) {
       if (!isCurrent()) return;

@@ -233,9 +233,11 @@ describe("the rendered report of a solved exact-route result that is not numeric
     expect(renders[0].exactResultText).toBe(raw);
     // The request as sent, committed and bound by digest: the delivered result is named by its
     // committed raw file (the bytes asserted equal above), the rest is carried whole.
-    expect(Object.keys(renders[0]).sort()).toEqual(["exactIntakeText", "exactResultText", "input", "inputManifestText", "source"]);
-    // DEL-08-01 REQ-022: the render names the report source number the native process registered.
+    expect(Object.keys(renders[0]).sort()).toEqual(["exactIntakeText", "exactResultText", "input", "inputManifestText", "request", "source"]);
+    // DEL-08-01 REQ-022: the render names the report source number the native process registered,
+    // and its owner's request ordinal, allocated when this first preparation began.
     expect(renders[0].source.incarnation).toBe(1);
+    expect(renders[0].request).toBe(1);
     expect(JSON.stringify(renders[0].input)).toContain(`"generated_at":"${PINNED_RENDER_TIME.toISOString()}"`);
     const requestFile = `${JSON.stringify({
       description: "DEL-08-01 REQ-017 and REQ-024: the render request the desktop App sends through its gate (renderableSolvedResult) for a solved exact-route result that is not numerically eligible, rendered for local review under a pinned clock. The delivered result bytes are the committed raw file. Written by renderedReportGate.app.test.tsx; job ids are invented; unit transport replay of committed producer bytes, not a native UI qualification witness.",

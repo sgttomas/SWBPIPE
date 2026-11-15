@@ -15,7 +15,7 @@
 // Outside the native application the panel keeps its link and iframe.
 import { invokeWithIngress, IngressRequestRetiredError } from "./nativeIngress";
 import { ResourceUnavailableError } from "./memoryPool";
-import type { ReportSourceMark } from "../features/workspace/reportSourceSequence";
+import type { ReportRenderRequest, ReportSourceMark } from "../features/workspace/reportSourceSequence";
 import { isTauriRuntime } from "./nativeMenu";
 import { invoke } from "@tauri-apps/api/core";
 import {
@@ -164,13 +164,19 @@ export function printRenderedReport(request: RouteRequest, stillCurrent: () => b
   return send<RenderedReportPrintReceipt>("print_rendered_report", request, stillCurrent);
 }
 
-/** The panel discards the render it shows: the native side retires its record
- * and closes an open print window. A failure only leaves the record to the
- * next render, which replaces it. */
-export function retireRenderedReport(): void {
-  // Sent at once, so that it precedes any later render request on the wire.
+/** The panel retires one render request it issued and no longer shows: the
+ * native side retires that exact request (pending or completed, closing its
+ * print window), or refuses its later entry if it has not entered; any other
+ * request, older or newer, stays. A failure only leaves the record to the next
+ * render, which replaces it. */
+export function retireRenderedReport(request: ReportRenderRequest): void {
   try {
-    void Promise.resolve(invoke("retire_rendered_report")).catch(() => undefined);
+    void Promise.resolve(
+      invoke("retire_rendered_report", {
+        source: { incarnation: request.source.incarnation, sequence: request.source.sequence },
+        request: request.request
+      })
+    ).catch(() => undefined);
   } catch {
     // No native runtime to reach: nothing is held.
   }

@@ -19,10 +19,19 @@
 // older (retired) or not yet registered. A change made here is ordered with native
 // publication only once registered: until then an earlier request may still be admitted
 // and published, and the report output status says so.
+//
+// A render request is identified by the source it names and an ordinal this owner allocates,
+// monotonically, when its preparation begins (`nextRenderRequest`, before any await). The
+// allocation is output intent only: it waits for nothing and changes no model, publisher or
+// solve. The native side refuses an entry whose ordinal is not above the highest it has
+// entered or seen retired, and a panel's retirement names the exact request it discards.
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
 export type ReportSourceMark = { incarnation: number; sequence: number };
+
+/** A render request's identity: the registered source it names and its owner's ordinal. */
+export type ReportRenderRequest = { source: ReportSourceMark; request: number };
 
 /** The native side of the sequence; `null` outside the desktop application. */
 export type ReportSourceTransport = {
@@ -95,6 +104,7 @@ export const reportSourceCoordinator = new ReportSourceCoordinator();
 /** The workspace's report source sequence (see the module comment). */
 export class ReportSourceSequence {
   private allocated = 0;
+  private renderRequests = 0;
   private lifetime: SourceLifetime | null = null;
   private readonly listeners = new Set<(sequence: number) => void>();
 
@@ -129,6 +139,13 @@ export class ReportSourceSequence {
     const lifetime = this.lifetime;
     if (lifetime) void this.send(lifetime, sequence).catch(() => undefined);
     return sequence;
+  };
+
+  /** A render's preparation begins: the next render request ordinal of this owner,
+   * allocated synchronously and never reused. */
+  readonly nextRenderRequest = (): number => {
+    this.renderRequests += 1;
+    return this.renderRequests;
   };
 
   /** Begins this owner's lifetime (its effect's mount) and sends the latest number. It
