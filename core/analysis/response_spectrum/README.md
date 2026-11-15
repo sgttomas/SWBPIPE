@@ -45,7 +45,8 @@ The DEL-04-10 scope records Agent 0's decisions on the method:
 
 ## Accuracy of each published value
 
-The interpolated ordinate, S and s·S each carry a certified relative error bound
+The interpolated ordinate, S and s·S each carry a relative error bound conditional on IEEE 754 round to
+nearest and the unchecked libm assumption below
 (`Ordinate::*_bound`) against the exact interpolation of the represented table at the represented
 query. A value is published only when its bound is at most 1e-9 (`STATED_ACCURACY`). Otherwise the
 evaluation is refused as `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`.
@@ -60,9 +61,12 @@ evaluation is refused as `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`.
   - Rounding the published value adds nothing in the normal range, and at most 2⁻¹⁰⁷⁵ absolutely in
     the subnormal range.
 - **Premises.** IEEE 754 binary64 with round to nearest (Rust's `+ − × ÷` and `mul_add`). The
-  platform's `ln`, `ln_1p` and `exp` are each within κ = 2⁻⁵⁰ (4 ulp) relative of the exact value. This
+  platform's `ln`, `ln_1p` and `exp` are each within κ = 2⁻⁵⁰ relative of the exact value. This
   is assumed, not checked, for Apple's libm on macOS, glibc on Linux and the Microsoft C runtime on
-  Windows.
+  Windows. The inspected platform documentation establishes no universal guarantee of this
+  constant. Downstream consumers must retain this qualification beside any accuracy claim. A
+  supported platform found to violate the constant reopens the premise and affected claims,
+  even if final-result comparisons still pass.
 - **What is tested, and is not a proof.**
   - The frozen F2 references.
   - The first review's ten probes.
@@ -70,11 +74,16 @@ evaluation is refused as `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`.
   - 240 seeded adversarial tables over the eight axis and rule combinations, each compared with
     150-digit expectations from `tests/oracle/generate.py`.
 
-  In every accepted case the observed error is within the certified bound, and each refusal is the
-  one the exact values predict.
-- **Refused.** A published value that exceeds the largest binary64, rounds to zero, or lies below
-  about 2.5·10⁻³¹⁵ in the subnormal range. `docs/RELEASE_LIMITATIONS_v1.0.md` LIM-024 states the
-  refusal.
+  The maintained higher precision sweep tests final results on the configuration that executes
+  it. Record the source, Rust target/compiler, OS and math runtime with each local or hosted run;
+  only configurations actually exercised by that run have evidence. Passing it neither directly
+  checks nor establishes the primitive-function premise. The separate direct premise check has
+  not been established. The selected corpus also checks today's conservative refusal policy.
+- **Refused.** This implemented argument does not establish 1e-9 relative accuracy under its
+  assumptions. It may refuse a representable accurate answer: an exact `1e-320` knot is charged
+  the worst-case half-subnormal spacing; a constant `f64::MAX` table can have a computed blend
+  that rounds above the finite range. Neither proves that the exact result is unrepresentable.
+  A future argument may justifiably publish these cases. LIM-024 states this refusal policy.
 
 ## Refusals
 
@@ -86,7 +95,7 @@ evaluation is refused as `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`.
 | `SPECTRUM_FREQUENCY_OUTSIDE_RANGE` | The query is outside the tabulated range. |
 | `SPECTRUM_QUERY_FREQUENCY_INVALID` | The query is not a positive finite frequency in a catalog unit. |
 | `SPECTRUM_SCALE_FACTOR_INVALID` | The scale factor is not positive and finite. |
-| `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED` | A published value cannot be stated in binary64 within 1e-9 relative. |
+| `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED` | This implemented argument does not establish 1e-9 relative accuracy under its stated assumptions. |
 
 ## Example
 

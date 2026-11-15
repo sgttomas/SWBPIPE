@@ -7,14 +7,16 @@ use open_pipe_stress_units::{canonical_unit, convert, unit_by_symbol, Dimension,
 use std::cmp::Ordering;
 
 /// The relative accuracy to which every published value is stated (REQ-008's verification
-/// tolerance); a value the error argument cannot support to it is refused.
+/// tolerance), conditional on IEEE 754 round to nearest and, for logarithmic operations, the
+/// assumed [`LIBM_RELATIVE_ERROR`]. A value this argument cannot support is refused.
 pub const STATED_ACCURACY: f64 = 1e-9;
 
 /// The premise on the platform's `ln`, `ln_1p` and `exp`: each result is within this relative
-/// error, 2⁻⁵⁰ (4 ulp), of the exact value. It is assumed, not checked: Rust's `f64` methods call the
-/// platform library (Apple's libm on macOS, glibc on Linux, the Microsoft C runtime on Windows),
-/// whose documented accuracy for these functions is within this premise, and the crate's tests
-/// observe it on the platform they run on.
+/// error, 2⁻⁵⁰, of the exact value. This is an unchecked assumption for Apple's libm on macOS,
+/// glibc on Linux and the Microsoft C runtime on Windows, not a documented universal guarantee.
+/// The higher precision tests compare final results on their recorded configurations; they do
+/// not directly check or establish this primitive-function premise. A supported platform's
+/// violation reopens the premise and affected accuracy claims even if final-result tests pass.
 pub const LIBM_RELATIVE_ERROR: f64 = f64::from_bits((1023 - 50) << 52);
 
 /// The unit roundoff of binary64, 2⁻⁵³.
@@ -112,21 +114,26 @@ pub enum OrdinateMeasure {
     GMultiple,
 }
 
-/// An evaluated ordinate.
+/// An evaluated ordinate. All error bounds are conditional on IEEE 754 round to nearest
+/// and, wherever logarithmic operations enter, the assumed [`LIBM_RELATIVE_ERROR`].
+/// Consumers must retain that qualification when stating these bounds.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Ordinate {
     pub location: Location,
     /// The interpolated ordinate in the table's own measure ([`SpectrumTable::ordinate_measure`]).
     pub interpolated: f64,
-    /// The certified relative error bound of `interpolated` (at most [`STATED_ACCURACY`]).
+    /// The relative error bound of `interpolated` (at most [`STATED_ACCURACY`]),
+    /// conditional on the arithmetic and libm assumptions stated on [`Ordinate`].
     pub interpolated_bound: f64,
     /// The pseudo-spectral acceleration S(f), m/s².
     pub pseudo_acceleration_m_per_s2: f64,
-    /// The certified relative error bound of `pseudo_acceleration_m_per_s2`.
+    /// The relative error bound of `pseudo_acceleration_m_per_s2`,
+    /// conditional on the arithmetic and libm assumptions stated on [`Ordinate`].
     pub pseudo_acceleration_bound: f64,
     /// The scaled pseudo-spectral acceleration s·S(f), m/s².
     pub scaled_pseudo_acceleration_m_per_s2: f64,
-    /// The certified relative error bound of `scaled_pseudo_acceleration_m_per_s2`.
+    /// The relative error bound of `scaled_pseudo_acceleration_m_per_s2`,
+    /// conditional on the arithmetic and libm assumptions stated on [`Ordinate`].
     pub scaled_bound: f64,
 }
 
@@ -351,8 +358,8 @@ impl SpectrumTable {
         Ok(Location::Segment { lower: lo })
     }
 
-    /// Evaluates the interpolated ordinate, S and s·S at the query, each certified to
-    /// [`STATED_ACCURACY`] or refused.
+    /// Evaluates the interpolated ordinate, S and s·S at the query, each supported to
+    /// [`STATED_ACCURACY`] under the arithmetic and libm assumptions below, or refused.
     ///
     /// After exact location (decision 2), on the authored axis (decision 1), the arithmetic is
     /// binary64 on significands with exact exponent bookkeeping ([`crate::scaled`]), so no
@@ -374,7 +381,7 @@ impl SpectrumTable {
     /// Each published value carries a relative error bound derived from the operations (see the
     /// error argument in the crate README and the DEL-04-10 scope), under IEEE 754 binary64 round
     /// to nearest and the premise that the platform's `ln`, `ln_1p` and `exp` are each within
-    /// relative error [`LIBM_RELATIVE_ERROR`] (4 ulp), plus the error of rounding it to binary64:
+    /// relative error [`LIBM_RELATIVE_ERROR`] (assumed, not established), plus the error of rounding it to binary64:
     /// none in the normal range, at most 2⁻¹⁰⁷⁵ absolutely in the subnormal range. A value whose bound
     /// exceeds [`STATED_ACCURACY`], or that is zero or infinite in binary64, is refused,
     /// `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`, and the evaluation publishes nothing.
@@ -422,15 +429,15 @@ impl SpectrumTable {
             return Ok((published, total));
         }
         let why = if !published.is_finite() {
-            "exceeds the largest binary64".to_string()
+            "has a computed approximation outside the finite binary64 range".to_string()
         } else if published == 0.0 {
-            "is below the smallest binary64 and would round to zero".to_string()
+            "has a computed approximation that rounds to zero".to_string()
         } else {
-            format!("lies in the binary64 subnormal range, where its relative error bound is {total:e}")
+            format!("has a conservative relative error bound of {total:e}")
         };
         Err(Refusal::new(RefusalCode::EvaluationAccuracyUnsupported, &self.id, None, format!(
-            "the {what}, {m}·2^{e}, {why}; it cannot be stated within {STATED_ACCURACY:e} relative, and the evaluation \
-             publishes no value")))
+            "the {what}, computed as {m}·2^{e}, {why}; this implemented error argument does not establish \
+             {STATED_ACCURACY:e} relative accuracy, and the evaluation publishes no value")))
     }
 
     /// The ordinate on segment `lower` at the interior query frequency `f`, and its relative error

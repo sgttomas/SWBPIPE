@@ -11,13 +11,14 @@ represented query (period T = 1/f exactly) to 150 significant digits:
   log ordinate     y = exp((1 - t) ln y0 + t ln y1);
   t = (X - x0)/(x1 - x0) or ln(X/x0)/ln(x1/x0), X = f or 1/f;
   S = g y (g-multiple tables), sS = s S.
-The expected outcome follows from those exact values and the stated accuracy alone: each of
-y, S and sS must be statable in binary64 within 1e-9 relative, which holds in the normal range
-[2^-1022, 2^1024) and, in the subnormal range, exactly when half the subnormal spacing,
-2^-1075, is at most 1e-9 of the value. A value at or above 2^1024, or below that subnormal
-threshold, is refused. Cases within 1 % of the subnormal threshold or within 1e-6 of 2^1024
-are not generated, since a correct implementation may decide them either way within its
-certified computational bound.
+The expected outcomes encode the present conservative refusal policy on this selected corpus,
+not representational impossibility. Each exact y, S and sS is compared with the worst-case
+half-subnormal-spacing allowance 2^-1075 and the upper range boundary. Exact subnormal
+values can be representable with zero rounding error and still be refused by that policy.
+Cases within 1 % of the subnormal threshold or within 1e-6 of 2^1024 are not generated:
+computed blends at the upper edge can refuse even when the exact answer is representable.
+These final-result comparisons are platform evidence for the recorded test configuration,
+not a direct check or proof of the assumed ln, ln_1p and exp accuracy.
 """
 import math
 import random

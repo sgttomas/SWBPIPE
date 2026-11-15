@@ -19,10 +19,11 @@ pub enum RefusalCode {
     QueryFrequencyInvalid,
     /// The scale factor is not positive and finite (REQ-001, Directions).
     ScaleFactorInvalid,
-    /// A published value (the interpolated ordinate, S or s·S) cannot be stated in binary64 to the
-    /// stated relative accuracy, 1e-9: it exceeds the binary64 range, rounds to zero, or lies so deep
-    /// in the subnormal range that its rounding alone exceeds the accuracy. The evaluation publishes
-    /// nothing. It is distinct from a query outside the table and from an invalid record.
+    /// This implemented error argument does not establish 1e-9 relative accuracy for a value
+    /// (the interpolated ordinate, S or s·S), under its arithmetic and libm assumptions.
+    /// This can be conservative even for an exactly representable answer; it is not proof that
+    /// accurate representation is impossible. The evaluation publishes nothing. This is distinct
+    /// from a query outside the table and from an invalid record.
     EvaluationAccuracyUnsupported,
 }
 

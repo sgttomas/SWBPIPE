@@ -449,23 +449,16 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md): CLM-003 and "Decided for v1.0"; its `deliverable.yaml` need on DEL-05-02, which applies only if a spectrum result is later offered as an operand. The omission was standing in DEL-04-10's CLM-003; Agent 0 decided it for v1.0 under the grant in `AGENTS.md`, and PR #355 records this entry. No PRD amendment is needed, because the PRD states no such combination.
 - **Status:** not yet declared.
 
-### LIM-024 — A spectrum ordinate that binary64 cannot state to 1e-9 is refused
+### LIM-024 — Spectrum evaluation may refuse when its accuracy argument is inconclusive
 
 - **Id:** LIM-024
 - **Exit criteria:** 1
-- **Requirement affected:** DEL-04-10/REQ-001 and REQ-002: spectral ordinates interpolated by the spectrum's stated rule over any positive finite table and query inside its range. The deliverable owns exit criterion 1's response-spectrum analysis. The stated accuracy of each published value is REQ-008's verification tolerance, 1e-9 relative.
-- **Code:** `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`, blocking. Today it is emitted by the spectrum table evaluation (`core/analysis/response_spectrum`, DEL-04-10 unit S2). No spectrum solve exists yet to emit it.
-- **What is refused:** evaluating a valid spectrum at a valid query inside its tabulated range when one of the published values — the interpolated ordinate, the pseudo-acceleration S (with g) or the scaled s·S — would:
-  - exceed the largest binary64, about 1.8·10³⁰⁸;
-  - round to zero; or
-  - lie so deep in the binary64 subnormal range, below about 2.5·10⁻³¹⁵, that rounding it alone exceeds 1e-9 of it.
-
-  Nothing is published for that evaluation. A query outside the table and an invalid record are refused by their own codes.
-- **What it means in practice for a user:**
-  - At engineering magnitudes there is no effect. The pseudo-accelerations, g values and scale factors of any physical spectrum give published values hundreds of orders of magnitude inside [2.5·10⁻³¹⁵, 1.8·10³⁰⁸] m/s².
-  - A refusal needs authored ordinates, g or scale factors whose product leaves that range, for example g near 10⁻³⁰⁰ m/s² or a scale factor near 10³⁰⁰.
-  - The user gets a named refusal where binary64 would otherwise publish an inaccurate, zero or infinite value.
-- **Why:** Agent 0 requires each published value to be supported by the product's error argument to 1e-9 relative, with no absolute floor. Binary64 cannot represent values beyond its range, and a subnormal value carries an absolute rounding of up to 2⁻¹⁰⁷⁵, which is more than 1e-9 of the value below about 2.5·10⁻³¹⁵.
-- **What the user does instead:** enter a table, g and scale factor whose products lie inside that range, as every physical spectrum's do.
-- **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md), "Decided for v1.0" ("Each published ordinate is stated to 1e-9 relative, or the evaluation is refused"). Agent 0 decided it under the grant in `AGENTS.md` ("Posture for this phase"). PR #367 makes the refusal standing in the S2 evaluation and records this entry.
+- **Requirement affected:** DEL-04-10/REQ-001 and REQ-002: spectral ordinates interpolated by the spectrum's stated rule over positive finite tables and queries inside their range. Each published ordinate, pseudo-acceleration S and scaled s·S has a relative error bound of at most 1e-9 (REQ-008), conditional on IEEE 754 binary64 round to nearest and the library-function assumption below.
+- **Code:** `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`, blocking, from the spectrum table evaluation (`core/analysis/response_spectrum`, unit S2). No spectrum solve exists yet to emit it.
+- **What is refused:** an evaluation for which this implemented error argument does not establish the stated relative accuracy for every published value, including when a computed approximation rounds to zero or outside the finite range. Nothing is published for that evaluation. The refusal is conservative: it is not proof that no sufficiently accurate binary64 answer exists. Invalid records and queries outside the table retain their own codes.
+- **Assumption and evidence:** logarithmic operations rely on each platform `ln`, `ln_1p` and `exp` having relative error at most 2⁻⁵⁰. This is assumed, not checked or established by platform documentation, for Apple's libm on macOS, glibc on Linux and the Microsoft C runtime on Windows. The maintained higher precision sweep compares final results on the configurations actually exercised and recorded in local or hosted runs; passing it does not directly check or establish the primitive-function premise. A supported platform found to violate the constant reopens the premise and affected accuracy claims even if final-result tests still pass. Declaring this limitation would accept reliance on the assumption; it would not establish the assumption.
+- **What it means in practice for a user:** the known conservative refusals occur at binary64 range edges. An exact `1e-320` knot at scale 1 is refused despite having zero representation error, because the argument adds a worst-case half-subnormal spacing. A constant `f64::MAX` table may be refused at an interior query because the computed blend rounds above the finite range, although its exact answer is representable. Other refusals include true overflow or underflow of an ordinate, S or s·S. This does not promise acceptance of every exact normal-range value. No refusal at ordinary engineering magnitudes has been demonstrated by these witnesses.
+- **Why:** Agent 0 requires the implemented argument to support each published value to 1e-9 relative under its stated assumptions, without an absolute floor. A worst-case error allowance exceeding that threshold warrants refusal, not a claim that accurate representation is impossible. The conservative policy is retained without an arithmetic repair; a later argument may justifiably publish the present counterexamples.
+- **What the user does instead:** the current evaluation cannot supply this result. Use a method able to establish its accuracy; changing physical inputs solely to bypass the refusal would change the problem.
+- **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md), "Decided for v1.0". Agent 0 settled the conditional claim and conservative refusal policy under the grant in `AGENTS.md`; PR #367 records the exact wording and review.
 - **Status:** not yet declared.

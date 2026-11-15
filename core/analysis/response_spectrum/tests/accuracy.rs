@@ -1,5 +1,6 @@
-//! Each published value (interpolated ordinate, S, s·S) is stated within its certified relative
-//! error bound, and within 1e-9, or the evaluation is refused for accuracy; checked against
+//! Final-result evidence for the conditional error bounds (IEEE 754 round to nearest and the
+//! unchecked libm premise in `LIBM_RELATIVE_ERROR`), not a direct test or proof of the
+//! primitive-function premise. Each published value is checked against
 //! independent expectations computed from the exact rationals of the represented inputs at 150
 //! digits (`tests/oracle/generate.py`, which reads no product code).
 //!
@@ -113,5 +114,27 @@ fn the_first_review_witnesses_have_their_stated_outcomes() {
         let refusal = outcome(name).unwrap_err();
         assert_eq!(refusal.code, RefusalCode::EvaluationAccuracyUnsupported, "{name}");
         assert!(refusal.detail.contains("pseudo-acceleration S"), "{name}: {}", refusal.detail);
+    }
+}
+
+// These characterize today's conservative policy, not permanent required refusals. A later
+// argument may publish these exact answers if it establishes their accuracy. No tolerance or
+// arithmetic repair is introduced here.
+#[test]
+fn current_argument_can_refuse_exact_subnormal_and_upper_edge_answers() {
+    for (name, points, f, exact) in [
+        ("exact_subnormal_knot", [[1.0, 1e-320], [2.0, 1e-320]], 1.0, 1e-320),
+        ("constant_upper_edge", [[f64::from_bits(1.0f64.to_bits() - 1), f64::MAX], [2.0, f64::MAX]], 1.0, f64::MAX),
+    ] {
+        // A constant table has this exact represented answer at every query, including the knot.
+        let case = Case { name, period: false, log_x: false, log_y: false, points,
+            f, g: None, s: 1.0, expected: None };
+        assert!(exact.is_finite() && exact > 0.0);
+        assert_eq!(case.points[0][1], exact);
+        assert_eq!(case.points[1][1], exact);
+        let refusal = table(&case).evaluate(QueryFrequency::new(f, "Hz").unwrap(), ScaleFactor::new(1.0).unwrap()).unwrap_err();
+        assert_eq!(refusal.code, RefusalCode::EvaluationAccuracyUnsupported);
+        assert!(refusal.detail.contains("this implemented error argument does not establish"));
+        assert!(!refusal.detail.contains("cannot be stated"));
     }
 }

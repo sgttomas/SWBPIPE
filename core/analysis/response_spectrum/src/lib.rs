@@ -17,9 +17,9 @@
 //!    interval and decides in or out of range, and nothing more; it makes neither the modal
 //!    frequency nor a knot exact, and the interpolation after it is binary64 arithmetic with the
 //!    rounding [`SpectrumTable::evaluate`] states;
-//! 3. each published value (the interpolated ordinate, S and s·S) is stated within a certified
+//! 3. each published value (the interpolated ordinate, S and s·S) is stated within a conditional
 //!    relative error bound of at most [`STATED_ACCURACY`], under IEEE 754 binary64 and the libm
-//!    premise [`LIBM_RELATIVE_ERROR`], or the evaluation is refused.
+//!    assumption [`LIBM_RELATIVE_ERROR`] (not established by platform documentation or tests), or the evaluation is refused.
 //!
 //! This unit is not a spectrum solve: it forms no modal response, combination or rigid response,
 //! publishes no spectrum result and has no standing as an engineering result. A later unit
