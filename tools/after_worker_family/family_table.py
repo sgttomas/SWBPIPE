@@ -322,7 +322,7 @@ class Check:
         for r in ROWS:
             predicate, rel, kind, claim = r['predicate'], r['rel'], r['kind'], r['claim']
             name = predicate.split(' ')[0]
-            short = Path(rel).name
+            short = rel.rsplit('/', 1)[-1]
             if self.lines_of(rel) is None:
                 self.problem(f'{predicate}: its cited file {WEB}/{rel} is missing')
                 continue

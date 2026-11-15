@@ -25,8 +25,10 @@ _spec = importlib.util.spec_from_file_location("after_worker_family_table", TOOL
 family = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(family)
 
-JUDGE = f"{family.WEB}/{family.JUDGE}"
-CITED = [f"{family.WEB}/{rel}" for rel in family.cited_files()]
+WEB = "apps/desktop/src"
+JUDGE = "apps/desktop/src/test-support/after-worker/afterWorkerReplies.ts"
+CITED = [f"apps/desktop/src/{rel}" for rel in family.cited_files()]
+assert (WEB, JUDGE) == (family.WEB, f"{family.WEB}/{family.JUDGE}")
 
 
 def run(root: Path):
@@ -49,7 +51,7 @@ def copy(tmp_path: Path) -> Path:
 
 
 def edit(root: Path, rel: str, old: str, new: str) -> None:
-    path = root / family.WEB / rel
+    path = root / WEB / rel
     text = path.read_text(encoding="utf-8")
     assert text.count(old) == 1, f"the control's text is not found once in {rel}"
     path.write_text(text.replace(old, new), encoding="utf-8")
@@ -111,7 +113,7 @@ def test_lines_inserted_above_the_cited_passages_pass(copy: Path):
         spans.setdefault(r["rel"], []).append(span)
     inserted = 0
     for rel in family.cited_files():
-        path = copy / family.WEB / rel
+        path = copy / WEB / rel
         lines = path.read_text(encoding="utf-8").split("\n")
         own = spans.get(rel, [])
         starts = {s for s, _ in own if not any(o < s <= e for o, e in own)}
@@ -128,7 +130,7 @@ def test_lines_inserted_above_the_cited_passages_pass(copy: Path):
 
 
 def test_a_removed_cited_file_fails_and_says_it_is_missing(copy: Path):
-    (copy / family.WEB / "features/workspace/resultsSessionState.ts").unlink()
+    (copy / WEB / "features/workspace/resultsSessionState.ts").unlink()
     code, stderr = run(copy)
     assert code == 1
     assert "MISMATCH: the solver mode: its cited file apps/desktop/src/features/workspace/resultsSessionState.ts is missing" in stderr
@@ -142,7 +144,7 @@ def test_the_registered_selection_covers_every_cited_file():
     assert len(rules) == 1
     paths = set(rules[0]["paths"])
     digests = json.loads(family.DIGESTS.read_text(encoding="utf-8"))
-    from_digests = {f"{family.WEB}/{entry['source'].split(':', 1)[0]}" for entry in digests.values()}
+    from_digests = {f"{WEB}/{entry['source'].split(':', 1)[0]}" for entry in digests.values()}
     assert from_digests <= set(CITED)
     assert set(CITED) <= paths
     assert {"tools/after_worker_family/**", "apps/desktop/src/test-support/after-worker/**",
