@@ -77,10 +77,15 @@ fn a_supported_pf_combination_is_checked_then_omitted_from_derived_solves() {
     let weight = input["sizing"]["weight_case"].clone();
     input["request"]["model"]["combinations"] = json!([{
         "id": "weight-copy", "basis": "mechanics",
-        "terms": [{"load_case": weight, "factor": 1.0}]
+        "terms": [{"load_case": weight, "factor": 1.0}],
+        "provenance": "invented_test_value"
     }]);
     let admission = preview_operating_conditions(&input["request"]["model"]);
     assert_eq!(admission["resolved"], true, "{admission}");
+    let ordinary = open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(
+        input["request"].clone(), open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny,
+    ).unwrap();
+    assert!(ordinary.diagnostics.iter().all(|d| d.severity != "blocking"), "{:?}", ordinary.diagnostics);
     let result = size_hangers(&serde_json::to_string(&input).unwrap());
     assert!(result.is_sized(), "{}", result.document());
     let projected = derived_document(&input["request"], weight.as_str().unwrap(), &[], &[]);
