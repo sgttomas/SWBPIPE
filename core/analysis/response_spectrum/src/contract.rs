@@ -578,7 +578,8 @@ pub struct Combination {
     /// Every supplied cluster in ascending order.
     pub clusters: Vec<ClusterStatement>,
     /// Under CQC, ρ over the periodic clusters in ascending order (row i, column j): the binary64
-    /// nearest each 128-bit enclosure's midpoint. Informational; the combinations use the
+    /// nearest the midpoint of each first-level enclosure (binary64-guided, ends rounded outward
+    /// to 64 bits; relative width about 2^-48). Informational; the combinations use the
     /// enclosures themselves.
     pub correlation: Option<Vec<Vec<f64>>>,
     /// Under the grouping method, the groups of periodic clusters.
