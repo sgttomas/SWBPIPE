@@ -25,6 +25,17 @@
 //!   exact point a material lacks, a selected point without G, an unbracketed
 //!   interpolation temperature); a valid exact or interpolated selection is
 //!   admitted whether its case is selected or not.
+//! - The local preparation before global assembly, in a case sizing does not
+//!   select: on EX, the pressure region's unknown terminal node, unknown member,
+//!   broken chain, interior terminal and repeated terminal; on PF, a selected basis
+//!   without the thermal expansion a thermal load needs, and a nonzero imposed
+//!   translation at a skew stop's node. Each is the ordinary solve's whole-document
+//!   refusal of the same neutralised baseline (blocked, no result), with its code and
+//!   affected ids. Controls: the same basis or skew stop without the fault is
+//!   admitted and sized; a reused basis still prepares the case that reuses it and
+//!   every case after it; warnings on sized inputs stay warnings and are the
+//!   ordinary solve's. (A partial extent on a realized arc is the product module's
+//!   unit test: no sized input has a curved bend.)
 //! - The authored pressure-elongation setting: an empty, duplicated or unknown
 //!   selection, a selection on a document without a pressure contract and a
 //!   malformed setting each refuse the request through the real sizing entry, and an
@@ -553,4 +564,179 @@ fn on_pf_a_load_application_fault_in_an_unselected_case_is_refused_like_the_ordi
         case["primitive_loads"][2]["magnitude"]["unit"] = json!("N*m");
     });
     assert_refused_like_the_ordinary_solve(&input, "LOAD_INPUT_INVALID", "load:U-push");
+}
+
+/// The ordinary solve of the neutralised baseline refuses the whole document: its
+/// blocking diagnostics, with no published result.
+fn ordinary_document_blocked(input: &Value) -> Vec<(String, Vec<String>)> {
+    let baseline = neutralised_source(&input["request"], &admitted_sites(input));
+    let envelope = run_linear_static_preview_value_with_mode(baseline, PreviewSolverMode::DenseScrutiny).expect("parsed");
+    let blocking = blocking_refs(&envelope.diagnostics);
+    assert!(!blocking.is_empty(), "the ordinary solve admits it");
+    assert!(envelope.results.is_empty(), "the ordinary solve published results beside {blocking:?}");
+    blocking
+}
+
+/// A fault the local preparation reaches: equal to the ordinary solve of the
+/// neutralised baseline, which refuses the whole document.
+fn assert_local_refusal(input: &Value, code: &str, object: &str) {
+    let blocking = ordinary_document_blocked(input);
+    eprintln!("{code}: ordinary {blocking:?}");
+    assert_refused_alike(input, code, object);
+}
+
+fn ex_region_change(change: impl FnOnce(&mut Value)) -> Value {
+    with_unselected_case(ex_input(), |case| {
+        assert_eq!(case["pressure_regions"][0]["id"], "U:PR-1");
+        change(&mut case["pressure_regions"][0]);
+    })
+}
+
+#[test]
+fn on_ex_a_pressure_region_fault_in_an_unselected_case_is_refused_like_the_ordinary_solve() {
+    let input = ex_region_change(|region| region["terminals"][1]["node_ref"] = json!("N-not-in-model"));
+    assert_local_refusal(&input, "PRESSURE_TERMINAL_NODE_UNKNOWN", "U:PR-1");
+    let input = ex_region_change(|region| region["member_pipe_ids"].as_array_mut().unwrap().push(json!("pipe:not-in-model")));
+    assert_local_refusal(&input, "PRESSURE_REGION_MEMBER_UNKNOWN", "pipe:not-in-model");
+    let input = ex_region_change(|region| region["member_pipe_ids"].as_array_mut().unwrap().retain(|m| m != "M3"));
+    assert_local_refusal(&input, "PRESSURE_REGION_TOPOLOGY_INVALID", "U:PR-1");
+    // A terminal at an interior node of the chain.
+    let input = ex_region_change(|region| region["terminals"][1]["node_ref"] = json!("N4"));
+    assert_local_refusal(&input, "PRESSURE_REGION_TOPOLOGY_INVALID", "U:PR-1");
+    // One end named as both terminals.
+    let input = ex_region_change(|region| region["terminals"][1]["node_ref"] = json!("N1"));
+    assert_local_refusal(&input, "PRESSURE_TERMINALS_INVALID", "U:PR-1");
+}
+
+#[test]
+fn on_pf_a_selected_basis_without_thermal_expansion_refuses_a_thermal_load_in_an_unselected_case() {
+    let mut without_alpha = point("point:200", 200.0, 1.9e11);
+    without_alpha.as_object_mut().unwrap().remove("thermal_expansion_coefficient");
+    let points = json!([point("point:100", 100.0, 1.95e11), without_alpha]);
+    let input = pf_with_points(points.clone(), |case| {
+        case["modulus_basis_ref"] = json!("point:200");
+        case["primitive_loads"].as_array_mut().unwrap().push(model_builder::thermal("load:U-t", "pipe:AB", 50.0));
+    });
+    assert_local_refusal(&input, "THERMAL_EXPANSION_INPUT_MISSING", "load:U");
+    // Control: the same basis without a thermal load in the case is admitted.
+    let input = pf_with_points(points, |case| case["modulus_basis_ref"] = json!("point:200"));
+    let baseline = neutralised_source(&input["request"], &admitted_sites(&input));
+    assert_eq!(ordinary_refs(&baseline), Ok(Vec::new()));
+    assert_eq!(blocking_refs(&admit_source_before_assembly(baseline, PreviewSolverMode::DenseScrutiny).unwrap()), Vec::new());
+    sized(&input);
+}
+
+/// The four-span constant input with a skewed line stop at node D (a support no
+/// role names) and a further case `load:U`, a copy of `load:O1`, changed by `change`.
+fn skewed_four_span(change: impl FnOnce(&mut Value)) -> Value {
+    let mut input = read_json("hanger_sizing_input_four_span_constant.json");
+    input["request"]["model"]["supports"].as_array_mut().unwrap().push(json!({
+        "id": "support:D-skew", "node": "node:D", "family": "line_stop", "restraints": ["UY"],
+        "direction": {"x": 0.0, "y": 0.6, "z": 0.8}, "provenance": "invented_test_value"}));
+    let o1 = input["request"]["model"]["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == "load:O1").unwrap().clone();
+    let text = serde_json::to_string(&o1).unwrap().replace("\"load:O1", "\"load:U");
+    let mut case: Value = serde_json::from_str(&text).unwrap();
+    change(&mut case);
+    input["request"]["model"]["load_cases"].as_array_mut().unwrap().push(case);
+    input
+}
+
+#[test]
+fn on_pf_a_moved_skew_stop_node_in_an_unselected_case_is_refused_like_the_ordinary_solve() {
+    // Control: the skewed stop, with no motion, is admitted and sized.
+    let input = skewed_four_span(|_| {});
+    let baseline = neutralised_source(&input["request"], &admitted_sites(&input));
+    assert_eq!(ordinary_refs(&baseline), Ok(Vec::new()));
+    assert_eq!(blocking_refs(&admit_source_before_assembly(baseline, PreviewSolverMode::DenseScrutiny).unwrap()), Vec::new());
+    sized(&input);
+    // A nonzero imposed translation of support D at the skew stop's node.
+    let input = skewed_four_span(|case| {
+        case["primitive_loads"].as_array_mut().unwrap().push(json!({
+            "id": "load:U-move-D", "category": "imposed_displacement", "target": {"type": "support", "support": "support:D", "dof": "UZ"},
+            "direction": "UZ", "magnitude": {"value": 0.002, "unit": "m"}, "dimension": "displacement", "provenance": "invented_test_value"}));
+    });
+    assert_local_refusal(&input, "SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED", "load:U");
+}
+
+/// The nonblocking outcomes of the ordinary solve stay nonblocking: every warning
+/// the source admission reports on a sized input is one the ordinary solve of the
+/// same baseline reports, and the run is sized.
+#[test]
+fn warnings_on_the_source_stay_warnings() {
+    for name in ["hanger_sizing_input_ex_pressurised.json", "hanger_sizing_input_two_span.json", "hanger_sizing_input_four_span_constant.json"] {
+        let input = read_json(name);
+        let baseline = neutralised_source(&input["request"], &admitted_sites(&input));
+        let envelope = run_linear_static_preview_value_with_mode(baseline.clone(), PreviewSolverMode::DenseScrutiny).unwrap();
+        let ordinary: Vec<(String, Vec<String>)> =
+            envelope.diagnostics.iter().filter(|d| d.severity == "warning").map(|d| (d.code.clone(), d.affected_refs.clone())).collect();
+        let seam = admit_source_before_assembly(baseline, PreviewSolverMode::DenseScrutiny).unwrap();
+        assert_eq!(blocking_refs(&seam), Vec::new(), "{name}");
+        let warnings: Vec<(String, Vec<String>)> =
+            seam.iter().filter(|d| d.severity == "warning").map(|d| (d.code.clone(), d.affected_refs.clone())).collect();
+        for warning in &warnings {
+            assert!(ordinary.contains(warning), "{name}: {warning:?} is not an ordinary warning: {ordinary:?}");
+        }
+        eprintln!("{name}: seam warnings {warnings:?}; ordinary warnings {ordinary:?}");
+        sized(&input);
+    }
+}
+
+/// The two-span input with further cases, none named by a sizing role: one copy of
+/// `load:O2` per `(id, change)`, in order, with the given points on every material.
+fn pf_with_cases(points: &Value, cases: Vec<(&str, Box<dyn Fn(&mut Value)>)>) -> Value {
+    let mut input = read_json("hanger_sizing_input_two_span.json");
+    for material in input["request"]["model"]["materials"].as_array_mut().unwrap() {
+        material["temperature_points"] = points.clone();
+    }
+    let o2 = input["request"]["model"]["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == "load:O2").unwrap().clone();
+    for (id, change) in cases {
+        let text = serde_json::to_string(&o2).unwrap().replace("\"load:O2", &format!("\"{id}"));
+        let mut case: Value = serde_json::from_str(&text).unwrap();
+        change(&mut case);
+        input["request"]["model"]["load_cases"].as_array_mut().unwrap().push(case);
+    }
+    input
+}
+
+/// A basis is resolved once per key and its built model reused; every case-scoped
+/// check still runs on each case that reuses it, and every case after it is still
+/// prepared. Valid cases stand before and after the repeated-basis case.
+#[test]
+fn on_pf_a_reused_basis_still_prepares_every_case_that_uses_it_and_every_case_after_it() {
+    let mut without_alpha = point("point:200", 200.0, 1.9e11);
+    without_alpha.as_object_mut().unwrap().remove("thermal_expansion_coefficient");
+    let points = json!([point("point:100", 100.0, 1.95e11), without_alpha]);
+    let select = |case: &mut Value| case["modulus_basis_ref"] = json!("point:200");
+    let thermal = |case: &mut Value| {
+        let id = format!("{}-t", case["id"].as_str().unwrap());
+        case["primitive_loads"].as_array_mut().unwrap().push(model_builder::thermal(&id, "pipe:AB", 50.0));
+    };
+    // All valid: the first use of the basis, a case on the base materials, the
+    // basis reused, and a case after it.
+    let valid = pf_with_cases(&points, vec![
+        ("load:U1", Box::new(select)),
+        ("load:U2", Box::new(|_: &mut Value| {})),
+        ("load:U3", Box::new(select)),
+        ("load:U4", Box::new(|_: &mut Value| {})),
+    ]);
+    let baseline = neutralised_source(&valid["request"], &admitted_sites(&valid));
+    assert_eq!(ordinary_refs(&baseline), Ok(Vec::new()));
+    assert_eq!(blocking_refs(&admit_source_before_assembly(baseline, PreviewSolverMode::DenseScrutiny).unwrap()), Vec::new());
+    sized(&valid);
+    // The reused basis's case carries a thermal load its basis cannot expand.
+    let reused_fault = pf_with_cases(&points, vec![
+        ("load:U1", Box::new(select)),
+        ("load:U2", Box::new(|_: &mut Value| {})),
+        ("load:U3", Box::new(move |case: &mut Value| { select(case); thermal(case); })),
+        ("load:U4", Box::new(|_: &mut Value| {})),
+    ]);
+    assert_local_refusal(&reused_fault, "THERMAL_EXPANSION_INPUT_MISSING", "load:U3");
+    // A fault in the case after the reused basis.
+    let after_fault = pf_with_cases(&points, vec![
+        ("load:U1", Box::new(select)),
+        ("load:U2", Box::new(|_: &mut Value| {})),
+        ("load:U3", Box::new(select)),
+        ("load:U4", Box::new(|case: &mut Value| case["primitive_loads"][2]["target"]["node"] = json!("node:not-in-model"))),
+    ]);
+    assert_refused_like_the_ordinary_solve(&after_fault, "LOAD_NODE_UNKNOWN", "load:U4-push");
 }
