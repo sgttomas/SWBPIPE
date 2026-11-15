@@ -70,7 +70,6 @@ A published result is a numerical statement about the discrete model in the requ
 
 **Undecided.**
 
-- The refusal of a compensated terminal at a junction is a standing refusal of a required capability. It is listed as LIM-002 in `docs/RELEASE_LIMITATIONS_v1.0.md`; Agent 0 declares whether it is acceptable, as `docs/RELEASE_TARGET_v1.0.md` provides.
 - The warning and failure levels for the condition estimate of a product solve are not decided (DEL-04-06/REQ-008). Until they are, a product solve can be classified only against supplied levels.
 
 **Not met.**

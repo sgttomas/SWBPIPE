@@ -182,7 +182,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** The product fixes the full-result-copy limit from web-view memory measurements. Reporting still builds whole-result structures in the web view, and the native renderer's working-memory allowance is established only for the tested witness inputs.
 - **What the user does instead:** Reduce the cases and combinations or split the model as the full-copy refusal advises, then solve again. Passing the full-copy limit does not establish that the report can be completed.
 - **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), REQ-022 and AC-011; DEL-07-07 [scope](../execution/PKG-07/DEL-07-07/ScopeOfWork.md), "Held result" (the full-result gate and the displayable limit). The limit was standing before this entry; the entry was added with PR #289.
-- **Status:** declared acceptable by Agent 0 (PR #363).
+- **Status:** not yet declared.
 
 ### LIM-012 — Some combinations of library findings are refused by the Diagnostics check
 
