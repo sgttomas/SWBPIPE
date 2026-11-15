@@ -56,7 +56,9 @@ fn check_modes(request: &CombinationRequest, refusals: &mut Vec<Refusal>) -> boo
     let invalid = |object: String, field: &str, detail: String| {
         refuse(RefusalCode::ModalMetadataInvalid, &object, Some(field), detail)
     };
-    if request.modes.is_empty() {
+    // REQ-002 permits an empty extracted set. With correction off its modal sums are zero;
+    // the existing missing-mass admission is unchanged by this empty-set repair.
+    if request.modes.is_empty() && matches!(request.missing_mass, MissingMass::Applied { .. }) {
         refusals.push(invalid(REQUEST.into(), "modes", "no extracted mode is supplied".into()));
     }
     for (i, m) in request.modes.iter().enumerate() {

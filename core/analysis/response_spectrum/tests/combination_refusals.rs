@@ -65,6 +65,40 @@ fn the_base_request_combines() {
 }
 
 #[test]
+fn an_empty_extracted_set_without_correction_combines_to_zero() {
+    let mut request = base();
+    request.missing_mass = MissingMass::NotApplied;
+    request.modes.clear();
+    request.periodic.clear();
+    request.rigid.clear();
+    for modal in ModalRule::ALL {
+        for directional in DirectionalRule::ALL {
+            request.modal_rule = modal;
+            request.directional_rule = directional;
+            let result = combine(&request).unwrap();
+            assert!(result.clusters.is_empty());
+            assert!(result.cluster_sums.is_empty());
+            assert_eq!(result.rows.len(), request.rows.len());
+            for row in &result.rows {
+                assert_eq!(row.combined.value(), 0.0);
+                assert_eq!(row.per_direction.len(), request.directions.len());
+                for part in &row.per_direction {
+                    assert_eq!(part.periodic.value(), 0.0);
+                    assert_eq!(part.combined.value(), 0.0);
+                    assert!(part.rigid.is_none());
+                }
+            }
+            let input = open_pipe_stress_response_spectrum::combination_json::request_to_json(
+                &request, "Invented empty-set combination input; not a spectrum solve result.");
+            assert_eq!(combine_json(&input.to_string()).unwrap()["outcome"], "combined");
+        }
+    }
+    // Empty extraction does not permit a contribution for a mode absent from the roster.
+    request.periodic.push(base().periodic.remove(0));
+    assert!(codes(&request).contains(&"SPECTRUM_CONTRIBUTION_INVALID"));
+}
+
+#[test]
 fn every_refusal_is_named() {
     let mut r = base();
     r.damping_ratio = 0.0;
