@@ -1,0 +1,254 @@
+{
+ "schema": "swbpipe.f2_spectrum.closed_form/v1",
+ "file": "sdof.json",
+ "status": "references with a refutation record (REFUTATION.md)",
+ "number_format": "Inputs are binary64: 'binary64' is the shortest round-trip decimal, 'hex' the exact hex form, 'exact' the exact rational. Derived reals are decimal strings ('value', 40 significant digits) with the nearest binary64; 'exact' on a derived quantity is an exact rational. Deviations and cross-check residuals are short diagnostics, not references. SI units.",
+ "item": "2. Single-degree-of-freedom oscillator (AC-002: SDOF under each interpolation rule and the pseudo-acceleration convention; damped force and reaction at the displacement extremum)",
+ "inputs": {
+  "mass_kg": {"binary64": "125.0", "hex": "0x1.f400000000000p+6", "exact": "125"},
+  "stiffness_N_per_m": {"binary64": "200000.0", "hex": "0x1.86a0000000000p+17", "exact": "200000"},
+  "scale_factor_s": {"binary64": "1.5", "hex": "0x1.8000000000000p+0", "exact": "3/2"}
+ },
+ "derived": {
+  "omega_squared_rad2_per_s2": {"exact": "1600", "value": "1.600000000000000000000000000000000000000e+3", "binary64": "1600.0"},
+  "omega_rad_per_s": {"value": "4.000000000000000000000000000000000000000e+1", "binary64": "40.0"},
+  "frequency_hz": {"value": "6.366197723675813430755350534900574481378e+0", "binary64": "6.366197723675813"},
+  "period_s": {"value": "1.570796326794896619231321691639751442099e-1", "binary64": "0.15707963267948966"},
+  "participation_factor": {"exact": "1", "value": "1.000000000000000000000000000000000000000e+0", "binary64": "1.0"},
+  "effective_mass_kg": {"exact": "125", "value": "1.250000000000000000000000000000000000000e+2", "binary64": "125.0"},
+  "effective_mass_fraction": {"exact": "1", "value": "1.000000000000000000000000000000000000000e+0", "binary64": "1.0"}
+ },
+ "spectra": "T1 and T2 of spectrum_tables.json (damping ratio 0.05 recorded with each); the damping enters only through the tabulated ordinates",
+ "cases": [
+  {
+   "table": "T1",
+   "rule": "linear-abscissa/linear-ordinate",
+   "reading": "tabulated",
+   "S_m_per_s2": {"value": "9.795684440443140279628487103301256781057e+0", "binary64": "9.795684440443141"},
+   "sS_m_per_s2": {"value": "1.469352666066471041944273065495188517159e+1", "binary64": "14.69352666066471"},
+   "modal_displacement_u_m": {"value": "9.183454162915444012151706659344928232241e-3", "binary64": "0.009183454162915444"},
+   "spring_force_N_tension_positive": {"value": "1.836690832583088802430341331868985646448e+3", "binary64": "1836.6908325830889"},
+   "rigid_support_reaction_signed_N": {"value": "-1.836690832583088802430341331868985646448e+3", "binary64": "-1836.6908325830889"},
+   "combined_magnitudes": {
+    "displacement_m": {"value": "9.183454162915444012151706659344928232241e-3", "binary64": "0.009183454162915444"},
+    "spring_force_N": {"value": "1.836690832583088802430341331868985646448e+3", "binary64": "1836.6908325830889"},
+    "reaction_N": {"value": "1.836690832583088802430341331868985646448e+3", "binary64": "1836.6908325830889"}
+   },
+   "information_not_adopted": {
+    "label": "NOT the adopted value: size of the velocity-proportional term the method neglects (REQ-002), for a viscous damper c = 2 zeta m w in parallel with the spring",
+    "damper_force_at_pseudo_velocity_N": {"value": "1.836690832583088904387163904453679057458e+2", "binary64": "183.6690832583089"},
+    "ratio_to_spring_force": {"value": "1.000000000000000055511151231257827021182e-1", "binary64": "0.1"},
+    "harmonic_peak_of_spring_plus_damper_N": {"value": "1.845851442191301467362807218532752137259e+3", "binary64": "1845.8514421913014"},
+    "ratio_harmonic_peak_to_spring_force": {"value": "1.004987562112089027574283090740683304189e+0", "binary64": "1.004987562112089"}
+   }
+  },
+  {
+   "table": "T1",
+   "rule": "log-abscissa/log-ordinate",
+   "reading": "tabulated",
+   "S_m_per_s2": {"value": "9.775062362271956715535785778438005340839e+0", "binary64": "9.775062362271957"},
+   "sS_m_per_s2": {"value": "1.466259354340793507330367866765700801126e+1", "binary64": "14.662593543407935"},
+   "modal_displacement_u_m": {"value": "9.164120964629959420814799167285630007037e-3", "binary64": "0.009164120964629959"},
+   "spring_force_N_tension_positive": {"value": "1.832824192925991884162959833457126001407e+3", "binary64": "1832.8241929259918"},
+   "rigid_support_reaction_signed_N": {"value": "-1.832824192925991884162959833457126001407e+3", "binary64": "-1832.8241929259918"},
+   "combined_magnitudes": {
+    "displacement_m": {"value": "9.164120964629959420814799167285630007037e-3", "binary64": "0.009164120964629959"},
+    "spring_force_N": {"value": "1.832824192925991884162959833457126001407e+3", "binary64": "1832.8241929259918"},
+    "reaction_N": {"value": "1.832824192925991884162959833457126001407e+3", "binary64": "1832.8241929259918"}
+   },
+   "information_not_adopted": {
+    "label": "NOT the adopted value: size of the velocity-proportional term the method neglects (REQ-002), for a viscous damper c = 2 zeta m w in parallel with the spring",
+    "damper_force_at_pseudo_velocity_N": {"value": "1.832824192925991985905140787279933475868e+2", "binary64": "183.2824192925992"},
+    "ratio_to_spring_force": {"value": "1.000000000000000055511151231257827021182e-1", "binary64": "0.1"},
+    "harmonic_peak_of_spring_plus_damper_N": {"value": "1.841965517428749711596414069333563008619e+3", "binary64": "1841.9655174287498"},
+    "ratio_harmonic_peak_to_spring_force": {"value": "1.004987562112089027574283090740683304189e+0", "binary64": "1.004987562112089"}
+   }
+  },
+  {
+   "table": "T1",
+   "rule": "linear-abscissa/log-ordinate",
+   "reading": "tabulated",
+   "S_m_per_s2": {"value": "9.793690255184401919947953312809651194727e+0", "binary64": "9.793690255184401"},
+   "sS_m_per_s2": {"value": "1.469053538277660287992192996921447679209e+1", "binary64": "14.690535382776602"},
+   "modal_displacement_u_m": {"value": "9.181584614235376799951206230759047995057e-3", "binary64": "0.009181584614235377"},
+   "spring_force_N_tension_positive": {"value": "1.836316922847075359990241246151809599011e+3", "binary64": "1836.3169228470754"},
+   "rigid_support_reaction_signed_N": {"value": "-1.836316922847075359990241246151809599011e+3", "binary64": "-1836.3169228470754"},
+   "combined_magnitudes": {
+    "displacement_m": {"value": "9.181584614235376799951206230759047995057e-3", "binary64": "0.009181584614235377"},
+    "spring_force_N": {"value": "1.836316922847075359990241246151809599011e+3", "binary64": "1836.3169228470754"},
+    "reaction_N": {"value": "1.836316922847075359990241246151809599011e+3", "binary64": "1836.3169228470754"}
+   },
+   "information_not_adopted": {
+    "label": "NOT the adopted value: size of the velocity-proportional term the method neglects (REQ-002), for a viscous damper c = 2 zeta m w in parallel with the spring",
+    "damper_force_at_pseudo_velocity_N": {"value": "1.836316922847075461926307658833821115646e+2", "binary64": "183.63169228470755"},
+    "ratio_to_spring_force": {"value": "1.000000000000000055511151231257827021182e-1", "binary64": "0.1"},
+    "harmonic_peak_of_spring_plus_damper_N": {"value": "1.845475667557255343066993398690969202725e+3", "binary64": "1845.4756675572553"},
+    "ratio_harmonic_peak_to_spring_force": {"value": "1.004987562112089027574283090740683304189e+0", "binary64": "1.004987562112089"}
+   }
+  },
+  {
+   "table": "T1",
+   "rule": "log-abscissa/linear-ordinate",
+   "reading": "tabulated",
+   "S_m_per_s2": {"value": "9.779304979135432214300993044033548834385e+0", "binary64": "9.779304979135432"},
+   "sS_m_per_s2": {"value": "1.466895746870314832145148956605032325158e+1", "binary64": "14.668957468703148"},
+   "modal_displacement_u_m": {"value": "9.168098417939467700907180978781452032236e-3", "binary64": "0.009168098417939467"},
+   "spring_force_N_tension_positive": {"value": "1.833619683587893540181436195756290406447e+3", "binary64": "1833.6196835878936"},
+   "rigid_support_reaction_signed_N": {"value": "-1.833619683587893540181436195756290406447e+3", "binary64": "-1833.6196835878936"},
+   "combined_magnitudes": {
+    "displacement_m": {"value": "9.168098417939467700907180978781452032236e-3", "binary64": "0.009168098417939467"},
+    "spring_force_N": {"value": "1.833619683587893540181436195756290406447e+3", "binary64": "1833.6196835878936"},
+    "reaction_N": {"value": "1.833619683587893540181436195756290406447e+3", "binary64": "1833.6196835878936"}
+   },
+   "information_not_adopted": {
+    "label": "NOT the adopted value: size of the velocity-proportional term the method neglects (REQ-002), for a viscous damper c = 2 zeta m w in parallel with the spring",
+    "damper_force_at_pseudo_velocity_N": {"value": "1.833619683587893641967775752014974097186e+2", "binary64": "183.36196835878937"},
+    "ratio_to_spring_force": {"value": "1.000000000000000055511151231257827021182e-1", "binary64": "0.1"},
+    "harmonic_peak_of_spring_plus_damper_N": {"value": "1.842764975649737188936922235064000903096e+3", "binary64": "1842.7649756497372"},
+    "ratio_harmonic_peak_to_spring_force": {"value": "1.004987562112089027574283090740683304189e+0", "binary64": "1.004987562112089"}
+   }
+  },
+  {
+   "table": "T2",
+   "rule": "linear-abscissa/linear-ordinate",
+   "reading": "tabulated",
+   "S_m_per_s2": {"value": "1.053564001614694637942149943022450808654e+1", "binary64": "10.535640016146946"},
+   "sS_m_per_s2": {"value": "1.580346002422041956913224914533676212982e+1", "binary64": "15.803460024220419"},
+   "modal_displacement_u_m": {"value": "9.877162515137762230707655715835476331136e-3", "binary64": "0.009877162515137762"},
+   "spring_force_N_tension_positive": {"value": "1.975432503027552446141531143167095266227e+3", "binary64": "1975.4325030275525"},
+   "rigid_support_reaction_signed_N": {"value": "-1.975432503027552446141531143167095266227e+3", "binary64": "-1975.4325030275525"},
+   "combined_magnitudes": {
+    "displacement_m": {"value": "9.877162515137762230707655715835476331136e-3", "binary64": "0.009877162515137762"},
+    "spring_force_N": {"value": "1.975432503027552446141531143167095266227e+3", "binary64": "1975.4325030275525"},
+    "reaction_N": {"value": "1.975432503027552446141531143167095266227e+3", "binary64": "1975.4325030275525"}
+   },
+   "information_not_adopted": {
+    "label": "NOT the adopted value: size of the velocity-proportional term the method neglects (REQ-002), for a viscous damper c = 2 zeta m w in parallel with the spring",
+    "damper_force_at_pseudo_velocity_N": {"value": "1.975432503027552555800063565871744341575e+2", "binary64": "197.54325030275527"},
+    "ratio_to_spring_force": {"value": "1.000000000000000055511151231257827021182e-1", "binary64": "0.1"},
+    "harmonic_peak_of_spring_plus_damper_N": {"value": "1.985285095334641859977904081786313207807e+3", "binary64": "1985.285095334642"},
+    "ratio_harmonic_peak_to_spring_force": {"value": "1.004987562112089027574283090740683304189e+0", "binary64": "1.004987562112089"}
+   },
+   "T_s": {"value": "1.570796326794896619231321691639751442099e-1", "binary64": "0.15707963267948966"}
+  },
+  {
+   "table": "T2",
+   "rule": "linear-abscissa/linear-ordinate",
+   "reading": "frequency",
+   "S_m_per_s2": {"value": "9.986208645344270953928988976698591956502e+0", "binary64": "9.986208645344272"},
+   "sS_m_per_s2": {"value": "1.497931296801640643089348346504788793475e+1", "binary64": "14.979312968016407"},
+   "modal_displacement_u_m": {"value": "9.362070605010254019308427165654929959220e-3", "binary64": "0.009362070605010254"},
+   "spring_force_N_tension_positive": {"value": "1.872414121002050803861685433130985991844e+3", "binary64": "1872.4141210020507"},
+   "rigid_support_reaction_signed_N": {"value": "-1.872414121002050803861685433130985991844e+3", "binary64": "-1872.4141210020507"},
+   "combined_magnitudes": {
+    "displacement_m": {"value": "9.362070605010254019308427165654929959220e-3", "binary64": "0.009362070605010254"},
+    "spring_force_N": {"value": "1.872414121002050803861685433130985991844e+3", "binary64": "1872.4141210020507"},
+    "reaction_N": {"value": "1.872414121002050803861685433130985991844e+3", "binary64": "1872.4141210020507"}
+   },
+   "information_not_adopted": {
+    "label": "NOT the adopted value: size of the velocity-proportional term the method neglects (REQ-002), for a viscous damper c = 2 zeta m w in parallel with the spring",
+    "damper_force_at_pseudo_velocity_N": {"value": "1.872414121002050907801548871618520381391e+2", "binary64": "187.24141210020508"},
+    "ratio_to_spring_force": {"value": "1.000000000000000055511151231257827021182e-1", "binary64": "0.1"},
+    "harmonic_peak_of_spring_plus_damper_N": {"value": "1.881752902730101112412571336818205311311e+3", "binary64": "1881.7529027301011"},
+    "ratio_harmonic_peak_to_spring_force": {"value": "1.004987562112089027574283090740683304189e+0", "binary64": "1.004987562112089"}
+   },
+   "T_s": {"value": "1.570796326794896619231321691639751442099e-1", "binary64": "0.15707963267948966"}
+  },
+  {
+   "table": "T2",
+   "rule": "log-abscissa/log-ordinate",
+   "reading": "tabulated",
+   "S_m_per_s2": {"value": "1.023583523602584910590133354211475197702e+1", "binary64": "10.23583523602585"},
+   "sS_m_per_s2": {"value": "1.535375285403877365885200031317212796553e+1", "binary64": "15.353752854038774"},
+   "modal_displacement_u_m": {"value": "9.596095533774233536782500195732579978455e-3", "binary64": "0.009596095533774234"},
+   "spring_force_N_tension_positive": {"value": "1.919219106754846707356500039146515995691e+3", "binary64": "1919.2191067548467"},
+   "rigid_support_reaction_signed_N": {"value": "-1.919219106754846707356500039146515995691e+3", "binary64": "-1919.2191067548467"},
+   "combined_magnitudes": {
+    "displacement_m": {"value": "9.596095533774233536782500195732579978455e-3", "binary64": "0.009596095533774234"},
+    "spring_force_N": {"value": "1.919219106754846707356500039146515995691e+3", "binary64": "1919.2191067548467"},
+    "reaction_N": {"value": "1.919219106754846707356500039146515995691e+3", "binary64": "1919.2191067548467"}
+   },
+   "information_not_adopted": {
+    "label": "NOT the adopted value: size of the velocity-proportional term the method neglects (REQ-002), for a viscous damper c = 2 zeta m w in parallel with the spring",
+    "damper_force_at_pseudo_velocity_N": {"value": "1.919219106754846813894562120134371755270e+2", "binary64": "191.92191067548467"},
+    "ratio_to_spring_force": {"value": "1.000000000000000055511151231257827021182e-1", "binary64": "0.1"},
+    "harmonic_peak_of_spring_plus_damper_N": {"value": "1.928791331256494527488071414592252291847e+3", "binary64": "1928.7913312564945"},
+    "ratio_harmonic_peak_to_spring_force": {"value": "1.004987562112089027574283090740683304189e+0", "binary64": "1.004987562112089"}
+   },
+   "T_s": {"value": "1.570796326794896619231321691639751442099e-1", "binary64": "0.15707963267948966"}
+  },
+  {
+   "table": "T2",
+   "rule": "linear-abscissa/log-ordinate",
+   "reading": "tabulated",
+   "S_m_per_s2": {"value": "1.049741003634017145323566835722320129966e+1", "binary64": "10.497410036340172"},
+   "sS_m_per_s2": {"value": "1.574611505451025717985350253583480194949e+1", "binary64": "15.746115054510257"},
+   "modal_displacement_u_m": {"value": "9.841321909068910737408439084896751218431e-3", "binary64": "0.00984132190906891"},
+   "spring_force_N_tension_positive": {"value": "1.968264381813782147481687816979350243686e+3", "binary64": "1968.2643818137822"},
+   "rigid_support_reaction_signed_N": {"value": "-1.968264381813782147481687816979350243686e+3", "binary64": "-1968.2643818137822"},
+   "combined_magnitudes": {
+    "displacement_m": {"value": "9.841321909068910737408439084896751218431e-3", "binary64": "0.00984132190906891"},
+    "spring_force_N": {"value": "1.968264381813782147481687816979350243686e+3", "binary64": "1968.2643818137822"},
+    "reaction_N": {"value": "1.968264381813782147481687816979350243686e+3", "binary64": "1968.2643818137822"}
+   },
+   "information_not_adopted": {
+    "label": "NOT the adopted value: size of the velocity-proportional term the method neglects (REQ-002), for a viscous damper c = 2 zeta m w in parallel with the spring",
+    "damper_force_at_pseudo_velocity_N": {"value": "1.968264381813782256742309578942408855091e+2", "binary64": "196.82643818137822"},
+    "ratio_to_spring_force": {"value": "1.000000000000000055511151231257827021182e-1", "binary64": "0.1"},
+    "harmonic_peak_of_spring_plus_damper_N": {"value": "1.978081222671090898963350167515191475551e+3", "binary64": "1978.081222671091"},
+    "ratio_harmonic_peak_to_spring_force": {"value": "1.004987562112089027574283090740683304189e+0", "binary64": "1.004987562112089"}
+   },
+   "T_s": {"value": "1.570796326794896619231321691639751442099e-1", "binary64": "0.15707963267948966"}
+  },
+  {
+   "table": "T2",
+   "rule": "linear-abscissa/log-ordinate",
+   "reading": "frequency",
+   "S_m_per_s2": {"value": "9.891302493416144680203174172749207009449e+0", "binary64": "9.891302493416145"},
+   "sS_m_per_s2": {"value": "1.483695374012421702030476125912381051417e+1", "binary64": "14.836953740124217"},
+   "modal_displacement_u_m": {"value": "9.273096087577635637690475786952381571359e-3", "binary64": "0.009273096087577636"},
+   "spring_force_N_tension_positive": {"value": "1.854619217515527127538095157390476314272e+3", "binary64": "1854.6192175155272"},
+   "rigid_support_reaction_signed_N": {"value": "-1.854619217515527127538095157390476314272e+3", "binary64": "-1854.6192175155272"},
+   "combined_magnitudes": {
+    "displacement_m": {"value": "9.273096087577635637690475786952381571359e-3", "binary64": "0.009273096087577636"},
+    "spring_force_N": {"value": "1.854619217515527127538095157390476314272e+3", "binary64": "1854.6192175155272"},
+    "reaction_N": {"value": "1.854619217515527127538095157390476314272e+3", "binary64": "1854.6192175155272"}
+   },
+   "information_not_adopted": {
+    "label": "NOT the adopted value: size of the velocity-proportional term the method neglects (REQ-002), for a viscous damper c = 2 zeta m w in parallel with the spring",
+    "damper_force_at_pseudo_velocity_N": {"value": "1.854619217515527230490143017291957730000e+2", "binary64": "185.46192175155272"},
+    "ratio_to_spring_force": {"value": "1.000000000000000055511151231257827021182e-1", "binary64": "0.1"},
+    "harmonic_peak_of_spring_plus_damper_N": {"value": "1.863869246057159769661266563849595596547e+3", "binary64": "1863.8692460571597"},
+    "ratio_harmonic_peak_to_spring_force": {"value": "1.004987562112089027574283090740683304189e+0", "binary64": "1.004987562112089"}
+   },
+   "T_s": {"value": "1.570796326794896619231321691639751442099e-1", "binary64": "0.15707963267948966"}
+  },
+  {
+   "table": "T2",
+   "rule": "log-abscissa/linear-ordinate",
+   "reading": "tabulated",
+   "S_m_per_s2": {"value": "1.030252124504561571729369864587640872977e+1", "binary64": "10.302521245045616"},
+   "sS_m_per_s2": {"value": "1.545378186756842357594054796881461309466e+1", "binary64": "15.453781867568424"},
+   "modal_displacement_u_m": {"value": "9.658613667230264734962842480509133184163e-3", "binary64": "0.009658613667230264"},
+   "spring_force_N_tension_positive": {"value": "1.931722733446052946992568496101826636833e+3", "binary64": "1931.7227334460529"},
+   "rigid_support_reaction_signed_N": {"value": "-1.931722733446052946992568496101826636833e+3", "binary64": "-1931.7227334460529"},
+   "combined_magnitudes": {
+    "displacement_m": {"value": "9.658613667230264734962842480509133184163e-3", "binary64": "0.009658613667230264"},
+    "spring_force_N": {"value": "1.931722733446052946992568496101826636833e+3", "binary64": "1931.7227334460529"},
+    "reaction_N": {"value": "1.931722733446052946992568496101826636833e+3", "binary64": "1931.7227334460529"}
+   },
+   "information_not_adopted": {
+    "label": "NOT the adopted value: size of the velocity-proportional term the method neglects (REQ-002), for a viscous damper c = 2 zeta m w in parallel with the spring",
+    "damper_force_at_pseudo_velocity_N": {"value": "1.931722733446053054224721289284423875484e+2", "binary64": "193.17227334460532"},
+    "ratio_to_spring_force": {"value": "1.000000000000000055511151231257827021182e-1", "binary64": "0.1"},
+    "harmonic_peak_of_spring_plus_damper_N": {"value": "1.941357320562449532456080778651701246144e+3", "binary64": "1941.3573205624496"},
+    "ratio_harmonic_peak_to_spring_force": {"value": "1.004987562112089027574283090740683304189e+0", "binary64": "1.004987562112089"}
+   },
+   "T_s": {"value": "1.570796326794896619231321691639751442099e-1", "binary64": "0.15707963267948966"}
+  }
+ ],
+ "cross_checks": [
+  {"id": "SDOF-balance", "what": "k u against m s S(f) for every case", "max_rel_diff": "0", "agrees": true},
+  {"id": "SDOF-omega", "what": "w = sqrt(k/m) = 40 rad/s exactly", "residual": "0", "agrees": true}
+ ]
+}

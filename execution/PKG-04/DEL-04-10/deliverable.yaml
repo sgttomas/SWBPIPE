@@ -88,9 +88,15 @@ needs:
     A published response-spectrum piping problem can be compared as comparison evidence only under
     that report's own redistribution evidence (DEL-04-09/REQ-009). The comparison is not required.
   gating: false
+# The frozen references and their maintained regeneration and independence check. No product code
+# exists for this deliverable yet.
 code_paths:
+- validation/references/f2_spectrum/**
+- tests/test_dynamics_references.py
+- tools/validation/reference_observation.py
 # Frozen before the engine work it judges: a snubber left out of every static case (AC-003). No
 # product test reads it yet.
 - validation/references/snubber_static/**
 - tests/test_snubber_static_references.py
-checks: []
+checks:
+- tests/test_dynamics_references.py
