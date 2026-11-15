@@ -1,0 +1,66 @@
+{
+  "bytesInvoke (the byte responses' delivery guard: bytes or text)": {
+    "sha256": "739bc4615f6f87cc1f8707b08762619b86b75153e4dadc8556f2bee78508bc66",
+    "source": "services/nativeResult.ts: bytesInvoke"
+  },
+  "captureNativeInvocation (the fresh capture)": {
+    "sha256": "79a8206182835b2896b18e73b338bf8234b357c8886100446e72aaec4f322804",
+    "source": "services/previewService.ts: captureNativeInvocation"
+  },
+  "keyOf (the reading cache key)": {
+    "sha256": "6b9ae198d5b12a7f1b1ce637ea1745504e621cd70517d79147b6905e2a645145",
+    "source": "services/nativeResult.ts: keyOf"
+  },
+  "nativeEnvelopeRefusal": {
+    "sha256": "7ec377924cae178caa48b8bdaf7ad7930b82a2cd0794d1d0852e59512c92556c",
+    "source": "services/previewService.ts: nativeEnvelopeRefusal"
+  },
+  "nativeRegistrationHolds (gate 1, through hasNativeMechanicsInvocation)": {
+    "sha256": "ff57cb9f56c8f010a3d9254b2162149959a6b10d5ea2cb48b750df773db00717",
+    "source": "services/previewService.ts: nativeRegistrationHolds"
+  },
+  "readNativeFreshResult (its order of reads)": {
+    "sha256": "f3644d4ae264c02dae4929fb462323bc80d5b49f93ebcacd2fd119bcce18a629",
+    "source": "services/previewService.ts: readNativeFreshResult"
+  },
+  "readNativeSummary's text refusal": {
+    "sha256": "6f772b84faf782eb20f2d9aef29e1d151dae1c75af83defc15534c96700a4c7e",
+    "source": "services/nativeResult.ts: the line holding `if (typeof delivered === \"string\") throw new Error(\"RESULT-SUMMARY-MALFORMED`"
+  },
+  "readNativeVerdict and readNativeSummary (their cache keys)": {
+    "sha256": "49d6b73c3430e074abfe590246e9c363defc53a46b3759de3e9b7bbdc56b973a",
+    "source": "services/nativeResult.ts: from the declaration of readNativeVerdict to the end of readNativeSummary, holding `keyOf(\"summary\", modelText, JSON.stringify(standingArg))`"
+  },
+  "the model-reference check": {
+    "sha256": "7ca05003e6295f28dcb73c1cce331a8f5f09c2864d70884034b9747ab93486bb",
+    "source": "features/workspace/workspaceSession.ts: from `if (output.model_ref !== solveModel.project.id) {` to the end of its block, holding `SOLVE-RESULT-MODEL-MISMATCH`"
+  },
+  "the panel's first page and the empty-page re-read": {
+    "sha256": "43b320b405b72495e3f6a5ec0eba3af10b2a606bff06c66089967e82d13a257a",
+    "source": "features/results/NativeResultsPanel.tsx: from `let read = await queryNativeRows(result, filter, pageIndex * pageSize, pageSize);` through the line holding `const outcomes = read.rows.length ? await semanticsOf(`, holding `if (read.rows.length === 0 && read.total > 0) {`"
+  },
+  "the semantics' recorded-table agreement": {
+    "sha256": "4b7c0f62eef0a0d716f0eb82c1f6d10130faee5d88366915f58bdf2e43e3133c",
+    "source": "features/results/NativeResultsPanel.tsx: from `const tableAgrees = sameContractBinding(` through the line holding `tableAgrees ? readNativeRowSemantics(result, ordinals)`"
+  },
+  "the session gates 1 and 2": {
+    "sha256": "84d0a29a893eea7315ecc2140249d0e143d837226024a3f50c456634005f4df5",
+    "source": "features/workspace/workspaceSession.ts: from `if (!hasNativeMechanicsInvocation(output, solveModel, solverMode)) {` to the end of the block opened at `if (!hasCurrentSourceContract(output) || !output.producer) {`"
+  },
+  "the session's manifest arguments": {
+    "sha256": "d632053f9b5868231cf81339cade62d246c7501d2d9c582c222afa87679209e7",
+    "source": "features/workspace/workspaceSession.ts: from `const rulePacks = solveModel.rule_pack_refs?.length` to the end of the block opened at `const manifest = await buildCurrentSessionInputManifest({`"
+  },
+  "the solver mode": {
+    "sha256": "6c14f2ec3a34bbc0f84ca12bec9b9cbe2aca543da593ae953a2fff442f1ad4d7",
+    "source": "features/workspace/resultsSessionState.ts: the line holding `useState<PreviewSolverMode>(\"sparse_interactive\")`"
+  },
+  "the standing-model text check": {
+    "sha256": "c3ab5476654c6f1d90ab4a21aedd5e996ef5413a55134a2e17a094606df9014a",
+    "source": "features/workspace/workspaceSession.ts: from `if (jsonTextKeepingNegativeZero(manifest.manifest.model_basis.model_payload) !== nativeCustody(output).binding.standingModelText) {` to the end of its block, holding `SOLVE-NATIVE-STANDING-MODEL-MISMATCH`"
+  },
+  "validateNativeReaders": {
+    "sha256": "dc833c86c9592350f423ca4ff708b60d35e7fd8b0a3e3b76b9197823fee5e077",
+    "source": "services/previewService.ts: validateNativeReaders"
+  }
+}
