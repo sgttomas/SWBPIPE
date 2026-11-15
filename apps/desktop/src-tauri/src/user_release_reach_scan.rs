@@ -678,7 +678,11 @@ pub(crate) const BUILD_SCRIPTS: [(&str, usize, &str); 1] =
 /// dependencies they would let a build that sets `cfg(test)` compile the
 /// scan's test modules, so moving one, like any other change here, is a
 /// finding until reviewed.
-pub(crate) const SHELL_DEPENDENCIES: [&str; 39] = [
+/// DEL-08-01 REQ-024 adds `open_pipe_stress_report_standing`, an ordinary
+/// library (not a proc-macro, no build script) whose only path dependencies
+/// are result_export and numerical_vocabulary. It cannot name the renderer,
+/// the PDF emitter or the package writer, because it does not depend on them.
+pub(crate) const SHELL_DEPENDENCIES: [&str; 40] = [
     "dev proc-macro2",
     "dev syn",
     "normal bytes (cfg(target_os = \"macos\"))",
@@ -699,6 +703,7 @@ pub(crate) const SHELL_DEPENDENCIES: [&str; 39] = [
     "normal open_pipe_stress_product_physics",
     "normal open_pipe_stress_report_package",
     "normal open_pipe_stress_report_renderer",
+    "normal open_pipe_stress_report_standing",
     "normal open_pipe_stress_result_export",
     "normal open_pipe_stress_rule_check_runner",
     "normal open_pipe_stress_rule_pack_document",
@@ -995,6 +1000,10 @@ pub(crate) const TARGETS: [(&str, &[(&str, &str, &str)]); 5] = [
             ("test", "composition", "report_renderer/tests/composition.rs"),
             ("test", "object_form", "report_renderer/tests/object_form.rs"),
             ("test", "render", "report_renderer/tests/render.rs"),
+            // DEL-08-01 AC-016 and VER-016: the statement table's two-way
+            // check. It reads and writes its two generated fixtures and calls
+            // no render, emission or package function.
+            ("test", "standing_statements", "report_renderer/tests/standing_statements.rs"),
         ],
     ),
     (

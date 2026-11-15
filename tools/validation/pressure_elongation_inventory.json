@@ -28,9 +28,9 @@
    ".json",
    ".jsonl"
   ],
-  "files": 525,
+  "files": 529,
   "claimed_by": {
-   "group": 137,
+   "group": 141,
    "in_code": 62,
    "exemption": 326
   }
@@ -118,6 +118,25 @@
    "held_documents": 4,
    "held_pressurised_load_cases": 5
   },
+  "report_standing_render_inputs": {
+   "files": 2,
+   "documents": 0,
+   "pressurised_load_cases": 0,
+   "held_documents": 4,
+   "held_pressurised_load_cases": 6
+  },
+  "report_standing_app_render_request": {
+   "files": 1,
+   "documents": 0,
+   "pressurised_load_cases": 0,
+   "held_documents": 2,
+   "held_pressurised_load_cases": 2
+  },
+  "report_standing_coupled_friction_request": {
+   "files": 1,
+   "documents": 1,
+   "pressurised_load_cases": 1
+  },
   "user_release_exact": {
    "files": 1,
    "documents": 2,
@@ -202,8 +221,8 @@
    "files": 1,
    "documents": 0,
    "pressurised_load_cases": 0,
-   "held_documents": 54,
-   "held_pressurised_load_cases": 62
+   "held_documents": 58,
+   "held_pressurised_load_cases": 66
   },
   "desktop_analysis_run_v03_cases": {
    "files": 1,
@@ -1292,7 +1311,8 @@
     "core/product_physics/tests/rt_a3_s6_reference_system.rs",
     "core/product_physics/tests/exact_admission_seam.rs",
     "core/product_physics/src/modal/tests_state.rs",
-    "tests/test_rt_a3_nonlinear_reader.py"
+    "tests/test_rt_a3_nonlinear_reader.py",
+    "core/product_physics/tests/report_standing_witnesses.rs (fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json, and through apps/desktop/src/features/report/reportStandingWitness.test.tsx the render input that holds this request as exact intake text)"
    ],
    "anchor": {
     "kind": "baseline"
@@ -3751,6 +3771,167 @@
    ]
   },
   {
+   "id": "report_standing_render_inputs/pressure_3_coupled_friction_sensitive.render",
+   "group": "report_standing_render_inputs",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.render.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_render_exact_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "documents held as JSON text (exact intake text) inside render inputs"
+   },
+   "documents": [],
+   "held_documents": [
+    {
+     "pointer": "/exact_intake_text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/input_manifest_text",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_render_inputs/pressure_3_gap_unresolved.render",
+   "group": "report_standing_render_inputs",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.render.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_render_exact_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "documents held as JSON text (exact intake text) inside render inputs"
+   },
+   "documents": [],
+   "held_documents": [
+    {
+     "pointer": "/exact_intake_text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    },
+    {
+     "pointer": "/input_manifest_text",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_app_render_request",
+   "group": "report_standing_app_render_request",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.app_render_request.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/renderedReportGate.app.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_APP_RENDER_REQUEST), from the committed coupled-friction request and raw file, under a pinned clock; both tests hold its SHA-256",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer and update the SHA-256 both tests hold"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_render_exact_tests.rs",
+    "apps/desktop/src/features/report/renderedReportGate.app.test.tsx"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "documents held as JSON text (exact intake text) inside a render request"
+   },
+   "documents": [],
+   "held_documents": [
+    {
+     "pointer": "/exact_intake_text",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/input_manifest_text",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_coupled_friction_request",
+   "group": "report_standing_coupled_friction_request",
+   "path": "fixtures/reports/invented/report_standing_witnesses/coupled_friction.request.json",
+   "producer": {
+    "kind": "none",
+    "status": "hand_authored",
+    "switch_plumbed": false,
+    "switch_route": "no producer (made once as a trimmed copy of the RT-A3 S6 no-gap overlay, one case, RS-SUS): edit the document, then re-produce its raw file with core/product_physics/tests/report_standing_witnesses.rs, the render input with its writer and the App render request with renderedReportGate.app.test.tsx"
+   },
+   "pinned_by": [
+    "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json (core/product_physics/tests/report_standing_witnesses.rs)",
+    "core/reporting/report_standing/tests/report_standing.rs",
+    "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "apps/desktop/src/features/report/renderedReportGate.app.test.tsx"
+   ],
+   "anchor": {
+    "kind": "raw_files",
+    "files": {
+     "sparse_interactive": "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json"
+    }
+   },
+   "documents": [
+    {
+     "pointer": "/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ]
+  },
+  {
    "id": "user_release_exact",
    "group": "user_release_exact",
    "path": "fixtures/reports/invented/user_release_exact/pressure_2_straight.json",
@@ -6112,7 +6293,7 @@
      ]
     },
     {
-     "pointer": "/requests/60/args/invocationJson",
+     "pointer": "/requests/61/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6122,7 +6303,7 @@
      ]
     },
     {
-     "pointer": "/requests/86/args/modelJson",
+     "pointer": "/requests/87/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6132,7 +6313,7 @@
      ]
     },
     {
-     "pointer": "/requests/97/args/invocationJson",
+     "pointer": "/requests/98/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6142,7 +6323,7 @@
      ]
     },
     {
-     "pointer": "/requests/128/args/invocationJson",
+     "pointer": "/requests/129/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6152,7 +6333,7 @@
      ]
     },
     {
-     "pointer": "/requests/133/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/134/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6163,7 +6344,7 @@
      ]
     },
     {
-     "pointer": "/requests/184/args/invocationJson",
+     "pointer": "/requests/185/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6173,7 +6354,7 @@
      ]
     },
     {
-     "pointer": "/requests/186/args/modelJson",
+     "pointer": "/requests/187/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6183,7 +6364,17 @@
      ]
     },
     {
-     "pointer": "/requests/223/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/217/args/inputManifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/225/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6193,7 +6384,7 @@
      ]
     },
     {
-     "pointer": "/requests/228/args/modelJson",
+     "pointer": "/requests/230/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6204,7 +6395,7 @@
      ]
     },
     {
-     "pointer": "/requests/261/args/modelJson",
+     "pointer": "/requests/263/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6214,7 +6405,7 @@
      ]
     },
     {
-     "pointer": "/requests/261/args/invocationJson",
+     "pointer": "/requests/263/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6224,7 +6415,7 @@
      ]
     },
     {
-     "pointer": "/requests/291/args/modelJson",
+     "pointer": "/requests/294/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6234,7 +6425,7 @@
      ]
     },
     {
-     "pointer": "/requests/311/args/modelJson",
+     "pointer": "/requests/314/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6244,7 +6435,7 @@
      ]
     },
     {
-     "pointer": "/requests/327/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/330/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6255,7 +6446,7 @@
      ]
     },
     {
-     "pointer": "/requests/336/args/modelJson",
+     "pointer": "/requests/339/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6265,7 +6456,7 @@
      ]
     },
     {
-     "pointer": "/requests/338/args/modelJson",
+     "pointer": "/requests/341/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6275,7 +6466,7 @@
      ]
     },
     {
-     "pointer": "/requests/338/args/invocationJson",
+     "pointer": "/requests/341/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6285,7 +6476,7 @@
      ]
     },
     {
-     "pointer": "/requests/347/args/modelJson",
+     "pointer": "/requests/350/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6296,7 +6487,7 @@
      ]
     },
     {
-     "pointer": "/requests/359/args/invocationJson",
+     "pointer": "/requests/362/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6306,7 +6497,7 @@
      ]
     },
     {
-     "pointer": "/requests/416/args/invocationJson",
+     "pointer": "/requests/419/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6316,7 +6507,27 @@
      ]
     },
     {
-     "pointer": "/requests/438/args/modelJson",
+     "pointer": "/requests/427/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/437/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/443/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6326,7 +6537,7 @@
      ]
     },
     {
-     "pointer": "/requests/470/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/475/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6336,7 +6547,7 @@
      ]
     },
     {
-     "pointer": "/requests/513/args/modelJson",
+     "pointer": "/requests/518/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6346,7 +6557,7 @@
      ]
     },
     {
-     "pointer": "/requests/517/args/modelJson",
+     "pointer": "/requests/522/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6357,7 +6568,7 @@
      ]
     },
     {
-     "pointer": "/requests/525/args/modelJson",
+     "pointer": "/requests/530/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6367,7 +6578,7 @@
      ]
     },
     {
-     "pointer": "/requests/553/args/modelJson",
+     "pointer": "/requests/558/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6377,7 +6588,7 @@
      ]
     },
     {
-     "pointer": "/requests/553/args/invocationJson",
+     "pointer": "/requests/558/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6387,7 +6598,7 @@
      ]
     },
     {
-     "pointer": "/requests/560/args/modelJson",
+     "pointer": "/requests/565/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6397,7 +6608,7 @@
      ]
     },
     {
-     "pointer": "/requests/565/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/570/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6407,7 +6618,7 @@
      ]
     },
     {
-     "pointer": "/requests/572/args/modelJson",
+     "pointer": "/requests/577/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6417,7 +6628,7 @@
      ]
     },
     {
-     "pointer": "/requests/591/args/modelJson",
+     "pointer": "/requests/596/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6427,7 +6638,7 @@
      ]
     },
     {
-     "pointer": "/requests/596/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/601/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6437,7 +6648,7 @@
      ]
     },
     {
-     "pointer": "/requests/635/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/640/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6447,7 +6658,7 @@
      ]
     },
     {
-     "pointer": "/requests/654/args/modelJson",
+     "pointer": "/requests/659/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6457,7 +6668,7 @@
      ]
     },
     {
-     "pointer": "/requests/654/args/invocationJson",
+     "pointer": "/requests/659/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6467,7 +6678,7 @@
      ]
     },
     {
-     "pointer": "/requests/681/args/modelJson",
+     "pointer": "/requests/686/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6477,7 +6688,7 @@
      ]
     },
     {
-     "pointer": "/requests/702/args/modelJson",
+     "pointer": "/requests/707/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6487,7 +6698,7 @@
      ]
     },
     {
-     "pointer": "/requests/714/args/modelJson",
+     "pointer": "/requests/719/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6498,7 +6709,7 @@
      ]
     },
     {
-     "pointer": "/requests/715/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/720/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6508,7 +6719,7 @@
      ]
     },
     {
-     "pointer": "/requests/728/args/modelJson",
+     "pointer": "/requests/733/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6518,7 +6729,7 @@
      ]
     },
     {
-     "pointer": "/requests/730/args/modelJson",
+     "pointer": "/requests/735/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6529,7 +6740,7 @@
      ]
     },
     {
-     "pointer": "/requests/748/args/modelJson",
+     "pointer": "/requests/753/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6539,7 +6750,7 @@
      ]
     },
     {
-     "pointer": "/requests/781/args/modelJson",
+     "pointer": "/requests/786/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6549,7 +6760,7 @@
      ]
     },
     {
-     "pointer": "/requests/785/args/modelJson",
+     "pointer": "/requests/790/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6559,7 +6770,7 @@
      ]
     },
     {
-     "pointer": "/requests/789/args/modelJson",
+     "pointer": "/requests/794/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6569,7 +6780,7 @@
      ]
     },
     {
-     "pointer": "/requests/838/args/modelJson",
+     "pointer": "/requests/843/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6579,7 +6790,7 @@
      ]
     },
     {
-     "pointer": "/requests/860/args/invocationJson",
+     "pointer": "/requests/865/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6589,7 +6800,17 @@
      ]
     },
     {
-     "pointer": "/requests/919/args/modelJson",
+     "pointer": "/requests/917/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    },
+    {
+     "pointer": "/requests/925/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6599,7 +6820,7 @@
      ]
     },
     {
-     "pointer": "/requests/934/args/modelJson",
+     "pointer": "/requests/940/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6609,7 +6830,7 @@
      ]
     },
     {
-     "pointer": "/requests/976/args/invocationJson",
+     "pointer": "/requests/982/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6619,7 +6840,7 @@
      ]
     },
     {
-     "pointer": "/requests/977/args/modelJson",
+     "pointer": "/requests/983/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6629,7 +6850,7 @@
      ]
     },
     {
-     "pointer": "/requests/991/args/modelJson",
+     "pointer": "/requests/997/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6639,7 +6860,7 @@
      ]
     },
     {
-     "pointer": "/requests/1002/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/1008/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],

@@ -523,6 +523,7 @@ export function useWorkspaceSession() {
     fullResultCopy, setFullResultCopy,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    renderableSolvedResult,
     numericallyEligible,
     numericalHealth,
     numericalHealthHold,
@@ -4011,7 +4012,27 @@ export function useWorkspaceSession() {
     setDroppedWithinRunBases(null);
   }
 
+  /** Why a report-package request cannot be made now, or null. The native File menu's two
+   * package commands are always enabled (the native shell state carries no package enablement),
+   * and since DEL-08-01 REQ-024 the rendered report panel also shows a result that is not
+   * Current, so a request that cannot proceed says why instead of doing nothing silently. */
+  function reportPackageRequestRefusal(): string | null {
+    if (!model) return "Not saved: no model was open.";
+    if (running) return "Not saved: a solve was running. Save the report package when it has finished.";
+    if (reportPackageBusy || reportPackageBusyGenerationRef.current !== null) return "Not saved: a report package was already being saved.";
+    if (!currentSolvedResult && renderableSolvedResult) {
+      return "Not saved: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing.";
+    }
+    if (!currentSolvedResult && result) return "Not saved: report-package save needs the current, numerically eligible mechanics result.";
+    if (!currentSolvedResult || !analysisRun || !inputManifest) {
+      return "Not saved: report-package save needs the current mechanics result and analysis-run record. Solve first.";
+    }
+    return null;
+  }
+
   async function handleSaveReportPackage() {
+    const refusal = reportPackageRequestRefusal();
+    if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
     const generation = ++reportPackageRequestGenerationRef.current;
     const basis = {
@@ -4129,6 +4150,8 @@ export function useWorkspaceSession() {
    * check's and the route-010 cell's refusal in place of the statement. Nothing happens while
    * another project operation or modal is open, a solve runs or a package is being saved. */
   async function requestSaveShareableReportPackage() {
+    const refusal = reportPackageRequestRefusal() ?? (projectSessionBusy() ? "Not saved: another project operation or dialog was open." : null);
+    if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusyGenerationRef.current !== null) return;
     if (projectSessionBusy()) return;
     // Captured before the workspace turns inert, which drops its focus.
@@ -5045,6 +5068,7 @@ export function useWorkspaceSession() {
     results: {
       result,
       currentSolvedResult,
+      renderableSolvedResult,
       numericallyEligible,
       numericalHealth,
       numericalHealthHold,

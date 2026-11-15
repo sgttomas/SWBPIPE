@@ -1,0 +1,211 @@
+{
+  "document_kind": "swbpipe.numerical_vocabulary_catalogue",
+  "generator": "core/reporting/report_renderer/tests/standing_statements.rs",
+  "tags": [
+    {
+      "tag": "checks_passed",
+      "vocabulary": "case_health"
+    },
+    {
+      "tag": "sensitive",
+      "vocabulary": "case_health"
+    },
+    {
+      "tag": "quality_unresolved",
+      "vocabulary": "case_health"
+    },
+    {
+      "tag": "solve_failed",
+      "vocabulary": "case_health"
+    },
+    {
+      "tag": "not_assessed",
+      "vocabulary": "case_health"
+    },
+    {
+      "tag": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "tag": "NUMERICAL_INTEGRITY_SENSITIVE",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "tag": "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "tag": "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "tag": "NUMERICAL_INTEGRITY_UNRESOLVED",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "tag": "NUMERICAL_INTEGRITY_FAILED",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "tag": "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "tag": "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "tag": "conditioning",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "tag": "load_fidelity",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "tag": "formation",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "tag": "formation_recovery",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "tag": "curved_bend_short",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "tag": "recovery_basis_unqualified",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "tag": "mechanism",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "tag": "negative_energy",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "tag": "solver_reported_established",
+      "vocabulary": "historical_confirmation"
+    },
+    {
+      "tag": "not_attempted_reason_not_recorded",
+      "vocabulary": "historical_confirmation"
+    },
+    {
+      "tag": "not_established_detail_quoted",
+      "vocabulary": "historical_confirmation"
+    },
+    {
+      "tag": "no_confirmation_record",
+      "vocabulary": "historical_confirmation"
+    },
+    {
+      "tag": "not_applicable",
+      "vocabulary": "historical_confirmation"
+    },
+    {
+      "tag": "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "tag": "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "tag": "SOURCE_BLOCKS_CASE_UNQUALIFIED",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "tag": "SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "tag": "SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "tag": "LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "tag": "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "tag": "inactive",
+      "vocabulary": "support_state"
+    },
+    {
+      "tag": "active",
+      "vocabulary": "support_state"
+    },
+    {
+      "tag": "sticking",
+      "vocabulary": "support_state"
+    },
+    {
+      "tag": "sliding",
+      "vocabulary": "support_state"
+    },
+    {
+      "tag": "not_published",
+      "vocabulary": "support_state"
+    },
+    {
+      "tag": "one_way",
+      "vocabulary": "support_behavior"
+    },
+    {
+      "tag": "lift_off",
+      "vocabulary": "support_behavior"
+    },
+    {
+      "tag": "gap",
+      "vocabulary": "support_behavior"
+    },
+    {
+      "tag": "friction",
+      "vocabulary": "support_behavior"
+    },
+    {
+      "tag": "explicit",
+      "vocabulary": "friction_normal"
+    },
+    {
+      "tag": "derived",
+      "vocabulary": "friction_normal"
+    },
+    {
+      "tag": "established",
+      "vocabulary": "evidence_status"
+    },
+    {
+      "tag": "conditional",
+      "vocabulary": "evidence_status"
+    },
+    {
+      "tag": "unavailable",
+      "vocabulary": "evidence_status"
+    },
+    {
+      "tag": "not_established",
+      "vocabulary": "evidence_status"
+    },
+    {
+      "tag": "premise_refuted",
+      "vocabulary": "evidence_status"
+    },
+    {
+      "tag": "inverse_norm_step",
+      "vocabulary": "premise"
+    },
+    {
+      "tag": "older_document",
+      "vocabulary": "no_figure_reason"
+    }
+  ],
+  "version": 1
+}

@@ -57,6 +57,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { isMainThread, parentPort, Worker, workerData } from "node:worker_threads";
+import { launchFailures, newNonce, readReport, recordedOutcome } from "./launch-outcome.mjs";
+import { marksCheck, marksRefuse } from "./marks-check.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
@@ -69,7 +71,7 @@ const BINDING = "perf-binding.json";
 const INJECT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_RESULT";
 // The directory the injected file must lie in (the hook refuses anything else).
 const INJECT_ROOT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT";
-const SEVERITY = ["crash", "half_written_save", "misleading_message", "host_unobservable", "hang", "refused_with_message", "ok"];
+const SEVERITY = ["crash", "launch_failed", "half_written_save", "misleading_message", "host_unobservable", "hang", "refused_with_message", "ok"];
 const GIB = 1024 ** 3;
 
 function killOwnRunnerGroup() {
@@ -679,16 +681,25 @@ const markAt = (timeline, stage) => {
   return mark ? timeline.time_origin_ms + mark.at_ms : null;
 };
 
-// The run's findings and its most severe class.
-export function classify({ report, exit, timedOut, progress, memory, store, run, resultBytes }) {
+// The run's findings and its most severe class. A report does not rescue a launch that did not end cleanly or a
+// report that is not this run's: the common conditions of `launch-outcome.mjs` (DEL-07-11: exit, signal, timeout,
+// this run's report and nonce) judge every launch (`launchFailures`, with no census: this runner takes no
+// per-launch census, so its `ok` is not the census-bearing completion of `run.mjs`). With a report, the named failures are a
+// `launch_failed` finding's `failures` and the report's own observations are still read and classified beside it;
+// without one, they are the `failures` of the app's crash or hang finding, so every failed condition is named
+// and the class stays crash or hang. `reportProblem` says why a report file that exists was not read.
+export function classify({ report, reportProblem = null, exit, timedOut, progress, memory, store, run, resultBytes, nonce }) {
   const findings = [];
   const add = (kind, detail) => findings.push({ class: kind, ...detail });
   const webcontentExited = Object.entries(memory.pids).filter(([, entry]) => entry.kind === "webcontent" && exit.ended_ms !== null && entry.last_ms < exit.ended_ms - 1000);
   for (const [pid, entry] of webcontentExited) add("crash", { process: "webcontent", pid: Number(pid), detail: `WebContent ${pid} stopped being sampled ${exit.ended_ms - entry.last_ms} ms before the app ended` });
+  const failures = launchFailures({ status: exit.status, signal: exit.signal, timedOut, census: undefined, report, problem: reportProblem, nonce });
   if (!report) {
-    if (timedOut) add("hang", { process: "app", detail: `no report within ${run.timeout_s} s; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
-    else add("crash", { process: "app", detail: `the app exited (${exit.status ?? exit.signal}) without a report; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
+    const unread = reportProblem && reportProblem !== "no report" ? ` (${reportProblem})` : "";
+    if (timedOut) add("hang", { process: "app", failures, detail: `no report within ${run.timeout_s} s${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
+    else add("crash", { process: "app", failures, detail: `the app exited (${exit.status ?? exit.signal}) without a report${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
   } else {
+    if (failures.length > 0) add("launch_failed", { process: "app", failures, detail: `the launch did not end cleanly or its report is not this run's: ${failures.join("; ")}. The report's observations are still read.`, needs_review: true });
     const solve = report.solve;
     // C1's host condition not established (or lost): the run is unobservable. Its solve, driver
     // and probe outcomes are consequences, not findings; the store is still checked below.
@@ -872,8 +883,10 @@ async function runOne(run, ctx) {
   }
   if (resultFile) record.injected_result = { file: path.basename(resultFile), bytes: statSync(resultFile).size };
   const timeoutMs = Math.min(run.timeout_s * 1000, ctx.remainingMs());
+  // The run's nonce: the driver hands it back in its report, so that the report is known to be this run's.
+  const nonce = newNonce();
   const plan = {
-    run_id: run.id, model_path: modelPath, project_id: run.project_id, record_run: true, save_project: true,
+    run_id: run.id, nonce, model_path: modelPath, project_id: run.project_id, record_run: true, save_project: true,
     c1_probes: ctx.plan.c1_probes === true, c1_reader_diagnostics: ctx.plan.c1_reader_diagnostics === true, c1_profile_readers: ctx.plan.c1_profile_readers === true, model_jcs_sha256: record.model_jcs_sha256,
     timeouts: { ...ctx.plan.timeouts, paint_ms: Math.min(run.paint_ms, timeoutMs) }
   };
@@ -886,6 +899,12 @@ async function runOne(run, ctx) {
   }
   if (ctx.plan.c1_reader_diagnostics) env.SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS = "1";
   else delete env.SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS;
+  // The three marks (`marks-check.mjs`), checked here, after every build and binding and directly before the
+  // launch's own host admission (webkitPids, readStartupHost) and the app's start.
+  record.marks = marksCheck();
+  if (marksRefuse(record.marks)) {
+    return { ...record, class: "refused_with_message", findings: [{ class: "refused_with_message", step: "marks", message: "NATIVE-SMOKE-MARK-PRESENT: an agent may be operating the App on the screen, or the marks could not be checked; no App was launched.", needs_review: true }], kept: root };
+  }
   record.reader_phase_file = ctx.plan.c1_reader_diagnostics ? path.join(ctx.out, `perf-reader-phases-${planName(path.basename(ctx.scratch), "window")}-${planName(run.id, "run")}.jsonl`) : null;
   const phases = record.reader_phase_file ? createReaderPhaseEvidence(record.reader_phase_file) : null;
   const baseline = webkitPids();
@@ -990,8 +1009,10 @@ async function runOne(run, ctx) {
   if (record.reader_phases && !phasePipeDrained) record.reader_phases.evidence_complete = false;
   record.elapsed_s = (exit.ended_ms - startedMs) / 1000;
   record.exit = { ...exit, timed_out: timedOut, timeout_ms: timeoutMs };
-  const reportPath = path.join(root, "report.json");
-  const report = existsSync(reportPath) ? JSON.parse(readFileSync(reportPath, "utf8")) : null;
+  // The launch outcome as `launch-outcome.mjs` records it (no census), so that the record can be judged again
+  // (`recordedFailures`).
+  record.launch_outcome = recordedOutcome({ status: exit.status, signal: exit.signal, timedOut, census: undefined, nonce, started: new Date(startedMs).toISOString(), ended: new Date(exit.ended_ms).toISOString() });
+  const { report, problem: reportProblem } = readReport(path.join(root, "report.json"));
   const jobDone = markAt(report?.solve?.timeline, "job_done");
   const memory = summarizeSamples(samples, { since: jobDone });
   const webcontent = Object.entries(memory.pids).filter(([, entry]) => entry.kind === "webcontent").map(([pid]) => Number(pid));
@@ -1016,7 +1037,7 @@ async function runOne(run, ctx) {
     same_model: proof ? proofField("model_sha256") === record.model_jcs_sha256 : null
   };
   const resultBytes = report?.solve?.timeline?.marks?.find((mark) => mark.stage === "job_done")?.detail?.result_bytes ?? null;
-  Object.assign(record, classify({ report, exit, timedOut, progress, memory, store, run, resultBytes }));
+  Object.assign(record, classify({ report, reportProblem, exit, timedOut, progress, memory, store, run, resultBytes, nonce }));
   if (ctx.plan.c1_reader_diagnostics && record.reader_phases?.evidence_complete !== true) {
     record.findings.push({ class: "refused_with_message", step: "reader_phases", message: "Native reader phase exits are incomplete or omitted.", needs_review: true });
     if (record.class === "ok") record.class = "refused_with_message";

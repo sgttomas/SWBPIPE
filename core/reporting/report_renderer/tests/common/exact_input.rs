@@ -94,5 +94,33 @@ pub fn with_exact_route(mut input: RenderableReportInput) -> RenderableReportInp
         entity_refs: vec!["material:invented-a".to_string(), "material:invented-b".to_string()],
         provenance: template.provenance.clone(),
     }]);
+    input.numerical_standing = Some(invented_standing());
     input
+}
+
+/// An invented standing record (DEL-08-01 REQ-024) of one checks-passed load case
+/// with no nonlinear support, in the form the reader derives
+/// (`report_standing::report_standing`). The renderer reads it as given; the native
+/// host is what re-derives it from a bound result.
+pub fn invented_standing() -> open_pipe_stress_report_renderer::standing::NumericalStanding {
+    serde_json::from_value(serde_json::json!({
+        "record_version": "historical_1",
+        "evidence_member": "absent",
+        "figures": {"status": "unavailable", "reason": "older_document"},
+        "standing_findings": [],
+        "counts": [
+            {"health": "checks_passed", "cases": 1}, {"health": "sensitive", "cases": 0}, {"health": "quality_unresolved", "cases": 0},
+            {"health": "solve_failed", "cases": 0}, {"health": "not_assessed", "cases": 0}
+        ],
+        "cases": [{
+            "case_id": "case:invented-a",
+            "health": "checks_passed",
+            "integrity_code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+            "integrity_diagnostic_id": "diagnostic:numerical-integrity:case:invented-a",
+            "causes": [],
+            "confirmation": {"outcome": "not_applicable", "detail": null, "status": null, "premises": []},
+            "supports": []
+        }]
+    }))
+    .expect("the invented standing record reads")
 }

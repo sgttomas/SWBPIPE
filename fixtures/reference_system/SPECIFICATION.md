@@ -524,10 +524,10 @@ the exact route admits RS-R1, RS-CE1, RS-LO1, RS-FR1 and RS-G1: the combined tes
 solves with no blocking finding. Every case of that overlay is published unqualified,
 numerical quality `unresolved` with `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`,
 because a published case of a solve with a gap support is never qualified or confirmed, and
-its report is refused (LIM-017 and LIM-016 in
-[`docs/RELEASE_LIMITATIONS_v1.0.md`](../../docs/RELEASE_LIMITATIONS_v1.0.md)). Removing
+its report package is refused (LIM-017 and LIM-016 in
+[`docs/RELEASE_LIMITATIONS_v1.0.md`](../../docs/RELEASE_LIMITATIONS_v1.0.md)), and its rendered report states its standing. Removing
 RS-G1 does not restore eligibility: the same overlay without RS-G1 publishes every case
-`NUMERICAL_INTEGRITY_SENSITIVE`, and its report is refused too (LIM-017). Both overlays use
+`NUMERICAL_INTEGRITY_SENSITIVE`, and its report package is refused too (LIM-017), and its rendered report states its standing. Both overlays use
 the interim linear RS-FR1V. With RS-FR1's intended one-way normal source, they solve and are
 not confirmed: the confirmation admits only a base restraint as a derived normal's source, so
 without RS-G1 each case is `NUMERICAL_INTEGRITY_SENSITIVE` with that named reason. The

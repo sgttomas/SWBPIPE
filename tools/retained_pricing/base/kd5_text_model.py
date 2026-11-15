@@ -265,7 +265,9 @@ def inspect_directed_helpers(snapshot):
 # literal (test-only); no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
 # One-way friction normal source (DEL-04-04 REQ-012): lib.rs re-read: the nonlinear friction source admission and the
 # derived normal's publication; no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '5f03bfccaac2d013d4db8bfdb072f3c97eca2538f1a6e3bfdd8c4a3e0ef12e8f'
+# DEL-04-01 VER-007: lib.rs re-read: line 10 also declares a #[cfg(test)] test module (no line moves); no
+# `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'b5555650788f788782d6f063ae7b789bc8850122d4363590dd6ee2788f9584b1'
 
 
 def _ce_fallback():

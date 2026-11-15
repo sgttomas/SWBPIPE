@@ -1094,8 +1094,14 @@ fn bind_exact_save_source(
     let digests = exact_binding::check_custody(&admission, custody).map_err(|refusal| exact_refused(refusal, &format!("{ADMISSION}/native_job_id")))?;
     exact_binding::check_delivered_texts(&admission, &digests, exact_result_text, exact_intake_text)
         .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
-    let bound = exact_binding::read_delivered_source(&admission, &digests, exact_result_text.unwrap_or(""), exact_intake_text.unwrap_or(""))
-        .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
+    let bound = exact_binding::read_delivered_source(
+        &admission,
+        &digests,
+        exact_result_text.unwrap_or(""),
+        exact_intake_text.unwrap_or(""),
+        exact_binding::SourceAdmission::Eligible,
+    )
+    .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
     // The save's own equalities: the request's source is the delivered result,
     // and the (canonical) model text is the solved model.
     let source = request.pointer("/source_results/0").unwrap_or(&Value::Null);
@@ -1106,6 +1112,13 @@ fn bind_exact_save_source(
     }
     if sha256_hex(model_text) != bound.model_sha256 {
         return Err(exact_refused(exact_binding::not_delivered("model"), "/model"));
+    }
+    // DEL-08-01 REQ-024: the packaged report states the standing record the reader
+    // derives from the bound result and model, exactly, after the
+    // save's own equalities above.
+    let derived = open_pipe_stress_report_standing::report_standing::historical_standing_record(&bound.source, &bound.model, &bound.standing).ok();
+    if derived.is_none() || request.pointer("/report/numerical_standing") != derived.as_ref() {
+        return Err(exact_refused(exact_binding::sections_mismatch("numerical_standing"), "/request/report/numerical_standing"));
     }
     let job = admission["native_job_id"].as_str().unwrap_or_default().to_string();
     Ok((job, digests))
@@ -1478,6 +1491,11 @@ fn admit_both_routes(
         Some(bind_exact_save_source(&request_value, &model_text, exact_result_text.as_deref(), exact_intake_text.as_deref(), custody)?)
     } else if exact_result_text.is_some() || exact_intake_text.is_some() {
         return Err(exact_refused(exact_binding::sections_mismatch("exact_route"), "/request/report/exact_route").into());
+    } else if request_value.pointer("/report/numerical_standing").is_some_and(|record| !record.is_null()) {
+        // DEL-08-01 REQ-024: a standing record is carried only where this boundary
+        // re-derives it from a bound result (an exact-route request); on any other
+        // request it would be persisted unverified.
+        return Err(exact_refused(exact_binding::sections_mismatch("numerical_standing"), "/request/report/numerical_standing").into());
     } else {
         None
     };

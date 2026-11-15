@@ -68,11 +68,15 @@ describe("ordinary pressure-2 load/reference-state registration and its invalida
     expect(result.current.analysisRun).toBe(analysis);
     expect(result.current.result).toBe(source);
     expect(result.current.currentSolvedResult).toBe(source);
-    // A received copy of the same bytes is readable, never Current.
+    // An eligible result is the rendered report's source too (DEL-08-01 REQ-017).
+    expect(result.current.renderableSolvedResult).toBe(source);
+    // A received copy of the same bytes is readable, never Current, and never the rendered
+    // report's source: only the numerical-standing requirement is relaxed for it.
     const copy = structuredClone(source);
     act(() => { result.current.setResult(copy); });
     expect(result.current.result).toBe(copy);
     expect(result.current.currentSolvedResult).toBeNull();
+    expect(result.current.renderableSolvedResult).toBeNull();
     act(() => { result.current.setResult(source); });
     expect(result.current.currentSolvedResult).toBe(source);
     // A record that does not match the result's run is not Current's record.
@@ -115,6 +119,13 @@ describe("ordinary pressure-2 load/reference-state registration and its invalida
     act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(analysis); });
     expect(result.current.result).toBe(source);
     expect(result.current.currentSolvedResult).toBeNull();
+    // DEL-08-01 REQ-017, REQ-024: the rendered report takes it, with its standing stated;
+    // no other output does (they read currentSolvedResult). Its build step and the native
+    // host still require that the reader reads it and that it is solved.
+    expect(result.current.renderableSolvedResult).toBe(source);
+    // Every other Current requirement still holds for it: a record of another run removes it.
+    act(() => { result.current.setAnalysisRun({ ...analysis, analysis_run: { ...analysis.analysis_run, run_id: "run:invented-mismatch" } }); });
+    expect(result.current.renderableSolvedResult).toBeNull();
   });
 });
 

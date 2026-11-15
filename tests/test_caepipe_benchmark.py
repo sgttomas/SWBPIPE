@@ -29,8 +29,10 @@ CI_READS = ("validation/caepipe_benchmark/models/*.json",)
 from core.handoff.caepipe_external import case_paths, parse_caepipe_print_csv  # noqa: E402
 from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     BENCHMARK_RECORD_KIND,
+    BENCHMARK_RECORD_VERSION,
     FINDING,
     OPERATING_LABEL,
+    PRINTED_RESOLUTION,
     SCREENING_PROFILE,
     STATUS_MISMATCH,
     UNMATCHED,
@@ -39,7 +41,7 @@ from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     screen,
     screening_class,
 )
-from core.handoff.caepipe_external.harness import RUN_RECORD_KIND, check_guest_alive  # noqa: E402
+from core.handoff.caepipe_external.harness import RUN_RECORD_KIND, StartUnresolved, check_guest_alive  # noqa: E402
 from core.handoff.caepipe_external.print_csv import bind_element_rows  # noqa: E402
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
 from tools.caepipe_correlation import benchmark_models, run_pilot  # noqa: E402
@@ -176,6 +178,7 @@ def solve(model: dict) -> dict:
                                                                                                 "materials": []}}}
     completed = subprocess.run([runner, "solve", "--explicit-local-private-intent", "--input", "-"],
                                input=json.dumps(body), capture_output=True, text=True, check=False)
+    assert completed.returncode == 0, (completed.returncode, completed.stderr)
     output = json.loads(completed.stdout)
     assert output["payload"]["mechanics_envelope"]["status"]["mechanics"] == "MECHANICS_SOLVED"
     return output["payload"]
@@ -199,6 +202,17 @@ def csv_text(cases: dict[str, dict]) -> str:
         lines += [f"{node},{','.join(values)},," for node, values in tables.get("displacements", {}).items()]
         lines.append("")
     return "\r\n".join(lines) + "\r\n"
+
+
+def assert_within_or_unwitnessed(record: dict, label: str = "") -> None:
+    """Policy boundary (the section rule's no-witness branch): every quantity is screened within the profile, or is
+    unmatched only because its section of the print has no nonzero token of its unit, so it prints zero; there is no
+    finding and no other unmatched or status row."""
+    for row in record["results"]:
+        if row["classification"] == WITHIN:
+            continue
+        assert row["classification"] == UNMATCHED and row.get("resolution_cause") == "no_witness", (label, row)
+        assert row["values"]["caepipe"] == 0.0, (label, row)
 
 
 def mirror_tables(payload: dict, mbf, case_ids: list[str]) -> dict:
@@ -249,7 +263,7 @@ def test_every_model_solves_and_its_closed_forms_match_swbpipe_and_a_mirror_scre
         mbf, text = mirror_csv(document, payload)
         record = build_benchmark_record(document, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf.text,
                                         parsed_caepipe=parse_caepipe_print_csv(text))
-        assert record["summary"]["by_classification"] == {WITHIN: record["summary"]["results"]}, document["model_id"]
+        assert_within_or_unwitnessed(record, document["model_id"])
         assert [case["case"] for case in record["load_cases"]] == ["case:expansion", "case:sustained", "operating"]
         for row in record["results"]:
             if "closed_form" in row:
@@ -621,7 +635,15 @@ def invented_payload() -> dict:
     return {"mechanics_envelope": {"results": rows}}
 
 
-def invented_print(*, sustained_uy="-4", drop_label=None, extra_anchor=False) -> str:
+def invented_print(*, sustained_uy="-4.000", drop_label=None, extra_anchor=False, override=None) -> str:
+    """Invented print of the invented cantilever (nodes 10, 20, 30 for A, M, B). `override`: {label: {section:
+    {node: printed values}}} replaces those rows."""
+    return csv_text(invented_cases(sustained_uy=sustained_uy, drop_label=drop_label, extra_anchor=extra_anchor,
+                                   override=override))
+
+
+def invented_cases(*, sustained_uy="-4.000", drop_label=None, extra_anchor=False, override=None) -> dict:
+    """The tables of invented_print, before they are written as text."""
     def tables(uy: str, ux: str, fy: str, mz: str) -> dict:
         element = {"10": ["0", fy, "0", "0", "0", "0"], "20": ["0", f"{-float(fy):g}", "0", "0", "0", "0"]}
         return {
@@ -631,11 +653,14 @@ def invented_print(*, sustained_uy="-4", drop_label=None, extra_anchor=False) ->
             "displacements": {"10": ["0"] * 6, "20": ["0"] * 6, "30": [ux, uy, "0", "0", "0", "0"]},
         }
     cases = {"Sustained (W+P)": tables(sustained_uy, "0", "1000", "-4000"),
-             "Expansion (T1)": tables("0", "4.8", "0", "0"),
-             OPERATING_LABEL: tables(sustained_uy, "4.8", "1000", "-4000")}
+             "Expansion (T1)": tables("0", "4.800", "0", "0"),
+             OPERATING_LABEL: tables(sustained_uy, "4.800", "1000", "-4000")}
+    for label, sections in (override or {}).items():
+        for section, rows in sections.items():
+            cases[label][section].update(rows)
     if drop_label:
         cases.pop(drop_label)
-    return csv_text(cases)
+    return cases
 
 
 def compare(text: str, document: dict | None = None) -> dict:
@@ -654,7 +679,7 @@ def find(record: dict, case: str, kind: str, entity: str, component: str, end: s
 def test_the_two_way_record_screens_every_bound_scalar_without_an_analytic_value():
     record = compare(invented_print())
     assert record["document_kind"] == BENCHMARK_RECORD_KIND
-    assert record["summary"]["by_classification"] == {WITHIN: record["summary"]["results"]}
+    assert_within_or_unwitnessed(record)
     assert [(case["case"], case["screening_class"]) for case in record["load_cases"]] == [
         ("case:expansion", "exact"), ("case:sustained", "named_inexact"), ("operating", "named_inexact")]
     tip = find(record, "case:sustained", "displacement", "node:B", "y")
@@ -677,20 +702,22 @@ def test_the_two_way_record_screens_every_bound_scalar_without_an_analytic_value
 def test_a_difference_outside_the_profile_is_a_finding_and_inside_is_not():
     within = compare(invented_print(sustained_uy="-4.019"))  # 19 um on 4 mm: under 5e-3 * 4 mm + 1 um
     assert find(within, "case:sustained", "displacement", "node:B", "y")["classification"] == WITHIN
-    record = compare(invented_print(sustained_uy="-4.03"))
+    record = compare(invented_print(sustained_uy="-4.030"))
     row = find(record, "case:sustained", "displacement", "node:B", "y")
     assert row["classification"] == FINDING
     assert row["screen"]["allowed"] == pytest.approx(1e-6 + 5e-3 * 0.00403)
     assert row["screen"]["difference"] == pytest.approx(-0.00003)
 
 
-def test_the_exact_class_and_the_floor_and_near_zero_scale():
-    assert screen(1.0, 1.0 + 1.5e-4, "m", "exact", 1.0)["within"] is False
-    assert screen(1.0, 1.0 + 0.5e-4, "m", "exact", 1.0)["within"] is True
+def test_the_exact_class_and_the_floor_and_the_stated_formula():
+    assert screen(1.0, 1.0 + 1.5e-4, 1.0e-6, "exact")["within"] is False
+    assert screen(1.0, 1.0 + 0.5e-4, 1.0e-6, "exact")["within"] is True
     # Below the printed unit, a scalar agrees whatever its relative difference.
-    assert screen(0.0, 0.9, "N", "exact", 0.0)["within"] is True and screen(0.0, 1.1, "N", "exact", 0.0)["within"] is False
-    # Near zero against a large case maximum: judged against eta * Q.
-    assert screen(0.0, 5.0, "N", "named_inexact", 1.0e6)["within"] is True
+    assert screen(0.0, 0.9, 1.0, "exact")["within"] is True and screen(0.0, 1.1, 1.0, "exact")["within"] is False
+    # Near zero there is no other scale: |S - C| <= a + r * max(|S|, |C|) and nothing else (the profile states no
+    # near-zero term; this expected value was the near-zero relaxation's True before the profile was applied as stated).
+    check = screen(0.0, 5.0, 1.0, "named_inexact")
+    assert check["within"] is False and check["allowed"] == 1.0 + 5e-3 * 5.0
     assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3}
 
 
@@ -710,7 +737,7 @@ def test_unmatched_rows_and_status_mismatches_are_findings_never_dropped():
     assert {(row["case"], row["entity"], row["section"]) for row in extra} == {
         ("case:sustained", "90", "anchor_loads_global"), ("operating", "90", "anchor_loads_global")}
     assert all(row["classification"] == UNMATCHED for row in extra)
-    missing = compare(invented_print().replace("30,4.8,", "31,4.8,").replace("30,0,-4,", "31,0,-4,"))
+    missing = compare(invented_print().replace("30,4.800,", "31,4.800,").replace("30,0,-4.000,", "31,0,-4.000,"))
     only = find(missing, "case:sustained", "displacement", "node:B", "y")
     assert only["classification"] == UNMATCHED and only["reason"] == "only SWBPIPE has this value"
 
@@ -737,8 +764,9 @@ def test_an_operating_sum_that_overflows_is_unmatched_never_within():
     huge = edited_payload(lambda row: {**row, "value": 1.5e308, "unit": "m"} if tip_x(row) else row)
     row = find(compare_payload(huge), "operating", "displacement", "node:B", "x")
     assert row["classification"] == UNMATCHED and row["values"]["swbpipe"] is None
-    assert screen(math.inf, math.inf, "m", "exact", math.inf)["within"] is False
-    assert screen(0.0, 1.0, "m", "exact", math.nan)["within"] is False
+    assert screen(math.inf, math.inf, 1.0e-6, "exact")["within"] is False
+    assert screen(0.0, 1.0e-7, math.nan, "exact")["within"] is False
+    assert screen(0.0, 0.0, 0.0, "exact")["within"] is False and screen(0.0, 0.0, -1.0, "exact")["within"] is False
 
 
 @pytest.mark.parametrize("edit", [
@@ -777,13 +805,382 @@ def test_co_located_supports_are_complete_per_support_before_the_node_sum():
 
 
 def test_a_parser_error_is_counted_unmatched_never_dropped():
-    text = invented_print().replace("30,0,-4,0,0,0,0,,", "30,0,-4,0,0,0,0,,\r\n30,0,-5,0,0,0,0,,", 1)
+    text = invented_print().replace("30,0,-4.000,0,0,0,0,,", "30,0,-4.000,0,0,0,0,,\r\n30,0,-5.000,0,0,0,0,,", 1)
     parsed = parse_caepipe_print_csv(text)
     assert [item for item in parsed["diagnostics"] if item["severity"] == "error"]
     record = compare_payload(invented_payload(), text)
     errors = [row for row in record["results"] if row["kind"] == "parser_error"]
     assert errors and all(row["classification"] == UNMATCHED for row in errors)
     assert record["summary"]["by_classification"].get(UNMATCHED, 0) >= len(errors)
+
+
+# -- the stated formula and the printed-resolution floor -------------------------------------------------------------
+def record_of(text: str, payload: dict | None = None, document: dict | None = None) -> dict:
+    document = document or invented_cantilever()
+    mbf = render_caepipe_mbf_si(document["model"], title="INVENTED", piping_code=document["piping_code"])
+    return build_benchmark_record(document, swbpipe_result_payload=payload or invented_payload(), mbf_result=mbf,
+                                  mbf_text=mbf.text, parsed_caepipe=parse_caepipe_print_csv(text))
+
+
+def set_value(kind: str, entity: str, case: str, value: float, component: str | None = None):
+    def edit(row: dict) -> dict:
+        hit = (row["kind"], row["entity_ref"], row["basis_ref"]["ref_id"]) == (kind, entity, case)
+        return {**row, "value": value} if hit and component in (None, row["metadata"]["component"]) else row
+    return edit
+
+
+def payload_with(*edits) -> dict:
+    payload = invented_payload()
+    for edit in edits:
+        payload["mechanics_envelope"]["results"] = [edit(row) for row in payload["mechanics_envelope"]["results"]]
+    return payload
+
+
+def without_closed_forms() -> dict:
+    document = invented_cantilever()
+    document["closed_form"] = []
+    return document
+
+
+def compared_rows(record: dict) -> list[dict]:
+    """The rows that have a value on both sides."""
+    return [row for row in record["results"] if isinstance(row.get("values"), dict)
+            and row["values"]["swbpipe"] is not None and row["values"]["caepipe"] is not None]
+
+
+def rows_of(record: dict, case: str, kind: str, entities: set[str]) -> list[dict]:
+    return [row for row in record["results"] if row["case"] == case and row["kind"] == kind
+            and row["entity"] in entities]
+
+
+# Node B's x displacement made 1000 m on both sides of the expansion and operating cases (SWBPIPE's value in mm).
+LARGE_TIP = set_value("global_nodal_displacement_x", "node:B", "case:expansion", 1.0e6)
+LARGE_TIP_PRINT = {"Expansion (T1)": {"displacements": {"30": ["1000000", "0", "0", "0", "0", "0"]}},
+                   OPERATING_LABEL: {"displacements": {"30": ["1000000", "-4.000", "0", "0", "0", "0"]}}}
+CAUSES = ["no_witness", "shorter_than_format", "unsupported_by_this_screen", "unsupported_units_or_angle",
+          "malformed_output", "resolution_absent"]
+DISPLACEMENT_NODES = {"node:A", "node:M", "node:B"}
+
+
+def with_print(base: dict, **sections) -> dict:
+    """`base` with the expansion case's rows in `sections` replaced as well."""
+    merged = {label: {section: dict(rows) for section, rows in tables.items()} for label, tables in base.items()}
+    for section, rows in sections.items():
+        merged.setdefault("Expansion (T1)", {}).setdefault(section, {}).update(rows)
+    return merged
+
+
+def test_the_readers_example_is_a_finding_whatever_the_case_maximum():
+    """Defect: the near-zero term. S = 0 and C = 5e-5 m in a case whose largest displacement is 1000 m: the stated
+    formula allows a + r * 5e-5 m, about 1e-6 m, so the difference is a finding. The near-zero term (r * 1e-3 *
+    1000 m) passed it."""
+    text = invented_print(override=with_print(LARGE_TIP_PRINT, displacements={"20": ["0", "0.050", "0", "0", "0", "0"]}))
+    record = record_of(text, payload_with(LARGE_TIP), without_closed_forms())
+    row = find(record, "case:expansion", "displacement", "node:M", "y")
+    assert row["values"] == {"swbpipe": 0.0, "caepipe": pytest.approx(5.0e-5, rel=1e-15)}
+    assert row["classification"] == FINDING
+    assert row["screen"]["allowed"] == pytest.approx(1.0e-6 + 1.0e-4 * 5.0e-5, rel=1e-12)
+    # The record's screen is the closed form of the profile, computed by the one function.
+    direct = screen(0.0, row["values"]["caepipe"], row["screen"]["floor"], "exact")
+    assert row["screen"] == {name: direct[name] for name in ("difference", "allowed", "relative", "floor")}
+    assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
+
+
+def test_an_unrelated_large_pair_cannot_change_an_existing_pairs_verdict():
+    """Defect: the case maximum. Adding a large, agreeing pair elsewhere in the case leaves a pair's screen as it was."""
+    restraint = {"Sustained (W+P)": {"restraints": {"20": ["0", "-3", "0"]}}}  # C = 3 N where SWBPIPE has 0
+    base = record_of(invented_print(override=restraint))
+    anchor = ["-10000000", "-1000", "0", "0", "0", "-4000"]  # a 1e7 N anchor force, equal on both sides
+    large = {"Sustained (W+P)": {**restraint["Sustained (W+P)"], "anchors": {"10": anchor}},
+             OPERATING_LABEL: {"anchors": {"10": anchor}}}
+    payload = payload_with(set_value("support_reaction_component_v2", "support:A", "case:sustained", 1.0e7, "Fx"))
+    record = record_of(invented_print(override=large), payload)
+    key = ("case:sustained", "support_force", "node:20", "y")
+    assert find(base, *key)["classification"] == FINDING
+    assert find(record, *key)["classification"] == FINDING and find(record, *key)["screen"] == find(base, *key)["screen"]
+    assert find(record, "case:sustained", "support_force", "node:10", "x")["classification"] == WITHIN
+
+
+# (section, node label, column, kind, entity, component, decimals printed, floor in SI) for each SI label that has a
+# candidate precision: 0.001 mm = 1e-6 m, 0.0001 deg in rad, 1 N, 1 N*m.
+SI_FLOORS = [
+    ("displacements", "20", 1, "displacement", "node:M", "y", 3, 1.0e-6),
+    ("displacements", "20", 5, "rotation", "node:M", "z", 4, math.radians(1.0e-4)),
+    ("restraints", "20", 1, "support_force", "node:20", "y", 0, 1.0),
+    ("anchors", "10", 3, "support_moment", "node:10", "x", 0, 1.0),
+]
+
+
+@pytest.mark.parametrize("section, node, column, kind, entity, component, places, floor", SI_FLOORS)
+def test_the_floor_is_one_printed_unit_of_the_si_print(section, node, column, kind, entity, component, places, floor):
+    """Policy boundary: a = one printed unit, for each SI label and its conversion to SI. The printed value is itself
+    the section's witness: one unit is within, two are a finding."""
+    for units, expected in ((1, WITHIN), (2, FINDING)):  # where SWBPIPE has 0: one printed unit, then two
+        row = ["0"] * (3 if section == "restraints" else 6)
+        row[column] = f"{units * 10.0 ** -places:.{places}f}"
+        record = record_of(invented_print(override={"Expansion (T1)": {section: {node: row}}}))
+        found = find(record, "case:expansion", kind, entity, component)
+        assert found["screen"]["floor"] == pytest.approx(floor, rel=1e-15), (kind, units)
+        assert abs(found["values"]["caepipe"]) == pytest.approx(units * floor, rel=1e-15)
+        assert found["classification"] == expected, (kind, units)
+
+
+@pytest.mark.parametrize("printed, swbpipe_mm", [("0.05", 0.052), ("0", 0.002), ("-0", 0.002), ("", 0.002)])
+def test_a_witnessed_section_gives_its_short_zero_and_blank_tokens_its_resolution(printed, swbpipe_mm):
+    """Policy boundary (the section rule's established branch): node B's 4.800 witnesses three places, so 0.05, 0, -0
+    and a blank in the same section take 0.001 mm; 2 um is then a finding, which a floor read from the token alone
+    (0.01 or 1 mm) would pass."""
+    payload = payload_with(set_value("global_nodal_displacement_y", "node:M", "case:expansion", swbpipe_mm))
+    text = invented_print(override={"Expansion (T1)": {"displacements": {"20": ["0", printed, "0", "0", "0", "0"]}}})
+    row = find(record_of(text, payload), "case:expansion", "displacement", "node:M", "y")
+    assert row["screen"]["floor"] == pytest.approx(1.0e-6, rel=1e-15)
+    assert row["classification"] == FINDING
+
+
+def test_an_unwitnessed_or_shorter_section_leaves_its_unit_unmatched():
+    """Policy boundary (no witness; all shorter): a section with no nonzero token of a unit, or whose nonzero tokens
+    all show fewer places than the candidate, screens none of that unit's values."""
+    shorter = record_of(invented_print(override={"Expansion (T1)": {"displacements": {"30": ["4.8", "0", "0", "0", "0",
+                                                                                              "0"]}}}))
+    rows = rows_of(shorter, "case:expansion", "displacement", DISPLACEMENT_NODES)
+    assert len(rows) == 9 and all(row["resolution_cause"] == "shorter_than_format" for row in rows)
+    assert "print shows at most 1 places, format expects 3" in rows[0]["reason"]
+    # The expansion case prints no nonzero rotation: every rotation is unmatched for want of a witness.
+    rotations = rows_of(shorter, "case:expansion", "rotation", DISPLACEMENT_NODES)
+    assert len(rotations) == 9 and all(row["resolution_cause"] == "no_witness" for row in rotations)
+
+
+@pytest.mark.parametrize("section, node, column, kind, entities, printed, cause, words", [
+    ("displacements", "20", 1, "displacement", DISPLACEMENT_NODES, "0.0010", "unsupported_by_this_screen",
+     "print shows 4 places, format expects 3"),
+    ("displacements", "20", 1, "displacement", DISPLACEMENT_NODES, "1E+00", "unsupported_by_this_screen",
+     "exponent form"),
+    ("displacements", "20", 1, "displacement", DISPLACEMENT_NODES, "1.0E-03", "unsupported_by_this_screen",
+     "exponent form"),
+    ("restraints", "20", 1, "support_force", {"node:20"}, "-0.5", "unsupported_by_this_screen",
+     "print shows 1 places, format expects 0"),
+    ("restraints", "20", 1, "support_force", {"node:20"}, "-1E+02", "unsupported_by_this_screen", "exponent form"),
+])
+def test_more_places_or_exponent_form_leaves_the_whole_unit_of_the_section_unmatched(section, node, column, kind,
+                                                                                     entities, printed, cause, words):
+    """Policy boundary (more places or exponent form): one such token leaves every value of that unit in the section
+    unmatched, cause unsupported_by_this_screen, even beside a witness (node B's 4.800); finite values are kept."""
+    row = ["0"] * (3 if section == "restraints" else 6)
+    row[column] = printed
+    record = record_of(invented_print(override={"Expansion (T1)": {section: {node: row}}}))
+    rows = rows_of(record, "case:expansion", kind, entities)
+    assert len(rows) == 3 * len(entities)
+    for found in rows:
+        assert found["classification"] == UNMATCHED and found["unmatched_cause"] == PRINTED_RESOLUTION
+        assert found["resolution_cause"] == cause and words in found["reason"] and "screen" not in found
+        assert found["values"]["caepipe"] is not None  # the value is kept, not screened
+    counts = record["summary"]["unmatched_for_resolution"]["by_case"]["case:expansion"]["by_cause"]
+    assert counts[cause] == len(rows)
+    assert FINDING not in record["summary"]["by_classification"]
+
+
+def test_a_malformed_token_is_its_own_cause_and_does_not_unseat_the_witness():
+    """Policy boundary (malformed output): a number in none of the format's decimal forms is unmatched as malformed
+    output, apart from unsupported forms; the section's other values keep the witnessed resolution."""
+    record = record_of(invented_print(override={"Expansion (T1)": {"displacements": {"20": ["0", "1_0", "0", "0", "0",
+                                                                                             "0"]}}}))
+    assert find(record, "case:expansion", "displacement", "node:M", "y")["resolution_cause"] == "malformed_output"
+    assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
+
+
+def test_a_row_that_does_not_bind_supplies_no_resolution():
+    """Policy boundary (evidence stays local): an element row pair that binds to no member and a displacement row at
+    a label no node maps to carry witnesses, but bound values of the section stay unwitnessed."""
+    cases = invented_cases()
+    cases["Expansion (T1)"]["elements"] += [("10", ["0", "5", "0", "0", "0", "7"]), ("90", ["0", "-5", "0", "0", "0", "7"])]
+    cases["Expansion (T1)"]["displacements"]["99"] = ["0", "0", "0", "0", "0", "0.1250"]
+    record = record_of(csv_text(cases))
+    assert {row["section"] for row in record["results"] if row["kind"] == "unbound_row" and row["case"] ==
+            "case:expansion"} == {"element_forces_global", "displacements"}
+    for kind in ("element_force", "element_moment"):
+        rows = [row for row in record["results"] if row["case"] == "case:expansion" and row["kind"] == kind]
+        assert rows and all(row["resolution_cause"] == "no_witness" for row in rows), kind
+    rotations = rows_of(record, "case:expansion", "rotation", DISPLACEMENT_NODES)
+    assert all(row["resolution_cause"] == "no_witness" for row in rotations)
+
+
+def test_no_resolution_is_borrowed_across_section_case_or_quantity():
+    """Policy boundary (evidence stays local): the sustained anchor section's force witness does not reach its
+    restraint section; the expansion case's mm witness does not reach its rotations; the sustained case's witnesses do
+    not reach the expansion case's unwitnessed sections."""
+    record = record_of(invented_print())
+    assert find(record, "case:sustained", "support_force", "node:10", "y")["classification"] == WITHIN
+    assert find(record, "case:sustained", "support_force", "node:20", "y")["resolution_cause"] == "no_witness"
+    assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
+    assert find(record, "case:expansion", "rotation", "node:B", "z")["resolution_cause"] == "no_witness"
+    assert find(record, "case:sustained", "element_force", "pipe:P1", "y", "end_i")["classification"] == WITHIN
+    assert find(record, "case:expansion", "element_force", "pipe:P1", "y", "end_i")["resolution_cause"] == "no_witness"
+
+
+# The SI labels of the invented print replaced by the English ones, and the degree labels by radians.
+ENGLISH = (("(mm)", "(inch)"), ("(N)", "(lb)"), ("(Nm)", "(ft-lb)"))
+RADIANS = (("(deg)", "(rad)"),)
+
+
+def relabel(text: str, pairs) -> str:
+    for old, new in pairs:
+        text = text.replace(old, new)
+    return text
+
+
+def test_english_units_and_radian_rotations_are_unmatched_never_screened():
+    """Policy boundary (unsupported units or angle): no candidate exists for the English labels or rad. Every value
+    of an English print, degrees included, and every rotation printed in radians is unmatched with that cause, its
+    normalized value kept; the other SI quantities of a print with radian rotations stay screenable."""
+    english = record_of(relabel(invented_print(), ENGLISH))
+    rows = compared_rows(english)
+    assert rows and all(row["resolution_cause"] == "unsupported_units_or_angle" for row in rows)
+    assert english["summary"]["unmatched_for_resolution"]["by_cause"]["unsupported_units_or_angle"] == len(rows)
+    tip = find(english, "case:expansion", "displacement", "node:B", "x")
+    assert tip["values"]["caepipe"] == pytest.approx(4.8 * 0.0254, rel=1e-15)  # 4.800 in, by the exact definition
+    # The stated cause names the label and the system.
+    assert "'inch'" in tip["reason"] and "English" in tip["reason"]
+    assert "'deg'" in find(english, "case:expansion", "rotation", "node:M", "z")["reason"]
+    assert "'lb'" in find(english, "case:sustained", "support_force", "node:10", "y")["reason"]
+    assert "'ft-lb'" in find(english, "case:sustained", "support_moment", "node:10", "z")["reason"]
+    radians = record_of(relabel(invented_print(), RADIANS))
+    rotations = [row for row in compared_rows(radians) if row["kind"] == "rotation"]
+    assert rotations and all(row["resolution_cause"] == "unsupported_units_or_angle" and "'rad'" in row["reason"]
+                             for row in rotations)
+    others = [row for row in compared_rows(radians) if row["kind"] != "rotation"]
+    assert find(radians, "case:sustained", "displacement", "node:B", "y")["classification"] == WITHIN
+    assert all(row["classification"] == WITHIN or row.get("resolution_cause") == "no_witness" for row in others)
+
+
+@pytest.mark.parametrize("units, expected", [(1, WITHIN), (2, FINDING)])
+def test_each_unit_conversion_carries_one_printed_unit_into_si(monkeypatch, units, expected):
+    """Policy boundary: the conversion path for a label once a candidate exists for it (here hypothetical entries; the
+    shipped table has candidates for the SI labels only). The floor is one printed unit by the unit catalog's exact
+    definitions: 1 in = 0.0254 m, 1 lbf = 4.4482216152605 N, 1 ft-lb = 1.3558179483314004 N*m, 1 deg = pi/180 rad."""
+    from core.handoff.caepipe_external import print_csv
+
+    for key, places in ((("English", "inch"), 4), (("English", "lb"), 0), (("English", "ft-lb"), 0),
+                        (("English", "deg"), 4), (("SI", "rad"), 6)):
+        monkeypatch.setitem(print_csv.PRINTED_DECIMALS, key, places)
+    rows = {"displacements": {"20": ["0", f"{units * 1e-4:.4f}", "0", "0", "0", f"{units * 1e-4:.4f}"]},
+            "restraints": {"20": ["0", f"{-units}", "0"]}, "anchors": {"10": ["0", "0", "0", f"{-units}", "0", "0"]}}
+    english = record_of(relabel(invented_print(override={"Expansion (T1)": rows}), ENGLISH))
+    for kind, entity, component, floor in (("displacement", "node:M", "y", 1e-4 * 0.0254),
+                                           ("rotation", "node:M", "z", math.radians(1e-4)),
+                                           ("support_force", "node:20", "y", 4.4482216152605),
+                                           ("support_moment", "node:10", "x", 4.4482216152605 * 0.3048)):
+        row = find(english, "case:expansion", kind, entity, component)
+        assert row["screen"]["floor"] == pytest.approx(floor, rel=1e-15), kind
+        assert row["classification"] == expected, (kind, row)
+    rad = {"displacements": {"20": ["0", "0", "0", "0", "0", f"{units * 1e-6:.6f}"]}}
+    row = find(record_of(relabel(invented_print(override={"Expansion (T1)": rad}), RADIANS)),
+               "case:expansion", "rotation", "node:M", "z")
+    assert row["screen"]["floor"] == pytest.approx(1e-6, rel=1e-15)
+    assert row["classification"] == expected
+
+
+def test_the_closed_form_against_the_program_takes_the_same_screen():
+    """Defect: the near-zero term in the closed-form check against the program. It uses the same screen and floor."""
+    document = without_closed_forms()
+    document["closed_form"] = [{"quantity": "displacement", "component": "y", "load_case": "case:expansion",
+                                "node": "node:M", "value": 0.0, "unit": "m", "formula": "invented", "basis": "invented"}]
+    for printed, verdict in (("0.001", "agree"), ("0.050", "disagree")):
+        text = invented_print(override=with_print(LARGE_TIP_PRINT,
+                                                  displacements={"20": ["0", printed, "0", "0", "0", "0"]}))
+        row = find(record_of(text, payload_with(LARGE_TIP), document), "case:expansion", "displacement", "node:M", "y")
+        assert row["closed_form"]["closed_form_vs_caepipe"] == verdict, printed
+        within = screen(0.0, row["values"]["caepipe"], row["screen"]["floor"], "exact")["within"]
+        assert verdict == ("agree" if within else "disagree")
+    english = record_of(relabel(invented_print(), ENGLISH), document=document)
+    closed = find(english, "case:expansion", "displacement", "node:M", "y")["closed_form"]
+    assert closed["closed_form_vs_caepipe"] == UNMATCHED
+    assert closed["closed_form_vs_caepipe_cause"] == "unsupported_units_or_angle"
+
+
+def test_a_parse_without_printed_tokens_is_unmatched_never_screened():
+    """Policy boundary (resolution absent): a parse that carries no printed tokens screens nothing."""
+    document = invented_cantilever()
+    mbf = render_caepipe_mbf_si(document["model"], title="INVENTED", piping_code=document["piping_code"])
+    parsed = parse_caepipe_print_csv(invented_print())
+    del parsed["printed_resolution"]
+    record = build_benchmark_record(document, swbpipe_result_payload=invented_payload(), mbf_result=mbf,
+                                    mbf_text=mbf.text, parsed_caepipe=parsed)
+    rows = compared_rows(record)
+    assert rows and all(row.get("resolution_cause") == "resolution_absent" for row in rows)
+    assert record["summary"]["quantities"]["screened"] == 0
+
+
+def test_the_counts_name_every_cause_and_their_denominator():
+    """Policy boundary (counts with their denominator): per case and over the record, expected = screened + unmatched
+    (+ not compared), and the unmatched for resolution are counted per cause, all six listed."""
+    record = record_of(invented_print())
+    resolution = record["summary"]["unmatched_for_resolution"]
+    assert list(resolution["by_cause"]) == CAUSES
+    assert set(resolution["by_case"]) == {"case:expansion", "case:sustained", "operating"}
+    rows = [row for row in record["results"] if row.get("unmatched_cause") == PRINTED_RESOLUTION]
+    assert resolution["total"] == len(rows) == sum(resolution["by_cause"].values())
+    quantities = record["summary"]["quantities"]
+    for case, tally in quantities["by_case"].items():
+        case_rows = [row for row in record["results"] if row["case"] == case and "values" in row]
+        assert tally["expected"] == len(case_rows) == tally["screened"] + tally["unmatched"] + tally["not_compared"]
+        assert tally["screened"] == sum("screen" in row for row in case_rows) > 0
+        assert tally["outcome"] == "every_screened_quantity_within", case
+    assert quantities["expected"] == sum(tally["expected"] for tally in quantities["by_case"].values())
+
+
+def test_an_empty_screened_set_is_never_read_as_within_the_profile():
+    """Policy boundary: a case, or a record, with no screened quantity says so, and never concludes that everything is
+    within the profile; nor does a case that is not compared."""
+    english = record_of(relabel(invented_print(), ENGLISH))
+    quantities = english["summary"]["quantities"]
+    for tally in [*quantities["by_case"].values(), quantities]:
+        assert tally["screened"] == 0 and tally["outcome"] == "no_quantity_screened" and tally["note"]
+    assert FINDING not in english["summary"]["by_classification"]  # no finding, yet nothing is within
+    dropped = record_of(invented_print(drop_label="Expansion (T1)"))
+    tally = dropped["summary"]["quantities"]["by_case"]["case:expansion"]
+    assert tally["screened"] == 0 and tally["not_compared"] == tally["expected"] > 0
+    assert tally["outcome"] == "no_quantity_screened"
+
+
+def test_the_integer_digit_count_witness_counts_and_changes_no_verdict():
+    """Policy boundary: for each shorter nonzero token a witnessed section covers, whether a full-places token's
+    integer part has at least as many digits. It counts only: the shorter token is screened either way."""
+    def expansion(record: dict) -> dict:
+        return record["summary"]["integer_digit_count_witness"]["by_case"]["case:expansion"]
+
+    # Node B prints 4.8 (shorter, one integer digit); node M's witness 0.001 has none, 1.001 has one.
+    for witness, counts in (("0.001", (0, 1)), ("1.001", (1, 0))):
+        record = record_of(invented_print(override={"Expansion (T1)": {"displacements": {
+            "20": ["0", witness, "0", "0", "0", "0"], "30": ["4.8", "0", "0", "0", "0", "0"]}}}))
+        assert (expansion(record)["witnessed_by_integer_digit_count"],
+                expansion(record)["not_witnessed_by_integer_digit_count"]) == counts, witness
+        assert find(record, "case:expansion", "displacement", "node:B", "x")["classification"] == WITHIN
+    totals = record["summary"]["integer_digit_count_witness"]
+    assert totals["witnessed_by_integer_digit_count"] == sum(
+        case["witnessed_by_integer_digit_count"] for case in totals["by_case"].values())
+
+
+def test_the_profile_states_the_formula_and_the_record_version_moves():
+    """Policy boundary: the profile's metadata, its rule as computed, and the record version."""
+    assert set(SCREENING_PROFILE) == {"basis", "relative", "floor", "floor_basis", "printed_decimals",
+                                      "resolution_judgment", "resolution_causes", "limit", "rule"}
+    assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3}
+    # Candidates exist for the SI labels only: none for an English label or for rad.
+    assert SCREENING_PROFILE["printed_decimals"] == {"SI N": 0, "SI Nm": 0, "SI deg": 4, "SI mm": 3}
+    assert SCREENING_PROFILE["resolution_causes"] == CAUSES
+    assert set(SCREENING_PROFILE["resolution_judgment"]) == {
+        "format_family", "witness_establishes", "witness_does_not_establish", "if_the_print_is_coarser",
+        "if_the_print_is_finer", "evidence"}
+    # The rule as computed: allowed = a + r * max(|S|, |C|), with no other scale.
+    for swb, cae, floor, cls in ((0.0, 5e-5, 1e-6, "exact"), (-3.0, 2.0, 1.0, "named_inexact"),
+                                 (1e6, 1e6 + 7.0, 1.0, "exact"), (0.0, 0.0, 1e-6, "named_inexact")):
+        check = screen(swb, cae, floor, cls)
+        rel = SCREENING_PROFILE["relative"][cls]
+        assert check["allowed"] == floor + rel * max(abs(swb), abs(cae))
+        assert check["within"] == (abs(cae - swb) <= floor + rel * max(abs(swb), abs(cae)))
+    record = compare(invented_print())
+    assert BENCHMARK_RECORD_VERSION == "3" and record["record_version"] == "3"
+    assert record["screening_profile"] == SCREENING_PROFILE
 
 
 # -- run_pilot --benchmark -------------------------------------------------------------------------------------------
@@ -813,6 +1210,11 @@ def command_sleep(replacement):
     return sleep
 
 
+# The start state the harness records with each start route (`harness._round_trip_body`).
+FAKE_ROUTE_STARTS = {"start_partial": "partial", "not_started": "not_started", "start_unresolved": "unresolved",
+                     "report_reply_contradiction": "contradicted"}
+
+
 @pytest.fixture
 def fake_benchmark(tmp_path, monkeypatch):
     """A configured harness with a fake SWBPIPE solve, a fake guarded round trip that prints an invented CSV, a fake
@@ -831,11 +1233,15 @@ def fake_benchmark(tmp_path, monkeypatch):
         outcome = state["outcomes"].pop(0) if state["outcomes"] else state["clean"]
         if isinstance(outcome, BaseException):
             raise outcome
+        if callable(outcome):  # a real round trip (against a fake guest), run as the pilot's own call
+            return outcome(config_, case_id, mbf_text, **kwargs)
         sha = hashlib.sha256(mbf_text.encode("utf-8")).hexdigest()
         out = case_paths(config_, case_id)["caepipe_out"]
         (out / "model.csv").write_text(invented_print(), encoding="utf-8")
         record = {"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch", "mbf": {"sha256": sha},
                   "guest_mbf_sha256": sha, "observed_csv_path": {"host": "caepipe_out/model.csv"}} | outcome
+        # As the harness writes it: the start state that goes with the route (a route the program ran on: completed).
+        record.setdefault("start", {"state": FAKE_ROUTE_STARTS.get(record["route"], "completed")})
         (out / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
         return record
 
@@ -1035,7 +1441,7 @@ def _collecting_round_trip(config_, case_id, mbf_text, **kwargs):
     (out / "model.csv").write_text(invented_print(), encoding="utf-8")
     record = {"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch", "mbf": {"sha256": sha},
               "guest_mbf_sha256": sha, "observed_csv_path": {"host": "caepipe_out/model.csv"},
-              "settings_guard": {"status": "unchanged"}}
+              "settings_guard": {"status": "unchanged"}, "start": {"state": "completed"}}
     (out / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
     return record
 
@@ -1264,7 +1670,9 @@ def test_the_batch_callable_raises_the_stop_naming_a_failed_write(fake_benchmark
 def test_a_settings_stop_on_the_raise_path_records_its_outcome(fake_benchmark):
     """The round trip raised with no clean settings check: the outcome settings_stop is recorded, saying so."""
     state = fake_benchmark
-    state["outcomes"][:] = [RuntimeError("invented")]
+    failure = RuntimeError("invented")
+    failure.disposition = harness.disposition("not_dispatched")  # the program was never started: the raise path
+    state["outcomes"][:] = [failure]
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     manifest = json.loads(
         (state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
@@ -1346,7 +1754,9 @@ def test_recorded_custody_without_a_request_digest_is_still_carried_and_compared
         replaced["bytes"] = (case / "case_manifest.json").read_bytes()
         return real(config, case_id, settings, emit)
     monkeypatch.setattr(run_pilot, "_guard_stop", guard)
-    with pytest.raises(run_pilot.CustodyChanged, match="custody differs .* the case manifest was not replaced"):
+    # The program has run (completed), so the refused write is a stop that names it, never a retry or not_run.
+    stopped = r"start_completed; its outcome could not be recorded \(CustodyChanged: .*custody differs .* not replaced"
+    with pytest.raises(run_pilot.RunStopped, match=stopped):
         run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
                                       emit=lambda line: None, collect_only=True)
     assert (case / "case_manifest.json").read_bytes() == replaced["bytes"]
@@ -1357,7 +1767,8 @@ def test_custody_malformed_between_admission_and_a_later_write_is_refused(fake_b
     """Custody well formed at admission and made malformed before a later write reads it (the collected write, a
     not-collected outcome, a stop's write): the later write refuses, treating malformed custody as unknown, never as
     absent, and the manifest is not replaced. Asserted through run_benchmark_model, the batch wrapper's callable:
-    the write's CustodyChanged is raised, and at a stop the stop wins and its text names the CustodyChanged."""
+    every one is a stop whose text names the CustodyChanged, since the program has run (completed) and a failure to
+    record its outcome is never a retry or not_run; at a stop the stop wins."""
     state = fake_benchmark
     case = state["config"].exchange_root / "cases" / "cpb-g1-01"
     state["outcomes"][:] = [{"collected": {"settings_guard": {"status": "unchanged"}},
@@ -1375,15 +1786,13 @@ def test_custody_malformed_between_admission_and_a_later_write_is_refused(fake_b
         corrupted["bytes"] = (case / "case_manifest.json").read_bytes()
         return real(config, case_id, settings, emit)
     monkeypatch.setattr(run_pilot, "_guard_stop", guard)
-    expected = run_pilot.RunStopped if write == "settings stop" else run_pilot.CustodyChanged
-    with pytest.raises(expected) as raised:
+    with pytest.raises(run_pilot.RunStopped) as raised:
         run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
                                       emit=lambda line: None, collect_only=True)
     text = f"{type(raised.value).__name__}: {raised.value}"
     assert "custody member is not an object; the case manifest was not replaced" in text
-    if write == "settings stop":
-        assert text.startswith("RunStopped: cpb-g1-01 (settings_stop; its outcome could not be recorded "
-                               "(CustodyChanged: ")
+    stop = {"collected": "start_completed", "not collected": "timeout", "settings stop": "settings_stop"}[write]
+    assert text.startswith(f"RunStopped: cpb-g1-01 ({stop}; its outcome could not be recorded (CustodyChanged: ")
     assert (case / "case_manifest.json").read_bytes() == corrupted["bytes"]
 
 
@@ -1458,6 +1867,7 @@ def test_the_retry_reuses_its_own_solve_and_replaces_nothing(fake_benchmark, mon
         {"invented": case["case_id"]}, {"payload": invented_payload()}, ""))
     failure = RuntimeError("invented transport failure")
     failure.settings_guard = {"status": "unchanged"}  # a clean settings check, so the model is retried
+    failure.disposition = harness.disposition("not_dispatched")  # and the program was never started
     state["outcomes"].append(failure)
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-01"] and solves == ["cpb-g1-01"]
@@ -1743,6 +2153,7 @@ def test_the_benchmark_run_stops_at_the_first_unclean_round_trip(fake_benchmark,
 def raised_after_a_clean_check() -> RuntimeError:
     error = RuntimeError("invented transport failure")
     error.settings_guard = {"status": "unchanged"}
+    error.disposition = harness.disposition("not_dispatched")  # the program was never started: retry is permitted
     return error
 
 
@@ -1760,7 +2171,9 @@ def test_a_failed_model_is_retried_once_after_two_minutes(fake_benchmark, capsys
 
 def test_a_model_that_leaves_no_csv_twice_is_recorded_and_the_run_goes_on(fake_benchmark, capsys):
     state = fake_benchmark
-    no_csv = {"route": "csv_missing", "observed_csv_path": {}, "settings_guard": {"status": "unchanged"}}
+    # Retried only because the program was never started; a completed attempt with no CSV stops (test_p1_5_...).
+    no_csv = {"route": "csv_missing", "observed_csv_path": {}, "settings_guard": {"status": "unchanged"},
+              "start": {"state": "not_dispatched"}}
     state["outcomes"][:] = [no_csv, no_csv]
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={}) == 1
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-01", "cpb-g1-02"]
@@ -1830,8 +2243,12 @@ def test_a_pending_exclusive_job_holds_the_run(fake_benchmark, monkeypatch, caps
     assert "stopped before cpb-g1-01: an exclusive job was still pending after 1800 s" in capsys.readouterr().out
 
 
+# The answer's form is the Windows version line alone, with nothing on stderr: any other text with exit 0 (an
+# invented banner, a sign-in or licence text) is not an answer.
 @pytest.mark.parametrize("answer, status", [
-    ((0, "Invented Guest [Version 0.0]\r\n", ""), "alive"),
+    ((0, "\r\nMicrosoft Windows [Version 10.0.19045.5011]\r\n", ""), "alive"),
+    ((0, "Invented Guest [Version 0.0]\r\n", ""), "unreachable"),
+    ((0, "Please sign in to continue.\r\n", ""), "unreachable"),
     ((1, "", "invented"), "unreachable"),
     ((0, "  \r\n", ""), "unreachable"),
     (subprocess.TimeoutExpired("prlctl", 1.0), "unreachable"),
@@ -1847,7 +2264,7 @@ def test_the_liveness_check_asks_the_guest_for_ver_and_starts_nothing(tmp_path, 
     result = check_guest_alive(fake_config(tmp_path), runner=runner)
     assert result["status"] == status
     assert calls == [["/invented/prlctl", "exec", "invented-vm", "--current-user", "cmd", "/c", "ver"]]
-    assert "Invented Guest" not in json.dumps(result)
+    assert "Invented Guest" not in json.dumps(result) and "19045" not in json.dumps(result)
 
 
 def test_benchmark_refusals(fake_benchmark, monkeypatch, capsys, tmp_path):
@@ -1880,3 +2297,525 @@ def test_benchmark_refusals(fake_benchmark, monkeypatch, capsys, tmp_path):
     assert run_pilot.main(base, environ={}) == 2
     assert "models/cpb-g1-02.json differs from the manifest's file_sha256" in capsys.readouterr().err
     assert state["calls"] == []
+
+
+# The run phase's start dispositions, as the model-list command and its per-model step take them (synthetic only).
+def _manifest_of(state, case_id="cpb-g1-01") -> dict:
+    return json.loads((state["config"].exchange_root / "cases" / case_id / "case_manifest.json").read_text())
+
+
+@pytest.mark.parametrize("how", ["StartUnresolved", "raised while unresolved"])
+def test_an_unresolved_start_stops_with_the_manifest_left_at_custody_recorded(fake_benchmark, capsys, how):
+    state = fake_benchmark
+    if how == "StartUnresolved":
+        error = StartUnresolved("start unresolved: invented")
+    else:
+        error = OSError("invented failure writing the record")
+        error.start_unresolved = True
+    error.settings_guard = {"status": "start_unresolved", "reason": "restoration inhibited: start unresolved"}
+    state["outcomes"][:] = [error]
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={}) == 1
+    manifest = _manifest_of(state)
+    assert (manifest["outcome"], manifest["route"]) == ("custody_recorded", "custody_recorded")
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]  # never retried, and no further model ran
+    out = capsys.readouterr().out
+    assert "cpb-g1-01: route=start_unresolved;" in out and "retrying" not in out
+    # Through the per-model step the wrapper calls: the stop is raised, and no outcome is written.
+    state["calls"].clear()
+    state["outcomes"][:] = [error]
+    with pytest.raises(run_pilot.RunStopped, match="start_unresolved"):
+        run_pilot.run_benchmark_model(_bench_entry(state, "cpb-g1-03"), state["config"], runner=state["runner"],
+                                      offline=False, emit=lambda line: None, collect_only=True)
+    assert _manifest_of(state, "cpb-g1-03")["outcome"] == "custody_recorded"
+
+
+def test_a_partial_start_is_recorded_never_retried_and_a_second_stops_the_run(fake_benchmark, capsys):
+    state = fake_benchmark
+    partial = {"route": "start_partial", "settings_guard": {"status": "unchanged"}, "guest_mbf_sha256": None,
+               "observed_csv_path": {"host": None}}
+    state["outcomes"][:] = [dict(partial), dict(partial)]
+    assert run_pilot.main(state["argv"], environ={}) == 1
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-02"]  # one round trip each, no retry
+    first = _manifest_of(state)
+    assert (first["outcome"], first["route"], first["attempt"]) == ("partial", "start_partial", 1)
+    out = capsys.readouterr().out
+    assert "stopped after cpb-g1-02: a second attempted run that did not agree in this run" in out and \
+        "retrying" not in out
+
+
+def test_two_not_started_attempts_are_not_run_and_never_retried(fake_benchmark):
+    state = fake_benchmark
+    state["outcomes"][:] = [{"route": "not_started", "settings_guard": {"status": "unchanged"},
+                             "guest_mbf_sha256": None, "observed_csv_path": {"host": None}}]
+    status = run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"],
+                                           offline=False, emit=lambda line: None)
+    assert status[:2] == (run_pilot.NOT_RUN, "not_started")
+    assert (_manifest_of(state)["outcome"], _manifest_of(state)["route"]) == ("no_record", "not_started")
+    assert len(state["calls"]) == 1
+
+
+
+# --------------------------------------------------------------------------------------------------------------
+# P1 regressions from the first independent reading of the run-phase change, written before their repair. Each
+# drives a real round trip against the fake guest, hands what it raised to run_pilot (the outer caller), and observes
+# there: the dispatch count, restore writes, whether the next model ran, and the disposition received. Each failed
+# on the head that was read (60bb0d182 and before), and passes on the settled repair.
+# --------------------------------------------------------------------------------------------------------------
+import signal as _signal  # noqa: E402
+import sys as _sys  # noqa: E402
+from types import SimpleNamespace  # noqa: E402
+
+from core.handoff.caepipe_external import harness  # noqa: E402
+from core.handoff.caepipe_external.harness import ContainmentError  # noqa: E402
+
+from tests.test_caepipe_start_reconciliation import (  # noqa: E402
+    CASE as RECONCILE_CASE, GUARD as RECONCILE_GUARD, Registry as InventedRegistry, config_for, guest_for,
+    run as run_attempt)
+from tests.caepipe_fake_guest import Program as InventedProgram  # noqa: E402
+
+
+
+def _invented_clock(monkeypatch) -> dict:
+    state = {"t": 0.0}
+    monkeypatch.setattr(harness, "time", SimpleNamespace(monotonic=lambda: state["t"]))
+    monkeypatch.setattr(harness, "_backoff", lambda seconds: state.__setitem__("t", state["t"] + seconds))
+    return state
+
+
+def _partial_run_raising(tmp_path, monkeypatch, failing: str):
+    """A real round trip whose attempt is established partial (claimed, launched, launcher and program killed,
+    quiescent, no terminal report), with a clean guard, whose reporting then fails at `failing`. Returns what it
+    raised, the fake guest and its invented registry."""
+    config = config_for(tmp_path / "partial", RECONCILE_GUARD)
+    with monkeypatch.context() as patch:
+        clock_state = _invented_clock(patch)
+        guest = guest_for(config, clock_state)
+        registry = InventedRegistry(guest, change_on_launch=False)
+        guest.plan = {1: {"kill_at": "launched", "reply": "transport"}}
+        if failing == "record construction":
+            def broken(item):
+                raise ValueError("invented record construction failure")
+            patch.setattr(harness, "_failed_write_stderr", broken)
+        else:
+            name = {"guard result write": harness.GUARD_RESULT_FILE, "dispatch stream write": "guest_stdout.txt",
+                    "record write": "run_record.json"}[failing]
+            real_write = harness.write_private
+
+            def failing_write(root, path, data):
+                if Path(path).name == name:
+                    raise OSError(f"invented failure writing {name}")
+                return real_write(root, path, data)
+            patch.setattr(harness, "write_private", failing_write)
+        with pytest.raises(Exception) as raised:
+            run_attempt(config, guest)
+    return raised.value, guest, registry
+
+
+@pytest.mark.parametrize("failing", ["guard result write", "dispatch stream write", "record construction",
+                                     "record write"])
+def test_p1_1_a_partial_runs_reporting_error_never_becomes_retry(fake_benchmark, tmp_path, monkeypatch, capsys,
+                                                                 failing):
+    error, guest, registry = _partial_run_raising(tmp_path, monkeypatch, failing)
+    assert guest.kinds.count("attempt") == 1 and len(guest.launches) == 1  # one dispatch, one start
+    assert registry.writes == []
+    state = fake_benchmark
+    state["outcomes"][:] = [error]
+    exit_status = run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={})
+    out = capsys.readouterr().out
+    # Not retried, and with its evidence not saved the run stops: the next model does not run.
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"], out
+    assert exit_status == 1
+    assert "retrying" not in out and _manifest_of(state)["route"] != "round_trip_raised"
+    assert "start_partial" in out  # the disposition the caller received
+
+
+def test_p1_2_a_failure_to_record_partial_is_never_not_run(fake_benchmark, monkeypatch):
+    state = fake_benchmark
+    state["outcomes"][:] = [{"route": "start_partial", "settings_guard": {"status": "unchanged"},
+                             "guest_mbf_sha256": None, "observed_csv_path": {"host": None}}]
+    real = run_pilot._benchmark_manifest
+
+    def failing(*args, **kwargs):
+        if kwargs.get("outcome") == "partial":
+            raise ContainmentError("invented containment failure saving a partial outcome")
+        return real(*args, **kwargs)
+    monkeypatch.setattr(run_pilot, "_benchmark_manifest", failing)
+    with pytest.raises(run_pilot.RunStopped, match="start_partial"):
+        run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"], offline=False,
+                                      emit=lambda line: None, collect_only=True)
+    assert len(state["calls"]) == 1
+
+
+def test_p1_2_a_partial_whose_outcome_cannot_be_recorded_stops_the_list(fake_benchmark, monkeypatch, capsys):
+    state = fake_benchmark
+    partial = {"route": "start_partial", "settings_guard": {"status": "unchanged"}, "guest_mbf_sha256": None,
+               "observed_csv_path": {"host": None}}
+    state["outcomes"][:] = [dict(partial), dict(partial)]
+    real = run_pilot._benchmark_manifest
+
+    def failing(*args, **kwargs):
+        if kwargs.get("outcome") == "partial":
+            raise ContainmentError("invented containment failure saving a partial outcome")
+        return real(*args, **kwargs)
+    monkeypatch.setattr(run_pilot, "_benchmark_manifest", failing)
+    assert run_pilot.main(state["argv"], environ={}) == 1
+    out = capsys.readouterr().out
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"], out  # never NOT_RUN, so the list stops
+    assert "start_partial" in out and "route=containment_violation" not in out
+
+
+# The post-run boundary: after reconciliation left the start unresolved and before the guard checks begin, and
+# again where the guard's result is computed but not yet handed to the live state.
+BOUNDARIES = {"after reconciliation": ("# other or the result. While the start is unresolved these are read-only "
+                                       "diagnosis: no restore.", "    if guarded:"),
+              "before the live guard result": (None, '        live["settings"] = settings')}
+
+
+def _boundary_line(where: str) -> int:
+    lines = Path(harness.__file__).read_text(encoding="utf-8").splitlines()
+    comment, text = BOUNDARIES[where]
+    start = next(i for i, line in enumerate(lines) if comment in line) if comment else 0
+    found = [i + 1 for i, line in enumerate(lines) if i > start and line == text]
+    return found[0]
+
+
+def _unresolved_run_terminated(tmp_path, monkeypatch, where: str, signum: int, again_in_recovery: bool):
+    """A real round trip whose program lives on (the start unresolved), terminated by a real signal at `where`,
+    and, with `again_in_recovery`, a second time as the outer recovery begins."""
+    config = config_for(tmp_path / "unresolved", RECONCILE_GUARD)
+    expected = harness.TerminationRequested if signum == _signal.SIGTERM else KeyboardInterrupt
+    with monkeypatch.context() as patch:
+        clock_state = _invented_clock(patch)
+        guest = guest_for(config, clock_state)
+        registry = InventedRegistry(guest)
+        guest.plan = {1: {"run": "launched", "reply": "transport"}}
+        guest.programs[1] = InventedProgram(lingers=True)
+        body, line = harness._round_trip_body.__code__, _boundary_line(where)
+        fired = []
+        previous = _sys.gettrace()
+
+        def tracer(frame, event, arg):
+            if event == "line" and frame.f_code is body and frame.f_lineno == line and not fired:
+                fired.append("boundary")
+                _signal.raise_signal(signum)
+            return tracer
+        if again_in_recovery:
+            real_recovery = harness._recover_guard_result
+
+            def recovery(*args, **kwargs):  # a second termination as the outer recovery begins
+                if fired == ["boundary"]:
+                    fired.append("recovery")
+                    _signal.raise_signal(_signal.SIGTERM)
+                return real_recovery(*args, **kwargs)
+            patch.setattr(harness, "_recover_guard_result", recovery)
+        try:
+            _sys.settrace(tracer)
+            with pytest.raises(BaseException) as raised:
+                run_attempt(config, guest)
+        finally:
+            _sys.settrace(previous)
+    assert fired == (["boundary", "recovery"] if again_in_recovery else ["boundary"])
+    assert isinstance(raised.value, expected if not again_in_recovery else harness.TerminationRequested)
+    path = config.exchange_root / "cases" / RECONCILE_CASE / "caepipe_out" / harness.GUARD_RESULT_FILE
+    stored = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None  # an interrupted write may
+    return raised.value, guest, registry, stored                                          # leave none
+
+
+@pytest.mark.parametrize("where", sorted(BOUNDARIES))
+@pytest.mark.parametrize("signum, again", [(_signal.SIGTERM, False), (_signal.SIGINT, False), (_signal.SIGTERM, True)],
+                         ids=["SIGTERM", "SIGINT", "SIGTERM then SIGTERM in recovery"])
+def test_p1_3_a_termination_at_the_post_run_boundary_keeps_the_start_unresolved(fake_benchmark, tmp_path, monkeypatch,
+                                                                                where, signum, again):
+    error, guest, registry, stored = _unresolved_run_terminated(tmp_path, monkeypatch, where, signum, again)
+    assert guest.kinds.count("attempt") == 1 and registry.writes == []  # one dispatch, zero restore writes
+    # The persisted guard result, if any was saved, says start_unresolved: never settings_check_failed.
+    assert stored is None or stored["status"] == "start_unresolved", stored
+    state = fake_benchmark
+    state["outcomes"][:] = [error]
+    with pytest.raises(type(error)) as received:  # what run_pilot's caller receives
+        run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={})
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]  # the next model did not run
+    assert getattr(received.value, "start_unresolved", False) is True
+    assert received.value.settings_guard["status"] == "start_unresolved"
+    assert _manifest_of(state)["outcome"] == "custody_recorded"
+
+
+# --------------------------------------------------------------------------------------------------------------
+# Exits that are never success: a reply whose own exit is nonzero (1, 3, 255, or a signal's negative status) never
+# becomes a success route, an export reported as exported with a nonzero exit never collects, and a collection copy
+# with a nonzero exit never gives an exported or collected route. Each runs to the outer caller.
+# --------------------------------------------------------------------------------------------------------------
+from tests.caepipe_fake_guest import FakeGuestModel as InventedGuest, classify as classify_command, done as answer  # noqa: E402
+from tests.test_caepipe_correlation import (  # noqa: E402
+    COPIED, EXPORTED_SHA, MOD_SHA, current_mbf_sha, export_runner, solved_case)
+
+NONZERO_EXITS = (1, 3, 255, -9)
+
+
+def _pilot_round_trip(state, guest):
+    """The pilot's round trip, run for real against `guest`, on the pilot's own exchange folder."""
+    def call(config_, case_id, mbf_text, **kwargs):
+        return harness.run_caepipe_round_trip(config_, case_id, mbf_text, runner=guest.runner, **kwargs)
+    return call
+
+
+def _pilot_guest(state, monkeypatch) -> tuple[InventedGuest, InventedRegistry]:
+    _invented_clock(monkeypatch)
+    guest = InventedGuest(state["config"].exchange_root, state["config"].guest_exchange_root)
+    return guest, InventedRegistry(guest, change_on_launch=False)
+
+
+def _collect_one(state, outcome) -> tuple:
+    state["outcomes"][:] = [outcome]
+    try:
+        return run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"],
+                                             offline=False, emit=lambda line: None, collect_only=True)
+    except run_pilot.RunStopped as stopped:
+        return ("stopped", str(stopped), "")
+
+
+def test_a_clean_attempt_collects_through_the_pilot(fake_benchmark, monkeypatch):
+    state = fake_benchmark
+    guest, registry = _pilot_guest(state, monkeypatch)
+    status = _collect_one(state, _pilot_round_trip(state, guest))
+    assert status[:2] == (run_pilot.COLLECTED, "csv_from_batch") and guest.kinds.count("attempt") == 1
+    assert registry.writes == []
+
+
+@pytest.mark.parametrize("code", NONZERO_EXITS)
+@pytest.mark.parametrize("kind", ["attempt", "claim_read", "cim", "job", "finished_read", "chunk"])
+def test_a_success_reply_with_a_nonzero_exit_never_becomes_a_success_route(fake_benchmark, monkeypatch, kind, code):
+    state = fake_benchmark
+    guest, registry = _pilot_guest(state, monkeypatch)
+    if kind == "attempt":
+        guest.plan = {1: {"kill_at": "launched"}}  # no terminal report: only the reply claims success
+    base = guest.runner
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        if classify_command(argv[6]) != kind:
+            return result
+        if kind == "attempt":  # the reply a successful script prints, with another exit
+            report = {"schema": harness.GUEST_REPORT_SCHEMA, "attempt_token": guest.attempts[-1].token,
+                      "status": "csv_from_batch", "mbf_sha256": "0" * 64, "csv_path": "model.csv"}
+            return answer(argv, code, json.dumps(report), "")
+        return answer(argv, code, result.stdout, result.stderr)  # the read's own success form, another exit
+    guest.runner = runner
+    status = _collect_one(state, _pilot_round_trip(state, guest))
+    assert status[0] not in (run_pilot.COLLECTED, run_pilot.RECORDED), status
+    assert guest.kinds.count("attempt") == 1 and registry.writes == []
+    if kind == "attempt":
+        assert status[:2] == (run_pilot.PARTIAL, "start_partial"), status
+    elif kind == "chunk":  # completed, nothing collected: never retried, the list stops with the route named
+        assert status[0] == "stopped" and _manifest_of(state)["route"] == "collection_failed", status
+    else:  # the start stays unresolved: a stop, the manifest left at custody_recorded
+        assert status[0] == "stopped" and "start_unresolved" in status[1], status
+        assert _manifest_of(state)["outcome"] == "custody_recorded"
+
+
+def _bound_export_case(tmp_path):
+    case = next(item for item in run_pilot.load_cases() if item["case_id"] == "cpc-01-cantilever-force")
+    sha = current_mbf_sha(case["case_id"])
+    config, out = solved_case(tmp_path, case["case_id"], mbf={"sha256": sha}, guest_mbf_sha256=sha)
+    return case, config, out
+
+
+@pytest.mark.parametrize("code", (1, 255, -15))
+def test_an_export_reported_as_exported_with_a_nonzero_exit_never_collects(tmp_path, code):
+    case, config, out = _bound_export_case(tmp_path)
+    commands: list[str] = []
+    base = export_runner(out, commands)
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        return answer(argv, code, result.stdout, "") if argv[6].startswith("powershell") else result
+    lines: list[str] = []
+    assert run_pilot.export_case(case, config, emit=lines.append, export=lambda config_, case_id, sha: (
+        harness.run_caepipe_mbf_export(config_, case_id, sha, runner=runner))) is False
+    assert not any(command.startswith("copy") for command in commands)  # never collected
+    assert not (out / "exported.mbf").exists()
+    assert lines == [f"{case['case_id']}: export route=exported_with_nonzero_exit; the guest export did not complete "
+                     f"(cases/{case['case_id']}/caepipe_out/run_record.json); no exported MBF"]
+    entry = json.loads((out / "run_record.json").read_text(encoding="utf-8"))["mbf_export"]
+    assert entry["exit_status"] == code and entry["exported_mbf"]["sha256"] is None
+
+
+@pytest.mark.parametrize("code", (1, 255, -15))
+def test_a_collection_copy_with_a_nonzero_exit_never_gives_an_exported_route(tmp_path, code):
+    case, config, out = _bound_export_case(tmp_path)
+    base = export_runner(out, [])
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)  # the copy took place and printed its success line
+        return answer(argv, code, COPIED, "") if argv[6].startswith("copy") else result
+    lines: list[str] = []
+    assert run_pilot.export_case(case, config, emit=lines.append, export=lambda config_, case_id, sha: (
+        harness.run_caepipe_mbf_export(config_, case_id, sha, runner=runner))) is False
+    assert not (out / "exported.mbf").exists()
+    assert "export route=mbf_not_collected" in lines[0]
+
+
+def test_the_held_exports_real_refusal_reaches_the_pilot_as_held(tmp_path):
+    case, config, out = _bound_export_case(tmp_path)
+    refusal = {"schema": "openpipestress.caepipe_guest_mbf_export.v1", "status": "export_held",
+               "diagnostics": ["the export starts the program only inside a won claim and job, which it has not "
+                               "adopted"]}
+    commands: list[str] = []
+    base = export_runner(out, commands, guest=refusal)
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        return answer(argv, 6, result.stdout, "") if argv[6].startswith("powershell") else result
+    lines: list[str] = []
+    assert run_pilot.export_case(case, config, emit=lines.append, export=lambda config_, case_id, sha: (
+        harness.run_caepipe_mbf_export(config_, case_id, sha, runner=runner))) is False
+    assert "export route=export_held" in lines[0] and not any(c.startswith("copy") for c in commands)
+    entry = json.loads((out / "run_record.json").read_text(encoding="utf-8"))["mbf_export"]
+    assert entry["route"] == "export_held" and entry["guest_mod_sha256"] is None
+
+
+
+# A refusal the guest reports, with the nonzero exit its script gives it, keeps its own route name at the caller.
+REFUSALS = [("no_results_after_batch", 2), ("batch_no_csv", 3), ("print_file_ambiguous", 5)]
+
+
+@pytest.mark.parametrize("status, code", REFUSALS)
+def test_a_guest_refusal_with_its_nonzero_exit_keeps_its_route_name_at_the_pilot(fake_benchmark, monkeypatch, capsys,
+                                                                               status, code):
+    state = fake_benchmark
+    guest, registry = _pilot_guest(state, monkeypatch)
+    guest.programs[1] = InventedProgram(status=status, print_name=None, files={"model.res": b"RES"})
+    base = guest.runner
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        return answer(argv, code, result.stdout, "") if classify_command(argv[6]) == "attempt" else result
+    guest.runner = runner
+    status_seen = _collect_one(state, _pilot_round_trip(state, guest))
+    assert guest.kinds.count("attempt") == 1 and registry.writes == []
+    # Each is a stop under its own route name: batch_no_csv because the GUI fallback is off for the batch, the
+    # others because the program has run (completed), which is never a ground for retry.
+    assert status_seen[0] == "stopped" and _manifest_of(state)["route"] == status, status_seen
+    stored = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "caepipe_out" / "run_record.json")
+                        .read_text(encoding="utf-8"))
+    assert stored["route"] == status and stored["exit_status"] == code
+
+
+# P1-5, the fifth row, found by the author's exit table: a COMPLETED attempt (the program ran) whose reporting raises,
+# or whose route carries no CSV, is never retried, and the list stops. Completed is never a ground for retry.
+def _completed_run_raising(tmp_path, monkeypatch) -> tuple[BaseException, InventedGuest]:
+    config = config_for(tmp_path / "completed", RECONCILE_GUARD)
+    with monkeypatch.context() as patch:
+        guest = guest_for(config, _invented_clock(patch))
+        InventedRegistry(guest, change_on_launch=False)
+        real_write = harness.write_private
+
+        def failing_write(root, path, data):
+            if Path(path).name == "run_record.json":
+                raise OSError("invented failure writing run_record.json")
+            return real_write(root, path, data)
+        patch.setattr(harness, "write_private", failing_write)
+        with pytest.raises(OSError) as raised:
+            run_attempt(config, guest)
+    assert guest.kinds.count("attempt") == 1 and len(guest.launches) == 1
+    return raised.value, guest
+
+
+@pytest.mark.parametrize("how", ["its reporting raises", "collection fails", "the guest reports no print"])
+def test_p1_5_a_completed_attempt_is_never_retried_and_the_list_stops(fake_benchmark, tmp_path, monkeypatch, capsys,
+                                                                      how):
+    state = fake_benchmark
+    if how == "its reporting raises":
+        outcome, guest = _completed_run_raising(tmp_path, monkeypatch)
+    else:
+        guest, _ = _pilot_guest(state, monkeypatch)
+        if how == "collection fails":
+            base = guest.runner
+
+            def runner(argv, **kwargs):  # every chunk read answers out of form: nothing is collected
+                result = base(argv, **kwargs)
+                return answer(argv, 1, result.stdout, "") if classify_command(argv[6]) == "chunk" else result
+            guest.runner = runner
+        else:
+            guest.programs[1] = InventedProgram(status="no_results_after_batch", print_name=None,
+                                                files={"model.res": b"RES"})
+        outcome = _pilot_round_trip(state, guest)
+    state["outcomes"][:] = [outcome]
+    exit_status = run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--case", "cpb-g1-02"], environ={})
+    out = capsys.readouterr().out
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"], out  # never retried; the next model not run
+    assert guest.kinds.count("attempt") == 1 and len(guest.launches) == 1  # one dispatch, one start
+    assert exit_status == 1 and "retrying" not in out
+
+
+# A success terminal report beside a nonzero dispatch reply that is neither a transport line nor the session-unavailable
+# line: no success route, never retried or compared; partial's permitted actions under its own route name.
+def _reply_replaced(guest, code: int, stdout: str | None = None, stderr: str | None = None):
+    base = guest.runner
+
+    def runner(argv, **kwargs):
+        result = base(argv, **kwargs)
+        if classify_command(argv[6]) != "attempt":
+            return result
+        return answer(argv, code, result.stdout if stdout is None else stdout, "" if stderr is None else stderr)
+    guest.runner = runner
+
+
+@pytest.mark.parametrize("code", (1, 3))
+def test_a_success_report_beside_a_nonzero_reply_is_a_contradiction_at_the_pilot(fake_benchmark, monkeypatch, code):
+    state = fake_benchmark
+    guest, registry = _pilot_guest(state, monkeypatch)
+    _reply_replaced(guest, code)  # the script's own report on stdout, with another exit
+    status = _collect_one(state, _pilot_round_trip(state, guest))
+    assert status[:2] == (run_pilot.PARTIAL, "report_reply_contradiction"), status
+    assert guest.kinds.count("attempt") == 1 and registry.writes == [] and "chunk" not in guest.kinds
+    out = state["config"].exchange_root / "cases" / "cpb-g1-01" / "caepipe_out"
+    record = json.loads((out / "run_record.json").read_text(encoding="utf-8"))
+    assert (record["route"], record["start"]["state"], record["exit_status"]) == (
+        "report_reply_contradiction", "contradicted", code)
+    assert record["observed_csv_path"]["host"] is None and record["outputs_collected"] == []  # never compared
+    token = record["attempt_token"]
+    report = json.loads((out / token / "guest_log.json").read_text(encoding="utf-8"))
+    assert report["status"] == "csv_from_batch" and report["attempt_token"] == token  # the report, kept whole
+    assert (out / token / "guest_stdout.txt").read_text(encoding="utf-8") == guest.attempts[0].stdout  # the reply too
+    assert (_manifest_of(state)["outcome"], _manifest_of(state)["route"]) == ("partial", "report_reply_contradiction")
+
+
+@pytest.mark.parametrize("code, line", [(255, harness.TRANSPORT_LINES[0]), (255, harness.TRANSPORT_LINES[1]),
+                                        (255, harness.SESSION_UNAVAILABLE_LINE), (1, harness.SESSION_UNAVAILABLE_LINE)],
+                         ids=["GetResult", "GetRetCode", "session unavailable, 255", "session unavailable, 1"])
+def test_a_lost_reply_beside_a_success_report_leaves_the_report_to_decide(fake_benchmark, monkeypatch, code, line):
+    state = fake_benchmark
+    guest, registry = _pilot_guest(state, monkeypatch)
+    _reply_replaced(guest, code, stdout="", stderr=line)
+    status = _collect_one(state, _pilot_round_trip(state, guest))
+    assert status[:2] == (run_pilot.COLLECTED, "csv_from_batch"), status
+    assert guest.kinds.count("attempt") == 1
+
+
+def _contradicting(state, monkeypatch):
+    guest, _ = _pilot_guest(state, monkeypatch)
+    _reply_replaced(guest, 1)
+    return guest, _pilot_round_trip(state, guest)
+
+
+def test_a_second_contradiction_stops_the_list(fake_benchmark, monkeypatch, capsys):
+    state = fake_benchmark
+    first, first_trip = _contradicting(state, monkeypatch)
+    second, second_trip = _contradicting(state, monkeypatch)
+    state["outcomes"][:] = [first_trip, second_trip]
+    assert run_pilot.main(state["argv"], environ={}) == 1
+    out = capsys.readouterr().out
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-02"], out
+    assert first.kinds.count("attempt") == 1 and second.kinds.count("attempt") == 1
+    assert "a second attempted run that did not agree" in out
+
+
+def test_a_partial_and_a_contradiction_count_together_for_the_stop_rule(fake_benchmark, monkeypatch, capsys):
+    state = fake_benchmark
+    partial = {"route": "start_partial", "settings_guard": {"status": "unchanged"}, "guest_mbf_sha256": None,
+               "observed_csv_path": {"host": None}}
+    _, contradiction = _contradicting(state, monkeypatch)
+    state["outcomes"][:] = [partial, contradiction]
+    assert run_pilot.main(state["argv"], environ={}) == 1
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01", "cpb-g1-02"]

@@ -7,7 +7,7 @@
 //! private datasets, or professional acceptance are bundled by this crate.
 
 mod annulus_geometry;
-mod formation_guard; mod integrity; pub mod inverse_norm_evidence; // The inverse-norm evidence carrier (carrier revision 4 §3, §5), on this line so that no line moves.
+mod formation_guard; #[cfg(test)] mod residual_refusal_tests; mod integrity; pub mod inverse_norm_evidence; // DEL-04-01 VER-007 at product level, and the inverse-norm evidence carrier (carrier revision 4 §3, §5), on this line so that no line moves.
 mod certified_loads;
 mod certified_publication;
 // Resolved load/reference-state case (model 0.4.0); one resolved case per load
