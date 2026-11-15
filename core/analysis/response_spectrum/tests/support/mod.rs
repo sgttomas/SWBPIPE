@@ -1,14 +1,11 @@
 //! Shared helpers of the S4 combination tests: building a combination request from a frozen
 //! reference's published signed contributions, and comparing at the verification tolerance.
 //!
-//! **The tolerance** is REQ-008's verification tolerance, 1e-9 relative, with an absolute floor
-//! near zero of 1e-9 times the row's operand scale: the sum of the magnitudes of every signed
-//! value that enters the row (its contributions, in every requested direction, and its rigid
-//! responses). The floor is stated, not fitted: the inputs are the nearest binary64 to the
-//! references' 40-digit values, and the rounding of those inputs and of every signed sum is
-//! relative to the operands, not to the result. Where contributions cancel (a cluster sum, a
-//! CQC double sum), the result can be far below its operands and its rounding is not relative to
-//! it. The references flush a value below 1e-50 of its unit's largest magnitude to 0.
+//! **The tolerance** is REQ-008's verification tolerance, 1e-9 relative to the expected value,
+//! with no floor: a value the reference publishes as exactly 0 must be produced as exactly 0.
+//! The references flush a value below 1e-50 of its unit's largest magnitude to 0, and the
+//! product's exact arithmetic reproduces each of those zeros exactly (the cluster sums of such
+//! rows are exactly zero), so no zero needs an allowance.
 #![allow(dead_code)]
 use open_pipe_stress_response_spectrum::{
     ClusterIndex, Combination, CombinationRequest, Direction, DirectionalRule, DisplacementComponent, End,
@@ -230,31 +227,28 @@ impl DiscreteAnalysis {
 }
 
 /// The comparison tally: how many values were compared and the largest deviation, relative to
-/// the expected value and as a fraction of the stated tolerance.
+/// the expected value and as a fraction of the tolerance.
 #[derive(Default, Debug)]
 pub struct Tally {
     pub compared: usize,
     pub largest_relative: f64,
     pub largest_of_tolerance: f64,
-    /// Where the largest deviation relative to the expected value occurred, among values above
-    /// the floor (|expected| ≥ the operand scale times 1e-6).
-    pub largest_relative_above_floor: (f64, String),
+    /// Where the largest deviation relative to the expected value occurred.
+    pub largest_relative_at: String,
 }
 
 impl Tally {
-    pub fn check(&mut self, what: &str, actual: f64, expected: f64, scale: f64) {
-        let allowed = TOLERANCE * expected.abs() + TOLERANCE * scale;
+    pub fn check(&mut self, what: &str, actual: f64, expected: f64) {
+        let allowed = TOLERANCE * expected.abs();
         let deviation = (actual - expected).abs();
         assert!(deviation <= allowed, "{what}: {actual:e} against {expected:e} (deviation {deviation:e}, allowed {allowed:e})");
         self.compared += 1;
         if expected != 0.0 {
             let relative = deviation / expected.abs();
-            self.largest_relative = self.largest_relative.max(relative);
-            if expected.abs() >= 1e-6 * scale && relative > self.largest_relative_above_floor.0 {
-                self.largest_relative_above_floor = (relative, what.to_string());
+            if relative > self.largest_relative {
+                self.largest_relative = relative;
+                self.largest_relative_at = what.to_string();
             }
-        }
-        if allowed > 0.0 {
             self.largest_of_tolerance = self.largest_of_tolerance.max(deviation / allowed);
         }
     }

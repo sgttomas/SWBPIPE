@@ -147,6 +147,12 @@ fn cost_many_mode_srss_120_by_1200() {
 /// The evenly spaced alternating-binomial family (`PLAN.md` M3): f_i = 1 + i·2^-19 Hz,
 /// R_k = (−1)^k C(n−1, k) N, ζ = 0.2, CQC, one row and direction.
 pub fn binomial_request(n: usize, scale: f64) -> CombinationRequest {
+    binomial_rows(n, scale, 1)
+}
+
+/// The same family with `rows` rows, row k scaled by 2^k (scaling leaves the conditioning
+/// unchanged, so every row needs the same precision).
+pub fn binomial_rows(n: usize, scale: f64, rows: usize) -> CombinationRequest {
     let modes = (0..n)
         .map(|i| ModalMode { mode: ModeIndex(i as u32 + 1), cluster: ClusterIndex(i as u32 + 1), frequency_hz: 1.0 + i as f64 * 2f64.powi(-19) })
         .collect();
@@ -154,7 +160,8 @@ pub fn binomial_request(n: usize, scale: f64) -> CombinationRequest {
     let mut periodic = Vec::new();
     for k in 0..n {
         let sign = if k % 2 == 0 { 1.0 } else { -1.0 };
-        periodic.push(ModalContribution { mode: ModeIndex(k as u32 + 1), direction: Direction::X, values: vec![sign * c * scale] });
+        periodic.push(ModalContribution { mode: ModeIndex(k as u32 + 1), direction: Direction::X,
+            values: (0..rows).map(|r| sign * c * scale * 2f64.powi(r as i32)).collect() });
         c = c * (n - 1 - k) as f64 / (k + 1) as f64;
     }
     CombinationRequest {
@@ -164,10 +171,52 @@ pub fn binomial_request(n: usize, scale: f64) -> CombinationRequest {
         missing_mass: MissingMass::NotApplied,
         directions: vec![Direction::X],
         modes,
-        rows: vec![Quantity::NodeDisplacement { node: "N1".into(), component: DisplacementComponent::Ux }],
+        rows: (0..rows).map(|r| Quantity::NodeDisplacement { node: format!("N{}", r + 1), component: DisplacementComponent::Ux }).collect(),
         periodic,
         rigid: vec![],
     }
+}
+
+fn timed(label: &str, request: &CombinationRequest) {
+    let start = Instant::now();
+    let outcome = combine(request);
+    let rows = request.rows.len();
+    let elapsed = start.elapsed();
+    let what = match &outcome {
+        Ok(_) => "certified".to_string(),
+        Err(r) => format!("refused ({} refusals)", r.len()),
+    };
+    eprintln!("COST {label}: {rows} rows, {what}, {elapsed:?} ({:?} per row)", elapsed / rows as u32);
+}
+
+#[test]
+#[ignore]
+fn cost_demanding_n20_rows_10() {
+    timed("demanding n=20", &binomial_rows(20, 1.0, 10));
+}
+
+#[test]
+#[ignore]
+fn cost_demanding_n20_rows_50() {
+    timed("demanding n=20", &binomial_rows(20, 1.0, 50));
+}
+
+#[test]
+#[ignore]
+fn cost_refusal_n40_rows_10() {
+    timed("refusal n=40", &binomial_rows(40, 1.0, 10));
+}
+
+#[test]
+#[ignore]
+fn cost_refusal_n40_rows_50() {
+    timed("refusal n=40", &binomial_rows(40, 1.0, 50));
+}
+
+#[test]
+#[ignore]
+fn cost_refusal_n80_rows_1() {
+    timed("refusal n=80", &binomial_rows(80, 1.0, 1));
 }
 
 /// A demanding refinement: n = 20 needs about 605 bits under the pricing model and is certified
@@ -189,4 +238,18 @@ fn cost_refusal_path_n40() {
     let refused = combine(&binomial_request(40, 1.0)).expect_err("refused at the cap");
     eprintln!("COST refusal path n=40: {:?}, {}", start.elapsed(), refused[0]);
     assert_eq!(refused[0].code.as_str(), "SPECTRUM_COMBINATION_ACCURACY_UNCERTIFIED");
+}
+
+/// The refusal path with many clusters: 120 clusters (the n = 40 refusing pattern on the first 40,
+/// zero contributions on 80 more at higher frequencies), so the ρ table of every level covers all
+/// 7,140 pairs.
+#[test]
+#[ignore]
+fn cost_refusal_n40_with_120_clusters_rows_10() {
+    let mut request = binomial_rows(40, 1.0, 10);
+    for i in 40..120u32 {
+        request.modes.push(ModalMode { mode: ModeIndex(i + 1), cluster: ClusterIndex(i + 1), frequency_hz: 2.0 + i as f64 });
+        request.periodic.push(ModalContribution { mode: ModeIndex(i + 1), direction: Direction::X, values: vec![0.0; 10] });
+    }
+    timed("refusal n=40 among 120 clusters", &request);
 }

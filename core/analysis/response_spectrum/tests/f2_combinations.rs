@@ -1,6 +1,6 @@
 //! DEL-04-10 AC-002, the combinations (unit S4), against the frozen `f2_spectrum` references at
-//! REQ-008's verification tolerance (tests/support: 1e-9 relative, with the stated floor near
-//! zero).
+//! REQ-008's verification tolerance (tests/support: 1e-9 relative, no floor; an expected zero must
+//! be produced exactly).
 //!
 //! The inputs are the references' own published signed contributions, modal metadata and rigid
 //! responses, each read as its binary64. The product supplies none of them; these tests examine
@@ -44,7 +44,6 @@ fn check_analysis(case: &Value, analysis: &Value, block: Option<&str>, tally: &m
         None => analysis,
         Some(name) => &analysis[name],
     };
-    let scales = a.scales();
     let request = &analysis["request"];
     let base_modal = modal_rule(request["modal_combination"].as_str().unwrap());
     let base_directional = directional_rule(request["directional_combination"].as_str().unwrap());
@@ -57,14 +56,14 @@ fn check_analysis(case: &Value, analysis: &Value, block: Option<&str>, tally: &m
 
     // The base request.
     let base = combined_of(&run(base_modal, base_rigid, base_directional), &a.keys);
-    for (i, key) in a.keys.iter().enumerate() {
+    for key in a.keys.iter() {
         let (combined, per) = &base[key];
-        tally.check(&format!("{label} combined {key}"), *combined, expected(&source["combined"][key]), scales[i]);
+        tally.check(&format!("{label} combined {key}"), *combined, expected(&source["combined"][key]));
         for d in &a.directions {
             let e = expected(&source["per_direction_combined"][d.as_str()][key]);
-            tally.check(&format!("{label} {d} {key}"), per[d].2, e, scales[i]);
+            tally.check(&format!("{label} {d} {key}"), per[d].2, e);
             if let Some(rm) = analysis.get("rigid_magnitude").filter(|_| block.is_none()) {
-                tally.check(&format!("{label} rigid {d} {key}"), per[d].1.unwrap(), expected(&rm[d.as_str()][key]), scales[i]);
+                tally.check(&format!("{label} rigid {d} {key}"), per[d].1.unwrap(), expected(&rm[d.as_str()][key]));
             }
         }
     }
@@ -74,10 +73,10 @@ fn check_analysis(case: &Value, analysis: &Value, block: Option<&str>, tally: &m
         let Some(blocks) = source.get(field).and_then(Value::as_object) else { continue };
         for (rule, per_direction) in blocks {
             let c = combined_of(&run(modal_rule(rule), rigid, base_directional), &a.keys);
-            for (i, key) in a.keys.iter().enumerate() {
+            for key in a.keys.iter() {
                 for d in &a.directions {
                     let e = expected(&per_direction[d.as_str()][key]);
-                    tally.check(&format!("{label} {field} {rule} {d} {key}"), c[key].1[d].0, e, scales[i]);
+                    tally.check(&format!("{label} {field} {rule} {d} {key}"), c[key].1[d].0, e);
                 }
             }
         }
@@ -89,9 +88,9 @@ fn check_analysis(case: &Value, analysis: &Value, block: Option<&str>, tally: &m
         let rigid = rigid_rule(m["missing_mass"].as_str().unwrap());
         let directional = directional_rule(m["directional_combination"].as_str().unwrap());
         let c = combined_of(&run(modal, rigid, directional), &a.keys);
-        for (i, key) in a.keys.iter().enumerate() {
+        for key in a.keys.iter() {
             let what = format!("{label} mutation {modal:?}/{rigid:?}/{directional:?} {key}");
-            tally.check(&what, c[key].0, expected(&m["combined"][key]), scales[i]);
+            tally.check(&what, c[key].0, expected(&m["combined"][key]));
         }
     }
 }
@@ -263,7 +262,6 @@ fn c7_repeated_pair_two_bases_give_the_same_combinations() {
             ModalMode { mode: ModeIndex(mode), cluster: ClusterIndex(if mode <= 2 { 1 } else { 2 }), frequency_hz: input(&m["frequency_Hz"]) }
         })
         .collect();
-    let mut scale = vec![0.0; keys.len()];
     let mut results = Vec::new();
     for basis in ["basis_1", "basis_2"] {
         let b = &witness["bases"][basis];
@@ -272,9 +270,6 @@ fn c7_repeated_pair_two_bases_give_the_same_combinations() {
         for d in [Direction::Y, Direction::Z] {
             for (k, v) in vectors.iter().enumerate() {
                 let values: Vec<f64> = keys.iter().map(|key| input(&v["contributions_signed"][d.as_str()][key])).collect();
-                for (s, x) in scale.iter_mut().zip(&values) {
-                    *s += x.abs();
-                }
                 periodic.push(ModalContribution { mode: ModeIndex(k as u32 + 1), direction: d, values });
             }
             // The second pair is supplied in the M-orthonormal basis whose first vector lies along
@@ -307,10 +302,10 @@ fn c7_repeated_pair_two_bases_give_the_same_combinations() {
             let name = rule.as_str();
             for (i, row) in c.rows.iter().enumerate() {
                 let key = &keys[i];
-                tally.check(&format!("C7 {name} {key}"), row.combined.value(), expected(&published[name]["combined"][key]), scale[i]);
+                tally.check(&format!("C7 {name} {key}"), row.combined.value(), expected(&published[name]["combined"][key]));
                 for p in &row.per_direction {
                     let e = expected(&published[name]["per_direction"][p.direction.as_str()][key]);
-                    tally.check(&format!("C7 {name} {} {key}", p.direction), p.combined.value(), e, scale[i]);
+                    tally.check(&format!("C7 {name} {} {key}", p.direction), p.combined.value(), e);
                 }
             }
         }
@@ -318,7 +313,7 @@ fn c7_repeated_pair_two_bases_give_the_same_combinations() {
     // The two bases agree with each other under every rule.
     for ((_, c1, _), (_, c2, _)) in results[0].iter().zip(&results[1]) {
         for (i, (r1, r2)) in c1.rows.iter().zip(&c2.rows).enumerate() {
-            tally.check(&format!("C7 basis agreement {}", keys[i]), r1.combined.value(), r2.combined.value(), scale[i]);
+            tally.check(&format!("C7 basis agreement {}", keys[i]), r1.combined.value(), r2.combined.value());
         }
     }
     eprintln!("C7 basis witness: {tally:?}");
@@ -386,12 +381,11 @@ fn two_mass_chain_sets_a_b_c() {
             ("ABSSUM", ModalRule::AbsoluteSum), ("TEN_PERCENT", ModalRule::TenPercent)];
         if set != "C" {
             let all = contributions(&[1, 2]);
-            let scale: Vec<f64> = (0..5).map(|i| all.iter().map(|c| c.values[i].abs()).sum()).collect();
             for (name, rule) in rules {
                 let c = combine(&request(rule, MissingMass::NotApplied, all.clone(), vec![])).unwrap();
                 for (i, k) in CHAIN_KEYS.iter().enumerate() {
                     let e = dec(&s["without_missing_mass"]["combined"][k][name]);
-                    tally.check(&format!("chain {set} {name} {k}"), c.rows[i].combined.value(), e, scale[i]);
+                    tally.check(&format!("chain {set} {name} {k}"), c.rows[i].combined.value(), e);
                 }
             }
         }
@@ -405,7 +399,6 @@ fn two_mass_chain_sets_a_b_c() {
                 periodic_clusters_left_out: periodic_modes.iter().map(|&m| ClusterIndex(m)).collect(),
                 values: rigid_values.clone(),
             }];
-            let scale: Vec<f64> = (0..5).map(|i| periodic.iter().map(|c| c.values[i].abs()).sum::<f64>() + rigid_values[i].abs()).collect();
             for (name, rule) in rules {
                 for (field, rigid_rule) in [("with_rigid_SRSS", RigidRule::Srss), ("with_rigid_ABSSUM", RigidRule::AbsoluteSum)] {
                     let missing = MissingMass::Applied { rigid_frequency_hz: fr, rule: rigid_rule };
@@ -413,8 +406,8 @@ fn two_mass_chain_sets_a_b_c() {
                     for (i, k) in CHAIN_KEYS.iter().enumerate() {
                         let published = &mm["combined"][k][name];
                         let part = &c.rows[i].per_direction[0];
-                        tally.check(&format!("chain {set} f_r={fr} {name} periodic {k}"), part.periodic.value(), dec(&published["periodic"]), scale[i]);
-                        tally.check(&format!("chain {set} f_r={fr} {name} {field} {k}"), c.rows[i].combined.value(), dec(&published[field]), scale[i]);
+                        tally.check(&format!("chain {set} f_r={fr} {name} periodic {k}"), part.periodic.value(), dec(&published["periodic"]));
+                        tally.check(&format!("chain {set} f_r={fr} {name} {field} {k}"), c.rows[i].combined.value(), dec(&published[field]));
                     }
                 }
             }

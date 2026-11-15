@@ -179,24 +179,76 @@ impl BigUint {
         n
     }
 
-    /// `(⌊self / d⌋, self mod d)`, for `d > 0`, by binary long division.
+    /// `(⌊self / d⌋, self mod d)`, for `d > 0`: schoolbook long division on u64 limbs (Knuth,
+    /// TAOCP vol. 2, §4.3.1, Algorithm D), with a single-limb fast path.
     pub(crate) fn divrem(&self, d: &Self) -> (Self, Self) {
         assert!(!d.is_zero(), "division by zero");
         if self.cmp(d) == Ordering::Less {
             return (Self::zero(), self.clone());
         }
-        let shift = self.bits() - d.bits();
-        let mut remainder = self.clone();
-        let mut quotient = Self::zero();
-        let mut divisor = d.shl(shift);
-        for i in (0..=shift).rev() {
-            if remainder.cmp(&divisor) != Ordering::Less {
-                remainder = remainder.sub(&divisor);
-                quotient = quotient.add(&Self::one().shl(i));
+        if d.limbs.len() == 1 {
+            let dv = u128::from(d.limbs[0]);
+            let mut q = vec![0u64; self.limbs.len()];
+            let mut r = 0u128;
+            for i in (0..self.limbs.len()).rev() {
+                let cur = (r << 64) | u128::from(self.limbs[i]);
+                q[i] = (cur / dv) as u64;
+                r = cur % dv;
             }
-            divisor = divisor.shr(1);
+            let mut q = Self { limbs: q };
+            q.trim();
+            return (q, Self::from_u128(r));
         }
-        (quotient, remainder)
+        // Normalize so the divisor's top limb has its high bit set.
+        let shift = u64::from(d.limbs.last().unwrap().leading_zeros());
+        let v = d.shl(shift).limbs;
+        let mut u = self.shl(shift).limbs;
+        u.push(0);
+        let n = v.len();
+        let m = u.len() - n - 1;
+        let mut q = vec![0u64; m + 1];
+        let b = 1u128 << 64;
+        for j in (0..=m).rev() {
+            let top = (u128::from(u[j + n]) << 64) | u128::from(u[j + n - 1]);
+            let mut qhat = top / u128::from(v[n - 1]);
+            let mut rhat = top % u128::from(v[n - 1]);
+            while qhat >= b || qhat * u128::from(v[n - 2]) > ((rhat << 64) | u128::from(u[j + n - 2])) {
+                qhat -= 1;
+                rhat += u128::from(v[n - 1]);
+                if rhat >= b {
+                    break;
+                }
+            }
+            // u[j..j+n+1] -= qhat·v
+            let mut borrow: i128 = 0;
+            let mut carry: u128 = 0;
+            for i in 0..n {
+                let p = qhat * u128::from(v[i]) + carry;
+                carry = p >> 64;
+                let t = i128::from(u[i + j]) - i128::from(p as u64) + borrow;
+                u[i + j] = t as u64;
+                borrow = t >> 64;
+            }
+            let t = i128::from(u[j + n]) - carry as i128 + borrow;
+            u[j + n] = t as u64;
+            if t < 0 {
+                // qhat was one too large: add v back.
+                qhat -= 1;
+                let mut c = 0u128;
+                for i in 0..n {
+                    let s2 = u128::from(u[i + j]) + u128::from(v[i]) + c;
+                    u[i + j] = s2 as u64;
+                    c = s2 >> 64;
+                }
+                u[j + n] = u[j + n].wrapping_add(c as u64);
+            }
+            q[j] = qhat as u64;
+        }
+        let mut q = Self { limbs: q };
+        q.trim();
+        let mut r = Self { limbs: u[..n].to_vec() };
+        r.trim();
+        (q, r.shr(shift))
     }
 
     pub(crate) fn one() -> Self {
@@ -208,8 +260,22 @@ impl BigUint {
         if self.is_zero() {
             return Self::zero();
         }
-        // x0 = 2^⌈bits/2⌉ ≥ √self; the iteration x ← ⌊(x + ⌊n/x⌋)/2⌋ decreases to ⌊√n⌋.
-        let mut x = Self::one().shl(self.bits().div_ceil(2));
+        // An overestimate x0 ≥ √self: from the top 53 bits (n < (t + 1)·2^(2k) with t the top part),
+        // √n < √(t + 1)·2^k, rounded up generously; then x ← ⌊(x + ⌊n/x⌋)/2⌋ decreases to ⌊√n⌋.
+        let bits = self.bits();
+        let k = bits.saturating_sub(106) / 2; // keep about 106 bits in the top part
+        let t = self.shr(2 * k);
+        let t_f = t.limbs.iter().rev().fold(0.0f64, |acc, &l| acc * 18446744073709551616.0 + l as f64);
+        let estimate = ((t_f * (1.0 + 1e-12) + 4.0).sqrt() * (1.0 + 1e-12)).ceil() + 2.0;
+        let mut x = if estimate.is_finite() && estimate < 1.8e19 {
+            Self::from_u128(estimate as u128).shl(k)
+        } else {
+            Self::one().shl(bits.div_ceil(2))
+        };
+        // Guard: the iteration needs a start at or above ⌊√n⌋.
+        if x.mul(&x) < *self {
+            x = Self::one().shl(bits.div_ceil(2));
+        }
         loop {
             let (q, _) = self.divrem(&x);
             let y = x.add(&q).shr(1);
@@ -267,6 +333,12 @@ mod tests {
                     let (q, r) = n(a).divrem(&n(b));
                     assert_eq!((q, r), (n(a / b), n(a % b)), "{a} / {b}");
                 }
+                // Multi-limb divisors: (a·2^200 + b) / (b·2^70 + 3) checked by q·d + r = n, r < d.
+                let big = n(a).shl(200).add(&n(b));
+                let d = n(b).shl(70).add(&n(3));
+                let (q, r) = big.divrem(&d);
+                assert_eq!(q.mul(&d).add(&r), big, "{a}, {b}");
+                assert!(r < d);
                 assert_eq!(n(a).cmp(&n(b)), a.cmp(&b));
             }
             for s in [0u64, 1, 63, 64, 65, 127] {
@@ -289,6 +361,41 @@ mod tests {
         // A large perfect square: (2^300 + 7)^2.
         let a = BigUint::one().shl(300).add(&n(7));
         assert_eq!(a.mul(&a).isqrt(), a);
+    }
+
+    /// Division and square roots of pseudo-random numbers up to 40 limbs satisfy their defining
+    /// identities: n = q·d + r with r < d, and r² ≤ n < (r + 1)².
+    #[test]
+    fn random_division_and_roots_satisfy_their_identities() {
+        let mut state = 0x9e37_79b9_7f4a_7c15u64;
+        let mut next = || {
+            state ^= state << 13;
+            state ^= state >> 7;
+            state ^= state << 17;
+            state
+        };
+        for round in 0..400 {
+            let len_n = 1 + (next() % 40) as usize;
+            let len_d = 1 + (next() % len_n as u64) as usize;
+            let mut nl: Vec<u64> = (0..len_n).map(|_| next()).collect();
+            let mut dl: Vec<u64> = (0..len_d).map(|_| next()).collect();
+            if round % 5 == 0 {
+                // Divisors with small top limbs and runs of all-ones limbs stress the qhat correction.
+                *dl.last_mut().unwrap() = 1 + next() % 3;
+                nl.iter_mut().take(len_n / 2).for_each(|l| *l = u64::MAX);
+            }
+            let n = BigUint::from_limbs(&nl);
+            let d = BigUint::from_limbs(&dl);
+            if d.is_zero() {
+                continue;
+            }
+            let (q, r) = n.divrem(&d);
+            assert_eq!(q.mul(&d).add(&r), n, "round {round}");
+            assert!(r < d, "round {round}");
+            let s = n.isqrt();
+            let s1 = s.add(&BigUint::one());
+            assert!(s.mul(&s) <= n && s1.mul(&s1) > n, "round {round}");
+        }
     }
 
     #[test]
