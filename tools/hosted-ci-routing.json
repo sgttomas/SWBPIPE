@@ -276,7 +276,7 @@
       "core/rules/rule_check_runner/Cargo.toml": "b433d3eec2112c518f51ac9f83cfdc6469fef33cdaa9e1020bd8b814e5e15c85",
       "core/rules/rule_pack_document/Cargo.toml": "1675122e0a21560f7d8a1963267661ff75e7f97948cf177c7dbf6ed9f9d31bc6",
       "core/rules/rule_pack_lifecycle/Cargo.toml": "811d32918f3d13d8d2a9115ebb6ce9b0243078626bc426d8dbd97224eb2dbd56",
-      "core/runner/headless/Cargo.toml": "e05189b8b0dd01d4055a4100e9db76318b2e6ca3a7f6b95dbb61751a7f4c706e",
+      "core/runner/headless/Cargo.toml": "d8746c958874c87944a9fbccf63691d6f948f363cc6ec22b782ca26af82d6a43",
       "core/serialization/canonical_json/Cargo.toml": "fb2259bdfcb6adebc877b46e4e1b3126fdf1b08c0b6441a5e4ba49ab75e670a0",
       "core/solver/curved_bend/Cargo.toml": "5d7cf1288eac698c209aa4fd7493fa669aa57494950e75374ac07248001502d8",
       "core/solver/diagnostics/Cargo.toml": "33f62709325dd0aee1a7e4996ee1424e2dcbc9fd54418704f87c8f39e64b875c",
@@ -6518,7 +6518,7 @@
         }
       },
       "core/runner/headless/tests/modal_cli.rs": {
-        "sha256": "a73eccb3e1b9578e27927cefc49508cfab32fdf4a1330a25db2a9835565b6849",
+        "sha256": "ecbf74f68488167a24c4fed59795c6ab39888ab782c82a874757d56b48e7620b",
         "source_trees": [
           "core/runner/headless/Cargo.toml"
         ],
