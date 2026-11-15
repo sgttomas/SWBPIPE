@@ -16,6 +16,48 @@
 //! classification of [`WideDd::to_published`] see the exact value's rounding
 //! and its side of every midpoint.
 //!
+//! **What the rounding guarantees** (issue #337). Let E = ⌊log₂|x|⌋ for the
+//! exact sum x ≠ 0, and t = (E mod 32) + 1, the bit length of its top limb.
+//! - The high word is x correctly rounded to 53 bits.
+//! - The low word has the exact sign of x − hi, and is zero only when the
+//!   conversion is exact.
+//! - |x − (hi + lo)| < 2^−min(96+t, 105)·|x|. This bound is approached but
+//!   not attained for t ≤ 9; for t ≥ 10 the relative error is below 2⁻¹⁰⁶.
+//!
+//!   *Argument*, from [`ExactSum::to_wide_with`] and `round_to_odd`. Let
+//!   n = min(96 + t, 126) and b = E − n + 1.
+//!   - The window W holds the top n bits of |x|, so |x| = (W + ε)·2^b with
+//!     0 ≤ ε < 1. The sticky flag is set exactly when ε > 0. For t = 31
+//!     and 32 the window is shifted down to 126 bits; the dropped bits
+//!     join the sticky flag, and ε < 1 still holds.
+//!   - With s = n − 53, the high word is W + ε rounded to nearest-even at
+//!     2^s, the sticky flag breaking an exact half. The remainder
+//!     z = W + ε − q·2^s satisfies |z| ≤ 2^(s−1). A positive remainder of
+//!     exactly 2^(s−1) arises only without the sticky flag. A negative
+//!     one of that size is exact without it, and with it has integer part
+//!     2^(s−1) − 1. So every inexact remainder has integer part below
+//!     2^(s−1).
+//!   - `round_to_odd` returns z's integer part plus ½ when that part is
+//!     below 2⁵² and a fraction remains, an error below ½ unit of 2^b.
+//!     Otherwise it rounds to odd at 53 bits, an error below 2^(s−54)
+//!     units. The scalings by powers of two are exact.
+//!   - Hence |x − (hi + lo)| < max(2^(E−n), 2^(E−106)), and with |x| ≥ 2^E
+//!     the relative error is below 2^−min(n, 106): 2^−(96+t) for t ≤ 10,
+//!     and 2⁻¹⁰⁶ for t ≥ 10.
+//!   - For t ≤ 9 the bound is approached by x = 2^E + δ with δ → 0⁺, where
+//!     lo = 2^(E−96−t).
+//! - The 128-bit window holds the top four limbs, so for t ≤ 8 (E mod 32 in
+//!   [0, 7], a quarter of all binades, ordinary masses in [1, 256) among
+//!   them) hi + lo is good only to 2⁻⁹⁷ at worst (t = 1), not to a full
+//!   double-double. For example 1 + 2⁻²⁰⁰ returns lo = 2⁻⁹⁷. For t ≥ 9 the
+//!   error is below 2⁻¹⁰⁵.
+//! - No relative bound holds on the low word alone.
+//! - For the pair returned by this conversion, the high word, separate
+//!   exponent and low word's sign determine binary64 rounding and range
+//!   classification, which agree with the exact sum whatever t is. A caller
+//!   that uses hi + lo as a double-double gets the bound above; 2⁻¹⁰⁶ is
+//!   not guaranteed for all t.
+//!
 //! Every add is O(1) limb operations; carries are propagated every 2²⁸ adds
 //! and before a result is read.
 //!
@@ -423,7 +465,10 @@ impl ExactSum {
     }
 
     /// The sum rounded once: the high word is the correctly rounded binary64
-    /// significand, the low word the remainder rounded to odd (module docs).
+    /// significand, the low word the remainder rounded to odd. hi + lo is
+    /// within 2^−min(96+t, 105) of the sum relative, t the bit length of its
+    /// top limb, so 2⁻⁹⁷ at worst (module docs, "What the rounding
+    /// guarantees").
     pub fn to_wide(&self) -> WideDd {
         self.to_wide_with(&mut Vec::new())
     }
