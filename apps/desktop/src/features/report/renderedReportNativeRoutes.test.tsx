@@ -70,6 +70,7 @@ import { RenderedReportPanel } from "./RenderedReportPanel";
 import { ReportSourceSequence } from "../workspace/reportSourceSequence";
 import { ReportOutputOutcomes } from "./reportOutputOutcomes";
 import { ReportOutputStatus } from "./ReportOutputStatus";
+import { NO_LIBRARY_REF_FINDINGS, type LibraryRefFindingsState } from "../library/libraryRefFindings";
 
 const HTML = "<!DOCTYPE html>\n<html><body>invented rendered report</body></html>";
 const SHA = "b".repeat(64);
@@ -294,7 +295,9 @@ describe("native runtime", () => {
     };
     const current = (mark: Mark) => mark.incarnation === native.incarnation && mark.sequence === native.registered;
     const transport = {
-      activate: async (): Promise<Mark> => {
+      observe: async (): Promise<Mark> => ({ incarnation: native.incarnation, sequence: native.registered }),
+      activate: async (expected: number): Promise<Mark> => {
+        if (expected !== native.incarnation) throw { code: "REPORT-SOURCE-ACTIVATION-CONFLICT", stage: "source", message: "conflict" };
         native.incarnation += 1;
         native.registered = 0;
         native.record = null;
@@ -371,15 +374,16 @@ describe("native runtime", () => {
 
   /** The session's two owners as App holds them: the panel with its committed sequence, and the
    * outcome status outside it. */
-  function Harness({ source, outcomes, sequence, run, showPanel = true }: {
+  function Harness({ source, outcomes, sequence, run, showPanel = true, reportModel = model, findings = NO_LIBRARY_REF_FINDINGS }: {
     source: ReportSourceSequence; outcomes: ReportOutputOutcomes; sequence: number; run: string; showPanel?: boolean;
+    reportModel?: PreviewModel; findings?: LibraryRefFindingsState;
   }) {
     const entries = useSyncExternalStore(outcomes.subscribe, outcomes.snapshot);
     return (
       <>
         {showPanel ? (
-          <RenderedReportPanel model={model} result={stableResult(run)} analysisRun={analysisRun} projectSummary={null}
-            reportSource={source} reportSourceSequence={sequence} reportOutputs={outcomes} />
+          <RenderedReportPanel model={reportModel} result={stableResult(run)} analysisRun={analysisRun} projectSummary={null}
+            reportSource={source} reportSourceSequence={sequence} reportOutputs={outcomes} libraryRefFindingsState={findings} />
         ) : null}
         <ReportOutputStatus outcomes={outcomes} entries={entries} currentSequence={sequence} />
       </>
@@ -524,6 +528,71 @@ describe("native runtime", () => {
     const [entry] = context.outcomes.snapshot();
     expect([entry.state, entry.code]).toEqual(["refused", "REPORT-HTML-SAVE-RETIRED"]);
     expect(screen.getByTestId(`report-output-${entry.id}-text`)).toHaveTextContent("Not saved (REPORT-HTML-SAVE-RETIRED)");
+  });
+
+  // Round-two F1: a library-reference findings publication is a source change of the report.
+  // The session's bridge advances the source and commits the new publication with it; here
+  // that step is stood in for by `advance()` beside the new publication prop, as for the
+  // other sources (the bridge itself is tested on the actual session in renderedReport.test).
+  const refModel = {
+    project: { id: "project:invented", units: {} },
+    materials: [{ id: "material:with-ref", label: "Invented referenced steel", provenance: "", provenance_record: {
+      source_name: "Invented datasheet", library_ref: { library_kind: "material", library_id: "invented-library", library_version: "invented-v1", record_id: "steel-a" }
+    } }]
+  } as unknown as PreviewModel;
+  const refFinding = {
+    entity_ref: "material:with-ref", library_kind: "material" as const, library_id: "invented-library", library_version: "invented-v1",
+    record_id: "steel-a", code: "MODEL-LIBRARY-REF-VERSION-CHANGED" as const, severity: "warning" as const,
+    recorded_version: "invented-v1", stored_version: "invented-v2", message: "Invented library version changed."
+  };
+  const withFinding: LibraryRefFindingsState = { projectId: "project:invented", findings: [refFinding] };
+
+  async function renderedWithFindings(context: ReturnType<typeof modelledNative>) {
+    context.source.start();
+    const view = render(<Harness source={context.source} outcomes={context.outcomes} sequence={0} run="run:invented-1" reportModel={refModel} />);
+    await flush();
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    view.rerender(<Harness source={context.source} outcomes={context.outcomes} sequence={context.source.sequence} run="run:invented-1" reportModel={refModel} />);
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-hash")).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("rendered-report-save-local-private"));
+    await waitFor(() => expect(context.native.pendingSaves).toHaveLength(1));
+    return view;
+  }
+
+  function publishFinding(context: ReturnType<typeof modelledNative>, view: ReturnType<typeof render>) {
+    act(() => {
+      context.source.advance();
+      view.rerender(<Harness source={context.source} outcomes={context.outcomes} sequence={context.source.sequence} run="run:invented-1" reportModel={refModel} findings={withFinding} />);
+    });
+  }
+
+  it("refuses publication of a report prepared before a registered findings change, and discards its render", async () => {
+    const context = modelledNative();
+    const view = await renderedWithFindings(context);
+    publishFinding(context, view);
+    expect(screen.queryByTestId("rendered-report-hash")).not.toBeInTheDocument();
+    await flush(); // registered
+    context.publishPendingSaves();
+    await flush();
+    expect(context.native.published).toEqual([]);
+    const [entry] = context.outcomes.snapshot();
+    expect([entry.state, entry.code]).toEqual(["refused", "REPORT-HTML-SAVE-RETIRED"]);
+  });
+
+  it("lets a findings change still in transit leave the earlier selected report saved, with the change stated", async () => {
+    const context = modelledNative();
+    const view = await renderedWithFindings(context);
+    context.native.holdAdvances = true;
+    publishFinding(context, view);
+    context.publishPendingSaves();
+    await flush();
+    context.deliverAdvances();
+    await flush();
+    expect(context.native.published).toEqual([HTML]);
+    const [entry] = context.outcomes.snapshot();
+    expect(entry.state).toBe("saved");
+    expect(screen.getByTestId(`report-output-${entry.id}-text`).textContent).toContain("Saved the selected report. The workspace has changed since it was prepared.");
   });
 
   it("prints the same report again, again after a refusal, and after the report changes", async () => {

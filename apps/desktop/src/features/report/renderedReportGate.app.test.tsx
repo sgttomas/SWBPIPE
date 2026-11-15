@@ -32,6 +32,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 import { App } from "../../App";
 import { createSolveJobTransport, REPLAY_COMMANDS } from "../../test/nativeMechanicsReplay";
 import { useModelledVisibility } from "../../test-support/modelledVisibility";
+import { REPORT_SOURCE_COMMANDS, reportSourceRegistration } from "../../test/reportSourceRegistration";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { outcomeFromWasmEngineJson } from "../../services/operationService";
@@ -110,8 +111,7 @@ async function mountApp(hold?: Promise<void>) {
   const renders: Json[] = [];
   const prints: Json[] = [];
   let retirements = 0;
-  let sourceIncarnation = 0;
-  let sourceRegistered = 0;
+  const reportSource = reportSourceRegistration();
   // Any command outside the job contract is refused by name, as the native-replay App tests do; the
   // App's startup chores it refuses (autosave, unit catalogue, model states) are tolerated by App, and
   // the refused names are reported with any stalled step.
@@ -133,15 +133,9 @@ async function mountApp(hold?: Promise<void>) {
       return { outcome: "print_window_opened", route_id: "DREP-HTML-SAVE-005", export_context: "local_private", canonical_sha256_hex: canonical, print_sha256_hex: "c".repeat(64) };
     }
     if (command === "retire_rendered_report") { retirements += 1; return null; }
-    // DEL-08-01 REQ-022: the report source registration, as the native process answers it (the
-    // highest number of the current incarnation stands).
-    if (command === "activate_report_source") { sourceIncarnation += 1; sourceRegistered = 0; return { incarnation: sourceIncarnation, sequence: 0 }; }
-    if (command === "advance_report_source") {
-      const mark = args as { incarnation: number; sequence: number };
-      if (mark.incarnation !== sourceIncarnation) throw { code: "REPORT-SOURCE-INCARNATION-RETIRED", stage: "source", message: "retired" };
-      sourceRegistered = Math.max(sourceRegistered, mark.sequence);
-      return { incarnation: sourceIncarnation, sequence: sourceRegistered };
-    }
+    // DEL-08-01 REQ-022: the report source registration, as the native process answers it
+    // (observation, conditional activation, highest number of the current incarnation).
+    if (REPORT_SOURCE_COMMANDS.includes(command)) return reportSource(command, args);
     // A model edit's operation, through the maintained operation engine (as App.mbfRoundTrip.test.tsx
     // does), not a fabricated edited document: App still performs the edit, its hash checks and the
     // session commit. No actual native operation witness.

@@ -539,7 +539,7 @@ pub async fn native_smoke_close_report_print(app: AppHandle) -> Result<bool, Str
     let Some(label) = crate::rendered_report_print::open_window_label() else {
         return Ok(false);
     };
-    crate::rendered_report_print::close_unless_current(None);
+    crate::rendered_report_print::close_open_print();
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
     loop {
         if app.get_webview_window(&label).is_none() {

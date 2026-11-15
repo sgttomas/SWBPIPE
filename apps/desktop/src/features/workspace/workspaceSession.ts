@@ -90,7 +90,14 @@ import {
 import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
 import { MODEL_DOCUMENT_FILE_SOURCE, checkNativeOutcome, modelFileRefusalMessage, modelFileWarningSuffix, type ModelDocumentSource } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
-import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFindings } from "../library/libraryRefFindings";
+import {
+  currentLibraryRefFindings,
+  libraryRefDiagnostics,
+  publishLibraryRefFindings,
+  publishedLibraryRefFindings,
+  subscribeLibraryRefFindings,
+  type LibraryRefFindingsState
+} from "../library/libraryRefFindings";
 import { cancelNativeModelChecks, modelChecksNotCompleted, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
 import { retireMbfExportSession, reviewMbfExport, saveMbfExport } from "../caepipe-mbf/mbfExportCancel";
 import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
@@ -277,7 +284,7 @@ import { observeWorkspaceCanvasBudget } from "./workspaceCanvasBudget";
 import { EXPENSIVE_LIFECYCLE_SECTIONS } from "./workspaceSections";
 import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
-import { useReportSourceSequence } from "./reportSourceSequence";
+import { useReportSourceSequence, useSequencedState } from "./reportSourceSequence";
 import { useReportOutputOutcomes } from "../report/reportOutputOutcomes";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
@@ -444,6 +451,31 @@ export function useWorkspaceSession() {
     currentModel,
     activeModelIndex
   } = useModelSessionState(reportSource.owner.advance);
+  // DEL-08-01 REQ-022 (round-two F1): the library-reference findings that apply to the
+  // report's model are a report input. The store's publication is bridged into a sequenced
+  // cell for this workspace's lifetime: a publication that changes the findings applicable to
+  // the current model (a new or changed warning, or a clear) advances the report source in
+  // the same synchronous step; one that changes nothing applicable (another project's, or
+  // the same findings again) is adopted without advancing. A report captures this cell's
+  // publication with its model and number, and derives the applicable findings from both.
+  const [libraryRefFindingsState, setLibraryRefFindingsState, adoptLibraryRefFindingsState] =
+    useSequencedState<LibraryRefFindingsState>(publishedLibraryRefFindings, reportSource.owner.advance);
+  const libraryRefFindingsLatest = useRef<LibraryRefFindingsState>(libraryRefFindingsState);
+  useEffect(() => {
+    const reconcile = () => {
+      const next = publishedLibraryRefFindings();
+      const previous = libraryRefFindingsLatest.current;
+      if (next === previous) return;
+      libraryRefFindingsLatest.current = next;
+      const model = currentModel.current;
+      const applicable = (state: LibraryRefFindingsState) => (model ? JSON.stringify(currentLibraryRefFindings(model, state)) : "[]");
+      if (applicable(previous) === applicable(next)) adoptLibraryRefFindingsState(next);
+      else setLibraryRefFindingsState(next);
+    };
+    const unsubscribe = subscribeLibraryRefFindings(reconcile);
+    reconcile(); // a publication made before this lifetime subscribed
+    return unsubscribe;
+  }, [adoptLibraryRefFindingsState, currentModel, setLibraryRefFindingsState]);
   // Chrome-only canonical comparison. A revision shortcut is used only for a
   // verified snapshot, or the untouched initial loaded-source snapshot (which
   // makes no claim of a file save). Later revisions need a current owned hash.
@@ -5110,6 +5142,8 @@ export function useWorkspaceSession() {
       reportSource: reportSource.owner,
       reportSourceSequence: reportSource.sequence,
       reportOutputs: reportOutputs.owner,
+      /** DEL-08-01 REQ-022 (F1): the library-reference findings publication the report captures. */
+      libraryRefFindingsState,
       reportOutputEntries: reportOutputs.entries,
       result,
       currentSolvedResult,

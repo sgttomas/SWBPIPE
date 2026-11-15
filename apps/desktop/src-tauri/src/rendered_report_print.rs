@@ -231,22 +231,45 @@ pub(crate) fn print_window_config(label: &str, address: tauri::Url, canonical_sh
     config
 }
 
-/// Closes the open print window unless its render is the one of
-/// `generation` (`None`: whatever it is). Returns whether an open record was retired
-/// and its window was asked to close; the result does not confirm destruction.
-pub(crate) fn close_unless_current(generation: Option<u64>) -> bool {
-    let label = {
-        let mut open = lock(&OPEN);
-        match open.as_ref() {
-            Some(print) if Some(print.document.generation) != generation => open.take().map(|print| print.label),
-            _ => None,
-        }
-    };
+/// Selects, under the open-window lock, the open print record whose render is
+/// no longer the CURRENT one in `custody`, and removes only that record; a
+/// record whose render is current is kept, whichever operation asks. The
+/// open-window lock is held while custody is read (the established order;
+/// custody is never held while this lock is taken). Returns the selected
+/// window's label, unique for the process, for the caller to destroy after
+/// the lock is released.
+pub(crate) fn select_retired_in(open: &Mutex<Option<OpenPrint>>, custody: &RenderCustody) -> Option<String> {
+    let mut open = lock(open);
+    match open.as_ref() {
+        Some(print) if !custody.is_current(print.document.generation) => open.take().map(|print| print.label),
+        _ => None,
+    }
+}
+
+/// Closes the print window whose render custody has retired (a retirement,
+/// a later render's entry or completion, a registered source advance or an
+/// activation), judged against current custody when the close runs, never
+/// against the caller's view: a delayed close cannot remove a newer current
+/// print. Only the selected window's exact label is destroyed. Returns
+/// whether one was selected; it does not confirm destruction.
+pub(crate) fn close_retired() -> bool {
+    let label = select_retired_in(&OPEN, &routes::CUSTODY);
     let retired = label.is_some();
     if let Some(label) = label {
         destroy_window(&label);
     }
     retired
+}
+
+/// Forced closing (the main window's destruction, the native-smoke close
+/// request): removes and destroys the open print window, current or not.
+pub(crate) fn close_open_print() -> bool {
+    let label = lock(&OPEN).take().map(|print| print.label);
+    let closed = label.is_some();
+    if let Some(label) = label {
+        destroy_window(&label);
+    }
+    closed
 }
 
 /// The print window currently held by the native print path, for the smoke
@@ -364,7 +387,7 @@ fn install_main_hook(app: &AppHandle) {
     MAIN_HOOK.call_once(move || {
         main.on_window_event(|event| {
             if let tauri::WindowEvent::Destroyed = event {
-                close_unless_current(None);
+                close_open_print();
             }
         });
     });
@@ -604,5 +627,38 @@ mod tests {
         waiter.unwrap().join().unwrap();
         assert!(changed.load(std::sync::atomic::Ordering::SeqCst));
         assert!(!custody.is_current(document.generation), "the later advance retired the render after the hand-off");
+    }
+
+    /// F3 (round-two review): a close judges the record it selects against CURRENT custody.
+    /// Advance A registers source 1 and retires the old render but its close is delayed; a
+    /// duplicate advance of 1 retires nothing; the new render's entry closes the retired window,
+    /// and a print of the new render opens; when A's close finally runs it keeps that current
+    /// print. A retired print still closes, and a current one is kept by any close.
+    #[test]
+    fn a_delayed_close_from_an_earlier_retirement_keeps_the_newer_current_print() {
+        let custody = rendered(PUBLIC_REPORT);
+        let first = admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
+        let open = open_for(first);
+        assert_eq!(select_retired_in(&open, &custody), None, "an unchanged current print is kept");
+        let one = SourceMark { incarnation: 1, sequence: 1 };
+        assert!(custody.advance(one).unwrap().1, "advance A retires the old render; its close is delayed");
+        assert_eq!(custody.advance(one).unwrap(), (one, false), "a duplicate advance retires nothing");
+        let ticket = custody.begin_render(one).unwrap();
+        assert_eq!(select_retired_in(&open, &custody).as_deref(), Some("report-print-7"), "the new render's entry closes the retired window");
+        custody.complete(ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false).unwrap();
+        let newer = admit_print_in(&custody, &RouteRequest { source: one, ..request(HTML, PUBLIC_REPORT, false) }).unwrap();
+        *lock(&open) = Some(OpenPrint { label: "report-print-8".to_string(), document: Arc::new(newer.clone()), served: false, printed: false });
+        assert_eq!(select_retired_in(&open, &custody), None, "A's delayed close keeps the newer current print");
+        assert_eq!(lock(&open).as_ref().map(|print| print.label.clone()).as_deref(), Some("report-print-8"));
+        // An earlier render's completion closing: the window of a replaced render closes.
+        let ticket = custody.begin_render(one).unwrap();
+        custody.complete(ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false).unwrap();
+        assert_eq!(select_retired_in(&open, &custody).as_deref(), Some("report-print-8"));
+        assert!(lock(&open).is_none());
+        // A retired print still closes.
+        let current = admit_print_in(&custody, &RouteRequest { source: one, ..request(HTML, PUBLIC_REPORT, false) }).unwrap();
+        *lock(&open) = Some(OpenPrint { label: "report-print-9".to_string(), document: Arc::new(current), served: false, printed: false });
+        custody.retire();
+        assert_eq!(select_retired_in(&open, &custody).as_deref(), Some("report-print-9"));
     }
 }

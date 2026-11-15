@@ -147,7 +147,7 @@ describe("the pressure-free Timoshenko identity on the desktop", () => {
 
   it("the rendered report carries the pf_timoshenko section and its texts; Euler–Bernoulli carries neither", async () => {
     const ti = await session("timoshenko_annulus_energy_v1", true);
-    const assembly = await assembleRenderedReport({ ...ti, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
+    const assembly = await assembleRenderedReport({ ...ti, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null, libraryRefFindings: [] });
     const input = assembly.input as Json;
     expect(input.exact_route).toBeUndefined();
     expect(input[PF_TIMOSHENKO_SECTION]).toEqual({ semantic_contract_id: PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, admission: { ...assembly.admission!.binding } });
@@ -156,7 +156,7 @@ describe("the pressure-free Timoshenko identity on the desktop", () => {
     const texts = assembly.exactSubmission!();
     expect(JSON.parse(texts.exactResultText).producer.semantic_contract_id).toBe(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID);
     const eb = await session(null, false);
-    const plain = await assembleRenderedReport({ ...eb, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
+    const plain = await assembleRenderedReport({ ...eb, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null, libraryRefFindings: [] });
     expect(PF_TIMOSHENKO_SECTION in (plain.input as Json)).toBe(false);
     expect(plain.exactSubmission).toBeNull();
     expect(plain.admission).toBeNull();
@@ -184,7 +184,7 @@ describe("the pressure-free Timoshenko identity on the desktop", () => {
     expect(sections.limitations[1].statement).toBe(timoshenkoTable.supported_profile_limitations[0]);
     const reported = (sections.diagnostics as Json[]).filter((item) => item.code === "PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI");
     expect(reported.map((item) => [item.message, item.affected_object.ref_id])).toEqual(arc.map((item) => [item.message, item.affected_refs[0]]));
-    const assembly = await assembleRenderedReport({ model, result, inputManifest, analysisRun, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
+    const assembly = await assembleRenderedReport({ model, result, inputManifest, analysisRun, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null, libraryRefFindings: [] });
     expect((assembly.input as Json)[PF_TIMOSHENKO_SECTION].semantic_contract_id).toBe(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID);
   });
 

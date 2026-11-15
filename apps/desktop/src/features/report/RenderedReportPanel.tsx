@@ -38,6 +38,7 @@ import {
   saveRenderedReportHtml
 } from "../../services/renderedReportRoutes";
 import type { ReportSourceMark, ReportSourceSequence } from "../workspace/reportSourceSequence";
+import { currentLibraryRefFindings, NO_LIBRARY_REF_FINDINGS, type LibraryRefFindingsState } from "../library/libraryRefFindings";
 import {
   notSentSettlement,
   printSettlement,
@@ -138,8 +139,13 @@ export function RenderedReportPanel({
   onSaveShareableReportPackage,
   reportSource = null,
   reportSourceSequence = 0,
-  reportOutputs = null
+  reportOutputs = null,
+  libraryRefFindingsState = NO_LIBRARY_REF_FINDINGS
 }: {
+  /** DEL-08-01 REQ-022 (F1): the session's library-reference findings publication, committed
+   * with this panel's other props and source number; the report takes the findings that apply
+   * to `model` from it. */
+  libraryRefFindingsState?: LibraryRefFindingsState;
   /** DEL-08-01 REQ-022: the session's report source sequence, and the number this
    * panel's other props were committed with. */
   reportSource?: ReportSourceSequence | null;
@@ -246,6 +252,10 @@ export function RenderedReportPanel({
   const printHtml = outcome && !outcome.export_blocked
     ? localPrivateOutcome ? localPrivateSinks?.print ?? null : outcome.derived_print_html
     : null;
+  // The findings applicable to this model, from the publication committed with it: a stable
+  // snapshot for the whole preparation, never a reread of the store after an await.
+  const libraryRefFindings = useMemo(() => currentLibraryRefFindings(model, libraryRefFindingsState), [model, libraryRefFindingsState]);
+  const libraryRefFindingsKey = useMemo(() => JSON.stringify(libraryRefFindings), [libraryRefFindings]);
   const sessionRuleCheckRun =
     ruleCheckRun &&
     analysisRun?.analysis_run.analysis_status.includes(ruleCheckRun.result.aggregate_status)
@@ -260,10 +270,10 @@ export function RenderedReportPanel({
     renderGeneration.current += 1;
     retireOnUnmount();
   }, []);
-  const sourceRef = useRef({ model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition });
+  const sourceRef = useRef({ model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition, libraryRefFindingsKey });
   useEffect(() => {
     const previous = sourceRef.current;
-    const next = { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition };
+    const next = { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition, libraryRefFindingsKey };
     sourceRef.current = next;
     if ((Object.keys(next) as Array<keyof typeof next>).every((key) => previous[key] === next[key])) return;
     renderGeneration.current += 1;
@@ -274,7 +284,7 @@ export function RenderedReportPanel({
     setRouteStatus(null);
     setRenderError(null);
     setRendering(false);
-  }, [model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition]);
+  }, [model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition, libraryRefFindingsKey]);
 
   function onLocalPrivateIntentChange(value: boolean) {
     renderGeneration.current += 1;
@@ -340,7 +350,8 @@ export function RenderedReportPanel({
         reportComposition,
         context,
         intent,
-        generatedAt: new Date().toISOString()
+        generatedAt: new Date().toISOString(),
+        libraryRefFindings
       });
       if (!isCurrent()) return;
       const { controlled, exactSubmission } = assembly;

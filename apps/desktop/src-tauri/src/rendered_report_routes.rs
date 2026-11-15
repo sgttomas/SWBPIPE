@@ -21,9 +21,13 @@
 //! report's source (its model, result, runs, manifest, summary, rule check,
 //! comparison choice, composition and context) synchronously, and sends each
 //! number here ([`advance_report_source`]). This process keeps the highest
-//! number it has registered for the workspace's current incarnation
-//! ([`activate_report_source`] starts one and retires the one before; a
-//! message naming another incarnation is refused). A render, save or print
+//! number it has registered for the workspace's current incarnation. A
+//! workspace observes the current incarnation ([`observe_report_source`]) and
+//! activates its own only conditionally ([`activate_report_source`] with the
+//! incarnation it expects is current, compared under the custody mutex):
+//! success retires the one before, a mismatch refuses and changes nothing, and
+//! there is no unconditional activation. A message naming another incarnation
+//! is refused. A render, save or print
 //! request names the source number it was prepared for and is admitted only
 //! when that is the registered one: an older number is retired, a newer one is
 //! not yet registered and is refused rather than taken as authority. A
@@ -109,6 +113,8 @@ pub(crate) const SOURCE_INCARNATION_RETIRED: &str = "REPORT-SOURCE-INCARNATION-R
 pub(crate) const SOURCE_NOT_REGISTERED: &str = "REPORT-SOURCE-NOT-REGISTERED";
 /// The request names a source number older than the registered one.
 pub(crate) const SOURCE_RETIRED: &str = "REPORT-SOURCE-RETIRED";
+/// A conditional activation expected another current incarnation; nothing changed.
+pub(crate) const SOURCE_ACTIVATION_CONFLICT: &str = "REPORT-SOURCE-ACTIVATION-CONFLICT";
 /// A later render request or a retirement superseded this render's ticket.
 pub(crate) const RENDER_SUPERSEDED: &str = "REPORT-RENDER-SUPERSEDED";
 
@@ -215,15 +221,36 @@ impl RenderCustody {
         slot.current.take().is_some()
     }
 
-    /// Starts a workspace incarnation, retiring the one before it with its
-    /// render, its pending render tickets and its source number. Returns the
-    /// new incarnation at source number 0.
-    pub(crate) fn activate(&self) -> SourceMark {
+    /// The registered source as it is now: incarnation 0 when none is active.
+    /// Observation authorises nothing and does not show that any activation
+    /// still in flight has or has not been processed.
+    pub(crate) fn observe(&self) -> SourceMark {
+        self.lock().source
+    }
+
+    /// Conditional activation: starts a new workspace incarnation only when
+    /// `expected` is the current one (0 when none is active), comparing under
+    /// the custody mutex. On success it retires the current incarnation with
+    /// its render, pending render tickets and source number, and returns the
+    /// new, monotonically higher incarnation at source number 0. On mismatch it
+    /// refuses by name and changes nothing. There is no unconditional
+    /// activation: a confirmed activation from the observed incarnation fences
+    /// every activation issued earlier with an expectation no greater than it.
+    pub(crate) fn activate_if(&self, expected: u64) -> Result<SourceMark, RouteError> {
         let mut slot = self.lock_for_change();
+        if slot.source.incarnation != expected {
+            return Err(source_error(SOURCE_ACTIVATION_CONFLICT, "Another workspace incarnation became current first; observe it and activate again."));
+        }
         slot.last_incarnation += 1;
         slot.source = SourceMark { incarnation: slot.last_incarnation, sequence: 0 };
         Self::retire_locked(&mut slot);
-        slot.source
+        Ok(slot.source)
+    }
+
+    /// Tests' activation from the incarnation observed now.
+    #[cfg(test)]
+    pub(crate) fn activate(&self) -> SourceMark {
+        self.activate_if(self.observe().incarnation).expect("no other activation intervenes in this test")
     }
 
     /// Registers a source number for the current incarnation: the highest
@@ -446,8 +473,8 @@ pub(crate) fn with_render_ticket<T>(ticket: RenderTicket, render: impl FnOnce() 
 pub(crate) fn record_render(export_context: Option<&str>, html: &str, renderer_sha256_hex: &str, export_blocked: bool, content_withheld: bool) -> Result<(), String> {
     let Some(ticket) = take_render_ticket() else { return Ok(()) };
     match CUSTODY.complete(ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld) {
-        Ok(generation) => {
-            crate::rendered_report_print::close_unless_current(Some(generation));
+        Ok(_) => {
+            crate::rendered_report_print::close_retired();
             Ok(())
         }
         Err(error) => Err(format!("{}: {}", error.code, error.message)),
@@ -459,14 +486,14 @@ pub(crate) fn record_render(export_context: Option<&str>, html: &str, renderer_s
 /// retires.
 pub(crate) fn begin_render(source: SourceMark) -> Result<RenderTicket, String> {
     let ticket = CUSTODY.begin_render(source).map_err(|error| format!("{}: {}", error.code, error.message))?;
-    crate::rendered_report_print::close_unless_current(None);
+    crate::rendered_report_print::close_retired();
     Ok(ticket)
 }
 
 /// Retires the desktop's current render and closes its print window.
 pub(crate) fn retire_render() {
     CUSTODY.retire();
-    crate::rendered_report_print::close_unless_current(None);
+    crate::rendered_report_print::close_retired();
 }
 
 /// The report panel discards the render it shows (its selection or
@@ -478,22 +505,30 @@ pub(crate) async fn retire_rendered_report() {
     retire_render();
 }
 
-/// Starts the workspace's incarnation for report output (module docs).
+/// The registered report source as it is now (module docs); it authorises
+/// nothing by itself.
 #[tauri::command]
-pub(crate) async fn activate_report_source() -> SourceMark {
-    let mark = CUSTODY.activate();
-    crate::rendered_report_print::close_unless_current(None);
-    mark
+pub(crate) async fn observe_report_source() -> SourceMark {
+    CUSTODY.observe()
+}
+
+/// Starts the workspace's incarnation for report output, only when
+/// `expected_incarnation` is the current one (module docs).
+#[tauri::command]
+pub(crate) async fn activate_report_source(expected_incarnation: u64) -> Result<SourceMark, RouteError> {
+    let mark = CUSTODY.activate_if(expected_incarnation)?;
+    crate::rendered_report_print::close_retired();
+    Ok(mark)
 }
 
 /// Registers a report source number (module docs) and returns the registered
 /// source.
 #[tauri::command]
 pub(crate) async fn advance_report_source(incarnation: u64, sequence: u64) -> Result<SourceMark, RouteError> {
-    let (registered, retired) = CUSTODY.advance(SourceMark { incarnation, sequence })?;
-    if retired {
-        crate::rendered_report_print::close_unless_current(None);
-    }
+    let (registered, _) = CUSTODY.advance(SourceMark { incarnation, sequence })?;
+    // Judged against current custody whatever this advance retired, so an
+    // earlier advance's delayed close is also completed here safely.
+    crate::rendered_report_print::close_retired();
     Ok(registered)
 }
 
@@ -1316,5 +1351,75 @@ mod tests {
         });
         assert!(!held(u64::MAX));
         with_render_ticket(ticket(), || assert_eq!(take_render_ticket().map(|found| found.source.sequence), Some(7)));
+    }
+
+    // F2 (round-two review): conditional activation across workspace lifetimes. A replaced
+    // owner's activation request may still be queued or processed with its reply never
+    // delivered; the replacement's confirmed conditional activation fences it either way.
+
+    /// The comparison happens under the custody mutex: a match retires the current incarnation
+    /// with its render and tickets and advances monotonically; a mismatch refuses and changes
+    /// nothing.
+    #[test]
+    fn conditional_activation_compares_under_the_mutex_and_a_mismatch_changes_nothing() {
+        let custody = RenderCustody::new();
+        assert_eq!(custody.observe(), SourceMark { incarnation: 0, sequence: 0 });
+        assert_eq!(custody.activate_if(0).unwrap(), FIRST);
+        custody.advance(NEXT).unwrap();
+        let generation = render_at(&custody, NEXT, REPORT_A).unwrap();
+        let pending = custody.begin_render(NEXT).unwrap();
+        let conflict = custody.activate_if(0).unwrap_err();
+        assert_eq!((conflict.code.as_str(), conflict.stage.as_str()), (SOURCE_ACTIVATION_CONFLICT, "source"));
+        assert_eq!(custody.observe(), NEXT, "a refused activation changes nothing");
+        assert_eq!(custody.complete(pending, Some(LOCAL_PRIVATE), REPORT_B, &sha256_hex(REPORT_B.as_bytes()), false, false).map_err(|e| e.code), Ok(generation + 2));
+        let second = custody.activate_if(1).unwrap();
+        assert_eq!(second, SourceMark { incarnation: 2, sequence: 0 });
+        assert!(custody.admit(&at(REPORT_B, NEXT)).is_err(), "the match retired the former incarnation's render");
+    }
+
+    /// Both crossing orders of an old owner's activation (expecting incarnation 1) and its
+    /// replacement's, which observed 1 too.
+    #[test]
+    fn a_confirmed_conditional_activation_fences_an_earlier_one_in_either_order() {
+        // The replacement wins; the old request, processed late, conflicts and changes nothing.
+        let custody = RenderCustody::new();
+        custody.activate_if(0).unwrap();
+        let observed = custody.observe().incarnation;
+        assert_eq!(custody.activate_if(observed).unwrap().incarnation, 2);
+        assert_eq!(custody.activate_if(1).unwrap_err().code, SOURCE_ACTIVATION_CONFLICT);
+        assert_eq!(custody.observe().incarnation, 2);
+        // The old request wins first and its reply is never delivered: the replacement's
+        // conditional call conflicts; the live owner observes and activates again, which retires
+        // the old request's incarnation whatever its owner believes.
+        let custody = RenderCustody::new();
+        custody.activate_if(0).unwrap();
+        let replacement_expects = custody.observe().incarnation;
+        let old = custody.activate_if(1).unwrap(); // processed; reply lost
+        assert_eq!(custody.activate_if(replacement_expects).unwrap_err().code, SOURCE_ACTIVATION_CONFLICT);
+        let live = custody.activate_if(custody.observe().incarnation).unwrap();
+        assert_eq!((old.incarnation, live.incarnation), (2, 3));
+        assert_eq!(custody.advance(SourceMark { incarnation: old.incarnation, sequence: 4 }).unwrap_err().code, SOURCE_INCARNATION_RETIRED);
+        assert_eq!(custody.begin_render(old).unwrap_err().code, SOURCE_INCARNATION_RETIRED);
+    }
+
+    /// Two activations racing on the same expectation: exactly one succeeds.
+    #[test]
+    fn racing_conditional_activations_on_one_expectation_admit_exactly_one() {
+        for _ in 0..50 {
+            let custody = std::sync::Arc::new(RenderCustody::new());
+            custody.activate_if(0).unwrap();
+            let barrier = std::sync::Arc::new(std::sync::Barrier::new(2));
+            let racers: Vec<_> = (0..2)
+                .map(|_| {
+                    let (custody, barrier) = (std::sync::Arc::clone(&custody), std::sync::Arc::clone(&barrier));
+                    std::thread::spawn(move || {
+                        barrier.wait();
+                        custody.activate_if(1).is_ok()
+                    })
+                })
+                .collect();
+            let won: usize = racers.into_iter().map(|racer| usize::from(racer.join().unwrap())).sum();
+            assert_eq!((won, custody.observe().incarnation), (1, 2));
+        }
     }
 }

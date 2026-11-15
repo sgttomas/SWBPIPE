@@ -10,24 +10,46 @@
 // the model carries now keeps at most one published finding: where an entity
 // carried the same reference twice and one is removed, one of the two findings
 // goes with it. The recorded version is never updated by any of this.
+//
+// DEL-08-01 REQ-022: the findings that apply to a report's model are a report input. The
+// workspace session bridges this store into its report source sequence
+// (`workspaceSession.ts`: a subscription for its lifetime that advances the sequence when
+// a publication changes the findings applicable to the current model, including a clear);
+// a report captures the session's snapshot with its other inputs and never rereads this
+// store while it is prepared.
 import { useSyncExternalStore } from "react";
 import { modelLibraryRefs, type LibraryRefFinding } from "../../services/libraryImportService";
 import type { Diagnostic, PreviewModel } from "../../types";
 
 export const LIBRARY_REF_CHECK_SOURCE = "apps/desktop/src-tauri/src/lib.rs check_model_library_refs";
 
-let published: { projectId: string; findings: LibraryRefFinding[] } = { projectId: "", findings: [] };
+/** One publication: immutable once published (a new publication replaces it). */
+export type LibraryRefFindingsState = Readonly<{ projectId: string; findings: readonly LibraryRefFinding[] }>;
+
+export const NO_LIBRARY_REF_FINDINGS: LibraryRefFindingsState = Object.freeze({ projectId: "", findings: Object.freeze([]) as readonly LibraryRefFinding[] });
+
+let published: LibraryRefFindingsState = NO_LIBRARY_REF_FINDINGS;
 const listeners = new Set<() => void>();
 
 export function publishLibraryRefFindings(projectId: string, findings: LibraryRefFinding[]): void {
-  published = { projectId, findings: [...findings] };
+  published = Object.freeze({ projectId, findings: Object.freeze([...findings]) as readonly LibraryRefFinding[] });
   for (const listener of listeners) listener();
 }
 
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+/** The current publication. */
+export function publishedLibraryRefFindings(): LibraryRefFindingsState {
+  return published;
 }
+
+/** Listens to publications; listeners run synchronously within `publishLibraryRefFindings`. */
+export function subscribeLibraryRefFindings(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+const subscribe = subscribeLibraryRefFindings;
 
 export function usePublishedLibraryRefFindings() {
   return useSyncExternalStore(subscribe, () => published, () => published);
@@ -41,7 +63,7 @@ export function usePublishedLibraryRefFindings() {
  * while the entity carries another, identical reference. That is the rule the
  * native report admission applies to the Diagnostics a report appends
  * (`report_session_diagnostics.rs`: at most one finding per reference site). */
-export function currentLibraryRefFindings(model: PreviewModel, state: typeof published = published): LibraryRefFinding[] {
+export function currentLibraryRefFindings(model: PreviewModel, state: LibraryRefFindingsState = published): LibraryRefFinding[] {
   if (state.findings.length === 0 || state.projectId !== model.project?.id) return [];
   const references = modelLibraryRefs(model);
   const taken = references.map(() => false);

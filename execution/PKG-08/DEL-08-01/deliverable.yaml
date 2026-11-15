@@ -129,10 +129,18 @@ needs:
 - from: DEL-07-11
   condition: The workspace session advances the report source sequence synchronously at every change of a
     report-bound value (the model, the result, the historical and analysis runs, the input manifest, the
-    project summary, the rule-check aggregate and run, the within-run choice and the report composition,
-    including their clears), in the same step as the write and without waiting on the desktop's native
-    process, and keeps the report output outcomes outside the Report section's dormant subtree.
+    project summary, the rule-check aggregate and run, the within-run choice, the report composition and
+    the library-reference findings applicable to the model, including their clears), in the same step as
+    the write and without waiting on the desktop's native process; holds one live report-source lifetime
+    per workspace mount, retired on unmount; and keeps the report output outcomes outside the Report
+    section's dormant subtree.
   when: Ordering report output with changes of its source (REQ-022).
+  gating: true
+- from: DEL-07-03
+  condition: Each publication of the store's library-reference findings is a complete, immutable set that
+    replaces the previous one, and every publication notifies its subscribers synchronously before it
+    returns.
+  when: Including library-reference findings in a report's captured source (REQ-022).
   gating: true
 code_paths:
 - core/reporting/report_generator/**

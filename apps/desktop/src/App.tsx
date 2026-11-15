@@ -948,6 +948,7 @@ function AppSession() {
                     reportSource={reportOutput.source}
                     reportSourceSequence={reportOutput.sequence}
                     reportOutputs={reportOutput.outcomes}
+                    libraryRefFindingsState={session.results.libraryRefFindingsState}
                   />
                 )}
               </C2ResultGate>

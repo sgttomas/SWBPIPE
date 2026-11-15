@@ -6348,6 +6348,7 @@ macro_rules! app_invoke_handler {
             rendered_report_routes::save_rendered_report_html,
             rendered_report_print::print_rendered_report,
             rendered_report_routes::retire_rendered_report,
+            rendered_report_routes::observe_report_source,
             rendered_report_routes::activate_report_source,
             rendered_report_routes::advance_report_source,
             save_local_result_json,
