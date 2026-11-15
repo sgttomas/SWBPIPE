@@ -55,7 +55,8 @@
 //!      below still runs for that case;
 //!    - the exact-route pressure case (`pressure_runtime::build_pressure_case_with_members`:
 //!      its profile pass, the region traversal, references, topology, geometry,
-//!      material coverage and formed loads), its product dropped;
+//!      material coverage, formed loads, and `finish_source_groups` range, grouping
+//!      and cancellation checks), its product dropped;
 //!    - the ordinary primitive-load construction (`build_load_case_primitive_loads`),
 //!      given the case the ordinary solve applies: on a load/reference-state
 //!      document the resolved `effective_case`, whose primitives are exactly the
@@ -91,6 +92,12 @@
 //! blocking diagnostic (the selection helpers return none only after one, and the
 //! build's absence without one is the ordinary solve's own invariant).
 //!
+//! The reused local helpers also compute sections, shear and rigid scales,
+//! geometry/tangency/bore comparisons, pressure values, grouping and cancellation,
+//! and local equivalent loads. Their blocking findings have the ordinary
+//! whole-document disposition. Running these mixed helpers is not an assurance
+//! of the remaining numerical stages or of an unperformed case's response.
+//!
 //! Not judged here, by design:
 //!
 //! - global stiffness assembly and everything after it: stiffness formation, the
@@ -103,8 +110,9 @@
 //! - the ordinary solve's inline whole-model checks after the build (topology
 //!   warnings, no restraint at all, fewer than six ground constraints) and the
 //!   entry's two inline namespace checks (document kind, schema version). They read
-//!   members a projection does not change, and the derived solves' supports are the
-//!   neutralised ones, so the caller's first ordinary solve judges them exactly;
+//!   members that hanger sizing preserves in its first, all-rigid derived solve
+//!   S_W, whose candidate supports match the neutralised baseline. That first
+//!   ordinary solve judges them; later spring/force roles intentionally differ;
 //!   they are not copied here;
 //! - the held-combination solves, which judge a combination's operands with their
 //!   own diagnostics and publish an outcome per combination; no such outcome is
@@ -240,9 +248,9 @@ pub fn admit_source_before_assembly(
     // them), so no case is prepared on a boundary it refuses and no pass follows.
     // The ordinary solve's inline whole-model checks after the build (topology
     // warnings, the absence of any restraint, the six-ground-constraint count) are
-    // not repeated: they read the built supports, which are the same in every
-    // derived solve (each derived solve makes the candidates rigid as the
-    // neutralisation does), so the first derived solve judges them exactly.
+    // not repeated: hanger sizing preserves these inputs in its first derived
+    // solve S_W, whose all-rigid candidates match the neutralisation. Later
+    // derived solves intentionally use spring/force roles instead.
     let consumed_bases = crate::pf_timoshenko::ConsumedBases::of(&model);
     let base_built = crate::build_model_for_basis(
         &model,
@@ -451,6 +459,23 @@ mod tests {
         assert_eq!(ordinary(&request), Ok(Vec::new()));
         let admitted = admit_source_before_assembly(request, PreviewSolverMode::DenseScrutiny).unwrap();
         assert_eq!(blocking(&admitted), Vec::new());
+    }
+
+    #[test]
+    fn a_boundary_finding_refuses_instead_of_skipping_case_admission_as_a_pass() {
+        let mut request = request();
+        let guide = request["model"]["supports"].as_array_mut().unwrap().iter_mut()
+            .find(|support| support["family"] == "guide").unwrap();
+        let id = guide["id"].as_str().unwrap().to_owned();
+        guide["restraints"] = json!([]);
+        let envelope = crate::run_linear_static_preview_value_with_mode(
+            request.clone(), PreviewSolverMode::DenseScrutiny,
+        ).unwrap();
+        let expected = blocking(&envelope.diagnostics);
+        assert_eq!(expected, vec![("SUPPORT_INPUT_INVALID".into(), vec![id])]);
+        assert!(envelope.results.is_empty(), "the ordinary document must be blocked");
+        let admitted = admit_source_before_assembly(request, PreviewSolverMode::DenseScrutiny).unwrap();
+        assert_eq!(blocking(&admitted), expected);
     }
 
     #[test]
