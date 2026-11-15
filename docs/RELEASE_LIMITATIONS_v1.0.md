@@ -448,3 +448,24 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **What the user does instead:** the static seismic cases and their combinations (DEL-05-01, DEL-05-02) for occasional combinations; the spectrum result on its own for the dynamic response.
 - **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md): CLM-003 and "Decided for v1.0"; its `deliverable.yaml` need on DEL-05-02, which applies only if a spectrum result is later offered as an operand. The omission was standing in DEL-04-10's CLM-003; Agent 0 decided it for v1.0 under the grant in `AGENTS.md`, and PR #355 records this entry. No PRD amendment is needed, because the PRD states no such combination.
 - **Status:** not yet declared.
+
+### LIM-024 — A spectrum ordinate that binary64 cannot state to 1e-9 is refused
+
+- **Id:** LIM-024
+- **Exit criteria:** 1
+- **Requirement affected:** DEL-04-10/REQ-001 and REQ-002: spectral ordinates interpolated by the spectrum's stated rule over any positive finite table and query inside its range. The deliverable owns exit criterion 1's response-spectrum analysis. The stated accuracy of each published value is REQ-008's verification tolerance, 1e-9 relative.
+- **Code:** `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`, blocking. Today it is emitted by the spectrum table evaluation (`core/analysis/response_spectrum`, DEL-04-10 unit S2). No spectrum solve exists yet to emit it.
+- **What is refused:** evaluating a valid spectrum at a valid query inside its tabulated range when one of the published values — the interpolated ordinate, the pseudo-acceleration S (with g) or the scaled s·S — would:
+  - exceed the largest binary64, about 1.8·10³⁰⁸;
+  - round to zero; or
+  - lie so deep in the binary64 subnormal range, below about 2.5·10⁻³¹⁵, that rounding it alone exceeds 1e-9 of it.
+
+  Nothing is published for that evaluation. A query outside the table and an invalid record are refused by their own codes.
+- **What it means in practice for a user:**
+  - At engineering magnitudes there is no effect. The pseudo-accelerations, g values and scale factors of any physical spectrum give published values hundreds of orders of magnitude inside [2.5·10⁻³¹⁵, 1.8·10³⁰⁸] m/s².
+  - A refusal needs authored ordinates, g or scale factors whose product leaves that range, for example g near 10⁻³⁰⁰ m/s² or a scale factor near 10³⁰⁰.
+  - The user gets a named refusal where binary64 would otherwise publish an inaccurate, zero or infinite value.
+- **Why:** Agent 0 requires each published value to be supported by the product's error argument to 1e-9 relative, with no absolute floor. Binary64 cannot represent values beyond its range, and a subnormal value carries an absolute rounding of up to 2⁻¹⁰⁷⁵, which is more than 1e-9 of the value below about 2.5·10⁻³¹⁵.
+- **What the user does instead:** enter a table, g and scale factor whose products lie inside that range, as every physical spectrum's do.
+- **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md), "Decided for v1.0" ("Each published ordinate is stated to 1e-9 relative, or the evaluation is refused"). Agent 0 decided it under the grant in `AGENTS.md` ("Posture for this phase"). PR #367 makes the refusal standing in the S2 evaluation and records this entry.
+- **Status:** not yet declared.
