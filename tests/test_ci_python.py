@@ -517,13 +517,16 @@ def test_the_repository_checks_job_runs_the_routing_invariant_on_every_pull_requ
     Collect with pytest itself so methods, imported tests and generated tests have the same identifiers here
     as in the job. Parametrized instances share their unparametrized selector.
     """
+    import os
     import subprocess
     import sys
 
     checks = _repository_checks()
     module = 'tests/test_ci_python.py'
-    result = subprocess.run([sys.executable, '-m', 'pytest', '--collect-only', '-q', module],
-                            cwd=PROJECT, capture_output=True, text=True, check=True)
+    # Collection needs no binary: the session hook (tests/conftest.py) builds none when told not to.
+    env = {**os.environ, 'OPENPIPESTRESS_NO_CARGO_BUILD': '1'}
+    result = subprocess.run([sys.executable, '-m', 'pytest', '--collect-only', '-q', '-p', 'no:cacheprovider', module],
+                            cwd=PROJECT, capture_output=True, text=True, check=True, env=env)
     prefix = module + '::'
     tests = {line[len(prefix):].split('[', 1)[0] for line in result.stdout.splitlines()
              if line.startswith(prefix)}
