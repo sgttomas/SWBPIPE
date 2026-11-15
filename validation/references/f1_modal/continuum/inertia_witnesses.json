@@ -378,7 +378,7 @@
        "max_abs_pivot": "1.9999999999954543",
        "max_abs_L": "3.0000000000054547",
        "max_abs_diag": "18.00000095366522",
-       "growth_g": "0.9999999470199651",
+       "growth_g": "0.9999999470199653",
        "pivot_guard_trips": true,
        "count_correct": true
       },
@@ -409,7 +409,7 @@
        "max_abs_pivot": "1.9999999999954508",
        "max_abs_L": "3.000000000005459",
        "max_abs_diag": "18.00000095366522",
-       "growth_g": "0.9999999470199663",
+       "growth_g": "0.9999999470199664",
        "pivot_guard_trips": true,
        "count_correct": true
       },

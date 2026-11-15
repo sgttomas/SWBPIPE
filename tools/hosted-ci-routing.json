@@ -250,7 +250,7 @@
   ],
   "piping_runtime_reads": {
     "source_trees": {
-      "core/analysis/hanger_sizing/Cargo.toml": "c760fa2fd34cc23591cb4fd8d4fddac86dedbaa390101a87b3c9298fe240550a",
+      "core/analysis/hanger_sizing/Cargo.toml": "b815f6d026e0af2954fc40196937a323226375722d67c0462e97547eaa8c769d",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
       "core/handoff/caepipe_mbf_engine/Cargo.toml": "665cfd34254f574ae7e7bcfbb0399ccd24247c17337e7fda43a43ea4a1e408d4",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "26ee5f7833006eccfbccf2633c6f785d6f25b282cd7043f48f0078a9efa4f39d",
@@ -1466,7 +1466,9 @@
               "fixtures/results/base_reader_outcomes.json",
               "fixtures/results/combination_certificate_corpus.json",
               "fixtures/results/combination_certificate_forgeries.json",
+              "fixtures/results/hanger_sizing_applied_four_span.json",
               "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_engine_kind_corpus.json",
               "fixtures/results/hanger_sizing_input_four_span.json",
               "fixtures/results/hanger_sizing_input_refused.json",
               "fixtures/results/hanger_sizing_input_two_span.json",
@@ -5390,7 +5392,9 @@
               "fixtures/results/base_reader_outcomes.json",
               "fixtures/results/combination_certificate_corpus.json",
               "fixtures/results/combination_certificate_forgeries.json",
+              "fixtures/results/hanger_sizing_applied_four_span.json",
               "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_engine_kind_corpus.json",
               "fixtures/results/hanger_sizing_input_four_span.json",
               "fixtures/results/hanger_sizing_input_refused.json",
               "fixtures/results/hanger_sizing_input_two_span.json",
@@ -6356,7 +6360,7 @@
         }
       },
       "core/analysis/hanger_sizing/tests/publication.rs": {
-        "sha256": "73bcc7db03171212e3864f61afa201e50c795566b51602307d4b98f0e2bc604d",
+        "sha256": "9ed048e9761b8ffb629091b050ae592cf8d5e160ae989da4d99983eca0dfd81d",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml"
         ],
