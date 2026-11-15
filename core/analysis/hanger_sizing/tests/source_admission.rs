@@ -19,8 +19,12 @@
 //!   ledger source, a support state naming no support, a ledgered load whose target
 //!   node is unknown) refuse the request; the codes and affected ids are the
 //!   ordinary solve's of the same neutralised baseline. A stored primitive the case's
-//!   ledger excludes stays excluded. On PF: a duplicated load id, and a load on an
-//!   unknown node or pipe in a case sizing does not select.
+//!   ledger excludes stays excluded. On PF: a duplicated load id, and, in a case
+//!   sizing does not select, a load on an unknown node or pipe, a load the load
+//!   application refuses, and each material-selection fault (both selectors, an
+//!   exact point a material lacks, a selected point without G, an unbracketed
+//!   interpolation temperature); a valid exact or interpolated selection is
+//!   admitted whether its case is selected or not.
 //! - The authored pressure-elongation setting: an empty, duplicated or unknown
 //!   selection, a selection on a document without a pressure contract and a
 //!   malformed setting each refuse the request through the real sizing entry, and an
@@ -443,4 +447,110 @@ fn on_pf_isolated_faults_in_the_source_are_refused_like_the_ordinary_solve() {
     let input = pf_with_unselected_case(|_| {});
     let committed = read_json("hanger_sizing_result_two_span.json");
     assert_eq!(sized(&input)["result"]["candidates"], committed["result"]["candidates"]);
+}
+
+/// The request is refused naming the source, and the seam's blocking diagnostics
+/// are the ordinary solve's of the same neutralised baseline, each with `code`, and
+/// one naming `object`. (A selection fault is reported per material, so a document
+/// with two materials may give one diagnostic for each.)
+fn assert_refused_alike(input: &Value, code: &str, object: &str) {
+    let baseline = neutralised_source(&input["request"], &admitted_sites(input));
+    let expected = ordinary_refs(&baseline).unwrap_or_else(|e| panic!("{code}: refused at parse: {e}"));
+    assert!(!expected.is_empty() && expected.iter().all(|(c, _)| c == code), "{code}: the ordinary solve gives {expected:?}");
+    assert!(expected.iter().any(|(_, refs)| refs.iter().any(|r| r == object)), "{code} {object}: {expected:?}");
+    let seam = admit_source_before_assembly(baseline, PreviewSolverMode::DenseScrutiny).unwrap();
+    assert_eq!(blocking_refs(&seam), expected, "{code}");
+    let published = size_hangers(&serde_json::to_string(input).unwrap());
+    assert!(!published.is_sized(), "{code}: sized");
+    let refusals = published.document()["refusals"].as_array().unwrap();
+    assert_eq!(refusals.len(), 1, "{code}: {refusals:?}");
+    assert_eq!(refusals[0]["names"], json!(["source"]));
+    let message = refusals[0]["message"].as_str().unwrap();
+    assert!(message.contains(code) && message.contains(object), "{code} {object}: {message}");
+}
+
+fn quantity(value: f64, unit: &str) -> Value {
+    json!({"value": value, "unit": unit})
+}
+
+/// A user-entered temperature point with E, G and alpha.
+fn point(id: &str, temperature_c: f64, e_pa: f64) -> Value {
+    json!({"id": id, "temperature": quantity(temperature_c, "degC"), "elastic_modulus": quantity(e_pa, "Pa"),
+           "shear_modulus": quantity(e_pa / 2.6, "Pa"), "thermal_expansion_coefficient": quantity(1.25e-5, "1/degC"),
+           "provenance": "invented_test_value"})
+}
+
+/// The two-span input with the given points on every material, and the unselected
+/// case `load:U` changed by `change`.
+fn pf_with_points(points: Value, change: impl FnOnce(&mut Value)) -> Value {
+    let mut input = pf_with_unselected_case(change);
+    for material in input["request"]["model"]["materials"].as_array_mut().unwrap() {
+        material["temperature_points"] = points.clone();
+    }
+    input
+}
+
+#[test]
+fn on_pf_a_material_selection_fault_in_an_unselected_case_is_refused_like_the_ordinary_solve() {
+    let points = json!([point("point:100", 100.0, 1.95e11), point("point:200", 200.0, 1.9e11)]);
+    // Both selectors.
+    let input = pf_with_points(points.clone(), |case| {
+        case["modulus_basis_ref"] = json!("point:100");
+        case["modulus_basis_temperature"] = quantity(150.0, "degC");
+    });
+    assert_refused_alike(&input, "MODULUS_BASIS_SELECTION_CONFLICT", "load:U");
+    // An exact point no material stores.
+    let input = pf_with_points(points.clone(), |case| case["modulus_basis_ref"] = json!("point:no-such-point"));
+    assert_refused_alike(&input, "MODULUS_BASIS_UNRESOLVED", "point:no-such-point");
+    // An exact point one material lacks.
+    let mut input = pf_with_points(points.clone(), |case| case["modulus_basis_ref"] = json!("point:200"));
+    input["request"]["model"]["materials"][1]["temperature_points"] = json!([point("point:100", 100.0, 1.95e11)]);
+    assert_refused_alike(&input, "MODULUS_BASIS_UNRESOLVED", "material:pipe:BC");
+    // A selected exact point without its shear modulus.
+    let mut without_g = point("point:200", 200.0, 1.9e11);
+    without_g.as_object_mut().unwrap().remove("shear_modulus");
+    let input = pf_with_points(json!([point("point:100", 100.0, 1.95e11), without_g]), |case| case["modulus_basis_ref"] = json!("point:200"));
+    assert_refused_alike(&input, "MODULUS_BASIS_INPUT_MISSING", "point:200");
+    // An interpolation temperature outside the stored points.
+    let input = pf_with_points(points.clone(), |case| case["modulus_basis_temperature"] = quantity(500.0, "degC"));
+    assert_refused_alike(&input, "MODULUS_BASIS_UNRESOLVED", "load:U");
+}
+
+#[test]
+fn on_pf_a_valid_material_selection_is_admitted_selected_or_not() {
+    let points = json!([point("point:100", 100.0, 1.95e11), point("point:200", 200.0, 1.9e11)]);
+    let committed = read_json("hanger_sizing_result_two_span.json");
+    for (what, selector) in [("exact", json!({"modulus_basis_ref": "point:200"})), ("interpolated", json!({"modulus_basis_temperature": quantity(150.0, "degC")}))] {
+        // In the unselected case: admitted, and sizing unchanged.
+        let input = pf_with_points(points.clone(), |case| {
+            for (key, value) in selector.as_object().unwrap() {
+                case[key] = value.clone();
+            }
+        });
+        let baseline = neutralised_source(&input["request"], &admitted_sites(&input));
+        assert_eq!(ordinary_refs(&baseline), Ok(Vec::new()), "{what}");
+        assert_eq!(blocking_refs(&admit_source_before_assembly(baseline, PreviewSolverMode::DenseScrutiny).unwrap()), Vec::new(), "{what}");
+        assert_eq!(sized(&input)["result"]["candidates"], committed["result"]["candidates"], "{what}");
+        // In the selected check case: admitted and sized (its values are the
+        // selected basis's; none is asserted here).
+        let mut input = input.clone();
+        let o2 = input["request"]["model"]["load_cases"].as_array_mut().unwrap().iter_mut().find(|c| c["id"] == "load:O2").unwrap();
+        for (key, value) in selector.as_object().unwrap() {
+            o2[key] = value.clone();
+        }
+        let baseline = neutralised_source(&input["request"], &admitted_sites(&input));
+        assert_eq!(blocking_refs(&admit_source_before_assembly(baseline, PreviewSolverMode::DenseScrutiny).unwrap()), Vec::new(), "{what}");
+        sized(&input);
+    }
+}
+
+#[test]
+fn on_pf_a_load_application_fault_in_an_unselected_case_is_refused_like_the_ordinary_solve() {
+    // A nodal force given the dimension of a moment: the load application refuses it.
+    let input = pf_with_unselected_case(|case| {
+        assert_eq!(case["primitive_loads"][2]["id"], "load:U-push");
+        case["primitive_loads"][2]["dimension"] = json!("moment");
+        case["primitive_loads"][2]["magnitude"]["unit"] = json!("N*m");
+    });
+    assert_refused_like_the_ordinary_solve(&input, "LOAD_INPUT_INVALID", "load:U-push");
 }
