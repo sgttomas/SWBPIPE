@@ -1,6 +1,34 @@
-//! DEL-04-10 response-spectrum analysis, unit S2: the validated spectrum table
-//! and its evaluation.
+//! DEL-04-10 response-spectrum analysis, unit S2: the validated spectrum table and its
+//! evaluation.
 //!
-//! INCOMPLETE SCAFFOLD. This commit establishes the crate for the draft pull
-//! request; the table admission, exact location, interpolation and refusals
-//! follow in the next commits.
+//! A person, or a later unit, supplies a model-document spectrum record ([`SpectrumRecord`],
+//! DEL-02-01 §2.4: abscissa kind and unit, acceleration or g-multiple ordinates with an explicit
+//! g, damping ratio, interpolation on each axis, points), a query frequency with its unit and a
+//! scale factor, and gets the pseudo-spectral acceleration or a named [`Refusal`]. Every input is
+//! the user's; nothing is defaulted, no spectrum ships, and no table is extrapolated (REQ-001,
+//! AX-001).
+//!
+//! The method, as the DEL-04-10 scope records Agent 0's decisions:
+//! 1. a table is interpolated on its authored axis: a period table in period, a frequency table
+//!    in frequency;
+//! 2. a period query T = 1/f is located against the knots and the range ends exactly, as a
+//!    rational ([`period_query_ordering`]), before any binary64 arithmetic; the interpolation
+//!    after location is ordinary binary64 with the rounding [`SpectrumTable::evaluate`] states.
+//!
+//! This unit is not a spectrum solve: it forms no modal response, combination or rigid response,
+//! publishes no spectrum result and has no standing as an engineering result. A later unit
+//! supplies the modal frequencies it is evaluated at.
+mod exact;
+mod record;
+mod refusal;
+mod request;
+mod table;
+
+pub use exact::period_query_ordering;
+pub use record::{Abscissa, AxisScale, Interpolation, OrdinateKind, QuantityInput, RecordUnits, SpectrumRecord};
+pub use refusal::{Refusal, RefusalCode};
+pub use request::{evaluate_request_json, EvaluationRequest, QueryInput, STATEMENT};
+pub use table::{
+    common_damping_ratio, Location, Ordinate, OrdinateMeasure, QueryFrequency, ScaleFactor, SpectrumTable,
+    MAX_SOLVE_DAMPING_RATIO,
+};
