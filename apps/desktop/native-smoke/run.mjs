@@ -141,7 +141,7 @@ import {
   refusedSmokeWindows, smokeWindows
 } from "./launch-env.mjs";
 import { newNonce } from "./launch-outcome.mjs";
-import { MARK_PRESENT, UNRESOLVED_TERMINATION, judgedPhase } from "./judged-launch.mjs";
+import { judgedPhase, phaseContinuation } from "./judged-launch.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, processStartTime, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -459,22 +459,7 @@ function launch(phase, extra = {}) {
       state.launched = true;
       state.termination = null;
     }
-  }).then((result) => {
-    console.log(`phase ${phase}: marks, directly before the launch: ${JSON.stringify(result.marks)}`);
-    if (result.stop === MARK_PRESENT) {
-      console.error(`native smoke: ${MARK_PRESENT}: an agent may be operating the App on the screen, or the marks could not be checked; not launched`);
-      return exitAfterSignals(result.exitCode);
-    }
-    state.termination = result.census;
-    if (result.outcome.timed_out) console.error(`phase ${phase}: timed out`);
-    if (result.stop === UNRESOLVED_TERMINATION) {
-      console.error(`native smoke: ${UNRESOLVED_TERMINATION} after phase ${phase}: ${result.census?.reason ?? "no census"}; no further phase starts`);
-      return exitAfterSignals(result.exitCode);
-    }
-    console.log(`phase ${phase}: the census finds no process running the private app copy`);
-    // A failed launch's report stays readable for the checks that follow.
-    return result.report;
-  });
+  }).then(phaseContinuation({ prefix: "native smoke", phase, state }));
 }
 
 const checks = [];
