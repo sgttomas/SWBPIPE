@@ -9,7 +9,8 @@ import os from "node:os";
 import path from "node:path";
 import { execFile, execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
-import { c1PhysicalPhases, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { c1PhysicalPhases, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, keptRunFailures, loadPlan, planName, runWindow, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { recordedOutcome } from "./launch-outcome.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -363,6 +364,8 @@ const base = (over = {}) => withRunNonce({
   nonce: NONCE,
   exit: { status: 0, signal: null, ended_ms: 10_000 },
   timedOut: false,
+  // The census after the launch found no process of the private copy (perf.mjs requires one).
+  census: { resolved: true },
   progress: [],
   memory: { pids: { 1: { kind: "app", last_ms: 10_000 }, 2: { kind: "webcontent", last_ms: 9_900 } } },
   store: { quick_check: ["ok"], files: [{ name: "openpipestress-projects.sqlite3", bytes: 4096 }], projects: [{ project_id: "p", result_type: "text", result_chars: 1000 }] },
@@ -477,7 +480,7 @@ test("a C1 run whose page was hidden during the solve is host_unobservable, not 
   const report = { error: "C1 host condition not established (during the solve: the page was visibilityState=hidden at a poll). …",
     solve: { ended: "host_unobservable", timeline: { marks: [{ stage: "result_committed", at_ms: 190000 }] }, gate: { started_at_ms: 455 }, shown: {} },
     c1: { completed: false, host: { established: false, step: "during the solve", detail: "the page was visibilityState=hidden at a poll", solve_started: true } } };
-  const base = { report: { ...report, nonce: NONCE }, nonce: NONCE, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, run };
+  const base = { report: { ...report, nonce: NONCE }, nonce: NONCE, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, census: { resolved: true }, progress: [], memory: { pids: {} }, run };
   const verdict = classify({ ...base, store: null });
   assert.equal(verdict.class, "host_unobservable");
   assert.deepEqual(verdict.findings.map((finding) => finding.class), ["host_unobservable"]);
@@ -796,7 +799,7 @@ test("F1: a fallback later in the run is recorded, stops the next wait and fails
   await page.invoke("get_memory_pool_status", {});
   assert.equal(page.sent.fetch.length, fetched);
   assert.deepEqual(plain(trace.data.transport.fallback_counts), { lookup_preview_mechanics_job_rows: 1, get_memory_pool_status: 1 });
-  const verdict = classify({ nonce: NONCE, report: { nonce: NONCE, solve: { ended: "first_paint", timeline: { marks: [{ stage: "first_paint", at_ms: 10 }] }, gate: { started_at_ms: 0 } }, c1: { completed: false, trace: trace.data, host: { established: true } } }, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, store: null, run: { c1_probes: true, paint_ms: 1000, timeout_s: 10, project_id: "project:invented" } });
+  const verdict = classify({ nonce: NONCE, report: { nonce: NONCE, solve: { ended: "first_paint", timeline: { marks: [{ stage: "first_paint", at_ms: 10 }] }, gate: { started_at_ms: 0 } }, c1: { completed: false, trace: trace.data, host: { established: true } } }, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, census: { resolved: true }, progress: [], memory: { pids: {} }, store: null, run: { c1_probes: true, paint_ms: 1000, timeout_s: 10, project_id: "project:invented" } });
   assert.ok(verdict.findings.some((finding) => finding.step === "c1_observation" && /lost Tauri's IPC transport: an IPC fetch was rejected/.test(finding.message)), JSON.stringify(verdict.findings));
   trace.restore();
 });
@@ -1205,7 +1208,7 @@ for (const [visibility, frames, why] of [["hidden", false, "a hidden page"], ["v
     // Classified as unobservable: not a hang, not a product refusal.
     // The driver hands back the plan's nonce (perf-driver.js), which the one rule then finds in its report.
     assert.equal(sent.report.nonce, NONCE);
-    const verdict = classify({ report: sent.report, nonce: NONCE, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, progress: [], memory: { pids: {} }, store: null, run: { c1_probes: true, c1_profile_readers: true, paint_ms: 1000, timeout_s: 10, project_id: "project:invented" } });
+    const verdict = classify({ report: sent.report, nonce: NONCE, exit: { status: 0, signal: null, ended_ms: null }, timedOut: false, census: { resolved: true }, progress: [], memory: { pids: {} }, store: null, run: { c1_probes: true, c1_profile_readers: true, paint_ms: 1000, timeout_s: 10, project_id: "project:invented" } });
     assert.equal(verdict.class, "host_unobservable");
     assert.deepEqual(verdict.findings.map((finding) => finding.class), ["host_unobservable"]);
     assert.match(verdict.findings[0].detail, /not evidence of a product hang; not retried/);
@@ -1914,4 +1917,206 @@ test("the run_preview phase is web-only and its pending entry survives as incomp
   const closed=journal.close();
   assert.deepEqual(closed.incomplete.map(({layer,call,phase})=>({layer,call,phase})),[{layer:"web",call:7,phase:"run_preview"}]);
   assert.equal(closed.evidence_complete,false);
+});
+
+// ---------------------------------------------------------------- the census after each launch (issue #360, unit 1)
+
+const censusCodes = (failures) => (failures ?? []).map((line) => line.split(":")[0]);
+
+test("classification requires a resolved census: a missing, null or unresolved one is launch_failed, named", () => {
+  for (const census of [undefined, null, { resolved: false, reason: "process 7 still ran" }, { resolved: "true" }]) {
+    const result = classify(base({ census }));
+    assert.equal(result.class, "launch_failed", JSON.stringify(census));
+    assert.deepEqual(censusCodes(result.findings[0].failures), ["LAUNCH-CENSUS-UNRESOLVED"], JSON.stringify(census));
+  }
+  assert.match(classify(base({ census: undefined })).findings[0].failures[0], /^LAUNCH-CENSUS-UNRESOLVED: no census$/);
+});
+
+test("without a report, an unresolved census adds its own launch_failed finding: a hang becomes launch_failed, a crash stays crash", () => {
+  const unresolved = { resolved: false, reason: "process 7 still ran" };
+  const hung = classify(base({ report: null, timedOut: true, census: unresolved, exit: { status: null, signal: "SIGKILL", ended_ms: 10_000 } }));
+  assert.equal(hung.class, "launch_failed");
+  assert.deepEqual(hung.findings.map((finding) => finding.class), ["hang", "launch_failed"]);
+  assert.deepEqual(censusCodes(hung.findings[1].failures), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  assert.ok(censusCodes(hung.findings[0].failures).includes("LAUNCH-CENSUS-UNRESOLVED"));
+  const crashed = classify(base({ report: null, census: unresolved, exit: { status: 7, signal: null, ended_ms: 10_000 } }));
+  assert.equal(crashed.class, "crash");
+  assert.ok(crashed.findings.some((finding) => finding.class === "launch_failed" && finding.step === "census"));
+});
+
+test("a store not inspected because the census is unresolved is not read as a store without the run's project", () => {
+  const unresolved = { resolved: false, reason: "process 7 still ran" };
+  const result = classify(base({ census: unresolved, store: { inspection: "not_made", reason: "LAUNCH-CENSUS-UNRESOLVED: process 7 still ran" } }));
+  assert.deepEqual(result.findings.map((finding) => finding.class), ["launch_failed"]);
+  // An inspected store without the project is still misleading (unchanged).
+  assert.equal(classify(base({ store: { quick_check: ["ok"], files: [], projects: [] } })).class, "misleading_message");
+});
+
+// The production window path (runWindow -> runOne -> commitRun) with a stand-in app: a tiny Node script at the
+// private copy's path that writes this run's report and a store holding the run's project, then exits 0. The marks,
+// the WebKit list, host admission, caffeinate and the sampler are controlled stand-ins (the sampler is a tiny Node
+// process that emits one sample and exits once the app's PID is gone); the census is a stand-in unless a test leaves
+// the default. No App, worker, solve, host reading or timing measurement.
+const IDENTIFIER = JSON.parse(readFileSync(new URL("../src-tauri/tauri.conf.json", import.meta.url), "utf8")).identifier;
+const STAND_IN_APP = (holdMs) => `#!${process.execPath}
+const fs = require("node:fs"), path = require("node:path"), { spawn } = require("node:child_process");
+const plan = JSON.parse(process.env.SWBPIPE_NATIVE_SMOKE_PLAN);
+// A sidecar "hold" file makes a detached process keep the private copy open after the app exits (lsof sees it).
+if (fs.existsSync(path.join(__dirname, "hold"))) {
+  const holder = spawn(process.execPath, ["-e", "require('node:fs').openSync(" + JSON.stringify(__filename) + ", 'r'); setTimeout(() => {}, ${holdMs})"], { detached: true, stdio: "ignore" });
+  fs.writeFileSync(path.join(__dirname, "holder.pid"), String(holder.pid));
+  holder.unref();
+}
+const dir = path.join(process.env.HOME, "Library", "Application Support", ${JSON.stringify(IDENTIFIER)});
+fs.mkdirSync(dir, { recursive: true });
+const { DatabaseSync } = require("node:sqlite");
+const db = new DatabaseSync(path.join(dir, "openpipestress-projects.sqlite3"));
+db.exec("CREATE TABLE local_projects (project_id TEXT, model_json TEXT, mechanics_result_json TEXT)");
+db.prepare("INSERT INTO local_projects VALUES (?, ?, ?)").run(plan.project_id, "{}", "r".repeat(1000));
+db.close();
+fs.writeFileSync(process.env.SWBPIPE_NATIVE_SMOKE_REPORT, JSON.stringify({ nonce: plan.nonce,
+  solve: { ended: "first_paint", gate: { started_at_ms: 1000 }, timeline: { marks: [{ stage: "first_paint", at_ms: 2000 }] }, shown: {} },
+  record_run: { attempted: true, message: "Recorded run perf r." }, save_project: { message: "Saved current project model snapshot." } }));
+`;
+const STAND_IN_SAMPLER = `const pid = Number(process.argv[1]);
+const alive = () => { try { process.kill(pid, 0); return true; } catch (error) { return error.code !== "ESRCH"; } };
+const now = Date.now();
+process.stdout.write(JSON.stringify({ t: now, host: { available_percent: 80, pressure_level: 1, sampled_at_ms: now }, p: [[pid, "app", 1000, 1000, 1000]] }) + "\\n");
+const tick = setInterval(() => { if (!alive()) { clearInterval(tick); process.exit(0); } }, 20);`;
+const CLEAN_MARKS = { checked_at: "fixture", sky_computer_use_service_launchd: false, sky_computer_use_service_process: false, codex_app_server_stdio: false, app_v4_candidate_bundle: false, check_failures: [] };
+
+function standInWindow(t, { census, censusBoundMs = 200, hold = false, holdMs = 20_000 } = {}) {
+  const out = mkdtempSync(path.join(os.tmpdir(), "perf-census-"));
+  const scratch = mkdtempSync(path.join(out, "perf-"));
+  const models = path.join(out, "models");
+  mkdirSync(models);
+  writeFileSync(path.join(models, "model.json"), JSON.stringify({ project: { id: "project:stand-in" }, nodes: [] }));
+  const binary = path.join(scratch, "openpipestress-desktop");
+  writeFileSync(binary, STAND_IN_APP(holdMs), { mode: 0o700 });
+  if (hold) writeFileSync(path.join(scratch, "hold"), "");
+  const events = [];
+  const samplers = [];
+  const window = path.basename(scratch);
+  const runFile = (id) => path.join(out, `perf-run-${window}-${id}.json`);
+  const partialFile = (id) => path.join(out, `perf-partial-${window}-${id}.json`);
+  const ids = ["first", "second"];
+  const deps = {
+    marks: () => { events.push({ e: "marks", committed: ids.filter((id) => existsSync(runFile(id))) }); return CLEAN_MARKS; },
+    webkitPids: () => [],
+    startupHost: async () => { events.push({ e: "admission" }); return { available_percent: 80, pressure_level: 1 }; },
+    caffeinate: () => ({ kill() {} }),
+    sampler: (samplerArgs) => {
+      const child = spawn(process.execPath, ["-e", STAND_IN_SAMPLER, samplerArgs[samplerArgs.indexOf("--app-pid") + 1]], { stdio: ["ignore", "pipe", "inherit"] });
+      samplers.push(child);
+      return child;
+    },
+    censusBoundMs
+  };
+  if (census) deps.census = async (executable, options) => {
+    const sampler = samplers.at(-1);
+    events.push({ e: "census", executable, bound_ms: options.boundMs, at: Date.now(),
+      sampler_stopped: sampler.exitCode !== null || sampler.signalCode !== null,
+      checkpointed: ids.some((id) => existsSync(partialFile(id))), committed: ids.filter((id) => existsSync(runFile(id))) });
+    return census(executable, options);
+  };
+  const runs = ids.map((id) => ({ id, mode: "native", model: "model.json", estimate_s: 1, timeout_s: 30, paint_ms: 30_000 }));
+  const ctx = { plan: { timeouts: {}, sample_interval_ms: 100 }, binding: { stand_in: true }, harness: { stand_in: true }, binary, models, results: models, out, scratch, keep: false, remainingMs: () => 60_000, deps };
+  t.after(() => {
+    const holder = path.join(scratch, "holder.pid");
+    if (existsSync(holder)) { try { process.kill(Number(readFileSync(holder, "utf8")), "SIGKILL"); } catch { /* gone */ } }
+    rmSync(out, { recursive: true, force: true });
+  });
+  return { ctx, runs, events, binary, runFile, partialFile };
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+test("the window path: the app exits, the sampler stops, the census runs, the record is committed, then the next run's marks and admission; the census is outside the timed span", { timeout: 30_000 }, async (t) => {
+  const delayMs = 300;
+  const w = standInWindow(t, { census: async () => { await sleep(delayMs); return { resolved: true }; } });
+  const records = await runWindow(w.runs, w.ctx);
+  assert.deepEqual(records.map((record) => record.class), ["ok", "ok"], JSON.stringify(records.map((record) => record.findings)));
+  assert.deepEqual(w.events.map((event) => event.e), ["marks", "admission", "census", "marks", "admission", "census"]);
+  const censuses = w.events.filter((event) => event.e === "census");
+  const marks = w.events.filter((event) => event.e === "marks");
+  for (const [index, census] of censuses.entries()) {
+    assert.equal(census.executable, w.binary);
+    assert.equal(census.bound_ms, 200);
+    assert.equal(census.sampler_stopped, true, "the sampler had stopped before the census");
+    assert.equal(census.checkpointed, false, "the census precedes the inspection checkpoint");
+    assert.deepEqual(census.committed, ["first", "second"].slice(0, index), "the census precedes this run's commit");
+  }
+  // The first run's record was committed before the second run's marks (and so its admission and start).
+  assert.deepEqual(marks[1].committed, ["first"]);
+  for (const [index, record] of records.entries()) {
+    const startedMs = Date.parse(record.launch_outcome.started);
+    assert.ok(record.exit.ended_ms <= censuses[index].at, "the app had exited before the census");
+    // The timed span runs from the start to the app's exit, and does not include the census's delay.
+    assert.equal(record.elapsed_s, (record.exit.ended_ms - startedMs) / 1000);
+    assert.ok(record.elapsed_s * 1000 <= censuses[index].at - startedMs);
+    assert.ok(record.census_window.ended_ms - record.census_window.started_ms >= delayMs - 10);
+    assert.ok(record.census_window.started_ms >= record.exit.ended_ms);
+    const stored = JSON.parse(readFileSync(w.runFile(record.id), "utf8"));
+    assert.deepEqual(stored.launch_outcome.census, { resolved: true });
+    assert.deepEqual(keptRunFailures(stored), []);
+    assert.equal(existsSync(w.partialFile(record.id)), false);
+  }
+  // The stored record cannot pass once its census is missing or null, nor a record written before the census.
+  const stored = JSON.parse(readFileSync(w.runFile("first"), "utf8"));
+  const withoutCensus = { ...stored, launch_outcome: { ...stored.launch_outcome } };
+  delete withoutCensus.launch_outcome.census;
+  assert.deepEqual(censusCodes(keptRunFailures(withoutCensus)), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  assert.deepEqual(censusCodes(keptRunFailures({ ...stored, launch_outcome: { ...stored.launch_outcome, census: null } })), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  const before = recordedOutcome({ status: 0, signal: null, timedOut: false, census: undefined, nonce: stored.launch_outcome.nonce, started: "s", ended: "e" });
+  assert.deepEqual(censusCodes(keptRunFailures({ ...stored, launch_outcome: before })), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  assert.deepEqual(censusCodes(keptRunFailures({ ...stored, launch_outcome: undefined })), ["LAUNCH-OUTCOME-NOT-RECORDED"]);
+});
+
+for (const [name, answer, reason] of [
+  ["a process still runs the private copy", async () => ({ resolved: false, reason: "process 4242 still ran the copy after 200 ms" }), /^LAUNCH-CENSUS-UNRESOLVED: process 4242 still ran/],
+  ["the census throws", async () => { throw new Error("lsof vanished"); }, /^LAUNCH-CENSUS-UNRESOLVED: the census could not be taken: lsof vanished$/],
+  ["the census answers null", async () => null, /^LAUNCH-CENSUS-UNRESOLVED: the census gave no result$/],
+  ["the census answers nothing", async () => undefined, /^LAUNCH-CENSUS-UNRESOLVED: the census gave no result$/],
+  ["the census answers a non-boolean resolved", async () => ({ resolved: "true" }), /^LAUNCH-CENSUS-UNRESOLVED: the census gave no result$/],
+  ["the census never answers", () => new Promise(() => {}), /^LAUNCH-CENSUS-UNRESOLVED: the census gave no answer within 2050 ms$/]
+]) {
+  test(`an unresolved census (${name}) is a committed launch_failed record, and no further run's marks, admission or start follow`, { timeout: 30_000 }, async (t) => {
+    const w = standInWindow(t, { census: answer, censusBoundMs: 50 });
+    const records = await runWindow(w.runs, w.ctx);
+    assert.equal(records.length, 1);
+    assert.deepEqual(w.events.map((event) => event.e), ["marks", "admission", "census"]);
+    assert.equal(existsSync(w.runFile("second")), false);
+    const stored = JSON.parse(readFileSync(w.runFile("first"), "utf8"));
+    assert.equal(stored.class, "launch_failed");
+    assert.equal(stored.window_stop, "LAUNCH-CENSUS-UNRESOLVED");
+    assert.equal(stored.launch_outcome.census.resolved, false);
+    const finding = stored.findings.find((item) => item.class === "launch_failed");
+    assert.deepEqual(censusCodes(finding.failures), ["LAUNCH-CENSUS-UNRESOLVED"]);
+    assert.match(finding.failures[0], reason);
+    // Committed without an inspection or its checkpoint; the failed run's home is kept for the supervisor.
+    assert.equal(stored.store.inspection, "not_made");
+    assert.equal(existsSync(w.partialFile("first")), false);
+    assert.equal(existsSync(path.join(stored.kept, "home")), true);
+    assert.deepEqual(censusCodes(keptRunFailures(stored)), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  });
+}
+
+test("the default census on the private copy: it resolves when nothing runs it, and the window goes on", { timeout: 30_000 }, async (t) => {
+  const w = standInWindow(t);
+  const records = await runWindow(w.runs, w.ctx);
+  assert.deepEqual(records.map((record) => record.class), ["ok", "ok"], JSON.stringify(records.map((record) => record.findings)));
+  assert.deepEqual(records.map((record) => record.launch_outcome.census), [{ resolved: true }, { resolved: true }]);
+});
+
+test("the default census finds a process still holding the private copy (lsof) and the window stops", { timeout: 30_000, skip: process.platform !== "darwin" && "the open-file census is lsof's (macOS)" }, async (t) => {
+  const w = standInWindow(t, { hold: true, censusBoundMs: 300 });
+  const records = await runWindow(w.runs, w.ctx);
+  assert.equal(records.length, 1);
+  assert.deepEqual(w.events.map((event) => event.e), ["marks", "admission"]);
+  const holder = Number(readFileSync(path.join(path.dirname(w.binary), "holder.pid"), "utf8"));
+  const stored = JSON.parse(readFileSync(w.runFile("first"), "utf8"));
+  assert.equal(stored.class, "launch_failed");
+  assert.equal(stored.window_stop, "LAUNCH-CENSUS-UNRESOLVED");
+  assert.match(stored.launch_outcome.census.reason, new RegExp(`^process (\\d+, )*${holder}(, \\d+)* still ran `));
+  assert.equal(existsSync(w.runFile("second")), false);
 });

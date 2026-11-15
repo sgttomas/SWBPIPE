@@ -27,8 +27,13 @@
 //       (`release_timing --write` from the same model document), which the started job
 //       publishes instead of starting its worker (`src-tauri/src/native_smoke_inject.rs`).
 //   It samples the app, its solve workers and the WebKit processes started for it
-//   (`perf-sampler.py`), waits for the app to finish or the run's timeout, inspects the
-//   SQLite store and classifies the run. An independent --run supervisor bounds
+//   (`perf-sampler.py`), waits for the app to finish or the run's timeout, takes the
+//   census of the private copy (no process still runs it; after the sampler has stopped,
+//   outside the timed span), inspects the SQLite store and classifies the run. An
+//   unresolved census is a `launch_failed` run named LAUNCH-CENSUS-UNRESOLVED: its record
+//   is committed without inspecting the store, and no further run starts in the window.
+//   The census covers the private executable only: not the WebKit helper processes
+//   launchd starts for the app, and not the host between windows. An independent --run supervisor bounds
 //   its internal --run-child, including synchronous inspection. Raw sampler lines
 //   and completed-run records are persisted before advancing; forced-stop receipts
 //   explicitly describe partial evidence. Without --keep, an ok run's private
@@ -57,7 +62,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { isMainThread, parentPort, Worker, workerData } from "node:worker_threads";
-import { launchFailures, newNonce, readReport, recordedOutcome } from "./launch-outcome.mjs";
+import { awaitNoProcesses } from "./launch-env.mjs";
+import { launchFailures, newNonce, readReport, recordedCensusFailures, recordedOutcome } from "./launch-outcome.mjs";
 import { marksCheck, marksRefuse } from "./marks-check.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -73,6 +79,16 @@ const INJECT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_RESULT";
 const INJECT_ROOT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT";
 const SEVERITY = ["crash", "launch_failed", "half_written_save", "misleading_message", "host_unobservable", "hang", "refused_with_message", "ok"];
 const GIB = 1024 ** 3;
+// How long the census after a launch waits for no process to run the private copy. Shorter than `run.mjs`'s 20 s
+// because it is spent inside the window: with the sampler's stop and the stderr drain it stays within the
+// supervisor's post-run reserve (at most 30 s), so that an unresolved census is normally recorded before the
+// supervisor's deadline. A supervisor stop during the census still fails the window; nothing then passes.
+const PERF_CENSUS_BOUND_MS = 10 * 1000;
+// The added wait, past the bound, before a census that has not answered is taken as unresolved.
+const CENSUS_ANSWER_GRACE_MS = 2000;
+export const CENSUS_UNRESOLVED_STOP = "LAUNCH-CENSUS-UNRESOLVED";
+// A store not inspected because a process of the private copy may still be writing it (an unresolved census).
+const STORE_NOT_INSPECTED = "not_made";
 
 function killOwnRunnerGroup() {
   try { process.kill(-process.pid, "SIGKILL"); }
@@ -682,22 +698,27 @@ const markAt = (timeline, stage) => {
 };
 
 // The run's findings and its most severe class. A report does not rescue a launch that did not end cleanly or a
-// report that is not this run's: the common conditions of `launch-outcome.mjs` (DEL-07-11: exit, signal, timeout,
-// this run's report and nonce) judge every launch (`launchFailures`, with no census: this runner takes no
-// per-launch census, so its `ok` is not the census-bearing completion of `run.mjs`). With a report, the named failures are a
-// `launch_failed` finding's `failures` and the report's own observations are still read and classified beside it;
-// without one, they are the `failures` of the app's crash or hang finding, so every failed condition is named
-// and the class stays crash or hang. `reportProblem` says why a report file that exists was not read.
-export function classify({ report, reportProblem = null, exit, timedOut, progress, memory, store, run, resultBytes, nonce }) {
+// report that is not this run's: the rule of `launch-outcome.mjs` (DEL-07-11: exit, signal, timeout, the census,
+// this run's report and nonce) judges every launch (`launchFailures`). This runner's contract requires the census
+// (`takeCensus`), so a census not given, or null, is LAUNCH-CENSUS-UNRESOLVED, never "no census taken". With a
+// report, the named failures are a `launch_failed` finding's `failures` and the report's own observations are still
+// read and classified beside it; without one, they are the `failures` of the app's crash or hang finding, so every
+// failed condition is named, and an unresolved census adds its own `launch_failed` finding (the class is then
+// crash, or launch_failed where it would have been hang). `reportProblem` says why a report file that exists was
+// not read. A store not inspected (an unresolved census) is not read as a store without the run's project.
+export function classify({ report, reportProblem = null, exit, timedOut, census, progress, memory, store, run, resultBytes, nonce }) {
   const findings = [];
   const add = (kind, detail) => findings.push({ class: kind, ...detail });
   const webcontentExited = Object.entries(memory.pids).filter(([, entry]) => entry.kind === "webcontent" && exit.ended_ms !== null && entry.last_ms < exit.ended_ms - 1000);
   for (const [pid, entry] of webcontentExited) add("crash", { process: "webcontent", pid: Number(pid), detail: `WebContent ${pid} stopped being sampled ${exit.ended_ms - entry.last_ms} ms before the app ended` });
-  const failures = launchFailures({ status: exit.status, signal: exit.signal, timedOut, census: undefined, report, problem: reportProblem, nonce });
+  const failures = launchFailures({ status: exit.status, signal: exit.signal, timedOut, census: census ?? null, report, problem: reportProblem, nonce });
+  const inspected = store?.inspection !== STORE_NOT_INSPECTED;
   if (!report) {
     const unread = reportProblem && reportProblem !== "no report" ? ` (${reportProblem})` : "";
     if (timedOut) add("hang", { process: "app", failures, detail: `no report within ${run.timeout_s} s${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
     else add("crash", { process: "app", failures, detail: `the app exited (${exit.status ?? exit.signal}) without a report${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
+    const unresolved = failures.find((line) => line.startsWith(`${CENSUS_UNRESOLVED_STOP}:`));
+    if (unresolved) add("launch_failed", { process: "app", step: "census", failures: [unresolved], detail: `${unresolved}. A process of the private app copy may still run; no further run starts in this window.`, needs_review: true });
   } else {
     if (failures.length > 0) add("launch_failed", { process: "app", failures, detail: `the launch did not end cleanly or its report is not this run's: ${failures.join("; ")}. The report's observations are still read.`, needs_review: true });
     const solve = report.solve;
@@ -750,7 +771,7 @@ export function classify({ report, reportProblem = null, exit, timedOut, progres
     const omitted = saveReceipts.find(result => result?.outcome === "not_saved");
     if (omitted) add("refused_with_message", { step: "save_result", message: omitted.code ?? "The native save kept only the model.", needs_review: true });
     if (run.c1_probes && !unobservable && report.c1?.completed !== true) add("refused_with_message", { step: "c1_probes", message: "The connected C1 usability probes did not complete.", needs_review: true });
-    if (run.c1_probes && report.c1?.completed && report.c1.csv_file?.verified !== true) {
+    if (run.c1_probes && inspected && report.c1?.completed && report.c1.csv_file?.verified !== true) {
       if (report.c1.csv_file?.error) add("refused_with_message", { step: "csv_inspection", message: report.c1.csv_file.error, needs_review: true });
       else add("misleading_message", { step: "csv", detail: "CSV rows do not match the native query total." });
     }
@@ -759,7 +780,7 @@ export function classify({ report, reportProblem = null, exit, timedOut, progres
     const claimedSaved = Boolean(save?.message && /^(Saved|Created)|SQLite project snapshot/.test(save.message)) || Boolean(record?.attempted && record.message && !/^Not recorded/.test(record.message));
     if (store?.quick_check && store.quick_check.join(",") !== "ok") add("half_written_save", { detail: `quick_check: ${store.quick_check.slice(0, 3).join("; ")}` });
     if ((store?.files ?? []).some((file) => /-journal$|-wal$/.test(file.name) && file.bytes > 0)) add("half_written_save", { detail: `left over: ${store.files.filter((file) => /-journal$|-wal$/.test(file.name)).map((file) => `${file.name} (${file.bytes} bytes)`).join(", ")}` });
-    if (claimedSaved && solve?.ended === "first_paint" && (!stored || stored.result_type !== "text")) add("misleading_message", { detail: `the window reported a save or a recorded run, but the store holds ${stored ? `a ${stored.result_type} result` : "no project row"} for ${run.project_id}` });
+    if (inspected && claimedSaved && solve?.ended === "first_paint" && (!stored || stored.result_type !== "text")) add("misleading_message", { detail: `the window reported a save or a recorded run, but the store holds ${stored ? `a ${stored.result_type} result` : "no project row"} for ${run.project_id}` });
     // Only a session that held the result (painted) can be judged against its size.
     if (!omitted && solve?.ended === "first_paint" && stored && stored.result_type === "text" && resultBytes && stored.result_chars < resultBytes / 2) add("half_written_save", { detail: `the stored result has ${stored.result_chars} characters, the solve's result ${resultBytes} bytes` });
   }
@@ -857,7 +878,48 @@ export function createReaderPhaseEvidence(file) {
   };
 }
 
+/** The census after one launch (`awaitNoProcesses` on the private copy): `{ resolved: true }`, or
+ * `{ resolved: false, reason }`. It never throws and never reads anything but `resolved === true` as resolved: an
+ * exception, a missing or malformed answer, or no answer within the bound and its grace is unresolved evidence. */
+export async function takeCensus(binary, { boundMs, census = awaitNoProcesses, graceMs = CENSUS_ANSWER_GRACE_MS }) {
+  let timer;
+  try {
+    const answer = await Promise.race([
+      Promise.resolve().then(() => census(binary, { boundMs })),
+      new Promise((resolve) => { timer = setTimeout(() => resolve({ resolved: false, reason: `the census gave no answer within ${boundMs + graceMs} ms` }), boundMs + graceMs); })
+    ]);
+    if (answer?.resolved === true) return { resolved: true };
+    const reason = typeof answer?.reason === "string" && answer.reason ? answer.reason : "the census gave no result";
+    return { resolved: false, reason: reason.slice(0, 2000) };
+  } catch (error) {
+    return { resolved: false, reason: `the census could not be taken: ${String(error?.message ?? error).slice(0, 2000)}` };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** The named failures of a kept perf run record, judged again from its recorded launch outcome and report without a
+ * launch. Census-bearing (`recordedCensusFailures`): a record without a census, or with a null one, as every
+ * record written before this runner took one, is LAUNCH-CENSUS-UNRESOLVED and never a pass. */
+export function keptRunFailures(record) {
+  const report = record?.report && typeof record.report === "object" ? record.report : null;
+  return recordedCensusFailures(record?.launch_outcome, report, report ? null : "no report recorded");
+}
+
+// What a launch uses from the host besides the app itself. `ctx.deps` overrides them only in `perf.test.mjs`
+// (controlled answers, a stand-in sampler and census, a short census bound); `runPlan` never sets it.
+const LAUNCH_DEPS = Object.freeze({
+  marks: () => marksCheck(),
+  webkitPids: () => webkitPids(),
+  startupHost: (binary) => readStartupHost(binary),
+  caffeinate: (pid) => spawn("/usr/bin/caffeinate", ["-di", "-w", String(pid)], { stdio: "ignore" }),
+  sampler: (samplerArgs) => spawn("python3", [path.join(here, "perf-sampler.py"), ...samplerArgs], { stdio: ["ignore", "pipe", "inherit"] }),
+  census: awaitNoProcesses,
+  censusBoundMs: PERF_CENSUS_BOUND_MS
+});
+
 async function runOne(run, ctx) {
+  const deps = { ...LAUNCH_DEPS, ...ctx.deps };
   const record = { id: run.id, mode: run.mode, model: run.model, binding: ctx.binding, harness: ctx.harness, started_at: new Date().toISOString() };
   // Every plan-named source and destination stays inside its root (validatePlan, containedPath).
   let modelSource, resultFile;
@@ -901,14 +963,14 @@ async function runOne(run, ctx) {
   else delete env.SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS;
   // The three marks (`marks-check.mjs`), checked here, after every build and binding and directly before the
   // launch's own host admission (webkitPids, readStartupHost) and the app's start.
-  record.marks = marksCheck();
+  record.marks = deps.marks();
   if (marksRefuse(record.marks)) {
     return { ...record, class: "refused_with_message", findings: [{ class: "refused_with_message", step: "marks", message: "NATIVE-SMOKE-MARK-PRESENT: an agent may be operating the App on the screen, or the marks could not be checked; no App was launched.", needs_review: true }], kept: root };
   }
   record.reader_phase_file = ctx.plan.c1_reader_diagnostics ? path.join(ctx.out, `perf-reader-phases-${planName(path.basename(ctx.scratch), "window")}-${planName(run.id, "run")}.jsonl`) : null;
   const phases = record.reader_phase_file ? createReaderPhaseEvidence(record.reader_phase_file) : null;
-  const baseline = webkitPids();
-  record.startup_host = await readStartupHost(ctx.binary);
+  const baseline = deps.webkitPids();
+  record.startup_host = await deps.startupHost(ctx.binary);
   const startedMs = Date.now();
   // Inherit the supervised runner's group. A detached App could outlive the
   // supervisor's deadline when its runner is blocked in synchronous SQLite.
@@ -916,9 +978,9 @@ async function runOne(run, ctx) {
   audit({ type: "app", pid: app.pid });
   let appExited = false;
   app.once("exit", () => { appExited = true; audit({ type: "app_exit", pid: app.pid }); });
-  const caffeinate = spawn("/usr/bin/caffeinate", ["-di", "-w", String(app.pid)], { stdio: "ignore" });
+  const caffeinate = deps.caffeinate(app.pid);
   record.samples_file = path.join(ctx.out, `perf-samples-${planName(path.basename(ctx.scratch), "window")}-${planName(run.id, "run")}.jsonl`);
-  const sampler = spawn("python3", [path.join(here, "perf-sampler.py"), "--app-pid", String(app.pid), "--app-path", ctx.binary, "--baseline", baseline.join(","), "--interval-ms", String(ctx.plan.sample_interval_ms), "--out", record.samples_file], { stdio: ["ignore", "pipe", "inherit"] });
+  const sampler = deps.sampler(["--app-pid", String(app.pid), "--app-path", ctx.binary, "--baseline", baseline.join(","), "--interval-ms", String(ctx.plan.sample_interval_ms), "--out", record.samples_file]);
   let lastSample = Date.now();
   const webcontentSeen = new Set();
   const sampleGuard = createSampleGuard();
@@ -1007,11 +1069,20 @@ async function runOne(run, ctx) {
   });
   record.reader_phases = phases?.close() ?? null;
   if (record.reader_phases && !phasePipeDrained) record.reader_phases.evidence_complete = false;
+  // The timed span ends at the app's exit; nothing after this line is in it.
   record.elapsed_s = (exit.ended_ms - startedMs) / 1000;
   record.exit = { ...exit, timed_out: timedOut, timeout_ms: timeoutMs };
-  // The launch outcome as `launch-outcome.mjs` records it (no census), so that the record can be judged again
-  // (`recordedFailures`).
-  record.launch_outcome = recordedOutcome({ status: exit.status, signal: exit.signal, timedOut, census: undefined, nonce, started: new Date(startedMs).toISOString(), ended: new Date(exit.ended_ms).toISOString() });
+  // The census (DEL-07-11 VER-008): no process may still run the private copy (a solve worker runs it in its own
+  // process group). Taken after the app's exit, the sampler's stop and the bounded stderr drain; outside the timed
+  // span; before the checkpoint, the store and CSV inspections and the record's commit, and so before the next
+  // run's marks and admission. It covers the private executable only, not the WebKit helper processes launchd starts
+  // for the app, and nothing here observes the host between windows.
+  const censusStartedMs = Date.now();
+  const census = await takeCensus(ctx.binary, { boundMs: deps.censusBoundMs, census: deps.census });
+  record.census_window = { bound_ms: deps.censusBoundMs, started_ms: censusStartedMs, ended_ms: Date.now() };
+  // The launch outcome as `launch-outcome.mjs` records it, census included, so that the record can be judged again
+  // (`keptRunFailures`).
+  record.launch_outcome = recordedOutcome({ status: exit.status, signal: exit.signal, timedOut, census, nonce, started: new Date(startedMs).toISOString(), ended: new Date(exit.ended_ms).toISOString() });
   const { report, problem: reportProblem } = readReport(path.join(root, "report.json"));
   const jobDone = markAt(report?.solve?.timeline, "job_done");
   const memory = summarizeSamples(samples, { since: jobDone });
@@ -1022,11 +1093,20 @@ async function runOne(run, ctx) {
     ambiguous: webcontent.length > 1
   };
   memory.peak_footprint_since = jobDone === null ? null : "job_done";
-  checkpointRun({ ...record, report, progress, memory, kept: root, store: { inspection: "pending" } }, ctx);
-  audit({ type: "stage", step: "inspect_store", stage: "started" });
-  const store = await inspectStore(home);
-  audit({ type: "stage", step: "inspect_store", stage: "completed" });
-  if (run.c1_probes && report?.c1?.fresh?.csv) report.c1.csv_file = await inspectCsv(home, report.c1.fresh.csv);
+  let store;
+  if (census.resolved === true) {
+    checkpointRun({ ...record, report, progress, memory, kept: root, store: { inspection: "pending" } }, ctx);
+    audit({ type: "stage", step: "inspect_store", stage: "started" });
+    store = await inspectStore(home);
+    audit({ type: "stage", step: "inspect_store", stage: "completed" });
+    if (run.c1_probes && report?.c1?.fresh?.csv) report.c1.csv_file = await inspectCsv(home, report.c1.fresh.csv);
+  } else {
+    // A process of the private copy may still run and write the store and Downloads. Neither is inspected, so that
+    // no inspection can block before the failure is recorded: the record goes to its commit (`runWindow`) at once,
+    // and the window stops there.
+    store = { inspection: STORE_NOT_INSPECTED, reason: `${CENSUS_UNRESOLVED_STOP}: ${census.reason}` };
+    record.window_stop = CENSUS_UNRESOLVED_STOP;
+  }
   const proof = report?.solve?.shown?.proof ?? null;
   const proofField = (name) => proof?.match(new RegExp(`(?:^|; )${name}=([^;]*)`))?.[1] ?? null;
   record.model_binding = {
@@ -1037,7 +1117,7 @@ async function runOne(run, ctx) {
     same_model: proof ? proofField("model_sha256") === record.model_jcs_sha256 : null
   };
   const resultBytes = report?.solve?.timeline?.marks?.find((mark) => mark.stage === "job_done")?.detail?.result_bytes ?? null;
-  Object.assign(record, classify({ report, reportProblem, exit, timedOut, progress, memory, store, run, resultBytes, nonce }));
+  Object.assign(record, classify({ report, reportProblem, exit, timedOut, census, progress, memory, store, run, resultBytes, nonce }));
   if (ctx.plan.c1_reader_diagnostics && record.reader_phases?.evidence_complete !== true) {
     record.findings.push({ class: "refused_with_message", step: "reader_phases", message: "Native reader phase exits are incomplete or omitted.", needs_review: true });
     if (record.class === "ok") record.class = "refused_with_message";
@@ -1101,12 +1181,52 @@ export async function commitRun(record, { out, scratch, keep }) {
   }
 }
 
+/** The window's runs in plan order. Each run's record is committed before the next run's marks, admission or start.
+ * A run that is not ok ends the window (nothing is retried), and an unresolved census ends it whatever the run's
+ * class: no further run starts while a process of the private copy may still run. An ok record must also pass the
+ * census-bearing judgment its kept record will get (`keptRunFailures`), or it is committed as launch_failed. */
+export async function runWindow(runs, ctx) {
+  const records = [];
+  for (const run of runs) {
+    if (run.estimate_s * 1000 > ctx.remainingMs()) {
+      const skipped = { binding: ctx.binding, harness: ctx.harness, id: run.id, mode: run.mode, model: run.model, class: "skipped", detail: `estimate ${run.estimate_s} s exceeds the remaining budget ${Math.round(ctx.remainingMs() / 1000)} s` };
+      await commitRun(skipped, ctx);
+      records.push(skipped);
+      console.log(`${run.id}: skipped (window budget)`);
+      continue;
+    }
+    const record = await runOne(run, ctx);
+    if (record.class === "ok") {
+      const kept = keptRunFailures(record);
+      if (kept.length > 0) {
+        record.class = "launch_failed";
+        record.findings = [{ class: "launch_failed", process: "app", failures: kept, detail: `the record does not pass its kept-record judgment: ${kept.join("; ")}`, needs_review: true }];
+      }
+    }
+    await commitRun(record, ctx);
+    records.push(record);
+    if (record.window_stop) {
+      console.error(`${run.id}: ${record.window_stop}: ${record.launch_outcome?.census?.reason ?? "no census"}; the failed launch is recorded in ${record.record_file}; no further run starts in this window`);
+      break;
+    }
+    // A run that is not ok (host_unobservable included) ends the window: nothing is retried.
+    if (record.class !== "ok") break;
+  }
+  return records;
+}
+
 async function runPlan(options) {
   if (!process.send) throw new Error("perf run: only the supervised --run path can start the App");
   const binding = JSON.parse(readFileSync(path.join(options.appDir, BINDING), "utf8"));
   const bound = binding.binary.path;
   if (sha256File(bound) !== binding.binary.sha256) throw new Error(`perf run: ${bound} is not the bound binary (${binding.binary.sha256}); run --build again`);
   const plan = loadPlan(options.planFile);
+  // The window's run count is set here, by the plan's subset or --runs. The standing rule for criterion 9's
+  // measurement (the INTERLOCUTOR, issue #360): "one launch per kept window, and no next window unless the previous
+  // window's teardown recorded the owned group and the owned executable's processes gone; one launch alone does not
+  // establish cleanup". A kept window is one whose figures are kept as measurement, not --keep's retained scratch.
+  // This runner does not enforce it: a window of several runs still runs, and its figures are not to be kept as
+  // criterion 9's measurement.
   const runs = selectRuns(plan, options);
   const budgetMs = (options.budgetS ?? plan.budget_s) * 1000;
   mkdirSync(options.out, { recursive: true });
@@ -1127,21 +1247,7 @@ async function runPlan(options) {
   };
   const ctx = { plan, binding, harness, binary, models: options.models, results: options.results ?? options.models, out: options.out, scratch, keep: options.keep, remainingMs: () => budgetMs - (Date.now() - started) };
   process.stdout.write(formatPlan(runs, budgetMs / 1000));
-  const records = [];
-  for (const run of runs) {
-    if (run.estimate_s * 1000 > ctx.remainingMs()) {
-      const skipped = { binding, harness, id: run.id, mode: run.mode, model: run.model, class: "skipped", detail: `estimate ${run.estimate_s} s exceeds the remaining budget ${Math.round(ctx.remainingMs() / 1000)} s` };
-      await commitRun(skipped, ctx);
-      records.push(skipped);
-      console.log(`${run.id}: skipped (window budget)`);
-      continue;
-    }
-    const record = await runOne(run, ctx);
-    await commitRun(record, ctx);
-    records.push(record);
-    // A run that is not ok (host_unobservable included) ends the window: nothing is retried.
-    if (records.at(-1).class !== "ok") break;
-  }
+  const records = await runWindow(runs, ctx);
   const report = {
     schema: "swbpipe.desktop-perf-report/v1",
     written_at: new Date().toISOString(),
@@ -1154,6 +1260,7 @@ async function runPlan(options) {
       "Injected runs skip the solve worker: no solve runs, worker_peak_footprint_bytes is unset, and d_M, d_S and their parsed values are computed in the app process before publication (so the app's peak before job_done includes them; peak_footprint_since counts from job_done).",
       "WebContent is identified as the WebKit WebContent processes started after the launch; another WebKit client starting one during the run would be counted (memory.webcontent_identification).",
       "One run per app launch, against a throwaway HOME; the host is the one in `host`, not necessarily the 16 GiB base machine.",
+      "After each launch, outside its timed span, a census finds whether any process still runs the private app copy; an unresolved census is launch_failed (LAUNCH-CENSUS-UNRESOLVED) and ends the window. It does not cover the WebKit helper processes launchd starts for the app, or the host between windows.",
       "C1 probe completion, when selected, covers its DOM/native-command/storage/CSV interactions only; it does not establish reader working-peak attribution, memory fit, base-machine usability or acceptance."
     ],
     elapsed_s: (Date.now() - started) / 1000,
