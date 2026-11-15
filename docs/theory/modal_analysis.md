@@ -75,7 +75,13 @@ participation factor Γ_k = φᵀp_k / m, the effective mass (φᵀp_k)²/m, the
 effective-mass fraction and its cumulative sum. Here p_k = (M R_k)_f, the free
 rows of the full mass times the rigid unit translation R_k of every DOF, so
 that consistent-mass coupling to restrained DOFs is included. Fractions are
-relative to T_k = R_kᵀ M R_k, the model's total mass in direction k.
+relative to T_k = R_kᵀ M R_k, the model's total mass in direction k. The
+generalized mass is in kg and Γ_k is dimensionless for a mode with
+translation; they are in kg·m²·rad⁻² and rad/m for a mode with none (see
+[Normalization](#normalization-a-display-convention)). The effective mass is
+in kg in both cases, and fractions and their sums are dimensionless. If T_k is
+0, the effective masses along k are 0 and their fractions are undefined, with
+the reason.
 
 ### The mass model
 
@@ -92,8 +98,14 @@ two cannot disagree:
   rotary inertia; this is disclosed.
 - **Realized arcs** carry two rigid-body half-arc lumps with the half-arcs'
   exact mass, centroid and second moments.
-- **Rigid-family components** that self-weight applies carry a rigid-body lump
-  of mass W/a at their centre of gravity, in place of the member's pipe mass.
+- **Rigid-family components** that self-weight applies carry a point mass
+  m = W/a at their centre of gravity, offset c from the component's node, in
+  place of the member's pipe mass. W and a must be positive normal binary64
+  numbers, fl(W/a) a normal binary64 number, a·fl(W/a) finite and normal, and
+  each entry of the body's spatial mass block (m·c_i, m·c_i·c_j) finite and
+  either zero or normal. Otherwise the request is refused
+  (`MODAL_COMPONENT_MASS_OUT_OF_RANGE`, naming the component). Under that
+  premise a·fl(W/a) differs from W by at most 2u + u² relative, u = 2⁻⁵³.
 - **Massless families:** objective connectors (their replaced span carries
   neither self-weight nor mass), tie rods and constant-effort supports carry no
   mass; this is disclosed.
@@ -119,11 +131,18 @@ numerical dependency.
   δ_c = 2⁻²⁰ relative of the next. When the extraction bound falls inside a
   cluster, the reported set is extended to the whole cluster, and the result
   discloses the extension by count. A partial cluster is never published.
-- **Completeness** is checked by a Sturm count: the number of negative pivots
-  of the LDLᵀ factorization of the scaled K − σM, at a shift σ placed in the
-  gap between the last reported cluster and the next computed one, equals the
-  number of eigenvalues below σ (Sylvester's law of inertia). That count must
-  equal the number of modes reported. A mismatch refuses the set.
+- **Completeness** is checked by a Sturm count: when the unpivoted LDLᵀ
+  factorization of the scaled K − σM succeeds with nonzero scalar pivots, its
+  number of negative pivots equals, in exact arithmetic, the number of finite
+  eigenvalues below σ ([D4](#derivations)). The shift σ is placed in the gap between the last
+  reported cluster and the next computed one. That count must equal the number
+  of modes reported. A mismatch refuses the set. A shift whose factorization
+  fails gives no count; another candidate shift is tried, and the set is
+  refused by name when none succeeds.
+- **Empty set.** A cut-off below the lowest frequency reports no modes. The
+  count is then taken at a shift in the gap between f_c and the lowest
+  computed cluster, under the same premises, and must be 0. The result states
+  that no mode lies at or below f_c under those premises.
 - **A count is relied on only under two premises**, both disclosed with the
   shift: the estimated backward error of forming and factoring the shifted
   matrix, times an estimate of the norm of its inverse, is at most 2⁻¹⁰ (the
@@ -145,8 +164,9 @@ Every published mode set carries:
    significand), with the formation difference measured and published;
 2. per mode, the **residual** ‖Kφ − λMφ‖ against the re-formed pencil, scaled
    as a backward error and compared with τ_r = 2⁻³⁰, with a first-order,
-   residual-based estimate of the eigenvalue error (stated for a cluster as a
-   whole; an estimate, not a bound);
+   residual-based estimate of the eigenvalue error. The estimate rests on the
+   premise that the eigenvalue is isolated; for a cluster it is stated for the
+   cluster as a whole. It is an estimate, not a bound;
 3. the **mass-orthogonality** deviation of the published modes, against 2⁻²³;
 4. the **Sturm-count** agreement above;
 5. the **cluster** identifiers and any extension;
@@ -195,78 +215,191 @@ model's mass; it does not show that the eigenvalues are correct.
 
 The relations above are classical, and this note derives each of them from
 the assumptions stated with it (DEL-11-03 REQ-004). Each derivation names the
-frozen independent reference that corroborates it, a reference whose
-generator imports no product code.
+frozen independent reference that corroborates particular cases of it, a
+reference whose generator imports no product code. A reference case
+corroborates a derivation; it does not replace it.
 
-**D1. The eigenproblem.** Undamped free vibration of the linear model on its
-free DOFs is M_ff ü + K_ff u = 0, with K_ff symmetric positive definite (the
-model is restrained) and M_ff symmetric positive semidefinite. A synchronous
-motion u(t) = φ·sin(ωt) gives (K_ff − ω²M_ff)φ·sin(ωt) = 0 for every t, so
-K_ff φ = ω² M_ff φ. Then λ = ω², f = ω/(2π) in Hz and T = 1/f in s. For two
-modes with λ_i ≠ λ_j, subtracting φ_jᵀ(K φ_i = λ_i M φ_i) from the transposed
-equation for j gives (λ_i − λ_j) φ_jᵀ M φ_i = 0, so distinct modes are
-M-orthogonal; that is what check 3 measures. *Reference:*
+**D1. The eigenproblem and its finite modes.** Undamped free vibration of the
+linear model on its free DOFs is M_ff ü + K_ff u = 0. K_ff is symmetric
+positive definite, because the model is restrained (an unrestrained model or
+mechanism is refused first). M_ff is symmetric positive semidefinite. A
+synchronous motion u(t) = φ·sin(ωt) gives (K_ff − ω²M_ff)φ·sin(ωt) = 0 for
+every t, so K_ff φ = λ M_ff φ with λ = ω². Then f = ω/(2π) in Hz and
+T = 1/f in s.
+
+*Massless directions.* Choose an orthogonal Q with
+QᵀM_ffQ = diag(0, M_CC) and M_CC positive definite (the eigenvectors of M_ff,
+null space N first). Write QᵀK_ffQ in the same blocks K_NN, K_NC, K_CN, K_CC.
+K_NN is positive definite, as a principal block of a positive definite matrix.
+With φ = Qψ, the N rows of K φ = λ M φ carry no mass:
+K_NN ψ_N + K_NC ψ_C = 0, so ψ_N = −K_NN⁻¹ K_NC ψ_C. The C rows then read
+K̂ ψ_C = λ M_CC ψ_C, with K̂ = K_CC − K_CN K_NN⁻¹ K_NC, which is positive
+definite as a Schur complement of a positive definite matrix. So the finite
+eigenvalues are those of (K̂, M_CC): there are rank(M_ff) of them, all
+positive. A direction with no mass gives no finite mode. If M_ff is positive
+definite, N is empty and nothing is eliminated.
+
+*Orthogonality, repeated eigenvalues included.* With M_CC = G Gᵀ (Cholesky),
+G⁻¹K̂G⁻ᵀ is symmetric, so it has an orthonormal eigenbasis, and within a
+repeated eigenvalue that basis is a choice. Lifting each eigenvector
+z_i = Gᵀψ_C,i gives modes with φ_iᵀM_ffφ_j = ψ_C,iᵀM_CCψ_C,j = 0 for i ≠ j and
+m_i = φ_iᵀM_ffφ_i > 0. For λ_i ≠ λ_j that orthogonality is forced:
+subtracting φ_jᵀ(K φ_i = λ_i M φ_i) from the transposed equation for j gives
+(λ_i − λ_j) φ_jᵀ M φ_i = 0. Within a repeated eigenvalue it is the choice.
+The dense path makes that choice by construction. It reduces with K's
+Cholesky factor K = L Lᵀ to the symmetric C = L⁻¹ M L⁻ᵀ, whose orthonormal
+eigenvectors y_i (μ_i = 1/λ_i > 0) give φ_i = L⁻ᵀ y_i with
+φ_iᵀMφ_j = y_iᵀ C y_j = μ_i δ_ij in exact arithmetic. Check 3 measures what
+rounding leaves. *Reference:*
 `validation/references/f1_modal/mass_discrete/eigen_references.json` (class (a)
-discrete eigenvalues and an independent Jacobi control) and
-`validation/references/f1_modal/continuum/continuum.json` (closed-form beam,
-rod and ring frequencies).
+discrete eigenvalues, residuals and orthogonality, with an independent Jacobi
+control) and `validation/references/f1_modal/continuum/continuum.json`
+(closed-form beam, rod and ring frequencies).
 
-**D2. Consistent mass and the weight identity.** On a straight member of
-length L, with mass per length m̄ and the displacement interpolation
-u(x) = N(x)·q that the stiffness uses (cubic Hermite in bending, linear in
-axial and torsion), the kinetic energy ½∫ m̄ u̇ᵀu̇ dx = ½ q̇ᵀ M_e q̇ gives
-M_e = ∫₀ᴸ m̄ NᵀN dx. Rayleigh rotary inertia adds ∫₀ᴸ ρI N_θᵀN_θ dx, with
-N_θ = dN/dx the section rotation. The interpolation reproduces a rigid
-translation exactly: if q = r_k, the nodal vector of a unit translation along
-global k, then N r_k = e_k and N_θ r_k = 0. So
-a·M_e r_k = ∫₀ᴸ Nᵀ (m̄ a) e_k dx, the consistent load vector of the uniform
-load m̄·a along k. That is the weight-basis identity node by node for
-straight members. For a rigid body of mass m at centre of gravity c, the body
-moves with the node: its force under a rigid translation is m·a·e_k, and its
-moment about the node is c × m·a·e_k. Those are the resultant force and moment
-that its self-weight applies. *Reference:*
+**D2. Consistent mass and the weight identity.** *Straight member.* Take
+member axes x along the member and y, z across it, length L and ξ = x/L. The
+fields are the axial displacement u(x), the transverse displacements v(x) and
+w(x), and the twist θ_x(x). The section rotations follow the right-hand rule:
+θ_z = dv/dx and θ_y = −dw/dx. The interpolations are the ones the stiffness
+uses. u and θ_x are linear in their end values. v is cubic Hermite in
+(v_i, θ_z,i, v_j, θ_z,j), and w is cubic Hermite in (w_i, −θ_y,i, w_j, −θ_y,j),
+with N₁ = 1 − 3ξ² + 2ξ³, N₂ = L(ξ − 2ξ² + ξ³), N₃ = 3ξ² − 2ξ³ and
+N₄ = L(−ξ² + ξ³). The kinetic energy has three separate terms:
+
+T = ½ ∫₀ᴸ [ m̄ (u̇² + v̇² + ẇ²) + j̄ θ̇_x² + ī (θ̇_y² + θ̇_z²) ] dx.
+
+- m̄ (kg/m) is the mass per length: metal, contents and insulation, exactly
+  the self-weight generator's.
+- j̄ (kg·m, that is kg·m²/m) is the polar mass moment of inertia per length:
+  metal density times the annulus's polar second moment on the route's metal
+  wall, plus insulation density times the insulation annulus's.
+- ī = j̄/2 (kg·m) is the transverse rotary inertia per length. For an annulus
+  the polar second moment is the sum of two equal transverse ones.
+- Contents enter m̄ only, so they are excluded from j̄ and ī.
+
+Each term has the dimensions of energy: (kg/m)(m/s)² m and (kg·m)(rad/s)² m
+are both kg·m²/s². Writing T = ½ q̇ᵀ M_e q̇ gives the element mass:
+
+- axial: m̄L/6·[2, 1; 1, 2] on (u_i, u_j);
+- torsional: j̄L/6·[2, 1; 1, 2] on (θ_x,i, θ_x,j);
+- in each bending plane, the entries ∫ m̄ N_a N_b dx + ∫ ī N_a′ N_b′ dx,
+  that is m̄L/420·[156, 22L, 54, −13L; 22L, 4L², 13L, −3L²; 54, 13L, 156, −22L;
+  −13L, −3L², −22L, 4L²] plus ī/(30L)·[36, 3L, −36, 3L; 3L, 4L², −3L, −L²;
+  −36, −3L, 36, −3L; 3L, −L², −3L, 4L²]. In the x–z plane these act on
+  (w, −θ_y), so entry (a, b) carries the sign s_a·s_b with s = (1, −1, 1, −1).
+
+The 12×12 is turned to global axes by TᵀM_eT with the member's rotation.
+
+*Weight identity, straight member.* Let q = r_k be the nodal vector of a unit
+rigid translation along global k, which is d = R e_k in member axes. Linear
+and cubic Hermite interpolation reproduce a constant field exactly with zero
+slope: N₁ + N₃ = 1, and the slope of N₁ + N₃ is 0. So u, v and w equal d_x,
+d_y and d_z everywhere, and every rotation, θ_x included, is 0. The torsional
+and rotary terms then contribute nothing, and
+a·M_e r_k = ∫₀ᴸ Nᵀ (m̄ a d) dx. That is the consistent nodal vector of the
+uniform load m̄·a along k, node by node.
+
+*Weight identity, rigid bodies.* A component body is a point mass m at
+global offset c (m) **from its node** to its centre of gravity, carried
+rigidly by the node. Under small rotation θ its displacement is
+u + θ × c = u − [c]×θ, so its mass block is
+m·[I, −[c]×; [c]×, [c]×ᵀ[c]×]. Applied to a rigid translation (e_k, 0), it
+gives m·(e_k, c × e_k). Times a, that is the force m·a·e_k and the moment
+c × (m·a·e_k) about the node. These are the force and the moment about the
+node of a weight W = m·a acting along k at the centre of gravity, up to
+fl(W/a)'s rounding (bounded above). A realized arc's two rigid half-arc lumps
+follow the same argument, with the half-arc's exact mass and its centroid
+offset from its node. Under a rigid translation the lump's second moments
+are multiplied by a zero rotation and do not enter. So the identity holds on
+the resultant force and moment for arcs and components. *Reference:*
 `validation/references/f1_modal/mass_discrete/mass_references.json` (the mass
-matrices and the `weight_identity` cases, with a second route by shape
-functions and quadrature).
+matrices by shape-function integration and quadrature with these three
+energy terms, offset component bodies, arc resultants and the
+`weight_identity` cases).
 
-**D3. Participation and effective mass.** Under a uniform support translation
-g(t) along k, every DOF moves as u = R_k g + w, with w zero at restrained DOFs.
-Every support moves with g, a spring's grounded end included. A rigid
-translation therefore strains no element and no spring: the elastic forces
-depend on w alone. The free rows of the equation of motion
-M ü + K w = 0 are then M_ff ẅ_f + K_ff w_f = −(M R_k)_f g̈ = −p_k g̈. Expanding
-w_f = Σ φ_i y_i and multiplying by φ_iᵀ, M-orthogonality (D1) gives
-m_i ÿ_i + λ_i m_i y_i = −(φ_iᵀ p_k) g̈. So Γ_k = φ_iᵀ p_k / m_i, and the
-mode's effective mass is (φ_iᵀ p_k)²/m_i = Γ_k² m_i. Scaling φ_i by c scales
-m_i by c² and φ_iᵀp_k by c. The effective mass and the frequency are
-therefore independent of normalization, while Γ scales by 1/c and m_i by c².
-The modes are M_ff-orthogonal, so Bessel's inequality in the M_ff inner product
-bounds Σ_i (φ_iᵀp_k)²/m_i by p_kᵀ M_ff⁻¹ p_k on the subspace where M_ff is
-positive definite. Because the full M is positive semidefinite, that Schur
-complement term is at most R_kᵀ M R_k = T_k. This is why the summed effective
-mass never exceeds the total mass. *Reference:*
+**D3. Participation and effective mass.** *Premise (uniform support
+motion).* Every support, a spring's grounded end included, moves with one
+ground translation g(t) along k, so every DOF moves as u = R_k g + w, with w
+zero at restrained DOFs. A rigid translation strains no element and no
+spring, so the elastic forces are K w. The free rows of M ü + K w = 0 are
+then M_ff ẅ_f + K_ff w_f = −p_k g̈, with p_k = (M R_k)_f.
+
+*p_k lies in the range of M_ff.* Let A = M_ff, T_k = R_kᵀ M R_k, and let E
+select the free DOFs. The matrix [A, p_k; p_kᵀ, T_k] is the Gram matrix
+[E, R_k]ᵀ M [E, R_k], so it is positive semidefinite because M is. For a
+positive semidefinite block matrix, p_k ∈ range(A) and
+T_k − p_kᵀ A⁺ p_k ≥ 0, with A⁺ the pseudoinverse. (If Ax = 0, the quadratic
+form at (t·x, −1) is −2t·xᵀp_k + T_k ≥ 0 for every t, so xᵀp_k = 0, and
+p_k ⟂ null(A) = range(A)⊥. Minimizing the form over its first block gives
+the inequality.)
+
+*Modal equations.* In D1's coordinates, Qᵀp_k has no N part, because
+range(A) is spanned by the C columns of Q. So the N rows carry neither mass
+nor excitation, and they condense as in D1. The C rows are
+M_CC ψ̈_C + K̂ ψ_C = −p_C g̈. Expand ψ_C = Σ_i ψ_C,i y_i in D1's complete,
+mutually orthogonal finite modes, and multiply by ψ_C,iᵀ. Since
+ψ_C,iᵀ p_C = φ_iᵀ p_k, this gives m_i ÿ_i + λ_i m_i y_i = −(φ_iᵀ p_k) g̈.
+So Γ_k = φ_iᵀ p_k / m_i, and the mode's effective mass is
+(φ_iᵀ p_k)²/m_i = Γ_k² m_i.
+
+*Normalization.* Scaling φ_i by c scales m_i by c² and φ_iᵀp_k by c, so the
+effective mass and the frequency are unchanged and Γ scales by 1/c. In case
+(a) φ is dimensionless in translation, so m_i is in kg and Γ is
+dimensionless. In case (b) translations are in m/rad and rotations in
+rad/rad, so φᵀp_k is in kg·m/rad, m_i in kg·m²·rad⁻² and Γ in rad/m. The
+effective mass is in kg in both.
+
+*The bound.* Write p_k = A z with z = A⁺p_k (possible because
+p_k ∈ range(A)). In the semi-inner product ⟨x, y⟩ = xᵀAy, φ_iᵀp_k = ⟨φ_i, z⟩,
+and the published modes are mutually orthogonal with ⟨φ_i, φ_i⟩ = m_i > 0.
+Bessel's inequality, which holds for a semi-inner product because it needs
+only ‖z − Σ_i c_i φ_i‖² ≥ 0, gives
+Σ_i (φ_iᵀp_k)²/m_i ≤ ⟨z, z⟩ = p_kᵀA⁺p_k ≤ T_k. So the effective masses
+summed over the published modes never exceed the total mass in that
+direction, in exact arithmetic. *Reference:*
 `validation/references/f1_modal/mass_discrete/eigen_references.json`
-(participation of the class (a) cases).
+(participation of the class (a) cases, including `E-AXIAL-WITNESS`, with
+p = m/2 and m_eff = 3m/4, and `E-SS-1`, a rotation-normalized mode with
+translational participation).
 
-**D4. The Sturm count.** Let σ not be an eigenvalue, and write
-K − σM = L D Lᵀ with L unit lower triangular. Then K − σM is congruent to D,
-so by Sylvester's law of inertia it has as many negative eigenvalues as D has
-negative pivots. If M is positive definite, K − σM = M^½ (M^{−½} K M^{−½} − σI) M^½ is
-congruent to M^{−½}KM^{−½} − σI, whose negative eigenvalues are exactly the
-pencil's eigenvalues below σ. If M is singular, take a basis in which M is
-zero on its null space N and positive definite on a complement C. In that
-basis K − σM has the blocks K_NN, K_NC and K_CC − σM_CC, and K_NN is positive
-definite because K is. The inertia of a symmetric block matrix is that of
-K_NN plus that of its Schur complement (Haynsworth). K_NN adds no negative
-eigenvalue, and the Schur complement is K̂ − σM_CC with
-K̂ = K_CC − K_CN K_NN⁻¹ K_NC, a pencil with positive definite mass and the same
-finite eigenvalues. So in both cases the negative-pivot count is the number of
-finite eigenvalues below σ. In binary64 the computed
-factorization is only near K − σM. That is why the count is relied on only
-under the conditioning and separation premises above. *Reference:*
-`validation/references/f1_modal/continuum/inertia_witnesses.json` (exact
-counts by exact rational inertia) and the exact counts in
-`mass_discrete/eigen_references.json`.
+**D4. The Sturm count.** *Theorem, with its premise.* Let σ be a shift such
+that the **unpivoted** factorization K − σM = L D Lᵀ succeeds: L is unit
+lower triangular and every scalar pivot in D is nonzero. Then K − σM is
+congruent to D. By Sylvester's law of inertia, K − σM has as many negative
+eigenvalues as D has negative pivots. The same holds for the scaled matrices
+the method factors, because a diagonal scaling S(K − σM)S is a congruence.
+
+- If M is positive definite, K − σM = M^½ (M^{−½} K M^{−½} − σI) M^½ is
+  congruent to M^{−½}KM^{−½} − σI. Its negative eigenvalues are exactly the
+  pencil's eigenvalues below σ.
+- If M is singular, in D1's basis K − σM has the blocks K_NN, K_NC and
+  K_CC − σM_CC. Its inertia is that of K_NN plus that of the Schur complement
+  K̂ − σM_CC (Haynsworth). K_NN is positive definite and adds no negative
+  eigenvalue. The eliminated equation ψ_N = −K_NN⁻¹ K_NC ψ_C (D1) shows that
+  (K̂, M_CC) has exactly the finite eigenvalues of the pencil.
+
+So a successful factorization's negative-pivot count is the number of finite
+eigenvalues below σ.
+
+*A shift away from every eigenvalue does not ensure success.* The frozen
+witness `WIT-ZERO-PIVOT` takes K = [2, −1, 0; −1, 2, −1; 0, −1, 1] and M = I,
+with eigenvalues 2 − 2cos((2j − 1)π/7). At σ = 2 the shifted matrix is
+nonsingular and has exactly two negative eigenvalues, yet the first
+unpivoted pivot is exactly 0, so no count exists there. A pivoted
+factorization with 1×1 and 2×2 blocks would count the negative eigenvalues of
+its blocks, not merely its negative scalar entries. The method does not use
+one. It rejects a candidate whose pivot falls at or below its guard, or
+whose growth exceeds the limit, tries its next candidate shift, and refuses
+the set by name when none is accepted.
+
+*What binary64 adds.* The computed factorization is that of a matrix near
+K − σM. The conditioning and separation premises above are criteria for
+relying on the computed count. They are not a theorem that the binary64
+count is correct, and this derivation adds no guarantee to them.
+*Reference:* `validation/references/f1_modal/continuum/inertia_witnesses.json`
+(exact counts by exact rational inertia, `WIT-ZERO-PIVOT` among them), the
+exact counts in `mass_discrete/eigen_references.json`, and `LC-TIPMASS` in
+`continuum/continuum.json`, a singular-mass condensation case.
 
 ## Assumptions
 
