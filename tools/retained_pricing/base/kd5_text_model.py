@@ -269,7 +269,10 @@ def inspect_directed_helpers(snapshot):
 # `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
 # DEL-04-07 REQ-008 part 1: lib.rs re-read: one test-module declaration folded onto an existing line (test-only);
 # no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'fd6fc92e3ff8be23d0d577b24355c9eba28c6e495f39c8dd60767c81e117125c'
+# DEL-04-09 M4 (lib.rs diff from 9f7d6d2ff read before re-binding): the S6 projection of the base is a byte prefix
+# of the head's; the delta is one appended item, the experimental modal entry, a one-line forward with no
+# `.min(`/`.max(` call; no line moves, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'ff954c0589a3a9816b68eb23a9278a91caa0588eac0426949c5a45d5378857ca'
 
 
 def _ce_fallback():

@@ -115,7 +115,10 @@ REDUCED_PINS = {
     # reduction's owner or lifetime changes; the L5 texts are unchanged.
     # DEL-04-07 REQ-008 part 1: lib.rs re-read: one test-module declaration (`sparse_loop_memory_tests`, release test
     # builds only) folded onto an existing line; no reduction's owner or lifetime changes, the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "fd6fc92e3ff8be23d0d577b24355c9eba28c6e495f39c8dd60767c81e117125c",
+    # DEL-04-09 M4 (lib.rs diff from 9f7d6d2ff read before re-binding): one appended item, the experimental modal
+    # entry forwarding to the crate-internal seam; no line moves, no reduction's owner or lifetime changes, the L5
+    # texts are unchanged.
+    "core/product_physics/src/lib.rs": "ff954c0589a3a9816b68eb23a9278a91caa0588eac0426949c5a45d5378857ca",
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",
