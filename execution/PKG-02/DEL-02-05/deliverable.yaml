@@ -56,6 +56,10 @@ needs:
     private by default, and nothing in them is transmitted.
   gating: true
 - from: DEL-08-01
+  condition: The saved-package entry's fields and immutability are defined by REQ-023.
+  when: Keeping and reading a project's saved-package entries.
+  gating: true
+- from: DEL-08-01
   when: Writing a recovery record
   condition: >-
     The atomic file writer leaves at its destination either the whole new file or what was there

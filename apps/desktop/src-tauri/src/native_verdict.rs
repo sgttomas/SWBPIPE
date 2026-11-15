@@ -223,7 +223,12 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     drop(raw);
     let job_id: String = args.decode("jobId")?;
     let operation: Option<String> = if args.keys().any(|key| key == "operation") { Some(args.decode("operation")?) } else { None };
-    if let Some(operation) = operation {
+    // DEL-08-01 REQ-024: `report_standing` reads the held result as the dispatch
+    // does, with the same texts and admission, and returns
+    // `operation_applier::reader_report_standing_json`: the standing, its
+    // readability and the standing record a report states.
+    let report_standing = operation.as_deref() == Some(REPORT_STANDING);
+    if let Some(operation) = operation.filter(|_| !report_standing) {
         if operation != "route_header" || args.keys().next().is_some() {
             return Err(crate::solve_jobs::SolveJobError::InvalidRequest { message: "NATIVE-ROUTE-HEADER-ARGS: unknown operation or mixed/unknown route-header fields".into() }.into());
         }
@@ -244,6 +249,9 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     // registration reads exactly what `validateCapturedSource` read.
     let reader: Option<String> = args.decode("reader")?;
     drop(args);
+    if report_standing && (reader.is_some() || model_json.is_none()) {
+        return Err(crate::solve_jobs::SolveJobError::InvalidRequest { message: "NATIVE-REPORT-STANDING-ARGS: a report standing takes the model text and no reader".into() }.into());
+    }
     let held = registry.held_result(&job_id)?;
     // The reader's order: the source, the model, the invocation.
     let texts = [("source", Some(held.text())), ("model", model_json.as_deref()), ("invocation", invocation_json.as_deref())];
@@ -264,7 +272,9 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     #[cfg(test)]
     tests::gate::pass(tests::gate::key(&registry, "read"));
     #[cfg(feature = "native-smoke")]
-    let outcome = if call != 0 {
+    let outcome = if report_standing {
+        open_pipe_stress_operation_applier::reader_report_standing_json(held.text(), model_json.as_deref().unwrap_or("null"), invocation_json.as_deref())
+    } else if call != 0 {
         diagnostic_read(call, reader.as_deref(), held.text(), model_json.as_deref(), invocation_json.as_deref())
     } else { match reader.as_deref() {
         None => open_pipe_stress_operation_applier::reader_dispatch_json(held.text(), model_json.as_deref(), invocation_json.as_deref()),
@@ -272,6 +282,9 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     }}.map_err(CommandError::Command);
     #[cfg(not(feature = "native-smoke"))]
     let outcome = match reader.as_deref() {
+        None if report_standing => {
+            open_pipe_stress_operation_applier::reader_report_standing_json(held.text(), model_json.as_deref().unwrap_or("null"), invocation_json.as_deref())
+        }
         None => open_pipe_stress_operation_applier::reader_dispatch_json(held.text(), model_json.as_deref(), invocation_json.as_deref()),
         Some(reader) => {
             open_pipe_stress_operation_applier::reader_validate_json(reader, held.text(), model_json.as_deref(), invocation_json.as_deref())
@@ -287,6 +300,10 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     drop((reading, held, lease));
     outcome
 }
+
+/// The verdict command's operation that returns a held result's report
+/// standing (DEL-08-01 REQ-024).
+pub(crate) const REPORT_STANDING: &str = "report_standing";
 
 /// Prescans each present text without allocating, in the reader's order. If
 /// one is refused, the reader's own refusal is found by the diagnostic parse

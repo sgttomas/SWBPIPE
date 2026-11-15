@@ -11,7 +11,7 @@
 //!
 //! These are code constants shared in meaning with the producer
 //! (`product_physics` `pressure_runtime.rs`, `bend_pressure.rs`) and with the
-//! test-only Python verifier (`tests/verifiers/pressure_2.py`). This Rust
+//! test-only Python verifier (`tests/verifiers/pressure_3.py`). This Rust
 //! reader is pressure-2's only product reader; the desktop and Python product
 //! paths refuse pressure-2 by name. The reader checks bindings and declared
 //! semantics, never values: no table and no static is added (T4-RV14 F1).
@@ -156,6 +156,7 @@ pub(crate) fn region(region: &Value, arcs: &HashSet<&str>, p: f64) -> Check {
             .and_then(|g| pair3(&g["arc_end_tangents_global"]))
     };
     let loads = region["applied_loads"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let included = crate::physics_evidence::elongation_included(region)?;
     // Each member's (start, end) direction in traversal order: an arc's end
     // tangents, a straight member's local x; reversed members negated.
     let mut directions: Vec<(&str, [f64; 3], [f64; 3])> = Vec::new();
@@ -168,7 +169,7 @@ pub(crate) fn region(region: &Value, arcs: &HashSet<&str>, p: f64) -> Check {
             .and_then(|g| g["traversal_forward"].as_bool())
             .ok_or("SOURCE_PHYSICS_ARC_GEOMETRY")?;
         let [t_i, t_j] = if arcs.contains(pipe) {
-            applied(load, tangents(pipe).ok_or("SOURCE_PHYSICS_ARC_GEOMETRY")?, p)?
+            applied(load, tangents(pipe).ok_or("SOURCE_PHYSICS_ARC_GEOMETRY")?, p, included)?
         } else {
             let axis = vector3(&load["local_x_global"]).ok_or("SOURCE_PHYSICS_ARC_APPLIED_LOAD")?;
             [axis, axis]
@@ -207,8 +208,10 @@ pub(crate) fn region(region: &Value, arcs: &HashSet<&str>, p: f64) -> Check {
     Ok(())
 }
 
-/// An arc member's applied-load record; returns its end tangents.
-fn applied(load: &Value, tangents: [[f64; 3]; 2], p: f64) -> Result<[[f64; 3]; 2], String> {
+/// An arc member's applied-load record; returns its end tangents. RT-L2: the arc's free
+/// pressure strain is signed and nonzero when its case includes pressure elongation and
+/// exactly zero when not; a strain of the other setting is refused by name.
+fn applied(load: &Value, tangents: [[f64; 3]; 2], p: f64, included: bool) -> Result<[[f64; 3]; 2], String> {
     let caps = load["mathematical_cap_pair_local_n"]
         .as_array()
         .filter(|a| a.len() == 2)
@@ -220,10 +223,21 @@ fn applied(load: &Value, tangents: [[f64; 3]; 2], p: f64) -> Result<[[f64; 3]; 2
             && load["arc_pressure_strain_definition"] == STRAIN_DEFINITION
             && load["thermal_included"] == false
             && caps.is_some_and(|c| c.iter().all(|x| x.is_finite()))
-            // (1-2nu) > 0 for an admitted nu, so eps_p has the sign of p.
-            && strain.is_some_and(|e| (e > 0.0) == (p > 0.0) && (e < 0.0) == (p < 0.0)),
+            && strain.is_some(),
         "APPLIED_LOAD",
     )?;
+    let strain = strain.unwrap();
+    // (1-2nu) > 0 for an admitted nu, so an included eps_p has the sign of p (and is
+    // nonzero for p != 0); a not-included arc carries exactly zero.
+    let signed = (strain > 0.0) == (p > 0.0) && (strain < 0.0) == (p < 0.0);
+    let zero = strain == 0.0;
+    if !(if included { signed } else { zero }) {
+        // The other setting's strain (zero on an included case with p != 0, or a signed
+        // nonzero one on a not-included case) is refused by name; any other strain is not
+        // this record's.
+        require(!(if included { zero } else { signed }), "PRESSURE_ELONGATION_MISMATCH")?;
+        require(false, "APPLIED_LOAD")?;
+    }
     require(
         pair3(&load["arc_end_tangents_global"]).map(|t| t.map(bits)) == Some(tangents.map(bits)),
         "APPLIED_LOAD",

@@ -102,12 +102,28 @@ REDUCED_PINS = {
     # Operating-case slice 1b (§8.51, merge of 41142f4a3): lib.rs's three 1b items are folded onto existing lines and
     # preview_physics.rs adds the declared arms; no reduction's owner or lifetime changes, the L5 texts are unchanged.
     # RT-A3 S6 D3 (§8.59): lib.rs re-read: no reduction's owner or lifetime changes; L5 texts unchanged.
-    "core/product_physics/src/lib.rs": "d193d408df925ea70e77c93fd65dbbe88b9780a4353017c8ce8934f6032c6737",
-    "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
-    "core/product_physics/src/certified_publication.rs": "54ae0639313c3e5785c9e65f1a9574b535bc3dbe94b49a5788b7f976f935c57a",
-    "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
+    # RT-L2 D3: lib.rs, retained_wire.rs and certified_publication.rs re-read (b7a_domain_model's RT-L2 note): no
+    # reduction's owner or lifetime changes; the L5 texts are unchanged.
+    # RT-L2 final source: lib.rs re-read: a test-module declaration and blocked_envelope's in-place retain of the
+    # exception warning; no reduction's owner or lifetime changes, the L5 texts are unchanged.
+    # Self-weight units repair (12f46a797, 0051e8a1a): lib.rs re-read: one intensity unit test in `mod tests` restates
+    # its evidence literal (test-only); certified_loads.rs adds recorded_mass and its doc comment, called from intensity
+    # in place of the closure over mass_inputs. No reduction's owner or lifetime changes; the L5 texts are unchanged.
+    # One-way friction normal source (DEL-04-04 REQ-012): lib.rs re-read: the nonlinear friction source admission and the
+    # derived normal's publication, inside the loops over nonlinear supports; no reduction's owner or lifetime changes.
+    # DEL-04-01 VER-007: lib.rs re-read: line 10 also declares a #[cfg(test)] test module (no line moves); no
+    # reduction's owner or lifetime changes; the L5 texts are unchanged.
+    # DEL-04-07 REQ-008 part 1: lib.rs re-read: one test-module declaration (`sparse_loop_memory_tests`, release test
+    # builds only) folded onto an existing line; no reduction's owner or lifetime changes, the L5 texts are unchanged.
+    "core/product_physics/src/lib.rs": "fd6fc92e3ff8be23d0d577b24355c9eba28c6e495f39c8dd60767c81e117125c",
+    "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
+    "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
+    "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",
     "core/product_physics/src/preview_physics.rs": "19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4",
-    "core/solver/frame_kernel/src/structural/formation_check.rs": "96b35424bd76fd7733b781241dd328aca91556372876df2a053cbdf2c7377e10",
+    # Explicit sliding-friction underflow refusal (DEL-04-01 AC-018): formation_check.rs re-read: sliding_friction_exact
+    # adds one refusal branch and four doc-comment lines, reached only through a friction formula D1 never forms. No
+    # reduction's owner or lifetime changes; the L5 texts are unchanged.
+    "core/solver/frame_kernel/src/structural/formation_check.rs": "e7b0b7158d017f186c4245c79506dafe7792fd8a86e07cf14092ea5a1205492d",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "ef58e6c2ec74bad85b991c344a2127a78145af2a22d8656bbeb699ad097c1e49",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
     "core/solver/nonlinear_integration/src/structural_adapter.rs": "72c93deecae3a0a377a02b08d91ab99d18a44d80d9ddb662b1cf1becd782b093",

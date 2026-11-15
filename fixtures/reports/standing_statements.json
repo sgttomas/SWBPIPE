@@ -1,0 +1,262 @@
+{
+  "document_kind": "swbpipe.standing_statements",
+  "generator": "core/reporting/report_renderer/tests/standing_statements.rs",
+  "statements": [
+    {
+      "statement": "Numerical health: checks passed",
+      "tag": "checks_passed",
+      "vocabulary": "case_health"
+    },
+    {
+      "statement": "Numerical health: sensitive",
+      "tag": "sensitive",
+      "vocabulary": "case_health"
+    },
+    {
+      "statement": "Numerical health: quality unresolved",
+      "tag": "quality_unresolved",
+      "vocabulary": "case_health"
+    },
+    {
+      "statement": "Numerical health: solve failed",
+      "tag": "solve_failed",
+      "vocabulary": "case_health"
+    },
+    {
+      "statement": "Numerical health: not assessed",
+      "tag": "not_assessed",
+      "vocabulary": "case_health"
+    },
+    {
+      "statement": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+      "tag": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "statement": "NUMERICAL_INTEGRITY_SENSITIVE",
+      "tag": "NUMERICAL_INTEGRITY_SENSITIVE",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "statement": "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
+      "tag": "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "statement": "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED",
+      "tag": "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "statement": "NUMERICAL_INTEGRITY_UNRESOLVED",
+      "tag": "NUMERICAL_INTEGRITY_UNRESOLVED",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "statement": "NUMERICAL_INTEGRITY_FAILED",
+      "tag": "NUMERICAL_INTEGRITY_FAILED",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "statement": "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
+      "tag": "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "statement": "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY",
+      "tag": "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY",
+      "vocabulary": "historical_integrity_code"
+    },
+    {
+      "statement": "Sensitive: the stiffness matrix is ill-conditioned, by the solver's estimate of its reciprocal condition.",
+      "tag": "conditioning",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "statement": "Sensitive: some load rows differ from the exact net of their contributions, or could not be audited.",
+      "tag": "load_fidelity",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "statement": "Sensitive: the solver's formation check found a displacement-error estimate, or a load row's formation noise, above its criterion of one part in a billion.",
+      "tag": "formation",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "statement": "Sensitive: the solver's recovery guard did not pass for member or support values: a group's error figure above one part in a billion of its magnitude, an error figure or comparison it could not form, or a member-relative check not available on this route.",
+      "tag": "formation_recovery",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "statement": "Sensitive: a realized bend is short relative to its neighbouring elements.",
+      "tag": "curved_bend_short",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "statement": "Quality unresolved: this load case has a gap support. No confirmation covers gap supports, and its member values have no error figure.",
+      "tag": "recovery_basis_unqualified",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "statement": "Solve failed: the solver found the model to be a mechanism.",
+      "tag": "mechanism",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "statement": "Solve failed: the solver found negative strain energy in the model.",
+      "tag": "negative_energy",
+      "vocabulary": "historical_cause"
+    },
+    {
+      "statement": "Not every load case of this result is checks passed, so the product reader does not find it numerically eligible.",
+      "tag": "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "statement": "At least one load case's record is not a checks-passed record; each load case's numerical health is stated by load case.",
+      "tag": "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "statement": "At least one load case of the pressure source's recovery is not qualified.",
+      "tag": "SOURCE_BLOCKS_CASE_UNQUALIFIED",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "statement": "Some physical-quantity rows are given for inspection only: the pressure source's recovery does not qualify them.",
+      "tag": "SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "statement": "The pressure source's recovery does not qualify the result as a whole, or the model has combinations it does not qualify.",
+      "tag": "SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "statement": "This result includes load/reference states, which the product reader does not find numerically eligible on this route.",
+      "tag": "LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "statement": "The retained-precision reading does not find this result numerically eligible.",
+      "tag": "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE",
+      "vocabulary": "standing_finding"
+    },
+    {
+      "statement": "Not confirmed: the solver's confirmation reports every support state of this load case established, conditional on the solver's inverse-norm step. This result does not publish the deciding quantities or their intervals.",
+      "tag": "solver_reported_established",
+      "vocabulary": "historical_confirmation"
+    },
+    {
+      "statement": "Not confirmed: no confirmation was attempted for this load case; the result does not record why.",
+      "tag": "not_attempted_reason_not_recorded",
+      "vocabulary": "historical_confirmation"
+    },
+    {
+      "statement": "Not confirmed: the solver's confirmation did not establish the support states of this load case. The result publishes one reason only, quoted below; it does not show that any other support's state was established.",
+      "tag": "not_established_detail_quoted",
+      "vocabulary": "historical_confirmation"
+    },
+    {
+      "statement": "Not confirmed: the result records no support-state confirmation for this load case.",
+      "tag": "no_confirmation_record",
+      "vocabulary": "historical_confirmation"
+    },
+    {
+      "statement": "No nonlinear supports.",
+      "tag": "not_applicable",
+      "vocabulary": "historical_confirmation"
+    },
+    {
+      "statement": "inactive",
+      "tag": "inactive",
+      "vocabulary": "support_state"
+    },
+    {
+      "statement": "active",
+      "tag": "active",
+      "vocabulary": "support_state"
+    },
+    {
+      "statement": "sticking",
+      "tag": "sticking",
+      "vocabulary": "support_state"
+    },
+    {
+      "statement": "sliding",
+      "tag": "sliding",
+      "vocabulary": "support_state"
+    },
+    {
+      "statement": "not published by the solver",
+      "tag": "not_published",
+      "vocabulary": "support_state"
+    },
+    {
+      "statement": "one-way",
+      "tag": "one_way",
+      "vocabulary": "support_behavior"
+    },
+    {
+      "statement": "lift-off",
+      "tag": "lift_off",
+      "vocabulary": "support_behavior"
+    },
+    {
+      "statement": "gap",
+      "tag": "gap",
+      "vocabulary": "support_behavior"
+    },
+    {
+      "statement": "friction, normal force entered",
+      "tag": "friction",
+      "vocabulary": "support_behavior"
+    },
+    {
+      "statement": "friction, normal force entered",
+      "tag": "explicit",
+      "vocabulary": "friction_normal"
+    },
+    {
+      "statement": "friction, normal force derived from another support's reaction",
+      "tag": "derived",
+      "vocabulary": "friction_normal"
+    },
+    {
+      "statement": "established",
+      "tag": "established",
+      "vocabulary": "evidence_status"
+    },
+    {
+      "statement": "conditional on the solver's inverse-norm step",
+      "tag": "conditional",
+      "vocabulary": "evidence_status"
+    },
+    {
+      "statement": "no error figure available: {reason statement}",
+      "tag": "unavailable",
+      "vocabulary": "evidence_status"
+    },
+    {
+      "statement": "not established: {reason statement}",
+      "tag": "not_established",
+      "vocabulary": "evidence_status"
+    },
+    {
+      "statement": "premise shown not to hold: the solver's inverse-norm step",
+      "tag": "premise_refuted",
+      "vocabulary": "evidence_status"
+    },
+    {
+      "statement": "the solver's inverse-norm step",
+      "tag": "inverse_norm_step",
+      "vocabulary": "premise"
+    },
+    {
+      "statement": "No error figure: this result has no numerical evidence member from which this reader can derive an error figure here. These values are shown for inspection with their load case's numerical health.",
+      "tag": "older_document",
+      "vocabulary": "no_figure_reason"
+    }
+  ],
+  "version": 1
+}

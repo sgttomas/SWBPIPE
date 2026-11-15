@@ -7,7 +7,7 @@
 //! private datasets, or professional acceptance are bundled by this crate.
 
 mod annulus_geometry;
-mod formation_guard;
+mod formation_guard; #[cfg(test)] mod residual_refusal_tests; // DEL-04-01 VER-007 at product level, on this line so that no line moves.
 mod certified_loads;
 mod certified_publication;
 // Resolved load/reference-state case (model 0.4.0); one resolved case per load
@@ -60,13 +60,15 @@ mod b7b_admission_tests;
 #[cfg(test)]
 mod tie_rod_tests;
 #[cfg(test)]
+mod cap_remainder_publication_tests;
+#[cfg(test)]
 mod corrected_displacement_tests;
 #[cfg(test)]
 mod op1a_seed_tests;
 #[cfg(test)]
 mod w16_nonlinear_motion_tests;
 #[cfg(test)]
-mod rt_a3_s6_tests;
+mod rt_a3_s6_tests; #[cfg(all(test, not(debug_assertions)))] mod sparse_loop_memory_tests; // DEL-04-07 REQ-008 part 1: the sparse loop's heap on the product's own input (release test builds only), on this line so that no line moves.
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};
@@ -113,8 +115,8 @@ use open_pipe_stress_nonlinear_integration::{
     dense_loop_memory_guard, eligible_contact_dofs,
     solve_active_set_frame_with_mode_and_springs_assembled, DENSE_LOOP_MEMORY_CEILING_BYTES,
     ConvergenceControl, ConvergencePolicyStatus, CurvedBendStiffnessElement,
-    DerivedFrictionNormalReaction, FrictionNormalReaction, LinearSolveMode,
-    NonlinearFrameSolveInput, NonlinearFrameSolveResult, NonlinearIntegrationError,
+    derived_friction_normal, DerivedFrictionNormalReaction, FrictionNormalReaction,
+    LinearSolveMode, NonlinearFrameSolveInput, NonlinearFrameSolveResult, NonlinearIntegrationError,
     NonlinearResidualObservation,
 };
 use open_pipe_stress_nonlinear_supports::{
@@ -1447,10 +1449,13 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
         // names the publication (pressure-source-1 or pressure-2).
         let load_state = case_state::is_load_state(model);
         let connectors = model.components.iter().any(|c| c.objective_connector.is_some());
+        // RT-L2: which pressure-elongation statement is true of the document.
+        let elongation = exact_admission::ElongationStatement::of(model);
         let mut basis = exact_admission::pressure_v3_formulation_basis_with_source(
             load_state,
             connectors,
             source_selected,
+            elongation,
         );
         // T4-U2: a model with a realized bend states the bend's terms; a
         // straight-only v3 model keeps its text unchanged (SP-1).
@@ -6558,7 +6563,7 @@ fn solve_prepared_load_case(
                 // D-5: the wall force on the pressure bore; the end action is
                 // basis-independent (each basis's membrane is the forces' own).
                 let end = |mechanical: f64| {
-                    state.sections.recover_wall_effective(mechanical, state.material, state.pressure).and_then(|forces| {
+                    state.sections.recover_wall_effective(mechanical, state.material, state.pressure, state.elongation_included).and_then(|forces| {
                         for basis in pressure_exact::SectionBasis::BOTH {
                             state.sections.membrane(basis, forces)?;
                         }
@@ -7794,6 +7799,8 @@ fn append_nonlinear_support_loop_results(
                 results,
                 &built.nonlinear_friction_normal_reactions,
                 &built.nonlinear_derived_friction_normal_reactions,
+                &built.nonlinear_supports,
+                &solve.final_states,
                 &published_reactions,
                 &solve.policy_ref,
                 solver_mode,
@@ -8415,18 +8422,29 @@ fn derived_friction_normal_source(
             vec![friction_support_id.to_string(), source.support_ref.clone()],
         ));
     };
-    if source_support.nonlinear.is_some() {
-        return Err(diag(
-            &format!(
-                "diagnostic:nonlinear-support:{}:normal-source",
-                stable_suffix(friction_support_id)
-            ),
-            "NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID",
-            "blocking",
-            "friction normal_reaction_source must reference a linear support restraint",
-            vec![friction_support_id.to_string(), source.support_ref.clone()],
-        ));
-    }
+    // DEL-04-04 REQ-012: a linear support's restrained translational DOF, or a
+    // one-way or lift-off support's own translational DOF; no other nonlinear
+    // support (gap, friction) is a normal source.
+    let bearing_source = match source_support.nonlinear.as_ref() {
+        None => None,
+        Some(nonlinear)
+            if matches!(nonlinear.behavior.as_str(), "one_way" | "one-way" | "oneway" | "lift_off" | "lift-off" | "liftoff") =>
+        {
+            Some(nonlinear)
+        }
+        Some(_) => {
+            return Err(diag(
+                &format!(
+                    "diagnostic:nonlinear-support:{}:normal-source",
+                    stable_suffix(friction_support_id)
+                ),
+                "NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID",
+                "blocking",
+                "friction normal_reaction_source must reference a linear support restraint or a one-way or lift-off support",
+                vec![friction_support_id.to_string(), source.support_ref.clone()],
+            ));
+        }
+    };
     let source_dof = parse_dof(&source.dof).map_err(|message| {
         diag(
             &format!(
@@ -8451,11 +8469,15 @@ fn derived_friction_normal_source(
             vec![friction_support_id.to_string(), source.dof.clone()],
         ));
     }
-    let source_has_restraint = source_support
-        .restraints
-        .iter()
-        .filter_map(|dof| parse_dof(dof).ok())
-        .any(|dof| dof == source_dof);
+    let source_has_restraint = match bearing_source {
+        // A one-way or lift-off support restrains only its own DOF, and only while active.
+        Some(nonlinear) => parse_dof(&nonlinear.dof).is_ok_and(|dof| dof == source_dof),
+        None => source_support
+            .restraints
+            .iter()
+            .filter_map(|dof| parse_dof(dof).ok())
+            .any(|dof| dof == source_dof),
+    };
     if !source_has_restraint {
         return Err(diag(
             &format!(
@@ -12342,7 +12364,7 @@ fn exact_straight_summary_extrema(
         let axial = if let Some((state, basis)) = pressure_state {
             state
                 .sections
-                .recover_wall_effective(r[0], state.material, state.pressure)
+                .recover_wall_effective(r[0], state.material, state.pressure, state.elongation_included)
                 .and_then(|forces| state.sections.membrane(basis, forces))
                 .map_err(|e| format!("source pressure membrane is unrepresentable: {e:?}"))?
         } else {
@@ -12814,6 +12836,12 @@ fn add_curved_bend_pressure_equivalent_load(
         let (Some(arc), Some(bend)) = (state.arc, curved_bends_by_pipe.get(pipe_index)) else {
             continue;
         };
+        // RT-L2 (DEL-04-07): a case that does not
+        // include pressure elongation pushes no free pressure strain; the arc
+        // keeps its −c_b and every thrust source in the source groups.
+        if !state.elongation_included {
+            continue;
+        }
         let free_expansion = curved_bend_free_expansion_displacements(bend, arc.strain);
         let dof_map = element_dof_map(bend.node_i, bend.node_j);
         for (local_row, &global_row) in dof_map.iter().enumerate() {
@@ -13781,6 +13809,7 @@ fn append_exact_pressure_results(
             mechanical[0],
             state.material,
             state.pressure,
+            state.elongation_included,
         ).and_then(|forces| Ok((forces.wall_n, forces.effective_n, [
             state.sections.membrane(SectionBasis::Nominal, forces)?,
             state.sections.membrane(SectionBasis::Reduced, forces)?,
@@ -15206,6 +15235,8 @@ fn append_nonlinear_friction_normal_evidence(
     results: &mut Vec<ResultItem>,
     friction_normal_reactions: &[FrictionNormalReaction],
     derived_friction_normal_reactions: &[DerivedFrictionNormalReaction],
+    nonlinear_supports: &[NonlinearSupport],
+    final_states: &[SupportStateRecord],
     reactions: &[f64],
     policy_ref: &str,
     solver_mode: PreviewSolverMode,
@@ -15231,14 +15262,25 @@ fn append_nonlinear_friction_normal_evidence(
     for source in derived_friction_normal_reactions {
         let suffix = stable_suffix(&source.support_id);
         let global = source.source_node_index * DOF_PER_NODE + dof_index(source.source_dof);
-        let Some(reaction) = reactions.get(global) else {
+        let Some(&reaction) = reactions.get(global) else {
             continue;
+        };
+        // DEL-04-04 REQ-012: |R| from a linear source; from a one-way or lift-off
+        // source, its bearing reaction while active and +0 otherwise.
+        let bearing_source = nonlinear_supports.iter().any(|support| {
+            support.support_id == source.source_ref
+                && matches!(support.behavior, NonlinearSupportBehavior::OneWay { .. } | NonlinearSupportBehavior::LiftOff { .. })
+        });
+        let sign = if bearing_source {
+            "positive value is the named one-way or lift-off support's reaction in its bearing sense while that support is active, and +0 while it is inactive or would pull"
+        } else {
+            "positive value is the absolute support reaction at the named normal-source DOF"
         };
         append_nonlinear_scalar_result(
             results,
             &format!("result:nonlinear-support:{suffix}:friction-normal-reaction"),
             "nonlinear_support_friction_normal_reaction_derived",
-            reaction.abs(),
+            derived_friction_normal(nonlinear_supports, final_states, source, reaction),
             "N",
             &source.support_id,
             "friction_normal_reaction_derived",
@@ -15249,7 +15291,7 @@ fn append_nonlinear_friction_normal_evidence(
                 source.source_ref,
                 source.source_dof.as_str()
             ),
-            "positive value is the absolute support reaction at the named normal-source DOF",
+            sign,
         );
     }
 }
@@ -15320,7 +15362,14 @@ fn result_tail(base_id: &str) -> &str {
     base_id.strip_prefix("result:").unwrap_or(base_id)
 }
 
-fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
+fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
+    // DEL-04-07: a case's cap remainder warning stands exactly where its
+    // published evidence carries the exception record. A case is published
+    // only in a document that is not blocked (every refusal of a case is
+    // blocking and returns here), and a blocked document publishes no case
+    // evidence, so the warning of a case admitted under the exception and
+    // then refused, or left unpublished by another case's refusal, goes too.
+    diagnostics.retain(|diagnostic| diagnostic.code != pressure_runtime::CAP_REMAINDER_WARNING_CODE);
     // T1 routes every blocked 0.4.0 envelope to load-reference-1 (0.4.0 is
     // exact-route only); it never publishes preview-physics-2.
     let exact_namespace = pressure_runtime::is_exact(&model) || case_state::is_load_state(&model);
@@ -16341,7 +16390,11 @@ mod tests {
         let mut application=prepare_loads(model.nodes.len(),model.pipe_segments.len(),&loads);
         let uniform=&mut application.element_uniform_loads[0];uniform.magnitude.value=0.1*1.1;
         assert_eq!(certified_loads::intensity(&model,uniform,&case_id),IntensityPrimitive::Product {factors:vec![0.1,1.1],direction:[0.0,1.0,0.0]});
-        let evidence=serde_json::json!({"method":self_weight::GENERATED_METHOD,"normalized_acceleration_m_per_s2":-9.81,"mass_inputs":{"outside_diameter":{"value":0.2},"wall_thickness":{"value":0.01},"material_density":{"value":7800.0}}});
+        // The check's operands are the record's normalized_dependencies (SI); its mass_inputs keep the authored units and are never read.
+        let evidence=serde_json::json!({"method":self_weight::GENERATED_METHOD,"normalized_acceleration_m_per_s2":-9.81,
+            "mass_inputs":{"outside_diameter":{"value":200.0,"unit":"mm"},"wall_thickness":{"value":10.0,"unit":"mm"},"material_density":{"value":7800.0,"unit":"kg/m^3"}},
+            "normalized_dependencies":{"section_ref":null,"outside_diameter":{"value":0.2,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"},"mill_tolerance":null,
+                "material_density":{"value":7800.0,"unit":"kg/m^3"},"contents_density":null,"insulation_thickness":null,"insulation_density":null}});
         model.load_cases[0].primitive_loads[0].provenance=Some(evidence.to_string());
         assert_eq!(certified_loads::intensity(&model,uniform,&case_id),IntensityPrimitive::Seismic {
             mass:MassPrimitive {outer_diameter:0.2,wall_thickness:0.01,mill_tolerance:0.0,pipe_density:7800.0,contents_density:0.0,insulation_thickness:0.0,insulation_density:0.0,corrosion_allowance:None},coefficient:1.1,gravity:-9.81,direction:[0.0,1.0,0.0] });

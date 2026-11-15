@@ -723,6 +723,7 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ("PP/certified_loads.rs", "member_eigenstrain", "K-D5 §1: binds a natural-length fit to its member's raw geometry"),
     ("PP/certified_loads.rs", "intensity", "K-D5 §1: a uniform load's intensity primitive (authored, source-factored or generated)"),
     ("PP/certified_loads.rs", "mass", "K-D5 §1: self-weight mass primitive from the section's authored operands"),
+    ("PP/certified_loads.rs", "recorded_mass", "K-D5 §1: a generated self-weight record's mass primitive from its normalized SI dependencies (NaN operands when they do not parse, lack a member or are not SI); never from its authored mass_inputs"),
     ("PP/certified_loads.rs", "summand", "K-D5 §1: one source-enumerated summand identity and formula"),
     (
         "PP/certified_publication.rs",

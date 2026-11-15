@@ -1,0 +1,176 @@
+{
+  "argv": [
+    "release_timing",
+    "baseline-one-case-ex-n0046.json",
+    "--mode",
+    "sparse"
+  ],
+  "binary_pid_found": true,
+  "classification": "timed_out",
+  "classification_detail": null,
+  "exit_code": -9,
+  "kill_after_s": 1.085,
+  "killed_by_rss_watchdog": false,
+  "killed_by_sampler": false,
+  "load_after": [
+    6.90576171875,
+    8.66162109375,
+    9.12646484375
+  ],
+  "load_before": [
+    6.90576171875,
+    8.66162109375,
+    9.12646484375
+  ],
+  "memorystatus_after": 94,
+  "memorystatus_before": 94,
+  "peak_rss_bytes": 28065792,
+  "peak_rss_source": "wait4",
+  "poll_s": 0.1,
+  "resident_samples": [
+    [
+      0.001,
+      32768
+    ],
+    [
+      0.104,
+      25083904
+    ],
+    [
+      0.211,
+      25591808
+    ],
+    [
+      0.315,
+      25657344
+    ],
+    [
+      0.425,
+      26001408
+    ],
+    [
+      0.535,
+      26624000
+    ],
+    [
+      0.645,
+      26869760
+    ],
+    [
+      0.755,
+      27115520
+    ],
+    [
+      0.865,
+      27459584
+    ],
+    [
+      0.975,
+      27852800
+    ],
+    [
+      1.085,
+      28065792
+    ]
+  ],
+  "rlimit_as_applied": false,
+  "rss": {
+    "exit_lifetime_max_phys_footprint_bytes": 12845512,
+    "ps_max_kib": null,
+    "ps_samples": null,
+    "resident_max_bytes": 28065792,
+    "resident_samples": 11,
+    "time_max_rss_bytes": null,
+    "time_peak_footprint_bytes": null,
+    "wait4_maxrss_bytes": 28065792
+  },
+  "rss_cap_bytes": 17179869184,
+  "run_id": "baseline-one-case-ex-n0046-sparse-r2",
+  "sampler": {
+    "budget_bytes": 12884901888,
+    "failed_reads": 0,
+    "kill_footprint_bytes": null,
+    "kill_reason": null,
+    "kind": "phys_footprint",
+    "peak_lifetime_max_phys_footprint_bytes": 12845512,
+    "peak_phys_footprint_bytes": 12845512,
+    "sample_columns": [
+      "t_s",
+      "phys_footprint_bytes",
+      "lifetime_max_phys_footprint_bytes"
+    ],
+    "samples": [
+      [
+        0.001,
+        81992,
+        98376
+      ],
+      [
+        0.104,
+        10748360,
+        10748360
+      ],
+      [
+        0.211,
+        11076040,
+        11076040
+      ],
+      [
+        0.315,
+        11092424,
+        11092424
+      ],
+      [
+        0.425,
+        11190728,
+        11190728
+      ],
+      [
+        0.535,
+        11436488,
+        11436488
+      ],
+      [
+        0.645,
+        11649480,
+        11649480
+      ],
+      [
+        0.755,
+        11895240,
+        11895240
+      ],
+      [
+        0.865,
+        12239304,
+        12239304
+      ],
+      [
+        0.975,
+        12632520,
+        12632520
+      ],
+      [
+        1.085,
+        12845512,
+        12845512
+      ]
+    ]
+  },
+  "schema": "release-timing-supervise-launch-v1",
+  "stderr_tail": "release-timing-stage {\"lifetime_max_phys_footprint_bytes\":2310576,\"phys_footprint_bytes\":2310576,\"repeat\":0,\"ru_maxrss_bytes\":4587520,\"seconds\":0.000033167,\"stage\":\"read\"}\nrelease-timing-stage {\"lifetime_max_phys_footprint_bytes\":3228080,\"phys_footprint_bytes\":3228080,\"repeat\":0,\"ru_maxrss_bytes\":6045696,\"seconds\":0.00181125,\"stage\":\"parse\"}\nrelease-timing-stage {\"lifetime_max_phys_footprint_bytes\":3228080,\"phys_footprint_bytes\":3228080,\"repeat\":0,\"ru_maxrss_bytes\":6094848,\"seconds\":3.33e-7,\"stage\":\"request\"}\n",
+  "stdout_lines": 0,
+  "stdout_record_error": null,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "summary": null,
+  "survivors": [],
+  "system": "Darwin",
+  "timed_out": true,
+  "timeout_s": 1,
+  "wall_s": 1.0858,
+  "watchdog_last_kib": null,
+  "watchdog_last_resident_bytes": 28065792,
+  "watchdog_polls": 11,
+  "watchdog_samples": null,
+  "wrapper": null
+}

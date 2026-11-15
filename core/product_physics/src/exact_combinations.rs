@@ -1090,7 +1090,7 @@ mod tests {
     /// combination policy states the same linear and recomputed kinds.
     #[test]
     fn kind_classes_are_the_pressure_table_classes() {
-        let table: Value = serde_json::from_str(include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_2.json")).unwrap();
+        let table: Value = serde_json::from_str(include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_3.json")).unwrap();
         let mut by_kind: HashMap<&str, HashSet<&str>> = HashMap::new();
         for row in table["rows"].as_array().unwrap() {
             by_kind.entry(row["kind"].as_str().unwrap()).or_default().insert(row["combination_algebra"].as_str().unwrap());
@@ -1190,7 +1190,7 @@ mod tests {
     /// load-case algebra gives a dimension (phase 1's dimensionless invariant).
     #[test]
     fn combined_kind_units_have_an_algebra_dimension() {
-        let table: Value = serde_json::from_str(include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_2.json")).unwrap();
+        let table: Value = serde_json::from_str(include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_3.json")).unwrap();
         for signature in table["rows"].as_array().unwrap() {
             let kind = signature["kind"].as_str().unwrap();
             if signed(kind) || recomputed(kind) {

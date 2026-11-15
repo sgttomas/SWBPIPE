@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Native smoke test of the desktop walking skeleton (DEL-07-11 VER-003), macOS.
 //
-//   node apps/desktop/native-smoke/run.mjs [--skip-build] [--keep]
+//   node apps/desktop/native-smoke/run.mjs [--skip-build] [--keep] [--home-root DIR]
+//   node apps/desktop/native-smoke/run.mjs --print-launch-env [--home-root DIR] [--keep]
+//   node apps/desktop/native-smoke/run.mjs --control-killed-after-report [--skip-build]
 //
 // Checks each WebAssembly engine's content stamp (`scripts/engineSourceStamp.mjs`)
 // and rebuilds a stale or unstamped engine, even under --skip-build; builds the
@@ -27,6 +29,18 @@
 // against an RFC 8785 JCS SHA-256 of the files it opened, the saved projects
 // in the SQLite store, and the exported file. It prints one line per check and
 // exits non-zero on any failure. This is evidence, not the owner's witness.
+//
+// Each launch is judged by the one rule of `launch-outcome.mjs`: it passes only when the app ended with
+// status 0, no signal and no timeout, the census found no process of the private copy, and the run's root holds
+// a report carrying the nonce this runner put in the launch's plan. A failed launch is its own named FAIL; its
+// report stays readable for the checks that follow, and the run never reads as a pass. summary.json records each
+// launch's outcome.
+//
+// --control-killed-after-report is the rule's control: the first launch runs the app as usual, under a shell
+// that kills itself with SIGKILL after the app has returned, having written its report. The app is not killed: the
+// runner sees a signalled ending beside this run's valid report, the condition the judge must reject. The control
+// asserts that ending, that report and the judge's named failure, stops after that launch, and exits 1 whatever its
+// checks find, so its exit status proves nothing. judged-launch.test.mjs shows an app's own signal reaching the judge.
 //
 // What the engine stamps and the app binding guard against. In scope, and to be
 // closed: accidental staleness or mis-binding in our own environments: ordinary
@@ -76,15 +90,59 @@
 // directory; the refusal the next run prints names both, and recovery removes
 // that one directory, once the lock is removed and nothing runs from it, never
 // every `run-*`.
+//
+// What a launch is given, and how a run is closed (`launch-env.mjs`). The app's
+// environment is built from nothing: HOME and CFFIXED_USER_HOME, both a
+// throwaway home created empty under --home-root (default: os.tmpdir());
+// TMPDIR, a folder inside it; SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER=1, under which
+// a chooser with no queued answer or an answer outside HOME ends the app before
+// any native dialog; the runner's own SWBPIPE_NATIVE_SMOKE_* variables; and
+// whatever the allowlist carries from this process (nothing, at present). Every
+// chooser answer the plan queues lies inside the home (`chooserLayout`). A built
+// environment with any other key, differing home variables, TMPDIR outside the
+// home or the strict switch unset, or a plan path that does not resolve inside
+// the home, is refused by name and nothing is launched.
+// After each phase the runner takes a census of the processes running its
+// private app copy (the solve worker included) and waits up to
+// TERMINATION_BOUND_MS for none. A process left at the bound, or a census that
+// cannot be taken, is UNRESOLVED TERMINATION: the run fails, no further phase
+// starts, and the home, the private copy, the worktree lock and the run marker
+// are retained. On every exit the runner can catch (the normal end, a failed
+// check, an exception, SIGINT, SIGTERM or SIGHUP) `closeRun` decides: the
+// tripwire's comparison of a fixed list of product-named paths under the real
+// user's Library with its snapshot before the first launch (it may turn a
+// success into a failure, never the reverse; taken while a process of the run
+// may be alive, it is recorded but is not the after-last observation); then,
+// with termination resolved, the files the checks read back are copied out of
+// the home into the evidence root (kept when the run failed or --keep is given),
+// and the home (unless --keep), the private copy and the marker are removed.
+// The marker (`target/native-smoke-run.json`) exists from the first launch to
+// completed cleanup: a later invocation that finds it refuses, naming the
+// recorded runner, home, private copy and a fresh census. Limits: a runner
+// killed outright (SIGKILL, power loss) cleans up nothing, and leaves the marker
+// and the lock for the next invocation to find; helper processes the system
+// starts for the web view are not tracked by the runner.
+// --print-launch-env builds and checks that environment and the chooser layout,
+// prints the variables' names (never their values) and the home and temporary
+// paths, and exits before any lock, build or launch, on any platform. The
+// builds above the launches still inherit this process's environment: they
+// need the toolchain.
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, writeSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
 import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
-import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
+import {
+  PARENT_ALLOWLIST, awaitNoProcesses, awaitNoProcessesSync, buildLaunchEnv, censusOf, chooserLayout, closeRun, createThrowawayHome, keepOutOfHome, keptRelativePaths,
+  readRunMarker, refusedLaunchEnv, refusedPlanPaths, runMarkerRefusal, statWatched, tripwireChanges, watchedLibraryPaths, writeRunMarker,
+  refusedSmokeWindows, smokeWindows
+} from "./launch-env.mjs";
+import { newNonce } from "./launch-outcome.mjs";
+import { judgedPhase, phaseContinuation } from "./judged-launch.mjs";
+import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, processStartTime, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
@@ -99,7 +157,82 @@ const IDENTIFIER = TAURI_CONF.identifier;
 // screen locked, window occluded), which would stall the driver. The smoke build
 // alone turns that throttling off, through Tauri's TAURI_CONFIG build-time merge;
 // tauri.conf.json and product builds are unchanged.
-const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: TAURI_CONF.app.windows.map((window) => ({ ...window, backgroundThrottling: "disabled" })) } });
+// The same merge selects a non-persistent data store for the smoke build's web view (`smokeWindows`).
+// That is the whole of the claim: what the system's web view framework and its helper processes may
+// keep besides that store is not established here.
+const SMOKE_WINDOWS = smokeWindows(TAURI_CONF.app.windows);
+const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: SMOKE_WINDOWS } });
+
+// --home-root DIR: the one folder the throwaway home is created under.
+const argv = process.argv.slice(2);
+const homeRootAt = argv.indexOf("--home-root");
+if (homeRootAt >= 0 && (argv[homeRootAt + 1] === undefined || argv[homeRootAt + 1].startsWith("--"))) {
+  console.error("native smoke: --home-root needs a folder");
+  process.exit(2);
+}
+const homeRoot = homeRootAt >= 0 ? path.resolve(argv[homeRootAt + 1]) : os.tmpdir();
+// The marker of a run between its first launch and its completed cleanup. An
+// earlier run that left it (interrupted, killed outright, or its termination
+// unresolved) is recognised here, before anything else, and refused by name.
+const RUN_MARKER = path.join(desktop, "target", "native-smoke-run.json");
+// How long, after a phase, the census waits for no process of the private copy.
+const TERMINATION_BOUND_MS = 20 * 1000;
+{
+  const record = readRunMarker(RUN_MARKER);
+  if (record !== null) {
+    const alive = !record.unreadable && Number.isInteger(record.pid) && typeof record.started === "string" && processStartTime(record.pid) === record.started;
+    const census = !record.unreadable && typeof record.executable === "string" ? censusOf(record.executable) : { ok: false, reason: "the marker records no executable" };
+    for (const line of runMarkerRefusal(RUN_MARKER, record, { alive, census })) console.error(line);
+    process.exit(2);
+  }
+}
+// The throwaway home and TMPDIR inside it.
+let home;
+let tmpdir;
+function makeHome() {
+  try {
+    ({ home, tmpdir } = createThrowawayHome(homeRoot));
+  } catch (error) {
+    console.error(error.message);
+    process.exit(2);
+  }
+}
+// The launched app's whole environment, and every reason it must not be used.
+const DRIVER = path.join(here, "driver.js");
+function launchEnv(plan, report) {
+  const env = buildLaunchEnv({
+    parent: process.env,
+    home,
+    tmpdir,
+    runner: { SWBPIPE_NATIVE_SMOKE_DRIVER: DRIVER, SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: report }
+  });
+  return { env, refused: refusedLaunchEnv(env) };
+}
+// The tripwire's paths under the real user's Library (the account's home, not
+// this process's HOME).
+const WATCHED = watchedLibraryPaths(path.join(os.userInfo().homedir, "Library"), { identifier: IDENTIFIER, names: [TAURI_CONF.productName, "openpipestress-desktop"] });
+if (args.has("--print-launch-env")) {
+  makeHome();
+  process.on("exit", () => {
+    if (args.has("--keep")) console.log(`native smoke: home kept at ${home}`);
+    else rmSync(home, { recursive: true, force: true });
+  });
+  // The chooser answers every launch's plan queues, from the same layout; only names are printed.
+  const layout = chooserLayout(home);
+  const plan = { phase: "print-launch-env", model_document: layout.modelDocumentSave, handoff: layout.handoffSave, report_package: layout.reportPackageSave, exact_report_package: layout.exactReportPackageSave, models: layout.models };
+  const planRefused = refusedPlanPaths(plan, home);
+  const { env, refused } = launchEnv(plan, path.join(tmpdir, "report-print-launch-env.json"));
+  const windowsRefused = refusedSmokeWindows(SMOKE_WINDOWS);
+  for (const line of [...refused, ...planRefused, ...windowsRefused]) console.error(`native smoke: ${line}`);
+  console.log(`launch environment variable names: ${Object.keys(env).sort().join(" ")}`);
+  console.log(`carried from this process (allowlist): ${PARENT_ALLOWLIST.length === 0 ? "none" : PARENT_ALLOWLIST.join(" ")}`);
+  console.log(`HOME and CFFIXED_USER_HOME: ${home}`);
+  console.log(`TMPDIR: ${tmpdir}`);
+  console.log(`chooser answers: ${planRefused.length === 0 ? "every one resolves inside the home" : "REFUSED"}, under ${layout.area}`);
+  console.log(`web view store: ${windowsRefused.length === 0 ? "non-persistent in every window of the smoke build" : "REFUSED"}`);
+  console.log(`tripwire paths (stated, not examined in this mode):\n${WATCHED.map((file) => `  ${file}`).join("\n")}`);
+  process.exit(refused.length === 0 && planRefused.length === 0 && windowsRefused.length === 0 ? 0 : 2);
+}
 
 if (process.platform !== "darwin") {
   console.error("native smoke: macOS only");
@@ -207,8 +340,14 @@ try {
   console.error(error.message.startsWith("native smoke:") ? error.message : `native smoke: could not copy the app for launch: ${error.message}`);
   await exitAfterSignals(2);
 }
-// Removed on every exit, unless the lock was kept because a process may still run from it.
-process.on("exit", () => { if (!buildLock.kept()) launchCopy.remove(); });
+// What closing the run needs, on whichever exit (`closeOnExit`), registered
+// before anything below can exit.
+const state = { launched: false, termination: null, watchedBefore: null, tripwireDone: false, passed: false, root: null, closed: false };
+process.on("exit", closeOnExit);
+// The home, created empty, and the chooser folders inside it.
+makeHome();
+const layout = chooserLayout(home);
+for (const folder of layout.folders) mkdirSync(folder);
 // No build runs from here; the launches still hold the lock.
 delete process.env[BUILD_LOCK_TOKEN_ENV];
 const binary = launchCopy.executable;
@@ -224,28 +363,22 @@ function canonical(value) {
 }
 const modelSha256 = (document) => `sha256:${createHash("sha256").update(canonical(document), "utf8").digest("hex")}`;
 
+// The evidence root: reports and summary.json, and the files kept out of the home.
 const root = mkdtempSync(path.join(os.tmpdir(), "swbpipe-native-smoke-"));
-const home = path.join(root, "home");
-const models = path.join(root, "models");
-mkdirSync(home);
-mkdirSync(path.join(home, "Downloads"));
-mkdirSync(models);
-// W-6a. Where the save chooser is answered: outside HOME's Documents, so the
-// files are the ones this run wrote.
-const savedModels = path.join(root, "saved-model-documents");
-mkdirSync(savedModels);
-const MODEL_DOCUMENT_SAVE = { first: path.join(savedModels, "saved-demo.json"), second: path.join(savedModels, "saved-demo-reopened.json") };
-// W-6b. Where the handoff folder chooser is answered, outside HOME's Documents.
-const savedHandoffs = path.join(root, "saved-handoffs");
-mkdirSync(savedHandoffs);
-const HANDOFF_SAVE = { path: path.join(savedHandoffs, "saved-demo.swbhandoff") };
-// W-18 (b2). Where the report-package save chooser is answered, outside HOME's
-// Documents and Downloads.
-const savedReportPackages = path.join(root, "saved-report-packages");
-mkdirSync(savedReportPackages);
-const REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-demo.opsproj") };
+state.root = root;
+// Every chooser answer lies inside the home (`chooserLayout`), so the strict
+// chooser admits it; none is in HOME's Documents, so the files are the ones
+// this run wrote. The models the open chooser is answered with:
+const models = layout.models;
+// W-6a. Where the save chooser is answered.
+const MODEL_DOCUMENT_SAVE = layout.modelDocumentSave;
+// W-6b. Where the handoff folder chooser is answered.
+const savedHandoffs = layout.savedHandoffs;
+const HANDOFF_SAVE = layout.handoffSave;
+// W-18 (b2). Where the report-package save chooser is answered, outside HOME's Downloads.
+const REPORT_PACKAGE_SAVE = layout.reportPackageSave;
 // W-11 (DEL-08-01 Design exact-route-report-sections.md §5.1): the exact route's package.
-const EXACT_REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-exact.opsproj") };
+const EXACT_REPORT_PACKAGE_SAVE = layout.exactReportPackageSave;
 const documents = expected.cases.map((entry) => {
   const source = path.join(project, entry.fixture);
   const target = path.join(models, path.basename(entry.fixture));
@@ -259,7 +392,7 @@ writeFileSync(path.join(models, "newer-schema.json"), JSON.stringify({ ...demo, 
 writeFileSync(path.join(models, "solve-request-model.json"), JSON.stringify(request.model));
 writeFileSync(path.join(models, "not-json.json"), "{ this is not JSON");
 
-// W-4. An exact-route (pressure-2) document for the output gates, and the model
+// W-4. An exact-route (pressure-3) document for the output gates, and the model
 // the driver authors from blank. Neither needs a pinned value: the blank
 // cantilever's tip deflection is checked against PL^3/3EI from these inputs.
 const exactFixture = "fixtures/model_operations/exact_pressure_authoring_model.json";
@@ -277,10 +410,15 @@ const blankInertia = (Math.PI / 64) * (BLANK.outside_diameter_m ** 4 - (BLANK.ou
 const blankTipMm = (BLANK.force_n * BLANK.length_m ** 3) / (3 * BLANK.elastic_modulus_pa * blankInertia) * 1000;
 const UNIT_KEYS = ["length", "force", "moment", "pressure", "stress", "temperature", "angle"];
 
+// Each launch's recorded outcome and judged failures, for summary.json.
+const launches = {};
+const CONTROL_KILLED_AFTER_REPORT = args.has("--control-killed-after-report");
 function launch(phase, extra = {}) {
   const report = path.join(root, `report-${phase}.json`);
+  const nonce = newNonce();
   const plan = {
     phase,
+    nonce,
     bundled_project_id: expected.bundled_project_id,
     refusals: expected.refusals.map((item) => ({ path: path.join(models, item.file) })),
     // The first case also exercises the replace prompt (HELP_HUMAN ruling 2026-10-10).
@@ -291,6 +429,12 @@ function launch(phase, extra = {}) {
     ...extra
   };
   console.log(`\n== phase ${phase} (HOME=${home})`);
+  const { env, refused } = launchEnv(plan, report);
+  const refusedPaths = [...refusedPlanPaths(plan, home), ...refusedSmokeWindows(SMOKE_WINDOWS)];
+  if (refused.length > 0 || refusedPaths.length > 0) {
+    for (const line of [...refused, ...refusedPaths]) console.error(`native smoke: ${line}; not launched`);
+    return exitAfterSignals(2);
+  }
   if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
     console.error(`native smoke: ${binary}, the private copy of the bound app, changed since it was checked; not launched`);
     return exitAfterSignals(2);
@@ -299,21 +443,23 @@ function launch(phase, extra = {}) {
   // runs under the lock in its own process group: on timeout the whole group,
   // caffeinate and the app under it, is killed; on interruption the lock's
   // handler stops and reaps it before the lock is released.
-  return runUnderLock("/usr/bin/caffeinate", ["-di", binary], {
-    cwd: root,
-    env: {
-      ...process.env,
-      HOME: home,
-      SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "driver.js"),
-      SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan),
-      SWBPIPE_NATIVE_SMOKE_REPORT: report
-    },
-    stdio: ["ignore", "inherit", "inherit"],
-    timeoutMs: PHASE_TIMEOUT_MS
-  }).then(({ status, signal, timedOut }) => {
-    if (timedOut) console.error(`phase ${phase}: timed out`);
-    return existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${status ?? signal})` };
-  });
+  // The control runs the same app under a shell that kills itself with SIGKILL after the app has returned.
+  const [command, commandArgs] = CONTROL_KILLED_AFTER_REPORT
+    ? ["/bin/sh", ["-c", '/usr/bin/caffeinate -di "$1"; kill -KILL $$', "native-smoke-control", binary]]
+    : ["/usr/bin/caffeinate", ["-di", binary]];
+  // The marks directly before the start, the start, the census and the one rule (`judged-launch.mjs`). A mark
+  // present, or an unresolved census, saves the summary and stops the run: no further phase starts.
+  return judgedPhase({
+    phase, checkName: `phase ${phase}: the launch ended cleanly and its report is this run's`, launches, check,
+    summaryPath: path.join(root, "summary.json"), summary: () => ({ checks }),
+    executable: binary, command, commandArgs, cwd: root, env, timeoutMs: PHASE_TIMEOUT_MS, reportPath: report, nonce,
+    censusBoundMs: TERMINATION_BOUND_MS,
+    beforeStart: () => {
+      if (!state.launched) writeRunMarker(RUN_MARKER, { pid: process.pid, started: processStartTime(process.pid), home, executable: binary, evidence_root: root, created: new Date().toISOString() });
+      state.launched = true;
+      state.termination = null;
+    }
+  }).then(phaseContinuation({ prefix: "native smoke", phase, state }));
 }
 
 const checks = [];
@@ -367,8 +513,28 @@ function checkStressRatioAfterRuleChecks(prefix, rules) {
     table?.table && table.rule_groups > 0 && table.group?.startsWith("rule:") && table.mode === "ratio" && table.rows > 0 && table.pinned_incomplete === table.rows && table.ranked === 0, table);
 }
 
+state.watchedBefore = statWatched(WATCHED);
 const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE, exact_report_package: EXACT_REPORT_PACKAGE_SAVE });
 check("phase open-solve-save completed", first.ok, first.error);
+if (CONTROL_KILLED_AFTER_REPORT) {
+  // The control's own assertions, each of which fails if its adverse state was not reached: the supervising shell
+  // was killed after the app returned, so the runner recorded a signalled ending; this run's valid report is beside
+  // it; the judge named the launch failed. Its exit status is 1 whatever happens, so it proves nothing by itself.
+  // That an app's own signal reaches the runner through the wrapper is shown by judged-launch.test.mjs, not here.
+  const judged = launches["open-solve-save"];
+  const launchCheck = checks.find((item) => item.name === "phase open-solve-save: the launch ended cleanly and its report is this run's");
+  check("control: the recorded outcome is the adverse one: ended on SIGKILL, with no exit status", judged.outcome?.signal === "SIGKILL" && judged.outcome?.status === null && judged.outcome?.timed_out === false, judged.outcome && { signal: judged.outcome.signal, status: judged.outcome.status, timed_out: judged.outcome.timed_out });
+  check("control: this run's valid report is beside it (ok, carrying the plan's nonce)", first.ok === true && typeof judged.outcome?.nonce === "string" && first.nonce === judged.outcome.nonce, { nonce: first.nonce ?? null, ok: first.ok });
+  check("control: the judge named the launch failed (LAUNCH-SIGNALLED) and its launch check failed", judged.failures.some((line) => line.startsWith("LAUNCH-SIGNALLED")) && launchCheck?.ok === false, judged.failures);
+  state.tripwireDone = true;
+  const controlChanges = tripwireChanges(state.watchedBefore, statWatched(WATCHED));
+  check(`control: the real user's Library, after the launch: none of the ${WATCHED.length} product-named paths changed`, controlChanges.length === 0, controlChanges.length === 0 ? undefined : controlChanges);
+  writeFileSync(path.join(root, "summary.json"), JSON.stringify({ control: "killed-after-report", checks, launches, first }, null, 2));
+  console.log(`\nnative smoke control: ${checks.filter((item) => item.ok).length}/${checks.length} checks passed; the run exits non-zero because its launch failed, as the control requires`);
+  state.passed = false;
+  buildLock.release();
+  await exitAfterSignals(1);
+}
 // Nothing here is pinned:
 // the expected bytes and hash are computed from the bundled demo fixture.
 {
@@ -448,7 +614,7 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   check("demo rule checks: refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(rules), rules?.outcomes);
   checkStressRatioAfterRuleChecks("demo rule checks", rules);
 }
-// W-4. Exact-route (pressure-2) gates, by name.
+// W-4. Exact-route (pressure-3) gates, by name.
 {
   const exact = first.exact;
   const solved = exact?.solve;
@@ -481,7 +647,7 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
       && exactShown(/container_sha256=([0-9a-f]{64})/) === createHash("sha256").update(exactFile).digest("hex")
       && exactRead && !exactRead.error && exactRead.schema_version === "2.0.0" && exactRead.export_profile_id === "desktop_local_private_report_package_1"
       && exactRead.export_blocked === false && exactRead.package_identity_sha256_hex === exactShown(/package_identity=([0-9a-f]{64})/)
-      && ["openpipestress.result_semantics/0.3.0/pressure-2", "openpipestress.result_semantics/0.3.0/pressure-source-1"].includes(exactIdentity),
+      && ["openpipestress.result_semantics/0.3.0/pressure-3", "openpipestress.result_semantics/0.3.0/pressure-source-1"].includes(exactIdentity),
     exactRead?.error ?? exactPackage?.status ?? exact?.report_package_refusal ?? { identity: exactIdentity });
   check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(exact?.rule_checks), exact?.rule_checks?.outcomes);
   checkStressRatioAfterRuleChecks("exact route: rule checks", exact?.rule_checks);
@@ -736,11 +902,80 @@ for (const doc of documents) {
     storedState?.state_kind === "handoff_basis" && storedState.model_hash === sha(modelBytes ?? Buffer.alloc(0)), storedState);
 }
 
+// The tripwire's after-last observation: the last phase's census found no
+// process of the run (otherwise the run has already ended, unresolved).
+{
+  const changes = tripwireChanges(state.watchedBefore, statWatched(WATCHED));
+  state.tripwireDone = true;
+  for (const line of changes) console.error(`native smoke: ${line}`);
+  check(`the real user's Library, after the last launch: none of the ${WATCHED.length} product-named paths appeared, disappeared or changed`, changes.length === 0, changes.length === 0 ? undefined : changes);
+}
+
 const failed = checks.filter((item) => !item.ok);
-writeFileSync(path.join(root, "summary.json"), JSON.stringify({ checks, first, second }, null, 2));
-console.log(`\nnative smoke: ${checks.length - failed.length}/${checks.length} checks passed; evidence in ${root}`);
-if (!args.has("--keep") && failed.length === 0) rmSync(root, { recursive: true, force: true });
+writeFileSync(path.join(root, "summary.json"), JSON.stringify({ checks, launches, first, second }, null, 2));
+console.log(`\nnative smoke: ${checks.length - failed.length}/${checks.length} checks passed`);
+state.passed = failed.length === 0;
 // The last launch has ended: release the lock (kept if a process of it may
 // still run); the private copy is removed as the process exits.
 buildLock.release();
 await exitAfterSignals(failed.length === 0 ? 0 : 1);
+
+// Close the run, on every exit the runner can catch: the census when a launch
+// has not been censused, the tripwire through `closeRun`, then either retention
+// (unresolved termination) or the files kept out of the home and the removals.
+function closeOnExit(code) {
+  if (state.closed) return;
+  state.closed = true;
+  const say = (line) => {
+    try { writeSync(2, `${line}\n`); } catch { /* nothing more to do */ }
+  };
+  try {
+    const executable = launchCopy.executable;
+    const termination = state.launched && state.termination === null ? awaitNoProcessesSync(executable, { boundMs: TERMINATION_BOUND_MS }) : (state.launched ? state.termination : null);
+    const tripwire = state.watchedBefore === null ? null : { before: state.watchedBefore, after: state.tripwireDone ? null : statWatched(WATCHED), done: state.tripwireDone };
+    const closed = closeRun({ exitCode: code ?? process.exitCode ?? 0, termination, lockKept: buildLock.kept(), tripwire });
+    for (const line of closed.lines) say(`native smoke: ${line}`);
+    process.exitCode = closed.exitCode;
+    if (closed.retain) {
+      retain(termination?.reason ?? "the worktree build lock was kept");
+      return;
+    }
+    const keep = args.has("--keep");
+    const passed = state.passed && closed.exitCode === 0;
+    if (!passed || keep) {
+      if (state.root !== null && home !== undefined) {
+        const copied = keepOutOfHome(home, state.root, keptRelativePaths(IDENTIFIER));
+        say(`native smoke: evidence kept in ${state.root}${copied.length > 0 ? ` (copied out of the home: ${copied.join(", ")})` : ""}`);
+      }
+    } else if (state.root !== null) rmSync(state.root, { recursive: true, force: true });
+    if (home !== undefined) {
+      if (keep) say(`native smoke: home kept at ${home}`);
+      else rmSync(home, { recursive: true, force: true });
+    }
+    launchCopy.remove();
+    rmSync(RUN_MARKER, { force: true });
+  } catch (error) {
+    if ((process.exitCode ?? 0) === 0) process.exitCode = 1;
+    say(`native smoke: closing the run failed: ${error.message}`);
+    retain(`closing the run failed: ${error.message}`);
+  }
+  // Unresolved: nothing is removed. The marker records why; the worktree lock,
+  // released by its own exit handler when no tracked group remained, is taken
+  // again under a purpose naming the marker.
+  function retain(reason) {
+    try {
+      writeRunMarker(RUN_MARKER, { pid: process.pid, started: processStartTime(process.pid), home, executable: launchCopy.executable, evidence_root: state.root, reason, retained: new Date().toISOString() });
+    } catch (error) {
+      say(`native smoke: the run marker ${RUN_MARKER} could not be written: ${error.message}`);
+    }
+    if (!buildLock.kept()) {
+      try {
+        acquireBuildLock({ purpose: `native smoke: unresolved termination, see ${RUN_MARKER}` });
+        say("native smoke: the worktree build lock is retained for the unresolved run");
+      } catch (error) {
+        say(`native smoke: the worktree build lock could not be retained: ${error.message.split("\n")[0]}`);
+      }
+    }
+    say(`native smoke: cleanup NOT completed; retained: home ${home ?? "(not created)"}, private app copy ${launchCopy.executable}, run marker ${RUN_MARKER}`);
+  }
+}

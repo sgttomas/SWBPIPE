@@ -4868,7 +4868,7 @@ describe("SWBPIPE desktop preview", () => {
     // C-120 fix: the demo model drops the tee component:C-120, one model entity fewer.
     expect(
       within(tree).getByTestId("model-tree-filter-summary").textContent,
-    ).toContain("25 of 25 model entities visible");
+    ).toBe("25 model entities");
 
     fireEvent.change(within(tree).getByTestId("model-tree-filter-input"), {
       target: { value: "component:C-110" },
@@ -4876,7 +4876,7 @@ describe("SWBPIPE desktop preview", () => {
     // C-120 fix: the demo model drops the tee component:C-120, one model entity fewer.
     expect(
       within(tree).getByTestId("model-tree-filter-summary").textContent,
-    ).toContain("1 of 25 model entities visible");
+    ).toContain("1 of 25 model entities match the filter");
     expect(
       within(tree).getByTestId(typedTreeRowTestId("component", "component:C-110")),
     ).toBeInTheDocument();
@@ -4899,7 +4899,7 @@ describe("SWBPIPE desktop preview", () => {
     // C-120 fix: the demo model drops the tee component:C-120, one model entity fewer.
     expect(
       within(tree).getByTestId("model-tree-filter-summary").textContent,
-    ).toContain("1 of 25 model entities visible");
+    ).toContain("1 of 25 model entities match the filter");
     expect(
       within(tree).getByTestId(typedTreeRowTestId("material", "material:invented-carbon-steel")),
     ).toBeInTheDocument();
@@ -5022,7 +5022,7 @@ describe("SWBPIPE desktop preview", () => {
     // C-120 fix: the demo model drops the tee component:C-120, one model entity fewer.
     expect(
       within(tree).getByTestId("model-tree-filter-summary").textContent,
-    ).toContain("0 of 25 model entities visible");
+    ).toContain("0 of 25 model entities match the filter");
     expect(
       within(tree).getByTestId("model-tree-filter-empty").textContent,
     ).toContain("No model entities match this filter");
@@ -5036,7 +5036,7 @@ describe("SWBPIPE desktop preview", () => {
     // C-120 fix: the demo model drops the tee component:C-120, one model entity fewer.
     expect(
       within(tree).getByTestId("model-tree-filter-summary").textContent,
-    ).toContain("25 of 25 model entities visible");
+    ).toBe("25 model entities");
     expect(within(tree).getByText("Load Cases")).toBeInTheDocument();
 
     // The queued material Task remains frozen and active. Return to the
@@ -9134,7 +9134,7 @@ describe("SWBPIPE desktop preview", () => {
     if (treeToggle.getAttribute("aria-expanded") !== "true") fireEvent.click(treeToggle);
     expect(
       within(tree).getByTestId("model-tree-filter-summary").textContent,
-    ).toContain("2 of 2 model entities visible");
+    ).toBe("2 model entities");
     const blankSelection =
       screen.getByTestId("command-selection-readout").textContent ?? "";
     const blankProjectId = blankSelection.match(
@@ -9222,18 +9222,23 @@ describe("SWBPIPE desktop preview", () => {
       "Blank Local Model",
     );
 
+    // DEL-07-07 REQ-008: "The Solve command is withheld, naming the findings" while a
+    // solve-blocking finding stands. A blank model's checks return three, so no solve starts.
+    const previewServiceForSolve = await import("./services/previewService");
+    const solveStart = vi.spyOn(previewServiceForSolve, "startPreviewMechanicsJob");
+    const { readSolveTimeline } = await import("./services/solveTimeline");
+    const timelineBefore = readSolveTimeline()?.sequence ?? null;
     fireEvent.click(await runMechanicsButton());
-    await waitFor(
-      () => {
-        expect(solveJobSummary().textContent).toContain(
-          "state=failed",
-        );
-        expect(solveJobSummary().textContent).toContain(
-          "result_rows=0",
-        );
-      },
-      { timeout: 10000 },
-    );
+    const withheld = await screen.findByRole("region", { name: "Solve is withheld" });
+    expect(within(withheld).getByTestId("solve-withheld-summary")).toHaveTextContent("3 solve-blocking findings stand for this model.");
+    for (const code of ["NODE_INPUT_MISSING", "PIPE_INPUT_MISSING", "LOAD_INPUT_MISSING"]) {
+      expect(within(withheld).getByRole("button", { name: new RegExp(`^${code} blocking`) })).toBeInTheDocument();
+    }
+    expect(solveJobSummary().textContent).toContain("state=not_started");
+    expect(solveJobSummary().textContent).toContain("result_rows=0");
+    expect(solveStart).not.toHaveBeenCalled();
+    expect(readSolveTimeline()?.sequence ?? null).toBe(timelineBefore);
+    expect(screen.queryByTestId("solve-progress-job")).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("menu-file"));
     expect(
       screen.getByTestId("menu-item-file.save-report-package"),

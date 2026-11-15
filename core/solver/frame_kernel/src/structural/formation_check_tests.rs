@@ -2587,3 +2587,110 @@ fn kd5_lambda_carries_the_two_to_ten_inverse_factor_and_its_neumann_boundary() {
     assert!(bound.is_none());
     assert!(matches!(finding.unwrap().reason, FormationCheckReason::FormationCheckUnavailable { detail } if detail == "Neumann"));
 }
+
+// ---------------------------------------------- AC-018: explicit friction product
+
+/// (significand, exponent) of a finite positive binary64 value, read from its
+/// bits: value = significand · 2^exponent exactly. Independent of `Wide2`.
+fn binary64_parts(x: f64) -> (u128, i64) {
+    assert!(x.is_finite() && x > 0.0);
+    let bits = x.to_bits();
+    let biased = ((bits >> 52) & 0x7ff) as i64;
+    let fraction = u128::from(bits & ((1u64 << 52) - 1));
+    if biased == 0 {
+        (fraction, -1074)
+    } else {
+        (fraction | (1u128 << 52), biased - 1075)
+    }
+}
+
+/// `significand · 2^exponent` as a whole number of units of 2^`unit`; panics
+/// unless that is exact and fits in a u128 (the comparison stays exact).
+fn whole_units(significand: u128, exponent: i64, unit: i64) -> u128 {
+    if significand == 0 {
+        return 0;
+    }
+    let shift = exponent - unit;
+    if shift >= 0 {
+        assert!(i64::from(significand.leading_zeros()) > shift, "out of range");
+        significand << shift
+    } else {
+        let s = u32::try_from(-shift).unwrap();
+        assert!(s < 128 && significand & ((1u128 << s) - 1) == 0, "not a whole number of units");
+        significand >> s
+    }
+}
+
+/// A non-negative `Wide2` as whole units of 2^`unit` (its value is
+/// significand · 2^(exponent − 127)).
+fn wide_units(m: &Wide2, unit: i64) -> u128 {
+    let (negative, exponent, s) = m.parts();
+    assert!(!negative || m.is_zero());
+    let significand = (u128::from(s[1]) << 64) | u128::from(s[0]);
+    whole_units(significand, exponent - 127, unit)
+}
+
+/// The ball (m, r) contains c·n exactly, compared in whole units of 2^`unit`:
+/// m − r ≤ c·n ≤ m + r, with c·n formed from the operands' integer parts.
+fn assert_contains_exact_product(ball: &Ball, c: f64, n: f64, unit: i64) {
+    let (cs, ce) = binary64_parts(c);
+    let (ns, ne) = binary64_parts(n);
+    let product = whole_units(cs * ns, ce + ne, unit);
+    let m = wide_units(&ball.m, unit);
+    let r = if ball.r == 0.0 {
+        0
+    } else {
+        let (rs, re) = binary64_parts(ball.r);
+        whole_units(rs, re, unit)
+    };
+    assert!(m.saturating_sub(r) <= product && product <= m + r, "ball ({m}, {r}) misses {product} (units 2^{unit})");
+}
+
+/// AC-018 (VER-013), on the helper directly: on the ordinary route load closure
+/// refuses the underflow case before the helper is reached
+/// (`nonlinear_integration`'s
+/// `an_explicit_friction_product_that_underflows_is_refused_at_load_closure`).
+#[test]
+fn explicit_sliding_friction_product_refuses_underflow_and_encloses_the_rest() {
+    // Nonzero operands whose binary64 product rounds to zero: 0.5·2^-1074 =
+    // 2^-1075 is a tie that rounds to the even zero; 2^-600·2^-600 = 2^-1200.
+    let tiny = f64::from_bits(1);
+    for (c, n) in [(0.5, tiny), (0.5, -tiny), (2f64.powi(-600), 2f64.powi(-600))] {
+        assert_eq!(c * n.abs(), 0.0);
+        for direction in [1.0, -1.0] {
+            let mut b = Balls::new().unwrap();
+            let got = sliding_friction_exact(&mut b, c, n, direction);
+            assert!(
+                matches!(got, Err(ArcCertificateFailure::DivisorReachesZero { site }) if site == "explicit sliding friction product underflows"),
+                "c={c:e} n={n:e}: {got:?}"
+            );
+        }
+    }
+    // A zero normal: the exact zero, radius 0 (kills refusing every zero product).
+    for n in [0.0, -0.0] {
+        for direction in [1.0, -1.0] {
+            let mut b = Balls::new().unwrap();
+            let ball = sliding_friction_exact(&mut b, 0.3, n, direction).unwrap();
+            assert!(ball.m.is_zero() && ball.r == 0.0);
+        }
+    }
+    // A nonzero subnormal product: c·n = 3·(2^52 + 1)·2^-1122 lies off the
+    // subnormal grid, so fl(c·n) ≠ c·n; the ball contains the exact product.
+    // 3·2^-1070 is the subnormal with integer significand 48 (`powi(-1070)` would
+    // pass through 2^1070, which overflows).
+    let (c, n) = (1.0 + f64::EPSILON, f64::from_bits(48));
+    let hi = c * n;
+    assert!(hi > 0.0 && hi < 2f64.powi(-900) && hi < f64::MIN_POSITIVE);
+    assert!(wide_units(&Wide2::from_f64(hi).unwrap(), -1190) != whole_units(binary64_parts(c).0 * binary64_parts(n).0, binary64_parts(c).1 + binary64_parts(n).1, -1190));
+    let mut b = Balls::new().unwrap();
+    let ball = sliding_friction_exact(&mut b, c, n, -1.0).unwrap();
+    assert_contains_exact_product(&ball, c, n, -1190);
+    let mut b = Balls::new().unwrap();
+    let negated = sliding_friction_exact(&mut b, c, n, 1.0).unwrap();
+    assert!(negated.m.cmp_value(&ball.m.neg()).is_eq() && negated.r == ball.r);
+    // The ordinary two-product path is unchanged: radius 0 and the exact product.
+    let mut b = Balls::new().unwrap();
+    let ball = sliding_friction_exact(&mut b, 0.3, 70.0, -1.0).unwrap();
+    assert_eq!(ball.r, 0.0);
+    assert_contains_exact_product(&ball, 0.3, 70.0, -60);
+}

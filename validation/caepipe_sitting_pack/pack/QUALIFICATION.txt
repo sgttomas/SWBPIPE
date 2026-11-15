@@ -1,0 +1,1 @@
+Development comparison only. In any SWBPIPE result, 'checks passed', 'established' and certified bounds rest on a premise the product does not verify, which is false on a constructed model (DEL-04-01; exit criterion 18, not met). They are not established engineering results. The mechanics values are compared with CAEPIPE on that understanding.

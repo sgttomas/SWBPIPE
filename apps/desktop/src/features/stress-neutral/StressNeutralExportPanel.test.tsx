@@ -391,15 +391,15 @@ it('refuses retired stress-neutral versions before reading their metadata',async
 // natively captured are not Current, so the panel offers no package.
 it('packages a received exact-route result (pressure-2) at Rust\'s standing, reads it through its source, and offers it only while Current',async()=>{
  const {model,source:result}=nativeMechanicsReplayPair('sparse_interactive',{profile:'pressure'});
- expect(result.producer!.semantic_contract_id).toBe('openpipestress.result_semantics/0.3.0/pressure-2');
+ expect(result.producer!.semantic_contract_id).toBe('openpipestress.result_semantics/0.3.0/pressure-3');
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'received-pressure-reference',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const before=JSON.stringify(result);
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
- expect(analysisRun.analysis_run.reproducibility.semantic_contract?.id).toBe('openpipestress.result_semantics/0.3.0/pressure-2');
+ expect(analysisRun.analysis_run.reproducibility.semantic_contract?.id).toBe('openpipestress.result_semantics/0.3.0/pressure-3');
  const packet=await buildStressNeutralExportPacket({model,result,analysisRun});
  expect(packet.schema_version).toBe('0.3.0');
- expect(packet.semantic_contract.id).toBe('openpipestress.result_semantics/0.3.0/pressure-2');
- expect(packet.export_profile.source_basis_refs[1]).toEqual({object_type:'ExternalReference',ref:'fixtures/results/semantic_contract_v0_3_pressure_2.json'});
+ expect(packet.semantic_contract.id).toBe('openpipestress.result_semantics/0.3.0/pressure-3');
+ expect(packet.export_profile.source_basis_refs[1]).toEqual({object_type:'ExternalReference',ref:'fixtures/results/semantic_contract_v0_3_pressure_3.json'});
  expect(packet.contract_evidence).toEqual(result.contract_evidence);
  expect(Object.hasOwn(packet,'source_block_recovery')).toBe(false);
  await expect(validateStressNeutralExportPacket(packet,result,analysisRun,modelLoadBasisRefs(model))).resolves.toBeUndefined();

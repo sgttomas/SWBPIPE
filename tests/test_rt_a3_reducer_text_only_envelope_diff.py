@@ -13,6 +13,7 @@ from pathlib import Path
 from copy import deepcopy
 import hashlib
 import json
+import re
 import subprocess
 
 import pytest
@@ -140,7 +141,10 @@ def _rv120_at(rev, shape):
             else:
                 assert edit["op"] == "set"
                 at[edit["path"][-1]] = deepcopy(edit["value"])
-    return rv.reseal(source, invocation, rv.rp.EXACT_DEFINITION_HASH), invocation
+    # The revision's own DEF-E hash: a historical shape is resealed as it was then, not with a later definition.
+    verifier = subprocess.check_output(["git", "show", f"{rev}:tests/verifiers/retained_precision.py"], cwd=ROOT, text=True)
+    definition = re.search(r'^EXACT_DEFINITION_HASH = "([0-9a-f]{64})"$', verifier, re.M).group(1)
+    return rv.reseal(source, invocation, definition), invocation
 
 
 def check_rv120_output_digests(before, after, *, base=BASE, end=None):

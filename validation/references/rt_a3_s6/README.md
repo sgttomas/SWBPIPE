@@ -128,7 +128,7 @@ the reference's reaction differs by more than 10⁹ criteria).
 
 | File | Role |
 |---|---|
-| `generators/rt_a3_s6_reference.py` | the generator; `python3 -I generators/rt_a3_s6_reference.py` rebuilds every output in memory and compares it byte for byte; `--write` rewrites them |
+| `generators/rt_a3_s6_reference.py` | the generator; `python3 -I generators/rt_a3_s6_reference.py --pressure-elongation all` rebuilds every output in memory and compares it byte for byte; `--write --pressure-elongation all` rewrites them. The switch is there because the committed requests name every pressurised load case in `model_settings.pressure_elongation` (DEL-04-07); without it the generator builds them without that member and reports them stale. |
 | `requests/*.json` | the product request documents (model 0.9.0) |
 | `references.json` | per request and case: the strict state, displacements, support actions, nonlinear relative displacements, C-1 joint/wall/rod forces, family zero scales and the dropped-motion mutants; the inputs; the cross-checks |
 | `SHA256SUMS` | every file above (`shasum -a 256 -c SHA256SUMS` here) |

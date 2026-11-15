@@ -111,10 +111,22 @@ code_paths:
 - core/product_physics/src/lib.rs
 - core/product_physics/tests/w16_exact_equivalent_static.rs
 - core/product_physics/tests/w16_timoshenko_partial_wind.rs
+# The generated self-weight's standing on the maintained reference system, whose sections are in mm.
+- core/product_physics/tests/reference_system_generated_weight_standing.rs
 # Independent references for generation and resolution.
 - validation/references/w16_exact_equivalent_static/**
 - validation/references/w16_timoshenko_partial_wind/**
 - validation/references/rt_g5_s2_conditions/**
+# Frozen before the engine work they judge: wind and seismic beside a temperature state on the
+# exact route, and the hydrostatic test case. No product test reads them yet.
+- validation/references/exact_load_state_equivalent_static/**
+- validation/references/hydrostatic_test/**
+- tests/test_exact_load_state_equivalent_static_references.py
+- tests/test_hydrostatic_test_references.py
+# Frozen before the engine work it judges: static seismic taking the weight case's masses, a
+# component's weight included. No product test reads it yet.
+- validation/references/seismic_component_weight/**
+- tests/test_seismic_component_weight_references.py
 # The wind-exposure form is authoring, which is DEL-07-03's subject; no other deliverable lists it.
 - apps/desktop/src/features/wind-exposure/WindExposureForm.tsx
 checks:
@@ -126,6 +138,7 @@ checks:
 - core/product_physics/src/operating_conditions/resolution_tests.rs
 - core/model_operations/operation_applier/tests/generated_self_weight.rs
 - core/loads/self_weight_wasm/tests/applied_self_weight.rs
+- core/product_physics/tests/reference_system_generated_weight_standing.rs
 - apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx
 - apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts
 - apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx

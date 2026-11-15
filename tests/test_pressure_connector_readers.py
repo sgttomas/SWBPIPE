@@ -14,7 +14,7 @@ import pytest
 from core.analysis_runs import rust_reader
 from tests.verifiers import physics_source
 from tests.verifiers.source_blocks import domain_hash
-from tests.verifiers.pressure_2 import (
+from tests.verifiers.pressure_3 import (
     CONTRACT_ID as PRESSURE_ID, validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )
 
@@ -73,7 +73,7 @@ def test_u5a_remote_reader_control_and_zero_pressure_tamper():
 
 def test_u5a_projection_guard_stays_finite_and_does_not_widen_direct_product():
     import math
-    from tests.verifiers.pressure_2 import _joint_projection
+    from tests.verifiers.pressure_3 import _joint_projection
     assert _joint_projection(0.0, 0.0, 1e308, 1e308, 0)
     assert not _joint_projection(1e300, 0.0, 1e308, 1e308, 0)
     tiny = math.ulp(0.0)
@@ -84,7 +84,7 @@ def test_u5a_projection_guard_stays_finite_and_does_not_widen_direct_product():
 def test_u5a_participating_producer_control_and_tampered_edges_and_groups():
     envelope = json.loads((PROJECT / "fixtures/results/pressure_v3_joint_reader_control.json").read_text())["envelope"]
     from tests.schema_validation import schema_for_definition, validate_instance, validate_schema_document
-    schema = json.loads((PROJECT / "schemas/results_pressure_2.v0.3.schema.json").read_text())
+    schema = json.loads((PROJECT / "schemas/results_pressure_3.v0.3.schema.json").read_text())
     validate_schema_document(schema)
     validate_instance(schema_for_definition(schema, "PressureContractEvidence"), envelope["contract_evidence"])
     validate_pressure_evidence(envelope)
@@ -246,7 +246,7 @@ ROD_MUTATIONS = [
 @pytest.mark.parametrize("label,envelope", TIED_CASES)
 def test_tied_entries_match_the_result_schema_and_the_hardware_rows(label, envelope):
     from tests.schema_validation import schema_for_definition, validate_instance
-    schema = json.loads((PROJECT / "schemas/results_pressure_2.v0.3.schema.json").read_text())
+    schema = json.loads((PROJECT / "schemas/results_pressure_3.v0.3.schema.json").read_text())
     validate_instance(schema_for_definition(schema, "PressureContractEvidence"), envelope["contract_evidence"])
     unpressurized = record(envelope)["pressure_model"] == "unpressurized"
     count = lambda kind: sum(1 for r in envelope["results"] if r["kind"] == kind)
@@ -285,7 +285,7 @@ def test_s_x_binding_sums_rods_exactly_with_its_coefficient_and_reserve():
     """§5.1's s_x rule (Rust `u5b_effective_axial_tests`): exact rational accumulation, (64 + n_r)eps, (n_r + 2) least
     subnormals; cancellation, subnormal edges and a 1,024-rod control."""
     import math
-    from tests.verifiers.pressure_2 import _effective_axial_binding
+    from tests.verifiers.pressure_3 import _effective_axial_binding
     tiny = math.ulp(0.0)
     assert _effective_axial_binding(0.0, 553.25, 800.0, [(246.75, 1.0)])
     assert not _effective_axial_binding(1e-9, 553.25, 800.0, [(246.75, 1.0)])
@@ -311,7 +311,7 @@ def test_the_axial_share_is_compared_by_bits_so_a_negative_zero_share_is_refused
     rounds to +0.0, so a -0.0 share is refused. Python's `==` would admit it (the negative control)."""
     import struct
     from fractions import Fraction
-    from tests.verifiers.pressure_2 import _tie_rods
+    from tests.verifiers.pressure_3 import _tie_rods
 
     def rod(axis0, n, share):
         return _tie_rods({"connector_axes_global": [[axis0[0], 0.0, 0.0], [axis0[1], 1.0, 0.0], [axis0[2], 0.0, 1.0]],
@@ -392,7 +392,7 @@ def test_the_axial_share_is_the_exact_dot_rounded_once(label, axis, n, exact, bi
     share is the exact rational dot of the binary64 operands, rounded once, with +0.0 for any result that rounds to
     zero (the producer's publication rounding), compared by bits. A total outside binary64 refuses every share."""
     import struct
-    from tests.verifiers.pressure_2 import _tie_rods
+    from tests.verifiers.pressure_3 import _tie_rods
     # The independent exact value: the Fraction dot of the operands is the rational written out above.
     assert sum(Fraction(a) * Fraction(b) for a, b in zip(n, axis)) == exact, label
     if bits is None:
@@ -453,7 +453,7 @@ def test_sequential_f64_sums_decide_the_direction_and_tolerance_boundaries():
     `Iterator::sum::<f64>()`, sequentially from -0.0. A compensated sum (Python >= 3.12's `sum()`) decides each the
     other way."""
     import struct
-    from tests.verifiers.pressure_2 import _effective_axial_binding, _tie_rods
+    from tests.verifiers.pressure_3 import _effective_axial_binding, _tie_rods
 
     def f(bits):
         return struct.unpack(">d", bits.to_bytes(8, "big"))[0]

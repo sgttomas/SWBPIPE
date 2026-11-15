@@ -18,7 +18,7 @@ const VECTORS: &str =
     include_str!("../../../../fixtures/reports/invented/report_composition_vectors.json");
 const SEMANTIC_TABLES: [&str; 6] = [
     include_str!("../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"),
-    include_str!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json"),
+    include_str!("../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json"),
     include_str!("../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"),
     include_str!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json"),
     include_str!(

@@ -33,6 +33,8 @@ It serves SOW-051 and SOW-018 under OBJ-004 and OBJ-012 (`execution/_Decompositi
 
 **Not decided.** Whether this contract takes each property on the wall the solve takes it on. Here every property and every mass is computed on one effective wall. On the exact route the solve takes stiffness and metal mass on the nominal wall and contents mass on the bore reduced by mill tolerance and corrosion allowance, under the section bases DEL-05-03 defines. Until it is decided, AC-002 keeps the difference visible and this contract is unchanged.
 
+**Not provided in v1.0.** Lining, refractory and coating mass, which PRD §12.5 lists beside insulation weight. The calculator has no input for them, and a lining's reduction of the bore the contents are taken on is not modelled. SWBPIPE's Agent 0 decided (2026-11-12) that they are not built for v1.0. `docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-007, states what that means for a user and what the user does instead.
+
 ## Completion and Reliance Basis — Epistemology
 
 A calculated property is geometry and arithmetic on the user's numbers. It carries no judgment that the dimensions are right for a pipe or that a tolerance or allowance is appropriate.

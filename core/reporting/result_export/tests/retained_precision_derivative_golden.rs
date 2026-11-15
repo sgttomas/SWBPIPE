@@ -89,23 +89,27 @@ const CLASSES: [(&str, [usize; 5]); 2] = [
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 /// RT-A3 S6 (§8.59): S1's nonlinear clause restated; PP `EXACT_PINNED`'s S6 re-pin (restating it to main 394f4c623's
 /// and resealing with the Python 07e rule reproduces main's document and receipt).
+/// Pressure elongation (RT-L2): PP `EXACT_PINNED`'s re-pin; the successors name the pressure-3 identity and state the
+/// setting (restating them and resealing by the 07e rule reproduces the former documents; no numeric leaf moved).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "dcd8b13a7b62212eb933289da2a271cfdc47ae7930bf1985b9a6d20ecd3120a0",
-        "9b88b65706bc9972eef15cb0b79bd1bcc4cde51477a83d574717044e0b399319",
+        "40b2b1991dfc86f602a8c74f53c2e2d07bf935fcbcded5d374e9e0e702d46b08",
+        "eccf7619075504b3dc3fd9d2bcbac700ce489da62e29b7876a0a897d5d42c0ee",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "a8959bc8489b6c012c843f887c5cb7752ef31daed4d4585e72d630616087a3eb",
-        "65009c8e43461834882a7164780f1f0b77f9336edfcdd079dcde3d82df33f80d",
+        "d425e5a228b01079f1a9bee790fd66157f7d94f345eafab1a5961aa5b0069402",
+        "71c11cd36323869a680349bf7ea9393a919b90eb0a1fe78fd43c4a498957a776",
     ),
 ];
 /// The committed exact goldens' file sha256.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// Pressure elongation (RT-L2): the exact successors they derive from name the pressure-3 identity and state the setting;
+/// only that text and the digests binding it moved (was 6f943339.../c39d21a8...).
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: the exact successors restate the pressure-2 identity limitation.
     // W-16 slice b (DEL-05-02): and again (was 9c4756e9.../579878c8...).
@@ -114,8 +118,8 @@ const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
     // they derive from are proven by reseal-to-base (DEL-04-08 §8.44).
     // RT-A3 S6 (§8.59): S1's nonlinear clause restated in the exact successors they derive from (proven by
     // reseal-to-base); only that text and the digests binding it moved (was 4e0e0cb8.../f75a417e...).
-    ("sparse_interactive", "6f9433392dc92c4f6d66c12b37a227af146206e5eae6dad40f9b1642f610803e"),
-    ("dense_scrutiny", "c39d21a8f179e396d557916e58413abfd8f61b9774d5a1a67b3942e71c9f9354"),
+    ("sparse_interactive", "1e8d4ae92756130865544b6945447a198a941a45fff357029d4e2fe94512493a"),
+    ("dense_scrutiny", "bcf05a0dea9e6fdf6d265845f6a916803f50a88f8461a069af2a9a266a16f9cc"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21
