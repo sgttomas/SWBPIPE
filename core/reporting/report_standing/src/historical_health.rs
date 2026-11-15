@@ -298,7 +298,7 @@ pub(crate) fn numerical_health(source: &Value, reader_findings: Option<&Value>) 
 const SUPPRESSED_WHEN_NOT_SOLVED: [&str; 2] = ["checks_passed", "sensitive"];
 
 /// The numerical health of `source`. With `gated`, in a document whose mechanics
-/// are not solved (so no result is published), a case in a
+/// are not solved ([`mechanics_solved`]), a case in a
 /// [`SUPPRESSED_WHEN_NOT_SOLVED`] state is not assessed, with no figure, no
 /// cause and no code, decided before its message is read; every other case is
 /// as in a solved document.
@@ -1352,6 +1352,39 @@ mod tests {
             let mut source = bare.clone();
             source["analysis_status"] = list.clone();
             assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{list}");
+        }
+        // A valid list alone suffices; repeated entries and USER_RULE_FAILED are
+        // permitted in it.
+        for list in [
+            json!(["MECHANICS_SOLVED"]),
+            json!(["MECHANICS_SOLVED", "MECHANICS_SOLVED", "USER_RULE_CHECKED", "USER_RULE_CHECKED"]),
+            json!(["MECHANICS_SOLVED", "USER_RULE_FAILED"]),
+        ] {
+            let mut source = bare.clone();
+            source["analysis_status"] = list.clone();
+            assert_eq!(health(&source, None)["cases"][0]["state"], "checks_passed", "a list alone: {list}");
+        }
+        // A mechanics token other than MECHANICS_SOLVED is not solved, a rule-status
+        // word among them (it belongs to the list's vocabulary, not to this field).
+        for token in ["USER_RULE_FAILED", "BLOCKED_custom", "blocked by custom: rule / 1", "mechanics_solved"] {
+            let mut source = base.clone();
+            source["status"] = json!({"mechanics": token});
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "mechanics {token}");
+        }
+        // The package fields must both be strings, and only when both status fields
+        // are absent: a null or malformed status counts as present.
+        for (label, status_status, status_id) in [("package_status a number", json!(1), json!("package:test")), ("package_id null", json!("complete"), Value::Null)] {
+            let mut source = bare.clone();
+            source["package_status"] = status_status;
+            source["package_id"] = status_id;
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{label}");
+        }
+        for status in [Value::Null, json!("MECHANICS_SOLVED"), json!({})] {
+            let mut source = bare.clone();
+            source["status"] = status.clone();
+            source["package_status"] = json!("complete");
+            source["package_id"] = json!("package:test");
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "a present status {status} blocks the package exception");
         }
         let mut package = bare.clone();
         package["package_status"] = json!("complete");
