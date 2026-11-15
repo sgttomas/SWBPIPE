@@ -6511,6 +6511,26 @@
           "kind": "audited-external-inputs",
           "reason": "Memory-measurement test reads only the model directory named by SWBPIPE_SPARSE_MEMORY_MODELS, a scratch directory outside the project; without that variable (as in CI) it returns before any read."
         }
+      },
+      "core/analysis/hanger_sizing/tests/applied_agreement.rs": {
+        "sha256": "3a54d55ac947c89d4a9187b7b6f08eb85a9e5a1753a5b0ed23b613d1927a8c28",
+        "source_trees": [
+          "core/analysis/hanger_sizing/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "../../../fixtures/results",
+            "base": "manifest",
+            "files": [
+              "fixtures/results/hanger_sizing_applied_four_span.json",
+              "fixtures/results/hanger_sizing_applied_four_span_constant.json",
+              "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_four_span_constant.json",
+              "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_four_span_constant.json"
+            ]
+          }
+        ]
       }
     }
   },
