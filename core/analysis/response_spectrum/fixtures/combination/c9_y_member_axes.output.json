@@ -699,50 +699,50 @@
     "rho": [
       [
         1.0,
-        0.8004397210316594,
-        0.0015528533193771975,
-        0.001549235551839483,
-        0.0002890393086662703,
-        0.0002889618261806028
+        0.8004397210316593,
+        0.0015528533193771973,
+        0.0015492355518394825,
+        0.00028903930866627027,
+        0.00028896182618060284
       ],
       [
-        0.8004397210316594,
+        0.8004397210316593,
         1.0,
         0.0016942948303391363,
         0.0016903089653724733,
-        0.0003125587249177524,
-        0.0003124747276309797
+        0.00031255872491775245,
+        0.00031247472763097975
       ],
       [
-        0.0015528533193771975,
+        0.0015528533193771973,
         0.0016942948303391363,
         1.0,
         0.9998198592700648,
-        0.007536974080416548,
+        0.007536974080416549,
         0.007533969786963768
       ],
       [
-        0.001549235551839483,
+        0.0015492355518394825,
         0.0016903089653724733,
         0.9998198592700648,
         1.0,
         0.007560569522169669,
-        0.0075575532512349676
+        0.007557553251234966
       ],
       [
-        0.0002890393086662703,
-        0.0003125587249177524,
-        0.007536974080416548,
+        0.00028903930866627027,
+        0.00031255872491775245,
+        0.007536974080416549,
         0.007560569522169669,
         1.0,
-        0.9999970659605198
+        0.9999970659605197
       ],
       [
-        0.0002889618261806028,
-        0.0003124747276309797,
+        0.00028896182618060284,
+        0.00031247472763097975,
         0.007533969786963768,
-        0.0075575532512349676,
-        0.9999970659605198,
+        0.007557553251234966,
+        0.9999970659605197,
         1.0
       ]
     ]
@@ -775,7 +775,7 @@
       "unit": "N"
     },
     {
-      "combined": 61.41838674174006,
+      "combined": 61.418386741740065,
       "component": "Fy",
       "end": "i",
       "frame": "member_axes",
@@ -784,9 +784,9 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 61.41838674174006,
+          "combined": 61.418386741740065,
           "direction": "Y",
-          "periodic": 61.41838674174006,
+          "periodic": 61.418386741740065,
           "rigid": null
         }
       ],
@@ -795,7 +795,7 @@
       "unit": "N"
     },
     {
-      "combined": 86.39803020420067,
+      "combined": 86.39803020420065,
       "component": "Fz",
       "end": "i",
       "frame": "member_axes",
@@ -804,9 +804,9 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 86.39803020420067,
+          "combined": 86.39803020420065,
           "direction": "Y",
-          "periodic": 86.39803020420067,
+          "periodic": 86.39803020420065,
           "rigid": null
         }
       ],
@@ -835,7 +835,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 881.1122671776467,
+      "combined": 881.1122671776466,
       "component": "My",
       "end": "i",
       "frame": "member_axes",
@@ -844,9 +844,9 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 881.1122671776467,
+          "combined": 881.1122671776466,
           "direction": "Y",
-          "periodic": 881.1122671776467,
+          "periodic": 881.1122671776466,
           "rigid": null
         }
       ],
@@ -855,7 +855,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 650.1836181052096,
+      "combined": 650.1836181052097,
       "component": "Mz",
       "end": "i",
       "frame": "member_axes",
@@ -864,9 +864,9 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 650.1836181052096,
+          "combined": 650.1836181052097,
           "direction": "Y",
-          "periodic": 650.1836181052096,
+          "periodic": 650.1836181052097,
           "rigid": null
         }
       ],
@@ -895,7 +895,7 @@
       "unit": "N"
     },
     {
-      "combined": 61.09493173306059,
+      "combined": 61.0949317330606,
       "component": "Fy",
       "end": "j",
       "frame": "member_axes",
@@ -904,9 +904,9 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 61.09493173306059,
+          "combined": 61.0949317330606,
           "direction": "Y",
-          "periodic": 61.09493173306059,
+          "periodic": 61.0949317330606,
           "rigid": null
         }
       ],
@@ -955,7 +955,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 724.953848615044,
+      "combined": 724.9538486150439,
       "component": "My",
       "end": "j",
       "frame": "member_axes",
@@ -964,9 +964,9 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 724.953848615044,
+          "combined": 724.9538486150439,
           "direction": "Y",
-          "periodic": 724.953848615044,
+          "periodic": 724.9538486150439,
           "rigid": null
         }
       ],
@@ -975,7 +975,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 537.8354133988812,
+      "combined": 537.8354133988813,
       "component": "Mz",
       "end": "j",
       "frame": "member_axes",
@@ -984,9 +984,9 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 537.8354133988812,
+          "combined": 537.8354133988813,
           "direction": "Y",
-          "periodic": 537.8354133988812,
+          "periodic": 537.8354133988813,
           "rigid": null
         }
       ],
@@ -1015,7 +1015,7 @@
       "unit": "N"
     },
     {
-      "combined": 61.09493173306059,
+      "combined": 61.0949317330606,
       "component": "Fy",
       "end": "i",
       "frame": "member_axes",
@@ -1024,9 +1024,9 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 61.09493173306059,
+          "combined": 61.0949317330606,
           "direction": "Y",
-          "periodic": 61.09493173306059,
+          "periodic": 61.0949317330606,
           "rigid": null
         }
       ],
@@ -1075,7 +1075,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 724.953848615044,
+      "combined": 724.9538486150439,
       "component": "My",
       "end": "i",
       "frame": "member_axes",
@@ -1084,9 +1084,9 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 724.953848615044,
+          "combined": 724.9538486150439,
           "direction": "Y",
-          "periodic": 724.953848615044,
+          "periodic": 724.9538486150439,
           "rigid": null
         }
       ],
@@ -1095,7 +1095,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 537.8354133988812,
+      "combined": 537.8354133988813,
       "component": "Mz",
       "end": "i",
       "frame": "member_axes",
@@ -1104,9 +1104,9 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 537.8354133988812,
+          "combined": 537.8354133988813,
           "direction": "Y",
-          "periodic": 537.8354133988812,
+          "periodic": 537.8354133988813,
           "rigid": null
         }
       ],
@@ -1115,7 +1115,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 2.191598158128074,
+      "combined": 2.1915981581280737,
       "component": "Fx",
       "end": "j",
       "frame": "member_axes",
@@ -1124,9 +1124,9 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 2.191598158128074,
+          "combined": 2.1915981581280737,
           "direction": "Y",
-          "periodic": 2.191598158128074,
+          "periodic": 2.1915981581280737,
           "rigid": null
         }
       ],
@@ -1155,7 +1155,7 @@
       "unit": "N"
     },
     {
-      "combined": 82.73572678253582,
+      "combined": 82.73572678253583,
       "component": "Fz",
       "end": "j",
       "frame": "member_axes",
@@ -1164,9 +1164,9 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 82.73572678253582,
+          "combined": 82.73572678253583,
           "direction": "Y",
-          "periodic": 82.73572678253582,
+          "periodic": 82.73572678253583,
           "rigid": null
         }
       ],
@@ -1195,7 +1195,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 573.1622207921295,
+      "combined": 573.1622207921296,
       "component": "My",
       "end": "j",
       "frame": "member_axes",
@@ -1204,9 +1204,9 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 573.1622207921295,
+          "combined": 573.1622207921296,
           "direction": "Y",
-          "periodic": 573.1622207921295,
+          "periodic": 573.1622207921296,
           "rigid": null
         }
       ],
@@ -1235,7 +1235,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 2.191598158128074,
+      "combined": 2.1915981581280737,
       "component": "Fx",
       "end": "i",
       "frame": "member_axes",
@@ -1244,9 +1244,9 @@
       "object": "P3",
       "per_direction": [
         {
-          "combined": 2.191598158128074,
+          "combined": 2.1915981581280737,
           "direction": "Y",
-          "periodic": 2.191598158128074,
+          "periodic": 2.1915981581280737,
           "rigid": null
         }
       ],
@@ -1275,7 +1275,7 @@
       "unit": "N"
     },
     {
-      "combined": 82.73572678253582,
+      "combined": 82.73572678253583,
       "component": "Fz",
       "end": "i",
       "frame": "member_axes",
@@ -1284,9 +1284,9 @@
       "object": "P3",
       "per_direction": [
         {
-          "combined": 82.73572678253582,
+          "combined": 82.73572678253583,
           "direction": "Y",
-          "periodic": 82.73572678253582,
+          "periodic": 82.73572678253583,
           "rigid": null
         }
       ],
@@ -1315,7 +1315,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 573.1622207921295,
+      "combined": 573.1622207921296,
       "component": "My",
       "end": "i",
       "frame": "member_axes",
@@ -1324,9 +1324,9 @@
       "object": "P3",
       "per_direction": [
         {
-          "combined": 573.1622207921295,
+          "combined": 573.1622207921296,
           "direction": "Y",
-          "periodic": 573.1622207921295,
+          "periodic": 573.1622207921296,
           "rigid": null
         }
       ],
@@ -1435,7 +1435,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 429.3889948300133,
+      "combined": 429.38899483001325,
       "component": "My",
       "end": "j",
       "frame": "member_axes",
@@ -1444,9 +1444,9 @@
       "object": "P3",
       "per_direction": [
         {
-          "combined": 429.3889948300133,
+          "combined": 429.38899483001325,
           "direction": "Y",
-          "periodic": 429.3889948300133,
+          "periodic": 429.38899483001325,
           "rigid": null
         }
       ],
@@ -1455,7 +1455,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 322.64057727583736,
+      "combined": 322.6405772758373,
       "component": "Mz",
       "end": "j",
       "frame": "member_axes",
@@ -1464,9 +1464,9 @@
       "object": "P3",
       "per_direction": [
         {
-          "combined": 322.64057727583736,
+          "combined": 322.6405772758373,
           "direction": "Y",
-          "periodic": 322.64057727583736,
+          "periodic": 322.6405772758373,
           "rigid": null
         }
       ],
@@ -1555,7 +1555,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 429.3889948300133,
+      "combined": 429.38899483001325,
       "component": "My",
       "end": "i",
       "frame": "member_axes",
@@ -1564,9 +1564,9 @@
       "object": "P4",
       "per_direction": [
         {
-          "combined": 429.3889948300133,
+          "combined": 429.38899483001325,
           "direction": "Y",
-          "periodic": 429.3889948300133,
+          "periodic": 429.38899483001325,
           "rigid": null
         }
       ],
@@ -1575,7 +1575,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 322.64057727583736,
+      "combined": 322.6405772758373,
       "component": "Mz",
       "end": "i",
       "frame": "member_axes",
@@ -1584,9 +1584,9 @@
       "object": "P4",
       "per_direction": [
         {
-          "combined": 322.64057727583736,
+          "combined": 322.6405772758373,
           "direction": "Y",
-          "periodic": 322.64057727583736,
+          "periodic": 322.6405772758373,
           "rigid": null
         }
       ],
@@ -1675,7 +1675,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 297.4830919064232,
+      "combined": 297.48309190642317,
       "component": "My",
       "end": "j",
       "frame": "member_axes",
@@ -1684,9 +1684,9 @@
       "object": "P4",
       "per_direction": [
         {
-          "combined": 297.4830919064232,
+          "combined": 297.48309190642317,
           "direction": "Y",
-          "periodic": 297.4830919064232,
+          "periodic": 297.48309190642317,
           "rigid": null
         }
       ],
@@ -1695,7 +1695,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 225.2608918623203,
+      "combined": 225.2608918623204,
       "component": "Mz",
       "end": "j",
       "frame": "member_axes",
@@ -1704,9 +1704,9 @@
       "object": "P4",
       "per_direction": [
         {
-          "combined": 225.2608918623203,
+          "combined": 225.2608918623204,
           "direction": "Y",
-          "periodic": 225.2608918623203,
+          "periodic": 225.2608918623204,
           "rigid": null
         }
       ],
@@ -1795,7 +1795,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 297.4830919064232,
+      "combined": 297.48309190642317,
       "component": "My",
       "end": "i",
       "frame": "member_axes",
@@ -1804,9 +1804,9 @@
       "object": "P5",
       "per_direction": [
         {
-          "combined": 297.4830919064232,
+          "combined": 297.48309190642317,
           "direction": "Y",
-          "periodic": 297.4830919064232,
+          "periodic": 297.48309190642317,
           "rigid": null
         }
       ],
@@ -1815,7 +1815,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 225.2608918623203,
+      "combined": 225.2608918623204,
       "component": "Mz",
       "end": "i",
       "frame": "member_axes",
@@ -1824,9 +1824,9 @@
       "object": "P5",
       "per_direction": [
         {
-          "combined": 225.2608918623203,
+          "combined": 225.2608918623204,
           "direction": "Y",
-          "periodic": 225.2608918623203,
+          "periodic": 225.2608918623204,
           "rigid": null
         }
       ],
@@ -1855,7 +1855,7 @@
       "unit": "N"
     },
     {
-      "combined": 42.679593846431366,
+      "combined": 42.67959384643137,
       "component": "Fy",
       "end": "j",
       "frame": "member_axes",
@@ -1864,9 +1864,9 @@
       "object": "P5",
       "per_direction": [
         {
-          "combined": 42.679593846431366,
+          "combined": 42.67959384643137,
           "direction": "Y",
-          "periodic": 42.679593846431366,
+          "periodic": 42.67959384643137,
           "rigid": null
         }
       ],
@@ -1875,7 +1875,7 @@
       "unit": "N"
     },
     {
-      "combined": 57.84575929901495,
+      "combined": 57.84575929901496,
       "component": "Fz",
       "end": "j",
       "frame": "member_axes",
@@ -1884,9 +1884,9 @@
       "object": "P5",
       "per_direction": [
         {
-          "combined": 57.84575929901495,
+          "combined": 57.84575929901496,
           "direction": "Y",
-          "periodic": 57.84575929901495,
+          "periodic": 57.84575929901496,
           "rigid": null
         }
       ],
@@ -1975,7 +1975,7 @@
       "unit": "N"
     },
     {
-      "combined": 42.679593846431366,
+      "combined": 42.67959384643137,
       "component": "Fy",
       "end": "i",
       "frame": "member_axes",
@@ -1984,9 +1984,9 @@
       "object": "P6",
       "per_direction": [
         {
-          "combined": 42.679593846431366,
+          "combined": 42.67959384643137,
           "direction": "Y",
-          "periodic": 42.679593846431366,
+          "periodic": 42.67959384643137,
           "rigid": null
         }
       ],
@@ -1995,7 +1995,7 @@
       "unit": "N"
     },
     {
-      "combined": 57.84575929901495,
+      "combined": 57.84575929901496,
       "component": "Fz",
       "end": "i",
       "frame": "member_axes",
@@ -2004,9 +2004,9 @@
       "object": "P6",
       "per_direction": [
         {
-          "combined": 57.84575929901495,
+          "combined": 57.84575929901496,
           "direction": "Y",
-          "periodic": 57.84575929901495,
+          "periodic": 57.84575929901496,
           "rigid": null
         }
       ],
@@ -2095,7 +2095,7 @@
       "unit": "N"
     },
     {
-      "combined": 32.631230827002,
+      "combined": 32.63123082700199,
       "component": "Fy",
       "end": "j",
       "frame": "member_axes",
@@ -2104,9 +2104,9 @@
       "object": "P6",
       "per_direction": [
         {
-          "combined": 32.631230827002,
+          "combined": 32.63123082700199,
           "direction": "Y",
-          "periodic": 32.631230827002,
+          "periodic": 32.63123082700199,
           "rigid": null
         }
       ],
@@ -2215,7 +2215,7 @@
       "unit": "N"
     },
     {
-      "combined": 32.631230827002,
+      "combined": 32.63123082700199,
       "component": "Fy",
       "end": "i",
       "frame": "member_axes",
@@ -2224,9 +2224,9 @@
       "object": "P7",
       "per_direction": [
         {
-          "combined": 32.631230827002,
+          "combined": 32.63123082700199,
           "direction": "Y",
-          "periodic": 32.631230827002,
+          "periodic": 32.63123082700199,
           "rigid": null
         }
       ],
@@ -2355,7 +2355,7 @@
       "unit": "N"
     },
     {
-      "combined": 24.928303339930693,
+      "combined": 24.92830333993069,
       "component": "Fz",
       "end": "j",
       "frame": "member_axes",
@@ -2364,9 +2364,9 @@
       "object": "P7",
       "per_direction": [
         {
-          "combined": 24.928303339930693,
+          "combined": 24.92830333993069,
           "direction": "Y",
-          "periodic": 24.928303339930693,
+          "periodic": 24.92830333993069,
           "rigid": null
         }
       ],
@@ -2395,7 +2395,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 22.951968125334204,
+      "combined": 22.9519681253342,
       "component": "My",
       "end": "j",
       "frame": "member_axes",
@@ -2404,9 +2404,9 @@
       "object": "P7",
       "per_direction": [
         {
-          "combined": 22.951968125334204,
+          "combined": 22.9519681253342,
           "direction": "Y",
-          "periodic": 22.951968125334204,
+          "periodic": 22.9519681253342,
           "rigid": null
         }
       ],
@@ -2475,7 +2475,7 @@
       "unit": "N"
     },
     {
-      "combined": 24.928303339930693,
+      "combined": 24.92830333993069,
       "component": "Fz",
       "end": "i",
       "frame": "member_axes",
@@ -2484,9 +2484,9 @@
       "object": "P8",
       "per_direction": [
         {
-          "combined": 24.928303339930693,
+          "combined": 24.92830333993069,
           "direction": "Y",
-          "periodic": 24.928303339930693,
+          "periodic": 24.92830333993069,
           "rigid": null
         }
       ],
@@ -2515,7 +2515,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 22.951968125334204,
+      "combined": 22.9519681253342,
       "component": "My",
       "end": "i",
       "frame": "member_axes",
@@ -2524,9 +2524,9 @@
       "object": "P8",
       "per_direction": [
         {
-          "combined": 22.951968125334204,
+          "combined": 22.9519681253342,
           "direction": "Y",
-          "periodic": 22.951968125334204,
+          "periodic": 22.9519681253342,
           "rigid": null
         }
       ],
@@ -2555,7 +2555,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 2.191573052915202,
+      "combined": 2.1915730529152024,
       "component": "Fx",
       "end": "j",
       "frame": "member_axes",
@@ -2564,9 +2564,9 @@
       "object": "P8",
       "per_direction": [
         {
-          "combined": 2.191573052915202,
+          "combined": 2.1915730529152024,
           "direction": "Y",
-          "periodic": 2.191573052915202,
+          "periodic": 2.1915730529152024,
           "rigid": null
         }
       ],
@@ -2575,7 +2575,7 @@
       "unit": "N"
     },
     {
-      "combined": 1.5496761671820438,
+      "combined": 1.549676167182044,
       "component": "Fy",
       "end": "j",
       "frame": "member_axes",
@@ -2584,9 +2584,9 @@
       "object": "P8",
       "per_direction": [
         {
-          "combined": 1.5496761671820438,
+          "combined": 1.549676167182044,
           "direction": "Y",
-          "periodic": 1.5496761671820438,
+          "periodic": 1.549676167182044,
           "rigid": null
         }
       ],

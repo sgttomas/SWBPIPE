@@ -38,9 +38,11 @@
 //!
 //! Neither unit publishes a spectrum result, and nothing here has standing as an engineering
 //! result.
+mod bigint;
 mod combine;
 pub mod combination_json;
 pub mod contract;
+mod dyadic;
 mod exact;
 mod record;
 mod refusal;
@@ -56,7 +58,7 @@ pub use contract::{
     RowUnit, SignStatus, COMBINATION_STATEMENT,
 };
 pub use exact::period_query_ordering;
-pub use rules::{correlation_coefficient, within_ten_percent, FORTY_PERCENT};
+pub use rules::{correlation_coefficient, within_ten_percent, PRECISION_LADDER};
 pub use record::{Abscissa, AxisScale, Interpolation, OrdinateKind, QuantityInput, RecordUnits, SpectrumRecord};
 pub use refusal::{Refusal, RefusalCode};
 pub use request::{evaluate_request_json, EvaluationRequest, QueryInput, STATEMENT};

@@ -4,7 +4,8 @@ use crate::contract::{
     DirectionalPart, DirectionalRule, Magnitude, MissingMass, ModalRule, ModeIndex, RigidRule,
 };
 use crate::refusal::{Refusal, RefusalCode};
-use crate::rules::{self, PreparedModalRule, RuleFailure};
+use crate::dyadic::{Dyadic, Interval};
+use crate::rules::{self, Certified, CorrelationTable, ModalForm, Uncertain, PRECISION_LADDER};
 use crate::table::MAX_SOLVE_DAMPING_RATIO;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -235,27 +236,112 @@ fn check_contributions<'r>(request: &'r CombinationRequest, clusters: &[Cluster]
     (periodic, rigid)
 }
 
-fn failure_refusal(failure: RuleFailure, object: &str, field: &str) -> Refusal {
-    match failure {
-        RuleFailure::NegativeRadicand(sum) => refuse(RefusalCode::CombinationRadicandNegative, object, Some(field),
-            format!("the CQC double sum is {sum:e}, below zero in binary64; it is not repaired")),
-        RuleFailure::Nonfinite => refuse(RefusalCode::CombinationNonfinite, object, Some(field),
-            "a combined value leaves the binary64 range".into()),
+/// Why one row could not be published.
+enum RowFail {
+    /// Not certified at the working precision; another precision may succeed.
+    Uncertain { field: String, cause: Uncertain },
+    /// The enclosure's lower end is beyond the binary64 range.
+    Nonfinite { field: String },
+}
+
+fn take(c: Certified, field: &str) -> Result<f64, RowFail> {
+    match c {
+        Certified::Value(v) => Ok(v),
+        Certified::Uncertain(cause) => Err(RowFail::Uncertain { field: field.to_string(), cause }),
+        Certified::Nonfinite => Err(RowFail::Nonfinite { field: field.to_string() }),
+    }
+}
+
+/// The exact inputs of one row: the cluster sums per direction (in X, Y, Z order) and the rigid
+/// responses.
+struct RowInputs<'a> {
+    sums: Vec<Vec<&'a Dyadic>>,
+    rigid: Option<Vec<Dyadic>>,
+}
+
+/// Evaluates and certifies one row at precision `p`.
+fn evaluate_row(request: &CombinationRequest, directions: &[Direction], form: &ModalForm,
+    table: Option<&CorrelationTable>, inputs: &RowInputs, p: u64)
+    -> Result<(Vec<DirectionalPart>, Magnitude, Option<Direction>), RowFail> {
+    let mut parts = Vec::with_capacity(directions.len());
+    let mut enclosures = Vec::with_capacity(directions.len());
+    for (k, &d) in directions.iter().enumerate() {
+        let field = d.as_str();
+        let values: Vec<Dyadic> = inputs.sums[k].iter().map(|v| (*v).clone()).collect();
+        let periodic = rules::modal(form, table, &values, p)
+            .map_err(|cause| RowFail::Uncertain { field: field.to_string(), cause })?;
+        let periodic_value = take(rules::certify(&periodic), field)?;
+        let (rigid_value, combined) = match request.missing_mass {
+            MissingMass::NotApplied => (None, periodic),
+            MissingMass::Applied { rule, .. } => {
+                let r = &inputs.rigid.as_ref().expect("rigid responses under the correction")[k];
+                let rigid_value = take(rules::certify(&Interval::exact(r.abs())), field)?;
+                let combined = match rule {
+                    RigidRule::Srss => rules::with_rigid_srss(&periodic, r, p),
+                    RigidRule::AbsoluteSum => rules::with_rigid_absolute_sum(&periodic, r),
+                };
+                (Some(Magnitude::new(rigid_value)), combined)
+            }
+        };
+        let combined_value = take(rules::certify(&combined), field)?;
+        parts.push(DirectionalPart {
+            direction: d,
+            periodic: Magnitude::new(periodic_value),
+            rigid: rigid_value,
+            combined: Magnitude::new(combined_value),
+        });
+        enclosures.push(combined);
+    }
+    let over = match request.directional_rule {
+        DirectionalRule::Srss => rules::directional_srss(&enclosures, p),
+        DirectionalRule::AbsoluteSum => rules::directional_absolute_sum(&enclosures),
+        DirectionalRule::HundredFortyForty => rules::hundred_forty_forty(&enclosures, p),
+    };
+    let value = take(rules::certify(&over), "directions")?;
+    // The direction carrying the full value: the largest published directional magnitude, the
+    // first in X, Y, Z order on a tie (the value does not depend on which one governs).
+    let governing = (request.directional_rule == DirectionalRule::HundredFortyForty).then(|| {
+        let mut g = 0;
+        for (i, part) in parts.iter().enumerate() {
+            if part.combined.value() > parts[g].combined.value() {
+                g = i;
+            }
+        }
+        directions[g]
+    });
+    Ok((parts, Magnitude::new(value), governing))
+}
+
+fn uncertain_detail(cause: Uncertain, cap: u64) -> String {
+    match cause {
+        Uncertain::RadicandNotPositive => format!(
+            "at the {cap}-bit cap the enclosure of the CQC radicand still reaches zero or below (strong cancellation); \
+the value is not exactly zero by exact arithmetic, and no value is published"),
+        Uncertain::NotWithinTolerance { tight: true } => "the value is enclosed to within a quarter of 1e-9, but no binary64 \
+lies within 1e-9 relative of it; no value is published".into(),
+        Uncertain::NotWithinTolerance { tight: false } => format!(
+            "at the {cap}-bit cap the enclosure is still wider than 1e-9 relative allows (strong cancellation); \
+no value is published"),
     }
 }
 
 /// Combines the supplied signed contributions by the request's rules (CLM-001).
 ///
-/// The modes of each supplied cluster are summed with their signs first, in ascending mode
-/// order; the modal rule is applied across the periodic clusters, each represented by its
-/// lowest frequency in ρ and in the closeness tests; the rigid response, when the correction is
-/// applied, is combined with the periodic part by the rigid rule; then the directions by the
-/// directional rule, in X, Y, Z order whatever order they were requested in. Every output
-/// magnitude is unsigned.
+/// The modes of each supplied cluster are summed with their signs first, exactly; the modal rule
+/// is applied across the periodic clusters, each represented by its lowest frequency in ρ and in
+/// the closeness tests; the rigid response, when the correction is applied, is combined with the
+/// periodic part by the rigid rule; then the directions by the directional rule, in X, Y, Z order
+/// whatever order they were requested in. Every output magnitude is unsigned.
 ///
-/// A request that breaks the contract is refused with every refusal found, in a fixed order;
-/// a row whose combination fails (a CQC sum below zero, a value beyond binary64) is refused by
-/// name and no value is published in its place.
+/// **Accuracy.** Every published magnitude is the binary64 that an enclosure of its exact value on
+/// the represented operands shows within 1e-9 relative of that value, or an exact zero proved by
+/// exact arithmetic (`rules`). A row is evaluated at the precisions of
+/// [`crate::PRECISION_LADDER`] in turn; a magnitude not certified at the cap refuses the request
+/// (`SPECTRUM_COMBINATION_ACCURACY_UNCERTIFIED`), naming the row and where it occurred. A cluster
+/// sum is published as the binary64 nearest its exact value.
+///
+/// A request that breaks the contract is refused with every refusal found, in a fixed order; no
+/// partial result is published.
 pub fn combine(request: &CombinationRequest) -> Result<Combination, Vec<Refusal>> {
     let mut refusals = Vec::new();
     check_choices(request, &mut refusals);
@@ -273,102 +359,92 @@ pub fn combine(request: &CombinationRequest) -> Result<Combination, Vec<Refusal>
     let directions: Vec<Direction> = Direction::ALL.into_iter().filter(|d| request.directions.contains(d)).collect();
     let units: Vec<&Cluster> = clusters.iter().filter(|c| c.class == ClusterClass::Periodic).collect();
     let frequencies: Vec<f64> = units.iter().map(|c| c.standing).collect();
-    let (prepared, correlation, groups, close_pairs) = match request.modal_rule {
-        ModalRule::Srss => (PreparedModalRule::Srss, None, None, None),
-        ModalRule::AbsoluteSum => (PreparedModalRule::AbsoluteSum, None, None, None),
-        ModalRule::Cqc => {
-            let rho = rules::correlation_matrix(&frequencies, request.damping_ratio);
-            (PreparedModalRule::Cqc { rho: rho.clone() }, Some(rho), None, None)
-        }
+    let (form, groups, close_pairs) = match request.modal_rule {
+        ModalRule::Srss => (ModalForm::Srss, None, None),
+        ModalRule::AbsoluteSum => (ModalForm::AbsoluteSum, None, None),
+        ModalRule::Cqc => (ModalForm::Cqc, None, None),
         ModalRule::Grouping => {
             let g = rules::groups(&frequencies);
             let named = g.iter().map(|group| group.iter().map(|&i| units[i].index).collect()).collect();
-            (PreparedModalRule::Pairs { pairs: rules::group_pairs(&g) }, None, Some(named), None)
+            (ModalForm::Pairs(rules::group_pairs(&g)), Some(named), None)
         }
         ModalRule::TenPercent => {
             let pairs = rules::ten_percent_pairs(&frequencies);
             let named = pairs.iter().map(|&(i, j)| (units[i].index, units[j].index)).collect();
-            (PreparedModalRule::Pairs { pairs }, None, None, Some(named))
+            (ModalForm::Pairs(pairs), None, Some(named))
         }
     };
 
-    // Signed cluster sums, per direction and periodic cluster, in ascending mode order.
+    // Exact signed cluster sums, per direction, periodic cluster and row.
     let rows = request.rows.len();
+    let mut exact: Vec<Vec<Vec<Dyadic>>> = Vec::with_capacity(directions.len());
     let mut cluster_sums = Vec::new();
     for &d in &directions {
+        let mut per_unit = Vec::with_capacity(units.len());
         for c in &units {
-            let mut values = vec![0.0; rows];
+            let mut sums = vec![Dyadic::zero(); rows];
             for &m in &c.modes {
-                for (sum, v) in values.iter_mut().zip(periodic[&(d, m)]) {
-                    *sum += v;
+                for (sum, v) in sums.iter_mut().zip(periodic[&(d, m)]) {
+                    *sum = sum.add(&Dyadic::from_f64(*v));
                 }
             }
+            let values: Vec<f64> = sums.iter().map(Dyadic::to_f64).collect();
             for (value, row) in values.iter().zip(&request.rows) {
                 if !value.is_finite() {
                     refusals.push(refuse(RefusalCode::CombinationNonfinite, &row.key(), Some(d.as_str()),
-                        format!("the signed sum of {} leaves the binary64 range", c.index)));
+                        format!("the exact signed sum of {} is beyond the binary64 range", c.index)));
                 }
             }
             cluster_sums.push(ClusterSum { cluster: c.index, direction: d, values });
+            per_unit.push(sums);
         }
+        exact.push(per_unit);
     }
     if !refusals.is_empty() {
         return Err(refusals);
     }
+    let rigid_exact: Option<Vec<Vec<Dyadic>>> = match request.missing_mass {
+        MissingMass::NotApplied => None,
+        MissingMass::Applied { .. } => Some(directions.iter().map(|d| rigid[d].iter().map(|&v| Dyadic::from_f64(v)).collect()).collect()),
+    };
 
+    // ρ tables, built once per precision when CQC needs them.
+    let mut tables: Vec<Option<CorrelationTable>> = PRECISION_LADDER.iter().map(|_| None).collect();
+    let cap = *PRECISION_LADDER.last().expect("a ladder");
     let mut combined_rows = Vec::with_capacity(rows);
     for (r, quantity) in request.rows.iter().enumerate() {
-        let key = quantity.key();
-        let mut parts = Vec::with_capacity(directions.len());
-        for (k, &d) in directions.iter().enumerate() {
-            let values: Vec<f64> = cluster_sums[k * units.len()..(k + 1) * units.len()].iter().map(|s| s.values[r]).collect();
-            let periodic_value = match prepared.apply(&values) {
-                Ok(v) => v,
-                Err(failure) => {
-                    refusals.push(failure_refusal(failure, &key, d.as_str()));
-                    continue;
-                }
-            };
-            let (rigid_value, combined) = match request.missing_mass {
-                MissingMass::NotApplied => (None, Ok(periodic_value)),
-                MissingMass::Applied { rule, .. } => {
-                    let rr = rigid[&d][r];
-                    let c = match rule {
-                        RigidRule::Srss => rules::with_rigid_srss(periodic_value, rr),
-                        RigidRule::AbsoluteSum => rules::with_rigid_absolute_sum(periodic_value, rr),
-                    };
-                    (Some(Magnitude::new(rr.abs())), c)
-                }
-            };
-            match combined {
-                Ok(c) => parts.push(DirectionalPart { direction: d, periodic: Magnitude::new(periodic_value), rigid: rigid_value, combined: Magnitude::new(c) }),
-                Err(failure) => refusals.push(failure_refusal(failure, &key, d.as_str())),
-            }
-        }
-        if parts.len() != directions.len() {
-            continue;
-        }
-        let magnitudes: Vec<f64> = parts.iter().map(|p| p.combined.value()).collect();
-        let result = match request.directional_rule {
-            DirectionalRule::Srss => rules::directional_srss(&magnitudes).map(|v| (None, v)),
-            DirectionalRule::AbsoluteSum => rules::directional_absolute_sum(&magnitudes).map(|v| (None, v)),
-            DirectionalRule::HundredFortyForty => {
-                rules::hundred_forty_forty(&magnitudes).map(|(g, v)| (Some(directions[g]), v))
-            }
+        let inputs = RowInputs {
+            sums: exact.iter().map(|per_unit| per_unit.iter().map(|sums| &sums[r]).collect()).collect(),
+            rigid: rigid_exact.as_ref().map(|by_direction| by_direction.iter().map(|values| values[r].clone()).collect()),
         };
-        match result {
-            Ok((governing_direction, value)) => combined_rows.push(CombinedRow {
-                quantity: quantity.clone(),
-                per_direction: parts,
-                combined: Magnitude::new(value),
-                governing_direction,
-            }),
-            Err(failure) => refusals.push(failure_refusal(failure, &key, "directions")),
+        for (level, &p) in PRECISION_LADDER.iter().enumerate() {
+            if request.modal_rule == ModalRule::Cqc && tables[level].is_none() {
+                tables[level] = Some(CorrelationTable::new(&frequencies, request.damping_ratio, p));
+            }
+            match evaluate_row(request, &directions, &form, tables[level].as_ref(), &inputs, p) {
+                Ok((per_direction, combined, governing_direction)) => {
+                    combined_rows.push(CombinedRow { quantity: quantity.clone(), per_direction, combined, governing_direction });
+                    break;
+                }
+                Err(RowFail::Nonfinite { field }) => {
+                    refusals.push(refuse(RefusalCode::CombinationNonfinite, &quantity.key(), Some(&field),
+                        "the combined value is beyond the binary64 range".into()));
+                    break;
+                }
+                Err(RowFail::Uncertain { field, cause }) => {
+                    if p == cap {
+                        refusals.push(refuse(RefusalCode::CombinationAccuracyUncertified, &quantity.key(), Some(&field),
+                            uncertain_detail(cause, cap)));
+                    }
+                }
+            }
         }
     }
     if !refusals.is_empty() {
         return Err(refusals);
     }
+    let correlation = (request.modal_rule == ModalRule::Cqc)
+        .then(|| tables[0].get_or_insert_with(|| CorrelationTable::new(&frequencies, request.damping_ratio, PRECISION_LADDER[0])).nearest(units.len()));
 
     let statements = clusters
         .iter()

@@ -51,11 +51,14 @@ pub enum RefusalCode {
     /// The clusters a rigid response's load left out as periodic are not the clusters the
     /// request classifies as periodic (CLM-001, Rigid response).
     RigidResponsePremiseMismatch,
-    /// A CQC double sum evaluated below zero in binary64. No radicand is repaired; the
-    /// combination of that row is refused.
-    CombinationRadicandNegative,
-    /// A combination produced a value beyond the binary64 range. No value is published in its
-    /// place.
+    /// A combined magnitude whose enclosure, at the precision cap, shows no binary64 within 1e-9
+    /// relative of its exact value on the represented operands, and which exact arithmetic does
+    /// not prove to be zero: strong cancellation (an enclosure too wide, or a CQC radicand whose
+    /// enclosure reaches zero), or no binary64 near enough (quantization). The refusal names the
+    /// row and where it occurred; no value is published in its place.
+    CombinationAccuracyUncertified,
+    /// An exact cluster sum, or a combined value's enclosure, lies beyond the binary64 range. No
+    /// value is published in its place.
     CombinationNonfinite,
 }
 
@@ -79,7 +82,7 @@ impl RefusalCode {
             Self::RigidFrequencyInvalid => "SPECTRUM_RIGID_FREQUENCY_INVALID",
             Self::RigidResponseInvalid => "SPECTRUM_RIGID_RESPONSE_INVALID",
             Self::RigidResponsePremiseMismatch => "SPECTRUM_RIGID_RESPONSE_PREMISE_MISMATCH",
-            Self::CombinationRadicandNegative => "SPECTRUM_COMBINATION_RADICAND_NEGATIVE",
+            Self::CombinationAccuracyUncertified => "SPECTRUM_COMBINATION_ACCURACY_UNCERTIFIED",
             Self::CombinationNonfinite => "SPECTRUM_COMBINATION_NONFINITE",
         }
     }
