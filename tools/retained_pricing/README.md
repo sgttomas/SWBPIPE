@@ -681,3 +681,51 @@ and #10). This tool, with the twelve re-pinned base files restored from main and
 rule kept, reproduces main `4d29420a0`'s 1,602 coefficients, its 1,713-line block and its 154-line point atoms exactly.
 The source work law takes ΔE = 93 B (the setting's member) in the three mixed requests: each selected case and the
 composite publication charge 24E, so each moves by 2,232.
+
+### §8.62: PR-A, the integrity-diagnostic repair (DEL-04-07 *Blocked document*, *Published displacement*)
+
+The tool now prices the reviewed product behaviour of PR-A. No product behaviour or threshold changes. Each rule binds
+exact source text and names. Each rule is a positive bound, and none is a zero premise. The arguments stand beside the
+rules in `rules/o10_rules.py` and in `base/correction_failure_model.py`, `base/pra_guards.py` and
+`base/u4b_u5b_owners_model.py`. `tests/test_862_pr_a.py` holds the mutation tests.
+
+**PRA-IO, the blocked rewrite.** `blocked_envelope` rewrites each integrity diagnostic whose code is CHECKS_PASSED or
+SENSITIVE.
+- **Loop bound.** The loop's allocating body is bounded by `2*cases`. Only `append_integrity_report`'s one push makes
+  such a diagnostic, and it has two calls in the case solve. A product-crate census of every integrity id, code
+  literal and rewrite call binds this.
+- **Message.** The new message is site-audited: two constants, the prior code (33 B), and the integrity message
+  (inherited `message_int`). The old message is charged at its own site, so both strings are counted while they
+  coexist.
+
+**PRA-CF, the correction failure.** The failure texts are charged in every case solve that forms a correction. No
+premise excludes the failure.
+- **Debug text.** It is bounded from the kernel's own types and literals. `RecoveryFailure` is a `#[derive(Debug)]`
+  enum over `&'static str`, f64, u32 and fieldless enums. Its longest variant is charged at the longest frame-kernel
+  literal, Debug-escaped. It is formed at most once per call, because collect into Result stops at the first Err.
+- **Option chain.** It runs once per case solve. The finite scan inside it allocates nothing.
+- **Other owned texts.** The cloned failure, the held reason, the sentence and the warning (id, message, one ref) are
+  priced at their sites.
+- **Sentence check.** `composite_text.py` checks that the sentence stays within the integrity sentence term `S_len`.
+
+**PRA-TR and PRA-NL.**
+- PRA-TR binds the trigger's prior read and its two calls, whose one String is priced at its own site.
+- PRA-NL is route E's direct `require`. Its message is charged positively at the longest literal.
+
+**U5B-PD-RN, a rename with an explicit correspondence.** `published_nodal_displacements` became
+`corrected_nodal_displacements`. Both shapes are pinned by body and exact calls, and exactly one may be present. The
+charge `ordinary_published_displacements(N)` is unchanged: at most one N-vector of the owner is live at a time.
+
+**The fail-closed class: OWN-PRES and O10-GATE.**
+- **OWN-PRES.** `base/owner_presence.py` registers every presence-gated owner model by epoch. `price.py` stops (exit 4)
+  when an owner of the snapshot's latest epoch, or an earlier one, is absent. An older source that holds none of an
+  epoch's owners still adds nothing. A model that stops during the census counts as present there: it stops again,
+  with its own message, at its pricing step.
+- **O10-GATE.** `rules/o10_rules.py` records every `fnkey` lookup. It stops on any absent target that
+  `O10_ABSENT_REVIEWED` does not explain, or whose reviewed alternative is absent.
+- **Limits.** These cover the owner models' readings and o10's gated blocks. They do not cover arbitrary text
+  predicates inside other models; those models' pins stop on change instead.
+
+A recorded finding, not repaired here: o10's `_production()` treats a `#[cfg(test)]` statement whose closure holds a
+block as an item. It removes production text after the statement: lib.rs's KD5_RECOVERY_PROBE statement swallows the
+recovery block that follows it. PRA's census uses its own module-only filter.

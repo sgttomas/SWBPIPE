@@ -4,14 +4,21 @@ does not exist at the snapshot is not added (it has nothing to bound there). The
 DEL-04-08 Design/retained-pricing-rules.md under the same label."""
 
 
+# O10-GATE (PR-A, retained-pricing-rules.md §8.62): every lookup is recorded; a rule block gated on a function that the
+# snapshot does not define is dropped, so the end of this file stops the run on any absent target that
+# O10_ABSENT_REVIEWED does not explain (see there).
+_FNKEY_ABSENT = set()
+
+
 def fnkey(name, f):
-    """`basename-relative:line:name` of the one top-level-or-impl `fn name` in file f at the snapshot, else None."""
+    """`basename-relative:line:name` of the one top-level-or-impl `fn name` in file f at the snapshot, else None.
+    O10-GATE: an absent target is recorded in `_FNKEY_ABSENT` where that set exists."""
     p = _os.path.join(_SNAP, f)
-    if not _os.path.exists(p):
-        return None
-    lines = open(p, encoding="utf-8").read().split("\n")
+    lines = open(p, encoding="utf-8").read().split("\n") if _os.path.exists(p) else []
     hits = [i + 1 for i, l in enumerate(lines) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s+" + _re.escape(name) + r"\b", l)]
     if len(hits) != 1:
+        if isinstance(globals().get("_FNKEY_ABSENT"), set):
+            globals()["_FNKEY_ABSENT"].add((name, f))
         return None
     return Resolved(f"{f.split('/src/')[-1]}:{hits[0]}:{name}")
 
@@ -315,7 +322,9 @@ if fnkey("add_curved_bend_pressure_equivalent_load", PP_ + "lib.rs"):
         ]:
             O10_ID_AUDIT += [(site("append_arc_pressure_results", _BP, _text, full=True, row="format!(" if _text.startswith('"result:') else None), _values)]
     _L = PP_ + "lib.rs"
-    if fnkey("section_basis_row", _L) and fnkey("published_nodal_displacements", _L):
+    # PR-A (§8.62, U5B-PD-RN): the epoch marker is U5B-PD's owner, whose source renames it published_nodal_displacements ->
+    # corrected_nodal_displacements (u4b_u5b_owners_model PD_SHAPES gives the correspondence); either shape is the U5b epoch.
+    if fnkey("section_basis_row", _L) and (fnkey("published_nodal_displacements", _L) or fnkey("corrected_nodal_displacements", _L)):
         # U4B-K (T4-U4b, §2.3): the arc branch's withheld maximum is gone; a realized arc's certified maximum, when
         # unavailable, warns with the case-qualified id beside the straight id, each ending in the basis's static
         # hyphen segment. The classes are U6-K's.
@@ -1599,7 +1608,8 @@ if _D5:
     _BMF = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "b7a_domain_model.py"))["MEMBER_SOURCE"]
     _CODES = _calls_with_literal_last_arg(_production(_SBR), "require")
     # the second maximum branch's multi-line headline: its result_ref is the fourth line after the opener
-    _HLN = 2 if fnkey("published_nodal_displacements", _LIB) else 1
+    # PR-A (§8.62, U5B-PD-RN): either U5B-PD shape marks the U5b epoch (two headline statements).
+    _HLN = 2 if (fnkey("published_nodal_displacements", _LIB) or fnkey("corrected_nodal_displacements", _LIB)) else 1
     _hl = int(site_is(_CASE_FN, _LIB, "*headline = Some(LocatedQuantity {").rsplit(":", 1)[1])
     if _cs[_hl + 3].strip() != "result_ref: result_id.clone(),":
         raise SystemExit("U6-A: the per-basis headline's result_ref moved; re-review")
@@ -4136,7 +4146,11 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # premises stand.
     # RT-L2 final source: reader_verdict.rs re-read: the exception's model check is renamed exception_model_binding (one
     # call and its comment). The OP1A premises stand.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/reporting/result_export/src/reader_verdict.rs': '30217d83a14d26614935ec948e4db7e86763682632544d2c07685f9f40318c65'}
+    # PR-A (§8.62): reader_verdict.rs re-read: source_findings and standing push the solved-document inspection-only
+    # finding (a static literal) after MECHANICS_NOT_SOLVED; both are reached only from standing/dispatch, outside the
+    # retained roots (no reader_verdict function has a positive multiplicity in the run). The OP1A premises stand.
+    # Previous value 30217d83…
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/reporting/result_export/src/reader_verdict.rs': 'cec54f29bf3447e4595c32280bebe8a8e7027db90b2e12c87abdcebbd9f44654'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -4212,7 +4226,8 @@ if fnkey("selects", _TIM):
     # standing/dispatch, outside the retained roots. The Timoshenko premises stand.
     # RT-L2 final source: reader_verdict.rs re-read: the exception's model check is renamed exception_model_binding (one
     # call and its comment), still reached only from standing/dispatch. The Timoshenko premises stand.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2b7eeabb66ba98ce7e727939ccc23eb6c8036db86ca6e2cdea72e9ebb28b772', 'core/reporting/result_export/src/reader_verdict.rs': '30217d83a14d26614935ec948e4db7e86763682632544d2c07685f9f40318c65', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    # PR-A (§8.62): reader_verdict.rs re-read as for OP1A above; the Timoshenko premises stand.
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2b7eeabb66ba98ce7e727939ccc23eb6c8036db86ca6e2cdea72e9ebb28b772', 'core/reporting/result_export/src/reader_verdict.rs': 'cec54f29bf3447e4595c32280bebe8a8e7027db90b2e12c87abdcebbd9f44654', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -6860,3 +6875,225 @@ if _rtl2_k:
          {"elongation.text()": {"bytes": _rtl2_sb, "source": O10 + f"RTL2-ID: the longest of the three fixed statements, {_rtl2_sb} B"}}),
     ]
 
+
+# ---- §8.62: PR-A, the integrity-diagnostic repair (DEL-04-07 *Blocked document* and *Published displacement*).
+# Read on 2b934ec5b against main fe01013f4. Four new texts and loops reach the retained graph; every rule below binds
+# the exact source text and names it rests on, and each is a positive bound (none is a zero). The rules apply only
+# where the whole PR-A shape is present; a source with none of it must hold U5B-PD's earlier reviewed shape
+# (base/u4b_u5b_owners_model.py PD_SHAPES), and any part without the rest stops.
+_PRA_PARTS = {"inspection_only": bool(fnkey("inspection_only", _LIB)),
+              "inspection_only_prior": bool(fnkey("inspection_only_prior", _LIB)),
+              "corrected_nodal_displacements": bool(fnkey("corrected_nodal_displacements", _LIB)),
+              "displacement_correction_warning": bool(fnkey("displacement_correction_warning", _LIB))}
+_PRA_SHAPE = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
+                                                        "u4b_u5b_owners_model.py"))["published_displacement_shape"](_SNAP, _text_of(_LIB))
+# The guards' exact texts and named checks are in base/pra_guards.py (its mutation tests: tests/test_862_pr_a.py).
+_pra_g = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "pra_guards.py"))
+_pra_failed = _pra_g["parts_failures"](_PRA_PARTS, _PRA_SHAPE)
+if _pra_failed:
+    raise SystemExit(f"PRA: {_pra_failed}; re-review §8.62")
+
+
+def _pra_prod(f):
+    """PRA's census text: f without its `#[cfg(test)] mod` items (module items only, matched by the §8.45 lexer's
+    code mask) and without `//` comments. `_production` is not used here: it treats a `#[cfg(test)]` statement whose
+    closure holds a block as an item and removes production code after it (lib.rs's KD5_RECOVERY_PROBE statement
+    swallows the recovery block that follows it); that is a recorded finding about `_production`, not repaired here."""
+    text = _text_of(f)
+    _rl = _production_lexer()
+    toks, comments = _rl["scan"](text, f)
+    mask = _rl["_masks"](text, toks, comments)
+    out, at = [], 0
+    for m in _re.finditer(r"#\[cfg\(test\)\]\s*(?:pub(?:\([a-z]+\))?\s+)?mod\s+\w+\s*(\{|;)", text):
+        if m.start() < at or mask[m.start()]:
+            continue
+        i = m.end()
+        if m.group(1) == "{":
+            depth = 1
+            while i < len(text) and depth:
+                if not mask[i]:
+                    depth += {"{": 1, "}": -1}.get(text[i], 0)
+                i += 1
+            if depth:
+                raise SystemExit(f"PRA: {f}: unterminated test module at offset {m.start()}")
+        out.append(text[at:m.start()])
+        out.append("\n" * text.count("\n", m.start(), i))
+        at = i
+    out.append(text[at:])
+    return _re.sub(r"//[^\n]*", "", "".join(out))
+
+
+if all(_PRA_PARTS.values()):
+    _pra_lib = _pra_prod(_LIB)
+    _pra_consts = {}
+    for _name, _decl in (("INTEGRITY_DIAGNOSTIC_PREFIX", "const INTEGRITY_DIAGNOSTIC_PREFIX: &str = "),
+                         ("INSPECTION_ONLY_CODE", "pub(crate) const INSPECTION_ONLY_CODE: &str = "),
+                         ("INSPECTION_ONLY_LEAD", "pub(crate) const INSPECTION_ONLY_LEAD: &str = "),
+                         ("INSPECTION_ONLY_TAIL", "pub(crate) const INSPECTION_ONLY_TAIL: &str = ")):
+        _hits = _re.findall(r"^" + _re.escape(_decl) + r'"([^"\\]*)";$', _pra_lib, _re.M)
+        if len(_hits) != 1 or len(_re.findall(r"\b" + _name + r"\b\s*:", _pra_lib)) != 1:
+            raise SystemExit(f"PRA-IO: {_name} is not one plain literal constant; re-review §8.62")
+        _pra_consts[_name] = len(_hits[0].encode())
+    # ---- PRA-IO: the blocked rewrite (blocked_envelope -> inspection_only). The loop visits the blocked document's
+    # diagnostics whose id starts with the integrity prefix; inspection_only returns at its first statement unless the
+    # code is NUMERICAL_INTEGRITY_CHECKS_PASSED or NUMERICAL_INTEGRITY_SENSITIVE, so every allocation it makes (the new
+    # message, the code and the severity) is for one such diagnostic. In the product's source such a diagnostic is made
+    # only by append_integrity_report's one push (its code is one of those two literals); formation_guard::demote moves
+    # PASSED to SENSITIVE and creates nothing; every other diagnostic with an integrity id (append_integrity_failure,
+    # the range refusal, the two recovery-basis warnings) carries a failure code. append_integrity_report has exactly
+    # two calls, both in solve_prepared_load_case (one per case solve's branch; counted as two), and the document's
+    # diagnostics come from at most `cases` case solves, so the loop's allocating body runs at most 2*cases times.
+    # The old message stays live while `format!` builds the new one: both are charged, the old at its own site
+    # (append_integrity_report, the integrity message bound message_int, demote's sentence included) and the new here
+    # (the two constants, the prior code and that message): TEXT is the sum of every allocation, with no credit for
+    # the old one's drop. The message argument keeps the inherited `diagnostic.message` rule (message_int), which was
+    # written for exactly this text: the amended integrity message.
+    _pra_census = {}
+    # Every production file of the product crate, recursively (test-named files and test modules excluded).
+    _pra_files = sorted(_os.path.relpath(_os.path.join(_d, _n), _os.path.join(_SNAP, PP_))
+                        for _d, _, _ns in __import__("os").walk(_os.path.join(_SNAP, PP_)) for _n in _ns
+                        if _n.endswith(".rs") and not _n.endswith("_tests.rs") and _n != "tests.rs"
+                        and not any(_p == "tests" or _p.endswith("_tests")
+                                    for _p in _os.path.relpath(_d, _os.path.join(_SNAP, PP_)).split(_os.sep)))
+    for _pf in _pra_files:
+        _t = _pra_prod(PP_ + _pf)
+        for _needle in _pra_g["CENSUS_NEEDLES"]:
+            if _t.count(_needle):
+                _pra_census[(_pf, _needle)] = _t.count(_needle)
+    _pra_failed = _pra_g["io_failures"](_text_of(_LIB), _pra_census)
+    if _pra_failed:
+        raise SystemExit(f"PRA-IO: the blocked rewrite, its loop or the integrity diagnostics' producers changed; re-review §8.62: "
+                         f"{_pra_failed} census={_pra_census}")
+    O10_LOOPS_LAST += [(_pra_g["IO_LOOP_HEADER"], "2*cases",
+                        O10 + "PRA-IO: the blocked rewrite allocates only for a CHECKS_PASSED or SENSITIVE integrity diagnostic, made "
+                        "only by append_integrity_report's one push, called twice per case solve (at most `cases` solves)",
+                        ["lib.rs:blocked_envelope"])]
+    _PRA_CODE = max(len("NUMERICAL_INTEGRITY_CHECKS_PASSED"), len("NUMERICAL_INTEGRITY_SENSITIVE"))
+    O10_ID_AUDIT += [(site("inspection_only", _LIB, "diagnostic.message = format!(", full=True), {
+        "INSPECTION_ONLY_LEAD": {"bytes": _pra_consts["INSPECTION_ONLY_LEAD"], "source": O10 + "PRA-IO: the lead constant's bytes"},
+        "INSPECTION_ONLY_TAIL": {"bytes": _pra_consts["INSPECTION_ONLY_TAIL"], "source": O10 + "PRA-IO: the tail constant's bytes"},
+        "diagnostic.code": {"bytes": _PRA_CODE, "source": O10 + "PRA-IO: one of the two codes the first statement admits"}})]
+    LEX_SITE_SIZE = list(LEX_SITE_SIZE) + [
+        (Resolved(site("inspection_only", _LIB, "diagnostic.code = INSPECTION_ONLY_CODE.to_string();").split("/src/")[-1]),
+         {"class": _pra_consts["INSPECTION_ONLY_CODE"], "why": O10 + "PRA-IO: INSPECTION_ONLY_CODE, a static literal"})]
+    # The message argument's inherited class must still be the integrity message's: the first argument rule matching
+    # `diagnostic.message` (decisions first, then the base table) is the message_int rule.
+    _pra_args = list(globals().get("ARGS_FIRST", [])) + __import__("json").load(open(_os.path.join(
+        _os.path.dirname(_os.path.abspath(__file__)), "..", "base", "text_args.g4.json"), encoding="utf-8"))["args"]
+    _pra_first = next((_r for _r in _pra_args if _re.search(_r["re"], "diagnostic.message")), None)
+    if not _pra_first or _pra_first["max"] != "message_int" or _pra_first["re"] != "record\\.message|diagnostic\\.message":
+        raise SystemExit("PRA-IO: the integrity message's argument rule changed; re-review §8.62")
+    # ---- PRA-CF: the corrected displacement's failure, charged positively in every case solve that forms a correction
+    # (base/correction_failure_model.py derives the bounds and binds their source). The Option chain `let correction =
+    # linear_bound.or(..).filter(..).map(..)` is an Option, so its `.map` runs at most once per case solve (one call of
+    # corrected_nodal_displacements); the finite scan inside `.filter` walks the N displacements once, allocates nothing
+    # and calls no priced function. Inside corrected_nodal_displacements, `(0..displacements.len()).map(..)` visits the N
+    # DOFs; its `.map_err` formats the error only for the failing component, and `collect` into Result stops at the first
+    # Err, so the Debug text is formed at most once per call. The cloned failure, the held reason, the sentence and the
+    # warning (one diagnostic, its id, message and one ref) are each charged at their sites' multiplicity.
+    _pra_cf = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
+                                                         "correction_failure_model.py"))["inspect"](_SNAP)
+    _pra_failed = _pra_g["cf_failures"](_text_of(_LIB))
+    if _pra_failed:
+        raise SystemExit(f"PRA-CF: the correction's Option chain or its failure clone changed; re-review §8.62: {_pra_failed}")
+    _PRA_CORR = fnkey("corrected_nodal_displacements", _LIB)
+    O10_LOOPS_LAST += [
+        (_pra_g["CF_OPTION_HEADER"], "1",
+         O10 + "PRA-CF: an Option chain (linear_bound and confirmed_candidate are Options): its map runs at most once per case "
+         "solve; the finite scan in its filter allocates nothing", ["lib.rs:solve_prepared_load_case"]),
+        (_pra_g["CF_DOF_HEADER"], "N",
+         O10 + "PRA-CF: the N displacement components (the `#[cfg(test)]` forced failure before it is compiled out of the "
+         "registered build); the Debug text inside is bounded per call by its site rule", ["lib.rs:corrected_nodal_displacements"]),
+    ]
+    O10_SITE_FROM = O10_SITE_FROM + [(site("corrected_nodal_displacements", _LIB, 'error: format!("{error:?}")'),
+        {"from": [_PRA_CORR], "per": "1",
+         "why": O10 + "PRA-CF: the error's Debug text is formed only for the first failing component: collect into Result "
+         "stops at the first Err (<= 1 per corrected_nodal_displacements call)"})]
+    _DBG = {"bytes": _pra_cf["debug"], "source": O10 + f"PRA-CF: RecoveryFailure's Debug text, at most {_pra_cf['debug']} B (CF-DBG)"}
+    _FAILED = {"bytes": _pra_cf["failed"], "source": O10 + f"PRA-CF: displacement_correction_failed, at most {_pra_cf['failed']} B (CF-FAIL)"}
+    O10_ID_AUDIT += [
+        (site("corrected_nodal_displacements", _LIB, 'error: format!("{error:?}")', full=True), {"error|?": _DBG}),
+        (site("displacement_correction_failed", _LIB, '"the corrected displacement of {} could not be {step} ({})",', full=True, row="format!("),
+         {"integrity_dof_label(model,failure.dof)": {"bytes": _pra_cf["dof_label"], "source": O10 + "PRA-CF: a node id (IN128), ':' and UX..RZ, or global_dof={dof}"},
+          "step": {"bytes": _pra_cf["step"], "source": O10 + "PRA-CF: the longer of the step's two literals"},
+          "failure.error": _DBG}),
+        (site("displacement_correction_sentence", _LIB, '"the member-relative formation check ran, but {};', full=True, row="format!("),
+         {"displacement_correction_failed(model,failure)": _FAILED}),
+        (site("displacement_correction_warning", _LIB, '&format!("diagnostic:displacement-correction:{case_id}"),', full=True), {"case_id": IN}),
+        (site("displacement_correction_warning", _LIB, '"Load case {case_id}: {}; no published result', full=True, row="format!("),
+         {"case_id": IN, "displacement_correction_failed(model,failure)": _FAILED}),
+        (site("displacement_correction_warning", _LIB, "vec![case_id.to_string()],", full=True), {"case_id": IN}),
+        # The test-only publication probe (compiled out; charged at IN128, as U5B-PD's probe).
+        (site_after(_CASE_FN, _LIB, "records.push(corrected_displacement_tests::NonlinearReactionPublication {",
+                    "case_id: load_case.id.clone(),", within=2), {"load_case.id": IN}),
+    ]
+    LEX_SITE_SIZE = list(LEX_SITE_SIZE) + [
+        (Resolved(site_after(_CASE_FN, _LIB, "let correction_failure = match &correction {", "Some(Err(failure)) => Some(failure.clone()),",
+                             within=2).split("/src/")[-1]),
+         {"class": _pra_cf["debug"], "why": O10 + "PRA-CF: the failure's one owned String, its Debug text (CF-CLONE)"})]
+    # ---- PRA-TR: the retained trigger reads an inspection-only case's prior outcome. case_triggers is called twice in
+    # retained_w1 and maps each case through inspection_only_prior, whose only allocation is integrity_diagnostic_id's
+    # String (priced at its own site, at the chain's multiplicity of every call); its two loops find one diagnostic
+    # and one of two table entries, and allocate nothing.
+    _pra_failed = _pra_g["tr_failures"](_text_of(_LIB), _pra_lib)
+    if _pra_failed:
+        raise SystemExit(f"PRA-TR: the trigger's prior-outcome read or its callers changed; re-review §8.62: {_pra_failed}")
+    # ---- PRA-NL (route E): nonlinear_support_evidence's `read` now calls `require` directly (outside read_case's
+    # D1-empty map), so require's format site has multiplicity 1. It allocates only when `ok` is false; it is charged
+    # positively at one formatted message: the prefix and the longest message literal any require call passes (NL-RQ,
+    # base/nonlinear_seams.py, binds require's body and every call's literal message).
+    if fnkey("require", _NL_EV):
+        _pra_nl_msgs = [_a[1].strip('"') for _a in __import__("runpy").run_path(_os.path.join(
+            _os.path.dirname(_os.path.abspath(__file__)), "..", "base", "nonlinear_seams.py"))["_call_args"](_production(_NL_EV), "require")]
+        if not _pra_nl_msgs or not all(_re.fullmatch(r"[A-Z0-9_]+", _m) for _m in _pra_nl_msgs):
+            raise SystemExit("PRA-NL: a require message is not a literal; re-review §8.62")
+        O10_ID_AUDIT += [(site("require", _NL_EV, 'Err(format!("SOURCE_PHYSICS_NONLINEAR_{code}"))', full=True),
+                          {"code": {"bytes": max(len(_m) for _m in _pra_nl_msgs),
+                                    "source": O10 + "PRA-NL: the longest literal message of every require call"}})]
+
+
+# ---- O10-GATE (PR-A, §8.62): the reviewed absent targets. A rule block above is gated on `fnkey(name, file)` so that a
+# source without the function adds nothing for it. That is right only where the rules bind that function's own sites,
+# edges or premises (absent code has none) or where an explicit alternative shape stands in for it; it is wrong where a
+# current source lost, renamed or moved a function whose block charges or bounds other code. Every target looked up and
+# absent at this snapshot must be listed here with its reason; an alternative named here must then be present (a
+# correspondence, never a silent disappearance). Anything else stops the run.
+_PP_LIB, _PP_FG, _PP_EA, _PP_MS = PP_ + "lib.rs", PP_ + "formation_guard.rs", PP_ + "exact_admission.rs", PP_ + "model_settings.rs"
+O10_ABSENT_REVIEWED = {
+    # Historical functions whose blocks bind only their own sites (ID audits, ARGS, zero edges): deleted before main.
+    ("append_retained_source_not_joined", _PP_LIB): (None, "T4 batch 2's not-joined warning, deleted with its sites"),
+    ("arc_recovery_finding", _PP_FG): (None, "O-13's arc recovery finding, replaced by KD5's member predicate (KD5T1)"),
+    ("arc_recovery_record", _PP_LIB): (None, "O-13's arc recovery record, deleted with its one audited site"),
+    ("leaf_diff", PP_ + "source_recovery/j7_rf_census.rs"): (None, "B7b-J3: deleted by the test-only census rewrite (checked there)"),
+    ("row_basis", RE_ + "connector_evidence.rs"): (None, "E4's connector row basis, deleted with its zero edge and audited site"),
+    ("pressure_v3_formulation_basis_in", _PP_EA): (("pressure_v3_formulation_basis_with_source", _PP_EA),
+                                                   "S1's formulation basis: the `_with_source` form replaces it (checked at its rule)"),
+    ("shear_model_document_refusal", _PP_MS): (None, "SM-MS requires its absence (checked in the node-proximity guard)"),
+    ("skew_spring_matrix", FK_ + "structural/formation_check/skew.rs"): (None, "SKW-DZ's zero edge into it; absent code is not "
+                                                                          "called (the zero only lowers a count)"),
+    ("validate_pressure_evidence_uncertified", RE_ + "physics_evidence.rs"): (None, "W16B-RD's third dispatch shape; the "
+                                                                              "one-view and earlier shapes are chosen explicitly there"),
+    ("modal_result_document", "core/product_physics/src/modal/document.rs"): (None, "MODAL-ID (§8.52) only audits document.rs's "
+        "own text sites; without the function they are unaudited, so a reached one stops the run as unclassified"),
+    # U5B-PD-RN: the owner's two reviewed shapes (u4b_u5b_owners_model PD_SHAPES); exactly one is present.
+    ("published_nodal_displacements", _PP_LIB): (("corrected_nodal_displacements", _PP_LIB), "U5B-PD-RN: renamed by PR-A"),
+    ("corrected_nodal_displacements", _PP_LIB): (("published_nodal_displacements", _PP_LIB), "U5B-PD-RN: before PR-A"),
+    # PR-A's other new functions: absent only on a source before PR-A, which holds U5B-PD's earlier shape (§8.62 PRA).
+    ("inspection_only", _PP_LIB): (("published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
+    ("inspection_only_prior", _PP_LIB): (("published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
+    ("displacement_correction_warning", _PP_LIB): (("published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
+    ("withdraw_established", PP_ + "held_status.rs"): (("published_nodal_displacements", _PP_LIB),
+                                                       "RTA5-HR: before PR-A (the original two-Held form, checked there)"),
+}
+
+
+def o10_gate():
+    """O10-GATE's check (base/pra_guards.py gate_failures); called here and again at the end of the common decisions."""
+    failed = _pra_g["gate_failures"](_FNKEY_ABSENT, O10_ABSENT_REVIEWED, lambda name, f: fnkey(name, f) is not None)
+    if failed:
+        raise SystemExit(f"O10-GATE: rule targets absent without a reviewed reason or alternative {failed}; a lost, "
+                         f"renamed or moved function drops its block (§8.62)")
+    return sorted(_FNKEY_ABSENT)
+
+
+O10_GATE_ABSENT = o10_gate()

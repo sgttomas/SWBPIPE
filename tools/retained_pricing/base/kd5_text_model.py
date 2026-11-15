@@ -30,7 +30,7 @@ import hashlib, os, re
 # RT-A3 S6 D3 (§8.59): solve_prepared_load_case (KD5T2) adds no literal, label, record constructor, route string,
 # carrier, staging, fallback attempt or first-return alternative: the resolved case's motion arms (D1.5), the base map,
 # the spring-ground test in source eligibility (all zero on D1) and the capture's CaseMotionEvidence argument (S6-ME).
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '8175571355e36d701e08c6fb2e86981082d8184cfb72d390562fb32b2925e92f', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '75e9f9ea7841f969dbc4fac3b325e7c5c0b5c452338ad750acfe0842dbce49a2', 'fallback_circular_maximum': '98cea10ecc8f6a9c702e3b40549b528a560c1d71d82e89420c05385cbd02d8d5', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'd36ba54f458bfe92046552b20a3647c6be9c36be1b0e31328ff6730ad2154cf1'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '8175571355e36d701e08c6fb2e86981082d8184cfb72d390562fb32b2925e92f', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '75e9f9ea7841f969dbc4fac3b325e7c5c0b5c452338ad750acfe0842dbce49a2', 'fallback_circular_maximum': '98cea10ecc8f6a9c702e3b40549b528a560c1d71d82e89420c05385cbd02d8d5', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'c6676bbeff040e8a068c754b2c4d20474342ebab8f07148646114a00b0a327a4'}}
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
 # the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
@@ -77,7 +77,13 @@ PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8
 # constructor, route string, carrier, staging, fallback attempt or first-return alternative changes.
 # RT-L2 D3: certified_publication.rs re-read (kd5_first_error_model's RT-L2 note); no slot, owned layout or
 # caller/workspace union changes.
-PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '7a89931accf55addbb7339d97c86e14bf902bdb969e7b71eaf73502d0c426ef7', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8e505d4ca5f254a33a52502acb14245587f0378cac880087592315addd669064', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
+# PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
+# retained-pricing-rules.md §8.62): certified_recovery.rs's production prefix adds certify_displacement_step
+# (certify_displacement delegates; a Copy failure kind, no owned text, no slot or caller/workspace union change).
+# solve_prepared_load_case (KD5T2) adds the correction's call, its failure texts' calls and the held withdrawal; its
+# literals add no label, record constructor or route string (`on this route` is unchanged). Previous values 8e505d4c…
+# and d36ba54f…
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '7a89931accf55addbb7339d97c86e14bf902bdb969e7b71eaf73502d0c426ef7', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '65fad4c2d587a07fc8b470cda6b4b87c2491294312b6d45fe64fc17bfd63fbfe', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -269,7 +275,9 @@ def inspect_directed_helpers(snapshot):
 # `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
 # DEL-04-07 REQ-008 part 1: lib.rs re-read: one test-module declaration folded onto an existing line (test-only);
 # no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'fd6fc92e3ff8be23d0d577b24355c9eba28c6e495f39c8dd60767c81e117125c'
+# PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
+# retained-pricing-rules.md §8.62): lib.rs CE-projected, as B7a SOURCE_FILES. Previous value fd6fc92e…
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'b7e472f2344ed8a274e3d5a0e5722ca2acd3613fe6d710cb53c0b87acb5200d4'
 
 
 def _ce_fallback():

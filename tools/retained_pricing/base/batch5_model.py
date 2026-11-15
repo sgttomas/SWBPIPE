@@ -52,7 +52,10 @@ PINS = {
         # their in-build size (the field's bytes reach the profile through the in-build atoms). Staging and
         # prepared-pressure calls unchanged.
         # RT-A3 S6 D3 (§8.59): the case consumer's carriers, children and staging are unchanged (see PRESSURE_PREFIX_PIN).
-        "solve_prepared_load_case": "d36ba54f458bfe92046552b20a3647c6be9c36be1b0e31328ff6730ad2154cf1",
+        # PR-A (§8.62; diffs from main fe01013f4 read): the case consumer adds the correction's Option<Result<Vec<f64>, _>> (U5B-PD, priced in
+        # ordinary_caps) and its failure texts (§8.62); no LoadCaseSolve carrier, child, count or pressure staging changes.
+        # Previous value d36ba54f…
+        "solve_prepared_load_case": "c6676bbeff040e8a068c754b2c4d20474342ebab8f07148646114a00b0a327a4",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
