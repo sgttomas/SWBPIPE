@@ -5040,8 +5040,12 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         _solved = _fn_text("modal_doc_solved", _DOC)
         # Narrow re-check of e98ad5add: token counts can be offset (e.g. a `for id in [..]` loop with one use removed), so
         # modal_doc_solved's exact text is pinned, the MODAL-FB way. Any edit stops the run for re-review.
+        # Re-reviewed for M1 (DEL-04-09 "Parameter standing"): only the third parameter's type changed, from the
+        # caller's `label: &str` to `label: ModalParameterStanding`, which is passed unchanged to modal_doc_identity
+        # (its one use here). No format site, binding of a, b, id or ids, or token count changed; the audits below
+        # stand as they were.
         _solved_digest = _modal_hashlib.sha256(_solved.encode()).hexdigest()
-        if _solved_digest != "f490771728ca9c55a9a33fbbe28b3c21935714854d371ca424e160ca235db7ed":
+        if _solved_digest != "2cee7521dedad2b21d624f940d0fc47f98e9193441e25da8bd9d2c2e6020800e":
             raise SystemExit(f"MODAL-ID: document.rs's modal_doc_solved changed ({_solved_digest}); re-review its bindings "
                              "and re-pin (§8.52)")
         if (_fn_text("modal_doc_dof_id", _DOC) != "fn modal_doc_dof_id(node_ids: &[String], dof: usize) -> String {\n"

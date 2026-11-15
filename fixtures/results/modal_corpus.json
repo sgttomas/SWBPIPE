@@ -13210,6 +13210,490 @@
       "request": null,
       "request_operations": [],
       "reseal": true
+    },
+    {
+      "document": "modal_selected_cantilever.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "passed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "none:selected_standing_solved",
+      "intent": "none",
+      "operations": [],
+      "request": "modal_selected_cantilever.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_selected_refused_no_bound.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "refusal_consistent",
+        "health": "not_assessed",
+        "refusal_codes": [
+          "MODAL_EXTRACTION_BOUND_REQUIRED"
+        ],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "none:selected_standing_refused",
+      "intent": "none",
+      "operations": [],
+      "request": "modal_selected_refused_no_bound.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "not the selected one",
+      "document": "modal_selected_cantilever.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:selected_standing_parameter_moved_one_ulp",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/integrity_parameters/residual_threshold",
+          "value": 9.313225746154787e-10
+        }
+      ],
+      "request": "modal_selected_cantilever.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "not the selected one",
+      "document": "modal_selected_cantilever.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:selected_standing_gap_positions_reordered",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/integrity_parameters/sturm_gap_log_positions",
+          "value": [
+            0.75,
+            0.25,
+            0.125,
+            0.375,
+            0.625,
+            0.875
+          ]
+        }
+      ],
+      "request": "modal_selected_cantilever.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "not the selected one",
+      "document": "modal_selected_cantilever.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:selected_standing_offsets_shortened",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/integrity_parameters/sturm_whole_spectrum_offsets",
+          "value": [
+            1.0,
+            0.5
+          ]
+        }
+      ],
+      "request": "modal_selected_cantilever.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "not the selected one",
+      "document": "modal_selected_cantilever.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:selected_standing_identity_absolute_negative_zero",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/integrity_parameters/identity_tolerance/absolute",
+          "value": -0.0
+        }
+      ],
+      "request": "modal_selected_cantilever.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "is not `test_local`",
+      "document": "modal_selected_cantilever.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:selected_tuple_labelled_test_local",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/admission/parameter_standing",
+          "value": "test_local"
+        },
+        {
+          "op": "replace",
+          "path": "/admission/parameter_label",
+          "value": "TEST_LOCAL_I3A_EXPERIMENTAL"
+        }
+      ],
+      "request": "modal_selected_cantilever.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "carries `selected_a1_a2_a3_criteria`",
+      "document": "modal_selected_cantilever.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:selected_standing_under_a_caller_label",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/admission/parameter_label",
+          "value": "TEST_LOCAL_I3A_EXPERIMENTAL"
+        }
+      ],
+      "request": "modal_selected_cantilever.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "not the selected one",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:test_local_tuple_claims_selected",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/admission/parameter_standing",
+          "value": "selected"
+        },
+        {
+          "op": "replace",
+          "path": "/admission/parameter_label",
+          "value": "selected_a1_a2_a3_criteria"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "under the selected label",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:test_local_tuple_under_the_selected_label",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/admission/parameter_label",
+          "value": "selected_a1_a2_a3_criteria"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "public_engineering_result",
+      "document": "modal_selected_cantilever.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:selected_standing_public_admission_claimed",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/admission/public_engineering_result",
+          "value": true
+        }
+      ],
+      "request": "modal_selected_cantilever.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "public_engineering_result",
+      "document": "modal_selected_refused_no_bound.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:selected_refusal_public_admission_claimed",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/admission/public_engineering_result",
+          "value": true
+        }
+      ],
+      "request": "modal_selected_refused_no_bound.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "/admission/status",
+      "document": "modal_selected_cantilever.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:selected_standing_status_not_experimental",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/admission/status",
+          "value": "admitted"
+        }
+      ],
+      "request": "modal_selected_cantilever.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "/admission/parameter_standing",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "closure:parameter_standing_unknown",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/admission/parameter_standing",
+          "value": "production"
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
     }
   ]
 }
