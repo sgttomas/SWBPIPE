@@ -34,9 +34,13 @@ use crate::dyadic::{self, Dyadic, Interval};
 use crate::exact::decompose;
 use std::cmp::Ordering;
 
-/// The working precisions tried in turn, in significant bits, for the enclosures of quotients and
-/// square roots; 1,024 is the cap. The cap's reason and its measured cost are in the crate README.
-pub const PRECISION_LADDER: [u64; 4] = [128, 256, 512, 1024];
+/// The working precisions tried in turn, in significant bits, for the enclosures of ρ; 1,024 is
+/// the cap. At 53 the enclosures are binary64-guided and checked exactly; above it they come from
+/// exact integer division and square roots. The square roots and quotients of the combined
+/// magnitudes themselves are always binary64-guided and checked (relative width about 2^-49):
+/// nothing after them cancels, so their width never decides certification. The cap's reason
+/// and its measured cost are in the crate README.
+pub const PRECISION_LADDER: [u64; 5] = [53, 128, 256, 512, 1024];
 
 /// Whether `upper` is within 10 % of `lower`, (upper − lower)/lower ≤ 1/10, decided exactly on
 /// the represented binary64 operands: 10·upper ≤ 11·lower as an integer comparison, so rounding
@@ -79,6 +83,12 @@ pub(crate) fn correlation_enclosure(fi: f64, fj: f64, zeta: f64, p: u64) -> Inte
     let difference = b.mul(&b).sub(&a.mul(&a));
     let denominator = difference.mul(&difference).add(&z2.mul_int(4).mul(&a).mul(&b).mul(&sum).mul(&sum));
     let divisor = denominator.mul(&b);
+    if p <= 53 {
+        let root = dyadic::sqrt_guided(&a.mul(&b));
+        let lo = dyadic::div_guided(&numerator.mul(&root.lo), &divisor).lo;
+        let hi = dyadic::div_guided(&numerator.mul(&root.hi), &divisor).hi;
+        return Interval { lo, hi };
+    }
     let root = dyadic::sqrt(&a.mul(&b), p);
     let lo = dyadic::div(&numerator.mul(&root.lo), &divisor, p).lo;
     let hi = dyadic::div(&numerator.mul(&root.hi), &divisor, p).hi;
@@ -96,7 +106,7 @@ pub(crate) fn correlation_enclosure(fi: f64, fj: f64, zeta: f64, p: u64) -> Inte
 pub fn correlation_coefficient(fi: f64, fj: f64, zeta: f64) -> f64 {
     assert!(fi.is_finite() && fi > 0.0 && fj.is_finite() && fj > 0.0, "positive finite frequencies");
     assert!(zeta.is_finite() && zeta > 0.0, "a positive finite damping ratio");
-    let e = correlation_enclosure(fi, fj, zeta, PRECISION_LADDER[0]);
+    let e = correlation_enclosure(fi, fj, zeta, PRECISION_LADDER[1]);
     e.lo.midpoint(&e.hi).to_f64()
 }
 
@@ -154,18 +164,44 @@ pub(crate) enum ModalForm {
     AbsoluteSum,
 }
 
-/// The ρ enclosures of every unit pair at one precision, row-major over i < j.
+/// The ρ enclosures of every unit pair at one precision, row-major over i < j. At the first
+/// level the ends are rounded outward to 64 bits, so that the CQC inner sums can be accumulated
+/// from 128-bit products without allocation.
 pub(crate) struct CorrelationTable {
     rho: Vec<Vec<Interval>>,
+    /// (lo, hi) as (mantissa, exponent) when every end fits 64 bits.
+    small: Option<Vec<Vec<((u64, i64), (u64, i64))>>>,
 }
 
 impl CorrelationTable {
     pub(crate) fn new(frequencies: &[f64], zeta: f64, p: u64) -> Self {
         let n = frequencies.len();
-        let rho = (0..n)
-            .map(|i| ((i + 1)..n).map(|j| correlation_enclosure(frequencies[i], frequencies[j], zeta, p)).collect())
+        let rho: Vec<Vec<Interval>> = (0..n)
+            .map(|i| {
+                ((i + 1)..n)
+                    .map(|j| {
+                        let e = correlation_enclosure(frequencies[i], frequencies[j], zeta, p);
+                        if p <= 64 {
+                            Interval { lo: e.lo.round_outward(64, false), hi: e.hi.round_outward(64, true) }
+                        } else {
+                            e
+                        }
+                    })
+                    .collect()
+            })
             .collect();
-        Self { rho }
+        let small = rho
+            .iter()
+            .map(|row| {
+                row.iter()
+                    .map(|e| match (e.lo.small(), e.hi.small()) {
+                        (Some((false, ml, el)), Some((false, mh, eh))) => Some(((ml, el), (mh, eh))),
+                        _ => None,
+                    })
+                    .collect::<Option<Vec<_>>>()
+            })
+            .collect::<Option<Vec<_>>>();
+        Self { rho, small }
     }
 
     fn get(&self, i: usize, j: usize) -> &Interval {
@@ -240,44 +276,97 @@ pub(crate) fn certify(e: &Interval) -> Certified {
 }
 
 /// An enclosure of the modal combination of one row in one direction from its exact cluster sums.
-pub(crate) fn modal(form: &ModalForm, table: Option<&CorrelationTable>, values: &[Dyadic], p: u64)
+pub(crate) fn modal(form: &ModalForm, table: Option<&CorrelationTable>, values: &[Dyadic])
     -> Result<Interval, Uncertain> {
     let squares = || values.iter().fold(Dyadic::zero(), |s, v| s.add(&v.mul(v)));
     match form {
-        ModalForm::Srss => Ok(dyadic::sqrt_interval(&Interval::exact(squares()), p)),
+        ModalForm::Srss => Ok(dyadic::sqrt_interval_guided(&Interval::exact(squares()))),
         ModalForm::AbsoluteSum => Ok(Interval::exact(values.iter().fold(Dyadic::zero(), |s, v| s.add(&v.abs())))),
         ModalForm::Pairs(pairs) => {
             let mut sum = squares();
             for &(i, j) in pairs {
                 sum = sum.add(&values[i].mul(&values[j]).abs().scale2(1));
             }
-            Ok(dyadic::sqrt_interval(&Interval::exact(sum), p))
+            Ok(dyadic::sqrt_interval_guided(&Interval::exact(sum)))
         }
         ModalForm::Cqc => {
             let table = table.expect("a correlation table under CQC");
-            let mut q = Interval::exact(squares());
-            for i in 0..values.len() {
-                for j in (i + 1)..values.len() {
-                    let product = values[i].mul(&values[j]).scale2(1);
-                    q = q.add(&table.get(i, j).mul_exact(&product));
+            let q = match cqc_fast(table, values) {
+                Some(q) => q,
+                None => {
+                    let mut q = Interval::exact(squares());
+                    for i in 0..values.len() {
+                        for j in (i + 1)..values.len() {
+                            let product = values[i].mul(&values[j]).scale2(1);
+                            q = q.add(&table.get(i, j).mul_exact(&product));
+                        }
+                    }
+                    q
                 }
-            }
+            };
             if q.is_exact_zero() {
                 Ok(q)
             } else if q.lo.is_zero() || q.lo.is_negative() {
                 Err(Uncertain::RadicandNotPositive)
             } else {
-                Ok(dyadic::sqrt_interval(&q, p))
+                Ok(dyadic::sqrt_interval_guided(&q))
             }
         }
     }
 }
 
+/// The CQC radicand's enclosure, exactly as the general path forms it, when every cluster sum and
+/// every ρ end fits 64 bits: Q ∈ Σ S_i² + 2·Σ_i S_i·[A_i, B_i], with
+/// A_i = Σ_{j>i} S_j·(ρlo_ij if S_j ≥ 0 else ρhi_ij) and B_i the same with lo and hi exchanged,
+/// so that S_j·ρ_ij ∈ [S_j·(…), S_j·(…)] term by term. The inner sums are exact fixed-point
+/// accumulations of 128-bit products.
+fn cqc_fast(table: &CorrelationTable, values: &[Dyadic]) -> Option<Interval> {
+    let small_rho = table.small.as_ref()?;
+    let s: Vec<(bool, u64, i64)> = values.iter().map(Dyadic::small).collect::<Option<_>>()?;
+    let n = values.len();
+    if n < 2 {
+        return None;
+    }
+    // The exponent range of every product S_j·ρ end.
+    let (mut base, mut top) = (i64::MAX, i64::MIN);
+    for (i, row) in small_rho.iter().enumerate() {
+        for (k, &((_, el), (_, eh))) in row.iter().enumerate() {
+            let (_, m, e) = s[i + 1 + k];
+            if m != 0 {
+                base = base.min(e + el.min(eh));
+                top = top.max(e + el.max(eh) + 128);
+            }
+        }
+    }
+    let mut q = Interval::exact(values.iter().fold(Dyadic::zero(), |acc, v| acc.add(&v.mul(v))));
+    if base == i64::MAX {
+        return Some(q);
+    }
+    let mut lo_acc = dyadic::ExactAccumulator::new(base, top);
+    let mut hi_acc = dyadic::ExactAccumulator::new(base, top);
+    for i in 0..n - 1 {
+        if values[i].is_zero() {
+            continue;
+        }
+        lo_acc.clear();
+        hi_acc.clear();
+        for (k, &((ml, el), (mh, eh))) in small_rho[i].iter().enumerate() {
+            let (negative, m, e) = s[i + 1 + k];
+            let (a, b) = if negative { ((mh, eh), (ml, el)) } else { ((ml, el), (mh, eh)) };
+            lo_acc.add(negative, u128::from(m) * u128::from(a.0), e + a.1);
+            hi_acc.add(negative, u128::from(m) * u128::from(b.0), e + b.1);
+        }
+        let w = Interval { lo: lo_acc.value(), hi: hi_acc.value() };
+        q = q.add(&w.mul_exact(&values[i].scale2(1)));
+    }
+    Some(q)
+}
+
 /// √(P² + r²) for an enclosure P ≥ 0 and an exact r.
-pub(crate) fn with_rigid_srss(periodic: &Interval, rigid: &Dyadic, p: u64) -> Interval {
+pub(crate) fn with_rigid_srss(periodic: &Interval, rigid: &Dyadic) -> Interval {
     let r2 = rigid.mul(rigid);
-    let lo = dyadic::sqrt(&periodic.lo.mul(&periodic.lo).add(&r2), p).lo;
-    let hi = dyadic::sqrt(&periodic.hi.mul(&periodic.hi).add(&r2), p).hi;
+    let lo = dyadic::sqrt_guided(&periodic.lo.mul(&periodic.lo).add(&r2)).lo;
+    let hi = dyadic::sqrt_guided(&periodic.hi.mul(&periodic.hi).add(&r2)).hi;
     Interval { lo, hi }
 }
 
@@ -287,10 +376,10 @@ pub(crate) fn with_rigid_absolute_sum(periodic: &Interval, rigid: &Dyadic) -> In
 }
 
 /// SRSS over directional enclosures (each ≥ 0).
-pub(crate) fn directional_srss(parts: &[Interval], p: u64) -> Interval {
+pub(crate) fn directional_srss(parts: &[Interval]) -> Interval {
     let lo = parts.iter().fold(Dyadic::zero(), |s, e| s.add(&e.lo.mul(&e.lo)));
     let hi = parts.iter().fold(Dyadic::zero(), |s, e| s.add(&e.hi.mul(&e.hi)));
-    Interval { lo: dyadic::sqrt(&lo, p).lo, hi: dyadic::sqrt(&hi, p).hi }
+    Interval { lo: dyadic::sqrt_guided(&lo).lo, hi: dyadic::sqrt_guided(&hi).hi }
 }
 
 /// The absolute sum of directional enclosures (each ≥ 0).
@@ -300,14 +389,14 @@ pub(crate) fn directional_absolute_sum(parts: &[Interval]) -> Interval {
 
 /// 100-40-40 over directional enclosures (each ≥ 0), with the exact factor 2/5:
 /// (3·max + 2·Σ)/5, monotone in every argument.
-pub(crate) fn hundred_forty_forty(parts: &[Interval], p: u64) -> Interval {
+pub(crate) fn hundred_forty_forty(parts: &[Interval]) -> Interval {
     let bound = |pick: fn(&Interval) -> &Dyadic| {
         let max = parts.iter().map(pick).fold(Dyadic::zero(), |m, v| if v.cmp(&m) == Ordering::Greater { v.clone() } else { m });
         let sum = parts.iter().map(pick).fold(Dyadic::zero(), |s, v| s.add(v));
         max.mul_int(3).add(&sum.mul_int(2))
     };
     let five = Dyadic::from_int(5);
-    Interval { lo: dyadic::div(&bound(|e| &e.lo), &five, p).lo, hi: dyadic::div(&bound(|e| &e.hi), &five, p).hi }
+    Interval { lo: dyadic::div_guided(&bound(|e| &e.lo), &five).lo, hi: dyadic::div_guided(&bound(|e| &e.hi), &five).hi }
 }
 
 #[cfg(test)]
@@ -368,7 +457,7 @@ mod tests {
         assert_eq!(certify(&Interval::exact(Dyadic::zero())), Certified::Value(0.0));
         assert_eq!(certify(&Interval::exact(Dyadic::from_f64(0.3))), Certified::Value(0.3));
         // An enclosure of 9/5 quanta of 2^-1074: tight, but the nearest binary64 is 2 quanta.
-        let q = dyadic::div(&Dyadic::from_f64(5e-324).mul_int(9), &Dyadic::from_int(5), 128);
+        let q = dyadic::div_guided(&Dyadic::from_f64(5e-324).mul_int(9), &Dyadic::from_int(5));
         assert_eq!(certify(&q), Certified::Uncertain(Uncertain::NotWithinTolerance { tight: true }));
         let straddling = Interval { lo: Dyadic::from_int(-1), hi: Dyadic::from_int(1) };
         assert!(matches!(certify(&straddling), Certified::Uncertain(_)));
@@ -379,11 +468,12 @@ mod tests {
     #[test]
     fn hundred_forty_forty_uses_the_exact_factor() {
         let parts = [1.25, 0.5, 0.3].map(|v| Interval::exact(Dyadic::from_f64(v)));
-        let e = hundred_forty_forty(&parts, 128);
+        let e = hundred_forty_forty(&parts);
         let numerator = Dyadic::from_f64(1.25).mul_int(5).add(&Dyadic::from_f64(0.5).add(&Dyadic::from_f64(0.3)).mul_int(2));
         assert!(e.lo.mul_int(5).cmp(&numerator) != Ordering::Greater);
         assert!(e.hi.mul_int(5).cmp(&numerator) != Ordering::Less);
         let one = [Interval::exact(Dyadic::from_f64(0.8))];
-        assert_eq!(hundred_forty_forty(&one, 128), Interval::exact(Dyadic::from_f64(0.8)));
+        let e = hundred_forty_forty(&one);
+        assert_eq!(e.lo.midpoint(&e.hi).to_f64(), 0.8);
     }
 }

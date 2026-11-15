@@ -120,8 +120,28 @@ impl Dyadic {
     }
 
     /// The exponent of the leading bit: 2^top ≤ |self| < 2^(top+1). `None` for zero.
-    fn top(&self) -> Option<i64> {
+    pub(crate) fn top(&self) -> Option<i64> {
         (!self.is_zero()).then(|| self.exp + self.mag.bits() as i64 - 1)
+    }
+
+    /// Rounds the signed value to at most `p` significant bits, down (`up` false) or up.
+    pub(crate) fn round_outward(&self, p: u64, up: bool) -> Self {
+        let bits = self.mag.bits();
+        if bits <= p {
+            return self.clone();
+        }
+        let shift = bits - p;
+        let mut mag = self.mag.shr(shift);
+        // Rounding the magnitude up moves a positive value up and a negative value down.
+        if self.mag.any_below(shift) && (up != self.negative) {
+            mag = mag.add(&BigUint::one());
+        }
+        Self::new(self.negative, mag, self.exp + shift as i64)
+    }
+
+    /// (negative, mantissa, exponent) when the magnitude fits 64 bits.
+    pub(crate) fn small(&self) -> Option<(bool, u64, i64)> {
+        (self.mag.bits() <= 64).then(|| (self.negative, self.mag.low_u64(), self.exp))
     }
 
     /// The binary64 nearest to the exact value (ties to even), ±∞ beyond the binary64 range.
@@ -174,6 +194,65 @@ impl Dyadic {
     }
 }
 
+/// An exact fixed-point accumulator of signed products m·2^e (m < 2^128) over a stated exponent
+/// range, without allocation per addend: the CQC inner sums (`rules`).
+pub(crate) struct ExactAccumulator {
+    base: i64,
+    pos: Vec<u64>,
+    neg: Vec<u64>,
+}
+
+impl ExactAccumulator {
+    /// Covers addends m·2^e with e ≥ `base` and m·2^e < 2^`top`, plus 64 bits of carry headroom
+    /// (up to 2^64 addends).
+    pub(crate) fn new(base: i64, top: i64) -> Self {
+        let limbs = ((top - base).max(0) as usize) / 64 + 3;
+        Self { base, pos: vec![0; limbs], neg: vec![0; limbs] }
+    }
+
+    pub(crate) fn clear(&mut self) {
+        self.pos.iter_mut().for_each(|l| *l = 0);
+        self.neg.iter_mut().for_each(|l| *l = 0);
+    }
+
+    pub(crate) fn add(&mut self, negative: bool, m: u128, e: i64) {
+        if m == 0 {
+            return;
+        }
+        let shift = (e - self.base) as u64;
+        let (limb, bit) = ((shift / 64) as usize, shift % 64);
+        let (m0, m1) = (m as u64, (m >> 64) as u64);
+        let parts = if bit == 0 { [m0, m1, 0] } else { [m0 << bit, (m1 << bit) | (m0 >> (64 - bit)), m1 >> (64 - bit)] };
+        let target = if negative { &mut self.neg } else { &mut self.pos };
+        let mut carry = 0u64;
+        let mut i = limb;
+        for part in parts {
+            let (s1, c1) = target[i].overflowing_add(part);
+            let (s2, c2) = s1.overflowing_add(carry);
+            target[i] = s2;
+            carry = u64::from(c1) + u64::from(c2);
+            i += 1;
+        }
+        while carry > 0 {
+            let (s, c) = target[i].overflowing_add(carry);
+            target[i] = s;
+            carry = u64::from(c);
+            i += 1;
+        }
+    }
+
+    /// The exact sum.
+    pub(crate) fn value(&self) -> Dyadic {
+        let pos = BigUint::from_limbs(&self.pos);
+        let neg = BigUint::from_limbs(&self.neg);
+        match pos.cmp(&neg) {
+            Ordering::Equal => Dyadic::zero(),
+            Ordering::Greater => Dyadic::new(false, pos.sub(&neg), self.base),
+            Ordering::Less => Dyadic::new(true, neg.sub(&pos), self.base),
+        }
+    }
+}
+
 /// A closed enclosure [lo, hi] of an exact real.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct Interval {
@@ -204,6 +283,63 @@ impl Interval {
         }
     }
 
+}
+
+/// The relative half-width of a binary64-guided enclosure: 2^-50, several roundings of a
+/// correctly rounded binary64 operation. The enclosure is checked exactly before it is used.
+const GUIDE_WIDTH: i64 = -50;
+
+/// [c(1 − 2^-50), c(1 + 2^-50)] around a positive dyadic candidate c.
+fn guided(c: &Dyadic) -> Interval {
+    let delta = c.scale2(GUIDE_WIDTH);
+    Interval { lo: c.sub(&delta), hi: c.add(&delta) }
+}
+
+/// The binary64 nearest x·2^-k, for a positive x whose leading bit is at 2^k or 2^(k+1).
+fn scaled_f64(x: &Dyadic, k: i64) -> f64 {
+    x.scale2(-k).to_f64()
+}
+
+/// An enclosure of √x for an exact dyadic x ≥ 0 with a relative width of about 2^-49: a
+/// candidate from the binary64 square root of x scaled exactly by an even power of two, widened
+/// by 2^-50 and checked exactly (lo² ≤ x ≤ hi²). When the check fails, the exact integer square
+/// root at 60 bits encloses it instead.
+pub(crate) fn sqrt_guided(x: &Dyadic) -> Interval {
+    assert!(!x.is_negative(), "the square root of a negative value");
+    let Some(top) = x.top() else { return Interval::exact(Dyadic::zero()) };
+    let k = top.div_euclid(2) * 2; // x·2^-k in [1, 4)
+    let candidate = Dyadic::from_f64(scaled_f64(x, k).sqrt()).scale2(k / 2);
+    let e = guided(&candidate);
+    if e.lo.mul(&e.lo).cmp(x) != Ordering::Greater && e.hi.mul(&e.hi).cmp(x) != Ordering::Less {
+        e
+    } else {
+        sqrt(x, 60)
+    }
+}
+
+/// An enclosure of n/d for exact dyadics, d ≠ 0, with a relative width of about 2^-49: a binary64
+/// candidate from both operands scaled exactly by powers of two, widened by 2^-50 and checked
+/// exactly (lo·|d| ≤ |n| ≤ hi·|d|). When the check fails, binary long division at 60 bits encloses
+/// it instead.
+pub(crate) fn div_guided(n: &Dyadic, d: &Dyadic) -> Interval {
+    assert!(!d.is_zero(), "division by zero");
+    let (Some(tn), Some(td)) = (n.top(), d.top()) else { return Interval::exact(Dyadic::zero()) };
+    let (na, da) = (n.abs(), d.abs());
+    let candidate = Dyadic::from_f64(scaled_f64(&na, tn) / scaled_f64(&da, td)).scale2(tn - td);
+    let e = guided(&candidate);
+    let ok = e.lo.mul(&da).cmp(&na) != Ordering::Greater && e.hi.mul(&da).cmp(&na) != Ordering::Less;
+    let e = if ok { e } else { div(&na, &da, 60) };
+    if n.negative != d.negative {
+        Interval { lo: e.hi.neg(), hi: e.lo.neg() }
+    } else {
+        e
+    }
+}
+
+/// An enclosure of √x for an enclosure x of a non-negative value, binary64-guided (relative width
+/// about 2^-49 at each end).
+pub(crate) fn sqrt_interval_guided(x: &Interval) -> Interval {
+    Interval { lo: sqrt_guided(&x.lo).lo, hi: sqrt_guided(&x.hi).hi }
 }
 
 /// An enclosure of `n / d` for exact dyadics with `d ≠ 0`, at `p` bits.
@@ -246,11 +382,6 @@ pub(crate) fn sqrt(x: &Dyadic, p: u64) -> Interval {
     Interval { lo: low, hi: high }
 }
 
-/// An enclosure of √x for an enclosure x with 0 < x.lo (or x exactly 0), at `p` bits.
-pub(crate) fn sqrt_interval(x: &Interval, p: u64) -> Interval {
-    Interval { lo: sqrt(&x.lo, p).lo, hi: sqrt(&x.hi, p).hi }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -281,6 +412,37 @@ mod tests {
         // rounds to 2.
         assert_eq!(d(5e-324).scale2(-1).to_f64(), 0.0);
         assert_eq!(d(5e-324).mul_int(3).scale2(-1).to_f64().to_bits(), 2);
+    }
+
+    #[test]
+    fn guided_enclosures_contain_the_value_across_the_range() {
+        for x in [2.0, 3.0, 1e-300, 1e300, 5e-324, f64::MAX, 0.1] {
+            let v = d(x).mul(&d(x)).add(&d(x));
+            let r = sqrt_guided(&v);
+            assert!(r.lo.mul(&r.lo).cmp(&v) != Ordering::Greater && r.hi.mul(&r.hi).cmp(&v) != Ordering::Less, "{x}");
+            let q = div_guided(&v, &d(-3.0));
+            assert!(q.lo.mul_int(-3).cmp(&v) != Ordering::Less && q.hi.mul_int(-3).cmp(&v) != Ordering::Greater, "{x}");
+        }
+        // A perfect square's enclosure is centred on its exact root.
+        let s = sqrt_guided(&d(0.75).mul(&d(0.75)));
+        assert_eq!(s.lo.midpoint(&s.hi).to_f64(), 0.75);
+        // Far beyond binary64: 2^5000.
+        let big = Dyadic::from_int(1).scale2(5000);
+        assert_eq!(sqrt_guided(&big).lo.midpoint(&sqrt_guided(&big).hi), Dyadic::from_int(1).scale2(2500));
+    }
+
+    #[test]
+    fn the_accumulator_is_exact() {
+        let mut acc = ExactAccumulator::new(-1200, 1200);
+        acc.add(false, u128::MAX, 1000);
+        acc.add(true, u128::MAX, 1000);
+        acc.add(false, 3, -1200);
+        acc.add(true, 1, -1199);
+        assert_eq!(acc.value(), Dyadic::from_int(1).scale2(-1200));
+        acc.clear();
+        acc.add(false, 1 << 100, 0);
+        acc.add(false, 1 << 100, 0);
+        assert_eq!(acc.value(), Dyadic::from_int(1).scale2(101));
     }
 
     #[test]

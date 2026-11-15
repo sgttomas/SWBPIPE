@@ -316,7 +316,7 @@
   "provenance": "Inputs: the published signed contributions, modal metadata (mode, scope cluster, frequency) and rigid responses of analysis C4-BASE of validation/references/f2_spectrum/discrete/c4_close_pair.json (frozen), each as its binary64. Mutation: the sign of mode 2's X contribution to N3.uy is reversed, so CQC of N3.uy changes. This is a combination-unit contract fixture: its contributions were not produced by the product, it is not a spectrum solve result or a spectrum-1 document, and it has no standing as an engineering result.",
   "rows": [
     {
-      "combined": 799.8858254282084,
+      "combined": 799.8858254282085,
       "component": "Fx",
       "frame": "global",
       "governing_direction": "X",
@@ -324,15 +324,15 @@
       "object": "A1",
       "per_direction": [
         {
-          "combined": 755.8317502546146,
+          "combined": 755.8317502546147,
           "direction": "X",
-          "periodic": 513.6346495103326,
+          "periodic": 513.6346495103327,
           "rigid": 242.19710074428204
         },
         {
-          "combined": 110.1351879339844,
+          "combined": 110.13518793398441,
           "direction": "Y",
-          "periodic": 109.84671470414789,
+          "periodic": 109.8467147041479,
           "rigid": 0.28847322983651336
         }
       ],
@@ -341,7 +341,7 @@
       "unit": "N"
     },
     {
-      "combined": 634.8235704775276,
+      "combined": 634.8235704775277,
       "component": "Fy",
       "frame": "global",
       "governing_direction": "Y",
@@ -349,15 +349,15 @@
       "object": "A1",
       "per_direction": [
         {
-          "combined": 146.8469172453125,
+          "combined": 146.84691724531254,
           "direction": "X",
-          "periodic": 146.46228627219716,
+          "periodic": 146.4622862721972,
           "rigid": 0.38463097311535116
         },
         {
           "combined": 576.0848035794027,
           "direction": "Y",
-          "periodic": 394.2687019704531,
+          "periodic": 394.26870197045315,
           "rigid": 181.8161016089495
         }
       ],
@@ -391,7 +391,7 @@
       "unit": "N"
     },
     {
-      "combined": 1006.8311033245901,
+      "combined": 1006.83110332459,
       "component": "Mx",
       "frame": "global",
       "governing_direction": "Y",
@@ -399,9 +399,9 @@
       "object": "A1",
       "per_direction": [
         {
-          "combined": 301.7228421999878,
+          "combined": 301.72284219998784,
           "direction": "X",
-          "periodic": 301.4549900338937,
+          "periodic": 301.45499003389375,
           "rigid": 0.26785216609411916
         },
         {
@@ -430,9 +430,9 @@
           "rigid": 102.1326752064259
         },
         {
-          "combined": 226.29213164999084,
+          "combined": 226.29213164999086,
           "direction": "Y",
-          "periodic": 226.09124252542026,
+          "periodic": 226.09124252542028,
           "rigid": 0.20088912457058938
         }
       ],
@@ -466,7 +466,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 62.360711181115974,
+      "combined": 62.36071118111598,
       "component": "Fd",
       "frame": "global",
       "governing_direction": "X",
@@ -491,7 +491,7 @@
       "unit": "N"
     },
     {
-      "combined": 37.41642670866958,
+      "combined": 37.41642670866959,
       "component": "Fx",
       "frame": "global",
       "governing_direction": "X",
@@ -566,7 +566,7 @@
       "unit": "N"
     },
     {
-      "combined": 77.64690117644918,
+      "combined": 77.64690117644919,
       "component": "Fx",
       "frame": "global",
       "governing_direction": "X",
@@ -766,7 +766,7 @@
       "unit": "m"
     },
     {
-      "combined": 0.0001762755061030339,
+      "combined": 0.00017627550610303393,
       "component": "rx",
       "frame": "global",
       "governing_direction": "Y",
@@ -774,9 +774,9 @@
       "object": "N2",
       "per_direction": [
         {
-          "combined": 0.000056840491988462344,
+          "combined": 0.00005684049198846235,
           "direction": "X",
-          "periodic": 0.000056838776382421094,
+          "periodic": 0.0000568387763824211,
           "rigid": 1.7156060412486502e-9
         },
         {
@@ -805,9 +805,9 @@
           "rigid": 1.6467017502555664e-6
         },
         {
-          "combined": 0.00004263036899134676,
+          "combined": 0.000042630368991346765,
           "direction": "Y",
-          "periodic": 0.00004262908228681582,
+          "periodic": 0.00004262908228681583,
           "rigid": 1.2867045309364876e-9
         }
       ],
@@ -855,9 +855,9 @@
           "rigid": 4.130059145963776e-6
         },
         {
-          "combined": 0.00003779037613038677,
+          "combined": 0.000037790376130386774,
           "direction": "Y",
-          "periodic": 0.00003777638916769491,
+          "periodic": 0.000037776389167694915,
           "rigid": 1.3986962691856891e-8
         }
       ],
@@ -874,9 +874,9 @@
       "object": "N2",
       "per_direction": [
         {
-          "combined": 0.000050387168173849016,
+          "combined": 0.00005038716817384903,
           "direction": "X",
-          "periodic": 0.00005036851889025988,
+          "periodic": 0.000050368518890259884,
           "rigid": 1.864928358914252e-8
         },
         {
@@ -930,7 +930,7 @@
           "rigid": 3.720463111898586e-8
         },
         {
-          "combined": 0.00018062925876740233,
+          "combined": 0.0001806292587674023,
           "direction": "Y",
           "periodic": 0.00017434194789925792,
           "rigid": 6.2873108681444004e-6
@@ -955,9 +955,9 @@
           "rigid": 8.361378456039792e-6
         },
         {
-          "combined": 0.00004896231465350329,
+          "combined": 0.000048962314653503295,
           "direction": "Y",
-          "periodic": 0.00004893441118016405,
+          "periodic": 0.00004893441118016406,
           "rigid": 2.7903473339239396e-8
         }
       ],
@@ -999,15 +999,15 @@
       "object": "N3",
       "per_direction": [
         {
-          "combined": 0.000506484968634225,
+          "combined": 0.0005064849686342251,
           "direction": "X",
           "periodic": 0.0005010280190452144,
           "rigid": 5.456949589010597e-6
         },
         {
-          "combined": 0.0001090825060114741,
+          "combined": 0.00010908250601147412,
           "direction": "Y",
-          "periodic": 0.00010907063060801554,
+          "periodic": 0.00010907063060801555,
           "rigid": 1.1875403458565319e-8
         }
       ],
@@ -1032,7 +1032,7 @@
         {
           "combined": 0.00039352396812786873,
           "direction": "Y",
-          "periodic": 0.0003894243286174266,
+          "periodic": 0.00038942432861742665,
           "rigid": 4.099639510442111e-6
         }
       ],
@@ -1066,7 +1066,7 @@
       "unit": "m"
     },
     {
-      "combined": 799.8858254282084,
+      "combined": 799.8858254282085,
       "component": "Fx",
       "end": "i",
       "frame": "global",
@@ -1075,15 +1075,15 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 755.8317502546146,
+          "combined": 755.8317502546147,
           "direction": "X",
-          "periodic": 513.6346495103326,
+          "periodic": 513.6346495103327,
           "rigid": 242.19710074428204
         },
         {
-          "combined": 110.1351879339844,
+          "combined": 110.13518793398441,
           "direction": "Y",
-          "periodic": 109.84671470414789,
+          "periodic": 109.8467147041479,
           "rigid": 0.28847322983651336
         }
       ],
@@ -1092,7 +1092,7 @@
       "unit": "N"
     },
     {
-      "combined": 634.8235704775276,
+      "combined": 634.8235704775277,
       "component": "Fy",
       "end": "i",
       "frame": "global",
@@ -1101,15 +1101,15 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 146.8469172453125,
+          "combined": 146.84691724531254,
           "direction": "X",
-          "periodic": 146.46228627219716,
+          "periodic": 146.4622862721972,
           "rigid": 0.38463097311535116
         },
         {
           "combined": 576.0848035794027,
           "direction": "Y",
-          "periodic": 394.2687019704531,
+          "periodic": 394.26870197045315,
           "rigid": 181.8161016089495
         }
       ],
@@ -1144,7 +1144,7 @@
       "unit": "N"
     },
     {
-      "combined": 1006.8311033245901,
+      "combined": 1006.83110332459,
       "component": "Mx",
       "end": "i",
       "frame": "global",
@@ -1153,9 +1153,9 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 301.7228421999878,
+          "combined": 301.72284219998784,
           "direction": "X",
-          "periodic": 301.4549900338937,
+          "periodic": 301.45499003389375,
           "rigid": 0.26785216609411916
         },
         {
@@ -1185,9 +1185,9 @@
           "rigid": 102.1326752064259
         },
         {
-          "combined": 226.29213164999084,
+          "combined": 226.29213164999086,
           "direction": "Y",
-          "periodic": 226.09124252542026,
+          "periodic": 226.09124252542028,
           "rigid": 0.20088912457058938
         }
       ],
@@ -1222,7 +1222,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 466.3807219235154,
+      "combined": 466.38072192351547,
       "component": "Fx",
       "end": "j",
       "frame": "global",
@@ -1239,7 +1239,7 @@
         {
           "combined": 90.12314386066464,
           "direction": "Y",
-          "periodic": 90.04564474361608,
+          "periodic": 90.0456447436161,
           "rigid": 0.07749911704855188
         }
       ],
@@ -1248,7 +1248,7 @@
       "unit": "N"
     },
     {
-      "combined": 379.36820896089716,
+      "combined": 379.3682089608972,
       "component": "Fy",
       "end": "j",
       "frame": "global",
@@ -1257,15 +1257,15 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 120.16419181421952,
+          "combined": 120.16419181421954,
           "direction": "X",
-          "periodic": 120.06085965815478,
+          "periodic": 120.06085965815481,
           "rigid": 0.10333215606473584
         },
         {
           "combined": 331.30253223520936,
           "direction": "Y",
-          "periodic": 322.83861935369237,
+          "periodic": 322.8386193536924,
           "rigid": 8.463912881516965
         }
       ],
@@ -1309,9 +1309,9 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 92.58733569741692,
+          "combined": 92.58733569741695,
           "direction": "X",
-          "periodic": 92.40030999960986,
+          "periodic": 92.40030999960987,
           "rigid": 0.1870256978070679
         },
         {
@@ -1326,7 +1326,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 389.2610408879676,
+      "combined": 389.26104088796757,
       "component": "My",
       "end": "j",
       "frame": "global",
@@ -1341,9 +1341,9 @@
           "rigid": 48.68334331736399
         },
         {
-          "combined": 69.44050177306269,
+          "combined": 69.4405017730627,
           "direction": "Y",
-          "periodic": 69.30023249970739,
+          "periodic": 69.3002324997074,
           "rigid": 0.14026927335530093
         }
       ],
@@ -1378,7 +1378,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 466.3807219235154,
+      "combined": 466.38072192351547,
       "component": "Fx",
       "end": "i",
       "frame": "global",
@@ -1395,7 +1395,7 @@
         {
           "combined": 90.12314386066464,
           "direction": "Y",
-          "periodic": 90.04564474361608,
+          "periodic": 90.0456447436161,
           "rigid": 0.07749911704855188
         }
       ],
@@ -1404,7 +1404,7 @@
       "unit": "N"
     },
     {
-      "combined": 379.36820896089716,
+      "combined": 379.3682089608972,
       "component": "Fy",
       "end": "i",
       "frame": "global",
@@ -1413,15 +1413,15 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 120.16419181421952,
+          "combined": 120.16419181421954,
           "direction": "X",
-          "periodic": 120.06085965815478,
+          "periodic": 120.06085965815481,
           "rigid": 0.10333215606473584
         },
         {
           "combined": 331.30253223520936,
           "direction": "Y",
-          "periodic": 322.83861935369237,
+          "periodic": 322.8386193536924,
           "rigid": 8.463912881516965
         }
       ],
@@ -1465,9 +1465,9 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 92.58733569741692,
+          "combined": 92.58733569741695,
           "direction": "X",
-          "periodic": 92.40030999960986,
+          "periodic": 92.40030999960987,
           "rigid": 0.1870256978070679
         },
         {
@@ -1482,7 +1482,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 389.2610408879676,
+      "combined": 389.26104088796757,
       "component": "My",
       "end": "i",
       "frame": "global",
@@ -1497,9 +1497,9 @@
           "rigid": 48.68334331736399
         },
         {
-          "combined": 69.44050177306269,
+          "combined": 69.4405017730627,
           "direction": "Y",
-          "periodic": 69.30023249970739,
+          "periodic": 69.3002324997074,
           "rigid": 0.14026927335530093
         }
       ],
@@ -1543,15 +1543,15 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 87.1360843632716,
+          "combined": 87.13608436327162,
           "direction": "X",
-          "periodic": 86.19244810237323,
+          "periodic": 86.19244810237325,
           "rigid": 0.9436362608983732
         },
         {
-          "combined": 19.386506345995304,
+          "combined": 19.386506345995308,
           "direction": "Y",
-          "periodic": 19.259597461420665,
+          "periodic": 19.259597461420668,
           "rigid": 0.12690888457464058
         }
       ],
@@ -1569,15 +1569,15 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 25.84867512799374,
+          "combined": 25.848675127993744,
           "direction": "X",
-          "periodic": 25.67946328189422,
+          "periodic": 25.679463281894225,
           "rigid": 0.16921184609952078
         },
         {
           "combined": 59.951146857205345,
           "direction": "Y",
-          "periodic": 59.3174498442001,
+          "periodic": 59.317449844200105,
           "rigid": 0.6336970130052395
         }
       ],

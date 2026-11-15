@@ -17,6 +17,12 @@ impl BigUint {
         Self { limbs: Vec::new() }
     }
 
+    pub(crate) fn from_limbs(limbs: &[u64]) -> Self {
+        let mut n = Self { limbs: limbs.to_vec() };
+        n.trim();
+        n
+    }
+
     pub(crate) fn from_u128(v: u128) -> Self {
         let mut n = Self { limbs: vec![v as u64, (v >> 64) as u64] };
         n.trim();

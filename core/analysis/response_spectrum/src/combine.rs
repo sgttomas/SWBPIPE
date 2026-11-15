@@ -259,16 +259,16 @@ struct RowInputs<'a> {
     rigid: Option<Vec<Dyadic>>,
 }
 
-/// Evaluates and certifies one row at precision `p`.
+/// Evaluates and certifies one row with the ρ enclosures of one precision level.
 fn evaluate_row(request: &CombinationRequest, directions: &[Direction], form: &ModalForm,
-    table: Option<&CorrelationTable>, inputs: &RowInputs, p: u64)
+    table: Option<&CorrelationTable>, inputs: &RowInputs)
     -> Result<(Vec<DirectionalPart>, Magnitude, Option<Direction>), RowFail> {
     let mut parts = Vec::with_capacity(directions.len());
     let mut enclosures = Vec::with_capacity(directions.len());
     for (k, &d) in directions.iter().enumerate() {
         let field = d.as_str();
         let values: Vec<Dyadic> = inputs.sums[k].iter().map(|v| (*v).clone()).collect();
-        let periodic = rules::modal(form, table, &values, p)
+        let periodic = rules::modal(form, table, &values)
             .map_err(|cause| RowFail::Uncertain { field: field.to_string(), cause })?;
         let periodic_value = take(rules::certify(&periodic), field)?;
         let (rigid_value, combined) = match request.missing_mass {
@@ -277,7 +277,7 @@ fn evaluate_row(request: &CombinationRequest, directions: &[Direction], form: &M
                 let r = &inputs.rigid.as_ref().expect("rigid responses under the correction")[k];
                 let rigid_value = take(rules::certify(&Interval::exact(r.abs())), field)?;
                 let combined = match rule {
-                    RigidRule::Srss => rules::with_rigid_srss(&periodic, r, p),
+                    RigidRule::Srss => rules::with_rigid_srss(&periodic, r),
                     RigidRule::AbsoluteSum => rules::with_rigid_absolute_sum(&periodic, r),
                 };
                 (Some(Magnitude::new(rigid_value)), combined)
@@ -293,9 +293,9 @@ fn evaluate_row(request: &CombinationRequest, directions: &[Direction], form: &M
         enclosures.push(combined);
     }
     let over = match request.directional_rule {
-        DirectionalRule::Srss => rules::directional_srss(&enclosures, p),
+        DirectionalRule::Srss => rules::directional_srss(&enclosures),
         DirectionalRule::AbsoluteSum => rules::directional_absolute_sum(&enclosures),
-        DirectionalRule::HundredFortyForty => rules::hundred_forty_forty(&enclosures, p),
+        DirectionalRule::HundredFortyForty => rules::hundred_forty_forty(&enclosures),
     };
     let value = take(rules::certify(&over), "directions")?;
     // The direction carrying the full value: the largest published directional magnitude, the
@@ -421,7 +421,7 @@ pub fn combine(request: &CombinationRequest) -> Result<Combination, Vec<Refusal>
             if request.modal_rule == ModalRule::Cqc && tables[level].is_none() {
                 tables[level] = Some(CorrelationTable::new(&frequencies, request.damping_ratio, p));
             }
-            match evaluate_row(request, &directions, &form, tables[level].as_ref(), &inputs, p) {
+            match evaluate_row(request, &directions, &form, tables[level].as_ref(), &inputs) {
                 Ok((per_direction, combined, governing_direction)) => {
                     combined_rows.push(CombinedRow { quantity: quantity.clone(), per_direction, combined, governing_direction });
                     break;

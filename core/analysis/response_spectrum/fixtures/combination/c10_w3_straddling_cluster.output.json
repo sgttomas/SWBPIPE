@@ -205,7 +205,7 @@
       "unit": "N"
     },
     {
-      "combined": 1033.7515736667208,
+      "combined": 1033.751573666721,
       "component": "Fz",
       "frame": "global",
       "governing_direction": null,
@@ -269,7 +269,7 @@
           "rigid": 3.6757574766379305e-6
         },
         {
-          "combined": 2559.3470029716777,
+          "combined": 2559.347002971678,
           "direction": "Z",
           "periodic": 2540.2011547157954,
           "rigid": 312.4662785016169
@@ -305,7 +305,7 @@
       "unit": "N*m"
     },
     {
-      "combined": 0.0002037936640739022,
+      "combined": 0.00020379366407390222,
       "component": "Fd",
       "frame": "global",
       "governing_direction": null,
@@ -313,7 +313,7 @@
       "object": "K1",
       "per_direction": [
         {
-          "combined": 0.00016956657817687797,
+          "combined": 0.000169566578176878,
           "direction": "Y",
           "periodic": 0.00016955191670278168,
           "rigid": 2.2297930460586018e-6
@@ -344,7 +344,7 @@
           "rigid": 1.337875827635161e-6
         },
         {
-          "combined": 0.00006782663127075118,
+          "combined": 0.00006782663127075119,
           "direction": "Z",
           "periodic": 0.00006782076668111266,
           "rigid": 8.919172184234406e-7
@@ -355,7 +355,7 @@
       "unit": "N"
     },
     {
-      "combined": 0.00016303493125912174,
+      "combined": 0.00016303493125912176,
       "component": "Fz",
       "frame": "global",
       "governing_direction": null,
@@ -363,7 +363,7 @@
       "object": "K1",
       "per_direction": [
         {
-          "combined": 0.00013565326254150236,
+          "combined": 0.00013565326254150238,
           "direction": "Y",
           "periodic": 0.00013564153336222533,
           "rigid": 1.7838344368468813e-6
@@ -563,7 +563,7 @@
       "object": "N2",
       "per_direction": [
         {
-          "combined": 1.2330430992447453e-10,
+          "combined": 1.2330430992447456e-10,
           "direction": "Y",
           "periodic": 1.233043053511934e-10,
           "rigid": 3.358289038328784e-14
@@ -594,7 +594,7 @@
           "rigid": 0.000013198791153042472
         },
         {
-          "combined": 6.165215496223726e-11,
+          "combined": 6.165215496223728e-11,
           "direction": "Z",
           "periodic": 6.16521526755967e-11,
           "rigid": 1.679144519164392e-14
@@ -655,7 +655,7 @@
       "unit": "m"
     },
     {
-      "combined": 0.0007677929181361637,
+      "combined": 0.0007677929181361638,
       "component": "uz",
       "frame": "global",
       "governing_direction": null,
@@ -669,7 +669,7 @@
           "rigid": 4.565973179915424e-13
         },
         {
-          "combined": 0.0007677929181361518,
+          "combined": 0.000767792918136152,
           "direction": "Z",
           "periodic": 0.0007674580391903334,
           "rigid": 0.000022674285482816643
@@ -730,7 +730,7 @@
       "unit": "rad"
     },
     {
-      "combined": 0.0015576623187055444,
+      "combined": 0.0015576623187055446,
       "component": "rz",
       "frame": "global",
       "governing_direction": null,
@@ -788,7 +788,7 @@
       "object": "N3",
       "per_direction": [
         {
-          "combined": 0.004521776008444636,
+          "combined": 0.004521776008444637,
           "direction": "Y",
           "periodic": 0.004521385035846448,
           "rigid": 0.00005946114840231619
@@ -805,7 +805,7 @@
       "unit": "m"
     },
     {
-      "combined": 0.0022608878750735523,
+      "combined": 0.002260887875073552,
       "component": "uz",
       "frame": "global",
       "governing_direction": null,
@@ -882,7 +882,7 @@
       "unit": "N"
     },
     {
-      "combined": 1033.7515736667208,
+      "combined": 1033.751573666721,
       "component": "Fz",
       "end": "i",
       "frame": "global",
@@ -949,7 +949,7 @@
           "rigid": 3.6757574766379305e-6
         },
         {
-          "combined": 2559.3470029716777,
+          "combined": 2559.347002971678,
           "direction": "Z",
           "periodic": 2540.2011547157954,
           "rigid": 312.4662785016169
@@ -1012,7 +1012,7 @@
       "unit": "N"
     },
     {
-      "combined": 1476.9753766984707,
+      "combined": 1476.9753766984709,
       "component": "Fy",
       "end": "j",
       "frame": "global",
@@ -1053,7 +1053,7 @@
           "rigid": 1.0730640188169803e-6
         },
         {
-          "combined": 738.4876606802837,
+          "combined": 738.4876606802839,
           "direction": "Z",
           "periodic": 738.0677283808827,
           "rigid": 24.900869457139283
@@ -1099,7 +1099,7 @@
       "object": "P1",
       "per_direction": [
         {
-          "combined": 0.0002260543969685267,
+          "combined": 0.00022605439696852674,
           "direction": "Y",
           "periodic": 0.0002260399015767689,
           "rigid": 2.5599382744293584e-6
@@ -1127,11 +1127,11 @@
         {
           "combined": 1751.9370964322077,
           "direction": "Y",
-          "periodic": 1726.10062392921,
+          "periodic": 1726.1006239292099,
           "rigid": 299.76695269243214
         },
         {
-          "combined": 0.00011302719848426335,
+          "combined": 0.00011302719848426337,
           "direction": "Z",
           "periodic": 0.00011301995078838445,
           "rigid": 1.2799691372146792e-6
@@ -1168,7 +1168,7 @@
       "unit": "N"
     },
     {
-      "combined": 1476.9753766984707,
+      "combined": 1476.9753766984709,
       "component": "Fy",
       "end": "i",
       "frame": "global",
@@ -1209,7 +1209,7 @@
           "rigid": 1.0730640188169803e-6
         },
         {
-          "combined": 738.4876606802837,
+          "combined": 738.4876606802839,
           "direction": "Z",
           "periodic": 738.0677283808827,
           "rigid": 24.900869457139283
@@ -1255,7 +1255,7 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 0.0002260543969685267,
+          "combined": 0.00022605439696852674,
           "direction": "Y",
           "periodic": 0.0002260399015767689,
           "rigid": 2.5599382744293584e-6
@@ -1283,11 +1283,11 @@
         {
           "combined": 1751.9370964322077,
           "direction": "Y",
-          "periodic": 1726.10062392921,
+          "periodic": 1726.1006239292099,
           "rigid": 299.76695269243214
         },
         {
-          "combined": 0.00011302719848426335,
+          "combined": 0.00011302719848426337,
           "direction": "Z",
           "periodic": 0.00011301995078838445,
           "rigid": 1.2799691372146792e-6
@@ -1339,7 +1339,7 @@
           "rigid": 1.337875827635161e-6
         },
         {
-          "combined": 0.00006782663127075118,
+          "combined": 0.00006782663127075119,
           "direction": "Z",
           "periodic": 0.00006782076668111266,
           "rigid": 8.919172184234406e-7
@@ -1350,7 +1350,7 @@
       "unit": "N"
     },
     {
-      "combined": 0.00016303493125912174,
+      "combined": 0.00016303493125912176,
       "component": "Fz",
       "end": "j",
       "frame": "global",
@@ -1359,7 +1359,7 @@
       "object": "P2",
       "per_direction": [
         {
-          "combined": 0.00013565326254150236,
+          "combined": 0.00013565326254150238,
           "direction": "Y",
           "periodic": 0.00013564153336222533,
           "rigid": 1.7838344368468813e-6
