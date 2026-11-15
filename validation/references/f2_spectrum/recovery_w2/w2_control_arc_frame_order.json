@@ -1,0 +1,4814 @@
+{
+ "schema": "f2_spectrum.recovery_w2.arc_frame_order/1",
+ "status": "additive candidate control; no refutation record for it yet (see README.md)",
+ "statement": "For an arc whose end-tangent frames are not signed permutations of the global axes, the arc end magnitudes reported in an end frame must be formed by rotating every signed contribution into that frame and then combining component by component. Combining global component magnitudes first and rotating afterwards (by the frame rows, wrong path a, or by their absolute values, wrong path b) is a different result; the witnesses below are components where it differs. Rotation commutes with linear signed summation (cluster sums, superposition, the elastic/lump split), so no linear reordering is a mutant: see linear_order_equivalence.",
+ "case": "V-ARC-OBL",
+ "inputs": {
+  "nodes": {
+   "A": [
+    "0",
+    "0",
+    "0"
+   ],
+   "B": [
+    "0.75",
+    "1",
+    "0"
+   ],
+   "C": [
+    "0.84375",
+    "1.90625",
+    "0.625"
+   ],
+   "D": [
+    "0.09375",
+    "2.46875",
+    "1.875"
+   ]
+  },
+  "pipe_members": {
+   "P1": {
+    "kind": "straight",
+    "i": "A",
+    "j": "B",
+    "y_reference": [
+     "0",
+     "0",
+     "1"
+    ]
+   },
+   "BEND1": {
+    "kind": "arc",
+    "i": "B",
+    "j": "C",
+    "radius_m": "0.78125",
+    "flexibility_factor": "4.25",
+    "y_reference": [
+     "27",
+     "11",
+     "-20"
+    ]
+   },
+   "P2": {
+    "kind": "straight",
+    "i": "C",
+    "j": "D",
+    "y_reference": [
+     "0",
+     "0",
+     "1"
+    ]
+   }
+  },
+  "variants": {
+   "V-ARC-OBL": {
+    "nodes": [
+     "A",
+     "B",
+     "C",
+     "D"
+    ],
+    "members": [
+     "P1",
+     "BEND1",
+     "P2"
+    ],
+    "connector": false,
+    "rods": false,
+    "anchors": [
+     "A",
+     "D"
+    ],
+    "purpose": "arc frame-order control: a realized arc in an oblique plane whose end-tangent frames are not signed permutations of the global axes, anchored at A and D"
+   }
+  },
+  "requests": {
+   "V-ARC-OBL": {
+    "cutoff_Hz": "320",
+    "rigid_frequency_Hz": "250"
+   }
+  },
+  "t1": [
+   [
+    3,
+    4,
+    0
+   ],
+   5
+  ],
+  "t2": [
+   [
+    -12,
+    9,
+    20
+   ],
+   25
+  ],
+  "section_material_spectra_directions_zeta_base_rules": "as w2_inputs.json",
+  "inputs_binary64": {
+   "node.A.x": {
+    "decimal": "0",
+    "hex": "0x0.0p+0",
+    "rational": "0"
+   },
+   "node.A.y": {
+    "decimal": "0",
+    "hex": "0x0.0p+0",
+    "rational": "0"
+   },
+   "node.A.z": {
+    "decimal": "0",
+    "hex": "0x0.0p+0",
+    "rational": "0"
+   },
+   "node.B.x": {
+    "decimal": "0.75",
+    "hex": "0x1.8000000000000p-1",
+    "rational": "3/4"
+   },
+   "node.B.y": {
+    "decimal": "1",
+    "hex": "0x1.0000000000000p+0",
+    "rational": "1"
+   },
+   "node.B.z": {
+    "decimal": "0",
+    "hex": "0x0.0p+0",
+    "rational": "0"
+   },
+   "node.C.x": {
+    "decimal": "0.84375",
+    "hex": "0x1.b000000000000p-1",
+    "rational": "27/32"
+   },
+   "node.C.y": {
+    "decimal": "1.90625",
+    "hex": "0x1.e800000000000p+0",
+    "rational": "61/32"
+   },
+   "node.C.z": {
+    "decimal": "0.625",
+    "hex": "0x1.4000000000000p-1",
+    "rational": "5/8"
+   },
+   "node.D.x": {
+    "decimal": "0.09375",
+    "hex": "0x1.8000000000000p-4",
+    "rational": "3/32"
+   },
+   "node.D.y": {
+    "decimal": "2.46875",
+    "hex": "0x1.3c00000000000p+1",
+    "rational": "79/32"
+   },
+   "node.D.z": {
+    "decimal": "1.875",
+    "hex": "0x1.e000000000000p+0",
+    "rational": "15/8"
+   },
+   "member.P1.y_reference.x": {
+    "decimal": "0",
+    "hex": "0x0.0p+0",
+    "rational": "0"
+   },
+   "member.P1.y_reference.y": {
+    "decimal": "0",
+    "hex": "0x0.0p+0",
+    "rational": "0"
+   },
+   "member.P1.y_reference.z": {
+    "decimal": "1",
+    "hex": "0x1.0000000000000p+0",
+    "rational": "1"
+   },
+   "member.BEND1.y_reference.x": {
+    "decimal": "27",
+    "hex": "0x1.b000000000000p+4",
+    "rational": "27"
+   },
+   "member.BEND1.y_reference.y": {
+    "decimal": "11",
+    "hex": "0x1.6000000000000p+3",
+    "rational": "11"
+   },
+   "member.BEND1.y_reference.z": {
+    "decimal": "-20",
+    "hex": "-0x1.4000000000000p+4",
+    "rational": "-20"
+   },
+   "member.BEND1.radius_m": {
+    "decimal": "0.78125",
+    "hex": "0x1.9000000000000p-1",
+    "rational": "25/32"
+   },
+   "member.BEND1.flexibility_factor": {
+    "decimal": "4.25",
+    "hex": "0x1.1000000000000p+2",
+    "rational": "17/4"
+   },
+   "member.P2.y_reference.x": {
+    "decimal": "0",
+    "hex": "0x0.0p+0",
+    "rational": "0"
+   },
+   "member.P2.y_reference.y": {
+    "decimal": "0",
+    "hex": "0x0.0p+0",
+    "rational": "0"
+   },
+   "member.P2.y_reference.z": {
+    "decimal": "1",
+    "hex": "0x1.0000000000000p+0",
+    "rational": "1"
+   },
+   "request.V-ARC-OBL.cutoff_Hz": {
+    "decimal": "320",
+    "hex": "0x1.4000000000000p+8",
+    "rational": "320"
+   },
+   "request.V-ARC-OBL.rigid_frequency_Hz": {
+    "decimal": "250",
+    "hex": "0x1.f400000000000p+7",
+    "rational": "250"
+   }
+  }
+ },
+ "end_frames_exact_rows": {
+  "i": [
+   [
+    "3/5",
+    "4/5",
+    "0"
+   ],
+   [
+    "-12/25",
+    "9/25",
+    "4/5"
+   ],
+   [
+    "16/25",
+    "-12/25",
+    "3/5"
+   ]
+  ],
+  "j": [
+   [
+    "-12/25",
+    "9/25",
+    "4/5"
+   ],
+   [
+    "-3/5",
+    "-4/5",
+    "0"
+   ],
+   [
+    "16/25",
+    "-12/25",
+    "3/5"
+   ]
+  ]
+ },
+ "end_frames_not_signed_permutations": true,
+ "witness_rule": {
+  "relative_difference_at_least": "0.01",
+  "component_at_least_this_fraction_of_its_end_and_unit_maximum": "0.001",
+  "context": "REQ-008 seeds the verification tolerance at 1e-9 relative; the spectrum screening class is 5e-3 on forces and moments. A witness differs by at least 1e-2 relative, on a component that is not small."
+ },
+ "base_request": {
+  "path": "directional/CQC/SRSS/SRSS",
+  "components": {
+   "BEND1.i.Fx_t": {
+    "correct": [
+     "2.794412640687852328243160818339564479652e+2",
+     279.44126406878524
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "3.700465329192349702428417907453549676065e+2",
+     370.04653291923495
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "3.700465329192349702428417907453549676065e+2",
+     370.04653291923495
+    ],
+    "rel_diff_a": [
+     "3.242372566284519892202467136831508987766e-1",
+     0.324237256628452
+    ],
+    "rel_diff_b": [
+     "3.242372566284519892202467136831508987766e-1",
+     0.324237256628452
+    ],
+    "witness_size": true
+   },
+   "BEND1.i.Fy_t": {
+    "correct": [
+     "8.597272643636451431142747861014018116703e+1",
+     85.97272643636451
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "1.456650972117976549891307902366318045974e+2",
+     145.66509721179764
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "3.666938323993833943901313193429295584923e+2",
+     366.6938323993834
+    ],
+    "rel_diff_a": [
+     "6.943175266125400094852252028642629966051e-1",
+     0.69431752661254
+    ],
+    "rel_diff_b": [
+     "3.265234424905713076281530660762542165555e+0",
+     3.2652344249057133
+    ],
+    "witness_size": true
+   },
+   "BEND1.i.Fz_t": {
+    "correct": [
+     "2.959340138426269102574092371291614848190e+2",
+     295.9340138426269
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "1.220774886414432876954998791959850717969e+2",
+     122.07748864144328
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "4.003617767538359474361596312606877175035e+2",
+     400.36177675383595
+    ],
+    "rel_diff_a": [
+     "5.874840912800169337116612971761937801481e-1",
+     0.5874840912800169
+    ],
+    "rel_diff_b": [
+     "3.528751614430576798396007095934153908960e-1",
+     0.3528751614430577
+    ],
+    "witness_size": true
+   },
+   "BEND1.i.Mx_t": {
+    "correct": [
+     "1.924699956164370472074911265599881397561e+1",
+     19.246999561643705
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "5.228863083916461114545571746593273517973e+1",
+     52.28863083916461
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "5.228863083916461114545571746593273517973e+1",
+     52.28863083916461
+    ],
+    "rel_diff_a": [
+     "1.716715957294859121486659024470126185420e+0",
+     1.7167159572948592
+    ],
+    "rel_diff_b": [
+     "1.716715957294859121486659024470126185420e+0",
+     1.7167159572948592
+    ],
+    "witness_size": true
+   },
+   "BEND1.i.My_t": {
+    "correct": [
+     "5.187124590526848326188367781959446642236e+1",
+     51.87124590526848
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "3.901608957184384571898626048969313189130e+1",
+     39.01608957184384
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "7.067217122120214536318557441652495773368e+1",
+     70.67217122120215
+    ],
+    "rel_diff_a": [
+     "2.478281774241894378387185975938697723026e-1",
+     0.24782817742418944
+    ],
+    "rel_diff_b": [
+     "3.624537060526645421824295678104307971773e-1",
+     0.3624537060526645
+    ],
+    "witness_size": true
+   },
+   "BEND1.i.Mz_t": {
+    "correct": [
+     "4.694998588039064057060437592916831319705e+1",
+     46.94998588039064
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "3.176504616000183550085561442074408456115e+1",
+     31.765046160001834
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "7.076934192998064414225298993473949739504e+1",
+     70.76934192998064
+    ],
+    "rel_diff_a": [
+     "3.234279933347332664604212019504327354586e-1",
+     0.32342799333473327
+    ],
+    "rel_diff_b": [
+     "5.073346797222043821171548300288439867605e-1",
+     0.5073346797222044
+    ],
+    "witness_size": true
+   },
+   "BEND1.j.Fx_t": {
+    "correct": [
+     "2.413879395186387086872453229358305153030e+2",
+     241.38793951863872
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "1.831949185802648422618090398586441987526e+2",
+     183.19491858026484
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "3.138736266152404662181829845107083710580e+2",
+     313.8736266152405
+    ],
+    "rel_diff_a": [
+     "2.410767541013808895554782700949986532708e-1",
+     0.24107675410138088
+    ],
+    "rel_diff_b": [
+     "3.002871114486844258352487519227038317099e-1",
+     0.3002871114486844
+    ],
+    "witness_size": true
+   },
+   "BEND1.j.Fy_t": {
+    "correct": [
+     "1.132370029509157036182780802347162341521e+2",
+     113.23700295091571
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "-2.263931328944568872116083207452438225771e+2",
+     -226.3931328944569
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "2.263931328944568872116083207452438225771e+2",
+     226.3931328944569
+    ],
+    "rel_diff_a": [
+     "2.999285807595865322781582618004911578847e+0",
+     2.9992858075958653
+    ],
+    "rel_diff_b": [
+     "9.992858075958653227815826180049115788474e-1",
+     0.9992858075958653
+    ],
+    "witness_size": true
+   },
+   "BEND1.j.Fz_t": {
+    "correct": [
+     "1.809003794472828924519578578986453869839e+2",
+     180.9003794472829
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "1.378458365389884378853013630691194291769e+2",
+     137.84583653898844
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "3.115085649861049845719508894743638870402e+2",
+     311.508564986105
+    ],
+    "rel_diff_a": [
+     "2.380013963477683018045078268313248423077e-1",
+     0.2380013963477683
+    ],
+    "rel_diff_b": [
+     "7.219895609831116659150151757238835629412e-1",
+     0.7219895609831116
+    ],
+    "witness_size": true
+   },
+   "BEND1.j.Mx_t": {
+    "correct": [
+     "5.723901886370626495541473834957901167009e+1",
+     57.239018863706264
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "3.126962302641005155760266914084172719095e+1",
+     31.269623026410052
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "8.480177189687981885857278320798956846834e+1",
+     84.80177189687981
+    ],
+    "rel_diff_a": [
+     "4.537009255719914965210039000753984191952e-1",
+     0.4537009255719915
+    ],
+    "rel_diff_b": [
+     "4.815378317158814960295962268553355861448e-1",
+     0.4815378317158815
+    ],
+    "witness_size": true
+   },
+   "BEND1.j.My_t": {
+    "correct": [
+     "2.533952457340824880560906704483548450717e+1",
+     25.339524573408248
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "-5.888052916593762711332170364313879705513e+1",
+     -58.880529165937624
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "5.888052916593762711332170364313879705513e+1",
+     58.880529165937624
+    ],
+    "rel_diff_a": [
+     "3.323663531861521569827042988074151230759e+0",
+     3.3236635318615217
+    ],
+    "rel_diff_b": [
+     "1.323663531861521569827042988074151230759e+0",
+     1.3236635318615215
+    ],
+    "witness_size": true
+   },
+   "BEND1.j.Mz_t": {
+    "correct": [
+     "5.994455759217957045853161983710699876570e+1",
+     59.94455759217957
+    ],
+    "wrong_a_frame_rows_on_magnitudes": [
+     "5.538086972893790013255228305468711273312e+1",
+     55.3808697289379
+    ],
+    "wrong_b_absolute_frame_rows_on_magnitudes": [
+     "8.588839307521072719281074187609278824123e+1",
+     85.88839307521073
+    ],
+    "rel_diff_a": [
+     "7.613181323798866116364927185137616080083e-2",
+     0.07613181323798866
+    ],
+    "rel_diff_b": [
+     "4.327971800131496272201726244089547802261e-1",
+     0.43279718001314965
+    ],
+    "witness_size": true
+   }
+  },
+  "witnesses_b": [
+   "BEND1.i.Fx_t",
+   "BEND1.i.Fy_t",
+   "BEND1.i.Fz_t",
+   "BEND1.i.Mx_t",
+   "BEND1.i.My_t",
+   "BEND1.i.Mz_t",
+   "BEND1.j.Fx_t",
+   "BEND1.j.Fy_t",
+   "BEND1.j.Fz_t",
+   "BEND1.j.Mx_t",
+   "BEND1.j.My_t",
+   "BEND1.j.Mz_t"
+  ],
+  "witnesses_a": [
+   "BEND1.i.Fx_t",
+   "BEND1.i.Fy_t",
+   "BEND1.i.Fz_t",
+   "BEND1.i.Mx_t",
+   "BEND1.i.My_t",
+   "BEND1.i.Mz_t",
+   "BEND1.j.Fx_t",
+   "BEND1.j.Fy_t",
+   "BEND1.j.Fz_t",
+   "BEND1.j.Mx_t",
+   "BEND1.j.My_t",
+   "BEND1.j.Mz_t"
+  ],
+  "smallest_rel_diff_b": [
+   "3.002871114486844258352487519227038317099e-1",
+   0.3002871114486844
+  ],
+  "smallest_rel_diff_a": [
+   "7.613181323798866116364927185137616080083e-2",
+   0.07613181323798866
+  ]
+ },
+ "strongest_witness_b_by_path_family": {
+  "periodic": {
+   "path": "periodic/ABSOLUTE_SUM/X",
+   "component": "BEND1.i.Fy_t",
+   "correct": [
+    "7.689909871261833853732776321335054355722e+1",
+    76.89909871261834
+   ],
+   "wrong_b": [
+    "4.207645072046212295453030667122093795085e+2",
+    420.7645072046212
+   ],
+   "rel_diff_b": [
+    "4.471644196729423705393394507033561437948e+0",
+    4.471644196729423
+   ]
+  },
+  "correction_off": {
+   "path": "correction_off/ABSOLUTE_SUM/X",
+   "component": "BEND1.i.Fy_t",
+   "correct": [
+    "7.961484629923556454188372617758113191081e+1",
+    79.61484629923557
+   ],
+   "wrong_b": [
+    "4.406997010444385212153219217008769499899e+2",
+    440.69970104443854
+   ],
+   "rel_diff_b": [
+    "4.535395991195551352659038903617248680902e+0",
+    4.535395991195552
+   ]
+  },
+  "periodic_with_rigid": {
+   "path": "periodic_with_rigid/ABSOLUTE_SUM/SRSS/X",
+   "component": "BEND1.i.Fy_t",
+   "correct": [
+    "7.720603049017738438885706671297099114978e+1",
+    77.20603049017738
+   ],
+   "wrong_b": [
+    "4.222772296149456502987259181939972140590e+2",
+    422.27722961494567
+   ],
+   "rel_diff_b": [
+    "4.469485051024224066872980401823981584485e+0",
+    4.469485051024224
+   ]
+  },
+  "directional": {
+   "path": "directional/ABSOLUTE_SUM/ABSOLUTE_SUM/100-40-40",
+   "component": "BEND1.i.Fy_t",
+   "correct": [
+    "1.348791170813098386795524493729309501719e+2",
+    134.87911708130983
+   ],
+   "wrong_b": [
+    "6.856680317551837225983873013066408976719e+2",
+    685.6680317551837
+   ],
+   "rel_diff_b": [
+    "4.083574437559812206992001547817877322053e+0",
+    4.083574437559812
+   ]
+  },
+  "single_mode": {
+   "path": "single_mode/2/X",
+   "component": "BEND1.j.Fy_t",
+   "correct": [
+    "7.588448882726789189725039330546496121080e-1",
+    0.7588448882726789
+   ],
+   "wrong_b": [
+    "1.194302657936520223436101069197069047637e+1",
+    11.943026579365203
+   ],
+   "rel_diff_b": [
+    "1.473842924151538115449405457539254943408e+1",
+    14.738429241515382
+   ]
+  },
+  "single_rigid": {
+   "path": "single_rigid/Z",
+   "component": "BEND1.j.Fz_t",
+   "correct": [
+    "1.372603911367727782965526403924496625903e+0",
+    1.3726039113677277
+   ],
+   "wrong_b": [
+    "3.270652334557044702050441322138464305617e+1",
+    32.706523345570446
+   ],
+   "rel_diff_b": [
+    "2.282808549115972755706887994027761496708e+1",
+    22.828085491159726
+   ]
+  }
+ },
+ "path_families": {
+  "periodic": {
+   "paths": 15,
+   "paths_with_witness_a": 15,
+   "paths_with_witness_b": 15,
+   "min_witnesses_b_per_path": 12
+  },
+  "correction_off": {
+   "paths": 15,
+   "paths_with_witness_a": 15,
+   "paths_with_witness_b": 15,
+   "min_witnesses_b_per_path": 12
+  },
+  "periodic_with_rigid": {
+   "paths": 30,
+   "paths_with_witness_a": 30,
+   "paths_with_witness_b": 30,
+   "min_witnesses_b_per_path": 12
+  },
+  "directional": {
+   "paths": 45,
+   "paths_with_witness_a": 45,
+   "paths_with_witness_b": 45,
+   "min_witnesses_b_per_path": 12
+  },
+  "single_mode": {
+   "paths": 24,
+   "paths_with_witness_a": 24,
+   "paths_with_witness_b": 24,
+   "min_witnesses_b_per_path": 2
+  },
+  "single_rigid": {
+   "paths": 3,
+   "paths_with_witness_a": 3,
+   "paths_with_witness_b": 3,
+   "min_witnesses_b_per_path": 8
+  }
+ },
+ "paths_without_witness_b": [],
+ "contrast_original_V_ARC_signed_permutation_frames": {
+  "paths": 126,
+  "paths_with_witness_b": 0,
+  "paths_with_witness_a": 117,
+  "max_rel_diff_b": "see cross_checks (a residual of the working precision)",
+  "note": "wrong path b equals the correct path for a signed permutation (C1 of REFUTATION.md); wrong path a differs only by sign there"
+ },
+ "all_paths": {
+  "periodic/SRSS/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.280740310609691396496205633277616188711e+0",
+    4.2807403106096915
+   ]
+  },
+  "correction_off/SRSS/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.284174122002518896306452828590329622499e+0",
+    4.2841741220025185
+   ]
+  },
+  "periodic_with_rigid/SRSS/SRSS/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.285080409787027607513673784038749215397e+0",
+    4.285080409787027
+   ]
+  },
+  "periodic_with_rigid/SRSS/ABSOLUTE_SUM/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.157961974343688416114102496069189260075e+0",
+    4.157961974343689
+   ]
+  },
+  "periodic/SRSS/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.096549483629748636920282238835605554316e+0",
+    3.0965494836297487
+   ]
+  },
+  "correction_off/SRSS/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.139901753546385995308028745438722071617e+0",
+    3.139901753546386
+   ]
+  },
+  "periodic_with_rigid/SRSS/SRSS/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.117185698822466681844645303729518849839e+0",
+    3.1171856988224667
+   ]
+  },
+  "periodic_with_rigid/SRSS/ABSOLUTE_SUM/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.403294061021868899439178787863128215919e+0",
+    3.4032940610218687
+   ]
+  },
+  "periodic/SRSS/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.192397698964991705563879102700722827904e+0",
+    4.192397698964991
+   ]
+  },
+  "correction_off/SRSS/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.952826147766518694574658149969130856546e+0",
+    3.9528261477665185
+   ]
+  },
+  "periodic_with_rigid/SRSS/SRSS/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.125186434623216858048127158159073128075e+0",
+    4.125186434623217
+   ]
+  },
+  "periodic_with_rigid/SRSS/ABSOLUTE_SUM/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.868851281394122226845365635016575998373e+0",
+    3.868851281394122
+   ]
+  },
+  "periodic/CQC/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.991174693922055110380736757492513183628e+0",
+    3.991174693922055
+   ]
+  },
+  "correction_off/CQC/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.955901017211233454617663009597332995860e+0",
+    3.9559010172112337
+   ]
+  },
+  "periodic_with_rigid/CQC/SRSS/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.997980460503974079306541035897574639692e+0",
+    3.997980460503974
+   ]
+  },
+  "periodic_with_rigid/CQC/ABSOLUTE_SUM/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.909918666316351385294640475058081980858e+0",
+    3.909918666316351
+   ]
+  },
+  "periodic/CQC/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.102186052436744716415335811018033971319e+0",
+    3.102186052436745
+   ]
+  },
+  "correction_off/CQC/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.099239395465351058175928771946540846605e+0",
+    3.099239395465351
+   ]
+  },
+  "periodic_with_rigid/CQC/SRSS/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.122772655023686524913963848279902143825e+0",
+    3.1227726550236867
+   ]
+  },
+  "periodic_with_rigid/CQC/ABSOLUTE_SUM/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.408533360484584249070678264840740844222e+0",
+    3.408533360484584
+   ]
+  },
+  "periodic/CQC/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.088426772489257904062926887118634800284e+0",
+    4.088426772489258
+   ]
+  },
+  "correction_off/CQC/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.747540597823453128060383440682310376267e+0",
+    3.7475405978234533
+   ]
+  },
+  "periodic_with_rigid/CQC/SRSS/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.029079094212203572602743548321188237132e+0",
+    4.029079094212204
+   ]
+  },
+  "periodic_with_rigid/CQC/ABSOLUTE_SUM/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.793054868496988014287388331336073284426e+0",
+    3.793054868496988
+   ]
+  },
+  "periodic/GROUPING/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.310973811982099265428320813880215838750e+0",
+    4.310973811982099
+   ]
+  },
+  "correction_off/GROUPING/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.318799431230778774434183985237572620524e+0",
+    4.3187994312307785
+   ]
+  },
+  "periodic_with_rigid/GROUPING/SRSS/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.314663581170792069066721871844633946882e+0",
+    4.314663581170792
+   ]
+  },
+  "periodic_with_rigid/GROUPING/ABSOLUTE_SUM/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.184537254659629051507155183024133866547e+0",
+    4.184537254659629
+   ]
+  },
+  "periodic/GROUPING/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.097739034343730318060039836196167648375e+0",
+    3.0977390343437303
+   ]
+  },
+  "correction_off/GROUPING/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.185120942308001669727312855600008352172e+0",
+    3.185120942308002
+   ]
+  },
+  "periodic_with_rigid/GROUPING/SRSS/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.118367937732634940319995321186993362850e+0",
+    3.1183679377326348
+   ]
+  },
+  "periodic_with_rigid/GROUPING/ABSOLUTE_SUM/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.404452199794512533261830603444977079624e+0",
+    3.4044521997945125
+   ]
+  },
+  "periodic/GROUPING/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.204294650255928451636386211888312172715e+0",
+    4.204294650255928
+   ]
+  },
+  "correction_off/GROUPING/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.986587512318374307564135810875661733493e+0",
+    3.9865875123183745
+   ]
+  },
+  "periodic_with_rigid/GROUPING/SRSS/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.136647332805222114314833383772860244438e+0",
+    4.1366473328052225
+   ]
+  },
+  "periodic_with_rigid/GROUPING/ABSOLUTE_SUM/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.878570455235868755388458724807819786118e+0",
+    3.878570455235869
+   ]
+  },
+  "periodic/TEN_PERCENT/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.326634424243163045895246896635018102238e+0",
+    4.326634424243163
+   ]
+  },
+  "correction_off/TEN_PERCENT/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.334395233765314411934761995027752618300e+0",
+    4.334395233765314
+   ]
+  },
+  "periodic_with_rigid/TEN_PERCENT/SRSS/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.329980092300028912059765222070850252924e+0",
+    4.329980092300029
+   ]
+  },
+  "periodic_with_rigid/TEN_PERCENT/ABSOLUTE_SUM/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.198302949728505583113672670272467359415e+0",
+    4.198302949728506
+   ]
+  },
+  "periodic/TEN_PERCENT/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.097916313613612839300953295759388037755e+0",
+    3.097916313613613
+   ]
+  },
+  "correction_off/TEN_PERCENT/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.185291195420056449175175226413898110610e+0",
+    3.1852911954200565
+   ]
+  },
+  "periodic_with_rigid/TEN_PERCENT/SRSS/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.118544127929022402548667429223122123500e+0",
+    3.1185441279290225
+   ]
+  },
+  "periodic_with_rigid/TEN_PERCENT/ABSOLUTE_SUM/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.404624797728861774017113199468792631466e+0",
+    3.4046247977288617
+   ]
+  },
+  "periodic/TEN_PERCENT/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.216558828439152229149311241978411369436e+0",
+    4.216558828439152
+   ]
+  },
+  "correction_off/TEN_PERCENT/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.998126246916374453517631873385110480971e+0",
+    3.9981262469163745
+   ]
+  },
+  "periodic_with_rigid/TEN_PERCENT/SRSS/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.148461022035851056904629274657577463595e+0",
+    4.148461022035851
+   ]
+  },
+  "periodic_with_rigid/TEN_PERCENT/ABSOLUTE_SUM/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.888589633836668219224889623061360196362e+0",
+    3.888589633836668
+   ]
+  },
+  "periodic/ABSOLUTE_SUM/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.471644196729423705393394507033561437948e+0",
+    4.471644196729423
+   ]
+  },
+  "correction_off/ABSOLUTE_SUM/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.535395991195551352659038903617248680902e+0",
+    4.535395991195552
+   ]
+  },
+  "periodic_with_rigid/ABSOLUTE_SUM/SRSS/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.469485051024224066872980401823981584485e+0",
+    4.469485051024224
+   ]
+  },
+  "periodic_with_rigid/ABSOLUTE_SUM/ABSOLUTE_SUM/X": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.372671898077085206624556190671564193510e+0",
+    4.372671898077085
+   ]
+  },
+  "periodic/ABSOLUTE_SUM/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.041169615052569695551436803431872645933e+0",
+    4.04116961505257
+   ]
+  },
+  "correction_off/ABSOLUTE_SUM/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.389526164052870440154950800477078113934e+0",
+    4.389526164052871
+   ]
+  },
+  "periodic_with_rigid/ABSOLUTE_SUM/SRSS/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.054446398666242673963028322043655843432e+0",
+    4.054446398666243
+   ]
+  },
+  "periodic_with_rigid/ABSOLUTE_SUM/ABSOLUTE_SUM/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.296019868094853932818364064401206984033e+0",
+    4.296019868094854
+   ]
+  },
+  "periodic/ABSOLUTE_SUM/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.204110059886829191249160954520327526223e+0",
+    4.204110059886829
+   ]
+  },
+  "correction_off/ABSOLUTE_SUM/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.675964312477147161244961565221668385348e+0",
+    3.6759643124771473
+   ]
+  },
+  "periodic_with_rigid/ABSOLUTE_SUM/SRSS/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.176541880211114704689044446344354861193e+0",
+    4.176541880211115
+   ]
+  },
+  "periodic_with_rigid/ABSOLUTE_SUM/ABSOLUTE_SUM/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.987209292001450027459776250362448507718e+0",
+    3.98720929200145
+   ]
+  },
+  "directional/SRSS/SRSS/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.350301264659174668959531115783484324243e+0",
+    3.3503012646591745
+   ]
+  },
+  "directional/SRSS/SRSS/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.415186111766298790223987306505349524959e+0",
+    3.4151861117662987
+   ]
+  },
+  "directional/SRSS/SRSS/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.390884083322722825563346354413469336577e+0",
+    3.3908840833227227
+   ]
+  },
+  "directional/SRSS/ABSOLUTE_SUM/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.506383408471248200017482263888021637057e+0",
+    3.5063834084712484
+   ]
+  },
+  "directional/SRSS/ABSOLUTE_SUM/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.537708534769082463352408352421025926267e+0",
+    3.5377085347690826
+   ]
+  },
+  "directional/SRSS/ABSOLUTE_SUM/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.513086263362880133597188257078804727923e+0",
+    3.5130862633628803
+   ]
+  },
+  "directional/SRSS/OFF/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.194601311182631808127201730242840223354e+0",
+    3.1946013111826317
+   ]
+  },
+  "directional/SRSS/OFF/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.260207524262459333002138874527246974102e+0",
+    3.2602075242624595
+   ]
+  },
+  "directional/SRSS/OFF/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.227531259216350213374061083849302113974e+0",
+    3.22753125921635
+   ]
+  },
+  "directional/CQC/SRSS/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.265234424905713076281530660762542165555e+0",
+    3.2652344249057133
+   ]
+  },
+  "directional/CQC/SRSS/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.402060731890604237260714223123605130547e+0",
+    3.402060731890604
+   ]
+  },
+  "directional/CQC/SRSS/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.289539535114293030752249018986701209480e+0",
+    3.289539535114293
+   ]
+  },
+  "directional/CQC/ABSOLUTE_SUM/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.417639930954084805472118613616025001024e+0",
+    3.417639930954085
+   ]
+  },
+  "directional/CQC/ABSOLUTE_SUM/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.523661582375226274768839897010900288296e+0",
+    3.5236615823752264
+   ]
+  },
+  "directional/CQC/ABSOLUTE_SUM/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.417028945647850011333982324232591310789e+0",
+    3.41702894564785
+   ]
+  },
+  "directional/CQC/OFF/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.104209550636067657074303999085414628618e+0",
+    3.104209550636068
+   ]
+  },
+  "directional/CQC/OFF/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.240419858369977213742466060439786617861e+0",
+    3.240419858369977
+   ]
+  },
+  "directional/CQC/OFF/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.108209613382836368303105543830766267111e+0",
+    3.1082096133828365
+   ]
+  },
+  "directional/GROUPING/SRSS/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.367568234784807324823011070667812654734e+0",
+    3.3675682347848075
+   ]
+  },
+  "directional/GROUPING/SRSS/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.434667272925646348974354399603123539801e+0",
+    3.434667272925646
+   ]
+  },
+  "directional/GROUPING/SRSS/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.406806538314688869152276168292933750967e+0",
+    3.406806538314689
+   ]
+  },
+  "directional/GROUPING/ABSOLUTE_SUM/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.522018196742708989807500473719542310332e+0",
+    3.522018196742709
+   ]
+  },
+  "directional/GROUPING/ABSOLUTE_SUM/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.555781807469913977592092103805007504561e+0",
+    3.555781807469914
+   ]
+  },
+  "directional/GROUPING/ABSOLUTE_SUM/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.527703289484318326674370051727820059590e+0",
+    3.527703289484318
+   ]
+  },
+  "directional/GROUPING/OFF/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.223022284757033859052903498037045357592e+0",
+    3.223022284757034
+   ]
+  },
+  "directional/GROUPING/OFF/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.288960314477734798599879444846839635964e+0",
+    3.288960314477735
+   ]
+  },
+  "directional/GROUPING/OFF/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.256623633950797247749223807026173729414e+0",
+    3.2566236339507975
+   ]
+  },
+  "directional/TEN_PERCENT/SRSS/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.376089039511187987991101593219274186590e+0",
+    3.376089039511188
+   ]
+  },
+  "directional/TEN_PERCENT/SRSS/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.444706354887189995913677712703586219912e+0",
+    3.44470635488719
+   ]
+  },
+  "directional/TEN_PERCENT/SRSS/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.414972265992481101792584094134496587397e+0",
+    3.414972265992481
+   ]
+  },
+  "directional/TEN_PERCENT/ABSOLUTE_SUM/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.529545227661834002049628761647407154827e+0",
+    3.529545227661834
+   ]
+  },
+  "directional/TEN_PERCENT/ABSOLUTE_SUM/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.565056847021575640578442880526714002493e+0",
+    3.5650568470215758
+   ]
+  },
+  "directional/TEN_PERCENT/ABSOLUTE_SUM/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.535133625867002510565332669739740066215e+0",
+    3.5351336258670023
+   ]
+  },
+  "directional/TEN_PERCENT/OFF/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.231671005862932964023430639478713865075e+0",
+    3.2316710058629328
+   ]
+  },
+  "directional/TEN_PERCENT/OFF/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.298923308277567574234564125783981776763e+0",
+    3.2989233082775677
+   ]
+  },
+  "directional/TEN_PERCENT/OFF/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.264763508451132739967328365747974318070e+0",
+    3.2647635084511326
+   ]
+  },
+  "directional/ABSOLUTE_SUM/SRSS/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.860626174262691439035279922634429883748e+0",
+    3.8606261742626913
+   ]
+  },
+  "directional/ABSOLUTE_SUM/SRSS/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.072096193457590814437338979974583096179e+0",
+    4.0720961934575906
+   ]
+  },
+  "directional/ABSOLUTE_SUM/SRSS/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.836389045480238975499077071202145333609e+0",
+    3.836389045480239
+   ]
+  },
+  "directional/ABSOLUTE_SUM/ABSOLUTE_SUM/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.940863175538299491615816766409392673824e+0",
+    3.9408631755382997
+   ]
+  },
+  "directional/ABSOLUTE_SUM/ABSOLUTE_SUM/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "4.083574437559812206992001547817877322053e+0",
+    4.083574437559812
+   ]
+  },
+  "directional/ABSOLUTE_SUM/ABSOLUTE_SUM/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.911830980555247450761238208421246234289e+0",
+    3.9118309805552474
+   ]
+  },
+  "directional/ABSOLUTE_SUM/OFF/SRSS": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.571136454740179047593456113625143270567e+0",
+    3.571136454740179
+   ]
+  },
+  "directional/ABSOLUTE_SUM/OFF/100-40-40": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.693865210744114657683246160395187736414e+0",
+    3.693865210744115
+   ]
+  },
+  "directional/ABSOLUTE_SUM/OFF/ABSOLUTE_SUM": {
+   "witnesses_b": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fx_t",
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.540695088646606663699476865370348898147e+0",
+    3.540695088646607
+   ]
+  },
+  "single_mode/1/X": {
+   "witnesses_b": [
+    "BEND1.i.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "8.172309390744295318318541476778803904399e-1",
+    0.8172309390744296
+   ]
+  },
+  "single_mode/2/X": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "1.473842924151538115449405457539254943408e+1",
+    14.738429241515382
+   ]
+  },
+  "single_mode/3/X": {
+   "witnesses_b": [
+    "BEND1.i.My_t",
+    "BEND1.j.Mx_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "8.282710559796437319232958423791127353658e-1",
+    0.8282710559796437
+   ]
+  },
+  "single_mode/4/X": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "1.462550736744355001263349813536455375898e+0",
+    1.462550736744355
+   ]
+  },
+  "single_mode/5/X": {
+   "witnesses_b": [
+    "BEND1.i.Mx_t",
+    "BEND1.j.Mx_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "3.982588722243761141921856452761629061442e+0",
+    3.982588722243761
+   ]
+  },
+  "single_mode/6/X": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.263224033717945512567881294491158947396e+0",
+    3.2632240337179454
+   ]
+  },
+  "single_mode/7/X": {
+   "witnesses_b": [
+    "BEND1.i.Mx_t",
+    "BEND1.j.Mx_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "1.653856369989528071554892669081882017883e+0",
+    1.6538563699895281
+   ]
+  },
+  "single_mode/8/X": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fy_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "1.383737958480545980493381228143603160266e+0",
+    1.383737958480546
+   ]
+  },
+  "single_rigid/X": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "1.030824948282411592396326632206171077508e+1",
+    10.308249482824117
+   ]
+  },
+  "single_mode/1/Y": {
+   "witnesses_b": [
+    "BEND1.i.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "8.172309390744295318318541476778803904399e-1",
+    0.8172309390744296
+   ]
+  },
+  "single_mode/2/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "1.473842924151538115449405457539254943408e+1",
+    14.738429241515382
+   ]
+  },
+  "single_mode/3/Y": {
+   "witnesses_b": [
+    "BEND1.i.My_t",
+    "BEND1.j.Mx_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "8.282710559796437319232958423791127353658e-1",
+    0.8282710559796437
+   ]
+  },
+  "single_mode/4/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "1.462550736744355001263349813536455375898e+0",
+    1.462550736744355
+   ]
+  },
+  "single_mode/5/Y": {
+   "witnesses_b": [
+    "BEND1.i.Mx_t",
+    "BEND1.j.Mx_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "3.982588722243761141921856452761629061442e+0",
+    3.982588722243761
+   ]
+  },
+  "single_mode/6/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.263224033717945512567881294491158947396e+0",
+    3.2632240337179454
+   ]
+  },
+  "single_mode/7/Y": {
+   "witnesses_b": [
+    "BEND1.i.Mx_t",
+    "BEND1.j.Mx_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "1.653856369989528071554892669081882017883e+0",
+    1.6538563699895281
+   ]
+  },
+  "single_mode/8/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fy_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "1.383737958480545980493381228143603160266e+0",
+    1.383737958480546
+   ]
+  },
+  "single_rigid/Y": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fy_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "2.083319330176247411829848200551087566382e+1",
+    20.833193301762474
+   ]
+  },
+  "single_mode/1/Z": {
+   "witnesses_b": [
+    "BEND1.i.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "8.172309390744295318318541476778803904399e-1",
+    0.8172309390744296
+   ]
+  },
+  "single_mode/2/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "1.473842924151538115449405457539254943408e+1",
+    14.738429241515382
+   ]
+  },
+  "single_mode/3/Z": {
+   "witnesses_b": [
+    "BEND1.i.My_t",
+    "BEND1.j.Mx_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "8.282710559796437319232958423791127353658e-1",
+    0.8282710559796437
+   ]
+  },
+  "single_mode/4/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "1.462550736744355001263349813536455375898e+0",
+    1.462550736744355
+   ]
+  },
+  "single_mode/5/Z": {
+   "witnesses_b": [
+    "BEND1.i.Mx_t",
+    "BEND1.j.Mx_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "3.982588722243761141921856452761629061442e+0",
+    3.982588722243761
+   ]
+  },
+  "single_mode/6/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "3.263224033717945512567881294491158947396e+0",
+    3.2632240337179454
+   ]
+  },
+  "single_mode/7/Z": {
+   "witnesses_b": [
+    "BEND1.i.Mx_t",
+    "BEND1.j.Mx_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "1.653856369989528071554892669081882017883e+0",
+    1.6538563699895281
+   ]
+  },
+  "single_mode/8/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.j.Fy_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fy_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Mz_t"
+   ],
+   "max_rel_diff_b": [
+    "1.383737958480545980493381228143603160266e+0",
+    1.383737958480546
+   ]
+  },
+  "single_rigid/Z": {
+   "witnesses_b": [
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.Mz_t"
+   ],
+   "witnesses_a": [
+    "BEND1.i.Fy_t",
+    "BEND1.i.Fz_t",
+    "BEND1.i.Mx_t",
+    "BEND1.i.My_t",
+    "BEND1.i.Mz_t",
+    "BEND1.j.Fx_t",
+    "BEND1.j.Fy_t",
+    "BEND1.j.Fz_t",
+    "BEND1.j.Mx_t",
+    "BEND1.j.My_t"
+   ],
+   "max_rel_diff_b": [
+    "2.282808549115972755706887994027761496708e+1",
+    22.828085491159726
+   ]
+  }
+ },
+ "cross_checks": {
+  "end_frames_exact_vs_recovery_frames": "5.00e-80",
+  "contrast_V_ARC_max_rel_diff_b": "6.36e-78",
+  "linear_order_equivalence_rotation_of_signed_sum_vs_sum_of_rotated": "6.81e-80",
+  "linear_order_equivalence_elastic_minus_lump_rotated_vs_total_rotated": "1.48e-79",
+  "binary64_rounding_published_values": 12072,
+  "binary64_rounding_min_relative_margin": "5.53e-21",
+  "precision_convergence": {
+   "working_precisions_digits": [
+    80,
+    100
+   ],
+   "decimal_binary64_pairs_compared": 12072,
+   "scalar_leaves_compared": 18327,
+   "identical_at_40_digits_and_binary64": true
+  }
+ }
+}

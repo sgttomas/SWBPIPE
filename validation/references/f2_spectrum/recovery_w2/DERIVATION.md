@@ -349,3 +349,39 @@ The base request is then recombined. The mass-only and mass-plus-stiffness
 mutants change T_k, frequencies and combined values. The stiffness-only
 mutant leaves M and T_k unchanged while changing frequencies and combined
 values. The reference publishes no member key for the span.
+
+## 8. Additive arc frame-order control (V-ARC-OBL)
+
+- **Geometry.** Take the unit tangents t1 = (3,4,0)/5 and t2 = (−12,9,20)/25,
+  with t1·t2 = 0, and R = 25/32 m. Then B = A + (5/4)t1,
+  centre = B + R t2, C = B + R(t1 + t2) and D = C + (25/16)t2. Every
+  coordinate is dyadic. The straights are tangent to the arc. The bow
+  direction is t1 − t2, normal to the chord t1 + t2; y_reference is its
+  integer multiple (27, 11, −20).
+- **End-tangent frames.** By §4, x is the traversal tangent, y points toward
+  the centre and z = x × y:
+  - Λ_B has the rows t1, t2 and t1 × t2 = (16,−12,15)/25;
+  - Λ_C has the rows t2, −t1 and the same z.
+
+  They are exact rationals. The generator checks them against the frames used
+  in recovery, which come from the U4a rotation rows and from the arc's own
+  geometry, both at 80 digits (5.0e-80).
+- **The correct magnitude.** For one end component k with frame row λ_k,
+  combine the rotated signed contributions λ_k·G_u over the units u (modes,
+  clusters, or the rigid response), using rule C: C({λ_k·G_u}_u).
+- **The two wrong orders.** Combine each global component first,
+  m_c = C({G_u,c}_u), then:
+  - a: Σ_c λ_k,c m_c;
+  - b: Σ_c |λ_k,c| m_c.
+- **Why b can differ only for a non-permutation frame.** For SRSS, CQC (whose
+  ρ matrix is positive semidefinite) and ABSOLUTE_SUM, C is a norm of the
+  vector of unit values, so the triangle inequality gives
+  C({λ_k·G_u}) ≤ Σ_c |λ_k,c| C({G_u,c}), the wrong-b value. Equality holds
+  when λ_k has one nonzero entry (a signed permutation), or when the
+  contributions are suitably collinear. A non-permutation frame and unequal,
+  non-collinear contributions make the difference strict. The witnesses are
+  the components where it is large.
+- **Not mutants.** Linear operations commute with Λ. Rotating a signed sum (a
+  cluster sum, a superposition, or the elastic minus lump split) equals
+  summing the rotated parts, so such orders are never flagged.
+

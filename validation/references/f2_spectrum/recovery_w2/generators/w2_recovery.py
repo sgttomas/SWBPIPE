@@ -40,10 +40,12 @@ import numeric as f1n  # noqa: E402  (f1_modal)
 from model import DOFS, Model, form_mass, form_stiffness, section_basis  # noqa: E402
 from numeric import QPi, QPiField, PointField, exact_double, pi_decimal, set_point_precision  # noqa: E402
 import w2_cases as cases  # noqa: E402
+import w2_cases_oblique as obl  # noqa: E402
 
 for _mod in (el, eg, f1m, f1n):
     assert Path(_mod.__file__).resolve() == (F1 / Path(_mod.__file__).name).resolve(), _mod.__file__
 assert Path(cases.__file__).resolve().parent == HERE
+assert Path(obl.__file__).resolve().parent == HERE
 
 QF = QPiField()
 PF = PointField()
@@ -222,18 +224,19 @@ def rod(xi, xj, offset, k):
 
 # ============================================================================ the model
 class System:
-    def __init__(self, vid, prec):
+    def __init__(self, vid, prec, src=cases):
         self.vid = vid
-        var = cases.VARIANTS[vid]
+        self.src = src
+        var = src.VARIANTS[vid]
         self.var = var
         self.node_ids = list(var["nodes"])
         spec_members = []
         for mid in var["members"]:
-            m = dict(cases.PIPE_MEMBERS[mid])
+            m = dict(src.PIPE_MEMBERS[mid])
             m.update({"id": mid, "section": "s3", "material": "steel"})
             spec_members.append(m)
         pipe_spec = {
-            "nodes": [{"id": n, "xyz": cases.NODES[n]} for n in self.node_ids],
+            "nodes": [{"id": n, "xyz": src.NODES[n]} for n in self.node_ids],
             "materials": cases.MATERIAL,
             "sections": cases.SECTION,
             "members": spec_members,
@@ -1505,7 +1508,7 @@ def publish_variant(S, mb, rec, an):
     unit = rec.unit.get
     by = an["_by"]
     ao = {
-        "request": dict(cases.REQUESTS[S.vid], directions=cases.DIRECTIONS, zeta=cases.ZETA,
+        "request": dict(S.src.REQUESTS[S.vid], directions=cases.DIRECTIONS, zeta=cases.ZETA,
                         base_rules=cases.BASE_RULES),
         "extracted_modes": an["extracted"],
         "extracted_clusters": an["clusters"],
@@ -1658,12 +1661,263 @@ def publish_controls(systems, mbs, recs, ans, conv=None):
     return out
 
 
+# ============================================================================ arc frame-order control (additive)
+COMPS = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"]
+WITNESS_REL = Decimal("1e-2")
+WITNESS_SIZE = Decimal("1e-3")
+
+
+def exact_end_frames():
+    """End-tangent frames of V-ARC-OBL as exact rationals: x = t, y toward the centre, z = x cross y."""
+    t1 = [Fraction(v, obl.T1[1]) for v in obl.T1[0]]
+    t2 = [Fraction(v, obl.T2[1]) for v in obl.T2[0]]
+    z = cross(t1, t2)
+    return {"i": [t1, t2, z], "j": [t2, [-v for v in t1], z]}
+
+
+def rotate_mags(tf, mags):
+    """Apply each end's frame rows to a 12-vector of global component magnitudes (wrong path a)."""
+    return rotate_ends(tf, mags)
+
+
+def rotate_abs(tf, mags):
+    """Apply the absolute values of the frame rows (wrong path b; equals the correct path for a signed permutation)."""
+    ab = {e: [[abs(x) for x in r] for r in tf[e]] for e in ("i", "j")}
+    return rotate_ends(ab, mags)
+
+
+def frame_order_rows(rec, gl, tl):
+    """gl, tl: dicts key -> value for the 12 global and the 12 tangent arc-end combined magnitudes."""
+    gk = rec.end_keys["BEND1"]
+    G = [gl[k] for k in gk]
+    T = [tl[k + "_t"] for k in gk]
+    Wa = rotate_mags(rec.tangent, G)
+    Wb = rotate_abs(rec.tangent, G)
+    return gk, T, Wa, Wb
+
+
+def frame_order_control(S, an, rec):
+    """Per path: correct (rotate signed contributions, then combine) against wrong (combine global
+    component magnitudes, then rotate: a by the frame rows, b by their absolute values)."""
+    gk = rec.end_keys["BEND1"]
+    paths = []
+
+    def add_path(pid, desc, gl, tl):
+        _, T, Wa, Wb = frame_order_rows(rec, gl, tl)
+        paths.append((pid, desc, T, Wa, Wb))
+
+    dirs = [ax for ax, _, _ in cases.DIRECTIONS]
+    for rule in MODAL_RULES:
+        for ax in dirs:
+            add_path(f"periodic/{rule}/{ax}", "periodic modal combination, one direction",
+                     an["periodic_combined"][rule][ax], an["periodic_combined"][rule][ax])
+            add_path(f"correction_off/{rule}/{ax}", "every extracted mode periodic, one direction",
+                     an["correction_off"][rule][ax], an["correction_off"][rule][ax])
+            for rr in ("SRSS", "ABSOLUTE_SUM"):
+                comb = {k: total_rule(rr, an["periodic_combined"][rule][ax][k], an["rigid"][ax][k])
+                        for k in gk + [k + "_t" for k in gk]}
+                add_path(f"periodic_with_rigid/{rule}/{rr}/{ax}", "periodic part combined with the rigid response, one direction",
+                         comb, comb)
+    for rules, comb in an["grid"]:
+        add_path(f"directional/{rules['modal']}/{rules['rigid']}/{rules['directional']}",
+                 "full request: modal, rigid and directional combination", comb, comb)
+    # single signed responses: one mode in one direction, and each rigid response
+    for ax in dirs:
+        for i, out in an["contrib"][ax].items():
+            mag = {k: abs(out[k]) for k in gk + [k + "_t" for k in gk]}
+            add_path(f"single_mode/{i}/{ax}", "magnitude of one signed modal response", mag, mag)
+        mag = {k: abs(an["rigid"][ax][k]) for k in gk + [k + "_t" for k in gk]}
+        add_path(f"single_rigid/{ax}", "magnitude of one signed rigid response", mag, mag)
+    return paths
+
+
+def unit_of_comp(k):
+    return "N" if k.split(".")[-1].startswith("F") else "N*m"
+
+
+def summarize_paths(paths, gk):
+    out = []
+    for pid, desc, T, Wa, Wb in paths:
+        scale = {}
+        for k, v in zip(gk, T):
+            u = unit_of_comp(k) + k.split(".")[1]
+            scale[u] = max(scale.get(u, Decimal(0)), abs(v))
+        rows = []
+        for k, t, a, b in zip(gk, T, Wa, Wb):
+            sc = scale[unit_of_comp(k) + k.split(".")[1]]
+            big = sc > 0 and t >= WITNESS_SIZE * sc
+            # relative differences only on components that are not small (a component that is zero by
+            # symmetry has no stable relative difference)
+            ra = abs(a - t) / t if big else None
+            rb = abs(b - t) / t if big else None
+            rows.append((k, t, a, b, ra, rb, big, sc))
+        wa = [r for r in rows if r[6] and r[4] is not None and r[4] >= WITNESS_REL]
+        wb = [r for r in rows if r[6] and r[5] is not None and r[5] >= WITNESS_REL]
+        maxb = max((r[5] for r in rows if r[5] is not None), default=Decimal(0))
+        out.append({"pid": pid, "desc": desc, "rows": rows, "wa": wa, "wb": wb, "max_rel_b": maxb})
+    return out
+
+
+def pub_rows(rows):
+    res = {}
+    for k, t, a, b, ra, rb, big, sc in rows:
+        res[k + "_t"] = {"correct": pv(t, sc), "wrong_a_frame_rows_on_magnitudes": pv(a, sc),
+                         "wrong_b_absolute_frame_rows_on_magnitudes": pv(b, sc),
+                         "rel_diff_a": pv(ra, Decimal(1)) if ra is not None else None,
+                         "rel_diff_b": pv(rb, Decimal(1)) if rb is not None else None,
+                         "witness_size": big}
+    return res
+
+
+def linear_order_equivalence(S, an, rec):
+    """Rotation commutes with linear signed summation: rotating a signed sum equals summing rotated
+    contributions, and rotating elastic and lump parts separately equals rotating the total."""
+    gk = rec.end_keys["BEND1"]
+    worst_sum, worst_split = Decimal(0), Decimal(0)
+    for ax in an["contrib"]:
+        resp = list(an["contrib"][ax].values()) + [an["rigid"][ax]]
+        G = [sum((o[k] for o in resp), Decimal(0)) for k in gk]
+        rot_of_sum = rotate_ends(rec.tangent, G)
+        sum_of_rot = [sum((o[k + "_t"] for o in resp), Decimal(0)) for k in gk]
+        sc = max(maxabs(rot_of_sum), Decimal("1e-300"))
+        worst_sum = max(worst_sum, maxabs([a - b for a, b in zip(rot_of_sum, sum_of_rot)]) / sc)
+        for o in resp:
+            el_ = rotate_ends(rec.tangent, [o[k.replace("BEND1.", "BEND1.elastic.", 1)] for k in gk])
+            lu_ = rotate_ends(rec.tangent, [o[k.replace("BEND1.", "BEND1.lump_load.", 1)] for k in gk])
+            tt = [o[k + "_t"] for k in gk]
+            sc = max(maxabs(tt), Decimal("1e-300"))
+            worst_split = max(worst_split, maxabs([a - b - c for a, b, c in zip(el_, lu_, tt)]) / sc)
+    return worst_sum, worst_split
+
+
+OBL_FILES = ["w2_v_arc_oblique.json", "w2_control_arc_frame_order.json"]
+
+
+def build_oblique(prec):
+    ROUNDING.update(count=0, min_margin=None)
+    set_point_precision(prec)
+    STATE["prec"] = prec
+    S = System("V-ARC-OBL", prec, obl)
+    mb = modal_basis(S)
+    rec = Recovery(S)
+    an = analyse(S, mb, rec, obl.REQUESTS["V-ARC-OBL"])
+    files = {"w2_v_arc_oblique.json": publish_variant(S, mb, rec, an)}
+    gk = rec.end_keys["BEND1"]
+    # exact frames vs the frames used in recovery
+    ex = exact_end_frames()
+    fdev = max(abs(D(ex[e][a][b]) - rec.tangent[e][a][b]) for e in ("i", "j") for a in range(3) for b in range(3))
+    perm = any(sum(1 for x in r if x != 0) > 1 for e in ("i", "j") for r in ex[e])
+    assert perm, "the oblique case must have a non-permutation end frame"
+    summ = summarize_paths(frame_order_control(S, an, rec), gk)
+    # contrast: the original V-ARC (signed-permutation end frames), same control, values not republished
+    S0 = System("V-ARC", prec, cases)
+    mb0 = modal_basis(S0)
+    rec0 = Recovery(S0)
+    an0 = analyse(S0, mb0, rec0, cases.REQUESTS["V-ARC"])
+    summ0 = summarize_paths(frame_order_control(S0, an0, rec0), rec0.end_keys["BEND1"])
+    lin = linear_order_equivalence(S, an, rec)
+    base_id = "directional/{}/{}/{}".format(cases.BASE_RULES["modal"], cases.BASE_RULES["rigid"],
+                                            cases.BASE_RULES["directional"])
+    base = next(p for p in summ if p["pid"] == base_id)
+    families = {}
+    for p in summ:
+        fam = p["pid"].split("/")[0]
+        f = families.setdefault(fam, {"paths": 0, "paths_with_witness_a": 0, "paths_with_witness_b": 0,
+                                      "min_witnesses_b_per_path": None})
+        f["paths"] += 1
+        f["paths_with_witness_a"] += int(bool(p["wa"]))
+        f["paths_with_witness_b"] += int(bool(p["wb"]))
+        nb = len(p["wb"])
+        f["min_witnesses_b_per_path"] = nb if f["min_witnesses_b_per_path"] is None else min(f["min_witnesses_b_per_path"], nb)
+    best = {}
+    for p in summ:
+        fam = p["pid"].split("/")[0]
+        for r in p["wb"]:
+            # ties (for example one mode's response in two directions, which differ only by a scale) keep the
+            # first path in the published order
+            if fam not in best or r[5] > best[fam][1][5] * (1 + Decimal("1e-30")):
+                best[fam] = (p["pid"], r)
+    rows_in = {}
+    for nid, xyz in obl.NODES.items():
+        for c, v in zip("xyz", xyz):
+            x = fr(v)
+            rows_in[f"node.{nid}.{c}"] = {"decimal": v, "hex": float(x).hex(), "rational": str(x)}
+    for mid, m in obl.PIPE_MEMBERS.items():
+        for c, v in zip("xyz", m["y_reference"]):
+            x = fr(v)
+            rows_in[f"member.{mid}.y_reference.{c}"] = {"decimal": v, "hex": float(x).hex(), "rational": str(x)}
+        for k in ("radius_m", "flexibility_factor"):
+            if k in m:
+                x = fr(m[k])
+                rows_in[f"member.{mid}.{k}"] = {"decimal": m[k], "hex": float(x).hex(), "rational": str(x)}
+    for k, v in obl.REQUESTS["V-ARC-OBL"].items():
+        x = fr(v)
+        rows_in[f"request.V-ARC-OBL.{k}"] = {"decimal": v, "hex": float(x).hex(), "rational": str(x)}
+    ctl = {
+        "schema": "f2_spectrum.recovery_w2.arc_frame_order/1",
+        "status": "additive candidate control; no refutation record for it yet (see README.md)",
+        "statement": (
+            "For an arc whose end-tangent frames are not signed permutations of the global axes, the arc end "
+            "magnitudes reported in an end frame must be formed by rotating every signed contribution into that "
+            "frame and then combining component by component. Combining global component magnitudes first and "
+            "rotating afterwards (by the frame rows, wrong path a, or by their absolute values, wrong path b) is "
+            "a different result; the witnesses below are components where it differs. Rotation commutes with "
+            "linear signed summation (cluster sums, superposition, the elastic/lump split), so no linear "
+            "reordering is a mutant: see linear_order_equivalence."),
+        "case": "V-ARC-OBL",
+        "inputs": {"nodes": obl.NODES, "pipe_members": obl.PIPE_MEMBERS, "variants": obl.VARIANTS,
+                   "requests": obl.REQUESTS, "t1": obl.T1, "t2": obl.T2,
+                   "section_material_spectra_directions_zeta_base_rules": "as w2_inputs.json",
+                   "inputs_binary64": rows_in},
+        "end_frames_exact_rows": {e: [[pexact(x) for x in r] for r in ex[e]] for e in ("i", "j")},
+        "end_frames_not_signed_permutations": perm,
+        "witness_rule": {"relative_difference_at_least": str(WITNESS_REL),
+                         "component_at_least_this_fraction_of_its_end_and_unit_maximum": str(WITNESS_SIZE),
+                         "context": ("REQ-008 seeds the verification tolerance at 1e-9 relative; the spectrum "
+                                     "screening class is 5e-3 on forces and moments. A witness differs by at least "
+                                     "1e-2 relative, on a component that is not small.")},
+        "base_request": {"path": base_id, "components": pub_rows(base["rows"]),
+                         "witnesses_b": [r[0] + "_t" for r in base["wb"]],
+                         "witnesses_a": [r[0] + "_t" for r in base["wa"]],
+                         "smallest_rel_diff_b": pv(min(r[5] for r in base["rows"] if r[5] is not None), Decimal(1)),
+                         "smallest_rel_diff_a": pv(min(r[4] for r in base["rows"] if r[4] is not None), Decimal(1))},
+        "strongest_witness_b_by_path_family": {
+            fam: {"path": pid, "component": r[0] + "_t", "correct": pv(r[1], r[7]),
+                  "wrong_b": pv(r[3], r[7]), "rel_diff_b": pv(r[5], Decimal(1))}
+            for fam, (pid, r) in best.items()},
+        "path_families": families,
+        "paths_without_witness_b": [p["pid"] for p in summ if not p["wb"]],
+        "contrast_original_V_ARC_signed_permutation_frames": {
+            "paths": len(summ0),
+            "paths_with_witness_b": sum(1 for p in summ0 if p["wb"]),
+            "paths_with_witness_a": sum(1 for p in summ0 if p["wa"]),
+            "max_rel_diff_b": "see cross_checks (a residual of the working precision)",
+            "note": ("wrong path b equals the correct path for a signed permutation (C1 of REFUTATION.md); wrong path a "
+                     "differs only by sign there")},
+        "all_paths": {p["pid"]: {"witnesses_b": [r[0] + "_t" for r in p["wb"]],
+                                 "witnesses_a": [r[0] + "_t" for r in p["wa"]],
+                                 "max_rel_diff_b": pv(p["max_rel_b"], Decimal(1)) if p["max_rel_b"] else "0"}
+                      for p in summ},
+        "cross_checks": {
+            "end_frames_exact_vs_recovery_frames": res(fdev),
+            "contrast_V_ARC_max_rel_diff_b": res(max(p["max_rel_b"] for p in summ0)),
+            "linear_order_equivalence_rotation_of_signed_sum_vs_sum_of_rotated": res(lin[0]),
+            "linear_order_equivalence_elastic_minus_lump_rotated_vs_total_rotated": res(lin[1]),
+        },
+    }
+    ctl["cross_checks"]["binary64_rounding_published_values"] = ROUNDING["count"]
+    ctl["cross_checks"]["binary64_rounding_min_relative_margin"] = res(ROUNDING["min_margin"])
+    files["w2_control_arc_frame_order.json"] = ctl
+    return files
+
+
 # ============================================================================ build, check, write
 OUTPUT_FILES = ["w2_inputs.json", "w2_v_arc.json", "w2_v_joint_0.json", "w2_v_joint_r.json", "w2_v_comb_0.json",
                 "w2_v_comb_r.json", "w2_controls.json"]
 VARIANT_FILE = {"V-ARC": "w2_v_arc.json", "V-JOINT-0": "w2_v_joint_0.json", "V-JOINT-R": "w2_v_joint_r.json",
                 "V-COMB-0": "w2_v_comb_0.json", "V-COMB-R": "w2_v_comb_r.json"}
-FIXED_FILES = ["README.md", "DERIVATION.md", "generators/w2_recovery.py", "generators/w2_cases.py"]
+FIXED_FILES = ["README.md", "DERIVATION.md", "generators/w2_recovery.py", "generators/w2_cases.py",
+               "generators/w2_cases_oblique.py"]
 RECORDS = ["REFUTATION.md"]
 
 
@@ -1699,6 +1953,16 @@ def count_leaves(o):
     return 1
 
 
+def count_pairs(o):
+    if isinstance(o, dict):
+        return sum(count_pairs(v) for v in o.values())
+    if isinstance(o, list):
+        if len(o) == 2 and isinstance(o[0], str) and isinstance(o[1], float):
+            return 1
+        return sum(count_pairs(v) for v in o)
+    return 0
+
+
 def dumps(o):
     return json.dumps(o, indent=1, ensure_ascii=False) + "\n"
 
@@ -1712,12 +1976,25 @@ def generate():
             "identical_at_40_digits_and_binary64": a == b}
     assert a == b, "published values differ between 80 and 100 digits"
     lo["w2_controls.json"]["cross_checks"]["precision_convergence"] = conv
-    return {name: dumps(lo[name]) for name in OUTPUT_FILES}
+    texts = {name: dumps(lo[name]) for name in OUTPUT_FILES}
+    # additive arc frame-order case and control, built after (and independently of) the original outputs
+    ohi = build_oblique(100)
+    olo = build_oblique(80)
+    a, b = strip_checks(olo), strip_checks(ohi)
+    pairs = count_pairs(a)
+    oconv = {"working_precisions_digits": [80, 100],
+             "decimal_binary64_pairs_compared": pairs,
+             "scalar_leaves_compared": count_leaves(a),
+             "identical_at_40_digits_and_binary64": a == b}
+    assert a == b, "additive outputs differ between 80 and 100 digits"
+    olo["w2_control_arc_frame_order.json"]["cross_checks"]["precision_convergence"] = oconv
+    texts.update({name: dumps(olo[name]) for name in OBL_FILES})
+    return texts
 
 
 def sums(texts):
     lines = []
-    names = sorted(set(FIXED_FILES) | set(OUTPUT_FILES) | {r for r in RECORDS if (OUT / r).exists()})
+    names = sorted(set(FIXED_FILES) | set(OUTPUT_FILES) | set(OBL_FILES) | {r for r in RECORDS if (OUT / r).exists()})
     for name in names:
         data = texts[name].encode() if name in texts else (OUT / name).read_bytes()
         lines.append(f"{hashlib.sha256(data).hexdigest()}  {name}")
@@ -1746,7 +2023,7 @@ def main():
         for name, t in texts.items():
             (OUT / name).write_text(t)
         (OUT / "SHA256SUMS").write_text(sums(texts))
-        print("written:", ", ".join(OUTPUT_FILES), "and SHA256SUMS")
+        print("written:", ", ".join(OUTPUT_FILES + OBL_FILES), "and SHA256SUMS")
         return 0
     bad = []
     for name, t in texts.items():

@@ -14,11 +14,18 @@ of one small invented model family:
 The sibling packages `../discrete/`, `../closed_form/` and `../benchmark_pack/`
 cover straight members and the combination rules.
 
-**Status: candidate, not refuted.**
-- No refutation record exists yet. A separate, source-independent refuter
-  commissioned by the integrating agent examines these files.
-- Until then the outputs are reviewable and may be corrected. After that
-  boundary, a correction is a recorded re-freeze, never a silent rewrite.
+**Status: candidate.**
+- The original candidate (reviewed head `18838157b`) has a source-independent
+  refutation record, [REFUTATION.md](REFUTATION.md). It refuted no mechanical
+  value. Its findings R1 to R3 are metadata and description repairs, applied
+  without changing any mechanical value. Its limit C1 is the reason for the
+  additive arc frame-order control (below).
+- The additive case V-ARC-OBL and its control have no refutation record yet. A
+  separate, source-independent refuter commissioned by the integrating agent
+  examines them.
+- Outputs remain reviewable until that boundary. After it, a correction is a
+  recorded re-freeze, never a silent rewrite. The original outputs are kept
+  byte for byte.
 - No product output has been compared with them.
 - They establish no acceptance, issuance or code compliance.
 
@@ -76,14 +83,17 @@ Standard claim fence applies (claims taxonomy per DEC-081).
 |---|---|
 | `generators/w2_recovery.py` | driver and method: assembly, connector and rods, modal basis, spectra, recovery, combinations, controls, publication, check and write |
 | `generators/w2_cases.py` | the invented model, variants, spectra, requests and held state |
+| `generators/w2_cases_oblique.py` | the additive oblique-arc case V-ARC-OBL |
 | `DERIVATION.md` | the mathematics restated, step by step |
 | `w2_inputs.json` | every input, with `inputs_binary64` (decimal, hex, rational); the connector's exact derived Q, B, K_c and K_e; the rods' exact offsets, n and b |
 | `w2_v_arc.json` | V-ARC: the arc between straights, anchored at A and D |
 | `w2_v_joint_0.json`, `w2_v_joint_r.json` | V-JOINT: face pipes and the connector, without and with rods, anchored at C and F |
 | `w2_v_comb_0.json`, `w2_v_comb_r.json` | V-COMB: the whole line, without and with rods, anchored at A and F |
 | `w2_controls.json` | frequency ladders, the fixed-state exclusion control, the replaced-span mutants, the arc closed-form weight, rounding and precision convergence |
+| `w2_v_arc_oblique.json` | additive: V-ARC-OBL, the arc in an oblique plane, with the same content as the other variant files |
+| `w2_control_arc_frame_order.json` | additive: the arc frame-order control, its inputs, witnesses, contrast and its own precision convergence |
 | `SHA256SUMS` | hashes of every file above |
-| `REFUTATION.md` | absent; when the refuter supplies it, the generator hashes it and requires it in `SHA256SUMS` |
+| `REFUTATION.md` | the refutation record of the original candidate, copied unchanged; the generator hashes it and requires it in `SHA256SUMS` |
 
 ## Reproduce
 
@@ -100,8 +110,8 @@ python3 -I -B generators/w2_recovery.py --write   # rewrite the JSON files and S
 - **What check verifies.**
   - Every output regenerates byte for byte.
   - `SHA256SUMS` equals what the generator computes over `README.md`,
-    `DERIVATION.md`, both generators, the outputs and `REFUTATION.md` when it
-    is present.
+    `DERIVATION.md`, the three generator files, the outputs and
+    `REFUTATION.md` when it is present.
   - The files present in this directory are exactly the files listed.
 - **What `--write` does not touch.** It never writes `README.md`,
   `DERIVATION.md` or `REFUTATION.md`; it only hashes them.
@@ -156,8 +166,9 @@ rotational stiffness in N·m/rad. The units of H and K are not interchangeable.
 
 The present arc endpoint frames are signed permutations. They do not distinguish
 rotation of signed contributions before combination from the corresponding
-absolute permutation of combined magnitudes. A non-permutation arc orientation
-control is needed before claiming that order is discriminated for arc recovery.
+absolute permutation of combined magnitudes. The additive case V-ARC-OBL
+supplies the non-permutation arc orientation control; see
+[Additive arc frame-order control](#additive-arc-frame-order-control-v-arc-obl).
 
 **Why these values.**
 - They are dyadic, so every coordinate, sum, chord and offset is exact in
@@ -316,6 +327,107 @@ difference:
   - The selected combined values change by at least 0.41 % (mass), 0.39 %
     (stiffness) and 1.2 % (both).
   - The reference publishes no span member key.
+
+## Additive arc frame-order control (V-ARC-OBL)
+
+**Why it exists.** REFUTATION.md C1 shows that V-ARC's end-tangent frames are
+signed permutations, so its values cannot discriminate rotating signed
+contributions before combination from mapping combined magnitudes afterwards.
+The arc end recovery path is the admitted path this control examines. It
+examines no mid-arc station.
+
+**The case** (`generators/w2_cases_oblique.py`; published in
+`w2_v_arc_oblique.json`, with the same blocks and checks as the other variant
+files).
+- **Geometry.** A realized 90° arc in an oblique plane. Its traversal tangents
+  are t1 = (3,4,0)/5 at B and t2 = (−12,9,20)/25 at C, with R = 25/32 m.
+  - The straights P1 (1.25 m) and P2 (1.5625 m) are tangent to it.
+  - It is anchored at A and D, with 12 free DOFs.
+  - Every coordinate is dyadic.
+- **End frames.** They are exact rationals and not signed permutations:
+  - at B: x = t1, y = t2, z = (16,−12,15)/25;
+  - at C: x = t2, y = −t1, the same z.
+- **Section, spectra and rules.** The section, spectra, directions, ζ and base
+  rules are those of the other variants.
+- **Request.** The cut-off f_c = 320 Hz extracts 8 modes, from 35.48 to
+  275.07 Hz. The rigid frequency f_r = 250 Hz makes 6 of them periodic.
+  - The periodic set has the chain 192.2, 208.2 and 224.6 Hz. GROUPING forms
+    {4, 5}, while TEN_PERCENT also pairs 5 and 6. The two differ on 248
+    periodic components, by up to 0.138 relative.
+  - The odd modes participate along the plane normal and the even modes in
+    the plane, so every global direction excites both.
+
+**The control** (`w2_control_arc_frame_order.json`). There are 12 arc end
+components per response (6 at each end), all in the end-tangent frames.
+- **Correct path.** Rotate every signed arc end contribution (each periodic
+  mode and each rigid response) into its end frame, then combine component by
+  component. These are the `_t` rows.
+- **Wrong path a.** Combine the global component magnitudes by the same rules,
+  then apply the frame rows to those magnitudes.
+- **Wrong path b.** The same, with the absolute values of the frame rows. This
+  is the generalization of the absolute signed permutation that C1 could not
+  reject.
+- **Witness.** A component is a witness when it differs from the correct value
+  by at least 1e-2 relative, and is at least 1e-3 of its end-and-unit maximum.
+  For scale, REQ-008 seeds the verification tolerance at 1e-9 relative, and
+  the spectrum screening class is 5e-3 on forces and moments.
+
+| Path family (as exercised) | Paths | Paths with witnesses, a / b | Fewest b witnesses in a path |
+|---|---:|---:|---:|
+| Periodic, each modal rule, each direction | 15 | 15 / 15 | 12 |
+| Correction off, each modal rule, each direction | 15 | 15 / 15 | 12 |
+| Periodic with the rigid response (SRSS, ABSOLUTE_SUM), each direction | 30 | 30 / 30 | 12 |
+| Full request, every modal × rigid × directional rule | 45 | 45 / 45 | 12 |
+| Magnitude of one signed modal response | 24 | 24 / 24 | 2 |
+| Magnitude of one signed rigid response | 3 | 3 / 3 | 8 |
+
+**The base request** (CQC, rigid SRSS, directional SRSS). Every one of the 12
+components is a witness under both wrong paths.
+
+| Component | Correct | Wrong a | Wrong b | Rel. diff a | Rel. diff b |
+|---|---:|---:|---:|---:|---:|
+| BEND1.i.Fx_t | 279.441 N | 370.047 | 370.047 | 0.324 | 0.324 |
+| BEND1.i.Fy_t | 85.973 N | 145.665 | 366.694 | 0.694 | 3.27 |
+| BEND1.i.Fz_t | 295.934 N | 122.077 | 400.362 | 0.587 | 0.353 |
+| BEND1.i.Mx_t | 19.247 N·m | 52.289 | 52.289 | 1.72 | 1.72 |
+| BEND1.i.My_t | 51.871 N·m | 39.016 | 70.672 | 0.248 | 0.362 |
+| BEND1.i.Mz_t | 46.950 N·m | 31.765 | 70.769 | 0.323 | 0.507 |
+| BEND1.j.Fx_t | 241.388 N | 183.195 | 313.874 | 0.241 | 0.300 |
+| BEND1.j.Fy_t | 113.237 N | −226.393 | 226.393 | 3.00 | 0.999 |
+| BEND1.j.Fz_t | 180.900 N | 137.846 | 311.509 | 0.238 | 0.722 |
+| BEND1.j.Mx_t | 57.239 N·m | 31.270 | 84.802 | 0.454 | 0.482 |
+| BEND1.j.My_t | 25.340 N·m | −58.881 | 58.881 | 3.32 | 1.32 |
+| BEND1.j.Mz_t | 59.945 N·m | 55.381 | 85.888 | 0.0761 | 0.433 |
+
+The smallest base differences are 0.0761 (a) and 0.300 (b). Even the smallest
+is more than 7e7 times the seeded verification tolerance and 15 times the
+screening class.
+
+**Contrast and non-mutants.**
+- **The same control on V-ARC.** Its frames are signed permutations. Wrong
+  path b differs from the correct path by at most 6.4e-78, which reproduces
+  C1. Wrong path a differs there only by sign, in 117 of 126 paths.
+- **Linear reorderings are not mutants.** Rotation commutes with linear signed
+  summation, so the control does not flag a linear reordering. It checks two:
+  - rotating a signed sum against summing the rotated contributions (6.8e-80);
+  - rotating the elastic and lump parts separately against rotating their
+    total (1.5e-79).
+- **Precision.** The additive outputs have their own 80/100-digit comparison:
+  12,072 decimal/binary64 pairs, within 18,327 scalar leaves, all identical.
+  The smallest binary64 rounding margin is 5.53e-21.
+
+**What it does not show.**
+- It discriminates these two wrong orders on one geometry. Agreement on it
+  does not prove that a product forms arc end magnitudes correctly for every
+  orientation.
+- The witnesses rely on unequal, non-collinear contributions, which this case
+  has by design.
+- The other U4a frame mutants (frame swap, sign flips, chord frame) are
+  targeted by `../../t4_u4a/`, not here.
+- The oblique straights P1 and P2 publish global rows only, so their
+  member-axis path is not exercised here. `../discrete/` C9 publishes
+  member-axis rows for an oblique straight.
+- There is no connector or rod in this case.
 
 ## Limits
 
