@@ -143,22 +143,23 @@ function glueProblems(text, keys) {
   return problems;
 }
 
-// The source the stop handling was last independently read at: each runner's launch function, from its syntax tree,
-// and judged-launch.mjs whole. A change trips the pin; see PIN_MESSAGE.
+// The stop-handling orchestration as last independently read: the two runners and judged-launch.mjs, whole. The
+// property G1 protects belongs to each runner's whole orchestration (an app start written outside launch is an
+// ordinary edit the tree check cannot see), so the pin is over the whole file; the depth of re-reading follows the
+// diff (PIN_MESSAGE). Recompute after a reading clears, or after a merge of main that moved a pinned file:
+//   shasum -a 256 apps/desktop/native-smoke/run.mjs apps/desktop/native-smoke/mbf-journey.mjs apps/desktop/native-smoke/judged-launch.mjs
 const PIN = {
-  "run.mjs": "6f822169191e0e59c7d4c4f7547ea4db52203c0275dfbce5b2a736fcc7985bac",
-  "mbf-journey.mjs": "79a7ad72e0ed4cb9caa7f8ccccce18a59729eaa94a199b2646315fea39e2d381",
+  "run.mjs": "24eb23c87681a0246f98bb84c296d68ecc5ccb54893f4822819b003b045e86e1",
+  "mbf-journey.mjs": "34ca4d4e08e739918dcdceba80e6c3b4c6e8bf2e4164a18fa67fc5e43e49bd71",
   "judged-launch.mjs": "ab6469bbd7443955e32613afa773f8a9875fa7c7f4f8b2f154a816fd26ac5cfc"
 };
-const PIN_MESSAGE = (file) => `${file}: the reviewed stop-handling source changed. Before this pin is updated, the independent reader of the pull request that changes it must re-read, and that pull request must quote: every path in launch() that starts an app goes through judgedPhase with phaseContinuation attached and returned; the phase sequence awaits each launch at module scope; phaseContinuation receives the production state and evidence root. The author refreshes the pin after that reading clears.`;
+const PIN_MESSAGE = (file) => [
+  `${file} changed since its stop handling was last independently read. Before this pin is updated, the independent reader of the pull request that changes it re-reads it, and that pull request quotes the reading:`,
+  "- for a diff confined to journey content (observations, assertions, messages), the reader establishes from the diff that no launch path, app binding or phase sequence changed, and says so in one sentence;",
+  "- for a diff that touches any of them, the reader reads in full that every path that starts an app goes through judgedPhase with phaseContinuation attached and returned, that the phase sequence awaits each launch at module scope, and that phaseContinuation receives the production state and evidence root.",
+  "The author refreshes the pin after that reading clears. A merge of main that moves a pinned file recomputes it with the command in this test's comment, saying which side's change moved it."
+].join("\n");
 const sha256 = (text) => createHash("sha256").update(text, "utf8").digest("hex");
-function launchFunctionText(text) {
-  const file = ts.createSourceFile("runner.mjs", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  const launch = file.statements.find((statement) => ts.isFunctionDeclaration(statement) && statement.name?.text === "launch");
-  return launch ? launch.getText(file) : null;
-}
-/** The pinned text of `file` given its source: the launch function of a runner, or the whole of judged-launch.mjs. */
-const pinnedText = (file, text) => (file === "judged-launch.mjs" ? text : launchFunctionText(text));
 
 const RUNNERS = [["run.mjs", ["prefix", "phase", "state"]], ["mbf-journey.mjs", ["prefix", "phase", "evidenceRoot"]]];
 
@@ -166,12 +167,8 @@ test("each runner returns exactly this handler's promise from its launch functio
   for (const [file, keys] of RUNNERS) assert.deepEqual(glueProblems(readFileSync(path.join(here, file), "utf8"), keys), [], file);
 });
 
-test("the reviewed stop-handling source is the source last independently read (the pin)", () => {
-  for (const [file, digest] of Object.entries(PIN)) {
-    const text = pinnedText(file, readFileSync(path.join(here, file), "utf8"));
-    assert.ok(text, `${file}: its pinned source is found`);
-    assert.equal(sha256(text), digest, PIN_MESSAGE(file));
-  }
+test("the stop-handling orchestration is the source last independently read (the pins)", () => {
+  for (const [file, digest] of Object.entries(PIN)) assert.equal(sha256(readFileSync(path.join(here, file), "utf8")), digest, PIN_MESSAGE(file));
 });
 
 test("the glue check refuses each way around it the readers found or that would bring back an ignored stop", () => {
@@ -204,13 +201,13 @@ test("the glue check refuses each way around it the readers found or that would 
   }
 });
 
-test("a second app-start path inside launch (the second reader's R1a) passes the tree check, and the pin refuses it", () => {
+test("a second app-start path (the second reader's R1a) passes the tree check, and the pin refuses it", () => {
   const text = readFileSync(path.join(here, "run.mjs"), "utf8");
   const head = "function launch(phase, extra = {}) {";
   const early = text.replace(head, `${head}\n  if (phase === "open-solve-save") {\n    return runUnderLock("/usr/bin/caffeinate", ["-di", binary], { cwd: root }).then(() => ({ ok: true }));\n  }`);
   assert.notEqual(early, text, "the mutation applied");
   // The tree check reads the one handled return and does not exclude another path: this is its stated limit.
   assert.deepEqual(glueProblems(early, RUNNERS[0][1]), [], "the tree check alone accepts it");
-  // The protection is the pin over the launch function.
-  assert.notEqual(sha256(pinnedText("run.mjs", early)), PIN["run.mjs"], "the pin refuses it");
+  // The protection is the pin over the runner.
+  assert.notEqual(sha256(early), PIN["run.mjs"], "the pin refuses it");
 });
