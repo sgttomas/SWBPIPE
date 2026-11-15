@@ -1,0 +1,464 @@
+# F2 response-spectrum references, W1: inertia-inclusive recovery on an EX branched frame
+
+These are candidate references for DEL-04-10, the response-spectrum analysis
+([scope](../../../../execution/PKG-04/DEL-04-10/ScopeOfWork.md)). They give
+the signed modal and rigid-response recovery of CLM-001 on one small branched
+3D Euler–Bernoulli frame, on the exact-route (EX) mass and section basis of
+DEL-04-09 REQ-001, with seven diagnostic variants. They serve REQ-002, REQ-004
+and REQ-008, and add cases of the kind AC-002 names that the frozen
+`../discrete/` package does not carry:
+
+- an EX section with contents, insulation and positive mill tolerance and
+  corrosion allowance;
+- an inclined reducer-like chord, whose geometric eccentricity is distinct from a
+  body's centre-of-gravity offset;
+- an eligible body with an offset centre of gravity, coupled to a restrained DOF;
+- a branch junction;
+- the missing-mass correction on inclined members;
+- the rigid load's constituent and member/body shares.
+
+**Status: candidate references, no independent refutation yet.** The author
+TASK derived and self-checked them. A separate TASK, which reads no product
+code, is to refute them before any product comparison (DEL-04-10 VER-006). Its
+record will be `REFUTATION.md`, which the generator then hashes; no such
+record exists yet. No product output has been compared with these values.
+
+Standard claim fence applies (claims taxonomy per DEC-081). These values are
+mathematical references for the stated discrete model. They are not a
+statement about the product, a publication format or a tolerance.
+
+## Independence and provenance
+
+- **Product boundary.** The author read no product code and ran none. That
+  covers everything under `core/`, `apps/`, `api/`, `schemas/`, `tests/` and
+  `tools/`, and every fixture JSON, product result, log and parent session.
+  The generator imports, reads and runs none of it.
+- **What the author read.**
+  - The governing text: the DEL-04-09 and DEL-04-10 scopes and needs, and the
+    parts of the DEL-03-04, DEL-03-05 and DEL-05-01 scopes on branches,
+    rigid-family bodies, reducer offsets and mass bases. The DEL-05-03 basis
+    table was confirmed through the assigning Type 1.
+  - Reference packages: `f1_modal/mass_discrete` (README, REFUTATION and four
+    generator modules), `f2_spectrum/discrete` (README, case data, and the
+    C3 and C9 JSON), and the `w15c_eccentric_reducer` README.
+- **Reused formation, pinned.** The generator imports four refuted
+  reference-side modules of `../../f1_modal/mass_discrete/generators/`
+  unmodified:
+  - `elements.py`: the straight consistent mass and stiffness, and the point
+    mass lump;
+  - `model.py`: the section bases, component eligibility, `form_mass` and
+    `form_stiffness`;
+  - `numeric.py`: the exact a + b·π field and the Decimal field;
+  - `eigen.py`: Cholesky–Jacobi, Sturm counts and bisection.
+
+  Their SHA-256 values are in `F1_PINS`, and the generator stops if one
+  changes. The f1 directory goes first on the import path, and the generator
+  asserts that each module loaded from there. These are the unchanged premises
+  of F1 (mass, sections, eligibility, eigen routes). They are reused with
+  their provenance and are **not** re-derived here.
+- **Fresh here.** These are written from DEL-04-10 CLM-001 and DEL-04-09
+  REQ-005, without importing or reading the f2 discrete driver:
+  - modal normalization and participation;
+  - spectrum interpolation;
+  - the signed recovery with its inertia terms;
+  - the rigid load and its constituent, member and body shares;
+  - every balance;
+  - the combinations;
+  - the member-axis rotation;
+  - the variant witnesses.
+
+  The generator also splits each member's mass into constituents itself, with
+  f1's element function, and asserts that the parts sum exactly to f1's
+  assembled mass.
+- **Replay control.** The generator also reads two frozen f2 discrete outputs,
+  pinned in `F2_PINS`: their inputs and published values only. It runs its own
+  recovery on them (see Controls). That checks this package's fresh code. It is
+  not independent evidence for the f1 modules both packages share.
+- **No outside material.** No CAEPIPE material, catalogue, code value,
+  exchange folder or held source was used. Every model value is invented.
+
+## Files
+
+| File | Content |
+|---|---|
+| `generators/w1_recovery.py` | driver and method: formation through f1, recovery, shares, balances, combinations, controls, check and write modes |
+| `generators/w1_cases.py` | the invented model family, spectra, request and variants |
+| `w1_base.json` | W1-BASE: model, derived model, modal basis and the analysis with every detail block and the full method grid |
+| `w1_variants.json` | the six other variants: the base request only, with rigid shares and combined member-axis values |
+| `w1_controls.json` | precision convergence, the EX mill/corrosion witness, the S1 section contrast, the variant summary and the f2 replay |
+| `SHA256SUMS` | every file above, and `REFUTATION.md` once it exists |
+
+## Reproduce
+
+```
+python3 -I -B generators/w1_recovery.py            # check: regenerate in memory, compare byte for byte
+python3 -I -B generators/w1_recovery.py --write    # rewrite the JSON files and SHA256SUMS
+```
+
+- **Requirements.** Python 3 and the standard library only. With the default
+  8 worker processes it takes about 5 s, or about 20 s of CPU; `--jobs 1`
+  runs serially.
+- **Determinism.** The output does not depend on the job count.
+- **What the check does.** It regenerates every JSON in memory and compares
+  bytes. It verifies `SHA256SUMS`. It also checks that the directory holds
+  exactly the expected files, with `REFUTATION.md` the only optional one.
+- **Hashed, not generated.** `README.md`, the two generators and
+  `REFUTATION.md` are hashed from disk.
+
+**Re-freeze rule.** No value changes to match a product output. A
+disagreement goes to this reference's owner and to an independent refuter.
+A change to the model, a premise or a convention is a re-freeze, with a
+recorded reason and a new refutation. Once frozen, history is not rewritten to
+hide a correction.
+
+## The model family (`generators/w1_cases.py`)
+
+**Geometry.** Coordinates are in metres.
+
+| Node | Position | Support |
+|---|---|---|
+| N1 | (0, 0, 0) | anchor A1 (all six DOFs) |
+| N2 | (2, 0, 0) | the branch junction; no support, no body |
+| N3 | (4, 0, 0) | |
+| N4 | N3 + (3/16, 1/16, −3/64) | |
+| N5 | N4 + (3, 0, 0) | guide G1 (uy, uz) |
+| N6 | (2, 3/2, 2) | rest R1 (uz) |
+| N7 | (2, 15/8, 5/2) | |
+| N8 | (2, 3, 4) | anchor A2 (all six DOFs) |
+
+| Member | Nodes | Section | Length (m) | Role |
+|---|---|---|---|---|
+| H1, H2 | N1–N2, N2–N3 | S1 | 2, 2 | header along X |
+| RD | N3–N4 | S1 | 13/64 | the reducer-like chord; direction (12, 4, −3)/13 |
+| D1 | N4–N5 | S2 | 3 | downstream pipe along X |
+| B1 | N2–N6 | S1 | 5/2 | branch along (0, 3, 4)/5 |
+| BV | N6–N7 | S1 | 5/8 | valve body V1 (stiffness scale 4) |
+| B2 | N7–N8 | S1 | 15/8 | branch to the anchor A2 |
+
+- **The chord RD.** Its transverse offset (0, 1/16, −3/64), of length 5/64 m,
+  is the reducer's geometric eccentricity. Under DEL-03-05 that is the
+  position of its nodes, and the chord is an ordinary straight member that
+  carries S1. No tapered or stepped element is used (PRD §7). In W1-BASE the
+  chord carries its own distributed pipe mass and no body.
+- **The branch junction N2.** The three tee legs (H1, H2, B1) are straights
+  meeting at N2. The junction has no body weight of its own. No mass exists
+  outside the members and the stated bodies.
+- **The valve body V1.**
+  - Kind `valve` at N6, mapping BV, `mechanics_geometry_only`, W = 6000 N.
+  - Centre of gravity r = (1/4, −1/8, 3/8) m from N6, in global axes. That
+    offset lies on neither BV's axis nor the chord's offset.
+  - Weight-to-mass acceleration 9.8125 m/s², an invented request input.
+  - Where eligible, the body is a point mass W/a at N6 + r, with the induced
+    translation–rotation coupling [[mI, −m[r]×], [m[r]×, m(|r|²I − rrᵀ)]] and
+    no rotary inertia of its own. BV's distributed mass is then absent, and
+    its stiffness is scaled by 4.
+  - N6 carries the rest R1 on uz. The body is therefore coupled to a
+    restrained DOF, and its inertia enters R1's reaction.
+- **Sections** (invented, binary64 dyadic, in m and kg/m³):
+
+  | | OD | t | c_m | c_a | contents | insulation t, ρ |
+  |---|---|---|---|---|---|---|
+  | S1 | 0.2734375 | 0.009765625 | 0.0009765625 | 0.0029296875 | 875 | 0.0625, 160 |
+  | S2 | 0.16796875 | 0.0068359375 | 0.0008544921875 | 0.001953125 | 875 | 0.05078125, 160 |
+
+- **Material** (the state-selected modulus): homogeneous isotropic, with
+  E = 1.9e11 Pa, ν = 1/4 and ρ_m = 7850 kg/m³ as explicit inputs. They stand
+  for the modulus a named state case resolves; no state solver is run. The
+  driver derives G = E / (2(1 + ν)) = 7.6e10 Pa exactly. It asserts that this
+  equals the stated binary64 value and publishes the derivation in
+  `derived_model.material_derivation`.
+- **Frames.** Each member's frame comes from its `y_reference`. Every guide
+  is chosen so that the frame is rational:
+  - the chord RD takes (0, 3, 4), already normal to x = (12, 4, −3)/13. So
+    y = (0, 3, 4)/5 and z = (25, −48, 36)/65;
+  - the branch takes (0, 0, 1). So y = (0, −4, 3)/5 and z = (1, 0, 0);
+  - the X members take (0, 0, 1). So y = (0, 0, 1) and z = (0, −1, 0).
+
+  `derived_model.members` gives each frame as exact rationals, 40-digit
+  decimals and nearest binary64 values; only the exact rationals are exact.
+- **Formation field.** Every coordinate is dyadic and every member length is
+  rational, so every unit axis e = d/L is rational. f1's element matrices are
+  frame-free functions of e (eeᵀ and [e]×) and of rational section
+  coefficients of π. So K and M are formed exactly in ℚ + ℚπ, and then
+  converted to 80-digit Decimal. Exactness comes from the rational unit axes,
+  not from rational lengths alone. The rational frames matter only for the
+  published member-axis components.
+
+### Mass and section premises
+
+These are restated from the governing text and the F1 package. They are not
+new derivations.
+
+- **EX basis** (`source_od_nominal_wall_pressure_bore_areas/v1`; DEL-04-09
+  REQ-001, DEL-05-03 section bases):
+  - metal is on the nominal wall t;
+  - contents are on the pressure bore OD − 2t_r, with t_r = (t − c_m) − c_a;
+  - insulation is the annulus from OD to OD + 2t_ins;
+  - the stiffness section (A, I, J = 2I) is on the nominal wall t. The
+    assigning Type 1 confirmed this from DEL-05-03 and DEL-04-09.
+- **Inertia.** j̄ = ρ_m·J_metal + ρ_ins·J_ins, with ī = j̄/2. Contents carry no
+  rotary or torsional inertia.
+- **Straight members.** Hermitian consistent translation mass, linear axial
+  and torsional mass, and Rayleigh rotary inertia: exactly f1's
+  `straight_mass`. The sign map is in the f1 README.
+- **Eligibility.** Self-weight's predicate, in the order consumption, mapping,
+  weight, centre of gravity (f1 `Model`). An ineligible rigid-family component
+  keeps its member's pipe mass. Its stiffness scale still applies when stated.
+- **Constituents** (this package's split, summing exactly to the assembled M):
+
+  | Constituent | Content |
+  |---|---|
+  | `metal_translational` | consistent translation and axial mass of the metal mass per length |
+  | `metal_rotary` | Rayleigh rotary and torsional mass of ρ_m·J_metal |
+  | `contents` | consistent translation and axial mass of the contents |
+  | `insulation_translational` | consistent translation and axial mass of the insulation |
+  | `insulation_rotary` | Rayleigh rotary and torsional mass of ρ_ins·J_ins |
+  | `component_body` | the body point masses |
+
+  A rotary constituent has M_c·R_k = 0 identically. Its T_k and its force
+  resultants are therefore exactly 0, and are published as 0. Its moment
+  resultants are not zero.
+
+## Request (invented case inputs)
+
+These spectra and methods are case inputs chosen for this family. They are
+not RS-SP1 product defaults.
+
+- **Damping.** ζ = binary64 0.05 for every spectrum.
+- **Spectra.** All ordinates are pseudo-spectral accelerations in m/s².
+  - `SP-HX`: a frequency table, log/log, applied to X with scale 1.
+  - `SP-HY`: a frequency table, linear/linear, applied to Y with scale 1.
+  - `SP-VZ`: a period table (linear in period, logarithmic ordinate), applied
+    to Z with scale 0.75.
+
+  Every table covers 0.25 Hz to 8192 Hz, so every extracted mode and f_r is
+  inside its range.
+- **Methods.**
+  - Base request: modal CQC, directional SRSS, missing mass on with
+    f_r = 50 Hz and the rigid response combined by SRSS.
+  - Extraction: the lowest 10 modes. The 10th is above f_r, which meets
+    REQ-001's extraction premise.
+  - The rigid frequency sits in a wide gap in every variant: no mode is
+    within 7.7 % of 50 Hz; the nearest is W1-BODY-INELIGIBLE's 46.15 Hz.
+    W1-BASE has 4 periodic and 6 extracted rigid modes, a truncated
+    periodic set.
+- **Method grid (W1-BASE only).** Every modal rule (SRSS, CQC, GROUPING,
+  TEN_PERCENT, ABSOLUTE_SUM) × every rigid treatment (SRSS, ABSOLUTE_SUM,
+  OFF) × every directional rule (SRSS, 100-40-40, ABSOLUTE_SUM): 45 entries,
+  global and member axes.
+- **Grouping and ten percent.** W1-BASE's only pair within 10 % is modes 7
+  and 8 (86.99 / 88.17 Hz). It is periodic only under OFF, so GROUPING and
+  TEN_PERCENT agree here. Where the two differ is covered by
+  `../discrete/` C9-CHAIN. W1-BODY-INELIGIBLE has a periodic pair within
+  10 % (44.29 / 46.15 Hz).
+- **Asserted.** No pair of extracted frequencies lies within 1e-6 of the
+  10 % boundary. No query lies within 1e-9 relative of a table knot.
+
+## Method
+
+### Modal basis
+
+- **Eigenproblem.** K_ff φ = λ M_ff φ, solved by f1 `route_b` (Cholesky of
+  K_ff, cyclic Jacobi at 80 digits), then a Rayleigh quotient. Every finite
+  mode is computed (33 per variant; M_ff is nonsingular).
+- **Clusters.** Scope clusters by δ_c = 2⁻²⁰ (DEL-04-09 REQ-002). Every
+  extracted mode and the next one are asserted to be alone in their cluster,
+  with every extracted relative gap above 2δ_c. The smallest is 2.6e-2.
+- **Normalization.** Unit maximum translation, largest component +1. Case (b)
+  (unit maximum rotation) applies when t ≤ τ_t·ℓ·θ, with τ_t = 1e-6 and ℓ the
+  bounding-box diagonal; no mode here is case (b). Ties within 1e-25 go to the
+  lowest DOF index; none occur.
+- **Participation.**
+  - p_k = (M R_k)_f, with R_k the rigid unit translation of all DOFs, so
+    consistent coupling to restrained DOFs is included.
+  - Γ = φᵀp_k/m and m_eff = (φᵀp_k)²/m, with m = φᵀM_ffφ.
+  - T_k = R_kᵀ M R_k over all DOFs, formed in the exact field, also by
+    constituent.
+  - The fraction moving with the supports is 1 − p_kᵀM_ff⁻¹p_k/T_k.
+
+### Spectra
+
+- **Interpolation.** On the table's own abscissa: period for a period table,
+  x = 1/f, computed at 80 digits. t is linear or logarithmic in x. S is linear,
+  or exp(ln S₁ + t(ln S₂ − ln S₁)). Nothing is extrapolated.
+- **Elementary functions.** ln, exp and √ come from Python's `decimal`, which
+  rounds them correctly at the working precision. No libm value enters any
+  number.
+- **Knot location.** No query lies near a knot (asserted above), so locating
+  the interval does not depend on how a binary64 reader rounds 1/f.
+
+### Signed modal response and recovery (CLM-001)
+
+For direction k with scale s_k and mode i:
+
+- u_ik = Γ_ik·s_k·S_k(f_i)/ω_i²·φ_i on all DOFs, relative to the supports.
+  It does not depend on the normalization.
+- g = ω_i²·u_ik, the inertia field (load per unit mass). The inertia load is M g.
+- **Element end forces** f_e = K_e u_e − M_e g_e, which is (K_e − ω_i²M_e)u_e.
+  M_e is the member's own consistent mass, absent where an eligible body
+  replaces it. A body's inertia acts at its node, not in any element.
+- **Reactions** at rigid restraints: r = (K u − M g) at each restrained DOF,
+  that is (K_cf − ω_i²M_cf)u. This includes mass at restrained DOFs, the
+  consistent coupling, and a body coupled to a restrained DOF (V1 at R1).
+- Every modal quantity stays signed per mode and per direction.
+
+### Rigid response (missing-mass correction)
+
+- **Classification.** Modes of a cluster whose lowest frequency is below f_r
+  are periodic. Every other mode, extracted or not, is rigid.
+- **The load.** a_r,k = s_k·S_k(f_r). Then
+  g = a_r,k·(R_k − Σ_periodic Γ_ik φ_i) and F_k = M g over all DOFs, with the
+  restrained-DOF coupling and the body shares included.
+- **The solve.** K_ff u_f = F_k,f.
+- **Recovery.** End forces K_e u_e − F_e, where F_e = M_e g_e is the
+  element's own share. Reactions K u − F_k at restrained DOFs.
+- **Published:** the full-DOF load F_k by constituent and in total, each
+  member's and body's share, its restrained-DOF part, and the resultants
+  about the origin.
+
+### Shares and balances
+
+- **Shares.** An inertia share is M_c g (constituent), M_e g_e (member) or
+  M_b g_b (body). Its resultant is the total force and the moment about the
+  global origin, Σ_nodes (q_M + x × q_F). Per-mode shares and the node
+  balances are published for W1-BASE; the variants publish them for the rigid
+  response only.
+- **Balances.** For every signed response, per mode and per rigid response,
+  the generator asserts:
+  - **Element:** the resultant of f_e equals minus the resultant of M_e g_e.
+    K_e has the rigid motions in its null space.
+  - **Nodal, at every DOF:** Σ_e f_e − (body inertia) = the support force
+    there, and 0 at a free DOF.
+  - **Branch junction N2:** the three legs' end forces sum to zero. That sum
+    is published and flushes to exact 0.
+  - **Body node N6:** the member end forces sum to the body's inertia plus
+    R1's reaction. All three are published (`node_balances`).
+  - **Global:** the reactions' resultant equals minus the inertia load's
+    resultant, in force and in moment about the origin.
+
+### Combinations
+
+- **Rules.** As DEL-04-10 CLM-001 states them, on each signed quantity:
+  - SRSS;
+  - CQC, with the Der Kiureghian ρ, r = ω_j/ω_i and the spectra's ζ;
+  - GROUPING: ascending, inclusive 10 % of the group's lowest frequency;
+  - TEN_PERCENT: every pair within 10 %, inclusive;
+  - ABSOLUTE_SUM.
+- **Rigid with periodic:** SRSS √(R_p² + R_r²), or ABSOLUTE_SUM R_p + |R_r|.
+  OFF means every extracted mode is periodic and there is no rigid response.
+- **Directions:** SRSS, 100-40-40 (factor exactly 2/5) or ABSOLUTE_SUM.
+- **Units.** Every extracted cluster here is a single mode, so the cluster
+  sums are the modes.
+- **Member axes.** Combined member-axis values combine the rotated signed
+  contributions. They are not rotations of combined global values.
+
+## Conventions a product must match or map
+
+1. **Reaction sign.** A reaction is the force the support applies **to the
+   piping**, in global axes. A product reporting the force on the support has
+   the opposite sign on every signed reaction; combined magnitudes are
+   unaffected.
+2. **End forces.** The 12 generalized forces acting **on the element**, at
+   node i then node j, each in the order Fx Fy Fz Mx My Mz. Keys are
+   `<member>.<i|j>.<Fx…Mz>`. The member-axis keys are `…_m`. Each 3-vector is
+   rotated by Λ = rows (x, y, z) of the published frame.
+3. **Constituents and shares** as defined above. They are this package's
+   decomposition, chosen for diagnosis. No product publication format is
+   implied.
+4. **Number format.**
+   - Each real is published as a pair: the decimal to 40 significant digits,
+     then the nearest binary64.
+   - A value below 1e-50 of the largest magnitude of its unit in its block is
+     printed as `0`. The generator refuses any value between 1e-50 and 1e-35
+     of that scale.
+   - Two-significant-digit strings are check residuals.
+
+## Variants
+
+All variants are on EX and use the same request. Each publishes its own model,
+derived model, modal basis and analysis.
+
+| Variant | Change from W1-BASE | Diagnoses |
+|---|---|---|
+| W1-BASE | — | the full family, with the method grid |
+| W1-MILL | S1 c_m 1/1024 → 2/1024 m | the mill tolerance, varied alone |
+| W1-CORR | S1 c_a 3/1024 → 4/1024 m | the corrosion allowance, varied alone. On EX only c_m + c_a enters, so it equals W1-MILL in every published value (asserted) |
+| W1-BODY-INELIGIBLE | V1 without a centre of gravity | body absent: BV keeps its pipe mass and its scale still applies, so only the mass differs. The expected warning is `SELF_WEIGHT_COMPONENT_WEIGHT_NOT_APPLIED` |
+| W1-BODY-COG0 | V1 eligible with r = 0 | the zero-offset control: no translation–rotation coupling from the body |
+| W1-CONCENTRIC | chord along X, same length 13/64 m | the geometric eccentricity, separate from the body offset (V1 unchanged) |
+| W1-REDUCER-BODY | an eligible reducer body RC1 on RD, W = 1200 N, CoG (1/16, 0, 1/32) from N3, no stiffness scale | a body offset that is not the chord's eccentricity. RD's distributed mass is absent and its stiffness unchanged |
+
+The variants' extracted frequencies and selected combined values, with ratios
+to W1-BASE, are in `w1_controls.json` `variant_summary`. Under the base
+request, A1.Fz relative to W1-BASE is:
+
+| W1-MILL | W1-BODY-INELIGIBLE | W1-BODY-COG0 | W1-CONCENTRIC | W1-REDUCER-BODY |
+|---|---|---|---|---|
+| 1.0029 | 0.671 | 0.995 | 0.994 | 1.030 |
+
+## Controls (`w1_controls.json`) and cross-checks
+
+- **Precision convergence.** Every variant was recomputed in full at
+  110 digits. All 147,609 published pairs have the same 40-digit decimal at
+  80 and 110 digits, and no flush decision differs. Check residuals are not
+  compared, because they measure the working precision itself.
+- **EX mill/corrosion witness.** As stated in the Variants table.
+- **Section contrast.** S1's EX and PF section bases for W1-BASE, W1-MILL and
+  W1-CORR, as exact coefficients of π:
+  - on PF, c_a is absent;
+  - on PF, c_m moves metal, contents and A, I, J;
+  - on EX, only the bore moves.
+
+  No PF modal or spectrum analysis is published. PF modal cases are in
+  `../discrete/`.
+- **f2 replay.** This generator's recovery and combinations were run on the
+  frozen `../discrete/` inputs of C3-BASE (three directions, the rigid
+  response with extracted rigid modes) and C9-Y (inclined members, member
+  axes, a ground spring).
+  - **Result.** Every compared value has the same 40-digit string as f2's:
+    1848 of 1848 values in C3-BASE and 1771 of 1771 in C9-Y. The largest
+    difference is 4.5e-40 of the unit scale, which is printing resolution.
+  - **What it shows and does not.** It checks the fresh code here. Both
+    packages share the pinned f1 modules, so it is not independent evidence
+    for formation.
+
+| Cross-check (largest over all variants) | Result |
+|---|---|
+| Own element and constituent assembly = f1 `form_mass` / `form_stiffness` | exactly equal in ℚ + ℚπ, every entry |
+| Eigen residual ‖K_ffφ − λM_ffφ‖∞/(‖K_ff‖∞‖φ‖∞) | 7.3e-72 |
+| M-orthogonality, normalized by the generalized masses | 2.9e-71 |
+| Eigenvalues, route B (Jacobi) vs route A (f1 bisection on Sturm counts), W1-BASE | 4.5e-43 relative (the bisection width) |
+| Sturm counts at λ₁/2 and at the geometric mean of each gap through mode 11 | all equal to the index |
+| Excitation completeness, p_k = Σ_all Γ M_ffφ | 1.4e-72 relative |
+| Σ m_eff over all modes vs p_kᵀM_ff⁻¹p_k | 5.6e-73 relative to T_k |
+| Element resultant balance | 3.5e-77 (relative to the inertia scale × length) |
+| Nodal balance, every DOF, every signed response | 7.7e-73 relative |
+| Global force and moment balance | 2.2e-74 |
+| Rigid response: static solve vs a_r Σ over every non-periodic finite mode of Γφ/ω² | 4.9e-74 relative |
+| Rigid response: total reaction along k vs −a_r,k(T_k − Σ_periodic m_eff) | 1.6e-78 relative |
+| all-modes fraction + fraction moving with the supports = 1 | asserted to 1e-60 |
+
+## What this family does not establish
+
+- **Families outside it.** Arcs, connectors and tie rods (massless members),
+  snubbers and skewed restraints, springs (other than in the replay),
+  independent support motion, Timoshenko members, nonlinear support states, a
+  state solve (the modulus is an input), pressure stiffening and pressure
+  elongation.
+- **Repeated or clustered modes.** Every extracted cluster here is one mode.
+  Repeated pairs and distinct modes inside δ_c are in `../discrete/` C7 and
+  C10.
+- **Grouping against ten percent.** Where the two rules differ is covered by
+  `../discrete/` C9-CHAIN, not here.
+- **The product's contract.** Nothing here establishes how a product maps
+  these quantities, its frames, its key names, its constituent decomposition
+  or what it publishes. The member axes, constituents and shares are
+  mathematical reference quantities for recovery consumers and later reader
+  checks, not a publication decision.
+- **Tolerance.** No product comparison tolerance is set here. The screening
+  class is DEL-04-10 REQ-008's, and nothing here informs it.
+- **Binary64 effects.** Inputs are binary64 values computed exactly. A binary64
+  product's own rounding (for example fl(W/a), fl(1/f) at a knot, or the
+  ordering inside a cluster) is not modelled.
+- **Formation, independently.** The f1 formation modules are reused, not
+  re-derived. Their independent evidence is the f1 refutation record.
