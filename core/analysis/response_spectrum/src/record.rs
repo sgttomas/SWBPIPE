@@ -5,6 +5,7 @@
 //! is a decode error, so no member is defaulted. `label`, `tags` and `notes` carry no solve
 //! meaning and are read only so that a document's record decodes unchanged.
 use serde::{Deserialize, Deserializer};
+use std::collections::BTreeSet;
 
 /// The authored abscissa of a table.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
@@ -74,10 +75,40 @@ pub struct SpectrumRecord {
     pub interpolation: Interpolation,
     /// `[abscissa, ordinate]` pairs in the authored units.
     pub points: Vec<[f64; 2]>,
-    #[serde(default)]
-    pub tags: Option<serde_json::Value>,
-    #[serde(default)]
-    pub notes: Option<serde_json::Value>,
+    #[serde(default, deserialize_with = "tags")]
+    pub tags: Option<Vec<String>>,
+    #[serde(default, deserialize_with = "notes")]
+    pub notes: Option<String>,
+}
+
+/// Model-schema `Tags`: preserve authored order and spelling; reject rather than normalize.
+fn tags<'de, D>(deserializer: D) -> Result<Option<Vec<String>>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let tags = Vec::<String>::deserialize(deserializer)?;
+    let mut seen = BTreeSet::new();
+    for tag in &tags {
+        if tag.is_empty() || tag.trim() != tag || tag.chars().count() > 64 {
+            return Err(serde::de::Error::custom("tags must be non-empty, trimmed strings of at most 64 characters"));
+        }
+        if !seen.insert(tag) {
+            return Err(serde::de::Error::custom("tags must be unique"));
+        }
+    }
+    Ok(Some(tags))
+}
+
+/// Model-schema `Notes`: at least one non-whitespace character; preserve surrounding text.
+fn notes<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let notes = String::deserialize(deserializer)?;
+    if notes.trim().is_empty() {
+        return Err(serde::de::Error::custom("notes must contain a non-whitespace character"));
+    }
+    Ok(Some(notes))
 }
 
 /// An optional member that, when present, must hold a value: an authored `null` is refused.
