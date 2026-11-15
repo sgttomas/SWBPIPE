@@ -11,6 +11,38 @@
 //! R's rows the member axes formed from the chord and the y reference as the
 //! frame kernel forms them.
 //!
+//! **Straight, Timoshenko** (DEL-04-09 REQ-001). In each bending plane, the
+//! consistent mass of the interpolation the Timoshenko stiffness implies:
+//! the exact homogeneous static shapes (Friedman and Kosmatka, 1993), with
+//! Φ = 12EI/(G·A_s·L²) of that plane's second moment (I_z for the x–y
+//! plane, I_y for the x–z plane, as the frame kernel pairs them). Over
+//! m̄L/(840(1+Φ)²) the translational plane is
+//! [312 + 588Φ + 280Φ², (44 + 77Φ + 35Φ²)L, 108 + 252Φ + 140Φ²,
+//! −(26 + 63Φ + 35Φ²)L; (8 + 14Φ + 7Φ²)L², (26 + 63Φ + 35Φ²)L,
+//! −(6 + 14Φ + 7Φ²)L²; …], and over ī/(30L(1+Φ)²) the rotary plane is
+//! [36, (3 − 15Φ)L, −36, (3 − 15Φ)L; (4 + 5Φ + 10Φ²)L², (−3 + 15Φ)L,
+//! (−1 − 5Φ + 5Φ²)L²; …], each symmetric with the Euler–Bernoulli
+//! element's sign pattern; at Φ = 0 they are the Hermitian and Rayleigh
+//! planes. Axial and torsional mass, the x–z sign map and the turn to
+//! global axes are the Euler–Bernoulli element's. Three steps are distinct:
+//! - Φ and the local matrix are evaluated in `WideDd`, each operation
+//!   rounded; the global turn then accumulates the computed local entries'
+//!   expanded products EXACTLY in an `ExactSum`, upper triangle mirrored.
+//! - Each exact sum is converted once to a double-double: `hi` is the sum
+//!   rounded once to binary64, then the residual sum − hi is formed exactly
+//!   and rounded once for `lo`. (`ExactSum::to_wide`'s low word is not used
+//!   as `lo`: it is good to about 97 bits when the top limb is sparse.)
+//! - The final check forms the remaining loss sum − hi − lo exactly. It
+//!   refuses when the final conversion cannot be certified within the stated
+//!   conversion-error budget, 2^-106 relative (`GeometryError::
+//!   TimoshenkoMassRange`). The check is sufficient, not exact: it may refuse
+//!   a borderline value that meets the budget.
+//!
+//! The final check bounds only the conversion's own loss. It does not bound
+//! the forward error of the `WideDd` arithmetic before the turn, and the
+//! entries are not claimed to be correctly rounded. The references are
+//! `validation/references/modal_timoshenko_mass`.
+//!
 //! **Realized arc** (§2.4). With d = x_j − x_i, L = |d|, n̂ the unit part of
 //! the y reference normal to d̂ (the bow side), s = sin α = L/(2R),
 //! c = cos α = √(R² − L²/4)/R and α = 2·atan(s/(1 + c)) the half-angle. Each
@@ -63,7 +95,8 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::dd::{atan_unit, Dd};
+use crate::dd::{atan_unit, Dd, WideDd};
+use crate::exact::ExactSum;
 
 pub type Vec3 = [Dd; 3];
 pub type Block6 = [[Dd; 6]; 6];
@@ -81,6 +114,12 @@ pub enum GeometryError {
     /// The half-angle is so small that an entry of the half-arc's local
     /// mass is below 2⁻⁹⁶⁹ in magnitude (module docs).
     ArcAngleRange,
+    /// A Timoshenko shear input operand (E, G, A_s, I_y or I_z) is not
+    /// positive and finite.
+    ShearOperand,
+    /// A Timoshenko calculation is non-finite or its final conversion to
+    /// double-double does not pass the conversion-precision check (module docs).
+    TimoshenkoMassRange,
 }
 
 impl fmt::Display for GeometryError {
@@ -93,6 +132,14 @@ impl fmt::Display for GeometryError {
             Self::ArcAngleRange => write!(
                 f,
                 "the bend angle is too small for its local mass entries to be represented"
+            ),
+            Self::ShearOperand => write!(
+                f,
+                "a Timoshenko shear operand is not positive and finite"
+            ),
+            Self::TimoshenkoMassRange => write!(
+                f,
+                "the Timoshenko mass is outside the implemented numerical range"
             ),
         }
     }
@@ -291,12 +338,252 @@ pub fn straight_mass(
     Ok(rotate12(&k, &[ex, ey, ez]))
 }
 
+/// The operands of a Timoshenko straight member's mass that its stiffness
+/// supplies: the stiffness's own E, G and shear area A_s, and the second
+/// moments of the two bending planes (I_y for the x–z plane, I_z for the
+/// x–y plane, as the frame kernel pairs them). All are per the stiffness
+/// formation, never defaulted.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TimoshenkoShear {
+    pub elastic_modulus: Dd,
+    pub shear_modulus: Dd,
+    pub shear_area: Dd,
+    pub second_moment_y: Dd,
+    pub second_moment_z: Dd,
+}
+
+/// The translational plane of the Timoshenko consistent mass over
+/// m̄L/(840(1+Φ)²): entry (c₀ + c₁Φ + c₂Φ²)·L^p as ([c₀, c₁, c₂], p).
+/// At Φ = 0 it is the Hermitian plane, each coefficient twice its value
+/// over 420.
+const TIMOSHENKO_TRANSLATION: [[([f64; 3], u32); 4]; 4] = [
+    [([312.0, 588.0, 280.0], 0), ([44.0, 77.0, 35.0], 1), ([108.0, 252.0, 140.0], 0), ([-26.0, -63.0, -35.0], 1)],
+    [([44.0, 77.0, 35.0], 1), ([8.0, 14.0, 7.0], 2), ([26.0, 63.0, 35.0], 1), ([-6.0, -14.0, -7.0], 2)],
+    [([108.0, 252.0, 140.0], 0), ([26.0, 63.0, 35.0], 1), ([312.0, 588.0, 280.0], 0), ([-44.0, -77.0, -35.0], 1)],
+    [([-26.0, -63.0, -35.0], 1), ([-6.0, -14.0, -7.0], 2), ([-44.0, -77.0, -35.0], 1), ([8.0, 14.0, 7.0], 2)],
+];
+/// The rotary plane of the Timoshenko consistent mass over ī/(30L(1+Φ)²),
+/// in the same form. At Φ = 0 it is the Rayleigh plane.
+const TIMOSHENKO_ROTARY: [[([f64; 3], u32); 4]; 4] = [
+    [([36.0, 0.0, 0.0], 0), ([3.0, -15.0, 0.0], 1), ([-36.0, 0.0, 0.0], 0), ([3.0, -15.0, 0.0], 1)],
+    [([3.0, -15.0, 0.0], 1), ([4.0, 5.0, 10.0], 2), ([-3.0, 15.0, 0.0], 1), ([-1.0, -5.0, 5.0], 2)],
+    [([-36.0, 0.0, 0.0], 0), ([-3.0, 15.0, 0.0], 1), ([36.0, 0.0, 0.0], 0), ([-3.0, 15.0, 0.0], 1)],
+    [([3.0, -15.0, 0.0], 1), ([-1.0, -5.0, 5.0], 2), ([-3.0, 15.0, 0.0], 1), ([4.0, 5.0, 10.0], 2)],
+];
+
+fn positive_finite(x: Dd) -> bool {
+    x.hi.is_finite() && x.lo.is_finite() && x.hi > 0.0
+}
+
+/// Narrows an exact sum to a double-double. `hi` is the sum rounded once to
+/// binary64 ([`ExactSum::to_wide`]'s high word is correctly rounded, and
+/// [`WideDd::to_f64`] rounds once). The residual sum − hi is then formed
+/// exactly in the same accumulator and rounded once for `lo`. The remaining
+/// loss sum − hi − lo is formed exactly and must certify less than 2^-106
+/// relative conversion error, or the member is refused (module docs).
+///
+/// `to_wide`'s low word alone is not used as `lo`: it is the remainder within
+/// a 128-bit window rounded to odd, so its precision falls to about 97 bits
+/// when the sum's top limb holds few bits.
+fn narrow_exact_sum(sum: &mut ExactSum, scratch: &mut Vec<i64>) -> Result<Dd, GeometryError> {
+    let first = sum.to_wide_with(scratch);
+    if !first.is_finite() {
+        return Err(GeometryError::TimoshenkoMassRange);
+    }
+    if first.is_zero() {
+        return Ok(Dd::ZERO);
+    }
+    let hi = first.to_f64();
+    if !hi.is_finite() {
+        return Err(GeometryError::TimoshenkoMassRange);
+    }
+    sum.add_f64(-hi);
+    let lo = sum.to_wide_with(scratch).to_f64();
+    if !lo.is_finite() {
+        return Err(GeometryError::TimoshenkoMassRange);
+    }
+    sum.add_f64(-lo);
+    let loss = sum.to_wide_with(scratch).abs();
+    // Nonzero exact loss < 2^(loss.exponent + 1), whereas
+    // |sum| > 2^(first.exponent - 1). This sufficient condition gives
+    // conversion error < 2^-106 relative. Exact conversions always pass.
+    if loss.is_zero() || loss.exponent <= first.exponent - 108 {
+        Ok(Dd { hi, lo })
+    } else {
+        Err(GeometryError::TimoshenkoMassRange)
+    }
+}
+
+/// Narrows a wide value to a double-double under the same policy as
+/// [`narrow_exact_sum`].
+fn narrow_timoshenko_mass(value: WideDd) -> Result<Dd, GeometryError> {
+    if !value.is_finite() {
+        return Err(GeometryError::TimoshenkoMassRange);
+    }
+    let mut sum = ExactSum::new();
+    sum.add_scaled(value.mantissa.hi, value.exponent);
+    sum.add_scaled(value.mantissa.lo, value.exponent);
+    narrow_exact_sum(&mut sum, &mut Vec::new())
+}
+
+/// One bending plane on (w_i, θ_i, w_j, θ_j), θ the section rotation,
+/// evaluated in WideDd at the wide-exponent shear parameter Φ. Entries
+/// retain their exponent through assembly and the global turn; conversion
+/// is checked only on the completed global matrix.
+fn timoshenko_plane(
+    l: Dd,
+    phi: WideDd,
+    mbar: Dd,
+    ibar: Dd,
+) -> Result<[[WideDd; 4]; 4], GeometryError> {
+    let l = WideDd::from_dd(l);
+    let powers = [WideDd::from_f64(1.0), l, l.mul(l)];
+    let one_plus = phi.add(WideDd::from_f64(1.0));
+    let denominator = one_plus.mul(one_plus);
+    let translation = WideDd::from_dd(mbar).mul(l).div(denominator.mul_f64(840.0));
+    let rotary = WideDd::from_dd(ibar).div(l.mul(denominator).mul_f64(30.0));
+    let poly = |c: [f64; 3]| {
+        WideDd::from_f64(c[2])
+            .mul(phi)
+            .add(WideDd::from_f64(c[1]))
+            .mul(phi)
+            .add(WideDd::from_f64(c[0]))
+    };
+    let mut plane = [[WideDd::ZERO; 4]; 4];
+    for r in 0..4 {
+        for c in 0..4 {
+            let (ct, pt) = TIMOSHENKO_TRANSLATION[r][c];
+            let (cr, pr) = TIMOSHENKO_ROTARY[r][c];
+            let value = translation.mul(poly(ct)).mul(powers[pt as usize])
+                .add(rotary.mul(poly(cr)).mul(powers[pr as usize]));
+            if !value.is_finite() {
+                return Err(GeometryError::TimoshenkoMassRange);
+            }
+            plane[r][c] = value;
+        }
+    }
+    Ok(plane)
+}
+
+/// Tᵀ·B·T for every 3×3 block of the wide local matrix, each global entry's
+/// expanded triple products accumulated exactly, then narrowed once. The
+/// local matrix is bitwise symmetric, so the exact global matrix is
+/// symmetric: the upper triangle is formed and mirrored, and the returned
+/// matrix is exactly symmetric.
+fn rotate12_timoshenko(
+    k: &[[WideDd; 12]; 12],
+    axes: &[Vec3; 3],
+) -> Result<Block12, GeometryError> {
+    for row in k {
+        if row.iter().any(|v| !v.is_finite()) {
+            return Err(GeometryError::TimoshenkoMassRange);
+        }
+    }
+    let mut out = [[Dd::ZERO; 12]; 12];
+    // One accumulator and one scratch vector serve every entry (reset keeps
+    // the limbs' capacity), so the turn allocates a few times per element.
+    let mut sum = ExactSum::new();
+    let mut scratch = Vec::new();
+    for gi in 0..12 {
+        for gj in gi..12 {
+            let (bi, r, bj, c) = (gi / 3, gi % 3, gj / 3, gj % 3);
+            sum.reset();
+            for p in 0..3 {
+                for q in 0..3 {
+                    let v = k[3 * bi + p][3 * bj + q];
+                    if v.is_zero() {
+                        continue;
+                    }
+                    let a = axes[p][r];
+                    let b = axes[q][c];
+                    for x in [a.hi, a.lo] {
+                        for y in [v.mantissa.hi, v.mantissa.lo] {
+                            for z in [b.hi, b.lo] {
+                                sum.add_product_scaled(&[x, y, z], v.exponent);
+                            }
+                        }
+                    }
+                }
+            }
+            let entry = narrow_exact_sum(&mut sum, &mut scratch)?;
+            out[gi][gj] = entry;
+            out[gj][gi] = entry;
+        }
+    }
+    Ok(out)
+}
+
+/// A Timoshenko straight member's consistent mass in global axes: in each
+/// bending plane the mass of the interpolation its stiffness implies (the
+/// exact static shapes), with Φ = 12EI/(G·A_s·L²) of that plane's second
+/// moment, and the linear axial and torsional mass of the Euler–Bernoulli
+/// element (module docs). m̄, ī and j̄ are per length, as for
+/// [`straight_mass`]. At Φ = 0 each plane is the Euler–Bernoulli plane.
+pub fn straight_mass_timoshenko(
+    xi: [f64; 3],
+    xj: [f64; 3],
+    y_reference: [f64; 3],
+    mbar: Dd,
+    ibar: Dd,
+    jbar: Dd,
+    shear: &TimoshenkoShear,
+) -> Result<Block12, GeometryError> {
+    let s = shear;
+    if ![s.elastic_modulus, s.shear_modulus, s.shear_area, s.second_moment_y, s.second_moment_z]
+        .into_iter()
+        .all(positive_finite)
+    {
+        return Err(GeometryError::ShearOperand);
+    }
+    let ch = chord(xi, xj, y_reference)?;
+    let ex = ch.unit;
+    let ey = ch.normal;
+    let ez = cross3(&ex, &ey);
+    let l = ch.length;
+    let wl = WideDd::from_dd(l);
+    let rigidity = WideDd::from_dd(s.shear_modulus)
+        .mul(WideDd::from_dd(s.shear_area))
+        .mul(wl.mul(wl));
+    let phi_of = |i: Dd| {
+        WideDd::from_dd(s.elastic_modulus)
+            .mul(WideDd::from_dd(i))
+            .mul_f64(12.0)
+            .div(rigidity)
+    };
+    let (phi_y, phi_z) = (phi_of(s.second_moment_y), phi_of(s.second_moment_z));
+    if !(phi_y.is_positive() && phi_z.is_positive()) {
+        return Err(GeometryError::TimoshenkoMassRange);
+    }
+    let plane_xy = timoshenko_plane(l, phi_z, mbar, ibar)?;
+    let plane_xz = timoshenko_plane(l, phi_y, mbar, ibar)?;
+    let mut k = [[WideDd::ZERO; 12]; 12];
+    let third = |x: Dd| WideDd::from_dd(x).mul(wl).div(WideDd::from_f64(3.0));
+    let sixth = |x: Dd| WideDd::from_dd(x).mul(wl).div(WideDd::from_f64(6.0));
+    for (a, b, x) in [(0usize, 6usize, mbar), (3, 9, jbar)] {
+        k[a][a] = third(x);
+        k[b][b] = third(x);
+        k[a][b] = sixth(x);
+        k[b][a] = sixth(x);
+    }
+    let sign = [1.0, -1.0, 1.0, -1.0];
+    let xy = [1usize, 5, 7, 11];
+    let xz = [2usize, 4, 8, 10];
+    for r in 0..4 {
+        for c in 0..4 {
+            k[xy[r]][xy[c]] = plane_xy[r][c];
+            k[xz[r]][xz[c]] = plane_xz[r][c].mul_f64(sign[r] * sign[c]);
+        }
+    }
+    rotate12_timoshenko(&k, &[ex, ey, ez])
+}
+
 /// Terms are summed until one falls below 2⁻¹¹⁰ of the running sum.
 const SERIES_STOP: f64 = 7.703719777548943e-34; // 2^-110
 const SERIES_MAX_TERMS: u32 = 60;
 
-/// The smallest magnitude a half-arc local entry may have: below 2⁻⁹⁶⁹ a
-/// double-double's low word is subnormal.
+/// The half-arc path's conservative local-entry precision threshold.
+/// With subnormal spacing 2^-1074, rounding by at most 2^-1075 is at most
+/// 2^-106 relative at this magnitude. Smaller sparse values can be exact.
 const LOCAL_ENTRY_MIN: f64 = 2.004168360008973e-292; // 2^-969
 
 /// f₁(α)/α³ = Σ_{k≥1} (−1)^{k+1} α^{2k−2}/(2k+1)! by its series. The sum
@@ -601,6 +888,65 @@ mod tests {
             "{} vs {y}",
             x.to_f64()
         );
+    }
+
+    /// At Φ = 0 each Timoshenko plane is the Euler–Bernoulli plane: the
+    /// Hermitian m̄L/420 plane plus the Rayleigh ī/(30L) plane, entry by entry
+    /// to double-double precision (DEL-04-09 AC-012).
+    #[test]
+    fn the_timoshenko_plane_at_zero_phi_is_the_euler_bernoulli_plane() {
+        for (l, mbar, ibar) in [(3.0, 81.5, 1.035), (0.8125, 50.0, 0.25), (2.0, 1.0, 0.0)] {
+            let (l, mbar, ibar) = (Dd::from_f64(l), Dd::from_f64(mbar), Dd::from_f64(ibar));
+            let t = timoshenko_plane(l, WideDd::ZERO, mbar, ibar)
+                .unwrap()
+                .map(|row| row.map(|value| narrow_timoshenko_mass(value).unwrap()));
+            let powers = [Dd::from_f64(1.0), l, l.mul(l)];
+            let translation = mbar.mul(l).div(Dd::from_f64(420.0));
+            let rotary = ibar.div(l.mul_f64(30.0));
+            for r in 0..4 {
+                for c in 0..4 {
+                    let (cm, pm) = MASS_PLANE[r][c];
+                    let (cr, pr) = ROTARY_PLANE[r][c];
+                    let e = translation
+                        .mul_f64(cm)
+                        .mul(powers[pm as usize])
+                        .add(rotary.mul_f64(cr).mul(powers[pr as usize]));
+                    let d = t[r][c].sub(e).abs().to_f64();
+                    assert!(d <= 1e-30 * e.abs().to_f64().max(1e-300), "({r}, {c}): {d:e}");
+                }
+            }
+        }
+    }
+
+    /// Arithmetic tests of the Timoshenko conversion helper, not member
+    /// references: each expected value follows from its dyadic construction.
+    #[test]
+    fn the_timoshenko_conversion_keeps_a_low_word_below_the_wide_window() {
+        // 1 + 2^-100: the top limb holds one bit, so a 128-bit window of four
+        // limbs ends at 2^-96 and would lose the low word; the two-stage
+        // narrowing returns it exactly.
+        let mut sum = ExactSum::new();
+        sum.add_f64(1.0);
+        sum.add_scaled(1.0, -100);
+        assert_eq!(narrow_exact_sum(&mut sum, &mut Vec::new()), Ok(Dd { hi: 1.0, lo: 2.0f64.powi(-100) }));
+    }
+
+    #[test]
+    fn the_timoshenko_conversion_accepts_an_exact_value_below_the_half_arc_floor() {
+        // 1216·2^-1000 is a normal binary64 below 2^-969: exact, so accepted.
+        let value = 1216.0 * 2.0f64.powi(-1000);
+        assert!(value.abs() < LOCAL_ENTRY_MIN);
+        assert_eq!(narrow_timoshenko_mass(WideDd::from_f64(value)), Ok(Dd { hi: value, lo: 0.0 }));
+    }
+
+    #[test]
+    fn the_timoshenko_conversion_refuses_a_lost_low_part() {
+        // 2^-1000 + 2^-1100: the low part is below the subnormal range, so the
+        // conversion loses 2^-100 relative and is refused, not truncated.
+        let mut sum = ExactSum::new();
+        sum.add_scaled(1.0, -1000);
+        sum.add_scaled(1.0, -1100);
+        assert_eq!(narrow_exact_sum(&mut sum, &mut Vec::new()), Err(GeometryError::TimoshenkoMassRange));
     }
 
     /// The series against the closed forms where neither cancels much.
