@@ -133,10 +133,11 @@ def tr_failures(lib, code):
     return failed
 
 
-def gate_failures(absent, reviewed, present):
+def gate_failures(absent, reviewed, holds):
     """O10-GATE: `absent` the (name, file) lookups that found no function; `reviewed` maps each allowed absence to
-    (alternative or None, why); `present(name, file)` says whether an alternative exists."""
+    (source fact, why); `holds(fact)` says whether that fact holds at the snapshot. Every absence needs an entry whose
+    fact holds; there is no allowance on absence alone."""
     failed = [f"GATE-UNREVIEWED {k}" for k in sorted(absent) if k not in reviewed]
-    failed += [f"GATE-ALTERNATIVE {k} needs {reviewed[k][0]}" for k in sorted(absent)
-               if k in reviewed and reviewed[k][0] and not present(*reviewed[k][0])]
+    failed += [f"GATE-FACT {k} needs {reviewed[k][0]}" for k in sorted(absent)
+               if k in reviewed and (not reviewed[k][0] or not holds(reviewed[k][0]))]
     return failed

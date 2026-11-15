@@ -12,10 +12,13 @@ _FNKEY_ABSENT = set()
 
 def fnkey(name, f):
     """`basename-relative:line:name` of the one top-level-or-impl `fn name` in file f at the snapshot, else None.
+    FN-VIS (PR-A, §8.62): a visibility is `pub` or `pub(...)` with any scope (`pub(in crate::structural)` included); the
+    earlier `pub([a-z]+)` missed path scopes, so a rule naming such a function was silently not added (SKW-DZ's
+    `skew_spring_matrix` edge), and a function span ran on past one. fn_lines and site span the same way.
     O10-GATE: an absent target is recorded in `_FNKEY_ABSENT` where that set exists."""
     p = _os.path.join(_SNAP, f)
     lines = open(p, encoding="utf-8").read().split("\n") if _os.path.exists(p) else []
-    hits = [i + 1 for i, l in enumerate(lines) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s+" + _re.escape(name) + r"\b", l)]
+    hits = [i + 1 for i, l in enumerate(lines) if _re.match(r"\s*(pub(\([^()]*\))?\s+)?(const\s+)?fn\s+" + _re.escape(name) + r"\b", l)]
     if len(hits) != 1:
         if isinstance(globals().get("_FNKEY_ABSENT"), set):
             globals()["_FNKEY_ABSENT"].add((name, f))
@@ -61,7 +64,7 @@ def site(name, f, text, full=False, row=None):
         return None
     lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
     start = int(k.split(":")[1]); ind = len(lines[start - 1]) - len(lines[start - 1].lstrip())
-    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?fn\s", lines[i]) and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([^()]*\))?\s+)?fn\s", lines[i]) and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
     hits = [i + 1 for i in range(start - 1, end - 1) if text in lines[i]]
     if len(hits) != 1:
         raise SystemExit(f"o10 site(): {text!r} in {f}:{name}: {hits}")
@@ -77,7 +80,7 @@ def _fn_has(name, f, text):
         return False
     lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
     start = int(k.split(":")[1]); ind = len(lines[start - 1]) - len(lines[start - 1].lstrip())
-    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?fn\s", lines[i]) and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([^()]*\))?\s+)?fn\s", lines[i]) and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
     return any(text in lines[i] for i in range(start - 1, end - 1))
 
 
@@ -453,7 +456,7 @@ if fnkey("member", _CP):
 # still-live method (estimate_rcond -> estimate_condition).
 def _fn_n(name, f, ordinal, count):
     lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().splitlines()
-    hits = [i + 1 for i, line in enumerate(lines) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s+" + _re.escape(name) + r"\b", line)]
+    hits = [i + 1 for i, line in enumerate(lines) if _re.match(r"\s*(pub(\([^()]*\))?\s+)?(const\s+)?fn\s+" + _re.escape(name) + r"\b", line)]
     if len(hits) != count:
         raise SystemExit(f"KD5C1: {f} fn {name}: expected {count} definitions, found {len(hits)}")
     return Resolved(f"{f}:{hits[ordinal - 1]}:{name}")
@@ -1225,7 +1228,7 @@ def fn_lines(name, f):
         raise SystemExit(f"T4-U6: fn {name} is not unique in {f}")
     lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
     start = int(k.split(":")[1]); ind = len(lines[start - 1]) - len(lines[start - 1].lstrip())
-    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s", lines[i])
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([^()]*\))?\s+)?(const\s+)?fn\s", lines[i])
                 and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
     return lines, start, end
 
@@ -1283,49 +1286,22 @@ def _text_of(f):
 
 
 def _production(f):
-    """f's text without its `#[cfg(test)]` items. RT-A4 D3 (§8.46, RT-A4-PR): this was the text before the first
-    `#[cfg(test)]`, which equals the item-wise removal only while a file's first test item is its trailing test module.
-    RT-A4 puts a `#[cfg(test)] fn unit_factor_sum` mid-file in RE exact_combination_evidence.rs, so truncation would
-    drop every production line after it (RTA3CE-ID's field counts and W16BC-ID's constant scan). Each exact
-    `#[cfg(test)]` in code (the §8.45 lexer masks literals and comments) now removes its own item: through any further
-    attributes, to the first code `;` outside brackets or the `}` closing the item's first code `{`. Newlines are kept."""
-    text = _text_of(f)
-    if "#[cfg(test)]" not in text:
-        return text
-    _rl = _production_lexer()
-    toks, comments = _rl["scan"](text, f)
-    mask = _rl["_masks"](text, toks, comments)
-    out, at = [], 0
-    for m in _re.finditer(r"#\[cfg\(test\)\]", text):
-        if m.start() < at or mask[m.start()]:
-            continue
-        i, nest, opened = m.end(), 0, False
-        while i < len(text):
-            ch = text[i]
-            if not mask[i]:
-                if ch in "([":
-                    nest += 1
-                elif ch in ")]":
-                    nest -= 1
-                elif ch == "{":
-                    nest += 1
-                    opened = True
-                elif ch == "}":
-                    nest -= 1
-                    if opened and nest == 0:
-                        i += 1
-                        break
-                elif ch == ";" and nest == 0 and not opened:
-                    i += 1
-                    break
-            i += 1
-        else:
-            raise SystemExit(f"_production: {f}: unterminated #[cfg(test)] item at offset {m.start()}")
-        out.append(text[at:m.start()])
-        out.append("\n" * text.count("\n", m.start(), i))
-        at = i
-    out.append(text[at:])
-    return "".join(out)
+    """f's text without its `#[cfg(test)]` items, statements and expression-position elements (newlines kept).
+    RT-A4 D3 (§8.46, RT-A4-PR) made this item-wise; CFG-PROD (PR-A, §8.62) corrects where an element ends: the earlier
+    scan counted a `{` inside parentheses (a closure body) as the element's block, so a test statement such as lib.rs's
+    `tests::KD5_RECOVERY_PROBE.with(|probe| {..});` swallowed the production branch after it. The lexical rule and its
+    regressions are in base/cfg_test_items.py and tests/test_862_pr_a.py."""
+    return _cfg_test_items()["production"](_text_of(f), f)
+
+
+_CFG_TEST_ITEMS = []
+
+
+def _cfg_test_items():
+    if not _CFG_TEST_ITEMS:
+        _CFG_TEST_ITEMS.append(__import__("runpy").run_path(
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "cfg_test_items.py")))
+    return _CFG_TEST_ITEMS[0]
 
 
 _PRODUCTION_LEXER = []
@@ -6899,32 +6875,8 @@ if _pra_failed:
 
 
 def _pra_prod(f):
-    """PRA's census text: f without its `#[cfg(test)] mod` items (module items only, matched by the §8.45 lexer's
-    code mask) and without `//` comments. `_production` is not used here: it treats a `#[cfg(test)]` statement whose
-    closure holds a block as an item and removes production code after it (lib.rs's KD5_RECOVERY_PROBE statement
-    swallows the recovery block that follows it); that is a recorded finding about `_production`, not repaired here."""
-    text = _text_of(f)
-    _rl = _production_lexer()
-    toks, comments = _rl["scan"](text, f)
-    mask = _rl["_masks"](text, toks, comments)
-    out, at = [], 0
-    for m in _re.finditer(r"#\[cfg\(test\)\]\s*(?:pub(?:\([a-z]+\))?\s+)?mod\s+\w+\s*(\{|;)", text):
-        if m.start() < at or mask[m.start()]:
-            continue
-        i = m.end()
-        if m.group(1) == "{":
-            depth = 1
-            while i < len(text) and depth:
-                if not mask[i]:
-                    depth += {"{": 1, "}": -1}.get(text[i], 0)
-                i += 1
-            if depth:
-                raise SystemExit(f"PRA: {f}: unterminated test module at offset {m.start()}")
-        out.append(text[at:m.start()])
-        out.append("\n" * text.count("\n", m.start(), i))
-        at = i
-    out.append(text[at:])
-    return _re.sub(r"//[^\n]*", "", "".join(out))
+    """PRA's census text: f's production text (`_production`, CFG-PROD) without `//` comments."""
+    return _re.sub(r"//[^\n]*", "", _production(f))
 
 
 if all(_PRA_PARTS.values()):
@@ -7063,37 +7015,61 @@ if all(_PRA_PARTS.values()):
 # absent at this snapshot must be listed here with its reason; an alternative named here must then be present (a
 # correspondence, never a silent disappearance). Anything else stops the run.
 _PP_LIB, _PP_FG, _PP_EA, _PP_MS = PP_ + "lib.rs", PP_ + "formation_guard.rs", PP_ + "exact_admission.rs", PP_ + "model_settings.rs"
+# Each allowance names a source fact that must hold where the target is absent (base/pra_guards.py gate_failures):
+# ("fn", name, file) a reviewed alternative function is present; ("text-absent", file, text) the absent function's own
+# distinctive text is gone from its file (a rename that keeps the code fails it); ("file-absent", file) the file itself
+# is absent (a source before the module). No allowance stands on absence alone.
 O10_ABSENT_REVIEWED = {
-    # Historical functions whose blocks bind only their own sites (ID audits, ARGS, zero edges): deleted before main.
-    ("append_retained_source_not_joined", _PP_LIB): (None, "T4 batch 2's not-joined warning, deleted with its sites"),
-    ("arc_recovery_finding", _PP_FG): (None, "O-13's arc recovery finding, replaced by KD5's member predicate (KD5T1)"),
-    ("arc_recovery_record", _PP_LIB): (None, "O-13's arc recovery record, deleted with its one audited site"),
-    ("leaf_diff", PP_ + "source_recovery/j7_rf_census.rs"): (None, "B7b-J3: deleted by the test-only census rewrite (checked there)"),
-    ("row_basis", RE_ + "connector_evidence.rs"): (None, "E4's connector row basis, deleted with its zero edge and audited site"),
-    ("pressure_v3_formulation_basis_in", _PP_EA): (("pressure_v3_formulation_basis_with_source", _PP_EA),
-                                                   "S1's formulation basis: the `_with_source` form replaces it (checked at its rule)"),
-    ("shear_model_document_refusal", _PP_MS): (None, "SM-MS requires its absence (checked in the node-proximity guard)"),
-    ("skew_spring_matrix", FK_ + "structural/formation_check/skew.rs"): (None, "SKW-DZ's zero edge into it; absent code is not "
-                                                                          "called (the zero only lowers a count)"),
-    ("validate_pressure_evidence_uncertified", RE_ + "physics_evidence.rs"): (None, "W16B-RD's third dispatch shape; the "
-                                                                              "one-view and earlier shapes are chosen explicitly there"),
-    ("modal_result_document", "core/product_physics/src/modal/document.rs"): (None, "MODAL-ID (§8.52) only audits document.rs's "
-        "own text sites; without the function they are unaudited, so a reached one stops the run as unclassified"),
+    # Historical functions whose blocks bind only their own sites (ID audits, ARGS, zero edges), deleted before main.
+    ("append_retained_source_not_joined", _PP_LIB): (("text-absent", _PP_LIB, ':not-joined"'),
+                                                     "T4 batch 2's not-joined warning, deleted with its sites"),
+    ("arc_recovery_finding", _PP_FG): (("text-absent", _PP_FG, ": the formation bound is unavailable"),
+                                       "O-13's arc recovery finding, replaced by KD5's member predicate (KD5T1)"),
+    ("arc_recovery_record", _PP_LIB): (("text-absent", _PP_LIB, "formation_guard::ArcRecoveryRecord"),
+                                       "O-13's arc recovery record, deleted with its one audited site"),
+    ("leaf_diff", PP_ + "source_recovery/j7_rf_census.rs"): (("text-absent", PP_ + "source_recovery/j7_rf_census.rs",
+                                                              'format!("{path}/{k}")'),
+                                                             "B7b-J3: deleted by the test-only census rewrite (checked there)"),
+    ("row_basis", RE_ + "connector_evidence.rs"): (("text-absent", RE_ + "connector_evidence.rs", "objective_connector_v1;replaces_span="),
+                                                   "E4's connector row basis, deleted with its zero edge and audited site"),
+    ("shear_model_document_refusal", _PP_MS): (("text-absent", _PP_MS, "shear_model_timoshenko_unsupported_message"),
+                                               "SM-MS requires its absence (checked in the node-proximity guard)"),
+    # Alternative shapes chosen explicitly at their rules.
+    ("pressure_v3_formulation_basis_in", _PP_EA): (("fn", "pressure_v3_formulation_basis_with_source", _PP_EA),
+                                                   "S1's formulation basis: the `_with_source` form replaces it"),
+    ("validate_pressure_evidence_uncertified", RE_ + "physics_evidence.rs"): (
+        ("fn", "validate_pressure_evidence_without_certificate", RE_ + "physics_evidence.rs"),
+        "W16B-RD's three dispatch shapes; the one-view shape stands in for it"),
+    # A source before the I3a modal document has no document.rs (MODAL-ID, §8.52).
+    ("modal_result_document", PP_ + "modal/document.rs"): (("file-absent", PP_ + "modal/document.rs"),
+                                                          "MODAL-ID: a source before the modal document"),
     # U5B-PD-RN: the owner's two reviewed shapes (u4b_u5b_owners_model PD_SHAPES); exactly one is present.
-    ("published_nodal_displacements", _PP_LIB): (("corrected_nodal_displacements", _PP_LIB), "U5B-PD-RN: renamed by PR-A"),
-    ("corrected_nodal_displacements", _PP_LIB): (("published_nodal_displacements", _PP_LIB), "U5B-PD-RN: before PR-A"),
+    ("published_nodal_displacements", _PP_LIB): (("fn", "corrected_nodal_displacements", _PP_LIB), "U5B-PD-RN: renamed by PR-A"),
+    ("corrected_nodal_displacements", _PP_LIB): (("fn", "published_nodal_displacements", _PP_LIB), "U5B-PD-RN: before PR-A"),
     # PR-A's other new functions: absent only on a source before PR-A, which holds U5B-PD's earlier shape (§8.62 PRA).
-    ("inspection_only", _PP_LIB): (("published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
-    ("inspection_only_prior", _PP_LIB): (("published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
-    ("displacement_correction_warning", _PP_LIB): (("published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
-    ("withdraw_established", PP_ + "held_status.rs"): (("published_nodal_displacements", _PP_LIB),
+    ("inspection_only", _PP_LIB): (("fn", "published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
+    ("inspection_only_prior", _PP_LIB): (("fn", "published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
+    ("displacement_correction_warning", _PP_LIB): (("fn", "published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
+    ("withdraw_established", PP_ + "held_status.rs"): (("fn", "published_nodal_displacements", _PP_LIB),
                                                        "RTA5-HR: before PR-A (the original two-Held form, checked there)"),
 }
 
 
+def _o10_alt_holds(alt):
+    kind = alt[0]
+    if kind == "fn":
+        return fnkey(alt[1], alt[2]) is not None
+    path = _os.path.join(_SNAP, alt[1])
+    if kind == "file-absent":
+        return not _os.path.exists(path)
+    if kind == "text-absent":
+        return not _os.path.exists(path) or alt[2] not in open(path, encoding="utf-8").read()
+    raise SystemExit(f"O10-GATE: unknown allowance kind {alt!r}")
+
+
 def o10_gate():
     """O10-GATE's check (base/pra_guards.py gate_failures); called here and again at the end of the common decisions."""
-    failed = _pra_g["gate_failures"](_FNKEY_ABSENT, O10_ABSENT_REVIEWED, lambda name, f: fnkey(name, f) is not None)
+    failed = _pra_g["gate_failures"](_FNKEY_ABSENT, O10_ABSENT_REVIEWED, _o10_alt_holds)
     if failed:
         raise SystemExit(f"O10-GATE: rule targets absent without a reviewed reason or alternative {failed}; a lost, "
                          f"renamed or moved function drops its block (§8.62)")

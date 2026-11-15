@@ -8,6 +8,8 @@
 - U5B-PD-RN: the owner's two reviewed shapes, one present; anything else stops.
 - OWN-PRES and O10-GATE: an owner or a rule target that a current source loses, renames or moves stops the run; it is
   never priced as older source.
+- CFG-PROD: the production extraction and the chain scanner end a test element where Rust ends it, so no production
+  after it is hidden.
 
 These are source warrants, not runtime allocation observations.
 """
@@ -299,11 +301,12 @@ def test_the_current_source_holds_every_registered_owner():
 
 
 def test_an_unreviewed_absent_rule_target_stops():
-    reviewed = {("gone", "a.rs"): (None, "historical"), ("old", "a.rs"): (("new", "a.rs"), "renamed")}
-    present = lambda name, f: name == "new"
-    assert G["gate_failures"]({("gone", "a.rs"), ("old", "a.rs")}, reviewed, present) == []
-    assert G["gate_failures"]({("lost", "a.rs")}, reviewed, present) == ["GATE-UNREVIEWED ('lost', 'a.rs')"]
-    assert G["gate_failures"]({("old", "a.rs")}, reviewed, lambda name, f: False)[0].startswith("GATE-ALTERNATIVE")
+    reviewed = {("gone", "a.rs"): (("text-absent", "a.rs", "its own site"), "historical"),
+                ("old", "a.rs"): (("fn", "new", "a.rs"), "renamed")}
+    holds = lambda fact: fact[0] == "text-absent" or fact[1] == "new"
+    assert G["gate_failures"]({("gone", "a.rs"), ("old", "a.rs")}, reviewed, holds) == []
+    assert G["gate_failures"]({("lost", "a.rs")}, reviewed, holds) == ["GATE-UNREVIEWED ('lost', 'a.rs')"]
+    assert G["gate_failures"]({("old", "a.rs")}, reviewed, lambda fact: False)[0].startswith("GATE-FACT")
 
 
 def test_the_chain_stops_when_a_reviewed_absence_is_withdrawn(tmp_path, monkeypatch):
@@ -312,7 +315,8 @@ def test_the_chain_stops_when_a_reviewed_absence_is_withdrawn(tmp_path, monkeypa
     shutil.copytree(PRICING, tool, ignore=shutil.ignore_patterns("__pycache__", "tests"))
     rules = tool / "rules/o10_rules.py"
     text = rules.read_text(encoding="utf-8")
-    entry = '    ("row_basis", RE_ + "connector_evidence.rs"): (None, "E4\'s connector row basis, deleted with its zero edge and audited site"),\n'
+    entry = text[text.index('    ("row_basis", RE_ + "connector_evidence.rs"): '):]
+    entry = entry[:entry.index('audited site"),\n') + len('audited site"),\n')]
     assert text.count(entry) == 1
     rules.write_text(text.replace(entry, ""), encoding="utf-8")
     monkeypatch.setenv("SQ2_SNAP", str(SOURCE))
@@ -323,3 +327,133 @@ def test_the_chain_stops_when_a_reviewed_absence_is_withdrawn(tmp_path, monkeypa
 def test_the_reviewed_absent_targets_are_absent_now(monkeypatch):
     d = decisions(monkeypatch)
     assert set(d["O10_GATE_ABSENT"]) <= set(d["O10_ABSENT_REVIEWED"])
+
+
+# ---- CFG-PROD: the production extraction keeps production after any test element, and removes only test elements.
+CFG = runpy.run_path(str(PRICING / "base/cfg_test_items.py"))
+
+
+def test_the_recovery_branch_after_the_kd5_probe_is_production():
+    text = _lib()
+    keep = "    if !recovery_records.is_empty() {"
+    assert text.count(keep) == 1
+    assert CFG["production"](text, LIB).count(keep) == 1
+    assert CFG["legacy_production"](text, LIB).count(keep) == 0        # the defect this repairs
+    assert CFG["production"](text, LIB).count("\n") == text.count("\n")
+
+
+@pytest.mark.parametrize("source,kept,removed", [
+    # a test statement whose closure holds blocks, inside a function, before production
+    ("fn f() {\n    #[cfg(test)]\n    P.with(|p| { if a { b(); } });\n    if keep_me { x(); }\n}\n", ["if keep_me { x(); }"], ["P.with"]),
+    # nested cfg(test) inside a test module, then production
+    ("#[cfg(test)]\nmod t {\n    #[cfg(test)]\n    fn inner() {}\n    fn other() {}\n}\nfn prod() {}\n", ["fn prod() {}"], ["inner", "other"]),
+    # a test let with if/else ends at its `;`
+    ("fn f() {\n    #[cfg(test)]\n    let a = if c { 1 } else { 2 };\n    let keep = 3;\n}\n", ["let keep = 3;"], ["else { 2 }"]),
+    # cfg(not(test)) and other attributes are kept
+    ("#[cfg(not(test))]\nfn prod() {}\n#[cfg(test)]\nfn t() {}\n", ["#[cfg(not(test))]", "fn prod() {}"], ["fn t()"]),
+    ("#[cfg(all(test, feature = \"x\"))]\nfn kept_here() {}\n", ["fn kept_here() {}"], []),
+    # attribute stacks: after the cfg(test) they are removed with the item; before it they stay
+    ("#[cfg(test)]\n#[path = \"x.rs\"]\nmod x;\nfn prod() {}\n", ["fn prod() {}"], ["#[path", "mod x;"]),
+    ("#[allow(dead_code)]\n#[cfg(test)]\nfn t() { }\nfn prod() {}\n", ["#[allow(dead_code)]", "fn prod() {}"], ["fn t()"]),
+    # a field, a last arm without a comma, a block expression with a method
+    ("struct S {\n    #[cfg(test)]\n    probe: u8,\n    keep: u8,\n}\n", ["keep: u8,"], ["probe"]),
+    ("fn f(x: u8) -> u8 {\n    match x {\n        0 => 1,\n        #[cfg(test)]\n        9 => 2\n    }\n}\n", ["0 => 1,", "}\n}"], ["9 => 2"]),
+    ("fn f() {\n    #[cfg(test)]\n    { a() }.touch();\n    keep();\n}\n", ["keep();"], ["touch"]),
+    # commas inside a field's generics or an item's generics and parameters do not end it
+    ("struct S {\n    #[cfg(test)]\n    probe: Map<A, B>,\n    keep: u8,\n}\n", ["keep: u8,"], ["probe", "B>"]),
+    ("#[cfg(test)]\nfn t<A, B>(a: A, b: B) -> (A, B) { (a, b) }\nfn prod() {}\n", ["fn prod() {}"], ["fn t", "(a, b)"]),
+    # an attribute inside a literal or comment is not one
+    ("fn f() {\n    let s = \"#[cfg(test)] {\";\n    // #[cfg(test)] fn no() {}\n    keep();\n}\n", ["let s = \"#[cfg(test)] {\";", "keep();"], []),
+])
+def test_cfg_test_elements_end_where_rust_ends_them(source, kept, removed):
+    out = CFG["production"](source, "case.rs")
+    assert out.count("\n") == source.count("\n")
+    for text in kept:
+        assert text in out, (text, out)
+    for text in removed:
+        assert text not in out, (text, out)
+
+
+def test_an_unterminated_test_element_stops():
+    with pytest.raises(ValueError, match="CFG-PROD"):
+        CFG["production"]("fn f() {\n    #[cfg(test)]\n    { open(\n", "case.rs")
+
+
+SCAN = runpy.run_path(str(PRICING / "base/loopscan.py"))
+
+
+def _scanned(raw):
+    return SCAN["blank_test_items"](SCAN["blank_rust"](raw), raw)
+
+
+def test_the_scanner_keeps_production_after_a_test_field():
+    # The scanner ran a test-only field on to the next depth-0 `;`, hiding the later fields, the `}` and the next item.
+    raw = ("struct S {\n    #[cfg(test)]\n    probe: Option<u8>,\n    keep: [usize; 2],\n}\n"
+           "const K: &str = \"k\";\nfn prod() { call(); }\n")
+    out = _scanned(raw)
+    assert out.count("\n") == raw.count("\n")
+    assert "probe" not in out
+    for text in ("keep: [usize; 2],", "}\nconst K: &str", "fn prod() { call(); }"):
+        assert text in out, (text, out)
+
+
+def test_the_scanner_blanks_whole_test_statements():
+    raw = "fn f() {\n    #[cfg(test)]\n    let g = if hook() { a() } else { g };\n    keep();\n}\n"
+    out = _scanned(raw)
+    assert "hook" not in out and "else" not in out and "keep();" in out
+
+
+def test_the_scanner_keeps_its_off_feature_rule():
+    raw = '#[cfg(feature = "census-probe")]\nfn probe() { a(); }\nfn prod() {}\n'
+    out = _scanned(raw)
+    assert "probe()" not in out and "fn prod() {}" in out
+    with pytest.raises(ValueError, match="W1R-FG"):
+        _scanned('fn f() {\n    match x {\n        #[cfg(feature = "census-probe")]\n        1 => a(),\n        _ => b(),\n    }\n}\n')
+
+
+def test_the_scanner_sees_product_capture_after_its_test_field():
+    text = (SOURCE / PP / "retained_product.rs").read_text(encoding="utf-8")
+    out = _scanned(text)
+    for line in ("    pub prepared_capacity_bytes: [usize; 16],",
+                 'pub(super) const REQUESTED_MODE_KIND: &str = "',
+                 "    pub combination_rows: Vec<std::ops::Range<usize>>,"):
+        assert text.count(line) == 1 and out.count(line) == 1, line
+    assert "trace_fault:Option" not in out
+
+
+def test_every_production_helper_uses_the_corrected_extraction(monkeypatch):
+    # o10's _production, batch 5's production, RTL2's and U6's _production all read base/cfg_test_items.py.
+    for path in ("rules/o10_rules.py", "base/batch5_model.py", "base/rtl2_owners_model.py", "base/u6_owners_model.py"):
+        assert "cfg_test_items.py" in (PRICING / path).read_text(encoding="utf-8"), path
+    batch5 = runpy.run_path(str(PRICING / "base/batch5_model.py"))
+    assert batch5["production"](_lib(), LIB) == CFG["production"](_lib(), LIB)
+
+
+# ---- FN-VIS and the grounded absences.
+
+def test_a_path_scoped_function_is_found(monkeypatch):
+    d = decisions(monkeypatch)
+    edges = [(str(a), str(b)) for a, b, why in d["O10_EDGE_ZERO"] if "SKW" in str(why) and "certify_support_reaction_with_basis" in str(a)]
+    assert ("structural/certified_recovery.rs:1474:certify_support_reaction_with_basis",
+            "structural/formation_check/skew.rs:36:skew_spring_matrix") in edges
+    assert all(b != "None" for _, b in edges)
+    assert not any(name == "skew_spring_matrix" for name, _ in d["O10_GATE_ABSENT"])
+
+
+def test_every_reviewed_absence_names_a_source_fact(monkeypatch):
+    d = decisions(monkeypatch)
+    assert all(fact and fact[0] in ("fn", "text-absent", "file-absent") for fact, why in d["O10_ABSENT_REVIEWED"].values())
+    holds = lambda fact: False
+    assert G["gate_failures"]({("row_basis", "x.rs")}, {("row_basis", "x.rs"): (("text-absent", "x.rs", "t"), "w")}, holds) \
+        == ["GATE-FACT ('row_basis', 'x.rs') needs ('text-absent', 'x.rs', 't')"]
+    assert G["gate_failures"]({("row_basis", "x.rs")}, {("row_basis", "x.rs"): (None, "w")}, lambda fact: True)
+
+
+def test_a_historical_function_kept_under_another_name_stops(monkeypatch, tmp_path):
+    snap = copy_core(tmp_path)
+    target = snap / RE / "connector_evidence.rs"
+    target.write_text(target.read_text(encoding="utf-8")
+                      + '\nfn renamed_row_basis(span: &str) -> String {\n    format!("objective_connector_v1;replaces_span={span}")\n}\n',
+                      encoding="utf-8")
+    with pytest.raises((SystemExit, ValueError), match="GATE-FACT.*row_basis|connector_evidence"):
+        decisions(monkeypatch, snap)

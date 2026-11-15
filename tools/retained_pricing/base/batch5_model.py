@@ -153,45 +153,10 @@ LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa
 
 
 def production(text, rel):
-    """B5-PR: `text` without its `#[cfg(test)]` items, as o10_rules' `_production`: each exact `#[cfg(test)]` in code
-    (literals and comments masked by base/rust_literals.py) removes its item through any further attributes, to the
-    first code `;` outside brackets or the `}` closing the item's first code `{`. Newlines are kept."""
-    if "#[cfg(test)]" not in text:
-        return text
-    lexer = runpy.run_path(os.path.join(os.path.dirname(__file__), "rust_literals.py"))
-    toks, comments = lexer["scan"](text, rel)
-    mask = lexer["_masks"](text, toks, comments)
-    out, at = [], 0
-    for m in re.finditer(r"#\[cfg\(test\)\]", text):
-        if m.start() < at or mask[m.start()]:
-            continue
-        i, nest, opened = m.end(), 0, False
-        while i < len(text):
-            ch = text[i]
-            if not mask[i]:
-                if ch in "([":
-                    nest += 1
-                elif ch in ")]":
-                    nest -= 1
-                elif ch == "{":
-                    nest += 1
-                    opened = True
-                elif ch == "}":
-                    nest -= 1
-                    if opened and nest == 0:
-                        i += 1
-                        break
-                elif ch == ";" and nest == 0 and not opened:
-                    i += 1
-                    break
-            i += 1
-        else:
-            raise ValueError(f"B5-PR: {rel}: unterminated #[cfg(test)] item at offset {m.start()}")
-        out.append(text[at:m.start()])
-        out.append("\n" * text.count("\n", m.start(), i))
-        at = i
-    out.append(text[at:])
-    return "".join(out)
+    """B5-PR: `text` without its `#[cfg(test)]` items, as o10_rules' `_production`. CFG-PROD (PR-A, §8.62): both now
+    use base/cfg_test_items.py, whose element ends at a depth-0 `;` even after a closure block inside parentheses (the
+    earlier copy here could swallow production code after such a test statement)."""
+    return runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "cfg_test_items.py"))["production"](text, rel)
 
 
 def active(snapshot):

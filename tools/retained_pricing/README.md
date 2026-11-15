@@ -722,10 +722,36 @@ charge `ordinary_published_displacements(N)` is unchanged: at most one N-vector 
   epoch's owners still adds nothing. A model that stops during the census counts as present there: it stops again,
   with its own message, at its pricing step.
 - **O10-GATE.** `rules/o10_rules.py` records every `fnkey` lookup. It stops on any absent target that
-  `O10_ABSENT_REVIEWED` does not explain, or whose reviewed alternative is absent.
+  `O10_ABSENT_REVIEWED` does not explain by a source fact that holds:
+  - a reviewed alternative function is present;
+  - the absent function's own distinctive text is gone from its file, so a rename that keeps the code stops;
+  - or the file itself is absent (a source before the module).
+
+  No allowance stands on absence alone.
+- **FN-VIS.** `fnkey` and the span helpers accept any `pub(...)` scope. The earlier `pub([a-z]+)` missed
+  `pub(in crate::structural) fn skew_spring_matrix`, so SKW-D1's zero edge into it was never added. It is added now.
 - **Limits.** These cover the owner models' readings and o10's gated blocks. They do not cover arbitrary text
   predicates inside other models; those models' pins stop on change instead.
 
-A recorded finding, not repaired here: o10's `_production()` treats a `#[cfg(test)]` statement whose closure holds a
-block as an item. It removes production text after the statement: lib.rs's KD5_RECOVERY_PROBE statement swallows the
-recovery block that follows it. PRA's census uses its own module-only filter.
+**CFG-PROD, the production extraction.** `base/cfg_test_items.py` is the one extractor. It removes each exact
+`#[cfg(test)]` item, statement or expression-position element, and only that.
+- **Why.** The earlier helper (o10's `_production` and batch 5's copy) counted a `{` inside parentheses as the
+  element's block. A test statement with a closure (lib.rs's `tests::KD5_RECOVERY_PROBE.with(|probe| {..});`)
+  swallowed the production after it, hiding it from the guards that read that text.
+- **Same class.** RTL2's and U6's helpers truncated at the first `#[cfg(test)]`; they use the extractor now. Their
+  readings were re-checked equal on main 5e71c4d05 and PR-A's source.
+- **Prefix pins kept.** KD5's prefix pins keep their registered scope. The production they leave out of
+  certified_recovery.rs is bound by B7a's and W1's full-file pins of that file.
+- **The scanner, same class.** The scanner that builds the TEXT inventory, loops and call graph
+  (`loopscan.blank_test_items`) ended such a statement correctly at its depth-0 `;`. It ran a test-only struct
+  field on to the next depth-0 `;`, though. In retained_product.rs, after `ProductCapture`'s `#[cfg(test)]
+  trace_fault` field, it blanked the struct's later fields, its `}` and the `REQUESTED_MODE_KIND` constant. Test
+  attributes now end where the extractor ends them. Off-feature attributes keep their own rule, which stops at an
+  expression position.
+  - What the repair moves (both trees): only those field and constant declarations become visible. They hold no
+    call, macro, loop, closure or text site. The field sizes are priced by `size_of` probes (T11), the constant's
+    literal by the static-literal pass (`rust_literals.production_literals`, its own lexer), and its uses by raw-text
+    constant reads.
+  - Test-only code is blanked in addition: the `else` tails of `let x = if .. {..} else {..};` and `use` semicolons.
+- **Regressions.** These are in `tests/test_862_pr_a.py`: nested test modules, a test statement inside a function,
+  `cfg(not(test))`, attribute stacks, fields, arms, literals, and the real lib.rs case.
