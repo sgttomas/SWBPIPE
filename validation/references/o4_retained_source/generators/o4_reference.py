@@ -3,9 +3,11 @@
 
 Standard library only. This generator imports, reads and runs no product code and no product output.
 Its one dependency is the frozen, independent M3-T engine
-`../../kd5_timoshenko/kd5t_engine.py`, imported unchanged and bound by SHA-256 (the engine is refused if
-its bytes change). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Every model is
-invented.
+`../../kd5_timoshenko/kd5t_engine.py`, imported unchanged and bound by SHA-256: the engine the freeze was
+made with, or the one named successor admitted beside it with the whole of its difference stated
+(ENGINE_SHA256_ADMITTED); any other bytes are refused. The frozen files record the engine of the freeze;
+the check says which of the two it ran on. Standard claim fence applies (F-PIP-2; claims taxonomy per
+DEC-081). Every model is invented.
 
 Readouts (o4-source-extension.md section 5, DEL-04-08 Design):
 - annular: the engine's own exact element (SHEAR_REFERENCE's, kappa_E formed exactly from the authored
@@ -42,13 +44,30 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 UNIT = os.path.dirname(HERE)
 ENGINE_PATH = os.path.join(os.path.dirname(UNIT), "kd5_timoshenko", "kd5t_engine.py")
 ENGINE_SHA256 = "c91f28c6bce4a6777c63357fc82b8a0d1cd5a3ca48d0b1a756ef29706be8314e"
+# ENGINE_SHA256 is the engine the freeze was made with, and it is the hash every frozen file records
+# ("engine" in oracle.json and source_twins_oracle.json). That record is not rewritten: it says which
+# engine the values were frozen with, not which engine a later check ran on. The engine file has changed
+# once since. The check admits exactly that one successor, named here with its commit and the whole of
+# its difference from the freeze's engine, and reproduces every frozen byte on it. Any third hash is
+# refused, so the next change to the engine is again a finding and not a silent pass.
+ENGINE_SHA256_ADMITTED = {
+    "05df1ba6c4d5f47c64b61c1018a91e3aade820f043bd1b8a080fe3607b27ec5d":
+        "cdf98fd8c (2026-10-28), 5 lines added and 4 removed in three places: the module docstring's "
+        "sentence naming the accepted model document version; Reference.__init__'s version test and its "
+        "error text (0.8.0 accepted beside the historical 0.5.0); and the version in the self-check's own "
+        "request (_sb_request). No arithmetic.",
+}
+ENGINE_RAN_ON = None
 
 
 def _load_engine():
+    global ENGINE_RAN_ON
     with open(ENGINE_PATH, "rb") as fh:
         digest = hashlib.sha256(fh.read()).hexdigest()
-    if digest != ENGINE_SHA256:
-        raise SystemExit(f"kd5t_engine.py changed (sha256 {digest}); this unit binds {ENGINE_SHA256}")
+    if digest != ENGINE_SHA256 and digest not in ENGINE_SHA256_ADMITTED:
+        raise SystemExit(f"kd5t_engine.py changed (sha256 {digest}); this unit binds {ENGINE_SHA256} "
+                         f"and admits only {sorted(ENGINE_SHA256_ADMITTED)}")
+    ENGINE_RAN_ON = digest
     sys.path.insert(0, os.path.dirname(ENGINE_PATH))
     import kd5t_engine  # noqa: E402  (bound by hash above, used unchanged)
     return kd5t_engine
@@ -1706,7 +1725,19 @@ def dump_lines(doc, key, _unused):
     return text.encode()
 
 
+def engine_note():
+    """Which engine this run used: the freeze's own, or the admitted successor with its stated difference."""
+    if ENGINE_RAN_ON == ENGINE_SHA256:
+        return f"engine {ENGINE_RAN_ON[:8]} (the engine of the freeze)"
+    return (f"engine {ENGINE_RAN_ON[:8]}, the admitted successor of the freeze's {ENGINE_SHA256[:8]}: "
+            f"{ENGINE_SHA256_ADMITTED[ENGINE_RAN_ON]}")
+
+
 FROZEN = ("cases.json", "oracle.json")
+# declared_problem/ is a product check that lives beside this unit: it builds and runs the product and
+# judges the product's output (its own README and run.sh). It is not part of the frozen reference, so it
+# is outside this inventory and outside SHA256SUMS.
+BESIDE = ("declared_problem",)
 SUMMED = ("README.md", "cases.json", "oracle.json", "run.sh", "generators/o4_reference.py",
           "generators/o4_source_twins.py", "source_twins_cases.json", "source_twins_oracle.json")
 
@@ -1748,13 +1779,16 @@ def main():
     with open(os.path.join(UNIT, "SHA256SUMS"), "rb") as fh:
         if fh.read() != sha256sums():
             bad.append("SHA256SUMS")
-    present = sorted(os.path.relpath(os.path.join(dp, f), UNIT) for dp, _, fs in os.walk(UNIT) for f in fs)
+    present = sorted(rel for rel in (os.path.relpath(os.path.join(dp, f), UNIT)
+                                     for dp, _, fs in os.walk(UNIT) for f in fs)
+                     if rel.split(os.sep)[0] not in BESIDE)
     expected = sorted(SUMMED + ("SHA256SUMS",))
     if present != expected:
         bad.append(f"unexpected or missing files: {sorted(set(present) ^ set(expected))}")
     if bad:
         raise SystemExit(f"check FAILED: {bad}")
-    print("check passed: frozen files reproduced byte for byte at 110 digits, identical at 150, every cross-check holds")
+    print("check passed: frozen files reproduced byte for byte at 110 digits, identical at 150, every cross-check holds; "
+          + engine_note())
 
 
 if __name__ == "__main__":

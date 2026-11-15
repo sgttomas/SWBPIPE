@@ -343,16 +343,25 @@ impl ExactSectionBases {
     ) -> Result<f64, ExactPressureError> {
         self.reduced.pressure_group_value(p, coefficient, direction_magnitude)
     }
-    /// A straight section's wall force N_w = N_m + 2νpAi and effective force
-    /// S = N_m + (2ν − 1)pAi, formed once with Ai on the pressure bore (§1,
+    /// A straight section's wall force N_w = N_m + κpAi and effective force
+    /// S = N_m + (κ − 1)pAi, formed once with Ai on the pressure bore (§1,
     /// the split of the former single-annulus recovery). The membrane stress
     /// of each basis is [`Self::membrane`].
+    ///
+    /// RT-L2 (DEL-04-07): κ = 2ν when the case
+    /// includes pressure elongation (today's arithmetic and operation order,
+    /// with the two-difference split of 2ν − 1); κ = 1 when it does not, where
+    /// N_w = N_m + pAi and S = N_m exactly, the arc's form.
     pub(crate) fn recover_wall_effective(
         self,
         mechanical_force: f64,
         m: IsotropicENu,
         p: InternalDifferentialPressure,
+        elongation_included: bool,
     ) -> Result<WallForces, ExactPressureError> {
+        if !elongation_included {
+            return self.recover_arc_wall_effective(mechanical_force, p);
+        }
         if !mechanical_force.is_finite() {
             return Err(ExactPressureError::NonRepresentableLoad);
         }
@@ -508,9 +517,14 @@ mod tests {
         assert_eq!(g.poisson_eigenload_pair(m, p).unwrap().map(f64::to_bits),
             g.reduced().eigenload_pair(m, p, 0.0).unwrap().map(f64::to_bits));
         // One wall force on the pressure bore, divided by each basis's own area.
-        let forces = g.recover_wall_effective(1.0e5, m, p).unwrap();
+        let forces = g.recover_wall_effective(1.0e5, m, p, true).unwrap();
         close(forces.wall_n, 1.0e5 + 0.6 * 1.0e7 * g.pressure_bore_area_m2());
         close(forces.effective_n, 1.0e5 - 0.4 * 1.0e7 * g.pressure_bore_area_m2());
+        // RT-L2: not included, kappa = 1 is the arc's form, N_w = N_m + pAi and S = N_m exactly.
+        let off = g.recover_wall_effective(1.0e5, m, p, false).unwrap();
+        let arc = g.recover_arc_wall_effective(1.0e5, p).unwrap();
+        assert_eq!((off.wall_n.to_bits(), off.effective_n.to_bits()), (arc.wall_n.to_bits(), 1.0e5f64.to_bits()));
+        close(off.wall_n, 1.0e5 + 1.0e7 * g.pressure_bore_area_m2());
         let (nominal, reduced) = (g.membrane(SectionBasis::Nominal, forces).unwrap(), g.membrane(SectionBasis::Reduced, forces).unwrap());
         close(nominal, forces.wall_n / g.nominal().wall_area_m2());
         close(reduced, forces.wall_n / g.reduced().wall_area_m2());
@@ -544,7 +558,7 @@ mod tests {
         let both = ExactSectionBases::derive(od, t, 0.0, 0.0).unwrap();
         assert_eq!(bits(both.nominal()), bits(both.reduced()));
         assert_eq!(bits(both.nominal()), bits(SourceAnnulus::from_od_wall(od, t).unwrap()));
-        let forces = both.recover_wall_effective(-2.5e4, m, p).unwrap();
+        let forces = both.recover_wall_effective(-2.5e4, m, p, true).unwrap();
         assert_eq!(both.membrane(SectionBasis::Nominal, forces).unwrap().to_bits(), both.membrane(SectionBasis::Reduced, forces).unwrap().to_bits());
     }
 

@@ -5,6 +5,7 @@ core/** -text
 fixtures/** -text
 schemas/** -text
 validation/references/** -text
+validation/caepipe_sitting_pack/** -text
 
 # Exact reproduction stdout/stderr are checksum-governed byte evidence.
 validation/evidence/reproduction/REPRO_DEL0904_*/stdout/*.txt -diff -merge -text

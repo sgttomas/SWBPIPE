@@ -21,8 +21,8 @@ def test_changes_to_hosted_workflows_select_their_structural_tests():
 
 def test_every_pr_reaches_single_required_aggregate_and_reusable_products():
     root = workflow('governance-harness.yml')
-    assert 'pull_request' in root['on']
-    assert not root['on']['pull_request']
+    # The defaults, and ready_for_review, which runs the product jobs once a draft is marked ready.
+    assert root['on']['pull_request'] == {'types': ['opened', 'synchronize', 'reopened', 'ready_for_review']}
     # The merge queue runs the same aggregate on its temporary merge commit.
     assert root['on']['merge_group'] == {'types': ['checks_requested']}
     assert set(root['on']) == {'pull_request', 'merge_group', 'workflow_dispatch'}
@@ -33,7 +33,9 @@ def test_every_pr_reaches_single_required_aggregate_and_reusable_products():
     assert set(jobs['harness']['needs']) == {'changes', 'repository-checks', 'piping'}
     for name in ('repository-checks', 'piping'):
         assert jobs[name]['needs'] == 'changes'
-        assert jobs[name]['if'] == "needs.changes.outputs.mode == 'product'"
+    assert jobs['repository-checks']['if'] == "needs.changes.outputs.mode == 'product'"
+    assert jobs['piping']['if'] == ("needs.changes.outputs.mode == 'product' && "
+                                    "!(github.event_name == 'pull_request' && github.event.pull_request.draft)")
     for job, name in [('piping', 'piping-desktop-e2e.yml')]:
         config = workflow(name)
         assert 'workflow_call' in config['on']
@@ -67,9 +69,10 @@ def test_merge_group_candidate_is_checked_out_and_selected_as_a_pull_request():
                     selections += 1
                     assert step['env'] == {'EVENT': '${{ github.event_name }}', 'BASE': BASE_REF, 'HEAD': HEAD_REF}
         assert selections == {'governance-harness.yml': 2, 'piping-desktop-e2e.yml': 1}[name]
-    for step in workflow('governance-harness.yml')['jobs']['repository-checks']['steps']:
-        if 'BASE' in step.get('env', {}) and '--event' not in step['run']:
-            assert step['env']['BASE'] == '${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}'
+    # The repository checks take one base. `github.event.before`, which their documents and conflict steps
+    # once also named, is unreachable on these three events: a pull request and a queue group always carry a
+    # base, and workflow dispatch has no `before`. Its HEAD^1 fallback is the script's (test_repository_checks.py).
+    assert 'github.event.before' not in (ROOT / '.github/workflows/governance-harness.yml').read_text()
 
 
 def test_merge_group_runs_neither_cancel_nor_are_cancelled():
@@ -208,6 +211,117 @@ def test_single_required_result_fails_for_any_unsuccessful_child(tmp_path):
         results['piping']['result'] = state
         process = subprocess.run(['bash', '-c', step['run']], env={**os.environ, 'RESULTS': json.dumps(results)}, capture_output=True)
         assert (process.returncode == 0) == (state == 'success')
+
+
+DRAFT_MESSAGE = 'Draft pull request: the product jobs did not run. Mark it ready for review to run them.'
+
+
+def expression(text, context):
+    """A job or step `if` as GitHub evaluates it, for context names, quoted strings, `==`, `!`, `&&`, `||` and
+    parentheses. A missing property is null; `&&` and `||` return an operand; null, '' and false are false."""
+    import re
+    assert re.fullmatch(r"[A-Za-z_.'=&|()! -]*", text), text
+    names = re.sub(r"(?<!')\b((?:github|needs)(?:\.[\w-]+)+)", lambda name: f"lookup({name.group(1)!r})", text)
+    names = re.sub(r"!(?!=)", " not ", names).replace('&&', ' and ').replace('||', ' or ')
+    return eval(names, {'__builtins__': {}}, {'lookup': context.get})
+
+
+def test_a_draft_fails_harness_and_a_green_harness_means_the_product_jobs_ran(tmp_path):
+    """Every (event) x (draft or ready) x (documentation or product) combination, through the workflow's own
+    conditions, the draft step and the aggregate. GitHub counts a skipped required check as passing, so harness
+    always runs, and it fails a draft product pull request rather than skip it."""
+    import os
+    import subprocess
+    import sys
+    sys.path.insert(0, str(ROOT / 'tools/software_workflow'))
+    import documentation_ci
+    jobs = workflow('governance-harness.yml')['jobs']
+    harness = jobs['harness']
+    assert harness['if'] == 'always()'
+    assert set(harness['needs']) == {'changes', 'repository-checks', 'piping'}
+    steps = harness['steps']
+    assert [s.get('name') for s in steps[1:]] == ['A draft pull request has not run the product jobs',
+                                                   'Require every selected verification to succeed']
+    draft_step, aggregate = steps[1], steps[2]
+    assert draft_step['if'] == ("github.event_name == 'pull_request' && github.event.pull_request.draft && "
+                                "needs.changes.outputs.mode == 'product'")
+    assert draft_step['run'] == f'echo "::error::{DRAFT_MESSAGE}"\nexit 1\n'
+    process = subprocess.run(['bash', '-e', '-c', draft_step['run']], capture_output=True, text=True)
+    assert process.returncode == 1 and process.stdout == f'::error::{DRAFT_MESSAGE}\n'
+    # The aggregate demands success of both repository-checks and piping in product mode.
+    assert aggregate['run'] == 'python3 tools/software_workflow/documentation_ci.py aggregate'
+    assert aggregate['env'] == {'RESULTS': '${{ toJSON(needs) }}'} and 'if' not in aggregate
+    seen = set()
+    for event in ('pull_request', 'merge_group', 'workflow_dispatch'):
+        for draft in ((True, False) if event == 'pull_request' else (None,)):
+            for mode in ('documentation', 'product'):
+                context = {'github.event_name': event, 'github.event.pull_request.draft': draft,
+                           'needs.changes.outputs.mode': mode}
+                ran = {name: bool(expression(jobs[name]['if'], context)) for name in ('repository-checks', 'piping')}
+                draft_product = event == 'pull_request' and draft is True and mode == 'product'
+                assert ran['repository-checks'] == (mode == 'product')
+                assert ran['piping'] == (mode == 'product' and not draft_product)
+                assert bool(expression(draft_step['if'], context)) == draft_product
+                for outcome in ('success', 'failure', 'cancelled'):
+                    results = {'changes': {'result': 'success', 'outputs': {'mode': mode}},
+                               **{name: {'result': outcome if ran[name] else 'skipped'} for name in ran}}
+                    green = not draft_product and documentation_ci.require_results(results)
+                    passed = subprocess.run(['bash', '-c', aggregate['run']], cwd=ROOT, capture_output=True,
+                                            env={**os.environ, 'RESULTS': json.dumps(results)}).returncode == 0
+                    assert passed == documentation_ci.require_results(results)
+                    # Green only when every job the mode selects ran and succeeded: never for a draft product
+                    # pull request, and never with a skipped piping in product mode.
+                    # (The documentation mode runs neither job, so their outcome cannot arise there.)
+                    assert green == (not draft_product and (mode == 'documentation' or outcome == 'success')), (
+                        event, draft, mode, outcome)
+                    # A classification that did not succeed is never green.
+                    assert not documentation_ci.require_results({**results, 'changes': {**results['changes'],
+                                                                                        'result': outcome}}) or (
+                        outcome == 'success')
+                    if green and mode == 'product':
+                        assert results['piping']['result'] == results['repository-checks']['result'] == 'success'
+                    seen.add((event, draft, mode))
+                # Even without the draft step, a skipped piping in product mode never aggregates green.
+                if draft_product:
+                    assert not documentation_ci.require_results(
+                        {'changes': {'result': 'success', 'outputs': {'mode': 'product'}},
+                         'repository-checks': {'result': 'success'}, 'piping': {'result': 'skipped'}})
+    assert len(seen) == 8
+
+
+def test_marking_a_draft_ready_gives_one_full_run_on_its_head():
+    """ready_for_review is a pull_request event in the pull request's group, so it cancels an unfinished draft
+    run of the same pull request and is itself the full run on that head."""
+    root = workflow('governance-harness.yml')
+    pull = {'event_name': 'pull_request', 'ref': 'refs/pull/7/merge', 'event.pull_request.number': 7}
+    group = root['concurrency']['group']
+    assert concurrency_group(group, pull) == 'governance-harness-7'
+    assert concurrency_group(root['concurrency']['cancel-in-progress'], pull) == 'True'
+    ready = {'github.event_name': 'pull_request', 'github.event.pull_request.draft': False,
+             'needs.changes.outputs.mode': 'product'}
+    assert expression(root['jobs']['piping']['if'], ready)
+    assert 'ready_for_review' in root['on']['pull_request']['types']
+
+
+def test_the_repository_checks_job_calls_the_one_script_and_holds_no_copy_of_its_list():
+    job = workflow('governance-harness.yml')['jobs']['repository-checks']
+    steps = job['steps']
+    assert [s.get('uses') for s in steps[:3]] == ['actions/checkout@v4', 'actions/setup-python@v5',
+                                                   'dtolnay/rust-toolchain@stable']
+    assert steps[3] == {'name': 'Install check dependencies',
+                        'run': 'python3 -m pip install pytest pytest-xdist pyyaml jsonschema'}
+    assert len(steps) == 5
+    script = steps[4]
+    assert script['env'] == {'EVENT': '${{ github.event_name }}', 'BASE': BASE_REF, 'HEAD': HEAD_REF}
+    assert script['run'] == 'python3 tools/ci/repository_checks.py --event "$EVENT" --base "$BASE" --head "$HEAD"'
+    assert 'if' not in script
+    text = (ROOT / '.github/workflows/governance-harness.yml').read_text()
+    for command in ('hosted_ci.py repository', 'pytest -q', 'tools.deliverables --project . check > ',
+                    'documentation_ci.py documents', 'validate_conflict_markers.py', 'validate_run_record_leaks.py',
+                    'test_ci_python.py::'):
+        assert command not in ''.join(s.get('run', '') for s in steps), command
+    # The documentation route keeps its own short list in the classification job.
+    assert text.count('validate_conflict_markers.py') == 1
 
 
 def test_detached_and_retired_products_have_no_workflows():
@@ -387,8 +501,8 @@ def test_selected_browser_specs_drive_the_product_job_and_key_its_reuse(tmp_path
 def test_only_the_harness_lets_the_product_job_skip_the_repository_routing_suite():
     harness = workflow('governance-harness.yml')['jobs']
     assert harness['piping']['with']['repository-checks-run'] == 'true'
-    assert 'tests/test_ci_numerical.py' in harness['repository-checks']['steps'][
-        [s.get('name') for s in harness['repository-checks']['steps']].index('Bounded shared-tool and routing regressions')]['run']
+    assert 'tools/ci/repository_checks.py' in harness['repository-checks']['steps'][-1]['run']
+    assert 'tests/test_ci_numerical.py' in REPOSITORY_CHECKS.REGRESSION_TARGETS
     product = workflow('piping-desktop-e2e.yml')
     assert product['on']['workflow_call']['inputs']['repository-checks-run']['default'] == 'false'
     assert 'inputs' not in (product['on'].get('workflow_dispatch') or {})
@@ -429,39 +543,26 @@ def test_exact_wasm_cache_wiring_and_main_build_only_warmer():
     assert warmer['steps'][-1] == {'uses': './.github/actions/setup-piping-e2e', 'with': {'build-only': 'true'}}
 
 
-REGRESSION_TARGETS = ("tools/software_workflow tools/deliverables tools/validation tests/test_ci_numerical.py "
-                      "tests/test_ci_apt_sources.py tests/test_release_members.py tests/test_release_candidate_scan.py "
-                      "tests/test_repository_history.py")
+def _repository_checks():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('workflow_repository_checks', ROOT / 'tools/ci/repository_checks.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
-def test_repository_regressions_follow_their_own_plan_and_keep_every_target(tmp_path):
-    import os
-    import subprocess
-    steps = workflow('governance-harness.yml')['jobs']['repository-checks']['steps']
-    names = [s.get('name') for s in steps]
-    plan_step = steps[names.index('Select repository regressions')]
-    tests = steps[names.index('Bounded shared-tool and routing regressions')]
+REPOSITORY_CHECKS = _repository_checks()
+
+
+def test_repository_regressions_follow_their_own_plan_and_keep_every_target():
+    # The selection step precedes the regressions, which are unconditional and keep every target;
+    # test_repository_checks.py runs the steps and passes the plan's omissions.
+    names = list(REPOSITORY_CHECKS.STEP_NAMES)
     assert names.index('Select repository regressions') < names.index('Bounded shared-tool and routing regressions')
-    assert 'hosted_ci.py repository' in plan_step['run'] and '--output repository-ci-plan.json' in plan_step['run']
-    assert 'if' not in plan_step and 'if' not in tests
-    assert REGRESSION_TARGETS in tests['run']
-    # The step passes exactly the plan's omissions to pytest, and none when
-    # the plan lists none.
-    stub = tmp_path / 'bin'
-    stub.mkdir()
-    (stub / 'pytest-args').write_text('')
-    python = stub / 'python3'
-    python.write_text('#!/bin/bash\nif [ "$1" = "-m" ]; then printf "%s\\n" "$@" > "$ARGS_OUT"; exit 0; fi\n'
-                      f'exec {__import__("sys").executable} "$@"\n')
-    python.chmod(0o755)
-    for deselect in ([], ['a.py::T::one', 'b.py::T::two']):
-        (tmp_path / 'repository-ci-plan.json').write_text(json.dumps({'deselect': deselect}))
-        out = tmp_path / 'args.txt'
-        subprocess.run(['bash', '-e', '-c', tests['run']], cwd=tmp_path, check=True,
-                       env={**os.environ, 'PATH': f'{stub}:{os.environ["PATH"]}', 'ARGS_OUT': str(out)})
-        args = out.read_text().split('\n')
-        assert [a for a in args if a.startswith('--deselect')] == [f'--deselect={t}' for t in deselect]
-        assert '-n' in args and 'auto' in args
+    assert REPOSITORY_CHECKS.REGRESSION_TARGETS == (
+        'tools/software_workflow', 'tools/deliverables', 'tools/validation', 'tests/test_ci_numerical.py',
+        'tests/test_ci_apt_sources.py', 'tests/test_release_members.py', 'tests/test_release_candidate_scan.py',
+        'tests/test_repository_history.py')
 
 
 def test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage():
@@ -552,11 +653,9 @@ def test_python_matrix_requires_all_successful_shards(tmp_path):
 
 
 def test_merge_group_missing_base_fails_closed():
-    """A queue group can hold several PRs; a missing base must not fall back to HEAD^1."""
-    text = (ROOT / ".github/workflows/governance-harness.yml").read_text()
-    guard = 'if [[ "$EVENT" == "merge_group" ]]; then echo "merge_group base ${BASE} is unavailable" >&2; exit 1; fi'
-    blocks = text.split('if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then')[1:]
-    assert len(blocks) == 2
-    for block in blocks:
-        assert block.index(guard) < block.index("BASE=HEAD^1")
-    assert text.count("EVENT: ${{ github.event_name }}") >= 2
+    """A queue group can hold several PRs; a missing base must not fall back to HEAD^1. The repository checks'
+    fallback is the script's (test_repository_checks.py); the documentation route takes its base from the plan."""
+    import inspect
+    source = inspect.getsource(REPOSITORY_CHECKS.diff_base)
+    assert source.index('if event == "merge_group"') < source.index('return "HEAD^1"')
+    assert 'HEAD^1' not in (ROOT / ".github/workflows/governance-harness.yml").read_text()

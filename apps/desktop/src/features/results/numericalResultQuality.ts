@@ -14,7 +14,7 @@
 /** J1/J3: the v3 retained-source identity. */
 export const PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 /** T4-U2: the ordinary exact identity (3.0.0/exact_pressure_v3). */
-export const PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2";
+export const PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-3";
 export const PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 /** DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a second
  * complete identity on the `preview_physics` route (a document whose

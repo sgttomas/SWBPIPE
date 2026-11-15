@@ -26,6 +26,12 @@ status is 1.
 Run `python3 -I generators/rt_a3_s6_reference.py` from the packet directory to
 rebuild every output in memory and compare it byte for byte with the committed
 files; `--write` rewrites them.
+
+`--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION,
+else absent) sets `model_settings.pressure_elongation` in the written requests
+through the shared `tools/validation/pressure_elongation.py` (DEL-04-07
+`Work/pressure-elongation.md` §7); the references are today's mechanics,
+pressure elongation included, whatever the switch.
 """
 from __future__ import annotations
 
@@ -40,6 +46,8 @@ from fractions import Fraction as Fr
 
 HERE = pathlib.Path(__file__).resolve().parent.parent
 W16 = HERE.parent / "w16_nonlinear_motion"
+sys.path.append(str(HERE.parents[2]))  # the repository root, for the shared pressure-elongation switch
+from tools.validation import pressure_elongation as PE  # noqa: E402
 DOFS = ("UX", "UY", "UZ", "RX", "RY", "RZ")
 PROV = "invented RT-A3 S6 reference input (validation/references/rt_a3_s6); not library, catalog, manufacturer or code-rule data"
 MODEL_VERSION = "0.9.0"
@@ -920,6 +928,7 @@ def dumps(obj) -> str:
 
 def main() -> int:
     write = "--write" in sys.argv[1:]
+    elongation = PE.argv_mode(sys.argv[1:])
     try:
         ls_requests, ls_refs = build_ls()
         c1_requests, c1_refs = build_c1()
@@ -928,7 +937,7 @@ def main() -> int:
         return 1
     files = {}
     for name, request in {**ls_requests, **c1_requests}.items():
-        files[f"requests/{name}.json"] = dumps(request)
+        files[f"requests/{name}.json"] = dumps(PE.apply_to_container(request, elongation))
     refs = {**ls_refs, **c1_refs}
     for key, out in refs.items():
         out["request_sha256"] = hashlib.sha256(files[out["request"]].encode()).hexdigest()

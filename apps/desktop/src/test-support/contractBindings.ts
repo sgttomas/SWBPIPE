@@ -9,7 +9,7 @@ import { resolve } from "node:path";
 
 const TABLES = resolve(__dirname, "../../../../fixtures/results");
 const sha256 = (file: string) => createHash("sha256").update(readFileSync(resolve(TABLES, file))).digest("hex");
-export const PRESSURE_CONTRACT_SHA256 = sha256("semantic_contract_v0_3_pressure_2.json");
+export const PRESSURE_CONTRACT_SHA256 = sha256("semantic_contract_v0_3_pressure_3.json");
 export const PRESSURE_SOURCE_CONTRACT_SHA256 = sha256("semantic_contract_v0_3_pressure_source_1.json");
 export const PREVIEW_PHYSICS_CONTRACT_SHA256 = sha256("semantic_contract_v0_3_preview_physics_2.json");
 /** DEL-05-03 pf-timoshenko.md §4: the pressure-free Timoshenko identity's table. */

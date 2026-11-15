@@ -35,9 +35,9 @@ const BYTES: &str = "55555555555555555555555555555555555555555555555555555555555
 
 /// The production step 0's refusal of an exact identity outside its set
 /// (physics-retained-1), naming the admitted set (§5.1 item 4).
-const RETAINED_REFUSAL: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-2, openpipestress.result_semantics/0.3.0/pressure-source-1; found openpipestress.result_semantics/0.3.0/physics-retained-1.";
+const RETAINED_REFUSAL: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-3, openpipestress.result_semantics/0.3.0/pressure-source-1; found openpipestress.result_semantics/0.3.0/physics-retained-1.";
 /// The same refusal's prefix, for any `found`.
-const ADMITS_ONLY: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-2, openpipestress.result_semantics/0.3.0/pressure-source-1; found";
+const ADMITS_ONLY: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-3, openpipestress.result_semantics/0.3.0/pressure-source-1; found";
 
 /// A pressure-free invented render input over the invented calculation-report
 /// fixture (as the command's fixture test builds it).
@@ -177,7 +177,7 @@ fn with_exact_route(mut input: Value) -> Value {
         .collect();
     entries.push(entry(
         format!("limitation:{run}:exact:profile-reference"),
-        "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 6666666666666666666666666666666666666666666666666666666666666666) are bound by reference and are not restated in this report.",
+        "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-3 (sha256 6666666666666666666666666666666666666666666666666666666666666666) are bound by reference and are not restated in this report.",
     ));
     input["report_sections"]["limitations"].as_array_mut().unwrap().extend(entries);
     input
@@ -205,6 +205,33 @@ fn refusal_text(outcome: Result<impl std::fmt::Debug, CommandError>) -> String {
         Err(CommandError::Command(message)) => message,
         other => panic!("not a command refusal: {other:?}"),
     }
+}
+
+/// An invented standing record, well formed: one load case, checks passed.
+fn invented_standing_record() -> Value {
+    json!({
+        "record_version": "historical_1", "evidence_member": "absent",
+        "figures": {"status": "unavailable", "reason": "older_document"}, "standing_findings": [],
+        "counts": [{"health": "checks_passed", "cases": 1}, {"health": "sensitive", "cases": 0}, {"health": "quality_unresolved", "cases": 0}, {"health": "solve_failed", "cases": 0}, {"health": "not_assessed", "cases": 0}],
+        "cases": [{"case_id": "case:invented-a", "health": "checks_passed", "integrity_code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+            "integrity_diagnostic_id": "diagnostic:numerical-integrity:case:invented-a", "causes": [],
+            "confirmation": {"outcome": "not_applicable", "detail": null, "status": null, "premises": []}, "supports": []}]
+    })
+}
+
+/// Scrutiny of PR 328, finding 1: an input the host binds to no result (no exact
+/// route, no pressure-free Timoshenko section) carries no standing record. One it
+/// carried would be rendered without any re-derivation, so it is refused by name;
+/// a null member carries none and renders as before.
+#[test]
+fn an_unbound_input_carrying_a_standing_record_is_refused() {
+    let mut input = pressure_free_input();
+    input["numerical_standing"] = invented_standing_record();
+    assert_eq!(refusal_text(command_body(&json!({"input": input}))), "REPORT-EXACT-SECTIONS-MISMATCH: numerical_standing");
+    let mut input = pressure_free_input();
+    input["numerical_standing"] = Value::Null;
+    let rendered: Value = serde_json::from_str(&command_body(&json!({"input": input})).expect("the render answers")).unwrap();
+    assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
 }
 
 /// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2),
@@ -386,13 +413,16 @@ fn an_undecodable_input_names_its_path_and_kind_not_its_value() {
 /// physics-retained-1 still refuses at step 0.
 #[test]
 fn production_native_render_binds_a_coherent_exact_input_before_rendering() {
-    let exact = with_exact_route(pressure_free_input());
+    let mut exact = with_exact_route(pressure_free_input());
+    // A renderer-only input states a standing record (DEL-08-01 REQ-024); the native
+    // binding is what re-derives one from a bound result.
+    exact["numerical_standing"] = invented_standing_record();
     // Coherent: the renderer itself renders it unblocked, with the exact block
     // and the composed standing line.
     let rendered = crate::render_calculation_report_value(exact.clone()).expect("the renderer renders it");
     assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
     let html = rendered["html"].as_str().unwrap();
-    assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: integrity checked"));
+    assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: read by the Rust reader"));
     assert_eq!(check_render_route_admitted(&exact, PRODUCTION), Ok(()));
     // Without a report context, the exact render refuses before its binding
     // (Codex review round 1 of #1648).
@@ -816,8 +846,8 @@ mod direct_native {
     /// The standing line's start, HTML-escaped: without an integrity warning,
     /// and on pressure-source-1 (synthetic n05), whose Diagnostics carry
     /// `NUMERICAL_INTEGRITY_SENSITIVE` (§3.2).
-    const PLAIN_STANDING: &str = "Numerical standing: integrity checked (the Rust reader&#39;s standing for the result";
-    const SENSITIVE_STANDING: &str = "Numerical standing: integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under Warnings, Assumptions, And Provenance); integrity checked (the Rust reader&#39;s standing for the result";
+    const PLAIN_STANDING: &str = "Numerical standing: read by the Rust reader for the result";
+    const SENSITIVE_STANDING: &str = "Numerical standing: integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under Warnings, Assumptions, And Provenance); read by the Rust reader for the result";
 
     fn project(path: &str) -> std::path::PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..").join(path)
@@ -1493,7 +1523,7 @@ mod direct_native {
         let rendered = production_render_on(&live, &genuine_render_args(&w, &live.job)).expect("the genuine input renders");
         assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
         let html = rendered["html"].as_str().unwrap();
-        assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: integrity checked"));
+        assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains("Numerical standing: read by the Rust reader"));
         assert!(html.contains(EXACT_HEADLINES_SUBHEADING) && html.contains("[reduced section]"));
         assert!(live.registry.custody_binding(&live.job).is_some(), "the render keeps no bytes and releases no custody");
     }
@@ -1606,8 +1636,15 @@ mod direct_native {
         }
     }
 
+    /// DEL-08-01 REQ-017 and REQ-024's present account: a pressure-source-1 result with
+    /// load/reference states is not numerically eligible but is readable. The package
+    /// save still refuses it at step 4 as not eligible (LIM-016). The render does not
+    /// refuse it at step 4; it refuses at step 5, because this request's admission
+    /// binds the witness's result digest, not this result's. That a readable,
+    /// non-eligible result renders when its admission binds it is shown by the
+    /// connecting-path witnesses below.
     #[test]
-    fn a_delivered_pressure_source_1_result_with_load_reference_states_is_not_eligible() {
+    fn a_delivered_pressure_source_1_result_with_load_reference_states_is_read_for_render_and_refused_for_save() {
         let w = witness(SOURCE_1);
         let lr_raw = std::fs::read_to_string(project("fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json")).unwrap();
         let lr_request: Value = serde_json::from_str(&std::fs::read_to_string(project("fixtures/product_preview/pressure_source/load_reference_source/n05.request.json")).unwrap()).unwrap();
@@ -1618,11 +1655,140 @@ mod direct_native {
         let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&lr_raw), Some(&intake)));
         assert_eq!(code, STANDING_NOT_ELIGIBLE, "{message}");
         let refused = refusal_text(production_render_on(&live, &render_args(&request["report"], Some(&lr_raw), Some(&intake), Some(&canonical_json(&w.manifest)))));
-        assert_eq!(refused, format!("{STANDING_NOT_ELIGIBLE}: the native reading of the delivered result is not numerically eligible."));
+        assert!(refused.starts_with(&format!("{SOURCE_NOT_DELIVERED}: result:")), "{refused}");
         // The genuine pressure-source-1 witness without load/reference states is eligible:
         // its request passes the binding and is admitted.
         let genuine = live_on(ScriptedHost::normal(), &w.intake, &w.mode, &w.result);
         save_admitted(&genuine, save_args(&bound(&w.request, &genuine.job), &w, &w.model, Some(&w.result), Some(&w.intake)), "pressure_source_1");
+    }
+
+    /// Scrutiny of PR 328, finding 2: the package save keeps today's refusal set. A
+    /// delivered result whose mechanics are not solved is not numerically eligible, so
+    /// the save refuses it as before (`REPORT-EXACT-STANDING-NOT-ELIGIBLE`, LIM-016),
+    /// before the digest binding. The render refuses it by name and never renders it.
+    #[test]
+    fn an_unsolved_delivered_result_keeps_the_saves_refusal_and_never_renders() {
+        let w = witness(STRAIGHT);
+        let mut raw: Value = serde_json::from_str(&w.result).unwrap();
+        assert_eq!(raw["status"]["mechanics"], "MECHANICS_SOLVED");
+        raw["status"]["mechanics"] = json!("MECHANICS_BLOCKED");
+        let raw = serde_json::to_string(&raw).unwrap();
+        let live = live_on(ScriptedHost::normal(), &w.intake, &w.mode, &raw);
+        let mut request = bound(&w.request, &live.job);
+        request["report"]["exact_route"]["admission"]["received_bytes_sha256"] = json!(sha256_hex(&raw));
+        let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&raw), Some(&w.intake)));
+        assert_eq!(code, STANDING_NOT_ELIGIBLE, "{message}");
+        let refused = refusal_text(production_render_on(&live, &render_args(&request["report"], Some(&raw), Some(&w.intake), Some(&canonical_json(&w.manifest)))));
+        assert!(
+            refused.starts_with("REPORT-MECHANICS-NOT-SOLVED: ") || refused.starts_with("REPORT-RESULT-NOT-READABLE: "),
+            "{refused}"
+        );
+    }
+
+    /// The DEL-08-01 REQ-024 connecting-path witnesses: the render arguments the
+    /// desktop's report build step produced (`reportStandingWitness.test.tsx`) for two
+    /// real producer results that are solved but not numerically eligible.
+    const STANDING_WITNESSES: [(&str, &str); 2] = [
+        (
+            "pressure_3_gap_unresolved",
+            include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.render.json"),
+        ),
+        (
+            "pressure_3_coupled_friction_sensitive",
+            include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.render.json"),
+        ),
+    ];
+
+    /// DEL-08-01 REQ-017, REQ-024: through the production render root, each witness is
+    /// admitted with its live job and genuine texts, and the report states its standing
+    /// line, its numerical standing by load case and its nonlinear support states, with
+    /// the actual tags the producer's output yields; an altered standing record refuses.
+    #[test]
+    fn a_readable_solved_result_that_is_not_checks_passed_renders_with_its_standing() {
+        for (name, text) in STANDING_WITNESSES {
+            let file: Value = serde_json::from_str(text).unwrap();
+            let raw = std::fs::read_to_string(project(file["raw_path"].as_str().unwrap())).unwrap();
+            let intake = file["exact_intake_text"].as_str().unwrap();
+            let manifest = file["input_manifest_text"].as_str().unwrap();
+            let live = live_on(ScriptedHost::normal(), intake, "sparse_interactive", &raw);
+            let mut input = file["input"].clone();
+            input["exact_route"]["admission"]["native_job_id"] = json!(live.job);
+            let rendered = production_render_on(&live, &render_args(&input, Some(&raw), Some(intake), Some(manifest)))
+                .unwrap_or_else(|error| panic!("{name}: {error:?}"));
+            assert_eq!(rendered["export_blocked"], json!(false), "{name}: {}", rendered["blocking_reasons"]);
+            let html = rendered["html"].as_str().unwrap();
+            let record: open_pipe_stress_report_renderer::standing::NumericalStanding = serde_json::from_value(input["numerical_standing"].clone()).unwrap();
+            let line = open_pipe_stress_report_renderer::escape_html(&open_pipe_stress_report_renderer::standing::standing_line(&record));
+            assert!(html.contains(&format!("<div class=\"standing-line\">{line}</div>")), "{name}: the frame's standing line");
+            assert!(html.contains(open_pipe_stress_report_renderer::STANDING_BY_LOAD_CASE_SUBHEADING), "{name}");
+            assert!(html.contains(open_pipe_stress_report_renderer::SUPPORT_STATES_SUBHEADING), "{name}");
+            assert!(html.contains(&open_pipe_stress_report_renderer::escape_html(open_pipe_stress_report_renderer::standing::ERROR_FIGURE_BASIS)), "{name}");
+            assert!(!html.contains("integrity checked"), "{name}: never \"integrity checked\" for a result that is not checks passed");
+            let expected: &[&str] = if name == "pressure_3_gap_unresolved" {
+                &[
+                    "Numerical health, as the solver reports it: 0 checks passed, 0 sensitive, 2 quality unresolved, 0 not assessed, of 2 load cases.",
+                    "Quality unresolved: this load case has a gap support. No confirmation covers gap supports, and its member values have no error figure.",
+                    "Computed state: active. Not confirmed: no confirmation covers gap supports.",
+                    "Computed state: inactive. Not confirmed: no confirmation covers gap supports.",
+                    "No error figure: this result has no numerical evidence member from which this reader can derive an error figure here.",
+                ]
+            } else {
+                &[
+                    "Numerical health, as the solver reports it: 0 checks passed, 1 sensitive, 0 quality unresolved, 0 not assessed, of 1 load case.",
+                    "The product reader&#39;s findings on this result&#39;s standing: Not every load case of this result is checks passed",
+                    "Computed state: sliding. Not confirmed: the solver&#39;s confirmation reports this state established, conditional on the solver&#39;s inverse-norm step.",
+                    "friction, normal force derived from another support&#39;s reaction",
+                ]
+            };
+            for phrase in expected {
+                assert!(html.contains(phrase), "{name}: {phrase}");
+            }
+            // Every boundary that holds the bound result re-derives the record and requires
+            // equality: one altered field refuses by name.
+            let mut altered = input.clone();
+            altered["numerical_standing"]["cases"][0]["health"] = json!("checks_passed");
+            let refused = refusal_text(production_render_on(&live, &render_args(&altered, Some(&raw), Some(intake), Some(manifest))));
+            assert_eq!(refused, format!("{SECTIONS_MISMATCH}: numerical_standing"), "{name}");
+        }
+    }
+
+    /// The render request the desktop App sends through its gate (`renderedReportGate.app.test.tsx`
+    /// writes and checks it, under a pinned clock), bound by its SHA-256, which that test also holds.
+    const APP_RENDER_REQUEST: &str =
+        include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.app_render_request.json");
+    const APP_RENDER_REQUEST_SHA256: &str = "7072ee35b1fdc822932613792b89b7b2cf3738fe97982d5b10da02e3a0295a4a";
+
+    /// DEL-08-01 REQ-017, REQ-024, end to end across the IPC boundary: the request the App
+    /// sends for a solved exact-route result that is not numerically eligible renders through
+    /// the production render command with live custody, and the report states the standing
+    /// line its standing record gives; an altered record refuses.
+    #[test]
+    fn the_app_gate_render_request_renders_through_production_with_its_standing() {
+        assert_eq!(crate::mbf_export::sha256_hex(APP_RENDER_REQUEST.as_bytes()), APP_RENDER_REQUEST_SHA256, "the committed App render request");
+        let file: Value = serde_json::from_str(APP_RENDER_REQUEST).unwrap();
+        let raw = std::fs::read_to_string(project(file["raw_path"].as_str().unwrap())).unwrap();
+        let intake = file["exact_intake_text"].as_str().unwrap();
+        let manifest = file["input_manifest_text"].as_str().unwrap();
+        let live = live_on(ScriptedHost::normal(), intake, "sparse_interactive", &raw);
+        let mut input = file["input"].clone();
+        input["exact_route"]["admission"]["native_job_id"] = json!(live.job);
+        let rendered = production_render_on(&live, &render_args(&input, Some(&raw), Some(intake), Some(manifest))).unwrap_or_else(|error| panic!("{error:?}"));
+        assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
+        let html = rendered["html"].as_str().unwrap();
+        let record: open_pipe_stress_report_renderer::standing::NumericalStanding = serde_json::from_value(input["numerical_standing"].clone()).unwrap();
+        let line = open_pipe_stress_report_renderer::escape_html(&open_pipe_stress_report_renderer::standing::standing_line(&record));
+        assert!(html.contains(&format!("<div class=\"standing-line\">{line}</div>")), "the frame's standing line");
+        assert!(!html.contains("integrity checked"), "never \"integrity checked\" for a result that is not checks passed");
+        for phrase in [
+            "Numerical health, as the solver reports it: 0 checks passed, 1 sensitive, 0 quality unresolved, 0 not assessed, of 1 load case.",
+            "Computed state: sliding. Not confirmed: the solver&#39;s confirmation reports this state established, conditional on the solver&#39;s inverse-norm step.",
+        ] {
+            assert!(html.contains(phrase), "{phrase}");
+        }
+        let mut altered = input.clone();
+        altered["numerical_standing"]["cases"][0]["health"] = json!("checks_passed");
+        let refused = refusal_text(production_render_on(&live, &render_args(&altered, Some(&raw), Some(intake), Some(manifest))));
+        assert_eq!(refused, format!("{SECTIONS_MISMATCH}: numerical_standing"));
     }
 
     #[test]
@@ -1816,6 +1982,25 @@ mod direct_native {
                 let args = render_args(&request["report"], Some(&w.result), Some(&w.intake), Some(&canonical_json(&w.manifest)));
                 assert_eq!(render_refusal_both(&live, &args), format!("{SECTIONS_MISMATCH}: diagnostics"), "{name}: {label}");
                 let (code, message) = save_refusal_both(&live, &w, &request);
+                if label == "a forged integrity entry appended" {
+                    // Since review round 2 of c2cc050ea (R8), the save's admission
+                    // refuses an appended entry the host does not derive from the
+                    // bound model before the package's item 9 reads it: still
+                    // refused, by the earlier check.
+                    // On pressure-source-1 the forged entry is the result's own
+                    // integrity entry again (its code and affected object).
+                    let detail = if integrity_code == SENSITIVE {
+                        "copies a result diagnostic's code and affected object"
+                    } else {
+                        "is not a session diagnostic the host derives from the bound model"
+                    };
+                    assert_eq!(
+                        (code.as_str(), message),
+                        (SECTIONS_MISMATCH, format!("{SECTIONS_MISMATCH} at /request/report/report_sections/diagnostics: diagnostics: report diagnostic {} {detail}", diagnostics.len())),
+                        "{name}: {label}"
+                    );
+                    continue;
+                }
                 assert_eq!((code.as_str(), message), ("REPORT-PACKAGE-BINDING-MISMATCH", format!("REPORT-PACKAGE-BINDING-MISMATCH: {save_detail}")), "{name}: {label}");
             }
             // The genuine witness renders, with its standing line, and saves.
@@ -2160,4 +2345,107 @@ mod direct_native {
             }
         }
     }
+}
+
+/// DEL-04-07 (the cancellation screen's exception): a report rendered for a
+/// case admitted under the exception quotes the case's
+/// `PRESSURE_REGION_CAP_REMAINDER_RETAINED` warning plainly and whole in that
+/// warning's Message cell of the Diagnostics table (its message names the
+/// case, the node where the retained remainder is largest relative to the
+/// pressure force on the bore, that remainder in N and that the force is no
+/// bound on the displacement), not as supplied, unverified text, on a result
+/// with a combination, where every message naming no combination is otherwise
+/// quoted after that label; and it stays in that cell when long case and node
+/// identifiers take it over the renderer's long-text limit (the renderer's
+/// `DIAGNOSTIC_MESSAGE_IN_TABLE_CODES`), with no diagnostic evidence entry. The
+/// admitted case is solved here (a closed straight run of two members whose
+/// outside diameters are one ulp apart, transferring at both terminals,
+/// without pressure elongation), the report projection is the package's check
+/// of the desktop builder (`report_package::bindings::expected_report_diagnostics`,
+/// parity vectors in `fixtures/reports/invented/report_diagnostics_parity.json`),
+/// and the production command renders it. The native exact render's custody
+/// binding is not exercised: the input is the pressure-free invented input
+/// with these diagnostics.
+#[test]
+fn a_report_for_a_case_admitted_under_the_exception_quotes_its_warning_plainly() {
+    let long_case = format!("case:{}", "long-case-".repeat(25));
+    let long_node = format!("node:{}", "long-node-".repeat(25));
+    for (case, middle, long) in [("case:P", "node:M", false), (long_case.as_str(), long_node.as_str(), true)] {
+        quotes_its_warning_plainly_in_its_cell(case, middle, long);
+    }
+}
+
+fn quotes_its_warning_plainly_in_its_cell(case: &str, middle: &str, long: bool) {
+    use open_pipe_stress_report_package::bindings::{expected_report_diagnostics, SUPPLEMENTAL_DIAGNOSTIC_LABEL};
+    use open_pipe_stress_report_renderer::{escape_html, DIAGNOSTIC_EVIDENCE_SUBHEADING, DIAGNOSTIC_MESSAGE_TABLE_LIMIT};
+    use open_pipe_stress_result_export::{cap_remainder_warning_message, CAP_REMAINDER_WARNING_CODE};
+    let node = |id: &str, x: f64| json!({"id": id, "position": {"x": x, "y": 0.0, "z": 0.0}, "provenance": "invented"});
+    let pipe = |id: &str, from: &str, to: &str, outside: f64| json!({"id": id, "from": from, "to": to,
+        "section": {"outside_diameter": {"value": outside, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"},
+            "corrosion_allowance": {"value": 0.0, "unit": "m"}},
+        "material": "material:one", "y_reference": {"x": 0.0, "y": 0.0, "z": 1.0}, "provenance": "invented"});
+    let anchor = |id: &str, node: &str| json!({"id": id, "node": node, "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": "invented"});
+    let terminal = |node: &str| json!({"node_ref": node, "closure_transfer": "transfers_to_wall", "provenance": "invented"});
+    let model = json!({
+        "schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
+        "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
+        "project": {"id": "project:cap-remainder", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
+        "nodes": [node("node:A", 0.0), node(middle, 3.0), node("node:B", 6.0)],
+        "pipe_segments": [pipe("pipe:A-M", "node:A", middle, 0.12), pipe("pipe:M-B", middle, "node:B", f64::from_bits(0.12_f64.to_bits() + 1))],
+        "supports": [anchor("support:A", "node:A"), anchor("support:B", "node:B")], "components": [],
+        "materials": [{"id": "material:one", "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {"value": 200e9, "unit": "Pa"}, "poisson_ratio": {"value": 0.3, "unit": "1"},
+            "thermal_expansion_coefficient": {"value": 0.000012, "unit": "1/degC"}, "temperature_points": [], "provenance": "invented"}],
+        "load_cases": [{"id": case, "primitive_loads": [], "pressure_regions": [{"id": "region:P", "member_pipe_ids": ["pipe:A-M", "pipe:M-B"],
+            "pressure_basis": "internal_differential_zero_external_v1", "pressure": {"value": 2e6, "unit": "Pa"},
+            "terminals": [terminal("node:A"), terminal("node:B")], "provenance": "invented"}], "provenance": "invented"}],
+        "combinations": [{"id": "combination:P", "basis": "mechanics", "terms": [{"load_case": case, "factor": 1.0}], "provenance": "invented"}]
+    });
+    let source = serde_json::to_value(open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(
+        json!({"model": model, "materials": []}), open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive).unwrap()).unwrap();
+    assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED", "{}", source["diagnostics"]);
+    assert!(source["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"].get("cancellation_screen_exception").is_some());
+    assert!(!open_pipe_stress_result_export::document_combination_identities(&source).is_empty(), "a result with a combination");
+    open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence(&source).unwrap();
+    let provenance = pressure_free_input()["report_sections"]["provenance_notes"][0].clone();
+    let entries = expected_report_diagnostics(&source).unwrap().into_iter().map(|mut entry| {
+        entry["provenance"] = provenance.clone();
+        entry
+    }).collect::<Vec<_>>();
+    let warning = entries.iter().find(|entry| entry["code"] == CAP_REMAINDER_WARNING_CODE).expect("the warning's report entry");
+    let record = &source["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["cancellation_screen_exception"];
+    let node = record["node_ref"].as_str().unwrap();
+    assert_eq!(node, middle);
+    let force = record["remainder_force_n"].as_f64().unwrap();
+    let message = cap_remainder_warning_message(case, node, force);
+    assert_eq!(warning["message"], message.as_str());
+    assert_eq!(warning["affected_object"]["ref_id"], format!("{case}, region:P, {node}"));
+    assert_eq!(message.chars().count() > DIAGNOSTIC_MESSAGE_TABLE_LIMIT, long, "{} characters", message.chars().count());
+    let mut input = pressure_free_input();
+    input["report_sections"]["diagnostics"] = json!(entries);
+    let rendered: Value = serde_json::from_str(&command_body(&json!({"input": input})).expect("the render answers")).unwrap();
+    let html = rendered["html"].as_str().expect("rendered html");
+    // The warning's row of the rendered Diagnostics table, and its Message cell.
+    let start = html.find("<h3>Diagnostics</h3>\n<table>\n").expect("the Diagnostics table");
+    let table = &html[start..start + html[start..].find("</table>").expect("its end")];
+    let opening = format!("<tr><td>{CAP_REMAINDER_WARNING_CODE}</td>");
+    assert_eq!(table.matches(&opening).count(), 1, "one warning row");
+    let row = &table[table.find(&opening).unwrap()..];
+    let row = &row[..row.find("</tr>").unwrap()];
+    let cells = row.strip_prefix("<tr><td>").unwrap().strip_suffix("</td>").unwrap().split("</td><td>").collect::<Vec<_>>();
+    assert_eq!(cells.len(), 4, "code, severity, message, remediation");
+    let cell = cells[2];
+    // The force with its unit and the not-a-bound clause, the case and the node, in that cell.
+    let sentence = format!("where it is {force:e} N; that force is not a bound on the resulting displacement.");
+    assert!(cell.contains(&escape_html(&sentence)), "{cell}");
+    assert!(cell.contains(&escape_html(&format!("In case {case},"))) && cell.contains(&escape_html(&format!("at node {node},"))), "{cell}");
+    assert_eq!(cell, escape_html(&message), "the whole message, in the cell");
+    assert_eq!(html.matches(&escape_html(&message)).count(), 1, "the message, once");
+    let label = escape_html(SUPPLEMENTAL_DIAGNOSTIC_LABEL);
+    assert!(!html.contains(&format!("{label}{}", escape_html(&format!("\"{message}")))), "not as supplied text");
+    // The integrity diagnostics the solve carries keep their evidence entries; none is the warning's.
+    let evidence = html.find(&format!("<h3>{DIAGNOSTIC_EVIDENCE_SUBHEADING}</h3>")).map_or("", |at| &html[at..]);
+    assert!(!evidence.contains(CAP_REMAINDER_WARNING_CODE) && !evidence.contains(&escape_html(&sentence)), "no evidence entry for the warning");
+    assert!(!cell.contains("full text: Diagnostic evidence"));
 }

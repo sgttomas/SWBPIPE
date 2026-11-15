@@ -282,19 +282,20 @@ def tracked_files():
 
 def probe(roots):
     """A tracked file a change to which reaches one of `roots`: a literal root's own file or first file, else the
-    first file a pattern matches."""
+    first file a pattern matches. Never a file under the declarative tree: a changed `execution/` path selects no
+    Python test (`python_test_reads.declarative`), so it cannot show that a test follows what it reads."""
     reads, files = ci.python_test_reads, tracked_files()
     for root in sorted(roots, key=lambda root: (reads.is_pattern(root), root)):
         if not reads.is_pattern(root):
             index = bisect.bisect_left(files, root)
             for path in files[index:index + 1] + files[bisect.bisect_left(files, root + '/'):][:1]:
-                if reads.root_matches(path, root):
+                if reads.root_matches(path, root) and not reads.declarative(path):
                     return path
             continue
         for path in files:
-            if reads.root_matches(path, root):
+            if reads.root_matches(path, root) and not reads.declarative(path):
                 return path
-    raise AssertionError(f'no tracked file under {sorted(roots)[:3]}')
+    raise AssertionError(f'no tracked file outside the declarative tree under {sorted(roots)[:3]}')
 
 
 def test_every_maintained_test_runs_when_a_path_it_reads_changes():
@@ -311,6 +312,24 @@ def test_every_maintained_test_runs_when_a_path_it_reads_changes():
         path = probe(derived[test])
         assert test in selected(path), (test, path)
         assert test in selected(test), test
+
+
+def test_a_specification_a_test_only_names_is_never_its_probe():
+    """A reference test whose generator cites a scope under `execution/` in its text has that path among its derived
+    roots (the derivation keeps every project path a file names), and no product root sorts before it. The
+    declarative tree selects no Python test, so the probe takes another root and the test is still selected by it."""
+    import pytest
+    reads = ci.python_test_reads
+    for test in ('tests/test_friction_one_way_normal_references.py', 'tests/test_snubber_static_references.py'):
+        roots = ci.derived_tests(PROJECT)[test]
+        named = sorted(root for root in roots if reads.declarative(root) and not reads.is_pattern(root))
+        assert named, test
+        assert test not in selected(named[0]), (test, named[0])
+        path = probe(roots)
+        assert not reads.declarative(path), (test, path)
+        assert test in selected(path), (test, path)
+        with pytest.raises(AssertionError):
+            probe(named)
 
 
 def test_named_tests_also_follow_the_paths_they_read():
@@ -417,10 +436,28 @@ def test_reads_follow_imports_and_path_loaded_models_not_imported_modules_reads(
     assert 'apps/desktop/src-tauri/resources/agent-capability-catalog.json' in reads['tools/agent_host_witness_test.py']
 
 
+def _repository_checks():
+    spec = importlib.util.spec_from_file_location('repository_checks', PROJECT / 'tools/ci/repository_checks.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_repository_check_tests_are_the_governance_step_s():
+    """The Repository checks job's list is tools/ci/repository_checks.py, which the governance harness calls."""
     workflow = (PROJECT / '.github/workflows/governance-harness.yml').read_text()
-    line, = [line for line in workflow.splitlines() if 'python3 -m pytest -q -n auto' in line]
-    assert tuple(line.split('"${deselect[@]}"')[1].split()) == ci.python_test_reads.REPOSITORY_CHECK_TESTS
+    assert 'python3 tools/ci/repository_checks.py ' in workflow
+    assert _repository_checks().REGRESSION_TARGETS == ci.python_test_reads.REPOSITORY_CHECK_TESTS
+
+
+def test_the_repository_checks_job_runs_the_routing_invariant_on_every_pull_request():
+    """Adding or changing a maintained test selects neither `tools/ci/` nor this file, so the invariant over every
+    maintained test's routing runs in the Repository checks job, which every product pull request runs."""
+    checks = _repository_checks()
+    for name in ('test_every_maintained_test_runs_when_a_path_it_reads_changes',
+                 'test_a_specification_a_test_only_names_is_never_its_probe'):
+        assert f'tests/test_ci_python.py::{name}' in checks.ROUTING_INVARIANT_TESTS, name
+        assert name in globals(), name
 
 
 def test_a_path_only_a_python_test_reads_starts_the_python_job():
@@ -680,3 +717,28 @@ def test_sharding_preserves_pytest_collection_with_directory_and_wrapper(tmp_pat
     assert expected == actual
     assert any('suffix_test.py::test_suffix' in name for name in expected)
     assert any('wrapper_test.py::test_one' in name for name in expected)
+
+
+def test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_pytest(monkeypatch):
+    """A test that builds a crate offline fetches no Cargo dependency itself: the runner fetches the crate's locked
+    dependencies before pytest starts, whenever the selection holds the test, by file or by a folder above it."""
+    test, manifest = 'tests/test_release_timing_build_identity.py', 'core/solver/release_timing/Cargo.toml'
+    assert ci.OFFLINE_BUILDS[test] == (manifest,)
+    for name, manifests in ci.OFFLINE_BUILDS.items():
+        assert '"--offline"' in (PROJECT / name).read_text(), name
+        for path in manifests:
+            assert (PROJECT / path).is_file() and (PROJECT / path).with_name('Cargo.lock').is_file(), path
+    assert ci.offline_build_manifests([test]) == [manifest]
+    assert ci.offline_build_manifests(['tests/test_ci_python.py', 'tests']) == [manifest]
+    assert ci.offline_build_manifests(['tests/test_release_timing_build_identity.py.bak', 'tests/security']) == []
+    assert ci.offline_build_manifests([]) == []
+    # The fetch is online whatever an earlier step left in the environment, and locked.
+    monkeypatch.setenv('CARGO_NET_OFFLINE', 'true')
+    calls = []
+    ci.fetch_locked(PROJECT, [manifest], run=lambda argv, **kwargs: calls.append((argv, kwargs)))
+    (argv, kwargs), = calls
+    assert argv == ['cargo', 'fetch', '--locked', '--manifest-path', manifest]
+    assert 'CARGO_NET_OFFLINE' not in kwargs['env'] and kwargs['check'] is True and kwargs['cwd'] == PROJECT
+    assert 'PATH' in kwargs['env'], 'the rest of the environment is kept'
+    ci.fetch_locked(PROJECT, [], run=lambda *args, **kwargs: calls.append(None))
+    assert len(calls) == 1, 'nothing is fetched for a selection without such a test'

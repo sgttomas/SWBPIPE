@@ -73,6 +73,16 @@ needs:
   condition: A persisted document has one current version; a reader accepts only that version and refuses
     every other by name, with no migration.
   gating: false
+- from: DEL-02-05
+  condition: The project store keeps a project's saved-package entries, returns them unchanged and in
+    order when the project is opened, and removes them with the project.
+  when: Keeping and reading the project's report list.
+  gating: true
+- from: DEL-14-02
+  condition: A recorded run states the hash of the result it received, and a project's recorded runs
+    can be found by that hash.
+  when: Showing a saved-package entry with its run.
+  gating: false
 - from: DEL-14-02
   condition: The run record of a solve names its run, the model state it solved, its input manifest and
     the hash of the result it received.
@@ -82,6 +92,13 @@ needs:
   condition: The product solve publishes a result on the pressure-free and exact routes under a current
     result identity, and each result binds the exact request it was computed from.
   gating: true
+- from: DEL-04-07
+  condition: The desktop's memory pool admits the lease of a command whose request can carry a model,
+    result, report, rule pack or library document before its request is parsed and grows it on request
+    within the per-invocation budget, the pool's remaining bytes and a fresh headroom verdict, refusing
+    by name otherwise, and releases it when the command returns.
+  when: Rendering a bound report or saving a report package.
+  gating: false
 - from: DEL-07-07
   condition: Until a completed solve job's result is disposed of, the native host keeps with it the digests
     of the model text the job received and of the result it delivered, so that the model and result texts
@@ -97,10 +114,12 @@ needs:
   gating: true
 - from: DEL-05-02
   condition: The ordinary result reader gives a pressure-free or exact-route result its standing (numerically
-    eligible, needing recomputation or unsupported) with the route's published limitations, as a verdict
-    every reader surface takes, and the result is bound to its route's semantic table by identifier and
-    digest.
-  when: Stating an exact-route result's standing and limitations.
+    eligible, needing recomputation or unsupported) with the route's published limitations, whether it can
+    read the result and the findings that decide that, and its standing record by load case and nonlinear
+    support with the evidence statuses and availability reasons that the published evidence supports, as
+    typed tags, as a verdict every reader surface takes, and the result is bound to its route's semantic
+    table by identifier and digest.
+  when: Stating a result's standing and limitations.
   gating: true
 - from: DEL-07-03
   condition: A model entity to which a library record was applied keeps a reference to that record, and
@@ -137,6 +156,7 @@ code_paths:
 - apps/desktop/src/services/reportPackageSaveService.ts
 # The native side: the render and save commands, the exact source binding and the user-release admission.
 - apps/desktop/src-tauri/src/report_render_exact.rs
+- apps/desktop/src-tauri/src/report_session_diagnostics.rs
 - apps/desktop/src-tauri/src/report_package_bridge.rs
 - apps/desktop/src-tauri/src/report_package_save.rs
 - apps/desktop/src-tauri/src/atomic_report_package_save.rs
@@ -145,6 +165,13 @@ code_paths:
 - apps/desktop/src-tauri/src/user_release_reach_scan.rs
 # Fixtures: reviewed exact-route statements, and invented vectors shared by the two implementations.
 - fixtures/reports/exact_report_statements.json
+- fixtures/reports/standing_statements.json
+- fixtures/reports/numerical_vocabulary.json
+- fixtures/reports/invented/report_standing_witnesses/**
+- core/reporting/numerical_vocabulary/**
+- core/reporting/report_renderer/tests/standing_statements.rs
+- apps/desktop/src/features/report/reportStandingWitness.test.tsx
+- core/product_physics/tests/report_standing_witnesses.rs
 - fixtures/reports/exact_route_limitations.json
 - fixtures/reports/invented/calculation_report_fixture.json
 - fixtures/reports/invented/exact_report_package_requests/**
@@ -185,6 +212,7 @@ checks:
 - tests/test_headless_runner_contract.py
 - tests/test_report_sections_provenance_records.py
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
+- apps/desktop/src-tauri/src/report_session_diagnostics_tests.rs
 - apps/desktop/src-tauri/src/object_form_tests.rs
 - apps/desktop/src-tauri/src/user_release_admission_tests.rs
 - apps/desktop/src-tauri/src/user_release_save_tests.rs
@@ -215,3 +243,5 @@ checks:
 - apps/desktop/e2e/report-package-dist.spec.ts
 - apps/desktop/e2e/r2-smoke.spec.ts
 - apps/desktop/native-smoke/run.mjs
+- apps/desktop/native-smoke/report-standing-journey.mjs
+- apps/desktop/native-smoke/report-standing-journey.js

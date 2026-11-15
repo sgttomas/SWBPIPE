@@ -354,8 +354,8 @@ describe("preamble provenance (AC-001, R11)", () => {
     expect(csvResultHash(result, run(result.run_id, "0.2.0"))).toBe(CSV_NOT_RECORDED);
     expect(csvAnalysisRoute(null)).toBe(CSV_NOT_APPLICABLE);
     expect(csvAnalysisRoute(result)).toBe(CSV_NOT_RECORDED);
-    expect(csvAnalysisRoute({ ...result, producer: { component_name: "p", component_version: "1", semantic_contract_id: "openpipestress.result_semantics/0.3.0/pressure-2" } }))
-      .toBe("openpipestress.result_semantics/0.3.0/pressure-2");
+    expect(csvAnalysisRoute({ ...result, producer: { component_name: "p", component_version: "1", semantic_contract_id: "openpipestress.result_semantics/0.3.0/pressure-3" } }))
+      .toBe("openpipestress.result_semantics/0.3.0/pressure-3");
     for (const token of [CSV_NOT_APPLICABLE, CSV_NOT_RECORDED]) expect(isCsvHashValue(token)).toBe(false);
     expect(csvUnitBasis({ project: { units: { length: "mm", force: "N" } } } as unknown as PreviewModel, "basis")).toBe("basis; project units force=N, length=mm");
   });

@@ -1,0 +1,230 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-p6-01"
+    },
+    "source_model_sha256": "c4704dca5fc0520773b36a5ca500ba1faf24d88c73e8f8df71f08bb5ef8d3a7f"
+  },
+  "element_map": {
+    "pipe:BR1": {
+      "from": "20",
+      "reversed": false,
+      "to": "30",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:R1": {
+      "from": "10",
+      "reversed": false,
+      "to": "20",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:R2": {
+      "from": "20",
+      "reversed": false,
+      "to": "40",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:expansion": "Expansion (T1)",
+    "case:sustained": "Sustained (W+P)"
+  },
+  "load_map": {
+    "case:expansion/load:thermal:pipe:BR1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:BR1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:R1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:R1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:R2": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:R2"
+      }
+    },
+    "case:sustained/load:weight:pipe:BR1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:BR1"
+      }
+    },
+    "case:sustained/load:weight:pipe:R1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:R1"
+      }
+    },
+    "case:sustained/load:weight:pipe:R2": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:R2"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:bench-c"
+    }
+  },
+  "mbf_sha256": "8f1dd1f03994d81ff259706a28f7d2d0aafcbbd8c4fc2c9cfbab514707ba7bd5",
+  "node_map": {
+    "node:A": "10",
+    "node:C": "40",
+    "node:E": "30",
+    "node:T": "20"
+  },
+  "pressure_map": {
+    "contract": {
+      "mode": "exact_pressure_v3",
+      "version": "3.0.0"
+    },
+    "regions": [
+      {
+        "id": "region:WEST",
+        "members": [
+          "pipe:R1"
+        ],
+        "terminals": [
+          {
+            "closure_transfer": "transfers_to_wall",
+            "node_ref": "node:A",
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 2); seeded generator; not library, component, catalog, standard or code-rule data"
+          },
+          {
+            "closure_transfer": "transfers_to_wall",
+            "node_ref": "node:T",
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 2); seeded generator; not library, component, catalog, standard or code-rule data"
+          }
+        ]
+      },
+      {
+        "id": "region:EAST",
+        "members": [
+          "pipe:R2"
+        ],
+        "terminals": [
+          {
+            "closure_transfer": "transfers_to_wall",
+            "node_ref": "node:T",
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 2); seeded generator; not library, component, catalog, standard or code-rule data"
+          },
+          {
+            "closure_transfer": "transfers_to_wall",
+            "node_ref": "node:C",
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 2); seeded generator; not library, component, catalog, standard or code-rule data"
+          }
+        ]
+      },
+      {
+        "id": "region:BRANCH",
+        "members": [
+          "pipe:BR1"
+        ],
+        "terminals": [
+          {
+            "closure_transfer": "transfers_to_wall",
+            "node_ref": "node:T",
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 2); seeded generator; not library, component, catalog, standard or code-rule data"
+          },
+          {
+            "closure_transfer": "transfers_to_wall",
+            "node_ref": "node:E",
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 2); seeded generator; not library, component, catalog, standard or code-rule data"
+          }
+        ]
+      }
+    ],
+    "shear_model": "timoshenko_annulus_energy_v1"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    },
+    "P2": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "6e73ebeb04da0a524de6c210f05b3825f4aa883cede9aeb19986174f8d0f6fce",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:C": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "40",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:E": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "30",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  }
+}

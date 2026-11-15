@@ -176,8 +176,8 @@ describe("the output policy (T6S-3)", () => {
   });
   it("§5.3: keeps the code and rewords both texts; neither calls the result invalid or unsupported", () => {
     expect(PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE).toBe("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE");
-    expect(N_PRESSURE_2_OUTPUT).toBe("This output of pressure-2 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result. The result remains readable here; this is not a finding about the result.");
-    expect(N_PRESSURE_SOURCE_OUTPUT).toBe(N_PRESSURE_2_OUTPUT.replace("pressure-2 results", "pressure-source-1 results"));
+    expect(N_PRESSURE_2_OUTPUT).toBe("This output of pressure-3 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result. The result remains readable here; this is not a finding about the result.");
+    expect(N_PRESSURE_SOURCE_OUTPUT).toBe(N_PRESSURE_2_OUTPUT.replace("pressure-3 results", "pressure-source-1 results"));
     expect(PRESSURE_2_OUTPUT_REFUSAL).toBe(`${PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_2_OUTPUT}`);
     expect(PRESSURE_SOURCE_OUTPUT_REFUSAL).toBe(`${PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_SOURCE_OUTPUT}`);
     for (const reason of [PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) {

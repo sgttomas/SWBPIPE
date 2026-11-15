@@ -28,11 +28,12 @@ ENTRIES = [
      "cite": "one of the two `identity` literals; copied only by `identity.to_string()`, audited at the longer "
              "identity literal (o10_rules.py U6-J4). §8.44: unchanged (1,262 B); the pressure-2 literal it is "
              "audited at grows"},
-    {"file": PP + "exact_admission.rs", "head": "3.0.0/exact_pressure_v3 under pressure-2 semantics",
+    {"file": PP + "exact_admission.rs", "head": "3.0.0/exact_pressure_v3 under pressure-3 semantics",
      "disposition": "own-bound",
      "cite": "the longer `identity` literal; copied only by `identity.to_string()`, audited at its length "
              "(o10_rules.py U6-J4). §8.44 (RT-A3 increment 3): its constant-effort clause lengthens it to "
-             "3,007 B (+540); carried, since U6-J4 measures the literal from source and no copy site is added"},
+             "3,007 B (+540); carried, since U6-J4 measures the literal from source and no copy site is added. "
+             "RT-L2: the head names pressure-3 for pressure-2 (same length); no copy site is added"},
     {"file": PP + "exact_admission.rs", "head": "reducer maps a member of this pressure region",
      "disposition": "own-bound",
      "cite": "REDUCER_IN_REGION_TEXT; passed only as pressure_runtime.rs problem()'s `message`, which the "

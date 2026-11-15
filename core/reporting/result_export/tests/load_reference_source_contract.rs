@@ -480,8 +480,8 @@ fn table_bytes_and_transport_cases_match_in_rust() {
     for case in cases["table_cases"].as_array().unwrap() {
         let mut text = match case["file"].as_str() {
             None => TABLE.to_string(),
-            Some("fixtures/results/semantic_contract_v0_3_pressure_2.json") => include_str!(
-                "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json"
+            Some("fixtures/results/semantic_contract_v0_3_pressure_3.json") => include_str!(
+                "../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json"
             )
             .to_string(),
             Some(other) => panic!("unknown table file {other}"),

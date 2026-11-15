@@ -2,7 +2,7 @@
 
 Shape only. The authored namespace is checked against the current producer requests (model 0.9.0 with the exact
 pressure contract); raw evidence against the current producer envelopes, which publish pressure-2
-(`3.0.0/exact_pressure_v3`) with `contract_evidence.load_reference_states`: results_pressure_2.v0.3's
+(`3.0.0/exact_pressure_v3`) with `contract_evidence.load_reference_states`: results_pressure_3.v0.3's
 PressureContractEvidence, whose records are load_reference_state.schema.json's LoadReferenceStateRecord. Coverage,
 unit dimension and parse-then-block rules are producer diagnostics and are not asserted here. Under the one shape
 pressure-2 shares with and without the group, three facts the retired load-reference-1 evidence schema encoded are
@@ -26,14 +26,14 @@ PROJECT = Path(__file__).resolve().parents[1]
 SCHEMAS = PROJECT / "schemas"
 LOAD_REFERENCE = PROJECT / "fixtures/product_preview/pressure/load_reference"
 LR_SCHEMA_NAME = "load_reference_state.schema.json"
-PRESSURE_SCHEMA_NAME = "results_pressure_2.v0.3.schema.json"
+PRESSURE_SCHEMA_NAME = "results_pressure_3.v0.3.schema.json"
 CARRIERS = ("results.v0.3.schema.yaml", PRESSURE_SCHEMA_NAME, "analysis_run.v0.3.schema.json", "stress_neutral_export.v0.3.schema.json")
 
 CONTRACT = "openpipestress.load_reference_state/1.0.0"
 RECORD_PROFILE = "resolved_straight_load_state_v1"
-PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
+PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-3"
 # T4-U6 (D-5, DEL-05-03 section-bases-and-timoshenko.md §2.4): the per-basis stress signatures (106).
-PRESSURE_SHA = "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
+PRESSURE_SHA = "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
@@ -801,7 +801,7 @@ def test_results_pressure_branch_rejects_contract_mixups(mutation):
     elif mutation == "ref_id": envelope["semantic_contract_ref"]["ref_id"] = PREVIEW_ID
     elif mutation == "profile": envelope["formulation_basis"]["profile_id"] = RECORD_PROFILE
     elif mutation == "unknown_id":
-        envelope["producer"]["semantic_contract_id"] = envelope["semantic_contract_ref"]["ref_id"] = PRESSURE_ID.replace("pressure-2", "pressure-3")
+        envelope["producer"]["semantic_contract_id"] = envelope["semantic_contract_ref"]["ref_id"] = PRESSURE_ID.replace("pressure-3", "pressure-4")
     elif mutation == "source_block_recovery": envelope["source_block_recovery"] = receipt()
     elif mutation == "preview_evidence": envelope["contract_evidence"] = strict_json(PREVIEW_RAW)["contract_evidence"]
     elif mutation == "missing_evidence": del envelope["contract_evidence"]
@@ -853,7 +853,7 @@ def test_analysis_run_pressure_branch_rejects_contract_mixups(mutation):
     evidence = raw()["contract_evidence"]
     if mutation == "preview_hash": record = _rebound(analysis, sha=PREVIEW_SHA)
     elif mutation == "retired_identity": record = _rebound(analysis, contract_id=RETIRED_LR_ID, sha="e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09")
-    elif mutation == "unknown_id": record = _rebound(analysis, contract_id=PRESSURE_ID.replace("pressure-2", "pressure-3"))
+    elif mutation == "unknown_id": record = _rebound(analysis, contract_id=PRESSURE_ID.replace("pressure-3", "pressure-4"))
     elif mutation == "mixed_rows": record = _rebound(analysis, rows=(PREVIEW_ID, PREVIEW_SHA))
     elif mutation == "contract_evidence":
         record = deepcopy(analysis)

@@ -52,8 +52,8 @@ EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 # T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
 # inherited pressure-2 table's per-basis rows.
-EXACT_DEFINITION_HASH = "b60e69d4995c11274c53800e4d5d1e04b05c8d1aa3029f5017d7f0ea41bf047c"
-EXACT_TABLE_HASH = "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"
+EXACT_DEFINITION_HASH = "ec72007a916a88da503889e8db0361281d0d7c9ae33dc72d9f86ab0d4c31807c"
+EXACT_TABLE_HASH = "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 # The current model document version the namespace gates accept (b7-plan "Current model format").
 MODEL_VERSION = "0.9.0"
@@ -66,6 +66,12 @@ MAX_BITS = 0x7FEFFFFFFFFFFFFF
 # IMPLEMENTATION_COMPLETE and TypeScript's SUMMARY_COVERAGE_COMPLETE do. It is on
 # since U7 (D-U7-5); every gate runs regardless.
 _IMPLEMENTATION_COMPLETE = True
+
+
+# RT-L2 (DEL-04-07): the opening of a pressure-2 base's identity statement, and its refusal (Rust `g0_exact`).
+PRESSURE_2_BASE_IDENTITY = "3.0.0/exact_pressure_v3 under pressure-2 semantics."
+SOURCE_PRESSURE_2_RETIRED = "SOURCE_PRESSURE_2_RETIRED"
+PRESSURE_2_RETIRED_TEXT = f"{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model"
 
 
 class RetainedPrecisionError(ValueError):
@@ -92,7 +98,7 @@ PREVIEW_ROUTE = Route(False, CONTRACT_ID, PROFILE, DEFINITION_ID, DEFINITION_HAS
                       "openpipestress.result_semantics/0.3.0/preview-physics-2", "product_preview_mechanics_v1",
                       "SOURCE_PREVIEW_PHYSICS_INVALID", frozenset({"SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "SOURCE_PREVIEW_PHYSICS_INVALID"}))
 EXACT_ROUTE = Route(True, EXACT_CONTRACT_ID, EXACT_PROFILE, EXACT_DEFINITION_ID, EXACT_DEFINITION_HASH,
-                    "openpipestress.result_semantics/0.3.0/pressure-2", "exact_pressure_v3",
+                    "openpipestress.result_semantics/0.3.0/pressure-3", "exact_pressure_v3",
                     "SOURCE_PHYSICS_EVIDENCE_INVALID", frozenset({"SOURCE_PHYSICS_EVIDENCE_INVALID"}))
 ROUTES = {PREVIEW_ROUTE.contract_id: PREVIEW_ROUTE, EXACT_ROUTE.contract_id: EXACT_ROUTE}
 
@@ -3030,7 +3036,7 @@ def _g0_exact(receipt):
     need(_hash("retained_precision_formation_v1", definition) == EXACT_DEFINITION_HASH
          and _same(table.get("product_formation_definitions"), [{"id": EXACT_DEFINITION_ID, "sha256": EXACT_DEFINITION_HASH}]), "FORMATION_MISMATCH")
     # 5. The table's bytes, and its inherited hash is pressure-2's packaged table (B7b D4 (a)).
-    inherited = (results / "semantic_contract_v0_3_pressure_2.json").read_bytes()
+    inherited = (results / "semantic_contract_v0_3_pressure_3.json").read_bytes()
     need(hashlib.sha256(table_bytes).hexdigest() == EXACT_TABLE_HASH and hashlib.sha256(inherited).hexdigest() == table.get("inherited_semantic_contract_sha256"))
     # 6. The cross-check: each bound table value equals the reader's constant.
     policy = table.get("accuracy_classification")
@@ -3134,6 +3140,11 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
         route=ROUTES.get(contract) if type(contract) is str else None
         _need(type(producer) is dict and type(basis) is dict and route is not None and basis.get("profile_id")==route.profile,"G0","SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
         snapshot=deepcopy(source);invocation=deepcopy(invocation);receipt=snapshot.get("retained_precision");schema=_schema()
+        # RT-L2 (DEL-04-07; Rust `g0_exact`, after step 1): a successor whose base identity statement names pressure-2
+        # predates the pressure-elongation setting and is refused by name, as a pressure-2 result is.
+        limitations=basis.get("limitations")
+        if route.exact and type(limitations) is list and limitations and type(limitations[0]) is str and limitations[0].startswith(PRESSURE_2_BASE_IDENTITY):
+            raise RetainedPrecisionError("G0",SOURCE_PRESSURE_2_RETIRED,PRESSURE_2_RETIRED_TEXT)
         _need(snapshot.get("schema_version")=="0.2.0" and snapshot["producer"].get("component_name")=="open_pipe_stress_product_physics" and snapshot["producer"].get("component_version")=="0.2.0",state["gate"],"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
         if route.exact:_g0_exact(receipt)
         else:_g0_preview(receipt)

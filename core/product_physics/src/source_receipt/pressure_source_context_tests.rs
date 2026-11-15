@@ -168,7 +168,7 @@ const JOINED_LIMITATION_7: &str = "Every member section declares its corrosion a
 /// sentences of the design (the latter after the admitted-families sentence).
 /// RT-A3 S6: S1's nonlinear clause as exact_admission.rs restates it (admitted beside objective connectors and on
 /// load/reference-state documents).
-const PRESSURE_1_IDENTITY: &str = "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED); gap, one-way, lift-off and friction supports (friction with an explicit normal or a normal derived from a linear restraint), beside objective connectors and on load/reference-state documents included, are solved in each case by the active-set loop from their authored initial states and publish their states, final displacements and reactions; K-D5 confirmation is attempted for an eligible non-gap state, and the case's published numerical standing reflects its outcome; a case with a gap support is published with the unqualified recovery basis (NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED) and no confirmation, and a mechanics combination over a model with a nonlinear support is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE) unless it is one load case at factor exactly 1 plus at least one combination whose fixed-load count is exactly 0, formed from rows as a solved state plus derived differences or bounds, not an equilibrium state. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.";
+const PRESSURE_1_IDENTITY: &str = "3.0.0/exact_pressure_v3 under pressure-3 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED); gap, one-way, lift-off and friction supports (friction with an explicit normal or a normal derived from a linear restraint), beside objective connectors and on load/reference-state documents included, are solved in each case by the active-set loop from their authored initial states and publish their states, final displacements and reactions; K-D5 confirmation is attempted for an eligible non-gap state, and the case's published numerical standing reflects its outcome; a case with a gap support is published with the unqualified recovery basis (NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED) and no confirmation, and a mechanics combination over a model with a nonlinear support is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE) unless it is one load case at factor exactly 1 plus at least one combination whose fixed-load count is exactly 0, formed from rows as a solved state plus derived differences or bounds, not an equilibrium state. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.";
 
 /// The regenerated v3 reader corpora are unselected pressure-2 publications:
 /// each equals the joined unselected basis exactly; the selected basis names
@@ -191,8 +191,25 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
             let load_state = case["envelope"]["contract_evidence"]
                 .get("load_reference_states")
                 .is_some();
+            // RT-L2: the corpora carry no document, and a pretension-only case has no region evidence, so which of
+            // the three fixed elongation statements was published is read from the envelope; every other
+            // limitation is still compared below (the choice itself is tested in `pressure_elongation_switch.rs`).
+            let published_elongation = case["envelope"]["formulation_basis"]["limitations"].as_array().unwrap().iter()
+                .filter_map(|text| text.as_str())
+                .filter_map(|text| {
+                    [
+                        exact_admission::ElongationStatement::NotIncluded,
+                        exact_admission::ElongationStatement::Included,
+                        exact_admission::ElongationStatement::NoEffect,
+                    ]
+                    .into_iter()
+                    .find(|statement| statement.text() == text)
+                })
+                .collect::<Vec<_>>();
+            assert_eq!(published_elongation.len(), 1, "exactly one elongation statement is published");
+            let elongation = published_elongation[0];
             let unselected = exact_admission::pressure_v3_formulation_basis_with_source(
-                load_state, connectors, false,
+                load_state, connectors, false, elongation,
             );
             // The producer (`formulation_basis_for_model_with_source`) appends
             // K-D5's two route-independent certified-recovery statements.
@@ -206,25 +223,25 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
             assert!(tail[0].starts_with("Member actions, section actions, stresses and support reactions"));
             assert!(tail[1].starts_with("The recovery is checked against the formation check's re-formed system"));
             assert_eq!(unselected.limitations[0], PRESSURE_1_IDENTITY);
-            assert_eq!(unselected.limitations[7], JOINED_LIMITATION_7);
+            assert_eq!(unselected.limitations[8], JOINED_LIMITATION_7);
             let selected = exact_admission::pressure_v3_formulation_basis_with_source(
-                load_state, connectors, true,
+                load_state, connectors, true, elongation,
             );
             assert_eq!(selected.profile_id, unselected.profile_id);
             assert_eq!(selected.limitations.len(), unselected.limitations.len());
-            assert_eq!(&selected.limitations[1..7], &unselected.limitations[1..7]);
-            assert_eq!(&selected.limitations[8..], &unselected.limitations[8..]);
+            assert_eq!(&selected.limitations[1..8], &unselected.limitations[1..8]);
+            assert_eq!(&selected.limitations[9..], &unselected.limitations[9..]);
             assert!(selected.limitations[0].contains("under pressure-source-1 semantics"));
             // O4 §3.3: the selected response follows the contract's shear
             // model on both section bases; no O4 decline is stated.
             assert!(selected.limitations[0].contains("The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases."));
-            assert!(selected.limitations[7].contains("selected retained-source response"));
-            for text in [&selected.limitations[0], &selected.limitations[7], &unselected.limitations[7]] {
+            assert!(selected.limitations[8].contains("selected retained-source response"));
+            for text in [&selected.limitations[0], &selected.limitations[8], &unselected.limitations[8]] {
                 for retired in ["Euler-Bernoulli with coincident section bases", "zero mill tolerance", "zero corrosion allowance", "Timoshenko documents"] {
                     assert!(!text.contains(retired), "{retired}");
                 }
             }
-            assert!(unselected.limitations[7].contains("publishes ordinary structural recovery"));
+            assert!(unselected.limitations[8].contains("publishes ordinary structural recovery"));
         }
     }
 }
@@ -738,7 +755,11 @@ fn ra_work_for(family: &str, raw: &Value, mode: PreviewSolverMode, case_id: &str
 /// requests x two modes) against the pre-U4b counters, with R-A's change since then: for each
 /// selected case, `work.charged` changes by exactly 24ΔE + ΔF_k + ΔQ_k + ΔR_k, and
 /// `publication_charged` by 24ΔE + ΔP + ΔD_k.
-/// - ΔE: the encoded request delta (the committed requests are unchanged: 0).
+/// - ΔE: the encoded request delta. The committed requests are the counters' requests but for the
+///   RT-L2 pressure-elongation setting (DEL-04-07) the three mixed requests now name their operating
+///   case in: ΔE is that `model.model_settings` member's canonical bytes there and 0 elsewhere. Each
+///   selected case's finalization reserves 2·12E (`finalization_size`) and the composite publication
+///   reservation 24E (`finalize_composite`), so the case and the publication each move by 24ΔE.
 /// - ΔF_k: twice the new rows' identity and metadata bytes (`finalization_size`'s 2(12E + B_k)).
 /// - ΔQ_k: the composite wrapper's own 64 per new row; the new treatment reserves no recipe
 ///   work (no `derived_recipe_entry`, no 4096 per row), so its per-recipe charge is zero.
@@ -766,9 +787,18 @@ fn u4b_source_work_law_reconciles_every_control_with_its_pre_u4b_counters() {
         let label = format!("{family}/{name} {mode_name}");
         let snapshot = snapshot(family, name, mode);
         check_snapshot_inputs(&snapshot);
-        // ΔE = 0: the encoded request the counters were formed from is the committed one.
+        // The snapshot's request is the committed one. ΔE: the RT-L2 setting is the only member the
+        // committed requests gained since the counters were formed; without it the encoding is theirs.
         let e = encoded_request(&snapshot.raw);
         assert_eq!(e, encoded_request(&fixture_request(family, name)), "{label}");
+        let mut before = snapshot.raw.clone();
+        let setting = before["model"].as_object_mut().unwrap().remove("model_settings");
+        if let Some(setting) = &setting {
+            assert_eq!(setting.as_object().unwrap().keys().collect::<Vec<_>>(), ["pressure_elongation"], "{label}: only the RT-L2 setting");
+            assert!(name.starts_with("mixed"), "{label}: only the mixed requests carry the setting");
+        }
+        let delta_e = (e - encoded_request(&before)) as u64;
+        assert_eq!(delta_e == 0, setting.is_none(), "{label}: ΔE is the setting's member");
         let observed = snapshot.reservations.iter().find(|r| r.case_id == case_id).unwrap_or_else(|| panic!("{label}: selected case"));
         let new_rows: Vec<&ResultItem> = observed.actual_rows.iter().filter(|r| DERIVED_KINDS.contains(&r.kind.as_str())).collect();
         let members = snapshot.raw["model"]["pipe_segments"].as_array().unwrap().len();
@@ -814,15 +844,15 @@ fn u4b_source_work_law_reconciles_every_control_with_its_pre_u4b_counters() {
         assert_eq!(case["outcome"], "qualified", "{label}: still selects");
         assert_eq!(case["selected_method"], "retained_source_blocks_exact_v1", "{label}");
         let charged = case["work"]["charged"].as_u64().unwrap();
-        assert_eq!(charged as i64, (old_charged + delta_f + delta_q) as i64 + delta_r, "{label}: work.charged = old + 24ΔE + ΔF_k + ΔQ_k + ΔR_k");
+        assert_eq!(charged as i64, (old_charged + 24 * delta_e + delta_f + delta_q) as i64 + delta_r, "{label}: work.charged = old + 24ΔE + ΔF_k + ΔQ_k + ΔR_k");
         let publication = body["invocation_work"]["publication_charged"].as_u64().unwrap();
-        assert_eq!(publication as i64, (old_publication + delta_p) as i64 + delta_d, "{label}: publication_charged = old + 24ΔE + ΔP + ΔD_k");
+        assert_eq!(publication as i64, (old_publication + 24 * delta_e + delta_p) as i64 + delta_d, "{label}: publication_charged = old + 24ΔE + ΔP + ΔD_k");
         let cases: u64 = body["cases"].as_array().unwrap().iter()
             .map(|c| c["work"]["charged"].as_u64().unwrap() + c["work"]["reserved_unobserved_failure"].as_u64().unwrap()).sum();
         assert_eq!(body["invocation_work"]["charged"].as_u64().unwrap(), cases + publication, "{label}: invocation work");
         assert!(charged <= case["work"]["limit"].as_u64().unwrap() && case["work"]["limit"].as_u64().unwrap() <= 8_000_000, "{label}");
         maximum = maximum.max(charged);
-        println!("U4B_SOURCE_WORK {label} case={case_id} charged={charged} (pre-U4b {old_charged}; +{delta_f} finalization +{delta_q} wrapper; R-A {delta_r}: hints {} plan {} evaluation {} x2) publication={publication} (+{delta_p}; R-A digits {delta_d})", ra.hints, ra.plan, ra.evaluation);
+        println!("U4B_SOURCE_WORK {label} case={case_id} charged={charged} (pre-U4b {old_charged}; ΔE {delta_e}; +{delta_f} finalization +{delta_q} wrapper; R-A {delta_r}: hints {} plan {} evaluation {} x2) publication={publication} (+{delta_p}; R-A digits {delta_d})", ra.hints, ra.plan, ra.evaluation);
     }
     println!("U4B_SOURCE_WORK maximum per-case charge {maximum} of 8000000");
 }

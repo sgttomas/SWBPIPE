@@ -75,6 +75,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "88904434abc2901f197fe8cc55f0445e7ded921dba5911dad2e2b39b48e663c4"
 
 [[package]]
+name = "open_pipe_stress_numerical_vocabulary"
+version = "0.1.0"
+
+[[package]]
 name = "open_pipe_stress_protected_content_linter"
 version = "0.1.0"
 
@@ -89,6 +93,7 @@ dependencies = [
 name = "open_pipe_stress_report_renderer"
 version = "0.1.0"
 dependencies = [
+ "open_pipe_stress_numerical_vocabulary",
  "open_pipe_stress_protected_content_linter",
  "open_pipe_stress_report_generator",
  "open_pipe_stress_report_sections",

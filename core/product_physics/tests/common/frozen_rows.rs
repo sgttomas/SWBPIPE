@@ -17,11 +17,29 @@ pub const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive,
 /// version by the shared rule (`common/current_model.rs`; a 0.5.0 request by its
 /// version alone); the frozen bytes are never edited.
 pub fn solve(request: &Value, mode: PreviewSolverMode) -> Value {
-    let request = crate::current_model::reauthor_request(request.clone());
+    let request = with_frozen_elongation(crate::current_model::reauthor_request(request.clone()));
     serde_json::to_value(
         run_linear_static_preview_value_with_mode(request, mode).expect("the captured entry accepts the request"),
     )
     .unwrap()
+}
+
+/// RT-L2 (DEL-04-07): the frozen references are
+/// pre-switch mechanics, in which every pressurised case included pressure
+/// elongation; the copy names every such case (a no-op without a pressure contract).
+fn with_frozen_elongation(mut request: Value) -> Value {
+    let model = &mut request["model"];
+    if model.get("pressure_contract").is_none() || model.get("model_settings").and_then(|s| s.get("pressure_elongation")).is_some() {
+        return request;
+    }
+    let cases: Vec<Value> = model["load_cases"].as_array().into_iter().flatten()
+        .filter(|c| c["pressure_regions"].as_array().is_some_and(|r| !r.is_empty()))
+        .map(|c| c["id"].clone()).collect();
+    if !cases.is_empty() {
+        let settings = model.as_object_mut().unwrap().entry("model_settings").or_insert_with(|| json!({}));
+        settings["pressure_elongation"] = json!({"operating_load_cases": cases});
+    }
+    request
 }
 
 /// Whether the envelope publishes NUMERICAL_INTEGRITY_CHECKS_PASSED.

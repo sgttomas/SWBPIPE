@@ -43,6 +43,7 @@ fn model(anchored: bool) -> PreviewModel {
         supports.push(json!({"id":"support:D","node":"node:D","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"]}));
     }
     serde_json::from_value(json!({"schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
+        "model_settings":{"pressure_elongation":{"operating_load_cases":["case:A"]}},
         "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},"project":{"id":"project:dormant-joint","units":{"length":"m"}},
         "analysis_status":{"mechanics":"not_run","rule_check":"not_run","professional_acceptance":"not_requested"},
         "nodes":[{"id":"node:A","position":{"x":0.,"y":0.,"z":0.}},{"id":"node:B","position":{"x":2.,"y":0.,"z":0.}},{"id":"node:C","position":{"x":2.3,"y":0.,"z":0.}},{"id":"node:D","position":{"x":4.3,"y":0.,"z":0.}}],

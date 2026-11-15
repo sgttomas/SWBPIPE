@@ -22,6 +22,8 @@
 //! `zero_scale` is the case magnitude named at each call site. No looser
 //! tolerance is used.
 
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode, ResultItem,
 };
@@ -39,7 +41,7 @@ const RELATIVE: f64 = 1.0e-9;
 // identities: pressure-2 (ordinary) and pressure-source-1 (a selected
 // retained-source case), both under exact_pressure_v3. Its records keep their
 // own profile (resolved_straight_load_state_v1).
-const SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const PROFILE: &str = "exact_pressure_v3";
 const SOURCE_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 const SOURCE_PROFILE: &str = "exact_pressure_v3";
@@ -460,7 +462,7 @@ impl Case {
 // ---------------------------------------------------------------------------
 
 fn run(request: &Value, mode: PreviewSolverMode) -> Result<MechanicsEnvelope, String> {
-    run_linear_static_preview_value_with_mode(request.clone(), mode)
+    run_linear_static_preview_value_with_mode(pressure_elongation::with_elongation_if_pressurised(request), mode)
 }
 
 fn case_ids(request: &Value) -> Vec<String> {

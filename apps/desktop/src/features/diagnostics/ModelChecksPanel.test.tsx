@@ -13,6 +13,7 @@ const run: ModelCheckRun = {
   solve: { kind: "checked" },
   notShown: { solve: 0, slots: 0, library: 0 },
   notShownBlocking: 0,
+  notShownBlockingByGroup: { solve: 0, slots: 0, library: 0 },
   findings: [
     { key: "solve:0:a", group: "solve", entity: { type: "node", id: "node:a" },
       diagnostic: { id: "diagnostic:topology:disconnected", code: "MODEL_TOPOLOGY_DISCONNECTED", severity: "warning", message: "invented two-part text", affected_refs: ["node:a", "node:c"] } },

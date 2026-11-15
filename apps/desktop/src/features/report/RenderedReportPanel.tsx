@@ -24,7 +24,8 @@ import { provenanceReasonEntity } from "./provenanceReasonEntities";
 import { assembleRenderedReport } from "./renderedReportAssembly";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
-import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
+import type { ReportPackageSaveReceipt, ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
+import { REPORT_PACKAGE_USER_RELEASE_ROUTE_ID } from "../redaction-controls/redactionExportControls";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 
 // DEC-021 (A7): rendered FR-016 calculation report. The Rust renderer crate
@@ -50,13 +51,34 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 // is re-checked immediately before IPC, and the render resubmits the texts the native
 // host binds (`renderedReportAssembly.ts`).
 
-/** A route-010 receipt's record: the bound model document SHA-256 when the package
- * records the user's per-report user release, else null. */
-function userReleaseReceipt(receipt: object): string | null {
-  const fields = receipt as { user_release_recorded?: unknown; user_release_model_document_sha256?: unknown };
-  return fields.user_release_recorded === true && typeof fields.user_release_model_document_sha256 === "string"
-    ? fields.user_release_model_document_sha256
-    : null;
+/** Whether a saved package records the user's per-report user release. Only a saved outcome
+ * wrote a package, so no other outcome shows a user release, whatever its members say. The
+ * binding stays in the report and its package; the status carries none (REQ-019). */
+function recordsUserRelease(receipt: ReportPackageSaveReceipt): boolean {
+  return receipt.outcome === "saved" && (receipt as { user_release_recorded?: unknown }).user_release_recorded === true;
+}
+
+/** A cancelled save wrote nothing, and the panel says so (DEL-08-01 AC-010 and REQ-019 for
+ * the shareable save, which also made no user release). */
+const SHAREABLE_SAVE_CANCELLED =
+  "Not saved: the save was cancelled. No shareable report package was written and no user release was made.";
+const LOCAL_PRIVATE_SAVE_CANCELLED = "Not saved: the save was cancelled. No report package was written.";
+
+/** The sentence a cancelled receipt leads with, by its route; null for a saved one. */
+function cancelledStatement(receipt: ReportPackageSaveReceipt): string | null {
+  if (receipt.outcome !== "cancelled") return null;
+  return receipt.redaction_route_id === REPORT_PACKAGE_USER_RELEASE_ROUTE_ID ? SHAREABLE_SAVE_CANCELLED : LOCAL_PRIVATE_SAVE_CANCELLED;
+}
+
+/** The first line of a receipt. A saved outcome's is unchanged (the native smoke pins its
+ * prefix). A cancelled save names only the file the person selected, if any, never the
+ * suggested name of a file that was not written. */
+function receiptOutcomeLine(receipt: ReportPackageSaveReceipt): string {
+  const head = `outcome=${receipt.outcome}; code=${receipt.code}`;
+  if (receipt.outcome !== "saved") {
+    return receipt.selected_basename ? `${head}; file=${receipt.selected_basename}` : head;
+  }
+  return `${head}; file=${receipt.selected_basename || receipt.container_file_name}`;
 }
 
 const LOCAL_PRIVATE_REPORT_WARNING =
@@ -73,6 +95,7 @@ export function RenderedReportPanel({
   packageBusy = false,
   packageRedaction = null,
   packageRoute = null,
+  packageNeedsCurrent = false,
   numericalHealth = null,
   reportComposition: sessionComposition,
   onReportCompositionChange,
@@ -94,12 +117,21 @@ export function RenderedReportPanel({
   packageBusy?: boolean;
   packageRedaction?: ControlledRouteExport | null;
   packageRoute?: ReportPackageSaveRoute | null;
+  /** DEL-08-01 REQ-024: the panel's result is shown for its rendered report only (a solved
+   * exact-route result that is not numerically eligible). The report package takes only a
+   * Current result, so its save buttons stay disabled for it, as the File menu's are. */
+  packageNeedsCurrent?: boolean;
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;
   /** W-18b (DEL-08-01 Design `report-user-release.md` §2.2): opens the user-release dialog. */
   onSaveShareableReportPackage?: () => void;
 }) {
   const [panelComposition, setPanelComposition] = useState<ReportComposition | null>(null);
+  const packageSaveTitle = !result || !analysisRun
+    ? "Solve first: report-package save needs the current mechanics result and analysis-run record."
+    : packageNeedsCurrent
+      ? "Not available for this result: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing."
+      : undefined;
   const reportComposition = sessionComposition === undefined ? panelComposition : sessionComposition;
   const changeComposition = onReportCompositionChange ?? setPanelComposition;
   const [localPrivateIntent, setLocalPrivateIntent] = useState(false);
@@ -313,8 +345,8 @@ export function RenderedReportPanel({
           <button
             type="button"
             data-testid="report-package-save"
-            disabled={!result || !analysisRun || packageBusy}
-            title={!result || !analysisRun ? "Solve first: report-package save needs the current mechanics result and analysis-run record." : undefined}
+            disabled={!result || !analysisRun || packageBusy || packageNeedsCurrent}
+            title={packageSaveTitle}
             onClick={onSaveReportPackage}
           >
             {packageBusy ? "Saving report package…" : "Save Report Package…"}
@@ -323,8 +355,8 @@ export function RenderedReportPanel({
             <button
               type="button"
               data-testid="report-package-user-release"
-              disabled={!result || !analysisRun || packageBusy}
-              title={!result || !analysisRun ? "Solve first: report-package save needs the current mechanics result and analysis-run record." : undefined}
+              disabled={!result || !analysisRun || packageBusy || packageNeedsCurrent}
+              title={packageSaveTitle}
               onClick={onSaveShareableReportPackage}
             >
               Save Shareable Report Package…
@@ -345,12 +377,15 @@ export function RenderedReportPanel({
       {packageRoute?.route === "redaction_blocked" ? (
         <p data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
       ) : null}
+      {packageRoute?.route === "not_requested" ? (
+        <p role="status" data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
+      ) : null}
       {packageRoute?.route === "tauri_report_package_save" ? (
         <div className="report-list" data-testid="report-package-save-status">
-          <span>
-            outcome={packageRoute.receipt.outcome}; code={packageRoute.receipt.code}; file=
-            {packageRoute.receipt.selected_basename || packageRoute.receipt.container_file_name}
-          </span>
+          {cancelledStatement(packageRoute.receipt) ? (
+            <span data-testid="report-package-save-cancelled">{cancelledStatement(packageRoute.receipt)}</span>
+          ) : null}
+          <span>{receiptOutcomeLine(packageRoute.receipt)}</span>
           <span>
             bytes={packageRoute.receipt.byte_count}; container_sha256={packageRoute.receipt.container_sha256_hex}; package_identity=
             {packageRoute.receipt.package_identity_sha256_hex}
@@ -362,10 +397,8 @@ export function RenderedReportPanel({
           <span>
             path_containment={packageRoute.receipt.path_containment}; limitation={packageRoute.receipt.limitation}
           </span>
-          {userReleaseReceipt(packageRoute.receipt) ? (
-            <span data-testid="report-package-user-release-status">
-              user_release_recorded=true; model_document_sha256={userReleaseReceipt(packageRoute.receipt)}
-            </span>
+          {recordsUserRelease(packageRoute.receipt) ? (
+            <span data-testid="report-package-user-release-status">user_release_recorded=true</span>
           ) : null}
         </div>
       ) : null}
