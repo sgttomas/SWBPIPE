@@ -4998,6 +4998,11 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         # returns None at its first statement, before its text, Box or final-state clone. The shapes that carry the
         # premise are checked here; the capture's body is pinned. Shapes and pin re-read in ordinary layout (cc160d28d).
         _seam = _fn_text("capture_nonlinear_state_evidence", _LIB)
+        # DEL-04-09 M4: the capture is no longer lib.rs's last item (the experimental modal entry follows it), so
+        # _fn_text's span runs into the next item's doc comment. The pin binds the capture's own text, through its
+        # closing brace at column 0, exactly the span it had as the last item (end of file); the next item is not
+        # part of the capture.
+        _seam = _seam[:_seam.index("\n}\n") + 3] if "\n}\n" in _seam else _seam + "\n"
         _loop = _fn_text("append_nonlinear_support_loop_results", _LIB)
         _case = _fn_text("solve_prepared_load_case", _LIB)
         _lib_text = _text_of(_LIB)
