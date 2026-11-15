@@ -1334,6 +1334,44 @@ def _fn_text(name, f):
     return "\n".join(lines[start - 1:end - 1])
 
 
+def _fn_item_text(name, f):
+    """fn `name`'s own text in f: from its `fn` line through the `}` closing its first code `{`, then a newline. The
+    braces are found by the walk `_production` uses, on code only (the §8.45 lexer masks literals and comments; a
+    LexError stops the run). It fails closed rather than return a shorter or longer body: no code `{` before a code
+    `;`, an unterminated body, a closing brace at or past fn_lines' exclusive end, or anything but whitespace and
+    comments between that brace and that end (another item's attribute or code, which _fn_text would have kept)."""
+    lines, start, end = fn_lines(name, f)
+    text = _text_of(f)
+    _rl = _production_lexer()
+    toks, comments = _rl["scan"](text, f)
+    mask = _rl["_masks"](text, toks, comments)
+    begin = sum(len(l) + 1 for l in lines[:start - 1])
+    stop = min(len(text), sum(len(l) + 1 for l in lines[:end - 1]))
+    i, nest, opened, close = begin, 0, False, None
+    while i < len(text):
+        ch = text[i]
+        if not mask[i]:
+            if ch in "([{":
+                nest += 1
+                opened = opened or ch == "{"
+            elif ch in ")]}":
+                nest -= 1
+                if ch == "}" and opened and nest == 0:
+                    close = i
+                    break
+            elif ch == ";" and nest == 0 and not opened:
+                raise SystemExit(f"_fn_item_text: fn {name} in {f} has no body")
+        i += 1
+    if close is None or close >= stop:
+        raise SystemExit(f"_fn_item_text: fn {name} in {f}: its body does not close inside its fn_lines span")
+    in_comment = bytearray(len(text))
+    for s_, e_ in comments:
+        in_comment[s_:e_] = b"\x01" * (e_ - s_)
+    if any(not (text[j].isspace() or in_comment[j]) for j in range(close + 1, stop)):
+        raise SystemExit(f"_fn_item_text: fn {name} in {f}: code lies between its closing brace and the next fn")
+    return text[begin:close + 1] + "\n"
+
+
 def _literals(text):
     """The raw bytes of each string literal in `text` (a raw literal's length bounds its decoded one)."""
     return [len(l.encode()) for l in _re.findall(r'"((?:[^"\\]|\\.)*)"', text)]
@@ -4997,12 +5035,11 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         # statement (base fn_zero, G4 R-1). selected_nonlinear is then None and capture_nonlinear_state_evidence
         # returns None at its first statement, before its text, Box or final-state clone. The shapes that carry the
         # premise are checked here; the capture's body is pinned. Shapes and pin re-read in ordinary layout (cc160d28d).
-        _seam = _fn_text("capture_nonlinear_state_evidence", _LIB)
         # DEL-04-09 M4: the capture is no longer lib.rs's last item (the experimental modal entry follows it), so
-        # _fn_text's span runs into the next item's doc comment. The pin binds the capture's own text, through its
-        # closing brace at column 0, exactly the span it had as the last item (end of file); the next item is not
-        # part of the capture.
-        _seam = _seam[:_seam.index("\n}\n") + 3] if "\n}\n" in _seam else _seam + "\n"
+        # _fn_text's span would run into the next item's doc comment. The pin binds the capture's own text through its
+        # closing brace (_fn_item_text, which fails closed on any code between that brace and the next fn), the same
+        # bytes _fn_text gave while the capture ended the file.
+        _seam = _fn_item_text("capture_nonlinear_state_evidence", _LIB)
         _loop = _fn_text("append_nonlinear_support_loop_results", _LIB)
         _case = _fn_text("solve_prepared_load_case", _LIB)
         _lib_text = _text_of(_LIB)
