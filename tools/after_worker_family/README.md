@@ -9,7 +9,7 @@ metadata:
 
 **What the check prevents:** the table silently ceasing to describe the sources it cites.
 
-**What it leaves available:** ordinary edits to those sources by other lanes. A line shift, or any edit outside a cited passage, passes; an edit to a cited passage fails only until the table is regenerated and the changed row read.
+**What it leaves available:** ordinary edits to those sources by other lanes. A line shift passes, as does any edit that leaves each cited passage, anchor and claim as it was. An edit to a restated row's cited passage fails only until the table is regenerated and the changed row read.
 
 The after-worker judge (`apps/desktop/src/test-support/after-worker/afterWorkerReplies.ts`, DEL-04-05) imports some of the web's acceptance predicates and restates the others. `family-table.md` names each predicate, its source and whether the judge imports it, restates it, or runs it inside an imported function. `family-table.digests.json` keeps the SHA-256 of each restated row's cited text. `family_table.py` generates both and checks them against the source. It uses only the standard library.
 
