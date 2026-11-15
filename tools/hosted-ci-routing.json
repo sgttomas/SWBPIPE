@@ -250,7 +250,7 @@
   ],
   "piping_runtime_reads": {
     "source_trees": {
-      "core/analysis/hanger_sizing/Cargo.toml": "b815f6d026e0af2954fc40196937a323226375722d67c0462e97547eaa8c769d",
+      "core/analysis/hanger_sizing/Cargo.toml": "bf1cfc17f669c1b846c63f4989febbe1a6b844f8071d3a10dbefbc364f0ea973",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
       "core/handoff/caepipe_mbf_engine/Cargo.toml": "665cfd34254f574ae7e7bcfbb0399ccd24247c17337e7fda43a43ea4a1e408d4",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "26ee5f7833006eccfbccf2633c6f785d6f25b282cd7043f48f0078a9efa4f39d",
@@ -260,7 +260,7 @@
       "core/loads/self_weight_wasm/Cargo.toml": "7041b262bcf36c8b00d380e041d2375016101856a62c61551c0e8abb3d21dc7d",
       "core/loads/stress_recovery/Cargo.toml": "a8d181c7587101e60d9fcc9bc7006822f9ce77105707193933039458637198e4",
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
-      "core/model_operations/operation_applier/Cargo.toml": "d08a44ff23a0675ba37480434545a1daba6433e19e6ce0edcafee4af246e3fb7",
+      "core/model_operations/operation_applier/Cargo.toml": "2fa5d714ef86693b4470f50a728acc0eed6d4f8057adeed5f51f531a86b59ca7",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
       "core/product_physics/Cargo.toml": "fe913e0cb60b12d97456fe36e49a46a04529d143aba041f88d66ebc493df00ec",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
@@ -276,7 +276,7 @@
       "core/rules/rule_check_runner/Cargo.toml": "b433d3eec2112c518f51ac9f83cfdc6469fef33cdaa9e1020bd8b814e5e15c85",
       "core/rules/rule_pack_document/Cargo.toml": "1675122e0a21560f7d8a1963267661ff75e7f97948cf177c7dbf6ed9f9d31bc6",
       "core/rules/rule_pack_lifecycle/Cargo.toml": "811d32918f3d13d8d2a9115ebb6ce9b0243078626bc426d8dbd97224eb2dbd56",
-      "core/runner/headless/Cargo.toml": "20f6db036582550f1f74146af1c924f2fd4c265be90c6a4978b51d34b82e4b0a",
+      "core/runner/headless/Cargo.toml": "64928a65ffa8e82b06bbf27179b367e4c64db95346b958cef3ff7ee0a537dc75",
       "core/serialization/canonical_json/Cargo.toml": "fb2259bdfcb6adebc877b46e4e1b3126fdf1b08c0b6441a5e4ba49ab75e670a0",
       "core/solver/curved_bend/Cargo.toml": "5d7cf1288eac698c209aa4fd7493fa669aa57494950e75374ac07248001502d8",
       "core/solver/diagnostics/Cargo.toml": "33f62709325dd0aee1a7e4996ee1424e2dcbc9fd54418704f87c8f39e64b875c",
@@ -615,7 +615,7 @@
         ]
       },
       "core/model_operations/operation_applier/tests/numerical_health.rs": {
-        "sha256": "8bc9780351e7ce0fbce83da69e25733f729d4e492924b5cb06febc978fd25bd1",
+        "sha256": "b338f1e3d603d9433f5724a7d384dbf638ff6246a35c3c60f7c035224d1154eb",
         "source_trees": [
           "core/model_operations/operation_applier/Cargo.toml"
         ],
@@ -1467,14 +1467,21 @@
               "fixtures/results/combination_certificate_corpus.json",
               "fixtures/results/combination_certificate_forgeries.json",
               "fixtures/results/hanger_sizing_applied_four_span.json",
+              "fixtures/results/hanger_sizing_applied_four_span_constant.json",
               "fixtures/results/hanger_sizing_corpus.json",
               "fixtures/results/hanger_sizing_engine_kind_corpus.json",
+              "fixtures/results/hanger_sizing_input_ex_pressurised.json",
+              "fixtures/results/hanger_sizing_input_ex_riser.json",
               "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_four_span_constant.json",
               "fixtures/results/hanger_sizing_input_refused.json",
               "fixtures/results/hanger_sizing_input_two_span.json",
               "fixtures/results/hanger_sizing_reply_two_span.json",
+              "fixtures/results/hanger_sizing_result_ex_pressurised.json",
+              "fixtures/results/hanger_sizing_result_ex_riser.json",
               "fixtures/results/hanger_sizing_result_forgery.json",
               "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_four_span_constant.json",
               "fixtures/results/hanger_sizing_result_refused.json",
               "fixtures/results/hanger_sizing_result_two_span.json",
               "fixtures/results/invented/derivative_binding_producer_cases.json",
@@ -5391,14 +5398,21 @@
               "fixtures/results/combination_certificate_corpus.json",
               "fixtures/results/combination_certificate_forgeries.json",
               "fixtures/results/hanger_sizing_applied_four_span.json",
+              "fixtures/results/hanger_sizing_applied_four_span_constant.json",
               "fixtures/results/hanger_sizing_corpus.json",
               "fixtures/results/hanger_sizing_engine_kind_corpus.json",
+              "fixtures/results/hanger_sizing_input_ex_pressurised.json",
+              "fixtures/results/hanger_sizing_input_ex_riser.json",
               "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_four_span_constant.json",
               "fixtures/results/hanger_sizing_input_refused.json",
               "fixtures/results/hanger_sizing_input_two_span.json",
               "fixtures/results/hanger_sizing_reply_two_span.json",
+              "fixtures/results/hanger_sizing_result_ex_pressurised.json",
+              "fixtures/results/hanger_sizing_result_ex_riser.json",
               "fixtures/results/hanger_sizing_result_forgery.json",
               "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_four_span_constant.json",
               "fixtures/results/hanger_sizing_result_refused.json",
               "fixtures/results/hanger_sizing_result_two_span.json",
               "fixtures/results/invented/derivative_binding_producer_cases.json",
@@ -6358,7 +6372,7 @@
         }
       },
       "core/analysis/hanger_sizing/tests/publication.rs": {
-        "sha256": "9ed048e9761b8ffb629091b050ae592cf8d5e160ae989da4d99983eca0dfd81d",
+        "sha256": "375f0535569ef9af1fc2dd32428ef7155a09f60ce5cf1a61148adfdc614f94fc",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml"
         ],
@@ -6368,11 +6382,17 @@
             "base": "project",
             "files": [
               "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_input_ex_pressurised.json",
+              "fixtures/results/hanger_sizing_input_ex_riser.json",
               "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_four_span_constant.json",
               "fixtures/results/hanger_sizing_input_refused.json",
               "fixtures/results/hanger_sizing_input_two_span.json",
+              "fixtures/results/hanger_sizing_result_ex_pressurised.json",
+              "fixtures/results/hanger_sizing_result_ex_riser.json",
               "fixtures/results/hanger_sizing_result_forgery.json",
               "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_four_span_constant.json",
               "fixtures/results/hanger_sizing_result_refused.json",
               "fixtures/results/hanger_sizing_result_two_span.json"
             ]
@@ -6387,7 +6407,7 @@
         ]
       },
       "core/runner/headless/tests/size_hangers_cli.rs": {
-        "sha256": "932fd1c4972ba931961da31fc196bc989f2900860e3073940a8f52625bf83cb7",
+        "sha256": "0076942a336e6a2c77792c7982470b57079c8596fb41c8abd8f6111c2f8e697b",
         "source_trees": [
           "core/runner/headless/Cargo.toml"
         ],
@@ -6404,7 +6424,7 @@
         ]
       },
       "core/analysis/hanger_sizing/tests/desktop.rs": {
-        "sha256": "2b52b53bb8515a45802607597ed09c868e7ffdeb35295eb45f631bb343d2b2c7",
+        "sha256": "4f9bdfb40f01563ac2e9a8068ee06abe667571d7c696ea36b495073ce0d938e6",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml"
         ],
@@ -6414,11 +6434,18 @@
             "base": "manifest",
             "files": [
               "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_input_ex_pressurised.json",
+              "fixtures/results/hanger_sizing_input_ex_riser.json",
               "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_four_span_constant.json",
               "fixtures/results/hanger_sizing_input_refused.json",
               "fixtures/results/hanger_sizing_input_two_span.json",
+              "fixtures/results/hanger_sizing_reply_two_span.json",
+              "fixtures/results/hanger_sizing_result_ex_pressurised.json",
+              "fixtures/results/hanger_sizing_result_ex_riser.json",
               "fixtures/results/hanger_sizing_result_forgery.json",
               "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_four_span_constant.json",
               "fixtures/results/hanger_sizing_result_refused.json",
               "fixtures/results/hanger_sizing_result_two_span.json"
             ]
