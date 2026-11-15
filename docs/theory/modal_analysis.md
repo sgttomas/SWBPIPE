@@ -191,6 +191,83 @@ engineering-result admission is disabled. A consistent verdict shows that the
 published relations agree with each other and, with the request, with the
 model's mass; it does not show that the eigenvalues are correct.
 
+## Derivations
+
+The relations above are classical, and this note derives each of them from
+the assumptions stated with it (DEL-11-03 REQ-004). Each derivation names the
+frozen independent reference that corroborates it, a reference whose
+generator imports no product code.
+
+**D1. The eigenproblem.** Undamped free vibration of the linear model on its
+free DOFs is M_ff ü + K_ff u = 0, with K_ff symmetric positive definite (the
+model is restrained) and M_ff symmetric positive semidefinite. A synchronous
+motion u(t) = φ·sin(ωt) gives (K_ff − ω²M_ff)φ·sin(ωt) = 0 for every t, so
+K_ff φ = ω² M_ff φ. Then λ = ω², f = ω/(2π) in Hz and T = 1/f in s. For two
+modes with λ_i ≠ λ_j, subtracting φ_jᵀ(K φ_i = λ_i M φ_i) from the transposed
+equation for j gives (λ_i − λ_j) φ_jᵀ M φ_i = 0, so distinct modes are
+M-orthogonal; that is what check 3 measures. *Reference:*
+`validation/references/f1_modal/mass_discrete/eigen_references.json` (class (a)
+discrete eigenvalues and an independent Jacobi control) and
+`validation/references/f1_modal/continuum/continuum.json` (closed-form beam,
+rod and ring frequencies).
+
+**D2. Consistent mass and the weight identity.** On a straight member of
+length L, with mass per length m̄ and the displacement interpolation
+u(x) = N(x)·q that the stiffness uses (cubic Hermite in bending, linear in
+axial and torsion), the kinetic energy ½∫ m̄ u̇ᵀu̇ dx = ½ q̇ᵀ M_e q̇ gives
+M_e = ∫₀ᴸ m̄ NᵀN dx. Rayleigh rotary inertia adds ∫₀ᴸ ρI N_θᵀN_θ dx, with
+N_θ = dN/dx the section rotation. The interpolation reproduces a rigid
+translation exactly: if q = r_k, the nodal vector of a unit translation along
+global k, then N r_k = e_k and N_θ r_k = 0. So
+a·M_e r_k = ∫₀ᴸ Nᵀ (m̄ a) e_k dx, the consistent load vector of the uniform
+load m̄·a along k. That is the weight-basis identity node by node for
+straight members. For a rigid body of mass m at centre of gravity c, the body
+moves with the node: its force under a rigid translation is m·a·e_k, and its
+moment about the node is c × m·a·e_k. Those are the resultant force and moment
+that its self-weight applies. *Reference:*
+`validation/references/f1_modal/mass_discrete/mass_references.json` (the mass
+matrices and the `weight_identity` cases, with a second route by shape
+functions and quadrature).
+
+**D3. Participation and effective mass.** Under a uniform support translation
+g(t) along k, every DOF moves as u = R_k g + w, with w zero at restrained DOFs.
+Every support moves with g, a spring's grounded end included. A rigid
+translation therefore strains no element and no spring: the elastic forces
+depend on w alone. The free rows of the equation of motion
+M ü + K w = 0 are then M_ff ẅ_f + K_ff w_f = −(M R_k)_f g̈ = −p_k g̈. Expanding
+w_f = Σ φ_i y_i and multiplying by φ_iᵀ, M-orthogonality (D1) gives
+m_i ÿ_i + λ_i m_i y_i = −(φ_iᵀ p_k) g̈. So Γ_k = φ_iᵀ p_k / m_i, and the
+mode's effective mass is (φ_iᵀ p_k)²/m_i = Γ_k² m_i. Scaling φ_i by c scales
+m_i by c² and φ_iᵀp_k by c. The effective mass and the frequency are
+therefore independent of normalization, while Γ scales by 1/c and m_i by c².
+The modes are M_ff-orthogonal, so Bessel's inequality in the M_ff inner product
+bounds Σ_i (φ_iᵀp_k)²/m_i by p_kᵀ M_ff⁻¹ p_k on the subspace where M_ff is
+positive definite. Because the full M is positive semidefinite, that Schur
+complement term is at most R_kᵀ M R_k = T_k. This is why the summed effective
+mass never exceeds the total mass. *Reference:*
+`validation/references/f1_modal/mass_discrete/eigen_references.json`
+(participation of the class (a) cases).
+
+**D4. The Sturm count.** Let σ not be an eigenvalue, and write
+K − σM = L D Lᵀ with L unit lower triangular. Then K − σM is congruent to D,
+so by Sylvester's law of inertia it has as many negative eigenvalues as D has
+negative pivots. If M is positive definite, K − σM = M^½ (M^{−½} K M^{−½} − σI) M^½ is
+congruent to M^{−½}KM^{−½} − σI, whose negative eigenvalues are exactly the
+pencil's eigenvalues below σ. If M is singular, take a basis in which M is
+zero on its null space N and positive definite on a complement C. In that
+basis K − σM has the blocks K_NN, K_NC and K_CC − σM_CC, and K_NN is positive
+definite because K is. The inertia of a symmetric block matrix is that of
+K_NN plus that of its Schur complement (Haynsworth). K_NN adds no negative
+eigenvalue, and the Schur complement is K̂ − σM_CC with
+K̂ = K_CC − K_CN K_NN⁻¹ K_NC, a pencil with positive definite mass and the same
+finite eigenvalues. So in both cases the negative-pivot count is the number of
+finite eigenvalues below σ. In binary64 the computed
+factorization is only near K − σM. That is why the count is relied on only
+under the conditioning and separation premises above. *Reference:*
+`validation/references/f1_modal/continuum/inertia_witnesses.json` (exact
+counts by exact rational inertia) and the exact counts in
+`mass_discrete/eigen_references.json`.
+
 ## Assumptions
 
 - Small displacements, linear elasticity, and free vibration about the
@@ -255,8 +332,9 @@ account.
   mass, weight basis, dense path, integrity, document);
   `core/solver/modal_eigen` (the eigen kernel and Sturm count);
   `core/reporting/modal_result` (the Rust reader).
-- The generalized eigenproblem, consistent beam mass, participation and
-  effective mass, and the inertia count of an LDLᵀ factorization are classical
-  structural dynamics and linear algebra, stated here without external source.
-  The independent references derive them in closed form or by exact
-  arithmetic.
+- The generalized eigenproblem, consistent beam mass, the weight identity,
+  participation and effective mass, and the inertia count of an LDLᵀ
+  factorization are classical structural dynamics and linear algebra. This
+  note derives each one in [Derivations](#derivations), names the independent
+  reference that reproduces it, and takes no formula, diagram or wording from
+  an outside source.
