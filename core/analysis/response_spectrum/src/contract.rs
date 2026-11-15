@@ -568,6 +568,14 @@ pub struct CombinedRow {
 
 /// The output of a combination: the rules, the cluster statement, what the closeness rules and
 /// CQC used, the signed cluster sums and the unsigned combined rows.
+///
+/// Field semantics (released by Agent 0 for readers): published cluster sums are the correctly
+/// rounded binary64 of exact sums while combinations use the retained exact sums; the published
+/// correlation is informational, from the first level enclosure, while combined magnitudes come
+/// from the enclosure at the level required; a reader derives its arithmetic from the original
+/// represented signed contributions, frequencies, damping and method, and never from the rounded
+/// display values.
+/// No standing beyond these values is implied.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Combination {
     pub damping_ratio: f64,

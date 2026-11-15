@@ -313,15 +313,17 @@ fn evaluate_row(request: &CombinationRequest, directions: &[Direction], form: &M
 }
 
 fn uncertain_detail(cause: Uncertain, cap: u64) -> String {
+    let lead = "this implemented error argument does not establish the required relative accuracy";
     match cause {
         Uncertain::RadicandNotPositive => format!(
-            "at the {cap}-bit cap the enclosure of the CQC radicand still reaches zero or below (strong cancellation); \
-the value is not exactly zero by exact arithmetic, and no value is published"),
-        Uncertain::NotWithinTolerance { tight: true } => "the value is enclosed to within a quarter of 1e-9, but no binary64 \
-lies within 1e-9 relative of it; no value is published".into(),
+            "{lead}: at the {cap}-bit cap the enclosure of the CQC radicand still reaches zero or below, and exact \
+arithmetic does not prove the value zero; no value is published"),
+        Uncertain::NotWithinTolerance { tight: true } => format!(
+            "{lead}: the binary64 nearest the midpoint of an enclosure narrower than a quarter of 1e-9 is not shown \
+within 1e-9 of every point of it; no value is published"),
         Uncertain::NotWithinTolerance { tight: false } => format!(
-            "at the {cap}-bit cap the enclosure is still wider than 1e-9 relative allows (strong cancellation); \
-no value is published"),
+            "{lead}: at the {cap}-bit cap the binary64 nearest the enclosure's midpoint is not shown within 1e-9 of \
+every point of it; no value is published"),
     }
 }
 
@@ -336,9 +338,10 @@ no value is published"),
 /// **Accuracy.** Every published magnitude is the binary64 that an enclosure of its exact value on
 /// the represented operands shows within 1e-9 relative of that value, or an exact zero proved by
 /// exact arithmetic (`rules`). A row is evaluated at the precisions of
-/// [`crate::PRECISION_LADDER`] in turn; a magnitude not certified at the cap refuses the request
-/// (`SPECTRUM_COMBINATION_ACCURACY_UNCERTIFIED`), naming the row and where it occurred. A cluster
-/// sum is published as the binary64 nearest its exact value.
+/// [`crate::PRECISION_LADDER`] in turn; a magnitude this argument does not certify at the cap
+/// refuses the request (`SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`), naming the row and the
+/// field. Published cluster sums are the correctly rounded binary64 of exact sums while
+/// combinations use the retained exact sums.
 ///
 /// A request that breaks the contract is refused with every refusal found, in a fixed order; no
 /// partial result is published.
@@ -433,7 +436,7 @@ pub fn combine(request: &CombinationRequest) -> Result<Combination, Vec<Refusal>
                 }
                 Err(RowFail::Uncertain { field, cause }) => {
                     if p == cap {
-                        refusals.push(refuse(RefusalCode::CombinationAccuracyUncertified, &quantity.key(), Some(&field),
+                        refusals.push(refuse(RefusalCode::CombinationAccuracyUnsupported, &quantity.key(), Some(&field),
                             uncertain_detail(cause, cap)));
                     }
                 }

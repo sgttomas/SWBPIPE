@@ -156,11 +156,11 @@ fn refusal_codes(request: &CombinationRequest) -> Vec<&'static str> {
 #[test]
 fn review_witnesses_refused_by_the_accuracy_rule() {
     let tiny = f64::from_bits(1); // 2^-1074
-    // 100-40-40 of three smallest subnormals: exactly (3·1 + 2·3)/5 = 9/5 = 1.8 quanta. The nearest
-    // binary64 is 2 quanta, 1/9 away: no binary64 lies within 1e-9, at any precision.
-    assert_eq!(refusal_codes(&three_directions([tiny; 3])), ["SPECTRUM_COMBINATION_ACCURACY_UNCERTIFIED"]);
+    // 100-40-40 of three smallest subnormals: exactly (3·1 + 2·3)/5 = 9/5 = 1.8 quanta (analytic);
+    // the nearest binary64 is 2 quanta, 1/9 away, so the accuracy cannot be established.
+    assert_eq!(refusal_codes(&three_directions([tiny; 3])), ["SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED"]);
     // [2, 1, 1] quanta: exactly (3·2 + 2·4)/5 = 14/5 = 2.8 quanta; the nearest is 3, 1/14 away.
-    assert_eq!(refusal_codes(&three_directions([2.0 * tiny, tiny, tiny])), ["SPECTRUM_COMBINATION_ACCURACY_UNCERTIFIED"]);
+    assert_eq!(refusal_codes(&three_directions([2.0 * tiny, tiny, tiny])), ["SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED"]);
     // An exactly representable result is published: 100-40-40 of [5, 0, 0] quanta is 5 quanta.
     let c = combine(&three_directions([5.0 * tiny, 0.0, 0.0])).unwrap();
     assert_eq!(c.rows[0].combined.value(), 5.0 * tiny);
@@ -179,8 +179,10 @@ fn review_witnesses_refused_by_the_accuracy_rule() {
     let clusters: Vec<u32> = (1..=n as u32).collect();
     let refused = combine(&single_row(ModalRule::Cqc, 0.2, &freqs, &clusters, &values)).expect_err("beyond the cap");
     assert_eq!(refused.len(), 1);
-    assert_eq!(refused[0].code.as_str(), "SPECTRUM_COMBINATION_ACCURACY_UNCERTIFIED");
+    assert_eq!(refused[0].code.as_str(), "SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED");
+    assert!(refused[0].detail.starts_with("this implemented error argument does not establish the required relative accuracy"));
     assert!(refused[0].detail.contains(&format!("{}-bit cap", PRECISION_LADDER[PRECISION_LADDER.len() - 1])));
+    assert_eq!(refused[0].field.as_deref(), Some("X"));
     assert_eq!(refused[0].object, "N1.ux");
 }
 

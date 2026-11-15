@@ -237,7 +237,7 @@ fn cost_refusal_path_n40() {
     let start = Instant::now();
     let refused = combine(&binomial_request(40, 1.0)).expect_err("refused at the cap");
     eprintln!("COST refusal path n=40: {:?}, {}", start.elapsed(), refused[0]);
-    assert_eq!(refused[0].code.as_str(), "SPECTRUM_COMBINATION_ACCURACY_UNCERTIFIED");
+    assert_eq!(refused[0].code.as_str(), "SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED");
 }
 
 /// The refusal path with many clusters: 120 clusters (the n = 40 refusing pattern on the first 40,

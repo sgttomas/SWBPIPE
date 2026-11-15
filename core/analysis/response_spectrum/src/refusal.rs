@@ -51,12 +51,14 @@ pub enum RefusalCode {
     /// The clusters a rigid response's load left out as periodic are not the clusters the
     /// request classifies as periodic (CLM-001, Rigid response).
     RigidResponsePremiseMismatch,
-    /// A combined magnitude whose enclosure, at the precision cap, shows no binary64 within 1e-9
-    /// relative of its exact value on the represented operands, and which exact arithmetic does
-    /// not prove to be zero: strong cancellation (an enclosure too wide, or a CQC radicand whose
-    /// enclosure reaches zero), or no binary64 near enough (quantization). The refusal names the
-    /// row and where it occurred; no value is published in its place.
-    CombinationAccuracyUncertified,
+    /// This implemented error argument does not establish the required relative accuracy (1e-9 of
+    /// the exact value on the represented operands) for a combined magnitude that exact arithmetic
+    /// does not prove zero: at the precision cap, the CQC radicand's enclosure still reaches zero,
+    /// or the binary64 nearest the enclosure's midpoint is not shown within 1e-9 of every point of
+    /// the enclosure. It says what the argument could not establish, not that no binary64 lies
+    /// within 1e-9 of the exact value. The refusal names the row and the field where it occurred;
+    /// no value is published in its place, and no partial result is published.
+    CombinationAccuracyUnsupported,
     /// An exact cluster sum, or a combined value's enclosure, lies beyond the binary64 range. No
     /// value is published in its place.
     CombinationNonfinite,
@@ -82,7 +84,7 @@ impl RefusalCode {
             Self::RigidFrequencyInvalid => "SPECTRUM_RIGID_FREQUENCY_INVALID",
             Self::RigidResponseInvalid => "SPECTRUM_RIGID_RESPONSE_INVALID",
             Self::RigidResponsePremiseMismatch => "SPECTRUM_RIGID_RESPONSE_PREMISE_MISMATCH",
-            Self::CombinationAccuracyUncertified => "SPECTRUM_COMBINATION_ACCURACY_UNCERTIFIED",
+            Self::CombinationAccuracyUnsupported => "SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED",
             Self::CombinationNonfinite => "SPECTRUM_COMBINATION_NONFINITE",
         }
     }

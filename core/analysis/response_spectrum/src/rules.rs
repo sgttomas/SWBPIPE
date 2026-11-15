@@ -229,9 +229,9 @@ impl CorrelationTable {
 pub(crate) enum Uncertain {
     /// The CQC radicand's enclosure does not have a positive lower end and is not exactly zero.
     RadicandNotPositive,
-    /// No binary64 is shown within 1e-9 relative of every point of the enclosure. `tight` when
-    /// the enclosure is narrower than a quarter of the tolerance, so that the distance to the
-    /// nearest binary64, not the enclosure's width, is what fails.
+    /// The binary64 nearest the enclosure's midpoint is not shown within 1e-9 relative of every
+    /// point of the enclosure. `tight` when the enclosure is narrower than a quarter of the
+    /// tolerance. Either way it records what this argument could not establish.
     NotWithinTolerance { tight: bool },
 }
 

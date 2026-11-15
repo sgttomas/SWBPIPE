@@ -175,48 +175,76 @@ naming the row (DEL-04-10 scope, "Combined magnitudes are certified against thei
   - Scaling a row by a power of two leaves its conditioning unchanged. A large result can still be
     refused (for example the scaled R2 below), and a tiny one certified.
 
+**Field semantics for readers** (released by Agent 0): published cluster sums are the correctly
+rounded binary64 of exact sums while combinations use the retained exact sums; the published
+correlation is informational, from the first level enclosure, while combined magnitudes come from
+the enclosure at the level required; a reader derives its arithmetic from the original represented
+signed contributions, frequencies, damping and method, and never from the rounded display values.
+
+**Accuracy predicates.** Every published magnitude passes all of these:
+- the final conversion to binary64 is inside the check: the published v itself is tested against
+  the enclosure;
+- a zero is published only when exact arithmetic proves it, as an enclosure that is exactly [0, 0];
+- 100-40-40 uses the exact 2/5;
+- CQC takes a square root only of a radicand enclosure with a positive lower end.
+
 What is refused, with witnesses from review round 1 (`tests/represented_input_oracle.rs`):
 
 | Witness | Exact value | Outcome |
 |---|---|---|
-| 100-40-40 of three 2^-1074 | 9/5 = 1.8 quanta | refused: the nearest binary64 (2 quanta) is 1/9 away |
-| 100-40-40 of [2, 1, 1]·2^-1074 | 14/5 = 2.8 quanta | refused: 3 quanta is 1/14 away |
-| CQC, f_i = 1 + i·2^-19 Hz, R_k = (−1)^k C(39, k) N, ζ = 0.2, n = 40 | below 1e-150 N | refused: the radicand's enclosure still reaches zero at 1,024 bits |
-| The same family, n = 20 (about 605 bits under the pricing model) | 1.7888529003e-79 N | certified |
+| 100-40-40 of three 2^-1074 | 9/5 = 1.8 quanta | `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`; analytically, the nearest binary64 (2 quanta) is 1/9 away |
+| 100-40-40 of [2, 1, 1]·2^-1074 | 14/5 = 2.8 quanta | `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`; analytically, 3 quanta is 1/14 away |
+| CQC, f_i = 1 + i·2^-19 Hz, R_k = (−1)^k C(39, k) N, ζ = 0.2, n = 40 | below 1e-150 N (Decimal) | `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`: the radicand's enclosure still reaches zero at 1,024 bits |
+| The same family, n = 20 | 1.7888529003e-79 N | certified |
 | The same family, n = 7, scaled by 2^90 | 3.2174063837e-1 N | certified |
 | [1e16, 1, −1e16] in one cluster, every modal rule | 1 | certified, exactly 1 |
 
 ### Cost and the cap
 
-The `#[ignore]`d scenarios in `tests/combination_cost.rs` were measured in release, one process
-each through the host's slot wrapper, on 15 November 2026. Logs are kept outside Git. The
-baseline is the binary64 combinations of 42aeb90ba.
+**Environment.**
+- Machine: Apple M5 Max (18 cores, 128 GiB), macOS 27.2 (26B123).
+- Toolchain: rustc and cargo 1.97.1, release profile (Cargo's default; the crate sets no profile).
+- Method: `tests/combination_cost.rs` (`#[ignore]`d), one scenario per process, through the host's
+  slot wrapper, measured on 15 November 2026. Logs are kept outside Git.
+- The fd5aab5e5 column was measured while a routing pytest ran on the same host. On the
+  unloaded host, the same arithmetic measured 5–15 % lower. These are observations of the cases
+  measured, not bounds.
 
-| Scenario | Binary64 | Certified | Peak RSS |
+| Scenario | Binary64, source 42aeb90ba | Certified, source fd5aab5e5 | Peak RSS (fd5aab5e5) |
 |---|---|---|---|
-| Frozen references: 78 combinations, 28,626 magnitudes | 8.8 ms | 55 ms | 12.7 MB |
-| Many-mode CQC, 30 / 60 / 120 clusters × 300 rows × 3 directions | | 19 / 43 / 111 ms | 5.5 / 8.0 / 13.3 MB |
-| Many-mode CQC, 120 clusters × 1,200 rows × 3 directions | 18.8 ms | 380 ms | 37.8 MB (binary64: 11.5 MB) |
-| Many-mode SRSS, 120 clusters × 1,200 rows × 3 directions | 1.8 ms | 75 ms | 36.2 MB |
-| Demanding refinement, n = 20: 1 row / 50 rows | | 4.5 ms / 18 ms | 3.4 / 3.6 MB |
-| Refusal path, n = 40: 1 row / 50 rows | | 17 ms / 65 ms | 4.3 / 4.6 MB |
-| Refusal path, n = 40 among 120 clusters, 10 rows | | 177 ms | 12.3 MB |
-| The same with a 2,048-bit level added (scratch build): n = 40 is then certified | | 341 ms | 17.7 MB |
+| Frozen references: 78 combinations, 28,626 magnitudes | 8.8 ms | 61 ms | 12.6 MB |
+| Many-mode CQC, 30 / 60 / 120 clusters × 300 rows × 3 directions | | 23 / 50 / 124 ms | 5.5 / 8.0 / 13.2 MB |
+| Many-mode CQC, 120 × 1,200 × 3 | 18.8 ms | 423 ms | 37.7 MB (binary64: 11.5 MB) |
+| Many-mode SRSS, 120 × 1,200 × 3 | 1.8 ms | 88 ms | 36.3 MB |
+| Demanding refinement, n = 20: 1 row / 50 rows | | 5.2 ms / 17 ms | 3.4 / 3.6 MB |
+| Refusal path, n = 40: 1 row / 50 rows | | 18 ms / 71 ms | 4.1 / 4.6 MB |
+| Refusal path, n = 40 among 120 clusters, 10 rows | | 178 ms | 12.2 MB |
 
-**How cost scales.**
-- Ordinary work grows with clusters² × rows × directions for CQC, and with clusters × rows ×
-  directions for the other rules.
-- Escalation is dominated by one ρ table per level, which grows with clusters² × p².
-- Memory holds the exact cluster sums (clusters × rows × directions) and one ρ table
-  (clusters² × p bits).
+A comparison build: 8eb461fc5's source in scratch, with a 2,048-bit level appended to the ladder.
+There, n = 40 among 120 clusters (10 rows) is certified in 341 ms with 17.7 MB, against 178 ms and
+12.2 MB refused at the 1,024-bit cap.
+
+**How the work grows.** These are the measured trends, not bounds:
+- ordinary work grows with clusters² × rows × directions for CQC, and with
+  clusters × rows × directions for the other rules;
+- escalation is dominated by building one ρ table per level attempted, which grows with
+  clusters² and with the precision.
+
+**Retained workspace** for one request is summed over what it holds until it finishes:
+- the exact cluster sums (clusters × rows × directions) and the exact rigid responses;
+- under CQC, a ρ table for every level attempted so far. The first level is always built, and each
+  higher level is kept once a row needs it, at about clusters²·p bits per level.
 
 **Why the cap is 1,024 bits.**
-- It certifies the evenly spaced alternating-binomial family up to about n = 36 at ζ = 0.2 (the
-  pricing model needs about 1,020 bits there), including every witness of the plan.
-- A refused row then costs tens of milliseconds, and a hundred-cluster request well under a second.
-- A 2,048-bit level would certify about 40 more alternating clusters, at about twice the
-  worst-case refusal cost and memory. The precision cap does not by itself bound work or memory;
-  the measurements above do.
+- The precision cap bounds the precision only. It bounds neither work nor memory, and the
+  measurements above are what informed the choice.
+- Under the pricing model, a planning model and not a bound, 1,024 bits certifies the evenly spaced
+  alternating-binomial family up to about n = 36 at ζ = 0.2.
+- In the measured refusal cases the cap cost 18 ms (40 clusters, 1 row) to 178 ms (120 clusters,
+  10 rows).
+- In the one measured 2,048-bit comparison, the extra level roughly doubled the time and added
+  45 % memory. The pricing model suggests, as planning only, that 2,048 bits would reach about
+  40 more alternating clusters.
 
 ### JSON entry and example
 
