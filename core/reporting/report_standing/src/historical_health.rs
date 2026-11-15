@@ -1279,11 +1279,12 @@ mod tests {
         })
     }
 
-    /// DEL-07-05: a document whose mechanics are not solved, here carrying a
+    /// DEL-07-05: in a document whose mechanics are not solved, here carrying a
     /// passed integrity evaluation and a checks_passed quality (the blocked form
-    /// main's producer writes), is not assessed through the indicator's entry,
-    /// with no figure and no cause, decided by its status before any message is
-    /// read. The same rule decides malformed and disagreeing status fields and
+    /// main's producer writes), the passing case is not assessed through the
+    /// indicator's entry, with no figure, no cause and no code, decided by its
+    /// status before any message is read (failures pass through: see
+    /// `a_failure_in_a_document_not_solved_keeps_its_state`). The same rule decides malformed and disagreeing status fields and
     /// the export-package exception. The record's ungated projection is unchanged.
     #[test]
     fn a_document_not_solved_is_not_assessed_by_the_indicator() {

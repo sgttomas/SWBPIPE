@@ -868,9 +868,9 @@ const RESULT_FIXTURES: [&str; 112] = [
 /// DEL-07-05, through the desktop's own caller (`operation_applier::numerical_health_json`,
 /// which the desktop reaches in wasm and natively): a live document whose mechanics are
 /// not solved, though a case before the refusal retained a passed integrity evaluation and
-/// a checks_passed quality, shows no passing indicator. Its first case is not assessed,
-/// with no figure and no cause; the control (the same request without the refused case)
-/// passes through the same caller.
+/// a checks_passed quality, shows no passing indicator. Its passed cases are not assessed,
+/// with no figure, no cause and no code, and the refused case is not assessed as it was;
+/// the control (the same request without the refused case) passes through the same caller.
 #[test]
 fn a_blocked_document_with_passing_evidence_shows_no_passing_indicator() {
     let control = model_request("product_preview/invented_demo_model.json");
