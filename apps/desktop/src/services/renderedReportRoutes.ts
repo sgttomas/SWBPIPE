@@ -10,7 +10,7 @@
 // that record and derives the print view itself
 // (`src-tauri/src/rendered_report_routes.rs`, `rendered_report_print.rs`).
 // Outside the native application the panel keeps its link and iframe.
-import { invokeWithIngress, IngressRequestRetiredError, type NativeIngressCommand } from "./nativeIngress";
+import { invokeWithIngress, IngressRequestRetiredError } from "./nativeIngress";
 import { isTauriRuntime } from "./nativeMenu";
 import { invoke } from "@tauri-apps/api/core";
 import {
@@ -137,7 +137,7 @@ async function send<T>(
     };
   }
   try {
-    const receipt = await invokeWithIngress<T>(command as unknown as NativeIngressCommand, routeArgs(request), { stillCurrent });
+    const receipt = await invokeWithIngress<T>(command, routeArgs(request), { stillCurrent });
     return { kind: "done", receipt };
   } catch (error) {
     if (error instanceof IngressRequestRetiredError) return { kind: "retired" };

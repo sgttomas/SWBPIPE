@@ -11,6 +11,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
+import { ingressArgs } from "../../test/nativeIngress";
 
 const invokeMock = vi.hoisted(() => vi.fn());
 const outcomeRef = vi.hoisted(() => ({ current: null as Record<string, unknown> | null }));
@@ -79,14 +80,17 @@ function panel(source = result()) {
   return <RenderedReportPanel model={model} result={source} analysisRun={analysisRun} projectSummary={null} />;
 }
 
-/** The route command calls, with their raw ingress bodies decoded. */
+/** The route command calls, with their raw ingress bodies decoded: each must be a
+ * listed ingress command sent as a raw UTF-8 JSON body with the ingress header
+ * (`ingressArgs`, which states the wire contract independently of the production
+ * helper). */
 function routeCalls(command: string): Record<string, unknown>[] {
   return invokeMock.mock.calls
     .filter(([name]) => name === command)
-    .map(([, body, options]) => {
-      expect(Object.prototype.toString.call(body)).toBe("[object Uint8Array]");
-      expect(options).toEqual({ headers: { "x-swbpipe-ingress": "args-json-v1" } });
-      return JSON.parse(new TextDecoder().decode(body as Uint8Array)) as Record<string, unknown>;
+    .map((call) => {
+      expect(Object.prototype.toString.call(call[1])).toBe("[object Uint8Array]");
+      expect(call[2]).toEqual({ headers: { "x-swbpipe-ingress": "args-json-v1" } });
+      return ingressArgs(call);
     });
 }
 

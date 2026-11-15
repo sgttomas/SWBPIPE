@@ -121,6 +121,21 @@ for external validation, not a validation outcome"
 external-prover surfaces), validation manual, headless-runner evidence
 surfaces.
 
+### BS-COMPARE — comparison posture
+
+**Canonical:** "A comparison shows differences between two selected model
+states, internal analysis runs, or load cases or combinations within a run. It
+is a review aid and does not establish that either side is correct."
+
+**Short variants:** "differences for review; the comparison does not establish
+either side as correct" · "a comparison is a review aid and does not establish
+correctness"
+
+**Belongs on:** the comparison subsection of a generated report for saved
+model states, internal analysis runs, or load cases or combinations within a
+run. **Not on:** ordinary results views or external-prover correlation and
+harness evidence surfaces; `BS-VALID` governs boundary language on the latter.
+
 ### BS-MATURITY — release maturity (RETIRED 2026-09-18)
 
 **Status:** retired by `DEC-105`, the owner's superseding ruling on D-71
@@ -168,6 +183,22 @@ or evidence-status labels (§2.1), and they never use "verified", "certified",
 **Belongs on:** the desktop's numerical-health indicator, and the
 numerical-health line of generated reports. The canonical sentence accompanies
 the checks-passed state.
+
+### EV-FIGURE — evidence status of a numerical figure, state or comparison
+
+**Canonical:** "A conditional figure states what follows if its named premises hold; it does not assert them."
+
+**Display forms:**
+
+- "established";
+- "conditional on {premise display name}", with the premise display name "the solver's inverse-norm step";
+- "no error figure available", with its reason;
+- "premise shown not to hold: {premise display name}".
+- "not established: {reason statement}", for a support state or comparison whose required conditions are not established.
+
+They state the evidence status of a solver figure, support state or rule comparison. They are not analysis statuses or evidence-status labels (§2.1), and they never use "verified", "certified", "guaranteed", "approved", "compliant", "correct" or "reliable". "Bound", "bounded" and "confirmed" are used only with "established".
+
+**Belongs on:** generated reports, the desktop's results and rule-check surfaces, and exports that carry figures, states or rule outcomes. A conditional form is never shown without the statement of its premise reachable in place.
 
 ### GF-TOKEN — governance fence token (agent-facing artifacts only)
 

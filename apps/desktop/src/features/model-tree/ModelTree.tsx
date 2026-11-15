@@ -275,6 +275,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
         filterText={filterText}
         filteredCount={filteredTree.count}
         totalCount={tree.count}
+        windowed={layoutMode === "tree" && treeRows.length >= TREE_WINDOW_ROWS}
         onFilterChange={(value, inputAt, inputEventTimeStamp) => {
           filterInputTiming.current = { inputAt, inputEventTimeStamp };
           filterActionSequence.current += 1;
@@ -415,6 +416,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
             revealActiveRequest={treeRevealRequest}
             tabIndex={0}
             testId="model-tree-virtual"
+            threshold={TREE_WINDOW_ROWS}
           />
         ) : (
             <p className="muted" data-testid="model-tree-filter-empty">
@@ -483,17 +485,26 @@ type FilteredTreeModel = {
   count: number;
 };
 
+// At this many rows the tree's list holds only the rows near the view (VirtualList's
+// window), so selected and copied text cannot be every entity. Rows, not scrolling,
+// decide it, so the note below stays steady while the list scrolls.
+const TREE_WINDOW_ROWS = 100;
+
 function TreeControls({
   filterText,
   filteredCount,
   totalCount,
+  windowed,
   onFilterChange
 }: {
   filterText: string;
   filteredCount: number;
   totalCount: number;
+  windowed: boolean;
   onFilterChange: (value: string, inputAt: number, inputEventTimeStamp: number) => void;
 }) {
+  const summaryId = useId();
+  const windowNoteId = useId();
   return (
     <section className="model-tree-controls" aria-label="Model tree filtering" data-testid="model-tree-controls">
       <label>
@@ -501,6 +512,7 @@ function TreeControls({
         <span>Filter model</span>
         <input
           aria-label="Filter model tree"
+          aria-describedby={windowed ? `${summaryId} ${windowNoteId}` : summaryId}
           data-testid="model-tree-filter-input"
           onChange={(event) => {
             const inputAt = performance.now();
@@ -511,9 +523,16 @@ function TreeControls({
           value={filterText}
         />
       </label>
-      <span data-testid="model-tree-filter-summary">
-        {filteredCount} of {totalCount} model entities visible
+      <span data-testid="model-tree-filter-summary" id={summaryId}>
+        {filterText.trim()
+          ? `${filteredCount} of ${totalCount} model entities match the filter`
+          : `${totalCount} model ${totalCount === 1 ? "entity" : "entities"}`}
       </span>
+      {windowed ? (
+        <p className="model-tree-window-note" data-testid="model-tree-window-note" id={windowNoteId}>
+          The list holds only the rows near the view, so text selected and copied from it covers those rows only; the whole model is saved with File &gt; Save Model Document…
+        </p>
+      ) : null}
       <button
         aria-label="Clear model tree filter"
         data-testid="clear-model-tree-filter"

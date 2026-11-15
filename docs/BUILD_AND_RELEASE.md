@@ -63,6 +63,10 @@ validation helpers live under `tests/` and `tools/`.
 The provider-neutral readiness script therefore discovers existing manifests
 instead of assuming a future workspace layout.
 
+SWBPIPE is licensed under MIT; the licence text is [LICENSE](../LICENSE) at the
+repository root. A package manifest names it in its licence field
+(`license = "MIT"` in a `Cargo.toml`, `"license": "MIT"` in a `package.json`).
+
 The browser-mode operation engine is the wasm32 build of
 `core/model_operations/operation_applier` (`DEC-020` / ADR-0001): building the
 desktop app for browser-mode use requires the `wasm32-unknown-unknown` Rust

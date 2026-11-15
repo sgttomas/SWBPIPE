@@ -33,14 +33,14 @@ For each mode it publishes the frequency, circular frequency and period; the sha
 
 ### CLM-002 — What this deliverable owns, and what it takes as input
 
-**This deliverable owns:** the mass model and its weight-basis identity check; the modal request, its refusals and disclosures; the eigen-solution (dense reduction and QL, shift-invert block Lanczos, the Sturm count with its shift placement and growth limit, the modal formation check, residual estimates and participation); the product's modal entry; the modal profile, the `modal-1` semantic table and the modal result family `openpipestress.modal_result`; the product's modal reader and its independent test verifier; the frozen references under `validation/references/f1_modal/`; and the desktop modes view, the mode-shape view and the report's modal section, within the results viewer's and report generator's contracts.
+**This deliverable owns:** the mass model and its weight-basis identity check; the modal request, its refusals and disclosures; the eigen-solution (dense reduction and QL, shift-invert block Lanczos, the Sturm count with its shift placement and growth limit, the modal formation check, residual estimates and participation); the product's modal entry and the headless modal entry, a command the headless runner hosts (DEL-10-05/REQ-015) beside DEL-04-07's solve entry, reading that entry's built model and supplying no value of its own; the modal profile, the `modal-1` semantic table and the modal result family `openpipestress.modal_result`; the product's modal reader and its independent test verifier; the frozen references under `validation/references/f1_modal/`; and the desktop modes view, the mode-shape view and the report's modal section, within the results viewer's and report generator's contracts.
 
 **Inputs from neighbours** (`deliverable.yaml`): DEL-04-01 (assembly, reduction, the curved-bend element and the sparse factorization, with the read-only factorization accessor and the element re-formation entry that DEL-04-01/REQ-019 and DEL-04-01/AC-017 commit to, and that AC-003 examines as this method uses them), DEL-04-02 (the straight pipe element and its uniform-load vector), DEL-04-03 (linear supports and imposed-displacement degrees of freedom), DEL-04-04 (the converged support states of a solved case), DEL-04-06 (singular-model detection), DEL-04-07 (the built model and the static solve), DEL-05-01 (self-weight and its mass per length on both routes), DEL-03-05 (rigid-family components), DEL-02-01 (the snubber family's document shape), DEL-04-10 (the snubber's dynamic meaning), DEL-02-02 (units, including the unit families of modal quantities), DEL-00-06 (the diagnostics contract), DEL-04-08 (the retained-memory pricing law), and DEL-07-05 and DEL-08-01 (the viewer's and report's contracts). Published piping benchmarks are external sources, each used only with its own redistribution evidence (REQ-009). These deliverables keep their scope.
 
 ### CLM-003 — What is outside these commitments
 
 - Response-spectrum analysis is DEL-04-10's, on this deliverable's modal basis. Time-history and harmonic analysis are not part of either (PRD §12.9).
-- A Timoshenko consistent mass, a mass-point helper and a concentrated-mass field are not committed here; a model that needs one is refused by name.
+- A mass-point helper and a concentrated-mass field are not committed here; a model that needs one is refused by name.
 - The product's second, seismic mass basis is outside this deliverable.
 
 ## Completion and Reliance Basis — Epistemology
@@ -50,10 +50,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 **Undecided.**
 
 - The dense path's work budget is undecided.
-- Whether a modal result is recorded as an analysis run is undecided.
-- Whether a modal request has a headless entry, and which deliverable builds it, is not allocated.
 - The factor of the coarse-discretization warning is undecided; it is derived by benchmark.
-- Where the desktop keeps the remembered extraction bound for a project is undecided.
 - The first candidate published benchmark, NUREG/CR-1677 Volume 1, has no established redistribution status and is held under REQ-009.
 
 **Admission.** No product surface (desktop, headless runner or report) admits a user's modal request, or shows or records a modal result as an engineering result, until on that surface the dense path's work guard has its measured budget, the checks of REQ-003 and the guards of REQ-007 apply, and the product reader of REQ-005, rederiving the mass from the model, gives the verdict the surface shows. Until then a modal document is experimental. The restriction lifts on a surface when the evidence on that surface shows each of these conditions holds, and is not released otherwise.
@@ -61,12 +58,13 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 ### Mass
 
 - **REQ-001** — *The mass basis is the self-weight basis.*
-  - **Straight members** carry the Hermitian consistent mass, with linear axial and torsional mass and Rayleigh rotary inertia. Their mass per length is exactly the self-weight generator's mass per length on the model's route (`stable_mass_per_length`): on PF, `source_od_effective_wall_areas/v1` (metal and contents on the wall t − c_m); on EX, `source_od_nominal_wall_pressure_bore_areas/v1` (metal on the nominal wall, contents on the pressure bore); insulation alike on both.
+  - **Straight members** carry the consistent mass of their stiffness's beam theory, with linear axial and torsional mass. Under `euler_bernoulli` it is the Hermitian consistent mass with Rayleigh rotary inertia. Under `timoshenko_annulus_energy_v1` it is, in each bending plane, the consistent mass of the interpolation the Timoshenko stiffness implies (its exact static shapes, the interdependent interpolation of Friedman and Kosmatka, 1993), with Φ = 12EI/(G·A_s·L²) formed from that plane's second moment and the stiffness's own modulus, shear modulus and shear area; at Φ = 0 it is the Euler–Bernoulli element. Their mass per length is exactly the self-weight generator's mass per length on the model's route (`stable_mass_per_length`): on PF, `source_od_effective_wall_areas/v1` (metal and contents on the wall t − c_m); on EX, `source_od_nominal_wall_pressure_bore_areas/v1` (metal on the nominal wall, contents on the pressure bore); insulation alike on both.
   - **Inertia terms.** Contents are in all three translations and excluded from torsional and rotary inertia, which is disclosed.
-  - **Realized arcs** carry two rigid-body half-arc lumps with the half-arcs' exact mass, centroid and second moments.
+  - **Realized arcs** carry two rigid-body half-arc lumps with the half-arcs' exact mass, centroid and second moments, under either shear model.
   - **Components.** An eligible rigid-family component carries a rigid-body lump of mass W/a at its centre of gravity, in place of the member's pipe mass. Eligibility is decided by the same function self-weight uses, called once per member. A component that self-weight does not apply keeps the pipe mass, with the same warning.
   - **Mass-bearing members.** Mass is formed on every member except an objective connector's replaced span, which carries neither self-weight nor mass; one shared selection serves mass assembly and the identity check.
   - **Range.** W and a must be positive normal binary64 numbers, fl(W/a) a normal binary64 number, and a·fl(W/a) finite and normal, and every entry of the component's spatial mass block (m·r_i, m·r_i·r_j) finite and either zero or normal. Otherwise the request is refused by range (`MODAL_COMPONENT_MASS_OUT_OF_RANGE`, naming the component). Under that premise a·fl(W/a) differs from W by at most 2u + u² relative, u = 2⁻⁵³.
+  - **Timoshenko range.** Φ and the local mass of a Timoshenko straight are evaluated at double-double working precision. Conversion loss is measured against the exact transformation of the computed local mass matrix using the computed member axes. The member is refused by range if either computed Φ is non-positive, if a computed quantity is non-finite, or if the conversion of a nonzero transformed entry to double-double cannot be certified within 2⁻¹⁰⁶ relative to that exact transformation; an exactly zero transformed entry is retained as zero. The check is sufficient, not exact: it may refuse a borderline value whose conversion loss meets the budget. The budget bounds the conversion only; it is not a bound on the preceding arithmetic's forward error, and the entries are not claimed to be correctly rounded.
   - **Massless families.** Objective connectors, tie rods and constant-effort supports carry no mass, which is disclosed.
   - **Restrained DOFs.** Mass at restrained DOFs is excluded from M_ff and disclosed with the total model mass.
   - **No defaulted mass.** No density, mass or acceleration is defaulted; a missing required input refuses by name.
@@ -95,7 +93,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - **Weight-to-mass acceleration.** `weight_to_mass_acceleration` is a positive acceleration, normalized through the unit catalog.
     - It is required when a component's weight enters the mass; without it the request is refused (`MODAL_WEIGHT_ACCELERATION_REQUIRED`, naming the components).
     - When the model carries a current applied component-weight self-weight primitive, the magnitude of that primitive's recorded acceleration must equal a, bit for bit after normalization. Otherwise the request is refused (`MODAL_WEIGHT_ACCELERATION_MISMATCH`, naming the case and both values).
-  - **Recording.** The request is recorded with the result (the document's binding: its hashes, every option and the state case). Whether a modal result is also recorded as an analysis run is undecided.
+  - **Recording.** The request is recorded with the result (the document's binding: its hashes, every option and the state case). A modal result is not recorded as an analysis run: it is not kept with the project and is run again after the project is reopened, and a report binds a modal result by the result's own identity.
 - **AC-002** — Maintained tests show:
   - each refusal for a request without a bound, without a required acceleration, with a mismatched acceleration, without a required state case, with a modulus basis that conflicts with the state case, or without a required dynamic-restraint choice;
   - extraction stopping at the count, at the cut-off, and at whichever comes first when both are given, with the stopping bound stated;
@@ -189,7 +187,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - **Snubbers.** When dynamic-only restraints are included, each snubber enters the modal stiffness as the dynamic-only restraint DEL-04-10/REQ-005 defines; otherwise it is ignored. Either way it is disclosed.
   - **Ignored and disclosed:** thermal, pressure, pressure-region, wind, seismic, nodal and member loads; on EX, the absence of pressure stiffening, as the EX static limitation states.
   - **Refused by name:**
-    - Timoshenko straights on either route (`MODAL_TIMOSHENKO_MASS_UNSUPPORTED`): a Timoshenko consistent mass is outside these commitments;
+    - Timoshenko straights on either route (`MODAL_TIMOSHENKO_MASS_UNSUPPORTED`), temporarily. They are within this deliverable's intended domain, with the mass REQ-001 states. The refusal stands while the integration is incomplete: until the product's mass assembly, the integrity re-formation of REQ-003 and the independent readers of REQ-005 (the product reader, and the test verifier with its interval twin) form that mass. The theory-wide refusal is then removed; REQ-001's Timoshenko range refusal remains and names the member. While the theory-wide refusal stands it narrows modal analysis of the same linear model described by PRD FR-SOL-016 and §§12.1 and 12.9: the Timoshenko straight-member models admitted by the static solve, including the exact-route authoring default, are refused by name, as §12.9 requires, and `docs/RELEASE_LIMITATIONS_v1.0.md` LIM-020 states it;
     - an unrestrained or mechanism model, through the existing singularity refusal.
   - **Warning.** A member that is too coarsely discretized for the highest reported frequency is warned (`MODAL_MASS_DISCRETIZATION_COARSE`). Its factor is derived by benchmark and stated in the warning.
 - **AC-006** — Each refusal and disclosure in REQ-006 is exercised by a maintained test that asserts its code and named object, on both routes. Maintained tests show the static admission checks refusing through the state case (a replaced-span strain; a reference-only document); a load/reference-state document solved at its state case, with per-member moduli and mass from that state matching a discrete reference built with them, and boundary-motion DOFs restrained; two state cases of one document that resolve different contents densities (section contents and a test contents) giving the two different frequency sets of their references, each disclosing its contents source; a nonlinear support taking each state of the constraint table from its named case, with frequencies equal to those of the matching linear model; sliding friction disclosed as frozen; a skewed rigid and finite-stiffness restraint matching the oblique references, perpendicular motion free, and a skewed rigid restraint whose normalized published vector has a nonzero rounded constraint residual within its stated tolerance; and a snubber changing the frequencies only when dynamic-only restraints are included. The discretization warning's factor is derived from a recorded benchmark.
@@ -201,7 +199,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - the sparse guard is rechecked and refuses when q grows past the limit, and a cut-off-only request is sized from its sizing count;
   - the retained-precision entry is unreachable from the modal entry, and the priced sources price within the registered profile.
 - **REQ-008** — *Desktop and report.*
-  - **Request form.** The desktop takes the modal request with the extraction bound entered by the user. It remembers the last value per project and pre-fills it, visibly.
+  - **Request form.** The desktop takes the modal request with the extraction bound entered by the user. It remembers the last value per project, in the desktop's settings keyed by the project's identifier and outside the model document, and pre-fills it, visibly.
   - **Results.** The desktop shows a modes table and a mode-shape view. The view is a normalized display transform, labelled as not a physical length, with a static, stepped alternative under reduced motion.
   - **Report.** The rendered report gains a "Modal analysis" section: request and basis, mass summary, modes table, integrity evidence, refusals and disclosures, and limitations.
   - **Contracts.** These surfaces follow the results viewer's and the report generator's output and claims contracts.
@@ -209,7 +207,8 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - the request form, including the absence of a pre-set bound in a new project and the remembered value in an existing one;
   - the modes table and its header lines;
   - the mode-shape view, including the reduced-motion path;
-  - the report section.
+  - the report section, which cites the modal result by its own identity;
+  - a project reopened after a modal solve: no modal result is shown, and the remembered bound is pre-filled and is not in the model document.
 
   A native smoke step solves a modal request and shows its table.
 
@@ -231,6 +230,15 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 - **REQ-011** — *The reference system.* The release target's reference system solves its modal analysis on the exact route in the desktop at a named operating state case, with no family refused that the exact route's static solve admits (release target exit criterion 1).
 - **AC-011** — The reference system's modal request, naming an operating state case, solves on the exact route in the desktop with no family refused that the exact route's static solve admits, and its result is shown with its disclosures.
 - **AC-010** — A maintained test compares the product with at least one committed published piping benchmark, on frequencies and on normalization-invariant participation (effective masses), at a stated comparison tolerance, and its fixture's provenance record is complete. The comparison is labelled comparison evidence.
+
+### Timoshenko straight mass
+
+- **AC-012** — The Timoshenko straight mass of REQ-001:
+  - each entry of the element, in both bending planes and as the assembled 12×12 turned to global axes, agrees with an independent exact element reference generated without product code, at sampled Φ, lengths and orientations and with unequal second moments, within its recorded tolerance;
+  - at Φ = 0 each plane equals the Euler–Bernoulli plane, within that tolerance;
+  - on a Timoshenko model of each route, the weight-basis identity of REQ-001 holds, nodally for straight members against the consistent uniform-load vector;
+  - the integrity check of REQ-003 re-forms the Timoshenko stiffness and mass, and the independent readers of REQ-005 (the product reader, and the test verifier with its interval twin) each re-derive the Timoshenko mass independently;
+  - on continuum references of a uniform Timoshenko beam, simply supported and cantilevered, with the same inertia assumptions (m̄ and ī as REQ-001 forms them, the same G·A_s), the computed frequencies on nested uniform meshes of the same problem do not increase under refinement and converge to the references within recorded tolerances, and in the shear-rigid limit they reproduce the Rayleigh roots.
 
 ## Production and Verification Method — Praxeology
 
@@ -256,6 +264,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 - **VER-009** — Executable check with judgment by a reviewer who did not write the text: the check observes the pinned product texts, each reference regenerating from its generator, and every published-benchmark fixture's provenance fields; the reviewer examines the texts against `docs/claims_registry.md`. Each reference is derived by an agent that reads no product code, and each reference package is refuted by a second agent that reads no product code before any product comparison, and each transcription is verified against its source separately.
 - **VER-010** — Comparison with a named reference: the product against at least one published piping benchmark, such as a problem of NUREG/CR-1677, on frequencies and effective masses at a stated comparison tolerance.
 - **VER-011** — Executable check: the reference system's modal request is run in the desktop on the exact route, observing that no family the static route admits is refused and that each disclosure is shown.
+- **VER-012** — Comparison with named references, with an executable check: the Timoshenko element against its exact element references in `validation/references/modal_timoshenko_mass`; the weight-basis identity, integrity re-formation and reader re-derivation on Timoshenko models of both routes; and the dense path against the continuum Timoshenko references on nested meshes.
 
 ## Governing Values and Decisions — Axiology
 
@@ -279,3 +288,4 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 | OUT-005 | OBJ-003 SOW-081 | REQ-009 | AC-009 | VER-009 | Judgment of the texts against PRD §21.2 and `docs/claims_registry.md`; provenance fields against `docs/IP_AND_DATA_BOUNDARY.md` §4; each reference regenerated from a generator that imports no product code |
 | OUT-005 | OBJ-003 SOW-081 | REQ-010 | AC-010 | VER-010 | Outside source: a published piping benchmark, transcribed with its own redistribution evidence; comparison evidence, not exact verification |
 | OUT-005 | OBJ-003 SOW-081 | REQ-011 REQ-006 | AC-011 | VER-011 | Release target exit criterion 1 lists the families; admission is compared with the exact route's static admission, which this deliverable does not write. Frequency correctness rests on AC-003 and AC-006 |
+| OUT-001 | OBJ-003 SOW-081 | REQ-001 REQ-006 | AC-012 | VER-012 | Outside source: `validation/references/modal_timoshenko_mass`, exact element references derived without product code; continuum Timoshenko references (part (3), not yet committed) for the frequency criterion |

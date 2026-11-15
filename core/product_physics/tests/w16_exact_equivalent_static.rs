@@ -45,7 +45,7 @@ const RELATIVE: f64 = 1.0e-9;
 const PROV: &str = "w16c invented benchmark input; not library, component, material-catalog or code data";
 const CASE: &str = "case:w16c";
 const PF_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
-const EX_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const EX_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const SOURCE_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 const EXACT_MASS_METHOD: &str = "source_od_nominal_wall_pressure_bore_areas/v1";
 const TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
@@ -718,6 +718,8 @@ fn a_generating_case_is_an_ordinary_companion_of_a_source_selected_envelope() {
     // it passes its checks (a Sensitive companion would itself be declined
     // by source recovery and withhold the join); the generating case does
     // the same.
+    // The fixture names only `case:ordinary-pressure` for pressure elongation; with it replaced, no case is pressurised.
+    model.as_object_mut().unwrap().remove("model_settings");
     model["load_cases"][1] = json!({"id": "case:seismic", "modulus_basis_ref": "point:compliant", "pressure_regions": [], "primitive_loads": [],
         "equivalent_static": seismic(), "provenance": PROV});
     for mode in MODES {
@@ -905,6 +907,8 @@ fn the_readers_bind_the_generation_record() {
     // schema and the transport reader.
     let mut source: Value = serde_json::from_str(SOURCE_MIXED).unwrap();
     source["model"]["pipe_segments"][0]["section"]["material_density"] = qv(7850.0, "kg/m^3");
+    // The fixture names only `case:ordinary-pressure` for pressure elongation; with it replaced, no case is pressurised.
+    source["model"].as_object_mut().unwrap().remove("model_settings");
     source["model"]["load_cases"][1] = json!({"id": "case:seismic", "modulus_basis_ref": "point:compliant", "pressure_regions": [], "primitive_loads": [],
         "equivalent_static": seismic(), "provenance": PROV});
     let envelope = run(&source, PreviewSolverMode::SparseInteractive);

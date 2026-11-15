@@ -2,6 +2,7 @@
 name = "open_pipe_stress_caepipe_mbf_wasm"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "The desktop webview's MBF writer and importer: a JSON-text wasm-bindgen wrapper of the DEL-17-04 MBF engine"
 publish = false
 

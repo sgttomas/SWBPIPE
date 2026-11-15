@@ -34,6 +34,10 @@ export const NATIVE_INGRESS_COMMANDS = [
   "validate_library_import",
   "save_local_library",
   "save_report_package",
+  // DEL-08-01 REQ-022: the rendered report's Save canonical HTML… and Print… (through
+  // `services/renderedReportRoutes.ts`; its retirement `retire_rendered_report` takes no arguments).
+  "save_rendered_report_html",
+  "print_rendered_report",
   "save_local_result_json",
   "begin_local_csv_stream",
   "append_local_csv_stream",

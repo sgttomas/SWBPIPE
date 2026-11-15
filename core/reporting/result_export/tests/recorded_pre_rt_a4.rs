@@ -1,7 +1,9 @@
 //! RT-A4 §10.4 (DEL-05-02 Design `absolute-sum-srss-combinations.md`, "Recorded results from
 //! before RT-A4 (historical read)"): main's statements recorded before RT-A4 read under their
 //! recorded table variants on the recorded-run read entries only, and stay refused on every
-//! current entry. Fixtures: `fixtures/persistence/recorded_pre_rt_a4_pf` (main 6c3cb46d3,
+//! current entry. RT-L2 (DEL-04-07): the recorded exact successors are successors of
+//! pressure-2 results, which predate the pressure-elongation setting; they are refused by
+//! name (`SOURCE_PRESSURE_2_RETIRED`) on every entry, recorded or current. Fixtures: `fixtures/persistence/recorded_pre_rt_a4_pf` (main 6c3cb46d3,
 //! #101 01e05a486 and, for the exact successor RT-A3 increment 4 makes history, main
 //! bbf384dec, verbatim). At a4ff570dc there was no recorded entry: every current entry
 //! below refused them, as it still does.
@@ -115,14 +117,28 @@ fn successors_recorded_before_rt_a4_read_under_their_variant_only() {
     // Nothing leaks: the current reader still refuses it after a recorded read.
     assert_eq!(rp::outcome_json(&rp::validate(&source, None))["ok"], false);
 
-    // The exact successor: its statements read under the current reader (a binding-only variant).
+    // The exact successors recorded here are every one a successor of a pressure-2 result
+    // (their base identity statement names pressure-2 semantics). RT-L2 (DEL-04-07): they
+    // predate the pressure-elongation setting and are refused by name with the pressure-2
+    // message, on the current read and on the recorded read under their variant alike.
+    let retired = json!({"gate": "G0", "code": sc::SOURCE_PRESSURE_2_RETIRED, "detail": sc::SOURCE_PRESSURE_2_RETIRED_TEXT});
+    assert_eq!(
+        sc::SOURCE_PRESSURE_2_RETIRED_TEXT,
+        "SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model"
+    );
     for (text, sha) in [(EXACT_MAIN, EXACT_MAIN_SHA), (EXACT_101, EXACT_101_SHA), (EXACT_RT_A4, EXACT_RT_A4_SHA), (EXACT_CERT, EXACT_CERT_SHA)] {
         let source = statement(text);
+        assert!(source["formulation_basis"]["limitations"][0].as_str().unwrap().starts_with("3.0.0/exact_pressure_v3 under pressure-2 semantics."));
         let recorded = binding(sc::PHYSICS_RETAINED_ID, sha);
-        assert_eq!(rp::outcome_json(&rp::validate(&source, None))["ok"], true);
-        assert_eq!(rv::retained_recorded(&source, &recorded, None)["ok"], true);
-        assert_eq!(rv::dispatch_recorded(&source, &recorded, None, None)["binding"], recorded);
-        assert_eq!(rv::dispatch(&source, None, None)["binding"], binding(sc::PHYSICS_RETAINED_ID, sc::PHYSICS_RETAINED_SHA256));
+        let current = rp::outcome_json(&rp::validate(&source, None));
+        assert_eq!((current["ok"].clone(), current["error"].clone()), (json!(false), retired.clone()), "{sha}: current read");
+        let read = rv::retained_recorded(&source, &recorded, None);
+        assert_eq!((read["ok"].clone(), read["error"].clone()), (json!(false), retired.clone()), "{sha}: recorded read");
+        for dispatched in [rv::dispatch_recorded(&source, &recorded, None, None), rv::dispatch(&source, None, None)] {
+            assert_eq!(dispatched["ok"], false, "{sha}: {dispatched}");
+            assert_eq!(dispatched["error"]["code"], sc::SOURCE_PRESSURE_2_RETIRED, "{sha}: {dispatched}");
+        }
+        // The binding is still checked first: under another identity's variant, G0 refuses the binding.
         let wrong = binding(sc::PREVIEW_PHYSICS_RETAINED_ID, PF_RETAINED_SHA);
         assert_eq!(rv::retained_recorded(&source, &wrong, None)["error"]["code"], SOURCE_RECORDED_BINDING_IDENTITY);
     }

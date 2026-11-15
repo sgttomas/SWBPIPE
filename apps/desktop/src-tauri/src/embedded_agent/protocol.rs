@@ -183,6 +183,7 @@ pub struct Protocol {
     seen_rpc: Vec<Value>,
     seen_call: Vec<String>,
     last_rejection: Option<RpcRejection>,
+    remote_control_reported: bool,
 }
 
 fn bounded(s: &str, max: usize) -> bool {
@@ -258,9 +259,44 @@ fn unoffered_activity(item: &Value) -> bool {
     )
 }
 
+// Stock 0.160.0's remote control: a transport by which enrolled remote clients
+// could drive the runtime. Its status notification's closed word set
+// (RemoteControlConnectionStatus); anything else is None. Only the word is
+// returned, never the notification's identities. Any report but "disabled"
+// ends the session: the host switches the feature off by name, and a channel
+// opening or open while the session continues is never accepted.
+pub(super) const REMOTE_CONTROL_REPORTED: Error = Error("remote control channel reported");
+/// The supplier reports its status at start (observed: once, straight after
+/// its reply to initialize, before thread/started). A first turn with none
+/// seen is never sent: a tripwire that passes on silence is half a tripwire.
+pub(super) const REMOTE_CONTROL_STATUS_MISSING: Error = Error("remote control status missing");
+pub(super) const REMOTE_CONTROL_STATUS: &str = "remoteControl/status/changed";
+pub(super) fn remote_control_status(params: Option<&Value>) -> Option<&'static str> {
+    match params?.get("status")?.as_str()? {
+        "disabled" => Some("disabled"),
+        "connecting" => Some("connecting"),
+        "connected" => Some("connected"),
+        "errored" => Some("errored"),
+        _ => None,
+    }
+}
+
 impl Protocol {
     pub fn last_rejection(&self) -> Option<RpcRejection> {
         self.last_rejection
+    }
+    /// Whether a remote control status (necessarily "disabled") has been seen.
+    pub fn remote_control_reported(&self) -> bool {
+        self.remote_control_reported
+    }
+    /// The absence rule. The host calls this after a turn was admitted and
+    /// before it is sent; with no status seen it poisons the connection.
+    pub fn require_remote_control_status(&mut self) -> Result<(), Error> {
+        if self.remote_control_reported {
+            return Ok(());
+        }
+        self.phase = Phase::Poisoned;
+        Err(REMOTE_CONTROL_STATUS_MISSING)
     }
 
     /// Token must be host-generated, unpredictable and unique per connection;
@@ -290,6 +326,7 @@ impl Protocol {
             seen_rpc: Vec::new(),
             seen_call: Vec::new(),
             last_rejection: None,
+            remote_control_reported: false,
         })
     }
     fn request(&mut self, kind: Rpc, method: &'static str, params: Value) -> Result<Value, Error> {
@@ -375,6 +412,11 @@ impl Protocol {
                 .ok_or(Error("invalid method"))?
                 .to_owned();
             if object.contains_key("id") {
+                // A status report is a notification: one bearing an id is
+                // never answered as a request; it ends the session.
+                if method == REMOTE_CONTROL_STATUS {
+                    return Err(REMOTE_CONTROL_REPORTED);
+                }
                 let id = rpc_id(object.get("id"))?;
                 if method == "item/tool/call" {
                     let params = object.remove("params").ok_or(Error("missing parameters"))?;
@@ -605,6 +647,13 @@ impl Protocol {
                     return Err(Error("thread mismatch"));
                 }
                 self.thread = Some(id.to_owned());
+            }
+            // In any phase, as at start: only "disabled" lets the session go on.
+            REMOTE_CONTROL_STATUS => {
+                if remote_control_status(Some(&p)) != Some("disabled") {
+                    return Err(REMOTE_CONTROL_REPORTED);
+                }
+                self.remote_control_reported = true;
             }
             // Other notifications are informational and carry no authority.
             _ => {}
@@ -838,6 +887,132 @@ mod tests {
                 );
                 assert!(p.disconnect().is_empty());
             }
+        }
+    }
+
+    fn remote_control(status: Value) -> Value {
+        let mut params = json!({"installationId":"install-marker","serverName":"server-marker","environmentId":"env-marker"});
+        params["status"] = status;
+        notification(REMOTE_CONTROL_STATUS, params)
+    }
+
+    #[test]
+    fn remote_control_disabled_continues_in_every_phase() {
+        let mut fresh = Protocol::new(Catalog::load().unwrap(), "0123456789abcdef".into(), 16).unwrap();
+        let actions = fresh.handle_frame(remote_control(json!("disabled")), &basis()).unwrap();
+        assert!(actions.outbound.is_empty() && actions.events.is_empty());
+        assert!(fresh.remote_control_reported());
+        let mut p = ready();
+        assert!(!p.remote_control_reported());
+        p.handle_frame(remote_control(json!("disabled")), &basis()).unwrap();
+        assert!(p.remote_control_reported());
+        let mut q = active();
+        let reference = requested(q.handle_frame(call_summary(json!(7), "pending"), &basis()).unwrap());
+        let actions = q.handle_frame(remote_control(json!("disabled")), &basis()).unwrap();
+        assert!(actions.outbound.is_empty() && actions.events.is_empty());
+        // The notification's identities are never kept or emitted.
+        let emitted = format!("{actions:?}");
+        for marker in ["install-marker", "server-marker", "env-marker"] {
+            assert!(!emitted.contains(marker));
+        }
+        assert!(matches!(
+            q.complete(reference.as_str(), outcome("unavailable")).unwrap(),
+            Completion::Delivered(_)
+        ));
+        assert!(matches!(
+            q.handle_frame(call_summary(json!(8), "next"), &basis()).unwrap().events.as_slice(),
+            [Event::ToolRequested { .. }]
+        ));
+    }
+
+    #[test]
+    fn remote_control_other_than_disabled_ends_with_its_own_reason_at_start_and_mid_turn() {
+        assert_ne!(REMOTE_CONTROL_REPORTED, Error("unoffered supplier tool activity"));
+        let hostile = [
+            json!("connecting"),
+            json!("connected"),
+            json!("errored"),
+            json!("Disabled"),
+            json!("unknown"),
+            json!("disabled\n"),
+            json!(null),
+            json!(1),
+            json!(true),
+            json!(["disabled"]),
+            json!({"status":"disabled"}),
+        ];
+        let mut frames: Vec<Value> = hostile.into_iter().map(remote_control).collect();
+        // Missing status, and no parameters at all.
+        frames.push(notification(REMOTE_CONTROL_STATUS, json!({"installationId":"install-marker","serverName":"server-marker"})));
+        frames.push(json!({"method":REMOTE_CONTROL_STATUS}));
+        for frame in frames {
+            // At start, before any turn: no pending work is lost.
+            let mut p = ready();
+            assert_eq!(p.handle_frame(frame.clone(), &basis()).err(), Some(REMOTE_CONTROL_REPORTED), "{frame}");
+            assert!(p.handle_frame(remote_control(json!("disabled")), &basis()).is_err());
+            assert!(p.disconnect().is_empty());
+            // Mid-turn, the same: the pending call is lost exactly once.
+            let mut q = active();
+            let reference = requested(q.handle_frame(call_summary(json!(7), "pending"), &basis()).unwrap());
+            assert_eq!(q.handle_frame(frame.clone(), &basis()).err(), Some(REMOTE_CONTROL_REPORTED), "{frame}");
+            assert!(!q.remote_control_reported());
+            assert!(q.complete(reference.as_str(), outcome("unavailable")).is_err());
+            assert!(
+                matches!(q.disconnect().as_slice(), [Event::ToolLost { request_ref, .. }] if request_ref == &reference)
+            );
+            assert!(q.disconnect().is_empty());
+        }
+    }
+
+    #[test]
+    fn missing_status_has_its_own_reason_and_poisons_the_connection() {
+        assert_ne!(REMOTE_CONTROL_STATUS_MISSING, REMOTE_CONTROL_REPORTED);
+        assert_ne!(REMOTE_CONTROL_STATUS_MISSING, Error("unoffered supplier tool activity"));
+        let mut p = ready();
+        p.submit_text("hello".into()).unwrap();
+        assert_eq!(p.require_remote_control_status().err(), Some(REMOTE_CONTROL_STATUS_MISSING));
+        assert!(p.handle_frame(remote_control(json!("disabled")), &basis()).is_err());
+        let mut q = ready();
+        q.handle_frame(remote_control(json!("disabled")), &basis()).unwrap();
+        q.submit_text("hello".into()).unwrap();
+        assert_eq!(q.require_remote_control_status(), Ok(()));
+    }
+    // The host's controls and replies write only these client requests and
+    // the initialized notification; every other frame is a reply to a server
+    // request. The guarantee is SessionDriver::send's allow list; this drives
+    // every control and server input that writes, as a second check.
+    #[test]
+    fn host_writes_only_the_four_client_requests_and_initialized() {
+        // By behaviour: drive every control and server input that writes.
+        let mut written: Vec<Value> = Vec::new();
+        let mut p = Protocol::new(Catalog::load().unwrap(), "0123456789abcdef".into(), 16).unwrap();
+        written.push(p.initialize("test", "1").unwrap());
+        let init_reply = json!({"codexHome":"/private","platformFamily":"test","platformOs":"test","userAgent":"test"});
+        written.extend(p.handle_frame(frame(1, init_reply), &basis()).unwrap().outbound);
+        written.push(p.start_thread(ThreadOptions { model: "test".into(), provider: "test".into(), cwd: "/test".into(), base_instructions: "test".into() }).unwrap());
+        written.extend(p.handle_frame(frame(2, json!({"thread":{"id":"thread-1"},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}})), &basis()).unwrap().outbound);
+        written.push(p.submit_text("hello".into()).unwrap());
+        written.extend(p.handle_frame(frame(3, json!({"turn":turn("turn-1", "inProgress")})), &basis()).unwrap().outbound);
+        let call = p.handle_frame(call_summary(json!(7), "call"), &basis()).unwrap();
+        written.extend(call.outbound);
+        if let Completion::Delivered(v) = p.complete(requested_ref(&call.events).as_str(), outcome("unavailable")).unwrap() {
+            written.push(v);
+        }
+        written.extend(p.handle_frame(json!({"id":8,"method":"remoteControl/enable","params":{}}), &basis()).unwrap().outbound);
+        // A status bearing an id ends the session before request dispatch.
+        let mut q = active();
+        assert_eq!(q.handle_frame(json!({"id":9,"method":REMOTE_CONTROL_STATUS,"params":{"status":"disabled"}}), &basis()).err(), Some(REMOTE_CONTROL_REPORTED));
+        written.push(p.interrupt().unwrap());
+        let mut methods: Vec<&str> = written.iter().filter_map(|v| v.get("method")?.as_str()).collect();
+        methods.sort();
+        assert_eq!(methods, ["initialize", "initialized", "thread/start", "turn/interrupt", "turn/start"]);
+        // Every other written frame is a reply carrying the server's own id.
+        assert!(written.iter().filter(|v| v.get("method").is_none()).all(|v| v.get("id").is_some() && (v.get("result").is_some() || v.get("error").is_some())));
+    }
+    fn requested_ref(events: &[Event]) -> RequestRef {
+        match events {
+            [Event::ToolRequested { request_ref, .. }] => request_ref.clone(),
+            _ => panic!("expected tool request"),
         }
     }
 

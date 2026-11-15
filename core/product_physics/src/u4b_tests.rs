@@ -18,15 +18,16 @@ const PROVENANCE: &str = "invented T4-U4b arc stress reference input; not librar
 const STATIONS: [&str; 5] = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"];
 
 /// The SHA-256 of each authored request's compact JSON (serde_json order).
+// RT-L2: the exact cases name their pressurised case in model_settings.pressure_elongation.
 const REQUEST_SHA256: [(&str, &str); 8] = [
-    ("U4B-L90-P", "23e43af21ffd0ece3259534a1d96d3ec7cf4c2d974a6e512e983310d15c2af3e"),
-    ("U4B-L90-P-COINCIDENT", "48f1a2f7a9336c57939f6beef932f5fb89c63b6fd9f4b14611f654d551600d42"),
-    ("U4B-L90-P-MOVED", "b3b24c9fe3dd29cedcc9000c08979514d9eb2c2a32fa1e4349ebb70ff2e2e2f6"),
-    ("U4B-ARC106-RADIAL-NEGP", "56d33dca1cc7c6c4c0866b4c3977f1fe191ab718f01fc4de5948f21883e0e9df"),
-    ("U4B-ARC90-TIGHT-NSIGN-P", "9c7ebd009b661999f65e3c36ae87656bba204363441ef4b82f70bb3de0515f42"),
+    ("U4B-L90-P", "864ed6f2d9a7a79fb78c1eb42687221d19eada453a817c669d22493154d02d16"),
+    ("U4B-L90-P-COINCIDENT", "e23b4b50c23e663c7f0d64e900a49637d8530cf63fd8a22a00639c7d5eb0f437"),
+    ("U4B-L90-P-MOVED", "691d418ed9802c14579bf992f06a72ca9744383cc3186fbd6efe387300f4741a"),
+    ("U4B-ARC106-RADIAL-NEGP", "b11dff74d6ae19a2d1f3e3f5e515b094ad041c9c18450666a10c668ef103ffd0"),
+    ("U4B-ARC90-TIGHT-NSIGN-P", "ef10e3a82b05d1fc566ca62f21ce021645643fda363efbf806d6cbd1be41c844"),
     ("U4B-ARC90-OOP-PREVIEW", "0e3f306337236cf8a63ee813deaa4c95f00af6ac3c8df08320dd5c60be2660a5"),
     ("U4B-Z-PREVIEW-REV", "2a67d2327fe0cee8f1cc49baf9909d0c3da000dafe07d7bb1864aeac1b4f2d45"),
-    ("U4B-RISE74-P-REV", "fba45c284dbfcc1d8a65edc0b7b3b8de7f995baf54fffddbe93a5e2a12cac684"),
+    ("U4B-RISE74-P-REV", "0fac693807e1652c4c47389af816f884286221892788df1ec4de46456ea4c1f2"),
 ];
 
 fn n(v: &Value) -> f64 {
@@ -151,6 +152,10 @@ pub(crate) fn build_request(case: &Value) -> Value {
             "pressure_basis": r["pressure_basis"], "pressure": quantity(n(&r["pressure"]), "Pa"),
             "terminals": r["terminals"].as_array().unwrap().iter().map(|t| json!({"node_ref": t["node"], "closure_transfer": t["closure_transfer"], "provenance": PROVENANCE})).collect::<Vec<_>>(),
             "provenance": PROVENANCE})).collect();
+        // The references are today's mechanics: a pressurised case includes pressure elongation (RT-L2).
+        if !regions.is_empty() {
+            model["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": [lc["id"]]}});
+        }
         load_case["pressure_regions"] = json!(regions);
         add_load_state(&mut model, &mut load_case, case);
     }

@@ -44,14 +44,21 @@ validation in accepted professional tools remain the responsibility of the
 user and project authority.
 ```
 
-Where a report includes design-authoring records, comparison outputs, handoff
-packages, export metadata, or external-prover references, the report must
-also state:
+Where a generated report includes a comparison subsection for saved model
+states, internal analysis runs, or load cases or combinations within a run,
+that subsection carries the registered comparison statement, `BS-COMPARE`
+(`docs/claims_registry.md`), word for word.
+
+`BS-VALID` retains its existing registry placement; that placement does not
+explicitly include references inside generated reports.
+
+Where a report includes design-authoring records, handoff packages, export
+metadata or external-prover references, the report must also state:
 
 ```text
-Design-authoring records, comparison outputs, handoff packages, export
-metadata, and external-prover references are review aids only unless a separate
-competent human acceptance record states otherwise for the bound project basis.
+Design-authoring records, handoff packages, export metadata and
+external-prover references are review aids only unless a separate competent
+human acceptance record states otherwise for the bound project basis.
 ```
 
 ## Report Metadata Slots

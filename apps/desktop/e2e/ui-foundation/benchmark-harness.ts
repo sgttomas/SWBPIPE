@@ -1043,7 +1043,7 @@ export async function installInstrumentation(
       });
       const empty = expected?.visibleCount === 0;
       const ready = Boolean(expected && structurallyVisible && input?.isConnected && !input.disabled &&
-        input.value === expected.query && (active.feedbackKind !== "tree-filter" || input === active.armedInput) && summary === `${expected.visibleCount} of ${expected.totalCount} model entities visible` &&
+        input.value === expected.query && (active.feedbackKind !== "tree-filter" || input === active.armedInput) && summary === (expected.query.trim() ? `${expected.visibleCount} of ${expected.totalCount} model entities match the filter` : `${expected.totalCount} model ${expected.totalCount === 1 ? "entity" : "entities"}`) &&
         (empty ? rows.length === 0 && root?.querySelector('[data-testid="model-tree-filter-empty"]')
           : tree && tree.scrollTop === 0 && rows.length === (expected.mountedCount ?? expected.rows.length) && rows.length > 0 && mismatch === null));
       return { ready, epoch: active.domEpoch, query: input?.value ?? null, mountedCount: rows.length,
@@ -1639,7 +1639,7 @@ export async function waitForFirstUsable(
     const value = document.querySelector('[data-testid="model-tree-filter-summary"]')?.textContent ?? "";
     const hosts = document.querySelectorAll(hostSelector);
     const canvases = document.querySelectorAll(canvasSelector);
-    return value.includes(`${count} of ${count}`) && hosts.length === 1 && canvases.length === 1 &&
+    return value.trim() === `${count} model ${count === 1 ? "entity" : "entities"}` && hosts.length === 1 && canvases.length === 1 &&
       canvases[0] instanceof HTMLCanvasElement && canvases[0].isConnected &&
       (hosts[0] === canvases[0] || hosts[0].contains(canvases[0]));
   }, { count: treeCount, hostSelector: MAIN_VIEWPORT_HOST_SELECTOR, canvasSelector: MAIN_CANVAS_SELECTOR }, { timeout: timeoutMs });
@@ -2680,8 +2680,8 @@ export async function measureTreeFilter(
   await page.waitForFunction(({ value, expectedSummary }) => {
     const inputElement = document.querySelector('[data-testid="model-tree-filter-input"]') as HTMLInputElement | null;
     const summary = document.querySelector('[data-testid="model-tree-filter-summary"]')?.textContent ?? "";
-    return inputElement?.value === value && summary.includes(expectedSummary);
-  }, { value: query, expectedSummary: `${expectedCount} of ${totalCount} model entities visible` }, { timeout: timeoutMs });
+    return inputElement?.value === value && summary.trim() === expectedSummary;
+  }, { value: query, expectedSummary: query.trim() ? `${expectedCount} of ${totalCount} model entities match the filter` : `${totalCount} model ${totalCount === 1 ? "entity" : "entities"}` }, { timeout: timeoutMs });
   let candidateAfter: any = null;
   if (phase === "candidate") {
     await page.waitForFunction(({ generation, priorAction, priorRender, expectedQuery, count }) => {

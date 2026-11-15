@@ -38,7 +38,7 @@ describe("report display rule parity", () => {
       max_open_formula_stress_nominal_section: nominal,
       max_open_formula_stress_reduced_section: reduced
     });
-    const pressure = "openpipestress.result_semantics/0.3.0/pressure-2";
+    const pressure = "openpipestress.result_semantics/0.3.0/pressure-3";
     const pressureSource = "openpipestress.result_semantics/0.3.0/pressure-source-1";
     const preview = "openpipestress.result_semantics/0.3.0/preview-physics-2";
     expect(displaysScaledValue(source([row("MPa")], pressure, summary(headline("Pa"), headline("Pa"))))).toBe(true);

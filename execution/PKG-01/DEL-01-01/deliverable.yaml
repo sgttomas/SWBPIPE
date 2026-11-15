@@ -25,9 +25,7 @@ needs:
     The claims registry is at docs/claims_registry.md. The documentation index links it.
   gating: false
 code_paths:
-# The licence text is kept in two files at the repository root.
 - LICENSE
-- LICENSE.md
 - docs/CONTRACT.md
 - docs/README.md
 - governance/MAINTAINERS.md

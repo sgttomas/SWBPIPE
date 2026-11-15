@@ -3,7 +3,7 @@ result schema.
 
 The fixture is the producer's sparse CE-2 2*A envelope (`core/product_physics/tests/rt_a3_constant_effort_references.rs`
 `ce2_withheld_envelope_fixture_is_current` keeps it current). Review of ac7fea603 found that
-`results_pressure_2.v0.3.schema.json` did not list CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE among the combination
+`results_pressure_3.v0.3.schema.json` did not list CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE among the combination
 gate reasons, so such an envelope failed the schema; the negative control removes the one enum entry again.
 """
 from copy import deepcopy
@@ -16,10 +16,10 @@ from schema_validation import envelope_branches, schema_for_definition, validate
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMAS = ROOT / "schemas"
-PRESSURE_SCHEMA_NAME = "results_pressure_2.v0.3.schema.json"
+PRESSURE_SCHEMA_NAME = "results_pressure_3.v0.3.schema.json"
 FIXTURE = ROOT / "fixtures/results/rt_a3_ce2_withheld_sparse.json"
 GATE_4 = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"
-PRESSURE_2 = "openpipestress.result_semantics/0.3.0/pressure-2"
+PRESSURE_2 = "openpipestress.result_semantics/0.3.0/pressure-3"
 
 
 def _pressure_schema():

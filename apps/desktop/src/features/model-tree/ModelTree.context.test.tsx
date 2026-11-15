@@ -63,6 +63,61 @@ describe("ModelTree row context and group counts", () => {
     // A group whose every entity matches shows its plain count.
     expect(screen.getByTestId("tree-group-count-Pipes")).toHaveTextContent(/^1$/u);
     expect(screen.getByTestId("tree-group-count-Supports")).toHaveTextContent("1 of 2");
-    expect(screen.getByTestId("model-tree-filter-summary")).toHaveTextContent("of 8 model entities visible");
+    expect(screen.getByTestId("model-tree-filter-summary")).toHaveTextContent(/^\d+ of 8 model entities match the filter$/u);
+  });
+});
+
+/** The invented model with enough nodes that the tree's list holds only the rows near the view. */
+function longInventedModel(): PreviewModel {
+  const model = inventedModel();
+  const extra = Array.from({ length: 120 }, (_, index) => ({
+    id: `node:X${index}`, label: `Node X${index}`, position: { x: index, y: 1, z: 0 }, provenance: "test"
+  }));
+  return { ...model, nodes: [...model.nodes, ...extra] } as PreviewModel;
+}
+
+describe("ModelTree count summary and long-list note", () => {
+  it("counts the model with no filter, and the entities that match a filter", () => {
+    render(<ModelTree model={inventedModel()} onSelect={vi.fn()} selection={{ type: "project", id: "p" }} />);
+    const summary = screen.getByTestId("model-tree-filter-summary");
+    expect(summary).toHaveTextContent(/^8 model entities$/u);
+    fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "Unknown family" } });
+    expect(summary).toHaveTextContent(/^1 of 8 model entities match the filter$/u);
+    fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "no-match-token" } });
+    expect(summary).toHaveTextContent(/^0 of 8 model entities match the filter$/u);
+    // Only spaces filter nothing, so the plain count returns.
+    fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "   " } });
+    expect(summary).toHaveTextContent(/^8 model entities$/u);
+  });
+
+  it("says nothing about the view when the list holds every row", () => {
+    render(<ModelTree model={inventedModel()} onSelect={vi.fn()} selection={{ type: "project", id: "p" }} />);
+    expect(screen.queryByTestId("model-tree-window-note")).toBeNull();
+    expect(screen.getByTestId("model-tree-filter-input")).toHaveAccessibleDescription("8 model entities");
+  });
+
+  it("says a long list holds only the rows near the view and where the whole model is saved", () => {
+    render(<ModelTree model={longInventedModel()} onSelect={vi.fn()} selection={{ type: "project", id: "p" }} />);
+    const tree = screen.getByRole("tree", { name: "Model" });
+    // The list does hold fewer rows than the tree has.
+    expect(tree.querySelectorAll('[role="treeitem"]').length).toBeLessThan(128);
+    const note = screen.getByTestId("model-tree-window-note");
+    expect(note).toHaveTextContent(
+      "The list holds only the rows near the view, so text selected and copied from it covers those rows only; the whole model is saved with File > Save Model Document…"
+    );
+    // Read with the count, from the filter, without taking focus.
+    expect(screen.getByTestId("model-tree-filter-input")).toHaveAccessibleDescription(
+      `128 model entities ${note.textContent}`
+    );
+    expect(note).not.toHaveAttribute("tabindex");
+    expect(note.contains(document.activeElement)).toBe(false);
+    // Scrolling does not take it away.
+    tree.scrollTop = 2000;
+    fireEvent.scroll(tree);
+    expect(screen.getByTestId("model-tree-window-note")).toBe(note);
+    // A filter short enough for the list to hold every row removes it.
+    fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "node:X1" } });
+    expect(screen.getByTestId("model-tree-filter-summary")).toHaveTextContent(/^\d+ of 128 model entities match the filter$/u);
+    expect(screen.queryByTestId("model-tree-window-note")).toBeNull();
   });
 });

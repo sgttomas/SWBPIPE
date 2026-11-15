@@ -63,7 +63,7 @@ def all_ids(value, found=None):
 
 # -- (a) the committed files are the generator's output ---------------------------------------------------------------
 def test_the_generator_check_passes_and_is_deterministic(capsys):
-    assert GENERATOR.main(["--check"]) == 0, capsys.readouterr().out
+    assert GENERATOR.main(["--check", "--pressure-elongation", "all"]) == 0, capsys.readouterr().out
     assert GENERATOR.generate() == GENERATOR.generate()
 
 
@@ -71,9 +71,9 @@ def test_the_check_reports_a_changed_file(tmp_path, monkeypatch, capsys):
     for name in (GENERATOR.MODEL_FILE, GENERATOR.AUTHORING_FILE, GENERATOR.KEY_RESULTS_FILE, GENERATOR.CAPTURE_FILE):
         (tmp_path / name).write_bytes((FIXTURE / name).read_bytes())
     monkeypatch.setattr(GENERATOR, "HERE", tmp_path)
-    assert GENERATOR.main(["--check"]) == 0
+    assert GENERATOR.main(["--check", "--pressure-elongation", "all"]) == 0
     (tmp_path / GENERATOR.KEY_RESULTS_FILE).write_text("{}\n", encoding="utf-8")
-    assert GENERATOR.main(["--check"]) == 1
+    assert GENERATOR.main(["--check", "--pressure-elongation", "all"]) == 1
     assert capsys.readouterr().out.split() == ["differs:", GENERATOR.KEY_RESULTS_FILE]
 
 

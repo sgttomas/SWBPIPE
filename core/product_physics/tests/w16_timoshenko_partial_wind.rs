@@ -802,6 +802,8 @@ fn n6_source_recovery_excludes_the_generating_case() {
     let model = &mut wire["model"];
     model["pressure_contract"]["shear_model"] = json!(TIMOSHENKO);
     let member = model["pipe_segments"][0]["id"].as_str().unwrap().to_string();
+    // The fixture names only `case:ordinary-pressure` for pressure elongation; with it replaced, no case is pressurised.
+    model.as_object_mut().unwrap().remove("model_settings");
     model["load_cases"][1] = json!({"id": CASE, "modulus_basis_ref": "point:compliant", "pressure_regions": [], "primitive_loads": [],
         "equivalent_static": wind(&[], &[(member.clone(), 0.2, 0.7)]), "provenance": PROV});
     for mode in MODES {

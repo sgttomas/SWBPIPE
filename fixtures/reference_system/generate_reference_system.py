@@ -30,9 +30,13 @@ built with `--features wasm` (`capture_self_weight.mjs` drives it), for example
 The model-document version is the one constant MODEL_DOCUMENT_VERSION and is not part of the weight
 basis, so a version ripple re-runs this generator without a new capture.
 
-Usage:
-    python3 fixtures/reference_system/generate_reference_system.py           # write
-    python3 fixtures/reference_system/generate_reference_system.py --check   # compare only
+Usage (the committed files are produced with every pressurised case named):
+    python3 fixtures/reference_system/generate_reference_system.py --pressure-elongation all           # write
+    python3 fixtures/reference_system/generate_reference_system.py --check --pressure-elongation all   # compare only
+
+`--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION, else absent) sets
+`model_settings.pressure_elongation` in the model document through the shared
+`tools/validation/pressure_elongation.py` (DEL-04-07).
 """
 from __future__ import annotations
 
@@ -46,6 +50,8 @@ import sys
 
 MODEL_DOCUMENT_VERSION = "0.9.0"
 HERE = Path(__file__).resolve().parent
+sys.path.append(str(HERE.parents[1]))  # the repository root, for the shared pressure-elongation switch
+from tools.validation import pressure_elongation as PE  # noqa: E402
 SPEC = "DEL-09-01"
 MODEL_FILE = "reference_system.json"
 AUTHORING_FILE = "authoring.json"
@@ -229,14 +235,22 @@ LEDGER = [
     ("Tee RS-T1 with user SIFs", "in tranche 1", "—", "—"),
     ("Eccentric reducer RS-R1 in region RG-R",
      "pending; RS-P150 is in tranche 1 as a plain S270 member in its own region", "RT-A3 reducer increment 2b (eccentric); initial concentric 2a does not unblock RS-R1",
-     "`EXACT_PRESSURE_REDUCER_IN_REGION`"),
-    ("Constant-effort support RS-CE1", "pending", "RT-A3 increment 3", "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`"),
+     "admitted in the combined test overlay; solved with no blocking finding "
+     "(core/product_physics/tests/rt_a3_s6_reference_system.rs; alone, core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs)"),
+    ("Constant-effort support RS-CE1", "pending", "RT-A3 increment 3",
+     "admitted in the combined test overlay; consumed, 9,000 N applied and published "
+     "(core/product_physics/tests/rt_a3_s6_reference_system.rs)"),
     ("Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1)", "pending",
-     "RT-A3 increment 4; with the connector, increment 5", "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`"),
+     "RT-A3 increment 4; with the connector, increment 5",
+     "admitted in the combined test overlay; solved and published unqualified: "
+     "`NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`, quality unresolved "
+     "(core/product_physics/tests/rt_a3_s6_reference_system.rs; LIM-017)"),
     ("RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7",
      "interim: RS-FR1V authored as a linear `vertical_support` UZ (Agent 0, 2026-10-31)",
-     "RT-A3, R-4 stage S7, after increment 4 (DEL-04-07)",
-     "a nonlinear friction normal source is refused on both routes"),
+     "fixture adoption (DEL-09-01); the solve admits the one-way source (DEL-04-04 REQ-012)",
+     "the intended one-way normal source solves in the combined test overlay and is not confirmed: "
+     "without RS-G1 each case is `NUMERICAL_INTEGRITY_SENSITIVE` (friction normal source is not a base "
+     "restraint), with RS-G1 unqualified (core/product_physics/tests/rt_a3_s6_reference_system.rs)"),
     ("RS-SUS, RS-OPE (thermal, modulus by temperature)",
      "in tranche 1 as linear cases (load/reference-state group)", "—", "—"),
     ("RS-EXP", "in tranche 1 as a subtraction; `difference_basis` pending",
@@ -819,8 +833,8 @@ def dumps(value):
     return json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n"
 
 
-def generate():
-    model = model_document()
+def generate(elongation=PE.DEFAULT):
+    model = PE.apply(model_document(), elongation)
     return {MODEL_FILE: dumps(model), AUTHORING_FILE: dumps(authoring(model)), KEY_RESULTS_FILE: dumps(key_results())}
 
 
@@ -860,12 +874,13 @@ def main(argv=None):
     parser.add_argument("--check", action="store_true", help="compare with the committed files; write nothing")
     parser.add_argument("--capture-self-weight", type=Path, metavar="GLUE_DIR",
                         help="refresh the self-weight capture from the product engine, then write")
+    PE.add_argument(parser)
     args = parser.parse_args(argv)
     if args.capture_self_weight and args.check:
         parser.error("--capture-self-weight writes; it cannot be combined with --check")
     if args.capture_self_weight:
         capture_self_weight(args.capture_self_weight)
-    outputs = generate()
+    outputs = generate(PE.resolve_mode(args.pressure_elongation))
     if args.check:
         differing = [name for name, text in sorted(outputs.items())
                      if not (HERE / name).is_file() or (HERE / name).read_text(encoding="utf-8") != text]

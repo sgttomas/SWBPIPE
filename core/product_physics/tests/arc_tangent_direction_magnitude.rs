@@ -41,6 +41,7 @@ fn pipe(id: &str, from: &str, to: &str, y: [f64; 3]) -> Value {
 fn document() -> Value {
     json!({"model": {"schema_version": MODEL_SCHEMA_VERSION, "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
+        "model_settings": {"pressure_elongation": {"operating_load_cases": ["case:pressure"]}},
         "project": {"id": "project:arc-tangent", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "nodes": [node("node:A", 25.905, 3.905, 6.0), node("node:B", 25.905, 4.905, 6.0), node("node:C", 26.31, 5.31, 6.0), node("node:D", 27.31, 5.31, 6.0)],

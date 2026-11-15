@@ -346,7 +346,7 @@ pub(crate) fn save_in(
 
 fn choose_report_html_save_path(app: &AppHandle, file_name: &str) -> Option<Result<PathBuf, String>> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = crate::native_smoke::take_chosen_path(app) {
+    if let Some(path) = crate::native_smoke::take_chosen_path(app, "choose_report_html_save_path") {
         return Some(Ok(path));
     }
     app.dialog()
