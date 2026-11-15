@@ -8,7 +8,8 @@
 //!
 //! The test fails when a committed fixture differs from what it rebuilds. After a deliberate
 //! change, regenerate with `COMBINATION_FIXTURES_BLESS=1 cargo test --test contract_fixtures`
-//! and review the diff.
+//! and review the diff. The committed fixtures are read with `include_str!`, a compile-time read
+//! that CI routing resolves from the source.
 mod support;
 
 use open_pipe_stress_response_spectrum::combination_json::{combine_json, request_from_json, request_to_json};
@@ -106,6 +107,21 @@ fn fixtures() -> Vec<Fixture> {
     out
 }
 
+/// The committed fixtures, read at compile time.
+const COMMITTED: [(&str, &str, &str); 7] = [
+    ("c4_base", include_str!("../fixtures/combination/c4_base.input.json"), include_str!("../fixtures/combination/c4_base.output.json")),
+    ("c4_mutated_sign", include_str!("../fixtures/combination/c4_mutated_sign.input.json"), include_str!("../fixtures/combination/c4_mutated_sign.output.json")),
+    ("c4_refused_cqc_zero_damping", include_str!("../fixtures/combination/c4_refused_cqc_zero_damping.input.json"), include_str!("../fixtures/combination/c4_refused_cqc_zero_damping.output.json")),
+    ("c10_w3_straddling_cluster", include_str!("../fixtures/combination/c10_w3_straddling_cluster.input.json"), include_str!("../fixtures/combination/c10_w3_straddling_cluster.output.json")),
+    ("c10_w3_refused_cluster_split", include_str!("../fixtures/combination/c10_w3_refused_cluster_split.input.json"), include_str!("../fixtures/combination/c10_w3_refused_cluster_split.output.json")),
+    ("c10_w3_refused_rigid_premise", include_str!("../fixtures/combination/c10_w3_refused_rigid_premise.input.json"), include_str!("../fixtures/combination/c10_w3_refused_rigid_premise.output.json")),
+    ("c9_y_member_axes", include_str!("../fixtures/combination/c9_y_member_axes.input.json"), include_str!("../fixtures/combination/c9_y_member_axes.output.json")),
+];
+
+fn committed(name: &str) -> (&'static str, &'static str) {
+    COMMITTED.iter().find(|(n, _, _)| *n == name).map(|(_, i, o)| (*i, *o)).unwrap_or_else(|| panic!("no committed fixture {name}"))
+}
+
 fn path(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("fixtures/combination").join(name)
 }
@@ -124,23 +140,28 @@ fn fixtures_are_current() {
         let (_, decoded) = request_from_json(&input).unwrap();
         assert_eq!(decoded.unwrap(), f.request, "{}", f.name);
         let output = pretty(&combine_json(&input).unwrap());
-        for (file, text) in [(format!("{}.input.json", f.name), &input), (format!("{}.output.json", f.name), &output)] {
-            let p = path(&file);
+        let (committed_input, committed_output) = committed(f.name);
+        for (file, text, committed) in [
+            (format!("{}.input.json", f.name), &input, committed_input),
+            (format!("{}.output.json", f.name), &output, committed_output),
+        ] {
             if bless {
+                let p = path(&file);
                 std::fs::create_dir_all(p.parent().unwrap()).unwrap();
                 std::fs::write(&p, text).unwrap();
-            } else if std::fs::read_to_string(&p).ok().as_deref() != Some(text.as_str()) {
+            } else if committed != text.as_str() {
                 stale.push(file);
             }
         }
     }
+    assert_eq!(fixtures().len(), COMMITTED.len());
     assert!(stale.is_empty(), "stale fixtures (regenerate with COMBINATION_FIXTURES_BLESS=1 and review): {stale:?}");
 }
 
 #[test]
 fn fixtures_state_their_outcome() {
     let outcome = |name: &str| -> Value {
-        serde_json::from_str(&std::fs::read_to_string(path(&format!("{name}.output.json"))).unwrap()).unwrap()
+        serde_json::from_str(committed(name).1).unwrap()
     };
     for (name, expected) in [
         ("c4_base", "combined"),
