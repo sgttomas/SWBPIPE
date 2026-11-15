@@ -435,11 +435,11 @@
           "library_ref": {
             "library_id": "invented.hangers.sizing",
             "library_kind": "hanger",
-            "library_version": "sha256:459bdc25756f0d458dd218b99b8a9676fa71c6d73c943fd57a311a776b217067",
+            "library_version": "sha256:19c228fa3cab18521719dfe7fc8e07c9d5ce5953b50f3cb9209484a18417d894",
             "record_id": "CE-3"
           },
-          "redistribution_status": "private_only",
-          "review_status": "pending",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted",
           "source_license": "unknown",
           "source_location": "invented-local:test-only",
           "source_name": "Invented non-engineering fixture"
@@ -471,11 +471,11 @@
           "library_ref": {
             "library_id": "invented.hangers.sizing",
             "library_kind": "hanger",
-            "library_version": "sha256:230a1bc1b4710814f882425c3bc3d472927bd93056df0561d365aeaa09ba5e9e",
+            "library_version": "sha256:e6c3d4062c57919977e527b6fc44068eb64e07523f19f785b5fdb3d76505584d",
             "record_id": "CE-1"
           },
-          "redistribution_status": "private_only",
-          "review_status": "pending",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted",
           "source_license": "unknown",
           "source_location": "invented-local:test-only",
           "source_name": "Invented non-engineering fixture"
