@@ -132,9 +132,30 @@ fn current_argument_can_refuse_exact_subnormal_and_upper_edge_answers() {
         assert!(exact.is_finite() && exact > 0.0);
         assert_eq!(case.points[0][1], exact);
         assert_eq!(case.points[1][1], exact);
-        let refusal = table(&case).evaluate(QueryFrequency::new(f, "Hz").unwrap(), ScaleFactor::new(1.0).unwrap()).unwrap_err();
-        assert_eq!(refusal.code, RefusalCode::EvaluationAccuracyUnsupported);
-        assert!(refusal.detail.contains("this implemented error argument does not establish"));
-        assert!(!refusal.detail.contains("cannot be stated"));
+        match table(&case).evaluate(QueryFrequency::new(f, "Hz").unwrap(), ScaleFactor::new(1.0).unwrap()) {
+            Err(refusal) => {
+                assert_eq!(refusal.code, RefusalCode::EvaluationAccuracyUnsupported);
+                assert!(refusal.detail.contains("this implemented error argument does not establish"));
+                assert!(!refusal.detail.contains("cannot be stated"));
+            }
+            Ok(ordinate) => {
+                // The exact answer is the same represented constant for all three outputs:
+                // interpolation of a constant, no g multiplication, and scale exactly one.
+                for (published, bound) in [
+                    (ordinate.interpolated, ordinate.interpolated_bound),
+                    (ordinate.pseudo_acceleration_m_per_s2, ordinate.pseudo_acceleration_bound),
+                    (ordinate.scaled_pseudo_acceleration_m_per_s2, ordinate.scaled_bound),
+                ] {
+                    assert!(published.is_finite() && published > 0.0, "{name}");
+                    assert!(bound.is_finite() && (0.0..=STATED_ACCURACY).contains(&bound), "{name}");
+                    assert!(published >= exact / 2.0, "{name}");
+                    // Subtraction is exact here (Sterbenz for the upper-edge answer; integer
+                    // subnormal quanta for the small answer). Allow only the relative rounding
+                    // of this division, with no absolute or operand-scale floor.
+                    let relative = ((published - exact) / exact).abs();
+                    assert!(relative <= bound * (1.0 + 2.0 * U), "{name}: error {relative:e} > bound {bound:e}");
+                }
+            }
+        }
     }
 }
