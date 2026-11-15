@@ -273,7 +273,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   // judge applies (`nativeStandingInputs` reads `invalidated`, the invocation and the caller's model).
   const capture = solveModel === null ? null : ({ invocation, fingerprint: "", callerModel: solveModel, callerFingerprint: "", invalidated: false, terminalClaimed: true } as NonNullable<Parameters<typeof nativeStandingInputs>[1]>);
   let readers: string | null = null;
-  // validateNativeReaders :576: on the pressure-source route a normalization between the caller's
+  // validateNativeReaders, its normalization pre-check: on the pressure-source route a normalization between the caller's
   // model and the dispatched one registers nothing, and no reader is called.
   const normalized = reader === "pressure-source" && solveModel !== null && !sameModelData(JSON.parse(checkedJsonText(solveModel)), invocation.request.model);
   if (normalized) readers = "CALLER_DISPATCH_NORMALIZATION_MISMATCH";
@@ -281,7 +281,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     const r = next("registration");
     if ("refused" in r) return ended(r.refused);
     if ("rejected" in r) {
-      // validateNativeReaders :592: `errorCode(error) ?? "UNCODED_REFUSAL"` (the web's errorCode).
+      // validateNativeReaders, its catch: `errorCode(error) ?? "UNCODED_REFUSAL"` (the web's errorCode).
       readers = errorCode(r.rejected) ?? "UNCODED_REFUSAL";
     } else {
       if (r.args) {

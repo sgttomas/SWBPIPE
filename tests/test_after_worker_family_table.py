@@ -138,6 +138,32 @@ COVERED = [
     ("features/results/resultReader.ts", "return (a ?? null) === null ? (b ?? null) === null :", "return (a ?? null) === null ? true :", {TABLE}),
     (family.NATIVE_RESULT, "  return page(jobId, () => readResultRowSemantics(detailInvoke, jobId, ordinals));",
      "  return page(jobId, () => readResultRowSemantics(detailInvoke, jobId, [...ordinals]));", {TABLE}),
+    # Shared implementations the judge calls with other inputs than the web: their handling of the difference.
+    # panelDetailFilter: the judge omits kind and selectionEntity, the panel passes null; an undefined-only default
+    # kind would filter the judge's first page while the panel's stays unfiltered.
+    ("services/resultDetail.ts", "    ...(state.kind ? { kinds: [state.kind] } : {}),",
+     '    ...(state.kind !== undefined ? (state.kind ? { kinds: [state.kind] } : {}) : { kinds: ["force"] }),', {PAGE}),
+    # The web's ingress maps a rejection with nativeInvokeError (and resends a headroom refusal).
+    ("services/nativeIngress.ts", "      const read = nativeInvokeError(error);", "      const read = nativeInvokeError(error ?? null);",
+     {READERS, ORDER}),
+    # nativeStandingInputs gets the judge's capture with empty fingerprints.
+    (family.PREVIEW, '  if (route !== "pressure_source" || !registered || !capture || capture.invalidated) return { modelText, invocationText: null };',
+     '  if (route !== "pressure_source" || !registered || !capture || capture.invalidated || !capture.fingerprint) return { modelText, invocationText: null };',
+     {CAPTURE}),
+    # The judge omits queryResultSourceRecovery's raw; the web passes false.
+    ("services/resultDetail.ts", "limit: number, raw = false): Promise<SourceRecovery>", "limit: number, raw = true): Promise<SourceRecovery>", {ORDER}),
+    # The judge's handle carries resultBytes 0: createNativeResult and gate 2's path for a native handle.
+    (family.NATIVE_RESULT, "  Object.defineProperty(handle, NATIVE, { enumerable: false, value: custody });",
+     "  Object.defineProperty(handle, NATIVE, { enumerable: false, value: Object.freeze(custody) });", {GATES}),
+    ("features/results/resultReader.ts", "  return currentSemanticContract(source) !== null;", "  return currentSemanticContract(source) != null;", {GATES}),
+    ("features/results/resultReader.ts", "  try { return sourceSemanticBinding(source); } catch { return null; }",
+     '  try { return sourceSemanticBinding(source); } catch { return { id: "", sha256: "" }; }', {GATES}),
+    ("features/results/resultReader.ts", '  if (!binding) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");',
+     '  if (!binding || !binding.id) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");', {GATES}),
+    ("features/results/resultReader.ts", "  if (isNativeResult(source)) return nativeDispatch(source, model, invocation);",
+     "  if (isNativeResult(source)) return nativeDispatch(source, model ?? null, invocation);", {GATES}),
+    ("features/results/resultReader.ts", "  if (model === undefined && invocation === undefined) return verdict;",
+     "  if (model == null && invocation == null) return verdict;", {GATES}),
 ]
 
 

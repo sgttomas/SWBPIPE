@@ -402,6 +402,7 @@
         "apps/desktop/src/services/jsonText.ts",
         "apps/desktop/src/services/memoryPool.ts",
         "apps/desktop/src/services/modelRulePackResolution.ts",
+        "apps/desktop/src/services/nativeIngress.ts",
         "apps/desktop/src/services/nativeResult.ts",
         "apps/desktop/src/services/previewService.ts",
         "apps/desktop/src/services/resultDetail.ts",
