@@ -140,6 +140,11 @@ describe("native runtime", () => {
     expect(document.activeElement).toBe(save);
     expect(save.closest("[data-route-id]")).toHaveAttribute("data-route-id", "DREP-HTML-SAVE-005");
     expect(screen.getByTestId("rendered-report-save-local-private-redaction-summary")).toHaveTextContent("blocked=false");
+    // DEL-08-01 REQ-023 Coverage: where an HTML save or a print is offered, the panel says neither is listed and
+    // that the package is what the project keeps.
+    expect(screen.getByTestId("rendered-report-list-notice")).toHaveTextContent(
+      "HTML saves and printed reports are not listed in the project. Save a report package to keep it in the project’s report list."
+    );
 
     fireEvent.click(save);
     await waitFor(() => expect(screen.getByTestId("rendered-report-save-status")).toHaveTextContent("Saved invented-report.html"));
@@ -232,6 +237,7 @@ describe("native runtime", () => {
     expect(screen.queryByTestId("rendered-report-save")).not.toBeInTheDocument();
     expect(screen.queryByTestId("rendered-report-print")).not.toBeInTheDocument();
     expect(screen.queryByTestId("rendered-report-save-status")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-list-notice")).not.toBeInTheDocument();
     expect(invokeMock).not.toHaveBeenCalled();
   });
 
@@ -288,6 +294,7 @@ describe("browser runtime (no native shell)", () => {
     expect(save).toHaveAttribute("href", `data:text/html;charset=utf-8,${encodeURIComponent(HTML)}`);
     fireEvent.click(screen.getByTestId("rendered-report-print"));
     expect(screen.getByTestId("rendered-report-print-frame")).toHaveAttribute("srcdoc", outcome().derived_print_html);
+    expect(screen.getByTestId("rendered-report-list-notice")).toHaveTextContent("HTML saves and printed reports are not listed in the project.");
     expect(screen.queryByTestId("rendered-report-save-status")).not.toBeInTheDocument();
     expect(invokeMock).not.toHaveBeenCalled();
   });

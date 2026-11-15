@@ -592,6 +592,9 @@ export function RenderedReportPanel({
                 <Printer size={14} aria-hidden="true" />
                 Print / PDF (derived view)
               </button>
+              <p data-testid="rendered-report-list-notice">
+                HTML saves and printed reports are not listed in the project. Save a report package to keep it in the project’s report list.
+              </p>
             </div>
           ) : (
             <p data-testid="rendered-report-sink-blocked">

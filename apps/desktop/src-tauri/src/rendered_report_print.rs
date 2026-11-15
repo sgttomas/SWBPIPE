@@ -33,9 +33,12 @@
 //! ([`PRINT_PLATFORM_UNSUPPORTED`]) after admission, opening nothing.
 //!
 //! The native-smoke build presents no dialog: at the point of the native
-//! print it records the printed document's SHA-256 for its driver
-//! (`native_smoke::record_report_print`), so no page reaches a printer or a
-//! print queue.
+//! print, on the print window's own handle, it records the print document
+//! (its bytes, the very document the protocol serves to that window, and its
+//! SHA-256) for its driver (`native_smoke::record_report_print`), so no page
+//! reaches a printer or a print queue. The record shows which document reached
+//! the native print path; it does not show that a dialog appeared, what the
+//! system's print preview composed, or how a print job ended.
 use crate::command_ingress::{self, respond, ArgsDecoding, CommandError};
 use crate::rendered_report_routes::{self as routes, RenderCustody, RouteError, RouteRequest};
 use crate::solve_jobs::SolveJobRegistry;
@@ -149,10 +152,12 @@ pub(crate) fn on_load_in(open: &Mutex<Option<OpenPrint>>, custody: &RenderCustod
     }
 }
 
-/// The custom protocol's handler (registered in `run`).
-pub(crate) fn serve<R: Runtime>(context: tauri::UriSchemeContext<'_, R>, request: tauri::http::Request<Vec<u8>>) -> tauri::http::Response<Vec<u8>> {
-    let document = served_document_in(&OPEN, &routes::CUSTODY, context.webview_label(), request.uri().path());
-    let (status, body) = match document {
+/// The protocol's response to one request from `webview_label` for `path`:
+/// the open print window's document (200) only when [`served_document_in`]
+/// admits the request, otherwise no document (404). Every response carries
+/// [`CSP`] and `no-store`. `serve` answers with exactly this.
+pub(crate) fn respond_in(open: &Mutex<Option<OpenPrint>>, custody: &RenderCustody, webview_label: &str, path: &str) -> tauri::http::Response<Vec<u8>> {
+    let (status, body) = match served_document_in(open, custody, webview_label, path) {
         Some(document) => (200, document.print_html.clone()),
         None => (404, Vec::new()),
     };
@@ -165,9 +170,50 @@ pub(crate) fn serve<R: Runtime>(context: tauri::UriSchemeContext<'_, R>, request
         .unwrap_or_else(|_| tauri::http::Response::new(Vec::new()))
 }
 
+/// The custom protocol's handler (registered in `run`).
+pub(crate) fn serve<R: Runtime>(context: tauri::UriSchemeContext<'_, R>, request: tauri::http::Request<Vec<u8>>) -> tauri::http::Response<Vec<u8>> {
+    respond_in(&OPEN, &routes::CUSTODY, context.webview_label(), request.uri().path())
+}
+
+/// The print window's address: the protocol's one path, named by the print
+/// document's SHA-256.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+pub(crate) fn print_address(print_sha256_hex: &str) -> Option<tauri::Url> {
+    tauri::Url::parse(&format!("{SCHEME}://localhost/{print_sha256_hex}")).ok()
+}
+
+/// Whether the print window may navigate to `target`: only to its one address.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+pub(crate) fn navigation_allowed(allowed: &tauri::Url, target: &tauri::Url) -> bool {
+    target == allowed
+}
+
+/// The print window's configuration, exactly as `WebviewWindowBuilder::from_config`
+/// consumes it (`open_print_window_macos`): its label and address, its title
+/// and size, focused and centred, and a webview that runs no script
+/// (`javascript_disabled`, applied by tauri-runtime-wry as wry's
+/// `with_javascript_disabled`), keeps no data (`incognito`) and has no
+/// developer tools (`devtools: Some(false)`).
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+pub(crate) fn print_window_config(label: &str, address: tauri::Url, canonical_sha256_hex: &str) -> tauri::utils::config::WindowConfig {
+    let mut config = tauri::utils::config::WindowConfig::default();
+    config.label = label.to_string();
+    config.create = false;
+    config.url = tauri::WebviewUrl::CustomProtocol(address);
+    config.title = format!("Print: calculation report {}", &canonical_sha256_hex[..12]);
+    config.width = 840.0;
+    config.height = 1000.0;
+    config.center = true;
+    config.focus = true;
+    config.javascript_disabled = true;
+    config.incognito = true;
+    config.devtools = Some(false);
+    config
+}
+
 /// Closes the open print window unless its render is the one of
-/// `generation` (`None`: whatever it is).
-pub(crate) fn close_unless_current(generation: Option<u64>) {
+/// `generation` (`None`: whatever it is). Returns whether one was closed.
+pub(crate) fn close_unless_current(generation: Option<u64>) -> bool {
     let label = {
         let mut open = lock(&OPEN);
         match open.as_ref() {
@@ -175,9 +221,11 @@ pub(crate) fn close_unless_current(generation: Option<u64>) {
             _ => None,
         }
     };
+    let closed = label.is_some();
     if let Some(label) = label {
         destroy_window(&label);
     }
+    closed
 }
 
 fn destroy_window(label: &str) {
@@ -226,7 +274,7 @@ fn open_print_window(app: &AppHandle, document: PrintDocument) -> Result<PrintRe
 
 #[cfg(target_os = "macos")]
 fn open_print_window_macos(app: &AppHandle, document: PrintDocument) -> Result<PrintReceipt, RouteError> {
-    use tauri::{webview::PageLoadEvent, WebviewUrl, WebviewWindowBuilder, WindowEvent};
+    use tauri::{webview::PageLoadEvent, WebviewWindowBuilder, WindowEvent};
     let receipt = PrintReceipt {
         outcome: "print_window_opened",
         route_id: routes::ROUTE_ID,
@@ -250,7 +298,6 @@ fn open_print_window_macos(app: &AppHandle, document: PrintDocument) -> Result<P
     };
     *lock(&APP) = Some(app.clone());
     install_main_hook(app);
-    let address = format!("{SCHEME}://localhost/{}", receipt.print_sha256_hex);
     let failed = |label: &str| {
         let mut open = lock(&OPEN);
         if open.as_ref().is_some_and(|print| print.label == label) {
@@ -258,17 +305,12 @@ fn open_print_window_macos(app: &AppHandle, document: PrintDocument) -> Result<P
         }
         RouteError::at(PRINT_WINDOW_FAILED, "print", "The print window could not be opened; nothing was printed.")
     };
-    let url = tauri::Url::parse(&address).map_err(|_| failed(&label))?;
+    let url = print_address(&receipt.print_sha256_hex).ok_or_else(|| failed(&label))?;
     let allowed = url.clone();
-    let built = WebviewWindowBuilder::new(app, label.clone(), WebviewUrl::CustomProtocol(url))
-        .title(format!("Print: calculation report {}", &receipt.canonical_sha256_hex[..12]))
-        .inner_size(840.0, 1000.0)
-        .center()
-        .focused(true)
-        .disable_javascript()
-        .incognito(true)
-        .devtools(false)
-        .on_navigation(move |target| *target == allowed)
+    let config = print_window_config(&label, url, &receipt.canonical_sha256_hex);
+    let built = WebviewWindowBuilder::from_config(app, &config)
+        .map_err(|_| failed(&label))?
+        .on_navigation(move |target| navigation_allowed(&allowed, target))
         .on_page_load(|window, payload| {
             if payload.event() == PageLoadEvent::Finished {
                 page_loaded(&window);
@@ -314,7 +356,7 @@ fn page_loaded(window: &tauri::WebviewWindow) {
 #[cfg(target_os = "macos")]
 fn present(window: &tauri::WebviewWindow, document: &PrintDocument, served: bool) {
     #[cfg(feature = "native-smoke")]
-    crate::native_smoke::record_report_print(&document.print_sha256_hex, &document.canonical_sha256_hex, served, window.label());
+    crate::native_smoke::record_report_print(&document.print_sha256_hex, &document.canonical_sha256_hex, &document.print_html, served, window.label());
     #[cfg(not(feature = "native-smoke"))]
     {
         let _ = (document, served);
@@ -416,5 +458,78 @@ mod tests {
     fn the_policy_admits_no_load() {
         assert!(CSP.starts_with("default-src 'none';"));
         assert!(!CSP.contains("script-src") && !CSP.contains("http") && !CSP.contains('*'));
+    }
+
+    /// The configuration `open_print_window_macos` hands to
+    /// `WebviewWindowBuilder::from_config`: no script, no kept data, no
+    /// developer tools, the print window's label and its one address. This
+    /// establishes what the desktop requests of the webview, not what WebKit
+    /// does with it.
+    #[test]
+    fn the_print_window_config_requests_a_scriptless_incognito_webview_at_its_one_address() {
+        let canonical = sha256_hex(HTML.as_bytes());
+        let print = "c".repeat(64);
+        let address = print_address(&print).unwrap();
+        assert_eq!(address.as_str(), format!("swbpipe-report-print://localhost/{print}"));
+        let config = print_window_config("report-print-7", address.clone(), &canonical);
+        assert!(config.javascript_disabled);
+        assert!(config.incognito);
+        assert_eq!(config.devtools, Some(false));
+        assert_eq!(config.label, "report-print-7");
+        assert!(config.label.starts_with(LABEL_PREFIX));
+        assert_eq!(config.url, tauri::WebviewUrl::CustomProtocol(address));
+        assert_eq!(config.title, format!("Print: calculation report {}", &canonical[..12]));
+        assert_eq!((config.width, config.height, config.center, config.focus), (840.0, 1000.0, true, true));
+        // Nothing else is asked of the window beyond tauri's defaults: no proxy, no
+        // parent, no data directory, no extra browser arguments.
+        assert!(config.proxy_url.is_none() && config.parent.is_none() && config.data_directory.is_none() && config.additional_browser_args.is_none());
+    }
+
+    #[test]
+    fn the_print_window_navigates_only_to_its_one_address() {
+        let allowed = print_address(&"c".repeat(64)).unwrap();
+        assert!(navigation_allowed(&allowed, &allowed.clone()));
+        for other in [
+            format!("swbpipe-report-print://localhost/{}", "d".repeat(64)),
+            format!("swbpipe-report-print://localhost/{}?q=1", "c".repeat(64)),
+            format!("swbpipe-report-print://elsewhere/{}", "c".repeat(64)),
+            "https://example.invalid/".to_string(),
+            "tauri://localhost/".to_string(),
+        ] {
+            assert!(!navigation_allowed(&allowed, &tauri::Url::parse(&other).unwrap()), "{other}");
+        }
+    }
+
+    /// The protocol's actual response, as `serve` returns it: the admitted
+    /// print document with the policy and `no-store`, or no document. This
+    /// establishes the header the desktop emits, not that WebKit enforces
+    /// each directive.
+    #[test]
+    fn the_protocol_responds_with_the_admitted_document_its_policy_and_no_store_or_no_document() {
+        let custody = rendered(PUBLIC_REPORT);
+        let document = admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
+        let path = format!("/{}", document.print_sha256_hex);
+        let open = open_for(document.clone());
+        let header = |response: &tauri::http::Response<Vec<u8>>, name: &str| response.headers().get(name).map(|value| value.to_str().unwrap().to_string());
+        let refused = |response: tauri::http::Response<Vec<u8>>| {
+            assert_eq!(response.status(), 404);
+            assert!(response.body().is_empty());
+            assert_eq!(header(&response, "Content-Security-Policy").as_deref(), Some(CSP));
+            assert_eq!(header(&response, "Cache-Control").as_deref(), Some("no-store"));
+        };
+        refused(respond_in(&open, &custody, "main", &path));
+        refused(respond_in(&open, &custody, "report-print-7", "/other"));
+        refused(respond_in(&Mutex::new(None), &custody, "report-print-7", &path));
+        assert!(!lock(&open).as_ref().unwrap().served);
+        let served = respond_in(&open, &custody, "report-print-7", &path);
+        assert_eq!(served.status(), 200);
+        assert_eq!(served.body(), &document.print_html);
+        assert_eq!(sha256_hex(served.body()), document.print_sha256_hex);
+        assert_eq!(header(&served, "Content-Security-Policy").as_deref(), Some(CSP));
+        assert_eq!(header(&served, "Cache-Control").as_deref(), Some("no-store"));
+        assert_eq!(header(&served, "Content-Type").as_deref(), Some("text/html; charset=utf-8"));
+        assert!(lock(&open).as_ref().unwrap().served);
+        custody.retire();
+        refused(respond_in(&open, &custody, "report-print-7", &path));
     }
 }

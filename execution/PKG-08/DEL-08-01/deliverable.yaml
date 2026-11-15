@@ -253,3 +253,5 @@ checks:
 - apps/desktop/native-smoke/run.mjs
 - apps/desktop/native-smoke/report-standing-journey.mjs
 - apps/desktop/native-smoke/report-standing-journey.js
+- apps/desktop/native-smoke/report-print-evidence.mjs
+- apps/desktop/native-smoke/report-print-evidence.test.mjs
