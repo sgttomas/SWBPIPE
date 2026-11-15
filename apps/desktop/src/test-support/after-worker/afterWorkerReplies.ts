@@ -230,6 +230,9 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     if (entry.kind === "error") {
       const error = nativeInvokeError(JSON.parse(text(bytes)));
       if (error instanceof ResourceUnavailableError) {
+        // `invokeWithIngress` (nativeIngress.ts) resends a refusal whose `refusal.kind` is
+        // "headroom_insufficient" until its deadline, so the web does not end there; this test is its.
+        if (error.refusal.kind === "headroom_insufficient") fail("the web resends a headroom_insufficient refusal until its deadline; this judge does not model the resend");
         if (entries.length) fail(`the web ends at ${call}'s resource refusal; the run kept ${entries.length} more replies`);
         return { refused: { calls, native, ended: `${call}: resource refusal`, refusal: { ...error.refusal } as RunVerdict["refusal"] } };
       }

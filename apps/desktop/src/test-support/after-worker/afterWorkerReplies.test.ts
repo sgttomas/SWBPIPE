@@ -97,7 +97,7 @@ describe("the after-worker reply judge applies the session's connecting gates", 
   const S = jsonTextKeepingNegativeZero(MODEL);
   const R = jsonTextKeepingNegativeZero(JSON.parse(checkedJsonText({ request: { model: MODEL, materials: [] }, solver_mode: "sparse_interactive" })).request.model);
   const BINDING = { id: PRESSURE_CONTRACT_ID, sha256: "a".repeat(64) };
-  type Step = { call: string; reply: unknown; args: Record<string, unknown>; kind?: "json" | "bin" | "txt" };
+  type Step = { call: string; reply: unknown; args: Record<string, unknown>; kind?: "json" | "bin" | "txt" | "error" };
   const header = (recognized = true) => recognized
     ? { document_kind: "swbpipe.desktop.result_route_header", version: 1, job_id: JOB, header_status: "recognized", route: "pressure", binding: BINDING, refusal: null }
     : { document_kind: "swbpipe.desktop.result_route_header", version: 1, job_id: JOB, header_status: "refused", route: "unsupported", binding: null, refusal: { code: "Y", detail: null } };
@@ -167,6 +167,21 @@ describe("the after-worker reply judge applies the session's connecting gates", 
     // A run that sent the standing and S again natively is not the web's sequence.
     const again = [step("standing_again", verdict(), standingArgs), step("summary", summary(retained), summaryArgs)];
     await expect(judged([...opening({ ok: true }, retained), ...again])).rejects.toThrow(stopsAfter("SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", OPENING, 2));
+  });
+  // A typed resource refusal (memoryPool.ts's `nativeInvokeError`), kept as the standing's rejection.
+  const refused = (refusal: Record<string, unknown>) => [
+    ...opening({ ok: true }, envelope(PRODUCER)).slice(0, 2),
+    step("standing", { code: "RESOURCE_UNAVAILABLE", refusal }, standingArgs, "error"),
+  ];
+  it("a run ending at a headroom_insufficient refusal fails: the web's ingress resends it (invokeWithIngress)", async () => {
+    await expect(judged(refused({ kind: "headroom_insufficient", required_bytes: 2048, available_bytes: 1024 })))
+      .rejects.toThrow("AFTER-WORKER-REPLY-REFUSED: the web resends a headroom_insufficient refusal until its deadline; this judge does not model the resend");
+  });
+  it("a run ending at any other resource refusal (ingress_exceeds_budget) ends there, its refusal recorded", async () => {
+    const judgedRun = await judged(refused({ kind: "ingress_exceeds_budget", required_bytes: 2048, budget_bytes: 1024 }));
+    expect(judgedRun.ended).toBe("standing: resource refusal");
+    expect(judgedRun.refusal).toEqual({ kind: "ingress_exceeds_budget", required_bytes: 2048, budget_bytes: 1024 });
+    expect(judgedRun.native).toEqual(["header", "registration", "standing"]);
   });
   it("a result without a current source contract fails at SOLVE-PRODUCER-CONTRACT-UNSUPPORTED", async () => {
     const steps = [
