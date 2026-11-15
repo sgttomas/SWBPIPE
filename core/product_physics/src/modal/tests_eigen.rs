@@ -4,10 +4,10 @@
 //! continuum of `continuum/fe_convergence.json`), on EX n05, an arc model and
 //! a component body, with every refusal, demotion and flag the slice adds,
 //! and the test-local O-5 and O-6 observation table. All models are invented.
-use super::eigen::{modal_basis, normalize_modal_shape, FiniteCensus, ReportedEndpoint};
+use super::eigen::{complete_reported_set, modal_basis, modal_sturm_count, normalize_modal_shape, FiniteCensus, ReportedEndpoint};
 use super::integrity::{
-    ModalIntegrityParameters, MODAL_FINITE_COUNT_UNRESOLVED, MODAL_INTEGRITY_PARAMETER_INVALID, MODAL_STURM_SHIFT_ILL_CONDITIONED,
-    MODAL_STURM_SHIFT_UNSEPARATED,
+    ModalIntegrityParameters, MODAL_FINITE_COUNT_UNRESOLVED, MODAL_INTEGRITY_PARAMETER_INVALID, MODAL_STURM_COUNT_MISMATCH,
+    MODAL_STURM_SHIFT_ILL_CONDITIONED, MODAL_STURM_SHIFT_UNSEPARATED,
 };
 use super::outcome::{run_modal_dense, ModalOutcome, ModalStanding};
 use super::stiffness::{DenseGuardRecord, ModalPencil};
@@ -16,9 +16,10 @@ use super::tests::{
 };
 use super::{MODAL_STATE_CASE_UNAVAILABLE, MODAL_TIMOSHENKO_MASS_UNSUPPORTED};
 use crate::Diagnostic;
-use open_pipe_stress_modal_eigen::clusters::StoppingBound;
+use open_pipe_stress_modal_eigen::clusters::{cluster_ids, ExtractionBound, StoppingBound};
 use open_pipe_stress_modal_eigen::modal_quantities::{cumulative_effective_mass_fractions, Dof, FreeDof, NormalizationCase};
 use open_pipe_stress_modal_eigen::SymmetricMatrix;
+use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 use serde_json::{json, Value};
 
 const EIGEN_REFERENCES: &str = include_str!("../../../../validation/references/f1_modal/mass_discrete/eigen_references.json");
@@ -434,6 +435,53 @@ fn a_partial_cluster_at_the_bound_is_extended_and_disclosed() {
     assert_eq!(whole.reported.stopped_by, StoppingBound::SpectrumExhausted);
     assert_eq!(whole.completed.endpoint, ReportedEndpoint::WholeFiniteSpectrum { established_finite_mode_count: 12 });
     assert_eq!(whole.integrity.sturm.count, 12);
+}
+
+/// A missed mode below the cut-off is never published as an empty set (PR 357's
+/// second review). True frequencies 0.5 Hz and 2 Hz, cut-off 1 Hz, under the
+/// selected integrity parameters, on an authored pencil K = diag(λ₁, λ₂),
+/// M = I, so λ_i = (2πf_i)². With both modes computed, the product's set
+/// completion reports the 0.5 Hz mode and the Sturm count at the final shift is
+/// 1. With the 0.5 Hz pair withheld from the computed spectrum, the same
+/// completion reports nothing (`BelowLowestMode`), and the count in the gap
+/// above λ_c = (2π·1 Hz)² is still 1, never 0, so the empty set is refused by
+/// `MODAL_STURM_COUNT_MISMATCH` instead of published.
+#[test]
+fn modal_empty_set_rejects_a_missed_mode_below_cutoff() {
+    let params = ModalIntegrityParameters::selected_a1_a2_a3_criteria();
+    let lambda = |f: f64| {
+        let omega = 2.0 * std::f64::consts::PI * f;
+        omega * omega
+    };
+    let (f1, f2, cutoff) = (0.5, 2.0, 1.0);
+    let values = [lambda(f1), lambda(f2)];
+    let entry = |row: usize, value: f64| SymmetricMatrixEntry { row, col: row, value };
+    let mut pencil = two_dof_pencil([1.0, 1.0, 0.0], [vec![1.0, 0.0], vec![0.0, 1.0], vec![0.0, 0.0]]);
+    pencil.stiffness = SymmetricMatrix::from_diagonal(&values).unwrap();
+    pencil.stiffness_entries = vec![entry(0, values[0]), entry(1, values[1])];
+    pencil.mass_entries = vec![entry(0, 1.0), entry(1, 1.0)];
+    let (v1, v2) = ([1.0, 0.0], [0.0, 1.0]);
+    let census = FiniteCensus::Established { finite_mode_count: 2, structurally_massless: 0 };
+    let bound = ExtractionBound::FrequencyCutoff(cutoff);
+
+    // Both modes computed: one reported, and the count at the final shift agrees.
+    let ids = cluster_ids(&values, params.cluster_tolerance).unwrap();
+    let completed = complete_reported_set(&[f1, f2], &ids, bound, &census).unwrap();
+    assert_eq!(completed.set.count, 1);
+    assert_eq!(completed.endpoint, ReportedEndpoint::BelowComputedCluster { next_mode: 1 });
+    let sturm = modal_sturm_count(&pencil, &completed, &values, &[&v1, &v2], &[0.0, 0.0], Some(lambda(cutoff)), &params).unwrap();
+    assert_eq!((sturm.count, sturm.reported), (1, 1));
+
+    // The 0.5 Hz pair withheld: the cut-off reports nothing, and the count above
+    // λ_c is 1, so zero cannot agree and the set is refused.
+    let missed_ids = cluster_ids(&values[1..], params.cluster_tolerance).unwrap();
+    let missed = complete_reported_set(&[f2], &missed_ids, bound, &census).unwrap();
+    assert_eq!(missed.set.count, 0);
+    assert_eq!(missed.endpoint, ReportedEndpoint::BelowLowestMode);
+    let refused =
+        modal_sturm_count(&pencil, &missed, &values[1..], &[&v2], &[0.0], Some(lambda(cutoff)), &params).expect_err("an empty set was published");
+    assert_eq!(codes(&refused), vec![MODAL_STURM_COUNT_MISMATCH]);
+    assert!(refused[0].message.contains("is 1, but 0 modes would be reported"), "{}", refused[0].message);
 }
 
 fn general_point_mass_case() -> Value {
