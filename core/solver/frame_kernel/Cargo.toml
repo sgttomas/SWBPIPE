@@ -43,5 +43,5 @@ loaded-maximum-hooks = []
 # test-only constructors of records and evaluations, so a consumer's tests can
 # exercise the carriage with verified and foreign evidence. Enabled only from
 # the dev-dependencies of nonlinear_integration and product_physics; no product
-# dependency edge may name it (product_physics's feature-guard test).
+# build may enable it (product_physics tests/test_only_feature_guard.rs).
 test-synthetic-records = []

@@ -225,8 +225,8 @@ impl InverseNormRecord {
 }
 
 /// Test-only construction (carrier revision 4 §1.1). Enabled only from the
-/// dev-dependencies of `nonlinear_integration` and `product_physics`; a guard
-/// test shows no non-dev dependency edge names the feature.
+/// dev-dependencies of `nonlinear_integration` and `product_physics`; held by
+/// product_physics `tests/test_only_feature_guard.rs` (dependency, forward, default).
 #[cfg(any(test, feature = "test-synthetic-records"))]
 pub mod synthetic {
     use super::*;
