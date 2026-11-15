@@ -1,0 +1,20 @@
+{
+  "outcome": "refused",
+  "provenance": "Inputs: the published signed contributions, modal metadata (mode, scope cluster, frequency) and rigid responses of analysis C10-W3 of validation/references/f2_spectrum/discrete/c10_cluster_witnesses.json (frozen), each as its binary64. Mutation: cluster 1 is split, mode 2 standing alone above f_r, so its contributions are those of a rigid cluster. This is a combination-unit contract fixture: its contributions were not produced by the product, it is not a spectrum solve result or a spectrum-1 document, and it has no standing as an engineering result.",
+  "refusals": [
+    {
+      "code": "SPECTRUM_CONTRIBUTION_NOT_PERIODIC",
+      "detail": "mode:2 belongs to rigid cluster:2; an extracted rigid mode is never combined as periodic",
+      "field": "mode",
+      "object": "mode:2 Y"
+    },
+    {
+      "code": "SPECTRUM_CONTRIBUTION_NOT_PERIODIC",
+      "detail": "mode:2 belongs to rigid cluster:2; an extracted rigid mode is never combined as periodic",
+      "field": "mode",
+      "object": "mode:2 Z"
+    }
+  ],
+  "schema": "openpipestress.spectrum_combination.output/v1",
+  "statement": "Unsigned combined magnitudes formed by the stated modal, rigid-response and directional combination rules from the supplied signed contributions, summing the modes of each supplied cluster with their signs first. Under an absolute-sum rule a magnitude is the sum of the magnitudes it combines. The contributions and their modal metadata are inputs to this unit; it forms no modal response, solves no eigenproblem or rigid response, and is not a response-spectrum analysis result. It establishes neither physical correctness nor code compliance."
+}

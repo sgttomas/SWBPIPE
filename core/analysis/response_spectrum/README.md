@@ -1,11 +1,20 @@
-# response_spectrum (DEL-04-10, unit S2)
+# response_spectrum (DEL-04-10, units S2 and S4)
 
-This crate admits a user-entered spectrum table and evaluates its pseudo-spectral acceleration at a
-query frequency. It is the first unit of DEL-04-10's response-spectrum analysis
-(`execution/PKG-04/DEL-04-10/ScopeOfWork.md`). It is not a spectrum solve. It forms no modal
-response, combination or rigid response, and it publishes no spectrum result.
+This crate holds two units of DEL-04-10's response-spectrum analysis
+(`execution/PKG-04/DEL-04-10/ScopeOfWork.md`):
 
-## What it takes and gives
+- **S2** admits a user-entered spectrum table and evaluates its pseudo-spectral acceleration at a
+  query frequency.
+- **S4** combines supplied signed contributions by the modal, rigid-response and directional rules,
+  and fixes the signed-contribution contract
+  ([Combinations (unit S4)](#combinations-unit-s4)).
+
+The crate is not a spectrum solve. It forms no modal response or rigid response, and it publishes
+no spectrum result.
+
+## The spectrum table (unit S2)
+
+### What it takes and gives
 
 - A spectrum record in the model document's form (`spectra[]`, DEL-02-01 §2.4), which needs:
   - the abscissa (`frequency` or `period`) and its catalog unit;
@@ -20,7 +29,7 @@ response, combination or rigid response, and it publishes no spectrum result.
 Nothing is defaulted, and no table is extrapolated. The damping ratio is recorded and checked
 (0 ≤ ζ ≤ 0.2 for a solve); the ordinates are already at that damping.
 
-## Method
+### Method
 
 The DEL-04-10 scope records Agent 0's decisions on the method:
 
@@ -41,7 +50,7 @@ The DEL-04-10 scope records Agent 0's decisions on the method:
 - After location, the arithmetic is binary64 with the rounding that `SpectrumTable::evaluate`
   documents.
 
-## Refusals
+### Refusals
 
 | Code | When |
 |---|---|
@@ -53,7 +62,7 @@ The DEL-04-10 scope records Agent 0's decisions on the method:
 | `SPECTRUM_SCALE_FACTOR_INVALID` | The scale factor is not positive and finite. |
 | `SPECTRUM_EVALUATION_NONFINITE` | A value would leave the binary64 range. |
 
-## Example
+### Example
 
 ```sh
 cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example evaluate_spectrum < request.json
@@ -89,3 +98,89 @@ The output gives:
 - the second interpolated (S ≈ 5.858 m/s², s·S ≈ 8.787 m/s²);
 - the third refused as `SPECTRUM_FREQUENCY_OUTSIDE_RANGE`;
 - the fourth refused as `SPECTRUM_SCALE_FACTOR_INVALID`.
+
+## Combinations (unit S4)
+
+`combine` takes a `CombinationRequest` and returns a `Combination` of unsigned magnitudes, or named
+refusals. It does not solve, recover or evaluate anything: every number it combines is supplied.
+
+### What it takes
+
+- **The choices.** The modal rule, the directional rule and whether to apply the missing-mass
+  correction, with f_r and the rigid rule when it is applied, and the spectra's damping ratio. None
+  has a default.
+- **The modal metadata.** For every extracted mode: its `mode_index`, its DEL-04-09 cluster
+  (`cluster:N`) and its frequency in Hz, as the modal result publishes them. No cluster is inferred
+  and no cluster tolerance is applied. The structure is checked: modes 1..n in ascending frequency,
+  and clusters chained from 1 over adjacent modes.
+- **The rows** (`contract::Quantity`), each with a unit and frame that follow from its kind:
+  - node displacements and rotations in global axes (m, rad);
+  - element end forces and moments on the element at end i or j, in global or member axes (N, N*m);
+  - support reactions applied to the piping, in global axes, with `Fd` along a skew support's d/|d|.
+
+  Keys follow the frozen references: `N3.uy`, `P1.i.Fx`, `P1.i.Fx_m`, `A1.Fx`.
+- **The signed contributions.** One per mode of a periodic cluster and requested direction, already
+  scaled by the direction's factor. A contribution for a mode of a rigid cluster is refused.
+- **The rigid responses**, when the correction is applied: one signed response per direction,
+  stating the clusters its load left out as periodic. A mismatch with the request's classification
+  is refused.
+
+### What it does (CLM-001)
+
+1. **Classifies.** A cluster is periodic when its lowest frequency is below f_r, and every cluster is
+   periodic without the correction.
+2. **Sums each periodic cluster's contributions with their signs** in ascending mode order. The sums
+   are published with their sign tag.
+3. **Applies the modal rule** across the cluster sums: SRSS, CQC, grouping, ten percent or absolute
+   sum. Each cluster's lowest frequency stands for it in ρ and in the closeness tests.
+4. **Combines the rigid response** with the periodic part: SRSS √(R_p² + R_r²), or the absolute sum
+   R_p + |R_r|.
+5. **Combines the directions** in X, Y, Z order: SRSS, 100-40-40 or absolute sum.
+
+### Numerical choices (to be confirmed by Agent 0)
+
+- **ρ.** Evaluated with s = f_low/f_high ≤ 1 on the published frequencies. This is equal in exact
+  arithmetic to the scope's form in r = ω_j/ω_i, and no intermediate can overflow. ρ_ii = 1.
+- **The closeness tests.** Decided exactly on the represented frequencies, 10·f ≤ 11·f_low, so
+  rounding never decides the inclusive 10 % boundary.
+- **Scaling.** Every rule with a square root is evaluated on its values divided by a power of two
+  near their largest. No square overflows or underflows, and the result rounds once on the way
+  back. A result beyond binary64 is refused.
+- **Cancellation.** Cluster sums and the CQC double sum are plain ordered binary64 sums, and their
+  rounding is relative to their terms. A CQC sum below zero is refused, never clamped. An
+  intermediate overflow of a cluster sum (terms near 1e308) is refused even if the exact sum is
+  finite.
+- **100-40-40.** The governing direction is the largest magnitude (the first in X, Y, Z order on a
+  tie). The factor is the binary64 0.4, above 2/5 by 2⁻⁵⁴ of it.
+
+### Refusals
+
+| Code | When |
+|---|---|
+| `SPECTRUM_METHOD_CHOICE_MISSING` | A method choice is absent or unknown (JSON entry). |
+| `SPECTRUM_DAMPING_OUT_OF_RANGE` | ζ is outside 0 ≤ ζ ≤ 0.2. |
+| `SPECTRUM_CQC_DAMPING_UNSUPPORTED` | CQC with ζ = 0. |
+| `SPECTRUM_RIGID_FREQUENCY_INVALID` | f_r is absent or not positive and finite. |
+| `SPECTRUM_DIRECTION_INVALID` | No direction, a repeated direction, or an unknown one. |
+| `SPECTRUM_MODAL_METADATA_INVALID` | The modal metadata breaks the modal result's structure. |
+| `SPECTRUM_ROW_INVALID` | A row is empty, repeated, or stated with a unit, frame or key its kind does not have. |
+| `SPECTRUM_CONTRIBUTION_INVALID` | A contribution is missing, repeated, not finite, of the wrong length, unsigned, or for a mode or direction the request does not have. |
+| `SPECTRUM_CONTRIBUTION_NOT_PERIODIC` | A contribution for a mode of a rigid cluster. |
+| `SPECTRUM_RIGID_RESPONSE_INVALID` | A rigid response is missing, repeated, not finite or of the wrong length, or is supplied without the correction. |
+| `SPECTRUM_RIGID_RESPONSE_PREMISE_MISMATCH` | The clusters a rigid load left out are not the periodic ones. |
+| `SPECTRUM_COMBINATION_RADICAND_NEGATIVE` | A CQC sum rounds below zero. |
+| `SPECTRUM_COMBINATION_NONFINITE` | A combined value leaves binary64. |
+
+### JSON entry and example
+
+`combination_json` reads and writes the unit's documents
+(`openpipestress.spectrum_combination.input/v1` and `output/v1`; not `spectrum-1`). The
+`combine_contributions` example reads an input document on standard input and prints the output
+document:
+
+```sh
+cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example combine_contributions \
+  < core/analysis/response_spectrum/fixtures/combination/c4_base.input.json
+```
+
+`fixtures/combination/README.md` lists the contract fixtures.

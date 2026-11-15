@@ -360,6 +360,32 @@ pub fn combination_json(c: &Combination) -> Value {
     })
 }
 
+/// Writes a request as an input document, with the producer's statement of where its values
+/// came from. Decoding the document gives the same request back.
+pub fn request_to_json(request: &CombinationRequest, provenance: &str) -> Value {
+    let signed = SignStatus::SignedContribution.as_str();
+    json!({
+        "schema": INPUT_SCHEMA,
+        "provenance": provenance,
+        "damping_ratio": request.damping_ratio,
+        "modal_combination": request.modal_rule.as_str(),
+        "directional_combination": request.directional_rule.as_str(),
+        "missing_mass": missing_mass_json(request.missing_mass),
+        "directions": request.directions.iter().map(|d| d.as_str()).collect::<Vec<_>>(),
+        "modes": request.modes.iter().map(|m| json!({"mode": m.mode.0, "cluster": m.cluster.0, "frequency_hz": m.frequency_hz})).collect::<Vec<_>>(),
+        "rows": request.rows.iter().map(quantity_json).collect::<Vec<_>>(),
+        "contributions": request.periodic.iter().map(|c| json!({
+            "mode": c.mode.0, "direction": c.direction.as_str(), "sign_status": signed, "values": c.values,
+        })).collect::<Vec<_>>(),
+        "rigid_responses": request.rigid.iter().map(|r| json!({
+            "direction": r.direction.as_str(),
+            "periodic_clusters_left_out": r.periodic_clusters_left_out.iter().map(|c| c.0).collect::<Vec<_>>(),
+            "sign_status": signed,
+            "values": r.values,
+        })).collect::<Vec<_>>(),
+    })
+}
+
 /// Decodes an input document to a request. A document that does not decode (malformed JSON, a
 /// missing or unknown member, a wrong schema) is an `Err` with the reason; a document that
 /// decodes but is refused is `Ok(Err(refusals))`.
