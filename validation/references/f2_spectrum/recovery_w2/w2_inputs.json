@@ -125,12 +125,12 @@
    "1000"
   ],
   "H_units": [
-   "N/m",
-   "N/m",
-   "N/m",
-   "N*m/rad",
-   "N*m/rad",
-   "N*m/rad"
+   "N*m",
+   "N*m",
+   "N*m",
+   "N*m",
+   "N*m",
+   "N*m"
   ],
   "reference_load_q_ref": [
    "0",

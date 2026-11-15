@@ -56,7 +56,7 @@ PIPE_MEMBERS = {
 # normalized in exact rational arithmetic (here it is already normal: y = (4/5, 0, 3/5));
 # z = x cross y. The work matrix H is diagonal and positive in the order
 # (axial, lateral y, lateral z, torsion, bending y, bending z); translation scale Ls = 1 m,
-# rotation scale 1 rad, so K = H / (d_a d_b) with d = (Ls, Ls, Ls, 1, 1, 1) equals H here.
+# rotation scale 1 rad, so K = H / (d_a d_b) with d = (Ls, Ls, Ls, 1, 1, 1) has the same numerical entries as H here; H has work units N*m.
 CONNECTOR = {
     "id": "J1",
     "i": "D",
@@ -66,7 +66,7 @@ CONNECTOR = {
     "y_guide_integer": [4, 0, 3],
     "translation_scale_m": "1",
     "H_diagonal": ["150000", "400000", "250000", "500000", "1500", "1000"],
-    "H_units": ["N/m", "N/m", "N/m", "N*m/rad", "N*m/rad", "N*m/rad"],
+    "H_units": ["N*m", "N*m", "N*m", "N*m", "N*m", "N*m"],
     "reference_load_q_ref": ["0", "0", "0", "0", "0", "0"],
 }
 

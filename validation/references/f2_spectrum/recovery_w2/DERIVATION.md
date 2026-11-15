@@ -99,9 +99,11 @@ node i's six, then node j's six.
   rotations about the origin.
 - **Stiffness.**
   - K_c = H/(d_a d_b), with d = (Ls, Ls, Ls, 1, 1, 1) and Ls = 1 m.
-  - H is diagonal and positive: axial 150 kN/m, lateral y 400 kN/m, lateral
-    z 250 kN/m, torsion 500 kN·m/rad, bending y 1.5 kN·m/rad, bending z
-    1.0 kN·m/rad.
+  - H is diagonal and positive, with work coefficients (150000, 400000,
+    250000, 500000, 1500, 1000) N·m for dimensionless q̂ = D⁻¹q. The
+    physical K_c = D⁻¹ H D⁻¹ has translational entries in N/m and rotational
+    entries in N·m/rad. At Ls = 1 m and rotation scale 1 rad the numerical
+    entries coincide; their dimensions do not.
   - K_e = Bᵀ K_c B, exact in ℚ.
   - The unequal lateral and bending terms are invented, so that the connector
     has no axis of symmetry and the rotated frame enters K itself. They also
@@ -343,6 +345,7 @@ V-COMB-R is re-solved with the replaced span also present as pipe:
 - its stiffness only;
 - both.
 
-The base request is then recombined. Each mutant changes T_k, the
-frequencies and the combined values. The reference publishes no member key
-for the span.
+The base request is then recombined. The mass-only and mass-plus-stiffness
+mutants change T_k, frequencies and combined values. The stiffness-only
+mutant leaves M and T_k unchanged while changing frequencies and combined
+values. The reference publishes no member key for the span.

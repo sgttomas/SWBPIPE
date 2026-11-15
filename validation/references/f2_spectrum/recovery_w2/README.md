@@ -126,8 +126,11 @@ python3 -I -B generators/w2_recovery.py --write   # rewrite the JSON files and S
     printed `0`. Such values are zero by symmetry or decoupling.
   - The generator refuses any value between 1e-50 and 1e-35 of that scale.
 - **Convergence and rounding.**
-  - All 86,516 published values are identical at 80 and 100 digits, in the
-    40-digit decimal and in the binary64.
+  - All 86,516 scalar leaves in the convergence comparison are identical at 80
+    and 100 digits. This is a mixed population, not a numerical-pair count:
+    the package has 51,284 decimal/binary64 pairs, 31,154 zero-string leaves,
+    377 other numeric strings, 3,418 other strings, 17 booleans, 264 integers
+    and 2 nulls. The paired values agree in decimal and binary64.
   - The nearest-binary64 rounding of each published value is decided with a
     relative margin of at least 1.47e-21 from the nearest rounding boundary.
     The generator requires more than 1e-60.
@@ -143,8 +146,18 @@ python3 -I -B generators/w2_recovery.py --write   # rewrite the JSON files and S
 | P1 | straight A–B, 1.5 m along X |
 | BEND1 | realized 90° arc B–C, R = 0.375 m, centre (1.5,0.375,0), y_reference (1,−1,0), one flexibility factor k = 4.25 |
 | P2, P3 | face pipes C–D (1.0 m) and E–F (1.25 m) along Y |
-| J1 | massless connector replacing span D–E (0.5 m): zero offsets, Ls = 1 m, Q from guide (4,0,3), H = diag(150e3, 400e3, 250e3 N/m; 500e3, 1.5e3, 1.0e3 N·m/rad) |
+| J1 | massless connector replacing span D–E (0.5 m): zero offsets, Ls = 1 m, Q from guide (4,0,3), H = diag(150e3, 400e3, 250e3, 500e3, 1.5e3, 1.0e3) N·m in normalized coordinates |
 | R1, R2 | linear rods D–E at ±0.1875·Q_y, k = 1.2e8 N/m, e_ref = 0 |
+
+H contains work coefficients for dimensionless q̂ = D⁻¹q. The physical
+stiffness is K = D⁻¹ H D⁻¹: at Ls = 1 m and rotation scale 1 rad its diagonal
+has the same numerical entries, with translational stiffness in N/m and
+rotational stiffness in N·m/rad. The units of H and K are not interchangeable.
+
+The present arc endpoint frames are signed permutations. They do not distinguish
+rotation of signed contributions before combination from the corresponding
+absolute permutation of combined magnitudes. A non-permutation arc orientation
+control is needed before claiming that order is discriminated for arc recovery.
 
 **Why these values.**
 - They are dyadic, so every coordinate, sum, chord and offset is exact in
