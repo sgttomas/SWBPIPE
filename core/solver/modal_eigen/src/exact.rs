@@ -16,6 +16,23 @@
 //! classification of [`WideDd::to_published`] see the exact value's rounding
 //! and its side of every midpoint.
 //!
+//! **What the rounding guarantees** (issue #337). Let E = ⌊log₂|x|⌋ for the
+//! exact sum x ≠ 0, and t = (E mod 32) + 1, the bit length of its top limb.
+//! - The high word is x correctly rounded to 53 bits.
+//! - The low word has the exact sign of x − hi, and is zero only when the
+//!   conversion is exact.
+//! - hi + lo is within 2^−min(96+t, 105) of x relative, a bound approached
+//!   but not attained.
+//! - The 128-bit window holds the top four limbs, so for t ≤ 8 (E mod 32 in
+//!   [0, 7], a quarter of all binades, ordinary masses in [1, 256) among
+//!   them) hi + lo is good only to 2⁻⁹⁷ at worst (t = 1), not to a full
+//!   double-double. For example 1 + 2⁻²⁰⁰ returns lo = 2⁻⁹⁷. For t ≥ 9 the
+//!   error is below 2⁻¹⁰⁵.
+//! - No relative bound holds on the low word alone.
+//! - Rounding and classification read only the high word and the low word's
+//!   sign, so they are exact whatever t is. A caller that uses hi + lo as a
+//!   double-double gets the bound above, not 2⁻¹⁰⁶.
+//!
 //! Every add is O(1) limb operations; carries are propagated every 2²⁸ adds
 //! and before a result is read.
 //!
@@ -423,7 +440,10 @@ impl ExactSum {
     }
 
     /// The sum rounded once: the high word is the correctly rounded binary64
-    /// significand, the low word the remainder rounded to odd (module docs).
+    /// significand, the low word the remainder rounded to odd. hi + lo is
+    /// within 2^−min(96+t, 105) of the sum relative, t the bit length of its
+    /// top limb, so 2⁻⁹⁷ at worst (module docs, "What the rounding
+    /// guarantees").
     pub fn to_wide(&self) -> WideDd {
         self.to_wide_with(&mut Vec::new())
     }
