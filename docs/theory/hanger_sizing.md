@@ -164,13 +164,22 @@ therefore applies exactly as in the model's own solve. A copy keeps only the cas
 solves. It is never saved, never returned as a model and never passes through the
 operation route, so the stored model is unchanged by a sizing run.
 
-Before projection, the complete authored document is checked by the product's
-operating-condition judgement and its pressure-elongation selection check. An invalid
-selection or an unsupported condition or combination must not disappear when cases
-or combinations are removed. These checks perform no solve. A refusal uses
+Before projection, the product's `admit_source_before_assembly` entry checks the
+complete source after the candidate eligibility checks and their permitted
+neutralisation. Only the named candidates become rigid guides on their admitted
+DOF, with their hanger, stiffness and nonlinear members removed. No case,
+combination, support, state, load or reference is removed for source admission.
+The source the result binds remains the unchanged authored request.
+
+The entry reuses ordinary product checks and effective-case resolution without
+another solve. An excluded ledger primitive stays excluded. A refusal uses
 `HANGER_SIZING_DERIVED_SOLVE_FAILED`, names `source`, and carries the product's own
-diagnostic codes. These checks are not a complete physical-admission proof of the
-source; every derived solve still performs the ordinary solve's checks.
+diagnostic codes and affected identities. Admission has a cost: it parses and
+normalises a working copy, resolves cases and selected material bases, and prepares
+their effective loads. It does not establish convergence, stability or the later
+computed-quantity checks of a case sizing does not solve; every selected derived
+solve still performs the ordinary solve's checks. Document kind and version are
+unchanged by projection and are checked by the first derived solve.
 
 If a derived solve is refused, fails to converge, publishes a blocking diagnostic or
 omits a value sizing needs, the whole request is refused, carrying that solve's
