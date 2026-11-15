@@ -202,6 +202,26 @@ fn two_span_input() -> Value {
 /// constant record, C (constant) is selected and D (variable) has no fit, so
 /// the verification is conditional.
 fn four_span_input() -> Value {
+    // This library supplies provenance to the committed applied-model fixture.
+    // Its invented records have the maintained "accepted public" disposition.
+    fn public_provenance(value: &mut Value) {
+        match value {
+            Value::Object(object) => {
+                if let Some(provenance) = object.get_mut("provenance") {
+                    provenance["redistribution_status"] = json!("public_permissive");
+                    provenance["review_status"] = json!("accepted");
+                }
+                for child in object.values_mut() {
+                    public_provenance(child);
+                }
+            }
+            Value::Array(array) => array.iter_mut().for_each(public_provenance),
+            _ => {}
+        }
+    }
+    let mut library = library_document();
+    public_provenance(&mut library);
+    library["hanger_library"]["privacy_class"] = json!("public_permissive_reviewed");
     json!({
         "request": four_span_request(),
         "sizing": {
@@ -218,7 +238,7 @@ fn four_span_input() -> Value {
                        "travel_allowance_m": 0.0, "selection_rule": "least_variation"},
             "solver_mode": "sparse_interactive"
         },
-        "library": library_document()
+        "library": library
     })
 }
 

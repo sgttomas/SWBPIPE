@@ -4,7 +4,8 @@
 // product's `hanger_sizing_reply_two_span.json` (one selection, so the per-candidate act). The apply-all act needs a run
 // of two or more selections: the four-span input and the product's four-span result (two selections), whose binding to
 // its input's request holds as committed (the form is given that model as it is); that result has no committed reply,
-// so its reader evidence is not bound and its standings show as not checked. The library is the same in both inputs.
+// so its reader evidence is not bound and its standings show as not checked. Each reply uses its own input's library;
+// the four-span library has public fixture provenance, so its hash differs from the two-span library's.
 // Revising the library means the host's stored document changes under the same id (another name), and the person
 // reopens it in the form.
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -37,10 +38,10 @@ afterEach(() => {
 const model = () => structuredClone(twoSpanInput.request.model) as unknown as PreviewModel;
 const fourSpanModel = () => structuredClone(fourSpanInput.request.model) as unknown as PreviewModel;
 const fourSpanReply = () => ({ document: structuredClone(fourSpanResult), evidence: { document_sha256: "0".repeat(64), verdict: {} } });
-const library = () => structuredClone(twoSpanInput.library) as Record<string, unknown>;
+const library = (fourSpan = false) => structuredClone((fourSpan ? fourSpanInput : twoSpanInput).library) as Record<string, unknown>;
 const LIBRARY_ID = (twoSpanInput.library.hanger_library as { library_id: string }).library_id;
-const revised = () => {
-  const changed = library();
+const revised = (fourSpan = false) => {
+  const changed = library(fourSpan);
   (changed.hanger_library as Record<string, unknown>).name = "Invented sizing hangers, revised";
   return changed;
 };
@@ -140,8 +141,8 @@ describe("a revised hanger library withdraws a sized selection's application", (
 
   for (const { act, prepare, review, fourSpan } of ACTS) {
     it(`withdraws ${act} when the stored library was revised or removed after the run, though the form still holds the old one`, async () => {
-      for (const [now, text] of [[revised, "HANGER_SIZING_LIBRARY_CHANGED_TEXT"], [() => null, "HANGER_SIZING_LIBRARY_UNAVAILABLE_TEXT"]] as const) {
-        const stored = { current: library as () => Record<string, unknown> | null };
+      for (const [now, text] of [[() => revised(fourSpan), "HANGER_SIZING_LIBRARY_CHANGED_TEXT"], [() => null, "HANGER_SIZING_LIBRARY_UNAVAILABLE_TEXT"]] as const) {
+        const stored = { current: (() => library(fourSpan)) as () => Record<string, unknown> | null };
         host(stored, fourSpan ? fourSpanReply : undefined);
         const queue = vi.fn();
         await renderSized(fourSpan, queue);
@@ -158,13 +159,13 @@ describe("a revised hanger library withdraws a sized selection's application", (
     });
 
     it(`drops a batch prepared by ${act} when the person reopens a revised library under the same id, so it cannot be queued`, async () => {
-      const stored = { current: library as () => Record<string, unknown> | null };
+      const stored = { current: (() => library(fourSpan)) as () => Record<string, unknown> | null };
       host(stored, fourSpan ? fourSpanReply : undefined);
       const queue = vi.fn();
       await renderSized(fourSpan, queue);
       fireEvent.click(await screen.findByRole("button", { name: prepare }));
       await screen.findByTestId(review);
-      stored.current = revised;
+      stored.current = () => revised(fourSpan);
       await reopen();
       expect(await screen.findByTestId("hanger-sizing-apply-library-changed")).toBeInTheDocument();
       expect(screen.queryByTestId(review)).toBeNull();

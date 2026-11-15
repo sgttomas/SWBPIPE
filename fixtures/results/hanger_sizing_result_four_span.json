@@ -8,7 +8,7 @@
     "canonical_profile": "openpipestress_jcs_ijson_v1",
     "library": {
       "library_id": "invented.hangers.sizing",
-      "sha256": "e904866d00f0b665b9f4d7fc078b95fd583418d5b6174d09eb3bca0adfdc7861"
+      "sha256": "60a5bc764720392bd1270b92014b9078143e277ebb72e24118b32f53fe385fad"
     },
     "sizing_request": {
       "candidates": [
@@ -86,7 +86,7 @@
           "family": "constant_effort",
           "hanger_id": "CE-2",
           "load_n": 4571.428571428572,
-          "record_sha256": "76b38078001d0e7c6c339c987bdbb83f4d382cd4d81a72390c550f83e407e9e7"
+          "record_sha256": "1269525c6f0fae10456bc5ef9470076197b8c2e9e49e35dbb1da7af5e58491b1"
         },
         "span_m": [
           0.0,
@@ -145,7 +145,7 @@
           "family": "constant_effort",
           "hanger_id": "CE-1",
           "load_n": 3714.285714285714,
-          "record_sha256": "230a1bc1b4710814f882425c3bc3d472927bd93056df0561d365aeaa09ba5e9e"
+          "record_sha256": "e6c3d4062c57919977e527b6fc44068eb64e07523f19f785b5fdb3d76505584d"
         },
         "span_m": [
           0.0,
