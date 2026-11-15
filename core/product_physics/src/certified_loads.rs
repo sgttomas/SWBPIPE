@@ -218,6 +218,56 @@ fn mass(section: &PipeSectionInput, exact: bool) -> MassPrimitive {
         },
     }
 }
+/// A generated self-weight record's mass operands: its
+/// `normalized_dependencies`, the generator's own SI operands. Applied-weight
+/// validation compares these by JSON value equality with normalized
+/// `mass_inputs` and recomputes `mass_kg_per_m` and the generated payload.
+/// These comparisons do not distinguish signed zero. `mass_inputs` retain
+/// authored units and are never read here. A dependency set
+/// that does not parse, lacks a member or holds a non-SI unit gives NaN
+/// operands, so the check fails closed with its named reason.
+fn recorded_mass(evidence: &serde_json::Value) -> MassPrimitive {
+    const LENGTHS: [&str; 5] = [
+        "outside_diameter",
+        "wall_thickness",
+        "mill_tolerance",
+        "insulation_thickness",
+        "corrosion_allowance",
+    ];
+    const DENSITIES: [&str; 3] = ["material_density", "contents_density", "insulation_density"];
+    let exact = evidence["mass_method"] == self_weight::EXACT_MASS_METHOD;
+    let section = evidence["normalized_dependencies"].as_object().and_then(|dependencies| {
+        let mut section = dependencies.clone();
+        section.remove("section_ref")?;
+        let si = |names: &[&str], dimension| {
+            let unit = canonical_unit(dimension).map(|unit| unit.definition().symbol);
+            names.iter().all(|name| match section.get(*name) {
+                Some(serde_json::Value::Null) => !(exact && *name == "corrosion_allowance"),
+                Some(quantity) => unit.is_some_and(|unit| quantity["unit"] == unit),
+                None => !exact && *name == "corrosion_allowance",
+            })
+        };
+        if !si(&LENGTHS, Dimension::Length) || !si(&DENSITIES, Dimension::Density) {
+            return None;
+        }
+        serde_json::from_value::<PipeSectionInput>(serde_json::Value::Object(section))
+            .ok()
+            .filter(|section| section.material_density.is_some())
+    });
+    section.map_or(
+        MassPrimitive {
+            outer_diameter: f64::NAN,
+            wall_thickness: f64::NAN,
+            mill_tolerance: f64::NAN,
+            pipe_density: f64::NAN,
+            contents_density: f64::NAN,
+            insulation_thickness: f64::NAN,
+            insulation_density: f64::NAN,
+            corrosion_allowance: exact.then_some(f64::NAN),
+        },
+        |section| mass(&section, exact),
+    )
+}
 pub(super) fn intensity(
     model: &PreviewModel,
     load: &open_pipe_stress_primitive_loads::ElementUniformLoadContribution,
@@ -289,24 +339,7 @@ pub(super) fn intensity(
                 if evidence["method"] == self_weight::GENERATED_METHOD {
                     // This source provenance has already passed the applied-weight
                     // validation. A manual override is an authored intensity.
-                    let q = |name: &str| {
-                        evidence["mass_inputs"][name]["value"]
-                            .as_f64()
-                            .unwrap_or(0.0)
-                    };
-                    let mass = MassPrimitive {
-                        outer_diameter: q("outside_diameter"),
-                        wall_thickness: q("wall_thickness"),
-                        mill_tolerance: q("mill_tolerance"),
-                        pipe_density: q("material_density"),
-                        contents_density: q("contents_density"),
-                        insulation_thickness: q("insulation_thickness"),
-                        insulation_density: q("insulation_density"),
-                        // D-5: the exact mass method names its allowance.
-                        corrosion_allowance: (evidence["mass_method"]
-                            == self_weight::EXACT_MASS_METHOD)
-                            .then(|| q("corrosion_allowance")),
-                    };
+                    let mass = recorded_mass(&evidence);
                     let gravity = evidence["normalized_acceleration_m_per_s2"]
                         .as_f64()
                         .unwrap_or(f64::NAN);

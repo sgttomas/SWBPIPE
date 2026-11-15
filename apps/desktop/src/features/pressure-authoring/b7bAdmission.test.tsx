@@ -15,6 +15,11 @@ function model(): PreviewModel {
   const model = structuredClone(fixture) as PreviewModel;
   model.schema_version = "0.9.0";
   delete model.pressure_contract;
+  // The pressure elongation setting needs the contract; a pressure-free document carries neither.
+  if (model.model_settings) {
+    delete model.model_settings.pressure_elongation;
+    if (Object.keys(model.model_settings).length === 0) delete model.model_settings;
+  }
   for (const pipe of model.pipe_segments) {
     pipe.section.corrosion_allowance = { value: 0, unit: "m" };
   }

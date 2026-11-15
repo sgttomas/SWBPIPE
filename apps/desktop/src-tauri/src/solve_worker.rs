@@ -2,7 +2,8 @@
 //! worker process"; DEL-04-07 memory-budget decision).
 //!
 //! Each ordinary solve runs in a short-lived local child process: this app's
-//! own executable started with [`WORKER_FLAG`], with a minimal environment,
+//! own executable started with [`WORKER_FLAG`], with a minimal environment
+//! (cleared, then only the home and temporary folder: [`WORKER_PASSED_ENV`]),
 //! stdin/stdout as its framed control channel and stderr discarded. No
 //! daemon, network, telemetry or persistent service is involved; the child
 //! ends with its job.
@@ -615,7 +616,20 @@ pub(crate) trait WorkerLauncher: Send + Sync {
     fn command(&self) -> std::io::Result<Command>;
 }
 
-/// The product launcher: this executable with [`WORKER_FLAG`] and an empty environment.
+/// The only variables the product launcher hands the worker from this
+/// process's environment, each only if it is set here: the home and the
+/// temporary folder, so that the worker and the system frameworks it loads
+/// resolve the same home and temporary folder as the app. A closed list, read
+/// in the product only by [`CurrentExeLauncher`]; nothing else passes. With none of them set
+/// the worker falls back to the account's own, as it did with none passed. A
+/// launch whose environment sets them hands the worker the same values the app
+/// has. Where a launch sets one to something other than the account's own, the
+/// worker now follows the app there, which is the purpose and differs from
+/// before: these are three variables, not a confinement of the worker.
+pub(crate) const WORKER_PASSED_ENV: [&str; 3] = ["HOME", "CFFIXED_USER_HOME", "TMPDIR"];
+
+/// The product launcher: this executable with [`WORKER_FLAG`] and a cleared
+/// environment, given only the [`WORKER_PASSED_ENV`] variables this process has.
 #[derive(Debug, Default)]
 pub(crate) struct CurrentExeLauncher;
 
@@ -623,6 +637,11 @@ impl WorkerLauncher for CurrentExeLauncher {
     fn command(&self) -> std::io::Result<Command> {
         let mut command = Command::new(std::env::current_exe()?);
         command.arg(WORKER_FLAG).env_clear();
+        for name in WORKER_PASSED_ENV {
+            if let Some(value) = std::env::var_os(name) {
+                command.env(name, value);
+            }
+        }
         Ok(command)
     }
 }
@@ -733,7 +752,9 @@ struct WorkerProcess {
 }
 
 impl WorkerProcess {
-    fn spawn(launcher: &dyn WorkerLauncher) -> std::io::Result<Self> {
+    /// The launcher's command as the worker is started: its stdio, its own
+    /// process group and the parent pid ([`PARENT_PID_ENV`]).
+    fn prepared(launcher: &dyn WorkerLauncher) -> std::io::Result<Command> {
         let mut command = launcher.command()?;
         command.stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::null());
         // Its own process group in this session: if this process dies while
@@ -743,6 +764,11 @@ impl WorkerProcess {
         std::os::unix::process::CommandExt::process_group(&mut command, 0);
         // The worker's parent-death watchdog watches this pid.
         command.env(PARENT_PID_ENV, std::process::id().to_string());
+        Ok(command)
+    }
+
+    fn spawn(launcher: &dyn WorkerLauncher) -> std::io::Result<Self> {
+        let mut command = Self::prepared(launcher)?;
         let mut child = {
             let _serial = SPAWN_LOCK.lock().unwrap_or_else(PoisonError::into_inner);
             command.spawn()?
@@ -3423,5 +3449,113 @@ pub(crate) mod tests {
     #[test]
     fn a_running_worker_ends_when_its_parent_dies() {
         worker_ends_when_its_parent_dies(false, Duration::from_secs(2));
+    }
+}
+
+/// The product launcher's environment ([`WORKER_PASSED_ENV`]). The parent's
+/// environment cannot be changed inside this test process (other tests run
+/// on other threads), so each case runs [`production_worker_env::parent_entry`]
+/// as a child of this test binary with a cleared environment holding only the
+/// case's variables; that child reads the product command as the product's
+/// spawn prepares it ([`WorkerProcess::prepared`]). Its `Debug` text begins
+/// `env -i` only when the environment is cleared, and its set variables are
+/// all that a cleared command passes to `exec`. The command is not run: the
+/// program is this test binary, which refuses the worker flag. Values name no
+/// real folder; nothing is created on disk.
+#[cfg(test)]
+mod production_worker_env {
+    use super::*;
+    use std::collections::BTreeMap;
+    use std::ffi::OsString;
+
+    const ENTRY: &str = "solve_worker::production_worker_env::parent_entry";
+    /// Marks the parent child; outside the closed list, so it must not reach the worker.
+    const PARENT_ENV: &str = "SWBPIPE_TEST_PRODUCTION_WORKER_PARENT";
+    /// The names (of the three) the case gave the parent, comma-separated.
+    const EXPECT_ENV: &str = "SWBPIPE_TEST_PRODUCTION_WORKER_EXPECT";
+
+    #[test]
+    fn the_closed_list_is_exactly_the_home_and_temporary_folder() {
+        assert_eq!(WORKER_PASSED_ENV, ["HOME", "CFFIXED_USER_HOME", "TMPDIR"]);
+    }
+
+    /// Variables outside the list, set in every case's parent.
+    fn outside() -> Vec<(&'static str, &'static str)> {
+        let seeded = vec![
+            ("AWS_SECRET_ACCESS_KEY", "not-a-secret-test-value"),
+            ("SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER", "1"),
+            ("PATH", "/swbpipe-test/bin"),
+        ];
+        // The result injection's variable, named only in a native-smoke build.
+        #[cfg(feature = "native-smoke")]
+        let seeded = {
+            let mut seeded = seeded;
+            seeded.push((crate::native_smoke_inject::INJECT_RESULT_ENV, "/swbpipe-test/injected-result.json"));
+            seeded
+        };
+        seeded
+    }
+
+    fn run_case(passed: &[(&str, &str)]) {
+        let expect: Vec<&str> = passed.iter().map(|(name, _)| *name).collect();
+        let output = Command::new(std::env::current_exe().unwrap())
+            .args([ENTRY, "--exact", "--test-threads=1", "--nocapture"])
+            .env_clear()
+            .env(PARENT_ENV, "1")
+            .env(EXPECT_ENV, expect.join(","))
+            .envs(outside())
+            .envs(passed.iter().copied())
+            .output()
+            .unwrap();
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert!(output.status.success(), "parent child failed ({:?}):\n{stdout}\n{stderr}", output.status);
+        assert!(stdout.contains("production worker env checked"), "the parent entry did not run:\n{stdout}\n{stderr}");
+    }
+
+    #[test]
+    fn a_parent_with_all_three_hands_exactly_those_and_its_pid() {
+        run_case(&[
+            ("HOME", "/swbpipe-test/home"),
+            ("CFFIXED_USER_HOME", "/swbpipe-test/fixed-home"),
+            ("TMPDIR", "/swbpipe-test/home/tmp/"),
+        ]);
+    }
+
+    #[test]
+    fn a_parent_with_some_hands_only_those_it_has() {
+        run_case(&[("HOME", "/swbpipe-test/home"), ("TMPDIR", "/swbpipe-test/home/tmp/")]);
+    }
+
+    #[test]
+    fn a_parent_with_none_of_the_three_hands_only_its_pid() {
+        run_case(&[]);
+    }
+
+    /// Run only as a case's parent ([`PARENT_ENV`]); otherwise it returns at once.
+    #[test]
+    fn parent_entry() {
+        if std::env::var_os(PARENT_ENV).is_none() {
+            return;
+        }
+        let expect: Vec<String> =
+            std::env::var(EXPECT_ENV).unwrap().split(',').filter(|name| !name.is_empty()).map(str::to_string).collect();
+        let mine = |name: &str| std::env::var_os(name).unwrap();
+        let wanted: BTreeMap<OsString, OsString> =
+            expect.iter().map(|name| (OsString::from(name), mine(name))).collect();
+
+        // The command as the product's spawn prepares it: a cleared environment,
+        // exactly the wanted variables and the parent pid.
+        let command = WorkerProcess::prepared(&CurrentExeLauncher).unwrap();
+        let shown = format!("{command:?}");
+        assert!(shown.starts_with("env -i "), "the environment is not cleared: {shown}");
+        let set: BTreeMap<OsString, OsString> = command
+            .get_envs()
+            .map(|(name, value)| (name.to_os_string(), value.expect("nothing is removed, only set").to_os_string()))
+            .collect();
+        let mut wanted = wanted;
+        wanted.insert(PARENT_PID_ENV.into(), std::process::id().to_string().into());
+        assert_eq!(set, wanted);
+        println!("production worker env checked");
     }
 }

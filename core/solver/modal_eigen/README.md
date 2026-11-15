@@ -45,14 +45,15 @@ The crate is single-threaded and runs every loop in a fixed order. It uses only 
 
 ## What it does not do yet
 
-- No product mapping into `ElementOperand` (I2), no Timoshenko straight (M4) and no directional flexibility factors beyond the two the bend seam takes.
+- No product mapping into `ElementOperand` (I2) and no directional flexibility factors beyond the two the bend seam takes.
+- The Timoshenko straight mass (`reformation::mass::straight_mass_timoshenko`, DEL-04-09 REQ-001) exists but nothing calls it yet: the re-formation operand does not carry the shear area, and the product's mass assembly, integrity re-formation and readers do not form it (DEL-04-09 parts (2) and (3); the modal refusal `MODAL_TIMOSHENKO_MASS_UNSUPPORTED` stands until then).
 - No sparse path (§3.3, M2), no mass assembly, no weight-basis check (§2), and no product entry or result rows (§3.5, §5).
 - No production values for the algorithm parameters: δ_c, τ_t, the infinite-μ threshold, the QL iteration limit, the mass-pivot threshold of the finite-mode count, the resolution floor's c_μ and κ_μ and the Sturm parameters are caller inputs. The values in the tests are test-local; the production values are recorded under DEC-026 (design §9, O-6).
 - No residual threshold τ_r and no orthogonality tolerance: the tests' bounds are test-local (DEC-026). `sturm`'s own tests still use a stand-in e_λ on the formed pencil.
 
 ## Tests
 
-`cargo test` runs the unit tests in each module, `tests/dense_reference.rs`, `tests/sturm_counts.rs`, `tests/reformation.rs` and `tests/workspace_reuse.rs`:
+`cargo test` runs the unit tests in each module, `tests/dense_reference.rs`, `tests/sturm_counts.rs`, `tests/reformation.rs`, `tests/timoshenko_mass.rs` and `tests/workspace_reuse.rs`:
 
 - The dd tests check against exact integer and power-of-two expectations.
 - The dense pencils have closed forms: K = I with diagonal M (exact), 2-DOF pencils, the second-difference matrix with M = I, 4I and a non-uniform diagonal, exactly repeated pairs (compared as subspaces), a singular lumped M, and a stiffness scale series from 1e3 to 1e6.
@@ -91,6 +92,8 @@ The conditioning and separation premises each separate the two populations by or
 - The range-premise witnesses are refused by operand; repeated runs are bit-identical.
 - Check 2 against closed forms: η, κ_λ and e_λ on a 2×2 pencil with hand-perturbed vectors agree within 4u; cluster estimates are the largest over their members; the dense modes are M̂-orthogonal within an empirical fixture threshold, 10⁻⁷ (measured largest 1.3·10⁻⁸). It is not a derived bound and not the production tolerance (DEC-026): the first-order bound n·u·√(λ_iλ_j)/λ₁ was withdrawn after review round 2, which showed a close pencil (K = M = [[2, 1], [1, ½ + 2⁻³⁰]]) at about 2.65·10⁻¹², beyond it; that witness is a test that the ratio is finite and reported.
 - The PR #33 review witnesses: component bodies whose |r|² under- or overflows while every m·r_a·r_b is admitted, and the design's admission witnesses (§3.2 item 5), a small-bore one-element cantilever (smallest/largest mass diagonal 6.0·10⁻⁶, equilibrated pivots all ≥ 0.22) and a short-member cantilever (0.3 m then 0.02 m of NPS 6), admitted with their full finite counts.
+
+`tests/timoshenko_mass.rs` compares the Timoshenko straight mass with the source-blind exact element references of `validation/references/modal_timoshenko_mass`: both bending planes and the assembled 12×12 in global axes, for the frozen problem statement's five cases and its Addendum 1's three (unequal second moments, Φ from 2⁻²⁰⁰⁰ to 2²⁰⁰⁰, and an exact plane below 2⁻⁹⁶⁹). Its operands and expectations are in `tests/fixtures/timoshenko_mass_cases.txt`, which `tests/fixtures/timoshenko_mass_cases.py` writes from the package's two outputs, read-only, and checks byte for byte. The comparison is normwise at the same 10⁻²⁹, and entrywise for the addendum's cases. The tests also show a plane swap detected, continuity with the Euler–Bernoulli straight near Φ = 0, a sparse-tailed Φ formed, the three conversion-range witnesses and non-positive or non-finite shear operands refused, and the returned matrix exactly symmetric; unit tests show each plane at Φ = 0 equal to the Euler–Bernoulli plane and the conversion helper on dyadic values.
 
 ### Admission range and resolution floor (review round 3)
 

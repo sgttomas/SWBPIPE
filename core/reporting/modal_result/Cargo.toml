@@ -2,6 +2,7 @@
 name = "open_pipe_stress_modal_result"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "DEL-04-09 I3a: the Rust reader of the modal result family openpipestress.modal_result"
 publish = false
 

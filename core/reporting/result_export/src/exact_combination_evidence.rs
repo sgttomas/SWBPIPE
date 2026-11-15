@@ -180,20 +180,39 @@ thread_local! {
     pub(crate) static PRESSURE_PASSES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
-/// The direct-case view: the document without its combination rows and its
-/// `exact_combinations` record, for the unchanged primitive-case pass. The
-/// record must be present and non-empty whenever a combination row is.
+/// The direct-case view: the document without its combination rows, its
+/// `exact_combinations` record and its `combination_certificate` member (RT-A3 §4:
+/// the certificate goes with the combinations), for the unchanged primitive-case
+/// pass. The record must be present and non-empty whenever a combination row is.
+///
+/// The view is built in one pass from the received document, cloning only what it
+/// keeps, so the reader never holds a whole copy of the document. It is the value
+/// the former two copies made (the document without the certificate, then that
+/// without the record and rows), `results: null` included where the document has no
+/// `results` member, as their indexed removal inserted it.
 pub(crate) fn direct_view(source: &Value) -> Result<Value, String> {
     let records = source["contract_evidence"].get("exact_combinations").ok_or_else(|| fail("EVIDENCE_MISSING"))?;
     require(records.as_array().is_some_and(|r| !r.is_empty()), "EVIDENCE_SHAPE")?;
-    let mut view = source.clone();
-    if let Some(evidence) = view["contract_evidence"].as_object_mut() {
-        evidence.remove("exact_combinations");
+    // `records` was found by key, so the document and its evidence are objects.
+    let mut view = serde_json::Map::new();
+    for (key, value) in source.as_object().into_iter().flatten() {
+        let kept = match key.as_str() {
+            "contract_evidence" => Value::Object(
+                value.as_object().into_iter().flatten()
+                    .filter(|(k, _)| !matches!(k.as_str(), "exact_combinations" | crate::combination_certificate::MEMBER))
+                    .map(|(k, v)| (k.clone(), v.clone()))
+                    .collect(),
+            ),
+            "results" => match value.as_array() {
+                Some(rows) => Value::Array(rows.iter().filter(|row| !is_combination_row(row)).cloned().collect()),
+                None => value.clone(),
+            },
+            _ => value.clone(),
+        };
+        view.insert(key.clone(), kept);
     }
-    if let Some(rows) = view["results"].as_array_mut() {
-        rows.retain(|row| !is_combination_row(row));
-    }
-    Ok(view)
+    view.entry("results").or_insert(Value::Null);
+    Ok(Value::Object(view))
 }
 
 // ------------------------------------------------------------------ exact sum

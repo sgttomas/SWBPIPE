@@ -187,7 +187,7 @@
   "J3-1": {
    "description": "JR J3 row 1: anchored outer ends, untied",
    "request": "requests/J3-1.request.json",
-   "request_sha256": "e64cbeae5b9f25a25b1d38566579e3d9ccabd7e69304e9637af20033efa49e47",
+   "request_sha256": "5b4aabda6740f11b8fa75a76459df4d23975ff752a267871111796aa978d0f68",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -838,7 +838,7 @@
   "J3-1T": {
    "description": "J3 row 1 with a uniform stub temperature change of 10 degC (JR's thermal anchored relation, q_ref = 0)",
    "request": "requests/J3-1T.request.json",
-   "request_sha256": "829fc390290b7b0ed392f50078c01a9f7f8a4e56f23c13ee067309c05f36307d",
+   "request_sha256": "a8f4f27760e4928fd8a898149f481a86dc7643656809e94ab4a0e8f155d62c73",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -1484,7 +1484,7 @@
   "J3-1Q": {
    "description": "J3 row 1 with a prestressed joint, q_ref = (0.001 m, 0, 0, 0, 0, 0) (JR's anchored relation, eps_T = 0)",
    "request": "requests/J3-1Q.request.json",
-   "request_sha256": "9133942c3d3f7e3173be56f3bf269ca82103f23891dd8a79e09855762306094a",
+   "request_sha256": "d76c7c64688c14dc932afc84434140be920e2cfe59b6c5c8aaaf7290cdfdc086",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -2130,7 +2130,7 @@
   "J3-1TQ": {
    "description": "JR's thermal anchored relation (k + kp/2) q = Pe - (1 - 2 nu) Pi - EA eps_T + k q_ref, both terms present",
    "request": "requests/J3-1TQ.request.json",
-   "request_sha256": "ee9d7d0e6a1ebccd29e8ef0e640c0ffdd4ab8f783f2cbfc1dcd2fa52506bcf92",
+   "request_sha256": "9e027e6a107fd869b3353652e939377d544e3618005071adaac771e709d1dcb8",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -2776,7 +2776,7 @@
   "J3-1N": {
    "description": "J3 row 1 with nu = 0 (no Poisson eigenload: h = 0)",
    "request": "requests/J3-1N.request.json",
-   "request_sha256": "452f3b0cff9ce935a5250b036c8b9beb9bc404520ee59eecf96b51f755bb1bfe",
+   "request_sha256": "ebeb546a5c73dcca09984f9d21d28593f0dccbbeb4b4f8a83963d8a8c28540cb",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -3422,7 +3422,7 @@
   "J3-1K": {
    "description": "J3 row 1, stiff joint limit (k = 2e9 N/m)",
    "request": "requests/J3-1K.request.json",
-   "request_sha256": "c4abf692de1e007d0fc1ed2b89bdf20651bafa9a05a5b7c398f418be49e5af3e",
+   "request_sha256": "3e9b3e55e1654b7e683d94e4d8e4d54a842a6aff66a98482d9bb2aaa4c935889",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -4068,7 +4068,7 @@
   "J3-1F": {
    "description": "J3 row 1, soft joint limit (k = 2e3 N/m)",
    "request": "requests/J3-1F.request.json",
-   "request_sha256": "8409f4689c6a37b88fdd6e4ed4d9c4a3ff59d1929dc60188d9a68f5bff2f4f44",
+   "request_sha256": "9ca22bddb26509173c3c7838998d6fe077658afa2201954c8e41b9f3c55f4077",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -4714,7 +4714,7 @@
   "J3-1R": {
    "description": "J3 row 1 rotated by a proper rational rotation (every axis skew) and translated (whole-model covariance)",
    "request": "requests/J3-1R.request.json",
-   "request_sha256": "c72059741eff1d0d63cbae3add491099cfa0e62b97656d33a59d1d96b3623dd4",
+   "request_sha256": "6eeaea1a39eef7783180e9339ee0e25cff553f51b46bff518ec02158b84e4aa8",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -5360,7 +5360,7 @@
   "J3-1V": {
    "description": "J3 row 1 with the connector's ends reversed (end_i at C, Q' = Q J, J = diag(-1, 1, -1)): face-sign control",
    "request": "requests/J3-1V.request.json",
-   "request_sha256": "bba8f7b4650c9258edd6670b2a09c711b15a866d102c10050a9a491e9bc6344f",
+   "request_sha256": "fc8400526d9cdee0c92b296bb5a1b35871c806f24c14fccd920feb0c14a577ca",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -6006,7 +6006,7 @@
   "J3-1W": {
    "description": "J3 row 1 with pipe R authored from D to C (traversal against authoring): face-cap sign control",
    "request": "requests/J3-1W.request.json",
-   "request_sha256": "9dcf5d89a6ee4036e8c750c7cb7f97ae798d816a156e0cebb46d2586b3cde8dd",
+   "request_sha256": "d822163cff3e338088887c69601472b421c3e3f56e795df0da4463f695acacac",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -6652,7 +6652,7 @@
   "J3-AE1": {
    "description": "area-equality control, anchored: Ae = Ai exactly, so the joint correction p(Ae - Ai) is zero",
    "request": "requests/J3-AE1.request.json",
-   "request_sha256": "3a40b93dbe0942ba00b32d4793cefa8bb191ed9389876a803baf205d36f2c1a7",
+   "request_sha256": "d10bb38ddba332c176f392a7a846914e5eb19733cfe19c74e40656f1a93b3b2c",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -7944,7 +7944,7 @@
   "J3-3": {
    "description": "JR J3 row 3: free closed outer ends with one axial datum (A), untied",
    "request": "requests/J3-3.request.json",
-   "request_sha256": "7598c7b47dac284ac0d84de634682f04b537b71e14fefd11fe01376266816732",
+   "request_sha256": "ada829e90c3e5ec58a6919b996ca356e74cc82d860aab8155e8b7e0b38db94a4",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -8564,7 +8564,7 @@
   "J3-3S": {
    "description": "J3 row 3 with the closure at D separately supported (its cap is reacted outside the pipe solve)",
    "request": "requests/J3-3S.request.json",
-   "request_sha256": "b55b018b23401b547f8dfbb63345f824a1d5a1086e036f8a16db0e3660cd7651",
+   "request_sha256": "991d78a454dd83a8cbedc3f427279b119782b132d8bb10c9af3c46eef1a666f7",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -9179,7 +9179,7 @@
   "J3-AE3": {
    "description": "area-equality control, free: Ae = Ai, the joint carries exactly Pi",
    "request": "requests/J3-AE3.request.json",
-   "request_sha256": "1d54f7bd7eebfdac2beb4b91fe70e018785c5ed43cdc18bc64cdb878ed1065eb",
+   "request_sha256": "562171b7ea31fdda69e4c9ef2ec4586f5c47068bb9cb8aea76aab5c61f47dc5d",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -9794,7 +9794,7 @@
   "J3-5U": {
    "description": "JR J3 row 5 in its untied form: the free closed chain with an untied joint of stiffness k + k_rod = 2.02e7 N/m (same q as row 5; U5b splits it into Tb and Tt)",
    "request": "requests/J3-5U.request.json",
-   "request_sha256": "ba56d91991ebaa09bc5e9310d6872b9d0f9241a94c47b8928c5a1047fb231530",
+   "request_sha256": "4a68b75ddd29d61879b9d9ba6c18f7d8920c4ca87ac809e6cf7de17599642550",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -10409,7 +10409,7 @@
   "J3-5UA": {
    "description": "the row-5 stiffness (2.02e7 N/m) untied, anchored outer ends",
    "request": "requests/J3-5UA.request.json",
-   "request_sha256": "8cabf999bf9ab5a7e7602af73c6e900b381ea2414499f205d2ec308923908960",
+   "request_sha256": "54e702a81694e89647083953a69bf30714caef89794a274b0ed25c57a0a9a8bc",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": true,
@@ -11055,7 +11055,7 @@
   "J3-R": {
    "description": "remote region: an unpressurized joint beside a pressurized region that does not touch it (the blanket refusal lifted); the joint carries the remote cap's share",
    "request": "requests/J3-R.request.json",
-   "request_sha256": "481bf60266f064655fdd4a439b7e269d5f114610c320d638d6a70b4f11a1dd80",
+   "request_sha256": "f8f473bdb6f7f3caca6fa566206c2c24d6442c85755b085686f88f46eaa5a4e4",
    "connector": "component:C-J",
    "connector_pressure_model": "unpressurized",
    "connector_in_region": false,
@@ -11730,7 +11730,7 @@
   "J3-RP": {
    "description": "J3-R with a constant-effective-area joint outside every region: p = 0 at the joint, Pe = 0, S = Tb",
    "request": "requests/J3-RP.request.json",
-   "request_sha256": "c3267c0e631126cfb2afc0efdb4df06fb8eca083435c1d8da9687c23cc20acca",
+   "request_sha256": "001ddc3d0c91e34ba292af634e20f4af9eed0013958b586e69bf639303b85bb2",
    "connector": "component:C-J",
    "connector_pressure_model": "constant_effective_area_reference_v1",
    "connector_in_region": false,

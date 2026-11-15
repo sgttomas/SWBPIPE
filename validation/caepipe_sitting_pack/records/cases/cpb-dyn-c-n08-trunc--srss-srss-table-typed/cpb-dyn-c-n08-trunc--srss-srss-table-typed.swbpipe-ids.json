@@ -1,0 +1,226 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-dyn-c-n08-trunc"
+    },
+    "source_model_sha256": "1a06092465e586af2040efb4747d2586f88079400dd0866e9ca4ebc2782b2905"
+  },
+  "element_map": {
+    "pipe:P1": {
+      "from": "10",
+      "reversed": false,
+      "to": "20",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P2": {
+      "from": "20",
+      "reversed": false,
+      "to": "30",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P3": {
+      "from": "30",
+      "reversed": false,
+      "to": "40",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P4": {
+      "from": "40",
+      "reversed": false,
+      "to": "50",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P5": {
+      "from": "50",
+      "reversed": false,
+      "to": "60",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P6": {
+      "from": "60",
+      "reversed": false,
+      "to": "70",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P7": {
+      "from": "70",
+      "reversed": false,
+      "to": "80",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P8": {
+      "from": "80",
+      "reversed": false,
+      "to": "90",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:weight": "Sustained (W+P)"
+  },
+  "load_map": {
+    "case:weight/load:weight:pipe:P1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P1"
+      }
+    },
+    "case:weight/load:weight:pipe:P2": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P2"
+      }
+    },
+    "case:weight/load:weight:pipe:P3": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P3"
+      }
+    },
+    "case:weight/load:weight:pipe:P4": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P4"
+      }
+    },
+    "case:weight/load:weight:pipe:P5": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P5"
+      }
+    },
+    "case:weight/load:weight:pipe:P6": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P6"
+      }
+    },
+    "case:weight/load:weight:pipe:P7": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P7"
+      }
+    },
+    "case:weight/load:weight:pipe:P8": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P8"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:dyn-a"
+    }
+  },
+  "mbf_sha256": "40dc1365fa2a49799f9d417c3b94f378d8b1216520077a7935b65004986e8754",
+  "node_map": {
+    "node:A": "10",
+    "node:B": "90",
+    "node:M1": "20",
+    "node:M2": "30",
+    "node:M3": "40",
+    "node:M4": "50",
+    "node:M5": "60",
+    "node:M6": "70",
+    "node:M7": "80"
+  },
+  "pressure_map": {
+    "contract": "none",
+    "regions": [],
+    "shear_model": "euler_bernoulli"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "68a3d5f4eff2f26f86023ad615a5632c8ba87973dbc61c78c4c7f3218db09b3a",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:B-z": {
+      "family": "guide",
+      "family_authored": false,
+      "node": "90",
+      "restrained": [
+        "UZ"
+      ]
+    }
+  }
+}

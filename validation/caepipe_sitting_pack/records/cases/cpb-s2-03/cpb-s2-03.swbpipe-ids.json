@@ -1,0 +1,129 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-s2-03"
+    },
+    "source_model_sha256": "fc7802bd66233ff4b61e3a030226d8102e231b734fe47cfdd8cf28e7ea9e17c4"
+  },
+  "element_map": {
+    "pipe:BEND1": {
+      "bend": {
+        "component": "component:BEND1",
+        "node": "node:BEND1-near"
+      },
+      "from": "20A",
+      "reversed": false,
+      "to": "20B"
+    },
+    "pipe:P1": {
+      "from": "10",
+      "reversed": false,
+      "to": "20A",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P2": {
+      "from": "20B",
+      "reversed": false,
+      "to": "30",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:expansion": "Expansion (T1)"
+  },
+  "load_map": {
+    "case:expansion/load:thermal:pipe:BEND1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:BEND1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:P1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:P1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:P2": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:P2"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:bench-t3"
+    }
+  },
+  "mbf_sha256": "5a394be2b1f4be3df31cd211ca358bd2dc73de34c83de2585e41c5482177718a",
+  "node_map": {
+    "node:A": "10",
+    "node:B": "30",
+    "node:BEND1-far": "20B",
+    "node:BEND1-near": "20A"
+  },
+  "pressure_map": {
+    "contract": "none",
+    "regions": [],
+    "shear_model": "euler_bernoulli"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "0e6db2694ade177da9ffdce01c6fe831bbda54362cf898c8cb15365fc08fe89a",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:B": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "30",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  }
+}

@@ -21,6 +21,8 @@
 //!
 //! SP-3: a mismatch here is the product's to fix, never the reference's.
 
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
     PreviewSolverMode,
@@ -57,7 +59,7 @@ fn number(value: &Value) -> f64 {
 /// The captured entry on the re-authored copy of a frozen document.
 fn captured(document: &Value, mode: PreviewSolverMode) -> Value {
     serde_json::to_value(
-        run_linear_static_preview_value_with_mode(current_model::reauthor_request(document.clone()), mode)
+        run_linear_static_preview_value_with_mode(pressure_elongation::with_elongation_if_pressurised(&current_model::reauthor_request(document.clone())), mode)
             .expect("the captured entry accepts the document"),
     )
     .unwrap()
@@ -66,7 +68,7 @@ fn captured(document: &Value, mode: PreviewSolverMode) -> Value {
 /// The typed entry on the re-authored copy of a frozen document.
 fn typed(document: &Value, mode: PreviewSolverMode) -> Value {
     serde_json::to_value(run_linear_static_preview_with_mode(
-        serde_json::from_value(current_model::reauthor_request(document.clone()))
+        serde_json::from_value(pressure_elongation::with_elongation_if_pressurised(&current_model::reauthor_request(document.clone())))
             .expect("the typed DTO deserializes"),
         mode,
     ))

@@ -1484,7 +1484,8 @@
               "approximation",
               "provenance",
               "geometry_representation_guard",
-              "result_ids"
+              "result_ids",
+              "pressure_elongation"
             ],
             "properties": {
               "load_case_id": {
@@ -1825,6 +1826,14 @@
                   "type": "string",
                   "minLength": 1
                 }
+              },
+              "pressure_elongation": {
+                "type": "string",
+                "enum": [
+                  "included",
+                  "not_included"
+                ],
+                "description": "RT-L2 (DEL-04-07): whether this case includes pressure elongation, the closed-end free pressure strain (1 - 2nu)pAi/(E As). Included: the straight Poisson group's coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not_included: sign*1 and exactly zero. Every pressure region of a case states the same value."
               }
             }
           }
@@ -1973,6 +1982,35 @@
                   "screen_roundoff_multiplier",
                   "screen_is_not_numerical_qualification"
                 ],
+                "if": {
+                  "required": [
+                    "cancellation_screen_exception"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "cancellation_screen": {
+                      "anyOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "number",
+                          "exclusiveMinimum": 1e-09
+                        }
+                      ]
+                    }
+                  }
+                },
+                "else": {
+                  "properties": {
+                    "cancellation_screen": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1e-09
+                    }
+                  }
+                },
                 "properties": {
                   "method": {
                     "const": "source_factor_grouped_pressure_rhs_v1"
@@ -2114,7 +2152,69 @@
                     "const": true
                   },
                   "cancellation_screen": {
-                    "type": "number"
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "DEL-04-07: the original cancellation screen, 32*epsilon times the largest per-DOF sum of source-group magnitudes over the largest assembled translational load; null when not finite. Within screen_limit it stands alone; over it, or null, the case was admitted only by cancellation_screen_exception."
+                  },
+                  "cancellation_screen_exception": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "basis",
+                      "node_ref",
+                      "member_pipe_ids",
+                      "member_lengths_m",
+                      "region_span_m",
+                      "remainder_to_bore_force_ratio",
+                      "remainder_force_n",
+                      "consistency_bound_ratio"
+                    ],
+                    "properties": {
+                      "basis": {
+                        "const": "straight_region_interior_cap_pairs_cap_remainder_retained"
+                      },
+                      "node_ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "member_pipe_ids": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "member_lengths_m": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "region_span_m": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "remainder_to_bore_force_ratio": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "remainder_force_n": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "consistency_bound_ratio": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    },
+                    "description": "DEL-04-07: present exactly when the original screen failed and the case was admitted because it is of the family the basis names: no pressure elongation, closed straight regions whose only formed pressure loads are the interior cap pairs of two members of one region. Their sum F at an interior node is the remainder of the two members' cap loads, from the bore and alignment differences the region's representation guards admit, from the rounding of each member's direction and bore area, or both; the product solves the recorded geometry as computed, with that remainder retained. The record states the interior node of the largest |F|/(|p|*A_hi), its two members (in the region's order) and their lengths, the region's span, that ratio, |F| there in newtons (remainder_force_n, the correctly rounded norm of the assembled translational pressure load at the node, the ratio's numerator; the case's PRESSURE_REGION_CAP_REMAINDER_RETAINED warning states it, written by Rust's {:e}, with the case and the node, and says it is not a bound on the resulting displacement), and the bound beta formed from the span and lengths by the derivation in product physics (pressure_runtime BORE_DEPARTURE_RATIO). The bound checks consistency of the formed force with the guards and formation. It establishes neither a response bound nor response accuracy or engineering acceptability. Numerical standing comes from the solve integrity check on its recorded premise; this exception supplies no independent assurance."
                   },
                   "screen_limit": {
                     "const": 1e-09
@@ -2124,6 +2224,14 @@
                   },
                   "screen_is_not_numerical_qualification": {
                     "const": true
+                  },
+                  "pressure_elongation": {
+                    "type": "string",
+                    "enum": [
+                      "included",
+                      "not_included"
+                    ],
+                    "description": "RT-L2: present exactly when the case has pressure regions, equal to their pressure_elongation."
                   }
                 }
               },
@@ -2343,7 +2451,8 @@
         "approximation",
         "provenance",
         "geometry_representation_guard",
-        "result_ids"
+        "result_ids",
+        "pressure_elongation"
       ],
       "properties": {
         "load_case_id": {
@@ -2396,6 +2505,14 @@
         },
         "result_ids": {
           "$ref": "#/$defs/pressure_source_ordinary_evidence/properties/pressure/items/properties/result_ids"
+        },
+        "pressure_elongation": {
+          "type": "string",
+          "enum": [
+            "included",
+            "not_included"
+          ],
+          "description": "RT-L2 (DEL-04-07): whether this case includes pressure elongation, the closed-end free pressure strain (1 - 2nu)pAi/(E As). Included: the straight Poisson group's coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not_included: sign*1 and exactly zero. Every pressure region of a case states the same value."
         }
       }
     },

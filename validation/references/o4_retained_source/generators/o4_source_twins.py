@@ -3,7 +3,9 @@
 and RF's PIN-OFF-345 r1e-08 and r1e-12 cases, with both exact readouts.
 
 Standard library only. It reads no product code and no product output. Its inputs are input-only files,
-each pinned by SHA-256 (the generator refuses to run if one changes):
+each pinned by SHA-256: the file the freeze was made from, or the one named successor admitted beside it
+with the whole of its difference stated (PINS_ADMITTED); any other bytes are refused. The frozen files
+record the inputs of the freeze:
 - the twelve J2 request inputs, fixtures/product_preview/pressure_source/{physics_source,
   load_reference_source}/<name>.request.json ({materials, model} only; no *.raw.json is opened);
 - fixtures/results/j7_rf_census_inputs.json, the RF census inputs (no expected values), decoded with the
@@ -81,6 +83,48 @@ PINS = {
         "e69d6945d1b1a5abc30c120851ab06d79b6e986f7bf0e07ab14e61849305a7c7",
 }
 
+# PINS are the inputs the freeze was made from, and they are the hashes the frozen files record ("inputs"
+# and each source's "file_sha256" in source_twins_cases.json). Those records are not rewritten. Twelve of
+# the fourteen inputs have changed since. The check admits, for each, exactly one successor: the file as it
+# stands at PINS_ADMITTED's hash, whose whole difference from the freeze's file is PINS_ADMITTED_DIFFERENCE.
+# Every frozen byte reproduces from the successors. Any third hash is refused, so the next change to an
+# input is again a finding and not a silent pass.
+PINS_ADMITTED_DIFFERENCE = (
+    'one line in each file, "schema_version": "0.6.0" to "0.9.0", by d2778886f (0.7.0, 2026-10-23), '
+    "70f87a7ff (0.8.0, 2026-10-26) and ec2e3f6d6 (0.9.0, 2026-10-31); in physics_source mixed and "
+    "mixed_units and load_reference_source mixed also seven lines inserted before \"nodes\", the member "
+    '"model_settings": {"pressure_elongation": {"operating_load_cases": ["case:ordinary-pressure"]}}, by '
+    "04de5e11f (2026-11-09); nothing else. The freeze's files are those of f47ba3360 (2026-10-17). The "
+    "re-authoring reads neither the version nor model_settings, and the one case the member names is out of "
+    "scope here (a present pressure region)."
+)
+PINS_ADMITTED = {
+    "fixtures/product_preview/pressure_source/physics_source/n05.request.json":
+        "d12f7a404ad3e8d916cdaa86958efdbc8d86c7c16736ae9b11ac1085dcd90d28",
+    "fixtures/product_preview/pressure_source/physics_source/n06.request.json":
+        "4a10d62774d21a21514890fc7a573b8386c4bcaa4d80959a6414699d81f0ae2b",
+    "fixtures/product_preview/pressure_source/physics_source/n05_unicode.request.json":
+        "304f559b5b5ef8866ff5ef009e38347aef3f2d49f8dc799a8af28e5edc4cafa7",
+    "fixtures/product_preview/pressure_source/physics_source/n05_units.request.json":
+        "489a47cc4aa32f5c27eaf627cd34857094e5296047fbf89579e7db63418f7447",
+    "fixtures/product_preview/pressure_source/physics_source/fields.request.json":
+        "1cd5959a4c3c832d25ad18e62e8d2ead77a20ff93bc0ac0c02373c33606eb58e",
+    "fixtures/product_preview/pressure_source/physics_source/mixed.request.json":
+        "5a18bece8c0a601404b782fc89d280a7d290bd3133f879146d68315720815aa6",
+    "fixtures/product_preview/pressure_source/physics_source/mixed_units.request.json":
+        "4280a1b703216170898ee9c6b6e1e1c529f4afe03f2c52d5a7a1c74c83c37dbd",
+    "fixtures/product_preview/pressure_source/load_reference_source/n05.request.json":
+        "9bb4453b6251a37d7027608a26fe07373e0b2aaf39b8a0cba147bfe01815c067",
+    "fixtures/product_preview/pressure_source/load_reference_source/n06.request.json":
+        "e976f055488185b7d9e5cb1ccc59c8bdb503bfe115e83ef430b40a6581847a6c",
+    "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json":
+        "e90e8b223ceb79dcc4144f85e30f9d8489dcb79baaf0a07ffbb981fc6dc2d1ca",
+    "fixtures/product_preview/pressure_source/load_reference_source/fields.request.json":
+        "947fb8ef33732123514db9c53ac03f91045bd82988b8b2bdb5f33b3f9387fbeb",
+    "fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json":
+        "f037e7832e81bfb6c42723fcef2affbe7676c83077d953e1eb1724f1d4bfa895",
+}
+
 THEORY_VARIANTS = (("zero", "eb"), ("zero", "timo"), ("mill", "eb"), ("ca", "eb"), ("both", "eb"),
                    ("mill", "timo"), ("ca", "timo"), ("both", "timo"))
 
@@ -110,8 +154,9 @@ def check_pins():
         raise SystemExit("pin table does not match the input list")
     for path in input_files():
         got = sha(path)
-        if PINS[path] != got:
-            raise SystemExit(f"input changed: {path} (sha256 {got}, pinned {PINS[path]})")
+        if got != PINS[path] and got != PINS_ADMITTED.get(path):
+            raise SystemExit(f"input changed: {path} (sha256 {got}, pinned {PINS[path]}, "
+                             f"admitted successor {PINS_ADMITTED.get(path)})")
 
 
 def rf_requests():
@@ -314,7 +359,8 @@ def sources():
 def build_cases():
     cases, scope = [], []
     for sid, path, model, case_id in sources():
-        entry = {"source": sid, "file": path, "file_sha256": sha(path), "load_case": case_id}
+        # the freeze's file (check_pins admitted the bytes read): the record names what was frozen from
+        entry = {"source": sid, "file": path, "file_sha256": PINS[path], "load_case": case_id}
         try:
             doc = reauthor(model, case_id)
         except OutOfScope as e:
@@ -445,7 +491,10 @@ def main():
                 bad.append(name)
     if bad:
         raise SystemExit(f"check FAILED: {bad}")
-    print("check passed: source twins reproduced byte for byte at 110 digits, identical at 150, every cross-check holds")
+    moved = sorted(p for p in input_files() if sha(p) != PINS[p])
+    print("check passed: source twins reproduced byte for byte at 110 digits, identical at 150, every cross-check holds; "
+          + R.engine_note() + f"; {len(moved)} of {len(PINS)} inputs are admitted successors"
+          + (f" ({PINS_ADMITTED_DIFFERENCE})" if moved else ""))
 
 
 if __name__ == "__main__":

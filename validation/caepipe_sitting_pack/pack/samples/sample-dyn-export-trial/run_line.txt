@@ -1,0 +1,11 @@
+SWBPIPE sitting run line: sample-dyn-export-trial
+Fill in after each colon. Do not change the words before the colon.
+date: 
+run (yes, or not run and why): 
+route used (manual_print): 
+CAEPIPE version as displayed: 
+anything unusual: 
+(v) step 3, before touching the dialog, the files the folder now holds, by name: 
+(v) step 5, whether the dialog lets you set the name sample-dyn-export-trial.export.mbf and this folder, and whether it displays them before anything is written: 
+(v) step 6, Export or Cancel ("If it does, click Export; if not, click Cancel"): 
+(v) step 7, the files the folder then holds, by name: 

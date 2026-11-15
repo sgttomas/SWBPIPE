@@ -27,7 +27,7 @@ export const USER_RELEASE_DIALOG_TITLE = "Release your project data in one share
 export const USER_RELEASE_LIBRARY_REFUSAL =
   "This model uses a library record or a rule pack. Shareable packages do not yet carry library record values or rule-pack checks, so a shareable package cannot be saved for this model. Its local private package is unaffected.";
 export const USER_RELEASE_RESULT_REFUSAL =
-  "This result is not one a shareable package carries. Shareable packages carry a pressure-free (preview-physics-2) result, or an exact pressure route (pressure-2 or pressure-source-1) result that is eligible for output, so a shareable package cannot be saved for this result. Its local private package is unaffected.";
+  "This result is not one a shareable package carries. Shareable packages carry a pressure-free (preview-physics-2) result, or an exact pressure route (pressure-3 or pressure-source-1) result that is eligible for output, so a shareable package cannot be saved for this result. Its local private package is unaffected.";
 
 /** File > Save Shareable Report Package… (W-18b; DEL-08-01 Design `report-user-release.md`
  * §2.2). The user's explicit selection (opening this dialog from its own control) and
@@ -108,7 +108,7 @@ function UserReleaseDialogBody({ request }: { request: UserReleaseDialogRequest 
           </li>
           <li>
             It needs a result solved in this session: a pressure-free (preview-physics-2) result, or an exact pressure
-            route (pressure-2 or pressure-source-1) result that is eligible for output. A model with a library or
+            route (pressure-3 or pressure-source-1) result that is eligible for output. A model with a library or
             rule-pack reference cannot be shared this way.
           </li>
           <li>

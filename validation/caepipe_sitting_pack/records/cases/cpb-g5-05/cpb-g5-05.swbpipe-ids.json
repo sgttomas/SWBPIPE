@@ -1,0 +1,208 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-g5-05"
+    },
+    "source_model_sha256": "8998322db685136f78ee565ef7a1582558569266bedb2cb3693491970d0fce24"
+  },
+  "element_map": {
+    "pipe:BR1": {
+      "from": "20",
+      "reversed": false,
+      "to": "30",
+      "y_reference": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:BR2": {
+      "from": "30",
+      "reversed": false,
+      "to": "40",
+      "y_reference": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:R1": {
+      "from": "10",
+      "reversed": false,
+      "to": "20",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:R2": {
+      "from": "20",
+      "reversed": false,
+      "to": "50",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:expansion": "Expansion (T1)",
+    "case:sustained": "Sustained (W+P)"
+  },
+  "load_map": {
+    "case:expansion/load:thermal:pipe:BR1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:BR1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:BR2": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:BR2"
+      }
+    },
+    "case:expansion/load:thermal:pipe:R1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:R1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:R2": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:R2"
+      }
+    },
+    "case:sustained/load:branch-mid": {
+      "category": "concentrated_force",
+      "direction": "global_x",
+      "load_case": "case:sustained",
+      "target": {
+        "node": "node:M"
+      }
+    },
+    "case:sustained/load:weight:pipe:BR1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:BR1"
+      }
+    },
+    "case:sustained/load:weight:pipe:BR2": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:BR2"
+      }
+    },
+    "case:sustained/load:weight:pipe:R1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:R1"
+      }
+    },
+    "case:sustained/load:weight:pipe:R2": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:R2"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:bench-c"
+    }
+  },
+  "mbf_sha256": "cb1e4c05ce1f116dd7833e24056b69d4861a719d5e866454857bc6006fd90e11",
+  "node_map": {
+    "node:A": "10",
+    "node:C": "50",
+    "node:E": "40",
+    "node:M": "30",
+    "node:T": "20"
+  },
+  "pressure_map": {
+    "contract": "none",
+    "regions": [],
+    "shear_model": "euler_bernoulli"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    },
+    "P2": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "76304018899db8da345000ed1ea54041c665c08fbeae265f01d2b6a99f1cd4b1",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:C": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "50",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:E": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "40",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  }
+}

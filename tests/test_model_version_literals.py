@@ -299,7 +299,7 @@ def test_python_verifiers_and_tools_name_the_version_only_through_their_definiti
     found, definitions = python_version_literals()
     assert not found, "\n".join(f"{where}: {kind}: {text}" for where, kind, text in found)
     assert {where for where, _ in definitions} >= {
-        "tests/verifiers/compatibility.py", "tests/verifiers/physics_source.py", "tests/verifiers/pressure_2.py",
+        "tests/verifiers/compatibility.py", "tests/verifiers/physics_source.py", "tests/verifiers/pressure_3.py",
         "tests/verifiers/retained_precision.py", "tools/validation/qualification_physics.py",
         "tools/validation/qualification_physics_structure.py", "tools/fixtures/retained_precision_synthetic_bases.py"}
 

@@ -139,6 +139,7 @@ import { SecretPrivateLibraryPanel } from "./features/secret-private-library/Sec
 import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
 import { HistoricalRunPanel } from "./features/results/HistoricalRunContext";
 import { SolvePanel } from "./features/solve/SolvePanel";
+import { solveWithheldReason } from "./features/workspace/solveGates";
 import { SolveProgressPanel } from "./features/solve/SolveProgressPanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
@@ -211,6 +212,7 @@ function AppSession() {
   const {
     result,
     currentSolvedResult,
+    renderableSolvedResult,
     numericallyEligible,
     numericalHealth,
     numericalHealthHold,
@@ -240,6 +242,7 @@ function AppSession() {
     reportPackageRedaction,
     reportPackageRoute,
     handleRun,
+    solveGate,
     handleInspectBundledReference,
     handleCancelRun,
     handleRuleCheckAggregate,
@@ -446,6 +449,7 @@ function AppSession() {
           modelDocumentSaveReady={model !== null && !projectBusy}
           reportPackageReady={!reportPackageUnavailable && Boolean(currentSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
           running={running}
+          solveWithheld={solveGate.kind === "withheld" ? solveWithheldReason(solveGate) : null}
           treeCollapsed={treeCollapsed}
           armedCreationTool={armedCreationTool}
           stage={shell.stage}
@@ -909,7 +913,9 @@ function AppSession() {
               <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
-              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the rendered report">
+              {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route
+                  result whatever its standing); its package save stays on currentSolvedResult. */}
+              <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report">
                 {(full) => (
                   <RenderedReportPanel
                     model={model}
@@ -926,6 +932,7 @@ function AppSession() {
                     packageRedaction={reportPackageRedaction}
                     packageRoute={reportPackageRoute}
                     onPackagePrivateIntentChange={setReportPackagePrivateIntent}
+                    packageNeedsCurrent={currentSolvedResult === null}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
                     onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
                   />
@@ -1174,6 +1181,9 @@ function AppSession() {
                 onCancel={handleCancelRun}
                 onRun={handleRun}
                 onSolverModeChange={setSolverMode}
+                solveGate={solveGate}
+                onSelectEntity={(entity) => { handleSelectEntity(entity); }}
+                onOpenModelChecks={() => setIssuesDrawerOpen(true)}
               />
               <button type="button" onClick={() => void handleInspectBundledReference()}>
                 Inspect bundled reference
@@ -1440,6 +1450,7 @@ function MenuBar({
   modelDocumentSaveReady,
   reportPackageReady,
   running,
+  solveWithheld = null,
   treeCollapsed,
   armedCreationTool,
   stage,
@@ -1472,6 +1483,8 @@ function MenuBar({
   modelDocumentSaveReady: boolean;
   reportPackageReady: boolean;
   running: boolean;
+  /** The reason the Solve command is withheld, or null when it is not. */
+  solveWithheld?: string | null;
   treeCollapsed: boolean;
   armedCreationTool: CreationTool | null;
   onCommand: (command: MenuCommandId) => void;
@@ -1586,7 +1599,7 @@ function MenuBar({
       id: "analyze",
       label: "Analyze",
       items: [
-        { kind: "command", id: "analyze.run", label: "Run Mechanics Preview", disabled: running },
+        { kind: "command", id: "analyze.run", label: "Run Mechanics Preview", disabled: running || solveWithheld !== null, reason: running ? null : solveWithheld },
         { kind: "command", id: "analyze.cancel", label: "Cancel Run", disabled: !running },
         { kind: "separator" },
         { kind: "command", id: "analyze.rule-checks", label: "Rule Checks" },

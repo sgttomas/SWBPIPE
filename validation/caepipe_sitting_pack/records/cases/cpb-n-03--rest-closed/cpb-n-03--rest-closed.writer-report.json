@@ -1,0 +1,157 @@
+{
+  "added_records": null,
+  "assumptions": [
+    "material:material:bench-t3: Poisson ratio derived as E/(2G) - 1 = 0.29 (E = 210000 MPa, G = 81395.34884 MPa)",
+    "Profile caepipe-mbf-si-pilot-1: MBF version 15.10, OPTIONS SI with the default vertical axis Y; SWBPIPE global X, Y, Z are written unchanged as the target program's X, Y, Z, with gravity along -Y. The writer always writes Y vertical: SWBPIPE has one vertical convention (weight along -Y) and the model document records no vertical axis, so a Z-vertical import, which arrives rotated, is written Y-vertical.",
+    "Lengths are written in mm, forces in N, moments in N*m, modulus in N/mm2 (= MPa), temperatures in C; SI source units scale to these by an exact power of ten, and US-customary units by the exact definitions listed in MBF-SI-UNITS-NORMALIZED (Design caepipe-mbf-import.md section 5.2).",
+    "Load case mapping: mechanical cases (concentrated force, concentrated moment, weight) -> 'Sustained (W+P)'; thermal and imposed-displacement cases -> 'Expansion (T1)'.",
+    "Materials are written temperature-independent: identical E and expansion coefficient at 20 C, 120 C; the optional allowable, yield and rupture columns are omitted.",
+    "Every LOADS entry has Pressure 1 = 0 and specific gravity 0 (empty pipe); Temperature 1 = reference temperature + the element's SWBPIPE thermal change (summed when several primitives act on one element).",
+    "Piping code B311-80, chosen by the caller, is written in OPTIONS; OPCODE is written 0,0,0: axial force in the code stress off and liberal allowable off (code-stress settings only), and B31J off, so SIFs and flexibility factors come from the code's own appendix and a tee assembles no branch flexibility (Analysis; Format of .MBF, OPCODE). Every bend carries the user flexibility factor, which replaces the code's value (Bend).",
+    "Weight per length w (global -Y) is written as material weight density rho = |w| / (A * 9.80665 m/s^2) with A the bare metal area pi/4 (OD^2 - ID^2); kgf/m3 equals kg/m3 numerically. Elements without a weight primitive have density 0.",
+    "Model members the SWBPIPE solve does not read (analysis_status, data_boundary, diagnostics, lines, unresolved_assumptions, constraints, equipment_interfaces, rule_pack_refs) are not exported."
+  ],
+  "diagnostics": [
+    {
+      "code": "MBF-SI-ORIENTATION-NOT-EXPORTED",
+      "entity": "model.pipe_segments.y_reference",
+      "message": "y_reference of pipe:P1, pipe:P2 is not exported; element local axes follow the target program's own convention",
+      "severity": "warning"
+    },
+    {
+      "code": "MBF-SI-MEMBER-NOT-EXPORTED",
+      "entity": "model.analysis_status",
+      "message": "model.analysis_status is not exported; the analysis state is not in the MBF; the import starts it afresh",
+      "severity": "warning"
+    },
+    {
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.project.id",
+      "message": "id of project is not exported; the MBF has no field for it and the sidecar does not carry it",
+      "severity": "warning"
+    },
+    {
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.project.name",
+      "message": "name of project is not exported; the MBF has no field for it and the sidecar does not carry it",
+      "severity": "warning"
+    },
+    {
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.project.units",
+      "message": "project.units (angle rad, length m, pressure Pa) are not kept; values are written in the MBF's SI units, and the import sets the project units length mm, force N, moment N*m, pressure MPa, stress Pa, temperature degC, angle deg",
+      "severity": "warning"
+    },
+    {
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.materials.provenance",
+      "message": "provenance of material:material:bench-t3 is not exported; the MBF has no field for it and the sidecar does not carry it",
+      "severity": "warning"
+    },
+    {
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.nodes.provenance",
+      "message": "provenance of node:node:A, node:node:M, node:node:B is not exported; the MBF has no field for it and the sidecar does not carry it",
+      "severity": "warning"
+    },
+    {
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.pipe_segments.provenance",
+      "message": "provenance of pipe:pipe:P1, pipe:pipe:P2 is not exported; the MBF has no field for it and the sidecar does not carry it",
+      "severity": "warning"
+    },
+    {
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.supports.provenance",
+      "message": "provenance of support:support:A is not exported; the MBF has no field for it and the sidecar does not carry it",
+      "severity": "warning"
+    },
+    {
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.load_cases.provenance",
+      "message": "provenance of load_case:case:sustained is not exported; the MBF has no field for it and the sidecar does not carry it",
+      "severity": "warning"
+    },
+    {
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.load_cases.primitive_loads.provenance",
+      "message": "primitive_loads.provenance of load:case:sustained/load:weight:pipe:P1, load:case:sustained/load:weight:pipe:P2 is not exported; the MBF has no field for it and the sidecar does not carry it",
+      "severity": "warning"
+    }
+  ],
+  "layout_row_count": 4,
+  "loss_report": [
+    {
+      "category": "omitted",
+      "code": "MBF-SI-ORIENTATION-NOT-EXPORTED",
+      "entity": "model.pipe_segments.y_reference",
+      "reason": "y_reference of pipe:P1, pipe:P2 is not exported; element local axes follow the target program's own convention"
+    },
+    {
+      "category": "omitted",
+      "code": "MBF-SI-MEMBER-NOT-EXPORTED",
+      "entity": "model.analysis_status",
+      "reason": "model.analysis_status is not exported; the analysis state is not in the MBF; the import starts it afresh"
+    },
+    {
+      "category": "omitted",
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.project.id",
+      "reason": "id of project is not exported; the MBF has no field for it and the sidecar does not carry it"
+    },
+    {
+      "category": "omitted",
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.project.name",
+      "reason": "name of project is not exported; the MBF has no field for it and the sidecar does not carry it"
+    },
+    {
+      "category": "omitted",
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.project.units",
+      "reason": "project.units (angle rad, length m, pressure Pa) are not kept; values are written in the MBF's SI units, and the import sets the project units length mm, force N, moment N*m, pressure MPa, stress Pa, temperature degC, angle deg"
+    },
+    {
+      "category": "omitted",
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.materials.provenance",
+      "reason": "provenance of material:material:bench-t3 is not exported; the MBF has no field for it and the sidecar does not carry it"
+    },
+    {
+      "category": "omitted",
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.nodes.provenance",
+      "reason": "provenance of node:node:A, node:node:M, node:node:B is not exported; the MBF has no field for it and the sidecar does not carry it"
+    },
+    {
+      "category": "omitted",
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.pipe_segments.provenance",
+      "reason": "provenance of pipe:pipe:P1, pipe:pipe:P2 is not exported; the MBF has no field for it and the sidecar does not carry it"
+    },
+    {
+      "category": "omitted",
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.supports.provenance",
+      "reason": "provenance of support:support:A is not exported; the MBF has no field for it and the sidecar does not carry it"
+    },
+    {
+      "category": "omitted",
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.load_cases.provenance",
+      "reason": "provenance of load_case:case:sustained is not exported; the MBF has no field for it and the sidecar does not carry it"
+    },
+    {
+      "category": "omitted",
+      "code": "MBF-SI-FIELD-NOT-EXPORTED",
+      "entity": "model.load_cases.primitive_loads.provenance",
+      "reason": "primitive_loads.provenance of load:case:sustained/load:weight:pipe:P1, load:case:sustained/load:weight:pipe:P2 is not exported; the MBF has no field for it and the sidecar does not carry it"
+    }
+  ],
+  "mbf_sha256": "437f21ebf4b8f16a3344e9bdf0171c70d23e5f067b33ffe89eff66b19ba0fc59",
+  "oppres_line": null,
+  "piping_code": "B311-80",
+  "profile_id": "caepipe-mbf-si-pilot-1",
+  "status": "written",
+  "writer_sha256": "437f21ebf4b8f16a3344e9bdf0171c70d23e5f067b33ffe89eff66b19ba0fc59"
+}

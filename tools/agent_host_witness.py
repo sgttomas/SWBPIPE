@@ -26,7 +26,7 @@ import jsonschema
 
 TOOL = "swbpipe_read_model_summary"
 BINARY_SHA256 = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b"
-CATALOG_SHA256 = "8e9a4b4e3eec027d092033ea5d95f1648030520e797c5a660ab387531f23be17"
+CATALOG_SHA256 = "b640e2585ae09d15863de0916a864b9f825598425e1a9c37b5e6d4aec3989864"
 FRAME_BYTES = 1024 * 1024
 FORBIDDEN_ITEMS = {"commandExecution", "fileChange", "webSearch", "imageView", "imageGeneration", "browserUse", "computerUse"}
 
@@ -127,7 +127,9 @@ class Native:
         # project instruction roots. Explicit keychain provider authentication
         # uses the child environment; never fall back to a developer's login.
         env = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "LANG": "en_US.UTF-8",
-               "CODEX_HOME": str(home), "HOME": str(root / "os-home"), "TMPDIR": str(root / "tmp")}
+               "CODEX_HOME": str(home), "HOME": str(root / "os-home"), "TMPDIR": str(root / "tmp"),
+               # The supplier's own switch for remote control, as the product host sets it.
+               "CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED": "1"}
         if api_key is not None:
             env["SWBPIPE_OMLX_API_KEY"] = api_key
         config = self.configuration(model, provider_url, api_key)

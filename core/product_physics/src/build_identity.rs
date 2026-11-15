@@ -175,9 +175,9 @@ pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     // (`pressure_source_contract()`), in the join's position.
     "../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
     // U5a: nonresident definition of the pressure joint record, evidence and row shapes.
-    "../../schemas/results_pressure_2.v0.3.schema.json",
+    "../../schemas/results_pressure_3.v0.3.schema.json",
     // B7b (O-10): the resident ordinary pressure table (`pressure_rows_contract()`).
-    "../../fixtures/results/semantic_contract_v0_3_pressure_2.json",
+    "../../fixtures/results/semantic_contract_v0_3_pressure_3.json",
     // PF Timoshenko D3: independent process-lifetime reader cache.
     "../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json",
 ];

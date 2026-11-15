@@ -81,6 +81,6 @@ contracts for forward work.
 
 ## License and professional boundaries
 
-See the [MIT License](LICENSE.md), [IP and data boundary](docs/IP_AND_DATA_BOUNDARY.md)
+See the [MIT License](LICENSE), [IP and data boundary](docs/IP_AND_DATA_BOUNDARY.md)
 and [validation strategy](docs/VALIDATION_STRATEGY.md). Product claims retain their
 stated scope and qualification limits.

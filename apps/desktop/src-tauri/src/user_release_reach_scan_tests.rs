@@ -2529,7 +2529,7 @@ fn the_real_sources_hold_the_symbol_level_ffi_rules() {
     }
     assert_eq!(FOREIGN_BLOCKS.len(), 2);
     assert_eq!(sources.files[FOREIGN_BLOCKS[0].0].matches("extern \"C\" {\n        fn mach_host_self() -> libc::mach_port_t;\n    }").count(), 1);
-    assert_eq!(sources.files[FOREIGN_BLOCKS[1].0].matches("extern \"C\" {\n    static kSecUseAuthenticationUIFail: CFStringRef;\n    static kSecAttrGeneric: CFStringRef;\n    static kSecMatchLimitOne: CFStringRef;\n}").count(), 1);
+    assert_eq!(sources.files[FOREIGN_BLOCKS[1].0].matches("    extern \"C\" {\n        static kSecUseAuthenticationUIFail: CFStringRef;\n        static kSecAttrGeneric: CFStringRef;\n        static kSecMatchLimitOne: CFStringRef;\n    }").count(), 1);
 }
 
 /// Code review r9 follow-up at #1682, on scratch copies of `src-tauri` that

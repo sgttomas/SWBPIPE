@@ -2,6 +2,7 @@
 name = "open_pipe_stress_mechanics_benchmarks"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "Original mechanics verification benchmarks for OpenPipeStress"
 publish = false
 

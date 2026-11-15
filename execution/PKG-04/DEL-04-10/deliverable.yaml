@@ -94,5 +94,9 @@ code_paths:
 - validation/references/f2_spectrum/**
 - tests/test_dynamics_references.py
 - tools/validation/reference_observation.py
+# Frozen before the engine work it judges: a snubber left out of every static case (AC-003). No
+# product test reads it yet.
+- validation/references/snubber_static/**
+- tests/test_snubber_static_references.py
 checks:
 - tests/test_dynamics_references.py

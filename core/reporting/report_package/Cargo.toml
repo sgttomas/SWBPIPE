@@ -2,6 +2,7 @@
 name = "open_pipe_stress_report_package"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "Deterministic full-report-package container assembly for OpenPipeStress (DEC-028 / DEC-057 / DEC-061, completion-plan row E3)"
 publish = false
 
@@ -13,6 +14,8 @@ open_pipe_stress_pdf_emitter = { path = "../pdf_emitter" }
 open_pipe_stress_report_renderer = { path = "../report_renderer" }
 open_pipe_stress_audit_manifest = { path = "../audit_manifest" }
 open_pipe_stress_result_export = { path = "../result_export" }
+# DEL-08-01 REQ-024: the standing record a user release states.
+open_pipe_stress_report_standing = { path = "../report_standing" }
 open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

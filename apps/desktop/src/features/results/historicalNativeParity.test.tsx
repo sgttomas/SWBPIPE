@@ -225,6 +225,14 @@ function detailRows(source: MechanicsResult, table: Readonly<{ id: string; sha25
   return row ? [row.id] : [];
 }
 
+/** RT-L2 (DEL-04-07 REQ-009): the refusal of a pressure-2 result, and of a successor whose base is one. */
+const PRESSURE_2_RETIRED_TEXT = "SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model";
+/** Whether a recorded statement's base identity statement (its first limitation) names a pressure-2 result. */
+function pressure2Base(source: MechanicsResult): boolean {
+  const first = (source.formulation_basis as { limitations?: unknown[] } | undefined)?.limitations?.[0];
+  return typeof first === "string" && first.startsWith("3.0.0/exact_pressure_v3 under pressure-2 semantics.");
+}
+
 describe("a reopened run reads alike held whole and held natively (C1 review F2, F3)", () => {
   it.each(CASES)("$name", async (item) => {
     const stored = withQuality(item.stored(), item.quality);
@@ -251,12 +259,24 @@ describe("a reopened run reads alike held whole and held natively (C1 review F2,
     expect(actual.labelled).toEqual(expected.labelled);
     expect(expected.labelled.size).toBe(labelled.length);
     expect(expected.csv.size).toBeGreaterThan(0);
-    expect(expected.details.size).toBe(details.length);
-    if (!isRetainedRoute(route)) expect(details.length).toBe(1);
+    // RT-L2 (DEL-04-07 REQ-009): a successor whose recorded base identity statement names a pressure-2
+    // result predates the pressure-elongation setting and is refused by name with its message to
+    // re-solve, held whole and held natively alike; it shows no Result Detail endpoint pair.
+    const retired = pressure2Base(stored.source);
+    if (retired) {
+      for (const context of [whole, native]) expect(context.historicalReaderFindings).toContain(PRESSURE_2_RETIRED_TEXT);
+      expect(expected.shown.standing).toContain("Needs recompute.");
+      expect(expected.details.size).toBe(0);
+    } else {
+      expect(expected.details.size).toBe(details.length);
+      if (!isRetainedRoute(route)) expect(details.length).toBe(1);
+    }
 
     // The comparison is not vacuous: an ordinary route shows the run's own health, a retained route
     // its restriction; the invented case state reaches the badges and the CSV's health cells.
-    if (isRetainedRoute(route)) {
+    if (retired) {
+      expect(expected.shown.health).toBeNull();
+    } else if (isRetainedRoute(route)) {
       expect(expected.shown.standing).toContain("needs recompute");
       expect(expected.shown.notices.map(([id]) => id)).toContain("results-notice-retained-precision-unvalidated");
       expect(expected.shown.health).toBeNull();
