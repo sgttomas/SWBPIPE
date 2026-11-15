@@ -399,7 +399,7 @@ request, A1.Fz relative to W1-BASE is:
 ## Controls (`w1_controls.json`) and cross-checks
 
 - **Precision convergence.** Every variant was recomputed in full at
-  110 digits. All 147,609 published pairs have the same 40-digit decimal at
+  110 digits. All 84,429 published pairs have the same 40-digit decimal at
   80 and 110 digits, and no flush decision differs. Check residuals are not
   compared, because they measure the working precision itself.
 - **EX mill/corrosion witness.** As stated in the Variants table.

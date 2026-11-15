@@ -1,9 +1,10 @@
 """Invented models, spectra and requests of the W1 recovery family.
 
-Every number here is invented and is a binary64 value written exactly in
-decimal (dyadic fractions and integers). The driver asserts this, publishes
-each input as its shortest round-trip decimal, its hex form and its exact
-rational, and computes with the exact rational.
+Every number here is invented. Numeric literals denote binary64 values;
+not every decimal literal is its exact rational value (in particular, 0.05).
+The driver publishes each input as its shortest round-trip decimal, its hex
+form and its exact rational. That exact input table is the arithmetic basis:
+all computations use those represented rationals, not the decimal spellings.
 
 The model form is f1_modal/mass_discrete's neutral form (read unchanged by
 its Model, form_mass and form_stiffness), with additions that f1 ignores: `id`
