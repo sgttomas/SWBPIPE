@@ -8,7 +8,8 @@
 // link and the print iframe stay.
 // The render path is mocked: these tests exercise only the two controls.
 // All fixture data is invented. Mocked invoke only.
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useSyncExternalStore } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { ingressArgs } from "../../test/nativeIngress";
@@ -49,11 +50,16 @@ vi.mock("./renderedReportAssembly", () => ({
 }));
 /** A render request's native entry and completion, when a test models them (`nativeRender`);
  * otherwise the render answers at once. */
-const nativeRender = vi.hoisted(() => ({ current: null as null | { enter: () => void; completion: () => Promise<void> } }));
+const nativeRender = vi.hoisted(() => ({
+  current: null as null | { enter: (source: { incarnation: number; sequence: number }) => Promise<void> | void; completion: () => Promise<void> },
+  pending: null as null | (() => void),
+  complete: null as null | (() => void),
+  autoComplete: true
+}));
 vi.mock("../../services/reportRenderService", () => ({
-  renderCalculationReport: async () => {
+  renderCalculationReport: async (_input: unknown, options: { source?: { incarnation: number; sequence: number } } = {}) => {
     if (nativeRender.current) {
-      nativeRender.current.enter();
+      await nativeRender.current.enter(options.source ?? { incarnation: 0, sequence: 0 });
       await nativeRender.current.completion();
     }
     return { route: "tauri_renderer", outcome: outcomeRef.current };
@@ -61,6 +67,9 @@ vi.mock("../../services/reportRenderService", () => ({
 }));
 
 import { RenderedReportPanel } from "./RenderedReportPanel";
+import { ReportSourceSequence } from "../workspace/reportSourceSequence";
+import { ReportOutputOutcomes } from "./reportOutputOutcomes";
+import { ReportOutputStatus } from "./ReportOutputStatus";
 
 const HTML = "<!DOCTYPE html>\n<html><body>invented rendered report</body></html>";
 const SHA = "b".repeat(64);
@@ -126,6 +135,9 @@ beforeEach(() => {
   invokeMock.mockReset();
   outcomeRef.current = outcome();
   nativeRender.current = null;
+  nativeRender.pending = null;
+  nativeRender.complete = null;
+  nativeRender.autoComplete = true;
 });
 
 afterEach(() => {
@@ -165,7 +177,9 @@ describe("native runtime", () => {
         html: HTML,
         exportContext: "local_private",
         explicitLocalPrivateIntent: true,
-        evidence: { route_id: "DREP-HTML-SAVE-005", export_context: "local_private", explicit_local_private_intent: true, blocked: false, blocking_count: 0 }
+        evidence: { route_id: "DREP-HTML-SAVE-005", export_context: "local_private", explicit_local_private_intent: true, blocked: false, blocking_count: 0 },
+        // DEL-08-01 REQ-022: the render's report source (no session sequence here: 0/0).
+        source: { incarnation: 0, sequence: 0 }
       }
     ]);
     expect(screen.queryByTestId("rendered-report-print-frame")).not.toBeInTheDocument();
@@ -223,7 +237,9 @@ describe("native runtime", () => {
         html: HTML,
         exportContext: "public_report",
         explicitLocalPrivateIntent: false,
-        evidence: { route_id: "DREP-HTML-SAVE-005", export_context: "public_report", explicit_local_private_intent: false, blocked: false, blocking_count: 0 }
+        evidence: { route_id: "DREP-HTML-SAVE-005", export_context: "public_report", explicit_local_private_intent: false, blocked: false, blocking_count: 0 },
+        // DEL-08-01 REQ-022: the render's report source (no session sequence here: 0/0).
+        source: { incarnation: 0, sequence: 0 }
       }
     ]);
     expect(screen.queryByTestId("rendered-report-print-frame")).not.toBeInTheDocument();
@@ -251,102 +267,263 @@ describe("native runtime", () => {
     expect(invokeMock).not.toHaveBeenCalled();
   });
 
-  it("retires the native render when its source is replaced, and shows no stale outcome", async () => {
-    let resolveSave: (value: unknown) => void = () => undefined;
-    invokeMock.mockImplementation((command: string) =>
-      command === "save_rendered_report_html" ? new Promise((resolve) => { resolveSave = resolve; }) : Promise.resolve(undefined)
-    );
-    const view = await renderShown(true);
-    fireEvent.click(screen.getByTestId("rendered-report-save-local-private"));
-    await waitFor(() => expect(routeCalls("save_rendered_report_html")).toHaveLength(1));
-    view.rerender(panel(result("run:invented-2")));
-    expect(invokeMock.mock.calls.filter(([command]) => command === "retire_rendered_report")).toHaveLength(1);
-    expect(screen.queryByTestId("rendered-report-save-local-private")).not.toBeInTheDocument();
-    resolveSave(SAVED);
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(screen.queryByText(/Saved invented-report/)).not.toBeInTheDocument();
-  });
-
-  // Currency under delayed delivery (DEL-08-01 REQ-022: "A report or package is produced only for
-  // the result and model current when it is saved; a change during preparation retires the save";
-  // AC-011: "A report prepared for a result that is replaced before the save completes is not
-  // saved"). The real panel and route service run against mocked IPC whose native side models the
-  // reviewed contract only: one custody record that a render request clears at entry and its
-  // completion sets, that `retire_rendered_report` clears when it is delivered, and that the HTML
-  // save consults when it publishes (the guarded check-through-rename the repair settles, R1).
-  // Delivery of `retire_rendered_report` is held until the test releases it, as the IPC hop and
-  // the native main thread may hold it. The expected values come from REQ-022, not from the
-  // model; these fail on the reviewed protocol, and a repair that changes the protocol changes
-  // the model with it.
+  // Currency (DEL-08-01 REQ-022 and AC-011, as Agent 0 narrowed them under the owner's grant):
+  // a source change the desktop application's native process has registered before atomic
+  // publication retires the earlier output; one still in transit may leave the earlier selected
+  // report saved, and the session's report output outcome then says so. The real panel, the real
+  // report source sequence and outcome owner run against mocked IPC whose native side models the
+  // contract `rendered_report_routes.rs` implements and its own tests check: an incarnation, the
+  // highest registered source number, a render ticket taken at entry, the current record, and a
+  // publication gate at the rename. The session's sequenced setters are stood in for by calling
+  // `advance()` beside each source replacement. Expected values come from REQ-022, not the model.
+  type Mark = { incarnation: number; sequence: number };
   function modelledNative() {
-    const native = { current: null as null | number, renders: 0, published: [] as string[], retiresSent: 0, retiresDelivered: 0, deliveredAtPublication: [] as number[] };
-    const heldRetires: Array<() => void> = [];
-    const pendingSaves: Array<(publish: boolean) => void> = [];
+    const native = {
+      incarnation: 0, registered: 0, ticket: 0, record: null as null | Mark,
+      published: [] as string[], advancesSent: 0, retiresSent: 0, holdAdvances: false, failAdvances: false,
+      heldAdvances: [] as Array<() => void>, pendingSaves: [] as Array<() => void>, heldRenders: [] as Array<() => void>, holdRenders: false
+    };
+    const register = (mark: Mark): Mark => {
+      if (mark.incarnation !== native.incarnation) throw { code: "REPORT-SOURCE-INCARNATION-RETIRED", stage: "source", message: "retired" };
+      if (mark.sequence > native.registered) {
+        native.registered = mark.sequence;
+        native.record = null;
+        native.ticket += 1;
+      }
+      return { incarnation: native.incarnation, sequence: native.registered };
+    };
+    const current = (mark: Mark) => mark.incarnation === native.incarnation && mark.sequence === native.registered;
+    const transport = {
+      activate: async (): Promise<Mark> => {
+        native.incarnation += 1;
+        native.registered = 0;
+        native.record = null;
+        native.ticket += 1;
+        return { incarnation: native.incarnation, sequence: 0 };
+      },
+      advance: (mark: Mark): Promise<Mark> => {
+        native.advancesSent += 1;
+        if (native.failAdvances) return Promise.reject(new Error("invented transport failure"));
+        if (!native.holdAdvances) return Promise.resolve().then(() => register(mark));
+        return new Promise<Mark>((resolve, reject) => native.heldAdvances.push(() => {
+          try { resolve(register(mark)); } catch (error) { reject(error); }
+        }));
+      }
+    };
+    nativeRender.current = {
+      enter: async (source) => {
+        if (native.holdRenders) await new Promise<void>((resolve) => native.heldRenders.push(resolve));
+        if (!current(source)) throw new Error("REPORT-SOURCE-RETIRED: the report's source changed after this request was prepared.");
+        native.ticket += 1;
+        native.record = null;
+        const ticket = native.ticket;
+        nativeRender.pending = () => {
+          if (ticket !== native.ticket || !current(source)) throw new Error("REPORT-RENDER-SUPERSEDED: not recorded.");
+          native.record = source;
+        };
+      },
+      completion: async () => {
+        await new Promise<void>((resolve) => { nativeRender.complete = resolve; if (nativeRender.autoComplete) resolve(); });
+        nativeRender.pending?.();
+      }
+    };
+    nativeRender.autoComplete = true;
     invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
       if (command === "retire_rendered_report") {
         native.retiresSent += 1;
-        return new Promise<void>((resolve) => heldRetires.push(() => { native.current = null; native.retiresDelivered += 1; resolve(); }));
+        native.record = null;
+        native.ticket += 1;
+        return Promise.resolve(null);
       }
       if (command === "save_rendered_report_html") {
-        const { html } = ingressArgs([command, args, options]) as { html: string };
-        return new Promise((resolve, reject) => pendingSaves.push(() => {
-          native.deliveredAtPublication.push(native.retiresDelivered);
-          if (native.current === null) reject({ code: "REPORT-HTML-SAVE-RETIRED", stage: "currency", message: "retired", destination: "untouched" });
-          else { native.published.push(html); resolve(SAVED); }
+        const { html, source } = ingressArgs([command, args, options]) as { html: string; source: Mark };
+        if (!current(source) || native.record?.sequence !== source.sequence) {
+          return Promise.reject({ code: "REPORT-SOURCE-RETIRED", stage: "source", message: "The report's source changed.", destination: "untouched", cleanup_code: null, selected_basename: null });
+        }
+        return new Promise((resolve, reject) => native.pendingSaves.push(() => {
+          // The publication gate at the rename: the render and its source must still be current.
+          if (native.record === null || !current(source)) {
+            reject({ code: "REPORT-HTML-SAVE-RETIRED", stage: "currency", message: "The report was retired, rendered again or its source changed before the file was published: nothing was written to the destination.", destination: "as_it_was", cleanup_code: null, selected_basename: "invented-report.html" });
+          } else {
+            native.published.push(html);
+            resolve(SAVED);
+          }
         }));
       }
       return Promise.resolve(undefined);
     });
     return {
       native,
-      /** The native save publishes now, before any held retirement is delivered. */
-      publishPendingSaves: () => pendingSaves.splice(0).forEach((publish) => publish(true)),
-      deliverRetires: () => heldRetires.splice(0).forEach((deliver) => deliver())
+      source: new ReportSourceSequence(transport),
+      outcomes: new ReportOutputOutcomes(),
+      publishPendingSaves: () => native.pendingSaves.splice(0).forEach((publish) => publish()),
+      deliverAdvances: () => native.heldAdvances.splice(0).forEach((deliver) => deliver()),
+      deliverRenders: () => native.heldRenders.splice(0).forEach((deliver) => deliver())
     };
   }
 
-  it("orders a source change before a pending native HTML save's publication when retirement delivery is delayed", async () => {
-    const { native, publishPendingSaves, deliverRetires } = modelledNative();
-    const view = await renderShown(true);
-    native.current = 1; // the shown render's completion recorded it natively
+  // One result object per run, as the session holds it: a re-render is not a source change.
+  const results = new Map<string, ReturnType<typeof result>>();
+  const stableResult = (run: string) => {
+    if (!results.has(run)) results.set(run, result(run));
+    return results.get(run)!;
+  };
+
+  /** The session's two owners as App holds them: the panel with its committed sequence, and the
+   * outcome status outside it. */
+  function Harness({ source, outcomes, sequence, run, showPanel = true }: {
+    source: ReportSourceSequence; outcomes: ReportOutputOutcomes; sequence: number; run: string; showPanel?: boolean;
+  }) {
+    const entries = useSyncExternalStore(outcomes.subscribe, outcomes.snapshot);
+    return (
+      <>
+        {showPanel ? (
+          <RenderedReportPanel model={model} result={stableResult(run)} analysisRun={analysisRun} projectSummary={null}
+            reportSource={source} reportSourceSequence={sequence} reportOutputs={outcomes} />
+        ) : null}
+        <ReportOutputStatus outcomes={outcomes} entries={entries} currentSequence={sequence} />
+      </>
+    );
+  }
+
+  const flush = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+
+  async function renderedLocalPrivate(context: ReturnType<typeof modelledNative>) {
+    context.source.start();
+    const view = render(<Harness source={context.source} outcomes={context.outcomes} sequence={0} run="run:invented-1" />);
+    await flush();
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    // The panel's context change advanced the sequence; the session commits its number.
+    view.rerender(<Harness source={context.source} outcomes={context.outcomes} sequence={context.source.sequence} run="run:invented-1" />);
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-hash")).toBeInTheDocument());
+    return view;
+  }
+
+  /** The session replaces the report's source (a new solve): its sequenced setter advances. */
+  function replaceSource(context: ReturnType<typeof modelledNative>, view: ReturnType<typeof render>, run: string, showPanel = true) {
+    act(() => {
+      context.source.advance();
+      view.rerender(<Harness source={context.source} outcomes={context.outcomes} sequence={context.source.sequence} run={run} showPanel={showPanel} />);
+    });
+  }
+
+  it("refuses publication of the earlier report when the source change is registered first", async () => {
+    const context = modelledNative();
+    const view = await renderedLocalPrivate(context);
     fireEvent.click(screen.getByTestId("rendered-report-save-local-private"));
-    await waitFor(() => expect(routeCalls("save_rendered_report_html")).toHaveLength(1));
-    // The source changes while the save is pending; the frontend has committed the change.
-    view.rerender(panel(result("run:invented-2")));
-    expect(screen.queryByTestId("rendered-report-hash")).not.toBeInTheDocument();
-    // The native save reaches publication before the retirement is delivered.
-    publishPendingSaves();
-    deliverRetires();
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(
-      { publishedAfterSourceChange: native.published.length, retiresSent: native.retiresSent, retiresDeliveredAtPublication: native.deliveredAtPublication },
-      "REQ-022: once the source has changed, the earlier render is not published; the save's publication is ordered after the change"
-    ).toEqual({ publishedAfterSourceChange: 0, retiresSent: 1, retiresDeliveredAtPublication: [0] });
+    await waitFor(() => expect(context.native.pendingSaves, JSON.stringify(context.outcomes.snapshot())).toHaveLength(1));
+    replaceSource(context, view, "run:invented-2");
+    await flush(); // the advance is delivered and registered
+    context.publishPendingSaves();
+    await flush();
+    expect(context.native.published).toEqual([]);
+    const [entry] = context.outcomes.snapshot();
+    expect([entry.state, entry.code, entry.basename]).toEqual(["refused", "REPORT-HTML-SAVE-RETIRED", "invented-report.html"]);
+    const text = screen.getByTestId(`report-output-${entry.id}-text`).textContent ?? "";
+    expect(text).toContain("Not saved (REPORT-HTML-SAVE-RETIRED)");
+    expect(text).toContain("The destination was left as it was.");
+    expect(text).not.toContain("Saved the selected report");
   });
 
-  it("invalidates a pending render's native completion when the source changes before any response is accepted", async () => {
-    const { native, deliverRetires } = modelledNative();
-    let complete!: () => void;
-    nativeRender.current = {
-      enter: () => { native.current = null; native.renders += 1; }, // the render command retires at entry
-      completion: () => new Promise<void>((resolve) => { complete = () => { native.current = native.renders; resolve(); }; })
-    };
-    const view = render(panel());
-    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
-    fireEvent.click(screen.getByTestId("rendered-report-render"));
-    await waitFor(() => expect(native.renders).toBe(1));
-    // No native response has been accepted yet; the source changes.
-    view.rerender(panel(result("run:invented-2")));
-    const retiresSentOnSourceChange = native.retiresSent;
-    deliverRetires();
-    // The earlier request's worker then completes.
-    complete();
-    await new Promise((resolve) => setTimeout(resolve, 0));
+  it("lets an in-transit source change leave the earlier selected report saved, and says so truthfully", async () => {
+    const context = modelledNative();
+    const view = await renderedLocalPrivate(context);
+    fireEvent.click(screen.getByTestId("rendered-report-save-local-private"));
+    await waitFor(() => expect(context.native.pendingSaves, JSON.stringify(context.outcomes.snapshot())).toHaveLength(1));
+    context.native.holdAdvances = true;
+    replaceSource(context, view, "run:invented-2");
+    // The native side publishes before the advance is registered.
+    context.publishPendingSaves();
+    await flush();
+    context.deliverAdvances();
+    await flush();
+    expect(context.native.published).toEqual([HTML]);
+    const [entry] = context.outcomes.snapshot();
+    expect(entry.state).toBe("saved");
+    const status = () => screen.getByTestId(`report-output-${entry.id}`);
+    expect(status()).toHaveAttribute("data-workspace-changed", "true");
+    const text = () => screen.getByTestId(`report-output-${entry.id}-text`).textContent ?? "";
+    expect(text()).toContain("Saved the selected report. The workspace has changed since it was prepared.");
+    expect(text()).toContain("File: invented-report.html.");
+    expect(text()).toContain("Report basis: model project:invented, run run:invented-1.");
+    // The panel shows neither the stale render nor its receipt as the current report's.
     expect(screen.queryByTestId("rendered-report-hash")).not.toBeInTheDocument();
-    expect(
-      { retiresSentOnSourceChange: retiresSentOnSourceChange > 0, nativeHoldsTheEarlierRender: native.current !== null },
-      "REQ-022: a source change while a render is pending invalidates it natively, so that its later completion holds nothing admissible"
-    ).toEqual({ retiresSentOnSourceChange: true, nativeHoldsTheEarlierRender: false });
+    expect(screen.queryByText(/^Saved invented-report/)).not.toBeInTheDocument();
+    // The outcome survives the panel's unmount (Report hidden or replaced) and a project switch.
+    replaceSource(context, view, "run:invented-3", false);
+    expect(screen.queryByTestId("rendered-report-panel")).not.toBeInTheDocument();
+    expect(text()).toContain("Saved the selected report. The workspace has changed since it was prepared.");
+    fireEvent.click(screen.getByTestId(`report-output-${entry.id}-dismiss`));
+    expect(screen.queryByTestId(`report-output-${entry.id}`)).not.toBeInTheDocument();
+  });
+
+  it("refuses at entry a render request delivered after the source advance it predates", async () => {
+    const context = modelledNative();
+    context.source.start();
+    const view = render(<Harness source={context.source} outcomes={context.outcomes} sequence={0} run="run:invented-1" />);
+    await flush();
+    context.native.holdRenders = true;
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(context.native.heldRenders).toHaveLength(1));
+    replaceSource(context, view, "run:invented-2");
+    await flush(); // registered
+    context.deliverRenders(); // the old request reaches the native side only now
+    await flush();
+    expect(context.native.record).toBeNull();
+    expect(screen.queryByTestId("rendered-report-hash")).not.toBeInTheDocument();
+  });
+
+  it("retires a pending render natively when the source advances before any response is accepted", async () => {
+    const context = modelledNative();
+    context.source.start();
+    const view = render(<Harness source={context.source} outcomes={context.outcomes} sequence={0} run="run:invented-1" />);
+    await flush();
+    nativeRender.autoComplete = false;
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(nativeRender.complete).toBeTypeOf("function"));
+    replaceSource(context, view, "run:invented-2");
+    await flush(); // the advance is registered; the pending ticket is superseded
+    nativeRender.complete?.();
+    await flush();
+    expect({ advanceSent: context.native.advancesSent > 0, nativeHoldsTheEarlierRender: context.native.record !== null })
+      .toEqual({ advanceSent: true, nativeHoldsTheEarlierRender: false });
+    expect(screen.queryByTestId("rendered-report-hash")).not.toBeInTheDocument();
+  });
+
+  it("withholds output, not editing, while the source cannot be registered, and resumes once it can", async () => {
+    const context = modelledNative();
+    context.source.start();
+    const view = render(<Harness source={context.source} outcomes={context.outcomes} sequence={0} run="run:invented-1" />);
+    await flush();
+    context.native.failAdvances = true;
+    // Editing proceeds: the advances neither wait nor throw.
+    replaceSource(context, view, "run:invented-2");
+    replaceSource(context, view, "run:invented-3");
+    expect(context.source.sequence).toBe(2);
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-error")).toHaveTextContent("REPORT-SOURCE-UNREGISTERED"));
+    expect(context.native.record).toBeNull();
+    context.native.failAdvances = false;
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-hash")).toBeInTheDocument());
+    expect(context.native.record).toEqual({ incarnation: 1, sequence: 2 });
+  });
+
+  it("settles a save in the session's outcome after its panel unmounts", async () => {
+    const context = modelledNative();
+    const view = await renderedLocalPrivate(context);
+    fireEvent.click(screen.getByTestId("rendered-report-save-local-private"));
+    await waitFor(() => expect(context.native.pendingSaves, JSON.stringify(context.outcomes.snapshot())).toHaveLength(1));
+    const [pending] = context.outcomes.snapshot();
+    expect(pending.state).toBe("pending");
+    view.rerender(<Harness source={context.source} outcomes={context.outcomes} sequence={context.source.sequence} run="run:invented-1" showPanel={false} />);
+    expect(context.native.retiresSent).toBe(1); // the unmounted panel retired its held render
+    context.publishPendingSaves(); // refused at the gate: the render was retired before publication
+    await flush();
+    const [entry] = context.outcomes.snapshot();
+    expect([entry.state, entry.code]).toEqual(["refused", "REPORT-HTML-SAVE-RETIRED"]);
+    expect(screen.getByTestId(`report-output-${entry.id}-text`)).toHaveTextContent("Not saved (REPORT-HTML-SAVE-RETIRED)");
   });
 
   it("prints the same report again, again after a refusal, and after the report changes", async () => {

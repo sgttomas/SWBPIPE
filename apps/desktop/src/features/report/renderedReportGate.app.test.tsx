@@ -110,6 +110,8 @@ async function mountApp(hold?: Promise<void>) {
   const renders: Json[] = [];
   const prints: Json[] = [];
   let retirements = 0;
+  let sourceIncarnation = 0;
+  let sourceRegistered = 0;
   // Any command outside the job contract is refused by name, as the native-replay App tests do; the
   // App's startup chores it refuses (autosave, unit catalogue, model states) are tolerated by App, and
   // the refused names are reported with any stalled step.
@@ -131,6 +133,15 @@ async function mountApp(hold?: Promise<void>) {
       return { outcome: "print_window_opened", route_id: "DREP-HTML-SAVE-005", export_context: "local_private", canonical_sha256_hex: canonical, print_sha256_hex: "c".repeat(64) };
     }
     if (command === "retire_rendered_report") { retirements += 1; return null; }
+    // DEL-08-01 REQ-022: the report source registration, as the native process answers it (the
+    // highest number of the current incarnation stands).
+    if (command === "activate_report_source") { sourceIncarnation += 1; sourceRegistered = 0; return { incarnation: sourceIncarnation, sequence: 0 }; }
+    if (command === "advance_report_source") {
+      const mark = args as { incarnation: number; sequence: number };
+      if (mark.incarnation !== sourceIncarnation) throw { code: "REPORT-SOURCE-INCARNATION-RETIRED", stage: "source", message: "retired" };
+      sourceRegistered = Math.max(sourceRegistered, mark.sequence);
+      return { incarnation: sourceIncarnation, sequence: sourceRegistered };
+    }
     // A model edit's operation, through the maintained operation engine (as App.mbfRoundTrip.test.tsx
     // does), not a fabricated edited document: App still performs the edit, its hash checks and the
     // session commit. No actual native operation witness.
@@ -228,7 +239,9 @@ describe("the rendered report of a solved exact-route result that is not numeric
     expect(renders[0].exactResultText).toBe(raw);
     // The request as sent, committed and bound by digest: the delivered result is named by its
     // committed raw file (the bytes asserted equal above), the rest is carried whole.
-    expect(Object.keys(renders[0]).sort()).toEqual(["exactIntakeText", "exactResultText", "input", "inputManifestText"]);
+    expect(Object.keys(renders[0]).sort()).toEqual(["exactIntakeText", "exactResultText", "input", "inputManifestText", "source"]);
+    // DEL-08-01 REQ-022: the render names the report source number the native process registered.
+    expect(renders[0].source.incarnation).toBe(1);
     expect(JSON.stringify(renders[0].input)).toContain(`"generated_at":"${PINNED_RENDER_TIME.toISOString()}"`);
     const requestFile = `${JSON.stringify({
       description: "DEL-08-01 REQ-017 and REQ-024: the render request the desktop App sends through its gate (renderableSolvedResult) for a solved exact-route result that is not numerically eligible, rendered for local review under a pinned clock. The delivered result bytes are the committed raw file. Written by renderedReportGate.app.test.tsx; job ids are invented; unit transport replay of committed producer bytes, not a native UI qualification witness.",

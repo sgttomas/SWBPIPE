@@ -9,8 +9,13 @@
 // one it recorded for the current render, reads the context and the block from
 // that record and derives the print view itself
 // (`src-tauri/src/rendered_report_routes.rs`, `rendered_report_print.rs`).
+// Each request names the report source number its render was prepared for
+// (`features/workspace/reportSourceSequence.ts`); the native side refuses one
+// that is retired or not yet registered.
 // Outside the native application the panel keeps its link and iframe.
 import { invokeWithIngress, IngressRequestRetiredError } from "./nativeIngress";
+import { ResourceUnavailableError } from "./memoryPool";
+import type { ReportSourceMark } from "../features/workspace/reportSourceSequence";
 import { isTauriRuntime } from "./nativeMenu";
 import { invoke } from "@tauri-apps/api/core";
 import {
@@ -45,12 +50,13 @@ export type RenderedReportPrintReceipt = {
 };
 
 /** A native refusal or failure. `destination`: `untouched` (nothing was chosen
- * or written) or `as_it_was` (the write failed before the file was published). */
+ * or written), `as_it_was` (the write failed, or the save was retired, before the
+ * file was published) or `unknown` (the native worker did not complete). */
 export type RenderedReportRouteError = {
   code: string;
   stage: string;
   message: string;
-  destination: "untouched" | "as_it_was";
+  destination: "untouched" | "as_it_was" | "unknown";
   cleanup_code: string | null;
   selected_basename: string | null;
 };
@@ -59,7 +65,8 @@ export type RenderedReportRouteOutcome<T> =
   | { kind: "done"; receipt: T }
   | { kind: "refused"; error: RenderedReportRouteError }
   | { kind: "retired" }
-  | { kind: "failed"; message: string };
+  /** No native answer: `failure` is what the request rejected with. */
+  | { kind: "failed"; message: string; failure: unknown };
 
 /** The route's controlled export of the canonical HTML under the render's
  * context, returned before the route exposes anything (DEL-12-02 AC-007). */
@@ -93,6 +100,8 @@ type RouteRequest = {
   context: RenderedReportRouteContext;
   explicitLocalPrivateIntent: boolean;
   controlled: ControlledRouteExport | null;
+  /** The report source number the render was prepared for, registered natively. */
+  source: ReportSourceMark;
 };
 
 function routeArgs(request: RouteRequest): Record<string, unknown> {
@@ -106,7 +115,8 @@ function routeArgs(request: RouteRequest): Record<string, unknown> {
       explicit_local_private_intent: request.explicitLocalPrivateIntent,
       blocked: request.controlled?.blocked ?? false,
       blocking_count: request.controlled?.summary.blocking_count ?? 0
-    }
+    },
+    source: { incarnation: request.source.incarnation, sequence: request.source.sequence }
   };
 }
 
@@ -142,7 +152,7 @@ async function send<T>(
   } catch (error) {
     if (error instanceof IngressRequestRetiredError) return { kind: "retired" };
     if (isRouteError(error)) return { kind: "refused", error };
-    return { kind: "failed", message: error instanceof Error ? error.message : String(error) };
+    return { kind: "failed", message: error instanceof Error ? error.message : String(error), failure: error };
   }
 }
 
@@ -179,12 +189,23 @@ export function saveOutcomeText(outcome: RenderedReportRouteOutcome<RenderedRepo
       return `Saved ${receipt.file_name}${replaced}: ${receipt.byte_count} bytes, SHA-256 ${receipt.sha256_hex}.${durability}`;
     }
     case "refused":
+      if (outcome.error.destination === "unknown") return `Save outcome unknown; check the file you selected. ${outcome.error.message}`;
       return `Not saved (${outcome.error.code}): ${outcome.error.message}${destinationText(outcome.error)}`;
     case "retired":
-      return "Not saved: the report is no longer current.";
+      return "Not saved: the report is no longer current; nothing was sent.";
     case "failed":
-      return `Not saved: ${outcome.message}`;
+      // Refused before anything ran only when the native side said so; otherwise the
+      // file may have been written, so the outcome is unknown, never "not saved".
+      return refusedBeforeRunning(outcome.failure)
+        ? `Not saved: ${outcome.message}`
+        : `Save outcome unknown; check the file you selected. ${outcome.message}`;
   }
+}
+
+/** Whether a request with no route answer was refused before the command ran. */
+export function refusedBeforeRunning(failure: unknown): boolean {
+  if (failure instanceof ResourceUnavailableError) return true;
+  return failure instanceof Error && failure.message.startsWith("INVALID_REQUEST:");
 }
 
 export function printOutcomeText(outcome: RenderedReportRouteOutcome<RenderedReportPrintReceipt>): string {
@@ -192,11 +213,12 @@ export function printOutcomeText(outcome: RenderedReportRouteOutcome<RenderedRep
     case "done":
       return `Print window opened with the derived print view of SHA-256 ${outcome.receipt.canonical_sha256_hex}; choose Print or Cancel in its dialog.`;
     case "refused":
+      if (outcome.error.destination === "unknown") return `Print outcome unknown. ${outcome.error.message}`;
       return `Not printed (${outcome.error.code}): ${outcome.error.message}`;
     case "retired":
-      return "Not printed: the report is no longer current.";
+      return "Not printed: the report is no longer current; nothing was sent.";
     case "failed":
-      return `Not printed: ${outcome.message}`;
+      return refusedBeforeRunning(outcome.failure) ? `Not printed: ${outcome.message}` : `Print outcome unknown. ${outcome.message}`;
   }
 }
 

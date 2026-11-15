@@ -256,7 +256,8 @@ describe("reportRenderService", () => {
       summary: { route_id: "DREP-IPC-003", local_first: routeEvidence("local_private", true) }
     });
 
-    expect(invokeMock).toHaveBeenCalledWith("render_calculation_report", { input: payload });
+    // DEL-08-01 REQ-022: the request names its report source (none registered here: 0/0).
+    expect(invokeMock).toHaveBeenCalledWith("render_calculation_report", { input: payload, source: { incarnation: 0, sequence: 0 } });
     expect(route.route).toBe("tauri_renderer");
   });
 
@@ -558,7 +559,8 @@ describe("RenderedReportPanel", () => {
 
     await waitFor(() => {
       expect(invokeMock).toHaveBeenCalledWith("render_calculation_report", {
-        input: { report_title: "Invented renderer-blocked fixture", report_context: { export_context: "public_report" } }
+        input: { report_title: "Invented renderer-blocked fixture", report_context: { export_context: "public_report" } },
+        source: { incarnation: 0, sequence: 0 }
       });
     });
     expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("blocked=false");

@@ -37,6 +37,14 @@ import {
   saveOutcomeText,
   saveRenderedReportHtml
 } from "../../services/renderedReportRoutes";
+import type { ReportSourceMark, ReportSourceSequence } from "../workspace/reportSourceSequence";
+import {
+  notSentSettlement,
+  printSettlement,
+  saveSettlement,
+  type ReportOutputBasis,
+  type ReportOutputOutcomes
+} from "./reportOutputOutcomes";
 
 // DEC-021 (A7): rendered FR-016 calculation report. The Rust renderer crate
 // composes, gates, and hashes the document; this panel only requests a
@@ -64,9 +72,18 @@ import {
 // DEL-08-01 REQ-022 (native routes): in the desktop application the save and the
 // print go through native commands (`renderedReportRoutes.ts`): the canonical HTML
 // is saved through the system save chooser and printed from a window of its own,
-// each bound natively to this render's hash. Whenever the panel discards a render
-// it holds natively, it retires it there too. Outside the desktop the save stays a
+// each bound natively to this render's hash. Outside the desktop the save stays a
 // controlled download link and the print a print iframe.
+//
+// DEL-08-01 REQ-022 (currency): each render, save and print is prepared from the
+// report source number this panel was rendered with (`reportSourceSequence`, committed
+// with its other props). It waits for the desktop application's native process to
+// register that number, re-checks that it is still the latest, and names it in the
+// request; the native side refuses a retired or unregistered number. The panel's own
+// export-context and composition changes advance the number. Every save and print is
+// started and settled through the session's report output outcomes (`reportOutputs`),
+// shown outside this panel, so its outcome survives this panel and its render. On
+// unmount the panel retires a render it holds or has pending natively.
 
 /** Whether a saved package records the user's per-report user release. Only a saved outcome
  * wrote a package, so no other outcome shows a user release, whatever its members say. The
@@ -118,8 +135,17 @@ export function RenderedReportPanel({
   onReportCompositionChange,
   onPackagePrivateIntentChange,
   onSaveReportPackage,
-  onSaveShareableReportPackage
+  onSaveShareableReportPackage,
+  reportSource = null,
+  reportSourceSequence = 0,
+  reportOutputs = null
 }: {
+  /** DEL-08-01 REQ-022: the session's report source sequence, and the number this
+   * panel's other props were committed with. */
+  reportSource?: ReportSourceSequence | null;
+  reportSourceSequence?: number;
+  /** The session's report output outcomes (outside the dormant Report section). */
+  reportOutputs?: ReportOutputOutcomes | null;
   reportComposition?: ReportComposition | null;
   onReportCompositionChange?: (value: ReportComposition | null) => void;
   model: PreviewModel;
@@ -156,6 +182,8 @@ export function RenderedReportPanel({
   const [renderState, setRenderState] = useState<{
     context: ReportExportContext;
     route: RenderReportRoute;
+    /** The registered report source the render was made for. */
+    source: ReportSourceMark;
   } | null>(null);
   const [rendering, setRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
@@ -170,15 +198,23 @@ export function RenderedReportPanel({
   } | null>(null);
   const renderGeneration = useRef(0);
   const nativeRoutes = isNativeRenderedReportRuntime();
-  // Whether a render the panel shows is held in the desktop's custody.
+  // Whether a render the panel shows is held in the desktop's custody, or a render
+  // request is pending there.
   const nativeHeld = useRef(false);
+  const renderPending = useRef(false);
   const routeInFlight = useRef(false);
   const [routeBusy, setRouteBusy] = useState<"save" | "print" | null>(null);
   const [routeStatus, setRouteStatus] = useState<{ generation: number; save?: string; print?: string } | null>(null);
-  function discardNativeRender() {
-    if (!nativeHeld.current) return;
+  // The native side retires a held render when its source advances (a registered
+  // source change), when another render request enters, or here on unmount.
+  function retireOnUnmount() {
+    if (!nativeHeld.current && !renderPending.current) return;
     nativeHeld.current = false;
+    renderPending.current = false;
     retireRenderedReport();
+  }
+  function forgetNativeRender() {
+    nativeHeld.current = false;
   }
 
   // A render (or its redaction evidence) is shown only under the selection
@@ -222,7 +258,7 @@ export function RenderedReportPanel({
   // write state; a source replacement also retires the shown render.
   useEffect(() => () => {
     renderGeneration.current += 1;
-    discardNativeRender();
+    retireOnUnmount();
   }, []);
   const sourceRef = useRef({ model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition });
   useEffect(() => {
@@ -231,7 +267,7 @@ export function RenderedReportPanel({
     sourceRef.current = next;
     if ((Object.keys(next) as Array<keyof typeof next>).every((key) => previous[key] === next[key])) return;
     renderGeneration.current += 1;
-    discardNativeRender();
+    forgetNativeRender();
     setRenderState(null);
     setRedactionState(null);
     setPrintRequest(null);
@@ -242,7 +278,9 @@ export function RenderedReportPanel({
 
   function onLocalPrivateIntentChange(value: boolean) {
     renderGeneration.current += 1;
-    discardNativeRender();
+    forgetNativeRender();
+    // The export context is report-bound: its change advances the source sequence.
+    reportSource?.advance();
     setLocalPrivateIntent(value);
     setRenderState(null);
     setRedactionState(null);
@@ -253,7 +291,9 @@ export function RenderedReportPanel({
   }
   function onCompositionChange(value: ReportComposition | null) {
     renderGeneration.current += 1;
-    discardNativeRender();
+    forgetNativeRender();
+    // The session's composition cell advances the sequence itself; the panel's own does here.
+    if (!onReportCompositionChange) reportSource?.advance();
     changeComposition(value);
     setRenderState(null);
     setRedactionState(null);
@@ -279,7 +319,9 @@ export function RenderedReportPanel({
     const intent = localPrivateIntent;
     const context: ReportExportContext = intent ? "local_private" : "public_report";
     const isCurrent = () => renderGeneration.current === generation;
-    discardNativeRender();
+    // The basis's number, committed with the props this render reads.
+    const viewSequence = reportSourceSequence;
+    forgetNativeRender();
     setRendering(true);
     setRenderError(null);
     setPrintRequest(null);
@@ -314,10 +356,20 @@ export function RenderedReportPanel({
             try { exactSubmission(); return true; } catch { return false; }
           }
         : isCurrent;
-      const next = await renderCalculationReport(controlled, { stillCurrent, exactSubmission: submission });
+      // Output preparation waits for the native side to register this basis's number
+      // and re-checks that it is still the latest; editing never waits for it.
+      const source = reportSource ? await reportSource.registeredFor(viewSequence) : { incarnation: 0, sequence: viewSequence };
+      if (!isCurrent()) return;
+      renderPending.current = isNativeRenderedReportRuntime();
+      let next: RenderReportRoute;
+      try {
+        next = await renderCalculationReport(controlled, { stillCurrent, exactSubmission: submission, source });
+      } finally {
+        if (isCurrent()) renderPending.current = false;
+      }
       if (!isCurrent()) return;
       if (next.route === "tauri_renderer" && isNativeRenderedReportRuntime()) nativeHeld.current = true;
-      setRenderState({ context, route: next });
+      setRenderState({ context, route: next, source });
     } catch (error) {
       if (!isCurrent()) return;
       setRenderState(null);
@@ -346,30 +398,64 @@ export function RenderedReportPanel({
 
   async function onNativeRoute(kind: "save" | "print") {
     const open = kind === "save" ? routeOpen : printOpen;
-    if (routeInFlight.current || !open || routeControl === null || routeHtml === null || routeContext === null) return;
+    if (routeInFlight.current || !open || routeControl === null || routeHtml === null || routeContext === null || renderState === null) return;
     routeInFlight.current = true;
     const generation = renderGeneration.current;
     const stillCurrent = () => renderGeneration.current === generation;
-    const request = {
-      html: routeHtml,
-      context: routeContext,
-      explicitLocalPrivateIntent: routeContext === "local_private" && localPrivateIntent,
-      controlled: routeControl
+    const renderedFor = renderState.source;
+    const viewSequence = reportSourceSequence;
+    const basis: ReportOutputBasis = {
+      sequence: renderedFor.sequence,
+      model: model.project.name ?? model.project.id,
+      run: analysisRun?.analysis_run.run_id ?? result?.run_id ?? null
     };
-    const printRequest = { ...request, controlled: routeContext === "local_private" ? routeControl : null };
+    // The session's outcome entry: started now, settled on every return or rejection,
+    // whether or not this panel is still mounted.
+    const operation = reportOutputs?.begin(kind, basis) ?? null;
+    const settle = (settlement: Parameters<ReportOutputOutcomes["settle"]>[1]) => {
+      if (operation !== null) reportOutputs?.settle(operation, settlement);
+    };
     setRouteBusy(kind);
     setRouteStatus((previous) => ({
       ...(previous?.generation === generation ? previous : {}),
       generation,
       [kind]: kind === "save" ? "Choose where to save the canonical HTML…" : "Opening the print window…"
     }));
+    const show = (text: string) => {
+      if (stillCurrent()) setRouteStatus((previous) => ({ ...(previous?.generation === generation ? previous : {}), generation, [kind]: text }));
+    };
     try {
-      const text = kind === "save"
-        ? saveOutcomeText(await saveRenderedReportHtml(request, stillCurrent))
-        : printOutcomeText(await printRenderedReport(printRequest, stillCurrent));
-      if (stillCurrent()) {
-        setRouteStatus((previous) => ({ ...(previous?.generation === generation ? previous : {}), generation, [kind]: text }));
+      let source: ReportSourceMark;
+      try {
+        if (viewSequence !== renderedFor.sequence) throw new Error("REPORT-SOURCE-STALE-VIEW: the workspace changed after this report was rendered; render it again.");
+        source = reportSource ? await reportSource.registeredFor(viewSequence) : renderedFor;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const code = message.split(":")[0] || "REPORT-SOURCE-UNREGISTERED";
+        settle(notSentSettlement(code, `${message} Nothing was sent.`));
+        show(`${kind === "save" ? "Not saved" : "Not printed"}: ${message} Nothing was sent.`);
+        return;
       }
+      const request = {
+        html: routeHtml,
+        context: routeContext,
+        explicitLocalPrivateIntent: routeContext === "local_private" && localPrivateIntent,
+        controlled: routeControl,
+        source
+      };
+      if (kind === "save") {
+        const outcome = await saveRenderedReportHtml(request, stillCurrent);
+        settle(saveSettlement(outcome));
+        show(saveOutcomeText(outcome));
+      } else {
+        const outcome = await printRenderedReport({ ...request, controlled: routeContext === "local_private" ? routeControl : null }, stillCurrent);
+        settle(printSettlement(outcome));
+        show(printOutcomeText(outcome));
+      }
+    } catch (error) {
+      // Not reached by the route services, which return every outcome; settled anyway.
+      settle({ state: "unknown", code: null, detail: error instanceof Error ? error.message : String(error), basename: null });
+      throw error;
     } finally {
       routeInFlight.current = false;
       setRouteBusy(null);

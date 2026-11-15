@@ -23,7 +23,16 @@
 //! wry runs the print operation with no delegate and no completion selector
 //! (`src/wkwebview/mod.rs` 888-893), so the desktop cannot learn when the
 //! dialog ends; the window closes when the person closes it, when its render
-//! is retired or replaced, and when the main window is destroyed.
+//! is retired or replaced (including by a registered change of the report's
+//! source), and when the main window is destroyed.
+//!
+//! Currency at hand-off (DEL-08-01 REQ-022): when the page has loaded, the
+//! view is handed to the native print of its own window only while its render
+//! is current, with every change of custody held until the hand-off returns
+//! ([`submit_in`]). A change registered before it prevents it and closes the
+//! window; a change not yet registered may let the earlier view be handed
+//! off. Handing off is not printing: nothing here learns whether the person
+//! printed or cancelled.
 //!
 //! Only macOS presents the dialog: tauri documents the native print as
 //! "only supported on macOS on `wry`" (`src/webview/webview_window.rs`
@@ -150,6 +159,17 @@ pub(crate) fn on_load_in(open: &Mutex<Option<OpenPrint>>, custody: &RenderCustod
         }
         _ => OnLoad::Close,
     }
+}
+
+/// The hand-off of a loaded print view to the native print of its own window
+/// (DEL-08-01 REQ-022): `submit` runs only while the document's render is
+/// current, with every change of custody (a retirement, a later render, a
+/// registered source change) held until it returns
+/// ([`RenderCustody::hand_off_if_current`]). A change registered first prevents
+/// it; one registered after it does not undo it. Returns whether it ran;
+/// running establishes nothing about the dialog or a print job.
+pub(crate) fn submit_in(custody: &RenderCustody, document: &PrintDocument, submit: impl FnOnce()) -> bool {
+    custody.hand_off_if_current(document.generation, submit)
 }
 
 /// The protocol's response to one request from `webview_label` for `path`:
@@ -357,7 +377,11 @@ fn page_loaded(window: &tauri::WebviewWindow) {
         OnLoad::Close => {
             let _ = window.destroy();
         }
-        OnLoad::Print(document, served) => present(window, &document, served),
+        OnLoad::Print(document, served) => {
+            if !submit_in(&routes::CUSTODY, &document, || present(window, &document, served)) {
+                let _ = window.destroy();
+            }
+        }
     }
 }
 
@@ -378,7 +402,7 @@ fn present(window: &tauri::WebviewWindow, document: &PrintDocument, served: bool
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rendered_report_routes::{sha256_hex, RouteEvidence, BLOCKED, LOCAL_PRIVATE, NOT_CURRENT, PUBLIC_REPORT, ROUTE_ID, UNBOUND};
+    use crate::rendered_report_routes::{sha256_hex, RouteEvidence, SourceMark, BLOCKED, LOCAL_PRIVATE, NOT_CURRENT, PUBLIC_REPORT, ROUTE_ID, UNBOUND};
 
     const HTML: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Invented</title>\n</head>\n<body>\n<p>Invented report</p>\n</body>\n</html>\n";
 
@@ -388,6 +412,7 @@ mod tests {
             export_context: context.to_string(),
             explicit_local_private_intent: intent,
             evidence: RouteEvidence { route_id: ROUTE_ID.to_string(), export_context: context.to_string(), explicit_local_private_intent: intent, blocked: false, blocking_count: 0 },
+            source: SourceMark { incarnation: 1, sequence: 0 },
         }
     }
 
@@ -418,7 +443,9 @@ mod tests {
 
     #[test]
     fn a_refused_print_derives_no_document() {
-        assert_eq!(admit_print_in(&RenderCustody::new(), &request(HTML, PUBLIC_REPORT, false)).unwrap_err().code, NOT_CURRENT);
+        let none = RenderCustody::new();
+        none.activate();
+        assert_eq!(admit_print_in(&none, &request(HTML, PUBLIC_REPORT, false)).unwrap_err().code, NOT_CURRENT);
         let blocked = RenderCustody::new();
         blocked.record(Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), true, false);
         assert_eq!(admit_print_in(&blocked, &request(HTML, PUBLIC_REPORT, false)).unwrap_err().code, BLOCKED);
@@ -539,5 +566,43 @@ mod tests {
         assert!(lock(&open).as_ref().unwrap().served);
         custody.retire();
         refused(respond_in(&open, &custody, "report-print-7", &path));
+    }
+
+    /// DEL-08-01 REQ-022: the loaded print view is handed to the native print of its own window
+    /// only while its render is current. A retirement or a registered source advance before the
+    /// hand-off prevents it; one that arrives during it waits for its return and does not undo it.
+    #[test]
+    fn the_print_hand_off_runs_only_while_current_and_holds_changes_until_it_returns() {
+        for change in ["retire", "advance"] {
+            let custody = rendered(PUBLIC_REPORT);
+            let document = admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
+            if change == "retire" {
+                custody.retire();
+            } else {
+                custody.advance(SourceMark { incarnation: 1, sequence: 1 }).unwrap();
+            }
+            let mut submitted = false;
+            assert!(!submit_in(&custody, &document, || submitted = true), "{change} before the hand-off prevents it");
+            assert!(!submitted);
+        }
+        let custody = Arc::new(rendered(PUBLIC_REPORT));
+        let document = admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap();
+        let changed = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let mut waiter = None;
+        let ran = submit_in(&custody, &document, || {
+            let (other, flag) = (Arc::clone(&custody), Arc::clone(&changed));
+            waiter = Some(std::thread::spawn(move || {
+                other.advance(SourceMark { incarnation: 1, sequence: 1 }).unwrap();
+                flag.store(true, std::sync::atomic::Ordering::SeqCst);
+            }));
+            std::thread::sleep(std::time::Duration::from_millis(200));
+            // Reads are not held during the hand-off: the window's protocol read does not block.
+            assert!(custody.is_current(document.generation));
+            assert!(!changed.load(std::sync::atomic::Ordering::SeqCst), "the advance waits for the hand-off's return");
+        });
+        assert!(ran);
+        waiter.unwrap().join().unwrap();
+        assert!(changed.load(std::sync::atomic::Ordering::SeqCst));
+        assert!(!custody.is_current(document.generation), "the later advance retired the render after the hand-off");
     }
 }

@@ -126,6 +126,14 @@ needs:
     a reference in the model that no longer matches its library is reported.
   when: Before a user-released report is admitted and before a report lists library records.
   gating: true
+- from: DEL-07-11
+  condition: The workspace session advances the report source sequence synchronously at every change of a
+    report-bound value (the model, the result, the historical and analysis runs, the input manifest, the
+    project summary, the rule-check aggregate and run, the within-run choice and the report composition,
+    including their clears), in the same step as the write and without waiting on the desktop's native
+    process, and keeps the report output outcomes outside the Report section's dormant subtree.
+  when: Ordering report output with changes of its source (REQ-022).
+  gating: true
 code_paths:
 - core/reporting/report_generator/**
 - schemas/report_generator.schema.yaml
@@ -155,6 +163,12 @@ code_paths:
 - apps/desktop/src/services/reportRenderService.ts
 - apps/desktop/src/services/reportPackageSaveService.ts
 - apps/desktop/src/services/renderedReportRoutes.ts
+# REQ-022's currency: the session-owned report output outcomes and their status view, and the
+# report source sequence the workspace advances (in DEL-07-11's workspace folder; the session
+# state cells that advance it remain DEL-07-11's).
+- apps/desktop/src/features/report/reportOutputOutcomes.ts
+- apps/desktop/src/features/report/ReportOutputStatus.tsx
+- apps/desktop/src/features/workspace/reportSourceSequence.ts
 # The native side: the render and save commands, the exact source binding and the user-release admission,
 # and the rendered report's HTML save and print with the render custody that binds them.
 - apps/desktop/src-tauri/src/report_render_exact.rs
@@ -224,6 +238,8 @@ checks:
 - apps/desktop/src/features/report/renderedReport.test.tsx
 - apps/desktop/src/features/report/renderedReportNativeRoutes.test.tsx
 - apps/desktop/src/features/report/renderedReportGate.app.test.tsx
+- apps/desktop/src/features/report/reportOutputOutcomes.test.ts
+- apps/desktop/src/features/workspace/reportSourceSequence.test.ts
 - apps/desktop/src-tauri/src/rendered_report_routes.rs
 - apps/desktop/src-tauri/src/rendered_report_print.rs
 - apps/desktop/src/features/report/reportRedactionProjector.test.ts

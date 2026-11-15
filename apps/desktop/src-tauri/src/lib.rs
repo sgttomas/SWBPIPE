@@ -1899,13 +1899,16 @@ async fn render_calculation_report(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    // A render request retires the current render's custody record before
-    // anything else (`rendered_report_routes`, DEL-08-01 REQ-022).
-    rendered_report_routes::retire_render();
     let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
+    // DEL-08-01 REQ-022: the request takes its ticket at entry, for the report
+    // source number it names; an unregistered or retired source is refused, and
+    // the ticket retires the current render (`rendered_report_routes`). Its
+    // completion is recorded only while the ticket and the source are current.
+    let source: rendered_report_routes::SourceMark = args.decode("source")?;
+    let ticket = rendered_report_routes::begin_render(source).map_err(CommandError::Command)?;
     let registry = registry.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let outcome = render_calculation_report_args(&mut args, &registry, &mut lease);
+        let outcome = rendered_report_routes::with_render_ticket(ticket, || render_calculation_report_args(&mut args, &registry, &mut lease));
         // The response is serialized while the lease is still held.
         let response = respond(outcome);
         drop(lease);
@@ -1958,8 +1961,10 @@ fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     let renderable = open_pipe_stress_report_renderer::decode_renderable_report_input(input)?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
     // The desktop's record of this render, which binds the HTML save and the
-    // print to its bytes (`rendered_report_routes`); no copy is kept.
-    rendered_report_routes::record_render(export_context.as_deref(), &outcome.html, &outcome.sha256_hex, outcome.export_blocked, outcome.content_withheld);
+    // print to its bytes (`rendered_report_routes`); no copy is kept. A
+    // completion superseded by a later request, a retirement or a source change
+    // is refused by name.
+    rendered_report_routes::record_render(export_context.as_deref(), &outcome.html, &outcome.sha256_hex, outcome.export_blocked, outcome.content_withheld)?;
     // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
     // a render refused for its provenance records is metadata-only, so no
     // print view is derived from it either.
@@ -6343,6 +6348,8 @@ macro_rules! app_invoke_handler {
             rendered_report_routes::save_rendered_report_html,
             rendered_report_print::print_rendered_report,
             rendered_report_routes::retire_rendered_report,
+            rendered_report_routes::activate_report_source,
+            rendered_report_routes::advance_report_source,
             save_local_result_json,
             begin_local_csv_stream,
             append_local_csv_stream,

@@ -277,6 +277,8 @@ import { observeWorkspaceCanvasBudget } from "./workspaceCanvasBudget";
 import { EXPENSIVE_LIFECYCLE_SECTIONS } from "./workspaceSections";
 import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
+import { useReportSourceSequence } from "./reportSourceSequence";
+import { useReportOutputOutcomes } from "../report/reportOutputOutcomes";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
  * local store at open and load. Warnings only; the recorded versions stand. */
@@ -394,6 +396,12 @@ function localPrivateSaveFailureText(error: unknown): string {
  * guards and the paths that clear computed state sit together.
  */
 export function useWorkspaceSession() {
+  // DEL-08-01 REQ-022: the report source sequence, advanced synchronously by every
+  // report-bound cell below (model, results, runs, manifest, summary, rule check,
+  // composition, within-run choice), and the session's report output outcomes. Both
+  // belong to the session, not to the Report section's dormant subtree.
+  const reportSource = useReportSourceSequence();
+  const reportOutputs = useReportOutputOutcomes();
   const {
     uiPreferences, setUiPreferences,
     setSystemDark,
@@ -435,7 +443,7 @@ export function useWorkspaceSession() {
     modelRevision,
     currentModel,
     activeModelIndex
-  } = useModelSessionState();
+  } = useModelSessionState(reportSource.owner.advance);
   // Chrome-only canonical comparison. A revision shortcut is used only for a
   // verified snapshot, or the untouched initial loaded-source snapshot (which
   // makes no claim of a file save). Later revisions need a current owned hash.
@@ -561,7 +569,7 @@ export function useWorkspaceSession() {
     droppedWithinRunBases,
     setHeldWithinRunSelection,
     setDroppedWithinRunBases
-  } = useResultsSessionState();
+  } = useResultsSessionState(reportSource.owner.advance);
   // C2 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): the inputs each native record was
   // built with, so a C2 consumer's full record is the same record, built on the full copy.
   const nativeRunInputs = useRef(new WeakMap<object, { inputManifest: CurrentSessionInputManifestEvidence; ruleCheckAggregate: RuleCheckStatus | null; rulePackExclusions: readonly ExcludedRulePackRef[] }>());
@@ -676,7 +684,7 @@ export function useWorkspaceSession() {
     projectMessage, setProjectMessage,
     projectOperation, setProjectOperation,
     projectBusy, setProjectBusy
-  } = useProjectSessionState();
+  } = useProjectSessionState(reportSource.owner.advance);
 
   // Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6): the session's
   // one transient event callback. A listener's failure outside a publication
@@ -5097,6 +5105,12 @@ export function useWorkspaceSession() {
       handleBoxSelection
     },
     results: {
+      /** DEL-08-01 REQ-022: the report source sequence (its owner and latest number) and the
+       * session's report output outcomes (their owner and current entries). */
+      reportSource: reportSource.owner,
+      reportSourceSequence: reportSource.sequence,
+      reportOutputs: reportOutputs.owner,
+      reportOutputEntries: reportOutputs.entries,
       result,
       currentSolvedResult,
       renderableSolvedResult,
