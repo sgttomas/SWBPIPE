@@ -17,11 +17,11 @@ and REQ-008, and add cases of the kind AC-002 names that the frozen
 - the missing-mass correction on inclined members;
 - the rigid load's constituent and member/body shares.
 
-**Status: candidate references, no independent refutation yet.** The author
-TASK derived and self-checked them. A separate TASK, which reads no product
-code, is to refute them before any product comparison (DEL-04-10 VER-006). Its
-record will be `REFUTATION.md`, which the generator then hashes; no such
-record exists yet. No product output has been compared with these values.
+The independent mathematical examination is in `REFUTATION.md`, bound to its
+original candidate head and file hashes. Its descriptive findings are corrected
+here without changing the represented inputs or mechanical values. That record
+states its coverage and limits; it does not establish product agreement.
+No product output has been compared with these values.
 
 Standard claim fence applies (claims taxonomy per DEC-081). These values are
 mathematical references for the stated discrete model. They are not a
@@ -86,7 +86,8 @@ statement about the product, a publication format or a tolerance.
 | `w1_base.json` | W1-BASE: model, derived model, modal basis and the analysis with every detail block and the full method grid |
 | `w1_variants.json` | the six other variants: the base request only, with rigid shares and combined member-axis values |
 | `w1_controls.json` | precision convergence, the EX mill/corrosion witness, the S1 section contrast, the variant summary and the f2 replay |
-| `SHA256SUMS` | every file above, and `REFUTATION.md` once it exists |
+| `REFUTATION.md` | independent examination of the original candidate, with its head and file-hash bindings |
+| `SHA256SUMS` | every other file in this package |
 
 ## Reproduce
 
