@@ -94,8 +94,8 @@ impl fmt::Display for RefusalCode {
     }
 }
 
-/// A named refusal: its code, the object refused (a spectrum's id, or `query`), the field
-/// where one applies, and a sentence saying why.
+/// A named refusal: its code, the object refused (a spectrum's id, `query`, `request`, a mode, a
+/// direction or a row key), the field where one applies, and a sentence saying why.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Refusal {
     pub code: RefusalCode,

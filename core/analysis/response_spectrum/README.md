@@ -135,41 +135,88 @@ refusals. It does not solve, recover or evaluate anything: every number it combi
    sum. Each cluster's lowest frequency stands for it in ρ and in the closeness tests.
 4. **Combines the rigid response** with the periodic part: SRSS √(R_p² + R_r²), or the absolute sum
    R_p + |R_r|.
-5. **Combines the directions** in X, Y, Z order: SRSS, 100-40-40 or absolute sum.
+5. **Combines the directions** in X, Y, Z order: SRSS, 100-40-40 (with the exact 2/5) or absolute
+   sum.
 
-### Numerical choices (to be confirmed by Agent 0)
+### Accuracy (Agent 0's route A/E2)
 
-- **ρ.** Evaluated with s = f_low/f_high ≤ 1 on the published frequencies. This is equal in exact
-  arithmetic to the scope's form in r = ω_j/ω_i, and no intermediate can overflow. ρ_ii = 1.
-- **The closeness tests.** Decided exactly on the represented frequencies, 10·f ≤ 11·f_low, so
-  rounding never decides the inclusive 10 % boundary.
-- **Scaling.** Every rule with a square root is evaluated on its values divided by a power of two
-  near their largest. No square overflows or underflows, and the result rounds once on the way
-  back. A result beyond binary64 is refused.
-- **Cancellation.** Cluster sums and the CQC double sum are plain ordered binary64 sums, and their
-  rounding is relative to their terms. A CQC sum below zero is refused, never clamped. An
-  intermediate overflow of a cluster sum (terms near 1e308) is refused even if the exact sum is
-  finite.
-- **100-40-40.** The governing direction is the largest magnitude (the first in X, Y, Z order on a
-  tie). The factor is the binary64 0.4, above 2/5 by 2⁻⁵⁴ of it.
+Every published combined magnitude is a binary64 that a runtime enclosure shows within 1e-9
+relative of the exact value of its rule on the represented operands. The operands are the
+supplied binary64 contributions, rigid responses, frequencies and damping ratio. A magnitude is
+published as zero only when exact arithmetic proves it zero. Anything else refuses the request,
+naming the row (DEL-04-10 scope, "Combined magnitudes are certified against their exact values").
 
-### Refusals
+- **Exact parts.** Every finite binary64 is an exact dyadic m·2^e. Cluster sums, squares,
+  absolute products, absolute sums and the rigid absolute sum are formed exactly, with
+  crate-local big integers and no new dependency. Nothing overflows or underflows in between.
+  A cluster sum is published as the binary64 nearest its exact value.
+- **ρ.** ρ = N·√(ab)/(D·b), with:
+  - a = f_low and b = f_high;
+  - N = 8ζ²(b + a)·a·b² and D = (b² − a²)² + 4ζ²·a·b·(b + a)², exact dyadics;
+  - √(ab) and the division enclosed outward. ρ is not rational in general; only its kernel N/(D·b)
+    is.
+- **CQC.** Q = Σ R_i² + 2·Σ_{i<j} ρ_ij·R_i·R_j is enclosed from the exact cluster sums and ρ's
+  enclosure: each pair takes the end that makes it smallest or largest. Its square root is taken
+  only from an enclosure with a positive lower end (a positive radicand), or of an exact zero.
+- **The other rules.** The rigid rules (√(R_p² + R_r²), R_p + |R_r|) and the directional rules
+  (SRSS, the absolute sum, and 100-40-40 as (3·max + 2·ΣR)/5 with the exact 2/5) are monotone in
+  non-negative arguments, so they carry enclosures. Their square roots and the division by 5 are
+  enclosed from a binary64 candidate on exactly power-of-two-scaled operands, widened by 2^-50 and
+  checked exactly. Exact integer arithmetic is the fallback when the check fails.
+- **Publication.** The binary64 v nearest the enclosure's midpoint is published only when
+  10⁹·(v − lo) ≤ lo and 10⁹·(hi − v) ≤ hi, decided exactly. This includes the final conversion to
+  binary64.
+- **Precision ladder.**
+  - ρ's enclosures are tried at 53 bits (binary64-guided and checked, with ends rounded outward to
+    64 bits so the CQC inner sums accumulate exactly without allocation), then 128, 256, 512 and
+    1,024 bits, from exact integer division and square roots.
+  - A row moves up the ladder only while it is not certified. A row not certified at 1,024 bits
+    refuses the request.
+  - Scaling a row by a power of two leaves its conditioning unchanged. A large result can still be
+    refused (for example the scaled R2 below), and a tiny one certified.
 
-| Code | When |
-|---|---|
-| `SPECTRUM_METHOD_CHOICE_MISSING` | A method choice is absent or unknown (JSON entry). |
-| `SPECTRUM_DAMPING_OUT_OF_RANGE` | ζ is outside 0 ≤ ζ ≤ 0.2. |
-| `SPECTRUM_CQC_DAMPING_UNSUPPORTED` | CQC with ζ = 0. |
-| `SPECTRUM_RIGID_FREQUENCY_INVALID` | f_r is absent or not positive and finite. |
-| `SPECTRUM_DIRECTION_INVALID` | No direction, a repeated direction, or an unknown one. |
-| `SPECTRUM_MODAL_METADATA_INVALID` | The modal metadata breaks the modal result's structure. |
-| `SPECTRUM_ROW_INVALID` | A row is empty, repeated, or stated with a unit, frame or key its kind does not have. |
-| `SPECTRUM_CONTRIBUTION_INVALID` | A contribution is missing, repeated, not finite, of the wrong length, unsigned, or for a mode or direction the request does not have. |
-| `SPECTRUM_CONTRIBUTION_NOT_PERIODIC` | A contribution for a mode of a rigid cluster. |
-| `SPECTRUM_RIGID_RESPONSE_INVALID` | A rigid response is missing, repeated, not finite or of the wrong length, or is supplied without the correction. |
-| `SPECTRUM_RIGID_RESPONSE_PREMISE_MISMATCH` | The clusters a rigid load left out are not the periodic ones. |
-| `SPECTRUM_COMBINATION_RADICAND_NEGATIVE` | A CQC sum rounds below zero. |
-| `SPECTRUM_COMBINATION_NONFINITE` | A combined value leaves binary64. |
+What is refused, with witnesses from review round 1 (`tests/represented_input_oracle.rs`):
+
+| Witness | Exact value | Outcome |
+|---|---|---|
+| 100-40-40 of three 2^-1074 | 9/5 = 1.8 quanta | refused: the nearest binary64 (2 quanta) is 1/9 away |
+| 100-40-40 of [2, 1, 1]·2^-1074 | 14/5 = 2.8 quanta | refused: 3 quanta is 1/14 away |
+| CQC, f_i = 1 + i·2^-19 Hz, R_k = (−1)^k C(39, k) N, ζ = 0.2, n = 40 | below 1e-150 N | refused: the radicand's enclosure still reaches zero at 1,024 bits |
+| The same family, n = 20 (about 605 bits under the pricing model) | 1.7888529003e-79 N | certified |
+| The same family, n = 7, scaled by 2^90 | 3.2174063837e-1 N | certified |
+| [1e16, 1, −1e16] in one cluster, every modal rule | 1 | certified, exactly 1 |
+
+### Cost and the cap
+
+The `#[ignore]`d scenarios in `tests/combination_cost.rs` were measured in release, one process
+each through the host's slot wrapper, on 15 November 2026. Logs are kept outside Git. The
+baseline is the binary64 combinations of 42aeb90ba.
+
+| Scenario | Binary64 | Certified | Peak RSS |
+|---|---|---|---|
+| Frozen references: 78 combinations, 28,626 magnitudes | 8.8 ms | 55 ms | 12.7 MB |
+| Many-mode CQC, 30 / 60 / 120 clusters × 300 rows × 3 directions | | 19 / 43 / 111 ms | 5.5 / 8.0 / 13.3 MB |
+| Many-mode CQC, 120 clusters × 1,200 rows × 3 directions | 18.8 ms | 380 ms | 37.8 MB (binary64: 11.5 MB) |
+| Many-mode SRSS, 120 clusters × 1,200 rows × 3 directions | 1.8 ms | 75 ms | 36.2 MB |
+| Demanding refinement, n = 20: 1 row / 50 rows | | 4.5 ms / 18 ms | 3.4 / 3.6 MB |
+| Refusal path, n = 40: 1 row / 50 rows | | 17 ms / 65 ms | 4.3 / 4.6 MB |
+| Refusal path, n = 40 among 120 clusters, 10 rows | | 177 ms | 12.3 MB |
+| The same with a 2,048-bit level added (scratch build): n = 40 is then certified | | 341 ms | 17.7 MB |
+
+**How cost scales.**
+- Ordinary work grows with clusters² × rows × directions for CQC, and with clusters × rows ×
+  directions for the other rules.
+- Escalation is dominated by one ρ table per level, which grows with clusters² × p².
+- Memory holds the exact cluster sums (clusters × rows × directions) and one ρ table
+  (clusters² × p bits).
+
+**Why the cap is 1,024 bits.**
+- It certifies the evenly spaced alternating-binomial family up to about n = 36 at ζ = 0.2 (the
+  pricing model needs about 1,020 bits there), including every witness of the plan.
+- A refused row then costs tens of milliseconds, and a hundred-cluster request well under a second.
+- A 2,048-bit level would certify about 40 more alternating clusters, at about twice the
+  worst-case refusal cost and memory. The precision cap does not by itself bound work or memory;
+  the measurements above do.
 
 ### JSON entry and example
 

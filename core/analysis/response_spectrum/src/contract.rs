@@ -364,7 +364,8 @@ impl SignStatus {
 }
 
 /// An unsigned combined magnitude. It is constructed only by the combinations, holds a
-/// non-negative finite value and offers no signed use (AX-003).
+/// non-negative finite value certified within 1e-9 relative of its rule's exact value on the
+/// represented operands (or an exact zero), and offers no signed use (AX-003).
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Magnitude(f64);
 
@@ -532,7 +533,8 @@ pub struct ClusterStatement {
     pub class: ClusterClass,
 }
 
-/// The signed cluster sums of one periodic cluster in one direction, one per row.
+/// The signed cluster sums of one periodic cluster in one direction, one per row: the binary64
+/// nearest each exact sum.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ClusterSum {
     pub cluster: ClusterIndex,
@@ -575,7 +577,9 @@ pub struct Combination {
     pub directions: Vec<Direction>,
     /// Every supplied cluster in ascending order.
     pub clusters: Vec<ClusterStatement>,
-    /// Under CQC, ρ over the periodic clusters in ascending order (row i, column j).
+    /// Under CQC, ρ over the periodic clusters in ascending order (row i, column j): the binary64
+    /// nearest each 128-bit enclosure's midpoint. Informational; the combinations use the
+    /// enclosures themselves.
     pub correlation: Option<Vec<Vec<f64>>>,
     /// Under the grouping method, the groups of periodic clusters.
     pub groups: Option<Vec<Vec<ClusterIndex>>>,

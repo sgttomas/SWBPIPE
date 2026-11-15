@@ -31,7 +31,11 @@
 //! producer supplies. It sums each cluster's contributions with their signs first, applies the
 //! modal rule across the periodic clusters, combines the rigid response by the rigid rule, then
 //! the directions by the directional rule, and returns a [`Combination`] of unsigned
-//! [`Magnitude`]s, or named refusals (CLM-001; REQ-003, REQ-004). The types in [`contract`]
+//! [`Magnitude`]s, or named refusals (CLM-001; REQ-003, REQ-004). Each published magnitude is a
+//! binary64 shown by a runtime enclosure within 1e-9 relative of its rule's exact value on the
+//! represented operands, or an exact zero proved by exact arithmetic; otherwise the request is
+//! refused with `SPECTRUM_COMBINATION_ACCURACY_UNCERTIFIED` (Agent 0's route A/E2; the enclosure
+//! arithmetic is crate-local, with no external dependency). The types in [`contract`]
 //! fix the identities, units, frames and sign tags a later document and its readers build on;
 //! [`combination_json`] is the unit's JSON entry and output, which is not the `spectrum-1`
 //! publication.

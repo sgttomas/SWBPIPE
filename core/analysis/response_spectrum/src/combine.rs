@@ -444,7 +444,7 @@ pub fn combine(request: &CombinationRequest) -> Result<Combination, Vec<Refusal>
         return Err(refusals);
     }
     let correlation = (request.modal_rule == ModalRule::Cqc)
-        .then(|| tables[0].get_or_insert_with(|| CorrelationTable::new(&frequencies, request.damping_ratio, PRECISION_LADDER[0])).nearest(units.len()));
+        .then(|| tables[1].get_or_insert_with(|| CorrelationTable::new(&frequencies, request.damping_ratio, PRECISION_LADDER[1])).nearest(units.len()));
 
     let statements = clusters
         .iter()
