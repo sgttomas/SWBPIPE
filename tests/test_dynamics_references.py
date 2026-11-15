@@ -5,6 +5,9 @@ DEL-04-09 AC-009 and DEL-04-10 AC-006: each frozen reference under
 regenerates byte for byte from its generator, and the generator imports no
 product code.
 
+Regeneration coverage includes `validation/references/f1_modal/continuum`
+and `validation/references/f1_modal/mass_discrete`.
+
 **Different obligations, different evidence.** Byte-for-byte regeneration
 establishes reproducibility. Independence is examined by direct reading of the
 committed generators, their local helpers, admitted reference modules and input
