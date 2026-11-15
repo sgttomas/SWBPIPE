@@ -492,7 +492,9 @@ fn pressure_free_expression(model: &Value) -> Value {
             let mut loads = Vec::new();
             for include in lc["includes"].as_array().unwrap() {
                 let Some(load) = stored.iter().find(|l| l["id"] == include["load"] && l["kind"] == "nodal_force") else { continue };
-                loads.push(nodal_fz(load["id"].as_str().unwrap(), load["node"].as_str().unwrap(), num(&load["value_n"]) * num(&include["factor"])));
+                // A primitive-load id is unique across the model, so each case's copy is qualified by its case.
+                let id = format!("{case_id}:{}", load["id"].as_str().unwrap());
+                loads.push(nodal_fz(&id, load["node"].as_str().unwrap(), num(&load["value_n"]) * num(&include["factor"])));
             }
             let delta_t = num(&lc["temperature_c"]) - t_install;
             if delta_t != 0.0 {

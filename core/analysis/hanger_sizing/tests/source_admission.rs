@@ -3,11 +3,26 @@
 //! model's own solve refuses in the complete source must refuse the request with
 //! the solve's code before any derived solve.
 //!
+//! The source is admitted on its neutralised baseline (`derived::neutralised_source`:
+//! the whole authored document with only the admitted candidates made rigid) by the
+//! product's `source_admission::admit_source_before_assembly`.
+//!
 //! - Every committed sized input is a complete source that an ordinary solve of the
 //!   product admits, with every case and combination it carries.
-//! - The authored pressure-elongation setting is judged on the complete source by
-//!   the product's own `pressure_elongation_refusals`: an empty, duplicated or
-//!   unknown selection, a selection on a document without a pressure contract and a
+//! - Neutralisation changes only the candidates' family, restraints, hanger,
+//!   stiffness and nonlinear members, and leaves the authored request unchanged.
+//! - Both directions, one fault at a time: data sizing replaces on a candidate (a
+//!   malformed hanger, an invalid stiffness, an unknown family token) cannot refuse
+//!   the request; a candidate the rules forbid (a direction, a nonlinear member, a
+//!   reference to it) is refused by the candidate rules and cannot slip through.
+//! - Faults in a case sizing does not solve (a duplicated load id, an unresolved
+//!   ledger source, a support state naming no support, a ledgered load whose target
+//!   node is unknown) refuse the request; the codes and affected ids are the
+//!   ordinary solve's of the same neutralised baseline. A stored primitive the case's
+//!   ledger excludes stays excluded. On PF: a duplicated load id, and a load on an
+//!   unknown node or pipe in a case sizing does not select.
+//! - The authored pressure-elongation setting: an empty, duplicated or unknown
+//!   selection, a selection on a document without a pressure contract and a
 //!   malformed setting each refuse the request through the real sizing entry, and an
 //!   ordinary solve of the same source refuses it with the same code.
 //! - A valid selection is admitted, and each derived document keeps it only for a
@@ -15,13 +30,16 @@
 //!
 //! These are admission and document checks. They set no numerical expectation: the
 //! numerical evidence with pressure elongation selected is EXS-A's, in
-//! `ex_references.rs`, for its pressure-independent vertical quantities only.
+//! `ex_references.rs`, for its pressure-independent vertical quantities only. Where
+//! a run is sized here, its candidates are compared with the committed result of the
+//! same fixture, to show the fault changed nothing, not as a reference.
 
 #[path = "common/model_builder.rs"]
 mod model_builder;
 
-use open_pipe_stress_hanger_sizing::derived::{derived_document, Role, Site};
-use open_pipe_stress_hanger_sizing::publish::{checked_sha256, size_hangers};
+use open_pipe_stress_hanger_sizing::derived::{check_candidates, derived_document, neutralised_source, Role, Site};
+use open_pipe_stress_hanger_sizing::publish::{checked_sha256, parse_sizing_request, size_hangers};
+use open_pipe_stress_product_physics::source_admission::admit_source_before_assembly;
 use open_pipe_stress_hanger_sizing::Dof;
 use open_pipe_stress_product_physics::model_settings::{
     MODEL_SETTING_PRESSURE_ELONGATION_CASES_INVALID, MODEL_SETTING_PRESSURE_ELONGATION_CASE_UNKNOWN,
@@ -174,4 +192,255 @@ fn a_valid_selection_is_kept_only_in_the_derived_documents_of_the_cases_it_selec
         // The stored model is unchanged by the run.
         assert_eq!(input["request"]["model"]["model_settings"]["pressure_elongation"]["operating_load_cases"], json!(selected));
     }
+}
+
+fn ex_input() -> Value {
+    read_json("hanger_sizing_input_ex_pressurised.json")
+}
+
+/// The admitted candidates' sites, by the candidate rules on the unmodified source.
+fn admitted_sites(input: &Value) -> Vec<Site> {
+    let request = parse_sizing_request(&input["sizing"], "$.sizing").unwrap();
+    check_candidates(&input["request"], &request).unwrap_or_else(|r| panic!("{r:?}"))
+}
+
+fn blocking_refs(diagnostics: &[open_pipe_stress_product_physics::Diagnostic]) -> Vec<(String, Vec<String>)> {
+    diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| (d.code.clone(), d.affected_refs.clone())).collect()
+}
+
+/// The ordinary solve of a complete request: its blocking codes and affected ids,
+/// or its refusal text.
+fn ordinary_refs(request: &Value) -> Result<Vec<(String, Vec<String>)>, String> {
+    run_linear_static_preview_value_with_mode(request.clone(), PreviewSolverMode::DenseScrutiny).map(|e| blocking_refs(&e.diagnostics))
+}
+
+fn sized(input: &Value) -> Value {
+    let published = size_hangers(&serde_json::to_string(input).unwrap());
+    assert!(published.is_sized(), "{}", published.document());
+    published.document().clone()
+}
+
+/// A further case `U`, which no sizing role names: a copy of the check case O2 with
+/// its own qualified ids, then changed by `change`.
+fn with_unselected_case(mut input: Value, change: impl FnOnce(&mut Value)) -> Value {
+    let o2 = input["request"]["model"]["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == "O2").unwrap().clone();
+    let text = serde_json::to_string(&o2).unwrap().replace("\"O2:", "\"U:");
+    let mut case: Value = serde_json::from_str(&text).unwrap();
+    case["id"] = json!("U");
+    change(&mut case);
+    input["request"]["model"]["load_cases"].as_array_mut().unwrap().push(case);
+    input
+}
+
+#[test]
+fn neutralisation_changes_only_the_members_sizing_replaces() {
+    let mut input = ex_input();
+    // Ignored members on a candidate, so that removing them is observed.
+    input["request"]["model"]["supports"][3]["hanger"] = json!({"not_a_member": true});
+    let sites = admitted_sites(&input);
+    let before = input.clone();
+    let baseline = neutralised_source(&input["request"], &sites);
+    assert_eq!(input, before, "the authored request is unchanged");
+    let (original, neutral) = (&input["request"], &baseline);
+    assert_eq!(original["materials"], neutral["materials"]);
+    let (om, nm) = (original["model"].as_object().unwrap(), neutral["model"].as_object().unwrap());
+    assert_eq!(om.keys().collect::<Vec<_>>(), nm.keys().collect::<Vec<_>>());
+    for (key, value) in om {
+        if key != "supports" {
+            assert_eq!(&nm[key], value, "model.{key}");
+        }
+    }
+    let (os, ns) = (om["supports"].as_array().unwrap(), nm["supports"].as_array().unwrap());
+    assert_eq!(os.len(), ns.len());
+    for (o, n) in os.iter().zip(ns) {
+        let site = sites.iter().find(|s| o["id"] == s.support.as_str());
+        let Some(site) = site else {
+            assert_eq!(o, n, "a support that is not a candidate is unchanged");
+            continue;
+        };
+        let replaced = ["family", "restraints", "hanger", "stiffness", "nonlinear"];
+        for (key, value) in o.as_object().unwrap() {
+            if !replaced.contains(&key.as_str()) {
+                assert_eq!(&n[key], value, "{} {key}", site.support);
+            }
+        }
+        let mut kept: Vec<&String> = n.as_object().unwrap().keys().filter(|k| !replaced.contains(&k.as_str())).collect();
+        let mut authored: Vec<&String> = o.as_object().unwrap().keys().filter(|k| !replaced.contains(&k.as_str())).collect();
+        kept.sort();
+        authored.sort();
+        assert_eq!(kept, authored, "{}: no member added or lost", site.support);
+        assert_eq!(n["family"], "guide");
+        assert_eq!(n["restraints"], json!(["UZ"]));
+        for removed in ["hanger", "stiffness", "nonlinear"] {
+            assert!(n.get(removed).is_none(), "{} {removed}", site.support);
+        }
+    }
+}
+
+#[test]
+fn data_sizing_replaces_on_a_candidate_cannot_refuse_the_request() {
+    let clean = ex_input();
+    let committed = read_json("hanger_sizing_result_ex_pressurised.json");
+    let sites = admitted_sites(&clean);
+    let faults: [(&str, Value); 3] = [
+        ("hanger", json!({"not_a_member": true, "hanger_type": 7})),
+        ("stiffness", json!({"dof": "UZ", "value": {"value": 1.0, "unit": "not-a-unit"}})),
+        ("family", json!("not_a_family")),
+    ];
+    for (member, value) in faults {
+        let mut input = clean.clone();
+        let candidate = input["request"]["model"]["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "H-3").unwrap();
+        candidate[member] = value;
+        // Without neutralisation the ordinary solve refuses the source.
+        let refused = match ordinary_refs(&input["request"]) {
+            Err(_) => true,
+            Ok(blocking) => !blocking.is_empty(),
+        };
+        assert!(refused, "{member}: the fault is not one the ordinary solve refuses");
+        assert_eq!(admitted_sites(&input).len(), sites.len(), "{member}: the candidate rules admit the candidate");
+        assert_eq!(neutralised_source(&input["request"], &sites), neutralised_source(&clean["request"], &sites), "{member}");
+        let document = sized(&input);
+        assert_eq!(document["result"]["candidates"], committed["result"]["candidates"], "{member}");
+        assert_eq!(document["result"]["solves"], committed["result"]["solves"], "{member}");
+    }
+}
+
+#[test]
+fn a_candidate_the_rules_forbid_cannot_slip_through_neutralisation() {
+    let cases: [(&str, Box<dyn Fn(&mut Value)>); 3] = [
+        ("HANGER_SIZING_CANDIDATE_SKEW_UNSUPPORTED", Box::new(|input: &mut Value| {
+            input["request"]["model"]["supports"][3]["direction"] = json!({"x": 0.0, "y": 0.0, "z": 1.0});
+        })),
+        ("HANGER_SIZING_CANDIDATE_FAMILY_UNSUPPORTED", Box::new(|input: &mut Value| {
+            input["request"]["model"]["supports"][3]["nonlinear"] = json!({"kind": "lift_off", "dof": "UZ"});
+        })),
+        ("HANGER_SIZING_CANDIDATE_REFERENCED", Box::new(|input: &mut Value| {
+            let referenced = with_unselected_case(input.clone(), |case| {
+                case["primitive_loads"].as_array_mut().unwrap().push(json!({
+                    "id": "U:to-H-3", "category": "imposed_displacement", "target": {"type": "support", "support": "H-3", "dof": "UZ"},
+                    "direction": "UZ", "magnitude": {"value": 0.001, "unit": "m"}, "dimension": "displacement",
+                    "provenance": "invented_test_value"}));
+            });
+            *input = referenced;
+        })),
+    ];
+    for (code, change) in cases {
+        let mut input = ex_input();
+        assert_eq!(input["request"]["model"]["supports"][3]["id"], "H-3");
+        change(&mut input);
+        let published = size_hangers(&serde_json::to_string(&input).unwrap());
+        assert!(!published.is_sized(), "{code}");
+        let refusals = published.document()["refusals"].as_array().unwrap().clone();
+        assert!(refusals.iter().any(|r| r["code"] == code && r["names"].as_array().unwrap().contains(&json!("H-3"))), "{code}: {refusals:?}");
+        assert!(refusals.iter().all(|r| r["names"] != json!(["source"])), "{code}: judged as a source after neutralisation: {refusals:?}");
+    }
+}
+
+/// One fault in the unselected case: the request is refused naming the source, and
+/// the seam's blocking codes and affected ids are the ordinary solve's of the same
+/// neutralised baseline, including `code` naming `object`.
+fn assert_refused_like_the_ordinary_solve(input: &Value, code: &str, object: &str) {
+    let baseline = neutralised_source(&input["request"], &admitted_sites(input));
+    let expected = ordinary_refs(&baseline).unwrap_or_else(|e| panic!("{code}: refused at parse: {e}"));
+    assert!(matches!(expected.as_slice(), [(c, refs)] if c == code && refs.iter().any(|r| r == object)),
+        "{code}: one fault, but the ordinary solve gives {expected:?}");
+    let seam = admit_source_before_assembly(baseline, PreviewSolverMode::DenseScrutiny).unwrap();
+    assert_eq!(blocking_refs(&seam), expected, "{code}");
+    let published = size_hangers(&serde_json::to_string(input).unwrap());
+    assert!(!published.is_sized(), "{code}: sized");
+    let refusals = published.document()["refusals"].as_array().unwrap();
+    assert_eq!(refusals.len(), 1, "{code}: {refusals:?}");
+    assert_eq!(refusals[0]["names"], json!(["source"]));
+    let message = refusals[0]["message"].as_str().unwrap();
+    assert!(message.contains(code) && message.contains(object), "{code} {object}: {message}");
+}
+
+#[test]
+fn a_duplicated_load_id_is_refused_with_the_ordinary_code() {
+    // The saved probe's fault: one primitive-load id in two cases.
+    let mut input = ex_input();
+    let o2 = input["request"]["model"]["load_cases"].as_array_mut().unwrap().iter_mut().find(|c| c["id"] == "O2").unwrap();
+    o2["primitive_loads"][0]["id"] = json!("W:F-1");
+    o2["analysis_state"]["load_sources"][0]["source_ref"] = json!("W:F-1");
+    assert_refused_like_the_ordinary_solve(&input, "DUPLICATE_ID", "W:F-1");
+}
+
+#[test]
+fn an_unresolved_ledger_source_in_an_unselected_case_is_refused() {
+    let input = with_unselected_case(ex_input(), |case| {
+        case["analysis_state"]["load_sources"][0]["source_ref"] = json!("U:no-such-source");
+    });
+    assert_refused_like_the_ordinary_solve(&input, "LOAD_STATE_SOURCE_UNRESOLVED", "U:no-such-source");
+}
+
+#[test]
+fn a_support_state_naming_no_support_in_an_unselected_case_is_refused() {
+    let input = with_unselected_case(ex_input(), |case| {
+        let mut extra = case["analysis_state"]["support_states"][0].clone();
+        extra["support_ref"] = json!("support:not-in-model");
+        extra.as_object_mut().unwrap().remove("boundary_motion");
+        case["analysis_state"]["support_states"].as_array_mut().unwrap().push(extra);
+    });
+    assert_refused_like_the_ordinary_solve(&input, "LOAD_STATE_SUPPORT_UNKNOWN", "support:not-in-model");
+}
+
+#[test]
+fn a_ledgered_load_on_an_unknown_node_in_an_unselected_case_is_refused() {
+    let input = with_unselected_case(ex_input(), |case| {
+        case["primitive_loads"][0]["target"]["node"] = json!("N-not-in-model");
+    });
+    assert_eq!(input["request"]["model"]["load_cases"][3]["analysis_state"]["load_sources"][0]["source_ref"], "U:F-1");
+    assert_refused_like_the_ordinary_solve(&input, "LOAD_NODE_UNKNOWN", "U:F-1");
+}
+
+#[test]
+fn a_primitive_the_ledger_excludes_stays_excluded() {
+    // U:F-4 is stored in U and named by no ledger entry; an unknown target on it is
+    // never judged, as the ordinary solve never applies it.
+    let input = with_unselected_case(ex_input(), |case| {
+        let load = case["primitive_loads"].as_array_mut().unwrap().iter_mut().find(|l| l["id"] == "U:F-4").unwrap();
+        load["target"]["node"] = json!("N-not-in-model");
+        assert!(!case["analysis_state"]["load_sources"].as_array().unwrap().iter().any(|s| s["source_ref"] == "U:F-4"));
+    });
+    let baseline = neutralised_source(&input["request"], &admitted_sites(&input));
+    assert_eq!(ordinary_refs(&baseline), Ok(Vec::new()));
+    assert_eq!(blocking_refs(&admit_source_before_assembly(baseline, PreviewSolverMode::DenseScrutiny).unwrap()), Vec::new());
+    let committed = read_json("hanger_sizing_result_ex_pressurised.json");
+    assert_eq!(sized(&input)["result"]["candidates"], committed["result"]["candidates"]);
+}
+
+/// The pressure-free two-span input with a further case `load:U`, which no sizing
+/// role names: a copy of `load:O2` with its own ids, then changed by `change`.
+fn pf_with_unselected_case(change: impl FnOnce(&mut Value)) -> Value {
+    let mut input = read_json("hanger_sizing_input_two_span.json");
+    assert!(input["request"]["model"].get("pressure_contract").is_none());
+    let o2 = input["request"]["model"]["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == "load:O2").unwrap().clone();
+    let text = serde_json::to_string(&o2).unwrap().replace("\"load:O2", "\"load:U");
+    let mut case: Value = serde_json::from_str(&text).unwrap();
+    change(&mut case);
+    input["request"]["model"]["load_cases"].as_array_mut().unwrap().push(case);
+    input
+}
+
+#[test]
+fn on_pf_isolated_faults_in_the_source_are_refused_like_the_ordinary_solve() {
+    // A load id used in two cases.
+    let mut input = read_json("hanger_sizing_input_two_span.json");
+    let o2 = input["request"]["model"]["load_cases"].as_array_mut().unwrap().iter_mut().find(|c| c["id"] == "load:O2").unwrap();
+    o2["primitive_loads"][2]["id"] = json!("load:O1-lift");
+    assert_refused_like_the_ordinary_solve(&input, "DUPLICATE_ID", "load:O1-lift");
+    // In a case sizing does not select: a load on an unknown node, and one on an unknown pipe.
+    let input = pf_with_unselected_case(|case| {
+        assert_eq!(case["primitive_loads"][2]["id"], "load:U-push");
+        case["primitive_loads"][2]["target"]["node"] = json!("node:not-in-model");
+    });
+    assert_refused_like_the_ordinary_solve(&input, "LOAD_NODE_UNKNOWN", "load:U-push");
+    let input = pf_with_unselected_case(|case| {
+        case["primitive_loads"][0]["target"]["pipe"] = json!("pipe:not-in-model");
+    });
+    assert_refused_like_the_ordinary_solve(&input, "LOAD_PIPE_UNKNOWN", "load:U-AB");
+    // Without a fault the further case is admitted and sizing is unchanged.
+    let input = pf_with_unselected_case(|_| {});
+    let committed = read_json("hanger_sizing_result_two_span.json");
+    assert_eq!(sized(&input)["result"]["candidates"], committed["result"]["candidates"]);
 }

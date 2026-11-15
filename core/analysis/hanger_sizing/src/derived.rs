@@ -8,8 +8,7 @@ use crate::{
     check_method, size, verification_standing, verify, Candidate, CandidateResult, Dof, FamilyPolicy, Method,
     Positions, Record, Refusal, Selected, Verification, VerificationStanding,
 };
-use open_pipe_stress_product_physics::model_settings::pressure_elongation_refusals;
-use open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions;
+use open_pipe_stress_product_physics::source_admission::admit_source_before_assembly;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode};
 use open_pipe_stress_units::{canonical_unit, convert, unit_by_symbol, Dimension};
 use serde_json::{json, Value};
@@ -410,6 +409,45 @@ fn force_primitive(site: &Site, value: f64) -> Value {
     })
 }
 
+/// A candidate made a rigid restraint of its DOF: `family` `guide` (the product's
+/// family for a rigid restraint of named translational DOFs), `restraints` exactly
+/// `[dof]`, and its `hanger`, `stiffness` and `nonlinear` members removed. Every
+/// other member (id, node, direction, provenance and the rest) is kept as authored.
+fn make_rigid(support: &mut serde_json::Map<String, Value>, dof: Dof) {
+    for key in ["hanger", "stiffness", "nonlinear"] {
+        support.remove(key);
+    }
+    support.insert("restraints".into(), json!([dof_token(dof)]));
+    support.insert("family".into(), json!("guide"));
+}
+
+/// The source with its candidates neutralised: the whole authored document, every
+/// case, combination, support, state, load, reference and setting kept, and only
+/// each named candidate made rigid on its admitted DOF ([`make_rigid`]). This is
+/// the baseline the source is admitted on ([`check_source`]).
+///
+/// The candidate rules (REQ-002, [`check_candidates`]) run first, on the
+/// unmodified source, and only candidates they admit are neutralised; so a
+/// candidate's direction, a nonlinear, snubber or anchor candidate and a candidate
+/// referred to by another object are refused before neutralisation and are never
+/// hidden by it. Neutralisation removes exactly the members sizing replaces in
+/// every derived solve: a candidate's hanger, stiffness and nonlinear members,
+/// family and restraints. Malformed or ignored data there cannot refuse the request,
+/// at the request parse or later, because the source is parsed only after they are
+/// replaced. The authored request is not changed.
+pub fn neutralised_source(request_doc: &Value, sites: &[Site]) -> Value {
+    let mut doc = request_doc.clone();
+    if let Some(Value::Array(supports)) = doc["model"].get_mut("supports") {
+        for site in sites {
+            let found = supports.iter_mut().find(|s| s.get("id").and_then(Value::as_str) == Some(site.support.as_str()));
+            if let Some(Value::Object(support)) = found {
+                make_rigid(support, site.dof);
+            }
+        }
+    }
+    doc
+}
+
 /// The derived document for one case: only that case, no combinations, and each
 /// candidate in its role (REQ-003).
 ///
@@ -462,18 +500,11 @@ pub fn derived_document(request_doc: &Value, case: &str, sites: &[Site], roles: 
                 }
                 Role::Rigid | Role::Spring { .. } => {
                     let support = supports[index].as_object_mut().expect("support object");
-                    for key in ["hanger", "stiffness", "nonlinear"] {
-                        support.remove(key);
-                    }
-                    support.insert("restraints".into(), json!([dof_token(site.dof)]));
+                    make_rigid(support, site.dof);
                     if let Role::Spring { k, f_cold } = role {
                         support.insert("family".into(), json!("spring"));
                         support.insert("stiffness".into(), json!({"dof": dof_token(site.dof), "value": {"value": k, "unit": "N/m"}}));
                         added.push(force_primitive(site, *f_cold));
-                    } else {
-                        // `guide` is the product's family for a rigid restraint of
-                        // named translational DOFs.
-                        support.insert("family".into(), json!("guide"));
                     }
                 }
             }
@@ -510,45 +541,33 @@ fn all_ids(value: &Value, out: &mut BTreeSet<String>) {
     }
 }
 
-/// The source model's own admission of what a derived document no longer carries,
+/// The source's own admission of what a derived document no longer carries,
 /// judged before any derived solve and without solving (REQ-009: what the solve
 /// refuses refuses the request with the solve's code). A derived document keeps one
-/// case and no combinations, so an authored case, combination or setting that the
-/// model's own solve refuses must be judged on the source, or projection would hide
-/// it. Two public judgements of the product are used as they stand:
+/// case and no combinations, so a case, combination, state, reference or setting
+/// that the model's own solve refuses must be judged on the source, or projection
+/// would hide it.
 ///
-/// - `preview_operating_conditions`: the solve's request parse, its namespace checks
-///   and the operating-condition judgement its lowering applies (document members,
-///   condition use, the interim support and combination refusals) over every
-///   authored case and combination;
-/// - `pressure_elongation_refusals`, on the authored setting and every authored case
-///   id, exactly as the solve's validation calls it.
+/// The baseline is [`neutralised_source`]: the whole authored document with only
+/// the admitted candidates made rigid. It is judged by the product's
+/// `admit_source_before_assembly`: the ordinary solve's stages before assembly on
+/// the complete document, and each case's primitive loads built from the case the
+/// solve applies (its ledger, on a load/reference-state document). That judges
+/// declarations and references in every case, not the convergence or stability of
+/// a case sizing does not solve; each derived solve gets every ordinary check.
 ///
-/// They run after the candidate rules (REQ-002) have admitted the candidates.
-/// These judgements do not cover all source identities or case-state references;
-/// they do not establish complete source admission. Each refusal is
-/// `HANGER_SIZING_DERIVED_SOLVE_FAILED` naming `source`, carrying the product's own
-/// codes and messages. It is not a solve and counts against no solve bound.
-fn check_source(request_doc: &Value) -> Option<Refusal> {
-    let model = &request_doc["model"];
-    let preview = preview_operating_conditions(model);
-    let mut found = Vec::new();
-    if let Some(text) = preview["refusal"].as_str() {
-        found.push(text.to_string());
-    }
-    for diagnostic in preview["diagnostics"].as_array().into_iter().flatten() {
-        if diagnostic["severity"] == "blocking" {
-            found.push(format!("{}: {}", diagnostic["code"].as_str().unwrap_or(""), diagnostic["message"].as_str().unwrap_or("")));
-        }
-    }
-    // A malformed setting is refused by the request parse above.
-    if let Some(ids) = model["model_settings"]["pressure_elongation"]["operating_load_cases"].as_array() {
-        let ids: Vec<&str> = ids.iter().filter_map(Value::as_str).collect();
-        let cases: HashSet<&str> = model["load_cases"].as_array().into_iter().flatten().filter_map(|c| c["id"].as_str()).collect();
-        for error in pressure_elongation_refusals(ids, is_exact(request_doc), &cases) {
-            found.push(format!("{}: {}", error.code, error.message));
-        }
-    }
+/// Each refusal is `HANGER_SIZING_DERIVED_SOLVE_FAILED` naming `source`, carrying
+/// the product's codes and messages (or its parse refusal). It is not a solve and
+/// counts against no solve bound.
+fn check_source(request_doc: &Value, sites: &[Site], mode: PreviewSolverMode) -> Option<Refusal> {
+    let found: Vec<String> = match admit_source_before_assembly(neutralised_source(request_doc, sites), mode) {
+        Err(text) => vec![text],
+        Ok(diagnostics) => diagnostics
+            .iter()
+            .filter(|d| d.severity == "blocking")
+            .map(|d| format!("{} [{}]: {}", d.code, d.affected_refs.join(", "), d.message))
+            .collect(),
+    };
     (!found.is_empty()).then(|| refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec!["source".to_string()], found.join("; ")))
 }
 
@@ -673,7 +692,7 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
         refusals.push(refusal("HANGER_SIZING_ID_COLLISION", collisions, "a reserved derived-load id already exists in the model"));
     }
     if refusals.is_empty() {
-        refusals.extend(check_source(request_doc));
+        refusals.extend(check_source(request_doc, &sites, mode));
     }
     if !refusals.is_empty() {
         return Err(refusals);

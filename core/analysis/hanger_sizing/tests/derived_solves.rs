@@ -231,15 +231,20 @@ fn a_singular_force_replacement_refuses_the_request_with_the_solve_diagnostics()
 
 /// REQ-009: what the solve refuses refuses the request with the solve's code. A
 /// non-candidate support with no state in the weight case is the solve's own
-/// refusal, carried in the derived-solve refusal's message.
+/// refusal. It is a declaration fault, so the source admission finds it on the
+/// complete source before any derived solve, and its refusal names `source` and
+/// carries the solve's code. (A derived solve's own refusal is
+/// `a_singular_force_replacement_refuses_the_request_with_the_solve_diagnostics`.)
 #[test]
 fn a_solve_refusal_of_the_stored_model_refuses_the_request_with_the_solves_code() {
     let mut doc = two_span_on(Route::ExactLoadReference);
     doc["model"]["load_cases"][0]["analysis_state"]["support_states"].as_array_mut().unwrap().retain(|s| s["support_ref"] != "support:C");
     let refusals = run(&doc, &[], &request(&["support:B"], "load:O")).unwrap_err();
+    assert_eq!(refusals.len(), 1, "{refusals:?}");
     assert_eq!(refusals[0].code, "HANGER_SIZING_DERIVED_SOLVE_FAILED");
-    assert_eq!(refusals[0].names, ["S_W"]);
+    assert_eq!(refusals[0].names, ["source"]);
     assert!(refusals[0].message.contains("LOAD_STATE_SUPPORT_STATE_MISSING"), "{}", refusals[0].message);
+    assert!(refusals[0].message.contains("support:C"), "{}", refusals[0].message);
 }
 
 fn hanger_variable(id: &str, node: &str, restraints: &[&str], dof: &str) -> Value {
