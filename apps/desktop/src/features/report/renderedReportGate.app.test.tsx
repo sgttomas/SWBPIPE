@@ -287,6 +287,45 @@ describe("the rendered report of a solved exact-route result that is not numeric
     expect(screen.getByTestId("workspace-section-report").className).toBe("workspace-dock-section");
   }, 240_000);
 
+  /** DEL-08-01 REQ-022 and AC-011 (independent round-1 review of PR 269, finding R3): the native
+   * render and its separate print window are retired when their source is replaced while the
+   * Report section is hidden, not only once Report is opened again. App keeps Report in its real
+   * DormantSection, which does not reconcile an inactive subtree; the native side is the mocked
+   * IPC above, where `retire_rendered_report` is the panel's retirement of the native custody and
+   * print window. On the reviewed behaviour this passes: the new solve releases the session result
+   * that C2ResultGate reads from session context, which reaches the gate through the dormant memo,
+   * so the gate unmounts the panel and its unmount cleanup retires. It guards that path; it does
+   * not cover an ordinary model edit, which leaves the session result in place. */
+  it("retires the native render and its print window when a new solve replaces the result while Report is hidden", async () => {
+    const { prints, retirements, jobCommands, why } = await mountApp();
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() => expect(jobCommands()).toContain("read_preview_mechanics_job_analysis_run_preview"), { timeout: 60_000 });
+    let panel = await openReportStage();
+    await waitFor(() => expectSolvedInPanel(why), { timeout: 60_000 });
+    panel = screen.getByTestId("rendered-report-panel");
+    fireEvent.click(within(panel).getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-render"));
+    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-preview")).toBeInTheDocument(), { timeout: 60_000 });
+    fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print"));
+    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print-status")).toHaveTextContent("Print window opened"));
+    expect(prints).toHaveLength(1);
+    const retiredBefore = retirements();
+
+    // Report is hidden; a new solve then replaces the result the shown render was made from.
+    act(() => nativeMenuCommand("view.section.solve"));
+    expect(screen.getByTestId("workspace-section-report").className).not.toBe("workspace-dock-section");
+    const runRecordsRead = jobCommands().filter((c) => c === "read_preview_mechanics_job_analysis_run_preview").length;
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() => expect(jobCommands().filter((c) => c === "read_preview_mechanics_job_analysis_run_preview").length).toBe(runRecordsRead + 1), { timeout: 60_000 });
+
+    // Before Report is opened again, the native render and its print window are retired.
+    await waitFor(() => expect(
+      retirements() - retiredBefore,
+      `retire_rendered_report calls while Report stays hidden after the replacing solve (Report section class: ${screen.getByTestId("workspace-section-report").className}); ${why()}`
+    ).toBeGreaterThan(0), { timeout: 10_000 });
+    expect(screen.getByTestId("workspace-section-report").className).not.toBe("workspace-dock-section");
+  }, 240_000);
+
   it("the shareable menu refusal appears without a preceding private-save request", async () => {
     const { jobCommands, why } = await mountApp();
     act(() => nativeMenuCommand("analyze.run"));

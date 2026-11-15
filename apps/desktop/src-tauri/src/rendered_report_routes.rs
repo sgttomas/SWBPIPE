@@ -629,4 +629,175 @@ mod tests {
         assert_eq!(fs::read_dir(&dir).unwrap().count(), 0);
         fs::remove_dir_all(dir).unwrap();
     }
+
+    // Currency regressions (DEL-08-01 REQ-022, AC-011: "A report prepared for a result that is
+    // replaced before the save completes is not saved"). They are the independent round-1
+    // review's R1 and R2 interleavings of PR 269, kept as maintained tests. Each drives the
+    // custody this module records and the actual atomic writer; none takes its expected value
+    // from the implementation. They fail on the reviewed behaviour until the repair lands.
+
+    const REPORT_A: &str = "<!DOCTYPE html>\n<html><body><p>Invented report A</p></body></html>\n";
+    const REPORT_B: &str = "<!DOCTYPE html>\n<html><body><p>Invented report B</p></body></html>\n";
+
+    /// What a render request's worker does when it completes (`record_render`'s custody step).
+    fn complete(custody: &RenderCustody, html: &str) -> u64 {
+        custody.record(Some(LOCAL_PRIVATE), html, &sha256_hex(html.as_bytes()), false, false)
+    }
+
+    /// The system's file operations, except that after the temporary file is synced (the last
+    /// step before publication) another thread retires the render or replaces it with a new
+    /// one, as the panel's `retire_rendered_report` or a new render's completion would. The
+    /// retirement runs on its own thread so that a repair that guards publication against
+    /// retirement can hold it off without deadlocking the test; it is waited for for a bounded
+    /// time and the order the writer then observes is recorded.
+    struct RetireAfterTempSync {
+        custody: std::sync::Arc<RenderCustody>,
+        replace: bool,
+        retirement: Option<std::thread::JoinHandle<()>>,
+        retired: std::sync::Arc<std::sync::atomic::AtomicBool>,
+        renamed_after_retirement: Option<bool>,
+    }
+
+    impl AtomicSaveIo for RetireAfterTempSync {
+        fn write_all(&mut self, temp: &mut File, bytes: &[u8]) -> io::Result<()> {
+            atomic::SystemAtomicSaveIo.write_all(temp, bytes)
+        }
+        fn flush(&mut self, temp: &mut File) -> io::Result<()> {
+            atomic::SystemAtomicSaveIo.flush(temp)
+        }
+        fn sync_temp(&mut self, temp: &File) -> io::Result<()> {
+            atomic::SystemAtomicSaveIo.sync_temp(temp)?;
+            let (custody, replace, retired) = (std::sync::Arc::clone(&self.custody), self.replace, std::sync::Arc::clone(&self.retired));
+            let (sent, received) = std::sync::mpsc::channel();
+            self.retirement = Some(std::thread::spawn(move || {
+                if replace {
+                    complete(&custody, REPORT_B);
+                } else {
+                    custody.retire();
+                }
+                retired.store(true, std::sync::atomic::Ordering::SeqCst);
+                let _ = sent.send(());
+            }));
+            // Held off past this bound, the retirement is taken to follow publication.
+            let _ = received.recv_timeout(std::time::Duration::from_secs(5));
+            Ok(())
+        }
+        fn rename(&mut self, source: &Path, destination: &Path) -> io::Result<()> {
+            self.renamed_after_retirement = Some(self.retired.load(std::sync::atomic::Ordering::SeqCst));
+            atomic::SystemAtomicSaveIo.rename(source, destination)
+        }
+        fn cleanup_temp(&mut self, temp_path: &Path) -> io::Result<()> {
+            atomic::SystemAtomicSaveIo.cleanup_temp(temp_path)
+        }
+    }
+
+    /// R1. Retirement or replacement after the chooser's currency check and after the temporary
+    /// file is synced, but before it is renamed over the destination, must not publish the
+    /// retired report: the earlier destination stays byte for byte, no temporary file is left
+    /// beside it, and the save is refused by a named retirement, not reported `saved`.
+    #[test]
+    fn a_render_retired_or_replaced_after_the_temporary_file_sync_is_not_published() {
+        let _lock = atomic_save_test_lock();
+        for replace in [false, true] {
+            let custody = std::sync::Arc::new(RenderCustody::new());
+            complete(&custody, REPORT_A);
+            let dir = scratch("retired-before-rename");
+            let destination = dir.join("report.html");
+            let earlier = b"earlier destination file, invented".to_vec();
+            fs::write(&destination, &earlier).unwrap();
+            let mut io = RetireAfterTempSync {
+                custody: std::sync::Arc::clone(&custody),
+                replace,
+                retirement: None,
+                retired: std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
+                renamed_after_retirement: None,
+            };
+            let outcome = save_in(&custody, request(REPORT_A, LOCAL_PRIVATE, true), |_| Some(Ok(destination.clone())), |path, bytes| {
+                atomic::atomic_save_bytes_as_with_io(&REPORT_HTML_FORMAT, path, bytes, &mut io)
+            });
+            io.retirement.take().expect("the writer reached the temporary-file sync").join().unwrap();
+            let left: Vec<String> = fs::read_dir(&dir).unwrap().map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned()).collect();
+            let found = fs::read(&destination).unwrap();
+            let which = if replace { "replaced by a new render" } else { "retired" };
+            match io.renamed_after_retirement {
+                // The retirement was held off until the new file was published: that save
+                // completed before the render was retired, and is reported as saved.
+                Some(false) => {
+                    assert_eq!(outcome.as_ref().map(|receipt| receipt.outcome), Ok("saved"), "{which}: published before retirement");
+                    assert_eq!(found, REPORT_A.as_bytes());
+                }
+                // The render was retired before publication (the reviewed behaviour reaches here).
+                renamed => {
+                    let what = format!(
+                        "{which} after the temporary-file sync and before publication: rename reached after retirement = {renamed:?}, outcome = {:?}, destination now = {:?}, directory = {left:?}",
+                        outcome.as_ref().map(|receipt| (receipt.outcome, receipt.durability.as_str())).map_err(|error| error.code.as_str()),
+                        String::from_utf8_lossy(&found)
+                    );
+                    assert_eq!(renamed, None, "the retired report must not be renamed over the destination; {what}");
+                    assert_eq!(found, earlier, "the earlier destination must stay byte for byte; {what}");
+                    assert_eq!(left, vec!["report.html".to_string()], "no temporary file is left beside the destination; {what}");
+                    let error = outcome.expect_err(&format!("a retired save is refused, not saved; {what}"));
+                    assert!(error.code.starts_with("REPORT-HTML-SAVE-") && error.code.contains("RETIRED"), "the refusal names the retirement; {what}");
+                }
+            }
+            fs::remove_dir_all(dir).unwrap();
+        }
+    }
+
+    /// R2. Two render requests overlap: A starts, B starts (each request retires the record at
+    /// entry, as `render_calculation_report` does first), B completes and is shown and its print
+    /// window opened, then A's worker completes late. B must stay the current render, admissible
+    /// to save and print and its window served and printed; the obsolete A must not be admitted.
+    #[test]
+    fn a_late_completion_of_an_earlier_render_request_does_not_replace_the_newer_render() {
+        use crate::rendered_report_print::{admit_print_in, on_load_in, served_document_in, OnLoad, OpenPrint};
+        let custody = RenderCustody::new();
+        custody.retire(); // request A enters; its worker is still rendering
+        custody.retire(); // request B enters (the selection or source changed meanwhile)
+        complete(&custody, REPORT_B); // B completes; the panel shows it
+        let document = admit_print_in(&custody, &request(REPORT_B, LOCAL_PRIVATE, true)).expect("B is current once it completes");
+        let path = format!("/{}", document.print_sha256_hex);
+        let open = std::sync::Mutex::new(Some(OpenPrint { label: "report-print-1".to_string(), document: std::sync::Arc::new(document), served: false, printed: false }));
+        complete(&custody, REPORT_A); // A's worker completes late; the panel ignores its response
+        let code = |result: Result<Admitted, RouteError>| result.map(|_| "admitted".to_string()).unwrap_err_or_admitted();
+        // Reported together, so that a failure shows every consequence at once.
+        let observed = (
+            code(custody.admit(&request(REPORT_B, LOCAL_PRIVATE, true))),
+            code(custody.admit(&request(REPORT_A, LOCAL_PRIVATE, true))),
+            served_document_in(&open, &custody, "report-print-1", &path).is_some(),
+            match on_load_in(&open, &custody, "report-print-1") {
+                OnLoad::Print(..) => "print",
+                OnLoad::Close => "close",
+                OnLoad::Nothing => "nothing",
+            },
+        );
+        assert_eq!(
+            observed,
+            ("admitted".to_string(), NOT_CURRENT.to_string(), true, "print"),
+            "(shown B admitted, obsolete A refused, B's print window served, B's window printed not closed) after a late completion of the earlier request"
+        );
+    }
+
+    /// R2. A completion that arrives after the render was explicitly retired (the panel's source
+    /// changed or it unmounted while the request was in flight) must not make that render
+    /// current again.
+    #[test]
+    fn a_completion_after_explicit_retirement_does_not_make_the_render_current_again() {
+        let custody = RenderCustody::new();
+        custody.retire(); // request A enters
+        custody.retire(); // the panel retires (`retire_rendered_report`) while A is in flight
+        complete(&custody, REPORT_A); // A's worker completes afterwards
+        let observed = custody.admit(&request(REPORT_A, LOCAL_PRIVATE, true)).map(|_| "admitted".to_string()).unwrap_err_or_admitted();
+        assert_eq!(observed, NOT_CURRENT, "a render retired while in flight is refused as not current after its completion");
+    }
+
+    trait CodeOrAdmitted {
+        fn unwrap_err_or_admitted(self) -> String;
+    }
+
+    impl CodeOrAdmitted for Result<String, RouteError> {
+        fn unwrap_err_or_admitted(self) -> String {
+            self.unwrap_or_else(|error| error.code)
+        }
+    }
 }

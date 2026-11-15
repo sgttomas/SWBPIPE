@@ -407,7 +407,12 @@ impl AtomicSaveIo for SystemAtomicSaveIo {
     }
 
     fn sync_temp(&mut self, temp: &File) -> io::Result<()> {
-        temp.sync_all()
+        temp.sync_all()?;
+        // Test builds only: a test's hook for this thread runs here, after the temporary file
+        // is synced and before the rename (`test_support::after_temp_sync`).
+        #[cfg(test)]
+        test_support::run_after_temp_sync();
+        Ok(())
     }
 
     fn rename(&mut self, source: &Path, destination: &Path) -> io::Result<()> {
@@ -542,6 +547,34 @@ pub(crate) mod test_support {
     /// Recovers from poisoning, so one failing save test does not fail the rest.
     pub(crate) fn atomic_save_test_lock() -> MutexGuard<'static, ()> {
         ATOMIC_SAVE_TEST_LOCK.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    std::thread_local! {
+        static AFTER_TEMP_SYNC: std::cell::RefCell<Option<Box<dyn FnMut()>>> = const { std::cell::RefCell::new(None) };
+    }
+
+    /// Runs `body` with `hook` called by the system writer on this thread after each temporary
+    /// file is synced and before it is renamed (a real caller's save, reaching publication's
+    /// last step). The hook is removed when `body` returns or unwinds; other threads and
+    /// production builds never see it.
+    pub(crate) fn after_temp_sync<T>(hook: impl FnMut() + 'static, body: impl FnOnce() -> T) -> T {
+        struct Clear;
+        impl Drop for Clear {
+            fn drop(&mut self) {
+                AFTER_TEMP_SYNC.with(|slot| slot.borrow_mut().take());
+            }
+        }
+        AFTER_TEMP_SYNC.with(|slot| *slot.borrow_mut() = Some(Box::new(hook)));
+        let _clear = Clear;
+        body()
+    }
+
+    pub(super) fn run_after_temp_sync() {
+        let hook = AFTER_TEMP_SYNC.with(|slot| slot.borrow_mut().take());
+        if let Some(mut hook) = hook {
+            hook();
+            AFTER_TEMP_SYNC.with(|slot| *slot.borrow_mut() = Some(hook));
+        }
     }
 }
 
