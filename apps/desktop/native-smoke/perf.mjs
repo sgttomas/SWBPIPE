@@ -100,12 +100,11 @@ const INJECT_ROOT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT";
 const READER_DIAGNOSTICS_ENV = "SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS";
 const SEVERITY = ["crash", "launch_failed", "half_written_save", "misleading_message", "host_unobservable", "hang", "refused_with_message", "ok"];
 const GIB = 1024 ** 3;
-// How long the census after a launch waits for no process to run the private copy. Shorter than `run.mjs`'s 20 s
-// because it is spent inside the window: with the sampler's stop and the stderr drain it stays within the
-// supervisor's post-run reserve (at most 30 s), so that an unresolved census is normally recorded before the
-// supervisor's deadline. A supervisor stop during the census still fails the window; nothing then passes.
+// The census helper's polling deadline. The 10 s target leaves room for sampler stop and stderr drain in the
+// supervisor's post-run reserve (at most 30 s); it does not bound a synchronous lsof call. The separate supervisor
+// may stop the runner before a per-run census record is written, leaving failed-window evidence; nothing passes.
 const PERF_CENSUS_BOUND_MS = 10 * 1000;
-// The added wait, past the bound, before a census that has not answered is taken as unresolved.
+// The asynchronous-answer timer allows this grace after the polling deadline; it cannot interrupt synchronous work.
 const CENSUS_ANSWER_GRACE_MS = 2000;
 export const CENSUS_UNRESOLVED_STOP = "LAUNCH-CENSUS-UNRESOLVED";
 // A store not inspected because a process of the private copy may still be writing it (an unresolved census).
@@ -360,7 +359,7 @@ export const BINDING_REFUSED = "PERF-BINDING-REFUSED";
 export const WINDOW_LIMITS = Object.freeze([
   "The window's teardown records whether the owned process group and the processes running the private app copy are gone; neither covers the WebKit helper processes launchd starts for the app, which are not its children.",
   "Nothing observes the host between windows: the window marker keeps a next window from starting until this one's teardown and cleanup are established, and says nothing about what the system runs in the gap.",
-  "The census after the launch covers only the processes running the private app copy. It polls for up to 10 s for none, and takes a census that has given no answer 2 s after that as unresolved; these waits run between census calls and do not bound one synchronous lsof call. When such a call does not return, the supervisor's window deadline stops the runner, and the window keeps this failed-window evidence instead of a per-run census record or checkpoint.",
+  "The census after the launch covers only the processes running the private app copy. The census helper is given a 10 s polling deadline; a separate asynchronous-answer timer allows 2 s more. Neither interrupts or bounds a synchronous lsof call. When such a call does not return, the supervisor's window deadline stops the runner, and the window keeps this failed-window evidence instead of a per-run census record or checkpoint.",
   "The WebKit baseline (the WebKit processes running before the launch) only lets the sampler attribute WebContent processes that appear after the launch to this run; it does not prove they belong to this app, does not end them, and says nothing about what remains after the app exits or between windows."
 ]);
 
@@ -1079,7 +1078,8 @@ export function createReaderPhaseEvidence(file) {
 
 /** The census after one launch (`awaitNoProcesses` on the private copy): `{ resolved: true }`, or
  * `{ resolved: false, reason }`. It never throws and never reads anything but `resolved === true` as resolved: an
- * exception, a missing or malformed answer, or no answer within the bound and its grace is unresolved evidence. */
+ * exception, a missing or malformed answer, or the asynchronous-answer timer expiring is unresolved evidence.
+ * That timer cannot interrupt synchronous work; the separate supervisor may stop the runner first. */
 export async function takeCensus(binary, { boundMs, census = awaitNoProcesses, graceMs = CENSUS_ANSWER_GRACE_MS }) {
   let timer;
   try {
