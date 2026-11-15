@@ -128,7 +128,7 @@ needs:
   gating: false
 code_paths:
 # The modal entry sits in DEL-04-07's product crate; these files in it are this deliverable's, and
-# lib.rs's last item, modal_experimental_result_document, is this deliverable's experimental entry.
+# lib.rs's modal_experimental_result_document is this deliverable's experimental entry.
 # The headless runner hosts it as the modal command and reads its document with read modal-result
 # (DEL-10-05); tests/modal_cli.rs there is this deliverable's process test. The
 # read-only factorization accessor and the element re-formation entry it calls are in the sparse
