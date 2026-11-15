@@ -1,43 +1,51 @@
-"""Observe what a reference generator's run reaches.
+"""Record selected events during a reference generator's run.
 
-A frozen reference must regenerate from a generator that reaches no product
-code. `run_observed` runs a generator with a hook in every Python interpreter
-the run starts and returns what the hooks reported. It shows what a run
-reached. It does not show that a reference was derived independently: that is
-each package's own refutation record.
+This is a limited additional check. An empty observation means no prohibited
+event was detected within its coverage; it establishes neither independence
+nor the absence of a product dependency. Independence must be examined on the
+actual generator, its helpers, admitted reference modules and inputs. A change
+to generator logic, imports or input resolution re-examines independence in
+that change's reference review; a green observation does not discharge it.
 
-**What is a record.**
+**Coverage.** In an interpreter that installs the startup hook:
 
-- A file opened, a directory listed or entered, or a module loaded, whose
-  location is inside a watched root. Locations are compared by device and file
-  number, so a case variant of a watched root, or a link to it, is that root.
-  A location under a watched prefix is a record too, whether or not it exists.
-- A program started, with one exception. A generator may start an interpreter
-  of the same executable that runs `multiprocessing`'s own worker entry with
-  the hook's environment intact: a worker of itself. The hook sees every
-  program start at the one function through which Python starts a program
-  (`_posixsubprocess.fork_exec`) and tells a worker from any other start by its
-  executable, its arguments and its environment. Every other start is a record.
-- A started worker that never reported its hook, and a fork whose child never
-  reported. Silence is not counted as no access.
+- Audit events named by `_PATHS` select one argument at the listed index. A
+  text or bytes path is made absolute relative to the current working
+  directory. Its lowercase spelling is compared with watched prefixes; it
+  and its lexical parents are stat'ed and compared by device and file number
+  with the watched roots. A match is recorded, including a missing path
+  under a watched prefix. This covers direct paths and root aliases that
+  this particular walk recognizes, not every resolution of a filesystem path.
+- Audit events named by `_STARTS` are recorded, including `ctypes.dlopen`.
+  Calls through the wrapped `_posixsubprocess.fork_exec` also report their
+  returned child ID, arguments and whether the hook environment was kept.
+  The judge treats a same-executable invocation matching a listed
+  multiprocessing entry and its option/environment checks as an expected
+  worker; another reported invocation is recorded as a program start.
+- Fork events named by `_FORKS` are counted. Missing hook reports for expected
+  workers, or fewer child-fork reports than recorded forks, are findings.
+  These checks cover starts that reached those hooks, not unobserved starts.
 
-**How a report is made.** Each hook writes its report to a named pipe at the
-moment of the event, and the caller reads the pipe while the run goes on. A
-report made stays made: the generator can catch nothing, a worker that dies
-afterwards changes nothing, and nothing the run does later can take a report
-back. Each interpreter reports that its hook is installed before any other
-code of the run executes, because Python imports the startup module first. A
-forked child is the same program going on under the same hook and reports
-itself as it starts.
+**Reports.** An installed hook writes events to a named pipe as they occur;
+the caller reads concurrently. Catching an access exception or a worker dying
+after a report does not remove that report. The startup module reports its
+interpreter, and the registered after-fork callback reports a forked child.
+An interpreter that bypasses startup can escape these mechanisms.
 
-**What this does not observe.**
+**Known gaps.**
 
-- Anything the observed command does not execute.
-- A script that no observed command runs.
-- A program started without Python's own functions for it, by machine code the
-  run loads. Loading such code is itself a record.
+- An ordinary native-extension load outside watched roots can go unrecorded.
+  Its native code can start a program or an unhooked interpreter without a
+  record. Watching `ctypes.dlopen` does not cover all native-code loading.
+- A directory-descriptor-relative open can read product code undetected:
+  the audit path is resolved here against the working directory, not `dir_fd`.
+- A symlink to a product file or subdirectory can escape the ancestry check:
+  `stat` follows the link but the walk ascends lexical parents, not the target's
+  resolved ancestors.
 
-POSIX only: it relies on a named pipe and on `_posixsubprocess`.
+These are ordinary mechanisms, not evidence of intent to evade the check.
+Unexecuted branches and scripts that no observed command runs are also outside
+its evidence. POSIX only: this uses a named pipe and `_posixsubprocess`.
 """
 import ast
 from collections import namedtuple
@@ -48,8 +56,8 @@ import threading
 
 Observation = namedtuple("Observation", "returncode stdout stderr records interpreters")
 
-# The startup module. Python imports `sitecustomize` when it starts, from the module path, before
-# the script and before any module the script imports.
+# The startup module, imported on Python startup when site initialization and the supplied
+# module path are used. An interpreter bypassing that startup is not necessarily observed.
 HOOK_SOURCE = '''\
 import os
 import sys

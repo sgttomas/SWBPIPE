@@ -56,7 +56,7 @@ def ldl_b64(A):
                 W[i][j] -= l * W[j][k]
     maxd = max(abs(p) for p in piv)
     maxa = max(abs(A[j][j]) for j in range(n))
-    g = max(1.0, maxl) ** 2 * maxd / maxa
+    g = (max(1.0, maxl) * max(1.0, maxl)) * maxd / maxa
     return {"count": neg, "min_abs_pivot": repr(min(abs(p) for p in piv)), "max_abs_pivot": repr(maxd),
             "max_abs_L": repr(maxl), "max_abs_diag": repr(maxa), "growth_g": repr(g),
             "pivot_guard_trips": any(abs(p) <= PIVOT_GUARD for p in piv)}
@@ -210,7 +210,7 @@ def tri_b64(a, b, m, s, variant):
     maxl = max(ls) if ls else max(abs(b[i - 1] / piv[i - 1]) for i in range(1, len(a)))
     return {"count": neg, "last_pivot": repr(piv[-1]), "min_abs_pivot_rows_1_to_n-1": repr(min(abs(p) for p in piv[:-1])),
             "max_abs_pivot": repr(maxd), "max_abs_L": repr(maxl),
-            "growth_g": repr(max(1.0, maxl) ** 2 * maxd / maxa),
+            "growth_g": repr((max(1.0, maxl) * max(1.0, maxl)) * maxd / maxa),
             "pivot_guard_trips": any(abs(p) <= PIVOT_GUARD for p in piv)}
 
 
