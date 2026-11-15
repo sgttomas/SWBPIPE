@@ -49,8 +49,9 @@
 //
 // The standing rule (Agent 0):
 // A predicate of the session's acceptance is IMPORTED where it is exported. Where it is RESTATED,
-// it has a row in the generated table with its source lines and a digest of that source text; a
-// change to that text fails the check and names the row whose restatement must be revalidated. Any
+// it has a row in the generated table with its source passage, found by its text, and a digest of
+// that source text; a change to that text fails the check and names the row whose restatement must
+// be revalidated. Any
 // change to the judge, or to a web source it imports or restates, re-runs the check. The check
 // gives traceability; it does not show that the judge equals the web, or that the table is
 // complete.
