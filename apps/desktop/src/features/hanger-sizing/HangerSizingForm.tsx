@@ -16,6 +16,10 @@ import { retireHangerSizing, retireHangerSizingOnMount, sizeHangers, type Hanger
 import { HangerSizingPanel } from "../results/HangerSizingPanel";
 import type { HangerSizingFamilyPolicy } from "../results/hangerSizingResult";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
+import type { OperationBatch } from "../../services/operationBatchService";
+import { HangerSizingApply } from "./HangerSizingApply";
+import { readStoredHangerLibrary } from "./sizedApplication";
+import type { BatchPrecondition } from "../workspace/workspaceSession";
 import { assembleHangerSizingInput, EMPTY_HANGER_SIZING_FORM, WEIGHT_SUPPORT_STATE, type HangerSizingFormState } from "./hangerSizingRequest";
 
 export const HANGER_SIZING_FORM_TITLE = "Size hangers";
@@ -32,6 +36,10 @@ type Props = Readonly<{
   model: PreviewModel;
   /** Another operation is in progress: the form is read-only meanwhile. */
   busy?: boolean;
+  /** The operation review's queue (REQ-008): a sized selection the person prepares is queued there with its
+   * precondition, and applied only on their acceptance while the precondition holds. Without it, no selection is
+   * offered for application. */
+  onQueueBatch?: (batch: OperationBatch, options?: { precondition?: BatchPrecondition }) => void;
 }>;
 
 type Shown = Readonly<{ completion: HangerSizingCompletion; library: Record<string, unknown> }>;
@@ -51,7 +59,7 @@ function Choice<T extends string>({ label, value, options, onChange, testId }: {
   );
 }
 
-export function HangerSizingForm({ model, busy = false }: Props) {
+export function HangerSizingForm({ model, busy = false, onQueueBatch }: Props) {
   const [form, setForm] = useState<HangerSizingFormState>(EMPTY_HANGER_SIZING_FORM);
   const [libraries, setLibraries] = useState<LocalLibraryIndexEntry[]>([]);
   const [library, setLibrary] = useState<OpenedLibrary | null>(null);
@@ -136,6 +144,10 @@ export function HangerSizingForm({ model, busy = false }: Props) {
   }
 
   const reply = shown?.completion.kind === "replied" ? shown.completion : null;
+  // The library the form holds now under the id the shown result names, if it holds one: a reopened library under that
+  // id withdraws the result's application unless it is the one the result binds.
+  const boundLibraryId = reply?.document.status === "sized" ? reply.document.inputs.library.library_id : null;
+  const currentLibrary = boundLibraryId !== null && library !== null && library.libraryId === boundLibraryId ? library.document : undefined;
   const failure = shown?.completion.kind === "failed" ? shown.completion : null;
   return (
     <section id="hanger-sizing" aria-label="Hanger sizing" data-testid="hanger-sizing-form">
@@ -207,6 +219,10 @@ export function HangerSizingForm({ model, busy = false }: Props) {
       ) : null}
       {failure ? <p role="alert" data-testid="hanger-sizing-failure"><code>{failure.code}</code>: {failure.message}</p> : null}
       {reply && shown ? <HangerSizingPanel document={reply.document} evidence={reply.evidence} library={shown.library} /> : null}
+      {reply && shown && reply.document.status === "sized" && boundLibraryId !== null && onQueueBatch
+        ? <HangerSizingApply document={reply.document} library={shown.library} currentLibrary={currentLibrary}
+            readStoredLibrary={() => readStoredHangerLibrary(projectId, boundLibraryId)} model={model} busy={busy || running} onQueueBatch={onQueueBatch} />
+        : null}
     </section>
   );
 }

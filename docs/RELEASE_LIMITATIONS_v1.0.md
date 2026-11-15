@@ -99,7 +99,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** the junction's pressure load is the sum of its terminals' caps. A compensated terminal would remove its member's share from the pipe solve, so the fitting's load would be analysed incomplete without notice.
 - **What the user does instead:** declare `transfers_to_wall` at every terminal of the node. Where a branch's thrust really is carried by a separate device, model that device as a connector or support. A compensated terminal at a region's own closure, away from any junction, is admitted.
 - **Basis:** DEL-04-07 [scope](../execution/PKG-04/DEL-04-07/ScopeOfWork.md), tees and pressure junctions (RT-A3 increment 1); made standing by RT-A3 increment 1 (PR #45).
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-003 — A combination that includes a hydrostatic test case
 
@@ -112,7 +112,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** v1.0 does not define what such a combination means. A test case uses its selected test contents and may hold its supports, so it can be a different system from the cases it would be combined with.
 - **What the user does instead:** once the test case is solved, report it on its own; its result is marked as a test and states which supports were held. Until then the product offers no alternative.
 - **Basis:** DEL-05-01 and DEL-05-02 [scopes](../execution/PKG-05/DEL-05-02/ScopeOfWork.md), "Withheld in v1.0"; made standing by PR #244.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-004 — The held-status subtrahend on the exact route
 
@@ -125,7 +125,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** it is not built for v1.0. The held solve on the exact route would be a further engine change with its own memory pricing, and the capability is a Should.
 - **What the user does instead:** use a plain subtraction, with neither `difference_basis` nor `subtrahend_support_state`. Each operand is then solved to its own support states, and each case's own result publishes them. On the exact route today the subtraction's record gives each operand's load case, modulus selection and numerical standing; it does not yet set the operands' support states side by side or say where they differ, which DEL-05-02/REQ-014 and AC-005 require, so the user compares the two cases' published states. The same disclosure is missing from exact-route envelopes; comparing cases manually does not meet AC-005.
 - **Basis:** DEL-05-02 [scope](../execution/PKG-05/DEL-05-02/ScopeOfWork.md), "Withheld in v1.0", with DEL-04-07/REQ-012 for the held-status solve; made standing by PR #244.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-005 — A shareable report for a model that uses the user's library records
 
@@ -169,7 +169,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
   - *What is not equivalent.* Raising the contents density to carry the weight: a hydrostatic test case is defined to take its contents density from the condition it selects (DEL-05-01/REQ-014), so weight carried in the section's contents density would not be in it. A weight entered as a load on the weight case: it is not in the generated seismic loads or in the modal mass.
   - *The bore.* To correct contents mass only, enter in the section the actual contents density multiplied by the remaining lined flow area divided by the bore area the selected route uses, and record that substitution. DEL-05-01/REQ-014 requires a hydrostatic test case to take its contents density from its selected condition, so that density would also need this correction. Hydrostatic test mechanics are not built yet; a non-test case's use of a condition's contents density is not decided. Both are currently refused by name. This does not change the model's bore geometry or pressure areas.
 - **Basis:** DEL-03-08 [scope](../execution/PKG-03/DEL-03-08/ScopeOfWork.md), "Not provided in v1.0". The capability was absent before this entry; SWBPIPE's Agent 0 decided that it is not built for v1.0 and added the entry with PR #291. PRD §12.5 is unchanged and still says the product shall support these weights; amending the PRD is the owner's, and this contradiction is put to the owner for that.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-010 — Outputs that need a full copy of the result cannot be made above 64 MiB, and report generation beyond the committed witnesses is not established
 
@@ -195,7 +195,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** The check counts entries using a forest of finding keys and does not implement general matching. When the appended findings give a shared key different predecessors, that counting method does not decide the assignment, so the check refuses the group by name.
 - **What the user does instead:** Give the library or record an identifier without a backtick, import the corrected library and apply its record again, or resolve the library finding. Refresh the library findings, solve the model again if it changed, then render or save again.
 - **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), production method (the admission of Diagnostics entries after the result's own). The refusal is made standing by PR #292.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-014 — The nonlinear operating reference rack is refused from 1,775 nodes
 
@@ -256,7 +256,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
   - Both overlays' results were refused at step 4 in both modes. The committed reference system passes the standing gate; it then fails the reused report's source-mismatch check. The genuine straight witness, the control, is admitted and rendered.
   - The refusal was standing before this entry; the entry was added with PR #313.
 - **Not met by declaring it:** declaring this refusal acceptable does not meet exit criterion 4 for these results, and does not make an unmet criterion met.
-- **Status:** not yet declared.
+- **Status:** declared not acceptable by Agent 0 (PR #363).
 
 ### LIM-017 — Nonlinear results of a model with a gap support are published unqualified and unresolved
 
@@ -335,7 +335,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
   - Product-level witness: `core/product_physics/tests/friction_one_way_normal_source.rs`, `a_lift_off_friction_cycle_is_refused_by_name_with_no_result`. It is the same chord geometry as a model document, with this file's pipe section and material, so its stiffness is not the nominal chord's. In both modes it gives the two codes above and no result row.
   - A separate observation, not generalized: the frozen reference's exact lift-boundary case LIFT-BOUNDARY (`validation/references/friction_one_way_normal`) converges in dense mode, and reaches its four-iteration cap in sparse mode, where it is refused with the same codes. This is not a general failure of sparse mode, and dense mode is not a workaround.
   - The refusal became standing with PR #326, which admits a one-way or lift-off support as a friction normal source and records this entry. Before it, such a model was refused at model build (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`).
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-020 — Modal analysis refuses a model with Timoshenko straight members, which exact-route authoring writes by default
 
