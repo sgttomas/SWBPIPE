@@ -212,7 +212,8 @@ pub(crate) fn print_window_config(label: &str, address: tauri::Url, canonical_sh
 }
 
 /// Closes the open print window unless its render is the one of
-/// `generation` (`None`: whatever it is). Returns whether one was closed.
+/// `generation` (`None`: whatever it is). Returns whether an open record was retired
+/// and its window was asked to close; the result does not confirm destruction.
 pub(crate) fn close_unless_current(generation: Option<u64>) -> bool {
     let label = {
         let mut open = lock(&OPEN);
@@ -221,11 +222,18 @@ pub(crate) fn close_unless_current(generation: Option<u64>) -> bool {
             _ => None,
         }
     };
-    let closed = label.is_some();
+    let retired = label.is_some();
     if let Some(label) = label {
         destroy_window(&label);
     }
-    closed
+    retired
+}
+
+/// The print window currently held by the native print path, for the smoke
+/// close operation to observe that exact handle disappearing.
+#[cfg(feature = "native-smoke")]
+pub(crate) fn open_window_label() -> Option<String> {
+    lock(&OPEN).as_ref().map(|print| print.label.clone())
 }
 
 fn destroy_window(label: &str) {

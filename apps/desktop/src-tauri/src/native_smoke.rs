@@ -531,11 +531,25 @@ pub fn native_smoke_take_report_prints() -> Vec<ReportPrintObservation> {
     std::mem::take(&mut *REPORT_PRINTS.lock().unwrap_or_else(std::sync::PoisonError::into_inner))
 }
 
-/// Closes the open report print window, as the person would after its dialog
-/// (which this build does not present); returns whether one was open.
+/// Requests closure of the open report print window and confirms that its
+/// exact handle leaves Tauri's window registry. No system dialog is presented.
+/// A close request alone is not evidence that the window closed.
 #[tauri::command]
-pub fn native_smoke_close_report_print() -> bool {
-    crate::rendered_report_print::close_unless_current(None)
+pub async fn native_smoke_close_report_print(app: AppHandle) -> Result<bool, String> {
+    let Some(label) = crate::rendered_report_print::open_window_label() else {
+        return Ok(false);
+    };
+    crate::rendered_report_print::close_unless_current(None);
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    loop {
+        if app.get_webview_window(&label).is_none() {
+            return Ok(true);
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err("The print window remains registered after its close request.".to_string());
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+    }
 }
 
 #[tauri::command]
