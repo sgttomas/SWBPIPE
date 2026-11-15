@@ -31,8 +31,18 @@ export const NO_LIBRARY_REF_FINDINGS: LibraryRefFindingsState = Object.freeze({ 
 let published: LibraryRefFindingsState = NO_LIBRARY_REF_FINDINGS;
 const listeners = new Set<() => void>();
 
+/** Freeze the owned copy, including any nested JSON values added to findings later. */
+function freezeFindingValue(value: unknown): void {
+  if (value === null || typeof value !== "object" || Object.isFrozen(value)) return;
+  Object.freeze(value);
+  for (const member of Object.values(value)) freezeFindingValue(member);
+}
+
 export function publishLibraryRefFindings(projectId: string, findings: LibraryRefFinding[]): void {
-  published = Object.freeze({ projectId, findings: Object.freeze([...findings]) as readonly LibraryRefFinding[] });
+  // Neither a publisher's retained record nor a consumer may change this capture.
+  const snapshot = structuredClone(findings);
+  freezeFindingValue(snapshot);
+  published = Object.freeze({ projectId, findings: snapshot });
   for (const listener of listeners) listener();
 }
 
