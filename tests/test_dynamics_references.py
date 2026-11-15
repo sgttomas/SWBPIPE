@@ -5,6 +5,9 @@ DEL-04-09 AC-009 and DEL-04-10 AC-006: each frozen reference under
 regenerates byte for byte from its generator, and the generator imports no
 product code.
 
+Regeneration coverage includes `validation/references/f1_modal/continuum`
+and `validation/references/f1_modal/mass_discrete`.
+
 **Different obligations, different evidence.** Byte-for-byte regeneration
 establishes reproducibility. Independence is examined by direct reading of the
 committed generators, their local helpers, admitted reference modules and input
@@ -491,10 +494,33 @@ def test_the_observation_records_the_selected_access_and_start_witnesses(tmp_pat
         assert name in opened, (name, run.records)
     if os.path.exists(PROJECT / "TOOLS"):
         assert "qualification_process.py" in opened, run.records
-    # Each program started by this probe is a record: another program, a bare interpreter, an interpreter in isolated
-    # mode posing as a worker, and one posing as a worker with the environment cleared.
-    started = [detail for kind, event, detail in run.records if (kind, event) == ("start", "exec")]
-    assert len(started) == 4, run.records
+    # Each request and its selected launch route are recorded. Python can use
+    # posix_spawn for an absolute executable instead of the fork_exec wrapper.
+    expected = [
+        ["true"],
+        [sys.executable, "-c", "pass"],
+        [sys.executable, "-I", "-c", "from multiprocessing.spawn import spawn_main"],
+        [sys.executable, "-c", "from multiprocessing.spawn import spawn_main"],
+    ]
+    requested = [ast.literal_eval(detail)[1] for kind, event, detail in run.records
+                 if (kind, event) == ("start", "subprocess.Popen")]
+    launched = [ast.literal_eval(detail)[1] for kind, event, detail in run.records
+                if kind == "start" and event in {"exec", "os.posix_spawn"}]
+    assert sorted(requested) == sorted(expected), run.records
+    assert sorted(launched) == sorted(expected), run.records
+
+
+@pytest.mark.parametrize("kept,arguments", [
+    (True, ["true"]),
+    (True, [sys.executable, "-c", "pass"]),
+    (True, [sys.executable, "-I", "-c", "from multiprocessing.spawn import spawn_main"]),
+    (False, [sys.executable, "-c", "from multiprocessing.spawn import spawn_main"]),
+])
+def test_reported_fork_exec_program_starts_are_not_classified_as_workers(kept, arguments):
+    detail = repr((kept, arguments))
+    records, interpreters = _judge([f"exec\t10\t11\t{detail}"], sys.executable)
+    assert records == [("start", "exec", detail)]
+    assert interpreters == 0
 
 
 @posix_only
