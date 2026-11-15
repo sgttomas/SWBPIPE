@@ -250,7 +250,7 @@
   ],
   "piping_runtime_reads": {
     "source_trees": {
-      "core/analysis/hanger_sizing/Cargo.toml": "b31b6aaed754a4afe614520d4127fa6d8d70873ce6de7596c300b045c76ace9d",
+      "core/analysis/hanger_sizing/Cargo.toml": "b6ce21b1a1d44e893ac46614435eb67172d8ec17517f10876b27e5cd98559a07",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
       "core/handoff/caepipe_mbf_engine/Cargo.toml": "665cfd34254f574ae7e7bcfbb0399ccd24247c17337e7fda43a43ea4a1e408d4",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "26ee5f7833006eccfbccf2633c6f785d6f25b282cd7043f48f0078a9efa4f39d",
@@ -262,7 +262,7 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "2fa5d714ef86693b4470f50a728acc0eed6d4f8057adeed5f51f531a86b59ca7",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "fe913e0cb60b12d97456fe36e49a46a04529d143aba041f88d66ebc493df00ec",
+      "core/product_physics/Cargo.toml": "7de9a07383d840c63eec5e1e3df10b96bad01c285375c755ad2e981e08680abd",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "aef459ce93aa7dae801284e172f7e5b7ab958801c4716d3c8db262f8303259be",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
@@ -2774,6 +2774,7 @@
               "core/product_physics/src/silent_drop_unit_tests.rs",
               "core/product_physics/src/skew.rs",
               "core/product_physics/src/skew_tests.rs",
+              "core/product_physics/src/source_admission.rs",
               "core/product_physics/src/source_budget_tests.rs",
               "core/product_physics/src/source_receipt.rs",
               "core/product_physics/src/source_receipt/composite.rs",
@@ -4209,6 +4210,7 @@
               "core/product_physics/src/silent_drop_unit_tests.rs",
               "core/product_physics/src/skew.rs",
               "core/product_physics/src/skew_tests.rs",
+              "core/product_physics/src/source_admission.rs",
               "core/product_physics/src/source_budget_tests.rs",
               "core/product_physics/src/source_receipt.rs",
               "core/product_physics/src/source_receipt/composite.rs",
@@ -4436,6 +4438,7 @@
               "core/product_physics/src/silent_drop_unit_tests.rs",
               "core/product_physics/src/skew.rs",
               "core/product_physics/src/skew_tests.rs",
+              "core/product_physics/src/source_admission.rs",
               "core/product_physics/src/source_budget_tests.rs",
               "core/product_physics/src/source_receipt.rs",
               "core/product_physics/src/source_receipt/composite.rs",
@@ -6560,7 +6563,7 @@
         ]
       },
       "core/analysis/hanger_sizing/tests/source_admission.rs": {
-        "sha256": "0d488e80cafb08a34a6c3fb6a05ceb1f7f7bc6e2ac75f14227c6ad01688a9e09",
+        "sha256": "73b4eebda440ff7d5b21ec54c5d74b26e6380233ee0058a1246757fce916688c",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml"
         ],

@@ -1545,6 +1545,14 @@
    "cases_named": "some",
    "reference": "validation/references/hanger_sizing/ex_sizing.json",
    "detail": "exs_request builds EXS-A pressurised load/reference-state documents without a pressure-elongation setting; publication and baseline EX comparisons leave it absent, while ex_references and source_admission author selected operating cases before real sizing. Frozen comparisons concern pressure-independent vertical sizing quantities; source-admission controls assert admission only. EXS-B and exact() twins have no nonzero-pressure region."
+  },
+  {
+   "paths": [
+    "core/analysis/hanger_sizing/tests/source_admission.rs"
+   ],
+   "expectations": "product_output",
+   "cases_named": "some",
+   "detail": "Reads committed EXS-A and other sized sources, creates isolated faults and compares ordinary neutralised admission with real sizing; positive controls also compare candidates with committed product results. Selected operating cases are authored by the setting tests; other controls preserve the fixture default without a setting. No independent pressure-sensitive numerical expectation is introduced."
   }
  ],
  "exempt": [
