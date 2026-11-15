@@ -398,11 +398,30 @@ springs_and_constant_effort`). The test contents density (1000 kg/m³) is the ca
 
 ### 8.4 Modal
 
-Modal analysis is a request beside the model, not a model member. The request names RS-OPE
-as its required state case: the modal model's stiffness, member moduli, support states and
-contents mass come from RS-OPE's resolved state, nonlinear supports are linearized in its
-status, and `boundary_motion` degrees of freedom stay restrained. Modes up to 60 Hz are
-extracted, with at least the first ten reported.
+Modal analysis is a request beside the model, not a model member. It uses the complete
+intended reference system on EX (`exact_pressure_v3`, version `3.0.0`) with
+`euler_bernoulli`, names `load:RS-OPE` as its required state case, and supplies no
+request-level modulus override. Stiffness, member moduli, support states and contents
+mass come from RS-OPE's resolved state; nonlinear supports are linearized at its
+same-run confirmed state, and `boundary_motion` degrees of freedom stay restrained.
+The request explicitly supplies `weight_to_mass_acceleration` as 9.80665 m/s² for
+the component bodies. This is separate from the spectrum's authored g value.
+
+The standalone modal request includes the dynamic-only restraint RS-SN1. Section 8.5
+uses this same modal request, so KR-08 and KR-09 describe one dynamic basis. RS-SN1
+is omitted from the static RS-OPE state solve and included in the modal stiffness.
+
+The requested coverage is every mode through 60 Hz inclusive, at least the first ten
+modes, and complete boundary clusters. The final request uses a count only, n*, with
+no frequency cut-off. Preparatory complete counts determine n* large enough to satisfy
+both coverage requirements and the rigid-frequency premise of §8.5. Their derivation
+is recorded with the request. The preparatory counts and final n* are bound to the
+same model, confirmed state, snubber choice, mass basis and numerical parameters.
+The final basis comes from one bound solve, which itself establishes the requested
+coverage and complete clusters; vectors from preparatory runs are not stitched into it.
+Any extension above 60 Hz is disclosed. A model with fewer than ten finite modes or
+an unresolved endpoint returns to Agent 0 for disposition; the count or coverage is
+not reduced to evade a refusal.
 
 ### 8.5 Response spectrum
 
@@ -410,10 +429,29 @@ One invented spectrum, `spectrum:RS-SP1` in `spectra[]`: abscissa frequency (Hz)
 `g_multiple` with `g_value` 9.80665 m/s², damping ratio 0.05, log–log interpolation.
 Points: (0.5, 0.12), (2.0, 0.75), (9.0, 0.75), (40.0, 0.30), (100.0, 0.30).
 
-The spectrum request, beside the model, applies RS-SP1 in X, Y and Z with scale factors 1.0,
-1.0 and 0.67, uses the modal request of §8.4, and turns on the missing-mass correction. Its
-mode and directional combination methods are DEL-04-10's to define. The snubber RS-SN1 (§6)
-is the system's dynamic-only restraint.
+The spectrum request, beside the model, applies RS-SP1 to uniform support motion in
+X, Y and Z with scale factors 1.0, 1.0 and 0.67. It uses the modal request of §8.4,
+including RS-SN1. Its authored choices are CQC modal combination, SRSS directional
+combination, missing-mass correction on, rigid frequency 40 Hz, and SRSS combination
+of the periodic and rigid responses before directional combination.
+
+Agent 0 fixed these choices on 15 November 2026, before any response-spectrum
+comparison of this system. They are not defaults and will not be adjusted to improve
+agreement with a comparator. RS-SP1's 5 percent damping supports CQC and its treatment
+of correlation between close modes. The constant tail from 40 to 100 Hz supplies the
+basis for choosing 40 Hz. Directional SRSS is the conventional orthogonal rule and is
+also used by the benchmark dynamics runs. These choices do not prove that the modes
+classified as rigid respond in phase. Grouping, ten percent, absolute sum and 100-40-40
+are verified on the smaller independent references rather than through this system.
+
+The final modal set must satisfy DEL-04-10's rigid premise: the highest completed
+cluster's lowest frequency reaches the rigid frequency, or the whole finite spectrum
+is present. Every periodic mode's own frequency, including all members of a cluster
+that straddles the rigid frequency, and the rigid frequency itself must be within
+RS-SP1's [0.5, 100] Hz table. In particular, the lowest periodic mode is checked against
+0.5 Hz. A low mode outside the table cannot be cured by extracting more modes: it is
+refused and returns to Agent 0 as an authored-spectrum question. Nothing is
+extrapolated or silently omitted.
 
 ### 8.6 Equilibrium checks need no extra case
 
