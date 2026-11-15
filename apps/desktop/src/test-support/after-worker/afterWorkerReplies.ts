@@ -2,19 +2,20 @@
 // own code judges the native replies one harness run kept. The harness's Rust checks are only
 // structural pre-checks; a run is web-accepted only by `judgeRun` passing over its replies.
 //
-// What it applies, in the web's order (`previewService.ts` `readNativeFreshResult` :636-682,
-// `validateNativeReaders` :568-594, `nativeStandingInputs` :554-560, `nativeEnvelopeRefusal`
-// :599-608; `workspaceSession.ts` :1564-1617; `NativeResultsPanel.tsx` :160-162, :208-216):
-//   header        decodeNativeRouteHeader(parsed, jobId)          nativeResult.ts:308
-//   registration  decodeNativeValidation(parsed)                  nativeResult.ts:289
-//   standing      decodeNativeVerdict(parsed)                     nativeResult.ts:280
-//   summary       decodeResultSummary(bytes)                      resultSummary.ts:72
-//   agreement     requireRouteHeaderAgreement(header, verdict)    nativeResult.ts:322
-//   recovery      decodeSourceRecovery(bytes)                     resultDetail.ts:244
-//   run_preview   decodeAnalysisRunPreview(bytes)                 analysisRunPreview.ts:78
-//   rows_page     decodeRowsPage(bytes)                           resultDetail.ts:161
-//   row_semantics decodeRowSemantics(text, ordinals)              resultDetail.ts:212
-//   a rejection   nativeInvokeError(parsed)                       memoryPool.ts:237 (nativeIngress.ts:140)
+// What it applies, in the web's order (`previewService.ts`: `readNativeFreshResult`,
+// `validateNativeReaders`, `nativeStandingInputs`, `nativeEnvelopeRefusal`; `workspaceSession.ts`:
+// the session's gates, its input manifest and its model-reference check; `NativeResultsPanel.tsx`:
+// the first page and the semantics' recorded-table agreement):
+//   header        decodeNativeRouteHeader(parsed, jobId)          nativeResult.ts
+//   registration  decodeNativeValidation(parsed)                  nativeResult.ts
+//   standing      decodeNativeVerdict(parsed)                     nativeResult.ts
+//   summary       decodeResultSummary(bytes)                      resultSummary.ts
+//   agreement     requireRouteHeaderAgreement(header, verdict)    nativeResult.ts
+//   recovery      decodeSourceRecovery(bytes)                     resultDetail.ts
+//   run_preview   decodeAnalysisRunPreview(bytes)                 analysisRunPreview.ts
+//   rows_page     decodeRowsPage(bytes)                           resultDetail.ts
+//   row_semantics decodeRowSemantics(text, ordinals)              resultDetail.ts
+//   a rejection   nativeInvokeError(parsed)                       memoryPool.ts (nativeIngress.ts)
 // and the connecting checks between replies: every request names the run's job; each request's
 // arguments are the ones the web would send given the replies before it (the reader its route
 // selects, the model texts the web's own `checkedJsonText` and `jsonTextKeepingNegativeZero`
@@ -22,10 +23,10 @@
 // page, the semantics' ordinals); each conditional call is present exactly when the web would make
 // it; the route header agrees with the final verdict; run_preview names the job and route. The
 // run record's checksums are compared with a full build only on the C2 path
-// (`workspaceSession.ts:591`), not in this sequence, so not here.
+// (in `workspaceSession.ts`), not in this sequence, so not here.
 //
-// The session's gates are applied too (workspaceSession.ts:1564-1569 before run_preview, :1613
-// before it commits): the registration (`hasNativeMechanicsInvocation`), a current source contract
+// The session's gates are applied too (workspaceSession.ts: gates 1 and 2 before run_preview, the
+// model reference before it commits): the registration (`hasNativeMechanicsInvocation`), a current source contract
 // and a producer, read with the web's own `hasCurrentSourceContract` on a handle the web's own
 // `createNativeResult` builds; then the model reference. A run whose sequence those gates would
 // stop is judged to end there; a run that kept replies past a gate fails.
@@ -33,8 +34,8 @@
 // Web predicates are imported wherever they are exported, among them `nativeStandingInputs` and
 // `buildCurrentSessionInputManifest` (whose `validateArgs` runs as the web runs it; its canonical
 // bytes and digest come from the wasm engine, built by `npm run build:wasm`). Restated, each with
-// its reason and its source compared line by line (the PR's family table, checked against the
-// source by a script): `nativeEnvelopeRefusal` (not exported; its retained predicates are
+// its reason and its source compared line by line (the family table in `tools/after_worker_family`,
+// checked against the source by its generator): `nativeEnvelopeRefusal` (not exported; its retained predicates are
 // imported), the reading cache's `keyOf` (not exported), the registration gate
 // (`nativeRegistrationHolds` reads module state a reply does not carry), and the session's
 // sequencing (inline in `readNativeFreshResult` and the session).
@@ -48,8 +49,9 @@
 //
 // The standing rule (Agent 0):
 // A predicate of the session's acceptance is IMPORTED where it is exported. Where it is RESTATED,
-// it has a row in the generated table with its source lines and a digest of that source text; a
-// change to that text fails the check and names the row whose restatement must be revalidated. Any
+// it has a row in the generated table with its source passage, found by its text, and a digest of
+// that source text; a change to that text fails the check and names the row whose restatement must
+// be revalidated. Any
 // change to the judge, or to a web source it imports or restates, re-runs the check. The check
 // gives traceability; it does not show that the judge equals the web, or that the table is
 // complete.
@@ -78,7 +80,7 @@ export type ReplyManifest = { schema: string; head: string | null; job_id: strin
  * calls alone, in order, which are exactly the replies the run kept. */
 export type RunVerdict = { calls: string[]; native: string[]; ended: string; refusal: { kind: string; required_bytes?: number; budget_bytes?: number } | null };
 
-/** The session's solver mode (`resultsSessionState.ts:186`). */
+/** The session's solver mode (`resultsSessionState.ts`, its `useState` default). */
 const SOLVER_MODE = "sparse_interactive";
 /** The web's decoder trees (the services and the result readers they import). A run from another
  * head is judged only if these are unchanged since it; this judge's own connecting checks are the
@@ -116,7 +118,7 @@ function delivery(kind: ReplyEntry["kind"], bytes: Uint8Array): unknown {
   return fail(`a ${kind} delivery is not a reply`);
 }
 
-/** `bytesInvoke` (nativeResult.ts:253-258), restated: not exported. The byte-response commands'
+/** `bytesInvoke` (nativeResult.ts), restated: not exported. The byte-response commands'
  * adapter passes bytes and a string through and refuses any other delivery. */
 function bytesDelivery(command: string, delivered: unknown): ArrayBuffer | Uint8Array | string {
   if (delivered instanceof ArrayBuffer || ArrayBuffer.isView(delivered)) return delivered as ArrayBuffer | Uint8Array;
@@ -142,7 +144,7 @@ export async function acceptReply(call: string, kind: ReplyEntry["kind"], bytes:
     case "standing": case "standing_again": case "dispatch_again": return { value: decodeNativeVerdict(delivered), sent: null };
     case "summary": {
       const response = bytesDelivery(NATIVE_SUMMARY_COMMAND, delivered);
-      // `readNativeSummary` (nativeResult.ts:413), restated: inline in a function that sends natively.
+      // `readNativeSummary` (nativeResult.ts), restated: inline in a function that sends natively.
       if (typeof response === "string") throw new Error("RESULT-SUMMARY-MALFORMED: a text response where bytes were expected");
       return { value: decodeResultSummary(response), sent: null };
     }
@@ -163,7 +165,7 @@ export function decoderFor(call: string): (bytes: Uint8Array, context: ReplyCont
   return async (bytes, context) => (await acceptReply(call, kind, bytes, { filter: FIRST_PAGE_FILTER, inputManifest: manifest, ...context })).value;
 }
 
-/** `nativeEnvelopeRefusal` (previewService.ts:599-608), restated: it is not exported. Its
+/** `nativeEnvelopeRefusal` (previewService.ts), restated: it is not exported. Its
  * `capture` is never null here (a fresh solve's capture exists), so its first line does not apply;
  * the retained predicates are the web's own. */
 function envelopeRefusal(envelope: Record<string, unknown>, route: string, capturedModel: { project: { id: string } }, callerModel: unknown): string | null {
@@ -228,6 +230,9 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     if (entry.kind === "error") {
       const error = nativeInvokeError(JSON.parse(text(bytes)));
       if (error instanceof ResourceUnavailableError) {
+        // `invokeWithIngress` (nativeIngress.ts) resends a refusal whose `refusal.kind` is
+        // "headroom_insufficient" until its deadline, so the web does not end there; this test is its.
+        if (error.refusal.kind === "headroom_insufficient") fail("the web resends a headroom_insufficient refusal until its deadline; this judge does not model the resend");
         if (entries.length) fail(`the web ends at ${call}'s resource refusal; the run kept ${entries.length} more replies`);
         return { refused: { calls, native, ended: `${call}: resource refusal`, refusal: { ...error.refusal } as RunVerdict["refusal"] } };
       }
@@ -266,12 +271,12 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   const S = standingArgs ? String(standingArgs.modelJson) : null;
   const solveModel = S === null ? null : JSON.parse(S);
   const invocation = solveModel === null ? null : JSON.parse(checkedJsonText({ request: { model: solveModel, materials: [] }, solver_mode: SOLVER_MODE }));
-  // The fresh capture `captureNativeInvocation` made at the start (previewService.ts:177-185): the
+  // The fresh capture `captureNativeInvocation` made at the start (previewService.ts): the
   // dispatched invocation and the caller's model. Its fingerprints are read by no predicate this
   // judge applies (`nativeStandingInputs` reads `invalidated`, the invocation and the caller's model).
   const capture = solveModel === null ? null : ({ invocation, fingerprint: "", callerModel: solveModel, callerFingerprint: "", invalidated: false, terminalClaimed: true } as NonNullable<Parameters<typeof nativeStandingInputs>[1]>);
   let readers: string | null = null;
-  // validateNativeReaders :576: on the pressure-source route a normalization between the caller's
+  // validateNativeReaders, its normalization pre-check: on the pressure-source route a normalization between the caller's
   // model and the dispatched one registers nothing, and no reader is called.
   const normalized = reader === "pressure-source" && solveModel !== null && !sameModelData(JSON.parse(checkedJsonText(solveModel)), invocation.request.model);
   if (normalized) readers = "CALLER_DISPATCH_NORMALIZATION_MISMATCH";
@@ -279,7 +284,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     const r = next("registration");
     if ("refused" in r) return ended(r.refused);
     if ("rejected" in r) {
-      // validateNativeReaders :592: `errorCode(error) ?? "UNCODED_REFUSAL"` (the web's errorCode).
+      // validateNativeReaders, its catch: `errorCode(error) ?? "UNCODED_REFUSAL"` (the web's errorCode).
       readers = errorCode(r.rejected) ?? "UNCODED_REFUSAL";
     } else {
       if (r.args) {
@@ -290,18 +295,18 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
         } else if (r.args.modelJson !== jsonTextKeepingNegativeZero(invocation.request.model)) fail("the registration's model text is not the web's (checkedJsonText, then jsonTextKeepingNegativeZero)");
       }
       const outcome = await accept<{ ok: boolean; error?: { code: string } }>("registration", r);
-      // validateNativeReaders :574-586: a refusal counts only when its code is not empty (`if (code)`).
+      // validateNativeReaders: a refusal counts only when its code is not empty (`if (code)`).
       readers = outcome.ok || !outcome.error!.code ? null : outcome.error!.code;
     }
   }
 
-  // standing and summary, as `readNativeFreshResult` reads them (previewService.ts:650-658), with the
-  // web's own `nativeStandingInputs` (:554-560) on the fresh capture, the session model being both
-  // the standing's and the summary's (workspaceSession.ts:1547). The web's per-job reading cache
-  // (`cached`, nativeResult.ts:349-360) answers a reading whose key it has read before, and then
+  // standing and summary, as `readNativeFreshResult` reads them (previewService.ts), with the
+  // web's own `nativeStandingInputs` on the fresh capture, the session model being both
+  // the standing's and the summary's (workspaceSession.ts). The web's per-job reading cache
+  // (`cached`, nativeResult.ts) answers a reading whose key it has read before, and then
   // nothing is sent natively: `readNativeVerdict`'s key is keyOf("dispatch", modelText,
-  // invocationText) (:389-397), `readNativeSummary`'s keyOf("summary", modelText,
-  // JSON.stringify(standing)) (:409-416). `keyOf` (:361) is not exported: restated.
+  // invocationText), `readNativeSummary`'s keyOf("summary", modelText,
+  // JSON.stringify(standing)). `keyOf` is not exported: restated.
   const keyOf = (...parts: readonly (string | null | undefined)[]) => parts.map((part) => part ?? "\u0001").join("\u0000");
   const readings = new Map<string, unknown>();
   const sessionModel = () => solveModel ?? fail("the run kept no standing request to take the session model from");
@@ -348,7 +353,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
       verdict = await readStanding("standing_again", false);
       summary = await readSummary(verdict);
     }
-    // The dispatch with the final inputs (previewService.ts:659-660).
+    // The dispatch with the final inputs (`readNativeFreshResult`, previewService.ts).
     finalInvocationText = nativeStandingInputs(route, capture, unregistered === null, sessionModel()).invocationText ?? undefined;
     verdict = await readStanding("dispatch_again", unregistered === null);
   } catch (thrown) {
@@ -368,11 +373,11 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     recovery = await accept<SourceRecovery>("source_recovery", c);
   }
 
-  // The session's gates (workspaceSession.ts:1564-1569), on the handle `readNativeFreshResult`
-  // builds (previewService.ts:667-676), with the web's own `createNativeResult` and
+  // The session's gates (workspaceSession.ts), on the handle `readNativeFreshResult`
+  // builds (previewService.ts), with the web's own `createNativeResult` and
   // `hasCurrentSourceContract`. `hasNativeMechanicsInvocation` for a native handle is
-  // `nativeRegistrationHolds` (:538-549), which needs the handle in `nativeRegistrations`, set
-  // only when nothing refused the registration (:676); its other conditions (the job live, the
+  // `nativeRegistrationHolds`, which needs the handle in `nativeRegistrations`, set
+  // only when nothing refused the registration (in `readNativeFreshResult`); its other conditions (the job live, the
   // capture not invalidated, the solver mode, the captured fingerprints) are the session's own
   // in-memory state for a fresh solve and are carried by no reply. `resultBytes` is not read by
   // either gate.
@@ -388,8 +393,8 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   if (unregistered !== null) return gate("SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED");
   if (!hasCurrentSourceContract(handle) || !handle.producer) return gate("SOLVE-PRODUCER-CONTRACT-UNSUPPORTED");
 
-  // The session's input manifest (workspaceSession.ts:1573-1598), built by the web's own
-  // `buildCurrentSessionInputManifest` (inputManifestService.ts:75), whose `validateArgs` runs
+  // The session's input manifest (workspaceSession.ts), built by the web's own
+  // `buildCurrentSessionInputManifest` (inputManifestService.ts), whose `validateArgs` runs
   // first, with the arguments the session passes: the solve model, the handle's producer, the
   // session's solver mode and settings, and NO_RULE_PACK_RESOLUTION for a model without rule-pack
   // references (this judge resolves no rule-pack store). A builder refusal stops the session.
@@ -412,10 +417,10 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
     if (String((error as Error)?.message ?? "").startsWith("WASM-ENGINE-ASSET-ABSENT")) throw error;
     return gate(String((error as Error)?.message ?? error).match(/^([A-Z][A-Z0-9_-]*)(?=[:\s]|$)/)?.[1] ?? "UNCODED_MANIFEST_REFUSAL");
   }
-  // workspaceSession.ts:1596: the manifest's model text is the standing's bound text.
+  // workspaceSession.ts, the standing-model text check: the manifest's model text is the standing's bound text.
   if (jsonTextKeepingNegativeZero(built.manifest.model_basis.model_payload) !== nativeCustody(handle).binding.standingModelText) return gate("SOLVE-NATIVE-STANDING-MODEL-MISMATCH");
 
-  // run_preview, with that manifest's evidence (`readAnalysisRunPreview`, analysisRunPreview.ts:137-142)
+  // run_preview, with that manifest's evidence (`readAnalysisRunPreview`, analysisRunPreview.ts)
   const p = next("run_preview");
   if ("refused" in p) return ended(p.refused);
   if ("rejected" in p) fail(`run_preview was rejected: ${String(p.rejected)}`);
@@ -429,7 +434,7 @@ export async function judgeRun(directory: string): Promise<RunVerdict> {
   }
   const preview = await accept<AnalysisRunPreview>("run_preview", p, { inputManifest: built });
   if (preview.job_id !== jobId || preview.route !== route) fail("run_preview names another job or route");
-  // The session's model-reference check before it commits (workspaceSession.ts:1613-1617).
+  // The session's model-reference check before it commits (workspaceSession.ts).
   if (handle.model_ref !== solveModel.project.id) return gate("SOLVE-RESULT-MODEL-MISMATCH");
 
   // the panel's first page and its row semantics

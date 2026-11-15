@@ -92,6 +92,9 @@ code_paths:
 - apps/desktop/src-tauri/src/after_worker_perf_tests.rs
 # Its acceptance: the web's own decoders judge the replies the harness kept.
 - apps/desktop/src/test-support/after-worker/**
+# The judge's family table, generated from the web sources it cites and checked against them.
+- tools/after_worker_family/**
+- tests/test_after_worker_family_table.py
 checks:
 - core/solver/performance_harness/src/lib.rs
 - core/solver/performance_harness/tests/k6*.rs
