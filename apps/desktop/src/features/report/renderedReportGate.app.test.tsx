@@ -33,6 +33,8 @@ import { App } from "../../App";
 import { createSolveJobTransport, REPLAY_COMMANDS } from "../../test/nativeMechanicsReplay";
 import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { getLocalStorageCapability } from "../../services/projectService";
+import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
+import { outcomeFromWasmEngineJson } from "../../services/operationService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import type { PreviewModel } from "../../types";
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
@@ -129,6 +131,15 @@ async function mountApp(hold?: Promise<void>) {
       return { outcome: "print_window_opened", route_id: "DREP-HTML-SAVE-005", export_context: "local_private", canonical_sha256_hex: canonical, print_sha256_hex: "c".repeat(64) };
     }
     if (command === "retire_rendered_report") { retirements += 1; return null; }
+    // A model edit's operation, through the maintained operation engine (as App.mbfRoundTrip.test.tsx
+    // does), not a fabricated edited document: App still performs the edit, its hash checks and the
+    // session commit. No actual native operation witness.
+    if (command === "validate_model_operation" || command === "apply_model_operation") {
+      const operation = args as { model: unknown; intent: unknown; claimedModelHash?: unknown };
+      const engine = await loadWasmEngine();
+      const execute = command === "apply_model_operation" ? engine.applyOperationJson : engine.validateOperationJson;
+      return outcomeFromWasmEngineJson(execute(JSON.stringify(operation.model), JSON.stringify(operation.intent), JSON.stringify(operation.claimedModelHash ?? null)));
+    }
     // Every other command is the native mechanics job contract, or refused by name.
     if (!REPLAY_COMMANDS.includes(command) && !transport.handles(command)) { refused.push(command); throw new Error(`RENDERED_REPORT_GATE_COMMAND_UNSUPPORTED: ${command}`); }
     return transport.invoke(command, args, options);
@@ -324,6 +335,47 @@ describe("the rendered report of a solved exact-route result that is not numeric
       `retire_rendered_report calls while Report stays hidden after the replacing solve (Report section class: ${screen.getByTestId("workspace-section-report").className}); ${why()}`
     ).toBeGreaterThan(0), { timeout: 10_000 });
     expect(screen.getByTestId("workspace-section-report").className).not.toBe("workspace-dock-section");
+  }, 240_000);
+
+  /** DEL-08-01 REQ-022 and AC-011 (round-1 finding R3, the model-edit case): an ordinary model edit
+   * made while Report is hidden replaces the rendered report's source (REQ-022: "A report or
+   * package is produced only for the result and model current when it is saved"), so the native
+   * render and its print window are retired before Report reopens. The edit goes through the
+   * Layout grid, the model-operation queue and the maintained operation engine. */
+  it("retires the native render and its print window when a model edit is made while Report is hidden", async () => {
+    const { prints, retirements, jobCommands, why } = await mountApp();
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() => expect(jobCommands()).toContain("read_preview_mechanics_job_analysis_run_preview"), { timeout: 60_000 });
+    await openReportStage();
+    await waitFor(() => expectSolvedInPanel(why), { timeout: 60_000 });
+    fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-render"));
+    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-preview")).toBeInTheDocument(), { timeout: 60_000 });
+    fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print"));
+    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print-status")).toHaveTextContent("Print window opened"));
+    expect(prints).toHaveLength(1);
+    const retiredBefore = retirements();
+    const reportHidden = () => screen.getByTestId("workspace-section-report").className !== "workspace-dock-section";
+
+    // Report is hidden; one witness node's coordinate is edited in the Layout grid and applied.
+    act(() => nativeMenuCommand("view.stage.model"));
+    expect(reportHidden(), `Report section class: ${screen.getByTestId("workspace-section-report").className}`).toBe(true);
+    const applies = () => invokeMock.mock.calls.filter(([command]) => command === "apply_model_operation").length;
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    const cell = () => screen.getByTestId("table-cell-node:RS-020-y");
+    fireEvent.click(cell()); fireEvent.click(cell());
+    fireEvent.change(screen.getByRole("textbox", { name: "node:RS-020 Y [m]" }), { target: { value: "0.05" } });
+    fireEvent.click(within(screen.getByTestId("engineering-table")).getByRole("button", { name: "Apply" }));
+    await waitFor(() => expect(cell(), why()).toHaveTextContent("0.05"), { timeout: 30_000 });
+    expect(applies()).toBe(1);
+    expect(reportHidden()).toBe(true);
+
+    // Before Report is opened again, the native render and its print window are retired.
+    await waitFor(() => expect(
+      retirements() - retiredBefore,
+      `retire_rendered_report calls while Report stays hidden after the model edit (Report section class: ${screen.getByTestId("workspace-section-report").className}); ${why()}`
+    ).toBeGreaterThan(0), { timeout: 10_000 });
+    expect(reportHidden()).toBe(true);
   }, 240_000);
 
   it("the shareable menu refusal appears without a preceding private-save request", async () => {
