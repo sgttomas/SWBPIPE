@@ -223,7 +223,7 @@ describe("numericalHealthView", () => {
       healthCase("X", "not_assessed", { integrity_diagnostic_id: null })
     ]), { eligible: false, verdictHold: false })!;
     const byId = Object.fromEntries(view.cases.map((c) => [c.caseId, c]));
-    expect(byId.P.sentences).toEqual(["The solver's residual and conditioning checks passed for P. These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right."]);
+    expect(byId.P.sentences).toEqual(["The solver's residual and conditioning checks passed for P."]);
     expect(byId.P.conditioning).toContain("roughly below 0.1 of the about 16");
     // The figure shows for passed and sensitive cases only.
     expect(byId.U.conditioning).toBeNull();
@@ -237,7 +237,7 @@ describe("numericalHealthView", () => {
     expect(byId.M.integrityDiagnosticId).toBeNull();
     expect(byId.N.sentences[1]).toBe("The assembled stiffness is not positive in some direction. Review element and support properties.");
     expect(byId.F.sentences[1]).toBe("See the solver diagnostic for the reason.");
-    expect(byId.X.sentences).toEqual(["The solver did not assess the numerical quality of X."]);
+    expect(byId.X.sentences).toEqual(["No numerical quality is stated for X."]);
   });
 
   it("prefixes the pressure-source route, adds the eligible wording and places no row badges", () => {
