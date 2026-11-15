@@ -96,15 +96,16 @@ A sizing result is a numerical statement about the discrete model under the user
 - **REQ-002** — *Candidates.*
   - A candidate acts on exactly one translational DOF: its single rigid restraint, or, for a variable spring hanger with no rigid restraint, the DOF its stiffness declares. It has no skew direction, is not nonlinear, a snubber or an anchor, shares its node and DOF with no other support, and is referenced by no other model object.
   - Apart from that DOF, its present family and hanger data are not read.
+  - Before source admission, the eligibility checks above run against the authored document. Admission then uses a copy in which only the named candidates have `family` set to `guide`, `restraints` set to their admitted single DOF, and `hanger`, `stiffness` and `nonlinear` removed. Identifiers, nodes, direction, provenance, participation, motion and every reference are preserved. No support, state, load, case or combination is removed for admission, and no other field changes. This neutralisation precedes the admission parser so ignored candidate data cannot itself cause a refusal; it never conceals a candidate-eligibility refusal. The authored document remains unchanged and is the source the result binds.
   - On an EX load/reference-state document, it has in every named case an ordinary support state: active, with no imposed motion or device reference. That entry is the support's own declaration, not a blocking reference.
   - Its force acts along the positive axis of its DOF.
   - Each failure is refused by name, and refuses the request. A hot-load basis that is not positive also refuses the request, naming every such candidate.
-- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the non-positive hot-load refusal are exercised by maintained tests that assert the code and the named supports. A placeholder support of each admitted family is sized, and so is an authored variable spring hanger with no rigid restraint.
+- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the non-positive hot-load refusal are exercised by maintained tests that assert the code and the named supports. A placeholder support of each admitted family is sized, and so is an authored variable spring hanger with no rigid restraint. Tests show both that ignored candidate data cannot cause an admission refusal and that forbidden families, directions and references remain refused; a comparison of the admission copy with the authored document shows only the permitted neutralisation fields changed.
 
 ### Solution
 
 - **REQ-003** — *Derived solves.*
-  - Each derived solve is a modified copy of the stored model document, sent through the product solve entry the model's own cases use. It has the model's route and settings and requests no retained-precision recovery.
+  - Each derived solve is a modified copy of the stored model document, sent through the product solve entry the model's own cases use. It has the model's route and the settings applicable to its retained case and requests no retained-precision recovery. A pressure-elongation selection keeps only that case when the authored selection names it; otherwise the setting is omitted, never replaced with an empty selection. Other model settings are preserved.
   - It is never saved, never returned as a model, never in undo history and never passed through the operation route.
   - On an EX load/reference-state document, a candidate made rigid keeps its support state, and a candidate replaced by a force loses its support state with the support. Each added force is entered in its case's source ledger.
   - Nonlinear supports converge in each derived solve to the states that case produces.
@@ -203,10 +204,11 @@ A sizing result is a numerical statement about the discrete model under the user
 ### Domain, references, cost and surfaces
 
 - **REQ-009** — *Admitted and refused.*
-  - Sizing admits what the model's own solve admits, on PF and EX, plus the candidate rules of REQ-002.
-  - What the solve refuses refuses the request with the solve's code.
+  - On PF and EX, sizing checks source admission before assembly on the complete authored document after only REQ-002's candidate neutralisation, before removing any case or combination. It uses the ordinary product's checks and its effective-case resolution, without another solve or a second implementation of a rule. A primitive excluded by the effective ledger remains excluded.
+  - An isolated source-admission fault refuses the sizing request with the ordinary product's code and affected object's identity for that same neutralised baseline. This includes a fault in a case sizing does not select. No identical first-error order is promised for a document with several faults where ordinary case preparation and solving are interleaved.
+  - This admission establishes declarations and references before assembly. It does not establish convergence or stability of a case sizing does not solve. Each selected derived solve retains all its ordinary product checks; its refusal refuses the request with the solve's code.
   - Each standing refusal is listed in `docs/RELEASE_LIMITATIONS_v1.0.md`.
-- **AC-009** — Each refusal and disclosure is exercised by a maintained test that asserts its code and named object, on both routes.
+- **AC-009** — Each refusal and disclosure is exercised by a maintained test that asserts its code and named object, on both routes. Isolated source faults are compared with an ordinary solve of the same neutralised complete document, including duplicate load identifiers, an unresolved load source and a support-state reference in a case sizing removes. Tests also show that a ledger-excluded primitive stays excluded. Successful admission alone is not numerical evidence for an unperformed solve.
 - **REQ-010** — *References.*
   - **Independence.** The references are frozen under `validation/references/hanger_sizing/`, each derived, with its generator, from this scope without reading product code; the generator imports none.
   - **Coverage.** They cover:

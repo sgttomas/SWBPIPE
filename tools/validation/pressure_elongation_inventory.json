@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 529,
+  "files": 532,
   "claimed_by": {
-   "group": 141,
-   "in_code": 62,
-   "exemption": 326
+   "group": 142,
+   "in_code": 63,
+   "exemption": 327
   }
  },
  "counts": {
@@ -244,6 +244,11 @@
    "pressurised_load_cases": 0,
    "held_documents": 150,
    "held_pressurised_load_cases": 150
+  },
+  "hanger_sizing_ex_pressurised": {
+   "files": 1,
+   "documents": 1,
+   "pressurised_load_cases": 3
   }
  },
  "entries": [
@@ -8847,6 +8852,42 @@
      "storage": "retained-precision-corpus-dag/v1"
     }
    ]
+  },
+  {
+   "id": "hanger_sizing_ex_pressurised",
+   "group": "hanger_sizing_ex_pressurised",
+   "path": "fixtures/results/hanger_sizing_input_ex_pressurised.json",
+   "producer": {
+    "kind": "rust_test",
+    "path": "core/analysis/hanger_sizing/tests/publication.rs",
+    "write": "HANGER_SIZING_WRITE_FIXTURES=1 with the_committed_inputs_are_the_builders",
+    "switch_plumbed": false,
+    "switch_route": "ex_input uses common/model_builder.rs exs_request without a pressure-elongation setting; EXS-A frozen vertical sizing quantities are pressure independent, and the separate ex_references regression authors O1 explicitly"
+   },
+   "pinned_by": [
+    "core/analysis/hanger_sizing/tests/publication.rs",
+    "core/analysis/hanger_sizing/tests/desktop.rs",
+    "core/analysis/hanger_sizing/tests/source_admission.rs",
+    "core/analysis/hanger_sizing/tests/projection_family.rs",
+    "core/runner/headless/tests/size_hangers_cli.rs",
+    "tests/test_hanger_sizing_evidence.py",
+    "apps/desktop/src/features/results/HangerSizingPanel.test.tsx",
+    "fixtures/results/hanger_sizing_result_ex_pressurised.json (solve_request and derived_document hashes)"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/request/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "W",
+      "O1",
+      "O2"
+     ]
+    }
+   ]
   }
  ],
  "derived_consumers": [
@@ -9401,6 +9442,15 @@
    "expectations": "no_response_value",
    "cases_named": "all",
    "detail": "declared-problem study tool: re-authors J2's source requests (the pressurised one names its case) and records product runs for the O4 census; asserts no response value"
+  },
+  {
+   "paths": [
+    "core/analysis/hanger_sizing/tests/common/model_builder.rs"
+   ],
+   "expectations": "reference_file",
+   "cases_named": "some",
+   "reference": "validation/references/hanger_sizing/ex_sizing.json",
+   "detail": "exs_request builds EXS-A pressurised load/reference-state documents without a pressure-elongation setting; publication and baseline EX comparisons leave it absent, while ex_references and source_admission author selected operating cases before real sizing. Frozen comparisons concern pressure-independent vertical sizing quantities; source-admission controls assert admission only. EXS-B and exact() twins have no nonzero-pressure region."
   }
  ],
  "exemptions": [
@@ -10224,6 +10274,15 @@
     "tools/validation/pressure_elongation_inventory.json",
     "tools/validation/pressure_elongation_inventory.py",
     "tools/validation/test_pressure_elongation_inventory.py"
+   ]
+  },
+  {
+   "reason": "EXS-B source is solved but contains no pressurised case: every case has an empty region list and no condition pressure use; no pressure-elongation setting applies. This is the zero-pressure data rule, not an exemption because the model is solved.",
+   "paths": [
+    "fixtures/results/hanger_sizing_input_ex_riser.json"
+   ],
+   "files": [
+    "fixtures/results/hanger_sizing_input_ex_riser.json"
    ]
   }
  ]
