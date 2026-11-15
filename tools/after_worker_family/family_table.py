@@ -182,8 +182,7 @@ ROWS = [
               decl(PREVIEW, 'nativeStandingInputs')]),
     row('readNativeFreshResult (its order of reads)', PREVIEW, 'restated',
         'exported; it sends native calls, so the judge restates its order over kept replies',
-        'equal, except for a headroom_insufficient refusal: the web\'s ingress resends that request until its '
-        'deadline, and the judge ends the run at it',
+        'equal',
         also=[decl(NATIVE_RESULT, 'readNativeRouteHeader'), decl(PREVIEW, 'readNativeStanding'),
               decl(PREVIEW, 'presentedStanding'), decl(NATIVE_RESULT, 'queryNativeRecovery'),
               decl(S + 'resultDetail.ts', 'queryResultSourceRecovery'), decl(INGRESS, 'invokeWithIngress')]),
