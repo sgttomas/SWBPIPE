@@ -7,10 +7,14 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFile, execFileSync, spawn } from "node:child_process";
+import { execFile, execFileSync, spawn, spawnSync } from "node:child_process";
 import { once } from "node:events";
-import { c1PhysicalPhases, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, keptRunFailures, loadPlan, planName, runWindow, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { c1PhysicalPhases, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, keptRunFailures, loadPlan, planName, runWindow, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow,
+  WINDOW_LIMITS, acquireWindowMarker, oneLaunchSelection, refusedPerfBinding, superviseWindow, windowMarkerRefusal } from "./perf.mjs";
 import { recordedOutcome } from "./launch-outcome.mjs";
+import { smokeWindows } from "./launch-env.mjs";
+import { createHash } from "node:crypto";
+import { readdirSync, realpathSync } from "node:fs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -230,28 +234,29 @@ test("one unknown PID or cached host failure does not stop a healthy run", () =>
   assert.equal(createSampleGuard()({...unknown,p:[[1,"app",17*1024**3,10,10]]}),"owned_pid_rss_above_16_gib");
 });
 
-test("completed records and raw samples survive private store cleanup", async (t) => {
+test("completed records and raw samples survive private store cleanup; the commit itself removes no home", async (t) => {
   const out = mkdtempSync(path.join(os.tmpdir(), "perf-evidence-"));
   t.after(() => rmSync(out,{recursive:true,force:true}));
   const scratch = path.join(out,"perf-window");
   const run = path.join(scratch,"run-one");
-  mkdirSync(path.join(run,"home"),{recursive:true});
-  writeFileSync(path.join(run,"home","private.sqlite"),"fixture");
+  const home = path.join(run,"swbpipe-native-smoke-home-fixture");
+  mkdirSync(home,{recursive:true});
+  writeFileSync(path.join(home,"private.sqlite"),"fixture");
   const samples = path.join(out,"samples.jsonl");
   writeFileSync(samples,'{"t":123,"p":[]}\n');
-  const record = {id:"one",class:"ok",kept:run,samples_file:samples,memory:{timeline:[[123,10,10]]}};
+  const record = {id:"one",class:"ok",kept:run,home,samples_file:samples,memory:{timeline:[[123,10,10]]}};
   await commitRun(record,{out,scratch,keep:false});
   const persisted = JSON.parse(readFileSync(record.record_file,"utf8"));
   assert.deepEqual(persisted.memory,record.memory);
-  assert.equal(persisted.home_cleanup,"removed");
-  assert.equal(existsSync(path.join(run,"home")),false);
+  // The home stays until the supervisor's teardown is established (superviseWindow removes the whole scratch).
+  assert.equal(readFileSync(path.join(home,"private.sqlite"),"utf8"),"fixture");
   assert.equal(readFileSync(samples,"utf8"),'{"t":123,"p":[]}\n');
   await finishScratch({scratch,binary:path.join(scratch,"openpipestress-desktop"),keep:false});
   assert.equal(existsSync(record.record_file),true);
   assert.equal(existsSync(samples),true);
 });
 
-test("a bad completed-run root cannot remove another directory's store", async (t) => {
+test("a completed-run record naming another directory removes nothing there", async (t) => {
   const out = mkdtempSync(path.join(os.tmpdir(),"perf-cleanup-boundary-"));
   t.after(()=>rmSync(out,{recursive:true,force:true}));
   const scratch = path.join(out,"perf-window");
@@ -260,7 +265,7 @@ test("a bad completed-run root cannot remove another directory's store", async (
   mkdirSync(path.join(foreign,"home"),{recursive:true});
   const marker = path.join(foreign,"home","keep.sqlite");
   writeFileSync(marker,"fixture outside window");
-  await assert.rejects(commitRun({id:"bad",class:"ok",kept:foreign},{out,scratch,keep:false}),/not this window/);
+  await commitRun({id:"bad",class:"ok",kept:foreign,home:path.join(foreign,"home")},{out,scratch,keep:false});
   assert.equal(readFileSync(marker,"utf8"),"fixture outside window");
 });
 
@@ -1961,6 +1966,10 @@ const IDENTIFIER = JSON.parse(readFileSync(new URL("../src-tauri/tauri.conf.json
 const STAND_IN_APP = (holdMs) => `#!${process.execPath}
 const fs = require("node:fs"), path = require("node:path"), { spawn } = require("node:child_process");
 const plan = JSON.parse(process.env.SWBPIPE_NATIVE_SMOKE_PLAN);
+// What this launch was given, as the app sees it: its whole environment, its home's entries at start, and whether the
+// model its chooser would open is there.
+fs.writeFileSync(path.join(path.dirname(process.env.SWBPIPE_NATIVE_SMOKE_REPORT), "seen.json"), JSON.stringify({ env: process.env,
+  home_at_start: fs.readdirSync(process.env.HOME).sort(), tmpdir_at_start: fs.readdirSync(process.env.TMPDIR), model_exists: fs.existsSync(plan.model_path) }));
 // A sidecar "hold" file makes a detached process keep the private copy open after the app exits (lsof sees it).
 if (fs.existsSync(path.join(__dirname, "hold"))) {
   const holder = spawn(process.execPath, ["-e", "require('node:fs').openSync(" + JSON.stringify(__filename) + ", 'r'); setTimeout(() => {}, ${holdMs})"], { detached: true, stdio: "ignore" });
@@ -1985,7 +1994,7 @@ process.stdout.write(JSON.stringify({ t: now, host: { available_percent: 80, pre
 const tick = setInterval(() => { if (!alive()) { clearInterval(tick); process.exit(0); } }, 20);`;
 const CLEAN_MARKS = { checked_at: "fixture", sky_computer_use_service_launchd: false, sky_computer_use_service_process: false, codex_app_server_stdio: false, app_v4_candidate_bundle: false, check_failures: [] };
 
-function standInWindow(t, { census, censusBoundMs = 200, hold = false, holdMs = 20_000 } = {}) {
+function standInWindow(t, { census, censusBoundMs = 200, hold = false, holdMs = 20_000, launchLimit = 2, mode = "native", planExtra = {} } = {}) {
   const out = mkdtempSync(path.join(os.tmpdir(), "perf-census-"));
   const scratch = mkdtempSync(path.join(out, "perf-"));
   const models = path.join(out, "models");
@@ -2010,7 +2019,9 @@ function standInWindow(t, { census, censusBoundMs = 200, hold = false, holdMs = 
       samplers.push(child);
       return child;
     },
-    censusBoundMs
+    censusBoundMs,
+    // The window path through two runs is a test seam: a CLI window holds one launch (launchLimit 1).
+    launchLimit
   };
   if (census) deps.census = async (executable, options) => {
     const sampler = samplers.at(-1);
@@ -2019,14 +2030,15 @@ function standInWindow(t, { census, censusBoundMs = 200, hold = false, holdMs = 
       checkpointed: ids.some((id) => existsSync(partialFile(id))), committed: ids.filter((id) => existsSync(runFile(id))) });
     return census(executable, options);
   };
-  const runs = ids.map((id) => ({ id, mode: "native", model: "model.json", estimate_s: 1, timeout_s: 30, paint_ms: 30_000 }));
-  const ctx = { plan: { timeouts: {}, sample_interval_ms: 100 }, binding: { stand_in: true }, harness: { stand_in: true }, binary, models, results: models, out, scratch, keep: false, remainingMs: () => 60_000, deps };
+  if (mode === "injected") writeFileSync(path.join(models, "result.json"), "{}");
+  const runs = ids.map((id) => ({ id, mode, model: "model.json", ...(mode === "injected" ? { result: "result.json" } : {}), estimate_s: 1, timeout_s: 30, paint_ms: 30_000 }));
+  const ctx = { plan: { timeouts: {}, sample_interval_ms: 100, ...planExtra }, binding: { stand_in: true }, harness: { stand_in: true }, binary, models, results: models, out, scratch, keep: false, remainingMs: () => 60_000, deps };
   t.after(() => {
     const holder = path.join(scratch, "holder.pid");
     if (existsSync(holder)) { try { process.kill(Number(readFileSync(holder, "utf8")), "SIGKILL"); } catch { /* gone */ } }
     rmSync(out, { recursive: true, force: true });
   });
-  return { ctx, runs, events, binary, runFile, partialFile };
+  return { ctx, runs, events, binary, runFile, partialFile, out, models };
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -2096,7 +2108,8 @@ for (const [name, answer, reason] of [
     // Committed without an inspection or its checkpoint; the failed run's home is kept for the supervisor.
     assert.equal(stored.store.inspection, "not_made");
     assert.equal(existsSync(w.partialFile("first")), false);
-    assert.equal(existsSync(path.join(stored.kept, "home")), true);
+    assert.equal(existsSync(stored.home), true);
+    assert.equal(path.dirname(stored.home), realpathSync(stored.kept));
     assert.deepEqual(censusCodes(keptRunFailures(stored)), ["LAUNCH-CENSUS-UNRESOLVED"]);
   });
 }
@@ -2120,3 +2133,324 @@ test("the default census finds a process still holding the private copy (lsof) a
   assert.match(stored.launch_outcome.census.reason, new RegExp(`^process (\\d+, )*${holder}(, \\d+)* still ran `));
   assert.equal(existsSync(w.runFile("second")), false);
 });
+
+// ---------------------------------------------------------------------- home, environment and one launch per window
+// The same production window path, one launch: what the stand-in app was given (`seen.json`, written by the app from
+// its own process.env, its home and its plan), against a hostile parent environment.
+const LAUNCH_NAMES = ["CFFIXED_USER_HOME", "HOME", "SWBPIPE_NATIVE_SMOKE_DRIVER", "SWBPIPE_NATIVE_SMOKE_PLAN", "SWBPIPE_NATIVE_SMOKE_REPORT", "SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER", "TMPDIR"];
+const PERF_NAMES = ["SWBPIPE_NATIVE_SMOKE_INJECT_RESULT", "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT", "SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS"];
+const resolvedCensus = async () => ({ resolved: true });
+// What a Node child given an empty environment holds anyway: its runtime's own (on macOS, CoreFoundation sets
+// __CF_USER_TEXT_ENCODING at startup from the home it was given, whatever value it was passed). Not passed by the
+// runner; its names are set aside here, and the hostile parent's values are asserted absent separately.
+const RUNTIME_OWN = Object.keys(JSON.parse(spawnSync(process.execPath, ["-e", "process.stdout.write(JSON.stringify(process.env))"], { env: {} }).stdout.toString()));
+const withoutRuntimeOwn = (env) => {
+  const rest = { ...env };
+  for (const key of RUNTIME_OWN) delete rest[key];
+  return rest;
+};
+
+function hostileParent(t) {
+  const decoy = mkdtempSync(path.join(os.tmpdir(), "perf-decoy-home-"));
+  writeFileSync(path.join(decoy, "sentinel"), "the parent's home");
+  const hostile = { HOME: decoy, CFFIXED_USER_HOME: decoy, TMPDIR: decoy, SWBPIPE_TEST_INVENTED_SECRET: "invented-secret-value", ANTHROPIC_API_KEY: "invented-key", OPENAI_API_KEY: "invented-key",
+    NODE_OPTIONS: "--no-warnings", RUSTC_WRAPPER: "/invented/wrapper", SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY: "invented-key", SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER: "0",
+    SWBPIPE_NATIVE_SMOKE_INJECT_RESULT: "/etc/hosts", SWBPIPE_NATIVE_SMOKE_INJECT_ROOT: "/etc", SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS: "1", __CF_USER_TEXT_ENCODING: "0xDEAD:0x99:0x99" };
+  const saved = Object.fromEntries(Object.keys(hostile).map((key) => [key, process.env[key]]));
+  Object.assign(process.env, hostile);
+  t.after(() => {
+    for (const [key, value] of Object.entries(saved)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }
+    rmSync(decoy, { recursive: true, force: true });
+  });
+  return { decoy, hostile };
+}
+
+test("one launch: the app's environment is built from nothing, its home fresh with TMPDIR inside, the chooser's model inside it, and the parent's home untouched", { timeout: 30_000 }, async (t) => {
+  const w = standInWindow(t, { census: resolvedCensus, launchLimit: 1 });
+  const { decoy, hostile } = hostileParent(t);
+  const records = await runWindow(w.runs.slice(0, 1), w.ctx);
+  assert.deepEqual(records.map((record) => record.class), ["ok"], JSON.stringify(records.map((record) => record.findings)));
+  const [record] = records;
+  assert.equal(record.launched, true);
+  assert.equal(w.ctx.launchAttempts, 1);
+  const seen = JSON.parse(readFileSync(path.join(record.kept, "seen.json"), "utf8"));
+  assert.deepEqual(Object.keys(withoutRuntimeOwn(seen.env)).sort(), LAUNCH_NAMES);
+  // No parent value survives: a variable the runner sets has the runner's value, any other is absent, and no
+  // distinctive parent value appears anywhere.
+  for (const [key, value] of Object.entries(hostile)) {
+    assert.notEqual(seen.env[key], value, key);
+    if (value.length > 1) assert.equal(Object.values(seen.env).includes(value), false, value);
+  }
+  assert.equal(seen.env.HOME, record.home);
+  assert.equal(seen.env.CFFIXED_USER_HOME, record.home);
+  assert.equal(seen.env.TMPDIR, path.join(record.home, "tmp"));
+  assert.equal(seen.env.SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER, "1");
+  assert.equal(path.dirname(record.home), realpathSync(record.kept));
+  assert.match(path.basename(record.home), /^swbpipe-native-smoke-home-/);
+  // Fresh: at the app's start the home held only what the runner made (TMPDIR's folder, Downloads, the chooser's model).
+  assert.deepEqual(seen.home_at_start, ["Downloads", "chooser", "tmp"]);
+  assert.deepEqual(seen.tmpdir_at_start, []);
+  const plan = JSON.parse(seen.env.SWBPIPE_NATIVE_SMOKE_PLAN);
+  assert.equal(seen.model_exists, true);
+  assert.equal(plan.model_path, path.join(record.home, "chooser", "models", "model.json"));
+  assert.equal(realpathSync(plan.model_path).startsWith(`${realpathSync(record.home)}${path.sep}`), true);
+  // The report is a runner output beside the home, not in it; the parent's home holds what it held.
+  assert.equal(path.dirname(seen.env.SWBPIPE_NATIVE_SMOKE_REPORT), record.kept);
+  assert.equal(seen.env.SWBPIPE_NATIVE_SMOKE_DRIVER, fileURLToPath(new URL("./perf-driver.js", import.meta.url)));
+  assert.deepEqual(readdirSync(decoy), ["sentinel"]);
+  assert.equal(readFileSync(path.join(decoy, "sentinel"), "utf8"), "the parent's home");
+});
+
+test("an injected run with reader diagnostics is given exactly its selected perf variables, bounded, and nothing of the parent's", { timeout: 30_000 }, async (t) => {
+  const w = standInWindow(t, { census: resolvedCensus, launchLimit: 1, mode: "injected", planExtra: { c1_reader_diagnostics: true } });
+  hostileParent(t);
+  const [record] = await runWindow(w.runs.slice(0, 1), w.ctx);
+  assert.equal(record.launched, true);
+  const seen = JSON.parse(readFileSync(path.join(record.kept, "seen.json"), "utf8"));
+  assert.deepEqual(Object.keys(withoutRuntimeOwn(seen.env)).sort(), [...LAUNCH_NAMES, ...PERF_NAMES].sort());
+  assert.equal(seen.env.SWBPIPE_NATIVE_SMOKE_INJECT_ROOT, realpathSync(w.models));
+  assert.equal(realpathSync(seen.env.SWBPIPE_NATIVE_SMOKE_INJECT_RESULT), path.join(realpathSync(w.models), "result.json"));
+  assert.equal(seen.env.SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS, "1");
+});
+
+test("one launch per window: a second run is refused before its private state, marks, admission or start, and records no launch", { timeout: 30_000 }, async (t) => {
+  const w = standInWindow(t, { census: resolvedCensus, launchLimit: 1 });
+  const records = await runWindow(w.runs, w.ctx);
+  assert.deepEqual(records.map((record) => record.class), ["ok", "refused_with_message"]);
+  assert.deepEqual(w.events.map((event) => event.e), ["marks", "admission", "census"]);
+  assert.equal(w.ctx.launchAttempts, 1);
+  const second = JSON.parse(readFileSync(w.runFile("second"), "utf8"));
+  assert.equal(second.launched, false);
+  assert.equal(second.kept, undefined);
+  assert.match(second.findings[0].message, /^PERF-ONE-LAUNCH-PER-WINDOW: /);
+  assert.deepEqual(readdirSync(w.ctx.scratch).filter((name) => name.startsWith("run-second-")), []);
+});
+
+test("a window's selection is one run: a subset or --runs naming more, or none, is refused by name; --plan's listing is not", () => {
+  assert.throws(() => oneLaunchSelection(plan, { subset: "window" }), /^Error: PERF-ONE-LAUNCH-PER-WINDOW: the selection names 6 runs/);
+  const [a, b] = plan.runs;
+  assert.throws(() => oneLaunchSelection(plan, { runs: `${a.id},${b.id}` }), /PERF-ONE-LAUNCH-PER-WINDOW: the selection names 2 runs/);
+  assert.deepEqual(oneLaunchSelection(plan, { runs: a.id }).map((run) => run.id), [a.id]);
+  assert.equal(selectRuns(plan, { subset: "window" }).length, 6);
+});
+
+const CURRENT_TAURI_CONFIG = JSON.stringify({ app: { windows: smokeWindows(JSON.parse(readFileSync(new URL("../src-tauri/tauri.conf.json", import.meta.url), "utf8")).app.windows) } });
+// The binding an earlier perf build wrote: throttling off, no non-persistent store.
+const OLD_TAURI_CONFIG = JSON.stringify({ app: { windows: JSON.parse(CURRENT_TAURI_CONFIG).app.windows.map(({ incognito: _incognito, ...window }) => window) } });
+
+test("a binding whose recorded smoke windows lack the non-persistent store or the throttling switch is refused: build again", () => {
+  const binding = (tauri_config) => ({ schema: "swbpipe.desktop-perf-binding/v1", tauri_config });
+  assert.deepEqual(refusedPerfBinding(binding(CURRENT_TAURI_CONFIG)), []);
+  const old = refusedPerfBinding(binding(OLD_TAURI_CONFIG));
+  assert.ok(old.length > 0 && old.every((line) => /^PERF-BINDING-REFUSED: WEBVIEW-STORE-REFUSED: .*; run --build again$/.test(line)), old.join("\n"));
+  const throttled = JSON.stringify({ app: { windows: JSON.parse(CURRENT_TAURI_CONFIG).app.windows.map((window) => ({ ...window, backgroundThrottling: undefined })) } });
+  assert.match(refusedPerfBinding(binding(throttled)).join("\n"), /does not disable background throttling; run --build again/);
+  assert.match(refusedPerfBinding(binding(undefined)).join("\n"), /records no smoke window configuration/);
+  assert.match(refusedPerfBinding({ tauri_config: CURRENT_TAURI_CONFIG }).join("\n"), /not a desktop perf binding/);
+});
+
+// The supervisor (`superviseWindow`): its real preflight, marker, scratch, watchWindow and cleanup, with a stand-in
+// --run-child (a tiny detached Node process with IPC) and a stand-in owned-process lookup. No App, sampler or host
+// reading. The stand-in child makes a home and a private copy in the window root, records its arguments and the marker
+// it found, announces one App start (itself, already ended) unless told not to, and exits.
+const SUPERVISED_CHILD = `
+const fs = require("node:fs"), path = require("node:path");
+const [behaviour, ...args] = process.argv.slice(1);
+const root = args[args.indexOf("--window-root") + 1];
+const home = path.join(root, "run-only-x", "swbpipe-native-smoke-home-x");
+fs.mkdirSync(path.join(home, "Library"), { recursive: true });
+fs.writeFileSync(path.join(home, "Library", "store"), "fixture");
+fs.writeFileSync(path.join(root, "openpipestress-desktop"), "private copy");
+if (behaviour === "locked") { fs.mkdirSync(path.join(home, "locked")); fs.writeFileSync(path.join(home, "locked", "file"), "x"); fs.chmodSync(path.join(home, "locked"), 0o500); }
+fs.writeFileSync(path.join(path.dirname(root), "child-seen.json"), JSON.stringify({ args, marker: JSON.parse(fs.readFileSync(process.env.PERF_TEST_MARKER, "utf8")) }));
+if (behaviour !== "no_launch") { process.send({ type: "app", pid: process.pid }); process.send({ type: "app_exit", pid: process.pid }); }
+setTimeout(() => process.exit(behaviour === "no_launch" ? 1 : 0), 100);
+`;
+
+function supervisedFixture(t, { runIds = ["only"], tauriConfig = CURRENT_TAURI_CONFIG } = {}) {
+  const base = mkdtempSync(path.join(os.tmpdir(), "perf-supervise-"));
+  const appDir = path.join(base, "app");
+  mkdirSync(appDir);
+  const bound = path.join(appDir, "openpipestress-desktop");
+  writeFileSync(bound, "bound app bytes");
+  writeFileSync(path.join(appDir, "perf-binding.json"), JSON.stringify({ schema: "swbpipe.desktop-perf-binding/v1", tauri_config: tauriConfig,
+    binary: { path: bound, sha256: createHash("sha256").update("bound app bytes").digest("hex") } }));
+  const planFile = path.join(base, "plan.json");
+  writeFileSync(planFile, JSON.stringify({ schema: "swbpipe.desktop-perf-plan/v1", budget_s: 60, sample_interval_ms: 100, timeouts: {},
+    runs: runIds.map((id) => ({ id, mode: "native", model: "model.json", estimate_s: 1, timeout_s: 5, paint_ms: 1000 })), subsets: { window: runIds } }));
+  const out = path.join(base, "out");
+  const markerPath = path.join(base, "target", "perf-window.json");
+  const options = { appDir, models: path.join(base, "models"), results: null, out, planFile, subset: undefined, runs: undefined, budgetS: 20, keep: false, windowRoot: null };
+  const started = [];
+  const seams = (behaviour = "ok", extra = {}) => ({
+    markerPath, census: () => ({ ok: true, pids: [] }), listOwned: async () => [], watch: { killGraceMs: 200, finalGraceMs: 200 },
+    startChild: (args) => {
+      started.push(args);
+      return spawn(process.execPath, ["-e", SUPERVISED_CHILD, behaviour, ...args], { detached: true, stdio: ["ignore", "ignore", "inherit", "ipc"], env: { ...process.env, PERF_TEST_MARKER: markerPath } });
+    },
+    ...extra
+  });
+  const errors = [];
+  const originalError = console.error;
+  console.error = (...line) => errors.push(line.join(" "));
+  t.after(() => {
+    console.error = originalError;
+    process.exitCode = undefined;
+    try { execFileSync("chmod", ["-R", "u+w", base]); } catch { /* nothing locked */ }
+    rmSync(base, { recursive: true, force: true });
+  });
+  const windows = () => existsSync(out) ? readdirSync(out).filter((name) => /^perf-\w+$/.test(name)) : [];
+  return { base, out, markerPath, options, seams, started, errors, windows, childSeen: () => JSON.parse(readFileSync(path.join(out, "child-seen.json"), "utf8")) };
+}
+const markerOf = (file) => JSON.parse(readFileSync(file, "utf8"));
+const windowRecord = (out) => JSON.parse(readFileSync(path.join(out, readdirSync(out).find((name) => /^perf-window-\d+\.json$/.test(name))), "utf8"));
+
+test("a window with established teardown: one launch counted, record written, then its scratch (home and private copy) and its marker removed", { timeout: 20_000 }, async (t) => {
+  const f = supervisedFixture(t);
+  const result = await superviseWindow(f.options, f.seams());
+  const seen = f.childSeen();
+  // The child was started holding the marker: running, naming its window root and the token it was given.
+  const root = seen.args[seen.args.indexOf("--window-root") + 1];
+  assert.equal(seen.marker.state, "running");
+  assert.equal(seen.marker.scratch, root);
+  assert.equal(seen.marker.token, seen.args[seen.args.indexOf("--window-token") + 1]);
+  assert.equal(seen.marker.pid, process.pid);
+  assert.equal(path.dirname(root), f.out);
+  assert.equal(result.launches_selected, 1);
+  assert.equal(result.launches_started, 1);
+  assert.equal(result.teardown_established, true);
+  assert.equal(result.cleanup, "private_scratch_removed");
+  assert.equal(result.kept, null);
+  assert.deepEqual(result.limits, WINDOW_LIMITS);
+  assert.deepEqual(windowRecord(f.out).cleanup, "private_scratch_removed");
+  assert.equal(existsSync(root), false);
+  assert.equal(existsSync(f.markerPath), false);
+  assert.equal(process.exitCode, undefined);
+});
+
+test("a window that started no App records zero launches, fails, and keeps its scratch; its established teardown releases the marker", { timeout: 20_000 }, async (t) => {
+  const f = supervisedFixture(t);
+  const result = await superviseWindow(f.options, f.seams("no_launch"));
+  assert.equal(result.launches_selected, 1);
+  assert.equal(result.launches_started, 0);
+  assert.equal(result.teardown_established, true);
+  assert.equal(result.cleanup, "retained_failed_window");
+  assert.equal(existsSync(path.join(result.kept, "run-only-x", "swbpipe-native-smoke-home-x", "Library", "store")), true);
+  assert.equal(existsSync(f.markerPath), false);
+  assert.equal(process.exitCode, 1);
+});
+
+test("a teardown not established retains the home, the private copy and the marker; the next invocation is refused before anything is made", { timeout: 20_000 }, async (t) => {
+  const f = supervisedFixture(t);
+  const result = await superviseWindow(f.options, f.seams("ok", { listOwned: async () => { throw new Error("lookup failed"); } }));
+  assert.equal(result.owned_executable_pids_gone, false);
+  assert.equal(result.teardown_established, false);
+  assert.equal(result.cleanup, "retained_teardown_unresolved");
+  const root = result.kept;
+  assert.equal(readFileSync(path.join(root, "run-only-x", "swbpipe-native-smoke-home-x", "Library", "store"), "utf8"), "fixture");
+  assert.equal(existsSync(path.join(root, "openpipestress-desktop")), true);
+  // The window's record was written before the marker named it.
+  const marker = markerOf(f.markerPath);
+  assert.equal(marker.state, "teardown_unresolved");
+  assert.match(marker.reason, /owned_executable_pids_gone=false/);
+  assert.equal(windowRecord(f.out).cleanup, "retained_teardown_unresolved");
+  assert.equal(path.dirname(marker.window_file), f.out);
+  assert.equal(process.exitCode, 1);
+  process.exitCode = undefined;
+  // The next window: refused by name, its census of the recorded private copy shown, nothing started or made.
+  const markerBytes = readFileSync(f.markerPath, "utf8");
+  const before = f.windows();
+  const censused = [];
+  const second = await superviseWindow(f.options, f.seams("ok", { census: (executable) => { censused.push(executable); return { ok: true, pids: [] }; } }));
+  assert.equal(second.refused, "EARLIER-WINDOW-UNRESOLVED");
+  assert.equal(second.launches_started, 0);
+  assert.equal(f.started.length, 1);
+  assert.deepEqual(f.windows(), before);
+  assert.deepEqual(censused, [path.join(root, "openpipestress-desktop")]);
+  assert.equal(readFileSync(f.markerPath, "utf8"), markerBytes);
+  assert.match(f.errors.join("\n"), /EARLIER-WINDOW-UNRESOLVED: .*no window is admitted until it is resolved/);
+  assert.match(f.errors.join("\n"), /state: teardown_unresolved; owned_group_gone=true, owned_executable_pids_gone=false/);
+  assert.equal(process.exitCode, 2);
+});
+
+test("a cleanup that fails after an established teardown keeps what remains and the marker, naming the failure", { timeout: 20_000, skip: process.getuid?.() === 0 && "permissions do not bind root" }, async (t) => {
+  const f = supervisedFixture(t);
+  const result = await superviseWindow(f.options, f.seams("locked"));
+  assert.equal(result.teardown_established, true);
+  assert.equal(result.cleanup, "failed");
+  assert.match(result.cleanup_error, /EACCES|EPERM|permission/i);
+  assert.equal(existsSync(path.join(result.kept, "run-only-x", "swbpipe-native-smoke-home-x", "locked", "file")), true);
+  const marker = markerOf(f.markerPath);
+  assert.equal(marker.state, "cleanup_failed");
+  assert.equal(windowRecord(f.out).cleanup, "failed");
+  assert.equal(process.exitCode, 1);
+});
+
+test("a stale marker (supervisor gone), a reused PID or an unreadable marker refuses, and the marker is never cleared", async (t) => {
+  const f = supervisedFixture(t);
+  mkdirSync(path.dirname(f.markerPath), { recursive: true });
+  const gone = spawnSyncPid();
+  for (const [record, status] of [
+    [{ token: "earlier", pid: gone, started: "Thu Jan  1 00:00:00 2026", state: "running", scratch: path.join(f.out, "perf-earlier"), executable: path.join(f.out, "perf-earlier", "openpipestress-desktop") }, /\(not running\)/],
+    [{ token: "earlier", pid: process.pid, started: "Thu Jan  1 00:00:00 2026", state: "admitted" }, /the pid looks reused/]
+  ]) {
+    writeFileSync(f.markerPath, JSON.stringify(record));
+    const result = await superviseWindow(f.options, f.seams());
+    assert.equal(result.refused, "EARLIER-WINDOW-UNRESOLVED");
+    assert.match(f.errors.join("\n"), status);
+    assert.deepEqual(markerOf(f.markerPath), record);
+  }
+  writeFileSync(f.markerPath, "{ not json");
+  assert.equal((await superviseWindow(f.options, f.seams())).refused, "EARLIER-WINDOW-UNRESOLVED");
+  assert.equal(readFileSync(f.markerPath, "utf8"), "{ not json");
+  assert.equal(f.started.length, 0);
+  assert.deepEqual(f.windows(), []);
+  // The refusal's own reading of a live supervisor (pid and start time match).
+  assert.match(windowMarkerRefusal(f.markerPath, { pid: 4242, started: "then", state: "running" }, { startTime: () => "then" }).join("\n"), /\(STILL RUNNING\)/);
+});
+// The PID of a process that has already exited (a supervisor that is gone).
+const spawnSyncPid = () => spawnSync(process.execPath, ["-e", ""]).pid;
+
+test("simultaneous invocations: separate processes racing for the window marker, exactly one is admitted", { timeout: 20_000 }, async (t) => {
+  const base = mkdtempSync(path.join(os.tmpdir(), "perf-marker-race-"));
+  t.after(() => rmSync(base, { recursive: true, force: true }));
+  const markerPath = path.join(base, "target", "perf-window.json");
+  const at = Date.now() + 700;
+  const racer = (name) => new Promise((resolve, reject) => execFile(process.execPath, ["--input-type=module", "-e", `
+    const { acquireWindowMarker } = await import(${JSON.stringify(new URL("./perf.mjs", import.meta.url).href)});
+    while (Date.now() < ${at}) {}
+    process.stdout.write(JSON.stringify(acquireWindowMarker(${JSON.stringify(markerPath)}, { token: ${JSON.stringify(name)}, pid: process.pid })));
+  `], (error, stdout) => error ? reject(error) : resolve(JSON.parse(stdout))));
+  const names = ["a", "b", "c", "d"];
+  const admitted = await Promise.all(names.map(racer));
+  assert.equal(admitted.filter(Boolean).length, 1, JSON.stringify(admitted));
+  assert.equal(markerOf(markerPath).token, names[admitted.indexOf(true)]);
+  assert.deepEqual(readdirSync(path.dirname(markerPath)), ["perf-window.json"]);
+  assert.equal(acquireWindowMarker(markerPath, { token: "later" }), false);
+});
+
+test("the supervisor refuses a multi-run selection or an old binding before its marker or any scratch", async (t) => {
+  const many = supervisedFixture(t, { runIds: ["one", "two"] });
+  await assert.rejects(superviseWindow(many.options, many.seams()), /^Error: PERF-ONE-LAUNCH-PER-WINDOW: the selection names 2 runs/);
+  assert.equal(existsSync(many.markerPath), false);
+  assert.equal(existsSync(many.out), false);
+  const old = supervisedFixture(t, { tauriConfig: OLD_TAURI_CONFIG });
+  await assert.rejects(superviseWindow(old.options, old.seams()), /PERF-BINDING-REFUSED: WEBVIEW-STORE-REFUSED/);
+  assert.equal(existsSync(old.markerPath), false);
+  assert.equal(existsSync(old.out), false);
+  assert.equal(many.started.length + old.started.length, 0);
+});
+
+test("a supervisor failure before the start releases its own marker; one after it (the child not started) retains marker and scratch", { timeout: 20_000 }, async (t) => {
+  const before = supervisedFixture(t);
+  writeFileSync(path.join(before.base, "out"), "a file where the output folder should be");
+  await assert.rejects(superviseWindow(before.options, before.seams()), /EEXIST|ENOTDIR/);
+  assert.equal(existsSync(before.markerPath), false);
+  const after = supervisedFixture(t);
+  await assert.rejects(superviseWindow(after.options, after.seams("ok", { startChild: () => ({ pid: undefined }) })), /no owned runner PID/);
+  const marker = markerOf(after.markerPath);
+  assert.equal(marker.state, "supervisor_error");
+  assert.match(marker.reason, /no owned runner PID/);
+  assert.equal(existsSync(marker.scratch), true);
+});
+

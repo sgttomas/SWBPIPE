@@ -13,7 +13,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  HOME_KEYS, PARENT_ALLOWLIST, RUNNER_KEYS, STRICT_CHOOSER_ENV, awaitNoProcesses, awaitNoProcessesSync, buildLaunchEnv, censusOf, chooserLayout, closeRun, createThrowawayHome,
+  HOME_KEYS, PARENT_ALLOWLIST, PERF_RUNNER_KEYS, RUNNER_KEYS, STRICT_CHOOSER_ENV, refusedPerfLaunchEnv, awaitNoProcesses, awaitNoProcessesSync, buildLaunchEnv, censusOf, chooserLayout, closeRun, createThrowawayHome,
   keepOutOfHome, keptRelativePaths, readRunMarker, refusedLaunchEnv, refusedPlanPaths, refusedSmokeWindows, runMarkerRefusal, smokeWindows, statWatched, tripwireChanges, watchedLibraryPaths,
   writeRunMarker
 } from "./launch-env.mjs";
@@ -349,3 +349,69 @@ test("F2 the smoke build's web view is non-persistent in every window, and a win
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stdout.match(/^web view store: (.+)$/m)?.[1], "non-persistent in every window of the smoke build");
 });
+
+// The performance runner's extension (`perf.mjs`): its extra variables are judged only by `refusedPerfLaunchEnv`,
+// each present exactly when the run selects it; RUNNER_KEYS and `refusedLaunchEnv` are what they were.
+function perfBuilt(t, parent, extra = {}) {
+  const root = scratch(t);
+  const { home, tmpdir } = createThrowawayHome(root);
+  const results = realpathSync(mkdtempSync(path.join(root, "results-")));
+  const result = path.join(results, "result.json");
+  writeFileSync(result, "{}");
+  const runner = { ...RUNNER, ...extra };
+  return { home, results, result, env: buildLaunchEnv({ parent, home, tmpdir, runner }) };
+}
+const [INJECT_RESULT, INJECT_ROOT, READER_DIAGNOSTICS] = PERF_RUNNER_KEYS;
+
+test("perf: the shared key list and refusal are unchanged; the perf variables are refused there, and only selected ones pass the perf check", (t) => {
+  assert.deepEqual(RUNNER_KEYS, ["SWBPIPE_NATIVE_SMOKE_DRIVER", "SWBPIPE_NATIVE_SMOKE_PLAN", "SWBPIPE_NATIVE_SMOKE_REPORT", STRICT_CHOOSER_ENV]);
+  assert.deepEqual(PARENT_ALLOWLIST, []);
+  const hostile = { ...process.env, [CREDENTIAL]: CREDENTIAL_VALUE, [INJECT_RESULT]: "/etc/hosts", [INJECT_ROOT]: "/etc", [READER_DIAGNOSTICS]: "1", NODE_OPTIONS: "--require /invented.js", RUSTC_WRAPPER: "/invented/wrapper", SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY: "invented" };
+  const plain = perfBuilt(t, hostile);
+  // Nothing the parent held reaches the built environment, the perf variables included.
+  assert.deepEqual(Object.keys(plain.env).sort(), NAMES.split(" "));
+  assert.deepEqual(refusedPerfLaunchEnv(plain.env, { inject: false, readerDiagnostics: false }), []);
+  const selected = perfBuilt(t, hostile);
+  const injected = { ...selected.env, [INJECT_RESULT]: selected.result, [INJECT_ROOT]: selected.results, [READER_DIAGNOSTICS]: "1" };
+  assert.deepEqual(refusedPerfLaunchEnv(injected, { inject: true, readerDiagnostics: true }), []);
+  // The shared refusal still refuses every perf variable as outside the allowlist.
+  assert.ok(refusedLaunchEnv(injected).some((line) => line.includes(`outside the allowlist and the runner's own: ${INJECT_RESULT}, ${INJECT_ROOT}, ${READER_DIAGNOSTICS}`)), refusedLaunchEnv(injected).join("\n"));
+});
+
+test("perf: each refusal of the perf check fires, by name", (t) => {
+  const { env, home, results, result } = perfBuilt(t, {});
+  const named = (candidate, selection, reason) => {
+    const reasons = refusedPerfLaunchEnv(candidate, selection);
+    assert.ok(reasons.some((line) => line.startsWith("LAUNCH-ENV-REFUSED") && line.includes(reason)), `${reason}: ${reasons.join("\n")}`);
+  };
+  const none = { inject: false, readerDiagnostics: false };
+  const inject = { inject: true, readerDiagnostics: false };
+  // The shared conditions, through the perf check.
+  named({ ...env, [CREDENTIAL]: CREDENTIAL_VALUE }, none, CREDENTIAL);
+  named({ ...env, TMPDIR: os.tmpdir() }, none, "TMPDIR is not inside HOME");
+  named({ ...env, [STRICT_CHOOSER_ENV]: "0" }, none, `${STRICT_CHOOSER_ENV} is not 1`);
+  named({ ...env, CFFIXED_USER_HOME: os.tmpdir() }, none, "HOME and CFFIXED_USER_HOME differ");
+  // The driver, the plan and the report.
+  const { SWBPIPE_NATIVE_SMOKE_DRIVER: _driver, ...withoutDriver } = env;
+  named(withoutDriver, none, "SWBPIPE_NATIVE_SMOKE_DRIVER is not an absolute path");
+  named({ ...env, SWBPIPE_NATIVE_SMOKE_REPORT: "report.json" }, none, "SWBPIPE_NATIVE_SMOKE_REPORT is not an absolute path");
+  named({ ...env, SWBPIPE_NATIVE_SMOKE_PLAN: "not json" }, none, "SWBPIPE_NATIVE_SMOKE_PLAN is not a JSON object");
+  named({ ...env, SWBPIPE_NATIVE_SMOKE_PLAN: "[]" }, none, "SWBPIPE_NATIVE_SMOKE_PLAN is not a JSON object");
+  // The injection pair: absent unless selected, and then bounded.
+  named({ ...env, [INJECT_RESULT]: result }, none, `${INJECT_RESULT} is given to a run that injects no result`);
+  named({ ...env, [INJECT_ROOT]: results }, none, `${INJECT_ROOT} is given to a run that injects no result`);
+  named(env, inject, `${INJECT_ROOT} is not an absolute folder`);
+  named(env, inject, `${INJECT_RESULT} is not a regular file inside`);
+  named({ ...env, [INJECT_RESULT]: result, [INJECT_ROOT]: `${results}/.` }, inject, `${INJECT_ROOT} is not an absolute folder named by its resolved path`);
+  named({ ...env, [INJECT_RESULT]: result, [INJECT_ROOT]: home }, inject, `${INJECT_RESULT} is not a regular file inside`);
+  named({ ...env, [INJECT_RESULT]: results, [INJECT_ROOT]: results }, inject, `${INJECT_RESULT} is not a regular file inside`);
+  const outside = path.join(home, "outside.json");
+  writeFileSync(outside, "{}");
+  symlinkSync(outside, path.join(results, "link.json"));
+  named({ ...env, [INJECT_RESULT]: path.join(results, "link.json"), [INJECT_ROOT]: results }, inject, `${INJECT_RESULT} is not a regular file inside`);
+  // The reader-diagnostics switch: absent unless selected, and then exactly 1.
+  named({ ...env, [READER_DIAGNOSTICS]: "1" }, none, `${READER_DIAGNOSTICS} is given to a run without reader diagnostics`);
+  named(env, { inject: false, readerDiagnostics: true }, `${READER_DIAGNOSTICS} is not 1`);
+  named({ ...env, [READER_DIAGNOSTICS]: "true" }, { inject: false, readerDiagnostics: true }, `${READER_DIAGNOSTICS} is not 1`);
+});
+
