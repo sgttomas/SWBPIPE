@@ -262,7 +262,7 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "26366d3b56c0b35b1daa9c395b5b654edc5ae059180c691d59487547313a23e3",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "348ad0f137972e10775dda07779f3bb80b27d1d3d91cf33921ec348f0af1cfb4",
+      "core/product_physics/Cargo.toml": "a8bd5b52dbd24a2caa42ce3bf888ebb840306f51721af96a7c1b1106259c51aa",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "aef459ce93aa7dae801284e172f7e5b7ab958801c4716d3c8db262f8303259be",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
@@ -1507,6 +1507,10 @@
               "fixtures/results/modal_refused_no_bound.request.json",
               "fixtures/results/modal_refused_unseparated.json",
               "fixtures/results/modal_refused_unseparated.request.json",
+              "fixtures/results/modal_selected_cantilever.json",
+              "fixtures/results/modal_selected_cantilever.request.json",
+              "fixtures/results/modal_selected_refused_no_bound.json",
+              "fixtures/results/modal_selected_refused_no_bound.request.json",
               "fixtures/results/modal_state_friction_sliding.json",
               "fixtures/results/modal_state_friction_sliding.request.json",
               "fixtures/results/modal_state_one_way_pressed.json",
@@ -5432,6 +5436,10 @@
               "fixtures/results/modal_refused_no_bound.request.json",
               "fixtures/results/modal_refused_unseparated.json",
               "fixtures/results/modal_refused_unseparated.request.json",
+              "fixtures/results/modal_selected_cantilever.json",
+              "fixtures/results/modal_selected_cantilever.request.json",
+              "fixtures/results/modal_selected_refused_no_bound.json",
+              "fixtures/results/modal_selected_refused_no_bound.request.json",
               "fixtures/results/modal_state_friction_sliding.json",
               "fixtures/results/modal_state_friction_sliding.request.json",
               "fixtures/results/modal_state_one_way_pressed.json",
@@ -6473,6 +6481,47 @@
           }
         ]
       },
+      "core/solver/nonlinear_integration/tests/sparse_loop_memory.rs": {
+        "sha256": "61fcfc6f74041a7dbe06963f6746eacac7992c8362d46793cdfcd87fda6f15e2",
+        "source_trees": [
+          "core/solver/nonlinear_integration/Cargo.toml"
+        ],
+        "inputs": [],
+        "external_reads": {
+          "kind": "audited-external-inputs",
+          "reason": "Memory-measurement test reads only the model directory named by SWBPIPE_SPARSE_MEMORY_MODELS, a scratch directory outside the project; without that variable (as in CI) it returns before any read."
+        }
+      },
+      "core/product_physics/tests/sparse_admission_memory_twin.rs": {
+        "sha256": "67646be3cd0152e6c2db5593ac72e5fd60d02f9fe2b4fa4e4ee84827e2f79f62",
+        "source_trees": [
+          "core/product_physics/Cargo.toml"
+        ],
+        "inputs": [],
+        "external_reads": {
+          "kind": "audited-external-inputs",
+          "reason": "Memory-measurement test reads only the model directory named by SWBPIPE_SPARSE_MEMORY_MODELS, a scratch directory outside the project; without that variable (as in CI) it returns before any read."
+        }
+      },
+      "core/product_physics/src/sparse_loop_memory_tests.rs": {
+        "sha256": "9d0b7a661a41c84cdc5c1fb3d74cb13f8248429d770c6d4cc05385b5df0873cd",
+        "source_trees": [
+          "core/analysis/hanger_sizing/Cargo.toml",
+          "core/loads/self_weight_wasm/Cargo.toml",
+          "core/model_operations/operation_applier/Cargo.toml",
+          "core/product_physics/Cargo.toml",
+          "core/runner/headless/Cargo.toml",
+          "core/solver/release_timing/Cargo.toml",
+          "validation/benchmarks/numerical_integrity/Cargo.toml",
+          "validation/benchmarks/physics_audit_regression/Cargo.toml",
+          "validation/benchmarks/stress/Cargo.toml"
+        ],
+        "inputs": [],
+        "external_reads": {
+          "kind": "audited-external-inputs",
+          "reason": "Memory-measurement test reads only the model directory named by SWBPIPE_SPARSE_MEMORY_MODELS, a scratch directory outside the project; without that variable (as in CI) it returns before any read."
+        }
+      },
       "core/product_physics/src/rt_a3_s6_tests.rs": {
         "sha256": "4a03fcb1977cffa808cb50f87f7705ebb7e33069ddaec9d04622d1be7e678e17",
         "source_trees": [
@@ -6518,47 +6567,6 @@
             ]
           }
         ]
-      },
-      "core/solver/nonlinear_integration/tests/sparse_loop_memory.rs": {
-        "sha256": "61fcfc6f74041a7dbe06963f6746eacac7992c8362d46793cdfcd87fda6f15e2",
-        "source_trees": [
-          "core/solver/nonlinear_integration/Cargo.toml"
-        ],
-        "inputs": [],
-        "external_reads": {
-          "kind": "audited-external-inputs",
-          "reason": "Memory-measurement test reads only the model directory named by SWBPIPE_SPARSE_MEMORY_MODELS, a scratch directory outside the project; without that variable (as in CI) it returns before any read."
-        }
-      },
-      "core/product_physics/tests/sparse_admission_memory_twin.rs": {
-        "sha256": "67646be3cd0152e6c2db5593ac72e5fd60d02f9fe2b4fa4e4ee84827e2f79f62",
-        "source_trees": [
-          "core/product_physics/Cargo.toml"
-        ],
-        "inputs": [],
-        "external_reads": {
-          "kind": "audited-external-inputs",
-          "reason": "Memory-measurement test reads only the model directory named by SWBPIPE_SPARSE_MEMORY_MODELS, a scratch directory outside the project; without that variable (as in CI) it returns before any read."
-        }
-      },
-      "core/product_physics/src/sparse_loop_memory_tests.rs": {
-        "sha256": "9d0b7a661a41c84cdc5c1fb3d74cb13f8248429d770c6d4cc05385b5df0873cd",
-        "source_trees": [
-          "core/analysis/hanger_sizing/Cargo.toml",
-          "core/loads/self_weight_wasm/Cargo.toml",
-          "core/model_operations/operation_applier/Cargo.toml",
-          "core/product_physics/Cargo.toml",
-          "core/runner/headless/Cargo.toml",
-          "core/solver/release_timing/Cargo.toml",
-          "validation/benchmarks/numerical_integrity/Cargo.toml",
-          "validation/benchmarks/physics_audit_regression/Cargo.toml",
-          "validation/benchmarks/stress/Cargo.toml"
-        ],
-        "inputs": [],
-        "external_reads": {
-          "kind": "audited-external-inputs",
-          "reason": "Memory-measurement test reads only the model directory named by SWBPIPE_SPARSE_MEMORY_MODELS, a scratch directory outside the project; without that variable (as in CI) it returns before any read."
-        }
       }
     }
   },

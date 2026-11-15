@@ -38,7 +38,7 @@ RESULTS = ROOT / "fixtures/results"
 REFERENCES = json.loads((ROOT / "validation/references/f1_modal/mass_discrete/mass_references.json").read_text(encoding="utf-8"))
 SOLVED = ("arc", "cantilever_below_cutoff", "cantilever_cluster_extension", "cantilever_sensitive",
           "cantilever_subnormal_cutoff", "cantilever_whole_spectrum", "component_body", "ex_n05",
-          "state_friction_sliding", "state_one_way_pressed")
+          "selected_cantilever", "state_friction_sliding", "state_one_way_pressed")
 
 
 def fixture(name):

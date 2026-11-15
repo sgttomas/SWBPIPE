@@ -163,10 +163,26 @@ The validation lane proposes the set; this section records the method only:
   | A named inexact input remains | 5e-3 |
   | Nonlinear | 2e-2, and support status must match exactly |
   | Modal | 5e-3 on frequencies, MAC ≥ 0.99 |
+  | Spectrum | 1e-2 on displacements and rotations; 5e-3 on element forces, moments and support loads |
 
-  The spectrum class is set before any comparison run, from its closed-form
-  references, never from comparison results, and reported to the owner.
-  Values are only tightened.
+  The spectrum class was set before any spectrum comparison run, from its
+  closed-form references alone, never from comparison results, and was
+  reported to the owner. It applies to combined magnitudes whose two sides
+  correspond: the same periodic modes, matched mode by mode, with no repeated
+  cluster; the same modal, directional and rigid-response rules; and every
+  periodic mode and the rigid frequency inside the spectrum's tabulated range.
+  A row that fails one of these conditions, including a repeated-cluster or
+  mode-set mismatch, is a finding, not a tolerated difference. On the
+  references' own computation, with no product result involved, SWBPIPE's
+  stated formulation has a smallest margin of 5.87 over the consistent-mass
+  combined and rigid-response population at 8 members or more (a force under
+  the missing-mass correction with the continuum's periodic classification,
+  8.52e-4 as summarized), and 34.3 on the benchmark pipe's case C at 8 members
+  (the tip support reaction under the absolute sum, TWO spectrum). DEL-04-10
+  REQ-008 states its derivation, applicability and governing rows. The formulation
+  difference predicted with the references before any comparison is a frozen
+  reference and is changed only on independent grounds. Values are only
+  tightened.
 - **Findings.** Any result outside the profile, an unmatched row, or a status,
   refusal or mode-count mismatch is a finding.
   - Triage order: mapping check, closed form, then SWBPIPE's own invariants,
