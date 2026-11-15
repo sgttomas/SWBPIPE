@@ -105,12 +105,46 @@ two cannot disagree:
   each entry of the body's spatial mass block (m·c_i, m·c_i·c_j) finite and
   either zero or normal. Otherwise the request is refused
   (`MODAL_COMPONENT_MASS_OUT_OF_RANGE`, naming the component). Under that
-  premise a·fl(W/a) differs from W by at most 2u + u² relative, u = 2⁻⁵³.
+  premise the rounded recovered weight fl(a·fl(W/a)) differs from W by at
+  most 2u + u² relative, u = 2⁻⁵³; the arithmetic argument follows below.
 - **Massless families:** objective connectors (their replaced span carries
   neither self-weight nor mass), tie rods and constant-effort supports carry no
   mass; this is disclosed.
 - **Restrained DOFs:** mass at restrained DOFs is excluded from M_ff and
   disclosed with the total model mass.
+
+**Weight recovery in binary64.** Assume round to nearest, ties to even, for
+both division and multiplication, with the admitted range conditions above.
+Write η = 2⁻¹⁰²² for the smallest normal number and u = 2⁻⁵³. When the exact
+quotient W/a is normal, m̂ = fl(W/a) = (W/a)(1+δ₁), |δ₁| ≤ u. For the
+normal exact product am̂, Ŵ = fl(am̂) = W(1+δ₁)(1+δ₂), |δ₂| ≤ u, hence
+|Ŵ−W|/W = |δ₁+δ₂+δ₁δ₂| ≤ 2u+u².
+
+There is one additional division-boundary case: an exact subnormal quotient
+can round to the admitted normal result m̂ = η. It must lie in
+[η(1−u), η). To see which normal binary64 operands can do this, write
+W = w·2ᵉ and a = v·2ᵈ with integers 2⁵² ≤ w,v ≤ 2⁵³−1. Then
+(W/a)/η = (w/v)·2ᵏ. Since 1/2 < w/v < 2, a value in [1−u,1) requires
+k = 0 or −1. For k = 0, w < v gives 1−w/v ≥ 1/v > u, so it is outside
+that interval. For k = −1, w/(2v) ≤ (2⁵³−1)/2⁵³ = 1−u; equality alone
+is admitted, forcing w = 2⁵³−1 and v = 2⁵². Thus the exact quotient is
+the midpoint η(1−u), a is a power of two, and ties-to-even gives m̂ = η.
+The admitted finite normal product aη is a representable power of two,
+so multiplication is exact. Its relative error is u/(1−u), which is less
+than 2u+u². The division's relative error in this case exceeds u; the
+ordinary two-rounding proof does not apply to it.
+
+Together these cases prove the same final bound for the admitted binary64
+operands, without narrowing their range. The exact product am̂ and its
+rounded evaluation Ŵ are distinguished throughout. The bound does not
+cover uncertainty in the authored weight or gravity.
+
+**Discretization warning required by the scope.** A member too coarsely
+discretized for the highest reported frequency must be warned by name
+(`MODAL_MASS_DISCRETIZATION_COARSE`). Its warning factor must be derived by
+benchmark and stated in the warning. That calibration remains unresolved;
+this note does not present the warning as delivered or a numerical-integrity
+check as evidence that the mesh resolves the physical vibration.
 
 **Weight-basis identity.** Every result runs a blocking check that a·M·r_k,
 for each global direction k, equals the self-weight generator's loads at
@@ -140,19 +174,24 @@ numerical dependency.
   fails gives no count; another candidate shift is tried, and the set is
   refused by name when none succeeds.
 - **Empty set.** A cut-off below the lowest frequency reports no modes. The
-  count is then taken at a shift in the gap between f_c and the lowest
-  computed cluster, under the same premises, and must be 0. The result states
+  count is then taken at an eigenvalue shift σ in the gap between
+  λ_c = (2πf_c)² and the lowest eigenvalue of the first computed cluster,
+  in rad²/s² throughout. Under the same premises the count must be 0. The result states
   that no mode lies at or below f_c under those premises.
 - **A count is relied on only under two premises**, both disclosed with the
-  shift: the estimated backward error of forming and factoring the shifted
-  matrix, times an estimate of the norm of its inverse, is at most 2⁻¹⁰ (the
-  conditioning premise); and the shift's separation from the neighbouring
-  computed eigenvalues exceeds 2⁷ times that backward error (the separation
-  premise). A factorization whose growth exceeds 2⁵² is rejected. Where no
-  shift meets these premises, the set is refused by name.
+  shift. The estimated shifted-matrix backward error e_b times an estimate ν
+  of its inverse norm must be at most 2⁻¹⁰ (conditioning). Each neighbouring
+  mode's normalized Rayleigh separation estimate s_j must be at least 2⁷e_b
+  (separation). [D5](#d5-normalized-separation-and-estimated-conditioning)
+  defines the scaling, quantities and their limits. A factorization whose
+  growth exceeds 2⁵² is rejected. Where no shift meets the premises the set
+  is refused. These are empirical integrity criteria, not verified separation.
 - **Whole spectrum.** When the reported set is the whole finite spectrum, the
   final shift lies above its largest eigenvalue. The dense path claims this
-  only when the number of finite modes is established independently;
+  only when the number of finite modes is established independently: the
+  massless DOFs are identified structurally and a Cholesky factorization of
+  the remaining mass block establishes its positive definiteness. D1’s
+  exact rank argument alone does not establish this computational premise;
   otherwise the request is refused (`MODAL_FINITE_COUNT_UNRESOLVED`).
 
 ### Integrity checks
@@ -388,7 +427,7 @@ nonsingular and has exactly two negative eigenvalues, yet the first
 unpivoted pivot is exactly 0, so no count exists there. A pivoted
 factorization with 1×1 and 2×2 blocks would count the negative eigenvalues of
 its blocks, not merely its negative scalar entries. The method does not use
-one. It rejects a candidate whose pivot falls at or below its guard, or
+one. It rejects a candidate whose pivot magnitude falls at or below its guard, or
 whose growth exceeds the limit, tries its next candidate shift, and refuses
 the set by name when none is accepted.
 
@@ -400,6 +439,69 @@ count is correct, and this derivation adds no guarantee to them.
 (exact counts by exact rational inertia, `WIT-ZERO-PIVOT` among them), the
 exact counts in `mass_discrete/eigen_references.json`, and `LC-TIPMASS` in
 `continuum/continuum.json`, a singular-mass condensation case.
+
+### D5. Normalized separation and estimated conditioning
+
+Let D₀ = diag(k_ii⁻½), K̃₀ = D₀KD₀, M̃₀ = D₀MD₀ and y = D₀⁻¹φ, for the
+positive stiffness diagonal. The variable λ = (2πf)² and shift σ have units
+rad²/s². Stiffness-diagonal equilibration makes Ã₀(σ) = K̃₀ − σM̃₀
+dimensionless. For an exact eigenpair Kφ = λMφ,
+
+q = (φᵀMφ)/(Σ_i k_ii φ_i²) = (yᵀM̃₀y)/(yᵀy),
+
+yᵀÃ₀(σ)y/(yᵀy) = (λ − σ)q.
+
+Thus q has reciprocal-eigenvalue units and converts a gap in λ to the
+scale of a matrix perturbation. A raw absolute gap has the wrong units;
+a relative gap alone omits that conversion. At a simple zero eigenvalue
+α(λ) of Ã₀, differentiate Ã₀(σ)y(σ) = α(σ)y(σ) and left-multiply by yᵀ.
+The terms involving y′ cancel because Ã₀y = αy, giving α′(λ) = −q.
+Consequently |λ−σ|q is a first-order estimate of |α(σ)| near λ, not a
+finite-gap distance bound. For repeated eigenvalues the directional
+Rayleigh identity still holds; branch derivatives require diagonalizing
+−M̃₀ on an orthonormal basis of the zero eigenspace. An arbitrary modal
+direction does not identify one of those derivatives.
+
+For computed neighbours the method uses
+s_j = (|λ_j−σ| − e_λ,j λ_j)q_j and requires s_j ≥ 128 e_b, where e_λ,j is
+the cluster's relative error estimate. The subtraction is an estimate's
+allowance, not a certified correction. This comparison is an empirical
+integrity criterion resting on the first-order interpretation above,
+not a sufficient condition for the correct inertia. The frozen exact counts
+corroborate particular cases; they supply no universal guarantee for it.
+
+**Ideal and computed scaling.** Formation uses
+D̂_i = fl(1/fl(√k_ii)); q uses the ideal D₀. With round-to-nearest arithmetic
+and admitted normal intermediates,
+D̂_i/D₀,i = (1+δ_div)/(1+δ_sqrt), with |δ_div|, |δ_sqrt| ≤ u = 2⁻⁵³.
+Writing r₋ = (1−u)/(1+u) and r₊ = (1+u)/(1−u) therefore gives
+r₋ ≤ D̂_i/D₀,i ≤ r₊. For the same vector, the quotient formed using D̂ has
+denominator Σ_i k_ii φ_i²/(D̂_i/D₀,i)², a sum of nonnegative terms.
+Its ratio to the ideal q is in [r₋², r₊²]; its relative difference is at most
+r₊²−1 = 4u/(1−u)² < 4.45×10⁻¹⁶. This scaling difference is negligible
+against the empirical factor 128. It does not promise identical decisions
+exactly at a comparison boundary, or bound the other errors in s_j.
+
+**Separate conditioning check.** The method estimates the shifted-matrix
+error in the infinity norm by the formation/scaling term plus
+γ_n‖|L̂||D̂_factor||L̂ᵀ|‖_∞, γ_n = nu/(1−nu). This is e_b, evaluated using
+the computed scaling. For a symmetric perturbation E, ‖E‖₂ ≤ ‖E‖_∞;
+this relates the matrix-norm scale to the Rayleigh comparison. The separate
+check e_bν ≤ 2⁻¹⁰ uses an estimate ν of the inverse 1-norm. Neither e_b nor
+ν is a certified bound. All growth, range and count-mismatch refusals remain.
+Verified separation would additionally require justified enclosures and
+certified error and inverse-norm bounds, as DEL-04-09's “Not established”
+paragraph records. This note establishes none of those missing bounds.
+
+*Checks and their reach:* `conditioning_and_separation_premises_against_independent_references`
+in `core/solver/modal_eigen/tests/sturm_counts.rs` compares these estimates
+with a separate shifted-matrix Jacobi calculation and inverse calculation
+on the frozen reference population. The threshold checks are empirical.
+The product's `modal_empty_set_rejects_a_missed_mode_below_cutoff` in
+`core/product_physics/src/modal/tests_eigen.rs` exercises the reported-set
+and count-refusal path on an authored two-mode pencil: withholding a 0.5 Hz
+pair at a 1 Hz cutoff still gives count 1 and refuses an empty set. This
+covers the product's modal count caller, not a full-model end-to-end solve.
 
 ## Assumptions
 
