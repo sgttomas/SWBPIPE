@@ -6,11 +6,13 @@
 //! checks need as a required field. It has no `Default`. Its one constructor
 //! with values is [`ModalIntegrityParameters::selected_a1_a2_a3_criteria`],
 //! the parameter instance of Agent 0's A1, A2 and A3 selections (design
-//! §5.3.7). No product, native, headless, desktop or document path calls it;
-//! only tests do. It is not admitted for any public or native use, and
-//! selecting it enables nothing (§5.3.9). Otherwise a caller states each
-//! value, and the tests also supply a labelled `TEST_LOCAL_…` set. Each value
-//! is validated, finite and in its domain, and refused by name otherwise
+//! §5.3.7). The modal document's selected seam runs it, and a document states
+//! its parameter standing `selected` exactly when the bound tuple is this one
+//! bit for bit ([`ModalIntegrityParameters::modal_is_selected_tuple`]).
+//! Selecting it admits nothing: the result stays experimental (DEL-04-09
+//! "Admission"). Otherwise a caller states each value, and the tests also
+//! supply a labelled `TEST_LOCAL_…` set. Each value is validated, finite and
+//! in its domain, and refused by name otherwise
 //! (`MODAL_INTEGRITY_PARAMETER_INVALID`).
 //!
 //! **The checks** are numerical-integrity checks with stated premises, not
@@ -164,10 +166,11 @@ fn parameter_refusal(name: &str, value: String, domain: &str) -> Diagnostic {
 
 impl ModalIntegrityParameters {
     /// The parameter instance of Agent 0's A1, A2 and A3 selections (design
-    /// §5.3.7: A1 and A2 2026-11-04, A3 2026-11-05). **It is not admitted for
-    /// public or native use.** No product, native, headless, desktop or
-    /// document path calls it, and selecting it enables nothing: admission
-    /// waits on every other §5.3.9 prerequisite.
+    /// §5.3.7: A1 and A2 2026-11-04, A3 2026-11-05). The selected seam
+    /// (`document::modal_selected_result_document`) runs it. **Selecting it
+    /// admits no public engineering result:** the document stays experimental,
+    /// and admission waits on every other §5.3.9 prerequisite (DEL-04-09
+    /// "Admission"), the measured work budget among them.
     ///
     /// Each value is an explicit engineering acceptance, demotion, screening
     /// or algorithm criterion. None is a resolution, accuracy, error or count
@@ -281,6 +284,56 @@ impl ModalIntegrityParameters {
             ));
         }
         found
+    }
+
+    /// Whether this tuple is [`Self::selected_a1_a2_a3_criteria`] bit for bit:
+    /// every float by its bit pattern (so +0 and −0 differ, and a NaN equals
+    /// nothing but its own pattern), both lists element by element in order,
+    /// and every count equal. The destructuring names every field, so a field
+    /// added later must be compared here before this compiles.
+    pub(crate) fn modal_is_selected_tuple(&self) -> bool {
+        let selected = Self::selected_a1_a2_a3_criteria();
+        let bits = |a: f64, b: f64| a.to_bits() == b.to_bits();
+        let list = |a: &[f64], b: &[f64]| a.len() == b.len() && a.iter().zip(b).all(|(&x, &y)| bits(x, y));
+        let Self {
+            infinite_mu_relative_threshold,
+            mass_pivot_relative_threshold,
+            resolution_floor_constant,
+            resolution_floor_multiple,
+            formed_backward_error_multiple,
+            screen_error_estimate_threshold,
+            max_ql_iterations_per_eigenvalue,
+            residual_threshold,
+            orthogonality_threshold,
+            cluster_tolerance,
+            no_translation_threshold,
+            sturm_conditioning_multiple,
+            sturm_separation_multiple,
+            sturm_growth_limit,
+            sturm_max_candidates,
+            sturm_gap_log_positions,
+            sturm_whole_spectrum_offsets,
+            identity_tolerance: IdentityTolerance { relative, absolute },
+        } = self;
+        bits(*infinite_mu_relative_threshold, selected.infinite_mu_relative_threshold)
+            && bits(*mass_pivot_relative_threshold, selected.mass_pivot_relative_threshold)
+            && bits(*resolution_floor_constant, selected.resolution_floor_constant)
+            && bits(*resolution_floor_multiple, selected.resolution_floor_multiple)
+            && bits(*formed_backward_error_multiple, selected.formed_backward_error_multiple)
+            && bits(*screen_error_estimate_threshold, selected.screen_error_estimate_threshold)
+            && *max_ql_iterations_per_eigenvalue == selected.max_ql_iterations_per_eigenvalue
+            && bits(*residual_threshold, selected.residual_threshold)
+            && bits(*orthogonality_threshold, selected.orthogonality_threshold)
+            && bits(*cluster_tolerance, selected.cluster_tolerance)
+            && bits(*no_translation_threshold, selected.no_translation_threshold)
+            && bits(*sturm_conditioning_multiple, selected.sturm_conditioning_multiple)
+            && bits(*sturm_separation_multiple, selected.sturm_separation_multiple)
+            && bits(*sturm_growth_limit, selected.sturm_growth_limit)
+            && *sturm_max_candidates == selected.sturm_max_candidates
+            && list(sturm_gap_log_positions, &selected.sturm_gap_log_positions)
+            && list(sturm_whole_spectrum_offsets, &selected.sturm_whole_spectrum_offsets)
+            && bits(*relative, selected.identity_tolerance.relative)
+            && bits(*absolute, selected.identity_tolerance.absolute)
     }
 
     /// The kernel's Sturm parameters, from the validated fields.

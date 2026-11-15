@@ -13,7 +13,9 @@
 //! held to the same committed bytes and read every committed fixture, so the
 //! producer and both readers meet only at committed bytes. All models are
 //! invented.
-use super::document::{modal_doc_sha256, modal_doc_solved, modal_result_document, modal_semantic_table, MODAL_RESULT_KIND};
+use super::document::{
+    modal_doc_sha256, modal_doc_solved, modal_result_document, modal_semantic_table, ModalParameterStanding, MODAL_RESULT_KIND, MODAL_SELECTED_PARAMETER_LABEL,
+};
 use super::outcome::run_modal_dense;
 use super::request::ModalPreviewRequest;
 use open_pipe_stress_modal_eigen::modal_quantities::{
@@ -78,6 +80,21 @@ fn fixtures() -> Vec<Fixture> {
         },
         f("refused_unseparated", with(ex_request_with_density(), json!({"mode_count": 4})), Some(&["MODAL_STURM_SHIFT_UNSEPARATED"])),
         f("refused_no_bound", pf_request(false), Some(&["MODAL_EXTRACTION_BOUND_REQUIRED"])),
+        // The selected instance (DEL-04-09 "Parameter standing"): standing `selected`, still experimental.
+        Fixture {
+            name: "selected_cantilever",
+            request: with(sec_a_cantilever(2), json!({"mode_count": 2})),
+            params: ModalIntegrityParameters::selected_a1_a2_a3_criteria(),
+            label: MODAL_SELECTED_PARAMETER_LABEL,
+            refused: None,
+        },
+        Fixture {
+            name: "selected_refused_no_bound",
+            request: pf_request(false),
+            params: ModalIntegrityParameters::selected_a1_a2_a3_criteria(),
+            label: MODAL_SELECTED_PARAMETER_LABEL,
+            refused: Some(&["MODAL_EXTRACTION_BOUND_REQUIRED"]),
+        },
     ]
 }
 
@@ -102,6 +119,8 @@ fn committed(name: &str) -> (&'static str, &'static str) {
         "cantilever_sensitive" => (include_str!("../../../../fixtures/results/modal_cantilever_sensitive.json"), include_str!("../../../../fixtures/results/modal_cantilever_sensitive.request.json")),
         "refused_unseparated" => (include_str!("../../../../fixtures/results/modal_refused_unseparated.json"), include_str!("../../../../fixtures/results/modal_refused_unseparated.request.json")),
         "refused_no_bound" => (include_str!("../../../../fixtures/results/modal_refused_no_bound.json"), include_str!("../../../../fixtures/results/modal_refused_no_bound.request.json")),
+        "selected_cantilever" => (include_str!("../../../../fixtures/results/modal_selected_cantilever.json"), include_str!("../../../../fixtures/results/modal_selected_cantilever.request.json")),
+        "selected_refused_no_bound" => (include_str!("../../../../fixtures/results/modal_selected_refused_no_bound.json"), include_str!("../../../../fixtures/results/modal_selected_refused_no_bound.request.json")),
         _ => unreachable!("every fixture has its committed pair"),
     }
 }
@@ -254,7 +273,7 @@ fn modal_edge_entries() -> Value {
             mode.below_normal_range = BelowNormalRange { shape, ..edge.below_normal_range.clone() };
         }
         outcome.mass_summary.total_by_direction = totals;
-        let doc = modal_doc_solved(&outcome, &committed_doc["binding"], base.label);
+        let doc = modal_doc_solved(&outcome, &committed_doc["binding"], ModalParameterStanding::modal_doc_standing_of(&base.params, base.label));
         let mut operations = vec![json!({"op": "withhold", "table": "mass_matrix"}), json!({"op": "withhold", "table": "shapes"})];
         let mut take = |path: String| {
             let value = doc.pointer(&path).unwrap_or_else(|| panic!("{path}")).clone();
