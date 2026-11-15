@@ -15,6 +15,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { createHash } from "node:crypto";
 import ts from "typescript";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -126,20 +127,51 @@ function glueProblems(text, keys) {
     const given = continuation.arguments[0].properties.map((property) => property.name && ts.isIdentifier(property.name) ? property.name.text : `<${ts.SyntaxKind[property.kind]}>`);
     if (JSON.stringify(given) !== JSON.stringify(keys)) problems.push(`phaseContinuation's arguments are ${JSON.stringify(given)}, not ${JSON.stringify(keys)}`);
   }
-  // Every use of launch other than its declaration is a call that is awaited.
+  // Every use of launch other than its declaration is the callee of a call that is the direct operand of an await
+  // with no function-like ancestor: the phase sequence itself waits at module scope, so that no awaited call can
+  // sit inside a callback nobody awaits.
   const uses = named("launch").filter((id) => id !== launchFunction?.name);
   if (uses.length < 2) problems.push("its launches are not found");
   for (const id of uses) {
     const used = id.parent;
-    if (!(ts.isCallExpression(used) && used.expression === id && ts.isAwaitExpression(used.parent) && used.parent.expression === used)) problems.push(`launch is used other than in an awaited call at line ${file.getLineAndCharacterOfPosition(id.getStart()).line + 1}`);
+    const line = file.getLineAndCharacterOfPosition(id.getStart()).line + 1;
+    if (!(ts.isCallExpression(used) && used.expression === id && ts.isAwaitExpression(used.parent) && used.parent.expression === used)) problems.push(`launch is used other than in an awaited call at line ${line}`);
+    let owner = id.parent;
+    while (owner && !ts.isFunctionLike(owner)) owner = owner.parent;
+    if (owner) problems.push(`launch is called inside a function, not at module scope, at line ${line}`);
   }
   return problems;
 }
+
+// The source the stop handling was last independently read at: each runner's launch function, from its syntax tree,
+// and judged-launch.mjs whole. A change trips the pin; see PIN_MESSAGE.
+const PIN = {
+  "run.mjs": "6f822169191e0e59c7d4c4f7547ea4db52203c0275dfbce5b2a736fcc7985bac",
+  "mbf-journey.mjs": "79a7ad72e0ed4cb9caa7f8ccccce18a59729eaa94a199b2646315fea39e2d381",
+  "judged-launch.mjs": "ab6469bbd7443955e32613afa773f8a9875fa7c7f4f8b2f154a816fd26ac5cfc"
+};
+const PIN_MESSAGE = (file) => `${file}: the reviewed stop-handling source changed. Before this pin is updated, the independent reader of the pull request that changes it must re-read, and that pull request must quote: every path in launch() that starts an app goes through judgedPhase with phaseContinuation attached and returned; the phase sequence awaits each launch at module scope; phaseContinuation receives the production state and evidence root. The author refreshes the pin after that reading clears.`;
+const sha256 = (text) => createHash("sha256").update(text, "utf8").digest("hex");
+function launchFunctionText(text) {
+  const file = ts.createSourceFile("runner.mjs", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const launch = file.statements.find((statement) => ts.isFunctionDeclaration(statement) && statement.name?.text === "launch");
+  return launch ? launch.getText(file) : null;
+}
+/** The pinned text of `file` given its source: the launch function of a runner, or the whole of judged-launch.mjs. */
+const pinnedText = (file, text) => (file === "judged-launch.mjs" ? text : launchFunctionText(text));
 
 const RUNNERS = [["run.mjs", ["prefix", "phase", "state"]], ["mbf-journey.mjs", ["prefix", "phase", "evidenceRoot"]]];
 
 test("each runner returns exactly this handler's promise from its launch function, awaits every launch, and passes no exit (syntax tree)", () => {
   for (const [file, keys] of RUNNERS) assert.deepEqual(glueProblems(readFileSync(path.join(here, file), "utf8"), keys), [], file);
+});
+
+test("the reviewed stop-handling source is the source last independently read (the pin)", () => {
+  for (const [file, digest] of Object.entries(PIN)) {
+    const text = pinnedText(file, readFileSync(path.join(here, file), "utf8"));
+    assert.ok(text, `${file}: its pinned source is found`);
+    assert.equal(sha256(text), digest, PIN_MESSAGE(file));
+  }
 });
 
 test("the glue check refuses each way around it the readers found or that would bring back an ignored stop", () => {
@@ -155,10 +187,30 @@ test("the glue check refuses each way around it the readers found or that would 
     "a launch not awaited": text.replace("const second = await launch(", "// const second = await launch(\nconst second = launch ("),
     "an exit passed": text.replace(glue, glue.replace("phase, state }", "phase, state, exit: (code) => code }")),
     "the glue only in a string": text.replace(glue, '  });\n  const glue = "}).then(phaseContinuation({ prefix, phase, state }))";').replace("  return judgedPhase({", "  return judgedPhase({"),
-    "a local phaseContinuation": text.replace("function launch(", "const phaseContinuation = () => (result) => result.report ?? result.read?.report;\nfunction launch(")
+    // The second reader's valid shadowing case: an inner parameter that shadows the shared handler.
+    "an inner parameter shadowing phaseContinuation": text.replace("function launch(phase, extra = {}) {", "function launch(phase, extra = {}, phaseContinuation = () => (result) => result.report ?? result.read?.report) {"),
+    // The second reader's R1b: an awaited launch inside an async callback nobody awaits.
+    "a detached launch sequence": text.replace("const first = await launch(", "void (async () => { await launch(\"reopen\"); })();\nconst first = await launch(")
+  };
+  const reasons = {
+    "an inner parameter shadowing phaseContinuation": /phaseContinuation is declared again/,
+    "a detached launch sequence": /launch is called inside a function, not at module scope/
   };
   for (const [name, mutated] of Object.entries(mutations)) {
     assert.notEqual(mutated, text, `${name}: the mutation applied`);
-    assert.ok(glueProblems(mutated, keys).length > 0, `${name}: refused`);
+    const problems = glueProblems(mutated, keys);
+    assert.ok(problems.length > 0, `${name}: refused`);
+    if (reasons[name]) assert.ok(problems.some((problem) => reasons[name].test(problem)), `${name}: refused for its own reason (${JSON.stringify(problems)})`);
   }
+});
+
+test("a second app-start path inside launch (the second reader's R1a) passes the tree check, and the pin refuses it", () => {
+  const text = readFileSync(path.join(here, "run.mjs"), "utf8");
+  const head = "function launch(phase, extra = {}) {";
+  const early = text.replace(head, `${head}\n  if (phase === "open-solve-save") {\n    return runUnderLock("/usr/bin/caffeinate", ["-di", binary], { cwd: root }).then(() => ({ ok: true }));\n  }`);
+  assert.notEqual(early, text, "the mutation applied");
+  // The tree check reads the one handled return and does not exclude another path: this is its stated limit.
+  assert.deepEqual(glueProblems(early, RUNNERS[0][1]), [], "the tree check alone accepts it");
+  // The protection is the pin over the launch function.
+  assert.notEqual(sha256(pinnedText("run.mjs", early)), PIN["run.mjs"], "the pin refuses it");
 });
