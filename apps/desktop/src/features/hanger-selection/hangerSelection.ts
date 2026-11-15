@@ -22,8 +22,186 @@ export type HangerDocument = {
   hanger_records: HangerRecord[];
 };
 export type HangerTarget = { supportId: string; restraints: string[]; newSupport?: { label: string; node: string } };
+
+/** The sizing run a sized value comes from, named only by what the hanger-sizing result document binds
+ * (DEL-04-11 REQ-007, REQ-008): the request digest, the bound solve request's hash, the library and the record. */
+export type HangerSizingRunIdentity = Readonly<{
+  sizingRequestSha256: string;
+  solveRequestSha256: string;
+  libraryId: string;
+  librarySha256: string;
+  hangerId: string;
+  recordSha256: string;
+}>;
+/** The sized loads, SI newtons, as the result document publishes them. A variable record's cold and installed loads are
+ * both the sized cold load; its hot load is the selection's operating load in the design operating case. A constant
+ * record's constant load is the hot-load basis. */
+export type SizedHangerLoads =
+  | Readonly<{ family: "variable_spring"; coldLoadN: number; hotLoadN: number; designOperatingCase: string }>
+  | Readonly<{ family: "constant_effort"; constantLoadN: number }>;
+/** A sized selection to apply (DEL-04-11 REQ-008): the loads replace the record's own loads of the same members, and no
+ * other record load enters the support. */
+export type HangerSizingApplication = Readonly<{ run: HangerSizingRunIdentity; loads: SizedHangerLoads }>;
+
+/** The presentation label of a sized selection's configuration change. Nothing decides on it: a reviewer may alter or
+ * remove a label, so the routes that must refuse a hanger write read the batch's structure
+ * (`writesSupportHangerSelection`). */
+export const SIZED_HANGER_SELECTION_FIELD_LABEL = "Sized hanger selection";
+/** The refusal of a requeued or imported batch that writes a support's hanger selection. */
+export const SUPPORT_HANGER_WRITE_REFUSED_TEXT =
+  "This batch writes a support's hanger selection and can only be applied from the hanger form or from its sizing result; make the selection again.";
+
+/** The engine's names for a variable spring hanger and a constant-effort support (core/product_physics/src/lib.rs,
+ * `is_variable_spring_hanger` and `is_constant_effort_support`); a test pins them to the engine's source. */
+export const ENGINE_VARIABLE_SPRING_HANGER_TYPES: readonly string[] = ["variable_spring_hanger", "spring_hanger"];
+export const ENGINE_CONSTANT_EFFORT_SUPPORT_TYPES: readonly string[] = ["constant_effort_support"];
+
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+
+/** The code points Rust's `str::trim` removes: those with the Unicode White_Space property, as `char::is_whitespace`
+ * reads it (U+0020 and U+0009 to U+000D directly, the rest from core's White_Space table, Unicode PropList.txt).
+ * JavaScript's `String.prototype.trim` removes a different set: it keeps U+0085 and removes U+FEFF. */
+export const RUST_WHITE_SPACE_CODE_POINTS: readonly number[] = [
+  0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x0020, 0x0085, 0x00a0, 0x1680,
+  0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a,
+  0x2028, 0x2029, 0x202f, 0x205f, 0x3000
+];
+
+/** `text` with leading and trailing White_Space removed, as Rust's `str::trim` removes it. */
+export function rustTrim(text: string): string {
+  const points = Array.from(text);
+  const white = (point: string) => RUST_WHITE_SPACE_CODE_POINTS.includes(point.codePointAt(0)!);
+  let start = 0;
+  let end = points.length;
+  while (start < end && white(points[start])) start += 1;
+  while (end > start && white(points[end - 1])) end -= 1;
+  return points.slice(start, end).join("");
+}
+
+/** How the engine classifies a support value: one of its two hanger kinds, `document_refused` where its typed decode
+ * (core/product_physics/src/lib.rs, `PreviewSupport` and `SpringHangerInput`) refuses the members it reads (a `hanger`
+ * that is not an object or null, or a `hanger_type` or `family` that is not a text or null), or null for none. */
+export type EngineHangerKind = "variable_spring" | "constant_effort" | "document_refused" | null;
+
+/** The engine's classification of a support value, mirroring `support_hanger_type`: the Rust-trimmed
+ * `hanger.hanger_type` when it is a text that is not blank, else the Rust-trimmed `family`; then the names above. A
+ * member the engine's decode refuses is `document_refused`, never a fall back to another member. */
+export function engineHangerKind(value: unknown): EngineHangerKind {
+  if (!isRecord(value)) return null;
+  const hanger = value.hanger;
+  if (hanger !== undefined && hanger !== null && !isRecord(hanger)) return "document_refused";
+  const hangerType = isRecord(hanger) ? hanger.hanger_type : undefined;
+  if (hangerType !== undefined && hangerType !== null && typeof hangerType !== "string") return "document_refused";
+  if (value.family !== undefined && value.family !== null && typeof value.family !== "string") return "document_refused";
+  const trimmedType = typeof hangerType === "string" ? rustTrim(hangerType) : "";
+  const effective = trimmedType !== "" ? trimmedType : typeof value.family === "string" ? rustTrim(value.family) : null;
+  if (effective === null) return null;
+  if (ENGINE_VARIABLE_SPRING_HANGER_TYPES.includes(effective)) return "variable_spring";
+  if (ENGINE_CONSTANT_EFFORT_SUPPORT_TYPES.includes(effective)) return "constant_effort";
+  return null;
+}
+
+/** The field paths through which an operation on a Support can write its hanger member or family, checked against the
+ * operation route (core/model_operations/operation_applier): `configuration` (update_support, which replaces the
+ * support's configuration) and `supports` (create_support). A support deletion also travels on `supports`, but writes no
+ * hanger and is recognised by its kind (`isSupportDeletion`). The route's other Support paths (label, provenance, node,
+ * restraints, tags, notes, provenance_record) cannot write a hanger or family. */
+export const SUPPORT_HANGER_FIELD_PATHS: readonly string[] = ["configuration", "supports"];
+
+/** A change's before or after as the predicate reads it: absent (`not_present`), a value, or unreadable. */
+function changeValue(text: unknown): { kind: "absent" } | { kind: "value"; value: unknown } | { kind: "unreadable" } {
+  if (text === "not_present") return { kind: "absent" };
+  if (typeof text !== "string") return { kind: "unreadable" };
+  try {
+    return { kind: "value", value: JSON.parse(text) };
+  } catch {
+    return { kind: "unreadable" };
+  }
+}
+
+/** Whether a value written or replaced on a support is a hanger: it has a `hanger` member at all (any value), or the
+ * engine classifies it as one, or the engine's decode refuses a member it reads (`document_refused`). A value that is unreadable, or not a support object (such as a label text where a
+ * support was expected), counts as a hanger: it fails closed. */
+function isHangerValue(read: ReturnType<typeof changeValue>): boolean {
+  if (read.kind === "absent") return false;
+  if (read.kind === "unreadable" || !isRecord(read.value)) return true;
+  return "hanger" in read.value || engineHangerKind(read.value) !== null;
+}
+
+/** Whether an operation is one the operation route carries out only as a support deletion. The applier
+ * (core/model_operations/operation_applier/src/lib.rs) dispatches on `change.change_kind`: in `run_with_context`, only
+ * change_kind `delete_support` reaches `resolve_delete_support`, whose result is applied by `apply_deleted_support`, which
+ * removes the support and writes nothing; `resolve_delete_support` blocks unless the target is a Support, the field path
+ * `supports` and the after `not_present`; and `check_kinds` blocks a `delete_support` whose `operation_kind` is not
+ * `delete`. The other support writers are keyed on other change kinds (`create_support` for `resolve_create_support`,
+ * `update_support` for the `configuration` path, which blocks any other change_kind). So an operation with all of these
+ * members is either a deletion or blocked with its batch, and cannot write a hanger; one that lacks any of them is read
+ * as a possible write. */
+function isSupportDeletion(operation: Record<string, unknown> & { target: Record<string, unknown>; change: Record<string, unknown> }): boolean {
+  return operation.change.change_kind === "delete_support"
+    && operation.operation_kind === "delete"
+    && operation.target.object_type === "Support"
+    && operation.change.field_path === "supports"
+    && operation.change.after === "not_present";
+}
+
+/** Whether `batch` writes a support's hanger selection, by structure only: any operation on a Support, on one of
+ * `SUPPORT_HANGER_FIELD_PATHS`, other than a support deletion, whose after or before value is a hanger. A value that
+ * cannot be read as a support object counts as a hanger. No label, note or rationale is read. */
+export function writesSupportHangerSelection(batch: OperationBatch): boolean {
+  const operations: unknown = (batch as { operations?: unknown } | null | undefined)?.operations;
+  if (!Array.isArray(operations)) return false;
+  return operations.some((operation: unknown) => {
+    if (!isRecord(operation) || !isRecord(operation.target) || !isRecord(operation.change)) return false;
+    if (operation.target.object_type !== "Support" || !SUPPORT_HANGER_FIELD_PATHS.includes(String(operation.change.field_path))) return false;
+    if (isSupportDeletion(operation as Record<string, unknown> & { target: Record<string, unknown>; change: Record<string, unknown> })) return false;
+    return isHangerValue(changeValue(operation.change.after)) || isHangerValue(changeValue(operation.change.before));
+  });
+}
+
+const FAMILY_OF = { variable_spring: "variable_spring_hanger", constant_effort: "constant_effort_support" } as const;
+const SIZED_LOAD_UNIT = "N";
+const RECORD_LOAD_MEMBERS = ["installed_load", "cold_load", "hot_load", "constant_load"] as const;
+
+const positiveFinite = (value: number) => typeof value === "number" && Number.isFinite(value) && value > 0;
+
+/** The source note of a sized selection's configuration change: the sizing run (its request digest and the bound solve
+ * request's hash), the library and the record, and every sized member with its value and origin. Values are written
+ * as JavaScript's shortest round-trip text of the published binary64, so the note states them exactly. */
+export function hangerSizingSourceNote(application: HangerSizingApplication, libraryProvenance: string): string {
+  const { run, loads } = application;
+  const runText = `Hanger sizing run with sizing request sha256 ${run.sizingRequestSha256} and solve request sha256 ${run.solveRequestSha256}; ` +
+    `library ${run.libraryId} sha256 ${run.librarySha256}; record ${run.hangerId} sha256 ${run.recordSha256}.`;
+  const sized = loads.family === "variable_spring"
+    ? `Sized values: hanger.cold_load ${String(loads.coldLoadN)} ${SIZED_LOAD_UNIT} and hanger.installed_load ${String(loads.coldLoadN)} ${SIZED_LOAD_UNIT}, ` +
+      `both the sized cold load (the setting at the drawn position); hanger.hot_load ${String(loads.hotLoadN)} ${SIZED_LOAD_UNIT}, ` +
+      `the sized operating load in the design operating case ${loads.designOperatingCase}.`
+    : `Sized value: hanger.constant_load ${String(loads.constantLoadN)} ${SIZED_LOAD_UNIT}, the hot-load basis.`;
+  return `${runText} ${sized} Family, stiffness, travel range and references from the library record ${libraryProvenance}.`;
+}
+
+function checkSizing(imported: HangerRecord["hanger"], recordId: string, libraryId: string, target: HangerTarget, sizing: HangerSizingApplication) {
+  const { run, loads } = sizing;
+  if (run.hangerId !== recordId || run.libraryId !== libraryId)
+    throw new Error("The sizing result names another library or record than the one being applied. Size again.");
+  if (imported.hanger_type !== FAMILY_OF[loads.family])
+    throw new Error(`The sized selection is ${loads.family.replaceAll("_", " ")}, but record ${recordId} is ${imported.hanger_type.replaceAll("_", " ")}.`);
+  if (target.restraints.length !== 1)
+    throw new Error("A sized hanger acts on exactly one translational direction; give its one restraint direction.");
+  const dof = target.restraints[0];
+  if (loads.family === "variable_spring" && imported.stiffness === undefined)
+    throw new Error(`Record ${recordId} declares no stiffness, so a sized variable spring cannot be applied from it.`);
+  if (imported.stiffness !== undefined && imported.stiffness.dof.toUpperCase() !== dof)
+    throw new Error(`Record ${recordId} declares its stiffness on ${imported.stiffness.dof}, but the sized support acts on ${dof}; nothing is applied.`);
+  const values = loads.family === "variable_spring" ? [loads.coldLoadN, loads.hotLoadN] : [loads.constantLoadN];
+  if (!values.every(positiveFinite)) throw new Error("A sized load is not a positive finite force; nothing is applied.");
+}
+
 // This maps a record AFTER native import validation. It is not a parallel library validator.
-export async function buildHangerSelectionBatch(model: PreviewModel, document: HangerDocument, recordId: string, target: HangerTarget): Promise<OperationBatch> {
+// With `sizing`, the sized loads replace the record's own loads (DEL-04-11 REQ-008); without it, the record's own values
+// are copied as they are.
+export async function buildHangerSelectionBatch(model: PreviewModel, document: HangerDocument, recordId: string, target: HangerTarget,
+  sizing?: HangerSizingApplication): Promise<OperationBatch> {
   const selected = document.hanger_records.find(record => record.hanger_id === recordId);
   if (!selected) throw new Error("The selected hanger record is missing. Refresh the library.");
   if (!target.supportId.trim()) throw new Error("Select or enter a support ID.");
@@ -36,16 +214,26 @@ export async function buildHangerSelectionBatch(model: PreviewModel, document: H
   // only the short library reference and the combined provenance
   // record enter the model; library metadata and the record snapshot never do.
   const imported = selected.hanger;
-  const quantities = [imported.installed_load, imported.cold_load, imported.hot_load, imported.constant_load,
-    imported.travel_range, imported.movement_limit, imported.stiffness?.value].filter((q): q is ImportedQuantity => q !== undefined);
+  if (sizing) checkSizing(imported, recordId, document.hanger_library.library_id, target, sizing);
+  // A sized selection copies no record load and no movement limit (sizing reads neither, REQ-006); the provenance
+  // record lists only what is copied from the record.
+  const copiedMembers = sizing ? (["travel_range"] as const) : ([...RECORD_LOAD_MEMBERS, "travel_range", "movement_limit"] as const);
+  const quantities = [...copiedMembers.map(key => imported[key]), imported.stiffness?.value].filter((q): q is ImportedQuantity => q !== undefined);
   const { provenance: source, provenanceRecord } = await hangerLibraryProvenance(
     document.hanger_library as Record<string, unknown>, selected as unknown as Record<string, unknown>, quantities as unknown as Record<string, unknown>[]);
   const hanger: Record<string, unknown> = { hanger_type: imported.hanger_type, source_reference: imported.source_reference };
   for (const key of ["manufacturer_reference", "load_side_review_reference", "mechanics_consumption"] as const)
     if (imported[key] !== undefined) hanger[key] = imported[key];
-  for (const key of ["installed_load", "cold_load", "hot_load", "constant_load", "travel_range", "movement_limit"] as const) {
+  for (const key of copiedMembers) {
     const q = imported[key];
     if (q !== undefined) hanger[key] = { value: q.magnitude, unit: q.unit };
+  }
+  if (sizing?.loads.family === "variable_spring") {
+    hanger.installed_load = { value: sizing.loads.coldLoadN, unit: SIZED_LOAD_UNIT };
+    hanger.cold_load = { value: sizing.loads.coldLoadN, unit: SIZED_LOAD_UNIT };
+    hanger.hot_load = { value: sizing.loads.hotLoadN, unit: SIZED_LOAD_UNIT };
+  } else if (sizing?.loads.family === "constant_effort") {
+    hanger.constant_load = { value: sizing.loads.constantLoadN, unit: SIZED_LOAD_UNIT };
   }
   if (imported.stiffness !== undefined) hanger.stiffness = {
     dof: imported.stiffness.dof,
@@ -61,11 +249,14 @@ export async function buildHangerSelectionBatch(model: PreviewModel, document: H
     target: { object_type: "Support", ref: target.supportId },
     change: {
       change_id: `change:${crypto.randomUUID()}`, change_kind: target.newSupport ? "create_support" : "update_support",
-      field_label: "Imported hanger selection", field_path: target.newSupport ? "supports" : "configuration",
+      field_label: sizing ? SIZED_HANGER_SELECTION_FIELD_LABEL : "Imported hanger selection", field_path: target.newSupport ? "supports" : "configuration",
       before: target.newSupport ? "not_present" : await canonicalJsonString(before),
-      after: await canonicalJsonString(after), unit: "none", dimension: "dimensionless", source_note: source
+      after: await canonicalJsonString(after), unit: "none", dimension: "dimensionless",
+      source_note: sizing ? hangerSizingSourceNote(sizing, source) : source
     },
-    rationale: "Manual user selection of an imported hanger record; replaces the support configuration and clears previous top-level stiffness and nonlinear settings."
+    rationale: sizing
+      ? "The person's application of a record that hanger sizing selected from their own library by their own tests, with the sized loads; replaces the support configuration and clears previous top-level stiffness and nonlinear settings."
+      : "Manual user selection of an imported hanger record; replaces the support configuration and clears previous top-level stiffness and nonlinear settings."
   })];
   const recordChanged = !old || old.provenance_record === undefined ||
     await canonicalJsonString(old.provenance_record) !== await canonicalJsonString(provenanceRecord);
