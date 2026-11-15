@@ -865,6 +865,118 @@ const RESULT_FIXTURES: [&str; 112] = [
 
 /// The JSON-text entry refuses input that is not JSON (the projection itself is
 /// `report_standing::historical_health`).
+/// DEL-07-05, through the desktop's own caller (`operation_applier::numerical_health_json`,
+/// which the desktop reaches in wasm and natively): a live document whose mechanics are
+/// not solved, though a case before the refusal retained a passed integrity evaluation and
+/// a checks_passed quality, shows no passing indicator. Its passed cases are not assessed,
+/// with no figure, no cause and no code, and the refused case is not assessed as it was;
+/// the control (the same request without the refused case) passes through the same caller.
+#[test]
+fn a_blocked_document_with_passing_evidence_shows_no_passing_indicator() {
+    let control = model_request("product_preview/invented_demo_model.json");
+    let first = control["model"]["load_cases"][0]["id"].as_str().unwrap().to_string();
+    let mut request = control.clone();
+    let mut refused = request["model"]["load_cases"][0].clone();
+    refused["id"] = json!("load:indicator-gate-refused");
+    for load in refused["primitive_loads"].as_array_mut().unwrap() {
+        let id = format!("{}:refused", load["id"].as_str().unwrap());
+        load["id"] = json!(id);
+    }
+    refused["modulus_basis_ref"] = json!("temperature-point:intentionally-missing");
+    request["model"]["load_cases"].as_array_mut().unwrap().push(refused);
+    for (mode, wire) in MODES {
+        let solved = serde_json::to_value(run_linear_static_preview_value_with_mode(control.clone(), mode).unwrap()).unwrap();
+        assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{wire}");
+        assert_eq!(health(&solved, None)["cases"][0]["state"], "checks_passed", "{wire}: control");
+        let blocked = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+        assert_eq!(blocked["status"]["mechanics"], "MODEL_INCOMPLETE", "{wire}");
+        // The evidence looks passing: the first case's own record and quality.
+        let quality = blocked["numerical_quality"]["cases"].as_array().unwrap().iter()
+            .find(|c| c["basis_ref"]["ref_id"] == first.as_str()).unwrap();
+        assert_eq!(quality["solve_quality"], "checks_passed", "{wire}");
+        assert_eq!(integrity(&blocked, &first)[0]["code"], "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{wire}");
+        let out = health(&blocked, None);
+        for case in out["cases"].as_array().unwrap() {
+            assert_eq!(case["state"], "not_assessed", "{wire}: {}", case["case_id"]);
+            assert!(case["rcond"].is_null() && case["digits"].is_null(), "{wire}");
+            assert_eq!(case["causes"], json!([]), "{wire}");
+            assert!(case["code"].is_null(), "{wire}: no passing code beside a not-assessed state");
+        }
+    }
+}
+
+/// The committed failed-ordinary request (CX-F): one case whose ordinary solve
+/// fails numerically, so the document is blocked by that case's own failure.
+fn cxf_request() -> Value {
+    let fixture: Value = serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_failed_ordinary_cxf.json")).unwrap();
+    fixture["cases"][0]["request"].clone()
+}
+
+/// The indicator's projection of `blocked` with its mechanics status stated
+/// solved: what main's indicator, which had no gate, showed for its cases.
+fn as_main_showed(blocked: &Value) -> Value {
+    let mut solved = blocked.clone();
+    solved["status"]["mechanics"] = json!("MECHANICS_SOLVED");
+    health(&solved, None)["cases"].clone()
+}
+
+/// DEL-07-05, through the desktop's own caller: a live document blocked by a
+/// case's own numerical failure keeps that failure's state, causes and code
+/// exactly as main's indicator showed them; the gate suppresses only passing and
+/// sensitive states.
+#[test]
+fn a_blocked_documents_own_failure_keeps_its_state() {
+    let request = cxf_request();
+    for (mode, wire) in MODES {
+        let blocked = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+        assert_eq!(blocked["status"]["mechanics"], "MODEL_INCOMPLETE", "{wire}");
+        let quality = &blocked["numerical_quality"]["cases"][0];
+        assert_eq!(quality["solve_quality"], "unresolved", "{wire}");
+        let out = health(&blocked, None);
+        let case = &out["cases"][0];
+        assert_eq!(case["state"], "quality_unresolved", "{wire}");
+        assert_eq!(case["code"], "NUMERICAL_INTEGRITY_UNRESOLVED", "{wire}");
+        assert_eq!(out["cases"], as_main_showed(&blocked), "{wire}: as main showed it");
+    }
+}
+
+/// DEL-07-05, through the same caller: a live document with a passing case
+/// before the failing one. The passing case is suppressed; the failure keeps
+/// its state, as main showed it.
+#[test]
+fn a_mixed_blocked_document_suppresses_only_the_passing_case() {
+    let mut request = cxf_request();
+    let failing = request["model"]["load_cases"][0].clone();
+    let passing = json!({"id": "case:pass", "label": "PASS", "kind": "primitive_user_load", "provenance": "invented_rv17_f1b_review_input_no_library_data",
+        "primitive_loads": [{"id": "load:pass", "category": "concentrated_force", "dimension": "force",
+            "direction": "global_x", "magnitude": {"unit": "N", "value": 1000.0},
+            "target": {"type": "node", "node": "N1"}, "provenance": "invented_rv17_f1b_review_input_no_library_data"}]});
+    request["model"]["load_cases"] = json!([passing, failing]);
+    let failing_id = failing["id"].as_str().unwrap().to_string();
+    for (mode, wire) in MODES {
+        // The passing case passes alone.
+        let mut alone = request.clone();
+        alone["model"]["load_cases"] = json!([request["model"]["load_cases"][0].clone()]);
+        let solved = serde_json::to_value(run_linear_static_preview_value_with_mode(alone, mode).unwrap()).unwrap();
+        assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{wire}");
+        assert_eq!(health(&solved, None)["cases"][0]["state"], "checks_passed", "{wire}: passes alone");
+        let blocked = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+        assert_eq!(blocked["status"]["mechanics"], "MODEL_INCOMPLETE", "{wire}");
+        let out = health(&blocked, None);
+        let by_id = |id: &str| out["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == id).unwrap().clone();
+        let main = as_main_showed(&blocked);
+        let main_by_id = |id: &str| main.as_array().unwrap().iter().find(|c| c["case_id"] == id).unwrap().clone();
+        let pass = by_id("case:pass");
+        assert_eq!(main_by_id("case:pass")["state"], "checks_passed", "{wire}: main showed it passing");
+        assert_eq!(pass["state"], "not_assessed", "{wire}");
+        assert!(pass["code"].is_null() && pass["rcond"].is_null(), "{wire}");
+        assert_eq!(pass["causes"], json!([]), "{wire}");
+        let fail = by_id(&failing_id);
+        assert_eq!(fail["state"], "quality_unresolved", "{wire}");
+        assert_eq!(fail, main_by_id(&failing_id), "{wire}: the failure as main showed it");
+    }
+}
+
 #[test]
 fn input_that_is_not_json_is_refused() {
     assert!(numerical_health_json("not json", None).is_err());
