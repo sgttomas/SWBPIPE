@@ -267,7 +267,9 @@ def inspect_directed_helpers(snapshot):
 # derived normal's publication; no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
 # DEL-04-01 VER-007: lib.rs re-read: line 10 also declares a #[cfg(test)] test module (no line moves); no
 # `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'b5555650788f788782d6f063ae7b789bc8850122d4363590dd6ee2788f9584b1'
+# DEL-04-07 REQ-008 part 1: lib.rs re-read: one test-module declaration folded onto an existing line (test-only);
+# no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'fd6fc92e3ff8be23d0d577b24355c9eba28c6e495f39c8dd60767c81e117125c'
 
 
 def _ce_fallback():

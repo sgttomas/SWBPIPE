@@ -169,7 +169,10 @@ struct CombinationHealth {
 /// gives `verdict_only = false`. The desktop's JSON-text entry is
 /// `operation_applier::numerical_health_json`.
 pub fn numerical_health_json(source: &Value, reader_findings: Option<&Value>) -> Result<String, String> {
-    serde_json::to_string(&numerical_health(source, reader_findings))
+    // DEL-07-05: the indicator's one gate, decided here, where every indicator
+    // caller enters (the desktop through `operation_applier::numerical_health_json`,
+    // in wasm and natively), before any message is read.
+    serde_json::to_string(&projection(source, reader_findings, true))
         .map_err(|error| format!("NUMERICAL_HEALTH_SERIALIZATION: {error}"))
 }
 
@@ -240,7 +243,68 @@ impl<'a> Diagnostics<'a> {
     }
 }
 
+/// The statuses a solved result envelope's `analysis_status` list may carry
+/// (results.v0.3 `AnalysisStatus`, less `MODEL_INCOMPLETE`).
+const SOLVED_LIST_STATUSES: [&str; 5] =
+    ["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED", "HUMAN_REVIEW_REQUIRED"];
+
+/// What the document's own status fields say about its mechanics: `None` when
+/// it carries neither `status` nor `analysis_status`; otherwise whether every
+/// field it carries says solved. The mechanics envelope's `status.mechanics`
+/// must be `MECHANICS_SOLVED`, and a result envelope's `analysis_status` list
+/// must name `MECHANICS_SOLVED` and carry nothing outside the solved vocabulary
+/// (an unsolved status, an unknown string or a non-string member is not
+/// solved). A blocked document, a malformed field, or two fields that disagree
+/// gives `Some(false)`.
+pub fn status_fields_say_solved(source: &Value) -> Option<bool> {
+    let (status, list) = (source.get("status"), source.get("analysis_status"));
+    if status.is_none() && list.is_none() {
+        return None;
+    }
+    Some(
+        status.is_none_or(|status| status["mechanics"] == "MECHANICS_SOLVED")
+            && list.is_none_or(|list| {
+                list.as_array().is_some_and(|list| {
+                    list.iter().any(|s| s == "MECHANICS_SOLVED")
+                        && list.iter().all(|s| s.as_str().is_some_and(|s| SOLVED_LIST_STATUSES.contains(&s)))
+                })
+            }),
+    )
+}
+
+/// Whether the document states its mechanics solved, for the indicator: its
+/// status fields, or, where it carries neither, the export-package exception
+/// (it states `package_status` and `package_id`, and is made only from a solved
+/// result); any other document carrying neither field is not solved.
+pub fn mechanics_solved(source: &Value) -> bool {
+    status_fields_say_solved(source).unwrap_or_else(|| source["package_status"].is_string() && source["package_id"].is_string())
+}
+
+/// The projection with no mechanics gate, for `historical_standing_record`
+/// (report_standing.rs) alone: every route to that record admits only a solved
+/// document first, and the record's own refusal of an unsolved one is the
+/// report unit's. The indicator never calls this; it enters through
+/// `numerical_health_json`, which applies `mechanics_solved`.
 pub(crate) fn numerical_health(source: &Value, reader_findings: Option<&Value>) -> Health {
+    projection(source, reader_findings, false)
+}
+
+/// The states the gate suppresses in a document whose mechanics are not solved:
+/// a verdict that could be read as fit for use. Every other state (solve failed,
+/// quality unresolved, not assessed) passes through unchanged, with its code and
+/// causes: what is preserved is the attempt's recorded diagnostic, as main showed
+/// it. That equality is compatibility, not a claim that the recorded
+/// classification holds for the supplied model (issue #343).
+const SUPPRESSED_WHEN_NOT_SOLVED: [&str; 2] = ["checks_passed", "sensitive"];
+
+/// The numerical health of `source`. With `gated`, in a document whose mechanics
+/// are not solved ([`mechanics_solved`]), a case in a
+/// [`SUPPRESSED_WHEN_NOT_SOLVED`] state is not assessed, with no figure, no
+/// cause and no code, decided before its message is read; every other case is
+/// as in a solved document.
+fn projection(source: &Value, reader_findings: Option<&Value>, gated: bool) -> Health {
+    let solved = mechanics_solved(source);
+    let suppress = gated && !solved;
     let route = route_of(source);
     let index = Diagnostics::new(source);
     let mut cases = Vec::new();
@@ -255,6 +319,7 @@ pub(crate) fn numerical_health(source: &Value, reader_findings: Option<&Value>) 
                 &index,
                 case_id,
                 state_of(entry["solve_quality"].as_str()),
+                suppress,
             ));
         }
     }
@@ -262,7 +327,7 @@ pub(crate) fn numerical_health(source: &Value, reader_findings: Option<&Value>) 
     // assessed.
     for case_id in named_load_cases(source) {
         if seen.insert(case_id.to_string()) {
-            cases.push(case_health(&index, case_id, "not_assessed"));
+            cases.push(case_health(&index, case_id, "not_assessed", suppress));
         }
     }
     let states: HashMap<&str, &'static str> = cases
@@ -329,12 +394,17 @@ fn named_load_cases(source: &Value) -> Vec<&str> {
         .collect()
 }
 
-fn case_health(index: &Diagnostics, case_id: &str, state: &'static str) -> CaseHealth {
+fn case_health(index: &Diagnostics, case_id: &str, state: &'static str, suppress: bool) -> CaseHealth {
+    // A passing or sensitive case of a document whose mechanics are not solved:
+    // not assessed, and its message is never read. Any other case keeps the
+    // attempt's recorded diagnostic unchanged.
+    let suppressed = suppress && SUPPRESSED_WHEN_NOT_SOLVED.contains(&state);
+    let state = if suppressed { "not_assessed" } else { state };
     let integrity = index.integrity(case_id);
     let code = integrity.and_then(|d| d["code"].as_str());
     let integrity_id = integrity.and_then(|d| d["id"].as_str()).map(String::from);
     let report = integrity
-        .filter(|_| matches!(code, Some(CHECKS_PASSED | SENSITIVE)))
+        .filter(|_| !suppressed && matches!(code, Some(CHECKS_PASSED | SENSITIVE)))
         .and_then(|d| d["message"].as_str())
         .and_then(|message| Report::parse(message, case_id));
     let linear = !index.nonlinear.contains(case_id) && report.as_ref().is_some_and(|r| r.linear);
@@ -401,10 +471,15 @@ fn case_health(index: &Diagnostics, case_id: &str, state: &'static str) -> CaseH
             locations: Vec::new(),
         });
     }
+    if suppressed {
+        causes.clear();
+    }
     CaseHealth {
         case_id: case_id.to_string(),
         state,
-        code: code.map(String::from),
+        // A case the gate made not assessed carries no integrity code: no reader of
+        // this record sees a passing code beside a not-assessed state.
+        code: code.filter(|_| !suppressed).map(String::from),
         integrity_diagnostic_id: integrity_id,
         rcond,
         // `0.0 -` keeps rcond = 1 at +0 (the display is the desktop's).
@@ -1200,13 +1275,165 @@ mod tests {
         json!({
             "numerical_quality": {"status": solve_quality, "cases": [{"basis_ref": {"ref_type": "load_case", "ref_id": case},
                 "solve_quality": solve_quality, "evidence_refs": [format!("{INTEGRITY_ID_PREFIX}{case}")]}]},
-            "diagnostics": diagnostics, "results": []
+            "diagnostics": diagnostics, "results": [], "status": {"mechanics": "MECHANICS_SOLVED"}
         })
+    }
+
+    /// DEL-07-05: in a document whose mechanics are not solved, here carrying a
+    /// passed integrity evaluation and a checks_passed quality (the blocked form
+    /// main's producer writes), the passing case is not assessed through the
+    /// indicator's entry, with no figure, no cause and no code, decided by its
+    /// status before any message is read (failures pass through: see
+    /// `a_failure_in_a_document_not_solved_keeps_its_state`). The same rule decides malformed and disagreeing status fields and
+    /// the export-package exception. The record's ungated projection is unchanged.
+    #[test]
+    fn a_document_not_solved_is_not_assessed_by_the_indicator() {
+        let report = message("a", "Passed", "0.5", ", residual_rows: ", MAP, "");
+        let base = envelope("a", "checks_passed", vec![integrity("a", CHECKS_PASSED, report)]);
+        // The control: solved, the same report gives its figure.
+        let solved = health(&base, None);
+        assert_eq!(solved["cases"][0]["state"], "checks_passed");
+        assert_eq!(solved["cases"][0]["rcond"], 0.5);
+        let mut blocked = base.clone();
+        blocked["status"] = json!({"mechanics": "MODEL_INCOMPLETE"});
+        let out = health(&blocked, None);
+        let case = &out["cases"][0];
+        assert_eq!(case["state"], "not_assessed");
+        assert!(case["rcond"].is_null() && case["digits"].is_null());
+        assert_eq!(case["causes"], json!([]));
+        assert!(case["code"].is_null(), "no passing code beside a not-assessed state");
+        assert_eq!(solved["cases"][0]["code"], CHECKS_PASSED);
+        assert_eq!(out["verdict_only"], false);
+        assert_eq!(status_fields_say_solved(&blocked), Some(false));
+        assert_eq!(status_fields_say_solved(&base), Some(true));
+        // The record's projection is not gated (its callers admit only solved documents).
+        assert_eq!(numerical_health(&blocked, None).cases[0].state, "checks_passed");
+        // A field that is present but does not say solved is not solved.
+        for (label, field, value) in [
+            ("list", "analysis_status", json!(["MODEL_INCOMPLETE"])),
+            ("empty list", "analysis_status", json!([])),
+            ("list of wrong type", "analysis_status", json!("MECHANICS_SOLVED")),
+            ("no mechanics", "status", json!({})),
+            ("mechanics of wrong type", "status", json!({"mechanics": ["MECHANICS_SOLVED"]})),
+        ] {
+            let mut source = base.clone();
+            source[field] = value;
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{label}");
+        }
+        let mut listed = base.clone();
+        listed["analysis_status"] = json!(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"]);
+        assert_eq!(health(&listed, None)["cases"][0]["state"], "checks_passed", "a solved list");
+        for (label, status, list) in [
+            ("status blocked, list solved", json!({"mechanics": "MODEL_INCOMPLETE"}), json!(["MECHANICS_SOLVED"])),
+            ("status solved, list blocked", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MODEL_INCOMPLETE"])),
+            ("status solved, list malformed", json!({"mechanics": "MECHANICS_SOLVED"}), json!("MECHANICS_SOLVED")),
+            ("list naming both", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", "MODEL_INCOMPLETE"])),
+            ("list with a null", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", null])),
+            ("list with an object", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", {}])),
+            ("list with a number", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", 1])),
+            ("list with an unknown status", json!({"mechanics": "MECHANICS_SOLVED"}), json!(["MECHANICS_SOLVED", "invented_status"])),
+        ] {
+            let mut source = base.clone();
+            source["status"] = status;
+            source["analysis_status"] = list;
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{label}");
+        }
+        // Neither field: not solved, unless an export package.
+        let mut bare = base.clone();
+        bare.as_object_mut().unwrap().remove("status");
+        assert_eq!(status_fields_say_solved(&bare), None);
+        assert_eq!(health(&bare, None)["cases"][0]["state"], "not_assessed", "no status, not a package");
+        for list in [
+            json!(["MECHANICS_SOLVED", null]),
+            json!(["MECHANICS_SOLVED", {}]),
+            json!(["MECHANICS_SOLVED", 1]),
+            json!(["MECHANICS_SOLVED", "invented_status"]),
+        ] {
+            let mut source = bare.clone();
+            source["analysis_status"] = list.clone();
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{list}");
+        }
+        // A valid list alone suffices; repeated entries and USER_RULE_FAILED are
+        // permitted in it.
+        for list in [
+            json!(["MECHANICS_SOLVED"]),
+            json!(["MECHANICS_SOLVED", "MECHANICS_SOLVED", "USER_RULE_CHECKED", "USER_RULE_CHECKED"]),
+            json!(["MECHANICS_SOLVED", "USER_RULE_FAILED"]),
+        ] {
+            let mut source = bare.clone();
+            source["analysis_status"] = list.clone();
+            assert_eq!(health(&source, None)["cases"][0]["state"], "checks_passed", "a list alone: {list}");
+        }
+        // A mechanics token other than MECHANICS_SOLVED is not solved, a rule-status
+        // word among them (it belongs to the list's vocabulary, not to this field).
+        for token in ["USER_RULE_FAILED", "BLOCKED_custom", "blocked by custom: rule / 1", "mechanics_solved"] {
+            let mut source = base.clone();
+            source["status"] = json!({"mechanics": token});
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "mechanics {token}");
+        }
+        // The package fields must both be strings, and only when both status fields
+        // are absent: a null or malformed status counts as present.
+        for (label, status_status, status_id) in [("package_status a number", json!(1), json!("package:test")), ("package_id null", json!("complete"), Value::Null)] {
+            let mut source = bare.clone();
+            source["package_status"] = status_status;
+            source["package_id"] = status_id;
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "{label}");
+        }
+        for status in [Value::Null, json!("MECHANICS_SOLVED"), json!({})] {
+            let mut source = bare.clone();
+            source["status"] = status.clone();
+            source["package_status"] = json!("complete");
+            source["package_id"] = json!("package:test");
+            assert_eq!(health(&source, None)["cases"][0]["state"], "not_assessed", "a present status {status} blocks the package exception");
+        }
+        let mut package = bare.clone();
+        package["package_status"] = json!("complete");
+        assert_eq!(health(&package, None)["cases"][0]["state"], "not_assessed", "package_status alone");
+        package["package_id"] = json!("package:test");
+        assert_eq!(health(&package, None)["cases"][0]["state"], "checks_passed", "an export package");
     }
 
     fn health(source: &Value, findings: Option<&str>) -> Value {
         let findings: Option<Value> = findings.map(|text| serde_json::from_str(text).unwrap()).filter(|v: &Value| !v.is_null());
         serde_json::from_str(&numerical_health_json(source, findings.as_ref()).unwrap()).unwrap()
+    }
+
+    /// DEL-07-05: in a document whose mechanics are not solved, only a passing or
+    /// sensitive case is suppressed; a failure, and a case not assessed, keeps its
+    /// state, causes and code exactly as in the same document stated solved.
+    #[test]
+    fn a_failure_in_a_document_not_solved_keeps_its_state() {
+        let failures = [
+            (PHYSICAL_MECHANISM, "failed", "solve_failed"),
+            (NEGATIVE_ENERGY, "failed", "solve_failed"),
+            ("NUMERICAL_INTEGRITY_FAILED", "failed", "solve_failed"),
+            (RECOVERY_BASIS_UNQUALIFIED, "unresolved", "quality_unresolved"),
+            ("NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED", "unresolved", "quality_unresolved"),
+            ("NUMERICAL_INTEGRITY_UNRESOLVED", "unresolved", "quality_unresolved"),
+        ];
+        for (code, quality, state) in failures {
+            let solved = envelope("a", quality, vec![integrity("a", code, format!("Load case a: {code} evidence"))]);
+            let mut blocked = solved.clone();
+            blocked["status"] = json!({"mechanics": "MODEL_INCOMPLETE"});
+            let (s, b) = (health(&solved, None), health(&blocked, None));
+            assert_eq!(b["cases"][0]["state"], state, "{code}");
+            assert_eq!(b["cases"][0]["code"], code, "{code}");
+            assert_eq!(b["cases"], s["cases"], "{code}: as in the document stated solved");
+        }
+        // Not assessed passes through too: a case with no evaluation.
+        let solved = envelope("a", "not_assessed", vec![]);
+        let mut blocked = solved.clone();
+        blocked["status"] = json!({"mechanics": "MODEL_INCOMPLETE"});
+        assert_eq!(health(&blocked, None)["cases"], health(&solved, None)["cases"]);
+        // Sensitive is suppressed, with its causes and code.
+        let report = message("a", "Sensitive", "1e-9", ", residual_rows: ", MAP, "");
+        let mut sensitive = envelope("a", "sensitive", vec![integrity("a", SENSITIVE, report)]);
+        assert_eq!(health(&sensitive, None)["cases"][0]["state"], "sensitive");
+        sensitive["status"] = json!({"mechanics": "MODEL_INCOMPLETE"});
+        let case = &health(&sensitive, None)["cases"][0];
+        assert_eq!(case["state"], "not_assessed");
+        assert!(case["code"].is_null() && case["rcond"].is_null());
+        assert_eq!(case["causes"], json!([]));
     }
 
     fn one_case(case: &str, code: &str, solve_quality: &str, message: String) -> Value {
@@ -1770,6 +1997,7 @@ mod tests {
     #[test]
     fn combinations_inherit_the_worst_badge_of_their_cases() {
         let source = json!({
+            "status": {"mechanics": "MECHANICS_SOLVED"},
             "numerical_quality": {"status": "sensitive", "cases": [
                 {"basis_ref": {"ref_type": "load_case", "ref_id": "a"}, "solve_quality": "checks_passed"},
                 {"basis_ref": {"ref_type": "load_case", "ref_id": "b"}, "solve_quality": "sensitive"}]},
@@ -1826,7 +2054,7 @@ mod tests {
             };
             chain.push(json!({"id": format!("c{i}"), "basis_ref": {"ref_type": "combination", "ref_id": "combination:chain"}, "source_result_refs": [next]}));
         }
-        let long = json!({"numerical_quality": {"cases": [{"basis_ref": {"ref_type": "load_case", "ref_id": "a"}, "solve_quality": "checks_passed"}]},
+        let long = json!({"status": {"mechanics": "MECHANICS_SOLVED"}, "numerical_quality": {"cases": [{"basis_ref": {"ref_type": "load_case", "ref_id": "a"}, "solve_quality": "checks_passed"}]},
             "diagnostics": [], "results": chain});
         assert_eq!(
             health(&long, None)["combinations"][0]["state"],

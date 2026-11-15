@@ -1000,6 +1000,8 @@
       const plan = await call("native_smoke_plan");
       runId = plan.run_id;
       report.run_id = plan.run_id;
+      // The runner's nonce for this run, handed back so that it can tell this run's report from any other.
+      report.nonce = plan.nonce ?? null;
       report.time_origin_ms = performance.timeOrigin;
       await waitFor("app shell", () => byTestId("desktop-preview-shell"), plan.timeouts.start_ms);
       report.shell_ready_ms = now();

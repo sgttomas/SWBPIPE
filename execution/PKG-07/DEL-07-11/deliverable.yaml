@@ -119,6 +119,10 @@ checks:
 - apps/desktop/native-smoke/engine-stamp.test.mjs
 - apps/desktop/native-smoke/app-binding.test.mjs
 - apps/desktop/native-smoke/launch-env.test.mjs
+- apps/desktop/native-smoke/launch-outcome.test.mjs
+- apps/desktop/native-smoke/judged-launch.test.mjs
+- apps/desktop/native-smoke/judged-launch-stop.test.mjs
+- apps/desktop/native-smoke/mbf-journey-judge.test.mjs
 - apps/desktop/scripts/build-wasm-engine.test.mjs
 - apps/desktop/scripts/worktreeBuildLock.test.mjs
 - apps/desktop/src/services/previewService.test.ts

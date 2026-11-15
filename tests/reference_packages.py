@@ -373,6 +373,13 @@ PACKAGES: dict[str, Package] = {
     "exact_load_state_equivalent_static": _plain("exact_load_state_reference.py", deliverables="DEL-05-01"),
     "friction_one_way_normal": _plain("friction_one_way_normal_reference.py", deliverables="DEL-04-04"),
     "inverse_norm_witness": _plain("inverse_norm_witness_reference.py", deliverables="DEL-04-01"),
+    "modal_timoshenko_mass": Package(
+        "DEL-04-09",
+        Membership("README file table: SHA256SUMS lists every other file of the package (the frozen statement and "
+                   "addendum, the source-blind generator, its README and its two outputs); the generator writes "
+                   "only its two outputs"),
+        sums=(Sums("SHA256SUMS"),),
+        checks=(Check(("generator.py",)),)),
     "hydrostatic_test": _plain("hydrostatic_test_reference.py", deliverables="DEL-05-01"),
     "reference_system_pending_cases": _plain(
         "rs_pending_reference.py", deliverables="DEL-09-01"),

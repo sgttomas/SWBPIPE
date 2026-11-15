@@ -1885,7 +1885,7 @@ def _restore_recent_files(config: HarnessConfig, step: Callable[[str, str], dict
         within(name)
         return write(name, command, deadline=deadline)
 
-    def check(name: str, caller: Callable[..., dict[str, Any]] | None = None) -> None:
+    def refuse_foreign_instance(name: str, caller: Callable[..., dict[str, Any]] | None = None) -> None:
         # Not `_precondition`: an exception here must reach the failure path unchanged, not become a finding.
         found = _tool_processes(config, caller or step, name)
         if found is None:
@@ -1915,7 +1915,7 @@ def _restore_recent_files(config: HarnessConfig, step: Callable[[str, str], dict
         if state.get("primary_error") is first:  # a timeout the write recorded: not yet the restore's error
             del state["primary_error"]
         logged["attempt_log"] = [{"attempt": 1, "outcome": "unknown", "error": f"{type(first).__name__}: {first}"}]
-        check(f"restore_check_before_retry_{number}", budgeted_step)
+        refuse_foreign_instance(f"restore_check_before_retry_{number}", budgeted_step)
         within(f"settings_readback_{number}")
         if entry["action"] == "delete_key":
             state_found, found = _read_subtree(budgeted_step, f"settings_readback_{number}", entry["key"])
@@ -1954,7 +1954,7 @@ def _restore_recent_files(config: HarnessConfig, step: Callable[[str, str], dict
                 deadline = time.monotonic() + guard.section_budget_s
                 state["section_budget_s"] = guard.section_budget_s
                 for number, entry in enumerate(plan, 1):
-                    check(f"restore_check_before_write_{number}", budgeted_step)
+                    refuse_foreign_instance(f"restore_check_before_write_{number}", budgeted_step)
                     logged = {key: entry[key] for key in ("value", "key", "action", "restores", "replaces")
                               if key in entry} | {
                         "attempts": 1, "outcome": "issued", "completed": False}
@@ -1969,7 +1969,7 @@ def _restore_recent_files(config: HarnessConfig, step: Callable[[str, str], dict
                         logged["outcome"] = _write_outcome(error)
                         raise
                     logged["outcome"], logged["completed"] = "completed", True
-                check("restore_check_after_writes", budgeted_step)
+                refuse_foreign_instance("restore_check_after_writes", budgeted_step)
                 within("settings_verify")
                 third = _settings_snapshot(config, budgeted_step, "settings_verify")
         finally:
@@ -1986,7 +1986,7 @@ def _restore_recent_files(config: HarnessConfig, step: Callable[[str, str], dict
                 reason = "the reading after the restore does not equal the reading before the run"
                 state["remaining_differences"] = remaining
         if reason is None:
-            check("restore_check_before_success")
+            refuse_foreign_instance("restore_check_before_success")
             done = {"status": "settings_restored" if guard.restores_whole_key else "recent_files_restored",
                     "write_log": log, "restored_values": len(plan)}
             for key in ("signal_deferral", "deferred_signals", "failed_write_stderr"):

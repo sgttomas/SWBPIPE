@@ -68,7 +68,7 @@ mod op1a_seed_tests;
 #[cfg(test)]
 mod w16_nonlinear_motion_tests;
 #[cfg(test)]
-mod rt_a3_s6_tests;
+mod rt_a3_s6_tests; #[cfg(all(test, not(debug_assertions)))] mod sparse_loop_memory_tests; // DEL-04-07 REQ-008 part 1: the sparse loop's heap on the product's own input (release test builds only), on this line so that no line moves.
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};

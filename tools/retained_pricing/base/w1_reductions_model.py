@@ -113,7 +113,9 @@ REDUCED_PINS = {
     # derived normal's publication, inside the loops over nonlinear supports; no reduction's owner or lifetime changes.
     # DEL-04-01 VER-007: lib.rs re-read: line 10 also declares a #[cfg(test)] test module (no line moves); no
     # reduction's owner or lifetime changes; the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "b5555650788f788782d6f063ae7b789bc8850122d4363590dd6ee2788f9584b1",
+    # DEL-04-07 REQ-008 part 1: lib.rs re-read: one test-module declaration (`sparse_loop_memory_tests`, release test
+    # builds only) folded onto an existing line; no reduction's owner or lifetime changes, the L5 texts are unchanged.
+    "core/product_physics/src/lib.rs": "fd6fc92e3ff8be23d0d577b24355c9eba28c6e495f39c8dd60767c81e117125c",
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",
