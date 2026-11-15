@@ -37,6 +37,23 @@ needs:
     nonlinear members, and a spring hanger's cold, installed, hot and constant loads, travel range
     and references; a change to them goes through the one operation route. Sizing adds no member.
   gating: true
+- from: DEL-07-11
+  when: Applying a sized selection
+  condition: >-
+    The session keeps a precondition beside a queued batch and outside it, checks it when the person
+    applies the batch and applies nothing on a refusal, and refuses to register a requeued stored
+    record or an imported batch that writes a support's hanger selection (DEL-07-11/REQ-002), so
+    that a sized selection is applied only while the stored library is the one its sizing result
+    binds.
+  gating: true
+- from: DEL-02-01
+  when: Admitting a requeued or imported sized selection instead of refusing it
+  condition: >-
+    The model document's provenance record has structured members for the sizing request's digest
+    and the library's hash of an applied sized selection, so that a requeued or imported batch can
+    be recognized as a sized selection from those members and guarded by its precondition. Not
+    provided today; until it is, every requeued or imported hanger write is refused.
+  gating: false
 - from: DEL-03-02
   condition: >-
     The hanger library schema admits format 1.1.0, in which a record may carry a working load range
@@ -123,7 +140,10 @@ code_paths:
 - apps/desktop/src-tauri/src/hanger_sizing_job_tests.rs
 - apps/desktop/src/services/hangerSizingService*
 - apps/desktop/src/features/hanger-sizing/**
-- apps/desktop/src/App.hangerSizing.test.tsx
+- apps/desktop/src/features/hanger-selection/hangerSelection.ts
+- apps/desktop/src/features/workspace/batchPrecondition.*.test.ts*
+- apps/desktop/src/features/hanger-selection/hangerSelection.*.test.ts*
+- apps/desktop/src/App.hangerSizing*.test.tsx
 checks:
 - core/analysis/hanger_sizing/tests/*.rs
 - tests/test_hanger_sizing_*.py
@@ -132,4 +152,7 @@ checks:
 - apps/desktop/src/features/results/hangerSizing*.test.ts
 - apps/desktop/src-tauri/src/hanger_sizing_job_tests.rs
 - apps/desktop/src/services/hangerSizingService.test.ts
-- apps/desktop/src/App.hangerSizing.test.tsx
+- apps/desktop/src/features/hanger-sizing/*.test.ts*
+- apps/desktop/src/features/hanger-selection/hangerSelection.*.test.ts*
+- apps/desktop/src/features/workspace/batchPrecondition.*.test.ts*
+- apps/desktop/src/App.hangerSizing*.test.tsx
