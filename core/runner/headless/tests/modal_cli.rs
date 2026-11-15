@@ -128,13 +128,15 @@ fn a_solved_request_is_the_entrys_document_and_the_reader_reads_it_with_the_boun
         assert_eq!((code, &outcome["ok"]), (0, &json!(true)), "{stem}: {verdict}");
         assert_ne!(verdict["decision"], "rejected", "{stem}");
         assert_eq!(verdict["binding"]["status"], "passed", "{stem}: {verdict}");
+        assert_eq!(verdict["binding"]["not_checked"], json!([]), "{stem}: {verdict}");
         assert_eq!(verdict["public_admission"]["status"], "disabled", "{stem}");
-        // Without the request the reader still reads it, scoped: the binding and the
-        // model-derived mass are not checked, so it is not fully validated.
+        // Without the request the reader still reads it, scoped: the document's own
+        // binding relations pass, the request is reported not checked, and the
+        // model-derived mass is not derived, so it is not fully validated.
         let (code, outcome) = read_cli(document, None);
         assert_eq!(code, 0, "{stem}");
         assert_eq!(outcome["verdict"]["validation"]["status"], "not_fully_validated", "{stem}");
-        assert_ne!(outcome["verdict"]["binding"]["status"], "passed", "{stem}");
+        assert_eq!(outcome["verdict"]["binding"]["not_checked"], json!(["request"]), "{stem}");
     }
 }
 

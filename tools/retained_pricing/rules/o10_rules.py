@@ -4686,8 +4686,11 @@ if fnkey("plan", _S2_RES):
     ]
 
 # §8.43 (DEL-04-09 I2a): the product modal module (core/product_physics/src/modal.rs and modal/) is reached from no
-# retained root: no lib.rs function calls into it and no modal node is reachable on the run's graph. Two whole-crate
-# gates still read it, by the existing method (no exclusion, no method change):
+# retained root: no modal node is reachable on the run's graph. Since M4 one lib.rs function calls into it, the public
+# experimental entry modal_experimental_result_document, which no priced source calls (the headless runner, outside the
+# priced crates, is its only caller), so the name-resolved graph reaches neither it nor modal from a retained root
+# (tests/test_dynamics_i2a_d3.py). Two whole-crate gates still read it, by the existing method (no exclusion, no
+# method change):
 _MODAL = PP_ + "modal/"
 if fnkey("prepare_modal", _MODAL + "prepare.rs"):
     import hashlib as _modal_hashlib
