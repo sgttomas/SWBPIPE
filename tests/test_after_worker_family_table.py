@@ -95,6 +95,77 @@ def test_a_changed_anchor_fails_and_names_its_row(copy: Path):
     assert all("the solver mode" in line or "family-table.md" in line for line in found), stderr
 
 
+BYTES = "bytesInvoke (the byte responses' delivery guard: bytes or text)"
+CACHE = "cached (the reading cache)"
+READERS = "validateNativeReaders"
+GATE = "nativeRegistrationHolds (gate 1, through hasNativeMechanicsInvocation)"
+CAPTURE = "captureNativeInvocation (the fresh capture)"
+ORDER = "readNativeFreshResult (its order of reads)"
+KEYS = "readNativeVerdict and readNativeSummary (their cache keys)"
+GATES = "the session gates 1 and 2"
+PAGE = "the panel's first page and the empty-page re-read"
+TABLE = "the semantics' recorded-table agreement"
+# Each source a restated row's claim relies on beyond its own passage, mutated: (file, old, new, the rows it must name).
+COVERED = [
+    (family.NATIVE_RESULT, "  return transport(command, args);", "  return transport(command, { ...args });", {BYTES}),
+    (family.NATIVE_RESULT, "  if (existing) return existing as Promise<T>;\n", "", {CACHE}),
+    (family.NATIVE_RESULT, "  if (job.disposed) throw new Error(`${NATIVE_RESULT_DISPOSED}: ${jobId}'s native custody has ended.`);",
+     "  if (job.disposed && false) throw new Error(`${NATIVE_RESULT_DISPOSED}: ${jobId}'s native custody has ended.`);", {CACHE}),
+    (family.NATIVE_RESULT, "    job = { disposed: false, readings: new Map(), fullCopy: null };",
+     "    job = { disposed: false, readings: new Map<string, Promise<unknown>>(), fullCopy: null };", {CACHE}),
+    # readNativeValidation lies inside the cache keys' passage as well.
+    (family.NATIVE_RESULT, 'return cached(jobId, keyOf("validate", reader', 'return cached(jobId, keyOf("validation", reader', {READERS, KEYS}),
+    (family.PREVIEW, "  if (!source || !model) return false;", "  if (!source || !model || !solverMode) return false;", {GATE}),
+    (family.NATIVE_RESULT, "NATIVE in (value as object)", "NATIVE in Object(value)", {GATE}),
+    (family.PREVIEW, "const capture = captureNativeInvocation(model, solverMode);",
+     "const capture = captureNativeInvocation(structuredClone(model), solverMode);", {CAPTURE}),
+    (family.PREVIEW, "if (capture) jobInvocations.set(receipt.job_id, capture);",
+     "if (capture) jobInvocations.set(String(receipt.job_id), capture);", {CAPTURE}),
+    (family.NATIVE_RESULT, 'operation:"route_header"', 'operation:"route_header", raw: false', {ORDER}),
+    (family.PREVIEW, "  return presentedStanding(await readNativeVerdict(jobId, inputs));",
+     "  return presentedStanding(await readNativeVerdict(jobId, { ...inputs, invocationText: null }));", {ORDER}),
+    (family.PREVIEW, "return { contract: standing.route, status: standing.status, eligible: standing.eligible",
+     "return { contract: standing.route, status: standing.status, eligible: !!standing.eligible", {ORDER}),
+    (family.NATIVE_RESULT, "limit: number, raw = false)", "limit: number, raw = true)", {ORDER}),
+    (family.SESSION, "readNativeRunPreview(nativeCustody(output).jobId, {", "readNativeRunPreview(nativeCustody(output).jobId, { ", {GATES}),
+    (family.PANEL, "const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);",
+     "const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE * 2);", {PAGE}),
+    (family.NATIVE_RESULT, "  return page(jobId, () => queryResultRows(detailInvoke, jobId, filter, offset, limit));",
+     "  return page(jobId, () => queryResultRows(detailInvoke, jobId, filter, offset, limit + 1));", {PAGE}),
+    ("features/results/ResultsPanel.tsx", 'export const ALL_FRAMES = "all";', 'export const ALL_FRAMES = "any";', {PAGE}),
+    ("features/results/resultsNavigator.ts", 'export const ALL_CASES = "all";', 'export const ALL_CASES = "any";', {PAGE}),
+    (family.PANEL, "  recordedTableRead = null\n", "  recordedTableRead = undefined\n", {TABLE}),
+    ("features/results/resultReader.ts", "return (a ?? null) === null ? (b ?? null) === null :", "return (a ?? null) === null ? true :", {TABLE}),
+    (family.NATIVE_RESULT, "  return page(jobId, () => readResultRowSemantics(detailInvoke, jobId, ordinals));",
+     "  return page(jobId, () => readResultRowSemantics(detailInvoke, jobId, [...ordinals]));", {TABLE}),
+]
+
+
+@pytest.mark.parametrize("rel, old, new, rows", COVERED, ids=[f"{c[0].rsplit('/', 1)[-1]}:{i}" for i, c in enumerate(COVERED)])
+def test_a_changed_covered_source_fails_and_names_its_rows(copy: Path, rel, old, new, rows):
+    """A source a restated row's claim relies on, changed while the row's own passage is not: the check fails
+    and names exactly the rows that cover it (the table may also differ, when an anchor moved)."""
+    edit(copy, rel, old, new)
+    code, stderr = run(copy)
+    assert code == 1
+    found = [line for line in mismatches(stderr) if "family-table.md" not in line]
+    named = {r["predicate"] for r in family.ROWS if any(line.startswith(f"MISMATCH: {r['predicate']}: ") for line in found)}
+    assert named == rows and len(found) == len(rows), stderr
+
+
+def test_an_inline_row_whose_name_the_judge_imports_fails_and_names_its_row(copy: Path):
+    """An inline restated row that names a web declaration: the judge importing it fails, naming the row."""
+    path = copy / JUDGE
+    text = path.read_text(encoding="utf-8")
+    old = 'import { createNativeResult, decodeNativeRouteHeader,'
+    assert text.count(old) == 1
+    path.write_text(text.replace(old, 'import { createNativeResult, readNativeVerdict, decodeNativeRouteHeader,'), encoding="utf-8")
+    code, stderr = run(copy)
+    assert code == 1
+    assert mismatches(stderr) == ["MISMATCH: readNativeVerdict and readNativeSummary (their cache keys): the row says "
+                                  "readNativeVerdict is restated, but the judge imports it"], stderr
+
+
 def test_lines_inserted_above_the_cited_passages_pass(copy: Path):
     """A line shift alone: lines at the top of every cited file and directly above every cited passage that
     does not lie inside another (a line inserted there is a change to the outer passage's text)."""
@@ -111,6 +182,10 @@ def test_lines_inserted_above_the_cited_passages_pass(copy: Path):
             continue
         assert span is not None and span[0] is not None, check.problems
         spans.setdefault(r["rel"], []).append(span)
+        for spec in r["also"]:
+            widening = check.passage(r["predicate"], spec["rel"], spec)
+            assert widening is not None, check.problems
+            spans.setdefault(spec["rel"], []).append(widening)
     inserted = 0
     for rel in family.cited_files():
         path = copy / WEB / rel
@@ -144,7 +219,7 @@ def test_the_registered_selection_covers_every_cited_file():
     assert len(rules) == 1
     paths = set(rules[0]["paths"])
     digests = json.loads(family.DIGESTS.read_text(encoding="utf-8"))
-    from_digests = {f"{WEB}/{entry['source'].split(':', 1)[0]}" for entry in digests.values()}
+    from_digests = {f"{WEB}/{part.split(':', 1)[0]}" for entry in digests.values() for part in entry["source"].split("; with ")}
     assert from_digests <= set(CITED)
     assert set(CITED) <= paths
     assert {"tools/after_worker_family/**", "apps/desktop/src/test-support/after-worker/**",

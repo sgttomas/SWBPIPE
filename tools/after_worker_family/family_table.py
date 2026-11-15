@@ -13,24 +13,30 @@ the judge uses it. Every row is found by text, never by line number:
 - an inline row (a passage, not a declaration) by its start: a text found exactly once in the cited file,
   or a declaration's name; its end is that same line, a declaration's end, the end of the brace block
   opened at a stated text, or the first later line holding a stated text. A row may also name a mark,
-  which must occur exactly once inside the passage.
+  which must occur exactly once inside the passage;
+- a restated row's widening: a restated row may widen its cited text with further passages ("with ..."),
+  each found the same way, in the same file or another: each source whose ordinary edit could make the
+  row's claim false while the row's own passage stays unchanged (README.md).
 
 For each row it asserts:
 - an "imported" row: the source exports the name, and the judge imports it from that module;
 - a "restated" row: the judge does not import the name and names it, and the row's claim about export
-  ("not exported", or "exported; ...") agrees with the source;
+  ("not exported", or "exported; ...") agrees with the source; an inline restated row makes the same three
+  assertions for each web declaration it names (an inline row that names none has its anchors and its digest
+  only);
 - a "run inside" row: the named imported function calls it at least once, and the judge does not import
   it directly;
 - an "inline inside" row: its anchor lies inside the named imported function's declaration.
 It also asserts that every web name the judge imports has a row (types listed apart).
 
 For every RESTATED row it takes the SHA-256 of the cited text (the passage's whole lines joined with
-newlines) and compares it with the digest recorded for that row; a changed text fails and names the row
+newlines, then each widening passage's, each after a newline) and compares it with the digest recorded for that row; a changed text fails and names the row
 whose restatement must be re-read. A line shift elsewhere in a cited file changes neither the table nor any
 digest.
 
-The check gives traceability; it does not show that the judge equals the web, or that the table is
-complete: a predicate the judge neither imports nor names in a row is not found by it.
+The check traces the committed table to the sources it cites and prompts re-examination when they change.
+It does not prove that the judge is semantically equivalent to the web, and it does not discover every
+predicate the table omits.
 
 Usage (exit 0 on success, 1 on any mismatch, each one printed; 2 on a usage error):
   python3 -I tools/after_worker_family/family_table.py <repository root>            check the committed files
@@ -69,13 +75,20 @@ SESSION = W + 'workspaceSession.ts'
 PANEL = R + 'NativeResultsPanel.tsx'
 
 
-def row(predicate, rel, kind, claim='', difference='equal', passage=None):
+def row(predicate, rel, kind, claim='', difference='equal', passage=None, also=(), names=()):
     """One row. kind: imported | restated | inside:<imported function> | inline | inline-inside:<imported function>.
 
     passage (inline rows): {'from': text | 'decl:<name>', 'to': None | 'end:<name>' | 'block' | 'block:<text>'
-    | 'line:<text>', 'mark': text | None}; an inline-inside row gives only 'from', its anchor."""
+    | 'line:<text>', 'mark': text | None}; an inline-inside row gives only 'from', its anchor.
+    also (restated rows): widening passages, each a passage with its own 'rel'; `decl(rel, name)` is one
+    declaration. names (inline restated rows): the web declarations in `rel` the row names."""
     return {'predicate': predicate, 'rel': rel, 'kind': kind, 'claim': claim, 'difference': difference,
-            'passage': passage}
+            'passage': passage, 'also': list(also), 'names': list(names)}
+
+
+def decl(rel, name):
+    """A widening passage that is one whole declaration."""
+    return {'rel': rel, 'from': f'decl:{name}', 'to': f'end:{name}', 'mark': None}
 
 
 ROWS = [
@@ -100,11 +113,12 @@ ROWS = [
     row("plain (the header's delivery guard: a parsed object only)", NATIVE_RESULT, 'inside:decodeNativeRouteHeader'),
     row("plain (the registration's delivery guard)", NATIVE_RESULT, 'inside:decodeNativeValidation'),
     row("plain (the standing's and dispatch's delivery guard)", NATIVE_RESULT, 'inside:decodeNativeVerdict'),
-    row("bytesInvoke (the byte responses' delivery guard: bytes or text)", NATIVE_RESULT, 'restated', 'not exported'),
+    row("bytesInvoke (the byte responses' delivery guard: bytes or text)", NATIVE_RESULT, 'restated', 'not exported',
+        also=[decl(NATIVE_RESULT, 'send')]),
     row("readNativeSummary's text refusal", NATIVE_RESULT, 'inline',
         'exported; it sends a native call through the module transport, so its guard is restated',
         passage={'from': 'if (typeof delivered === "string") throw new Error("RESULT-SUMMARY-MALFORMED', 'to': None,
-                 'mark': None}),
+                 'mark': None}, names=['readNativeSummary']),
     row("readAnalysisRunPreview's text refusal", S + 'analysisRunPreview.ts', 'inline-inside:readAnalysisRunPreview',
         passage={'from': 'if (typeof response === "string") fail("a text response where bytes were expected");'}),
     row("binary (rows_page's text refusal)", S + 'resultDetail.ts', 'inside:queryResultRows'),
@@ -131,25 +145,37 @@ ROWS = [
         'equal, except its first line (CAPTURE_UNAVAILABLE), which a fresh solve with its capture cannot reach'),
     row('keyOf (the reading cache key)', NATIVE_RESULT, 'restated', 'not exported',
         'equal; with `cached` (not exported), a key read before makes no native call'),
+    row('cached (the reading cache)', NATIVE_RESULT, 'restated', 'not exported',
+        'equal: a key read before makes no native call',
+        also=[decl(NATIVE_RESULT, 'live'), decl(NATIVE_RESULT, 'entries')]),
     row('validateNativeReaders', PREVIEW, 'restated', 'not exported',
         'reader by route, texts, the normalization pre-check and the empty-code branch (a refusal counts only with a '
         'code) equal; the fingerprint, CAPTURE_MISMATCH and CHANGED_DURING_VALIDATION checks are in-memory and carried '
-        'by no reply; a decode failure fails the judge (stricter)'),
+        'by no reply; a decode failure fails the judge (stricter)',
+        also=[decl(NATIVE_RESULT, 'readNativeValidation')]),
     row('nativeRegistrationHolds (gate 1, through hasNativeMechanicsInvocation)', PREVIEW, 'restated', 'not exported',
         'restated as "nothing refused the registration", its one reply-borne condition; the others are in-memory '
-        'state of a fresh solve'),
+        'state of a fresh solve',
+        also=[decl(PREVIEW, 'hasNativeMechanicsInvocation'), decl(NATIVE_RESULT, 'isNativeResult')]),
     row('captureNativeInvocation (the fresh capture)', PREVIEW, 'restated', 'not exported',
-        'equal: the same invocation text and caller model; its fingerprints are read by no predicate the judge applies'),
+        'equal: the same invocation text and caller model; its fingerprints are read by no predicate the judge applies',
+        also=[{'rel': PREVIEW, 'from': 'const capture = captureNativeInvocation(model, solverMode);', 'to': None, 'mark': None},
+              {'rel': PREVIEW, 'from': 'if (capture) jobInvocations.set(receipt.job_id, capture);', 'to': None, 'mark': None}]),
     row('readNativeFreshResult (its order of reads)', PREVIEW, 'restated',
-        'exported; it sends native calls, so the judge restates its order over kept replies'),
+        'exported; it sends native calls, so the judge restates its order over kept replies',
+        also=[decl(NATIVE_RESULT, 'readNativeRouteHeader'), decl(PREVIEW, 'readNativeStanding'),
+              decl(PREVIEW, 'presentedStanding'), decl(NATIVE_RESULT, 'queryNativeRecovery')]),
     row('readNativeVerdict and readNativeSummary (their cache keys)', NATIVE_RESULT, 'inline',
         'exported; they send native calls, so the judge restates their keys',
         passage={'from': 'decl:readNativeVerdict', 'to': 'end:readNativeSummary',
-                 'mark': 'keyOf("summary", modelText, JSON.stringify(standingArg))'}),
+                 'mark': 'keyOf("summary", modelText, JSON.stringify(standingArg))'},
+        names=['readNativeVerdict', 'readNativeSummary']),
     row('the session gates 1 and 2', SESSION, 'inline', 'inline in the session',
         "equal, applied in the web's order before the manifest and run_preview",
         passage={'from': 'if (!hasNativeMechanicsInvocation(output, solveModel, solverMode)) {',
-                 'to': 'block:if (!hasCurrentSourceContract(output) || !output.producer) {', 'mark': None}),
+                 'to': 'block:if (!hasCurrentSourceContract(output) || !output.producer) {', 'mark': None},
+        also=[{'rel': SESSION, 'from': 'const runRecord = createNativeAnalysisRun(await traceNativeReaderAwait("run_preview"',
+               'to': 'line:})));', 'mark': None}]),
     row("the session's manifest arguments", SESSION, 'inline', 'inline in the session',
         "equal for a model without rule-pack references (NO_RULE_PACK_RESOLUTION); the judge refuses a model with them",
         passage={'from': 'const rulePacks = solveModel.rule_pack_refs?.length',
@@ -166,20 +192,29 @@ ROWS = [
     row('the solver mode', W + 'resultsSessionState.ts', 'inline', 'an inline useState default, not a constant',
         passage={'from': 'useState<PreviewSolverMode>("sparse_interactive")', 'to': None, 'mark': None}),
     row("the panel's first page and the empty-page re-read", PANEL, 'inline', 'inline in the panel',
-        'first page and its semantics equal; an empty page with rows remaining (the re-read) is refused (stricter)',
+        'the first page under the panel\'s initial filters (no view request) and its semantics equal; an empty page '
+        'with rows remaining (the re-read) is refused (stricter)',
         passage={'from': 'let read = await queryNativeRows(result, filter, pageIndex * pageSize, pageSize);',
                  'to': 'line:const outcomes = read.rows.length ? await semanticsOf(',
-                 'mark': 'if (read.rows.length === 0 && read.total > 0) {'}),
+                 'mark': 'if (read.rows.length === 0 && read.total > 0) {'},
+        also=[{'rel': PANEL, 'from': 'const [filterText, setFilterText] = useState("");',
+               'to': 'line:}), [filterText, familyFilter, activeFrame, activeCase, kindFilter, selectionOnly, selectionEntityId]);',
+               'mark': None},
+              decl(NATIVE_RESULT, 'queryNativeRows'), decl(R + 'ResultsPanel.tsx', 'ALL_FRAMES'),
+              decl(R + 'resultsNavigator.ts', 'ALL_CASES')]),
     row("the semantics' recorded-table agreement", PANEL, 'inline', 'inline in the panel',
-        'equal: a fresh handle has no recorded table and reads none, so the semantics are read',
+        'equal when the panel is given no recorded table to read (its default): a fresh handle has no recorded table, '
+        'so the semantics are read',
         passage={'from': 'const tableAgrees = sameContractBinding(',
-                 'to': 'line:tableAgrees ? readNativeRowSemantics(result, ordinals)', 'mark': None}),
+                 'to': 'line:tableAgrees ? readNativeRowSemantics(result, ordinals)', 'mark': None},
+        also=[{'rel': PANEL, 'from': 'recordedTableRead = null', 'to': None, 'mark': None},
+              decl(R + 'resultReader.ts', 'sameContractBinding'), decl(NATIVE_RESULT, 'readNativeRowSemantics')]),
 ]
 
 
 def cited_files():
     """The files the table cites, under the web root, sorted; the judge is read too."""
-    return sorted({r['rel'] for r in ROWS})
+    return sorted({r['rel'] for r in ROWS} | {a['rel'] for r in ROWS for a in r['also']})
 
 
 class Check:
@@ -284,10 +319,36 @@ class Check:
         self.counts['inline anchors'] += 1
         return start, end
 
-    def cite(self, predicate, rel, where, start, end):
-        text = '\n'.join(self.lines_of(rel)[start:end + 1])
-        self.digests[predicate] = {'source': f'{rel}: {where}',
-                                   'sha256': hashlib.sha256(text.encode()).hexdigest()}
+    def cite(self, r, where, start, end):
+        """Records a restated row's digest: its cited text, then each widening passage's after a newline.
+        Returns the table's words for the widening (empty without one), or None when one is not found."""
+        predicate, rel = r['predicate'], r['rel']
+        texts = ['\n'.join(self.lines_of(rel)[start:end + 1])]
+        sources, cells = [f'{rel}: {where}'], []
+        for spec in r['also']:
+            if self.lines_of(spec['rel']) is None:
+                self.problem(f'{predicate}: its cited file {WEB}/{spec["rel"]} is missing')
+                return None
+            span = self.passage(predicate, spec['rel'], spec)
+            if span is None:
+                return None
+            texts.append('\n'.join(self.lines_of(spec['rel'])[span[0]:span[1] + 1]))
+            sources.append(f'{spec["rel"]}: {describe(spec, plain=True)}')
+            cells.append(f'{spec["rel"].rsplit("/", 1)[-1]}: {describe(spec)}')
+        self.digests[predicate] = {'source': '; with '.join(sources),
+                                   'sha256': hashlib.sha256('\n'.join(texts).encode()).hexdigest()}
+        return ''.join(f'; with {cell}' for cell in cells)
+
+    def restatement(self, predicate, rel, name, claim, exported, imported, judge_text):
+        """A restated name: not imported by the judge, named by it, and the row's export claim holds."""
+        if imported:
+            self.problem(f'{predicate}: the row says {name} is restated, but the judge imports it')
+        if claim.startswith('not exported') and exported:
+            self.problem(f'{predicate}: the row says not exported, but {WEB}/{rel} exports {name}')
+        if claim.startswith('exported') and not exported:
+            self.problem(f'{predicate}: the row says exported, but {WEB}/{rel} does not export {name}')
+        if name not in judge_text:
+            self.problem(f'{predicate}: the judge does not name {name}, which it restates')
 
     def judge_imports(self):
         judge = self.web / JUDGE
@@ -341,11 +402,17 @@ class Check:
                 table.append(f'| {predicate} | {short}: {where} | imported (inside the imported {outer}) | {r["difference"]} |')
                 continue
             if kind == 'inline':
+                for named in r['names']:
+                    found = self.declaration(predicate, rel, named)
+                    if found is not None:
+                        self.restatement(predicate, rel, named, claim, found[2], imported_from(named), judge_text)
                 span = self.passage(predicate, rel, r['passage'])
                 if span is None:
                     continue
-                self.cite(predicate, rel, describe(r['passage'], plain=True), *span)
-                table.append(f'| {predicate} | {short}: {describe(r["passage"])} | restated ({claim}) | {r["difference"]} |')
+                widening = self.cite(r, describe(r['passage'], plain=True), *span)
+                if widening is None:
+                    continue
+                table.append(f'| {predicate} | {short}: {describe(r["passage"])}{widening} | restated ({claim}) | {r["difference"]} |')
                 continue
             found = self.declaration(predicate, rel, name)
             if found is None:
@@ -359,16 +426,13 @@ class Check:
                     self.problem(f'{predicate}: the judge imports it from {imported_from(name)}, not {rel}')
                 cell = 'imported'
             elif kind == 'restated':
-                if imported_from(name):
-                    self.problem(f'{predicate}: the row says restated, but the judge imports it')
-                if claim.startswith('not exported') and exported:
-                    self.problem(f'{predicate}: the row says not exported, but {WEB}/{rel} exports it')
-                if claim.startswith('exported') and not exported:
-                    self.problem(f'{predicate}: the row says exported, but {WEB}/{rel} does not export it')
-                if name not in judge_text:
-                    self.problem(f'{predicate}: the judge does not name what it restates')
-                self.cite(predicate, rel, name, start, end)
+                self.restatement(predicate, rel, name, claim, exported, imported_from(name), judge_text)
+                widening = self.cite(r, name, start, end)
+                if widening is None:
+                    continue
                 cell = f'restated ({claim})'
+                table.append(f'| {predicate} | {short}: {code(name)}{widening} | {cell} | {r["difference"]} |')
+                continue
             elif kind.startswith('inside:'):
                 outer = kind.split(':', 1)[1]
                 o = self.declaration(predicate, rel, outer)
@@ -406,6 +470,8 @@ def describe(spec, plain=False):
     """Where an inline row's passage is, in words; `plain` omits Markdown (the digests file)."""
     q = (lambda t: f'`{t}`') if plain else code
     first = spec['from']
+    if first.startswith('decl:') and spec.get('to') == f'end:{first[5:]}' and not spec.get('mark'):
+        return q(first[5:])
     start = f'from the declaration of {first[5:]}' if first.startswith('decl:') else f'from {q(first)}'
     to = spec.get('to')
     if to is None:

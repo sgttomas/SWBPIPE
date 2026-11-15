@@ -1,11 +1,15 @@
 {
   "bytesInvoke (the byte responses' delivery guard: bytes or text)": {
-    "sha256": "739bc4615f6f87cc1f8707b08762619b86b75153e4dadc8556f2bee78508bc66",
-    "source": "services/nativeResult.ts: bytesInvoke"
+    "sha256": "23b183f92f80812f5bd1b1001d664e6cd6664fa8e1a3cf7e7882072c29cdbf56",
+    "source": "services/nativeResult.ts: bytesInvoke; with services/nativeResult.ts: `send`"
+  },
+  "cached (the reading cache)": {
+    "sha256": "aae5d8f02a2c6c6d38ee2ff3d4e272de74a476250c438051d22b913568728328",
+    "source": "services/nativeResult.ts: cached; with services/nativeResult.ts: `live`; with services/nativeResult.ts: `entries`"
   },
   "captureNativeInvocation (the fresh capture)": {
-    "sha256": "79a8206182835b2896b18e73b338bf8234b357c8886100446e72aaec4f322804",
-    "source": "services/previewService.ts: captureNativeInvocation"
+    "sha256": "d5320cb7a483fa3429bbcb0f2a3339be57c3a8d94028c440e066763d824dd33f",
+    "source": "services/previewService.ts: captureNativeInvocation; with services/previewService.ts: the line holding `const capture = captureNativeInvocation(model, solverMode);`; with services/previewService.ts: the line holding `if (capture) jobInvocations.set(receipt.job_id, capture);`"
   },
   "keyOf (the reading cache key)": {
     "sha256": "6b9ae198d5b12a7f1b1ce637ea1745504e621cd70517d79147b6905e2a645145",
@@ -16,12 +20,12 @@
     "source": "services/previewService.ts: nativeEnvelopeRefusal"
   },
   "nativeRegistrationHolds (gate 1, through hasNativeMechanicsInvocation)": {
-    "sha256": "ff57cb9f56c8f010a3d9254b2162149959a6b10d5ea2cb48b750df773db00717",
-    "source": "services/previewService.ts: nativeRegistrationHolds"
+    "sha256": "754562179ab304d381bf0178b558417997d087141828b02847aab6e8474e7034",
+    "source": "services/previewService.ts: nativeRegistrationHolds; with services/previewService.ts: `hasNativeMechanicsInvocation`; with services/nativeResult.ts: `isNativeResult`"
   },
   "readNativeFreshResult (its order of reads)": {
-    "sha256": "f3644d4ae264c02dae4929fb462323bc80d5b49f93ebcacd2fd119bcce18a629",
-    "source": "services/previewService.ts: readNativeFreshResult"
+    "sha256": "ee6e8eb355f1831f782f1800beeb0092e1684caa7d9759c698978dd011c7dd62",
+    "source": "services/previewService.ts: readNativeFreshResult; with services/nativeResult.ts: `readNativeRouteHeader`; with services/previewService.ts: `readNativeStanding`; with services/previewService.ts: `presentedStanding`; with services/nativeResult.ts: `queryNativeRecovery`"
   },
   "readNativeSummary's text refusal": {
     "sha256": "6f772b84faf782eb20f2d9aef29e1d151dae1c75af83defc15534c96700a4c7e",
@@ -36,16 +40,16 @@
     "source": "features/workspace/workspaceSession.ts: from `if (output.model_ref !== solveModel.project.id) {` to the end of its block, holding `SOLVE-RESULT-MODEL-MISMATCH`"
   },
   "the panel's first page and the empty-page re-read": {
-    "sha256": "43b320b405b72495e3f6a5ec0eba3af10b2a606bff06c66089967e82d13a257a",
-    "source": "features/results/NativeResultsPanel.tsx: from `let read = await queryNativeRows(result, filter, pageIndex * pageSize, pageSize);` through the line holding `const outcomes = read.rows.length ? await semanticsOf(`, holding `if (read.rows.length === 0 && read.total > 0) {`"
+    "sha256": "51bd4b16b24e9efa18e2ce830343da0fe36e3ccc76b3149834ba857ab0144420",
+    "source": "features/results/NativeResultsPanel.tsx: from `let read = await queryNativeRows(result, filter, pageIndex * pageSize, pageSize);` through the line holding `const outcomes = read.rows.length ? await semanticsOf(`, holding `if (read.rows.length === 0 && read.total > 0) {`; with features/results/NativeResultsPanel.tsx: from `const [filterText, setFilterText] = useState(\"\");` through the line holding `}), [filterText, familyFilter, activeFrame, activeCase, kindFilter, selectionOnly, selectionEntityId]);`; with services/nativeResult.ts: `queryNativeRows`; with features/results/ResultsPanel.tsx: `ALL_FRAMES`; with features/results/resultsNavigator.ts: `ALL_CASES`"
   },
   "the semantics' recorded-table agreement": {
-    "sha256": "4b7c0f62eef0a0d716f0eb82c1f6d10130faee5d88366915f58bdf2e43e3133c",
-    "source": "features/results/NativeResultsPanel.tsx: from `const tableAgrees = sameContractBinding(` through the line holding `tableAgrees ? readNativeRowSemantics(result, ordinals)`"
+    "sha256": "ea3216169c21c4eb7e439f511c1f2f1de33c597812c054d9710e7f8af4cef07d",
+    "source": "features/results/NativeResultsPanel.tsx: from `const tableAgrees = sameContractBinding(` through the line holding `tableAgrees ? readNativeRowSemantics(result, ordinals)`; with features/results/NativeResultsPanel.tsx: the line holding `recordedTableRead = null`; with features/results/resultReader.ts: `sameContractBinding`; with services/nativeResult.ts: `readNativeRowSemantics`"
   },
   "the session gates 1 and 2": {
-    "sha256": "84d0a29a893eea7315ecc2140249d0e143d837226024a3f50c456634005f4df5",
-    "source": "features/workspace/workspaceSession.ts: from `if (!hasNativeMechanicsInvocation(output, solveModel, solverMode)) {` to the end of the block opened at `if (!hasCurrentSourceContract(output) || !output.producer) {`"
+    "sha256": "0c7f9daf50abf3481cfce7086b4896fe8b0c319beab43fbe1baf3fc232a0eaa0",
+    "source": "features/workspace/workspaceSession.ts: from `if (!hasNativeMechanicsInvocation(output, solveModel, solverMode)) {` to the end of the block opened at `if (!hasCurrentSourceContract(output) || !output.producer) {`; with features/workspace/workspaceSession.ts: from `const runRecord = createNativeAnalysisRun(await traceNativeReaderAwait(\"run_preview\"` through the line holding `})));`"
   },
   "the session's manifest arguments": {
     "sha256": "d632053f9b5868231cf81339cade62d246c7501d2d9c582c222afa87679209e7",
@@ -60,7 +64,7 @@
     "source": "features/workspace/workspaceSession.ts: from `if (jsonTextKeepingNegativeZero(manifest.manifest.model_basis.model_payload) !== nativeCustody(output).binding.standingModelText) {` to the end of its block, holding `SOLVE-NATIVE-STANDING-MODEL-MISMATCH`"
   },
   "validateNativeReaders": {
-    "sha256": "dc833c86c9592350f423ca4ff708b60d35e7fd8b0a3e3b76b9197823fee5e077",
-    "source": "services/previewService.ts: validateNativeReaders"
+    "sha256": "eb269b6e7be2d4f4a36bdd4574537be6cb7c2f9ca7bfedf882a8380cb9621334",
+    "source": "services/previewService.ts: validateNativeReaders; with services/nativeResult.ts: `readNativeValidation`"
   }
 }

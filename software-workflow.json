@@ -393,6 +393,7 @@
         "apps/desktop/src/features/results/numericalResultQuality.ts",
         "apps/desktop/src/features/results/resultReader.ts",
         "apps/desktop/src/features/results/resultStanding.ts",
+        "apps/desktop/src/features/results/resultsNavigator.ts",
         "apps/desktop/src/features/workspace/resultsSessionState.ts",
         "apps/desktop/src/features/workspace/workspaceSession.ts",
         "apps/desktop/src/services/analysisRunPreview.ts",

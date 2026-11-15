@@ -87,12 +87,12 @@ describe("the after-worker reply judge reaches the web's decoder for each call",
 });
 
 // Connecting controls: synthetic sequences whose replies each pass their decoder, but whose
-// connection the session refuses (workspaceSession.ts:1564-1598; previewService.ts:598-608). Each
+// connection the session refuses (workspaceSession.ts's gates, manifest and standing-model check; previewService.ts's `nativeEnvelopeRefusal`). Each
 // control asserts its disposition (the code it ends or fails at) and its native-call sequence
 // (the replies the judge reads, in order, where it stops, and the readings the web's cache answers).
 describe("the after-worker reply judge applies the session's connecting gates", () => {
   const JOB = "backend-solve-job-9";
-  // Complete enough for the manifest builder's model and unit checks (inputManifestService.ts:162-180).
+  // Complete enough for the manifest builder's model and unit checks (inputManifestService.ts's `validateArgs`).
   const MODEL = { schema_version: "0.9.0", document_kind: "openpipestress.model", project: { id: "p", units: { length: "m" } }, load_cases: [] };
   const S = jsonTextKeepingNegativeZero(MODEL);
   const R = jsonTextKeepingNegativeZero(JSON.parse(checkedJsonText({ request: { model: MODEL, materials: [] }, solver_mode: "sparse_interactive" })).request.model);
@@ -244,7 +244,7 @@ describe("the after-worker reply judge applies the session's connecting gates", 
     expect(judgedRun.native).toEqual(FULL_SEQUENCE);
   });
   it("a registration outcome that is not ok but carries an empty code is no refusal: the web goes on to the first page", async () => {
-    // validateNativeReaders (previewService.ts:574-586) returns a code only when it is not empty.
+    // validateNativeReaders (previewService.ts) returns a code only when it is not empty.
     const judgedRun = await judged(await fullRun({ ok: false, error: { code: "", detail: null } }));
     expect(judgedRun.ended).toBe("first_page_ready");
     expect(judgedRun.native).toEqual(FULL_SEQUENCE);
