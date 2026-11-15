@@ -48,8 +48,10 @@ export function outputSentence(notPassedCount: number): string {
 export const BOUNDARY_SENTENCE =
   "These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right.";
 
+/** The boundary sentence is not part of this case sentence: the detail carries it once,
+ * whatever its cases' states (REQ-023, "every use"). */
 export function checksPassedText(caseId: string): string {
-  return `The solver's residual and conditioning checks passed for ${caseId}. ${BOUNDARY_SENTENCE}`;
+  return `The solver's residual and conditioning checks passed for ${caseId}.`;
 }
 
 export function sensitiveLeadText(caseId: string): string {

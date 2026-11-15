@@ -46,9 +46,7 @@ describe("numerical health text pins", () => {
   });
 
   it("pins every detail text", () => {
-    expect(text.checksPassedText("LC1")).toBe(
-      "The solver's residual and conditioning checks passed for LC1. These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right."
-    );
+    expect(text.checksPassedText("LC1")).toBe("The solver's residual and conditioning checks passed for LC1.");
     expect(text.sensitiveLeadText("LC1")).toBe("The solver's checks flagged LC1 as numerically sensitive.");
     expect(text.KEPT_FOR_INSPECTION_TEXT).toBe("Its values are kept for inspection.");
     expect(text.CONDITIONING_CAUSE_TEXT).toBe("The scaled stiffness is poorly conditioned.");

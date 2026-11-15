@@ -223,7 +223,7 @@ describe("numericalHealthView", () => {
       healthCase("X", "not_assessed", { integrity_diagnostic_id: null })
     ]), { eligible: false, verdictHold: false })!;
     const byId = Object.fromEntries(view.cases.map((c) => [c.caseId, c]));
-    expect(byId.P.sentences).toEqual(["The solver's residual and conditioning checks passed for P. These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right."]);
+    expect(byId.P.sentences).toEqual(["The solver's residual and conditioning checks passed for P."]);
     expect(byId.P.conditioning).toContain("roughly below 0.1 of the about 16");
     // The figure shows for passed and sensitive cases only.
     expect(byId.U.conditioning).toBeNull();
