@@ -51,10 +51,10 @@ The DEL-04-10 scope records Agent 0's decisions on the method:
 ## Example
 
 ```sh
-cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example evaluate_spectrum -- request.json
+cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example evaluate_spectrum < request.json
 ```
 
-`request.json` holds one spectrum and its queries. The table below is invented: it is T1 of the
+The request on standard input holds one spectrum and its queries. The table below is invented: it is T1 of the
 frozen reference `validation/references/f2_spectrum/closed_form/spectrum_tables.json`. The crate's
 tests run this exact request.
 
