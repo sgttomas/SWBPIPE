@@ -1,9 +1,15 @@
 //! Exact comparisons of a period query with a period knot (Agent 0's decision 2, recorded in
 //! the DEL-04-10 scope).
 //!
-//! A query reaches a period table as a binary64 frequency f, from the modal solve or from the
-//! user. Its period is the exact rational T = 1/f. Rounding 1/f to binary64 can land on a knot
-//! that T is not equal to, or overflow, so the rounded reciprocal never decides where T lies.
+//! The operands are represented values: the query frequency f as the binary64 the modal result
+//! publishes (or the user enters), and each knot as the binary64 of the authored abscissa. The
+//! period of that represented f is the exact rational T = 1/f. Rounding 1/f to binary64 can land
+//! on a knot that T is not equal to, or overflow, so the rounded reciprocal never decides where T
+//! lies. The exact comparison selects the interval and decides in or out of range, and nothing
+//! more: it makes neither operand exact (the modal frequency carries the modal solve's own error,
+//! a knot is the binary64 nearest to what the user wrote), and the interpolation after it is
+//! ordinary binary64 arithmetic.
+//!
 //! For a positive knot P, T < P exactly when P·f > 1, so the comparison is the sign of the
 //! exact product P·f − 1. Each positive finite binary64 is m·2^e with integer m < 2^53, so the
 //! product is m_P·m_f·2^(e_P+e_f) with m_P·m_f < 2^106: an exact integer comparison over every
@@ -44,9 +50,10 @@ pub(crate) fn product_cmp_one(a: f64, b: f64) -> Ordering {
     }
 }
 
-/// Where the exact period `T = 1/frequency` lies relative to the period `knot`: `Less` when
-/// `T < knot`, `Equal` when `T = knot` exactly, `Greater` when `T > knot`. Both arguments are
-/// positive finite binary64 values; the comparison is exact (module documentation).
+/// Where the exact period `T = 1/frequency` of the represented binary64 `frequency` lies
+/// relative to the represented binary64 `knot`: `Less` when `T < knot`, `Equal` when `T = knot`
+/// exactly, `Greater` when `T > knot`. Both arguments are positive finite binary64 values; the
+/// comparison of those represented values is exact (module documentation).
 ///
 /// # Panics
 /// If either argument is not positive and finite. The validated table and query never pass one.

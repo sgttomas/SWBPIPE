@@ -11,9 +11,12 @@
 //! The method, as the DEL-04-10 scope records Agent 0's decisions:
 //! 1. a table is interpolated on its authored axis: a period table in period, a frequency table
 //!    in frequency;
-//! 2. a period query T = 1/f is located against the knots and the range ends exactly, as a
-//!    rational ([`period_query_ordering`]), before any binary64 arithmetic; the interpolation
-//!    after location is ordinary binary64 with the rounding [`SpectrumTable::evaluate`] states.
+//! 2. a period query is located exactly: the period T = 1/f of the represented binary64 query
+//!    frequency (as the modal result publishes it) is compared as a rational with the represented
+//!    binary64 knots and range ends ([`period_query_ordering`]). That comparison selects the
+//!    interval and decides in or out of range, and nothing more; it makes neither the modal
+//!    frequency nor a knot exact, and the interpolation after it is ordinary binary64 with the
+//!    rounding [`SpectrumTable::evaluate`] states.
 //!
 //! This unit is not a spectrum solve: it forms no modal response, combination or rigid response,
 //! publishes no spectrum result and has no standing as an engineering result. A later unit

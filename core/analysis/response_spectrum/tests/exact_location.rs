@@ -1,6 +1,8 @@
-//! Agent 0's decision 2 (DEL-04-10 scope): a period query T = 1/f is located against the knots
-//! and the range ends exactly, as a rational, before any interpolation; rounding 1/f never
-//! decides the range or the side of a knot.
+//! Agent 0's decision 2 (DEL-04-10 scope): the period T = 1/f of the represented binary64 query
+//! frequency is located against the represented binary64 knots and range ends exactly, as a
+//! rational, before any interpolation; rounding 1/f never decides the range or the side of a
+//! knot. Every case below is stated in represented operands: the binary64 query and knots, never
+//! the decimals they were written from or an exact modal frequency.
 //!
 //! The expected locations are established here without the product's comparison: each case
 //! writes its binary64 operands as exact rationals n/2^k (each literal is checked to equal its

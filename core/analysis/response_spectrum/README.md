@@ -26,13 +26,18 @@ The DEL-04-10 scope records Agent 0's decisions on the method:
 
 - A table is interpolated on its authored axis: a period table in period, a frequency table in
   frequency.
-- A period query T = 1/f is located exactly against the knots and the range ends, as a rational,
-  through the sign of P·f − 1 with integer mantissas. Rounding 1/f never decides whether a query is
-  in range or which side of a knot it falls on.
+- A period query is located exactly. The operands are represented values: the query frequency f
+  as the binary64 the modal result publishes (or the user enters), and each knot P as the binary64
+  of the authored abscissa. The period T = 1/f of that f is compared with each knot and with the
+  range ends as a rational, through the sign of P·f − 1 with integer mantissas. Rounding 1/f never
+  decides whether a query is in range or which side of a knot it falls on.
+- The exact comparison selects the interval and decides in or out of range, and nothing more. It
+  does not make the modal frequency exact (it carries the modal solve's own error), nor a knot the
+  user's intended decimal.
 
-  A consequence: on a period table whose first knot is authored as `0.1` s, a query of exactly
-  10 Hz is outside the range. The binary64 0.1 is larger than 1/10, so the query's period lies
-  below the first knot.
+  A consequence: on a period table whose first knot is authored as `0.1` s, a query represented
+  as exactly 10 Hz is outside the range. The binary64 0.1 is larger than 1/10, so the query's
+  period lies below the first knot.
 - After location, the arithmetic is binary64 with the rounding that `SpectrumTable::evaluate`
   documents.
 

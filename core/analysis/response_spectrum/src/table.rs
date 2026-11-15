@@ -271,8 +271,10 @@ impl SpectrumTable {
         }
     }
 
-    /// Locates the query exactly against the knots and the range ends (decision 2). Outside the
-    /// tabulated range it is refused, `SPECTRUM_FREQUENCY_OUTSIDE_RANGE`; nothing is extrapolated.
+    /// Locates the represented query exactly against the represented knots and range ends
+    /// (decision 2): this selects the interval and decides in or out of range, and nothing more.
+    /// Outside the tabulated range the query is refused, `SPECTRUM_FREQUENCY_OUTSIDE_RANGE`;
+    /// nothing is extrapolated.
     pub fn locate(&self, query: QueryFrequency) -> Result<Location, Refusal> {
         let last = self.knots.len() - 1;
         let outside = |side: &str| {
