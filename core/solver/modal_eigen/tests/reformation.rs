@@ -18,8 +18,13 @@
 //! rounding guarantees", issue #337). The reference adds 2⁻¹⁰⁶. The bound
 //! is therefore about 9.3·10⁻³⁰ of the largest entry. Every comparison is
 //! normwise: |x̂ − x| ≤ `NORMWISE`·max|x| over the matrix (or the quantity),
-//! with `NORMWISE` = 10⁻²⁹. The margin over the bound is thin, about 7%;
-//! the measured differences are far below it (the README). Entries formed
+//! with `NORMWISE` = 10⁻²⁹. The read term applies to the assembled
+//! comparisons (full M, and the eigen cases' K̂ and M̂). For the element and
+//! section comparisons, which do not go through `to_wide`, the budget is
+//! conservative. The margin over the bound is thin, about 7%, and belongs to
+//! this approximate operation-budget model. Correcting the model for the
+//! read does not make it a rigorous forward-error theorem. The measured
+//! differences are far below it (the README). Entries formed
 //! by cancellation (exact zeros of an inclined member,
 //! J_c,22 ≈ α⁵/20 of a small arc) are held to the same normwise bound, which
 //! is the statement the design makes ("well-scaled entries"); the small-arc
