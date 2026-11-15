@@ -27,13 +27,17 @@ DEL-04-05 AX-003 also requires unmet targets to be listed here. For an unmet-tar
 
 The list also carries applicability limitations, which exit criterion 3 does not require. An applicability limitation is a method that the exit criteria rely on and the product applies without refusal, but whose application range SWBPIPE's verification has not established. It causes no automatic refusal. Its entry says so in its Kind field. "Code" names any diagnostic or recorded field that bears on it, or none. "What is refused" says that nothing is refused and states what the method omits, and the other fields describe the method and its practical effect. Its status records Agent 0's limitation declaration. Declaring an applicability limitation acceptable does not establish that the method is adequate for any model, does not demonstrate the unestablished range and does not make an unmet criterion met.
 
+The list also carries omissions outside the exit criteria, which exit criterion 3 does not require either. An omission is a capability that no exit criterion requires, that the product does not provide, and for which nothing emits a refusal; it is listed so that the release notes state it. Its entry says so in its Kind field. "Exit criteria" and "Requirement affected" say none and why, "Code" says none, and "What is refused" says that nothing is refused and what the user cannot do. Its status records Agent 0's limitation declaration. Declaring an omission acceptable does not make an unmet criterion met.
+
 ## Entry form
 
 Each entry is one subsection:
 
 - **Id:** `LIM-nnn`, assigned in order and never reused.
 - **Kind:** present only for an applicability limitation: `applicability
-  limitation`, with the statement that it causes no automatic refusal.
+  limitation`, with the statement that it causes no automatic refusal; or for
+  an omission: `omission outside the exit criteria`, with the statement that
+  no exit criterion requires the capability and nothing emits a refusal.
 - **Exit criteria:** the release target's exit criteria it affects, by number.
 - **Requirement affected:** the requirement or capability of the exit criteria
   the refusal affects, by its identifier where one exists.
@@ -410,4 +414,37 @@ Entries are added in the same PR that makes the refusal standing. A previously u
     The note had an independent reading (`review/return.md`), and its corrections are integrated.
   - Agent 0 decided that a second-order curved-bar element is not to be built before v1.0. Its prerequisites are the factor's meaning against a curved-bar baseline, an independent annular reference, and an element that is formed consistently in every place the product forms it.
   - Declaring this limitation acceptable does not establish that the element is physically adequate for any bend.
+- **Status:** not yet declared.
+
+### LIM-022 — Response-spectrum analysis applies one ground motion to every support
+
+- **Id:** LIM-022
+- **Exit criteria:** 1
+- **Requirement affected:** DEL-04-10/REQ-011 and AC-009, independent (multi-level) support motion, a Should commitment of the deliverable that owns exit criterion 1's response-spectrum analysis. The reference system's spectrum request applies one spectrum to every support in X, Y and Z (`fixtures/reference_system/SPECIFICATION.md` §8.5), so this refusal does not prevent the criterion's demonstration on it. PRD §12.9 requires response-spectrum seismic analysis for v1.0 without naming support-motion forms, and does not state independent support motion; the decision narrows the capability DEL-04-10 states within that broad requirement and contradicts no explicit PRD statement.
+- **Code:** `SPECTRUM_INDEPENDENT_SUPPORT_MOTION_UNSUPPORTED`, blocking, committed by DEL-04-10/REQ-011 and AC-009. No spectrum product code exists yet, so nothing emits it today.
+- **What is refused:** a spectrum request with more than one support group: different spectra for different groups of supports, with each group's own influence vectors. Every support moves with one ground motion per direction (uniform support motion, DEL-04-10 CLM-001).
+- **What it means in practice for a user:**
+  - Supports at different elevations or on different structures cannot be given different floor or building spectra in one analysis.
+  - A common practice where group spectra are not available is to apply one envelope spectrum to every support. It is the user's engineer's judgment whether that suits the system; SWBPIPE does not determine it.
+  - The pseudo-static part of differential support motion is seismic anchor movement, a static load case either way, and is unaffected.
+- **Why:** Agent 0 decided that independent support motion is not built for v1.0. It is a Should commitment (REQ-011), and the reference system's spectrum request uses uniform support motion. REQ-011 stays the deliverable's commitment for a later release, with its refusals of a group that moves a skewed restraint and of CQC.
+- **What the user does instead:** one spectrum per direction applied to every support, chosen by the user's engineer, for example as an envelope of the group spectra.
+- **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md): CLM-001 ("Uniform support motion"), "Decided for v1.0", REQ-011 and AC-009. The decision was made by Agent 0 under the grant in `AGENTS.md` ("Posture for this phase") and is recorded with this entry by PR #PRNUM. Whether the PRD should be amended to say so is the owner's; Agent 0 brings it to the owner.
+- **Status:** not yet declared.
+
+### LIM-023 — A response-spectrum result cannot be combined with static load cases
+
+- **Id:** LIM-023
+- **Kind:** omission outside the exit criteria. No exit criterion requires this capability, and nothing emits a refusal for it.
+- **Exit criteria:** none. Exit criterion 1 lists three-axis static seismic with SRSS and absolute-sum combination, and response spectrum, as separate analyses.
+- **Requirement affected:** none of the release target. The reference system's occasional combinations, RS-OCC-SRSS and RS-OCC-ABS (key result KR-02), combine RS-SUS with RS-EQ-SRSS or RS-EQ-ABS of the static seismic terms RS-dEQX, RS-dEQY and RS-dEQZ (`fixtures/reference_system/SPECIFICATION.md` §8.2 and "Key results"). Its spectrum results (KR-09, EQ-7) stand alone. The load-case algebra's operands are load cases and combinations (DEL-05-02). The PRD states no combination of a spectrum result with static cases.
+- **Code:** none. A spectrum result is not a load case or combination, so no combination can name it; there is no request to refuse.
+- **What is refused:** nothing is refused. A combination such as sustained plus seismic cannot use a response-spectrum result as its seismic term; it uses the static seismic cases.
+- **What it means in practice for a user:**
+  - Sustained-plus-seismic and other occasional combinations are formed from static seismic cases only.
+  - A spectrum result is read on its own, as unsigned combined magnitudes, and any combination of it with sustained or other results is done outside SWBPIPE by the user's engineer.
+  - Stresses from spectrum responses are not computed either (DEL-04-10 CLM-003), so no code check reads a spectrum result.
+- **Why:** an unsigned combined magnitude cannot be added to a signed static result as if it were signed, and the rules for doing so (absolute sum or SRSS with the static case, per component) are not committed by any deliverable. No result the release target requires needs it, so Agent 0 decided that it is omitted for v1.0.
+- **What the user does instead:** the static seismic cases and their combinations (DEL-05-01, DEL-05-02) for occasional combinations; the spectrum result on its own for the dynamic response.
+- **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md): CLM-003 and "Decided for v1.0"; its `deliverable.yaml` need on DEL-05-02, which applies only if a spectrum result is later offered as an operand. The omission was standing in DEL-04-10's CLM-003; Agent 0 decided it for v1.0 under the grant in `AGENTS.md`, and PR #PRNUM records this entry. No PRD amendment is needed, because the PRD states no such combination.
 - **Status:** not yet declared.
