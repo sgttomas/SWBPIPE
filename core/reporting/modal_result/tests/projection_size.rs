@@ -18,7 +18,7 @@
 use open_pipe_stress_canonical_json::{canonical_json, canonical_json_checked_v1_text};
 use serde_json::Value;
 
-const FIXTURES: [(&str, &str); 12] = [
+const FIXTURES: [(&str, &str); 14] = [
     ("modal_ex_n05", include_str!("../../../../fixtures/results/modal_ex_n05.json")),
     ("modal_arc", include_str!("../../../../fixtures/results/modal_arc.json")),
     ("modal_component_body", include_str!("../../../../fixtures/results/modal_component_body.json")),
@@ -31,6 +31,8 @@ const FIXTURES: [(&str, &str); 12] = [
     ("modal_cantilever_sensitive", include_str!("../../../../fixtures/results/modal_cantilever_sensitive.json")),
     ("modal_refused_unseparated", include_str!("../../../../fixtures/results/modal_refused_unseparated.json")),
     ("modal_refused_no_bound", include_str!("../../../../fixtures/results/modal_refused_no_bound.json")),
+    ("modal_selected_cantilever", include_str!("../../../../fixtures/results/modal_selected_cantilever.json")),
+    ("modal_selected_refused_no_bound", include_str!("../../../../fixtures/results/modal_selected_refused_no_bound.json")),
 ];
 
 /// D = 8: the Design's skeletons hold for documents whose integers and
@@ -222,7 +224,8 @@ fn b_doc_bounds_every_committed_solved_fixture() {
          smallest row margin {min_margin} B at {at}; header margins {lo}–{hi} B; canonical/B_doc {r_lo:.3}–{r_hi:.3}",
         totals.rows, totals.tables, totals.headers
     );
-    assert_eq!(totals.headers, 10);
+    // Ten original solved fixtures plus the selected-parameter cantilever.
+    assert_eq!(totals.headers, 11);
 }
 
 /// Open item 2, the part the reader's toolchain can show: `{:e}` of a

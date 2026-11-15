@@ -19,8 +19,10 @@
 //!
 //! **The selected instance** (the last section). These tests are the regression
 //! evidence for `ModalIntegrityParameters::selected_a1_a2_a3_criteria` (§5.3.7,
-//! "A3, as decided"): the decided values bit for bit, validation, no `Default`,
-//! and a source scan showing that no non-test source calls the constructor.
+//! "A3, as decided"): the decided values bit for bit, validation, no `Default`;
+//! the selected seam's standing (selected only on the bit-identical tuple,
+//! experimental and not public on every branch); and the remaining
+//! containment (private modules, one non-test call, in the seam).
 //! The window true positive is a directly built pencil with an exact spectrum,
 //! run through the product's solve, census and endpoint functions. The true
 //! zeros, the unresolved endpoint and the lower-path premises run on the
@@ -570,20 +572,31 @@ fn the_selected_instance_carries_the_decided_values_and_passes_validation() {
     const { assert!(<Probe<f64>>::IMPLEMENTS_DEFAULT, "the probe detects a Default type") };
 }
 
-/// Item 5 (containment). `integrity` is a private module of the private
-/// `modal` module (`mod modal;` in lib.rs, `mod integrity;` in modal.rs), so
-/// the `pub(crate)` constructor is nameable only inside `modal`. Every
-/// non-test source of `modal` is read at compile time here: the name occurs
-/// once outside comments, at its definition, and nowhere else.
+/// Item 5 (containment), as it stands once the selected instance is in
+/// production use (DEL-04-09 "Parameter standing"). The earlier rule, that no
+/// non-test source names the constructor, is obsolete: the selected seam calls
+/// it. What remains contained is checked here: `modal` and `integrity` stay
+/// private modules, lib.rs neither re-exports the parameter type nor names the
+/// constructor, and the one non-test call outside `integrity` is the document
+/// seam. The behaviour is checked by the tests below.
 #[test]
-fn no_non_test_modal_source_calls_the_selected_instance() {
-    const NAME: &str = "selected_a1_a2_a3_criteria";
-    let sources: [(&str, &str); 14] = [
-        ("modal.rs", include_str!("../modal.rs")),
+fn the_selected_instance_is_reached_only_through_the_document_seam() {
+    const NAME: &str = "selected_a1_a2_a3_criteria()";
+    let lib = include_str!("../lib.rs");
+    let modal_rs = include_str!("../modal.rs");
+    assert!(lib.lines().any(|l| l.trim() == "mod modal;"), "modal stays a private module");
+    assert!(!lib.contains("modal::integrity"), "lib.rs re-exports nothing from modal::integrity");
+    assert!(!lib.contains(NAME), "lib.rs does not name the selected constructor");
+    assert!(modal_rs.lines().any(|l| l.trim() == "mod integrity;"), "integrity stays a private module");
+    let code = |text: &str| text.lines().map(|l| l.split("//").next().unwrap()).filter(|l| l.contains(NAME)).count();
+    let document = include_str!("document.rs");
+    assert_eq!(code(document), 1, "document.rs calls the constructor once, in the seam");
+    let seam = &document[document.find("pub(crate) fn modal_selected_result_document").expect("the seam exists")..];
+    let seam = &seam[..seam.find("\n}\n").unwrap()];
+    assert!(seam.contains(NAME) && seam.contains("modal_result_document(") && !seam.contains("budget"), "{seam}");
+    for (name, text) in [
         ("context.rs", include_str!("context.rs")),
-        ("document.rs", include_str!("document.rs")),
         ("eigen.rs", include_str!("eigen.rs")),
-        ("integrity.rs", include_str!("integrity.rs")),
         ("mass.rs", include_str!("mass.rs")),
         ("outcome.rs", include_str!("outcome.rs")),
         ("prepare.rs", include_str!("prepare.rs")),
@@ -593,125 +606,119 @@ fn no_non_test_modal_source_calls_the_selected_instance() {
         ("stiffness.rs", include_str!("stiffness.rs")),
         ("skew_pencil.rs", include_str!("skew_pencil.rs")),
         ("weight_basis.rs", include_str!("weight_basis.rs")),
-    ];
-    let lib = include_str!("../lib.rs");
-    assert!(lib.lines().any(|l| l.trim() == "mod modal;"), "modal stays a private module");
-    assert!(!lib.contains("modal::integrity"), "lib.rs re-exports nothing from modal::integrity");
-    assert!(sources[0].1.lines().any(|l| l.trim() == "mod integrity;"), "integrity stays a private module");
-    for (name, text) in sources {
-        let code: Vec<&str> = text.lines().map(|l| l.split("//").next().unwrap()).collect();
-        let uses = code.iter().filter(|l| l.contains(NAME)).count();
-        if name == "integrity.rs" {
-            assert_eq!(uses, 1, "integrity.rs holds only the definition");
-            assert!(code.iter().any(|l| l.contains(&format!("pub(crate) fn {NAME}() -> Self"))));
-        } else {
-            assert_eq!(uses, 0, "{name} names the selected instance");
-        }
+        ("../modal.rs", modal_rs),
+    ] {
+        assert_eq!(code(text), 0, "{name} names the selected constructor");
     }
-    // The module tree is complete for the current sources. Every `mod NAME`
-    // item anywhere in a listed source (after braced items, after inner
-    // attributes, one or several per line, any visibility) is found by
-    // keyword, with comments removed; it is test-only when one of its own
-    // outer attributes is `#[cfg(test)]` (an inner `#![…]` is not the item's).
-    // modal.rs's non-test file modules must be exactly the listed sources, and
-    // no listed source may declare another non-test module, so a future
-    // module fails here and must be added to the scan.
-    let mut non_test: Vec<String> = Vec::new();
-    for (index, (name, text)) in sources.iter().enumerate() {
-        for (test_only, module, inline) in module_items(text) {
-            if test_only {
-                continue;
-            }
-            assert!(!inline, "{name} declares a non-test inline module `{module}`, which this scan does not cover");
-            assert!(index == 0, "{name} declares a nested non-test module `{module}`, which this scan does not read");
-            non_test.push(module);
-        }
-    }
-    let mut listed: Vec<String> = sources[1..].iter().map(|(n, _)| n.trim_end_matches(".rs").to_string()).collect();
-    listed.sort();
-    non_test.sort();
-    assert_eq!(non_test, listed, "modal.rs's non-test modules are exactly the scanned sources");
-    // The scan itself, on whole sources: the escapes the review found (a
-    // module after a braced item, a module after an inner attribute), S-K1's
-    // one-line pair, an attributed test module on the same line, visibility,
-    // and an inline test module.
-    let found = |text: &str| module_items(text).into_iter().map(|(t, m, i)| (t, m, i)).collect::<Vec<_>>();
-    assert_eq!(found("fn f() { let x = 1; }\nmod escaped;"), vec![(false, "escaped".to_string(), false)]);
-    assert_eq!(found("#![allow(dead_code)] // note\n\nmod context;"), vec![(false, "context".to_string(), false)]);
-    assert_eq!(found("mod stiffness; mod skew_pencil;"), vec![(false, "stiffness".to_string(), false), (false, "skew_pencil".to_string(), false)]);
-    assert_eq!(found("mod a; #[cfg(test)] mod tests_skew;"), vec![(false, "a".to_string(), false), (true, "tests_skew".to_string(), false)]);
-    assert_eq!(found("pub(crate) mod x;\npub mod y;"), vec![(false, "x".to_string(), false), (false, "y".to_string(), false)]);
-    assert_eq!(found("#[cfg(test)]\n#[allow(unused)]\nmod t { fn g() {} }"), vec![(true, "t".to_string(), true)]);
-    assert_eq!(found("/* mod hidden; */ let modal = 1; // mod gone;"), vec![]);
 }
 
-/// Every `mod NAME` item of a Rust source, in order: (test-only, NAME,
-/// inline). Comments are removed first; `mod` is found as a keyword (not
-/// inside an identifier such as `modal`); the item's own outer attributes are
-/// read backwards over whitespace and an optional visibility.
-fn module_items(text: &str) -> Vec<(bool, String, bool)> {
-    let bytes = text.as_bytes();
-    let mut code = String::with_capacity(text.len());
-    let mut i = 0;
-    while i < bytes.len() {
-        if text[i..].starts_with("//") {
-            while i < bytes.len() && bytes[i] != b'\n' {
-                i += 1;
-            }
-        } else if text[i..].starts_with("/*") {
-            let end = text[i + 2..].find("*/").map_or(bytes.len(), |e| i + 2 + e + 2);
-            code.push(' ');
-            i = end;
-        } else {
-            let c = text[i..].chars().next().unwrap();
-            code.push(c);
-            i += c.len_utf8();
+/// The admission of a selected document, on its solved and refused branches.
+fn assert_selected_admission(doc: &Value, status: &str) {
+    assert_eq!(doc["status"], status, "{doc:#}");
+    assert_eq!(
+        doc["admission"],
+        json!({"status": "experimental", "public_engineering_result": false, "parameter_standing": "selected",
+            "parameter_label": "selected_a1_a2_a3_criteria"})
+    );
+}
+
+/// The seam publishes the selected standing with the canonical label, and the
+/// result standing stays experimental and not a public engineering result,
+/// solved and refused alike. A caller's label changes nothing for the selected
+/// tuple, and the canonical label promotes no other tuple.
+#[test]
+fn the_selected_seam_states_its_standing_and_stays_experimental() {
+    use super::document::{modal_selected_result_document, MODAL_SELECTED_PARAMETER_LABEL};
+    assert_eq!(MODAL_SELECTED_PARAMETER_LABEL, "selected_a1_a2_a3_criteria");
+    let request = with(sec_a_cantilever(2), json!({"mode_count": 2}));
+    let solved = modal_selected_result_document(&request);
+    assert_selected_admission(&solved, "solved");
+    // The same tuple under any caller label is the same document, byte for byte.
+    assert_eq!(super::document::modal_result_document(&request, &instance(), "TEST_LOCAL_ANY"), solved);
+    // The refused branches: a request with no bound (parse-valid, refused by
+    // the solve) and one that does not parse.
+    let unbounded = modal_selected_result_document(&sec_a_cantilever(2));
+    assert_selected_admission(&unbounded, "refused");
+    assert_eq!(codes_of(&unbounded), ["MODAL_EXTRACTION_BOUND_REQUIRED"]);
+    let unparsed = modal_selected_result_document(&json!({"model": 1}));
+    assert_selected_admission(&unparsed, "refused");
+    assert_eq!(codes_of(&unparsed), ["MODAL_REQUEST_INVALID"]);
+    // The canonical label on a test-local tuple stays test-local.
+    let local = super::document::modal_result_document(&request, &test_local_parameters(), MODAL_SELECTED_PARAMETER_LABEL);
+    assert_eq!(local["admission"]["parameter_standing"], "test_local");
+    assert_eq!(local["admission"]["status"], "experimental");
+    assert_eq!(local["admission"]["public_engineering_result"], false);
+}
+
+fn codes_of(doc: &Value) -> Vec<String> {
+    doc["refusals"]["rows"].as_array().unwrap().iter().map(|r| r["code"].as_str().unwrap().to_string()).collect()
+}
+
+/// The standing is the whole tuple's bit identity: one changed float (by one
+/// ulp, or by sign alone, +0 against −0), a count, or a list's order or length
+/// makes it test-local.
+#[test]
+fn any_change_to_the_tuple_makes_it_test_local() {
+    use super::document::ModalParameterStanding;
+    assert!(instance().modal_is_selected_tuple());
+    assert_eq!(ModalParameterStanding::modal_doc_standing_of(&instance(), "x"), ModalParameterStanding::Selected);
+    let next = |x: f64| f64::from_bits(x.to_bits() + 1);
+    let mutations: Vec<(&str, Box<dyn Fn(&mut ModalIntegrityParameters)>)> = vec![
+        ("infinite_mu_relative_threshold", Box::new(|p| p.infinite_mu_relative_threshold = next(p.infinite_mu_relative_threshold))),
+        ("mass_pivot_relative_threshold", Box::new(|p| p.mass_pivot_relative_threshold = next(p.mass_pivot_relative_threshold))),
+        ("resolution_floor_constant", Box::new(|p| p.resolution_floor_constant = next(p.resolution_floor_constant))),
+        ("resolution_floor_multiple", Box::new(|p| p.resolution_floor_multiple = next(p.resolution_floor_multiple))),
+        ("formed_backward_error_multiple", Box::new(|p| p.formed_backward_error_multiple = next(p.formed_backward_error_multiple))),
+        ("screen_error_estimate_threshold", Box::new(|p| p.screen_error_estimate_threshold = next(p.screen_error_estimate_threshold))),
+        ("max_ql_iterations_per_eigenvalue", Box::new(|p| p.max_ql_iterations_per_eigenvalue += 1)),
+        ("residual_threshold", Box::new(|p| p.residual_threshold = next(p.residual_threshold))),
+        ("orthogonality_threshold", Box::new(|p| p.orthogonality_threshold = next(p.orthogonality_threshold))),
+        ("cluster_tolerance", Box::new(|p| p.cluster_tolerance = next(p.cluster_tolerance))),
+        ("no_translation_threshold", Box::new(|p| p.no_translation_threshold = next(p.no_translation_threshold))),
+        ("sturm_conditioning_multiple", Box::new(|p| p.sturm_conditioning_multiple = next(p.sturm_conditioning_multiple))),
+        ("sturm_separation_multiple", Box::new(|p| p.sturm_separation_multiple = next(p.sturm_separation_multiple))),
+        ("sturm_growth_limit", Box::new(|p| p.sturm_growth_limit = next(p.sturm_growth_limit))),
+        ("sturm_max_candidates", Box::new(|p| p.sturm_max_candidates -= 1)),
+        ("sturm_gap_log_positions order", Box::new(|p| p.sturm_gap_log_positions.swap(0, 1))),
+        ("sturm_gap_log_positions length", Box::new(|p| {
+            p.sturm_gap_log_positions.pop();
+        })),
+        ("sturm_whole_spectrum_offsets order", Box::new(|p| p.sturm_whole_spectrum_offsets.swap(1, 2))),
+        ("sturm_whole_spectrum_offsets length", Box::new(|p| p.sturm_whole_spectrum_offsets.push(0.125))),
+        ("identity_tolerance.relative", Box::new(|p| p.identity_tolerance.relative = next(p.identity_tolerance.relative))),
+        ("identity_tolerance.absolute sign", Box::new(|p| p.identity_tolerance.absolute = -0.0)),
+    ];
+    let request = with(sec_a_cantilever(2), json!({"mode_count": 2}));
+    for (what, mutate) in mutations {
+        let mut p = instance();
+        mutate(&mut p);
+        assert!(!p.modal_is_selected_tuple(), "{what}");
+        assert_eq!(ModalParameterStanding::modal_doc_standing_of(&p, "selected_a1_a2_a3_criteria"), ModalParameterStanding::TestLocal("selected_a1_a2_a3_criteria"), "{what}");
+        // The −0 mutation is equal under PartialEq, which is why the identity is by bits.
+        if what == "identity_tolerance.absolute sign" {
+            assert_eq!(p, instance());
+            let doc = super::document::modal_result_document(&request, &p, "TEST_LOCAL_SIGN");
+            assert_eq!(doc["admission"]["parameter_standing"], "test_local", "{what}");
         }
     }
-    let ident = |c: char| c.is_alphanumeric() || c == '_';
-    let mut out = Vec::new();
-    let mut from = 0;
-    while let Some(at) = code[from..].find("mod").map(|p| from + p) {
-        from = at + 3;
-        let before_ok = code[..at].chars().next_back().is_none_or(|c| !ident(c));
-        let after = &code[at + 3..];
-        if !before_ok || !after.starts_with(char::is_whitespace) {
-            continue;
-        }
-        let rest = after.trim_start();
-        let name: String = rest.chars().take_while(|&c| ident(c)).collect();
-        if name.is_empty() {
-            continue;
-        }
-        let tail = rest[name.len()..].trim_start();
-        let inline = match tail.chars().next() {
-            Some(';') => false,
-            Some('{') => true,
-            _ => continue,
-        };
-        // Backwards: optional visibility, then the item's outer attributes.
-        let mut head = code[..at].trim_end();
-        if let Some(stripped) = head.strip_suffix("pub") {
-            head = stripped.trim_end();
-        } else if head.ends_with(')') {
-            if let Some(open) = head.rfind("pub(") {
-                head = head[..open].trim_end();
-            }
-        }
-        let mut test_only = false;
-        while head.ends_with(']') {
-            let Some(open) = head.rfind('[') else { break };
-            let attribute = &head[open + 1..head.len() - 1];
-            let prefix = head[..open].trim_end();
-            if prefix.ends_with("#!") || !prefix.ends_with('#') {
-                break;
-            }
-            test_only |= attribute.trim() == "cfg(test)";
-            head = prefix[..prefix.len() - 1].trim_end();
-        }
-        out.push((test_only, name, inline));
-    }
-    out
+}
+
+/// The selected g_max = 2⁵² is integral and one binade below the checked
+/// canonical profile's limit (an integral binary64 of magnitude 2⁵³ or more is
+/// refused), so the bound parameters keep a digest and the document reads.
+/// Doubling it would leave the profile: the binding would lose its digest.
+#[test]
+fn the_selected_growth_limit_stays_inside_the_checked_numeric_profile() {
+    use super::document::{modal_doc_sha256, modal_selected_result_document};
+    assert_eq!(instance().sturm_growth_limit.to_bits(), pow2(52).to_bits());
+    let doc = modal_selected_result_document(&with(sec_a_cantilever(2), json!({"mode_count": 2})));
+    let parameters = &doc["binding"]["integrity_parameters"];
+    assert_eq!(parameters["sturm_growth_limit"].as_f64().map(f64::to_bits), Some(pow2(52).to_bits()));
+    assert_eq!(doc["binding"]["integrity_parameters_sha256"].as_str(), modal_doc_sha256(parameters).as_deref());
+    assert!(modal_doc_sha256(&doc).is_some(), "the selected document is inside the checked profile");
+    let mut outside = parameters.clone();
+    outside["sturm_growth_limit"] = json!(pow2(53));
+    assert_eq!(modal_doc_sha256(&outside), None, "2^53 is outside the profile");
 }
 
 /// The kernel's hard cut h = max(τ_μ·μ_max, κ_μ·δ_q), δ_q = c_μ·n·u·μ_max,
