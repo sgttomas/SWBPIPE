@@ -45,7 +45,21 @@ PROFILE_FLOOR = Fraction(1 << 53)             # magnitudes the checked profile c
 # accumulation adds at most 2^-90 of the absolute term sum again, so a value
 # accumulated from n contributions errs by at most 2^-90·(n + 1)·Σ scale
 # (`dd_bound`). This is a stated premise about the producer's double-word path,
-# far below one binary64 rounding; it decides only where terms cancel.
+# far below one binary64 rounding; it decides only where terms cancel. It covers
+# the element formation and assembly, which do not go through the kernel's
+# `ExactSum`. The participation path's m and φᵀp_k are exact sums read once through
+# `ExactSum::to_wide`, within 2^-min(96+t, 105) relative (2^-97 at worst, issue #337);
+# the 2·, 3· and 4·DD_RELATIVE allowances on Γ, m_eff and the fraction
+# (`modal_model_mass.py`) cover that read with a margin of at least 2^5. They rely
+# on the uniform worst case, 2^-97, and not on the sharper figure for t >= 10. A
+# later premise may use that figure only after establishing the exponent class of
+# its own operands, and must not cite this paragraph as a universal full
+# double-double guarantee.
+# When part (2) of the Timoshenko mass brings that element to the readers
+# (DEL-04-09 AC-012), this premise must also cover its plane evaluation at
+# double-double working precision with a separate exponent and its conversion
+# certified within 2^-106 relative, relying on `ExactSum::to_wide` only for the
+# uniform worst case, 2^-97, unless it establishes its operands' exponent class.
 DD_RELATIVE = Fraction(1, 1 << 90)
 
 
