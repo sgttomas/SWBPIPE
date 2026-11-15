@@ -43,7 +43,7 @@ useModelledVisibility();
 /** Which product input and result the session and the native stand-in use. */
 const fixture = { fourSpan: true };
 const sessionModel = () => ({ ...structuredClone((fixture.fourSpan ? fourSpanInput : twoSpanInput).request.model), diagnostics: [] }) as unknown as PreviewModel;
-const library = () => structuredClone(fourSpanInput.library) as Record<string, unknown>;
+const library = () => structuredClone((fixture.fourSpan ? fourSpanInput : twoSpanInput).library) as Record<string, unknown>;
 /** The library the native stand-in has stored now; a test may replace it after queueing. */
 const storedLibrary: { current: () => Record<string, unknown> } = { current: library };
 const LIBRARY_ID = "invented.hangers.sizing";
