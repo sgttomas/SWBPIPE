@@ -8,7 +8,7 @@
 //! lies. The exact comparison selects the interval and decides in or out of range, and nothing
 //! more: it makes neither operand exact (the modal frequency carries the modal solve's own error,
 //! a knot is the binary64 nearest to what the user wrote), and the interpolation after it is
-//! ordinary binary64 arithmetic.
+//! binary64 arithmetic with its own certified error bound ([`crate::table`]).
 //!
 //! For a positive knot P, T < P exactly when P·f > 1, so the comparison is the sign of the
 //! exact product P·f − 1. Each positive finite binary64 is m·2^e with integer m < 2^53, so the

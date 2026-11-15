@@ -19,9 +19,11 @@ pub enum RefusalCode {
     QueryFrequencyInvalid,
     /// The scale factor is not positive and finite (REQ-001, Directions).
     ScaleFactorInvalid,
-    /// An evaluation produced a value that is not finite, such as an ordinate times g or the
-    /// scale factor beyond the binary64 range. No value is published in its place.
-    EvaluationNonfinite,
+    /// A published value (the interpolated ordinate, S or s·S) cannot be stated in binary64 to the
+    /// stated relative accuracy, 1e-9: it exceeds the binary64 range, rounds to zero, or lies so deep
+    /// in the subnormal range that its rounding alone exceeds the accuracy. The evaluation publishes
+    /// nothing. It is distinct from a query outside the table and from an invalid record.
+    EvaluationAccuracyUnsupported,
 }
 
 impl RefusalCode {
@@ -33,7 +35,7 @@ impl RefusalCode {
             Self::FrequencyOutsideRange => "SPECTRUM_FREQUENCY_OUTSIDE_RANGE",
             Self::QueryFrequencyInvalid => "SPECTRUM_QUERY_FREQUENCY_INVALID",
             Self::ScaleFactorInvalid => "SPECTRUM_SCALE_FACTOR_INVALID",
-            Self::EvaluationNonfinite => "SPECTRUM_EVALUATION_NONFINITE",
+            Self::EvaluationAccuracyUnsupported => "SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED",
         }
     }
 }
