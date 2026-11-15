@@ -311,7 +311,9 @@ counts by exact rational inertia) and the exact counts in
   mode and is refused (`MODAL_NO_FINITE_MODES`).
 - **Not recorded.** A modal result is not an analysis run: it is not saved
   with a project and is run again when needed. It is not part of the static
-  result envelope, report or export.
+  result envelope, a released report or an ordinary mechanics export. Saving
+  the headless command's output through `--output` saves the experimental
+  document itself, with its stamp, under the local-private control.
 - **Normalized shapes** are not physical amplitudes (see
   [Normalization](#normalization-a-display-convention)).
 

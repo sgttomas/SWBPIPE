@@ -167,6 +167,7 @@ The guide should refer to these current surfaces when explaining behavior:
 | Rule packs | `schemas/rule_pack.schema.yaml`, `core/rules/expression_evaluator`, `core/rules/completeness_checker`, `core/rules/rule_pack_lifecycle` | Rule packs are user-owned or invented examples. Required inputs, unit checks, provenance, checksums, and privacy state are explicit. |
 | GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite macOS desktop app in `apps/desktop` is the user surface ([Current Desktop App](#current-desktop-app-010)); the `core/gui/*` modules are contract/reference modules (Python engines and a standalone Rust crate) that the app does not call or link. Its native smoke (`apps/desktop/native-smoke/`) and browser specs (`apps/desktop/e2e/`) exercise the app; no single run yet takes a model authored in the app through solve, review, save and reopen. Supported-release acceptance and other platforms remain `TBD`. |
 | Hanger sizing | `core/analysis/hanger_sizing`, `schemas/hanger_sizing_result.schema.json`, `schemas/hanger.schema.yaml`, `core/runner/headless/src/bin/openpipestress-runner.rs` (`size-hangers`), `docs/theory/hanger_sizing.md` | Sizes named supports from a private hanger library on the pressure-free route and publishes a closed, local-private result document through the headless runner only ([§7.1](#71-hanger-sizing-with-the-headless-runner-pressure-free-route)). There is no desktop display, CSV table or recorded-run save yet, and the exact route is refused. |
+| Modal analysis (experimental) | `core/product_physics/src/modal.rs` and `modal/`, `core/solver/modal_eigen`, `core/reporting/modal_result`, `core/runner/headless/src/bin/openpipestress-runner.rs` (`modal`, `read modal-result`), `docs/theory/modal_analysis.md` | Natural frequencies, mode shapes and participation on the dense path, published as an experimental document that is not a public engineering result, through the headless runner only ([§7.2](#72-modal-analysis-with-the-headless-runner-experimental)). There is no desktop view, report section or recorded-run save. |
 | Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, a desktop preview and a native report-package save path exist in code, and the app renders a local private report for a pressure-free result after the local-private selection; a public render stays blocked, eligible exact-route results can be rendered and packaged, and the report JSON packet still refuses them ([Current Desktop App](#current-desktop-app-010)). Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
 | Privacy and export controls | `docs/security/local_first_storage_policy.md`, `docs/security/redaction_export_controls.md`, `docs/security/telemetry_policy.md`, `core/security/redaction` | Private data is local/user-controlled by default. Project storage is local-only and offline-capable. Telemetry is off by default. Redaction/export behavior is metadata-driven. |
 | Export interoperability | `schemas/native_json_export.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, the export of a `.mbf` model batch file, optional user-owned external-run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package surfaces: handoff evidence for external validation, not a validation outcome. |
@@ -916,6 +917,143 @@ and SWBPIPE ships no value for any of them. Engineering judgement on the inputs,
 library and the result remains yours, and competent human review is required
 before professional reliance (§1).
 
+### 7.2 Modal analysis with the headless runner (experimental)
+
+Modal analysis computes the natural frequencies and mode shapes of your model,
+with the mass each mode carries. Today it runs only from the command line,
+through `openpipestress-runner modal`, and **only as an experiment**. Every
+result document states `admission.status: experimental` and
+`public_engineering_result: false`. A modal result is not yet an engineering
+result you can issue, and SWBPIPE does not present it as one. The desktop app
+does not offer modal analysis yet. The method is explained in the
+[modal analysis theory note](../theory/modal_analysis.md), and the governing
+scope is DEL-04-09 (`execution/PKG-04/DEL-04-09/ScopeOfWork.md`).
+
+**Why experimental.** The method's thresholds and parameters have selected
+values, and every document states that as its parameter standing
+(`parameter_standing: selected`, `parameter_label: selected_a1_a2_a3_criteria`).
+That is separate from the result standing. DEL-04-09's admission conditions for
+an engineering result are not met: the dense path's work guard has no measured
+budget, and the resource preflight refuses every budgeted request. The command
+runs without a budget. It applies the dense path's memory guard, every request
+and model refusal, and the integrity checks.
+
+**The input.** The input is one JSON object, the modal request, which the
+command passes to the product's modal entry unchanged:
+
+```json
+{"model": …, "materials": […], "mode_count": 6, "frequency_cutoff": {"value": 40, "unit": "Hz"}, …}
+```
+
+| Member | What you state |
+|---|---|
+| `model`, `materials` | Your model document and its materials, as for a solve. |
+| `mode_count`, `frequency_cutoff` | The extraction bound: a positive mode count, a positive frequency with its unit, or both. At least one is required (`MODAL_EXTRACTION_BOUND_REQUIRED`). The result reports the lowest modes up to whichever bound stops first; the cut-off is inclusive, and a cluster cut by the bound is completed and disclosed. |
+| `state_case` | The load case whose solved state defines the modal model. It is required when the document is a load/reference-state document or the model has a nonlinear support (`MODAL_STATE_CASE_REQUIRED`). The case is solved in the same run. Its moduli, contents density, nonlinear-support states and restraints define the stiffness and mass. |
+| `modulus_basis_ref`, `modulus_basis_temperature` | Without a state case, the modulus basis, as for a solve. With a state case they are refused (`MODAL_MODULUS_BASIS_CONFLICT`). |
+| `weight_to_mass_acceleration` | A positive acceleration with its unit. It is required when a component's weight enters the mass (`MODAL_WEIGHT_ACCELERATION_REQUIRED`), and it must equal the acceleration of any applied component-weight primitive exactly (`MODAL_WEIGHT_ACCELERATION_MISMATCH`). |
+| `include_dynamic_only_restraints` | Recorded with the result; no support family admitted today uses it. |
+
+Nothing is defaulted. The runner adds no bound, state case, modulus basis or
+acceleration, and a request without a required member is refused by name.
+
+**Running it.**
+
+```bash
+openpipestress-runner modal \
+  --input fixtures/results/modal_cantilever_below_cutoff.request.json \
+  --output cantilever_modal.json \
+  --explicit-local-private-intent
+```
+
+The output is the runner's local-private control record. Its `payload` is the
+modal document, unchanged. The exit status is 0 when the document is `solved`
+and 1 when it is `refused`. Status 2 means the input was unusable and no
+document was formed: not JSON, or outside the checked canonical profile (for
+example a duplicate member), or an argument the command does not take, such as
+`--solver-mode`.
+
+**Privacy.** The whole document is local-private output, because it binds and
+states values derived from your model. Without `--explicit-local-private-intent`
+the run exits 1. It prints one blocking decision at `$`, with `"payload": null`
+and none of the document's content, digests or identifiers, and writes no
+file. With the flag the document is printed, and written to `--output` if you
+name one, with one warning. A document saved through `--output` keeps its
+experimental stamp. It is not an analysis run, a released report or a
+mechanics export: the command records nothing in a project, and a modal result
+is run again when you need it.
+
+**Reading the document.** Check that `status`, `binding.options` and
+`binding.state_case` are what you asked for. A solved document then gives:
+
+- `extraction`: which bound stopped the set, and any cluster extension;
+- `tables.modes`: each mode's frequency (Hz), circular frequency (rad/s),
+  period (s), generalized mass, normalization case and cluster;
+- `tables.participation`: participation factors, effective masses (kg) and
+  effective-mass fractions, with their cumulative sums, in X, Y and Z;
+- `tables.mass_totals`: the model's mass by category and the free-DOF mass;
+- `sturm`, `formation`, `orthogonality`: the integrity evidence, with each
+  premise stated;
+- `standing`: its `token` is `sensitive`, with the reasons, when a mode's
+  residual or the orthogonality exceeded its threshold;
+- `tables.disclosures` and `tables.diagnostics`: what was ignored,
+  approximated or excluded, such as massless families, frozen sliding friction
+  or ignored loads.
+
+Mode shapes are normalized: a mode with translation has its largest
+translation +1, and a mode with none (such as pure torsion) has its largest
+rotation +1. That is a display convention, not a physical amplitude.
+Frequencies and effective masses do not depend on it.
+
+**Checking a document with the product reader.** `read modal-result` gives the
+verdict of DEL-04-09's Rust reader, which shares no code with the producer.
+Supply the document and the request it binds:
+
+```bash
+openpipestress-runner read modal-result --input reader_input.json
+# reader_input.json: {"source": <the modal document>, "request": <the modal request>}
+```
+
+The outcome is `{"ok", "verdict"}`. `verdict` reports, for the document's
+closure, its binding to the request you supplied, and each relation (mass,
+normalization, participation, counts, clusters, Sturm, evidence, standing,
+units), whether it `passed`, `failed`, was `unresolved`, is
+`scoped_unsupported` or was `not_checked`. It also gives a `decision`, a
+`validation` status (`fully_validated` or `not_fully_validated`) and
+`public_admission`, which is always `disabled`. `ok` is true, with exit
+status 0, when the decision is not `rejected`. That means only that the
+document is readable and its checked relations do not contradict it. **It is
+not numerical eligibility and not admission.** Without `request`, the binding
+and the model-derived mass are not checked, so the read is
+`not_fully_validated`. A document read against a request other than the one
+it binds is rejected, with exit status 1. A refused document reads as
+`refusal_consistent` when its refusals are well formed. The reader re-derives
+relations; it does not re-run the eigen-solve.
+
+**Limitations.**
+
+- Experimental only. The admission conditions for an engineering result are
+  open (above).
+- Dense path only, under the dense memory guard. A model too large for it is
+  refused.
+- Timoshenko straight members are refused (`MODAL_TIMOSHENKO_MASS_UNSUPPORTED`).
+  The exact-route pressure authoring default writes them, so select
+  Euler–Bernoulli members explicitly if you need a modal result. That changes
+  the straight-member theory in every analysis of the model
+  (`docs/RELEASE_LIMITATIONS_v1.0.md` LIM-020).
+- Realized bends use a thin curved-beam element whose application range is not
+  established (LIM-021). A modal result inherits that.
+- Skewed restraints are refused by the modal document
+  (`MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED`).
+- No damping and no pressure stiffening. Loads are ignored by the
+  eigenproblem.
+- No desktop modes table, mode-shape view, report section or CSV.
+
+Numerical integrity does not establish physical correctness. A modal result
+does not determine code compliance. Engineering judgement on the inputs, the
+model and the result remains yours, and competent human review is required
+before professional reliance (§1).
+
 ## 8. Running User Rule Checks
 
 Rule checks are not built-in protected standards checks. They are user-defined
@@ -1087,6 +1225,10 @@ The following remain explicit limitations or open decisions:
 - hanger sizing only through the headless runner on the pressure-free route,
   with no desktop display, CSV table, recorded-run save, exact-route sizing or
   variable spring preload in the model's own solve (§7.1);
+- modal analysis only through the headless runner and only as an experimental
+  result, not a public engineering result, on the dense path, with Timoshenko
+  straight members and skewed restraints refused and no desktop view or
+  report section (§7.2);
 - publication of the v0.1 macOS Apple Silicon `.app` zip, which is the
   owner's act; the published location is still to be named (§3.1);
 - exact dependency versions and an end-to-end run of a model authored in the
