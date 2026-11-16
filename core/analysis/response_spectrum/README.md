@@ -38,8 +38,52 @@ The DEL-04-10 scope records Agent 0's decisions on the method:
   A consequence: on a period table whose first knot is authored as `0.1` s, a query represented
   as exactly 10 Hz is outside the range. The binary64 0.1 is larger than 1/10, so the query's
   period lies below the first knot.
-- After location, the arithmetic is binary64 with the rounding that `SpectrumTable::evaluate`
-  documents.
+- After location, the arithmetic is binary64 on significands with exact exponent bookkeeping, so
+  no intermediate overflows or underflows. The two weights are formed directly as positive
+  quotients (never as 1 − t), a linear ordinate is w₀·y₀ + w₁·y₁, and a logarithmic ordinate is
+  reached from the knot with the larger weight. `SpectrumTable::evaluate` documents each formula.
+
+## Accuracy of each published value
+
+The interpolated ordinate, S and s·S each carry a relative error bound conditional on IEEE 754 round to
+nearest and the unchecked libm assumption below
+(`Ordinate::*_bound`) against the exact interpolation of the represented table at the represented
+query. A value is published only when its bound is at most 1e-9 (`STATED_ACCURACY`). Otherwise the
+evaluation is refused as `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`.
+
+- **What the argument proves, under its premises.**
+  - Each binary64 operation on a normal significand rounds once (relative error at most u = 2⁻⁵³).
+  - The exponent bookkeeping and the significand splits are exact.
+  - The logarithm helpers are within 2.11κ + 3u, and the bound composes these errors through each
+    formula with its condition number.
+  - The result: a few u for a linear ordinate, and about 62u·|z| + 10u for a logarithmic one, with
+    |z| ≤ |ln(y₁/y₀)|/2 ≤ 727, so below 10⁻¹¹ for any positive finite table.
+  - Rounding the published value adds nothing in the normal range, and at most 2⁻¹⁰⁷⁵ absolutely in
+    the subnormal range.
+- **Premises.** IEEE 754 binary64 with round to nearest (Rust's `+ − × ÷` and `mul_add`). The
+  platform's `ln`, `ln_1p` and `exp` are each within κ = 2⁻⁵⁰ relative of the exact value. This
+  is assumed, not checked, for Apple's libm on macOS, glibc on Linux and the Microsoft C runtime on
+  Windows. The inspected platform documentation establishes no universal guarantee of this
+  constant. Downstream consumers must retain this qualification beside any accuracy claim. A
+  supported platform found to violate the constant reopens the premise and affected claims,
+  even if final-result comparisons still pass.
+- **What is tested, and is not a proof.**
+  - The frozen F2 references.
+  - The first review's ten probes.
+  - Published values either side of the subnormal threshold and of 2^1024.
+  - 240 seeded adversarial tables over the eight axis and rule combinations, each compared with
+    150-digit expectations from `tests/oracle/generate.py`.
+
+  The maintained higher precision sweep tests final results on the configuration that executes
+  it. Record the source, Rust target/compiler, OS and math runtime with each local or hosted run;
+  only configurations actually exercised by that run have evidence. Passing it neither directly
+  checks nor establishes the primitive-function premise. The separate direct premise check has
+  not been established. The selected corpus also checks today's conservative refusal policy.
+- **Refused.** This implemented argument does not establish 1e-9 relative accuracy under its
+  assumptions. It may refuse a representable accurate answer: an exact `1e-320` knot is charged
+  the worst-case half-subnormal spacing; a constant `f64::MAX` table can have a computed blend
+  that rounds above the finite range. Neither proves that the exact result is unrepresentable.
+  A future argument may justifiably publish these cases. LIM-024 states this refusal policy.
 
 ## Refusals
 
@@ -51,7 +95,7 @@ The DEL-04-10 scope records Agent 0's decisions on the method:
 | `SPECTRUM_FREQUENCY_OUTSIDE_RANGE` | The query is outside the tabulated range. |
 | `SPECTRUM_QUERY_FREQUENCY_INVALID` | The query is not a positive finite frequency in a catalog unit. |
 | `SPECTRUM_SCALE_FACTOR_INVALID` | The scale factor is not positive and finite. |
-| `SPECTRUM_EVALUATION_NONFINITE` | A value would leave the binary64 range. |
+| `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED` | This implemented argument does not establish 1e-9 relative accuracy under its stated assumptions. |
 
 ## Example
 

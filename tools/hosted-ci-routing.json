@@ -2611,6 +2611,7 @@
               "core/analysis/response_spectrum/src/record.rs",
               "core/analysis/response_spectrum/src/refusal.rs",
               "core/analysis/response_spectrum/src/request.rs",
+              "core/analysis/response_spectrum/src/scaled.rs",
               "core/analysis/response_spectrum/src/table.rs",
               "core/gui/viewport_editor/src/lib.rs",
               "core/handoff/caepipe_mbf_engine/src/correctly_rounded.rs",

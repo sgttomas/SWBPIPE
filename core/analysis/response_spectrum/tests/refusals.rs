@@ -116,12 +116,12 @@ fn query_scale_and_nonfinite_refusals_are_named() {
     let f = QueryFrequency::new(0.75, "Hz").unwrap();
     assert!(table.evaluate(f, ScaleFactor::new(1.0).unwrap()).is_ok());
     let refusal = table.evaluate(f, ScaleFactor::new(2.0).unwrap()).unwrap_err();
-    assert_eq!((refusal.code, refusal.object.as_str()), (RefusalCode::EvaluationNonfinite, "SP"));
+    assert_eq!((refusal.code, refusal.object.as_str()), (RefusalCode::EvaluationAccuracyUnsupported, "SP"));
     // The same through g: a g multiple near the binary64 limit times g.
     let mut g_huge = g_record();
     g_huge["points"] = json!([[1.0, 1.0e308], [2.0, 1.5e308]]);
     let refusal = SpectrumTable::admit(&record(g_huge)).unwrap().evaluate(f, ScaleFactor::new(1.0).unwrap()).unwrap_err();
-    assert_eq!(refusal.code, RefusalCode::EvaluationNonfinite);
+    assert_eq!(refusal.code, RefusalCode::EvaluationAccuracyUnsupported);
 }
 
 #[test]

@@ -146,7 +146,7 @@ CONTAINERS = {
         loose={"published/README.md": "the README of where the F1 modal references are consumed; it belongs to "
                                       "neither package and no list names it"}),
     "f2_spectrum": Container(
-        "three packages (closed_form, discrete, benchmark_pack), each with its own README, generators "
+        "four packages (closed_form, discrete, benchmark_pack, recovery_w1), each with its own README, generators "
         "and SHA256SUMS"),
 }
 
@@ -369,6 +369,7 @@ PACKAGES: dict[str, Package] = {
     "f2_spectrum/closed_form": _plain("generate.py", deliverables="DEL-04-10"),
     "f2_spectrum/discrete": _plain("f2_spectrum_discrete.py", deliverables="DEL-04-10"),
     "f2_spectrum/benchmark_pack": _plain("generate.py", deliverables="DEL-04-10"),
+    "f2_spectrum/recovery_w1": _plain("w1_recovery.py", deliverables="DEL-04-10"),
 
     # Exact-route references frozen after the first table; each also has its own maintained test.
     "exact_difference_basis": _plain("exact_difference_basis_reference.py", deliverables="DEL-05-02"),
