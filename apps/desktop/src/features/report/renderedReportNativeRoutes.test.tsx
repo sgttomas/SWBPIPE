@@ -15,6 +15,7 @@ import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../t
 import { ingressArgs } from "../../test/nativeIngress";
 
 const invokeMock = vi.hoisted(() => vi.fn());
+const assemblyControl = vi.hoisted(() => ({ failure: false, blocked: false, pending: null as Promise<void> | null }));
 const outcomeRef = vi.hoisted(() => ({ current: null as Record<string, unknown> | null }));
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 vi.mock("./ReportComposer", () => ({ ReportComposer: () => null }));
@@ -30,23 +31,27 @@ vi.mock("./renderableReportInput", async (original) => ({
   buildUnitDisplaySummary: () => ({ model_units: {}, result_units: [], conversion_performed: false })
 }));
 vi.mock("./renderedReportAssembly", () => ({
-  assembleRenderedReport: async ({ context }: { context: string }) => ({
-    controlled: {
-      payload: { report_context: { export_context: context } },
-      decisions: [],
-      findings: [],
-      blocked: false,
-      summary: {
-        route_id: "DREP-IPC-003",
-        decision_count: 0,
-        finding_count: 0,
-        warning_count: 0,
-        blocking_count: 0,
-        local_first: { explicit_local_private_intent: context === "local_private" }
-      }
-    },
-    exactSubmission: null
-  })
+  assembleRenderedReport: async ({ context }: { context: string }) => {
+    await assemblyControl.pending;
+    if (assemblyControl.failure) throw new Error("INVENTED-ASSEMBLY-FAILURE");
+    return {
+      controlled: {
+        payload: { report_context: { export_context: context } },
+        decisions: [],
+        findings: [],
+        blocked: assemblyControl.blocked,
+        summary: {
+          route_id: "DREP-IPC-003",
+          decision_count: 0,
+          finding_count: 0,
+          warning_count: 0,
+          blocking_count: 0,
+          local_first: { explicit_local_private_intent: context === "local_private" }
+        }
+      },
+      exactSubmission: null
+    };
+  }
 }));
 /** A render request's native entry and completion, when a test models them (`nativeRender`);
  * otherwise the render answers at once. */
@@ -134,6 +139,9 @@ const SAVED = {
 
 beforeEach(() => {
   invokeMock.mockReset();
+  assemblyControl.failure = false;
+  assemblyControl.blocked = false;
+  assemblyControl.pending = null;
   outcomeRef.current = outcome();
   nativeRender.current = null;
   nativeRender.pending = null;
@@ -377,9 +385,10 @@ describe("native runtime", () => {
         if (!current(source) || native.record?.sequence !== source.sequence) {
           return Promise.reject({ code: "REPORT-SOURCE-RETIRED", stage: "source", message: "The report's source changed.", destination: "untouched", cleanup_code: null, selected_basename: null });
         }
+        const admittedTicket = native.ticket;
         return new Promise((resolve, reject) => native.pendingSaves.push(() => {
           // The publication gate at the rename: the render and its source must still be current.
-          if (native.record === null || !current(source)) {
+          if (native.record === null || native.ticket !== admittedTicket || !current(source)) {
             reject({ code: "REPORT-HTML-SAVE-RETIRED", stage: "currency", message: "The report was retired, rendered again or its source changed before the file was published: nothing was written to the destination.", destination: "as_it_was", cleanup_code: null, selected_basename: "invented-report.html" });
           } else {
             native.published.push(html);
@@ -655,6 +664,73 @@ describe("native runtime", () => {
     expect({ record: context.native.record, active: context.native.active, retires: context.native.retirements })
       .toEqual({ record: null, active: null, retires: [{ source: { incarnation: 1, sequence: 0 }, request: 1 }] });
     expect(screen.queryByTestId("rendered-report-hash")).not.toBeInTheDocument();
+  });
+
+  // R4-F1: clearing a preview is not evidence that native custody was replaced.
+  it.each(["assembly failure", "blocked assembly", "pre-entry refusal"] as const)(
+    "retires the held report on unmount after a replacement ends in %s",
+    async (failure) => {
+      const context = modelledNative();
+      const view = await renderedLocalPrivate(context);
+      fireEvent.click(screen.getByTestId("rendered-report-save-local-private"));
+      await waitFor(() => expect(context.native.pendingSaves).toHaveLength(1));
+      const held = context.native.active;
+      if (failure === "pre-entry refusal") {
+        nativeRender.current!.enter = async () => { throw new Error("INVENTED-PRE-ENTRY-REFUSAL"); };
+      } else if (failure === "assembly failure") assemblyControl.failure = true;
+      else assemblyControl.blocked = true;
+      fireEvent.click(screen.getByTestId("rendered-report-render"));
+      await waitFor(() => expect(screen.getByTestId("rendered-report-render")).toBeEnabled());
+      expect(context.native.entered).toEqual([1]);
+      expect(context.native.active).toEqual(held);
+      hide(context, view);
+      await flush();
+      expect(context.native.retirements).toContainEqual(held);
+      context.publishPendingSaves();
+      await flush();
+      expect(context.native.record).toBeNull();
+      expect(context.native.published).toEqual([]);
+      expect(context.outcomes.snapshot()[0].state).toBe("refused");
+    }
+  );
+
+  it("retires the held report when unmounted during replacement preparation", async () => {
+    const context = modelledNative();
+    const view = await renderedLocalPrivate(context);
+    fireEvent.click(screen.getByTestId("rendered-report-save-local-private"));
+    await waitFor(() => expect(context.native.pendingSaves).toHaveLength(1));
+    const held = context.native.active;
+    let finishPreparation!: () => void;
+    assemblyControl.pending = new Promise<void>((resolve) => { finishPreparation = resolve; });
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    expect(screen.getByTestId("rendered-report-render")).toBeDisabled();
+    hide(context, view);
+    finishPreparation();
+    await flush();
+    expect(context.native.entered).toEqual([1]);
+    expect(context.native.retirements).toEqual([held]);
+    context.publishPendingSaves();
+    await flush();
+    expect(context.native.published).toEqual([]);
+    expect(context.outcomes.snapshot()[0].state).toBe("refused");
+  });
+
+  it("an accepted replacement retires the earlier save and becomes the request retired on unmount", async () => {
+    const context = modelledNative();
+    const view = await renderedLocalPrivate(context);
+    fireEvent.click(screen.getByTestId("rendered-report-save-local-private"));
+    await waitFor(() => expect(context.native.pendingSaves).toHaveLength(1));
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-hash")).toBeInTheDocument());
+    expect(context.native.entered).toEqual([1, 2]);
+    context.publishPendingSaves();
+    await flush();
+    expect(context.native.published).toEqual([]);
+    expect(context.outcomes.snapshot()[0].state).toBe("refused");
+    const replacement = context.native.active;
+    hide(context, view);
+    expect(context.native.retirements).toEqual([replacement]);
+    expect(context.native.record).toBeNull();
   });
 
   // Round-two F1: a library-reference findings publication is a source change of the report.

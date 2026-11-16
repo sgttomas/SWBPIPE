@@ -210,8 +210,10 @@ export function RenderedReportPanel({
   } | null>(null);
   const renderGeneration = useRef(0);
   const nativeRoutes = isNativeRenderedReportRuntime();
-  // The render request whose render the panel shows from the desktop's custody, and the
-  // requests it has sent there whose answers are outstanding, each by its exact identity.
+  // The last accepted native render, retained until a replacement is accepted or unmount
+  // retires it. Clearing the preview or starting preparation does not prove native custody
+  // changed: preparation or entry can fail, and a source advance can still be in transit.
+  // Requests sent with answers outstanding are tracked separately by their exact identity.
   const heldRequest = useRef<ReportRenderRequest | null>(null);
   const outstandingRequests = useRef(new Set<ReportRenderRequest>());
   const routeInFlight = useRef(false);
@@ -225,9 +227,6 @@ export function RenderedReportPanel({
     outstandingRequests.current.clear();
     heldRequest.current = null;
     for (const request of requests) retireRenderedReport(request);
-  }
-  function forgetNativeRender() {
-    heldRequest.current = null;
   }
 
   // A render (or its redaction evidence) is shown only under the selection
@@ -284,7 +283,6 @@ export function RenderedReportPanel({
     sourceRef.current = next;
     if ((Object.keys(next) as Array<keyof typeof next>).every((key) => previous[key] === next[key])) return;
     renderGeneration.current += 1;
-    forgetNativeRender();
     setRenderState(null);
     setRedactionState(null);
     setPrintRequest(null);
@@ -295,7 +293,6 @@ export function RenderedReportPanel({
 
   function onLocalPrivateIntentChange(value: boolean) {
     renderGeneration.current += 1;
-    forgetNativeRender();
     // The export context is report-bound: its change advances the source sequence.
     reportSource?.advance();
     setLocalPrivateIntent(value);
@@ -308,7 +305,6 @@ export function RenderedReportPanel({
   }
   function onCompositionChange(value: ReportComposition | null) {
     renderGeneration.current += 1;
-    forgetNativeRender();
     // The session's composition cell advances the sequence itself; the panel's own does here.
     if (!onReportCompositionChange) reportSource?.advance();
     changeComposition(value);
@@ -340,7 +336,6 @@ export function RenderedReportPanel({
     // request's ordinal, allocated as its preparation begins (before any await).
     const viewSequence = reportSourceSequence;
     const requestOrdinal = reportSource ? reportSource.nextRenderRequest() : 0;
-    forgetNativeRender();
     setRendering(true);
     setRenderError(null);
     setPrintRequest(null);
