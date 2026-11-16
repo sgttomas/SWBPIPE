@@ -2,7 +2,7 @@
 //! precision cap. They are `#[ignore]`d: run them in release, one at a time, under a resource
 //! meter, for example
 //! `cargo test --release --test combination_cost -- --ignored --nocapture --test-threads 1 <name>`.
-//! They assert outcomes (combined or refused), not timings.
+//! They report outcomes and some cases assert them; none asserts timings.
 mod support;
 
 use open_pipe_stress_response_spectrum::{
@@ -203,20 +203,20 @@ fn cost_demanding_n20_rows_50() {
 
 #[test]
 #[ignore]
-fn cost_refusal_n40_rows_10() {
-    timed("refusal n=40", &binomial_rows(40, 1.0, 10));
+fn cost_refinement_n40_rows_10() {
+    timed("refinement n=40", &binomial_rows(40, 1.0, 10));
 }
 
 #[test]
 #[ignore]
-fn cost_refusal_n40_rows_50() {
-    timed("refusal n=40", &binomial_rows(40, 1.0, 50));
+fn cost_refinement_n40_rows_50() {
+    timed("refinement n=40", &binomial_rows(40, 1.0, 50));
 }
 
 #[test]
 #[ignore]
-fn cost_refusal_n80_rows_1() {
-    timed("refusal n=80", &binomial_rows(80, 1.0, 1));
+fn cost_rounded_binomial_n80_rows_1() {
+    timed("rounded binary64 binomial n=80 (not a refusal witness)", &binomial_rows(80, 1.0, 1));
 }
 
 /// A demanding refinement: n = 20 needs about 605 bits under the pricing model and is certified
@@ -229,27 +229,34 @@ fn cost_demanding_refinement_n20() {
     eprintln!("COST demanding refinement n=20: {:?}, value {:e}", start.elapsed(), c.rows[0].combined.value());
 }
 
-/// The refusal path: n = 40 needs more than the cap; every level is tried and the request is
-/// refused.
+/// The top rung resolves the 40-term case; its independent oracle is maintained separately.
 #[test]
 #[ignore]
-fn cost_refusal_path_n40() {
+fn cost_refinement_path_n40() {
     let start = Instant::now();
-    let refused = combine(&binomial_request(40, 1.0)).expect_err("refused at the cap");
-    eprintln!("COST refusal path n=40: {:?}, {}", start.elapsed(), refused[0]);
+    let c = combine(&binomial_request(40, 1.0)).expect("published at the top rung");
+    eprintln!("COST refinement n=40: {:?}, value {:e}", start.elapsed(), c.rows[0].combined.value());
+}
+
+/// A genuine cap refusal with exact binomial sums, unlike the rounded 80-term workload.
+#[test]
+#[ignore]
+fn cost_refusal_exact_n88() {
+    let start = Instant::now();
+    let refused = combine(&exact_binomial_request(88, 512)).expect_err("refused at the cap");
+    eprintln!("COST exact binomial n=88: {:?}, {}", start.elapsed(), refused[0]);
     assert_eq!(refused[0].code.as_str(), "SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED");
 }
 
-/// The refusal path with many clusters: 120 clusters (the n = 40 refusing pattern on the first 40,
-/// zero contributions on 80 more at higher frequencies), so the ρ table of every level covers all
-/// 7,140 pairs.
+/// Top-rung refinement with 120 clusters: the n = 40 pattern on the first 40 and zero
+/// contributions on 80 more, so the ρ table of every attempted level covers all 7,140 pairs.
 #[test]
 #[ignore]
-fn cost_refusal_n40_with_120_clusters_rows_10() {
+fn cost_refinement_n40_with_120_clusters_rows_10() {
     let mut request = binomial_rows(40, 1.0, 10);
     for i in 40..120u32 {
         request.modes.push(ModalMode { mode: ModeIndex(i + 1), cluster: ClusterIndex(i + 1), frequency_hz: 2.0 + i as f64 });
         request.periodic.push(ModalContribution { mode: ModeIndex(i + 1), direction: Direction::X, values: vec![0.0; 10] });
     }
-    timed("refusal n=40 among 120 clusters", &request);
+    timed("refinement n=40 among 120 clusters", &request);
 }

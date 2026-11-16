@@ -212,9 +212,9 @@ naming the row (DEL-04-10 scope, "Combined magnitudes are certified against thei
   binary64.
 - **Precision ladder.**
   - ρ's enclosures are tried at 53 bits (binary64-guided and checked, with ends rounded outward to
-    64 bits so the CQC inner sums accumulate exactly without allocation), then 128, 256, 512 and
-    1,024 bits, from exact integer division and square roots.
-  - A row moves up the ladder only while it is not certified. A row not certified at 1,024 bits
+    64 bits so the CQC inner sums accumulate exactly without allocation), then 128, 256, 512,
+    1,024 and 2,048 bits, from exact integer division and square roots.
+  - A row moves up the ladder only while it is not certified. A row not certified at 2,048 bits
     refuses the request.
   - Scaling a row by a power of two leaves its conditioning unchanged. A large result can still be
     refused (for example the scaled R2 below), and a tiny one certified.
@@ -238,35 +238,42 @@ What is refused, with witnesses from review round 1 (`tests/represented_input_or
 |---|---|---|
 | 100-40-40 of three 2^-1074 | 9/5 = 1.8 quanta | `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`; analytically, the nearest binary64 (2 quanta) is 1/9 away |
 | 100-40-40 of [2, 1, 1]·2^-1074 | 14/5 = 2.8 quanta | `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`; analytically, 3 quanta is 1/14 away |
-| CQC, f_i = 1 + i·2^-19 Hz, R_k = (−1)^k C(39, k) N, ζ = 0.2, n = 40 | below 1e-150 N (Decimal) | `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`: the radicand's enclosure still reaches zero at 1,024 bits |
+| CQC, f_i = 1 + i·2^-19 Hz, R_k = (−1)^k C(39, k), ζ = 0.2, n = 40 | 9.71048724966594e-151 | published at 2,048 bits; every lower rung fails to establish accuracy |
+| CQC, 88 exact alternating binomial cluster sums, each scaled by 2^512 and split into two exact binary64 contributions | 1.12409512915645e-151 (independent Decimal check) | `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`: the radicand enclosure still reaches zero at the 2,048-bit cap |
 | The same family, n = 20 | 1.7888529003e-79 N | certified |
 | The same family, n = 7, scaled by 2^90 | 3.2174063837e-1 N | certified |
 | [1e16, 1, −1e16] in one cluster, every modal rule | 1 | certified, exactly 1 |
 
 ### Cost and the cap
 
-**Environment.**
-- Machine: Apple M5 Max (18 cores, 128 GiB), macOS 27.2 (26B123).
-- Toolchain: rustc and cargo 1.97.1, release profile (Cargo's default; the crate sets no profile).
-- Method: `tests/combination_cost.rs` (`#[ignore]`d), one scenario per process, through the host's
-  slot wrapper, measured on 15 November 2026. Logs are kept outside Git.
-- The fd5aab5e5 column was measured while a routing pytest ran on the same host. On the
-  unloaded host, the same arithmetic measured 5–15 % lower. These are observations of the cases
-  measured, not bounds.
+**Observed comparison, 16 November 2026.** Apple M5 Max (18 cores, 128 GiB), macOS
+27.2 (26B123), rustc/cargo 1.97.1, locked Cargo release builds. Source `4c5e1b058` already
+contains landed S2 and W1. The comparison build adds only the 2,048-bit rung to that source.
+Each maintained cost scenario runs in its own process through the host slot wrapper; times
+are the workload timer excluding compilation, and memory is process peak RSS in decimal MB.
+This was a shared host, with no exclusive window or release-baseline qualification. Raw commands,
+build identity and logs are retained outside Git for the open review. These replace the earlier
+unauthenticated historical timing account.
 
-| Scenario | Binary64, source 42aeb90ba | Certified, source fd5aab5e5 | Peak RSS (fd5aab5e5) |
-|---|---|---|---|
-| Frozen references: 78 combinations, 28,626 magnitudes | 8.8 ms | 61 ms | 12.6 MB |
-| Many-mode CQC, 30 / 60 / 120 clusters × 300 rows × 3 directions | | 23 / 50 / 124 ms | 5.5 / 8.0 / 13.2 MB |
-| Many-mode CQC, 120 × 1,200 × 3 | 18.8 ms | 423 ms | 37.7 MB (binary64: 11.5 MB) |
-| Many-mode SRSS, 120 × 1,200 × 3 | 1.8 ms | 88 ms | 36.3 MB |
-| Demanding refinement, n = 20: 1 row / 50 rows | | 5.2 ms / 17 ms | 3.4 / 3.6 MB |
-| Refusal path, n = 40: 1 row / 50 rows | | 18 ms / 71 ms | 4.1 / 4.6 MB |
-| Refusal path, n = 40 among 120 clusters, 10 rows | | 178 ms | 12.2 MB |
+| Scenario | 1,024-bit cap: time / peak RSS | 2,048-bit cap: time / peak RSS |
+|---|---|---|
+| Frozen references, 78 combinations / 28,626 magnitudes | 52.4 ms / 12.76 MB | 62.8 ms / 12.75 MB |
+| CQC, 30 clusters × 300 rows × 3 directions | 18.4 ms / 5.52 MB | 22.6 ms / 5.51 MB |
+| CQC, 120 clusters × 1,200 rows × 3 directions | 351.5 ms / 37.85 MB | 466.1 ms / 37.86 MB |
+| SRSS, 120 clusters × 1,200 rows × 3 directions | 74.7 ms / 36.24 MB | 87.8 ms / 36.24 MB |
+| Demanding n = 20, 1 row | 4.25 ms / 3.47 MB, published | 4.58 ms / 3.54 MB, published |
+| Demanding n = 20, 50 rows | 15.3 ms / 3.57 MB, published | 17.8 ms / 3.77 MB, published |
+| n = 40, 10 rows | 27.1 ms / 4.47 MB, refused | 46.7 ms / 5.29 MB, published |
+| n = 40, 50 rows | 65.3 ms / 4.65 MB, refused | 116.5 ms / 5.41 MB, published |
+| n = 40 among 120 clusters, 10 rows | 180.1 ms / 12.21 MB, refused | 326.1 ms / 17.76 MB, published |
 
-A comparison build: 8eb461fc5's source in scratch, with a 2,048-bit level appended to the ladder.
-There, n = 40 among 120 clusters (10 rows) is certified in 341 ms with 17.7 MB, against 178 ms and
-12.2 MB refused at the 1,024-bit cap.
+These are single-run observations, not bounds. Ordinary-case timing differences cannot be
+attributed to an unused extra rung. Separate instrumented runs observed the maintained suite
+reaching 1,024 bits and the 40-among-120 probe reaching 2,048 bits; the latter then published.
+The maintained tests now check the 40-term case at every lower rung and at 2,048, compare its
+published value to the independent represented-input oracle, and require a genuine cap refusal
+for 88 exact binomial cluster sums. The rounded 80-term cost workload publishes and is named as
+such; it is not a refusal witness or evidence of monotonic growth in required precision.
 
 **Work and retained workspace.** These describe the implemented loops and the measured
 scenarios, not a bound on time or memory. Integer-operation cost also depends on the actual
@@ -288,16 +295,11 @@ intermediate bit lengths.
   bound is claimed. The reader observed a 5,356-bit radicand endpoint at the 53-bit level for
   frequencies [2^-1074, f64::MAX], damping 2^-1074 and contributions [1, 1].
 
-**Why the cap is 1,024 bits.**
-- The precision cap bounds the precision only. It bounds neither work nor memory, and the
-  measurements above are what informed the choice.
-- Under the pricing model, a planning model and not a bound, 1,024 bits certifies the evenly spaced
-  alternating-binomial family up to about n = 36 at ζ = 0.2.
-- In the measured refusal cases the cap cost 18 ms (40 clusters, 1 row) to 178 ms (120 clusters,
-  10 rows).
-- In the one measured 2,048-bit comparison, the extra level roughly doubled the time and added
-  45 % memory. The pricing model suggests, as planning only, that 2,048 bits would reach about
-  40 more alternating clusters.
+**Why the cap is 2,048 bits.** Agent 0 chose this rung on 16 November: it resolves a demanding
+case that 1,024 refuses, at the observed extra time and memory above. The policy is to publish
+what the runtime enclosure establishes and refuse otherwise. The cap is a reversible choice
+about how far `PRECISION_LADDER` climbs, not an accuracy, work or memory bound. The actual
+enclosure, including final binary64 conversion, still decides every publication and exact zero.
 
 ### JSON entry and example
 

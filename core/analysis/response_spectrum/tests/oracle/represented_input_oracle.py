@@ -223,7 +223,7 @@ def witnesses():
         single(f"cqc_pair_step{step}", "CQC", [1.0, 1.0 + step], [1, 2], [1.0, -1.0], 0.2, "review: an opposite-sign close pair")
     for wid, n, zeta, scale in [("R1_n4_z0.05", 4, 0.05, 1.0), ("R1_n3_z0.2", 3, 0.2, 1.0), ("R2_n7_z0.2", 7, 0.2, 1.0),
                                 ("R2_n8_z0.05", 8, 0.05, 1.0), ("R2_n7_z0.2_scaled_2^90", 7, 0.2, 2.0 ** 90),
-                                ("demanding_n20_z0.2", 20, 0.2, 1.0)]:
+                                ("demanding_n20_z0.2", 20, 0.2, 1.0), ("top_rung_n40_z0.2", 40, 0.2, 1.0)]:
         freqs, values, z = binomial(n, zeta, scale)
         single(wid, "CQC", freqs, list(range(1, n + 1)), values, z,
                "evenly spaced alternating binomial: f_i = 1 + i*2^-19 Hz, R_k = (-1)^k C(n-1,k) N times the scale")

@@ -94,9 +94,9 @@ Every combined response is an unsigned magnitude.
   - the CQC radicand's square root is taken only from an enclosure with a positive lower end;
   - the rigid and directional rules carry enclosures monotonically;
   - the published binary64 itself is checked against the enclosure, including its final conversion;
-  - the enclosures of ρ are tried at 53, 128, 256, 512 and 1,024 bits, and 1,024 is the cap.
+  - the enclosures of ρ are tried at 53, 128, 256, 512, 1,024 and 2,048 bits, and 2,048 is the cap.
 
-  The cap bounds precision only. It was chosen with measured cost cases (`core/analysis/response_spectrum/README.md`), which are observations, not bounds. The rule is a product of exact arithmetic on the represented operands. It makes no claim about the accuracy of those operands, and it changes neither the frozen references nor the 1e-9 verification tolerance of REQ-008 against them. The refusal code replaces the earlier `SPECTRUM_COMBINATION_RADICAND_NEGATIVE`. Decided by Agent 0 after review round 1 of unit S4, which also reserved the refusal name.
+  The cap bounds refinement precision only. Agent 0 chose 2,048 on 16 November because it resolves a demanding case that 1,024 refuses, at the observed extra time and memory on one host (`core/analysis/response_spectrum/README.md`). This is a reversible policy choice about how far the ladder climbs, not an accuracy, work or memory bound; the actual enclosure still decides publication. The rule is a product of exact arithmetic on the represented operands. It makes no claim about the accuracy of those operands, and it changes neither the frozen references nor the 1e-9 verification tolerance of REQ-008 against them. The refusal code replaces the earlier `SPECTRUM_COMBINATION_RADICAND_NEGATIVE`. Decided by Agent 0 after review round 1 of unit S4, which also reserved the refusal name.
 
 **Inherited limitation.** A model's realized bends enter the modal basis with DEL-03-03's thin curved-beam stiffness, whose application range SWBPIPE's verification has not established (`docs/RELEASE_LIMITATIONS_v1.0.md` LIM-021, an applicability limitation). A spectrum result of such a model inherits it through DEL-04-09's modal basis.
 

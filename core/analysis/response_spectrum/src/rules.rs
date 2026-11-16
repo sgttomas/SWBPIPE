@@ -38,13 +38,13 @@ use crate::dyadic::{self, Dyadic, Interval};
 use crate::exact::decompose;
 use std::cmp::Ordering;
 
-/// The working precisions tried in turn, in significant bits, for the enclosures of ρ; 1,024 is
+/// The working precisions tried in turn, in significant bits, for the enclosures of ρ; 2,048 is
 /// the cap. At 53 the enclosures are binary64-guided and checked exactly; above it they come from
 /// exact integer division and square roots. The square roots and quotients of the combined
 /// magnitudes themselves are always binary64-guided and checked (relative width about 2^-49):
 /// nothing after them cancels, so their width never decides certification. The cap's reason
 /// and its measured cost are in the crate README.
-pub const PRECISION_LADDER: [u64; 5] = [53, 128, 256, 512, 1024];
+pub const PRECISION_LADDER: [u64; 6] = [53, 128, 256, 512, 1024, 2048];
 
 /// Whether `upper` is within 10 % of `lower`, (upper − lower)/lower ≤ 1/10, decided exactly on
 /// the represented binary64 operands: 10·upper ≤ 11·lower as an integer comparison, so rounding
@@ -406,6 +406,30 @@ pub(crate) fn hundred_forty_forty(parts: &[Interval]) -> Interval {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_2048_rung_resolves_the_40_term_case_after_every_lower_rung_fails() {
+        let n = 40;
+        let frequencies: Vec<_> = (0..n).map(|i| 1.0 + i as f64 * 2f64.powi(-19)).collect();
+        let mut coefficient = 1u128;
+        let values: Vec<_> = (0..n).map(|k| {
+            // C(39,k) and its recurrence products fit exactly in binary64 and u128.
+            let signed = if k % 2 == 0 { coefficient as f64 } else { -(coefficient as f64) };
+            coefficient = coefficient * (n - 1 - k) as u128 / (k + 1) as u128;
+            Dyadic::from_f64(signed)
+        }).collect();
+        for p in [53, 128, 256, 512, 1024] {
+            let table = CorrelationTable::new(&frequencies, 0.2, p);
+            let resolved = modal(&ModalForm::Cqc, Some(&table), &values)
+                .map(|e| certify(&e));
+            assert!(!matches!(resolved, Ok(Certified::Value(_))), "resolved at {p}");
+        }
+        let table = CorrelationTable::new(&frequencies, 0.2, 2048);
+        let e = modal(&ModalForm::Cqc, Some(&table), &values).expect("positive at 2048");
+        assert!(matches!(certify(&e), Certified::Value(v) if v > 0.0 && v.is_finite()));
+        assert_eq!(PRECISION_LADDER.last(), Some(&2048));
+        // The integration oracle independently checks this case's published value.
+    }
 
     #[test]
     fn the_ten_percent_boundary_is_inclusive_and_exact() {

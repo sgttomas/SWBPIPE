@@ -268,3 +268,33 @@ pub fn combined_of(c: &Combination, keys: &[String]) -> BTreeMap<String, (f64, B
     }
     out
 }
+
+/// Exact alternating C(n-1,k) cluster sums, encoded as two binary64 contributions per cluster.
+/// Integer recurrence and 53-bit chunks avoid the rounded high-order binomial recurrence.
+/// Scaling by a power of two retains the exact represented sum; n <= 100 keeps u128 products safe.
+pub fn exact_binomial_request(n: usize, scale_exponent: i32) -> CombinationRequest {
+    assert!((1..=100).contains(&n));
+    let mut modes = Vec::new();
+    let mut periodic = Vec::new();
+    let mut coefficient = 1u128;
+    for k in 0..n {
+        let high = coefficient >> 53;
+        let low = coefficient & ((1u128 << 53) - 1);
+        assert!(high < (1u128 << 53));
+        let sign = if k % 2 == 0 { 1.0 } else { -1.0 };
+        for part in [high as f64 * 2f64.powi(53), low as f64] {
+            let mode = ModeIndex(modes.len() as u32 + 1);
+            modes.push(ModalMode { mode, cluster: ClusterIndex(k as u32 + 1),
+                frequency_hz: 1.0 + k as f64 * 2f64.powi(-19) });
+            let value = sign * part * 2f64.powi(scale_exponent);
+            assert!(value.is_finite());
+            periodic.push(ModalContribution { mode, direction: Direction::X, values: vec![value] });
+        }
+        coefficient = coefficient.checked_mul((n - 1 - k) as u128).unwrap() / (k + 1) as u128;
+    }
+    CombinationRequest { damping_ratio: 0.2, modal_rule: ModalRule::Cqc,
+        directional_rule: DirectionalRule::Srss, missing_mass: MissingMass::NotApplied,
+        directions: vec![Direction::X], modes,
+        rows: vec![Quantity::NodeDisplacement { node: "N1".into(), component: DisplacementComponent::Ux }],
+        periodic, rigid: vec![] }
+}

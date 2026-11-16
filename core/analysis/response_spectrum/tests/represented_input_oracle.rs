@@ -165,19 +165,11 @@ fn review_witnesses_refused_by_the_accuracy_rule() {
     let c = combine(&three_directions([5.0 * tiny, 0.0, 0.0])).unwrap();
     assert_eq!(c.rows[0].combined.value(), 5.0 * tiny);
 
-    // The evenly spaced alternating binomial with n = 40 at ζ = 0.2 needs more than the cap under
-    // the pricing model (about 1,020 bits at n = 36, about 25 more per mode); the radicand's
-    // enclosure still reaches zero at 1,024 bits, and the request is refused, not published.
-    let n = 40;
-    let freqs: Vec<f64> = (0..n).map(|i| 1.0 + i as f64 * 2f64.powi(-19)).collect();
-    let mut binomial = 1.0f64;
-    let mut values = Vec::new();
-    for k in 0..n {
-        values.push(if k % 2 == 0 { binomial } else { -binomial });
-        binomial = binomial * (n - 1 - k) as f64 / (k + 1) as f64;
-    }
-    let clusters: Vec<u32> = (1..=n as u32).collect();
-    let refused = combine(&single_row(ModalRule::Cqc, 0.2, &freqs, &clusters, &values)).expect_err("beyond the cap");
+    // Policy regression: 88 exact alternating binomial cluster sums still fail at 2048.
+    // Each large integer is split into two exact binary64 contributions in its cluster;
+    // a rounded floating recurrence would destroy this cancellation. The power-of-two
+    // scaling keeps the refusal witness away from output quantization at the subnormal edge.
+    let refused = combine(&exact_binomial_request(88, 512)).expect_err("beyond the 2048-bit cap");
     assert_eq!(refused.len(), 1);
     assert_eq!(refused[0].code.as_str(), "SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED");
     assert!(refused[0].detail.starts_with("this implemented error argument does not establish the required relative accuracy"));
