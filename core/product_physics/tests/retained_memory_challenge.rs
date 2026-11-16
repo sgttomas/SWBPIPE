@@ -73,7 +73,9 @@ use b1_sq_inputs as inputs;
 // RT-L2 (pressure elongation per load case): +781,195 B, the registered profile's W1 at the in-build atoms (the
 // setting's typed list, its validation working set and at most max(2, k + 1) refusal diagnostics, priced at k = C as
 // C + 1 = 4, the pressure-3 table and schema).
-const W1_PHASE_BYTES: [u64; 2] = [6_451_174_436, 6_510_305_780];
+// PR-A (§8.62): +23,793,886 B, the registered profile's W1 at the in-build atoms (PR-A's pricing +30,650,410 B; the
+// scanner's test-field correction -6,856,524 B).
+const W1_PHASE_BYTES: [u64; 2] = [6_474_968_322, 6_534_099_666];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -110,7 +112,9 @@ const W1_PHASE_BYTES: [u64; 2] = [6_451_174_436, 6_510_305_780];
 // §8.59 (RT-A3 S6, proposed): +18,761 B (W3 stays the maximum; every phase +18,761 B).
 // RT-L2 (pressure elongation per load case): +957,715 B, the registered profile's W3 at the in-build atoms (W3 stays
 // the maximum).
-const MAX_PHASE_BYTES: [u64; 2] = [8_745_081_345, 8_804_212_689];
+// PR-A (§8.62): +23,880,604 B, the registered profile's W3 at the in-build atoms (PR-A's pricing +30,737,128 B; the
+// scanner's test-field correction -6,856,524 B). W3 stays the maximum.
+const MAX_PHASE_BYTES: [u64; 2] = [8_768_961_949, 8_828_093_293];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.
