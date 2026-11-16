@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 529,
+  "files": 532,
   "claimed_by": {
    "group": 141,
-   "in_code": 62,
-   "exemption": 326
+   "in_code": 63,
+   "exemption": 328
   }
  },
  "counts": {
@@ -9401,6 +9401,14 @@
    "expectations": "no_response_value",
    "cases_named": "all",
    "detail": "declared-problem study tool: re-authors J2's source requests (the pressurised one names its case) and records product runs for the O4 census; asserts no response value"
+  },
+  {
+   "paths": [
+    "core/model_operations/operation_applier/tests/agent_catalog_reach.rs"
+   ],
+   "expectations": "no_response_value",
+   "cases_named": "all",
+   "detail": "the only solve removes RS-OPE analysis_state from the reference system and asserts LOAD_STATE_ANALYSIS_STATE_REQUIRED, its blocking severity and case identity, and mechanics not solved; all pressurised cases retain the fixture pressure-elongation setting; no response value is judged"
   }
  ],
  "exemptions": [
@@ -10224,6 +10232,24 @@
     "tools/validation/pressure_elongation_inventory.json",
     "tools/validation/pressure_elongation_inventory.py",
     "tools/validation/test_pressure_elongation_inventory.py"
+   ]
+  },
+  {
+   "reason": "catalog parsing and admission checks, including pressure-region operation payloads; no model document is solved",
+   "paths": [
+    "apps/desktop/src-tauri/src/embedded_agent/catalog.rs"
+   ],
+   "files": [
+    "apps/desktop/src-tauri/src/embedded_agent/catalog.rs"
+   ]
+  },
+  {
+   "reason": "record projection and before-text authoring tests through the wasm operation engine; reads and edits the committed reference system but performs no mechanics solve",
+   "paths": [
+    "apps/desktop/src/services/embeddedAgentSession.records.test.ts"
+   ],
+   "files": [
+    "apps/desktop/src/services/embeddedAgentSession.records.test.ts"
    ]
   }
  ]
