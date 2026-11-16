@@ -27,9 +27,11 @@
 //! precision; nothing else rounds. No intermediate can overflow or underflow, since dyadics have
 //! unbounded exponents. Equal frequencies give exactly 1.
 //!
-//! **The enclosures' sizes** are bounded by the working precision plus the exponent span of the
-//! operands (at most about 4,300 bits for products of binary64), and every enclosure end is an
-//! exact dyadic. The working precision follows [`PRECISION_LADDER`].
+//! **The enclosures' sizes.** Every enclosure end is an exact dyadic. Its stored integer size
+//! depends on the exponent spans of the actual intermediates, including the damping and
+//! frequency factors in ρ and the alignment of its terms with the exact cluster products.
+//! The working precision follows [`PRECISION_LADDER`]; it does not bound the stored bit span
+//! of an accumulated endpoint or the request's memory use.
 use crate::dyadic::{self, Dyadic, Interval};
 use crate::exact::decompose;
 use std::cmp::Ordering;

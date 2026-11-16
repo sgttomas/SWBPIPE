@@ -224,16 +224,23 @@ A comparison build: 8eb461fc5's source in scratch, with a 2,048-bit level append
 There, n = 40 among 120 clusters (10 rows) is certified in 341 ms with 17.7 MB, against 178 ms and
 12.2 MB refused at the 1,024-bit cap.
 
-**How the work grows.** These are the measured trends, not bounds:
-- ordinary work grows with clusters² × rows × directions for CQC, and with
-  clusters × rows × directions for the other rules;
-- escalation is dominated by building one ρ table per level attempted, which grows with
-  clusters² and with the precision.
-
-**Retained workspace** for one request is summed over what it holds until it finishes:
-- the exact cluster sums (clusters × rows × directions) and the exact rigid responses;
-- under CQC, a ρ table for every level attempted so far. The first level is always built, and each
-  higher level is kept once a row needs it, at about clusters²·p bits per level.
+**Work and retained workspace.** These describe the implemented loops and the measured
+scenarios, not a bound on time or memory. Integer-operation cost also depends on the actual
+intermediate bit lengths.
+- With C clusters, R response rows and D directions, CQC evaluates all C(C−1)/2 pairs per
+  row and direction. The measured SRSS scenarios instead traverse C terms per row and
+  direction; absolute sum also traverses C terms but has no separate timing scenario here.
+- Grouping and ten percent retain P qualifying pairs and evaluate them for every row and
+  direction, in addition to C diagonal terms. P can be C(C−1)/2: 120 mutually close clusters
+  produce 7,140 pairs. Ten-percent preparation tests every pair even when none qualifies.
+  The SRSS measurements do not measure these pair-rule costs.
+- CQC escalation builds a ρ table for each attempted precision level. Every such table is
+  retained until the request finishes, along with the exact cluster sums (C × R × D) and
+  exact rigid responses. Grouping and ten percent retain their P pairs instead.
+- The precision cap limits the coefficient refinement levels. Stored endpoint integers can
+  be wider because exact accumulation aligns intermediates of different exponents; the
+  actual spans include damping, the coefficient kernel and cluster products. Neither the
+  precision cap nor a two-factor binary64 exponent span bounds this storage.
 
 **Why the cap is 1,024 bits.**
 - The precision cap bounds the precision only. It bounds neither work nor memory, and the
