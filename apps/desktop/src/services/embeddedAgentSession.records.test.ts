@@ -72,7 +72,7 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     expect(first.record).toEqual({ load_case: "load:RS-SUS", primitive_load: (stored.primitive_loads as AnyRecord[])[0] });
     expect(first.before).toEqual({});
     const project = await read(model, "project", model.project.id);
-    expect(project.record).toEqual({ project: model.project, reference_configurations: (model as unknown as AnyRecord).reference_configurations });
+    expect(project.record).toEqual({ project: model.project, model_settings: model.model_settings, reference_configurations: (model as unknown as AnyRecord).reference_configurations });
     expect(project.before).toEqual({ reference_configurations: await canonicalJsonString((model as unknown as AnyRecord).reference_configurations),
       "model_settings.node_proximity_tolerance": "not_present", "model_settings.shear_model": "not_present" });
   });
