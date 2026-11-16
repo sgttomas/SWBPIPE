@@ -2,8 +2,46 @@
 use crate::exact::period_query_ordering;
 use crate::record::{Abscissa, AxisScale, Interpolation, OrdinateKind, SpectrumRecord};
 use crate::refusal::{Refusal, RefusalCode};
+use crate::scaled::{exp_scaled, Scaled};
 use open_pipe_stress_units::{canonical_unit, convert, unit_by_symbol, Dimension, UnitId};
 use std::cmp::Ordering;
+
+/// The relative accuracy to which every published value is stated (REQ-008's verification
+/// tolerance), conditional on IEEE 754 round to nearest and, for logarithmic operations, the
+/// assumed [`LIBM_RELATIVE_ERROR`]. A value this argument cannot support is refused.
+pub const STATED_ACCURACY: f64 = 1e-9;
+
+/// The premise on the platform's `ln`, `ln_1p` and `exp`: each result is within this relative
+/// error, 2⁻⁵⁰, of the exact value. This is an unchecked assumption for Apple's libm on macOS,
+/// glibc on Linux and the Microsoft C runtime on Windows, not a documented universal guarantee.
+/// The higher precision tests compare final results on their recorded configurations; they do
+/// not directly check or establish this primitive-function premise. A supported platform's
+/// violation reopens the premise and affected accuracy claims even if final-result tests pass.
+pub const LIBM_RELATIVE_ERROR: f64 = f64::from_bits((1023 - 50) << 52);
+
+/// The unit roundoff of binary64, 2⁻⁵³.
+const U: f64 = f64::EPSILON / 2.0;
+/// A relative margin for rounding in the bound arithmetic itself; each bound is a few operations.
+const BOUND_MARGIN: f64 = f64::from_bits((1023 - 40) << 52);
+/// The relative error bound of [`ln_ratio`] and [`ln_product`], 2.11·κ + 3u: in their three branches
+/// 1.45·γ₂ + κ, 1.45·u + κ and 2.11·κ + u (module error argument).
+const LN_BOUND: f64 = (2.11 * LIBM_RELATIVE_ERROR + 3.0 * U) * (1.0 + BOUND_MARGIN);
+/// The relative error of dropping a positive addend below 2⁻¹⁰⁰⁰ of the other ([`Scaled::add`]).
+const ADD_DROP: f64 = f64::from_bits(24 << 52); // 2⁻⁹⁹⁹
+/// The absolute error of the exponential's reduced argument ([`exp_scaled`]): one rounding of
+/// |r| ≤ 0.3466 and the product k·LN2_LO's rounding with the ln 2 split's error, for |k| ≤ 2200.
+const REDUCTION_ABSOLUTE: f64 = 0.36 * U + 1e-22;
+
+/// γₙ = n·u/(1 − n·u): the relative error of n successive roundings (Higham, Lemma 3.1).
+fn gamma(n: u32) -> f64 {
+    let nu = f64::from(n) * U;
+    nu / (1.0 - nu) * (1.0 + BOUND_MARGIN)
+}
+
+/// The relative error bound of a product of two factors with relative errors a and b.
+fn compose(a: f64, b: f64) -> f64 {
+    (a + b + a * b) * (1.0 + BOUND_MARGIN)
+}
 
 /// The largest damping ratio a spectrum solve admits (REQ-001).
 pub const MAX_SOLVE_DAMPING_RATIO: f64 = 0.2;
@@ -76,16 +114,27 @@ pub enum OrdinateMeasure {
     GMultiple,
 }
 
-/// An evaluated ordinate.
+/// An evaluated ordinate. All error bounds are conditional on IEEE 754 round to nearest
+/// and, wherever logarithmic operations enter, the assumed [`LIBM_RELATIVE_ERROR`].
+/// Consumers must retain that qualification when stating these bounds.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Ordinate {
     pub location: Location,
     /// The interpolated ordinate in the table's own measure ([`SpectrumTable::ordinate_measure`]).
     pub interpolated: f64,
+    /// The relative error bound of `interpolated` (at most [`STATED_ACCURACY`]),
+    /// conditional on the arithmetic and libm assumptions stated on [`Ordinate`].
+    pub interpolated_bound: f64,
     /// The pseudo-spectral acceleration S(f), m/s².
     pub pseudo_acceleration_m_per_s2: f64,
+    /// The relative error bound of `pseudo_acceleration_m_per_s2`,
+    /// conditional on the arithmetic and libm assumptions stated on [`Ordinate`].
+    pub pseudo_acceleration_bound: f64,
     /// The scaled pseudo-spectral acceleration s·S(f), m/s².
     pub scaled_pseudo_acceleration_m_per_s2: f64,
+    /// The relative error bound of `scaled_pseudo_acceleration_m_per_s2`,
+    /// conditional on the arithmetic and libm assumptions stated on [`Ordinate`].
+    pub scaled_bound: f64,
 }
 
 /// A spectrum record admitted for a spectrum solve.
@@ -309,71 +358,140 @@ impl SpectrumTable {
         Ok(Location::Segment { lower: lo })
     }
 
-    /// Evaluates the scaled pseudo-spectral acceleration at the query.
+    /// Evaluates the interpolated ordinate, S and s·S at the query, each supported to
+    /// [`STATED_ACCURACY`] under the arithmetic and libm assumptions below, or refused.
     ///
-    /// After exact location, the arithmetic is ordinary binary64 (decision 2), on the authored
-    /// axis (decision 1). On a knot the tabulated ordinate is returned unchanged. In a segment
-    /// [x₀, x₁] with ordinates y₀, y₁, the parameter t is
-    /// - frequency, linear: (f − x₀)/(x₁ − x₀);
-    /// - frequency, log: ln(f/x₀)/ln(x₁/x₀);
-    /// - period, linear: ((1 − f·x₀)/f)/(x₁ − x₀), the numerator 1 − f·x₀ by one fused
-    ///   multiply-add (one rounding), so T − x₀ is formed without rounding 1/f first;
-    /// - period, log: −ln(f·x₀)/ln(x₁/x₀), since ln(T/x₀) = −ln(f·x₀);
+    /// After exact location (decision 2), on the authored axis (decision 1), the arithmetic is
+    /// binary64 on significands with exact exponent bookkeeping ([`crate::scaled`]), so no
+    /// intermediate overflows or underflows whatever the magnitudes of the represented inputs. On a
+    /// knot the tabulated ordinate is used unchanged. In a segment [x₀, x₁] with ordinates y₀, y₁,
+    /// the two weights w₀ = 1 − t and w₁ = t are each formed directly as a quotient of positive
+    /// quantities, never as 1 − t:
+    /// - frequency, linear: w₁ = (f − x₀)/D and w₀ = (x₁ − f)/D, D = x₁ − x₀;
+    /// - period, linear: w₁ = (1 − f·x₀)/(f·D) and w₀ = (f·x₁ − 1)/(f·D), each numerator by one fused
+    ///   multiply-add (f·x₁ itself when it is at least 2⁵⁴), so T = 1/f is never rounded;
+    /// - frequency, log: w₁ = ln(f/x₀)/ln(x₁/x₀) and w₀ = ln(x₁/f)/ln(x₁/x₀);
+    /// - period, log: w₁ = −ln(f·x₀)/ln(x₁/x₀) and w₀ = ln(f·x₁)/ln(x₁/x₀).
     ///
-    /// where each ratio or product inside a logarithm is formed with one rounding when it is a
-    /// normal number (through ln_1p of the exactly formed difference when it lies in [1/2, 2]),
-    /// and as a difference of logarithms otherwise. The exact t lies strictly in (0, 1); the
-    /// computed t is clamped to [0, 1], which only removes rounding. The ordinate is
-    /// y₀ + (y₁ − y₀)t (linear) or y₀·exp(t·ln(y₁/y₀)) (log). A g multiple is then multiplied by
-    /// g, and the result by the scale factor. The logarithm and exponential are the platform's,
-    /// so the log rules' last bits can differ between platforms.
+    /// The ordinate is w₀·y₀ + w₁·y₁ (linear), a sum of two positive terms, or, from the knot with the
+    /// larger weight, y₀·exp(w₁·L) or y₁·exp(−w₀·L) with L = ln(y₁/y₀) (log), so |z| ≤ |L|/2 in the
+    /// exponent. S is the ordinate times g for a g-multiple table, and s·S is S times the scale
+    /// factor, both before anything is rounded to binary64.
+    ///
+    /// Each published value carries a relative error bound derived from the operations (see the
+    /// error argument in the crate README and the DEL-04-10 scope), under IEEE 754 binary64 round
+    /// to nearest and the premise that the platform's `ln`, `ln_1p` and `exp` are each within
+    /// relative error [`LIBM_RELATIVE_ERROR`] (assumed, not established), plus the error of rounding it to binary64:
+    /// none in the normal range, at most 2⁻¹⁰⁷⁵ absolutely in the subnormal range. A value whose bound
+    /// exceeds [`STATED_ACCURACY`], or that is zero or infinite in binary64, is refused,
+    /// `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`, and the evaluation publishes nothing.
     pub fn evaluate(&self, query: QueryFrequency, scale: ScaleFactor) -> Result<Ordinate, Refusal> {
         let location = self.locate(query)?;
-        let interpolated = match location {
-            Location::Knot { index } => self.values[index],
-            Location::Segment { lower } => self.interpolate(query.0, lower)?,
+        let (ordinate, ordinate_bound) = match location {
+            Location::Knot { index } => (Scaled::new(self.values[index]), 0.0),
+            Location::Segment { lower } => self.interpolate(query.0, lower),
         };
-        let pseudo_acceleration = match self.g_m_per_s2 {
-            Some(g) => interpolated * g,
-            None => interpolated,
+        let (pseudo, pseudo_bound) = match self.g_m_per_s2 {
+            Some(g) => (ordinate.mul(Scaled::new(g)), compose(ordinate_bound, gamma(1))),
+            None => (ordinate, ordinate_bound),
         };
-        let scaled = scale.0 * pseudo_acceleration;
-        if !(pseudo_acceleration.is_finite() && scaled.is_finite()) {
-            return Err(Refusal::new(RefusalCode::EvaluationNonfinite, &self.id, None, format!(
-                "the ordinate {interpolated} gives S = {pseudo_acceleration} m/s^2 and s·S = {scaled} m/s^2 at scale {}; \
-                 a value beyond the binary64 range is not published", scale.0)));
-        }
+        let scaled = pseudo.mul(Scaled::new(scale.0));
+        let scaled_bound = compose(pseudo_bound, gamma(1));
+        let (interpolated, interpolated_bound) = self.certify("interpolated ordinate", ordinate, ordinate_bound)?;
+        let (pseudo_acceleration, pseudo_acceleration_bound) = self.certify("pseudo-acceleration S", pseudo, pseudo_bound)?;
+        let (scaled_pseudo_acceleration, scaled_bound) = self.certify("scaled pseudo-acceleration s·S", scaled, scaled_bound)?;
         Ok(Ordinate {
             location,
             interpolated,
+            interpolated_bound,
             pseudo_acceleration_m_per_s2: pseudo_acceleration,
-            scaled_pseudo_acceleration_m_per_s2: scaled,
+            pseudo_acceleration_bound,
+            scaled_pseudo_acceleration_m_per_s2: scaled_pseudo_acceleration,
+            scaled_bound,
         })
     }
 
-    fn interpolate(&self, f: f64, lower: usize) -> Result<f64, Refusal> {
+    /// The published binary64 of `value` and its total relative error bound, or the accuracy
+    /// refusal. `bound` is the relative error of `value` against the exact evaluation of the
+    /// represented inputs; rounding into the subnormal range adds at most 2⁻¹⁰⁷⁵ absolutely, that is
+    /// 2⁻¹⁰⁷⁵·(1 + bound)/value relatively, since the exact value is at least value/(1 + bound).
+    fn certify(&self, what: &str, value: Scaled, bound: f64) -> Result<(f64, f64), Refusal> {
+        let published = value.to_f64();
+        let (m, e) = value.parts();
+        let total = if (-1022..=1023).contains(&e) {
+            bound
+        } else if published > 0.0 && published.is_finite() {
+            bound + 2f64.powi(-1075 - e) / m * (1.0 + bound) * (1.0 + BOUND_MARGIN)
+        } else {
+            f64::INFINITY
+        };
+        if total <= STATED_ACCURACY {
+            return Ok((published, total));
+        }
+        let why = if !published.is_finite() {
+            "has a computed approximation outside the finite binary64 range".to_string()
+        } else if published == 0.0 {
+            "has a computed approximation that rounds to zero".to_string()
+        } else {
+            format!("has a conservative relative error bound of {total:e}")
+        };
+        Err(Refusal::new(RefusalCode::EvaluationAccuracyUnsupported, &self.id, None, format!(
+            "the {what}, computed as {m}·2^{e}, {why}; this implemented error argument does not establish \
+             {STATED_ACCURACY:e} relative accuracy, and the evaluation publishes no value")))
+    }
+
+    /// The ordinate on segment `lower` at the interior query frequency `f`, and its relative error
+    /// bound against the exact interpolation of the represented knots, ordinates and query.
+    fn interpolate(&self, f: f64, lower: usize) -> (Scaled, f64) {
         let (x0, x1) = (self.knots[lower], self.knots[lower + 1]);
         let (y0, y1) = (self.values[lower], self.values[lower + 1]);
-        let t = match (self.abscissa, self.interpolation.abscissa) {
-            (Abscissa::Frequency, AxisScale::Linear) => (f - x0) / (x1 - x0),
-            (Abscissa::Frequency, AxisScale::Log) => ln_ratio(f, x0) / ln_ratio(x1, x0),
-            (Abscissa::Period, AxisScale::Linear) => (-f.mul_add(x0, -1.0) / f) / (x1 - x0),
-            (Abscissa::Period, AxisScale::Log) => -ln_product(f, x0) / ln_ratio(x1, x0),
+        // Exact location makes every numerator and denominator below strictly positive: a
+        // difference of binary64 values that is subnormal is exact, and 1 − f·x₀ and f·x₁ − 1, when
+        // nonzero, are at least 2⁻¹⁰⁶ (the exact products lie on a grid of spacing 2^(e_f+e_x) with
+        // e_f + e_x > −106 near 1), so no rounding reaches zero.
+        let (w0, w1, weight_bound) = match (self.abscissa, self.interpolation.abscissa) {
+            (Abscissa::Frequency, AxisScale::Linear) => {
+                let d = Scaled::new(x1 - x0);
+                (Scaled::new(x1 - f).div(d), Scaled::new(f - x0).div(d), gamma(3))
+            }
+            (Abscissa::Period, AxisScale::Linear) => {
+                let n1 = Scaled::new(-f.mul_add(x0, -1.0));
+                let p1 = Scaled::new(f).mul(Scaled::new(x1));
+                // Below 2⁵⁴ the fused multiply-add forms f·x₁ − 1 with one rounding; at or above it,
+                // the rounded product differs from f·x₁ − 1 by at most u + 2⁻⁵⁴(1 + u) relatively.
+                let n0 = if p1.cmp_pow2(54) == Ordering::Less { Scaled::new(f.mul_add(x1, -1.0)) } else { p1 };
+                let d = Scaled::new(f).mul(Scaled::new(x1 - x0));
+                (n0.div(d), n1.div(d), gamma(5))
+            }
+            (abscissa, AxisScale::Log) => {
+                let den = ln_ratio(x1, x0);
+                let (a0, a1) = match abscissa {
+                    Abscissa::Frequency => (ln_ratio(x1, f), ln_ratio(f, x0)),
+                    Abscissa::Period => (ln_product(f, x1), -ln_product(f, x0)),
+                };
+                (Scaled::new(a0 / den), Scaled::new(a1 / den), compose(compose(LN_BOUND, LN_BOUND), gamma(1)))
+            }
         };
-        let nonfinite = |what: &str, value: f64| Refusal::new(RefusalCode::EvaluationNonfinite, &self.id, None,
-            format!("the interpolation {what} is {value} in the segment [{x0}, {x1}]; no value is published"));
-        if !t.is_finite() {
-            return Err(nonfinite("parameter", t));
-        }
-        let t = t.clamp(0.0, 1.0);
-        let y = match self.interpolation.ordinate {
-            AxisScale::Linear => y0 + (y1 - y0) * t,
-            AxisScale::Log => y0 * (t * ln_ratio(y1, y0)).exp(),
-        };
-        if y.is_finite() {
-            Ok(y)
-        } else {
-            Err(nonfinite("ordinate", y))
+        match self.interpolation.ordinate {
+            AxisScale::Linear => {
+                let y = w0.mul(Scaled::new(y0)).add(w1.mul(Scaled::new(y1)));
+                (y, compose(compose(weight_bound, gamma(2)), ADD_DROP))
+            }
+            AxisScale::Log => {
+                let l = ln_ratio(y1, y0);
+                let (base, weight, sign) = if w1.le(w0) { (y0, w1, 1.0) } else { (y1, w0, -1.0) };
+                if l == 0.0 {
+                    // ln_ratio returns zero only for equal ordinates.
+                    return (Scaled::new(base), 0.0);
+                }
+                // z = ±w·L; its relative error composes the weight's, L's and one rounding, and its
+                // rounding to binary64 adds at most 2⁻¹⁰⁷⁵ absolutely.
+                let z = sign * l.signum() * weight.mul(Scaled::new(l.abs())).to_f64();
+                let dz = z.abs() * compose(compose(weight_bound, LN_BOUND), gamma(1)) + 2f64.powi(-1074);
+                // e^(z*) = e^z·e^(z*−z), |e^(z*−z) − 1| ≤ 1.01·|z* − z| for |z* − z| ≤ 0.01.
+                let exp_bound = compose(compose(1.01 * dz + REDUCTION_ABSOLUTE, LIBM_RELATIVE_ERROR), gamma(1));
+                (Scaled::new(base).mul(exp_scaled(z)), exp_bound)
+            }
         }
     }
 }
@@ -399,7 +517,11 @@ fn to_canonical(value: f64, unit: UnitId) -> Option<f64> {
     convert(value, unit, canonical).ok().filter(|v| v.is_finite() && *v > 0.0)
 }
 
-/// ln(a/b) for positive finite a and b.
+/// ln(a/b) for positive finite a and b, within relative error [`LN_BOUND`]. When a/b is normal and in
+/// [1/2, 2], ln_1p of (a − b)/b (one rounding at most in a − b, one in the quotient; ln_1p's condition
+/// is at most 1.45 there); when normal elsewhere, ln of the ratio (one rounding; condition at most
+/// 1/ln 2); otherwise ln a − ln b, whose exact value is at least 708.39 in magnitude while each
+/// logarithm is at most 744.45, so the two libm errors amount to at most 2.11·κ relatively.
 fn ln_ratio(a: f64, b: f64) -> f64 {
     let r = a / b;
     if r.is_normal() {
@@ -413,7 +535,8 @@ fn ln_ratio(a: f64, b: f64) -> f64 {
     }
 }
 
-/// ln(a·b) for positive finite a and b.
+/// ln(a·b) for positive finite a and b, within relative error [`LN_BOUND`], by the same three branches
+/// as [`ln_ratio`], with a·b − 1 by one fused multiply-add in the first.
 fn ln_product(a: f64, b: f64) -> f64 {
     let p = a * b;
     if p.is_normal() {

@@ -17,8 +17,11 @@
 //!    frequency (as the modal result publishes it) is compared as a rational with the represented
 //!    binary64 knots and range ends ([`period_query_ordering`]). That comparison selects the
 //!    interval and decides in or out of range, and nothing more; it makes neither the modal
-//!    frequency nor a knot exact, and the interpolation after it is ordinary binary64 with the
-//!    rounding [`SpectrumTable::evaluate`] states.
+//!    frequency nor a knot exact, and the interpolation after it is binary64 arithmetic with the
+//!    rounding [`SpectrumTable::evaluate`] states;
+//! 3. each published value (the interpolated ordinate, S and s·S) is stated within a conditional
+//!    relative error bound of at most [`STATED_ACCURACY`], under IEEE 754 binary64 and the libm
+//!    assumption [`LIBM_RELATIVE_ERROR`] (not established by platform documentation or tests), or the evaluation is refused.
 //!
 //! The table is not a spectrum solve: it forms no modal response or rigid response. A later unit
 //! supplies the modal frequencies it is evaluated at.
@@ -52,6 +55,7 @@ mod record;
 mod refusal;
 mod request;
 mod rules;
+mod scaled;
 mod table;
 
 pub use combine::combine;
@@ -68,5 +72,5 @@ pub use refusal::{Refusal, RefusalCode};
 pub use request::{evaluate_request_json, EvaluationRequest, QueryInput, STATEMENT};
 pub use table::{
     common_damping_ratio, Location, Ordinate, OrdinateMeasure, QueryFrequency, ScaleFactor, SpectrumTable,
-    MAX_SOLVE_DAMPING_RATIO,
+    LIBM_RELATIVE_ERROR, MAX_SOLVE_DAMPING_RATIO, STATED_ACCURACY,
 };

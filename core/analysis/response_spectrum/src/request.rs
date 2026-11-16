@@ -10,7 +10,9 @@ use serde_json::{json, Value};
 /// The fixed statement every output document carries.
 pub const STATEMENT: &str = "Pseudo-spectral acceleration interpolated from the user-entered spectrum table by its \
 stated rule on its authored axis, with no extrapolation. It is an evaluation of the table, not a response-spectrum \
-analysis result, and it establishes neither physical correctness nor code compliance.";
+analysis result, and it establishes neither physical correctness nor code compliance. The stated accuracy is \
+conditional on IEEE 754 binary64 round to nearest and, for logarithmic operations, an unchecked assumption that \
+platform ln, ln_1p and exp have relative error at most 2^-50; a final-result test sweep does not establish that assumption.";
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]

@@ -31,7 +31,9 @@
 //! depends on the exponent spans of the actual intermediates, including the damping and
 //! frequency factors in ρ and the alignment of its terms with the exact cluster products.
 //! The working precision follows [`PRECISION_LADDER`]; it does not bound the stored bit span
-//! of an accumulated endpoint or the request's memory use.
+//! of an accumulated endpoint or the request's memory use. No storage bound is claimed here.
+//! An observed 53-bit CQC evaluation at frequencies [2^-1074, f64::MAX], damping 2^-1074 and
+//! contributions [1, 1] has a radicand endpoint requiring 5,356 integer bits.
 use crate::dyadic::{self, Dyadic, Interval};
 use crate::exact::decompose;
 use std::cmp::Ordering;

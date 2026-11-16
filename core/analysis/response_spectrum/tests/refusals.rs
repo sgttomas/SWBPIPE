@@ -116,12 +116,12 @@ fn query_scale_and_nonfinite_refusals_are_named() {
     let f = QueryFrequency::new(0.75, "Hz").unwrap();
     assert!(table.evaluate(f, ScaleFactor::new(1.0).unwrap()).is_ok());
     let refusal = table.evaluate(f, ScaleFactor::new(2.0).unwrap()).unwrap_err();
-    assert_eq!((refusal.code, refusal.object.as_str()), (RefusalCode::EvaluationNonfinite, "SP"));
+    assert_eq!((refusal.code, refusal.object.as_str()), (RefusalCode::EvaluationAccuracyUnsupported, "SP"));
     // The same through g: a g multiple near the binary64 limit times g.
     let mut g_huge = g_record();
     g_huge["points"] = json!([[1.0, 1.0e308], [2.0, 1.5e308]]);
     let refusal = SpectrumTable::admit(&record(g_huge)).unwrap().evaluate(f, ScaleFactor::new(1.0).unwrap()).unwrap_err();
-    assert_eq!(refusal.code, RefusalCode::EvaluationNonfinite);
+    assert_eq!(refusal.code, RefusalCode::EvaluationAccuracyUnsupported);
 }
 
 #[test]
@@ -165,6 +165,51 @@ fn nothing_is_defaulted_a_missing_unknown_or_null_member_does_not_decode() {
     for query in [json!({"frequency": {"value": 2.0, "unit": "Hz"}}), json!({"frequency": {"value": 2.0}, "scale_factor": 1.0})] {
         let text = json!({"spectrum": g_record(), "queries": [query]}).to_string();
         assert!(evaluate_request_json(&text).is_err(), "{query}");
+    }
+}
+
+#[test]
+fn metadata_matches_the_model_schema_without_rewriting_authored_text() {
+    let request = |spectrum: Value| json!({"spectrum": spectrum,
+        "queries": [{"frequency": {"value": 2.0, "unit": "Hz"}, "scale_factor": 1.0}]}).to_string();
+    let baseline = evaluate_request_json(&request(g_record())).unwrap();
+    let absent = record(g_record());
+    assert_eq!(absent.tags, None);
+    assert_eq!(absent.notes, None);
+
+    let mut valid = g_record();
+    let long_tag = "é".repeat(64);
+    valid["tags"] = json!(["z tag", long_tag, "A"]);
+    valid["notes"] = json!("  authored notes\n");
+    let decoded = record(valid.clone());
+    assert_eq!(decoded.tags.unwrap(), vec!["z tag".to_owned(), long_tag, "A".to_owned()]);
+    assert_eq!(decoded.notes.as_deref(), Some("  authored notes\n"));
+    assert_eq!(evaluate_request_json(&request(valid)).unwrap(), baseline);
+    let mut empty_tags = g_record();
+    empty_tags["tags"] = json!([]);
+    assert_eq!(record(empty_tags).tags, Some(vec![]));
+
+    for (member, value) in [
+        ("notes", Value::Null),
+        ("notes", json!(42)),
+        ("notes", json!([])),
+        ("notes", json!("")),
+        ("notes", json!(" \t\n\u{2003}")),
+        ("tags", Value::Null),
+        ("tags", json!(42)),
+        ("tags", json!("tag")),
+        ("tags", json!([42])),
+        ("tags", json!([null])),
+        ("tags", json!([""])),
+        ("tags", json!(["duplicate", "duplicate"])),
+        ("tags", json!([" leading"])),
+        ("tags", json!(["trailing\n"])),
+        ("tags", json!(["\u{2003}tag"])),
+        ("tags", json!(["é".repeat(65)])),
+    ] {
+        let mut spectrum = g_record();
+        spectrum[member] = value.clone();
+        assert!(evaluate_request_json(&request(spectrum)).is_err(), "{member}: {value}");
     }
 }
 
