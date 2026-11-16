@@ -5,7 +5,9 @@
 // variables on PARENT_ALLOWLIST are carried from the runner's environment;
 // then HOME and CFFIXED_USER_HOME, both the throwaway home; TMPDIR, a folder
 // inside that home; the strict chooser switch; and the runner's own
-// SWBPIPE_NATIVE_SMOKE_* variables. `refusedLaunchEnv` names every reason the
+// SWBPIPE_NATIVE_SMOKE_* variables (`perf.mjs` alone adds the ones its run
+// selects, PERF_RUNNER_KEYS, judged by `refusedPerfLaunchEnv`; every other
+// runner's are unchanged). `refusedLaunchEnv` names every reason the
 // runner must not launch with a built environment, and `refusedPlanPaths`
 // every path in the plan (each chooser answer among them) that does not
 // resolve inside the home. The home is created empty under one root. After
@@ -159,6 +161,49 @@ export function refusedLaunchEnv(env) {
   if (env.HOME !== env.CFFIXED_USER_HOME) reasons.push("LAUNCH-ENV-REFUSED: HOME and CFFIXED_USER_HOME differ");
   if (!insideFolder(env.TMPDIR, env.HOME)) reasons.push("LAUNCH-ENV-REFUSED: TMPDIR is not inside HOME");
   if (env[STRICT_CHOOSER_ENV] !== STRICT_CHOOSER_VALUE) reasons.push(`LAUNCH-ENV-REFUSED: ${STRICT_CHOOSER_ENV} is not ${STRICT_CHOOSER_VALUE}`);
+  return reasons;
+}
+
+// The performance runner's extra variables (`perf.mjs`), for its use only: RUNNER_KEYS, `refusedLaunchEnv` and
+// what every other runner may pass are unchanged. Each is given only when the run selects it, and is refused when
+// given otherwise (`refusedPerfLaunchEnv`).
+export const PERF_RUNNER_KEYS = Object.freeze([
+  "SWBPIPE_NATIVE_SMOKE_INJECT_RESULT", // an injected run: the result file the started job publishes instead of solving (`native_smoke_inject.rs`)
+  "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT", // an injected run: the one directory the hook accepts that file from
+  "SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS" // a plan with reader diagnostics: the native reader phases written to stderr (`native_smoke.rs`)
+]);
+
+// Every reason the performance runner must not launch with `env`, each a named line; empty when it may be used.
+// `refusedLaunchEnv` judges everything but PERF_RUNNER_KEYS. Then: the driver, the plan and the report are given
+// (the driver and the report as absolute paths, the plan a JSON object); the injection pair is given exactly when
+// `inject` is true, the injection root an absolute folder named by its resolved path and the result a regular file
+// resolving strictly inside it; the reader-diagnostics switch is given exactly when `readerDiagnostics` is true, as
+// "1". Reads only those two paths' metadata.
+export function refusedPerfLaunchEnv(env, { inject, readerDiagnostics }) {
+  const [resultKey, rootKey, diagnosticsKey] = PERF_RUNNER_KEYS;
+  const base = { ...env };
+  for (const key of PERF_RUNNER_KEYS) delete base[key];
+  const reasons = refusedLaunchEnv(base);
+  for (const key of ["SWBPIPE_NATIVE_SMOKE_DRIVER", "SWBPIPE_NATIVE_SMOKE_REPORT"]) {
+    if (typeof env[key] !== "string" || !path.isAbsolute(env[key])) reasons.push(`LAUNCH-ENV-REFUSED: ${key} is not an absolute path`);
+  }
+  let plan = null;
+  try { plan = JSON.parse(env.SWBPIPE_NATIVE_SMOKE_PLAN); } catch { /* refused below */ }
+  if (!plan || typeof plan !== "object" || Array.isArray(plan)) reasons.push("LAUNCH-ENV-REFUSED: SWBPIPE_NATIVE_SMOKE_PLAN is not a JSON object");
+  const given = (key) => Object.hasOwn(env, key);
+  if (inject !== true) {
+    for (const key of [resultKey, rootKey]) if (given(key)) reasons.push(`LAUNCH-ENV-REFUSED: ${key} is given to a run that injects no result`);
+  } else {
+    let root = null;
+    try { root = typeof env[rootKey] === "string" && path.isAbsolute(env[rootKey]) && statSync(env[rootKey]).isDirectory() && realpathSync(env[rootKey]) === env[rootKey] ? env[rootKey] : null; } catch { root = null; }
+    if (root === null) reasons.push(`LAUNCH-ENV-REFUSED: ${rootKey} is not an absolute folder named by its resolved path`);
+    let inside = false;
+    try { inside = typeof env[resultKey] === "string" && path.isAbsolute(env[resultKey]) && statSync(env[resultKey]).isFile() && root !== null && insideFolder(realpathSync(env[resultKey]), root); } catch { inside = false; }
+    if (!inside) reasons.push(`LAUNCH-ENV-REFUSED: ${resultKey} is not a regular file inside ${rootKey}`);
+  }
+  if (readerDiagnostics === true ? env[diagnosticsKey] !== "1" : given(diagnosticsKey)) {
+    reasons.push(`LAUNCH-ENV-REFUSED: ${diagnosticsKey} ${readerDiagnostics === true ? "is not 1" : "is given to a run without reader diagnostics"}`);
+  }
   return reasons;
 }
 
