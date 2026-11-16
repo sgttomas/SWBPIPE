@@ -4807,7 +4807,7 @@
     100
    ],
    "decimal_binary64_pairs_compared": 12072,
-   "scalar_leaves_compared": 18327,
+   "scalar_leaves_compared": 18333,
    "identical_at_40_digits_and_binary64": true
   }
  }

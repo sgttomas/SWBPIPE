@@ -20,12 +20,17 @@ cover straight members and the combination rules.
   value. Its findings R1 to R3 are metadata and description repairs, applied
   without changing any mechanical value. Its limit C1 is the reason for the
   additive arc frame-order control (below).
-- The additive case V-ARC-OBL and its control have no refutation record yet. A
-  separate, source-independent refuter commissioned by the integrating agent
-  examines them.
-- Outputs remain reviewable until that boundary. After it, a correction is a
-  recorded re-freeze, never a silent rewrite. The original outputs are kept
-  byte for byte.
+- The additive case V-ARC-OBL and its control have a source-independent
+  refutation record, [REFUTATION_ARC_OBLIQUE.md](REFUTATION_ARC_OBLIQUE.md),
+  bound to head `9a860745714d1de878b53ef0f7cdc09b244360ae`. No mechanical
+  value was refuted; all 132 frame-order paths were recomputed independently.
+  Its three descriptive findings are repaired here without changing any
+  mechanical value. Both reports retain their original head bindings.
+- The original outputs are kept byte for byte. The additive control's scalar
+  leaf-count diagnostic is corrected; its mechanical values are unchanged.
+  Candidate status strings inside the generated snapshots describe their
+  original preparation, not the subsequent refutations. A correction after
+  refutation is recorded, never a silent rewrite.
 - No product output has been compared with them.
 - They establish no acceptance, issuance or code compliance.
 
@@ -94,6 +99,7 @@ Standard claim fence applies (claims taxonomy per DEC-081).
 | `w2_control_arc_frame_order.json` | additive: the arc frame-order control, its inputs, witnesses, contrast and its own precision convergence |
 | `SHA256SUMS` | hashes of every file above |
 | `REFUTATION.md` | the refutation record of the original candidate, copied unchanged; the generator hashes it and requires it in `SHA256SUMS` |
+| `REFUTATION_ARC_OBLIQUE.md` | the additive control's refutation, copied unchanged with its original head binding and included in `SHA256SUMS` |
 
 ## Reproduce
 
@@ -277,9 +283,11 @@ difference:
      stress.
 5. **Rods.** T is tension positive. `R*.i.*` and `R*.j.*` are b·T in global
    axes, with the moment about the node including the offset.
-6. **Straight members** are axis-aligned. Their global rows map component to
-   component onto any member frame that is a signed permutation of the global
-   axes.
+6. **Straight members in the five original variants** are axis-aligned. Their
+   global rows map component to component onto any member frame that is a
+   signed permutation of the global axes. The additive V-ARC-OBL straights
+   have oblique rational unit axes and rational lengths, preserving exact
+   stiffness formation; they publish global rows only.
 7. **Interpolation abscissa, grouping boundary and 100-40-40 with 2/5.**
    These are as in `../discrete/` (conventions 3 to 5), unchanged.
 
@@ -322,8 +330,9 @@ difference:
     pressure-region mapping or a same-run nonlinear state confirmation.
 - **Replaced-span double ownership** (V-COMB-R).
   - The span's pipe mass, its stiffness, or both are added.
-  - T_k becomes 245.75 kg against 220.36 kg. The first frequency becomes
-    19.44, 29.37 or 28.26 Hz against 21.40 Hz.
+  - T_k becomes 245.75 kg against 220.36 kg for the mass-only and combined
+    mutants; the stiffness-only mutant leaves it at 220.36 kg. The first
+    frequency becomes 19.44, 29.37 or 28.26 Hz, respectively, against 21.40 Hz.
   - The selected combined values change by at least 0.41 % (mass), 0.39 %
     (stiffness) and 1.2 % (both).
   - The reference publishes no span member key.
@@ -413,7 +422,7 @@ screening class.
   - rotating the elastic and lump parts separately against rotating their
     total (1.5e-79).
 - **Precision.** The additive outputs have their own 80/100-digit comparison:
-  12,072 decimal/binary64 pairs, within 18,327 scalar leaves, all identical.
+  12,072 decimal/binary64 pairs, within 18,333 scalar leaves, all identical.
   The smallest binary64 rounding margin is 5.53e-21.
 
 **What it does not show.**

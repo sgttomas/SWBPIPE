@@ -1918,7 +1918,7 @@ VARIANT_FILE = {"V-ARC": "w2_v_arc.json", "V-JOINT-0": "w2_v_joint_0.json", "V-J
                 "V-COMB-0": "w2_v_comb_0.json", "V-COMB-R": "w2_v_comb_r.json"}
 FIXED_FILES = ["README.md", "DERIVATION.md", "generators/w2_recovery.py", "generators/w2_cases.py",
                "generators/w2_cases_oblique.py"]
-RECORDS = ["REFUTATION.md"]
+RECORDS = ["REFUTATION.md", "REFUTATION_ARC_OBLIQUE.md"]
 
 
 def build(prec, conv=None):
@@ -1946,7 +1946,7 @@ def strip_checks(o):
 def count_leaves(o):
     if isinstance(o, dict):
         return sum(count_leaves(v) for v in o.values())
-    if isinstance(o, list):
+    if isinstance(o, (list, tuple)):
         if len(o) == 2 and isinstance(o[0], str) and isinstance(o[1], float):
             return 1
         return sum(count_leaves(v) for v in o)

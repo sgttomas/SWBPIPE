@@ -27,10 +27,11 @@ node i's six, then node j's six.
   - Rayleigh rotary inertia ī/(30L)·[…].
 - **Inertia terms.** Contents count in the three translations. They are
   excluded from j̄ = ρ_m·J_metal and from ī = j̄/2.
-- **Exactness.** Every straight here has a rational length and an
-  axis-aligned unit axis. So K is formed exactly in ℚ + ℚπ, published as
-  `K_exact`, then converted to 80 digits. M is formed by f1's `form_mass` at
-  the working precision.
+- **Exactness.** The straights in the five original variants have rational
+  lengths and axis-aligned unit axes. The additive V-ARC-OBL straights have
+  rational lengths and oblique rational unit axes. In both cases K is formed
+  exactly in ℚ + ℚπ, published as `K_exact`, then converted to 80 digits.
+  M is formed by f1's `form_mass` at the working precision.
 - **Section basis.** The section has c_m = c_a = 0, so the PF basis
   (`source_od_effective_wall_areas/v1`) and the EX basis
   (`source_od_nominal_wall_pressure_bore_areas/v1`) give identical A, I, J, m̄,
