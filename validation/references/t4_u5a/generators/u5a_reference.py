@@ -18,6 +18,12 @@ Modes:
                                           oracle in memory and compare them byte
                                           for byte with the committed files
   python3 -I u5a_reference.py --write    write requests/*.json and oracle.json
+
+`--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION,
+else absent) sets `model_settings.pressure_elongation` in the written
+documents through the shared `tools/validation/pressure_elongation.py`
+(DEL-04-07 `Work/pressure-elongation.md` §7); the oracle is today's mechanics,
+pressure elongation included, whatever the switch.
 """
 import argparse
 import copy
@@ -30,6 +36,8 @@ from math import gcd
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(ROOT.parents[2]))  # the repository root, for the shared pressure-elongation switch
+from tools.validation import pressure_elongation as PE  # noqa: E402
 
 # --------------------------------------------------------------------------
 # Q(pi): polynomials (tuples of Fractions, lowest degree first) and their
@@ -1032,8 +1040,10 @@ def oracle(requests):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--write", action="store_true")
+    PE.add_argument(parser)
     args = parser.parse_args()
-    requests = {cfg["id"]: dumps(request(cfg)).encode() for cfg, _ in CONFIGS}
+    elongation = PE.resolve_mode(args.pressure_elongation)
+    requests = {cfg["id"]: dumps(PE.apply_to_container(request(cfg), elongation)).encode() for cfg, _ in CONFIGS}
     oracle_bytes = dumps(oracle(requests)).encode()
     if args.write:
         (ROOT / "requests").mkdir(exist_ok=True)

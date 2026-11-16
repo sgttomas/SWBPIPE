@@ -29,6 +29,10 @@ SOURCE_PRECISION_1_RETIRED = "SOURCE_PRECISION_1_RETIRED"
 # Rust's `current_header` refuses it.
 RETIRED_PRESSURE_1_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 SOURCE_PRESSURE_1_RETIRED = "SOURCE_PRESSURE_1_RETIRED"
+# RT-L2 (DEL-04-07): pressure-2 is retired for pressure-3 (per-case pressure
+# elongation); a stored pressure-2 result is refused by name (re-run), as Rust's `current_header` refuses it.
+RETIRED_PRESSURE_2_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
+SOURCE_PRESSURE_2_RETIRED = "SOURCE_PRESSURE_2_RETIRED"
 RETIRED_PREVIEW_PHYSICS_1_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 SOURCE_PREVIEW_PHYSICS_1_RETIRED = "SOURCE_PREVIEW_PHYSICS_1_RETIRED"
 # B7b (A4/A5): the identities of the retired `2.0.0/exact_straight_pressure_v2` contract are refused by name at the
@@ -49,10 +53,10 @@ PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-so
 PRESSURE_SOURCE_CONTRACT_SHA256 = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
 _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_source_1.json"
 # pressure-2 (`3.0.0/exact_pressure_v3`): the ordinary exact route. Its raw statements are read by the independent
-# `pressure_2` verifier; it is also the exact successor's G7 base (B7b D4 (a)).
-PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-PRESSURE_CONTRACT_SHA256 = "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
-_PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
+# `pressure_3` verifier; it is also the exact successor's G7 base (B7b D4 (a)).
+PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-3"
+PRESSURE_CONTRACT_SHA256 = "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"
+_PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_3.json"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 PREVIEW_PHYSICS_CONTRACT_SHA256 = "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729"
@@ -80,7 +84,7 @@ _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
@@ -273,6 +277,8 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
         raise ValueError(f"{SOURCE_PRECISION_1_RETIRED}: precision-1 results are no longer read; re-run the analysis")
     if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_PRESSURE_1_CONTRACT_ID}:
         raise ValueError(f"{SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis")
+    if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_PRESSURE_2_CONTRACT_ID}:
+        raise ValueError(f"{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model")
     if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_PREVIEW_PHYSICS_1_CONTRACT_ID}:
         raise ValueError(f"{SOURCE_PREVIEW_PHYSICS_1_RETIRED}: preview-physics-1 results are no longer read; re-run the analysis")
     if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_SOURCE_BLOCKS_CONTRACT_ID}:
@@ -328,7 +334,7 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
         else: validate_transport_metadata(source, source_contract=SourceContract.PRESSURE_V3)
         return PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_SHA256, _PRESSURE_SOURCE_CONTRACT_PATH
     if pressure:
-        from .pressure_2 import pressure_table, validate_pressure_evidence
+        from .pressure_3 import pressure_table, validate_pressure_evidence
         pressure_table()  # The reviewed ordinary pressure table.
         if check_receipt:
             validate_pressure_evidence(source)

@@ -212,6 +212,7 @@ function AppSession() {
   const {
     result,
     currentSolvedResult,
+    renderableSolvedResult,
     numericallyEligible,
     numericalHealth,
     numericalHealthHold,
@@ -604,7 +605,7 @@ function AppSession() {
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
               />
-              <HangerSizingForm key={`hanger-sizing:${projectSessionGeneration}`} model={model} busy={operationBusy} />
+              <HangerSizingForm key={`hanger-sizing:${projectSessionGeneration}`} model={model} busy={operationBusy} onQueueBatch={handleQueueOperationBatch} />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "weight"}>
               <SelfWeightPlanPanel
@@ -912,7 +913,9 @@ function AppSession() {
               <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
-              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the rendered report">
+              {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route
+                  result whatever its standing); its package save stays on currentSolvedResult. */}
+              <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report">
                 {(full) => (
                   <RenderedReportPanel
                     model={model}
@@ -929,6 +932,7 @@ function AppSession() {
                     packageRedaction={reportPackageRedaction}
                     packageRoute={reportPackageRoute}
                     onPackagePrivateIntentChange={setReportPackagePrivateIntent}
+                    packageNeedsCurrent={currentSolvedResult === null}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
                     onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
                   />

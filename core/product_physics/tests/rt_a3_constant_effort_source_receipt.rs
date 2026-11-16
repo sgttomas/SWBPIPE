@@ -32,7 +32,7 @@ use serde_json::{json, Value};
 const PLAIN: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json");
 const LOAD_STATE: &str = include_str!("../../../fixtures/product_preview/pressure_source/load_reference_source/n06.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
-const PRESSURE_2: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const PRESSURE_2: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const CE: &str = "support:ce";
 
 fn solve(document: &Value, mode: PreviewSolverMode) -> Value {

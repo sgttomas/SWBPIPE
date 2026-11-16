@@ -516,6 +516,25 @@ that owns it under exit criterion 1.
 | Hanger sizing and table | pending | — | absent: no sizing request |
 | Snubber RS-SN1 (RS-110, UX, rigid) | pending | `support:RS-SN1` | absent; on any static solve it would be refused (§6) |
 
+With the pending supports and the reducer overlaid on the full system in tests only
+([`core/product_physics/tests/rt_a3_s6_reference_system.rs`](../../core/product_physics/tests/rt_a3_s6_reference_system.rs)
+and
+[`core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs`](../../core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs)),
+the exact route admits RS-R1, RS-CE1, RS-LO1, RS-FR1 and RS-G1: the combined test overlay
+solves with no blocking finding. Every case of that overlay is published unqualified,
+numerical quality `unresolved` with `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`,
+because a published case of a solve with a gap support is never qualified or confirmed, and
+its report package is refused (LIM-017 and LIM-016 in
+[`docs/RELEASE_LIMITATIONS_v1.0.md`](../../docs/RELEASE_LIMITATIONS_v1.0.md)), and its rendered report states its standing. Removing
+RS-G1 does not restore eligibility: the same overlay without RS-G1 publishes every case
+`NUMERICAL_INTEGRITY_SENSITIVE`, and its report package is refused too (LIM-017), and its rendered report states its standing. Both overlays use
+the interim linear RS-FR1V. With RS-FR1's intended one-way normal source, they solve and are
+not confirmed: the confirmation admits only a base restraint as a derived normal's source, so
+without RS-G1 each case is `NUMERICAL_INTEGRITY_SENSITIVE` with that named reason. The
+published support states are reported, not
+verified (KR-04). None of these families is in the fixture until this specification adopts
+it.
+
 **RS-P180 under MBF export (a coverage note, not a ledger row).** RS-OPE selects RS-P180's
 modulus at 210 °C (`material_selection` `temperature_interpolation`) while its
 `thermal_state` is `unchanged_reference`. When the MBF writer exports load/reference-state

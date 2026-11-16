@@ -127,6 +127,10 @@ describe('workspace-owned live embedded agent adapter',()=>{
    [[{bend_realization:1}],'Operation 1 (operation-1) has a value that names bend_realization (a bend realization) two levels inside the value, in item 1 of a list, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.'],
    [{id:SECRET},'Operation 1 (operation-1) has an after value that is not text, which the operation engine does not read, so nothing was queued. Propose it with the after value as text.'],
    [7,'Operation 1 (operation-1) has an after value that is not text, which the operation engine does not read, so nothing was queued. Propose it with the after value as text.'],
+   [true,'Operation 1 (operation-1) has an after value that is not text, which the operation engine does not read, so nothing was queued. Propose it with the after value as text.'],
+   [null,'Operation 1 (operation-1) has an after value that is not text, which the operation engine does not read, so nothing was queued. Propose it with the after value as text.'],
+   [JSON.stringify({modifiers_note:{[`modifiers_${SECRET}`]:{modifiers:1}}}),'Operation 1 (operation-1) has a value that names modifiers (k, SIFs, stiffness and their source) three levels inside the value, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.'],
+   [JSON.stringify({mechanics_interface:{[SECRET]:SECRET,solver_consumption:'not_solver_consumed'},x:{[SECRET]:{modifiers:1}}}),'Operation 1 (operation-1) has a value that names modifiers (k, SIFs, stiffness and their source) three levels inside the value, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.'],
    [JSON.stringify({[SECRET]:[{[SECRET]:{modifiers:1}}]}),'Operation 1 (operation-1) has a value that names modifiers (k, SIFs, stiffness and their source) four levels inside the value, in item 1 of a list, which only the person enters. A value naming it cannot be told apart from it, even as text, so nothing was queued. Propose it without that name and ask the person to enter the value.'],
   ] as [unknown,string][]){
    vi.useFakeTimers();const {session,owner,call}=setup();
@@ -134,6 +138,8 @@ describe('workspace-owned live embedded agent adapter',()=>{
    const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
    expect(outcome.status).toBe('unavailable');expect(outcome.message).toBe(expected);
    expect(session.actual('invented-session:1')!.outcome).not.toContain(SECRET);
+   expect(outcome.message).not.toContain('modifiers_note');
+   expect(outcome.message).not.toContain('mechanics_interface');
    expect(mocks.validate).not.toHaveBeenCalled();expect(owner.register).not.toHaveBeenCalled();
    await session.close();vi.clearAllMocks();vi.useRealTimers();
   }

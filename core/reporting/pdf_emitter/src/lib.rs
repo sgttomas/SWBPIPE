@@ -261,6 +261,12 @@ fn emit_pdf_document(
     let status_text = renderer::status_banner_text(input);
     emitter.note(&status_text);
     emitter.banner(&status_text, true);
+    // DEL-08-01 REQ-017, REQ-024: the frame's standing line, after the status banner,
+    // as the HTML emission places it.
+    if let Some(line) = renderer::standing_banner_text(input) {
+        emitter.note(&line);
+        emitter.banner(&line, false);
+    }
 
     if let Some(notice) = renderer::local_private_notice_text(input) {
         emitter.note(notice);

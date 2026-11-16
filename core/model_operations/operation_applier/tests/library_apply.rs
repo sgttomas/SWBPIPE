@@ -26,10 +26,24 @@ fn exact_fixture() -> Value {
     .unwrap()
 }
 
+/// Removes the pressure elongation setting, which needs a pressure contract, and an
+/// emptied `model_settings`: a pressure-free document carries neither.
+fn without_pressure_elongation(model: &mut Value) {
+    let object = model.as_object_mut().unwrap();
+    let emptied = object.get_mut("model_settings").and_then(Value::as_object_mut).is_some_and(|settings| {
+        settings.remove("pressure_elongation");
+        settings.is_empty()
+    });
+    if emptied {
+        object.remove("model_settings");
+    }
+}
+
 /// The same document on the pressure-free (non-exact) route.
 fn pressure_free_fixture() -> Value {
     let mut model = exact_fixture();
     model.as_object_mut().unwrap().remove("pressure_contract");
+    without_pressure_elongation(&mut model);
     for case in model["load_cases"].as_array_mut().unwrap() {
         case.as_object_mut().unwrap().remove("pressure_regions");
     }

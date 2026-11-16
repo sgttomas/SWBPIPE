@@ -131,6 +131,7 @@ pub fn fixture_report_input() -> RenderableReportInput {
         library_references: None,
         report_composition: None,
         model_input_tables: None,
+        numerical_standing: None,
     }
 }
 

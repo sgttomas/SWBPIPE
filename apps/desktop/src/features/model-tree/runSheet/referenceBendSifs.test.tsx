@@ -27,6 +27,9 @@ const reference = referenceJson as unknown as PreviewModel;
 function basisModel(): PreviewModel {
   const model = structuredClone(reference);
   for (const key of ["nodes", "pipe_segments", "components", "supports", "load_cases", "combinations", "reference_configurations", "diagnostics"] as const) (model as unknown as Record<string, unknown>)[key] = [];
+  // The fixture's pressure-elongation setting names its load cases, which the basis does not have
+  // (a setting naming an absent case is refused by name), so it goes with them.
+  delete (model as unknown as Record<string, unknown>).model_settings;
   return model;
 }
 /** The fixture's records this route produces, by id. Labels the sheet fixes are the sheet's. */

@@ -1817,6 +1817,9 @@ pub const PRESSURE_CLOSED_END_CASE: &str = "case:closed-end";
 pub const PRESSURE_OPEN_END_CASE: &str = "case:open-end";
 pub const PRESSURE_ZERO_CASE: &str = "case:zero-pressure";
 pub const PRESSURE_RESTRAINED_CASE: &str = "case:restrained-closed-end";
+/// The same restrained member, its case not named in the pressure-elongation
+/// setting: the reduced model with pressure elongation excluded.
+pub const PRESSURE_RESTRAINED_NOT_NAMED_CASE: &str = "case:restrained-closed-end-not-named";
 pub const PRESSURE_STATIONS: [&str; 5] = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"];
 pub const PRESSURE_SECTION_BASES: [&str; 2] = ["nominal_section", "reduced_section"];
 pub const PRESSURE_SOLVER_MODES: [PreviewSolverMode; 2] = [
@@ -1916,7 +1919,15 @@ fn pressure_anchor(node: &str) -> Value {
 
 /// The product document for one restraint arrangement: a cantilever anchored
 /// at A carrying the closed-end, open-end and zero-pressure cases, or a member
-/// anchored at both ends carrying the restrained closed-end case.
+/// anchored at both ends carrying the restrained closed-end case twice. The
+/// restrained document names one of them in `model_settings.pressure_elongation`
+/// (DEL-04-07): its zero-axial-strain reference (k = 2 nu) is the closed-end
+/// free pressure strain suppressed by the restraint, and the product includes
+/// that strain only in a case the setting names. The other is not named: the
+/// reduced model with pressure elongation excluded, N_el = 0 and k = 1. The two
+/// wall forces differ by the factor 2 nu (1/2 here only because nu = 0.25).
+/// The cantilever document names none; its wall forces do not depend on the
+/// setting.
 pub fn pressure_stress_request(restrained: bool) -> Value {
     let node = |id: &str, x: f64| {
         json!({"id": id, "position": {"x": x, "y": 0.0, "z": 0.0}, "provenance": PRESSURE_PROVENANCE})
@@ -1924,7 +1935,14 @@ pub fn pressure_stress_request(restrained: bool) -> Value {
     let (supports, load_cases) = if restrained {
         (
             vec![pressure_anchor("node:A"), pressure_anchor("node:B")],
-            vec![pressure_load_case(PRESSURE_RESTRAINED_CASE, PRESSURE_INTERNAL, "transfers_to_wall")],
+            vec![
+                pressure_load_case(PRESSURE_RESTRAINED_CASE, PRESSURE_INTERNAL, "transfers_to_wall"),
+                pressure_load_case(
+                    PRESSURE_RESTRAINED_NOT_NAMED_CASE,
+                    PRESSURE_INTERNAL,
+                    "transfers_to_wall",
+                ),
+            ],
         )
     } else {
         (
@@ -1940,7 +1958,7 @@ pub fn pressure_stress_request(restrained: bool) -> Value {
             ],
         )
     };
-    json!({
+    let mut request = json!({
         "model": {
             "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
@@ -1981,7 +1999,12 @@ pub fn pressure_stress_request(restrained: bool) -> Value {
             "combinations": []
         },
         "materials": []
-    })
+    });
+    if restrained {
+        request["model"]["model_settings"] =
+            json!({"pressure_elongation": {"operating_load_cases": [PRESSURE_RESTRAINED_CASE]}});
+    }
+    request
 }
 
 /// One product solve of one restraint arrangement in one solver mode.
@@ -2098,11 +2121,12 @@ pub fn pressure_hoop_longitudinal_fixture() -> StressBenchmark {
     StressBenchmark {
         fixture_id: "STRESS-PRESSURE-HOOP-LONGITUDINAL-ORIGINAL",
         family: StressBenchmarkFamily::PressureHoopLongitudinal,
-        description: "Invented straight annulus under internal pressure: Lame hoop and radial surface stresses and the closed-end, open-end and axially restrained longitudinal membrane, on the nominal and reduced section bases, through the product's exact-pressure preview entry.",
+        description: "Invented straight annulus under internal pressure: Lame hoop and radial surface stresses and the closed-end, open-end and axially restrained longitudinal membrane, the restrained member both with pressure elongation included and with it excluded, on the nominal and reduced section bases, through the product's exact-pressure preview entry.",
         assumptions: &[
             "Lame thick-wall solution of a long straight elastic annulus with internal pressure and zero external pressure; small strain, homogeneous isotropic material.",
             "Each basis's hoop and radial stresses are those of its own annulus; the closure (cap) thrust acts on the pressure bore (the reduced bore) on both bases.",
-            "Closed ends transferring to the wall carry the full cap thrust; separately supported closures on a free member carry none; an axially restrained member carries 2 nu times the cap thrust (zero axial strain).",
+            "Closed ends transferring to the wall carry the full cap thrust; separately supported closures on a free member carry none; an axially restrained member carries 2 nu times the cap thrust (zero axial strain, so the case includes pressure elongation).",
+            "The same restrained member with its case not named in the pressure-elongation setting is the reduced model with pressure elongation excluded, not the full plane-strain cylinder: fixed end displacements and zero free pressure strain give N_el = 0, so the wall carries the full cap thrust (N_w = p A_i) and the effective force S = N_el is zero. The included and excluded wall forces differ by the factor 2 nu.",
             "The fixture does not encode a code stress category, stress index, allowable, design-pressure formula, or acceptance criterion.",
         ],
         provenance: BenchmarkProvenance::public_original(
@@ -2148,6 +2172,17 @@ pub fn pressure_hoop_longitudinal_fixture() -> StressBenchmark {
                 "restrained_reduced_axial_membrane",
                 pressure_axial_membrane_stress(2.0 * PRESSURE_POISSON_RATIO, p, "reduced_section"),
             ),
+            // Not named: N_el = 0, so k = 1 (DEL-04-07 REQ-009: N_w = N_el + p A_i, S = N_el).
+            force("restrained_not_named_wall_axial_force", pressure_wall_axial_force(1.0, p)),
+            stress(
+                "restrained_not_named_nominal_axial_membrane",
+                pressure_axial_membrane_stress(1.0, p, "nominal_section"),
+            ),
+            stress(
+                "restrained_not_named_reduced_axial_membrane",
+                pressure_axial_membrane_stress(1.0, p, "reduced_section"),
+            ),
+            force("restrained_not_named_effective_axial_force", 0.0),
             stress("zero_pressure_stress", 0.0),
             stress(
                 "reduced_equilibrium_mean_hoop",
@@ -2876,6 +2911,35 @@ mod tests {
         );
     }
 
+    /// Each pressure region record of `case` and its exact-case assembly
+    /// evidence state `token` for pressure elongation.
+    fn assert_pressure_elongation_stated(envelope: &Value, case: &str, token: &str, context: &str) {
+        let regions = envelope["contract_evidence"]["pressure"]
+            .as_array()
+            .unwrap_or_else(|| panic!("{context}: pressure evidence"));
+        let mine: Vec<&Value> = regions
+            .iter()
+            .filter(|r| r["load_case_id"] == case)
+            .collect();
+        assert!(!mine.is_empty(), "{context} {case}: region evidence");
+        for region in mine {
+            assert_eq!(
+                region["pressure_elongation"],
+                json!(token),
+                "{context} {case}: region evidence"
+            );
+        }
+        let entry = envelope["contract_evidence"]["exact_cases"]
+            .as_array()
+            .and_then(|cases| cases.iter().find(|c| c["load_case_id"] == case))
+            .unwrap_or_else(|| panic!("{context} {case}: exact case evidence"));
+        assert_eq!(
+            entry["pressure_rhs_assembly"]["pressure_elongation"],
+            json!(token),
+            "{context} {case}: assembly evidence"
+        );
+    }
+
     fn pressure_expected(name: &str) -> f64 {
         pressure_hoop_longitudinal_fixture()
             .expected_values
@@ -2929,6 +2993,7 @@ mod tests {
         let p = PRESSURE_INTERNAL;
         let thrust_scale = pressure_wall_axial_force(1.0, p);
         let mut compared = 0;
+        let mut compared_effective = 0;
         for run in &runs {
             let context = format!(
                 "{} {:?}",
@@ -2946,8 +3011,52 @@ mod tests {
                 json!("exact_pressure_v3"),
                 "{context}"
             );
+            // Each pressurised case states its inclusion (DEL-04-07 REQ-009):
+            // only the restrained case the setting names includes pressure
+            // elongation.
+            let disclosures: &[(&str, &str)] = if run.restrained {
+                &[
+                    (PRESSURE_RESTRAINED_CASE, "included"),
+                    (PRESSURE_RESTRAINED_NOT_NAMED_CASE, "not_included"),
+                ]
+            } else {
+                &[
+                    (PRESSURE_CLOSED_END_CASE, "not_included"),
+                    (PRESSURE_OPEN_END_CASE, "not_included"),
+                ]
+            };
+            for (case, token) in disclosures {
+                assert_pressure_elongation_stated(&run.envelope, case, token, &context);
+            }
+            if run.restrained {
+                // Not named: S = N_el = 0 at every station. With it included,
+                // N_w = 2 nu p A_i; excluded, N_w = p A_i: the two restrained
+                // wall forces differ by the factor 2 nu (1/2 only because
+                // nu = 0.25).
+                for location in PRESSURE_STATIONS {
+                    let effective = one_pressure_value(
+                        &run.envelope,
+                        PRESSURE_RESTRAINED_NOT_NAMED_CASE,
+                        "pipe_effective_axial_force_v2",
+                        "effective_axial_force",
+                        location,
+                        "",
+                        "N",
+                    );
+                    assert_pressure_close(
+                        effective,
+                        pressure_expected("restrained_not_named_effective_axial_force"),
+                        thrust_scale,
+                        &format!("{context} {PRESSURE_RESTRAINED_NOT_NAMED_CASE} {location} effective_axial_force"),
+                    );
+                    compared_effective += 1;
+                }
+            }
             let cases: &[(&str, &str)] = if run.restrained {
-                &[(PRESSURE_RESTRAINED_CASE, "restrained")]
+                &[
+                    (PRESSURE_RESTRAINED_CASE, "restrained"),
+                    (PRESSURE_RESTRAINED_NOT_NAMED_CASE, "restrained_not_named"),
+                ]
             } else {
                 &[
                     (PRESSURE_CLOSED_END_CASE, "closed_end"),
@@ -3013,9 +3122,11 @@ mod tests {
                 }
             }
         }
-        // 2 modes x (2 cantilever cases + 1 restrained case) x 5 stations x
+        // 2 modes x (2 cantilever cases + 2 restrained cases) x 5 stations x
         // (1 wall force + 2 bases x 5 stress rows).
-        assert_eq!(compared, 2 * 3 * 5 * 11);
+        assert_eq!(compared, 2 * 4 * 5 * 11);
+        // 2 modes x 5 stations of the restrained case that is not named.
+        assert_eq!(compared_effective, 2 * 5);
     }
 
     #[test]

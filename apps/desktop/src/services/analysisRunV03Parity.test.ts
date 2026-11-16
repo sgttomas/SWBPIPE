@@ -35,7 +35,7 @@ describe("the native analysis-run builder's oracle", () => {
     expect(records).toBeGreaterThanOrEqual(25);
     expect(file.cases.length - records).toBeGreaterThanOrEqual(15);
     for (const route of ["pressure", "pressure_source", "preview_physics", "retained_preview_physics"]) {
-      expect(file.cases.some(c => "record" in c.expected && c.expected.record.analysis_run.reproducibility.semantic_contract?.id.includes(route === "pressure" ? "pressure-2" : route === "pressure_source" ? "pressure-source" : route === "preview_physics" ? "preview-physics-2" : "retained")), route).toBe(true);
+      expect(file.cases.some(c => "record" in c.expected && c.expected.record.analysis_run.reproducibility.semantic_contract?.id.includes(route === "pressure" ? "pressure-3" : route === "pressure_source" ? "pressure-source" : route === "preview_physics" ? "preview-physics-2" : "retained")), route).toBe(true);
     }
   }, 900_000);
 

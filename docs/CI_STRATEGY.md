@@ -12,6 +12,20 @@ fails if any selected verification fails, is cancelled or never runs. Unselected
 product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
+A draft pull request runs the documentation checks and CI selection and, on the
+product route, the Repository checks; it does not run the product jobs
+(`piping`). On the product route its `harness` fails with "Draft pull request:
+the product jobs did not run. Mark it ready for review to run them." A skipped
+required check would count as passing, so `harness` runs and fails instead.
+Marking the pull request ready (`ready_for_review`) starts the full run on its
+head, in the pull request's concurrency group, which cancels an unfinished draft
+run. A draft on the documentation route has no product jobs to skip and is
+verified as before. A green `harness` therefore always means that every product
+job the route selects ran: in product mode the aggregate requires both the
+Repository checks and `piping` to succeed, so a skipped `piping` never
+aggregates green. Merge-queue and dispatch runs have no draft state and are
+unchanged, as are the Windows workflows.
+
 GitHub offers its merge queue only to organization-owned repositories, so it is
 not enabled here. The workflow stays ready for it: the merge queue
 (`merge_group`) verifies its temporary merge commit exactly as
@@ -92,6 +106,15 @@ tests and compilation: desktop memory controls, persistence, WebView2, native
 journeys, packaging and retained-memory qualification need their own Windows
 evidence. Parallels Windows on Arm and emulated x64 runs are labelled separately.
 DEL-10-04 owns the Windows port.
+
+`piping-windows-read-script.yml` runs DEL-17-05's read script on hosted Windows,
+on `windows-11-arm` (ARM64) and `windows-2025` (x64). It runs the exact
+maintained script by digest, through `cmd /c` and Windows PowerShell 5.1, and
+checks its job query against named jobs the test creates and closes, with three
+controls that must fail. Its PR path filter covers the read script, the harness,
+the test and the workflow; manual dispatch is also available. It reports beside
+`harness`, which does not wait on it, and the required-check setting is
+unchanged. It shows the script's behaviour on the runner only, not any guest's.
 
 On a relevant PR, desktop coverage is a production build and one Chromium
 project (`chromium-desktop`) running core specs: the R2 smoke and save/reopen
@@ -198,8 +221,9 @@ unknown paths and shared execution controls select all discovered crates. Existi
 numerical oracles remain unchanged. Python coverage is gated independently.
 
 The standalone required repository job runs the bounded tool/routing suite and
-`tests/test_ci_numerical.py` on every PR and workflow dispatch, including Rust and Cargo manifest
-additions/removals, in parallel (`pytest -n auto`). Its own plan
+`tests/test_ci_numerical.py` on every product-route pull request or merge-queue group and every
+workflow dispatch (which always takes the product route), including Rust and Cargo manifest
+additions/removals, in parallel (`pytest -n auto`). A documentation-route change does not run it. Its own plan
 (`hosted_ci.py repository`) omits only the seven source-reachability tests named in
 `SOURCE_REACHABILITY_TESTS`, and only for a pull request whose complete diff is
 in-place edits of UTF-8 Markdown regular files outside `.github/`, `tools/` and
@@ -215,6 +239,41 @@ monorepo's routing-self-test selection
 gap. The local `tools/tools-test-routing.json` records this bounded estate; it
 does not import the former combined repository's unrelated tool suites. Numerical inventory/source-digest
 refresh and product-selection failure propagation remain required.
+
+The job's whole list (selection, the bounded suite, the routing invariants, the deliverable check, the execution-boundary and
+changed-specification check, and the conflict and run-record checks) is one
+maintained script, `tools/ci/repository_checks.py`, which the job calls after
+setting up Python, Rust and the check dependencies. The routing invariants are
+the tests in `tests/test_ci_python.py` whose truth an edit outside `tools/ci/` can
+change (`ROUTING_INVARIANT_TESTS`). Otherwise a pull request selects that file
+only through `tools/ci/`, an edit to the file itself, or a full run, so without this
+step such an invariant would be green on the pull request that breaks it and red on
+`main` after it. Its remaining tests test
+the selector's own algorithm and stay scoped to `tools/ci/` changes; the file
+keeps the two sets a partition of its tests. Before a push, run it
+locally from a clean checkout at the repository root:
+
+```sh
+python3 tools/ci/repository_checks.py --event pull_request --base origin/main --head HEAD
+```
+
+It runs the steps in order, names each, stops at the first failure and writes
+`repository-ci-plan.json` and `deliverable-check.json` at the root. It validates
+inventories and digests and never refreshes them: where a check finds one stale,
+the run fails, and its owning tool refreshes it deliberately. A base that names no commit is
+replaced by `HEAD^1` for the documents and conflict checks, except in a merge
+queue, which fails closed. `.gitignore` names both output files, so a local run
+leaves the checkout clean.
+
+`software-workflow.json` registers the script as `repository-checks` in
+`always_checks`, so the selection names it for every change. That costs about
+four minutes locally on a documentation-route change, for which the hosted job
+does not run it. The registry selects by path, and the route also depends on
+what paths cannot show: a file's mode, whether it is added or deleted, whether
+it is UTF-8, and whether the document-reader audit is current. A path rule that
+excluded `execution/` or prose would miss a product-route change there, such as
+an executable or linked file under `execution/` (which the boundary guard in
+this list rejects) or a prose edit while the audit is stale.
 
 Python-test-only edits retain their Python checks with zero Cargo crates. Python PR coverage keeps security and constraint/source-block validation, then
 adds qualification, schema and canonical-JSON families when their inputs change.
@@ -299,6 +358,71 @@ locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
 target directory).
 
+The headless artifact readers (`tests/test_pressure_headless_artifacts.py`,
+`tests/test_load_reference_headless_artifacts.py`) read the files that the
+headless runner's Rust tests write at the tested head; without them they skip.
+When the reporting-runner shard's plan selects `core/runner/headless`, a step
+after its suite, in the same job, runs `pressure_export.rs`,
+`load_reference_cli.rs` and the lib's `load_reference_route_tests` with the three
+artifact folders set to fresh folders, reusing the suite's build. It then runs
+both readers with `HEADLESS_ARTIFACTS_REQUIRED=1`, which turns a skip into a
+failure, and fails unless every reader test ran and passed; its log gives the
+artifact and test counts. The shard's existing selection covers the runner and
+the result contract. `piping_artifact_readers` in `tools/hosted-ci-routing.json`
+declares the readers and the step's inputs. A change to any input listed in the
+next paragraph adds the headless crate to whatever else that path selects, so
+the rule only adds to a selection. Such a change also runs the headless crate's
+whole Cargo suite on that shard, an accepted cost. Every crate is selected when
+the declaration is not a mapping (including null), when a declared reader,
+input or producer does not resolve, when a project module the readers import
+does not resolve, or when their imports cannot be derived. The production
+profile's entries are held by `tests/test_ci_numerical.py`; a profile without
+the section has no such rule.
+
+The rule detects these inputs of the two readers in the complete diff:
+- the readers and their local import closure, derived at selection time by
+  `tools/ci/python_test_reads.py`: the project files their imports resolve to,
+  and the non-test Python files they name and may load by path, transitively;
+- the package `__init__.py` files those imports pass through, and those in the
+  readers' directory and its ancestors, which pytest runs when it imports a test
+  as part of a package, each with its own imports. An added initializer selects
+  the producer through the closure, an edited one selects it, and a diff that
+  deletes one selects every crate;
+- the `conftest.py` files pytest loads for the readers (today only
+  `tests/conftest.py`), under the same rules;
+- the dependency list the step installs (`requirements-dev.txt`), declared as an
+  input; `tools/software_workflow/test_headless_readers_step.py` keeps the
+  declared inputs equal to the step's `pip install -r` arguments;
+- the tracked resources the readers read: a non-Python path, added, edited or
+  deleted, at or under a read root that the derivation gives for those files
+  with a known leading directory. Examples are the schemas that
+  `tests/schema_validation.py` loads into its registry and the fixtures and
+  contract tables the readers name.
+
+Existing rules already send the configuration, workflow and setup inputs to the
+full plan, which includes the headless crate. Each of these was checked by
+selecting it alone when the rule was built: both workflow files, the shared
+build-cache action, the selectors and their routing (`tools/ci/numerical_ci.py`,
+`tools/ci/python_test_reads.py`, `tools/software_workflow/hosted_ci.py`,
+`tools/hosted-ci-routing.json`), `tools/software_workflow/result_cache.py`, the
+session build helpers under `tools/runner/`, `tools/serialization/` and
+`tools/units/`, and, though none is tracked today, `pytest.ini`,
+`pyproject.toml`, `setup.cfg`, `tox.ini` and a root `conftest.py`.
+
+The rule claims nothing it does not derive. A dynamic import, plugin discovery,
+or a path assembled at run time whose leading directory the derivation cannot
+place is not claimed as detected. A change to such an input gets only the
+selection its own path has, and in the Python job the readers skip.
+Change-based selection also cannot see a change to the runner image, the
+installed interpreter, a package version the dependency list leaves open, or
+the environment when no repository diff comes with it. Verification reuse is a
+separate matter. Its key includes the runner image and the Python version, so a
+change to either invalidates a reused pass, but that does not select a job the
+diff did not select, and installed package versions are not in the key. This
+paragraph describes what the selector detects. It does not narrow DEL-10-04
+AC-003: a tracked input that the readers load and the selector misses is a gap
+to repair, not an exclusion.
+
 No post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or
 unresolved concern. Failure diagnostics stay in CI artifacts. The optional
@@ -330,6 +454,28 @@ all belong to the keyed input set and the key must still match. The main-only
 `shared-build-cache.yml` warmer uses the same setup action with `build-only:
 true`, so other PRs can read main-scoped engine outputs without running tests
 or installing browsers in the warmer.
+
+## Known costs
+
+Measured on main at `bfc649fd7` (2026-11-13) over 14 pull requests. None is
+repaired by this section; each stays open until its cause is changed.
+
+- **Runs on heads that never merge.** 24% of hosted job-minutes ran on the head
+  that merged. The rest ran on superseded pushes, which `cancel-in-progress`
+  stops only after they have used minutes. The practice that answers it takes
+  one push per merged change as its target: read the local commit, run the
+  affected tests and the Repository checks script (above) locally, then
+  push the head meant to merge. A deliberate early hosted run stays allowed
+  where a platform or integration question needs one.
+- **The Python job runs for every product pull request and is its longest
+  job.** 146 of the 293 maintained tests derive a read root of every path,
+  through a few shared helpers, and they carry nearly all of the recorded test
+  time, so a product change selects at least those 146 tests; other selection
+  rules can add more.
+- **The documentation route is off.** The document-reader audit digest has been
+  stale since 2026-11-08, so an in-place prose edit under `docs/` or to
+  `AGENTS.md` runs in product mode until the audit is refreshed. A change
+  confined to `execution/` is unaffected.
 
 ## Nightly full run
 

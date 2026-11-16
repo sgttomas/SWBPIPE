@@ -64,8 +64,12 @@ mod native_replay_tests;
 #[cfg(test)]
 #[path = "native_ledger_tests.rs"]
 mod native_ledger_tests;
+#[cfg(test)] #[path = "after_worker_perf_tests.rs"] mod after_worker_perf_tests;
 mod report_package_bridge;
 mod report_package_save;
+mod report_session_diagnostics;
+#[cfg(test)]
+mod report_session_diagnostics_tests;
 mod report_render_exact;
 #[cfg(test)]
 mod report_render_exact_tests;
@@ -6753,7 +6757,7 @@ mod tests {
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
             let source = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
             assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED");
-            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2");
+            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-3");
             let row = source["results"].as_array().unwrap().iter().find(|r|
                 r["entity_ref"] == "node:fixture-tip" && r["kind"] == "global_nodal_rotation_x"
                 && r["basis_ref"]["ref_id"] == "case:six-component-load"
@@ -6820,7 +6824,7 @@ mod tests {
         for mode in ["sparse", "dense"] {
             let label = format!("pressure_connected_mechanics_{mode}");
             let source = exact_rule_fixture(&format!("fixtures/results/{label}.json"));
-            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2", "{label}");
+            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-3", "{label}");
             assert!(source["contract_evidence"].get("load_reference_states").is_none(), "{label}");
             qualify_rule_mechanics_with_context(model, &source, None).unwrap_or_else(|error| panic!("{label}: {error}"));
             assert_exact_rows_bind(model, &source, &label);
@@ -6835,7 +6839,7 @@ mod tests {
             for mode in EXACT_RULE_MODES {
                 let label = format!("pressure/load_reference/{name}-{mode}");
                 let source = exact_rule_fixture(&format!("fixtures/product_preview/pressure/load_reference/{name}-{mode}.raw.json"));
-                assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2", "{label}");
+                assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-3", "{label}");
                 assert!(source["contract_evidence"]["load_reference_states"].as_array().is_some_and(|states| !states.is_empty()), "{label}");
                 qualify_rule_mechanics_with_context(model, &source, None).unwrap_or_else(|error| panic!("{label}: {error}"));
                 assert_exact_rows_bind(model, &source, &label);
@@ -7823,7 +7827,7 @@ mod tests {
             let result = run_linear_static_preview_with_mode(request, mode);
             assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
             assert_eq!(result.producer.semantic_contract_id,
-                "openpipestress.result_semantics/0.3.0/pressure-2");
+                "openpipestress.result_semantics/0.3.0/pressure-3");
             assert_eq!(result.contract_evidence.as_ref().unwrap()["exact_cases"].as_array().unwrap().len(), 2);
         }
     }
@@ -7854,7 +7858,7 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
         )).unwrap();
         assert_eq!(result["producer"]["semantic_contract_id"],
-            "openpipestress.result_semantics/0.3.0/pressure-2");
+            "openpipestress.result_semantics/0.3.0/pressure-3");
         let project = model["project"]["id"].as_str().unwrap().to_string();
         let model_bytes = serde_json::to_string(&model).unwrap();
         let result_bytes = serde_json::to_string(&result).unwrap();
@@ -7920,7 +7924,7 @@ mod tests {
             PreviewSolverMode::SparseInteractive,
         );
         assert_eq!(solved.producer.semantic_contract_id,
-            "openpipestress.result_semantics/0.3.0/pressure-2");
+            "openpipestress.result_semantics/0.3.0/pressure-3");
         assert_eq!(
             solved.contract_evidence.as_ref().unwrap()["load_reference_states"],
             result["contract_evidence"]["load_reference_states"]
@@ -7964,10 +7968,19 @@ mod tests {
         }
 
         /// The document without its exact contract and the contract's own members
-        /// (case pressure regions and section corrosion allowances): pressure-free.
+        /// (case pressure regions, section corrosion allowances and the pressure
+        /// elongation setting, with an emptied `model_settings`): pressure-free.
         fn pressure_free(model: &Value) -> Value {
             let mut free = model.clone();
             free.as_object_mut().unwrap().remove("pressure_contract");
+            let object = free.as_object_mut().unwrap();
+            let emptied = object.get_mut("model_settings").and_then(Value::as_object_mut).is_some_and(|settings| {
+                settings.remove("pressure_elongation");
+                settings.is_empty()
+            });
+            if emptied {
+                object.remove("model_settings");
+            }
             for case in free["load_cases"].as_array_mut().unwrap() {
                 case.as_object_mut().unwrap().remove("pressure_regions");
             }

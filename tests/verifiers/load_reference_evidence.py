@@ -7,7 +7,7 @@ this one, and it imports nothing from product code (`tests/test_verifier_indepen
 Mirror of ``core/reporting/result_export/src/load_reference.rs``'s pre-pass (S1-S13) in its retained-source form
 (``Method::PressureJoined``): the same checks run in the same order and raise the same error strings. Change both
 together. Arrays are walked in document order so the first failure is deterministic. pressure-2's own pre-pass is
-``pressure_2.py``'s. B7b (A4/A5) retired load-reference-1 and load-reference-source-1 with the
+``pressure_3.py``'s. B7b (A4/A5) retired load-reference-1 and load-reference-source-1 with the
 ``2.0.0/exact_straight_pressure_v2`` contract; neither is read here. This establishes internal source consistency,
 never producer origin, solver accuracy or model freshness.
 """
@@ -64,7 +64,7 @@ MEMBER_STATE_KEYS = ["source_id", "owner_kind", "classification", "consumed_inpu
 SUPPORT_STATE_KEYS = ["source_id", "owner_kind", "classification", "value"]
 PRESSURE_REGION_KEYS = ["source_id", "owner_kind", "classification", "factor"]
 EXCLUDED_KEYS = ["source_id", "owner_kind", "classification", "category", "reason"]
-REGION_KEYS = ["profile_version", "profile_mode", "load_case_id", "region_id", "member_pipe_ids", "pressure_basis", "p_pa", "external_pressure_increment_pa", "approximation", "geometry_representation_guard", "geometry", "materials", "applied_loads", "terminals", "provenance", "result_ids"]
+REGION_KEYS = ["profile_version", "profile_mode", "load_case_id", "region_id", "member_pipe_ids", "pressure_basis", "p_pa", "external_pressure_increment_pa", "approximation", "geometry_representation_guard", "geometry", "materials", "applied_loads", "terminals", "provenance", "result_ids", "pressure_elongation"]
 REGION_MATERIAL_KEYS = ["pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance", "temperature_basis"]
 DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
 LAW_DEFINITIONS = ["engineering_secant", "engineering_dilation", "differential_per_datum_length", "logarithmic_per_current_length"]
@@ -239,7 +239,7 @@ def _is_selected(record: Any) -> bool:
 def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
     """Steps S1-S13 of Rust ``load_reference::prepass`` in its retained-source form (``Method::PressureJoined``):
     S1 requires the receipt, S7 the ``recovery_method``, S10 admits a selected record, S10b and S13 bind the
-    selected response. pressure-2's ordinary pre-pass is ``pressure_2.py``'s; no other method is read here."""
+    selected response. pressure-2's ordinary pre-pass is ``pressure_3.py``'s; no other method is read here."""
     if method != PRESSURE_JOINED:
         raise ValueError(f"LOAD_REFERENCE_METHOD_UNSUPPORTED: {method}")
     joined = True

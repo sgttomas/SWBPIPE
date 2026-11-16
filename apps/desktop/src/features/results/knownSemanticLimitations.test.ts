@@ -32,7 +32,7 @@ describe("static fresh-identity set and standing reasons", () => {
     // Rust's `FRESH_IDENTITIES` (`semantic_contract.rs`), one static set in every language.
     // DEL-05-03 `pf-timoshenko.md` §4 adds the pressure-free Timoshenko identity.
     expect([...FRESH_SEMANTIC_CONTRACT_IDS].sort()).toEqual([
-      "openpipestress.result_semantics/0.3.0/pressure-2", "openpipestress.result_semantics/0.3.0/pressure-source-1",
+      "openpipestress.result_semantics/0.3.0/pressure-3", "openpipestress.result_semantics/0.3.0/pressure-source-1",
       "openpipestress.result_semantics/0.3.0/preview-physics-2", "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
       "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"]);
     expect(new Set(FRESH_SEMANTIC_CONTRACT_IDS).size).toBe(FRESH_SEMANTIC_CONTRACT_IDS.length);
@@ -64,7 +64,7 @@ describe("static fresh-identity set and standing reasons", () => {
     expect(sourceContract(retired)).toBe("unsupported");
     expect(standingReason(retired)).toBeNull();
     expect(numericalResultStanding(retired, { load_cases: [] }).eligible).toBe(false);
-    // pressure-source-1 legitimately carries ordinary cases under pressure-2 semantics.
+    // pressure-source-1 legitimately carries ordinary cases under pressure-3 semantics.
     const composite = clone(pressureSourceMixed);
     expect(sourceContract(composite)).toBe("pressure_source");
     expect((composite.source_block_recovery as any).body.cases.some((c: any) => c.selected_method !== "retained_source_blocks_exact_v1")).toBe(true);

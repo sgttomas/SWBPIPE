@@ -32,7 +32,7 @@ const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::SparseInteractive,
     PreviewSolverMode::DenseScrutiny,
 ];
-const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 
 fn references() -> Value {
     serde_json::from_str(REFERENCES).unwrap()

@@ -1303,15 +1303,20 @@ def elongation_on_model(model: dict[str, Any], load_case: str) -> dict[str, Any]
 
 
 def series_document(document: dict[str, Any], series: str) -> dict[str, Any]:
-    """The benchmark document of one run of a tranche 2 model; deterministic, and nothing is written to the tracked
-    set. `pressure-default`: the tracked model as it is. `pressure-elongation-on`: the tracked model with the setting
+    """The benchmark document of one run of a tranche 2 model, or of a tranche 3 option-addition or hand-entry run
+    (benchmark_tranche3.run_document); deterministic, and nothing is written to the tracked set. `pressure-default`: the tracked model as it is. `pressure-elongation-on`: the tracked model with the setting
     naming its elongation_load_case. Either carries the closed forms valid in every state plus that state's, and that
     run's inexact inputs. `pressure-bourdon-expansion-capture`: the tracked model, marked `capture_only`, with no
     closed form and no inexact input, since no SWBPIPE state of these models equals that run (its declaration says
     why); it is declared, and run_pilot refuses it by name and collects nothing for it. Every run
     document names its `oppres_line` (the MBF's OPPRES line, substituted by `substituted_mbf_text`) and its
     `run_id`, distinct per run."""
-    if series not in PRESSURE_RUN_SERIES or series not in document.get("series", []):
+    if series not in PRESSURE_RUN_SERIES:
+        # Tranche 3's option-addition and hand-entry runs, derived from the document alone (capture-only).
+        from tools.caepipe_correlation import benchmark_tranche3
+
+        return benchmark_tranche3.run_document(document, series)
+    if series not in document.get("series", []):
         raise ValueError(f"{document.get('model_id')} has no {series!r} run")
     out = copy.deepcopy(document)
     out.pop("closed_form_by_series", None)
@@ -1332,7 +1337,14 @@ def series_document(document: dict[str, Any], series: str) -> dict[str, Any]:
 
 
 def run_mbf_text(document: dict[str, Any], writer_text: str) -> str:
-    """The MBF a benchmark document's run carries: the writer's text, with the OPPRES line of a series run."""
+    """The MBF a benchmark document's run carries: the writer's text, with the OPPRES line of a pressure series run,
+    with the declared records added for an option-addition run, and unchanged for a hand-entry run (the written base)."""
+    if document.get("run_kind") == "option_addition":
+        from tools.caepipe_correlation import benchmark_tranche3
+
+        return benchmark_tranche3.added_mbf_text(writer_text, document["added_records"])
+    if document.get("run_kind") == "hand_entry":
+        return writer_text
     line = document.get("oppres_line")
     return writer_text if line is None else substituted_mbf_text(writer_text, line)
 
@@ -1390,6 +1402,12 @@ TRANCHES = {
           "description": ("pressurised linear static models on the exact pressure contract, each file run in the "
                           "pressure-default, pressure-elongation-on and pressure-bourdon-expansion-capture series "
                           "(each model's runs); no model document carries model_settings")},
+    "3": {"families": ["S1", "S2", "S3", "DYN-C", "DYN-D", "DYN-L", "DYN-M", "N", "H"],
+          "description": ("linear static one-parameter series S1 (transverse shear in straight pipe), S2 (shear and "
+                          "flexibility in a bend) and S3 (finite stiffness of a rigid support), and the dynamics family "
+                          "D with its declared option-addition runs (benchmark_tranche3.py); and part two, nonlinear "
+                          "supports (N) and a constant support (H) entered by hand on a written base "
+                          "(benchmark_hand_entry.py); designed members, no draw from the seeded sequence")},
 }
 
 
@@ -1417,6 +1435,8 @@ def layout_rows(document: dict[str, Any]) -> int:
 
 def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
     """{relative path: file text} of the whole benchmark set for `seed`."""
+    from tools.caepipe_correlation import benchmark_tranche3 as tranche3  # tranche 3 builds on this module
+
     rng = random.Random(seed)
     files: dict[str, str] = {}
     entries = []
@@ -1475,7 +1495,14 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
             entry = {"model_id": model_id, "family": sub_family, "tranche": "2" if pressurised else "1",
                      "sampling": spec["sampling"], "parameters": parameters, "series": member_of, "file": relative,
                      "model_hash": canonical_model_hash(model),
-                     "file_sha256": hashlib.sha256(text.encode("ascii")).hexdigest()}
+                     "file_sha256": hashlib.sha256(text.encode("ascii")).hexdigest(),
+                     "screening_classes": tranche3.derived_screening_classes(document),
+                     # The SHA-256 of the writer's output for this model: the file the target program is given (for a
+                     # model with runs, the default run's file, as its runs record it).
+                     "mbf_sha256": hashlib.sha256(writer_mbf_text(document).encode("utf-8")).hexdigest()}
+            override = tranche3.rigid_override(document)
+            if override is not None:
+                entry["inexact_input_override"] = override
             if pressurised:
                 writer_text = writer_mbf_text(document)
                 entry["layout_row_count"] = layout_rows(document)
@@ -1500,12 +1527,20 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
                     series[name]["members"].append({"model_id": model_id, "run_id": run["run_id"],
                                                     "elongation_load_case": SUSTAINED})
             entries.append(entry)
+    # Tranche 3, appended after tranche 2; it draws nothing from rng.
+    tranche3.add_tranche3(seed, files, entries, series)
     files["manifest.json"] = _dump({
         "document_kind": MANIFEST_KIND,
         "generator": {"version": GENERATOR_VERSION, "module": "tools/caepipe_correlation/benchmark_models.py",
                       "seed": seed, "rng": "random.Random(seed).random() only"},
         "tranches": TRANCHES,
         "pressure_hypothesis": PRESSURE_HYPOTHESIS,
+        "screening_class_rule": tranche3.SCREENING_CLASS_RULE,
+        "option_addition": tranche3.OPTION_ADDITION,
+        "dry_run": tranche3.dry_run_declaration(),
+        "export": tranche3.export_statement(),
+        "rigid_support_override": tranche3.rigid_override_declaration(entries),
+        "hand_entry": tranche3.hand_entry_declaration(),
         "requirement": ("DEL-17-05 REQ-018 and AC-007 (execution/PKG-17/DEL-17-05/ScopeOfWork.md); the Benchmark "
                         "method section of docs/RELEASE_TARGET_v1.0.md"),
         "piping_code": PIPING_CODE,

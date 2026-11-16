@@ -5745,7 +5745,14 @@
       "provenance": "invented T4-U4a arc-frame reference input; not library, component or code-rule data"
      }
     ],
-    "combinations": []
+    "combinations": [],
+    "model_settings": {
+     "pressure_elongation": {
+      "operating_load_cases": [
+       "case:u4a"
+      ]
+     }
+    }
    },
    "materials": []
   },
@@ -6295,7 +6302,14 @@
       "provenance": "invented T4-U4a arc-frame reference input; not library, component or code-rule data"
      }
     ],
-    "combinations": []
+    "combinations": [],
+    "model_settings": {
+     "pressure_elongation": {
+      "operating_load_cases": [
+       "case:u4a"
+      ]
+     }
+    }
    },
    "materials": []
   },
@@ -6845,7 +6859,14 @@
       "provenance": "invented T4-U4a arc-frame reference input; not library, component or code-rule data"
      }
     ],
-    "combinations": []
+    "combinations": [],
+    "model_settings": {
+     "pressure_elongation": {
+      "operating_load_cases": [
+       "case:u4a"
+      ]
+     }
+    }
    },
    "materials": []
   },
@@ -7528,7 +7549,14 @@
       "provenance": "invented T4-U4a arc-frame reference input; not library, component or code-rule data"
      }
     ],
-    "combinations": []
+    "combinations": [],
+    "model_settings": {
+     "pressure_elongation": {
+      "operating_load_cases": [
+       "case:u4a"
+      ]
+     }
+    }
    },
    "materials": []
   },
@@ -8268,7 +8296,14 @@
       "provenance": "invented T4-U4a arc-frame reference input; not library, component or code-rule data"
      }
     ],
-    "combinations": []
+    "combinations": [],
+    "model_settings": {
+     "pressure_elongation": {
+      "operating_load_cases": [
+       "case:u4a"
+      ]
+     }
+    }
    },
    "materials": []
   },
@@ -9274,7 +9309,14 @@
       "provenance": "invented T4-U4a arc-frame reference input; not library, component or code-rule data"
      }
     ],
-    "combinations": []
+    "combinations": [],
+    "model_settings": {
+     "pressure_elongation": {
+      "operating_load_cases": [
+       "case:u4a"
+      ]
+     }
+    }
    },
    "materials": []
   },
@@ -9995,7 +10037,14 @@
       "provenance": "invented T4-U4a arc-frame reference input; not library, component or code-rule data"
      }
     ],
-    "combinations": []
+    "combinations": [],
+    "model_settings": {
+     "pressure_elongation": {
+      "operating_load_cases": [
+       "case:u4a"
+      ]
+     }
+    }
    },
    "materials": []
   },
@@ -10716,7 +10765,14 @@
       "provenance": "invented T4-U4a arc-frame reference input; not library, component or code-rule data"
      }
     ],
-    "combinations": []
+    "combinations": [],
+    "model_settings": {
+     "pressure_elongation": {
+      "operating_load_cases": [
+       "case:u4a"
+      ]
+     }
+    }
    },
    "materials": []
   }

@@ -273,6 +273,14 @@
     "provenance": "invented RT-A3 S6 reference input (validation/references/rt_a3_s6); not library, catalog, manufacturer or code-rule data"
    }
   ],
+  "model_settings": {
+   "pressure_elongation": {
+    "operating_load_cases": [
+     "load:PRESSURE",
+     "load:VACUUM"
+    ]
+   }
+  },
   "nodes": [
    {
     "id": "node:A",

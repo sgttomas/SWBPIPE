@@ -17,7 +17,8 @@ LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1), so the headless binding
 builds no joined canonical document; its artifacts carry no document file. The
 retired load-reference-1 and load-reference-source-1 identities are not read.
 These tests read the artifacts; they skip only when the variable is unset and
-must be run with it set. All inputs are invented.
+must be run with it set; ``HEADLESS_ARTIFACTS_REQUIRED=1`` turns that skip into
+a failure. All inputs are invented.
 """
 from __future__ import annotations
 
@@ -51,7 +52,10 @@ LRS_SUFFIXES = {"request", "invocation", "raw", "manifest"}
 def _folder(var: str) -> Path:
     folder = os.environ.get(var)
     if not folder:
-        pytest.skip(f"set {var} and run the focused Rust lane to produce actual headless artifacts")
+        message = f"set {var} and run the focused Rust lane to produce actual headless artifacts"
+        if os.environ.get("HEADLESS_ARTIFACTS_REQUIRED") == "1":
+            pytest.fail("HEADLESS_ARTIFACTS_REQUIRED=1: " + message)
+        pytest.skip(message)
     return Path(folder)
 
 

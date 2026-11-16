@@ -170,7 +170,7 @@ describe("hangerSizingView: sized documents", () => {
     expect(b.selection).toEqual({
       family: "constant_effort",
       hangerId: "CE-2",
-      recordSha256: "76b38078001d0e7c6c339c987bdbb83f4d382cd4d81a72390c550f83e407e9e7",
+      recordSha256: "1269525c6f0fae10456bc5ef9470076197b8c2e9e49e35dbb1da7af5e58491b1",
       load: { value: 4571.428571428572, unit: "N", text: "4571.428571428572 N" }
     });
     expect(b.governing).toEqual({ travelCase: "load:O1", variationCase: null });

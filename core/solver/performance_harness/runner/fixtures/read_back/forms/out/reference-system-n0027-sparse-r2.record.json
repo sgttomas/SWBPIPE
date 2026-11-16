@@ -1,0 +1,95 @@
+{
+  "argv": [
+    "release_timing",
+    "reference_system.json",
+    "--mode",
+    "sparse"
+  ],
+  "binary_pid_found": true,
+  "classification": "killed_by_sampler",
+  "classification_detail": "footprint_7258568_above_budget_1000000",
+  "exit_code": -9,
+  "kill_after_s": 0.107,
+  "killed_by_rss_watchdog": false,
+  "killed_by_sampler": true,
+  "load_after": [
+    6.90576171875,
+    8.66162109375,
+    9.12646484375
+  ],
+  "load_before": [
+    6.90576171875,
+    8.66162109375,
+    9.12646484375
+  ],
+  "memorystatus_after": 94,
+  "memorystatus_before": 94,
+  "peak_rss_bytes": 19955712,
+  "peak_rss_source": "wait4",
+  "poll_s": 0.1,
+  "resident_samples": [
+    [
+      0.001,
+      32768
+    ],
+    [
+      0.107,
+      19955712
+    ]
+  ],
+  "rlimit_as_applied": false,
+  "rss": {
+    "exit_lifetime_max_phys_footprint_bytes": 7258568,
+    "ps_max_kib": null,
+    "ps_samples": null,
+    "resident_max_bytes": 19955712,
+    "resident_samples": 2,
+    "time_max_rss_bytes": null,
+    "time_peak_footprint_bytes": null,
+    "wait4_maxrss_bytes": 19955712
+  },
+  "rss_cap_bytes": 17179869184,
+  "run_id": "reference-system-n0027-sparse-r2",
+  "sampler": {
+    "budget_bytes": 1000000,
+    "failed_reads": 0,
+    "kill_footprint_bytes": 7258568,
+    "kill_reason": "footprint_7258568_above_budget_1000000",
+    "kind": "phys_footprint",
+    "peak_lifetime_max_phys_footprint_bytes": 7258568,
+    "peak_phys_footprint_bytes": 7258568,
+    "sample_columns": [
+      "t_s",
+      "phys_footprint_bytes",
+      "lifetime_max_phys_footprint_bytes"
+    ],
+    "samples": [
+      [
+        0.001,
+        81992,
+        98376
+      ],
+      [
+        0.107,
+        7258568,
+        7258568
+      ]
+    ]
+  },
+  "schema": "release-timing-supervise-launch-v1",
+  "stderr_tail": "release-timing-stage {\"lifetime_max_phys_footprint_bytes\":2638256,\"phys_footprint_bytes\":2638256,\"repeat\":0,\"ru_maxrss_bytes\":4915200,\"seconds\":0.000057917,\"stage\":\"read\"}\nrelease-timing-stage {\"lifetime_max_phys_footprint_bytes\":4129200,\"phys_footprint_bytes\":4129200,\"repeat\":0,\"ru_maxrss_bytes\":6930432,\"seconds\":0.004909584,\"stage\":\"parse\"}\nrelease-timing-stage {\"lifetime_max_phys_footprint_bytes\":4145584,\"phys_footprint_bytes\":4145584,\"repeat\":0,\"ru_maxrss_bytes\":6995968,\"seconds\":4.17e-7,\"stage\":\"request\"}\n",
+  "stdout_lines": 0,
+  "stdout_record_error": null,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "summary": null,
+  "survivors": [],
+  "system": "Darwin",
+  "timed_out": false,
+  "timeout_s": 60,
+  "wall_s": 0.1079,
+  "watchdog_last_kib": null,
+  "watchdog_last_resident_bytes": 19955712,
+  "watchdog_polls": 2,
+  "watchdog_samples": null,
+  "wrapper": null
+}

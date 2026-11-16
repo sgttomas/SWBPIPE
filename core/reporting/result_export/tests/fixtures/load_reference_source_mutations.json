@@ -92,7 +92,7 @@
    "source": "lr-fallback-sparse",
    "ops": [],
    "dispatch": "accept",
-   "accept_contract": "openpipestress.result_semantics/0.3.0/pressure-2",
+   "accept_contract": "openpipestress.result_semantics/0.3.0/pressure-3",
    "lr": "accept",
    "joined": "PHYSICS_SOURCE_IDENTITY"
   },
@@ -101,7 +101,7 @@
    "source": "lr-fallback-dense",
    "ops": [],
    "dispatch": "accept",
-   "accept_contract": "openpipestress.result_semantics/0.3.0/pressure-2",
+   "accept_contract": "openpipestress.result_semantics/0.3.0/pressure-3",
    "lr": "accept",
    "joined": "PHYSICS_SOURCE_IDENTITY"
   },
@@ -262,7 +262,7 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/pressure-2"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-3"
     },
     {
      "op": "set",
@@ -280,7 +280,7 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/pressure-2"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-3"
     }
    ],
    "dispatch": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
@@ -292,7 +292,7 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/pressure-2"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-3"
     },
     {
      "op": "set",
@@ -1900,7 +1900,7 @@
   },
   {
    "id": "TABLEBYTES-pressure-table",
-   "file": "fixtures/results/semantic_contract_v0_3_pressure_2.json",
+   "file": "fixtures/results/semantic_contract_v0_3_pressure_3.json",
    "find": null,
    "replace": null,
    "expect": "SOURCE_PRESSURE_SOURCE_TABLE_HASH"

@@ -436,21 +436,105 @@ def test_reads_follow_imports_and_path_loaded_models_not_imported_modules_reads(
     assert 'apps/desktop/src-tauri/resources/agent-capability-catalog.json' in reads['tools/agent_host_witness_test.py']
 
 
+def _repository_checks():
+    spec = importlib.util.spec_from_file_location('repository_checks', PROJECT / 'tools/ci/repository_checks.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_repository_check_tests_are_the_governance_step_s():
+    """The Repository checks job's list is tools/ci/repository_checks.py, which the governance harness calls."""
     workflow = (PROJECT / '.github/workflows/governance-harness.yml').read_text()
-    line, = [line for line in workflow.splitlines() if 'python3 -m pytest -q -n auto' in line]
-    assert tuple(line.split('"${deselect[@]}"')[1].split()) == ci.python_test_reads.REPOSITORY_CHECK_TESTS
+    assert 'python3 tools/ci/repository_checks.py ' in workflow
+    assert _repository_checks().REGRESSION_TARGETS == ci.python_test_reads.REPOSITORY_CHECK_TESTS
+
+
+# Each collected test here (a function, or a class method as `Class::method`) answers one question: can an edit
+# outside tools/ci/ change this invariant's truth? Yes: it runs on every pull request (`EVERY_PULL_REQUEST`, the
+# Repository checks job's `ROUTING_INVARIANT_TESTS`). No, it tests the selector's own algorithm: it stays scoped to
+# tools/ci/ changes (`SELECTOR_ONLY`). A new test joins one of the two.
+EVERY_PULL_REQUEST = frozenset((
+    'test_repository_numerical_routing_checks_are_not_duplicated_in_product_job',
+    'test_merge_group_selects_python_tests_as_a_pull_request',
+    'test_sensitive_families_follow_their_inputs',
+    'test_unrelated_security_change_does_not_expand_to_full_suite',
+    'test_dispatch_and_shared_runner_edits_keep_broad_coverage',
+    'test_numerical_transform_and_invalid_operation_checks_follow_their_inputs',
+    'test_established_helper_edits_keep_direct_importing_tests',
+    'test_full_fallback_and_shared_controls_preserve_edited_test_and_broad_families',
+    'test_j7_rf_census_generator_inputs_select_the_fixture_currency_check',
+    'test_synthetic_base_writer_inputs_select_its_check',
+    'test_reference_system_inputs_select_its_fixture_check',
+    'test_pinned_fixture_regenerations_select_the_tests_that_pin_their_bytes',
+    'test_verifier_edits_select_their_importing_tests',
+    'test_unrelated_changes_select_no_verifier_importers',
+    'test_any_python_module_outside_tests_selects_the_verifier_independence_check',
+    'test_supplier_acquisition_inputs_select_offline_boundaries_and_notice_hashes',
+    'test_supplier_bundle_inputs_keep_preparation_and_canonical_build_checks',
+    'test_model_version_literal_guard_follows_every_root_it_scans',
+    'test_every_maintained_test_runs_when_a_path_it_reads_changes',
+    'test_a_specification_a_test_only_names_is_never_its_probe',
+    'test_named_tests_also_follow_the_paths_they_read',
+    'test_finite_parameters_resolve_to_the_scripts_they_run_and_their_reads',
+    'test_repository_wide_scans_keep_their_scope',
+    'test_declared_reads_stay_current',
+    'test_the_runner_wrappers_collect_every_runner_test_class',
+    'test_formerly_never_run_guards_follow_their_roots',
+    'test_reads_follow_imports_and_path_loaded_models_not_imported_modules_reads',
+    'test_repository_check_tests_are_the_governance_step_s',
+    'test_a_path_only_a_python_test_reads_starts_the_python_job',
+    'test_a_parameter_resolves_from_its_own_bindings_not_outer_ones',
+    'test_an_unknown_f_string_slot_may_span_directories',
+    'test_a_path_under_an_unresolved_base_keeps_its_known_suffix',
+    'test_git_pathspecs_and_unshown_scans_are_derived_or_declared',
+    'test_an_imported_helpers_input_reads_select_the_test',
+    'test_the_python_job_leaves_out_only_the_declarative_specifications',
+    'test_actual_full_selection_is_partitioned_without_losing_paths',
+    'test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_pytest',
+))
+SELECTOR_ONLY = frozenset((
+    'test_repeated_full_selection_does_not_mutate_the_cached_cohort',
+    'test_known_helper_import_forms_are_selected_without_unrelated_tests',
+    'test_test_tree_imports_are_followed_without_unrelated_tests',
+    'test_the_repository_checks_job_runs_the_routing_invariant_on_every_pull_request',
+    'test_too_many_pattern_forms_collapse_to_a_covering_prefix',
+    'test_a_printf_specification_is_consumed_whole',
+    'test_expanduser_preserves_external_and_project_relative_path_domains',
+    'test_scalar_path_annotations_do_not_mistake_containers_for_paths',
+    'test_structural_directory_bases_keep_reads_and_unknown_consumers',
+    'test_sys_path_directory_keeps_the_imported_helpers_document_reader',
+    'test_shards_cover_overlapping_selections_and_new_tests',
+    'test_invalid_timing_tables_fail_closed',
+    'test_invalid_shard_arguments_are_rejected_before_plan_loading',
+    'test_sharding_preserves_pytest_collection_with_directory_and_wrapper',
+))
 
 
 def test_the_repository_checks_job_runs_the_routing_invariant_on_every_pull_request():
-    """Adding or changing a maintained test selects neither `tools/ci/` nor this file, so the invariant over every
-    maintained test's routing runs in the Repository checks job, which every product pull request runs."""
-    workflow = (PROJECT / '.github/workflows/governance-harness.yml').read_text()
-    line, = [line for line in workflow.splitlines() if 'tests/test_ci_python.py::' in line]
-    for name in ('test_every_maintained_test_runs_when_a_path_it_reads_changes',
-                 'test_a_specification_a_test_only_names_is_never_its_probe'):
-        assert f'"tests/test_ci_python.py::{name}"' in line, name
-        assert name in globals(), name
+    """Every collected test belongs to exactly one routing set, and the job runs the first set.
+
+    Collect with pytest itself so methods, imported tests and generated tests have the same identifiers here
+    as in the job. Parametrized instances share their unparametrized selector.
+    """
+    import os
+    import subprocess
+    import sys
+
+    checks = _repository_checks()
+    module = 'tests/test_ci_python.py'
+    # Collection needs no binary: the session hook (tests/conftest.py) builds none when told not to.
+    env = {**os.environ, 'OPENPIPESTRESS_NO_CARGO_BUILD': '1'}
+    result = subprocess.run([sys.executable, '-m', 'pytest', '--collect-only', '-q', '-p', 'no:cacheprovider', module],
+                            cwd=PROJECT, capture_output=True, text=True, check=True, env=env)
+    prefix = module + '::'
+    tests = {line[len(prefix):].split('[', 1)[0] for line in result.stdout.splitlines()
+             if line.startswith(prefix)}
+    assert tests, result.stdout
+    assert not EVERY_PULL_REQUEST & SELECTOR_ONLY
+    assert EVERY_PULL_REQUEST | SELECTOR_ONLY == tests, sorted(tests ^ (EVERY_PULL_REQUEST | SELECTOR_ONLY))
+    assert set(checks.ROUTING_INVARIANT_TESTS) == {f'{module}::{name}' for name in EVERY_PULL_REQUEST}
+    assert len(checks.ROUTING_INVARIANT_TESTS) == len(EVERY_PULL_REQUEST)
 
 
 def test_a_path_only_a_python_test_reads_starts_the_python_job():
@@ -710,3 +794,28 @@ def test_sharding_preserves_pytest_collection_with_directory_and_wrapper(tmp_pat
     assert expected == actual
     assert any('suffix_test.py::test_suffix' in name for name in expected)
     assert any('wrapper_test.py::test_one' in name for name in expected)
+
+
+def test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_pytest(monkeypatch):
+    """A test that builds a crate offline fetches no Cargo dependency itself: the runner fetches the crate's locked
+    dependencies before pytest starts, whenever the selection holds the test, by file or by a folder above it."""
+    test, manifest = 'tests/test_release_timing_build_identity.py', 'core/solver/release_timing/Cargo.toml'
+    assert ci.OFFLINE_BUILDS[test] == (manifest,)
+    for name, manifests in ci.OFFLINE_BUILDS.items():
+        assert '"--offline"' in (PROJECT / name).read_text(), name
+        for path in manifests:
+            assert (PROJECT / path).is_file() and (PROJECT / path).with_name('Cargo.lock').is_file(), path
+    assert ci.offline_build_manifests([test]) == [manifest]
+    assert ci.offline_build_manifests(['tests/test_ci_python.py', 'tests']) == [manifest]
+    assert ci.offline_build_manifests(['tests/test_release_timing_build_identity.py.bak', 'tests/security']) == []
+    assert ci.offline_build_manifests([]) == []
+    # The fetch is online whatever an earlier step left in the environment, and locked.
+    monkeypatch.setenv('CARGO_NET_OFFLINE', 'true')
+    calls = []
+    ci.fetch_locked(PROJECT, [manifest], run=lambda argv, **kwargs: calls.append((argv, kwargs)))
+    (argv, kwargs), = calls
+    assert argv == ['cargo', 'fetch', '--locked', '--manifest-path', manifest]
+    assert 'CARGO_NET_OFFLINE' not in kwargs['env'] and kwargs['check'] is True and kwargs['cwd'] == PROJECT
+    assert 'PATH' in kwargs['env'], 'the rest of the environment is kept'
+    ci.fetch_locked(PROJECT, [], run=lambda *args, **kwargs: calls.append(None))
+    assert len(calls) == 1, 'nothing is fetched for a selection without such a test'

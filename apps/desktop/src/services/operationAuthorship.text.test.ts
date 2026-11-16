@@ -61,20 +61,30 @@ describe("a forbidden member is recognised before it is counted", () => {
 
 describe("no text chosen by the file or the agent appears in a refusal", () => {
   const SECRET = "Zq7SECRETPERSONTEXTxv";
-  const cases: [string, unknown, string | null][] = [
+  const cases: [string, unknown, string][] = [
     ["a secret key above the member", { [SECRET]: { modifiers: {} } }, "two levels inside the value"],
     ["a secret nested key in a list", { a: [{ [SECRET]: { bend_realization: 1 } }] }, "four levels inside the value, in item 1 of a list"],
     ["nested lists", [[0, { [SECRET]: [{ modifiers: 1 }] }]], "five levels inside the value, in items 1, 2 and 1 of nested lists, outermost first"],
-    ["a key that looks like a member name", { modifiers_note: SECRET, [`modifiers_${SECRET}`]: 1, label: "M" }, null],
+    ["a key that looks like a member name", { modifiers_note: { [`modifiers_${SECRET}`]: { modifiers: 1 } }, label: "M" }, "three levels inside the value"],
     ["a member name where it is not the member found", { mechanics_interface: { [SECRET]: SECRET, solver_consumption: "not_solver_consumed" }, x: { [SECRET]: { modifiers: 1 } } }, "three levels inside the value"],
   ];
   for (const [what, after, where] of cases) it(what, () => {
     const text = JSON.stringify(after);
     const found = writesUserEnteredModifier(op(text));
-    if (where === null) { expect(found).toBeNull(); return; }
+    expect(found).not.toBeNull();
     expect(found!.label).toContain(where);
-    const messages = [intakeMessage(op(text)), ...Object.values(ORIGINS).map(claim => JSON.stringify(requeueRetainedRecord(op(text, claim), 1)))];
-    for (const message of messages) { expect(message).not.toBeNull(); expect(message).not.toContain(SECRET); expect(message).toContain(where); }
+    const messages = [intakeMessage(op(text)), ...Object.values(ORIGINS).map(claim => {
+      const outcome = requeueRetainedRecord(op(text, claim), 1);
+      expect(outcome).toHaveProperty("refused");
+      return "refused" in outcome ? outcome.refused : null;
+    })];
+    for (const message of messages) {
+      expect(message).not.toBeNull();
+      expect(message).not.toContain(SECRET);
+      expect(message).not.toContain("modifiers_note");
+      expect(message).not.toContain("mechanics_interface");
+      expect(message).toContain(where);
+    }
   });
   it("a component modifier field path and a library record key are named by a fixed label", () => {
     const field = { ...op("1"), operation_kind: "modify", target: { object_type: "Component", ref: "component:c" }, change: { ...op("1").change, change_kind: "set_field", field_path: `modifiers.${SECRET}` } };

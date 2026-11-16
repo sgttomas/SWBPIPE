@@ -158,9 +158,11 @@ fn check_vectors(n: usize, vectors: &[&[f64]]) -> Result<(), OrthogonalityError>
 }
 
 /// The bilinear forms, generalized masses and ratios in `WideDd`, so a
-/// generalized mass below or above the binary64 range is still exact to
-/// double-double and only the ratio is rounded; it must be finite, and
-/// normal or exactly zero.
+/// generalized mass below or above the binary64 range is still read with
+/// an unbounded exponent and only the ratio is rounded to binary64. Each
+/// form is read from its exact sum within 2^−min(96+t, 105) relative
+/// (`exact`, "What the rounding guarantees"), not to a full double-double.
+/// It must be finite, and normal or exactly zero.
 fn from_products(
     vectors: &[&[f64]],
     products: &[Vec<Vec<Term>>],

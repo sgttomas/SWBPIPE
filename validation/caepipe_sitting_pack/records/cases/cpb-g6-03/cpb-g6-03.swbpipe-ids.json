@@ -1,0 +1,264 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-g6-03"
+    },
+    "source_model_sha256": "28c7e8bdd851eec7313c004b196972fb6e6d00cef04ec692afb5fc22cb2a250e"
+  },
+  "element_map": {
+    "pipe:BEND1": {
+      "bend": {
+        "component": "component:BEND1",
+        "node": "node:BEND1-near"
+      },
+      "from": "20A",
+      "reversed": true,
+      "to": "20B"
+    },
+    "pipe:H1": {
+      "from": "10",
+      "reversed": true,
+      "to": "20A",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P1": {
+      "from": "50",
+      "reversed": true,
+      "to": "60",
+      "y_reference": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P2": {
+      "from": "40",
+      "reversed": true,
+      "to": "50",
+      "y_reference": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P3": {
+      "from": "30",
+      "reversed": true,
+      "to": "40",
+      "y_reference": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P4": {
+      "from": "20B",
+      "reversed": true,
+      "to": "30",
+      "y_reference": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:expansion": "Expansion (T1)",
+    "case:sustained": "Sustained (W+P)"
+  },
+  "load_map": {
+    "case:expansion/load:thermal:pipe:BEND1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:BEND1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:H1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:H1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:P1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:P1"
+      }
+    },
+    "case:expansion/load:thermal:pipe:P2": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:P2"
+      }
+    },
+    "case:expansion/load:thermal:pipe:P3": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:P3"
+      }
+    },
+    "case:expansion/load:thermal:pipe:P4": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:P4"
+      }
+    },
+    "case:sustained/load:weight:pipe:BEND1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:BEND1"
+      }
+    },
+    "case:sustained/load:weight:pipe:H1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:H1"
+      }
+    },
+    "case:sustained/load:weight:pipe:P1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:P1"
+      }
+    },
+    "case:sustained/load:weight:pipe:P2": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:P2"
+      }
+    },
+    "case:sustained/load:weight:pipe:P3": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:P3"
+      }
+    },
+    "case:sustained/load:weight:pipe:P4": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:P4"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:bench-c"
+    }
+  },
+  "mbf_sha256": "8c1250d9af4e7c8d6fcd1ebf53381653575c9bcc9afbb5156b39e81de4807687",
+  "node_map": {
+    "node:B": "10",
+    "node:BEND1-far": "20A",
+    "node:BEND1-near": "20B",
+    "node:R0": "60",
+    "node:R1": "50",
+    "node:R2": "40",
+    "node:R3": "30"
+  },
+  "pressure_map": {
+    "contract": "none",
+    "regions": [],
+    "shear_model": "euler_bernoulli"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "3f9223846df152ead96a29935863a90c498729ab51a58b3f0ed486946734c127",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "60",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:B": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:G1": {
+      "family": "guide",
+      "family_authored": true,
+      "node": "50",
+      "restrained": [
+        "UX",
+        "UZ"
+      ]
+    },
+    "support:G2": {
+      "family": "guide",
+      "family_authored": true,
+      "node": "40",
+      "restrained": [
+        "UX",
+        "UZ"
+      ]
+    },
+    "support:L3": {
+      "family": "line_stop",
+      "family_authored": true,
+      "node": "30",
+      "restrained": [
+        "UY"
+      ]
+    }
+  }
+}

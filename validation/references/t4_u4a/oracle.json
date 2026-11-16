@@ -2,7 +2,7 @@
  "schema_version": "independent.arc_frames_and_signs/1.0.0",
  "purpose": "Frozen independent expectations for T4-U4a (DEL-04-07 Design/arc-frames-and-signs.md): the end rows of realized arcs in the tangent frame at each end, node-on-element, on preview-physics-1 and pressure-1; the unchanged cut rows; and wrong-frame and wrong-sign discriminators.",
  "requests_file": "requests.json",
- "requests_sha256": "6582d2504640628a5fb6ca5dd9c937594c7a4ca532869d99fa80f3c72447a9c8",
+ "requests_sha256": "291554718edb2df79090b8f19c4c1041c4eb2ba1901be5dfb0edc00c0ec8ea12",
  "basis": "u4a_engine.py: unit-load (flexibility) method, 90-digit decimal, closed-form statics, 48-point Gauss-Legendre virtual-work integrals; imports no product code",
  "numbers": "Invented test quantities. Not material-library, component-library or code-rule data.",
  "inputs": "node coordinates, y_reference components and load components are the binary64 values written in requests.json and are used as exact inputs; section, material, radius, k, pressure and temperature are exact decimal targets",

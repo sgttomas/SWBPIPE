@@ -2,9 +2,9 @@
 //! target exit criterion 9). Observation only: it asserts no time or memory
 //! bound.
 //!
-//! It runs, in one process, the engine stages the desktop's capped solve
-//! worker runs for an ordinary solve, in the worker's order and with the same
-//! calls:
+//! One invocation times one kind of desktop worker work, in one process, in the
+//! worker's order and with the same calls. The solve (the default) runs the
+//! engine stages the desktop's capped solve worker runs for an ordinary solve:
 //!
 //! - `read`: the model document's bytes (the worker reads them from its
 //!   control pipe; here `std::fs::read`);
@@ -18,9 +18,23 @@
 //!   result bytes;
 //! - `release_envelope`: the envelope's drop (in the worker, at the end of the
 //!   `to_string` statement);
-//! - `parse_back`: `serde_json::from_str::<Value>` of the result text and its
-//!   drop (`solve_worker.rs` `result_digest`; the streamed digest itself is in
-//!   the desktop crate and is not reproduced).
+//! - `parse_back`: a cheaper stand-in for the worker's read-back of the result
+//!   text, and a lower bound on it: one streamed `serde_json` parse of the text
+//!   that keeps nothing (`serde::de::IgnoredAny`). The worker's read-back is
+//!   the attestation digest `d_S` (`result_text_digest.rs` `text_digest`, in
+//!   the desktop crate, which this driver cannot link): it materialises each
+//!   leaf value up to 256 KiB (a result text below that is materialised
+//!   whole), collects and sorts the members of each larger object, decodes
+//!   escaped keys, validates the values and serialises them canonically into
+//!   its hash. None of that is reproduced, so the worker's read-back time and
+//!   peak are not: this stage's time, and the memory read at `serialize` and
+//!   after, are lower bounds on the worker's.
+//!
+//! Nothing runs after `parse_back`. The desktop's on-demand model checks
+//! (`check_preview_model`, a menu command with its own check worker) are their
+//! own invocation, `--model-checks`, with their own stages (`read`, `parse`,
+//! `model_checks`, `serialize`; `solve_worker.rs` `model_checks`), so that
+//! their allocations never reach a solve's readings.
 //!
 //! After each stage it reads `getrusage` `ru_maxrss` and, on macOS, the
 //! process's `phys_footprint` and lifetime-maximum `phys_footprint`
@@ -33,13 +47,25 @@
 //! "phys_footprint_bytes", "lifetime_max_phys_footprint_bytes"}`, so that a run
 //! killed from outside still shows the last stage it finished.
 //!
-//! Usage: `release_timing <document.json> [--mode sparse|dense] [--write <path>] [--repeats N]`.
+//! Usage: `release_timing <document.json> [--mode sparse|dense] [--write <path>] [--repeats N]`
+//! (a solve), or `release_timing <document.json> --model-checks [--write <path>] [--repeats N]`
+//! (the model checks; `--write` keeps the report's text).
 //! The input is a model document (what the desktop opens and sends) or a
 //! request `{"model": ..., "materials": [...]}`, whose model is used. Prints
-//! one JSON line (schema `release-timing-v1`). Exit 0 when the entry returned
-//! an envelope (solved or blocked), 3 on an entry error (still one JSON line),
-//! 2 on a usage or file error.
+//! one JSON line (schema `release-timing-v2`, with `invocation` `solve` or
+//! `model_checks`). Exit 0 when the work returned (an envelope, solved or
+//! blocked; or a report), 3 on an entry error (still one JSON line), 2 on a
+//! usage or file error.
+//!
+//! `release_timing --build-identity` prints the build's embedded identity (`build.rs`) as one
+//! JSON line and exits.
+//!
+//! `release_timing --supervise <plan.json> --out <dir> [--models <dir>]`
+//! (macOS) instead supervises a plan's runs of this same binary in the modes above, one child
+//! process at a time, watched from outside (`src/supervise.rs`). The modes above are unchanged by it.
 
+use open_pipe_stress_operation_applier::model_checks_owned;
+use open_pipe_stress_release_timing::SUPERVISOR_PID_ARG;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode};
 use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
@@ -47,22 +73,38 @@ use std::collections::BTreeMap;
 use std::io::Write;
 use std::time::Instant;
 
-const SCHEMA: &str = "release-timing-v1";
+const SCHEMA: &str = "release-timing-v2";
 const STATIONS: [&str; 5] = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"];
-const STAGES: [&str; 7] = ["read", "parse", "request", "entry", "serialize", "release_envelope", "parse_back"];
+/// The solve invocation's stages: the desktop solve worker's ordinary solve.
+const SOLVE_STAGES: [&str; 7] = ["read", "parse", "request", "entry", "serialize", "release_envelope", "parse_back"];
+/// The `--model-checks` invocation's stages: the desktop check worker's on-demand model checks
+/// (`solve_worker.rs` `model_checks`, DEL-07-07 REQ-008).
+const MODEL_CHECK_STAGES: [&str; 4] = ["read", "parse", "model_checks", "serialize"];
+/// The status of a `--model-checks` run whose checks returned a report (whatever it found).
+const CHECKS_REPORTED: &str = "MODEL_CHECKS_REPORTED";
 const ENTRY_ERROR_EXIT: i32 = 3;
 const USAGE_EXIT: i32 = 2;
 
-const LIMITS: [&str; 10] = [
+const SOLVE_LIMITS: [&str; 10] = [
     "Engine stages only: the desktop solve worker's ordinary solve (solve_worker.rs ordinary_solve and attested_solve, lib.rs solve_preview_mechanics_with_mode, ingress.rs native_request) run in one process. The app, its IPC and ingress prescan, the memory pool's leases and growth exchanges, the worker's process start and control frames, and the webview are not exercised.",
-    "The solve attestation's two streamed canonical digests (d_M of the model before the solve, d_S of the parsed-back result) live in the desktop crate and are not reproduced: the worker spends that time and this driver does not. parse_back times serde_json::from_str of the result text and the value's drop only.",
+    "The solve attestation's two streamed canonical digests (d_M of the model before the solve, d_S of the result text) live in the desktop crate and are not reproduced, nor is their hashing time. parse_back is a cheaper stand-in for the worker's read-back of the result text and a lower bound on it: one streamed serde_json parse of the text that keeps nothing. The worker's d_S (result_text_digest.rs) materialises each leaf value up to 256 KiB, and a result text below that whole, collects and sorts the members of each larger object, decodes escaped keys, validates the values and serialises them canonically; none of that is done here. The worker's read-back peak is not reproduced: this driver's memory at serialize and after is a lower bound on the worker's.",
     "The worker's counting, capped global allocator (worker_alloc.rs CappedAllocator over System) is not installed; this binary allocates through System directly.",
     "The document is read from a file (std::fs::read) instead of the worker's control pipe; in the worker the parent also holds the raw body and the result bytes, in its own process.",
     "ru_maxrss_bytes and lifetime_max_phys_footprint_bytes are process high-water marks: with more than one repeat, a later repeat's peaks include every earlier repeat's.",
-    "worker_peak_footprint_bytes_equivalent is this process's lifetime-maximum phys_footprint (proc_pid_rusage RUSAGE_INFO_V4) read after parse_back, as the worker reads it for its RSLT frame; the desktop records the larger of that report and the parent's reading of the same counter for the worker's pid.",
-    "Publication statistics (rows, kinds, classes, bases, diagnostics) are computed from the envelope between entry and serialize, outside every timed stage; output_sha256 and --write happen after serialize, also untimed.",
+    "driver_peak_footprint_bytes is this process's lifetime-maximum phys_footprint (proc_pid_rusage RUSAGE_INFO_V4) read after parse_back, where the worker reads it for its RSLT frame; the desktop records the larger of that report and the parent's reading of the same counter for the worker's pid. Because parse_back is a cheaper stand-in for the worker's read-back, it is a lower bound on the worker's peak, not a measured worker peak.",
+    "Publication statistics (rows, kinds, classes, bases, diagnostics) are computed from the envelope between entry and serialize, outside every timed stage; output_sha256 and --write happen after parse_back, also untimed. Nothing else runs in the process: the desktop's on-demand model checks are timed by their own invocation (--model-checks).",
     "Row bytes per kind and per class are each row's serde_json::to_writer length; they exclude the results array's separators and the envelope's other members, so they sum to less than output_bytes.",
     "Row classes: station = metadata.location in end_i/quarter_1/midspan/quarter_3/end_j; node = metadata.location node; governing = metadata.location governing_station; other = any other location or no metadata.",
+    "Observation only: no time or memory bound is asserted.",
+];
+
+const MODEL_CHECK_LIMITS: [&str; 7] = [
+    "The desktop's on-demand model checks (the check_preview_model command, run in its own check worker: solve_worker.rs model_checks), in one process: read, parse (serde_json::from_slice, then the bytes released), model_checks (operation_applier model_checks_owned on the taken model) and serialize (serde_json::to_string of the report, then the report's drop, as at the end of the worker's model_checks). Nothing is solved. The app, its IPC, the check worker's process start, admission, memory pool lease and control frames, and the webview are not exercised.",
+    "In the desktop the parsed value is the command's {model} arguments body, whose model is taken; here it is the model document, or a request's model, read from a file (std::fs::read) instead of the worker's control pipe.",
+    "The worker's counting, capped global allocator (worker_alloc.rs CappedAllocator over System) is not installed; this binary allocates through System directly.",
+    "ru_maxrss_bytes and lifetime_max_phys_footprint_bytes are process high-water marks: with more than one repeat, a later repeat's peaks include every earlier repeat's.",
+    "driver_peak_footprint_bytes is this process's lifetime-maximum phys_footprint (proc_pid_rusage RUSAGE_INFO_V4) read after serialize.",
+    "The report's summary (model_checks) is read from it between model_checks and serialize, outside every timed stage; output_sha256 and --write happen after serialize, also untimed.",
     "Observation only: no time or memory bound is asserted.",
 ];
 
@@ -170,12 +212,9 @@ impl Timeline {
         Value::Object(seconds)
     }
 
-    fn peak(&self) -> Value {
-        self.memory
-            .get("parse_back")
-            .and_then(|m| m.get("lifetime_max_phys_footprint_bytes"))
-            .cloned()
-            .unwrap_or(Value::Null)
+    /// The lifetime-maximum footprint read after the invocation's last stage `last`.
+    fn peak(&self, last: &str) -> Value {
+        self.memory.get(last).and_then(|m| m.get("lifetime_max_phys_footprint_bytes")).cloned().unwrap_or(Value::Null)
     }
 }
 
@@ -212,6 +251,18 @@ fn model_counts(model: &Value) -> Value {
         "cases": count("load_cases"),
         "combinations": count("combinations"),
     })
+}
+
+/// On the first repeat: the document's input kind, the route and the model's counts.
+fn describe_model(out: &mut Map<String, Value>, model: &Value, input_kind: &str, ignored: usize) {
+    if let Some(Value::Object(document)) = out.get_mut("document") {
+        document.insert("input_kind".into(), json!(input_kind));
+        document.insert("request_materials_ignored".into(), json!(ignored));
+    }
+    out.insert("route".into(), json!(if model.get("pressure_contract").is_some() { "EX" } else { "PF" }));
+    if let Value::Object(counts) = model_counts(model) {
+        out.extend(counts);
+    }
 }
 
 // ------------------------------------------------------------------ statistics
@@ -300,6 +351,20 @@ fn publication(envelope: &MechanicsEnvelope) -> Map<String, Value> {
     out
 }
 
+/// What a model-check report found, by count (`model_checks_owned`'s report keys).
+fn report_summary(report: &Value) -> Value {
+    let shown = |key: &str| report.get(key).and_then(Value::as_array).map(Vec::len);
+    let count = |key: &str| report.get(key).cloned().unwrap_or(Value::Null);
+    json!({
+        "checked": count("checked"),
+        "refused": report.get("refusal").is_some(),
+        "diagnostics_shown": shown("diagnostics"),
+        "diagnostics_not_shown": count("diagnostics_not_shown"),
+        "slot_findings_shown": shown("slot_findings"),
+        "slot_findings_not_shown": count("slot_findings_not_shown"),
+    })
+}
+
 fn sha256_hex(bytes: &[u8]) -> String {
     Sha256::digest(bytes).iter().map(|b| format!("{b:02x}")).collect()
 }
@@ -308,29 +373,33 @@ fn sha256_hex(bytes: &[u8]) -> String {
 
 struct Args {
     path: String,
-    mode: PreviewSolverMode,
+    mode: Option<PreviewSolverMode>,
+    model_checks: bool,
     write: Option<String>,
     repeats: usize,
 }
 
+const USAGE: &str = "usage: release_timing <document.json> [--mode sparse|dense | --model-checks] [--write <path>] [--repeats N]";
+
 fn usage(message: &str) -> ! {
     eprintln!("release_timing: {message}");
-    eprintln!("usage: release_timing <document.json> [--mode sparse|dense] [--write <path>] [--repeats N]");
+    eprintln!("{USAGE}");
     std::process::exit(USAGE_EXIT)
 }
 
-fn parse_args() -> Args {
-    let mut args = std::env::args().skip(1);
-    let (mut path, mut mode, mut write, mut repeats) = (None, PreviewSolverMode::SparseInteractive, None, 1usize);
+fn parse_args(args: Vec<String>) -> Args {
+    let mut args = args.into_iter();
+    let (mut path, mut mode, mut model_checks, mut write, mut repeats) = (None, None, false, None, 1usize);
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--mode" => {
-                mode = match args.next().as_deref() {
+                mode = Some(match args.next().as_deref() {
                     Some("sparse" | "sparse_interactive") => PreviewSolverMode::SparseInteractive,
                     Some("dense" | "dense_scrutiny") => PreviewSolverMode::DenseScrutiny,
                     other => usage(&format!("unknown mode {other:?}")),
-                }
+                })
             }
+            "--model-checks" => model_checks = true,
             "--write" => write = Some(args.next().unwrap_or_else(|| usage("--write needs a path"))),
             "--repeats" => {
                 repeats = args
@@ -344,41 +413,184 @@ fn parse_args() -> Args {
             other => usage(&format!("unexpected argument {other}")),
         }
     }
-    Args { path: path.unwrap_or_else(|| usage("a document path is required")), mode, write, repeats }
+    if model_checks && mode.is_some() {
+        usage("the model checks have no solver mode: --model-checks takes no --mode");
+    }
+    Args { path: path.unwrap_or_else(|| usage("a document path is required")), mode, model_checks, write, repeats }
 }
 
 fn emit(out: &Map<String, Value>) {
     println!("{}", Value::Object(out.clone()));
 }
 
+/// `--supervise` as the first argument selects the supervise mode, and `--build-identity` prints
+/// the embedded build identity; any other arguments are the driver's, parsed as before.
+fn other_modes_if_asked() {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    match args.first().map(String::as_str) {
+        Some("--build-identity") if args.len() == 1 => {
+            let identity: Value = serde_json::from_str(open_pipe_stress_release_timing::BUILD_IDENTITY).unwrap_or(Value::Null);
+            println!("{identity}");
+            std::process::exit(0);
+        }
+        Some("--supervise") => {
+            #[cfg(target_os = "macos")]
+            std::process::exit(open_pipe_stress_release_timing::supervise::main(&args));
+            #[cfg(not(target_os = "macos"))]
+            {
+                eprintln!("release_timing --supervise: the supervisor reads proc_pid_rusage, which only macOS has; use the Python runner elsewhere");
+                std::process::exit(USAGE_EXIT);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// The exit status of a driver that stops because its supervisor is gone.
+const ORPHANED_EXIT: i32 = 125;
+
+fn exit_orphaned(reason: &str) -> ! {
+    eprintln!("release_timing: {reason}; the driver stops");
+    std::process::exit(ORPHANED_EXIT)
+}
+
+/// The driver's arguments, after the program name, and the supervisor's pid when the first two
+/// are [`SUPERVISOR_PID_ARG`] and a pid: only `release_timing --supervise` passes them, to the
+/// driver it starts. They are not part of the driver's usage.
+fn driver_arguments() -> (Option<String>, Vec<String>) {
+    let mut args: Vec<String> = std::env::args().skip(1).collect();
+    if args.first().map(String::as_str) != Some(SUPERVISOR_PID_ARG) {
+        return (None, args);
+    }
+    let rest = args.split_off(2.min(args.len()));
+    (Some(args.get(1).cloned().unwrap_or_default()), rest)
+}
+
+/// A driver started by `release_timing --supervise` (which passes its own pid after
+/// [`SUPERVISOR_PID_ARG`]) watches that supervisor and exits when it is gone, so that no death of
+/// the supervisor (SIGKILL, a fault, a signal it does not handle) leaves the driver running
+/// unwatched in its own session. At start the parent must be that supervisor (a supervisor that
+/// died before the watch was armed is caught here); on macOS a kernel event on the supervisor's
+/// pid (kqueue `EVFILT_PROC`, `NOTE_EXIT`) is then armed, the parent checked again, and a thread
+/// waits for the event; on Linux the kernel kills the driver when its parent exits
+/// (`prctl(PR_SET_PDEATHSIG, SIGKILL)`), set before the second check. A driver started without
+/// the argument (directly, or by the Python runner) watches nothing, whatever its environment.
+fn watch_supervisor(supervisor: Option<String>) {
+    let Some(text) = supervisor else { return };
+    let Some(supervisor) = text.parse::<i32>().ok().filter(|pid| *pid > 0) else {
+        exit_orphaned(&format!("{SUPERVISOR_PID_ARG} needs a process id"))
+    };
+    // SAFETY: getppid has no preconditions.
+    let parent = || unsafe { libc::getppid() };
+    if parent() != supervisor {
+        exit_orphaned("the supervisor that started this driver is gone");
+    }
+    #[cfg(target_os = "macos")]
+    {
+        // SAFETY: kqueue has no preconditions.
+        let queue = unsafe { libc::kqueue() };
+        if queue < 0 {
+            exit_orphaned("the supervisor cannot be watched (kqueue failed)");
+        }
+        // SAFETY: zeroed is a valid kevent; the fields set are the ones EVFILT_PROC reads.
+        let mut event: libc::kevent = unsafe { std::mem::zeroed() };
+        event.ident = supervisor as libc::uintptr_t;
+        event.filter = libc::EVFILT_PROC;
+        event.flags = libc::EV_ADD | libc::EV_ONESHOT;
+        event.fflags = libc::NOTE_EXIT;
+        // SAFETY: one change, no events requested; a failure (ESRCH: the pid is gone) is handled.
+        if unsafe { libc::kevent(queue, &event, 1, std::ptr::null_mut(), 0, std::ptr::null()) } != 0 {
+            exit_orphaned("the supervisor that started this driver is gone");
+        }
+        if parent() != supervisor {
+            exit_orphaned("the supervisor that started this driver is gone");
+        }
+        std::thread::spawn(move || loop {
+            // SAFETY: zeroed is a valid kevent to receive into.
+            let mut fired: libc::kevent = unsafe { std::mem::zeroed() };
+            // SAFETY: waits on the queue opened above for one event, without a timeout.
+            let n = unsafe { libc::kevent(queue, std::ptr::null(), 0, &mut fired, 1, std::ptr::null()) };
+            if n > 0 || std::io::Error::last_os_error().raw_os_error() != Some(libc::EINTR) {
+                exit_orphaned("the supervisor that started this driver exited");
+            }
+        });
+    }
+    #[cfg(target_os = "linux")]
+    {
+        // SAFETY: PR_SET_PDEATHSIG with a signal number has no other preconditions.
+        if unsafe { libc::prctl(libc::PR_SET_PDEATHSIG, libc::SIGKILL as libc::c_ulong) } != 0 || parent() != supervisor {
+            exit_orphaned("the supervisor that started this driver is gone");
+        }
+    }
+}
+
 fn main() {
-    let args = parse_args();
+    other_modes_if_asked();
+    let (supervisor, args) = driver_arguments();
+    watch_supervisor(supervisor);
+    let args = parse_args(args);
+    let (invocation, stages, limits): (&str, &[&str], &[&str]) = if args.model_checks {
+        ("model_checks", &MODEL_CHECK_STAGES, &MODEL_CHECK_LIMITS)
+    } else {
+        ("solve", &SOLVE_STAGES, &SOLVE_LIMITS)
+    };
     let mut out = Map::new();
     out.insert("schema".into(), json!(SCHEMA));
     out.insert("driver".into(), json!({"name": "release_timing", "version": env!("CARGO_PKG_VERSION")}));
-    out.insert("mode".into(), json!(args.mode.as_str()));
+    out.insert("invocation".into(), json!(invocation));
+    if !args.model_checks {
+        out.insert("mode".into(), json!(args.mode.unwrap_or(PreviewSolverMode::SparseInteractive).as_str()));
+    }
     out.insert("repeats_requested".into(), json!(args.repeats));
-    out.insert("stages".into(), json!(STAGES));
-    out.insert("limits".into(), json!(LIMITS));
+    out.insert("stages".into(), json!(stages));
+    out.insert("limits".into(), json!(limits));
     out.insert("memory_at_start".into(), memory());
+    if args.model_checks {
+        model_checks_runs(&args, out)
+    } else {
+        solve_runs(&args, out)
+    }
+}
 
+/// The `read` stage, with a file error reported as a driver error (exit 2).
+fn read_document(t: &mut Timeline, out: &mut Map<String, Value>, path: &str, repeat: usize) -> Vec<u8> {
+    match t.stage("read", || std::fs::read(path)) {
+        Ok(raw) => {
+            if repeat == 0 {
+                out.insert("document".into(), json!({"sha256": sha256_hex(&raw), "bytes": raw.len()}));
+            }
+            raw
+        }
+        Err(error) => {
+            out.insert("status".into(), json!("driver_error"));
+            out.insert("driver_error".into(), json!(format!("cannot read the document: {}", error.kind())));
+            emit(out);
+            std::process::exit(USAGE_EXIT);
+        }
+    }
+}
+
+/// `--write` on the first repeat: the output text as the worker returns it.
+fn write_output(out: &mut Map<String, Value>, path: Option<&String>, text: &str) {
+    let Some(path) = path else { return };
+    if let Err(error) = std::fs::write(path, text.as_bytes()) {
+        out.insert("status".into(), json!("driver_error"));
+        out.insert("driver_error".into(), json!(format!("cannot write the output: {}", error.kind())));
+        emit(out);
+        std::process::exit(USAGE_EXIT);
+    }
+    out.insert("written".into(), json!(true));
+}
+
+/// The solve invocation: the solve worker's stages, then nothing else in the process.
+fn solve_runs(args: &Args, mut out: Map<String, Value>) {
+    let mode = args.mode.unwrap_or(PreviewSolverMode::SparseInteractive);
     let mut repeats: Vec<Value> = Vec::new();
     let mut first_sha: Option<String> = None;
     let mut identical = true;
     for repeat in 0..args.repeats {
         let mut t = Timeline::new(repeat);
-        let raw = match t.stage("read", || std::fs::read(&args.path)) {
-            Ok(raw) => raw,
-            Err(error) => {
-                out.insert("status".into(), json!("driver_error"));
-                out.insert("driver_error".into(), json!(format!("cannot read the document: {}", error.kind())));
-                emit(&out);
-                std::process::exit(USAGE_EXIT);
-            }
-        };
-        if repeat == 0 {
-            out.insert("document".into(), json!({"sha256": sha256_hex(&raw), "bytes": raw.len()}));
-        }
+        let raw = read_document(&mut t, &mut out, &args.path, repeat);
         let parsed = t.stage("parse", || {
             let parsed = serde_json::from_slice::<Value>(&raw);
             drop(raw);
@@ -392,17 +604,10 @@ fn main() {
         };
         let (model, input_kind, ignored) = take_model(parsed);
         if repeat == 0 {
-            if let Some(Value::Object(document)) = out.get_mut("document") {
-                document.insert("input_kind".into(), json!(input_kind));
-                document.insert("request_materials_ignored".into(), json!(ignored));
-            }
-            out.insert("route".into(), json!(if model.get("pressure_contract").is_some() { "EX" } else { "PF" }));
-            if let Value::Object(counts) = model_counts(&model) {
-                out.extend(counts);
-            }
+            describe_model(&mut out, &model, input_kind, ignored);
         }
         let request = t.stage("request", || native_request(model));
-        let envelope = match t.stage("entry", || run_linear_static_preview_value_with_mode(request, args.mode)) {
+        let envelope = match t.stage("entry", || run_linear_static_preview_value_with_mode(request, mode)) {
             Ok(envelope) => envelope,
             Err(message) => return entry_error(out, &t, repeats, "entry", message),
         };
@@ -414,25 +619,25 @@ fn main() {
             Err(error) => return entry_error(out, &t, repeats, "serialize", error.to_string()),
         };
         t.stage("release_envelope", || drop(envelope));
-        let parse_back_ok = t.stage("parse_back", || serde_json::from_str::<Value>(&text).map(drop).is_ok());
+        // A cheaper stand-in for the worker's read-back of its result text, and a lower bound on
+        // it. The worker's read-back is the attestation digest d_S (`result_text_digest.rs`
+        // `text_digest`, in the desktop crate): it materialises each leaf value up to 256 KiB (a
+        // result below that is materialised whole), collects and sorts the members of each
+        // larger object, decodes escaped keys, validates the values and serialises them
+        // canonically into its hash. This streamed parse keeps nothing and does none of that,
+        // so neither the worker's read-back time nor its read-back peak is reproduced.
+        let parse_back_ok = t.stage("parse_back", || serde_json::from_str::<serde::de::IgnoredAny>(&text).is_ok());
+        // Nothing else runs in this process: everything below is untimed bookkeeping.
         let sha = sha256_hex(text.as_bytes());
         identical &= first_sha.as_ref().is_none_or(|first| *first == sha);
         if repeat == 0 {
-            if let Some(path) = &args.write {
-                if let Err(error) = std::fs::write(path, text.as_bytes()) {
-                    out.insert("status".into(), json!("driver_error"));
-                    out.insert("driver_error".into(), json!(format!("cannot write the result: {}", error.kind())));
-                    emit(&out);
-                    std::process::exit(USAGE_EXIT);
-                }
-                out.insert("written".into(), json!(true));
-            }
+            write_output(&mut out, args.write.as_ref(), &text);
             out.insert("output_bytes".into(), json!(text.len()));
             out.insert("output_sha256".into(), json!(sha));
             out.insert("parse_back_ok".into(), json!(parse_back_ok));
             out.insert("seconds".into(), t.seconds());
             out.insert("peak_memory".into(), Value::Object(t.memory.clone()));
-            out.insert("worker_peak_footprint_bytes_equivalent".into(), t.peak());
+            out.insert("driver_peak_footprint_bytes".into(), t.peak("parse_back"));
             first_sha = Some(sha.clone());
         }
         drop(text);
@@ -440,9 +645,72 @@ fn main() {
             "repeat": repeat,
             "seconds": t.seconds(),
             "peak_memory": Value::Object(t.memory.clone()),
-            "worker_peak_footprint_bytes_equivalent": t.peak(),
+            "driver_peak_footprint_bytes": t.peak("parse_back"),
             "output_sha256": sha,
             "parse_back_ok": parse_back_ok,
+        }));
+    }
+    out.insert("outputs_identical_across_repeats".into(), json!(identical));
+    out.insert("repeats".into(), Value::Array(repeats));
+    emit(&out);
+}
+
+/// The `--model-checks` invocation: the check worker's stages on the document, and nothing else.
+fn model_checks_runs(args: &Args, mut out: Map<String, Value>) {
+    let mut repeats: Vec<Value> = Vec::new();
+    let mut first_sha: Option<String> = None;
+    let mut identical = true;
+    for repeat in 0..args.repeats {
+        let mut t = Timeline::new(repeat);
+        let raw = read_document(&mut t, &mut out, &args.path, repeat);
+        let parsed = t.stage("parse", || {
+            let parsed = serde_json::from_slice::<Value>(&raw);
+            drop(raw);
+            parsed
+        });
+        let parsed = match parsed {
+            Ok(parsed) => parsed,
+            Err(error) => {
+                return entry_error(out, &t, repeats, "parse", format!("MODEL-CHECKS-ARGS-INVALID: {error}"));
+            }
+        };
+        let (model, input_kind, ignored) = take_model(parsed);
+        if repeat == 0 {
+            describe_model(&mut out, &model, input_kind, ignored);
+        }
+        let report = t.stage("model_checks", || model_checks_owned(model));
+        if repeat == 0 {
+            out.insert("status".into(), json!(CHECKS_REPORTED));
+            out.insert("blocking_codes".into(), json!([]));
+            out.insert("model_checks".into(), report_summary(&report));
+        }
+        // The worker serialises the report and drops it at the end of its `model_checks`.
+        let text = match t.stage("serialize", || {
+            let text = serde_json::to_string(&report);
+            drop(report);
+            text
+        }) {
+            Ok(text) => text,
+            Err(error) => return entry_error(out, &t, repeats, "serialize", format!("MODEL-CHECKS-REPORT-INVALID: {error}")),
+        };
+        let sha = sha256_hex(text.as_bytes());
+        identical &= first_sha.as_ref().is_none_or(|first| *first == sha);
+        if repeat == 0 {
+            write_output(&mut out, args.write.as_ref(), &text);
+            out.insert("output_bytes".into(), json!(text.len()));
+            out.insert("output_sha256".into(), json!(sha));
+            out.insert("seconds".into(), t.seconds());
+            out.insert("peak_memory".into(), Value::Object(t.memory.clone()));
+            out.insert("driver_peak_footprint_bytes".into(), t.peak("serialize"));
+            first_sha = Some(sha.clone());
+        }
+        drop(text);
+        repeats.push(json!({
+            "repeat": repeat,
+            "seconds": t.seconds(),
+            "peak_memory": Value::Object(t.memory.clone()),
+            "driver_peak_footprint_bytes": t.peak("serialize"),
+            "output_sha256": sha,
         }));
     }
     out.insert("outputs_identical_across_repeats".into(), json!(identical));

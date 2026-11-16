@@ -92,7 +92,7 @@ def test_the_constant_effort_literals_keep_their_dispositions():
     by_head = {m["head"]: m["bytes"] for m in matched}
     # RT-A3 increment 4 (§8.49): S1 states the nonlinear supports (3,007 -> 3,964 B); its own-bound disposition carries.
     # RT-A3 S6 (§8.59): S1 restates the admission beside connectors and on load/reference-state documents (-12 B).
-    assert by_head["3.0.0/exact_pressure_v3 under pressure-2 semantics"] == 3952
+    assert by_head["3.0.0/exact_pressure_v3 under pressure-3 semantics"] == 3952
     assert by_head["3.0.0/exact_pressure_v3 under pressure-source-1 semantics"] == 1262
     source = (SOURCE / "core/product_physics/src/exact_admission.rs").read_text(encoding="utf-8")
     # §8.49: S7 names nonlinear supports beside linear restraints and springs (224 B, still below the class).

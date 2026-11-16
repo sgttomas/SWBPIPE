@@ -86,7 +86,11 @@ def test_the_scoped_problem_parents_follow_their_functions():
     text = (SOURCE / (PP + "pressure_runtime.rs")).read_text(encoding="utf-8").splitlines()
     # RT-A3 increment 4 (§8.49): both moved +11 after validate_profile's S6 context; RT-A3 S6 (§8.59) deletes the
     # context, so both move -10, with unchanged text.
-    for key in ("1883:refuse_reducers_outside_step", "1960:collinear_run"):
+    # RT-L2: both move +381 (the cancellation exception precedes them), unchanged text.
+    # RT-L2 final source: both move +126 (the exception's restructured predicate and its probe), unchanged text.
+    # RT-L2 third scrutiny: both move +119 (the exception's chains and the warning's message function), unchanged text.
+    # RT-L2 fourth scrutiny: both move +2 (the warning message's doc comment), unchanged text.
+    for key in ("2511:refuse_reducers_outside_step", "2588:collinear_run"):
         line, name = key.split(":")
         assert any(parent.endswith(key) for parent in scoped.PROBLEM_PARENTS), key
         assert text[int(line) - 1].lstrip().startswith(("fn " + name, "pub(crate) fn " + name)), key

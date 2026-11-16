@@ -2511,6 +2511,10 @@ pub(super) fn load_reformation(p: &LoadPrimitive) -> Result<([Wide2; 12], [f64; 
 /// values (kd5-nonlinear-active-set.md §1.3): its two-product hi + lo is
 /// exact whenever lo cannot underflow, and then the radius is 0. A product
 /// near the subnormal range falls back to the ball product with its radius.
+/// A strictly positive coefficient and a nonzero normal whose binary64
+/// product rounds to zero are refused (AC-018): that zero is not the exact
+/// product, and taking it with radius 0 would exclude the true force. A zero
+/// normal still gives an exact zero.
 fn sliding_friction_exact(
     b: &mut Balls,
     coefficient: f64,
@@ -2525,6 +2529,9 @@ fn sliding_friction_exact(
     }
     let magnitude = normal.abs();
     let hi = coefficient * magnitude;
+    if hi == 0.0 && magnitude != 0.0 {
+        return Err(bad_load("explicit sliding friction product underflows"));
+    }
     let value = if hi.is_finite() && (hi == 0.0 || hi >= 2.0_f64.powi(-900)) {
         let lo = coefficient.mul_add(magnitude, -hi);
         let mut a = WideArith::new(FORMATION_PRECISION)?;

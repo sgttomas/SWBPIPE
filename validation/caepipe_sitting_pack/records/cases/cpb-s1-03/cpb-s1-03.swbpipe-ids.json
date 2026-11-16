@@ -1,0 +1,106 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-s1-03"
+    },
+    "source_model_sha256": "f015b95711c786b9029e2de9ca5bc528ae69a0ab7289f137b198fb6da7479171"
+  },
+  "element_map": {
+    "pipe:P1": {
+      "from": "10",
+      "reversed": false,
+      "to": "20",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P2": {
+      "from": "20",
+      "reversed": false,
+      "to": "30",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:sustained": "Sustained (W+P)"
+  },
+  "load_map": {
+    "case:sustained/load:tip": {
+      "category": "concentrated_force",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "node": "node:B"
+      }
+    },
+    "case:sustained/load:weight:pipe:P1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:P1"
+      }
+    },
+    "case:sustained/load:weight:pipe:P2": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:P2"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:bench-t3"
+    }
+  },
+  "mbf_sha256": "1d56841093660000ded92ef8a1c55fe35005b42d3df12deae8700893c7f3b2c9",
+  "node_map": {
+    "node:A": "10",
+    "node:B": "30",
+    "node:M": "20"
+  },
+  "pressure_map": {
+    "contract": "none",
+    "regions": [],
+    "shear_model": "euler_bernoulli"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "690e59aebcf25f16bfd588c29daa9ebd8e3859c2bca21912e5eb6774bef41d60",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  }
+}

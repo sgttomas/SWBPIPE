@@ -45,6 +45,10 @@ fn fixture(name: &str) -> &'static str {
         "modal_refused_unseparated.request.json" => include_str!("../../../../fixtures/results/modal_refused_unseparated.request.json"),
         "modal_refused_no_bound.json" => include_str!("../../../../fixtures/results/modal_refused_no_bound.json"),
         "modal_refused_no_bound.request.json" => include_str!("../../../../fixtures/results/modal_refused_no_bound.request.json"),
+        "modal_selected_cantilever.json" => include_str!("../../../../fixtures/results/modal_selected_cantilever.json"),
+        "modal_selected_cantilever.request.json" => include_str!("../../../../fixtures/results/modal_selected_cantilever.request.json"),
+        "modal_selected_refused_no_bound.json" => include_str!("../../../../fixtures/results/modal_selected_refused_no_bound.json"),
+        "modal_selected_refused_no_bound.request.json" => include_str!("../../../../fixtures/results/modal_selected_refused_no_bound.request.json"),
         other => panic!("no committed modal fixture `{other}`"),
     }
 }
@@ -366,7 +370,8 @@ fn the_readers_semantic_table_is_the_committed_table() {
 #[test]
 fn every_committed_fixture_reads_validated_up_to_its_scope() {
     let names = ["ex_n05", "arc", "component_body", "state_one_way_pressed", "state_friction_sliding", "cantilever_whole_spectrum",
-        "cantilever_cluster_extension", "cantilever_below_cutoff", "cantilever_subnormal_cutoff", "cantilever_sensitive", "refused_unseparated", "refused_no_bound"];
+        "cantilever_cluster_extension", "cantilever_below_cutoff", "cantilever_subnormal_cutoff", "cantilever_sensitive", "refused_unseparated", "refused_no_bound",
+        "selected_cantilever", "selected_refused_no_bound"];
     for name in names {
         let doc: Value = serde_json::from_str(fixture(&format!("modal_{name}.json"))).unwrap();
         let request: Value = serde_json::from_str(fixture(&format!("modal_{name}.request.json"))).unwrap();
