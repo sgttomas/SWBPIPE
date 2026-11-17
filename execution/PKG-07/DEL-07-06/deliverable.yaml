@@ -85,6 +85,10 @@ code_paths:
 - apps/desktop/e2e/b3-accessibility.spec.ts
 - apps/desktop/e2e/workspace-layout.spec.ts
 - apps/desktop/e2e/workspace-driver.ts
+# AC-007's missing-data use case: its start model, requests and person-entered values, and the
+# offline judge of a trace of it. No driver runs it yet.
+- fixtures/embedded_agent/use_cases/missing-data/**
+- tools/agent_missing_data_judge.py
 # A review-export panel mounted in the evidence section and the drawer, and a Python reference
 # module with its own contract test. No criterion of this scope covers either.
 - apps/desktop/src/features/accessibility-baseline/**
@@ -97,5 +101,6 @@ checks:
 - apps/desktop/src/design/themeAttribute.test.tsx
 - apps/desktop/src/features/workspace/uiPreferences.test.ts
 - tests/test_accessibility_usability_baseline.py
+- tools/agent_missing_data_judge_test.py
 - apps/desktop/src/features/workspace/contextMenu/ContextMenu.test.tsx
 - apps/desktop/src/App.deadControls.test.tsx

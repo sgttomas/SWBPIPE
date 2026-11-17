@@ -1,5 +1,7 @@
-//! DEL-04-10 response-spectrum analysis, unit S2: the validated spectrum table and its
-//! evaluation.
+//! DEL-04-10 response-spectrum analysis: the validated spectrum table and its evaluation (unit
+//! S2), and the combinations of supplied signed contributions with their contract (unit S4).
+//!
+//! ## Unit S2: the spectrum table
 //!
 //! A person, or a later unit, supplies a model-document spectrum record ([`SpectrumRecord`],
 //! DEL-02-01 §2.4: abscissa kind and unit, acceleration or g-multiple ordinates with an explicit
@@ -21,17 +23,50 @@
 //!    relative error bound of at most [`STATED_ACCURACY`], under IEEE 754 binary64 and the libm
 //!    assumption [`LIBM_RELATIVE_ERROR`] (not established by platform documentation or tests), or the evaluation is refused.
 //!
-//! This unit is not a spectrum solve: it forms no modal response, combination or rigid response,
-//! publishes no spectrum result and has no standing as an engineering result. A later unit
+//! The table is not a spectrum solve: it forms no modal response or rigid response. A later unit
 //! supplies the modal frequencies it is evaluated at.
+//!
+//! ## Unit S4: the combinations and the signed-contribution contract
+//!
+//! [`combine`] takes a [`CombinationRequest`]: the method choices, the damping ratio, the modal
+//! metadata of each extracted mode (its index, its DEL-04-09 cluster and its frequency), the rows,
+//! and the signed per-mode, per-direction contributions and signed rigid responses that a
+//! producer supplies. It sums each cluster's contributions with their signs first, applies the
+//! modal rule across the periodic clusters, combines the rigid response by the rigid rule, then
+//! the directions by the directional rule, and returns a [`Combination`] of unsigned
+//! [`Magnitude`]s, or named refusals (CLM-001; REQ-003, REQ-004). Each published magnitude is a
+//! binary64 shown by a runtime enclosure within 1e-9 relative of its rule's exact value on the
+//! represented operands, or an exact zero proved by exact arithmetic; otherwise the request is
+//! refused with `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED` (Agent 0's route A/E2; the enclosure
+//! arithmetic is crate-local, with no external dependency). The types in [`contract`]
+//! fix the identities, units, frames and sign tags a later document and its readers build on;
+//! [`combination_json`] is the unit's JSON entry and output, which is not the `spectrum-1`
+//! publication.
+//!
+//! Neither unit publishes a spectrum result, and nothing here has standing as an engineering
+//! result.
+mod bigint;
+mod combine;
+pub mod combination_json;
+pub mod contract;
+mod dyadic;
 mod exact;
 mod record;
 mod refusal;
 mod request;
+mod rules;
 mod scaled;
 mod table;
 
+pub use combine::combine;
+pub use contract::{
+    ClusterClass, ClusterIndex, ClusterStatement, ClusterSum, Combination, CombinationRequest, CombinedRow, Direction,
+    DirectionalPart, DirectionalRule, DisplacementComponent, End, ForceComponent, Frame, Magnitude, MissingMass,
+    ModalContribution, ModalMode, ModalRule, ModeIndex, Quantity, ReactionComponent, RigidContribution, RigidRule,
+    RowUnit, SignStatus, COMBINATION_STATEMENT,
+};
 pub use exact::period_query_ordering;
+pub use rules::{correlation_coefficient, within_ten_percent, PRECISION_LADDER};
 pub use record::{Abscissa, AxisScale, Interpolation, OrdinateKind, QuantityInput, RecordUnits, SpectrumRecord};
 pub use refusal::{Refusal, RefusalCode};
 pub use request::{evaluate_request_json, EvaluationRequest, QueryInput, STATEMENT};
