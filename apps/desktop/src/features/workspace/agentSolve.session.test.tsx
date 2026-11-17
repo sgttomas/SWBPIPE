@@ -5,7 +5,14 @@
  * runs. All data are invented. The blocked case solves the invented preview model, whose legacy
  * pressure primitives the producer refuses (run:preview-linear-static-blocked, MODEL_INCOMPLETE,
  * no rows), with the native replies recorded for that result (as App.test.tsx's
- * MODEL_INCOMPLETE case reads it). */
+ * MODEL_INCOMPLETE case reads it). The witness case solves the request of
+ * `fixtures/results/invented/agent_solve_witness`, whose committed raw result is the current
+ * producer's exact bytes (kept current by `live_host.rs`
+ * `the_blocked_retained_evaluation_witness_is_current_and_binds_only_as_rejected`): a blocked
+ * document whose passing case's evaluation is retained inspection-only, with its prior outcome
+ * (DEL-04-07 *Blocked document*). The Solve command's gate (DEL-07-07 REQ-008) runs first on
+ * every route; its model checks answer only where a test scripts them, and are otherwise
+ * unavailable, so the solve proceeds as before the gate. */
 import { act, cleanup, render, waitFor } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -14,6 +21,8 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 import { createSolveJobTransport, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
 import refusedPreviewModel from "../../../../../fixtures/product_preview/invented_preview_model.json";
 import refusedPreviewSparse from "../../../../../fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json";
+import witnessRequest from "../../../../../fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation.request.json";
+import witnessRaw from "../../../../../fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json?raw";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
 import { boundedFindings } from "../../services/embeddedAgentSession";
 import { resultRowCount } from "../../services/nativeResult";
@@ -36,14 +45,23 @@ afterEach(() => {
 const TOO_LARGE = { code: "PREVIEW-SOLVE-RESULT-TOO-LARGE", result_bytes: 3_950_000_000, limit_bytes: 67_108_864 };
 let sequence = 0;
 
+/** A model-check report as the native check returns it; its findings are the solve group's. */
+const checkReport = (diagnostics: unknown[] = []) => ({ checked: true, diagnostics, diagnostics_not_shown: 0, slot_findings: [], slot_findings_not_shown: 0 });
+const BLOCKING_FINDING = { id: "d:invented-gate", code: "INVENTED_INPUT_MISSING", severity: "blocking", message: "invented missing value", affected_refs: [] };
+
 /** The session over the replayed solve of the committed pressure pair, with a scripted agent
  * host: `call(tool, args)` queues one tool call; `published` holds each outcome and proof the
- * webview publishes. `answer` decides the solve's terminal shape. */
-async function session(answer: { mode: "solved" | "too_large" | "blocked" }) {
+ * webview publishes. `answer` decides the solve's terminal shape, and `check` the Solve gate's
+ * model checks: unset, they are unavailable (the solve proceeds); `"held"`, each waits in
+ * `checks` until the test answers it; otherwise each returns that report. */
+async function session(answer: { mode: "solved" | "too_large" | "blocked" | "witness"; check?: "held" | Json }) {
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
   const { model, bytes } = answer.mode === "blocked"
     ? { model: structuredClone(refusedPreviewModel) as unknown as PreviewModel, bytes: solveBytes(structuredClone(refusedPreviewSparse)) }
-    : pair;
+    : answer.mode === "witness"
+      ? { model: structuredClone(witnessRequest.model) as unknown as PreviewModel, bytes: witnessRaw }
+      : pair;
+  const checks: { resolve: (value: unknown) => void; reject: (error: unknown) => void }[] = [];
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const modes: unknown[] = [];
   const transport = createSolveJobTransport((request) => {
@@ -64,6 +82,11 @@ async function session(answer: { mode: "solved" | "too_large" | "blocked" }) {
       case "find_local_project": return null;
       case "list_model_states": return [];
       case "list_analysis_runs": return [];
+      case "check_preview_model":
+        if (answer.check === undefined) break;
+        if (answer.check === "held") return new Promise((resolve, reject) => { checks.push({ resolve, reject }); });
+        return structuredClone(answer.check);
+      case "cancel_model_checks": return null;
       case "embedded_agent_host": {
         const request = args.request as Json;
         switch (request.kind) {
@@ -101,8 +124,15 @@ async function session(answer: { mode: "solved" | "too_large" | "blocked" }) {
     await waitFor(() => expect(published.length).toBe(reference), { timeout: 20000 });
     return published[reference - 1];
   };
-  return { state: () => current, call, modes, startAgent, close: () => act(async () => { await current.agent.close(); }) };
+  return { state: () => current, call, modes, checks, startAgent, close: () => act(async () => { await current.agent.close(); }) };
 }
+
+/** What the desktop publishes and shows for a solve: the result, its presented findings and the job. */
+const shown = (s: WorkspaceSession) => ({
+  runId: s.results.result?.run_id, status: s.results.result?.status, rows: s.results.result ? resultRowCount(s.results.result) : null,
+  diagnostics: presentedResultDiagnostics(s.results.result),
+  job: { state: s.results.solveJob.state, events: s.results.solveJob.events.map(({ event_id, state, result_available, diagnostic_count, result_row_count, analysis_status }) => ({ event_id, state, result_available, diagnostic_count, result_row_count, analysis_status })) }
+});
 
 describe("the agent's solve through the workspace's solve route", () => {
   it("reports a solved run as completed, with its run and no findings, and leaves the person's selection alone", async () => {
@@ -121,11 +151,6 @@ describe("the agent's solve through the workspace's solve route", () => {
     const person = await session({ mode: "blocked" });
     await act(async () => { await person.state().results.handleRun(); });
     await waitFor(() => expect(person.state().results.solveJob.state).toBe("completed"));
-    const shown = (s: WorkspaceSession) => ({
-      runId: s.results.result?.run_id, status: s.results.result?.status, rows: s.results.result ? resultRowCount(s.results.result) : null,
-      diagnostics: presentedResultDiagnostics(s.results.result),
-      job: { state: s.results.solveJob.state, events: s.results.solveJob.events.map(({ event_id, state, result_available, diagnostic_count, result_row_count, analysis_status }) => ({ event_id, state, result_available, diagnostic_count, result_row_count, analysis_status })) }
-    });
     const byPerson = shown(person.state());
     expect(byPerson.runId).toBe("run:preview-linear-static-blocked");
     expect(byPerson.status?.mechanics).toBe("MODEL_INCOMPLETE");
@@ -198,5 +223,116 @@ describe("the agent's solve through the workspace's solve route", () => {
     expect(outcome.status).toBe("failed");
     expect(outcome.data.solverMode).toBe("dense_scrutiny");
     await close();
+  }, 60000);
+  it("reports the producer's blocked document with a retained inspection-only evaluation as rejected, with the presented findings and no run", async () => {
+    // The person's Run of the witness request: what the desktop publishes and shows.
+    const person = await session({ mode: "witness" });
+    await act(async () => { await person.state().results.handleRun(); });
+    await waitFor(() => expect(person.state().results.solveJob.state).toBe("completed"));
+    const byPerson = shown(person.state());
+    expect(byPerson.runId).toBe("run:preview-linear-static-blocked");
+    expect(byPerson.status?.mechanics).toBe("MODEL_INCOMPLETE");
+    expect(byPerson.rows).toBe(0);
+    const codes = byPerson.diagnostics.map((d) => d.code);
+    expect(codes).toContain("NUMERICAL_INTEGRITY_INSPECTION_ONLY");
+    expect(codes).toContain("NUMERICAL_INTEGRITY_UNRESOLVED");
+    expect(codes).not.toContain("NUMERICAL_INTEGRITY_CHECKS_PASSED");
+    cleanup();
+    resetSessionResultCustodyForTests();
+
+    const agent = await session({ mode: "witness" });
+    await agent.startAgent();
+    const { outcome, proof } = await agent.call("swbpipe_solve");
+    expect(outcome.status).toBe("rejected");
+    expect(outcome.message).toMatch(/^Not solved: the model was refused/);
+    expect(outcome.data).toMatchObject({ runHandle: null, runId: null, health: "MODEL_INCOMPLETE", solverMode: "sparse_interactive", failure: null });
+    // The findings are those the Diagnostics panel presents, bounded; none is invented or dropped.
+    const expected = boundedFindings(byPerson.diagnostics, 0);
+    expect(outcome.data.diagnostics).toEqual(expected.diagnostics);
+    expect(outcome.data.diagnosticsNotListed).toBe(expected.notListed);
+    const inspection = outcome.data.diagnostics.filter((d: Json) => d.code === "NUMERICAL_INTEGRITY_INSPECTION_ONLY");
+    expect(inspection).toHaveLength(1);
+    expect(inspection[0].message).toMatch(/^Inspection only \(prior_outcome=NUMERICAL_INTEGRITY_CHECKS_PASSED\): this document is blocked \(MODEL_INCOMPLETE\);/);
+    expect(outcome.data.diagnostics.map((d: Json) => d.code)).toContain("NUMERICAL_INTEGRITY_UNRESOLVED");
+    // The proof names the job whose held bytes the native host reads as not solved.
+    expect(proof).toMatchObject({ kind: "run", status: "rejected", handle: null, runId: null, nativeJobId: expect.any(String) });
+    const read = await agent.call("swbpipe_read_results", { runHandle: "r".repeat(48), page: { cursor: null, limit: 5 } });
+    expect(read.outcome.status).toBe("unavailable");
+    await waitFor(() => expect(agent.state().results.solveJob.state).toBe("completed"));
+    expect(shown(agent.state())).toEqual(byPerson);
+    await agent.close();
+  }, 60000);
+});
+
+describe("the agent's solve through the Solve command's gate", () => {
+  it("reports a withheld Solve as rejected with the gate's findings and reason and no job; nothing starts, as for a person's Run", async () => {
+    const agent = await session({ mode: "solved", check: checkReport([BLOCKING_FINDING]) });
+    await agent.startAgent();
+    const { outcome, proof } = await agent.call("swbpipe_solve");
+    expect(outcome.status).toBe("rejected");
+    expect(outcome.data).toMatchObject({ runHandle: null, runId: null, health: "NOT_SOLVED", solverMode: "sparse_interactive", failure: null, diagnosticsNotListed: 0 });
+    expect(outcome.data.diagnostics.map((d: Json) => d.code)).toEqual(["INVENTED_INPUT_MISSING"]);
+    expect(outcome.message).toContain("Solve is withheld: 1 solve-blocking finding stands for this model");
+    expect(proof).toMatchObject({ kind: "run", status: "rejected", handle: null, runId: null, nativeJobId: null });
+    expect(agent.modes).toEqual([]);
+    const s = agent.state();
+    expect(s.results.solveGate.kind).toBe("withheld");
+    expect(s.results.result).toBeNull();
+    expect(s.results.running).toBe(false);
+    // The person's Run of the same model: the same gate, nothing started.
+    let request: Json;
+    await act(async () => { request = await agent.state().results.handleSolveRequest(); });
+    expect(request).toMatchObject({ gate: { kind: "withheld" }, receipt: undefined, solve: { kind: "rejected", jobId: null, modelHash: null } });
+    expect(agent.modes).toEqual([]);
+    await agent.close();
+  }, 60000);
+
+  it("reports a Solve cancelled during its model check as failed (cancelled) with no job; a person's cancelled Run is unchanged", async () => {
+    const agent = await session({ mode: "solved", check: "held" });
+    await agent.startAgent();
+    const pending = agent.call("swbpipe_solve");
+    await waitFor(() => expect(agent.checks).toHaveLength(1));
+    expect(agent.state().results.running).toBe(true);
+    act(() => { agent.state().results.handleCancelRun(); });
+    // The native cancel ends the check, which then replies; its reading changes nothing.
+    await act(async () => { agent.checks[0].resolve(checkReport()); });
+    const { outcome, proof } = await pending;
+    expect(outcome.status).toBe("failed");
+    expect(outcome.data).toMatchObject({ runHandle: null, runId: null, diagnostics: [], failure: { kind: "cancelled" } });
+    expect(outcome.data.failure.message).toMatch(/cancelled while the model checks it runs first were running; nothing was started/);
+    expect(proof).toMatchObject({ status: "failed", nativeJobId: null });
+    expect(agent.modes).toEqual([]);
+    expect(agent.state().results.running).toBe(false);
+    // The person's Run, cancelled the same way.
+    let request: Promise<Json> = Promise.resolve(null);
+    act(() => { request = agent.state().results.handleSolveRequest(); });
+    await waitFor(() => expect(agent.checks).toHaveLength(2));
+    act(() => { agent.state().results.handleCancelRun(); });
+    let person: Json;
+    await act(async () => { agent.checks[1].resolve(checkReport()); person = await request; });
+    expect(person).toMatchObject({ gate: { kind: "cancelled" }, receipt: undefined, solve: { kind: "failed", failure: "cancelled" } });
+    expect(agent.modes).toEqual([]);
+    await agent.close();
+  }, 60000);
+
+  it("reports a Solve whose model check a later check retired as failed (superseded) with no job; nothing starts", async () => {
+    const agent = await session({ mode: "solved", check: "held" });
+    await agent.startAgent();
+    const pending = agent.call("swbpipe_solve");
+    await waitFor(() => expect(agent.checks).toHaveLength(1));
+    // The person runs the model checks while the Solve's check is pending: theirs is newer.
+    let checking: Promise<void> = Promise.resolve();
+    act(() => { checking = agent.state().chrome.handleRunModelChecks(); });
+    await waitFor(() => expect(agent.checks).toHaveLength(2));
+    await act(async () => { agent.checks[0].resolve(checkReport()); });
+    const { outcome, proof } = await pending;
+    expect(outcome.status).toBe("failed");
+    expect(outcome.data).toMatchObject({ runHandle: null, runId: null, diagnostics: [], failure: { kind: "superseded" } });
+    expect(outcome.data.failure.message).toMatch(/ended without a reading \(a later model check replaced it\); nothing was started/);
+    expect(proof).toMatchObject({ status: "failed", nativeJobId: null });
+    expect(agent.modes).toEqual([]);
+    await act(async () => { agent.checks[1].resolve(checkReport()); await checking; });
+    expect(agent.state().results.running).toBe(false);
+    await agent.close();
   }, 60000);
 });

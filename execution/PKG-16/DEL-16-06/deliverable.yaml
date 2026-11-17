@@ -72,7 +72,20 @@ needs:
     its mechanics status and the diagnostics the Diagnostics panel shows, and a result page's
     query selects the rows of one case by the results panel's case key (ref_type:ref_id). While
     a job's result is held natively, the native registry states the job's state, its creation
-    order, its solver mode, the digest of its result bytes and the bytes themselves.
+    order, its solver mode, the digest of its result bytes and the bytes themselves. Every Solve
+    request, whoever makes it, passes the Solve command's gate before any job starts: the gate
+    withholds Solve where a solve-blocking model-check finding stands, naming those findings
+    unaltered and counting those its bounded report did not list, and a request cancelled or
+    superseded while its check runs starts nothing; none of the three clears session state or
+    changes the model.
+  gating: true
+- from: DEL-04-07
+  when: Telling the agent the outcome of a solve the producer blocked
+  condition: >-
+    The product solve's blocked form has mechanics status MODEL_INCOMPLETE and publishes no result
+    rows, and no passing or sensitive case verdict stands in it: a retained passed or sensitive
+    integrity evaluation carries NUMERICAL_INTEGRITY_INSPECTION_ONLY with its prior outcome, and a
+    retained failure keeps the classification the attempt recorded.
   gating: true
 - from: DEL-04-07
   when: Examining AC-008 on the reference system
@@ -226,6 +239,9 @@ code_paths:
 - apps/desktop/src/services/embeddedAgentBridge.ts
 # The agent's result filter (agentDetailFilter); the rest of the file is DEL-07-07's.
 - apps/desktop/src/services/resultDetail.ts
+# The agent's solve witness: an invented request and the producer's exact blocked result for it,
+# kept current by live_host.rs and replayed by agentSolve.session.test.tsx.
+- fixtures/results/invented/agent_solve_witness/**
 # Shared with DEL-16-03, which owns it: the one list of person-entered members the agent's executor
 # refuses before registration (writesUserEnteredModifier).
 - apps/desktop/src/services/operationAuthorship.ts

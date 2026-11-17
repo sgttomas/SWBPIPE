@@ -2243,4 +2243,73 @@ mod tests {
         );
         assert!(owner.live.is_none());
     }
+
+    /// The blocked-document witness of DEL-04-07 *Blocked document* for the agent's solve
+    /// (DEL-16-06 AX-002, AC-010): the request is main's mixed blocked case (a passing case
+    /// before the CX-F case, whose ordinary solve fails numerically), which the model checks
+    /// cannot withhold, so a Solve request reaches the producer. The raw result is the
+    /// producer's exact bytes as the desktop's solve job hands them over
+    /// (`solve_preview_mechanics_with_mode`, sparse); the webview's session test
+    /// (`agentSolve.session.test.tsx`) replays these committed bytes. Regenerate with
+    /// `SWBPIPE_WRITE_AGENT_BLOCKED_WITNESS=1` only when the producer's published bytes change
+    /// for an independent reason; the shape assertions below must keep holding.
+    const BLOCKED_WITNESS_REQUEST: &str = include_str!("../../../../../fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation.request.json");
+    const BLOCKED_WITNESS_RAW: &str = "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json";
+    fn blocked_witness() -> String {
+        let request: Value = serde_json::from_str(BLOCKED_WITNESS_REQUEST).unwrap();
+        assert_eq!(request["materials"], json!([]), "the desktop's solve request carries no materials");
+        let raw = crate::solve_preview_mechanics_with_mode(request["model"].clone(), open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive).unwrap();
+        let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..").join(BLOCKED_WITNESS_RAW);
+        if std::env::var_os("SWBPIPE_WRITE_AGENT_BLOCKED_WITNESS").is_some() {
+            std::fs::write(&path, &raw).unwrap();
+        }
+        let committed = std::fs::read_to_string(&path).unwrap_or_default();
+        assert!(committed == raw, "the committed raw bytes are stale; regenerate with SWBPIPE_WRITE_AGENT_BLOCKED_WITNESS=1");
+        raw
+    }
+    #[test]
+    fn the_blocked_retained_evaluation_witness_is_current_and_binds_only_as_rejected() {
+        let raw = blocked_witness();
+        let value: Value = serde_json::from_str(&raw).unwrap();
+        // The model checks the Solve command's gate reads (the worker's `model_checks`) find
+        // nothing solve-blocking, so a Solve request reaches the producer.
+        let request: Value = serde_json::from_str(BLOCKED_WITNESS_REQUEST).unwrap();
+        let checks = open_pipe_stress_operation_applier::model_checks(&request["model"]);
+        assert_eq!(checks["checked"], true, "{checks}");
+        assert_eq!(checks["diagnostics_not_shown_blocking"], 0, "{checks}");
+        assert!(checks["diagnostics"].as_array().unwrap().iter().all(|d| d["severity"] != "blocking" && d["severity"] != "error"), "{checks}");
+        // The producer's blocked form: not solved, no rows.
+        assert_eq!(value["status"]["mechanics"], "MODEL_INCOMPLETE");
+        assert_eq!(value["run_id"], "run:preview-linear-static-blocked");
+        assert_eq!(value["results"], json!([]));
+        let integrity = |case: &str| -> Value {
+            let id = format!("diagnostic:numerical-integrity:{case}");
+            let found: Vec<&Value> = value["diagnostics"].as_array().unwrap().iter().filter(|d| d["id"] == id.as_str()).collect();
+            assert_eq!(found.len(), 1, "{case}: one integrity evaluation");
+            found[0].clone()
+        };
+        // The passing case's retained evaluation is inspection-only, naming its prior outcome;
+        // the failing case keeps its own classification.
+        let pass = integrity("case:pass");
+        assert_eq!(pass["code"], "NUMERICAL_INTEGRITY_INSPECTION_ONLY");
+        assert!(pass["message"].as_str().unwrap().starts_with("Inspection only (prior_outcome=NUMERICAL_INTEGRITY_CHECKS_PASSED): this document is blocked (MODEL_INCOMPLETE);"));
+        assert_eq!(integrity("case")["code"], "NUMERICAL_INTEGRITY_UNRESOLVED");
+        assert!(value["diagnostics"].as_array().unwrap().iter().all(|d| d["code"] != "NUMERICAL_INTEGRITY_CHECKS_PASSED"));
+
+        // The native host reads the held bytes' mechanics status: a completion naming this
+        // job is refused, and a rejection naming it is admitted, binding no run handle.
+        let (registry, gate) = native_registry();
+        let mut owner = registered_with(registry.clone());
+        let mut p = opened(&mut owner);
+        let basis = owner.workspaces[0].basis.clone();
+        let a = claimed_solve(&mut owner, &mut p, 1);
+        let job = native_job(&registry, &gate, 1, None, &raw);
+        let sparse = "sparse_interactive";
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &job)).unwrap_err(), Error::Evidence);
+        assert!(owner.workspaces[0].consumed_jobs.is_empty() && owner.workspaces[0].actual.is_empty() && owner.workspaces[0].runs.is_empty());
+        publish(&mut owner, &a, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &job)).unwrap();
+        assert!(owner.workspaces[0].runs.is_empty(), "a rejected solve binds no run handle");
+        assert!(owner.workspaces[0].consumed_jobs.contains(&job));
+        drop(gate);
+    }
 }
