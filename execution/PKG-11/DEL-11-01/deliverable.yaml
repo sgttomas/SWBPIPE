@@ -115,7 +115,9 @@ needs:
 - from: DEL-08-01
   condition: >-
     The desktop generates a calculation report for a result, with the required notice, that the
-    user releases, saves and prints. The guide's report section describes producing it.
+    user releases, saves and prints. The guide's report section describes producing it. The report
+    list's package coverage and the exclusion of HTML-only saves and printed reports are defined by
+    DEL-08-01/REQ-023.
   gating: true
 - from: DEL-08-02
   condition: >-

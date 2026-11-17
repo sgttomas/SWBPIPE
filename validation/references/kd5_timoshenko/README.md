@@ -3,9 +3,9 @@
 This directory holds the judged-set generator, the exact reference engine, the
 reconstructed M3 comparison with its verdict, the premise-census tooling and a small frozen
 subset for M3-T, part 5 of section 4 of
-[section-bases-and-timoshenko.md](../../../execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md).
+`section-bases-and-timoshenko.md` (DEL-05-03; removed from the tree by 0fbc2ee73, in its parent at `execution/PKG-05/DEL-05-03/Work/`).
 The acceptance is the K-D5 M3 criterion of
-[kd5-member-relative-bound.md](../../../execution/PKG-04/DEL-04-01/Design/kd5-member-relative-bound.md)
+`kd5-member-relative-bound.md` (DEL-04-01; removed by 0fbc2ee73, in its parent at `execution/PKG-04/DEL-04-01/Work/`)
 (section 4.3). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Every model is
 invented.
 
@@ -145,7 +145,7 @@ not reference: it links the product crate by path and calls only `run_linear_sta
 
 **Since refutation round 5 this set is judged by the shared M3 judge, `../m3_judge/`, route `exact`.**
 Its validator turns each raw record into a closed, typed evidence view: both D-5 bases, units from the
-pressure-2 contract, case-bound and unique identities, and lo ≤ hi. Its comparison reads only that
+pressure-3 contract, case-bound and unique identities, and lo ≤ hi. Its comparison reads only that
 view. The rules below are ported there unchanged in meaning. The changes the view makes are listed in
 `../m3_judge/README.md` ("The rules"): a repeated row identity, a basis-free stress row or a wrong
 unit is refused rather than counted as information, and nonvacuity applies per family. The measured
@@ -288,7 +288,7 @@ components only.
   rotations are all noise is judged against that noise and fails C3. A body whose rows are exactly zero
   passes.
 
-`--selftest` passes 948 checks on the frozen subset. It covers:
+`--selftest` runs the shared judge's self-test, which passes 1,469 checks. It covers:
 - the predicates at their exact boundaries (CRIT strict, floor inclusive, guard);
 - CRIT pinned from both sides (1 ± 1e-5) on the largest judged group of every group kind;
 - C3 pinned from both sides: a component error of (1 ± 1e-5)·CRIT·S*_kind on translations and rotations;

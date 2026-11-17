@@ -39,6 +39,9 @@ use open_pipe_stress_product_physics::{
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
+
 const REFERENCES: &str = include_str!("../../../validation/references/rt_a3_constant_effort/references.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const PROVENANCE: &str = "invented_rt_a3_constant_effort_reference";
@@ -194,7 +197,7 @@ fn plain_document(references: &Value, case: &Value, with_record: bool) -> Value 
             "pressure_regions": regions(case, &inputs["pressure_regions"]), "provenance": PROVENANCE})]
     };
     assert_eq!(model["material"]["nu"], "3/10");
-    json!({"model": {"schema_version": MODEL_SCHEMA_VERSION, "document_kind": "openpipestress.product_preview.model",
+    let document = json!({"model": {"schema_version": MODEL_SCHEMA_VERSION, "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": inputs["shear_model"]},
         "project": {"id": "project:rt-a3-constant-effort", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
@@ -202,7 +205,9 @@ fn plain_document(references: &Value, case: &Value, with_record: bool) -> Value 
         "materials": [{"id": MATERIAL, "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
             "elastic_modulus": quantity(ratio(&model["material"]["E_Pa"]), "Pa"), "poisson_ratio": quantity(0.3, "1"), "provenance": PROVENANCE}],
         "supports": supports, "components": [], "load_cases": cases, "combinations": []},
-        "materials": []})
+        "materials": []});
+    // The references are today's mechanics: every pressurised case includes pressure elongation (RT-L2).
+    pressure_elongation::with_elongation_if_pressurised(&document)
 }
 
 /// The load/reference-state document of a CE-3 case (module docs).
@@ -243,7 +248,8 @@ fn state_document(references: &Value, case: &Value, with_record: bool) -> Value 
                 "history": {"kind": "independent_equilibrium"}, "provenance": PROVENANCE},
             "provenance": PROVENANCE})
     }).collect());
-    document
+    // The states replace the plain cases: name the pressurised states instead (RT-L2).
+    pressure_elongation::with_elongation_if_pressurised(&pressure_elongation::without_elongation(&document))
 }
 
 fn solve(document: &Value, mode: PreviewSolverMode) -> Value {

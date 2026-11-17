@@ -6,11 +6,11 @@
  "derives_from": {
   "reference": "validation/references/t4_u5a",
   "request": "requests/J3-3.request.json",
-  "request_sha256": "7598c7b47dac284ac0d84de634682f04b537b71e14fefd11fe01376266816732",
+  "request_sha256": "ada829e90c3e5ec58a6919b996ca356e74cc82d860aab8155e8b7e0b38db94a4",
   "oracle_case": "J3-3",
   "orientation_pattern": {
    "request": "requests/J3-1R.request.json",
-   "request_sha256": "c72059741eff1d0d63cbae3add491099cfa0e62b97656d33a59d1d96b3623dd4",
+   "request_sha256": "6eeaea1a39eef7783180e9339ee0e25cff553f51b46bff518ec02158b84e4aa8",
    "applied": "J3-1R's rigid rotation (rows below) and translation (10, 20, 5) m applied to every position, axis, y_reference, rod offset and load"
   }
  },

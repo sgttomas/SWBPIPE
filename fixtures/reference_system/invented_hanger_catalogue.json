@@ -1,0 +1,1973 @@
+{
+  "hanger_library": {
+    "library_id": "invented.reference_system.hangers",
+    "library_scope": "private_user_library",
+    "name": "Invented hanger catalogue for the SWBPIPE reference system",
+    "privacy_class": "private_user_supplied",
+    "provenance": {
+      "contributor": "SWBPIPE project",
+      "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+      "redistribution_status": "private_only",
+      "review_status": "pending",
+      "source_license": "unknown",
+      "source_location": "invented-local:reference-system",
+      "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+    }
+  },
+  "hanger_records": [
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-01A",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 16000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 50,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 1800,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 1000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-01A",
+      "name": "Invented variable spring, size 1, series A",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-01B",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 8000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 100,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 1800,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 1000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-01B",
+      "name": "Invented variable spring, size 1, series B",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-02A",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 24000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 50,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 2700,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 1500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-02A",
+      "name": "Invented variable spring, size 2, series A",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-02B",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 12000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 100,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 2700,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 1500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-02B",
+      "name": "Invented variable spring, size 2, series B",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-03A",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 35200,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 50,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 3960,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 2200,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-03A",
+      "name": "Invented variable spring, size 3, series A",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-03B",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 17600,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 100,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 3960,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 2200,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-03B",
+      "name": "Invented variable spring, size 3, series B",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-04A",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 52800,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 50,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 5940,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 3300,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-04A",
+      "name": "Invented variable spring, size 4, series A",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-04B",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 26400,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 100,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 5940,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 3300,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-04B",
+      "name": "Invented variable spring, size 4, series B",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-05A",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 80000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 50,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 9000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 5000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-05A",
+      "name": "Invented variable spring, size 5, series A",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-05B",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 40000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 100,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 9000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 5000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-05B",
+      "name": "Invented variable spring, size 5, series B",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-06A",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 120000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 50,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 13500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 7500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-06A",
+      "name": "Invented variable spring, size 6, series A",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-06B",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 60000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 100,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 13500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 7500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-06B",
+      "name": "Invented variable spring, size 6, series B",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-07A",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 176000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 50,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 19800,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 11000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-07A",
+      "name": "Invented variable spring, size 7, series A",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-07B",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 88000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 100,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 19800,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 11000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-07B",
+      "name": "Invented variable spring, size 7, series B",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-08A",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 264000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 50,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 29700,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 16500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-08A",
+      "name": "Invented variable spring, size 8, series A",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-08B",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 132000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 100,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 29700,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 16500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-08B",
+      "name": "Invented variable spring, size 8, series B",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-09A",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 400000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 50,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 45000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 25000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-09A",
+      "name": "Invented variable spring, size 9, series A",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-local:reference-system:RSV-09B",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "dimension": "force_per_length",
+            "magnitude": 200000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N/m"
+          }
+        },
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 100,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 45000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 25000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSV-09B",
+      "name": "Invented variable spring, size 9, series B",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "source_reference": "invented-local:reference-system:RSC-01",
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 150,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 1800,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 1000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSC-01",
+      "name": "Invented constant-effort support, size 1",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "source_reference": "invented-local:reference-system:RSC-02",
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 150,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 2700,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 1500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSC-02",
+      "name": "Invented constant-effort support, size 2",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "source_reference": "invented-local:reference-system:RSC-03",
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 150,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 3960,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 2200,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSC-03",
+      "name": "Invented constant-effort support, size 3",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "source_reference": "invented-local:reference-system:RSC-04",
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 150,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 5940,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 3300,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSC-04",
+      "name": "Invented constant-effort support, size 4",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "source_reference": "invented-local:reference-system:RSC-05",
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 150,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 9000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 5000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSC-05",
+      "name": "Invented constant-effort support, size 5",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "source_reference": "invented-local:reference-system:RSC-06",
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 150,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 13500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 7500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSC-06",
+      "name": "Invented constant-effort support, size 6",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "source_reference": "invented-local:reference-system:RSC-07",
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 150,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 19800,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 11000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSC-07",
+      "name": "Invented constant-effort support, size 7",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "source_reference": "invented-local:reference-system:RSC-08",
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 150,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 29700,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 16500,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSC-08",
+      "name": "Invented constant-effort support, size 8",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    },
+    {
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "source_reference": "invented-local:reference-system:RSC-09",
+        "travel_range": {
+          "dimension": "length",
+          "magnitude": 150,
+          "provenance": {
+            "contributor": "SWBPIPE project",
+            "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_license": "unknown",
+            "source_location": "invented-local:reference-system",
+            "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+          },
+          "unit": "mm"
+        },
+        "working_load_range": {
+          "maximum": {
+            "dimension": "force",
+            "magnitude": 45000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          },
+          "minimum": {
+            "dimension": "force",
+            "magnitude": 25000,
+            "provenance": {
+              "contributor": "SWBPIPE project",
+              "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:reference-system",
+              "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+            },
+            "unit": "N"
+          }
+        }
+      },
+      "hanger_id": "RSC-09",
+      "name": "Invented constant-effort support, size 9",
+      "provenance": {
+        "contributor": "SWBPIPE project",
+        "contributor_certification": "Invented values with no supplier, standard or project source and no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:reference-system",
+        "source_name": "Invented reference-system hanger catalogue (DEL-04-11)"
+      }
+    }
+  ],
+  "schema_version": "1.1.0"
+}

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useSequencedState } from "./reportSourceSequence";
 import type {
   LocalProjectIndexEntry,
   LocalProjectSummary,
@@ -20,7 +21,7 @@ import type {
  * capability is set by the session's mount effect, and every other cell here
  * only by its project handlers.
  */
-export function useProjectSessionState() {
+export function useProjectSessionState(advanceReportSource?: () => number) {
   // The project-command generation. Every command that can publish the project
   // status line advances it when it starts (the five project writes and opens,
   // List, Save Model Document, the recovery export, both Save Handoff stages)
@@ -29,7 +30,8 @@ export function useProjectSessionState() {
   const projectRequest = useRef(0);
   const projectOperationOwner = useRef<symbol | null>(null);
   const [storageCapability, setStorageCapability] = useState<LocalStorageCapability | null>(null);
-  const [projectSummary, setProjectSummary] = useState<LocalProjectSummary | null>(null);
+  // DEL-08-01 REQ-022: the project summary is report-bound (the report source sequence).
+  const [projectSummary, setProjectSummary] = useSequencedState<LocalProjectSummary | null>(null, advanceReportSource);
   const [projectIndex, setProjectIndex] = useState<LocalProjectIndexEntry[] | null>(null);
   const [modelHashIntegrity, setModelHashIntegrity] = useState<ModelHashIntegrityEvidence | null>(null);
   const [projectEnvelopeHash, setProjectEnvelopeHash] = useState<ProjectEnvelopeHashEvidence | null>(null);

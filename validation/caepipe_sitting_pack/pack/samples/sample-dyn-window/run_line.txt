@@ -1,0 +1,12 @@
+SWBPIPE sitting run line: sample-dyn-window
+Fill in after each colon. Do not change the words before the colon.
+date: 
+run (yes, or not run and why): 
+route used (manual_print): 
+CAEPIPE version as displayed: 
+anything unusual: 
+C. after the import in the window sample's folder, whether the import wrote a model file, and where (the export page, CAEPIPE-EXPORT-MBF, says "But note that the existing .mod file will be overwritten. So, you must rename the edited text file before importing it back into CAEPIPE." and does not say in which folder): 
+(i) compare the spectrum table the program shows with the stated values, and note agree or not: 
+(ii) compare the Dynamics tab's Cutoff Frequency and Number of Modes with the stated values, and note agree or not; if the window shows the file's value in another unit, note that once: 
+(iii) write down the command that saved the imported model; whether the program let you choose the name and the folder; the name and folder the saved file took; whether the program asked anything: 
+(iv) note what the spectrum options window (Options > Spectrum) offers for axis units and interpolation: 

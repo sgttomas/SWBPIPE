@@ -17,11 +17,15 @@
 //!   webview or read from or saved to the Keychain (RT-E1 D4,
 //!   DEL-16-06).
 //!
-//! The harness substitutes exactly two things for a person at the machine: it
+//! The harness substitutes exactly three things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;
 //! the Open Model Document…, Save Model Document…, Save Handoff…, Save Report
-//! Package…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, and it delivers native menu commands through the same
-//! dispatch a menu click uses (`native_smoke_menu`). Everything else, from the
+//! Package…, Save canonical HTML…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, it delivers native menu commands through the same
+//! dispatch a menu click uses (`native_smoke_menu`), and in place of the report
+//! print's system dialog it records which print document reached the native
+//! print (`record_report_print`, read by `native_smoke_take_report_prints`; the
+//! driver closes that window with `native_smoke_close_report_print`), so no
+//! page reaches a printer or a print queue. Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
 //! The evidence journeys (`native-smoke/evidence-journeys.mjs`) also write
 //! checkpoints of their report, and a read-only copy of the store, while the app
@@ -29,7 +33,14 @@
 
 use serde::Serialize;
 use serde_json::Value;
-use std::{collections::VecDeque, fs, io::{self, Read}, path::PathBuf, sync::Mutex};
+use std::{
+    collections::VecDeque,
+    ffi::OsStr,
+    fs,
+    io::{self, Read},
+    path::{Component, Path, PathBuf},
+    sync::Mutex,
+};
 use tauri::{webview::PageLoadEvent, AppHandle, Builder, Manager, Runtime};
 
 #[derive(Default)]
@@ -40,9 +51,8 @@ pub struct SmokeState {
 
 /// Strict chooser mode. With this variable set to this value, a chooser asked with no answer queued ends
 /// the app at once with this exit code, before any native dialog; unset, behaviour is unchanged (other kits
-/// rely on the fall-through). The evidence journeys set it on every launch. The JavaScript copy is
-/// `native-smoke/evidence-checks.mjs` STRICT_CHOOSER (a node test checks they agree); both move to
-/// `tools/native_launch_guard.py` when it reaches main.
+/// rely on the fall-through). A launch that must never show a native dialog sets it; the launch helper
+/// (`tools/native_launch_guard.py`, when it reaches main) keeps its own copy of these constants.
 pub(crate) const STRICT_CHOOSER_ENV: &str = "SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER";
 pub(crate) const STRICT_CHOOSER_VALUE: &str = "1";
 pub(crate) const STRICT_CHOOSER_EXIT: i32 = 86;
@@ -52,20 +62,92 @@ fn strict_stop(answer_queued: bool, mode: Option<&str>) -> bool {
     !answer_queued && mode == Some(STRICT_CHOOSER_VALUE)
 }
 
-/// The path the next chooser (model document open or save, handoff or report package) returns, if the driver named one.
-/// In strict chooser mode, a chooser that finds no answer ends the app here (exit STRICT_CHOOSER_EXIT).
-pub fn take_chosen_path<R: Runtime>(app: &AppHandle<R>) -> Option<PathBuf> {
+/// The path the next chooser returns, if the driver named one: the one decision every chooser of the app makes
+/// before its native dialog (model document open and save, handoff and report package, the report's canonical HTML,
+/// MBF import and export, and the backup folder), through [`chooser_answer`]. `chooser` names the chooser in the strict stop's log line.
+pub fn take_chosen_path<R: Runtime>(app: &AppHandle<R>, chooser: &str) -> Option<PathBuf> {
+    let state = app.try_state::<SmokeState>();
+    chooser_answer(state.as_deref(), chooser)
+}
+
+/// A chooser's decision, made without the app handle:
+/// - an answer is queued: it is taken, except that in strict chooser mode an answer outside the home this process
+///   was given ([`inside_home`]) ends the app here instead;
+/// - nothing is queued: in strict chooser mode the app ends here, before that chooser's native dialog; otherwise
+///   `None`, and the chooser shows its native dialog.
+///
+/// The answer is checked when taken; subsequent pathname operations are not bound to that check. The launch
+/// helper's confinement claim additionally depends on establishing that admitted operations cannot redirect those
+/// paths outside the supplied home for the duration of their use. The mode governs these choosers only, not any
+/// other panel the app or the system can raise.
+///
+/// Ending the app logs which chooser was reached and why, never the answer's path, and exits STRICT_CHOOSER_EXIT.
+/// With strict chooser mode off, a queued answer is taken wherever it points.
+fn chooser_answer(state: Option<&SmokeState>, chooser: &str) -> Option<PathBuf> {
     let mut taken = None;
-    if let Some(state) = app.try_state::<SmokeState>() {
+    if let Some(state) = state {
         if let Ok(mut chosen) = state.chosen.lock() {
             taken = chosen.pop_front();
         }
     }
-    if strict_stop(taken.is_some(), std::env::var(STRICT_CHOOSER_ENV).ok().as_deref()) {
-        eprintln!("[native-smoke] strict chooser: a chooser was asked with no answer queued; ending the app before any native dialog (exit {STRICT_CHOOSER_EXIT})");
-        std::process::exit(STRICT_CHOOSER_EXIT);
+    let mode = std::env::var(STRICT_CHOOSER_ENV).ok();
+    if strict_stop(taken.is_some(), mode.as_deref()) {
+        strict_end(chooser, "was asked with no answer queued");
+    }
+    if let Some(answer) = &taken {
+        if mode.as_deref() == Some(STRICT_CHOOSER_VALUE)
+            && !inside_home(answer, std::env::var_os("HOME").as_deref(), std::env::var_os("CFFIXED_USER_HOME").as_deref())
+        {
+            strict_end(chooser, "was given a queued answer outside the home");
+        }
     }
     taken
+}
+
+/// Ends the app in strict chooser mode, naming the chooser and the reason (never a path).
+fn strict_end(chooser: &str, reason: &str) -> ! {
+    eprintln!("[native-smoke] strict chooser: {chooser} {reason}; ending the app before any native dialog, read or write (exit {STRICT_CHOOSER_EXIT})");
+    std::process::exit(STRICT_CHOOSER_EXIT)
+}
+
+/// Whether a queued answer lies inside the home this process was given, for strict chooser mode. The home is the
+/// value of `HOME`; with `HOME` unset, or `CFFIXED_USER_HOME` set to any other value, no answer is inside. Inside is
+/// judged on resolved paths: the home resolved, and the answer resolved as far as it exists ([`resolved_answer`]),
+/// so a link inside the home that points out of it is outside, and a path not yet created (a save target) is judged
+/// by where it would be created. The home itself is inside. The temporary folder is not special: an answer under
+/// `TMPDIR` is inside only because a confined launch puts `TMPDIR` inside the home.
+fn inside_home(answer: &Path, home: Option<&OsStr>, fixed_home: Option<&OsStr>) -> bool {
+    let Some(home) = home else { return false };
+    if fixed_home.is_some_and(|fixed| fixed != home) {
+        return false;
+    }
+    let Ok(home) = fs::canonicalize(home) else { return false };
+    resolved_answer(answer).is_some_and(|answer| answer.starts_with(&home))
+}
+
+/// `path` resolved as far as it exists: its deepest existing ancestor resolved (links followed), then the components
+/// below it appended. `None`, which refuses the answer, for a relative path, an existing ancestor that cannot be
+/// resolved (a link whose target is missing included), or a `..` among the appended components. Looks up the path's
+/// components; opens, reads and writes nothing.
+fn resolved_answer(path: &Path) -> Option<PathBuf> {
+    if !path.is_absolute() {
+        return None;
+    }
+    for ancestor in path.ancestors() {
+        match fs::symlink_metadata(ancestor) {
+            Ok(_) => {
+                let base = fs::canonicalize(ancestor).ok()?;
+                let rest = path.strip_prefix(ancestor).ok()?;
+                if rest.components().any(|component| !matches!(component, Component::Normal(_))) {
+                    return None;
+                }
+                return Some(base.join(rest));
+            }
+            Err(error) if error.kind() == io::ErrorKind::NotFound => continue,
+            Err(_) => return None,
+        }
+    }
+    None
 }
 
 #[cfg(test)]
@@ -79,6 +161,313 @@ mod strict_chooser_tests {
         assert!(!strict_stop(false, Some("0")));
         assert!(!strict_stop(false, Some("")));
         assert_eq!(super::STRICT_CHOOSER_EXIT, 86);
+    }
+
+    use super::{chooser_answer, inside_home, SmokeState, STRICT_CHOOSER_ENV};
+    use std::path::{Path, PathBuf};
+    use std::process::{Command, Output};
+
+    /// A test folder under this process's temporary folder, removed on every way the test ends (a failed
+    /// assertion included): `home` and `outside` side by side, and in `home` a link to `outside` and a link
+    /// whose target is missing.
+    struct Folder {
+        root: PathBuf,
+    }
+
+    impl Folder {
+        fn new(name: &str) -> Self {
+            static SEQUENCE: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+            let sequence = SEQUENCE.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            let root = std::env::temp_dir().join(format!("swbpipe-chooser-test-{name}-{}-{sequence}", std::process::id()));
+            let _ = std::fs::remove_dir_all(&root);
+            let folder = Self { root };
+            std::fs::create_dir_all(folder.home().join("tmp")).unwrap();
+            std::fs::create_dir_all(folder.outside()).unwrap();
+            std::fs::write(folder.home().join("inside.txt"), b"in").unwrap();
+            std::fs::write(folder.outside().join("outside.txt"), b"out").unwrap();
+            std::os::unix::fs::symlink(folder.outside(), folder.home().join("link-out")).unwrap();
+            std::os::unix::fs::symlink(folder.outside().join("missing"), folder.home().join("dangling")).unwrap();
+            folder
+        }
+
+        fn home(&self) -> PathBuf {
+            self.root.join("home")
+        }
+
+        fn outside(&self) -> PathBuf {
+            self.root.join("outside")
+        }
+
+        fn inside(&self, answer: &Path) -> bool {
+            inside_home(answer, Some(self.home().as_os_str()), None)
+        }
+    }
+
+    impl Drop for Folder {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.root);
+        }
+    }
+
+    #[test]
+    fn strict_chooser_home_an_answer_inside_is_inside() {
+        let folder = Folder::new("inside");
+        assert!(folder.inside(&folder.home().join("inside.txt")));
+        assert!(folder.inside(&folder.home()));
+        assert!(folder.inside(&folder.home().join("tmp/x.json")), "TMPDIR inside the home is inside by that fact");
+    }
+
+    #[test]
+    fn strict_chooser_home_an_answer_outside_is_outside() {
+        let folder = Folder::new("outside");
+        assert!(!folder.inside(&folder.outside().join("outside.txt")));
+        assert!(!folder.inside(&folder.outside().join("new.mbf")));
+        // The system's temporary folder, not under the home, is outside.
+        assert!(!folder.inside(&std::env::temp_dir().join("swbpipe-chooser-test-never-created")));
+        assert!(!folder.inside(Path::new("inside.txt")), "a relative answer is refused");
+    }
+
+    #[test]
+    fn strict_chooser_home_a_link_inside_pointing_out_is_outside() {
+        let folder = Folder::new("link");
+        assert!(!folder.inside(&folder.home().join("link-out")));
+        assert!(!folder.inside(&folder.home().join("link-out/outside.txt")));
+        assert!(!folder.inside(&folder.home().join("dangling")), "a link whose target is missing is refused");
+    }
+
+    #[test]
+    fn strict_chooser_home_a_new_file_under_the_home_is_inside() {
+        let folder = Folder::new("new");
+        assert!(folder.inside(&folder.home().join("new.mbf")));
+        assert!(folder.inside(&folder.home().join("not/yet/made/save.mbf")));
+    }
+
+    #[test]
+    fn strict_chooser_home_a_new_file_under_a_link_out_is_outside() {
+        let folder = Folder::new("new-link");
+        assert!(!folder.inside(&folder.home().join("link-out/new.mbf")));
+        assert!(!folder.inside(&folder.home().join("link-out/not/yet/save.mbf")));
+    }
+
+    #[test]
+    fn strict_chooser_home_a_climbing_parent_component_is_outside() {
+        let folder = Folder::new("climb");
+        assert!(!folder.inside(&folder.home().join("missing/../../outside/new.mbf")));
+        assert!(!folder.inside(&folder.home().join("../outside/outside.txt")));
+        assert!(!folder.inside(&folder.home().join("missing/..")), "a remaining parent component is refused");
+    }
+
+    #[test]
+    fn strict_chooser_home_unset_refuses_every_answer() {
+        let folder = Folder::new("unset");
+        assert!(!inside_home(&folder.home().join("inside.txt"), None, None));
+    }
+
+    #[test]
+    fn strict_chooser_home_variables_that_differ_refuse_every_answer() {
+        let folder = Folder::new("differ");
+        let home = folder.home();
+        let answer = home.join("inside.txt");
+        assert!(!inside_home(&answer, Some(home.as_os_str()), Some(folder.outside().as_os_str())));
+        assert!(inside_home(&answer, Some(home.as_os_str()), Some(home.as_os_str())));
+    }
+
+    const ENTRY: &str = "native_smoke::strict_chooser_tests::strict_chooser_entry";
+    const ENTRY_ENV: &str = "SWBPIPE_TEST_STRICT_CHOOSER_ENTRY";
+    const ANSWER_ENV: &str = "SWBPIPE_TEST_STRICT_CHOOSER_ANSWER";
+
+    /// Runs [`chooser_answer`] in a child of this test binary whose environment is cleared and then holds only
+    /// `env` (the variables it reads cannot be set in this process, whose other tests run on other threads).
+    fn decide(answer: Option<&Path>, env: &[(&str, &std::ffi::OsStr)]) -> Output {
+        let mut command = Command::new(std::env::current_exe().unwrap());
+        command.args([ENTRY, "--exact", "--test-threads=1", "--nocapture"]).env_clear().env(ENTRY_ENV, "1");
+        if let Some(answer) = answer {
+            command.env(ANSWER_ENV, answer);
+        }
+        command.envs(env.iter().copied()).output().unwrap()
+    }
+
+    fn strict(home: &Path) -> Vec<(&'static str, &std::ffi::OsStr)> {
+        vec![(STRICT_CHOOSER_ENV, std::ffi::OsStr::new("1")), ("HOME", home.as_os_str())]
+    }
+
+    fn assert_ended(output: &Output, reason: &str, path: Option<&Path>) {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert_eq!(output.status.code(), Some(86), "{stdout}\n{stderr}");
+        assert!(stderr.contains("strict chooser: test-chooser ") && stderr.contains(reason), "{stderr}");
+        assert!(!stdout.contains("taken") && !stdout.contains("dialog"), "{stdout}");
+        if let Some(path) = path {
+            assert!(!stderr.contains(&*path.to_string_lossy()), "the log names the path: {stderr}");
+        }
+    }
+
+    fn assert_returned(output: &Output, line: &str) {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert!(output.status.success(), "{:?}\n{stdout}\n{stderr}", output.status);
+        // libtest prints the entry's line after the test's name, on the same line.
+        assert!(stdout.lines().any(|l| l.ends_with(&format!("... {line}"))), "expected {line:?}:\n{stdout}");
+    }
+
+    #[test]
+    fn strict_chooser_decision_nothing_queued_ends_only_in_strict_mode() {
+        let folder = Folder::new("none");
+        assert_ended(&decide(None, &strict(&folder.home())), "was asked with no answer queued", None);
+        assert_returned(&decide(None, &[("HOME", folder.home().as_os_str())]), "dialog");
+        assert_returned(&decide(None, &[(STRICT_CHOOSER_ENV, std::ffi::OsStr::new("0"))]), "dialog");
+    }
+
+    #[test]
+    fn strict_chooser_decision_an_answer_inside_is_taken() {
+        let folder = Folder::new("taken");
+        let answer = folder.home().join("new.mbf");
+        assert_returned(&decide(Some(&answer), &strict(&folder.home())), &format!("taken {}", answer.display()));
+    }
+
+    #[test]
+    fn strict_chooser_decision_an_answer_outside_ends_the_app_before_touching_it() {
+        let folder = Folder::new("refused");
+        let answer = folder.outside().join("new.mbf");
+        assert_ended(&decide(Some(&answer), &strict(&folder.home())), "outside the home", Some(&answer));
+        assert!(!answer.exists());
+        let mut left: Vec<_> = std::fs::read_dir(folder.outside()).unwrap().map(|entry| entry.unwrap().file_name()).collect();
+        left.sort();
+        assert_eq!(left, ["outside.txt"]);
+        let through_link = folder.home().join("link-out/new.mbf");
+        assert_ended(&decide(Some(&through_link), &strict(&folder.home())), "outside the home", Some(&through_link));
+    }
+
+    #[test]
+    fn strict_chooser_decision_home_unset_or_disagreeing_ends_the_app() {
+        let folder = Folder::new("vars");
+        let answer = folder.home().join("inside.txt");
+        assert_ended(&decide(Some(&answer), &[(STRICT_CHOOSER_ENV, std::ffi::OsStr::new("1"))]), "outside the home", Some(&answer));
+        let home = folder.home();
+        let mut env = strict(&home);
+        let other = folder.outside();
+        env.push(("CFFIXED_USER_HOME", other.as_os_str()));
+        assert_ended(&decide(Some(&answer), &env), "outside the home", Some(&answer));
+    }
+
+    #[test]
+    fn strict_chooser_decision_mode_off_takes_an_answer_outside_unchanged() {
+        let folder = Folder::new("off");
+        let answer = folder.outside().join("outside.txt");
+        assert_returned(&decide(Some(&answer), &[("HOME", folder.home().as_os_str())]), &format!("taken {}", answer.display()));
+    }
+
+    /// Run only by [`decide`] ([`ENTRY_ENV`]); otherwise it returns at once.
+    #[test]
+    fn strict_chooser_entry() {
+        if std::env::var_os(ENTRY_ENV).is_none() {
+            return;
+        }
+        let state = SmokeState::default();
+        if let Some(answer) = std::env::var_os(ANSWER_ENV) {
+            state.chosen.lock().unwrap().push_back(answer.into());
+        }
+        match chooser_answer(Some(&state), "test-chooser") {
+            Some(path) => println!("taken {}", path.display()),
+            None => println!("dialog"),
+        }
+    }
+
+    /// Every function in this crate that raises a dialog through the dialog plugin (`.dialog()`) asks
+    /// [`super::take_chosen_path`] first, so no chooser can reach its native dialog without the queue and the
+    /// strict stop. The eight are named, so the scan cannot pass by finding none. Threat model: an honest edit that
+    /// adds a chooser, or drops or moves the call; not a defence against a dialog raised by another route.
+    #[test]
+    fn strict_chooser_every_chooser_asks_the_queue_before_its_dialog() {
+        use syn::visit::Visit;
+
+        #[derive(Default)]
+        struct Choosers {
+            current: Vec<String>,
+            /// Per function: the first `.dialog()` and first `take_chosen_path` positions (line, column).
+            seen: std::collections::BTreeMap<String, (Option<(usize, usize)>, Option<(usize, usize)>)>,
+        }
+
+        impl Choosers {
+            fn note(&mut self, dialog: bool, at: proc_macro2::LineColumn) {
+                let Some(name) = self.current.last().cloned() else { return };
+                let entry = self.seen.entry(name).or_default();
+                let slot = if dialog { &mut entry.0 } else { &mut entry.1 };
+                let at = (at.line, at.column);
+                if slot.map_or(true, |first| at < first) {
+                    *slot = Some(at);
+                }
+            }
+        }
+
+        impl<'ast> Visit<'ast> for Choosers {
+            fn visit_item_fn(&mut self, node: &'ast syn::ItemFn) {
+                self.current.push(node.sig.ident.to_string());
+                syn::visit::visit_item_fn(self, node);
+                self.current.pop();
+            }
+            fn visit_impl_item_fn(&mut self, node: &'ast syn::ImplItemFn) {
+                self.current.push(node.sig.ident.to_string());
+                syn::visit::visit_impl_item_fn(self, node);
+                self.current.pop();
+            }
+            fn visit_expr_method_call(&mut self, node: &'ast syn::ExprMethodCall) {
+                if node.method == "dialog" && node.args.is_empty() {
+                    self.note(true, node.method.span().start());
+                }
+                syn::visit::visit_expr_method_call(self, node);
+            }
+            fn visit_expr_call(&mut self, node: &'ast syn::ExprCall) {
+                if let syn::Expr::Path(path) = &*node.func {
+                    if let Some(last) = path.path.segments.last().filter(|last| last.ident == "take_chosen_path") {
+                        self.note(false, last.ident.span().start());
+                    }
+                }
+                syn::visit::visit_expr_call(self, node);
+            }
+        }
+
+        fn sources(dir: &Path, out: &mut Vec<PathBuf>) {
+            for entry in std::fs::read_dir(dir).unwrap() {
+                let path = entry.unwrap().path();
+                if path.is_dir() {
+                    sources(&path, out);
+                } else if path.extension().is_some_and(|extension| extension == "rs") {
+                    out.push(path);
+                }
+            }
+        }
+
+        let mut files = Vec::new();
+        sources(&Path::new(env!("CARGO_MANIFEST_DIR")).join("src"), &mut files);
+        let mut choosers = std::collections::BTreeMap::new();
+        for file in files {
+            let source = std::fs::read_to_string(&file).unwrap();
+            let tree = syn::parse_file(&source).unwrap_or_else(|error| panic!("{}: {error}", file.display()));
+            let mut visitor = Choosers::default();
+            visitor.visit_file(&tree);
+            let name = file.file_name().unwrap().to_string_lossy().into_owned();
+            for (function, (dialog, take)) in visitor.seen {
+                if let Some(dialog) = dialog {
+                    assert!(take.is_some_and(|take| take < dialog), "{name}: {function} raises a dialog without asking the queue first");
+                    choosers.insert(function, name.clone());
+                }
+            }
+        }
+        let names: Vec<(&str, &str)> = choosers.iter().map(|(function, file)| (function.as_str(), file.as_str())).collect();
+        assert_eq!(
+            names,
+            [
+                ("choose_backup_folder", "backup.rs"),
+                ("choose_handoff_package_path", "lib.rs"),
+                ("choose_mbf_import_path", "lib.rs"),
+                ("choose_mbf_save_path", "lib.rs"),
+                ("choose_model_document_path", "lib.rs"),
+                ("choose_model_document_save_path", "lib.rs"),
+                ("choose_report_html_save_path", "rendered_report_routes.rs"),
+                ("choose_report_package_save_path", "lib.rs"),
+            ]
+        );
     }
 }
 
@@ -102,6 +491,77 @@ pub fn native_smoke_clear_choices(app: AppHandle) -> Result<usize, String> {
     let dropped = chosen.len();
     chosen.clear();
     Ok(dropped)
+}
+
+/// One report print that reached the native print (`rendered_report_print`),
+/// recorded on the print window's own handle: the print document itself (the
+/// bytes the print protocol serves to that window, as text), its SHA-256 and
+/// that of the canonical HTML it was derived from, whether the protocol served
+/// the document to that window, and the window's label. No dialog was
+/// presented: the record shows which document reached the native print path,
+/// not that a dialog appeared, what a print preview composed, or how a job
+/// ended.
+#[derive(Clone, Debug, Serialize)]
+pub struct ReportPrintObservation {
+    pub print_sha256_hex: String,
+    pub canonical_sha256_hex: String,
+    pub print_html: String,
+    pub served_to_print_window: bool,
+    pub window_label: String,
+    pub dialog_presented: bool,
+}
+
+static REPORT_PRINTS: Mutex<Vec<ReportPrintObservation>> = Mutex::new(Vec::new());
+
+/// Records a report print in place of presenting its dialog.
+pub fn record_report_print(print_sha256_hex: &str, canonical_sha256_hex: &str, print_html: &[u8], served: bool, window_label: &str) {
+    let observation = ReportPrintObservation {
+        print_sha256_hex: print_sha256_hex.to_string(),
+        canonical_sha256_hex: canonical_sha256_hex.to_string(),
+        // The print view is derived from a `String`, so these bytes are UTF-8.
+        print_html: String::from_utf8_lossy(print_html).into_owned(),
+        served_to_print_window: served,
+        window_label: window_label.to_string(),
+        dialog_presented: false,
+    };
+    eprintln!("[native-smoke] report print reached the native print; print document sha256 {print_sha256_hex}; no dialog presented");
+    REPORT_PRINTS.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push(observation);
+}
+
+/// The report prints recorded since the last call, oldest first.
+#[tauri::command]
+pub fn native_smoke_take_report_prints() -> Vec<ReportPrintObservation> {
+    std::mem::take(&mut *REPORT_PRINTS.lock().unwrap_or_else(std::sync::PoisonError::into_inner))
+}
+
+/// Requests closure of the open report print window and confirms that the
+/// exact handle the close selected leaves Tauri's window registry: the label
+/// confirmed is the one `close_open_print` took and destroyed, never one
+/// observed separately. No system dialog is presented. A close request alone
+/// is not evidence that the window closed.
+#[tauri::command]
+pub async fn native_smoke_close_report_print(app: AppHandle) -> Result<bool, String> {
+    let selected = crate::rendered_report_print::close_open_print();
+    confirm_closed(selected, |label| app.get_webview_window(label).is_some(), std::time::Duration::from_secs(2)).await
+}
+
+/// `false` when no print window was selected; `true` once the selected label
+/// is no longer `registered`; an error when it remains registered at the
+/// deadline.
+async fn confirm_closed(selected: Option<String>, registered: impl Fn(&str) -> bool, within: std::time::Duration) -> Result<bool, String> {
+    let Some(label) = selected else {
+        return Ok(false);
+    };
+    let deadline = std::time::Instant::now() + within;
+    loop {
+        if !registered(&label) {
+            return Ok(true);
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err(format!("The print window {label} remains registered after its close request."));
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+    }
 }
 
 #[tauri::command]
@@ -933,5 +1393,31 @@ mod reader_phase_tests {
             assert!(panic.is_err());
             assert_eq!(take(), vec![(phase, "exit", "incomplete")]);
         }
+    }
+}
+
+#[cfg(test)]
+mod report_print_close_tests {
+    use super::confirm_closed;
+    use std::cell::RefCell;
+    use std::time::Duration;
+
+    /// M20: the close confirms the label it was handed (the one `close_open_print` took and
+    /// destroyed), not whichever window is open when it polls.
+    #[test]
+    fn the_close_confirms_the_selected_label_and_reports_a_lingering_one_as_an_error() {
+        let registry = RefCell::new(vec!["report-print-1".to_string(), "report-print-2".to_string()]);
+        let registered = |label: &str| registry.borrow().iter().any(|open| open == label);
+        // The selected window A is destroyed; the replacement B stays registered.
+        registry.borrow_mut().retain(|label| label != "report-print-1");
+        let confirmed = tauri::async_runtime::block_on(confirm_closed(Some("report-print-1".to_string()), registered, Duration::from_millis(50)));
+        assert_eq!(confirmed, Ok(true));
+        assert!(registered("report-print-2"), "the replacement is untouched");
+        // Nothing selected: the existing no-window outcome.
+        assert_eq!(tauri::async_runtime::block_on(confirm_closed(None, registered, Duration::from_millis(50))), Ok(false));
+        // The selected window does not leave the registry: an error, never success, even though
+        // another window is gone.
+        let lingering = tauri::async_runtime::block_on(confirm_closed(Some("report-print-2".to_string()), registered, Duration::from_millis(30)));
+        assert_eq!(lingering, Err("The print window report-print-2 remains registered after its close request.".to_string()));
     }
 }

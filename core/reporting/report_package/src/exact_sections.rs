@@ -86,7 +86,7 @@ pub fn is_exact_identity(id: &str) -> bool {
 pub fn check_runner_profile(export_profile_id: &str, document: &Value) -> Result<(), String> {
     if export_profile_id == RUNNER_PROFILE && producer_contract_id(document).is_some_and(is_exact_identity) {
         return Err(format!(
-            "{EXACT_RUNNER_PROFILE}: the runner profile does not package pressure-2 or pressure-source-1 results; only the desktop builds their sections."
+            "{EXACT_RUNNER_PROFILE}: the runner profile does not package pressure-3 or pressure-source-1 results; only the desktop builds their sections."
         ));
     }
     Ok(())
@@ -351,6 +351,11 @@ pub fn check_exact_sections(
         }
         if limitations.iter().any(|item| item["limitation_id"].as_str().is_some_and(|id| id.contains(":exact:"))) {
             return Err(mismatch("limitations: the result is not an exact-route result"));
+        }
+        // DEL-08-01 REQ-024: a standing record is packaged only where a boundary
+        // re-derives it from a bound exact-route result.
+        if report.get("numerical_standing").is_some_and(|record| !record.is_null()) {
+            return Err(mismatch("numerical_standing: the result is not an exact-route result"));
         }
         return Ok(());
     }

@@ -22,7 +22,7 @@ import {
   type SessionRuleCheckRun
 } from "./renderableReportInput";
 import { controlReportRendererInput } from "./reportRedactionProjector";
-import { currentLibraryRefFindings } from "../library/libraryRefFindings";
+import type { LibraryRefFinding } from "../../services/libraryImportService";
 
 export type RenderedReportAssemblyInputs = {
   reportComposition?: ReportComposition | null;
@@ -36,6 +36,10 @@ export type RenderedReportAssemblyInputs = {
   context: ReportExportContext;
   intent: boolean;
   generatedAt: string | null;
+  /** DEL-08-01 REQ-022: the library-reference findings applicable to `model`, captured with
+   * the report's other inputs and source number before preparation; the store is never
+   * reread here. */
+  libraryRefFindings: readonly LibraryRefFinding[];
 };
 
 export type RenderedReportAssembly = {
@@ -53,7 +57,7 @@ export async function assembleRenderedReport(inputs: RenderedReportAssemblyInput
   // a pressure-free Timoshenko source takes the admission too.
   const exact = takesReportAdmission(result);
   const admission = exact
-    ? await admitExactReportSource({ model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence })
+    ? await admitExactReportSource({ model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence, purpose: "report-render" })
     : null;
   const input = await buildRenderableReportInput({
     model,
@@ -66,7 +70,7 @@ export async function assembleRenderedReport(inputs: RenderedReportAssemblyInput
     numericalHealth,
     reportComposition: inputs.reportComposition,
     exactAdmission: admission,
-    libraryRefFindings: currentLibraryRefFindings(model)
+    libraryRefFindings: [...inputs.libraryRefFindings]
   });
   const controlled = controlReportRendererInput(input, intent);
   let exactSubmission: RenderedReportAssembly["exactSubmission"] = null;

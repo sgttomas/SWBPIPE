@@ -133,6 +133,26 @@
         "auto"
       ]
     },
+    "byte-compare-tool-tests": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_byte_compare_tool.py"
+      ]
+    },
+    "after-worker-family-table": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_after_worker_family_table.py"
+      ]
+    },
     "benchmark-reference-tests": {
       "cwd": ".",
       "command": [
@@ -151,9 +171,24 @@
         "--test",
         "apps/desktop/native-smoke/*.test.mjs"
       ]
+    },
+    "repository-checks": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "tools/ci/repository_checks.py",
+        "--event",
+        "pull_request",
+        "--base",
+        "origin/main",
+        "--head",
+        "HEAD"
+      ]
     }
   },
-  "always_checks": [],
+  "always_checks": [
+    "repository-checks"
+  ],
   "path_rules": [
     {
       "paths": [
@@ -347,6 +382,47 @@
       ],
       "checks": [
         "retained-pricing-tool-tests"
+      ]
+    },
+    {
+      "paths": [
+        "tools/byte_compare/**",
+        "tests/test_byte_compare_tool.py",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "byte-compare-tool-tests"
+      ]
+    },
+    {
+      "paths": [
+        "apps/desktop/src/features/results/NativeResultsPanel.tsx",
+        "apps/desktop/src/features/results/ResultsPanel.tsx",
+        "apps/desktop/src/features/results/numericalResultQuality.ts",
+        "apps/desktop/src/features/results/resultReader.ts",
+        "apps/desktop/src/features/results/resultStanding.ts",
+        "apps/desktop/src/features/results/resultsNavigator.ts",
+        "apps/desktop/src/features/workspace/resultsSessionState.ts",
+        "apps/desktop/src/features/workspace/workspaceSession.ts",
+        "apps/desktop/src/services/analysisRunPreview.ts",
+        "apps/desktop/src/services/hashService.ts",
+        "apps/desktop/src/services/inputManifestService.ts",
+        "apps/desktop/src/services/jsonText.ts",
+        "apps/desktop/src/services/memoryPool.ts",
+        "apps/desktop/src/services/modelRulePackResolution.ts",
+        "apps/desktop/src/services/nativeIngress.ts",
+        "apps/desktop/src/services/nativeResult.ts",
+        "apps/desktop/src/services/previewService.ts",
+        "apps/desktop/src/services/resultDetail.ts",
+        "apps/desktop/src/services/resultSummary.ts",
+        "apps/desktop/src/services/solveTimeline.ts",
+        "apps/desktop/src/test-support/after-worker/**",
+        "tools/after_worker_family/**",
+        "tests/test_after_worker_family_table.py",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "after-worker-family-table"
       ]
     },
     {

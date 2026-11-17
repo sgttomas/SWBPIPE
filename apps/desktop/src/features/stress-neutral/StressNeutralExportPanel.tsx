@@ -925,7 +925,7 @@ import { ControlledExportLink } from "../redaction-controls/ControlledExportLink
 const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported">, string | null>> = Object.freeze({
   preview_physics: "semantic_contract_v0_3_preview_physics_2.json", retained_preview_physics: "semantic_contract_v0_3_preview_physics_retained_1.json",
   retained_physics: "semantic_contract_v0_3_physics_retained_1.json",
-  pressure_source: "semantic_contract_v0_3_pressure_source_1.json", pressure: "semantic_contract_v0_3_pressure_2.json",
+  pressure_source: "semantic_contract_v0_3_pressure_source_1.json", pressure: "semantic_contract_v0_3_pressure_3.json",
 });
 /** DEL-05-03 `pf-timoshenko.md` §4: the preview route's table by the source's identity. */
 const PREVIEW_IDENTITY_TABLE_FILES: Readonly<Record<string, string>> = Object.freeze({

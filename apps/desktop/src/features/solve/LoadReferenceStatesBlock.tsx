@@ -59,7 +59,7 @@ export function LoadReferenceStatesBlock({ result, model }: { result: SessionRes
   const joined = route === "pressure_source";
   const routeLabel = joined
     ? `joined pressure-source-1; ${NEEDS_RECOMPUTE_NOT_CURRENT} in T1`
-    : "ordinary pressure-2";
+    : "ordinary pressure-3";
   return <section aria-label="Resolved load/reference states" className="report-list" data-testid="load-reference-states-block">
     <div className="panel-subtitle">Resolved load/reference states (published, read-only)</div>
     <p data-testid="load-reference-states-route">Route: {routeLabel}</p>

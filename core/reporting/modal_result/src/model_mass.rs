@@ -92,7 +92,14 @@ const MM_COMPONENT_WEIGHT_METHOD: &str = "component_weight_at_center_of_gravity_
 /// one contribution deviates from the real value of its binary64 operands by
 /// at most 2⁻⁹⁰·(1 + κ)·Σ|terms|, κ = |y|/|y⊥| the frame's conditioning, and
 /// each accumulation adds at most that again. It is far below binary64
-/// rounding and decides only where terms cancel to an exact zero.
+/// rounding and decides only where terms cancel to an exact zero. The
+/// premise covers the element formation and the double-double assembly,
+/// which do not go through `ExactSum`. When part (2) of the Timoshenko mass
+/// brings that element to this reader (DEL-04-09 AC-012), the premise must
+/// also cover its plane evaluation at double-double working precision with
+/// a separate exponent and its conversion certified within 2⁻¹⁰⁶ relative,
+/// and it may rely on `ExactSum::to_wide` only for the uniform worst case,
+/// 2⁻⁹⁷, unless it establishes its operands' exponent class.
 fn mm_dd_path() -> f64 {
     2f64.powi(-90)
 }
@@ -1741,7 +1748,16 @@ fn mm_centre(items: &mut Vec<String>, p: &Parsed, f: &Formed, totals: &[Iv; 3]) 
 /// p_k = (M R_k)_f with its restrained-point coupling (D-v), q = φᵀp_k,
 /// Γ = q/m, m_eff = q²/m and the fraction q²/(m·T_k), from the derived M and
 /// the published shapes (the producer's operands: m and q are exact sums of
-/// binary64 products rounded once).
+/// binary64 products, read once through `ExactSum::to_wide`; as a
+/// double-double that read is within 2^−min(96+t, 105) relative, 2⁻⁹⁷ at
+/// worst, issue #337). Γ, m_eff and the fraction carry that read's error
+/// and their own operations, below about 2⁻⁹⁵ relative in all. No explicit
+/// allowance is added for it: each comparison's outward one-step rounding
+/// admits producer error up to about 2⁻⁵⁴ relative. This relies on the
+/// uniform worst case, 2⁻⁹⁷, and not on the sharper figure for t ≥ 10. A
+/// later premise may use that figure only after establishing the exponent
+/// class of its own operands, and must not cite this paragraph as a
+/// universal full double-double guarantee.
 pub(super) fn mm_participation_relation(p: &Parsed, d: &Derived, mut items: Vec<String>) -> R<Vec<String>> {
     let f = match d {
         Derived::Scoped(s) => {

@@ -46,8 +46,8 @@ pub const RESULTS_V03: &str = "results.v0.3.schema.yaml";
 pub const RESULTS_V03_CLOSURE: [(&str, &str); 5] = [
     (RESULTS_V03, include_str!("../../../../schemas/results.v0.3.schema.yaml")),
     (
-        "results_pressure_2.v0.3.schema.json",
-        include_str!("../../../../schemas/results_pressure_2.v0.3.schema.json"),
+        "results_pressure_3.v0.3.schema.json",
+        include_str!("../../../../schemas/results_pressure_3.v0.3.schema.json"),
     ),
     (
         "physics_source_recovery.schema.json",

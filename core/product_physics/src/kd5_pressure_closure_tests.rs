@@ -49,7 +49,7 @@ struct Case {
 /// The first load case's ledger through the product's own producers
 /// (`case_force_ledger`), with any armed supplied-primitive mutant.
 fn case(request: &Value) -> Case {
-    let request: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+    let request: LinearStaticPreviewRequest = serde_json::from_value(crate::pressure_runtime::with_pressurised_cases_named(request)).unwrap();
     let mut model = request.model;
     let mut materials = if request.materials.is_empty() { model.materials.clone() } else { request.materials };
     let mut diagnostics = Vec::new();

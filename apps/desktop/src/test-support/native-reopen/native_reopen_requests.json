@@ -70,18 +70,76 @@
    }
   },
   {
+   "command": "read_preview_mechanics_job_row_semantics",
+   "args": {
+    "jobId": "$HANDLE",
+    "ordinals": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49
+    ]
+   }
+  },
+  {
    "command": "save_restored_result_local_project",
    "args": {
     "jobId": "$HANDLE",
     "expectedSource": {
      "kind": "saved_project_run",
      "project_id": "project:exact-pressure-connected-fixture",
-     "record_sha256": "fccb38e7c57aff3f10d991e254882d1a0a6f42643691db38ba415f058c535d8e",
+     "record_sha256": "0ba4b7ed590a01c6c8431e712e7a7a7c143d6bea275bd7bfcba68d3e0bc7b328",
      "recording_id": null,
-     "result_sha256": "1d7d0a444cc2a7bdef93997427f5c8194d7763ce2c11c411a2a5ab46b19cbf96"
+     "result_sha256": "bb0d841beb2f5963674e17f3d0cb967dd51d0197e2641affc6265be31f51ace3"
     },
     "envelopeBasis": {
-     "payload_sha256": "sha256:4804643be71c8097ccfdf96a1d792f999b8efc3ce6cad349b7034d9869281aee",
+     "payload_sha256": "sha256:d0a8827b043b18daebe34ff6433e843d940227b1c4d04038658668220adc378f",
      "evidence": {
       "algorithm": "sha256",
       "canonicalization": "rfc8785_jcs",
@@ -89,7 +147,7 @@
       "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
       "payload_ref": "project:exact-pressure-connected-fixture",
       "payload_scope": "project_envelope_payload",
-      "value": "sha256:4804643be71c8097ccfdf96a1d792f999b8efc3ce6cad349b7034d9869281aee"
+      "value": "sha256:d0a8827b043b18daebe34ff6433e843d940227b1c4d04038658668220adc378f"
      }
     },
     "mode": "save",
@@ -260,6 +318,13 @@
        "provenance": "synthetic_integration_input_not_library_data"
       }
      ],
+     "model_settings": {
+      "pressure_elongation": {
+       "operating_load_cases": [
+        "case:closed-pressure"
+       ]
+      }
+     },
      "nodes": [
       {
        "id": "node:fixture-root",
@@ -352,65 +417,7 @@
     "proposal": null,
     "selectedReviewTarget": null,
     "confirmedRevision": null,
-    "expectedBase": "sha256:4804643be71c8097ccfdf96a1d792f999b8efc3ce6cad349b7034d9869281aee"
-   }
-  },
-  {
-   "command": "read_preview_mechanics_job_row_semantics",
-   "args": {
-    "jobId": "$HANDLE",
-    "ordinals": [
-     0,
-     1,
-     2,
-     3,
-     4,
-     5,
-     6,
-     7,
-     8,
-     9,
-     10,
-     11,
-     12,
-     13,
-     14,
-     15,
-     16,
-     17,
-     18,
-     19,
-     20,
-     21,
-     22,
-     23,
-     24,
-     25,
-     26,
-     27,
-     28,
-     29,
-     30,
-     31,
-     32,
-     33,
-     34,
-     35,
-     36,
-     37,
-     38,
-     39,
-     40,
-     41,
-     42,
-     43,
-     44,
-     45,
-     46,
-     47,
-     48,
-     49
-    ]
+    "expectedBase": "sha256:d0a8827b043b18daebe34ff6433e843d940227b1c4d04038658668220adc378f"
    }
   }
  ]

@@ -46,7 +46,7 @@ const SOURCE_MIXED: &str = include_str!("../../../fixtures/product_preview/press
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const RELATIVE: f64 = 1.0e-9;
 const PROV: &str = "w16b invented benchmark input; not library, component, material-catalog or code data";
-const EX_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const EX_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const SOURCE_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 const WITHHELD: &str = "LOAD_COMBINATION_ROW_WITHHELD";
 const MISSING: &str = "LOAD_COMBINATION_SOURCE_RESULT_MISSING";
@@ -118,6 +118,8 @@ fn line(combinations: Value) -> Value {
     let regions_c = json!([region("region:m1", "pipe:m1", ["node:a", "node:b"]), region("region:m2", "pipe:m2", ["node:b", "node:c"])]);
     json!({"model": {"schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
+        // The references are today's mechanics: every pressurised case includes pressure elongation (RT-L2).
+        "model_settings": {"pressure_elongation": {"operating_load_cases": ["case:A", "case:B", "case:C"]}},
         "project": {"id": "project:w16b", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "nodes": [node("node:a", 0.0), node("node:b", l1), node("node:c", l1 + l2)],
@@ -682,6 +684,7 @@ fn force_rows_of_a_pressure_free_model_agree_with_the_preview_route() {
     let mut pf = ex.clone();
     let model = pf["model"].as_object_mut().unwrap();
     model.remove("pressure_contract");
+    model.remove("model_settings"); // pressure elongation needs a pressure contract
     for case in pf["model"]["load_cases"].as_array_mut().unwrap() {
         case.as_object_mut().unwrap().remove("pressure_regions");
     }

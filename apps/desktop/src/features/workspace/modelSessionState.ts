@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import type { DesignKnowledge, ModelHashEvidence, PreviewModel } from "../../types";
 import { modelIndexFor } from "./modelIndex";
+import { useSequencedState } from "./reportSourceSequence";
 
 /**
  * The model cells of the workspace session: the model and the design knowledge,
@@ -13,9 +14,12 @@ import { modelIndexFor } from "./modelIndex";
  * `workspaceSession.ts`. Its setters are not for components: the model changes
  * only in the session's mount effect and in its operation, undo, redo and
  * project handlers.
+ *
+ * DEL-08-01 REQ-022: the model is report-bound; each assignment advances the report
+ * source sequence (`advanceReportSource`) in the same synchronous step.
  */
-export function useModelSessionState() {
-  const [model, setModel] = useState<PreviewModel | null>(null);
+export function useModelSessionState(advanceReportSource?: () => number) {
+  const [model, setModel] = useSequencedState<PreviewModel | null>(null, advanceReportSource);
   const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
   const [projectSessionGeneration, setProjectSessionGeneration] = useState(0);
   const projectSessionGenerationRef = useRef(0);

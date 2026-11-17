@@ -10,6 +10,11 @@ at 01e05a486). Every check runs the product validator and the Rust reader throug
 
 At a4ff570dc (before this path) every one of these records was refused (SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS, or
 ANALYSIS_SEMANTIC_CONTRACT_MISMATCH for physics-retained-1); the current-path assertions below are that refusal, kept.
+
+RT-L2 (DEL-04-07): the physics-retained-1 statements recorded here are successors of pressure-2 results (their base
+identity statement names pressure-2 semantics), which predate the pressure-elongation setting. They are refused by name
+(SOURCE_PRESSURE_2_RETIRED, with its message) on the recorded read and on every current path; the pressure-free
+statements keep their read.
 """
 from __future__ import annotations
 
@@ -61,6 +66,11 @@ VARIANTS = [
      "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691", "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"),
 ]
 IDS = [v[0] for v in VARIANTS]
+# RT-L2: the pressure-free variants keep main's read; the pressure-2-based exact successors are refused.
+PRESSURE_FREE, PRESSURE_FREE_IDS = VARIANTS[:3], IDS[:3]
+PRESSURE_2_BASED, PRESSURE_2_BASED_IDS = VARIANTS[3:], IDS[3:]
+PRESSURE_2_RETIRED = ("^SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer "
+                      "read; re-solve the model$")
 
 
 def record_of(path: str) -> dict:
@@ -102,7 +112,7 @@ def resource(source: dict, record: dict) -> dict:
     return reseal(record)
 
 
-@pytest.mark.parametrize("variant", VARIANTS, ids=IDS)
+@pytest.mark.parametrize("variant", PRESSURE_FREE, ids=PRESSURE_FREE_IDS)
 def test_a_run_recorded_before_rt_a4_reads_as_main_read_it_on_the_recorded_read_only(variant):
     record, source, digest, refusal = pair(variant)
     before_record, before_source = copy.deepcopy(record), copy.deepcopy(source)
@@ -118,28 +128,51 @@ def test_a_run_recorded_before_rt_a4_reads_as_main_read_it_on_the_recorded_read_
     assert record == before_record and source == before_source
 
 
-@pytest.mark.parametrize("variant", VARIANTS, ids=IDS)
-def test_a_statement_recorded_before_rt_a4_is_refused_on_every_current_admission_path(variant):
+@pytest.mark.parametrize("variant", PRESSURE_2_BASED, ids=PRESSURE_2_BASED_IDS)
+def test_a_recorded_pressure_2_exact_successor_is_refused_by_name_on_every_read(variant):
+    """RT-L2 (DEL-04-07): the record still verifies against its own checksum and names its variant, but the successor
+    of a pressure-2 result predates the pressure-elongation setting: the recorded read, the current read, record
+    building and the Rust reader all refuse it by name with the pressure-2 message. Nothing is migrated."""
     record, source, digest, _ = pair(variant)
-    binding = {"id": source["producer"]["semantic_contract_id"], "sha256": digest}
-    current = c._TABLES[binding["id"]][0]
+    before_record, before_source = copy.deepcopy(record), copy.deepcopy(source)
+    binding = record["analysis_run"]["reproducibility"]["semantic_contract"]
+    assert binding == {"id": source["producer"]["semantic_contract_id"], "sha256": digest} and binding["id"] == c.PHYSICS_RETAINED_CONTRACT_ID
+    assert source["formulation_basis"]["limitations"][0].startswith("3.0.0/exact_pressure_v3 under pressure-2 semantics.")
+    assert c.verify_analysis_run_record(record) == "match"
+    with pytest.raises(ValueError, match=PRESSURE_2_RETIRED):
+        validate(record, source, recorded_read=True)
+    with pytest.raises(ValueError, match=PRESSURE_2_RETIRED):
+        validate(record, source)
     manifest = {"input_manifest_ref": {"object_type": "InputManifest", "ref": "input-manifest:current"}, "input_manifest_hash": "1" * 64}
-    if binding["id"] == c.PHYSICS_RETAINED_CONTRACT_ID:
-        # The exact successor's statements read under the current reader (rows and receipt bindings unchanged), so a
-        # current record of them binds the current table; the variant is a recorded binding only.
-        assert c.build_analysis_run(source, **manifest)["analysis_run"]["reproducibility"]["semantic_contract"] == {"id": binding["id"], "sha256": current}
+    with pytest.raises(ValueError, match=PRESSURE_2_RETIRED):
+        c.build_analysis_run(source, **manifest)
+    for kwargs in ({}, {"recorded_binding": binding}):
+        with pytest.raises(rust_reader.ReaderRefusal) as refusal:
+            rust_reader.retained_precision(source, **kwargs)
+        assert refusal.value.code == "SOURCE_PRESSURE_2_RETIRED"
+    # The independent verifier refuses it by the same name and message.
+    from tests.verifiers import retained_precision as verifier
+    with pytest.raises(verifier.RetainedPrecisionError) as refused:
+        verifier.validate_retained_precision(source)
+    assert (refused.value.gate, refused.value.code, refused.value.detail) == ("G0", "SOURCE_PRESSURE_2_RETIRED", PRESSURE_2_RETIRED[1:-1])
+    assert record == before_record and source == before_source
+
+
+@pytest.mark.parametrize("variant", PRESSURE_FREE, ids=PRESSURE_FREE_IDS)
+def test_a_statement_recorded_before_rt_a4_is_refused_on_every_current_admission_path(variant):
+    record, source, _, _ = pair(variant)
+    manifest = {"input_manifest_ref": {"object_type": "InputManifest", "ref": "input-manifest:current"}, "input_manifest_hash": "1" * 64}
+    with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS"):
+        c.build_analysis_run(source, **manifest)
+    assert c.numerical_use_standing(source, []) == "unsupported"
+    assert c.standing_reason(source) is None
+    # The reader without a recorded binding: the header admits, the evidence reader refuses.
+    if not c._is_retained(source):
+        with pytest.raises(rust_reader.ReaderRefusal, match="SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS"):
+            rust_reader.validate("preview-physics", source)
     else:
-        with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS"):
-            c.build_analysis_run(source, **manifest)
-        assert c.numerical_use_standing(source, []) == "unsupported"
-        assert c.standing_reason(source) is None
-        # The reader without a recorded binding: the header admits, the evidence reader refuses.
-        if not c._is_retained(source):
-            with pytest.raises(rust_reader.ReaderRefusal, match="SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS"):
-                rust_reader.validate("preview-physics", source)
-        else:
-            with pytest.raises(rust_reader.ReaderRefusal, match="SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS"):
-                rust_reader.retained_precision(source)
+        with pytest.raises(rust_reader.ReaderRefusal, match="SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS"):
+            rust_reader.retained_precision(source)
     # A historical binding presented to the current record validator is refused.
     with pytest.raises(ValueError):
         validate(record, source)
@@ -175,7 +208,7 @@ def test_main_recorded_preview_physics_revisions_read_and_resave_as_main_wrote_t
         c.validate_analysis_run_v0_3(s2["recorded_record"], source, recorded_state=s2_state)
 
 
-@pytest.mark.parametrize("variant", VARIANTS, ids=IDS)
+@pytest.mark.parametrize("variant", PRESSURE_FREE, ids=PRESSURE_FREE_IDS)
 def test_a_tampered_or_mismatched_variant_is_refused_on_the_recorded_read(variant):
     record, source, digest, _ = pair(variant)
     identity = source["producer"]["semantic_contract_id"]

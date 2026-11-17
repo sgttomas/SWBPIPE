@@ -209,7 +209,7 @@ def test_both_readers_admit_the_solved_seam_envelopes(solve, q_ref_x, ce):
         both(source, given, None)
     # Every gate reason, gate 4's two included, is one the pressure-2 schema admits.
     from tests.schema_validation import schema_for_definition, validate_instance
-    schema = json.loads((ROOT / "schemas/results_pressure_2.v0.3.schema.json").read_text(encoding="utf-8"))
+    schema = json.loads((ROOT / "schemas/results_pressure_3.v0.3.schema.json").read_text(encoding="utf-8"))
     validate_instance(schema_for_definition(schema, "PressureContractEvidence"), source["contract_evidence"])
 
 

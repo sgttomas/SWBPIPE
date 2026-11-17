@@ -1,0 +1,1298 @@
+{
+ "document": "swbpipe.reference_system_pending_case_references",
+ "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently refuted; repaired after one independent refutation (the decided seismic rule made the expected path); after a second refutation the former open readings OR-2 to OR-5 are relabelled as controls for departures from the specification (README); the one open reading is the seismic gravity, and the seismic values are conditional on the stated assumption g = 9.80665 m/s^2",
+ "specification": "DEL-09-01 reference-system specification §9.2: EQ-6 for RS-WIN, RS-EQX, RS-EQY, RS-EQZ; EQ-1 and EQ-2 for RS-HYD; EQ-4 is an identity stated in the README",
+ "inputs": "fixtures/reference_system/SPECIFICATION.md, transcribed in the generator and checked against the file on every run; no product file and no fixture model file is read; validation/references/reference_system/references.json is read only for the consistency check",
+ "units": {
+  "force": "N",
+  "moment": "N*m",
+  "length": "m",
+  "mass": "kg",
+  "mass_per_length": "kg/m"
+ },
+ "gravity": {
+  "value": "196133/20000",
+  "unit": "m/s^2",
+  "weight_direction": "-Z"
+ },
+ "origin": "global (0, 0, 0) m; moments are sum of r x F about it",
+ "systems": {
+  "full": "the full specified system (§3-§5): rigid-family components RS-F1, RS-V1, RS-F2 and the eccentric reducer RS-R1 on RS-P150 (300 N at the body midpoint)",
+  "fixture_today": "the system as the fixture carries it today (§10): RS-R1 pending, RS-P150 a plain S270 member carrying its own distributed weight; RS-F1, RS-V1, RS-F2 as specified"
+ },
+ "bases": {
+  "seismic": "the decided rule (seismic_rule), along the positive global axis of the g-factor: a * g * mu on every member except RS-P180 and the members whose component weight the weight case applies, and a * W at each such component's centre of gravity; mu on the exact route's bases (README). Conditional on the stated assumption g = 9.80665 m/s^2 for the seismic case's gravity_acceleration (open reading OR-G)",
+  "wind": "900 Pa * 0.7 * (OD + 2 t_i) per length along +X ('global_x') on RS-P070, RS-P080, RS-P085, RS-P090, RS-P100, RS-P110, RS-P120, RS-P130, RS-P140, RS-P150, RS-P160, RS-P170, RS-P190, RS-P200; every exposed member lies in the plane X = 6 m, so its full length is normal to the wind; RS-P150 takes its S270 section's diameter in both systems",
+  "hydrotest": "W of every member except RS-P180 with each section's contents density replaced by 1000 kg/m^3, once; rigid-family component weights unchanged at their centres of gravity in place of their members' distributed weight (§8.1, §8.3)",
+  "arcs": "quarter-circle arcs of length R pi/2 carry mass and wind per length like any member (§3, §5)"
+ },
+ "seismic_rule": "decided by SWBPIPE Agent 0 on 2026-11-12, in DEL-05-01's wording: for each global axis, the g-factor times the weight the weight case gives the model: on every member a load per length a * g * mu; for a member whose component weight the weight case applies, in place of that load, the force a * W at the component's node with its moments about the node from the centre-of-gravity vector; a member whose component weight the weight case does not apply keeps its distributed load. Which component weights the weight case applies is the specification's (§5, §8.1: component weights at their centres of gravity in place of their members' distributed weight): RS-F1, RS-V1, RS-F2 in both systems and RS-R1 in the full system; RS-R1 is pending in the fixture today (§10), where RS-P150 keeps its distributed weight and so its distributed seismic load. Convention (SWBPIPE Agent 0): the self-weight plan evaluated at the seismic case's gravity, with each entered component force W held fixed; it names an exception and does not make the two mass models equivalent in general. This closes the former open reading OR-1.",
+ "specification_observations": ["sense of a positive g-factor: taken along the positive global axis; the opposite sense (for Z, along gravity) reverses every seismic force and moment", "RS-P150 carries section S270 (§3.2) under the reducer RS-R1 (270 to 220 mm): its wind diameter, and its distributed seismic load in the fixture today, use S270"],
+ "checks": {
+  "EQ-6": "the reaction force resultant of RS-dWIN and its moment about the origin (sum over supports of r_node x F + M) equal minus the generated wind force and moment; for each of RS-dEQX, RS-dEQY, RS-dEQZ, the reaction resultant and its moment about the origin equal minus the g-factor times the weight the same gravity gives the model, component weights included (key_values: the expected_RS-d* entries)",
+  "EQ-1 (RS-HYD)": "the sum of the vertical (Z) reaction components over every support, held supports included, equals W_total",
+  "EQ-2 (RS-HYD)": "the horizontal (X, Y) reaction resultant is zero and the reaction moment resultant about the origin equals minus weight_moment_about_origin"
+ },
+ "tolerance": "not set here: the consumer applies the criterion it adopts",
+ "crosscheck": [
+  {"check": "§3.1 node table equals the transcribed nodes", "agrees": true},
+  {"check": "§3.2 member table equals the transcribed members, in order", "agrees": true},
+  {"check": "§4.2 section table equals the transcribed sections", "agrees": true},
+  {"check": "20 statements of the specification quoted in the generator appear verbatim", "agrees": true},
+  {"check": "RS-B1 (RS-P065): tangent nodes lie R from the corner on perpendicular legs, and the arc centre is R from both, tangent to both legs", "agrees": true},
+  {"check": "RS-B1 (RS-P065): arc first moment R[(pi/2)C + e1 + e2] agrees with Simpson quadrature (1e-11)", "agrees": true},
+  {"check": "RS-B2 (RS-P085): tangent nodes lie R from the corner on perpendicular legs, and the arc centre is R from both, tangent to both legs", "agrees": true},
+  {"check": "RS-B2 (RS-P085): arc first moment R[(pi/2)C + e1 + e2] agrees with Simpson quadrature (1e-11)", "agrees": true},
+  {"check": "RS-B3 (RS-P225): tangent nodes lie R from the corner on perpendicular legs, and the arc centre is R from both, tangent to both legs", "agrees": true},
+  {"check": "RS-B3 (RS-P225): arc first moment R[(pi/2)C + e1 + e2] agrees with Simpson quadrature (1e-11)", "agrees": true},
+  {"check": "RS-P150 chord length is sqrt(257)/40 m (§3.1: 0.400 m along Y, 0.025 m drop)", "agrees": true},
+  {"check": "RS-160 drop equals half the S270 / S220 outside-diameter difference (§3.1, §5 RS-R1)", "agrees": true},
+  {"check": "RS-S270: mass per length / pi in a second factored form (contents 820 kg/m^3)", "agrees": true},
+  {"check": "RS-S270: mass per length / pi in a second factored form (contents 1000 kg/m^3)", "agrees": true},
+  {"check": "RS-S220: mass per length / pi in a second factored form (contents 820 kg/m^3)", "agrees": true},
+  {"check": "RS-S220: mass per length / pi in a second factored form (contents 1000 kg/m^3)", "agrees": true},
+  {"check": "RS-S170: mass per length / pi in a second factored form (contents 820 kg/m^3)", "agrees": true},
+  {"check": "RS-S170: mass per length / pi in a second factored form (contents 1000 kg/m^3)", "agrees": true},
+  {"check": "RS-SUS (fixture today, operating contents): W_total equals validation/references/reference_system/references.json exactly", "agrees": true},
+  {"check": "RS-SUS (fixture today, operating contents): weight moment about the origin equals validation/references/reference_system/references.json exactly", "agrees": true},
+  {"check": "full: seismic weight equals per-section length sums of unmapped members times weight per length, plus component weights", "agrees": true},
+  {"check": "full: seismic weight and its first moment equal the weight case's (operating contents)", "agrees": true},
+  {"check": "full: RS-HYD weight equals per-section length sums times test weight per length, plus component weights", "agrees": true},
+  {"check": "fixture_today: seismic weight equals per-section length sums of unmapped members times weight per length, plus component weights", "agrees": true},
+  {"check": "fixture_today: seismic weight and its first moment equal the weight case's (operating contents)", "agrees": true},
+  {"check": "fixture_today: RS-HYD weight equals per-section length sums times test weight per length, plus component weights", "agrees": true},
+  {"check": "wind force equals per-section exposed length sums times p * C_s * (OD + 2 t_i)", "agrees": true},
+  {"check": "every exposed member lies in the plane X = 6 m (normal to the wind along its whole length)", "agrees": true},
+  {"check": "full: RS-EQZ moment has no Z component and RS-EQX moment no X component", "agrees": true},
+  {"check": "fixture_today: RS-EQZ moment has no Z component and RS-EQX moment no X component", "agrees": true},
+  {"check": "RS-WIN: full and fixture-today systems agree", "agrees": true},
+  {"check": "RS-EQX, RS-EQY, RS-EQZ: full minus fixture-today equals a times (RS-R1's weight at its centre of gravity less RS-P150's distributed weight), force and moment", "agrees": true},
+  {"check": "EQ-4 helper: SRSS rounds the exact square root once and correctly, absolute sum the exact sum once, and SRSS <= ABS, on six invented operand triples", "agrees": true},
+  {"check": "README quotes every nonzero frozen key value's binary64", "agrees": true}
+ ],
+ "key_values": {
+  "full": {
+   "RS-WIN": {
+    "generated_force_N": [
+     {"exact": "(200529/25) + (2457/400)*sqrt(257) + (2457/50)*pi", "decimal": "8.274009629033408923051776592453456273693e+3", "value": 8274.00962903341},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "generated_moment_about_origin_N_m": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(52306317/1000) + (1373463/32000)*sqrt(257) + (81081/250)*pi", "decimal": "5.401328236095945140442579290012496323838e+4", "value": 54013.28236095945},
+     {"exact": "(-4882437/50) + (-248157/2000)*sqrt(257) + (-2457/125)*pi", "decimal": "-9.969962081912629193883241210964359224835e+4", "value": -99699.62081912628}
+    ],
+    "expected_RS-dWIN_reaction_force_resultant_N": [
+     {"exact": "(-200529/25) + (-2457/400)*sqrt(257) + (-2457/50)*pi", "decimal": "-8.274009629033408923051776592453456273693e+3", "value": -8274.00962903341},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "expected_RS-dWIN_reaction_moment_resultant_about_origin_N_m": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(-52306317/1000) + (-1373463/32000)*sqrt(257) + (-81081/250)*pi", "decimal": "-5.401328236095945140442579290012496323838e+4", "value": -54013.28236095945},
+     {"exact": "(4882437/50) + (248157/2000)*sqrt(257) + (2457/125)*pi", "decimal": "9.969962081912629193883241210964359224835e+4", "value": 99699.62081912628}
+    ]
+   },
+   "RS-EQX": {
+    "generated_force_N": [
+     {"exact": "(1080) + (198467059780269/50000000000)*pi + (373603085399061/8000000000000)*pi^2", "decimal": "1.401096747169458028641379606576466698561e+4", "value": 14010.967471694581},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "generated_moment_about_origin_N_m": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(14823/8) + (3577267409463417621/160000000000000)*pi + (5652588378257709/32000000000000)*pi^2", "decimal": "7.383575668234036140889456311065149278344e+4", "value": 73835.75668234036},
+     {"exact": "(-1818) + (-2068144159465127163/50000000000000)*pi + (-761992420548891/8000000000000)*pi^2", "decimal": "-1.327034004272363854331429332666085953923e+5", "value": -132703.4004272364}
+    ],
+    "expected_RS-dEQX_reaction_force_resultant_N": [
+     {"exact": "(-1080) + (-198467059780269/50000000000)*pi + (-373603085399061/8000000000000)*pi^2", "decimal": "-1.401096747169458028641379606576466698561e+4", "value": -14010.967471694581},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "expected_RS-dEQX_reaction_moment_resultant_about_origin_N_m": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(-14823/8) + (-3577267409463417621/160000000000000)*pi + (-5652588378257709/32000000000000)*pi^2", "decimal": "-7.383575668234036140889456311065149278344e+4", "value": -73835.75668234036},
+     {"exact": "(1818) + (2068144159465127163/50000000000000)*pi + (761992420548891/8000000000000)*pi^2", "decimal": "1.327034004272363854331429332666085953923e+5", "value": 132703.4004272364}
+    ]
+   },
+   "RS-EQY": {
+    "generated_force_N": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(1080) + (198467059780269/50000000000)*pi + (373603085399061/8000000000000)*pi^2", "decimal": "1.401096747169458028641379606576466698561e+4", "value": 14010.967471694581},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "generated_moment_about_origin_N_m": [
+     {"exact": "(-14823/8) + (-3577267409463417621/160000000000000)*pi + (-5652588378257709/32000000000000)*pi^2", "decimal": "-7.383575668234036140889456311065149278344e+4", "value": -73835.75668234036},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(2763/2) + (722005672450101501/32000000000000)*pi + (8751178692490941/32000000000000)*pi^2", "decimal": "7.496332462992267058049944425235090422728e+4", "value": 74963.32462992267}
+    ],
+    "expected_RS-dEQY_reaction_force_resultant_N": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(-1080) + (-198467059780269/50000000000)*pi + (-373603085399061/8000000000000)*pi^2", "decimal": "-1.401096747169458028641379606576466698561e+4", "value": -14010.967471694581},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "expected_RS-dEQY_reaction_moment_resultant_about_origin_N_m": [
+     {"exact": "(14823/8) + (3577267409463417621/160000000000000)*pi + (5652588378257709/32000000000000)*pi^2", "decimal": "7.383575668234036140889456311065149278344e+4", "value": 73835.75668234036},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(-2763/2) + (-722005672450101501/32000000000000)*pi + (-8751178692490941/32000000000000)*pi^2", "decimal": "-7.496332462992267058049944425235090422728e+4", "value": -74963.32462992267}
+    ]
+   },
+   "RS-EQZ": {
+    "generated_force_N": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(720) + (66155686593423/25000000000)*pi + (124534361799687/4000000000000)*pi^2", "decimal": "9.340644981129720190942530710509777990405e+3", "value": 9340.64498112972}
+    ],
+    "generated_moment_about_origin_N_m": [
+     {"exact": "(1212) + (689381386488375721/25000000000000)*pi + (253997473516297/4000000000000)*pi^2", "decimal": "8.846893361815759028876195551107239692823e+4", "value": 88468.93361815759},
+     {"exact": "(-921) + (-240668557483367167/16000000000000)*pi + (-2917059564163647/16000000000000)*pi^2", "decimal": "-4.997554975328178038699962950156726948485e+4", "value": -49975.54975328178},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "expected_RS-dEQZ_reaction_force_resultant_N": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(-720) + (-66155686593423/25000000000)*pi + (-124534361799687/4000000000000)*pi^2", "decimal": "-9.340644981129720190942530710509777990405e+3", "value": -9340.64498112972}
+    ],
+    "expected_RS-dEQZ_reaction_moment_resultant_about_origin_N_m": [
+     {"exact": "(-1212) + (-689381386488375721/25000000000000)*pi + (-253997473516297/4000000000000)*pi^2", "decimal": "-8.846893361815759028876195551107239692823e+4", "value": -88468.93361815759},
+     {"exact": "(921) + (240668557483367167/16000000000000)*pi + (2917059564163647/16000000000000)*pi^2", "decimal": "4.997554975328178038699962950156726948485e+4", "value": 49975.54975328178},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ]
+   },
+   "RS-HYD": {
+    "W_total_N": {"exact": "(3600) + (1433812448397/100000000)*pi + (1349997364443/8000000000)*pi^2", "decimal": "5.031003903629180559698616249978883320177e+4", "value": 50310.039036291804},
+    "weight_moment_about_origin_N_m": [
+     {"exact": "(-6060) + (-7458544225740013/50000000000)*pi + (-13646806457417/40000000000)*pi^2", "decimal": "-4.780613694480113831925296418707518840223e+5", "value": -478061.3694480114},
+     {"exact": "(4605) + (2607679524516451/32000000000)*pi + (158095252138047/160000000000)*pi^2", "decimal": "2.703654486373752403654945436038623028211e+5", "value": 270365.44863737526},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "expected_reaction_force_resultant_N": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(3600) + (1433812448397/100000000)*pi + (1349997364443/8000000000)*pi^2", "decimal": "5.031003903629180559698616249978883320177e+4", "value": 50310.039036291804}
+    ],
+    "expected_reaction_moment_resultant_about_origin_N_m": [
+     {"exact": "(6060) + (7458544225740013/50000000000)*pi + (13646806457417/40000000000)*pi^2", "decimal": "4.780613694480113831925296418707518840223e+5", "value": 478061.3694480114},
+     {"exact": "(-4605) + (-2607679524516451/32000000000)*pi + (-158095252138047/160000000000)*pi^2", "decimal": "-2.703654486373752403654945436038623028211e+5", "value": -270365.44863737526},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ]
+   },
+   "total_seismic_mass_kg": {"exact": "(72000000/196133) + (337300131/250000)*pi + (634948539/40000000)*pi^2", "decimal": "4.762403563464445142297589243273583736753e+3", "value": 4762.403563464445}
+  },
+  "fixture_today": {
+   "RS-WIN": {
+    "generated_force_N": [
+     {"exact": "(200529/25) + (2457/400)*sqrt(257) + (2457/50)*pi", "decimal": "8.274009629033408923051776592453456273693e+3", "value": 8274.00962903341},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "generated_moment_about_origin_N_m": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(52306317/1000) + (1373463/32000)*sqrt(257) + (81081/250)*pi", "decimal": "5.401328236095945140442579290012496323838e+4", "value": 54013.28236095945},
+     {"exact": "(-4882437/50) + (-248157/2000)*sqrt(257) + (-2457/125)*pi", "decimal": "-9.969962081912629193883241210964359224835e+4", "value": -99699.62081912628}
+    ],
+    "expected_RS-dWIN_reaction_force_resultant_N": [
+     {"exact": "(-200529/25) + (-2457/400)*sqrt(257) + (-2457/50)*pi", "decimal": "-8.274009629033408923051776592453456273693e+3", "value": -8274.00962903341},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "expected_RS-dWIN_reaction_moment_resultant_about_origin_N_m": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(-52306317/1000) + (-1373463/32000)*sqrt(257) + (-81081/250)*pi", "decimal": "-5.401328236095945140442579290012496323838e+4", "value": -54013.28236095945},
+     {"exact": "(4882437/50) + (248157/2000)*sqrt(257) + (2457/125)*pi", "decimal": "9.969962081912629193883241210964359224835e+4", "value": 99699.62081912628}
+    ]
+   },
+   "RS-EQX": {
+    "generated_force_N": [
+     {"exact": "(990) + (198467059780269/50000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.404969586991263216666195245593708348064e+4", "value": 14049.695869912632},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "generated_moment_about_origin_N_m": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(1224) + (3577267409463417621/160000000000000)*pi + (2286071037148899/128000000000000)*pi*sqrt(257) + (5652588378257709/32000000000000)*pi^2", "decimal": "7.410637136488899892212855588698125304250e+4", "value": 74106.371364889},
+     {"exact": "(-2068144159465127163/50000000000000)*pi + (-413046824243361/8000000000000)*pi*sqrt(257) + (-761992420548891/8000000000000)*pi^2", "decimal": "-1.334857140712410334141556923480914085921e+5", "value": -133485.71407124103}
+    ],
+    "expected_RS-dEQX_reaction_force_resultant_N": [
+     {"exact": "(-990) + (-198467059780269/50000000000)*pi + (-4089572517261/1600000000000)*pi*sqrt(257) + (-373603085399061/8000000000000)*pi^2", "decimal": "-1.404969586991263216666195245593708348064e+4", "value": -14049.695869912632},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "expected_RS-dEQX_reaction_moment_resultant_about_origin_N_m": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(-1224) + (-3577267409463417621/160000000000000)*pi + (-2286071037148899/128000000000000)*pi*sqrt(257) + (-5652588378257709/32000000000000)*pi^2", "decimal": "-7.410637136488899892212855588698125304250e+4", "value": -74106.371364889},
+     {"exact": "(2068144159465127163/50000000000000)*pi + (413046824243361/8000000000000)*pi*sqrt(257) + (761992420548891/8000000000000)*pi^2", "decimal": "1.334857140712410334141556923480914085921e+5", "value": 133485.71407124103}
+    ]
+   },
+   "RS-EQY": {
+    "generated_force_N": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(990) + (198467059780269/50000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.404969586991263216666195245593708348064e+4", "value": 14049.695869912632},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "generated_moment_about_origin_N_m": [
+     {"exact": "(-1224) + (-3577267409463417621/160000000000000)*pi + (-2286071037148899/128000000000000)*pi*sqrt(257) + (-5652588378257709/32000000000000)*pi^2", "decimal": "-7.410637136488899892212855588698125304250e+4", "value": -74106.371364889},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(1683/2) + (722005672450101501/32000000000000)*pi + (12268717551783/800000000000)*pi*sqrt(257) + (8751178692490941/32000000000000)*pi^2", "decimal": "7.519569501923098186198838259338540319749e+4", "value": 75195.69501923099}
+    ],
+    "expected_RS-dEQY_reaction_force_resultant_N": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(-990) + (-198467059780269/50000000000)*pi + (-4089572517261/1600000000000)*pi*sqrt(257) + (-373603085399061/8000000000000)*pi^2", "decimal": "-1.404969586991263216666195245593708348064e+4", "value": -14049.695869912632},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "expected_RS-dEQY_reaction_moment_resultant_about_origin_N_m": [
+     {"exact": "(1224) + (3577267409463417621/160000000000000)*pi + (2286071037148899/128000000000000)*pi*sqrt(257) + (5652588378257709/32000000000000)*pi^2", "decimal": "7.410637136488899892212855588698125304250e+4", "value": 74106.371364889},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(-1683/2) + (-722005672450101501/32000000000000)*pi + (-12268717551783/800000000000)*pi*sqrt(257) + (-8751178692490941/32000000000000)*pi^2", "decimal": "-7.519569501923098186198838259338540319749e+4", "value": -75195.69501923099}
+    ]
+   },
+   "RS-EQZ": {
+    "generated_force_N": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(660) + (66155686593423/25000000000)*pi + (1363190839087/800000000000)*pi*sqrt(257) + (124534361799687/4000000000000)*pi^2", "decimal": "9.366463913275088111107968303958055653762e+3", "value": 9366.463913275089}
+    ],
+    "generated_moment_about_origin_N_m": [
+     {"exact": "(689381386488375721/25000000000000)*pi + (137682274747787/4000000000000)*pi*sqrt(257) + (253997473516297/4000000000000)*pi^2", "decimal": "8.899047604749402227610379489872760572803e+4", "value": 88990.47604749403},
+     {"exact": "(-561) + (-240668557483367167/16000000000000)*pi + (-4089572517261/400000000000)*pi*sqrt(257) + (-2917059564163647/16000000000000)*pi^2", "decimal": "-5.013046334615398790799225506225693546499e+4", "value": -50130.463346153985},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "expected_RS-dEQZ_reaction_force_resultant_N": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(-660) + (-66155686593423/25000000000)*pi + (-1363190839087/800000000000)*pi*sqrt(257) + (-124534361799687/4000000000000)*pi^2", "decimal": "-9.366463913275088111107968303958055653762e+3", "value": -9366.463913275089}
+    ],
+    "expected_RS-dEQZ_reaction_moment_resultant_about_origin_N_m": [
+     {"exact": "(-689381386488375721/25000000000000)*pi + (-137682274747787/4000000000000)*pi*sqrt(257) + (-253997473516297/4000000000000)*pi^2", "decimal": "-8.899047604749402227610379489872760572803e+4", "value": -88990.47604749403},
+     {"exact": "(561) + (240668557483367167/16000000000000)*pi + (4089572517261/400000000000)*pi*sqrt(257) + (2917059564163647/16000000000000)*pi^2", "decimal": "5.013046334615398790799225506225693546499e+4", "value": 50130.463346153985},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ]
+   },
+   "RS-HYD": {
+    "W_total_N": {"exact": "(3300) + (1433812448397/100000000)*pi + (73989016787/8000000000)*pi*sqrt(257) + (1349997364443/8000000000)*pi^2", "decimal": "5.047583283632927785316373185741059549922e+4", "value": 50475.832836329275},
+    "weight_moment_about_origin_N_m": [
+     {"exact": "(-7458544225740013/50000000000)*pi + (-7472890695487/40000000000)*pi*sqrt(257) + (-13646806457417/40000000000)*pi^2", "decimal": "-4.814104042087683227673165428947114824308e+5", "value": -481410.40420876833},
+     {"exact": "(2805) + (2607679524516451/32000000000)*pi + (221967050361/4000000000)*pi*sqrt(257) + (158095252138047/160000000000)*pi^2", "decimal": "2.713602114376000739025599597495928766058e+5", "value": 271360.2114376001},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ],
+    "expected_reaction_force_resultant_N": [
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "0", "decimal": "0", "value": 0.0},
+     {"exact": "(3300) + (1433812448397/100000000)*pi + (73989016787/8000000000)*pi*sqrt(257) + (1349997364443/8000000000)*pi^2", "decimal": "5.047583283632927785316373185741059549922e+4", "value": 50475.832836329275}
+    ],
+    "expected_reaction_moment_resultant_about_origin_N_m": [
+     {"exact": "(7458544225740013/50000000000)*pi + (7472890695487/40000000000)*pi*sqrt(257) + (13646806457417/40000000000)*pi^2", "decimal": "4.814104042087683227673165428947114824308e+5", "value": 481410.40420876833},
+     {"exact": "(-2805) + (-2607679524516451/32000000000)*pi + (-221967050361/4000000000)*pi*sqrt(257) + (-158095252138047/160000000000)*pi^2", "decimal": "-2.713602114376000739025599597495928766058e+5", "value": -271360.2114376001},
+     {"exact": "0", "decimal": "0", "value": 0.0}
+    ]
+   },
+   "total_seismic_mass_kg": {"exact": "(66000000/196133) + (337300131/250000)*pi + (6950339/8000000)*pi*sqrt(257) + (634948539/40000000)*pi^2", "decimal": "4.775567555319649478215276523562101050696e+3", "value": 4775.56755531965}
+  }
+ },
+ "seismic_controls": [
+  {
+   "control": "control: the rule before 2026-11-12: pipe mass on a mapped member, component weight left out",
+   "values": {
+    "full": {
+     "RS-EQX": {
+      "generated_force_N": [
+       {"exact": "(1624542630897501/400000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.334877071688500436546406672523716978122e+4", "value": 13348.770716885005},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(3591989870525557221/160000000000000)*pi + (2286071037148899/128000000000000)*pi*sqrt(257) + (5652588378257709/32000000000000)*pi^2", "decimal": "7.317144621186137112093067015628133934307e+4", "value": 73171.44621186137},
+       {"exact": "(-2068144159465127163/50000000000000)*pi + (-413046824243361/8000000000000)*pi*sqrt(257) + (-761992420548891/8000000000000)*pi^2", "decimal": "-1.334857140712410334141556923480914085921e+5", "value": -133485.71407124103}
+      ]
+     },
+     "RS-EQY": {
+      "generated_force_N": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(1624542630897501/400000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.334877071688500436546406672523716978122e+4", "value": 13348.770716885005},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "(-3591989870525557221/160000000000000)*pi + (-2286071037148899/128000000000000)*pi*sqrt(257) + (-5652588378257709/32000000000000)*pi^2", "decimal": "-7.317144621186137112093067015628133934307e+4", "value": -73171.44621186137},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(724508490830665233/32000000000000)*pi + (12268717551783/800000000000)*pi*sqrt(257) + (8751178692490941/32000000000000)*pi^2", "decimal": "7.459990863915749823097017972229047655297e+4", "value": 74599.9086391575}
+      ]
+     },
+     "RS-EQZ": {
+      "generated_force_N": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(541514210299167/200000000000)*pi + (1363190839087/800000000000)*pi*sqrt(257) + (124534361799687/4000000000000)*pi^2", "decimal": "8.899180477923336243642711150158113187477e+3", "value": 8899.180477923337}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "(689381386488375721/25000000000000)*pi + (137682274747787/4000000000000)*pi*sqrt(257) + (253997473516297/4000000000000)*pi^2", "decimal": "8.899047604749402227610379489872760572803e+4", "value": 88990.47604749403},
+       {"exact": "(-241502830276888411/16000000000000)*pi + (-4089572517261/400000000000)*pi*sqrt(257) + (-2917059564163647/16000000000000)*pi^2", "decimal": "-4.973327242610499882064678648152698436865e+4", "value": -49733.272426104995},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ]
+     },
+     "total_seismic_mass_kg": {"exact": "(2760954099/2000000)*pi + (6950339/8000000)*pi*sqrt(257) + (634948539/40000000)*pi^2", "decimal": "4.537319307777546992929650364884090483232e+3", "value": 4537.319307777547}
+    },
+    "fixture_today": {
+     "RS-EQX": {
+      "generated_force_N": [
+       {"exact": "(1624542630897501/400000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.334877071688500436546406672523716978122e+4", "value": 13348.770716885005},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(3591989870525557221/160000000000000)*pi + (2286071037148899/128000000000000)*pi*sqrt(257) + (5652588378257709/32000000000000)*pi^2", "decimal": "7.317144621186137112093067015628133934307e+4", "value": 73171.44621186137},
+       {"exact": "(-2068144159465127163/50000000000000)*pi + (-413046824243361/8000000000000)*pi*sqrt(257) + (-761992420548891/8000000000000)*pi^2", "decimal": "-1.334857140712410334141556923480914085921e+5", "value": -133485.71407124103}
+      ]
+     },
+     "RS-EQY": {
+      "generated_force_N": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(1624542630897501/400000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.334877071688500436546406672523716978122e+4", "value": 13348.770716885005},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "(-3591989870525557221/160000000000000)*pi + (-2286071037148899/128000000000000)*pi*sqrt(257) + (-5652588378257709/32000000000000)*pi^2", "decimal": "-7.317144621186137112093067015628133934307e+4", "value": -73171.44621186137},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(724508490830665233/32000000000000)*pi + (12268717551783/800000000000)*pi*sqrt(257) + (8751178692490941/32000000000000)*pi^2", "decimal": "7.459990863915749823097017972229047655297e+4", "value": 74599.9086391575}
+      ]
+     },
+     "RS-EQZ": {
+      "generated_force_N": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(541514210299167/200000000000)*pi + (1363190839087/800000000000)*pi*sqrt(257) + (124534361799687/4000000000000)*pi^2", "decimal": "8.899180477923336243642711150158113187477e+3", "value": 8899.180477923337}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "(689381386488375721/25000000000000)*pi + (137682274747787/4000000000000)*pi*sqrt(257) + (253997473516297/4000000000000)*pi^2", "decimal": "8.899047604749402227610379489872760572803e+4", "value": 88990.47604749403},
+       {"exact": "(-241502830276888411/16000000000000)*pi + (-4089572517261/400000000000)*pi*sqrt(257) + (-2917059564163647/16000000000000)*pi^2", "decimal": "-4.973327242610499882064678648152698436865e+4", "value": -49733.272426104995},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ]
+     },
+     "total_seismic_mass_kg": {"exact": "(2760954099/2000000)*pi + (6950339/8000000)*pi*sqrt(257) + (634948539/40000000)*pi^2", "decimal": "4.537319307777546992929650364884090483232e+3", "value": 4537.319307777547}
+    }
+   }
+  },
+  {
+   "control": "control: double count: the mapped member's pipe mass and the component's weight both",
+   "values": {
+    "full": {
+     "RS-EQX": {
+      "generated_force_N": [
+       {"exact": "(1080) + (1624542630897501/400000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.442877071688500436546406672523716978122e+4", "value": 14428.770716885005},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(14823/8) + (3591989870525557221/160000000000000)*pi + (2286071037148899/128000000000000)*pi*sqrt(257) + (5652588378257709/32000000000000)*pi^2", "decimal": "7.502432121186137112093067015628133934307e+4", "value": 75024.32121186137},
+       {"exact": "(-1818) + (-2068144159465127163/50000000000000)*pi + (-413046824243361/8000000000000)*pi*sqrt(257) + (-761992420548891/8000000000000)*pi^2", "decimal": "-1.353037140712410334141556923480914085921e+5", "value": -135303.71407124103}
+      ]
+     },
+     "RS-EQY": {
+      "generated_force_N": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(1080) + (1624542630897501/400000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.442877071688500436546406672523716978122e+4", "value": 14428.770716885005},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "(-14823/8) + (-3591989870525557221/160000000000000)*pi + (-2286071037148899/128000000000000)*pi*sqrt(257) + (-5652588378257709/32000000000000)*pi^2", "decimal": "-7.502432121186137112093067015628133934307e+4", "value": -75024.32121186137},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(2763/2) + (724508490830665233/32000000000000)*pi + (12268717551783/800000000000)*pi*sqrt(257) + (8751178692490941/32000000000000)*pi^2", "decimal": "7.598140863915749823097017972229047655297e+4", "value": 75981.4086391575}
+      ]
+     },
+     "RS-EQZ": {
+      "generated_force_N": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(720) + (541514210299167/200000000000)*pi + (1363190839087/800000000000)*pi*sqrt(257) + (124534361799687/4000000000000)*pi^2", "decimal": "9.619180477923336243642711150158113187477e+3", "value": 9619.180477923337}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "(1212) + (689381386488375721/25000000000000)*pi + (137682274747787/4000000000000)*pi*sqrt(257) + (253997473516297/4000000000000)*pi^2", "decimal": "9.020247604749402227610379489872760572803e+4", "value": 90202.47604749403},
+       {"exact": "(-921) + (-241502830276888411/16000000000000)*pi + (-4089572517261/400000000000)*pi*sqrt(257) + (-2917059564163647/16000000000000)*pi^2", "decimal": "-5.065427242610499882064678648152698436865e+4", "value": -50654.272426104995},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ]
+     },
+     "total_seismic_mass_kg": {"exact": "(72000000/196133) + (2760954099/2000000)*pi + (6950339/8000000)*pi*sqrt(257) + (634948539/40000000)*pi^2", "decimal": "4.904417144449601160254883752432335806558e+3", "value": 4904.417144449601}
+    },
+    "fixture_today": {
+     "RS-EQX": {
+      "generated_force_N": [
+       {"exact": "(990) + (1624542630897501/400000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.433877071688500436546406672523716978122e+4", "value": 14338.770716885005},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(1224) + (3591989870525557221/160000000000000)*pi + (2286071037148899/128000000000000)*pi*sqrt(257) + (5652588378257709/32000000000000)*pi^2", "decimal": "7.439544621186137112093067015628133934307e+4", "value": 74395.44621186137},
+       {"exact": "(-2068144159465127163/50000000000000)*pi + (-413046824243361/8000000000000)*pi*sqrt(257) + (-761992420548891/8000000000000)*pi^2", "decimal": "-1.334857140712410334141556923480914085921e+5", "value": -133485.71407124103}
+      ]
+     },
+     "RS-EQY": {
+      "generated_force_N": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(990) + (1624542630897501/400000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.433877071688500436546406672523716978122e+4", "value": 14338.770716885005},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "(-1224) + (-3591989870525557221/160000000000000)*pi + (-2286071037148899/128000000000000)*pi*sqrt(257) + (-5652588378257709/32000000000000)*pi^2", "decimal": "-7.439544621186137112093067015628133934307e+4", "value": -74395.44621186137},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(1683/2) + (724508490830665233/32000000000000)*pi + (12268717551783/800000000000)*pi*sqrt(257) + (8751178692490941/32000000000000)*pi^2", "decimal": "7.544140863915749823097017972229047655297e+4", "value": 75441.4086391575}
+      ]
+     },
+     "RS-EQZ": {
+      "generated_force_N": [
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "0", "decimal": "0", "value": 0.0},
+       {"exact": "(660) + (541514210299167/200000000000)*pi + (1363190839087/800000000000)*pi*sqrt(257) + (124534361799687/4000000000000)*pi^2", "decimal": "9.559180477923336243642711150158113187477e+3", "value": 9559.180477923337}
+      ],
+      "generated_moment_about_origin_N_m": [
+       {"exact": "(689381386488375721/25000000000000)*pi + (137682274747787/4000000000000)*pi*sqrt(257) + (253997473516297/4000000000000)*pi^2", "decimal": "8.899047604749402227610379489872760572803e+4", "value": 88990.47604749403},
+       {"exact": "(-561) + (-241502830276888411/16000000000000)*pi + (-4089572517261/400000000000)*pi*sqrt(257) + (-2917059564163647/16000000000000)*pi^2", "decimal": "-5.029427242610499882064678648152698436865e+4", "value": -50294.272426104995},
+       {"exact": "0", "decimal": "0", "value": 0.0}
+      ]
+     },
+     "total_seismic_mass_kg": {"exact": "(66000000/196133) + (2760954099/2000000)*pi + (6950339/8000000)*pi*sqrt(257) + (634948539/40000000)*pi^2", "decimal": "4.873825658060263312977780970136648696281e+3", "value": 4873.825658060263}
+    }
+   }
+  }
+ ],
+ "open_readings": [
+  {
+   "id": "OR-G",
+   "subject": "the seismic case's gravity magnitude",
+   "status": "open: §2 says the seismic case enters gravity_acceleration explicitly but gives no value, and the lane that holds the specification is adding it to §8.1. Every seismic value here is conditional on the stated assumption 9.80665 m/s^2 (the weight case's gravity). The distributed part of the seismic weight scales with g and the component forces W do not, so another value would move each seismic value, but not in simple proportion. No alternative values are frozen. Nothing else in the specification is left open for these references."
+  }
+ ],
+ "specification_departure_controls": [
+  {
+   "id": "SD-2",
+   "subject": "seismic mass given to the replaced span RS-P180",
+   "kind": "departure from the specification",
+   "specified": "§5.1: 'The replaced span RS-P180 carries no load, member result or self-weight. It is excluded from weight generation and from every primitive load'; the references give it no seismic mass and no wind",
+   "controls": [
+    {
+     "control": "control, departing from §5.1: RS-P180's S220 mass per length over its 0.600 m added to the seismic weight",
+     "values": {
+      "full": {
+       "RS-EQX": {
+        "generated_force_N": [
+         {"exact": "(1080) + (5015963087673993/1250000000000)*pi + (373603085399061/8000000000000)*pi^2", "decimal": "1.414740456152074589799078086773539243501e+4", "value": 14147.404561520745},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(14823/8) + (18128672399215772457/800000000000000)*pi + (5652588378257709/32000000000000)*pi^2", "decimal": "7.478740538387786654964403210439730279301e+4", "value": 74787.40538387786},
+         {"exact": "(-1818) + (-2123082191750402379/50000000000000)*pi + (-761992420548891/8000000000000)*pi^2", "decimal": "-1.361552587998383754060406487564679492622e+5", "value": -136155.25879983837}
+        ]
+       },
+       "RS-EQY": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(1080) + (5015963087673993/1250000000000)*pi + (373603085399061/8000000000000)*pi^2", "decimal": "1.414740456152074589799078086773539243501e+4", "value": 14147.404561520745},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(-14823/8) + (-18128672399215772457/800000000000000)*pi + (-5652588378257709/32000000000000)*pi^2", "decimal": "-7.478740538387786654964403210439730279301e+4", "value": -74787.40538387786},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(2763/2) + (3651720465802969329/160000000000000)*pi + (8751178692490941/32000000000000)*pi^2", "decimal": "7.578194716887966424996135306417525692368e+4", "value": 75781.94716887966}
+        ]
+       },
+       "RS-EQZ": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(720) + (1671987695891331/625000000000)*pi + (124534361799687/4000000000000)*pi^2", "decimal": "9.431603041013830598660520578490261623339e+3", "value": 9431.60304101383}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(1212) + (707694063916800793/25000000000000)*pi + (253997473516297/4000000000000)*pi^2", "decimal": "9.077017253322558360402709917097863284146e+4", "value": 90770.17253322559},
+         {"exact": "(-921) + (-1217240155267656443/80000000000000)*pi + (-2917059564163647/16000000000000)*pi^2", "decimal": "-5.052129811258644283330756870945017128245e+4", "value": -50521.298112586446},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       },
+       "total_seismic_mass_kg": {"exact": "(72000000/196133) + (8524764807/6250000)*pi + (634948539/40000000)*pi^2", "decimal": "4.808779267646867482096598011803348556000e+3", "value": 4808.779267646867}
+      },
+      "fixture_today": {
+       "RS-EQX": {
+        "generated_force_N": [
+         {"exact": "(990) + (5015963087673993/1250000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.418613295973879777823893725790780893004e+4", "value": 14186.132959738798},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(1224) + (18128672399215772457/800000000000000)*pi + (2286071037148899/128000000000000)*pi*sqrt(257) + (5652588378257709/32000000000000)*pi^2", "decimal": "7.505802006642650406287802488072706305207e+4", "value": 75058.0200664265},
+         {"exact": "(-2123082191750402379/50000000000000)*pi + (-413046824243361/8000000000000)*pi*sqrt(257) + (-761992420548891/8000000000000)*pi^2", "decimal": "-1.369375724438430233870534078379507624619e+5", "value": -136937.57244384303}
+        ]
+       },
+       "RS-EQY": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(990) + (5015963087673993/1250000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257) + (373603085399061/8000000000000)*pi^2", "decimal": "1.418613295973879777823893725790780893004e+4", "value": 14186.132959738798},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(-1224) + (-18128672399215772457/800000000000000)*pi + (-2286071037148899/128000000000000)*pi*sqrt(257) + (-5652588378257709/32000000000000)*pi^2", "decimal": "-7.505802006642650406287802488072706305207e+4", "value": -75058.0200664265},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(1683/2) + (3651720465802969329/160000000000000)*pi + (12268717551783/800000000000)*pi*sqrt(257) + (8751178692490941/32000000000000)*pi^2", "decimal": "7.601431755818797553145029140520975589389e+4", "value": 76014.31755818798}
+        ]
+       },
+       "RS-EQZ": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(660) + (1671987695891331/625000000000)*pi + (1363190839087/800000000000)*pi*sqrt(257) + (124534361799687/4000000000000)*pi^2", "decimal": "9.457421973159198518825958171938539286696e+3", "value": 9457.421973159198}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(707694063916800793/25000000000000)*pi + (137682274747787/4000000000000)*pi*sqrt(257) + (253997473516297/4000000000000)*pi^2", "decimal": "9.129171496256201559136893855863384164126e+4", "value": 91291.71496256202},
+         {"exact": "(-561) + (-1217240155267656443/80000000000000)*pi + (-4089572517261/400000000000)*pi*sqrt(257) + (-2917059564163647/16000000000000)*pi^2", "decimal": "-5.067621170545865035430019427013983726259e+4", "value": -50676.21170545865},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       },
+       "total_seismic_mass_kg": {"exact": "(66000000/196133) + (8524764807/6250000)*pi + (6950339/8000000)*pi*sqrt(257) + (634948539/40000000)*pi^2", "decimal": "4.821943259502071818014285292091865869943e+3", "value": 4821.943259502072}
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "SD-3",
+   "subject": "realized bends replaced, or a bend's wind exposure omitted",
+   "kind": "departure from the specification",
+   "specified": "§3: 'It has 27 nodes (corner points are not nodes; each realized bend has two tangent nodes) and 26 members: 22 straight, three arcs and the span the expansion joint replaces.'; §3.2 lists RS-P085 between RS-P080 and RS-P090; §8.1: 'exposed members RS-P070 … RS-P200 except the replaced span RS-P180'. The references take each arc as its quarter circle, length R pi/2 (its projected area normal to X is exactly arc length times projected diameter), and RS-P085 as exposed",
+   "controls": [
+    {
+     "control": "control, departing from §3 (three arcs): the two tangent legs to the corner, length 2R, as straight members",
+     "values": {
+      "full": {
+       "RS-WIN": {
+        "generated_force_N": [
+         {"exact": "(205443/25) + (2457/400)*sqrt(257)", "decimal": "8.316191766036006483313722296599101501963e+3", "value": 8316.191766036007},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(53623269/1000) + (1373463/32000)*sqrt(257)", "decimal": "5.431134046517659530215463454748622174497e+4", "value": 54311.340465176596},
+         {"exact": "(-24426927/250) + (-248157/2000)*sqrt(257)", "decimal": "-9.969683767392733096293719039130185033966e+4", "value": -99696.83767392734}
+        ]
+       },
+       "RS-EQX": {
+        "generated_force_N": [
+         {"exact": "(1080) + (8312285476609821/2000000000000)*pi", "decimal": "1.413690749392927338576040823293712036172e+4", "value": 14136.907493929273},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(14823/8) + (28828804614128757/1250000000000)*pi", "decimal": "7.430756363001794961727689347402355021894e+4", "value": 74307.56363001795},
+         {"exact": "(-1818) + (-1043392506363561669/25000000000000)*pi", "decimal": "-1.329345693120962772623454855281885054141e+5", "value": -132934.56931209628}
+        ]
+       },
+       "RS-EQY": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(1080) + (8312285476609821/2000000000000)*pi", "decimal": "1.413690749392927338576040823293712036172e+4", "value": 14136.907493929273},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(-14823/8) + (-28828804614128757/1250000000000)*pi", "decimal": "-7.430756363001794961727689347402355021894e+4", "value": -74307.56363001795},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(2763/2) + (189306420644287947/8000000000000)*pi", "decimal": "7.572195754668427345065242354861356149917e+4", "value": 75721.95754668428}
+        ]
+       },
+       "RS-EQZ": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(720) + (2770761825536607/1000000000000)*pi", "decimal": "9.424604995952848923840272155291413574482e+3", "value": 9424.604995952848}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(1212) + (347797502121187223/12500000000000)*pi", "decimal": "8.862304620806418484156365701879233694276e+4", "value": 88623.04620806419},
+         {"exact": "(-921) + (-63102140214762649/4000000000000)*pi", "decimal": "-5.048130503112284896710161569907570766611e+4", "value": -50481.30503112285},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       },
+       "RS-HYD": {
+        "W_total_N": {"exact": "(3600) + (30026246332383/2000000000)*pi", "decimal": "5.076511744634595292267611900827571801160e+4", "value": 50765.117446345954},
+        "weight_moment_about_origin_N_m": [
+         {"exact": "(-6060) + (-3762649238845679/25000000000)*pi", "decimal": "-4.788884482717124970789672069468885304789e+5", "value": -478888.4482717125},
+         {"exact": "(4605) + (3418670765682389/40000000000)*pi", "decimal": "2.731067740627496679004349474309902772403e+5", "value": 273106.7740627497},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       },
+       "total_seismic_mass_kg": {"exact": "(72000000/196133) + (14126953779/10000000)*pi", "decimal": "4.805211257642950917918082196923217191642e+3", "value": 4805.211257642951}
+      },
+      "fixture_today": {
+       "RS-WIN": {
+        "generated_force_N": [
+         {"exact": "(205443/25) + (2457/400)*sqrt(257)", "decimal": "8.316191766036006483313722296599101501963e+3", "value": 8316.191766036007},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(53623269/1000) + (1373463/32000)*sqrt(257)", "decimal": "5.431134046517659530215463454748622174497e+4", "value": 54311.340465176596},
+         {"exact": "(-24426927/250) + (-248157/2000)*sqrt(257)", "decimal": "-9.969683767392733096293719039130185033966e+4", "value": -99696.83767392734}
+        ]
+       },
+       "RS-EQX": {
+        "generated_force_N": [
+         {"exact": "(990) + (8312285476609821/2000000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257)", "decimal": "1.417563589214732526600856462310953685676e+4", "value": 14175.635892147326},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(1224) + (28828804614128757/1250000000000)*pi + (2286071037148899/128000000000000)*pi*sqrt(257)", "decimal": "7.457817831256658713051088625035331047799e+4", "value": 74578.17831256658},
+         {"exact": "(-1043392506363561669/25000000000000)*pi + (-413046824243361/8000000000000)*pi*sqrt(257)", "decimal": "-1.337168829561009252433582446096713186139e+5", "value": -133716.88295610092}
+        ]
+       },
+       "RS-EQY": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(990) + (8312285476609821/2000000000000)*pi + (4089572517261/1600000000000)*pi*sqrt(257)", "decimal": "1.417563589214732526600856462310953685676e+4", "value": 14175.635892147326},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(-1224) + (-28828804614128757/1250000000000)*pi + (-2286071037148899/128000000000000)*pi*sqrt(257)", "decimal": "-7.457817831256658713051088625035331047799e+4", "value": -74578.17831256658},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(1683/2) + (189306420644287947/8000000000000)*pi + (12268717551783/800000000000)*pi*sqrt(257)", "decimal": "7.595432793599258473214136188964806046938e+4", "value": 75954.32793599258}
+        ]
+       },
+       "RS-EQZ": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(660) + (2770761825536607/1000000000000)*pi + (1363190839087/800000000000)*pi*sqrt(257)", "decimal": "9.450423928098216844005709748739691237839e+3", "value": 9450.423928098216}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(347797502121187223/12500000000000)*pi + (137682274747787/4000000000000)*pi*sqrt(257)", "decimal": "8.914458863740061682890549640644754574257e+4", "value": 89144.58863740062},
+         {"exact": "(-561) + (-63102140214762649/4000000000000)*pi + (-4089572517261/400000000000)*pi*sqrt(257)", "decimal": "-5.063621862399505648809424125976537364625e+4", "value": -50636.21862399505},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       },
+       "RS-HYD": {
+        "W_total_N": {"exact": "(3300) + (30026246332383/2000000000)*pi + (73989016787/8000000000)*pi*sqrt(257)", "decimal": "5.093091124638342517885368836589748030905e+4", "value": 50930.911246383424},
+        "weight_moment_about_origin_N_m": [
+         {"exact": "(-3762649238845679/25000000000)*pi + (-7472890695487/40000000000)*pi*sqrt(257)", "decimal": "-4.822374830324694366537541079708481288874e+5", "value": -482237.48303246946},
+         {"exact": "(2805) + (3418670765682389/40000000000)*pi + (221967050361/4000000000)*pi*sqrt(257)", "decimal": "2.741015368629745014375003635767208510250e+5", "value": 274101.5368629745},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       },
+       "total_seismic_mass_kg": {"exact": "(66000000/196133) + (14126953779/10000000)*pi + (6950339/8000000)*pi*sqrt(257)", "decimal": "4.818375249498155253835769477211734505585e+3", "value": 4818.375249498155}
+      }
+     }
+    },
+    {
+     "control": "control, departing from §8.1's exposed range: the arc RS-P085 not exposed to wind; mass unchanged",
+     "values": {
+      "full": {
+       "RS-WIN": {
+        "generated_force_N": [
+         {"exact": "(200529/25) + (2457/400)*sqrt(257)", "decimal": "8.119631766036006483313722296599101501963e+3", "value": 8119.631766036006},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(10453401/200) + (1373463/32000)*sqrt(257)", "decimal": "5.295507646517659530215463454748622174497e+4", "value": 52955.07646517659},
+         {"exact": "(-24422013/250) + (-248157/2000)*sqrt(257)", "decimal": "-9.967718167392733096293719039130185033966e+4", "value": -99677.18167392733}
+        ]
+       }
+      },
+      "fixture_today": {
+       "RS-WIN": {
+        "generated_force_N": [
+         {"exact": "(200529/25) + (2457/400)*sqrt(257)", "decimal": "8.119631766036006483313722296599101501963e+3", "value": 8119.631766036006},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(10453401/200) + (1373463/32000)*sqrt(257)", "decimal": "5.295507646517659530215463454748622174497e+4", "value": 52955.07646517659},
+         {"exact": "(-24422013/250) + (-248157/2000)*sqrt(257)", "decimal": "-9.967718167392733096293719039130185033966e+4", "value": -99677.18167392733}
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "SD-4",
+   "subject": "insulation removed",
+   "kind": "departure from the specification",
+   "specified": "§4.2's section table gives every section its insulation (60 @ 140, 60 @ 140, 50 @ 140 mm @ kg/m^3), and DEL-05-01 takes the wind's projected diameter as 'outside diameter plus twice the insulation thickness'; the references carry that insulation on every member, mapped members included",
+   "controls": [
+    {
+     "control": "control, departing from §4.2's insulation: bare pipe, projected diameter OD, no insulation mass",
+     "values": {
+      "full": {
+       "RS-WIN": {
+        "generated_force_N": [
+         {"exact": "(136647/25) + (1701/400)*sqrt(257) + (1701/50)*pi", "decimal": "5.640929743176975408266614564006238958710e+3", "value": 5640.9297431769755},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(35603631/1000) + (950859/32000)*sqrt(257) + (56133/250)*pi", "decimal": "3.678537624989500481844862585393266685734e+4", "value": 36785.376249895},
+         {"exact": "(-3270267/50) + (-171801/2000)*sqrt(257) + (-1701/125)*pi", "decimal": "-6.682518056708743288073013146052248694116e+4", "value": -66825.18056708743}
+        ]
+       },
+       "RS-EQX": {
+        "generated_force_N": [
+         {"exact": "(1080) + (181851848818269/50000000000)*pi + (342975740651061/8000000000000)*pi^2", "decimal": "1.292921800570848652942678008315163094571e+4", "value": 12929.218005708486},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(14823/8) + (3277053612620877621/160000000000000)*pi + (5194265568389709/32000000000000)*pi^2", "decimal": "6.779971429000419515926182244231135517002e+4", "value": 67799.7142900042},
+         {"exact": "(-1818) + (-1886155702639427163/50000000000000)*pi + (-688813001559291/8000000000000)*pi^2", "decimal": "-1.211784469577350229820902594192414702458e+5", "value": -121178.44695773502}
+        ]
+       },
+       "RS-EQY": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(1080) + (181851848818269/50000000000)*pi + (342975740651061/8000000000000)*pi^2", "decimal": "1.292921800570848652942678008315163094571e+4", "value": 12929.218005708486},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(-14823/8) + (-3277053612620877621/160000000000000)*pi + (-5194265568389709/32000000000000)*pi^2", "decimal": "-6.779971429000419515926182244231135517002e+4", "value": -67799.7142900042},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(2763/2) + (661352079604521501/32000000000000)*pi + (8032469084197341/32000000000000)*pi^2", "decimal": "6.878700396709078639204309926097381344218e+4", "value": 68787.00396709079}
+        ]
+       },
+       "RS-EQZ": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(720) + (60617282939423/25000000000)*pi + (114325246883687/4000000000000)*pi^2", "decimal": "8.619478670472324352951186722101087297142e+3", "value": 8619.478670472325}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(1212) + (628718567546475721/25000000000000)*pi + (229604333853097/4000000000000)*pi^2", "decimal": "8.078563130515668198806017294616098016387e+4", "value": 80785.63130515668},
+         {"exact": "(-921) + (-220450693201507167/16000000000000)*pi + (-2677489694732447/16000000000000)*pi^2", "decimal": "-4.585800264472719092802873284064920896146e+4", "value": -45858.00264472719},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       },
+       "RS-HYD": {
+        "W_total_N": {"exact": "(3600) + (1323044375317/100000000)*pi + (1247906215283/8000000000)*pi^2", "decimal": "4.670420748300482640702944255774537973545e+4", "value": 46704.20748300483},
+        "weight_moment_about_origin_N_m": [
+         {"exact": "(-6060) + (-6851916036321013/50000000000)*pi + (-12427149474257/40000000000)*pi^2", "decimal": "-4.396448578830068416890207290461948002005e+5", "value": -439644.85788300686},
+         {"exact": "(4605) + (2405500881697851/32000000000)*pi + (146116758666487/160000000000)*pi^2", "decimal": "2.497777130946022930706400602992720002041e+5", "value": 249777.71309460228},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       },
+       "total_seismic_mass_kg": {"exact": "(72000000/196133) + (309062131/250000)*pi + (582896539/40000000)*pi^2", "decimal": "4.394711073849033234056067424707258491504e+3", "value": 4394.711073849033}
+      },
+      "fixture_today": {
+       "RS-WIN": {
+        "generated_force_N": [
+         {"exact": "(136647/25) + (1701/400)*sqrt(257) + (1701/50)*pi", "decimal": "5.640929743176975408266614564006238958710e+3", "value": 5640.9297431769755},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(35603631/1000) + (950859/32000)*sqrt(257) + (56133/250)*pi", "decimal": "3.678537624989500481844862585393266685734e+4", "value": 36785.376249895},
+         {"exact": "(-3270267/50) + (-171801/2000)*sqrt(257) + (-1701/125)*pi", "decimal": "-6.682518056708743288073013146052248694116e+4", "value": -66825.18056708743}
+        ]
+       },
+       "RS-EQX": {
+        "generated_force_N": [
+         {"exact": "(990) + (181851848818269/50000000000)*pi + (3763364111661/1600000000000)*pi*sqrt(257) + (342975740651061/8000000000000)*pi^2", "decimal": "1.295767826823242507759004422523203528064e+4", "value": 12957.678268232425},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(1224) + (3277053612620877621/160000000000000)*pi + (2103720538418499/128000000000000)*pi*sqrt(257) + (5194265568389709/32000000000000)*pi^2", "decimal": "6.799858037439021576455263063509818046035e+4", "value": 67998.58037439022},
+         {"exact": "(-1886155702639427163/50000000000000)*pi + (-380099775277761/8000000000000)*pi*sqrt(257) + (-688813001559291/8000000000000)*pi^2", "decimal": "-1.217533442607185816549881950892656378114e+5", "value": -121753.34426071859}
+        ]
+       },
+       "RS-EQY": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(990) + (181851848818269/50000000000)*pi + (3763364111661/1600000000000)*pi*sqrt(257) + (342975740651061/8000000000000)*pi^2", "decimal": "1.295767826823242507759004422523203528064e+4", "value": 12957.678268232425},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(-1224) + (-3277053612620877621/160000000000000)*pi + (-2103720538418499/128000000000000)*pi*sqrt(257) + (-5194265568389709/32000000000000)*pi^2", "decimal": "-6.799858037439021576455263063509818046035e+4", "value": -67998.58037439022},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(1683/2) + (661352079604521501/32000000000000)*pi + (11290092334983/800000000000)*pi*sqrt(257) + (8032469084197341/32000000000000)*pi^2", "decimal": "6.895776554223441768102268411345623945177e+4", "value": 68957.76554223441}
+        ]
+       },
+       "RS-EQZ": {
+        "generated_force_N": [
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "0", "decimal": "0", "value": 0.0},
+         {"exact": "(660) + (60617282939423/25000000000)*pi + (1254454703887/800000000000)*pi*sqrt(257) + (114325246883687/4000000000000)*pi^2", "decimal": "8.638452178821616718393362816821356853763e+3", "value": 8638.452178821617}
+        ],
+        "generated_moment_about_origin_N_m": [
+         {"exact": "(628718567546475721/25000000000000)*pi + (126699925092587/4000000000000)*pi*sqrt(257) + (229604333853097/4000000000000)*pi^2", "decimal": "8.116889617381238776999213005951042520761e+4", "value": 81168.89617381239},
+         {"exact": "(-561) + (-220450693201507167/16000000000000)*pi + (-3763364111661/400000000000)*pi*sqrt(257) + (-2677489694732447/16000000000000)*pi^2", "decimal": "-4.597184369482294512068178940897082630118e+4", "value": -45971.84369482294},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       },
+       "RS-HYD": {
+        "W_total_N": {"exact": "(3300) + (1323044375317/100000000)*pi + (68552210027/8000000000)*pi*sqrt(257) + (1247906215283/8000000000)*pi^2", "decimal": "4.683577416406192088959070442172710149922e+4", "value": 46835.77416406192},
+        "weight_moment_about_origin_N_m": [
+         {"exact": "(-6851916036321013/50000000000)*pi + (-6923773212727/40000000000)*pi*sqrt(257) + (-12427149474257/40000000000)*pi^2", "decimal": "-4.423025048403601502367582186986255798287e+5", "value": -442302.50484036014},
+         {"exact": "(2805) + (2405500881697851/32000000000)*pi + (205656630081/4000000000)*pi*sqrt(257) + (146116758666487/160000000000)*pi^2", "decimal": "2.505671131809448599660076314831623307868e+5", "value": 250567.11318094487},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       },
+       "total_seismic_mass_kg": {"exact": "(66000000/196133) + (309062131/250000)*pi + (6395939/8000000)*pi*sqrt(257) + (582896539/40000000)*pi^2", "decimal": "4.404384870889455990778381413031645288535e+3", "value": 4404.384870889456}
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "SD-5",
+   "subject": "contents added inside the rigid-family components' bodies in RS-HYD",
+   "kind": "hypothetical additions the specification does not require",
+   "specified": "§8.1: 'Component weights are rigid-component `weight` at a centre of gravity, not added weight.' and W is generated 'with component weights at their centres of gravity in place of their members' distributed weight'; §8.3 changes only the contents density. The references replace the contents of every member that carries distributed weight, once, and leave each component's weight unchanged",
+   "controls": [
+    {
+     "control": "hypothetical addition, not required by §8.1 or §8.3: 1000 kg/m^3 over each mapped member's reduced bore, along the member",
+     "values": {
+      "full": {
+       "RS-HYD": {
+        "W_total_N": {"exact": "(3600) + (11587089083829/800000000)*pi + (12954388517/3200000000)*pi*sqrt(257) + (1349997364443/8000000000)*pi^2", "decimal": "5.097176902628659386072388154695807528591e+4", "value": 50971.769026286594},
+        "weight_moment_about_origin_N_m": [
+         {"exact": "(-6060) + (-7458544225740013/50000000000)*pi + (-1308393240217/16000000000)*pi*sqrt(257) + (-13646806457417/40000000000)*pi^2", "decimal": "-4.821798284150934922929613312356605196305e+5", "value": -482179.8284150935},
+         {"exact": "(4605) + (2611643567402653/32000000000)*pi + (38863165551/1600000000)*pi*sqrt(257) + (158095252138047/160000000000)*pi^2", "decimal": "2.719779222813694669177519612409501919284e+5", "value": 271977.92228136945},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       }
+      },
+      "fixture_today": {
+       "RS-HYD": {
+        "W_total_N": {"exact": "(3300) + (11587089083829/800000000)*pi + (73989016787/8000000000)*pi*sqrt(257) + (1349997364443/8000000000)*pi^2", "decimal": "5.093367871904277358717710984691109324632e+4", "value": 50933.67871904277},
+        "weight_moment_about_origin_N_m": [
+         {"exact": "(-7458544225740013/50000000000)*pi + (-7472890695487/40000000000)*pi*sqrt(257) + (-13646806457417/40000000000)*pi^2", "decimal": "-4.814104042087683227673165428947114824308e+5", "value": -481410.40420876833},
+         {"exact": "(2805) + (2611643567402653/32000000000)*pi + (221967050361/4000000000)*pi*sqrt(257) + (158095252138047/160000000000)*pi^2", "decimal": "2.717493804379065452764713310406682996908e+5", "value": 271749.38043790654},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       }
+      }
+     }
+    },
+    {
+     "control": "hypothetical addition, not required by §8.1 or §8.3: only the increment (1000 - 820) kg/m^3 over each mapped member's reduced bore",
+     "values": {
+      "full": {
+       "RS-HYD": {
+        "W_total_N": {"exact": "(3600) + (574574284828677/40000000000)*pi + (116589496653/160000000000)*pi*sqrt(257) + (1349997364443/8000000000)*pi^2", "decimal": "5.042915043449086748445895192827929677691e+4", "value": 50429.15043449087},
+        "weight_moment_about_origin_N_m": [
+         {"exact": "(-6060) + (-7458544225740013/50000000000)*pi + (-11775539161953/800000000000)*pi*sqrt(257) + (-13646806457417/40000000000)*pi^2", "decimal": "-4.788026920620861628306073459564354384318e+5", "value": -478802.69206208613},
+         {"exact": "(4605) + (4075614144118699/50000000000)*pi + (349768489959/80000000000)*pi*sqrt(257) + (158095252138047/160000000000)*pi^2", "decimal": "2.706556938932942011449008787785381228604e+5", "value": 270655.6938932942},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       }
+      },
+      "fixture_today": {
+       "RS-HYD": {
+        "W_total_N": {"exact": "(3300) + (574574284828677/40000000000)*pi + (73989016787/8000000000)*pi*sqrt(257) + (1349997364443/8000000000)*pi^2", "decimal": "5.055824509521770708528613989552068509370e+4", "value": 50558.24509521771},
+        "weight_moment_about_origin_N_m": [
+         {"exact": "(-7458544225740013/50000000000)*pi + (-7472890695487/40000000000)*pi*sqrt(257) + (-13646806457417/40000000000)*pi^2", "decimal": "-4.814104042087683227673165428947114824308e+5", "value": -481410.40420876833},
+         {"exact": "(2805) + (4075614144118699/50000000000)*pi + (221967050361/4000000000)*pi*sqrt(257) + (158095252138047/160000000000)*pi^2", "decimal": "2.714302618576552387498640065819864527611e+5", "value": 271430.26185765525},
+         {"exact": "0", "decimal": "0", "value": 0.0}
+        ]
+       }
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "consistency": {
+  "RS-SUS_fixture_today_W_total_N": {"exact": "(3300) + (66155686593423/5000000000)*pi + (1363190839087/160000000000)*pi*sqrt(257) + (124534361799687/800000000000)*pi^2", "decimal": "4.683231956637544055553984151979027826881e+4", "value": 46832.31956637544},
+  "RS-SUS_fixture_today_weight_moment_N_m": [
+   {"exact": "(-689381386488375721/5000000000000)*pi + (-137682274747787/800000000000)*pi*sqrt(257) + (-253997473516297/800000000000)*pi^2", "decimal": "-4.449523802374701113805189744936380286402e+5", "value": -444952.3802374701},
+   {"exact": "(2805) + (240668557483367167/3200000000000)*pi + (4089572517261/80000000000)*pi*sqrt(257) + (2917059564163647/3200000000000)*pi^2", "decimal": "2.506523167307699395399612753112846773250e+5", "value": 250652.31673076993},
+   {"exact": "0", "decimal": "0", "value": 0.0}
+  ],
+  "agrees_exactly_with": "validation/references/reference_system/references.json"
+ },
+ "context": {
+  "RS-SUS_full_W_total_N": {"exact": "(3600) + (66155686593423/5000000000)*pi + (124534361799687/800000000000)*pi^2", "decimal": "4.670322490564860095471265355254888995203e+4", "value": 46703.2249056486},
+  "RS-SUS_full_weight_moment_about_origin_N_m": [
+   {"exact": "(-6060) + (-689381386488375721/5000000000000)*pi + (-253997473516297/800000000000)*pi^2", "decimal": "-4.423446680907879514438097775553619846411e+5", "value": -442344.66809078795},
+   {"exact": "(4605) + (240668557483367167/3200000000000)*pi + (2917059564163647/3200000000000)*pi^2", "decimal": "2.498777487664089019349981475078363474243e+5", "value": 249877.7487664089},
+   {"exact": "0", "decimal": "0", "value": 0.0}
+  ],
+  "note": "operating contents, full system (RS-R1 in place): not a pending-case reference; the weight the existing package's EQ-1 and EQ-2 move to when RS-R1 lands"
+ },
+ "sections": [
+  {
+   "section": "RS-S270",
+   "mass_per_length_kg_m": {
+    "metal": {"exact": "(368793/20000)*pi", "decimal": "5.792986897476703088961768206248988535859e+1", "value": 57.92986897476703},
+    "contents_operating_820": {"exact": "(2708009/200000)*pi", "decimal": "4.253730590127521198947992222855671662966e+1", "value": 42.53730590127521},
+    "contents_test_1000": {"exact": "(66049/4000)*pi", "decimal": "5.187476329423806340180478320555697149958e+1", "value": 51.874763294238065},
+    "insulation": {"exact": "(693/250)*pi", "decimal": "8.708494835750906857018447458450781994995e+0", "value": 8.708494835750907},
+    "total_operating": {"exact": "(6950339/200000)*pi", "decimal": "1.091756697117931497361160517494973839832e+2", "value": 109.17566971179315},
+    "total_test": {"exact": "(377239/10000)*pi", "decimal": "1.185131271047560011484409127264976388532e+2", "value": 118.513127104756}
+   },
+   "projected_diameter_m": {"exact": "(39/100)", "decimal": "3.900000000000000000000000000000000000000e-1", "value": 0.39},
+   "wind_load_per_length_N_m": {"exact": "(2457/10)", "decimal": "2.457000000000000000000000000000000000000e+2", "value": 245.7}
+  },
+  {
+   "section": "RS-S220",
+   "mass_per_length_kg_m": {
+    "metal": {"exact": "(8321/625)*pi", "decimal": "4.182590795283307125959624894762998959905e+1", "value": 41.82590795283307},
+    "contents_operating_820": {"exact": "(2792961/312500)*pi", "decimal": "2.807790642996096804188756136450465169584e+1", "value": 28.07790642996097},
+    "contents_test_1000": {"exact": "(68121/6250)*pi", "decimal": "3.424134930483044883157019678598128255590e+1", "value": 34.24134930483045},
+    "insulation": {"exact": "(294/125)*pi", "decimal": "7.389025921243193696864137237473390783632e+0", "value": 7.389025921243194},
+    "total_operating": {"exact": "(7688461/312500)*pi", "decimal": "7.729284030403723299834794754960803207852e+1", "value": 77.29284030403723},
+    "total_test": {"exact": "(166031/6250)*pi", "decimal": "8.345628317890671378803058297108466293858e+1", "value": 83.45628317890672}
+   },
+   "projected_diameter_m": {"exact": "(17/50)", "decimal": "3.400000000000000000000000000000000000000e-1", "value": 0.34},
+   "wind_load_per_length_N_m": {"exact": "(1071/5)", "decimal": "2.142000000000000000000000000000000000000e+2", "value": 214.2}
+  },
+  {
+   "section": "RS-S170",
+   "mass_per_length_kg_m": {
+    "metal": {"exact": "(179137/20000)*pi", "decimal": "2.813877415930573956792412738752701540832e+1", "value": 28.13877415930574},
+    "contents_operating_820": {"exact": "(26437169/5000000)*pi", "decimal": "1.661096318242236410405884066209839839710e+1", "value": 16.610963182422363},
+    "contents_test_1000": {"exact": "(644809/100000)*pi", "decimal": "2.025727217368580988299858617329072975256e+1", "value": 20.25727217368581},
+    "insulation": {"exact": "(77/50)*pi", "decimal": "4.838052686528281587232470810250434441664e+0", "value": 4.838052686528282},
+    "total_operating": {"exact": "(78921419/5000000)*pi", "decimal": "4.958779002825638525921543885987584824709e+1", "value": 49.587790028256386},
+    "total_test": {"exact": "(847247/50000)*pi", "decimal": "5.323409901951983103815518437106817960255e+1", "value": 53.23409901951983}
+   },
+   "projected_diameter_m": {"exact": "(27/100)", "decimal": "2.700000000000000000000000000000000000000e-1", "value": 0.27},
+   "wind_load_per_length_N_m": {"exact": "(1701/10)", "decimal": "1.701000000000000000000000000000000000000e+2", "value": 170.1}
+  }
+ ],
+ "members": [
+  {
+   "member": "RS-P010",
+   "from": "RS-010",
+   "to": "RS-020",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(2/5)", "decimal": "4.000000000000000000000000000000000000000e-1", "value": 0.4},
+   "wind_exposed": false,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P020",
+   "from": "RS-020",
+   "to": "RS-030",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(3/20)", "decimal": "1.500000000000000000000000000000000000000e-1", "value": 0.15},
+   "wind_exposed": false,
+   "seismic": "replaced by a * W of RS-F1 at its centre of gravity (both systems)",
+   "hydrotest_weight": "replaced by RS-F1 (both systems)"
+  },
+  {
+   "member": "RS-P030",
+   "from": "RS-030",
+   "to": "RS-040",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(3/5)", "decimal": "6.000000000000000000000000000000000000000e-1", "value": 0.6},
+   "wind_exposed": false,
+   "seismic": "replaced by a * W of RS-V1 at its centre of gravity (both systems)",
+   "hydrotest_weight": "replaced by RS-V1 (both systems)"
+  },
+  {
+   "member": "RS-P040",
+   "from": "RS-040",
+   "to": "RS-050",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(3/20)", "decimal": "1.500000000000000000000000000000000000000e-1", "value": 0.15},
+   "wind_exposed": false,
+   "seismic": "replaced by a * W of RS-F2 at its centre of gravity (both systems)",
+   "hydrotest_weight": "replaced by RS-F2 (both systems)"
+  },
+  {
+   "member": "RS-P050",
+   "from": "RS-050",
+   "to": "RS-060",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(11/5)", "decimal": "2.200000000000000000000000000000000000000e+0", "value": 2.2},
+   "wind_exposed": false,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P060",
+   "from": "RS-060",
+   "to": "RS-070",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(21/10)", "decimal": "2.100000000000000000000000000000000000000e+0", "value": 2.1},
+   "wind_exposed": false,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P065",
+   "from": "RS-070",
+   "to": "RS-075",
+   "section": "RS-S270",
+   "kind": "arc",
+   "length_m": {"exact": "(1/5)*pi", "decimal": "6.283185307179586476925286766559005768394e-1", "value": 0.6283185307179586},
+   "wind_exposed": false,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents",
+   "realizes": "RS-B1"
+  },
+  {
+   "member": "RS-P070",
+   "from": "RS-075",
+   "to": "RS-080",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(13/5)", "decimal": "2.600000000000000000000000000000000000000e+0", "value": 2.6},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P080",
+   "from": "RS-080",
+   "to": "RS-090",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(13/5)", "decimal": "2.600000000000000000000000000000000000000e+0", "value": 2.6},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P085",
+   "from": "RS-090",
+   "to": "RS-095",
+   "section": "RS-S270",
+   "kind": "arc",
+   "length_m": {"exact": "(1/5)*pi", "decimal": "6.283185307179586476925286766559005768394e-1", "value": 0.6283185307179586},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents",
+   "realizes": "RS-B2"
+  },
+  {
+   "member": "RS-P090",
+   "from": "RS-095",
+   "to": "RS-100",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(13/5)", "decimal": "2.600000000000000000000000000000000000000e+0", "value": 2.6},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P100",
+   "from": "RS-100",
+   "to": "RS-110",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(4)", "decimal": "4.000000000000000000000000000000000000000e+0", "value": 4.0},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P110",
+   "from": "RS-110",
+   "to": "RS-120",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(4)", "decimal": "4.000000000000000000000000000000000000000e+0", "value": 4.0},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P120",
+   "from": "RS-120",
+   "to": "RS-130",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(4)", "decimal": "4.000000000000000000000000000000000000000e+0", "value": 4.0},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P130",
+   "from": "RS-130",
+   "to": "RS-140",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(3)", "decimal": "3.000000000000000000000000000000000000000e+0", "value": 3.0},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P140",
+   "from": "RS-140",
+   "to": "RS-150",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(2)", "decimal": "2.000000000000000000000000000000000000000e+0", "value": 2.0},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P150",
+   "from": "RS-150",
+   "to": "RS-160",
+   "section": "RS-S270",
+   "kind": "straight",
+   "length_m": {"exact": "(1/40)*sqrt(257)", "decimal": "4.007804885470349341217838689422120552024e-1", "value": 0.4007804885470349},
+   "wind_exposed": true,
+   "seismic": "replaced by a * W of RS-R1 at its centre of gravity (full system); a * g * mu (fixture today)",
+   "hydrotest_weight": "replaced by RS-R1 (full system); distributed (fixture today)"
+  },
+  {
+   "member": "RS-P160",
+   "from": "RS-160",
+   "to": "RS-170",
+   "section": "RS-S220",
+   "kind": "straight",
+   "length_m": {"exact": "(13/5)", "decimal": "2.600000000000000000000000000000000000000e+0", "value": 2.6},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P170",
+   "from": "RS-170",
+   "to": "RS-180",
+   "section": "RS-S220",
+   "kind": "straight",
+   "length_m": {"exact": "(2)", "decimal": "2.000000000000000000000000000000000000000e+0", "value": 2.0},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P180",
+   "from": "RS-180",
+   "to": "RS-190",
+   "section": "RS-S220",
+   "kind": "straight",
+   "length_m": {"exact": "(3/5)", "decimal": "6.000000000000000000000000000000000000000e-1", "value": 0.6},
+   "wind_exposed": false,
+   "seismic": "none: replaced span",
+   "hydrotest_weight": "none: replaced span"
+  },
+  {
+   "member": "RS-P190",
+   "from": "RS-190",
+   "to": "RS-200",
+   "section": "RS-S220",
+   "kind": "straight",
+   "length_m": {"exact": "(12/5)", "decimal": "2.400000000000000000000000000000000000000e+0", "value": 2.4},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P200",
+   "from": "RS-200",
+   "to": "RS-210",
+   "section": "RS-S220",
+   "kind": "straight",
+   "length_m": {"exact": "(2)", "decimal": "2.000000000000000000000000000000000000000e+0", "value": 2.0},
+   "wind_exposed": true,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P210",
+   "from": "RS-130",
+   "to": "RS-215",
+   "section": "RS-S170",
+   "kind": "straight",
+   "length_m": {"exact": "(5/2)", "decimal": "2.500000000000000000000000000000000000000e+0", "value": 2.5},
+   "wind_exposed": false,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P220",
+   "from": "RS-215",
+   "to": "RS-220",
+   "section": "RS-S170",
+   "kind": "straight",
+   "length_m": {"exact": "(9/4)", "decimal": "2.250000000000000000000000000000000000000e+0", "value": 2.25},
+   "wind_exposed": false,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  },
+  {
+   "member": "RS-P225",
+   "from": "RS-220",
+   "to": "RS-225",
+   "section": "RS-S170",
+   "kind": "arc",
+   "length_m": {"exact": "(1/8)*pi", "decimal": "3.926990816987241548078304229099378605246e-1", "value": 0.39269908169872414},
+   "wind_exposed": false,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents",
+   "realizes": "RS-B3"
+  },
+  {
+   "member": "RS-P230",
+   "from": "RS-225",
+   "to": "RS-230",
+   "section": "RS-S170",
+   "kind": "straight",
+   "length_m": {"exact": "(7/4)", "decimal": "1.750000000000000000000000000000000000000e+0", "value": 1.75},
+   "wind_exposed": false,
+   "seismic": "a * g * mu",
+   "hydrotest_weight": "distributed, test contents"
+  }
+ ],
+ "components": [
+  {
+   "component": "RS-F1",
+   "maps": "RS-P020",
+   "node": "RS-030",
+   "weight_N": "350",
+   "centre_of_gravity_m": ["19/40", "0", "1"],
+   "systems": "full, fixture_today"
+  },
+  {
+   "component": "RS-V1",
+   "maps": "RS-P030",
+   "node": "RS-040",
+   "weight_N": "2600",
+   "centre_of_gravity_m": ["17/20", "0", "13/10"],
+   "systems": "full, fixture_today"
+  },
+  {
+   "component": "RS-F2",
+   "maps": "RS-P040",
+   "node": "RS-050",
+   "weight_N": "350",
+   "centre_of_gravity_m": ["49/40", "0", "1"],
+   "systems": "full, fixture_today"
+  },
+  {
+   "component": "RS-R1",
+   "maps": "RS-P150",
+   "node": "RS-160",
+   "weight_N": "300",
+   "centre_of_gravity_m": ["6", "101/5", "559/80"],
+   "systems": "full"
+  }
+ ]
+}

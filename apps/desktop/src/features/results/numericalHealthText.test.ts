@@ -38,7 +38,7 @@ describe("numerical health text pins", () => {
       "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
     );
     expect(text.outputSentence(2)).toBe(
-      "No results of this run can be exported or used by rule checks while 2 load case(s) are not checks passed."
+      "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 2 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
     );
     expect(text.BOUNDARY_SENTENCE).toBe(
       "These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right."
@@ -46,9 +46,7 @@ describe("numerical health text pins", () => {
   });
 
   it("pins every detail text", () => {
-    expect(text.checksPassedText("LC1")).toBe(
-      "The solver's residual and conditioning checks passed for LC1. These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right."
-    );
+    expect(text.checksPassedText("LC1")).toBe("The solver's residual and conditioning checks passed for LC1.");
     expect(text.sensitiveLeadText("LC1")).toBe("The solver's checks flagged LC1 as numerically sensitive.");
     expect(text.KEPT_FOR_INSPECTION_TEXT).toBe("Its values are kept for inspection.");
     expect(text.CONDITIONING_CAUSE_TEXT).toBe("The scaled stiffness is poorly conditioned.");
@@ -76,7 +74,7 @@ describe("numerical health text pins", () => {
     expect(text.solveFailedLeadText("LC1")).toBe("The solver could not complete a solution for LC1.");
     expect(text.MECHANISM_TEXT).toBe("The model can move without resistance (a mechanism). Review connectivity, member releases and supports.");
     expect(text.NEGATIVE_ENERGY_TEXT).toBe("The assembled stiffness is not positive in some direction. Review element and support properties.");
-    expect(text.notAssessedText("LC1")).toBe("The solver did not assess the numerical quality of LC1.");
+    expect(text.notAssessedText("LC1")).toBe("No numerical quality is stated for LC1.");
     expect(text.combinationText([["LC1", "sensitive"], ["LC2", "checks_passed"]])).toBe(
       "Inherited from its load cases: LC1: sensitive; LC2: checks passed."
     );

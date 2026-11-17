@@ -117,7 +117,7 @@ export function userReleasedReportPackageUnavailableReason(result: SessionResult
   if (refused) return refused;
   const identity = result?.producer?.semantic_contract_id;
   if (typeof identity === "string" && !USER_RELEASED_ADMITTED_CONTRACT_IDS.includes(identity)) {
-    return `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and eligible exact pressure route (pressure-2, pressure-source-1) results; this result is ${identity}. It can be saved in a local private package.`;
+    return `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and eligible exact pressure route (pressure-3, pressure-source-1) results; this result is ${identity}. It can be saved in a local private package.`;
   }
   return null;
 }

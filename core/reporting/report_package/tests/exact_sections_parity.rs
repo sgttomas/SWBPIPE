@@ -146,12 +146,12 @@ fn refusals() -> Vec<(&'static str, Value, &'static str)> {
         ),
         (
             "s9_with_one_word_changed",
-            spec(straight, "/cases/0/envelope", json!([{"op": "replace_text", "pointer": "/formulation_basis/limitations/7", "from": "ordinary structural recovery", "to": "ordinary structural response"}])),
+            spec(straight, "/cases/0/envelope", json!([{"op": "replace_text", "pointer": "/formulation_basis/limitations/8", "from": "ordinary structural recovery", "to": "ordinary structural response"}])),
             EXACT_LIMITATION_UNREGISTERED,
         ),
         (
             "s9_without_its_last_sentence",
-            spec(straight, "/cases/0/envelope", json!([{"op": "replace_text", "pointer": "/formulation_basis/limitations/7", "from": format!(" {OMITTED_SENTENCE}"), "to": ""}])),
+            spec(straight, "/cases/0/envelope", json!([{"op": "replace_text", "pointer": "/formulation_basis/limitations/8", "from": format!(" {OMITTED_SENTENCE}"), "to": ""}])),
             EXACT_LIMITATION_UNREGISTERED,
         ),
         (
@@ -246,6 +246,8 @@ fn the_vectors_state_the_table_statements_and_the_section_texts() {
             let statement = entry["statement"].as_str().unwrap();
             let text = text.as_str().unwrap();
             assert_eq!(Some(statement), exact_statement_for(&producer_sha256(text)));
+            // The report's WinAnsi form: '-' for U+2212 and 'nu' for ν (DEL-04-07); the producer text and its hash are unchanged.
+            let text = text.replace('\u{2212}', "-").replace('\u{3bd}', "nu");
             assert!(statement == text || format!("{statement} {OMITTED_SENTENCE}") == text, "{name} {index}");
         }
         let reference = entries.last().unwrap()["statement"].as_str().unwrap();
@@ -309,7 +311,7 @@ fn the_fixtures_strings_ending_in_the_omitted_sentence_are_the_two_source_paragr
         .filter(|text| text.ends_with(OMITTED_SENTENCE))
         .collect();
     let paragraphs: std::collections::BTreeSet<&str> =
-        coverage["lists"].as_array().unwrap().iter().map(|list| list["limitations"][7].as_str().unwrap()).collect();
+        coverage["lists"].as_array().unwrap().iter().map(|list| list["limitations"][8].as_str().unwrap()).collect();
     assert_eq!(ending.len(), 2);
     assert_eq!(ending.iter().copied().collect::<std::collections::BTreeSet<_>>(), paragraphs);
 }
@@ -372,7 +374,7 @@ fn item_9_refuses_unregistered_and_changed_limitations() {
         let error = check_exact_sections(&source, &document, &audit, &report).unwrap_err();
         assert_eq!(
             error,
-            format!("{code}: openpipestress.result_semantics/0.3.0/pressure-2 publishes a limitation this report has no reviewed statement for."),
+            format!("{code}: openpipestress.result_semantics/0.3.0/pressure-3 publishes a limitation this report has no reviewed statement for."),
             "{name}"
         );
     }
@@ -467,6 +469,17 @@ fn item_9_binds_the_identity_to_the_presence_of_exact_sections() {
     let mut null_route = plain.clone();
     null_route["exact_route"] = Value::Null;
     check_exact_sections(&preview, &preview_document, &audit, &null_route).unwrap();
+    // PR 328 scrutiny, finding 1 (DEL-08-01 REQ-024): a standing record is packaged only where a
+    // boundary re-derives it from a bound exact-route result. On a pressure-free document a supplied
+    // record is refused by name, whatever its contents; an absent or null member passes as before.
+    let mut with_record = plain.clone();
+    with_record["numerical_standing"] = json!({"record_version": "historical_1", "evidence_member": "absent", "cases": []});
+    refuses(check_exact_sections(&preview, &preview_document, &audit, &with_record), EXACT_SECTIONS_MISMATCH, "preview with a standing record");
+    let error = check_exact_sections(&preview, &preview_document, &audit, &with_record).unwrap_err();
+    assert!(error.ends_with("numerical_standing: the result is not an exact-route result"), "{error}");
+    let mut null_record = plain.clone();
+    null_record["numerical_standing"] = Value::Null;
+    check_exact_sections(&preview, &preview_document, &audit, &null_record).unwrap();
 }
 
 #[test]
@@ -475,7 +488,7 @@ fn the_runner_profile_refuses_an_exact_identity_whatever_the_report_carries() {
     let document = invented_document(&source);
     refuses(check_runner_profile(RUNNER_PROFILE, &document), EXACT_RUNNER_PROFILE, "runner, pressure-2");
     let error = check_runner_profile(RUNNER_PROFILE, &document).unwrap_err();
-    assert_eq!(error, format!("{EXACT_RUNNER_PROFILE}: the runner profile does not package pressure-2 or pressure-source-1 results; only the desktop builds their sections."));
+    assert_eq!(error, format!("{EXACT_RUNNER_PROFILE}: the runner profile does not package pressure-3 or pressure-source-1 results; only the desktop builds their sections."));
     let mut source_1 = document.clone();
     source_1["result_envelope"]["producer"]["semantic_contract_id"] = Value::from("openpipestress.result_semantics/0.3.0/pressure-source-1");
     refuses(check_runner_profile(RUNNER_PROFILE, &source_1), EXACT_RUNNER_PROFILE, "runner, pressure-source-1");

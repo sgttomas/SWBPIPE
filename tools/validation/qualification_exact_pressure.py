@@ -4,7 +4,7 @@
 Mirrors the load/reference-state adapter: an explicitly selected foreground
 ``openpipestress-runner solve --input - --solver-mode <mode>`` process, the
 ControlledExport/CLI1.0 wrapper and a raw0.2 mechanics envelope whose producer
-is exactly ``openpipestress.result_semantics/0.3.0/pressure-2`` with profile
+is exactly ``openpipestress.result_semantics/0.3.0/pressure-3`` with profile
 ``exact_pressure_v3`` on a model document 0.9.0 under the current exact contract
 (with its load/reference-state records when the document carries that group).
 B7b retired the 0.3.0/0.4.0 documents: the package's frozen, hash-bound case
@@ -67,7 +67,7 @@ REFERENCE_FORMAT = gate.REFERENCE_FORMAT
 BINDING_FORMAT = 'openpipestress.exact_pressure_consistency_binding/2'
 READER = 'pressure'
 ENTRYPOINT = 'validate_pressure_evidence'
-CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-3'
 PROFILE = 'exact_pressure_v3'
 # The submitted (re-authored) document is model 0.9.0 under the current contract; the package's frozen
 # documents keep their 0.3.0/0.4.0 spelling under the former v3 contract object, or their 0.5.0 spelling (the
@@ -81,12 +81,12 @@ PREVIOUS_VERSIONS = physics.PREVIOUS_MODEL_VERSIONS
 # submitted unchanged. Its contract names its shear model explicitly: Euler-Bernoulli or the T4-U8 Timoshenko model.
 SHEAR_MODELS = ('euler_bernoulli', 'timoshenko_annulus_energy_v1')
 IDENTITY_SCOPE = 'identity: the package document is already current and is submitted unchanged; the frozen input, references and criteria are unchanged'
-TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
+TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_3.json'
 # B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"; O-10): pressure-2's own reviewed
 # resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
 # with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...);
 # T4-U5b added the tie-rod force and T4-U4b (§2.2) the new per-basis kinds: 129 signatures, 66 kinds.
-TABLE_SHA256 = 'c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad'
+TABLE_SHA256 = '757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9'
 # The owned reader is the Rust product reader of pressure-2 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
 # carrying the load/reference-state group takes its pre-pass), reached through

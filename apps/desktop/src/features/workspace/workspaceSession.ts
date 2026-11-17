@@ -90,8 +90,15 @@ import {
 import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
 import { MODEL_DOCUMENT_FILE_SOURCE, checkNativeOutcome, modelFileRefusalMessage, modelFileWarningSuffix, type ModelDocumentSource } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
-import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFindings } from "../library/libraryRefFindings";
-import { cancelNativeModelChecks, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
+import {
+  currentLibraryRefFindings,
+  libraryRefDiagnostics,
+  publishLibraryRefFindings,
+  publishedLibraryRefFindings,
+  subscribeLibraryRefFindings,
+  type LibraryRefFindingsState
+} from "../library/libraryRefFindings";
+import { cancelNativeModelChecks, modelChecksNotCompleted, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
 import { retireMbfExportSession, reviewMbfExport, saveMbfExport } from "../caepipe-mbf/mbfExportCancel";
 import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
 import { closedSaveStatusLine } from "../caepipe-mbf/mbfExport";
@@ -180,6 +187,7 @@ import {
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 import type { RuleCheckRunBasis } from "../rule-check/RuleCheckRunPanel";
 import { batchRequiresPreview, operationRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
+import { SUPPORT_HANGER_WRITE_REFUSED_TEXT, writesSupportHangerSelection } from "../hanger-selection/hangerSelection";
 import { capabilityAvailability, capabilityRoute } from "../toolkit/capabilityCatalog";
 import type { ToolkitCapability } from "../toolkit/capabilityCatalog";
 import type { CreationTool, ViewportExposureInteraction } from "../viewport/PipeViewport";
@@ -231,7 +239,7 @@ import {
   uiModelIdentityHash,
   type SessionModelCheckpoint
 } from "./sessionModel";
-import { commitModelAfterSolveInvalidation } from "./solveGates";
+import { commitModelAfterSolveInvalidation, readSolveGate, type SolveGateOutcome, type SolveGateReading, type SolveGateStop } from "./solveGates";
 import {
   awaitBackendSolveJob,
   blankProjectCreatedSolveJob,
@@ -276,6 +284,8 @@ import { observeWorkspaceCanvasBudget } from "./workspaceCanvasBudget";
 import { EXPENSIVE_LIFECYCLE_SECTIONS } from "./workspaceSections";
 import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
+import { useReportSourceSequence, useSequencedState } from "./reportSourceSequence";
+import { useReportOutputOutcomes } from "../report/reportOutputOutcomes";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
  * local store at open and load. Warnings only; the recorded versions stand. */
@@ -326,6 +336,48 @@ function formatPackageSaveError(error: unknown): string {
   return String(error);
 }
 
+/** DEL-08-01 REQ-019, AC-010; DEL-02-05 AX-005: what a failed shareable save says about
+ * the file before its diagnostic. Before the bytes of the native save leave, and for a coded
+ * refusal or a writer error of the save, nothing was written. A writer error whose cleanup
+ * also failed may leave the whole package, record included, in a temporary file beside the
+ * selected one, so it says only what is known of the selected file and that file. A worker
+ * failure, or an error that cannot be read, leaves the outcome unknown, and it is reported
+ * as unknown. */
+const SHAREABLE_SAVE_NOT_WRITTEN = "Not saved: no shareable report package was written and no user release was made.";
+const SHAREABLE_SAVE_OUTCOME_UNKNOWN = "It is not known whether the shareable report package was written.";
+const SHAREABLE_SAVE_TEMP_MAY_REMAIN = "The shareable report package was not saved to the selected file. A temporary file may remain beside it.";
+const LOCAL_PRIVATE_SAVE_TEMP_MAY_REMAIN = "The report package was not saved to the selected file. A temporary file may remain beside it.";
+const REPORT_PACKAGE_SAVE_WORKER_FAILED = "REPORT-PACKAGE-SAVE-WORKER-FAILED";
+
+/** The save's own error (`ReportPackageSaveCommandError`, a refusal or the atomic writer's)
+ * other than the worker's failure, and whether the writer's temporary-file cleanup failed
+ * with it (`cleanup_code`, `REPORT-PACKAGE-TEMP-CLEANUP-FAILED`). The error names no
+ * temporary file: the writer's temporary name is not one of its members, so none is named. */
+function readSaveCommandError(error: unknown): { cleanupFailed: boolean } | null {
+  if (!error || typeof error !== "object" || error instanceof Error) return null;
+  const { code, stage, message, cleanup_code } = error as { code?: unknown; stage?: unknown; message?: unknown; cleanup_code?: unknown };
+  if (typeof code !== "string" || typeof stage !== "string" || typeof message !== "string" || code === REPORT_PACKAGE_SAVE_WORKER_FAILED) return null;
+  return { cleanupFailed: typeof cleanup_code === "string" };
+}
+
+function shareableSaveFailureStatement(error: unknown, sent: boolean): string {
+  if (!sent) return SHAREABLE_SAVE_NOT_WRITTEN;
+  const command = readSaveCommandError(error);
+  if (command?.cleanupFailed) return SHAREABLE_SAVE_TEMP_MAY_REMAIN;
+  if (command) return SHAREABLE_SAVE_NOT_WRITTEN;
+  // The memory pool's refusal and the ingress's refusal of the arguments precede admission.
+  if (error instanceof ResourceUnavailableError) return SHAREABLE_SAVE_NOT_WRITTEN;
+  if (error instanceof Error && error.message.startsWith("INVALID_REQUEST: ")) return SHAREABLE_SAVE_NOT_WRITTEN;
+  return SHAREABLE_SAVE_OUTCOME_UNKNOWN;
+}
+
+/** A failed local-private package save's status: its diagnostic, led by the same statement
+ * when the writer's temporary-file cleanup also failed. */
+function localPrivateSaveFailureText(error: unknown): string {
+  const diagnostic = formatPackageSaveError(error);
+  return readSaveCommandError(error)?.cleanupFailed ? `${LOCAL_PRIVATE_SAVE_TEMP_MAY_REMAIN} ${diagnostic}` : diagnostic;
+}
+
 /**
  * The workspace session: the six state hooks, all thirteen effects and every
  * handler, in one closure and in the order `AppSession` declared them.
@@ -351,6 +403,12 @@ function formatPackageSaveError(error: unknown): string {
  * guards and the paths that clear computed state sit together.
  */
 export function useWorkspaceSession() {
+  // DEL-08-01 REQ-022: the report source sequence, advanced synchronously by every
+  // report-bound cell below (model, results, runs, manifest, summary, rule check,
+  // composition, within-run choice), and the session's report output outcomes. Both
+  // belong to the session, not to the Report section's dormant subtree.
+  const reportSource = useReportSourceSequence();
+  const reportOutputs = useReportOutputOutcomes();
   const {
     uiPreferences, setUiPreferences,
     setSystemDark,
@@ -392,7 +450,32 @@ export function useWorkspaceSession() {
     modelRevision,
     currentModel,
     activeModelIndex
-  } = useModelSessionState();
+  } = useModelSessionState(reportSource.owner.advance);
+  // DEL-08-01 REQ-022 (round-two F1): the library-reference findings that apply to the
+  // report's model are a report input. The store's publication is bridged into a sequenced
+  // cell for this workspace's lifetime: a publication that changes the findings applicable to
+  // the current model (a new or changed warning, or a clear) advances the report source in
+  // the same synchronous step; one that changes nothing applicable (another project's, or
+  // the same findings again) is adopted without advancing. A report captures this cell's
+  // publication with its model and number, and derives the applicable findings from both.
+  const [libraryRefFindingsState, setLibraryRefFindingsState, adoptLibraryRefFindingsState] =
+    useSequencedState<LibraryRefFindingsState>(publishedLibraryRefFindings, reportSource.owner.advance);
+  const libraryRefFindingsLatest = useRef<LibraryRefFindingsState>(libraryRefFindingsState);
+  useEffect(() => {
+    const reconcile = () => {
+      const next = publishedLibraryRefFindings();
+      const previous = libraryRefFindingsLatest.current;
+      if (next === previous) return;
+      libraryRefFindingsLatest.current = next;
+      const model = currentModel.current;
+      const applicable = (state: LibraryRefFindingsState) => (model ? JSON.stringify(currentLibraryRefFindings(model, state)) : "[]");
+      if (applicable(previous) === applicable(next)) adoptLibraryRefFindingsState(next);
+      else setLibraryRefFindingsState(next);
+    };
+    const unsubscribe = subscribeLibraryRefFindings(reconcile);
+    reconcile(); // a publication made before this lifetime subscribed
+    return unsubscribe;
+  }, [adoptLibraryRefFindingsState, currentModel, setLibraryRefFindingsState]);
   // Chrome-only canonical comparison. A revision shortcut is used only for a
   // verified snapshot, or the untouched initial loaded-source snapshot (which
   // makes no claim of a file save). Later revisions need a current owned hash.
@@ -481,6 +564,7 @@ export function useWorkspaceSession() {
     fullResultCopy, setFullResultCopy,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    renderableSolvedResult,
     numericallyEligible,
     numericalHealth,
     numericalHealthHold,
@@ -517,7 +601,7 @@ export function useWorkspaceSession() {
     droppedWithinRunBases,
     setHeldWithinRunSelection,
     setDroppedWithinRunBases
-  } = useResultsSessionState();
+  } = useResultsSessionState(reportSource.owner.advance);
   // C2 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): the inputs each native record was
   // built with, so a C2 consumer's full record is the same record, built on the full copy.
   const nativeRunInputs = useRef(new WeakMap<object, { inputManifest: CurrentSessionInputManifestEvidence; ruleCheckAggregate: RuleCheckStatus | null; rulePackExclusions: readonly ExcludedRulePackRef[] }>());
@@ -632,7 +716,7 @@ export function useWorkspaceSession() {
     projectMessage, setProjectMessage,
     projectOperation, setProjectOperation,
     projectBusy, setProjectBusy
-  } = useProjectSessionState();
+  } = useProjectSessionState(reportSource.owner.advance);
 
   // Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6): the session's
   // one transient event callback. A listener's failure outside a publication
@@ -1211,11 +1295,136 @@ export function useWorkspaceSession() {
     }
   }
 
-  async function handleRun(): Promise<void> { await handleRunWithAgentReceipt(); }
+  async function handleRun(): Promise<void> { await handleSolveRequest(); }
+
+  /** One Solve request: the gate's outcome (null where a solve already held the run,
+   * so this request did nothing) and the solve's receipt where one started. The
+   * gate's listener is set and taken synchronously, so it belongs to this call. */
+  async function handleSolveRequest(): Promise<SolveRequestOutcome> {
+    let gate = null as SolveGateOutcome | null;
+    solveGateListener.current = (outcome) => { gate = outcome; };
+    const receipt = await handleRunWithAgentReceipt();
+    return { gate, receipt };
+  }
+  /** Receives the gate's outcome for the Solve request that takes it; taken (and cleared)
+   * synchronously at the head of `handleRunWithAgentReceipt`. */
+  const solveGateListener = useRef<((outcome: SolveGateOutcome) => void) | null>(null);
+
+  /** The check a Solve request runs where no model-check run is current: the run
+   * token it holds, the model-check request it started (it owns that check only
+   * while no later request has superseded it), the model value it reads, and why
+   * it ended, once it has. */
+  type ModelCheckOwner = Readonly<{ kind: "person" } | { kind: "recheck" } | { kind: "solve"; token: number }>;
+  type SolveGateCheck = { token: number; request: number; model: PreviewModel; ended: SolveGateStop | "completed" | null };
+  const solveGateCheck = useRef<SolveGateCheck | null>(null);
+  const sessionMounted = useRef(true);
+  useEffect(() => {
+    sessionMounted.current = true;
+    return () => {
+      sessionMounted.current = false;
+      const check = solveGateCheck.current;
+      if (check) endSolveGateCheck(check, "unmounted");
+      // Every outstanding check ends with the workspace, whoever started it: retired (no
+      // later publication) and cancelled natively.
+      modelCheckRequest.current += 1;
+      if (nativeModelCheckInFlight.current) void cancelNativeModelChecks();
+      nativeModelCheckInFlight.current = false;
+    };
+  }, []);
+
+  /** Ends a Solve request's check, once, releasing what it owns: the check itself
+   * (retired, and cancelled natively) only while it is still the newest request, so
+   * a newer check (Run model checks, or the re-check after an edit) is never
+   * cancelled by an older request's end; running, unless a later solve holds it;
+   * and the run token. Every later continuation of the request is inert. */
+  function endSolveGateCheck(check: SolveGateCheck, reason: SolveGateStop) {
+    if (check.ended) return;
+    check.ended = reason;
+    if (solveGateCheck.current === check) solveGateCheck.current = null;
+    const latest = latestModelCheck.current;
+    const ownsNewestCheck = latest !== null && latest.request === check.request && modelCheckRequest.current === check.request
+      && latest.owner.kind === "solve" && latest.owner.token === check.token;
+    if (ownsNewestCheck) {
+      modelCheckRequest.current += 1;
+      if (nativeModelCheckInFlight.current) void cancelNativeModelChecks();
+      nativeModelCheckInFlight.current = false;
+      setModelCheckBusy(false);
+    }
+    const holder = solveRunGate.current.current();
+    if (holder === null || holder === check.token) setRunning(false);
+    solveRunGate.current.finish(check.token);
+  }
+
+  /** The Solve command's gate (DEL-07-07 REQ-008, DEL-07-04 AC-001), for the run
+   * holding `runGeneration`: it reads the model checks for the model as it stands
+   * (`readSolveGate`), running them first when no run is current for this model
+   * value. `proceed` lets the solve start (the reading is open, or unknown where the
+   * checks could not run or complete). Otherwise nothing starts, the run token is
+   * released, nothing of the session is cleared and the model is untouched:
+   * `withheld` (a solve-blocking finding stands; the Issues drawer opens on the Model
+   * checks list, whose findings it names), `cancelled` (a cancel request during the
+   * check) or `superseded` (a model change, a later check or project session, or the
+   * workspace's unmount ended the check). Synchronous when a current run is reused,
+   * so an open gate adds no await before the solve starts. While the checks run the
+   * session reads as running, from the Solve request on as before the gate (the
+   * progress panel's run starts there, and Cancel reaches the check). */
+  function solveGateAllows(runGeneration: number): SolveGateOutcome | Promise<SolveGateOutcome> {
+    if (!model) return { kind: "proceed", reading: { kind: "unknown", reason: "not_checked" } }; // The solve's own refusal of no model stands.
+    const settle = (reading: SolveGateReading): SolveGateOutcome => {
+      if (reading.kind !== "withheld") {
+        solveLastWithheld.current = false;
+        return { kind: "proceed", reading };
+      }
+      solveRunGate.current.finish(runGeneration);
+      setIssuesDrawerOpen(true);
+      return { kind: "withheld", reading };
+    };
+    const published = modelCheckRunRef.current;
+    if (published?.model === model) return settle(readSolveGate(model, published));
+    const checked = model;
+    const revision = modelRevision.current;
+    const stillWanted = () => sessionMounted.current
+      && solveRunGate.current.isCurrent(runGeneration)
+      && !solveRunGate.current.isCancellationRequested(runGeneration)
+      && modelRevision.current === revision;
+    setRunning(true);
+    const pending = runModelChecksRequest(checked, { kind: "solve", token: runGeneration }, stillWanted);
+    // The request number is taken before the check's first await.
+    const check: SolveGateCheck = { token: runGeneration, request: modelCheckRequest.current, model: checked, ended: null };
+    solveGateCheck.current = check;
+    const stopped = (reason: SolveGateStop): SolveGateOutcome => {
+      endSolveGateCheck(check, reason);
+      const ended = check.ended && check.ended !== "completed" ? check.ended : reason;
+      return ended === "cancelled" ? { kind: "cancelled" } : { kind: "superseded", reason: ended };
+    };
+    return pending.then((run) => {
+      if (check.ended && check.ended !== "completed") return stopped(check.ended);
+      if (!sessionMounted.current) return stopped("unmounted");
+      if (solveRunGate.current.isCancellationRequested(runGeneration)) return stopped("cancelled");
+      if (!solveRunGate.current.isCurrent(runGeneration) || modelRevision.current !== revision) return stopped("model_changed");
+      if (!run) return stopped("check_retired");
+      check.ended = "completed";
+      if (solveGateCheck.current === check) solveGateCheck.current = null;
+      const outcome = settle(readSolveGate(checked, run));
+      if (outcome.kind === "withheld") setRunning(false);
+      return outcome;
+    }).catch((): SolveGateOutcome => {
+      // A failure anywhere in the check or its continuation starts nothing and holds nothing.
+      if (check.ended === "completed") check.ended = null;
+      endSolveGateCheck(check, "check_failed");
+      return { kind: "superseded", reason: "check_failed" };
+    });
+  }
 
   async function handleRunWithAgentReceipt(): Promise<AgentRunReceipt | undefined> {
+    const reportGate = solveGateListener.current;
+    solveGateListener.current = null;
     const runGeneration = solveRunGate.current.tryStart();
     if (runGeneration === null) return;
+    const gate = solveGateAllows(runGeneration);
+    const gateOutcome = gate instanceof Promise ? await gate : gate;
+    reportGate?.(gateOutcome);
+    if (gateOutcome.kind !== "proceed") return;
     // RT-U4: observation only (solveTimeline.ts); the run's path is unchanged.
     const timeline = beginSolveTimeline({ solver_mode: solverMode });
     invalidateReportPackageComputedState();
@@ -1593,6 +1802,12 @@ export function useWorkspaceSession() {
     const runGeneration = solveRunGate.current.current();
     if (runGeneration === null) return;
     if (!solveRunGate.current.requestCancellation(runGeneration)) return;
+    // A Solve request still running its model checks has no job: its check ends here.
+    const gateCheck = solveGateCheck.current;
+    if (gateCheck && gateCheck.token === runGeneration) {
+      endSolveGateCheck(gateCheck, "cancelled");
+      return;
+    }
     const tombstone = solveCancellationTombstones.current.get(runGeneration);
     if (tombstone) tombstone.requested = true;
     const active = activeSolveJob.current;
@@ -1720,8 +1935,11 @@ export function useWorkspaceSession() {
     return () => { retained.status = event.type === "withdrawn" ? "withdrawn" : "unknown"; };
   }), [sessionEvents]);
 
-  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext } = {}): Promise<void> {
-    await registerOperationBatch(batch, options.importContext ? { importContext: options.importContext } : {});
+  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<void> {
+    await registerOperationBatch(batch, {
+      ...(options.importContext ? { importContext: options.importContext } : {}),
+      ...(options.precondition ? { precondition: options.precondition } : {})
+    });
   }
 
   /** Requeue a stored record with its author re-derived host-side (DEL-16-03).
@@ -1729,14 +1947,28 @@ export function useWorkspaceSession() {
   async function handleRequeueRetainedRecord(intent: unknown, index: number): Promise<string | null> {
     const result = requeueRetainedRecord(intent, index);
     if ("refused" in result) { setBatchMessage(`Record could not be requeued: ${result.refused}`); return result.refused; }
+    // A support's hanger selection is applied only from the hanger form or its sizing result, never requeued; read by
+    // the batch's structure, after requeue's own refusals.
+    if (writesSupportHangerSelection(result.batch)) {
+      setBatchMessage(`Record could not be requeued: ${SUPPORT_HANGER_WRITE_REFUSED_TEXT}`);
+      return SUPPORT_HANGER_WRITE_REFUSED_TEXT;
+    }
     await registerOperationBatch(result.batch);
     return null;
   }
 
   /** Queue a batch and return its registration key, or null when it was not registered.
-   * `reveal: false` (the run sheet, §5.1) leaves the section and focus where they are. */
-  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext; importContext?: ImportContext } = {}): Promise<string | null> {
+   * `reveal: false` (the run sheet, §5.1) leaves the section and focus where they are.
+   * `precondition`, made only by the host's own code, is kept beside the registration in this session and asked at
+   * the final Apply (`handleRunOperationBatch`); it is in no batch document, receipt, history or stored record. */
+  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext; importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<string | null> {
     if (!model) return null;
+    // Offline intake (the only producer passing importContext) never registers a write of a support's hanger
+    // selection, read by the batch's structure; the host's own features and an agent's proposals register as before.
+    if (options.importContext && writesSupportHangerSelection(batch)) {
+      setBatchMessage(SUPPORT_HANGER_WRITE_REFUSED_TEXT);
+      return null;
+    }
     const revision = modelRevision.current;
     const epoch = requestEpochRef.current;
     const queueEpoch = batchQueueEpoch.current;
@@ -1755,7 +1987,7 @@ export function useWorkspaceSession() {
       const registered = deepFreeze({ key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview,
         ...(options.agentContext ? { agentContext: structuredClone(options.agentContext) } : {}),
         ...(options.importContext ? { importContext: structuredClone(options.importContext) } : {}) });
-      batchRegistrations.current.set(key, { entry: registered, epoch: queueEpoch });
+      batchRegistrations.current.set(key, { entry: registered, epoch: queueEpoch, ...(options.precondition ? { precondition: options.precondition } : {}) });
       if (options.agentContext) agentProposalStandingRef.current.set(key, {status:"pending_review",outcomeModelHash:null});
       setQueuedBatches((current) => [...current, registered]);
       setBatchMessage("Batch queued for validation and explicit application.");
@@ -1818,6 +2050,18 @@ export function useWorkspaceSession() {
       const initialHash = await computeModelHash(currentModel.current);
       if (!stillCurrent()) return abandon("The request was superseded before the batch ran.");
       if (!initialHash || initialHash.value !== entry.basisHash.value) throw new Error("The model changed. Prepare a new batch.");
+      // The host's own precondition, asked only at the final Apply, immediately before the host is asked to apply.
+      // The run's standing is read again after it answers; a refusal applies nothing and leaves the batch queued.
+      if (apply && registration.precondition) {
+        const refusal = await checkBatchPrecondition(registration.precondition);
+        if (!stillCurrent()) return abandon("The request was superseded before the batch ran.");
+        if (!registered()) throw new Error("The batch was withdrawn from the review queue; it was not run.");
+        if (refusal !== null) {
+          setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${refusal}`);
+          setQueuedBatches((current) => withApplyRefusal(current, entry.key, { kind: "precondition", reason: refusal }));
+          return;
+        }
+      }
       const outcome = await (apply ? applyOperationBatch : validateOperationBatch)(entry.basisModel, entry.batch, entry.basisHash);
       if (!stillCurrent() || !currentModel.current) return abandon("The request was superseded while the batch ran; its result was discarded.");
       const currentHash = await computeModelHash(currentModel.current);
@@ -1839,6 +2083,7 @@ export function useWorkspaceSession() {
       // preparation keeps the earlier preview and its Apply gate.
       if (!apply || outcome.validation.application_status !== "applied_to_session_model") {
         setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
+        setQueuedBatches((current) => withApplyRefusal(current, entry.key, null));
         const passed = outcome.validation.batch_validation_status === "passed" && outcome.simulation_disposition !== "rolled_back_no_model_published";
         sessionEvents.emit({ type: passed ? "validated" : "refused", batchId: entry.batch.batch_id, key: entry.key, outcome });
         return;
@@ -3838,7 +4083,27 @@ export function useWorkspaceSession() {
     setDroppedWithinRunBases(null);
   }
 
+  /** Why a report-package request cannot be made now, or null. The native File menu's two
+   * package commands are always enabled (the native shell state carries no package enablement),
+   * and since DEL-08-01 REQ-024 the rendered report panel also shows a result that is not
+   * Current, so a request that cannot proceed says why instead of doing nothing silently. */
+  function reportPackageRequestRefusal(): string | null {
+    if (!model) return "Not saved: no model was open.";
+    if (running) return "Not saved: a solve was running. Save the report package when it has finished.";
+    if (reportPackageBusy || reportPackageBusyGenerationRef.current !== null) return "Not saved: a report package was already being saved.";
+    if (!currentSolvedResult && renderableSolvedResult) {
+      return "Not saved: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing.";
+    }
+    if (!currentSolvedResult && result) return "Not saved: report-package save needs the current, numerically eligible mechanics result.";
+    if (!currentSolvedResult || !analysisRun || !inputManifest) {
+      return "Not saved: report-package save needs the current mechanics result and analysis-run record. Solve first.";
+    }
+    return null;
+  }
+
   async function handleSaveReportPackage() {
+    const refusal = reportPackageRequestRefusal();
+    if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
     const generation = ++reportPackageRequestGenerationRef.current;
     const basis = {
@@ -3922,7 +4187,7 @@ export function useWorkspaceSession() {
       setReportPackageRedaction(null);
       setReportPackageRoute({
         route: "redaction_blocked",
-        diagnostic: formatPackageSaveError(error)
+        diagnostic: localPrivateSaveFailureText(error)
       });
     } finally {
       if (isCurrent()) {
@@ -3956,6 +4221,8 @@ export function useWorkspaceSession() {
    * check's and the route-010 cell's refusal in place of the statement. Nothing happens while
    * another project operation or modal is open, a solve runs or a package is being saved. */
   async function requestSaveShareableReportPackage() {
+    const refusal = reportPackageRequestRefusal() ?? (projectSessionBusy() ? "Not saved: another project operation or dialog was open." : null);
+    if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusyGenerationRef.current !== null) return;
     if (projectSessionBusy()) return;
     // Captured before the workspace turns inert, which drops its focus.
@@ -3976,6 +4243,11 @@ export function useWorkspaceSession() {
     const resultRefusal = userReleasedReportPackageUnavailableReason(basis.result);
     const close = () => { userReleaseDialogOpenRef.current = false; setUserReleaseRequest(null); };
     userReleaseDialogOpenRef.current = true;
+    // A new shareable attempt begins: an earlier save's status, which may carry that save's
+    // user release, must not read as this attempt's, whether it is confirmed or cancelled; and
+    // no screened request of an earlier save stays in session state.
+    setReportPackageRoute(null);
+    setReportPackageRedaction(null);
     setUserReleaseRequest({
       projectName: basis.model.project.name,
       modelDocumentSha256,
@@ -4009,6 +4281,8 @@ export function useWorkspaceSession() {
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
+    // Whether the native save was asked for: before it, nothing can have been written.
+    let sent = false;
     try {
       // The package reads full rows (C2): a native result's bounded full copy.
       const full = isNativeResult(basis.result) ? (await loadC2Full(basis.result)).result : (basis.result as MechanicsResult);
@@ -4021,22 +4295,30 @@ export function useWorkspaceSession() {
         confirmation
       });
       if (!isCurrent()) return;
-      setReportPackageRedaction(controlled);
+      // REQ-019 "Selection": the screened request carries the user release record, so it stays
+      // local to the preparation and the send; nothing of it is kept in session state.
+      setReportPackageRedaction(null);
       if (prepared.route !== "ready") {
-        setReportPackageRoute(prepared);
+        setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${SHAREABLE_SAVE_NOT_WRITTEN} ${prepared.diagnostic}` });
         return;
       }
       const exactStillCurrent = () => {
         if (prepared.args.exactResultText === undefined) return true;
         try { reportPackageExactSubmission(request); return true; } catch { return false; }
       };
-      const saved = await invokeUserReleasedReportPackageSave(prepared, () => isCurrent() && exactStillCurrent());
+      // The guard runs after the arguments are encoded and immediately before each send
+      // (`invokeWithIngress`), so `sent` marks the bytes leaving, not the call.
+      const saved = await invokeUserReleasedReportPackageSave(prepared, () => {
+        const current = isCurrent() && exactStillCurrent();
+        if (current) sent = true;
+        return current;
+      });
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {
       if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
-      setReportPackageRoute({ route: "redaction_blocked", diagnostic: formatPackageSaveError(error) });
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${shareableSaveFailureStatement(error, sent)} ${formatPackageSaveError(error)}` });
     } finally {
       // Released whenever this save still holds the busy mark, even when its basis moved on (a
       // rule-check record landing mid-save retires it without invalidating the package state).
@@ -4052,9 +4334,20 @@ export function useWorkspaceSession() {
   // model as it stands and never change it.
   // In the app the solve's checks run natively under the memory pool, so a run
   // is asynchronous: a later request (or a new project session) supersedes it.
-  const [modelCheckRun, setModelCheckRun] = useState<ModelCheckRun | null>(null);
+  const [modelCheckRun, setModelCheckRunState] = useState<ModelCheckRun | null>(null);
+  // The last published run, read by handlers that may hold an earlier render's value.
+  const modelCheckRunRef = useRef<ModelCheckRun | null>(null);
+  function setModelCheckRun(run: ModelCheckRun | null) {
+    modelCheckRunRef.current = run;
+    setModelCheckRunState(run);
+  }
   const [modelCheckBusy, setModelCheckBusy] = useState(false);
   const modelCheckRequest = useRef(0);
+  // Who started the newest model-check request: the person (Run model checks),
+  // the re-check after an edit while Solve is withheld, or a Solve request (by its
+  // run token). Only a Solve request's own end cancels a check, and only the
+  // check that request started while it is still the newest.
+  const latestModelCheck = useRef<{ request: number; owner: ModelCheckOwner } | null>(null);
   // Whether the latest request is a native check still in progress.
   const nativeModelCheckInFlight = useRef(false);
   // A new project session retires a run in progress and the last run's list
@@ -4087,19 +4380,70 @@ export function useWorkspaceSession() {
       setMbfImportRequest(null);
     }
   }, [projectSessionGeneration]);
-  async function handleRunModelChecks() {
-    if (!model) return;
+  /** One run of the model checks on `checked`: a later request or a new project
+   * session retires it (null). A run `publish` declines is returned to no one and
+   * not shown (the Solve command's check, once its solve is cancelled or its model
+   * changed). */
+  async function runModelChecksRequest(checked: PreviewModel, owner: ModelCheckOwner, publish: () => boolean = () => true): Promise<ModelCheckRun | null> {
     const request = ++modelCheckRequest.current;
+    latestModelCheck.current = { request, owner };
     const generation = projectSessionGenerationRef.current;
-    setIssuesDrawerOpen(true);
+    // Retired by a later request, a new project session or the workspace's unmount; the
+    // native ingress sends nothing, and resends nothing, for a retired request.
+    const current = () => sessionMounted.current && request === modelCheckRequest.current && generation === projectSessionGenerationRef.current;
     setModelCheckBusy(true);
     nativeModelCheckInFlight.current = isTauriRuntime();
-    const run = await runModelChecks(model, () => libraryRefDiagnostics(currentLibraryRefFindings(model)));
-    if (request !== modelCheckRequest.current || generation !== projectSessionGenerationRef.current) return;
+    let run: ModelCheckRun;
+    try {
+      run = await runModelChecks(checked, () => libraryRefDiagnostics(currentLibraryRefFindings(checked)), { stillCurrent: current });
+    } catch (error) {
+      // A check that could not complete is read as the checks unavailable.
+      run = modelChecksNotCompleted(checked, error);
+    }
+    if (!current()) return null;
     nativeModelCheckInFlight.current = false;
     setModelCheckBusy(false);
-    setModelCheckRun(run);
+    if (!publish()) return null;
+    const published = withStandingEvidence(run);
+    setModelCheckRun(published);
+    return published;
   }
+
+  /** Unavailable never overturns evidence already held for that model: for the same
+   * unchanged model value, an established blocking finding or model-read refusal stands
+   * until a completed check replaces it, and a refresh that cannot complete is shown as
+   * not completed beside the standing findings. A check of another model value, or a
+   * completed check, replaces the run. */
+  function withStandingEvidence(run: ModelCheckRun): ModelCheckRun {
+    const standing = modelCheckRunRef.current;
+    if (run.solve.kind !== "unavailable" || !standing || standing.model !== run.model) return run;
+    if (readSolveGate(standing.model, standing).kind !== "withheld") return run;
+    return { ...standing, laterCheckNotCompleted: run.solve.reason };
+  }
+
+  async function handleRunModelChecks() {
+    if (!model) return;
+    setIssuesDrawerOpen(true);
+    await runModelChecksRequest(model, { kind: "person" });
+  }
+
+  // The Solve command's gate as it reads now, for the controls that offer Solve.
+  const solveGate = readSolveGate(model, modelCheckRun);
+  // Once Solve has read withheld, and until a solve passes the gate or the project
+  // session changes, a change of the model value (an applied operation, an undo,
+  // a redo) runs the checks again for the new value without being asked, so the
+  // withheld notice updates, clears, or comes back by itself (an undo of the
+  // operation that supplied a value). A later change supersedes a check in
+  // progress, as a later request does.
+  const solveLastWithheld = useRef(false);
+  useEffect(() => { solveLastWithheld.current = false; }, [projectSessionGeneration]);
+  useEffect(() => {
+    // A model change ends a Solve request's check of the earlier value (before any re-check starts).
+    const gateCheck = solveGateCheck.current;
+    if (gateCheck && gateCheck.model !== model) endSolveGateCheck(gateCheck, "model_changed");
+    if (solveGate.kind === "withheld") solveLastWithheld.current = true;
+    else if (solveGate.kind === "unknown" && solveGate.reason === "model_changed" && solveLastWithheld.current && model) void runModelChecksRequest(model, { kind: "recheck" });
+  }, [model, modelCheckRun]);
 
   // Single command sink for both the in-DOM menu bar (tested) and the native
   // macOS menu bar (Tauri shell only). View commands summon/dismiss workspace
@@ -4793,8 +5137,17 @@ export function useWorkspaceSession() {
       handleBoxSelection
     },
     results: {
+      /** DEL-08-01 REQ-022: the report source sequence (its owner and latest number) and the
+       * session's report output outcomes (their owner and current entries). */
+      reportSource: reportSource.owner,
+      reportSourceSequence: reportSource.sequence,
+      reportOutputs: reportOutputs.owner,
+      /** DEL-08-01 REQ-022 (F1): the library-reference findings publication the report captures. */
+      libraryRefFindingsState,
+      reportOutputEntries: reportOutputs.entries,
       result,
       currentSolvedResult,
+      renderableSolvedResult,
       numericallyEligible,
       numericalHealth,
       numericalHealthHold,
@@ -4817,6 +5170,8 @@ export function useWorkspaceSession() {
       solveJob,
       solveProof,
       running,
+      /** The Solve command's gate as it reads now (`readSolveGate`). */
+      solveGate,
       solverMode, setSolverMode,
       reportComposition, setReportComposition: handleReportCompositionChange,
       reportPackagePrivateIntent, setReportPackagePrivateIntent,
@@ -4824,6 +5179,8 @@ export function useWorkspaceSession() {
       reportPackageRedaction,
       reportPackageRoute,
       handleRun,
+      /** A Solve request with the gate's outcome and the solve's receipt (`SolveRequestOutcome`). */
+      handleSolveRequest,
       handleInspectBundledReference,
       handleCancelRun,
       handleRuleCheckAggregate,
@@ -4955,6 +5312,11 @@ export function useWorkspaceSession() {
 /** What the view receives: the six slices `useWorkspaceSession` returns. */
 export type WorkspaceSession = ReturnType<typeof useWorkspaceSession>;
 
+/** What one Solve request through `results.handleSolveRequest` reports: the gate's outcome
+ * (`SolveGateOutcome`; null where a solve already held the run, so the request did
+ * nothing) and the solve's receipt where a solve started. */
+export type SolveRequestOutcome = Readonly<{ gate: SolveGateOutcome | null; receipt: AgentRunReceipt | undefined }>;
+
 /** Freeze a queued submission recursively (W-10): no caller can alter it after registration. */
 function deepFreeze<T>(value: T): T {
   if (value && typeof value === "object" && !Object.isFrozen(value)) {
@@ -4972,4 +5334,55 @@ type BatchRegistration = {
   entry: QueuedBatch;
   epoch: number;
   validated?: { fingerprint: string; outcome: OperationBatchOutcome };
+  /** The host's own precondition for applying this batch, kept only here in the session. */
+  precondition?: BatchPrecondition;
 };
+
+/** A host-made check asked at the final Apply of a queued batch: null to go on, or the refusal text. */
+export type BatchPrecondition = () => Promise<string | null>;
+/** How long a precondition may take before the Apply is refused. */
+export const PRECONDITION_TIMEOUT_MS = 10000;
+/** The refusal when a precondition throws, answers with anything but null or a text, or does not answer in time. */
+export const PRECONDITION_UNCHECKED_REASON = "Its precondition could not be checked.";
+
+/** The precondition's answer within the bound: null, its refusal text, or the unchecked reason. What is measured is
+ * the elapsed time on a monotonic clock (`now`, performance.now by default) from when this helper starts, which is
+ * when the precondition is asked, to when its answer arrives. An answer that arrives at or after `timeoutMs` is not
+ * accepted, whatever it says, and is the unchecked reason, whether or not the bound's timer has run yet; a late refusal
+ * text is reported as the unchecked reason too, so that no answer after the bound is taken as the precondition's. The
+ * timer refuses a precondition that never settles at the bound, so it cannot hold the caller. Every outcome goes
+ * through `decide`, which takes the first and drops every later one. */
+export function checkBatchPrecondition(
+  precondition: BatchPrecondition,
+  timeoutMs: number = PRECONDITION_TIMEOUT_MS,
+  now: () => number = () => performance.now()
+): Promise<string | null> {
+  const deadline = now() + timeoutMs;
+  return new Promise<string | null>((resolve) => {
+    let decided = false;
+    const decide = (value: string | null) => {
+      if (decided) return;
+      decided = true;
+      clearTimeout(timer);
+      resolve(value);
+    };
+    const timer = setTimeout(() => decide(PRECONDITION_UNCHECKED_REASON), timeoutMs);
+    const answered = (value: string | null) => decide(now() < deadline ? value : PRECONDITION_UNCHECKED_REASON);
+    Promise.resolve()
+      .then(() => precondition())
+      .then(
+        (result: unknown) => answered(result === null ? null : typeof result === "string" && result.trim() !== "" ? result : PRECONDITION_UNCHECKED_REASON),
+        () => decide(PRECONDITION_UNCHECKED_REASON)
+      );
+  });
+}
+
+/** The queue with entry `key`'s last-apply refusal set, or cleared when `refusal` is null. */
+function withApplyRefusal(entries: QueuedBatch[], key: string, refusal: NonNullable<QueuedBatch["lastApplyRefusal"]> | null): QueuedBatch[] {
+  if (refusal === null && !entries.some((entry) => entry.key === key && entry.lastApplyRefusal)) return entries;
+  return entries.map((entry) => {
+    if (entry.key !== key) return entry;
+    const { lastApplyRefusal: _cleared, ...rest } = entry;
+    return refusal === null ? rest : { ...rest, lastApplyRefusal: refusal };
+  });
+}

@@ -93,7 +93,7 @@ describe("committed load/reference-state request models render unmodified in the
     expect(Object.hasOwn(model, "diagnostics")).toBe(false);
     render(<SolvePanel analysisRun={null} model={model} result={result} running={false} solveJob={initialSolveJob()} solverMode="sparse_interactive" onCancel={() => {}} onRun={() => {}} onSolverModeChange={() => {}} />);
     expect(screen.getByTestId("readiness-diagnostics")).toHaveTextContent(`${result.diagnostics.length} diagnostic`);
-    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("ordinary pressure-2");
+    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("ordinary pressure-3");
     expect(JSON.stringify(model)).toBe(bytes);
   });
 
