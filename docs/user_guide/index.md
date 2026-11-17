@@ -1024,7 +1024,8 @@ units), whether it `passed`, `failed`, was `unresolved`, is
 status 0, when the decision is not `rejected`. That means only that the
 document is readable and its checked relations do not contradict it. **It is
 not numerical eligibility and not admission.** Without `request`, the binding
-and the model-derived mass are not checked, so the read is
+to your request and the model-derived mass are not checked; the document's
+internal binding relations are still checked. The read is therefore
 `not_fully_validated`. A document read against a request other than the one
 it binds is rejected, with exit status 1. A refused document reads as
 `refusal_consistent` when its refusals are well formed. The reader re-derives
