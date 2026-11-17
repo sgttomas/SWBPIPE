@@ -21,13 +21,13 @@ test("a command line the runner does not accept is refused before the build lock
   }
 });
 
-test("the runner starts the app only through judgedPhase or runUnderLock with caffeinate, and signals no process itself", () => {
+test("the runner starts the app only through judgedPhase or, in the declared fault phase, runUnderLock, and signals no process itself", () => {
   const source = readFileSync(runner, "utf8");
   assert.doesNotMatch(source, /\bimport\s*\{[^}]*\bspawn\b[^}]*\}\s*from\s*"node:child_process"/, "no direct spawn");
   assert.doesNotMatch(source, /process\.kill\(|\.kill\("SIG/, "no signal sent by the runner itself");
   const starts = [...source.matchAll(/runUnderLock\(([^,]+),/g)].map((match) => match[1].trim());
-  // The build's commands (`run` and runCargo) and the autosave journey's one aborted launch.
-  assert.deepEqual(starts.sort(), ["CAFFEINATE", "command", "command"].sort());
+  // The build's commands (`run` and runCargo) and the declared fault phase's one launch of the app itself.
+  assert.deepEqual(starts.sort(), ["binary", "command", "command"].sort());
   assert.equal((source.match(/judgedPhase\(\{/g) ?? []).length, 1, "one judged launch path");
-  assert.match(source, /runUnderLock\(CAFFEINATE, \["-di", binary\], \{[^}]*abort: controller\.signal \}\)/);
+  assert.match(source, /runUnderLock\(binary, \[\], \{[^}]*abort: controller\.signal \}\)/);
 });

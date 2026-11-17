@@ -340,14 +340,19 @@ async function settleGroup(pgid, waitMs) {
 // group, which the stop handler signals whole and waits to see empty; under an
 // inherited lock (or none) it stays in this process's group, which the holder
 // above signals. `timeoutMs` sends SIGKILL to the command (its group) once
-// passed. `abort`, an AbortSignal, sends SIGKILL the same way when it is aborted
-// while the command runs: `aborted` in the result is true only when that SIGKILL
-// was sent, before the command closed and with no stop signal being handled (the
-// stop handler keeps precedence). It is not proof the command died of it; the
-// result's `signal` says how it ended. An abort already aborted starts nothing
-// and resolves at once with `started: false`. Once the command has closed, an
-// abort sends nothing, so it never reaches a settled or reused group. Resolves
-// with { status, signal, stdout, stderr, error, timedOut, aborted, started } once
+// passed. `abort`, an AbortSignal, sends SIGKILL to the same target when it is
+// aborted while the command runs, before it has closed, with no stop signal being
+// handled and its time limit not yet fired (the stop handler and the time limit keep
+// precedence). The result's `abort` is null when no SIGKILL was attempted for it,
+// otherwise its receipt: { requested_at, target, signal, delivered, delivered_at,
+// error }, where `target` is the command's own tracked group ("group <pgid>") or,
+// with no group of its own, its process ("process <pid>"); `delivered` is true only
+// when that operating-system signalling call returned without an error, and
+// `aborted` is the same fact. Neither is proof the command died of it; the result's
+// `signal` says how the command ended. An abort already aborted starts nothing and
+// resolves at once with `started: false`. Once the command has closed, an abort
+// sends nothing, so it never reaches a settled or reused group. Resolves
+// with { status, signal, stdout, stderr, error, timedOut, aborted, abort, started } once
 // the command has closed and, holding the lock, its group is settled. A group
 // that cannot be confirmed empty keeps the lock, prints the removal steps and
 // ends the process (exit 1). Never settles once a stop signal is being handled:
@@ -355,7 +360,7 @@ async function settleGroup(pgid, waitMs) {
 export function runUnderLock(command, args = [], { cwd, env = process.env, stdio = ["ignore", "pipe", "pipe"], timeoutMs, abort } = {}) {
   if (stopping !== null) return new Promise(() => {});
   if (abort?.aborted) {
-    return Promise.resolve({ status: null, signal: null, stdout: "", stderr: "", error: new Error(`${command} was not started: its abort signal was already aborted`), timedOut: false, aborted: false, started: false });
+    return Promise.resolve({ status: null, signal: null, stdout: "", stderr: "", error: new Error(`${command} was not started: its abort signal was already aborted`), timedOut: false, aborted: false, abort: null, started: false });
   }
   const own = held !== null && !held.inherited;
   const killWaitMs = held?.killWaitMs ?? KILL_WAIT_MS;
@@ -369,7 +374,7 @@ export function runUnderLock(command, args = [], { cwd, env = process.env, stdio
     child.stderr?.on("data", (chunk) => err.push(chunk));
     let error = null;
     let timedOut = false;
-    let aborted = false;
+    let abortReceipt = null;
     let closed = false;
     child.on("error", (failure) => { error = failure; });
     const kill = () => {
@@ -382,10 +387,39 @@ export function runUnderLock(command, args = [], { cwd, env = process.env, stdio
           kill();
         }, timeoutMs)
       : null;
+    // The abort's SIGKILL, with its receipt: delivered only when the signalling call to the tracked group (or,
+    // without a group of its own, the process) returned without an error.
     const onAbort = () => {
       if (closed || stopping !== null || timedOut) return;
-      aborted = true;
-      kill();
+      const requested = Date.now();
+      let delivered = false;
+      let failure = null;
+      let target;
+      if (child.exitCode !== null || child.signalCode !== null) {
+        // Its leader has already exited: nothing is sent, so a group id freed meanwhile is never reached.
+        target = pgid !== null ? `group ${pgid}` : `process ${child.pid ?? "none"}`;
+        failure = "the command had already exited";
+      } else if (pgid !== null) {
+        target = `group ${pgid}`;
+        if (!groups.has(pgid)) failure = "the group is no longer tracked";
+        else {
+          try {
+            process.kill(-pgid, "SIGKILL");
+            delivered = true;
+          } catch (error) {
+            failure = error.code ?? error.message;
+          }
+        }
+      } else {
+        target = `process ${child.pid ?? "none"}`;
+        try {
+          delivered = child.kill("SIGKILL");
+          if (!delivered) failure = "the process could not be signalled";
+        } catch (error) {
+          failure = error.code ?? error.message;
+        }
+      }
+      abortReceipt = { requested_at: requested, target, signal: "SIGKILL", delivered, delivered_at: delivered ? Date.now() : null, error: failure };
     };
     abort?.addEventListener("abort", onAbort, { once: true });
     child.on("close", async (status, signal) => {
@@ -398,7 +432,7 @@ export function runUnderLock(command, args = [], { cwd, env = process.env, stdio
         process.exit(1);
       }
       if (stopping !== null) return;
-      resolve({ status: error ? null : status, signal, stdout: Buffer.concat(out).toString("utf8"), stderr: Buffer.concat(err).toString("utf8"), error, timedOut, aborted, started: true });
+      resolve({ status: error ? null : status, signal, stdout: Buffer.concat(out).toString("utf8"), stderr: Buffer.concat(err).toString("utf8"), error, timedOut, aborted: abortReceipt?.delivered === true, abort: abortReceipt, started: true });
     });
   });
 }

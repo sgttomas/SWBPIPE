@@ -12,9 +12,104 @@ import {
   autosaveSlot, canonical, crc32, documentSha256, driverTimeout, dumpStore, inspectReportPackage, isCanonicalText,
   judgeAutosaveRecord, packageStatusFields, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip,
   sha256Hex, timeoutText, ALL_JOURNEYS, parseRunnerArgs, homeRemovalRefusal, removalIdentityRefusal, readHomeMarker, HOME_MARKER,
-  UNFINISHED_BY_MACHINE, CONFINEMENT_TERM, NOTHING_ELSE_WATCHED, TRIPWIRE_LIMITS, STRICT_CHOOSER_EXIT
+  UNFINISHED_BY_MACHINE, CONFINEMENT_TERM, NOTHING_ELSE_WATCHED, TRIPWIRE_LIMITS, STRICT_CHOOSER_EXIT,
+  FAULT_PHASE, faultDeclaration, faultDeclarationRefusal, ordinaryLaunchRefusal, finalReportAbsence, faultPhaseFailures, autosaveJourneyFailures
 } from "./evidence-checks.mjs";
 import { STRICT_CHOOSER_ENV, STRICT_CHOOSER_VALUE } from "./launch-env.mjs";
+import { launchFailures } from "./launch-outcome.mjs";
+
+test("only the autosave-recovery journey's autosave-end phase may carry the fault declaration, exactly as declared", () => {
+  const declared = { phase: "autosave-end", fault: faultDeclaration() };
+  assert.deepEqual(FAULT_PHASE, { journey: "autosave-recovery", phase: "autosave-end" });
+  assert.equal(faultDeclaration().expected_signal, "SIGKILL");
+  assert.equal(faultDeclarationRefusal("autosave-recovery", declared), null);
+  assert.match(faultDeclarationRefusal("autosave-recovery", { phase: "autosave-end" }), /^FAULT-UNDECLARED/);
+  assert.match(faultDeclarationRefusal("autosave-recovery", { phase: "autosave-end", fault: { ...faultDeclaration(), expected_signal: "SIGTERM" } }), /^FAULT-DECLARATION-WRONG/);
+  assert.match(faultDeclarationRefusal("autosave-recovery", { phase: "autosave-reopen", fault: faultDeclaration() }), /^FAULT-NOT-DECLARABLE/);
+  assert.match(faultDeclarationRefusal("report-exact", { phase: "autosave-end", fault: faultDeclaration() }), /^FAULT-NOT-DECLARABLE/);
+  assert.equal(faultDeclarationRefusal("report-exact", { phase: "report" }), null, "an ordinary plan carries none");
+  // The ordinary (judged) launch refuses a declared plan and the declared phase itself, declared or not.
+  assert.equal(ordinaryLaunchRefusal("autosave-recovery", { phase: "autosave-reopen" }), null);
+  assert.match(ordinaryLaunchRefusal("autosave-recovery", declared), /carries a fault declaration/);
+  assert.match(ordinaryLaunchRefusal("autosave-recovery", { phase: "autosave-end" }), /is the declared fault phase/);
+  assert.match(ordinaryLaunchRefusal("report-exact", { phase: "report", fault: faultDeclaration() }), /carries a fault declaration/);
+});
+
+test("a final report is absent only on ENOENT in a real folder; a file of any contents, or an unknown answer, is not absence", () => {
+  const dir = realpathSync(mkdtempSync(path.join(os.tmpdir(), "evidence-final-report-")));
+  try {
+    const file = path.join(dir, "report-autosave-end.json");
+    assert.deepEqual(finalReportAbsence(file, lstatSync), { absent: true });
+    for (const [label, bytes] of [["empty", ""], ["malformed", "{\"ok\": tru"], ["parsed", "{\"ok\": false}"]]) {
+      writeFileSync(file, bytes);
+      assert.equal(finalReportAbsence(file, lstatSync).absent, false, label);
+      rmSync(file);
+    }
+    writeFileSync(file, "{}");
+    fs.chmodSync(file, 0o000);
+    assert.equal(finalReportAbsence(file, lstatSync).absent, false, "an unreadable file is present");
+    fs.chmodSync(file, 0o600);
+    rmSync(file);
+    mkdirSync(file);
+    assert.match(finalReportAbsence(file, lstatSync).reason, /not a regular file/);
+    rmSync(file, { recursive: true });
+    assert.match(finalReportAbsence(path.join(dir, "gone", "report.json"), lstatSync).reason, /cannot be examined/);
+    const eio = (target) => { if (target === file) { const error = new Error("io"); error.code = "EIO"; throw error; } return lstatSync(target); };
+    assert.match(finalReportAbsence(file, eio).reason, /could not be established \(EIO\)/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// A fault phase that met every condition, as the runner records it; each case below changes one thing.
+function faultCase(change = {}) {
+  const nonce = "a".repeat(32);
+  const plan = { phase: "autosave-end", nonce, fault: faultDeclaration() };
+  const base = {
+    journey: "autosave-recovery", plan, planRecord: { plan, written_at: 1000 }, startedAt: 1001, nonce,
+    ended: { value: { second: { nonce } }, observed_at: 5000, waited_out: false },
+    result: { status: null, signal: "SIGKILL", timedOut: false, aborted: true, abort: { requested_at: 5001, target: "group 4242", signal: "SIGKILL", delivered: true, delivered_at: 5002, error: null } },
+    census: { resolved: true }, finalReport: { absent: true }
+  };
+  return { ...base, ...change };
+}
+const codes = (failures) => failures.map((failure) => failure.split(":")[0]);
+
+test("the declared fault phase passes only when every condition holds; each failed condition is named and none is reclassified", () => {
+  assert.deepEqual(faultPhaseFailures(faultCase()), []);
+  const undeclared = { phase: "autosave-end", nonce: "a".repeat(32) };
+  const cases = {
+    "FAULT-UNDECLARED": faultCase({ plan: undeclared, planRecord: { plan: undeclared, written_at: 1000 } }),
+    "FAULT-NOT-DECLARABLE": faultCase({ journey: "report-exact" }),
+    "FAULT-PLAN-NOT-RECORDED": faultCase({ planRecord: null }),
+    "FAULT-DECLARED-LATE": faultCase({ planRecord: { plan: faultCase().plan, written_at: 1002 } }),
+    "FAULT-CHECKPOINT-NOT-SEEN": faultCase({ ended: { value: null, observed_at: 5000, waited_out: true } }),
+    "FAULT-CHECKPOINT-NOT-THIS-LAUNCH": faultCase({ ended: { value: { second: { nonce: "b".repeat(32) } }, observed_at: 5000, waited_out: false } }),
+    "FAULT-SIGKILL-BEFORE-CHECKPOINT": faultCase({ ended: { value: { second: { nonce: "a".repeat(32) } }, observed_at: 6000, waited_out: false } }),
+    "FAULT-SIGKILL-NOT-DELIVERED": faultCase({ result: { ...faultCase().result, aborted: false, abort: { ...faultCase().result.abort, delivered: false, delivered_at: null, error: "EPERM" } } }),
+    "FAULT-TIMED-OUT": faultCase({ result: { ...faultCase().result, timedOut: true } }),
+    "FAULT-CENSUS-UNRESOLVED": faultCase({ census: { resolved: false, reason: "process 7 still ran" } }),
+    "FAULT-FINAL-REPORT-NOT-ABSENT": faultCase({ finalReport: { absent: false, reason: "a final report exists (a file of 11 bytes)" } })
+  };
+  for (const [code, input] of Object.entries(cases)) assert.ok(codes(faultPhaseFailures(input)).includes(code), `${code}: ${JSON.stringify(faultPhaseFailures(input))}`);
+  // No SIGKILL attempted, a natural exit, another signal: not the declared ending.
+  assert.ok(codes(faultPhaseFailures(faultCase({ result: { status: 0, signal: null, timedOut: false, aborted: false, abort: null } }))).includes("FAULT-SIGKILL-NOT-DELIVERED"));
+  assert.ok(codes(faultPhaseFailures(faultCase({ result: { ...faultCase().result, status: 0, signal: null } }))).includes("FAULT-NOT-ENDED-BY-SIGKILL"), "a natural exit");
+  assert.ok(codes(faultPhaseFailures(faultCase({ result: { ...faultCase().result, signal: "SIGTERM" } }))).includes("FAULT-NOT-ENDED-BY-SIGKILL"), "another signal");
+  // Undelivered to a process rather than the group is not delivery to its own group.
+  assert.ok(codes(faultPhaseFailures(faultCase({ result: { ...faultCase().result, abort: { ...faultCase().result.abort, target: "process 4242" } } }))).includes("FAULT-SIGKILL-NOT-DELIVERED"));
+});
+
+test("the fault phase alone never passes the autosave journey: an ordinary recovery launch and every recovery check must pass too", () => {
+  const ordinary = (outcome) => launchFailures({ status: 0, signal: null, timedOut: false, census: { resolved: true }, report: { nonce: "n" }, nonce: "n", ...outcome });
+  assert.deepEqual(autosaveJourneyFailures({ fault: [], reopen: ordinary({}), recovery: [] }), [], "a declared fault and a successful ordinary recovery");
+  assert.ok(autosaveJourneyFailures({ fault: [], reopen: null, recovery: [] }).some((failure) => failure.startsWith("RECOVERY-NOT-LAUNCHED")), "no recovery launch");
+  assert.ok(autosaveJourneyFailures({ fault: [], reopen: ordinary({ status: 86 }), recovery: [] }).some((failure) => failure.startsWith("LAUNCH-EXIT-NOT-ZERO")), "a failed recovery launch");
+  assert.ok(autosaveJourneyFailures({ fault: [], reopen: ordinary({ signal: "SIGKILL", status: null }), recovery: [] }).some((failure) => failure.startsWith("LAUNCH-SIGNALLED")), "a recovery launch ended by a signal is not excused");
+  assert.deepEqual(autosaveJourneyFailures({ fault: [], reopen: ordinary({}), recovery: ["the recovered document has the model hash the record's name carries"] }), ["the recovered document has the model hash the record's name carries"]);
+  assert.ok(autosaveJourneyFailures({ fault: ["FAULT-NOT-ENDED-BY-SIGKILL: x"], reopen: ordinary({}), recovery: [] }).length > 0, "a failed fault phase with a good recovery");
+  assert.ok(autosaveJourneyFailures({ fault: undefined, reopen: ordinary({}), recovery: [] }).includes("FAULT-NOT-JUDGED"));
+});
 
 test("the strict chooser's exit code and switch agree with the native-smoke build", () => {
   const rust = readFileSync(new URL("../src-tauri/src/native_smoke.rs", import.meta.url), "utf8");

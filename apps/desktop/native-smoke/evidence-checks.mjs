@@ -100,10 +100,99 @@ export const STRICT_CHOOSER_EXIT = 86;
 export const STRICT_CHOOSER_LIMIT = "a wrong chooser can still consume a queued answer inside the throwaway home, which writes there, and the strict stop then fires at the next chooser.";
 
 /** Which processes the runner signals and waits for. */
-export const PROCESS_SCOPE = "Every launch runs under the worktree build lock's runUnderLock as /usr/bin/caffeinate -di <the run's private app copy>, in a process group of its own; the runner signals only that group (at its time limit, at a stop signal, or, for the autosave journey, by its abort), never a process found by a scan. After each launch the census (launch-env.mjs awaitNoProcesses) waits for no process running the private copy, and no throwaway home is removed until it finds none. Helpers the system starts for the web view (started by launchd through XPC) are outside that group and that census; the runner neither signals nor waits for them.";
+export const PROCESS_SCOPE = "Every ordinary launch runs under the worktree build lock's runUnderLock as /usr/bin/caffeinate -di <the run's private app copy>, in a process group of its own; the declared fault phase starts the private app copy itself as that group's leader, without caffeinate, so the signal observed as its ending is the app's own. The runner signals only that group (at its time limit, at a stop signal, or, in the declared fault phase, by its abort), never a process found by a scan. After each launch the census (launch-env.mjs awaitNoProcesses) waits for no process running the private copy, and no throwaway home is removed until it finds none. Helpers the system starts for the web view (started by launchd through XPC) are outside that group and that census; the runner neither signals nor waits for them.";
 
 /** The rule for a throwaway home a run could not remove. */
 export const LEFT_HOME_RULE = "A throwaway home left by a run counts as open until it is removed. Only the lane that made it removes it, after confirming that no process runs the run's private app copy; nobody removes another lane's home.";
+
+// ---------------------------------------------------------------- the declared fault-injection phase
+
+/** The one launch that may end other than by ordinary completion (DEL-07-11 VER-008): the autosave-recovery journey's
+ * autosave-end phase, declared in its plan, before the launch, with the SIGKILL it expects. */
+export const FAULT_PHASE = Object.freeze({ journey: "autosave-recovery", phase: "autosave-end" });
+
+/** The declaration that phase's plan carries, exactly. */
+export function faultDeclaration() {
+  return { kind: "app-process-kill", journey: FAULT_PHASE.journey, phase: FAULT_PHASE.phase, expected_signal: "SIGKILL" };
+}
+
+/** Why `plan`, for a launch of `journey`, must not be launched as it stands, or null. Only the declared phase may carry
+ * a fault declaration, and it must carry exactly faultDeclaration(); every other plan must carry none. */
+export function faultDeclarationRefusal(journey, plan) {
+  const declared = plan?.fault;
+  const theFaultPhase = journey === FAULT_PHASE.journey && plan?.phase === FAULT_PHASE.phase;
+  if (!theFaultPhase) return declared === undefined ? null : `FAULT-NOT-DECLARABLE: ${journey}/${plan?.phase} may not carry a fault declaration`;
+  if (declared === undefined) return `FAULT-UNDECLARED: ${journey}/${plan.phase} carries no fault declaration`;
+  if (canonical(declared) !== canonical(faultDeclaration())) return `FAULT-DECLARATION-WRONG: ${journey}/${plan.phase} declares ${canonical(declared)}`;
+  return null;
+}
+
+/** Why `plan` must not go through an ordinary (judged) launch, or null: an ordinary launch carries no fault declaration
+ * and is never the declared phase, which has its own launch and judgment. */
+export function ordinaryLaunchRefusal(journey, plan) {
+  if (plan?.fault !== undefined) return `ORDINARY-LAUNCH-REFUSED: ${journey}/${plan?.phase} carries a fault declaration`;
+  if (journey === FAULT_PHASE.journey && plan?.phase === FAULT_PHASE.phase) return `ORDINARY-LAUNCH-REFUSED: ${journey}/${plan.phase} is the declared fault phase`;
+  return null;
+}
+
+/** Whether the launch's final-report file is absent: { absent: true } only when its folder is a real folder and lstat
+ * of the file answers ENOENT. A file of any contents (empty, malformed, unreadable), anything else at the path, or an
+ * answer that cannot be had is not absence. `lstat` is fs.lstatSync. */
+export function finalReportAbsence(file, lstat) {
+  try {
+    if (!lstat(path.dirname(file)).isDirectory()) return { absent: false, reason: `${path.dirname(file)} is not a folder` };
+  } catch (error) {
+    return { absent: false, reason: `the report's folder cannot be examined (${error.code ?? error.message})` };
+  }
+  try {
+    const seen = lstat(file);
+    return { absent: false, reason: `a final report exists at ${file} (${seen.isFile() ? `a file of ${seen.size} bytes` : "not a regular file"})` };
+  } catch (error) {
+    if (error.code === "ENOENT") return { absent: true };
+    return { absent: false, reason: `whether a final report exists could not be established (${error.code ?? error.message})` };
+  }
+}
+
+/** The named failures of the declared fault phase; empty only when every condition of DEL-07-11 VER-008 holds:
+ * - `plan` (the plan the launch was given) carries the declaration (faultDeclarationRefusal), and `planRecord`, the
+ *   plan as written to the run's evidence, holds that same plan and was written before the launch started
+ *   (`startedAt`, unix ms);
+ * - `ended`: the condition the runner polled was met (`waited_out` false) by the second edit's checkpoint carrying the
+ *   launch's nonce, observed (`observed_at`) before the kill was requested;
+ * - `result` (runUnderLock's): the abort's SIGKILL was delivered to the launch's own group, requested after that
+ *   observation; the command (the app itself) ended on SIGKILL with no exit status and no time limit;
+ * - `census` resolved with no process of the private app copy;
+ * - `finalReport` (finalReportAbsence) absent. */
+export function faultPhaseFailures({ journey, plan, planRecord, startedAt, ended, nonce, result, census, finalReport }) {
+  const failures = [];
+  const refusal = faultDeclarationRefusal(journey, plan);
+  if (refusal) failures.push(refusal);
+  if (!planRecord || canonical(planRecord.plan ?? null) !== canonical(plan ?? null)) failures.push("FAULT-PLAN-NOT-RECORDED: the run's evidence does not hold the plan the launch was given");
+  else if (!(Number.isFinite(planRecord.written_at) && Number.isFinite(startedAt) && planRecord.written_at <= startedAt)) failures.push("FAULT-DECLARED-LATE: the plan was not recorded before the launch started");
+  const checkpoint = ended?.value?.second ?? null;
+  if (!ended || ended.waited_out !== false || !checkpoint) failures.push("FAULT-CHECKPOINT-NOT-SEEN: the second edit's checkpoint was not observed before the kill was asked for");
+  else if (typeof nonce !== "string" || checkpoint.nonce !== nonce) failures.push("FAULT-CHECKPOINT-NOT-THIS-LAUNCH: the checkpoint does not carry this launch's nonce");
+  const abort = result?.abort ?? null;
+  if (!(result?.aborted === true && abort?.delivered === true && typeof abort.target === "string" && abort.target.startsWith("group ") && Number.isFinite(abort.delivered_at))) {
+    failures.push(`FAULT-SIGKILL-NOT-DELIVERED: ${abort ? `${abort.target}: ${abort.error ?? "not delivered"}` : "no SIGKILL was attempted"}`);
+  } else if (!(Number.isFinite(ended?.observed_at) && abort.requested_at >= ended.observed_at)) failures.push("FAULT-SIGKILL-BEFORE-CHECKPOINT: the kill was asked for before the checkpoint was observed");
+  if (result?.timedOut) failures.push("FAULT-TIMED-OUT: the runner's time limit ended the launch");
+  if (!(result?.signal === "SIGKILL" && result?.status === null)) failures.push(`FAULT-NOT-ENDED-BY-SIGKILL: the app ended with status ${result?.status ?? "none"} and signal ${result?.signal ?? "none"}`);
+  if (census?.resolved !== true) failures.push(`FAULT-CENSUS-UNRESOLVED: ${census?.reason ?? "no census"}`);
+  if (finalReport?.absent !== true) failures.push(`FAULT-FINAL-REPORT-NOT-ABSENT: ${finalReport?.reason ?? "not established"}`);
+  return failures;
+}
+
+/** The autosave journey's verdict: the fault phase alone never passes it. Failures from the fault phase, the reopen
+ * launch's ordinary-completion judgment (`reopen`: null when it did not run, else its failures) and the recovery
+ * content checks (names of the failed ones); empty only when all three are, and the reopen launch ran. */
+export function autosaveJourneyFailures({ fault, reopen, recovery }) {
+  const failures = [...(fault ?? ["FAULT-NOT-JUDGED"])];
+  if (reopen === null || reopen === undefined) failures.push("RECOVERY-NOT-LAUNCHED: the autosave-reopen launch did not run");
+  else failures.push(...reopen);
+  failures.push(...(recovery ?? ["RECOVERY-NOT-JUDGED"]));
+  return failures;
+}
 
 // ---------------------------------------------------------------- the throwaway homes and their removal
 

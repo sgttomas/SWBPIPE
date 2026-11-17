@@ -522,6 +522,10 @@ test('abort: while the command runs, its group is sent SIGKILL once, the result 
     assert.equal(result.signal, 'SIGKILL');
     assert.equal(result.timedOut, false);
     assert.equal(result.started, true);
+    assert.equal(result.abort.delivered, true, JSON.stringify(result.abort));
+    assert.equal(result.abort.target, `group ${pids[0]}`, 'delivered to the command\'s own group');
+    assert.equal(result.abort.error, null);
+    assert.ok(result.abort.delivered_at >= result.abort.requested_at);
     assert.deepEqual([result.added, result.removed], [1, 1], 'the abort listener was added once and removed at close');
     const [cargo, rustc] = pids;
     assert.ok(!alive(cargo) && !alive(rustc), 'the leader and the member it started are gone');
@@ -545,7 +549,7 @@ test('abort: after the command has closed (a natural exit) it sends nothing and 
     `);
     assert.equal((await runner.done).code, 0, runner.output());
     const result = JSON.parse(runner.output().trim().split('\n').at(-1));
-    assert.deepEqual([result.status, result.signal, result.aborted, result.timedOut], [0, null, false, false]);
+    assert.deepEqual([result.status, result.signal, result.aborted, result.timedOut, result.abort], [0, null, false, false, null]);
     assert.deepEqual(result.plain, { status: 3, signal: null, aborted: false, timedOut: false });
     assert.deepEqual(kills(log).filter(([, , , signal]) => signal === 'SIGKILL'), [], 'no SIGKILL reached any group');
   } finally { t.cleanup(); }
@@ -562,7 +566,7 @@ test('abort: after the timeout has fired, an abort is not recorded as one', asyn
     `);
     assert.equal((await runner.done).code, 0, runner.output());
     const result = JSON.parse(runner.output().trim().split('\n').at(-1));
-    assert.deepEqual([result.timedOut, result.aborted, result.signal], [true, false, 'SIGKILL']);
+    assert.deepEqual([result.timedOut, result.aborted, result.signal, result.abort], [true, false, 'SIGKILL', null]);
   } finally { t.cleanup(); }
 });
 
@@ -590,4 +594,25 @@ test('abort: while a stop signal is being handled, the stop handler keeps preced
     assert.ok(!pids.some(alive), 'the group is gone');
     assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
   } finally { reap(runner, pids); t.cleanup(); }
+});
+
+test('abort: a SIGKILL the operating system refuses is recorded as not delivered, and the result is not aborted', async () => {
+  const t = tempRoot();
+  try {
+    // The first SIGKILL to a group fails as the call itself would (EPERM); the time limit then ends the command.
+    const runner = startScript(t.root, `${KILL_LOG(path.join(t.root, 'kills.log'))}
+      let refused = false;
+      const logged = process.kill;
+      process.kill = (pid, signal) => { if (pid < 0 && signal === 'SIGKILL' && !refused) { refused = true; const error = new Error('refused'); error.code = 'EPERM'; throw error; } return logged(pid, signal); };
+      acquireBuildLock({ purpose: 'abort', root });
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), 150);
+      report(await runUnderLock(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore', timeoutMs: 600, abort: controller.signal }));
+    `);
+    assert.equal((await runner.done).code, 0, runner.output());
+    const result = JSON.parse(runner.output().trim().split('\n').at(-1));
+    assert.equal(result.aborted, false);
+    assert.deepEqual([result.abort.delivered, result.abort.delivered_at, result.abort.error], [false, null, 'EPERM']);
+    assert.deepEqual([result.timedOut, result.signal], [true, 'SIGKILL'], 'the time limit, not the abort, ended it');
+  } finally { t.cleanup(); }
 });

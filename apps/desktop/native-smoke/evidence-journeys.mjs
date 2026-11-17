@@ -31,10 +31,12 @@
 //   autosave-recovery     2 launches. A fresh settings folder: the interval as first shown, turned off (the notice)
 //                         and on at DEL-02-05's shortest choice; the demo saved as a local project; a checkpoint with a
 //                         read-only copy of the store; a first edit (node N-100), left unsaved; once the product
-//                         reports a record written, a second edit (node N-110) at once. As soon as the driver's
-//                         checkpoint of the second edit (carrying this launch's nonce) is on disk, the runner aborts
-//                         the launch: runUnderLock sends SIGKILL to the launch's process group, the app among it, and
-//                         the runner reads the autosave folder at that moment. The relaunch shows the recovery offer;
+//                         reports a record written, a second edit (node N-110) at once. This first launch is the
+//                         declared fault phase: its plan carries the declaration and the SIGKILL it expects, written
+//                         to the evidence before the launch; the app is started directly, and as soon as the driver's
+//                         checkpoint of the second edit (carrying this launch's nonce) is on disk the runner aborts
+//                         the launch: runUnderLock sends SIGKILL to the app's own process group and records whether
+//                         the call succeeded. The autosave folder is read before the kill and again after it. The relaunch shows the recovery offer;
 //                         the window is read before any choice and again after a pause; Open autosave; Save Model
 //                         Document… of the recovered session. The store is compared, row by row, before and after.
 //                         This is a process kill on this host: it does not show what survives a machine crash or a
@@ -62,8 +64,9 @@
 // paths before the first launch and after the last (TRIPWIRE_LIMITS states what it cannot show); and closeRun on
 // every exit the runner can catch, which keeps the homes, the copy, the marker and the lock when termination is
 // unresolved. A launch is judged by the one rule of `launch-outcome.mjs` (exit 0, no signal, no timeout, a resolved
-// census, this launch's nonce in its report); the autosave journey's first launch is judged by its own rule
-// (judgeAbortedLaunch below). The embedded agent is never started; no model, network, key or sign-in is used.
+// census, this launch's nonce in its report). The one exception is the declared fault phase (DEL-07-11 VER-008), the
+// autosave journey's first launch, judged by faultPhaseFailures (launchFaultPhase below); its recovery launch is an
+// ordinary one, and the journey passes only with both and every recovery check (autosaveJourneyFailures). The embedded agent is never started; no model, network, key or sign-in is used.
 //
 // A throwaway home is removed only when it is one this run created (homeRemovalRefusal), every folder from it up to
 // the run's folder still has the device and inode recorded at creation, and its marker holds the random token made
@@ -98,7 +101,7 @@ import { newNonce, readReport, recordedOutcome } from "./launch-outcome.mjs";
 import { MARK_PRESENT, UNRESOLVED_TERMINATION, judgedPhase, phaseContinuation } from "./judged-launch.mjs";
 import { marksCheck, marksRefuse } from "./marks-check.mjs";
 import {
-  CONFINEMENT_TERM, HOME_MARKER, LEFT_HOME_RULE, NOTHING_ELSE_WATCHED, PROCESS_SCOPE, STRICT_CHOOSER_EXIT, STRICT_CHOOSER_LIMIT, TRIPWIRE_LIMITS, UNFINISHED_BY_MACHINE,
+  CONFINEMENT_TERM, FAULT_PHASE, HOME_MARKER, LEFT_HOME_RULE, autosaveJourneyFailures, faultDeclaration, faultDeclarationRefusal, faultPhaseFailures, finalReportAbsence, ordinaryLaunchRefusal, NOTHING_ELSE_WATCHED, PROCESS_SCOPE, STRICT_CHOOSER_EXIT, STRICT_CHOOSER_LIMIT, TRIPWIRE_LIMITS, UNFINISHED_BY_MACHINE,
   documentSha256, driverTimeout, dumpStore, homeRemovalRefusal, inspectReportPackage, isCanonicalText, judgeAutosaveRecord, packageStatusFields, parseAutosaveName,
   parseCsvFile, parseRunnerArgs, prdRequiredNotice, readHomeMarker, readStoredZip, removalIdentityRefusal, sha256Hex, timeoutText
 } from "./evidence-checks.mjs";
@@ -399,6 +402,12 @@ async function launch(where, plan, { timeoutMs = PHASE_TIMEOUT_MS } = {}) {
   const report = path.join(where.root, `report-${plan.phase}.json`);
   const nonce = newNonce();
   console.log(`\n== ${journey}: phase ${plan.phase} (HOME=${where.home})`);
+  // An ordinary launch carries no fault declaration and is not the declared phase: ordinary completion only.
+  const ordinary = ordinaryLaunchRefusal(journey, plan);
+  if (ordinary) {
+    refuseLine(`${ordinary}; not launched`);
+    return exitAfterSignals(2);
+  }
   const env = launchEnv(where, planFor(plan, nonce), report);
   if (env === null) return exitAfterSignals(2);
   const seen = await judgedPhase({
@@ -420,70 +429,73 @@ function strictChooserStop(phase, outcome, report) {
   check(`phase ${phase}: no chooser was asked without a queued answer inside the home`, false, `the app ended with the strict chooser's exit code ${STRICT_CHOOSER_EXIT} during the act: ${act}`);
 }
 
-// The autosave journey's first launch, which the runner ends itself. The same refusals, marks, start, census and
-// record as a judged launch, with one difference: once `condition()` returns a value (polled every 100 ms) or
-// `waitLimitMs` passes, the runner aborts the launch, and runUnderLock sends SIGKILL to the launch's own process group
-// (caffeinate and the app under it), the same group its time limit would kill. An unresolved census ends the run.
-// Returns { ended, outcome, report }; judgeAbortedLaunch decides whether it is the planned end.
-async function launchUntilEnded(where, plan, condition, { waitLimitMs, timeoutMs = PHASE_TIMEOUT_MS }) {
+// The declared fault-injection phase (DEL-07-11 VER-008), the one launch that may end other than by ordinary
+// completion. Refused unless its plan carries exactly faultDeclaration() and it is FAULT_PHASE. The plan, with that
+// declaration, is written to the journey's folder before the launch (`plan-<phase>.json`, with the time it was
+// written). The same refusals, marks, run marker and census as a judged launch, with two differences:
+// - the private app copy is started directly (no caffeinate), as the leader of its own process group under
+//   runUnderLock, so the signal the runner observes as the command's ending is the app's own;
+// - once `condition(nonce)` returns a value (polled every 100 ms), or `waitLimitMs` passes, the runner aborts the
+//   launch: runUnderLock sends SIGKILL to that group and returns its receipt (delivered only when the signalling
+//   call succeeded).
+// Then the census and whether a final-report file exists. An unresolved census ends the run. faultPhaseFailures
+// judges the result; nothing here reclassifies an outcome.
+async function launchFaultPhase(where, plan, condition, { waitLimitMs, timeoutMs = PHASE_TIMEOUT_MS }) {
   const phase = `${journey}/${plan.phase}`;
   const report = path.join(where.root, `report-${plan.phase}.json`);
   const nonce = newNonce();
-  console.log(`\n== ${journey}: phase ${plan.phase} (HOME=${where.home})`);
-  const env = launchEnv(where, planFor(plan, nonce), report);
+  console.log(`\n== ${journey}: phase ${plan.phase}, the declared fault phase (HOME=${where.home})`);
+  const declaration = faultDeclarationRefusal(journey, plan) ?? (plan.fault === undefined ? `FAULT-UNDECLARED: ${phase}` : null);
+  if (declaration) {
+    refuseLine(`${declaration}; not launched`);
+    return exitAfterSignals(2);
+  }
+  const fullPlan = planFor(plan, nonce);
+  const env = launchEnv(where, fullPlan, report);
   if (env === null) return exitAfterSignals(2);
+  const planRecordPath = path.join(where.root, `plan-${plan.phase}.json`);
+  writeFileSync(planRecordPath, JSON.stringify({ plan: fullPlan, written_at: Date.now() }, null, 2), { flag: "wx" });
   const marks = marksCheck();
   console.log(`phase ${phase}: marks, directly before the launch: ${JSON.stringify(marks)}`);
   if (marksRefuse(marks)) {
-    launches[phase] = { marks, launched: false };
+    launches[phase] = { marks, launched: false, plan_record: planRecordPath };
     writeFileSync(path.join(RUN_ROOT, "summary.json"), JSON.stringify({ ...runRecord(), launches, refused: MARK_PRESENT }, null, 2));
     refuseLine(`${MARK_PRESENT}: an agent may be operating the App on the screen, or the marks could not be checked; not launched`);
     return exitAfterSignals(2);
   }
   beforeStart(where);
   const controller = new AbortController();
-  const startedAt = Date.now();
   let ended = null;
+  const startedAt = Date.now();
   const poll = setInterval(() => {
     if (ended !== null) return;
     let value = null;
     try { value = condition(nonce); } catch { value = null; }
-    if (value) ended = { value, at: Date.now(), waited_out: false, load: os.loadavg() };
-    else if (Date.now() - startedAt > waitLimitMs) ended = { value: null, at: Date.now(), waited_out: true, load: os.loadavg() };
+    if (value) ended = { value, observed_at: Date.now(), waited_out: false, load: os.loadavg() };
+    else if (Date.now() - startedAt > waitLimitMs) ended = { value: null, observed_at: Date.now(), waited_out: true, load: os.loadavg() };
     if (ended !== null) controller.abort();
   }, 100);
-  const started = new Date().toISOString();
-  const result = await runUnderLock(CAFFEINATE, ["-di", binary], { cwd: where.root, env, stdio: ["ignore", "inherit", "inherit"], timeoutMs, abort: controller.signal });
+  const started = new Date(startedAt).toISOString();
+  const result = await runUnderLock(binary, [], { cwd: where.root, env, stdio: ["ignore", "inherit", "inherit"], timeoutMs, abort: controller.signal });
   clearInterval(poll);
   const endedIso = new Date().toISOString();
   state.termination = await awaitNoProcesses(binary, { boundMs: TERMINATION_BOUND_MS });
-  const outcome = { ...recordedOutcome({ status: result.status, signal: result.signal, timedOut: result.timedOut, census: state.termination, nonce, started, ended: endedIso }), aborted: result.aborted === true, started_command: result.started === true };
-  launches[phase] = { marks, outcome, abort: ended && { at: ended.at, waited_out: ended.waited_out } };
-  if (!state.termination?.resolved) {
+  const census = state.termination;
+  const outcome = { ...recordedOutcome({ status: result.status, signal: result.signal, timedOut: result.timedOut, census, nonce, started, ended: endedIso }), aborted: result.aborted === true, abort: result.abort, started_command: result.started === true };
+  launches[phase] = { marks, outcome, plan_record: planRecordPath, condition: ended && { observed_at: ended.observed_at, waited_out: ended.waited_out } };
+  if (!census?.resolved) {
     writeFileSync(path.join(RUN_ROOT, "summary.json"), JSON.stringify({ ...runRecord(), launches, stopped: UNRESOLVED_TERMINATION }, null, 2));
-    refuseLine(`${UNRESOLVED_TERMINATION} after phase ${phase}: ${state.termination?.reason ?? "no census"}; no further phase starts; evidence in ${RUN_ROOT}`);
+    refuseLine(`${UNRESOLVED_TERMINATION} after phase ${phase}: ${census?.reason ?? "no census"}; no further phase starts; evidence in ${RUN_ROOT}`);
     return exitAfterSignals(1);
   }
   console.log(`phase ${phase}: the census finds no process running the private app copy`);
   strictChooserStop(plan.phase, outcome, report);
-  return { ended, outcome, report: readReport(report) };
-}
-
-// The planned end of the autosave journey's first launch, from what happened, never from the request alone: the
-// intended checkpoint carrying this launch's nonce was on disk when the end was asked for (not the wait running
-// out); runUnderLock sent the SIGKILL (`aborted`, which it sets only when it sent it before the command closed and
-// not after its time limit fired); the launch's command ended on SIGKILL, with no exit status and no time limit; the
-// census then found no process of the private copy; and the app wrote no final report. A natural exit, a time limit
-// or an exit before the SIGKILL fails it.
-function judgeAbortedLaunch(first) {
-  const outcome = first.outcome;
-  return {
-    intended_checkpoint: first.ended !== null && first.ended.waited_out === false && first.ended.value !== null,
-    sigkill_sent: outcome.aborted === true,
-    ended_on_sigkill: outcome.signal === "SIGKILL" && outcome.status === null && outcome.timed_out === false,
-    terminated: outcome.census?.resolved === true,
-    no_final_report: first.report.report === null
-  };
+  const finalReport = finalReportAbsence(report, lstatSync);
+  const failures = faultPhaseFailures({ journey, plan: JSON.parse(env.SWBPIPE_NATIVE_SMOKE_PLAN), planRecord: readJson(planRecordPath), startedAt, ended, nonce, result, census, finalReport });
+  launches[phase].failures = failures;
+  launches[phase].final_report = finalReport;
+  check(`phase ${plan.phase}: the declared fault phase ended as declared (DEL-07-11 VER-008)`, failures.length === 0, failures.length === 0 ? { abort: result.abort } : failures);
+  return { ended, result, outcome, census, finalReport, failures, nonce, report };
 }
 
 // A failed launch's first line, or its timeout with the load average then.
@@ -706,18 +718,21 @@ async function autosaveJourney() {
       .sort((a, b) => parseAutosaveName(b).written_unix_millis - parseAutosaveName(a).written_unix_millis)[0] ?? null;
     return { second, names, first_name: firstName, first_bytes: firstName ? readFileSync(path.join(autosaveDir, firstName)) : null };
   };
-  const first = await launchUntilEnded(where, {
-    phase: "autosave-end", bundled_project_id: demo.project.id, project_id: demo.project.id,
+  // The declared fault phase: its plan carries the declaration, with the SIGKILL it expects, before the launch.
+  const first = await launchFaultPhase(where, {
+    phase: FAULT_PHASE.phase, fault: faultDeclaration(), bundled_project_id: demo.project.id, project_id: demo.project.id,
     interval_minutes: INTERVAL.shortest_minutes, edit: EDIT, second_edit: SECOND_EDIT
   }, atSecondEdit, { waitLimitMs: TIMEOUTS.record + 2 * TIMEOUTS.step });
-  const end = first.report.report ?? { ok: false, error: first.report.problem };
-  const reportWritten = first.report.report !== null;
+  // The autosave folder read again after the app was killed and the census found no process of it.
+  const namesAfter = records();
+  const reportWritten = first.finalReport.absent !== true;
+  const end = reportWritten ? (readReport(first.report).report ?? { ok: false, error: first.finalReport.reason }) : null;
   const before = checkpoint("before-edit");
   const edited = checkpoint("edited");
-  check("first launch: the driver reported no error before it was ended", !reportWritten || end.ok, reportWritten ? failure(end) : "no final report (the launch was ended)");
+  if (reportWritten) observe("first launch: a final report was found (the fault phase fails on it)", end?.error ? failure(end) : first.finalReport.reason);
   for (const name of ["before-edit", "edited", "second-edit"]) {
     const seen = checkpoint(name);
-    check(`first launch: the ${name} checkpoint carries this launch's nonce`, seen !== null && seen.nonce === first.outcome.nonce, seen?.nonce ?? null);
+    check(`first launch: the ${name} checkpoint carries this launch's nonce`, seen !== null && seen.nonce === first.nonce, seen?.nonce ?? null);
   }
   check(`on a fresh settings folder autosave is on at DEL-02-05's default, every ${INTERVAL.default_minutes} minutes, with no off notice`,
     before?.setting_on_start?.value === String(INTERVAL.default_minutes) && !before.setting_on_start.off_notice && !before.setting_on_start.off_status, before?.setting_on_start);
@@ -737,15 +752,16 @@ async function autosaveJourney() {
   const second = at?.second?.second_edit ?? null;
   check("the product reported a record written after the first edit, then the second edit (node N-110) applied",
     /^Autosaved at /.test(at?.second?.first_record_status ?? "") && second?.summary && second.at >= second.started_at, at?.second && { status: at.second.first_record_status, second });
-  // The planned end, judged from what happened (judgeAbortedLaunch): every part must hold.
-  const planned = judgeAbortedLaunch(first);
-  check("the app ended without warning: after the second edit's checkpoint, runUnderLock sent SIGKILL to the launch's process group, the launch ended on SIGKILL (no exit status, no time limit), the census found no process of the private copy, and no final report was written",
-    Object.values(planned).every(Boolean), { ...planned, outcome: first.outcome, waited_out: ended?.waited_out ?? null, load_at_end: ended?.load?.map((value) => Number(value.toFixed(2))) });
+  // The kill's time is the delivered SIGKILL's (runUnderLock's receipt), not the moment the condition was polled.
+  const killedAt = first.result.abort?.delivered === true ? first.result.abort.delivered_at : null;
+  observe("the kill", { condition_observed_at: ended?.observed_at ?? null, sigkill: first.result.abort, records_before_the_kill: at?.names ?? null, records_after_the_end: namesAfter, load_at_end: ended?.load?.map((value) => Number(value.toFixed(2))) });
+  // From here, the recovery checks: the fault phase alone never passes the journey (autosaveJourneyFailures).
+  const recoveryMark = checks.length;
   const record = at?.first_name ? { name: at.first_name, bytes: at.first_bytes } : null;
   let recordDocument = null;
   try { recordDocument = record ? JSON.parse(record.bytes.toString("utf8")) : null; } catch { recordDocument = null; }
-  if (record && second) {
-    const judged = judgeAutosaveRecord({ name: record.name, bytes: record.bytes, projectId: demo.project.id, endedAt: ended.at, intervalMs, notBefore: (edited?.edit?.at ?? Number.POSITIVE_INFINITY) - 1000 });
+  if (record && second && killedAt !== null) {
+    const judged = judgeAutosaveRecord({ name: record.name, bytes: record.bytes, projectId: demo.project.id, endedAt: killedAt, intervalMs, notBefore: (edited?.edit?.at ?? Number.POSITIVE_INFINITY) - 1000 });
     check("the first edit's record: its name parses and its slot is the demo project's", judged.name_parses && judged.slot_is_project, record.name);
     check("the first edit's record is RFC 8785 text whose SHA-256 is its name's model hash",
       judged.canonical_text && judged.bytes_hash_is_name_hash && judged.document_hash_is_name_hash, judged.model_hash);
@@ -753,18 +769,18 @@ async function autosaveJourney() {
       y(recordDocument, EDIT.node) !== undefined && y(recordDocument, EDIT.node) !== editedNode.position.y && y(recordDocument, SECOND_EDIT.node) === secondNode.position.y,
       { [EDIT.node]: y(recordDocument, EDIT.node), [SECOND_EDIT.node]: y(recordDocument, SECOND_EDIT.node) });
     check("the first edit's record was on disk before the second edit began", judged.written_unix_millis !== null && judged.written_unix_millis < second.started_at, { written: judged.written_unix_millis, second_started: second.started_at });
-    // A record of the second edit here means the second edit landed after the next tick: a timing
-    // failure on a loaded host (the record's age and the load at the end say so), not a product failure.
-    check("at the end no record of the second edit exists: every record on disk holds the first edit's model",
-      at.names.length > 0 && at.names.every((name) => parseAutosaveName(name).model_hash === judged.model_hash),
-      { records: at.names, first_record_age_at_end_ms: judged.age_at_end_ms, load_at_end: ended.load?.map((value) => Number(value.toFixed(2))) });
-    check(`the end came before the next interval: the first edit's record no more than one interval (${intervalMs} ms) old`, judged.within_one_interval && judged.after_the_edit, { age_at_end_ms: judged.age_at_end_ms });
-    check(`the work lost (the second edit) spans less than one interval: ${intervalMs} ms`, ended.at - second.at < intervalMs && ended.at >= second.at,
-      { second_edit_at: second.at, ended_at: ended.at, lost_span_ms: ended.at - second.at, load_at_end: ended.load?.map((value) => Number(value.toFixed(2))) });
+    // Read after the termination: a record of the second edit here means the second edit landed after the next tick
+    // (a timing failure on a loaded host; the record's age says so), not a product failure, and it still fails.
+    check("after the end no record of the second edit exists: every record on disk, read after the app was killed, holds the first edit's model",
+      namesAfter.length > 0 && namesAfter.every((name) => parseAutosaveName(name)?.model_hash === judged.model_hash),
+      { records_after_the_end: namesAfter, first_record_age_at_kill_ms: judged.age_at_end_ms });
+    check(`at the kill the first edit's record was no more than one configured interval (${intervalMs} ms) old`, judged.within_one_interval && judged.after_the_edit, { age_at_kill_ms: judged.age_at_end_ms });
+    check(`the second edit, lost by design, was made less than one interval (${intervalMs} ms) before the kill`, killedAt - second.at < intervalMs && killedAt >= second.at,
+      { second_edit_at: second.at, killed_at: killedAt, lost_span_ms: killedAt - second.at });
     const after = existsSync(path.join(autosaveDir, record.name)) ? readFileSync(path.join(autosaveDir, record.name)) : null;
     check("after the end the first edit's record is on disk unchanged", after && Buffer.compare(after, record.bytes) === 0, record.name);
   } else {
-    check("the first edit's record was on disk when the second edit had landed", false, at ? at.names : (existsSync(autosaveDir) ? readdirSync(autosaveDir) : "no autosave folder"));
+    check("the first edit's record was on disk when the second edit had landed, and the kill was delivered", false, { records_before_the_kill: at?.names ?? null, records_after_the_end: namesAfter, killed_at: killedAt });
   }
   const storeAfterEnd = storeDump(storeFile, path.join(where.root, "dump-after-end"));
   check("after the end the store's rows are the copy taken before the edit", storeBefore !== null && storeAfterEnd === storeBefore);
@@ -787,6 +803,13 @@ async function autosaveJourney() {
     { [EDIT.node]: y(recovered.document, EDIT.node), [SECOND_EDIT.node]: y(recovered.document, SECOND_EDIT.node) });
   const storeAfter = storeDump(storeFile, path.join(where.root, "dump-after"));
   check("the store's rows after the whole sequence are the copy taken before it", storeBefore !== null && storeAfter === storeBefore);
+  // The journey's verdict: the declared fault phase, the reopen launch's ordinary completion and every recovery check.
+  const verdict = autosaveJourneyFailures({
+    fault: first.failures,
+    reopen: launches[`${journey}/autosave-reopen`]?.failures ?? null,
+    recovery: checks.slice(recoveryMark).filter((item) => !item.ok).map((item) => item.name)
+  });
+  check("the autosave journey: the declared fault phase, an ordinary recovery launch and every recovery check all passed (the fault phase alone never passes it)", verdict.length === 0, verdict);
   return where;
 }
 
