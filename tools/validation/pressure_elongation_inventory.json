@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 534,
+  "files": 537,
   "claimed_by": {
    "group": 143,
-   "in_code": 64,
-   "exemption": 327
+   "in_code": 65,
+   "exemption": 329
   }
  },
  "counts": {
@@ -9495,6 +9495,14 @@
    "expectations": "product_output",
    "cases_named": "some",
    "detail": "Reads committed EXS-A and other sized sources, creates isolated faults and compares ordinary neutralised admission with real sizing; positive controls also compare candidates with committed product results. Selected operating cases are authored by the setting tests; other controls preserve the fixture default without a setting. No independent pressure-sensitive numerical expectation is introduced."
+  },
+  {
+   "paths": [
+    "core/model_operations/operation_applier/tests/agent_catalog_reach.rs"
+   ],
+   "expectations": "no_response_value",
+   "cases_named": "all",
+   "detail": "the only solve removes RS-OPE analysis_state from the reference system and asserts LOAD_STATE_ANALYSIS_STATE_REQUIRED, its blocking severity and case identity, and mechanics not solved; all pressurised cases retain the fixture pressure-elongation setting; no response value is judged"
   }
  ],
  "exemptions": [
@@ -10327,6 +10335,24 @@
    ],
    "files": [
     "fixtures/results/hanger_sizing_input_ex_riser.json"
+   ]
+  },
+  {
+   "reason": "catalog parsing and admission checks, including pressure-region operation payloads; no model document is solved",
+   "paths": [
+    "apps/desktop/src-tauri/src/embedded_agent/catalog.rs"
+   ],
+   "files": [
+    "apps/desktop/src-tauri/src/embedded_agent/catalog.rs"
+   ]
+  },
+  {
+   "reason": "record projection and before-text authoring tests through the wasm operation engine; reads and edits the committed reference system but performs no mechanics solve",
+   "paths": [
+    "apps/desktop/src/services/embeddedAgentSession.records.test.ts"
+   ],
+   "files": [
+    "apps/desktop/src/services/embeddedAgentSession.records.test.ts"
    ]
   }
  ]

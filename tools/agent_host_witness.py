@@ -26,7 +26,7 @@ import jsonschema
 
 TOOL = "swbpipe_read_model_summary"
 BINARY_SHA256 = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b"
-CATALOG_SHA256 = "b640e2585ae09d15863de0916a864b9f825598425e1a9c37b5e6d4aec3989864"
+CATALOG_SHA256 = "643e400c3493429a59155b7f341a3c75d1559846142c3f2d230093e14631b90f"
 FRAME_BYTES = 1024 * 1024
 FORBIDDEN_ITEMS = {"commandExecution", "fileChange", "webSearch", "imageView", "imageGeneration", "browserUse", "computerUse"}
 
