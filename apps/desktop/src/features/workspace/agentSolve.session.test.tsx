@@ -54,8 +54,8 @@ const BLOCKING_FINDING = { id: "d:invented-gate", code: "INVENTED_INPUT_MISSING"
  * webview publishes. `answer` decides the solve's terminal shape, and `check` the Solve gate's
  * model checks: unset, they are unavailable (the solve proceeds); `"held"`, each waits in
  * `checks` until the test answers it; otherwise each returns that report. */
-async function session(answer: { mode: "solved" | "too_large" | "blocked" | "witness"; check?: "held" | Json }) {
-  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
+async function session(answer: { mode: "solved" | "too_large" | "blocked" | "witness"; check?: "held" | Json; replayMode?: "sparse_interactive" | "dense_scrutiny" }) {
+  const pair = nativeMechanicsReplayPair(answer.replayMode ?? "sparse_interactive", { profile: "pressure" });
   const { model, bytes } = answer.mode === "blocked"
     ? { model: structuredClone(refusedPreviewModel) as unknown as PreviewModel, bytes: solveBytes(structuredClone(refusedPreviewSparse)) }
     : answer.mode === "witness"
@@ -213,14 +213,15 @@ describe("the agent's solve through the workspace's solve route", () => {
   }, 60000);
 
   it("runs the mode the agent names and sets the Solve panel's selection to it", async () => {
-    const { state, call, modes, close, startAgent } = await session({ mode: "solved" });
+    const { state, call, modes, close, startAgent } = await session({ mode: "solved", replayMode: "dense_scrutiny" });
     await startAgent();
     const { outcome } = await call("swbpipe_solve", { solverMode: "dense_scrutiny" });
     expect(modes).toEqual(["dense_scrutiny"]);
     expect(state().results.solverMode).toBe("dense_scrutiny");
-    // The replay holds the sparse producer's bytes, which are not this dense invocation's: the
-    // route refuses to publish them, and the agent is told the solve failed, never completed.
-    expect(outcome.status).toBe("failed");
+    // Replay the dense producer's bytes for the dense request and require publication;
+    // an absent reader reply or any other failure cannot satisfy this mode control.
+    expect(outcome.status).toBe("completed");
+    expect(outcome.data.runHandle).toEqual(expect.any(String));
     expect(outcome.data.solverMode).toBe("dense_scrutiny");
     await close();
   }, 60000);
