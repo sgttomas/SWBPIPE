@@ -3,7 +3,7 @@ name = "open_pipe_stress_response_spectrum"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "DEL-04-10 response spectrum: the validated spectrum table and its evaluation (unit S2)"
+description = "DEL-04-10 response spectrum: the validated spectrum table and its evaluation (unit S2), and the combinations of supplied signed contributions with their contract (unit S4)"
 publish = false
 
 [lib]
