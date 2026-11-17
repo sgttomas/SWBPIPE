@@ -215,8 +215,11 @@ describe("bend SIF cells: the resolver, the builder and the engine", () => {
     const realize = build.batch.operations[at];
     const routes: Array<[string, OperationBatch]> = [
       ["embedded agent", { batch_id: "batch:sif-agent", operations: [{ ...structuredClone(realize), author_type: "agent", source: { source_ref: "agent:turn", source_channel: "embedded_agent", source_role: "agent" } } as EditorOperationIntent] }],
-      ["import", stampImportedBatch({ batch_id: "batch:sif-import", operations: [structuredClone(realize)] }).batch],
+      // Offline intake refuses it by name before stamping (operationAuthorship.ts); the engine
+      // still refuses it stamped as intake would stamp it.
+      ["import", { batch_id: "batch:sif-import", operations: [{ ...structuredClone(realize), author_type: "agent", source: { source_ref: "offline-import:batch:sif-import:1", source_channel: "offline_intake", source_role: "imported" } } as EditorOperationIntent] }],
     ];
+    expect(() => stampImportedBatch({ batch_id: "batch:sif-import", operations: [structuredClone(realize)] })).toThrow("carries bend_realization (a bend realization), a value only you enter; an imported operation cannot write it, so nothing was queued.");
     for (const [route, batch] of routes) {
       expect(batch.operations[0].author_type, route).toBe("agent");
       const snapshot = structuredClone(inserted);
