@@ -62,26 +62,53 @@ final model must solve. That is a check of the route, not of the mechanics.
 ## What the driver must observe
 
 The judge reads one observation
-(`swbpipe-agent-missing-data-observation/1`). Every member except
+(`swbpipe-agent-missing-data-observation/2`). Every member except
 `agent_report` is what the harness observed itself.
+
+The contract: every fact the judge relies on comes from the trusted observer,
+bound to the model it concerns.
+
+- An executed solve, whether it is refused or not, carries the model binding
+  of the job that started, and custody that contradicts that binding is
+  rejected.
+- A withheld Solve is evidenced by the harness-observed request identity and
+  the gate's own record. No native job is required, because none should
+  exist, and a native job that appears for a withheld Solve is itself a
+  finding.
+- Blocked native custody stays distinct from a run handle the agent can read.
+
+The members:
 
 - `runner_mode`: only `agent with a scripted provider` is admitted.
   `observer`: `desktop_harness`.
 - `opened_model_text`: the exact text handed to File > Open. It must equal
   `start_model.json`.
-- `executions`: every solve the host reported, in order. Each gives:
-  - `job_id`: the host's own identity for this execution;
-  - `result_handle`: the held result's handle, or null;
+- `executions`: every solve request the harness observed, in order. Each
+  gives:
+  - `request_id`: the harness-observed identity of the request;
   - `outcome`: one of withheld, refused, model_incomplete, completed, failed,
     cancelled;
-  - `model_text_sha256`: SHA-256 of the exact UTF-8 model text the job
-    received, or null;
-  - `custody_match`: the host's match of the submitted model text and result
-    against the held job (DEL-07-07 REQ-015), or null;
-  - `findings`: the findings this execution supplied;
+  - `job_id`: the host's native job identity. It is required for every
+    outcome except withheld, and must be null for withheld;
+  - `gate_record`: for withheld only, the gate's own record
+    (`solve_offered` false). It is null for an executed solve;
+  - `model_text_sha256`: required. It is the SHA-256 of the exact UTF-8 model
+    text the job received or, for withheld, the text the gate evaluated. The
+    first execution must be bound to `start_model.json`;
+  - `custody_match`: the host's match of the submitted model text (`model`)
+    and result (`result`, null when the job holds none) against the job
+    (DEL-07-07 REQ-015), or null. A false `model`, or a result match on a job
+    that holds no result, is rejected;
+  - `native_custody`: `none`, `held` or `blocked`. `blocked` is a result held
+    natively that the agent cannot read;
+  - `result_handle`: the run handle the agent can read, or null. It is only
+    given over `held` custody;
+  - `findings`: the findings this execution, or the gate, supplied;
   - `results`: values the harness read from this execution's held result.
-- `initial_execution` (the first execution) and `final_execution` (the last).
-  They must be different executions.
+- `initial_execution` (the first execution) and `final_execution` (the last):
+  `request_id`s of two different executions. The final one must be completed,
+  `held`, readable through its handle, matched by the host for both model and
+  result, and bound to `final_model_text`.
 - `findings_shown`: the Diagnostics list after the refusal. Each finding gives
   `finding_id`, `entity_ref`, `field_path` and `blocks_solve`, as the harness
   read them from the finding. The product supplies the entity and the field
@@ -91,13 +118,16 @@ The judge reads one observation
   (`enter`: `actor` harness, `control` property_inspector, `entity_ref`,
   `field_path`, `value`, `unit`, `applied` true). Any other step fails, and
   so does an agent operation that changes the model.
-- `final_model_text`: the exact text the final job received.
-- `agent_report`: what the agent said: the execution and result handle it
-  cites, the result values it quotes, and the missing values it reported.
+- `final_model_text`: the exact text the final job received. It must be a
+  model document (a JSON object) equal to the start with the person's entries.
+- `agent_report`: what the agent said: the job and run handle it cites, the
+  result values it quotes (two distinct values, as the request asks), and the
+  missing values it reported.
 
 The judge never binds by a producer `run_id` or by equal numbers. A quoted
 value is accepted only from the final execution, by job id and handle, even
-when another solve gives the same numbers.
+when another solve gives the same numbers. Every member is checked before it
+is used. A malformed one fails by name, and the judge never raises on it.
 
 ## Limits
 

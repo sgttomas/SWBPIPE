@@ -47,21 +47,23 @@ def synthetic_trace() -> dict:
     text = final_text()
     findings = [finding("finding:inboard-density", INBOARD), finding("finding:outboard-density", OUTBOARD)]
     return {
-        "schema": "swbpipe-agent-missing-data-observation/1",
+        "schema": "swbpipe-agent-missing-data-observation/2",
         "use_case": "missing-data",
         "runner_mode": "agent with a scripted provider",
         "observer": "desktop_harness",
         "opened_model_text": SCENARIO.start_text,
         "executions": [
-            {"job_id": "job:synthetic-1", "result_handle": None, "outcome": "model_incomplete",
-             "model_text_sha256": witness_digest(SCENARIO.start_text), "custody_match": None,
+            {"request_id": "request:synthetic-1", "job_id": "job:synthetic-1", "gate_record": None,
+             "outcome": "model_incomplete", "model_text_sha256": witness_digest(SCENARIO.start_text),
+             "custody_match": {"model": True, "result": None}, "native_custody": "none", "result_handle": None,
              "findings": copy.deepcopy(findings), "results": {}},
-            {"job_id": "job:synthetic-2", "result_handle": "handle:synthetic-2", "outcome": "completed",
-             "model_text_sha256": witness_digest(text), "custody_match": {"model": True, "result": True},
-             "findings": [], "results": dict(RESULTS)},
+            {"request_id": "request:synthetic-2", "job_id": "job:synthetic-2", "gate_record": None,
+             "outcome": "completed", "model_text_sha256": witness_digest(text),
+             "custody_match": {"model": True, "result": True}, "native_custody": "held",
+             "result_handle": "handle:synthetic-2", "findings": [], "results": dict(RESULTS)},
         ],
-        "initial_execution": "job:synthetic-1",
-        "final_execution": "job:synthetic-2",
+        "initial_execution": "request:synthetic-1",
+        "final_execution": "request:synthetic-2",
         "findings_shown": findings + [{"finding_id": "finding:rule-inputs", "entity_ref": "project:missing-data-use-case",
                                        "field_path": "rule_pack_refs", "blocks_solve": False}],
         "steps": [
@@ -150,7 +152,7 @@ def mutated(change) -> dict:
 def test_results_of_another_solve_with_the_same_numbers_are_refused():
     def other_solve(trace):
         twin = copy.deepcopy(trace["executions"][1])
-        twin.update(job_id="job:synthetic-twin", result_handle="handle:synthetic-twin")
+        twin.update(request_id="request:synthetic-twin", job_id="job:synthetic-twin", result_handle="handle:synthetic-twin")
         trace["executions"].insert(1, twin)
         trace["agent_report"].update(execution_ref="job:synthetic-twin", result_handle_ref="handle:synthetic-twin")
     assert set(codes(mutated(other_solve))) == {"AGENT-REPORT-WRONG-EXECUTION", "AGENT-REPORT-WRONG-HANDLE"}
@@ -165,7 +167,10 @@ def test_quoted_numbers_that_are_not_the_completed_solves_are_refused():
     def wrong(trace):
         trace["agent_report"]["quoted_results"]["result:disp:node-md-3:uy"] = 0.002
     assert codes(mutated(wrong)) == ["AGENT-REPORT-RESULT-MISMATCH"]
-    assert codes(mutated(lambda t: t["agent_report"].update(quoted_results={}))) == ["AGENT-REPORT-NO-RESULTS"]
+    assert codes(mutated(lambda t: t["agent_report"].update(quoted_results={}))) == ["AGENT-REPORT-TOO-FEW-RESULTS"]
+    for kept in RESULTS:  # deleting either quoted value leaves one, and the request asks for two
+        assert codes(mutated(lambda t: t["agent_report"].update(quoted_results={kept: RESULTS[kept]}))) == [
+            "AGENT-REPORT-TOO-FEW-RESULTS"]
 
 
 def test_wrong_repaired_values_are_refused_at_the_entry_and_in_the_final_model():
@@ -240,13 +245,17 @@ def del_steps(trace, start, end):
 
 def test_missing_forged_or_aliased_identities_are_refused():
     assert codes(mutated(lambda t: t["executions"][1].pop("job_id")))[0] == "OBSERVATION-SHAPE"
+    assert codes(mutated(lambda t: t["executions"][1].pop("request_id")))[0] == "OBSERVATION-SHAPE"
+    assert "EXECUTION-JOB-MISSING" in codes(mutated(lambda t: t["executions"][1].update(job_id=None)))
+    assert "EXECUTION-JOB-MISSING" in codes(mutated(lambda t: t["executions"][0].update(job_id=None)))
     assert "EXECUTION-UNKNOWN" in codes(mutated(lambda t: t.update(final_execution="job:forged")))
     def alias(trace):
         trace["final_execution"] = trace["initial_execution"]
     assert "EXECUTION-ALIAS" in codes(mutated(alias))
     assert "EXECUTION-ID-REPEATED" in codes(mutated(lambda t: t["executions"][1].update(job_id="job:synthetic-1")))
+    assert "EXECUTION-ID-REPEATED" in codes(mutated(lambda t: t["executions"][1].update(request_id="request:synthetic-1")))
     def repeated_handle(trace):
-        trace["executions"].insert(1, copy.deepcopy(trace["executions"][1]) | {"job_id": "job:synthetic-1b"})
+        trace["executions"].insert(1, copy.deepcopy(trace["executions"][1]) | {"request_id": "request:1b", "job_id": "job:synthetic-1b"})
     assert "RESULT-HANDLE-REPEATED" in codes(mutated(repeated_handle))
     def reversed_order(trace):
         trace["executions"].reverse()
@@ -262,9 +271,11 @@ def test_a_stale_model_binding_is_refused():
 
 def test_a_solved_or_resulted_first_solve_and_a_wrong_start_are_refused():
     assert "INITIAL-SOLVE-NOT-REFUSED" in codes(mutated(lambda t: t["executions"][0].update(outcome="completed")))
-    assert codes(mutated(lambda t: t["executions"][0].update(results={"r": 1.0}))) == ["INITIAL-SOLVE-HAS-RESULT"]
-    for outcome in ("withheld", "refused"):
-        assert codes(mutated(lambda t: t["executions"][0].update(outcome=outcome))) == []
+    # Values read from a solve that holds no result also contradict its custody record.
+    assert codes(mutated(lambda t: t["executions"][0].update(results={"r": 1.0}))) == [
+        "RESULTS-WITHOUT-CUSTODY", "INITIAL-SOLVE-HAS-RESULT"]
+    assert codes(mutated(lambda t: t["executions"][0].update(outcome="refused"))) == []
+    assert codes(mutated(withheld)) == []
     assert codes(mutated(lambda t: t.update(opened_model_text=final_text()))) == ["START-MODEL-MISMATCH"]
     assert codes(mutated(lambda t: t.update(opened_model_text=SCENARIO.start_text.rstrip()))) == ["START-MODEL-MISMATCH"]
 
@@ -310,6 +321,128 @@ def test_the_cli_reads_only_the_observation_and_never_a_scenario_path(tmp_path):
     assert refused.returncode == 2
     observation.write_text("{")
     assert subprocess.run([sys.executable, str(script), "--observation", str(observation)], capture_output=True).returncode == 2
+
+
+def withheld(trace):
+    """SYNTHETIC: the Solve gate withholds the first solve. There is no native job; the
+    request identity and the gate's own record evidence it, bound to the start model."""
+    trace["executions"][0].update(outcome="withheld", job_id=None, custody_match=None,
+                                  gate_record={"solve_offered": False})
+
+
+# --- Review round 1 (head 38a32772a): repaired findings, each with its control ---
+
+def test_a_final_model_that_is_not_an_object_is_refused():
+    for text in ("null", "[]", "7850", '"model"', "true"):
+        def not_object(trace, text=text):
+            trace["final_model_text"] = text
+            trace["executions"][1]["model_text_sha256"] = witness_digest(text)  # bound consistently, still refused
+        assert codes(mutated(not_object)) == ["FINAL-MODEL-NOT-OBJECT"], text
+
+
+def test_every_executed_solve_carries_its_jobs_model_binding():
+    assert codes(mutated(lambda t: t["executions"][0].update(model_text_sha256=None))) == ["EXECUTION-MODEL-BINDING-MISSING"]
+    for outcome in ("refused", "model_incomplete"):
+        def unbound(trace, outcome=outcome):
+            trace["executions"][0].update(outcome=outcome, model_text_sha256=None)
+        assert codes(mutated(unbound)) == ["EXECUTION-MODEL-BINDING-MISSING"], outcome
+    assert "EXECUTION-MODEL-BINDING-MISSING" in codes(mutated(lambda t: t["executions"][1].update(model_text_sha256=None)))
+    # A withheld Solve is bound too: to the text the gate evaluated.
+    def withheld_unbound(trace):
+        withheld(trace)
+        trace["executions"][0]["model_text_sha256"] = None
+    assert codes(mutated(withheld_unbound)) == ["EXECUTION-MODEL-BINDING-MISSING"]
+
+
+def test_contradictory_custody_is_refused():
+    # The host refuses to match the refused job's model text: the binding is contradicted.
+    assert codes(mutated(lambda t: t["executions"][0].update(custody_match={"model": False, "result": None}))) == [
+        "CUSTODY-CONTRADICTS-BINDING"]
+    # A result match on a job that holds no result.
+    assert codes(mutated(lambda t: t["executions"][0].update(custody_match={"model": True, "result": True}))) == [
+        "CUSTODY-CONTRADICTS-BINDING"]
+    # Results or custody on a solve that did not complete.
+    assert set(codes(mutated(lambda t: t["executions"][0].update(native_custody="held")))) == {
+        "CUSTODY-WITHOUT-COMPLETION", "INITIAL-SOLVE-HAS-RESULT"}
+    # No custody record at all on the refused job is admitted: the binding is its digest.
+    assert codes(mutated(lambda t: t["executions"][0].update(custody_match=None))) == []
+
+
+def test_a_withheld_solve_needs_no_job_and_a_job_for_it_is_a_finding():
+    assert codes(mutated(withheld)) == []
+    def with_job(trace):
+        withheld(trace)
+        trace["executions"][0]["job_id"] = "job:appeared"
+    assert codes(mutated(with_job)) == ["WITHHELD-SOLVE-HAS-JOB"]
+    def with_custody(trace):
+        withheld(trace)
+        trace["executions"][0]["custody_match"] = {"model": True, "result": None}
+    assert codes(mutated(with_custody)) == ["WITHHELD-SOLVE-HAS-JOB"]
+    def without_gate(trace):
+        withheld(trace)
+        trace["executions"][0]["gate_record"] = None
+    assert codes(mutated(without_gate)) == ["GATE-RECORD-MISSING"]
+    def gate_offers(trace):
+        withheld(trace)
+        trace["executions"][0]["gate_record"] = {"solve_offered": True}
+    assert codes(mutated(gate_offers)) == ["GATE-RECORD-CONTRADICTS"]
+    def wrong_model(trace):
+        withheld(trace)
+        trace["executions"][0]["model_text_sha256"] = witness_digest(final_text())
+    assert codes(mutated(wrong_model)) == ["INITIAL-MODEL-BINDING"]
+    assert codes(mutated(lambda t: t["executions"][0].update(gate_record={"solve_offered": False}))) == [
+        "GATE-RECORD-ON-EXECUTED-SOLVE"]
+
+
+def test_blocked_native_custody_is_not_a_readable_run_handle():
+    # Held natively but blocked from the agent: no run handle, and the use case does not complete.
+    def blocked(trace):
+        trace["executions"][1].update(native_custody="blocked", result_handle=None)
+    assert set(codes(mutated(blocked))) == {"FINAL-RESULT-BLOCKED", "FINAL-SOLVE-NO-RESULT", "AGENT-REPORT-WRONG-HANDLE"}
+    # A run handle offered over blocked or absent custody contradicts the custody record.
+    assert "RESULT-HANDLE-WITHOUT-READABLE-CUSTODY" in codes(mutated(lambda t: t["executions"][1].update(native_custody="blocked")))
+    assert "RESULT-HANDLE-WITHOUT-READABLE-CUSTODY" in codes(mutated(lambda t: t["executions"][1].update(native_custody="none")))
+
+
+@pytest.mark.parametrize("change, where", [
+    (lambda t: t["agent_report"]["quoted_results"].update({"result:huge": 10 ** 400}), "quoted_results"),
+    (lambda t: t["executions"][1]["results"].update({"result:huge": 10 ** 400}), "results"),
+    (lambda t: t["steps"][1].update(value=10 ** 400), "value"),
+    (lambda t: t["steps"][1].update(value=float("nan")), "value"),
+    (lambda t: t["steps"][1].update(value="7850"), "value"),
+    (lambda t: t["steps"][0].update(finding_id=[]), "finding_id"),
+    (lambda t: t["steps"][0].update(selected_entity_ref={"id": "pipe:md-inboard"}), "selected_entity_ref"),
+    (lambda t: t["steps"][0].pop("finding_id"), "finding_id"),
+    (lambda t: t["steps"][1].update(entity_ref=["pipe:md-inboard"]), "entity_ref"),
+    (lambda t: t["steps"][1].update(field_path=None), "field_path"),
+    (lambda t: t["steps"][1].update(actor=1), "actor"),
+    (lambda t: t["steps"][1].update(control=None), "control"),
+    (lambda t: t["steps"][1].update(unit=[]), "unit"),
+    (lambda t: t["steps"][1].update(applied="yes"), "applied"),
+    (lambda t: t["steps"].__setitem__(0, "navigate"), "steps[0]"),
+    (lambda t: t["executions"][0].update(outcome="paused"), "outcome"),
+    (lambda t: t["executions"][1].update(native_custody="kept"), "native_custody"),
+    (lambda t: t["executions"][0].update(gate_record={"solve_offered": "no"}), "solve_offered"),
+    (lambda t: t["executions"][1].update(custody_match={"model": True, "result": "yes"}), "result"),
+])
+def test_malformed_members_fail_by_name_and_never_raise(change, where):
+    verdict = judge(mutated(change))
+    assert [code for code, _ in verdict.failures] == ["OBSERVATION-SHAPE"], verdict.failures
+    assert where in verdict.failures[0][1]
+
+
+def test_a_final_model_that_breaks_a_rule_fails_closed_and_never_raises():
+    def deep(trace):
+        trace["final_model_text"] = "[" * 100000 + "]" * 100000
+        trace["executions"][1]["model_text_sha256"] = witness_digest(trace["final_model_text"])
+    failures = codes(mutated(deep))
+    assert failures and set(failures) <= {"FINAL-MODEL-UNREADABLE", "FINAL-MODEL-NOT-OBJECT", "JUDGE-RULE-NOT-APPLIED"}
+    def huge_number(trace):
+        model = json.loads(final_text())
+        model["pipe_segments"][0]["section"]["material_density"]["value"] = 10 ** 400
+        trace["final_model_text"] = json.dumps(model)
+        trace["executions"][1]["model_text_sha256"] = witness_digest(trace["final_model_text"])
+    assert codes(mutated(huge_number)) == ["FINAL-MODEL-MISMATCH"]
 
 
 # --- Feasibility through the product's own solve entry ------------------------
