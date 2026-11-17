@@ -127,7 +127,10 @@ needs:
     copyrighted or adapted content inside a report is excluded.
   gating: false
 code_paths:
-# The modal entry sits in DEL-04-07's product crate; these files in it are this deliverable's. The
+# The modal entry sits in DEL-04-07's product crate; these files in it are this deliverable's, and
+# lib.rs's modal_experimental_result_document is this deliverable's experimental entry.
+# The headless runner hosts it as the modal command and reads its document with read modal-result
+# (DEL-10-05); tests/modal_cli.rs there is this deliverable's process test. The
 # read-only factorization accessor and the element re-formation entry it calls are in the sparse
 # solver and frame kernel crates, which DEL-04-01 lists.
 - core/solver/modal_eigen/**
@@ -143,8 +146,13 @@ code_paths:
 - validation/references/f1_modal/**
 - validation/references/modal_timoshenko_mass/**
 - tests/modal_feasibility_oracle.py
+- tests/test_dynamics_references.py
+- tools/validation/reference_observation.py
+- core/runner/headless/tests/modal_cli.rs
 checks:
 - core/solver/modal_eigen/tests/*.rs
 - core/product_physics/src/modal/tests*.rs
 - core/reporting/modal_result/tests/*.rs
+- core/runner/headless/tests/modal_cli.rs
 - tests/test_modal_*.py
+- tests/test_dynamics_references.py

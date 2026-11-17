@@ -55,9 +55,8 @@ def expected(event, base, documents_base, head='HEAD', deselect=()):
           'tools/software_workflow', 'tools/deliverables', 'tools/validation', 'tests/test_ci_numerical.py',
           'tests/test_ci_apt_sources.py', 'tests/test_release_members.py', 'tests/test_release_candidate_scan.py',
           'tests/test_repository_history.py'], None),
-        ([PY, '-m', 'pytest', '-q',
-          'tests/test_ci_python.py::test_every_maintained_test_runs_when_a_path_it_reads_changes',
-          'tests/test_ci_python.py::test_a_specification_a_test_only_names_is_never_its_probe'], None),
+        # The routing invariants, as tests/test_ci_python.py keeps them (its EVERY_PULL_REQUEST).
+        ([PY, '-m', 'pytest', '-q', *checks.ROUTING_INVARIANT_TESTS], None),
         ([PY, '-m', 'tools.deliverables', '--project', '.', 'check'], 'deliverable-check.json'),
         ([PY, 'tools/software_workflow/documentation_ci.py', 'documents', '--base', documents_base], None),
         ([PY, 'tools/validation/validate_conflict_markers.py', '--base', documents_base, '--head', 'HEAD'], None),

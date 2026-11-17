@@ -32,11 +32,49 @@ DELIVERABLE_CHECK = "deliverable-check.json"
 REGRESSION_TARGETS = ("tools/software_workflow", "tools/deliverables", "tools/validation",
                       "tests/test_ci_numerical.py", "tests/test_ci_apt_sources.py", "tests/test_release_members.py",
                       "tests/test_release_candidate_scan.py", "tests/test_repository_history.py")
-# The routing invariant over all maintained tests. An added or changed test does not otherwise select
-# tests/test_ci_python.py, so without this step a test whose routing cannot be shown is green on its own
-# pull request and red on main after it.
-ROUTING_INVARIANT_TESTS = ("tests/test_ci_python.py::test_every_maintained_test_runs_when_a_path_it_reads_changes",
-                           "tests/test_ci_python.py::test_a_specification_a_test_only_names_is_never_its_probe")
+# The routing invariants: every test in tests/test_ci_python.py whose truth an edit outside tools/ci/ can change.
+# tests/test_ci_python.py is selected only by tools/ci/ changes, so without this step such an invariant is green on
+# the pull request that breaks it and red on main after it. The rest of that file tests the selector's own algorithm
+# and stays scoped to tools/ci/ changes; tests/test_ci_python.py keeps the two sets a partition of its tests.
+ROUTING_INVARIANT_TESTS = tuple(f"tests/test_ci_python.py::{name}" for name in (
+    "test_repository_numerical_routing_checks_are_not_duplicated_in_product_job",
+    "test_merge_group_selects_python_tests_as_a_pull_request",
+    "test_sensitive_families_follow_their_inputs",
+    "test_unrelated_security_change_does_not_expand_to_full_suite",
+    "test_dispatch_and_shared_runner_edits_keep_broad_coverage",
+    "test_numerical_transform_and_invalid_operation_checks_follow_their_inputs",
+    "test_established_helper_edits_keep_direct_importing_tests",
+    "test_full_fallback_and_shared_controls_preserve_edited_test_and_broad_families",
+    "test_j7_rf_census_generator_inputs_select_the_fixture_currency_check",
+    "test_synthetic_base_writer_inputs_select_its_check",
+    "test_reference_system_inputs_select_its_fixture_check",
+    "test_pinned_fixture_regenerations_select_the_tests_that_pin_their_bytes",
+    "test_verifier_edits_select_their_importing_tests",
+    "test_unrelated_changes_select_no_verifier_importers",
+    "test_any_python_module_outside_tests_selects_the_verifier_independence_check",
+    "test_supplier_acquisition_inputs_select_offline_boundaries_and_notice_hashes",
+    "test_supplier_bundle_inputs_keep_preparation_and_canonical_build_checks",
+    "test_model_version_literal_guard_follows_every_root_it_scans",
+    "test_every_maintained_test_runs_when_a_path_it_reads_changes",
+    "test_a_specification_a_test_only_names_is_never_its_probe",
+    "test_named_tests_also_follow_the_paths_they_read",
+    "test_finite_parameters_resolve_to_the_scripts_they_run_and_their_reads",
+    "test_repository_wide_scans_keep_their_scope",
+    "test_declared_reads_stay_current",
+    "test_the_runner_wrappers_collect_every_runner_test_class",
+    "test_formerly_never_run_guards_follow_their_roots",
+    "test_reads_follow_imports_and_path_loaded_models_not_imported_modules_reads",
+    "test_repository_check_tests_are_the_governance_step_s",
+    "test_a_path_only_a_python_test_reads_starts_the_python_job",
+    "test_a_parameter_resolves_from_its_own_bindings_not_outer_ones",
+    "test_an_unknown_f_string_slot_may_span_directories",
+    "test_a_path_under_an_unresolved_base_keeps_its_known_suffix",
+    "test_git_pathspecs_and_unshown_scans_are_derived_or_declared",
+    "test_an_imported_helpers_input_reads_select_the_test",
+    "test_the_python_job_leaves_out_only_the_declarative_specifications",
+    "test_actual_full_selection_is_partitioned_without_losing_paths",
+    "test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_pytest",
+))
 STEP_NAMES = ("Select repository regressions",
               "Bounded shared-tool and routing regressions",
               "Every maintained Python test follows the paths it reads",

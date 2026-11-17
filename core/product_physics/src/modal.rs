@@ -7,10 +7,10 @@
 //! path to an in-crate `ModalOutcome`; increment I2b-2 nonlinear supports at
 //! the named state case (`state`, on lib.rs's typed `LoadCaseSolve` seam).
 //!
-//! Nothing here is public or reachable from any entry: there is no product,
-//! native, headless, schema or publication entry. It never enters the
-//! retained Direct entry or D1. The identity's tolerance is not pinned
-//! (D-TOL); only tests supply one.
+//! The module is private; its one public reach is lib.rs's experimental entry
+//! for the headless `modal` command, which forwards to the crate-internal seam
+//! `modal_selected_result_document`; no native or schema entry. It never enters the retained
+//! Direct entry or D1. The selected identity tolerance is 2⁻⁴⁴ (D-TOL).
 //!
 //! Function names here are chosen so that none is also a call token elsewhere
 //! in the priced crate sources (`tools/retained_pricing/base/crate_dirs.txt`):
@@ -19,7 +19,7 @@
 //! retained-reachable code into this module. The request has no hand-written
 //! `Deserialize` implementation for the same reason (serde entry points reach
 //! every custom one).
-#![allow(dead_code)] // No entry consumes this module until I2b; its tests do.
+#![allow(dead_code)] // No entry consumes this module yet; its tests do.
 
 mod context;
 mod document;
@@ -73,3 +73,6 @@ pub(crate) const MODAL_COMPONENT_MASS_OUT_OF_RANGE: &str = "MODAL_COMPONENT_MASS
 pub(crate) const MODAL_MASS_WEIGHT_BASIS_MISMATCH: &str = "MODAL_MASS_WEIGHT_BASIS_MISMATCH";
 /// Timoshenko straight members, on either route, until M4 (§1.2).
 pub(crate) const MODAL_TIMOSHENKO_MASS_UNSUPPORTED: &str = "MODAL_TIMOSHENKO_MASS_UNSUPPORTED";
+/// The selected-parameter document seam for the modal entry M4 builds (DEL-04-09 "Parameter standing").
+#[allow(unused_imports)] // Consumed by M4's modal entry; until then by the tests only.
+pub(crate) use document::modal_selected_result_document;

@@ -9,7 +9,7 @@ import { modelLibraryRefs, type LibraryRefFinding } from "../../services/library
 import type { PreviewModel } from "../../types";
 import { DiagnosticsPanel } from "../diagnostics/DiagnosticsPanel";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
-import { currentLibraryRefFindings, publishLibraryRefFindings } from "./libraryRefFindings";
+import { currentLibraryRefFindings, libraryRefDiagnostics, publishedLibraryRefFindings, publishLibraryRefFindings } from "./libraryRefFindings";
 
 afterEach(() => { cleanup(); publishLibraryRefFindings("", []); });
 
@@ -33,6 +33,34 @@ function findings(model: PreviewModel): LibraryRefFinding[] {
 }
 
 describe("library reference warnings in the diagnostics list and the inspector", () => {
+  it("owns a stable findings snapshot despite caller and consumer mutation attempts", () => {
+    // Today's finding fields are scalar. Include a nested extension so a future
+    // object/array member cannot silently reintroduce an alias into the snapshot.
+    const finding: LibraryRefFinding & { detail: { paths: string[] } } = {
+      code: "MODEL-LIBRARY-REF-UNRESOLVED", severity: "warning",
+      entity_ref: "material:invented", library_kind: "material", library_id: "invented",
+      recorded_version: "v1", stored_version: null, message: "Original finding.",
+      detail: { paths: ["invented/path"] }
+    };
+    const callerFindings = [finding];
+    publishLibraryRefFindings("project:invented", callerFindings);
+    const captured = publishedLibraryRefFindings();
+    const expected = structuredClone(captured);
+
+    finding.message = "Changed without publication.";
+    finding.detail.paths[0] = "changed/path";
+    callerFindings.push({ ...finding, entity_ref: "material:other" });
+    expect(captured).toEqual(expected);
+    expect(libraryRefDiagnostics([...captured.findings])[0].message).toBe("Original finding.");
+    expect(() => { captured.findings[0].message = "Consumer mutation."; }).toThrow(TypeError);
+    const capturedFinding = captured.findings[0] as typeof finding;
+    expect(() => { capturedFinding.detail.paths.push("consumer/path"); }).toThrow(TypeError);
+
+    publishLibraryRefFindings("project:invented", callerFindings);
+    expect(publishedLibraryRefFindings().findings[0].message).toBe("Changed without publication.");
+    expect(captured).toEqual(expected);
+  });
+
   it("lists both warnings keyed to their entities and shows the entity's own in its Provenance record section", async () => {
     const model = await referencedModel();
     render(<DiagnosticsPanel model={model} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={() => {}} />);

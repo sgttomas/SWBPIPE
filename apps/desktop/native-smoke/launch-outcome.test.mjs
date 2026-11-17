@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { keptPhaseFailures, launchFailures, newNonce, readReport, recordedFailures, recordedOutcome } from "./launch-outcome.mjs";
+import { keptPhaseFailures, launchFailures, newNonce, readReport, recordedCensusFailures, recordedFailures, recordedOutcome } from "./launch-outcome.mjs";
 
 const NONCE = "0123456789abcdef0123456789abcdef";
 const clean = { status: 0, signal: null, timedOut: false, census: { resolved: true }, report: { nonce: NONCE, ok: true }, nonce: NONCE };
@@ -94,4 +94,24 @@ test("an incomplete kept outcome is not a pass: a missing status, signal or time
   assert.deepEqual(codes(keptPhaseFailures(summary({ ...complete, census: { resolved: false, reason: "process 7 still ran" } }), "bound", clean.report)), ["LAUNCH-CENSUS-UNRESOLVED"]);
   // recordedFailures is for a runner that takes no census: its census, recorded or not, is not judged.
   assert.deepEqual(recordedFailures({ ...complete, census: null }, clean.report), []);
+});
+
+test("a census-bearing kept outcome (perf.mjs) passes only with a resolved census; the no-census contract is unchanged", () => {
+  const complete = recordedOutcome({ ...clean, started: "s", ended: "e" });
+  assert.deepEqual(recordedCensusFailures(complete, clean.report), []);
+  const withoutCensus = { ...complete };
+  delete withoutCensus.census;
+  assert.deepEqual(codes(recordedCensusFailures(withoutCensus, clean.report)), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  assert.deepEqual(codes(recordedCensusFailures({ ...complete, census: null }, clean.report)), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  assert.deepEqual(codes(recordedCensusFailures({ ...complete, census: { resolved: false, reason: "process 7 still ran" } }, clean.report)), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  // A record written before the runner took a census (recordedOutcome stores an absent census as null).
+  const before = recordedOutcome({ ...clean, census: undefined, started: "s", ended: "e" });
+  assert.equal(before.census, null);
+  assert.deepEqual(codes(recordedCensusFailures(before, clean.report)), ["LAUNCH-CENSUS-UNRESOLVED"]);
+  assert.deepEqual(codes(recordedCensusFailures(undefined, clean.report)), ["LAUNCH-OUTCOME-NOT-RECORDED"]);
+  assert.deepEqual(codes(recordedCensusFailures({ ...complete, timed_out: "false" }, clean.report)), ["LAUNCH-OUTCOME-NOT-RECORDED"]);
+  assert.deepEqual(codes(recordedCensusFailures(complete, { nonce: "another run" })), ["LAUNCH-REPORT-NOT-THIS-RUN"]);
+  // The same outcomes under recordedFailures (a runner that takes no census) are judged as before.
+  assert.deepEqual(recordedFailures(before, clean.report), []);
+  assert.deepEqual(recordedFailures(withoutCensus, clean.report), []);
 });

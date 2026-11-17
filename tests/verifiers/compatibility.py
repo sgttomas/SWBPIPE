@@ -353,6 +353,15 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
     raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
 
 
+INSPECTION_ONLY_CODE = "NUMERICAL_INTEGRITY_INSPECTION_ONLY"
+
+
+def carries_inspection_only(source: Mapping[str, Any]) -> bool:
+    """Whether any diagnostic carries the blocked document's inspection-only code."""
+    diagnostics = source.get("diagnostics")
+    return isinstance(diagnostics, list) and any(isinstance(d, Mapping) and d.get("code") == INSPECTION_ONLY_CODE for d in diagnostics)
+
+
 def numerical_use_standing(source: Mapping[str, Any], requested_basis_refs: list[Mapping[str, str]], source_block_context: Mapping[str, Any] | None = None) -> str:
     """Derived numerical eligibility only; never mutates an authentic historical record.
 
@@ -369,6 +378,14 @@ def numerical_use_standing(source: Mapping[str, Any], requested_basis_refs: list
     try:
         contract, _, _ = _source_contract(source)
     except (ValueError, KeyError, TypeError, AttributeError):
+        return "unsupported"
+    # DEL-04-07 (the Rust twin): a document whose mechanics are not solved publishes no
+    # result, so no case in it is eligible, whatever its numerical quality says (an old
+    # blocked document included); a solved source carrying an inspection-only evaluation,
+    # which belongs only to a blocked document, is inconsistent and is not read.
+    if (source.get("status") or {}).get("mechanics") != "MECHANICS_SOLVED":
+        return "needs_recompute"
+    if carries_inspection_only(source):
         return "unsupported"
     # T0R (A2 item 10): validate first; then only static fresh identities without a
     # standing reason may continue.

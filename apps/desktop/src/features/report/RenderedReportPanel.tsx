@@ -27,6 +27,25 @@ import type { ControlledRouteExport } from "../redaction-controls/redactionExpor
 import type { ReportPackageSaveReceipt, ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import { REPORT_PACKAGE_USER_RELEASE_ROUTE_ID } from "../redaction-controls/redactionExportControls";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
+import {
+  controlRenderedReportHtml,
+  isNativeRenderedReportRuntime,
+  printOutcomeText,
+  printRenderedReport,
+  renderedReportRouteOpen,
+  retireRenderedReport,
+  saveOutcomeText,
+  saveRenderedReportHtml
+} from "../../services/renderedReportRoutes";
+import type { ReportRenderRequest, ReportSourceMark, ReportSourceSequence } from "../workspace/reportSourceSequence";
+import { currentLibraryRefFindings, NO_LIBRARY_REF_FINDINGS, type LibraryRefFindingsState } from "../library/libraryRefFindings";
+import {
+  notSentSettlement,
+  printSettlement,
+  saveSettlement,
+  type ReportOutputBasis,
+  type ReportOutputOutcomes
+} from "./reportOutputOutcomes";
 
 // DEC-021 (A7): rendered FR-016 calculation report. The Rust renderer crate
 // composes, gates, and hashes the document; this panel only requests a
@@ -50,6 +69,28 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 // 10A). Behind it, an exact source is built with its Export Result JSON admission, which
 // is re-checked immediately before IPC, and the render resubmits the texts the native
 // host binds (`renderedReportAssembly.ts`).
+//
+// DEL-08-01 REQ-022 (native routes): in the desktop application the save and the
+// print go through native commands (`renderedReportRoutes.ts`): the canonical HTML
+// is saved through the system save chooser and printed from a window of its own,
+// each bound natively to this render's hash. Outside the desktop the save stays a
+// controlled download link and the print a print iframe.
+//
+// DEL-08-01 REQ-022 (currency): each render, save and print is prepared from the
+// report source number this panel was rendered with (`reportSourceSequence`, committed
+// with its other props). It waits for the desktop application's native process to
+// register that number, re-checks that it is still the latest, and names it in the
+// request; the native side refuses a retired or unregistered number. The panel's own
+// export-context and composition changes advance the number. Every save and print is
+// started and settled through the session's report output outcomes (`reportOutputs`),
+// shown outside this panel, so its outcome survives this panel and its render.
+//
+// Each render request carries an ordinal the source owner allocates when its preparation
+// begins (`nextRenderRequest`, before any await), and the panel keeps that request's
+// identity (source and ordinal) from before it is sent. A retirement names that exact
+// request: on unmount the panel retires the render it holds and every request it sent whose
+// answer is outstanding, and it retires at once a request whose answer arrives after the
+// panel has discarded it or whose outcome is not known. It never retires globally.
 
 /** Whether a saved package records the user's per-report user release. Only a saved outcome
  * wrote a package, so no other outcome shows a user release, whatever its members say. The
@@ -101,8 +142,22 @@ export function RenderedReportPanel({
   onReportCompositionChange,
   onPackagePrivateIntentChange,
   onSaveReportPackage,
-  onSaveShareableReportPackage
+  onSaveShareableReportPackage,
+  reportSource = null,
+  reportSourceSequence = 0,
+  reportOutputs = null,
+  libraryRefFindingsState = NO_LIBRARY_REF_FINDINGS
 }: {
+  /** DEL-08-01 REQ-022 (F1): the session's library-reference findings publication, committed
+   * with this panel's other props and source number; the report takes the findings that apply
+   * to `model` from it. */
+  libraryRefFindingsState?: LibraryRefFindingsState;
+  /** DEL-08-01 REQ-022: the session's report source sequence, and the number this
+   * panel's other props were committed with. */
+  reportSource?: ReportSourceSequence | null;
+  reportSourceSequence?: number;
+  /** The session's report output outcomes (outside the dormant Report section). */
+  reportOutputs?: ReportOutputOutcomes | null;
   reportComposition?: ReportComposition | null;
   onReportCompositionChange?: (value: ReportComposition | null) => void;
   model: PreviewModel;
@@ -139,15 +194,40 @@ export function RenderedReportPanel({
   const [renderState, setRenderState] = useState<{
     context: ReportExportContext;
     route: RenderReportRoute;
+    /** The registered report source the render was made for. */
+    source: ReportSourceMark;
   } | null>(null);
   const [rendering, setRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
-  const [printRequested, setPrintRequested] = useState(false);
+  // The browser print frame: one mount per press (its `key`), cleared when the
+  // print ends (`afterprint`) or the render is discarded, so the same report can
+  // be printed again and a changed one printed afresh.
+  const [printRequest, setPrintRequest] = useState<number | null>(null);
+  const printPresses = useRef(0);
   const [redactionState, setRedactionState] = useState<{
     context: ReportExportContext;
     controlled: ControlledRouteExport;
   } | null>(null);
   const renderGeneration = useRef(0);
+  const nativeRoutes = isNativeRenderedReportRuntime();
+  // The last accepted native render, retained until a replacement is accepted or unmount
+  // retires it. Clearing the preview or starting preparation does not prove native custody
+  // changed: preparation or entry can fail, and a source advance can still be in transit.
+  // Requests sent with answers outstanding are tracked separately by their exact identity.
+  const heldRequest = useRef<ReportRenderRequest | null>(null);
+  const outstandingRequests = useRef(new Set<ReportRenderRequest>());
+  const routeInFlight = useRef(false);
+  const [routeBusy, setRouteBusy] = useState<"save" | "print" | null>(null);
+  const [routeStatus, setRouteStatus] = useState<{ generation: number; save?: string; print?: string } | null>(null);
+  // The native side retires a held render when its source advances (a registered
+  // source change) or another render request enters; here, on unmount, the panel
+  // retires the exact requests it holds or has outstanding.
+  function retireOnUnmount() {
+    const requests = [...outstandingRequests.current, ...(heldRequest.current ? [heldRequest.current] : [])];
+    outstandingRequests.current.clear();
+    heldRequest.current = null;
+    for (const request of requests) retireRenderedReport(request);
+  }
 
   // A render (or its redaction evidence) is shown only under the selection
   // that produced it: a public render never reuses a private render's output.
@@ -178,6 +258,10 @@ export function RenderedReportPanel({
   const printHtml = outcome && !outcome.export_blocked
     ? localPrivateOutcome ? localPrivateSinks?.print ?? null : outcome.derived_print_html
     : null;
+  // The findings applicable to this model, from the publication committed with it: a stable
+  // snapshot for the whole preparation, never a reread of the store after an await.
+  const libraryRefFindings = useMemo(() => currentLibraryRefFindings(model, libraryRefFindingsState), [model, libraryRefFindingsState]);
+  const libraryRefFindingsKey = useMemo(() => JSON.stringify(libraryRefFindings), [libraryRefFindings]);
   const sessionRuleCheckRun =
     ruleCheckRun &&
     analysisRun?.analysis_run.analysis_status.includes(ruleCheckRun.result.aggregate_status)
@@ -190,36 +274,44 @@ export function RenderedReportPanel({
   // write state; a source replacement also retires the shown render.
   useEffect(() => () => {
     renderGeneration.current += 1;
+    retireOnUnmount();
   }, []);
-  const sourceRef = useRef({ model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition });
+  const sourceRef = useRef({ model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition, libraryRefFindingsKey });
   useEffect(() => {
     const previous = sourceRef.current;
-    const next = { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition };
+    const next = { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition, libraryRefFindingsKey };
     sourceRef.current = next;
     if ((Object.keys(next) as Array<keyof typeof next>).every((key) => previous[key] === next[key])) return;
     renderGeneration.current += 1;
     setRenderState(null);
     setRedactionState(null);
-    setPrintRequested(false);
+    setPrintRequest(null);
+    setRouteStatus(null);
     setRenderError(null);
     setRendering(false);
-  }, [model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition]);
+  }, [model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition, libraryRefFindingsKey]);
 
   function onLocalPrivateIntentChange(value: boolean) {
     renderGeneration.current += 1;
+    // The export context is report-bound: its change advances the source sequence.
+    reportSource?.advance();
     setLocalPrivateIntent(value);
     setRenderState(null);
     setRedactionState(null);
-    setPrintRequested(false);
+    setPrintRequest(null);
+    setRouteStatus(null);
     setRenderError(null);
     setRendering(false);
   }
   function onCompositionChange(value: ReportComposition | null) {
     renderGeneration.current += 1;
+    // The session's composition cell advances the sequence itself; the panel's own does here.
+    if (!onReportCompositionChange) reportSource?.advance();
     changeComposition(value);
     setRenderState(null);
     setRedactionState(null);
-    setPrintRequested(false);
+    setPrintRequest(null);
+    setRouteStatus(null);
     setRenderError(null);
     setRendering(false);
   }
@@ -240,9 +332,14 @@ export function RenderedReportPanel({
     const intent = localPrivateIntent;
     const context: ReportExportContext = intent ? "local_private" : "public_report";
     const isCurrent = () => renderGeneration.current === generation;
+    // The basis's number, committed with the props this render reads, and this render
+    // request's ordinal, allocated as its preparation begins (before any await).
+    const viewSequence = reportSourceSequence;
+    const requestOrdinal = reportSource ? reportSource.nextRenderRequest() : 0;
     setRendering(true);
     setRenderError(null);
-    setPrintRequested(false);
+    setPrintRequest(null);
+    setRouteStatus(null);
     setRenderState(null);
     setRedactionState(null);
     try {
@@ -257,7 +354,8 @@ export function RenderedReportPanel({
         reportComposition,
         context,
         intent,
-        generatedAt: new Date().toISOString()
+        generatedAt: new Date().toISOString(),
+        libraryRefFindings
       });
       if (!isCurrent()) return;
       const { controlled, exactSubmission } = assembly;
@@ -273,15 +371,118 @@ export function RenderedReportPanel({
             try { exactSubmission(); return true; } catch { return false; }
           }
         : isCurrent;
-      const next = await renderCalculationReport(controlled, { stillCurrent, exactSubmission: submission });
+      // Output preparation waits for the native side to register this basis's number
+      // and re-checks that it is still the latest; editing never waits for it.
+      const source = reportSource ? await reportSource.registeredFor(viewSequence) : { incarnation: 0, sequence: viewSequence };
       if (!isCurrent()) return;
-      setRenderState({ context, route: next });
+      // The request's identity is kept before it is sent, so an unmount while it is
+      // outstanding retires exactly it.
+      const request: ReportRenderRequest | null = isNativeRenderedReportRuntime() ? { source, request: requestOrdinal } : null;
+      if (request) outstandingRequests.current.add(request);
+      let next: RenderReportRoute;
+      try {
+        next = await renderCalculationReport(controlled, { stillCurrent, exactSubmission: submission, source, request: requestOrdinal });
+      } catch (error) {
+        // Its outcome is not known to the panel: retire exactly this request.
+        if (request && outstandingRequests.current.delete(request)) retireRenderedReport(request);
+        throw error;
+      }
+      if (request && outstandingRequests.current.delete(request)) {
+        if (isCurrent() && next.route === "tauri_renderer") heldRequest.current = request;
+        // Discarded while it was outstanding, or never rendered: retire exactly this request.
+        else retireRenderedReport(request);
+      }
+      if (!isCurrent()) return;
+      setRenderState({ context, route: next, source });
     } catch (error) {
       if (!isCurrent()) return;
       setRenderState(null);
       setRenderError(error instanceof Error ? error.message : String(error));
     } finally {
       if (isCurrent()) setRendering(false);
+    }
+  }
+
+  // The native routes' document: the canonical HTML of the shown render, which is
+  // the local-private controlled copy (checked equal) under that context.
+  const routeHtml = outcome && !outcome.export_blocked && previewHtml !== null ? previewHtml : null;
+  const routeContext = renderState?.context ?? null;
+  const routeControl = useMemo(
+    () => (nativeRoutes && routeHtml !== null && routeContext !== null
+      ? controlRenderedReportHtml(routeHtml, routeContext, routeContext === "local_private" && localPrivateIntent)
+      : null),
+    [nativeRoutes, routeHtml, routeContext, localPrivateIntent]
+  );
+  // The save is gated by the HTML route's control under the render's context, as
+  // its download link was; the print by the same control for a local-private
+  // render and by the render's own public gate for a public one, as its iframe was.
+  const routeOpen = routeControl !== null && routeHtml !== null && renderedReportRouteOpen(routeControl, routeHtml);
+  const printOpen = routeContext === "local_private" ? routeOpen : routeHtml !== null && printHtml !== null;
+  const shownRouteStatus = routeStatus?.generation === renderGeneration.current ? routeStatus : null;
+
+  async function onNativeRoute(kind: "save" | "print") {
+    const open = kind === "save" ? routeOpen : printOpen;
+    if (routeInFlight.current || !open || routeControl === null || routeHtml === null || routeContext === null || renderState === null) return;
+    routeInFlight.current = true;
+    const generation = renderGeneration.current;
+    const stillCurrent = () => renderGeneration.current === generation;
+    const renderedFor = renderState.source;
+    const viewSequence = reportSourceSequence;
+    const basis: ReportOutputBasis = {
+      sequence: renderedFor.sequence,
+      model: model.project.name ?? model.project.id,
+      run: analysisRun?.analysis_run.run_id ?? result?.run_id ?? null
+    };
+    // The session's outcome entry: started now, settled on every return or rejection,
+    // whether or not this panel is still mounted.
+    const operation = reportOutputs?.begin(kind, basis) ?? null;
+    const settle = (settlement: Parameters<ReportOutputOutcomes["settle"]>[1]) => {
+      if (operation !== null) reportOutputs?.settle(operation, settlement);
+    };
+    setRouteBusy(kind);
+    setRouteStatus((previous) => ({
+      ...(previous?.generation === generation ? previous : {}),
+      generation,
+      [kind]: kind === "save" ? "Choose where to save the canonical HTML…" : "Opening the print window…"
+    }));
+    const show = (text: string) => {
+      if (stillCurrent()) setRouteStatus((previous) => ({ ...(previous?.generation === generation ? previous : {}), generation, [kind]: text }));
+    };
+    try {
+      let source: ReportSourceMark;
+      try {
+        if (viewSequence !== renderedFor.sequence) throw new Error("REPORT-SOURCE-STALE-VIEW: the workspace changed after this report was rendered; render it again.");
+        source = reportSource ? await reportSource.registeredFor(viewSequence) : renderedFor;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const code = message.split(":")[0] || "REPORT-SOURCE-UNREGISTERED";
+        settle(notSentSettlement(code, `${message} Nothing was sent.`));
+        show(`${kind === "save" ? "Not saved" : "Not printed"}: ${message} Nothing was sent.`);
+        return;
+      }
+      const request = {
+        html: routeHtml,
+        context: routeContext,
+        explicitLocalPrivateIntent: routeContext === "local_private" && localPrivateIntent,
+        controlled: routeControl,
+        source
+      };
+      if (kind === "save") {
+        const outcome = await saveRenderedReportHtml(request, stillCurrent);
+        settle(saveSettlement(outcome));
+        show(saveOutcomeText(outcome));
+      } else {
+        const outcome = await printRenderedReport({ ...request, controlled: routeContext === "local_private" ? routeControl : null }, stillCurrent);
+        settle(printSettlement(outcome));
+        show(printOutcomeText(outcome));
+      }
+    } catch (error) {
+      // Not reached by the route services, which return every outcome; settled anyway.
+      settle({ state: "unknown", code: null, detail: error instanceof Error ? error.message : String(error), basename: null });
+      throw error;
+    } finally {
+      routeInFlight.current = false;
+      setRouteBusy(null);
     }
   }
 
@@ -455,7 +656,26 @@ export function RenderedReportPanel({
             </ul>
           ) : previewHtml !== null && printHtml !== null ? (
             <div className="report-actions">
-              {localPrivateOutcome ? (
+              {nativeRoutes ? (
+                <div
+                  className="controlled-export-control"
+                  data-route-id="DREP-HTML-SAVE-005"
+                  data-local-first-blocked={String(!routeOpen)}
+                >
+                  <span data-testid={`${localPrivateOutcome ? "rendered-report-save-local-private" : "rendered-report-save"}-redaction-summary`}>
+                    decisions={routeControl?.summary.decision_count ?? 0}; findings={routeControl?.summary.finding_count ?? 0}; blocked=
+                    {String(!routeOpen)}
+                  </span>
+                  <button
+                    type="button"
+                    data-testid={localPrivateOutcome ? "rendered-report-save-local-private" : "rendered-report-save"}
+                    disabled={!routeOpen || routeBusy !== null}
+                    onClick={() => void onNativeRoute("save")}
+                  >
+                    {localPrivateOutcome ? "Save canonical HTML (local private)…" : "Save canonical HTML…"}
+                  </button>
+                </div>
+              ) : localPrivateOutcome ? (
                 <ControlledExportLink
                   data-testid="rendered-report-save-local-private"
                   explicitLocalPrivateIntent={localPrivateIntent}
@@ -476,17 +696,27 @@ export function RenderedReportPanel({
               <button
                 type="button"
                 data-testid="rendered-report-print"
-                onClick={() => setPrintRequested(true)}
+                disabled={nativeRoutes && (!printOpen || routeBusy !== null)}
+                onClick={() => (nativeRoutes ? void onNativeRoute("print") : setPrintRequest(++printPresses.current))}
               >
                 <Printer size={14} aria-hidden="true" />
                 Print / PDF (derived view)
               </button>
+              <p data-testid="rendered-report-list-notice">
+                HTML saves and printed reports are not listed in the project. Save a report package to keep it in the project’s report list.
+              </p>
             </div>
           ) : (
             <p data-testid="rendered-report-sink-blocked">
               The rendered document is withheld: its local-private sink control did not pass.
             </p>
           )}
+          {nativeRoutes && !outcome.export_blocked ? (
+            <div className="report-list">
+              <span role="status" data-testid="rendered-report-save-status">{shownRouteStatus?.save ?? ""}</span>
+              <span role="status" data-testid="rendered-report-print-status">{shownRouteStatus?.print ?? ""}</span>
+            </div>
+          ) : null}
           {previewHtml !== null ? (
             <iframe
               title="Rendered calculation report preview"
@@ -496,14 +726,30 @@ export function RenderedReportPanel({
               style={{ width: "100%", height: "20rem", border: "1px solid #888" }}
             />
           ) : null}
-          {printRequested && printHtml !== null ? (
+          {!nativeRoutes && printRequest !== null && printHtml !== null ? (
+            // Sandboxed with only the two flags a print needs: `allow-same-origin`
+            // so the panel may call print() on the frame's window at all (print is
+            // not reachable across origins), and `allow-modals` because a document
+            // whose sandbox sets the sandboxed modals flag ignores print(). With no
+            // `allow-scripts` nothing in the document runs, and the pair is safe
+            // only without it; no forms, popups, navigation or downloads.
             <iframe
+              key={printRequest}
               title="Derived print view"
               data-testid="rendered-report-print-frame"
+              sandbox="allow-same-origin allow-modals"
               srcDoc={printHtml}
               style={{ position: "absolute", width: 0, height: 0, border: 0 }}
               onLoad={(event) => {
-                event.currentTarget.contentWindow?.print();
+                const frameWindow = event.currentTarget.contentWindow;
+                if (!frameWindow) return;
+                const press = printRequest;
+                frameWindow.addEventListener(
+                  "afterprint",
+                  () => setPrintRequest((current) => (current === press ? null : current)),
+                  { once: true }
+                );
+                frameWindow.print();
               }}
             />
           ) : null}

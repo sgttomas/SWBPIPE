@@ -86,10 +86,13 @@ LN = {
     # One-way friction normal source (DEL-04-04 REQ-012): +17 (unit_message: the import, the nonlinear publication's
     # call arguments and derived_friction_normal_source's admission precede it) and +30 (the three helpers:
     # append_nonlinear_friction_normal_evidence's arguments and sign clause also precede them), unchanged text.
-    'unit_message': 10753, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15862,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15811,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15861,   # lib.rs fn stable_suffix (13613) [13618]
+    # PR-A (§8.62; diffs from main fe01013f4 read): +164 (unit_message: the blocked rewrite's constants and function, the quality arm, the
+    # trigger's prior read, the case solve's publication-basis decision and the loop's staged rows precede it) and +265
+    # (the three helpers: those and the corrected displacement's failure type and texts), unchanged text.
+    'unit_message': 10917, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 16127,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 16076,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 16126,   # lib.rs fn stable_suffix (13613) [13618]
     # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
     # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
     # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.

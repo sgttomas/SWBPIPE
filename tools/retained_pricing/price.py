@@ -275,6 +275,13 @@ def cmd_run(a):
     report["premise_pins"] = {"pins": len(pins), "bad": bad}
     if bad:
         stop(4, "a premise pin's line is not as reviewed", bad=bad)
+    # 3b. OWN-PRES (retained-pricing-rules.md §8.62): no presence-gated owner of the snapshot's latest owner epoch or an
+    # earlier one may be absent (base/owner_presence.py); a lost, renamed or moved owner stops here rather than pricing
+    # the source as an older one.
+    r = py([os.path.join(BASE, "owner_presence.py"), W], cwd=BASE)
+    if r.returncode != 0:
+        stop(4, "an owner the source's epoch requires is absent, or its model stopped (OWN-PRES)", stderr=r.stderr[-3000:])
+    report["owner_presence"] = json.loads(r.stdout)
     # 4. the base chain at rev: the base scripts, the carried rule tables, the regenerated template inventory
     chain = os.path.join(out, "chain")
     shutil.copytree(BASE, chain)

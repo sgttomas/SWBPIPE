@@ -531,3 +531,5 @@ B7A_SCOPED_TEXT = {"model": _os.path.join(_os.path.dirname(__file__), "..", "bas
 
 # Exclusive current-owner allocation choices after strict carry.
 B7A_OWNER_CHOICES = True
+# O10-GATE (PR-A, retained-pricing-rules.md §8.62): the lookups made above after o10_rules ran are checked as its own are.
+O10_GATE_ABSENT = o10_gate()

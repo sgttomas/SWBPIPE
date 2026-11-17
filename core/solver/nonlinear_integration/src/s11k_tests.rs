@@ -1367,11 +1367,19 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
     assert_eq!(prepared_sites,vec![("lib.rs",2)]);
     let case_body=function_body(product_lib,"fn solve_prepared_load_case(");
     let compact=case_body.split_whitespace().collect::<String>();
-    assert!(compact.contains("letmember_bound=linear_solve.as_ref().filter(|solve|pre_guard_passed&&load_row_finding.is_none()&&built.nonlinear_supports.is_empty()&&solve.structural_report.quality==SolveQuality::Passed&&selected_source.is_none()).and_then(|solve|solve.member_bound.as_ref());"));
+    assert!(compact.contains("letlinear_bound=linear_solve.as_ref().filter(|solve|pre_guard_passed&&load_row_finding.is_none()&&built.nonlinear_supports.is_empty()&&solve.structural_report.quality==SolveQuality::Passed&&selected_source.is_none()).and_then(|solve|solve.member_bound.as_ref());"));
     // R2 (§3.1): the nonlinear route's member bound is the confirmed state's
     // Stage B, present only for an established confirmation of a nonlinear
     // case, and its recovery view takes Stage B's force.
-    assert!(compact.contains("letconfirmed=confirmed_state.as_deref().filter(|_|pre_guard_passed&&load_row_finding.is_none()&&!built.nonlinear_supports.is_empty());"));
+    assert!(compact.contains("letconfirmed_candidate=confirmed_state.as_deref().filter(|_|pre_guard_passed&&load_row_finding.is_none()&&!built.nonlinear_supports.is_empty());"));
+    // DEL-04-07 Published displacement: PR-A preserves those candidate gates
+    // and additionally withdraws both bases on correction failure, before the
+    // bound union and pure recovery source. Neither path gains an entry point.
+    let linear_gate = compact.find("letmember_bound=linear_bound.filter(|_|correction_failure.is_none());").expect("linear withdrawal gate");
+    let nonlinear_gate = compact.find("letconfirmed=confirmed_candidate.filter(|_|correction_failure.is_none());").expect("nonlinear withdrawal gate");
+    let union = compact.find("letmember_bound=member_bound.or(confirmed.map(|state|&state.member_bound));").expect("publication bound union");
+    let source = compact.find("letcertified_source=member_bound.map(|_|certified_publication::source(built,certified_force,spring_entries));").expect("pure recovery source");
+    assert!(linear_gate < union && nonlinear_gate < union && union < source);
     assert!(compact.contains("letmember_bound=member_bound.or(confirmed.map(|state|&state.member_bound));"));
     assert!(compact.contains("letcertified_force=confirmed.map_or(&force,|state|&state.force);"));
     assert!(compact.contains("letcertified_source=member_bound.map(|_|certified_publication::source(built,certified_force,spring_entries));"));

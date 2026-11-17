@@ -89,6 +89,9 @@ code_paths:
 # Only the re-check of route evidence and the disposition screening are this deliverable's; the
 # package admission, its bindings and the save are DEL-08-01's.
 - apps/desktop/src-tauri/src/report_package_save.rs
+# Only the admission of route DREP-HTML-SAVE-005 (the record's context, the intent, the evidence and
+# the refusal of a blocked render) is this deliverable's; the HTML save and the print are DEL-08-01's.
+- apps/desktop/src-tauri/src/rendered_report_routes.rs
 checks:
 - tests/security/test_redaction_export_controls.py
 - tests/security/test_redaction_input_contract_sweep.py
@@ -100,4 +103,5 @@ checks:
 - apps/desktop/src/features/redaction-controls/redactionPlainDataGate.test.ts
 - apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx
 - apps/desktop/src/services/reportPackageSaveService.test.ts
+- apps/desktop/src-tauri/src/rendered_report_routes.rs
 - core/runner/headless/src/redaction_binding.rs

@@ -67,7 +67,10 @@ PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea006
 # early return); its consumption of the fallback attempts and every first-return alternative are unchanged.
 # RT-A3 S6 D3 (§8.59): solve_prepared_load_case's consumption of the fallback attempts and every first-return
 # alternative are unchanged (the motion arms, base map and capture argument only).
-LIB_PINS = {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'd36ba54f458bfe92046552b20a3647c6be9c36be1b0e31328ff6730ad2154cf1', 'exact_straight_summary_extrema': 'f8e3dc3ab54eac18a0140d08f1e43ed19ecc7316f0883efa656f1814d3ab1094'}
+# PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
+# retained-pricing-rules.md §8.62): solve_prepared_load_case adds no `?`, return, fallback attempt or first-return
+# alternative (its new calls return values; require_finite_mechanics is unchanged). Previous value d36ba54f…
+LIB_PINS = {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'c6676bbeff040e8a068c754b2c4d20474342ebab8f07148646114a00b0a327a4', 'exact_straight_summary_extrema': 'f8e3dc3ab54eac18a0140d08f1e43ed19ecc7316f0883efa656f1814d3ab1094'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")

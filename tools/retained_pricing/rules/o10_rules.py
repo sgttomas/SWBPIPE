@@ -4,14 +4,24 @@ does not exist at the snapshot is not added (it has nothing to bound there). The
 DEL-04-08 Design/retained-pricing-rules.md under the same label."""
 
 
+# O10-GATE (PR-A, retained-pricing-rules.md §8.62): every lookup is recorded; a rule block gated on a function that the
+# snapshot does not define is dropped, so the end of this file stops the run on any absent target that
+# O10_ABSENT_REVIEWED does not explain (see there).
+_FNKEY_ABSENT = set()
+
+
 def fnkey(name, f):
-    """`basename-relative:line:name` of the one top-level-or-impl `fn name` in file f at the snapshot, else None."""
+    """`basename-relative:line:name` of the one top-level-or-impl `fn name` in file f at the snapshot, else None.
+    FN-VIS (PR-A, §8.62): a visibility is `pub` or `pub(...)` with any scope (`pub(in crate::structural)` included); the
+    earlier `pub([a-z]+)` missed path scopes, so a rule naming such a function was silently not added (SKW-DZ's
+    `skew_spring_matrix` edge), and a function span ran on past one. fn_lines and site span the same way.
+    O10-GATE: an absent target is recorded in `_FNKEY_ABSENT` where that set exists."""
     p = _os.path.join(_SNAP, f)
-    if not _os.path.exists(p):
-        return None
-    lines = open(p, encoding="utf-8").read().split("\n")
-    hits = [i + 1 for i, l in enumerate(lines) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s+" + _re.escape(name) + r"\b", l)]
+    lines = open(p, encoding="utf-8").read().split("\n") if _os.path.exists(p) else []
+    hits = [i + 1 for i, l in enumerate(lines) if _re.match(r"\s*(pub(\([^()]*\))?\s+)?(const\s+)?fn\s+" + _re.escape(name) + r"\b", l)]
     if len(hits) != 1:
+        if isinstance(globals().get("_FNKEY_ABSENT"), set):
+            globals()["_FNKEY_ABSENT"].add((name, f))
         return None
     return Resolved(f"{f.split('/src/')[-1]}:{hits[0]}:{name}")
 
@@ -54,7 +64,7 @@ def site(name, f, text, full=False, row=None):
         return None
     lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
     start = int(k.split(":")[1]); ind = len(lines[start - 1]) - len(lines[start - 1].lstrip())
-    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?fn\s", lines[i]) and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([^()]*\))?\s+)?fn\s", lines[i]) and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
     hits = [i + 1 for i in range(start - 1, end - 1) if text in lines[i]]
     if len(hits) != 1:
         raise SystemExit(f"o10 site(): {text!r} in {f}:{name}: {hits}")
@@ -70,7 +80,7 @@ def _fn_has(name, f, text):
         return False
     lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
     start = int(k.split(":")[1]); ind = len(lines[start - 1]) - len(lines[start - 1].lstrip())
-    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?fn\s", lines[i]) and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([^()]*\))?\s+)?fn\s", lines[i]) and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
     return any(text in lines[i] for i in range(start - 1, end - 1))
 
 
@@ -315,7 +325,9 @@ if fnkey("add_curved_bend_pressure_equivalent_load", PP_ + "lib.rs"):
         ]:
             O10_ID_AUDIT += [(site("append_arc_pressure_results", _BP, _text, full=True, row="format!(" if _text.startswith('"result:') else None), _values)]
     _L = PP_ + "lib.rs"
-    if fnkey("section_basis_row", _L) and fnkey("published_nodal_displacements", _L):
+    # PR-A (§8.62, U5B-PD-RN): the epoch marker is U5B-PD's owner, whose source renames it published_nodal_displacements ->
+    # corrected_nodal_displacements (u4b_u5b_owners_model PD_SHAPES gives the correspondence); either shape is the U5b epoch.
+    if fnkey("section_basis_row", _L) and (fnkey("published_nodal_displacements", _L) or fnkey("corrected_nodal_displacements", _L)):
         # U4B-K (T4-U4b, §2.3): the arc branch's withheld maximum is gone; a realized arc's certified maximum, when
         # unavailable, warns with the case-qualified id beside the straight id, each ending in the basis's static
         # hyphen segment. The classes are U6-K's.
@@ -444,7 +456,7 @@ if fnkey("member", _CP):
 # still-live method (estimate_rcond -> estimate_condition).
 def _fn_n(name, f, ordinal, count):
     lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().splitlines()
-    hits = [i + 1 for i, line in enumerate(lines) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s+" + _re.escape(name) + r"\b", line)]
+    hits = [i + 1 for i, line in enumerate(lines) if _re.match(r"\s*(pub(\([^()]*\))?\s+)?(const\s+)?fn\s+" + _re.escape(name) + r"\b", line)]
     if len(hits) != count:
         raise SystemExit(f"KD5C1: {f} fn {name}: expected {count} definitions, found {len(hits)}")
     return Resolved(f"{f}:{hits[ordinal - 1]}:{name}")
@@ -1216,7 +1228,7 @@ def fn_lines(name, f):
         raise SystemExit(f"T4-U6: fn {name} is not unique in {f}")
     lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
     start = int(k.split(":")[1]); ind = len(lines[start - 1]) - len(lines[start - 1].lstrip())
-    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s", lines[i])
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([^()]*\))?\s+)?(const\s+)?fn\s", lines[i])
                 and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
     return lines, start, end
 
@@ -1274,49 +1286,22 @@ def _text_of(f):
 
 
 def _production(f):
-    """f's text without its `#[cfg(test)]` items. RT-A4 D3 (§8.46, RT-A4-PR): this was the text before the first
-    `#[cfg(test)]`, which equals the item-wise removal only while a file's first test item is its trailing test module.
-    RT-A4 puts a `#[cfg(test)] fn unit_factor_sum` mid-file in RE exact_combination_evidence.rs, so truncation would
-    drop every production line after it (RTA3CE-ID's field counts and W16BC-ID's constant scan). Each exact
-    `#[cfg(test)]` in code (the §8.45 lexer masks literals and comments) now removes its own item: through any further
-    attributes, to the first code `;` outside brackets or the `}` closing the item's first code `{`. Newlines are kept."""
-    text = _text_of(f)
-    if "#[cfg(test)]" not in text:
-        return text
-    _rl = _production_lexer()
-    toks, comments = _rl["scan"](text, f)
-    mask = _rl["_masks"](text, toks, comments)
-    out, at = [], 0
-    for m in _re.finditer(r"#\[cfg\(test\)\]", text):
-        if m.start() < at or mask[m.start()]:
-            continue
-        i, nest, opened = m.end(), 0, False
-        while i < len(text):
-            ch = text[i]
-            if not mask[i]:
-                if ch in "([":
-                    nest += 1
-                elif ch in ")]":
-                    nest -= 1
-                elif ch == "{":
-                    nest += 1
-                    opened = True
-                elif ch == "}":
-                    nest -= 1
-                    if opened and nest == 0:
-                        i += 1
-                        break
-                elif ch == ";" and nest == 0 and not opened:
-                    i += 1
-                    break
-            i += 1
-        else:
-            raise SystemExit(f"_production: {f}: unterminated #[cfg(test)] item at offset {m.start()}")
-        out.append(text[at:m.start()])
-        out.append("\n" * text.count("\n", m.start(), i))
-        at = i
-    out.append(text[at:])
-    return "".join(out)
+    """f's text without its `#[cfg(test)]` items, statements and expression-position elements (newlines kept).
+    RT-A4 D3 (§8.46, RT-A4-PR) made this item-wise; CFG-PROD (PR-A, §8.62) corrects where an element ends: the earlier
+    scan counted a `{` inside parentheses (a closure body) as the element's block, so a test statement such as lib.rs's
+    `tests::KD5_RECOVERY_PROBE.with(|probe| {..});` swallowed the production branch after it. The lexical rule and its
+    regressions are in base/cfg_test_items.py and tests/test_862_pr_a.py."""
+    return _cfg_test_items()["production"](_text_of(f), f)
+
+
+_CFG_TEST_ITEMS = []
+
+
+def _cfg_test_items():
+    if not _CFG_TEST_ITEMS:
+        _CFG_TEST_ITEMS.append(__import__("runpy").run_path(
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "cfg_test_items.py")))
+    return _CFG_TEST_ITEMS[0]
 
 
 _PRODUCTION_LEXER = []
@@ -1332,6 +1317,44 @@ def _production_lexer():
 def _fn_text(name, f):
     lines, start, end = fn_lines(name, f)
     return "\n".join(lines[start - 1:end - 1])
+
+
+def _fn_item_text(name, f):
+    """fn `name`'s own text in f: from its `fn` line through the `}` closing its first code `{`, then a newline. The
+    braces are found by the walk `_production` uses, on code only (the §8.45 lexer masks literals and comments; a
+    LexError stops the run). It fails closed rather than return a shorter or longer body: no code `{` before a code
+    `;`, an unterminated body, a closing brace at or past fn_lines' exclusive end, or anything but whitespace and
+    comments between that brace and that end (another item's attribute or code, which _fn_text would have kept)."""
+    lines, start, end = fn_lines(name, f)
+    text = _text_of(f)
+    _rl = _production_lexer()
+    toks, comments = _rl["scan"](text, f)
+    mask = _rl["_masks"](text, toks, comments)
+    begin = sum(len(l) + 1 for l in lines[:start - 1])
+    stop = min(len(text), sum(len(l) + 1 for l in lines[:end - 1]))
+    i, nest, opened, close = begin, 0, False, None
+    while i < len(text):
+        ch = text[i]
+        if not mask[i]:
+            if ch in "([{":
+                nest += 1
+                opened = opened or ch == "{"
+            elif ch in ")]}":
+                nest -= 1
+                if ch == "}" and opened and nest == 0:
+                    close = i
+                    break
+            elif ch == ";" and nest == 0 and not opened:
+                raise SystemExit(f"_fn_item_text: fn {name} in {f} has no body")
+        i += 1
+    if close is None or close >= stop:
+        raise SystemExit(f"_fn_item_text: fn {name} in {f}: its body does not close inside its fn_lines span")
+    in_comment = bytearray(len(text))
+    for s_, e_ in comments:
+        in_comment[s_:e_] = b"\x01" * (e_ - s_)
+    if any(not (text[j].isspace() or in_comment[j]) for j in range(close + 1, stop)):
+        raise SystemExit(f"_fn_item_text: fn {name} in {f}: code lies between its closing brace and the next fn")
+    return text[begin:close + 1] + "\n"
 
 
 def _literals(text):
@@ -1599,7 +1622,8 @@ if _D5:
     _BMF = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "b7a_domain_model.py"))["MEMBER_SOURCE"]
     _CODES = _calls_with_literal_last_arg(_production(_SBR), "require")
     # the second maximum branch's multi-line headline: its result_ref is the fourth line after the opener
-    _HLN = 2 if fnkey("published_nodal_displacements", _LIB) else 1
+    # PR-A (§8.62, U5B-PD-RN): either U5B-PD shape marks the U5b epoch (two headline statements).
+    _HLN = 2 if (fnkey("published_nodal_displacements", _LIB) or fnkey("corrected_nodal_displacements", _LIB)) else 1
     _hl = int(site_is(_CASE_FN, _LIB, "*headline = Some(LocatedQuantity {").rsplit(":", 1)[1])
     if _cs[_hl + 3].strip() != "result_ref: result_id.clone(),":
         raise SystemExit("U6-A: the per-basis headline's result_ref moved; re-review")
@@ -4136,7 +4160,11 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # premises stand.
     # RT-L2 final source: reader_verdict.rs re-read: the exception's model check is renamed exception_model_binding (one
     # call and its comment). The OP1A premises stand.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/reporting/result_export/src/reader_verdict.rs': '30217d83a14d26614935ec948e4db7e86763682632544d2c07685f9f40318c65'}
+    # PR-A (§8.62): reader_verdict.rs re-read: source_findings and standing push the solved-document inspection-only
+    # finding (a static literal) after MECHANICS_NOT_SOLVED; both are reached only from standing/dispatch, outside the
+    # retained roots (no reader_verdict function has a positive multiplicity in the run). The OP1A premises stand.
+    # Previous value 30217d83…
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4', 'core/reporting/result_export/src/preview_combination_operands.rs': 'b075900f31f83709543fa0aff7998ae19ca89d50ca7983803f773076db6d8b22', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/reporting/result_export/src/reader_verdict.rs': 'cec54f29bf3447e4595c32280bebe8a8e7027db90b2e12c87abdcebbd9f44654'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -4212,7 +4240,8 @@ if fnkey("selects", _TIM):
     # standing/dispatch, outside the retained roots. The Timoshenko premises stand.
     # RT-L2 final source: reader_verdict.rs re-read: the exception's model check is renamed exception_model_binding (one
     # call and its comment), still reached only from standing/dispatch. The Timoshenko premises stand.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2b7eeabb66ba98ce7e727939ccc23eb6c8036db86ca6e2cdea72e9ebb28b772', 'core/reporting/result_export/src/reader_verdict.rs': '30217d83a14d26614935ec948e4db7e86763682632544d2c07685f9f40318c65', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    # PR-A (§8.62): reader_verdict.rs re-read as for OP1A above; the Timoshenko premises stand.
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2b7eeabb66ba98ce7e727939ccc23eb6c8036db86ca6e2cdea72e9ebb28b772', 'core/reporting/result_export/src/reader_verdict.rs': 'cec54f29bf3447e4595c32280bebe8a8e7027db90b2e12c87abdcebbd9f44654', 'core/reporting/result_export/src/preview_physics_evidence.rs': '68baed3f933137fc92ec8112e098f557931102282814f4a47d687e489c89ab0a', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -4686,8 +4715,11 @@ if fnkey("plan", _S2_RES):
     ]
 
 # §8.43 (DEL-04-09 I2a): the product modal module (core/product_physics/src/modal.rs and modal/) is reached from no
-# retained root: no lib.rs function calls into it and no modal node is reachable on the run's graph. Two whole-crate
-# gates still read it, by the existing method (no exclusion, no method change):
+# retained root: no modal node is reachable on the run's graph. Since M4 one lib.rs function calls into it, the public
+# experimental entry modal_experimental_result_document, which no priced source calls (the headless runner, outside the
+# priced crates, is its only caller), so the name-resolved graph reaches neither it nor modal from a retained root
+# (tests/test_dynamics_i2a_d3.py). Two whole-crate gates still read it, by the existing method (no exclusion, no
+# method change):
 _MODAL = PP_ + "modal/"
 if fnkey("prepare_modal", _MODAL + "prepare.rs"):
     import hashlib as _modal_hashlib
@@ -4994,10 +5026,24 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         # statement (base fn_zero, G4 R-1). selected_nonlinear is then None and capture_nonlinear_state_evidence
         # returns None at its first statement, before its text, Box or final-state clone. The shapes that carry the
         # premise are checked here; the capture's body is pinned. Shapes and pin re-read in ordinary layout (cc160d28d).
-        _seam = _fn_text("capture_nonlinear_state_evidence", _LIB)
+        # DEL-04-09 M4: the capture is no longer lib.rs's last item (the experimental modal entry follows it), so
+        # _fn_text's span would run into the next item's doc comment. The pin binds the capture's own text through its
+        # closing brace (_fn_item_text, which fails closed on any code between that brace and the next fn), the same
+        # bytes _fn_text gave while the capture ended the file.
+        _seam = _fn_item_text("capture_nonlinear_state_evidence", _LIB)
         _loop = _fn_text("append_nonlinear_support_loop_results", _LIB)
         _case = _fn_text("solve_prepared_load_case", _LIB)
         _lib_text = _text_of(_LIB)
+        # SEAM-ST (DEL-04-07 *Published displacement*, re-read at the publication-basis decision): the loop now also
+        # returns `nonlinear_staged`, the confirmation-basis rows staged for the case's one release. On D1 the loop
+        # returns None first, so the None arm sets all four members to None and allocates nothing; nonlinear_staged is
+        # read only by `released` (false), a test probe and the `if let Some(staged)` that alone calls
+        # release_confirmed_rows (not entered), and is never re-assigned. base/nonlinear_seams.py binds the tuple, the
+        # arms and every read by exact text (the earlier three-member form is accepted unchanged); any other form stops.
+        _seam_st = __import__("runpy").run_path(
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "nonlinear_seams.py"))["standing_failures"](_case)
+        if _seam_st:
+            raise SystemExit(f"MODAL-SEAM: {_seam_st}; re-review (§8.43)")
         if (_modal_hashlib.sha256(_seam.encode()).hexdigest()
                 # RT-A3 S6 D3 (§8.59): the capture takes the loop's consumed motion as an argument (S6-ME, priced positively); its
                 # first statement is unchanged and it still returns None there on D1.
@@ -5006,13 +5052,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                 or not _re.search(r"\{\n    if built\.nonlinear_supports\.is_empty\(\) \{\n        return None;\n    \}\n", _loop)
                 or _case.count("capture_nonlinear_state_evidence(\n        &load_case.id,\n        solver_mode,\n"
                                "        selected_nonlinear.as_ref(),\n") != 1
-                or _case.count("let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) =\n"
-                               "        match append_nonlinear_support_loop_results(") != 1
                 or _re.search(r"\bselected_nonlinear\s*=[^=]", _case)
-                or _case.count("Some((solve, nonlinear, qualification)) => {\n"
-                               "                (Some(solve), Some(nonlinear), qualification)\n"
-                               "            }\n"
-                               "            None => (None, None, None),") != 1
                 or len(_re.findall(r"\bcapture_nonlinear_state_evidence\b", _lib_text)) != 2):
             raise SystemExit("MODAL-SEAM: the capture, its call or the nonlinear loop's early return changed; re-review (§8.43)")
         O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), fnkey("capture_nonlinear_state_evidence", _LIB),
@@ -5040,8 +5080,12 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         _solved = _fn_text("modal_doc_solved", _DOC)
         # Narrow re-check of e98ad5add: token counts can be offset (e.g. a `for id in [..]` loop with one use removed), so
         # modal_doc_solved's exact text is pinned, the MODAL-FB way. Any edit stops the run for re-review.
+        # Re-reviewed for M1 (DEL-04-09 "Parameter standing"): only the third parameter's type changed, from the
+        # caller's `label: &str` to `label: ModalParameterStanding`, which is passed unchanged to modal_doc_identity
+        # (its one use here). No format site, binding of a, b, id or ids, or token count changed; the audits below
+        # stand as they were.
         _solved_digest = _modal_hashlib.sha256(_solved.encode()).hexdigest()
-        if _solved_digest != "f490771728ca9c55a9a33fbbe28b3c21935714854d371ca424e160ca235db7ed":
+        if _solved_digest != "2cee7521dedad2b21d624f940d0fc47f98e9193441e25da8bd9d2c2e6020800e":
             raise SystemExit(f"MODAL-ID: document.rs's modal_doc_solved changed ({_solved_digest}); re-review its bindings "
                              "and re-pin (§8.52)")
         if (_fn_text("modal_doc_dof_id", _DOC) != "fn modal_doc_dof_id(node_ids: &[String], dof: usize) -> String {\n"
@@ -5647,14 +5691,24 @@ if fnkey("read_case", _NL_EV):
     _nl_fc = _fn_text("family_clauses", _W16_RM) if fnkey("family_clauses", _W16_RM) else ""
     _nl_prod = _production(_NL_EV)
     _nl_dpe = _fn_text("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs")
+    # NL-RD/NL-RQ (DEL-04-07, re-read at the publication-basis decision): `read` binds the case list as `cases` and
+    # first requires `cases.is_empty() || <mechanics solved>`; read_case requires `code != INSPECTION_ONLY_CODE` per
+    # case. `require` is `fn require(ok: bool, code: &str) -> Check`: the message is a static &str and its one
+    # allocation, `Err(format!(..))`, is in the else branch. On D1 the case list is empty, so `ok` holds by the `||`
+    # short circuit and nothing is allocated at the call; read_case's require is inside the map over the empty list.
+    # base/nonlinear_seams.py binds both bodies, require's signature and body and each call's literal message (the
+    # earlier `read` is accepted unchanged); it also gives read's case-map loop header for RTA3NL-RD below.
+    _nl_failed, _nl_read_loop = __import__("runpy").run_path(
+        _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "nonlinear_seams.py"))["reader_failures"](
+        _nl_prod, _fn_text("read", _NL_EV))
+    if _nl_failed:
+        raise SystemExit(f"RTA3NL-RD: {_nl_failed}; re-review the nonlinear reader's D1 premise (§8.49)")
     _nl_guard = (
         # D1.6: a nonlinear support record is refused by name on every retained branch.
         _nl_fc.count("        if support.nonlinear.is_some() {\n") == 1,
         # The retained graph reaches the reader once per direct pass, through `check`, a no-op without nonlinear rows.
         _nl_dpe.count("crate::nonlinear_support_evidence::check(source)") == 1,
         _nl_prod.count("pub(crate) fn check(source: &Value) -> Check {\n    read(source).map(|_| ())\n}\n") == 1,
-        _nl_prod.count("    let rows = items(&source[\"results\"]);\n"
-                       "    case_ids(rows)?.into_iter().map(|case| read_case(source, case)).collect()\n") == 1,
         _nl_prod.count("    let mut cases: Vec<&str> = Vec::new();\n") == 1
         and _nl_prod.count("    for row in rows.iter().filter(|r| kind(r).starts_with(\"nonlinear_support_\") "
                            "&& r[\"basis_ref\"][\"ref_type\"] != \"combination\") {\n") == 1,
@@ -5675,7 +5729,7 @@ if fnkey("read_case", _NL_EV):
     O10_LOOPS_LAST += [
         ('for row in rows.iter().filter(|r| kind(r).starts_with(" ") && r[" "][" "] != " ")', "0", _NL_RD,
          ["nonlinear_support_evidence.rs:case_ids"]),
-        ("iter:case_ids(rows)?.into_iter().map", "0", _NL_RD, ["nonlinear_support_evidence.rs:read"]),
+        (_nl_read_loop, "0", _NL_RD, ["nonlinear_support_evidence.rs:read"]),
     ]
     # RTA3NL-ID: read_case's state-review message names a support's state, one of STATES (at most 8 B). The site is
     # unreached on D1 (multiplicity 0); the chain classifies every format row's arguments regardless.
@@ -6128,13 +6182,33 @@ _H_PP = PP_ + "held_status.rs"
 _H_RE = RE_ + "preview_held_status.rs"
 if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
     import hashlib as _h_hashlib
-    # RTA5-PIN: both modules' complete bytes, read before these rules were written; a change stops the run.
-    for _f, _h in {_H_PP: "4e28fd1c40df1f9ce50add83c15f64b403c708a54c0a752f72e9e7beadf779bb",
+    # RTA5-PIN: both modules' complete bytes, read before these rules were written; a change stops the run. PP's was
+    # re-read and re-bound for the publication-basis decision: it adds `HeldRequest::withdraw_established` (RTA5-HR,
+    # RTA5-WE below) and `held_solve` returns `crate::NonlinearCaseSolve` with no staged rows (`None`); the texts
+    # RTA5-DZ rests on (is_minuend_final, wanted, solve_held_combinations' filter, the two difference_basis uses) are
+    # unchanged.
+    for _f, _h in {_H_PP: "94a29d3fc161bcb2e7be3f80e249b5aeb0886a62611bf4ac5bdc26cf5ffd1021",
                    _H_RE: "486718ea649ddc185518ae1f205e5f4a0a7d35cdc461d84f2eac39674ec5fec9"}.items():
         if _h_hashlib.sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
             raise SystemExit(f"RTA5-PIN: {_f} changed; re-review §8.54's rules")
     _h_nc = lambda text: _re.sub(r"//[^\n]*", "", text)
     _h_lib, _h_pp, _h_hs = _h_nc(_text_of(_LIB)), _h_nc(_text_of(_A4_PP)), _h_nc(_text_of(_H_PP))
+    # RTA5-HR (DEL-04-07 *Published displacement*): the case's publication-basis decision in solve_prepared_load_case
+    # withdraws a held record staged as established (`HeldRequest::withdraw_established`) when the case does not stay
+    # confirmed. Its `if let held_status::CaseRole::Held(request) = &mut role` destructures a role that already exists
+    # and creates none, so RTA5-DZ's premise (a held case solve is created only inside solve_held_combinations'
+    # closure) holds. A count of `CaseRole::Held(` was a proxy for that premise; base/rta5_held_role.py replaces it by
+    # binding the one construction (HR-C, inside the closure), the loop's destructuring (HR-L) and the withdrawal's
+    # (HR-W, directly inside `if confirmed_state.is_some() && confirmed.is_none()`), each by exact text and place,
+    # with every `Held(` in lib.rs one of the three (HR-ALL). Any further occurrence of either kind, or HR-W moved or
+    # its condition changed, stops the run here.
+    _h_we = fnkey("withdraw_established", _H_PP)
+    if _h_we:
+        _h_role = __import__("runpy").run_path(
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "rta5_held_role.py"))
+        _h_failed = _h_role["failures"](_text_of(_LIB), _fn_text("family_clauses", _W16_RM))
+        if _h_failed:
+            raise SystemExit(f"RTA5-HR: lib.rs's held roles or the withdrawal's grounds changed; re-review §8.54: {_h_failed}")
     _h_guard = (
         # DZ: is_minuend_final is declared() and a minuend_final subtrahend (PF1B-DZ's census reads it); wanted is any
         # combination's is_minuend_final with that minuend.
@@ -6163,7 +6237,10 @@ if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
             "            nonlinear_frame_input(built, restrained_dofs, base_motion, &ground_motion, &force).ok().and_then(|input| {") == 1
         and _h_lib.count("held_status::CaseRole::Held(request),") == 1
         and _h_lib.index("held_status::CaseRole::Held(request),") > _h_lib.index("held_status::solve_held_combinations(")
-        and len(_re.findall(r"CaseRole::Held\(", _h_lib)) == 2 and _h_lib.count("if let held_status::CaseRole::Held(request) = role {") == 1
+        # RTA5-HR (below) binds each `Held(` in lib.rs by kind, text and place where the publication-basis withdrawal
+        # exists; a source without it keeps the original two: the construction and the loop's destructuring.
+        and (_h_we or (len(_re.findall(r"CaseRole::Held\(", _h_lib)) == 2
+                       and _h_lib.count("if let held_status::CaseRole::Held(request) = role {") == 1))
         and not any("CaseRole::Held(" in _h_nc(_text_of(PP_ + _pf)) for _pf in __import__("os").listdir(_os.path.join(_SNAP, PP_))
                     if _pf.endswith(".rs") and _pf not in ("lib.rs", "held_status.rs")),
         # DZ: the preview producer reads the held map only through `held.get(&combination.id)` (empty on D1).
@@ -6200,6 +6277,18 @@ if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
     O10_EDGE_ZERO += [(fnkey("append_combination_results", _A4_PP), _hp(_n), _H_DZ + " (`held.get` is None)")
                       for _n in ("lookup_rows", "cited_rows", "released_message")]
     O10_EDGE_ZERO += [(fnkey("append_operand_standing", _A4_PP), _hp("kind"), _H_DZ + " (`held.get` is None)")]
+    # RTA5-WE: solve_prepared_load_case -> withdraw_established is zeroed because it is unreached on D1, on two grounds,
+    # both bound by RTA5-HR above (the zero is added only after they pass, so a changed ground stops, never carries):
+    # WE-1 (RTA5-DZ) the call runs only with a held role, which exists only inside the held closure; WE-2 (D1.6) it runs
+    # only with `confirmed_state` set, which comes only from the nonlinear loop's Confirmed standing, and the loop
+    # returns None first without nonlinear supports, which D1.6 refuses. Reached, it would cost one allocation per held
+    # case that does not scale with the model: the reason String (`not_established`'s format of a fixed text and the
+    # reason); it drops the conditions and has no loop.
+    if _h_we:
+        O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), _h_we,
+                           O10 + "RTA5-WE: unreached on D1: a held role exists only inside the held closure (RTA5-DZ) and "
+                           "confirmed_state needs a nonlinear support, which D1.6 refuses; reached, it would cost one "
+                           "non-scaling reason String per held case")]
     O10_EDGE_ZERO += [(_hr("check"), _hr(_n), _H_FZ) for _n in ("read", "rows_check", "model_check", "require")]
     O10_EDGE_ZERO += [(fnkey("free_check", _B1_RD), _hr("stated_gate"), _B1_FZ)]
     # RTA5-BN (S1-BN's and PF1B-BN's EDGE_ZERO; sq2_decisions_common's FV): the by-name call graph adds false edges into
@@ -6811,3 +6900,225 @@ if _rtl2_k:
          {"elongation.text()": {"bytes": _rtl2_sb, "source": O10 + f"RTL2-ID: the longest of the three fixed statements, {_rtl2_sb} B"}}),
     ]
 
+
+# ---- §8.62: PR-A, the integrity-diagnostic repair (DEL-04-07 *Blocked document* and *Published displacement*).
+# Read on 2b934ec5b against main fe01013f4. Four new texts and loops reach the retained graph; every rule below binds
+# the exact source text and names it rests on, and each is a positive bound (none is a zero). The rules apply only
+# where the whole PR-A shape is present; a source with none of it must hold U5B-PD's earlier reviewed shape
+# (base/u4b_u5b_owners_model.py PD_SHAPES), and any part without the rest stops.
+_PRA_PARTS = {"inspection_only": bool(fnkey("inspection_only", _LIB)),
+              "inspection_only_prior": bool(fnkey("inspection_only_prior", _LIB)),
+              "corrected_nodal_displacements": bool(fnkey("corrected_nodal_displacements", _LIB)),
+              "displacement_correction_warning": bool(fnkey("displacement_correction_warning", _LIB))}
+_PRA_SHAPE = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
+                                                        "u4b_u5b_owners_model.py"))["published_displacement_shape"](_SNAP, _text_of(_LIB))
+# The guards' exact texts and named checks are in base/pra_guards.py (its mutation tests: tests/test_862_pr_a.py).
+_pra_g = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "pra_guards.py"))
+_pra_failed = _pra_g["parts_failures"](_PRA_PARTS, _PRA_SHAPE)
+if _pra_failed:
+    raise SystemExit(f"PRA: {_pra_failed}; re-review §8.62")
+
+
+def _pra_prod(f):
+    """PRA's census text: f's production text (`_production`, CFG-PROD) without `//` comments."""
+    return _re.sub(r"//[^\n]*", "", _production(f))
+
+
+if all(_PRA_PARTS.values()):
+    _pra_lib = _pra_prod(_LIB)
+    _pra_consts = {}
+    for _name, _decl in (("INTEGRITY_DIAGNOSTIC_PREFIX", "const INTEGRITY_DIAGNOSTIC_PREFIX: &str = "),
+                         ("INSPECTION_ONLY_CODE", "pub(crate) const INSPECTION_ONLY_CODE: &str = "),
+                         ("INSPECTION_ONLY_LEAD", "pub(crate) const INSPECTION_ONLY_LEAD: &str = "),
+                         ("INSPECTION_ONLY_TAIL", "pub(crate) const INSPECTION_ONLY_TAIL: &str = ")):
+        _hits = _re.findall(r"^" + _re.escape(_decl) + r'"([^"\\]*)";$', _pra_lib, _re.M)
+        if len(_hits) != 1 or len(_re.findall(r"\b" + _name + r"\b\s*:", _pra_lib)) != 1:
+            raise SystemExit(f"PRA-IO: {_name} is not one plain literal constant; re-review §8.62")
+        _pra_consts[_name] = len(_hits[0].encode())
+    # ---- PRA-IO: the blocked rewrite (blocked_envelope -> inspection_only). The loop visits the blocked document's
+    # diagnostics whose id starts with the integrity prefix; inspection_only returns at its first statement unless the
+    # code is NUMERICAL_INTEGRITY_CHECKS_PASSED or NUMERICAL_INTEGRITY_SENSITIVE, so every allocation it makes (the new
+    # message, the code and the severity) is for one such diagnostic. In the product's source such a diagnostic is made
+    # only by append_integrity_report's one push (its code is one of those two literals); formation_guard::demote moves
+    # PASSED to SENSITIVE and creates nothing; every other diagnostic with an integrity id (append_integrity_failure,
+    # the range refusal, the two recovery-basis warnings) carries a failure code. append_integrity_report has exactly
+    # two calls, both in solve_prepared_load_case (one per case solve's branch; counted as two), and the document's
+    # diagnostics come from at most `cases` case solves, so the loop's allocating body runs at most 2*cases times.
+    # The old message stays live while `format!` builds the new one: both are charged, the old at its own site
+    # (append_integrity_report, the integrity message bound message_int, demote's sentence included) and the new here
+    # (the two constants, the prior code and that message): TEXT is the sum of every allocation, with no credit for
+    # the old one's drop. The message argument keeps the inherited `diagnostic.message` rule (message_int), which was
+    # written for exactly this text: the amended integrity message.
+    _pra_census = {}
+    # Every production file of the product crate, recursively (test-named files and test modules excluded).
+    _pra_files = sorted(_os.path.relpath(_os.path.join(_d, _n), _os.path.join(_SNAP, PP_))
+                        for _d, _, _ns in __import__("os").walk(_os.path.join(_SNAP, PP_)) for _n in _ns
+                        if _n.endswith(".rs") and not _n.endswith("_tests.rs") and _n != "tests.rs"
+                        and not any(_p == "tests" or _p.endswith("_tests")
+                                    for _p in _os.path.relpath(_d, _os.path.join(_SNAP, PP_)).split(_os.sep)))
+    for _pf in _pra_files:
+        _t = _pra_prod(PP_ + _pf)
+        for _needle in _pra_g["CENSUS_NEEDLES"]:
+            if _t.count(_needle):
+                _pra_census[(_pf, _needle)] = _t.count(_needle)
+    _pra_failed = _pra_g["io_failures"](_text_of(_LIB), _pra_census)
+    if _pra_failed:
+        raise SystemExit(f"PRA-IO: the blocked rewrite, its loop or the integrity diagnostics' producers changed; re-review §8.62: "
+                         f"{_pra_failed} census={_pra_census}")
+    O10_LOOPS_LAST += [(_pra_g["IO_LOOP_HEADER"], "2*cases",
+                        O10 + "PRA-IO: the blocked rewrite allocates only for a CHECKS_PASSED or SENSITIVE integrity diagnostic, made "
+                        "only by append_integrity_report's one push, called twice per case solve (at most `cases` solves)",
+                        ["lib.rs:blocked_envelope"])]
+    _PRA_CODE = max(len("NUMERICAL_INTEGRITY_CHECKS_PASSED"), len("NUMERICAL_INTEGRITY_SENSITIVE"))
+    O10_ID_AUDIT += [(site("inspection_only", _LIB, "diagnostic.message = format!(", full=True), {
+        "INSPECTION_ONLY_LEAD": {"bytes": _pra_consts["INSPECTION_ONLY_LEAD"], "source": O10 + "PRA-IO: the lead constant's bytes"},
+        "INSPECTION_ONLY_TAIL": {"bytes": _pra_consts["INSPECTION_ONLY_TAIL"], "source": O10 + "PRA-IO: the tail constant's bytes"},
+        "diagnostic.code": {"bytes": _PRA_CODE, "source": O10 + "PRA-IO: one of the two codes the first statement admits"}})]
+    LEX_SITE_SIZE = list(LEX_SITE_SIZE) + [
+        (Resolved(site("inspection_only", _LIB, "diagnostic.code = INSPECTION_ONLY_CODE.to_string();").split("/src/")[-1]),
+         {"class": _pra_consts["INSPECTION_ONLY_CODE"], "why": O10 + "PRA-IO: INSPECTION_ONLY_CODE, a static literal"})]
+    # The message argument's inherited class must still be the integrity message's: the first argument rule matching
+    # `diagnostic.message` (decisions first, then the base table) is the message_int rule.
+    _pra_args = list(globals().get("ARGS_FIRST", [])) + __import__("json").load(open(_os.path.join(
+        _os.path.dirname(_os.path.abspath(__file__)), "..", "base", "text_args.g4.json"), encoding="utf-8"))["args"]
+    _pra_first = next((_r for _r in _pra_args if _re.search(_r["re"], "diagnostic.message")), None)
+    if not _pra_first or _pra_first["max"] != "message_int" or _pra_first["re"] != "record\\.message|diagnostic\\.message":
+        raise SystemExit("PRA-IO: the integrity message's argument rule changed; re-review §8.62")
+    # ---- PRA-CF: the corrected displacement's failure, charged positively in every case solve that forms a correction
+    # (base/correction_failure_model.py derives the bounds and binds their source). The Option chain `let correction =
+    # linear_bound.or(..).filter(..).map(..)` is an Option, so its `.map` runs at most once per case solve (one call of
+    # corrected_nodal_displacements); the finite scan inside `.filter` walks the N displacements once, allocates nothing
+    # and calls no priced function. Inside corrected_nodal_displacements, `(0..displacements.len()).map(..)` visits the N
+    # DOFs; its `.map_err` formats the error only for the failing component, and `collect` into Result stops at the first
+    # Err, so the Debug text is formed at most once per call. The cloned failure, the held reason, the sentence and the
+    # warning (one diagnostic, its id, message and one ref) are each charged at their sites' multiplicity.
+    _pra_cf = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
+                                                         "correction_failure_model.py"))["inspect"](_SNAP)
+    _pra_failed = _pra_g["cf_failures"](_text_of(_LIB))
+    if _pra_failed:
+        raise SystemExit(f"PRA-CF: the correction's Option chain or its failure clone changed; re-review §8.62: {_pra_failed}")
+    _PRA_CORR = fnkey("corrected_nodal_displacements", _LIB)
+    O10_LOOPS_LAST += [
+        (_pra_g["CF_OPTION_HEADER"], "1",
+         O10 + "PRA-CF: an Option chain (linear_bound and confirmed_candidate are Options): its map runs at most once per case "
+         "solve; the finite scan in its filter allocates nothing", ["lib.rs:solve_prepared_load_case"]),
+        (_pra_g["CF_DOF_HEADER"], "N",
+         O10 + "PRA-CF: the N displacement components (the `#[cfg(test)]` forced failure before it is compiled out of the "
+         "registered build); the Debug text inside is bounded per call by its site rule", ["lib.rs:corrected_nodal_displacements"]),
+    ]
+    O10_SITE_FROM = O10_SITE_FROM + [(site("corrected_nodal_displacements", _LIB, 'error: format!("{error:?}")'),
+        {"from": [_PRA_CORR], "per": "1",
+         "why": O10 + "PRA-CF: the error's Debug text is formed only for the first failing component: collect into Result "
+         "stops at the first Err (<= 1 per corrected_nodal_displacements call)"})]
+    _DBG = {"bytes": _pra_cf["debug"], "source": O10 + f"PRA-CF: RecoveryFailure's Debug text, at most {_pra_cf['debug']} B (CF-DBG)"}
+    _FAILED = {"bytes": _pra_cf["failed"], "source": O10 + f"PRA-CF: displacement_correction_failed, at most {_pra_cf['failed']} B (CF-FAIL)"}
+    O10_ID_AUDIT += [
+        (site("corrected_nodal_displacements", _LIB, 'error: format!("{error:?}")', full=True), {"error|?": _DBG}),
+        (site("displacement_correction_failed", _LIB, '"the corrected displacement of {} could not be {step} ({})",', full=True, row="format!("),
+         {"integrity_dof_label(model,failure.dof)": {"bytes": _pra_cf["dof_label"], "source": O10 + "PRA-CF: a node id (IN128), ':' and UX..RZ, or global_dof={dof}"},
+          "step": {"bytes": _pra_cf["step"], "source": O10 + "PRA-CF: the longer of the step's two literals"},
+          "failure.error": _DBG}),
+        (site("displacement_correction_sentence", _LIB, '"the member-relative formation check ran, but {};', full=True, row="format!("),
+         {"displacement_correction_failed(model,failure)": _FAILED}),
+        (site("displacement_correction_warning", _LIB, '&format!("diagnostic:displacement-correction:{case_id}"),', full=True), {"case_id": IN}),
+        (site("displacement_correction_warning", _LIB, '"Load case {case_id}: {}; no published result', full=True, row="format!("),
+         {"case_id": IN, "displacement_correction_failed(model,failure)": _FAILED}),
+        (site("displacement_correction_warning", _LIB, "vec![case_id.to_string()],", full=True), {"case_id": IN}),
+        # The test-only publication probe (compiled out; charged at IN128, as U5B-PD's probe).
+        (site_after(_CASE_FN, _LIB, "records.push(corrected_displacement_tests::NonlinearReactionPublication {",
+                    "case_id: load_case.id.clone(),", within=2), {"load_case.id": IN}),
+    ]
+    LEX_SITE_SIZE = list(LEX_SITE_SIZE) + [
+        (Resolved(site_after(_CASE_FN, _LIB, "let correction_failure = match &correction {", "Some(Err(failure)) => Some(failure.clone()),",
+                             within=2).split("/src/")[-1]),
+         {"class": _pra_cf["debug"], "why": O10 + "PRA-CF: the failure's one owned String, its Debug text (CF-CLONE)"})]
+    # ---- PRA-TR: the retained trigger reads an inspection-only case's prior outcome. case_triggers is called twice in
+    # retained_w1 and maps each case through inspection_only_prior, whose only allocation is integrity_diagnostic_id's
+    # String (priced at its own site, at the chain's multiplicity of every call); its two loops find one diagnostic
+    # and one of two table entries, and allocate nothing.
+    _pra_failed = _pra_g["tr_failures"](_text_of(_LIB), _pra_lib)
+    if _pra_failed:
+        raise SystemExit(f"PRA-TR: the trigger's prior-outcome read or its callers changed; re-review §8.62: {_pra_failed}")
+    # ---- PRA-NL (route E): nonlinear_support_evidence's `read` now calls `require` directly (outside read_case's
+    # D1-empty map), so require's format site has multiplicity 1. It allocates only when `ok` is false; it is charged
+    # positively at one formatted message: the prefix and the longest message literal any require call passes (NL-RQ,
+    # base/nonlinear_seams.py, binds require's body and every call's literal message).
+    if fnkey("require", _NL_EV):
+        _pra_nl_msgs = [_a[1].strip('"') for _a in __import__("runpy").run_path(_os.path.join(
+            _os.path.dirname(_os.path.abspath(__file__)), "..", "base", "nonlinear_seams.py"))["_call_args"](_production(_NL_EV), "require")]
+        if not _pra_nl_msgs or not all(_re.fullmatch(r"[A-Z0-9_]+", _m) for _m in _pra_nl_msgs):
+            raise SystemExit("PRA-NL: a require message is not a literal; re-review §8.62")
+        O10_ID_AUDIT += [(site("require", _NL_EV, 'Err(format!("SOURCE_PHYSICS_NONLINEAR_{code}"))', full=True),
+                          {"code": {"bytes": max(len(_m) for _m in _pra_nl_msgs),
+                                    "source": O10 + "PRA-NL: the longest literal message of every require call"}})]
+
+
+# ---- O10-GATE (PR-A, §8.62): the reviewed absent targets. A rule block above is gated on `fnkey(name, file)` so that a
+# source without the function adds nothing for it. That is right only where the rules bind that function's own sites,
+# edges or premises (absent code has none) or where an explicit alternative shape stands in for it; it is wrong where a
+# current source lost, renamed or moved a function whose block charges or bounds other code. Every target looked up and
+# absent at this snapshot must be listed here with its reason; an alternative named here must then be present (a
+# correspondence, never a silent disappearance). Anything else stops the run.
+_PP_LIB, _PP_FG, _PP_EA, _PP_MS = PP_ + "lib.rs", PP_ + "formation_guard.rs", PP_ + "exact_admission.rs", PP_ + "model_settings.rs"
+# Each allowance names a source fact that must hold where the target is absent (base/pra_guards.py gate_failures):
+# ("fn", name, file) a reviewed alternative function is present; ("text-absent", file, text) the absent function's own
+# distinctive text is gone from its file (a rename that keeps the code fails it); ("file-absent", file) the file itself
+# is absent (a source before the module). No allowance stands on absence alone.
+O10_ABSENT_REVIEWED = {
+    # Historical functions whose blocks bind only their own sites (ID audits, ARGS, zero edges), deleted before main.
+    ("append_retained_source_not_joined", _PP_LIB): (("text-absent", _PP_LIB, ':not-joined"'),
+                                                     "T4 batch 2's not-joined warning, deleted with its sites"),
+    ("arc_recovery_finding", _PP_FG): (("text-absent", _PP_FG, ": the formation bound is unavailable"),
+                                       "O-13's arc recovery finding, replaced by KD5's member predicate (KD5T1)"),
+    ("arc_recovery_record", _PP_LIB): (("text-absent", _PP_LIB, "formation_guard::ArcRecoveryRecord"),
+                                       "O-13's arc recovery record, deleted with its one audited site"),
+    ("leaf_diff", PP_ + "source_recovery/j7_rf_census.rs"): (("text-absent", PP_ + "source_recovery/j7_rf_census.rs",
+                                                              'format!("{path}/{k}")'),
+                                                             "B7b-J3: deleted by the test-only census rewrite (checked there)"),
+    ("row_basis", RE_ + "connector_evidence.rs"): (("text-absent", RE_ + "connector_evidence.rs", "objective_connector_v1;replaces_span="),
+                                                   "E4's connector row basis, deleted with its zero edge and audited site"),
+    ("shear_model_document_refusal", _PP_MS): (("text-absent", _PP_MS, "shear_model_timoshenko_unsupported_message"),
+                                               "SM-MS requires its absence (checked in the node-proximity guard)"),
+    # Alternative shapes chosen explicitly at their rules.
+    ("pressure_v3_formulation_basis_in", _PP_EA): (("fn", "pressure_v3_formulation_basis_with_source", _PP_EA),
+                                                   "S1's formulation basis: the `_with_source` form replaces it"),
+    ("validate_pressure_evidence_uncertified", RE_ + "physics_evidence.rs"): (
+        ("fn", "validate_pressure_evidence_without_certificate", RE_ + "physics_evidence.rs"),
+        "W16B-RD's three dispatch shapes; the one-view shape stands in for it"),
+    # A source before the I3a modal document has no document.rs (MODAL-ID, §8.52).
+    ("modal_result_document", PP_ + "modal/document.rs"): (("file-absent", PP_ + "modal/document.rs"),
+                                                          "MODAL-ID: a source before the modal document"),
+    # U5B-PD-RN: the owner's two reviewed shapes (u4b_u5b_owners_model PD_SHAPES); exactly one is present.
+    ("published_nodal_displacements", _PP_LIB): (("fn", "corrected_nodal_displacements", _PP_LIB), "U5B-PD-RN: renamed by PR-A"),
+    ("corrected_nodal_displacements", _PP_LIB): (("fn", "published_nodal_displacements", _PP_LIB), "U5B-PD-RN: before PR-A"),
+    # PR-A's other new functions: absent only on a source before PR-A, which holds U5B-PD's earlier shape (§8.62 PRA).
+    ("inspection_only", _PP_LIB): (("fn", "published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
+    ("inspection_only_prior", _PP_LIB): (("fn", "published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
+    ("displacement_correction_warning", _PP_LIB): (("fn", "published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
+    ("withdraw_established", PP_ + "held_status.rs"): (("fn", "published_nodal_displacements", _PP_LIB),
+                                                       "RTA5-HR: before PR-A (the original two-Held form, checked there)"),
+}
+
+
+def _o10_alt_holds(alt):
+    kind = alt[0]
+    if kind == "fn":
+        return fnkey(alt[1], alt[2]) is not None
+    path = _os.path.join(_SNAP, alt[1])
+    if kind == "file-absent":
+        return not _os.path.exists(path)
+    if kind == "text-absent":
+        return not _os.path.exists(path) or alt[2] not in open(path, encoding="utf-8").read()
+    raise SystemExit(f"O10-GATE: unknown allowance kind {alt!r}")
+
+
+def o10_gate():
+    """O10-GATE's check (base/pra_guards.py gate_failures); called here and again at the end of the common decisions."""
+    failed = _pra_g["gate_failures"](_FNKEY_ABSENT, O10_ABSENT_REVIEWED, _o10_alt_holds)
+    if failed:
+        raise SystemExit(f"O10-GATE: rule targets absent without a reviewed reason or alternative {failed}; a lost, "
+                         f"renamed or moved function drops its block (§8.62)")
+    return sorted(_FNKEY_ABSENT)
+
+
+O10_GATE_ABSENT = o10_gate()

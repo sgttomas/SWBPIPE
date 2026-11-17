@@ -122,6 +122,27 @@
    }
   },
   {
+   "id": "rt_a3_s6_correction_unavailable",
+   "paths": [
+    "fixtures/results/rt_a3_s6_c1_correction_unavailable.json"
+   ],
+   "producer": {
+    "kind": "rust_test",
+    "path": "core/product_physics/src/rt_a3_s6_tests.rs",
+    "write": "RT_A3_S6_CORRECTION_FIXTURE_OUT=<directory> with a_correction_failure_publishes_nothing_on_the_confirmation_basis",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from the committed rt_a3_s6 C-1 request, selects one case and forces correction failure; re-produce the source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "core/product_physics/src/rt_a3_s6_tests.rs",
+    "tests/test_rt_a3_nonlinear_reader.py"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the envelope deliberately forces displacement-correction failure through a test-only probe; an ordinary solver replay cannot reproduce this withdrawal control"
+   }
+  },
+  {
    "id": "reference_system",
    "paths": [
     "fixtures/reference_system/reference_system.json"
@@ -1510,6 +1531,14 @@
    "expectations": "no_response_value",
    "cases_named": "all",
    "detail": "declared-problem study tool: re-authors J2's source requests (the pressurised one names its case) and records product runs for the O4 census; asserts no response value"
+  },
+  {
+   "paths": [
+    "core/model_operations/operation_applier/tests/agent_catalog_reach.rs"
+   ],
+   "expectations": "no_response_value",
+   "cases_named": "all",
+   "detail": "the only solve removes RS-OPE analysis_state from the reference system and asserts LOAD_STATE_ANALYSIS_STATE_REQUIRED, its blocking severity and case identity, and mechanics not solved; all pressurised cases retain the fixture pressure-elongation setting; no response value is judged"
   }
  ],
  "exempt": [
@@ -1868,6 +1897,18 @@
     "tools/validation/pressure_elongation_inventory.py",
     "tools/validation/pressure_elongation_inventory.json",
     "tools/validation/test_pressure_elongation_inventory.py"
+   ]
+  },
+  {
+   "reason": "catalog parsing and admission checks, including pressure-region operation payloads; no model document is solved",
+   "paths": [
+    "apps/desktop/src-tauri/src/embedded_agent/catalog.rs"
+   ]
+  },
+  {
+   "reason": "record projection and before-text authoring tests through the wasm operation engine; reads and edits the committed reference system but performs no mechanics solve",
+   "paths": [
+    "apps/desktop/src/services/embeddedAgentSession.records.test.ts"
    ]
   }
  ],
