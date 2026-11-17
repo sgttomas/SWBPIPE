@@ -717,6 +717,54 @@ describe("the due autosave", () => {
     expect(autosaveStatus()).toHaveTextContent(`Autosaved at ${formatAutosaveTime(WRITTEN)}.`);
     expect(autosaveStatus()).not.toHaveTextContent("Autosave not removed");
   });
+  it("review R1: a landed hash from a replaced generation must not suppress later unsaved work", async () => {
+    const view = await start();
+    await act(async () => { await view.session().afterProjectSaved(DEMO.project.id, variants[0].hash); });
+    // Another window saves variant 1. This window reopens that revision under
+    // the same project id; generation 0's landed save no longer proves storage.
+    replaceSession(view);
+    renderSession(view, variants[1]);
+    view.edited.current = false;
+    await to(MINUTE);
+    // Edit back to variant 0: different from the reopened saved basis, so dirty.
+    show(view.basis, variants[0]);
+    view.edited.current = true;
+    await to(5 * MINUTE);
+    await to(10 * MINUTE);
+    expect(writes()).toEqual([payload(variants[0]), payload(variants[0])]);
+  });
+
+  it("changing the interval preserves a pending retry without shortening or losing it", async () => {
+    await start({ write: () => Promise.resolve({ outcome: "refused", diagnostics: [{ code: "AUTOSAVE-WRITE-FAILED", path: "", message: "invented refusal" }] }) });
+    await to(5 * MINUTE);
+    expect(writes()).toHaveLength(1);
+    await to(5 * MINUTE + SECOND);
+    await act(async () => { fireEvent.change(screen.getByTestId("autosave-interval"), { target: { value: "1" } }); });
+    await to(5 * MINUTE + 4999);
+    expect(writes()).toHaveLength(1);
+    await to(5 * MINUTE + 5000);
+    expect(writes()).toHaveLength(2);
+  });
+
+  it("review R2: a fixed tick must respect an outstanding minimum retry delay", async () => {
+    let refuse!: () => void;
+    let first = true;
+    await start({ write: () => {
+      if (first) {
+        first = false;
+        return new Promise((resolve) => { refuse = () => resolve({ outcome: "refused", diagnostics: [{ code: "AUTOSAVE-WRITE-FAILED", path: "", message: "invented slow refusal" }] }); });
+      }
+      return Promise.resolve({ outcome: "refused", diagnostics: [{ code: "AUTOSAVE-WRITE-FAILED", path: "", message: "invented refusal" }] });
+    } });
+    await to(10 * MINUTE - 100);
+    await act(async () => { refuse(); });
+    expect(writes()).toHaveLength(1);
+    await to(10 * MINUTE);
+    expect(writes()).toHaveLength(1);
+    await to(10 * MINUTE + 4900);
+    expect(writes()).toHaveLength(2);
+  });
+
 });
 
 describe("after a save lands", () => {

@@ -115,7 +115,7 @@ type CheckMode = "automatic" | "all";
 /** One session generation's due save: `ticks` counts the timer's ticks, and
  * `covered` the last one answered by a recorded write or by a state with
  * nothing to record. */
-type DueSave = { generation: number; ticks: number; covered: number; failures: number };
+type DueSave = { generation: number; ticks: number; covered: number; failures: number; retryPending: boolean };
 
 const IDLE_POLL_MS = 250;
 /** A failed autosave is tried again after 5 s, then 10, 20, 40 and every 60 s. */
@@ -142,11 +142,11 @@ export function useAutosave(deps: AutosaveDeps) {
   /** The current session generation's due save; replaced when the generation
    * advances or autosave is turned off, so an attempt started for an earlier
    * one changes nothing in it. */
-  const due = useRef<DueSave>({ generation: deps.currentSessionGeneration(), ticks: 0, covered: 0, failures: 0 });
+  const due = useRef<DueSave>({ generation: deps.currentSessionGeneration(), ticks: 0, covered: 0, failures: 0, retryPending: false });
   const wake = useRef<number | null>(null);
   const enabled = useRef(false);
   /** The model the last landed save stored, from `afterProjectSaved`. */
-  const landedSave = useRef<{ projectId: string; modelHash: string } | null>(null);
+  const landedSave = useRef<{ generation: number; projectId: string; modelHash: string } | null>(null);
   const checks = useRef<Promise<void>>(Promise.resolve());
   const mounted = useRef(true);
 
@@ -154,7 +154,7 @@ export function useAutosave(deps: AutosaveDeps) {
   // for a session; the tests switch it on after an edit in the browser engine).
   useEffect(() => {
     mounted.current = true;
-    if (!deps.native) return () => { mounted.current = false; };
+    if (!deps.native) return () => { mounted.current = false; cancelWake(); };
     void (async () => {
       try {
         const read = await getAutosaveSettings();
@@ -169,15 +169,16 @@ export function useAutosave(deps: AutosaveDeps) {
       }
     })();
     scheduleRecoveryCheck(null);
-    return () => { mounted.current = false; };
+    return () => { mounted.current = false; cancelWake(); };
   }, [deps.native]);
 
   const minutes = settings?.autosave_minutes ?? 0;
   useEffect(() => {
     if (!deps.native || minutes <= 0) {
-      // Off: a due save is dropped with its wake-up (the cleanup below), and an
+      // Off: a due save is dropped with its wake-up, and an
       // attempt still outstanding changes nothing in the next one.
-      due.current = { generation: due.current.generation, ticks: 0, covered: 0, failures: 0 };
+      due.current = { generation: due.current.generation, ticks: 0, covered: 0, failures: 0, retryPending: false };
+      cancelWake();
       return;
     }
     enabled.current = true;
@@ -187,7 +188,8 @@ export function useAutosave(deps: AutosaveDeps) {
     return () => {
       enabled.current = false;
       window.clearInterval(timer);
-      cancelWake();
+      // A new positive interval preserves the pending wake and its remaining
+      // backoff. Off/native changes and unmount cancel it separately.
     };
   }, [deps.native, minutes]);
 
@@ -197,7 +199,7 @@ export function useAutosave(deps: AutosaveDeps) {
     const generation = depsRef.current.currentSessionGeneration();
     if (due.current.generation !== generation) {
       cancelWake();
-      due.current = { generation, ticks: 0, covered: 0, failures: 0 };
+      due.current = { generation, ticks: 0, covered: 0, failures: 0, retryPending: false };
     }
     return due.current;
   }
@@ -212,9 +214,16 @@ export function useAutosave(deps: AutosaveDeps) {
     wake.current = null;
   }
 
-  function wakeIn(ms: number) {
+  function wakeIn(ms: number, retryState?: DueSave) {
     cancelWake();
-    wake.current = window.setTimeout(() => { wake.current = null; void attempt(); }, ms);
+    wake.current = window.setTimeout(() => {
+      wake.current = null;
+      if (retryState) {
+        if (due.current !== retryState || !sameSession(retryState.generation)) return;
+        retryState.retryPending = false;
+      }
+      void attempt();
+    }, ms);
   }
 
   /** Writes the due save if nothing blocks it now; otherwise arranges the
@@ -228,7 +237,8 @@ export function useAutosave(deps: AutosaveDeps) {
   async function attempt(): Promise<void> {
     if (!mounted.current || !enabled.current) return;
     const state = currentDue();
-    if (state.covered >= state.ticks) return;
+    // Ticks still accrue during backoff, but cannot shorten its delay.
+    if (state.covered >= state.ticks || state.retryPending) return;
     const current = depsRef.current;
     if (inFlight.current) {
       // One in flight. This session's own write tries again when it settles;
@@ -256,7 +266,7 @@ export function useAutosave(deps: AutosaveDeps) {
       return;
     }
     // A save that landed holds exactly this model: the store covers it.
-    if (landedSave.current && landedSave.current.projectId === model.project.id && landedSave.current.modelHash === modelHash.value) {
+    if (landedSave.current?.generation === state.generation && landedSave.current.projectId === model.project.id && landedSave.current.modelHash === modelHash.value) {
       state.covered = state.ticks;
       state.failures = 0;
       cancelWake();
@@ -306,7 +316,8 @@ export function useAutosave(deps: AutosaveDeps) {
       // Refused, or an unknown outcome: nothing is removed here, and the next
       // try waits a little longer each time, up to a minute.
       state.failures += 1;
-      wakeIn(Math.min(RETRY_BASE_MS * 2 ** (state.failures - 1), RETRY_MAX_MS));
+      state.retryPending = true;
+      wakeIn(Math.min(RETRY_BASE_MS * 2 ** (state.failures - 1), RETRY_MAX_MS), state);
     }
   }
 
@@ -418,9 +429,9 @@ export function useAutosave(deps: AutosaveDeps) {
    * later). A running autosave finishes first, so its record is checked too. */
   async function afterProjectSaved(projectId: string, savedHash: string | null): Promise<void> {
     if (!depsRef.current.native || savedHash === null) return;
-    landedSave.current = { projectId, modelHash: savedHash };
     // A session replaced before the cleanup finishes is told nothing about it.
     const generation = depsRef.current.currentSessionGeneration();
+    landedSave.current = { generation, projectId, modelHash: savedHash };
     const show = (line: string) => { if (sameSession(generation)) setStatusLine(line); };
     try {
       // Every autosave started before this point finishes first.
