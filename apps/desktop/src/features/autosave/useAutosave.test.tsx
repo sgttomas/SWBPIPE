@@ -125,24 +125,25 @@ function Harness({ deps, expose }: { deps: AutosaveDeps; expose: (session: Autos
   );
 }
 
-function mount(options: { edited?: boolean; busy?: boolean; working?: { name: string; edited: boolean } | null } = {}) {
+function mount(options: { edited?: boolean; busy?: boolean; blockers?: Array<{ current: boolean }>; working?: { name: string; edited: boolean } | null } = {}) {
   const edited = { current: options.edited ?? true };
   const busy = { current: options.busy ?? false };
   const modelHash = { value: DEMO_HASH } as ModelHashEvidence;
+  const basis: AutosaveDeps["saveBasisRef"] = { current: { model: DEMO, modelHash } };
   const holds = { taken: 0, released: 0 };
   const openAutosave = vi.fn(async () => {});
   const deps: AutosaveDeps = {
     native: true,
     modelEditedRef: edited,
-    saveBasisRef: { current: { model: DEMO, modelHash } },
-    projectSessionBusy: () => busy.current,
+    saveBasisRef: basis,
+    projectSessionBusy: () => busy.current || (options.blockers ?? []).some((blocker) => blocker.current),
     holdModal: () => { holds.taken += 1; let done = false; return () => { if (!done) { done = true; holds.released += 1; } }; },
     workingModel: () => options.working === undefined ? { name: "Working invented model", edited: true } : options.working,
     openAutosave
   };
   let session: AutosaveSession | null = null;
-  render(<Harness deps={deps} expose={(value) => { session = value; }} />);
-  return { edited, busy, holds, openAutosave, session: () => session! };
+  const view = render(<Harness deps={deps} expose={(value) => { session = value; }} />);
+  return { edited, busy, basis, holds, openAutosave, unmount: view.unmount, session: () => session! };
 }
 
 async function advance(ms: number) {
@@ -280,6 +281,256 @@ describe("the autosave timer", () => {
     await advance(5 * MINUTE);
     await waitFor(() => expect(status()).toHaveTextContent(`Autosaved at ${formatAutosaveTime(WRITTEN + 1000)}.`));
     expect(calls("write_project_autosave")).toHaveLength(3);
+  });
+});
+
+// DEL-02-05 REQ-032 cadence witnesses: a tick that cannot write is due, and the
+// due save is attempted as soon as its blocker clears, with the model and hash
+// current at that moment. Fake time and mocked native commands only: these
+// show the hook's scheduling, not wall-clock timing or storage durability.
+describe("the due autosave", () => {
+  type Variant = { model: PreviewModel; text: string; hash: string };
+  const variants: Variant[] = [];
+  let replacement: Variant;
+  async function variant(model: PreviewModel): Promise<Variant> {
+    return { model, text: await canonicalJsonString(model), hash: `sha256:${await canonicalSha256Hex(model)}` };
+  }
+  beforeAll(async () => {
+    for (let index = 0; index < 5; index += 1) {
+      const model = structuredClone(DEMO);
+      model.project.name = `Invented autosave edit ${index}`;
+      variants.push(await variant(model));
+    }
+    const other = structuredClone(DEMO);
+    other.project.id = OTHER_ID;
+    other.project.name = "Invented replacement project";
+    replacement = await variant(other);
+  });
+
+  const SECOND = 1000;
+  let clock = 0;
+  async function to(time: number) {
+    await advance(time - clock);
+    clock = time;
+  }
+  const writes = () => calls("write_project_autosave").map(([, args]) => args);
+  const payload = (v: Variant) => ({ canonicalText: v.text, claimedModelHash: v.hash });
+  const writtenFor = (args: Record<string, unknown>): AutosaveWriteOutcome => ({
+    ...written(), model_hash: args.claimedModelHash as string, byte_count: (args.canonicalText as string).length
+  });
+  function show(basis: AutosaveDeps["saveBasisRef"], v: Variant, owned = true) {
+    basis.current = { model: v.model, modelHash: owned ? ({ value: v.hash } as ModelHashEvidence) : null };
+  }
+  async function start(overrides: Partial<NativeState> = {}, options: Parameters<typeof mount>[0] = {}) {
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "setTimeout", "clearTimeout"] });
+    clock = 0;
+    native({ write: (args) => Promise.resolve(writtenFor(args)), ...overrides });
+    const view = mount(options);
+    show(view.basis, variants[0]);
+    await to(0);
+    await to(0);
+    expect(screen.getByTestId("autosave-interval")).toHaveValue("5");
+    return view;
+  }
+
+  it("is on by default from the product's own default when the settings cannot be read", async () => {
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "setTimeout", "clearTimeout"] });
+    clock = 0;
+    native({ write: (args) => Promise.resolve(writtenFor(args)) });
+    const answer = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => command === "get_autosave_settings"
+      ? Promise.reject(new Error("invented settings read failure")) : answer(command, args));
+    const view = mount();
+    show(view.basis, variants[0]);
+    await to(0);
+    await to(0);
+    expect(screen.getByTestId("autosave-interval")).toHaveValue("5");
+    expect(status()).toHaveTextContent("autosave uses the default, every 5 minutes");
+    await to(5 * MINUTE);
+    expect(writes()).toEqual([payload(variants[0])]);
+  });
+
+  it("records the current model and its hash at every tick across continuing edits", async () => {
+    const { basis } = await start();
+    const expected: Array<ReturnType<typeof payload>> = [];
+    for (let tick = 1; tick <= 4; tick += 1) {
+      await to(tick * 5 * MINUTE - 2 * MINUTE - 30 * SECOND);
+      show(basis, variants[tick]);
+      await to(tick * 5 * MINUTE);
+      expected.push(payload(variants[tick]));
+      expect(writes()).toEqual(expected);
+    }
+  });
+
+  // (1) One coalesced due save, woken by each blocker's release.
+  it("a tick missed while the session is busy is written once, with the newest model, as soon as the session is idle", async () => {
+    const { basis, busy } = await start();
+    await to(4 * MINUTE);
+    busy.current = true;
+    await to(6 * MINUTE);
+    show(basis, variants[1]);
+    await to(16 * MINUTE);
+    show(basis, variants[2]);
+    await to(17 * MINUTE);
+    expect(writes()).toEqual([]);
+    busy.current = false;
+    await to(17 * MINUTE + SECOND);
+    // Three missed ticks (5, 10 and 15 minutes) make one write, not three.
+    expect(writes()).toEqual([payload(variants[2])]);
+    await to(20 * MINUTE - SECOND);
+    expect(writes()).toHaveLength(1);
+  });
+
+  it("waits through each blocker in turn and writes when the last one is released", async () => {
+    const first = { current: false };
+    const second = { current: false };
+    await start({}, { blockers: [first, second] });
+    first.current = true;
+    await to(5 * MINUTE + 10 * SECOND);
+    second.current = true;
+    first.current = false;
+    await to(5 * MINUTE + 20 * SECOND);
+    expect(writes()).toEqual([]);
+    second.current = false;
+    await to(5 * MINUTE + 21 * SECOND);
+    expect(writes()).toEqual([payload(variants[0])]);
+  });
+
+  it("a tick that finds the hash not yet computed for a changed model writes that model once its hash arrives", async () => {
+    const { basis } = await start();
+    await to(5 * MINUTE - 100);
+    show(basis, variants[1], false);
+    await to(5 * MINUTE + 100);
+    expect(writes()).toEqual([]);
+    show(basis, variants[1]);
+    await to(5 * MINUTE + SECOND);
+    expect(writes()).toEqual([payload(variants[1])]);
+  });
+
+  it("ticks missed while a write is in flight make one write, of the newest model, when it settles", async () => {
+    const pending: Array<(outcome: AutosaveWriteOutcome) => void> = [];
+    const { basis } = await start({ write: (args) => new Promise((resolve) => { pending.push(() => resolve(writtenFor(args))); }) });
+    await to(5 * MINUTE);
+    expect(writes()).toEqual([payload(variants[0])]);
+    await to(7 * MINUTE);
+    show(basis, variants[1]);
+    await to(16 * MINUTE);
+    expect(writes()).toHaveLength(1);
+    await act(async () => { pending.shift()!(written()); });
+    await to(16 * MINUTE + SECOND);
+    // The late completion covered only the model it captured.
+    expect(writes()).toEqual([payload(variants[0]), payload(variants[1])]);
+  });
+
+  it("a failed write is retried within seconds with the current model, not at the next tick", async () => {
+    let refuse = true;
+    const { basis } = await start({ write: (args) => Promise.resolve(refuse
+      ? { outcome: "refused", diagnostics: [{ code: "AUTOSAVE-WRITE-FAILED", path: "", message: "invented disk full (ENOSPC)" }] }
+      : writtenFor(args)) });
+    await to(5 * MINUTE);
+    expect(writes()).toEqual([payload(variants[0])]);
+    refuse = false;
+    show(basis, variants[1]);
+    await to(5 * MINUTE + 30 * SECOND);
+    expect(writes()).toEqual([payload(variants[0]), payload(variants[1])]);
+    expect(status()).toHaveTextContent(`Autosaved at ${formatAutosaveTime(WRITTEN)}.`);
+  });
+
+  // (2) Identity across awaits: nothing obsolete is kept for a retry.
+  it("a retry after the project is replaced writes the replacing project's model, never the replaced one", async () => {
+    // Every response is lost: each write's outcome is unknown.
+    const { basis, unmount } = await start({ write: () => Promise.reject("AUTOSAVE-WORKER-FAILED: invented lost response.") });
+    await to(5 * MINUTE);
+    show(basis, replacement);
+    await to(5 * MINUTE + 30 * SECOND);
+    const [first, ...retries] = writes();
+    expect(first).toEqual(payload(variants[0]));
+    expect(retries.length).toBeGreaterThanOrEqual(1);
+    for (const retry of retries) expect(retry).toEqual(payload(replacement));
+    // An unknown outcome removes nothing from the hook's side.
+    expect(calls("discard_project_autosave")).toHaveLength(0);
+    const before = writes().length;
+    unmount();
+    await to(20 * MINUTE);
+    expect(writes()).toHaveLength(before);
+  });
+
+  // (3) A manual save that lands while a due save waits.
+  it("after a save that stored an earlier model lands, the due save writes the newer edits and the save's cleanup keeps them", async () => {
+    const { basis, busy, session } = await start();
+    await to(4 * MINUTE + 50 * SECOND);
+    busy.current = true; // Save Local Project of variant 0 is running.
+    await to(5 * MINUTE + 5 * SECOND);
+    show(basis, variants[1]); // Edited while the save ran.
+    const slot = DEMO_SLOT;
+    const savedRecord = entry(slot, WRITTEN - 10, variants[0].hash);
+    const newerRecord = entry(slot, WRITTEN + 10, variants[1].hash);
+    const otherProject = entry(OTHER_SLOT, WRITTEN - 20, variants[0].hash);
+    const listing = [savedRecord, newerRecord, otherProject];
+    const answer = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => command === "list_project_autosaves"
+      ? Promise.resolve({ outcome: "listed", entries: listing, not_listed: 0 }) : answer(command, args));
+    let cleanup!: Promise<void>;
+    act(() => { cleanup = session().afterProjectSaved(DEMO.project.id, variants[0].hash); });
+    busy.current = false;
+    await act(async () => { await cleanup; });
+    await to(5 * MINUTE + 6 * SECOND);
+    expect(writes()).toEqual([payload(variants[1])]);
+    expect(calls("discard_project_autosave").map(([, args]) => args.fileName)).toEqual([savedRecord.file_name]);
+  });
+
+  it("writes nothing for a due save once a landed save holds exactly the session's model", async () => {
+    const { busy, edited, session } = await start();
+    busy.current = true;
+    await to(5 * MINUTE + 5 * SECOND);
+    act(() => { void session().afterProjectSaved(DEMO.project.id, variants[0].hash); });
+    // The session's edited flag clears at its next render, after the release.
+    busy.current = false;
+    await to(5 * MINUTE + 6 * SECOND);
+    edited.current = false;
+    await to(9 * MINUTE);
+    expect(writes()).toEqual([]);
+  });
+
+  // (4) The protection clock: delays, retries and failures never move it.
+  it("a due save written late does not move the next tick", async () => {
+    const { busy } = await start();
+    busy.current = true;
+    await to(5 * MINUTE + 30 * SECOND);
+    busy.current = false;
+    await to(5 * MINUTE + 31 * SECOND);
+    expect(writes()).toHaveLength(1);
+    await to(10 * MINUTE - SECOND);
+    expect(writes()).toHaveLength(1);
+    await to(10 * MINUTE);
+    expect(writes()).toHaveLength(2);
+  });
+
+  it("a write that keeps failing is retried on a bounded schedule, never in a tight loop, and removes nothing", async () => {
+    await start({ write: () => Promise.resolve({ outcome: "refused", diagnostics: [{ code: "AUTOSAVE-WRITE-FAILED", path: "", message: "invented disk full (ENOSPC)" }] }) });
+    await to(5 * MINUTE);
+    const attempts: number[] = [];
+    let seen = writes().length;
+    for (let second = 1; second < 5 * 60; second += 1) {
+      await to(5 * MINUTE + second * SECOND);
+      if (writes().length !== seen) { attempts.push(second); seen = writes().length; }
+    }
+    expect(attempts.length).toBeGreaterThanOrEqual(3);
+    expect(attempts.length).toBeLessThanOrEqual(10);
+    attempts.forEach((second, index) => expect(second - (attempts[index - 1] ?? 0)).toBeGreaterThanOrEqual(5));
+    expect(calls("discard_project_autosave")).toHaveLength(0);
+    expect(status()).toHaveTextContent("Autosave not written: AUTOSAVE-WRITE-FAILED");
+  });
+
+  it("turning autosave off ends a due save", async () => {
+    const { busy } = await start();
+    busy.current = true;
+    await to(5 * MINUTE + SECOND);
+    busy.current = false;
+    fireEvent.change(screen.getByTestId("autosave-interval"), { target: { value: "0" } });
+    await to(5 * MINUTE + 10 * SECOND);
+    expect(writes()).toEqual([]);
+    expect(screen.getByTestId("autosave-off-notice")).toHaveTextContent(AUTOSAVE_OFF_NOTICE);
   });
 });
 
