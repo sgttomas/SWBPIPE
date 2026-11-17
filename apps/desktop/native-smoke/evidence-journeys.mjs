@@ -288,7 +288,6 @@ try {
   revision = execFileSync("git", ["-C", project, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
   dirty = execFileSync("git", ["-C", project, "status", "--porcelain"], { encoding: "utf8" }).trim().split("\n").filter(Boolean);
 } catch { /* recorded as unknown */ }
-process.on("exit", closeOnExit);
 
 // The run's folder, kept as its evidence; resolved (no links), as the throwaway homes are. The random token every
 // throwaway home of this run carries in its marker, and the device and inode of each folder this run makes, recorded
@@ -302,6 +301,8 @@ const createdHomes = new Set();
 const removedHomes = new Set();
 const keptHomes = new Set();
 const leftHomes = new Map();
+// From here every exit the runner can catch closes the run (closeOnExit).
+process.on("exit", closeOnExit);
 console.log(`${NAME}: launching ${binary}, a private copy of ${app.binary} (${app.identity.sha256}); evidence in ${RUN_ROOT}`);
 
 function check(name, ok, detail) {
