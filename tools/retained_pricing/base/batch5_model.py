@@ -52,7 +52,10 @@ PINS = {
         # their in-build size (the field's bytes reach the profile through the in-build atoms). Staging and
         # prepared-pressure calls unchanged.
         # RT-A3 S6 D3 (§8.59): the case consumer's carriers, children and staging are unchanged (see PRESSURE_PREFIX_PIN).
-        "solve_prepared_load_case": "d36ba54f458bfe92046552b20a3647c6be9c36be1b0e31328ff6730ad2154cf1",
+        # PR-A (§8.62; diffs from main fe01013f4 read): the case consumer adds the correction's Option<Result<Vec<f64>, _>> (U5B-PD, priced in
+        # ordinary_caps) and its failure texts (§8.62); no LoadCaseSolve carrier, child, count or pressure staging changes.
+        # Previous value d36ba54f…
+        "solve_prepared_load_case": "c6676bbeff040e8a068c754b2c4d20474342ebab8f07148646114a00b0a327a4",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -150,45 +153,10 @@ LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa
 
 
 def production(text, rel):
-    """B5-PR: `text` without its `#[cfg(test)]` items, as o10_rules' `_production`: each exact `#[cfg(test)]` in code
-    (literals and comments masked by base/rust_literals.py) removes its item through any further attributes, to the
-    first code `;` outside brackets or the `}` closing the item's first code `{`. Newlines are kept."""
-    if "#[cfg(test)]" not in text:
-        return text
-    lexer = runpy.run_path(os.path.join(os.path.dirname(__file__), "rust_literals.py"))
-    toks, comments = lexer["scan"](text, rel)
-    mask = lexer["_masks"](text, toks, comments)
-    out, at = [], 0
-    for m in re.finditer(r"#\[cfg\(test\)\]", text):
-        if m.start() < at or mask[m.start()]:
-            continue
-        i, nest, opened = m.end(), 0, False
-        while i < len(text):
-            ch = text[i]
-            if not mask[i]:
-                if ch in "([":
-                    nest += 1
-                elif ch in ")]":
-                    nest -= 1
-                elif ch == "{":
-                    nest += 1
-                    opened = True
-                elif ch == "}":
-                    nest -= 1
-                    if opened and nest == 0:
-                        i += 1
-                        break
-                elif ch == ";" and nest == 0 and not opened:
-                    i += 1
-                    break
-            i += 1
-        else:
-            raise ValueError(f"B5-PR: {rel}: unterminated #[cfg(test)] item at offset {m.start()}")
-        out.append(text[at:m.start()])
-        out.append("\n" * text.count("\n", m.start(), i))
-        at = i
-    out.append(text[at:])
-    return "".join(out)
+    """B5-PR: `text` without its `#[cfg(test)]` items, as o10_rules' `_production`. CFG-PROD (PR-A, §8.62): both now
+    use base/cfg_test_items.py, whose element ends at a depth-0 `;` even after a closure block inside parentheses (the
+    earlier copy here could swallow production code after such a test statement)."""
+    return runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "cfg_test_items.py"))["production"](text, rel)
 
 
 def active(snapshot):

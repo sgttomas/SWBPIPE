@@ -28,6 +28,8 @@ NI = "core/solver/nonlinear_integration/src/structural_adapter.rs"
 # rows, both only when a member's bases differ; those are O4's owners (o4_owners_model.py), not this model's.
 BODY_PINS = {
     (LIB, "published_nodal_displacements"): "83648eba3d0101586f558439d1198591659ecd706db07b5447feed75421dbe02",
+    # PR-A (§8.62, U5B-PD-RN): DEL-04-07 *Published displacement* renames the owner; see PD_SHAPES below.
+    (LIB, "corrected_nodal_displacements"): "df86a50c0b1bee3edad25f27a4d148b7bbadc609133b3f97842f3ac67b704982",
     (U4B, "member_bases"): "760afaf0e6145df8f837cb75c6976d87afd98b3d20f873789ab4427fd0c8e372",
     # RT-A3 increment 1b D3 (§8.37): append_station_quantities takes the member's MemberRows and its five `published`
     # lookups and `sigma_n` read through it (RTA3B-MR prices its slots); every allocation priced below is unchanged.
@@ -51,6 +53,65 @@ BODY_PINS = {
     (ROWS, "not_qualified_for"): "c76bc3bdb40be7ca80e348223b7cf3a7373bd7d05f74013f93567020b0abf222",
     (ROWS, "not_qualified_inputs"): "14c9b4d161963de572fe32bcd9fc1c58191eebea441728054a624b998f97e4e3",
 }
+# U5B-PD-RN (PR-A, retained-pricing-rules.md §8.62): the published nodal displacement has two reviewed source shapes,
+# which are the same charge. Each shape is its owner function's body (BODY_PINS) and its exact calling statements, each
+# once; exactly one shape must be present (both, or a partial shape, stops), and a snapshot with neither is absent only
+# as owner_presence.py allows (a current source that has lost the owner stops there; it is never priced as old source).
+#  - "published" (T4-U5b, registered through main fe01013f4): published_nodal_displacements collects
+#    `Result<Vec<f64>, _>` with `.ok()`, filters finite values and falls back to `displacements.to_vec()`.
+#  - "corrected" (PR-A): corrected_nodal_displacements collects the same `Result<Vec<f64>, _>` (GenericShunt: size-hint
+#    lower bound 0, so the Vec push-grows to pushcap(N) with its previous backing live during the last reallocation; a
+#    failing component returns Err after `collect` has dropped the partial Vec). The caller holds it as `correction`
+#    (Option<Result<..>>), reads it by reference once (`match &correction`), and consumes it once: `.and_then(Result::ok)`
+#    moves the Vec on success (the bound then exists, so `.filter` keeps it), and otherwise drops the Err or the Vec
+#    before `.unwrap_or_else(|| displacements.to_vec())` allocates exactly N. At most one N-vector of the owner is live
+#    at a time, so ordinary_published_displacements(N), unchanged, bounds both shapes (the earlier start of the
+#    owner's lifetime is inside the case solve, whose ordinary families are all summed live per case).
+#    The failure itself (its cloned DisplacementCorrectionFailure, Debug text and messages) is TEXT, priced by §8.62's
+#    PRA-CF rules (base/correction_failure_model.py).
+PD_SHAPES = {
+    "published": {"fn": "published_nodal_displacements",
+                  "calls": ("    let published_displacements = published_nodal_displacements(&displacements, member_bound);\n",)},
+    "corrected": {"fn": "corrected_nodal_displacements",
+                  "calls": ("    let correction = linear_bound\n"
+                            "        .or(confirmed_candidate.map(|state| &state.member_bound))\n"
+                            "        .filter(|_| displacements.iter().all(|value| value.is_finite()))\n"
+                            "        .map(|bound| corrected_nodal_displacements(&displacements, bound));\n",
+                            "    let correction_failure = match &correction {\n",
+                            "    let published_displacements = correction\n"
+                            "        .and_then(Result::ok)\n"
+                            "        .filter(|_| member_bound.is_some())\n"
+                            "        .unwrap_or_else(|| displacements.to_vec());\n"),
+                  # Outside comments, `correction` is named exactly three times in the case solve (the let, the borrow,
+                  # the consuming chain: no clone, no second consumer, no re-assignment) and the owner twice in lib.rs
+                  # (its definition and its one call).
+                  "case_names": {"correction": 3}, "lib_names": {"corrected_nodal_displacements": 2}},
+}
+
+
+def published_displacement_shape(snapshot, lib):
+    """U5B-PD-RN: the one present shape's name, or None when neither owner function exists. Stops on both, on a
+    changed body, on a missing or repeated calling statement, or on any other use of the corrected owner."""
+    present = [name for name, shape in PD_SHAPES.items() if lib is not None and _body(lib, shape["fn"]) is not None]
+    if not present:
+        return None
+    if len(present) != 1:
+        raise SystemExit(f"U5B-PD: both reviewed shapes are present ({present}); re-review the owner it prices")
+    shape = PD_SHAPES[present[0]]
+    if not _pinned(snapshot, [(LIB, shape["fn"])], "U5B-PD"):
+        raise SystemExit("U5B-PD: the owner function is missing; re-review the owner it prices")
+    for call in shape["calls"]:
+        _once(lib, call, "U5B-PD")
+    # Names are counted outside comments and string literals.
+    code = re.sub(r'"(?:\\.|[^"\\])*"', '""', re.sub(r"//[^\n]*", "", lib))
+    case = re.sub(r'"(?:\\.|[^"\\])*"', '""', re.sub(r"//[^\n]*", "", _body(lib, "solve_prepared_load_case") or ""))
+    for text, names in ((case, shape.get("case_names", {})), (code, shape.get("lib_names", {}))):
+        for name, count in names.items():
+            if len(re.findall(r"\b" + re.escape(name) + r"\b", text)) != count:
+                raise SystemExit(f"U5B-PD: `{name}` is not used exactly {count} times; re-review the owner it prices")
+    return present[0]
+
+
 # U5B-AB: FK structural.rs from `pub(crate) struct ElementAbsorption<'g> {` to `fn contribution_differences(`.
 ABSORPTION_PIN = "2acbe81068e36d74474cb2f7014f9dcbf65c0bdde660c783af7ced048534e5f4"
 # U4B-RD: u4b_evidence.rs from `type Slot<'a>` to `/// What a reader states about one member`. RT-U4 (`Index::any`):
@@ -135,9 +196,8 @@ def inspect(snapshot):
     out = {}
     lib = _read(snapshot, LIB)
     # U5B-PD: the case solve's published (corrected) nodal displacements, one Vec<f64> of N per case.
-    out["published_displacements"] = _pinned(snapshot, [(LIB, "published_nodal_displacements")], "U5B-PD")
-    if out["published_displacements"]:
-        _once(lib, "    let published_displacements = published_nodal_displacements(&displacements, member_bound);\n", "U5B-PD")
+    # U5B-PD-RN (§8.62): either reviewed shape, by its body and its exact calls (published_displacement_shape).
+    out["published_displacements"] = published_displacement_shape(snapshot, lib) is not None
     # U4B-ST: one member's station quantities (append_station_quantities and the caller's bases).
     out["station_quantities"] = _pinned(snapshot, [(U4B, "member_bases"), (U4B, "append_station_quantities")], "U4B-ST")
     if out["station_quantities"]:
@@ -291,7 +351,8 @@ def member_row_slots(rows_per_member, slots=READ_KINDS * STATIONS):
 
 def ordinary_published_displacements(N):
     """U5B-PD: `collect::<Result<Vec<_>, _>>()` has size-hint lower bound 0, so the Vec push-grows to pushcap(N)
-    slots with its previous backing live during the last reallocation (the `to_vec` fallback is N exactly)."""
+    slots with its previous backing live during the last reallocation (the `to_vec` fallback is N exactly). Both
+    reviewed shapes (PD_SHAPES) hold at most one such vector at a time."""
     return B(8 * pushcap(N) + 8 * (pushcap(N) // 2))
 
 

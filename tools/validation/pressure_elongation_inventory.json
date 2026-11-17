@@ -28,9 +28,9 @@
    ".json",
    ".jsonl"
   ],
-  "files": 532,
+  "files": 533,
   "claimed_by": {
-   "group": 141,
+   "group": 142,
    "in_code": 63,
    "exemption": 328
   }
@@ -60,6 +60,11 @@
    "files": 6,
    "documents": 6,
    "pressurised_load_cases": 12
+  },
+  "rt_a3_s6_correction_unavailable": {
+   "files": 1,
+   "documents": 1,
+   "pressurised_load_cases": 1
   },
   "reference_system": {
    "files": 1,
@@ -1463,6 +1468,35 @@
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
       "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "rt_a3_s6_correction_unavailable",
+   "group": "rt_a3_s6_correction_unavailable",
+   "path": "fixtures/results/rt_a3_s6_c1_correction_unavailable.json",
+   "producer": {
+    "kind": "rust_test",
+    "path": "core/product_physics/src/rt_a3_s6_tests.rs",
+    "write": "RT_A3_S6_CORRECTION_FIXTURE_OUT=<directory> with a_correction_failure_publishes_nothing_on_the_confirmation_basis",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from the committed rt_a3_s6 C-1 request, selects one case and forces correction failure; re-produce the source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "core/product_physics/src/rt_a3_s6_tests.rs",
+    "tests/test_rt_a3_nonlinear_reader.py"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the envelope deliberately forces displacement-correction failure through a test-only probe; an ordinary solver replay cannot reproduce this withdrawal control"
+   },
+   "documents": [
+    {
+     "pointer": "/request/model",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
       "load:VACUUM"
      ]
     }

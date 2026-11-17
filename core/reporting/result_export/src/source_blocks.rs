@@ -235,6 +235,7 @@ fn ordinary(
     q: &Value,
     diagnostics: &HashMap<&str, &Value>,
     evidence: &HashSet<&str>,
+    solved: bool,
 ) -> Result<bool, String> {
     let o = &case["ordinary_attempt"];
     let report = &o["structural_report_diagnostic_ref"];
@@ -250,6 +251,13 @@ fn ordinary(
     require!(
         failure.is_null() || diagnostics.contains_key(text(&failure["diagnostic_ref"])?),
         "ORDINARY_FAILURE_REF"
+    );
+    // An inspection-only evaluation belongs only to a blocked document: named in a
+    // solved one, and never read as an outcome (in a blocked one the outcome check
+    // below refuses it, and the document is never eligible).
+    require!(
+        !solved || report.is_null() || diagnostics[text(report)?]["code"] != crate::semantic_contract::INSPECTION_ONLY_CODE,
+        "INSPECTION_ONLY_IN_SOLVED_DOCUMENT"
     );
     let refs = array(&q["evidence_refs"])?;
     match text(&o["outcome"])? {
@@ -794,7 +802,7 @@ pub(crate) fn validate_source_contract_in(
             actual_invocation.is_none_or(|i| case["requested_mode"] == i["solver_mode"]),
             "REQUESTED_MODE"
         );
-        let ordinary_ok = ordinary(case, &qualities[index], &diagnostics, &evidence)?;
+        let ordinary_ok = ordinary(case, &qualities[index], &diagnostics, &evidence, source["status"]["mechanics"] == "MECHANICS_SOLVED")?;
         let work = &case["work"];
         let rejected = &work["rejected_reservation"];
         invocation_charged = invocation_charged

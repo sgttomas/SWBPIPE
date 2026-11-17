@@ -326,6 +326,9 @@ def _read_case(source: Mapping, case: str) -> _Case:
     _require(len(quality) == 1, "STANDING")
     solve_quality = _get(quality[0], "solve_quality")
     solve_quality = solve_quality if isinstance(solve_quality, str) else ""
+    # An inspection-only evaluation belongs only to a blocked document; _read has established that this one is solved,
+    # so it is named, never read as a standing.
+    _require(code != "NUMERICAL_INTEGRITY_INSPECTION_ONLY", "INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
     tokens = STANDING_QUALITY.get(code)
     _require(tokens is not None, "STANDING_CODE")
     fields = tuple(_get(quality[0], f) for f in ("structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"))
@@ -367,7 +370,11 @@ def _free_row_residual(nonlinear: list, translational: bool) -> None:
 
 
 def _read(source: Mapping) -> list[_Case]:
-    return [_read_case(source, case) for case in _case_ids(_items(source.get("results")))]
+    cases = _case_ids(_items(source.get("results")))
+    # DEL-04-07 (the Rust twin): a document whose mechanics are not solved publishes no result, so nonlinear rows in
+    # one are refused before any case's verdict is read.
+    _require(not cases or _get(source, "status", "mechanics") == "MECHANICS_SOLVED", "ROWS_IN_UNSOLVED_DOCUMENT")
+    return [_read_case(source, case) for case in cases]
 
 
 def check(source: Mapping[str, Any]) -> None:
