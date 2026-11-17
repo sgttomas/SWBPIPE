@@ -546,9 +546,11 @@ async function reportJourney(route) {
     { title: released.title, refusal: released.refusal, unticked: released.statement_checked_initially, disabled: released.confirm_disabled_before_statement });
   check("dialog: its scope names the session's model by the first 12 hex digits of its SHA-256", model.sha256 !== null && released.scope?.includes(`SHA-256 ${model.sha256.slice(0, 12)}…`), released.scope);
   const status = packageStatusFields(released.status);
-  check("saved (REPORT-PACKAGE-SAVED) to the chosen file, the user release recorded for the session's model",
+  // RenderedReportPanel's status reports that a release was recorded; judgePackage checks the saved record's
+  // model hash against the session independently (the status line does not display that hash).
+  check("saved (REPORT-PACKAGE-SAVED) to the chosen file, the status reports a user release recorded",
     status.outcome === "saved" && status.code === "REPORT-PACKAGE-SAVED" && existsSync(files.user_released_package)
-      && released.user_release_status === `user_release_recorded=true; model_document_sha256=${model.sha256}`, { status: released.status, user_release: released.user_release_status });
+      && released.user_release_status === "user_release_recorded=true", { status: released.status, user_release: released.user_release_status });
   judgePackage("user-released package", files.user_released_package, released, { route, profile: USER_RELEASED_PROFILE, userReleased: true, modelSha256: model.sha256 });
 
   // The next report is local private.
@@ -674,7 +676,7 @@ function judgePackage(label, file, record, { route, profile, userReleased, model
     check(`${label}: the user-release notice present once, the local-private notice absent`, seen.user_release_notice_count === 1 && seen.local_private_notice_count === 0, { user_release: seen.user_release_notice_count, local_private: seen.local_private_notice_count });
     check(`${label}: the canonical HTML's SHA-256, recomputed, is the manifest's and the record's content binding's`,
       seen.html_sha256 !== null && seen.html_sha256 === seen.html_manifest_sha256 && seen.html_sha256 === seen.html_binding_sha256 && seen.content_binding_matches === true, seen.html_sha256);
-    check(`${label}: the notice, the record and the status line name the session's model by its RFC 8785 SHA-256`,
+    check(`${label}: the notice and the saved record name the session's model by its RFC 8785 SHA-256`,
       modelSha256 !== null && seen.user_release_notice_model_sha256 === modelSha256 && seen.user_release?.bound_to?.model_document_sha256 === modelSha256, seen.user_release_notice_model_sha256);
     check(`${label}: the record's statement is the one the dialog's tick box showed`, typeof seen.user_release?.statement === "string" && seen.user_release.statement === record.statement_label, seen.user_release?.statement);
   } else {
