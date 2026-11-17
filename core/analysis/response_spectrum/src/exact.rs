@@ -19,7 +19,7 @@
 use std::cmp::Ordering;
 
 /// `x = m·2^e` exactly, `m ≥ 1`, for a positive finite `x`.
-fn decompose(x: f64) -> (u64, i32) {
+pub(crate) fn decompose(x: f64) -> (u64, i32) {
     debug_assert!(x.is_finite() && x > 0.0);
     let bits = x.to_bits();
     let biased = ((bits >> 52) & 0x7ff) as i32;

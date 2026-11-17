@@ -1,11 +1,20 @@
-# response_spectrum (DEL-04-10, unit S2)
+# response_spectrum (DEL-04-10, units S2 and S4)
 
-This crate admits a user-entered spectrum table and evaluates its pseudo-spectral acceleration at a
-query frequency. It is the first unit of DEL-04-10's response-spectrum analysis
-(`execution/PKG-04/DEL-04-10/ScopeOfWork.md`). It is not a spectrum solve. It forms no modal
-response, combination or rigid response, and it publishes no spectrum result.
+This crate holds two units of DEL-04-10's response-spectrum analysis
+(`execution/PKG-04/DEL-04-10/ScopeOfWork.md`):
 
-## What it takes and gives
+- **S2** admits a user-entered spectrum table and evaluates its pseudo-spectral acceleration at a
+  query frequency.
+- **S4** combines supplied signed contributions by the modal, rigid-response and directional rules,
+  and fixes the signed-contribution contract
+  ([Combinations (unit S4)](#combinations-unit-s4)).
+
+The crate is not a spectrum solve. It forms no modal response or rigid response, and it publishes
+no spectrum result.
+
+## The spectrum table (unit S2)
+
+### What it takes and gives
 
 - A spectrum record in the model document's form (`spectra[]`, DEL-02-01 §2.4), which needs:
   - the abscissa (`frequency` or `period`) and its catalog unit;
@@ -20,7 +29,7 @@ response, combination or rigid response, and it publishes no spectrum result.
 Nothing is defaulted, and no table is extrapolated. The damping ratio is recorded and checked
 (0 ≤ ζ ≤ 0.2 for a solve); the ordinates are already at that damping.
 
-## Method
+### Method
 
 The DEL-04-10 scope records Agent 0's decisions on the method:
 
@@ -85,7 +94,7 @@ evaluation is refused as `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`.
   that rounds above the finite range. Neither proves that the exact result is unrepresentable.
   A future argument may justifiably publish these cases. LIM-024 states this refusal policy.
 
-## Refusals
+### Refusals
 
 | Code | When |
 |---|---|
@@ -97,7 +106,7 @@ evaluation is refused as `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`.
 | `SPECTRUM_SCALE_FACTOR_INVALID` | The scale factor is not positive and finite. |
 | `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED` | This implemented argument does not establish 1e-9 relative accuracy under its stated assumptions. |
 
-## Example
+### Example
 
 ```sh
 cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example evaluate_spectrum < request.json
@@ -133,3 +142,175 @@ The output gives:
 - the second interpolated (S ≈ 5.858 m/s², s·S ≈ 8.787 m/s²);
 - the third refused as `SPECTRUM_FREQUENCY_OUTSIDE_RANGE`;
 - the fourth refused as `SPECTRUM_SCALE_FACTOR_INVALID`.
+
+## Combinations (unit S4)
+
+`combine` takes a `CombinationRequest` and returns a `Combination` of unsigned magnitudes, or named
+refusals. It does not solve, recover or evaluate anything: every number it combines is supplied.
+
+### What it takes
+
+- **The choices.** The modal rule, the directional rule and whether to apply the missing-mass
+  correction, with f_r and the rigid rule when it is applied, and the spectra's damping ratio. None
+  has a default.
+- **The modal metadata.** For every extracted mode: its `mode_index`, its DEL-04-09 cluster
+  (`cluster:N`) and its frequency in Hz, as the modal result publishes them. No cluster is inferred
+  and no cluster tolerance is applied. The structure is checked: modes 1..n in ascending frequency,
+  and clusters chained from 1 over adjacent modes.
+- **The rows** (`contract::Quantity`), each with a unit and frame that follow from its kind:
+  - node displacements and rotations in global axes (m, rad);
+  - element end forces and moments on the element at end i or j, in global or member axes (N, N*m);
+  - support reactions applied to the piping, in global axes, with `Fd` along a skew support's d/|d|.
+
+  Keys follow the frozen references: `N3.uy`, `P1.i.Fx`, `P1.i.Fx_m`, `A1.Fx`.
+- **The signed contributions.** One per mode of a periodic cluster and requested direction, already
+  scaled by the direction's factor. A contribution for a mode of a rigid cluster is refused.
+- **The rigid responses**, when the correction is applied: one signed response per direction,
+  stating the clusters its load left out as periodic. A mismatch with the request's classification
+  is refused.
+
+### What it does (CLM-001)
+
+1. **Classifies.** A cluster is periodic when its lowest frequency is below f_r, and every cluster is
+   periodic without the correction.
+2. **Sums each periodic cluster's contributions with their signs** in ascending mode order. The sums
+   are published with their sign tag.
+3. **Applies the modal rule** across the cluster sums: SRSS, CQC, grouping, ten percent or absolute
+   sum. Each cluster's lowest frequency stands for it in ρ and in the closeness tests.
+4. **Combines the rigid response** with the periodic part: SRSS √(R_p² + R_r²), or the absolute sum
+   R_p + |R_r|.
+5. **Combines the directions** in X, Y, Z order: SRSS, 100-40-40 (with the exact 2/5) or absolute
+   sum.
+
+### Accuracy (Agent 0's route A/E2)
+
+Every published combined magnitude is a binary64 that a runtime enclosure shows within 1e-9
+relative of the exact value of its rule on the represented operands. The operands are the
+supplied binary64 contributions, rigid responses, frequencies and damping ratio. A magnitude is
+published as zero only when exact arithmetic proves it zero. Anything else refuses the request,
+naming the row (DEL-04-10 scope, "Combined magnitudes are certified against their exact values").
+
+- **Exact parts.** Every finite binary64 is an exact dyadic m·2^e. Cluster sums, squares,
+  absolute products, absolute sums and the rigid absolute sum are formed exactly, with
+  crate-local big integers and no new dependency. Nothing overflows or underflows in between.
+  A cluster sum is published as the binary64 nearest its exact value.
+- **ρ.** ρ = N·√(ab)/(D·b), with:
+  - a = f_low and b = f_high;
+  - N = 8ζ²(b + a)·a·b² and D = (b² − a²)² + 4ζ²·a·b·(b + a)², exact dyadics;
+  - √(ab) and the division enclosed outward. ρ is not rational in general; only its kernel N/(D·b)
+    is.
+- **CQC.** Q = Σ R_i² + 2·Σ_{i<j} ρ_ij·R_i·R_j is enclosed from the exact cluster sums and ρ's
+  enclosure: each pair takes the end that makes it smallest or largest. Its square root is taken
+  only from an enclosure with a positive lower end (a positive radicand), or of an exact zero.
+- **The other rules.** The rigid rules (√(R_p² + R_r²), R_p + |R_r|) and the directional rules
+  (SRSS, the absolute sum, and 100-40-40 as (3·max + 2·ΣR)/5 with the exact 2/5) are monotone in
+  non-negative arguments, so they carry enclosures. Their square roots and the division by 5 are
+  enclosed from a binary64 candidate on exactly power-of-two-scaled operands, widened by 2^-50 and
+  checked exactly. Exact integer arithmetic is the fallback when the check fails.
+- **Publication.** The binary64 v nearest the enclosure's midpoint is published only when
+  10⁹·(v − lo) ≤ lo and 10⁹·(hi − v) ≤ hi, decided exactly. This includes the final conversion to
+  binary64.
+- **Precision ladder.**
+  - ρ's enclosures are tried at 53 bits (binary64-guided and checked, with ends rounded outward to
+    64 bits so the CQC inner sums accumulate exactly without allocation), then 128, 256, 512,
+    1,024 and 2,048 bits, from exact integer division and square roots.
+  - A row moves up the ladder only while it is not certified. A row not certified at 2,048 bits
+    refuses the request.
+  - Scaling a row by a power of two leaves its conditioning unchanged. A large result can still be
+    refused (for example the scaled R2 below), and a tiny one certified.
+
+**Field semantics for readers** (released by Agent 0): published cluster sums are the correctly
+rounded binary64 of exact sums while combinations use the retained exact sums; the published
+correlation is informational, from the first level enclosure, while combined magnitudes come from
+the enclosure at the level required; a reader derives its arithmetic from the original represented
+signed contributions, frequencies, damping and method, and never from the rounded display values.
+
+**Accuracy predicates.** Every published magnitude passes all of these:
+- the final conversion to binary64 is inside the check: the published v itself is tested against
+  the enclosure;
+- a zero is published only when exact arithmetic proves it, as an enclosure that is exactly [0, 0];
+- 100-40-40 uses the exact 2/5;
+- CQC takes a square root only of a radicand enclosure with a positive lower end.
+
+What is refused, with witnesses from review round 1 (`tests/represented_input_oracle.rs`):
+
+| Witness | Exact value | Outcome |
+|---|---|---|
+| 100-40-40 of three 2^-1074 | 9/5 = 1.8 quanta | `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`; analytically, the nearest binary64 (2 quanta) is 1/9 away |
+| 100-40-40 of [2, 1, 1]·2^-1074 | 14/5 = 2.8 quanta | `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`; analytically, 3 quanta is 1/14 away |
+| CQC, f_i = 1 + i·2^-19 Hz, R_k = (−1)^k C(39, k), ζ = 0.2, n = 40 | 9.71048724966594e-151 | published at 2,048 bits; every lower rung fails to establish accuracy |
+| CQC, 88 exact alternating binomial cluster sums, each scaled by 2^512 and split into two exact binary64 contributions | 1.12409512915645e-151 (independent Decimal check) | `SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED`: the radicand enclosure still reaches zero at the 2,048-bit cap |
+| The same family, n = 20 | 1.7888529003e-79 N | certified |
+| The same family, n = 7, scaled by 2^90 | 3.2174063837e-1 N | certified |
+| [1e16, 1, −1e16] in one cluster, every modal rule | 1 | certified, exactly 1 |
+
+### Cost and the cap
+
+**Observed comparison, 16 November 2026.** Apple M5 Max (18 cores, 128 GiB), macOS
+27.2 (26B123), rustc/cargo 1.97.1, locked Cargo release builds. Source `4c5e1b058` already
+contains landed S2 and W1. The comparison build adds only the 2,048-bit rung to that source.
+Each maintained cost scenario runs in its own process through the host slot wrapper; times
+are the workload timer excluding compilation, and memory is process peak RSS in decimal MB.
+This was a shared host, with no exclusive window or release-baseline qualification. Raw commands,
+build identity and logs are retained outside Git for the open review. These replace the earlier
+unauthenticated historical timing account.
+
+| Scenario | 1,024-bit cap: time / peak RSS | 2,048-bit cap: time / peak RSS |
+|---|---|---|
+| Frozen references, 78 combinations / 28,626 magnitudes | 52.4 ms / 12.76 MB | 62.8 ms / 12.75 MB |
+| CQC, 30 clusters × 300 rows × 3 directions | 18.4 ms / 5.52 MB | 22.6 ms / 5.51 MB |
+| CQC, 120 clusters × 1,200 rows × 3 directions | 351.5 ms / 37.85 MB | 466.1 ms / 37.86 MB |
+| SRSS, 120 clusters × 1,200 rows × 3 directions | 74.7 ms / 36.24 MB | 87.8 ms / 36.24 MB |
+| Demanding n = 20, 1 row | 4.25 ms / 3.47 MB, published | 4.58 ms / 3.54 MB, published |
+| Demanding n = 20, 50 rows | 15.3 ms / 3.57 MB, published | 17.8 ms / 3.77 MB, published |
+| n = 40, 10 rows | 27.1 ms / 4.47 MB, refused | 46.7 ms / 5.29 MB, published |
+| n = 40, 50 rows | 65.3 ms / 4.65 MB, refused | 116.5 ms / 5.41 MB, published |
+| n = 40 among 120 clusters, 10 rows | 180.1 ms / 12.21 MB, refused | 326.1 ms / 17.76 MB, published |
+
+These are single-run observations, not bounds. Ordinary-case timing differences cannot be
+attributed to an unused extra rung. Separate instrumented runs observed the maintained suite
+reaching 1,024 bits and the 40-among-120 probe reaching 2,048 bits; the latter then published.
+The maintained tests now check the 40-term case at every lower rung and at 2,048, compare its
+published value to the independent represented-input oracle, and require a genuine cap refusal
+for 88 exact binomial cluster sums. The rounded 80-term cost workload publishes and is named as
+such; it is not a refusal witness or evidence of monotonic growth in required precision.
+
+**Work and retained workspace.** These describe the implemented loops and the measured
+scenarios, not a bound on time or memory. Integer-operation cost also depends on the actual
+intermediate bit lengths.
+- With C clusters, R response rows and D directions, CQC evaluates all C(C−1)/2 pairs per
+  row and direction. The measured SRSS scenarios instead traverse C terms per row and
+  direction; absolute sum also traverses C terms but has no separate timing scenario here.
+- Grouping and ten percent retain P qualifying pairs and evaluate them for every row and
+  direction, in addition to C diagonal terms. P can be C(C−1)/2: 120 mutually close clusters
+  produce 7,140 pairs. Ten-percent preparation tests every pair even when none qualifies.
+  The SRSS measurements do not measure these pair-rule costs.
+- CQC escalation builds a ρ table for each attempted precision level. Every such table is
+  retained until the request finishes, along with the exact cluster sums (C × R × D) and
+  exact rigid responses. Grouping and ten percent retain their P pairs instead.
+- The precision cap limits the coefficient refinement levels. Stored endpoint integers can
+  be wider because exact accumulation aligns intermediates of different exponents; the
+  actual spans include damping, the coefficient kernel and cluster products. Neither the
+  precision cap nor a two-factor binary64 exponent span bounds this storage. No storage
+  bound is claimed. The reader observed a 5,356-bit radicand endpoint at the 53-bit level for
+  frequencies [2^-1074, f64::MAX], damping 2^-1074 and contributions [1, 1].
+
+**Why the cap is 2,048 bits.** Agent 0 chose this rung on 16 November: it resolves a demanding
+case that 1,024 refuses, at the observed extra time and memory above. The policy is to publish
+what the runtime enclosure establishes and refuse otherwise. The cap is a reversible choice
+about how far `PRECISION_LADDER` climbs, not an accuracy, work or memory bound. The actual
+enclosure, including final binary64 conversion, still decides every publication and exact zero.
+
+### JSON entry and example
+
+`combination_json` reads and writes the unit's documents
+(`openpipestress.spectrum_combination.input/v1` and `output/v1`; not `spectrum-1`). The
+`combine_contributions` example reads an input document on standard input and prints the output
+document:
+
+```sh
+cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example combine_contributions \
+  < core/analysis/response_spectrum/fixtures/combination/c4_base.input.json
+```
+
+`fixtures/combination/README.md` lists the contract fixtures.

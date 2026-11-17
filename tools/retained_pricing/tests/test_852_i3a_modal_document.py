@@ -102,10 +102,19 @@ def test_a_changed_helper_or_binding_stops(tmp_path, monkeypatch, old, new):
 
 
 def test_a_head_without_the_document_adds_nothing(tmp_path, monkeypatch):
+    # A source before I3a has no document.rs (O10-GATE's reviewed fact for its absence, §8.62).
     snap = copy_core(tmp_path)
-    edit(snap, DOC, "pub(crate) fn modal_result_document(", "pub(crate) fn modal_result_document_retired(")
+    (snap / DOC).unlink()
     d = decisions(monkeypatch, snap)
     assert not [k for k, _ in d["O10_ID_AUDIT"] if str(k).startswith((DOC + ":", TDOC + ":"))]
+
+
+def test_a_renamed_document_function_stops(tmp_path, monkeypatch):
+    # The function renamed while document.rs remains is a current source losing the target, not an earlier source.
+    snap = copy_core(tmp_path)
+    edit(snap, DOC, "pub(crate) fn modal_result_document(", "pub(crate) fn modal_result_document_retired(")
+    with pytest.raises(SystemExit, match="O10-GATE.*modal_result_document"):
+        decisions(monkeypatch, snap)
 
 
 def test_a_lengthening_edit_that_keeps_the_token_counts_stops(tmp_path, monkeypatch):

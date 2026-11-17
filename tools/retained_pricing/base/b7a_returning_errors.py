@@ -79,16 +79,18 @@ SOURCES = {
 # no owner gains a caller.
 # One-way normal source D3: every lib.rs owner, site and caller moves +17 with unchanged text (the friction normal
 # admission and the publication call's supports and final states); no owner gains a caller.
+# PR-A (§8.62; diffs from main fe01013f4 read): every lib.rs owner, site and caller moves with unchanged text (+77 to the case solve, +164
+# after the nonlinear loop); no owner gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12348,
+    "line": 12512,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12306:exact_straight_summary_extrema",
-    "short": "lib.rs:12348",
-    "from": "lib.rs:12306:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12470:exact_straight_summary_extrema",
+    "short": "lib.rs:12512",
+    "from": "lib.rs:12470:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5376:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5453:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -96,13 +98,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12354,
+    "line": 12518,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12306:exact_straight_summary_extrema",
-    "short": "lib.rs:12354",
-    "from": "lib.rs:12306:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12470:exact_straight_summary_extrema",
+    "short": "lib.rs:12518",
+    "from": "lib.rs:12470:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5376:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5453:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -110,13 +112,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 13023,
+    "line": 13187,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:13004:recover_curved_bend_local_forces",
-    "short": "lib.rs:13023",
-    "from": "lib.rs:13004:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:13168:recover_curved_bend_local_forces",
+    "short": "lib.rs:13187",
+    "from": "lib.rs:13168:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:5376:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:5453:solve_prepared_load_case"
     ]
   },
   {
@@ -227,7 +229,10 @@ MODE_SOURCE = {
            # RT-L2 D3: only retained_w1 moves 4204 -> 4207 (the formulation basis's elongation statement).
            "e4d75c32a44941ca22709faf2ce08274cb596c6eb8c7f43811e9e86dbdcd801c",
            # RT-L2 final source: only retained_w1 moves 4207 -> 4209 (the test-module declaration).
-           "eb60e926451848cd9062af0c6d152b8341503e9df7b16eb5e6056732bad9bdac"},
+           "eb60e926451848cd9062af0c6d152b8341503e9df7b16eb5e6056732bad9bdac",
+           # PR-A (§8.62): only retained_w1 moves 4209 -> 4286 (the blocked rewrite, the quality arm and the trigger's
+           # prior read precede it); the emitter is otherwise byte-identical to eb60e926….
+           "a1740f182fd47ff40ffe1775353da633165a4149cd0dc0d0e210f8b6ba3f8b07"},
 }
 
 
