@@ -169,7 +169,8 @@
       "command": [
         "node",
         "--test",
-        "apps/desktop/native-smoke/*.test.mjs"
+        "apps/desktop/native-smoke/*.test.mjs",
+        "apps/desktop/scripts/worktreeBuildLock.test.mjs"
       ]
     },
     "repository-checks": {

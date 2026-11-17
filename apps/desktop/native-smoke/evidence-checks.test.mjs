@@ -3,223 +3,151 @@
 //   node --test apps/desktop/native-smoke/evidence-checks.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, symlinkSync } from "node:fs";
+import * as fs from "node:fs";
+import { lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import {
   autosaveSlot, canonical, crc32, documentSha256, driverTimeout, dumpStore, inspectReportPackage, isCanonicalText,
   judgeAutosaveRecord, packageStatusFields, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip,
-  sha256Hex, timeoutText, homeRedirection, homeRedirectionRefusal, webviewDataEntries,
-  ALL_JOURNEYS, parseRunnerArgs, homeRemovalRefusal, screenState, parentsFromPs, lsofFiles, heldSlotAncestor,
-  launchGuardRefusal, LAUNCH_GUARD, systemTempRoot, removalIdentityRefusal, applicationEnvironment, applicationEnvironmentRefusal,
-  APP_PATH, groupRunning, UNFINISHED_BY_MACHINE, CONFINEMENT_TERM, NOTHING_ELSE_WATCHED, LISTING_LIMITS, STRICT_CHOOSER
+  sha256Hex, timeoutText, ALL_JOURNEYS, parseRunnerArgs, homeRemovalRefusal, removalIdentityRefusal, readHomeMarker, HOME_MARKER,
+  UNFINISHED_BY_MACHINE, CONFINEMENT_TERM, NOTHING_ELSE_WATCHED, TRIPWIRE_LIMITS, STRICT_CHOOSER_EXIT
 } from "./evidence-checks.mjs";
+import { STRICT_CHOOSER_ENV, STRICT_CHOOSER_VALUE } from "./launch-env.mjs";
 
-const STRICT = STRICT_CHOOSER;
-
-test("finding 5: the strict chooser constants agree between the runner and the native-smoke build", () => {
+test("the strict chooser's exit code and switch agree with the native-smoke build", () => {
   const rust = readFileSync(new URL("../src-tauri/src/native_smoke.rs", import.meta.url), "utf8");
   const constant = (name) => rust.match(new RegExp(`const ${name}: [^=]+= ([^;]+);`))?.[1]?.trim();
-  assert.equal(constant("STRICT_CHOOSER_ENV"), JSON.stringify(STRICT_CHOOSER.variable));
-  assert.equal(constant("STRICT_CHOOSER_VALUE"), JSON.stringify(STRICT_CHOOSER.value));
-  assert.equal(Number(constant("STRICT_CHOOSER_EXIT")), STRICT_CHOOSER.exit_code);
-  assert.ok(![0, 1, 2, 97, 101].includes(STRICT_CHOOSER.exit_code) && !(STRICT_CHOOSER.exit_code >= 126 && STRICT_CHOOSER.exit_code <= 165) && !(STRICT_CHOOSER.exit_code >= 64 && STRICT_CHOOSER.exit_code <= 78));
+  assert.equal(constant("STRICT_CHOOSER_ENV"), JSON.stringify(STRICT_CHOOSER_ENV));
+  assert.equal(constant("STRICT_CHOOSER_VALUE"), JSON.stringify(STRICT_CHOOSER_VALUE));
+  assert.equal(Number(constant("STRICT_CHOOSER_EXIT")), STRICT_CHOOSER_EXIT);
 });
 
-test("the runner's command line: --all in its order, named journeys, the separate journey alone, --build-only, and no lister path", () => {
+test("the runner's command line: --all in its order, named journeys, the separate journey alone, --build-only", () => {
   assert.deepEqual(ALL_JOURNEYS[0], "autosave-recovery");
-  assert.deepEqual(parseRunnerArgs(["--all"]), { journeys: ALL_JOURNEYS, buildOnly: false, skipBuild: false });
-  assert.deepEqual(parseRunnerArgs(["--journey", "report-exact,report-pressure-free", "--skip-build"]), { journeys: ["report-exact", "report-pressure-free"], buildOnly: false, skipBuild: true });
-  assert.deepEqual(parseRunnerArgs(["--journey", "reference-system", "--skip-build"]).journeys, ["reference-system"]);
+  assert.deepEqual(parseRunnerArgs(["--all"]), { journeys: ALL_JOURNEYS, buildOnly: false });
+  assert.deepEqual(parseRunnerArgs(["--journey", "report-exact,report-pressure-free"]), { journeys: ["report-exact", "report-pressure-free"], buildOnly: false });
+  assert.deepEqual(parseRunnerArgs(["--journey", "reference-system"]).journeys, ["reference-system"]);
   assert.match(parseRunnerArgs(["--journey", "reference-system,report-exact"]).error, /runs alone/);
   assert.match(parseRunnerArgs(["--all", "--journey", "report-exact"]).error, /not both/);
   assert.match(parseRunnerArgs([]).error, /choose --all/);
   assert.match(parseRunnerArgs(["--journey"]).error, /needs one or more/);
   assert.match(parseRunnerArgs(["--journey", "nope"]).error, /choose --all/);
   assert.match(parseRunnerArgs(["--al"]).error, /unknown arguments: --al/);
-  // An arbitrary lister path is not accepted in any form.
+  // No lister path, no build during a launch invocation.
   assert.match(parseRunnerArgs(["--all", "--library-listing", "/x/library_listing.py"]).error, /unknown arguments: --library-listing \/x\/library_listing.py/);
-  assert.match(parseRunnerArgs(["--all", "--keep"]).error, /unknown arguments: --keep/);
-  assert.deepEqual(parseRunnerArgs(["--build-only"]), { journeys: [], buildOnly: true, skipBuild: false });
+  assert.match(parseRunnerArgs(["--all", "--skip-build"]).error, /unknown arguments: --skip-build/);
+  assert.deepEqual(parseRunnerArgs(["--build-only"]), { journeys: [], buildOnly: true });
   assert.match(parseRunnerArgs(["--build-only", "--all"]).error, /takes no journey/);
-  assert.match(parseRunnerArgs(["--build-only", "--skip-build"]).error, /takes no journey/);
 });
 
-test("the launch guard seam refuses while the committed helper is absent, and while it is not wired", () => {
-  assert.equal(LAUNCH_GUARD, "tools/native_launch_guard.py");
-  assert.equal(launchGuardRefusal(false), "refused: the committed launch guard is not present");
-  assert.match(launchGuardRefusal(true), /^refused: the committed launch guard is present but this kit is not yet wired to it$/);
-  assert.match(LISTING_LIMITS, /cannot show what was read/);
-  assert.match(LISTING_LIMITS, /watches no writes outside the Library/);
+test("the record's terms: the confinement term word for word, the tripwire's limits, the act left to a person", () => {
   assert.match(CONFINEMENT_TERM, /a run's record states that nothing else on the disk was watched\.$/);
   assert.equal(NOTHING_ELSE_WATCHED, "Nothing else on the disk was watched.");
+  assert.match(TRIPWIRE_LIMITS, /cannot show what was read/);
+  assert.match(TRIPWIRE_LIMITS, /does not establish that the app wrote nothing else outside its throwaway home/);
+  assert.deepEqual(UNFINISHED_BY_MACHINE.map((item) => item.act), ["Copy"]);
 });
 
-test("finding 7: the screen state needs a recognisable on-console session; anything else is not established", () => {
-  const plist = (session) => `<?xml version="1.0"?><plist><dict><key>IOConsoleUsers</key><array><dict>${session}</dict></array></dict></plist>`;
-  assert.equal(screenState(plist("<key>kCGSSessionOnConsoleKey</key><true/><key>kCGSSessionUserNameKey</key><string>u</string>")), "unlocked");
-  assert.equal(screenState(plist("<key>kCGSSessionOnConsoleKey</key><true/><key>CGSSessionScreenIsLocked</key><true/>")), "locked");
-  assert.equal(screenState(plist("<key>kCGSSessionOnConsoleKey</key><false/>")), "unknown");
-  // Two sessions on the console: which one paints is not established.
-  assert.equal(screenState(plist("<key>kCGSSessionOnConsoleKey</key><true/></dict><dict><key>kCGSSessionOnConsoleKey</key><true/>")), "unknown");
-  assert.equal(screenState("<plist><dict><key>Other</key><string>x</string></dict></plist>"), "unknown");
-  assert.equal(screenState(""), "unknown");
-  assert.equal(screenState("some successful output that is not a property list"), "unknown");
+test("only a throwaway home this run created is removed", () => {
+  const run = "/private/var/folders/ab/T/swbpipe-evidence-journeys-Ab12";
+  const home = `${run}/swbpipe-evidence-report-exact-Xy34/swbpipe-native-smoke-home-Qw56`;
+  const created = new Set([home]);
+  assert.equal(homeRemovalRefusal(home, created, run), null);
+  assert.equal(homeRemovalRefusal(home, created, `${run}/`), null);
+  assert.match(homeRemovalRefusal(`${run}/swbpipe-evidence-report-exact-Xy34`, created, run), /not a home this run created/);
+  assert.match(homeRemovalRefusal("/Users/someone", new Set(["/Users/someone"]), run), /not under the run's folder/);
+  assert.match(homeRemovalRefusal(`${run}/other/swbpipe-native-smoke-home-Qw56`, new Set([`${run}/other/swbpipe-native-smoke-home-Qw56`]), run), /not a throwaway home folder/);
+  assert.match(homeRemovalRefusal(`${run}/swbpipe-evidence-x-1/home`, new Set([`${run}/swbpipe-evidence-x-1/home`]), run), /not a throwaway home folder/);
+  assert.match(homeRemovalRefusal(`${run}/swbpipe-evidence-x-1/../swbpipe-native-smoke-home-Q`, new Set([`${run}/swbpipe-evidence-x-1/../swbpipe-native-smoke-home-Q`]), run), /without \.\./);
+  assert.match(homeRemovalRefusal(`${run}/swbpipe-evidence-x-1/swbpipe-native-smoke-home-Q`, new Set(), run), /not a home this run created/);
 });
 
-test("finding 7: a held slot is the lockf ancestor holding a slot file, not an argument naming the wrapper", () => {
-  const slot = "/Users/ryan/dev/chirality-t3/guard/cargo_job.slot2.lock";
-  const parents = parentsFromPs(" 63 62\n 62 61\n 61 60\n 60 50\n 70 69\n 69 50\n");
-  const lsof = {
-    61: "p61\nftxt\nn/usr/bin/lockf\nf3\nn" + slot + "\n",
-    62: "p62\nftxt\nn/bin/bash\nf255\nn/Users/ryan/dev/chirality-t3/tools/t3_slot_run.sh\n",
-    // A process whose arguments name the wrapper and a slot file, but which is not lockf.
-    69: "p69\nftxt\nn/usr/local/bin/node\nf3\nn" + slot + "\n"
-  };
-  const filesOf = (pid) => (lsof[pid] ? lsofFiles(lsof[pid]) : []);
-  assert.deepEqual(heldSlotAncestor(parents, 63, filesOf, [slot]), { pid: 61, slot });
-  assert.equal(heldSlotAncestor(parents, 70, filesOf, [slot]), null);
-  // lockf holding some other file is not a held slot.
-  assert.equal(heldSlotAncestor(parents, 63, (pid) => (pid === 61 ? lsofFiles("p61\nftxt\nn/usr/bin/lockf\nf3\nn/tmp/other.lock\n") : []), [slot]), null);
-  assert.deepEqual(lsofFiles("p1\nftxt\nn/usr/bin/lockf\nf3\nn/a\n"), [{ fd: "txt", name: "/usr/bin/lockf" }, { fd: "3", name: "/a" }]);
-});
-
-test("finding 1: the application's environment is an allowlist built from nothing", () => {
-  const inherited = {
-    SWBPIPE_NATIVE_SMOKE_INJECT_RESULT: "/Users/someone/secret.json", SWBPIPE_NATIVE_SMOKE_INJECT_ROOT: "/Users/someone",
-    SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY: "stdin", ANTHROPIC_API_KEY: "sk-invented", OPENAI_API_KEY: "sk-invented",
-    HTTPS_PROXY: "http://proxy.invalid:8080", http_proxy: "http://proxy.invalid:8080", XDG_CONFIG_HOME: "/Users/someone/.config",
-    DYLD_INSERT_LIBRARIES: "/tmp/evil.dylib", DYLD_LIBRARY_PATH: "/tmp", TMPDIR: "/Users/someone/tmp", PATH: "/Users/someone/bin:/usr/bin",
-    HOME: "/Users/someone", LANG: "en_GB.UTF-8", LC_ALL: "$(touch /tmp/x)"
-  };
-  const home = "/private/var/folders/ab/T/swbpipe-evidence-run-1/swbpipe-evidence-report-exact-2/home";
-  const env = applicationEnvironment({ home, tmp: `${home}/tmp`, driver: "/d.js", plan: "{}", report: "/r.json", strict: STRICT, inherited });
-  assert.deepEqual(Object.keys(env).sort(), ["CFFIXED_USER_HOME", "HOME", "LANG", "PATH", STRICT.variable, "SWBPIPE_NATIVE_SMOKE_DRIVER", "SWBPIPE_NATIVE_SMOKE_PLAN", "SWBPIPE_NATIVE_SMOKE_REPORT", "TMPDIR"].sort());
-  for (const name of ["SWBPIPE_NATIVE_SMOKE_INJECT_RESULT", "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT", "SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "HTTPS_PROXY", "http_proxy", "XDG_CONFIG_HOME", "DYLD_INSERT_LIBRARIES", "DYLD_LIBRARY_PATH", "LC_ALL"]) {
-    assert.equal(env[name], undefined, name);
-  }
-  assert.equal(env.HOME, home);
-  assert.equal(env.CFFIXED_USER_HOME, home);
-  assert.equal(env.TMPDIR, `${home}/tmp`);
-  assert.equal(env.PATH, APP_PATH);
-  assert.equal(env[STRICT.variable], "1");
-  assert.equal(applicationEnvironmentRefusal(env, STRICT), null);
-  assert.match(applicationEnvironmentRefusal({ ...env, SWBPIPE_NATIVE_SMOKE_INJECT_RESULT: "/x" }, STRICT), /outside the allowlist: SWBPIPE_NATIVE_SMOKE_INJECT_RESULT/);
-  assert.match(applicationEnvironmentRefusal({ ...env, TMPDIR: "/tmp" }, STRICT), /TMPDIR is not inside the home/);
-  assert.match(applicationEnvironmentRefusal({ ...env, [STRICT.variable]: "0" }, STRICT), /is not set to 1/);
-  assert.match(applicationEnvironmentRefusal({ ...env, PATH: "/usr/bin" }, STRICT), /fixed application PATH/);
-});
-
-test("finding 4: the temporary root is the system's answer, not TMPDIR", () => {
-  const realpath = (value) => value.replace(/^\/var\//, "/private/var/");
-  assert.deepEqual(systemTempRoot("/var/folders/ab/cd123/T/\n", realpath), { root: "/private/var/folders/ab/cd123/T" });
-  // An inherited TMPDIR plays no part: the answer comes from getconf, and a home under the inherited folder is refused.
-  const { root } = systemTempRoot("/var/folders/ab/cd123/T/", realpath);
-  const inheritedTmp = "/Users/someone/tmp";
-  assert.match(homeRedirectionRefusal(homeRedirection(`${inheritedTmp}/swbpipe-evidence-x/home`), root), /not under the system temporary folder/);
-  assert.match(systemTempRoot("/Users/someone/tmp", realpath).refusal, /not recognisable/);
-  assert.match(systemTempRoot("", realpath).refusal, /not recognisable/);
-  assert.match(systemTempRoot("/var/folders/ab/cd123/T/", () => "/Users/someone/tmp").refusal, /resolves somewhere unexpected/);
-});
-
-test("finding 4: a recursive removal is refused when the home or an ancestor was swapped for a link or another directory", () => {
+test("a recursive removal needs the recorded identities up to the run's folder and the run's token in the home's marker", () => {
   const scratch = realpathSync(mkdtempSync(path.join(os.tmpdir(), "evidence-removal-")));
+  const token = "f".repeat(32);
+  const marker = (home) => readHomeMarker(home, fs);
+  const identity = (dir) => (({ dev, ino }) => ({ dev, ino }))(lstatSync(dir));
   try {
     const setup = () => {
-      const root = path.join(scratch, `T-${Math.random().toString(36).slice(2)}`);
-      const run = path.join(root, "swbpipe-evidence-run-A1");
-      const journey = path.join(run, "swbpipe-evidence-report-exact-B2");
-      const home = path.join(journey, "home");
+      const root = path.join(scratch, `swbpipe-evidence-journeys-${Math.random().toString(36).slice(2)}`);
+      const journey = path.join(root, "swbpipe-evidence-report-exact-B2");
+      const home = path.join(journey, "swbpipe-native-smoke-home-C3");
       mkdirSync(home, { recursive: true });
-      const recorded = new Map([root, run, journey, home].map((dir) => [dir, (({ dev, ino }) => ({ dev, ino }))(lstatSync(dir))]));
-      return { root, run, journey, home, recorded };
+      writeFileSync(path.join(home, HOME_MARKER), token);
+      const recorded = new Map([root, journey, home].map((dir) => [dir, identity(dir)]));
+      return { root, journey, home, recorded };
     };
+    const refusal = (where, options = {}) => removalIdentityRefusal(where.home, where.root, where.recorded, options.lstat ?? lstatSync, { token: options.token ?? token, readMarker: options.readMarker ?? marker });
+    // The intact, owned home.
     const intact = setup();
-    assert.equal(removalIdentityRefusal(intact.home, intact.root, intact.recorded, lstatSync), null);
-    // A swapped intermediate: the journey folder replaced by a link to elsewhere (holding a home of its own).
+    assert.equal(refusal(intact), null);
+    // The marker missing, or holding another token, with every identity as recorded.
+    const missing = setup();
+    rmSync(path.join(missing.home, HOME_MARKER));
+    assert.match(refusal(missing), /cannot be opened as a file \(ENOENT\)/);
+    const wrong = setup();
+    writeFileSync(path.join(wrong.home, HOME_MARKER), "0".repeat(32));
+    assert.match(refusal(wrong), /does not hold this run's token/);
+    // The marker a link to a file holding the token, or a folder: not read as a match.
+    const linked = setup();
+    const elsewhereToken = path.join(scratch, "token-elsewhere");
+    writeFileSync(elsewhereToken, token);
+    rmSync(path.join(linked.home, HOME_MARKER));
+    symlinkSync(elsewhereToken, path.join(linked.home, HOME_MARKER));
+    assert.match(refusal(linked), /cannot be opened as a file/);
+    const folder = setup();
+    rmSync(path.join(folder.home, HOME_MARKER));
+    mkdirSync(path.join(folder.home, HOME_MARKER));
+    assert.match(refusal(folder), /cannot be read|not a regular file|cannot be opened/);
+    // A marker read failure is reported as such, not as a mismatch.
+    assert.match(refusal(intact, { readMarker: () => ({ failure: "its marker cannot be read (EIO)" }) }), /EIO/);
+    assert.match(refusal(intact, { token: "short" }), /no run token/);
+    // A replacement with the recorded device and inode (established through a controlled lstat that reports the
+    // recorded identity, not by assuming the file system reuses one) and no marker of this run is refused.
+    const reused = setup();
+    rmSync(reused.home, { recursive: true });
+    mkdirSync(reused.home);
+    const sameIdentity = (dir) => {
+      const seen = lstatSync(dir);
+      const want = reused.recorded.get(dir);
+      return { isSymbolicLink: () => seen.isSymbolicLink(), isDirectory: () => seen.isDirectory(), dev: want?.dev ?? seen.dev, ino: want?.ino ?? seen.ino };
+    };
+    assert.match(refusal(reused, { lstat: sameIdentity }), /cannot be opened as a file \(ENOENT\)/);
+    // A replacement with a different identity, made while the original is still allocated (renamed aside, so the two
+    // cannot share an inode number), is refused by identity. Reuse of a freed inode number is not exercised here.
+    const replaced = setup();
+    renameSync(replaced.home, `${replaced.home}.original`);
+    mkdirSync(replaced.home);
+    writeFileSync(path.join(replaced.home, HOME_MARKER), token);
+    assert.notDeepEqual(identity(replaced.home), replaced.recorded.get(replaced.home), "the replacement is another folder");
+    assert.match(refusal(replaced), /not the directory the kit recorded/);
+    // A swapped intermediate: the journey folder replaced by a link to elsewhere (holding a marked home of its own).
     const middle = setup();
     const elsewhere = path.join(scratch, "elsewhere-1");
-    mkdirSync(path.join(elsewhere, "home"), { recursive: true });
+    mkdirSync(path.join(elsewhere, "swbpipe-native-smoke-home-C3"), { recursive: true });
+    writeFileSync(path.join(elsewhere, "swbpipe-native-smoke-home-C3", HOME_MARKER), token);
     renameSync(middle.journey, `${middle.journey}.moved`);
     symlinkSync(elsewhere, middle.journey);
-    assert.match(removalIdentityRefusal(middle.home, middle.root, middle.recorded, lstatSync), /is now a link|cannot be examined|not the directory/);
+    assert.match(refusal(middle), /is now a link|cannot be examined|not the directory/);
     // A swapped final: the home itself replaced by a link.
     const final = setup();
     const target = path.join(scratch, "elsewhere-2");
     mkdirSync(target);
+    writeFileSync(path.join(target, HOME_MARKER), token);
     rmSync(final.home, { recursive: true });
     symlinkSync(target, final.home);
-    assert.match(removalIdentityRefusal(final.home, final.root, final.recorded, lstatSync), /home is now a link/);
-    // A replaced directory of the same name is not the one recorded.
-    const replaced = setup();
-    rmSync(replaced.home, { recursive: true });
-    mkdirSync(replaced.home);
-    assert.match(removalIdentityRefusal(replaced.home, replaced.root, replaced.recorded, lstatSync), /not the directory the kit recorded/);
-    // A home outside the root, and an unrecorded ancestor, are refused.
-    assert.match(removalIdentityRefusal("/Users/someone/home", intact.root, intact.recorded, lstatSync), /not under the temporary root/);
-    assert.match(removalIdentityRefusal(intact.home, intact.root, new Map(), lstatSync), /no identity was recorded/);
+    assert.match(refusal(final), /home-C3 is now a link/);
+    // A home outside the run's folder, and an unrecorded ancestor, are refused.
+    assert.match(removalIdentityRefusal("/Users/someone/home", intact.root, intact.recorded, lstatSync, { token, readMarker: marker }), /not under the run's folder/);
+    assert.match(removalIdentityRefusal(intact.home, intact.root, new Map(), lstatSync, { token, readMarker: marker }), /no identity was recorded/);
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
 });
 
-test("finding 6: whether the started process's group still runs is read, not signalled", () => {
-  const ps = " 101 101 S\n 102 101 Z\n 200 200 R\n";
-  assert.equal(groupRunning(ps, 101), true);
-  assert.equal(groupRunning(" 102 101 Z\n", 101), false);
-  assert.equal(groupRunning(ps, 300), false);
-});
-
-test("finding 5: the three acts no machine finishes are named", () => {
-  assert.deepEqual(UNFINISHED_BY_MACHINE.map((item) => item.act), ["Save canonical HTML", "Copy", "Print"]);
-});
-
-test("only a throwaway home this run created is removed", () => {
-  const tmp = "/var/folders/ab/T";
-  const home = `${tmp}/swbpipe-evidence-run-Ab12/swbpipe-evidence-report-exact-Xy34/home`;
-  const created = new Set([home]);
-  assert.equal(homeRemovalRefusal(home, created, tmp), null);
-  assert.equal(homeRemovalRefusal(home, created, `${tmp}/`), null);
-  assert.match(homeRemovalRefusal(`${tmp}/swbpipe-evidence-run-Ab12/swbpipe-evidence-report-exact-Xy34`, created, tmp), /not a home this run created/);
-  assert.match(homeRemovalRefusal("/Users/someone", new Set(["/Users/someone"]), tmp), /not under the system temporary folder/);
-  assert.match(homeRemovalRefusal(`${tmp}/other/home`, new Set([`${tmp}/other/home`]), tmp), /not a throwaway home folder/);
-  assert.match(homeRemovalRefusal(`${tmp}/swbpipe-evidence-x-1/../home`, new Set([`${tmp}/swbpipe-evidence-x-1/../home`]), tmp), /without \.\./);
-  assert.match(homeRemovalRefusal(`${tmp}/swbpipe-evidence-x-1/home`, new Set(), tmp), /not a home this run created/);
-});
-
 const project = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..", "..", "..");
-
-test("the launch redirects both homes to one throwaway folder under the temporary folder, or is refused by name", () => {
-  const tmp = "/var/folders/ab/T";
-  const home = `${tmp}/swbpipe-evidence-x/home`;
-  assert.deepEqual(homeRedirection(home), { HOME: home, CFFIXED_USER_HOME: home });
-  assert.equal(homeRedirectionRefusal(homeRedirection(home), tmp), null);
-  assert.equal(homeRedirectionRefusal(homeRedirection(home), `${tmp}/`), null);
-  assert.match(homeRedirectionRefusal({ HOME: home }, tmp), /CFFIXED_USER_HOME is not set/);
-  assert.match(homeRedirectionRefusal({ CFFIXED_USER_HOME: home }, tmp), /HOME is not set/);
-  assert.match(homeRedirectionRefusal({ HOME: home, CFFIXED_USER_HOME: `${home}2` }, tmp), /differ/);
-  assert.match(homeRedirectionRefusal(homeRedirection("/Users/someone"), tmp), /not under the system temporary folder/);
-  assert.match(homeRedirectionRefusal(homeRedirection(tmp), tmp), /not under the system temporary folder/);
-  assert.match(homeRedirectionRefusal(homeRedirection(`${tmp}/../../Users/someone`), tmp), /without \.\./);
-  assert.match(homeRedirectionRefusal(homeRedirection("relative/home"), tmp), /absolute/);
-});
-
-test("the web view's data is found in a listing of the throwaway home", () => {
-  const name = "openpipestress-desktop";
-  const listing = [
-    "Library/Application Support/com.example.app/openpipestress-projects.sqlite3",
-    "Library/WebKit/openpipestress-desktop/WebsiteData/LocalStorage/x.sqlite3",
-    "Library/Caches/openpipestress-desktop/WebKit/NetworkCache/a",
-    "Library/HTTPStorages/openpipestress-desktop.binarycookies",
-    "Library/Caches/other-app/x",
-    "Downloads/a.csv"
-  ];
-  assert.deepEqual(webviewDataEntries(listing, name), listing.slice(1, 4));
-  assert.deepEqual(webviewDataEntries(["Library/HTTPStorages/openpipestress-desktop/x"], name), ["Library/HTTPStorages/openpipestress-desktop/x"]);
-  assert.deepEqual(webviewDataEntries(["Library/Application Support/openpipestress-desktop/x"], name), []);
-  assert.deepEqual(webviewDataEntries(["Downloads/a.csv"], name), []);
-});
 
 // A stored ZIP written by the test's own writer, in the layout the report package uses.
 function storedZip(entries, { tamper } = {}) {

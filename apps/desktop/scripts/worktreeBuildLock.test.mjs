@@ -154,7 +154,7 @@ function startScript(root, body, { readAfter = null } = {}) {
   const child = spawn(process.execPath, ['--input-type=module', '-e', `
     import { acquireBuildLock, exitAfterSignals, runUnderLock } from ${JSON.stringify(lockModule)};
     import { execFileSync, spawn } from 'node:child_process';
-    import { openSync, writeFileSync, writeSync } from 'node:fs';
+    import { openSync, readFileSync, writeFileSync, writeSync } from 'node:fs';
     const root = ${JSON.stringify(root)};
     ${body}
   `], { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -463,4 +463,131 @@ test('Codex r9: a signal received during synchronous work after a command return
       } finally { reap(runner, []); t.cleanup(); }
     }
   }
+});
+
+// The optional abort of runUnderLock: SIGKILL to the command's own group while it runs, recorded as `aborted` only
+// when that SIGKILL was sent; nothing sent once the command closed, during a stop, or after a timeout. Every signal to
+// a process group is logged by the runner process, so the tests read what was sent, not what was intended.
+const KILL_LOG = (log) => `
+    const killLog = openSync(${JSON.stringify(log)}, 'a');
+    const realKill = process.kill.bind(process);
+    process.kill = (pid, signal) => { if (pid < 0) writeSync(killLog, Date.now() + ' kill ' + (-pid) + ' ' + (signal ?? 0) + '\\n'); return realKill(pid, signal); };
+    const report = (result) => console.log(JSON.stringify({ ...result, error: result.error ? String(result.error.message) : null }));`;
+const kills = (log) => (existsSync(log) ? readFileSync(log, 'utf8').trim().split('\n').filter(Boolean).map((line) => line.split(' ')) : []);
+
+test('abort: one already aborted starts nothing and says so', async () => {
+  const t = tempRoot();
+  const marker = path.join(t.root, 'started');
+  try {
+    const runner = startScript(t.root, `${KILL_LOG(path.join(t.root, 'kills.log'))}
+      acquireBuildLock({ purpose: 'abort', root });
+      const controller = new AbortController();
+      controller.abort();
+      report(await runUnderLock(process.execPath, ['-e', ${JSON.stringify(`require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'x')`)}], { stdio: 'ignore', abort: controller.signal }));
+    `);
+    assert.equal((await runner.done).code, 0, runner.output());
+    const result = JSON.parse(runner.output().trim().split('\n').at(-1));
+    assert.equal(result.started, false);
+    assert.equal(result.aborted, false);
+    assert.match(result.error, /was not started/);
+    assert.ok(!existsSync(marker), 'the command never ran');
+    assert.deepEqual(kills(path.join(t.root, 'kills.log')), [], 'no signal was sent');
+    assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
+  } finally { t.cleanup(); }
+});
+
+test('abort: while the command runs, its group is sent SIGKILL once, the result says aborted and SIGKILL, the group is gone and the listener removed', async () => {
+  const t = tempRoot();
+  const ready = path.join(t.root, 'ready');
+  const log = path.join(t.root, 'kills.log');
+  let pids = [];
+  const runner = startScript(t.root, `${KILL_LOG(log)}
+    acquireBuildLock({ purpose: 'abort', root });
+    const controller = new AbortController();
+    let added = 0; let removed = 0;
+    const add = controller.signal.addEventListener.bind(controller.signal);
+    const remove = controller.signal.removeEventListener.bind(controller.signal);
+    controller.signal.addEventListener = (...rest) => { added += 1; return add(...rest); };
+    controller.signal.removeEventListener = (...rest) => { removed += 1; return remove(...rest); };
+    const poll = setInterval(() => { try { readFileSync(${JSON.stringify(ready)}); clearInterval(poll); controller.abort(); } catch {} }, 20);
+    const result = await runUnderLock(process.execPath, ${JSON.stringify(standInCargo(ready, true))}, { stdio: 'ignore', abort: controller.signal });
+    report({ ...result, added, removed });
+  `);
+  try {
+    await untilFile(ready, runner);
+    pids = readFileSync(ready, 'utf8').trim().split(' ').map(Number);
+    assert.equal((await runner.done).code, 0, runner.output());
+    const result = JSON.parse(runner.output().trim().split('\n').at(-1));
+    assert.equal(result.aborted, true);
+    assert.equal(result.signal, 'SIGKILL');
+    assert.equal(result.timedOut, false);
+    assert.equal(result.started, true);
+    assert.deepEqual([result.added, result.removed], [1, 1], 'the abort listener was added once and removed at close');
+    const [cargo, rustc] = pids;
+    assert.ok(!alive(cargo) && !alive(rustc), 'the leader and the member it started are gone');
+    assert.deepEqual(kills(log).filter(([, , , signal]) => signal === 'SIGKILL').map(([, , pgid]) => Number(pgid)), [cargo], 'one SIGKILL, to the command\'s own group');
+    assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
+  } finally { reap(runner, pids); t.cleanup(); }
+});
+
+test('abort: after the command has closed (a natural exit) it sends nothing and the result was not aborted; no option behaves as before', async () => {
+  const t = tempRoot();
+  const log = path.join(t.root, 'kills.log');
+  try {
+    const runner = startScript(t.root, `${KILL_LOG(log)}
+      acquireBuildLock({ purpose: 'abort', root });
+      const controller = new AbortController();
+      const result = await runUnderLock(process.execPath, ['-e', ''], { stdio: 'ignore', abort: controller.signal });
+      controller.abort();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      const plain = await runUnderLock(process.execPath, ['-e', 'process.exit(3)'], { stdio: 'ignore' });
+      report({ ...result, plain: { status: plain.status, signal: plain.signal, aborted: plain.aborted, timedOut: plain.timedOut } });
+    `);
+    assert.equal((await runner.done).code, 0, runner.output());
+    const result = JSON.parse(runner.output().trim().split('\n').at(-1));
+    assert.deepEqual([result.status, result.signal, result.aborted, result.timedOut], [0, null, false, false]);
+    assert.deepEqual(result.plain, { status: 3, signal: null, aborted: false, timedOut: false });
+    assert.deepEqual(kills(log).filter(([, , , signal]) => signal === 'SIGKILL'), [], 'no SIGKILL reached any group');
+  } finally { t.cleanup(); }
+});
+
+test('abort: after the timeout has fired, an abort is not recorded as one', async () => {
+  const t = tempRoot();
+  try {
+    const runner = startScript(t.root, `${KILL_LOG(path.join(t.root, 'kills.log'))}
+      acquireBuildLock({ purpose: 'abort', root });
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), 250);
+      report(await runUnderLock(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore', timeoutMs: 200, abort: controller.signal }));
+    `);
+    assert.equal((await runner.done).code, 0, runner.output());
+    const result = JSON.parse(runner.output().trim().split('\n').at(-1));
+    assert.deepEqual([result.timedOut, result.aborted, result.signal], [true, false, 'SIGKILL']);
+  } finally { t.cleanup(); }
+});
+
+test('abort: while a stop signal is being handled, the stop handler keeps precedence (no SIGKILL before its grace)', async () => {
+  const t = tempRoot();
+  const ready = path.join(t.root, 'ready');
+  const log = path.join(t.root, 'kills.log');
+  let pids = [];
+  const runner = startScript(t.root, `${KILL_LOG(log)}
+    acquireBuildLock({ purpose: 'abort', root, stopGraceMs: 600, killWaitMs: 1000 });
+    const controller = new AbortController();
+    process.on('SIGTERM', () => setTimeout(() => controller.abort(), 100));
+    await runUnderLock(process.execPath, ${JSON.stringify(standInCargo(ready, true))}, { stdio: 'ignore', abort: controller.signal });
+  `);
+  try {
+    await untilFile(ready, runner);
+    pids = readFileSync(ready, 'utf8').trim().split(' ').map(Number);
+    runner.child.kill('SIGTERM');
+    assert.deepEqual(await runner.done, { code: 143, signal: null }, runner.output());
+    const sent = kills(log);
+    const term = sent.find(([, , , signal]) => signal === 'SIGTERM');
+    const firstKill = sent.find(([, , , signal]) => signal === 'SIGKILL');
+    assert.ok(term && firstKill, `the stop sent SIGTERM then SIGKILL: ${JSON.stringify(sent)}`);
+    assert.ok(Number(firstKill[0]) - Number(term[0]) >= 500, `no SIGKILL before the stop's grace (the abort at +100 ms sent none): ${JSON.stringify(sent)}`);
+    assert.ok(!pids.some(alive), 'the group is gone');
+    assert.ok(!existsSync(buildLockPath(t.root)), 'the lock is released');
+  } finally { reap(runner, pids); t.cleanup(); }
 });

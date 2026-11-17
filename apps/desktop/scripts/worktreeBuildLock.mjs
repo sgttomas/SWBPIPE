@@ -340,13 +340,23 @@ async function settleGroup(pgid, waitMs) {
 // group, which the stop handler signals whole and waits to see empty; under an
 // inherited lock (or none) it stays in this process's group, which the holder
 // above signals. `timeoutMs` sends SIGKILL to the command (its group) once
-// passed. Resolves with { status, signal, stdout, stderr, error, timedOut } once
+// passed. `abort`, an AbortSignal, sends SIGKILL the same way when it is aborted
+// while the command runs: `aborted` in the result is true only when that SIGKILL
+// was sent, before the command closed and with no stop signal being handled (the
+// stop handler keeps precedence). It is not proof the command died of it; the
+// result's `signal` says how it ended. An abort already aborted starts nothing
+// and resolves at once with `started: false`. Once the command has closed, an
+// abort sends nothing, so it never reaches a settled or reused group. Resolves
+// with { status, signal, stdout, stderr, error, timedOut, aborted, started } once
 // the command has closed and, holding the lock, its group is settled. A group
 // that cannot be confirmed empty keeps the lock, prints the removal steps and
 // ends the process (exit 1). Never settles once a stop signal is being handled:
 // the handler ends the process.
-export function runUnderLock(command, args = [], { cwd, env = process.env, stdio = ["ignore", "pipe", "pipe"], timeoutMs } = {}) {
+export function runUnderLock(command, args = [], { cwd, env = process.env, stdio = ["ignore", "pipe", "pipe"], timeoutMs, abort } = {}) {
   if (stopping !== null) return new Promise(() => {});
+  if (abort?.aborted) {
+    return Promise.resolve({ status: null, signal: null, stdout: "", stderr: "", error: new Error(`${command} was not started: its abort signal was already aborted`), timedOut: false, aborted: false, started: false });
+  }
   const own = held !== null && !held.inherited;
   const killWaitMs = held?.killWaitMs ?? KILL_WAIT_MS;
   return new Promise((resolve) => {
@@ -359,23 +369,36 @@ export function runUnderLock(command, args = [], { cwd, env = process.env, stdio
     child.stderr?.on("data", (chunk) => err.push(chunk));
     let error = null;
     let timedOut = false;
+    let aborted = false;
+    let closed = false;
     child.on("error", (failure) => { error = failure; });
+    const kill = () => {
+      if (pgid !== null) signalLiveGroup(pgid, "SIGKILL");
+      else child.kill("SIGKILL");
+    };
     const timer = timeoutMs
       ? setTimeout(() => {
           timedOut = true;
-          if (pgid !== null) signalLiveGroup(pgid, "SIGKILL");
-          else child.kill("SIGKILL");
+          kill();
         }, timeoutMs)
       : null;
+    const onAbort = () => {
+      if (closed || stopping !== null || timedOut) return;
+      aborted = true;
+      kill();
+    };
+    abort?.addEventListener("abort", onAbort, { once: true });
     child.on("close", async (status, signal) => {
+      closed = true;
       if (timer) clearTimeout(timer);
+      abort?.removeEventListener("abort", onAbort);
       if (pgid !== null && !(await settleGroup(pgid, killWaitMs)) && stopping === null && held !== null) {
         stopping = "unconfirmed";
         keepHeld(held, `process group ${pgid} of ${command} did not empty after ${command} exited, SIGTERM and SIGKILL`);
         process.exit(1);
       }
       if (stopping !== null) return;
-      resolve({ status: error ? null : status, signal, stdout: Buffer.concat(out).toString("utf8"), stderr: Buffer.concat(err).toString("utf8"), error, timedOut });
+      resolve({ status: error ? null : status, signal, stdout: Buffer.concat(out).toString("utf8"), stderr: Buffer.concat(err).toString("utf8"), error, timedOut, aborted, started: true });
     });
   });
 }

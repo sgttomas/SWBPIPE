@@ -1,7 +1,7 @@
 """The registered native-smoke node-test check and the hosted step that runs it agree.
 
 `desktop-native-smoke-node-tests` (software-workflow.json) runs the native smoke tooling's own
-`node --test` files, which build and launch nothing. The hosted desktop job runs the same command
+`node --test` files and the worktree build lock's, which build and launch no app. The hosted desktop job runs the same command
 on its first shard. These tests keep the registration, its path rule and the hosted step aligned.
 """
 from __future__ import annotations
@@ -24,13 +24,18 @@ def profile() -> dict:
 
 def test_the_check_runs_node_test_over_the_native_smoke_tests_without_a_shell():
     check = profile()["checks"][CHECK]
-    assert check == {"cwd": ".", "command": ["node", "--test", "apps/desktop/native-smoke/*.test.mjs"]}
+    assert check == {"cwd": ".", "command": ["node", "--test", "apps/desktop/native-smoke/*.test.mjs", "apps/desktop/scripts/worktreeBuildLock.test.mjs"]}
     assert sorted(PROJECT.glob("apps/desktop/native-smoke/*.test.mjs")), "the glob names at least one test"
+    assert (PROJECT / "apps/desktop/scripts/worktreeBuildLock.test.mjs").is_file()
 
 
 def test_the_path_rule_selects_the_check_for_the_tests_and_what_they_read():
     tests = sorted(path.relative_to(PROJECT).as_posix() for path in PROJECT.glob("apps/desktop/native-smoke/*.test.mjs"))
     inputs = tests + [
+        "apps/desktop/scripts/worktreeBuildLock.test.mjs",
+        "apps/desktop/native-smoke/launch-env.mjs",
+        "apps/desktop/native-smoke/judged-launch.mjs",
+        "apps/desktop/native-smoke/report-print-evidence.mjs",
         "apps/desktop/native-smoke/driver.js",
         "apps/desktop/native-smoke/perf.mjs",
         "apps/desktop/native-smoke/evidence-checks.mjs",

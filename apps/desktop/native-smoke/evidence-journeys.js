@@ -5,8 +5,9 @@
 // It works the app as a person would: native menu commands go through the dispatch a menu click
 // uses, and the window's own controls (the user-release dialog's tick box and statement, the
 // autosave interval, the recovery offer) are operated in the window. The only substitution is the
-// file choosers: `native_smoke_choose` names the file the next one returns. It records what the
-// window shows; the runner judges, from the files the app wrote.
+// file choosers: `native_smoke_choose` names the file the next one returns (every answer the runner
+// plans lies inside the throwaway home). It records what the window shows, each report and checkpoint
+// carrying this launch's nonce; the runner judges, from the files the app wrote.
 //
 // Phases (plan.phase):
 //   report          - on plan.route ("pressure-free": the bundled demo; "exact": the opened exact
@@ -17,17 +18,21 @@
 //   autosave-end    - read the autosave setting on the fresh settings folder, turn it off and on at
 //                     the shortest interval, save the demo as a local project, checkpoint (with a copy
 //                     of the store), edit node N-100 and leave it unsaved, wait for the product to report
-//                     a record written, edit node N-110 at once, checkpoint, and wait: the runner ends the
-//                     app with SIGKILL before the next interval.
+//                     a record written, edit node N-110 at once, checkpoint, and wait: on that checkpoint
+//                     the runner aborts the launch (SIGKILL to its process group) before the next interval.
 //   autosave-reopen - read the recovery offer and the window before any choice, choose Open
 //                     autosave, and save the session's model document.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   const call = (command, args) => ipc.invoke(command, args ?? {});
   const log = (line) => call("native_smoke_log", { line: String(line) }).catch(() => {});
-  // The act about to start, on the app's standard error ("[native-smoke] act: <name>"), awaited before the
-  // act begins: when the app ends with the strict chooser's exit code, the runner names the last act shown.
-  const act = (name) => log(`act: ${name}`);
+  // The act about to start, logged and written as the `act` checkpoint (with this launch's nonce) before the act
+  // begins: when the app ends with the strict chooser's exit code, the runner names the last act recorded.
+  let nonce = null;
+  const act = async (name) => {
+    await log(`act: ${name}`);
+    await call("native_smoke_checkpoint", { name: "act", report: { nonce, act: name, at: Date.now() }, storeSnapshot: false });
+  };
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const byTestId = (id, root = document) => root.querySelector(`[data-testid="${CSS.escape(id)}"]`);
   const text = (id, root) => byTestId(id, root)?.textContent?.trim() ?? null;
@@ -150,7 +155,7 @@
       // The preview is the canonical HTML itself (the panel shows the controlled copy only when it is
       // byte-identical), so the runner recomputes its SHA-256 from this text.
       preview_html: preview,
-      // Recorded only: the controls are shown or not; neither is pressed (the runner's header).
+      // Recorded only: the controls are shown or not; neither is pressed in these journeys (the runner's header).
       save_control: Boolean(byTestId("rendered-report-save-local-private")),
       print_control: Boolean(byTestId("rendered-report-print"))
     };
@@ -286,7 +291,8 @@
     }
     await act("File > Save Model Document…");
     report.model_document = await saveModelDocument(plan.model_document, `${plan.route}/model-document`);
-    // Save canonical HTML, Copy and Print are not pressed: a person observes them (the runner's header).
+    // Save canonical HTML and Print are not pressed here (report-standing-journey.mjs drives both native routes);
+    // Copy is not pressed: a person observes it (the runner's header).
   }
 
   // The results table's CSV export through its own control: a button that saves natively to the
@@ -621,15 +627,14 @@
   }
 
   (async () => {
-    const report = { phase: null, ok: false, user_agent: navigator.userAgent };
+    const report = { phase: null, nonce: null, ok: false, user_agent: navigator.userAgent };
     try {
       const plan = await call("native_smoke_plan");
       report.phase = plan.phase;
+      report.nonce = plan.nonce;
+      nonce = plan.nonce;
       if (plan.timeouts) T = { ...T, ...plan.timeouts };
       await waitFor("desktop shell", () => byTestId("desktop-preview-shell") && treeRow(plan.bundled_project_id), T.step);
-      // The shell has loaded: the runner now decides whether the web view's data is under the throwaway
-      // home (on the run's first launch it ends the app if not). The app's own listing is recorded too.
-      await call("native_smoke_checkpoint", { name: "shell-loaded", report: { phase: plan.phase, at: Date.now() }, storeSnapshot: false, homeListing: true });
       await log(`evidence journey phase ${plan.phase} started`);
       await act("the desktop shell loaded");
       if (plan.phase === "report") await phaseReport(plan, report);

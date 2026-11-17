@@ -101,5 +101,5 @@ test("a report with no standing line passes when neither document has one, and f
 });
 
 test("a print window left open fails", () => {
-  assert.deepEqual(failed(judgeReportPrint("print", record({ closed: false }), OPTIONS)), ["the print window was closed afterwards"]);
+  assert.deepEqual(failed(judgeReportPrint("print", record({ closed: false }), OPTIONS)), ["the close confirmed that the print window it selected left the window registry (not matched to the recorded print's window)"]);
 });

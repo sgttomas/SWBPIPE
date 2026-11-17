@@ -11,6 +11,8 @@
 //   - the recorded document's SHA-256 recomputes to the recorded print hash;
 //   - the document is the canonical HTML with exactly the derived-view banner naming that hash, and nothing else;
 //   - the standing line read from the printed document is the canonical document's (or both have none).
+//   - the close the driver asked for afterwards confirmed that the print window it selected left the window registry
+//     (that window's label is not compared with the recorded print's).
 // It shows which document reached the native print path. It does not show that a dialog appeared, what the system's
 // print preview composed, or how a print job ended; no such claim is made.
 import { createHash } from "node:crypto";
@@ -62,6 +64,9 @@ export function judgeReportPrint(label, observed, { canonicalHtml, shownHash, ex
     printedLine !== undefined && lineIsText(printedLine) && lineIsText(canonicalLine) && printedLine === canonicalLine
       && (expectStanding === undefined || (typeof printedLine === "string" && printedLine.startsWith(expectStanding))),
     { printed: printedLine ?? null, canonical: canonicalLine ?? null, expected_lead: expectStanding ?? null });
-  check("the print window was closed afterwards", observed?.closed === true, observed?.closed ?? null);
+  // `native_smoke_close_report_print` answers true once the window its own close selected has left Tauri's window
+  // registry. The judge does not compare that window's label with the recorded print's `window_label`, so this check
+  // says only that the selected window closed, not that the window which printed did.
+  check("the close confirmed that the print window it selected left the window registry (not matched to the recorded print's window)", observed?.closed === true, observed?.closed ?? null);
   return checks;
 }
