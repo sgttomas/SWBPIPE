@@ -625,6 +625,26 @@ describe("the due autosave", () => {
     expect(writes()).toEqual([payload(variants[0]), payload(next())]);
   });
 
+  it("a replaced session's failed write neither retries nor delays the new session's missed tick, written when it settles", async () => {
+    let fail!: () => void;
+    let first = true;
+    const view = await start({ write: (args) => {
+      if (!first) return Promise.resolve(writtenFor(args));
+      first = false;
+      return new Promise((_resolve, reject) => { fail = () => reject("AUTOSAVE-WORKER-FAILED: invented lost response."); });
+    } });
+    await to(5 * MINUTE);
+    replaceSession(view);
+    await to(5 * MINUTE + 100);
+    renderSession(view, variants[1]);
+    await to(11 * MINUTE); // The new session's tick at 10 minutes waits for the old write.
+    expect(writes()).toEqual([payload(variants[0])]);
+    await act(async () => { fail(); });
+    expect(autosaveStatus()).toBeNull();
+    await to(11 * MINUTE + SECOND);
+    expect(writes()).toEqual([payload(variants[0]), payload(variants[1])]);
+  });
+
   it("the new session's retries start afresh: the replaced session's failures and retry do not reach it", async () => {
     const view = await start({ write: () => Promise.resolve({ outcome: "refused", diagnostics: [{ code: "AUTOSAVE-DIRECTORY-UNAVAILABLE", path: "", message: "invented" }] }) });
     await to(5 * MINUTE + 16 * SECOND); // Failed at 0, 5 and 15 s; next retry would be 35 s.

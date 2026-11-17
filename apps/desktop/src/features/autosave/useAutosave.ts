@@ -15,6 +15,9 @@
 //   At most one autosave is in flight; its completion tries a save that came
 //   due meanwhile. A refusal or an unknown outcome keeps the previous record
 //   (native) and is retried after 5, 10, 20, 40, then every 60 seconds.
+//   The due save belongs to one session generation: an attempt outstanding
+//   when the session is replaced writes nothing more, shows nothing and
+//   clears, retries or schedules nothing in the new session.
 // - After a save lands: that project's records written up to then, and any
 //   holding the saved model, are discarded; the store now holds the model.
 // - Recovery: at start, and after a stored project opens, records are paired
@@ -88,6 +91,11 @@ export type AutosaveDeps = {
   modelEditedRef: MutableRefObject<boolean>;
   /** The session's model and its hash, only while that hash is owned. */
   saveBasisRef: MutableRefObject<{ model: PreviewModel | null; modelHash: ModelHashEvidence | null }>;
+  /** The session generation `saveBasisRef` and `modelEditedRef` were rendered in. */
+  sessionGeneration: number;
+  /** The session generation now: it advances when a model replaces the
+   * session's, before that model renders. */
+  currentSessionGeneration: () => number;
   /** True while a project operation or prompt owns the session. */
   projectSessionBusy: () => boolean;
   /** Takes the shared modal hold (`modalHolds.ts`). */
@@ -103,6 +111,11 @@ type Scope = { projectId: string; storedHash: string | null } | null;
  * newer, a status line for the rest. `all` (Recover Autosave…): every record
  * not proven to be its stored project's model is offered. */
 type CheckMode = "automatic" | "all";
+
+/** One session generation's due save: `ticks` counts the timer's ticks, and
+ * `covered` the last one answered by a recorded write or by a state with
+ * nothing to record. */
+type DueSave = { generation: number; ticks: number; covered: number; failures: number };
 
 const IDLE_POLL_MS = 250;
 /** A failed autosave is tried again after 5 s, then 10, 20, 40 and every 60 s. */
@@ -124,11 +137,12 @@ export function useAutosave(deps: AutosaveDeps) {
   const [recoveryPrompt, setRecoveryPrompt] = useState<AutosaveRecoveryPromptState | null>(null);
   const [settingBusy, setSettingBusy] = useState(false);
   const inFlight = useRef<Promise<void> | null>(null);
-  // The due save: `ticks` counts the timer's ticks and `covered` the last one
-  // a recorded write (or a state with nothing to record) answered.
-  const ticks = useRef(0);
-  const covered = useRef(0);
-  const failures = useRef(0);
+  /** The due save the write in flight was started for. */
+  const inFlightDue = useRef<DueSave | null>(null);
+  /** The current session generation's due save; replaced when the generation
+   * advances or autosave is turned off, so an attempt started for an earlier
+   * one changes nothing in it. */
+  const due = useRef<DueSave>({ generation: deps.currentSessionGeneration(), ticks: 0, covered: 0, failures: 0 });
   const wake = useRef<number | null>(null);
   const enabled = useRef(false);
   /** The model the last landed save stored, from `afterProjectSaved`. */
@@ -161,13 +175,13 @@ export function useAutosave(deps: AutosaveDeps) {
   const minutes = settings?.autosave_minutes ?? 0;
   useEffect(() => {
     if (!deps.native || minutes <= 0) {
-      // Off: a due save is dropped with its wake-up.
-      covered.current = ticks.current;
-      failures.current = 0;
+      // Off: a due save is dropped with its wake-up (the cleanup below), and an
+      // attempt still outstanding changes nothing in the next one.
+      due.current = { generation: due.current.generation, ticks: 0, covered: 0, failures: 0 };
       return;
     }
     enabled.current = true;
-    const timer = window.setInterval(() => { ticks.current += 1; void attempt(); }, minutes * 60_000);
+    const timer = window.setInterval(() => { currentDue().ticks += 1; void attempt(); }, minutes * 60_000);
     // A save still due from before an interval change is attempted now.
     void attempt();
     return () => {
@@ -176,6 +190,22 @@ export function useAutosave(deps: AutosaveDeps) {
       cancelWake();
     };
   }, [deps.native, minutes]);
+
+  /** The due save of the session generation now. A replaced session's due
+   * save, with its retry and its failures, ends with it. */
+  function currentDue(): DueSave {
+    const generation = depsRef.current.currentSessionGeneration();
+    if (due.current.generation !== generation) {
+      cancelWake();
+      due.current = { generation, ticks: 0, covered: 0, failures: 0 };
+    }
+    return due.current;
+  }
+
+  /** Still the session an attempt or a cleanup was started in. */
+  function sameSession(generation: number): boolean {
+    return mounted.current && depsRef.current.currentSessionGeneration() === generation;
+  }
 
   function cancelWake() {
     if (wake.current !== null) window.clearTimeout(wake.current);
@@ -188,42 +218,64 @@ export function useAutosave(deps: AutosaveDeps) {
   }
 
   /** Writes the due save if nothing blocks it now; otherwise arranges the
-   * wake-up that tries again. The interval itself never moves. */
+   * wake-up that tries again. The interval itself never moves.
+   *
+   * The blockers and the hash are refs and callbacks the session changes
+   * without telling the hook (no state, no subscription), so no effect can run
+   * when one clears: while a save is due and blocked, a 250 ms timer looks
+   * again, and it stops when the save is written, nothing is due, autosave is
+   * turned off or the window closes. */
   async function attempt(): Promise<void> {
-    // One in flight: its completion tries again (below).
-    if (!mounted.current || !enabled.current || inFlight.current || covered.current >= ticks.current) return;
+    if (!mounted.current || !enabled.current) return;
+    const state = currentDue();
+    if (state.covered >= state.ticks) return;
     const current = depsRef.current;
+    if (inFlight.current) {
+      // One in flight. This session's own write tries again when it settles;
+      // a replaced session's write does not, so this one looks again.
+      if (inFlightDue.current !== state && wake.current === null) wakeIn(IDLE_POLL_MS);
+      return;
+    }
+    // Model, hash and edited flag are read together, from the render of this
+    // generation only: until a replacing model renders they are the replaced
+    // session's.
+    const { model, modelHash } = current.saveBasisRef.current;
+    if (current.sessionGeneration !== state.generation) {
+      if (wake.current === null) wakeIn(IDLE_POLL_MS);
+      return;
+    }
     if (!current.modelEditedRef.current) {
       // No unsaved edits: nothing is due.
-      covered.current = ticks.current;
-      failures.current = 0;
+      state.covered = state.ticks;
+      state.failures = 0;
       cancelWake();
       return;
     }
-    // Model and hash are read together, only while the hash is owned. A
-    // blocker or a hash still being computed sets no event the hook can
-    // observe, so the due save polls for them.
-    const { model, modelHash } = current.saveBasisRef.current;
     if (current.projectSessionBusy() || !model || !modelHash) {
       if (wake.current === null) wakeIn(IDLE_POLL_MS);
       return;
     }
     // A save that landed holds exactly this model: the store covers it.
     if (landedSave.current && landedSave.current.projectId === model.project.id && landedSave.current.modelHash === modelHash.value) {
-      covered.current = ticks.current;
-      failures.current = 0;
+      state.covered = state.ticks;
+      state.failures = 0;
       cancelWake();
       return;
     }
     cancelWake();
-    const covering = ticks.current;
+    const covering = state.ticks;
     let recorded = false;
     const run = (async () => {
       try {
         const text = await canonicalJsonString(model);
+        // Replaced while the text was made: nothing is written for the
+        // replaced session.
+        if (!sameSession(state.generation)) return;
         const outcome = await writeProjectAutosave(text, modelHash.value);
         recorded = outcome.outcome === "written" || outcome.outcome === "unchanged";
-        if (!mounted.current) return;
+        // A record written keeps its own name (slot, time, hash); a session
+        // replaced meanwhile is told nothing about it.
+        if (!sameSession(state.generation)) return;
         if (outcome.outcome === "written") {
           const warning = outcome.warnings.length > 0 ? ` ${diagnosticsText(outcome.warnings)}` : "";
           setStatusLine(`Autosaved at ${formatAutosaveTime(outcome.written_unix_millis)}.${warning}`);
@@ -231,25 +283,30 @@ export function useAutosave(deps: AutosaveDeps) {
           setStatusLine(`Autosave not written: ${diagnosticsText(outcome.diagnostics)}`);
         }
       } catch (error) {
-        if (mounted.current) setStatusLine(`Autosave not written: ${nativeFailureText(error)}`);
+        if (sameSession(state.generation)) setStatusLine(`Autosave not written: ${nativeFailureText(error)}`);
       }
     })();
     inFlight.current = run;
+    inFlightDue.current = state;
     try {
       await run;
     } finally {
       inFlight.current = null;
+      inFlightDue.current = null;
     }
+    // Started for a replaced session, or before autosave was turned off: it
+    // clears, retries and schedules nothing now.
+    if (!mounted.current || !enabled.current || due.current !== state || !sameSession(state.generation)) return;
     if (recorded) {
       // It covers the ticks up to its capture, never one that came while it ran.
-      covered.current = Math.max(covered.current, covering);
-      failures.current = 0;
+      state.covered = Math.max(state.covered, covering);
+      state.failures = 0;
       void attempt();
-    } else if (mounted.current && enabled.current && covered.current < ticks.current) {
+    } else if (state.covered < state.ticks) {
       // Refused, or an unknown outcome: nothing is removed here, and the next
       // try waits a little longer each time, up to a minute.
-      failures.current += 1;
-      wakeIn(Math.min(RETRY_BASE_MS * 2 ** (failures.current - 1), RETRY_MAX_MS));
+      state.failures += 1;
+      wakeIn(Math.min(RETRY_BASE_MS * 2 ** (state.failures - 1), RETRY_MAX_MS));
     }
   }
 
@@ -362,22 +419,25 @@ export function useAutosave(deps: AutosaveDeps) {
   async function afterProjectSaved(projectId: string, savedHash: string | null): Promise<void> {
     if (!depsRef.current.native || savedHash === null) return;
     landedSave.current = { projectId, modelHash: savedHash };
+    // A session replaced before the cleanup finishes is told nothing about it.
+    const generation = depsRef.current.currentSessionGeneration();
+    const show = (line: string) => { if (sameSession(generation)) setStatusLine(line); };
     try {
       // Every autosave started before this point finishes first.
       while (inFlight.current) await inFlight.current;
       const slot = await autosaveSlot(projectId);
       const listed = await listProjectAutosaves();
       if (listed?.outcome !== "listed") {
-        if (mounted.current) setStatusLine(`Autosave not removed after the save: ${listed?.outcome === "refused" ? diagnosticsText(listed.diagnostics) : "AUTOSAVE-LIST-RESPONSE: the listing response is not a listing"}`);
+        show(`Autosave not removed after the save: ${listed?.outcome === "refused" ? diagnosticsText(listed.diagnostics) : "AUTOSAVE-LIST-RESPONSE: the listing response is not a listing"}`);
         return;
       }
       for (const entry of listed.entries) {
         if (entry.slot !== slot || entry.model_hash !== savedHash) continue;
         const discarded = await discardProjectAutosave(entry.file_name);
-        if (discarded.outcome === "refused" && mounted.current) setStatusLine(`Autosave not removed after the save: ${diagnosticsText(discarded.diagnostics)}`);
+        if (discarded.outcome === "refused") show(`Autosave not removed after the save: ${diagnosticsText(discarded.diagnostics)}`);
       }
     } catch (error) {
-      if (mounted.current) setStatusLine(`Autosave not removed after the save: ${nativeFailureText(error)}`);
+      show(`Autosave not removed after the save: ${nativeFailureText(error)}`);
     }
   }
 
