@@ -190,11 +190,16 @@ pub(crate) const DEPENDENT_CRATES: [&str; 2] = ["src-tauri", "headless"];
 /// review r9 at #1682): any change, a new path dependency (a local
 /// proc-macro included, which can emit a call the scan never reads) or a
 /// rename, is a finding until reviewed. Its build-dependencies are also
-/// pinned (none, [`BUILD_DEPENDENCIES`]).
-pub(crate) const RUNNER_DEPENDENCIES: [&str; 11] = [
+/// pinned (none, [`BUILD_DEPENDENCIES`]). DEL-04-09's modal reader,
+/// `open_pipe_stress_modal_result`, was added for `read modal-result`
+/// (reviewed: an ordinary path library, no proc-macro and no build script,
+/// whose own dependencies are canonical_json, units, serde_json and sha2; it
+/// reaches no reporting crate).
+pub(crate) const RUNNER_DEPENDENCIES: [&str; 12] = [
     "normal open_pipe_stress_canonical_json",
     "normal open_pipe_stress_hanger_sizing",
     "normal open_pipe_stress_mechanics_benchmarks",
+    "normal open_pipe_stress_modal_result",
     "normal open_pipe_stress_nonlinear_benchmarks",
     "normal open_pipe_stress_product_physics",
     "normal open_pipe_stress_report_package",
@@ -1030,6 +1035,7 @@ pub(crate) const TARGETS: [(&str, &[(&str, &str, &str)]); 5] = [
             ("test", "exact_admission_seam", "headless/tests/exact_admission_seam.rs"),
             ("test", "exact_route_refusals", "headless/tests/exact_route_refusals.rs"),
             ("test", "load_reference_cli", "headless/tests/load_reference_cli.rs"),
+            ("test", "modal_cli", "headless/tests/modal_cli.rs"),
             ("test", "object_form_cli", "headless/tests/object_form_cli.rs"),
             ("test", "objective_connector", "headless/tests/objective_connector.rs"),
             ("test", "physics_source_connected", "headless/tests/physics_source_connected.rs"),

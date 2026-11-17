@@ -45,6 +45,24 @@ fn standing_finding(finding: &str) -> bool {
 /// The producer's integrity diagnostic id of a load case
 /// (product_physics `integrity_diagnostic_id`).
 const INTEGRITY_ID_PREFIX: &str = "diagnostic:numerical-integrity:";
+/// A blocked document's retained integrity evaluation (product_physics
+/// `INSPECTION_ONLY_CODE`, DEL-04-07 *Blocked document*).
+const INSPECTION_ONLY: &str = "NUMERICAL_INTEGRITY_INSPECTION_ONLY";
+/// The producer's record for a case it did not assess, or whose retained
+/// evaluation is inspection-only.
+const NOT_ASSESSED_RECORD: [&str; 4] = ["numerically_unresolved", "not_assessed", "not_assessed", "not_claimed"];
+
+/// The reader's notion of a document's mechanics status, shared by
+/// [`readability`]'s `solved` and [`case_records_consistent`] so that the two
+/// always agree: `Some(true)` solved, `Some(false)` positively blocked, `None`
+/// a status that is missing or malformed, which is neither.
+fn mechanics_solved(source: &Value) -> Option<bool> {
+    match source["status"]["mechanics"].as_str() {
+        Some("MECHANICS_SOLVED") => Some(true),
+        Some("MODEL_INCOMPLETE") => Some(false),
+        _ => None,
+    }
+}
 
 /// `{readable, solved, unreadable}` for `source`, given `standing`, the output
 /// of `reader_verdict::standing` for the same source, model and invocation.
@@ -69,7 +87,7 @@ pub fn readability(source: &Value, standing: &Value) -> Value {
     unreadable.extend(duplicated_evidence(source));
     json!({
         "readable": unreadable.is_empty(),
-        "solved": source["status"]["mechanics"] == "MECHANICS_SOLVED",
+        "solved": mechanics_solved(source) == Some(true),
         "unreadable": unreadable,
     })
 }
@@ -111,9 +129,16 @@ pub fn duplicated_evidence(source: &Value) -> Vec<String> {
 /// the producer's closed record for that diagnostic's code
 /// ([`standing_quality`]); or, for a case the
 /// producer did not assess, its evidence is empty and its record is the
-/// not-assessed record. A code the producer does not publish is inconsistent.
-/// An eligible case is left as the ordinary standing found it.
+/// not-assessed record. The inspection-only code's meaning depends on the
+/// document's state (DEL-04-07 *Blocked document*): in a positively blocked
+/// document (`MODEL_INCOMPLETE`) it is a retained evaluation that qualifies no
+/// result, and its case's record is the not-assessed record with that
+/// diagnostic as its one evidence reference; in a solved document, or one whose
+/// mechanics status is missing or malformed, it is inconsistent. A code the
+/// producer does not publish is inconsistent. An eligible case is left as the
+/// ordinary standing found it.
 pub fn case_records_consistent(source: &Value) -> bool {
+    let blocked = mechanics_solved(source) == Some(false);
     let mut codes: HashMap<&str, Vec<Option<&str>>> = HashMap::new();
     for diagnostic in source["diagnostics"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
         if let Some(id) = diagnostic["id"].as_str() {
@@ -121,10 +146,10 @@ pub fn case_records_consistent(source: &Value) -> bool {
         }
     }
     let cases = source["numerical_quality"]["cases"].as_array().map(Vec::as_slice).unwrap_or(&[]);
-    cases.iter().all(|case| case_record_consistent(case, &codes))
+    cases.iter().all(|case| case_record_consistent(case, &codes, blocked))
 }
 
-fn case_record_consistent(case: &Value, codes: &HashMap<&str, Vec<Option<&str>>>) -> bool {
+fn case_record_consistent(case: &Value, codes: &HashMap<&str, Vec<Option<&str>>>, blocked: bool) -> bool {
     let record = [&case["structural_status"], &case["solve_quality"], &case["model_matrix_fidelity"], &case["accuracy_evidence"]];
     let eligible = record[0] == "passive_model_basis"
         && record[1] == "checks_passed"
@@ -144,12 +169,16 @@ fn case_record_consistent(case: &Value, codes: &HashMap<&str, Vec<Option<&str>>>
         // The producer gives the not-assessed record only to a case with no
         // integrity diagnostic (product_physics `assessed_numerical_quality`).
         [] if codes.contains_key(wanted.as_str()) => None,
-        [] => Some(["numerically_unresolved", "not_assessed", "not_assessed", "not_claimed"]),
+        [] => Some(NOT_ASSESSED_RECORD),
         [only] => {
             if only.as_str() != Some(wanted.as_str()) {
                 return false;
             }
             match codes.get(wanted.as_str()).map(Vec::as_slice) {
+                // Supported only in a positively blocked document, where it
+                // names a retained evaluation and no verdict; it has no solved
+                // record, so it is not in STANDING_QUALITY.
+                Some([Some(INSPECTION_ONLY)]) if blocked => Some(NOT_ASSESSED_RECORD),
                 Some([Some(code)]) => standing_quality(code),
                 _ => None,
             }
@@ -162,12 +191,14 @@ fn case_record_consistent(case: &Value, codes: &HashMap<&str, Vec<Option<&str>>>
     }
 }
 
-/// The producer's closed record for each integrity code it publishes:
-/// (structural_status, solve_quality, model_matrix_fidelity,
+/// The producer's closed record for each integrity code it publishes in a
+/// solved document: (structural_status, solve_quality, model_matrix_fidelity,
 /// accuracy_evidence), as product_physics `assessed_numerical_quality`
 /// assigns them and as `result_export::nonlinear_support_evidence` reads them
 /// for a nonlinear case (`NUMERICAL_INTEGRITY_UNRESOLVED` is the producer's
-/// default arm). `None`: a code the producer does not publish. Held here, not
+/// default arm). The inspection-only code, which the producer publishes only in
+/// a blocked document, has no record here; `case_record_consistent` reads it.
+/// `None`: a code with no solved record. Held here, not
 /// borrowed from result_export, so that the priced reader is unchanged; the
 /// tests compare it, entry for entry, with the priced reader's table.
 pub const STANDING_QUALITY: [(&str, [&str; 4]); 8] = [
@@ -181,8 +212,8 @@ pub const STANDING_QUALITY: [(&str, [&str; 4]); 8] = [
     ("NUMERICAL_INTEGRITY_UNRESOLVED", ["numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"]),
 ];
 
-/// The record [`STANDING_QUALITY`] holds for `code`; `None`: a code the
-/// producer does not publish.
+/// The record [`STANDING_QUALITY`] holds for `code`; `None`: a code with no
+/// solved record.
 pub fn standing_quality(code: &str) -> Option<[&'static str; 4]> {
     STANDING_QUALITY.iter().find(|(known, _)| *known == code).map(|(_, record)| *record)
 }

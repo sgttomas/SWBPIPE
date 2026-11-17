@@ -91,6 +91,8 @@ RF_PINS = {
 # or lifetime changes.
 # RT-A4 D3 (§8.46): lib.rs's and preview_physics.rs's combination rewrite keeps the L5 callee's inputs (rows_by_base_id,
 # case_rows); the L5 guard, shadow, insert and call texts are unchanged; no reduction's owner or lifetime changes.
+# DEL-04-09 M4 on PR-A: the merged lib.rs preserves every main byte and appends the experimental
+# entry. Re-derived with ce_fallback_model.s6_bytes; all other PR-A pins and existing keys are retained.
 REDUCED_PINS = {
     # DEL-04-09 I2a D3 (§8.43): lib.rs only appends `mod modal;`; no reduction's owner or lifetime changes.
     # DEL-04-09 I2b-2 D3 (§8.43): the decision-B seam (LoadCaseSolve.nonlinear_state, the qualification element,
@@ -115,7 +117,10 @@ REDUCED_PINS = {
     # reduction's owner or lifetime changes; the L5 texts are unchanged.
     # DEL-04-07 REQ-008 part 1: lib.rs re-read: one test-module declaration (`sparse_loop_memory_tests`, release test
     # builds only) folded onto an existing line; no reduction's owner or lifetime changes, the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "fd6fc92e3ff8be23d0d577b24355c9eba28c6e495f39c8dd60767c81e117125c",
+    # PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
+    # retained-pricing-rules.md §8.62): lib.rs and certified_recovery.rs as B7a; no reduction's owner
+    # or lifetime changes and the L5 texts are unchanged. Previous values fd6fc92e… and ef58e6c2…
+    "core/product_physics/src/lib.rs": "3f7e7e84f8cd9e8c0aa3019b430584e6e31d2bf73b744381b041af10f648cfb1",
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",
@@ -124,7 +129,7 @@ REDUCED_PINS = {
     # adds one refusal branch and four doc-comment lines, reached only through a friction formula D1 never forms. No
     # reduction's owner or lifetime changes; the L5 texts are unchanged.
     "core/solver/frame_kernel/src/structural/formation_check.rs": "e7b0b7158d017f186c4245c79506dafe7792fd8a86e07cf14092ea5a1205492d",
-    "core/solver/frame_kernel/src/structural/certified_recovery.rs": "ef58e6c2ec74bad85b991c344a2127a78145af2a22d8656bbeb699ad097c1e49",
+    "core/solver/frame_kernel/src/structural/certified_recovery.rs": "a20db871abc328e82a98736e332fbfa707da3956f5faac781af610db59da57c8",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
     "core/solver/nonlinear_integration/src/structural_adapter.rs": "72c93deecae3a0a377a02b08d91ab99d18a44d80d9ddb662b1cf1becd782b093",
     "core/solver/straight_pipe/src/lib.rs": "9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7"

@@ -24,6 +24,9 @@ open_pipe_stress_product_physics = { path = "../../product_physics" }
 # DEL-04-11 slice 1d-α: the `size-hangers` verb's admission, pipeline and
 # published document (hanger-sizing.md §8.3.2).
 open_pipe_stress_hanger_sizing = { path = "../../analysis/hanger_sizing" }
+# DEL-04-09: the `read modal-result` reader, the modal result family's own Rust
+# reader, which shares no code with the producer.
+open_pipe_stress_modal_result = { path = "../../reporting/modal_result" }
 open_pipe_stress_report_package = { path = "../../reporting/report_package" }
 # DEL-08-04 result-export vocabulary, consumed read-only through its public
 # API by the governed analysis-run producer binding (R14 W1 T1).

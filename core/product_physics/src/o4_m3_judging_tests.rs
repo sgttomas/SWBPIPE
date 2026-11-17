@@ -285,7 +285,7 @@ fn w1_causes(raw: &Value, mode: PreviewSolverMode) -> Value {
     let mut ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut w1_budget(route), Some(&mut observer));
     ordinary.diagnostics.shrink_to_fit();
     let Some(cases) = w1_case_ids(&capture) else { return json!("domain") };
-    let triggers: Vec<CaseTrigger> = case_triggers(&ordinary.numerical_quality, &observer.ordinary, cases.ids()).collect();
+    let triggers: Vec<CaseTrigger> = case_triggers(&ordinary.numerical_quality, &ordinary.diagnostics, &observer.ordinary, cases.ids()).collect();
     let attempted = cases.attempted(triggers.iter().copied());
     let universe = row_universe(raw, &serde_json::to_value(&ordinary).unwrap());
     match observer.prepare_cases(ordinary, cases.ids().len(), attempted.requests()) {
