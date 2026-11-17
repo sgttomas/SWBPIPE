@@ -532,6 +532,7 @@
   async function phaseReference(plan, report) {
     await act("File > Open Model Document…");
     report.opened = await openModelDocument(plan.open);
+    if (report.opened.startsWith("Open model document refused")) throw new Error(report.opened);
     await waitFor("reference system in the model tree", () => treeRow(plan.project_id), T.step);
     await showSection("solve");
     click("solver-mode-sparse");
