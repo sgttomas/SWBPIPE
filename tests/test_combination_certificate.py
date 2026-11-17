@@ -489,10 +489,10 @@ def _validate_schema(document: dict, reader: str) -> None:
 
     schemas = PROJECT / "schemas"
     if reader == "pressure":
-        pressure = json.loads((schemas / "results_pressure_2.v0.3.schema.json").read_text(encoding="utf-8"))
+        pressure = json.loads((schemas / "results_pressure_3.v0.3.schema.json").read_text(encoding="utf-8"))
         root = schema_for_definition(pressure, "PressureResultEnvelope")
         root["$id"] = pressure["$id"]
-        validate_instance(root, document, schema_label="results_pressure_2.v0.3", instance_label="certificate corpus")
+        validate_instance(root, document, schema_label="results_pressure_3.v0.3", instance_label="certificate corpus")
     else:
         results = yaml.safe_load((schemas / "results.v0.3.schema.yaml").read_text(encoding="utf-8"))
         root = schema_for_definition(results, "PreviewPhysicsContractEvidence")

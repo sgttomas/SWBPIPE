@@ -29,6 +29,12 @@
 // criterion-6 or C6-5 claim follows from it, and the OS chooser presentation itself is substituted.
 //
 // Run it under a host slot (`t3_slot.sh`); it takes the worktree build lock itself, like `run.mjs`.
+//
+// Each launch is judged by the one rule of `launch-outcome.mjs`: it passes only when the app ended with status 0,
+// no signal and no timeout, a census found no process of the private copy, and the run's root holds a report
+// carrying the nonce this runner put in the launch's plan. A failed launch is its own named FAIL; its report stays
+// readable. summary.json records each launch's outcome, and --judge re-judges kept evidence from that record:
+// evidence that recorded none is judged LAUNCH-OUTCOME-NOT-RECORDED, not a pass.
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -38,6 +44,8 @@ import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
 import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
+import { keptPhaseFailures, newNonce, readReport } from "./launch-outcome.mjs";
+import { judgedPhase, phaseContinuation } from "./judged-launch.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -60,7 +68,8 @@ const REPLIES_FIXTURE = "fixtures/caepipe_mbf/invented/desktop_import/import_rep
 const MBF_NAME = "swbpipe-model.mbf";
 const IDS_NAME = "swbpipe-model.swbpipe-ids.json";
 
-if (process.platform !== "darwin") {
+// Launching is macOS only; --judge launches nothing and runs anywhere (mbf-journey-judge.test.mjs).
+if (process.platform !== "darwin" && !judgeDir) {
   console.error("mbf journey: macOS only");
   process.exit(2);
 }
@@ -211,16 +220,36 @@ const saved = {
   unbound: path.join(savedDir, "unbound-adopted.json")
 };
 
-function launch(plan) {
-  const report = path.join(root, `report-${plan.phase}.json`);
-  if (judgeDir) return Promise.resolve(existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: "no report in the evidence" });
+// Each launch's recorded outcome and judged failures, for summary.json.
+const launches = {};
+const TERMINATION_BOUND_MS = 20 * 1000;
+// Judge mode: kept evidence judged from its recorded outcome (`keptPhaseFailures`).
+function judged(phase, outcome, read, failures) {
+  launches[phase] = { outcome, failures };
+  check(`${phase}: the launch ended cleanly and its report is this run's`, failures.length === 0, failures.length === 0 ? undefined : failures);
+  // A failed launch's report stays readable for the checks that follow.
+  return read.report ?? { ok: false, error: read.problem };
+}
+function launch(given) {
+  const report = path.join(root, `report-${given.phase}.json`);
+  if (judgeDir) {
+    const read = readReport(report);
+    const outcome = recorded?.launches?.[given.phase]?.outcome ?? null;
+    return Promise.resolve(judged(given.phase, outcome, read, keptPhaseFailures(recorded, given.phase, read.report, read.problem)));
+  }
+  const plan = { ...given, nonce: newNonce() };
   console.log(`\n== phase ${plan.phase} (HOME=${home})`);
   if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
     console.error(`mbf journey: ${binary} changed since it was checked; not launched`);
     return exitAfterSignals(2);
   }
-  return runUnderLock("/usr/bin/caffeinate", ["-di", binary], {
-    cwd: root,
+  // The marks directly before the start, the start, the census and the one rule (`judged-launch.mjs`). A mark
+  // present, or an unresolved census, saves the summary and stops: no second app start while a process of the copy
+  // may still run. The evidence root is kept.
+  return judgedPhase({
+    phase: plan.phase, checkName: `${plan.phase}: the launch ended cleanly and its report is this run's`, launches, check,
+    summaryPath: path.join(root, "summary.json"), summary: () => ({ checks }),
+    executable: binary, command: "/usr/bin/caffeinate", commandArgs: ["-di", binary], cwd: root,
     env: {
       ...process.env,
       HOME: home,
@@ -228,12 +257,8 @@ function launch(plan) {
       SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan),
       SWBPIPE_NATIVE_SMOKE_REPORT: report
     },
-    stdio: ["ignore", "inherit", "inherit"],
-    timeoutMs: PHASE_TIMEOUT_MS
-  }).then(({ status, signal, timedOut }) => {
-    if (timedOut) console.error(`phase ${plan.phase}: timed out`);
-    return existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${status ?? signal})` };
-  });
+    timeoutMs: PHASE_TIMEOUT_MS, reportPath: report, nonce: plan.nonce, censusBoundMs: TERMINATION_BOUND_MS
+  }).then(phaseContinuation({ prefix: "mbf journey", phase: plan.phase, evidenceRoot: root }));
 }
 
 const checks = [];
@@ -331,6 +356,7 @@ writeFileSync(path.join(root, judgeDir ? "summary-judged.json" : "summary.json")
     bound_adopted_model: documentSha(saved.bound), guard_kept_model: documentSha(saved.guard), unbound_adopted_model: documentSha(saved.unbound)
   },
   checks,
+  launches,
   reports: { bound, unbound }
 }, null, 2));
 console.log(`\nmbf journey: ${checks.length - failed.length}/${checks.length} checks passed; evidence in ${root}`);

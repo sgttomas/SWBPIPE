@@ -82,7 +82,7 @@ A sizing result is a numerical statement about the discrete model under the user
     - the weight case and the support state W is formed in;
     - the design operating case and the further operating cases to check (stated, even when empty);
     - the load design (hot or cold);
-    - the variation limit and its reference load (operating or design load);
+    - the variation limit and its reference load (each case's operating load, or the design load, which is the hot-load basis W);
     - the travel allowance at each end of the travel span;
     - the selection rule (smallest capacity or least variation);
     - the solver mode of the caller's own solve, which every derived solve uses.
@@ -188,14 +188,16 @@ A sizing result is a numerical statement about the discrete model under the user
   - each existing reader's actual named refusal or disclosure of the document, as tested;
   - the table in DEL-08-04's CSV coverage guard.
 - **REQ-008** — *Applying a selection.*
-  - Applying a selected record is the person's explicit act. It goes through the existing hanger-selection operation builder and the one operation route, and is applied only on the person's acceptance.
+  - Applying a selected record is the person's explicit act. It goes through the existing hanger-selection operation builder and the one operation route, and is applied only on the person's acceptance. The selections of one sizing run are applied together, as one batch on one acceptance that one undo reverses; a candidate with no fit is left unchanged and named. A selection is prepared for application, and applied, only while the model and the stored library are the ones the result binds: the stored library is read when the selection is prepared and again when the person applies it.
   - The batch writes the record's family, stiffness, travel range, references and provenance, and the sized loads, all into existing model members:
     - for a variable record, the cold and installed loads (both the sized cold load) and the hot load;
     - for a constant record, the constant load (the hot-load basis).
-  - Each sized value's source note names the sizing run, its request digest and the record. Sizing itself never writes the model.
+  - Each sized value's source note names the sizing run, its request digest and the record; one note may serve all the sized values of one selection. Sizing itself never writes the model.
 - **AC-008** — Desktop tests show:
   - the batch's before and after for a variable and a constant selection, with the sized values and their source notes;
   - nothing applied without acceptance;
+  - one run's selections applied as one batch, with one undo restoring the model;
+  - no selection prepared or applied when the model or the stored library differs from what the result binds;
   - the model unchanged by a sizing run.
 
 ### Domain, references, cost and surfaces
@@ -256,12 +258,12 @@ A sizing result is a numerical statement about the discrete model under the user
 - **REQ-014** — *A variable spring carries its cold load.*
   - **Preload.** On both routes, the solve models a variable spring hanger as DEL-04-03/REQ-014 states: its stiffness plus its `cold_load` as a constant force along its stiffness DOF. The cold load acts in every load case, through the constant-effort seam and under the same combination gate. The spring carries the cold load minus its rate times its displacement from the drawn geometry, relative to its base where the base moves.
   - **Held springs.** In a case whose test condition holds springs, a held spring (DEL-05-01's held support) is a rigid restraint of its DOF, and neither its stiffness nor its preload acts.
-  - **Recovery.** The spring's published support force includes the preload.
+  - **Recovery.** The spring's published support force includes the preload. A case that applies the cold load also publishes the cold load itself, separately from that support force, as the support's applied force, as a consumed constant-effort support's force is published (DEL-04-07/CLM-004). A spring whose cold load a case does not apply, a held spring included, publishes no applied force in that case, and the result states that it was not applied and why.
   - **Diagnostics.** No solve warns that a spring hanger's load is not applied as preload (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` has no place). A warning is published where `installed_load` and `cold_load` differ.
   - **Behaviour change.** A document that carries `cold_load` solves differently with the preload than without it, and the release notes say so.
   - DEL-04-03/REQ-014 states the model; the rest of the law is stated here.
 - **AC-014** — Maintained checks show:
-  - the preload reference agrees with the force-plus-spring derived solve, in displacements and in published support forces, including a moved base;
+  - the preload reference agrees with the force-plus-spring derived solve, in displacements, in published support forces and in the published applied force, including a moved base;
   - targeted regression covers the spring-hanger tests and diagnostics, the combination gate, and a held and an unheld spring, with no preload on the held one;
   - the retained route's memory profile priced with the preload term, under the memory-pricing law (DEL-04-08/REQ-004);
   - the reference system's spring results including the preload.

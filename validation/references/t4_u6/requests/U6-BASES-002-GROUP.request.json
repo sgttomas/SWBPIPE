@@ -269,6 +269,14 @@
    }
   ],
   "combinations": [],
+  "model_settings": {
+   "pressure_elongation": {
+    "operating_load_cases": [
+     "case:restrained-pressure",
+     "case:restrained-pressure-thermal"
+    ]
+   }
+  },
   "reference_configurations": [
    {
     "id": "reference:installed",

@@ -19,6 +19,8 @@ wasm = ["dep:wasm-bindgen"]
 
 [dependencies]
 open_pipe_stress_product_physics = { path = "../../product_physics" }
+# DEL-05-02 Standing: readability and the standing record a report states.
+open_pipe_stress_report_standing = { path = "../../reporting/report_standing" }
 # RFC 8785 (JCS) canonical JSON text — the single canonicalization for every
 # hash seam (completion-plan H5); this crate re-exports its `canonical_json`.
 open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }

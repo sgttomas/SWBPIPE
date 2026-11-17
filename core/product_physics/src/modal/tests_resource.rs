@@ -419,6 +419,21 @@ fn every_budgeted_request_refuses_naming_its_unbounded_terms() {
     }
 }
 
+/// DEL-04-09 "Parameter standing": the selected parameters admit nothing. Under
+/// them too, every budgeted request refuses with its unbounded terms named, so
+/// the selected seam has no budgeted route to an admitted result.
+#[test]
+fn the_selected_parameters_leave_every_budgeted_request_refused() {
+    let params = super::integrity::ModalIntegrityParameters::selected_a1_a2_a3_criteria();
+    for model in population() {
+        let state = model.request.get("state_case").is_some_and(|c| !c.is_null());
+        let found = refused(run_modal_dense_with_budget(&modal(model.request.clone()), &params, Some(&admitting_budget())));
+        assert_eq!(codes(&found), [MODAL_RESOURCE_PREFLIGHT_EXCEEDED], "{}", model.name);
+        let expected: &[&str] = if state { &UNBOUNDED_WITH_STATE } else { &UNBOUNDED };
+        assert_eq!(found[0].affected_refs, expected, "{}", model.name);
+    }
+}
+
 #[test]
 fn an_undetermined_weight_with_a_nonzero_count_refuses_naming_the_term() {
     let dims = bounds(sec_a(2), &admitting_budget());

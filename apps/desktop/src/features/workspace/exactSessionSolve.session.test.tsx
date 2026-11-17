@@ -57,7 +57,7 @@ type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Mode = "sparse_interactive" | "dense_scrutiny";
 const root = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
-const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad" };
+const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-3", sha256: "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9" };
 /** The three surfaces the owner opened (ruling 10A). */
 /** Epoch 8's three opened surfaces and W-11's two (owner, 2026-10-26). */
 const OPENED: readonly string[] = ["result-export", "stress-neutral", "rule-check", "rendered-report", "report-package"];
@@ -235,7 +235,7 @@ describe("an exact (pressure-2) session solve", () => {
     render(<SolvePanel analysisRun={state.analysisRun} model={state.model} result={state.result} running={running} solveJob={solveJob}
       solverMode={solverMode} onCancel={() => {}} onRun={() => {}} onSolverModeChange={() => {}} />);
     // A native result's admission is read natively (the reader on the held bytes), then shown.
-    expect(await screen.findByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-2");
+    expect(await screen.findByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-3");
     expect(screen.queryByTestId("load-reference-states-refused")).toBeNull();
   });
 });

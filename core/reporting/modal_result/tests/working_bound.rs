@@ -164,8 +164,9 @@ const SUM_ORDER: &str = include_str!("../../../../fixtures/results/modal_sum_ord
 const ORACLE_CASES: &str = include_str!("../../../../fixtures/results/modal_oracle_cases.json");
 const PRODUCER_EDGES: &str = include_str!("../../../../fixtures/results/modal_producer_edges.json");
 
-const FIXTURES: [&str; 12] = ["ex_n05", "arc", "component_body", "state_one_way_pressed", "state_friction_sliding", "cantilever_whole_spectrum",
-    "cantilever_cluster_extension", "cantilever_below_cutoff", "cantilever_subnormal_cutoff", "cantilever_sensitive", "refused_unseparated", "refused_no_bound"];
+const FIXTURES: [&str; 14] = ["ex_n05", "arc", "component_body", "state_one_way_pressed", "state_friction_sliding", "cantilever_whole_spectrum",
+    "cantilever_cluster_extension", "cantilever_below_cutoff", "cantilever_subnormal_cutoff", "cantilever_sensitive", "refused_unseparated", "refused_no_bound",
+    "selected_cantilever", "selected_refused_no_bound"];
 
 fn fixture(name: &str) -> &'static str {
     match name {
@@ -193,6 +194,10 @@ fn fixture(name: &str) -> &'static str {
         "modal_refused_unseparated.request.json" => include_str!("../../../../fixtures/results/modal_refused_unseparated.request.json"),
         "modal_refused_no_bound.json" => include_str!("../../../../fixtures/results/modal_refused_no_bound.json"),
         "modal_refused_no_bound.request.json" => include_str!("../../../../fixtures/results/modal_refused_no_bound.request.json"),
+        "modal_selected_cantilever.json" => include_str!("../../../../fixtures/results/modal_selected_cantilever.json"),
+        "modal_selected_cantilever.request.json" => include_str!("../../../../fixtures/results/modal_selected_cantilever.request.json"),
+        "modal_selected_refused_no_bound.json" => include_str!("../../../../fixtures/results/modal_selected_refused_no_bound.json"),
+        "modal_selected_refused_no_bound.request.json" => include_str!("../../../../fixtures/results/modal_selected_refused_no_bound.request.json"),
         other => panic!("no committed modal fixture `{other}`"),
     }
 }

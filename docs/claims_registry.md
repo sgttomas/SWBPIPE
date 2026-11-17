@@ -184,6 +184,22 @@ or evidence-status labels (§2.1), and they never use "verified", "certified",
 numerical-health line of generated reports. The canonical sentence accompanies
 the checks-passed state.
 
+### EV-FIGURE — evidence status of a numerical figure, state or comparison
+
+**Canonical:** "A conditional figure states what follows if its named premises hold; it does not assert them."
+
+**Display forms:**
+
+- "established";
+- "conditional on {premise display name}", with the premise display name "the solver's inverse-norm step";
+- "no error figure available", with its reason;
+- "premise shown not to hold: {premise display name}".
+- "not established: {reason statement}", for a support state or comparison whose required conditions are not established.
+
+They state the evidence status of a solver figure, support state or rule comparison. They are not analysis statuses or evidence-status labels (§2.1), and they never use "verified", "certified", "guaranteed", "approved", "compliant", "correct" or "reliable". "Bound", "bounded" and "confirmed" are used only with "established".
+
+**Belongs on:** generated reports, the desktop's results and rule-check surfaces, and exports that carry figures, states or rule outcomes. A conditional form is never shown without the statement of its premise reachable in place.
+
 ### GF-TOKEN — governance fence token (agent-facing artifacts only)
 
 **Canonical:** "Standard claim fence applies (claims taxonomy per DEC-081)."

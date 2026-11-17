@@ -554,6 +554,7 @@ export function NativeResultsPanel({
         canStep={(axis, delta) => stepTarget(axis, delta) !== null}
         onStep={(axis, delta) => navigate(axis, delta)}
         onChooseCase={(caseKey) => chooseCase(caseKey)}
+        contractEvidence={result.contract_evidence ?? null}
       />
       <NativeResultDetail result={result} semanticsOf={semanticsOf} selectedResultId={selectedResultId} selected={selected} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
         // Each row's dimension from its row semantics under the handle's table, as the whole-value

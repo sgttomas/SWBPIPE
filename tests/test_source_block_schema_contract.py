@@ -182,7 +182,7 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
     # Validate the exact branch wiring; canonical packet positives remain the
     # separately supplied actual headless producer artifacts, never constructed here.
     branches = envelope_branches(results)
-    # T4-U2 added pressure-2 (its branch held in results_pressure_2.v0.3); the join added
+    # T4-U2 added pressure-2 (its branch held in results_pressure_3.v0.3); the join added
     # pressure-source-1; B1 removed precision-1's branch and B4/D1 (b) source-blocks-1's;
     # B7b removed the four exact v2 branches (physics-1, physics-source-1, load-reference-1, load-reference-source-1);
     # PF Timoshenko added preview-physics-timoshenko-1's (pf-timoshenko.md §4).
@@ -201,7 +201,7 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
                   # B3b's exact successor keeps the default result set.
                   "openpipestress.result_semantics/0.3.0/preview-physics-retained-1": "PreviewPhysicsResultSet",
                   # T4-U2: pressure-2's result sets add the connector vocabulary.
-                  "openpipestress.result_semantics/0.3.0/pressure-2": "PressureResultSet"}.get(identity, "ResultSet")
+                  "openpipestress.result_semantics/0.3.0/pressure-3": "PressureResultSet"}.get(identity, "ResultSet")
         assert branch["properties"]["result_sets"]["items"] == {"$ref": f"#/$defs/{target}"}
     assert results["$defs"]["ResultSet"]["properties"]["values"]["items"] == {"$ref": "#/$defs/QuantityResult"}
     assert results["$defs"]["QuantityResult"]["properties"]["metadata"] == {"$ref": "#/$defs/ResultMetadata"}

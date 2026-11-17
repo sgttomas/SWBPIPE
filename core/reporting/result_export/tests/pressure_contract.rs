@@ -86,13 +86,20 @@ fn retired_v2_labels_are_refused() {
 fn unknown_identities_and_profiles_are_refused() {
     for (label, envelope) in corpus() {
         let mut unknown = envelope.clone();
-        unknown["producer"]["semantic_contract_id"] = json!("openpipestress.result_semantics/0.3.0/pressure-3");
+        unknown["producer"]["semantic_contract_id"] = json!("openpipestress.result_semantics/0.3.0/pressure-4");
         assert_eq!(s::for_source(&unknown).unwrap_err(), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", "{label}");
         // Model 0.6.0: the retired pressure-1 identity is refused by name (re-run).
         let mut retired = envelope.clone();
         retired["producer"]["semantic_contract_id"] = json!(s::RETIRED_PRESSURE_1_ID);
         let refusal = s::for_source(&retired).unwrap_err();
         assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_PRESSURE_1_RETIRED)) && refusal.contains("re-run"), "{label}: {refusal}");
+        // RT-L2: the retired pressure-2 identity is refused by name, for the whole statement
+        // and for its transport metadata.
+        let mut retired_2 = envelope.clone();
+        retired_2["producer"]["semantic_contract_id"] = json!(s::RETIRED_PRESSURE_2_ID);
+        for refusal in [s::for_source(&retired_2).unwrap_err(), s::for_source_metadata(&retired_2).unwrap_err()] {
+            assert_eq!(refusal, format!("{}: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model", s::SOURCE_PRESSURE_2_RETIRED), "{label}");
+        }
         // The retired preview-physics-1 identity is refused by name the same way, for the
         // whole statement and for its transport metadata.
         let mut retired_preview = envelope.clone();
@@ -121,7 +128,7 @@ fn unknown_identities_and_profiles_are_refused() {
 #[test]
 fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     let pressure: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json"
+        "../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json"
     ))
     .unwrap();
     let source = s::pressure_source_contract();
@@ -235,7 +242,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     insert_after(&mut vocabulary, "component", "moment_magnitude", &["displacement_magnitude"]);
     assert_eq!(pressure["canonical_metadata_vocabulary"], vocabulary);
     let schema: Value = serde_json::from_str(include_str!(
-        "../../../../schemas/results_pressure_2.v0.3.schema.json"
+        "../../../../schemas/results_pressure_3.v0.3.schema.json"
     ))
     .unwrap();
     assert_eq!(schema["$defs"]["PressureResultMetadata"]["properties"], vocabulary);

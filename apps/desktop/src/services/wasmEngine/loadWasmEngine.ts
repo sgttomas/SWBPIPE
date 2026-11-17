@@ -63,6 +63,8 @@ export type WasmOperationEngine = {
   // Presentation only; never read by admission or standing. Throws only on input
   // that is not JSON; the desktop then shows no indicator (fail closed).
   numericalHealthJson: (sourceJson: string, readerFindingsJson?: string) => string;
+  /** DEL-08-01 REQ-024: the reader's standing, readability and report standing record. */
+  readerReportStandingJson: (sourceJson: string, modelJson: string, invocationJson?: string) => string;
   // the shear modulus a library insert derives from E and ν, bit
   // for bit the exact route's (`derived_shear_modulus_pa`): `{value, unit:"Pa"}`
   // or `{error}`.
@@ -105,6 +107,7 @@ type GeneratedGlueModule = {
   reader_recorded_json: (entry: string, bindingJson: string, sourceJson: string, modelJson?: string | null, invocationJson?: string | null) => string;
   reader_recorded_row_semantics_each_json: (bindingJson: string, rowsJson: string, sourceJson: string) => string;
   numerical_health_json: (sourceJson: string, readerFindingsJson?: string | null) => string;
+  reader_report_standing_json: (sourceJson: string, modelJson: string, invocationJson?: string | null) => string;
 };
 
 // The browser specifier is intentionally held in a constant (not an inline
@@ -209,7 +212,7 @@ async function instantiate(): Promise<WasmOperationEngine> {
     }
   }
 
-  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "validate_model_document_json", "model_checks_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1", "validate_retained_precision_json", "validate_retained_precision_transport_json", "retained_precision_semantics_json", "reader_dispatch_json", "reader_validate_json", "reader_transport_json", "reader_row_semantics_json", "reader_row_semantics_each_json", "numerical_health_json", "preview_operating_conditions_json", "display_number_text"] as const) {
+  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "validate_model_document_json", "model_checks_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1", "validate_retained_precision_json", "validate_retained_precision_transport_json", "retained_precision_semantics_json", "reader_dispatch_json", "reader_validate_json", "reader_transport_json", "reader_row_semantics_json", "reader_row_semantics_each_json", "numerical_health_json", "reader_report_standing_json", "preview_operating_conditions_json", "display_number_text"] as const) {
     if (typeof glue[name] !== "function") throw absenceError("required export missing", name);
   }
   return {
@@ -237,7 +240,8 @@ async function instantiate(): Promise<WasmOperationEngine> {
     readerRowSemanticsEachJson: (rowsJson, sourceJson) => glue.reader_row_semantics_each_json(rowsJson, sourceJson ?? null),
     readerRecordedJson: (entry, bindingJson, sourceJson, modelJson, invocationJson) => glue.reader_recorded_json(entry, bindingJson, sourceJson, modelJson ?? null, invocationJson ?? null),
     readerRecordedRowSemanticsEachJson: (bindingJson, rowsJson, sourceJson) => glue.reader_recorded_row_semantics_each_json(bindingJson, rowsJson, sourceJson),
-    numericalHealthJson: (sourceJson, readerFindingsJson) => glue.numerical_health_json(sourceJson, readerFindingsJson ?? null)
+    numericalHealthJson: (sourceJson, readerFindingsJson) => glue.numerical_health_json(sourceJson, readerFindingsJson ?? null),
+    readerReportStandingJson: (sourceJson, modelJson, invocationJson) => glue.reader_report_standing_json(sourceJson, modelJson, invocationJson ?? null)
   };
 }
 

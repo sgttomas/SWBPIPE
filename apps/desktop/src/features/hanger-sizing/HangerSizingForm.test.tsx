@@ -329,3 +329,39 @@ describe("the request form", () => {
     expect(screen.queryByTestId("hanger-sizing-panel")).toBeNull();
   });
 });
+
+describe("applying a selection from the shown result (REQ-008)", () => {
+  it("binds the worker's reply to the present model by the hash the run bound, and queues the sized batch only on the person's acts", async () => {
+    host();
+    const queue = vi.fn();
+    const shown = model();
+    const before = JSON.stringify(shown);
+    render(<HangerSizingForm model={shown} onQueueBatch={queue} />);
+    await fillTwoSpan();
+    fireEvent.click(screen.getByTestId("hanger-sizing-run"));
+    // Offered only because the desktop's checked hash of the present solve request equals the one the native run bound.
+    fireEvent.click(await screen.findByRole("button", { name: "Prepare applying record VS-200-L to support:B" }));
+    const note = await screen.findByTestId("hanger-sizing-apply-source-note");
+    const inputs = twoSpanReply.document.inputs;
+    expect(note).toHaveTextContent(`sizing request sha256 ${inputs.sizing_request_sha256} and solve request sha256 ${inputs.solve_request.sha256}`);
+    expect(note).toHaveTextContent("hanger.hot_load 5000 N, the sized operating load in the design operating case load:O1");
+    expect(queue).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Queue sized selection for review" }));
+    expect(queue).toHaveBeenCalledTimes(1);
+    // Sizing and preparing wrote nothing.
+    expect(JSON.stringify(shown)).toBe(before);
+  });
+
+  it("says the model changed since the run and offers no application", async () => {
+    host();
+    const { rerender } = render(<HangerSizingForm model={model()} onQueueBatch={vi.fn()} />);
+    await fillTwoSpan();
+    fireEvent.click(screen.getByTestId("hanger-sizing-run"));
+    await screen.findByRole("button", { name: "Prepare applying record VS-200-L to support:B" });
+    const changed = model();
+    changed.supports[0].provenance = "edited after sizing";
+    rerender(<HangerSizingForm model={changed} onQueueBatch={vi.fn()} />);
+    expect(await screen.findByTestId("hanger-sizing-apply-model-changed")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Prepare applying record/ })).toBeNull();
+  });
+});

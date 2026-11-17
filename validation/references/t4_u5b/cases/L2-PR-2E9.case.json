@@ -6,7 +6,7 @@
  "derives_from": {
   "reference": "validation/references/t4_u5a",
   "request": "requests/J3-1.request.json",
-  "request_sha256": "e64cbeae5b9f25a25b1d38566579e3d9ccabd7e69304e9637af20033efa49e47",
+  "request_sha256": "5b4aabda6740f11b8fa75a76459df4d23975ff752a267871111796aa978d0f68",
   "oracle_case": "J3-1",
   "orientation_pattern": null
  },

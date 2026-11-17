@@ -23,7 +23,7 @@ PR = "core/product_physics/src/pressure_runtime.rs"
 CS = "core/product_physics/src/case_state/mod.rs"
 RM = "core/product_physics/src/retained_memory.rs"
 EV = "core/reporting/result_export/src/nonlinear_support_evidence.rs"
-EDGE = ("pressure_runtime.rs:211:validate_profile", "case_state/mod.rs:36:carries_fields")
+EDGE = ("pressure_runtime.rs:233:validate_profile", "case_state/mod.rs:36:carries_fields")   # RT-L2: 211 -> 233, unchanged text
 
 S6 = ("        let s6_context = (\n            super::case_state::carries_fields(model),\n"
       "            model.components.iter().any(|component| component.objective_connector.is_some()),\n        );\n")
@@ -92,10 +92,13 @@ def test_the_reader_loops_and_state_class(monkeypatch, route):
     assert loops == {
         'for row in rows.iter().filter(|r| kind(r).starts_with(" ") && r[" "][" "] != " ")':
             ("0", ["nonlinear_support_evidence.rs:case_ids"]),
-        "iter:case_ids(rows)?.into_iter().map": ("0", ["nonlinear_support_evidence.rs:read"]),
+        # NL-RD (DEL-04-07, base/nonlinear_seams.py): the current `read` binds the case list as `cases` first.
+        "iter:cases.into_iter().map": ("0", ["nonlinear_support_evidence.rs:read"]),
     }
     audits = [v for k, v in d["O10_ID_AUDIT"] if str(k).split("/src/")[-1].startswith("nonlinear_support_evidence.rs:")]
-    assert [a["s.state"]["bytes"] for a in audits] == [8]
+    assert [a["s.state"]["bytes"] for a in audits if "s.state" in a] == [8]
+    # PRA-NL (§8.62): `read`'s direct require is charged at its longest literal message (test_862_pr_a.py).
+    assert [list(a) for a in audits if "s.state" not in a] == [["code"]]
     states = ["inactive", "active", "sticking", "sliding"]
     assert max(len(s.encode()) for s in states) == 8
     assert 'const STATES: [&str; 4] = ["inactive", "active", "sticking", "sliding"];' in (SOURCE / EV).read_text(encoding="utf-8")
@@ -125,9 +128,9 @@ def test_the_scoped_problem_parents_follow_their_functions():
     import b7a_scoped_text_model as scoped
     text = (SOURCE / PR).read_text(encoding="utf-8").splitlines()
     keys = [p.split("pressure_runtime.rs:")[-1] for p in scoped.PROBLEM_PARENTS]
-    assert keys[:2] == ["187:exact_member_recovery", "211:validate_profile"]
+    assert keys[:2] == ["209:exact_member_recovery", "233:validate_profile"]   # RT-L2: +22, unchanged text
     # RT-A3 S6 (§8.59): -10 after validate_profile, whose S6 context is gone.
-    assert "522:refuse_compensated_shared_terminals" in keys and "1960:collinear_run" in keys
+    assert "544:refuse_compensated_shared_terminals" in keys and "2588:collinear_run" in keys   # RT-L2: +22/+381; final source: +126; third scrutiny: +119; fourth: +2
     for key in keys:
         line, name = key.split(":")
         assert text[int(line) - 1].lstrip().startswith(("fn " + name, "pub(crate) fn " + name)), key

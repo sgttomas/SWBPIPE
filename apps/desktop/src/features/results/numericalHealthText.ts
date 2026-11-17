@@ -41,15 +41,17 @@ export const ELIGIBLE_RECOVERY_TEXT =
 
 /** The header's output sentence, when the generic-route result is not Current because of the verdict. */
 export function outputSentence(notPassedCount: number): string {
-  return `No results of this run can be exported or used by rule checks while ${notPassedCount} load case(s) are not checks passed.`;
+  return `Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while ${notPassedCount} load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing.`;
 }
 
 /** The boundary sentence (claims registry NQ-HEALTH, owner text pending). */
 export const BOUNDARY_SENTENCE =
   "These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right.";
 
+/** The boundary sentence is not part of this case sentence: the detail carries it once,
+ * whatever its cases' states (REQ-023, "every use"). */
 export function checksPassedText(caseId: string): string {
-  return `The solver's residual and conditioning checks passed for ${caseId}. ${BOUNDARY_SENTENCE}`;
+  return `The solver's residual and conditioning checks passed for ${caseId}.`;
 }
 
 export function sensitiveLeadText(caseId: string): string {
@@ -88,8 +90,13 @@ export function solveFailedLeadText(caseId: string): string {
 export const MECHANISM_TEXT = "The model can move without resistance (a mechanism). Review connectivity, member releases and supports.";
 export const NEGATIVE_ENERGY_TEXT = "The assembled stiffness is not positive in some direction. Review element and support properties.";
 
+/** True of every not-assessed case: one never evaluated; one whose state would be checks
+ * passed or sensitive in a document whose mechanics are not solved (the Rust projection
+ * suppresses only those two states; a failed, unresolved or not-assessed case keeps the
+ * attempt's record); and one whose retained evaluation is inspection-only. It says
+ * nothing about what the solver did. */
 export function notAssessedText(caseId: string): string {
-  return `The solver did not assess the numerical quality of ${caseId}.`;
+  return `No numerical quality is stated for ${caseId}.`;
 }
 
 /** "Inherited from its load cases: {case}: {state}; …". */

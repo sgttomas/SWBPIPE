@@ -26,7 +26,9 @@ needs:
 - from: DEL-04-07
   condition: >-
     The product solve entry solves a pressurized straight pipe on the exact pressure route and
-    publishes its results with their units, or refuses the model by name.
+    publishes its results with their units, or refuses the model by name; a load case the model's
+    pressure-elongation setting names includes the closed-end free pressure strain, and the result
+    states for each pressurized case whether it does.
   gating: true
   when: Solving the pressure-derived hoop and longitudinal cases.
 - from: DEL-08-04

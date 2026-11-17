@@ -1,0 +1,20 @@
+[package]
+name = "open_pipe_stress_response_spectrum"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "DEL-04-10 response spectrum: the validated spectrum table and its evaluation (unit S2)"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+# The unit catalog normalizes the table's abscissae, acceleration ordinates and g
+# (DEL-02-02). serde reads the model document's spectrum record and the example's
+# request; serde_json's float_roundtrip parses each authored decimal to its
+# nearest binary64, so the exact range and knot comparisons see the value the
+# user wrote. Cargo.lock pins the versions the product already uses.
+[dependencies]
+open_pipe_stress_units = { path = "../../units" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }

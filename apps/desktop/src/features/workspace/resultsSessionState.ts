@@ -3,7 +3,10 @@ import { currentSemanticContract } from "../results/resultReader";
 import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
+import { isExactReportSource } from "../report/exactReportSections";
+import { renderableReportSource } from "../report/renderableReportSource";
 import { useMemo, useRef, useState } from "react";
+import { useSequencedState } from "./reportSourceSequence";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
@@ -85,11 +88,16 @@ export function currentRequirementsExceptNumericalEligibility({ result, analysis
  * `setReportPackagePrivateIntent`), its setters are not for components: a
  * result is published or cleared only by the session's solve, rule-check,
  * operation, undo, redo and project handlers.
+ *
+ * DEL-08-01 REQ-022: the report-bound cells (the result, the historical and analysis runs,
+ * the input manifest, the rule-check aggregate and run, the report composition and the
+ * within-run choice) advance the report source sequence (`advanceReportSource`) in the same
+ * synchronous step as each change; a derived adjustment made while rendering does not.
  */
-export function useResultsSessionState() {
-  const [result, setResult] = useState<SessionResult | null>(null);
-  const [historicalRun, setHistoricalRun] = useState<HistoricalRunContext | null>(null);
-  const [analysisRun, setAnalysisRun] = useState<SessionAnalysisRun | null>(null);
+export function useResultsSessionState(advanceReportSource?: () => number) {
+  const [result, setResult] = useSequencedState<SessionResult | null>(null, advanceReportSource);
+  const [historicalRun, setHistoricalRun] = useSequencedState<HistoricalRunContext | null>(null, advanceReportSource);
+  const [analysisRun, setAnalysisRun] = useSequencedState<SessionAnalysisRun | null>(null, advanceReportSource);
   // C2 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): a native result's full copy,
   // loaded only when a C2 consumer asks for it (at or under 64 MiB). Comparisons read it.
   const [fullResultCopy, setFullResultCopy] = useState<{ of: SessionResult; copy: MechanicsResult } | null>(null);
@@ -101,7 +109,7 @@ export function useResultsSessionState() {
   const analysisBasisRef = useRef<{ value: SessionAnalysisRun | null; sequence: number }>({ value: null, sequence: 0 });
   if (analysisBasisRef.current.value !== analysisRun) analysisBasisRef.current = { value: analysisRun, sequence: analysisBasisRef.current.sequence + 1 };
   const [inputManifest, setInputManifest] =
-    useState<CurrentSessionInputManifestEvidence | null>(null);
+    useSequencedState<CurrentSessionInputManifestEvidence | null>(null, advanceReportSource);
   const native = nativeCustodyOf(result);
   // A native standing is the one read natively with the manifest's model text; any other model
   // text has no standing here (fail closed) until the session reads it.
@@ -123,6 +131,20 @@ export function useResultsSessionState() {
   // T0R: Current only for the static fresh-identity set with Current standing;
   // other identities stay readable, never Current.
   const currentSolvedResult = result && otherCurrentRequirementsHold && numericallyEligible ? result : null;
+  // DEL-08-01 REQ-017, REQ-024: the rendered report (and its print view) also takes an
+  // exact-route result that meets every other Current requirement, whose mechanics are
+  // solved and whose standing names only standing findings, whatever that standing is: a
+  // candidate, which the build step and the native host each read in full before any
+  // render (`renderableReportSource`). Every other output, the report package included,
+  // keeps `currentSolvedResult`.
+  const renderableSolvedResult = renderableReportSource({
+    current: currentSolvedResult,
+    result,
+    otherCurrentRequirementsHold,
+    exactRoute: result !== null && isExactReportSource(result as MechanicsResult),
+    mechanicsSolved: result?.status?.mechanics === "MECHANICS_SOLVED",
+    standing
+  });
   // DEL-07-05 numerical health: the Rust indicator for this result with the reader's
   // findings from the standing above. Presentation only; it reads nothing back into
   // Current standing or any output gate.
@@ -146,12 +168,12 @@ export function useResultsSessionState() {
     : null;
   // Pack rule-check aggregate from the GUI run panel, lifted so it can be
   // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).
-  const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);
+  const [ruleCheckAggregate, setRuleCheckAggregate] = useSequencedState<RuleCheckStatus | null>(null, advanceReportSource);
   // The rule-check run (loaded pack + outcomes) behind the lifted aggregate,
   // for the rendered report's §19.2 rule-check content. It is exposed only
   // while its aggregate is the session's current aggregate, so every path that
   // retires the aggregate also retires it.
-  const [heldRuleCheckRun, setRuleCheckReportRun] = useState<SessionRuleCheckRun | null>(null);
+  const [heldRuleCheckRun, setRuleCheckReportRun] = useSequencedState<SessionRuleCheckRun | null>(null, advanceReportSource);
   const ruleCheckReportRun =
     heldRuleCheckRun && ruleCheckAggregate !== null && heldRuleCheckRun.result.aggregate_status === ruleCheckAggregate
       ? heldRuleCheckRun
@@ -168,7 +190,7 @@ export function useResultsSessionState() {
   const [solveProof, setSolveProof] = useState<SolveProofEvidence | null>(null);
   const [running, setRunning] = useState(false);
   const [solverMode, setSolverMode] = useState<PreviewSolverMode>("sparse_interactive");
-  const [reportComposition, setReportComposition] = useState<ReportComposition | null>(null);
+  const [reportComposition, setReportComposition] = useSequencedState<ReportComposition | null>(null, advanceReportSource);
   const reportCompositionRef = useRef(reportComposition);
   reportCompositionRef.current = reportComposition;
   const [reportPackagePrivateIntent, setReportPackagePrivateIntent] = useState(false);
@@ -205,7 +227,7 @@ export function useResultsSessionState() {
   // Current run; when that run does not offer one of its bases, it is dropped here,
   // in the render that first shows the run, and the dropped bases are named until
   // the next choice (never silently carried or reset).
-  const [heldWithinRunSelection, setHeldWithinRunSelection] = useState<HeldWithinRunSelection | null>(null);
+  const [heldWithinRunSelection, setHeldWithinRunSelection, dropWithinRunSelection] = useSequencedState<HeldWithinRunSelection | null>(null, advanceReportSource);
   const [droppedWithinRunBases, setDroppedWithinRunBases] = useState<string[] | null>(null);
   const solvedModel = inputManifest?.manifest.model_basis.model_payload ?? null;
   const withinRunOptions = useMemo(
@@ -214,7 +236,8 @@ export function useResultsSessionState() {
   );
   const dropped = heldWithinRunSelection && withinRunOptions ? droppedBases(heldWithinRunSelection, withinRunOptions) : [];
   if (dropped.length > 0) {
-    setHeldWithinRunSelection(null);
+    // Derived from the new result, whose own change already advanced the sequence.
+    dropWithinRunSelection(null);
     setDroppedWithinRunBases(dropped);
   }
   const heldForRun = dropped.length > 0 ? null : heldWithinRunSelection;
@@ -233,6 +256,8 @@ export function useResultsSessionState() {
     fullResultCopy, setFullResultCopy,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
+    /** The result the rendered report takes (see above); never an input to any other output. */
+    renderableSolvedResult,
     /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
      * result overlays; it admits nothing by itself. */
     numericallyEligible,

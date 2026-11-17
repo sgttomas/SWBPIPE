@@ -14,6 +14,14 @@ use std::time::{Duration, Instant};
 
 pub(crate) const STARTUP_BYTES: u64 = supplier::STARTUP_BYTES;
 const CAPABILITY_ENV: &str = "SWBPIPE_AGENT_RELAY_CAPABILITY";
+/// The supplier's own switch for its remote control transport, by which
+/// another device could drive the runtime. 0.160.0 starts remote control
+/// "disabled ephemeral" only when this is exactly "1" (and removes it from its
+/// own environment); its `remote_control` feature key is Removed and ignored,
+/// so no configuration line can do this. The name is internal to the supplier:
+/// recheck it on every supplier version. The host also ends the session on any
+/// reported status other than "disabled".
+const REMOTE_CONTROL_DISABLED_ENV: &str = "CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED";
 const CONFIG_BODY: &str = r#"model_provider = "swbpipe_relay"
 model_reasoning_effort = "low"
 sandbox_mode = "read-only"
@@ -51,6 +59,42 @@ enabled = false
 
 /// JSON string escaping is a subset of TOML basic-string escaping for the
 /// accepted, control-free model identifier. No raw model text is interpolated.
+/// The supplier's fixed arguments. An explicit `--remote-control` would
+/// override the disabling variable, so nothing else is ever passed.
+const SUPPLIER_ARGS: [&str; 3] = ["app-server", "--listen", "stdio://"];
+/// The supplier's whole command line, working directory and environment.
+fn supplier_command(root: &Path, capability: &str) -> Command {
+    let mut command = Command::new("/usr/bin/sandbox-exec");
+    contain_environment(&mut command, root, capability);
+    command
+        .arg("-f")
+        .arg(root.join("sandbox.sb"))
+        .arg(root.join("codex"))
+        .args(SUPPLIER_ARGS)
+        .current_dir(root.join("work"));
+    command
+}
+/// Clears the child's environment and sets exactly the fixed set. Nothing from
+/// the application's environment, CODEX_ variables included, reaches it.
+fn contain_environment(command: &mut Command, root: &Path, capability: &str) {
+    command.env_clear().envs(child_environment(root, capability));
+}
+/// The child's whole environment, after `env_clear`.
+fn child_environment(root: &Path, capability: &str) -> [(&'static str, std::ffi::OsString); 10] {
+    [
+        ("HOME", root.join("home").into()),
+        ("CODEX_HOME", root.join("home/codex").into()),
+        ("TMPDIR", root.join("home/tmp").into()),
+        ("XDG_CACHE_HOME", root.join("home/cache").into()),
+        ("XDG_CONFIG_HOME", root.join("home/config").into()),
+        ("XDG_DATA_HOME", root.join("home/data").into()),
+        ("PATH", "/usr/bin:/bin".into()),
+        ("LANG", "en_US.UTF-8".into()),
+        (CAPABILITY_ENV, capability.into()),
+        (REMOTE_CONTROL_DISABLED_ENV, "1".into()),
+    ]
+}
+
 fn supplier_config(model: &str, context_window: u32, relay: &Loopback) -> Result<String, Error> {
     if model.is_empty()
         || model.len() > 1024
@@ -262,30 +306,29 @@ impl Prepared {
     pub(crate) fn spawn(self) -> Result<Launched, Error> {
         self.spawn_inner(false)
     }
-    fn spawn_inner(mut self, diagnostic_stderr: bool) -> Result<Launched, Error> {
+    fn spawn_inner(self, diagnostic_stderr: bool) -> Result<Launched, Error> {
+        // The one production launch of the supplier. It names the standard
+        // library's spawn by path: nothing may come between the built command
+        // and the spawn, here or in `spawn_with`.
+        self.spawn_with(diagnostic_stderr, Command::spawn)
+    }
+    /// The launch boundary: `launch` receives the supplier's final command.
+    /// Production passes `Command::spawn` itself, so no production body sits
+    /// between this point and the operating system; a test passes a function
+    /// that records the command and executes nothing.
+    fn spawn_with(
+        mut self,
+        diagnostic_stderr: bool,
+        launch: fn(&mut Command) -> std::io::Result<Child>,
+    ) -> Result<Launched, Error> {
         let runtime = self.runtime.as_ref().ok_or(Error::Spawn)?;
         if !runtime.relay.is_ready() {
             return Err(Error::Spawn);
         }
         let root = &runtime.root;
         let result = {
-            let mut command = Command::new("/usr/bin/sandbox-exec");
+            let mut command = supplier_command(root, runtime.relay.scope().capability());
             command
-                .arg("-f")
-                .arg(root.join("sandbox.sb"))
-                .arg(root.join("codex"))
-                .args(["app-server", "--listen", "stdio://"])
-                .current_dir(root.join("work"))
-                .env_clear()
-                .env("HOME", root.join("home"))
-                .env("CODEX_HOME", root.join("home/codex"))
-                .env("TMPDIR", root.join("home/tmp"))
-                .env("XDG_CACHE_HOME", root.join("home/cache"))
-                .env("XDG_CONFIG_HOME", root.join("home/config"))
-                .env("XDG_DATA_HOME", root.join("home/data"))
-                .env("PATH", "/usr/bin:/bin")
-                .env("LANG", "en_US.UTF-8")
-                .env(CAPABILITY_ENV, runtime.relay.scope().capability())
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped())
                 .stderr(if diagnostic_stderr {
@@ -294,7 +337,7 @@ impl Prepared {
                     Stdio::null()
                 })
                 .process_group(0);
-            command.spawn()
+            launch(&mut command)
         };
         let child = result.map_err(|_| Error::Spawn)?;
         let observer = process_scope::Observer::new(&child);
@@ -548,6 +591,163 @@ mod tests {
                 Err(Error::InvalidConfiguration)
             );
         }
+    }
+    const EXPECTED_ENVIRONMENT: [(&str, &str); 10] = [
+        ("HOME", "/private/invented-root/home"),
+        ("CODEX_HOME", "/private/invented-root/home/codex"),
+        ("TMPDIR", "/private/invented-root/home/tmp"),
+        ("XDG_CACHE_HOME", "/private/invented-root/home/cache"),
+        ("XDG_CONFIG_HOME", "/private/invented-root/home/config"),
+        ("XDG_DATA_HOME", "/private/invented-root/home/data"),
+        ("PATH", "/usr/bin:/bin"),
+        ("LANG", "en_US.UTF-8"),
+        ("SWBPIPE_AGENT_RELAY_CAPABILITY", "invented-capability"),
+        ("CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED", "1"),
+    ];
+    #[test]
+    fn supplier_environment_is_exactly_the_fixed_set_with_remote_control_disabled() {
+        let root = Path::new("/private/invented-root");
+        let env = child_environment(root, "invented-capability");
+        assert_eq!(env.len(), EXPECTED_ENVIRONMENT.len());
+        for ((key, value), (want_key, want_value)) in env.iter().zip(EXPECTED_ENVIRONMENT) {
+            assert_eq!((*key, value.to_str().unwrap()), (want_key, want_value));
+        }
+        // The removed feature key is not written: it would be ignored.
+        assert!(!CONFIG_BODY.contains("remote_control"));
+    }
+    #[test]
+    fn supplier_command_has_exactly_the_fixed_arguments_and_environment() {
+        let root = Path::new("/private/invented-root");
+        let command = supplier_command(root, "invented-capability");
+        assert_eq!(command.get_program(), "/usr/bin/sandbox-exec");
+        let args: Vec<&str> = command.get_args().map(|a| a.to_str().unwrap()).collect();
+        assert_eq!(
+            args,
+            [
+                "-f",
+                "/private/invented-root/sandbox.sb",
+                "/private/invented-root/codex",
+                "app-server",
+                "--listen",
+                "stdio://"
+            ]
+        );
+        assert_eq!(command.get_current_dir(), Some(Path::new("/private/invented-root/work")));
+        let mut envs: Vec<(String, String)> = command
+            .get_envs()
+            .map(|(k, v)| (k.to_str().unwrap().to_owned(), v.unwrap().to_str().unwrap().to_owned()))
+            .collect();
+        envs.sort();
+        let mut expected: Vec<(String, String)> = EXPECTED_ENVIRONMENT
+            .iter()
+            .map(|(k, v)| ((*k).to_owned(), (*v).to_owned()))
+            .collect();
+        expected.sort();
+        assert_eq!(envs, expected);
+    }
+    /// The final command at the launch boundary, captured and never executed.
+    #[test]
+    fn the_launched_command_is_exactly_the_fixed_one() {
+        let root = fixture();
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let mut relay = ready_relay(&registry);
+        let endpoint = relay.endpoint().unwrap();
+        let capability = endpoint.scope().capability().to_owned();
+        let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
+        let prepared = Prepared {
+            runtime: Some(Runtime {
+                root: root.join("runtime"),
+                marker: root.join("never-created.scope"),
+                scope: "invented-scope".into(),
+                relay: endpoint,
+                _lease: Arc::new(lease),
+            }),
+        };
+        let runtime_root = root.join("runtime");
+        type Seen = (String, Vec<String>, Vec<(String, Option<String>)>, Option<PathBuf>);
+        static SEEN: std::sync::Mutex<Option<Seen>> = std::sync::Mutex::new(None);
+        // Stands in for `Command::spawn` only: records, executes nothing.
+        fn capture(command: &mut Command) -> std::io::Result<Child> {
+            let args: Vec<String> = command.get_args().map(|a| a.to_str().unwrap().to_owned()).collect();
+            let mut envs: Vec<(String, Option<String>)> = command
+                .get_envs()
+                .map(|(k, v)| (k.to_str().unwrap().to_owned(), v.map(|v| v.to_str().unwrap().to_owned())))
+                .collect();
+            envs.sort();
+            *SEEN.lock().unwrap() = Some((
+                command.get_program().to_str().unwrap().to_owned(),
+                args,
+                envs,
+                command.get_current_dir().map(Path::to_path_buf),
+            ));
+            Err(std::io::Error::other("captured, not executed"))
+        }
+        let result = prepared.spawn_with(false, capture);
+        assert!(matches!(result, Err(Error::Spawn)));
+        let (program, args, envs, cwd) = SEEN.lock().unwrap().take().unwrap();
+        let r = runtime_root.to_str().unwrap();
+        assert_eq!(program, "/usr/bin/sandbox-exec");
+        assert_eq!(
+            args,
+            [
+                "-f".to_owned(),
+                format!("{r}/sandbox.sb"),
+                format!("{r}/codex"),
+                "app-server".to_owned(),
+                "--listen".to_owned(),
+                "stdio://".to_owned(),
+            ]
+        );
+        assert_eq!(cwd, Some(runtime_root.join("work")));
+        let mut expected: Vec<(String, Option<String>)> = [
+            ("HOME", format!("{r}/home")),
+            ("CODEX_HOME", format!("{r}/home/codex")),
+            ("TMPDIR", format!("{r}/home/tmp")),
+            ("XDG_CACHE_HOME", format!("{r}/home/cache")),
+            ("XDG_CONFIG_HOME", format!("{r}/home/config")),
+            ("XDG_DATA_HOME", format!("{r}/home/data")),
+            ("PATH", "/usr/bin:/bin".to_owned()),
+            ("LANG", "en_US.UTF-8".to_owned()),
+            ("SWBPIPE_AGENT_RELAY_CAPABILITY", capability),
+            ("CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED", "1".to_owned()),
+        ]
+        .into_iter()
+        .map(|(k, v)| (k.to_owned(), Some(v)))
+        .collect();
+        expected.sort();
+        assert_eq!(envs, expected);
+        stop_relay(&mut relay);
+        let _ = fs::remove_dir_all(root);
+    }
+    #[test]
+    fn contained_child_inherits_nothing_from_the_application_environment() {
+        // Run /usr/bin/env, not the supplier, under the same containment. The
+        // test process's own environment (HOME, PATH, any CODEX_ variable) and
+        // variables set on the command before containment must not reach it.
+        let mut command = Command::new("/usr/bin/env");
+        command
+            .env("CODEX_SQLITE_HOME", "/private/invented-canary")
+            .env("CODEX_HOME", "/private/invented-canary")
+            .env("CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED", "0");
+        contain_environment(&mut command, Path::new("/private/invented-root"), "invented-capability");
+        let output = command
+            .stdin(Stdio::null())
+            .stderr(Stdio::null())
+            .output()
+            .unwrap();
+        assert!(output.status.success());
+        let mut seen: Vec<String> = String::from_utf8(output.stdout)
+            .unwrap()
+            .lines()
+            .map(str::to_owned)
+            .collect();
+        seen.sort();
+        let mut expected: Vec<String> = EXPECTED_ENVIRONMENT
+            .iter()
+            .map(|(k, v)| format!("{k}={v}"))
+            .collect();
+        expected.sort();
+        assert_eq!(seen, expected);
     }
     #[test]
     fn invalid_configuration_is_refused_before_runtime_or_marker_creation() {

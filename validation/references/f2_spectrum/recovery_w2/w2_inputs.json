@@ -1,0 +1,1375 @@
+{
+ "schema": "f2_spectrum.recovery_w2.inputs/1",
+ "status": "candidate reference; no refutation record yet (see README.md)",
+ "units": "SI: m, rad, kg, N, N*m, s, Hz, m/s^2",
+ "section": {
+  "s3": {
+   "outside_diameter_m": "0.171875",
+   "wall_thickness_m": "0.0078125",
+   "mill_tolerance_m": "0",
+   "corrosion_allowance_m": "0",
+   "contents_density_kg_per_m3": "1000",
+   "insulation_thickness_m": null,
+   "insulation_density_kg_per_m3": null
+  }
+ },
+ "material": {
+  "steel": {
+   "elastic_modulus_Pa": "200000000000",
+   "shear_modulus_Pa": "78125000000",
+   "density_kg_per_m3": "7850"
+  }
+ },
+ "nodes": {
+  "A": [
+   "0",
+   "0",
+   "0"
+  ],
+  "B": [
+   "1.5",
+   "0",
+   "0"
+  ],
+  "C": [
+   "1.875",
+   "0.375",
+   "0"
+  ],
+  "D": [
+   "1.875",
+   "1.375",
+   "0"
+  ],
+  "E": [
+   "1.875",
+   "1.875",
+   "0"
+  ],
+  "F": [
+   "1.875",
+   "3.125",
+   "0"
+  ]
+ },
+ "pipe_members": {
+  "P1": {
+   "kind": "straight",
+   "i": "A",
+   "j": "B",
+   "y_reference": [
+    "0",
+    "0",
+    "1"
+   ]
+  },
+  "BEND1": {
+   "kind": "arc",
+   "i": "B",
+   "j": "C",
+   "radius_m": "0.375",
+   "flexibility_factor": "4.25",
+   "y_reference": [
+    "1",
+    "-1",
+    "0"
+   ]
+  },
+  "P2": {
+   "kind": "straight",
+   "i": "C",
+   "j": "D",
+   "y_reference": [
+    "0",
+    "0",
+    "1"
+   ]
+  },
+  "P3": {
+   "kind": "straight",
+   "i": "E",
+   "j": "F",
+   "y_reference": [
+    "0",
+    "0",
+    "1"
+   ]
+  }
+ },
+ "connector": {
+  "id": "J1",
+  "i": "D",
+  "j": "E",
+  "offset_i_global_m": [
+   "0",
+   "0",
+   "0"
+  ],
+  "offset_j_global_m": [
+   "0",
+   "0",
+   "0"
+  ],
+  "y_guide_integer": [
+   4,
+   0,
+   3
+  ],
+  "translation_scale_m": "1",
+  "H_diagonal": [
+   "150000",
+   "400000",
+   "250000",
+   "500000",
+   "1500",
+   "1000"
+  ],
+  "H_units": [
+   "N*m",
+   "N*m",
+   "N*m",
+   "N*m",
+   "N*m",
+   "N*m"
+  ],
+  "reference_load_q_ref": [
+   "0",
+   "0",
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "derived_exact": {
+   "r_m": [
+    "0",
+    "1/2",
+    "0"
+   ],
+   "Q_columns_are_axes_row_major": [
+    [
+     "0",
+     "4/5",
+     "3/5"
+    ],
+    [
+     "1",
+     "0",
+     "0"
+    ],
+    [
+     "0",
+     "3/5",
+     "-4/5"
+    ]
+   ],
+   "K_conn_diagonal": [
+    "150000",
+    "400000",
+    "250000",
+    "500000",
+    "1500",
+    "1000"
+   ],
+   "B_row_major": [
+    [
+     "0",
+     "-1",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "1",
+     "0",
+     "0",
+     "0",
+     "0"
+    ],
+    [
+     "-4/5",
+     "0",
+     "-3/5",
+     "-3/20",
+     "0",
+     "1/5",
+     "4/5",
+     "0",
+     "3/5",
+     "-3/20",
+     "0",
+     "1/5"
+    ],
+    [
+     "-3/5",
+     "0",
+     "4/5",
+     "1/5",
+     "0",
+     "3/20",
+     "3/5",
+     "0",
+     "-4/5",
+     "1/5",
+     "0",
+     "3/20"
+    ],
+    [
+     "0",
+     "0",
+     "0",
+     "0",
+     "-1",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "1",
+     "0"
+    ],
+    [
+     "0",
+     "0",
+     "0",
+     "-4/5",
+     "0",
+     "-3/5",
+     "0",
+     "0",
+     "0",
+     "4/5",
+     "0",
+     "3/5"
+    ],
+    [
+     "0",
+     "0",
+     "0",
+     "-3/5",
+     "0",
+     "4/5",
+     "0",
+     "0",
+     "0",
+     "3/5",
+     "0",
+     "-4/5"
+    ]
+   ],
+   "Ke_row_major": [
+    [
+     "346000",
+     "0",
+     "72000",
+     "18000",
+     "0",
+     "-86500",
+     "-346000",
+     "0",
+     "-72000",
+     "18000",
+     "0",
+     "-86500"
+    ],
+    [
+     "0",
+     "150000",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "-150000",
+     "0",
+     "0",
+     "0",
+     "0"
+    ],
+    [
+     "72000",
+     "0",
+     "304000",
+     "76000",
+     "0",
+     "-18000",
+     "-72000",
+     "0",
+     "-304000",
+     "76000",
+     "0",
+     "-18000"
+    ],
+    [
+     "18000",
+     "0",
+     "76000",
+     "20320",
+     "0",
+     "-4260",
+     "-18000",
+     "0",
+     "-76000",
+     "17680",
+     "0",
+     "-4740"
+    ],
+    [
+     "0",
+     "0",
+     "0",
+     "0",
+     "500000",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "-500000",
+     "0"
+    ],
+    [
+     "-86500",
+     "0",
+     "-18000",
+     "-4260",
+     "0",
+     "22805",
+     "86500",
+     "0",
+     "18000",
+     "-4740",
+     "0",
+     "20445"
+    ],
+    [
+     "-346000",
+     "0",
+     "-72000",
+     "-18000",
+     "0",
+     "86500",
+     "346000",
+     "0",
+     "72000",
+     "-18000",
+     "0",
+     "86500"
+    ],
+    [
+     "0",
+     "-150000",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "150000",
+     "0",
+     "0",
+     "0",
+     "0"
+    ],
+    [
+     "-72000",
+     "0",
+     "-304000",
+     "-76000",
+     "0",
+     "18000",
+     "72000",
+     "0",
+     "304000",
+     "-76000",
+     "0",
+     "18000"
+    ],
+    [
+     "18000",
+     "0",
+     "76000",
+     "17680",
+     "0",
+     "-4740",
+     "-18000",
+     "0",
+     "-76000",
+     "20320",
+     "0",
+     "-4260"
+    ],
+    [
+     "0",
+     "0",
+     "0",
+     "0",
+     "-500000",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "500000",
+     "0"
+    ],
+    [
+     "-86500",
+     "0",
+     "-18000",
+     "-4740",
+     "0",
+     "20445",
+     "86500",
+     "0",
+     "18000",
+     "-4260",
+     "0",
+     "22805"
+    ]
+   ]
+  }
+ },
+ "rods": {
+  "offset_m": "0.1875",
+  "stiffness_N_per_m": "120000000",
+  "reference_extension_m": "0",
+  "law": "linear, tension and compression",
+  "members": [
+   {
+    "id": "R1",
+    "i": "D",
+    "j": "E",
+    "offset_sign": 1
+   },
+   {
+    "id": "R2",
+    "i": "D",
+    "j": "E",
+    "offset_sign": -1
+   }
+  ],
+  "derived_exact": {
+   "R1": {
+    "offset_global_m": [
+     "3/20",
+     "0",
+     "9/80"
+    ],
+    "attachment_i_m": [
+     "81/40",
+     "11/8",
+     "9/80"
+    ],
+    "attachment_j_m": [
+     "81/40",
+     "15/8",
+     "9/80"
+    ],
+    "unit_direction_n": [
+     "0",
+     "1",
+     "0"
+    ],
+    "length_m": "1/2",
+    "b": [
+     "0",
+     "-1",
+     "0",
+     "9/80",
+     "0",
+     "-3/20",
+     "0",
+     "1",
+     "0",
+     "-9/80",
+     "0",
+     "3/20"
+    ]
+   },
+   "R2": {
+    "offset_global_m": [
+     "-3/20",
+     "0",
+     "-9/80"
+    ],
+    "attachment_i_m": [
+     "69/40",
+     "11/8",
+     "-9/80"
+    ],
+    "attachment_j_m": [
+     "69/40",
+     "15/8",
+     "-9/80"
+    ],
+    "unit_direction_n": [
+     "0",
+     "1",
+     "0"
+    ],
+    "length_m": "1/2",
+    "b": [
+     "0",
+     "-1",
+     "0",
+     "-9/80",
+     "0",
+     "3/20",
+     "0",
+     "1",
+     "0",
+     "9/80",
+     "0",
+     "-3/20"
+    ]
+   }
+  }
+ },
+ "variants": {
+  "V-ARC": {
+   "nodes": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ],
+   "members": [
+    "P1",
+    "BEND1",
+    "P2"
+   ],
+   "connector": false,
+   "rods": false,
+   "anchors": [
+    "A",
+    "D"
+   ],
+   "purpose": "arc only: the realized bend between massive straights, anchored at A and D"
+  },
+  "V-JOINT-0": {
+   "nodes": [
+    "C",
+    "D",
+    "E",
+    "F"
+   ],
+   "members": [
+    "P2",
+    "P3"
+   ],
+   "connector": true,
+   "rods": false,
+   "anchors": [
+    "C",
+    "F"
+   ],
+   "purpose": "joint only, rods absent: massive face pipes and the massless connector, anchored at C and F"
+  },
+  "V-JOINT-R": {
+   "nodes": [
+    "C",
+    "D",
+    "E",
+    "F"
+   ],
+   "members": [
+    "P2",
+    "P3"
+   ],
+   "connector": true,
+   "rods": true,
+   "anchors": [
+    "C",
+    "F"
+   ],
+   "purpose": "joint only, rods present"
+  },
+  "V-COMB-0": {
+   "nodes": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F"
+   ],
+   "members": [
+    "P1",
+    "BEND1",
+    "P2",
+    "P3"
+   ],
+   "connector": true,
+   "rods": false,
+   "anchors": [
+    "A",
+    "F"
+   ],
+   "purpose": "combined, rods absent"
+  },
+  "V-COMB-R": {
+   "nodes": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F"
+   ],
+   "members": [
+    "P1",
+    "BEND1",
+    "P2",
+    "P3"
+   ],
+   "connector": true,
+   "rods": true,
+   "anchors": [
+    "A",
+    "F"
+   ],
+   "purpose": "combined, rods present (the full W2 model)"
+  }
+ },
+ "spectra": {
+  "S-W2-LL": {
+   "abscissa": "frequency_Hz",
+   "x_interp": "linear",
+   "y_interp": "linear",
+   "points": [
+    [
+     "1",
+     "2"
+    ],
+    [
+     "8",
+     "6"
+    ],
+    [
+     "64",
+     "9"
+    ],
+    [
+     "256",
+     "5"
+    ],
+    [
+     "2048",
+     "3"
+    ]
+   ]
+  },
+  "S-W2-GG": {
+   "abscissa": "frequency_Hz",
+   "x_interp": "log",
+   "y_interp": "log",
+   "points": [
+    [
+     "1",
+     "2"
+    ],
+    [
+     "8",
+     "6"
+    ],
+    [
+     "64",
+     "9"
+    ],
+    [
+     "256",
+     "5"
+    ],
+    [
+     "2048",
+     "3"
+    ]
+   ]
+  },
+  "S-W2-PLG": {
+   "abscissa": "period_s",
+   "x_interp": "linear",
+   "y_interp": "log",
+   "points": [
+    [
+     "0.00048828125",
+     "3"
+    ],
+    [
+     "0.00390625",
+     "5"
+    ],
+    [
+     "0.015625",
+     "9"
+    ],
+    [
+     "0.125",
+     "6"
+    ],
+    [
+     "1",
+     "2"
+    ]
+   ]
+  }
+ },
+ "directions": [
+  [
+   "X",
+   "S-W2-LL",
+   "1"
+  ],
+  [
+   "Y",
+   "S-W2-GG",
+   "0.75"
+  ],
+  [
+   "Z",
+   "S-W2-PLG",
+   "0.5"
+  ]
+ ],
+ "zeta": "0.05",
+ "requests": {
+  "V-ARC": {
+   "cutoff_Hz": "560",
+   "rigid_frequency_Hz": "400"
+  },
+  "V-JOINT-0": {
+   "cutoff_Hz": "768",
+   "rigid_frequency_Hz": "500"
+  },
+  "V-JOINT-R": {
+   "cutoff_Hz": "768",
+   "rigid_frequency_Hz": "500"
+  },
+  "V-COMB-0": {
+   "cutoff_Hz": "128",
+   "rigid_frequency_Hz": "72"
+  },
+  "V-COMB-R": {
+   "cutoff_Hz": "128",
+   "rigid_frequency_Hz": "72"
+  }
+ },
+ "base_rules": {
+  "modal": "CQC",
+  "rigid": "SRSS",
+  "directional": "SRSS"
+ },
+ "mutation_grid": {
+  "modal": [
+   "SRSS",
+   "CQC",
+   "GROUPING",
+   "TEN_PERCENT",
+   "ABSOLUTE_SUM"
+  ],
+  "rigid": [
+   "SRSS",
+   "ABSOLUTE_SUM",
+   "OFF"
+  ],
+  "directional": [
+   "SRSS",
+   "100-40-40",
+   "ABSOLUTE_SUM"
+  ]
+ },
+ "held_state_for_the_exclusion_control": {
+  "pressure_Pa": "1500000",
+  "effective_area_m2": "0.03125",
+  "q_ref": [
+   "-0.001953125",
+   "0.0009765625",
+   "0",
+   "0",
+   "0.0078125",
+   "0"
+  ],
+  "d0_joint_ends": [
+   "0.00048828125",
+   "-0.0009765625",
+   "0.000244140625",
+   "0.001953125",
+   "0",
+   "-0.00390625",
+   "-0.000732421875",
+   "0.0029296875",
+   "0",
+   "0",
+   "0.0009765625",
+   "0.001953125"
+  ]
+ },
+ "inputs_binary64": {
+  "section.s3.outside_diameter_m": {
+   "decimal": "0.171875",
+   "hex": "0x1.6000000000000p-3",
+   "rational": "11/64"
+  },
+  "section.s3.wall_thickness_m": {
+   "decimal": "0.0078125",
+   "hex": "0x1.0000000000000p-7",
+   "rational": "1/128"
+  },
+  "section.s3.mill_tolerance_m": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "section.s3.corrosion_allowance_m": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "section.s3.contents_density_kg_per_m3": {
+   "decimal": "1000",
+   "hex": "0x1.f400000000000p+9",
+   "rational": "1000"
+  },
+  "material.steel.elastic_modulus_Pa": {
+   "decimal": "200000000000",
+   "hex": "0x1.74876e8000000p+37",
+   "rational": "200000000000"
+  },
+  "material.steel.shear_modulus_Pa": {
+   "decimal": "78125000000",
+   "hex": "0x1.2309ce5400000p+36",
+   "rational": "78125000000"
+  },
+  "material.steel.density_kg_per_m3": {
+   "decimal": "7850",
+   "hex": "0x1.eaa0000000000p+12",
+   "rational": "7850"
+  },
+  "node.A.x": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "node.A.y": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "node.A.z": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "node.B.x": {
+   "decimal": "1.5",
+   "hex": "0x1.8000000000000p+0",
+   "rational": "3/2"
+  },
+  "node.B.y": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "node.B.z": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "node.C.x": {
+   "decimal": "1.875",
+   "hex": "0x1.e000000000000p+0",
+   "rational": "15/8"
+  },
+  "node.C.y": {
+   "decimal": "0.375",
+   "hex": "0x1.8000000000000p-2",
+   "rational": "3/8"
+  },
+  "node.C.z": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "node.D.x": {
+   "decimal": "1.875",
+   "hex": "0x1.e000000000000p+0",
+   "rational": "15/8"
+  },
+  "node.D.y": {
+   "decimal": "1.375",
+   "hex": "0x1.6000000000000p+0",
+   "rational": "11/8"
+  },
+  "node.D.z": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "node.E.x": {
+   "decimal": "1.875",
+   "hex": "0x1.e000000000000p+0",
+   "rational": "15/8"
+  },
+  "node.E.y": {
+   "decimal": "1.875",
+   "hex": "0x1.e000000000000p+0",
+   "rational": "15/8"
+  },
+  "node.E.z": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "node.F.x": {
+   "decimal": "1.875",
+   "hex": "0x1.e000000000000p+0",
+   "rational": "15/8"
+  },
+  "node.F.y": {
+   "decimal": "3.125",
+   "hex": "0x1.9000000000000p+1",
+   "rational": "25/8"
+  },
+  "node.F.z": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "member.P1.y_reference.x": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "member.P1.y_reference.y": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "member.P1.y_reference.z": {
+   "decimal": "1",
+   "hex": "0x1.0000000000000p+0",
+   "rational": "1"
+  },
+  "member.BEND1.y_reference.x": {
+   "decimal": "1",
+   "hex": "0x1.0000000000000p+0",
+   "rational": "1"
+  },
+  "member.BEND1.y_reference.y": {
+   "decimal": "-1",
+   "hex": "-0x1.0000000000000p+0",
+   "rational": "-1"
+  },
+  "member.BEND1.y_reference.z": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "member.BEND1.radius_m": {
+   "decimal": "0.375",
+   "hex": "0x1.8000000000000p-2",
+   "rational": "3/8"
+  },
+  "member.BEND1.flexibility_factor": {
+   "decimal": "4.25",
+   "hex": "0x1.1000000000000p+2",
+   "rational": "17/4"
+  },
+  "member.P2.y_reference.x": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "member.P2.y_reference.y": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "member.P2.y_reference.z": {
+   "decimal": "1",
+   "hex": "0x1.0000000000000p+0",
+   "rational": "1"
+  },
+  "member.P3.y_reference.x": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "member.P3.y_reference.y": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "member.P3.y_reference.z": {
+   "decimal": "1",
+   "hex": "0x1.0000000000000p+0",
+   "rational": "1"
+  },
+  "connector.H_diagonal.0": {
+   "decimal": "150000",
+   "hex": "0x1.24f8000000000p+17",
+   "rational": "150000"
+  },
+  "connector.H_diagonal.1": {
+   "decimal": "400000",
+   "hex": "0x1.86a0000000000p+18",
+   "rational": "400000"
+  },
+  "connector.H_diagonal.2": {
+   "decimal": "250000",
+   "hex": "0x1.e848000000000p+17",
+   "rational": "250000"
+  },
+  "connector.H_diagonal.3": {
+   "decimal": "500000",
+   "hex": "0x1.e848000000000p+18",
+   "rational": "500000"
+  },
+  "connector.H_diagonal.4": {
+   "decimal": "1500",
+   "hex": "0x1.7700000000000p+10",
+   "rational": "1500"
+  },
+  "connector.H_diagonal.5": {
+   "decimal": "1000",
+   "hex": "0x1.f400000000000p+9",
+   "rational": "1000"
+  },
+  "connector.translation_scale_m": {
+   "decimal": "1",
+   "hex": "0x1.0000000000000p+0",
+   "rational": "1"
+  },
+  "rod.offset_m": {
+   "decimal": "0.1875",
+   "hex": "0x1.8000000000000p-3",
+   "rational": "3/16"
+  },
+  "rod.stiffness_N_per_m": {
+   "decimal": "120000000",
+   "hex": "0x1.c9c3800000000p+26",
+   "rational": "120000000"
+  },
+  "zeta": {
+   "decimal": "0.05",
+   "hex": "0x1.999999999999ap-5",
+   "rational": "3602879701896397/72057594037927936",
+   "note": "binary64 nearest 0.05, taken exactly"
+  },
+  "spectrum.S-W2-LL.0.x": {
+   "decimal": "1",
+   "hex": "0x1.0000000000000p+0",
+   "rational": "1"
+  },
+  "spectrum.S-W2-LL.0.y": {
+   "decimal": "2",
+   "hex": "0x1.0000000000000p+1",
+   "rational": "2"
+  },
+  "spectrum.S-W2-LL.1.x": {
+   "decimal": "8",
+   "hex": "0x1.0000000000000p+3",
+   "rational": "8"
+  },
+  "spectrum.S-W2-LL.1.y": {
+   "decimal": "6",
+   "hex": "0x1.8000000000000p+2",
+   "rational": "6"
+  },
+  "spectrum.S-W2-LL.2.x": {
+   "decimal": "64",
+   "hex": "0x1.0000000000000p+6",
+   "rational": "64"
+  },
+  "spectrum.S-W2-LL.2.y": {
+   "decimal": "9",
+   "hex": "0x1.2000000000000p+3",
+   "rational": "9"
+  },
+  "spectrum.S-W2-LL.3.x": {
+   "decimal": "256",
+   "hex": "0x1.0000000000000p+8",
+   "rational": "256"
+  },
+  "spectrum.S-W2-LL.3.y": {
+   "decimal": "5",
+   "hex": "0x1.4000000000000p+2",
+   "rational": "5"
+  },
+  "spectrum.S-W2-LL.4.x": {
+   "decimal": "2048",
+   "hex": "0x1.0000000000000p+11",
+   "rational": "2048"
+  },
+  "spectrum.S-W2-LL.4.y": {
+   "decimal": "3",
+   "hex": "0x1.8000000000000p+1",
+   "rational": "3"
+  },
+  "spectrum.S-W2-GG.0.x": {
+   "decimal": "1",
+   "hex": "0x1.0000000000000p+0",
+   "rational": "1"
+  },
+  "spectrum.S-W2-GG.0.y": {
+   "decimal": "2",
+   "hex": "0x1.0000000000000p+1",
+   "rational": "2"
+  },
+  "spectrum.S-W2-GG.1.x": {
+   "decimal": "8",
+   "hex": "0x1.0000000000000p+3",
+   "rational": "8"
+  },
+  "spectrum.S-W2-GG.1.y": {
+   "decimal": "6",
+   "hex": "0x1.8000000000000p+2",
+   "rational": "6"
+  },
+  "spectrum.S-W2-GG.2.x": {
+   "decimal": "64",
+   "hex": "0x1.0000000000000p+6",
+   "rational": "64"
+  },
+  "spectrum.S-W2-GG.2.y": {
+   "decimal": "9",
+   "hex": "0x1.2000000000000p+3",
+   "rational": "9"
+  },
+  "spectrum.S-W2-GG.3.x": {
+   "decimal": "256",
+   "hex": "0x1.0000000000000p+8",
+   "rational": "256"
+  },
+  "spectrum.S-W2-GG.3.y": {
+   "decimal": "5",
+   "hex": "0x1.4000000000000p+2",
+   "rational": "5"
+  },
+  "spectrum.S-W2-GG.4.x": {
+   "decimal": "2048",
+   "hex": "0x1.0000000000000p+11",
+   "rational": "2048"
+  },
+  "spectrum.S-W2-GG.4.y": {
+   "decimal": "3",
+   "hex": "0x1.8000000000000p+1",
+   "rational": "3"
+  },
+  "spectrum.S-W2-PLG.0.x": {
+   "decimal": "0.00048828125",
+   "hex": "0x1.0000000000000p-11",
+   "rational": "1/2048"
+  },
+  "spectrum.S-W2-PLG.0.y": {
+   "decimal": "3",
+   "hex": "0x1.8000000000000p+1",
+   "rational": "3"
+  },
+  "spectrum.S-W2-PLG.1.x": {
+   "decimal": "0.00390625",
+   "hex": "0x1.0000000000000p-8",
+   "rational": "1/256"
+  },
+  "spectrum.S-W2-PLG.1.y": {
+   "decimal": "5",
+   "hex": "0x1.4000000000000p+2",
+   "rational": "5"
+  },
+  "spectrum.S-W2-PLG.2.x": {
+   "decimal": "0.015625",
+   "hex": "0x1.0000000000000p-6",
+   "rational": "1/64"
+  },
+  "spectrum.S-W2-PLG.2.y": {
+   "decimal": "9",
+   "hex": "0x1.2000000000000p+3",
+   "rational": "9"
+  },
+  "spectrum.S-W2-PLG.3.x": {
+   "decimal": "0.125",
+   "hex": "0x1.0000000000000p-3",
+   "rational": "1/8"
+  },
+  "spectrum.S-W2-PLG.3.y": {
+   "decimal": "6",
+   "hex": "0x1.8000000000000p+2",
+   "rational": "6"
+  },
+  "spectrum.S-W2-PLG.4.x": {
+   "decimal": "1",
+   "hex": "0x1.0000000000000p+0",
+   "rational": "1"
+  },
+  "spectrum.S-W2-PLG.4.y": {
+   "decimal": "2",
+   "hex": "0x1.0000000000000p+1",
+   "rational": "2"
+  },
+  "direction.X.scale": {
+   "decimal": "1",
+   "hex": "0x1.0000000000000p+0",
+   "rational": "1"
+  },
+  "direction.Y.scale": {
+   "decimal": "0.75",
+   "hex": "0x1.8000000000000p-1",
+   "rational": "3/4"
+  },
+  "direction.Z.scale": {
+   "decimal": "0.5",
+   "hex": "0x1.0000000000000p-1",
+   "rational": "1/2"
+  },
+  "request.V-ARC.cutoff_Hz": {
+   "decimal": "560",
+   "hex": "0x1.1800000000000p+9",
+   "rational": "560"
+  },
+  "request.V-ARC.rigid_frequency_Hz": {
+   "decimal": "400",
+   "hex": "0x1.9000000000000p+8",
+   "rational": "400"
+  },
+  "request.V-JOINT-0.cutoff_Hz": {
+   "decimal": "768",
+   "hex": "0x1.8000000000000p+9",
+   "rational": "768"
+  },
+  "request.V-JOINT-0.rigid_frequency_Hz": {
+   "decimal": "500",
+   "hex": "0x1.f400000000000p+8",
+   "rational": "500"
+  },
+  "request.V-JOINT-R.cutoff_Hz": {
+   "decimal": "768",
+   "hex": "0x1.8000000000000p+9",
+   "rational": "768"
+  },
+  "request.V-JOINT-R.rigid_frequency_Hz": {
+   "decimal": "500",
+   "hex": "0x1.f400000000000p+8",
+   "rational": "500"
+  },
+  "request.V-COMB-0.cutoff_Hz": {
+   "decimal": "128",
+   "hex": "0x1.0000000000000p+7",
+   "rational": "128"
+  },
+  "request.V-COMB-0.rigid_frequency_Hz": {
+   "decimal": "72",
+   "hex": "0x1.2000000000000p+6",
+   "rational": "72"
+  },
+  "request.V-COMB-R.cutoff_Hz": {
+   "decimal": "128",
+   "hex": "0x1.0000000000000p+7",
+   "rational": "128"
+  },
+  "request.V-COMB-R.rigid_frequency_Hz": {
+   "decimal": "72",
+   "hex": "0x1.2000000000000p+6",
+   "rational": "72"
+  },
+  "held_state.pressure_Pa": {
+   "decimal": "1500000",
+   "hex": "0x1.6e36000000000p+20",
+   "rational": "1500000"
+  },
+  "held_state.effective_area_m2": {
+   "decimal": "0.03125",
+   "hex": "0x1.0000000000000p-5",
+   "rational": "1/32"
+  },
+  "held_state.q_ref.0": {
+   "decimal": "-0.001953125",
+   "hex": "-0x1.0000000000000p-9",
+   "rational": "-1/512"
+  },
+  "held_state.q_ref.1": {
+   "decimal": "0.0009765625",
+   "hex": "0x1.0000000000000p-10",
+   "rational": "1/1024"
+  },
+  "held_state.q_ref.2": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "held_state.q_ref.3": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "held_state.q_ref.4": {
+   "decimal": "0.0078125",
+   "hex": "0x1.0000000000000p-7",
+   "rational": "1/128"
+  },
+  "held_state.q_ref.5": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "held_state.d0.0": {
+   "decimal": "0.00048828125",
+   "hex": "0x1.0000000000000p-11",
+   "rational": "1/2048"
+  },
+  "held_state.d0.1": {
+   "decimal": "-0.0009765625",
+   "hex": "-0x1.0000000000000p-10",
+   "rational": "-1/1024"
+  },
+  "held_state.d0.2": {
+   "decimal": "0.000244140625",
+   "hex": "0x1.0000000000000p-12",
+   "rational": "1/4096"
+  },
+  "held_state.d0.3": {
+   "decimal": "0.001953125",
+   "hex": "0x1.0000000000000p-9",
+   "rational": "1/512"
+  },
+  "held_state.d0.4": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "held_state.d0.5": {
+   "decimal": "-0.00390625",
+   "hex": "-0x1.0000000000000p-8",
+   "rational": "-1/256"
+  },
+  "held_state.d0.6": {
+   "decimal": "-0.000732421875",
+   "hex": "-0x1.8000000000000p-11",
+   "rational": "-3/4096"
+  },
+  "held_state.d0.7": {
+   "decimal": "0.0029296875",
+   "hex": "0x1.8000000000000p-9",
+   "rational": "3/1024"
+  },
+  "held_state.d0.8": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "held_state.d0.9": {
+   "decimal": "0",
+   "hex": "0x0.0p+0",
+   "rational": "0"
+  },
+  "held_state.d0.10": {
+   "decimal": "0.0009765625",
+   "hex": "0x1.0000000000000p-10",
+   "rational": "1/1024"
+  },
+  "held_state.d0.11": {
+   "decimal": "0.001953125",
+   "hex": "0x1.0000000000000p-9",
+   "rational": "1/512"
+  }
+ }
+}

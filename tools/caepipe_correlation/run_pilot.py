@@ -7,7 +7,8 @@ From the project root:
     python3 -m tools.caepipe_correlation.run_pilot --authored [--case ID ...] [--export-only | --no-export]
     python3 -m tools.caepipe_correlation.run_pilot --authored --authored-dir PATH [--case ID ...]
     python3 -m tools.caepipe_correlation.run_pilot --benchmark MANIFEST [--case ID ...] [--batch N]
-        [--batch-size N] [--runner PATH] (--offline | --freeze-file PATH --exclusive-file PATH [--pace-s S])
+        [--batch-size N] [--runner PATH] (--offline | --freeze-file PATH --exclusive-file PATH [--pace-s S]
+        [--collect-only])
 
 Per case: the independent hand calculation, the SWBPIPE solve (headless runner),
 the SI MBF (with the case's deliberate fault injection, if any), the live
@@ -25,6 +26,11 @@ comparison records and written privately to series/<hypothesis_id>.json in the
 exchange folder; every case whose declarations name an evaluated hypothesis and
 whose stored record carries a different series status is then rebuilt offline
 from its stored CSV, so its causes use the series status (Design §6, §7).
+
+The export modes described below are held: the guest script returns
+`export_held` and starts nothing until the export adopts the attempt's claim
+and job. The export descriptions state the retained path, not currently
+available behavior.
 
 --export-mbf adds the export step after each case's live round trip: the guest
 opens the case's solved model in a CAEPIPE instance it starts, writes it back to
@@ -72,10 +78,56 @@ model it stops if the freeze file exists, holds while the exclusive file names a
 running process (up to 30 min), checks that the guest answers `cmd /c ver`
 (once more after 2 min) and that no instance of the tool is running. A model
 whose round trip raised or left no CSV, with a clean settings check, is retried
-once 2 min later. The run stops at the first unclean settings check, a failed
-check before a model, or a round trip that raised twice; the GUI print fallback
-is used only with restore_scope "key" (Design §5). --offline rebuilds the records
-from the stored, bound CSVs.
+once 2 min later only when its program was never started. A model whose round
+trip's attempt claimed and ended without its terminal report (route start_partial)
+or whose success report is contradicted by its own nonzero dispatch reply (route
+report_reply_contradiction), both outcome partial, and one whose two attempts were
+each established as never started (route not_started) are never retried. The run
+stops at the first unclean settings check, a failed check before a model, a round
+trip that raised twice, a round trip whose start is unresolved (its case manifest
+then stays at custody_recorded, and nothing is restored), a round trip whose
+program ran and that raised or left no CSV (completed is never a ground for retry),
+or a second attempted run that did not agree (partial or contradicted); the GUI
+print fallback is used only with restore_scope "key" (Design §5). --offline builds the records
+from the stored, bound CSVs. Each case's SWBPIPE request and result are created
+once and never replaced. At admission a case may proceed only when it holds
+neither and its case manifest is absent or readable as recording no custody (the
+command's other admission checks still apply). Every case that does not meet this
+condition is refused by name, live or offline, before anything is solved or any
+folder or file is created: already_recorded when its manifest reads as recording
+custody, whether or not the request and result are still present (the reason
+carrying the manifest's outcome and route); manifest_unreadable when its manifest
+is present and reads neither as recording custody nor as recording none (custody
+unknown, not absent: that is, when it is a link, cannot be read as a JSON object, or
+has a custody member that is not an object, null included); and half_made when
+either file exists and its manifest is absent or reads as recording no custody. The
+route only classifies the refusal.
+Offline, a case with no folder is refused as no_stored_case. The one retry of a
+model reuses its own solve. The case manifest's custody member records the SWBPIPE
+commit and whether its tree was clean, the runner binary's SHA-256, and the SHA-256
+of the request and result the run created.
+--collect-only (live only) stops each model once its SWBPIPE request and result are
+created and its CAEPIPE print is collected and bound to the MBF: the print is not
+parsed and no comparison is written (outcome "collected"), and the GUI print
+fallback is off. Screening such a case later is a separate step.
+
+Live use is held (DEL-17-05, Scope of work, Not met). Until a reviewed change
+closes the items below, this command's own live run of a model list (--benchmark
+without --offline) is not to be used. Open: a containment error while writing the
+outcome of a round trip that raised, before its retry or before the stop after a
+second raise, is returned as not run, so that retry or stop is lost and the next
+model runs; a retry's second attempt writes no custody_recorded state before its
+round trip; and attempt 1's recorded outcome does not describe attempt 2 and cannot
+admit attempt 2's capture. Meanwhile the one permitted live caller is the wrapper
+used by the project's own first-comparison batch procedure, in a form independently
+reviewed against the harness's run phase as it now stands (it stops, restoring
+nothing, on an unresolved start; it counts attempted runs that did not agree (routes
+start_partial and report_reply_contradiction) across its session and stops at the
+second; it reads each run's files from that run's attempt folder); no
+earlier form of it is covered. That procedure is maintained outside the public repository. The wrapper
+calls run_benchmark_model once per run with attempt 1, collect_only and the GUI
+fallback off, and never retries. Another caller is not covered, even with the same
+arguments. This is a project instruction: the command does not itself enforce it.
 
 Standard output carries operational status only: per case its id, route and
 either the comparison record's path relative to the exchange folder or the
@@ -99,6 +151,9 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import secrets
+import shutil
+import signal
 import subprocess
 import sys
 import time
@@ -132,13 +187,17 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     CSV_ROUTES,
     EXPORT_ROUTE,
     EXPORTED_MBF,
+    REPORT_REPLY_CONTRADICTION,
     ContainmentError,
+    StartUnresolved,
+    disposition as start_disposition,
     contained,
     contained_dir,
     stored_run_record,
     write_private,
 )
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
+from tools.caepipe_correlation import benchmark_models  # noqa: E402
 
 
 CASES_DIR = PROJECT / "validation" / "caepipe_correlation" / "cases"
@@ -302,7 +361,12 @@ def runner_request(case_id: str, source_location: str | None = None) -> dict[str
 
 
 def solve_swbpipe(runner: str, case: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any] | None, str]:
-    """Run `<runner> solve --explicit-local-private-intent --input -`; return (request body, output, error)."""
+    """Run `<runner> solve --explicit-local-private-intent --input -`; return (request body, output, error).
+
+    A solve is clean only when the runner exits 0 and its output reports the mechanics solved. Any other exit is an
+    error, whatever stdout holds, and its parsed output is kept: the runner exits 1 with a blocking diagnostic or a
+    blocked export and 2 for unusable input (docs/validation_manual/headless_runner_reproduction.md), and a negative
+    exit is the signal that ended it."""
     body = {"request": runner_request(case["case_id"], case.get("source_location")),
             "solve": {"preview_model": {"model": case["model"], "materials": []}}}
     completed = subprocess.run([runner, "solve", "--explicit-local-private-intent", "--input", "-"],
@@ -311,10 +375,22 @@ def solve_swbpipe(runner: str, case: Mapping[str, Any]) -> tuple[dict[str, Any],
         output = json.loads(completed.stdout)
     except json.JSONDecodeError:
         return body, None, f"runner exit {completed.returncode}; stdout is not JSON"
+    if completed.returncode != 0:
+        return body, output, f"runner exit {completed.returncode}{_ended_by(completed.returncode)}; not a clean solve"
     mechanics = (((output.get("payload") or {}).get("mechanics_envelope") or {}).get("status") or {}).get("mechanics")
     if mechanics != "MECHANICS_SOLVED":
         return body, output, f"SWBPIPE mechanics status {mechanics!r} (runner exit {completed.returncode})"
     return body, output, ""
+
+
+def _ended_by(returncode: int) -> str:
+    """For a negative exit, the signal that ended the process, as subprocess reports it; otherwise nothing."""
+    if returncode >= 0:
+        return ""
+    try:
+        return f" (killed by signal {signal.Signals(-returncode).name})"
+    except ValueError:
+        return f" (killed by signal {-returncode})"
 
 
 def apply_fault_injection(mbf_text: str, fault: Mapping[str, Any]) -> str:
@@ -346,6 +422,112 @@ def _sha256(text: str) -> str:
 
 def _write_json(root: Path, path: Path, value: Any) -> None:
     write_private(root, path, json.dumps(value, indent=2, sort_keys=True) + "\n")
+
+
+def _create_private_json(root: Path, path: Path, value: Any) -> str:
+    """Create `path` inside the exchange folder, failing if it exists (O_EXCL), and return the SHA-256 of the bytes
+    written. A benchmark run's SWBPIPE request and result are created this way, so they are never replaced."""
+    data = (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    descriptor = os.open(contained(root, path), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o666)
+    with os.fdopen(descriptor, "wb") as handle:
+        handle.write(data)
+    return hashlib.sha256(data).hexdigest()
+
+
+def _write_fd(descriptor: int, data: bytes) -> None:
+    with os.fdopen(descriptor, "wb") as handle:
+        handle.write(data)
+
+
+def _replace_private_json(root: Path, path: Path, value: Any) -> None:
+    """Replace `path` inside the exchange folder by writing a new temporary file in the same folder and renaming it
+    over the old one, so an interruption during the write leaves the earlier file whole. (Nothing is claimed about
+    surviving a power loss.)"""
+    target = contained(root, path)
+    data = (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    temporary = contained(root, path.parent / f".{path.name}.{os.getpid()}.{secrets.token_hex(4)}.tmp")
+    descriptor = os.open(temporary, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o666)
+    try:
+        _write_fd(descriptor, data)
+        os.replace(temporary, target)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def _runner_identity(path: str) -> dict[str, Any]:
+    """The runner's resolved path, size and SHA-256, compared before the round trip with what the solve recorded."""
+    try:
+        size = os.stat(path).st_size
+    except OSError:
+        size = None
+    return {"path": path, "size": size, "sha256": _file_sha256(path)}
+
+
+def _file_sha256(path: str | Path) -> str | None:
+    """The SHA-256 of a file's bytes, or None when it cannot be read."""
+    try:
+        return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    except OSError:
+        return None
+
+
+def _source_identity() -> dict[str, Any]:
+    """The commit this checkout of SWBPIPE is at and whether its tree is clean (None for either when Git cannot
+    say), recorded with each benchmark run so the revision that produced its SWBPIPE result is identified."""
+    # Inherited GIT_* variables (a hook's GIT_DIR, for instance) would make Git describe another repository.
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+
+    def git(*args: str) -> subprocess.CompletedProcess | None:
+        try:
+            return subprocess.run(["git", "-C", str(PROJECT), *args], capture_output=True, text=True, check=False,
+                                  timeout=60, env=env)
+        except (OSError, subprocess.SubprocessError):
+            return None
+    head, status = git("rev-parse", "HEAD"), git("status", "--porcelain")
+    return {"source_commit": head.stdout.strip() if head is not None and head.returncode == 0 else None,
+            "source_tree_clean": (status.stdout == "") if status is not None and status.returncode == 0 else None}
+
+
+def _resolve_runner(runner: str) -> str:
+    """The runner as the absolute real path that will be executed: a bare name is looked up on PATH, as
+    subprocess does (one not found there is resolved against the working directory, where subprocess would not
+    look), and a path is resolved; the same string is hashed and run."""
+    path = Path(runner)
+    if os.sep not in runner and not (os.altsep and os.altsep in runner):
+        found = shutil.which(runner)
+        if found:
+            path = Path(found)
+    return str(path.resolve())
+
+
+def _manifest_custody(path: Path) -> tuple[str, dict[str, Any] | None, dict[str, Any] | None]:
+    """(state, manifest, custody) of a case manifest, as both admission and every later manifest write read it:
+    "absent" (no manifest); "unknown" (it cannot be read as a JSON object, is a link, or its custody member is
+    present and not an object: the custody is unknown, not absent); "recorded" (a custody member with a value);
+    "none" (a readable manifest whose custody member is missing or has no value). A classification only: it
+    validates nothing of the stored case."""
+    if not os.path.lexists(path):
+        return "absent", None, None
+    if os.path.islink(path):
+        return "unknown", None, None
+    try:
+        value = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return "unknown", None, None
+    if not isinstance(value, dict):
+        return "unknown", None, None
+    if "custody" not in value:
+        return "none", value, None
+    custody = value["custody"]
+    if not isinstance(custody, dict):
+        return "unknown", value, None
+    return ("recorded" if any(item is not None for item in custody.values()) else "none"), value, custody
+
+
+class CustodyChanged(RuntimeError):
+    """A case manifest on disk records custody other than the one this process recorded, or its custody is unknown
+    (as _manifest_custody reads it); the case manifest is not replaced."""
 
 
 def _now() -> str:
@@ -421,7 +603,8 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
 
     mbf_sha256 = _sha256(mbf_text)
     if offline:
-        # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept.
+        # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept, and before
+        # anything is solved, so a case with no bound CSV is left without a SWBPIPE request or result.
         csv_path, route, reason = bound_csv(root, paths, stored_run_record(root, paths["caepipe_out"]), mbf_sha256)
         if csv_path is None:
             emit(f"{case_id}: route={route}; {reason}; no comparison record")
@@ -649,13 +832,22 @@ def run_cases(cases: list[Mapping[str, Any]], config: HarnessConfig, *, runner: 
     return results
 
 
-def load_benchmark(manifest_path: Path, selected: list[str] | None = None) -> list[dict[str, Any]]:
-    """The benchmark models of a generator manifest, each checked against the manifest's hashes (Design §11.1)."""
+def load_benchmark(manifest_path: Path, selected: list[str] | None = None,
+                   series: str | None = None) -> list[dict[str, Any]]:
+    """The benchmark models of a generator manifest, each checked against the manifest's hashes (DEL-17-05 AC-007).
+
+    A model whose manifest entry declares `runs` is run only in a named series: without `series` it is refused by
+    name; with it, its document is that run's (benchmark_models.series_document: the state's model, its closed forms
+    and inexact inputs, its OPPRES line and a `run_id` distinct per run). With `series` and no selection, the models
+    declaring that run are taken; a selected model without it is refused. A model without runs, with no `series`, is
+    loaded as before."""
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("document_kind") != BENCHMARK_MANIFEST_KIND:
         raise ValueError(f"{manifest_path.name}: document_kind must be {BENCHMARK_MANIFEST_KIND}")
     tracked = {case["case_id"] for case in load_cases()} | {case["case_id"] for case in load_authored_cases()}
     models: dict[str, dict[str, Any]] = {}
+    declared_runs: dict[str, list[str]] = {}
+    lacking: set[str] = set()
     for entry in manifest.get("models") or []:
         model_id = entry.get("model_id")
         if not isinstance(model_id, str) or not CASE_ID_PATTERN.match(model_id) or model_id in models:
@@ -673,13 +865,52 @@ def load_benchmark(manifest_path: Path, selected: list[str] | None = None) -> li
             raise ValueError(f"{manifest_path.name}: models/{model_id}.json is not the model the manifest names")
         if not isinstance(document.get("piping_code"), str):
             raise ValueError(f"{manifest_path.name}: {model_id} names no piping code; the benchmark writes one explicitly")
+        runs = entry.get("runs")
+        if runs is not None or series is not None:
+            declared = {run.get("series"): run for run in runs or [] if isinstance(run, dict)}
+            if series is None:
+                declared_runs[model_id] = sorted(declared)
+            elif series not in declared:
+                lacking.add(model_id)
+            else:
+                document = benchmark_models.series_document(document, series)
+                if document["run_id"] != declared[series].get("run_id"):
+                    raise ValueError(f"{manifest_path.name}: {model_id} names another run id for {series}")
         models[model_id] = document
     if selected:
         unknown = sorted(set(selected) - set(models))
         if unknown:
             raise KeyError(f"unknown benchmark model id(s): {', '.join(unknown)}")
-        return [models[model_id] for model_id in sorted(set(selected))]
-    return [models[model_id] for model_id in sorted(models)]
+    chosen = sorted(set(selected)) if selected else sorted(set(models) - (lacking if series else set()))
+    refused = [f"{model_id} (runs: {', '.join(declared_runs[model_id])})" for model_id in chosen
+               if model_id in declared_runs]
+    if refused:
+        raise ValueError(f"{manifest_path.name}: these models declare runs; name one with --series: "
+                         f"{'; '.join(refused)}")
+    if series and set(chosen) & lacking:
+        raise ValueError(f"{manifest_path.name}: no {series} run is declared for: "
+                         f"{', '.join(sorted(set(chosen) & lacking))}")
+    if series and not chosen:
+        raise ValueError(f"{manifest_path.name}: no model declares a {series} run")
+    return [models[model_id] for model_id in chosen]
+
+
+def benchmark_run_id(entry: Mapping[str, Any]) -> str:
+    """The case id a benchmark document is run and recorded under: its run's id, else its model id."""
+    return entry.get("run_id") or entry["model_id"]
+
+
+CAPTURE_PATH_UNAVAILABLE = "capture_path_unavailable"
+
+
+def capture_refusal(entry: Mapping[str, Any], emit: Callable[[str], None]) -> tuple[str, str, str]:
+    """A capture-only run is declared but not run on this build: the path that would collect its result is a
+    separate change, so the run is refused by name, live or offline, before anything is solved, written,
+    collected, hashed or read, and nothing is emitted but this status line."""
+    reason = ("a capture-only run needs the capture-only path, which collects its result without reading it; that "
+              "path is a separate change and is not on this build")
+    emit(f"{benchmark_run_id(entry)}: route={CAPTURE_PATH_UNAVAILABLE}; {reason}; not run")
+    return NOT_RUN, CAPTURE_PATH_UNAVAILABLE, reason
 
 
 def benchmark_batches(models: list[Mapping[str, Any]], size: int) -> list[list[Mapping[str, Any]]]:
@@ -687,6 +918,37 @@ def benchmark_batches(models: list[Mapping[str, Any]], size: int) -> list[list[M
 
 
 RECORDED, NOT_RUN, RETRY = "recorded", "not_run", "retry"
+# The route under which each settled start that has run the program, and does not agree, is recorded.
+ATTEMPTED_ROUTES = {"partial": "start_partial", "contradicted": REPORT_REPLY_CONTRADICTION}
+
+
+def round_trip_disposition(record: Mapping[str, Any] | None = None,
+                           error: BaseException | None = None) -> dict[str, Any]:
+    """The one disposition function: what a round trip handed back about its attempt's start, through the
+    harness's one rule table (`disposition`). From an error, only the disposition the harness carried on it (a
+    StartUnresolved is unresolved); from a record, its `start.state`. Anything absent or unusable is unresolved,
+    which is never a ground for retry or restoration. Both of run_benchmark_model's handlers consult it."""
+    if error is not None:
+        carried = getattr(error, "disposition", None)
+        start = "unresolved" if isinstance(error, StartUnresolved) else (
+            carried.get("start") if isinstance(carried, Mapping) else None)
+    else:
+        held = (record or {}).get("start")
+        start = held.get("state") if isinstance(held, Mapping) else None
+    return start_disposition(start)
+# A model whose round trip's attempt claimed and is quiescent but left no terminal report (route start_partial): an
+# attempted partial run, terminal, excluded from comparison, and never retried by any loop.
+PARTIAL = "partial"
+# The case manifest's state between custody and a terminal outcome. Defined once (here, in DEL-17-05's scope and in the
+# batch's session statements): custody was recorded; no terminal outcome is recorded; the case is named and is not
+# made again under its id; its capture is not admitted for use. It shows no more than that: not where or why execution
+# stopped, nor that SWBPIPE's solve succeeded (it is written before that is checked).
+CUSTODY_RECORDED = "custody_recorded"
+# A collect-only run ends here: SWBPIPE solved and bound, the CAEPIPE print collected, nothing parsed or compared.
+COLLECTED = "collected"
+# The SWBPIPE solve of each case folder made in this process, with its custody digests, so that the one retry of a
+# model reuses its own request and result instead of replacing them.
+_SOLVED_THIS_PROCESS: dict[str, tuple[Any, Any, str, dict[str, Any], dict[str, Any]]] = {}
 
 
 @dataclass(frozen=True)
@@ -718,30 +980,70 @@ def _exclusive_pending(path: Path) -> bool:
 def run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runner: str, offline: bool,
                         emit: Callable[[str], None] = print,
                         round_trip: Callable[..., dict[str, Any]] = run_caepipe_round_trip,
-                        gui_fallback: bool = False, attempt: int = 1) -> tuple[str, str, str]:
+                        gui_fallback: bool = False, attempt: int = 1,
+                        collect_only: bool = False) -> tuple[str, str, str]:
     """One benchmark model: solve, write, guarded batch round trip (or the stored bound CSV), parse, compare.
 
-    Returns (status, route, reason): `recorded`, `not_run` (SWBPIPE not solved, MBF refused, containment, or no
-    stored bound CSV offline), or `retry` (the round trip raised, or left no bound CSV, with a clean settings check).
-    Raises RunStopped when the round trip's saved-settings check is not clean, or when the batch run left no CSV and
-    the GUI fallback is off."""
-    model_id = entry["model_id"]
+    Returns (status, route, reason): `recorded`, `not_run` (SWBPIPE not solved, MBF refused, containment before
+    the program could have started, no stored bound CSV offline, or route `not_started`: the round trip
+    established, twice, that its attempt never started), `partial` (route `start_partial` or
+    `report_reply_contradiction`: an attempted run that does not agree; never retried), or `retry` (only when the
+    program was never started: the round trip raised, or left no bound CSV, with a clean settings check). Raises
+    RunStopped when the round trip's saved-settings check is not clean, when the batch run left no CSV and the GUI
+    fallback is off, when the start is unresolved, when the program has run and either the round trip raised or it
+    left no bound CSV (completed is never a ground for retry), and when an attempted run's outcome cannot be
+    recorded. A stop after the round trip raised writes no outcome, so the case manifest stays at
+    custody_recorded."""
+    model_id = benchmark_run_id(entry)
+    held = {"disposition": start_disposition("not_dispatched")}  # nothing called yet; updated around the round trip
     try:
         return _run_benchmark_model(entry, config, runner=runner, offline=offline, emit=emit, round_trip=round_trip,
-                                    gui_fallback=gui_fallback, attempt=attempt)
-    except ContainmentError as error:
+                                    gui_fallback=gui_fallback, attempt=attempt, collect_only=collect_only, held=held)
+    except RunStopped:
+        raise
+    except Exception as error:
+        settled = held["disposition"]
+        if not settled["retry"]:  # the program may be running or has run: a failure here stops, it is never not_run
+            note = f"its outcome could not be recorded ({type(error).__name__}: {error})"
+            emit(f"{model_id}: route=start_{settled['start']}; {note}; stopped")
+            raise RunStopped(f"{model_id} (start_{settled['start']}; {note})") from error
+        if not isinstance(error, ContainmentError):
+            raise
         emit(f"{model_id}: route=containment_violation; {error}; no benchmark record")
         return NOT_RUN, "containment_violation", str(error)
 
 
+# The custody members of a benchmark case manifest: the revision and runner that produced the SWBPIPE side and the
+# digests of the request and result the run created (each None until known).
+BENCHMARK_CUSTODY_KEYS = ("source_commit", "source_tree_clean", "runner_sha256", "request_sha256", "result_sha256")
+
+
 def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[str, Any], *, offline: bool,
-                        outcome: str, route: str, attempt: int, **extra: Any) -> None:
-    """The model's private run record (the case manifest), written for every live attempt and every record."""
-    _write_json(root, paths["manifest"], {
+                        outcome: str, route: str, attempt: int, custody: Mapping[str, Any] | None = None,
+                        **extra: Any) -> None:
+    """The model's private run record (the case manifest), written for every live attempt and every record. Its
+    `custody` names the SWBPIPE revision and runner that produced the case's request and result and their digests.
+    Once a manifest recording custody is on disk, a later write carries that member forward unchanged and refuses
+    (CustodyChanged; the case manifest is not replaced) when the custody this process holds differs from it, and
+    equally when the manifest on disk cannot be read or its custody member is not an object: malformed custody is
+    unknown custody, never treated as absent."""
+    held = {key: (custody or {}).get(key) for key in BENCHMARK_CUSTODY_KEYS}
+    manifest_path = contained(root, paths["manifest"])
+    state, _, on_disk = _manifest_custody(manifest_path)
+    if state == "unknown":
+        raise CustodyChanged(f"{benchmark_run_id(entry)}: the case manifest on disk cannot be read, or its custody "
+                             "member is not an object; the case manifest was not replaced")
+    if state == "recorded":
+        if on_disk != held:
+            raise CustodyChanged(f"{benchmark_run_id(entry)}: the case manifest's custody differs from the custody "
+                                 "this process recorded; the case manifest was not replaced")
+        held = on_disk
+    _replace_private_json(root, paths["manifest"], {
         "document_kind": MANIFEST_KIND,
-        "case_id": entry["model_id"],
+        "case_id": benchmark_run_id(entry),
         "created": _now(),
         "mode": "benchmark_offline" if offline else "benchmark_live",
+        **({key: entry.get(key) for key in ("series_run", "oppres_line")} if "series_run" in entry else {}),
         "outcome": outcome,
         "route": route,
         "attempt": attempt,
@@ -750,6 +1052,7 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
         "generator": entry.get("generator"),
         "piping_code": entry["piping_code"],
         "internal_model_hash": canonical_model_hash(entry["model"]),
+        "custody": held,
         **extra,
         "layer_privacy": LAYER_PRIVACY,
         "boundary_note": BOUNDARY_NOTE,
@@ -758,40 +1061,125 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
 
 def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runner: str, offline: bool,
                          emit: Callable[[str], None], round_trip: Callable[..., dict[str, Any]], gui_fallback: bool,
-                         attempt: int) -> tuple[str, str, str]:
-    model_id = entry["model_id"]
+                         attempt: int, collect_only: bool = False,
+                         held: dict[str, Any] | None = None) -> tuple[str, str, str]:
+    held = {} if held is None else held
+    model_id = benchmark_run_id(entry)
+    if entry.get("capture_only"):
+        # Refused before anything is resolved or written (capture_refusal says why).
+        return capture_refusal(entry, emit)
+    if collect_only and offline:
+        raise ValueError("a collect-only run is live: offline there is nothing to collect")
     root = config.exchange_root.resolve()
+    if not CASE_ID_PATTERN.match(model_id):
+        raise ValueError(f"case id {model_id!r} must match {CASE_ID_PATTERN.pattern}")
+    # Checked on the paths alone, before case_paths creates any folder, so a refusal changes nothing.
+    case_root = root / "cases" / model_id
+    request_path, result_path = case_root / "swbpipe" / "request.json", case_root / "swbpipe" / "result.json"
+    # Only the retry (attempt 2) of a model reuses the solve its own first attempt made in this process.
+    solved = _SOLVED_THIS_PROCESS.get(str(case_root)) if attempt > 1 else None
+    if solved is None:
+        # The SWBPIPE request and result of a case are created once and never replaced: a later revision is a
+        # separately identified comparison in case folders of its own, never a rewrite of the first. A case is
+        # admitted only when it holds neither file and its case manifest, if any, is readable and records no custody;
+        # every other case is refused here, before anything is solved or any folder or file is created. The route
+        # only classifies the refusal (by the same reading of the manifest as every later write): it validates nothing
+        # of the stored case and permits no overwrite or reconstruction.
+        state, recorded, _ = _manifest_custody(case_root / "case_manifest.json")
+        stored = os.path.lexists(request_path) or os.path.lexists(result_path)
+        route = None
+        if state == "unknown":
+            route, reason = "manifest_unreadable", (
+                "this case's manifest cannot be read, or its custody member is not an object, so its custody is "
+                "unknown (not absent); it is never made again under its id")
+        elif state == "recorded":
+            route, reason = "already_recorded", (
+                "this case's manifest records custody, so it is never made again under its id, whether or not its "
+                f"SWBPIPE request and result are still present; the manifest records outcome {recorded.get('outcome')!r}, "
+                f"route {recorded.get('route')!r} (this names the refusal and validates nothing of the stored case)")
+        elif stored:
+            route, reason = "half_made", ("this case is half-made: a SWBPIPE request or result exists and no case "
+                                          "manifest records custody for it; it is never made again under its id")
+        if route is not None:
+            emit(f"{model_id}: route={route}; {reason}; not run")
+            return NOT_RUN, route, reason
+    if offline and not os.path.lexists(case_root):
+        reason = "offline, this case has no stored folder"
+        emit(f"{model_id}: route=no_stored_case; {reason}; no benchmark record")
+        return NOT_RUN, "no_stored_case", reason
     paths = case_paths(config, model_id)
+    custody: dict[str, Any] = {}
 
     def outcome(status: str, route: str, reason: str, **extra: Any) -> tuple[str, str, str]:
         if not offline:
-            _benchmark_manifest(root, paths, entry, offline=offline, outcome="no_record", route=route,
-                                attempt=attempt, reason=reason, **extra)
-        if status == NOT_RUN:
+            _benchmark_manifest(root, paths, entry, offline=offline,
+                                outcome="partial" if status == PARTIAL else "no_record", route=route,
+                                attempt=attempt, reason=reason, custody=custody, **extra)
+        if status in (NOT_RUN, PARTIAL):
             emit(f"{model_id}: route={route}; {reason}; no benchmark record")
         return status, route, reason
 
-    body, output, error = solve_swbpipe(runner, {
-        "case_id": model_id, "model": entry["model"],
-        "source_location": f"validation/caepipe_benchmark/models/{model_id}.json"})
-    _write_json(root, paths["swbpipe"] / "request.json", body)
-    if output is not None:
-        _write_json(root, paths["swbpipe"] / "result.json", output)
-    if error:
-        return outcome(NOT_RUN, "not_run", f"SWBPIPE not solved ({error})")
+    def stop(route: str, reason: str) -> None:
+        # Every stop of this function: its outcome is recorded (through the same manifest update and custody check as
+        # every later write) and the stop is then raised. The stop always wins: if that write fails, RunStopped is
+        # still raised, so no caller can turn the stop into another outcome, and the failure is named in the stop's
+        # message and in an emitted line, which is what the callers print or record. An interrupt propagates as
+        # itself. No further manifest write is attempted to explain the failed one.
+        try:
+            outcome(RETRY, route, reason)
+        except Exception as failure:
+            note = f"its outcome could not be recorded ({type(failure).__name__}: {failure})"
+            emit(f"{model_id}: route={route}; {note}; stopped")
+            raise RunStopped(f"{model_id} ({route}; {note})") from failure
+        raise RunStopped(model_id)
+
+    def guard_stop(settings: Any, *, raised: bool = False) -> None:
+        try:
+            _guard_stop(config, model_id, settings, emit)
+        except RunStopped:
+            stop("settings_stop", "the round trip raised, and its settings check was not clean or not recorded; the "
+                                  "run stopped" if raised else "the round trip's settings check was not clean; the run "
+                                                               "stopped")
+
     mbf = render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
                                 reference_temperature_c=entry.get("reference_temperature_c", 20.0),
                                 piping_code=entry["piping_code"])
     if mbf.status != "written":
         codes = sorted({item["code"] for item in mbf.diagnostics if item["severity"] == "error"})
         return outcome(NOT_RUN, "not_run", f"MBF refused ({', '.join(codes)})")
-    mbf_text = mbf.text
+    mbf_text = benchmark_models.run_mbf_text(entry, mbf.text)  # a series run's OPPRES line substituted
     mbf_sha256 = _sha256(mbf_text)
     if offline:
-        # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept.
+        # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept, and before
+        # anything is solved, so a case with no bound CSV is left without a SWBPIPE request or result.
         csv_path, route, reason = bound_csv(root, paths, stored_run_record(root, paths["caepipe_out"]), mbf_sha256)
         if csv_path is None:
             return outcome(NOT_RUN, route, reason)
+    if solved is None:
+        # Solved once per case; attempt 1 records the solve for its own retry. The runner is resolved once, hashed
+        # and the checkout identified BEFORE the solve, and that same path is run.
+        # Assumed: the runner artifact and the source checkout are stable throughout this invocation. Ordinary changes
+        # are caught by the identity check before the round trip; nothing binds the executed file atomically.
+        resolved = _resolve_runner(runner)
+        identity = _runner_identity(resolved)
+        custody.update(_source_identity(), runner_sha256=identity["sha256"])
+        body, output, error = solve_swbpipe(resolved, {
+            "case_id": model_id, "model": entry["model"],
+            "source_location": f"validation/caepipe_benchmark/models/{entry['model_id']}.json"})
+        custody.update(request_sha256=_create_private_json(root, request_path, body),
+                       result_sha256=(_create_private_json(root, result_path, output) if output is not None
+                                      else None))
+        _SOLVED_THIS_PROCESS[str(case_root)] = (body, output, error, dict(custody), identity)
+        if not offline:
+            # The custody is on disk before the round trip: an interrupt from here on leaves it recorded, in the
+            # custody_recorded state until a terminal outcome replaces it.
+            _benchmark_manifest(root, paths, entry, offline=offline, outcome=CUSTODY_RECORDED,
+                                route=CUSTODY_RECORDED, attempt=attempt, custody=custody)
+    else:
+        body, output, error, recorded, identity = solved
+        custody.update(recorded)
+    if error:
+        return outcome(NOT_RUN, "not_run", f"SWBPIPE not solved ({error})")
     in_dir = paths["caepipe_in"]
     write_private(root, in_dir / "model.mbf", mbf_text.encode("utf-8"))
     _write_json(root, in_dir / "id_map.json", mbf.sidecar(mbf_sha256))
@@ -800,21 +1188,60 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         "piping_code": entry["piping_code"], "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report,
         "assumptions": mbf.assumptions, "mbf_sha256": mbf_sha256})
     if not offline:
+        # Before the round trip: the size and SHA-256 of the runner at its resolved path, and the checkout's commit,
+        # must still be what the solve recorded; an ordinary change refuses by name, and the case keeps its custody
+        # manifest, with outcome no_record and route identity_changed.
+        if _runner_identity(identity["path"]) != identity \
+                or _source_identity().get("source_commit") != custody.get("source_commit"):
+            return outcome(NOT_RUN, "identity_changed", "the runner or the SWBPIPE checkout changed after the solve")
+        held["disposition"] = round_trip_disposition()  # absent while the round trip runs: unresolved
         try:
             record = round_trip(config, model_id, mbf_text, gui_fallback=gui_fallback)
         except Exception as error:
+            settled = held["disposition"] = round_trip_disposition(error=error)
+            if not settled["retry"]:
+                # Never a retry: the program may still be running (unresolved) or has run (completed, partial,
+                # contradicted). No outcome is written, so the case manifest stays at custody_recorded (never made
+                # again under its id, its capture not admitted), and the run stops.
+                emit(f"{model_id}: route=start_{settled['start']}; the round trip raised {type(error).__name__}: "
+                     f"{error}; stopped")
+                raise RunStopped(f"{model_id} (start_{settled['start']})") from error
             emit(f"{model_id}: round trip raised {type(error).__name__}: {error}")
-            _guard_stop(config, model_id, getattr(error, "settings_guard", None), emit)
+            guard_stop(getattr(error, "settings_guard", None), raised=True)
             return outcome(RETRY, "round_trip_raised", f"the round trip raised {type(error).__name__}")
+        settled = held["disposition"] = round_trip_disposition(record=record)
         # The guard comes first: any other outcome still stops the run on it.
-        _guard_stop(config, model_id, record.get("settings_guard"), emit)
+        guard_stop(record.get("settings_guard"))
+        if settled["start"] == "unresolved":  # a returned record naming no usable start
+            emit(f"{model_id}: route=start_unresolved; the round trip's record names no usable start; stopped")
+            raise RunStopped(f"{model_id} (start_unresolved)")
         if not gui_fallback and record.get("route") == "batch_no_csv":
-            outcome(RETRY, "batch_no_csv", "the batch run left no CSV and the GUI fallback is off")
             emit(f"{model_id}: route=batch_no_csv; the GUI fallback is off for this run; stopped")
-            raise RunStopped(model_id)
+            stop("batch_no_csv", "the batch run left no CSV and the GUI fallback is off")
+        if settled["start"] in ATTEMPTED_ROUTES:
+            reason = ("the attempt claimed and is quiescent but left no terminal report; an attempted partial run, "
+                      "not retried") if settled["start"] == "partial" else (
+                "the attempt's success report is contradicted by its own nonzero dispatch reply; an attempted run "
+                "that does not agree, not retried and never compared")
+            return outcome(PARTIAL, ATTEMPTED_ROUTES[settled["start"]], reason)
+        if settled["start"] == "not_started":
+            return outcome(NOT_RUN, "not_started", "two attempts were each established as never started; nothing "
+                                                   "was made")
         csv_path, route, reason = bound_csv(root, paths, record, mbf_sha256)
         if csv_path is None:
-            return outcome(RETRY, route, reason)
+            if settled["retry"]:
+                return outcome(RETRY, route, reason)
+            # Completed: the program has run, so it is never retried; the list stops.
+            emit(f"{model_id}: route={route}; {reason}; the program has run, so it is never retried; stopped")
+            stop(route, f"{reason}; the program has run, so it is never retried")
+        if collect_only:
+            # Bind first, capture now, screen later: the print is collected and bound, and not read.
+            _benchmark_manifest(root, paths, entry, offline=offline, outcome=COLLECTED, route=route, attempt=attempt,
+                                custody=custody, exported_model_hash=mbf_sha256, parser_status="not_parsed",
+                                trial_first_launch_date=config.trial_first_launch_date,
+                                csv=str(csv_path.relative_to(paths["root"])))
+            emit(f"{model_id}: route={route}; collected and bound; not parsed or compared")
+            return COLLECTED, route, ""
     parsed = read_caepipe_print_csv(csv_path)
     _write_json(root, paths["parsed"] / "caepipe_results.json", parsed)
     _write_json(root, paths["parsed"] / "parser_diagnostics.json", {
@@ -825,6 +1252,7 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     comparison_path = paths["comparison"] / BENCHMARK_RECORD
     _write_json(root, comparison_path, comparison)
     _benchmark_manifest(root, paths, entry, offline=offline, outcome="recorded", route=route, attempt=attempt,
+                        custody=custody,
                         exported_model_hash=mbf_sha256, target_tool=comparison["target_tool"],
                         target_version=comparison["target_version"], product_label=comparison["product_label"],
                         trial_first_launch_date=config.trial_first_launch_date,
@@ -875,14 +1303,20 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
                   precondition: Callable[[HarnessConfig], dict[str, Any]] | None = None,
                   liveness: Callable[[HarnessConfig], dict[str, Any]] | None = None,
                   stops: BenchmarkStops | None = None, pace_s: float = BENCHMARK_PACE_S,
-                  sleep: Callable[[float], None] | None = None) -> int:
+                  sleep: Callable[[float], None] | None = None, collect_only: bool = False) -> int:
     """Run the models one at a time, in serial batches; the exit status of main.
 
     A live run paces the models `pace_s` apart, passes `_benchmark_gate` before each attempt, and retries a model
     once, BENCHMARK_RETRY_WAIT_S later, when its round trip raised or left no bound CSV with a clean settings check.
     A model that still left no CSV is recorded as such and the run goes on; a round trip that raised twice, a gate
-    that fails, or an unclean settings check stops the run. The GUI fallback is on only when the settings guard
-    restores the whole key, whose restore covers the settings that route writes (Design §5)."""
+    that fails, an unclean settings check, an unresolved start, or a second attempted run that did not agree (partial or contradicted) in this run stops the
+    run. A partial start (`partial`) and a start established as never made (`not_started`) are never retried.
+    The GUI fallback is on only when the settings guard restores the whole key, whose restore covers the settings that route writes (Design §5)."""
+    captures = [entry for entry in models if entry.get("capture_only")]
+    if captures:
+        for entry in captures:
+            capture_refusal(entry, emit)
+        return 2
     batches = benchmark_batches(models, batch_size)
     if batch is not None:
         if not 1 <= batch <= len(batches):
@@ -896,12 +1330,14 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     check = precondition or check_no_foreign_instance
     alive = liveness or check_guest_alive
     sleep = sleep or time.sleep
-    gui_fallback = bool(config.settings_guard is not None and config.settings_guard.restores_whole_key)
-    results, started = [], False
+    # A collect-only run never prints through the program's window.
+    gui_fallback = bool(not collect_only and config.settings_guard is not None
+                        and config.settings_guard.restores_whole_key)
+    results, started, partials = [], False, 0
     for number, members in chosen:
-        emit(f"batch {number}/{len(batches)}: {', '.join(entry['model_id'] for entry in members)}")
+        emit(f"batch {number}/{len(batches)}: {', '.join(benchmark_run_id(entry) for entry in members)}")
         for entry in members:
-            model_id = entry["model_id"]
+            model_id = benchmark_run_id(entry)
             status, route, reason = NOT_RUN, "not_run", ""
             try:
                 for attempt in (1, 2):
@@ -916,7 +1352,8 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
                         started = True
                     status, route, reason = run_benchmark_model(entry, config, runner=runner, offline=offline,
                                                                 emit=emit, round_trip=round_trip,
-                                                                gui_fallback=gui_fallback, attempt=attempt)
+                                                                gui_fallback=gui_fallback, attempt=attempt,
+                                                                collect_only=collect_only)
                     if status != RETRY:
                         break
                     if attempt == 1:
@@ -924,12 +1361,18 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
             except RunStopped as stopped:
                 emit(f"stopped after {stopped}: the guarded round trip did not end cleanly; no further model ran")
                 return 1
+            if status == PARTIAL:  # an attempted run that does not agree: start_partial or report_reply_contradiction
+                partials += 1
+                if partials > 1:
+                    emit(f"stopped after {model_id}: a second attempted run that did not agree in this run (partial "
+                         "or contradicted); no further model ran")
+                    return 1
             if status == RETRY:
                 if route == "round_trip_raised":
                     emit(f"stopped after {model_id}: the round trip raised again after one retry; no further model ran")
                     return 1
                 emit(f"{model_id}: route={route}; {reason}; no benchmark record after one retry")
-            results.append(status == RECORDED)
+            results.append(status == (COLLECTED if collect_only else RECORDED))
     return 0 if all(results) else 1
 
 
@@ -953,7 +1396,11 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     parser.add_argument("--runner", help=f"openpipestress-runner executable (default: ${RUNNER_ENV})")
     parser.add_argument("--benchmark", metavar="MANIFEST",
                         help="run the generated benchmark models of this manifest (two-way comparison, guarded "
-                             "round trips, paced one at a time)")
+                             "round trips, paced one at a time); live use is held under DEL-17-05 (see this "
+                             "module's documentation), which the command does not itself enforce")
+    parser.add_argument("--series", metavar="NAME",
+                        help="with --benchmark, run each model's declared run of this series (required for a model "
+                             "that declares runs)")
     parser.add_argument("--batch", type=int, metavar="N", help="with --benchmark, run only the N-th batch")
     parser.add_argument("--batch-size", type=int, default=BENCHMARK_BATCH_SIZE, metavar="N",
                         help=f"with --benchmark, models per serial batch (default {BENCHMARK_BATCH_SIZE})")
@@ -964,15 +1411,22 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
                              "exclusive job, which holds the run")
     parser.add_argument("--pace-s", type=float, default=BENCHMARK_PACE_S, metavar="S",
                         help=f"with a live --benchmark run, seconds between models (default {BENCHMARK_PACE_S:g})")
+    parser.add_argument("--collect-only", action="store_true",
+                        help="with a live --benchmark run, stop each model once SWBPIPE is solved and bound and the "
+                             "CAEPIPE print is collected and bound: nothing is parsed or compared")
     args = parser.parse_args(argv)
     benchmark_only = (args.batch is not None or args.batch_size != BENCHMARK_BATCH_SIZE or args.freeze_file
-                      or args.exclusive_file or args.pace_s != BENCHMARK_PACE_S)
+                      or args.exclusive_file or args.pace_s != BENCHMARK_PACE_S or args.series is not None
+                      or args.collect_only)
     if args.benchmark and (args.authored or args.authored_dir or args.no_export or args.export_mbf
                            or args.export_only):
-        parser.error("--benchmark takes only --case, --offline, --batch, --batch-size, --freeze-file, "
-                     "--exclusive-file, --pace-s and --runner")
+        parser.error("--benchmark takes only --case, --series, --offline, --batch, --batch-size, --freeze-file, "
+                     "--exclusive-file, --pace-s, --collect-only and --runner")
     if not args.benchmark and benchmark_only:
-        parser.error("--batch, --batch-size, --freeze-file, --exclusive-file and --pace-s need --benchmark")
+        parser.error("--series, --batch, --batch-size, --freeze-file, --exclusive-file, --pace-s and --collect-only "
+                     "need --benchmark")
+    if args.collect_only and args.offline:
+        parser.error("--collect-only is a live run; offline there is nothing to collect")
     if args.batch_size < 1:
         parser.error("--batch-size must be at least 1")
     if not (args.pace_s >= 0.0):
@@ -1047,9 +1501,14 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
 
 def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
     try:
-        models = load_benchmark(Path(args.benchmark), args.cases)
+        models = load_benchmark(Path(args.benchmark), args.cases, args.series)
     except (KeyError, OSError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)
+        return 2
+    captures = [entry for entry in models if entry.get("capture_only")]
+    for entry in captures:
+        capture_refusal(entry, print)
+    if captures:
         return 2
     config = resolve_harness_config(environ, require_vm_tools=not args.offline)
     if isinstance(config, HarnessSkip):
@@ -1067,7 +1526,7 @@ def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
     stops = None if args.offline else BenchmarkStops(freeze=Path(args.freeze_file),
                                                      exclusive=Path(args.exclusive_file))
     return run_benchmark(models, config, runner=runner, offline=args.offline, batch_size=args.batch_size,
-                         batch=args.batch, stops=stops, pace_s=args.pace_s)
+                         batch=args.batch, stops=stops, pace_s=args.pace_s, collect_only=args.collect_only)
 
 
 if __name__ == "__main__":

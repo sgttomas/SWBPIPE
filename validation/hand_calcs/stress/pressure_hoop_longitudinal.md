@@ -10,15 +10,18 @@ pressure. The product's exact-pressure preview entry
 
 - the Lamé hoop and radial stresses at the inner and outer surfaces;
 - the closed-end, open-end and axially restrained longitudinal membrane
-  stress and the wall axial force;
+  stress and the wall axial force, the restrained member both with pressure
+  elongation included and with it excluded;
 - each of these on both section bases, nominal and reduced.
 
 The fixture compares every published row with closed forms that it evaluates
 itself; no expected value is computed through the product.
 
 The derivations are elementary linear elasticity: the Lamé solution of a long
-thick-walled cylinder, axial force equilibrium of a closed cylinder, and the
-plane-strain axial stress of an axially restrained cylinder. No standard,
+thick-walled cylinder, axial force equilibrium of a closed cylinder, the
+plane-strain axial stress of an axially restrained cylinder, and the same
+restrained member under the product's reduced model with pressure elongation
+excluded (DEL-04-07 REQ-009). No standard,
 textbook example or commercial benchmark is reproduced.
 
 ## Provenance
@@ -53,7 +56,8 @@ terminal states its closure transfer explicitly:
 | cantilever | anchor at A, B free | `case:closed-end` | 4.0e6 Pa | `transfers_to_wall` |
 | cantilever | anchor at A, B free | `case:open-end` | 4.0e6 Pa | `separately_supported_or_compensated` |
 | cantilever | anchor at A, B free | `case:zero-pressure` | 0 Pa | `transfers_to_wall` |
-| restrained | anchors at A and B | `case:restrained-closed-end` | 4.0e6 Pa | `transfers_to_wall` |
+| restrained | anchors at A and B | `case:restrained-closed-end`, named in `model_settings.pressure_elongation` | 4.0e6 Pa | `transfers_to_wall` |
+| restrained | anchors at A and B | `case:restrained-closed-end-not-named`, not named in `model_settings.pressure_elongation` | 4.0e6 Pa | `transfers_to_wall` |
 
 Each document is solved in both preview solver modes (`sparse_interactive`,
 `dense_scrutiny`). Every row is checked at all five stations (`end_i`,
@@ -101,7 +105,22 @@ Its stress on basis b is `N_w / (pi (r_o^2 - r_i,b^2))`, where:
   thrust reaches the wall, and the free member carries no axial stress.
 - `k = 2 nu` for a member restrained axially at both ends. Zero axial strain
   gives `sigma_x = nu (sigma_r + sigma_theta) = 2 nu A`, constant through the
-  wall, so `N_w = 2 nu p pi r_bore^2`.
+  wall, so `N_w = 2 nu p pi r_bore^2`. This is the full plane-strain
+  cylinder: the restraint suppresses the closed-end free pressure strain, so
+  the case includes pressure elongation and is named in
+  `model_settings.pressure_elongation`.
+- `k = 1` for the same restrained member when its case is not named. This is
+  the deliberately reduced model of DEL-04-07 REQ-009 with pressure
+  elongation excluded, not the full plane-strain cylinder: the closed-end free
+  pressure strain `eps_p = (1 - 2 nu) p A_i / (E A_s)` is omitted. With both
+  end displacements fixed and zero free pressure strain, the elastic axial
+  force is `N_el = 0`. By REQ-009's force definitions, `N_w = N_el + p A_i =
+  p pi r_bore^2` and the effective force `S = N_el = 0`.
+
+The general relation between the two restrained cases: with the free strain
+included, `N_el = -E A_s eps_p = -(1 - 2 nu) p A_i`, so `N_w = 2 nu p A_i`;
+with it excluded, `N_w = p A_i`. The included and excluded wall forces differ
+by the factor `2 nu`. That factor is 1/2 here only because `nu = 0.25`.
 
 **Equilibrium mean hoop** (a thin-wall sanity relation). Integrating the Lamé
 hoop through the wall gives exactly `int sigma_theta dr = p r_i,b`. This is
@@ -132,11 +151,15 @@ Exact decimal values, rounded here to 10 significant digits:
 | `restrained_wall_axial_force` | 2ν p π r_bore² = 35912 π | 112820.8754 | N |
 | `restrained_nominal_axial_membrane` | 2ν × closed-end nominal | 6412857.143 | Pa |
 | `restrained_reduced_axial_membrane` | 2ν × closed-end reduced | 7903169.014 | Pa |
+| `restrained_not_named_wall_axial_force` | p π r_bore² = 71824 π (N_el = 0) | 225641.7508 | N |
+| `restrained_not_named_nominal_axial_membrane` | closed-end nominal | 12825714.29 | Pa |
+| `restrained_not_named_reduced_axial_membrane` | closed-end reduced | 15806338.03 | Pa |
+| `restrained_not_named_effective_axial_force` | S = N_el = 0 | 0 | N |
 | `zero_pressure_stress` | every Lamé and membrane row at p = 0 | 0 | Pa |
 | `reduced_equilibrium_mean_hoop` | p r_bore/t_r = 4e6 · 0.134/0.016 | 33500000 | Pa |
 
-The Lamé rows are the same in every pressurized case: closures and axial
-restraint do not change them.
+The Lamé rows are the same in every pressurized case: closures, axial
+restraint and pressure elongation do not change them.
 
 ## Discrimination
 
@@ -164,6 +187,11 @@ for a specific wrong mapping:
 - Open-end (`k = 0`) and restrained (`k = 2 nu`) cases separate the closure
   and restraint paths from the closed-end path. Their membranes are 0 and 0.5
   times the closed-end value.
+- The restrained case that is not named (`k = 1`) separates the pressure
+  elongation path. Its wall force is `1/(2 nu)` times the named case's (2
+  here), its membranes equal the closed-end values, and its effective force
+  is zero. If the setting were ignored, or applied to a case it does not
+  name, one of the two restrained cases would fail.
 
 ## What The Stress Benchmark Asserts
 
@@ -171,7 +199,11 @@ The benchmark computes the closed forms above with its own binary64
 arithmetic, and only the product path produces the observed rows:
 `pipe_lame_hoop_stress_v2`, `pipe_lame_radial_stress_v2`,
 `pipe_axial_membrane_stress_v2` (each with its `section_basis`) and
-`pipe_wall_axial_force_v2` (published once). The tests require exactly one
+`pipe_wall_axial_force_v2` (published once), and for the restrained case that
+is not named, `pipe_effective_axial_force_v2`. Each pressurized case's result
+must state whether it includes pressure elongation: the named restrained case
+`included`, the restrained case that is not named and the cantilever cases
+`not_included`. The tests require exactly one
 published row per kind, component, station, load case and basis. They also
 require the units `Pa` and `N`, `MECHANICS_SOLVED`, and the
 `exact_pressure_v3` profile.

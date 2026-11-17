@@ -185,7 +185,11 @@ def _read(snapshot, rel):
 
 
 def _production(text):
-    return text.split("#[cfg(test)]", 1)[0]
+    """CFG-PROD (PR-A, §8.62): the whole production text (base/cfg_test_items.py). This was the text before the first
+    `#[cfg(test)]`, which hid retained_precision.rs's production after its mid-file test item; the readings were
+    re-checked equal on main 5e71c4d05 and PR-A's source."""
+    import runpy as _runpy
+    return _runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "cfg_test_items.py"))["production"](text)
 
 
 def _one(flag_texts, text, label):

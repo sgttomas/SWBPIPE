@@ -72,7 +72,17 @@ const J2_FROZEN_MODEL_VERSION: &str = "0.6.0";
 fn j2_as_frozen(path: &str, text: &str) -> String {
     let current = format!("\"schema_version\": \"{}\"", crate::MODEL_SCHEMA_VERSION);
     assert_eq!(text.matches(&current).count(), 1, "{path}: one current model version token");
-    text.replace(&current, &format!("\"schema_version\": \"{J2_FROZEN_MODEL_VERSION}\""))
+    let text = text.replace(&current, &format!("\"schema_version\": \"{J2_FROZEN_MODEL_VERSION}\""));
+    // RT-L2 (DEL-04-07): a pressurised J2 request now states
+    // `model_settings.pressure_elongation` naming every pressurised case (today's mechanics); the
+    // frozen bytes predate the member, so its block is removed before hashing.
+    const SETTING: &str = "\n    \"model_settings\": {\n      \"pressure_elongation\": {\n        \"operating_load_cases\": [\n";
+    const SETTING_END: &str = "        ]\n      }\n    },";
+    let Some(start) = text.find(SETTING) else { return text };
+    let end = start + text[start..].find(SETTING_END).expect("the setting block ends") + SETTING_END.len();
+    let block: Value = serde_json::from_str(&format!("{{{}}}", &text[start..end - 1])).expect("the setting block parses");
+    assert_eq!(block["model_settings"].as_object().map(|s| s.len()), Some(1), "{path}: the setting is the only model setting");
+    format!("{}{}", &text[..start], &text[end..])
 }
 
 /// The frozen files, each bound by the unit's SHA256SUMS; `cases_sha256` binds each oracle to its cases.
@@ -275,7 +285,7 @@ fn w1_causes(raw: &Value, mode: PreviewSolverMode) -> Value {
     let mut ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut w1_budget(route), Some(&mut observer));
     ordinary.diagnostics.shrink_to_fit();
     let Some(cases) = w1_case_ids(&capture) else { return json!("domain") };
-    let triggers: Vec<CaseTrigger> = case_triggers(&ordinary.numerical_quality, &observer.ordinary, cases.ids()).collect();
+    let triggers: Vec<CaseTrigger> = case_triggers(&ordinary.numerical_quality, &ordinary.diagnostics, &observer.ordinary, cases.ids()).collect();
     let attempted = cases.attempted(triggers.iter().copied());
     let universe = row_universe(raw, &serde_json::to_value(&ordinary).unwrap());
     match observer.prepare_cases(ordinary, cases.ids().len(), attempted.requests()) {

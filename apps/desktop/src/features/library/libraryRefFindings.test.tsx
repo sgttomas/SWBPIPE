@@ -9,7 +9,7 @@ import { modelLibraryRefs, type LibraryRefFinding } from "../../services/library
 import type { PreviewModel } from "../../types";
 import { DiagnosticsPanel } from "../diagnostics/DiagnosticsPanel";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
-import { currentLibraryRefFindings, publishLibraryRefFindings } from "./libraryRefFindings";
+import { currentLibraryRefFindings, libraryRefDiagnostics, publishedLibraryRefFindings, publishLibraryRefFindings } from "./libraryRefFindings";
 
 afterEach(() => { cleanup(); publishLibraryRefFindings("", []); });
 
@@ -33,6 +33,34 @@ function findings(model: PreviewModel): LibraryRefFinding[] {
 }
 
 describe("library reference warnings in the diagnostics list and the inspector", () => {
+  it("owns a stable findings snapshot despite caller and consumer mutation attempts", () => {
+    // Today's finding fields are scalar. Include a nested extension so a future
+    // object/array member cannot silently reintroduce an alias into the snapshot.
+    const finding: LibraryRefFinding & { detail: { paths: string[] } } = {
+      code: "MODEL-LIBRARY-REF-UNRESOLVED", severity: "warning",
+      entity_ref: "material:invented", library_kind: "material", library_id: "invented",
+      recorded_version: "v1", stored_version: null, message: "Original finding.",
+      detail: { paths: ["invented/path"] }
+    };
+    const callerFindings = [finding];
+    publishLibraryRefFindings("project:invented", callerFindings);
+    const captured = publishedLibraryRefFindings();
+    const expected = structuredClone(captured);
+
+    finding.message = "Changed without publication.";
+    finding.detail.paths[0] = "changed/path";
+    callerFindings.push({ ...finding, entity_ref: "material:other" });
+    expect(captured).toEqual(expected);
+    expect(libraryRefDiagnostics([...captured.findings])[0].message).toBe("Original finding.");
+    expect(() => { captured.findings[0].message = "Consumer mutation."; }).toThrow(TypeError);
+    const capturedFinding = captured.findings[0] as typeof finding;
+    expect(() => { capturedFinding.detail.paths.push("consumer/path"); }).toThrow(TypeError);
+
+    publishLibraryRefFindings("project:invented", callerFindings);
+    expect(publishedLibraryRefFindings().findings[0].message).toBe("Changed without publication.");
+    expect(captured).toEqual(expected);
+  });
+
   it("lists both warnings keyed to their entities and shows the entity's own in its Provenance record section", async () => {
     const model = await referencedModel();
     render(<DiagnosticsPanel model={model} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={() => {}} />);
@@ -57,6 +85,38 @@ describe("library reference warnings in the diagnostics list and the inspector",
     const other = structuredClone(model);
     other.project.id = "project:other";
     expect(currentLibraryRefFindings(other)).toEqual([]);
+  });
+
+  // A section may carry the same reference twice: in its object-form provenance
+  // note and in its provenance record. The store check publishes a finding for
+  // each. Clearing one leaves one reference, and one finding: the other was
+  // raised on the reference that is gone (independent review of 7d6b8ffa2,
+  // finding 1; the native report admission admits one finding per reference).
+  it("keeps one finding for each reference the entity still carries, not every finding while any reference remains", async () => {
+    const model = await referencedModel();
+    const reference = { library_kind: "section" as const, library_id: "seclib.invented.gone", library_version: "sha256:s", record_id: "sec.refs" };
+    const section = model.sections![0] as unknown as Record<string, unknown>;
+    section.provenance = { note: "Invented", library_ref: reference };
+    expect(modelLibraryRefs(model).filter((found) => found.entity_ref === "section:refs")).toEqual([
+      { entity_ref: "section:refs", ...reference }, { entity_ref: "section:refs", ...reference }]);
+    const unresolved = findings(model)[1];
+    publishLibraryRefFindings(model.project.id, [unresolved, { ...unresolved }]);
+    // Control: two references, both findings kept.
+    expect(currentLibraryRefFindings(model)).toEqual([unresolved, unresolved]);
+    render(<DiagnosticsPanel model={model} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={() => {}} />);
+    expect(screen.getAllByTestId("diagnostic-MODEL-LIBRARY-REF-UNRESOLVED")).toHaveLength(2);
+    cleanup();
+    // The provenance record is cleared: one reference left, one finding.
+    const cleared = structuredClone(model);
+    delete (cleared.sections![0] as unknown as Record<string, unknown>).provenance_record;
+    expect(modelLibraryRefs(cleared).filter((found) => found.entity_ref === "section:refs")).toHaveLength(1);
+    expect(currentLibraryRefFindings(cleared)).toEqual([unresolved]);
+    render(<DiagnosticsPanel model={cleared} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={() => {}} />);
+    expect(screen.getAllByTestId("diagnostic-MODEL-LIBRARY-REF-UNRESOLVED")).toHaveLength(1);
+    // Both gone: none.
+    const none = structuredClone(cleared);
+    (none.sections![0] as unknown as Record<string, unknown>).provenance = "invented";
+    expect(currentLibraryRefFindings(none)).toEqual([]);
   });
 
   // The save screen's walk (W-6a): every library_ref at any depth, not only

@@ -37,9 +37,14 @@
 //!   equal to another node's row is admitted. [`model_checks`] names the node;
 //! - the final reaction is the support's published action component at its
 //!   DOF, bit for bit, and the support's magnitudes follow its components;
-//! - a derived friction normal is the absolute value of its named source's
-//!   published component, bit for bit; friction supports are exactly the
-//!   supports with a normal row, and the classes name the support kinds;
+//! - a derived friction normal from a linear source is the absolute value of
+//!   its named source's published component, bit for bit. From a source that
+//!   is a published one-way or lift-off support (DEL-04-04 REQ-012) it is
+//!   exactly +0 unless that support's state is active, and while it is active
+//!   the same absolute value; [`model_checks`] adds that it is then the
+//!   support's bearing-sense reaction s·R > 0, so a pulling reaction is not a
+//!   normal. Friction supports are exactly the supports with a normal row, and
+//!   the classes name the support kinds;
 //! - DEC-067 without inputs: a sliding support slips (δ ≠ 0) against its force
 //!   (R·δ ≤ 0); an inactive friction support has N ≤ 0 (derived: N = 0);
 //! - the standing: one integrity diagnostic with a code the producer assigns
@@ -366,7 +371,11 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
         require(consistent(fm, &c[..3]) && consistent(mm, &c[3..]), "MAGNITUDE")?;
         if let Some((named, at)) = s.source {
             let published = action(named, COMPONENT, COMPONENTS[at]);
-            require(published.is_some_and(|v| same_bits(v.abs(), s.normal.unwrap().1)), "NORMAL")?;
+            let normal = s.normal.unwrap().1;
+            // A one-way or lift-off source (module docs): +0 unless active.
+            let bearing_inactive = supports.iter().any(|other| other.id == named && other.state != "active");
+            let expected = |v: f64| if bearing_inactive { 0.0 } else { v.abs() };
+            require(published.is_some_and(|v| same_bits(expected(v), normal)), "NORMAL")?;
         }
     }
     // The state diagnostics: one per support, naming its state.
@@ -416,6 +425,9 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
     require(quality.len() == 1, "STANDING")?;
     let solve_quality = quality[0]["solve_quality"].as_str().unwrap_or("");
     // The producer's whole code-to-quality assignment, not only Passed's.
+    // An inspection-only evaluation belongs only to a blocked document; `read`
+    // has established that this one is solved, so it is named, never read as a standing.
+    require(code != crate::semantic_contract::INSPECTION_ONLY_CODE, "INSPECTION_ONLY_IN_SOLVED_DOCUMENT")?;
     let tokens = standing_quality(code).ok_or_else(|| "SOURCE_PHYSICS_NONLINEAR_STANDING_CODE".to_string())?;
     let q = quality[0];
     let fields = [&q["structural_status"], &q["solve_quality"], &q["model_matrix_fidelity"], &q["accuracy_evidence"]];
@@ -483,7 +495,11 @@ pub(crate) fn check(source: &Value) -> Check {
 
 fn read(source: &Value) -> Result<Vec<Case<'_>>, String> {
     let rows = items(&source["results"]);
-    case_ids(rows)?.into_iter().map(|case| read_case(source, case)).collect()
+    let cases = case_ids(rows)?;
+    // DEL-04-07: a document whose mechanics are not solved publishes no result,
+    // so nonlinear rows in one are refused before any case's verdict is read.
+    require(cases.is_empty() || source["status"]["mechanics"] == "MECHANICS_SOLVED", "ROWS_IN_UNSOLVED_DOCUMENT")?;
+    cases.into_iter().map(|case| read_case(source, case)).collect()
 }
 
 /// One model nonlinear support's inputs, parsed as the producer parses them.
@@ -499,6 +515,25 @@ struct Input<'a> {
     mu: f64,
     explicit_normal: Option<f64>,
     source: Option<(&'a Value, usize)>,
+}
+
+/// DEL-04-04 REQ-012: a derived normal whose named source is the model's
+/// one-way or lift-off support is that support's reaction in its bearing sense
+/// s·R while it is active and that is positive, and +0 otherwise; it is named
+/// on the support's own DOF. Any other source (a linear support) is unchanged.
+fn bearing_normal_bound(inputs: &[Input<'_>], published: &[Support<'_>], named: &str, at: usize, n: f64) -> bool {
+    let Some(source) = inputs.iter().find(|i| i.id.as_str() == Some(named)) else {
+        return true;
+    };
+    if !matches!(source.behavior, "one_way" | "lift_off") || source.dof != at {
+        return false;
+    }
+    let Some(state) = published.iter().find(|s| s.id == named) else {
+        return false;
+    };
+    let bearing = source.sense * state.reaction;
+    let expected = if state.state == "active" && bearing > 0.0 { bearing } else { 0.0 };
+    same_bits(expected, n)
 }
 
 fn model_input(support: &Value) -> Result<Input<'_>, String> {
@@ -627,7 +662,10 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
             require(nodal.len() == 1 && same_bits(nodal[0], s.displacement), "MODEL_DISPLACEMENT")?;
             let normal_bound = match (input.behavior, s.normal, s.source) {
                 ("friction", Some((false, n)), None) => input.explicit_normal.is_some_and(|m| same_bits(m, n)),
-                ("friction", Some((true, _)), Some((named, at))) => input.source.is_some_and(|(r, d)| r.as_str() == Some(named) && d == at),
+                ("friction", Some((true, n)), Some((named, at))) => {
+                    input.source.is_some_and(|(r, d)| r.as_str() == Some(named) && d == at)
+                        && bearing_normal_bound(&inputs, &case.supports, named, at, n)
+                }
                 ("friction", _, _) => false,
                 (_, normal, _) => normal.is_none(),
             };

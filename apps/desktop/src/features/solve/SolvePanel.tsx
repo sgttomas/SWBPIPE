@@ -11,6 +11,10 @@ import { MemoryPoolPanel } from "./MemoryPoolPanel";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
+import { useId } from "react";
+import type { EntityRef } from "../../types";
+import type { SolveGateReading } from "../workspace/solveGates";
+import { SolveWithheldNotice } from "./SolveWithheldNotice";
 
 export function SolvePanel({
   analysisRun,
@@ -21,9 +25,12 @@ export function SolvePanel({
   solveJob,
   solverMode,
   numericalHealth = null,
+  solveGate = null,
   onCancel,
   onRun,
-  onSolverModeChange
+  onSolverModeChange,
+  onSelectEntity = () => {},
+  onOpenModelChecks = () => {}
 }: {
   analysisRun: SessionAnalysisRun | null;
   /** The current solve's input manifest: its recorded rule-pack references and their diagnostics. */
@@ -38,7 +45,16 @@ export function SolvePanel({
   onCancel: () => void;
   onRun: () => void;
   onSolverModeChange: (mode: PreviewSolverMode) => void;
+  /** The Solve command's gate as it reads now; while withheld the Solve control
+   * starts no solve and the notice beside it names the standing findings. */
+  solveGate?: SolveGateReading | null;
+  /** Selects the entity a standing finding names, as the Model checks list does. */
+  onSelectEntity?: (entity: EntityRef) => void;
+  /** Opens the Issues drawer on the Model checks list. */
+  onOpenModelChecks?: () => void;
 }) {
+  const withheldSummaryId = useId();
+  const withheld = solveGate?.kind === "withheld" ? solveGate : null;
   // An absent model `diagnostics` array means no model diagnostics; the key is never added.
   const diagnostics = [...(model.diagnostics ?? []), ...(result?.diagnostics ?? [])];
   const readinessItems = readinessSummary({ model, result, diagnostics, solveJob });
@@ -132,10 +148,27 @@ export function SolvePanel({
           Dense scrutiny
         </button>
       </div>
-      <button className="primary-action" data-testid="run-mechanics-preview" onClick={onRun} disabled={running} type="button">
+      <button
+        className="primary-action"
+        data-testid="run-mechanics-preview"
+        aria-disabled={withheld ? true : undefined}
+        aria-describedby={withheld ? withheldSummaryId : undefined}
+        onClick={onRun}
+        disabled={running}
+        type="button"
+      >
         <Play size={16} />
-        {running ? "Running preview" : "Run mechanics preview"}
+        {running ? "Running preview" : withheld ? "Run mechanics preview (withheld)" : "Run mechanics preview"}
       </button>
+      {withheld ? (
+        <SolveWithheldNotice
+          reading={withheld}
+          model={model}
+          summaryId={withheldSummaryId}
+          onSelectEntity={onSelectEntity}
+          onOpenModelChecks={onOpenModelChecks}
+        />
+      ) : null}
       <button
         className="secondary-action"
         data-testid="cancel-mechanics-preview"

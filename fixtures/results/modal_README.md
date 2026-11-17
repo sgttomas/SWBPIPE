@@ -1,6 +1,6 @@
 # Modal result fixtures (DEL-04-09 I3a)
 
-Maintained test fixtures of the experimental modal result family `openpipestress.modal_result` 0.1.0 (DEL-04-09). They are not run evidence, and every document carries the labelled **TEST-LOCAL, EXPERIMENTAL** parameter set it was formed with. All models are invented.
+Maintained test fixtures of the experimental modal result family `openpipestress.modal_result` 0.1.0 (DEL-04-09). They are not run evidence. Every document is experimental and not a public engineering result. Its `admission.parameter_standing` states the parameters it was formed with: `test_local`, under the labelled test-local set's label, or, for `modal_selected_*`, `selected`, under the canonical label `selected_a1_a2_a3_criteria` (the selected tuple, bit for bit; DEL-04-09 "Parameter standing"). All models are invented.
 
 | File | What it is |
 |---|---|

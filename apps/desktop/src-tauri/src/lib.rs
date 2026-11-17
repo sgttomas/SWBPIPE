@@ -64,9 +64,15 @@ mod native_replay_tests;
 #[cfg(test)]
 #[path = "native_ledger_tests.rs"]
 mod native_ledger_tests;
+#[cfg(test)] #[path = "after_worker_perf_tests.rs"] mod after_worker_perf_tests;
 mod report_package_bridge;
 mod report_package_save;
+mod report_session_diagnostics;
+#[cfg(test)]
+mod report_session_diagnostics_tests;
 mod report_render_exact;
+mod rendered_report_print;
+mod rendered_report_routes;
 #[cfg(test)]
 mod report_render_exact_tests;
 #[cfg(test)]
@@ -235,7 +241,7 @@ async fn save_report_package_decoded(
 
 fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<Result<PathBuf, String>> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_report_package_save_path") {
         return Some(Ok(path));
     }
     app.dialog()
@@ -1894,9 +1900,17 @@ async fn render_calculation_report(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
     let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
+    // DEL-08-01 REQ-022: the request takes its ticket at entry, for the report
+    // source number and request ordinal it names; an unregistered or retired
+    // source, and an ordinal at or below the entry watermark, are refused, and
+    // the ticket retires the current render (`rendered_report_routes`). Its
+    // completion is recorded only while the ticket and the source are current.
+    let source: rendered_report_routes::SourceMark = args.decode("source")?;
+    let ordinal: u64 = args.decode("request")?;
+    let ticket = rendered_report_routes::begin_render(rendered_report_routes::RenderRequest { source, ordinal }).map_err(CommandError::Command)?;
     let registry = registry.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let outcome = render_calculation_report_args(&mut args, &registry, &mut lease);
+        let outcome = rendered_report_routes::with_render_ticket(ticket, || render_calculation_report_args(&mut args, &registry, &mut lease));
         // The response is serialized while the lease is still held.
         let response = respond(outcome);
         drop(lease);
@@ -1940,6 +1954,7 @@ pub(crate) fn refuse_user_release_render(input: &Value) -> Result<(), String> {
 
 fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     refuse_user_release_render(&input)?;
+    let export_context = input.pointer("/report_context/export_context").and_then(Value::as_str).map(str::to_string);
     // DEC-021 (A7): deterministic hash-bound HTML rendering with the
     // three-point protected-content gates evaluated in the renderer crate.
     // The derived print view is non-hash-bound and names the canonical hash.
@@ -1947,6 +1962,11 @@ fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     // offending value (W-11 slice (c), Codex review round 3 of #1639).
     let renderable = open_pipe_stress_report_renderer::decode_renderable_report_input(input)?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
+    // The desktop's record of this render, which binds the HTML save and the
+    // print to its bytes (`rendered_report_routes`); no copy is kept. A
+    // completion superseded by a later request, a retirement or a source change
+    // is refused by name.
+    rendered_report_routes::record_render(export_context.as_deref(), &outcome.html, &outcome.sha256_hex, outcome.export_blocked, outcome.content_withheld)?;
     // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
     // a render refused for its provenance records is metadata-only, so no
     // print view is derived from it either.
@@ -2299,7 +2319,7 @@ fn cancel_mbf_import(
 /// the import's paths).
 fn choose_mbf_import_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_mbf_import_path") {
         return Ok(Some(path));
     }
     let Some(selected) = app.dialog().file().add_filter("Model batch file", &["mbf"]).blocking_pick_file() else {
@@ -2310,7 +2330,7 @@ fn choose_mbf_import_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
 
 fn choose_mbf_save_path(app: &AppHandle, suggested_file_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_mbf_save_path") {
         return Ok(Some(path));
     }
     let mut chooser = app.dialog().file().set_file_name(suggested_file_name).add_filter("Model batch file", &["mbf"]);
@@ -2393,7 +2413,7 @@ fn choose_model_document_save_path(
     directory: Option<PathBuf>,
 ) -> Result<Option<PathBuf>, String> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_model_document_save_path") {
         return Ok(Some(path));
     }
     let mut chooser = app
@@ -2478,7 +2498,7 @@ async fn save_handoff_package_decoded(
 
 fn choose_handoff_package_path(app: &AppHandle, suggested_name: &str, directory: Option<PathBuf>) -> Result<Option<PathBuf>, String> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_handoff_package_path") {
         return Ok(Some(path));
     }
     let mut chooser = app
@@ -2497,7 +2517,7 @@ fn choose_handoff_package_path(app: &AppHandle, suggested_name: &str, directory:
 
 fn choose_model_document_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
     #[cfg(feature = "native-smoke")]
-    if let Some(path) = native_smoke::take_chosen_path(app) {
+    if let Some(path) = native_smoke::take_chosen_path(app, "choose_model_document_path") {
         return Ok(Some(path));
     }
     let Some(selected) = app
@@ -6327,6 +6347,12 @@ macro_rules! app_invoke_handler {
             delete_local_library,
             render_calculation_report,
             save_report_package,
+            rendered_report_routes::save_rendered_report_html,
+            rendered_report_print::print_rendered_report,
+            rendered_report_routes::retire_rendered_report,
+            rendered_report_routes::observe_report_source,
+            rendered_report_routes::activate_report_source,
+            rendered_report_routes::advance_report_source,
             save_local_result_json,
             begin_local_csv_stream,
             append_local_csv_stream,
@@ -6340,6 +6366,7 @@ pub fn run() {
     let registry = SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory)));
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .register_uri_scheme_protocol(rendered_report_print::SCHEME, rendered_report_print::serve)
         .manage(registry.clone())
         .manage(native_result_download::SaveAdmission::default())
         .manage(Arc::new(native_csv_stream::CsvStreams::default()))
@@ -6379,6 +6406,8 @@ pub fn run() {
         native_smoke::native_smoke_external_save,
         native_smoke::native_smoke_verify_handoff_package,
         native_smoke::native_smoke_read_report_package,
+        native_smoke::native_smoke_take_report_prints,
+        native_smoke::native_smoke_close_report_print,
         native_smoke::native_smoke_finish,
     ));
     builder
@@ -6753,7 +6782,7 @@ mod tests {
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
             let source = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
             assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED");
-            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2");
+            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-3");
             let row = source["results"].as_array().unwrap().iter().find(|r|
                 r["entity_ref"] == "node:fixture-tip" && r["kind"] == "global_nodal_rotation_x"
                 && r["basis_ref"]["ref_id"] == "case:six-component-load"
@@ -6820,7 +6849,7 @@ mod tests {
         for mode in ["sparse", "dense"] {
             let label = format!("pressure_connected_mechanics_{mode}");
             let source = exact_rule_fixture(&format!("fixtures/results/{label}.json"));
-            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2", "{label}");
+            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-3", "{label}");
             assert!(source["contract_evidence"].get("load_reference_states").is_none(), "{label}");
             qualify_rule_mechanics_with_context(model, &source, None).unwrap_or_else(|error| panic!("{label}: {error}"));
             assert_exact_rows_bind(model, &source, &label);
@@ -6835,7 +6864,7 @@ mod tests {
             for mode in EXACT_RULE_MODES {
                 let label = format!("pressure/load_reference/{name}-{mode}");
                 let source = exact_rule_fixture(&format!("fixtures/product_preview/pressure/load_reference/{name}-{mode}.raw.json"));
-                assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2", "{label}");
+                assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-3", "{label}");
                 assert!(source["contract_evidence"]["load_reference_states"].as_array().is_some_and(|states| !states.is_empty()), "{label}");
                 qualify_rule_mechanics_with_context(model, &source, None).unwrap_or_else(|error| panic!("{label}: {error}"));
                 assert_exact_rows_bind(model, &source, &label);
@@ -7823,7 +7852,7 @@ mod tests {
             let result = run_linear_static_preview_with_mode(request, mode);
             assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
             assert_eq!(result.producer.semantic_contract_id,
-                "openpipestress.result_semantics/0.3.0/pressure-2");
+                "openpipestress.result_semantics/0.3.0/pressure-3");
             assert_eq!(result.contract_evidence.as_ref().unwrap()["exact_cases"].as_array().unwrap().len(), 2);
         }
     }
@@ -7854,7 +7883,7 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
         )).unwrap();
         assert_eq!(result["producer"]["semantic_contract_id"],
-            "openpipestress.result_semantics/0.3.0/pressure-2");
+            "openpipestress.result_semantics/0.3.0/pressure-3");
         let project = model["project"]["id"].as_str().unwrap().to_string();
         let model_bytes = serde_json::to_string(&model).unwrap();
         let result_bytes = serde_json::to_string(&result).unwrap();
@@ -7920,7 +7949,7 @@ mod tests {
             PreviewSolverMode::SparseInteractive,
         );
         assert_eq!(solved.producer.semantic_contract_id,
-            "openpipestress.result_semantics/0.3.0/pressure-2");
+            "openpipestress.result_semantics/0.3.0/pressure-3");
         assert_eq!(
             solved.contract_evidence.as_ref().unwrap()["load_reference_states"],
             result["contract_evidence"]["load_reference_states"]
@@ -7964,10 +7993,19 @@ mod tests {
         }
 
         /// The document without its exact contract and the contract's own members
-        /// (case pressure regions and section corrosion allowances): pressure-free.
+        /// (case pressure regions, section corrosion allowances and the pressure
+        /// elongation setting, with an emptied `model_settings`): pressure-free.
         fn pressure_free(model: &Value) -> Value {
             let mut free = model.clone();
             free.as_object_mut().unwrap().remove("pressure_contract");
+            let object = free.as_object_mut().unwrap();
+            let emptied = object.get_mut("model_settings").and_then(Value::as_object_mut).is_some_and(|settings| {
+                settings.remove("pressure_elongation");
+                settings.is_empty()
+            });
+            if emptied {
+                object.remove("model_settings");
+            }
             for case in free["load_cases"].as_array_mut().unwrap() {
                 case.as_object_mut().unwrap().remove("pressure_regions");
             }

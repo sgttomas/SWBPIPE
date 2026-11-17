@@ -104,7 +104,12 @@ BODY_PINS = {
     # source eligibility's `&& built.skew.is_none()`, the attribution (`skew_reactions`) and its along pushes, and the
     # certified support's along row; O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
     # RT-A3 S6 D3 (§8.59): no O4 owner or the selected-source maximum changes (motion arms and capture argument only).
-    (LIB, "solve_prepared_load_case"): "8ffff0a7f46b1abc6be16ed58e8bd9a8c4f1d273729d493a5f9bcc76cea0bf19",
+    # RT-L2 D3: the case solve passes the state's elongation flag to the wall recovery; no O4 owner changes.
+    # PR-A (§8.62; diff from main fe01013f4 read): the case solve forms the corrected displacement before publication
+    # (U5B-PD-RN), withdraws a held record on a lost confirmation (RTA5-HR, D1-unreached) and releases the loop's staged
+    # rows (D1.6); no O4 owner, the second composite maximum (O4-SR) or the payload keys (O4-SP) change.
+    # Previous value (CE-projected) 57c39941….
+    (LIB, "solve_prepared_load_case"): "b73e0071f3af2eefb880daf0f234b6ad4fc176e8f14e770a6477f592af17583a",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

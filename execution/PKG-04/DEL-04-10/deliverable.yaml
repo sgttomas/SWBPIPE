@@ -88,5 +88,17 @@ needs:
     A published response-spectrum piping problem can be compared as comparison evidence only under
     that report's own redistribution evidence (DEL-04-09/REQ-009). The comparison is not required.
   gating: false
-code_paths: []
-checks: []
+# The product's first unit (S2): the validated spectrum table and its evaluation, with its tests
+# against the frozen spectrum-table references and its example. No spectrum solve exists yet.
+code_paths:
+- core/analysis/response_spectrum/**
+# The frozen references and their maintained regeneration and independence check.
+- validation/references/f2_spectrum/**
+- tests/test_dynamics_references.py
+- tools/validation/reference_observation.py
+# Frozen before the engine work it judges: a snubber left out of every static case (AC-003). No
+# product test reads it yet.
+- validation/references/snubber_static/**
+- tests/test_snubber_static_references.py
+checks:
+- tests/test_dynamics_references.py

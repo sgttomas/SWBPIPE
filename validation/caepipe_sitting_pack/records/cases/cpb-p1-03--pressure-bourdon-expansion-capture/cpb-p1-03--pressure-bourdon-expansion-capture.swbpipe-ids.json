@@ -1,0 +1,122 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-p1-03"
+    },
+    "source_model_sha256": "ad9e8d14e7b77ecd13f88a2b2bc7f9297eac8de91691f219ca593ea1ff27a631"
+  },
+  "element_map": {
+    "pipe:P1": {
+      "from": "10",
+      "reversed": false,
+      "to": "20",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:expansion": "Expansion (T1)",
+    "case:sustained": "Sustained (W+P)"
+  },
+  "load_map": {
+    "case:expansion/load:thermal:pipe:P1": {
+      "category": "thermal",
+      "direction": "global_x",
+      "load_case": "case:expansion",
+      "target": {
+        "pipe": "pipe:P1"
+      }
+    },
+    "case:sustained/load:weight:pipe:P1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:sustained",
+      "target": {
+        "pipe": "pipe:P1"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:bench-c"
+    }
+  },
+  "mbf_sha256": "061c614696f5bdc5694a409c1ae5714b5b9b9024e9f0bd1f768216003dfb25e1",
+  "node_map": {
+    "node:A": "10",
+    "node:B": "20"
+  },
+  "pressure_map": {
+    "contract": {
+      "mode": "exact_pressure_v3",
+      "version": "3.0.0"
+    },
+    "regions": [
+      {
+        "id": "region:R1",
+        "members": [
+          "pipe:P1"
+        ],
+        "terminals": [
+          {
+            "closure_transfer": "transfers_to_wall",
+            "node_ref": "node:A",
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 2); seeded generator; not library, component, catalog, standard or code-rule data"
+          },
+          {
+            "closure_transfer": "transfers_to_wall",
+            "node_ref": "node:B",
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 2); seeded generator; not library, component, catalog, standard or code-rule data"
+          }
+        ]
+      }
+    ],
+    "shear_model": "timoshenko_annulus_energy_v1"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "6451025e7914dace69a97d178d102dc4ac9325bd0f7abc9c99a5dce09e65641a",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:B": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "20",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  }
+}

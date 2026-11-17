@@ -58,7 +58,11 @@ export type ReportPackageSaveReceipt = {
 export type ReportPackageSaveRoute =
   | { route: "tauri_report_package_save"; receipt: ReportPackageSaveReceipt }
   | { route: "unavailable_browser"; diagnostic: "REPORT-PACKAGE-SAVE-DESKTOP-ONLY" }
-  | { route: "redaction_blocked"; diagnostic: string };
+  | { route: "redaction_blocked"; diagnostic: string }
+  /** A request the session did not make: nothing was built or saved, and the diagnostic says
+   * why (the native File menu's package commands are always enabled, so a request can arrive
+   * when it cannot proceed). */
+  | { route: "not_requested"; diagnostic: string };
 
 /** The native screening evidence (`ReportPackageSaveScreening`, `deny_unknown_fields`). */
 export type ReportPackageSaveScreening = {

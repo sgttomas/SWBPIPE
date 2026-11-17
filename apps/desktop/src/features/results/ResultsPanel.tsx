@@ -1,4 +1,5 @@
 import { isNativeAnalysisRun, isNativeResult, resultRowCount, resultUnits as resultUnitsOf, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
+import { pressureElongationLabel } from "./pressureElongationLabel";
 import { NativeResultsPanel } from "./NativeResultsPanel";
 import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 import { isRetainedRoute } from "./numericalResultQuality";
@@ -23,7 +24,7 @@ import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation
 import type { EntityRef } from "../../types";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
-import { DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
+import { BOUNDARY_SENTENCE, DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import {
@@ -422,6 +423,7 @@ function FullResultsPanel({
             canStep={(axis, delta) => stepTarget(axis, delta) !== null}
             onStep={(axis, delta) => navigate(axis, delta)}
             onChooseCase={(caseKey) => chooseCase(caseKey)}
+            contractEvidence={result?.contract_evidence ?? null}
           />
           <ResultDetail interpretation={interpretation} result={result} recordedTableRead={recordedTableRead} exportEndpointPair={async (values) => {
             const rows = await Promise.all(values.map(async (item) => {
@@ -921,7 +923,7 @@ function navigatorCaseText(item: NavigatorCase | null, health: NumericalHealthVi
  * `results-navigator.md` §2 to §5). Each Previous and Next button is the visible route of its
  * key chord; at an end the button stays focusable, is marked unavailable and does nothing. */
 export function ResultsNavigator({
-  kinds, kind, cases, caseKey, entities, entity, currentRowId, rowCount, selectionOnlyWithoutEntity, health, endNotice, canStep, onStep, onChooseCase, entitiesReading = null, rowsReading = false
+  kinds, kind, cases, caseKey, entities, entity, currentRowId, rowCount, selectionOnlyWithoutEntity, health, endNotice, canStep, onStep, onChooseCase, entitiesReading = null, rowsReading = false, contractEvidence = null
 }: {
   kinds: readonly ResultFamilyFilter[];
   kind: ResultFamilyFilter;
@@ -941,8 +943,12 @@ export function ResultsNavigator({
   entitiesReading?: string | null;
   /** A native result's rows are still being read: the position line says so, not "no rows". */
   rowsReading?: boolean;
+  /** The result's `contract_evidence`, from which a chosen load case states its pressure
+   * elongation (RT-L2); a combination states nothing of its own. */
+  contractEvidence?: unknown;
 }) {
   const chosenCase = cases.find((item) => item.key === caseKey) ?? null;
+  const elongation = pressureElongationLabel(contractEvidence, chosenCase?.basis ?? null);
   const caseText = navigatorCaseText(chosenCase, health);
   const entityIndex = entity === null ? -1 : entities.indexOf(entity);
   const positions: Readonly<Record<NavigatorAxis, string>> = {
@@ -1004,6 +1010,7 @@ export function ResultsNavigator({
           {cases.map((item) => <option key={item.key} value={item.key}>{navigatorCaseText(item, health)}</option>)}
         </select>
       ) : null)}
+      {elongation ? <p className="muted" data-testid="results-navigator-case-pressure-elongation">{elongation}</p> : null}
       {stepper("entity")}
       <p className="muted" role="status" data-testid="results-navigator-status">{endNotice ? `${endNotice} ` : ""}{where}</p>
     </section>
@@ -1193,6 +1200,8 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
     // Collapsed when every load case passed its checks; open otherwise.
     <details className="result-detail-panel numerical-health-detail" aria-label={DETAIL_SECTION_LABEL} data-testid="numerical-health-detail" open={health.cases.some((c) => c.state !== "checks_passed") || health.cases.length === 0}>
       <summary>{DETAIL_SECTION_LABEL}</summary>
+      {/* REQ-023: every use carries the boundary sentence, once, whatever the cases' states. */}
+      <p data-testid="numerical-health-boundary">{BOUNDARY_SENTENCE}</p>
       {health.cases.map((c) => (
         <article key={c.caseId} data-testid={`numerical-health-case-${c.caseId}`}>
           <h4>{c.caseId} <NumericalHealthBadgeText badge={c.badge} text={c.headline} testId={`numerical-health-case-badge-${c.caseId}`} /></h4>
