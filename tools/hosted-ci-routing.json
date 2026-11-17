@@ -262,7 +262,7 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "a03aafb14691ea0a72d676b881585940e8144cc64c2934de6e39b9059d424ed0",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "bc858bdff031acf4bbbe31d91c07aa13b388feadd767d9b9eb8171db2c36197d",
+      "core/product_physics/Cargo.toml": "71a6c79e9159a59e62c4d4e102452fa5668b9b9c83e8221d5848869aab10e43f",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "aef459ce93aa7dae801284e172f7e5b7ab958801c4716d3c8db262f8303259be",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
@@ -276,7 +276,7 @@
       "core/rules/rule_check_runner/Cargo.toml": "b433d3eec2112c518f51ac9f83cfdc6469fef33cdaa9e1020bd8b814e5e15c85",
       "core/rules/rule_pack_document/Cargo.toml": "1675122e0a21560f7d8a1963267661ff75e7f97948cf177c7dbf6ed9f9d31bc6",
       "core/rules/rule_pack_lifecycle/Cargo.toml": "811d32918f3d13d8d2a9115ebb6ce9b0243078626bc426d8dbd97224eb2dbd56",
-      "core/runner/headless/Cargo.toml": "20f6db036582550f1f74146af1c924f2fd4c265be90c6a4978b51d34b82e4b0a",
+      "core/runner/headless/Cargo.toml": "d8746c958874c87944a9fbccf63691d6f948f363cc6ec22b782ca26af82d6a43",
       "core/serialization/canonical_json/Cargo.toml": "fb2259bdfcb6adebc877b46e4e1b3126fdf1b08c0b6441a5e4ba49ab75e670a0",
       "core/solver/curved_bend/Cargo.toml": "5d7cf1288eac698c209aa4fd7493fa669aa57494950e75374ac07248001502d8",
       "core/solver/diagnostics/Cargo.toml": "33f62709325dd0aee1a7e4996ee1424e2dcbc9fd54418704f87c8f39e64b875c",
@@ -3638,7 +3638,7 @@
         ]
       },
       "core/runner/headless/src/bin/openpipestress-runner.rs": {
-        "sha256": "b27cb7b9e5af2fbdd53ed3e4970198919aba10d1c290b2ccd50787671d5b95b1",
+        "sha256": "f1a3d04552709b210dcbba7986c97f3beefae5f09cec411e5ab9f754b3597faa",
         "source_trees": [
           "core/runner/headless/Cargo.toml"
         ],
@@ -6104,6 +6104,7 @@
               "core/runner/headless/tests/exact_admission_seam.rs",
               "core/runner/headless/tests/exact_route_refusals.rs",
               "core/runner/headless/tests/load_reference_cli.rs",
+              "core/runner/headless/tests/modal_cli.rs",
               "core/runner/headless/tests/object_form_cli.rs",
               "core/runner/headless/tests/objective_connector.rs",
               "core/runner/headless/tests/physics_source_connected.rs",
@@ -6597,6 +6598,25 @@
             "files": [
               "fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json",
               "fixtures/product_preview/pressure_source/physics_source/mixed.request.json"
+            ]
+          }
+        ]
+      },
+      "core/runner/headless/tests/modal_cli.rs": {
+        "sha256": "ecbf74f68488167a24c4fed59795c6ab39888ab782c82a874757d56b48e7620b",
+        "source_trees": [
+          "core/runner/headless/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "fixtures/results",
+            "base": "project",
+            "files": [
+              "fixtures/results/modal_cantilever_below_cutoff.request.json",
+              "fixtures/results/modal_component_body.request.json",
+              "fixtures/results/modal_ex_n05.request.json",
+              "fixtures/results/modal_refused_no_bound.request.json",
+              "fixtures/results/modal_state_one_way_pressed.request.json"
             ]
           }
         ]

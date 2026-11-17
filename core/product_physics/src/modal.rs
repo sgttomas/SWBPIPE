@@ -7,9 +7,9 @@
 //! path to an in-crate `ModalOutcome`; increment I2b-2 nonlinear supports at
 //! the named state case (`state`, on lib.rs's typed `LoadCaseSolve` seam).
 //!
-//! Nothing here is public: no product, native, headless, schema or
-//! publication entry reaches it yet; `modal_selected_result_document` is the
-//! crate-internal seam M4's entry will call. It never enters the retained
+//! The module is private; its one public reach is lib.rs's experimental entry
+//! for the headless `modal` command, which forwards to the crate-internal seam
+//! `modal_selected_result_document`; no native or schema entry. It never enters the retained
 //! Direct entry or D1. The selected identity tolerance is 2⁻⁴⁴ (D-TOL).
 //!
 //! Function names here are chosen so that none is also a call token elsewhere
