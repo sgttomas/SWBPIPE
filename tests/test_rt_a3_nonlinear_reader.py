@@ -341,6 +341,63 @@ def set_quality(envelope: dict, tokens: tuple) -> None:
         case.update(zip(("structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"), tokens))
 
 
+def test_a_withdrawn_confirmation_is_read_by_both_exact_readers():
+    """DEL-04-07 *Published displacement* (the Rust test
+    rt_a3_s6_tests::a_correction_failure_publishes_nothing_on_the_confirmation_basis writes the fixture): C-1's
+    document whose correction could not be formed, its nonlinear rows on the loop's own reactions, is admitted by
+    both readers with its model; the same document with those rows put back on the confirmation's basis (the
+    confirmed control's values, which differ) is refused by both."""
+    fixture = json.loads((ROOT / "fixtures/results/rt_a3_s6_c1_correction_unavailable.json").read_text(encoding="utf-8"))
+    envelope, request, control = fixture["envelope"], fixture["request"], fixture["control_nonlinear_rows"]
+    assert codes(envelope, request) == (None, None)
+    mixed = deepcopy(envelope)
+    changed = 0
+    for row in mixed["results"]:
+        if row["id"] in control and row["value"] != control[row["id"]]:
+            row["value"] = control[row["id"]]
+            changed += 1
+    assert changed > 0
+    without, with_model = codes(mixed, request)
+    assert with_model is not None, "both readers admit confirmation-basis rows in a withdrawn case"
+
+
+INSPECTION_ONLY = "NUMERICAL_INTEGRITY_INSPECTION_ONLY"
+LEAD = "Inspection only (prior_outcome="
+TAIL = ("): this document is blocked (MODEL_INCOMPLETE); no result of this case is published, and this evaluation is "
+        "retained for inspection, not as a verdict on a published result. ")
+
+
+def blocked(envelope: dict, new: bool, rows: bool) -> None:
+    """A blocked form of a solved envelope: status not solved; in the new form its passed or sensitive integrity
+    evaluations carry the inspection-only code with the prior outcome token, and its quality is not assessed. With
+    rows=False its results are dropped, as a real blocked envelope publishes none."""
+    envelope["status"]["mechanics"] = "MODEL_INCOMPLETE"
+    if new:
+        for d in envelope["diagnostics"]:
+            if d["code"] in (PASSED, SENSITIVE):
+                d["message"] = f"{LEAD}{d['code']}{TAIL}{d['message']}"
+                d["code"], d["severity"] = INSPECTION_ONLY, "info"
+        envelope["numerical_quality"]["status"] = "not_assessed"
+        for case in envelope["numerical_quality"]["cases"]:
+            case["solve_quality"] = "not_assessed"
+    if not rows:
+        envelope["results"] = []
+
+
+def test_a_blocked_document_never_reaches_a_nonlinear_verdict(solved):
+    """DEL-04-07: the nonlinear reader disposes of an unsolved document on its mechanics status before it reads any
+    case's verdict: nonlinear rows in one are refused by name, in the old form (passed codes kept) and the new
+    (inspection-only), and a blocked document without rows gives the nonlinear reader nothing to read."""
+    for cid in ("F1-P0-SLIDELOAD", "G2"):
+        for new in (False, True):
+            assert forged(solved, cid, lambda e: blocked(e, new, rows=True)) == both("ROWS_IN_UNSOLVED_DOCUMENT"), (cid, new)
+            doc, envelope = solved[(cid, "dense_scrutiny")]
+            bare = deepcopy(envelope)
+            blocked(bare, new, rows=False)
+            nse.check(bare)  # the nonlinear reader itself: nothing to read, no verdict reached
+    # The named refusal is reached only once the document is solved (the forgery above, in B3).
+
+
 def test_inactive_residuals_support_nodes_and_standings_are_bound_by_both_readers(solved):
     # B1. The untouched producer output, both modes: admitted as inspection evidence beside the producer's own compliant
     # free-row evaluation record (dense: far above 1e-9 of the largest support component).
@@ -437,6 +494,8 @@ def test_inactive_residuals_support_nodes_and_standings_are_bound_by_both_reader
     # B3. The whole code-to-quality assignment, unknown codes and gap precedence.
     assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_code(e, SENSITIVE, UNQUALIFIED)) == both("STANDING")
     assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_code(e, SENSITIVE, "NUMERICAL_INTEGRITY_FAILED")) == both("STANDING")
+    # DEL-04-07: an inspection-only evaluation belongs only to a blocked document; in a solved one both readers name it.
+    assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_code(e, SENSITIVE, "NUMERICAL_INTEGRITY_INSPECTION_ONLY")) == both("INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
     assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_quality(
         e, ("passive_model_basis", "sensitive", "represented_equations_retained", "unresolved"))) == both("STANDING")
     assert forged(solved, "F1-P0-SLIDELOAD", lambda e: e["numerical_quality"]["cases"][0].update(evidence_refs=[])) == both("STANDING")

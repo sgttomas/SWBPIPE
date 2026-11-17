@@ -50,6 +50,7 @@ Bound to the exact allocating statements; a snapshot without the setting adds no
 owner stops the run."""
 import os
 import re
+import runpy
 
 PP = "core/product_physics/src/"
 RE = "core/reporting/result_export/src/"
@@ -83,7 +84,12 @@ def _read(snapshot, rel):
 
 
 def _production(text):
-    return text.split("#[cfg(test)]", 1)[0] if text is not None else None
+    """CFG-PROD (PR-A, §8.62): the whole production text (base/cfg_test_items.py). This was the text before the first
+    `#[cfg(test)]`, which hid exact_admission.rs's and physics_evidence.rs's production after a mid-file test item from
+    the statement counts below; every count was re-checked equal on main 5e71c4d05 and PR-A's source."""
+    if text is None:
+        return None
+    return runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "cfg_test_items.py"))["production"](text)
 
 
 def inspect(snapshot):

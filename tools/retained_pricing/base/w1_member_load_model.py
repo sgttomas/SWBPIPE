@@ -87,7 +87,10 @@ SOURCE_FILES = {
     # TABLE_HASH constant. No member-load owner changes.
     "core/reporting/result_export/src/lib.rs": "512cde9f49128578bd37e79a9f4b24a2231b6d508a72e6979fb39d2aebcd66cd",
     # RT-A3 S6 D3 (§8.59): only EXACT_TABLE_HASH moves (physics-retained-1's restated parent digest).
-    "core/reporting/result_export/src/retained_precision.rs": "ead2db672f35b0c1414b5e0dd0f973853694467d017b57959741fec9e94c6312",
+    # PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
+    # retained-pricing-rules.md §8.62): retained_precision.rs adds one G4 `need` in gates_after_g0
+    # (solved successors only); no member-load owner changes. Previous value ead2db67…
+    "core/reporting/result_export/src/retained_precision.rs": "61a9504b9bfbdc420397a1ebb21ed4f0fb9161131cf5a7260b2584490c5100d4",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",

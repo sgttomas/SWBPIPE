@@ -425,6 +425,9 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
     require(quality.len() == 1, "STANDING")?;
     let solve_quality = quality[0]["solve_quality"].as_str().unwrap_or("");
     // The producer's whole code-to-quality assignment, not only Passed's.
+    // An inspection-only evaluation belongs only to a blocked document; `read`
+    // has established that this one is solved, so it is named, never read as a standing.
+    require(code != crate::semantic_contract::INSPECTION_ONLY_CODE, "INSPECTION_ONLY_IN_SOLVED_DOCUMENT")?;
     let tokens = standing_quality(code).ok_or_else(|| "SOURCE_PHYSICS_NONLINEAR_STANDING_CODE".to_string())?;
     let q = quality[0];
     let fields = [&q["structural_status"], &q["solve_quality"], &q["model_matrix_fidelity"], &q["accuracy_evidence"]];
@@ -492,7 +495,11 @@ pub(crate) fn check(source: &Value) -> Check {
 
 fn read(source: &Value) -> Result<Vec<Case<'_>>, String> {
     let rows = items(&source["results"]);
-    case_ids(rows)?.into_iter().map(|case| read_case(source, case)).collect()
+    let cases = case_ids(rows)?;
+    // DEL-04-07: a document whose mechanics are not solved publishes no result,
+    // so nonlinear rows in one are refused before any case's verdict is read.
+    require(cases.is_empty() || source["status"]["mechanics"] == "MECHANICS_SOLVED", "ROWS_IN_UNSOLVED_DOCUMENT")?;
+    cases.into_iter().map(|case| read_case(source, case)).collect()
 }
 
 /// One model nonlinear support's inputs, parsed as the producer parses them.

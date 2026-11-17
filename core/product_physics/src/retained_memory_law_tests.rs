@@ -516,7 +516,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // resident table's own file) for pressure-2's, and the inspected production after the resume
             // gains current_header's retired pressure-2 arm; E14 is byte-identical, and no path module,
             // static or production entered the excluded test region.
-            complete_suffix_sha256: "d542b68691a7a8b2128f344d9fecc3fd47c289ce7803ab4514473b92960178f1",
+            // Re-audited for PR-A (the integrity-diagnostic repair) by its fourth independent reading, on
+            // the whole suffix from line 415 at 4b4d7fe31: the closed B7b and E14 test modules are
+            // byte-identical to main 21fdbd94b; the change is the inspection-only token, detector and
+            // standing logic in the inspected production (lines 1001-1053); no include, path module,
+            // static or OnceLock entered the suffix.
+            complete_suffix_sha256: "e9a27502bfe6702e0f24de7aebe2410fc9f07c79666f05865e3b7c6e37b23b79",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -1700,7 +1705,9 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // RT-L2 (RTL2-VL): +41,568 B = 4 · 10,392 B, the pressure-elongation setting's refusal diagnostics in the env
     // variant's validation call, at most max(2, k + 1), priced at k = C as C + 1 = 4 (k <= C = 3: D1.4 declines a
     // longer list before validation, RTL2-K), each at NP-MS's 2,048 + 8,192 + 152 B.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 273_233_168, "current text closure at C_eq = 3, maximum over routes");
+    // PR-A (§8.62, PRA-CF): +8,616 B = 3 · 2,872 B, the displacement-correction warning, at most one per case:
+    // 2,048 B fixed, its 672 B message (the correction failure's bound) and 152 B refs (one case id).
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 273_241_784, "current text closure at C_eq = 3, maximum over routes");
     // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
@@ -1711,8 +1718,10 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // Current generated TEXT atoms; their backing and visit counts stay positive.
     // RT-L2 (RTL2-VL): D_env +4 (the setting's refusal diagnostics, at most max(2, k + 1), priced at k = C as
     // C + 1 = 4, k <= C = 3); its push capacity stays.
+    // PR-A (§8.62, PRA-CF): D_env +3, the displacement-correction warning, at most one per case; its push
+    // capacity stays.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (6_139_118, 2_330, 16_384, 28_779, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (6_139_118, 2_330, 16_384, 28_782, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -2254,9 +2263,22 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // W1 +781,195 B, W3 +957,715 B,
 // X1 +1,268,703 B, in both modes, from maintained eval at the in-build atoms (s((&str,String)) joins the profile),
 // without R. W3 stays the maximum.
+// PR-A D3 at 9000cf720 on main 5e71c4d05 (§8.62), from maintained eval at the unchanged in-build atoms (main's
+// registered tree at them reproduces the record below exactly), without R, the same in both modes:
+// W1 +23,793,886, W2 +23,793,886, W3 +23,880,604, W4 +23,864,594, W5 +23,828,944, X1 +28,339,616,
+// X2 +28,346,778, X3 +28,325,520 B. Two parts:
+// - PR-A's pricing raises every phase, by +30,650,410 (W1, W2), +30,737,128 (W3), +30,721,118 (W4),
+//   +30,685,468 (W5), +30,662,480 (X1), +30,669,642 (X2) and +30,648,384 B (X3). That is the blocked rewrite
+//   (PRA-IO, at most 2*cases; old and new messages both charged), the correction failure's texts (PRA-CF) and the
+//   warning diagnostic (D +3).
+// - The scanner's test-field correction lowers W1-W5 by 6,856,524 B and X1-X3 by 2,322,864 B. ProductCapture's
+//   fields, now visible, type its receivers, so 418 name fan-out call edges fall away, among them 21 into
+//   ReservedNotice::reserve. Main's tree under the corrected rules falls by the same amounts (an over-approximation
+//   removed).
+// W3 stays the maximum.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_451_174_436, 6_793_168_997, 8_745_081_345, 8_538_777_545, 7_612_394_455, 8_527_642_048, 7_259_713_982, 6_932_975_514],
-    [6_510_305_780, 6_852_300_341, 8_804_212_689, 8_597_908_889, 7_671_525_799, 8_586_773_392, 7_318_845_326, 6_992_106_858],
+    [6_474_968_322, 6_816_962_883, 8_768_961_949, 8_562_642_139, 7_636_223_399, 8_555_981_664, 7_288_060_760, 6_961_301_034],
+    [6_534_099_666, 6_876_094_227, 8_828_093_293, 8_621_773_483, 7_695_354_743, 8_615_113_008, 7_347_192_104, 7_020_432_378],
 ];
 
 #[test]
@@ -2375,7 +2397,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 28_779, "current canonical D_env at C_eq = 3 (RT-L2: +4, the pressure-elongation setting's k + 1 refusal diagnostics, k <= C after D1.4's elongation clause, RTL2-VL; model document 0.8.0's shear-model refusal, §8.26: +1; W-16 slice a, §8.23: -128, route E's deleted pre-parse imposed-displacement refusal; W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
+    assert_eq!(caps.complete[3], 28_782, "current canonical D_env at C_eq = 3 (PR-A: +3, the displacement-correction warning, one per case, PRA-CF; RT-L2: +4, the pressure-elongation setting's k + 1 refusal diagnostics, k <= C after D1.4's elongation clause, RTL2-VL; model document 0.8.0's shear-model refusal, §8.26: +1; W-16 slice a, §8.23: -128, route E's deleted pre-parse imposed-displacement refusal; W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
