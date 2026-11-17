@@ -794,7 +794,9 @@ async function autosaveJourney() {
   check("relaunch: nothing is applied before a choice (no edit, no open), now and after a pause with the offer open",
     quiet(reopen.before_choice) && quiet(reopen.before_choice_later) && reopen.before_choice_later.offer_open && reopen.before_choice_later.message === reopen.before_choice.message,
     { before: reopen.before_choice, later: reopen.before_choice_later });
-  check("Open autosave opens the record, no stored project changed", /^Opened the autosave of .+\. No stored project was changed\.$/.test(reopen.opened ?? ""), reopen.opened);
+  // openAutosaveSource supplies the recovery message; workspaceSession appends the unsaved-local-project notice
+  // (also required by autosave.session.test.tsx). Recovery restores a working model, not a stored project.
+  check("Open autosave opens the record, no stored project changed", /^Opened the autosave of .+\. No stored project was changed\. Not saved as a local project yet\.$/.test(reopen.opened ?? ""), reopen.opened);
   const recovered = savedDocument(files.recovered);
   check("the recovered document has the model hash the record's name carries",
     recovered.canonical && hash !== null && recovered.sha256 === hash, recovered.sha256);
