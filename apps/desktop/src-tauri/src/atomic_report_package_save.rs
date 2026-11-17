@@ -451,7 +451,50 @@ pub(crate) fn atomic_save_bytes_as_with_io(
     bytes: &[u8],
     operations: &mut impl AtomicSaveIo,
 ) -> Result<AtomicSaveOutcome, AtomicSaveError> {
-    let (parent, replaced_existing) = validate_destination(format, destination)?;
+    // The ordinary writer: its publication gate always renames.
+    atomic_save_gated(format, destination, bytes, operations, |rename| Ok::<_, std::convert::Infallible>(rename())).map_err(|error| match error {
+        GuardedSaveError::Save(error) => error,
+        GuardedSaveError::Refused { refusal, .. } => match refusal {},
+    })
+}
+
+/// The writer's outcome under a publication gate
+/// ([`atomic_save_bytes_as_guarded_with_io`]): the writer's own failure, or
+/// the gate's refusal before the rename, with the owned temporary file's
+/// cleanup failure if it could not be removed (the destination is as it was).
+#[derive(Debug)]
+pub(crate) enum GuardedSaveError<R> {
+    Save(AtomicSaveError),
+    Refused { refusal: R, cleanup_code: Option<String> },
+}
+
+/// The atomic writer with a publication gate (DEL-08-01 REQ-022): the
+/// temporary file is written, flushed and synced as by
+/// [`atomic_save_bytes_as_with_io`]; then `gate` is handed the rename and
+/// decides, under whatever lock it holds, whether to run it. A gate that
+/// refuses leaves the destination as it was and the temporary file is
+/// removed; a gate that runs the rename returns its result, and the
+/// directory sync that follows (durability) runs after the gate has
+/// returned, outside it. The gate is held only around the rename, never the
+/// temporary file's preparation or the directory sync.
+pub(crate) fn atomic_save_bytes_as_guarded_with_io<R>(
+    format: &AtomicSaveFormat,
+    destination: &Path,
+    bytes: &[u8],
+    operations: &mut impl AtomicSaveIo,
+    gate: impl FnOnce(&mut dyn FnMut() -> io::Result<()>) -> Result<io::Result<()>, R>,
+) -> Result<AtomicSaveOutcome, GuardedSaveError<R>> {
+    atomic_save_gated(format, destination, bytes, operations, gate)
+}
+
+fn atomic_save_gated<R>(
+    format: &AtomicSaveFormat,
+    destination: &Path,
+    bytes: &[u8],
+    operations: &mut impl AtomicSaveIo,
+    gate: impl FnOnce(&mut dyn FnMut() -> io::Result<()>) -> Result<io::Result<()>, R>,
+) -> Result<AtomicSaveOutcome, GuardedSaveError<R>> {
+    let (parent, replaced_existing) = validate_destination(format, destination).map_err(GuardedSaveError::Save)?;
     let (parent_class, parent_hash) = parent_diagnostic(&parent);
     let label = format.log_label;
     eprintln!(
@@ -460,31 +503,42 @@ pub(crate) fn atomic_save_bytes_as_with_io(
         parent_class,
         parent_hash
     );
-    replacement_supported(format, destination, replaced_existing)?;
+    replacement_supported(format, destination, replaced_existing).map_err(GuardedSaveError::Save)?;
 
-    let (temp_path, mut temp) = create_temp_as(format, &parent, destination)?;
+    let (temp_path, mut temp) = create_temp_as(format, &parent, destination).map_err(GuardedSaveError::Save)?;
     if let Err(error) = operations.write_all(&mut temp, bytes) {
         drop(temp);
-        return Err(AtomicSaveError::io(format, "write", "WRITE-FAILED", error, destination)
-            .with_cleanup(format, operations.cleanup_temp(&temp_path)));
+        return Err(GuardedSaveError::Save(AtomicSaveError::io(format, "write", "WRITE-FAILED", error, destination)
+            .with_cleanup(format, operations.cleanup_temp(&temp_path))));
     }
     if let Err(error) = operations.flush(&mut temp) {
         drop(temp);
-        return Err(AtomicSaveError::io(format, "flush", "FLUSH-FAILED", error, destination)
-            .with_cleanup(format, operations.cleanup_temp(&temp_path)));
+        return Err(GuardedSaveError::Save(AtomicSaveError::io(format, "flush", "FLUSH-FAILED", error, destination)
+            .with_cleanup(format, operations.cleanup_temp(&temp_path))));
     }
     if let Err(error) = operations.sync_temp(&temp) {
         drop(temp);
-        return Err(
+        return Err(GuardedSaveError::Save(
             AtomicSaveError::io(format, "temp_sync", "FILE-SYNC-FAILED", error, destination)
                 .with_cleanup(format, operations.cleanup_temp(&temp_path)),
-        );
+        ));
     }
     drop(temp);
 
-    if let Err(error) = operations.rename(&temp_path, destination) {
-        return Err(AtomicSaveError::io(format, "rename", "RENAME-FAILED", error, destination)
-            .with_cleanup(format, operations.cleanup_temp(&temp_path)));
+    let gated = {
+        let mut rename = || operations.rename(&temp_path, destination);
+        gate(&mut rename)
+    };
+    match gated {
+        Err(refusal) => {
+            let cleanup_code = operations.cleanup_temp(&temp_path).err().map(|_| format.code("TEMP-CLEANUP-FAILED"));
+            return Err(GuardedSaveError::Refused { refusal, cleanup_code });
+        }
+        Ok(Err(error)) => {
+            return Err(GuardedSaveError::Save(AtomicSaveError::io(format, "rename", "RENAME-FAILED", error, destination)
+                .with_cleanup(format, operations.cleanup_temp(&temp_path))));
+        }
+        Ok(Ok(())) => {}
     }
 
     let directory_sync = operations.sync_parent(&parent);

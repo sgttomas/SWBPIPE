@@ -833,6 +833,37 @@
     return observation;
   }
 
+  // Print… of the shown local-private report (DEL-08-01 REQ-022). The native-smoke build presents no system print
+  // dialog: on the print window's own handle the native print records the print document. The driver drains any
+  // earlier record, presses Print, waits for the panel's outcome line, takes the record and closes the print window.
+  // It hands the shown canonical HTML and hash with the record; `report-print-evidence.mjs` judges them in run.mjs.
+  // This shows which document reached the native print path, not that a dialog appeared or a job completed.
+  async function printShownReport(label) {
+    const drained = await call("native_smoke_take_report_prints");
+    const canonical_html = byTestId("rendered-report-preview")?.getAttribute("srcdoc") ?? "";
+    const shown_hash = text("rendered-report-hash");
+    click("rendered-report-print");
+    const status = await waitFor(`${label}: print outcome`, () => {
+      const now = text("rendered-report-print-status") ?? "";
+      return /^(Print window opened|Not printed)/.test(now) ? now : null;
+    }, 60000);
+    const events = [];
+    if (/^Print window opened/.test(status)) {
+      // The record is made when the print window's page has loaded; a second record would be taken too.
+      const started = Date.now();
+      while (events.length === 0 && Date.now() - started < 30000) {
+        events.push(...(await call("native_smoke_take_report_prints")));
+        if (events.length === 0) await sleep(250);
+      }
+      await sleep(1000);
+      events.push(...(await call("native_smoke_take_report_prints")));
+    }
+    const closed = await call("native_smoke_close_report_print");
+    const observation = { label, drained_before: drained.length, status, events, closed, canonical_html, shown_hash };
+    await log(`${label}: ${JSON.stringify({ status, events: events.map(({ print_html, ...rest }) => ({ ...rest, print_chars: print_html?.length ?? null })), closed })}`);
+    return observation;
+  }
+
   // The Solve section's rule checks, as a person runs them since 8f2b8c42e: Load for rule checks
   // (the gate, for this result), Load demo rule pack, Run checks. The panel is mounted afresh for
   // each new result, so both the demo's and the exact route's runs pass through the gate.
@@ -1007,6 +1038,8 @@
     }
     // The session is now the saved demo: its local-private report and rule checks.
     report.report_render = await renderLocalPrivateReport("demo/report");
+    // A failed print step is recorded and judged, not allowed to end the phase.
+    report.report_print = await printShownReport("demo/print").catch((error) => ({ label: "demo/print", error: String(error?.message ?? error) }));
     report.rule_checks = await runRuleChecks("demo/rule-checks");
     await exactRouteGates(plan, report);
     await authorFromBlank(plan, report);
@@ -1036,7 +1069,7 @@
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_NATIVE_SMOKE_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics, awaitBlankProject, showSection, showOperations, closeSection, ensureInspector, openC2Gate, runRuleChecks, openProjectById, handoffRoundTrip });
+    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics, awaitBlankProject, showSection, showOperations, closeSection, ensureInspector, openC2Gate, runRuleChecks, openProjectById, handoffRoundTrip, printShownReport });
     return;
   }
 
