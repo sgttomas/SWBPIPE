@@ -26206,4 +26206,16 @@ fn capture_nonlinear_state_evidence(
         motion,
     }))
 }
+
+/// DEL-04-09 M4: the product's experimental modal entry, for the headless
+/// runner's `modal` command (DEL-10-05 REQ-015). It takes one modal request
+/// (`{"model", "materials", <options>}`) and returns the modal document of the
+/// crate-internal seam unchanged: solved or refused, under the selected
+/// integrity parameters, with `admission.status` `experimental` and
+/// `public_engineering_result` false. It supplies no engineering value and
+/// applies no work budget; the request's own refusals, the dense memory guard
+/// and the integrity checks apply. No retained or static entry calls it.
+pub fn modal_experimental_result_document(request: &serde_json::Value) -> serde_json::Value {
+    modal::modal_selected_result_document(request)
+}
 pub mod source_admission;

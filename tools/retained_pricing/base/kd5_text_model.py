@@ -277,9 +277,11 @@ def inspect_directed_helpers(snapshot):
 # no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
 # PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
 # retained-pricing-rules.md §8.62): lib.rs CE-projected, as B7a SOURCE_FILES. Previous value fd6fc92e…
-# Hanger source admission (DEL-04-11 REQ-009): lib.rs CE-projected, as B7a SOURCE_FILES: one appended module
-# declaration; no `.min(`/`.max(` call added or removed. Previous value b7e472f2…
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '5cea85214c01f0299fd5bb7b8817add47a83b6d631e23390d9f27f04f44a95ef'
+# DEL-04-09 M4 on PR-A: the merged lib.rs preserves every main byte and appends the experimental
+# entry. Re-derived with ce_fallback_model.s6_bytes; all other PR-A pins and existing keys are retained.
+# Hanger admission on the combined modal source: append only pub mod source_admission;
+# after the modal entry; CE-projected binding rederived from these complete source bytes.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '299029bea729a86c22066c3fa34bfe9c126163e0d9a083f2bb63b017e0170e50'
 
 
 def _ce_fallback():

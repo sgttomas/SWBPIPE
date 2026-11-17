@@ -91,6 +91,8 @@ RF_PINS = {
 # or lifetime changes.
 # RT-A4 D3 (§8.46): lib.rs's and preview_physics.rs's combination rewrite keeps the L5 callee's inputs (rows_by_base_id,
 # case_rows); the L5 guard, shadow, insert and call texts are unchanged; no reduction's owner or lifetime changes.
+# DEL-04-09 M4 on PR-A: the merged lib.rs preserves every main byte and appends the experimental
+# entry. Re-derived with ce_fallback_model.s6_bytes; all other PR-A pins and existing keys are retained.
 REDUCED_PINS = {
     # DEL-04-09 I2a D3 (§8.43): lib.rs only appends `mod modal;`; no reduction's owner or lifetime changes.
     # DEL-04-09 I2b-2 D3 (§8.43): the decision-B seam (LoadCaseSolve.nonlinear_state, the qualification element,
@@ -118,9 +120,9 @@ REDUCED_PINS = {
     # PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
     # retained-pricing-rules.md §8.62): lib.rs and certified_recovery.rs as B7a; no reduction's owner
     # or lifetime changes and the L5 texts are unchanged. Previous values fd6fc92e… and ef58e6c2…
-    # Hanger source admission (DEL-04-11 REQ-009): lib.rs as B7a, main plus one appended module declaration; no
-    # reduction's owner or lifetime changes, the L5 texts are unchanged. Previous value b7e472f2…
-    "core/product_physics/src/lib.rs": "5cea85214c01f0299fd5bb7b8817add47a83b6d631e23390d9f27f04f44a95ef",
+    # Hanger admission on the combined modal source: append only pub mod source_admission;
+    # after the modal entry; CE-projected binding rederived from these complete source bytes.
+    "core/product_physics/src/lib.rs": "299029bea729a86c22066c3fa34bfe9c126163e0d9a083f2bb63b017e0170e50",
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",
