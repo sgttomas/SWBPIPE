@@ -4,11 +4,10 @@
 //
 // It works the app as a person would: native menu commands go through the dispatch a menu click uses, and buttons
 // and checkboxes are operated in the window. Two presentations are substituted: the Open Model Document chooser
-// (`native_smoke_choose` names the file it returns) and the OS print panel. For the print panel, the main window's
-// `HTMLIFrameElement.prototype.contentWindow` getter is redefined, for the one element `rendered-report-print-frame`
-// only, to return a view of that frame's window whose `print` records the call instead of opening the panel; every
-// other member passes through, and every other element gets the original getter. The driver verifies the
-// substitution is installed before it presses Print, does not press Print otherwise, and restores the getter after.
+// (`native_smoke_choose` names the file it returns) and the system print dialog. Print… goes to the native print
+// route (DEL-08-01 REQ-022), and this build, in place of the dialog, records on the print window's own handle the
+// print document that reached the native print (`native_smoke_take_report_prints`); the driver closes that window
+// (`native_smoke_close_report_print`). No dialog appears, and none is observed.
 //
 // It records what the window shows, step by step (reached or not, with what was observed), and hands the runner's
 // nonce back; the runner judges. A step that throws is recorded as not reached, with its error, and the journey ends.
@@ -201,54 +200,30 @@
       };
     });
     await step("print", async () => {
-      const original = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, "contentWindow");
-      const record = { calls: 0, srcdoc: null, printed_line: null, printed_text: null };
-      function substitutedContentWindow() {
-        const win = original.get.call(this);
-        if (!win || this.getAttribute("data-testid") !== "rendered-report-print-frame") return win;
-        const frame = this;
-        return new Proxy(win, {
-          get(target, key) {
-            if (key === "print") {
-              return () => {
-                record.calls += 1;
-                record.srcdoc = frame.getAttribute("srcdoc");
-                try {
-                  record.printed_line = standingLineOf(target.document);
-                  record.printed_text = target.document.body?.textContent ?? null;
-                } catch (error) {
-                  record.read_error = `${error?.message ?? error}`;
-                }
-              };
-            }
-            const value = Reflect.get(target, key, target);
-            return typeof value === "function" ? value.bind(target) : value;
-          }
-        });
+      // The native-smoke build presents no system print dialog: on the print window's own handle the native print
+      // records the print document. Drain any earlier record, press Print, take the record, close the print window.
+      // The runner judges the recorded document against the rendered one (`report-print-evidence.mjs`).
+      const drained = await call("native_smoke_take_report_prints");
+      const preview = byTestId("rendered-report-preview", panel());
+      const canonical_html = preview?.getAttribute("srcdoc") ?? "";
+      const shown_hash = text("rendered-report-hash", panel());
+      click("rendered-report-print", panel());
+      const status = await waitFor("the print outcome", () => {
+        const now = text("rendered-report-print-status", panel()) ?? "";
+        return /^(Print window opened|Not printed)/.test(now) ? now : null;
+      }, 60000);
+      const events = [];
+      if (/^Print window opened/.test(status)) {
+        const started = Date.now();
+        while (events.length === 0 && Date.now() - started < 30000) {
+          events.push(...(await call("native_smoke_take_report_prints")));
+          if (events.length === 0) await sleep(250);
+        }
+        await sleep(1000);
+        events.push(...(await call("native_smoke_take_report_prints")));
       }
-      Object.defineProperty(HTMLIFrameElement.prototype, "contentWindow", { configurable: true, enumerable: original.enumerable, get: substitutedContentWindow });
-      const installed = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, "contentWindow")?.get === substitutedContentWindow;
-      const observed = { substitution_installed: installed, print_calls: 0 };
-      if (!installed) {
-        Object.defineProperty(HTMLIFrameElement.prototype, "contentWindow", original);
-        throw Object.assign(new Error("the print substitution is not installed; Print was not pressed"), { observed });
-      }
-      try {
-        click("rendered-report-print", panel());
-        await waitFor("the print frame's print call", () => record.calls >= 1, 60000);
-        await sleep(1500);
-      } finally {
-        Object.defineProperty(HTMLIFrameElement.prototype, "contentWindow", original);
-      }
-      const derived = parse(record.srcdoc ?? "");
-      return {
-        ...observed,
-        print_calls: record.calls,
-        printed_standing_line: record.printed_line,
-        printed_is_srcdoc: record.srcdoc !== null && record.printed_text !== null && (derived.body?.textContent ?? "") === record.printed_text,
-        derived_sha256: await sha256Hex(record.srcdoc ?? ""),
-        read_error: record.read_error ?? null
-      };
+      const closed = await call("native_smoke_close_report_print");
+      return { drained_before: drained.length, status, events, closed, canonical_html, shown_hash };
     });
     await step("edit-invalidates", async () => {
       click("layout-mode-grid");

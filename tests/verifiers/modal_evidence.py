@@ -340,8 +340,11 @@ def _identity(doc):
     _const(admission["status"], "/admission/status", "experimental")
     if admission["public_engineering_result"] is not False:
         _fail("/admission/public_engineering_result: no public engineering result")
-    _const(admission["parameter_standing"], "/admission/parameter_standing", "test_local")
-    if not _text(admission["parameter_label"], "/admission/parameter_label"):
+    standing = admission["parameter_standing"]
+    if standing not in ("selected", "test_local"):
+        _fail("/admission/parameter_standing: not `selected` or `test_local`")
+    label = _text(admission["parameter_label"], "/admission/parameter_label")
+    if not label:
         _fail("/admission/parameter_label: empty")
     run = _obj(doc["run"], "/run", ("run_id", "mode_id_scope", "solver_path"))
     _text(run["run_id"], "/run/run_id")
@@ -391,6 +394,64 @@ def _identity(doc):
             _number(t["absolute"], f"{path}/absolute")
         else:
             _number(p[field], path)
+    _parameter_standing(standing, label, p)
+
+
+# The selected tuple (DEL-04-09 "Parameter standing"; Agent 0's A1 to A3), stated here from the decided values,
+# independently of the producer, and compared exactly through float.hex (so +0 and -0 differ).
+SELECTED_LABEL = "selected_a1_a2_a3_criteria"
+SELECTED_SCALARS = {
+    "infinite_mu_relative_threshold": math.ldexp(1.0, -53),
+    "mass_pivot_relative_threshold": math.ldexp(1.0, -36),
+    "resolution_floor_constant": 1.0,
+    "resolution_floor_multiple": 10.0,
+    "formed_backward_error_multiple": math.ldexp(1.0, 6),
+    "screen_error_estimate_threshold": float("1e-6"),
+    "max_ql_iterations_per_eigenvalue": 30.0,
+    "residual_threshold": math.ldexp(1.0, -30),
+    "orthogonality_threshold": math.ldexp(1.0, -23),
+    "cluster_tolerance": math.ldexp(1.0, -20),
+    "no_translation_threshold": float("1e-6"),
+    "sturm_conditioning_multiple": math.ldexp(1.0, 10),
+    "sturm_separation_multiple": math.ldexp(1.0, 7),
+    "sturm_growth_limit": math.ldexp(1.0, 52),
+    "sturm_max_candidates": 7.0,
+}
+SELECTED_LISTS = {
+    "sturm_gap_log_positions": (0.25, 0.75, 0.125, 0.375, 0.625, 0.875),
+    "sturm_whole_spectrum_offsets": (1.0, 0.5, 0.25),
+}
+SELECTED_IDENTITY_TOLERANCE = (math.ldexp(1.0, -44), 0.0)
+
+
+def _bits(value):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return float(value).hex()  # exact for every finite binary64, and -0.0 is distinct
+
+
+def _is_selected_tuple(p) -> bool:
+    if any(_bits(p[name]) != _bits(v) for name, v in SELECTED_SCALARS.items()):
+        return False
+    for name, values in SELECTED_LISTS.items():
+        got = p[name]
+        if len(got) != len(values) or any(_bits(a) != _bits(b) for a, b in zip(got, values)):
+            return False
+    t = p["identity_tolerance"]
+    return _bits(t["relative"]) == _bits(SELECTED_IDENTITY_TOLERANCE[0]) and _bits(t["absolute"]) == _bits(SELECTED_IDENTITY_TOLERANCE[1])
+
+
+def _parameter_standing(standing, label, p):
+    selected = _is_selected_tuple(p)
+    if standing == "selected":
+        if not selected:
+            _fail("/admission/parameter_standing: `selected` on a tuple that is not the selected one")
+        if label != SELECTED_LABEL:
+            _fail(f"/admission/parameter_label: the selected standing carries `{SELECTED_LABEL}`")
+    elif selected:
+        _fail("/admission/parameter_standing: the bound tuple is the selected one, so it is not `test_local`")
+    elif label == SELECTED_LABEL:
+        _fail("/admission/parameter_label: a test-local tuple under the selected label")
 
 
 def _table(tables, name, ids):

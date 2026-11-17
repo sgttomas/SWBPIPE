@@ -1,0 +1,14 @@
+{
+  "outcome": "refused",
+  "provenance": "Inputs: the published signed contributions, modal metadata (mode, scope cluster, frequency) and rigid responses of analysis C4-BASE of validation/references/f2_spectrum/discrete/c4_close_pair.json (frozen), each as its binary64. Mutation: the damping ratio is 0 under CQC. This is a combination-unit contract fixture: its contributions were not produced by the product, it is not a spectrum solve result or a spectrum-1 document, and it has no standing as an engineering result.",
+  "refusals": [
+    {
+      "code": "SPECTRUM_CQC_DAMPING_UNSUPPORTED",
+      "detail": "CQC is not defined at a damping ratio of 0",
+      "field": "modal_combination",
+      "object": "request"
+    }
+  ],
+  "schema": "openpipestress.spectrum_combination.output/v1",
+  "statement": "Unsigned combined magnitudes formed by the stated modal, rigid-response and directional combination rules from the supplied signed contributions, summing the modes of each supplied cluster with their signs first. Under an absolute-sum rule a magnitude is the sum of the magnitudes it combines. The contributions and their modal metadata are inputs to this unit; it forms no modal response, solves no eigenproblem or rigid response, and is not a response-spectrum analysis result. It establishes neither physical correctness nor code compliance."
+}

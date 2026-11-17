@@ -310,7 +310,7 @@ describe("admitExactReportSource (§3.1)", () => {
 describe("the exact sections in the renderer input", () => {
   async function assemble(session: Session) {
     const { model, result, analysisRun, inputManifest } = session;
-    return assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
+    return assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null, libraryRefFindings: [] });
   }
 
   it.each(SHAPES.map((item) => [item.name, item] as const))("%s: the exact block, the binding, the headlines, the rows and the limitation entries", async (_name, item) => {
@@ -381,7 +381,7 @@ describe("the exact sections in the renderer input", () => {
     const health = numericalHealthView(readNumericalHealth(result, numericalResultStanding(result, model).findings), { eligible: true, verdictHold: false });
     expect(health?.route).toBe("generic");
     expect(health!.cases.length).toBeGreaterThan(0);
-    const assembly = await assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: health, context: "local_private", intent: true, generatedAt: null });
+    const assembly = await assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: health, context: "local_private", intent: true, generatedAt: null, libraryRefFindings: [] });
     const rows = (assembly.input as Json).result_rows as Json[];
     expect(rows).toEqual(reportResultRows(result));
     expect(rows.some((row) => String(row.row_id).startsWith("numerical-health:"))).toBe(false);
@@ -402,7 +402,7 @@ describe("retirement after the build sends no IPC", () => {
   it("the panel's build step: the pre-IPC re-check refuses and the render is not sent", async () => {
     const session = await solve(shape("pressure_2_straight"));
     const { model, result, analysisRun, inputManifest } = session;
-    const assembly = await assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
+    const assembly = await assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null, libraryRefFindings: [] });
     expect(() => assembly.exactSubmission!()).not.toThrow();
     await disposeDeliveredMechanicsResult(result);
     invokeMock.mockClear();

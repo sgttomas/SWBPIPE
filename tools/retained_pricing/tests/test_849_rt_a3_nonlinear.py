@@ -92,10 +92,13 @@ def test_the_reader_loops_and_state_class(monkeypatch, route):
     assert loops == {
         'for row in rows.iter().filter(|r| kind(r).starts_with(" ") && r[" "][" "] != " ")':
             ("0", ["nonlinear_support_evidence.rs:case_ids"]),
-        "iter:case_ids(rows)?.into_iter().map": ("0", ["nonlinear_support_evidence.rs:read"]),
+        # NL-RD (DEL-04-07, base/nonlinear_seams.py): the current `read` binds the case list as `cases` first.
+        "iter:cases.into_iter().map": ("0", ["nonlinear_support_evidence.rs:read"]),
     }
     audits = [v for k, v in d["O10_ID_AUDIT"] if str(k).split("/src/")[-1].startswith("nonlinear_support_evidence.rs:")]
-    assert [a["s.state"]["bytes"] for a in audits] == [8]
+    assert [a["s.state"]["bytes"] for a in audits if "s.state" in a] == [8]
+    # PRA-NL (§8.62): `read`'s direct require is charged at its longest literal message (test_862_pr_a.py).
+    assert [list(a) for a in audits if "s.state" not in a] == [["code"]]
     states = ["inactive", "active", "sticking", "sliding"]
     assert max(len(s.encode()) for s in states) == 8
     assert 'const STATES: [&str; 4] = ["inactive", "active", "sticking", "sliding"];' in (SOURCE / EV).read_text(encoding="utf-8")

@@ -863,6 +863,259 @@ const RESULT_FIXTURES: [&str; 112] = [
     "results/retained_precision_w_c2_successor_sparse_interactive.json",
 ];
 
+const INSPECTION_ONLY: &str = "NUMERICAL_INTEGRITY_INSPECTION_ONLY";
+const CHECKS_PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
+/// The producer's inspection-only message: this lead and the prior outcome's
+/// code, then `INSPECTION_TAIL`, then the evaluation's original message.
+const PRIOR_PASSED: &str = "Inspection only (prior_outcome=NUMERICAL_INTEGRITY_CHECKS_PASSED)";
+const INSPECTION_TAIL: &str = ": this document is blocked (MODEL_INCOMPLETE); no result of this case is published, and this evaluation is retained for inspection, not as a verdict on a published result. ";
+
+fn run(request: &Value, mode: PreviewSolverMode) -> Value {
+    serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap()
+}
+
+fn quality_of<'a>(envelope: &'a Value, case: &str) -> &'a Value {
+    let found: Vec<&Value> = envelope["numerical_quality"]["cases"].as_array().unwrap().iter()
+        .filter(|c| c["basis_ref"]["ref_id"] == case).collect();
+    assert_eq!(found.len(), 1, "{case}");
+    found[0]
+}
+
+fn health_of(out: &Value, case: &str) -> Value {
+    let found: Vec<&Value> = out["cases"].as_array().unwrap().iter().filter(|c| c["case_id"] == case).collect();
+    assert_eq!(found.len(), 1, "{case}");
+    found[0].clone()
+}
+
+/// The four record fields of a case's quality entry.
+fn record(quality: &Value) -> [&Value; 4] {
+    [&quality["structural_status"], &quality["solve_quality"], &quality["model_matrix_fidelity"], &quality["accuracy_evidence"]]
+}
+
+/// DEL-04-07 *Blocked document*, the producer's half, through the desktop's own
+/// indicator caller (`operation_applier::numerical_health_json`, which the desktop
+/// reaches in wasm and natively): a live document whose mechanics are not solved,
+/// though a case before the refusal retained a passed integrity evaluation,
+/// publishes no row or headline, and that case's record is not assessed with its
+/// one canonical evidence reference; its evaluation is inspection-only, naming
+/// the passed outcome, with the original message unchanged (the solved control's).
+/// The indicator shows the case not assessed, with no figure and no cause, and
+/// keeps the inspection-only code: DEL-07-05's gate suppresses only passing and
+/// sensitive states, and this state is neither.
+#[test]
+fn a_blocked_documents_live_inspection_only_record_shows_no_passing_indicator() {
+    let control = model_request("product_preview/invented_demo_model.json");
+    let first = control["model"]["load_cases"][0]["id"].as_str().unwrap().to_string();
+    let integrity_id = format!("diagnostic:numerical-integrity:{first}");
+    let mut request = control.clone();
+    let mut refused = request["model"]["load_cases"][0].clone();
+    refused["id"] = json!("load:indicator-gate-refused");
+    for load in refused["primitive_loads"].as_array_mut().unwrap() {
+        let id = format!("{}:refused", load["id"].as_str().unwrap());
+        load["id"] = json!(id);
+    }
+    refused["modulus_basis_ref"] = json!("temperature-point:intentionally-missing");
+    request["model"]["load_cases"].as_array_mut().unwrap().push(refused);
+    for (mode, wire) in MODES {
+        // The control: solved, the first case passes with its evaluation.
+        let solved = run(&control, mode);
+        assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{wire}");
+        assert_eq!(health(&solved, None)["cases"][0]["state"], "checks_passed", "{wire}: control");
+        let passed = integrity(&solved, &first);
+        assert_eq!(passed.len(), 1, "{wire}");
+        assert_eq!(passed[0]["code"], CHECKS_PASSED, "{wire}");
+        let original = passed[0]["message"].as_str().unwrap();
+
+        // The producer's blocked form: no row, no headline.
+        let blocked = run(&request, mode);
+        assert_eq!(blocked["status"]["mechanics"], "MODEL_INCOMPLETE", "{wire}");
+        assert_eq!(blocked["results"], json!([]), "{wire}");
+        for headline in ["max_displacement", "max_open_formula_stress", "max_open_formula_stress_nominal_section", "max_open_formula_stress_reduced_section"] {
+            assert!(blocked["summary"].get(headline).is_none_or(Value::is_null), "{wire}: {headline}");
+        }
+        // The record: not assessed, with its one canonical evidence reference.
+        let quality = quality_of(&blocked, &first);
+        assert_eq!(record(quality), ["numerically_unresolved", "not_assessed", "not_assessed", "not_claimed"], "{wire}");
+        assert_eq!(quality["evidence_refs"], json!([integrity_id]), "{wire}");
+        // The evaluation: inspection-only, the passed outcome, the original message.
+        let evaluations = integrity(&blocked, &first);
+        assert_eq!(evaluations.len(), 1, "{wire}");
+        assert_eq!(evaluations[0]["code"], INSPECTION_ONLY, "{wire}");
+        assert_eq!(
+            evaluations[0]["message"].as_str().unwrap(),
+            format!("{PRIOR_PASSED}{INSPECTION_TAIL}{original}"),
+            "{wire}: the prior outcome and the solved control's message"
+        );
+
+        let out = health(&blocked, None);
+        let case = health_of(&out, &first);
+        assert_eq!(case["state"], "not_assessed", "{wire}");
+        assert!(case["rcond"].is_null() && case["digits"].is_null(), "{wire}");
+        assert_eq!(case["causes"], json!([]), "{wire}");
+        assert_eq!(case["code"], INSPECTION_ONLY, "{wire}: the inspection-only code stands");
+        assert_eq!(case["integrity_diagnostic_id"], integrity_id.as_str(), "{wire}");
+        // No case of the blocked document shows a passing or sensitive state.
+        for case in out["cases"].as_array().unwrap() {
+            assert_eq!(case["state"], "not_assessed", "{wire}: {}", case["case_id"]);
+            assert!(case["rcond"].is_null() && case["digits"].is_null(), "{wire}");
+            assert_ne!(case["code"], CHECKS_PASSED, "{wire}");
+        }
+    }
+}
+
+/// The passing case of the mixed request alone: a fixed-fixed line under one
+/// nodal force, linear, so its passed report carries a reciprocal condition
+/// estimate.
+fn passing_case() -> Value {
+    json!({"id": "case:pass", "label": "PASS", "kind": "primitive_user_load", "provenance": "invented_rv17_f1b_review_input_no_library_data",
+        "primitive_loads": [{"id": "load:pass", "category": "concentrated_force", "dimension": "force",
+            "direction": "global_x", "magnitude": {"unit": "N", "value": 1000.0},
+            "target": {"type": "node", "node": "N1"}, "provenance": "invented_rv17_f1b_review_input_no_library_data"}]})
+}
+
+/// DEL-07-05, the indicator's half, through the same caller: a historical blocked
+/// document, as a producer without the inspection-only form wrote it, whose case
+/// keeps its passed quality, its passed code and its original linear report. It is
+/// formed explicitly from the solved output of the same request: mechanics status
+/// `MODEL_INCOMPLETE`, no row, no headline and no preview evidence, as the
+/// producer's blocked form publishes. The control shows its figure; the blocked
+/// document shows the case not assessed, with no figure, no cause and no code.
+/// Without the gate this test fails.
+#[test]
+fn a_historical_blocked_document_with_passing_evidence_shows_no_passing_indicator() {
+    let mut request = cxf_request();
+    request["model"]["load_cases"] = json!([passing_case()]);
+    let case_id = "case:pass";
+    for (mode, wire) in MODES {
+        let solved = run(&request, mode);
+        assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{wire}");
+        assert!(!solved["contract_evidence"]["preview_cases"].as_array().unwrap().is_empty(), "{wire}: a preview-physics document");
+        let control = health_of(&health(&solved, None), case_id);
+        assert_eq!(control["state"], "checks_passed", "{wire}: control");
+        assert_eq!(control["code"], CHECKS_PASSED, "{wire}: control");
+        let rcond = expected_rcond(&solved, case_id).expect("the control's linear passed report");
+        assert_eq!(control["rcond"].as_f64().map(f64::to_bits), Some(rcond.to_bits()), "{wire}: control figure");
+
+        let mut historical = solved.clone();
+        historical["status"]["mechanics"] = json!("MODEL_INCOMPLETE");
+        historical["results"] = json!([]);
+        for headline in ["max_displacement", "max_open_formula_stress", "max_open_formula_stress_nominal_section", "max_open_formula_stress_reduced_section"] {
+            if let Some(value) = historical["summary"].get_mut(headline) {
+                *value = Value::Null;
+            }
+        }
+        historical["contract_evidence"] = json!({"preview_cases": [], "combination_gates": []});
+        // The non-blocking diagnostics naming a removed row go, and the rest lose
+        // their row references (`preview_physics::sanitize_blocked_diagnostics`).
+        let diagnostics = historical["diagnostics"].as_array_mut().unwrap();
+        let row = |r: &Value| r.as_str().is_some_and(|r| r.starts_with("result:"));
+        diagnostics.retain(|d| d["severity"] == "blocking" || !d["affected_refs"].as_array().is_some_and(|refs| refs.iter().any(row)));
+        for d in diagnostics.iter_mut() {
+            if let Some(refs) = d.get_mut("affected_refs").and_then(Value::as_array_mut) {
+                refs.retain(|r| !row(r));
+            }
+        }
+        // The premises: blocked, and the passed record, code and linear report.
+        assert_eq!(historical["status"]["mechanics"], "MODEL_INCOMPLETE", "{wire}");
+        assert!(historical.get("analysis_status").is_none(), "{wire}");
+        assert_eq!(historical["results"], json!([]), "{wire}");
+        let quality = quality_of(&historical, case_id);
+        assert_eq!(record(quality), ["passive_model_basis", "checks_passed", "represented_equations_retained", "not_claimed"], "{wire}");
+        assert_eq!(quality["evidence_refs"], json!([format!("diagnostic:numerical-integrity:{case_id}")]), "{wire}");
+        let evaluations = integrity(&historical, case_id);
+        assert_eq!(evaluations.len(), 1, "{wire}");
+        assert_eq!(evaluations[0]["code"], CHECKS_PASSED, "{wire}");
+        assert_eq!(evaluations[0]["message"], integrity(&solved, case_id)[0]["message"], "{wire}: the original report");
+        assert_eq!(expected_rcond(&historical, case_id).map(f64::to_bits), Some(rcond.to_bits()), "{wire}: the linear report");
+
+        let out = health(&historical, None);
+        assert_eq!(out["cases"].as_array().unwrap().len(), 1, "{wire}");
+        let case = health_of(&out, case_id);
+        assert_eq!(case["state"], "not_assessed", "{wire}");
+        assert!(case["rcond"].is_null() && case["digits"].is_null(), "{wire}");
+        assert_eq!(case["conditioning_sensitive"], false, "{wire}");
+        assert_eq!(case["causes"], json!([]), "{wire}");
+        assert!(case["code"].is_null(), "{wire}: no passing code beside a not-assessed state");
+    }
+}
+
+/// The committed failed-ordinary request (CX-F): one case whose ordinary solve
+/// fails numerically, so the document is blocked by that case's own failure.
+fn cxf_request() -> Value {
+    let fixture: Value = serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_failed_ordinary_cxf.json")).unwrap();
+    fixture["cases"][0]["request"].clone()
+}
+
+/// The indicator's projection of `blocked` with its mechanics status stated
+/// solved: what main's indicator, which had no gate, showed for its cases.
+fn as_main_showed(blocked: &Value) -> Value {
+    let mut solved = blocked.clone();
+    solved["status"]["mechanics"] = json!("MECHANICS_SOLVED");
+    health(&solved, None)["cases"].clone()
+}
+
+/// DEL-07-05, through the desktop's own caller: a live document blocked by a
+/// case's own numerical failure keeps that failure's state, causes and code
+/// exactly as main's indicator showed them; the gate suppresses only passing and
+/// sensitive states.
+#[test]
+fn a_blocked_documents_own_failure_keeps_its_state() {
+    let request = cxf_request();
+    for (mode, wire) in MODES {
+        let blocked = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+        assert_eq!(blocked["status"]["mechanics"], "MODEL_INCOMPLETE", "{wire}");
+        let quality = &blocked["numerical_quality"]["cases"][0];
+        assert_eq!(quality["solve_quality"], "unresolved", "{wire}");
+        let out = health(&blocked, None);
+        let case = &out["cases"][0];
+        assert_eq!(case["state"], "quality_unresolved", "{wire}");
+        assert_eq!(case["code"], "NUMERICAL_INTEGRITY_UNRESOLVED", "{wire}");
+        assert_eq!(out["cases"], as_main_showed(&blocked), "{wire}: as main showed it");
+    }
+}
+
+/// DEL-07-05 and DEL-04-07, through the same caller: a live document with a
+/// passing case before the failing one. The passing case's evaluation is
+/// inspection-only in the blocked document, so it is not assessed, with no figure
+/// and no cause; the failure keeps its record, state, causes and code, as main
+/// showed it.
+#[test]
+fn a_mixed_blocked_document_suppresses_only_the_passing_case() {
+    let mut request = cxf_request();
+    let failing = request["model"]["load_cases"][0].clone();
+    request["model"]["load_cases"] = json!([passing_case(), failing]);
+    let failing_id = failing["id"].as_str().unwrap().to_string();
+    for (mode, wire) in MODES {
+        // The passing case passes alone.
+        let mut alone = request.clone();
+        alone["model"]["load_cases"] = json!([request["model"]["load_cases"][0].clone()]);
+        let solved = serde_json::to_value(run_linear_static_preview_value_with_mode(alone, mode).unwrap()).unwrap();
+        assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{wire}");
+        assert_eq!(health(&solved, None)["cases"][0]["state"], "checks_passed", "{wire}: passes alone");
+        let blocked = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+        assert_eq!(blocked["status"]["mechanics"], "MODEL_INCOMPLETE", "{wire}");
+        // The premises: the passing case's inspection-only record and the failure's own.
+        assert_eq!(record(quality_of(&blocked, "case:pass")), ["numerically_unresolved", "not_assessed", "not_assessed", "not_claimed"], "{wire}");
+        let pass_evaluation = integrity(&blocked, "case:pass");
+        assert_eq!(pass_evaluation.len(), 1, "{wire}");
+        assert_eq!(pass_evaluation[0]["code"], INSPECTION_ONLY, "{wire}");
+        assert!(pass_evaluation[0]["message"].as_str().unwrap().starts_with(PRIOR_PASSED), "{wire}");
+        assert_eq!(quality_of(&blocked, &failing_id)["solve_quality"], "unresolved", "{wire}");
+        assert_eq!(integrity(&blocked, &failing_id)[0]["code"], "NUMERICAL_INTEGRITY_UNRESOLVED", "{wire}");
+        let out = health(&blocked, None);
+        let main = json!({"cases": as_main_showed(&blocked)});
+        let pass = health_of(&out, "case:pass");
+        assert_eq!(pass["state"], "not_assessed", "{wire}");
+        assert!(pass["rcond"].is_null() && pass["digits"].is_null(), "{wire}");
+        assert_eq!(pass["causes"], json!([]), "{wire}");
+        assert_eq!(pass["code"], INSPECTION_ONLY, "{wire}: the inspection-only code stands");
+        let fail = health_of(&out, &failing_id);
+        assert_eq!(fail["state"], "quality_unresolved", "{wire}");
+        assert_eq!(fail["code"], "NUMERICAL_INTEGRITY_UNRESOLVED", "{wire}");
+        assert_eq!(fail, health_of(&main, &failing_id), "{wire}: the failure as main showed it");
+    }
+}
+
 /// The JSON-text entry refuses input that is not JSON (the projection itself is
 /// `report_standing::historical_health`).
 #[test]

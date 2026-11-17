@@ -2,6 +2,7 @@
 //! These tests require the lane's guarded window before execution; they do not
 //! establish qualification for other volumes or prevent later external edits.
 use super::*;
+use crate::atomic_report_package_save::test_support::atomic_save_test_lock;
 use crate::autosave_commands::{
     read_settings, read_settings_record, set_settings_at, settings_text, SETTINGS_FILE,
 };
@@ -266,6 +267,9 @@ fn finite_retention_and_missing_intent_refuse_before_chooser_and_cancel_changes_
 }
 #[test]
 fn finite_legacy_setting_is_kept_but_never_used_and_disable_still_works() {
+    // The settings save uses the process-wide directory-sync guard. Take the
+    // test lock before any product lock or hook; it changes no product concurrency.
+    let _save_lock = atomic_save_test_lock();
     let s = Sandbox::new("finite");
     s.enable(Some(3));
     let before = fs::read(s.settings()).unwrap();
@@ -399,6 +403,9 @@ fn completion_refusal_precedes_all_effects_and_response_serialization_has_no_lat
 }
 #[test]
 fn a_queued_backup_rechecks_settings_after_disable_linearizes() {
+    // The settings save uses the process-wide directory-sync guard. Take the
+    // test lock before any product lock or hook; it changes no product concurrency.
+    let _save_lock = atomic_save_test_lock();
     let s = Sandbox::new("disable-queued");
     s.enable(None);
     let data = s.data();

@@ -24,7 +24,7 @@ import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation
 import type { EntityRef } from "../../types";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
-import { DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
+import { BOUNDARY_SENTENCE, DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import {
@@ -1200,6 +1200,8 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
     // Collapsed when every load case passed its checks; open otherwise.
     <details className="result-detail-panel numerical-health-detail" aria-label={DETAIL_SECTION_LABEL} data-testid="numerical-health-detail" open={health.cases.some((c) => c.state !== "checks_passed") || health.cases.length === 0}>
       <summary>{DETAIL_SECTION_LABEL}</summary>
+      {/* REQ-023: every use carries the boundary sentence, once, whatever the cases' states. */}
+      <p data-testid="numerical-health-boundary">{BOUNDARY_SENTENCE}</p>
       {health.cases.map((c) => (
         <article key={c.caseId} data-testid={`numerical-health-case-${c.caseId}`}>
           <h4>{c.caseId} <NumericalHealthBadgeText badge={c.badge} text={c.headline} testId={`numerical-health-case-badge-${c.caseId}`} /></h4>

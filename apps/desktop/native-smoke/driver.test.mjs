@@ -10,7 +10,7 @@ import vm from "node:vm";
 
 const source = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
 
-function load({ shown = {}, record = null, pool = null, poolError = null, projectRows = [], onMenu = null } = {}) {
+function load({ shown = {}, record = null, pool = null, poolError = null, projectRows = [], onMenu = null, commands = {} } = {}) {
   const logs = [];
   const elements = new Map(Object.entries(shown).map(([id, value]) => [id, { textContent: value, getAttribute: () => null }]));
   // The model tree's project rows, `tree-row-project-<encoded id>`, in order; the
@@ -28,6 +28,7 @@ function load({ shown = {}, record = null, pool = null, poolError = null, projec
     if (command === "native_smoke_log") { logs.push(args.line); return null; }
     if (command === "get_memory_pool_status") { if (poolError) throw new Error(poolError); return pool; }
     if (command === "native_smoke_menu" && onMenu) { onMenu(args.commandId); return null; }
+    if (Object.hasOwn(commands, command)) return commands[command](args);
     throw new Error(`unexpected command ${command}`);
   };
   const hooks = {};
@@ -486,4 +487,60 @@ test("a withheld Run ends the solve wait at once with the Solve panel's reason; 
   // The new proof of the project is there: the solve completed, whatever else is shown.
   elements.set("status-pill-solve-proof", { textContent: "", getAttribute: () => null, querySelector: () => ({ textContent: "rows=12; project=project-1; identity=match" }) });
   assert.equal(hooks.solveDone("blank", "project-1", null, true)(), true);
+});
+
+// Print… of the shown report: earlier records are drained before the press, the record the native print makes after
+// it is taken, the print window is closed, and the shown canonical HTML and hash travel with the record for run.mjs.
+test("printShownReport drains, presses Print, takes the native record and closes the print window", async () => {
+  const calls = [];
+  const event = { print_sha256_hex: "c".repeat(64), canonical_sha256_hex: "b".repeat(64), print_html: "<p>derived</p>", served_to_print_window: true, window_label: "report-print-1", dialog_presented: false };
+  let pressed = false;
+  let takes = 0;
+  const w = load({
+    commands: {
+      native_smoke_take_report_prints: () => { calls.push("take"); takes += 1; return takes === 1 ? [{ stale: true }] : takes === 3 ? [event] : []; },
+      native_smoke_close_report_print: () => { calls.push("close"); return true; }
+    }
+  });
+  w.elements.set("rendered-report-preview", { getAttribute: (name) => (name === "srcdoc" ? "<p>canonical</p>" : null) });
+  w.elements.set("rendered-report-hash", { textContent: `Canonical HTML SHA-256: ${"b".repeat(64)}`, getAttribute: () => null });
+  w.elements.set("rendered-report-print", {
+    disabled: false,
+    getAttribute: () => null,
+    click: () => {
+      calls.push("press");
+      pressed = true;
+      w.elements.set("rendered-report-print-status", { textContent: "Print window opened with the derived print view of SHA-256 bbbb; choose Print or Cancel in its dialog.", getAttribute: () => null });
+    }
+  });
+  const observed = await w.hooks.printShownReport("demo/print");
+  assert.equal(pressed, true);
+  assert.deepEqual(calls.slice(0, 2), ["take", "press"]);
+  assert.equal(calls.at(-1), "close");
+  assert.equal(observed.drained_before, 1);
+  assert.deepEqual(JSON.parse(JSON.stringify(observed.events)), [event]);
+  assert.equal(observed.closed, true);
+  assert.equal(observed.canonical_html, "<p>canonical</p>");
+  assert.equal(observed.shown_hash, `Canonical HTML SHA-256: ${"b".repeat(64)}`);
+  assert.match(observed.status, /^Print window opened/);
+});
+
+test("printShownReport takes no record after a refused print, and still closes", async () => {
+  const calls = [];
+  const w = load({
+    commands: {
+      native_smoke_take_report_prints: () => { calls.push("take"); return []; },
+      native_smoke_close_report_print: () => { calls.push("close"); return false; }
+    }
+  });
+  w.elements.set("rendered-report-print", {
+    disabled: false,
+    getAttribute: () => null,
+    click: () => w.elements.set("rendered-report-print-status", { textContent: "Not printed (REPORT-ROUTE-NOT-CURRENT): No rendered report is current.", getAttribute: () => null })
+  });
+  const observed = await w.hooks.printShownReport("demo/print");
+  assert.deepEqual(calls, ["take", "close"]);
+  assert.deepEqual(JSON.parse(JSON.stringify(observed.events)), []);
+  assert.equal(observed.closed, false);
+  assert.match(observed.status, /^Not printed/);
 });

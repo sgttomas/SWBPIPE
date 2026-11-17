@@ -27,13 +27,17 @@ DEL-04-05 AX-003 also requires unmet targets to be listed here. For an unmet-tar
 
 The list also carries applicability limitations, which exit criterion 3 does not require. An applicability limitation is a method that the exit criteria rely on and the product applies without refusal, but whose application range SWBPIPE's verification has not established. It causes no automatic refusal. Its entry says so in its Kind field. "Code" names any diagnostic or recorded field that bears on it, or none. "What is refused" says that nothing is refused and states what the method omits, and the other fields describe the method and its practical effect. Its status records Agent 0's limitation declaration. Declaring an applicability limitation acceptable does not establish that the method is adequate for any model, does not demonstrate the unestablished range and does not make an unmet criterion met.
 
+The list also carries omissions outside the exit criteria, which exit criterion 3 does not require either. An omission is a capability that no exit criterion requires, that the product does not provide, and for which nothing emits a refusal; it is listed so that the release notes state it. Its entry says so in its Kind field. "Exit criteria" and "Requirement affected" say none and why, "Code" says none, and "What is refused" says that nothing is refused and what the user cannot do. Its status records Agent 0's limitation declaration. Declaring an omission acceptable does not make an unmet criterion met.
+
 ## Entry form
 
 Each entry is one subsection:
 
 - **Id:** `LIM-nnn`, assigned in order and never reused.
 - **Kind:** present only for an applicability limitation: `applicability
-  limitation`, with the statement that it causes no automatic refusal.
+  limitation`, with the statement that it causes no automatic refusal; or for
+  an omission: `omission outside the exit criteria`, with the statement that
+  no exit criterion requires the capability and nothing emits a refusal.
 - **Exit criteria:** the release target's exit criteria it affects, by number.
 - **Requirement affected:** the requirement or capability of the exit criteria
   the refusal affects, by its identifier where one exists.
@@ -99,7 +103,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** the junction's pressure load is the sum of its terminals' caps. A compensated terminal would remove its member's share from the pipe solve, so the fitting's load would be analysed incomplete without notice.
 - **What the user does instead:** declare `transfers_to_wall` at every terminal of the node. Where a branch's thrust really is carried by a separate device, model that device as a connector or support. A compensated terminal at a region's own closure, away from any junction, is admitted.
 - **Basis:** DEL-04-07 [scope](../execution/PKG-04/DEL-04-07/ScopeOfWork.md), tees and pressure junctions (RT-A3 increment 1); made standing by RT-A3 increment 1 (PR #45).
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-003 — A combination that includes a hydrostatic test case
 
@@ -112,7 +116,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** v1.0 does not define what such a combination means. A test case uses its selected test contents and may hold its supports, so it can be a different system from the cases it would be combined with.
 - **What the user does instead:** once the test case is solved, report it on its own; its result is marked as a test and states which supports were held. Until then the product offers no alternative.
 - **Basis:** DEL-05-01 and DEL-05-02 [scopes](../execution/PKG-05/DEL-05-02/ScopeOfWork.md), "Withheld in v1.0"; made standing by PR #244.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-004 — The held-status subtrahend on the exact route
 
@@ -125,7 +129,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** it is not built for v1.0. The held solve on the exact route would be a further engine change with its own memory pricing, and the capability is a Should.
 - **What the user does instead:** use a plain subtraction, with neither `difference_basis` nor `subtrahend_support_state`. Each operand is then solved to its own support states, and each case's own result publishes them. On the exact route today the subtraction's record gives each operand's load case, modulus selection and numerical standing; it does not yet set the operands' support states side by side or say where they differ, which DEL-05-02/REQ-014 and AC-005 require, so the user compares the two cases' published states. The same disclosure is missing from exact-route envelopes; comparing cases manually does not meet AC-005.
 - **Basis:** DEL-05-02 [scope](../execution/PKG-05/DEL-05-02/ScopeOfWork.md), "Withheld in v1.0", with DEL-04-07/REQ-012 for the held-status solve; made standing by PR #244.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-005 — A shareable report for a model that uses the user's library records
 
@@ -169,7 +173,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
   - *What is not equivalent.* Raising the contents density to carry the weight: a hydrostatic test case is defined to take its contents density from the condition it selects (DEL-05-01/REQ-014), so weight carried in the section's contents density would not be in it. A weight entered as a load on the weight case: it is not in the generated seismic loads or in the modal mass.
   - *The bore.* To correct contents mass only, enter in the section the actual contents density multiplied by the remaining lined flow area divided by the bore area the selected route uses, and record that substitution. DEL-05-01/REQ-014 requires a hydrostatic test case to take its contents density from its selected condition, so that density would also need this correction. Hydrostatic test mechanics are not built yet; a non-test case's use of a condition's contents density is not decided. Both are currently refused by name. This does not change the model's bore geometry or pressure areas.
 - **Basis:** DEL-03-08 [scope](../execution/PKG-03/DEL-03-08/ScopeOfWork.md), "Not provided in v1.0". The capability was absent before this entry; SWBPIPE's Agent 0 decided that it is not built for v1.0 and added the entry with PR #291. PRD §12.5 is unchanged and still says the product shall support these weights; amending the PRD is the owner's, and this contradiction is put to the owner for that.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-010 — Outputs that need a full copy of the result cannot be made above 64 MiB, and report generation beyond the committed witnesses is not established
 
@@ -195,6 +199,19 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** The check counts entries using a forest of finding keys and does not implement general matching. When the appended findings give a shared key different predecessors, that counting method does not decide the assignment, so the check refuses the group by name.
 - **What the user does instead:** Give the library or record an identifier without a backtick, import the corrected library and apply its record again, or resolve the library finding. Refresh the library findings, solve the model again if it changed, then render or save again.
 - **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), production method (the admission of Diagnostics entries after the result's own). The refusal is made standing by PR #292.
+- **Status:** declared acceptable by Agent 0 (PR #363).
+
+### LIM-013 — A text value that reads as JSON naming a person-entered member is refused from the agent, an imported file and a requeued record
+
+- **Id:** LIM-013
+- **Exit criteria:** 8, 17
+- **Requirement affected:** Exit criterion 17, that the embedded agent builds the reference system from a person's request (DEL-16-06/REQ-010), and exit criterion 8 through DEL-07-06/AC-007's use cases that import a proposal or requeue a stored record (DEL-16-03/REQ-013 and AC-007). It narrows PRD §11.1 FR-MOD-004, "Users can label states/models using flexible naming conventions without enforced prover status", and PRD §24 R7's exit criterion "agents can propose schema-valid operations", for a text of this kind.
+- **Code:** none; the refusal is a message from the agent's executor, offline intake or requeue, naming the operation.
+- **What is refused:** An operation from the embedded agent, from an imported proposal file or from a stored record requeued after reopening whose value is a text that reads as JSON naming a member only the person enters, for example a label `{"modifiers":{}}`. The text is refused like the member itself. The refusal says the value names the member and cannot be told apart from it, unless a refusal for the value's length, depth or member count comes first, in which case it names that bound and not the member; it does not say that a member was found.
+- **What it means in practice for a user:** An imported file or an agent proposal carrying such a label is refused whole for that operation, and nothing of that batch is queued. A stored record carrying one is not requeued, and it stays stored. That includes the person's own record: once it is stored and the project reopened, its author cannot be verified, so it is refused like anyone's, and the person enters the text again in the inspector.
+- **Why:** The web view cannot tell literal text from a person-entered member without the engine's field kinds. Only the operation engine's field rules know which fields it writes as literal text, and the web view has no export of them.
+- **What the user does instead:** Enter the text yourself in the inspector, which is not refused, or change the label so that it does not read as JSON naming such a member.
+- **Basis:** DEL-16-03 [scope](../execution/PKG-16/DEL-16-03/ScopeOfWork.md), REQ-013 and AC-007; DEL-16-06 [scope](../execution/PKG-16/DEL-16-06/ScopeOfWork.md) (author routes and the trust boundary). Made standing by PR #261.
 - **Status:** not yet declared.
 
 ### LIM-014 — The nonlinear operating reference rack is refused from 1,775 nodes
@@ -256,7 +273,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
   - Both overlays' results were refused at step 4 in both modes. The committed reference system passes the standing gate; it then fails the reused report's source-mismatch check. The genuine straight witness, the control, is admitted and rendered.
   - The refusal was standing before this entry; the entry was added with PR #313.
 - **Not met by declaring it:** declaring this refusal acceptable does not meet exit criterion 4 for these results, and does not make an unmet criterion met.
-- **Status:** not yet declared.
+- **Status:** declared not acceptable by Agent 0 (PR #363).
 
 ### LIM-017 — Nonlinear results of a model with a gap support are published unqualified and unresolved
 
@@ -335,7 +352,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
   - Product-level witness: `core/product_physics/tests/friction_one_way_normal_source.rs`, `a_lift_off_friction_cycle_is_refused_by_name_with_no_result`. It is the same chord geometry as a model document, with this file's pipe section and material, so its stiffness is not the nominal chord's. In both modes it gives the two codes above and no result row.
   - A separate observation, not generalized: the frozen reference's exact lift-boundary case LIFT-BOUNDARY (`validation/references/friction_one_way_normal`) converges in dense mode, and reaches its four-iteration cap in sparse mode, where it is refused with the same codes. This is not a general failure of sparse mode, and dense mode is not a workaround.
   - The refusal became standing with PR #326, which admits a one-way or lift-off support as a friction normal source and records this entry. Before it, such a model was refused at model build (`NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`).
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #363).
 
 ### LIM-020 — Modal analysis refuses a model with Timoshenko straight members, which exact-route authoring writes by default
 
@@ -343,13 +360,13 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Exit criteria:** 1
 - **Requirement affected:** exit criterion 1's modal and response-spectrum analyses, for a model whose straight members are Timoshenko; DEL-04-09/REQ-006, which admits models on both routes; DEL-04-10, which works on DEL-04-09's modal basis. The reference system selects Euler–Bernoulli members explicitly (`fixtures/reference_system/SPECIFICATION.md`, "Route"), so this refusal does not prevent the criterion's demonstration on it. The Timoshenko exclusion narrows the supported modal domain relative to the same linear model described by PRD FR-SOL-016 and §§12.1 and 12.9; §12.9 also expressly requires named refusal of what is not admitted.
 - **Code:** `MODAL_TIMOSHENKO_MASS_UNSUPPORTED`, blocking (`core/product_physics/src/modal/prepare.rs`, "The modal interim refusals, each by name").
-- **What is refused:** forming a modal solution for a model that selects Timoshenko straight members (`timoshenko_annulus_energy_v1`), on either route: on the exact route through `pressure_contract.shear_model`, on the pressure-free route through `model_settings.shear_model`. Nothing is formed. Modal analysis has no product surface yet (DEL-04-09, "Admission"), so today the refusal is met only in the implemented modal preparation and its readers, not by a user in the desktop.
+- **What is refused:** forming a modal solution for a model that selects Timoshenko straight members (`timoshenko_annulus_energy_v1`), on either route: on the exact route through `pressure_contract.shear_model`, on the pressure-free route through `model_settings.shear_model`. Nothing is formed. Modal analysis has no desktop surface and no engineering admission yet (DEL-04-09, "Admission"). A user meets the refusal through the headless runner's experimental `modal` command; otherwise it is met only in the implemented modal preparation and its readers.
 - **What it means in practice for a user:**
   - On the exact route, new pressure authoring writes Timoshenko straight members by default (`apps/desktop/src/features/pressure-authoring/pressureContract.ts`, `DEFAULT_SHEAR_MODEL`; `core/model_operations/operation_applier/src/pressure_authoring.rs`). A model authored with the default is refused modal analysis, and so has no basis for response-spectrum analysis.
   - Selecting Euler–Bernoulli members explicitly changes the mechanical model: straight members lose shear flexibility in every analysis of that model, static ones included. It is not an equivalent alternative.
   - On the pressure-free route Timoshenko is opt-in, so a document that does not select it is not affected.
 - **Why:** the implemented modal mass is Euler–Bernoulli consistent mass with Rayleigh rotary inertia, so a model selecting shear-flexible Timoshenko straight members is refused rather than paired with it. A Timoshenko consistent mass is committed in DEL-04-09 (REQ-001) and its element and exact element references exist (PR #335), but the product's mass assembly, the integrity re-formation and the independent readers do not yet form it, so the refusal stands (REQ-006).
-- **What the user does instead:** no user-facing modal alternative is available yet. Explicitly selecting Euler–Bernoulli removes this particular preparation refusal and changes the straight-member theory for the whole model; running modal analysis in the desktop or headless runner still awaits the Admission conditions of DEL-04-09.
+- **What the user does instead:** no user-facing modal alternative is available yet. Explicitly selecting Euler–Bernoulli removes this particular preparation refusal and changes the straight-member theory for the whole model; the headless runner's `modal` command runs a modal request only as an experiment, and modal analysis in the desktop, or as an engineering result on any surface, still awaits the Admission conditions of DEL-04-09.
 - **Basis:** DEL-04-09 [scope](../execution/PKG-04/DEL-04-09/ScopeOfWork.md), REQ-001 ("Straight members", the Timoshenko consistent mass) and REQ-006 ("Refused by name", the temporary refusal while the integration is incomplete, with the narrowing against the PRD); DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md), on DEL-04-09's modal basis. The refusal was standing before this entry, from PR #94, which brought modal preparation to main; the exact-route Timoshenko authoring default predates it (T4-U8). The entry was added with PR #333. When a landed change removes the refusal, the entry is updated to the remaining gap. It is withdrawn only when DEL-04-09 AC-012's verification exists, the continuum Timoshenko benchmarks included.
 - **Status:** not yet declared.
 
@@ -410,4 +427,51 @@ Entries are added in the same PR that makes the refusal standing. A previously u
     The note had an independent reading (`review/return.md`), and its corrections are integrated.
   - Agent 0 decided that a second-order curved-bar element is not to be built before v1.0. Its prerequisites are the factor's meaning against a curved-bar baseline, an independent annular reference, and an element that is formed consistently in every place the product forms it.
   - Declaring this limitation acceptable does not establish that the element is physically adequate for any bend.
+- **Status:** not yet declared.
+
+### LIM-022 — Response-spectrum analysis applies one ground motion to every support
+
+- **Id:** LIM-022
+- **Exit criteria:** 1
+- **Requirement affected:** DEL-04-10/REQ-011 and AC-009, independent (multi-level) support motion, a Should commitment of the deliverable that owns exit criterion 1's response-spectrum analysis. The reference system's spectrum request applies one spectrum to every support in X, Y and Z (`fixtures/reference_system/SPECIFICATION.md` §8.5), so this refusal does not prevent the criterion's demonstration on it. PRD §12.9 requires response-spectrum seismic analysis for v1.0 without naming support-motion forms, and does not state independent support motion; the decision narrows the capability DEL-04-10 states within that broad requirement and contradicts no explicit PRD statement.
+- **Code:** `SPECTRUM_INDEPENDENT_SUPPORT_MOTION_UNSUPPORTED`, blocking, committed by DEL-04-10/REQ-011 and AC-009. No spectrum product code exists yet, so nothing emits it today.
+- **What is refused:** a spectrum request with more than one support group: different spectra for different groups of supports, with each group's own influence vectors. Every support moves with one ground motion per direction (uniform support motion, DEL-04-10 CLM-001).
+- **What it means in practice for a user:**
+  - Supports at different elevations or on different structures cannot be given different floor or building spectra in one analysis.
+  - A common practice where group spectra are not available is to apply one envelope spectrum to every support. It is the user's engineer's judgment whether that suits the system; SWBPIPE does not determine it.
+  - The pseudo-static part of differential support motion is seismic anchor movement, a static load case either way, and is unaffected.
+- **Why:** Agent 0 decided that independent support motion is not built for v1.0. It is a Should commitment (REQ-011), and the reference system's spectrum request uses uniform support motion. REQ-011 stays the deliverable's commitment for a later release, with its refusals of a group that moves a skewed restraint and of CQC.
+- **What the user does instead:** one spectrum per direction applied to every support, chosen by the user's engineer, for example as an envelope of the group spectra.
+- **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md): CLM-001 ("Uniform support motion"), "Decided for v1.0", REQ-011 and AC-009. The decision was made by Agent 0 under the grant in `AGENTS.md` ("Posture for this phase") and is recorded with this entry by PR #355. Whether the PRD should be amended to say so is the owner's; Agent 0 brings it to the owner.
+- **Status:** not yet declared.
+
+### LIM-023 — A response-spectrum result cannot be combined with static load cases
+
+- **Id:** LIM-023
+- **Kind:** omission outside the exit criteria. No exit criterion requires this capability, and nothing emits a refusal for it.
+- **Exit criteria:** none. Exit criterion 1 lists three-axis static seismic with SRSS and absolute-sum combination, and response spectrum, as separate analyses.
+- **Requirement affected:** none of the release target. The reference system's occasional combinations, RS-OCC-SRSS and RS-OCC-ABS (key result KR-02), combine RS-SUS with RS-EQ-SRSS or RS-EQ-ABS of the static seismic terms RS-dEQX, RS-dEQY and RS-dEQZ (`fixtures/reference_system/SPECIFICATION.md` §8.2 and "Key results"). Its spectrum results (KR-09, EQ-7) stand alone. The load-case algebra's operands are load cases and combinations (DEL-05-02). The PRD states no combination of a spectrum result with static cases.
+- **Code:** none. A spectrum result is not a load case or combination, so no combination can name it; there is no request to refuse.
+- **What is refused:** nothing is refused. A combination such as sustained plus seismic cannot use a response-spectrum result as its seismic term; it uses the static seismic cases.
+- **What it means in practice for a user:**
+  - Sustained-plus-seismic and other occasional combinations are formed from static seismic cases only.
+  - A spectrum result is read on its own, as unsigned combined magnitudes, and any combination of it with sustained or other results is done outside SWBPIPE by the user's engineer.
+  - Stresses from spectrum responses are not computed either (DEL-04-10 CLM-003), so no code check reads a spectrum result.
+- **Why:** an unsigned combined magnitude cannot be added to a signed static result as if it were signed, and the rules for doing so (absolute sum or SRSS with the static case, per component) are not committed by any deliverable. No result the release target requires needs it, so Agent 0 decided that it is omitted for v1.0.
+- **What the user does instead:** the static seismic cases and their combinations (DEL-05-01, DEL-05-02) for occasional combinations; the spectrum result on its own for the dynamic response.
+- **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md): CLM-003 and "Decided for v1.0"; its `deliverable.yaml` need on DEL-05-02, which applies only if a spectrum result is later offered as an operand. The omission was standing in DEL-04-10's CLM-003; Agent 0 decided it for v1.0 under the grant in `AGENTS.md`, and PR #355 records this entry. No PRD amendment is needed, because the PRD states no such combination.
+- **Status:** not yet declared.
+
+### LIM-024 — Spectrum evaluation may refuse when its accuracy argument is inconclusive
+
+- **Id:** LIM-024
+- **Exit criteria:** 1
+- **Requirement affected:** DEL-04-10/REQ-001 and REQ-002: spectral ordinates interpolated by the spectrum's stated rule over positive finite tables and queries inside their range. Each published ordinate, pseudo-acceleration S and scaled s·S has a relative error bound of at most 1e-9 (REQ-008), conditional on IEEE 754 binary64 round to nearest and the library-function assumption below.
+- **Code:** `SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED`, blocking, from the spectrum table evaluation (`core/analysis/response_spectrum`, unit S2). No spectrum solve exists yet to emit it.
+- **What is refused:** an evaluation for which this implemented error argument does not establish the stated relative accuracy for every published value, including when a computed approximation rounds to zero or outside the finite range. Nothing is published for that evaluation. The refusal is conservative: it is not proof that no sufficiently accurate binary64 answer exists. Invalid records and queries outside the table retain their own codes.
+- **Assumption and evidence:** logarithmic operations rely on each platform `ln`, `ln_1p` and `exp` having relative error at most 2⁻⁵⁰. This is assumed, not checked or established by platform documentation, for Apple's libm on macOS, glibc on Linux and the Microsoft C runtime on Windows. The maintained higher precision sweep compares final results on the configurations actually exercised and recorded in local or hosted runs; passing it does not directly check or establish the primitive-function premise. A supported platform found to violate the constant reopens the premise and affected accuracy claims even if final-result tests still pass. Declaring this limitation would accept reliance on the assumption; it would not establish the assumption.
+- **What it means in practice for a user:** the known conservative refusals occur at binary64 range edges. An exact `1e-320` knot at scale 1 is refused despite having zero representation error, because the argument adds a worst-case half-subnormal spacing. A constant `f64::MAX` table may be refused at an interior query because the computed blend rounds above the finite range, although its exact answer is representable. Other refusals include true overflow or underflow of an ordinate, S or s·S. This does not promise acceptance of every exact normal-range value. No refusal at ordinary engineering magnitudes has been demonstrated by these witnesses.
+- **Why:** Agent 0 requires the implemented argument to support each published value to 1e-9 relative under its stated assumptions, without an absolute floor. A worst-case error allowance exceeding that threshold warrants refusal, not a claim that accurate representation is impossible. The conservative policy is retained without an arithmetic repair; a later argument may justifiably publish the present counterexamples.
+- **What the user does instead:** the current evaluation cannot supply this result. Use a method able to establish its accuracy; changing physical inputs solely to bypass the refusal would change the problem.
+- **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md), "Decided for v1.0". Agent 0 settled the conditional claim and conservative refusal policy under the grant in `AGENTS.md`; PR #367 records the exact wording and review.
 - **Status:** not yet declared.

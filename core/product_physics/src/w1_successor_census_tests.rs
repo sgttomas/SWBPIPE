@@ -226,7 +226,7 @@ fn w1_subnormal_annulus_is_declined_before_preparation() {
     for solver in MODES {
         let (capture,observer,ordinary)=observed(solver,&raw);
         let ids=w1_case_ids(&capture).unwrap();
-        let triggers:Vec<_>=case_triggers(&ordinary.numerical_quality,&observer.ordinary,ids.ids()).collect();
+        let triggers:Vec<_>=case_triggers(&ordinary.numerical_quality,&ordinary.diagnostics,&observer.ordinary,ids.ids()).collect();
         let attempted=ids.attempted(triggers.iter().copied());
         assert!(!attempted.requests().is_empty(),"{solver:?}: real ordinary trigger");
         let error=match observer.prepare_cases(ordinary,ids.ids().len(),attempted.requests()) {
@@ -253,7 +253,7 @@ fn w1_annulus_boundary_is_a_real_preparation_fallback() {
         let old_i=observer.with_case(0,|c|c.source.as_ref().map(|s|s.members()[0].second_moment_y.to_bits()));
         assert_eq!(old_i,Some(f64::MIN_POSITIVE.to_bits()),"{solver:?}: old normal I");
         let ids=w1_case_ids(&capture).unwrap();
-        let triggers:Vec<_>=case_triggers(&ordinary.numerical_quality,&observer.ordinary,ids.ids()).collect();
+        let triggers:Vec<_>=case_triggers(&ordinary.numerical_quality,&ordinary.diagnostics,&observer.ordinary,ids.ids()).collect();
         let attempted=ids.attempted(triggers.iter().copied());
         assert!(!attempted.requests().is_empty(),"{solver:?}: ordinary trigger");
         let mut prepared=observer.prepare_cases(ordinary,ids.ids().len(),attempted.requests())

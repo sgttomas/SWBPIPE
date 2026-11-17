@@ -3262,6 +3262,9 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
         _g3_combinations(snapshot,body,ids,crows)
         rows.update(crows)  # one id set (G3 (b)): the cases' and the combination entries' rows
         state["gate"]="G4";diags=snapshot["diagnostics"]
+        # DEL-04-07 (the Rust twin): an inspection-only evaluation belongs only to a blocked document (refused at G7),
+        # so in a solved successor it is named and never read as an outcome.
+        _need(snapshot["status"].get("mechanics")!="MECHANICS_SOLVED" or not any(d.get("code")=="NUMERICAL_INTEGRITY_INSPECTION_ONLY" for d in diags),state["gate"],"INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
         _need(len({d["id"] for d in diags})==len(diags) and not any(d["code"]=="SOURCE_BLOCK_RECOVERY_SELECTED" for d in diags),state["gate"],"DIAGNOSTIC_MISMATCH")
         for i,c in enumerate(cases):
             cid=ids[i];selected=[d for d in diags if d["code"]=="RETAINED_PRECISION_SELECTED" and cid in d.get("affected_refs",[])];unavailable=[d for d in diags if d["code"]=="RETAINED_PRECISION_UNAVAILABLE" and cid in d.get("affected_refs",[])]

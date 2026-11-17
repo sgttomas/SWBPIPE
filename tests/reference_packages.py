@@ -145,6 +145,9 @@ CONTAINERS = {
         "published/ holds a README only",
         loose={"published/README.md": "the README of where the F1 modal references are consumed; it belongs to "
                                       "neither package and no list names it"}),
+    "f2_spectrum": Container(
+        "five packages (closed_form, discrete, benchmark_pack, recovery_w1, recovery_w2), each with its own README, generators "
+        "and SHA256SUMS"),
 }
 
 DYNAMICS_TEST = "tests/test_dynamics_references.py"
@@ -358,15 +361,16 @@ PACKAGES: dict[str, Package] = {
     "f1_modal/continuum": Package(
         "DEL-04-09", _generated("generators/generate.py (AUTHORED, GENERATORS and the three JSON files)"),
         sums=(Sums("SHA256SUMS"),),
-        other_test=DYNAMICS_TEST,
-        # From the package directory: python3 -I -B generators/generate.py (about 11 s).
-        regeneration_gap=F1_TRUST),
+        checks=(Check(("generators/generate.py",)),)),
     "f1_modal/mass_discrete": Package(
         "DEL-04-09", _generated("generators/f1_mass_discrete.py (FIXED_FILES and both JSON files)"),
         sums=(Sums("SHA256SUMS"),),
-        other_test=DYNAMICS_TEST,
-        # From the package directory: python3 -I -B generators/f1_mass_discrete.py (about 5 s, several processes).
-        regeneration_gap=F1_TRUST),
+        checks=(Check(("generators/f1_mass_discrete.py",)),)),
+    "f2_spectrum/closed_form": _plain("generate.py", deliverables="DEL-04-10"),
+    "f2_spectrum/discrete": _plain("f2_spectrum_discrete.py", deliverables="DEL-04-10"),
+    "f2_spectrum/benchmark_pack": _plain("generate.py", deliverables="DEL-04-10"),
+    "f2_spectrum/recovery_w1": _plain("w1_recovery.py", deliverables="DEL-04-10"),
+    "f2_spectrum/recovery_w2": _plain("w2_recovery.py", deliverables="DEL-04-10"),
 
     # Exact-route references frozen after the first table; each also has its own maintained test.
     "exact_difference_basis": _plain("exact_difference_basis_reference.py", deliverables="DEL-05-02"),
@@ -389,7 +393,7 @@ PACKAGES: dict[str, Package] = {
 
 # Outputs not regenerated, regeneration gaps and stdout comparisons made only on named platforms, each a row
 # of taken_on_trust().
-TAKEN_ON_TRUST_COUNT = 10
+TAKEN_ON_TRUST_COUNT = 8
 MEMBERSHIP_ON_TRUST_COUNT = 2
 
 

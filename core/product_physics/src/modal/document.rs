@@ -28,9 +28,13 @@
 //!   the stiffness and shifted side (`unit:one`) and time squared on the
 //!   mass side (`unit:square_second`). No kind is in modal-1's closed
 //!   `equilibrated_basis` list. λ = ω² and μ are not published.
-//! - **Admission.** Experimental: the integrity parameters are the caller's
-//!   test-local set, labelled; `public_engineering_result` is false. Nothing
-//!   outside the tests calls this module.
+//! - **Admission.** Experimental: `status` is `experimental` and
+//!   `public_engineering_result` is false whatever the parameters (DEL-04-09
+//!   "Admission"). The parameter standing is separate: `selected`, with the
+//!   canonical label, exactly when the bound tuple is the selected instance
+//!   bit for bit; otherwise `test_local`, with the caller's label. A label
+//!   never confers the standing. [`modal_selected_result_document`] is the
+//!   crate-internal seam that runs the selected instance, unbudgeted.
 use super::eigen::{FiniteCensus, ReportedEndpoint};
 use super::integrity::ModalIntegrityParameters;
 use super::outcome::{run_modal_dense, ModalOutcome, ModalStanding};
@@ -54,6 +58,9 @@ pub(crate) const MODAL_RESULT_LIMITATIONS: [&str; 2] = [
     "Small-displacement, linear-elastic Euler-Bernoulli frame modal preview about the unloaded configuration, with any nonlinear supports at the stated state of a named solved case, with consistent mass on straight members and lumped rigid-body mass on realized arcs and component bodies; numerical integrity does not establish physical correctness.",
     "The integrity checks are numerical estimates under stated premises, not mathematical bounds: each mode's residual is evaluated against a double-double re-formation of the stiffness and mass, its eigenvalue error is a first-order estimate, and the Sturm count is relied on only at shifts where the estimated backward error of forming and factoring the shifted matrix is small against both its estimated distance from singularity and the shift's separation from the computed eigenvalues. They do not bound modelling, discretization or input error.",
 ];
+/// The canonical label of the selected parameter standing: the name of the
+/// constructor whose tuple it denotes.
+pub(crate) const MODAL_SELECTED_PARAMETER_LABEL: &str = "selected_a1_a2_a3_criteria";
 /// The members a modal request may carry besides `model` and `materials`.
 const MODAL_OPTION_MEMBERS: [&str; 7] = [
     "mode_count",
@@ -428,8 +435,38 @@ pub(super) fn modal_doc_subject_census(outcome: &ModalOutcome) -> Value {
     })
 }
 
+/// The parameter standing a document states (module docs, "Admission").
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ModalParameterStanding<'a> {
+    /// The bound tuple is the selected instance, bit for bit.
+    Selected,
+    /// Any other tuple, with the caller's label.
+    TestLocal(&'a str),
+}
+
+impl<'a> ModalParameterStanding<'a> {
+    /// The standing of `params`: derived from the tuple, never from `label`,
+    /// which only names a test-local set.
+    pub(crate) fn modal_doc_standing_of(params: &ModalIntegrityParameters, label: &'a str) -> Self {
+        if params.modal_is_selected_tuple() {
+            Self::Selected
+        } else {
+            Self::TestLocal(label)
+        }
+    }
+
+    /// The document's `parameter_standing` and `parameter_label`.
+    fn modal_doc_standing_fields(self) -> (&'static str, &'a str) {
+        match self {
+            Self::Selected => ("selected", MODAL_SELECTED_PARAMETER_LABEL),
+            Self::TestLocal(label) => ("test_local", label),
+        }
+    }
+}
+
 /// The identity members every document carries.
-fn modal_doc_identity(binding: &Value, label: &str) -> Map<String, Value> {
+fn modal_doc_identity(binding: &Value, standing: ModalParameterStanding) -> Map<String, Value> {
+    let (parameter_standing, label) = standing.modal_doc_standing_fields();
     let run = modal_doc_sha256(&json!({"request_sha256": binding["request_sha256"], "integrity_parameters_sha256": binding["integrity_parameters_sha256"]}))
         .unwrap_or_default();
     let mut doc = Map::new();
@@ -443,7 +480,7 @@ fn modal_doc_identity(binding: &Value, label: &str) -> Map<String, Value> {
     doc.insert("canonical_profile".into(), json!(MODAL_RESULT_CANONICAL));
     doc.insert(
         "admission".into(),
-        json!({"status": "experimental", "public_engineering_result": false, "parameter_standing": "test_local", "parameter_label": label}),
+        json!({"status": "experimental", "public_engineering_result": false, "parameter_standing": parameter_standing, "parameter_label": label}),
     );
     doc.insert(
         "run".into(),
@@ -453,8 +490,8 @@ fn modal_doc_identity(binding: &Value, label: &str) -> Map<String, Value> {
     doc
 }
 
-fn modal_doc_refused(binding: &Value, label: &str, refusals: &[Diagnostic]) -> Value {
-    let mut doc = modal_doc_identity(binding, label);
+fn modal_doc_refused(binding: &Value, standing: ModalParameterStanding, refusals: &[Diagnostic]) -> Value {
+    let mut doc = modal_doc_identity(binding, standing);
     doc.insert("status".into(), json!("refused"));
     let rows = refusals.iter().enumerate().map(|(i, d)| modal_doc_diagnostic_row("refusal", i, d, "modal")).collect();
     doc.insert("refusals".into(), modal_doc_table(rows));
@@ -463,8 +500,10 @@ fn modal_doc_refused(binding: &Value, label: &str, refusals: &[Diagnostic]) -> V
 
 /// The document of one modal request under `params` (module docs): the
 /// solved projection, or the refused one with every blocking diagnostic.
-/// `label` names the caller's parameter set.
+/// `label` names the caller's parameter set when it is test-local; the
+/// selected tuple always carries the canonical label.
 pub(crate) fn modal_result_document(request: &Value, params: &ModalIntegrityParameters, label: &str) -> Value {
+    let label = ModalParameterStanding::modal_doc_standing_of(params, label);
     let parsed = match ModalPreviewRequest::parse_modal_request(request.clone()) {
         Ok(parsed) => parsed,
         Err(refusal) => {
@@ -500,9 +539,18 @@ pub(crate) fn modal_result_document(request: &Value, params: &ModalIntegrityPara
     }
 }
 
+/// The crate-internal seam (DEL-04-09 "Parameter standing"): the document of
+/// one modal request under the selected instance, standing `selected`.
+/// Unbudgeted, as every request is until a work budget exists: the dense
+/// memory guard and every named refusal apply, and the document stays
+/// experimental, not a public engineering result.
+pub(crate) fn modal_selected_result_document(request: &Value) -> Value {
+    modal_result_document(request, &ModalIntegrityParameters::selected_a1_a2_a3_criteria(), MODAL_SELECTED_PARAMETER_LABEL)
+}
+
 /// The solved document of an outcome. `pub(super)` for the producer-edge
 /// generator in `tests_document.rs` only.
-pub(super) fn modal_doc_solved(outcome: &ModalOutcome, binding: &Value, label: &str) -> Value {
+pub(super) fn modal_doc_solved(outcome: &ModalOutcome, binding: &Value, label: ModalParameterStanding) -> Value {
     let ids = &outcome.node_ids;
     let dofs = 6 * ids.len();
     let mut free_index = vec![None; dofs];

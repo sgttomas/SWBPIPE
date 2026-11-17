@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// DO NOT use this runner to launch the application (--run) until it goes through the shared launch helper's environment allowlist and has had its own launch-safety reading: it hands the application the whole inherited environment and has no reviewed home lifecycle.
+// DO NOT use this runner to launch the application (--run). Its launch hold stands until Agent 0 lifts it, after the independent launch-safety reading of this launch path (the allowlisted environment, the throwaway home and window marker, the census and the stop) and the host's quieting (issue #360). Nothing in this file, and no passing test, lifts it.
 // Desktop performance runner (RT-U4, release target exit criterion 9;
 // DEL-04-05), macOS. Observation only:
 // nothing here asserts a time or memory bound.
@@ -7,33 +7,55 @@
 //   node apps/desktop/native-smoke/perf.mjs --build --app-dir DIR [--target-dir DIR]
 //   node apps/desktop/native-smoke/perf.mjs --plan [--plan-file F] [--subset S]
 //   node apps/desktop/native-smoke/perf.mjs --run --app-dir DIR --models DIR [--results DIR]
-//        --out DIR [--plan-file F] [--subset S | --runs id,id] [--budget-s N] [--keep]
+//        --out DIR [--plan-file F] [--subset S | --runs id] [--budget-s N] [--keep]
 //
 // --build (under the host slot, which the caller takes first; it runs cargo itself):
 //   under the worktree build lock, refuses a stale WebAssembly engine (run `npm run
 //   build:wasm` first), builds the frontend (`npm run build`) and a RELEASE build of the
 //   app with `--features native-smoke,tauri/custom-protocol` and the smoke's
-//   TAURI_CONFIG (background throttling off, as `run.mjs`), into --target-dir (default
+//   TAURI_CONFIG (`smokeWindows`, as `run.mjs`: background throttling off and a
+//   non-persistent web view store), into --target-dir (default
 //   CARGO_TARGET_DIR; one is required). The executable cargo reports is copied to
 //   DIR/openpipestress-desktop and bound in DIR/perf-binding.json (SHA-256, source
 //   commit and dirty state, engine stamps, dist digest, cargo command). `run.mjs`
 //   builds debug into src-tauri/target; timings need a release build, hence this one.
 //
-// --run: for each planned run (one model, one mode), in plan order within the window
-//   budget, launches a private copy of the bound app (its SHA-256 checked) against a
-//   throwaway HOME with `perf-driver.js` as the native-smoke driver:
+// --run: one window holds exactly one launch. A selection (--subset or --runs) naming
+//   any other number of runs is refused (PERF-ONE-LAUNCH-PER-WINDOW), as is a binding
+//   whose recorded smoke window configuration lacks the non-persistent store or the
+//   throttling switch (PERF-BINDING-REFUSED: build again), before any state is made. The
+//   window is then admitted only by creating the window marker (WINDOW_MARKER) atomically:
+//   a marker already there, left by a window running, interrupted, killed outright or
+//   whose teardown or cleanup was not established, refuses it (EARLIER-WINDOW-UNRESOLVED)
+//   and is never cleared automatically. The window launches a private copy of the bound
+//   app (its SHA-256 checked) once, against a throwaway home created empty
+//   (`createThrowawayHome`) with `perf-driver.js` as the native-smoke driver. The app's
+//   environment is built from nothing (`buildLaunchEnv`; `refusedPerfLaunchEnv` checks the
+//   whole of it before the start): HOME and CFFIXED_USER_HOME the home, TMPDIR inside it,
+//   the strict chooser on, the driver, plan and report, and only the variables the run
+//   selects (PERF_RUNNER_KEYS). The model the driver's chooser opens is copied inside the
+//   home, and every plan path must resolve there (`refusedPlanPaths`); the report and the
+//   samples are runner outputs outside it. The run is one of:
 //     - mode `native`: the app's own solve worker solves the model;
 //     - mode `injected`: SWBPIPE_NATIVE_SMOKE_INJECT_RESULT names the run's result file
 //       (`release_timing --write` from the same model document), which the started job
 //       publishes instead of starting its worker (`src-tauri/src/native_smoke_inject.rs`).
 //   It samples the app, its solve workers and the WebKit processes started for it
-//   (`perf-sampler.py`), waits for the app to finish or the run's timeout, inspects the
-//   SQLite store and classifies the run. An independent --run supervisor bounds
+//   (`perf-sampler.py`), waits for the app to finish or the run's timeout, takes the
+//   census of the private copy (no process still runs it; after the sampler has stopped,
+//   outside the timed span), inspects the SQLite store and classifies the run. An
+//   unresolved census is a `launch_failed` run named LAUNCH-CENSUS-UNRESOLVED: its record
+//   is committed without inspecting the store, and no further run starts in the window.
+//   The census covers the private executable only: not the WebKit helper processes
+//   launchd starts for the app, and not the host between windows. An independent --run supervisor bounds
 //   its internal --run-child, including synchronous inspection. Raw sampler lines
 //   and completed-run records are persisted before advancing; forced-stop receipts
-//   explicitly describe partial evidence. Without --keep, an ok run's private
-//   HOME is removed after its record is committed; failed stores are retained.
-//   The supervisor removes remaining scratch only after process verification.
+//   explicitly describe partial evidence. The supervisor writes the window record first;
+//   then, only when its teardown recorded the owned group and the owned executable's
+//   processes gone, it removes an ok window's scratch (the home with it; with --keep only
+//   the app copy) and its marker. A failed window's scratch is retained as evidence. A
+//   teardown not established, or a cleanup that fails, retains the scratch, the home, the
+//   private copy and the marker, which then names why, so that no next window starts.
 //
 // Threat model (accepted for PR #53's permissions review): the plan checks (bare names,
 // containedPath) and the injection root guard against mistakes in plan text and caller input:
@@ -50,14 +72,16 @@
 // refused_with_message (quoted), ok. A message is quoted verbatim; `needs_review` marks one a person should judge.
 import { execFile, fork, spawn, spawnSync } from "node:child_process";
 import { rm, writeFile } from "node:fs/promises";
-import { createHash } from "node:crypto";
-import { chmodSync, constants, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, closeSync, fsyncSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statSync, writeFileSync, writeSync } from "node:fs";
+import { createHash, randomUUID } from "node:crypto";
+import { chmodSync, constants, copyFileSync, existsSync, linkSync, lstatSync, mkdirSync, mkdtempSync, openSync, closeSync, fsyncSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statSync, writeFileSync, writeSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { isMainThread, parentPort, Worker, workerData } from "node:worker_threads";
-import { launchFailures, newNonce, readReport, recordedOutcome } from "./launch-outcome.mjs";
+import { awaitNoProcesses, buildLaunchEnv, censusOf, createThrowawayHome, readRunMarker, refusedPerfLaunchEnv, refusedPlanPaths, refusedSmokeWindows, smokeWindows } from "./launch-env.mjs";
+import { processStartTime, shellQuote } from "../scripts/worktreeBuildLock.mjs";
+import { launchFailures, newNonce, readReport, recordedCensusFailures, recordedOutcome } from "./launch-outcome.mjs";
 import { marksCheck, marksRefuse } from "./marks-check.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -65,14 +89,26 @@ const desktop = path.resolve(here, "..");
 const project = path.resolve(desktop, "..", "..");
 const tauriDir = path.join(desktop, "src-tauri");
 const TAURI_CONF = JSON.parse(readFileSync(path.join(tauriDir, "tauri.conf.json"), "utf8"));
-const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: TAURI_CONF.app.windows.map((window) => ({ ...window, backgroundThrottling: "disabled" })) } });
+// The smoke build's windows, as `run.mjs`'s (`smokeWindows`): background throttling off and a non-persistent web
+// view store. A binding whose recorded configuration lacks either is refused at --run (`refusedPerfBinding`).
+const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: smokeWindows(TAURI_CONF.app.windows) } });
 const BIN_NAME = "openpipestress-desktop";
 const BINDING = "perf-binding.json";
 const INJECT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_RESULT";
 // The directory the injected file must lie in (the hook refuses anything else).
 const INJECT_ROOT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT";
+const READER_DIAGNOSTICS_ENV = "SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS";
 const SEVERITY = ["crash", "launch_failed", "half_written_save", "misleading_message", "host_unobservable", "hang", "refused_with_message", "ok"];
 const GIB = 1024 ** 3;
+// The census helper's polling deadline. The 10 s target leaves room for sampler stop and stderr drain in the
+// supervisor's post-run reserve (at most 30 s); it does not bound a synchronous lsof call. The separate supervisor
+// may stop the runner before a per-run census record is written, leaving failed-window evidence; nothing passes.
+const PERF_CENSUS_BOUND_MS = 10 * 1000;
+// The asynchronous-answer timer allows this grace after the polling deadline; it cannot interrupt synchronous work.
+const CENSUS_ANSWER_GRACE_MS = 2000;
+export const CENSUS_UNRESOLVED_STOP = "LAUNCH-CENSUS-UNRESOLVED";
+// A store not inspected because a process of the private copy may still be writing it (an unresolved census).
+const STORE_NOT_INSPECTED = "not_made";
 
 function killOwnRunnerGroup() {
   try { process.kill(-process.pid, "SIGKILL"); }
@@ -145,6 +181,8 @@ export function watchWindow(child, { budgetMs, killGraceMs = 5000, finalGraceMs 
     let triggerSample = null;
     let latestSample = null;
     let activeAppPid = null;
+    // The App starts the runner announced (its `app` event with a PID): the window's actual launch count.
+    let launchesStarted = 0;
     const completedRuns = [];
     let killTimer = null;
     let finalTimer = null;
@@ -215,11 +253,12 @@ export function watchWindow(child, { budgetMs, killGraceMs = 5000, finalGraceMs 
         owned_executable_pids_gone: workersVerified && owned.every(({pid}) => !pidLive(pid)),
         owned_pids: owned, group_errors: groupErrors, events,
         trigger_sample: triggerSample, latest_sample: latestSample,
-        completed_run_files: completedRuns,
+        completed_run_files: completedRuns, launches_started: launchesStarted,
+        // Supervisor evidence is complete; this is not a pass, and a window can fail with this field true.
         evidence_complete: reason === null && code === 0 && reaped && live === false && workersVerified && owned.every(({pid}) => !pidLive(pid)) });
     };
     const message = (event) => {
-      if (event?.type === "app" && Number.isSafeInteger(event.pid) && event.pid > 1) activeAppPid = event.pid;
+      if (event?.type === "app" && Number.isSafeInteger(event.pid) && event.pid > 1) { activeAppPid = event.pid; launchesStarted++; }
       if (event?.type === "app_exit" && event.pid === activeAppPid) activeAppPid = null;
       if (event?.type === "sample") latestSample = event.sample;
       if (event?.type === "completed_run") completedRuns.push(event.path);
@@ -305,50 +344,226 @@ function compactSample(value) {
   return { t: value.t, host: value.host, p: value.p.slice(0, 64), truncated: value.p.length > 64 };
 }
 
-async function supervisedRun(options) {
+// The window marker (git-ignored): it exists from a window's admission, before its scratch is made, until its teardown
+// has recorded the owned group and the owned executable's processes gone and its cleanup has completed. It is
+// created atomically (a complete record hard-linked to the path, which fails when one is there), so two invocations
+// in this worktree cannot both be admitted, and a window that is running, whose supervisor was interrupted or killed
+// outright, whose teardown was not established or whose cleanup failed leaves it for the next invocation to refuse by
+// name (EARLIER-WINDOW-UNRESOLVED). Only the window that wrote it removes it (its token), and only at those
+// established facts; a stale marker is never cleared automatically. It sees this worktree's windows only, not
+// another worktree's and not the host between windows.
+export const WINDOW_MARKER = path.join(desktop, "target", "perf-window.json");
+export const WINDOW_UNRESOLVED = "EARLIER-WINDOW-UNRESOLVED";
+export const ONE_LAUNCH_REFUSED = "PERF-ONE-LAUNCH-PER-WINDOW";
+export const BINDING_REFUSED = "PERF-BINDING-REFUSED";
+// What the window's teardown, its marker and the WebKit baseline do not establish (the window record and the report).
+export const WINDOW_LIMITS = Object.freeze([
+  "The window's teardown records whether the owned process group and the processes running the private app copy are gone; neither covers the WebKit helper processes launchd starts for the app, which are not its children.",
+  "Nothing observes the host between windows: the window marker keeps a next window from starting until this one's teardown and cleanup are established, and says nothing about what the system runs in the gap.",
+  "The census after the launch covers only the processes running the private app copy. The census helper is given a 10 s polling deadline; a separate asynchronous-answer timer allows 2 s more. Neither interrupts or bounds a synchronous lsof call. When such a call does not return, the supervisor's window deadline stops the runner, and the window keeps this failed-window evidence instead of a per-run census record or checkpoint.",
+  "The WebKit baseline (the WebKit processes running before the launch) only lets the sampler attribute WebContent processes that appear after the launch to this run; it does not prove they belong to this app, does not end them, and says nothing about what remains after the app exits or between windows."
+]);
+
+const markerText = (record) => `${JSON.stringify(record, null, 2)}\n`;
+
+/** Create the marker at `markerPath` holding `record`, atomically: true when created, false when one is there. */
+export function acquireWindowMarker(markerPath, record) {
+  mkdirSync(path.dirname(markerPath), { recursive: true });
+  const temporary = `${markerPath}.${process.pid}.${randomUUID()}.tmp`;
+  writeFileSync(temporary, markerText(record), { flag: "wx", mode: 0o600 });
+  try { linkSync(temporary, markerPath); return true; }
+  catch (error) { if (error.code === "EEXIST") return false; throw error; }
+  finally { rmSync(temporary, { force: true }); }
+}
+
+/** Replace this window's marker (its `token`) with `fields` added; another's, or none, is left as found and refused. */
+export function updateWindowMarker(markerPath, token, fields) {
+  const current = readRunMarker(markerPath);
+  if (current?.token !== token) throw new Error(`perf window: ${markerPath} is not this window's marker; it is left as found`);
+  const temporary = `${markerPath}.${process.pid}.${randomUUID()}.tmp`;
+  writeFileSync(temporary, markerText({ ...current, ...fields, updated: new Date().toISOString() }), { flag: "wx", mode: 0o600 });
+  renameSync(temporary, markerPath);
+}
+
+/** Remove this window's marker (its `token`); another's, or none, is left as found and refused. */
+export function releaseWindowMarker(markerPath, token) {
+  if (readRunMarker(markerPath)?.token !== token) throw new Error(`perf window: ${markerPath} is not this window's marker; it is left as found`);
+  rmSync(markerPath);
+}
+
+/** The refusal printed when a marker is there: what it records, whether its supervisor still runs (pid and start time;
+ * informational, never a reason to clear it), a fresh census of its private copy, and the recovery steps. */
+export function windowMarkerRefusal(markerPath, record, { startTime = processStartTime, census = censusOf } = {}) {
+  const lines = [`perf window: ${WINDOW_UNRESOLVED}: ${markerPath} records a performance window that is running or whose teardown or cleanup was not established (interrupted, killed outright, teardown unresolved or cleanup failed); no window is admitted until it is resolved, and nothing was made or launched`];
+  if (!record || record.unreadable) {
+    lines.push("  the marker cannot be read; inspect it, confirm no perf window or app runs in this worktree, then remove it:", `  rm -f ${shellQuote(markerPath)}`);
+    return lines;
+  }
+  const now = Number.isSafeInteger(record.pid) && record.pid > 1 ? startTime(record.pid) : null;
+  const status = now === null ? "not running" : now === record.started ? "STILL RUNNING" : `running but started ${now}, not at the recorded time: the pid looks reused`;
+  lines.push(`  supervisor: pid ${record.pid}, started ${record.started} (${status})`, `  state: ${record.state}${record.reason ? `; ${record.reason}` : ""}`);
+  if (record.window_file) lines.push(`  window record: ${record.window_file}`);
+  if (typeof record.executable === "string") {
+    const found = census(record.executable);
+    lines.push(`  window root: ${record.scratch}`, `  private app copy: ${record.executable}`,
+      found.ok ? `  census of the private copy now: ${found.pids.length === 0 ? "no process" : `process ${found.pids.join(", ")}`}` : `  census of the private copy now: could not be taken (${found.reason})`);
+  } else lines.push("  the window made no scratch (it was refused or stopped before its private copy)");
+  lines.push("  The census covers the private copy only, not the WebKit helper processes launchd starts, and not the host between windows.",
+    "Once no process runs the private copy and no perf window runs in this worktree, keep or remove the window root as its evidence requires, then remove the marker:");
+  if (typeof record.scratch === "string") lines.push(`  rm -rf ${shellQuote(record.scratch)}`);
+  lines.push(`  rm -f ${shellQuote(markerPath)}`);
+  return lines;
+}
+
+/** The window's runs: exactly one, or PERF-ONE-LAUNCH-PER-WINDOW naming what was selected. A plan's subsets and
+ * `--plan` may still list several; only a window's selection is held to one. */
+export function oneLaunchSelection(plan, options) {
+  const runs = selectRuns(plan, options);
+  if (runs.length !== 1) throw new Error(`${ONE_LAUNCH_REFUSED}: the selection names ${runs.length} runs (${runs.map((run) => run.id).join(", ")}); a measurement window holds exactly one launch, so select one run (--runs <id>); nothing was made or launched`);
+  return runs;
+}
+
+/** Every reason a binding may not be launched: its schema, or a recorded smoke window configuration that does not
+ * select the non-persistent web view store and disable background throttling in every window (an older build).
+ * Judged from the binding's recorded fields; the executable itself is checked only by its SHA-256. */
+export function refusedPerfBinding(binding) {
+  const reasons = [];
+  if (binding?.schema !== "swbpipe.desktop-perf-binding/v1") reasons.push(`${BINDING_REFUSED}: not a desktop perf binding; run --build again`);
+  let windows = null;
+  try { windows = JSON.parse(binding?.tauri_config)?.app?.windows ?? null; } catch { windows = null; }
+  if (!Array.isArray(windows)) return [...reasons, `${BINDING_REFUSED}: the binding records no smoke window configuration; run --build again`];
+  for (const line of refusedSmokeWindows(windows)) reasons.push(`${BINDING_REFUSED}: ${line}; run --build again`);
+  windows.forEach((window, index) => { if (window?.backgroundThrottling !== "disabled") reasons.push(`${BINDING_REFUSED}: window ${index} of the bound build does not disable background throttling; run --build again`); });
+  return reasons;
+}
+
+/** The bound app's binding, refused by name (PERF-BINDING-REFUSED) when it may not be launched or the bound
+ * executable is not the one it records. */
+export function readPerfBinding(appDir) {
+  const binding = JSON.parse(readFileSync(path.join(appDir, BINDING), "utf8"));
+  const refused = refusedPerfBinding(binding);
+  if (refused.length) throw new Error(refused.join("\n"));
+  if (sha256File(binding.binary.path) !== binding.binary.sha256) throw new Error(`${BINDING_REFUSED}: ${binding.binary.path} is not the bound binary (${binding.binary.sha256}); run --build again`);
+  return binding;
+}
+
+/** What a window admits before anything is made: the plan, its one selected run and the binding. */
+export function windowPreflight(options) {
   const plan = loadPlan(options.planFile);
-  const budgetS = options.budgetS ?? Math.min(plan.budget_s, 840);
-  if (!Number.isFinite(budgetS) || budgetS <= 0 || budgetS > 840) throw new Error("perf window: work budget must be > 0 and <= 840 s (teardown stays within 15 min)");
-  mkdirSync(options.out, { recursive: true });
-  const scratch = mkdtempSync(path.join(options.out, "perf-"));
-  const binary = path.join(scratch, BIN_NAME);
-  const postRunReserveS = Math.min(30, budgetS / 4);
-  const args = ["--run-child", "--app-dir", options.appDir, "--models", options.models,
-    "--out", options.out, "--plan-file", options.planFile, "--budget-s", String(budgetS - postRunReserveS),
-    "--window-root", scratch, "--supervisor-pid", String(process.pid)];
-  if (options.results) args.push("--results", options.results);
-  if (options.subset) args.push("--subset", options.subset);
-  if (options.runs) args.push("--runs", options.runs);
-  if (options.keep) args.push("--keep");
-  const child = fork(fileURLToPath(import.meta.url), args, {
-    detached: true, stdio: ["ignore", "inherit", "inherit", "ipc"]
-  });
-  const listOwned = () => new Promise((resolve, reject) => {
+  const runs = oneLaunchSelection(plan, options);
+  readPerfBinding(options.appDir);
+  return { plan, runs };
+}
+
+function forkRunChild(args) {
+  return fork(fileURLToPath(import.meta.url), args, { detached: true, stdio: ["ignore", "inherit", "inherit", "ipc"] });
+}
+
+function listOwnedExecutable(binary) {
+  return new Promise((resolve, reject) => {
     execFile("python3", [path.join(here, "perf-sampler.py"), "--list-owned", "--app-path", binary],
       { timeout: 1000, killSignal: "SIGKILL", maxBuffer: 64 * 1024 }, (error, stdout) => {
         if (error) return reject(error);
         try { resolve(JSON.parse(stdout)); } catch (invalid) { reject(invalid); }
       });
   });
-  const result = await watchWindow(child, { budgetMs: budgetS * 1000, listOwned });
-  result.post_run_reserve_s = postRunReserveS;
-  const file = path.join(options.out, `perf-window-${result.started_ms}.json`);
-  // The parent does not synchronously inspect SQLite, recursively remove the
-  // store, or serialize the sampler's large report on its deadline event loop.
-  const emergency = setTimeout(() => { console.error("perf window: report write stalled; owned runner already stopped"); process.exit(124); }, 10000);
-  const failed = result.stop_reason || result.exit.code !== 0 || !result.exit.reaped || result.owned_group_gone !== true || !result.owned_executable_pids_gone;
-  try {
-    result.kept = failed ? scratch : null;
-    await writeFile(file, `${JSON.stringify(result, null, 2)}\n`);
-    if (!failed) {
-      await finishScratch({ scratch, binary, keep: options.keep });
-      result.cleanup = options.keep ? "private_app_removed_store_kept" : "private_scratch_removed";
-      result.kept = options.keep ? scratch : null;
-      await writeFile(file, `${JSON.stringify(result, null, 2)}\n`);
-    }
+}
+
+/** The --run supervisor: preflight, admission by the marker, the window's scratch, its one supervised --run-child, the
+ * window record, then cleanup and the marker's removal only on established teardown. `seams` are set only by
+ * `perf.test.mjs` (a marker path, a stand-in child and owned-process lookup, a stand-in census for the refusal);
+ * `supervisedRun` passes none. */
+export async function superviseWindow(options, seams = {}) {
+  const { markerPath = WINDOW_MARKER, startChild = forkRunChild, listOwned: listOwnedFor = listOwnedExecutable, census = censusOf, startTime = processStartTime, watch = {} } = seams;
+  const { plan, runs } = windowPreflight(options);
+  const budgetS = options.budgetS ?? Math.min(plan.budget_s, 840);
+  if (!Number.isFinite(budgetS) || budgetS <= 0 || budgetS > 840) throw new Error("perf window: work budget must be > 0 and <= 840 s (teardown stays within 15 min)");
+  const token = randomUUID();
+  const admitted = acquireWindowMarker(markerPath, { schema: "swbpipe.desktop-perf-window-marker/v1", token, pid: process.pid, started: startTime(process.pid), state: "admitted", out: options.out, runs: runs.map((run) => run.id), created: new Date().toISOString() });
+  if (!admitted) {
+    for (const line of windowMarkerRefusal(markerPath, readRunMarker(markerPath), { startTime, census })) console.error(line);
+    process.exitCode = 2;
+    return { refused: WINDOW_UNRESOLVED, launches_selected: runs.length, launches_started: 0 };
   }
-  finally { clearTimeout(emergency); }
-  if (failed) process.exitCode = 1;
+  let scratch = null;
+  let started = false;
+  let file = null;
+  try {
+    mkdirSync(options.out, { recursive: true });
+    scratch = mkdtempSync(path.join(options.out, "perf-"));
+    const binary = path.join(scratch, BIN_NAME);
+    updateWindowMarker(markerPath, token, { state: "running", scratch, executable: binary });
+    const postRunReserveS = Math.min(30, budgetS / 4);
+    const args = ["--run-child", "--app-dir", options.appDir, "--models", options.models,
+      "--out", options.out, "--plan-file", options.planFile, "--budget-s", String(budgetS - postRunReserveS),
+      "--window-root", scratch, "--window-token", token, "--supervisor-pid", String(process.pid)];
+    if (options.results) args.push("--results", options.results);
+    if (options.subset) args.push("--subset", options.subset);
+    if (options.runs) args.push("--runs", options.runs);
+    if (options.keep) args.push("--keep");
+    // From here a process may exist: any failure retains the marker, the scratch and whatever it holds.
+    started = true;
+    const child = startChild(args);
+    const result = await watchWindow(child, { budgetMs: budgetS * 1000, listOwned: () => listOwnedFor(binary), ...watch });
+    result.post_run_reserve_s = postRunReserveS;
+    result.launches_selected = runs.length;
+    result.window_marker = markerPath;
+    result.limits = WINDOW_LIMITS;
+    // The previous window's teardown, as the next window's admission requires it (the marker is kept otherwise).
+    result.teardown_established = result.owned_group_gone === true && result.owned_executable_pids_gone === true;
+    file = path.join(options.out, `perf-window-${result.started_ms}.json`);
+    // The parent does not synchronously inspect SQLite, recursively remove the
+    // store, or serialize the sampler's large report on its deadline event loop.
+    // A stalled write exits with the marker in place.
+    const emergency = setTimeout(() => { console.error("perf window: report write stalled; owned runner already stopped; the window marker is retained"); process.exit(124); }, 10000);
+    // Failed, and so no figures kept, also for a window that did not start exactly one App.
+    const failed = result.stop_reason || result.exit.code !== 0 || !result.exit.reaped || !result.teardown_established || result.launches_started !== 1;
+    try {
+      result.kept = failed ? scratch : null;
+      result.cleanup = result.teardown_established ? (failed ? "retained_failed_window" : "pending") : "retained_teardown_unresolved";
+      // The window's record is durable before anything is removed.
+      await writeFile(file, `${JSON.stringify(result, null, 2)}\n`);
+      if (!result.teardown_established) {
+        updateWindowMarker(markerPath, token, { state: "teardown_unresolved", reason: `owned_group_gone=${result.owned_group_gone}, owned_executable_pids_gone=${result.owned_executable_pids_gone}`, window_file: file });
+        console.error(`perf window: ${WINDOW_UNRESOLVED}: the teardown did not record the owned group and the owned executable's processes gone; retained: the window root ${scratch} (its home and private app copy) and the marker ${markerPath}; no next window starts until it is resolved`);
+      } else {
+        if (!failed) {
+          try {
+            await finishScratch({ scratch, binary, keep: options.keep });
+            result.cleanup = options.keep ? "private_app_removed_store_kept" : "private_scratch_removed";
+            result.kept = options.keep ? scratch : null;
+          } catch (error) {
+            result.cleanup = "failed";
+            result.cleanup_error = String(error?.message ?? error).slice(0, 2000);
+            result.kept = scratch;
+          }
+          await writeFile(file, `${JSON.stringify(result, null, 2)}\n`);
+        }
+        if (result.cleanup === "failed") {
+          updateWindowMarker(markerPath, token, { state: "cleanup_failed", reason: result.cleanup_error, window_file: file });
+          console.error(`perf window: ${WINDOW_UNRESOLVED}: removing the window root failed (${result.cleanup_error}); retained: what remains of ${scratch} and the marker ${markerPath}`);
+        } else releaseWindowMarker(markerPath, token);
+      }
+    }
+    finally { clearTimeout(emergency); }
+    if (failed || result.cleanup === "failed") process.exitCode = 1;
+    return result;
+  } catch (error) {
+    const reason = `supervisor_error: ${String(error?.message ?? error)}`.slice(0, 2000);
+    if (!started) {
+      // Nothing was started: the empty scratch, if made, and the marker are this window's to remove.
+      if (scratch !== null) rmSync(scratch, { recursive: true, force: true });
+      try { releaseWindowMarker(markerPath, token); } catch { /* left as found, and refused next time */ }
+    } else {
+      try { updateWindowMarker(markerPath, token, { state: "supervisor_error", reason, ...(file ? { window_file: file } : {}) }); }
+      catch { /* the earlier marker record stays, and is refused next time */ }
+    }
+    throw error;
+  }
+}
+
+function supervisedRun(options) {
+  return superviseWindow(options);
 }
 
 const sha256File = (file) => {
@@ -682,22 +897,27 @@ const markAt = (timeline, stage) => {
 };
 
 // The run's findings and its most severe class. A report does not rescue a launch that did not end cleanly or a
-// report that is not this run's: the common conditions of `launch-outcome.mjs` (DEL-07-11: exit, signal, timeout,
-// this run's report and nonce) judge every launch (`launchFailures`, with no census: this runner takes no
-// per-launch census, so its `ok` is not the census-bearing completion of `run.mjs`). With a report, the named failures are a
-// `launch_failed` finding's `failures` and the report's own observations are still read and classified beside it;
-// without one, they are the `failures` of the app's crash or hang finding, so every failed condition is named
-// and the class stays crash or hang. `reportProblem` says why a report file that exists was not read.
-export function classify({ report, reportProblem = null, exit, timedOut, progress, memory, store, run, resultBytes, nonce }) {
+// report that is not this run's: the rule of `launch-outcome.mjs` (DEL-07-11: exit, signal, timeout, the census,
+// this run's report and nonce) judges every launch (`launchFailures`). This runner's contract requires the census
+// (`takeCensus`), so a census not given, or null, is LAUNCH-CENSUS-UNRESOLVED, never "no census taken". With a
+// report, the named failures are a `launch_failed` finding's `failures` and the report's own observations are still
+// read and classified beside it; without one, they are the `failures` of the app's crash or hang finding, so every
+// failed condition is named, and an unresolved census adds its own `launch_failed` finding (the class is then
+// crash, or launch_failed where it would have been hang). `reportProblem` says why a report file that exists was
+// not read. A store not inspected (an unresolved census) is not read as a store without the run's project.
+export function classify({ report, reportProblem = null, exit, timedOut, census, progress, memory, store, run, resultBytes, nonce }) {
   const findings = [];
   const add = (kind, detail) => findings.push({ class: kind, ...detail });
   const webcontentExited = Object.entries(memory.pids).filter(([, entry]) => entry.kind === "webcontent" && exit.ended_ms !== null && entry.last_ms < exit.ended_ms - 1000);
   for (const [pid, entry] of webcontentExited) add("crash", { process: "webcontent", pid: Number(pid), detail: `WebContent ${pid} stopped being sampled ${exit.ended_ms - entry.last_ms} ms before the app ended` });
-  const failures = launchFailures({ status: exit.status, signal: exit.signal, timedOut, census: undefined, report, problem: reportProblem, nonce });
+  const failures = launchFailures({ status: exit.status, signal: exit.signal, timedOut, census: census ?? null, report, problem: reportProblem, nonce });
+  const inspected = store?.inspection !== STORE_NOT_INSPECTED;
   if (!report) {
     const unread = reportProblem && reportProblem !== "no report" ? ` (${reportProblem})` : "";
     if (timedOut) add("hang", { process: "app", failures, detail: `no report within ${run.timeout_s} s${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
     else add("crash", { process: "app", failures, detail: `the app exited (${exit.status ?? exit.signal}) without a report${unread}; last progress: ${JSON.stringify(progress.at(-1) ?? null)}` });
+    const unresolved = failures.find((line) => line.startsWith(`${CENSUS_UNRESOLVED_STOP}:`));
+    if (unresolved) add("launch_failed", { process: "app", step: "census", failures: [unresolved], detail: `${unresolved}. A process of the private app copy may still run; no further run starts in this window.`, needs_review: true });
   } else {
     if (failures.length > 0) add("launch_failed", { process: "app", failures, detail: `the launch did not end cleanly or its report is not this run's: ${failures.join("; ")}. The report's observations are still read.`, needs_review: true });
     const solve = report.solve;
@@ -750,7 +970,7 @@ export function classify({ report, reportProblem = null, exit, timedOut, progres
     const omitted = saveReceipts.find(result => result?.outcome === "not_saved");
     if (omitted) add("refused_with_message", { step: "save_result", message: omitted.code ?? "The native save kept only the model.", needs_review: true });
     if (run.c1_probes && !unobservable && report.c1?.completed !== true) add("refused_with_message", { step: "c1_probes", message: "The connected C1 usability probes did not complete.", needs_review: true });
-    if (run.c1_probes && report.c1?.completed && report.c1.csv_file?.verified !== true) {
+    if (run.c1_probes && inspected && report.c1?.completed && report.c1.csv_file?.verified !== true) {
       if (report.c1.csv_file?.error) add("refused_with_message", { step: "csv_inspection", message: report.c1.csv_file.error, needs_review: true });
       else add("misleading_message", { step: "csv", detail: "CSV rows do not match the native query total." });
     }
@@ -759,7 +979,7 @@ export function classify({ report, reportProblem = null, exit, timedOut, progres
     const claimedSaved = Boolean(save?.message && /^(Saved|Created)|SQLite project snapshot/.test(save.message)) || Boolean(record?.attempted && record.message && !/^Not recorded/.test(record.message));
     if (store?.quick_check && store.quick_check.join(",") !== "ok") add("half_written_save", { detail: `quick_check: ${store.quick_check.slice(0, 3).join("; ")}` });
     if ((store?.files ?? []).some((file) => /-journal$|-wal$/.test(file.name) && file.bytes > 0)) add("half_written_save", { detail: `left over: ${store.files.filter((file) => /-journal$|-wal$/.test(file.name)).map((file) => `${file.name} (${file.bytes} bytes)`).join(", ")}` });
-    if (claimedSaved && solve?.ended === "first_paint" && (!stored || stored.result_type !== "text")) add("misleading_message", { detail: `the window reported a save or a recorded run, but the store holds ${stored ? `a ${stored.result_type} result` : "no project row"} for ${run.project_id}` });
+    if (inspected && claimedSaved && solve?.ended === "first_paint" && (!stored || stored.result_type !== "text")) add("misleading_message", { detail: `the window reported a save or a recorded run, but the store holds ${stored ? `a ${stored.result_type} result` : "no project row"} for ${run.project_id}` });
     // Only a session that held the result (painted) can be judged against its size.
     if (!omitted && solve?.ended === "first_paint" && stored && stored.result_type === "text" && resultBytes && stored.result_chars < resultBytes / 2) add("half_written_save", { detail: `the stored result has ${stored.result_chars} characters, the solve's result ${resultBytes} bytes` });
   }
@@ -857,8 +1077,59 @@ export function createReaderPhaseEvidence(file) {
   };
 }
 
+/** The census after one launch (`awaitNoProcesses` on the private copy): `{ resolved: true }`, or
+ * `{ resolved: false, reason }`. It never throws and never reads anything but `resolved === true` as resolved: an
+ * exception, a missing or malformed answer, or the asynchronous-answer timer expiring is unresolved evidence.
+ * That timer cannot interrupt synchronous work; the separate supervisor may stop the runner first. */
+export async function takeCensus(binary, { boundMs, census = awaitNoProcesses, graceMs = CENSUS_ANSWER_GRACE_MS }) {
+  let timer;
+  try {
+    const answer = await Promise.race([
+      Promise.resolve().then(() => census(binary, { boundMs })),
+      new Promise((resolve) => { timer = setTimeout(() => resolve({ resolved: false, reason: `the census gave no answer within ${boundMs + graceMs} ms` }), boundMs + graceMs); })
+    ]);
+    if (answer?.resolved === true) return { resolved: true };
+    const reason = typeof answer?.reason === "string" && answer.reason ? answer.reason : "the census gave no result";
+    return { resolved: false, reason: reason.slice(0, 2000) };
+  } catch (error) {
+    return { resolved: false, reason: `the census could not be taken: ${String(error?.message ?? error).slice(0, 2000)}` };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** The named failures of a kept perf run record, judged again from its recorded launch outcome and report without a
+ * launch. Census-bearing (`recordedCensusFailures`): a record without a census, or with a null one, as every
+ * record written before this runner took one, is LAUNCH-CENSUS-UNRESOLVED and never a pass. */
+export function keptRunFailures(record) {
+  const report = record?.report && typeof record.report === "object" ? record.report : null;
+  return recordedCensusFailures(record?.launch_outcome, report, report ? null : "no report recorded");
+}
+
+// What a launch uses from the host besides the app itself. `ctx.deps` overrides them only in `perf.test.mjs`
+// (controlled answers, a stand-in sampler and census, a short census bound); `runPlan` never sets it.
+const LAUNCH_DEPS = Object.freeze({
+  marks: () => marksCheck(),
+  webkitPids: () => webkitPids(),
+  startupHost: (binary) => readStartupHost(binary),
+  // By absolute path, given the App by PID, with an empty environment: it needs nothing from this runner's.
+  caffeinate: (pid) => spawn("/usr/bin/caffeinate", ["-di", "-w", String(pid)], { stdio: "ignore", env: {} }),
+  sampler: (samplerArgs) => spawn("python3", [path.join(here, "perf-sampler.py"), ...samplerArgs], { stdio: ["ignore", "pipe", "inherit"] }),
+  census: awaitNoProcesses,
+  censusBoundMs: PERF_CENSUS_BOUND_MS,
+  // The App starts one window may make. Only a test sets another, to drive the window path through several runs;
+  // the CLI and the plan cannot (`oneLaunchSelection` also holds every window's selection to one run).
+  launchLimit: 1
+});
+
+/** A run refused before its App started: launched false, the reason quoted. */
+const refusedBeforeLaunch = (record, step, message, kept) => ({ ...record, launched: false, class: "refused_with_message", findings: [{ class: "refused_with_message", step, message, needs_review: true }], ...(kept ? { kept } : {}) });
+
 async function runOne(run, ctx) {
-  const record = { id: run.id, mode: run.mode, model: run.model, binding: ctx.binding, harness: ctx.harness, started_at: new Date().toISOString() };
+  const deps = { ...LAUNCH_DEPS, ...ctx.deps };
+  const record = { id: run.id, mode: run.mode, model: run.model, binding: ctx.binding, harness: ctx.harness, started_at: new Date().toISOString(), launched: false };
+  // One App start per window, counted before any of this run's private state is made.
+  if ((ctx.launchAttempts ?? 0) >= deps.launchLimit) return refusedBeforeLaunch(record, "launch_count", `${ONE_LAUNCH_REFUSED}: this window has already started its App; a measurement window holds one launch, and no further App is started in it.`);
   // Every plan-named source and destination stays inside its root (validatePlan, containedPath).
   let modelSource, resultFile;
   try {
@@ -867,10 +1138,15 @@ async function runOne(run, ctx) {
   } catch (error) {
     return { ...record, class: "skipped", detail: error.message };
   }
+  // The run's root holds its report and its throwaway home: created empty, with TMPDIR's folder and Downloads inside
+  // (`createThrowawayHome`). The model the driver's chooser opens is copied inside the home, so that the strict
+  // chooser admits it and nothing outside the home.
   const root = mkdtempSync(path.join(ctx.scratch, `run-${planName(run.id, "run id")}-`));
-  const home = path.join(root, "home");
-  mkdirSync(path.join(home, "Downloads"), { recursive: true });
-  const modelPath = containedPath(root, run.model);
+  const { home, tmpdir } = createThrowawayHome(root);
+  record.home = home;
+  const chooserModels = path.join(home, "chooser", "models");
+  mkdirSync(chooserModels, { recursive: true });
+  const modelPath = containedPath(chooserModels, run.model);
   copyFileSync(modelSource, modelPath, constants.COPYFILE_EXCL);
   const document = JSON.parse(readFileSync(modelPath, "utf8"));
   run = { ...run, project_id: document.project.id, c1_probes: ctx.plan.c1_probes === true, c1_reader_diagnostics: ctx.plan.c1_reader_diagnostics === true, c1_profile_readers: ctx.plan.c1_profile_readers === true };
@@ -890,35 +1166,42 @@ async function runOne(run, ctx) {
     c1_probes: ctx.plan.c1_probes === true, c1_reader_diagnostics: ctx.plan.c1_reader_diagnostics === true, c1_profile_readers: ctx.plan.c1_profile_readers === true, model_jcs_sha256: record.model_jcs_sha256,
     timeouts: { ...ctx.plan.timeouts, paint_ms: Math.min(run.paint_ms, timeoutMs) }
   };
-  const env = { ...process.env, HOME: home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "perf-driver.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: path.join(root, "report.json") };
-  delete env[INJECT_ENV];
-  delete env[INJECT_ROOT_ENV];
+  // The App's whole environment, built from nothing (`buildLaunchEnv`; PARENT_ALLOWLIST carries nothing): the home
+  // variables, TMPDIR inside the home, the strict chooser, the driver, plan and report, and only the variables this run
+  // selects. The object checked here is the frozen object the App is started with.
+  const runner = { SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "perf-driver.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: path.join(root, "report.json") };
   if (resultFile) {
-    env[INJECT_ENV] = resultFile;
-    env[INJECT_ROOT_ENV] = realpathSync(ctx.results);
+    runner[INJECT_ENV] = resultFile;
+    runner[INJECT_ROOT_ENV] = realpathSync(ctx.results);
   }
-  if (ctx.plan.c1_reader_diagnostics) env.SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS = "1";
-  else delete env.SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS;
+  if (ctx.plan.c1_reader_diagnostics) runner[READER_DIAGNOSTICS_ENV] = "1";
+  const env = Object.freeze(buildLaunchEnv({ parent: process.env, home, tmpdir, runner }));
+  const envRefused = [...refusedPerfLaunchEnv(env, { inject: resultFile !== null, readerDiagnostics: ctx.plan.c1_reader_diagnostics === true }), ...refusedPlanPaths(plan, home)];
+  if (envRefused.length) return refusedBeforeLaunch(record, "launch_env", `${envRefused.join("; ")}; no App was launched.`, root);
   // The three marks (`marks-check.mjs`), checked here, after every build and binding and directly before the
   // launch's own host admission (webkitPids, readStartupHost) and the app's start.
-  record.marks = marksCheck();
+  record.marks = deps.marks();
   if (marksRefuse(record.marks)) {
     return { ...record, class: "refused_with_message", findings: [{ class: "refused_with_message", step: "marks", message: "NATIVE-SMOKE-MARK-PRESENT: an agent may be operating the App on the screen, or the marks could not be checked; no App was launched.", needs_review: true }], kept: root };
   }
   record.reader_phase_file = ctx.plan.c1_reader_diagnostics ? path.join(ctx.out, `perf-reader-phases-${planName(path.basename(ctx.scratch), "window")}-${planName(run.id, "run")}.jsonl`) : null;
   const phases = record.reader_phase_file ? createReaderPhaseEvidence(record.reader_phase_file) : null;
-  const baseline = webkitPids();
-  record.startup_host = await readStartupHost(ctx.binary);
+  const baseline = deps.webkitPids();
+  record.startup_host = await deps.startupHost(ctx.binary);
+  // The window's one App start, counted again directly before it with nothing awaited between.
+  if ((ctx.launchAttempts ?? 0) >= deps.launchLimit) return refusedBeforeLaunch(record, "launch_count", `${ONE_LAUNCH_REFUSED}: this window has already started its App; no further App is started in it.`, root);
+  ctx.launchAttempts = (ctx.launchAttempts ?? 0) + 1;
   const startedMs = Date.now();
   // Inherit the supervised runner's group. A detached App could outlive the
   // supervisor's deadline when its runner is blocked in synchronous SQLite.
   const app = spawn(ctx.binary, [], { cwd: root, env, stdio: ["ignore", "ignore", "pipe"] });
+  record.launched = Number.isSafeInteger(app.pid);
   audit({ type: "app", pid: app.pid });
   let appExited = false;
   app.once("exit", () => { appExited = true; audit({ type: "app_exit", pid: app.pid }); });
-  const caffeinate = spawn("/usr/bin/caffeinate", ["-di", "-w", String(app.pid)], { stdio: "ignore" });
+  const caffeinate = deps.caffeinate(app.pid);
   record.samples_file = path.join(ctx.out, `perf-samples-${planName(path.basename(ctx.scratch), "window")}-${planName(run.id, "run")}.jsonl`);
-  const sampler = spawn("python3", [path.join(here, "perf-sampler.py"), "--app-pid", String(app.pid), "--app-path", ctx.binary, "--baseline", baseline.join(","), "--interval-ms", String(ctx.plan.sample_interval_ms), "--out", record.samples_file], { stdio: ["ignore", "pipe", "inherit"] });
+  const sampler = deps.sampler(["--app-pid", String(app.pid), "--app-path", ctx.binary, "--baseline", baseline.join(","), "--interval-ms", String(ctx.plan.sample_interval_ms), "--out", record.samples_file]);
   let lastSample = Date.now();
   const webcontentSeen = new Set();
   const sampleGuard = createSampleGuard();
@@ -1007,11 +1290,20 @@ async function runOne(run, ctx) {
   });
   record.reader_phases = phases?.close() ?? null;
   if (record.reader_phases && !phasePipeDrained) record.reader_phases.evidence_complete = false;
+  // The timed span ends at the app's exit; nothing after this line is in it.
   record.elapsed_s = (exit.ended_ms - startedMs) / 1000;
   record.exit = { ...exit, timed_out: timedOut, timeout_ms: timeoutMs };
-  // The launch outcome as `launch-outcome.mjs` records it (no census), so that the record can be judged again
-  // (`recordedFailures`).
-  record.launch_outcome = recordedOutcome({ status: exit.status, signal: exit.signal, timedOut, census: undefined, nonce, started: new Date(startedMs).toISOString(), ended: new Date(exit.ended_ms).toISOString() });
+  // The census (DEL-07-11 VER-008): no process may still run the private copy (a solve worker runs it in its own
+  // process group). Taken after the app's exit, the sampler's stop and the bounded stderr drain; outside the timed
+  // span; before the checkpoint, the store and CSV inspections and the record's commit, and so before the next
+  // run's marks and admission. It covers the private executable only, not the WebKit helper processes launchd starts
+  // for the app, and nothing here observes the host between windows.
+  const censusStartedMs = Date.now();
+  const census = await takeCensus(ctx.binary, { boundMs: deps.censusBoundMs, census: deps.census });
+  record.census_window = { bound_ms: deps.censusBoundMs, started_ms: censusStartedMs, ended_ms: Date.now() };
+  // The launch outcome as `launch-outcome.mjs` records it, census included, so that the record can be judged again
+  // (`keptRunFailures`).
+  record.launch_outcome = recordedOutcome({ status: exit.status, signal: exit.signal, timedOut, census, nonce, started: new Date(startedMs).toISOString(), ended: new Date(exit.ended_ms).toISOString() });
   const { report, problem: reportProblem } = readReport(path.join(root, "report.json"));
   const jobDone = markAt(report?.solve?.timeline, "job_done");
   const memory = summarizeSamples(samples, { since: jobDone });
@@ -1022,11 +1314,20 @@ async function runOne(run, ctx) {
     ambiguous: webcontent.length > 1
   };
   memory.peak_footprint_since = jobDone === null ? null : "job_done";
-  checkpointRun({ ...record, report, progress, memory, kept: root, store: { inspection: "pending" } }, ctx);
-  audit({ type: "stage", step: "inspect_store", stage: "started" });
-  const store = await inspectStore(home);
-  audit({ type: "stage", step: "inspect_store", stage: "completed" });
-  if (run.c1_probes && report?.c1?.fresh?.csv) report.c1.csv_file = await inspectCsv(home, report.c1.fresh.csv);
+  let store;
+  if (census.resolved === true) {
+    checkpointRun({ ...record, report, progress, memory, kept: root, store: { inspection: "pending" } }, ctx);
+    audit({ type: "stage", step: "inspect_store", stage: "started" });
+    store = await inspectStore(home);
+    audit({ type: "stage", step: "inspect_store", stage: "completed" });
+    if (run.c1_probes && report?.c1?.fresh?.csv) report.c1.csv_file = await inspectCsv(home, report.c1.fresh.csv);
+  } else {
+    // A process of the private copy may still run and write the store and Downloads. Neither is inspected, so that
+    // no inspection can block before the failure is recorded: the record goes to its commit (`runWindow`) at once,
+    // and the window stops there.
+    store = { inspection: STORE_NOT_INSPECTED, reason: `${CENSUS_UNRESOLVED_STOP}: ${census.reason}` };
+    record.window_stop = CENSUS_UNRESOLVED_STOP;
+  }
   const proof = report?.solve?.shown?.proof ?? null;
   const proofField = (name) => proof?.match(new RegExp(`(?:^|; )${name}=([^;]*)`))?.[1] ?? null;
   record.model_binding = {
@@ -1037,7 +1338,7 @@ async function runOne(run, ctx) {
     same_model: proof ? proofField("model_sha256") === record.model_jcs_sha256 : null
   };
   const resultBytes = report?.solve?.timeline?.marks?.find((mark) => mark.stage === "job_done")?.detail?.result_bytes ?? null;
-  Object.assign(record, classify({ report, reportProblem, exit, timedOut, progress, memory, store, run, resultBytes, nonce }));
+  Object.assign(record, classify({ report, reportProblem, exit, timedOut, census, progress, memory, store, run, resultBytes, nonce }));
   if (ctx.plan.c1_reader_diagnostics && record.reader_phases?.evidence_complete !== true) {
     record.findings.push({ class: "refused_with_message", step: "reader_phases", message: "Native reader phase exits are incomplete or omitted.", needs_review: true });
     if (record.class === "ok") record.class = "refused_with_message";
@@ -1069,9 +1370,11 @@ export function checkpointRun(record, { out, scratch }) {
   return file;
 }
 
-/** Commit a finished run before another App can start. Samples live outside
- * scratch; only an ok run's App-written HOME is removed, after that commit. */
-export async function commitRun(record, { out, scratch, keep }) {
+/** Commit a finished run before anything else follows it. Samples live outside
+ * scratch. Nothing is removed here: the run's home stays until the supervisor's
+ * teardown has recorded the owned group and the owned executable's processes
+ * gone, and only an ok window's scratch is then removed (`superviseWindow`). */
+export async function commitRun(record, { out, scratch }) {
   const file = path.join(out, `perf-run-${planName(path.basename(scratch), "window")}-${planName(record.id, "run")}.json`);
   record.record_file = file;
   const persist = () => {
@@ -1084,34 +1387,65 @@ export async function commitRun(record, { out, scratch, keep }) {
   // has no remaining consumer. Its name is derived from this window/run only.
   await rm(path.join(out, `perf-partial-${planName(path.basename(scratch), "window")}-${planName(record.id, "run")}.json`), { force: true });
   audit({ type: "completed_run", path: file });
-  if (record.class === "ok" && !keep && record.kept) {
-    if (path.dirname(record.kept) !== scratch || !path.basename(record.kept).startsWith("run-")) throw new Error("perf cleanup: not this window's run root");
-    record.home_cleanup = "pending";
-    persist();
-    try {
-      await rm(path.join(record.kept, "home"), { recursive: true, force: true });
-      record.home_cleanup = "removed";
-    } catch (error) {
-      record.home_cleanup = "failed";
-      record.home_cleanup_error = error.message;
-      record.class = "refused_with_message";
-      (record.findings ??= []).push({ class: "refused_with_message", step: "home_cleanup", message: error.message, needs_review: true });
+}
+
+/** The window's runs in plan order: one from the CLI (`oneLaunchSelection`), and `runOne` starts at most
+ * `launchLimit` Apps (one; only a test sets more, to drive this path through several runs). Each run's record is
+ * committed before the next run's marks, admission or start.
+ * A run that is not ok ends the window (nothing is retried), and an unresolved census ends it whatever the run's
+ * class: no further run starts while a process of the private copy may still run. An ok record must also pass the
+ * census-bearing judgment its kept record will get (`keptRunFailures`), or it is committed as launch_failed. */
+export async function runWindow(runs, ctx) {
+  const records = [];
+  for (const run of runs) {
+    if (run.estimate_s * 1000 > ctx.remainingMs()) {
+      const skipped = { binding: ctx.binding, harness: ctx.harness, id: run.id, mode: run.mode, model: run.model, class: "skipped", detail: `estimate ${run.estimate_s} s exceeds the remaining budget ${Math.round(ctx.remainingMs() / 1000)} s` };
+      await commitRun(skipped, ctx);
+      records.push(skipped);
+      console.log(`${run.id}: skipped (window budget)`);
+      continue;
     }
-    persist();
+    const record = await runOne(run, ctx);
+    if (record.class === "ok") {
+      const kept = keptRunFailures(record);
+      if (kept.length > 0) {
+        record.class = "launch_failed";
+        record.findings = [{ class: "launch_failed", process: "app", failures: kept, detail: `the record does not pass its kept-record judgment: ${kept.join("; ")}`, needs_review: true }];
+      }
+    }
+    await commitRun(record, ctx);
+    records.push(record);
+    if (record.window_stop) {
+      console.error(`${run.id}: ${record.window_stop}: ${record.launch_outcome?.census?.reason ?? "no census"}; the failed launch is recorded in ${record.record_file}; no further run starts in this window`);
+      break;
+    }
+    // A run that is not ok (host_unobservable included) ends the window: nothing is retried.
+    if (record.class !== "ok") break;
   }
+  return records;
 }
 
 async function runPlan(options) {
   if (!process.send) throw new Error("perf run: only the supervised --run path can start the App");
-  const binding = JSON.parse(readFileSync(path.join(options.appDir, BINDING), "utf8"));
+  const binding = readPerfBinding(options.appDir);
   const bound = binding.binary.path;
-  if (sha256File(bound) !== binding.binary.sha256) throw new Error(`perf run: ${bound} is not the bound binary (${binding.binary.sha256}); run --build again`);
   const plan = loadPlan(options.planFile);
-  const runs = selectRuns(plan, options);
+  // The window's run count is set here, by the plan's subset or --runs. The standing rule for criterion 9's
+  // measurement (the INTERLOCUTOR, issue #360): "one launch per kept window, and no next window unless the previous
+  // window's teardown recorded the owned group and the owned executable's processes gone; one launch alone does not
+  // establish cleanup". A kept window is one whose figures are kept as measurement, not --keep's retained scratch.
+  // Enforced: a selection of any other number than one run is refused here and in the supervisor's preflight
+  // (`oneLaunchSelection`), `runOne` starts at most one App per window, and the supervisor admits a window only by
+  // creating the window marker, which a window whose teardown or cleanup was not established leaves in place.
+  // The plans' subsets may still list several runs for --plan; a window runs one of them.
+  const runs = oneLaunchSelection(plan, options);
   const budgetMs = (options.budgetS ?? plan.budget_s) * 1000;
   mkdirSync(options.out, { recursive: true });
   const scratch = options.windowRoot;
   if (!scratch || path.dirname(scratch) !== options.out || !path.basename(scratch).startsWith("perf-")) throw new Error("perf run-child: no private window root");
+  // Started only by the supervisor that holds this window's marker (its token and window root).
+  const marker = readRunMarker(WINDOW_MARKER);
+  if (!options.windowToken || marker?.token !== options.windowToken || marker.scratch !== scratch) throw new Error(`perf run-child: WINDOW-NOT-ADMITTED: ${WINDOW_MARKER} does not record this window; no App is started`);
   audit({ type: "scratch", path: scratch });
   // A private copy, checked against the binding, is what each launch runs.
   const binary = path.join(scratch, BIN_NAME);
@@ -1125,35 +1459,25 @@ async function runPlan(options) {
     plan_sha256: sha256File(options.planFile),
     rack_generator_sha256: sha256File(path.join(project, "core/solver/performance_harness/rack/rack_model.py"))
   };
-  const ctx = { plan, binding, harness, binary, models: options.models, results: options.results ?? options.models, out: options.out, scratch, keep: options.keep, remainingMs: () => budgetMs - (Date.now() - started) };
+  const ctx = { plan, binding, harness, binary, models: options.models, results: options.results ?? options.models, out: options.out, scratch, keep: options.keep, launchAttempts: 0, remainingMs: () => budgetMs - (Date.now() - started) };
   process.stdout.write(formatPlan(runs, budgetMs / 1000));
-  const records = [];
-  for (const run of runs) {
-    if (run.estimate_s * 1000 > ctx.remainingMs()) {
-      const skipped = { binding, harness, id: run.id, mode: run.mode, model: run.model, class: "skipped", detail: `estimate ${run.estimate_s} s exceeds the remaining budget ${Math.round(ctx.remainingMs() / 1000)} s` };
-      await commitRun(skipped, ctx);
-      records.push(skipped);
-      console.log(`${run.id}: skipped (window budget)`);
-      continue;
-    }
-    const record = await runOne(run, ctx);
-    await commitRun(record, ctx);
-    records.push(record);
-    // A run that is not ok (host_unobservable included) ends the window: nothing is retried.
-    if (records.at(-1).class !== "ok") break;
-  }
+  const records = await runWindow(runs, ctx);
   const report = {
     schema: "swbpipe.desktop-perf-report/v1",
     written_at: new Date().toISOString(),
     host: { platform: process.platform, release: os.release(), cpus: os.cpus().length, cpu_model: os.cpus()[0]?.model ?? null, memory_bytes: os.totalmem() },
     binding, harness,
     plan: { file: path.relative(project, options.planFile), subset: options.runs ? null : options.subset ?? "window", runs: runs.map((run) => run.id), budget_s: budgetMs / 1000 },
+    // Selected, attempted and started App launches in this window (zero when refused or skipped before the start).
+    launches: { selected: runs.length, attempted: ctx.launchAttempts, started: records.filter((record) => record.launched === true).length },
     conditions: [
       "Observation only: no time or memory bound is asserted, and criterion 9's provisional bounds are not evaluated.",
-      "A release build with the native-smoke feature (product code plus the smoke harness and the result injection); background throttling disabled, as the native smoke.",
+      "A release build with the native-smoke feature (product code plus the smoke harness and the result injection); background throttling disabled and a non-persistent web view store selected, as the native smoke.",
       "Injected runs skip the solve worker: no solve runs, worker_peak_footprint_bytes is unset, and d_M, d_S and their parsed values are computed in the app process before publication (so the app's peak before job_done includes them; peak_footprint_since counts from job_done).",
       "WebContent is identified as the WebKit WebContent processes started after the launch; another WebKit client starting one during the run would be counted (memory.webcontent_identification).",
-      "One run per app launch, against a throwaway HOME; the host is the one in `host`, not necessarily the 16 GiB base machine.",
+      "One launch per window, against a throwaway home created empty (HOME and CFFIXED_USER_HOME; TMPDIR inside it), with an environment built from nothing and the strict chooser on, the opened model copied inside the home; the host is the one in `host`, not necessarily the 16 GiB base machine.",
+      "After the launch, outside its timed span, a census finds whether any process still runs the private app copy; an unresolved census is launch_failed (LAUNCH-CENSUS-UNRESOLVED) and ends the window. It does not cover the WebKit helper processes launchd starts for the app, or the host between windows.",
+      ...WINDOW_LIMITS,
       "C1 probe completion, when selected, covers its DOM/native-command/storage/CSV interactions only; it does not establish reader working-peak attribution, memory fit, base-machine usability or acceptance."
     ],
     elapsed_s: (Date.now() - started) / 1000,
@@ -1173,7 +1497,7 @@ async function main() {
       build: { type: "boolean" }, plan: { type: "boolean" }, run: { type: "boolean" }, "run-child": { type: "boolean" },
       "app-dir": { type: "string" }, "target-dir": { type: "string" }, "plan-file": { type: "string" },
       subset: { type: "string" }, runs: { type: "string" }, models: { type: "string" }, results: { type: "string" },
-      out: { type: "string" }, "budget-s": { type: "string" }, keep: { type: "boolean" }, "window-root": { type: "string" }, "supervisor-pid": { type: "string" }
+      out: { type: "string" }, "budget-s": { type: "string" }, keep: { type: "boolean" }, "window-root": { type: "string" }, "window-token": { type: "string" }, "supervisor-pid": { type: "string" }
     }
   });
   const planFile = path.resolve(values["plan-file"] ?? path.join(here, "perf-plan.json"));
@@ -1187,7 +1511,7 @@ async function main() {
     const options = {
       appDir: need("app-dir"), models: need("models"), results: values.results ? path.resolve(values.results) : null, out: need("out"),
       planFile, subset: values.subset, runs: values.runs, budgetS: values["budget-s"] ? Number(values["budget-s"]) : null, keep: Boolean(values.keep),
-      windowRoot: values["window-root"] ? path.resolve(values["window-root"]) : null
+      windowRoot: values["window-root"] ? path.resolve(values["window-root"]) : null, windowToken: values["window-token"] ?? null
     };
     if (values["run-child"]) {
       if (!process.send) throw new Error("perf run-child: no parent supervisor");

@@ -134,6 +134,40 @@ fn static_state_solve(prepared: &Prepared, mode: PreviewSolverMode) -> (LoadCase
     (solve, diagnostics)
 }
 
+/// PR-A's publication decision also governs the modal consumer: correction failure
+/// withdraws same-run confirmation before modal support linearization can use it.
+/// This is the selected document seam the public experimental entry forwards to unchanged;
+/// the headless modal_cli tests exercise that connecting path in a separate process.
+#[test]
+fn selected_modal_document_refuses_when_static_confirmation_is_withdrawn() {
+    use crate::corrected_displacement_tests::FORCED_CORRECTION_FAILURE;
+    use open_pipe_stress_frame_kernel::structural::DisplacementFailureKind::Certify;
+    let request = state_request(&kd5(U1), "load:PRESSED");
+    let parsed = modal(request.clone());
+    let prepared = prepare_modal(&parsed).unwrap();
+    let (control, _) = static_state_solve(&prepared, PreviewSolverMode::DenseScrutiny);
+    assert!(matches!(control.nonlinear_state.as_ref().unwrap().standing, NonlinearStateStanding::Confirmed));
+    assert_eq!(super::document::modal_selected_result_document(&request)["status"], "solved");
+
+    struct ResetCorrectionProbe;
+    impl Drop for ResetCorrectionProbe {
+        fn drop(&mut self) { FORCED_CORRECTION_FAILURE.with(|f| f.set(None)); }
+    }
+    let _reset = ResetCorrectionProbe;
+    FORCED_CORRECTION_FAILURE.with(|f| f.set(Some((0, Certify))));
+    let (withdrawn, diagnostics) = static_state_solve(&prepared, PreviewSolverMode::DenseScrutiny);
+    assert!(matches!(withdrawn.nonlinear_state.as_ref().unwrap().standing, NonlinearStateStanding::NotEstablished { .. }));
+    assert!(diagnostics.iter().any(|d| d.code == "DISPLACEMENT_CORRECTION_UNAVAILABLE"));
+    let document = super::document::modal_selected_result_document(&request);
+    assert_eq!(document["status"], "refused");
+    assert_eq!(document["admission"]["status"], "experimental");
+    assert_eq!(document["admission"]["public_engineering_result"], false);
+    let rows = document["refusals"]["rows"].as_array().unwrap();
+    assert!(rows.iter().any(|r| r["code"] == MODAL_STATE_CASE_UNAVAILABLE), "{document}");
+    assert!(rows.iter().any(|r| r["code"] == "DISPLACEMENT_CORRECTION_UNAVAILABLE"), "{document}");
+    assert!(document.get("modes").is_none());
+}
+
 // ---------------------------------------------------------------------------
 // Admitted: each mapping against its linear twin
 // ---------------------------------------------------------------------------
@@ -486,30 +520,48 @@ fn the_retired_interim_code_is_gone_and_a_linear_model_has_no_state() {
 }
 
 #[test]
-fn a_load_state_document_with_a_nonlinear_support_is_refused_upstream() {
-    // A load/reference-state document is on the exact route, which does not
-    // admit nonlinear supports yet (`exact_admission`): the static refusal is
-    // carried with no modal bypass. Without one, the state case solves.
+fn a_load_state_document_with_a_nonlinear_support_is_linearized_at_its_state_case() {
+    // A load/reference-state document on the exact route admits a nonlinear
+    // support once every case states it (`case_state::resolve`). Without its
+    // support state, the static admission refuses
+    // `LOAD_STATE_SUPPORT_STATE_MISSING` and the modal entry carries that
+    // refusal, with no bypass. With it, the state case's same-run solve gives
+    // the support a confirmed state, and the modal model is linearized there.
     let request: Value = serde_json::from_str(LOAD_STATE_REQUEST).unwrap();
     let mut nonlinear = request.clone();
     nonlinear["model"]["supports"].as_array_mut().unwrap().push(json!({"id": "support:nl", "node": "node:middle", "family": "nonlinear",
         "restraints": [], "nonlinear": {"behavior": "one_way", "dof": "UY", "initial_state": "active", "active_when": "positive_reaction"},
         "provenance": "invented DEL-04-09 I2b-2"}));
+    for pipe in nonlinear["model"]["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["material_density"] = q(7850.0, "kg/m^3");
+    }
+    // Unstated: refused upstream, by the static admission's own code.
     let entry = crate::run_linear_static_preview_value_with_mode(nonlinear.clone(), PreviewSolverMode::DenseScrutiny).unwrap();
     let static_blocking: Vec<&str> = entry.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.code.as_str()).collect();
-    assert!(!static_blocking.is_empty());
-    let found = state_modal_run(with(nonlinear, json!({"mode_count": 1, "state_case": "case:hot"}))).err().unwrap();
-    for code in &static_blocking {
-        assert!(codes(&found).contains(code), "{code}: {found:#?}");
+    assert!(!static_blocking.is_empty() && static_blocking.iter().all(|c| *c == "LOAD_STATE_SUPPORT_STATE_MISSING"), "{static_blocking:?}");
+    let found = state_modal_run(with(nonlinear.clone(), json!({"mode_count": 1, "state_case": "case:hot"}))).err().unwrap();
+    assert!(codes(&found).contains(&"LOAD_STATE_SUPPORT_STATE_MISSING"), "{found:#?}");
+    // Stated in every case: the static solve admits it and the modal model
+    // takes its confirmed state from case:hot.
+    for case in nonlinear["model"]["load_cases"].as_array_mut().unwrap() {
+        case["analysis_state"]["support_states"].as_array_mut().unwrap().push(json!({"support_ref": "support:nl", "participation": {"kind": "active_model_device"}}));
     }
+    let entry = crate::run_linear_static_preview_value_with_mode(nonlinear.clone(), PreviewSolverMode::DenseScrutiny).unwrap();
+    assert!(entry.diagnostics.iter().all(|d| d.severity != "blocking"), "{:#?}", entry.diagnostics);
+    let outcome = state_modal_run(with(nonlinear, json!({"mode_count": 1, "state_case": "case:hot"}))).unwrap_or_else(|f| panic!("{f:#?}"));
+    let state = outcome.nonlinear_state.as_ref().expect("a linearized state");
+    assert_eq!(state.supports.len(), 1);
+    let support = &state.supports[0];
+    assert_eq!((support.support_id.as_str(), support.behavior), ("support:nl", "one_way"));
+    let free = matches!(support.treatment, ModalSupportTreatment::Free);
+    assert_eq!(free, !matches!(support.state, ActiveSetState::Active), "{support:?}");
+    // Without the nonlinear support the same document solves with no state.
     let mut with_density = request;
     for pipe in with_density["model"]["pipe_segments"].as_array_mut().unwrap() {
         pipe["section"]["material_density"] = q(7850.0, "kg/m^3");
     }
-    match state_modal_run(with(with_density, json!({"mode_count": 1, "state_case": "case:hot"}))) {
-        Ok(outcome) => assert!(outcome.nonlinear_state.is_none()),
-        Err(found) => assert!(!codes(&found).contains(&MODAL_STATE_CASE_UNAVAILABLE), "{found:#?}"),
-    }
+    let outcome = state_modal_run(with(with_density, json!({"mode_count": 1, "state_case": "case:hot"}))).unwrap_or_else(|f| panic!("{f:#?}"));
+    assert!(outcome.nonlinear_state.is_none());
 }
 
 // ---------------------------------------------------------------------------
