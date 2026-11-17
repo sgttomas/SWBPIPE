@@ -1,0 +1,78 @@
+{
+  "schema": "swbpipe-embedded-agent-use-case/1",
+  "id": "w9a-journey",
+  "summary": "From a new blank project the agent is asked to build the W9-A L-frame as one batch for review; the batch is applied through Batch review; the agent is asked to solve and report node:c's six motions; the model tree, the Results section and the agent's report are read from the window.",
+  "data": "Invented. The requests restate the W9-A benchmark inputs of validation/references/w9_benchmarks/references.json as a person would state them.",
+  "start": {
+    "kind": "new_blank"
+  },
+  "sequence": [
+    {
+      "request": "Build the W9-A L-frame from the blank model as one batch for my review: material W9 steel (E 200 GPa, G 76.923 GPa, alpha 1.2e-5 per degC), nodes node:a (0,0,0), node:c (4,0,0) and node:d (4,3,0) m, pipes pipe:a-c and pipe:c-d (OD 0.2 m, wall 0.01 m), anchors at node:a and node:d, and one thermal load case raising both pipes by 100 degC. Do not solve yet."
+    },
+    {
+      "act": "apply_agent_batch"
+    },
+    {
+      "request": "I applied the batch. Confirm it was applied, solve the model and report node:c's six displacements and rotations, one per line as `node:c <component> = <value> <unit>` for ux, uy, uz in mm and rx, ry, rz in rad, each to at least six significant digits."
+    }
+  ],
+  "observe": {
+    "tree_types": ["node", "pipe", "support"],
+    "result_filter": "node:c"
+  },
+  "references": {
+    "batch": {
+      "file": "fixtures/model_operations/agent_w9a_journey.json",
+      "path": ["routes", "PF", "operations"]
+    },
+    "motions": {
+      "file": "validation/references/w9_benchmarks/references.json",
+      "case": "W9-A-LFRAME-THERMAL"
+    }
+  },
+  "expectations": [
+    {
+      "id": "requests-answered",
+      "kind": "requests_answered",
+      "on": "conversation"
+    },
+    {
+      "id": "one-agent-batch",
+      "kind": "agent_batch_shown",
+      "on": "window",
+      "apply": 1,
+      "operations": "batch"
+    },
+    {
+      "id": "tree-rows",
+      "kind": "tree_rows_are_batch_targets",
+      "on": "window",
+      "operations": "batch",
+      "object_types": {"Node": "node", "Element": "pipe", "Support": "support"}
+    },
+    {
+      "id": "node-c-motions",
+      "kind": "nodal_motions_match_reference",
+      "on": "window",
+      "reference": "motions",
+      "entity": "node:c",
+      "rows": 6,
+      "relative": 1e-9
+    },
+    {
+      "id": "tool-outcomes-agree",
+      "kind": "tool_outcomes_agree_with_window",
+      "on": "agreement",
+      "entity": "node:c"
+    },
+    {
+      "id": "report-states-window",
+      "kind": "report_states_window_motions",
+      "on": "agreement",
+      "request": 2,
+      "entity": "node:c",
+      "relative": 5e-4
+    }
+  ]
+}
