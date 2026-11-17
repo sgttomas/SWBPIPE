@@ -216,10 +216,10 @@ function compareWithFixture(model: PreviewModel, where: string): number {
   const blank = BLANK as unknown as AnyRecord;
   expect(document.analysis_status, `${where}: analysis_status (the blank's)`).toEqual(blank.analysis_status);
   expect(fixtureDocument.analysis_status).not.toEqual(blank.analysis_status);
-  expect(document.data_boundary, `${where}: data_boundary (the blank's; absent in the fixture)`).toEqual(blank.data_boundary);
-  expect(fixtureDocument.data_boundary).toBeUndefined();
-  expect(document.diagnostics, `${where}: diagnostics (the blank's authoring-target diagnostic; absent in the fixture)`).toEqual([{ ...BLANK.diagnostics![0], affected_refs: [id] }]);
-  expect(fixtureDocument.diagnostics).toBeUndefined();
+  expect(document.data_boundary, `${where}: data_boundary (the blank's)`).toEqual(blank.data_boundary);
+  expect(fixtureDocument.data_boundary).not.toEqual(blank.data_boundary);
+  expect(document.diagnostics, `${where}: diagnostics (the blank's authoring-target diagnostic; the fixture authors none)`).toEqual([{ ...BLANK.diagnostics![0], affected_refs: [id] }]);
+  expect(fixtureDocument.diagnostics).toEqual([]);
   return compared;
 }
 

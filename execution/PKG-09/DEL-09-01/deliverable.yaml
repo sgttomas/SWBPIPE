@@ -52,7 +52,8 @@ needs:
   when: Running a benchmark case by name and solving the reference system.
 - from: DEL-02-01
   condition: >-
-    A committed model document at the current version validates against the model schema, and a
+    A committed model document at the current version validates against the model schema and its
+    desktop profile, the desktop's shape check admits a document that satisfies that profile, and a
     malformed member is refused with its code and path.
   gating: true
   when: Validating the reference system's fixture.
@@ -109,6 +110,8 @@ code_paths:
 - fixtures/reference_system/**
 - validation/references/reference_system/**
 - tests/test_reference_system_fixture.py
+# The fixture as the desktop's open path checks it.
+- apps/desktop/src/features/model-file/referenceSystemOpen.test.ts
 # The specification's ledger and identities and the run sheet's identities, texts and links against the fixture.
 - tests/test_reference_system_records.py
 # Frozen before the fixture units they judge: the wind and seismic resultants and the hydrotest
@@ -145,6 +148,7 @@ checks:
 - core/product_physics/tests/w9_solver_benchmarks.rs
 - core/product_physics/tests/w16_imposed_motion.rs
 - tests/test_reference_system_fixture.py
+- apps/desktop/src/features/model-file/referenceSystemOpen.test.ts
 - tests/test_reference_system_records.py
 - tests/test_reference_packages.py
 - tests/test_reference_packages_regeneration.py
