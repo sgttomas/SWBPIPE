@@ -7,11 +7,14 @@
 // - Settings: read from the native file at start; on by default, every 5
 //   minutes. Turning autosave off shows a one-line notice that a crash can
 //   lose unsaved work (Agent 0, 2026-10-28, item (a)).
-// - Timer: one interval. A tick writes only while the model has unsaved edits
-//   (`modelEdited`), its hash is owned and no project operation or prompt owns
-//   the session. At most one autosave is in flight; a tick that finds one
-//   running is skipped. A refusal keeps the previous record (native) and the
-//   next tick retries.
+// - Timer: one fixed interval, never moved by a late or failed write. Each
+//   tick makes a save due while the model has unsaved edits (`modelEdited`).
+//   A due save is written once its hash is owned and no project operation or
+//   prompt owns the session, with the model and hash current then; until
+//   then it polls every 250 ms, and missed ticks make one write, not a queue.
+//   At most one autosave is in flight; its completion tries a save that came
+//   due meanwhile. A refusal or an unknown outcome keeps the previous record
+//   (native) and is retried after 5, 10, 20, 40, then every 60 seconds.
 // - After a save lands: that project's records written up to then, and any
 //   holding the saved model, are discarded; the store now holds the model.
 // - Recovery: at start, and after a stored project opens, records are paired
@@ -102,6 +105,9 @@ type Scope = { projectId: string; storedHash: string | null } | null;
 type CheckMode = "automatic" | "all";
 
 const IDLE_POLL_MS = 250;
+/** A failed autosave is tried again after 5 s, then 10, 20, 40 and every 60 s. */
+const RETRY_BASE_MS = 5_000;
+const RETRY_MAX_MS = 60_000;
 
 export function useAutosave(deps: AutosaveDeps) {
   const depsRef = useRef(deps);
@@ -118,6 +124,15 @@ export function useAutosave(deps: AutosaveDeps) {
   const [recoveryPrompt, setRecoveryPrompt] = useState<AutosaveRecoveryPromptState | null>(null);
   const [settingBusy, setSettingBusy] = useState(false);
   const inFlight = useRef<Promise<void> | null>(null);
+  // The due save: `ticks` counts the timer's ticks and `covered` the last one
+  // a recorded write (or a state with nothing to record) answered.
+  const ticks = useRef(0);
+  const covered = useRef(0);
+  const failures = useRef(0);
+  const wake = useRef<number | null>(null);
+  const enabled = useRef(false);
+  /** The model the last landed save stored, from `afterProjectSaved`. */
+  const landedSave = useRef<{ projectId: string; modelHash: string } | null>(null);
   const checks = useRef<Promise<void>>(Promise.resolve());
   const mounted = useRef(true);
 
@@ -145,23 +160,69 @@ export function useAutosave(deps: AutosaveDeps) {
 
   const minutes = settings?.autosave_minutes ?? 0;
   useEffect(() => {
-    if (!deps.native || minutes <= 0) return;
-    const timer = window.setInterval(() => { void tick(); }, minutes * 60_000);
-    return () => window.clearInterval(timer);
+    if (!deps.native || minutes <= 0) {
+      // Off: a due save is dropped with its wake-up.
+      covered.current = ticks.current;
+      failures.current = 0;
+      return;
+    }
+    enabled.current = true;
+    const timer = window.setInterval(() => { ticks.current += 1; void attempt(); }, minutes * 60_000);
+    // A save still due from before an interval change is attempted now.
+    void attempt();
+    return () => {
+      enabled.current = false;
+      window.clearInterval(timer);
+      cancelWake();
+    };
   }, [deps.native, minutes]);
 
-  /** One tick of the timer. */
-  async function tick(): Promise<void> {
-    // One in flight: a tick that finds one running is skipped.
-    if (inFlight.current) return;
+  function cancelWake() {
+    if (wake.current !== null) window.clearTimeout(wake.current);
+    wake.current = null;
+  }
+
+  function wakeIn(ms: number) {
+    cancelWake();
+    wake.current = window.setTimeout(() => { wake.current = null; void attempt(); }, ms);
+  }
+
+  /** Writes the due save if nothing blocks it now; otherwise arranges the
+   * wake-up that tries again. The interval itself never moves. */
+  async function attempt(): Promise<void> {
+    // One in flight: its completion tries again (below).
+    if (!mounted.current || !enabled.current || inFlight.current || covered.current >= ticks.current) return;
     const current = depsRef.current;
-    if (!current.modelEditedRef.current || current.projectSessionBusy()) return;
+    if (!current.modelEditedRef.current) {
+      // No unsaved edits: nothing is due.
+      covered.current = ticks.current;
+      failures.current = 0;
+      cancelWake();
+      return;
+    }
+    // Model and hash are read together, only while the hash is owned. A
+    // blocker or a hash still being computed sets no event the hook can
+    // observe, so the due save polls for them.
     const { model, modelHash } = current.saveBasisRef.current;
-    if (!model || !modelHash) return;
+    if (current.projectSessionBusy() || !model || !modelHash) {
+      if (wake.current === null) wakeIn(IDLE_POLL_MS);
+      return;
+    }
+    // A save that landed holds exactly this model: the store covers it.
+    if (landedSave.current && landedSave.current.projectId === model.project.id && landedSave.current.modelHash === modelHash.value) {
+      covered.current = ticks.current;
+      failures.current = 0;
+      cancelWake();
+      return;
+    }
+    cancelWake();
+    const covering = ticks.current;
+    let recorded = false;
     const run = (async () => {
       try {
         const text = await canonicalJsonString(model);
         const outcome = await writeProjectAutosave(text, modelHash.value);
+        recorded = outcome.outcome === "written" || outcome.outcome === "unchanged";
         if (!mounted.current) return;
         if (outcome.outcome === "written") {
           const warning = outcome.warnings.length > 0 ? ` ${diagnosticsText(outcome.warnings)}` : "";
@@ -178,6 +239,17 @@ export function useAutosave(deps: AutosaveDeps) {
       await run;
     } finally {
       inFlight.current = null;
+    }
+    if (recorded) {
+      // It covers the ticks up to its capture, never one that came while it ran.
+      covered.current = Math.max(covered.current, covering);
+      failures.current = 0;
+      void attempt();
+    } else if (mounted.current && enabled.current && covered.current < ticks.current) {
+      // Refused, or an unknown outcome: nothing is removed here, and the next
+      // try waits a little longer each time, up to a minute.
+      failures.current += 1;
+      wakeIn(Math.min(RETRY_BASE_MS * 2 ** (failures.current - 1), RETRY_MAX_MS));
     }
   }
 
@@ -289,8 +361,10 @@ export function useAutosave(deps: AutosaveDeps) {
    * later). A running autosave finishes first, so its record is checked too. */
   async function afterProjectSaved(projectId: string, savedHash: string | null): Promise<void> {
     if (!depsRef.current.native || savedHash === null) return;
+    landedSave.current = { projectId, modelHash: savedHash };
     try {
-      await inFlight.current;
+      // Every autosave started before this point finishes first.
+      while (inFlight.current) await inFlight.current;
       const slot = await autosaveSlot(projectId);
       const listed = await listProjectAutosaves();
       if (listed?.outcome !== "listed") {

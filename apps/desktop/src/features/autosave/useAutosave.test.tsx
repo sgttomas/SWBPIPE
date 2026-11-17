@@ -264,8 +264,8 @@ describe("the autosave timer", () => {
     await waitFor(() => expect(calls("write_project_autosave")).toHaveLength(2));
   });
 
-  it("shows a refusal as `Autosave not written: <code>: <message>` and retries at the next tick", async () => {
-    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
+  it("shows a refusal as `Autosave not written: <code>: <message>` and retries it", async () => {
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "setTimeout", "clearTimeout"] });
     const outcomes: Array<() => Promise<AutosaveWriteOutcome>> = [
       () => Promise.resolve({ outcome: "refused", diagnostics: [{ code: "AUTOSAVE-WRITE-FAILED", path: "", message: "invented disk full (ENOSPC)" }] }),
       () => Promise.reject("AUTOSAVE-WORKER-FAILED: the `write_project_autosave` worker did not complete."),
@@ -273,13 +273,15 @@ describe("the autosave timer", () => {
     ];
     native({ write: () => outcomes.shift()!() });
     mount();
-    await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
+    await advance(0);
+    expect(screen.getByTestId("autosave-interval")).toHaveValue("5");
     await advance(5 * MINUTE);
-    await waitFor(() => expect(status()).toHaveTextContent("Autosave not written: AUTOSAVE-WRITE-FAILED: invented disk full (ENOSPC)"));
-    await advance(5 * MINUTE);
-    await waitFor(() => expect(status()).toHaveTextContent("Autosave not written: AUTOSAVE-WORKER-FAILED: the `write_project_autosave` worker did not complete."));
-    await advance(5 * MINUTE);
-    await waitFor(() => expect(status()).toHaveTextContent(`Autosaved at ${formatAutosaveTime(WRITTEN + 1000)}.`));
+    expect(status()).toHaveTextContent("Autosave not written: AUTOSAVE-WRITE-FAILED: invented disk full (ENOSPC)");
+    // Retried after 5 seconds, then 10 more.
+    await advance(5_000);
+    expect(status()).toHaveTextContent("Autosave not written: AUTOSAVE-WORKER-FAILED: the `write_project_autosave` worker did not complete.");
+    await advance(10_000);
+    expect(status()).toHaveTextContent(`Autosaved at ${formatAutosaveTime(WRITTEN + 1000)}.`);
     expect(calls("write_project_autosave")).toHaveLength(3);
   });
 });
@@ -316,7 +318,8 @@ describe("the due autosave", () => {
   const writes = () => calls("write_project_autosave").map(([, args]) => args);
   const payload = (v: Variant) => ({ canonicalText: v.text, claimedModelHash: v.hash });
   const writtenFor = (args: Record<string, unknown>): AutosaveWriteOutcome => ({
-    ...written(), model_hash: args.claimedModelHash as string, byte_count: (args.canonicalText as string).length
+    outcome: "written", file_name: `${DEMO_SLOT}-${WRITTEN}-x.json`, slot: DEMO_SLOT, written_unix_millis: WRITTEN,
+    model_hash: args.claimedModelHash as string, byte_count: (args.canonicalText as string).length, durability: "durable", warnings: []
   });
   function show(basis: AutosaveDeps["saveBasisRef"], v: Variant, owned = true) {
     basis.current = { model: v.model, modelHash: owned ? ({ value: v.hash } as ModelHashEvidence) : null };
@@ -523,11 +526,12 @@ describe("the due autosave", () => {
   });
 
   it("turning autosave off ends a due save", async () => {
-    const { busy } = await start();
-    busy.current = true;
+    const { basis } = await start();
+    show(basis, variants[1], false);
     await to(5 * MINUTE + SECOND);
-    busy.current = false;
-    fireEvent.change(screen.getByTestId("autosave-interval"), { target: { value: "0" } });
+    await act(async () => { fireEvent.change(screen.getByTestId("autosave-interval"), { target: { value: "0" } }); });
+    await to(5 * MINUTE + 2 * SECOND);
+    show(basis, variants[1]);
     await to(5 * MINUTE + 10 * SECOND);
     expect(writes()).toEqual([]);
     expect(screen.getByTestId("autosave-off-notice")).toHaveTextContent(AUTOSAVE_OFF_NOTICE);
