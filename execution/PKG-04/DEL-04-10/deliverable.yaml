@@ -82,6 +82,20 @@ needs:
     passing the report's gates (DEL-08-01 REQ-020). The response-spectrum section is such a
     section.
   gating: false
+- from: DEL-07-07
+  when: Before a spectrum result is admitted for engineering display in the desktop.
+  condition: >-
+    The native job enforces the owning analysis admission profile, can stop its owned computation,
+    and publishes the complete result and required reader verdict atomically into result custody;
+    a cancelled, failed or refused run cannot leave a successful partial result.
+  gating: true
+- from: DEL-10-05
+  when: Before a spectrum result is admitted as an engineering result through the headless command.
+  condition: >-
+    Bounded ingress and result reading apply on the actual path, interruption ends the foreground
+    computation without reported success, and explicit output preserves a complete old or complete
+    new destination through owned temporary creation and atomic rename under REQ-015.
+  gating: true
 - from: external:nrc-nureg-cr
   when: If a published response-spectrum problem is compared.
   condition: >-

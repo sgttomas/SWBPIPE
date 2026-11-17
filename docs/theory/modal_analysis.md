@@ -519,12 +519,14 @@ covers the product's modal count caller, not a full-model end-to-end solve.
 ## Limitations
 
 - **Experimental, not an engineering result.** DEL-04-09's Admission
-  conditions are not met: the dense path's work guard has no measured budget,
-  and the resource preflight refuses every budgeted request while the
-  integrity and confirmation work it charges is unbounded. The headless entry
-  runs without a budget. It applies the dense memory guard, the request and
-  model refusals and the integrity checks, and it publishes an experimental
-  document.
+  conditions are not met: the calibrated input class and its complete
+  allocation, stopping and publication protections are not established.
+  Production caps remain unset. The existing headless entry supplies no
+  internal weighted-work budget and remains experimental; a supplied legacy
+  internal budget still meets the preflight's unbounded-term refusal. The
+  command applies the dense memory guard, request/model refusals and integrity
+  checks. The selected empirical resource policy gives no elapsed-time or
+  process-memory guarantee and changes no numerical check.
 - **Dense path only.** The product's entry solves on the dense path, under the
   dense memory guard; a model too large for that guard is refused. The sparse
   path is not a product entry.
