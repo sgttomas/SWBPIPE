@@ -106,6 +106,13 @@ needs:
     The retained-precision reader validates a retained source and its transport metadata and
     returns a verdict that passes it or refuses it by code.
   gating: true
+- from: DEL-04-09
+  when: Hosting the read command for a modal result
+  condition: >-
+    The modal result reader takes a modal result document and, optionally, the modal request it
+    binds, and returns its own verdict, whose decision rejects a document it cannot read or whose
+    checked relations contradict it, and which states public engineering-result admission disabled.
+  gating: true
 - from: DEL-04-11
   when: Hosting the size-hangers command
   condition: >-
@@ -115,8 +122,9 @@ needs:
 - from: DEL-04-09
   when: Hosting the modal command
   condition: >-
-    The modal entry takes a model document and a modal request as text, applies its own admission,
-    and returns one published document, a modal result or its refusals.
+    The modal entry takes one modal request, a JSON value holding the model document, its materials
+    and the request's options, applies its own admission, and returns one published document, a
+    modal result or its refusals.
   gating: true
 - from: DEL-04-10
   when: Hosting the spectrum command
@@ -131,7 +139,8 @@ needs:
   gating: false
 # The runner's crate, contract and artifact tests. Files inside the crate that belong to other
 # deliverables: src/reader_binding.rs and tests/reader_cli.rs, tests/retained_precision_admission.rs
-# (DEL-05-02, DEL-04-08); tests/size_hangers_cli.rs (DEL-04-11); the exact-route, joint and
+# (DEL-05-02, DEL-04-08, and DEL-04-09 for the modal reader); tests/size_hangers_cli.rs (DEL-04-11);
+# tests/modal_cli.rs (DEL-04-09); the exact-route, joint and
 # objective-connector tests (DEL-04-07, DEL-03-06); src/redaction_binding.rs is shared with
 # DEL-12-02, whose control it binds; the export-results handling and its package tests are shared
 # with DEL-08-01. The runner tests also read the runner requests and outputs under

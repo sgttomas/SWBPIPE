@@ -165,22 +165,26 @@ fn main() -> ExitCode {
         }
     };
 
-    let (code, output) = if args.verb == SIZE_HANGERS {
-        match execute_size_hangers(&input) {
+    // A hosted command whose whole document is local-private: its entry and its field class.
+    type HostedEntry = fn(&str) -> Result<(u8, Value), String>;
+    let hosted: Option<(HostedEntry, &str)> = match args.verb.as_str() {
+        SIZE_HANGERS => Some((execute_size_hangers, "hanger_sizing_result")),
+        MODAL => Some((execute_modal, "modal_result")),
+        _ => None,
+    };
+    let (code, controlled) = if let Some((execute, field_class)) = hosted {
+        let (code, document) = match execute(&input) {
             Ok(outcome) => outcome,
             Err(message) => {
                 eprintln!("{message}");
                 return ExitCode::from(2);
             }
-        }
+        };
+        (code, control_whole_document_private(document, args.explicit_local_private_intent, field_class))
     } else {
         let (code, output) = execute_json_with_mode(&args.verb, &input, args.solver_mode);
-        (code, serde_json::to_value(output).expect("CLI output must serialize as JSON"))
-    };
-    let controlled = if args.verb == SIZE_HANGERS {
-        control_whole_document_private(output, args.explicit_local_private_intent)
-    } else {
-        control_local_private(output, args.explicit_local_private_intent)
+        let output = serde_json::to_value(output).expect("CLI output must serialize as JSON");
+        (code, control_local_private(output, args.explicit_local_private_intent))
     };
     let rendered = serde_json::to_string_pretty(&controlled)
         .expect("controlled CLI output must serialize as JSON");
@@ -228,15 +232,43 @@ fn execute_size_hangers(raw_input: &str) -> Result<(u8, Value), String> {
     Ok((if published.is_sized() { 0 } else { 1 }, published.into_document()))
 }
 
-/// The local-private control of a `size-hangers` document (DEL-04-11 Design
-/// §8.3.2): the whole document is local-private output, because it names records
-/// of a private library. `control_local_private`'s path-token walk matches no
-/// member of the document, so the document is controlled as one item instead,
-/// by the rule that walk applies to `$.report_package`, with its reason codes and
-/// texts: without `--explicit-local-private-intent` one blocking decision at `$`
-/// and no payload; with it, one warning and the document unchanged. A refused
-/// document is controlled the same way, since it can name the library's id.
-fn control_whole_document_private(document: Value, explicit_intent: bool) -> ControlledExport {
+const MODAL: &str = "modal";
+
+/// `modal` (DEL-04-09, DEL-10-05 REQ-015): one modal request through the
+/// product's experimental modal entry. The input is the modal request itself,
+/// `{"model", "materials", <options>}`, passed to the entry unchanged; the
+/// runner adds no extraction bound, state case, modulus basis, acceleration or
+/// other value, and reads no `CliInput.request`. Input that is not JSON, or is
+/// outside the checked canonical profile (a duplicate member, a non-finite or
+/// out-of-range number), is unusable: status 2 and no document, so that no
+/// member is silently collapsed before the entry binds the request. Otherwise
+/// the entry's document is returned unchanged: status 0 when it is `solved`,
+/// 1 when it is `refused` (or the control blocks it). The document is
+/// experimental and states that it is not a public engineering result; the
+/// runner records no analysis run and adds it to no envelope, report or export.
+/// Its product reader's verdict is `read modal-result`.
+fn execute_modal(raw_input: &str) -> Result<(u8, Value), String> {
+    let request: Value = serde_json::from_str(raw_input)
+        .map_err(|error| format!("openpipestress-runner: the modal input is not JSON: {error}"))?;
+    open_pipe_stress_canonical_json::canonical_json_checked_v1_text(raw_input).map_err(|error| {
+        format!("openpipestress-runner: the modal input is outside the checked canonical profile: {error}")
+    })?;
+    let document = open_pipe_stress_product_physics::modal_experimental_result_document(&request);
+    Ok((if document["status"] == "solved" { 0 } else { 1 }, document))
+}
+
+/// The local-private control of a hosted command's whole document: a
+/// `size-hangers` document (DEL-04-11 Design §8.3.2), which names records of a
+/// private library, and a `modal` document (DEL-04-09), which binds and states
+/// values derived from the user's model. `control_local_private`'s path-token
+/// walk matches no member of either document, so the document is controlled as
+/// one item instead, by the rule that walk applies to `$.report_package`, with
+/// its reason codes and texts: without `--explicit-local-private-intent` one
+/// blocking decision at `$` and no payload (nothing of the document, its digests
+/// or its metadata is output); with it, one warning and the document unchanged.
+/// A refused document is controlled the same way, since it can name the
+/// library's id or bind the model. `field_class` names the document's class.
+fn control_whole_document_private(document: Value, explicit_intent: bool, field_class: &str) -> ControlledExport {
     let (action, reason, severity, message) = if explicit_intent {
         (
             "warning_only",
@@ -258,7 +290,7 @@ fn control_whole_document_private(document: Value, explicit_intent: bool) -> Con
         decisions: vec![RedactionDecision {
             decision_id: "REDC-DEC-0001".to_string(),
             path: "$".to_string(),
-            field_class: "hanger_sizing_result".to_string(),
+            field_class: field_class.to_string(),
             privacy_classification: "private_project_data".to_string(),
             redistribution_status: "private_only".to_string(),
             review_status: "accepted".to_string(),
@@ -415,7 +447,7 @@ fn usage() -> String {
         .collect::<Vec<_>>()
         .join("|");
     format!(
-        "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]\n       openpipestress-runner size-hangers [--input <sizing-input.json>|-] [--output <result.json>] [--explicit-local-private-intent]\n       openpipestress-runner read <{readers}> [--input <reader-input.json>|-]"
+        "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]\n       openpipestress-runner size-hangers [--input <sizing-input.json>|-] [--output <result.json>] [--explicit-local-private-intent]\n       openpipestress-runner modal [--input <modal-request.json>|-] [--output <result.json>] [--explicit-local-private-intent]\n       openpipestress-runner read <{readers}> [--input <reader-input.json>|-]"
     )
 }
 

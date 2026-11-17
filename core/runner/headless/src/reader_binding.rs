@@ -118,6 +118,31 @@ fn rule_binding(input: &Map<String, Value>) -> Value {
     json!({"ok": true, "refusal": sc::rule_binding_refusal(&input["envelope"], &input["row"])})
 }
 
+/// DEL-04-09's Rust modal reader (`open_pipe_stress_modal_result`), over a
+/// modal result document and, optionally, the request it binds:
+/// `{"ok", "verdict"}`. `verdict` is the reader's own `modal_verdict_json`
+/// (closure, binding, every relation's standing, health, decision, validation
+/// status, limit and `public_admission`). `ok` is true when the reader did not
+/// reject the document (`decision` is not `rejected`): the document is readable
+/// and its checked relations do not contradict it. It is not numerical
+/// eligibility and not admission: a `consistent_with_scoped_unsupported` or
+/// `consistent_with_unresolved` decision, a request-less read whose binding and
+/// model-derived mass are not checked, and a refused document's
+/// `refusal_consistent` are all `ok`, and every verdict states public
+/// engineering-result admission `disabled`. The document reaches the reader as
+/// text, so that its checked-profile closure applies; `read` refuses an input
+/// outside that profile as unusable first, so that no duplicate member is
+/// collapsed before the reader sees it.
+fn modal_result(input: &Map<String, Value>) -> Value {
+    use open_pipe_stress_modal_result::{read_modal_result_text, ModalSupplied};
+    let text = serde_json::to_string(&input["source"]).expect("a JSON value serializes");
+    let verdict = read_modal_result_text(&text, ModalSupplied { request: member(input, "request") });
+    json!({"ok": verdict.decision != "rejected", "verdict": verdict.modal_verdict_json()})
+}
+
+/// The reader whose input must be inside the checked canonical profile.
+const MODAL_RESULT_READER: &str = "modal-result";
+
 /// A base reader's validation, by its `reader_verdict` name.
 macro_rules! base {
     ($name:literal, $optional:expr) => {
@@ -220,6 +245,14 @@ pub const READERS: &[Reader] = &[
         optional_members: &[],
         read: rule_binding,
     },
+    // DEL-04-09's modal reader: `{"source": <modal result document>, "request"?: <the
+    // modal request it binds> | null}`; `{"ok", "verdict"}` (`modal_result`).
+    Reader {
+        name: MODAL_RESULT_READER,
+        required_members: &["source"],
+        optional_members: &["request"],
+        read: modal_result,
+    },
 ];
 
 /// Exit status of a read the reader judged: 0 when it passed (`"ok": true`), 1
@@ -238,6 +271,10 @@ pub fn read(reader: &str, input: &str) -> Result<(u8, Value), String> {
         .ok_or_else(|| format!("unknown reader {reader}"))?;
     let value: Value =
         serde_json::from_str(input).map_err(|error| format!("input is not JSON: {error}"))?;
+    if entry.name == MODAL_RESULT_READER {
+        open_pipe_stress_canonical_json::canonical_json_checked_v1_text(input)
+            .map_err(|error| format!("{reader} input is outside the checked canonical profile: {error}"))?;
+    }
     let Value::Object(members) = value else {
         return Err("input must be a JSON object".into());
     };
@@ -317,6 +354,13 @@ mod tests {
             ("standing", r#"{"source":{},"requested_basis_refs":[],"recorded_binding":{}}"#),
             ("classification-summary", r#"{"source":{},"recorded_binding":{}}"#),
             ("rule-binding", r#"{"envelope":{},"row":{},"recorded_binding":{}}"#),
+            // DEL-04-09: the modal reader takes a document and its request only, and an
+            // input outside the checked profile (a duplicate member) never reaches it.
+            ("modal-result", r#"{"request":{}}"#),
+            ("modal-result", r#"{"source":{},"model":{}}"#),
+            ("modal-result", r#"{"source":{},"recorded_binding":{}}"#),
+            ("modal-result", r#"{"source":{"status":"solved","status":"refused"}}"#),
+            ("modal-result", r#"{"source":{},"source":{}}"#),
         ] {
             assert!(read(reader, input).is_err(), "{reader} {input}");
         }
@@ -384,7 +428,7 @@ mod tests {
                 "retained-precision", "retained-precision-transport", "dispatch",
                 "preview-physics", "pressure-source", "source-recovery", "pressure",
                 "preview-physics-transport", "pressure-source-transport", "pressure-transport",
-                "row-semantics", "standing", "classification-summary", "rule-binding",
+                "row-semantics", "standing", "classification-summary", "rule-binding", "modal-result",
             ]
         );
     }
@@ -416,6 +460,58 @@ mod tests {
         assert_eq!((code, &output["outcome"]["error"]["code"]), (EXIT_REFUSED, &json!("SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS")));
         let (code, output) = read("row-semantics", &json!({"row": pf["results"][0], "recorded_binding": recorded}).to_string()).unwrap();
         assert_eq!((code, &output["outcome"]["error"]["code"]), (EXIT_REFUSED, &json!("SOURCE_RECORDED_BINDING_UNKNOWN")));
+    }
+
+    /// DEL-04-09: `modal-result` is the modal reader's own verdict, with and without the
+    /// bound request; `ok` is "not rejected", never admission.
+    #[test]
+    fn the_modal_reader_returns_its_own_verdict() {
+        use open_pipe_stress_modal_result::{read_modal_result_text, ModalSupplied};
+        let fixture = |name: &str| -> Value {
+            serde_json::from_str(match name {
+                "modal_cantilever_below_cutoff.json" => include_str!("../../../../fixtures/results/modal_cantilever_below_cutoff.json"),
+                "modal_cantilever_below_cutoff.request.json" => include_str!("../../../../fixtures/results/modal_cantilever_below_cutoff.request.json"),
+                "modal_refused_no_bound.json" => include_str!("../../../../fixtures/results/modal_refused_no_bound.json"),
+                "modal_refused_no_bound.request.json" => include_str!("../../../../fixtures/results/modal_refused_no_bound.request.json"),
+                "modal_arc.request.json" => include_str!("../../../../fixtures/results/modal_arc.request.json"),
+                other => panic!("no fixture {other}"),
+            })
+            .unwrap()
+        };
+        let own = |doc: &Value, request: Option<&Value>| {
+            read_modal_result_text(&serde_json::to_string(doc).unwrap(), ModalSupplied { request }).modal_verdict_json()
+        };
+        for stem in ["modal_cantilever_below_cutoff", "modal_refused_no_bound"] {
+            let doc = fixture(&format!("{stem}.json"));
+            let request = fixture(&format!("{stem}.request.json"));
+            for (input, supplied) in [
+                (json!({"source": doc, "request": request}), Some(&request)),
+                (json!({"source": doc}), None),
+                (json!({"source": doc, "request": null}), None),
+            ] {
+                let (code, output) = read("modal-result", &input.to_string()).unwrap();
+                let verdict = own(&doc, supplied);
+                assert_eq!(output["outcome"]["verdict"], verdict, "{stem}");
+                assert_eq!(output["outcome"]["ok"], verdict["decision"] != "rejected", "{stem}");
+                assert_eq!(code, EXIT_PASS, "{stem}: {verdict}");
+                assert_eq!(verdict["public_admission"]["status"], "disabled", "{stem}");
+            }
+        }
+        // Without the request the binding is not checked and the model-derived mass is scoped:
+        // still `ok`, and not fully validated.
+        let doc = fixture("modal_cantilever_below_cutoff.json");
+        let (_, output) = read("modal-result", &json!({"source": doc}).to_string()).unwrap();
+        let verdict = &output["outcome"]["verdict"];
+        assert_eq!(verdict["decision"], "consistent_with_scoped_unsupported");
+        assert_eq!(verdict["validation"]["status"], "not_fully_validated");
+        // Another request than the bound one fails the binding: rejected, exit 1.
+        let other = fixture("modal_arc.request.json");
+        let (code, output) = read("modal-result", &json!({"source": doc, "request": other}).to_string()).unwrap();
+        assert_eq!((code, &output["outcome"]["ok"]), (EXIT_REFUSED, &json!(false)));
+        assert_eq!(output["outcome"]["verdict"]["decision"], "rejected");
+        // A document that is not a modal result is rejected by closure.
+        let (code, output) = read("modal-result", &json!({"source": {}}).to_string()).unwrap();
+        assert_eq!((code, &output["outcome"]["verdict"]["decision"]), (EXIT_REFUSED, &json!("rejected")));
     }
 
     #[test]
