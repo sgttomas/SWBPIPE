@@ -146,10 +146,10 @@ function glueProblems(text, keys) {
 // The stop-handling orchestration as last independently read: the two runners and judged-launch.mjs, whole. The
 // property G1 protects belongs to each runner's whole orchestration (an app start written outside launch is an
 // ordinary edit the tree check cannot see), so the pin is over the whole file; the depth of re-reading follows the
-// diff (PIN_MESSAGE). Recompute after a reading clears, or after a merge of main that moved a pinned file:
+// diff (PIN_MESSAGE). Recompute after the applicable reading clears; merging main does not waive that reading:
 //   shasum -a 256 apps/desktop/native-smoke/run.mjs apps/desktop/native-smoke/mbf-journey.mjs apps/desktop/native-smoke/judged-launch.mjs
 const PIN = {
-  "run.mjs": "24eb23c87681a0246f98bb84c296d68ecc5ccb54893f4822819b003b045e86e1",
+  "run.mjs": "4803e797dbca58d9368ea7e6300de5cf22aedbcc56f787ece0e6f09ff02b1b51",
   "mbf-journey.mjs": "34ca4d4e08e739918dcdceba80e6c3b4c6e8bf2e4164a18fa67fc5e43e49bd71",
   "judged-launch.mjs": "ab6469bbd7443955e32613afa773f8a9875fa7c7f4f8b2f154a816fd26ac5cfc"
 };
@@ -157,7 +157,7 @@ const PIN_MESSAGE = (file) => [
   `${file} changed since its stop handling was last independently read. Before this pin is updated, the independent reader of the pull request that changes it re-reads it, and that pull request quotes the reading:`,
   "- for a diff confined to journey content (observations, assertions, messages), the reader establishes from the diff that no launch path, app binding or phase sequence changed, and says so in one sentence;",
   "- for a diff that touches any of them, the reader reads in full that every path that starts an app goes through judgedPhase with phaseContinuation attached and returned, that the phase sequence awaits each launch at module scope, and that phaseContinuation receives the production state and evidence root.",
-  "The author refreshes the pin after that reading clears. A merge of main that moves a pinned file recomputes it with the command in this test's comment, saying which side's change moved it."
+  "The author refreshes the pin after that reading clears. A merge of main may reuse an earlier independent reading only when its pinned file has exactly the reviewed bytes; the pull request names that reading and which side supplied them. Any different merged bytes require the reading above before recomputing the pin."
 ].join("\n");
 const sha256 = (text) => createHash("sha256").update(text, "utf8").digest("hex");
 
@@ -168,7 +168,7 @@ test("each runner returns exactly this handler's promise from its launch functio
 });
 
 test("the stop-handling orchestration is the source last independently read (the pins)", () => {
-  for (const [file, digest] of Object.entries(PIN)) assert.equal(sha256(readFileSync(path.join(here, file), "utf8")), digest, PIN_MESSAGE(file));
+  for (const [file, digest] of Object.entries(PIN)) assert.equal(sha256(readFileSync(path.join(here, file))), digest, PIN_MESSAGE(file));
 });
 
 test("the glue check refuses each way around it the readers found or that would bring back an ignored stop", () => {

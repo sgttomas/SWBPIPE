@@ -7,6 +7,7 @@ import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mec
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
 import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./test-support/contractBindings";
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS, REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
+import { REPORT_SOURCE_COMMANDS, reportSourceRegistration } from "./test/reportSourceRegistration";
 import { createNativePersistenceFake, isNativePersistenceCommand } from "./test/nativePersistenceFake";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
@@ -233,8 +234,11 @@ async function installPreviewReplay() {
   // T0R: the fresh ordinary route is preview-physics-2.
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
   const mechanics = createNativeMechanicsReplay({ profile: "preview" });
+  const reportSource = reportSourceRegistration();
   const invoke = (command: string, args?: unknown, options?: unknown) => {
     if (command === "get_local_storage_capability") return Promise.resolve(storage);
+    // DEL-08-01 REQ-022: the report source registration the native process answers.
+    if (REPORT_SOURCE_COMMANDS.includes(command)) return reportSource(command, args);
     if (command === "load_design_knowledge") return Promise.resolve(knowledge);
     if (command === "sync_native_shell_state") return Promise.resolve(null);
     if (REPLAY_COMMANDS.includes(command)) return mechanics.invoke(command, args, options);

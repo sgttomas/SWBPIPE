@@ -3,7 +3,7 @@
 //! to both of its uses, the standing's token (`for_source`) and its findings (the
 //! pressure reader's outcome). Every other route reads as before.
 //!
-//! The reference is the basis's two-pass read, verbatim but for its names:
+//! The reference starts from the basis's two-pass read, renamed:
 //! `dispatch`, `standing`, `validate`, `numerical_use_standing_with_context` and
 //! `for_source`, so it shares none of the changed functions. The basis is the
 //! composed predecessor, RT-U4 order (ad3665dcc) with RT-A3 increment 4
@@ -16,6 +16,10 @@
 //! again; nothing is computed once and fed to both. The pass count is `present`'s
 //! (`exact_combination_evidence::PRESSURE_PASSES`, tests only): the reader asks it
 //! first, and no other caller does.
+//! PR-A adds DEL-04-07's publication restriction to this test reference:
+//! an admitted ordinary document without solved mechanics needs recomputation.
+//! This policy is derived here from the scope, independently of the production
+//! token function; the two evidence reads and their comparison remain intact.
 //!
 //! These tests live here, not in `reader_verdict.rs` or `semantic_contract.rs`,
 //! because `product_physics`'s `retained_memory_law_tests` requires
@@ -187,6 +191,13 @@ fn reference_numerical_use_standing_with_context(
     let Ok((_, version)) = reference_for_source(source) else {
         return "unsupported";
     };
+    // DEL-04-07, Blocked document: "On every route an unsolved document is
+    // never numerically eligible." Contract refusal above retains precedence;
+    // this admitted ordinary document instead needs a completed solve.
+    match source.pointer("/status/mechanics").and_then(Value::as_str) {
+        Some("MECHANICS_SOLVED") => {}
+        _ => return "needs_recompute",
+    }
     // T0R (A2 item 10): validate first. (B1 and B4/D1 (b) refuse precision-1
     // and source-blocks-1 by name, so no readable source has a standing reason.)
     if version != "0.3.0" || requested_basis_refs.is_empty() {
@@ -677,6 +688,32 @@ fn dispatch_is_the_two_pass_reference_with_one_pass() {
     assert!(first_codes.len() >= 30, "{first_codes:?}");
     assert!(nonlinear_reads > 50 && nonlinear_codes.len() >= 3, "{nonlinear_reads} {nonlinear_codes:?}");
     assert!(["numerically_eligible", "needs_recompute", "unsupported"].iter().all(|t| tokens.contains_key(*t)), "{tokens:?}");
+}
+
+/// DEL-04-07's publication restriction is a policy expectation, independent of
+/// the historical two-pass implementation. A passing case record alone cannot
+/// make an unsolved ordinary document eligible.
+#[test]
+fn ordinary_publication_tokens_require_solved_mechanics() {
+    let (_, valid, _) = bases().into_iter()
+        .find(|(label, ..)| label == "U2-L-ANCH-PTW-K2 0.3.0 sparse_interactive").unwrap();
+    let refs: Vec<Value> = valid["numerical_quality"]["cases"].as_array().unwrap().iter()
+        .map(|case| case["basis_ref"].clone()).collect();
+    for (mechanics, expected) in [
+        (Some("MECHANICS_SOLVED"), "numerically_eligible"),
+        (Some("MODEL_INCOMPLETE"), "needs_recompute"),
+        (Some("MECHANICS_NOT_SOLVED"), "needs_recompute"),
+        (None, "needs_recompute"),
+    ] {
+        let mut source = valid.clone();
+        match mechanics {
+            Some(value) => source["status"]["mechanics"] = json!(value),
+            None => { source["status"].as_object_mut().unwrap().remove("mechanics"); }
+        }
+        assert!(reference_for_source(&source).is_ok(), "the contract is admitted: {mechanics:?}");
+        assert_eq!(reference_numerical_use_standing_with_context(&source, &refs, None), expected, "reference: {mechanics:?}");
+        assert_eq!(sc::numerical_use_standing_with_context(&source, &refs, None), expected, "product: {mechanics:?}");
+    }
 }
 
 /// The token's `for_source` reads the verdict it is given and no pass of its

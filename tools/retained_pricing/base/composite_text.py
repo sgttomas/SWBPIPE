@@ -135,6 +135,14 @@ if "fn member_group_fires(" in _fg:
 elif "fn arc_recovery_finding(" in _fg:
     S_len = 3 * (600 + ident + U + J_len + C_len) + 2
 
+# PRA-CF (PR-A, retained-pricing-rules.md §8.62): where the member bound is withdrawn after a correction failure, the
+# integrity diagnostic is amended (formation_guard::amend_integrity_report -> demote, one sentence while the code is
+# still CHECKS_PASSED) with displacement_correction_sentence in place of the route or not-established sentence. That
+# sentence is one alternative of the same single amendment that S_len bounds, so it must not exceed S_len.
+import correction_failure_model as _cf_model
+_cf = _cf_model.inspect(proot)
+if _cf is not None and _cf["sentence"] > S_len:
+    raise SystemExit(f"PRA-CF: the correction sentence ({_cf['sentence']} B) exceeds the integrity sentence term S_len ({S_len} B)")
 # A load-row finding is independently appended to the integrity message.
 # Keep the old recovery/range terms; the new sentence is not Error Display.
 import b7a_formation_model as _formed_model

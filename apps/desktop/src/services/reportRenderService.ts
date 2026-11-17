@@ -1,4 +1,5 @@
 import { IngressRequestRetiredError, invokeWithIngress } from "./nativeIngress";
+import type { ReportSourceMark } from "../features/workspace/reportSourceSequence";
 
 // DEC-021 (A7): the hash-bound report renderer is a Rust crate reached
 // through the desktop (Tauri) command seam. The browser preview exposes no
@@ -57,7 +58,16 @@ function isTauriRuntime(): boolean {
 
 export async function renderCalculationReport(
   input: unknown,
-  options: { stillCurrent?: () => boolean; exactSubmission?: ExactRenderSubmission | null } = {}
+  options: {
+    stillCurrent?: () => boolean;
+    exactSubmission?: ExactRenderSubmission | null;
+    /** DEL-08-01 REQ-022: the registered report source number the render is prepared
+     * for; the native render takes its ticket for it and refuses another. */
+    source?: ReportSourceMark;
+    /** The request ordinal its source owner allocated when preparation began; the native
+     * render refuses one at or below the highest it has entered or seen retired. */
+    request?: number;
+  } = {}
 ): Promise<RenderReportRoute> {
   if (!isControlledReportInput(input)) {
     return {
@@ -99,7 +109,12 @@ export async function renderCalculationReport(
   try {
     const outcome = await invokeWithIngress<RenderedReportOutcome>(
       "render_calculation_report",
-      options.exactSubmission ? { input: input.payload, ...options.exactSubmission } : { input: input.payload },
+      {
+        input: input.payload,
+        ...(options.exactSubmission ?? {}),
+        source: options.source ? { incarnation: options.source.incarnation, sequence: options.source.sequence } : { incarnation: 0, sequence: 0 },
+        request: options.request ?? 0
+      },
       { stillCurrent: options.stillCurrent }
     );
     return { route: "tauri_renderer", outcome };

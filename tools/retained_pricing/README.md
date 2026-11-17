@@ -681,3 +681,83 @@ and #10). This tool, with the twelve re-pinned base files restored from main and
 rule kept, reproduces main `4d29420a0`'s 1,602 coefficients, its 1,713-line block and its 154-line point atoms exactly.
 The source work law takes ΔE = 93 B (the setting's member) in the three mixed requests: each selected case and the
 composite publication charge 24E, so each moves by 2,232.
+
+### §8.62: PR-A, the integrity-diagnostic repair (DEL-04-07 *Blocked document*, *Published displacement*)
+
+The tool now prices the reviewed product behaviour of PR-A. No product behaviour or threshold changes. Each rule binds
+exact source text and names. Each rule is a positive bound, and none is a zero premise. The arguments stand beside the
+rules in `rules/o10_rules.py` and in `base/correction_failure_model.py`, `base/pra_guards.py` and
+`base/u4b_u5b_owners_model.py`. `tests/test_862_pr_a.py` holds the mutation tests.
+
+**PRA-IO, the blocked rewrite.** `blocked_envelope` rewrites each integrity diagnostic whose code is CHECKS_PASSED or
+SENSITIVE.
+- **Loop bound.** The loop's allocating body is bounded by `2*cases`. Only `append_integrity_report`'s one push makes
+  such a diagnostic, and it has two calls in the case solve. A product-crate census of every integrity id, code
+  literal and rewrite call binds this.
+- **Message.** The new message is site-audited: two constants, the prior code (33 B), and the integrity message
+  (inherited `message_int`). The old message is charged at its own site, so both strings are counted while they
+  coexist.
+
+**PRA-CF, the correction failure.** The failure texts are charged in every case solve that forms a correction. No
+premise excludes the failure.
+- **Debug text.** It is bounded from the kernel's own types and literals. `RecoveryFailure` is a `#[derive(Debug)]`
+  enum over `&'static str`, f64, u32 and fieldless enums. Its longest variant is charged at the longest frame-kernel
+  literal, Debug-escaped. It is formed at most once per call, because collect into Result stops at the first Err.
+- **Option chain.** It runs once per case solve. The finite scan inside it allocates nothing.
+- **Other owned texts.** The cloned failure, the held reason, the sentence and the warning (id, message, one ref) are
+  priced at their sites.
+- **Sentence check.** `composite_text.py` checks that the sentence stays within the integrity sentence term `S_len`.
+
+**PRA-TR and PRA-NL.**
+- PRA-TR binds the trigger's prior read and its two calls, whose one String is priced at its own site.
+- PRA-NL is route E's direct `require`. Its message is charged positively at the longest literal.
+
+**U5B-PD-RN, a rename with an explicit correspondence.** `published_nodal_displacements` became
+`corrected_nodal_displacements`. Both shapes are pinned by body and exact calls, and exactly one may be present. The
+charge `ordinary_published_displacements(N)` is unchanged: at most one N-vector of the owner is live at a time.
+
+**The fail-closed class: OWN-PRES and O10-GATE.**
+- **OWN-PRES.** `base/owner_presence.py` registers every presence-gated owner model by epoch. `price.py` stops (exit 4)
+  when an owner of the snapshot's latest epoch, or an earlier one, is absent. An older source that holds none of an
+  epoch's owners still adds nothing. A model that stops during the census counts as present there: it stops again,
+  with its own message, at its pricing step.
+- **O10-GATE.** `rules/o10_rules.py` records every `fnkey` lookup. It stops on any absent target that
+  `O10_ABSENT_REVIEWED` does not explain by a source fact that holds:
+  - a reviewed alternative function is present;
+  - the absent function's own distinctive text is gone from its file, so a rename that keeps the code stops;
+  - or the file itself is absent (a source before the module).
+
+  No allowance stands on absence alone.
+- **FN-VIS.** `fnkey` and the span helpers accept any `pub(...)` scope. The earlier `pub([a-z]+)` missed
+  `pub(in crate::structural) fn skew_spring_matrix`, so SKW-D1's zero edge into it was never added. It is added now.
+- **Limits.** These cover the owner models' readings and o10's gated blocks. They do not cover arbitrary text
+  predicates inside other models; those models' pins stop on change instead.
+
+**CFG-PROD, the production extraction.** `base/cfg_test_items.py` is the one extractor. It removes each exact
+`#[cfg(test)]` item, statement or expression-position element, and only that.
+- **Why.** The earlier helper (o10's `_production` and batch 5's copy) counted a `{` inside parentheses as the
+  element's block. A test statement with a closure (lib.rs's `tests::KD5_RECOVERY_PROBE.with(|probe| {..});`)
+  swallowed the production after it, hiding it from the guards that read that text.
+- **Same class.** RTL2's and U6's helpers truncated at the first `#[cfg(test)]`; they use the extractor now. Their
+  readings were re-checked equal on main 5e71c4d05 and PR-A's source.
+- **Prefix pins kept.** KD5's prefix pins keep their registered scope. The production they leave out of
+  certified_recovery.rs is bound by B7a's and W1's full-file pins of that file.
+- **The scanner, same class.** The scanner that builds the TEXT inventory, loops and call graph
+  (`loopscan.blank_test_items`) ended such a statement correctly at its depth-0 `;`. It ran a test-only struct
+  field on to the next depth-0 `;`, though. In retained_product.rs, after `ProductCapture`'s `#[cfg(test)]
+  trace_fault` field, it blanked the struct's later fields, its `}` and the `REQUESTED_MODE_KIND` constant. Test
+  attributes now end where the extractor ends them. Off-feature attributes keep their own rule, which stops at an
+  expression position.
+  - What the repair moves (both trees): only those field and constant declarations become visible. They hold no
+    call, macro, loop, closure or text site. The field sizes are priced by `size_of` probes (T11), the constant's
+    literal by the static-literal pass (`rust_literals.production_literals`, its own lexer), and its uses by raw-text
+    constant reads.
+  - What the visibility moves: `callgraph_g5` reads struct fields from this text to type `self.<field>` receivers.
+    With ProductCapture's fields hidden, its impls' field calls (`self.adapter.reserve(..)`, `self.parked.len()`, ..)
+    were unknown receivers fanned out by name to every scanned method of that name. Now they resolve to the field's
+    type (418 edges fewer, none added). The fan-out reached lib.rs's `ReservedNotice::reserve`, a diagnostic literal,
+    from 21 functions; it now has its one real caller. D and the diagnostic and TAV text fall on main and PR-A's
+    source alike (an over-approximation removed, not a charge dropped).
+  - Test-only code is blanked in addition: the `else` tails of `let x = if .. {..} else {..};` and `use` semicolons.
+- **Regressions.** These are in `tests/test_862_pr_a.py`: nested test modules, a test statement inside a function,
+  `cfg(not(test))`, attribute stacks, fields, arms, literals, and the real lib.rs case.

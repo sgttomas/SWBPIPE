@@ -82,12 +82,23 @@ PACKAGES = {
     "f2_spectrum/closed_form": "generators/generate.py",
     "f2_spectrum/discrete": "generators/f2_spectrum_discrete.py",
     "f2_spectrum/benchmark_pack": "generators/generate.py",
+    "f2_spectrum/recovery_w1": "generators/w1_recovery.py",
+    "f2_spectrum/recovery_w2": "generators/w2_recovery.py",
 }
+
+# W1 and W2 document their default mode as check; neither has a --check switch.
+CHECK_ARGUMENTS = {"f2_spectrum/recovery_w1": (), "f2_spectrum/recovery_w2": ()}
 
 # A generator may import a module of another frozen reference package: reference code reading
 # reference code. Each is admitted by name, and its bytes are the ones its own package's
 # SHA256SUMS pins.
 ADMITTED_REFERENCE_IMPORTS = {
+    "f2_spectrum/recovery_w2": {
+        "f1_modal/mass_discrete": {"elements", "eigen", "model", "numeric"},
+    },
+    "f2_spectrum/recovery_w1": {
+        "f1_modal/mass_discrete": {"elements", "eigen", "model", "numeric"},
+    },
     "f2_spectrum/discrete": {
         "f1_modal/mass_discrete": {"elements", "eigen", "model", "numeric"},
     },
@@ -107,7 +118,7 @@ PRODUCT_ROOTS = {"core", "apps", "api", "tests", "tools", "fixtures", "schemas"}
 # such as a module that starts a program or reaches the interpreter's built-ins, is refused by
 # absence from this list.
 ALLOWED_STDLIB = {
-    "argparse", "concurrent", "decimal", "fractions", "hashlib", "json", "math", "os", "pathlib", "struct", "sys", "time",
+    "argparse", "concurrent", "copy", "decimal", "fractions", "hashlib", "json", "math", "os", "pathlib", "struct", "sys", "time",
 }
 # Facilities that load or evaluate code named at run time, or start another program. A generator may
 # not name one: as a call, a reference, an import alias, or a text or bytes constant (which is how
@@ -250,7 +261,7 @@ def clean(run):
 @pytest.mark.parametrize("package", sorted(PACKAGES))
 def test_the_references_regenerate_byte_for_byte_with_no_observer_findings(package, tmp_path):
     root = REFERENCES / package
-    clean(observed(root / PACKAGES[package], ["--check"], root, tmp_path))
+    clean(observed(root / PACKAGES[package], list(CHECK_ARGUMENTS.get(package, ("--check",))), root, tmp_path))
 
 
 @posix_only

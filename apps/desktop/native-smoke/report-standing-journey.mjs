@@ -23,11 +23,12 @@
 //
 // The driver works the window as a person would (native menu commands through the menu dispatch, controls in the
 // window). Two presentations are substituted: the Open Model Document chooser (`native_smoke_choose`, as every
-// native-smoke run) and the OS print panel. For the second, the driver redefines the main window's
-// `HTMLIFrameElement.prototype.contentWindow` getter for the one element `rendered-report-print-frame` only, so that
-// the print call is recorded instead of opening the panel; it verifies the substitution is installed before it
-// presses Print, and does not press Print otherwise. Rendering, the derived print view, solve, the gates and the
-// refusals run on the product's code.
+// native-smoke run) and the system print dialog. Print… goes to the native print route (DEL-08-01 REQ-022); in place
+// of the dialog this build records, on the print window's own handle, the print document that reached the native
+// print, and the driver takes that record and closes the window. The print checks are judged from the recorded
+// document and the rendered one (`report-print-evidence.mjs`): no dialog appearance, preview composition or job
+// outcome is observed or claimed. Rendering, the derived print view, solve, the gates and the refusals run on the
+// product's code.
 //
 // The model is the committed coupled-friction witness request's model with the three display additions the App test
 // makes, written into the home. What the report must state is derived from the committed App render request's
@@ -45,6 +46,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
+import { judgeReportPrint, standingLineOf } from "./report-print-evidence.mjs";
 import { bindingPathFor, fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, processStartTime, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
@@ -335,9 +337,17 @@ check("render: each case's health, confirmation and integrity statements are sta
 check("render: never \"integrity checked\"", rendered?.integrity_checked === false, rendered?.integrity_checked);
 check("render: the canonical hash shown is the rendered document's", rendered?.preview_sha256 && rendered.hash_text?.includes(rendered.preview_sha256), { hash_text: rendered?.hash_text, preview_sha256: rendered?.preview_sha256 });
 const printed = step("print");
-check("print: the substitution was installed before Print was pressed", printed?.substitution_installed === true, printed);
-check("print: print was called exactly once, by the substitution's own record", reached("print") && printed?.print_calls === 1, printed && { print_calls: printed.print_calls });
-check("print: the printed document is the derived print view, with the same standing line", printed?.printed_standing_line === rendered?.standing_line && printed?.printed_is_srcdoc === true, printed && { printed_standing_line: printed.printed_standing_line, printed_is_srcdoc: printed.printed_is_srcdoc });
+check("print: the step was reached", reached("print"), printed?.error ?? null);
+// The rendered report's own document and hash, as the render step saw them, are those the print step handed over.
+check("print: the document printed is the one rendered", printed?.shown_hash === rendered?.hash_text && typeof printed?.canonical_html === "string" && printed.canonical_html.length > 0,
+  { print_step_hash: printed?.shown_hash ?? null, render_step_hash: rendered?.hash_text ?? null });
+for (const item of judgeReportPrint("print", printed, { canonicalHtml: printed?.canonical_html, shownHash: printed?.shown_hash, expectStanding: expected.standing_lead }))
+  check(item.name, item.ok, item.detail);
+// The line read from the recorded print document's bytes is the one the render step read from the shown preview.
+const printedDocument = printed?.events?.length === 1 ? printed.events[0].print_html : undefined;
+const printedLine = typeof printedDocument === "string" ? standingLineOf(printedDocument) : undefined;
+check("print: the printed standing line is the one the render step read", typeof printedLine === "string" && printedLine === rendered?.standing_line,
+  { printed: printedLine ?? null, rendered: rendered?.standing_line ?? null });
 const edited = step("edit-invalidates");
 check("edit: an edit applied; the panel, present, shows the precondition and no rendered document", reached("edit-invalidates") && edited?.applied === true && edited?.panel_present === true && edited?.precondition === true && edited?.preview === false, edited);
 const resolved = step("resolve-invalidates");
@@ -376,7 +386,7 @@ try {
 } catch { /* recorded as unknown */ }
 const failed = checks.filter((item) => !item.ok);
 writeFileSync(path.join(root, "summary.json"), JSON.stringify({
-  witness: "rendered report of a solved exact-route result that is not numerically eligible, in the launched native-smoke app; Open chooser and OS print panel presentation substituted",
+  witness: "rendered report of a solved exact-route result that is not numerically eligible, in the launched native-smoke app; Open chooser and system print dialog substituted (the native print records its document; no dialog presented)",
   source_revision: revision,
   uncommitted: dirty,
   app: { binary: app.binary, identity: app.identity, binding_record_sha256: bindingSha },

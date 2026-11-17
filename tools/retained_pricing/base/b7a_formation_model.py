@@ -49,7 +49,10 @@ SOURCE_FILES = {
     # DEL-04-09 dynamics D3 (read 393a11ee7..0468d2ca2): structural.rs only declares `pub mod element_reformation;`
     # (+2 lines after line 4; every later line moves with unchanged text). The module's reform_* entries and wide
     # leaves are reached only from modal_eigen, outside crate_dirs. No formed-load traversal or finding owner changes.
-    "core/solver/frame_kernel/src/structural.rs": "aa0080f73bd4b2e7b5e47a330afaab8a808e10ad55aa040ab61d52dc039755b7",
+# PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
+# retained-pricing-rules.md §8.62): FK structural.rs only re-exports certify_displacement_step and
+    # DisplacementFailureKind (one `pub use` line); no formation owner changes. Previous value aa0080f7…
+    "core/solver/frame_kernel/src/structural.rs": "e47e916ab3a8b05d275bf49a6ab76c5f3bca025be5cf149358d17dc8604245f7",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
