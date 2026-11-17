@@ -222,6 +222,20 @@ describe("hanger-sizing CSV: document-level qualifications and library quantitie
     }
   });
 
+  it("carries each derived solve's integrity and correction-unavailable disclosures, by solve label, on every row", async () => {
+    const document = twoSpan() as unknown as { result: { disclosures: { code: string; names: string[]; message: string }[] } };
+    document.result.disclosures = [
+      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: "sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing" },
+      { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check." }
+    ];
+    const { candidates, solves } = await exports(document as unknown as HangerSizingSizedDocument);
+    const expected = "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_O1): sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing | DISPLACEMENT_CORRECTION_UNAVAILABLE (S_O1): Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check.";
+    for (const table of [candidates.table, solves.table]) {
+      const csv = readCsv(serializeCsvTable(table));
+      for (const row of csv.rows) expect(textField(csv, row, "Disclosures")).toBe(expected);
+    }
+  });
+
   it("exports the bound record's ranges in the record's own units, unconverted, and states each absent case", async () => {
     const bound = readCsv(serializeCsvTable((await exports(twoSpan(), clone(twoSpanInput.library))).candidates.table));
     const row = bound.rows[0];

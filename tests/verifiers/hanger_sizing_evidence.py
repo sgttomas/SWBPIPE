@@ -52,7 +52,7 @@ BASIS_STATEMENT = (
     "Every position is measured from the drawn geometry, taken as the installed position at which each spring is set; F_cold is that setting and F_C the cold-condition load.",
     "Quantities are SI: forces in N, lengths in m, rates in N/m; variations are ratios.",
 )
-# Every refusal code the design names; its two disclosure codes and its verification warning are not refusals.
+# Every refusal code the design names; its disclosure codes and its verification warning are not refusals.
 REFUSAL_CODES = frozenset("HANGER_SIZING_" + code for code in (
     "CANDIDATES_REQUIRED", "CANDIDATE_DOF_SHARED", "CANDIDATE_DOF_UNSUPPORTED", "CANDIDATE_DUPLICATE",
     "CANDIDATE_FAMILY_UNSUPPORTED", "CANDIDATE_MOVED", "CANDIDATE_REFERENCED", "CANDIDATE_SKEW_UNSUPPORTED",
@@ -64,7 +64,18 @@ REFUSAL_CODES = frozenset("HANGER_SIZING_" + code for code in (
     "SOLVER_MODE_REQUIRED", "TEST_CASE_UNSUPPORTED", "TRAVEL_ALLOWANCE_INVALID", "TRAVEL_ALLOWANCE_REQUIRED",
     "VARIATION_LIMIT_INVALID", "VARIATION_LIMIT_REQUIRED", "VARIATION_REFERENCE_REQUIRED", "WEIGHT_CASE_REQUIRED",
     "WEIGHT_SUPPORT_STATE_REQUIRED", "WEIGHT_SUPPORT_STATE_UNSUPPORTED"))
+# The two state disclosures, each at most once in a document.
 DISCLOSURE_CODES = ("HANGER_SIZING_SUPPORT_STATE_DIFFERS", "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS")
+# The per-solve disclosures, each at most once per solve label of the document's plan, naming exactly that label.
+SOLVE_DISCLOSURE_CODES = ("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", "DISPLACEMENT_CORRECTION_UNAVAILABLE")
+# The numerical-integrity standings other than checks_passed, and the integrity disclosure's fixed message.
+NONPASSING_STANDINGS = ("not_assessed", "sensitive", "unresolved", "failed")
+
+
+def integrity_message(token):
+    return (f"{token}: the numerical-integrity standing of this derived solve is {token}, not checks_passed; "
+            "every value sizing takes from it carries that standing")
+
 LOAD_CATEGORIES = frozenset(("weight", "distributed_force", "pressure", "thermal", "hydrotest", "wind", "seismic",
                              "occasional", "concentrated_force", "concentrated_moment", "imposed_displacement"))
 STATE_CODES = frozenset(("inactive", "active", "sticking", "sliding"))
@@ -493,13 +504,30 @@ def _closure_sized(doc):
             _one_of(state, f"{path}.states.{support}", STATE_CODES)
 
     disclosures = _array(result["disclosures"], "$.result.disclosures")
-    if len(disclosures) > 2:
-        raise Difference("$.result.disclosures: more than two entries")
-    codes = []
+    labels = [label for label, _ in plan]
+    codes, solve_pairs = [], []
     for i, disclosure in enumerate(disclosures):
         path = f"$.result.disclosures[{i}]"
         _obj(disclosure, path, ("code", "names", "message"))
-        code = _one_of(disclosure["code"], f"{path}.code", DISCLOSURE_CODES)
+        code = _one_of(disclosure["code"], f"{path}.code", DISCLOSURE_CODES + SOLVE_DISCLOSURE_CODES)
+        if code in SOLVE_DISCLOSURE_CODES:
+            names = _array(disclosure["names"], f"{path}.names")
+            if len(names) != 1:
+                raise Difference(f"{path}.names: not exactly one solve label")
+            label = _string(names[0], f"{path}.names[0]")
+            if label not in labels:
+                raise Difference(f"{path}.names[0]: not a solve label of this document")
+            if (code, label) in solve_pairs:
+                raise Difference(f"{path}: repeated for solve {label}")
+            solve_pairs.append((code, label))
+            message = _string(disclosure["message"], f"{path}.message")
+            if code == "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY":
+                token = message.split(":", 1)[0]
+                if token not in NONPASSING_STANDINGS or message != integrity_message(token):
+                    raise Difference(f"{path}.message: not the integrity message of a standing other than checks_passed")
+            elif not message:
+                raise Difference(f"{path}.message: empty")
+            continue
         if code in codes:
             raise Difference(f"{path}.code: repeated")
         codes.append(code)

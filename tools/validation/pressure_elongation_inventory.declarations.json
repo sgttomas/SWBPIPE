@@ -135,7 +135,9 @@
    },
    "pinned_by": [
     "core/product_physics/src/rt_a3_s6_tests.rs",
-    "tests/test_rt_a3_nonlinear_reader.py"
+    "tests/test_rt_a3_nonlinear_reader.py",
+    "core/analysis/hanger_sizing/src/derived.rs",
+    "tests/test_hanger_sizing_evidence.py"
    ],
    "anchor": {
     "kind": "excluded",

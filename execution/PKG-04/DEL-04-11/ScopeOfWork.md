@@ -111,12 +111,14 @@ A sizing result is a numerical statement about the discrete model under the user
   - Nonlinear supports converge in each derived solve to the states that case produces.
   - The support state W is formed in is a required input. Only the weight case's own state is admitted.
   - The result publishes each nonlinear support's state in every derived solve. It warns by name where a state differs between the weight solve and the design operating solve, or between the weight solve and the cold reference.
+  - A derived solve whose numerical-integrity standing is other than checks passed is disclosed by `HANGER_SIZING_DERIVED_SOLVE_INTEGRITY` with that standing's exact token, and one whose product result warns `DISPLACEMENT_CORRECTION_UNAVAILABLE` is disclosed under that code with the product's message verbatim. Each names the solve by its label, occurs at most once for each code and solve, and is never dropped. Neither warning itself refuses the request.
   - A derived solve that is refused, fails to converge or publishes a blocking diagnostic refuses the request, with its own diagnostics. No partial table is published.
 - **AC-003** — Maintained tests show:
   - each kind of derived document, and that the stored model is byte-identical after a run;
   - that the solve-time lowering is applied to derived documents;
   - on EX, the support-state reconciliation for rigid, force and spring candidates, and the ledger entry, with each derived document admitted by the solve;
   - the state disclosures and warnings on a lift-off model;
+  - on the product's own diagnostics and numerical quality for a case whose displacement correction was unavailable, the integrity disclosure with its exact standing token and the correction-unavailable disclosure with the product's message verbatim, each by solve label; no integrity disclosure for a solve whose standing is checks passed; and each reader refusing an unknown code, a label that is not one of the document's solves and a repeated code and solve;
   - the refusal on a failed derived solve.
 - **REQ-004** — *Loads, fit and selection.*
   - **One origin.** Every position is measured from the drawn geometry, the installed position. A variable spring set to its cold load F_cold carries F_cold − k·u at position u, in sizing, verification, application and the solve.
@@ -242,6 +244,7 @@ A sizing result is a numerical statement about the discrete model under the user
     - an action that applies a selection under REQ-008.
   - The rendered report gains a "Hanger sizing" section: request, basis, table, disclosures, refusals and limitations. Library-derived values in it follow the report's privacy rules for library references.
   - These surfaces follow the results viewer's and report generator's contracts.
+  - Each surface carries every disclosure the result publishes, each derived solve's integrity and correction-unavailable disclosures (REQ-003) included.
 - **AC-012** — Desktop tests cover:
   - the request form, with no pre-set choice in a new project;
   - the table and the detail view;
@@ -284,7 +287,7 @@ A sizing result is a numerical statement about the discrete model under the user
 **How each criterion is examined.**
 
 - **VER-001** — Executable check: observes each request, case-role and candidate refusal with its code and named supports, and the absence of any default, at the product entry, the headless runner and the desktop.
-- **VER-002** — Executable check: observes each kind of derived document, the solve-time lowering applied to it, the ledger entry and support-state reconciliation on EX, the state disclosures and warnings, the refusal on a failed derived solve, and the stored model byte-identical after a run.
+- **VER-002** — Executable check: observes each kind of derived document, the solve-time lowering applied to it, the ledger entry and support-state reconciliation on EX, the state disclosures and warnings, each derived solve's integrity and correction-unavailable disclosures by solve label, the refusal on a failed derived solve, and the stored model byte-identical after a run.
 - **VER-003** — Comparison with a named reference: the product against the frozen closed-form references in `validation/references/hanger_sizing`, at the verification tolerance and with selections exact, with a mutation of each method choice and repeat-run byte identity.
 - **VER-004** — Executable check: observes records with and without a working load range, in both library formats, listed and tested as AC-006 states, and the result's statement of the members not read.
 - **VER-005** — Executable check: observes the product reader and the test verifier returning the same verdicts on every committed result and mutation, the forged-positions case failing reproduction, the verifier importing no producer code, and the table's presence in the CSV coverage guard.
@@ -308,7 +311,7 @@ A sizing result is a numerical statement about the discrete model under the user
 |---|---|---|---|---|---|
 | OUT-001 | OBJ-003 SOW-083 | REQ-001 | AC-001 | VER-001 | The refusal list in REQ-001 (SOW-083; PRD §5.5 and §12.4) |
 | OUT-001 | OBJ-003 SOW-083 | REQ-002 | AC-002 | VER-001 | The refusal list in REQ-002 (SOW-083; PRD §12.4) |
-| OUT-002 | OBJ-003 SOW-083 | REQ-003 CLM-001 | AC-003 | VER-002 | The criterion states the expected derived documents and refusals. The stored model's byte identity after a run compares the product with its own earlier bytes and only guards against change |
+| OUT-002 | OBJ-003 SOW-083 | REQ-003 CLM-001 | AC-003 | VER-002 | The criterion states the expected derived documents and refusals. The stored model's byte identity after a run compares the product with its own earlier bytes and only guards against change. The correction-unavailable control uses the product's diagnostics from a test-only forced failure; no maintained sizing input is shown to reach that path |
 | OUT-003 | OBJ-003 SOW-083 | REQ-004 | AC-004 | VER-003 | Outside source: the frozen closed-form references in `validation/references/hanger_sizing` (continuous-beam reactions by three moments, free riser growth, the sizing arithmetic as exact identities), from generators that import no product code; the mutation outcomes follow the rules REQ-004 states. Repeat-run identity only guards against change |
 | OUT-003 | OBJ-003 SOW-083 | REQ-005 | AC-005 | VER-003 | Outside source: the one-spring closed form and the mixed and lift-off references in `validation/references/hanger_sizing`, from generators that import no product code |
 | OUT-004 | OBJ-003 SOW-083 | REQ-006 | AC-006 | VER-004 | The criterion states the expected listing; the range's shape is DEL-03-02's |

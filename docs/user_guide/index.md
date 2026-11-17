@@ -751,6 +751,12 @@ to CSV.
   and the design operating solve (`HANGER_SIZING_SUPPORT_STATE_DIFFERS`) or the
   cold-condition solve (`HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS`); judge whether W
   is representative when either appears.
+  They also name, by solve label (such as `S_O1`), each derived solve whose
+  numerical-integrity standing is not checks passed, with its standing
+  (`HANGER_SIZING_DERIVED_SOLVE_INTEGRITY`), and each solve whose displacement
+  correction was unavailable, with the solver's own message
+  (`DISPLACEMENT_CORRECTION_UNAVAILABLE`). Values taken from that solve carry its
+  standing.
 - **Standings.** The desktop shows the product reader's standings for the document it
   shows: closure, binding, arithmetic consistent with the published positions and
   derivation. None of them states that the mechanics are verified.

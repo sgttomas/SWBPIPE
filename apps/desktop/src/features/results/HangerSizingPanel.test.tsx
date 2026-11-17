@@ -15,7 +15,7 @@ import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { CSV_SOFTWARE_VERSION } from "../result-export/csvProvenance";
 import { serializeCsvTable } from "../result-export/csvTable";
 import { preambleValue, readCsv } from "../../test/csvRead";
-import type { HangerSizingDocument, HangerSizingSizedDocument } from "./hangerSizingResult";
+import type { HangerSizingDisclosure, HangerSizingDisclosureCode, HangerSizingDocument, HangerSizingSizedDocument } from "./hangerSizingResult";
 import { hangerSizingCandidatesCsv, hangerSizingCsvProvenance, hangerSizingSolvesCsv } from "./hangerSizingCsv";
 import { HANGER_SIZING_STANDING_NAMES, hangerSizingView, type HangerSizingReaderEvidence } from "./hangerSizingView";
 import {
@@ -25,6 +25,19 @@ import {
   HANGER_SIZING_UNCONDITIONAL_TEXT,
   HangerSizingPanel
 } from "./HangerSizingPanel";
+
+// Compile-time controls on the disclosure-code union (types only; the readers validate documents): every
+// code the schema admits is a member, and an unknown code is not.
+const DISCLOSURE_CODES_TYPED: readonly HangerSizingDisclosureCode[] = [
+  "HANGER_SIZING_SUPPORT_STATE_DIFFERS",
+  "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS",
+  "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY",
+  "DISPLACEMENT_CORRECTION_UNAVAILABLE"
+];
+// @ts-expect-error an unknown disclosure code is not a member of the union.
+const UNKNOWN_DISCLOSURE_CODE: HangerSizingDisclosureCode = "HANGER_SIZING_UNKNOWN_DISCLOSURE";
+void DISCLOSURE_CODES_TYPED;
+void UNKNOWN_DISCLOSURE_CODE;
 
 const saved: Array<{ text: string; fileName: string; explicitLocalPrivateIntent: boolean }> = [];
 vi.mock("../result-export/csvSave", () => ({
@@ -227,6 +240,22 @@ describe("HangerSizingPanel: basis, solves, standing and disclosures", () => {
     document.result.disclosures = [{ code: "HANGER_SIZING_SUPPORT_STATE_DIFFERS", names: ["support:C-lift"], message: "invented message" }];
     await renderSized({ document: document as unknown as HangerSizingDocument });
     expect(byId("disclosure-0").textContent).toBe("HANGER_SIZING_SUPPORT_STATE_DIFFERS (support:C-lift): invented message");
+  });
+
+  it("lists each derived solve's integrity and correction-unavailable disclosures by solve label", async () => {
+    // The messages are the product's own forms (the integrity message of a sensitive standing; the
+    // DISPLACEMENT_CORRECTION_UNAVAILABLE warning of the forced-failure fixture rt_a3_s6_c1_correction_unavailable).
+    const disclosures: HangerSizingDisclosure[] = [
+      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["S_O1"], message: "sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing" },
+      { code: "DISPLACEMENT_CORRECTION_UNAVAILABLE", names: ["S_O1"], message: "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check." },
+      { code: "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", names: ["V_O1"], message: "sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing" }
+    ];
+    const document = twoSpan() as unknown as { result: { disclosures: unknown[] } };
+    document.result.disclosures = disclosures;
+    await renderSized({ document: document as unknown as HangerSizingDocument });
+    expect(byId("disclosure-0").textContent).toBe("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (S_O1): sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing");
+    expect(byId("disclosure-1").textContent).toBe("DISPLACEMENT_CORRECTION_UNAVAILABLE (S_O1): Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check.");
+    expect(byId("disclosure-2").textContent).toBe("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY (V_O1): sensitive: the numerical-integrity standing of this derived solve is sensitive, not checks_passed; every value sizing takes from it carries that standing");
   });
 });
 

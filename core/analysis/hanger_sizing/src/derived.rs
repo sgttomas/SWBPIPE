@@ -9,7 +9,9 @@ use crate::{
     Positions, Record, Refusal, Selected, Verification, VerificationStanding,
 };
 use open_pipe_stress_product_physics::source_admission::admit_source_before_assembly;
-use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode};
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_value_with_mode, Diagnostic, MechanicsEnvelope, NumericalQualityStatus, PreviewSolverMode,
+};
 use open_pipe_stress_units::{canonical_unit, convert, unit_by_symbol, Dimension};
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -571,21 +573,85 @@ fn check_source(request_doc: &Value, sites: &[Site], mode: PreviewSolverMode) ->
     (!found.is_empty()).then(|| refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec!["source".to_string()], found.join("; ")))
 }
 
-/// The one call site of every derived solve.
-fn solve(doc: Value, mode: PreviewSolverMode, label: &str) -> Result<MechanicsEnvelope, Refusal> {
-    let envelope = run_linear_static_preview_value_with_mode(doc, mode)
-        .map_err(|error| refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec![label.to_string()], error))?;
-    let blocking: Vec<String> = envelope
-        .diagnostics
+/// The disclosure of a derived solve whose numerical-integrity standing is not
+/// checks passed (REQ-003). Its one name is the solve's label.
+pub const DERIVED_SOLVE_INTEGRITY: &str = "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY";
+/// The product's own warning that a case's displacement correction was
+/// unavailable (DEL-04-07 *Published displacement*), carried with the product's
+/// message unchanged. Its one name is the solve's label.
+pub const DISPLACEMENT_CORRECTION_UNAVAILABLE: &str = "DISPLACEMENT_CORRECTION_UNAVAILABLE";
+
+/// The closed token of a numerical-quality status, as the product publishes it
+/// (`numerical_quality.status`, snake case).
+pub fn standing_token(status: NumericalQualityStatus) -> &'static str {
+    match status {
+        NumericalQualityStatus::NotAssessed => "not_assessed",
+        NumericalQualityStatus::ChecksPassed => "checks_passed",
+        NumericalQualityStatus::Sensitive => "sensitive",
+        NumericalQualityStatus::Unresolved => "unresolved",
+        NumericalQualityStatus::Failed => "failed",
+    }
+}
+
+/// The standings other than checks passed, each disclosed by
+/// [`DERIVED_SOLVE_INTEGRITY`] with [`integrity_message`].
+pub const NONPASSING_STANDINGS: [&str; 4] = ["not_assessed", "sensitive", "unresolved", "failed"];
+
+/// The fixed message of a [`DERIVED_SOLVE_INTEGRITY`] disclosure: the standing's
+/// closed token first, then its meaning.
+pub fn integrity_message(token: &str) -> String {
+    format!("{token}: the numerical-integrity standing of this derived solve is {token}, not checks_passed; every value sizing takes from it carries that standing")
+}
+
+/// What one derived solve's envelope gives sizing beyond its values (REQ-003): a
+/// blocking diagnostic refuses the request with the solve's diagnostics, before
+/// anything else is read; otherwise the solve's disclosures. A derived document
+/// keeps one case, so its `numerical_quality.status`, the most severe standing of
+/// its cases, is that case's `solve_quality`. A standing other than checks passed is
+/// disclosed with its exact token, and the product's
+/// `DISPLACEMENT_CORRECTION_UNAVAILABLE` warning with its message unchanged (more
+/// than one, which a one-case document does not publish, would be joined by "; "),
+/// each naming the solve. Neither refuses.
+fn solve_disclosures(label: &str, status: NumericalQualityStatus, diagnostics: &[Diagnostic])
+    -> Result<Vec<Disclosure>, Refusal> {
+    let blocking: Vec<String> = diagnostics
         .iter()
         .filter(|d| d.severity == "blocking")
         .map(|d| format!("{}: {}", d.code, d.message))
         .collect();
-    if blocking.is_empty() {
-        Ok(envelope)
-    } else {
-        Err(refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec![label.to_string()], blocking.join("; ")))
+    if !blocking.is_empty() {
+        return Err(refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec![label.to_string()], blocking.join("; ")));
     }
+    let mut disclosures = Vec::new();
+    if status != NumericalQualityStatus::ChecksPassed {
+        disclosures.push(Disclosure {
+            code: DERIVED_SOLVE_INTEGRITY,
+            names: vec![label.to_string()],
+            message: integrity_message(standing_token(status)),
+        });
+    }
+    let unavailable: Vec<&str> = diagnostics
+        .iter()
+        .filter(|d| d.code == DISPLACEMENT_CORRECTION_UNAVAILABLE)
+        .map(|d| d.message.as_str())
+        .collect();
+    if !unavailable.is_empty() {
+        disclosures.push(Disclosure {
+            code: DISPLACEMENT_CORRECTION_UNAVAILABLE,
+            names: vec![label.to_string()],
+            message: unavailable.join("; "),
+        });
+    }
+    Ok(disclosures)
+}
+
+/// The one call site of every derived solve. Its disclosures are appended to
+/// `disclosures`, in solve order.
+fn solve(doc: Value, mode: PreviewSolverMode, label: &str, disclosures: &mut Vec<Disclosure>) -> Result<MechanicsEnvelope, Refusal> {
+    let envelope = run_linear_static_preview_value_with_mode(doc, mode)
+        .map_err(|error| refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec![label.to_string()], error))?;
+    disclosures.extend(solve_disclosures(label, envelope.numerical_quality.status, &envelope.diagnostics)?);
+    Ok(envelope)
 }
 
 fn si(value: f64, unit: &str, dimension: Dimension) -> Option<f64> {
@@ -641,9 +707,9 @@ fn missing(label: &str, what: &str, sites: &[&Site]) -> Refusal {
 }
 
 /// Runs one derived solve and reads each candidate's displacement along its DOF.
-fn positions_of(request_doc: &Value, case: &str, sites: &[Site], roles: &[Role], mode: PreviewSolverMode, label: &str)
-    -> Result<(Vec<f64>, SolveStates), Refusal> {
-    let envelope = solve(derived_document(request_doc, case, sites, roles), mode, label)?;
+fn positions_of(request_doc: &Value, case: &str, sites: &[Site], roles: &[Role], mode: PreviewSolverMode, label: &str,
+    disclosures: &mut Vec<Disclosure>) -> Result<(Vec<f64>, SolveStates), Refusal> {
+    let envelope = solve(derived_document(request_doc, case, sites, roles), mode, label, disclosures)?;
     let values: Vec<Option<f64>> = sites.iter().map(|s| displacement(&envelope, s)).collect();
     let absent: Vec<&Site> = sites.iter().zip(&values).filter(|(_, v)| v.is_none()).map(|(s, _)| s).collect();
     if !absent.is_empty() {
@@ -701,10 +767,12 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
     // S_W: the weight case with every candidate rigid.
     let weight = request.weight_case.as_str();
     let rigid = vec![Role::Rigid; sites.len()];
+    // Each derived solve's disclosures, in solve order (S_W, S_C, S_Oi, V_C, V_Oi).
+    let mut per_solve = Vec::new();
     // The full envelope is dropped once W and the states are read, before the next
     // solve starts.
     let (w, weight_states) = {
-        let envelope = solve(derived_document(request_doc, weight, &sites, &rigid), mode, "S_W").map_err(|r| vec![r])?;
+        let envelope = solve(derived_document(request_doc, weight, &sites, &rigid), mode, "S_W", &mut per_solve).map_err(|r| vec![r])?;
         (sites.iter().map(|s| reaction(&envelope, s)).collect::<Vec<Option<f64>>>(), states(&envelope, "S_W"))
     };
     let absent: Vec<&Site> = sites.iter().zip(&w).filter(|(_, v)| v.is_none()).map(|(s, _)| s).collect();
@@ -721,13 +789,13 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
 
     // S_C and S_Oi: every candidate replaced by its force W.
     let forces: Vec<Role> = w.iter().map(|w| Role::Force(*w)).collect();
-    let (u_cold, cold_states) = positions_of(request_doc, weight, &sites, &forces, mode, "S_C").map_err(|r| vec![r])?;
+    let (u_cold, cold_states) = positions_of(request_doc, weight, &sites, &forces, mode, "S_C", &mut per_solve).map_err(|r| vec![r])?;
     solve_states.push(cold_states);
     let operating = request.operating_cases();
     let mut u_operating = vec![Vec::new(); sites.len()];
     for (i, case) in operating.iter().enumerate() {
         let label = format!("S_O{}", i + 1);
-        let (values, case_states) = positions_of(request_doc, case, &sites, &forces, mode, &label).map_err(|r| vec![r])?;
+        let (values, case_states) = positions_of(request_doc, case, &sites, &forces, mode, &label, &mut per_solve).map_err(|r| vec![r])?;
         solve_states.push(case_states);
         for (column, value) in u_operating.iter_mut().zip(values) {
             column.push(value);
@@ -757,12 +825,12 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
             _ => Role::Force(candidate.w_n),
         })
         .collect();
-    let (v_cold, verified_cold_states) = positions_of(request_doc, weight, &sites, &roles, mode, "V_C").map_err(|r| vec![r])?;
+    let (v_cold, verified_cold_states) = positions_of(request_doc, weight, &sites, &roles, mode, "V_C", &mut per_solve).map_err(|r| vec![r])?;
     solve_states.push(verified_cold_states);
     let mut v_operating = vec![Vec::new(); sites.len()];
     for (i, case) in operating.iter().enumerate() {
         let label = format!("V_O{}", i + 1);
-        let (values, case_states) = positions_of(request_doc, case, &sites, &roles, mode, &label).map_err(|r| vec![r])?;
+        let (values, case_states) = positions_of(request_doc, case, &sites, &roles, mode, &label, &mut per_solve).map_err(|r| vec![r])?;
         solve_states.push(case_states);
         for (column, value) in v_operating.iter_mut().zip(values) {
             column.push(value);
@@ -787,10 +855,136 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
         disclosures.push(Disclosure { code: "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS", names: differs,
             message: "replacing the candidates by their forces W found another nonlinear-support equilibrium in the weight case".into() });
     }
+    // Then every derived solve's own disclosures, none dropped.
+    disclosures.extend(per_solve);
     let mut case_load_categories = BTreeMap::new();
     for case in std::iter::once(weight).chain(operating.iter().copied()) {
         case_load_categories.insert(case.to_string(), categories(request_doc, case));
     }
     let standing = verification_standing(&results);
     Ok(SizingRun { sites, candidates, results, verifications, standing, states: solve_states, disclosures, case_load_categories })
+}
+
+/// The per-solve disclosure seam ([`solve_disclosures`]) on the product's own
+/// envelope parts. The positive control reads the committed
+/// `fixtures/results/rt_a3_s6_c1_correction_unavailable.json`, which PR 374's
+/// test-only forcing hook in `product_physics` produced: it is fault-injection
+/// evidence of the product's diagnostics and numerical quality on that path, not a
+/// maintained sizing input that reaches the path by itself. Its diagnostics and
+/// standing are converted to the product's types here, in test code only.
+#[cfg(test)]
+mod disclosure_tests {
+    use super::*;
+
+    const CORRECTION_UNAVAILABLE_FIXTURE: &str =
+        include_str!("../../../../fixtures/results/rt_a3_s6_c1_correction_unavailable.json");
+
+    fn status_of(token: &str) -> NumericalQualityStatus {
+        match token {
+            "not_assessed" => NumericalQualityStatus::NotAssessed,
+            "checks_passed" => NumericalQualityStatus::ChecksPassed,
+            "sensitive" => NumericalQualityStatus::Sensitive,
+            "unresolved" => NumericalQualityStatus::Unresolved,
+            "failed" => NumericalQualityStatus::Failed,
+            other => panic!("not a numerical-quality status: {other}"),
+        }
+    }
+
+    fn diagnostic(value: &Value) -> Diagnostic {
+        Diagnostic {
+            id: value["id"].as_str().expect("id").to_string(),
+            code: value["code"].as_str().expect("code").to_string(),
+            severity: value["severity"].as_str().expect("severity").to_string(),
+            message: value["message"].as_str().expect("message").to_string(),
+            source: value["source"].as_str().map(str::to_string),
+            affected_refs: array(value, "affected_refs").iter().map(|r| r.as_str().expect("ref").to_string()).collect(),
+        }
+    }
+
+    /// The fixture envelope's standing token and diagnostics, after checking the
+    /// numerical-quality field contract a derived document relies on: one case,
+    /// whose `solve_quality` is the document's `status`.
+    fn fixture() -> (String, Vec<Diagnostic>) {
+        let doc: Value = serde_json::from_str(CORRECTION_UNAVAILABLE_FIXTURE).expect("fixture JSON");
+        let envelope = &doc["envelope"];
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED");
+        let quality = &envelope["numerical_quality"];
+        let cases = array(quality, "cases");
+        assert_eq!(cases.len(), 1, "one retained case per envelope");
+        assert_eq!(cases[0]["solve_quality"], quality["status"]);
+        let diagnostics: Vec<Diagnostic> = array(envelope, "diagnostics").iter().map(diagnostic).collect();
+        assert!(diagnostics.iter().all(|d| d.severity != "blocking"));
+        (quality["status"].as_str().expect("status").to_string(), diagnostics)
+    }
+
+    #[test]
+    fn the_forced_correction_failure_is_disclosed_with_its_standing_and_the_products_message_unchanged() {
+        let (token, diagnostics) = fixture();
+        assert_eq!(token, "sensitive");
+        let warning = diagnostics.iter().find(|d| d.code == DISPLACEMENT_CORRECTION_UNAVAILABLE).expect("product warning");
+        assert_eq!(warning.severity, "warning");
+        // The product's message names the component and the failure kind.
+        assert!(warning.message.contains("node:A:UX") && warning.message.contains("could not be certified"), "{}", warning.message);
+        for label in ["S_W", "S_C", "S_O1", "S_O2", "V_C", "V_O1", "V_O2"] {
+            let found = solve_disclosures(label, status_of(&token), &diagnostics).expect("not refused");
+            assert_eq!(found, vec![
+                Disclosure { code: DERIVED_SOLVE_INTEGRITY, names: vec![label.to_string()], message: integrity_message("sensitive") },
+                Disclosure { code: DISPLACEMENT_CORRECTION_UNAVAILABLE, names: vec![label.to_string()], message: warning.message.clone() },
+            ]);
+            assert!(found[0].message.starts_with("sensitive: "));
+        }
+    }
+
+    #[test]
+    fn a_passing_solve_without_the_warning_adds_no_disclosure() {
+        let (_, diagnostics) = fixture();
+        let ordinary: Vec<Diagnostic> = diagnostics.into_iter().filter(|d| d.code != DISPLACEMENT_CORRECTION_UNAVAILABLE).collect();
+        assert_eq!(solve_disclosures("S_O1", NumericalQualityStatus::ChecksPassed, &ordinary), Ok(Vec::new()));
+        assert!(solve_disclosures("S_O1", NumericalQualityStatus::ChecksPassed, &[]).expect("not refused").is_empty());
+    }
+
+    #[test]
+    fn every_standing_other_than_checks_passed_is_disclosed_with_its_exact_token() {
+        let (_, diagnostics) = fixture();
+        let ordinary: Vec<Diagnostic> = diagnostics.into_iter().filter(|d| d.code != DISPLACEMENT_CORRECTION_UNAVAILABLE).collect();
+        let all = [
+            NumericalQualityStatus::NotAssessed,
+            NumericalQualityStatus::ChecksPassed,
+            NumericalQualityStatus::Sensitive,
+            NumericalQualityStatus::Unresolved,
+            NumericalQualityStatus::Failed,
+        ];
+        for status in all {
+            // The token is the product's own serialization of the status.
+            assert_eq!(serde_json::to_value(status).expect("status"), json!(standing_token(status)));
+            assert_eq!(status_of(standing_token(status)), status);
+            let found = solve_disclosures("V_C", status, &ordinary).expect("not refused");
+            if status == NumericalQualityStatus::ChecksPassed {
+                assert!(found.is_empty());
+                assert!(!NONPASSING_STANDINGS.contains(&standing_token(status)));
+            } else {
+                let token = standing_token(status);
+                assert!(NONPASSING_STANDINGS.contains(&token));
+                assert_eq!(found, vec![Disclosure { code: DERIVED_SOLVE_INTEGRITY, names: vec!["V_C".into()], message: integrity_message(token) }]);
+                assert_eq!(found[0].message.split(':').next(), Some(token));
+            }
+        }
+    }
+
+    #[test]
+    fn a_blocking_diagnostic_refuses_before_any_disclosure() {
+        let (token, mut diagnostics) = fixture();
+        diagnostics.push(Diagnostic {
+            id: "diagnostic:invented".into(),
+            code: "INVENTED_BLOCKING".into(),
+            severity: "blocking".into(),
+            message: "an invented blocking finding".into(),
+            source: None,
+            affected_refs: Vec::new(),
+        });
+        let refused = solve_disclosures("S_O2", status_of(&token), &diagnostics).expect_err("refused");
+        assert_eq!(refused.code, "HANGER_SIZING_DERIVED_SOLVE_FAILED");
+        assert_eq!(refused.names, vec!["S_O2".to_string()]);
+        assert_eq!(refused.message, "INVENTED_BLOCKING: an invented blocking finding");
+    }
 }

@@ -177,3 +177,101 @@ def test_the_analysis_run_builder_does_not_accept_the_document():
             build_analysis_run(load(f"hanger_sizing_result_{name}.json"),
                                input_manifest_ref={"ref_type": "audit_manifest", "ref_id": "invented-manifest"},
                                input_manifest_hash="0" * 64)
+
+
+# --- per-solve disclosures (REQ-003): HANGER_SIZING_DERIVED_SOLVE_INTEGRITY and DISPLACEMENT_CORRECTION_UNAVAILABLE ---
+# The committed two-span document (labels S_W, S_C, S_O1, S_O2, V_C, V_O1, V_O2) with its disclosures replaced in
+# memory. PRODUCT_WARNING is the product's own message on the forced-failure fixture
+# rt_a3_s6_c1_correction_unavailable.json (test-only fault injection evidence).
+PRODUCT_WARNING = json.loads((RESULTS / "rt_a3_s6_c1_correction_unavailable.json").read_text(encoding="utf-8"))
+PRODUCT_WARNING = next(d["message"] for d in PRODUCT_WARNING["envelope"]["diagnostics"]
+                       if d["code"] == "DISPLACEMENT_CORRECTION_UNAVAILABLE")
+
+
+def _integrity(label, token):
+    return {"code": "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", "names": [label], "message": hs.integrity_message(token)}
+
+
+def _unavailable(label, message=PRODUCT_WARNING):
+    return {"code": "DISPLACEMENT_CORRECTION_UNAVAILABLE", "names": [label], "message": message}
+
+
+def _state(code):
+    return {"code": code, "names": ["support:L"], "message": "invented"}
+
+
+def _with_disclosures(disclosures):
+    doc = load("hanger_sizing_result_two_span.json")
+    assert doc["result"]["disclosures"] == []
+    doc["result"]["disclosures"] = disclosures
+    return doc
+
+
+ACCEPTED_DISCLOSURES = [
+    _state("HANGER_SIZING_SUPPORT_STATE_DIFFERS"),
+    _state("HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS"),
+    _integrity("S_W", "not_assessed"),
+    _integrity("S_O1", "sensitive"),
+    _unavailable("S_O1"),
+    _integrity("V_O2", "unresolved"),
+    _unavailable("V_O2"),
+    _integrity("V_C", "failed"),
+]
+
+# (id, disclosures, the verifier's difference, whether the schema can state it)
+REFUSED_DISCLOSURES = [
+    ("unknown-code", [{"code": "HANGER_SIZING_UNKNOWN", "names": ["S_W"], "message": "x"}], "code: not one of", True),
+    ("product-integrity-code", [{"code": "NUMERICAL_INTEGRITY_SENSITIVE", "names": ["S_W"], "message": "x"}],
+     "code: not one of", True),
+    ("label-not-in-plan", [_integrity("S_O3", "sensitive")], "not a solve label of this document", False),
+    ("label-not-in-plan-warning", [_unavailable("V_O3")], "not a solve label of this document", False),
+    ("label-malformed", [_integrity("source", "sensitive")], "not a solve label", True),
+    ("repeated-integrity-pair", [_integrity("S_O1", "sensitive"), _integrity("S_O1", "failed")],
+     "repeated for solve S_O1", False),
+    ("repeated-warning-pair", [_unavailable("V_C"), _unavailable("V_C")], "repeated for solve V_C", False),
+    ("repeated-state-code", [_state("HANGER_SIZING_SUPPORT_STATE_DIFFERS")] * 2, "code: repeated", False),
+    ("two-labels", [{**_integrity("S_W", "sensitive"), "names": ["S_W", "S_C"]}], "not exactly one solve label", True),
+    ("no-label", [{**_unavailable("S_W"), "names": []}], "not exactly one solve label", True),
+    ("label-not-string", [{**_integrity("S_W", "sensitive"), "names": [7]}], "not a string", True),
+    ("checks-passed-token", [_integrity("S_W", "checks_passed")], "not the integrity message", True),
+    ("token-case", [_integrity("S_W", "SENSITIVE")], "not the integrity message", True),
+    ("token-only", [{**_integrity("S_W", "sensitive"), "message": "sensitive"}], "not the integrity message", True),
+    ("warning-empty", [_unavailable("S_W", "")], "message: empty", True),
+    ("warning-extra-member", [{**_unavailable("S_W"), "extra": 1}], "not a member of the closed object", True),
+]
+
+
+def test_the_product_warning_is_the_fixtures_and_names_its_component_and_failure_kind():
+    assert "node:A:UX" in PRODUCT_WARNING and "could not be certified" in PRODUCT_WARNING
+
+
+def test_both_per_solve_codes_on_different_valid_labels_are_closed_and_admitted_by_the_schema():
+    doc = _with_disclosures(deepcopy(ACCEPTED_DISCLOSURES))
+    hs.closure(doc)
+    validate_instance(SCHEMA, doc, schema_label="hanger_sizing_result", instance_label="per-solve-accepted")
+
+
+@pytest.mark.parametrize("case", REFUSED_DISCLOSURES, ids=[case[0] for case in REFUSED_DISCLOSURES])
+def test_the_verifier_refuses_bad_per_solve_disclosures(case):
+    _, disclosures, reason, _ = case
+    with pytest.raises(hs.Difference, match=reason.replace("[", r"\[")):
+        hs.closure(_with_disclosures(deepcopy(disclosures)))
+
+
+@pytest.mark.parametrize("case", [c for c in REFUSED_DISCLOSURES if c[3]], ids=lambda c: c[0])
+def test_the_schema_refuses_what_it_can_state_of_bad_per_solve_disclosures(case):
+    """Membership of a label in this document's solves and (code, label) uniqueness compare sibling members,
+    which JSON Schema cannot state; those are the readers' closure (the cases marked False above)."""
+    _, disclosures, _, _ = case
+    with pytest.raises(AssertionError, match="failed JSON Schema validation"):
+        validate_instance(SCHEMA, _with_disclosures(deepcopy(disclosures)), schema_label="hanger_sizing_result",
+                          instance_label=case[0])
+
+
+def test_the_schemas_disclosure_vocabulary_is_the_verifiers():
+    defs = SCHEMA["$defs"]
+    assert tuple(defs["StateDisclosure"]["properties"]["code"]["enum"]) == hs.DISCLOSURE_CODES
+    assert (defs["SolveIntegrityDisclosure"]["properties"]["code"]["const"],
+            defs["CorrectionUnavailableDisclosure"]["properties"]["code"]["const"]) == hs.SOLVE_DISCLOSURE_CODES
+    assert defs["SolveIntegrityDisclosure"]["properties"]["message"]["enum"] == [
+        hs.integrity_message(token) for token in hs.NONPASSING_STANDINGS]

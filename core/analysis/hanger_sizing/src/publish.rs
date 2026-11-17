@@ -59,7 +59,7 @@ pub const RESULT_NOT_PUBLISHABLE: &str = "HANGER_SIZING_RESULT_NOT_PUBLISHABLE";
 pub const DERIVED_DOCUMENT_NOT_HASHABLE: &str = "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE";
 
 /// The refusal codes the design names, which a refused
-/// document's `refusals[].code` takes. The design's two disclosure codes and its
+/// document's `refusals[].code` takes. The design's disclosure codes and its
 /// verification warning are not refusals and are not listed.
 pub const REFUSAL_CODES: [&str; 39] = [
     "HANGER_SIZING_CANDIDATES_REQUIRED",

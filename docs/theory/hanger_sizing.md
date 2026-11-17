@@ -225,6 +225,14 @@ the hot condition. It warns in the same way where replacing the candidates by th
 forces found another equilibrium in the weight case
 (`HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS`).
 
+A derived solve also carries its own numerical standing. Where a solve's
+numerical-integrity standing is anything other than checks passed, the result
+discloses it by the solve's label with the exact standing token
+(`HANGER_SIZING_DERIVED_SOLVE_INTEGRITY`). Where the product could not form a
+case's displacement correction, its warning is carried by the solve's label with the
+product's message unchanged (`DISPLACEMENT_CORRECTION_UNAVAILABLE`). Neither refuses
+the request; the sized values inherit that solve's standing.
+
 ### Variable spring loads
 
 For a variable record of rate k:

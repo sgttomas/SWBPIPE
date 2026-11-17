@@ -196,7 +196,11 @@ const CANDIDATE_KEYS: [&str; 15] = [
 ];
 const VARIABLE_TESTS: [&str; 6] = ["E1", "E2", "V0", "L", "T", "V"];
 const CONSTANT_TESTS: [&str; 3] = ["E1", "L", "T"];
+/// The two state disclosures, each at most once in a document.
 const DISCLOSURE_CODES: [&str; 2] = ["HANGER_SIZING_SUPPORT_STATE_DIFFERS", "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS"];
+/// The per-solve disclosures, each at most once per solve label of the document's
+/// plan, naming exactly that label.
+const SOLVE_DISCLOSURE_CODES: [&str; 2] = [derived::DERIVED_SOLVE_INTEGRITY, derived::DISPLACEMENT_CORRECTION_UNAVAILABLE];
 
 fn at(path: &str, key: &str) -> String {
     format!("{path}.{key}")
@@ -454,14 +458,39 @@ fn closure_sized(doc: &Value) -> R<()> {
     }
 
     let disclosures = array(&result["disclosures"], "$.result.disclosures")?;
-    if disclosures.len() > 2 {
-        return Err("$.result.disclosures: more than two entries".into());
-    }
     let mut codes = Vec::new();
+    let mut solve_pairs: Vec<(&str, &str)> = Vec::new();
+    let all_codes: Vec<&str> = DISCLOSURE_CODES.iter().chain(&SOLVE_DISCLOSURE_CODES).copied().collect();
     for (i, disclosure) in disclosures.iter().enumerate() {
         let path = format!("$.result.disclosures[{i}]");
         let disclosure = obj(disclosure, &path, &["code", "names", "message"])?;
-        let code = one_of(&disclosure["code"], &at(&path, "code"), &DISCLOSURE_CODES)?;
+        let code = one_of(&disclosure["code"], &at(&path, "code"), &all_codes)?;
+        if SOLVE_DISCLOSURE_CODES.contains(&code) {
+            // A per-solve disclosure names one solve of this document's plan, once per
+            // code; the integrity disclosure's message is fixed by its standing token.
+            let names = array(&disclosure["names"], &at(&path, "names"))?;
+            let [name] = names else {
+                return Err(format!("{path}.names: not exactly one solve label"));
+            };
+            let label = string(name, &format!("{path}.names[0]"))?;
+            if !plan.iter().any(|(planned, _)| planned == label) {
+                return Err(format!("{path}.names[0]: not a solve label of this document"));
+            }
+            if solve_pairs.contains(&(code, label)) {
+                return Err(format!("{path}: repeated for solve {label}"));
+            }
+            solve_pairs.push((code, label));
+            let message = string(&disclosure["message"], &at(&path, "message"))?;
+            if code == derived::DERIVED_SOLVE_INTEGRITY {
+                let token = message.split(':').next().unwrap_or_default();
+                if !derived::NONPASSING_STANDINGS.contains(&token) || message != derived::integrity_message(token) {
+                    return Err(format!("{path}.message: not the integrity message of a standing other than checks_passed"));
+                }
+            } else if message.is_empty() {
+                return Err(format!("{path}.message: empty"));
+            }
+            continue;
+        }
         if codes.contains(&code) {
             return Err(format!("{path}.code: repeated"));
         }
@@ -980,4 +1009,78 @@ fn reproduction(doc: &Value, request: &SizingRequest, solve_request: &Value, lib
         format!("$: the re-run is not publishable ({})", codes.join(", "))
     })?;
     same(doc, &again, "$")
+}
+
+/// The closure of the per-solve disclosures on the committed two-span document
+/// (labels S_W, S_C, S_O1, S_O2, V_C, V_O1, V_O2), changed in memory only.
+#[cfg(test)]
+mod disclosure_closure_tests {
+    use super::*;
+
+    const TWO_SPAN: &str = include_str!("../../../../fixtures/results/hanger_sizing_result_two_span.json");
+    /// The product's warning on the forced-failure fixture, unchanged.
+    const PRODUCT_WARNING: &str = "Load case load:VACUUM: the corrected displacement of node:A:UX could not be certified (forced by test); no published result of this case relies on the member-relative formation check.";
+
+    fn with(disclosures: Value) -> Value {
+        let mut doc: Value = serde_json::from_str(TWO_SPAN).expect("fixture JSON");
+        assert_eq!(doc["result"]["disclosures"], json!([]));
+        doc["result"]["disclosures"] = disclosures;
+        doc
+    }
+
+    fn integrity(label: &str, token: &str) -> Value {
+        json!({"code": derived::DERIVED_SOLVE_INTEGRITY, "names": [label], "message": derived::integrity_message(token)})
+    }
+
+    fn unavailable(label: &str) -> Value {
+        json!({"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": [label], "message": PRODUCT_WARNING})
+    }
+
+    fn state(code: &str) -> Value {
+        json!({"code": code, "names": ["support:L"], "message": "invented"})
+    }
+
+    fn refused(disclosures: Value, reason: &str) {
+        let error = closure(&with(disclosures)).expect_err("closure refuses");
+        assert!(error.contains(reason), "{error}");
+    }
+
+    #[test]
+    fn both_new_codes_on_different_valid_labels_with_the_state_warnings_are_closed() {
+        let doc = with(json!([
+            state("HANGER_SIZING_SUPPORT_STATE_DIFFERS"),
+            state("HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS"),
+            integrity("S_W", "not_assessed"),
+            integrity("S_O1", "sensitive"),
+            unavailable("S_O1"),
+            integrity("V_O2", "unresolved"),
+            unavailable("V_O2"),
+            integrity("V_C", "failed"),
+        ]));
+        assert_eq!(closure(&doc), Ok(()));
+        let verdict = read_document_with(&doc, Supplied::default(), ReadOptions::WITHOUT_REPRODUCTION);
+        assert_eq!(verdict.closure.status, Status::Passed);
+    }
+
+    #[test]
+    fn unknown_codes_invalid_labels_repeats_and_malformed_members_are_refused() {
+        refused(json!([{"code": "HANGER_SIZING_UNKNOWN", "names": ["S_W"], "message": "x"}]), "code: not one of");
+        refused(json!([{"code": "NUMERICAL_INTEGRITY_SENSITIVE", "names": ["S_W"], "message": "x"}]), "code: not one of");
+        refused(json!([integrity("S_O3", "sensitive")]), "names[0]: not a solve label of this document");
+        refused(json!([unavailable("V_O3")]), "names[0]: not a solve label of this document");
+        refused(json!([integrity("source", "sensitive")]), "not a solve label");
+        refused(json!([integrity("S_O1", "sensitive"), integrity("S_O1", "failed")]), "repeated for solve S_O1");
+        refused(json!([unavailable("V_C"), unavailable("V_C")]), "repeated for solve V_C");
+        refused(json!([state("HANGER_SIZING_SUPPORT_STATE_DIFFERS"), state("HANGER_SIZING_SUPPORT_STATE_DIFFERS")]), "code: repeated");
+        refused(json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_W", "S_C"], "message": derived::integrity_message("sensitive")}]),
+            "not exactly one solve label");
+        refused(json!([{"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": [], "message": PRODUCT_WARNING}]), "not exactly one solve label");
+        refused(json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": [7], "message": derived::integrity_message("sensitive")}]), "not a string");
+        refused(json!([integrity("S_W", "checks_passed")]), "not the integrity message");
+        refused(json!([integrity("S_W", "SENSITIVE")]), "not the integrity message");
+        refused(json!([{"code": derived::DERIVED_SOLVE_INTEGRITY, "names": ["S_W"], "message": "sensitive"}]), "not the integrity message");
+        refused(json!([{"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": ["S_W"], "message": ""}]), "message: empty");
+        refused(json!([{"code": derived::DISPLACEMENT_CORRECTION_UNAVAILABLE, "names": ["S_W"], "message": PRODUCT_WARNING, "extra": 1}]),
+            "not a member of the closed object");
+    }
 }

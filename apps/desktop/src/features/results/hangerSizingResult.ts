@@ -18,7 +18,14 @@ export type HangerSizingStateCode = "inactive" | "active" | "sticking" | "slidin
 export type HangerSizingLoadCategory =
   | "weight" | "distributed_force" | "pressure" | "thermal" | "hydrotest" | "wind" | "seismic"
   | "occasional" | "concentrated_force" | "concentrated_moment" | "imposed_displacement";
-export type HangerSizingDisclosureCode = "HANGER_SIZING_SUPPORT_STATE_DIFFERS" | "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS";
+/** The two state disclosures (each at most once), then the per-solve disclosures (each at most once per
+ * solve label, naming that label): a derived solve's integrity standing other than checks_passed, and the
+ * product's displacement-correction warning with its message unchanged. */
+export type HangerSizingDisclosureCode =
+  | "HANGER_SIZING_SUPPORT_STATE_DIFFERS"
+  | "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS"
+  | "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY"
+  | "DISPLACEMENT_CORRECTION_UNAVAILABLE";
 export type HangerSizingRefusalCode =
   | "HANGER_SIZING_CANDIDATES_REQUIRED"
   | "HANGER_SIZING_CANDIDATE_DOF_SHARED"
