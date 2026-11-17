@@ -79,7 +79,7 @@ describe("report standing witnesses (DEL-08-01 REQ-024)", () => {
       expect(numericalResultStanding(result, model).eligible, item.name).toBe(false);
       const reading = reportStanding(result, model);
       expect(reading.readability, item.name).toEqual({ readable: true, solved: true, unreadable: [] });
-      const assembly = await assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
+      const assembly = await assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null, libraryRefFindings: [] });
       const input = assembly.input as Json;
       expect(input.numerical_standing, item.name).toEqual(reading.numerical_standing);
       const cases = input.numerical_standing.cases as Json[];

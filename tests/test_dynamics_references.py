@@ -83,15 +83,19 @@ PACKAGES = {
     "f2_spectrum/discrete": "generators/f2_spectrum_discrete.py",
     "f2_spectrum/benchmark_pack": "generators/generate.py",
     "f2_spectrum/recovery_w1": "generators/w1_recovery.py",
+    "f2_spectrum/recovery_w2": "generators/w2_recovery.py",
 }
 
-# W1 documents its default mode as check; it has no --check switch.
-CHECK_ARGUMENTS = {"f2_spectrum/recovery_w1": ()}
+# W1 and W2 document their default mode as check; neither has a --check switch.
+CHECK_ARGUMENTS = {"f2_spectrum/recovery_w1": (), "f2_spectrum/recovery_w2": ()}
 
 # A generator may import a module of another frozen reference package: reference code reading
 # reference code. Each is admitted by name, and its bytes are the ones its own package's
 # SHA256SUMS pins.
 ADMITTED_REFERENCE_IMPORTS = {
+    "f2_spectrum/recovery_w2": {
+        "f1_modal/mass_discrete": {"elements", "eigen", "model", "numeric"},
+    },
     "f2_spectrum/recovery_w1": {
         "f1_modal/mass_discrete": {"elements", "eigen", "model", "numeric"},
     },

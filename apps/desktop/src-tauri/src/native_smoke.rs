@@ -17,11 +17,15 @@
 //!   webview or read from or saved to the Keychain (RT-E1 D4,
 //!   DEL-16-06).
 //!
-//! The harness substitutes exactly two things for a person at the machine: it
+//! The harness substitutes exactly three things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;
 //! the Open Model Document…, Save Model Document…, Save Handoff…, Save Report
-//! Package…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, and it delivers native menu commands through the same
-//! dispatch a menu click uses (`native_smoke_menu`). Everything else, from the
+//! Package…, Save canonical HTML…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, it delivers native menu commands through the same
+//! dispatch a menu click uses (`native_smoke_menu`), and in place of the report
+//! print's system dialog it records which print document reached the native
+//! print (`record_report_print`, read by `native_smoke_take_report_prints`; the
+//! driver closes that window with `native_smoke_close_report_print`), so no
+//! page reaches a printer or a print queue. Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
 
 use serde::Serialize;
@@ -56,8 +60,8 @@ fn strict_stop(answer_queued: bool, mode: Option<&str>) -> bool {
 }
 
 /// The path the next chooser returns, if the driver named one: the one decision every chooser of the app makes
-/// before its native dialog (model document open and save, handoff and report package, MBF import and export, and
-/// the backup folder), through [`chooser_answer`]. `chooser` names the chooser in the strict stop's log line.
+/// before its native dialog (model document open and save, handoff and report package, the report's canonical HTML,
+/// MBF import and export, and the backup folder), through [`chooser_answer`]. `chooser` names the chooser in the strict stop's log line.
 pub fn take_chosen_path<R: Runtime>(app: &AppHandle<R>, chooser: &str) -> Option<PathBuf> {
     let state = app.try_state::<SmokeState>();
     chooser_answer(state.as_deref(), chooser)
@@ -368,7 +372,7 @@ mod strict_chooser_tests {
 
     /// Every function in this crate that raises a dialog through the dialog plugin (`.dialog()`) asks
     /// [`super::take_chosen_path`] first, so no chooser can reach its native dialog without the queue and the
-    /// strict stop. The seven are named, so the scan cannot pass by finding none. Threat model: an honest edit that
+    /// strict stop. The eight are named, so the scan cannot pass by finding none. Threat model: an honest edit that
     /// adds a chooser, or drops or moves the call; not a defence against a dialog raised by another route.
     #[test]
     fn strict_chooser_every_chooser_asks_the_queue_before_its_dialog() {
@@ -457,6 +461,7 @@ mod strict_chooser_tests {
                 ("choose_mbf_save_path", "lib.rs"),
                 ("choose_model_document_path", "lib.rs"),
                 ("choose_model_document_save_path", "lib.rs"),
+                ("choose_report_html_save_path", "rendered_report_routes.rs"),
                 ("choose_report_package_save_path", "lib.rs"),
             ]
         );
@@ -483,6 +488,77 @@ pub fn native_smoke_clear_choices(app: AppHandle) -> Result<(), String> {
         .map_err(|_| "native smoke state poisoned".to_string())?
         .clear();
     Ok(())
+}
+
+/// One report print that reached the native print (`rendered_report_print`),
+/// recorded on the print window's own handle: the print document itself (the
+/// bytes the print protocol serves to that window, as text), its SHA-256 and
+/// that of the canonical HTML it was derived from, whether the protocol served
+/// the document to that window, and the window's label. No dialog was
+/// presented: the record shows which document reached the native print path,
+/// not that a dialog appeared, what a print preview composed, or how a job
+/// ended.
+#[derive(Clone, Debug, Serialize)]
+pub struct ReportPrintObservation {
+    pub print_sha256_hex: String,
+    pub canonical_sha256_hex: String,
+    pub print_html: String,
+    pub served_to_print_window: bool,
+    pub window_label: String,
+    pub dialog_presented: bool,
+}
+
+static REPORT_PRINTS: Mutex<Vec<ReportPrintObservation>> = Mutex::new(Vec::new());
+
+/// Records a report print in place of presenting its dialog.
+pub fn record_report_print(print_sha256_hex: &str, canonical_sha256_hex: &str, print_html: &[u8], served: bool, window_label: &str) {
+    let observation = ReportPrintObservation {
+        print_sha256_hex: print_sha256_hex.to_string(),
+        canonical_sha256_hex: canonical_sha256_hex.to_string(),
+        // The print view is derived from a `String`, so these bytes are UTF-8.
+        print_html: String::from_utf8_lossy(print_html).into_owned(),
+        served_to_print_window: served,
+        window_label: window_label.to_string(),
+        dialog_presented: false,
+    };
+    eprintln!("[native-smoke] report print reached the native print; print document sha256 {print_sha256_hex}; no dialog presented");
+    REPORT_PRINTS.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push(observation);
+}
+
+/// The report prints recorded since the last call, oldest first.
+#[tauri::command]
+pub fn native_smoke_take_report_prints() -> Vec<ReportPrintObservation> {
+    std::mem::take(&mut *REPORT_PRINTS.lock().unwrap_or_else(std::sync::PoisonError::into_inner))
+}
+
+/// Requests closure of the open report print window and confirms that the
+/// exact handle the close selected leaves Tauri's window registry: the label
+/// confirmed is the one `close_open_print` took and destroyed, never one
+/// observed separately. No system dialog is presented. A close request alone
+/// is not evidence that the window closed.
+#[tauri::command]
+pub async fn native_smoke_close_report_print(app: AppHandle) -> Result<bool, String> {
+    let selected = crate::rendered_report_print::close_open_print();
+    confirm_closed(selected, |label| app.get_webview_window(label).is_some(), std::time::Duration::from_secs(2)).await
+}
+
+/// `false` when no print window was selected; `true` once the selected label
+/// is no longer `registered`; an error when it remains registered at the
+/// deadline.
+async fn confirm_closed(selected: Option<String>, registered: impl Fn(&str) -> bool, within: std::time::Duration) -> Result<bool, String> {
+    let Some(label) = selected else {
+        return Ok(false);
+    };
+    let deadline = std::time::Instant::now() + within;
+    loop {
+        if !registered(&label) {
+            return Ok(true);
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err(format!("The print window {label} remains registered after its close request."));
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+    }
 }
 
 #[tauri::command]
@@ -1206,5 +1282,31 @@ mod reader_phase_tests {
             assert!(panic.is_err());
             assert_eq!(take(), vec![(phase, "exit", "incomplete")]);
         }
+    }
+}
+
+#[cfg(test)]
+mod report_print_close_tests {
+    use super::confirm_closed;
+    use std::cell::RefCell;
+    use std::time::Duration;
+
+    /// M20: the close confirms the label it was handed (the one `close_open_print` took and
+    /// destroyed), not whichever window is open when it polls.
+    #[test]
+    fn the_close_confirms_the_selected_label_and_reports_a_lingering_one_as_an_error() {
+        let registry = RefCell::new(vec!["report-print-1".to_string(), "report-print-2".to_string()]);
+        let registered = |label: &str| registry.borrow().iter().any(|open| open == label);
+        // The selected window A is destroyed; the replacement B stays registered.
+        registry.borrow_mut().retain(|label| label != "report-print-1");
+        let confirmed = tauri::async_runtime::block_on(confirm_closed(Some("report-print-1".to_string()), registered, Duration::from_millis(50)));
+        assert_eq!(confirmed, Ok(true));
+        assert!(registered("report-print-2"), "the replacement is untouched");
+        // Nothing selected: the existing no-window outcome.
+        assert_eq!(tauri::async_runtime::block_on(confirm_closed(None, registered, Duration::from_millis(50))), Ok(false));
+        // The selected window does not leave the registry: an error, never success, even though
+        // another window is gone.
+        let lingering = tauri::async_runtime::block_on(confirm_closed(Some("report-print-2".to_string()), registered, Duration::from_millis(30)));
+        assert_eq!(lingering, Err("The print window report-print-2 remains registered after its close request.".to_string()));
     }
 }
