@@ -20,7 +20,8 @@ CALLERS={
  # W-16 stage 2 (§8.29): lib 2868 -> 2876; §8.30: 2876 -> 2877, unchanged text; model document 0.9.0 (§8.36): 2880 -> 2953; S2 (§8.40): 2953 -> 3002; RT-A5 (§8.54): 3011 -> 3014; RT-A3 S6 (§8.59): 3014 -> 3018 (the formulation basis's bindings), unchanged text.
   # RT-L2: lib 3018 -> 3021 (the formulation basis's elongation statement), unchanged text.
  # RT-L2 final source: lib 3021 -> 3023 (the test-module declaration), unchanged text.
- 'core/product_physics/src/source_receipt.rs:747:finalize_composite':'core/product_physics/src/lib.rs:3023:run_linear_static_preview_observed_inner',
+ # PR-A (§8.62): lib 3023 -> 3068 (the blocked rewrite, the quality arm and the trigger's prior read precede it), unchanged text.
+ 'core/product_physics/src/source_receipt.rs:747:finalize_composite':'core/product_physics/src/lib.rs:3068:run_linear_static_preview_observed_inner',
  'core/product_physics/src/source_receipt.rs:763:finalize_for':'core/product_physics/src/source_receipt.rs:747:finalize_composite',
 }
 

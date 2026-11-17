@@ -1753,16 +1753,33 @@ pub fn certify_displacement(
     u: &[f64],
     bound: &MemberBoundInputs,
 ) -> Result<CertifiedRow, RecoveryFailure> {
-    let row = evaluate_row(&[Ball::ONE], &[dof], Ball::ZERO, 0.0, u, bound)?;
+    certify_displacement_step(dof, u, bound).map_err(|(_, failure)| failure)
+}
+/// Which step of [`certify_displacement`] failed: forming the certified value
+/// (the ball and remainder, the exact sum u + w + w2, or the published value's
+/// rounding gap), or representing the corrected value in binary64.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DisplacementFailureKind {
+    Certify,
+    Represent,
+}
+/// [`certify_displacement`] with the step that failed.
+pub fn certify_displacement_step(
+    dof: usize,
+    u: &[f64],
+    bound: &MemberBoundInputs,
+) -> Result<CertifiedRow, (DisplacementFailureKind, RecoveryFailure)> {
+    use DisplacementFailureKind::{Certify, Represent};
+    let row = evaluate_row(&[Ball::ONE], &[dof], Ball::ZERO, 0.0, u, bound).map_err(|e| (Certify, e))?;
     let mut exact = ExactAccumulator::new();
     for value in [u[dof], bound.w[dof], bound.w2[dof]] {
-        exact.add(value).map_err(sum_error)?;
+        exact.add(value).map_err(|e| (Certify, sum_error(e)))?;
     }
-    let published = exact.round().map_err(sum_error)?;
+    let published = exact.round().map_err(|e| (Represent, sum_error(e)))?;
     if !published.is_finite() {
-        return Err(shape("recovery publication"));
+        return Err((Represent, shape("recovery publication")));
     }
-    row.republished(if published == 0.0 { 0.0 } else { published })
+    row.republished(if published == 0.0 { 0.0 } else { published }).map_err(|e| (Certify, e))
 }
 /// Nonlinear K-D5 (§1.6, §3.1): one load primitive's re-formation at its
 /// row as a published scalar, fl(m) with B = |fl(m) - m| + r. The explicit
