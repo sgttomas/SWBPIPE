@@ -117,6 +117,7 @@ import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
 import { ReportPanel } from "./features/report/ReportPanel";
 import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
+import { ReportOutputStatus } from "./features/report/ReportOutputStatus";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPanel";
@@ -184,6 +185,14 @@ export function App() {
 
 function AppSession() {
   const session = useWorkspaceSession();
+  // DEL-08-01 REQ-022: the report source sequence and the report output outcomes, owned by
+  // the session; the outcomes are shown outside the dormant Report section.
+  const reportOutput = {
+    source: session.results.reportSource,
+    sequence: session.results.reportSourceSequence,
+    outcomes: session.results.reportOutputs,
+    entries: session.results.reportOutputEntries
+  };
   const [routingPanelContainer, setRoutingPanelContainer] = useState<HTMLDivElement | null>(null);
   const {
     model,
@@ -480,6 +489,7 @@ function AppSession() {
             })}
           />
       </ShellToolbar>
+      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence} />
 
       <div className="shell-body">
         <StageRail issueCount={issueCount} />
@@ -935,6 +945,10 @@ function AppSession() {
                     packageNeedsCurrent={currentSolvedResult === null}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
                     onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
+                    reportSource={reportOutput.source}
+                    reportSourceSequence={reportOutput.sequence}
+                    reportOutputs={reportOutput.outcomes}
+                    libraryRefFindingsState={session.results.libraryRefFindingsState}
                   />
                 )}
               </C2ResultGate>

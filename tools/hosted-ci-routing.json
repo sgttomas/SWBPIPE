@@ -2563,6 +2563,8 @@
               "apps/desktop/src-tauri/src/native_verdict.rs",
               "apps/desktop/src-tauri/src/native_verdict_tests.rs",
               "apps/desktop/src-tauri/src/object_form_tests.rs",
+              "apps/desktop/src-tauri/src/rendered_report_print.rs",
+              "apps/desktop/src-tauri/src/rendered_report_routes.rs",
               "apps/desktop/src-tauri/src/report_package_bridge.rs",
               "apps/desktop/src-tauri/src/report_package_save.rs",
               "apps/desktop/src-tauri/src/report_render_exact.rs",
