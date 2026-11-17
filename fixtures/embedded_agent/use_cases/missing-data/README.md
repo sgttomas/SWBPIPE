@@ -34,22 +34,26 @@ a comparison rule.
 
 ## Why this model
 
-These are the two places where the product records each missing value as a
-finding naming its entity, and where the property inspector can author the
-absent value.
+The authored lateral acceleration requires each span's mass, so both material
+densities are required inputs. Their values are independent authored facts in
+`person_entered.json`, not values inferred from solver output. The inspector's
+optional-quantity operation can enter each absent density with its stated unit.
+A refused solve names both pipes with `material_density`
+(`EQUIVALENT_STATIC_INPUT_MISSING`).
 
-- The applier authors an absent `section.material_density` from the
-  inspector's value and unit (an optional quantity). It refuses an absent
-  material `shear_modulus` (`OP-QUANTITY-OBJECT-MISSING`), so a model lacking
-  G could not be repaired in the desktop.
-- A refused solve of this start names both pipes with `material_density`
-  (`EQUIVALENT_STATIC_INPUT_MISSING`). A missing `gravity_acceleration` would
-  hide the density findings behind it, and an absent g-factor is not
-  reported.
+The scenario explicitly supplies gravity and all three axis factors. The
+generator requires at least one entered axis factor; an absent axis is
+unselected, while no entered factors produces a blocking finding. Separately,
+the scalar inspector refuses an absent material `shear_modulus.value` as
+`OP-QUANTITY-OBJECT-MISSING`; that is not a refusal by the whole applier, whose
+constitutive-properties operation can supply G. Neither behavior changes this
+scenario's authored missing values.
 
 The desktop's on-demand model checks do not run the static-equivalent
 generation, so before the first solve they show no finding for these values.
-Each missing value is shown as a finding once that solve is refused.
+Each missing value is shown as a finding once that solve is refused. This is a
+product gap against DEL-07-07 REQ-008 and DEL-07-02 REQ-004, not evidence that
+pre-solve detection is complete; the scenario does not waive those requirements.
 `tools/agent_missing_data_judge_test.py` solves the start and the expected
 final model with the headless runner. The start must end `MODEL_INCOMPLETE`,
 with blocking findings that name exactly the two missing values, and the
@@ -96,6 +100,10 @@ value is accepted only from the final execution, by job id and handle, even
 when another solve gives the same numbers.
 
 ## Limits
+
+Truthful refusal reporting, harness entry of the person's repairs and a subsequent
+solved model do not establish pre-solve detection or completion of exit criterion
+8's Missing data use case while the pre-solve finding gap remains.
 
 The judge cannot authenticate the harness: a forged observation that is
 consistent with itself passes. A pass is
