@@ -169,6 +169,9 @@ def test_missing_or_former_guard_is_driver_exit_4(tmp_path, monkeypatch, capsys,
                 shutil.copyfile(PRICING / "base" / relative, mapped / relative)
             (mapped / "premise_pins.json").write_text(json.dumps({"pins": []}))
             return subprocess.CompletedProcess(args, 0, "", "")
+        if str(args[0]).endswith("owner_presence.py"):
+            # OWN-PRES (§8.62) runs before the rules stage; its own tests are in test_862_pr_a.py.
+            return subprocess.CompletedProcess(args, 0, "{}", "")
         assert str(args[0]).endswith("sq2_rules.py")
         try:
             rb_l5_block(root)

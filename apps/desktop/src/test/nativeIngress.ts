@@ -27,6 +27,9 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "validate_library_import",
   "save_local_library",
   "save_report_package",
+  // DEL-08-01 REQ-022: the rendered report's HTML save and print (`retire_rendered_report` takes only a source and request ordinal).
+  "save_rendered_report_html",
+  "print_rendered_report",
   "save_local_result_json",
   "begin_local_csv_stream",
   "append_local_csv_stream",

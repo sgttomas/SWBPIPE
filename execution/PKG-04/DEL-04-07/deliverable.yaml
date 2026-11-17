@@ -234,6 +234,8 @@ code_paths:
 - core/model_operations/operation_applier/src/b7b_transport_tests.rs
 - core/model_operations/operation_applier/tests/exact_authoring.rs
 - core/model_operations/operation_applier/tests/l_line_authoring.rs
+- core/model_operations/operation_applier/tests/numerical_health.rs
+- core/model_operations/operation_applier/tests/report_readability_blocked.rs
 - core/runner/headless/tests/exact_admission_seam.rs
 - core/runner/headless/tests/exact_route_refusals.rs
 - core/runner/headless/tests/untied_joint_pressure_references.rs

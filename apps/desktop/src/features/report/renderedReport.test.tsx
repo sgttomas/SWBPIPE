@@ -256,7 +256,8 @@ describe("reportRenderService", () => {
       summary: { route_id: "DREP-IPC-003", local_first: routeEvidence("local_private", true) }
     });
 
-    expect(invokeMock).toHaveBeenCalledWith("render_calculation_report", { input: payload });
+    // DEL-08-01 REQ-022: the request names its report source (none registered here: 0/0).
+    expect(invokeMock).toHaveBeenCalledWith("render_calculation_report", { input: payload, source: { incarnation: 0, sequence: 0 }, request: 0 });
     expect(route.route).toBe("tauri_renderer");
   });
 
@@ -558,7 +559,9 @@ describe("RenderedReportPanel", () => {
 
     await waitFor(() => {
       expect(invokeMock).toHaveBeenCalledWith("render_calculation_report", {
-        input: { report_title: "Invented renderer-blocked fixture", report_context: { export_context: "public_report" } }
+        input: { report_title: "Invented renderer-blocked fixture", report_context: { export_context: "public_report" } },
+        source: { incarnation: 0, sequence: 0 },
+        request: 0
       });
     });
     expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("blocked=false");
@@ -714,19 +717,21 @@ describe("local-private rendered report (W-3)", () => {
     expect(screen.getByTestId("rendered-report-preview")).toHaveAttribute("srcdoc", unblockedOutcome().html);
 
     // The save sink is the local-private HTML route under the panel's own intent;
-    // it shows no second intent control and the public save link is absent.
+    // it shows no second intent control and the public save control is absent. In
+    // the desktop runtime it is the native save (a button), not a download link,
+    // and the print is the native print, not an iframe
+    // (`renderedReportNativeRoutes.test.tsx`; DEL-08-01 REQ-022).
     expect(screen.queryByTestId("rendered-report-save")).not.toBeInTheDocument();
     const save = screen.getByTestId("rendered-report-save-local-private");
     expect(save.closest("[data-route-id]")).toHaveAttribute("data-route-id", "DREP-HTML-SAVE-005");
-    expect(save).toHaveAttribute("href", `data:text/html;charset=utf-8,${encodeURIComponent(unblockedOutcome().html)}`);
+    expect(save.tagName).toBe("BUTTON");
+    expect(save).not.toHaveAttribute("href");
     expect(screen.queryByTestId("rendered-report-save-local-private-local-private-intent")).not.toBeInTheDocument();
     expect(screen.getByTestId("rendered-report-save-local-private-redaction-summary")).toHaveTextContent("blocked=false");
 
     fireEvent.click(screen.getByTestId("rendered-report-print"));
-    expect(screen.getByTestId("rendered-report-print-frame")).toHaveAttribute(
-      "srcdoc",
-      unblockedOutcome().derived_print_html
-    );
+    await waitFor(() => expect(invokeMock.mock.calls.some(([command]) => command === "print_rendered_report")).toBe(true));
+    expect(screen.queryByTestId("rendered-report-print-frame")).not.toBeInTheDocument();
   });
 
   it("clears a shown private render when the selection is turned off and never reuses it publicly", async () => {
@@ -1634,7 +1639,7 @@ describe("library references and the store's findings (W-11 slice (c), §4.2)", 
     ]);
   });
 
-  it("projects each finding as a provenance warning, and the panel passes the store's current findings", async () => {
+  it("projects each finding as a provenance warning, and the panel passes the session's captured findings", async () => {
     const model = recordModel();
     const finding = {
       entity_ref: "material:with-record", library_kind: "material" as const, library_id: "invented-material-library", library_version: LIBRARY_VERSION,
@@ -1653,19 +1658,112 @@ describe("library references and the store's findings (W-11 slice (c), §4.2)", 
     expect(direct.report_sections.diagnostics.at(-1)).toEqual(expected);
     expect(JSON.stringify(direct)).not.toContain(finding.stored_version);
 
-    // Through the panel: the published finding that still applies reaches the native input;
-    // one raised on a reference the model no longer carries does not.
-    const { publishLibraryRefFindings } = await import("../library/libraryRefFindings");
+    // Through the panel: of the publication committed with its props (DEL-08-01 REQ-022, F1),
+    // the finding that still applies reaches the native input; one raised on a reference the
+    // model no longer carries does not. The panel reads the session's captured publication,
+    // never the store.
+    const { publishLibraryRefFindings, publishedLibraryRefFindings } = await import("../library/libraryRefFindings");
     publishLibraryRefFindings(model.project.id, [finding, { ...finding, entity_ref: "material:retired", message: "Invented stale finding." }]);
+    const captured = publishedLibraryRefFindings();
+    publishLibraryRefFindings(model.project.id, []); // a later publication does not reach this panel
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockResolvedValue(unblockedOutcome());
-    renderPanel({ model });
+    renderPanel({ model, libraryRefFindingsState: captured });
     fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
     fireEvent.click(screen.getByTestId("rendered-report-render"));
     await waitFor(() => expect(screen.getByTestId("rendered-report-preview")).toBeInTheDocument());
     const sent = renderedInput() as { report_sections: { diagnostics: unknown[] }; library_references: unknown[] };
     expect(sent.report_sections.diagnostics.filter((item) => (item as { code: string }).code.startsWith("MODEL-LIBRARY-REF-"))).toEqual([expected]);
     expect(sent.library_references).toHaveLength(1);
+  });
+});
+
+describe("library-reference findings in the captured report source (DEL-08-01 REQ-022; round-two F1)", () => {
+  // The actual workspace session (browser route, its model supplied at the load seam) and the
+  // actual assembly. The maintained form of the round-two review's library-source witness:
+  // there, a Library Manager publication changed the report's diagnostics 0 → 1 while the
+  // session's source number stayed 1 → 1 and a save's outcome claimed no change.
+  const finding = {
+    entity_ref: "material:with-record", library_kind: "material" as const, library_id: "invented-material-library", library_version: LIBRARY_VERSION,
+    record_id: "steel-a", code: "MODEL-LIBRARY-REF-VERSION-CHANGED" as const, severity: "warning" as const,
+    recorded_version: LIBRARY_VERSION, stored_version: `sha256:${"8".repeat(64)}`, message: "Invented library version changed."
+  };
+  afterEach(async () => {
+    const { publishLibraryRefFindings } = await import("../library/libraryRefFindings");
+    publishLibraryRefFindings("", []);
+    vi.restoreAllMocks();
+  });
+
+  async function session() {
+    const { act, renderHook } = await import("@testing-library/react");
+    const { useWorkspaceSession } = await import("../workspace/workspaceSession");
+    const previewService = await import("../../services/previewService");
+    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(recordModel());
+    const hook = renderHook(() => useWorkspaceSession());
+    await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
+    await waitFor(() => expect(hook.result.current.model.modelHash).not.toBeNull());
+    return { hook, act };
+  }
+
+  const reportDiagnostics = (assembly: { input: { report_sections: { diagnostics: Array<{ code: string }> } } }) =>
+    assembly.input.report_sections.diagnostics.filter((item) => item.code.startsWith("MODEL-LIBRARY-REF-"));
+
+  it("advances the report source synchronously when the applicable findings change, including a clear, and not otherwise", async () => {
+    const { publishLibraryRefFindings } = await import("../library/libraryRefFindings");
+    const { hook, act } = await session();
+    const model = hook.result.current.model.model!;
+    const source = hook.result.current.results.reportSource;
+    act(() => publishLibraryRefFindings(model.project.id, []));
+    const before = source.sequence;
+    // Another project's findings, while none applies to this model: nothing applicable changes.
+    act(() => publishLibraryRefFindings("project:another", [finding]));
+    expect(source.sequence).toBe(before);
+    act(() => publishLibraryRefFindings(model.project.id, [finding]));
+    expect(source.sequence).toBe(before + 1);
+    expect(hook.result.current.results.reportSourceSequence).toBe(before + 1);
+    expect(hook.result.current.results.libraryRefFindingsState.findings).toEqual([finding]);
+    act(() => publishLibraryRefFindings(model.project.id, [{ ...finding }])); // the same findings again
+    expect(source.sequence).toBe(before + 1);
+    // The store holds one publication: another project's replaces this model's finding, which
+    // leaves the report, so that does change the report source.
+    act(() => publishLibraryRefFindings("project:another", [finding]));
+    expect(source.sequence).toBe(before + 2);
+    act(() => publishLibraryRefFindings(model.project.id, [finding]));
+    act(() => publishLibraryRefFindings(model.project.id, [])); // a clear
+    expect(source.sequence).toBe(before + 4);
+    hook.unmount();
+    act(() => publishLibraryRefFindings(model.project.id, [finding])); // after its lifetime: no listener
+    expect(source.sequence).toBe(before + 4);
+  });
+
+  it("assembles from the captured findings, not the store, and a save's outcome reports the change", async () => {
+    const { publishLibraryRefFindings, currentLibraryRefFindings } = await import("../library/libraryRefFindings");
+    const { assembleRenderedReport } = await import("./renderedReportAssembly");
+    const { reportOutputText, saveSettlement } = await import("./reportOutputOutcomes");
+    const { hook, act } = await session();
+    const model = hook.result.current.model.model!;
+    act(() => publishLibraryRefFindings(model.project.id, []));
+    // The basis and its number, captured together before preparation.
+    const capturedState = hook.result.current.results.libraryRefFindingsState;
+    const capturedSequence = hook.result.current.results.reportSourceSequence;
+    const inputs = {
+      model, result: inventedResult(), analysisRun: inventedRun(), projectSummary: null, inputManifest: null, ruleCheckRun: null,
+      numericalHealth: null, reportComposition: null, context: "local_private" as const, intent: true, generatedAt: null
+    };
+    const preparing = assembleRenderedReport({ ...inputs, libraryRefFindings: currentLibraryRefFindings(model, capturedState) });
+    act(() => publishLibraryRefFindings(model.project.id, [finding])); // a Library Manager refresh meanwhile
+    expect(reportDiagnostics(await preparing)).toHaveLength(0);
+    const current = hook.result.current.results;
+    expect(current.reportSourceSequence).toBe(capturedSequence + 1);
+    const next = await assembleRenderedReport({ ...inputs, libraryRefFindings: currentLibraryRefFindings(model, current.libraryRefFindingsState) });
+    expect(reportDiagnostics(next)).toHaveLength(1);
+    // The earlier selected report saved after the change: its outcome says the workspace changed.
+    const outcomes = current.reportOutputs;
+    const id = outcomes.begin("save", { sequence: capturedSequence, model: model.project.id, run: inputs.result.run_id });
+    outcomes.settle(id, saveSettlement({ kind: "done", receipt: { outcome: "saved", route_id: "DREP-HTML-SAVE-005", export_context: "local_private", sha256_hex: "b".repeat(64), byte_count: 42, file_name: "invented.html", replaced_existing: false, durability: "durable" } }));
+    expect(reportOutputText(outcomes.snapshot().at(-1)!, current.reportSourceSequence)).toContain("Saved the selected report. The workspace has changed since it was prepared.");
+    hook.unmount();
   });
 });
 
