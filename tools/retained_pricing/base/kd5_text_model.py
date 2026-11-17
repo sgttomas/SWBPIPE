@@ -277,7 +277,9 @@ def inspect_directed_helpers(snapshot):
 # no `.min(`/`.max(` call added or removed, and the observation lane stays deleted.
 # PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
 # retained-pricing-rules.md §8.62): lib.rs CE-projected, as B7a SOURCE_FILES. Previous value fd6fc92e…
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'b7e472f2344ed8a274e3d5a0e5722ca2acd3613fe6d710cb53c0b87acb5200d4'
+# Hanger source admission (DEL-04-11 REQ-009): lib.rs CE-projected, as B7a SOURCE_FILES: one appended module
+# declaration; no `.min(`/`.max(` call added or removed. Previous value b7e472f2…
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '5cea85214c01f0299fd5bb7b8817add47a83b6d631e23390d9f27f04f44a95ef'
 
 
 def _ce_fallback():

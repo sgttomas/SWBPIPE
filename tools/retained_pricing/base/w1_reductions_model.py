@@ -118,7 +118,9 @@ REDUCED_PINS = {
     # PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
     # retained-pricing-rules.md §8.62): lib.rs and certified_recovery.rs as B7a; no reduction's owner
     # or lifetime changes and the L5 texts are unchanged. Previous values fd6fc92e… and ef58e6c2…
-    "core/product_physics/src/lib.rs": "b7e472f2344ed8a274e3d5a0e5722ca2acd3613fe6d710cb53c0b87acb5200d4",
+    # Hanger source admission (DEL-04-11 REQ-009): lib.rs as B7a, main plus one appended module declaration; no
+    # reduction's owner or lifetime changes, the L5 texts are unchanged. Previous value b7e472f2…
+    "core/product_physics/src/lib.rs": "5cea85214c01f0299fd5bb7b8817add47a83b6d631e23390d9f27f04f44a95ef",
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",

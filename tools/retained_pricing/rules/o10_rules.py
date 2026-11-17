@@ -5002,7 +5002,10 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         if (_modal_hashlib.sha256(_seam.encode()).hexdigest()
                 # RT-A3 S6 D3 (§8.59): the capture takes the loop's consumed motion as an argument (S6-ME, priced positively); its
                 # first statement is unchanged and it still returns None there on D1.
-                != "fcf41d780af7a74c4e0b913a9a3d4e358fabadc149fa04403ea7498a27be46ae"
+                # Hanger source admission (DEL-04-11 REQ-009): the capture is lib.rs's last fn, so its fn_lines span
+                # (to the next fn or end of file) now also holds the appended `pub mod source_admission;`. The
+                # capture's own lines are unchanged. Previous value fcf41d78…
+                != "8c7513b54458a92f4c138fff1fe7b5928371f8fe6ca5097458a6f14ae3df05ac"
                 or not _re.search(r"\) -> Option<Box<NonlinearStateEvidence>> \{\n    let solve = solve\.filter\(\|solve\| solve\.converged\)\?;\n", _seam)
                 or not _re.search(r"\{\n    if built\.nonlinear_supports\.is_empty\(\) \{\n        return None;\n    \}\n", _loop)
                 or _case.count("capture_nonlinear_state_evidence(\n        &load_case.id,\n        solver_mode,\n"
