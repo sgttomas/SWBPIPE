@@ -20,7 +20,9 @@
 //      read standing, rows, N1 displacement and the solve proof, export the
 //      result JSON where the product offers it (W-18: and File > Save Report
 //      Package… for the demo, re-read with the product's reader), and save as a
-//      local project;
+//      local project; the demo's local-private report is rendered and printed
+//      through the native print path, whose system dialog this build replaces
+//      with a record of the print document (`report-print-evidence.mjs`);
 //   2. reopen: a fresh process opens each saved project and solves it again,
 //      then File > Save Handoff… on the stored demo twice: a new handoff-basis
 //      state and package, then the same package replaced (W-6b).
@@ -142,6 +144,7 @@ import {
 } from "./launch-env.mjs";
 import { newNonce } from "./launch-outcome.mjs";
 import { judgedPhase, phaseContinuation } from "./judged-launch.mjs";
+import { judgeReportPrint } from "./report-print-evidence.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, processStartTime, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -610,6 +613,13 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   check("demo local-private report: canonical HTML SHA-256 shown", /^Canonical HTML SHA-256: [0-9a-f]{64}$/.test(render?.hash ?? ""), render?.hash);
   check("demo local-private report: export gates passed", render?.gate === "export gates passed", render?.gate);
   check("demo local-private report: local-private warning, save and the document's notice", render?.local_private_warning && render.save_offered && render.preview_local_private_notice, render && { warning: render.local_private_warning, save: render.save_offered, notice: render.preview_local_private_notice });
+  // DEL-08-01 REQ-022: Print… of that report reaches the native print path with the admitted document
+  // (`report-print-evidence.mjs`). The native-smoke build substitutes the system dialog with a record of the print
+  // document: no dialog appearance, preview composition or job outcome is observed or claimed.
+  const printed = first.report_print;
+  for (const item of judgeReportPrint("demo local-private report print", printed, { canonicalHtml: printed?.canonical_html, shownHash: printed?.shown_hash }))
+    check(item.name, item.ok, item.detail);
+  check("demo local-private report print: the document printed is the one rendered and shown", printed?.shown_hash === render?.hash, { printed: printed?.shown_hash ?? null, rendered: render?.hash ?? null });
   const rules = first.rule_checks;
   check("demo rule checks: refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(rules), rules?.outcomes);
   checkStressRatioAfterRuleChecks("demo rule checks", rules);

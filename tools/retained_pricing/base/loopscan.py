@@ -155,6 +155,17 @@ OFF_FEATURES = ("census-probe", "loaded-maximum-hooks")
 OFF_ATTR = re.compile(r'#\[cfg\((?:all\(\s*test\s*,\s*)?feature\s*=\s*"(?:' + "|".join(re.escape(f) for f in OFF_FEATURES)
                       + r')"\s*\)?\)\]')
 
+_CFG_ITEMS = []
+_NO_MASK = [False]
+
+
+def _cfg_items():
+    if not _CFG_ITEMS:
+        import os as _o, runpy as _r
+        _CFG_ITEMS.append(_r.run_path(_o.path.join(_o.path.dirname(_o.path.abspath(__file__)), "cfg_test_items.py")))
+    return _CFG_ITEMS[0]
+
+
 def blank_test_items(bt, raw=None):
     """G4: blank every item gated by `#[cfg(test)]` or `#[cfg(any(test, ..))]` (the latter is
     compiled only with test or the mutation-controls feature, which D1 builds leave off),
@@ -162,7 +173,9 @@ def blank_test_items(bt, raw=None):
     drops every production item after a mid-file test module (U3 adds one to PP lib.rs at
     :3002). Input is lexer-blanked text; newlines are kept, so line numbers are unchanged.
     With the raw text, W1R-FG's off-feature items are blanked too (an attribute the lexer
-    blanked, inside a comment or string, is not one)."""
+    blanked, inside a comment or string, is not one). CFG-PROD (§8.62): a test attribute's element
+    ends as base/cfg_test_items.py ends it (a field or arm at its depth-0 `,` or before an unmatched
+    closer)."""
     out = list(bt)
     n = len(bt)
     attrs = [(m.start(), m.end(), False) for m in TEST_ATTR.finditer(bt)]
@@ -187,6 +200,16 @@ def blank_test_items(bt, raw=None):
                     i += 1
                 continue
             break
+        # CFG-PROD (§8.62): a test attribute's element ends where base/cfg_test_items.py's rule ends it (a field or an
+        # expression-position element at its depth-0 `,` or before an unmatched closer; a `let` or `if .. else` at its
+        # `;`). The earlier scan ran to the first depth-0 `;` or `{`, so a test-only struct field blanked the production
+        # fields after it, the struct's `}` and the next item up to its `;` (retained_product.rs ProductCapture).
+        if not off:
+            j = _cfg_items()["element_end"](bt, _NO_MASK * n, start)
+            for q in range(start, min(j, n)):
+                if out[q] != "\n":
+                    out[q] = " "
+            continue
         # the item: up to the first `;` or `{` at bracket depth 0; a `{` extends to its match
         j, d = i, 0
         while j < n:

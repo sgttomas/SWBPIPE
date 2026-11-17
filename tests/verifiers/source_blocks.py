@@ -109,12 +109,15 @@ def _bits(number: Any) -> str:
     return struct.pack(">d", float(number)).hex()
 
 
-def _ordinary(case: Mapping[str, Any], quality: Mapping[str, Any], diagnostics: dict[str, Any], evidence: set[str]) -> bool:
+def _ordinary(case: Mapping[str, Any], quality: Mapping[str, Any], diagnostics: dict[str, Any], evidence: set[str], solved: bool) -> bool:
     ordinary = case["ordinary_attempt"]
     _require(ordinary["requested_mode"] == case["requested_mode"], "ORDINARY_MODE")
     report, failure, outcome = ordinary["structural_report_diagnostic_ref"], ordinary["failure"], ordinary["outcome"]
     _require(report is None or report in diagnostics, "ORDINARY_REPORT_REF")
     _require(failure is None or failure["diagnostic_ref"] in diagnostics, "ORDINARY_FAILURE_REF")
+    # An inspection-only evaluation belongs only to a blocked document: named in a solved one, and never read as an
+    # outcome (the Rust twin).
+    _require(not solved or report is None or diagnostics[report].get("code") != "NUMERICAL_INTEGRITY_INSPECTION_ONLY", "INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
     if outcome == "not_attempted":
         _require(report is None and failure is None and quality["solve_quality"] == "not_assessed", "ORDINARY_NOT_ATTEMPTED")
     elif outcome in {"checks_passed", "sensitive"}:
@@ -248,7 +251,7 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
         basis = case["basis_ref"]
         _require(case["ordinary_attempt"]["quality_case_index"] == index and q["cases"][index]["basis_ref"] == basis, "QUALITY_CASE_BINDING")
         _require(actual_invocation is None or case["requested_mode"] == actual_invocation["solver_mode"], "REQUESTED_MODE")
-        ordinary_ok = _ordinary(case, q["cases"][index], diagnostics, set(all_ids))
+        ordinary_ok = _ordinary(case, q["cases"][index], diagnostics, set(all_ids), source["status"].get("mechanics") == "MECHANICS_SOLVED")
         work = case["work"]; rejected = work["rejected_reservation"]
         invocation_charged += work["charged"] + work["reserved_unobserved_failure"]
         _require(invocation_charged <= 64_000_000, "INVOCATION_WORK_LIMIT")

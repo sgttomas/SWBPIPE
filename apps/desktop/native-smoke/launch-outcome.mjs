@@ -2,7 +2,8 @@
 // ended with exit status 0, no signal and no timeout, and the run's fresh evidence root holds a readable report
 // carrying the nonce the runner gave that launch. A runner whose contract requires a census adds one: no process of
 // the run's private app copy remains. `run.mjs` and `mbf-journey.mjs` require it (`judged-launch.mjs`); `perf.mjs`
-// takes no per-launch census and applies the common conditions in its classification. Each failed condition is
+// requires it too, taking its census after each launch and applying the rule in its classification and its kept-record
+// judgment (`recordedCensusFailures`). Each failed condition is
 // named. A failed launch never reads as a pass; its report, when there is one, stays readable for the observations
 // it records. Kept evidence is judged from its recorded outcome: none, or an incomplete one, is not a pass.
 import { randomBytes } from "node:crypto";
@@ -51,7 +52,8 @@ const completeOutcome = (outcome) => outcome !== null && typeof outcome === "obj
   && Object.hasOwn(outcome, "status") && Object.hasOwn(outcome, "signal") && typeof outcome.timed_out === "boolean";
 
 /** The named failures of kept evidence from a runner that takes no census: its recorded outcome judged with its
- * report. Evidence that recorded no complete outcome is LAUNCH-OUTCOME-NOT-RECORDED, whatever its report says. */
+ * report. Evidence that recorded no complete outcome is LAUNCH-OUTCOME-NOT-RECORDED, whatever its report says.
+ * Not for `perf.mjs`'s records, which are census-bearing: they are judged by `recordedCensusFailures`. */
 export function recordedFailures(outcome, report, problem = null) {
   if (!completeOutcome(outcome)) return [NOT_RECORDED];
   return launchFailures({ status: outcome.status, signal: outcome.signal, timedOut: outcome.timed_out, census: undefined, report, problem, nonce: outcome.nonce });
@@ -65,6 +67,15 @@ export function recordedFailures(outcome, report, problem = null) {
  * though `launchFailures` serves a runner without a census when it is given none. */
 export function keptPhaseFailures(summary, phase, report, problem = null) {
   const outcome = summary?.launches?.[phase]?.outcome;
+  if (!completeOutcome(outcome)) return [NOT_RECORDED];
+  return launchFailures({ status: outcome.status, signal: outcome.signal, timedOut: outcome.timed_out, census: outcome.census ?? null, report, problem, nonce: outcome.nonce });
+}
+
+/** The named failures of kept evidence from a runner whose contract requires a census (`perf.mjs`): its recorded
+ * outcome judged with its report, under the same contract as `keptPhaseFailures`. An incomplete outcome is
+ * LAUNCH-OUTCOME-NOT-RECORDED; a missing or null census is LAUNCH-CENSUS-UNRESOLVED, never "no census taken", and
+ * that includes a record written before the runner took a census. */
+export function recordedCensusFailures(outcome, report, problem = null) {
   if (!completeOutcome(outcome)) return [NOT_RECORDED];
   return launchFailures({ status: outcome.status, signal: outcome.signal, timedOut: outcome.timed_out, census: outcome.census ?? null, report, problem, nonce: outcome.nonce });
 }

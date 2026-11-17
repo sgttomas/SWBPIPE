@@ -94,6 +94,7 @@ code_paths:
 # reader and in the separately written Python verifiers (tests/verifiers/** is otherwise
 # DEL-04-08's), with their corpora and tests.
 - core/reporting/report_standing/**
+- core/model_operations/operation_applier/tests/report_readability_blocked.rs
 - core/reporting/numerical_vocabulary/**
 - core/reporting/result_export/src/combination_graph.rs
 - core/reporting/result_export/src/combination_certificate.rs
