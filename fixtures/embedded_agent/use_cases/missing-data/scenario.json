@@ -1,0 +1,29 @@
+{
+  "schema": "swbpipe-agent-missing-data-scenario/1",
+  "id": "missing-data",
+  "use_case": "DEL-07-06 AC-007, Missing data",
+  "start": {
+    "kind": "open_model_file",
+    "model": "start_model.json"
+  },
+  "requests": [
+    "Solve the open model. If it cannot be solved, tell me each value it lacks and the entity that lacks it. Do not change the model.",
+    "I have entered the missing values myself. Solve the model again, then tell me which solve you ran and quote two of its result values."
+  ],
+  "expectations": {
+    "missing_values": [
+      {
+        "entity_ref": "pipe:md-inboard",
+        "field_path": "section.material_density",
+        "dimension": "density"
+      },
+      {
+        "entity_ref": "pipe:md-outboard",
+        "field_path": "section.material_density",
+        "dimension": "density"
+      }
+    ],
+    "entries_from": "person_entered.json",
+    "product_managed_paths": []
+  }
+}
