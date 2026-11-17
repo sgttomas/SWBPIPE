@@ -54,6 +54,7 @@ import copy
 import hashlib
 import json
 import math
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -372,38 +373,71 @@ def compare_set(verdict: Verdict, code: str, what: str, expected, observed) -> N
         verdict.fail(f"{code}-REPEATED", f"{what} repeats {repeated}")
 
 
-def judge_execution_record(verdict: Verdict, item: dict) -> None:
-    """The rules every execution meets, whatever its place in the trace."""
+DIGEST_TEXT = re.compile(r"[0-9a-f]{64}")
+
+
+def execution_record_failures(item: dict) -> list[tuple[str, str]]:
+    """The record contract. Every execution meets it, whatever its position in the
+    trace or its outcome; the initial and final executions meet the scenario's own
+    rules besides (`judge_trace`).
+
+    Every execution:
+      - is bound to the model it concerns: `model_text_sha256` is present and is a
+        SHA-256 in its stated text form, 64 lowercase hexadecimal characters;
+      - has custody consistent with its outcome: a result is held (`native_custody`
+        not `none`) only by a completed execution, a run handle is given only over
+        `held` custody, and result values are read only where a result is held;
+      - has no custody match that contradicts it: where `custody_match` is
+        recorded, neither `model` nor `result` is false, `result` is null exactly
+        when no result is held.
+    The one difference the contract makes, by outcome:
+      - a withheld Solve has no native job and no custody match, and carries the
+        gate's own record withholding Solve; its binding is to the text the gate
+        evaluated;
+      - every other execution has a native job and no gate record.
+    Identities (request, job, run handle) are unique across the trace; that is
+    checked over all executions together in `judge_trace`."""
+    failures = []
     at = f"execution {item['request_id']}"
     match = item["custody_match"]
     if item["outcome"] == WITHHELD:
-        # The gate withheld Solve: no job should exist, and the gate's own record says so.
-        if item["job_id"] is not None or match is not None:
-            verdict.fail("WITHHELD-SOLVE-HAS-JOB", f"{at} was withheld, yet a native job or its custody appears")
+        if item["job_id"] is not None:
+            failures.append(("WITHHELD-SOLVE-HAS-JOB", f"{at} was withheld, yet a native job appears"))
+        if match is not None:
+            failures.append(("WITHHELD-SOLVE-HAS-CUSTODY", f"{at} was withheld, yet a native custody match appears"))
         gate = item["gate_record"]
         if gate is None:
-            verdict.fail("GATE-RECORD-MISSING", f"{at} was withheld without the gate's own record")
+            failures.append(("GATE-RECORD-MISSING", f"{at} was withheld without the gate's own record"))
         elif gate["solve_offered"]:
-            verdict.fail("GATE-RECORD-CONTRADICTS", f"{at} was withheld, but the gate's record offers Solve")
+            failures.append(("GATE-RECORD-CONTRADICTS", f"{at} was withheld, but the gate's record offers Solve"))
     else:
         if item["job_id"] is None:
-            verdict.fail("EXECUTION-JOB-MISSING", f"{at} ran without a native job identity")
+            failures.append(("EXECUTION-JOB-MISSING", f"{at} ran without a native job identity"))
         if item["gate_record"] is not None:
-            verdict.fail("GATE-RECORD-ON-EXECUTED-SOLVE", f"{at} ran, yet carries a gate record of a withheld Solve")
-    if item["model_text_sha256"] is None:
-        verdict.fail("EXECUTION-MODEL-BINDING-MISSING", f"{at} is not bound to the model it concerns")
-    if match is not None and not match["model"]:
-        verdict.fail("CUSTODY-CONTRADICTS-BINDING", f"{at}: the host does not match the model text to this job")
+            failures.append(("GATE-RECORD-ON-EXECUTED-SOLVE", f"{at} ran, yet carries a gate record of a withheld Solve"))
+    digest = item["model_text_sha256"]
+    if digest is None:
+        failures.append(("EXECUTION-MODEL-BINDING-MISSING", f"{at} is not bound to the model it concerns"))
+    elif not DIGEST_TEXT.fullmatch(digest):
+        failures.append(("EXECUTION-MODEL-BINDING-MALFORMED", f"{at}: its model digest is not 64 lowercase hexadecimal characters"))
     held = item["native_custody"] != "none"
     if held and item["outcome"] != "completed":
-        verdict.fail("CUSTODY-WITHOUT-COMPLETION", f"{at} ended {item['outcome']!r} yet holds a result")
+        failures.append(("CUSTODY-WITHOUT-COMPLETION", f"{at} ended {item['outcome']!r} yet holds a result"))
     if item["result_handle"] is not None and item["native_custody"] != "held":
-        verdict.fail("RESULT-HANDLE-WITHOUT-READABLE-CUSTODY",
-                     f"{at} gives a run handle while its native custody is {item['native_custody']!r}")
-    if match is not None and match["result"] is not None and not held:
-        verdict.fail("CUSTODY-CONTRADICTS-BINDING", f"{at}: a result match is recorded for an execution holding no result")
+        failures.append(("RESULT-HANDLE-WITHOUT-READABLE-CUSTODY",
+                         f"{at} gives a run handle while its native custody is {item['native_custody']!r}"))
     if item["results"] and not held:
-        verdict.fail("RESULTS-WITHOUT-CUSTODY", f"{at}: result values were read from an execution holding no result")
+        failures.append(("RESULTS-WITHOUT-CUSTODY", f"{at}: result values were read from an execution holding no result"))
+    if match is not None:
+        if match["model"] is False:
+            failures.append(("CUSTODY-MODEL-UNMATCHED", f"{at}: the host does not match the model text to this job"))
+        if match["result"] is False:
+            failures.append(("CUSTODY-RESULT-UNMATCHED", f"{at}: the host does not match the result to this job"))
+        if match["result"] is not None and not held:
+            failures.append(("CUSTODY-RESULT-WITHOUT-RESULT", f"{at}: a result match is recorded for an execution holding no result"))
+        if match["result"] is None and held:
+            failures.append(("CUSTODY-RESULT-MATCH-MISSING", f"{at}: the custody match omits the result this execution holds"))
+    return failures
 
 
 def judge_steps(verdict: Verdict, scenario: Scenario, obs: dict) -> None:
@@ -477,17 +511,20 @@ def judge_trace(verdict: Verdict, scenario: Scenario, obs: dict) -> None:
 
     # Executions, by the harness's request identity and the host's job identity.
     executions = obs["executions"]
-    requests = [item["request_id"] for item in executions]
-    if len(set(requests)) != len(requests):
-        verdict.fail("EXECUTION-ID-REPEATED", "two executions share a request_id")
+    for item in executions:
+        for code, message in execution_record_failures(item):
+            verdict.fail(code, message)
     jobs = [item["job_id"] for item in executions if item["job_id"] is not None]
     if len(set(jobs)) != len(jobs):
-        verdict.fail("EXECUTION-ID-REPEATED", "two executions share a job_id")
+        verdict.fail("JOB-ID-REPEATED", "two executions share a native job_id")
     handles = [item["result_handle"] for item in executions if item["result_handle"] is not None]
     if len(set(handles)) != len(handles):
-        verdict.fail("RESULT-HANDLE-REPEATED", "two executions share a result handle")
-    for item in executions:
-        judge_execution_record(verdict, item)
+        verdict.fail("RESULT-HANDLE-REPEATED", "two executions share a run handle")
+    requests = [item["request_id"] for item in executions]
+    if len(set(requests)) != len(requests):
+        # Positions are named by request identity; with a repeat they cannot be resolved.
+        verdict.fail("REQUEST-ID-REPEATED", "two executions share a request_id; the initial and final solve are ambiguous")
+        return
     by_request = {item["request_id"]: item for item in executions}
     initial = by_request.get(obs["initial_execution"])
     final = by_request.get(obs["final_execution"])

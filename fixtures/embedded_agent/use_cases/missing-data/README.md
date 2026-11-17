@@ -77,6 +77,11 @@ bound to the model it concerns.
   finding.
 - Blocked native custody stays distinct from a run handle the agent can read.
 
+These rules bind every execution, whatever its position (first, any in
+between, last) and whatever its outcome. The only difference is the one
+stated above for a withheld Solve. The scenario's own rules for the first and
+the last execution apply on top of them.
+
 The members:
 
 - `runner_mode`: only `agent with a scripted provider` is admitted.
@@ -92,21 +97,25 @@ The members:
     outcome except withheld, and must be null for withheld;
   - `gate_record`: for withheld only, the gate's own record
     (`solve_offered` false). It is null for an executed solve;
-  - `model_text_sha256`: required. It is the SHA-256 of the exact UTF-8 model
-    text the job received or, for withheld, the text the gate evaluated. The
-    first execution must be bound to `start_model.json`;
+  - `model_text_sha256`: required, as 64 lowercase hexadecimal characters.
+    It is the SHA-256 of the exact UTF-8 model text the job received or, for
+    withheld, the text the gate evaluated. The first execution must be bound
+    to `start_model.json`;
   - `custody_match`: the host's match of the submitted model text (`model`)
     and result (`result`, null when the job holds none) against the job
-    (DEL-07-07 REQ-015), or null. A false `model`, or a result match on a job
-    that holds no result, is rejected;
+    (DEL-07-07 REQ-015), or null. Where it is recorded, neither member may be
+    false, and `result` is null exactly when no result is held;
   - `native_custody`: `none`, `held` or `blocked`. `blocked` is a result held
-    natively that the agent cannot read;
+    natively that the agent cannot read. Only a completed execution holds a
+    result;
   - `result_handle`: the run handle the agent can read, or null. It is only
     given over `held` custody;
   - `findings`: the findings this execution, or the gate, supplied;
-  - `results`: values the harness read from this execution's held result.
+  - `results`: values the harness read from this execution's held result,
+    empty where none is held.
 - `initial_execution` (the first execution) and `final_execution` (the last):
-  `request_id`s of two different executions. The final one must be completed,
+  `request_id`s of two different executions. Request identities, native job
+  identities and run handles are each unique across the trace. The final one must be completed,
   `held`, readable through its handle, matched by the host for both model and
   result, and bound to `final_model_text`.
 - `findings_shown`: the Diagnostics list after the refusal. Each finding gives

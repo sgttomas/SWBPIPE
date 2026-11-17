@@ -208,7 +208,7 @@ def test_an_incomplete_or_failed_final_solve_is_refused():
     assert "FINAL-SOLVE-NO-RESULT" in codes(mutated(lambda t: t["executions"][1].update(result_handle=None)))
     assert "FINAL-SOLVE-BLOCKED" in codes(mutated(lambda t: t["executions"][1]["findings"].append(finding("f", INBOARD))))
     assert codes(mutated(lambda t: t["executions"][1].update(custody_match={"model": True, "result": False}))) == [
-        "FINAL-CUSTODY-UNMATCHED"]
+        "CUSTODY-RESULT-UNMATCHED", "FINAL-CUSTODY-UNMATCHED"]
 
 
 def test_a_missing_or_an_extra_finding_is_refused():
@@ -252,8 +252,8 @@ def test_missing_forged_or_aliased_identities_are_refused():
     def alias(trace):
         trace["final_execution"] = trace["initial_execution"]
     assert "EXECUTION-ALIAS" in codes(mutated(alias))
-    assert "EXECUTION-ID-REPEATED" in codes(mutated(lambda t: t["executions"][1].update(job_id="job:synthetic-1")))
-    assert "EXECUTION-ID-REPEATED" in codes(mutated(lambda t: t["executions"][1].update(request_id="request:synthetic-1")))
+    assert "JOB-ID-REPEATED" in codes(mutated(lambda t: t["executions"][1].update(job_id="job:synthetic-1")))
+    assert codes(mutated(lambda t: t["executions"][1].update(request_id="request:synthetic-1"))) == ["REQUEST-ID-REPEATED"]
     def repeated_handle(trace):
         trace["executions"].insert(1, copy.deepcopy(trace["executions"][1]) | {"request_id": "request:1b", "job_id": "job:synthetic-1b"})
     assert "RESULT-HANDLE-REPEATED" in codes(mutated(repeated_handle))
@@ -357,13 +357,14 @@ def test_every_executed_solve_carries_its_jobs_model_binding():
 def test_contradictory_custody_is_refused():
     # The host refuses to match the refused job's model text: the binding is contradicted.
     assert codes(mutated(lambda t: t["executions"][0].update(custody_match={"model": False, "result": None}))) == [
-        "CUSTODY-CONTRADICTS-BINDING"]
+        "CUSTODY-MODEL-UNMATCHED"]
     # A result match on a job that holds no result.
     assert codes(mutated(lambda t: t["executions"][0].update(custody_match={"model": True, "result": True}))) == [
-        "CUSTODY-CONTRADICTS-BINDING"]
+        "CUSTODY-RESULT-WITHOUT-RESULT"]
     # Results or custody on a solve that did not complete.
+    # Its custody match (model only) now also omits the result the record claims to hold.
     assert set(codes(mutated(lambda t: t["executions"][0].update(native_custody="held")))) == {
-        "CUSTODY-WITHOUT-COMPLETION", "INITIAL-SOLVE-HAS-RESULT"}
+        "CUSTODY-WITHOUT-COMPLETION", "INITIAL-SOLVE-HAS-RESULT", "CUSTODY-RESULT-MATCH-MISSING"}
     # No custody record at all on the refused job is admitted: the binding is its digest.
     assert codes(mutated(lambda t: t["executions"][0].update(custody_match=None))) == []
 
@@ -377,7 +378,7 @@ def test_a_withheld_solve_needs_no_job_and_a_job_for_it_is_a_finding():
     def with_custody(trace):
         withheld(trace)
         trace["executions"][0]["custody_match"] = {"model": True, "result": None}
-    assert codes(mutated(with_custody)) == ["WITHHELD-SOLVE-HAS-JOB"]
+    assert codes(mutated(with_custody)) == ["WITHHELD-SOLVE-HAS-CUSTODY"]
     def without_gate(trace):
         withheld(trace)
         trace["executions"][0]["gate_record"] = None
@@ -443,6 +444,174 @@ def test_a_final_model_that_breaks_a_rule_fails_closed_and_never_raises():
         trace["final_model_text"] = json.dumps(model)
         trace["executions"][1]["model_text_sha256"] = witness_digest(trace["final_model_text"])
     assert codes(mutated(huge_number)) == ["FINAL-MODEL-MISMATCH"]
+
+
+# --- Record-contract sweep (review round 2, head bb0e733cf) ---------------------
+# The record contract binds every execution, whatever its position. For each
+# property and each slot (position and baseline record kind), a SYNTHETIC record
+# violating exactly that property must be refused for its named reason. Where the
+# scenario's own initial or final rules necessarily fire as well, they are listed
+# as consequences; combinations the contract makes impossible are named in
+# INAPPLICABLE instead of being counted.
+
+SLOTS = {
+    # slot: (index in a three-execution trace, initial kind, intermediate kind)
+    "initial/executed": (0, "executed", "completed"),
+    "initial/withheld": (0, "withheld", "completed"),
+    "intermediate/completed": (1, "executed", "completed"),
+    "intermediate/refused": (1, "executed", "refused"),
+    "intermediate/withheld": (1, "executed", "withheld"),
+    "final/completed": (2, "executed", "completed"),
+}
+
+
+def three_execution_trace(initial: str, intermediate: str) -> dict:
+    """SYNTHETIC: a valid trace with one intermediate solve between the refused and the completed one."""
+    trace = synthetic_trace()
+    if initial == "withheld":
+        withheld(trace)
+    if intermediate == "completed":
+        record = copy.deepcopy(trace["executions"][1])
+        record.update(request_id="request:mid", job_id="job:mid", result_handle="handle:mid")
+    else:
+        record = copy.deepcopy(synthetic_trace()["executions"][0])
+        record.update(request_id="request:mid", job_id="job:mid")
+        if intermediate == "refused":
+            record["outcome"] = "refused"
+        else:
+            record.update(outcome="withheld", job_id=None, custody_match=None, gate_record={"solve_offered": False})
+    trace["executions"].insert(1, record)
+    return trace
+
+
+def set_match(**values):
+    def change(record):
+        record["custody_match"] = {**(record["custody_match"] or {"model": True, "result": None}), **values}
+    return change
+
+
+def upper_digest(record):
+    record["model_text_sha256"] = record["model_text_sha256"].upper()
+
+
+R = "intermediate/refused"
+W = "intermediate/withheld"
+C = "intermediate/completed"
+EXECUTED_SLOTS = ("initial/executed", C, R, "final/completed")
+WITHHELD_SLOTS = ("initial/withheld", W)
+ALL_SLOTS = tuple(SLOTS)
+
+# (property, reason, mutation, {slot: scenario consequences})
+SWEEP = [
+    ("binding present", "EXECUTION-MODEL-BINDING-MISSING", lambda r: r.update(model_text_sha256=None),
+     {slot: () for slot in ALL_SLOTS} | {"final/completed": ("FINAL-MODEL-BINDING-STALE",)}),
+    ("binding well-formed", "EXECUTION-MODEL-BINDING-MALFORMED", lambda r: r.update(model_text_sha256="not-a-digest"),
+     {slot: () for slot in ALL_SLOTS} | {"initial/executed": ("INITIAL-MODEL-BINDING",),
+                                         "initial/withheld": ("INITIAL-MODEL-BINDING",),
+                                         "final/completed": ("FINAL-MODEL-BINDING-STALE",)}),
+    ("binding in lowercase text form", "EXECUTION-MODEL-BINDING-MALFORMED", upper_digest,
+     {slot: () for slot in ALL_SLOTS} | {"initial/executed": ("INITIAL-MODEL-BINDING",),
+                                         "initial/withheld": ("INITIAL-MODEL-BINDING",),
+                                         "final/completed": ("FINAL-MODEL-BINDING-STALE",)}),
+    ("custody model match not false", "CUSTODY-MODEL-UNMATCHED", set_match(model=False),
+     {"initial/executed": (), C: (), R: (), "final/completed": ("FINAL-CUSTODY-UNMATCHED",)}),
+    ("custody result match not false", "CUSTODY-RESULT-UNMATCHED", set_match(result=False),
+     {C: (), "final/completed": ("FINAL-CUSTODY-UNMATCHED",),
+      # Not isolable: a result verdict on a record holding no result also contradicts its custody.
+      "initial/executed": ("CUSTODY-RESULT-WITHOUT-RESULT",), R: ("CUSTODY-RESULT-WITHOUT-RESULT",)}),
+    ("custody result match only where a result is held", "CUSTODY-RESULT-WITHOUT-RESULT", set_match(result=True),
+     {"initial/executed": (), R: ()}),
+    ("custody result match present where a result is held", "CUSTODY-RESULT-MATCH-MISSING", set_match(result=None),
+     {C: (), "final/completed": ("FINAL-CUSTODY-UNMATCHED",)}),
+    ("custody held only on completion", "CUSTODY-WITHOUT-COMPLETION",
+     lambda r: r.update(native_custody="blocked", custody_match=None) if r["outcome"] != "completed" else r.update(outcome="failed"),
+     {"initial/executed": ("INITIAL-SOLVE-HAS-RESULT",), "initial/withheld": ("INITIAL-SOLVE-HAS-RESULT",),
+      R: (), W: (), C: (), "final/completed": ("FINAL-SOLVE-NOT-COMPLETED",)}),
+    ("run handle only over held custody", "RESULT-HANDLE-WITHOUT-READABLE-CUSTODY",
+     lambda r: r.update(native_custody="blocked") if r["result_handle"] else r.update(result_handle="handle:stray"),
+     {"initial/executed": ("INITIAL-SOLVE-HAS-RESULT",), "initial/withheld": ("INITIAL-SOLVE-HAS-RESULT",),
+      R: (), W: (), C: (), "final/completed": ("FINAL-RESULT-BLOCKED",)}),
+    ("results read only where a result is held", "RESULTS-WITHOUT-CUSTODY", lambda r: r.update(results={"result:stray": 1.0}),
+     {"initial/executed": ("INITIAL-SOLVE-HAS-RESULT",), "initial/withheld": ("INITIAL-SOLVE-HAS-RESULT",), R: (), W: ()}),
+    ("executed solve has a native job", "EXECUTION-JOB-MISSING", lambda r: r.update(job_id=None),
+     {"initial/executed": (), C: (), R: (), "final/completed": ("AGENT-REPORT-WRONG-EXECUTION",)}),
+    ("executed solve has no gate record", "GATE-RECORD-ON-EXECUTED-SOLVE", lambda r: r.update(gate_record={"solve_offered": False}),
+     {slot: () for slot in EXECUTED_SLOTS}),
+    ("withheld Solve has no native job", "WITHHELD-SOLVE-HAS-JOB", lambda r: r.update(job_id="job:appeared"),
+     {slot: () for slot in WITHHELD_SLOTS}),
+    ("withheld Solve has no custody match", "WITHHELD-SOLVE-HAS-CUSTODY", set_match(model=True),
+     {slot: () for slot in WITHHELD_SLOTS}),
+    ("withheld Solve has the gate's record", "GATE-RECORD-MISSING", lambda r: r.update(gate_record=None),
+     {slot: () for slot in WITHHELD_SLOTS}),
+    ("the gate's record withholds Solve", "GATE-RECORD-CONTRADICTS", lambda r: r.update(gate_record={"solve_offered": True}),
+     {slot: () for slot in WITHHELD_SLOTS}),
+]
+
+INAPPLICABLE = {
+    # (property, slot): why no isolating record exists there
+    **{(prop, slot): "a withheld Solve has no custody match; one appearing is WITHHELD-SOLVE-HAS-CUSTODY"
+       for prop in ("custody model match not false", "custody result match not false",
+                    "custody result match only where a result is held", "custody result match present where a result is held")
+       for slot in WITHHELD_SLOTS},
+    **{(prop, slot): "the baseline holds a result; removing it breaks other properties first"
+       for prop in ("custody result match only where a result is held", "results read only where a result is held")
+       for slot in (C, "final/completed")},
+    **{("custody result match present where a result is held", slot): "the baseline holds no result"
+       for slot in ("initial/executed", R)},
+    **{(prop, slot): "the contract difference by outcome: this property belongs to the other kind of record"
+       for prop in ("executed solve has a native job", "executed solve has no gate record") for slot in WITHHELD_SLOTS},
+    **{(prop, slot): "the contract difference by outcome: this property belongs to the other kind of record"
+       for prop in ("withheld Solve has no native job", "withheld Solve has no custody match",
+                    "withheld Solve has the gate's record", "the gate's record withholds Solve") for slot in EXECUTED_SLOTS},
+}
+
+READER_WITNESSES = {("custody result match not false", C): "reader-witness-1",
+                    ("binding well-formed", C): "reader-witness-2"}
+
+SWEEP_CASES = [pytest.param(prop, reason, change, slot, consequences,
+                            id=f"{READER_WITNESSES.get((prop, slot), prop)}@{slot}")
+               for prop, reason, change, slots in SWEEP for slot, consequences in slots.items()]
+
+
+@pytest.mark.parametrize("slot", ALL_SLOTS)
+def test_every_sweep_baseline_is_consistent(slot):
+    _, initial, intermediate = SLOTS[slot]
+    assert codes(three_execution_trace(initial, intermediate)) == []
+
+
+@pytest.mark.parametrize("prop, reason, change, slot, consequences", SWEEP_CASES)
+def test_the_record_contract_binds_every_position(prop, reason, change, slot, consequences):
+    index, initial, intermediate = SLOTS[slot]
+    trace = three_execution_trace(initial, intermediate)
+    change(trace["executions"][index])
+    assert sorted(codes(trace)) == sorted((reason, *consequences)), (prop, slot)
+
+
+def test_the_sweep_covers_every_property_at_every_slot_or_names_why_not():
+    for prop, _, _, slots in SWEEP:
+        for slot in ALL_SLOTS:
+            assert (slot in slots) != ((prop, slot) in INAPPLICABLE), (prop, slot)
+    assert all(slot in SLOTS for _, slot in INAPPLICABLE)
+    assert {name for name in READER_WITNESSES.values()} == {"reader-witness-1", "reader-witness-2"}
+
+
+@pytest.mark.parametrize("pair", [(0, 1), (1, 2), (0, 2)])
+def test_identities_are_unique_across_every_pair_of_positions(pair):
+    earlier, later = pair
+    trace = three_execution_trace("executed", "completed")
+    trace["executions"][earlier]["job_id"] = trace["executions"][later]["job_id"]
+    assert codes(trace) == ["JOB-ID-REPEATED"], pair
+    trace = three_execution_trace("executed", "completed")
+    trace["executions"][earlier]["request_id"] = trace["executions"][later]["request_id"]
+    assert codes(trace) == ["REQUEST-ID-REPEATED"], pair
+
+
+def test_run_handles_are_unique_where_two_positions_hold_one():
+    # Only the intermediate and final records hold a result in a valid baseline; an initial
+    # handle is RESULT-HANDLE-WITHOUT-READABLE-CUSTODY first (swept above).
+    trace = three_execution_trace("executed", "completed")
+    trace["executions"][1]["result_handle"] = trace["executions"][2]["result_handle"]
+    assert codes(trace) == ["RESULT-HANDLE-REPEATED"]
 
 
 # --- Feasibility through the product's own solve entry ------------------------
