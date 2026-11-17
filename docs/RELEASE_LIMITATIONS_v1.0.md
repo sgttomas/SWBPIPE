@@ -443,7 +443,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** Agent 0 decided that independent support motion is not built for v1.0. It is a Should commitment (REQ-011), and the reference system's spectrum request uses uniform support motion. REQ-011 stays the deliverable's commitment for a later release, with its refusals of a group that moves a skewed restraint and of CQC.
 - **What the user does instead:** one spectrum per direction applied to every support, chosen by the user's engineer, for example as an envelope of the group spectra.
 - **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md): CLM-001 ("Uniform support motion"), "Decided for v1.0", REQ-011 and AC-009. The decision was made by Agent 0 under the grant in `AGENTS.md` ("Posture for this phase") and is recorded with this entry by PR #355. Whether the PRD should be amended to say so is the owner's; Agent 0 brings it to the owner.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #379).
 
 ### LIM-023 — A response-spectrum result cannot be combined with static load cases
 
@@ -460,7 +460,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** an unsigned combined magnitude cannot be added to a signed static result as if it were signed, and the rules for doing so (absolute sum or SRSS with the static case, per component) are not committed by any deliverable. No result the release target requires needs it, so Agent 0 decided that it is omitted for v1.0.
 - **What the user does instead:** the static seismic cases and their combinations (DEL-05-01, DEL-05-02) for occasional combinations; the spectrum result on its own for the dynamic response.
 - **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md): CLM-003 and "Decided for v1.0"; its `deliverable.yaml` need on DEL-05-02, which applies only if a spectrum result is later offered as an operand. The omission was standing in DEL-04-10's CLM-003; Agent 0 decided it for v1.0 under the grant in `AGENTS.md`, and PR #355 records this entry. No PRD amendment is needed, because the PRD states no such combination.
-- **Status:** not yet declared.
+- **Status:** declared acceptable by Agent 0 (PR #379).
 
 ### LIM-024 — Spectrum evaluation may refuse when its accuracy argument is inconclusive
 
