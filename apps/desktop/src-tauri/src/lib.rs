@@ -71,6 +71,8 @@ mod report_session_diagnostics;
 #[cfg(test)]
 mod report_session_diagnostics_tests;
 mod report_render_exact;
+mod rendered_report_print;
+mod rendered_report_routes;
 #[cfg(test)]
 mod report_render_exact_tests;
 #[cfg(test)]
@@ -1898,9 +1900,17 @@ async fn render_calculation_report(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
     let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report", ArgsDecoding::Moved)?;
+    // DEL-08-01 REQ-022: the request takes its ticket at entry, for the report
+    // source number and request ordinal it names; an unregistered or retired
+    // source, and an ordinal at or below the entry watermark, are refused, and
+    // the ticket retires the current render (`rendered_report_routes`). Its
+    // completion is recorded only while the ticket and the source are current.
+    let source: rendered_report_routes::SourceMark = args.decode("source")?;
+    let ordinal: u64 = args.decode("request")?;
+    let ticket = rendered_report_routes::begin_render(rendered_report_routes::RenderRequest { source, ordinal }).map_err(CommandError::Command)?;
     let registry = registry.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let outcome = render_calculation_report_args(&mut args, &registry, &mut lease);
+        let outcome = rendered_report_routes::with_render_ticket(ticket, || render_calculation_report_args(&mut args, &registry, &mut lease));
         // The response is serialized while the lease is still held.
         let response = respond(outcome);
         drop(lease);
@@ -1944,6 +1954,7 @@ pub(crate) fn refuse_user_release_render(input: &Value) -> Result<(), String> {
 
 fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     refuse_user_release_render(&input)?;
+    let export_context = input.pointer("/report_context/export_context").and_then(Value::as_str).map(str::to_string);
     // DEC-021 (A7): deterministic hash-bound HTML rendering with the
     // three-point protected-content gates evaluated in the renderer crate.
     // The derived print view is non-hash-bound and names the canonical hash.
@@ -1951,6 +1962,11 @@ fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     // offending value (W-11 slice (c), Codex review round 3 of #1639).
     let renderable = open_pipe_stress_report_renderer::decode_renderable_report_input(input)?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
+    // The desktop's record of this render, which binds the HTML save and the
+    // print to its bytes (`rendered_report_routes`); no copy is kept. A
+    // completion superseded by a later request, a retirement or a source change
+    // is refused by name.
+    rendered_report_routes::record_render(export_context.as_deref(), &outcome.html, &outcome.sha256_hex, outcome.export_blocked, outcome.content_withheld)?;
     // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
     // a render refused for its provenance records is metadata-only, so no
     // print view is derived from it either.
@@ -6331,6 +6347,12 @@ macro_rules! app_invoke_handler {
             delete_local_library,
             render_calculation_report,
             save_report_package,
+            rendered_report_routes::save_rendered_report_html,
+            rendered_report_print::print_rendered_report,
+            rendered_report_routes::retire_rendered_report,
+            rendered_report_routes::observe_report_source,
+            rendered_report_routes::activate_report_source,
+            rendered_report_routes::advance_report_source,
             save_local_result_json,
             begin_local_csv_stream,
             append_local_csv_stream,
@@ -6344,6 +6366,7 @@ pub fn run() {
     let registry = SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory)));
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .register_uri_scheme_protocol(rendered_report_print::SCHEME, rendered_report_print::serve)
         .manage(registry.clone())
         .manage(native_result_download::SaveAdmission::default())
         .manage(Arc::new(native_csv_stream::CsvStreams::default()))
@@ -6383,6 +6406,8 @@ pub fn run() {
         native_smoke::native_smoke_external_save,
         native_smoke::native_smoke_verify_handoff_package,
         native_smoke::native_smoke_read_report_package,
+        native_smoke::native_smoke_take_report_prints,
+        native_smoke::native_smoke_close_report_print,
         native_smoke::native_smoke_finish,
     ));
     builder
