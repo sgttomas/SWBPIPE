@@ -168,6 +168,7 @@ code_paths:
 - apps/desktop/src/features/report/pfTimoshenkoReport.ts
 - apps/desktop/src/features/report/reportPackageRequest.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.ts
+- apps/desktop/src/features/report/controlledRouteEvidence.ts
 - apps/desktop/src/services/reportRenderService.ts
 - apps/desktop/src/services/reportPackageSaveService.ts
 - apps/desktop/src/services/renderedReportRoutes.ts

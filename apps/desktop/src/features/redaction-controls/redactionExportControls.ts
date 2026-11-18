@@ -154,23 +154,6 @@ export type ControlledRouteExport = RedactionRunResult & {
   };
 };
 
-/** What a holder keeps of a controlled route export once its per-value decisions and findings
- * have been read for the last time: the route summary (counts and route evidence) and whether
- * the export is blocked, and, for a holder that reads it, the controlled payload. The summary
- * holds no reference to the decisions or the findings, so a holder of this evidence does not
- * keep them reachable. */
-export type ControlledRouteEvidence = Pick<ControlledRouteExport, "summary" | "blocked">;
-export type ControlledRouteEvidenceWithPayload = ControlledRouteEvidence & Pick<ControlledRouteExport, "payload">;
-
-/** The evidence a holder keeps of `controlled` (`ControlledRouteEvidence`): its summary and
- * blocked flag, and its payload only when `keep` asks for it. */
-export function controlledRouteEvidence(controlled: ControlledRouteExport): ControlledRouteEvidence;
-export function controlledRouteEvidence(controlled: ControlledRouteExport, keep: "payload"): ControlledRouteEvidenceWithPayload;
-export function controlledRouteEvidence(controlled: ControlledRouteExport, keep?: "payload"): ControlledRouteEvidence | ControlledRouteEvidenceWithPayload {
-  const evidence: ControlledRouteEvidence = { summary: controlled.summary, blocked: controlled.blocked };
-  return keep === "payload" ? { ...evidence, payload: controlled.payload } : evidence;
-}
-
 /** The selectable contexts (the redaction panel lists exactly these). */
 export const EXPORT_CONTEXTS: RedactionExportContext[] = [
   "public_report",

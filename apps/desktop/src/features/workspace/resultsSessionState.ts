@@ -23,7 +23,7 @@ import type {
   SelectedReviewTarget,
   SolveJobAuditState
 } from "../../types";
-import type { ControlledRouteEvidence } from "../redaction-controls/redactionExportControls";
+import type { ControlledRouteEvidence } from "../report/controlledRouteEvidence";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import { RuleRevisionGenerationGate, SolveRunGenerationGate } from "./solveGates";
 import { initialSolveJob } from "./solveJobAudit";

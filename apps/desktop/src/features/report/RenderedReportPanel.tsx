@@ -23,9 +23,9 @@ import { controlLocalPrivateRenderedHtml } from "./reportRedactionProjector";
 import { provenanceReasonEntity } from "./provenanceReasonEntities";
 import { assembleRenderedReport } from "./renderedReportAssembly";
 import type { NumericalHealthView } from "../results/numericalHealth";
-import type { ControlledRouteEvidence, ControlledRouteEvidenceWithPayload } from "../redaction-controls/redactionExportControls";
+import { controlledRouteEvidence, type ControlledRouteEvidence, type ControlledRouteEvidenceWithPayload } from "./controlledRouteEvidence";
 import type { ReportPackageSaveReceipt, ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
-import { controlledRouteEvidence, REPORT_PACKAGE_USER_RELEASE_ROUTE_ID } from "../redaction-controls/redactionExportControls";
+import { REPORT_PACKAGE_USER_RELEASE_ROUTE_ID } from "../redaction-controls/redactionExportControls";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import {
   controlRenderedReportHtml,

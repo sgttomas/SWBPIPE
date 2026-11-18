@@ -19,12 +19,11 @@ import { buildAnalysisRunPreview } from "../../services/previewService";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import type { ReportPackageSaveReceipt, ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import type { MechanicsResult, PreviewModel } from "../../types";
+import { controlledRouteEvidence, type ControlledRouteEvidence } from "./controlledRouteEvidence";
 import {
-  controlledRouteEvidence,
   controlUserReleasedReportPackageRequest,
   REPORT_PACKAGE_USER_RELEASE_ROUTE_ID,
   USER_RELEASED_REPORT_CONTEXT,
-  type ControlledRouteEvidenceWithPayload,
   type ControlledRouteExport,
   type LocalFirstRouteEvidence
 } from "../redaction-controls/redactionExportControls";
@@ -80,11 +79,11 @@ export type PreparedUserReleasedReportPackageSave =
   | Exclude<ReportPackageSaveRoute, { route: "tauri_report_package_save" }>;
 
 /** What `prepareShareableReportPackageSave` yields: the screened request's evidence (the
- * control's summary, blocked flag and payload, without its per-value decisions and findings, so
- * that they are not held across the native save), the prepared save (or the route that ends
- * it), and the request (for the exact re-check). */
+ * control's summary and blocked flag, without its payload or its per-value decisions and
+ * findings, so that none of them is held across the native save), the prepared save (or the
+ * route that ends it), and the request (for the exact re-check). */
 export type ShareableReportPackagePreparation = {
-  controlled: ControlledRouteEvidenceWithPayload;
+  controlled: ControlledRouteEvidence;
   prepared: PreparedUserReleasedReportPackageSave;
   request: object;
 };
@@ -206,7 +205,7 @@ export async function prepareShareableReportPackageSave(input: {
     analysisRun,
     reportPackageExactSubmission(request)
   );
-  return { controlled: controlledRouteEvidence(controlled, "payload"), prepared, request };
+  return { controlled: controlledRouteEvidence(controlled), prepared, request };
 }
 
 /** The native save of a prepared route-010 request. `isCurrent` is the session's basis guard

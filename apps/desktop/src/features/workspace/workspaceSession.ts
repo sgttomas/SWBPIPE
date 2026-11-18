@@ -178,7 +178,7 @@ import { buildReportPackageRequest, reportPackageExactSubmission, userReleaseMod
 import type { UserReleaseDialogRequest } from "../report/UserReleaseDialog";
 import { invokeUserReleasedReportPackageSave, prepareShareableReportPackageSave, type UserReleaseConfirmation } from "../report/userReleasedReportPackageSave";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
-import { controlledRouteEvidence, type ControlledRouteEvidence } from "../redaction-controls/redactionExportControls";
+import { controlledRouteEvidence, type ControlledRouteEvidence } from "../report/controlledRouteEvidence";
 import { buildBundledReferenceContext, buildHistoricalRunContext, buildNativeHistoricalRunContext } from "../results/HistoricalRunContext";
 import { disposeRestoredRun, STORED_RESULT_RESTORE_REFUSED, type RestoredRun } from "../../services/nativeReopen";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
