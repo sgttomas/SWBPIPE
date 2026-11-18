@@ -33,6 +33,9 @@ BINARY_SHA256 = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4
 # holds the fixture fixtures/embedded_agent/agent-witness-pin.json to this same value.
 CATALOG_SHA256 = "f5551636720df44964afe0c4aa87b5ef196b01e4515af41a21baa7133f319b9b"
 FRAME_BYTES = 1024 * 1024
+# The catalog's limits.argumentBytes, as the host enforces it. agent_host_witness_test.py holds this
+# to the catalog file, so the two cannot diverge unnoticed.
+ARGUMENT_BYTES = 28672
 FORBIDDEN_ITEMS = {"commandExecution", "fileChange", "webSearch", "imageView", "imageGeneration", "browserUse", "computerUse"}
 
 
@@ -103,7 +106,7 @@ def admit_call(frame, thread_id, turn_id, used, validator):
     if call_id in used or rpc_id in used.values():
         raise WitnessError("Duplicate supplier call")
     arguments = params.get("arguments")
-    if len(json.dumps(arguments, ensure_ascii=False).encode()) > 28672 or not validator.is_valid(arguments):
+    if len(json.dumps(arguments, ensure_ascii=False).encode()) > ARGUMENT_BYTES or not validator.is_valid(arguments):
         raise WitnessError("Invalid summary arguments")
     used[call_id] = rpc_id
     return rpc_id
