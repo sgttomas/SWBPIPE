@@ -129,9 +129,51 @@ fn the_replay_ledger_equals_the_live_ledger_bit_for_bit() {
         let replay = super::replay_case_force(&loads, &[], &built, &model, load_case).unwrap();
         let bits = |f: &open_pipe_stress_frame_kernel::load_ledger::AssembledForce| f.values().iter().map(|v| v.to_bits()).collect::<Vec<_>>();
         assert_eq!(bits(&live), bits(&replay), "{case_id}");
-        // And the preload is in it: the hanger DOF carries the cold load.
-        let applying = super::dispositions(&model, load_case).into_iter().filter(|(_, d)| d.is_ok()).count();
-        assert!(applying > 0, "{case_id}");
-        assert_eq!(live.terms().iter().filter(|t| t.source.starts_with("SH-")).count(), applying, "{case_id}: one term per applying spring");
+        // The replay's own terms: exactly one preload term per applying spring, under the
+        // support's id, at the global DOF its node and stiffness DOF name, carrying the
+        // entered cold load. The expectation is read from the document, not from the law.
+        let mut checked = 0;
+        for support in document["model"]["supports"].as_array().unwrap().iter().filter(|s| s["hanger"]["hanger_type"] == "variable_spring_hanger") {
+            let id = support["id"].as_str().unwrap();
+            let node = document["model"]["nodes"].as_array().unwrap().iter().position(|n| n["id"] == support["node"]).unwrap();
+            let axis = ["UX", "UY", "UZ"].iter().position(|a| *a == support["hanger"]["stiffness"]["dof"].as_str().unwrap()).unwrap();
+            let cold = support["hanger"]["cold_load"]["value"].as_f64().unwrap();
+            assert_eq!(support["hanger"]["cold_load"]["unit"], "N", "{case_id} {id}");
+            let terms: Vec<_> = replay.terms().iter().filter(|t| t.source == id).collect();
+            assert_eq!(terms.len(), 1, "{case_id} {id}: {terms:?}");
+            assert_eq!(terms[0].dof, node * crate::DOF_PER_NODE + axis, "{case_id} {id}");
+            assert_eq!(terms[0].kind, open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Term(cold), "{case_id} {id}");
+            checked += 1;
+        }
+        assert!(checked > 0, "{case_id}: no spring");
+        assert_eq!(super::dispositions(&model, load_case).into_iter().filter(|(_, d)| d.is_ok()).count(), checked, "{case_id}");
+    }
+}
+
+/// The retained sub-route declines a model with a variable spring hanger by
+/// the supports rule's hanger reason (D1.6, `AdmissionLaw::domain`, which the
+/// law records for every caller and build), forms no successor, and publishes
+/// the ordinary result byte for byte, which carries the preload (P-A's SH-3
+/// applies 6000 N). Where the build's own refusal is a domain clause, it is
+/// that one: a build that declines earlier for another reason (an unregistered
+/// profile) still shows the request outside the retained domain for its hanger.
+#[test]
+fn the_retained_sub_route_declines_a_hanger_by_its_hanger_reason() {
+    use crate::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+    let hanger = Some(AdmissionRefusal::Family(D1Clause::Supports, FamilyFact::Hanger));
+    let document = document("PA-WT", Route::PressureFree, crate::MODEL_SCHEMA_VERSION);
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let ordinary = crate::run_linear_static_preview_value_with_mode(document.clone(), mode).unwrap();
+        let retained = crate::run_linear_static_preview_value_with_retained_direct(document.clone(), mode, crate::RetainedByteLimit::new(12_884_901_888)).unwrap();
+        let law = retained.admission().expect("the census ran").law();
+        assert_eq!(law.domain, hanger, "{mode:?}: the request is outside D1 for its hanger");
+        if matches!(law.refusal, Some(AdmissionRefusal::Family(..))) {
+            assert_eq!(law.refusal, hanger, "{mode:?}");
+        }
+        assert!(law.refusal.is_some(), "{mode:?}: admitted");
+        assert!(retained.successor().is_none(), "{mode:?}");
+        assert_eq!(serde_json::to_vec(retained.envelope()).unwrap(), serde_json::to_vec(&ordinary).unwrap(), "{mode:?}");
+        let ordinary = serde_json::to_value(&ordinary).unwrap();
+        model::assert_close(model::applied(&ordinary, "SH-3"), 6000.0, &format!("{mode:?}"));
     }
 }

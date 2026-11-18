@@ -1,15 +1,15 @@
 //! Targeted regressions for the variable spring preload (DEL-04-11 REQ-014,
 //! AC-014): the combination gate, a spring beside a nonlinear support, the
 //! not-applied diagnostic, the installed-load warning, the retired warning's
-//! absence, the test-condition refusal with a spring in the model, and the
-//! retained sub-route's decline. Models are the preload reference's P-A
+//! absence and the test-condition refusal with a spring in the model (the
+//! retained sub-route's decline, with its reason, is in
+//! `src/spring_preload_tests.rs`). Models are the preload reference's P-A
 //! (`validation/references/hanger_sizing/preload.json`); where no frozen value
 //! exists the oracle is the force-plus-spring twin, the model with each hanger
 //! a plain spring of its rate and a separate nodal force F_cold. Invented data.
 
 use open_pipe_stress_product_physics::{
-    run_linear_static_preview_value_with_mode, run_linear_static_preview_value_with_retained_direct, PreviewSolverMode,
-    RetainedByteLimit, MODEL_SCHEMA_VERSION,
+    run_linear_static_preview_value_with_mode, PreviewSolverMode, MODEL_SCHEMA_VERSION,
 };
 use serde_json::{json, Value};
 
@@ -23,7 +23,6 @@ const NOT_APPLIED: &str = "SPRING_HANGER_COLD_LOAD_NOT_APPLIED";
 const INSTALLED_DIFFERS: &str = "SPRING_HANGER_INSTALLED_LOAD_DIFFERS_FROM_COLD_LOAD";
 const GATE: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
 const GATE_TEXT: &str = "Combination withheld: a variable spring hanger's cold load would be counted by the sum of factors instead of once.";
-const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(12_884_901_888);
 
 fn solve(document: &Value, mode: PreviewSolverMode) -> Value {
     serde_json::to_value(run_linear_static_preview_value_with_mode(document.clone(), mode).expect("the entry accepts the document")).unwrap()
@@ -180,21 +179,5 @@ fn a_test_condition_case_is_still_refused_before_any_solve_with_a_spring_in_the_
             assert_eq!(refused[0]["severity"], "blocking", "{what}");
             assert!(envelope["results"].as_array().is_none_or(|r| r.is_empty()), "{what}: a refused document publishes no row");
         }
-    }
-}
-
-/// The retained sub-route admits no hanger record (D1.6) and forms no
-/// successor; the published result is the ordinary one, byte for byte, which
-/// carries the preload. No retained value omits the cold load.
-#[test]
-fn the_retained_sub_route_declines_a_hanger_and_returns_the_ordinary_preloaded_result() {
-    let document = pa("PA-WT", Route::PressureFree);
-    for mode in MODES {
-        let ordinary = run_linear_static_preview_value_with_mode(document.clone(), mode).unwrap();
-        let retained = run_linear_static_preview_value_with_retained_direct(document.clone(), mode, RETAINED_LIMIT).unwrap();
-        assert!(retained.successor().is_none(), "{mode:?}");
-        assert_eq!(serde_json::to_vec(retained.envelope()).unwrap(), serde_json::to_vec(&ordinary).unwrap(), "{mode:?}");
-        let ordinary = serde_json::to_value(&ordinary).unwrap();
-        assert_close(applied(&ordinary, "SH-3"), 6000.0, &format!("{mode:?}"));
     }
 }
