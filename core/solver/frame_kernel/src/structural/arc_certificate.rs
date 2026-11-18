@@ -1338,3 +1338,10 @@ impl Rigidity {
 #[cfg(test)]
 #[path = "arc_certificate_tests.rs"]
 mod tests;
+
+// The inverse-norm certificate arithmetic (DEL-04-01, exit criterion 18): no production caller exists yet.
+// It is declared here, not in structural.rs, because the retained pricing pins structural.rs's bytes; the
+// unit that wires it in changes pinned sources anyway and can move this declaration there.
+#[allow(dead_code)]
+#[path = "inverse_certificate.rs"]
+mod inverse_certificate;
