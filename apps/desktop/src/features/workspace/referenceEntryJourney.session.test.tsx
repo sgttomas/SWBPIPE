@@ -28,7 +28,7 @@ import { computeModelHash } from "../../services/hashService";
 import type { EntityRef, PreviewModel } from "../../types";
 import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { chooseCompactOption, chooseVirtualTarget, chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
-import { enterReferenceHeader, enterReferenceRows, P, S5, type Cells } from "../../test-support/referenceRunSheetEntry";
+import { enterReferenceHeader, enterReferenceRows, P, REFERENCE_MODULUS_REASON, S5, type Cells } from "../../test-support/referenceRunSheetEntry";
 import { ProjectUnitsDialog } from "../project-units/ProjectUnitsDialog";
 import { PropertyInspector } from "../model-tree/PropertyInspector";
 import { RunSheet, RUN_SHEET_TIMING } from "../model-tree/runSheet/RunSheet";
@@ -92,7 +92,7 @@ const DOCUMENT_DIFFERENCES_NOT_IN_3_14 = ["analysis_status", "data_boundary", "d
  * today's mechanics. The run sheet has no step that switches it on, so the journey's document states
  * no `model_settings`; the test asserts both sides exactly, so the difference cannot grow silently.
  */
-const FIXTURE_ONLY_SETTING = { pressure_elongation: { operating_load_cases: ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"] } };
+const FIXTURE_ONLY_SETTING = { pressure_elongation: { operating_load_cases: ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"] } };
 
 /** Row labels the person types in the Label cell (step rows, its Labels table). */
 const ROW_NODES: Record<number, string> = {
@@ -187,7 +187,7 @@ function compareWithFixture(model: PreviewModel, where: string): number {
   // and the two are equal. The record comparison below compares the whole lists as well.
   const vs1States = (document: PreviewModel, caseId: string) => ((document.load_cases.find((item) => item.id === caseId)?.analysis_state as AnyRecord | undefined)?.support_states as AnyRecord[] | undefined)?.filter((entry) => entry.support_ref === "support:RS-VS1");
   const statedCases = reference.load_cases.filter((item) => (item.analysis_state as AnyRecord | undefined)?.support_states).map((item) => item.id);
-  expect(statedCases, "fixture: cases with support states").toEqual(["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"]);
+  expect(statedCases, "fixture: cases with support states").toEqual(["load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"]);
   for (const caseId of statedCases) {
     expect(vs1States(reference, caseId), `fixture: ${caseId} RS-VS1 support states`).toHaveLength(1);
     expect(vs1States(model, caseId), `${where}: ${caseId} RS-VS1 support states`).toEqual(vs1States(reference, caseId));
@@ -633,11 +633,11 @@ describe("the reference system entered from blank through the desktop's authorin
     // Undo/Redo, load/reference state family: the reference configuration.
     await undoRedo("load/reference state: RS-INSTALLED (§3.8)", beforeReference);
 
-    // Step weight: Self-weight, which creates the three cases (typed UI): every pipe except RS-P180.
+    // Step weight: Self-weight, which creates the four cases (typed UI): every pipe except RS-P180.
     const selfWeight = within(screen.getByTestId("journey-self-weight"));
     const weighted = model().pipe_segments.map((pipe) => pipe.id).filter((id) => id !== "pipe:RS-P180");
     expect(weighted).toHaveLength(25);
-    for (const [id, label] of [["load:RS-SUS", "RS-SUS sustained: W + P (operating pressure)"], ["load:RS-OPE", "RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)"], ["load:RS-SAM", "RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm"]]) {
+    for (const [id, label] of [["load:RS-SUS", "RS-SUS sustained: W + P (operating pressure)"], ["load:RS-OPE", "RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)"], ["load:RS-SAM", "RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm"], ["load:RS-OPE-REF", "RS-OPE-REF operating thermal state on the 20 degC modulus: W + P + T (210 degC, modulus at 20 degC)"]]) {
       change(selfWeight, "Self-weight action", "create");
       change(selfWeight, "Self-weight case ID", id);
       change(selfWeight, "Self-weight case label", label);
@@ -645,7 +645,7 @@ describe("the reference system entered from blank through the desktop's authorin
       change(selfWeight, "Gravity unit", "m/s^2");
       change(selfWeight, "Gravity direction", "global_z");
       change(selfWeight, "Self-weight provenance", `${P}; W of ${token(id)}: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)`);
-      // The panel keeps its pipe choice after a plan is queued: the 25 are picked for RS-SUS and kept for the next two cases.
+      // The panel keeps its pipe choice after a plan is queued: the 25 are picked for RS-SUS and kept for the next three cases.
       if (id === "load:RS-SUS") for (const pipe of weighted) chooseVirtualMultiTarget("self-weight-pipes", pipe);
       expect(screen.getByTestId("self-weight-pipes").querySelector(".virtual-target-picker-current")).toHaveTextContent("25 selected");
       // The generating model's hash, captured as the panel captures it: each primitive's
@@ -657,7 +657,7 @@ describe("the reference system entered from blank through the desktop's authorin
       await applyQueuedBatch(`step weight ${id}`);
     }
 
-    // Step regions: Pressure regions (typed UI for RS-SUS; "Copy pressure regions from another case" for RS-OPE and RS-SAM).
+    // Step regions: Pressure regions (typed UI for RS-SUS; "Copy pressure regions from another case" for RS-OPE, RS-SAM and RS-OPE-REF).
     const terminals = { "RG-1": ["node:RS-010", "node:RS-130"], "RG-2": ["node:RS-130", "node:RS-230"], "RG-3": ["node:RS-130", "node:RS-150"], "RG-R": ["node:RS-150", "node:RS-160"], "RG-4": ["node:RS-160", "node:RS-210"] } as const;
     const fixtureRegions = reference.load_cases.find((item) => item.id === "load:RS-SUS")!.pressure_regions!;
     select({ type: "load", id: "load:RS-SUS" });
@@ -680,7 +680,7 @@ describe("the reference system entered from blank through the desktop's authorin
     }
     click(regions(), "Queue pressure regions");
     await applyQueuedIntent("step regions: RS-SUS");
-    for (const caseId of ["load:RS-OPE", "load:RS-SAM"]) {
+    for (const caseId of ["load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"]) {
       select({ type: "load", id: caseId });
       change(regions(), "Copy pressure regions from case", "load:RS-SUS");
       click(regions(), "Replace this draft's pressure regions with the copy");
@@ -688,7 +688,7 @@ describe("the reference system entered from blank through the desktop's authorin
       await applyQueuedIntent(`step regions: ${caseId}`);
     }
 
-    // Step states: Analysis states (typed UI, with the fills; RS-SAM from "Copy analysis state from another case").
+    // Step states: Analysis states (typed UI, with the fills; RS-SAM and RS-OPE-REF from "Copy analysis state from another case").
     // Queries are scoped to the case's analysis-state editor (`LoadReferenceStateInputs`), which the load manager shows for the selected case.
     const state = () => within(screen.getByTestId("load-state-analysis-state"));
     const p180 = model().pipe_segments.findIndex((pipe) => pipe.id === "pipe:RS-P180") + 1;
@@ -762,11 +762,43 @@ describe("the reference system entered from blank through the desktop's authorin
     }
     click(state(), "Queue analysis state");
     await applyQueuedIntent("step states: RS-SAM");
+    // RS-OPE-REF, by the run sheet's route: copied from RS-SUS, its element states marked absent,
+    // one operating row on the 20 degC point typed with its analysis-basis override, then filled
+    // with the override included by the person's tick. The fill gives the replaced span RS-P180 the
+    // override too; that row's operating temperature is cleared, its thermal state set back and
+    // the override removed with its own button.
+    select({ type: "load", id: "load:RS-OPE-REF" });
+    change(state(), "Copy analysis state from case", "load:RS-SUS");
+    click(state(), "Replace this draft's analysis state with the copy");
+    expect(state().getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
+    click(state(), "Mark element_states absent");
+    click(state(), "Add element state");
+    change(state(), "Element state 1 pipe", "pipe:RS-P010");
+    change(state(), "Element state 1 operating temperature value", "210"); change(state(), "Element state 1 operating temperature unit", "degC");
+    change(state(), "Element state 1 material selection", "exact_point");
+    change(state(), "Element state 1 material", "material:RS-M1");
+    change(state(), "Element state 1 material point", "point:RS-M1-T020");
+    change(state(), "Element state 1 thermal state", "free_length_state");
+    change(state(), "Element state 1 expansion law", "law:RS-M1-SECANT");
+    change(state(), "Element state 1 analysis-basis reason", REFERENCE_MODULUS_REASON);
+    change(state(), "Element state 1 analysis-basis provenance", P);
+    change(state(), "Element state template", "0");
+    change(state(), "Element state fill targets", "missing");
+    fireEvent.click(state().getByRole("checkbox", { name: "Element state fill includes the template's analysis-basis override" }));
+    click(state(), "Fill element states");
+    change(state(), `Element state ${p180} operating temperature value`, ""); change(state(), `Element state ${p180} operating temperature unit`, "");
+    change(state(), `Element state ${p180} thermal state`, "unchanged_reference");
+    change(state(), `Element state ${p180} thermal provenance`, replacedSpan);
+    click(state(), `Remove Element state ${p180} analysis-basis override`);
+    change(state(), "Factor for every primitive (dimensionless)", "1");
+    click(state(), "Add every primitive of this case");
+    click(state(), "Queue analysis state");
+    await applyQueuedIntent("step states: RS-OPE-REF");
 
     // Step combinations: Combinations (typed UI): Create combination, result_state_subtraction.
     select({ type: "project", id: model().project.id });
     let beforeCombination = model();
-    for (const [id, label, minuend] of [["combination:RS-EXP", "RS-EXP expansion: RS-OPE - RS-SUS", "load:RS-OPE"], ["combination:RS-dSAM", "RS-dSAM anchor movement term: RS-SAM - RS-SUS", "load:RS-SAM"]]) {
+    for (const [id, label, minuend] of [["combination:RS-EXP", "RS-EXP expansion: RS-OPE-REF - RS-SUS, the difference of two solved states on the 20 degC modulus", "load:RS-OPE-REF"], ["combination:RS-dSAM", "RS-dSAM anchor movement term: RS-SAM - RS-SUS", "load:RS-SAM"]]) {
       beforeCombination = model();
       fireEvent.change(screen.getByTestId("load-manager-create-combination-id"), { target: { value: id } });
       fireEvent.change(screen.getByTestId("load-manager-create-combination-label"), { target: { value: label } });
@@ -785,16 +817,16 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(BLOCKED).toEqual([]);
     expect(ALLOWED_DIFFERENCES).toHaveLength(15);
     expect(DOCUMENT_DIFFERENCES_NOT_IN_3_14).toEqual(["analysis_status", "data_boundary", "diagnostics"]);
-    // 30 queue/apply cycles: the run sheet's §6 count of 30 cycles. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
-    expect(cycles).toHaveLength(30);
+    // 33 queue/apply cycles: the run sheet's §6 count of 33 cycles. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
+    expect(cycles).toHaveLength(33);
     expect(undoRedone).toEqual([
       "geometry and supports: the run sheet's batch (§3.4)", "component: the tee RS-T1 (§3.6)",
       "support: the variable spring RS-VS1 (§3.7)", "load/reference state: RS-INSTALLED (§3.8)", "combination: RS-dSAM (§3.12)",
     ]);
     const compared = compareWithFixture(model(), "entered");
-    // materials, sections, nodes, pipes, components, supports, cases, combinations, reference configurations: 84 of 84.
-    expect(compared).toBe(1 + 3 + 27 + 26 + 9 + 12 + 3 + 2 + 1);
-    expect(compared).toBe(84);
+    // materials, sections, nodes, pipes, components, supports, cases, combinations, reference configurations: 85 of 85.
+    expect(compared).toBe(1 + 3 + 27 + 26 + 9 + 12 + 4 + 2 + 1);
+    expect(compared).toBe(85);
 
     // Browser save and reopen through the session (`handleSaveProject`, `handleOpenProject`), compared again.
     const projectId = model().project.id;

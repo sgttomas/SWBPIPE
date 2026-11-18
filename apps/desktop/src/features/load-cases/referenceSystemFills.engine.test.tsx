@@ -1,5 +1,5 @@
 // G7/G8 (DEL-07-03 design §3; DEL-09-01 run sheet §3.8, §3.10, §3.11):
-// the reference system's reference-configuration members, its three analysis states
+// the reference system's reference-configuration members, its four analysis states
 // and its copied pressure regions, entered with the fill and copy controls, then
 // queued and applied through the wasm operation engine, equal the fixture's.
 import { readFileSync } from "node:fs";
@@ -12,6 +12,7 @@ import { computeModelHash } from "../../services/hashService";
 import { applyModelOperation, warmupOperationEngine } from "../../services/operationService";
 import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
 import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
+import { REFERENCE_MODULUS_REASON } from "../../test-support/referenceRunSheetEntry";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 const fixture = JSON.parse(readFileSync(path.join(projectRoot, "fixtures/reference_system/reference_system.json"), "utf8")) as PreviewModel;
@@ -138,8 +139,39 @@ it("enters the reference system's load/reference state with fills and copies", a
   model = await queuedAndApplied(model, queue);
   expect(caseOf(model, "load:RS-OPE").analysis_state).toEqual(caseOf(fixture, "load:RS-OPE").analysis_state);
 
-  // RS-SUS's five regions copied to RS-OPE and RS-SAM with their own ids.
-  for (const caseId of ["load:RS-OPE", "load:RS-SAM"]) {
+  // RS-OPE-REF: copied from RS-SUS, its element states marked absent; one operating row on the
+  // 20 degC point typed with its analysis-basis override and filled with the override included
+  // by the tick; RS-P180's row set back and its filled override removed.
+  queue = renderState(model, "load:RS-OPE-REF");
+  change("Copy analysis state from case", "load:RS-SUS");
+  click("Replace this draft's analysis state with the copy");
+  click("Mark element_states absent");
+  click("Add element state");
+  change("Element state 1 pipe", "pipe:RS-P010");
+  change("Element state 1 operating temperature value", "210"); change("Element state 1 operating temperature unit", "degC");
+  change("Element state 1 material selection", "exact_point");
+  change("Element state 1 material", "material:RS-M1");
+  change("Element state 1 material point", "point:RS-M1-T020");
+  change("Element state 1 thermal state", "free_length_state");
+  change("Element state 1 expansion law", "law:RS-M1-SECANT");
+  change("Element state 1 analysis-basis reason", REFERENCE_MODULUS_REASON);
+  change("Element state 1 analysis-basis provenance", P);
+  change("Element state template", "0");
+  change("Element state fill targets", "missing");
+  fireEvent.click(screen.getByRole("checkbox", { name: "Element state fill includes the template's analysis-basis override" }));
+  click("Fill element states");
+  change(`Element state ${p180} operating temperature value`, ""); change(`Element state ${p180} operating temperature unit`, "");
+  change(`Element state ${p180} thermal state`, "unchanged_reference");
+  change(`Element state ${p180} thermal provenance`, replacedSpan);
+  click(`Remove Element state ${p180} analysis-basis override`);
+  change("Factor for every primitive (dimensionless)", "1");
+  click("Add every primitive of this case");
+  click("Queue analysis state");
+  model = await queuedAndApplied(model, queue);
+  expect(caseOf(model, "load:RS-OPE-REF").analysis_state).toEqual(caseOf(fixture, "load:RS-OPE-REF").analysis_state);
+
+  // RS-SUS's five regions copied to RS-OPE, RS-SAM and RS-OPE-REF with their own ids.
+  for (const caseId of ["load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"]) {
     queue = vi.fn();
     render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: caseId }} loadCaseId={caseId} onQueueIntent={queue} />);
     const regions = screen.getByRole("region", { name: "Case pressure regions" });

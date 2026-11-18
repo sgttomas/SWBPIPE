@@ -15,6 +15,9 @@ import { assignIds, recordShownPipeIds, setCell, sheetView, type SheetColumnKey 
 /** ⟨P⟩ and ⟨S5⟩ of the run sheet. */
 export const P = "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data";
 export const S5 = "invented user value, DEL-09-01";
+/** The analysis-basis reason the run sheet types on RS-OPE-REF's element states (spec §8.1); the
+ * entry journey and the analysis-state fills test (`load-cases/referenceSystemFills.engine.test.tsx`) type it. */
+export const REFERENCE_MODULUS_REASON = "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)";
 
 export type Cells = Partial<Record<SheetColumnKey, string>>;
 const support = (code: string, restraints: string, id: string, label: string): Cells => ({ support: code, restraints, supportId: id, supportLabel: label });
