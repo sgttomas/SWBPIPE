@@ -573,22 +573,22 @@ solve waiting time separately; their sum is compared with the threshold.
 | tee | 24 | 12 | 4 | 36 × 5.5 s = 198 s | 3.25 |
 | reducer | 27 | 4 | 2 | 31 × 5.5 s = 170.5 s | 2.75 |
 | spring | 20 | 1 | 1 | 21 × 5.5 s = 115.5 s | 2 |
-| ce | 14 | 0 | 1 | 14 × 5.5 s = 77 s | 1.25 |
+| ce | 13 | 0 | 1 | 13 × 5.5 s = 71.5 s | 1.25 |
 | reference | 12 | 3 | 1 | 15 × 5.5 s = 82.5 s | 1.5 |
 | weight | 37 | 3 | 3 | 40 × 5.5 s = 220 s | 3.75 |
 | regions | 86 | 7 | 3 | 93 × 5.5 s = 511.5 s | 8.5 |
 | states | 50 | 14 | 3 | 64 × 5.5 s = 352 s | 5.75 |
 | combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
 | solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
-| **Total** | **638** | **98** | **30** | | **about 65.25 entry + 2 waiting = about 67.25** |
+| **Total** | **637** | **98** | **30** | | **about 65.25 entry + 2 waiting = about 67.25** |
 
 Two subtotals, both estimates: **entry** about 65.25 minutes (the grid cells, form entries and
 presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
 sum is about 67.25 minutes.
 
-Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (414 form entries + 98
-presses) × 5.5/60 min = 18.286 + 46.933 = 65.22 minutes, and with the 2 minutes of solve
-waiting the sum is 67.22 minutes.
+Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (413 form entries + 98
+presses) × 5.5/60 min = 18.286 + 46.842 = 65.13 minutes, and with the 2 minutes of solve
+waiting the sum is 67.13 minutes.
 
 How the larger counts arise:
 
@@ -616,7 +616,7 @@ How the larger counts arise:
   references; the stiffness behavior reference, stiffness scale, its source and the solver
   consumption; the geometry source and provenance (23); then the offset's Task edit, 4 entries
   (selection, property, value, unit) and its 4 presses.
-- **ce, 14 entries.** The node's selection; support ID, label, family, the UZ box and
+- **ce, 13 entries.** The node's selection; support ID, label, family, the UZ box and
   provenance; the hanger data box and hanger type; constant load and travel range, each with
   its unit; the hanger source reference.
 - **joint, 52 entries and 2 presses.** The project's selection, kind, node and pipe, ID and
