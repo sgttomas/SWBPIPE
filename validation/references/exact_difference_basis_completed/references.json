@@ -137,6 +137,17 @@
      }
     ]
    },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "differ": false
+   },
    "sustained": {
     "basis": {
      "AB": {
@@ -431,6 +442,17 @@
      }
     ]
    },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "differ": false
+   },
    "sustained": {
     "basis": {
      "AB": {
@@ -704,6 +726,17 @@
      }
     ]
    },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "differ": false
+   },
    "sustained": {
     "basis": {
      "AB": {
@@ -941,6 +974,17 @@
       "support": "spring:B"
      }
     ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "differ": false
    },
    "sustained": {
     "basis": {
@@ -1217,6 +1261,17 @@
      }
     ]
    },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "differ": false
+   },
    "sustained": {
     "basis": {
      "AB": {
@@ -1468,6 +1523,17 @@
      }
     ]
    },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_restraint"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_restraint"
+    },
+    "differ": false
+   },
    "sustained": {
     "basis": {
      "AB": {
@@ -1712,6 +1778,17 @@
       "support": "anchor:A"
      }
     ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_restraint"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_restraint"
+    },
+    "differ": false
    },
    "sustained": {
     "basis": {
@@ -1968,6 +2045,17 @@
      }
     ]
    },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_restraint"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_restraint"
+    },
+    "differ": false
+   },
    "sustained": {
     "basis": {
      "AB": {
@@ -2218,6 +2306,17 @@
      }
     ]
    },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "differ": false
+   },
    "sustained": {
     "basis": {
      "AB": {
@@ -2443,6 +2542,17 @@
       "support": "line_stop:B"
      }
     ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "differ": false
    },
    "sustained": {
     "basis": {
@@ -2685,6 +2795,17 @@
       "support": "anchor:A"
      }
     ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "differ": false
    },
    "sustained": {
     "basis": {
@@ -2933,6 +3054,17 @@
      }
     ]
    },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "differ": false
+   },
    "sustained": {
     "basis": {
      "AB": {
@@ -3180,6 +3312,17 @@
      }
     ]
    },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "differ": false
+   },
    "sustained": {
     "basis": {
      "AB": {
@@ -3284,6 +3427,510 @@
     ]
    },
    "title": "installation-only variant"
+  },
+  {
+   "admission": {
+    "gate_only": true,
+    "gate_only_reason": "not established here whether the exact route's resolver records a solve temperature at a table point as an interpolation at fraction 0 rather than as that point; establishing it would need product code",
+    "gates": {
+     "g1": {
+      "holds": true,
+      "why": "every action of the subtrahend is in the minuend, with multiplicity"
+     },
+     "g2": {
+      "holds": false,
+      "why": "member AB differs in selection_kind"
+     },
+     "restraint": {
+      "holds": true,
+      "why": "the same restraints and devices, and equal fixed-load inventories"
+     }
+    },
+    "reason": "the selection kind, case basis label and selection record differ although E, nu and G are equal on every member (stiffness reading S)",
+    "verdict": "refused_g2"
+   },
+   "id": "K1",
+   "mechanical": {
+    "divergence": "the stricter stiffness policy refuses a pair whose exact mechanical difference exists",
+    "kind": "linear_increment",
+    "meaning": "the response of the common operator to the difference of the two load vectors",
+    "note": "every one of M1's 84 rows is equal in the two operands, so the increment is zero on each",
+    "values": {
+     "axial/AB/N_mech": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "reaction/C/FX": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "u/B/UX": {
+      "exact": "0",
+      "unit": "m",
+      "value": 0.0
+     }
+    }
+   },
+   "operating": {
+    "basis": {
+     "AB": {
+      "E": "194750000000",
+      "G": "76000000000",
+      "case_basis_label": "T300",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_steel_points_300_700",
+      "nu": "9/32",
+      "section": {
+       "corrosion_allowance": "1/1024",
+       "mill_tolerance": "1/2048",
+       "outside_diameter": "35/128",
+       "wall": "9/1024"
+      },
+      "selection_kind": "solve_temperature",
+      "selection_record": {
+       "interpolation_fraction": "0",
+       "kind": "solve_temperature",
+       "selected_E": "194750000000",
+       "selected_nu": "9/32",
+       "selection_temperature": "300"
+      }
+     },
+     "BC": {
+      "E": "194750000000",
+      "G": "76000000000",
+      "case_basis_label": "T300",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_steel_points_300_700",
+      "nu": "9/32",
+      "section": {
+       "corrosion_allowance": "1/1024",
+       "mill_tolerance": "1/2048",
+       "outside_diameter": "35/128",
+       "wall": "9/1024"
+      },
+      "selection_kind": "solve_temperature",
+      "selection_record": {
+       "interpolation_fraction": "0",
+       "kind": "solve_temperature",
+       "selected_E": "194750000000",
+       "selected_nu": "9/32",
+       "selection_temperature": "300"
+      }
+     }
+    },
+    "case_id": "O",
+    "fixed_loads": [],
+    "generated": [],
+    "ledger": null,
+    "member_states": [],
+    "motions": [],
+    "pressure_elongation": true,
+    "pressure_regions": [
+     {
+      "connector_members": [],
+      "pipe_members": [
+       "AB"
+      ],
+      "pressure": "5750000",
+      "pressure_bits": "4155ef3c00000000",
+      "terminals": [
+       {
+        "closure_transfer": "transfers_to_wall",
+        "node": "A"
+       },
+       {
+        "closure_transfer": "transfers_to_wall",
+        "node": "B"
+       }
+      ]
+     },
+     {
+      "connector_members": [],
+      "pipe_members": [
+       "BC"
+      ],
+      "pressure": "5750000",
+      "pressure_bits": "4155ef3c00000000",
+      "terminals": [
+       {
+        "closure_transfer": "transfers_to_wall",
+        "node": "B"
+       },
+       {
+        "closure_transfer": "transfers_to_wall",
+        "node": "C"
+       }
+      ]
+     }
+    ],
+    "primitives": [
+     {
+      "category": "weight",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "w:B:z",
+      "target": "node:B",
+      "unit": "N",
+      "value": "-7375/4",
+      "value_bits": "c09ccf0000000000"
+     },
+     {
+      "category": "thermal",
+      "dimension": "temperature_interval",
+      "direction": "none",
+      "id": "t:AB",
+      "target": "pipe:AB",
+      "unit": "K",
+      "value": "475/2",
+      "value_bits": "406db00000000000"
+     },
+     {
+      "category": "thermal",
+      "dimension": "temperature_interval",
+      "direction": "none",
+      "id": "t:BC",
+      "target": "pipe:BC",
+      "unit": "K",
+      "value": "475/2",
+      "value_bits": "406db00000000000"
+     }
+    ],
+    "supports": [
+     {
+      "dof": "UX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     }
+    ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "S": {
+     "g2_holds": false,
+     "verdict": "refused_g2"
+    },
+    "differ": true
+   },
+   "sustained": {
+    "basis": {
+     "AB": {
+      "E": "194750000000",
+      "G": "76000000000",
+      "case_basis_label": "REF",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_steel_points_300_700",
+      "nu": "9/32",
+      "section": {
+       "corrosion_allowance": "1/1024",
+       "mill_tolerance": "1/2048",
+       "outside_diameter": "35/128",
+       "wall": "9/1024"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "194750000000",
+       "selected_nu": "9/32",
+       "selection_temperature": "300"
+      }
+     },
+     "BC": {
+      "E": "194750000000",
+      "G": "76000000000",
+      "case_basis_label": "REF",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_steel_points_300_700",
+      "nu": "9/32",
+      "section": {
+       "corrosion_allowance": "1/1024",
+       "mill_tolerance": "1/2048",
+       "outside_diameter": "35/128",
+       "wall": "9/1024"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "194750000000",
+       "selected_nu": "9/32",
+       "selection_temperature": "300"
+      }
+     }
+    },
+    "case_id": "S",
+    "fixed_loads": [],
+    "generated": [],
+    "ledger": null,
+    "member_states": [],
+    "motions": [],
+    "pressure_elongation": true,
+    "pressure_regions": [
+     {
+      "connector_members": [],
+      "pipe_members": [
+       "AB"
+      ],
+      "pressure": "5750000",
+      "pressure_bits": "4155ef3c00000000",
+      "terminals": [
+       {
+        "closure_transfer": "transfers_to_wall",
+        "node": "A"
+       },
+       {
+        "closure_transfer": "transfers_to_wall",
+        "node": "B"
+       }
+      ]
+     },
+     {
+      "connector_members": [],
+      "pipe_members": [
+       "BC"
+      ],
+      "pressure": "5750000",
+      "pressure_bits": "4155ef3c00000000",
+      "terminals": [
+       {
+        "closure_transfer": "transfers_to_wall",
+        "node": "B"
+       },
+       {
+        "closure_transfer": "transfers_to_wall",
+        "node": "C"
+       }
+      ]
+     }
+    ],
+    "primitives": [
+     {
+      "category": "weight",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "w:B:z",
+      "target": "node:B",
+      "unit": "N",
+      "value": "-7375/4",
+      "value_bits": "c09ccf0000000000"
+     },
+     {
+      "category": "thermal",
+      "dimension": "temperature_interval",
+      "direction": "none",
+      "id": "t:AB",
+      "target": "pipe:AB",
+      "unit": "K",
+      "value": "475/2",
+      "value_bits": "406db00000000000"
+     },
+     {
+      "category": "thermal",
+      "dimension": "temperature_interval",
+      "direction": "none",
+      "id": "t:BC",
+      "target": "pipe:BC",
+      "unit": "K",
+      "value": "475/2",
+      "value_bits": "406db00000000000"
+     }
+    ],
+    "supports": [
+     {
+      "dof": "UX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     }
+    ]
+   },
+   "title": "equal resolved moduli, exact point against interpolation at that endpoint"
   }
  ],
  "builder_witnesses": [
@@ -3422,6 +4069,17 @@
       "support": "anchor:A"
      }
     ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "differ": false
    },
    "sustained": {
     "basis": {
@@ -3657,6 +4315,17 @@
       "support": "anchor:A"
      }
     ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "differ": false
    },
    "sustained": {
     "basis": {
@@ -4010,6 +4679,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -4464,6 +5144,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -4928,6 +5619,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -5403,6 +6105,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -5867,6 +6580,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -6321,6 +7045,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -6754,6 +7489,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -7219,6 +7965,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -7423,7 +8180,7 @@
       },
       "g2": {
        "holds": false,
-       "why": "member AB has another modulus basis or selection record"
+       "why": "member AB differs in E"
       },
       "restraint": {
        "holds": true,
@@ -7661,6 +8418,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": false,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": false,
+      "verdict": "refused_g1"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -8126,6 +8894,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -8542,6 +9321,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -8997,6 +9787,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -9451,6 +10252,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -9904,6 +10716,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -10369,6 +11192,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -10831,6 +11665,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -11342,6 +12187,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -11852,6 +12708,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -12339,6 +13206,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -13149,6 +14027,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -13902,6 +14791,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -14654,6 +15554,17 @@
        "support": "anchor:A"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -15485,6 +16396,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -16365,6 +17287,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -17243,6 +18176,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -18545,6 +19489,17 @@
        "support": "anchor:D"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -19921,6 +20876,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AE": {
@@ -21296,6 +22262,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AE": {
@@ -22444,6 +23421,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -23519,6 +24507,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -24593,6 +25592,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -26586,6 +27596,17 @@
        "support": "anchor:D"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -28653,6 +29674,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AE": {
@@ -30719,6 +31751,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "refused_g1"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AE": {
@@ -31007,7 +32050,7 @@
       },
       "g2": {
        "holds": false,
-       "why": "member AB has another modulus basis or selection record"
+       "why": "member AB differs in E"
       },
       "restraint": {
        "holds": true,
@@ -31669,6 +32712,17 @@
        "support": "anchor:C"
       }
      ]
+    },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": false,
+      "verdict": "refused_g2"
+     },
+     "S": {
+      "g2_holds": false,
+      "verdict": "refused_g2"
+     },
+     "differ": false
     },
     "sustained": {
      "basis": {
@@ -32549,6 +33603,17 @@
       }
      ]
     },
+    "stiffness_readings": {
+     "R": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "S": {
+      "g2_holds": true,
+      "verdict": "admitted"
+     },
+     "differ": false
+    },
     "sustained": {
      "basis": {
       "AB": {
@@ -32756,22 +33821,23 @@
   ]
  },
  "cross_checks": {
-  "added_rows": 13,
+  "added_rows": 14,
   "bar_solves": 22,
   "builder_witnesses": 2,
   "carried_gate_rows": 19,
   "carried_pair_rows": 1806,
   "carried_pairs": 17,
-  "case_equilibrium": 66,
+  "case_equilibrium": 68,
   "difference_equilibrium": 17,
-  "frame_solves": 87,
+  "frame_solves": 91,
   "hand_formula_m1": 2,
   "reading_J_pairs": 16,
+  "stiffness_readings_differ": 1,
   "verdict_admitted": 22,
   "verdict_refused_g1": 25,
-  "verdict_refused_g2": 1,
+  "verdict_refused_g2": 2,
   "verdict_refused_restraint": 3,
-  "wall_form_equals_free_strain": 19
+  "wall_form_equals_free_strain": 21
  },
  "frozen_outcome_mapping": {
   "published": "admitted",
@@ -32788,6 +33854,10 @@
     },
     "REF": {
      "selection_kind": "exact_basis_reference",
+     "temperature_K": "300"
+    },
+    "T300": {
+     "selection_kind": "solve_temperature",
      "temperature_K": "300"
     }
    },

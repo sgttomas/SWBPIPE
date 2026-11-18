@@ -33,7 +33,7 @@ def verdicts():
 
 
 def test_rows_are_all_read():
-    assert len(ROWS) == 19 + 17 + 13 + 2
+    assert len(ROWS) == 19 + 17 + 14 + 2
     assert len({row["id"] for row in ROWS}) == len(ROWS)
 
 
@@ -43,6 +43,17 @@ def test_verifier_verdict_equals_the_package(row):
     expected = row["admission"]
     assert found["verdict"] == expected["verdict"]
     assert found["gates"] == {part: expected["gates"][part]["holds"] for part in ("restraint", "g1", "g2")}
+
+
+@pytest.mark.parametrize("row", ROWS, ids=[row["id"] for row in ROWS])
+def test_both_stiffness_readings_equal_the_recorded_members(row):
+    recorded = row["stiffness_readings"]
+    found = {reading: policy.admission(row["sustained"], row["operating"], reading) for reading in ("S", "R")}
+    for reading in ("S", "R"):
+        assert found[reading]["verdict"] == recorded[reading]["verdict"], reading
+        assert found[reading]["gates"]["g2"] == recorded[reading]["g2_holds"], reading
+    assert recorded["S"]["verdict"] == row["admission"]["verdict"]
+    assert recorded["differ"] == (found["S"]["verdict"] != found["R"]["verdict"])
 
 
 def _drop_factor(original):

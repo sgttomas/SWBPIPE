@@ -262,6 +262,8 @@ FROZEN_P, FROZEN_P_CHANGED = F(5750000), F(6500000)
 BASES = {
     "REF": {"selection_kind": "exact_basis_reference", "temperature": F(300)},
     "HOT": {"selection_kind": "solve_temperature", "temperature": F(600)},
+    # K1 only: a solve temperature at the 300 K endpoint, interpolated between 300 K and 700 K at fraction 0
+    "T300": {"selection_kind": "solve_temperature", "temperature": F(300), "interpolate_between": (F(300), F(700))},
 }
 
 for _t, (_e, _g, _a) in FROZEN_POINTS.items():
@@ -271,6 +273,10 @@ for _t, (_e, _g, _a) in FROZEN_POINTS.items():
 def basis_moduli(label):
     """(E, G, alpha, interpolation fraction or None) for a basis label."""
     t = BASES[label]["temperature"]
+    if "interpolate_between" in BASES[label]:
+        lo, hi = BASES[label]["interpolate_between"]
+        f = (t - lo) / (hi - lo)
+        return tuple(x + f * (y - x) for x, y in zip(FROZEN_POINTS[lo], FROZEN_POINTS[hi])) + (f,)
     if t in FROZEN_POINTS:
         e, g, a = FROZEN_POINTS[t]
         return e, g, a, None
@@ -698,21 +704,50 @@ def g1_holds(s, o):
     return True, "every action of the subtrahend is in the minuend, with multiplicity"
 
 
-def g2_holds(s, o):
+# The stiffness part (G-2): its one definition point, with the two readings side by side.
+#   S (specified, and the one every `admission` entry is under): the resolved values AND the selection.
+#   R (resolved values only): the selection kind, case basis label and selection record left out.
+STIFFNESS_RESOLVED = ("E", "nu", "G", "material", "constitutive_basis", "section")
+STIFFNESS_SELECTION = ("selection_kind", "case_basis_label", "selection_record")
+STIFFNESS_READINGS = {"S": STIFFNESS_RESOLVED + STIFFNESS_SELECTION, "R": STIFFNESS_RESOLVED}
+
+
+def g2_holds(s, o, reading="S"):
+    fields = STIFFNESS_READINGS[reading]
     if set(s["basis"]) != set(o["basis"]):
         return False, "the operands' members differ in their modulus records"
     for member in s["basis"]:
-        if norm_mapping(s["basis"][member]) != norm_mapping(o["basis"][member]):
-            return False, f"member {member} has another modulus basis or selection record"
+        for f in fields:
+            if norm_mapping(s["basis"][member].get(f)) != norm_mapping(o["basis"][member].get(f)):
+                return False, f"member {member} differs in {f}"
     return True, "one modulus basis for every member"
+
+
+def verdict_under(s, o, reading):
+    r, _ = restraint_holds(s, o)
+    g1, _ = g1_holds(s, o)
+    g2, _ = g2_holds(s, o, reading)
+    return ("refused_restraint" if not r else "refused_g1" if not g1 else "refused_g2" if not g2
+            else "admitted"), g2
+
+
+def stiffness_readings(s, o):
+    out = {}
+    for reading in STIFFNESS_READINGS:
+        verdict, g2 = verdict_under(s, o, reading)
+        out[reading] = {"verdict": verdict, "g2_holds": g2}
+    out["differ"] = out["S"]["verdict"] != out["R"]["verdict"]
+    COUNTS["stiffness_readings_differ"] += out["differ"]
+    return out
 
 
 def admission(s, o, reason, gate_only, gate_only_reason):
     r, r_why = restraint_holds(s, o)
     g1, g1_why = g1_holds(s, o)
-    g2, g2_why = g2_holds(s, o)
+    g2, g2_why = g2_holds(s, o, "S")
     verdict = ("refused_restraint" if not r else "refused_g1" if not g1 else "refused_g2" if not g2
                else "admitted")
+    assert (verdict, g2) == verdict_under(s, o, "S")
     COUNTS[f"verdict_{verdict}"] += 1
     return {"verdict": verdict, "reason": reason,
             "gates": {"restraint": {"holds": r, "why": r_why}, "g1": {"holds": g1, "why": g1_why},
@@ -823,6 +858,7 @@ def carried_gate_rows():
         if adm["verdict"] != FROZEN_TO_COMPLETED[frozen]:
             raise AssertionError(f"carried row {rid}: {adm['verdict']} against frozen {frozen}")
         out.append({"id": rid, "frozen_outcome": frozen, "sustained": s, "operating": o, "admission": adm,
+                    "stiffness_readings": stiffness_readings(s, o),
                     "mechanical": {"kind": "none", "meaning": "the frozen package gives no numerical result for "
                                                               "its G-1 rows"}})
         COUNTS["carried_gate_rows"] += 1
@@ -909,7 +945,7 @@ def carried_pairs():
             COUNTS["reading_J_pairs"] += 1
         COUNTS["carried_pair_rows"] += len(diff)
         out.append({"id": pid, "model": m, "frozen_outcome": frozen, "sustained": s_side, "operating": o_side,
-                    "admission": adm, "mechanical": mech})
+                    "admission": adm, "stiffness_readings": stiffness_readings(s_side, o_side), "mechanical": mech})
         COUNTS["carried_pairs"] += 1
     return out
 
@@ -1312,7 +1348,42 @@ def added_rows():
                      {"kind": "linear_increment",
                       "values": {"free strain increment": entry(de, "1"),
                                  "axial/AB/N on a fixed-fixed bar of the shared W section": entry(nf["AB"], "N")}}))
+
+    # K1: the selection record alone differs (the two stiffness readings separate here)
+    rows.append(selection_record_row())
     return rows
+
+
+def selection_record_row():
+    """M1 as the frozen 'contained' operating case, in both operands: weights, both regions at 5.75 MPa,
+    elongation on, the thermal primitive on every member. S selects the exact 300 K point (REF); O selects a
+    solve temperature of 300 K, interpolated between 300 K and 700 K at fraction 0 (T300). The resolved E, nu
+    and G are equal on every member, so the operator is common and the load vectors are equal."""
+    m = "M1"
+    assert basis_moduli("REF")[:3] == basis_moduli("T300")[:3] and basis_moduli("T300")[3] == 0
+    case_s = {"basis": "REF", "p": FROZEN_P, "on": True, "thermal": True}
+    case_o = {"basis": "T300", "p": FROZEN_P, "on": True, "thermal": True}
+    rs, _ = frozen_case_rows(m, case_s)
+    ro, _ = frozen_case_rows(m, case_o)
+    diff = {k: ro[k] - rs[k] for k in sorted(ro)}
+    assert all(v.is_zero() for v in diff.values()) and len(diff) == 84
+
+    def k_side(cid, label):
+        return side(cid, primitives=frozen_weights(m) + frozen_thermal(m), regions=frozen_regions(m, FROZEN_P),
+                    elongation=True, supports=anchor_supports(FROZEN_MODELS[m]["anchors"]),
+                    basis=frozen_basis(m, label))
+    return ("K1", "equal resolved moduli, exact point against interpolation at that endpoint",
+            k_side("S", "REF"), k_side("O", "T300"),
+            "the selection kind, case basis label and selection record differ although E, nu and G are equal on "
+            "every member (stiffness reading S)", True,
+            "not established here whether the exact route's resolver records a solve temperature at a table point "
+            "as an interpolation at fraction 0 rather than as that point; establishing it would need product code",
+            {"kind": "linear_increment",
+             "values": {"u/B/UX": entry(diff["u/B/UX"], "m"), "reaction/C/FX": entry(diff["reaction/C/FX"], "N"),
+                        "axial/AB/N_mech": entry(diff["axial/AB/N_mech"], "N")},
+             "note": "every one of M1's 84 rows is equal in the two operands, so the increment is zero on each",
+             "divergence": "the stricter stiffness policy refuses a pair whose exact mechanical difference "
+                           "exists"})
 
 
 def builder_witnesses():
@@ -1359,7 +1430,8 @@ def as_records(rows, group):
     for rid, title, s, o, reason, gate_only, gate_why, mech in rows:
         mech = dict(mech, meaning=MEANINGS[mech["kind"]])
         out.append({"id": rid, "title": title, "sustained": s, "operating": o,
-                    "admission": admission(s, o, reason, gate_only, gate_why), "mechanical": mech})
+                    "admission": admission(s, o, reason, gate_only, gate_why),
+                    "stiffness_readings": stiffness_readings(s, o), "mechanical": mech})
         COUNTS[group] += 1
     return out
 
@@ -1367,6 +1439,7 @@ def as_records(rows, group):
 EXPECTED_ADDED = {"W1": "admitted", "W2": "admitted", "W3": "admitted", "W4": "admitted", "W5": "refused_g1",
                   "W6": "refused_restraint", "W7a": "refused_restraint", "W7b": "refused_restraint",
                   "W8": "refused_g1", "W9": "admitted", "F1": "refused_g1", "F2": "refused_g1", "F2b": "refused_g1",
+                  "K1": "refused_g2",
                   "X1": "refused_g1", "X2": "admitted"}
 
 

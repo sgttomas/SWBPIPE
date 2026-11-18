@@ -160,26 +160,32 @@ def contained(sustained_actions: Counter, operating_actions: Counter) -> bool:
 
 # ---- G-2 ------------------------------------------------------------------------------------------------
 
-BASIS_FIELDS = ("E", "nu", "G", "material", "constitutive_basis", "selection_kind", "case_basis_label",
-                "selection_record", "section")
+# The two readings of the stiffness part, defined here once:
+#   "S", as specified: the resolved moduli, material, constitutive basis and section, and also how the basis was
+#        selected (selection kind, case basis label, selection record);
+#   "R": the resolved quantities alone, however they were selected.
+RESOLVED_FIELDS = frozenset({"E", "nu", "G", "material", "constitutive_basis", "section"})
+SELECTION_FIELDS = frozenset({"selection_kind", "case_basis_label", "selection_record"})
+READINGS = {"S": RESOLVED_FIELDS | SELECTION_FIELDS, "R": RESOLVED_FIELDS}
 
 
-def same_basis(sustained, operating) -> bool:
+def same_basis(sustained, operating, reading="S") -> bool:
+    compared = READINGS[reading]
     if sorted(sustained["basis"]) != sorted(operating["basis"]):
         return False
     for member, record in sustained["basis"].items():
         other = operating["basis"][member]
-        if any(_canon(record.get(f)) != _canon(other.get(f)) for f in BASIS_FIELDS):
+        if any(_canon(record.get(f)) != _canon(other.get(f)) for f in sorted(compared)):
             return False
     return True
 
 
 # ---- the verdict ----------------------------------------------------------------------------------------
 
-def admission(sustained, operating) -> dict:
+def admission(sustained, operating, reading="S") -> dict:
     gates = {"restraint": same_restraint(sustained, operating),
              "g1": contained(actions(sustained), actions(operating)),
-             "g2": same_basis(sustained, operating)}
+             "g2": same_basis(sustained, operating, reading)}
     for part, verdict in (("restraint", "refused_restraint"), ("g1", "refused_g1"), ("g2", "refused_g2")):
         if not gates[part]:
             return {"verdict": verdict, "gates": gates, "reason": f"the {part} part fails"}

@@ -11,7 +11,7 @@ The package contains:
 - the admission policy, stated once (below);
 - every row the frozen package has (19 gate rows and 17 numerical pairs), re-derived
   under that policy;
-- the added rows W1 to W9, F1, F2 and F2b;
+- the added rows W1 to W9, F1, F2, F2b and K1;
 - two builder's witnesses, X1 and X2.
 
 Every row carries two entries: an **admission** verdict and a **mechanical** result.
@@ -28,13 +28,11 @@ did not write them attempts to refute each row's two entries. No product test re
 the package. It wires nothing. The product's blanket refusal of a declared difference
 on the exact route stands, and nothing here admits one.
 
-**Two matters as decided at freezing.** Both are built as the specification states
-them. Each stands as decided when the package is frozen:
-
-- stored self-weight and component weight are primitives, compared by stored value
-  (see "Primitive loads");
-- the stiffness part (G-2) compares the selection record as well as the formed values,
-  with the over-refusal stated (see "G-2").
+**One matter as decided at freezing.** The stiffness part (G-2) is built as the
+specification states it: it compares the selection record as well as the resolved
+values, with the over-refusal stated. It stands as decided when the package is frozen.
+Every row also records its verdict under the other reading, resolved values only (see
+"G-2").
 
 | File | Role |
 |---|---|
@@ -121,11 +119,11 @@ The rules:
 - The key is never the rounded product of magnitude and factor.
 - Identity and provenance are not compared.
 
-Stored self-weight and component weight are primitives under this rule. An authoring
-plan writes them into the document as stored values, so two plans with different
-recipes that write equal stored values apply the same action. Content generated at
-solve time, by contrast, is compared by recipe (see "Generated loads"). This is the
-first of the two matters as decided at freezing.
+A primitive that an authoring plan writes into the document, such as self-weight, is
+compared by its stored value, as every stored primitive is. This is a difference in
+kind, not an exception: a stored primitive is an authored operand of the document,
+whatever wrote it, and the solve consumes no recipe for it. The recipe policy of
+"Generated loads" governs only what is generated at solve time.
 
 ### Pressure
 
@@ -250,8 +248,48 @@ Two operands have the same basis when every member has equal values of all of th
 
 **The over-refusal is stated.** Suppose two cases have identical formed elastic inputs
 and identical thermal-action content, but their selection records differ. The pair is
-refused, although its mechanical difference may exist. This is the second of the two
-matters as decided at freezing.
+refused, although its mechanical difference may exist (K1). This is the matter as
+decided at freezing.
+
+**Two readings, recorded side by side.** The generator and the verifier each define
+the stiffness comparison at one point, with two readings:
+
+- **S** (specified): the resolved E, ν, G, material, constitutive basis and section,
+  **and** the selection kind, case basis label and selection record.
+- **R**: the resolved values only. The selection kind, label and record are left out.
+
+Every row's `admission` is under S. Every row also has `stiffness_readings`, which gives
+the verdict and the G-2 outcome under each reading, and `differ`, which is true where
+the two verdicts differ.
+
+### Where the two stiffness readings differ
+
+| Row | Under S | Under R | Why |
+|---|---|---|---|
+| K1 | `refused_g2` | `admitted` | equal E, ν and G on every member; S selects the exact 300 K point, O a solve temperature of 300 K interpolated at fraction 0 |
+
+No other row differs. The mixed-basis pair has another E, so both readings refuse it.
+`fails_g1_and_g2` fails G-1 first, so both readings refuse it under G-1.
+
+**What the governing texts say about the predicate.** These are quoted as written.
+
+- `validation/references/exact_difference_basis/README.md`, section "G-2: one modulus
+  basis": "G-2 is read as the two cases selecting the same basis: the same exact
+  reference, or the same solve temperature. Whether a reference and a temperature that
+  resolve to equal moduli count as one basis is not exercised here."
+- The same README, section "Open readings as they now stand": "**One basis.** Whether
+  a basis reference and a solve temperature that resolve to equal moduli are one basis
+  (G-2)."
+- `docs/theory/load_combinations.md`, section "Declared operating comparison
+  (operating-case slice 1b)": "then G-2, `EXPANSION_BASIS_MODULUS_MIXED`, when the two
+  cases' modulus-basis keys differ."
+- The same note, section "Assumptions: modulus basis, stiffness and nonlinear
+  supports": "A linear, absolute-sum or SRSS combination assumes one stiffness: every
+  load case it reaches through the operand graph, subtractions and envelopes included,
+  must share one modulus basis (and, on the exact route, one resolved member
+  stiffness)."
+
+Neither text states a purpose for the stricter predicate beyond these words.
 
 ## Two entries per row, never merged
 
@@ -286,7 +324,7 @@ can exist while `admission` refuses. The rows diverge for three reasons:
 - that response, as above (W5, X1);
 - the conservative recipe rule (W8);
 - the stricter stiffness policy, which may refuse a pair whose exact mechanical
-  difference exists.
+  difference exists (K1).
 
 On different operators the mechanical entry is a `state_difference` (W6, W7a, W7b and
 the mixed-basis pair). It is not an increment of anything.
@@ -411,6 +449,7 @@ In the table, "verdict" is the admission verdict and "mechanical" is the result
 | F1 terminal witness | pressurised cantilever, free-end terminal `transfers_to_wall` | the same, free end `separately_supported_or_compensated` | `refused_g1` | `linear_increment`: Δu_B = −p·A_i·L/(E·A) = −64607/81065856 m ⁴ | no |
 | F2 fit witness | free-length state: datum and installation 300 K, operating 500 K, α = 2⁻¹⁶ /K, fit strain 2⁻¹⁰ | the same, no fit | `refused_g1` | `linear_increment`: strain increment −8217/8388608; on a fixed-fixed bar of the W section, N = 57519π/8192 N | no |
 | F2b installation-only variant | as F2's O: installation 300 K, no fit | installation 400 K, no fit | `refused_g1` | `linear_increment`: strain increment −205425/134422528; N = 1437975π/131272 N on the same bar ⁵ | no |
+| K1 selection record only | frozen M1: weight, both regions at 5.75 MPa, elongation on, ΔT on every member; basis `REF` (exact 300 K point) | the same actions; basis a solve temperature of 300 K, interpolated between 300 K and 700 K at fraction 0 | `refused_g2` under S (`admitted` under R): the selection differs although E, ν and G are equal | `linear_increment`: 0 on each of M1's 84 rows (common operator, equal load vectors) | yes ⁶ |
 
 1. Whether exact-route wind generation admits a load along the member axis is not
    established here, because establishing it would need product code. The row
@@ -426,6 +465,10 @@ In the table, "verdict" is the admission verdict and "mechanical" is the result
    is the increment with no fit in either operand, so that is how F2b is built. The
    secant strain of F2 is
    (1 + α·(T_op − T_inst)/(1 + α·(T_inst − T_datum)))·(1 + fit) − 1.
+6. Not established here whether the exact route's resolver records a solve temperature
+   at a table point as an interpolation at fraction 0, rather than as that point.
+   Establishing it would need product code. K1 was added at Agent 0's request, to
+   separate the two stiffness readings.
 
 W2's formation note in the specification (a grouped binary64 force at B that differs
 by −2⁻⁴⁹ N from the separately formed extra region) concerns the order in which a
@@ -433,9 +476,15 @@ product forms binary64 values. It is not derived here and is not an entry.
 
 ## Builder's witnesses
 
-The six wrong policies of the verifier test must each reverse a row. The added rows
-contain no ledger factor and no second reference-configuration identifier, so the
-builder added two rows on the W bar. Both follow from the policy as written.
+X1 and X2 were added by the builder, so that two of the six wrong policies of the
+verifier test can be caught: the added rows contain no ledger factor and no second
+reference-configuration identifier. Both are on the W bar, and each follows from the
+policy as written:
+
+- X1 rests on "Primitive loads" (specification section 3.1): equal ledger factor
+  bits, and the key is never the rounded product.
+- X2 rests on "Member free-strain states" (specification section 3.5): no
+  reference-configuration identifier is compared.
 
 | Row | S | O | Verdict | Mechanical | Gate-only |
 |---|---|---|---|---|---|
