@@ -97,7 +97,7 @@ fn decide(model: &PreviewModel, support: &PreviewSupport) -> Result<Preload, Not
     if document_members::is_skewed_record(support) {
         return Err(NotApplied::SkewedRecord);
     }
-    if support.hanger.as_ref().is_some_and(|hanger| hanger.direction_opposes_positive_axis) {
+    if support.direction == Some(document_members::DirectionInput::NegativeAxis) {
         return Err(NotApplied::DirectionOpposesPositiveAxis);
     }
     let cold = support

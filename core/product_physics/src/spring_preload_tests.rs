@@ -221,3 +221,15 @@ pub(crate) fn c_oper_alt_withheld_and_its_unit_twin(
     assert!(!unit.diagnostics.iter().any(|item| item.code == CODE), "factor sum 1 is admitted: {:?}", unit.diagnostics);
     (withheld, unit)
 }
+
+/// `s(PreviewSupport)` is a priced size atom of the retained memory law
+/// (`retained_memory.rs`: `size_of::<crate::PreviewSupport>()`), and a
+/// `PreviewSupport` holds its `SpringHangerInput` inline. The preload's
+/// direction fact (`DirectionInput::NegativeAxis`) adds no byte to either; a
+/// change of these sizes moves a priced size and is for the pricing audit.
+#[test]
+fn the_support_and_hanger_records_keep_their_priced_sizes() {
+    use std::mem::{align_of, size_of};
+    assert_eq!((size_of::<crate::SpringHangerInput>(), align_of::<crate::SpringHangerInput>()), (368, 8));
+    assert_eq!((size_of::<crate::PreviewSupport>(), align_of::<crate::PreviewSupport>()), (864, 8));
+}
