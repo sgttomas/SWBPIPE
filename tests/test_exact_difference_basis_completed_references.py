@@ -93,7 +93,7 @@ def test_every_row_has_both_entries():
     data = load(PACKAGE / "references.json")
     rows = every_row(data)
     assert [len(data["carried"]["gate_rows"]), len(data["carried"]["pairs"]), len(data["added"]),
-            len(data["builder_witnesses"])] == [19, 17, 15, 2]
+            len(data["builder_witnesses"])] == [19, 17, 15, 5]
     for row in rows:
         adm, mech = row["admission"], row["mechanical"]
         assert adm["verdict"] in VERDICTS, row["id"]
@@ -126,7 +126,9 @@ def test_the_added_rows_state_the_specified_verdicts_and_gate_only_marks():
         "F1": ("refused_g1", False, "linear_increment"), "F2": ("refused_g1", False, "linear_increment"),
         "F2b": ("refused_g1", False, "linear_increment"), "K1": ("refused_g2", True, "linear_increment"),
         "W11": ("refused_g2", True, "state_difference"),
-        "X1": ("refused_g1", True, "linear_increment"), "X2": ("admitted", True, "linear_increment")}
+        "X1": ("refused_g1", True, "linear_increment"), "X2": ("admitted", True, "linear_increment"),
+        "X3": ("refused_restraint", True, "state_difference"), "X4": ("refused_g1", False, "linear_increment"),
+        "X5": ("refused_g1", True, "none")}
 
 
 def test_the_stiffness_readings_are_recorded_and_differ_only_where_the_readme_says():

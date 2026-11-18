@@ -49,11 +49,13 @@ def _is_zero(text) -> bool:
 # ---- restraint ------------------------------------------------------------------------------------------
 
 def restraint_law(record):
-    """The resolved law of one support DOF: free and rigid by name; a spring or a nonlinear support with its
-    identity, participation and parameters."""
+    """The resolved law of one support DOF: free by name (a DOF a side does not list is free as well); rigid with
+    its support identity; a spring or a nonlinear support with its identity, participation and parameters."""
     law = record["law"]
-    if law in ("free", "rigid"):
+    if law == "free":
         return (law,)
+    if law == "rigid":
+        return (law, record["identity"])
     if law in ("spring", "nonlinear"):
         return (law, record["identity"], record["participation"], _canon(record["parameters"]))
     raise ValueError(f"unknown support law {law!r}")

@@ -1,38 +1,25 @@
 # Exact-route references: the declared difference, completed admission policy
 
-Independently derived expectations for a result-state subtraction declared
-`operating_minus_sustained` on the exact route:
-[DEL-05-02](../../../execution/PKG-05/DEL-05-02/ScopeOfWork.md) REQ-012 and AC-003.
-This package is the successor to [`exact_difference_basis`](../exact_difference_basis/README.md).
-It carries every row of that package and adds rows.
+Exact analytical values and policy verdicts for the declared difference, computed
+without product code: a result-state subtraction declared `operating_minus_sustained`
+on the exact route ([DEL-05-02](../../../execution/PKG-05/DEL-05-02/ScopeOfWork.md)
+REQ-012 and AC-003). This successor to
+[`exact_difference_basis`](../exact_difference_basis/README.md) carries the
+predecessor's 19 admission rows and 17 pair comparisons and adds new witnesses. Each
+record has an admission entry and a mechanical entry, with `none` for the carried
+admission rows and for X5. The references are candidates. S is the specified reading
+of the stiffness part, and R is recorded for comparison.
 
-The package contains:
-
-- the admission policy, stated once (below);
-- every row the frozen package has (19 gate rows and 17 numerical pairs), re-derived
-  under that policy;
-- the added rows W1 to W9, F1, F2, F2b, K1 and W11;
-- two builder's witnesses, X1 and X2.
-
-Every row carries two entries: an **admission** verdict and a **mechanical** result.
-
-Nothing here comes from the product. The generator uses the Python standard library
-only. It imports, reads and runs no product code or output, and it does not read the
-frozen package; the frozen inputs are restated in it. All inputs are invented. No
-value comes from a design code, catalogue or vendor, and no code compliance is
-claimed.
+The generator uses the Python standard library only. Its inputs are the predecessor's
+inputs, restated in the generator, and inputs invented here. No value comes from a
+design code, catalogue or vendor.
 
 **Status.** Candidate references, derived and cross-checked by their author, awaiting
-independent refutation. Before these verdicts and values are frozen, a fresh reader who
-did not write them attempts to refute each row's two entries. No product test reads
-the package. It wires nothing. The product's blanket refusal of a declared difference
-on the exact route stands, and nothing here admits one.
+independent refutation. The package exercises its reference calculation and admission
+policy on recorded inputs.
 
 **One matter as decided at freezing.** The stiffness part (G-2) is built as the
-specification states it: it compares the selection record as well as the resolved
-values, with the over-refusal stated. It stands as decided when the package is frozen.
-Every row also records its verdict under the other reading, resolved values only (see
-"G-2").
+specification states it, reading S. It stands as decided when the package is frozen.
 
 | File | Role |
 |---|---|
@@ -46,16 +33,17 @@ python3 -I generators/exact_difference_basis_completed_reference.py --write  # r
 shasum -a 256 -c SHA256SUMS
 ```
 
-The package test is `tests/test_exact_difference_basis_completed_references.py`. It
-runs the check mode and the sums, confirms the generator names no product path, and
-compares every carried row with `../exact_difference_basis/references.json`. Any
-reversal of a frozen verdict or change of a frozen value fails it. A separately written
-verifier of the policy, `tests/verifiers/exact_difference_basis.py`, reads the same
-rows. Its test, `tests/test_exact_difference_basis_verifier.py`, requires the
-verifier's verdict on every row to equal the package's, under both stiffness readings.
-It also requires each of seven wrong policies to reverse at least one row.
+The package test (`tests/test_exact_difference_basis_completed_references.py`)
+compares in-memory regeneration with the recorded files, verifies the hashes, checks
+imports and literal paths by AST inspection, and compares carried verdicts and
+analytical values with `../exact_difference_basis/references.json`. The verifier
+(`tests/verifiers/exact_difference_basis.py`) shares no code with the generator. Its
+test (`tests/test_exact_difference_basis_verifier.py`) compares verdicts and gate
+outcomes and checks eight deliberate policy changes. Tests establish separate
+implementations and agreement on this corpus. The generator's own checks share inputs
+and authorship.
 
-**Re-freeze rule** (the frozen package's). No value changes to match a product output.
+**Re-freeze rule** (the predecessor's). No value changes to match a product output.
 A disagreement goes back to this reference's owner and an independent refuter.
 
 ## What this supersedes
@@ -81,13 +69,11 @@ open. The old package stays byte for byte as history and keeps its own test.
 
 **Why the carried rows keep their verdicts.**
 
-- In every frozen model, every terminal is `transfers_to_wall`. The frozen README
-  says so in "Which constraint each model uses", and says that its balance "holds
-  because every terminal transfers to the wall".
-- The frozen member states share one reference configuration and have no fit.
-- The frozen numerical pairs have no generated loads and no prescribed motions.
-
-The generator confirms this: no carried row is reversed (see "Carried rows").
+- In every predecessor model, every terminal is `transfers_to_wall`. The predecessor's
+  README says so in "Which constraint each model uses", and says that its balance
+  "holds because every terminal transfers to the wall".
+- The predecessor's member states share one reference configuration and have no fit.
+- The predecessor's numerical pairs have no generated loads and no prescribed motions.
 
 ## The admission policy
 
@@ -99,9 +85,8 @@ this order:
 2. **G-1:** S's actions are contained in O's, by sameness and with multiplicity.
 3. **G-2:** S and O have the same modulus basis.
 
-The verdict names the first part that fails: `admitted`, `refused_restraint`,
-`refused_g1` or `refused_g2`. Multiplicity means that, for every action, S's count does
-not exceed O's. Each row's `gates` records the outcome of all three parts.
+The first failed gate determines the refusal, and the record includes each gate
+outcome. Multiplicity means that, for every action, S's count does not exceed O's.
 
 ### Primitive loads
 
@@ -119,11 +104,9 @@ The rules:
 - The key is never the rounded product of magnitude and factor.
 - Identity and provenance are not compared.
 
-A primitive that an authoring plan writes into the document, such as self-weight, is
-compared by its stored value, as every stored primitive is. This is a difference in
-kind, not an exception: a stored primitive is an authored operand of the document,
-whatever wrote it, and the solve consumes no recipe for it. The recipe policy of
-"Generated loads" governs only what is generated at solve time.
+Count stored authoring-plan weights, such as self-weight, as primitives: a stored
+primitive is an authored operand of the document, whatever wrote it, and the solve
+consumes no recipe for it. Compare solve-time generated actions by recipe.
 
 ### Pressure
 
@@ -135,9 +118,8 @@ A region is the same action when it has the same:
   `separately_supported_or_compensated`;
 - pressure (binary64 bits, Pa).
 
-**Elongation** is an action of its own. It is counted once when the case is listed for
-elongation **and** carries at least one region. Switching elongation on adds an
-action, so such a pair is admitted, as the frozen package has it.
+**Elongation** is an action of its own. When a pressure region is present, switching
+elongation on adds one action. W1 satisfies the other gates.
 
 ### Generated loads
 
@@ -151,28 +133,28 @@ recipe:
 - each resolved input, normalized. For seismic: the axis and its factor. For wind: the
   direction, the pressure, the shape factor and the exposed-diameter basis.
 - the mass basis: the mass method and every section and component mass input the
-  generator reads.
+  generator reads (X5).
 
 Generated loads are counted with multiplicity, one per marked span or generated
 primitive.
 
-**This rule is conservative.** Two recipes that differ are not the same action, even
-when they give equal values, and the pair is refused. So a pair refused here may have
-an equal mechanical result (W8).
+Equal formed values can still come from distinct recipes. G-1 fails if the
+subtrahend's recipe is missing, as in W8.
 
 ### Restraints, then motions
 
 **Restraint first.**
 
-- Each support DOF has a resolved law in each operand: free, rigid, spring (with its
-  identity, participation and stiffness) or nonlinear (with its identity and support
-  law).
-- The restraint part holds only when every support DOF has the same law, with the
-  same identity, participation and parameters, in both operands. A DOF an operand does
-  not list is free.
+- Each support DOF has a resolved law in each operand: free, rigid (with its support
+  identity), spring (with its identity, participation and stiffness) or nonlinear
+  (with its identity and support law).
+- The restraint part holds only when every support DOF has the same law, with the same
+  identity, participation and parameters, in both operands. A DOF absent in a case and
+  one declared free normalize to one free law.
 - A free DOF in one operand and a DOF fixed at zero in the other differ (W6).
 - A removed or held spring is a different case (W7a), and so is a different spring at
   the same node (W7b).
+- A rigid restraint with another identity is a different case (X3).
 - The same holds for a nonlinear support's law.
 
 **Then motion increments.**
@@ -185,10 +167,9 @@ an equal mechanical result (W8).
   canonical units.
 - S's non-zero motions must be contained in O's.
 
-**Spring base and nonlinear ground offset.** The same spring, with the same
-participation and stiffness, must hold first. A zero base movement in S against a
-non-zero one in O is an added excitation, and the pair is admitted (W4). A nonlinear
-ground offset is treated the same way, under its support law.
+**Spring base and nonlinear ground offset.** On the same active spring, movement of a
+previously stationary base adds an action (W4). The same rule applies to ground
+movement under an unchanged nonlinear law.
 
 ### Member free-strain states
 
@@ -213,14 +194,13 @@ They must also have the same fit, as the solve consumes it:
 No reference-configuration identifier is compared. Two identifiers that resolve to
 identical operands give the same action (X2).
 
-**Omission is fail-closed.** A state is not an action only when its source is
-established exactly zero. Both of these must hold:
-
-- the thermal part is `unchanged_reference`, a zero strain, a zero coefficient, a zero
-  interval, or an installation temperature equal to the operating temperature;
-- the fit is none, a zero strain or a zero change.
-
-A total that rounds to zero never omits a state.
+**Omission is fail-closed.** The thermal part is omitted for `unchanged_reference`,
+zero explicit interval strain, a zero coefficient or interval in
+`constant_alpha_interval`, or equal installation and operating temperatures in
+`free_length_state`. Omit the state only if the fit is also absent or its strain or
+length change is exactly zero. A total that rounds to zero never omits a state. A
+`free_length_state` with a constant zero law and unequal temperatures stays an action
+(X4).
 
 ### Fixed loads
 
@@ -231,48 +211,54 @@ These loads are present in every case of a model and are not actions:
 - a tie rod's reference extension;
 - a spring's cold load, where the model applies it.
 
-Each counts 1 − 1 = 0 in the difference. The two operands' fixed-load inventories must
-be equal. An unequal inventory is outside this policy, and the row is refused under
-restraint, with that reason.
+Each fixed source contributes 1 − 1 = 0 to κ. Its response cancels on a shared linear
+operator. The two operands' fixed-load inventories must be equal. An unequal inventory
+is outside this policy, and the row is refused under restraint, with that reason.
+
+### Two readings of the decided policy, made at freezing
+
+Each reading below is the refusing direction: it can refuse a pair that the wider words
+would admit, and never admits one they would refuse. Neither changes a recorded
+verdict: the 53 rows recorded before these readings keep every verdict and gate
+outcome. Both were confirmed by SWBPIPE's Agent 0 on 2026-11-18.
+
+- **A rigid restraint's identity.** The policy's words (specification section 3.4):
+  "The restraint part holds only when every support DOF has the same law, with the same
+  identity, participation and parameters, in both operands." Read here: a rigid law is
+  compared with its support identity; a free law carries none, and a DOF absent in a
+  case and one declared free are one free law. X3 is the control: W3 with only the
+  rigid stop's identity changed is refused under restraint.
+- **The zero rule, kind by kind.** The policy's words (specification section 3.5): "the
+  thermal part is `unchanged_reference`, a zero strain, a zero coefficient, a zero
+  interval, or installation equal to operating". Read here as in "Omission is
+  fail-closed" above: "a zero coefficient" omits only a `constant_alpha_interval`
+  state, so a `free_length_state` whose law has a constant zero coefficient and whose
+  temperatures differ stays an action. X4 shows it: refused under G-1, with a zero
+  free-strain increment.
 
 ### G-2: the stricter stiffness policy
 
-Two operands have the same basis when every member has equal values of all of these:
+With restraint and G-1 satisfied, S can refuse mechanically identical operands when
+their selection differs. R compares E, ν, G, material, constitutive basis and section
+on each member. S also compares selection kind, case basis label and the selection
+record's kind, temperature, interpolation fraction, selected E and selected ν.
 
-- E, ν and G;
-- the material and the constitutive basis;
-- the selection kind and the case basis label;
-- the selection record: its kind, selection temperature, interpolation fraction, and
-  selected E and ν;
-- the section record.
-
-**The over-refusal is stated.** Suppose two cases have identical formed elastic inputs
-and identical thermal-action content, but their selection records differ. The pair is
-refused, although its mechanical difference may exist (K1). This is the matter as
-decided at freezing.
-
-**Two readings, recorded side by side.** The generator and the verifier each define
-the stiffness comparison at one point, with two readings:
-
-- **S** (specified): the resolved E, ν, G, material, constitutive basis and section,
-  **and** the selection kind, case basis label and selection record.
-- **R**: the resolved values only. The selection kind, label and record are left out.
-
-Every row's `admission` is under S. Every row also has `stiffness_readings`, which gives
-the verdict and the G-2 outcome under each reading, and `differ`, which is true where
-the two verdicts differ.
+The generator and the verifier each define the stiffness comparison at one point,
+with both readings side by side. Every row's `admission` is under S. Every row also has
+`stiffness_readings`, which gives the verdict and the G-2 outcome under each reading,
+and `differ`, which is true where the two verdicts differ.
 
 ### Where the two stiffness readings differ
 
-| Row | Under S | Under R | Why |
+| Row | Under S | Under R | Fields that differ |
 |---|---|---|---|
-| K1 | `refused_g2` | `admitted` | equal E, ν and G on every member; S selects the exact 300 K point, O a solve temperature of 300 K interpolated at fraction 0 |
-| W11 | `refused_g2` | `admitted` | equal E, ν and G on every member; S and O select two points of one invented material whose expansion coefficients differ |
+| K1 | `refused_g2` | `admitted` | selection kind (`exact_basis_reference`, `solve_temperature`); case basis label (`REF`, `T300`); the selection record's kind and interpolation fraction (none, 0) |
+| W11 | `refused_g2` | `admitted` | case basis label (`W11_LO`, `W11_HI`); the selection record's selection temperature (250 K, 650 K) |
 
 No other row differs. The mixed-basis pair has another E, so both readings refuse it.
 `fails_g1_and_g2` fails G-1 first, so both readings refuse it under G-1.
 
-**What the governing texts say about the predicate.** These are quoted as written.
+**Quoted as written.**
 
 - `validation/references/exact_difference_basis/README.md`, section "G-2: one modulus
   basis": "G-2 is read as the two cases selecting the same basis: the same exact
@@ -281,16 +267,14 @@ No other row differs. The mixed-basis pair has another E, so both readings refus
 - The same README, section "Open readings as they now stand": "**One basis.** Whether
   a basis reference and a solve temperature that resolve to equal moduli are one basis
   (G-2)."
-- `docs/theory/load_combinations.md`, section "Declared operating comparison
-  (operating-case slice 1b)": "then G-2, `EXPANSION_BASIS_MODULUS_MIXED`, when the two
-  cases' modulus-basis keys differ."
+- The pressure-free comparison, `docs/theory/load_combinations.md`, section "Declared
+  operating comparison (operating-case slice 1b)": "then G-2,
+  `EXPANSION_BASIS_MODULUS_MIXED`, when the two cases' modulus-basis keys differ."
 - The same note, section "Assumptions: modulus basis, stiffness and nonlinear
   supports": "A linear, absolute-sum or SRSS combination assumes one stiffness: every
   load case it reaches through the operand graph, subtractions and envelopes included,
   must share one modulus basis (and, on the exact route, one resolved member
   stiffness)."
-
-Neither text states a purpose for the stricter predicate beyond these words.
 
 ## Two entries per row, never merged
 
@@ -301,50 +285,38 @@ Neither text states a purpose for the stricter predicate beyond these words.
 - `gates`, with each part's `holds` and why;
 - `gate_only`, with its `gate_only_reason`.
 
-`gate_only` is true when ordinary exact-route validation would stop the document before
-the gate. Such a row tests the policy function only.
+A gate-only row supplies a policy verdict and a mechanical idealization where defined.
+Its reason states the known obstruction or the unresolved document assumption. A false
+mark identifies a proposed document case or a carried case from the predecessor. This
+package does not validate document reachability.
 
-**`mechanical`** has a `kind`, a `meaning`, and either `rows` (the carried pairs) or
-`values` (the added rows). Each value gives `exact`, `value` (the nearest binary64) and
-`unit`. The kinds are:
+**`mechanical`.** Mechanical values are under `rows` or `values`. They are analytical
+O − S unless a field names an operand or a control. Each gives `exact`, `value` and
+`unit`.
 
-- `linear_increment`: both operands are on one common linear stiffness and restraint
-  operator. The value is the response of that operator to the difference of the two
-  load vectors.
-- `state_difference`: the value is the difference of two independently solved states,
-  with no claim of superposition. This is used where the operands are on different
-  operators, and for W11, where the operator is common but the two operands consume
-  different material content. Each such row says what the difference is the response
-  to.
-- `none`: no numerical result is defined. This is the case for the carried gate rows,
-  for which the frozen package gives none.
+- `linear_increment` gives the shared linear operator's response to the difference in
+  effective excitation, including prescribed movement where applicable. F2, F2b and X4
+  also give the free-strain increment itself.
+- `state_difference` records a subtraction of reference states for W6, W7a, W7b, X3,
+  the mixed-basis pair and W11. W7b's spring identities differ but its numerical states
+  coincide.
+- `none` supplies no numerical result (the carried admission rows and X5).
 
-**Where the two entries diverge, and why.** A common linear operator gives a response
-to the difference of *any* two load vectors. That response alone cannot tell an
-authored addition from a removed action, a changed wind extent disguised by nodal
-loads (W5), or cancelling actions of different multiplicity. So a `mechanical` entry
-can exist while `admission` refuses. The rows diverge for three reasons:
-
-- that response, as above (W5, X1);
-- the conservative recipe rule (W8);
-- the stricter stiffness policy, which may refuse a pair whose exact mechanical
-  difference exists (K1, W11).
-
-On different operators the mechanical entry is a `state_difference` (W6, W7a, W7b and
-the mixed-basis pair). It is not an increment of anything.
+A policy refusal can coexist with an analytical value, as W5, X1, W8, K1, W11 and X4
+show.
 
 ## Exact form
 
 Each value is a finite sum of rational multiples of integer powers of π, written as in
-`3/4*pi + 1/2 + 5/7*pi^-1`. This is the frozen package's convention. Each value's
-`value` is the nearest binary64. The rounding is decided from rational bounds on π
-about 2⁻⁶³⁰ apart (Gauss's arctangent formula, with a proven error).
+`3/4*pi + 1/2 + 5/7*pi^-1`. This is the predecessor's convention. Each value's `value`
+is the nearest binary64, ties to even, using rational arctangent bounds on π. The
+bounds are 12752·2⁻⁶⁴⁰ apart.
 
 ## The input format
 
-Each operand is a case side, in the format of the specification's section 4. Units are
-canonical (N, m, rad, K, Pa). Numbers are exact rationals written as strings, with the
-binary64 bits beside them where the policy compares bits. A side has these fields:
+Case sides contain normalized policy operands. Numerical values may be exact rational
+strings or, where shown, rational multiples of π. The record includes bits for fields
+compared by bits. A side has these fields:
 
 - `case_id` and `ledger`;
 - `primitives` (`value`, `value_bits`);
@@ -357,69 +329,40 @@ binary64 bits beside them where the policy compares bits. A side has these field
 - `fixed_loads`;
 - `basis`, per member.
 
-A load that is a multiple of π, such as W6's 7π N, has `value` `7*pi` and the bits of
-its nearest binary64.
-
 ## Carried rows
 
-The frozen inputs are restated in the generator. The README of the frozen package gives
+The predecessor's inputs are restated in the generator. The predecessor's README gives
 them under "Inputs" and "Which constraint each model uses".
 
-**What the restated cases represent.**
+- Every predecessor terminal is `transfers_to_wall`, and each anchor's six DOFs are
+  rigid.
+- The modulus basis of each member is `REF` (the exact basis reference to the 300 K
+  point) or `HOT` (a solve temperature of 600 K, interpolated at the fraction 3/4).
+- The three carried free-length witnesses restate the predecessor's two operating
+  temperatures and share an invented 300 K installation temperature and no fit.
+- The constant-effort witness has the same fixed force in both operands.
 
-- Every frozen terminal is `transfers_to_wall`.
-- Each anchor's six DOFs are rigid.
-- The modulus basis of each member is either:
-  - `REF`: the exact basis reference to the 300 K point;
-  - `HOT`: a solve temperature of 600 K, interpolated at the fraction 3/4.
-- The frozen authored member state is a `free_length_state`, operating at 600 K, or at
-  the next binary64 above 600 K. It uses the material's table law and has no fit. Its
-  installation temperature is resolved from the one shared reference configuration as
-  300 K. That value is invented here, and it is the same in every carried case.
-- The frozen preload is a constant-effort fixed load, the same in both operands.
+**The verdict mapping.** Each carried row's verdict equals the predecessor's
+`outcome`, mapped as follows:
 
-**The verdict mapping.** Each carried row's verdict equals the frozen `outcome`, mapped
-as follows:
-
-| Frozen `outcome` | Completed verdict |
+| Predecessor `outcome` | Completed verdict |
 |---|---|
 | `published` | `admitted` |
 | `refused_g1` | `refused_g1` |
 | `refused_g2` | `refused_g2` |
 | `refused_g1_and_g2` | `refused_g1` (G-1 is ordered first) |
 
-**Carried mechanical values.** Each carried pair has `rows`: every row of the frozen
-pair's values field, re-derived by direct stiffness with exact arithmetic. The values
-field is:
+**Carried mechanical values.** Each carried pair names the predecessor's values field
+it reproduces (`frozen_values_field`). The carried comparison covers 1 806 analytical
+W values and 531 differing analytical J values. For the ten same-pressure, same-basis
+pairs it records analytical identity. The predecessor retains its rounded-operand
+publication comparison.
 
-- `difference` for an admitted pair;
-- `undeclared_subtraction` for a pair refused under G-1;
-- `withheld_would_be_difference` for the pair refused under G-2.
-
-Each row gives `exact`, `value` and `unit`. It does not carry the frozen
-`from_published_operands`, which is a product publication rule and stays in the frozen
-package.
-
-The pairs on one basis are `linear_increment`. The mixed-basis pair is
-`state_difference`. Reading J is carried as the frozen package marks it:
-
-- the rows where it differs analytically from reading W, under
-  `reading_J_alternative`, for the six pressure-change pairs;
-- the statement that it is analytically identical, for the other same-basis pairs.
-
-**What the generator checks.**
-
-- Equilibrium of every case (66) and every difference (17).
-- The wall form of DEL-04-07's pressure loads equals the closed-end free strain on
-  every pressurised case with elongation on (19).
-- The M1 hand formula, on both bases.
-
-The package test then compares all 1 806 rows and the 531 reading-J rows with the
-frozen file. Every value is equal and no verdict is reversed.
-
-`gate_only` is false on every carried row. The frozen package states each case as an
-exact-route document. Whether validation would stop one before the gate is not
-re-examined here, because that would need product code.
+**What the generator checks.** The generator checks global force and moment balance
+on 66 carried case solves and 17 differences, compares wall form with free strain for
+motions, reactions and axial recovery on 19 carried on-setting W solves, and compares
+three M1 reactions with the flexibility formula on REF and HOT. With K1 and W11 the
+overall counts are 70 and 21.
 
 ## Added rows
 
@@ -430,10 +373,9 @@ re-examined here, because that would need product code.
 - Outside diameter 1/4 m, wall 1/32 m, no allowances. So r_i = 3/32 m and the wall
   area is 7π/1024 m².
 - E = 2²⁰ Pa and ν = 1/4, so EA = 7168π N.
-- Axial response only.
 
-The solutions use an exact axial bar: rigid supports, prescribed motions, springs with
-a base, and consistent nodal loads. Each value is checked against its closed form.
+W1–W9, F1, F2, F2b and X1–X4 use axial bar models; K1 and W11 use the M1 frame. The
+generator checks selected exact bar results against formulas and identities.
 
 In the table, "verdict" is the admission verdict and "mechanical" is the result
 (O − S unless the row says otherwise).
@@ -441,126 +383,97 @@ In the table, "verdict" is the admission verdict and "mechanical" is the result
 | Row | S | O | Verdict | Mechanical | Gate-only |
 |---|---|---|---|---|---|
 | W1 elongation added | region AB, both terminals `transfers_to_wall`, p = 1024 Pa, elongation off | the same, elongation on | `admitted`: elongation is an added action | `linear_increment`: Δu_B = 9/14336 m | no |
-| W2 shared-terminal grouping | AB and BC collinear (C at x = 2 m), ν_AB = −1/8, ν_BC = 1/4, elongation on; region AB with terminals A and B | that region, plus region BC with terminals B and C, at the same pressure | `admitted`: BC's region is an added action | `linear_increment`: Δu_B = 0, Δu_C = 9/14336 m; N_mech of BC in O = 9π/2 N = ½·p·π·r_i² | no |
+| W2 shared-terminal grouping | AB and BC collinear (C at x = 2 m), each with its own material record (ν_AB = −1/8, ν_BC = 1/4), elongation on; region AB with terminals A and B | that region, plus region BC with terminals B and C, at the same pressure | `admitted`: BC's region is an added action | `linear_increment`: Δu_B = 0, Δu_C = 9/14336 m; N_mech of BC in O = 9π/2 N = ½·p·π·r_i² | no ⁸ |
 | W3 operating-only rigid motion | rigid line stop at B.UX, no motion | the same stop, B.UX moved +1/1024 m | `admitted`: the same restraint; S's zero is no increment | `linear_increment`: Δu_B = 1/1024 m, N = 7π N, reaction at A −7π N | no |
 | W4 operating-only spring base | spring K at B.UX, k = EA/L, base unmoved | the same spring, base moved +1/1024 m | `admitted`: the same spring; an added excitation | `linear_increment`: Δu_B = 1/2048 m; spring force on the pipe 7π/2 N | no |
 | W5 wind extent substitution | wind along +x, 32 Pa, shape factor 1, exposed diameter 1/4 m (q = 8 N/m), span [0, 1/2] | wind on [1/2, 1], plus nodal +3 N at A.UX and +1 N at B.UX | `refused_g1`: S's recipe is not in O; same-bit nodal forces are not the same action | `linear_increment`: EA·Δu_B = 3 N·m (the nodal forces alone give 1 N·m); consistent A/B forces (3, 1) N in S and (1, 3) N for O's wind | yes ¹ |
 | W6 free DOF against one fixed at zero | B.UX free; +7π N at B | B.UX rigid, zero motion; the same load | `refused_restraint` | `state_difference`: u_B(S) = 1/1024 m, u_B(O) = 0, difference −1/1024 m | yes ² |
 | W7a removed spring | spring K at B.UX, k = EA/L; +7π N at B | no spring | `refused_restraint` | `state_difference`: u_B(S) = 1/2048 m, u_B(O) = 1/1024 m, difference +1/2048 m | yes ² |
 | W7b different spring at the same node | spring K1, k = EA/L; +7π N at B | spring K2, the same k; the same load | `refused_restraint`: another identity is another case | `state_difference`: 0 m; the two states are equal ³ | yes ² |
-| W8 two recipes, equal values | whole-span wind 0.1 Pa (its binary64), shape factor 10, D = 1/4 m | whole-span wind 1 Pa, shape factor 1 | `refused_g1`: the recipes differ (conservative) | `linear_increment` of the formed loads: 0 (binary64 intensity 1/4 N/m in both, in either order of multiplication); the exact recipe difference at B is −2⁻⁵⁷ N | yes ¹ |
+| W8 two recipes, equal values | whole-span wind 0.1 Pa (its binary64), shape factor 10, D = 1/4 m | whole-span wind 1 Pa, shape factor 1 | `refused_g1`: the recipes differ (conservative) | `linear_increment`: the reference multiplication gives 1/4 N/m for both rounded intensities, so 0. The exact recipe difference at B is −2⁻⁵⁷ N | yes ¹ |
 | W9 explicit zero against default zero | line stop at B.UX with authored motion −0.0 m | the same stop, no authored motion | `admitted`: a zero of either sign normalizes with the default | `linear_increment`: 0 | no |
 | F1 terminal witness | pressurised cantilever, free-end terminal `transfers_to_wall` | the same, free end `separately_supported_or_compensated` | `refused_g1` | `linear_increment`: Δu_B = −p·A_i·L/(E·A) = −64607/81065856 m ⁴ | no |
-| F2 fit witness | free-length state: datum and installation 300 K, operating 500 K, α = 2⁻¹⁶ /K, fit strain 2⁻¹⁰ | the same, no fit | `refused_g1` | `linear_increment`: strain increment −8217/8388608; on a fixed-fixed bar of the W section, N = 57519π/8192 N | no |
-| F2b installation-only variant | as F2's O: installation 300 K, no fit | installation 400 K, no fit | `refused_g1` | `linear_increment`: strain increment −205425/134422528; N = 1437975π/131272 N on the same bar ⁵ | no |
-| K1 selection record only (the specification's W10) | frozen M1: weight, both regions at 5.75 MPa, elongation on, ΔT on every member; basis `REF` (exact 300 K point) | the same actions; basis a solve temperature of 300 K, interpolated between 300 K and 700 K at fraction 0 | `refused_g2` under S (`admitted` under R): the selection differs although E, ν and G are equal | `linear_increment`: 0 on each of M1's 84 rows (common operator, equal load vectors) | yes ⁶ |
-| W11 equal moduli, different expansion coefficients | M1, no pressure; weight at B, ΔT = 475/2 K on every member; the invented material's 250 K point (α = 5·2⁻¹⁹ /K) | the same actions; that material's 650 K point (α = 7·2⁻¹⁹ /K), the same E, ν and G | `refused_g2` under S (`admitted` under R): the selection differs | `state_difference` on the common operator: the response to (α_O − α_S)·ΔT = 475/524288 on every member; see "W11" below | yes ⁷ |
+| F2 fit witness | fixed-fixed bar (A anchored, rigid stop at B.UX); free-length state: datum and installation 300 K, operating 500 K, α = 2⁻¹⁶ /K, fit strain 2⁻¹⁰ | the same fixed-fixed bar and state, no fit | `refused_g1` | `linear_increment`: strain increment −8217/8388608; N = 57519π/8192 N | no |
+| F2b installation-only variant | fixed-fixed bar; as F2's O: installation 300 K, no fit, reference identifier `RC-AB-INSTALLED-300` | the same fixed-fixed bar; installation 400 K, no fit, reference identifier `RC-AB-INSTALLED-400` | `refused_g1` | `linear_increment`: strain increment −205425/134422528; N = 1437975π/131272 N ⁵ | no |
+| K1 selection record only | frozen M1: weight, both regions at 5.75 MPa, elongation on, ΔT on every member; basis `REF` (exact 300 K point) | the same actions; basis a solve temperature of 300 K, interpolated between 300 K and 700 K at fraction 0 | `refused_g2` under S (`admitted` under R): the selection differs although E, ν and G are equal | `linear_increment`: 0 on each of M1's 84 rows (common operator, equal load vectors) | yes ⁶ |
+| W11 equal moduli, different expansion coefficients | M1, no pressure; weight at B, ΔT = 475/2 K on every member; the invented material's 250 K point (α = 5·2⁻¹⁹ /K) | the same actions; that material's 650 K point (α = 7·2⁻¹⁹ /K), the same E, ν and G | `refused_g2` under S (`admitted` under R): the case basis label and selection temperature differ | `state_difference` on the common operator: the response to (α_O − α_S)·ΔT = 475/524288 on every member; see "W11" below | yes ⁷ |
 
 1. Whether exact-route wind generation admits a load along the member axis is not
-   established here, because establishing it would need product code. The row
-   therefore tests the policy function only.
-2. Supports are model-level on the exact route. A per-case free or fixed DOF, or a
-   per-case spring, cannot be authored.
+   established here, because establishing it would need product code.
+2. W6, W7a and W7b compare different model-level support definitions and are
+   gate-only.
 3. The specification gives no load for W7b. The common +7π N of W7a is used, and the
    difference is zero with or without it.
-4. F1 uses the frozen package's section, E = 194 750 000 000 Pa and p = 5 750 000 Pa,
+4. F1 uses the predecessor's section, E = 194 750 000 000 Pa and p = 5 750 000 Pa,
    with L = 15/4 m. It is solved with elongation on in both operands. The increment
    depends on neither the setting nor ν.
 5. The specification gives F2b's value and "installation 400 K in O". The stated value
    is the increment with no fit in either operand, so that is how F2b is built. The
    secant strain of F2 is
    (1 + α·(T_op − T_inst)/(1 + α·(T_inst − T_datum)))·(1 + fit) − 1.
-6. Not established here whether the exact route's resolver records a solve temperature
-   at a table point as an interpolation at fraction 0, rather than as that point.
-   Establishing it would need product code. K1 was added at Agent 0's request, to
-   separate the two stiffness readings. K1 is the specification's row W10 (its
-   section 5.4, addendum 1: endpoint interpolation against an exact point).
+6. K1 is a gate-only analogue of W10. It uses M1 and synthetic selection records,
+   including fraction 0. W10 specifies a common 1 N bar load and an endpoint record
+   without a fraction. K1 establishes S and R's verdicts for its supplied records and
+   zero analytical difference on the common M1 operator.
 7. Not established here whether the exact route's resolver accepts a material whose
    points share E and G but have different expansion coefficients, and records the two
    selections as given. Establishing it would need product code.
+8. AB and BC have distinct material records with the listed moduli. Reachability with
+   the auxetic AB material has not been established. Both terminals of each region
+   transfer to the wall. The specification's binary64 formation observation is outside
+   the analytical comparison.
 
 ### W11: equal moduli, different expansion coefficients
 
-W11 uses the frozen M1 geometry and section with no pressure. Both operands carry the
-same actions: the weight at B and the thermal primitive ΔT = 475/2 K on every member.
-They select two points of a new invented, non-standard material,
-`invented_w11_equal_moduli_two_alphas`. It is not the frozen material and does not use
-the frozen bases.
+W11 uses the predecessor's M1 geometry and section with no pressure. Both operands
+carry the same actions: the weight at B and the thermal primitive ΔT = 475/2 K on every
+member. They select two points of a new invented, non-standard material,
+`invented_w11_equal_moduli_two_alphas`. It is not the predecessor's material and does
+not use its bases.
 
 | Point | E (Pa) | G (Pa) | ν | α (/K) |
 |---|---|---|---|---|
 | 250 K (S selects it, as an exact basis reference) | 187 500 000 000 | 75 000 000 000 | 1/4 | 5·2⁻¹⁹ |
 | 650 K (O selects it, as an exact basis reference) | 187 500 000 000 | 75 000 000 000 | 1/4 | 7·2⁻¹⁹ |
 
-**Verdicts.**
+**Verdicts.** Under reading S the stiffness part refuses W11 (`refused_g2`): the case
+basis label and the selection record's selection temperature differ. Under reading R
+the stiffness part and the authored classes hold, so this package's policy admits W11
+(`admitted`).
 
-- Under reading S, the stiffness part refuses W11 (`refused_g2`). The case basis label
-  and the selection record's selection temperature differ.
-- Under reading R, the stiffness part holds and the authored classes hold, so this
-  package's policy admits W11 (`admitted`).
-- Neither reading compares the expansion coefficient.
+**Mechanics.** In the reference calculation both operands share one elastic operator.
+Their identical weight cancels. The direct-stiffness difference equals the response to
+the uniform free strain 475/524288 on all 84 output rows. Under R the equal authored
+actions give an admission verdict even though the calculation has a nonzero difference
+from the two selected expansion coefficients. The package records it as a
+`state_difference` under `rows`.
 
-**Mechanics.** E, ν and G are equal, so the two operands share one operator, and their
-authored actions are equal. Both states are solved. Their difference is the response to
-the free strain (α_O − α_S)·ΔT = 2⁻¹⁸·475/2 = 475/524288 on every member, and to
-nothing else. The generator confirms this on all 84 rows by solving that free strain
-alone on the common operator.
+Selection of the two coefficients for the thermal primitive is an assumption of the
+reference calculation. How the product's resolver records either selection is not
+established here, so W11 is marked gate-only (note 7).
 
-So reading R admits a pair whose published difference is not an expansion response on
-one basis. It is the response to a difference in selected expansion coefficients.
-
-The difference is recorded as a `state_difference`, with every row under `rows`.
-
-**Closed-form check.** The frozen package's "M1 by hand" flexibility, with E = 187.5 GPa
-and the free strain 475/524288 on both members, gives the support force and moment at C:
-
-- X = −11 750.96… N;
-- Y = −5 473.80… N;
-- Z = −23 153.85… N·m.
-
-These equal the difference's `reaction/C/FX`, `FY` and `MZ` exactly. The exact values
-are under `closed_form_check`.
-
-**What this package cannot say.** It cannot say whether a later check on the terms the
-solve consumed would refuse W11 under reading R. That is a matter for the engine's
-design, and nothing about it is frozen here. How the product's resolver records either
-selection is not established here, so W11 is marked gate-only (note 7).
-
-W2's formation note in the specification (a grouped binary64 force at B that differs
-by −2⁻⁴⁹ N from the separately formed extra region) concerns the order in which a
-product forms binary64 values. It is not derived here and is not an entry.
+**Closed-form check.** Rounded to two decimals, C carries FX = −11 750.96 N,
+FY = −5 473.80 N and MZ = −23 153.85 N·m. The exact values in `closed_form_check`
+match the three reaction entries.
 
 ## Builder's witnesses
-
-X1 and X2 were added by the builder, so that two of the verifier test's wrong policies
-can be caught: the other added rows contain no ledger factor and no second
-reference-configuration identifier. Both are on the W bar, and each follows from the
-policy as written:
-
-- X1 rests on "Primitive loads" (specification section 3.1): equal ledger factor
-  bits, and the key is never the rounded product.
-- X2 rests on "Member free-strain states" (specification section 3.5): no
-  reference-configuration identifier is compared.
 
 | Row | S | O | Verdict | Mechanical | Gate-only |
 |---|---|---|---|---|---|
 | X1 same stored primitive, other ledger factor | +1024 N at B.UX, ledger factor 1 | the same primitive, ledger factor 3/2 | `refused_g1`: the factors' bits differ | `linear_increment`: Δu_B = 1/(14π) m | yes: not established here whether the exact route accepts a ledger on this document |
 | X2 equal state, two reference-configuration identifiers | `constant_alpha_interval` on AB, α = 2⁻¹⁶ /K, 64 K, identifier RC-1 | the same operands, identifier RC-2 | `admitted`: no identifier is compared | `linear_increment`: 0 | yes: not established here whether one document can carry two reference configurations for one member |
+| X3 W3 with only the rigid stop's identity changed | rigid line stop `line_stop:B` at B.UX, no motion | a rigid stop at B.UX with another identity, moved +1/1024 m | `refused_restraint` | `state_difference`: u_B(S) = 0, u_B(O) = 1/1024 m, difference 1/1024 m | yes: compares different model-level support definitions |
+| X4 zero-law free-length state | fixed-fixed bar; `free_length_state` on AB with a constant zero law, installation 300 K, operating 500 K, no fit | the same bar, no state | `refused_g1`: the state is an action | `linear_increment`: free-strain increment 0, N = 0 | no |
+| X5 two seismic recipes, mass basis only | seismic along x, factor 1/4, on AB; mass basis with contents 8 per m | the same recipe with contents 0 per m | `refused_g1`: the recipes' mass bases differ | `none` | yes: which mass inputs exact-route seismic generation reads has not been checked here |
 
-The verifier test's seventh wrong policy drops the selection kind, label and record
-from reading S. K1 and W11 reverse under it.
-
-## What this package does not prove
-
-- It says nothing about what any solve consumes.
-- It says nothing about a consumed-term check, an evidence record, or how any reader
-  is wired.
-- Its mechanical results are exact references, not product outputs.
-- It admits no declared difference on the exact route.
+X1 tests ledger-factor identity and X2 tests reference-configuration identifier
+exclusion. Each is a target of one of the verifier test's mutants, as X5 is of the
+mutant that ignores the mass basis. X3 is the control for the rigid-identity reading
+and X4 for the zero-rule reading. The verifier test's seventh mutant drops the
+selection kind, label and record from reading S; K1 and W11 reverse under it.
 
 ## Limits
 
-The limits of the frozen package's models carry over. They are linear Euler–Bernoulli
-models without bends, and no certificate bound is given. The added rows are axial
-only. The policy's seismic, nonlinear and natural-length-change paths are stated but
-not exercised by any row.
+The bar witnesses are axial. K1 and W11 use the M1 frame. Seismic generation has one
+policy witness (X5) and no mechanical value. Nonlinear restraints and natural-length
+changes have policy entries but no witness here. No certificate bound is supplied.

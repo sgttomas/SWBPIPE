@@ -1,9 +1,8 @@
 """The policy verifier (`tests/verifiers/exact_difference_basis.py`) against the successor package
 `validation/references/exact_difference_basis_completed/`.
 
-The verifier was written from the policy text, separately from the package's generator. Its verdict must equal
-every row's `admission.verdict`, and each of six deliberately wrong policies must reverse at least one row, so that
-the rows are shown to bind each part of the policy they are meant to bind.
+The verifier was written from the policy text, separately from the package's generator. The test compares both
+readings on every row and requires each of eight specified mutants to change a verdict.
 """
 import ast
 import json
@@ -33,7 +32,7 @@ def verdicts():
 
 
 def test_rows_are_all_read():
-    assert len(ROWS) == 19 + 17 + 15 + 2
+    assert len(ROWS) == 19 + 17 + 15 + 5
     assert len({row["id"] for row in ROWS}) == len(ROWS)
 
 
@@ -86,6 +85,12 @@ def _reference_configuration_compared(original):
     return lambda record: original(record) + (record.get("reference_configuration"),)
 
 
+def _mass_basis_ignored(original):
+    def key(record):
+        return original(dict(record, mass_basis={}))
+    return key
+
+
 def _selection_dropped_from_reading_s(original):
     return {"S": original["R"], "R": original["R"]}
 
@@ -98,6 +103,7 @@ MUTANTS = {
     "a free DOF treated as fixed": ("restraint_law", _free_is_fixed),
     "the reference-configuration id added to the member key": ("state_key", _reference_configuration_compared),
     "the selection kind, label and record dropped from reading S": ("READINGS", _selection_dropped_from_reading_s),
+    "the mass basis ignored in the generated key": ("generated_key", _mass_basis_ignored),
 }
 
 

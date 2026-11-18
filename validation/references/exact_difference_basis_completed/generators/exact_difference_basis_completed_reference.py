@@ -643,9 +643,9 @@ def restraint_laws(side_):
     laws = {}
     for s in side_["supports"]:
         if s["law"] == "free":
-            law = ("free",)
+            law = ("free",)                           # a DOF a side does not list is free too (restraint_holds)
         elif s["law"] == "rigid":
-            law = ("rigid",)
+            law = ("rigid", s["identity"])
         else:
             law = (s["law"], s["identity"], s["participation"], norm_mapping(s["parameters"]))
         laws[(s["support"], s["dof"])] = law
@@ -779,8 +779,7 @@ def admission(s, o, reason, gate_only, gate_only_reason):
 
 FROZEN_TO_COMPLETED = {"published": "admitted", "refused_g1": "refused_g1", "refused_g2": "refused_g2",
                        "refused_g1_and_g2": "refused_g1"}
-CARRIED_GATE_ONLY = ("carried from the frozen package, which states each case as an exact-route document; not "
-                     "re-examined here, which would need product code")
+CARRIED_GATE_ONLY = "Carried reference case. Exact-route document reachability has not been rechecked."
 FROZEN_REFERENCE_CONFIGURATION = "frozen:shared_reference"
 FROZEN_INSTALLATION_K = F(300)   # invented: the shared reference configuration's resolved installation temperature
 
@@ -927,7 +926,7 @@ def carried_pairs():
         frozen = frozen_expected(pid)
         s_side, o_side = pair_side(m, s, False), pair_side(m, o, True)
         if frozen == "published":
-            reason = "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads"
+            reason = "O retains S's authored actions and adds thermal primitives"
         elif frozen == "refused_g1":
             reason = "the subtrahend's regions carry another pressure than the minuend's"
         else:
@@ -1078,7 +1077,7 @@ SEVEN_PI_LOAD = primitive("f:B:x", "occasional", "node:B", "global_x", "force", 
                           value_text="7*pi", value_float=nearest(SEVEN_PI))
 LINE_STOP = {"support": "line_stop:B", "dof": "UX", "law": "rigid", "identity": "line_stop:B",
              "participation": "active", "parameters": {}}
-FREE_B = {"support": "line_stop:B", "dof": "UX", "law": "free", "identity": None, "participation": None,
+FREE_B = {"support": "line_stop:B", "dof": "UX", "law": "free", "identity": "line_stop:B", "participation": None,
           "parameters": {}}
 
 
@@ -1114,9 +1113,8 @@ W_XS = {"A": F(0), "B": F(1)}
 W_MEMBER = [("AB", "A", "B")]
 WIND_GATE_ONLY = ("not established here whether exact-route wind generation admits a load along the member axis; "
                   "establishing it would need product code, so the row tests the policy function only")
-SUPPORT_GATE_ONLY = ("supports are model-level on the exact route, so a per-case free or fixed DOF, or a per-case "
-                     "spring, cannot be authored; the row tests the policy function only")
-NOT_GATE_ONLY = "an ordinary exact-route document; validation does not stop it before the gate"
+SUPPORT_GATE_ONLY = "W6, W7a and W7b compare different model-level support definitions and are gate-only."
+NOT_GATE_ONLY = "Proposed document case. Exact-route validation has not been checked here."
 
 
 def added_rows():
@@ -1161,14 +1159,15 @@ def added_rows():
     assert n_mech_bc == p * bore / 2
     r_ab = w_region(["AB"], [("A", "transfers_to_wall"), ("B", "transfers_to_wall")], p)
     r_bc = w_region(["BC"], [("B", "transfers_to_wall"), ("C", "transfers_to_wall")], p)
-    basis2 = {mid: dict(W_BASIS["AB"], nu=q(nus[mid]),
-                        G=q(W_E / (2 * (1 + nus[mid]))),
+    w2_material = {"AB": "invented_w2_ab_auxetic", "BC": "invented_w2_bc"}
+    basis2 = {mid: dict(W_BASIS["AB"], nu=q(nus[mid]), G=q(W_E / (2 * (1 + nus[mid]))), material=w2_material[mid],
                         selection_record=dict(W_BASIS["AB"]["selection_record"], selected_nu=q(nus[mid])))
               for mid in ("AB", "BC")}
     rows.append(("W2", "shared-terminal grouping",
                  w_side("S", regions=[r_ab], elongation=True, basis=basis2),
                  w_side("O", regions=[r_ab, r_bc], elongation=True, basis=basis2),
-                 "BC's region is an added action; AB's region, with its terminals, is in both", False, NOT_GATE_ONLY,
+                 "BC's region is an added action; AB's region, with its terminals, is in both", False,
+                 NOT_GATE_ONLY + " Reachability with the auxetic AB material (nu = -1/8) has not been established.",
                  {"kind": "linear_increment",
                   "values": {"u/B/UX": entry(du_b, "m"), "u/C/UX": entry(du_c, "m"),
                              "axial/BC/N_mech (minuend)": entry(n_mech_bc, "N")},
@@ -1344,25 +1343,28 @@ def added_rows():
     def secant_strain(installation, operating, fit):
         return (1 + alpha * (operating - installation) / (1 + alpha * (installation - datum))) * (1 + fit) - 1
 
-    def f_state(installation, fit):
+    def f_state(installation, fit, rc):
         return {"member": "AB", "kind": "free_length_state",
                 "operands": {"installation_temperature": q(installation), "operating_temperature": "500",
                              "expansion_law": {"definition": "secant_constant", "datum": q(datum),
                                                "constant": q(alpha)}},
                 "fit": {"kind": "fit_strain", "strain": q(fit)} if fit else {"kind": "none"},
-                "reference_configuration": "RC-AB"}
+                "reference_configuration": rc}
 
+    fixed_fixed = W_ANCHOR + [LINE_STOP]
     for rid, title, s_args, o_args, expected, reason in (
-            ("F2", "first reader's fit witness", (F(300), F(1, 1024)), (F(300), F(0)), F(-8217, 8388608),
-             "the fit differs, so the resolved free strain differs"),
-            ("F2b", "installation-only variant", (F(300), F(0)), (F(400), F(0)), F(-205425, 134422528),
+            ("F2", "first reader's fit witness", (F(300), F(1, 1024), "RC-AB"), (F(300), F(0), "RC-AB"),
+             F(-8217, 8388608), "the fit differs, so the resolved free strain differs"),
+            ("F2b", "installation-only variant", (F(300), F(0), "RC-AB-INSTALLED-300"),
+             (F(400), F(0), "RC-AB-INSTALLED-400"), F(-205425, 134422528),
              "the installation temperature differs, so the resolved free strain differs")):
         de = secant_strain(o_args[0], F(500), o_args[1]) - secant_strain(s_args[0], F(500), s_args[1])
         assert de == expected, (rid, de)
         _, nf, *_ = bar_solve(W_XS, [("AB", "A", "B", ea, Exact.of(de))], {"A": ("rigid", 0), "B": ("rigid", 0)}, {})
         assert nf["AB"] == -ea * de
-        rows.append((rid, title, w_side("S", member_states=[f_state(*s_args)]),
-                     w_side("O", member_states=[f_state(*o_args)]), reason, False, NOT_GATE_ONLY,
+        rows.append((rid, title, w_side("S", supports=fixed_fixed, member_states=[f_state(*s_args)]),
+                     w_side("O", supports=fixed_fixed, member_states=[f_state(*o_args)]), reason, False,
+                     NOT_GATE_ONLY,
                      {"kind": "linear_increment",
                       "values": {"free strain increment": entry(de, "1"),
                                  "axial/AB/N on a fixed-fixed bar of the shared W section": entry(nf["AB"], "N")}}))
@@ -1415,22 +1417,27 @@ def expansion_coefficient_row():
                     supports=anchor_supports(FROZEN_MODELS[m]["anchors"]), basis=frozen_basis(m, label))
     return ("W11", "equal moduli, different expansion coefficients, thermal in both",
             w_side_m1("S", "W11_LO"), w_side_m1("O", "W11_HI"),
-            "the case basis label and selection record (selection temperature) differ although E, nu and G are "
-            "equal on every member (stiffness reading S); the expansion coefficient is compared by neither reading",
+            "the case basis label and the selection record's selection temperature differ although E, nu and G are "
+            "equal on every member (stiffness reading S)",
             True,
             "not established here whether the exact route's resolver accepts a material whose points share E and G "
             "with different expansion coefficients, and records the two selections as given; establishing it would "
-            "need product code",
+            "need product code. Selection of the two coefficients for the thermal primitive is an assumption of the "
+            "reference calculation.",
             {"kind": "state_difference",
-             "response_to": "the free strain (alpha_O - alpha_S) * dT = 475/524288 on every member, on the common "
-                            "operator: a difference in selected expansion coefficients, not an authored action",
+             "response_to": "the uniform free strain (alpha_O - alpha_S) * dT = 475/524288 on every member, on the "
+                            "common operator",
              "rows": {k: entry(v, row_unit(k)) for k, v in diff.items()},
              "closed_form_check": {
                  "method": "the frozen package's M1 hand formula (release the anchor at C; in-plane flexibility "
                            "with EA = E A_n, EI = E I_n) with the free strain 475/524288 on both members",
                  "reaction/C/FX": entry(x, "N"), "reaction/C/FY": entry(y, "N"), "reaction/C/MZ": entry(z, "N*m")},
-             "divergence": "reading R admits a pair whose difference is not an expansion response on one basis "
-                           "but the response to a difference in selected expansion coefficients"})
+             "divergence": "In the reference calculation both operands share one elastic operator. Their identical "
+                           "weight cancels. The direct-stiffness difference equals the response to the uniform free "
+                           "strain 475/524288 on all 84 output rows. Under R the equal authored actions give an "
+                           "admission verdict even though the calculation has a nonzero difference from the two "
+                           "selected expansion coefficients. The package records it as a `state_difference` under "
+                           "`rows`."})
 
 
 def selection_record_row():
@@ -1454,7 +1461,10 @@ def selection_record_row():
     return ("K1", "equal resolved moduli, exact point against interpolation at that endpoint",
             k_side("S", "REF"), k_side("O", "T300"),
             "the selection kind, case basis label and selection record differ although E, nu and G are equal on "
-            "every member (stiffness reading S)", True,
+            "every member (stiffness reading S). K1 is a gate-only analogue of W10. It uses M1 and synthetic "
+            "selection records, including fraction 0. W10 specifies a common 1 N bar load and an endpoint record "
+            "without a fraction. K1 establishes S and R's verdicts for its supplied records and zero analytical "
+            "difference on the common M1 operator.", True,
             "not established here whether the exact route's resolver records a solve temperature at a table point "
             "as an interpolation at fraction 0 rather than as that point; establishing it would need product code",
             {"kind": "linear_increment",
@@ -1466,8 +1476,9 @@ def selection_record_row():
 
 
 def builder_witnesses():
-    """Two rows the specification's six mutants need and its added rows do not supply (README 'Builder's
-    witnesses'): a ledger factor, and a reference-configuration identifier."""
+    """Rows the builder added (README 'Builder's witnesses'): X1 and X2 for two of the verifier test's mutants
+    (a ledger factor, a reference-configuration identifier); X3 the rigid-identity control; X4 the zero-law
+    free-length state that stays an action; X5 two seismic recipes that differ only in mass basis."""
     rows = []
     ea = W_EA
     force = F(1024)
@@ -1495,12 +1506,62 @@ def builder_witnesses():
                  "not established here whether one exact-route document can carry two reference configurations "
                  "for one member; the row tests the policy function only",
                  {"kind": "linear_increment", "values": {"u/B/UX": entry(ZERO, "m")}}))
+
+    # X3: W3 with only the rigid line stop's identity changed in the minuend
+    delta = F(1, 1024)
+    u0, *_ = bar_solve(W_XS, [("AB", "A", "B", ea, ZERO)], {"A": ("rigid", 0), "B": ("rigid", 0)}, {})
+    u1, *_ = bar_solve(W_XS, [("AB", "A", "B", ea, ZERO)], {"A": ("rigid", 0), "B": ("rigid", delta)}, {})
+    motion = {"support": "line_stop:B", "dof": "UX", "field": "rigid_boundary", "value": q(delta),
+              "value_bits": rational_bits(delta), "authored": True}
+    other_stop = dict(LINE_STOP, identity="line_stop:B:other")
+    rows.append(("X3", "W3 with only the rigid stop's identity changed",
+                 w_side("S", supports=W_ANCHOR + [LINE_STOP]),
+                 w_side("O", supports=W_ANCHOR + [other_stop], motions=[motion]),
+                 "the rigid restraint at B.UX has another identity in the minuend", True,
+                 "Compares different model-level support definitions and is gate-only.",
+                 {"kind": "state_difference",
+                  "values": {"u/B/UX (subtrahend)": entry(u0["B"], "m"), "u/B/UX (minuend)": entry(u1["B"], "m"),
+                             "u/B/UX (minuend - subtrahend)": entry(u1["B"] - u0["B"], "m")}}))
+
+    # X4: a free-length state with a constant zero law and unequal temperatures stays an action
+    zero_law_state = {"member": "AB", "kind": "free_length_state",
+                      "operands": {"installation_temperature": "300", "operating_temperature": "500",
+                                   "expansion_law": {"definition": "secant_constant", "datum": "300",
+                                                     "constant": "0"}},
+                      "fit": {"kind": "none"}, "reference_configuration": "RC-AB"}
+    strain = F(0) * (F(500) - F(300)) / (1 + F(0) * (F(300) - F(300)))
+    _, nf, *_ = bar_solve(W_XS, [("AB", "A", "B", ea, Exact.of(-strain))], {"A": ("rigid", 0), "B": ("rigid", 0)}, {})
+    assert strain == 0 and nf["AB"].is_zero()
+    rows.append(("X4", "zero-law free-length state with unequal temperatures",
+                 w_side("S", supports=W_ANCHOR + [LINE_STOP], member_states=[zero_law_state]),
+                 w_side("O", supports=W_ANCHOR + [LINE_STOP]),
+                 "the subtrahend's free-length state has unequal installation and operating temperatures, so it "
+                 "is an action even though its law's constant is zero; it is not in the minuend", False,
+                 NOT_GATE_ONLY,
+                 {"kind": "linear_increment",
+                  "values": {"free strain increment": entry(ZERO - strain, "1"),
+                             "axial/AB/N on a fixed-fixed bar of the shared W section": entry(nf["AB"], "N")},
+                  "divergence": "the free strain of the subtrahend's state is exactly zero, so the increment is "
+                                "zero; the policy refuses because the state is not established zero by its kind"}))
+
+    # X5: two seismic recipes that differ only in their mass basis
+    def seismic(contents):
+        return {"kind": "seismic", "target": "AB", "inputs": {"axis": "global_x", "factor": "1/4"},
+                "mass_basis": {"method": "lumped_member_mass", "section_mass_per_length": "24",
+                               "contents_mass_per_length": q(contents), "component_masses": []}}
+    rows.append(("X5", "two seismic recipes that differ only in mass basis",
+                 w_side("S", generated=[seismic(F(8))]), w_side("O", generated=[seismic(F(0))]),
+                 "the recipes' mass bases differ, so the subtrahend's seismic recipe is not in the minuend", True,
+                 "Proposed policy case. Which mass inputs exact-route seismic generation reads has not been checked "
+                 "here.",
+                 {"kind": "none"}))
     return rows
 
 
 MEANINGS = {
     "linear_increment": "the response of the common operator to the difference of the two load vectors",
     "state_difference": "the difference of two independently solved states; no superposition claim",
+    "none": "no numerical result: this package states no seismic generation rule, so no exact value is given",
 }
 
 
@@ -1519,7 +1580,8 @@ EXPECTED_ADDED = {"W1": "admitted", "W2": "admitted", "W3": "admitted", "W4": "a
                   "W6": "refused_restraint", "W7a": "refused_restraint", "W7b": "refused_restraint",
                   "W8": "refused_g1", "W9": "admitted", "F1": "refused_g1", "F2": "refused_g1", "F2b": "refused_g1",
                   "K1": "refused_g2", "W11": "refused_g2",
-                  "X1": "refused_g1", "X2": "admitted"}
+                  "X1": "refused_g1", "X2": "admitted", "X3": "refused_restraint", "X4": "refused_g1",
+                  "X5": "refused_g1"}
 
 
 # ==========================================================================================================

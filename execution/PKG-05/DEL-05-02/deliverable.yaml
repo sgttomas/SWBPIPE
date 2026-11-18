@@ -150,8 +150,7 @@ code_paths:
 # product test reads it yet.
 - validation/references/exact_difference_basis/**
 - tests/test_exact_difference_basis_references.py
-# Its successor, the completed admission policy with the frozen rows carried and the W, F and X rows
-# added, and the policy verifier written separately from its generator. No product test reads it yet.
+# Candidate analytical values and admission-policy checks for the exact route.
 - validation/references/exact_difference_basis_completed/**
 - tests/test_exact_difference_basis_completed_references.py
 - tests/verifiers/exact_difference_basis.py

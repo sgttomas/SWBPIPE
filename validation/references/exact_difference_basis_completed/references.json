@@ -3,7 +3,7 @@
   {
    "admission": {
     "gate_only": false,
-    "gate_only_reason": "an ordinary exact-route document; validation does not stop it before the gate",
+    "gate_only_reason": "Proposed document case. Exact-route validation has not been checked here.",
     "gates": {
      "g1": {
       "holds": true,
@@ -257,7 +257,7 @@
   {
    "admission": {
     "gate_only": false,
-    "gate_only_reason": "an ordinary exact-route document; validation does not stop it before the gate",
+    "gate_only_reason": "Proposed document case. Exact-route validation has not been checked here. Reachability with the auxetic AB material (nu = -1/8) has not been established.",
     "gates": {
      "g1": {
       "holds": true,
@@ -305,7 +305,7 @@
       "G": "4194304/7",
       "case_basis_label": "W",
       "constitutive_basis": "linear_elastic",
-      "material": "invented_w",
+      "material": "invented_w2_ab_auxetic",
       "nu": "-1/8",
       "section": {
        "corrosion_allowance": "0",
@@ -327,7 +327,7 @@
       "G": "2097152/5",
       "case_basis_label": "W",
       "constitutive_basis": "linear_elastic",
-      "material": "invented_w",
+      "material": "invented_w2_bc",
       "nu": "1/4",
       "section": {
        "corrosion_allowance": "0",
@@ -460,7 +460,7 @@
       "G": "4194304/7",
       "case_basis_label": "W",
       "constitutive_basis": "linear_elastic",
-      "material": "invented_w",
+      "material": "invented_w2_ab_auxetic",
       "nu": "-1/8",
       "section": {
        "corrosion_allowance": "0",
@@ -482,7 +482,7 @@
       "G": "2097152/5",
       "case_basis_label": "W",
       "constitutive_basis": "linear_elastic",
-      "material": "invented_w",
+      "material": "invented_w2_bc",
       "nu": "1/4",
       "section": {
        "corrosion_allowance": "0",
@@ -584,7 +584,7 @@
   {
    "admission": {
     "gate_only": false,
-    "gate_only_reason": "an ordinary exact-route document; validation does not stop it before the gate",
+    "gate_only_reason": "Proposed document case. Exact-route validation has not been checked here.",
     "gates": {
      "g1": {
       "holds": true,
@@ -835,7 +835,7 @@
   {
    "admission": {
     "gate_only": false,
-    "gate_only_reason": "an ordinary exact-route document; validation does not stop it before the gate",
+    "gate_only_reason": "Proposed document case. Exact-route validation has not been checked here.",
     "gates": {
      "g1": {
       "holds": true,
@@ -1379,7 +1379,7 @@
   {
    "admission": {
     "gate_only": true,
-    "gate_only_reason": "supports are model-level on the exact route, so a per-case free or fixed DOF, or a per-case spring, cannot be authored; the row tests the policy function only",
+    "gate_only_reason": "W6, W7a and W7b compare different model-level support definitions and are gate-only.",
     "gates": {
      "g1": {
       "holds": true,
@@ -1630,7 +1630,7 @@
      },
      {
       "dof": "UX",
-      "identity": null,
+      "identity": "line_stop:B",
       "law": "free",
       "parameters": {},
       "participation": null,
@@ -1643,7 +1643,7 @@
   {
    "admission": {
     "gate_only": true,
-    "gate_only_reason": "supports are model-level on the exact route, so a per-case free or fixed DOF, or a per-case spring, cannot be authored; the row tests the policy function only",
+    "gate_only_reason": "W6, W7a and W7b compare different model-level support definitions and are gate-only.",
     "gates": {
      "g1": {
       "holds": true,
@@ -1902,7 +1902,7 @@
   {
    "admission": {
     "gate_only": true,
-    "gate_only_reason": "supports are model-level on the exact route, so a per-case free or fixed DOF, or a per-case spring, cannot be authored; the row tests the policy function only",
+    "gate_only_reason": "W6, W7a and W7b compare different model-level support definitions and are gate-only.",
     "gates": {
      "g1": {
       "holds": true,
@@ -2420,7 +2420,7 @@
   {
    "admission": {
     "gate_only": false,
-    "gate_only_reason": "an ordinary exact-route document; validation does not stop it before the gate",
+    "gate_only_reason": "Proposed document case. Exact-route validation has not been checked here.",
     "gates": {
      "g1": {
       "holds": true,
@@ -2661,7 +2661,7 @@
   {
    "admission": {
     "gate_only": false,
-    "gate_only_reason": "an ordinary exact-route document; validation does not stop it before the gate",
+    "gate_only_reason": "Proposed document case. Exact-route validation has not been checked here.",
     "gates": {
      "g1": {
       "holds": false,
@@ -2916,7 +2916,7 @@
   {
    "admission": {
     "gate_only": false,
-    "gate_only_reason": "an ordinary exact-route document; validation does not stop it before the gate",
+    "gate_only_reason": "Proposed document case. Exact-route validation has not been checked here.",
     "gates": {
      "g1": {
       "holds": false,
@@ -3051,6 +3051,14 @@
       "parameters": {},
       "participation": "active",
       "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "line_stop:B",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "line_stop:B"
      }
     ]
    },
@@ -3166,6 +3174,14 @@
       "parameters": {},
       "participation": "active",
       "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "line_stop:B",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "line_stop:B"
      }
     ]
    },
@@ -3174,7 +3190,7 @@
   {
    "admission": {
     "gate_only": false,
-    "gate_only_reason": "an ordinary exact-route document; validation does not stop it before the gate",
+    "gate_only_reason": "Proposed document case. Exact-route validation has not been checked here.",
     "gates": {
      "g1": {
       "holds": false,
@@ -3254,7 +3270,7 @@
        "installation_temperature": "400",
        "operating_temperature": "500"
       },
-      "reference_configuration": "RC-AB"
+      "reference_configuration": "RC-AB-INSTALLED-400"
      }
     ],
     "motions": [],
@@ -3309,6 +3325,14 @@
       "parameters": {},
       "participation": "active",
       "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "line_stop:B",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "line_stop:B"
      }
     ]
    },
@@ -3368,7 +3392,7 @@
        "installation_temperature": "300",
        "operating_temperature": "500"
       },
-      "reference_configuration": "RC-AB"
+      "reference_configuration": "RC-AB-INSTALLED-300"
      }
     ],
     "motions": [],
@@ -3423,6 +3447,14 @@
       "parameters": {},
       "participation": "active",
       "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "line_stop:B",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "line_stop:B"
      }
     ]
    },
@@ -3446,7 +3478,7 @@
       "why": "the same restraints and devices, and equal fixed-load inventories"
      }
     },
-    "reason": "the selection kind, case basis label and selection record differ although E, nu and G are equal on every member (stiffness reading S)",
+    "reason": "the selection kind, case basis label and selection record differ although E, nu and G are equal on every member (stiffness reading S). K1 is a gate-only analogue of W10. It uses M1 and synthetic selection records, including fraction 0. W10 specifies a common 1 N bar load and an endpoint record without a fraction. K1 establishes S and R's verdicts for its supplied records and zero analytical difference on the common M1 operator.",
     "verdict": "refused_g2"
    },
    "id": "K1",
@@ -3935,7 +3967,7 @@
   {
    "admission": {
     "gate_only": true,
-    "gate_only_reason": "not established here whether the exact route's resolver accepts a material whose points share E and G with different expansion coefficients, and records the two selections as given; establishing it would need product code",
+    "gate_only_reason": "not established here whether the exact route's resolver accepts a material whose points share E and G with different expansion coefficients, and records the two selections as given; establishing it would need product code. Selection of the two coefficients for the thermal primitive is an assumption of the reference calculation.",
     "gates": {
      "g1": {
       "holds": true,
@@ -3950,7 +3982,7 @@
       "why": "the same restraints and devices, and equal fixed-load inventories"
      }
     },
-    "reason": "the case basis label and selection record (selection temperature) differ although E, nu and G are equal on every member (stiffness reading S); the expansion coefficient is compared by neither reading",
+    "reason": "the case basis label and the selection record's selection temperature differ although E, nu and G are equal on every member (stiffness reading S)",
     "verdict": "refused_g2"
    },
    "id": "W11",
@@ -3973,10 +4005,10 @@
       "value": -23153.85494392797
      }
     },
-    "divergence": "reading R admits a pair whose difference is not an expansion response on one basis but the response to a difference in selected expansion coefficients",
+    "divergence": "In the reference calculation both operands share one elastic operator. Their identical weight cancels. The direct-stiffness difference equals the response to the uniform free strain 475/524288 on all 84 output rows. Under R the equal authored actions give an admission verdict even though the calculation has a nonzero difference from the two selected expansion coefficients. The package records it as a `state_difference` under `rows`.",
     "kind": "state_difference",
     "meaning": "the difference of two independently solved states; no superposition claim",
-    "response_to": "the free strain (alpha_O - alpha_S) * dT = 475/524288 on every member, on the common operator: a difference in selected expansion coefficients, not an authored action",
+    "response_to": "the uniform free strain (alpha_O - alpha_S) * dT = 475/524288 on every member, on the common operator",
     "rows": {
      "axial/AB/N_mech": {
       "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
@@ -5279,6 +5311,752 @@
     ]
    },
    "title": "equal resolved state under two reference-configuration identifiers"
+  },
+  {
+   "admission": {
+    "gate_only": true,
+    "gate_only_reason": "Compares different model-level support definitions and is gate-only.",
+    "gates": {
+     "g1": {
+      "holds": true,
+      "why": "every action of the subtrahend is in the minuend, with multiplicity"
+     },
+     "g2": {
+      "holds": true,
+      "why": "one modulus basis for every member"
+     },
+     "restraint": {
+      "holds": false,
+      "why": "the support law at line_stop:B UX differs between the operands"
+     }
+    },
+    "reason": "the rigid restraint at B.UX has another identity in the minuend",
+    "verdict": "refused_restraint"
+   },
+   "id": "X3",
+   "mechanical": {
+    "kind": "state_difference",
+    "meaning": "the difference of two independently solved states; no superposition claim",
+    "values": {
+     "u/B/UX (minuend - subtrahend)": {
+      "exact": "1/1024",
+      "unit": "m",
+      "value": 0.0009765625
+     },
+     "u/B/UX (minuend)": {
+      "exact": "1/1024",
+      "unit": "m",
+      "value": 0.0009765625
+     },
+     "u/B/UX (subtrahend)": {
+      "exact": "0",
+      "unit": "m",
+      "value": 0.0
+     }
+    }
+   },
+   "operating": {
+    "basis": {
+     "AB": {
+      "E": "1048576",
+      "G": "2097152/5",
+      "case_basis_label": "W",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_w",
+      "nu": "1/4",
+      "section": {
+       "corrosion_allowance": "0",
+       "mill_tolerance": "0",
+       "outside_diameter": "1/4",
+       "wall": "1/32"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "1048576",
+       "selected_nu": "1/4",
+       "selection_temperature": "293"
+      }
+     }
+    },
+    "case_id": "O",
+    "fixed_loads": [],
+    "generated": [],
+    "ledger": null,
+    "member_states": [],
+    "motions": [
+     {
+      "authored": true,
+      "dof": "UX",
+      "field": "rigid_boundary",
+      "support": "line_stop:B",
+      "value": "1/1024",
+      "value_bits": "3f50000000000000"
+     }
+    ],
+    "pressure_elongation": false,
+    "pressure_regions": [],
+    "primitives": [],
+    "supports": [
+     {
+      "dof": "UX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "line_stop:B:other",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "line_stop:B"
+     }
+    ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_restraint"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_restraint"
+    },
+    "differ": false
+   },
+   "sustained": {
+    "basis": {
+     "AB": {
+      "E": "1048576",
+      "G": "2097152/5",
+      "case_basis_label": "W",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_w",
+      "nu": "1/4",
+      "section": {
+       "corrosion_allowance": "0",
+       "mill_tolerance": "0",
+       "outside_diameter": "1/4",
+       "wall": "1/32"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "1048576",
+       "selected_nu": "1/4",
+       "selection_temperature": "293"
+      }
+     }
+    },
+    "case_id": "S",
+    "fixed_loads": [],
+    "generated": [],
+    "ledger": null,
+    "member_states": [],
+    "motions": [],
+    "pressure_elongation": false,
+    "pressure_regions": [],
+    "primitives": [],
+    "supports": [
+     {
+      "dof": "UX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "line_stop:B",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "line_stop:B"
+     }
+    ]
+   },
+   "title": "W3 with only the rigid stop's identity changed"
+  },
+  {
+   "admission": {
+    "gate_only": false,
+    "gate_only_reason": "Proposed document case. Exact-route validation has not been checked here.",
+    "gates": {
+     "g1": {
+      "holds": false,
+      "why": "the subtrahend's member state is not contained in the minuend"
+     },
+     "g2": {
+      "holds": true,
+      "why": "one modulus basis for every member"
+     },
+     "restraint": {
+      "holds": true,
+      "why": "the same restraints and devices, and equal fixed-load inventories"
+     }
+    },
+    "reason": "the subtrahend's free-length state has unequal installation and operating temperatures, so it is an action even though its law's constant is zero; it is not in the minuend",
+    "verdict": "refused_g1"
+   },
+   "id": "X4",
+   "mechanical": {
+    "divergence": "the free strain of the subtrahend's state is exactly zero, so the increment is zero; the policy refuses because the state is not established zero by its kind",
+    "kind": "linear_increment",
+    "meaning": "the response of the common operator to the difference of the two load vectors",
+    "values": {
+     "axial/AB/N on a fixed-fixed bar of the shared W section": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "free strain increment": {
+      "exact": "0",
+      "unit": "1",
+      "value": 0.0
+     }
+    }
+   },
+   "operating": {
+    "basis": {
+     "AB": {
+      "E": "1048576",
+      "G": "2097152/5",
+      "case_basis_label": "W",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_w",
+      "nu": "1/4",
+      "section": {
+       "corrosion_allowance": "0",
+       "mill_tolerance": "0",
+       "outside_diameter": "1/4",
+       "wall": "1/32"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "1048576",
+       "selected_nu": "1/4",
+       "selection_temperature": "293"
+      }
+     }
+    },
+    "case_id": "O",
+    "fixed_loads": [],
+    "generated": [],
+    "ledger": null,
+    "member_states": [],
+    "motions": [],
+    "pressure_elongation": false,
+    "pressure_regions": [],
+    "primitives": [],
+    "supports": [
+     {
+      "dof": "UX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "line_stop:B",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "line_stop:B"
+     }
+    ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "differ": false
+   },
+   "sustained": {
+    "basis": {
+     "AB": {
+      "E": "1048576",
+      "G": "2097152/5",
+      "case_basis_label": "W",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_w",
+      "nu": "1/4",
+      "section": {
+       "corrosion_allowance": "0",
+       "mill_tolerance": "0",
+       "outside_diameter": "1/4",
+       "wall": "1/32"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "1048576",
+       "selected_nu": "1/4",
+       "selection_temperature": "293"
+      }
+     }
+    },
+    "case_id": "S",
+    "fixed_loads": [],
+    "generated": [],
+    "ledger": null,
+    "member_states": [
+     {
+      "fit": {
+       "kind": "none"
+      },
+      "kind": "free_length_state",
+      "member": "AB",
+      "operands": {
+       "expansion_law": {
+        "constant": "0",
+        "datum": "300",
+        "definition": "secant_constant"
+       },
+       "installation_temperature": "300",
+       "operating_temperature": "500"
+      },
+      "reference_configuration": "RC-AB"
+     }
+    ],
+    "motions": [],
+    "pressure_elongation": false,
+    "pressure_regions": [],
+    "primitives": [],
+    "supports": [
+     {
+      "dof": "UX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "line_stop:B",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "line_stop:B"
+     }
+    ]
+   },
+   "title": "zero-law free-length state with unequal temperatures"
+  },
+  {
+   "admission": {
+    "gate_only": true,
+    "gate_only_reason": "Proposed policy case. Which mass inputs exact-route seismic generation reads has not been checked here.",
+    "gates": {
+     "g1": {
+      "holds": false,
+      "why": "the subtrahend's generated is not contained in the minuend"
+     },
+     "g2": {
+      "holds": true,
+      "why": "one modulus basis for every member"
+     },
+     "restraint": {
+      "holds": true,
+      "why": "the same restraints and devices, and equal fixed-load inventories"
+     }
+    },
+    "reason": "the recipes' mass bases differ, so the subtrahend's seismic recipe is not in the minuend",
+    "verdict": "refused_g1"
+   },
+   "id": "X5",
+   "mechanical": {
+    "kind": "none",
+    "meaning": "no numerical result: this package states no seismic generation rule, so no exact value is given"
+   },
+   "operating": {
+    "basis": {
+     "AB": {
+      "E": "1048576",
+      "G": "2097152/5",
+      "case_basis_label": "W",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_w",
+      "nu": "1/4",
+      "section": {
+       "corrosion_allowance": "0",
+       "mill_tolerance": "0",
+       "outside_diameter": "1/4",
+       "wall": "1/32"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "1048576",
+       "selected_nu": "1/4",
+       "selection_temperature": "293"
+      }
+     }
+    },
+    "case_id": "O",
+    "fixed_loads": [],
+    "generated": [
+     {
+      "inputs": {
+       "axis": "global_x",
+       "factor": "1/4"
+      },
+      "kind": "seismic",
+      "mass_basis": {
+       "component_masses": [],
+       "contents_mass_per_length": "0",
+       "method": "lumped_member_mass",
+       "section_mass_per_length": "24"
+      },
+      "target": "AB"
+     }
+    ],
+    "ledger": null,
+    "member_states": [],
+    "motions": [],
+    "pressure_elongation": false,
+    "pressure_regions": [],
+    "primitives": [],
+    "supports": [
+     {
+      "dof": "UX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     }
+    ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "S": {
+     "g2_holds": true,
+     "verdict": "refused_g1"
+    },
+    "differ": false
+   },
+   "sustained": {
+    "basis": {
+     "AB": {
+      "E": "1048576",
+      "G": "2097152/5",
+      "case_basis_label": "W",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_w",
+      "nu": "1/4",
+      "section": {
+       "corrosion_allowance": "0",
+       "mill_tolerance": "0",
+       "outside_diameter": "1/4",
+       "wall": "1/32"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "1048576",
+       "selected_nu": "1/4",
+       "selection_temperature": "293"
+      }
+     }
+    },
+    "case_id": "S",
+    "fixed_loads": [],
+    "generated": [
+     {
+      "inputs": {
+       "axis": "global_x",
+       "factor": "1/4"
+      },
+      "kind": "seismic",
+      "mass_basis": {
+       "component_masses": [],
+       "contents_mass_per_length": "8",
+       "method": "lumped_member_mass",
+       "section_mass_per_length": "24"
+      },
+      "target": "AB"
+     }
+    ],
+    "ledger": null,
+    "member_states": [],
+    "motions": [],
+    "pressure_elongation": false,
+    "pressure_regions": [],
+    "primitives": [],
+    "supports": [
+     {
+      "dof": "UX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     }
+    ]
+   },
+   "title": "two seismic recipes that differ only in mass basis"
   }
  ],
  "carried": {
@@ -5286,7 +6064,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -5751,7 +6529,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -6226,7 +7004,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -6701,7 +7479,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -7186,7 +7964,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -7651,7 +8429,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -8116,7 +8894,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -8581,7 +9359,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -9025,7 +9803,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -9500,7 +10278,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -9965,7 +10743,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -10393,7 +11171,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -10858,7 +11636,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -11323,7 +12101,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -11798,7 +12576,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -12272,7 +13050,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -12765,7 +13543,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -13286,7 +14064,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -13807,7 +14585,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -14286,7 +15064,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -14301,7 +15079,7 @@
        "why": "the same restraints and devices, and equal fixed-load inventories"
       }
      },
-     "reason": "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads",
+     "reason": "O retains S's authored actions and adds thermal primitives",
      "verdict": "admitted"
     },
     "frozen_outcome": "published",
@@ -15050,7 +15828,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -15065,7 +15843,7 @@
        "why": "the same restraints and devices, and equal fixed-load inventories"
       }
      },
-     "reason": "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads",
+     "reason": "O retains S's authored actions and adds thermal primitives",
      "verdict": "admitted"
     },
     "frozen_outcome": "published",
@@ -15814,7 +16592,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -15829,7 +16607,7 @@
        "why": "the same restraints and devices, and equal fixed-load inventories"
       }
      },
-     "reason": "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads",
+     "reason": "O retains S's authored actions and adds thermal primitives",
      "verdict": "admitted"
     },
     "frozen_outcome": "published",
@@ -16578,7 +17356,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -16593,7 +17371,7 @@
        "why": "the same restraints and devices, and equal fixed-load inventories"
       }
      },
-     "reason": "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads",
+     "reason": "O retains S's authored actions and adds thermal primitives",
      "verdict": "admitted"
     },
     "frozen_outcome": "published",
@@ -17468,7 +18246,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -17483,7 +18261,7 @@
        "why": "the same restraints and devices, and equal fixed-load inventories"
       }
      },
-     "reason": "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads",
+     "reason": "O retains S's authored actions and adds thermal primitives",
      "verdict": "admitted"
     },
     "frozen_outcome": "published",
@@ -18358,7 +19136,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -18373,7 +19151,7 @@
        "why": "the same restraints and devices, and equal fixed-load inventories"
       }
      },
-     "reason": "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads",
+     "reason": "O retains S's authored actions and adds thermal primitives",
      "verdict": "admitted"
     },
     "frozen_outcome": "published",
@@ -19248,7 +20026,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -19263,7 +20041,7 @@
        "why": "the same restraints and devices, and equal fixed-load inventories"
       }
      },
-     "reason": "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads",
+     "reason": "O retains S's authored actions and adds thermal primitives",
      "verdict": "admitted"
     },
     "frozen_outcome": "published",
@@ -20634,7 +21412,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -20649,7 +21427,7 @@
        "why": "the same restraints and devices, and equal fixed-load inventories"
       }
      },
-     "reason": "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads",
+     "reason": "O retains S's authored actions and adds thermal primitives",
      "verdict": "admitted"
     },
     "frozen_outcome": "published",
@@ -22020,7 +22798,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -22035,7 +22813,7 @@
        "why": "the same restraints and devices, and equal fixed-load inventories"
       }
      },
-     "reason": "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads",
+     "reason": "O retains S's authored actions and adds thermal primitives",
      "verdict": "admitted"
     },
     "frozen_outcome": "published",
@@ -23406,7 +24184,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -24492,7 +25270,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -25578,7 +26356,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -26664,7 +27442,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -28741,7 +29519,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -30818,7 +31596,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": false,
@@ -32895,7 +33673,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -33784,7 +34562,7 @@
    {
     "admission": {
      "gate_only": false,
-     "gate_only_reason": "carried from the frozen package, which states each case as an exact-route document; not re-examined here, which would need product code",
+     "gate_only_reason": "Carried reference case. Exact-route document reachability has not been rechecked.",
      "gates": {
       "g1": {
        "holds": true,
@@ -33799,7 +34577,7 @@
        "why": "the same restraints and devices, and equal fixed-load inventories"
       }
      },
-     "reason": "the minuend applies the subtrahend's weights, regions and elongation, plus its thermal loads",
+     "reason": "O retains S's authored actions and adds thermal primitives",
      "verdict": "admitted"
     },
     "frozen_outcome": "published",
@@ -34675,8 +35453,8 @@
  },
  "cross_checks": {
   "added_rows": 15,
-  "bar_solves": 22,
-  "builder_witnesses": 2,
+  "bar_solves": 25,
+  "builder_witnesses": 5,
   "carried_gate_rows": 19,
   "carried_pair_rows": 1806,
   "carried_pairs": 17,
@@ -34688,9 +35466,9 @@
   "reading_J_pairs": 16,
   "stiffness_readings_differ": 2,
   "verdict_admitted": 22,
-  "verdict_refused_g1": 25,
+  "verdict_refused_g1": 27,
   "verdict_refused_g2": 3,
-  "verdict_refused_restraint": 3,
+  "verdict_refused_restraint": 4,
   "wall_form_equals_free_strain": 21
  },
  "frozen_outcome_mapping": {
