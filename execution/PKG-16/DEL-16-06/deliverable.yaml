@@ -237,8 +237,10 @@ code_paths:
 - apps/desktop/src/features/embedded-agent/**
 - apps/desktop/src/services/embeddedAgentSession.ts
 # What a refused proposal tells the agent (issue 382): a unit or value/unit-pair refusal on a listed
-# quantity field is explained in a closed, bounded form built from the module's own literals; every
-# other refusal is the generic sentence.
+# quantity field is explained in a closed, bounded form built from the module's own literals,
+# offering only the corrective forms the engine accepts in the field's stored state (a stored unit
+# and the bare form only for a refused first step); every other refusal, state or outcome that does
+# not fit the engine's sequence is the generic sentence.
 - apps/desktop/src/services/agentUnitRefusal.ts
 - apps/desktop/src/services/embeddedAgentBridge.ts
 # The agent's result filter (agentDetailFilter); the rest of the file is DEL-07-07's.
@@ -298,9 +300,10 @@ checks:
 - apps/desktop/src/services/embeddedAgentW9a.test.ts
 - apps/desktop/src/services/embeddedAgentM2.test.ts
 - apps/desktop/src/services/embeddedAgentSession.records.test.ts
-# Issue 382: the refusal explanation's controls (malformed, oversized, reflected content, unknown
-# code), and, in the Wasm engine, its field table and unit vocabulary against the engine and the
-# scripted proposal that takes the corrective form the explanation names.
+# Issue 382: the refusal explanation's controls (malformed, out-of-sequence or contradictory
+# outcomes, inherited members and arrays that misstate their length, oversized input, reflected
+# content, unknown codes), and, in the Wasm engine, its field table, optional flags and unit lists
+# against the engine and scripted proposals that follow each offered form as worded.
 - apps/desktop/src/services/agentUnitRefusal.test.ts
 - apps/desktop/src/services/agentUnitRefusal.engine.test.ts
 - apps/desktop/src/services/operationAuthorship.routes.test.tsx

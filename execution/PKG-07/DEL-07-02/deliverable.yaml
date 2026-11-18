@@ -39,9 +39,9 @@ needs:
   condition: >-
     An operation or batch can be validated without being applied, returning either a deterministic
     preview of the change or the named refusal the apply would give, including a stale before-value.
-    A set-field change on an absent optional quantity, a material's shear modulus among them,
-    writes the whole quantity from the person's value and explicit unit of the field's dimension,
-    and supplies no value or unit itself.
+    A set-field change on an absent optional quantity, a material's shear modulus among them, is
+    validated and previewed as writing the whole quantity from the person's value and explicit unit
+    of the field's dimension, with no value or unit supplied by the engine.
   gating: true
 - from: DEL-16-06
   condition: >-
@@ -175,9 +175,10 @@ checks:
 # Issue 380: an absent material shear modulus entered through the inspector and Review's Apply in
 # the shared Wasm engine, read back, undone and redone, and refused without a unit.
 - apps/desktop/src/App.materialShearModulusEntry.test.tsx
-# Issue 382 (REQ-003): the inspector, the model tables and the load case manager still write a
-# unit-bearing edit as its value and unit together, through Review's Apply in the shared Wasm
-# engine, read back from the saved project.
+# Issue 382 (REQ-003): the inspector (with one primitive load), the model tables' cell Apply and
+# the load case manager (with two primitive shapes) still write a unit-bearing edit as its value
+# and unit together, through Review's Apply in the shared Wasm engine, read back from the saved
+# project.
 - apps/desktop/src/App.unitPairInspector.test.tsx
 - apps/desktop/src/App.unitPairTables.test.tsx
 - apps/desktop/src/App.unitPairLoadCaseManager.test.tsx
