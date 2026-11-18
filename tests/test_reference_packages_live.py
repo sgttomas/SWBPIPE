@@ -51,12 +51,26 @@ LIVE_CHECKS = {
 # beside the compared leaves can take precedence in the product, and conditional compilation or an import can change
 # which table the compiled test reads. Every source is therefore also held here by the digest of its whole bytes:
 # ANY change to it fails test_a_source_held_whole_is_unchanged until a person has confirmed it against the package.
-WHOLE_CHANGED = ("the file has changed since its digest was recorded here. Confirm that what the product or the "
-                 "compiled test reads from it is still what the package staged (the live check reports the leaves "
-                 "and table lines it compares; read the file's diff for what it cannot see: a member added beside "
-                 "them, a changed member it does not list, conditional compilation, imports, macros), then record "
-                 "the new digest in LIVE_CHECKS. If what was staged has changed, a decision is needed on re-staging "
-                 "instead")
+WHOLE_CHANGED = "has changed since its digest was recorded in tests/test_reference_packages_live.py (LIVE_CHECKS)"
+# What a person looks at in a changed source's diff before recording its new digest.
+LOOK_AT = {
+    R.PREVIEW_MODEL: "the whole record of support:SH-140, every member of it and not only its hanger",
+    R.DEMO_MODEL: "the whole record of support:SH-140, and the records the derivation reads: the nodes, materials and "
+                  "pipe segments, the other supports, and the load cases' primitive loads",
+    R.FRICTION_REVERSAL_TEST: "the table EXPECTED, and anything that decides which table the compiled test reads: "
+                              "conditional compilation, imports, macros",
+}
+
+
+def whole_changed(name: str, source: str, found: str) -> str:
+    """What the failure asks of whoever changed the file, in three lines."""
+    return (f"{source} {WHOLE_CHANGED}.\n"
+            f"  1. The reference package validation/references/{name} staged its inputs from this file.\n"
+            f"  2. In the file's diff, look at {LOOK_AT[source]}. The package's live check "
+            f"(python3 -I {' '.join(LIVE_CHECKS[name].argv)}, from the package directory) reports the leaves and "
+            f"lines it compares; it cannot see everything.\n"
+            f"  3. Only after that look: if what the package staged still holds, record the new digest {found} for "
+            f"this file in LIVE_CHECKS. If it does not, leave the digest: a decision is needed on re-staging.")
 
 MOVED_ON = ("a source this package's inputs were staged from has moved on, and a decision is needed: re-stage the "
             "inputs and re-derive, or keep the staged inputs; the committed output still stands for its staged inputs")
@@ -101,9 +115,10 @@ def live_problems(name: str) -> list[str]:
 
 
 def whole_problems(name: str, root: Path = R.ROOT) -> list[str]:
-    """The sources this package's live check reads as text, by the digest of their whole bytes."""
-    return [f"{name}: {source}: {WHOLE_CHANGED}" for source, digest in LIVE_CHECKS[name].whole
-            if hashlib.sha256((root / source).read_bytes()).hexdigest() != digest]
+    """This package's live sources, by the digest of their whole bytes."""
+    found = {source: hashlib.sha256((root / source).read_bytes()).hexdigest() for source, _ in LIVE_CHECKS[name].whole}
+    return [whole_changed(name, source, found[source]) for source, digest in LIVE_CHECKS[name].whole
+            if found[source] != digest]
 
 
 @pytest.mark.parametrize("name", sorted(LIVE_CHECKS))
@@ -115,6 +130,7 @@ def test_a_source_held_whole_is_unchanged(name):
 def test_every_live_source_is_held_whole():
     for name, live in LIVE_CHECKS.items():
         assert set(live.sources) == {source for source, _ in live.whole}, f"{name}: {sorted(live.sources)}"
+        assert set(live.sources) <= set(LOOK_AT), f"{name}: a source with nothing said about what to look at"
 
 
 @pytest.mark.parametrize("name", sorted(LIVE_CHECKS))
@@ -306,7 +322,8 @@ def test_a_change_the_partial_comparison_cannot_see_fails_the_whole_file_digest(
     before = (root / source).read_text(encoding="utf-8")
     (root / source).write_text(change(before), encoding="utf-8")
     problems = whole_problems(name, root)
-    assert len(problems) == 1 and source in problems[0] and WHOLE_CHANGED in problems[0], problems
+    assert len(problems) == 1 and problems[0].startswith(f"{source} {WHOLE_CHANGED}"), problems
+    assert f"validation/references/{name}" in problems[0] and LOOK_AT[source] in problems[0], problems
 
 
 def test_a_source_the_generator_does_not_name_fails_its_declaration(monkeypatch):
