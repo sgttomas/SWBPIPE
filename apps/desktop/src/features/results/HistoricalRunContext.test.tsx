@@ -44,9 +44,12 @@ describe("transient HistoricalRunContext integrity", () => {
     expect(context!.findings).not.toEqual(expect.arrayContaining(["HISTORICAL_RESULT_HASH_MISMATCH"]));
     expect(context!.findings).not.toContain("HISTORICAL_ANALYSIS_HASH_MISMATCH");
     expect(context!.findings).not.toContain("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
-    // The saved evidence stays readable and unchanged; only a re-run records a current run.
+    // The saved evidence stays unchanged; a record of a retired version establishes no table, so
+    // its rows are withheld (decision (b)); only a re-run records a current run.
+    expect(context!.binding).toStrictEqual({ withheld: "unrecorded" });
     expect(context!.analysisRun).toBe(saved.analysis_run);
-    expect(context!.mechanicsResult).toBe(saved.mechanics_result);
+    expect(context!.mechanicsResult).toBeNull();
+    expect(context!.rawMechanicsResult).toBe(saved.mechanics_result);
     expect(JSON.stringify(saved)).toBe(before);
   });
 
@@ -119,7 +122,10 @@ describe("transient HistoricalRunContext integrity", () => {
     saved.project_envelope_hash!.value = "sha256:inconsistent";
     const context = await buildHistoricalRunContext(saved);
     expect(context!.findings).toEqual(expect.arrayContaining(["HISTORICAL_MODEL_REF_MISMATCH", "HISTORICAL_RUN_REF_MISMATCH", "HISTORICAL_MODEL_HASH_MISMATCH", "HISTORICAL_ENVELOPE_HASH_MISMATCH", "HISTORICAL_RESULT_HASH_MISMATCH"]));
-    expect(context!.mechanicsResult).toEqual(saved.mechanics_result);
+    // The received result no longer matches its record's hash: its rows are withheld (integrity).
+    expect(context!.binding).toStrictEqual({ withheld: "integrity" });
+    expect(context!.mechanicsResult).toBeNull();
+    expect(context!.rawMechanicsResult).toEqual(saved.mechanics_result);
   });
 
   it("retains missing original hashes without inventing a manifest", async () => {
@@ -131,13 +137,16 @@ describe("transient HistoricalRunContext integrity", () => {
     expect(context!.modelHash).toBeNull();
     expect(context!.findings).toEqual(expect.arrayContaining(["HISTORICAL_MODEL_HASH_MISSING", "HISTORICAL_ENVELOPE_HASH_MISSING", "HISTORICAL_RESULT_HASH_MISSING"]));
   });
-  it("keeps valid saved mechanics readable when analysis evidence is malformed", async () => {
+  it("keeps valid saved mechanics stored, with its rows withheld, when analysis evidence is malformed", async () => {
     const saved = await savedEnvelope();
     saved.analysis_run = { analysis_run: { run_id: "saved-malformed", hashes: "corrupt" } } as unknown as LocalProjectEnvelope["analysis_run"];
     const before = JSON.stringify(saved.analysis_run);
     const context = await buildHistoricalRunContext(saved);
     expect(context!.findings).toContain("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
-    expect(context!.mechanicsResult).toEqual(saved.mechanics_result);
+    // A malformed record establishes no table (decision (b)).
+    expect(context!.binding).toStrictEqual({ withheld: "unrecorded" });
+    expect(context!.mechanicsResult).toBeNull();
+    expect(context!.rawMechanicsResult).toEqual(saved.mechanics_result);
     expect(JSON.stringify(context!.analysisRun)).toBe(before);
   });
 
@@ -173,12 +182,15 @@ describe("transient HistoricalRunContext integrity", () => {
 
 });
 
-it("keeps unsupported raw0.2 readable history and unqualified without rewriting evidence", async () => {
+it("keeps unsupported raw0.2 history stored and unqualified, its rows withheld, without rewriting evidence", async () => {
  const saved = await savedEnvelope();
  for (const header of ["producer", "numerical_quality", "formulation_basis"]) delete (saved.mechanics_result as unknown as Record<string, unknown>)[header];
  const before = JSON.stringify(saved.mechanics_result);
  const context = await buildHistoricalRunContext(saved);
- expect(context?.mechanicsResult).not.toBeNull();
+ // Its headers were removed after it was recorded, so it no longer matches its record's hash (integrity).
+ expect(context?.binding).toStrictEqual({ withheld: "integrity" });
+ expect(context?.mechanicsResult).toBeNull();
+ expect(context?.rawMechanicsResult).toEqual(saved.mechanics_result);
  expect(context?.findings).toContain("SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED");
  expect(JSON.stringify(saved.mechanics_result)).toBe(before);
 });
@@ -188,7 +200,9 @@ it("retains contradictory null-header historical bytes and hash claims while wit
   Object.assign(saved.mechanics_result!, { producer: null });
   const before = JSON.stringify(saved);
   const context = await buildHistoricalRunContext(saved);
-  expect(context?.mechanicsResult).not.toBeNull();
+  // Its producer was nulled after it was recorded, so it no longer matches its record's hash (integrity).
+  expect(context?.binding).toStrictEqual({ withheld: "integrity" });
+  expect(context?.mechanicsResult).toBeNull();
   expect(context?.rawMechanicsResult).toEqual(saved.mechanics_result);
   expect(context?.findings).toContain("SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED");
   expect(JSON.stringify(saved)).toBe(before);
@@ -288,6 +302,8 @@ describe("a saved run whose table binding is not established", () => {
     render(<HistoricalRunPanel context={context} />);
     expect(screen.getByTestId("historical-run-withheld-message").textContent).toBe("The results of this run are not shown: this run names a revision of these result rules that this version does not recognise; the stored run is unchanged; run the analysis again on its saved model state to create a new result.");
     expect(screen.getByTestId("historical-run-withheld-code").textContent).toBe("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
+    // The finding is shown as the code and its full words, exactly.
+    expect(screen.getByText(UNRECOGNISED_TABLE_REFUSAL_TEXT)).toBeInTheDocument();
     expect(screen.queryByTestId("result-row-table")).toBeNull();
     expect(screen.queryAllByRole("table")).toHaveLength(0);
     expect(JSON.stringify(saved)).toBe(before);

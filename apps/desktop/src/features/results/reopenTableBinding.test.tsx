@@ -13,8 +13,6 @@ import { buildHistoricalRunContext, buildRecordedRunContext, HistoricalRunPanel,
 import { recordedRunSide } from "../comparison/runComparisonSides";
 import { COMPARISON_RUN_RECORD_MISMATCH, RunComparisonRefusal } from "../comparison/runComparison";
 import { runDescription } from "../../services/analysisRunService";
-import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
-import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { REVISED_TABLE_FIXTURE, revisedTableWitness } from "../../test-support/historicalReopenCases";
 import { UNRECOGNISED_TABLE_REFUSAL_TEXT } from "../../test-support/tableBindingRefusals";
@@ -76,11 +74,12 @@ describe("a run recorded under a revision of its table this version does not hol
     expect(refusal!.message).toBe(`${COMPARISON_RUN_RECORD_MISMATCH}: the results of the recorded run ${runDescription(read.run)} are not shown, so it is not compared: this run names a revision of these result rules that this version does not recognise; the stored run is unchanged; run the analysis again on its saved model state to create a new result.`);
   });
 
-  it("W3/W4: the same statement with a record of the installed table keeps its rows; without a record they are withheld", async () => {
+  it("W3/W4: the same statement with main's record of the installed table keeps its rows; without a record they are withheld", async () => {
     const source = fixture("pressure_connected_mechanics_sparse.json") as MechanicsResult;
     const model = fixture("exact_pressure_connected_request.json").model as PreviewModel;
-    const inputManifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "synthetic@1", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
-    const analysis_run = await buildAnalysisRunV03(source, inputManifest, undefined, modelLoadBasisRefs(model));
+    // Main's committed record of this statement under the installed table: it differs from the
+    // witness record only in its manifest reference and its table digest.
+    const analysis_run = JSON.parse(readFileSync(resolve(ROOT, "fixtures/results/pressure_plain_connected_sparse.analysis_run.json"), "utf8"));
     expect(analysis_run.analysis_run.reproducibility.semantic_contract).toStrictEqual(INSTALLED_PRESSURE_3);
     const model_hash = await computeModelHash(model);
     const envelope = async (record: Json) => {
