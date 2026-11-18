@@ -44,6 +44,9 @@ LIVE_CHECKS = {
         ("generators/demo_friction_preload_reference.py", "--check-live"), (R.DEMO_MODEL, R.FRICTION_REVERSAL_TEST),
         whole=((R.DEMO_MODEL, "2fd18681f688e60b03102eb65112d147871d3a59431685800d2bfa3baca7b672"),
                (R.FRICTION_REVERSAL_TEST, "a3d31f87f98f9fcdaca68d3430abaefe1eeb158b58084963b71c1c14e7f404ae"))),
+    "reference_system_generated_loads": LiveCheck(
+        ("generators/rsgl_reference.py", "--check-live"), (R.REFERENCE_FIXTURE,),
+        whole=((R.REFERENCE_FIXTURE, "14719edc7709d3f893ae4820ddae6747b48ce68c91dbe1d853c7b2151a6c8cc2"),)),
 }
 
 # A live check compares part of its source: the leaves of a model document that the derivation reads, or the lines
@@ -59,6 +62,9 @@ LOOK_AT = {
                   "pipe segments, the other supports, and the load cases' primitive loads",
     R.FRICTION_REVERSAL_TEST: "the table EXPECTED, and anything that decides which table the compiled test reads: "
                               "conditional compilation, imports, macros",
+    R.REFERENCE_FIXTURE: "the nodes, pipe segments with their sections, components and pressure contract, and any "
+                         "change elsewhere that bears on the four cases' generated loads: a load in the weight "
+                         "category, a self-weight override, or the cases RS-WIN, RS-EQX, RS-EQY and RS-EQZ themselves",
 }
 
 
@@ -273,6 +279,38 @@ def _a_repeated_primitive_load(text: str) -> str:
     return json.dumps(document, indent=2) + "\n"
 
 
+def _a_reference_node_moved(text: str) -> str:
+    """The reducer's small-end node one millimetre lower."""
+    document = json.loads(text)
+    (node,) = [n for n in document["nodes"] if n["id"] == "node:RS-160"]
+    node["position"]["z"] -= 0.001
+    return json.dumps(document, indent=1) + "\n"
+
+
+def _another_valve_weight(text: str) -> str:
+    """The valve's entered weight, one newton more."""
+    document = json.loads(text)
+    (valve,) = [c for c in document["components"] if c["id"] == "component:RS-V1"]
+    valve["geometry"]["weight"]["value"] += 1
+    return json.dumps(document, indent=1) + "\n"
+
+
+def _a_reference_boolean_where_a_number_was(text: str) -> str:
+    """A coordinate of 0 written as false."""
+    document = json.loads(text)
+    (node,) = [n for n in document["nodes"] if n["id"] == "node:RS-010"]
+    assert node["position"]["x"] == 0 and node["position"]["x"] is not False
+    node["position"]["x"] = False
+    return json.dumps(document, indent=1) + "\n"
+
+
+def _a_load_case_appended(text: str) -> str:
+    """One more load case, outside the members the live check compares; only the whole-file digest sees it."""
+    document = json.loads(text)
+    document["load_cases"].append({"id": "load:RS-EXTRA"})
+    return json.dumps(document, indent=1) + "\n"
+
+
 # Each live source with the changes its package's live check must report. A source with no entry here fails
 # test_every_live_source_has_a_drift_control, so a source the generator stopped reading cannot stay declared.
 DRIFTS = {
@@ -282,6 +320,8 @@ DRIFTS = {
     ("demo_friction_reversal_preload", R.FRICTION_REVERSAL_TEST): (
         _another_number_in_a_row, _a_seventh_row, _a_comment_in_the_table, _a_commented_copy_and_a_changed_table,
         _a_second_declaration_behind_an_attribute, _a_closing_line_with_more_on_it),
+    ("reference_system_generated_loads", R.REFERENCE_FIXTURE): (
+        _a_reference_node_moved, _another_valve_weight, _a_reference_boolean_where_a_number_was),
 }
 
 
@@ -315,6 +355,7 @@ def test_a_changed_source_fails_the_live_check(tmp_path, name, source, change):
     ("demo_friction_reversal_preload", R.FRICTION_REVERSAL_TEST, _a_changed_copy_behind_a_condition_and_an_import),
     ("demo_friction_reversal_preload", R.DEMO_MODEL, _a_stiffness_on_the_record_beside_its_hanger),
     ("t4_i12_preload", R.PREVIEW_MODEL, _a_stiffness_on_the_record_beside_its_hanger),
+    ("reference_system_generated_loads", R.REFERENCE_FIXTURE, _a_load_case_appended),
 ], ids=lambda v: v.__name__.strip("_") if callable(v) else Path(v).name)
 def test_a_change_the_partial_comparison_cannot_see_fails_the_whole_file_digest(tmp_path, name, source, change):
     root = _copy_of_the_tree_the_live_check_reads(tmp_path, name)

@@ -1,6 +1,10 @@
 {
  "document": "validation/references/reference_system_generated_loads/references.json",
- "status": "candidate references, derived and cross-checked by their author, not yet independently refuted",
+ "status": "candidate per-load and warning references, derived and cross-checked by their author, not yet independently refuted",
+ "supplements": {
+  "package": "validation/references/reference_system_pending_cases",
+  "relation": "that package remains the reference for EQ-6; the four resultants and three twins here are values this generator checks equal to its frozen ones, exactly"
+ },
  "governs": {
   "scope": "execution/PKG-05/DEL-05-01/ScopeOfWork.md at aebd3442f: Static-equivalent generation, Mass basis, Self-weight plan, REQ-008, REQ-015, AC-007, VER-005",
   "specification": "fixtures/reference_system/SPECIFICATION.md §2, §3, §4.2, §5, §5.1, §8.1, §8.2, §9.2 (EQ-4, EQ-6 as restated at e494a5925)",
@@ -16,14 +20,17 @@
   }
  },
  "reads": {
-  "model_file": "fixtures/reference_system/reference_system.json",
-  "members_kept": [
+  "staged_input": "staged/reference_system_model_members.json",
+  "staged_from": "fixtures/reference_system/reference_system.json",
+  "staged_at_commit": "b5569a8215847bedcceac7de7a1b8429a5fde41b",
+  "source_git_blob": "8a9729b033e9929a820b4c5b96a040f4458da1df",
+  "members_staged": [
    "nodes",
    "pipe_segments",
    "components",
    "pressure_contract"
   ],
-  "members_dropped_unread": [
+  "members_not_staged": [
    "load_cases",
    "combinations",
    "analysis_status",
@@ -2154,6 +2161,7 @@
     ]
    },
    "EQ-6": {
+    "reference_of_record": "validation/references/reference_system_pending_cases key_values.full.RS-WIN (expected_RS-dWIN_…); checked equal here",
     "term": "RS-dWIN",
     "expected_reaction_force_resultant_N": [
      {
@@ -3119,6 +3127,7 @@
     ]
    },
    "EQ-6": {
+    "reference_of_record": "validation/references/reference_system_pending_cases key_values.full.RS-EQX (expected_RS-dEQX_…); checked equal here",
     "term": "RS-dEQX",
     "expected_reaction_force_resultant_N": [
      {
@@ -3286,9 +3295,11 @@
    },
    "seismic_model_check": {
     "weight_finding_required": false,
-    "weight_finding_ground": "the decision recorded in seismic_warning_decision",
-    "weight_category_loads_of_the_case": {
-     "what": "the case's 29 applied self-weight primitives (spec §8.1), its only weight-category loads; applied generated self-weight, which the decision excludes from the warning",
+    "gravity_finding_required": false,
+    "any_seismic_model_check_finding_required": false,
+    "ground": "the four decisions in seismic_warning_decisions (SWBPIPE's Agent 0, 2026-11-18)",
+    "condition": "the case's 29 self-weight primitives are fresh (the self-weight plan's output, matching the model, as spec §8.1 states them: none overridden), and the case holds no other load in the weight category; the expectation holds only under this condition",
+    "self_weight_primitives_of_the_case": {
      "count": 29,
      "ids": [
       "load:self-weight:11:load:RS-EQX:12:pipe:RS-P010",
@@ -3323,7 +3334,7 @@
      ],
      "id_reading": "ids from spec §8.1's rule with <case id> = 'load:RS-EQX', <pipe id> and <component id> the full ids (spec §2 Identities), the component moment's <axis> the one nonzero component of r × (0, 0, −W); listed in spec §3.2 member order, then component by component"
     },
-    "condition": "these primitives are the self-weight plan's output and still match the model, as the specification states them (spec §8.1); what the warning does with a primitive that no longer matches its model is not established here",
+    "other_loads_in_the_weight_category": [],
     "added_weight_named": [],
     "added_weight_why": "the case is on the exact route, and no case carries condition added_weight (spec §8)",
     "gravity_comparison": {
@@ -3333,7 +3344,7 @@
       "load:self-weight:11:load:RS-EQX:component:15:component:RS-F2:force:z",
       "load:self-weight:11:load:RS-EQX:component:15:component:RS-R1:force:z"
      ],
-     "baseline_why": "REQ-008: applied component-weight primitives for the components whose forces the case generates (RS-F1, RS-V1, RS-F2, RS-R1), the seismic case's own when present",
+     "baseline_why": "the fresh applied component-weight primitives of the case for the components whose forces it generates (RS-F1, RS-V1, RS-F2, RS-R1); none is overridden",
      "applied_gravity_magnitude_m_per_s2": "196133/20000",
      "applied_source": "spec §2 (−9.80665 m/s² along global_z on each weight case) and §8.1 (W: gravity as §2)",
      "seismic_gravity_magnitude_m_per_s2": "196133/20000",
@@ -3341,7 +3352,6 @@
      "equal_after_normalization": true,
      "gravity_finding_required": false
     },
-    "any_seismic_model_check_finding_required": false,
     "code": null,
     "message": null,
     "findings_per_load_or_per_case": null,
@@ -4254,6 +4264,7 @@
     ]
    },
    "EQ-6": {
+    "reference_of_record": "validation/references/reference_system_pending_cases key_values.full.RS-EQY (expected_RS-dEQY_…); checked equal here",
     "term": "RS-dEQY",
     "expected_reaction_force_resultant_N": [
      {
@@ -4421,9 +4432,11 @@
    },
    "seismic_model_check": {
     "weight_finding_required": false,
-    "weight_finding_ground": "the decision recorded in seismic_warning_decision",
-    "weight_category_loads_of_the_case": {
-     "what": "the case's 29 applied self-weight primitives (spec §8.1), its only weight-category loads; applied generated self-weight, which the decision excludes from the warning",
+    "gravity_finding_required": false,
+    "any_seismic_model_check_finding_required": false,
+    "ground": "the four decisions in seismic_warning_decisions (SWBPIPE's Agent 0, 2026-11-18)",
+    "condition": "the case's 29 self-weight primitives are fresh (the self-weight plan's output, matching the model, as spec §8.1 states them: none overridden), and the case holds no other load in the weight category; the expectation holds only under this condition",
+    "self_weight_primitives_of_the_case": {
      "count": 29,
      "ids": [
       "load:self-weight:11:load:RS-EQY:12:pipe:RS-P010",
@@ -4458,7 +4471,7 @@
      ],
      "id_reading": "ids from spec §8.1's rule with <case id> = 'load:RS-EQY', <pipe id> and <component id> the full ids (spec §2 Identities), the component moment's <axis> the one nonzero component of r × (0, 0, −W); listed in spec §3.2 member order, then component by component"
     },
-    "condition": "these primitives are the self-weight plan's output and still match the model, as the specification states them (spec §8.1); what the warning does with a primitive that no longer matches its model is not established here",
+    "other_loads_in_the_weight_category": [],
     "added_weight_named": [],
     "added_weight_why": "the case is on the exact route, and no case carries condition added_weight (spec §8)",
     "gravity_comparison": {
@@ -4468,7 +4481,7 @@
       "load:self-weight:11:load:RS-EQY:component:15:component:RS-F2:force:z",
       "load:self-weight:11:load:RS-EQY:component:15:component:RS-R1:force:z"
      ],
-     "baseline_why": "REQ-008: applied component-weight primitives for the components whose forces the case generates (RS-F1, RS-V1, RS-F2, RS-R1), the seismic case's own when present",
+     "baseline_why": "the fresh applied component-weight primitives of the case for the components whose forces it generates (RS-F1, RS-V1, RS-F2, RS-R1); none is overridden",
      "applied_gravity_magnitude_m_per_s2": "196133/20000",
      "applied_source": "spec §2 (−9.80665 m/s² along global_z on each weight case) and §8.1 (W: gravity as §2)",
      "seismic_gravity_magnitude_m_per_s2": "196133/20000",
@@ -4476,7 +4489,6 @@
      "equal_after_normalization": true,
      "gravity_finding_required": false
     },
-    "any_seismic_model_check_finding_required": false,
     "code": null,
     "message": null,
     "findings_per_load_or_per_case": null,
@@ -5390,6 +5402,7 @@
     ]
    },
    "EQ-6": {
+    "reference_of_record": "validation/references/reference_system_pending_cases key_values.full.RS-EQZ (expected_RS-dEQZ_…); checked equal here",
     "term": "RS-dEQZ",
     "expected_reaction_force_resultant_N": [
      {
@@ -5557,9 +5570,11 @@
    },
    "seismic_model_check": {
     "weight_finding_required": false,
-    "weight_finding_ground": "the decision recorded in seismic_warning_decision",
-    "weight_category_loads_of_the_case": {
-     "what": "the case's 29 applied self-weight primitives (spec §8.1), its only weight-category loads; applied generated self-weight, which the decision excludes from the warning",
+    "gravity_finding_required": false,
+    "any_seismic_model_check_finding_required": false,
+    "ground": "the four decisions in seismic_warning_decisions (SWBPIPE's Agent 0, 2026-11-18)",
+    "condition": "the case's 29 self-weight primitives are fresh (the self-weight plan's output, matching the model, as spec §8.1 states them: none overridden), and the case holds no other load in the weight category; the expectation holds only under this condition",
+    "self_weight_primitives_of_the_case": {
      "count": 29,
      "ids": [
       "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P010",
@@ -5594,7 +5609,7 @@
      ],
      "id_reading": "ids from spec §8.1's rule with <case id> = 'load:RS-EQZ', <pipe id> and <component id> the full ids (spec §2 Identities), the component moment's <axis> the one nonzero component of r × (0, 0, −W); listed in spec §3.2 member order, then component by component"
     },
-    "condition": "these primitives are the self-weight plan's output and still match the model, as the specification states them (spec §8.1); what the warning does with a primitive that no longer matches its model is not established here",
+    "other_loads_in_the_weight_category": [],
     "added_weight_named": [],
     "added_weight_why": "the case is on the exact route, and no case carries condition added_weight (spec §8)",
     "gravity_comparison": {
@@ -5604,7 +5619,7 @@
       "load:self-weight:11:load:RS-EQZ:component:15:component:RS-F2:force:z",
       "load:self-weight:11:load:RS-EQZ:component:15:component:RS-R1:force:z"
      ],
-     "baseline_why": "REQ-008: applied component-weight primitives for the components whose forces the case generates (RS-F1, RS-V1, RS-F2, RS-R1), the seismic case's own when present",
+     "baseline_why": "the fresh applied component-weight primitives of the case for the components whose forces it generates (RS-F1, RS-V1, RS-F2, RS-R1); none is overridden",
      "applied_gravity_magnitude_m_per_s2": "196133/20000",
      "applied_source": "spec §2 (−9.80665 m/s² along global_z on each weight case) and §8.1 (W: gravity as §2)",
      "seismic_gravity_magnitude_m_per_s2": "196133/20000",
@@ -5612,7 +5627,6 @@
      "equal_after_normalization": true,
      "gravity_finding_required": false
     },
-    "any_seismic_model_check_finding_required": false,
     "code": null,
     "message": null,
     "findings_per_load_or_per_case": null,
@@ -5634,21 +5648,38 @@
   "source": "DEL-05-01 AC-001 (1e-9 relative)",
   "relative": 1e-09
  },
- "seismic_warning_decision": {
-  "decided_by": "SWBPIPE's Agent 0",
-  "date": "2026-11-18",
-  "decision": "the seismic model-check warning names the two kinds of weight REQ-008 states, entered weight-category loads and, on the pressure-free route, the added weight a case takes from an operating condition; it does not name applied generated self-weight",
-  "reason": "the warning tells the engineer which weights seismic generation did not scale; a pipe's applied self-weight and a component's applied weight are the ones it did, since generation takes the pipe's mass and the component's W directly",
-  "scope_text": "the scope's sentence is to be clarified in a later change; no wording is quoted for it here"
- },
+ "seismic_warning_decisions": [
+  {
+   "decided_by": "SWBPIPE's Agent 0",
+   "date": "2026-11-18",
+   "decision": "the seismic model-check warning names the two kinds of weight REQ-008 states, loads in the weight category and, on the pressure-free route, the added weight a case takes from an operating condition; it does not name applied generated self-weight",
+   "reason": "the warning tells the engineer which weights seismic generation did not scale; a pipe's applied self-weight and a component's applied weight are the ones it did, since generation takes the pipe's mass and the component's W directly"
+  },
+  {
+   "decided_by": "SWBPIPE's Agent 0",
+   "date": "2026-11-18",
+   "decision": "a manual override of generated self-weight is named in the warning"
+  },
+  {
+   "decided_by": "SWBPIPE's Agent 0",
+   "date": "2026-11-18",
+   "decision": "the gravity comparison reads fresh applied component-weight primitives only; an overridden component contributes no gravity to it"
+  },
+  {
+   "decided_by": "SWBPIPE's Agent 0",
+   "date": "2026-11-18",
+   "decision": "the weight category is the solver's parsed category, an entered distributed member load included; the text says 'load in the weight category'"
+  }
+ ],
+ "seismic_warning_decisions_scope_text": "the scope's sentences are to be clarified in a later change; no scope wording is quoted for them",
  "warning_readings_considered_and_excluded": [
   {
    "reading": "the warning names the seismic case's own applied self-weight primitives (29 per case)",
-   "excluded_by": "SWBPIPE's Agent 0's decision of 2026-11-18 (seismic_warning_decision)"
+   "excluded_by": "SWBPIPE's Agent 0's decision of 2026-11-18 that applied generated self-weight is not named"
   },
   {
    "reading": "the warning names every weight-category load in the document",
-   "excluded_by": "REQ-008 'on each seismic case' (the assigner's reading), and the same decision"
+   "excluded_by": "REQ-008 'on each seismic case' (the assigner's reading of it as that case's loads)"
   }
  ],
  "open_items": [

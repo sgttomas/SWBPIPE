@@ -1,11 +1,13 @@
-"""Reference-system generated-load references (`validation/references/reference_system_generated_loads/`).
+"""Reference-system per-load and warning references (`validation/references/reference_system_generated_loads/`),
+supplementing `reference_system_pending_cases`, the reference for EQ-6.
 
-The generator rebuilds `references.json` and `SHA256SUMS` in memory and compares them byte for byte with the
-committed files. Here: that check passes; the manifest verifies and names exactly the package's files; the
-generator imports only the standard library, makes no dynamic import or evaluation, and names no product path but
-the model file it reads; its output does not depend on the model's load cases, combinations, analysis status or
-diagnostics; the governing text and the sibling values it transcribes match their sources as they stand; and the
-recorded comparison rule, floors, EQ-6 expectations, component bits and warning outcomes are consistent.
+The generator rebuilds `references.json` and `SHA256SUMS` in memory from its package alone and compares them byte
+for byte with the committed files. Here: that check passes, also in a root that holds the package and nothing
+else; the manifest verifies and names exactly the package's files; the staged input holds only the four model
+members; the generator imports only the standard library, makes no dynamic import or evaluation, and names no
+product path but the fixture its live check reads; the governing text and the sibling values it transcribes match
+their sources as they stand; and the recorded comparison rule, floors, EQ-6 entries, component bits and warning
+outcomes are consistent. The live comparison with the fixture is in tests/test_reference_packages_live.py.
 """
 import ast
 import hashlib
@@ -28,7 +30,8 @@ SPECIFICATION = PROJECT / "fixtures" / "reference_system" / "SPECIFICATION.md"
 RIGID_SCOPE = PROJECT / "execution" / "PKG-03" / "DEL-03-05" / "ScopeOfWork.md"
 
 PRODUCT_ROOTS = {"core", "apps", "tests", "tools", "fixtures", "schemas"}
-ALLOWED_LITERALS = {MODEL_REL}
+# The fixture the live check reads: its relative path (recorded in references.json) and its first path segment.
+ALLOWED_LITERALS = {MODEL_REL, "fixtures"}
 FORBIDDEN_CALLS = {"__import__", "import_module", "exec", "eval", "spec_from_file_location"}
 DROPPED = ("load_cases", "combinations", "analysis_status", "diagnostics")
 SEISMIC = ("RS-EQX", "RS-EQY", "RS-EQZ")
@@ -64,7 +67,8 @@ def test_sha256sums_verify_and_name_the_package():
     for line in (REFERENCE / "SHA256SUMS").read_text().splitlines():
         digest, path = line.split("  ", 1)
         listed[path] = digest
-    assert set(listed) == {"README.md", "generators/rsgl_reference.py", "references.json"}
+    assert set(listed) == {"README.md", "generators/rsgl_reference.py", "references.json",
+                           "staged/reference_system_model_members.json"}
     present = {p.relative_to(REFERENCE).as_posix() for p in REFERENCE.rglob("*")
                if p.is_file() and "__pycache__" not in p.parts}
     assert present == set(listed) | {"SHA256SUMS"}, sorted(present)
@@ -105,19 +109,18 @@ def test_generator_names_no_product_path_but_the_model_file():
     assert not found, found
 
 
-def test_output_does_not_depend_on_the_dropped_model_members(tmp_path):
-    """The package's check, run against a copy of the model whose dropped members are replaced by a marker, must
-    still reproduce the committed files: nothing derived reads those members."""
-    root = tmp_path / "root"
-    package = root / "validation" / "references" / NAME
-    shutil.copytree(REFERENCE, package)
-    model = json.loads((PROJECT / MODEL_REL).read_text(encoding="utf-8"))
-    for key in DROPPED:
-        assert key in model, key
-        model[key] = {"replaced": "by the dropped-member test"}
-    target = root / MODEL_REL
-    target.parent.mkdir(parents=True)
-    target.write_text(json.dumps(model), encoding="utf-8")
+def test_the_staged_input_holds_only_the_four_model_members():
+    staged = json.loads((REFERENCE / "staged" / "reference_system_model_members.json").read_text(encoding="utf-8"))
+    assert staged["source"] == MODEL_REL
+    assert set(staged["members"]) == {"nodes", "pipe_segments", "components", "pressure_contract"}
+    assert not set(staged) & set(DROPPED) and not set(staged["members"]) & set(DROPPED)
+
+
+def test_the_default_check_reads_only_the_package(tmp_path):
+    """The package's check, run in a root that holds this package and nothing else, still reproduces the committed
+    files: the default check opens no file outside the package."""
+    package = tmp_path / "root" / "validation" / "references" / NAME
+    shutil.copytree(REFERENCE, package, ignore=shutil.ignore_patterns("__pycache__"))
     run = subprocess.run([sys.executable, "-I", "-B", "generators/rsgl_reference.py"], cwd=package,
                          capture_output=True, text=True, timeout=R.CHECK_TIMEOUT_S)
     assert run.returncode == 0, run.stdout + run.stderr
@@ -224,18 +227,22 @@ def test_the_pipes_only_twin_discriminates_every_nonzero_component():
 
 def test_seismic_model_check_outcomes():
     refs = _refs()
-    decision = refs["seismic_warning_decision"]
-    assert decision["decided_by"] == "SWBPIPE's Agent 0" and decision["date"] == "2026-11-18"
+    decisions = refs["seismic_warning_decisions"]
+    assert len(decisions) == 4
+    assert all(d["decided_by"] == "SWBPIPE's Agent 0" and d["date"] == "2026-11-18" for d in decisions)
+    assert refs["supplements"]["package"] == "validation/references/reference_system_pending_cases"
     assert refs["cases"]["RS-WIN"]["seismic_model_check"]["expected_findings"] == "none"
     for case in SEISMIC:
         rec = refs["cases"][case]["seismic_model_check"]
-        assert rec["weight_finding_required"] is False
+        assert rec["weight_finding_required"] is False and rec["gravity_finding_required"] is False
         assert rec["gravity_comparison"]["gravity_finding_required"] is False
+        assert "fresh" in rec["condition"] and "no other load in the weight category" in rec["condition"]
+        assert rec["other_loads_in_the_weight_category"] == []
         assert rec["gravity_comparison"]["equal_after_normalization"] is True
         assert rec["any_seismic_model_check_finding_required"] is False
         assert rec["added_weight_named"] == []
         assert len(rec["gravity_comparison"]["baseline_loads"]) == 4
-        loads = rec["weight_category_loads_of_the_case"]
+        loads = rec["self_weight_primitives_of_the_case"]
         assert loads["count"] == len(loads["ids"]) == len(set(loads["ids"])) == 29
         assert all(i.startswith("load:self-weight:%d:load:%s:" % (len("load:" + case), case)) for i in loads["ids"])
         for key in ("code", "message", "findings_per_load_or_per_case", "order_of_named_loads"):

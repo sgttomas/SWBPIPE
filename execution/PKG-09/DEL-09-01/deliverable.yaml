@@ -122,8 +122,9 @@ code_paths:
 # Frozen before the fixture solve that adopted RS-R1 and RS-CE1: EQ-1, EQ-2, EQ-5 and RS-CE1's support action
 # with both in the fixture, and the tranche-1 inputs from which the two earlier packages are reproduced.
 - validation/references/reference_system_r1_ce/**
-# Frozen before the engine work it judges: the generated loads, resultants and seismic warnings of
-# RS-WIN, RS-EQX, RS-EQY and RS-EQZ. No product test reads it yet.
+# Frozen before the engine work it judges: per-load and warning references for RS-WIN, RS-EQX, RS-EQY
+# and RS-EQZ, supplementing reference_system_pending_cases, which remains the reference for EQ-6. No
+# product test reads it yet.
 - validation/references/reference_system_generated_loads/**
 - tests/test_reference_system_generated_loads_references.py
 # The maintained check over every package under validation/references/: checksum-list inventory and

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Reference system, generated loads: RS-WIN, RS-EQX, RS-EQY, RS-EQZ (DEL-05-01, DEL-09-01).
+"""Reference system, per-load and warning references for RS-WIN, RS-EQX, RS-EQY, RS-EQZ (DEL-05-01, DEL-09-01).
+
+Supplements validation/references/reference_system_pending_cases, which remains the reference for EQ-6: the
+resultants derived here are checked equal to that package's, exactly.
 
 Standard-library Python 3 only. This generator imports, reads and runs no product code and reads no product
-output. It reads two things:
-
-  - its own package (this file; the README, for the key-value quotation check);
-  - the reference system's model file, of which it keeps only the members `nodes`, `pipe_segments`,
-    `components` and `pressure_contract`. The JSON parser passes over the whole file; the members
-    `load_cases`, `combinations`, `analysis_status` and `diagnostics` are dropped as the top-level object is
-    built and nothing reads them.
+output. Its default check and --write read only this package: this file, the README (for the key-value
+quotation check) and staged/reference_system_model_members.json, the reference system model's members `nodes`,
+`pipe_segments`, `components` and `pressure_contract` staged from the fixture at a named commit. The staged file
+holds no `load_cases`, `combinations`, `analysis_status` or `diagnostics`. --check-live alone opens the live
+fixture, keeps the same four members, and compares them with the staged copy leaf by leaf.
 
 Everything else is transcribed below from the governing text, with its source: the case inputs of the
 specification's section 8.1, the gravity of section 2, the bend corners of section 3.1, the member order of
@@ -25,9 +26,11 @@ What it derives (DEL-05-01 "Static-equivalent generation", "Mass basis", REQ-008
   twin      the same seismic resultant with every non-replaced member carrying k * g * mu and no component force
   formation the binary64 bits of each component force and moment under the scope's rounding rule
 
-Modes:
-  python3 -I rsgl_reference.py           check: rebuild every output in memory and compare byte for byte
-  python3 -I rsgl_reference.py --write   rewrite references.json and SHA256SUMS
+Modes (from the package directory):
+  python3 -I generators/rsgl_reference.py              check: rebuild every output in memory, compare byte for byte
+  python3 -I generators/rsgl_reference.py --write      rewrite references.json and SHA256SUMS
+  python3 -I generators/rsgl_reference.py --check-live compare the staged members with the live fixture's
+                                                       (not run by the default check)
 """
 import argparse
 import hashlib
@@ -44,7 +47,9 @@ HERE = Path(__file__).resolve().parent
 PKG = HERE.parent
 ROOT = PKG.parents[2]
 MODEL_REL = "fixtures/reference_system/reference_system.json"
-MODEL = ROOT / MODEL_REL
+LIVE_MODEL = ROOT / "fixtures" / "reference_system" / "reference_system.json"  # --check-live only
+STAGED_REL = "staged/reference_system_model_members.json"
+STAGED = PKG / STAGED_REL
 REFERENCES = PKG / "references.json"
 SUMS = PKG / "SHA256SUMS"
 README = PKG / "README.md"
@@ -54,6 +59,7 @@ KEPT_MEMBERS = ("nodes", "pipe_segments", "components", "pressure_contract")
 DROPPED_MEMBERS = ("load_cases", "combinations", "analysis_status", "diagnostics")
 
 CROSS = []
+STAGED_META = {}
 
 
 def cross(name, compares, kind, agrees, detail=None):
@@ -402,16 +408,63 @@ def unit(axis):
 # ---------------------------------------------------------------------------------------------------------------
 
 
+def read_staged():
+    staged = json.loads(STAGED.read_text(encoding="utf-8"), parse_float=Fr, parse_int=Fr)
+    assert staged["source"] == MODEL_REL
+    model = staged["members"]
+    assert set(model) == set(KEPT_MEMBERS), sorted(model)
+    return staged, model
+
+
 def read_model():
+    return read_staged()[1]
+
+
+def read_live_members():
+    """The live fixture's four kept members; the others are dropped as the top-level object is built."""
     def keep(pairs):
         d = dict(pairs)
         if all(k in d for k in KEPT_MEMBERS) and "schema_version" in d:
             return {k: d[k] for k in KEPT_MEMBERS}
         return d
-    text = MODEL.read_text(encoding="utf-8")
-    model = json.loads(text, parse_float=Fr, parse_int=Fr, object_pairs_hook=keep)
+    model = json.loads(LIVE_MODEL.read_text(encoding="utf-8"), parse_float=Fr, parse_int=Fr, object_pairs_hook=keep)
     assert set(model) == set(KEPT_MEMBERS), sorted(model)
     return model
+
+
+def leaves(obj, path=""):
+    """Every leaf keyed by its path, records in a list keyed by their id; a number as ('number', exact),
+    a boolean, string or null by its type and value."""
+    out = {}
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            out.update(leaves(v, f"{path}.{k}" if path else k))
+    elif isinstance(obj, list):
+        ids = [x.get("id") if isinstance(x, dict) else None for x in obj]
+        keyed = all(ids) and len(set(ids)) == len(ids)
+        for i, v in enumerate(obj):
+            out.update(leaves(v, f"{path}[{ids[i] if keyed else i}]"))
+        out[path + ".<length>"] = ("length", len(obj))
+    elif isinstance(obj, Fr):
+        out[path] = ("number", obj)
+    else:
+        out[path] = (type(obj).__name__, obj)
+    return out
+
+
+def check_live():
+    staged = leaves(read_model())
+    now = leaves(read_live_members())
+    differ = sorted(k for k in set(staged) | set(now) if staged.get(k, "<absent>") != now.get(k, "<absent>"))
+    for k in differ:
+        print(f"DIFFERS: {MODEL_REL} {k}: staged {staged.get(k, '<absent>')!r}, live {now.get(k, '<absent>')!r}")
+    print(f"live fixture {MODEL_REL}: {len(staged)} staged leaves of {', '.join(KEPT_MEMBERS)} compared, "
+          f"{len(differ)} differ")
+    if differ:
+        print("SOURCE MOVED ON: the live fixture's model members no longer match the staged input in the leaves named "
+              "above; a decision is needed on a successor package or a regeneration. The committed output stands for "
+              "its staged input.")
+    return 1 if differ else 0
 
 
 def qty(q, unit_text):
@@ -714,7 +767,8 @@ def floors(force, moment):
 def build():
     CROSS.clear()
     getcontext().prec = PREC_B + 10
-    model = read_model()
+    staged, model = read_staged()
+    STAGED_META.update({k: staged[k] for k in ("staged_at_commit", "source_git_blob")})
     assert model["pressure_contract"]["mode"] == "exact_pressure_v3"
     nodes, members, comps, replaced = build_inputs(model)
     by_id = {m["id"]: m for m in members}
@@ -957,7 +1011,9 @@ def build():
             "generated_loads": c["loads"],
             "generated_load_counts": {},
             "resultant": {"force_N": vec(c["force"]), "moment_about_origin_N_m": vec(c["moment"])},
-            "EQ-6": {"term": term, "expected_reaction_force_resultant_N": vec(vneg(c["force"])),
+            "EQ-6": {"reference_of_record": "validation/references/reference_system_pending_cases key_values.full."
+                                            + case_id + " (expected_" + term + "_…); checked equal here",
+                     "term": term, "expected_reaction_force_resultant_N": vec(vneg(c["force"])),
                      "expected_reaction_moment_resultant_about_origin_N_m": vec(vneg(c["moment"]))},
             "floors": floors(c["force"], c["moment"]),
         }
@@ -997,14 +1053,20 @@ def build():
 
     doc = {
         "document": "validation/references/reference_system_generated_loads/references.json",
-        "status": "candidate references, derived and cross-checked by their author, not yet independently refuted",
+        "status": "candidate per-load and warning references, derived and cross-checked by their author, not yet "
+                  "independently refuted",
+        "supplements": {"package": "validation/references/reference_system_pending_cases",
+                        "relation": "that package remains the reference for EQ-6; the four resultants and three "
+                                    "twins here are values this generator checks equal to its frozen ones, exactly"},
         "governs": {"scope": "execution/PKG-05/DEL-05-01/ScopeOfWork.md at aebd3442f: Static-equivalent "
                              "generation, Mass basis, Self-weight plan, REQ-008, REQ-015, AC-007, VER-005",
                     "specification": "fixtures/reference_system/SPECIFICATION.md §2, §3, §4.2, §5, §5.1, §8.1, "
                                      "§8.2, §9.2 (EQ-4, EQ-6 as restated at e494a5925)",
                     "quoted": SPEC},
-        "reads": {"model_file": MODEL_REL, "members_kept": list(KEPT_MEMBERS),
-                  "members_dropped_unread": list(DROPPED_MEMBERS)},
+        "reads": {"staged_input": STAGED_REL, "staged_from": MODEL_REL,
+                  "staged_at_commit": STAGED_META["staged_at_commit"],
+                  "source_git_blob": STAGED_META["source_git_blob"],
+                  "members_staged": list(KEPT_MEMBERS), "members_not_staged": list(DROPPED_MEMBERS)},
         "units": {"length": "m", "force": "N", "moment": "N*m", "distributed": "N/m", "mass_per_length": "kg/m"},
         "conventions": {
             "origin": "global (0, 0, 0)",
@@ -1062,7 +1124,8 @@ def build():
             "source": "DEL-05-01 AC-001 (1e-9 relative)",
             "relative": 1e-9,
         },
-        "seismic_warning_decision": DECISION_WARNING,
+        "seismic_warning_decisions": DECISIONS_WARNING,
+        "seismic_warning_decisions_scope_text": DECISION_SCOPE_TEXT,
         "warning_readings_considered_and_excluded": CONSIDERED_AND_EXCLUDED,
         "open_items": OPEN_ITEMS,
         "crosscheck": CROSS,
@@ -1088,17 +1151,24 @@ def inputs_record(nodes, members, quals, exposed, replaced):
     }
 
 
-DECISION_WARNING = {
-    "decided_by": "SWBPIPE's Agent 0",
-    "date": "2026-11-18",
-    "decision": "the seismic model-check warning names the two kinds of weight REQ-008 states, entered "
-                "weight-category loads and, on the pressure-free route, the added weight a case takes from an "
-                "operating condition; it does not name applied generated self-weight",
-    "reason": "the warning tells the engineer which weights seismic generation did not scale; a pipe's applied "
-              "self-weight and a component's applied weight are the ones it did, since generation takes the "
-              "pipe's mass and the component's W directly",
-    "scope_text": "the scope's sentence is to be clarified in a later change; no wording is quoted for it here",
-}
+DECISIONS_WARNING = [
+    {"decided_by": "SWBPIPE's Agent 0", "date": "2026-11-18",
+     "decision": "the seismic model-check warning names the two kinds of weight REQ-008 states, loads in the weight "
+                 "category and, on the pressure-free route, the added weight a case takes from an operating condition; "
+                 "it does not name applied generated self-weight",
+     "reason": "the warning tells the engineer which weights seismic generation did not scale; a pipe's applied "
+               "self-weight and a component's applied weight are the ones it did, since generation takes the pipe's "
+               "mass and the component's W directly"},
+    {"decided_by": "SWBPIPE's Agent 0", "date": "2026-11-18",
+     "decision": "a manual override of generated self-weight is named in the warning"},
+    {"decided_by": "SWBPIPE's Agent 0", "date": "2026-11-18",
+     "decision": "the gravity comparison reads fresh applied component-weight primitives only; an overridden component "
+                 "contributes no gravity to it"},
+    {"decided_by": "SWBPIPE's Agent 0", "date": "2026-11-18",
+     "decision": "the weight category is the solver's parsed category, an entered distributed member load included; "
+                 "the text says 'load in the weight category'"},
+]
+DECISION_SCOPE_TEXT = "the scope's sentences are to be clarified in a later change; no scope wording is quoted for them"
 
 
 def warning_record(case_id, line_members, quals):
@@ -1109,24 +1179,25 @@ def warning_record(case_id, line_members, quals):
                                                                     q["component"]) for q in rigid]
     return {
         "weight_finding_required": False,
-        "weight_finding_ground": "the decision recorded in seismic_warning_decision",
-        "weight_category_loads_of_the_case": {
-            "what": "the case's 29 applied self-weight primitives (spec §8.1), its only weight-category loads; "
-                    "applied generated self-weight, which the decision excludes from the warning",
+        "gravity_finding_required": G_WEIGHT != G_SEISMIC,
+        "any_seismic_model_check_finding_required": False,
+        "ground": "the four decisions in seismic_warning_decisions (SWBPIPE's Agent 0, 2026-11-18)",
+        "condition": "the case's 29 self-weight primitives are fresh (the self-weight plan's output, matching the "
+                     "model, as spec §8.1 states them: none overridden), and the case holds no other load in the "
+                     "weight category; the expectation holds only under this condition",
+        "self_weight_primitives_of_the_case": {
             "count": len(ids), "ids": ids,
             "id_reading": "ids from spec §8.1's rule with <case id> = '%s', <pipe id> and <component id> the full "
                           "ids (spec §2 Identities), the component moment's <axis> the one nonzero component of "
                           "r × (0, 0, −W); listed in spec §3.2 member order, then component by component" % cid,
         },
-        "condition": "these primitives are the self-weight plan's output and still match the model, as the "
-                     "specification states them (spec §8.1); what the warning does with a primitive that no longer "
-                     "matches its model is not established here",
+        "other_loads_in_the_weight_category": [],
         "added_weight_named": [],
         "added_weight_why": "the case is on the exact route, and no case carries condition added_weight (spec §8)",
         "gravity_comparison": {
             "baseline_loads": baseline,
-            "baseline_why": "REQ-008: applied component-weight primitives for the components whose forces the "
-                            "case generates (RS-F1, RS-V1, RS-F2, RS-R1), the seismic case's own when present",
+            "baseline_why": "the fresh applied component-weight primitives of the case for the components whose "
+                            "forces it generates (RS-F1, RS-V1, RS-F2, RS-R1); none is overridden",
             "applied_gravity_magnitude_m_per_s2": str(G_WEIGHT),
             "applied_source": "spec §2 (−9.80665 m/s² along global_z on each weight case) and §8.1 (W: gravity "
                               "as §2)",
@@ -1135,7 +1206,6 @@ def warning_record(case_id, line_members, quals):
             "equal_after_normalization": G_WEIGHT == G_SEISMIC,
             "gravity_finding_required": G_WEIGHT != G_SEISMIC,
         },
-        "any_seismic_model_check_finding_required": False,
         "code": None, "message": None, "findings_per_load_or_per_case": None, "order_of_named_loads": None,
         "open_fields_matter_for": "only a test that asserts the absence of these findings",
     }
@@ -1157,9 +1227,9 @@ OPEN_ITEMS = [
 
 CONSIDERED_AND_EXCLUDED = [
     {"reading": "the warning names the seismic case's own applied self-weight primitives (29 per case)",
-     "excluded_by": "SWBPIPE's Agent 0's decision of 2026-11-18 (seismic_warning_decision)"},
+     "excluded_by": "SWBPIPE's Agent 0's decision of 2026-11-18 that applied generated self-weight is not named"},
     {"reading": "the warning names every weight-category load in the document",
-     "excluded_by": "REQ-008 'on each seismic case' (the assigner's reading), and the same decision"},
+     "excluded_by": "REQ-008 'on each seismic case' (the assigner's reading of it as that case's loads)"},
 ]
 
 
@@ -1188,8 +1258,12 @@ def sums(files):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--write", action="store_true")
+    mode = ap.add_mutually_exclusive_group()
+    mode.add_argument("--write", action="store_true")
+    mode.add_argument("--check-live", action="store_true")
     args = ap.parse_args()
+    if args.check_live:
+        return check_live()
     doc = build()
     missing = readme_quotes(doc)
     doc["crosscheck"].append({"check": "README quotes", "compares": "the README quotes every nonzero resultant "
@@ -1197,7 +1271,7 @@ def main():
     doc["crosscheck_count"] = len(doc["crosscheck"])
     refs = render(doc).encode("utf-8")
     files = {"README.md": README.read_bytes() if README.exists() else b"",
-             SELF_REL: Path(__file__).read_bytes(), "references.json": refs}
+             SELF_REL: Path(__file__).read_bytes(), STAGED_REL: STAGED.read_bytes(), "references.json": refs}
     sums_bytes = sums(files).encode("utf-8")
     if args.write:
         REFERENCES.write_bytes(refs)

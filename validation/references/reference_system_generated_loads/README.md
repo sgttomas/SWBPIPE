@@ -1,46 +1,90 @@
-# Reference system, generated loads: RS-WIN, RS-EQX, RS-EQY, RS-EQZ
+# Reference system: per-load and warning references for RS-WIN, RS-EQX, RS-EQY, RS-EQZ
 
-Frozen references for the four generated-load cases of the invented reference system: the wind case RS-WIN and
-the static seismic cases RS-EQX, RS-EQY and RS-EQZ
-([`fixtures/reference_system/SPECIFICATION.md`](../../../fixtures/reference_system/SPECIFICATION.md) §8.1). For each
-case they give every generated load, the resultant of those loads, and EQ-6's expected reaction resultant (§9.2). For
-the seismic cases they also give the resultant without component forces, and the seismic model-check findings the
-case must carry. They follow the generation rule of
+Per-load and warning references for the wind case RS-WIN and the static seismic cases RS-EQX, RS-EQY and RS-EQZ
+of the invented reference system
+([`fixtures/reference_system/SPECIFICATION.md`](../../../fixtures/reference_system/SPECIFICATION.md) §8.1). They
+supplement [`../reference_system_pending_cases/`](../reference_system_pending_cases/README.md), which remains the
+reference for EQ-6 (§9.2). For each case they give every generated load one by one. For each component force and
+moment they give the binary64 bits the formation rule fixes. For each seismic case they also give the seismic
+model-check findings the case must carry. They follow the generation rule of
 [DEL-05-01](../../../execution/PKG-05/DEL-05-01/ScopeOfWork.md) ("Static-equivalent generation", "Mass basis",
-REQ-008, REQ-015, AC-007). They were frozen before the engine work they judge: no product test reads this package
-yet.
+REQ-008, REQ-015, AC-007). They were frozen before the engine work they judge, and no product test reads this
+package yet.
 
-Status: candidate references, derived and cross-checked by their author, not yet independently refuted.
+Status: candidate per-load and warning references, derived and cross-checked by their author, not yet independently
+refuted.
+
+## Relation to the pending-cases package
+
+**Values both packages hold.** Both hold the four resultants (force and moment about the origin of RS-WIN, RS-EQX,
+RS-EQY and RS-EQZ) and the three pipes-only twins. That package holds the twins as its control "the rule before
+2026-11-12". This generator checks every one of them equal to that package's frozen value, rational coefficient by
+coefficient (`crosscheck`), so the two cannot part silently. The pending-cases package is the reference for EQ-6.
+This package does not replace that reference or restate it as its own: its `EQ-6` entries name that package as the
+reference of record and are values checked equal to it.
+
+**What only this package holds:**
+- each generated load one by one, with its target, kind, direction or axis and its intensity or value;
+- the formed binary64 bits of each component force and moment;
+- the comparison rule and each case's floors;
+- the twin's difference measured against that rule;
+- the seismic warning expectation;
+- inputs read from the fixture's model members, staged here, where that package holds the specification's inputs
+  as constants.
+
+**Stated assumptions.** That package's README treats the seismic gravity magnitude as an open reading (OR-G) and
+assumes 9.80665 m/s². This package takes 9.80665 m/s² from §8.1, which now states it. No other stated assumption
+differs.
 
 ## Files
 
 | File | Role |
 |---|---|
 | `generators/rsgl_reference.py` | the generator: Python 3 standard library only, exact rational arithmetic, controlled evaluation of π and √n |
-| `references.json` | the inputs read, sections, members, arcs, component qualification, per case the generated loads, resultant, EQ-6 expectation, floors, pipes-only twin and model-check record, EQ-4's statement, the comparison rule, the open items and 24 cross-checks |
-| `SHA256SUMS` | hashes of the three files above, written by the generator |
+| `staged/reference_system_model_members.json` | an input staged from `fixtures/reference_system/reference_system.json` as committed at `b5569a8215847bedcceac7de7a1b8429a5fde41b` (git blob `8a9729b033e9929a820b4c5b96a040f4458da1df`): its members `nodes`, `pipe_segments`, `components` and `pressure_contract`, copied as they stand, every number with the same exact value. It holds no `load_cases`, `combinations`, `analysis_status` or `diagnostics` |
+| `references.json` | the inputs read, sections, members, arcs, component qualification, per case the generated loads, resultant (with the EQ-6 entries checked equal to the pending-cases package), floors, pipes-only twin and model-check record, EQ-4's statement, the comparison rule, the open items and 24 cross-checks |
+| `SHA256SUMS` | hashes of the four files above, written by the generator |
 
-`python3 -I generators/rsgl_reference.py` rebuilds `references.json` and `SHA256SUMS` in memory and compares them
-byte for byte with the committed files. `--write` rewrites both.
+`python3 -I generators/rsgl_reference.py` rebuilds `references.json` and `SHA256SUMS` in memory from this package's
+files alone and compares them byte for byte with the committed files. `--write` rewrites both.
 [`tests/test_reference_system_generated_loads_references.py`](../../../tests/test_reference_system_generated_loads_references.py)
 runs that check. It also checks the manifest, the generator's imports, the transcribed governing text and sibling
 values, the comparison rule and the floors.
 
 ## What the generator reads and does not read
 
-It reads its own package and one fixture file, the reference system's model
-[`fixtures/reference_system/reference_system.json`](../../../fixtures/reference_system/reference_system.json). From
-that file it keeps only `nodes`, `pipe_segments` (with each member's embedded section), `components` and
-`pressure_contract`. The JSON parser passes over the whole file. The members `load_cases`, `combinations`,
-`analysis_status` and `diagnostics` are dropped when the top-level object is built, and nothing reads them. The
-captured self-weight primitives are among the dropped members. The generator does not read
-`self_weight_capture.json`, `authoring.json`, `key_results.json`, product source, product tests or product output.
+The default check and `--write` read only this package: the generator, this README (for the quotation check) and
+the staged model members. They open no file outside the package. The staged file holds the four model members the
+derivation needs and nothing else. The captured self-weight primitives, which are in the fixture's `load_cases`,
+were never staged. The generator does not read `self_weight_capture.json`, `authoring.json`, `key_results.json`,
+product source, product tests or product output.
 
 The generator transcribes the rest, with its source. From the specification: the case inputs (§8.1), the weight
 gravity (§2), the bend corners (§3.1), the member order (§3.2) and the statements it quotes in `governs.quoted`.
 From DEL-03-05: the rigid-family kinds. From three sibling packages: the frozen values its cross-checks compare
 against. The maintained test checks every quoted statement against the current specification and every sibling
 value against the committed file it names.
+
+## The staged input and the live comparison
+
+    python3 -I generators/rsgl_reference.py --check-live
+
+This separate check is not run by the default check. It opens the live fixture, keeps the same four members, and
+compares them with the staged copy leaf by leaf: numbers by exact value, records in a list by their id, and each
+list by its length. It names every leaf that differs and exits nonzero ("SOURCE MOVED ON"). Its result does not
+change the committed output, which still stands for its staged input.
+
+[`tests/test_reference_packages_live.py`](../../../tests/test_reference_packages_live.py) runs it. That test also
+holds the digest of the fixture's whole bytes, because the leaf comparison cannot see everything:
+- a change outside the four members, such as a load case added, a primitive load edited or a member added beside
+  them, passes the leaf comparison;
+- a change the product reads differently from how it reads here, such as a new member a solve gives precedence,
+  also passes the leaf comparison.
+
+Any change to the file fails the digest until a person has looked at its diff against this package.
+
+When the fixture's geometry, sections or components change, the answer is a successor package or a regeneration,
+decided at that time. It is not an edit of this package in place.
 
 ## Mass bases
 
@@ -95,7 +139,8 @@ of action: the moment of a distributed load is (∫ r ds) × q·e, and the momen
 is (node + r) × F. For a straight member ∫ r ds = L·(A + B)/2. A 90° arc with centre C = A + B − corner, and e₁, e₂
 the radius vectors from C to its from-node and to-node, has length R·π/2 and ∫ r ds = R[(π/2)C + e₁ + e₂]. EQ-6
 expects the reaction resultant of RS-dWIN, RS-dEQX, RS-dEQY or RS-dEQZ, force and moment about the origin, to be
-minus the resultant of its case (`cases.<case>.EQ-6`).
+minus the resultant of its case. The pending-cases package is its reference, and `cases.<case>.EQ-6` holds the
+same values, checked equal to it.
 
 | Case | Force (N) | Moment about the origin (N·m) |
 |---|---|---|
@@ -121,28 +166,34 @@ it.
 
 ## Seismic model-check findings
 
-SWBPIPE's Agent 0 decided on 2026-11-18 that the seismic model-check warning names the two kinds of weight REQ-008
-states: entered weight-category loads and, on the pressure-free route, the added weight a case takes from an
-operating condition. It does not name applied generated self-weight. The reason given: the warning tells the
-engineer which weights seismic generation did not scale, and generation takes the pipe's mass and the component's W
-directly. The scope's sentence is to be clarified in a later change. The record is in `seismic_warning_decision`.
+The expectations rest on four decisions SWBPIPE's Agent 0 made on 2026-11-18 (`seismic_warning_decisions`). The
+scope's sentences are to be clarified in a later change.
+1. The warning names the two kinds of weight REQ-008 states: loads in the weight category and, on the pressure-free
+   route, the added weight a case takes from an operating condition. It does not name applied generated
+   self-weight. The reason: the warning tells the engineer which weights seismic generation did not scale, and
+   generation takes the pipe's mass and the component's W directly.
+2. A manual override of generated self-weight is named in the warning.
+3. The gravity comparison reads fresh applied component-weight primitives only. An overridden component contributes
+   no gravity to it.
+4. The weight category is the solver's parsed category, an entered distributed member load included. The text says
+   "load in the weight category".
 
-On each of RS-EQX, RS-EQY and RS-EQZ:
-
-- **No weight finding is required.** The case's only weight-category loads are its 29 applied self-weight primitives
-  (§8.1). This rests on a condition: those primitives are the self-weight plan's output and still match the model, as
-  the specification states them. Their ids follow §8.1's rule and are listed in the record. The case is on the exact
-  route, and no case carries condition added weight (§8).
-- **No gravity finding is required.** The baseline is the case's own applied component-weight primitives for the
-  components whose forces it generates (the four `…:force:z` primitives). Their gravity magnitude is 9.80665 m/s²
-  (§2, and §8.1: W uses "gravity as §2"). The seismic gravity is 9.80665 m/s² (§8.1). They are equal after
-  normalization.
+On each of RS-EQX, RS-EQY and RS-EQZ, no weight finding and no gravity finding are required. This expectation holds
+only under the condition recorded in each case's `seismic_model_check.condition`: the case's 29 self-weight
+primitives are fresh (the self-weight plan's output, matching the model, as §8.1 states them, none overridden), and
+the case holds no other load in the weight category.
+- **Weight:** under decisions 1, 2 and 4, fresh generated self-weight is not named, and nothing else is in the
+  weight category. The case is on the exact route, and no case carries condition added weight (§8). The 29 ids
+  follow §8.1's rule and are listed in the record.
+- **Gravity:** under decision 3, the baseline is the case's four fresh `…:force:z` component-weight primitives,
+  for the components whose forces the case generates. Their gravity magnitude is 9.80665 m/s² (§2, and §8.1: W uses
+  "gravity as §2"). The seismic gravity is 9.80665 m/s² (§8.1). They are equal after normalization.
 
 RS-WIN carries no seismic model-check finding (AC-007: "none of those findings otherwise").
 
-Two readings were considered and excluded. Naming the case's own applied self-weight is excluded by the 2026-11-18
-decision. Naming every weight-category load in the document is excluded too: on the assigner's reading REQ-008's
-"on each seismic case" means that case's loads, and the decision excludes self-weight in any case.
+Two readings were considered and excluded. Naming the case's own applied self-weight is excluded by decision 1.
+Naming every weight-category load in the document is excluded on the assigner's reading of REQ-008's "on each
+seismic case" as that case's loads.
 
 ## EQ-4
 
@@ -202,8 +253,10 @@ calculation, a transcription check or a consistency check. All agree:
   - The three twins against that package's control "the rule before 2026-11-12".
 - **consistency (1):** this README quotes every nonzero resultant value.
 
-The sibling comparisons are exact equalities of the rational coefficients. They share the mass-basis reading and the
-specification's inputs with this package, so they check the arithmetic and the bookkeeping, not those readings.
+The sibling comparisons are exact equalities of the rational coefficients. They share the mass-basis reading with
+this package, so they do not check that reading. The pending-cases package takes its inputs from the
+specification's text, and this package from the fixture's model members, so agreement also checks the fixture's
+transcription of those inputs.
 
 ## Open items
 
@@ -224,8 +277,10 @@ specification's inputs with this package, so they check the arithmetic and the b
 - A resultant constrains the total applied load and its line of action, not its distribution. The per-load values
   constrain the generated-load record, not the solved response.
 - Displacements, member forces, stresses and support states are not referenced here.
-- The warning record covers self-weight primitives that are the plan's output and still match the model. It does
-  not establish what the warning does with a primitive that no longer matches its model.
+- The warning expectation holds only under its condition: fresh self-weight primitives and no other load in the
+  weight category. It does not establish what the warning does with a primitive that no longer matches its model,
+  with an overridden one or with an entered weight load.
+- The resultants are not a second reference for EQ-6; the pending-cases package is.
 - Passing these checks does not make exit criterion 1 or 2 met.
 - Agreement is evidence, not acceptance (F-PIP-3). SWBPIPE computes mechanics; it does not determine code compliance
   (F-PIP-2).
