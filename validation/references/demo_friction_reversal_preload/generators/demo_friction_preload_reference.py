@@ -562,10 +562,20 @@ def live_table(text, name):
     body = []
     for i in range(at[0] + 1, len(lines)):
         if code[i].strip().startswith("];"):
+            if lines[i].strip() != "];":  # something else is written on the closing line: it counts as a line
+                body.append(lines[i].strip())
             return (lines[at[0]].strip(), body), None
         if lines[i].strip():
             body.append(lines[i].strip())
     return None, f"the table {name} has no closing `];` line"
+
+
+def same_leaf(a, b):
+    """Equal values of the same JSON kind. Python equates False with 0 and True with 1; the model document does
+    not, so a boolean equals only a boolean. An integer and a float of the same value are the same number."""
+    if isinstance(a, bool) or isinstance(b, bool):
+        return isinstance(a, bool) and isinstance(b, bool) and a == b
+    return a == b
 
 
 def check_live():
@@ -574,7 +584,7 @@ def check_live():
     differ = []
     staged, live = derivation_leaves(json.loads(DEMO.read_text())), derivation_leaves(json.loads(LIVE_DEMO.read_text()))
     for k in sorted(set(staged) | set(live)):
-        if staged.get(k, "<absent>") != live.get(k, "<absent>"):
+        if not same_leaf(staged.get(k, "<absent>"), live.get(k, "<absent>")):
             differ.append(f"{LIVE_DEMO.relative_to(ROOT)} {k}: staged {staged.get(k, '<absent>')!r}, live {live.get(k, '<absent>')!r}")
     test = LIVE_TEST.relative_to(ROOT)
     table, reason = live_table(LIVE_TEST.read_text(), TABLE["table"])

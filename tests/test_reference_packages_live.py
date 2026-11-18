@@ -12,6 +12,7 @@ and must leave every file under validation/references/ as it was. No product bin
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import subprocess
@@ -32,14 +33,24 @@ class LiveCheck:
     argv: tuple
     sources: tuple
     siblings: tuple = ()  # the sibling packages its generator imports or reads
+    whole: tuple = ()  # ((source, sha256), ...): sources the check reads as text, held here by their whole bytes
 
 
 LIVE_CHECKS = {
     "t4_i12_preload": LiveCheck(("generators/u3_preload_reference.py", "--check-live"), (R.PREVIEW_MODEL,),
                                 siblings=("t4_i12",)),
-    "demo_friction_reversal_preload": LiveCheck(("generators/demo_friction_preload_reference.py", "--check-live"),
-                                                (R.DEMO_MODEL, R.FRICTION_REVERSAL_TEST)),
+    "demo_friction_reversal_preload": LiveCheck(
+        ("generators/demo_friction_preload_reference.py", "--check-live"), (R.DEMO_MODEL, R.FRICTION_REVERSAL_TEST),
+        whole=((R.FRICTION_REVERSAL_TEST, "a3d31f87f98f9fcdaca68d3430abaefe1eeb158b58084963b71c1c14e7f404ae"),)),
 }
+
+# The live check compares the frozen table in the Rust test file as text. It cannot resolve conditional compilation,
+# imports or macros, so it does not by itself establish which table the compiled test reads. The file is therefore
+# also held here by the digest of its whole bytes: ANY change to it fails test_a_source_held_whole_is_unchanged.
+WHOLE_CHANGED = ("the file has changed since its digest was recorded here. Confirm that the table the compiled test "
+                 "reads is still the one the package staged (its live check reports what it can see; read the "
+                 "file's diff for conditional compilation, imports and macros that it cannot), then record the new "
+                 "digest in LIVE_CHECKS. If the table has changed, a decision is needed on re-staging instead")
 
 MOVED_ON = ("a source this package's inputs were staged from has moved on, and a decision is needed: re-stage the "
             "inputs and re-derive, or keep the staged inputs; the committed output still stands for its staged inputs")
@@ -81,6 +92,26 @@ def live_problems(name: str) -> list[str]:
         return [f"{label} exited {run.returncode}: {MOVED_ON}. Sources compared: {', '.join(live.sources)}. "
                 f"What it reported:\n{output[-3000:]}"]
     return []
+
+
+def whole_problems(name: str, root: Path = R.ROOT) -> list[str]:
+    """The sources this package's live check reads as text, by the digest of their whole bytes."""
+    return [f"{name}: {source}: {WHOLE_CHANGED}" for source, digest in LIVE_CHECKS[name].whole
+            if hashlib.sha256((root / source).read_bytes()).hexdigest() != digest]
+
+
+@pytest.mark.parametrize("name", sorted(LIVE_CHECKS))
+def test_a_source_held_whole_is_unchanged(name):
+    problems = whole_problems(name)
+    assert not problems, "\n".join(problems)
+
+
+def test_every_source_that_is_not_a_document_is_held_whole():
+    """A JSON document is compared leaf by leaf after parsing; any other source is read as text and must be held
+    by its whole bytes as well."""
+    for name, live in LIVE_CHECKS.items():
+        text_sources = {source for source in live.sources if not source.endswith(".json")}
+        assert text_sources == {source for source, _ in live.whole}, f"{name}: {sorted(text_sources)}"
 
 
 @pytest.mark.parametrize("name", sorted(LIVE_CHECKS))
@@ -176,6 +207,35 @@ def _a_second_declaration_behind_an_attribute(text: str) -> str:
     return "".join(lines[:end + 1] + second + lines[end + 1:])
 
 
+def _a_closing_line_with_more_on_it(text: str) -> str:
+    lines = text.splitlines(keepends=True)
+    (start,) = [i for i, line in enumerate(lines) if line.startswith("const EXPECTED: [Expected; 6] = [")]
+    end = next(i for i in range(start, len(lines)) if lines[i].startswith("];"))
+    lines[end] = "/* a note inside the array */ ];\n"
+    return "".join(lines)
+
+
+def _a_boolean_where_a_number_was(text: str) -> str:
+    """A coordinate of 0 written as false, which Python equates with 0 and the model document does not."""
+    document = json.loads(text)
+    (node,) = [n for n in document["nodes"] if n["id"] == "node:N-100"]
+    assert node["position"]["x"] == 0 and node["position"]["x"] is not False
+    node["position"]["x"] = False
+    return json.dumps(document, indent=2) + "\n"
+
+
+def _a_changed_copy_behind_a_condition_and_an_import(text: str) -> str:
+    """The table the test reads replaced, on this host, by a changed copy under another name, imported as EXPECTED.
+    The live check reads text and cannot see it; the whole-file digest must."""
+    lines = text.splitlines(keepends=True)
+    (start,) = [i for i, line in enumerate(lines) if line.startswith("const EXPECTED: [Expected; 6] = [")]
+    end = next(i for i in range(start, len(lines)) if lines[i].startswith("];"))
+    copy = _another_number_in_a_row("".join(lines[start:end + 1])).replace("const EXPECTED:", "const EXPECTED_MACOS:")
+    condition = '#[cfg(target_os = "macos")]\n'
+    return "".join(lines[:start] + ['#[cfg(not(target_os = "macos"))]\n'] + lines[start:end + 1]
+                   + [condition, copy, condition, "use self::EXPECTED_MACOS as EXPECTED;\n"] + lines[end + 1:])
+
+
 def _a_repeated_primitive_load(text: str) -> str:
     """One primitive load written twice under the same id, which the product refuses."""
     document = json.loads(text)
@@ -188,10 +248,11 @@ def _a_repeated_primitive_load(text: str) -> str:
 # test_every_live_source_has_a_drift_control, so a source the generator stopped reading cannot stay declared.
 DRIFTS = {
     ("t4_i12_preload", R.PREVIEW_MODEL): (_another_cold_load,),
-    ("demo_friction_reversal_preload", R.DEMO_MODEL): (_another_cold_load, _a_repeated_primitive_load),
+    ("demo_friction_reversal_preload", R.DEMO_MODEL): (_another_cold_load, _a_repeated_primitive_load,
+                                                       _a_boolean_where_a_number_was),
     ("demo_friction_reversal_preload", R.FRICTION_REVERSAL_TEST): (
         _another_number_in_a_row, _a_seventh_row, _a_comment_in_the_table, _a_commented_copy_and_a_changed_table,
-        _a_second_declaration_behind_an_attribute),
+        _a_second_declaration_behind_an_attribute, _a_closing_line_with_more_on_it),
 }
 
 
@@ -219,6 +280,16 @@ def test_a_changed_source_fails_the_live_check(tmp_path, name, source, change):
     (root / source).write_text(after, encoding="utf-8")
     code, output = _live_exit(root, name)
     assert code != 0 and "SOURCE MOVED ON" in output, f"{change.__name__} in {source} was not reported:\n{output[-3000:]}"
+
+
+def test_a_change_the_text_comparison_cannot_see_fails_the_whole_file_digest(tmp_path):
+    name, source = "demo_friction_reversal_preload", R.FRICTION_REVERSAL_TEST
+    root = _copy_of_the_tree_the_live_check_reads(tmp_path, name)
+    assert not whole_problems(name, root)
+    before = (root / source).read_text(encoding="utf-8")
+    (root / source).write_text(_a_changed_copy_behind_a_condition_and_an_import(before), encoding="utf-8")
+    problems = whole_problems(name, root)
+    assert len(problems) == 1 and source in problems[0] and WHOLE_CHANGED in problems[0], problems
 
 
 def test_a_source_the_generator_does_not_name_fails_its_declaration(monkeypatch):

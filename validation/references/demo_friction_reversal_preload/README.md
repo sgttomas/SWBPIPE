@@ -63,13 +63,20 @@ This separate check, which `--check` does not run, does two comparisons. It
 compares the staged model with the live fixture on only the leaves that enter
 the derivation (`DERIVATION_LEAVES` in the generator), so the fixture's
 descriptive strings are ignored. It also finds the table named `EXPECTED` in the live test file by its
-declaration, wherever it sits, and compares its rows, in order, with the
-staged rows; line numbers play no part. It names every differing leaf or row,
-including a missing or extra one, and exits nonzero. If it cannot find the
-declaration exactly once, it says so and exits nonzero; it does not guess. It
-establishes whether the staged inputs still match their sources. A difference
-means a source has moved on and a decision is needed on re-staging; the
-committed output still stands for its staged inputs.
+declaration, wherever it sits, and compares its declaration and every line of
+its initializer, in order, with the staged ones; line numbers play no part. It
+names every differing leaf or line, including a missing or extra one, and
+exits nonzero. If it cannot find the name bound exactly once in the file's
+code, it says so and exits nonzero; it does not guess. A difference means a
+source has moved on and a decision is needed on re-staging; the committed
+output still stands for its staged inputs.
+
+The table comparison reads the test file as text. It does not resolve
+conditional compilation, imports or macros, so by itself it does not establish
+which table the compiled test reads. The maintained test that runs this check
+(`tests/test_reference_packages_live.py`) therefore also holds the digest of
+the whole test file: any change to that file fails it until someone has
+confirmed the table against this package.
 
 ## Method
 
