@@ -12,7 +12,7 @@ import { App } from "./App";
 import * as previewService from "./services/previewService";
 import type { UnitCatalogRoute } from "./services/unitCatalogService";
 import { unitCatalogFixture } from "./test-support/unitCatalogFixture";
-import { changeFormControl, nativeMenuCommand } from "./test-support/workspaceTestControls";
+import { changeFormControl } from "./test-support/workspaceTestControls";
 import { unitPairFamilyModel } from "./test-support/unitPairFamilyModel";
 import { FAMILY_MEMBERS, type FamilyMember } from "./test-support/unitPairFamilyMembers";
 import { captureAppSession, storedDocument } from "./test-support/unitPairSurfaceHarness";
@@ -24,6 +24,9 @@ vi.mock("./services/unitCatalogService", async (original) => ({
 }));
 
 afterEach(() => { cleanup(); route.current = null; vi.restoreAllMocks(); });
+
+/** The native menu's view command, as App.test.tsx dispatches it. */
+const nativeMenuCommand = (command: string) => window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: command }));
 
 function openSection(id: "loads" | "operations") {
   let section = screen.queryByTestId(`workspace-section-${id}`);
