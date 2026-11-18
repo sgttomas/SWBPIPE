@@ -3265,6 +3265,13 @@ fn run_linear_static_preview_observed_inner(
                 capture.expect("early domain requires the original invocation"));
         }
     }
+    // Issue 380 (DEL-04-06 REQ-013, DEL-07-07 REQ-008): equivalent-static generation's
+    // input checks, before any stiffness is formed; the on-demand checks call the same
+    // function at the same stage. A model that solves gains nothing here.
+    append_equivalent_static_input_findings(&model, resolved_cases.as_deref(), &mut diagnostics);
+    if has_blocking(&diagnostics) {
+        return blocked_envelope(model, diagnostics);
+    }
     let stiffness = match form_basis_stiffness(&built, &boundary.springs, linear) {
         Ok(stiffness) => stiffness,
         Err(error) => return solver_blocked(model, diagnostics, error),
@@ -11024,6 +11031,38 @@ fn build_load_case_primitive_loads(
         .collect::<Vec<_>>();
     append_equivalent_static_generated_loads(model, load_case, &mut loads, diagnostics);
     loads
+}
+
+/// Issue 380 (DEL-04-06 REQ-013, DEL-05-01 REQ-008, DEL-07-07 REQ-008): the input
+/// checks of equivalent-static generation, reached before any stiffness is formed.
+/// For each case with generation inputs, the case the solve generates for (on a
+/// load-state document, its resolved effective case) goes through the solve's own
+/// primitive-load builder, which keeps the case's authored loads for its collision
+/// checks and reads the route's mass basis, the connector-replaced spans and the
+/// normalized sections from `model`. The loads built here are dropped. A case's
+/// diagnostics are kept only when one of them blocks, so a model that solves gains no
+/// diagnostic here and its generation later in the solve is unchanged. No rule is
+/// copied: a missing or invalid input is found by the generator that consumes it.
+/// A load-state document exists only on the exact route, whose profile validation
+/// refuses its generation by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED)
+/// before this stage, so the effective-case branch is the solve's own reading kept
+/// in step, not a generation that runs today.
+fn append_equivalent_static_input_findings(
+    model: &PreviewModel,
+    resolved_cases: Option<&[case_state::resolve::ResolvedCase]>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    for (index, load_case) in model.load_cases.iter().enumerate() {
+        let load_case = resolved_cases.map_or(load_case, |cases| &cases[index].effective_case);
+        if load_case.equivalent_static.is_none() {
+            continue;
+        }
+        let mut findings = Vec::new();
+        drop(build_load_case_primitive_loads(model, load_case, &mut findings));
+        if has_blocking(&findings) {
+            diagnostics.extend(findings);
+        }
+    }
 }
 
 /// Compute one pipe's mass per unit length from its own user-entered

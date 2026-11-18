@@ -50,11 +50,13 @@ person's value and stress unit, and supplies none itself
 `apps/desktop/src/App.materialShearModulusEntry.test.tsx`). Neither behavior
 changes this scenario's authored missing values.
 
-The desktop's on-demand model checks do not run the static-equivalent
-generation, so before the first solve they show no finding for these values.
-Each missing value is shown as a finding once that solve is refused. This is a
-product gap against DEL-07-07 REQ-008 and DEL-07-02 REQ-004, not evidence that
-pre-solve detection is complete; the scenario does not waive those requirements.
+The desktop's on-demand model checks reach the static-equivalent generation's
+own input checks before any stiffness is formed, at the stage where the solve
+reaches them (issue 380). Before any solve job, they find both values on their
+pipes, before the solve would form a stiffness
+(`core/product_physics/tests/model_checks_runtime.rs`, run headlessly; not a
+desktop capture). The desktop gate's withholding of Solve on these two
+findings has not yet been shown by a passing whole-App test.
 `tools/agent_missing_data_judge_test.py` solves the start and the expected
 final model with the headless runner. The start must end `MODEL_INCOMPLETE`,
 with blocking findings that name exactly the two missing values, and the

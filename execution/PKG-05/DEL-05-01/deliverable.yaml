@@ -131,6 +131,9 @@ code_paths:
 - apps/desktop/src/features/wind-exposure/WindExposureForm.tsx
 checks:
 - core/loads/primitive_loads/src/lib.rs
+# Issue 380: each missing generation input refused by name before any solve, in the model checks
+# and the solve alike (REQ-008, AC-007's missing-input refusal), on both routes.
+- core/product_physics/tests/model_checks_runtime.rs
 - core/product_physics/tests/w16_exact_equivalent_static.rs
 - validation/references/w16_exact_equivalent_static/generators/w16c_reference.py
 - core/product_physics/tests/w16_timoshenko_partial_wind.rs
