@@ -486,6 +486,12 @@ RS-SP1's [0.5, 100] Hz table. In particular, the lowest periodic mode is checked
 refused and returns to Agent 0 as an authored-spectrum question. Nothing is
 extrapolated or silently omitted.
 
+The end tangents of this system's three arcs are aligned with the global axes, so the
+tangent frame at each arc end is a signed permutation of the global axes. Its spectrum
+result is therefore not evidence that an arc's rows are combined in the right frame; that
+evidence is the oblique arc case, V-ARC-OBL, of the spectrum recovery references
+(`validation/references/f2_spectrum/recovery_w2`).
+
 ### 8.6 Equilibrium checks need no extra case
 
 Each check in §9.2 reads cases that already exist, so the model carries no auxiliary
