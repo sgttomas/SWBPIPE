@@ -157,11 +157,21 @@ def _combination(model, combination_id):
     return by_id(model, "combinations").get(combination_id)
 
 
+def _element_states(model, case_id):
+    return (_case(model, case_id) or {}).get("analysis_state", {}).get("element_states", [])
+
+
 def _ope_thermal(model):
-    states = (_case(model, "load:RS-OPE") or {}).get("analysis_state", {}).get("element_states", [])
+    """RS-OPE's thermal state on the modulus by temperature, and RS-OPE-REF's on the 20 degC point, each of whose
+    members with an operating temperature states its analysis basis (spec §8.1)."""
+    hot = [s for s in _element_states(model, "load:RS-OPE-REF") if "operating_temperature" in s]
     return bool(_case(model, "load:RS-SUS")) and any(
         s.get("material_selection", {}).get("kind") == "temperature_interpolation"
-        and s.get("thermal_state", {}).get("kind") == "free_length_state" for s in states)
+        and s.get("thermal_state", {}).get("kind") == "free_length_state"
+        for s in _element_states(model, "load:RS-OPE")) and bool(hot) and all(
+        s.get("material_selection", {}).get("kind") == "exact_point"
+        and s.get("thermal_state", {}).get("kind") == "free_length_state"
+        and s.get("analysis_basis_override", {}).get("reason") for s in hot)
 
 
 def _regions_closed(model):
@@ -218,7 +228,8 @@ FAMILY_PRESENT = {
     "Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1)": lambda m: bool(_supports(m, "nonlinear")),
     "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7": lambda m: any(
         s["id"] == "support:RS-FR1V" and s.get("family") != "vertical_support" for s in m["supports"]),
-    "RS-SUS, RS-OPE (thermal, modulus by temperature)": _ope_thermal,
+    "RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)":
+        _ope_thermal,
     "RS-EXP": lambda m: bool(_combination(m, "combination:RS-EXP")),
     "RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature": lambda m: any(
         "equivalent_static" in c or c["id"] in ("load:RS-WIN", "load:RS-EQX", "load:RS-EQY", "load:RS-EQZ")
@@ -329,7 +340,7 @@ def missing_identities(record: str, text: str, model: dict) -> list[str]:
     for identity in sorted(fixture_identities(model)):
         if identity.startswith("region:") and record == "SPECIFICATION.md":
             # The specification states the regions once for every case: `region:<case>-<region>`.
-            case, region = re.fullmatch(r"region:(RS-[A-Z]+)-(RG-\w+)", identity).groups()
+            case, region = re.fullmatch(r"region:(RS-[A-Z]+(?:-[A-Z]+)*)-(RG-\w+)", identity).groups()
             if not (names(text, case) and names(text, region)):
                 missing.append(identity)
         elif not names(text, tag(identity)):
@@ -519,6 +530,12 @@ BINDINGS = [
      lambda m: [t["provenance"] for c in _cases(m) for r in c["pressure_regions"] for t in r["terminals"]]),
     ("regions", "Region provenance", lambda m: [r["provenance"] for c in _cases(m) for r in c["pressure_regions"]]),
     ("states", "Analysis state provenance", lambda m: [c["analysis_state"]["provenance"] for c in _cases(m)]),
+    ("states", "Analysis basis reason", lambda m: [s["analysis_basis_override"]["reason"] for c in _cases(m)
+                                                   for s in c["analysis_state"]["element_states"]
+                                                   if "analysis_basis_override" in s]),
+    ("states", "Analysis basis provenance", lambda m: [s["analysis_basis_override"]["provenance"] for c in _cases(m)
+                                                       for s in c["analysis_state"]["element_states"]
+                                                       if "analysis_basis_override" in s]),
     ("combinations", "Provenance", lambda m: [c["provenance"] for c in m["combinations"]]),
 ]
 
@@ -586,12 +603,12 @@ def thermal_problems(text: str, model: dict, differences: str) -> list[str]:
     value is its template for every member; a case copied from another without marking its element
     states absent keeps that case's values."""
     body = step(text, "states")
-    parts = re.split(r"(?m)^- \*\*(RS-[A-Z]+)\.\*\*", body)
+    parts = re.split(r"(?m)^- \*\*(RS-[A-Z]+(?:-[A-Z]+)*)\.\*\*", body)
     bullets = dict(zip(parts[1::2], parts[2::2]))
     texts = pasted_texts(text)
     expected: dict[str, dict[str, str | None]] = {}
     for case, bullet in bullets.items():
-        copied = re.search(r"Copy analysis state from case\*\* (RS-[A-Z]+)", bullet)
+        copied = re.search(r"Copy analysis state from case\*\* (RS-[A-Z]+(?:-[A-Z]+)*)", bullet)
         own = {"*": None}
         if copied and "Mark element_states absent" not in bullet:
             own = dict(expected[copied.group(1)])
@@ -833,7 +850,7 @@ def number_problems(text: str, model: dict) -> list[str]:
             if entered is None or [float(vector[a]) for a in "xyz"] != entered or unit != held_unit:
                 problems.append(f"step reducer, {name}: the sheet enters {entered} {unit or ''}, "
                                 f"{c['id']} holds {vector}")
-    sam = re.search(r"(?ms)^- \*\*RS-SAM\.\*\*.*", step(text, "states")).group(0)
+    sam = re.search(r"(?ms)^- \*\*RS-SAM\.\*\*.*?(?=^- \*\*|\Z)", step(text, "states")).group(0)
     motions = [(dof, number(v), unit) for dof, v, unit in re.findall(r"\b(U[XYZ]) ([−-]?\d+(?:\.\d+)?) (mm)\b", sam)]
     held = [(b["dof"], float(b["value"]["value"]), b["value"]["unit"]) for c in _cases(model)
             for s in c["analysis_state"]["support_states"] for b in s.get("boundary_motion", [])]
@@ -1089,9 +1106,8 @@ FLIP = {
         _add("supports", {"id": "support:RS-LO1", "family": "nonlinear"}),
     "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7":
         lambda m: by_id(m, "supports")["support:RS-FR1V"].__setitem__("family", "nonlinear"),
-    "RS-SUS, RS-OPE (thermal, modulus by temperature)":
-        lambda m: [s.__setitem__("thermal_state", {"kind": "unchanged_reference"})
-                   for s in _case(m, "load:RS-OPE")["analysis_state"]["element_states"]],
+    "RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)":
+        lambda m: [s.pop("analysis_basis_override", None) for s in _element_states(m, "load:RS-OPE-REF")],
     "RS-EXP": _keep("combinations", lambda c: c["id"] != "combination:RS-EXP"),
     "RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature":
         _set_case("load:RS-SUS", "equivalent_static", {}),
@@ -1177,7 +1193,7 @@ def test_a_missing_or_unknown_identity_is_caught():
         assert unknown_identities(text + "\n| RS-P010_old |\n", MODEL) == ["RS-P010_old"], record
     without_region = re.sub(r"(?<![\w-])RG-4(?![\w-])", "", SPEC)
     assert missing_identities("SPECIFICATION.md", without_region, MODEL) == [
-        "region:RS-OPE-RG-4", "region:RS-SAM-RG-4", "region:RS-SUS-RG-4"]
+        "region:RS-OPE-REF-RG-4", "region:RS-OPE-RG-4", "region:RS-SAM-RG-4", "region:RS-SUS-RG-4"]
 
 
 def _primitive(model, case_index, contains):

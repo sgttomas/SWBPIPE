@@ -388,7 +388,7 @@ with **Self-weight action** Create a self-weight case, as it starts: **Self-weig
 **Self-weight case label**; **Self-weight provenance**. For the first case also enter
 **Gravity value** -9.80665, **Gravity unit** m/s^2 and **Gravity direction** GLOBAL Z, and
 choose the 25 **Self-weight pipes**, every pipe except RS-P180; the panel keeps the gravity
-and the pipes for the next two cases. **Generate
+and the pipes for the next three cases. **Generate
 self-weight plan**, **Queue complete self-weight plan**, then Validate batch and Apply
 entire batch.
 
@@ -397,6 +397,7 @@ entire batch.
 | `load:RS-SUS` | `RS-SUS sustained: W + P (operating pressure)` | ⟨P⟩`; W of RS-SUS: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)` |
 | `load:RS-OPE` | `RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)` | ⟨P⟩`; W of RS-OPE: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)` |
 | `load:RS-SAM` | `RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm` | ⟨P⟩`; W of RS-SAM: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)` |
+| `load:RS-OPE-REF` | `RS-OPE-REF operating thermal state on the 20 degC modulus: W + P + T (210 degC, modulus at 20 degC)` | ⟨P⟩`; W of RS-OPE-REF: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)` |
 
 Each case gets the fixture's 29 primitives: 21 line loads, and a force and a moment for each
 of RS-F1, RS-V1, RS-F2 and RS-R1. RS-R1's weight replaces RS-P150's distributed weight, so
@@ -422,7 +423,9 @@ Then select RS-OPE: **Copy pressure regions from case** RS-SUS, **Replace this d
 pressure regions with the copy**, which re-derives the ids (`region:RS-OPE-RG-1`,
 `region:RS-OPE-RG-2`, `region:RS-OPE-RG-3`, `region:RS-OPE-RG-R`, `region:RS-OPE-RG-4`);
 **Queue pressure regions**, Apply. The same for RS-SAM (`region:RS-SAM-RG-1`,
-`region:RS-SAM-RG-2`, `region:RS-SAM-RG-3`, `region:RS-SAM-RG-R`, `region:RS-SAM-RG-4`).
+`region:RS-SAM-RG-2`, `region:RS-SAM-RG-3`, `region:RS-SAM-RG-R`, `region:RS-SAM-RG-4`) and for
+RS-OPE-REF (`region:RS-OPE-REF-RG-1`, `region:RS-OPE-REF-RG-2`, `region:RS-OPE-REF-RG-3`,
+`region:RS-OPE-REF-RG-R`, `region:RS-OPE-REF-RG-4`).
 
 ### Step states
 
@@ -460,6 +463,17 @@ state**, Apply, per case.
   the panel says so. Factor 1, **Add every primitive of this case**. On RS-C's support state,
   **Add … boundary motion** twice: UX 15 mm and UY -10 mm, each with meaning
   absolute_reference_displacement.
+- **RS-OPE-REF.** **Copy analysis state from case** RS-SUS, **Replace this draft's analysis state
+  with the copy**, as for RS-OPE. **Mark element_states absent**, then **Add element state**.
+  Element state 1: pipe RS-P010; operating temperature 210 degC; material selection exact_point;
+  material `material:RS-M1`; material point `point:RS-M1-T020`; thermal state free_length_state;
+  expansion law `law:RS-M1-SECANT`; **Analysis basis reason**
+  `RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)`;
+  **Analysis basis provenance** ⟨P⟩. Tick the fill's choice to include the analysis basis.
+  Fill. Then on RS-P180's row clear the operating temperature (value and unit), set thermal
+  state unchanged_reference and **Thermal provenance** ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`,
+  and clear its analysis basis reason and provenance; its material selection stays as filled.
+  Factor 1, **Add every primitive of this case**.
 
 ### Step combinations
 
@@ -474,7 +488,7 @@ subtrahend, the provenance and the rationale: enter ID, Label and **Subtraction 
 
 | ID | Label | Minuend | Subtrahend |
 |---|---|---|---|
-| `combination:RS-EXP` | `RS-EXP expansion: RS-OPE - RS-SUS` | `load:RS-OPE` | `load:RS-SUS` |
+| `combination:RS-EXP` | `RS-EXP expansion: RS-OPE-REF - RS-SUS, the difference of two solved states on the 20 degC modulus` | `load:RS-OPE-REF` | `load:RS-SUS` |
 | `combination:RS-dSAM` | `RS-dSAM anchor movement term: RS-SAM - RS-SUS` | `load:RS-SAM` | `load:RS-SUS` |
 
 ### Step solve
@@ -484,7 +498,7 @@ solve of every static load case and combination the sheet enters completes with 
 diagnostic (DEL-07-02 REQ-019). On the *Results* stage, *Results* tab: reactions at RS-A, RS-B and RS-C
 and the spring load (KR-01, KR-03) in **Support Load Summary**; the largest translation
 (KR-02) in **Displacement Extremes**; and the **Key results** panel's **Anchors and equipment
-connections**. The fixture's three cases solve on EX in the headless runner with nothing
+connections**. The fixture's four cases solve on EX in the headless runner with nothing
 refused ([`tests/test_reference_system_fixture.py`](../../tests/test_reference_system_fixture.py));
 no maintained test solves the model entered through the desktop.
 
@@ -557,7 +571,7 @@ entry and every press at about 5.5 s, the rates of the earlier estimate of this 
 practised person pasting ⟨P⟩ and ⟨S5⟩). Each step's time is rounded to the nearest quarter
 minute, halves up. Step solve's press is entry; the solve itself is given a waiting allowance
 of 2 minutes, for the solve to run and its key results to show, which is waiting, not entry.
-The estimate does not count moving between stages and pages, the 30 cycles or waiting for a
+The estimate does not count moving between stages and pages, the 33 cycles or waiting for a
 batch's validation. It is not a measurement. A timed entry records the entry time and the
 solve waiting time separately; their sum is compared with the threshold.
 
@@ -575,20 +589,20 @@ solve waiting time separately; their sum is compared with the threshold.
 | spring | 20 | 1 | 1 | 21 × 5.5 s = 115.5 s | 2 |
 | ce | 13 | 0 | 1 | 13 × 5.5 s = 71.5 s | 1.25 |
 | reference | 12 | 3 | 1 | 15 × 5.5 s = 82.5 s | 1.5 |
-| weight | 37 | 3 | 3 | 40 × 5.5 s = 220 s | 3.75 |
-| regions | 86 | 7 | 3 | 93 × 5.5 s = 511.5 s | 8.5 |
-| states | 50 | 14 | 3 | 64 × 5.5 s = 352 s | 5.75 |
+| weight | 40 | 4 | 4 | 44 × 5.5 s = 242 s | 4 |
+| regions | 88 | 8 | 4 | 96 × 5.5 s = 528 s | 8.75 |
+| states | 72 | 19 | 4 | 91 × 5.5 s = 500.5 s | 8.25 |
 | combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
 | solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
-| **Total** | **637** | **98** | **30** | | **about 65.25 entry + 2 waiting = about 67.25** |
+| **Total** | **664** | **105** | **33** | | **about 68.25 entry + 2 waiting = about 70.25** |
 
-Two subtotals, both estimates: **entry** about 65.25 minutes (the grid cells, form entries and
+Two subtotals, both estimates: **entry** about 68.25 minutes (the grid cells, form entries and
 presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
-sum is about 67.25 minutes.
+sum is about 70.25 minutes.
 
-Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (413 form entries + 98
-presses) × 5.5/60 min = 18.286 + 46.842 = 65.13 minutes, and with the 2 minutes of solve
-waiting the sum is 67.13 minutes.
+Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (440 form entries + 105
+presses) × 5.5/60 min = 18.286 + 49.958 = 68.24 minutes, and with the 2 minutes of solve
+waiting the sum is 70.24 minutes.
 
 How the larger counts arise:
 
@@ -622,25 +636,31 @@ How the larger counts arise:
 - **joint, 52 entries and 2 presses.** The project's selection, kind, node and pipe, ID and
   label; 18 connector, reference and stiffness fields; 9 for each of two tie rods; 10
   pressure and provenance fields. The presses are Add tie rod twice.
-- **weight, 37 entries and 3 presses.** Case ID, label and provenance per case (9); the
+- **weight, 40 entries and 4 presses.** Case ID, label and provenance per case (12); the
   gravity value, unit and direction once (3); the 25 pipes, chosen once. Generate self-weight
   plan per case.
-- **regions, 86 entries and 7 presses.** RS-SUS's selection; 11 per region (ID, basis,
+- **regions, 88 entries and 8 presses.** RS-SUS's selection; 11 per region (ID, basis,
   pressure value and unit, six terminal fields, provenance) for five regions; 26 picker
-  choices (25 member pipes and the connector); two entries for each copy. The presses are Add
-  pressure region five times and Replace once per copy.
-- **states, 50 entries and 14 presses.** RS-SUS 19: its selection, a typed element row of 6
+  choices (25 member pipes and the connector); two entries for each of three copies. The
+  presses are Add pressure region five times and Replace once per copy.
+- **states, 72 entries and 19 presses.** RS-SUS 19: its selection, a typed element row of 6
   fields, the element fill's two choices, one RS-P180 edit and 9 shared entries (contract,
   reference, the typed support state's two fields, the support fill's two choices, factor,
   history, provenance). RS-OPE 20: its selection, the copy's source, 11 element fields, two
   fill choices, four RS-P180 edits and the factor. RS-SAM 11: its selection, the copy's
-  source, the factor and two motions of four fields. The presses: for RS-SUS, Add element
+  source, the factor and two motions of four fields. RS-OPE-REF 22: its selection, the copy's
+  source, 10 element fields (pipe, operating temperature and its unit, material selection,
+  material, material point, thermal state, expansion law, analysis basis reason and
+  provenance), three fill choices (template, targets and including the analysis basis), six
+  RS-P180 edits (the operating temperature and its unit, thermal state, thermal provenance,
+  analysis basis reason and provenance) and the factor. The presses: for RS-SUS, Add element
   state, Fill element states, Add support state, Fill support states and Add every primitive;
-  for RS-OPE, Replace, Mark element_states absent, Add element state, Fill element states and
-  Add every primitive; for RS-SAM, Replace, Add every primitive and Add boundary motion twice.
+  for RS-OPE and for RS-OPE-REF, Replace, Mark element_states absent, Add element state, Fill
+  element states and Add every primitive; for RS-SAM, Replace, Add every primitive and Add
+  boundary motion twice.
 - **combinations, 9.** The first: ID, label, basis, minuend, subtrahend, provenance; the
   second: ID, label, minuend.
 
-The estimate of about 67.25 minutes (65.25 entry and 2 solve waiting) is about twice the
-provisional 30. The four largest steps are rows (22), regions (8.5), material (5.75) and
-states (5.75).
+The estimate of about 70.25 minutes (68.25 entry and 2 solve waiting) is about 2.3 times the
+provisional 30. The four largest steps are rows (22), regions (8.75), states (8.25) and
+material (5.75).

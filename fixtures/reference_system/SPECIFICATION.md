@@ -165,10 +165,10 @@ global +X. Each bend arc takes the direction of its incoming straight toward the
   `point:RS-M1-T300` 300 °C 182 GPa. Each point repeats ν and α.
 - One expansion law, `law:RS-M1-SECANT`: `engineering_secant`, datum 20 °C, constant
   coefficient 12.0 × 10⁻⁶ 1/K.
-- The operating case selects each member's modulus at the operating temperature through its
+- The operating case RS-OPE selects each member's modulus at the operating temperature through its
   element state's `material_selection` (`temperature_interpolation`, 210 °C,
-  `piecewise_linear`, extrapolation `forbidden`). The other cases select the 20 °C point
-  (`exact_point`). The case-level `modulus_basis_ref` and `modulus_basis_temperature` are
+  `piecewise_linear`, extrapolation `forbidden`). The other cases, RS-OPE-REF among them, select
+  the 20 °C point (`exact_point`). The case-level `modulus_basis_ref` and `modulus_basis_temperature` are
   not used: on a load/reference-state document they are refused
   (`LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED`). The temperature table stays in the system
   even though the MBF writer refuses it (§11.1).
@@ -351,6 +351,7 @@ self-weight primitives as load sources at factor 1.
 |---|---|---|
 | RS-SUS | W + P (operating pressure) | Sustained |
 | RS-OPE | W + P + T (operating temperature, modulus at 210 °C) | Operating |
+| RS-OPE-REF | W + P + T (operating temperature, modulus at 20 °C, each member stating that basis) | Operating thermal state on the installation-temperature modulus, the minuend of the expansion comparison (§8.2) |
 | RS-HYD | W with test contents + test pressure; `test_condition` `{kind: hydrostatic, held_supports: springs_and_constant_effort}` | Hydrotest |
 | RS-WIN | W + P + wind: 0.9 kPa, shape factor 0.7, `global_x`, exposed members RS-P070 … RS-P200 except the replaced span RS-P180 | Wind |
 | RS-EQX | W + P + seismic, `g_factor_x` 0.30 | Static seismic, X |
@@ -359,8 +360,21 @@ self-weight primitives as load sources at factor 1.
 | RS-SAM | W + P + anchor RS-C moved UX +15 mm, UY −10 mm | Seismic anchor movement |
 
 The case labels in the fixture are `RS-SUS sustained: W + P (operating pressure)`,
-`RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)` and
-`RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm`.
+`RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)`,
+`RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm` and
+`RS-OPE-REF operating thermal state on the 20 degC modulus: W + P + T (210 degC, modulus at 20 degC)`.
+
+RS-OPE examines the operating loads on the stiffness the material has at the operating
+temperature. A difference of two solved states describes one structure only when both states
+were solved with the same stiffness. The expansion comparison RS-EXP (§8.2) therefore takes
+RS-OPE-REF, which carries RS-OPE's thermal state on the installation-temperature modulus, and
+RS-SUS, which uses that modulus too. RS-OPE-REF's members with an operating temperature select
+`point:RS-M1-T020` (`exact_point`), take the free-length state of `law:RS-M1-SECANT` at 210 °C,
+and each records the basis of that choice in its element state's `analysis_basis_override`: the
+reason `RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)`
+with the record provenance (§2). RS-P180 takes the 20 °C point, no operating temperature and zero
+eigenstrain (§5.1). RS-OPE is unchanged and is the operating case of record; it is in no
+combination. Agent 0 decided this on 18 November 2026.
 
 W is generated self-weight of every member except RS-P180 (gravity as §2), with component
 weights at their centres of gravity in place of their members' distributed weight: 21 line
@@ -392,7 +406,7 @@ EX, the anchor movement is `analysis_state.support_states[].boundary_motion` wit
 
 | Combination | Basis | Operands | Analysis |
 |---|---|---|---|
-| RS-EXP | `result_state_subtraction`, with `difference_basis` recorded | RS-OPE − RS-SUS | Expansion with its basis |
+| RS-EXP | `result_state_subtraction`, with `difference_basis` recorded | RS-OPE-REF − RS-SUS | Expansion with its basis |
 | RS-dWIN | `result_state_subtraction` | RS-WIN − RS-SUS | Wind term |
 | RS-dEQX, RS-dEQY, RS-dEQZ | `result_state_subtraction` | RS-EQX, RS-EQY, RS-EQZ, each − RS-SUS | Seismic terms |
 | RS-dSAM | `result_state_subtraction` | RS-SAM − RS-SUS | Anchor movement term |
@@ -401,8 +415,12 @@ EX, the anchor movement is `analysis_state.support_states[].boundary_motion` wit
 | RS-OCC-SRSS | `mechanics` with combination operands | RS-SUS + RS-EQ-SRSS | Sustained plus seismic |
 | RS-OCC-ABS | `mechanics` with combination operands | RS-SUS + RS-EQ-ABS | Sustained plus seismic |
 
-The labels of the two in the fixture are `RS-EXP expansion: RS-OPE - RS-SUS` and
-`RS-dSAM anchor movement term: RS-SAM - RS-SUS`. Sustained taking the operating support
+The labels of the two in the fixture are
+`RS-EXP expansion: RS-OPE-REF - RS-SUS, the difference of two solved states on the 20 degC modulus`
+and `RS-dSAM anchor movement term: RS-SAM - RS-SUS`. RS-EXP is the difference of two
+equilibria, each solved on its own, on one material basis (§8.1). It is not the solution of the
+system under the difference of their loads: with supports whose response depends on the state,
+the two need not agree, and nothing here assumes that they do. Sustained taking the operating support
 status (`subtrahend_support_state`) is an option the system does not use.
 
 ### 8.3 Hydrotest
@@ -508,9 +526,9 @@ RS-VS1's or RS-CE1's entered inputs.
 
 | Id | Check | Basis |
 |---|---|---|
-| EQ-1 | The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE and RS-SAM, and in RS-HYD (with the test contents) when it is authored | closed form: the total weight recomputed independently from the inputs (§4, §5) on EX's stated mass bases |
-| EQ-2 | In RS-SUS, RS-OPE and RS-SAM, and in RS-HYD when it is authored, the horizontal reaction resultant is zero, and the reaction moment resultant about the origin equals minus the moment of the weight. Every closure transfers to the wall, so each region, the tee junction and the pressurized joint are self-equilibrated under pressure, and temperature adds no load | closed form from the inputs |
-| EQ-3 | On every published signed component row (support force and moment components, translation and rotation components, element end-force components), RS-EXP equals RS-OPE − RS-SUS. Magnitude rows (resultant displacement, reaction magnitude) are checked by recomputing them from the combined components, not by subtracting magnitudes. Rows the combination withholds, such as tie-rod forces, are excluded | exact identity |
+| EQ-1 | The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE, RS-OPE-REF and RS-SAM, and in RS-HYD (with the test contents) when it is authored | closed form: the total weight recomputed independently from the inputs (§4, §5) on EX's stated mass bases |
+| EQ-2 | In RS-SUS, RS-OPE, RS-OPE-REF and RS-SAM, and in RS-HYD when it is authored, the horizontal reaction resultant is zero, and the reaction moment resultant about the origin equals minus the moment of the weight. Every closure transfers to the wall, so each region, the tee junction and the pressurized joint are self-equilibrated under pressure, and temperature adds no load | closed form from the inputs |
+| EQ-3 | On every published signed component row (support force and moment components, translation and rotation components, element end-force components), RS-EXP equals RS-OPE-REF − RS-SUS. Magnitude rows (resultant displacement, reaction magnitude) are checked by recomputing them from the combined components, not by subtracting magnitudes. Rows the combination withholds, such as tie-rod forces, are excluded. The identity establishes the combination's algebra and nothing about either solve | exact identity |
 | EQ-4 | On the same signed component rows, RS-EQ-SRSS equals √(Σ dEQ²) and RS-EQ-ABS equals Σ \|dEQ\| over the operand rows, so SRSS ≤ ABS on each. Magnitude rows follow the combination's own recomputation rule, as for EQ-3; withheld rows are excluded | exact identity |
 | EQ-5 | The RS-dSAM reactions are self-equilibrated (resultant force and moment zero) | exact identity: no load differs between RS-SAM and RS-SUS |
 | EQ-6 | The resultant of RS-dWIN reactions equals minus the generated wind resultant, and that of each of RS-dEQX, RS-dEQY and RS-dEQZ equals minus the factor times g times the total mass on the generator's stated mass basis | closed form from the inputs |
@@ -521,21 +539,28 @@ test. EQ-1 and EQ-2 for the cases the fixture holds are frozen in
 [`validation/references/reference_system_r1_ce/`](../../validation/references/reference_system_r1_ce/):
 the total weight and its moment about the origin, recomputed from §3–§6 without the captured
 self-weight, with RS-R1's 300 N at its centre of gravity in place of RS-P150's distributed
-weight, and RS-CE1's 9.0 kN counted once, as one support's action. EQ-3 and EQ-5 are identities
-recorded in the README of
+weight, and RS-CE1's 9.0 kN counted once, as one support's action. RS-OPE-REF's weight is that
+of the other cases, and temperature adds no load:
+[`validation/references/reference_system_ope_ref/`](../../validation/references/reference_system_ope_ref/)
+binds the same EQ-1 and EQ-2 record to it, states EQ-3 on RS-EXP's operands RS-OPE-REF and
+RS-SUS, and derives from §4.1 the modulus, shear modulus and thermal strain each member of
+RS-OPE and RS-OPE-REF consumes. EQ-5 is an identity recorded in the README of
 [`validation/references/reference_system/`](../../validation/references/reference_system/),
-which stays frozen as the references of the fixture before RS-R1 and RS-CE1.
+which stays frozen as the references of the fixture before RS-R1 and RS-CE1, as do the
+packages `reference_system_pending_cases` and `reference_system_r1_ce`; the earlier packages'
+records of RS-EXP as RS-OPE − RS-SUS are history.
 [`tests/test_reference_system_fixture.py`](../../tests/test_reference_system_fixture.py)
-checks all four in both solver modes, and that RS-CE1's applied load and its published
-support action are its entered 9.0 kN in every case. RS-HYD's weight with the test contents is referenced
+checks all four in both solver modes, each member state RS-OPE and RS-OPE-REF publish, and
+that RS-CE1's applied load and its published support action are its entered 9.0 kN in
+RS-SUS, RS-OPE and RS-SAM. RS-HYD's weight with the test contents is referenced
 when RS-HYD is authored. The same test checks KR-05's presence, an identity: the tee's rows
 at the RS-130 ends of RS-P120 and RS-P210 on both section bases in RS-SUS and RS-OPE
 (RS-EXP withholds intensified rows); KR-05's values wait for a verified solve.
 
 ## 10. Pending-family ledger
 
-The fixture contains every row marked "in tranche 1", and its cases RS-SUS, RS-OPE and
-RS-SAM solve on EX with no blocking diagnostic
+The fixture contains every row marked "in tranche 1", and its cases RS-SUS, RS-OPE, RS-SAM
+and RS-OPE-REF solve on EX with no blocking diagnostic
 ([`tests/test_reference_system_fixture.py`](../../tests/test_reference_system_fixture.py)).
 A pending row keeps its place and identities in this document; when it is authored, the
 generator adds its entities without moving a node. The generator holds the same rows, by
@@ -561,8 +586,8 @@ that owns it under exit criterion 1.
 | Constant-effort support RS-CE1 | in tranche 1 | `support:RS-CE1` | solved; its 9.0 kN applied and published in every case |
 | Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1) | pending | `support:RS-LO1`, `support:RS-FR1`, `support:RS-G1` | absent |
 | RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7 | pending; RS-FR1V is in tranche 1 as an interim linear `vertical_support` UZ | `support:RS-FR1V` | RS-FR1V solved as a linear vertical support; no one-way support and no friction |
-| RS-SUS, RS-OPE (thermal, modulus by temperature) | in tranche 1 as linear cases (load/reference-state group) | — | solved |
-| RS-EXP | in tranche 1 as a subtraction; `difference_basis` pending | — | solved as a subtraction, with no `difference_basis` |
+| RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis) | in tranche 1 as linear cases (load/reference-state group) | — | solved |
+| RS-EXP | in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending | — | solved as a subtraction of RS-OPE-REF and RS-SUS, with no `difference_basis` |
 | RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature | pending | `load:RS-WIN`, `load:RS-EQX`, `load:RS-EQY`, `load:RS-EQZ`, `combination:RS-dWIN`, `combination:RS-dEQX`, `combination:RS-dEQY`, `combination:RS-dEQZ` | absent; on EX they would meet §8.7's refusal |
 | RS-SAM (`boundary_motion` on rigid anchor RS-C) | in tranche 1, on the load/reference-state document beside the temperature state | — | solved |
 | RS-EQ-SRSS, RS-EQ-ABS, RS-OCC-SRSS, RS-OCC-ABS | pending | `combination:RS-EQ-SRSS`, `combination:RS-EQ-ABS`, `combination:RS-OCC-SRSS`, `combination:RS-OCC-ABS` | absent |
@@ -612,7 +637,7 @@ What an export of the 0.9.0 fixture can show follows the ledger (§10). The fixt
 temperature-dependent modulus table (§4.1), the realized bends, the tee, the valve and
 flanges, the eccentric reducer, the expansion joint and its rods, the variable spring, the
 constant-effort support, the linear supports, the
-cases RS-SUS, RS-OPE and RS-SAM and the combinations RS-EXP and RS-dSAM. The writer refuses
+cases RS-SUS, RS-OPE, RS-SAM and RS-OPE-REF and the combinations RS-EXP and RS-dSAM. The writer refuses
 the temperature table today (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`); it stays
 in the system, and no family is dropped to make criterion 6 pass. Which of the other families
 the fixture holds the loss report lists is DEL-17-04's to state from an export of the
