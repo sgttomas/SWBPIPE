@@ -30,8 +30,8 @@ def _float(hex_bits: str) -> float:
 
 
 # Fields that hold quantities (the input format writes them as exact rationals). Only these are compared as
-# numbers; every other field (a material, a kind, a label, a direction, an identifier, a bits string, a spring
-# stiffness written with pi) is compared as the text it is.
+# numbers. A spring's stiffness is an exact quantity that may carry powers of pi, compared by its terms. Every other
+# field (a material, a kind, a label, a direction, an identifier, a bits string) is compared as the text it is.
 QUANTITY_FIELDS = frozenset({
     # moduli and their selection
     "E", "nu", "G", "selected_E", "selected_nu", "selection_temperature", "interpolation_fraction",
@@ -45,6 +45,20 @@ QUANTITY_FIELDS = frozenset({
 })
 
 
+def _pi_terms(text: str) -> frozenset:
+    """'a + b*pi + c*pi^k' (any rational spelling of each coefficient) as its non-zero terms {(power, value)}."""
+    terms = {}
+    for part in text.split("+"):
+        part = part.strip()
+        if "pi" in part:
+            coefficient, _, rest = part.partition("*pi")
+            power = int(rest.lstrip("^")) if rest else 1
+        else:
+            coefficient, power = part, 0
+        terms[power] = terms.get(power, Fraction(0)) + Fraction(coefficient)
+    return frozenset((k, v) for k, v in terms.items() if v)
+
+
 def _canon(value, field=None):
     """A value made comparable: a quantity field's scalars as rationals in lowest terms, any other scalar as its
     text, mappings and lists recursively (a list's items take the list's field)."""
@@ -54,6 +68,8 @@ def _canon(value, field=None):
         return tuple(_canon(v, field) for v in value)
     if value is None or isinstance(value, bool):
         return value
+    if field == "stiffness":
+        return ("pi", _pi_terms(str(value)))
     if field in QUANTITY_FIELDS:
         return ("q", Fraction(str(value)))
     return ("s", str(value))

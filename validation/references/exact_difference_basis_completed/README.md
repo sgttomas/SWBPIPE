@@ -39,8 +39,9 @@ imports and literal paths by AST inspection, and compares carried verdicts and
 analytical values with `../exact_difference_basis/references.json`. The verifier
 (`tests/verifiers/exact_difference_basis.py`) shares no code with the generator. Its
 test (`tests/test_exact_difference_basis_verifier.py`) compares verdicts, gate
-outcomes and gate causes, checks 15 focused policy cases on synthetic operands, and
-checks eight deliberate policy changes. The verifier test compares the two
+outcomes and gate causes, checks 17 focused policy cases on synthetic operands, binds
+X5's reason and G-1 explanation to its operands, and checks eight deliberate policy
+changes. The verifier test compares the two
 implementations on this corpus. The generator's analytical checks share the reference
 inputs.
 
@@ -105,8 +106,9 @@ The rules:
 - The key is never the rounded product of magnitude and factor.
 - Identity and provenance are not compared.
 
-Compare stored authoring-plan weights by the primitive rule. Compare solve-time
-generated actions by their resolved recipes.
+Compare stored authoring-plan weights by the primitive rule: a stored primitive is an
+authored operand of the document, whatever wrote it, and the solve consumes no recipe
+for it. Compare solve-time generated actions by their resolved recipes.
 
 ### Pressure
 
@@ -255,9 +257,9 @@ their selection differs. R compares E, ν, G, material, constitutive basis and s
 on each member. S also compares selection kind, case basis label and the selection
 record's kind, temperature, interpolation fraction, selected E and selected ν.
 
-Quantities are compared as exact rationals in their numeric fields. A material
-identifier and every other categorical field are compared as text, so `01` and `1` are
-two materials (X6).
+G-2 compares the modulus, selection and section quantities as exact rationals. It
+compares categorical fields as text, so `01` and `1` are distinct material identifiers
+(X6).
 
 The generator and the verifier each define the stiffness comparison at one point,
 with both readings side by side. Every row's `admission` is under S. Every row also has
@@ -299,10 +301,12 @@ No other row differs. The mixed-basis pair has another E, so both readings refus
 
 - `verdict`;
 - `reason`, one sentence;
-- `gates`, with each part's `holds`, `why` and `cause`. The cause lists what differs:
-  `support_law:<support>/<dof>` or `fixed_load_inventory` for restraint, the classes
-  of S's actions that O lacks for G-1, and `<member>:<field>` for G-2. The verifier
-  computes causes separately, and its test compares them with the recorded ones;
+- `gates`, with each part's `holds`, `why` and `cause`. Restraint causes list changed
+  laws as `support_law:<support>/<dof>` and unequal fixed-load inventories as
+  `fixed_load_inventory`. G-1 causes list classes with a sustained action absent from
+  operating or present too few times. G-2 causes list differing fields as
+  `<member>:<field>`, or `members` when the member sets differ. The verifier computes
+  causes separately, and its test compares them with the recorded ones;
 - `gate_only`, with its `gate_only_reason`.
 
 A gate-only row supplies a policy verdict and a mechanical idealization where defined.
@@ -387,7 +391,7 @@ wall-form comparison count to 21.
 
 ## Added rows
 
-**Shared inputs for W1 to W10 and X1 to X6.**
+**Default inputs for W1 to W10 and X1 to X6.** The row descriptions give any overrides.
 
 - One straight member AB along +x, with L = 1 m and A at the origin.
 - A is anchored: all six DOFs are rigid.
@@ -436,25 +440,25 @@ In the table, "verdict" is the admission verdict and "mechanical" is the result
 6. K1 is a gate-only analogue of W10. It uses M1 and synthetic selection records,
    including fraction 0, where W10 uses a common 1 N bar load and endpoint records
    without a fraction. K1 establishes S and R's verdicts for its supplied records and
-   zero analytical difference on the common M1 operator. The load-case modulus-basis
-   resolver selects by solve temperature only when the temperature lies strictly
-   between two adjacent user-entered points, and otherwise blocks with
-   `MODULUS_BASIS_UNRESOLVED`; it has no branch for a temperature equal to an entered
-   point (`core/product_physics/src/lib.rs` lines 11856 to 11872 at b5569a821). K1's
-   operating record selects 300 K, an entered point, so that resolver would block it.
+   zero analytical difference on the common M1 operator. K1 uses synthetic selection
+   records. In a plain exact-route case, the case-wide modulus selector requires a
+   strict adjacent bracket. K1's entered 300 K point has no such bracket, so that
+   selector emits MODULUS_BASIS_UNRESOLVED. (At b5569a821: the exact-route dispatch,
+   `core/product_physics/src/lib.rs` lines 11727 to 11728; the selector's bracket,
+   `core/product_physics/src/pressure_material.rs` lines 165 to 166.)
 7. W11 uses two supplied material selections. Exact-route resolution of those
    selections is unverified.
 8. AB and BC have distinct material records with the listed moduli. Reachability with
    the auxetic AB material has not been established. Both terminals of each region
    transfer to the wall. The specification's binary64 formation observation is outside
    the analytical comparison.
-9. W10 is Part A section 5.4's row. Its two selection records follow the member
-   material selection in `core/product_physics/src/case_state/material.rs` at
-   b5569a821: an exact point records `exact_point` with no interpolation fraction
-   (lines 264 and 270), and a temperature interpolation whose requested temperature
-   equals an entered point selects that point alone with no fraction (lines 300 to 305)
-   and records `temperature_interpolation` (lines 342 and 348). The source fixes the
-   records' form only; no value comes from it.
+9. For successful per-member selections, the load/reference-state resolver returns
+   `exact_point` with no interpolation fraction for a named point. When the normalized
+   requested temperature equals a unique entered temperature, it selects that point
+   alone and returns `temperature_interpolation` with no fraction. W10 uses these kinds
+   and fraction fields in its reference operands. Exact-route document validation for
+   W10 is unverified. (At b5569a821: `core/product_physics/src/case_state/material.rs`
+   lines 264 and 270, 300 to 305, and 342 and 348.)
 
 ### W11: equal moduli, different expansion coefficients
 

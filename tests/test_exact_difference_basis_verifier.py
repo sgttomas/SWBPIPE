@@ -5,6 +5,11 @@ The verifier was written from the policy text, separately from the package's gen
 every row, the verifier's verdict, gate outcomes and gate causes with the recorded ones and both stiffness
 readings with the recorded readings; it checks focused policy cases on synthetic operands, each with the Part A
 specification section it rests on; and it requires each of eight specified mutants to change a verdict.
+
+Recorded prose is bound to the operands for one row only: X5's admission reason and its G-1 `why` must be the texts
+stated here, and the operand facts they rest on (a shared target, a seismic recipe in S, mass bases that differ
+only in contents mass per length) must hold. No other row's `reason` or `why` is checked here; for those rows the
+verdict, gate outcomes and causes are compared, not their prose.
 """
 import ast
 import copy
@@ -12,6 +17,7 @@ import json
 import math
 import struct
 import sys
+from fractions import Fraction
 from pathlib import Path
 
 import pytest
@@ -150,6 +156,16 @@ def _spring_participation_held():
     return s, o
 
 
+def _spring_stiffness_spelled(s_text, o_text):
+    def make():
+        s, o = _row("W4")
+        bits = _support(s, "spring:B")["parameters"]["stiffness_bits"]
+        _support(s, "spring:B")["parameters"] = {"stiffness": s_text, "stiffness_bits": bits}
+        _support(o, "spring:B")["parameters"] = {"stiffness": o_text, "stiffness_bits": bits}
+        return s, o
+    return make
+
+
 def _spring_stiffness_changed():
     s, o = _row("W4")
     _support(o, "spring:B")["parameters"] = {"stiffness": "3584*pi", "stiffness_bits": _bits(3584 * math.pi)}
@@ -220,6 +236,12 @@ FOCUSED = {
                                    {"restraint": ["support_law:spring:B/UX"], "g1": [], "g2": []}),
     "spring stiffness alone": ("3.4", _spring_stiffness_changed, "refused_restraint", "refused_restraint",
                                {"restraint": ["support_law:spring:B/UX"], "g1": [], "g2": []}),
+    "equal spring stiffness written 1024 and 2048/2": (
+        "3.4", _spring_stiffness_spelled("1024", "2048/2"), "admitted", "admitted",
+        {"restraint": [], "g1": [], "g2": []}),
+    "equal spring stiffness written 7168*pi and 14336/2*pi": (
+        "3.4", _spring_stiffness_spelled("7168*pi", "14336/2*pi"), "admitted", "admitted",
+        {"restraint": [], "g1": [], "g2": []}),
     "the selection record's interpolation fraction alone": (
         "3.6", _selection_fraction_alone, "refused_g2", "admitted",
         {"restraint": [], "g1": [], "g2": ["AB:selection_record", "BC:selection_record"]}),
@@ -247,6 +269,42 @@ def test_focused_policy_case(name):
     assert found_s["causes"] == causes
     assert found_s["gates"] == {part: not causes[part] for part in PARTS}
     assert policy.admission(s, o, "R")["verdict"] == under_r
+
+
+# ---- recorded prose bound to the operands (X5 only) ---------------------------------------------------------
+
+X5_REASON = "the recipes' mass bases differ, so the subtrahend's seismic recipe is not in the minuend"
+X5_G1_WHY = "The subtrahend's generated recipe is absent from the minuend or occurs there too few times."
+
+
+def x5_prose_is_bound(row) -> list:
+    """What is false in X5's recorded prose or in the operand facts it rests on; empty when all holds."""
+    (s_recipe,), (o_recipe,) = row["sustained"]["generated"], row["operating"]["generated"]
+    facts = {
+        "the reason as stated": row["admission"]["reason"] == X5_REASON,
+        "the G-1 why as stated": row["admission"]["gates"]["g1"]["why"] == X5_G1_WHY,
+        "S's recipe is seismic": s_recipe["kind"] == "seismic",
+        "the target member is shared": s_recipe["target"] == o_recipe["target"] == "AB",
+        "the inputs are equal": s_recipe["inputs"] == o_recipe["inputs"],
+        "the contents mass per length differs": (Fraction(s_recipe["mass_basis"]["contents_mass_per_length"])
+                                                 != Fraction(o_recipe["mass_basis"]["contents_mass_per_length"])),
+        "nothing else in the mass bases differs": (
+            {k: v for k, v in s_recipe["mass_basis"].items() if k != "contents_mass_per_length"}
+            == {k: v for k, v in o_recipe["mass_basis"].items() if k != "contents_mass_per_length"}),
+    }
+    return [name for name, holds in facts.items() if not holds]
+
+
+def test_x5_prose_is_bound_to_its_operands():
+    assert x5_prose_is_bound(next(r for r in ROWS if r["id"] == "X5")) == []
+
+
+def test_a_false_x5_explanation_is_found_with_the_cause_held_fixed():
+    row = copy.deepcopy(next(r for r in ROWS if r["id"] == "X5"))
+    row["admission"]["reason"] = "the target member differs, so the subtrahend's seismic recipe is not in the minuend"
+    row["admission"]["gates"]["g1"]["why"] = "The subtrahend's recipe targets another member than the minuend's."
+    assert disagreements(row) == []                    # verdict, gate outcomes and causes are all unchanged
+    assert x5_prose_is_bound(row) == ["the reason as stated", "the G-1 why as stated"]
 
 
 def _drop_factor(original):

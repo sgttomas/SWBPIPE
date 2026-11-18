@@ -625,8 +625,9 @@ def norm_number(v):
         return str(v)
 
 
-# Fields whose values are quantities: compared as rationals in lowest terms. Every other scalar (identifiers,
-# kinds, labels, directions, bits strings, and a spring stiffness written as a multiple of pi) is compared as text.
+# Fields whose values are quantities: compared as rationals in lowest terms. A spring stiffness is an exact sum of
+# rational multiples of powers of pi, compared term by term. Every other scalar (identifiers, kinds, labels,
+# directions, bits strings) is compared as text.
 NUMERIC_FIELDS = frozenset({
     "E", "nu", "G", "selection_temperature", "interpolation_fraction", "selected_E", "selected_nu",
     "outside_diameter", "wall", "mill_tolerance", "corrosion_allowance",
@@ -644,7 +645,20 @@ def norm_mapping(m, field=None):
         return tuple(norm_mapping(v, field) for v in m)
     if isinstance(m, bool) or m is None:
         return m
+    if field == "stiffness":
+        return ("pi_terms", tuple(sorted(exact_from_text(str(m)).c.items())))
     return ("q", str(F(m))) if field in NUMERIC_FIELDS else ("text", str(m))
+
+
+def exact_from_text(text):
+    """An exact value written as in Exact.text, with any rational spelling of each coefficient: '7168*pi',
+    '14336/2*pi', '1024', '3/4*pi + 1/2 + 5/7*pi^-1'."""
+    out = Exact()
+    for part in text.split(" + "):
+        coefficient, _, power = part.strip().partition("*pi")
+        k = 0 if not _ else int(power[1:]) if power.startswith("^") else 1
+        out = out + Exact({k: F(coefficient)})
+    return out
 
 
 def is_zero_bits(b):
@@ -1497,12 +1511,13 @@ def endpoint_selection_row():
             "are equal (stiffness reading S); the stated over-refusal", False, NOT_GATE_ONLY,
             {"kind": "linear_increment",
              "values": {"u/B/UX": entry(d, "m")},
-             "note": "The two selection records follow the member material selection in "
-                     "core/product_physics/src/case_state/material.rs at b5569a821. An exact point records "
-                     "selection kind exact_point with no interpolation fraction (lines 264 and 270). A temperature "
-                     "interpolation whose requested temperature equals an entered point selects that point alone "
-                     "with no fraction (lines 300 to 305) and records selection kind temperature_interpolation "
-                     "(lines 342 and 348). Each operand's u/B/UX under the 1 N load is 1/(7168 pi) m.",
+             "note": "For successful per-member selections, the load/reference-state resolver returns "
+                     "exact_point with no interpolation fraction for a named point. When the normalized requested "
+                     "temperature equals a unique entered temperature, it selects that point alone and returns "
+                     "temperature_interpolation with no fraction. W10 uses these kinds and fraction fields in its "
+                     "reference operands. Exact-route document validation for W10 is unverified. (At b5569a821: "
+                     "core/product_physics/src/case_state/material.rs lines 264 and 270, 300 to 305, and 342 and "
+                     "348.) Each operand's u/B/UX under the 1 N load is 1/(7168 pi) m.",
              "divergence": "the stricter stiffness policy refuses a pair whose exact mechanical difference "
                            "exists"})
 
@@ -1532,11 +1547,11 @@ def selection_record_row():
             "selection records, including fraction 0. W10 specifies a common 1 N bar load and an endpoint record "
             "without a fraction. K1 establishes S and R's verdicts for its supplied records and zero analytical "
             "difference on the common M1 operator.", True,
-            "K1 uses synthetic selection records. The load-case modulus-basis resolver selects a basis by solve "
-            "temperature only when that temperature lies strictly between two adjacent user-entered points of the "
-            "material, and otherwise blocks with MODULUS_BASIS_UNRESOLVED (core/product_physics/src/lib.rs lines "
-            "11856 to 11872 at b5569a821). It has no branch for a temperature equal to an entered point. K1's "
-            "operating record selects 300 K, an entered point, so that resolver would block it.",
+            "K1 uses synthetic selection records. In a plain exact-route case, the case-wide modulus selector "
+            "requires a strict adjacent bracket. K1's entered 300 K point has no such bracket, so that selector "
+            "emits MODULUS_BASIS_UNRESOLVED. (At b5569a821: the exact-route dispatch, "
+            "core/product_physics/src/lib.rs lines 11727 to 11728; the selector's bracket, "
+            "core/product_physics/src/pressure_material.rs lines 165 to 166.)",
             {"kind": "linear_increment",
              "values": {"u/B/UX": entry(diff["u/B/UX"], "m"), "reaction/C/FX": entry(diff["reaction/C/FX"], "N"),
                         "axial/AB/N_mech": entry(diff["axial/AB/N_mech"], "N")},

@@ -3518,7 +3518,7 @@
   {
    "admission": {
     "gate_only": true,
-    "gate_only_reason": "K1 uses synthetic selection records. The load-case modulus-basis resolver selects a basis by solve temperature only when that temperature lies strictly between two adjacent user-entered points of the material, and otherwise blocks with MODULUS_BASIS_UNRESOLVED (core/product_physics/src/lib.rs lines 11856 to 11872 at b5569a821). It has no branch for a temperature equal to an entered point. K1's operating record selects 300 K, an entered point, so that resolver would block it.",
+    "gate_only_reason": "K1 uses synthetic selection records. In a plain exact-route case, the case-wide modulus selector requires a strict adjacent bracket. K1's entered 300 K point has no such bracket, so that selector emits MODULUS_BASIS_UNRESOLVED. (At b5569a821: the exact-route dispatch, core/product_physics/src/lib.rs lines 11727 to 11728; the selector's bracket, core/product_physics/src/pressure_material.rs lines 165 to 166.)",
     "gates": {
      "g1": {
       "cause": [],
@@ -4061,7 +4061,7 @@
     "divergence": "the stricter stiffness policy refuses a pair whose exact mechanical difference exists",
     "kind": "linear_increment",
     "meaning": "the response of the common operator to the difference of the two load vectors",
-    "note": "The two selection records follow the member material selection in core/product_physics/src/case_state/material.rs at b5569a821. An exact point records selection kind exact_point with no interpolation fraction (lines 264 and 270). A temperature interpolation whose requested temperature equals an entered point selects that point alone with no fraction (lines 300 to 305) and records selection kind temperature_interpolation (lines 342 and 348). Each operand's u/B/UX under the 1 N load is 1/(7168 pi) m.",
+    "note": "For successful per-member selections, the load/reference-state resolver returns exact_point with no interpolation fraction for a named point. When the normalized requested temperature equals a unique entered temperature, it selects that point alone and returns temperature_interpolation with no fraction. W10 uses these kinds and fraction fields in its reference operands. Exact-route document validation for W10 is unverified. (At b5569a821: core/product_physics/src/case_state/material.rs lines 264 and 270, 300 to 305, and 342 and 348.) Each operand's u/B/UX under the 1 N load is 1/(7168 pi) m.",
     "values": {
      "u/B/UX": {
       "exact": "0",
