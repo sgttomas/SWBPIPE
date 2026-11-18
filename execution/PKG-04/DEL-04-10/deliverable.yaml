@@ -49,7 +49,7 @@ needs:
     severity, source and affected object.
   gating: true
 - from: DEL-14-02
-  when: Before a spectrum result is recorded as an analysis run.
+  when: Before an admitted spectrum result is recorded as an analysis run.
   condition: >-
     The analysis-run record admits a spectrum run kind that binds its request, under the
     one-version rule.
@@ -68,7 +68,8 @@ needs:
     returns that entry's document unchanged, and the runner supplies no engineering value to it
     (DEL-10-05/REQ-015, DEL-10-05/AC-011), so that the spectrum command this deliverable builds
     supplies no spectrum, scale factor, damping, interpolation, combination or missing-mass input
-    and returns the solve's refusals unchanged.
+    and returns the solve's refusals unchanged. The runner's read command returns this deliverable's
+    product reader verdict for a spectrum result document unchanged.
   gating: false
 - from: DEL-07-05
   condition: >-
@@ -95,6 +96,14 @@ needs:
     Bounded ingress and result reading apply on the actual path, interruption ends the foreground
     computation without reported success, and explicit output preserves a complete old or complete
     new destination through owned temporary creation and atomic rename under REQ-015.
+  gating: true
+- from: DEL-09-01
+  when: Before the reference system's spectrum case is built.
+  condition: >-
+    The reference system's specification checks the directional combination of its spectrum result
+    (its check EQ-7) by this deliverable's readers' rule: the combination over directions is
+    recomputed from the published signed contributions under the recorded rules and compared at
+    1e-9 relative, and is not checked by recombining the published per-direction magnitudes.
   gating: true
 - from: external:nrc-nureg-cr
   when: If a published response-spectrum problem is compared.
