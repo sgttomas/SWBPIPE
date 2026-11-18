@@ -18226,13 +18226,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/spring_preload.rs",
-    "line": 249,
+    "line": 324,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/spring_preload.rs",
-     "line": 249,
+     "line": 324,
      "via": "diag()",
      "severity": "warning",
      "through": [
