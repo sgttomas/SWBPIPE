@@ -65,7 +65,8 @@
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::result_export::{reader_verdict, semantic_contract};
 use open_pipe_stress_product_physics::self_weight::{
-    generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest, COMPONENT_WEIGHT_METHOD, COMPONENT_WEIGHT_SCOPE, GENERATED_METHOD,
+    component_load_id, generate_self_weight_operations, inspect_applied_self_weight, AppliedSelfWeightState, SelfWeightGravity,
+    SelfWeightRequest, COMPONENT_WEIGHT_METHOD, COMPONENT_WEIGHT_SCOPE, GENERATED_METHOD,
 };
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewModel, PreviewSolverMode};
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
@@ -1165,6 +1166,126 @@ fn rs_r1_with_a_weight_generated_without_it_is_refused_as_stale() {
         assert_eq!(d["affected_refs"], json!([case, load]), "{d}");
     }
     assert!(envelope["results"].as_array().is_none_or(|r| r.is_empty()));
+}
+
+/// The six generated records of RS-R1's weight in the committed fixture, by
+/// their exact identities: in each of RS-SUS, RS-OPE and RS-SAM, its force
+/// along Z and its moment about X (r x F with r = (0, -0.2, 0.0125) m and
+/// F = (0, 0, -W): only M_x is nonzero). Their values are EQ-1/EQ-2's; this
+/// test is freshness only, through the public applied-self-weight check.
+const R1_RECORDS: [(&str, &str, &str); 6] = [
+    ("load:RS-SUS", "force", "load:self-weight:11:load:RS-SUS:component:15:component:RS-R1:force:z"),
+    ("load:RS-SUS", "moment", "load:self-weight:11:load:RS-SUS:component:15:component:RS-R1:moment:x"),
+    ("load:RS-OPE", "force", "load:self-weight:11:load:RS-OPE:component:15:component:RS-R1:force:z"),
+    ("load:RS-OPE", "moment", "load:self-weight:11:load:RS-OPE:component:15:component:RS-R1:moment:x"),
+    ("load:RS-SAM", "force", "load:self-weight:11:load:RS-SAM:component:15:component:RS-R1:force:z"),
+    ("load:RS-SAM", "moment", "load:self-weight:11:load:RS-SAM:component:15:component:RS-R1:moment:x"),
+];
+
+/// Each of RS-R1's six records is fresh in the committed fixture, and is
+/// stale, with an in-place refresh and a blocking SELF_WEIGHT_INPUTS_STALE, after
+/// the smallest change of the one input its value is formed from: the force
+/// after the entered weight (300 to 301 N, F_z = -W), the moment after the
+/// entered centre of gravity's Y (-0.2 to -0.21 m, M_x = -W r_y). A
+/// component's force and moment record one shared set of consumed inputs
+/// (weight, centre of gravity, node, mapped member, kind, consumption), and the
+/// check compares that whole set, so either change also stales the sibling
+/// record; each record's status is asserted on its own in both controls. Neither
+/// change alters which loads the selection generates (r_x stays 0, so no M_y
+/// appears), so each stale record keeps a single in-place refresh. Every other
+/// generated record of the fixture stays fresh, so the controls are not met by
+/// a check that stales everything.
+#[test]
+fn each_rs_r1_weight_record_is_fresh_and_its_own_input_change_stales_it() {
+    let fixture = fixture();
+    // The six identities are the generator's: case, component, wrench part and axis.
+    for (case, part, id) in R1_RECORDS {
+        assert_eq!(component_load_id(case, R1, part, if part == "force" { "z" } else { "x" }), id);
+    }
+    let hash_of = |model: &Value, case: &str, id: &str| -> String {
+        let case = model["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == case).unwrap();
+        let load = case["primitive_loads"].as_array().unwrap().iter().find(|l| l["id"] == id).unwrap();
+        let e: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
+        e["source_model_hash"].as_str().unwrap().to_string()
+    };
+    // (case, load id) -> (state, diagnostic codes and severities, replacement id and target)
+    type Seen = HashMap<(String, String), (AppliedSelfWeightState, Vec<(String, String, String)>, Option<(Value, Value)>)>;
+    let inspect = |model: &Value, hash: Option<&str>| -> Seen {
+        let typed: PreviewModel = serde_json::from_value(model.clone()).unwrap();
+        let mut seen: Seen = HashMap::new();
+        for status in inspect_applied_self_weight(&typed, hash) {
+            let case = typed.load_cases.iter().find(|c| c.id == status.case_id).unwrap();
+            let id = case.primitive_loads[status.primitive_index].id.clone();
+            let diagnostics = status.diagnostics.iter().map(|d| (d.code.clone(), d.severity.clone(), d.message.clone())).collect();
+            let replacement = status.replacement.as_ref().map(|r| (r["id"].clone(), r["target"].clone()));
+            assert!(seen.insert((status.case_id.clone(), id), (status.state, diagnostics, replacement)).is_none(), "one status per record");
+        }
+        seen
+    };
+    // Each named record is in the fixture once, with RS-R1's component lineage
+    // of its part and axis, targets RS-160, and is checked.
+    let mut held = 0;
+    for (case, part, id) in R1_RECORDS {
+        let loads = fixture["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == case).unwrap()["primitive_loads"].as_array().unwrap();
+        let found: Vec<&Value> = loads.iter().filter(|l| l["id"] == id).collect();
+        assert_eq!(found.len(), 1, "{id}");
+        let e: Value = serde_json::from_str(found[0]["provenance"].as_str().unwrap()).unwrap();
+        assert_eq!((e["method"].as_str(), e["component_id"].as_str(), e["wrench_part"].as_str(), e["wrench_axis"].as_str()),
+            (Some(COMPONENT_WEIGHT_METHOD), Some(R1), Some(part), Some(if part == "force" { "z" } else { "x" })), "{id}");
+        assert_eq!(found[0]["target"], json!({"type": "node", "node": N}), "{id}");
+        held += 1;
+    }
+    assert_eq!(held, R1_RECORDS.len());
+    let baseline = inspect(&fixture, None);
+    for (case, _, id) in R1_RECORDS {
+        let (state, diagnostics, _) = &baseline[&(case.to_string(), id.to_string())];
+        assert_eq!(*state, AppliedSelfWeightState::Fresh, "{case} {id}: {diagnostics:?}");
+        assert!(diagnostics.is_empty(), "{case} {id}: {diagnostics:?}");
+    }
+    let others: Vec<&(String, String)> = baseline.keys().filter(|k| !R1_RECORDS.iter().any(|(c, _, i)| k.0 == *c && k.1 == *i)).collect();
+    assert!(!others.is_empty());
+    assert!(others.iter().all(|k| baseline[*k].0 == AppliedSelfWeightState::Fresh), "every generated record of the fixture is fresh");
+
+    // The two controls: the force's own input, then the moment's.
+    let at = fixture["components"].as_array().unwrap().iter().position(|c| c["id"] == R1).unwrap();
+    let controls: [(&str, Box<dyn Fn(&mut Value)>); 2] = [
+        ("force:z, entered weight 300 -> 301 N", Box::new(|c: &mut Value| {
+            assert_eq!(c["geometry"]["weight"], json!({"value": 300, "unit": "N"}));
+            c["geometry"]["weight"]["value"] = json!(301);
+        })),
+        ("moment:x, entered centre of gravity y -0.2 -> -0.21 m", Box::new(|c: &mut Value| {
+            assert_eq!(c["geometry"]["center_of_gravity"]["y"].as_f64(), Some(-0.2));
+            assert_eq!(c["geometry"]["center_of_gravity"]["unit"], "m");
+            c["geometry"]["center_of_gravity"]["y"] = json!(-0.21);
+        })),
+    ];
+    for (control, edit) in &controls {
+        let mut model = fixture.clone();
+        edit(&mut model["components"][at]);
+        let hash = hash_of(&model, CASES[0], R1_RECORDS[0].2);
+        for seen in [inspect(&model, None), inspect(&model, Some(&hash))] {
+            for (case, _, id) in R1_RECORDS {
+                let (state, diagnostics, replacement) = &seen[&(case.to_string(), id.to_string())];
+                assert_eq!(*state, AppliedSelfWeightState::Stale, "{control}: {case} {id}");
+                assert_eq!(diagnostics.len(), 1, "{control}: {case} {id}: {diagnostics:?}");
+                let (code, severity, message) = &diagnostics[0];
+                assert_eq!((code.as_str(), severity.as_str()), ("SELF_WEIGHT_INPUTS_STALE", "blocking"), "{control}: {case} {id}");
+                // An in-place refresh, not a changed selection.
+                assert!(message.contains("explicitly refresh this generated load"), "{control}: {case} {id}: {message}");
+                if let Some((replacement_id, target)) = replacement {
+                    assert_eq!((replacement_id, target), (&json!(id), &json!({"type": "node", "node": N})), "{control}: {case} {id}");
+                }
+            }
+            for key in &others {
+                assert_eq!(seen[*key].0, AppliedSelfWeightState::Fresh, "{control}: {key:?} stays fresh");
+            }
+        }
+        // With the source hash supplied, each stale record offers its replacement.
+        let seen = inspect(&model, Some(&hash));
+        for (case, _, id) in R1_RECORDS {
+            assert!(seen[&(case.to_string(), id.to_string())].2.is_some(), "{control}: {case} {id}: an in-place refresh");
+        }
+    }
 }
 
 /// Product consistency control (not a mathematical reference): a `rigid`
