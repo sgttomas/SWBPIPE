@@ -396,6 +396,11 @@ test("Codex r4: an app binary an ordinary cargo build changed after the binding 
     const a = statSync(main);
     // Revision B built by an ordinary cargo build in the same target.
     writeFileSync(main, "fn main() { b() }\n");
+    // Equal filesystem timestamps are fresh to cargo; make B strictly newer
+    // than the dep-info rather than relying on time passing between writes.
+    const depInfo = statSync(path.join(target, "debug/app.d"));
+    utimesSync(main, a.atime, new Date(depInfo.mtimeMs + 1000));
+    assert.ok(statSync(main).mtimeMs > depInfo.mtimeMs, "revision B must be newer than the dep-info");
     w.runCargo(["cargo", "build"], { CARGO_TARGET_DIR: target });
     assert.match(binary(), /b\(\)/);
     // A's sources restored with their old times: they match the record, and cargo would take B as fresh.
