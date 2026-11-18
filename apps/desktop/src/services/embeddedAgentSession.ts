@@ -14,6 +14,7 @@ import { rowCaseKey } from '../features/results/resultsNavigator';
 import { canonicalJsonString } from './hashService';
 import { applierDisplayNumber, nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
 import { personEnteredWriteIn } from './operationAuthorship';
+import { unitRefusalMessage } from './agentUnitRefusal';
 
 export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
@@ -497,7 +498,9 @@ export class EmbeddedAgentSession {
    const operations=stampAgentOperations(call.arguments.operations as Record<string,unknown>[],handle,call.requestRef);
    const batch:OperationBatch={batch_id:`agent-${handle}`,operations,source_model_hash:snap.hash!.value};
    const validation=await validateOperationBatch(model,batch,snap.hash);if(!this.current(call))return this.failure(call,'Workspace changed during proposal preparation.','stale_basis');
-   if(validation.validation.batch_validation_status!=='passed')return this.failure(call,'The operation engine refused the proposal; nothing was queued.');
+   // A unit or value/unit-pair refusal on a known quantity field is explained in a closed form;
+   // every other refusal is the generic sentence (agentUnitRefusal.ts).
+   if(validation.validation.batch_validation_status!=='passed')return this.failure(call,unitRefusalMessage(validation,call.arguments.operations,model));
    if(this.#interrupted.has(call.turnId))return this.failure(call,'Turn interrupted before registration.');
    const key=await this.owner.register(batch,context);if(!key)return this.failure(call,'Proposal registration was not confirmed.');
    this.#proposals.set(handle,{basis:structuredClone(call.basis),key,context});
