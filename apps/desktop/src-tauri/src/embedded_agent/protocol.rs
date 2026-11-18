@@ -1198,22 +1198,23 @@ mod tests {
         }
     }
 
-    /// The case the catalog's replacement instruction forbids acting on. A stored state
-    /// can be removed by a proposal that fits while the new state's entry does not fit:
-    /// an agent that removed first would have no route to install the replacement. The
-    /// instruction has the agent establish that both complete proposals fit before it
-    /// proposes the removal, and otherwise leave the stored state in place. Here the
-    /// entry, judged first as the instruction orders, is refused at the argument bound
-    /// and reaches no tool, so nothing has been removed; the removal alone would have
-    /// been admitted, which is why the order matters.
+    /// The sizes behind the catalog's replacement instruction, at the admission step.
+    /// What is observed: arguments carrying a new state one byte too long are refused
+    /// and raise no tool event; arguments carrying the stored state's removal are
+    /// admitted, on a separate protocol instance; and the replacement in one operation
+    /// is over the bound. So a removal can fit where the entry that should follow it
+    /// does not, which is why the instruction has the agent establish that both fit
+    /// before it proposes the removal. The entry's arguments are synthetic. No model
+    /// is read or changed here, and no agent's ordering is observed: that order is the
+    /// instruction's, and this test holds the instruction's words.
     #[test]
-    fn a_replacement_whose_entry_exceeds_the_bound_is_refused_with_nothing_removed() {
+    fn an_entry_over_the_bound_is_refused_at_admission_where_its_removal_would_be_admitted() {
         const REFERENCE: &str = include_str!("../../../../../fixtures/reference_system/reference_system.json");
         const CATALOG: &str = include_str!("../../resources/agent-capability-catalog.json");
         let catalog: Value = serde_json::from_str(CATALOG).unwrap();
         let instruction = catalog["tools"].as_array().unwrap().iter()
             .find(|tool| tool["name"] == Tool::ProposeOperations.name()).unwrap()["description"].as_str().unwrap();
-        assert!(instruction.contains("check that its removal and the new state's entry would each fit argumentBytes as a complete proposal alone. If either exceeds argumentBytes, or you cannot tell, leave the stored state in place and report the limit. If both fit, it is two proposals in order, each alone: its removal, then the new state;"));
+        assert!(instruction.contains("check that its removal and the new state's entry would each fit argumentBytes as a complete proposal alone, counting each proposal's whole arguments with its assumptions. If either exceeds argumentBytes, or you cannot tell, leave the stored state in place and report the limit to the person. If both fit, it is two proposals in order, each alone: its removal, then the new state. Before proposing the removal, tell the person that both proposals fit argumentBytes, that the new state can still be refused when it is checked after the removal, and that if it is, or the replacement is interrupted, the case is left without an analysis state. Propose the new state only after the person has applied the removal (observe it), on the new basis and hash from the summary; if that hash differs from the removal's outcomeModelHash, read the case again and recheck the new state and its assumptions first. If the new state is refused, report the refusal and the case's last confirmed state."));
         let reference: Value = serde_json::from_str(REFERENCE).unwrap();
         let bound = Catalog::load().unwrap().limits().argument_bytes as usize;
         let stored = reference["load_cases"].as_array().unwrap().iter()
@@ -1234,9 +1235,9 @@ mod tests {
         assert!(serde_json::to_vec(&args(op(&stored, &"x".repeat(bound - envelope + 1)))).unwrap().len() > bound);
         let mut p = active();
         let refused = p.handle_frame(call(json!(80), "entry", Tool::ProposeOperations.name(), entry), &basis()).unwrap();
-        assert!(refused.events.is_empty(), "the entry reaches no tool: {:?}", refused.events);
+        assert!(refused.events.is_empty(), "the entry raises no tool event: {:?}", refused.events);
         assert_eq!(refused.outbound[0]["result"]["success"], false);
-        // The hazard the order prevents: the removal by itself is admitted.
+        // The removal by itself is admitted.
         let mut q = active();
         let admitted = q.handle_frame(call(json!(81), "removal", Tool::ProposeOperations.name(), removal), &basis()).unwrap();
         assert!(matches!(admitted.events.first(), Some(Event::ToolRequested { .. })), "{:?}", admitted.outbound);
