@@ -62,6 +62,14 @@ rewrites the outputs, for intentional changes only.
    k·g < 0 there. All other leaves are unchanged: the transverse and rotational
    displacements, shear, bending, torsion and moments.
 
+**Axis and sign of the cold load.** The cold load acts along the positive axis
+of the hanger's declared stiffness DOF (+X here). This reading comes from
+DEL-04-11 REQ-014 ("through the constant-effort seam") together with DEL-04-03
+REQ-014's positive-axis convention for the constant-effort support; the
+spring's own sentence in DEL-04-03 does not say "positive axis". If the sign
+were decided otherwise, every value here that the cold load moves would
+change.
+
 **Sign convention.** The frozen generator publishes a spring's row as
 −k·(u − g) (`published()`). That is the force the support exerts on the pipe,
 positive along +DOF, and the anchor's row K·u − f uses the same sense. This
@@ -72,6 +80,10 @@ variable spring hanger, and the generator checks this. Their expectations are
 not repeated here.
 
 ## Independence
+
+This package is independent of the product. It is not independent of the
+frozen package it builds on: it uses the frozen generator's frame and solver.
+Its check reads nothing outside this package and `../w16_nonlinear_motion`.
 
 What is independent: the generator imports, reads and runs no product code and
 no product output, and copies no number. Every value comes from the leaves of
