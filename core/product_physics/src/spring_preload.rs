@@ -238,6 +238,81 @@ pub(crate) fn append_results(
     }
 }
 
+/// The authored `hanger.mechanics_consumption` key's word when the document has none.
+const AUTHORED_MISSING: &str = "mechanics_consumption_missing";
+
+/// What the solve did with a spring's cold load over the model's cases (the review rows
+/// are written once per document, the decision per case): `Ok(None)` applied in every
+/// case, `Ok(Some(cases))` applied except in `cases` (with the first such case's
+/// reason), `Err(reason)` applied in none. Today no reason depends on the case, so
+/// every case agrees.
+fn cold_load_outcome(model: &PreviewModel, support: &PreviewSupport) -> Result<Option<(Vec<String>, NotApplied)>, NotApplied> {
+    let decisions: Vec<(&str, Result<Preload, NotApplied>)> = if model.load_cases.is_empty() {
+        vec![("", decide(model, support))]
+    } else {
+        model
+            .load_cases
+            .iter()
+            .map(|case| {
+                let found = dispositions(model, case).into_iter().find(|(s, _)| s.id == support.id).map(|(_, d)| d);
+                (case.id.as_str(), found.unwrap_or_else(|| decide(model, support)))
+            })
+            .collect()
+    };
+    let refused: Vec<(&str, NotApplied)> = decisions.into_iter().filter_map(|(case, d)| d.err().map(|r| (case, r))).collect();
+    let total = model.load_cases.len().max(1);
+    match refused.first() {
+        None => Ok(None),
+        Some((_, reason)) if refused.len() == total => Err(reason.clone()),
+        Some((_, reason)) => Ok(Some((refused.iter().map(|(case, _)| case.to_string()).collect(), reason.clone()))),
+    }
+}
+
+/// A variable spring hanger review row's basis (DEL-04-11 REQ-014): the author's
+/// `mechanics_consumption` under `authored_mechanics_consumption`, verbatim, and under
+/// `mechanics_consumption` what the solve consumed, in the product's own words, from
+/// [`dispositions`]. `field` is `None` for the stiffness row.
+pub(crate) fn review_basis(
+    model: &PreviewModel,
+    support: &PreviewSupport,
+    field: Option<&str>,
+    source: &str,
+    manufacturer: &str,
+    load_side_review: &str,
+) -> String {
+    let authored = text_or(support.hanger.as_ref().and_then(|h| h.mechanics_consumption.as_deref()), AUTHORED_MISSING);
+    match field {
+        None => {
+            let dof = support_stiffness_input(support).map_or("", |input| input.dof.as_str());
+            format!("support_family=variable_spring_hanger;user_entered_dof={dof};source={source};manufacturer={manufacturer};authored_mechanics_consumption={authored};mechanics_consumption=assembled_solve_spring_rate;dec_ref=DEC-049")
+        }
+        Some(field) => {
+            let consumed = match field {
+                "cold-load" => match cold_load_outcome(model, support) {
+                    Ok(None) => "assembled_solve_cold_load".to_string(),
+                    Ok(Some((cases, _))) => format!("assembled_solve_cold_load_except_cases:{}", cases.join(",")),
+                    Err(reason) => format!("cold_load_not_applied_{}", reason.token()),
+                },
+                _ => "review_only".to_string(),
+            };
+            format!("support_family=variable_spring_hanger;field={field};source={source};manufacturer={manufacturer};load_side_review={load_side_review};authored_mechanics_consumption={authored};mechanics_consumption={consumed};dec_ref=DEC-049")
+        }
+    }
+}
+
+/// A variable spring hanger load review row's sign convention: the cold load's row
+/// says what the solve did with it; every other row keeps the review sentence.
+pub(crate) fn review_sign_convention(model: &PreviewModel, support: &PreviewSupport, field: &str) -> String {
+    if field != "cold-load" {
+        return "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata".to_string();
+    }
+    match cold_load_outcome(model, support) {
+        Ok(None) => "positive value is the user-entered variable spring hanger cold load, applied in the solve as a constant force along the positive axis of its stiffness DOF in every load case".to_string(),
+        Ok(Some((cases, reason))) => format!("positive value is the user-entered variable spring hanger cold load, applied in the solve as a constant force along the positive axis of its stiffness DOF except in load cases {}, where it is not applied because {}", cases.join(", "), reason.reason()),
+        Err(reason) => format!("positive value is the user-entered variable spring hanger cold load, not applied in the solve because {}; the spring acts with its rate only", reason.reason()),
+    }
+}
+
 /// Once per solve, on normalized values: a warning for each variable spring
 /// hanger whose entered installed load differs from its cold load. The hot
 /// load is review data and warns nothing.

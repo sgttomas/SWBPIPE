@@ -14451,8 +14451,8 @@ fn append_spring_hanger_user_input_results(
                     &format!("{} stiffness", stiffness.dof),
                     &stiffness.value,
                     &format!(
-                        "support_family=variable_spring_hanger;user_entered_dof={};source={source_reference};manufacturer={manufacturer_reference};mechanics_consumption={mechanics_consumption};dec_ref=DEC-049",
-                        stiffness.dof
+                        "{}",
+                        spring_preload::review_basis(model, support, None, source_reference, manufacturer_reference, load_side_review)
                     ),
                     "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied",
                 );
@@ -14497,9 +14497,9 @@ fn append_spring_hanger_user_input_results(
                     field,
                     quantity,
                     &format!(
-                        "support_family=variable_spring_hanger;field={field};source={source_reference};manufacturer={manufacturer_reference};load_side_review={load_side_review};mechanics_consumption={mechanics_consumption};dec_ref=DEC-049"
+                        "{}", spring_preload::review_basis(model, support, Some(field), source_reference, manufacturer_reference, load_side_review)
                     ),
-                    "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata",
+                    &spring_preload::review_sign_convention(model, support, field),
                 );
                 appended += 1;
             }

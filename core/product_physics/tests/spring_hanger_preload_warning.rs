@@ -212,3 +212,80 @@ fn equal_loads_in_different_units_are_quiet() {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// The review rows' two keys (DEL-04-11 REQ-014): `authored_mechanics_consumption`
+// holds the document's own `hanger.mechanics_consumption`, verbatim, or
+// `mechanics_consumption_missing`; `mechanics_consumption` holds what the solve
+// consumed, in the product's words, from the solve's own decision.
+// ---------------------------------------------------------------------------
+
+const REVIEW: &str = "spring_hanger_user_input_review";
+const REVIEW_SENTENCE: &str = "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata";
+const COLD_APPLIED_SENTENCE: &str = "positive value is the user-entered variable spring hanger cold load, applied in the solve as a constant force along the positive axis of its stiffness DOF in every load case";
+
+/// The hanger's review rows by field (`stiffness` for the rate row): (basis, sign convention).
+fn review_rows(envelope: &Value) -> Vec<(String, String, String)> {
+    envelope["results"].as_array().unwrap().iter()
+        .filter(|r| r["kind"] == REVIEW && r["entity_ref"] == HANGER)
+        .map(|r| {
+            let id = r["id"].as_str().unwrap();
+            let field = id.rsplit(':').next().unwrap().to_string();
+            (field, r["metadata"]["basis"].as_str().unwrap().to_string(), r["metadata"]["sign_convention"].as_str().unwrap().to_string())
+        })
+        .collect()
+}
+
+/// Every review row states `authored` under the authored key and, under the product's
+/// key, what the solve consumed: the rate in the stiffness row, `cold` in the cold-load
+/// row, review only elsewhere; the cold-load row's sentence is `cold_sentence`.
+fn two_keys(document: &Value, authored: &str, cold: &str, cold_sentence: &str, what: &str) {
+    for mode in MODES {
+        let what = format!("{what} {mode:?}");
+        let envelope = run(document, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{what}: {:#?}", envelope["diagnostics"]);
+        let rows = review_rows(&envelope);
+        let fields: Vec<&str> = rows.iter().map(|(f, _, _)| f.as_str()).collect();
+        assert_eq!(fields, ["stiffness", "installed-load", "cold-load", "hot-load", "travel-range"], "{what}");
+        for (field, basis, sign) in &rows {
+            let consumed = match field.as_str() { "stiffness" => "assembled_solve_spring_rate", "cold-load" => cold, _ => "review_only" };
+            let keys = format!(";authored_mechanics_consumption={authored};mechanics_consumption={consumed};dec_ref=DEC-049");
+            assert!(basis.ends_with(&keys), "{what} {field}: {basis}");
+            assert_eq!(basis.matches("mechanics_consumption=").count(), 2, "{what} {field}: one authored and one product statement");
+            match field.as_str() {
+                "cold-load" => assert_eq!(sign, cold_sentence, "{what}"),
+                "stiffness" => {}
+                _ => assert_eq!(sign, REVIEW_SENTENCE, "{what} {field}"),
+            }
+        }
+    }
+}
+
+/// By the integrator's description: a document whose authored string is the old
+/// `linear_spring_primitive_user_stiffness`, solved under the law, shows on every
+/// review row the authored key with the old words and the product's key with what
+/// the solve did (the rate and the cold load in the assembled solve).
+#[test]
+fn an_authored_linear_spring_consumption_is_kept_under_its_own_key_beside_what_the_solve_consumed() {
+    for (route, document) in [("pressure-free", pressure_free()), ("exact", exact())] {
+        two_keys(&document, "linear_spring_primitive_user_stiffness", "assembled_solve_cold_load", COLD_APPLIED_SENTENCE, route);
+    }
+}
+
+#[test]
+fn a_document_without_the_member_is_stated_as_missing_and_the_product_still_says_what_it_consumed() {
+    let mut document = pressure_free();
+    hanger_mut(&mut document)["hanger"].as_object_mut().unwrap().remove("mechanics_consumption");
+    two_keys(&document, "mechanics_consumption_missing", "assembled_solve_cold_load", COLD_APPLIED_SENTENCE, "no member");
+}
+
+/// A spring whose cold load is not applied (a rotational stiffness DOF): the cold-load
+/// row names the reason's token and its sentence says the load is not applied.
+#[test]
+fn a_cold_load_not_applied_is_stated_with_its_reason_token() {
+    let mut document = pressure_free();
+    hanger_mut(&mut document)["hanger"]["stiffness"] = json!({"dof": "RY", "value": q(42_000.0, "N*m/rad")});
+    two_keys(&document, "linear_spring_primitive_user_stiffness", "cold_load_not_applied_rotational_dof",
+        "positive value is the user-entered variable spring hanger cold load, not applied in the solve because its stiffness DOF RY is rotational, and the cold load is a force; the spring acts with its rate only",
+        "rotational");
+}
