@@ -1,0 +1,120 @@
+{
+ "staged_from": "core/product_physics/tests/friction_reversal_stop_release_runtime.rs",
+ "commit": "3c8fc26a6c188f1613714f56d9807dc32433c46d",
+ "table": "EXPECTED",
+ "table_declaration": "const EXPECTED: [Expected; 6] = [",
+ "what": "the frozen table named EXPECTED in the test file (the constant declared by table_declaration; the file may hold other tables, which this package does not supplement): its six rows verbatim, in order, and the author's transcription of them (the stiffness-only result: SH-140 a bare 42000 N/m spring, its cold load not applied); the generator checks the transcription against the rows number for number",
+ "line_numbers": "line_at_staging_commit records where each row stood in the file at the staging commit; it is a record only, and --check-live finds the rows by the table's name, not by line number",
+ "rows": [
+  {
+   "line_at_staging_commit": 61,
+   "text": "    Expected { case: \"load:L-100\", variant: Variant::Original, applied_y_n: 350.0, stop_active: true, stop_uy_mm: 0.0, stop_reaction_n: -297.6267180126413, slip_mm: -6.643926797396845, friction_n: 0.5237328198735871, normal_n: 52.373281987358716, s130_fy_n: -52.373281987358716, sh140_fz_n: 279.00851842729384 },"
+  },
+  {
+   "line_at_staging_commit": 62,
+   "text": "    Expected { case: \"load:L-100\", variant: Variant::ReverseZ, applied_y_n: 350.0, stop_active: true, stop_uy_mm: 0.0, stop_reaction_n: -402.3732819873587, slip_mm: 6.643926797396845, friction_n: -0.5237328198735871, normal_n: 52.373281987358716, s130_fy_n: 52.373281987358716, sh140_fz_n: -279.00851842729384 },"
+  },
+  {
+   "line_at_staging_commit": 63,
+   "text": "    Expected { case: \"load:L-100\", variant: Variant::ReverseAll, applied_y_n: -350.0, stop_active: false, stop_uy_mm: -5.356128551796324, stop_reaction_n: 0.0, slip_mm: 5.999143262955726, friction_n: -3.5, normal_n: 350.0, s130_fy_n: 350.0, sh140_fz_n: -251.93114323387397 },"
+  },
+  {
+   "line_at_staging_commit": 64,
+   "text": "    Expected { case: \"load:L-200\", variant: Variant::Original, applied_y_n: 125.0, stop_active: true, stop_uy_mm: 0.0, stop_reaction_n: -98.81335900632064, slip_mm: -3.3219633986984225, friction_n: 0.26186640993679355, normal_n: 26.186640993679358, s130_fy_n: -26.186640993679358, sh140_fz_n: 139.50425921364692 },"
+  },
+  {
+   "line_at_staging_commit": 65,
+   "text": "    Expected { case: \"load:L-200\", variant: Variant::ReverseZ, applied_y_n: 125.0, stop_active: true, stop_uy_mm: 0.0, stop_reaction_n: -151.18664099367936, slip_mm: 3.3219633986984225, friction_n: -0.26186640993679355, normal_n: 26.186640993679358, s130_fy_n: 26.186640993679358, sh140_fz_n: -139.50425921364692 },"
+  },
+  {
+   "line_at_staging_commit": 66,
+   "text": "    Expected { case: \"load:L-200\", variant: Variant::ReverseAll, applied_y_n: -125.0, stop_active: false, stop_uy_mm: -1.778257869477212, stop_reaction_n: 0.0, slip_mm: 3.107892473562634, friction_n: -1.25, normal_n: 125.0, s130_fy_n: 125.0, sh140_fz_n: -130.5144534132732 },"
+  }
+ ],
+ "transcription": [
+  {
+   "case": "load:L-100",
+   "variant": "Original",
+   "applied_y_n": 350.0,
+   "stop_active": true,
+   "stop_uy_mm": 0.0,
+   "stop_reaction_n": -297.6267180126413,
+   "slip_mm": -6.643926797396845,
+   "friction_n": 0.5237328198735871,
+   "normal_n": 52.373281987358716,
+   "s130_fy_n": -52.373281987358716,
+   "sh140_fz_n": 279.00851842729384,
+   "line_at_staging_commit": 61
+  },
+  {
+   "case": "load:L-100",
+   "variant": "ReverseZ",
+   "applied_y_n": 350.0,
+   "stop_active": true,
+   "stop_uy_mm": 0.0,
+   "stop_reaction_n": -402.3732819873587,
+   "slip_mm": 6.643926797396845,
+   "friction_n": -0.5237328198735871,
+   "normal_n": 52.373281987358716,
+   "s130_fy_n": 52.373281987358716,
+   "sh140_fz_n": -279.00851842729384,
+   "line_at_staging_commit": 62
+  },
+  {
+   "case": "load:L-100",
+   "variant": "ReverseAll",
+   "applied_y_n": -350.0,
+   "stop_active": false,
+   "stop_uy_mm": -5.356128551796324,
+   "stop_reaction_n": 0.0,
+   "slip_mm": 5.999143262955726,
+   "friction_n": -3.5,
+   "normal_n": 350.0,
+   "s130_fy_n": 350.0,
+   "sh140_fz_n": -251.93114323387397,
+   "line_at_staging_commit": 63
+  },
+  {
+   "case": "load:L-200",
+   "variant": "Original",
+   "applied_y_n": 125.0,
+   "stop_active": true,
+   "stop_uy_mm": 0.0,
+   "stop_reaction_n": -98.81335900632064,
+   "slip_mm": -3.3219633986984225,
+   "friction_n": 0.26186640993679355,
+   "normal_n": 26.186640993679358,
+   "s130_fy_n": -26.186640993679358,
+   "sh140_fz_n": 139.50425921364692,
+   "line_at_staging_commit": 64
+  },
+  {
+   "case": "load:L-200",
+   "variant": "ReverseZ",
+   "applied_y_n": 125.0,
+   "stop_active": true,
+   "stop_uy_mm": 0.0,
+   "stop_reaction_n": -151.18664099367936,
+   "slip_mm": 3.3219633986984225,
+   "friction_n": -0.26186640993679355,
+   "normal_n": 26.186640993679358,
+   "s130_fy_n": 26.186640993679358,
+   "sh140_fz_n": -139.50425921364692,
+   "line_at_staging_commit": 65
+  },
+  {
+   "case": "load:L-200",
+   "variant": "ReverseAll",
+   "applied_y_n": -125.0,
+   "stop_active": false,
+   "stop_uy_mm": -1.778257869477212,
+   "stop_reaction_n": 0.0,
+   "slip_mm": 3.107892473562634,
+   "friction_n": -1.25,
+   "normal_n": 125.0,
+   "s130_fy_n": 125.0,
+   "sh140_fz_n": -130.5144534132732,
+   "line_at_staging_commit": 66
+  }
+ ]
+}

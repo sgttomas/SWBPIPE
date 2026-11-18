@@ -1,0 +1,1886 @@
+{
+ "basis": "exact rational solve of independently formed Euler-Bernoulli frames with the case's prescribed values, every support state enumerated; states measured on u - g_s; the cold load added to f at the hanger's DOF and to the hanger's published row",
+ "criterion": "certified rows within the K-D5 ball bound B of the exact value; displacements within 1e-9 relative (an exact zero within 1e-9 of the case's largest translation or rotation); prescribed DOFs bit for bit",
+ "crosscheck": [
+  {
+   "agrees": true,
+   "check": "the committed request is the one the frozen package hashed"
+  },
+  {
+   "agrees": true,
+   "check": "reproduction load:AXIAL: with F_cold = 0 the rows equal the frozen package's rows exactly"
+  },
+  {
+   "agrees": true,
+   "check": "reproduction load:AXIAL-NEG: with F_cold = 0 the rows equal the frozen package's rows exactly"
+  },
+  {
+   "agrees": true,
+   "check": "reproduction load:INEXACT: with F_cold = 0 the rows equal the frozen package's rows exactly"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:AXIAL: one linear state, strict"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:AXIAL: the condensed tip stiffness is EA/L"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:AXIAL: u = (k g + F_cold)/(k + k_m)"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:AXIAL: F = F_cold - k(u - g) = (F_cold + k g)/2 (k = k_m)"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:AXIAL: equilibrium: anchor UX row + hanger row = 0 (no other applied force)"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:AXIAL-NEG: one linear state, strict"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:AXIAL-NEG: the condensed tip stiffness is EA/L"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:AXIAL-NEG: u = (k g + F_cold)/(k + k_m)"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:AXIAL-NEG: F = F_cold - k(u - g) = (F_cold + k g)/2 (k = k_m)"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:AXIAL-NEG: equilibrium: anchor UX row + hanger row = 0 (no other applied force)"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:INEXACT: one linear state, strict"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:INEXACT: the condensed tip stiffness is EA/L"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:INEXACT: u = (k g + F_cold)/(k + k_m)"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:INEXACT: F = F_cold - k(u - g) = (F_cold + k g)/2 (k = k_m)"
+  },
+  {
+   "agrees": true,
+   "check": "c1_hanger load:INEXACT: equilibrium: anchor UX row + hanger row = 0 (no other applied force)"
+  },
+  {
+   "agrees": true,
+   "check": "no other frozen request carries a variable spring hanger"
+  }
+ ],
+ "document": "openpipestress.w16_nonlinear_motion_preload_references",
+ "elastic_modulus_pa": 171798691840.0,
+ "law": "DEL-04-03/REQ-014 and DEL-04-11/REQ-014: spring of the entered rate on its declared translational DOF plus the entered cold load as a constant force along +DOF at the support's node in every case; published support force F_cold - k*(u - g); the cold load published separately as the support's applied force; installed_load and hot_load not applied",
+ "normalized_section": {
+  "As_m2": 0.0067387162419501045,
+  "I_m4": 3.213188372067858e-05,
+  "J_m4": 6.426376744135716e-05,
+  "outside_diameter_m": 0.206,
+  "wall_thickness_m": 0.011
+ },
+ "preload": {
+  "c1_hanger": {
+   "load:AXIAL": {
+    "applied_force": {
+     "support:K": {
+      "dof": "UX",
+      "node": "node:T",
+      "value": [
+       1000.0,
+       1000.0
+      ]
+     }
+    },
+    "changed": [
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       0.00012379787183989654,
+       0.00012379787183989656
+      ],
+      "path": "/strict_states/0/displacements/node:T/0",
+      "quantity": "nodal displacement UX at node:T",
+      "stiffness_only": [
+       0.0001220703125,
+       0.0001220703125
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/cut_i/axial",
+      "quantity": "member axial force norm at cut_i of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/cut_j/axial",
+      "quantity": "member axial force norm at cut_j of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/end_i/axial",
+      "quantity": "member axial force norm at end_i of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/end_j/axial",
+      "quantity": "member axial force norm at end_j of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/midspan/axial",
+      "quantity": "member axial force norm at midspan of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/quarter_1/axial",
+      "quantity": "member axial force norm at quarter_1 of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/quarter_3/axial",
+      "quantity": "member axial force norm at quarter_3 of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/support:ANCHOR/node/support_force",
+      "quantity": "support support_force of support:ANCHOR",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/support:ANCHOR/node/support_force_magnitude",
+      "quantity": "support support_force_magnitude of support:ANCHOR",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/support:K/node/support_force",
+      "quantity": "support support_force of support:K",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/groups/support:K/node/support_force_magnitude",
+      "quantity": "support support_force_magnitude of support:K",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       -35830.280610595364,
+       -35830.280610595364
+      ],
+      "path": "/strict_states/0/signed/support:ANCHOR/components/0",
+      "quantity": "signed support row UX of support:ANCHOR",
+      "stiffness_only": [
+       -35330.280610595364,
+       -35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       35830.280610595364,
+       35830.280610595364
+      ],
+      "path": "/strict_states/0/signed/support:K/components/0",
+      "quantity": "signed support row UX of support:K",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     }
+    ],
+    "hanger_support_force": {
+     "support:K": {
+      "dof": "UX",
+      "value": [
+       35830.280610595364,
+       35830.280610595364
+      ]
+     }
+    },
+    "unchanged_leaves": "every other leaf of this case's rows equals the frozen value"
+   },
+   "load:AXIAL-NEG": {
+    "applied_force": {
+     "support:K": {
+      "dof": "UX",
+      "node": "node:T",
+      "value": [
+       1000.0,
+       1000.0
+      ]
+     }
+    },
+    "changed": [
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       -0.00012034275316010345,
+       -0.00012034275316010344
+      ],
+      "path": "/strict_states/0/displacements/node:T/0",
+      "quantity": "nodal displacement UX at node:T",
+      "stiffness_only": [
+       -0.0001220703125,
+       -0.0001220703125
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/cut_i/axial",
+      "quantity": "member axial force norm at cut_i of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/cut_j/axial",
+      "quantity": "member axial force norm at cut_j of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/end_i/axial",
+      "quantity": "member axial force norm at end_i of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/end_j/axial",
+      "quantity": "member axial force norm at end_j of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/midspan/axial",
+      "quantity": "member axial force norm at midspan of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/quarter_1/axial",
+      "quantity": "member axial force norm at quarter_1 of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/quarter_3/axial",
+      "quantity": "member axial force norm at quarter_3 of pipe:AT",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/support:ANCHOR/node/support_force",
+      "quantity": "support support_force of support:ANCHOR",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/support:ANCHOR/node/support_force_magnitude",
+      "quantity": "support support_force_magnitude of support:ANCHOR",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/support:K/node/support_force",
+      "quantity": "support support_force of support:K",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/groups/support:K/node/support_force_magnitude",
+      "quantity": "support support_force_magnitude of support:K",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       34830.280610595364,
+       34830.280610595364
+      ],
+      "path": "/strict_states/0/signed/support:ANCHOR/components/0",
+      "quantity": "signed support row UX of support:ANCHOR",
+      "stiffness_only": [
+       35330.280610595364,
+       35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       -34830.280610595364,
+       -34830.280610595364
+      ],
+      "path": "/strict_states/0/signed/support:K/components/0",
+      "quantity": "signed support row UX of support:K",
+      "stiffness_only": [
+       -35330.280610595364,
+       -35330.280610595364
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     }
+    ],
+    "hanger_support_force": {
+     "support:K": {
+      "dof": "UX",
+      "value": [
+       -34830.280610595364,
+       -34830.280610595364
+      ]
+     }
+    },
+    "unchanged_leaves": "every other leaf of this case's rows equals the frozen value"
+   },
+   "load:INEXACT": {
+    "applied_force": {
+     "support:K": {
+      "dof": "UX",
+      "node": "node:T",
+      "value": [
+       1000.0,
+       1000.0
+      ]
+     }
+    },
+    "changed": [
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       0.0005017275593398965,
+       0.0005017275593398967
+      ],
+      "path": "/strict_states/0/displacements/node:T/0",
+      "quantity": "nodal displacement UX at node:T",
+      "stiffness_only": [
+       0.0005,
+       0.0005
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/cut_i/axial",
+      "quantity": "member axial force norm at cut_i of pipe:AT",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/cut_j/axial",
+      "quantity": "member axial force norm at cut_j of pipe:AT",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/end_i/axial",
+      "quantity": "member axial force norm at end_i of pipe:AT",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/end_j/axial",
+      "quantity": "member axial force norm at end_j of pipe:AT",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/midspan/axial",
+      "quantity": "member axial force norm at midspan of pipe:AT",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/quarter_1/axial",
+      "quantity": "member axial force norm at quarter_1 of pipe:AT",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/pipe:AT/quarter_3/axial",
+      "quantity": "member axial force norm at quarter_3 of pipe:AT",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/support:ANCHOR/node/support_force",
+      "quantity": "support support_force of support:ANCHOR",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/support:ANCHOR/node/support_force_magnitude",
+      "quantity": "support support_force_magnitude of support:ANCHOR",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/support:K/node/support_force",
+      "quantity": "support support_force of support:K",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/groups/support:K/node/support_force_magnitude",
+      "quantity": "support support_force_magnitude of support:K",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       -145212.82938099862,
+       -145212.8293809986
+      ],
+      "path": "/strict_states/0/signed/support:ANCHOR/components/0",
+      "quantity": "signed support row UX of support:ANCHOR",
+      "stiffness_only": [
+       -144712.82938099862,
+       -144712.8293809986
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     },
+     {
+      "cold_load": {
+       "support:K": [
+        1000.0,
+        1000.0
+       ]
+      },
+      "law": [
+       145212.8293809986,
+       145212.82938099862
+      ],
+      "path": "/strict_states/0/signed/support:K/components/0",
+      "quantity": "signed support row UX of support:K",
+      "stiffness_only": [
+       144712.8293809986,
+       144712.82938099862
+      ],
+      "stiffness_only_basis": "stiffness-only result of the frozen package validation/references/w16_nonlinear_motion (references.json): the variable spring hanger modelled as a bare spring of its entered rate, its cold load not applied"
+     }
+    ],
+    "hanger_support_force": {
+     "support:K": {
+      "dof": "UX",
+      "value": [
+       145212.8293809986,
+       145212.82938099862
+      ]
+     }
+    },
+    "unchanged_leaves": "every other leaf of this case's rows equals the frozen value"
+   }
+  }
+ },
+ "requests": {
+  "c1_hanger": {
+   "cases": {
+    "load:AXIAL": {
+     "base_prescribed": {},
+     "ground_motion": {},
+     "spring_ground": {
+      "support:K": [
+       0.000244140625,
+       0.000244140625
+      ]
+     },
+     "strict_states": [
+      {
+       "displacements": {
+        "node:A": [
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ]
+        ],
+        "node:T": [
+         [
+          0.00012379787183989654,
+          0.00012379787183989656
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ]
+        ]
+       },
+       "groups": {
+        "pipe:AT": {
+         "cut_i": {
+          "axial": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "cut_j": {
+          "axial": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "end_i": {
+          "axial": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "end_j": {
+          "axial": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "midspan": {
+          "axial": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "quarter_1": {
+          "axial": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "quarter_3": {
+          "axial": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         }
+        },
+        "support:ANCHOR": {
+         "node": {
+          "support_force": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "support_force_magnitude": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "support_moment": [
+           0.0,
+           0.0
+          ],
+          "support_moment_magnitude": [
+           0.0,
+           0.0
+          ]
+         }
+        },
+        "support:K": {
+         "node": {
+          "support_force": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "support_force_magnitude": [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          "support_moment": [
+           0.0,
+           0.0
+          ],
+          "support_moment_magnitude": [
+           0.0,
+           0.0
+          ]
+         }
+        }
+       },
+       "signed": {
+        "support:ANCHOR": {
+         "components": [
+          [
+           -35830.280610595364,
+           -35830.280610595364
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ]
+         ]
+        },
+        "support:K": {
+         "components": [
+          [
+           35830.280610595364,
+           35830.280610595364
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ]
+         ]
+        }
+       },
+       "standing": "strict",
+       "states": {}
+      }
+     ],
+     "weak_states": []
+    },
+    "load:AXIAL-NEG": {
+     "base_prescribed": {},
+     "ground_motion": {},
+     "spring_ground": {
+      "support:K": [
+       -0.000244140625,
+       -0.000244140625
+      ]
+     },
+     "strict_states": [
+      {
+       "displacements": {
+        "node:A": [
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ]
+        ],
+        "node:T": [
+         [
+          -0.00012034275316010345,
+          -0.00012034275316010344
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ]
+        ]
+       },
+       "groups": {
+        "pipe:AT": {
+         "cut_i": {
+          "axial": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "cut_j": {
+          "axial": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "end_i": {
+          "axial": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "end_j": {
+          "axial": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "midspan": {
+          "axial": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "quarter_1": {
+          "axial": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "quarter_3": {
+          "axial": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         }
+        },
+        "support:ANCHOR": {
+         "node": {
+          "support_force": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "support_force_magnitude": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "support_moment": [
+           0.0,
+           0.0
+          ],
+          "support_moment_magnitude": [
+           0.0,
+           0.0
+          ]
+         }
+        },
+        "support:K": {
+         "node": {
+          "support_force": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "support_force_magnitude": [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          "support_moment": [
+           0.0,
+           0.0
+          ],
+          "support_moment_magnitude": [
+           0.0,
+           0.0
+          ]
+         }
+        }
+       },
+       "signed": {
+        "support:ANCHOR": {
+         "components": [
+          [
+           34830.280610595364,
+           34830.280610595364
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ]
+         ]
+        },
+        "support:K": {
+         "components": [
+          [
+           -34830.280610595364,
+           -34830.280610595364
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ]
+         ]
+        }
+       },
+       "standing": "strict",
+       "states": {}
+      }
+     ],
+     "weak_states": []
+    },
+    "load:INEXACT": {
+     "base_prescribed": {},
+     "ground_motion": {},
+     "spring_ground": {
+      "support:K": [
+       0.001,
+       0.001
+      ]
+     },
+     "strict_states": [
+      {
+       "displacements": {
+        "node:A": [
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ]
+        ],
+        "node:T": [
+         [
+          0.0005017275593398965,
+          0.0005017275593398967
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0
+         ]
+        ]
+       },
+       "groups": {
+        "pipe:AT": {
+         "cut_i": {
+          "axial": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "cut_j": {
+          "axial": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "end_i": {
+          "axial": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "end_j": {
+          "axial": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "midspan": {
+          "axial": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "quarter_1": {
+          "axial": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         },
+         "quarter_3": {
+          "axial": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "bending": [
+           0.0,
+           0.0
+          ],
+          "shear": [
+           0.0,
+           0.0
+          ],
+          "torsion": [
+           0.0,
+           0.0
+          ]
+         }
+        },
+        "support:ANCHOR": {
+         "node": {
+          "support_force": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "support_force_magnitude": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "support_moment": [
+           0.0,
+           0.0
+          ],
+          "support_moment_magnitude": [
+           0.0,
+           0.0
+          ]
+         }
+        },
+        "support:K": {
+         "node": {
+          "support_force": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "support_force_magnitude": [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          "support_moment": [
+           0.0,
+           0.0
+          ],
+          "support_moment_magnitude": [
+           0.0,
+           0.0
+          ]
+         }
+        }
+       },
+       "signed": {
+        "support:ANCHOR": {
+         "components": [
+          [
+           -145212.82938099862,
+           -145212.8293809986
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ]
+         ]
+        },
+        "support:K": {
+         "components": [
+          [
+           145212.8293809986,
+           145212.82938099862
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ]
+         ]
+        }
+       },
+       "standing": "strict",
+       "states": {}
+      }
+     ],
+     "weak_states": []
+    }
+   },
+   "part": "R-c",
+   "request": "../w16_nonlinear_motion/requests/c1_hanger.json",
+   "request_sha256": "bb08ecf89ec50b96ad4d87b6e55d875beae5361004d1ab6929af5234b675faae"
+  }
+ },
+ "shear_modulus_pa": 68719476736.0,
+ "status": "candidate references under the variable-spring-hanger preload law; derived by their author TASK without sight of any product output, not yet independently refuted",
+ "supplements": "validation/references/w16_nonlinear_motion/references.json (frozen; unchanged), request c1_hanger",
+ "unaffected": "every other request of the frozen package: none carries a variable spring hanger (c1_hanger is the only request with family variable_spring_hanger)",
+ "units": {
+  "force": "N",
+  "moment": "N*m",
+  "rotation": "rad",
+  "translation": "m"
+ }
+}
