@@ -6,6 +6,8 @@ import type { PreviewModel, ModelHashEvidence, MechanicsResult, Diagnostic } fro
 import type { AgentBasis } from './embeddedAgentBridge';
 import type { SessionResult } from './nativeResult';
 import catalog from '../../src-tauri/resources/agent-capability-catalog.json';
+import referenceJson from '../../../../fixtures/reference_system/reference_system.json';
+import { canonicalJsonString } from './hashService';
 const mocks=vi.hoisted(()=>({validate:vi.fn()}));
 vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}));
 // A native read, scripted only where a test turns it on: the native rows query's page and its ordinals.
@@ -388,38 +390,56 @@ describe('workspace-owned live embedded agent adapter',()=>{
   outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('load:L1');
   await session.close();
  });
- it('reads load cases of the reference system\'s size back whole across pages, and names a case whose held texts together exceed a page',async()=>{
+ it('reads the reference system\'s load cases back whole across pages, each state and its pressure regions as stored',async()=>{
+  // A read-back that succeeds: the committed reference system's own load cases, through the
+  // session's pager. Each entry carries the case's analysis state and pressure regions as before
+  // texts; a page holds what fits and the cursor resumes at the next case.
   vi.useFakeTimers();const {session,call,model}=setup();
-  const records=model as unknown as Record<string,unknown>;
-  // Each record's texts are produced in turn, so a page of several needs more turns than one drain gives.
   const settle=async()=>{for(let i=0;i<8;i++)await drain();};
-  // Invented cases of the reference system's size: a state of about 13,000 bytes and pressure regions of about
-  // 3,600 for each. (The reference fixture's own states are read back and applied in the engine in
-  // embeddedAgentSession.records.test.ts.)
-  const cases:Record<string,any>[]=['A','B','C'].map(name=>({id:`load:${name}`,label:name,kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],
-   analysis_state:{contract:'invented',element_states:Array.from({length:26},(_,i)=>({pipe_ref:`pipe:${name}-${i}`,note:'s'.repeat(440)})),provenance:'invented'},
-   pressure_regions:[{id:`region:${name}`,member_pipe_ids:Array.from({length:26},(_,i)=>`pipe:${name}-${i}`),provenance:'r'.repeat(3000)}]}));
-  records.load_cases=cases;await session.start('revision');await session.poll();await settle();
-  // Each entry carries the case's state and pressure regions as before texts; a page holds what fits and resumes at the next.
-  const seen:Record<string,any>[]=[];let cursor:string|null=null;
-  for(let page=0;page<cases.length;page++){
-   call('swbpipe_read_records',{family:'load_cases',page:{cursor,limit:5}},`invented-session:${page+2}`);await session.poll();await settle();
-   const outcome=JSON.parse(session.actual(`invented-session:${page+2}`)!.outcome);expect(outcome.status).toBe('ok');
+  const cases=structuredClone((referenceJson as unknown as {load_cases:Record<string,any>[]}).load_cases);
+  expect(cases.length).toBeGreaterThanOrEqual(3);
+  (model as unknown as Record<string,unknown>).load_cases=cases;await session.start('revision');await session.poll();await settle();
+  const seen:Record<string,any>[]=[];let cursor:string|null=null,pages=0;
+  for(;pages<cases.length;){
+   call('swbpipe_read_records',{family:'load_cases',page:{cursor,limit:5}},`invented-session:${pages+2}`);await session.poll();await settle();
+   const outcome=JSON.parse(session.actual(`invented-session:${pages+2}`)!.outcome);expect(outcome.status).toBe('ok');pages++;
    seen.push(...outcome.data.records);cursor=outcome.data.nextCursor;if(cursor===null)break;
   }
-  expect(cursor).toBeNull();expect(seen.map(record=>record.id)).toEqual(cases.map(item=>item.id));
+  expect(cursor).toBeNull();expect(pages).toBeGreaterThan(1);
+  // Every case exactly once, in the document's order.
+  expect(seen.map(record=>record.id)).toEqual(cases.map(item=>item.id));
   for(const [index,record] of seen.entries()){
-   expect(JSON.parse(record.before.analysis_state)).toEqual(cases[index].analysis_state);
-   expect(JSON.parse(record.before.pressure_regions)).toEqual(cases[index].pressure_regions);
+   expect(record.before.analysis_state).toBe(await canonicalJsonString(cases[index].analysis_state));
+   expect(record.before.pressure_regions).toBe(await canonicalJsonString(cases[index].pressure_regions));
   }
-  // A limit that stands: each text is within the record text bound, but together they exceed the
-  // 48 KiB page, and the entry is never cut. The read names the case and returns nothing.
-  const wide=structuredClone(cases[1]);const fill='p'.repeat(catalog.limits.argumentBytes-14000);
-  wide.analysis_state.provenance=fill;wide.pressure_regions[0].provenance=fill+'p'.repeat(9000);
-  records.load_cases=[cases[0],wide];
-  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:9');await session.poll();await settle();
-  const refused=JSON.parse(session.actual('invented-session:9')!.outcome);
-  expect(refused.status).toBe('unavailable');expect(refused.message).toContain(wide.id);expect(refused.data).toBeNull();
+  await session.close();
+ });
+ it('characterises a known failure of paging (issue 401): a case whose two held texts each fit and together exceed a record page is not returned, and the page is lost with it',async()=>{
+  // Not a read-back that succeeds. The record is installed directly, as a person's edit in the
+  // desktop can leave it. Its two texts are also of a size the agent's own proposals carry: the
+  // reach test (agent_catalog_reach.rs) writes an analysis state and pressure regions of 25,000
+  // canonical bytes each in separate proposals within the argument bound. Each text is within the
+  // record text bound; the entry is over the 48 KiB record page and is never cut. The read names
+  // the case, discards the ordinary case already gathered for the response and issues no cursor.
+  // So what the agent can write is not always what it can read.
+  vi.useFakeTimers();const {session,call,model}=setup();
+  const settle=async()=>{for(let i=0;i<8;i++)await drain();};
+  const bytes=(text:string)=>new TextEncoder().encode(text).byteLength;
+  // {"provenance":"…"} is 17 bytes around its text; [{"id":"region:wide","provenance":"…"}] is 38.
+  const ordinary={id:'load:ordinary',label:'ordinary',kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],analysis_state:{provenance:'invented'},pressure_regions:[]};
+  const wide={id:'load:wide',label:'wide',kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],
+   analysis_state:{provenance:'s'.repeat(25000-17)},pressure_regions:[{id:'region:wide',provenance:'r'.repeat(25000-38)}]};
+  expect(bytes(await canonicalJsonString(wide.analysis_state))).toBe(25000);expect(bytes(await canonicalJsonString(wide.pressure_regions))).toBe(25000);
+  expect(25000).toBeLessThanOrEqual(catalog.definitions.record.properties.before.additionalProperties.maxLength);
+  (model as unknown as Record<string,unknown>).load_cases=[ordinary,wide];await session.start('revision');await session.poll();await settle();
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await settle();
+  const refused=JSON.parse(session.actual('invented-session:2')!.outcome);
+  expect(refused.status).toBe('unavailable');expect(refused.message).toBe('Record load:wide exceeds this catalog page.');expect(refused.data).toBeNull();
+  // The ordinary case alone is read: it is the wide case that costs the page.
+  (model as unknown as Record<string,unknown>).load_cases=[ordinary];
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await settle();
+  const alone=JSON.parse(session.actual('invented-session:3')!.outcome);
+  expect(alone.status).toBe('ok');expect(alone.data.records.map((record:{id:string})=>record.id)).toEqual(['load:ordinary']);
   await session.close();
  });
  it('filters result pages by kind and entity and binds the filter to the cursor',async()=>{

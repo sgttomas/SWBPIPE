@@ -189,9 +189,13 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     expect((find(model, "supports", supportId).provenance_record as AnyRecord).review_status).toBe("quarantined");
   }, 120_000);
 
-  it("a state that fills the argument bound is read back as the text its removal and its re-entry compare", async () => {
-    // The longest state a change can carry is as long as the catalog's bound. The producer returns
-    // that same text, and the engine accepts it as the before of the state's removal.
+  it("the record producer and the engine agree on a stored state as long as the record text bound", async () => {
+    // An engine check, not a call an agent could make: the operations here go straight to the
+    // engine, past the argument gate and the pager. A state whose canonical text is as long as
+    // the record text bound is returned by the producer as that same text, and the engine accepts
+    // it as the before of the state's removal. No agent call carries a text this long (its
+    // operation and envelope take the arguments past the same figure), so the read bound has
+    // margin over anything the agent can write.
     let model = structuredClone(referenceJson) as unknown as PreviewModel;
     const bound = catalog.limits.argumentBytes, bytes = (text: string) => new TextEncoder().encode(text).byteLength;
     const state = structuredClone(find(model, "load_cases", "load:RS-OPE").analysis_state) as AnyRecord;

@@ -119,7 +119,7 @@
       }
     ]
   },
-  "catalogSha256": "79a0571eec5f9ec0c6541d22a88a2d91ced04f94508e65b495e7900c1bbf5da3",
+  "catalogSha256": "fa5daccc02986c2d7357559d5fd192e8df2890ce619c89ec231496beb1b1f827",
   "clientConfiguration": {
     "contextWindow": 8192,
     "reasoningEffort": "low",

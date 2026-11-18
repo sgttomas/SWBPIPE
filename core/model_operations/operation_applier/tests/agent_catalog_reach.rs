@@ -242,6 +242,42 @@ fn replacing_the_largest_analysis_state_needs_a_removal_then_a_write() {
     assert!(find(&applied, "load_cases", &id).get("analysis_state").is_none());
 }
 
+#[test]
+fn two_held_texts_of_25000_bytes_are_each_written_by_a_proposal_within_the_argument_bound() {
+    // The write side of a known gap (issue 401, and the session test that characterises the
+    // read): a load case's analysis state and its pressure regions, each a canonical text of
+    // 25,000 bytes, are each carried by one proposal within the argument bound and applied.
+    // The case's read entry holds both texts and exceeds the 48 KiB record page, so what an
+    // agent can write is not always what it can read back.
+    const TEXT_BYTES: usize = 25_000;
+    let fixture = reference();
+    let id = "load:RS-OPE";
+    let padded = |value: &Value, pointer: &str| {
+        let mut value = value.clone();
+        *value.pointer_mut(pointer).unwrap() = json!("");
+        let fill = TEXT_BYTES - canonical_json(&value).len();
+        *value.pointer_mut(pointer).unwrap() = json!("p".repeat(fill));
+        let text = canonical_json(&value);
+        assert_eq!(text.len(), TEXT_BYTES);
+        text
+    };
+    let case = find(&fixture, "load_cases", id);
+    let state = padded(&case["analysis_state"], "/provenance");
+    let regions = padded(&case["pressure_regions"], "/0/provenance");
+    let mut model = fixture.clone();
+    let stored = model["load_cases"].as_array_mut().unwrap().iter_mut().find(|case| case["id"] == id).unwrap().as_object_mut().unwrap();
+    stored.remove("analysis_state");
+    stored.remove("pressure_regions");
+    model = propose(&model, vec![none("modify", "Load", id, "update_load", "pressure_regions", "not_present", &regions)]);
+    model = propose(&model, vec![none("modify", "Load", id, "update_load", "analysis_state", "not_present", &state)]);
+    let written = find(&model, "load_cases", id);
+    assert_eq!(canonical_json(&written["pressure_regions"]), regions);
+    assert_eq!(canonical_json(&written["analysis_state"]), state);
+    // Each text is within the bound of one record text; the two together are over the record page.
+    let text_bound = catalog()["definitions"]["record"]["properties"]["before"]["additionalProperties"]["maxLength"].as_u64().unwrap() as usize;
+    assert!(TEXT_BYTES <= text_bound && 2 * TEXT_BYTES > 48 * 1024);
+}
+
 fn refusal_codes(model: &Value, op: &Value) -> Vec<String> {
     let outcome = apply_operation(model, &stamped(op), Some(&hash(model)));
     assert!(outcome.applied_model.is_none(), "applied: {}", op["change"]["field_path"]);
