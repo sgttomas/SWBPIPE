@@ -411,6 +411,7 @@ PACKAGES: dict[str, Package] = {
     "exact_load_state_generated_interactions": _plain("generated_interactions_reference.py",
                                                       deliverables="DEL-05-01, DEL-05-02"),
     "friction_one_way_normal": _plain("friction_one_way_normal_reference.py", deliverables="DEL-04-04"),
+    "inverse_norm_certificate": _plain("inverse_norm_certificate_reference.py", deliverables="DEL-04-01"),
     "inverse_norm_witness": _plain("inverse_norm_witness_reference.py", deliverables="DEL-04-01"),
     "modal_timoshenko_mass": Package(
         "DEL-04-09",
