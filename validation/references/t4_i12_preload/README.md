@@ -65,10 +65,17 @@ python3 -I generators/u3_preload_reference.py --check-live
 This separate check, which `--check` does not run, compares the live fixture's
 SH-140 record with the staged leaves that enter the derivation: the id, node
 and family, the stiffness DOF and rate, and the cold load. It names every leaf
-that differs, including a member that is missing or extra, and exits nonzero.
-It establishes whether the staged input still matches the fixture. A
-difference means the source has moved on and a decision is needed on
-re-staging; the committed output still stands for its staged input.
+that differs, including a member that is missing or extra among them, and
+exits nonzero. A difference means the source has moved on and a decision is
+needed on re-staging; the committed output still stands for its staged input.
+
+The comparison is partial: it reads only those leaves. It does not see a
+member added beside them that the product gives precedence (a stiffness on
+the support record itself, for one), a changed member it does not list, or a
+JSON form the product would reject. The maintained test that runs this check
+(`tests/test_reference_packages_live.py`) therefore also holds the digest of
+the whole fixture: any change to it fails that test until someone has
+confirmed the change against this package.
 
 The staged file also records the installed load, hot load and travel range.
 The live check does not compare them, because they are review data the law

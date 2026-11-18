@@ -33,24 +33,30 @@ class LiveCheck:
     argv: tuple
     sources: tuple
     siblings: tuple = ()  # the sibling packages its generator imports or reads
-    whole: tuple = ()  # ((source, sha256), ...): sources the check reads as text, held here by their whole bytes
+    whole: tuple = ()  # ((source, sha256), ...): every source, held here by its whole bytes
 
 
 LIVE_CHECKS = {
-    "t4_i12_preload": LiveCheck(("generators/u3_preload_reference.py", "--check-live"), (R.PREVIEW_MODEL,),
-                                siblings=("t4_i12",)),
+    "t4_i12_preload": LiveCheck(
+        ("generators/u3_preload_reference.py", "--check-live"), (R.PREVIEW_MODEL,), siblings=("t4_i12",),
+        whole=((R.PREVIEW_MODEL, "98e403feb5fd453526a84ef99790ec4b5a71cfd86c7b12e39e369aa30191468d"),)),
     "demo_friction_reversal_preload": LiveCheck(
         ("generators/demo_friction_preload_reference.py", "--check-live"), (R.DEMO_MODEL, R.FRICTION_REVERSAL_TEST),
-        whole=((R.FRICTION_REVERSAL_TEST, "a3d31f87f98f9fcdaca68d3430abaefe1eeb158b58084963b71c1c14e7f404ae"),)),
+        whole=((R.DEMO_MODEL, "2fd18681f688e60b03102eb65112d147871d3a59431685800d2bfa3baca7b672"),
+               (R.FRICTION_REVERSAL_TEST, "a3d31f87f98f9fcdaca68d3430abaefe1eeb158b58084963b71c1c14e7f404ae"))),
 }
 
-# The live check compares the frozen table in the Rust test file as text. It cannot resolve conditional compilation,
-# imports or macros, so it does not by itself establish which table the compiled test reads. The file is therefore
-# also held here by the digest of its whole bytes: ANY change to it fails test_a_source_held_whole_is_unchanged.
-WHOLE_CHANGED = ("the file has changed since its digest was recorded here. Confirm that the table the compiled test "
-                 "reads is still the one the package staged (its live check reports what it can see; read the "
-                 "file's diff for conditional compilation, imports and macros that it cannot), then record the new "
-                 "digest in LIVE_CHECKS. If the table has changed, a decision is needed on re-staging instead")
+# A live check compares part of its source: the leaves of a model document that the derivation reads, or the lines
+# of the frozen table read as text. Neither establishes that the source still means what was staged: a member added
+# beside the compared leaves can take precedence in the product, and conditional compilation or an import can change
+# which table the compiled test reads. Every source is therefore also held here by the digest of its whole bytes:
+# ANY change to it fails test_a_source_held_whole_is_unchanged until a person has confirmed it against the package.
+WHOLE_CHANGED = ("the file has changed since its digest was recorded here. Confirm that what the product or the "
+                 "compiled test reads from it is still what the package staged (the live check reports the leaves "
+                 "and table lines it compares; read the file's diff for what it cannot see: a member added beside "
+                 "them, a changed member it does not list, conditional compilation, imports, macros), then record "
+                 "the new digest in LIVE_CHECKS. If what was staged has changed, a decision is needed on re-staging "
+                 "instead")
 
 MOVED_ON = ("a source this package's inputs were staged from has moved on, and a decision is needed: re-stage the "
             "inputs and re-derive, or keep the staged inputs; the committed output still stands for its staged inputs")
@@ -106,12 +112,9 @@ def test_a_source_held_whole_is_unchanged(name):
     assert not problems, "\n".join(problems)
 
 
-def test_every_source_that_is_not_a_document_is_held_whole():
-    """A JSON document is compared leaf by leaf after parsing; any other source is read as text and must be held
-    by its whole bytes as well."""
+def test_every_live_source_is_held_whole():
     for name, live in LIVE_CHECKS.items():
-        text_sources = {source for source in live.sources if not source.endswith(".json")}
-        assert text_sources == {source for source, _ in live.whole}, f"{name}: {sorted(text_sources)}"
+        assert set(live.sources) == {source for source, _ in live.whole}, f"{name}: {sorted(live.sources)}"
 
 
 @pytest.mark.parametrize("name", sorted(LIVE_CHECKS))
@@ -236,6 +239,16 @@ def _a_changed_copy_behind_a_condition_and_an_import(text: str) -> str:
                    + [condition, copy, condition, "use self::EXPECTED_MACOS as EXPECTED;\n"] + lines[end + 1:])
 
 
+def _a_stiffness_on_the_record_beside_its_hanger(text: str) -> str:
+    """A stiffness written on the support record itself, which the product reads before the hanger's. The live
+    checks compare the hanger's leaves and cannot see it; the whole-file digest must."""
+    document = json.loads(text)
+    (hanger,) = [s for s in document["supports"] if s["id"] == "support:SH-140"]
+    assert "stiffness" not in hanger
+    hanger["stiffness"] = {"dof": "UZ", "value": {"value": 43000, "unit": "N/m"}}
+    return json.dumps(document, indent=2) + "\n"
+
+
 def _a_repeated_primitive_load(text: str) -> str:
     """One primitive load written twice under the same id, which the product refuses."""
     document = json.loads(text)
@@ -282,12 +295,16 @@ def test_a_changed_source_fails_the_live_check(tmp_path, name, source, change):
     assert code != 0 and "SOURCE MOVED ON" in output, f"{change.__name__} in {source} was not reported:\n{output[-3000:]}"
 
 
-def test_a_change_the_text_comparison_cannot_see_fails_the_whole_file_digest(tmp_path):
-    name, source = "demo_friction_reversal_preload", R.FRICTION_REVERSAL_TEST
+@pytest.mark.parametrize("name, source, change", [
+    ("demo_friction_reversal_preload", R.FRICTION_REVERSAL_TEST, _a_changed_copy_behind_a_condition_and_an_import),
+    ("demo_friction_reversal_preload", R.DEMO_MODEL, _a_stiffness_on_the_record_beside_its_hanger),
+    ("t4_i12_preload", R.PREVIEW_MODEL, _a_stiffness_on_the_record_beside_its_hanger),
+], ids=lambda v: v.__name__.strip("_") if callable(v) else Path(v).name)
+def test_a_change_the_partial_comparison_cannot_see_fails_the_whole_file_digest(tmp_path, name, source, change):
     root = _copy_of_the_tree_the_live_check_reads(tmp_path, name)
     assert not whole_problems(name, root)
     before = (root / source).read_text(encoding="utf-8")
-    (root / source).write_text(_a_changed_copy_behind_a_condition_and_an_import(before), encoding="utf-8")
+    (root / source).write_text(change(before), encoding="utf-8")
     problems = whole_problems(name, root)
     assert len(problems) == 1 and source in problems[0] and WHOLE_CHANGED in problems[0], problems
 

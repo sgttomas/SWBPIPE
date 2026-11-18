@@ -71,12 +71,16 @@ code, it says so and exits nonzero; it does not guess. A difference means a
 source has moved on and a decision is needed on re-staging; the committed
 output still stands for its staged inputs.
 
-The table comparison reads the test file as text. It does not resolve
-conditional compilation, imports or macros, so by itself it does not establish
-which table the compiled test reads. The maintained test that runs this check
-(`tests/test_reference_packages_live.py`) therefore also holds the digest of
-the whole test file: any change to that file fails it until someone has
-confirmed the table against this package.
+Both comparisons are partial, and neither establishes by itself that the
+sources still mean what was staged. The table comparison reads the test file
+as text: it does not resolve conditional compilation, imports or macros, so it
+does not establish which table the compiled test reads. The model comparison
+reads only the leaves the derivation reads: it does not see a member added
+beside them that the product gives precedence, a changed member it does not
+list, or a JSON form the product would reject. The maintained test that runs
+this check (`tests/test_reference_packages_live.py`) therefore also holds the
+digest of each source whole: any change to the fixture or the test file fails
+it until someone has confirmed the change against this package.
 
 ## Method
 
