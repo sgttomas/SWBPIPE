@@ -243,8 +243,8 @@ def build(out):
     emit("u1_preload_oracle.json", derive(LawModel(pre), pre_bytes, "u1_preload_request.json"), True)
 
     sums = "".join(f"{hashlib.sha256(data).hexdigest()}  {name}\n" for name, data in sorted(written.items()))
-    (out / "SHA256SUMS").write_text(sums)
     written["SHA256SUMS"] = sums.encode()
+    (out / "SHA256SUMS").write_bytes(written["SHA256SUMS"])  # the bytes --check compares, on any host
 
     # Every expected state is strict and unique; report each case.
     for name in ("u1_spring_law_oracle.json", "u1_spring_twin_oracle.json", "u1_preload_oracle.json"):

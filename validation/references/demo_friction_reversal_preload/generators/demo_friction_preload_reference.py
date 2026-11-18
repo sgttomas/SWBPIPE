@@ -490,7 +490,9 @@ def flatten(o, path=""):
     if isinstance(o, dict):
         return {k: v for key, x in o.items() for k, v in flatten(x, f"{path}/{key}" if path else key).items()}
     if isinstance(o, list):
-        keyed = all(isinstance(x, dict) and "id" in x for x in o)
+        # Members are keyed by id only where the ids tell them apart; a list with a repeated id keeps its
+        # positions as keys, so its leaves no longer match the staged ones and the repeat is reported.
+        keyed = all(isinstance(x, dict) and "id" in x for x in o) and len({str(x["id"]) for x in o}) == len(o)
         return {k: v for i, x in enumerate(o) for k, v in flatten(x, f"{path}/{x['id'] if keyed else i}").items()}
     return {path: o}
 
@@ -499,24 +501,70 @@ def derivation_leaves(doc):
     return {k: v for k, v in flatten(doc).items() if any(fnmatch.fnmatchcase(k, p) for p in DERIVATION_LEAVES)}
 
 
+def code_only(text):
+    """Rust source with the contents of its comments and string literals replaced by spaces, line for line, so a
+    name inside a comment or a string is not taken for code. Line comments, nested block comments, string, byte
+    string and raw string literals, and a quote written as a character literal are recognised."""
+    out, i, n = [], 0, len(text)
+    raw_string = re.compile(r'r(#*)"')
+
+    def blank(j):
+        out.append("".join(c if c == "\n" else " " for c in text[i:j]))
+        return j
+
+    while i < n:
+        after_identifier = i > 0 and (text[i - 1].isalnum() or text[i - 1] == "_") and text[i - 1] != "b"
+        raw = None if after_identifier else raw_string.match(text, i)
+        if text.startswith("//", i):
+            j = text.find("\n", i)
+            i = blank(n if j < 0 else j)
+        elif text.startswith("/*", i):
+            depth, j = 1, i + 2
+            while j < n and depth:
+                step = text[j:j + 2]
+                depth += (step == "/*") - (step == "*/")
+                j += 2 if step in ("/*", "*/") else 1
+            i = blank(j)
+        elif raw:
+            j = text.find('"' + raw.group(1), raw.end())
+            i = blank(n if j < 0 else j + 1 + len(raw.group(1)))
+        elif text[i] == '"':
+            j = i + 1
+            while j < n and text[j] != '"':
+                j += 2 if text[j] == "\\" else 1
+            i = blank(min(n, j + 1))
+        elif text.startswith("'\"'", i) or text.startswith("'\\\"'", i):
+            i = blank(i + (3 if text.startswith("'\"'", i) else 4))
+        else:
+            out.append(text[i])
+            i += 1
+    return "".join(out)
+
+
 def live_table(text, name):
     """The whole initializer of the table declared as the constant `name`, found by the name wherever it sits: its
-    declaration line and every non-blank line up to the closing `];`, in order. Nothing in it is skipped, so a
-    row, comment or anything else this package did not stage is a difference, whatever its form.
+    declaration line and every non-blank line up to the closing `];`, in order, as written. Nothing in it is
+    skipped, so a row, comment or anything else this package did not stage is a difference, whatever its form.
 
-    Returns ((declaration, lines), None), or (None, reason) when the declaration is not found exactly once or the
-    initializer is not closed."""
-    decl = re.compile(r"^\s*(pub(\([^)]*\))?\s+)?(const|static)\s+" + re.escape(name) + r"\s*:")
-    lines = text.splitlines()
-    at = [i for i, line in enumerate(lines) if decl.match(line)]
+    The name must be bound exactly once in the file's code (comments and string literals set aside), by a `const`
+    or `static` item on the line that names it; a second binding of the name anywhere, or any other form of
+    declaration, is refused rather than guessed at.
+
+    Returns ((declaration, lines), None), or (None, reason)."""
+    lines, code = text.splitlines(), code_only(text).splitlines()
+    bound = re.compile(r"\b" + re.escape(name) + r"\s*:(?!:)")
+    item = re.compile(r"\b(const|static)\s+(mut\s+)?" + re.escape(name) + r"\s*:")
+    at = [i for i, line in enumerate(code) for _ in bound.finditer(line)]
     if len(at) != 1:
-        return None, f"the table {name} is declared {len(at)} times in the file, not once"
+        return None, f"the name {name} is bound {len(at)} times in the file's code, not once"
+    if not item.search(code[at[0]]):
+        return None, f"the name {name} is not declared as a const or static item on its line"
     body = []
-    for line in lines[at[0] + 1:]:
-        if line.strip().startswith("];"):
+    for i in range(at[0] + 1, len(lines)):
+        if code[i].strip().startswith("];"):
             return (lines[at[0]].strip(), body), None
-        if line.strip():
-            body.append(line.strip())
+        if lines[i].strip():
+            body.append(lines[i].strip())
     return None, f"the table {name} has no closing `];` line"
 
 

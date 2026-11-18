@@ -158,19 +158,47 @@ def _a_comment_in_the_table(text: str) -> str:
     return "".join(lines)
 
 
+def _a_commented_copy_and_a_changed_table(text: str) -> str:
+    """The table as staged kept inside a block comment, above the table the test reads, which has another number."""
+    lines = text.splitlines(keepends=True)
+    (start,) = [i for i, line in enumerate(lines) if line.startswith("const EXPECTED: [Expected; 6] = [")]
+    end = next(i for i in range(start, len(lines)) if lines[i].startswith("];"))
+    kept = ["/*\n", *lines[start:end + 1], "*/\n"]
+    return "".join(lines[:start] + kept) + _another_number_in_a_row("".join(lines[start:]))
+
+
+def _a_second_declaration_behind_an_attribute(text: str) -> str:
+    """A second table of the same name declared after an attribute on its own line's start."""
+    lines = text.splitlines(keepends=True)
+    (start,) = [i for i, line in enumerate(lines) if line.startswith("const EXPECTED: [Expected; 6] = [")]
+    end = next(i for i in range(start, len(lines)) if lines[i].startswith("];"))
+    second = ["#[cfg(any())] " + lines[start], *lines[start + 1:end + 1]]
+    return "".join(lines[:end + 1] + second + lines[end + 1:])
+
+
+def _a_repeated_primitive_load(text: str) -> str:
+    """One primitive load written twice under the same id, which the product refuses."""
+    document = json.loads(text)
+    loads = document["load_cases"][0]["primitive_loads"]
+    loads.append(dict(loads[0]))
+    return json.dumps(document, indent=2) + "\n"
+
+
 # Each live source with the changes its package's live check must report. A source with no entry here fails
 # test_every_live_source_has_a_drift_control, so a source the generator stopped reading cannot stay declared.
 DRIFTS = {
     ("t4_i12_preload", R.PREVIEW_MODEL): (_another_cold_load,),
-    ("demo_friction_reversal_preload", R.DEMO_MODEL): (_another_cold_load,),
-    ("demo_friction_reversal_preload", R.FRICTION_REVERSAL_TEST): (_another_number_in_a_row, _a_seventh_row,
-                                                                   _a_comment_in_the_table),
+    ("demo_friction_reversal_preload", R.DEMO_MODEL): (_another_cold_load, _a_repeated_primitive_load),
+    ("demo_friction_reversal_preload", R.FRICTION_REVERSAL_TEST): (
+        _another_number_in_a_row, _a_seventh_row, _a_comment_in_the_table, _a_commented_copy_and_a_changed_table,
+        _a_second_declaration_behind_an_attribute),
 }
 
 
 def test_every_live_source_has_a_drift_control():
     declared = {(name, source) for name, live in LIVE_CHECKS.items() for source in live.sources}
     assert declared == set(DRIFTS), f"live sources and drift controls differ: {sorted(declared ^ set(DRIFTS))}"
+    assert all(DRIFTS.values()), f"a live source with no change to report: {sorted(k for k, v in DRIFTS.items() if not v)}"
 
 
 @pytest.mark.parametrize("name", sorted(LIVE_CHECKS))
