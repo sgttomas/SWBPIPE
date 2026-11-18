@@ -3358,6 +3358,3 @@ mod tests {
         assert!(factor_structural_profile(&prepared, &[0, 1], &[0, 1]).is_err());
     }
 }
-// The inverse-norm certificate arithmetic (DEL-04-01, exit criterion 18): no production caller exists yet.
-#[allow(dead_code)]
-mod inverse_certificate;
