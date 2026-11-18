@@ -1395,7 +1395,8 @@ ABS_FLOOR = {"force": 1e-9, "moment": 1e-9, "translation": 1e-12, "rotation": 1e
 
 
 def comparison_floor(rows):
-    """Per family: 1e-9 times the largest magnitude in the item, or the absolute floor where the family is zero."""
+    """The floor for an item's exact-zero rows, per family: 1e-9 times the family's largest magnitude in the item,
+    or the absolute floor where the family is zero there. A nonzero row takes no floor."""
     out = {}
     for fam in ABS_FLOOR:
         vals = [abs(r["expected"]["value"]) for r in rows if r["family"] == fam]
@@ -1735,14 +1736,19 @@ def build_doc():
                      "node-on-member end action associated with the elastic (effective) axial force N_el; with no "
                      "pressure it equals the pipe-wall force. On CEF-EQ-SRSS and CEF-EQ-ABS such a row is a "
                      "magnitude aggregated from those elastic axial components",
-            "comparison": "a row passes when abs(observed - expected) <= max(1e-9 * abs(expected), floor), in SI, "
-                          "expected being the exact value (its binary64 suffices). floor = 1e-9 times the largest "
-                          "magnitude of that row's family (force, moment, translation, rotation) in the same case, "
-                          "term or combination, as w16_exact_equivalent_static and w16_timoshenko_partial_wind state "
-                          "it (DEC-024/DEC-026); where the whole family is zero there, floor = 1e-9 N or N*m, "
-                          "1e-12 m or rad; a dimensionless value (the threshold g-factor) 1e-12. Each item's "
-                          "comparison_floor gives its floors. Discrete outcomes (support status, gate outcome, "
-                          "withheld, refused, a row's presence or absence) compare exactly"},
+            "comparison": "the rule w16_exact_equivalent_static and w16_timoshenko_partial_wind state "
+                          "(DEC-024/DEC-026), with the scale taken per case, term or combination, in SI, expected "
+                          "being the exact value (its "
+                          "binary64 suffices). A row whose expected value is nonzero passes when "
+                          "abs(observed - expected) <= 1e-9 * abs(expected), the relative tolerance alone, with no "
+                          "floor. A row whose expected value is exactly zero passes when abs(observed) <= floor, the "
+                          "floor being 1e-9 times the largest magnitude of that row's family (force, moment, "
+                          "translation, rotation) in the same case, term or combination; where the whole family is "
+                          "zero there (no item here has such a family), floor = 1e-9 N or N*m, 1e-12 m or rad. Each "
+                          "item's comparison_floor gives the floors for its exact-zero rows. The threshold g-factor, which is nonzero, is compared "
+                          "at 1e-9 relative; its floor 1e-12 would apply only to an exact-zero value. Discrete outcomes "
+                          "(support status, gate outcome, withheld, refused, a row's presence or absence) compare "
+                          "exactly"},
         "inputs": inputs_doc(inp),
         "derived": {"sections": {"S1": sec_doc("S1"), "S2": sec_doc("S2")},
                     "G_Pa": str(inp["E"] / (2 * (1 + inp["nu"]))),

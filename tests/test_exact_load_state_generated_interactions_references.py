@@ -199,13 +199,23 @@ def test_the_refusals_state_their_grounds_and_observable_outcome():
 
 def test_every_compared_item_states_its_comparison_floors():
     doc = _doc()
-    assert "max(1e-9 * abs(expected), floor)" in doc["conventions"]["comparison"]
+    rule = doc["conventions"]["comparison"]
+    assert "nonzero passes when abs(observed - expected) <= 1e-9 * abs(expected)" in rule
+    assert "exactly zero passes when abs(observed) <= floor" in rule
+    assert "max(" not in rule
     assert "euler_bernoulli" in doc["binding"]
+    for item in doc["cases"] + doc["terms"] + doc["combinations"] + doc["controls"]:
+        for row in item.get("rows", []):
+            assert not any("floor" in k or "tolerance" in k for k in row), (item["id"], row["id"])
+            assert not any("floor" in k or "tolerance" in k for k in row["expected"]), (item["id"], row["id"])
     for item in doc["cases"] + doc["terms"] + doc["combinations"]:
         if item.get("rows"):
             floor = item["comparison_floor"]
             assert set(floor) == {"force", "moment", "translation", "rotation"}, item["id"]
             assert all(v > 0 for v in floor.values()), item["id"]
+            for family, value in floor.items():
+                largest = max(abs(r["expected"]["value"]) for r in item["rows"] if r["family"] == family)
+                assert largest > 0 and value == 1e-9 * largest, (item["id"], family)
     assert doc["lift_off_threshold"]["comparison_floor"] == {"dimensionless": 1e-12}
 
 

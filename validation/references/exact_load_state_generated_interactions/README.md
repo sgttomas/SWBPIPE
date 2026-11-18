@@ -73,7 +73,7 @@ positive reaction", RS-CE1, the replaced span RS-P180, EQ-4 and EQ-6).
 | File | Role |
 |---|---|
 | `generators/generated_interactions_reference.py` | the generator: exact rational arithmetic with π symbolic, two solution methods, closed forms, `references.json` and `SHA256SUMS` |
-| `references.json` | inputs, derived sections and masses, the three models, the weight primitives, 11 cases, 5 terms, 5 combinations (1489 expected rows), one directional row with its SRSS, absolute sum and signed sum, the lift-off threshold, 3 refusals, 4 wrong-implementation controls, the comparison rule with each item's floors and 115 cross-check results |
+| `references.json` | inputs, derived sections and masses, the three models, the weight primitives, 11 cases, 5 terms, 5 combinations (1489 expected rows), one directional row with its SRSS, absolute sum and signed sum, the lift-off threshold, 3 refusals, 4 wrong-implementation controls, the comparison rule with each item's floors for its exact-zero rows and 115 cross-check results |
 | `SHA256SUMS` | hashes of every file above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 
 ```
@@ -648,22 +648,26 @@ What it must hold to:
   threshold (0.337977 to 0.339322), per the independent review.
 - **The connector.** JR's documents supply valid data for a connector with the
   inputs stated under the model.
-- **The comparison rule** for a mechanics row, in SI:
-  abs(observed − expected) ≤ max(1e-9 × abs(expected), floor). The relative
-  tolerance 1e-9 is DEL-05-01 AC-001's analytic tolerance. The floor follows
-  the sibling packages `../w16_exact_equivalent_static` and
-  `../w16_timoshenko_partial_wind` (DEC-024/DEC-026): 1e-9 times the largest
-  magnitude of that row's family (force, moment, translation, rotation) in the
-  same case, term or combination. Those packages apply it to exact-zero rows
-  only; here it applies to every row, so that a nearly cancelled nonzero row is
-  judged on the same scale. Where a family is entirely zero in an item, no
-  sibling states a floor, and the independent reviewer's floors are used:
-  1e-9 N or N·m, 1e-12 m or rad. They follow the scope's relative tolerance
-  and leave orders of magnitude between binary64 representation error and the
-  discriminating responses. A dimensionless value (the threshold g-factor) has
-  floor 1e-12. Each item's `comparison_floor` gives its floors. A support
-  status, a gate outcome, a withheld combination, a refusal and a row's
-  presence or absence compare exactly.
+- **The comparison rule** for a mechanics row, in SI, is the rule the sibling
+  packages `../w16_exact_equivalent_static` and
+  `../w16_timoshenko_partial_wind` state (DEC-024/DEC-026), with the scale
+  taken per case, term or combination:
+  - a row whose expected value is nonzero passes when
+    abs(observed − expected) ≤ 1e-9 × abs(expected), with no floor (1e-9
+    relative is DEL-05-01 AC-001's analytic tolerance);
+  - a row whose expected value is exactly zero passes when
+    abs(observed) ≤ floor, the floor being 1e-9 times the largest magnitude
+    of that row's family (force, moment, translation, rotation) in the same
+    case, term or combination.
+
+  Neither sibling states a floor for a family that is entirely zero in an
+  item; for that case the independent reviewer's floors are recorded: 1e-9 N
+  or N·m, 1e-12 m or rad. No item in `references.json` has such a family, so
+  no recorded floor is one of these. Each item's `comparison_floor` gives the
+  floors for its exact-zero rows. The threshold g-factor is nonzero and is
+  compared at 1e-9 relative; its recorded floor 1e-12 would apply only to an
+  exact-zero value. A support status, a gate outcome, a withheld combination,
+  a refusal and a row's presence or absence compare exactly.
 - **What is compared with what.** The product's mechanics rows, those of
   combinations included, are compared with the analytic rows under that rule.
   The combination arithmetic is checked separately, as DEL-05-02 states it: in
