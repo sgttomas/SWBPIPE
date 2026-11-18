@@ -127,6 +127,11 @@ code_paths:
 # component's weight included. No product test reads it yet.
 - validation/references/seismic_component_weight/**
 - tests/test_seismic_component_weight_references.py
+# Frozen before the engine work it judges: generated seismic and wind loads beside a constant-effort
+# support, a lift-off support and a connector-replaced span in a load and reference-state document.
+# No product test reads it yet.
+- validation/references/exact_load_state_generated_interactions/**
+- tests/test_exact_load_state_generated_interactions_references.py
 # The wind-exposure form is authoring, which is DEL-07-03's subject; no other deliverable lists it.
 - apps/desktop/src/features/wind-exposure/WindExposureForm.tsx
 checks:
