@@ -125,7 +125,7 @@ MEMBERS = [
     ("RS-P120", "RS-120", "RS-130", "S270", "Tee T1 header (in)"),
     ("RS-P130", "RS-130", "RS-140", "S270", "Tee T1 header (out)"),
     ("RS-P140", "RS-140", "RS-150", "S270", ""),
-    ("RS-P150", "RS-150", "RS-160", "S270", "Reducer R1 (plain S270 member in tranche 1)"),
+    ("RS-P150", "RS-150", "RS-160", "S270", "Reducer R1"),
     ("RS-P160", "RS-160", "RS-170", "S220", ""),
     ("RS-P170", "RS-170", "RS-180", "S220", "EJ1 face pipe i"),
     ("RS-P180", "RS-180", "RS-190", "S220", "Replaced by EJ1 (carries no load or result)"),
@@ -177,7 +177,13 @@ RIGID = [
     ("RS-F1", "flange", "RS-P020", "RS-030", 350, ("0", "0", "0"), 10.0),
     ("RS-V1", "valve", "RS-P030", "RS-040", 2600, ("0", "0", "0.30"), 10.0),
     ("RS-F2", "flange", "RS-P040", "RS-050", 350, ("0", "0", "0"), 10.0),
+    ("RS-R1", "reducer", "RS-P150", "RS-160", 300, ("0", "0", "0"), 2.0),
 ]
+# §5 RS-R1, the eccentric reducer: its end sizes (mm; end A at RS-150, end B at RS-160) and its declared offset (mm,
+# global, from the centreline at RS-160 to the centreline at RS-150, the body's other end). The other rigid-family
+# bodies take their member's section outside diameter at both ends and carry no offset.
+REDUCER_END_SIZES_MM = {"RS-R1": (270, 220)}
+ECCENTRIC_OFFSET_MM = {"RS-R1": (0.0, 0.0, 25.0)}
 # §5.1 expansion joint: N/m for translations, N*m/rad for rotations (unit scales), in connector axes tx (pipe axis),
 # ty, tz (lateral), rx (torsion), ry, rz (bending).
 JOINT = {
@@ -197,6 +203,7 @@ SUPPORTS = [
     ("RS-LS1", "RS-060", "line_stop", ["UX"], "Line stop LS1"),
     ("RS-V060", "RS-060", "vertical_support", ["UZ"], "Vertical support V060"),
     ("RS-VS1", "RS-080", "variable_spring_hanger", [], "Variable spring VS1 (user stiffness)"),
+    ("RS-CE1", "RS-100", "constant_effort_support", ["UZ"], "Constant-effort support CE1"),
     ("RS-FR1V", "RS-120", "vertical_support", ["UZ"],
      "RS-FR1V interim linear vertical support (one_way target pending R-4 S7)"),
     ("RS-V140", "RS-140", "vertical_support", ["UZ"], "Vertical support V140"),
@@ -208,6 +215,11 @@ SPRING_STIFFNESS = 180000.0  # N/m, UZ
 # §6: the spring's entered loads and travel, review metadata only (never applied as preload on main).
 SPRING_LOADS_N = {"installed_load": 8000.0, "cold_load": 8000.0, "hot_load": 7400.0}
 SPRING_TRAVEL_RANGE_MM = 50.0
+# §6 RS-CE1: the entered constant load (N), applied along its one translational restraint, +UZ, in every case; and an
+# invented travel range (mm), review metadata that support creation requires (a positive travel range or movement
+# limit) and that the solve compares with the computed movement only.
+CONSTANT_LOAD_N = 9000.0
+CONSTANT_EFFORT_TRAVEL_RANGE_MM = 50.0
 # Supports a pending ledger row keeps out of tranche 1 (their slots and ids stay).
 PENDING_SUPPORTS: set[str] = set()
 
@@ -244,13 +256,8 @@ LEDGER = [
     ("Anchors, guides, line stop, vertical supports", "in tranche 1", "—", "—"),
     ("Variable spring as a user-stiffness spring", "in tranche 1", "—", "—"),
     ("Tee RS-T1 with user SIFs", "in tranche 1", "—", "—"),
-    ("Eccentric reducer RS-R1 in region RG-R",
-     "pending; RS-P150 is in tranche 1 as a plain S270 member in its own region", "RT-A3 reducer increment 2b (eccentric); initial concentric 2a does not unblock RS-R1",
-     "admitted in the combined test overlay; solved with no blocking finding "
-     "(core/product_physics/tests/rt_a3_s6_reference_system.rs; alone, core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs)"),
-    ("Constant-effort support RS-CE1", "pending", "RT-A3 increment 3",
-     "admitted in the combined test overlay; consumed, 9,000 N applied and published "
-     "(core/product_physics/tests/rt_a3_s6_reference_system.rs)"),
+    ("Eccentric reducer RS-R1 in region RG-R", "in tranche 1", "—", "—"),
+    ("Constant-effort support RS-CE1", "in tranche 1", "—", "—"),
     ("Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1)", "pending",
      "RT-A3 increment 4; with the connector, increment 5",
      "admitted in the combined test overlay; solved and published unqualified: "
@@ -349,24 +356,27 @@ KEY_RESULTS = [
 
 
 # Frozen expected values (spec §1): copied from the independent references in REFERENCES (EQ-1, EQ-2; the fixture
-# test checks the copy against references.json) or naming the identity and its record (EQ-3, EQ-5). The tranche-1
-# cases only: RS-HYD's weight (test contents) is not yet referenced.
-REFERENCES = "validation/references/reference_system/references.json"
+# test checks the copy against references.json) or naming the identity and its record (EQ-3, EQ-5). EQ-1 and EQ-2 are
+# those of the fixture as it now holds RS-R1 and RS-CE1 (REFERENCES); the tranche-1 package REFERENCES_TRANCHE_1 stays
+# frozen as the earlier fixture's, and its README states the EQ-3 and EQ-5 identities and the product-row conventions.
+# The tranche-1 cases only: RS-HYD's weight (test contents) is not yet referenced.
+REFERENCES = "validation/references/reference_system_r1_ce/references.json"
+REFERENCES_TRANCHE_1 = "validation/references/reference_system/references.json"
 REFERENCES_README = "validation/references/reference_system/README.md"
 EXPECTED = {
     "EQ-1": {
         "basis_record": REFERENCES, "key": "W_total_N", "unit": "N", "cases": ["RS-SUS", "RS-OPE", "RS-SAM"],
-        "check": "the sum of the global Z reaction components over every support equals W_total",
-        "exact": "(3300) + (66155686593423/5000000000)*pi + (1363190839087/160000000000)*pi*sqrt(257) + "
-                 "(124534361799687/800000000000)*pi^2",
-        "value": 46832.31956637544,
+        "check": "the sum of the global Z support action components over every support, RS-VS1 and RS-CE1 included, "
+                 "equals W_total",
+        "exact": "(3600) + (66155686593423/5000000000)*pi + (124534361799687/800000000000)*pi^2",
+        "value": 46703.2249056486,
     },
     "EQ-2": {
         "basis_record": REFERENCES, "key": "weight_moment_about_origin_N_m", "unit": "N*m",
         "cases": ["RS-SUS", "RS-OPE", "RS-SAM"],
         "check": "the horizontal (X, Y) reaction resultant is zero, and the reaction moment resultant about the origin "
                  "(sum of r x F + M over every support) equals minus the weight's moment about the origin",
-        "value": [-444952.3802374701, 250652.31673076993, 0.0],
+        "value": [-442344.66809078795, 249877.7487664089, 0.0],
     },
     "EQ-3": {
         "basis_record": REFERENCES_README, "cases": ["RS-EXP", "RS-OPE", "RS-SUS"],
@@ -381,6 +391,12 @@ EXPECTED = {
 # Checks that bind a key result's presence (an identity) while its values await a verified solve; the expected value
 # stays null until then (spec §1, §9.1).
 CHECKS = {
+    "KR-03": {
+        "kind": "identity", "test": "tests/test_reference_system_fixture.py", "basis_record": REFERENCES,
+        "check": "in RS-SUS, RS-OPE and RS-SAM RS-CE1's constant_effort_support_applied_load row and its published "
+                 "support_reaction_component_v2 Fz each equal its entered constant_load, 9000 N, and its Fx, Fy, Mx, My "
+                 "and Mz are zero (DEC-049); RS-VS1's load awaits a verified solve, so no value of it is recorded",
+    },
     "KR-05": {
         "kind": "presence", "test": "tests/test_reference_system_fixture.py",
         "check": "in RS-SUS and RS-OPE the solve publishes exactly four branch_intensified_bending_stress_v1 rows, at "
@@ -516,12 +532,11 @@ def components():
         mid = [(a + b) / 2 for a, b in zip(position(start), position(end))]
         at = position(node)
         cog = [m + Decimal(o) - n for m, o, n in zip(mid, offset, at)]
-        rows.append({
-            "id": f"component:{tag}", "label": f"{kind.capitalize()} {tag[3:]}", "kind": kind, "node": f"node:{node}",
-            "geometry": {"rigid_pipe_ref": f"pipe:{pipe}",
+        end_a, end_b = REDUCER_END_SIZES_MM.get(tag, (SECTIONS[member(pipe)[3]][0],) * 2)
+        geometry = {"rigid_pipe_ref": f"pipe:{pipe}",
                          "rigid_body_length": q(float(length(pipe)), "m"),
-                         "end_a_size": q(SECTIONS[member(pipe)[3]][0], "mm"),
-                         "end_b_size": q(SECTIONS[member(pipe)[3]][0], "mm"),
+                         "end_a_size": q(end_a, "mm"),
+                         "end_b_size": q(end_b, "mm"),
                          "connection_end_a_reference": f"node:{start} (body end on {pipe})",
                          "connection_end_b_reference": f"node:{end} (body end on {pipe})",
                          "stiffness_behavior_reference": f"rigid body, user stiffness scale {scale} (DEC-045); "
@@ -529,7 +544,13 @@ def components():
                          "weight": q(weight, "N"),
                          "center_of_gravity": {"x": float(cog[0]), "y": float(cog[1]), "z": float(cog[2]),
                                                "unit": "m"},
-                         "rigid_component_source_reference": SOURCE},
+                         "rigid_component_source_reference": SOURCE}
+        if tag in ECCENTRIC_OFFSET_MM:
+            x, y, z = ECCENTRIC_OFFSET_MM[tag]
+            geometry["eccentric_offset"] = {"x": x, "y": y, "z": z, "unit": "mm"}
+        rows.append({
+            "id": f"component:{tag}", "label": f"{kind.capitalize()} {tag[3:]}", "kind": kind, "node": f"node:{node}",
+            "geometry": geometry,
             "modifiers": {"stiffness_scaling_user_value": q(scale, "none"), "source_reference": SOURCE},
             "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"},
             "provenance": PROVENANCE,
@@ -596,6 +617,9 @@ def supports():
                              "travel_range": q(SPRING_TRAVEL_RANGE_MM, "mm"),
                              "source_reference": SOURCE,
                              "mechanics_consumption": "linear_spring_primitive_user_stiffness"}
+        if family == "constant_effort_support":
+            row["hanger"] = {"hanger_type": "constant_effort_support", "constant_load": q(CONSTANT_LOAD_N, "N"),
+                             "travel_range": q(CONSTANT_EFFORT_TRAVEL_RANGE_MM, "mm"), "source_reference": SOURCE}
         rows.append(row)
     return rows
 
@@ -833,8 +857,8 @@ def key_results():
         "document_kind": "swbpipe.reference_system.key_results",
         "specification": SPEC,
         "rule": "an expected value enters only from a closed-form reference with an independent generator, an exact "
-                "identity or a verified solve, frozen in validation/references/reference_system/ with its basis "
-                "recorded (spec §1); each expected value here names that record",
+                "identity or a verified solve, frozen in a reference-system package under validation/references/ with "
+                "its basis recorded (spec §1); each expected value here names that record",
         "results": [{"id": rid, "description": description, "cases": cases, "basis": basis, "spec_basis": spec_basis,
                      "expected": EXPECTED.get(rid), **({"check": CHECKS[rid]} if rid in CHECKS else {})}
                     for rid, description, cases, basis, spec_basis in KEY_RESULTS],

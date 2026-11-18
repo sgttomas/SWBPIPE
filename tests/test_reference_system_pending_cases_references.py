@@ -4,13 +4,20 @@ The generator rebuilds `references.json` and `SHA256SUMS` in memory from the spe
 them byte for byte with the committed files; it also checks its transcription against the specification and its
 RS-SUS weight against the existing `reference_system` package. Exit criterion 2 asks that the generator import no
 product code: it may import only the standard library, and may name no product path.
+
+The specification has since adopted RS-R1 and RS-CE1 and cleared their ledger rows, one of which the frozen generator
+quotes. Its check therefore runs on the specification as it was generated from, staged by
+`tests/reference_packages.py` (the package's entry). The current specification must still state every input the
+generator transcribes: its tables parse to the same values, and every quoted statement but that one row is present.
 """
 import ast
 import hashlib
+import importlib.util
 import re
-import subprocess
 import sys
 from pathlib import Path
+
+import reference_packages as R
 
 PROJECT = Path(__file__).resolve().parents[1]
 REFERENCE = PROJECT / "validation" / "references" / "reference_system_pending_cases"
@@ -28,11 +35,28 @@ def _tree():
     return ast.parse(GENERATOR.read_text(encoding="utf-8"))
 
 
-def test_generator_check_rebuilds_the_committed_references():
-    result = subprocess.run([sys.executable, "-I", "-B", str(GENERATOR)], cwd=GENERATOR.parent,
-                            capture_output=True, text=True, timeout=600)
-    assert result.returncode == 0, result.stdout + result.stderr
-    assert "0 disagreeing" in result.stdout
+CURRENT_SPECIFICATION = PROJECT / "fixtures" / "reference_system" / "SPECIFICATION.md"
+# The one quoted statement adoption retired: RS-R1's §10 row while it was pending.
+ADOPTED_ROW = ("| Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its "
+               "own region RG-R |")
+
+
+def test_generator_check_rebuilds_the_committed_references(tmp_path):
+    problems = R.check_problems("reference_system_pending_cases", 0, tmp_path / "check_output")
+    assert not problems, "\n".join(problems)
+
+
+def test_the_current_specification_states_every_transcribed_input_but_the_adopted_row():
+    spec = importlib.util.spec_from_file_location("rs_pending_reference_read", GENERATOR)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.SPEC = CURRENT_SPECIFICATION
+    module.CROSS.clear()
+    module.check_transcription()
+    tables = [c for c in module.CROSS if c["check"].startswith(("§3.1", "§3.2", "§4.2"))]
+    assert len(tables) == 3 and all(c["agrees"] for c in tables), tables
+    text = CURRENT_SPECIFICATION.read_text(encoding="utf-8")
+    assert [s for s in module.SPEC_SENTENCES if s not in text] == [ADOPTED_ROW]
 
 
 def test_sha256sums_verify():

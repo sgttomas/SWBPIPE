@@ -71,9 +71,11 @@ renumbering the others. Fields not mentioned are left as the form shows them.
 | [rs050](#step-rs050) | Model › Model, inspector, Task | rows |
 | [joint](#step-joint) | Model › Model, inspector, New component | rows |
 | [tee](#step-tee) | Model › Model, inspector, New component; Task | rows |
+| [reducer](#step-reducer) | Model › Model, inspector, New component; Task | rows |
 | [spring](#step-spring) | Model › Model, inspector, New support configuration | rows |
+| [ce](#step-ce) | Model › Model, inspector, New support configuration | rows |
 | [reference](#step-reference) | Loads › Load Cases, Reference configurations | rows |
-| [weight](#step-weight) | Model › Review changes, Self weight | rs050, joint, tee, spring |
+| [weight](#step-weight) | Model › Review changes, Self weight | rs050, joint, tee, reducer, spring, ce |
 | [regions](#step-regions) | Loads › Load Cases, Pressure regions | weight |
 | [states](#step-states) | Loads › Load Cases, Analysis state | reference, weight |
 | [combinations](#step-combinations) | Loads › Load Cases, Create combination | weight |
@@ -262,8 +264,8 @@ sources). Restraints `*` is all six.
 | 24 | G | UX UY | `support:RS-G3` | Branch guide G3 |
 | 26 | A | * | `support:RS-C` | Anchor C (nozzle C) |
 
-The eleventh support, the variable spring RS-VS1, has hanger data that no support code
-carries; step spring enters it.
+The other two supports, the variable spring RS-VS1 and the constant-effort support RS-CE1,
+have hanger data that no support code carries; steps spring and ce enter them.
 
 **Bends** (Bend R, k, k source and the two SIF cells; the ids and Bend geometry source under
 Ids and sources). Bend R inherits within a chain; k and the SIFs never inherit. The SIFs'
@@ -326,7 +328,26 @@ Queue, Apply.
 2. Three Task edits (§1) of `component:RS-T1`, each its own Apply and each followed by
    **Cancel** and **Properties**: **Property to edit** Header SIF user value, 2.4; then
    Branch SIF user value, 2.0; then **Modifier source** ⟨S5⟩. The last **Cancel** and
-   **Properties** let step spring's form show.
+   **Properties** let step reducer's **New component** show.
+
+### Step reducer
+
+1. Select the project. Inspector, **New component**: Kind reducer; **New component node** RS-160;
+   **New component realized pipe** RS-P150; ID `component:RS-R1`; label `Reducer R1`. Then Body
+   length 0.4007804885470349 (the body chord √257/40 m as binary64 holds it); End A size 270 with
+   its End A size unit mm; End B size 220 with its End B size unit mm; Weight 300; COG X, Y, Z
+   `0, -0.2, 0.0125` (the body midpoint from RS-160); **End A reference**
+   `node:RS-150 (body end on RS-P150)`; **End B reference** `node:RS-160 (body end on RS-P150)`;
+   **Stiffness behavior reference**
+   `rigid body, user stiffness scale 2.0 (DEC-045); invented user value, DEL-09-01`; Stiffness
+   scale 2.0; **Stiffness scale source reference** ⟨S5⟩; Solver consumption
+   mechanics_geometry_only; **New component geometry source** ⟨S5⟩; **New component provenance**
+   ⟨P⟩. Leave Body length unit, Weight unit and COG unit as they show, the project's m and N.
+   Queue, Apply. The creation form has no eccentric offset; item 2 enters it.
+2. A Task edit (§1) of `component:RS-R1`: **Property to edit** Eccentric offset; value `0 0 25`
+   with its unit mm (from the centreline at RS-160 to the centreline at RS-150, the form's
+   stated convention); **Add**; Apply. Then **Cancel** and **Properties**, so that step
+   spring's form shows.
 
 ### Step spring
 
@@ -339,6 +360,16 @@ family** variable_spring_hanger; tick no restraint; **Support provenance** ⟨P�
 8000 N, hot load 7400 N, travel range 50 mm; **Hanger source reference** ⟨S5⟩; **Hanger
 mechanics consumption** linear_spring_primitive_user_stiffness. **Queue support creation**,
 Apply.
+
+### Step ce
+
+Select node RS-100. Inspector, **New support configuration**: **Support ID**
+`support:RS-CE1`; **Support label** `Constant-effort support CE1`; **Support node** shows
+RS-100; **Support family** constant_effort_support; tick **Restrain UZ** only; **Support
+provenance** ⟨P⟩. Tick **Include hanger data**: **Hanger type** constant_effort_support; Hanger
+constant load 9000 N; Hanger travel range 50 mm; **Hanger source reference** ⟨S5⟩. Leave the
+hanger stiffness, the other loads and the mechanics consumption empty. **Queue support
+creation**, Apply. Step states' support fill gives RS-CE1 its support state with the others.
 
 ### Step reference
 
@@ -367,8 +398,9 @@ entire batch.
 | `load:RS-OPE` | `RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)` | ⟨P⟩`; W of RS-OPE: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)` |
 | `load:RS-SAM` | `RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm` | ⟨P⟩`; W of RS-SAM: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)` |
 
-Each case gets the fixture's 28 primitives: 22 line loads, and a force and a moment for each
-of RS-F1, RS-V1 and RS-F2.
+Each case gets the fixture's 29 primitives: 21 line loads, and a force and a moment for each
+of RS-F1, RS-V1, RS-F2 and RS-R1. RS-R1's weight replaces RS-P150's distributed weight, so
+RS-P150, chosen with the others, takes no line load.
 
 ### Step regions
 
@@ -498,8 +530,6 @@ step rows do not change, except row 13's support when RS-FR1V becomes one-way.
 
 | Ledger family | Where it enters |
 |---|---|
-| Eccentric reducer RS-R1 | A step after step rows and before step weight: reducer on RS-P150 at RS-160, offset (0, 0, +25) mm, 300 N at the body midpoint, stiffness scale 2.0 |
-| Constant-effort support RS-CE1 | A step beside step spring: RS-100, UZ, constant load 9.0 kN |
 | Lift-off, friction and gap | A step beside step spring: RS-LO1 (RS-110, UZ), RS-FR1 (RS-120, UY, μ 0.30, normal from RS-FR1V UZ), RS-G1 (RS-140, UX, 5 mm) |
 | RS-FR1V one-way | RS-FR1V leaves row 13 for the support form, as nonlinear one_way UZ |
 | `difference_basis` on RS-EXP | Step combinations: the basis |
@@ -527,7 +557,7 @@ entry and every press at about 5.5 s, the rates of the earlier estimate of this 
 practised person pasting ⟨P⟩ and ⟨S5⟩). Each step's time is rounded to the nearest quarter
 minute, halves up. Step solve's press is entry; the solve itself is given a waiting allowance
 of 2 minutes, for the solve to run and its key results to show, which is waiting, not entry.
-The estimate does not count moving between stages and pages, the 27 cycles or waiting for a
+The estimate does not count moving between stages and pages, the 30 cycles or waiting for a
 batch's validation. It is not a measurement. A timed entry records the entry time and the
 solve waiting time separately; their sum is compared with the threshold.
 
@@ -541,22 +571,24 @@ solve waiting time separately; their sum is compared with the threshold.
 | rs050 | 3 | 4 | 1 | 7 × 5.5 s = 38.5 s | 0.75 |
 | joint | 52 | 2 | 1 | 54 × 5.5 s = 297 s | 5 |
 | tee | 24 | 12 | 4 | 36 × 5.5 s = 198 s | 3.25 |
+| reducer | 27 | 4 | 2 | 31 × 5.5 s = 170.5 s | 2.75 |
 | spring | 20 | 1 | 1 | 21 × 5.5 s = 115.5 s | 2 |
+| ce | 13 | 0 | 1 | 13 × 5.5 s = 71.5 s | 1.25 |
 | reference | 12 | 3 | 1 | 15 × 5.5 s = 82.5 s | 1.5 |
 | weight | 37 | 3 | 3 | 40 × 5.5 s = 220 s | 3.75 |
 | regions | 86 | 7 | 3 | 93 × 5.5 s = 511.5 s | 8.5 |
 | states | 50 | 14 | 3 | 64 × 5.5 s = 352 s | 5.75 |
 | combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
 | solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
-| **Total** | **597** | **94** | **27** | | **about 61.25 entry + 2 waiting = about 63.25** |
+| **Total** | **637** | **98** | **30** | | **about 65.25 entry + 2 waiting = about 67.25** |
 
-Two subtotals, both estimates: **entry** about 61.25 minutes (the grid cells, form entries and
+Two subtotals, both estimates: **entry** about 65.25 minutes (the grid cells, form entries and
 presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
-sum is about 63.25 minutes.
+sum is about 67.25 minutes.
 
-Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (373 form entries + 94
-presses) × 5.5/60 min = 18.286 + 42.808 = 61.09 minutes, and with the 2 minutes of solve
-waiting the sum is 63.09 minutes.
+Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (413 form entries + 98
+presses) × 5.5/60 min = 18.286 + 46.842 = 65.13 minutes, and with the 2 minutes of solve
+waiting the sum is 67.13 minutes.
 
 How the larger counts arise:
 
@@ -579,6 +611,14 @@ How the larger counts arise:
 - **rs050 and tee.** Each Task edit is 3 entries (selection, property, value) and 4 presses
   (Task, Start task, Cancel, Properties): one edit for rs050 and three for the tee, whose
   creation form adds 15 entries.
+- **reducer, 27 entries and 4 presses.** The project's selection, kind, node and pipe, ID and
+  label; body length; both end sizes with their units; weight; three COG components; both end
+  references; the stiffness behavior reference, stiffness scale, its source and the solver
+  consumption; the geometry source and provenance (23); then the offset's Task edit, 4 entries
+  (selection, property, value, unit) and its 4 presses.
+- **ce, 13 entries.** The node's selection; support ID, label, family, the UZ box and
+  provenance; the hanger data box and hanger type; constant load and travel range, each with
+  its unit; the hanger source reference.
 - **joint, 52 entries and 2 presses.** The project's selection, kind, node and pipe, ID and
   label; 18 connector, reference and stiffness fields; 9 for each of two tie rods; 10
   pressure and provenance fields. The presses are Add tie rod twice.
@@ -601,6 +641,6 @@ How the larger counts arise:
 - **combinations, 9.** The first: ID, label, basis, minuend, subtrahend, provenance; the
   second: ID, label, minuend.
 
-The estimate of about 63.25 minutes (61.25 entry and 2 solve waiting) is about twice the
+The estimate of about 67.25 minutes (65.25 entry and 2 solve waiting) is about twice the
 provisional 30. The four largest steps are rows (22), regions (8.5), material (5.75) and
 states (5.75).
