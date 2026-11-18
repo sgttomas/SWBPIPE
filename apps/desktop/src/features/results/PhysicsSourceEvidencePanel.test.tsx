@@ -2,7 +2,7 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, it } from "vitest";
 import type { MechanicsResult } from "../../types";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
-import { PhysicsSourceEvidencePanel, RECORDED_FIELDS_NOTICE, recordedFieldLines, recordedIntervalDescription } from "./PhysicsSourceEvidencePanel";
+import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 
 afterEach(cleanup);
 // B7b: the composite is pressure-source-1 (3.0.0/exact_pressure_v3), the v3 twin of the
@@ -11,13 +11,36 @@ const fixtureSources = import.meta.glob("../../../../../fixtures/product_preview
 const fixture = (name: string) => JSON.parse(fixtureSources[`../../../../../fixtures/product_preview/pressure_source/physics_source/${name}.raw.json`]) as MechanicsResult;
 const POLYNOMIAL_SCOPE = "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate";
 const RETAINED_SCOPE = "retained_action_projection_and_ordered_binary64_recipe;represented_source_section_operands";
-// Sentences the panel once said of its own about a record. It now says none of them: each relied
-// on a condition between the record's fields that the panel does not check.
+const NOTICE = "These entries show selected fields from the stress-maximum record. This view does not run the whole-result reader to check whether those fields agree with each other or with the linked result.";
+const MARKER = "Unavailable to display";
+// Sentences the panel once said of its own about a record. It now says none of them, anywhere in a
+// case: each relied on a condition between the record's fields that the panel does not check.
 const PANEL_CLAIMS = [/Bound/, /physical enclosure/, /The bound covers/, /does not certify/, /Strict endpoint/, /interior stations/, /Whole span constant/, /every station/,
-  /Both endpoints/, /Interior equality/, /no unique governing station/, /station witness/, /Published value/];
+  /Both endpoints/, /Interior equality/, /no unique governing station/, /station witness/, /Published value/, /unique circumferential fibre/, /Recorded interval/];
 const maximaOf = (result: MechanicsResult) => (result.contract_evidence as any).exact_cases.flatMap((c: any) => c.pipe_stress_extrema);
 
-it.each(["n05", "n06", "mixed", "fields"])('shows %s recorded methods and each stress maximum as its recorded fields, without promoting imported data', name => {
+/** What a definition list renders, read from its own elements: one [label, value] for each label
+ * element and the value element that follows it. Nothing here reads joined text. */
+const pairs = (list: HTMLElement): string[][] => {
+  expect(list.tagName).toBe("DL");
+  return Array.from(list.querySelectorAll("dt")).map(label => {
+    const value = label.nextElementSibling!;
+    expect(value.tagName).toBe("DD");
+    return [label.textContent!, value.textContent!];
+  });
+};
+const listsOf = (row: HTMLElement, id: string) => ({
+  identity: pairs(within(row).getByTestId(`physics-source-maximum-identity-${id}`)),
+  interval: pairs(within(row).getByTestId(`physics-source-maximum-interval-${id}`)),
+  fields: pairs(within(row).getByTestId(`physics-source-maximum-fields-${id}`)),
+});
+// The expected text of a recorded value, written here and not taken from the panel: a text is
+// quoted as JSON text; a number is the parsed number as it prints.
+const quoted = (v: string) => JSON.stringify(v), bare = (v: number | boolean) => String(v);
+/** The location entries a producer record has: its kind, and its endpoint where it records one. */
+const locationOf = (m: any): string[][] => [["Recorded location kind", quoted(m.locations.kind)], ...(m.locations.endpoint === undefined ? [] : [["Recorded location endpoint", quoted(m.locations.endpoint)]])];
+
+it.each(["n05", "n06", "mixed", "fields"])('shows each %s stress maximum as labelled recorded fields, without promoting imported data', name => {
   let ordinaryMaxima = 0, retainedMaxima = 0;
   for (const mode of ["sparse_interactive", "dense_scrutiny"]) {
     const result = fixture(`${name}-${mode}`), before = JSON.stringify(result);
@@ -32,36 +55,44 @@ it.each(["n05", "n06", "mixed", "fields"])('shows %s recorded methods and each s
       const row = within(panel).getByTestId(`physics-source-case-${c.basis_ref.ref_id}`);
       expect(row).toHaveTextContent(c.selected_method);
       expect(row).toHaveTextContent(`Producer outcome: ${c.outcome}`);
+      // No removed sentence returns anywhere in the case, inside a row or beside one.
+      for (const claim of PANEL_CLAIMS) expect(row.textContent).not.toMatch(claim);
     }
     for (const c of physical.exact_cases) {
-      // Said once before a case's records, and only where there are records to speak of.
+      // Said once before a case's entries, and only where there are entries to speak of.
       const notice = within(panel).queryByTestId(`physics-source-recorded-fields-notice-${c.load_case_id}`);
-      if (c.pipe_stress_extrema.length > 0) expect(notice!.textContent).toBe(RECORDED_FIELDS_NOTICE); else expect(notice).toBeNull();
+      if (c.pipe_stress_extrema.length > 0) expect(notice!.textContent).toBe(NOTICE); else expect(notice).toBeNull();
       for (const maximum of c.pipe_stress_extrema) {
         const row = within(panel).getByTestId(`physics-source-maximum-${maximum.result_id}`);
         const retained = maximum.basis !== undefined;
         if (retained) retainedMaxima += 1; else ordinaryMaxima += 1;
-        // The interval and the scope the record states for it are one sentence in one element: the
-        // interval is never shown without that scope. For an ordinary record the scope is the
+        expect(within(row).getByText("Elastic normal-stress maximum evidence entry").tagName).toBe("STRONG");
+        const shown = listsOf(row, maximum.result_id);
+        expect(shown.identity).toEqual([["Recorded pipe", quoted(maximum.pipe_id)], ["Recorded result", quoted(maximum.result_id)]]);
+        // The two endpoints and the scope the record states for them are one element: the
+        // endpoints are never shown without that scope. For an ordinary record the scope is the
         // qualification itself, "solution error is separate" included.
         expect(maximum.enclosure_scope).toBe(retained ? RETAINED_SCOPE : POLYNOMIAL_SCOPE);
-        expect(within(row).getByTestId(`physics-source-maximum-interval-${maximum.result_id}`).textContent)
-          .toBe(`Recorded interval: [${maximum.value_lower_pa}, ${maximum.value_upper_pa}] Pa. Recorded scope: ${maximum.enclosure_scope}.`);
-        expect(row).toHaveTextContent(`Recorded pipe: ${maximum.pipe_id}. Recorded result: ${maximum.result_id}.`);
-        // Every other field is shown as recorded, under its own name.
-        expect(within(row).getByTestId(`physics-source-maximum-fields-${maximum.result_id}`).textContent).toBe(recordedFieldLines(maximum).join(" "));
-        expect(row).toHaveTextContent(`Recorded coefficient basis: ${maximum.coefficient_basis}.`);
-        expect(row).toHaveTextContent(`Recorded station fraction: ${maximum.station_fraction}.`);
-        if (retained) {
-          expect(row).toHaveTextContent(`Recorded basis: ${maximum.basis}.`);
-          expect(row).toHaveTextContent(`Recorded value: ${maximum.value_pa} Pa.`);
-          expect(row).toHaveTextContent(`Recorded relative error bound: ${maximum.relative_error_bound}.`);
-          expect(row).toHaveTextContent(`Recorded location: kind ${maximum.locations.kind}`);
-        } else {
-          expect(row).toHaveTextContent(`Recorded approximation: ${maximum.approximation}.`);
-          expect(row).not.toHaveTextContent("Recorded value:");
-        }
-        for (const claim of PANEL_CLAIMS) expect(row.textContent).not.toMatch(claim);
+        expect(shown.interval).toEqual([
+          ["Recorded lower endpoint (Pa)", bare(maximum.value_lower_pa)],
+          ["Recorded upper endpoint (Pa)", bare(maximum.value_upper_pa)],
+          ["Recorded scope", quoted(maximum.enclosure_scope)],
+        ]);
+        // Every other field the row showed on main, each under its own label.
+        expect(shown.fields).toEqual(retained ? [
+          ["Recorded basis", quoted(maximum.basis)],
+          ["Recorded coefficient basis", quoted(maximum.coefficient_basis)],
+          ["Recorded value (Pa)", bare(maximum.value_pa)],
+          ["Recorded absolute error bound (Pa)", bare(maximum.absolute_error_bound_pa)],
+          ["Recorded relative error bound", bare(maximum.relative_error_bound)],
+          ["Recorded relative limit", bare(maximum.relative_limit)],
+          ["Recorded station fraction", bare(maximum.station_fraction)],
+          ...locationOf(maximum),
+        ] : [
+          ["Recorded coefficient basis", quoted(maximum.coefficient_basis)],
+          ["Recorded approximation", quoted(maximum.approximation)],
+          ["Recorded station fraction", bare(maximum.station_fraction)],
+        ]);
       }
     }
     expect(hasNativeMechanicsInvocation(result, null)).toBe(false);
@@ -73,55 +104,69 @@ it.each(["n05", "n06", "mixed", "fields"])('shows %s recorded methods and each s
   expect(retainedMaxima).toBeGreaterThan(0);
 });
 
-// Edited records: presentation states, not producer records. Each is a record whose own fields
-// disagree, taken from the independent readings of this panel. The panel shows each as recorded
-// and says nothing of its own about any of them.
-const edits: Array<[string, "ordinary" | "retained", (maximum: any) => void, string[]]> = [
-  ["an ordinary record given the retained basis and scope", "ordinary", m => { m.basis = "retained_source_endpoint_normal_max_v1"; m.enclosure_scope = RETAINED_SCOPE; }, ["Recorded basis: retained_source_endpoint_normal_max_v1.", "Recorded approximation: piecewise_quadratic_straight_section_statics."]],
-  ["an ordinary record with reversed endpoints", "ordinary", m => { [m.value_lower_pa, m.value_upper_pa] = [10, 5]; }, []],
-  ["an ordinary record with no scope", "ordinary", m => { delete m.enclosure_scope; }, []],
-  ["an ordinary record naming another pipe", "ordinary", m => { m.pipe_id = "ghost"; }, ["Recorded pipe: ghost."]],
-  ["an ordinary record with a station fraction of 2", "ordinary", m => { m.station_fraction = 2; }, ["Recorded station fraction: 2."]],
-  ["a retained record given the polynomial scope, its basis removed", "retained", m => { delete m.basis; m.enclosure_scope = POLYNOMIAL_SCOPE; }, ["Recorded coefficient basis: retained_section_functionals_binary64."]],
-  ["a retained record whose location names the other endpoint", "retained", m => { m.locations = { kind: "strict_endpoint", endpoint: "j" }; }, ["Recorded location: kind strict_endpoint, endpoint j."]],
-  ["a retained record whose location is a claimed tie", "retained", m => { m.locations = { kind: "endpoint_candidates", exact_tie_proven: true, interior_equal_possible: true }; }, ["Recorded location: kind endpoint_candidates, exact_tie_proven true, interior_equal_possible true."]],
-  ["a retained record whose location is not a record", "retained", m => { m.locations = ["i"]; }, ["Recorded location: unavailable."]],
-  ["a retained record with a zero absolute error bound", "retained", m => { m.absolute_error_bound_pa = 0; }, ["Recorded absolute error bound: 0 Pa."]],
-  ["a retained record whose value is outside its interval", "retained", m => { m.value_pa = m.value_upper_pa + 1; }, []],
-  ["a retained record whose value is not a number", "retained", m => { m.value_pa = "12"; }, ["Recorded value: unavailable."]],
+// Edited records: presentation states, not producer records, taken from the independent readings
+// of this panel. Each is rendered by itself and read from the rendered label and value elements.
+// `interval` and `fields` give the whole expected list where the edit changes it.
+type Shown = { interval?: (m: any) => string[][]; fields?: (m: any) => string[][] };
+const retainedFields = (m: any, location: string[][]): string[][] => [
+  ["Recorded basis", quoted(m.basis)], ["Recorded coefficient basis", quoted(m.coefficient_basis)], ["Recorded value (Pa)", bare(m.value_pa)],
+  ["Recorded absolute error bound (Pa)", bare(m.absolute_error_bound_pa)], ["Recorded relative error bound", bare(m.relative_error_bound)],
+  ["Recorded relative limit", bare(m.relative_limit)], ["Recorded station fraction", bare(m.station_fraction)], ...location,
 ];
-it.each(edits)('shows %s as recorded and asserts nothing about it', (_name, kind, edit, expected) => {
+const edits: Array<[string, "ordinary" | "retained", (maximum: any) => void, Shown]> = [
+  // The fifth reading's pair. One text value that spells out a second member is one labelled
+  // value, and no endpoint field is shown; two members are two labelled values.
+  ["a location whose kind is the single text \"strict_endpoint, endpoint i\"", "retained", m => { m.locations = { kind: "strict_endpoint, endpoint i" }; },
+    { fields: m => retainedFields(m, [["Recorded location kind", "\"strict_endpoint, endpoint i\""]]) }],
+  ["a location with the two members kind and endpoint", "retained", m => { m.locations = { kind: "strict_endpoint", endpoint: "i" }; },
+    { fields: m => retainedFields(m, [["Recorded location kind", "\"strict_endpoint\""], ["Recorded location endpoint", "\"i\""]]) }],
+  // A recorded text "unavailable" is quoted; the panel's own marker is not.
+  ["a recorded text \"Unavailable to display\" beside a value that cannot be displayed", "retained", m => { m.basis = MARKER; m.coefficient_basis = 7; m.locations = { kind: "unavailable" }; },
+    { fields: m => [["Recorded basis", "\"Unavailable to display\""], ["Recorded coefficient basis", MARKER], ...retainedFields(m, [["Recorded location kind", "\"unavailable\""]]).slice(2)] }],
+  ["a lower endpoint given as text", "ordinary", m => { m.value_lower_pa = "5"; },
+    { interval: m => [["Recorded lower endpoint (Pa)", MARKER], ["Recorded upper endpoint (Pa)", bare(m.value_upper_pa)], ["Recorded scope", quoted(POLYNOMIAL_SCOPE)]] }],
+  ["reversed endpoints", "ordinary", m => { [m.value_lower_pa, m.value_upper_pa] = [10, 5]; },
+    { interval: () => [["Recorded lower endpoint (Pa)", "10"], ["Recorded upper endpoint (Pa)", "5"], ["Recorded scope", quoted(POLYNOMIAL_SCOPE)]] }],
+  ["no scope and no endpoints", "ordinary", m => { delete m.enclosure_scope; delete m.value_lower_pa; delete m.value_upper_pa; },
+    { interval: () => [["Recorded lower endpoint (Pa)", MARKER], ["Recorded upper endpoint (Pa)", MARKER], ["Recorded scope", MARKER]] }],
+  ["an ordinary record given the retained basis and scope", "ordinary", m => { m.basis = "retained_source_endpoint_normal_max_v1"; m.enclosure_scope = RETAINED_SCOPE; },
+    { interval: m => [["Recorded lower endpoint (Pa)", bare(m.value_lower_pa)], ["Recorded upper endpoint (Pa)", bare(m.value_upper_pa)], ["Recorded scope", quoted(RETAINED_SCOPE)]],
+      fields: m => [["Recorded basis", "\"retained_source_endpoint_normal_max_v1\""], ["Recorded coefficient basis", quoted(m.coefficient_basis)], ["Recorded approximation", quoted(m.approximation)], ["Recorded station fraction", bare(m.station_fraction)]] }],
+  ["a station fraction of 2", "ordinary", m => { m.station_fraction = 2; },
+    { fields: m => [["Recorded coefficient basis", quoted(m.coefficient_basis)], ["Recorded approximation", quoted(m.approximation)], ["Recorded station fraction", "2"]] }],
+  ["a location naming the other endpoint", "retained", m => { m.locations = { kind: "strict_endpoint", endpoint: "j" }; },
+    { fields: m => retainedFields(m, [["Recorded location kind", "\"strict_endpoint\""], ["Recorded location endpoint", "\"j\""]]) }],
+  ["a location that claims a tie", "retained", m => { m.locations = { kind: "endpoint_candidates", exact_tie_proven: true, interior_equal_possible: "true" }; },
+    { fields: m => retainedFields(m, [["Recorded location kind", "\"endpoint_candidates\""], ["Recorded location exact_tie_proven", "true"], ["Recorded location interior_equal_possible", MARKER]]) }],
+  ["a location that is not a record", "retained", m => { m.locations = ["i"]; }, { fields: m => retainedFields(m, [["Recorded location", MARKER]]) }],
+  ["a location with none of the members shown", "retained", m => { m.locations = { station: 3 }; }, { fields: m => retainedFields(m, [["Recorded location", MARKER]]) }],
+  ["a value outside its endpoints, a zero error bound and a zero parsed from 0.0", "retained", m => { m.value_pa = m.value_upper_pa + 1; m.absolute_error_bound_pa = JSON.parse("0.0"); m.relative_limit = JSON.parse("-0.0"); },
+    { fields: m => [["Recorded basis", quoted(m.basis)], ["Recorded coefficient basis", quoted(m.coefficient_basis)], ["Recorded value (Pa)", bare(m.value_upper_pa + 1)], ["Recorded absolute error bound (Pa)", "0"],
+      ["Recorded relative error bound", bare(m.relative_error_bound)], ["Recorded relative limit", "0"], ["Recorded station fraction", bare(m.station_fraction)], ...locationOf(m)] }],
+  ["a value given as text and an empty basis", "retained", m => { m.value_pa = "12"; m.basis = ""; },
+    { fields: m => [["Recorded basis", "\"\""], ["Recorded coefficient basis", quoted(m.coefficient_basis)], ["Recorded value (Pa)", MARKER], ...retainedFields(m, locationOf(m)).slice(3)] }],
+];
+it.each(edits)('shows %s as labelled values and asserts nothing about it', (_name, kind, edit, expected) => {
   const result = fixture("mixed-sparse_interactive");
   const maximum = maximaOf(result).find((m: any) => kind === "retained" ? m.basis !== undefined : m.basis === undefined);
+  const pipe = maximum.pipe_id, id = maximum.result_id;
   edit(maximum);
   render(<PhysicsSourceEvidencePanel result={result} />);
-  const row = screen.getByTestId(`physics-source-maximum-${maximum.result_id}`);
-  expect(within(row).getByTestId(`physics-source-maximum-interval-${maximum.result_id}`).textContent).toBe(recordedIntervalDescription(maximum));
-  expect(within(row).getByTestId(`physics-source-maximum-fields-${maximum.result_id}`).textContent).toBe(recordedFieldLines(maximum).join(" "));
-  for (const sentence of expected) expect(row).toHaveTextContent(sentence);
-  for (const claim of PANEL_CLAIMS) expect(row.textContent).not.toMatch(claim);
+  const row = screen.getByTestId(`physics-source-maximum-${id}`), shown = listsOf(row, id);
+  expect(shown.identity).toEqual([["Recorded pipe", quoted(pipe)], ["Recorded result", quoted(id)]]);
+  if (expected.interval) expect(shown.interval).toEqual(expected.interval(maximum));
+  if (expected.fields) expect(shown.fields).toEqual(expected.fields(maximum));
+  // The row is its heading and its three lists and nothing else, and the case says none of the
+  // removed sentences.
+  expect(Array.from(row.children).map(child => child.tagName)).toEqual(["STRONG", "DL", "DL", "DL"]);
+  const article = row.closest("article")!;
+  for (const claim of PANEL_CLAIMS) expect(article.textContent).not.toMatch(claim);
 });
 
-it('gives each recorded field under its own name and infers nothing from any of them', () => {
-  expect(recordedIntervalDescription({ value_lower_pa: 1.5, value_upper_pa: 2.5, enclosure_scope: POLYNOMIAL_SCOPE }))
-    .toBe("Recorded interval: [1.5, 2.5] Pa. Recorded scope: supplied_binary64_polynomial_coefficient_enclosures; solution error is separate.");
-  // An endpoint that is not a finite number, and a scope that is not text, are shown as unavailable.
-  expect(recordedIntervalDescription({ value_lower_pa: "1", value_upper_pa: Number.NaN, enclosure_scope: 7 })).toBe("Recorded interval: [unavailable, unavailable] Pa. Recorded scope: unavailable.");
-  expect(recordedIntervalDescription({})).toBe("Recorded interval: [unavailable, unavailable] Pa. Recorded scope: unavailable.");
-  // Only the fields a record has are listed, in a fixed order, each as recorded.
-  expect(recordedFieldLines({})).toEqual([]);
-  expect(recordedFieldLines({ station_fraction: 0.5, coefficient_basis: "a_basis", value_pa: 3, relative_limit: 1e-9, absolute_error_bound_pa: null }))
-    .toEqual(["Recorded coefficient basis: a_basis.", "Recorded value: 3 Pa.", "Recorded absolute error bound: unavailable.", "Recorded relative limit: 1e-9.", "Recorded station fraction: 0.5."]);
-  // A location record is given member by member; one that is not a record, or holds none of the
-  // known members, is unavailable. No station is named or excluded on its strength.
-  expect(recordedFieldLines({ locations: { kind: "whole_span_constant" } })).toEqual(["Recorded location: kind whole_span_constant."]);
-  expect(recordedFieldLines({ locations: { kind: "strict_endpoint", endpoint: ["i"] } })).toEqual(["Recorded location: kind strict_endpoint, endpoint unavailable."]);
-  // A value of another kind than its field's is unavailable: text is not shown as a number, a
-  // number is not shown as text, and a word is not shown as a recorded flag.
-  expect(recordedFieldLines({ basis: 7, value_pa: "12", station_fraction: true, locations: { kind: 3, exact_tie_proven: "true" } }))
-    .toEqual(["Recorded basis: unavailable.", "Recorded value: unavailable.", "Recorded station fraction: unavailable.", "Recorded location: kind unavailable, exact_tie_proven unavailable."]);
-  expect(recordedFieldLines({ locations: {} })).toEqual(["Recorded location: unavailable."]);
-  expect(recordedFieldLines({ locations: null })).toEqual(["Recorded location: unavailable."]);
-  // The notice says who decides agreement and does not say that a check ran.
-  expect(RECORDED_FIELDS_NOTICE).toBe("These are the record's fields as recorded. Whether they agree with each other and with the result is for the result's reader; this panel does not check it.");
+it('shows a record without a pipe or a result identifier with the marker, not as a recorded text', () => {
+  const result = fixture("mixed-sparse_interactive");
+  const maximum = maximaOf(result)[0], id = maximum.result_id;
+  maximum.pipe_id = 9;
+  render(<PhysicsSourceEvidencePanel result={result} />);
+  expect(listsOf(screen.getByTestId(`physics-source-maximum-${id}`), id).identity).toEqual([["Recorded pipe", MARKER], ["Recorded result", quoted(id)]]);
 });

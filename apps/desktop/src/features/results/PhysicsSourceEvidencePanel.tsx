@@ -5,53 +5,69 @@ type RecordValue = Record<string, unknown>;
 const record = (v: unknown): RecordValue | null => v && typeof v === "object" && !Array.isArray(v) ? v as RecordValue : null;
 const rows = (v: unknown): RecordValue[] => Array.isArray(v) ? v.map(record).filter((x): x is RecordValue => x !== null) : [];
 const text = (v: unknown) => typeof v === "string" && v ? v : "unavailable";
-const number = (v: unknown) => typeof v === "number" && Number.isFinite(v) ? String(v) : "unavailable";
 
-const flag = (v: unknown) => typeof v === "boolean" ? String(v) : "unavailable";
+/** The panel's own marker for a field it cannot display: a member the row always lists that the
+ * record lacks, or a value of another kind than its field's. It is never quoted, so it cannot be
+ * taken for a recorded text. */
+const UNAVAILABLE_TO_DISPLAY = "Unavailable to display";
+/** A recorded text, quoted as JSON text so that its extent is unmistakable: no text value can
+ * read as a label, as another field's value, or as the panel's marker. */
+const recordedText = (v: unknown) => typeof v === "string" ? JSON.stringify(v) : UNAVAILABLE_TO_DISPLAY;
+/** A recorded number as the parsed number prints (a recorded 0.0 shows as 0). */
+const recordedNumber = (v: unknown) => typeof v === "number" && Number.isFinite(v) ? String(v) : UNAVAILABLE_TO_DISPLAY;
+const recordedFlag = (v: unknown) => typeof v === "boolean" ? String(v) : UNAVAILABLE_TO_DISPLAY;
 
-/** Said once before a case's stress-maximum records. The panel shows what each record holds and
- * asserts nothing of its own about it; it does not say that any check ran. */
-export const RECORDED_FIELDS_NOTICE = "These are the record's fields as recorded. Whether they agree with each other and with the result is for the result's reader; this panel does not check it.";
+/** Said once before a case's stress-maximum entries, and about those entries only. It says that no
+ * check of their agreement ran in this view. */
+const RECORDED_FIELDS_NOTICE = "These entries show selected fields from the stress-maximum record. This view does not run the whole-result reader to check whether those fields agree with each other or with the linked result.";
 
-/** The recorded interval of a stress-maximum record and the scope the record states for it, as
- * one sentence, so that the interval is never shown without that scope. Both are the record's own
- * fields, shown as recorded. */
-export function recordedIntervalDescription(maximum: RecordValue): string {
-  return `Recorded interval: [${number(maximum.value_lower_pa)}, ${number(maximum.value_upper_pa)}] Pa. Recorded scope: ${text(maximum.enclosure_scope)}.`;
-}
-
-/** The other fields a stress-maximum record may carry: member, label, how its value is read and
- * its unit, in a fixed order. A value of another kind than its field's is shown as unavailable, as
- * an interval endpoint is: text is not shown as a number, nor a number as text. */
-const RECORDED_FIELDS: ReadonlyArray<readonly [string, string, (v: unknown) => string, string]> = [
-  ["basis", "Recorded basis", text, ""],
-  ["coefficient_basis", "Recorded coefficient basis", text, ""],
-  ["approximation", "Recorded approximation", text, ""],
-  ["value_pa", "Recorded value", number, " Pa"],
-  ["absolute_error_bound_pa", "Recorded absolute error bound", number, " Pa"],
-  ["relative_error_bound", "Recorded relative error bound", number, ""],
-  ["relative_limit", "Recorded relative limit", number, ""],
-  ["station_fraction", "Recorded station fraction", number, ""],
+type Reader = (v: unknown) => string;
+type Entry = readonly [label: string, value: string];
+/** The two endpoints and the scope the record states for them: always listed, and rendered as
+ * one element so that the endpoints are never shown without that scope. */
+const INTERVAL_FIELDS: ReadonlyArray<readonly [string, string, Reader]> = [
+  ["value_lower_pa", "Recorded lower endpoint (Pa)", recordedNumber],
+  ["value_upper_pa", "Recorded upper endpoint (Pa)", recordedNumber],
+  ["enclosure_scope", "Recorded scope", recordedText],
 ];
-const RECORDED_LOCATION_FIELDS: ReadonlyArray<readonly [string, (v: unknown) => string]> = [
-  ["kind", text], ["endpoint", text], ["exact_tie_proven", flag], ["interior_equal_possible", flag],
+const IDENTITY_FIELDS: ReadonlyArray<readonly [string, string, Reader]> = [
+  ["pipe_id", "Recorded pipe", recordedText],
+  ["result_id", "Recorded result", recordedText],
 ];
-
-/** One sentence for each of those fields the record has, and one for its location record when it
- * has one, each naming the field and giving what is recorded. Nothing is inferred from them. */
-export function recordedFieldLines(maximum: RecordValue): string[] {
-  const lines: string[] = [];
-  for (const [member, label, read, unit] of RECORDED_FIELDS) {
-    if (maximum[member] === undefined) continue;
-    const value = read(maximum[member]);
-    lines.push(`${label}: ${value}${value === "unavailable" ? "" : unit}.`);
-  }
+/** The other members shown, each only when the record has it, in a fixed order. */
+const OPTIONAL_FIELDS: ReadonlyArray<readonly [string, string, Reader]> = [
+  ["basis", "Recorded basis", recordedText],
+  ["coefficient_basis", "Recorded coefficient basis", recordedText],
+  ["approximation", "Recorded approximation", recordedText],
+  ["value_pa", "Recorded value (Pa)", recordedNumber],
+  ["absolute_error_bound_pa", "Recorded absolute error bound (Pa)", recordedNumber],
+  ["relative_error_bound", "Recorded relative error bound", recordedNumber],
+  ["relative_limit", "Recorded relative limit", recordedNumber],
+  ["station_fraction", "Recorded station fraction", recordedNumber],
+];
+/** The members of a location record that are shown, each under its own label and only when the
+ * location record has it. The two flags keep their member names. */
+const LOCATION_FIELDS: ReadonlyArray<readonly [string, string, Reader]> = [
+  ["kind", "Recorded location kind", recordedText],
+  ["endpoint", "Recorded location endpoint", recordedText],
+  ["exact_tie_proven", "Recorded location exact_tie_proven", recordedFlag],
+  ["interior_equal_possible", "Recorded location interior_equal_possible", recordedFlag],
+];
+const always = (source: RecordValue, fields: typeof INTERVAL_FIELDS): Entry[] => fields.map(([member, label, read]) => [label, read(source[member])]);
+const present = (source: RecordValue, fields: typeof INTERVAL_FIELDS): Entry[] => fields.filter(([member]) => source[member] !== undefined).map(([member, label, read]) => [label, read(source[member])]);
+/** The optional members of a stress-maximum record as label and value pairs. A location that is
+ * not a record, or holds none of the members shown, is one entry with the panel's marker. */
+function optionalEntries(maximum: RecordValue): Entry[] {
+  const entries = present(maximum, OPTIONAL_FIELDS);
   if (maximum.locations !== undefined) {
-    const locations = record(maximum.locations);
-    const fields = locations ? RECORDED_LOCATION_FIELDS.filter(([member]) => locations[member] !== undefined).map(([member, read]) => `${member} ${read(locations[member])}`) : [];
-    lines.push(`Recorded location: ${fields.length ? fields.join(", ") : "unavailable"}.`);
+    const locations = record(maximum.locations), members = locations ? present(locations, LOCATION_FIELDS) : [];
+    entries.push(...(members.length ? members : [["Recorded location", UNAVAILABLE_TO_DISPLAY] as const]));
   }
-  return lines;
+  return entries;
+}
+/** Label and value pairs as a definition list: each label and each value is its own element. */
+function Entries({ entries, testId }: { entries: Entry[]; testId: string }) {
+  return <dl data-testid={testId}>{entries.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>;
 }
 
 /** Render original method facts in both live and historical/reference contexts, for
@@ -79,10 +95,10 @@ export function PhysicsSourceEvidencePanel({ result }: { result: MechanicsResult
         {exact ? <p>Material selection: {text(exact.material_basis)}; {rows(exact.pipe_materials).length} member material records; {rows(exact.pipe_sections).length} section records.</p> : null}
         {rows(exact?.pipe_stress_extrema).length > 0 ? <p data-testid={`physics-source-recorded-fields-notice-${id}`}>{RECORDED_FIELDS_NOTICE}</p> : null}
         {rows(exact?.pipe_stress_extrema).map((maximum, i) => <div key={`${text(maximum.result_id)}:${i}`} data-testid={`physics-source-maximum-${text(maximum.result_id)}`}>
-          <strong>Recorded elastic normal-stress maximum</strong>
-          <p>Recorded pipe: <code>{text(maximum.pipe_id)}</code>. Recorded result: <code>{text(maximum.result_id)}</code>.</p>
-          <p><span data-testid={`physics-source-maximum-interval-${text(maximum.result_id)}`}>Recorded interval: [{number(maximum.value_lower_pa)}, {number(maximum.value_upper_pa)}] Pa. Recorded scope: <code>{text(maximum.enclosure_scope)}</code>.</span></p>
-          <p data-testid={`physics-source-maximum-fields-${text(maximum.result_id)}`}>{recordedFieldLines(maximum).join(" ")}</p>
+          <strong>Elastic normal-stress maximum evidence entry</strong>
+          <Entries entries={always(maximum, IDENTITY_FIELDS)} testId={`physics-source-maximum-identity-${text(maximum.result_id)}`} />
+          <Entries entries={always(maximum, INTERVAL_FIELDS)} testId={`physics-source-maximum-interval-${text(maximum.result_id)}`} />
+          <Entries entries={optionalEntries(maximum)} testId={`physics-source-maximum-fields-${text(maximum.result_id)}`} />
         </div>)}
       </article>;
     })}
