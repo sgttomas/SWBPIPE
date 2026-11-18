@@ -1,0 +1,1232 @@
+{
+ "_about": "MODAL-CS (§8.63) reviewed inventories; rules/o10_rules.py compares each, as a multiset, with the source. Entries are [file, enclosing fn#ordinal, kind, stripped text, role] (storage) or [file, enclosing fn#ordinal, stripped line] (mentions). Roles: production; test (a #[cfg(test)] module, test fn or statement); other (support.rs's own requested_bytes and SupportResourceError, not ShapeStorage).",
+ "storage": [
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(total, MODAL_SET_COMPUTED_EIGENVALUES)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(total, MODAL_SET_CLUSTER_IDS)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(total, MODAL_SET_COMPUTED_FREQUENCIES)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(reported_count, MODAL_SET_NORMALIZED_MODES)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(if pencil.skew.is_some() { reported_count } else { 0 }, MODAL_SET_LIFTED_SHAPES)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(total, MODAL_SET_COMPUTED_VECTORS)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(total, MODAL_SET_COMPUTED_RESIDUALS)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(total, MODAL_SET_COMPUTED_ESTIMATES)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(cluster_count, MODAL_SET_CLUSTER_ESTIMATES)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(ids.len(), MODAL_SET_COMPUTED_CLUSTER_ESTIMATES)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(reported_count, MODAL_SET_PUBLISHED_VIEWS)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(total, MODAL_SET_COMPUTED_BAND_FLAGS)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(residuals.len(), MODAL_SET_COMPUTED_EVIDENCE)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(sensitive_modes + usize::from(orthogonality_breach), MODAL_SET_SENSITIVE_REASONS)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(reported_count, MODAL_SET_MODES)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_format( MODAL_SET_SENSITIVE_REASON, format_args!(\"mode {}: residual backward error η = {:e} exceeds τ_r = {:e}\", i + 1, residual.backward_error, params.residual_threshold), )",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_copy_text(&reason, MODAL_SET_SENSITIVE_REASON)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(1, MODAL_SET_SENSITIVE_MODE_REASONS)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(pencil.global_dimension, MODAL_SET_PUBLISHED_SHAPE)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_format( MODAL_SET_SENSITIVE_REASON, format_args!( \"M-orthogonality deviation {:e} of modes {:?} exceeds τ_o = {:e}\", orthogonality.max_ratio, orthogonality.pair.map(|(a, b)| (a + 1, b + 1)), params.orthogonality_threshold ), )",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_rows(per_cluster.len(), MODAL_SET_CLUSTERS)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_shape_reserve(&mut disclosures, crossing, MODAL_SET_CUTOFF_DISCLOSURES)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "call",
+   "modal_completed_set_format( MODAL_SET_CUTOFF_DISCLOSURE, format_args!( \"computed mode {} ({}) has a first-order eigenvalue error estimate e_λ = {e:e} that reaches across the cut-off\", i + 1, if i < reported_count { \"reported\" } else { \"not reported\" } ), )",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "<item>",
+   "mention",
+   "use open_pipe_stress_modal_eigen::modal_quantities::{formatted_length, requested_bytes, reserve_exactly, ModalQuantityError, ShapeStorage, ShapeStorageError};",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "<item>",
+   "mention",
+   "use open_pipe_stress_modal_eigen::modal_quantities::{formatted_length, requested_bytes, reserve_exactly, ModalQuantityError, ShapeStorage, ShapeStorageError};",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_rows#1",
+   "def",
+   "modal_completed_set_rows<T>(&mut self, len: usize, structure: &'static str) -> Result<Vec<T>, Vec<Diagnostic>>",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_rows#1",
+   "call",
+   "modal_shape_reserve(&mut rows, len, structure)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_shape_reserve#1",
+   "def",
+   "modal_shape_reserve<T>(&mut self, vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError>",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_shape_reserve#1",
+   "call",
+   "requested_bytes::<T>(vec.len(), len, structure)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_shape_reserve#1",
+   "call",
+   "reserve_exactly(vec, len, structure)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_text_room#1",
+   "def",
+   "modal_completed_set_text_room(&mut self, len: usize, structure: &'static str) -> Result<String, Vec<Diagnostic>>",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_text_room#1",
+   "call",
+   "requested_bytes::<u8>(0, len, structure)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_format#1",
+   "def",
+   "modal_completed_set_format(&mut self, structure: &'static str, args: std::fmt::Arguments<'_>) -> Result<String, Vec<Diagnostic>>",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_format#1",
+   "call",
+   "modal_completed_set_text_room(length, structure)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_copy_text#1",
+   "def",
+   "modal_completed_set_copy_text(&mut self, text: &str, structure: &'static str) -> Result<String, Vec<Diagnostic>>",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_copy_text#1",
+   "call",
+   "modal_completed_set_text_room(text.len(), structure)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_shape_storage_refusal#1",
+   "pattern",
+   "ShapeStorageError::CapacityOverflow { .. }",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_shape_storage_refusal#1",
+   "pattern",
+   "ShapeStorageError::AllocationFailed { .. }",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_refusal#1",
+   "pattern",
+   "ShapeStorageError::CapacityOverflow { structure, elements, element_size }",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_refusal#1",
+   "pattern",
+   "ShapeStorageError::AllocationFailed { structure, elements, bytes }",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_failpoint#1",
+   "construct",
+   "ShapeStorageError::AllocationFailed { structure, elements, bytes }",
+   "test"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_text_room#1",
+   "construct",
+   "ShapeStorageError::AllocationFailed { structure, elements: len, bytes }",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/resource.rs",
+   "modal_completed_set_format#1",
+   "construct",
+   "ShapeStorageError::CapacityOverflow { structure, elements: usize::MAX, element_size: 1 }",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/skew_pencil.rs",
+   "modal_lift_within#1",
+   "call",
+   "modal_shape_reserve(&mut v, dimension, SKEW_LIFT_SCATTER)",
+   "production"
+  ],
+  [
+   "core/product_physics/src/modal/skew_pencil.rs",
+   "modal_lift_within#1",
+   "call",
+   "modal_shape_reserve(&mut lifted, dimension, SKEW_LIFTED_VECTOR)",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "<item>",
+   "def",
+   "modal_shape_reserve<T>(&mut self, vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError>",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "modal_shape_reserve#1",
+   "def",
+   "modal_shape_reserve<T>(&mut self, vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError>",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "modal_shape_reserve#1",
+   "call",
+   "reserve_exactly(vec, len, structure)",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "reserve_exactly#1",
+   "def",
+   "reserve_exactly<T>(vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError>",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "reserve_exactly#1",
+   "call",
+   "requested_bytes::<T>(vec.len(), len, structure)",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "requested_bytes#1",
+   "def",
+   "requested_bytes<T>(held: usize, len: usize, structure: &'static str) -> Result<usize, ShapeStorageError>",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "publish_lifted_with#1",
+   "call",
+   "modal_shape_reserve(&mut shape, lifted.len(), LIFTED_SHAPE)",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "publish_lifted_with#1",
+   "call",
+   "modal_shape_reserve(&mut below_normal_range, below_count, LIFTED_BELOW_NORMAL)",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "finish_normalization#1",
+   "call",
+   "modal_shape_reserve(&mut shape, n, NORMALIZED_SHAPE)",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "finish_normalization#1",
+   "call",
+   "modal_shape_reserve(below, n, NORMALIZATION_SCRATCH)",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "finish_normalization#1",
+   "call",
+   "modal_shape_reserve(&mut below_normal_range.shape, below.len(), NORMALIZED_BELOW_NORMAL)",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "cumulative_effective_mass_fractions_with#1",
+   "call",
+   "modal_shape_reserve(&mut out, modes.len(), CUMULATIVE_FRACTIONS)",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "modal_shape_reserve#2",
+   "def",
+   "modal_shape_reserve<T>(&mut self, vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError>",
+   "test"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "modal_shape_reserve#2",
+   "call",
+   "reserve_exactly(vec, len, structure)",
+   "test"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "storage_overflow_is_refused_before_any_request#1",
+   "call",
+   "reserve_exactly(&mut v, too_many, LIFTED_SHAPE)",
+   "test"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "storage_overflow_is_refused_before_any_request#1",
+   "call",
+   "reserve_exactly(&mut v, usize::MAX, LIFTED_SHAPE)",
+   "test"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "storage_overflow_is_refused_before_any_request#1",
+   "call",
+   "reserve_exactly(&mut v, 0, LIFTED_SHAPE)",
+   "test"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "structure#1",
+   "pattern",
+   "Self::CapacityOverflow { structure, .. }",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "structure#1",
+   "pattern",
+   "Self::AllocationFailed { structure, .. }",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "fmt#1",
+   "pattern",
+   "Self::CapacityOverflow { structure, elements, element_size }",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "fmt#1",
+   "pattern",
+   "Self::AllocationFailed { structure, elements, bytes }",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "reserve_exactly#1",
+   "construct",
+   "ShapeStorageError::AllocationFailed { structure, elements: len, bytes }",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "requested_bytes#1",
+   "construct",
+   "ShapeStorageError::CapacityOverflow { structure, elements: len, element_size }",
+   "production"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "modal_shape_reserve#2",
+   "construct",
+   "ShapeStorageError::AllocationFailed { structure, elements: len, bytes: len * std::mem::size_of::<T>() }",
+   "test"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "each_storage_request_refuses_typed_and_unarmed_results_are_unchanged#1",
+   "construct",
+   "ShapeStorageError::AllocationFailed { structure, .. }",
+   "test"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "each_storage_request_refuses_typed_and_unarmed_results_are_unchanged#1",
+   "construct",
+   "ShapeStorageError::AllocationFailed { structure: NORMALIZATION_SCRATCH, .. }",
+   "test"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "storage_overflow_is_refused_before_any_request#1",
+   "construct",
+   "ShapeStorageError::CapacityOverflow { structure: LIFTED_SHAPE, elements: too_many, element_size: 8 }",
+   "test"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "requested_bytes#1",
+   "def",
+   "requested_bytes<T>(len: usize) -> Option<usize>",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "reserve#1",
+   "call",
+   "requested_bytes::<T>(len)",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "reservations_check_the_byte_size_at_the_inclusive_boundary#1",
+   "call",
+   "requested_bytes::<usize>(largest)",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "reservations_check_the_byte_size_at_the_inclusive_boundary#1",
+   "call",
+   "requested_bytes::<usize>(largest + 1)",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "reservations_check_the_byte_size_at_the_inclusive_boundary#1",
+   "call",
+   "requested_bytes::<u8>(limit)",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "reservations_check_the_byte_size_at_the_inclusive_boundary#1",
+   "call",
+   "requested_bytes::<u8>(limit + 1)",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "reservations_check_the_byte_size_at_the_inclusive_boundary#1",
+   "call",
+   "requested_bytes::<usize>(usize::MAX)",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "reservations_check_the_byte_size_at_the_inclusive_boundary#1",
+   "call",
+   "requested_bytes::<usize>(0)",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "reservations_check_the_byte_size_at_the_inclusive_boundary#1",
+   "mention",
+   "assert_eq!(requested_bytes::<()>(usize::MAX), Some(0));",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "code#1",
+   "pattern",
+   "Self::CapacityOverflow { .. }",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "code#1",
+   "pattern",
+   "Self::AllocationFailed { .. }",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "fmt#1",
+   "pattern",
+   "Self::CapacityOverflow { structure }",
+   "other"
+  ],
+  [
+   "core/solver/modal_eigen/src/support.rs",
+   "fmt#1",
+   "pattern",
+   "Self::AllocationFailed { structure, bytes }",
+   "other"
+  ]
+ ],
+ "run_modal_dense_within": [
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_with_budget#1",
+   "run_modal_dense_within(req, params, budget, None)"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "pub(crate) fn run_modal_dense_within("
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "<item>",
+   "use super::outcome::run_modal_dense_within;"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_limits_have_no_default_and_none_is_the_unlimited_entry#1",
+   "assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, None)), plain, \"{name}\");"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension#1",
+   "assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, Some(&at))), plain, \"{name}: at the limits\");"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension#1",
+   "assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, Some(&loose))), plain, \"{name}: looser limits\");"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension#1",
+   "let found = refused(run_modal_dense_within(&parsed, &params, None, Some(&limits)));"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension#1",
+   "let found = refused(run_modal_dense_within(&parsed, &params, None, Some(&all)));"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_count_is_the_actual_set_not_the_requested_count#1",
+   "let found = refused(run_modal_dense_within(&parsed, &params, None, Some(&limits)));"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_count_is_the_actual_set_not_the_requested_count#1",
+   "assert_eq!(completed_set_debug(run_modal_dense_within(&empty, &params, None, Some(&zero))), format!(\"{none:?}\"));"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_products_overflow_by_name_before_any_request#1",
+   "let found = refused(run_modal_dense_within(&parsed, &params, None, Some(&limits)));"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "each_completed_set_request_refuses_by_name_at_the_entry#1",
+   "assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, limits)), plain, \"{name}\");"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "each_completed_set_request_refuses_by_name_at_the_entry#1",
+   "let found = refused(run_modal_dense_within(&parsed, &params, None, limits));"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "each_completed_set_request_refuses_by_name_at_the_entry#1",
+   "assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, limits)), plain, \"{name}: past the last request\");"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "p0_still_refuses_every_budgeted_request_before_the_completed_set_boundary#1",
+   "let found = refused(run_modal_dense_within(&parsed, &params, Some(&admitting_budget()), Some(&tight)));"
+  ]
+ ],
+ "limits_outside_resource": [
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "<item>",
+   "modal_completed_set_computed, modal_completed_set_judge, modal_completed_set_sizes, modal_resource_preflight, ModalCompletedSetLimits,"
+  ],
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   "limits: Option<&ModalCompletedSetLimits>,"
+  ],
+  [
+   "core/product_physics/src/modal/tests_document.rs",
+   "<item>",
+   "use super::resource::{ModalCompletedSetLimits, ModalResponseRowProduct, MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED};"
+  ],
+  [
+   "core/product_physics/src/modal/tests_document.rs",
+   "<item>",
+   "use super::resource::{ModalCompletedSetLimits, ModalResponseRowProduct, MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED};"
+  ],
+  [
+   "core/product_physics/src/modal/tests_document.rs",
+   "completed_set_limits_at#1",
+   "fn completed_set_limits_at(fixture: &Fixture) -> ModalCompletedSetLimits {"
+  ],
+  [
+   "core/product_physics/src/modal/tests_document.rs",
+   "completed_set_limits_at#1",
+   "ModalCompletedSetLimits {"
+  ],
+  [
+   "core/product_physics/src/modal/tests_document.rs",
+   "completed_set_limits_at#1",
+   "response_rows: vec![ModalResponseRowProduct { name: \"test-local rows\", rows_per_mode: 3, limit: 3 * completed }],"
+  ],
+  [
+   "core/product_physics/src/modal/tests_document.rs",
+   "completed_set_limits_at#1",
+   "response_rows: vec![ModalResponseRowProduct { name: \"test-local rows\", rows_per_mode: 3, limit: 3 * completed }],"
+  ],
+  [
+   "core/product_physics/src/modal/tests_document.rs",
+   "completed_set_limits_looser#1",
+   "fn completed_set_limits_looser() -> ModalCompletedSetLimits {"
+  ],
+  [
+   "core/product_physics/src/modal/tests_document.rs",
+   "completed_set_limits_looser#1",
+   "ModalCompletedSetLimits {"
+  ],
+  [
+   "core/product_physics/src/modal/tests_document.rs",
+   "completed_set_limits_looser#1",
+   "response_rows: vec![ModalResponseRowProduct { name: \"test-local rows\", rows_per_mode: 1, limit: u64::MAX }],"
+  ],
+  [
+   "core/product_physics/src/modal/tests_document.rs",
+   "completed_set_limits_looser#1",
+   "response_rows: vec![ModalResponseRowProduct { name: \"test-local rows\", rows_per_mode: 1, limit: u64::MAX }],"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "<item>",
+   "modal_completed_set_sizes, ModalCompletedSetLimits, ModalResponseRowProduct, MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED,"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "<item>",
+   "modal_completed_set_sizes, ModalCompletedSetLimits, ModalResponseRowProduct, MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED,"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "limits_at#1",
+   "fn limits_at(outcome: &ModalOutcome, rows: Vec<ModalResponseRowProduct>) -> ModalCompletedSetLimits {"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "limits_at#1",
+   "fn limits_at(outcome: &ModalOutcome, rows: Vec<ModalResponseRowProduct>) -> ModalCompletedSetLimits {"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "limits_at#1",
+   "ModalCompletedSetLimits { computed_modes: computed, completed_modes: completed, normalized_entries: completed * n, published_entries: completed * g, response_rows: rows }"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "limits_at#1",
+   "ModalCompletedSetLimits { computed_modes: computed, completed_modes: completed, normalized_entries: completed * n, published_entries: completed * g, response_rows: rows }"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension#1",
+   "let rows = vec![ModalResponseRowProduct { name: \"test-local rows\", rows_per_mode: 7, limit: 7 * completed }];"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension#1",
+   "let loose = ModalCompletedSetLimits {"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension#1",
+   "response_rows: vec![ModalResponseRowProduct { name: \"test-local rows\", rows_per_mode: 1, limit: u64::MAX }],"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension#1",
+   "response_rows: vec![ModalResponseRowProduct { name: \"test-local rows\", rows_per_mode: 1, limit: u64::MAX }],"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension#1",
+   "let over = |mutate: &dyn Fn(&mut ModalCompletedSetLimits), dimension: &str, actual: u64| {"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension#1",
+   "over(&|l| l.response_rows[0].limit -= 1, \"response_rows:test-local rows\", 7 * completed);"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_count_is_the_actual_set_not_the_requested_count#1",
+   "let zero = ModalCompletedSetLimits {"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_count_is_the_actual_set_not_the_requested_count#1",
+   "response_rows: vec![ModalResponseRowProduct { name: \"test-local rows\", rows_per_mode: u64::MAX, limit: 0 }],"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_count_is_the_actual_set_not_the_requested_count#1",
+   "response_rows: vec![ModalResponseRowProduct { name: \"test-local rows\", rows_per_mode: u64::MAX, limit: 0 }],"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "the_completed_set_products_overflow_by_name_before_any_request#1",
+   "let limits = limits_at(&unlimited, vec![ModalResponseRowProduct { name: \"test-local rows\", rows_per_mode: u64::MAX, limit: u64::MAX }]);"
+  ]
+ ],
+ "lift": [
+  [
+   "core/product_physics/src/modal/outcome.rs",
+   "run_modal_dense_within#1",
+   ".modal_lift_within(&pencil.free_dofs, vector, &mut storage)"
+  ],
+  [
+   "core/product_physics/src/modal/skew_pencil.rs",
+   "modal_lift_within#1",
+   "pub(crate) fn modal_lift_within<S: ShapeStorage>(&self, free_dofs: &[usize], free: &[f64], storage: &mut S) -> Result<Option<Vec<f64>>, ShapeStorageError> {"
+  ],
+  [
+   "core/product_physics/src/modal/skew_pencil.rs",
+   "modal_lift_within#1",
+   "Ok(self.basis.lift_into(&v, &mut lifted).ok().map(|()| lifted))"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "lift_into_is_the_static_lift_bit_for_bit#1",
+   "basis.lift_into(&v, &mut out).unwrap();"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "lift_into_is_the_static_lift_bit_for_bit#1",
+   "assert_eq!(basis.lift_into(&bad, &mut out), Err(basis.lift(&bad).unwrap_err()));"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "lift_into_is_the_static_lift_bit_for_bit#1",
+   "assert_eq!(basis.lift_into(&vec![0.0; n], &mut short), Err(BasisError::Shape(\"lifted output length\")));"
+  ],
+  [
+   "core/product_physics/src/modal/tests_resource.rs",
+   "lift_into_is_the_static_lift_bit_for_bit#1",
+   "assert_eq!(basis.lift_into(&vec![0.0; n + 1], &mut vec![0.0; n + 1]), Err(basis.lift(&vec![0.0; n + 1]).unwrap_err()));"
+  ],
+  [
+   "core/solver/frame_kernel/src/restraint_basis.rs",
+   "lift_into#1",
+   "pub fn lift_into(&self, v: &[f64], out: &mut [f64]) -> Result<(), BasisError> {"
+  ]
+ ],
+ "test_modules": [
+  [
+   "core/product_physics/src/modal.rs",
+   "tests_document",
+   "file"
+  ],
+  [
+   "core/product_physics/src/modal.rs",
+   "tests_resource",
+   "file"
+  ],
+  [
+   "core/solver/modal_eigen/src/modal_quantities.rs",
+   "tests",
+   "inline"
+  ]
+ ],
+ "path_outside": [
+  [
+   "core/product_physics/src/corrected_displacement_tests.rs",
+   "../tests/common/current_model.rs"
+  ],
+  [
+   "core/product_physics/src/corrected_displacement_tests.rs",
+   "../tests/common/t4_u5b.rs"
+  ],
+  [
+   "core/product_physics/src/modal/tests.rs",
+   "../../tests/common/condition_twin.rs"
+  ],
+  [
+   "core/product_physics/src/modal/tests.rs",
+   "../../tests/common/current_model.rs"
+  ],
+  [
+   "core/product_physics/src/o4_m3_judging_tests.rs",
+   "../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+  ],
+  [
+   "core/product_physics/src/operating_conditions/resolution_tests.rs",
+   "../../tests/common/condition_twin.rs"
+  ],
+  [
+   "core/product_physics/src/retained_memory_law_tests.rs",
+   "../tests/common/w1_member_load_inputs.rs"
+  ],
+  [
+   "core/product_physics/src/retained_memory_witness_tests.rs",
+   "../tests/common/b1_sq_inputs.rs"
+  ],
+  [
+   "core/product_physics/src/retained_memory_witness_tests.rs",
+   "../tests/common/w1_member_load_inputs.rs"
+  ],
+  [
+   "core/product_physics/src/source_recovery/j7_rf_census.rs",
+   "../../../../validation/benchmarks/numerical_robustness/src/exact.rs"
+  ],
+  [
+   "core/product_physics/src/source_recovery/j7_rf_census.rs",
+   "../../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+  ],
+  [
+   "core/product_physics/src/source_recovery/j7_t4_consequences.rs",
+   "../../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+  ],
+  [
+   "core/product_physics/src/tie_rod_tests.rs",
+   "../tests/common/current_model.rs"
+  ],
+  [
+   "core/product_physics/src/tie_rod_tests.rs",
+   "../tests/common/t4_u5b.rs"
+  ],
+  [
+   "core/product_physics/src/w1_coverage_census_tests.rs",
+   "../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+  ],
+  [
+   "core/product_physics/src/w1_coverage_census_tests.rs",
+   "../tests/common/w1_member_load_inputs.rs"
+  ],
+  [
+   "core/product_physics/src/w1_domain_stage1_tests.rs",
+   "../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+  ],
+  [
+   "core/product_physics/src/w1_successor_census_tests.rs",
+   "../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+  ],
+  [
+   "core/reporting/result_export/src/retained_precision.rs",
+   "../tests/support/retained_precision_corpus.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/adaptive_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/classification_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/kf1_tracker_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/kf3_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/member_adaptive_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/method_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/publication_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/references_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/scale_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/source_bridge_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "../../../tests/retained_k4/source_residual_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/assemble.rs",
+   "../../../tests/retained_k4/assemble_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/assemble.rs",
+   "../../../tests/retained_k4/timoshenko_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/bound.rs",
+   "../../../tests/retained_k4/bound_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/combine.rs",
+   "../../../tests/retained_k4/combine_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/declared.rs",
+   "../../../tests/retained_k4/member_load_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/directed.rs",
+   "../../../tests/retained_k4/directed_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/directed/certificate.rs",
+   "../../../../tests/retained_k4/certificate_arithmetic_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/factor.rs",
+   "../../../tests/retained_k4/factor_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/ledger.rs",
+   "../../../tests/retained_k4/ledger_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "../../../tests/retained_k4/origins_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+   "../../../tests/retained_k4/product_certificate_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "../../../../tests/retained_k4/o4_product_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "../../../../tests/retained_k4/product_final_case_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/product_certificate/loaded_maximum.rs",
+   "../../../../tests/retained_k4/loaded_maximum_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+   "../../../../tests/retained_k4/member_lane_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/recover.rs",
+   "../../../tests/retained_k4/recover_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "../../../tests/retained_k4/source_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/verify.rs",
+   "../../../tests/retained_k4/verify_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/wide.rs",
+   "../../../tests/retained_wide/wide_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+   "../../../../tests/retained_wide_k3/k3_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "../../../tests/retained_k4/wide_sum_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/src/structural/retained/work.rs",
+   "../../../tests/retained_k4/work_tests.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs",
+   "certificate_arithmetic_vectors.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/directed_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/member_lane_tests.rs",
+   "source_residual_vectors.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/member_load_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/origins_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
+   "product_certificate_vectors.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+   "product_certificate_combination_vectors.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs",
+   "source_bridge_vectors.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/source_residual_tests.rs",
+   "source_residual_vectors.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/timoshenko_tests.rs",
+   "models.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/timoshenko_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/verify_tests.rs",
+   "support.rs"
+  ],
+  [
+   "core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+   "support.rs"
+  ]
+ ]
+}
