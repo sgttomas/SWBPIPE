@@ -219,6 +219,26 @@ target remains adequate. A failure alone does not justify relaxing one.
    Modal also passes at least one published piping benchmark (DEL-04-09
    AC-010).
 
+   What is referenced, and on which model:
+   - An analysis's response (displacements, rotations, element forces and
+     moments, support loads, frequencies) is referenced on invented models,
+     by that analysis's own packages.
+   - On the reference system itself the frozen references are equilibrium
+     and identity checks on its published results (the `reference_system`
+     packages): the support reaction resultant and its moment about the
+     origin against the applied weight, and against each generated wind or
+     static seismic load; and identities on published rows for the expansion
+     difference, the seismic anchor movement difference and the SRSS and
+     absolute-sum combinations.
+   - No independent solution of the reference system's response is frozen.
+     Its checks show that the published reactions balance the applied loads
+     and that derived rows follow their definitions. They do not show that
+     its displacements, element forces or support loads are correct.
+
+   The criterion requires both: each analysis's response references pass on
+   their invented models, and every check frozen for the reference system
+   passes on the reference system.
+
    *Owning deliverables:* each analysis's deliverable under criterion 1, with DEL-09-01 for the reference system.
 3. **Limitations.** Every remaining refusal of a capability these criteria require is listed in the
    release limitations and declared acceptable by Agent 0. The entry states
