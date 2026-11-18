@@ -20398,10 +20398,10 @@ mod tests {
     #[test]
     fn valid_invented_model_exposes_global_displacement_components() {
         // T0R (B-1): the fixture's nonlinear supports gate every mechanics
-        // combination; its linear companion keeps the combination algebra tested.
+        // combination; on its linear companion the demo's combination is withheld (factor sum 1.5) and its factor-sum-one twin keeps the algebra tested.
         let mut input = mechanical_fixture_for_test(request(), "tests::valid_invented_model_exposes_global_displacement_components");
         input.model.supports.retain(|support| support.nonlinear.is_none());
-        let result = run_linear_static_preview(input);
+        let (result, unit) = spring_preload::tests::c_oper_alt_withheld_and_its_unit_twin(input);
         let result_ids = result
             .results
             .iter()
@@ -20419,10 +20419,10 @@ mod tests {
                 assert!(result_ids.contains(format!("result:disp:{node}:{tail}").as_str()));
                 assert!(result_ids
                     .contains(format!("result:loadcase:load-L-200:disp:{node}:{tail}").as_str()));
-                assert!(result_ids.contains(
-                    format!("result:combination:combination-C-OPER-ALT:disp:{node}:{tail}")
-                        .as_str()
-                ));
+                let combined = format!("result:combination:combination-C-OPER-ALT:disp:{node}:{tail}");
+                assert!(!result_ids.contains(combined.as_str()), "{combined} is withheld");
+                assert!(unit.results.iter().any(|item| item.id == combined), "{combined} in the twin");
+                // (the demo's combination is withheld whole; its twin publishes every row)
             }
         }
 
@@ -20470,15 +20470,15 @@ mod tests {
         assert!(((ux * ux + uy * uy + uz * uz).sqrt() - magnitude).abs() < 5.0e-6);
 
         // Component rows join the explicit user combination algebra exactly
-        // like other supported scalar rows.
-        let default_uy = result_value(&result, "result:disp:node-N-140:uy");
-        let alternate_uy = result_value(&result, "result:loadcase:load-L-200:disp:node-N-140:uy");
-        let combined_uy = result
+        // like other supported scalar rows (in the twin: factors 0.5 and 0.5).
+        let default_uy = result_value(&unit, "result:disp:node-N-140:uy");
+        let alternate_uy = result_value(&unit, "result:loadcase:load-L-200:disp:node-N-140:uy");
+        let combined_uy = unit
             .results
             .iter()
             .find(|item| item.id == "result:combination:combination-C-OPER-ALT:disp:node-N-140:uy")
             .expect("combination displacement component row should be emitted");
-        assert_eq!(combined_uy.value, default_uy + 0.5 * alternate_uy);
+        assert_eq!(combined_uy.value, 0.5 * default_uy + 0.5 * alternate_uy);
         assert_eq!(
             combined_uy
                 .metadata
@@ -21547,10 +21547,10 @@ mod tests {
     #[test]
     fn valid_invented_model_exposes_explicit_load_combination_results() {
         // T0R (B-1): the fixture's nonlinear supports gate every mechanics
-        // combination; its linear companion keeps the combination algebra tested.
+        // combination; on its linear companion the demo's combination is withheld (factor sum 1.5) and its factor-sum-one twin, read below, keeps the algebra tested.
         let mut input = mechanical_fixture_for_test(request(), "tests::valid_invented_model_exposes_explicit_load_combination_results");
         input.model.supports.retain(|support| support.nonlinear.is_none());
-        let result = run_linear_static_preview(input);
+        let (_, result) = spring_preload::tests::c_oper_alt_withheld_and_its_unit_twin(input);
         let combination_id = "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial";
         let alternate_load_case_id = "result:loadcase:load-L-200:force:pipe-P-120:axial";
         let quarter_combination_id =
@@ -21631,14 +21631,14 @@ mod tests {
 
     #[test]
     fn combination_stress_summary_rows_are_skipped_with_diagnostics() {
-        // T0R: maxima are never combined. The fixture's mechanics combination is
-        // gated by its nonlinear supports, so drop them to reach an admitted one.
+        // T0R: maxima are never combined. The fixture's mechanics combination is gated by its nonlinear
+        // supports, so drop them; it is then withheld for its factor sum (1.5), and its factor-sum-one twin is admitted.
         let mut input = mechanical_fixture_for_test(
             request(),
             "tests::combination_stress_summary_rows_are_skipped_with_diagnostics",
         );
         input.model.supports.retain(|support| support.nonlinear.is_none());
-        let result = run_linear_static_preview(input);
+        let (_, result) = spring_preload::tests::c_oper_alt_withheld_and_its_unit_twin(input);
         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
         assert!(result
             .results

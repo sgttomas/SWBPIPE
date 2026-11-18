@@ -353,4 +353,4 @@ pub(crate) fn fixed_load_gate_message(code: &str, constant_effort: bool, springs
 
 #[cfg(test)]
 #[path = "spring_preload_tests.rs"]
-mod tests;
+pub(crate) mod tests;

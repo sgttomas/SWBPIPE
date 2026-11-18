@@ -177,3 +177,46 @@ fn the_retained_sub_route_declines_a_hanger_by_its_hanger_reason() {
         model::assert_close(model::applied(&ordinary, "SH-3"), 6000.0, &format!("{mode:?}"));
     }
 }
+
+/// The demo's one combination, `combination:C-OPER-ALT` (mechanics, `load:L-100`
+/// factor 1.0 and `load:L-200` factor 0.5), on the demo without its nonlinear
+/// supports, for three tests in `lib.rs`. Its only fixed-load source is
+/// `support:SH-140`, a variable spring hanger whose 430 N cold load is applied in
+/// every case; `support:CE-120` declares no restraint DOF and is not consumed. By
+/// the count rule of DEL-05-02 (Scope "Fixed-load count", REQ-011): a load case has
+/// κ = 1, so κ = 1.0·1 + 0.5·1 = 1.5, which differs from 1 by more than 2⁻⁴⁶; its
+/// operands are load cases, none withheld (tested first); no nonlinear support
+/// remains; it is not a subtraction or envelope. It is withheld whole, by name,
+/// under the unit factor-sum code with the message naming the spring, and publishes
+/// no row, so no note about its stress maxima either.
+///
+/// Its twin, the same document with the first factor 0.5, has κ = 0.5·1 + 0.5·1 = 1
+/// exactly and is admitted (the cold load counted once); it keeps the combination
+/// algebra tested. Returns (the demo's result, the twin's result).
+pub(crate) fn c_oper_alt_withheld_and_its_unit_twin(
+    input: crate::LinearStaticPreviewRequest,
+) -> (crate::MechanicsEnvelope, crate::MechanicsEnvelope) {
+    const CODE: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
+    const TEXT: &str = "Combination withheld: a variable spring hanger's cold load would be counted by the sum of factors instead of once.";
+    let mut twin = input.clone();
+    assert_eq!(twin.model.combinations.len(), 1);
+    let combination = &mut twin.model.combinations[0];
+    assert_eq!(combination.id, "combination:C-OPER-ALT");
+    let factors: Vec<(&str, f64)> = combination.terms.iter().map(|t| (t.load_case.as_str(), t.factor)).collect();
+    assert_eq!(factors, vec![("load:L-100", 1.0), ("load:L-200", 0.5)]);
+    combination.terms[0].factor = 0.5;
+
+    let withheld = crate::run_linear_static_preview(input);
+    assert_eq!(withheld.status.mechanics, "MECHANICS_SOLVED", "{:?}", withheld.diagnostics);
+    let gate: Vec<_> = withheld.diagnostics.iter().filter(|item| item.code == CODE).collect();
+    assert_eq!(gate.len(), 1, "factor sum 1.5 withholds C-OPER-ALT once: {:?}", withheld.diagnostics);
+    assert_eq!(gate[0].affected_refs, vec!["combination:C-OPER-ALT".to_string()]);
+    assert_eq!(gate[0].message, TEXT);
+    assert!(!withheld.results.iter().any(|item| item.basis_ref.as_ref().is_some_and(|b| b.ref_type == "combination")));
+    assert!(!withheld.diagnostics.iter().any(|item| item.code == "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE"));
+
+    let unit = crate::run_linear_static_preview(twin);
+    assert_eq!(unit.status.mechanics, "MECHANICS_SOLVED", "{:?}", unit.diagnostics);
+    assert!(!unit.diagnostics.iter().any(|item| item.code == CODE), "factor sum 1 is admitted: {:?}", unit.diagnostics);
+    (withheld, unit)
+}
