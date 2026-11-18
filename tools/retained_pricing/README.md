@@ -762,7 +762,7 @@ charge `ordinary_published_displacements(N)` is unchanged: at most one N-vector 
 - **Regressions.** These are in `tests/test_862_pr_a.py`: nested test modules, a test statement inside a function,
   `cfg(not(test))`, attribute stacks, fields, arms, literals, and the real lib.rs case.
 
-### §8.63: the modal completed-set boundary (DEL-04-09, PR 390; candidate)
+### §8.63: the modal completed-set boundary (DEL-04-09, PR 390)
 
 **What moved.** PR 390 bounds the dense modal entry's typed outcome rows and shapes with fallible storage. The entry's
 body moves again, its text unchanged apart from storage, into `run_modal_dense_within` (the caller's completed-set
@@ -783,24 +783,66 @@ points the function multiplicities and the reached functions of the changed file
   20 B; an expression String 54 B and a bound String 82 B, the longest of the pinned callers' own format strings; the
   refusal's limit String 107 B. Where the base's by-name class already covers the source bound (`actual`, `value`,
   `count`, `symbol`, `error`, `name`, the dimension's text) no audit is added.
-- MODAL-CS-ST: a refused request's `structure` is 35 B. Every production storage request and `ShapeStorageError`
-  construction in the product crate and the modal eigen crate is read. Each passes one of the named all-literal `&str`
-  constants or its own `structure` parameter. A computed, literal or locally bound structure stops the run.
-- MODAL-CS-RR: a premise read from the source, not an observation. A response-row `name` has no length in the source,
-  but no product build holds a `ModalCompletedSetLimits` or `ModalResponseRowProduct`: neither derives `Default`, no
-  production code constructs either, and `ResponseRows` is named only in the pinned resource.rs. So the name is empty
-  there, and the by-name 128 B covers the dimension's text. A production construction or mention stops the run.
-- MODAL-CS-LI: `lift_into` has no TEXT site. Its only production mention outside its definition is skew_pencil's call
-  (modal, unreached). The graph resolves calls by name, so any other priced mention stops the run.
-- MODAL-CS-M0: the boundary's 25 TEXT lines, the three moved rows and the five audited test rows must stay at
-  multiplicity 0 and present (`o10_check`). J3's test-code pattern sizes 0 the four test Debug sites of a whole
-  `ModalOutcome`, which have no source bound.
-- O10-GATE: two reviewed absences (`run_modal_dense_within`, `modal_completed_set_judge`) are keyed on the boundary's own
-  text, so a source before the boundary still prices.
+- The censuses (TM, ST, RR, LI) compare exact reviewed inventories, `rules/modal_cs_inventory.json`, each a multiset of
+  (file, enclosing function, stripped source text). A new, changed or removed mention stops the run. Mentions are found
+  in code only. No file is excluded: test code is in the inventories, marked by review. The files read are the driver's
+  own crate selection (`price.py` `chain_crates`, compiled from its source, so the correct_norm crate is included), and
+  the modal eigen crate for ST.
+- MODAL-CS-TM: each reviewed test module (`tests_document`, `tests_resource`, modal_quantities' inline `tests`) is declared
+  exactly once in its parent as `#[cfg(test)] mod`. Every test entry of an inline module lies inside it. Every `#[path]`
+  in the files read, and in the files those attributes bring in, must be a plain literal that does not name a reviewed
+  test file (compared by file name, so no module nesting reaches one); a `cfg_attr` that sets a path stops. Each target
+  is resolved against its declaring file's directory. A target outside the walked crates (the crates' `tests/` helpers
+  and one benchmark source, 88 declarations of 47 files) is a reviewed entry (`path_outside`: declaring file and
+  literal), and the censuses read it too, with what it brings in. So a second, production declaration of a test file
+  stops, no file a `#[path]` compiles into these crates goes unread, and a new `#[path]` inside the walked crates passes
+  because the censuses already read its target (main `e0e3e3c7`'s two certificate modules pass this way).
+- MODAL-CS-ST: a refused request's `structure` is 35 B. The inventory binds every mention of the seven storage request
+  functions and every `ShapeStorageError` variant construction or pattern (85 entries: 62 production, 10 test, 13 of
+  support.rs's own, unrelated `requested_bytes` and `SupportResourceError`). Each production call or construction passes
+  one of the named all-literal `&str` constants or its enclosing function's own `structure` parameter. The eight
+  forwarding functions are body-pinned, so a forwarded value's origin cannot change unread.
+- MODAL-CS-RR: a premise read from the source, not an observation. A response-row `name` has no length in the source.
+  The inventories bind every mention of `run_modal_dense_within`: its definition, the one delegation passing `None`
+  (exact by MODAL-CS-RK) and the test callers. They also bind every mention, in any form, of `ModalCompletedSetLimits`,
+  `ModalResponseRowProduct`, `response_rows` and `ResponseRows` outside the pinned resource.rs: outcome.rs's import and
+  parameter type, and test code. So a product build passes no limits, the name is empty there, and the by-name 128 B
+  covers the dimension's text.
+- MODAL-CS-LI: `lift_into` has no TEXT site. The inventory binds every mention of `lift_into` and of skew_pencil's
+  `modal_lift_within`: the definitions, `lift_into`'s one production call inside `modal_lift_within`, that function's one
+  production call in `run_modal_dense_within`, and the test mentions. `modal_lift_within`'s body is pinned.
+- MODAL-CS-UR (a checker change, `lib/o10_check.py`): `O10_UNREACHED_FNS` names `lift_into` by file and name. At each
+  point the checker reads only `edges.json`, the rows of `audit.json` and the roots in `work/text_budget.caps.out.json`,
+  and returns pass or stop. It stops if a retained root reaches the function, if a call-shaped token naming it produced
+  no edge (an `audit.json` row), if the function is missing or ambiguous in the graph, if its crate has no function in
+  the graph, or if a point's graph or roots are missing. The graph resolves a method call by name, narrowed by the
+  receiver's type where known, so a real call `x.lift_into(..)` is an edge from the caller's node to
+  `restraint_basis.rs:<line>:lift_into` (today only `skew_pencil.rs:51:modal_lift_within` has it). A false same-name edge
+  into it from a reached function therefore stops the run, to be resolved by a reviewed edge rule, and an unresolved
+  call stops through its audit row; MODAL-CS-LI's census binds every source mention independently of the graph. So the
+  check cannot pass because the graph failed to resolve a real call. A source before the boundary has no
+  `lift_into`; that state is admitted only by its reviewed absence (no `lift_into` text in restraint_basis.rs), and the
+  checker then requires that the graph has none.
+- MODAL-CS-M0: the boundary's 25 TEXT lines, the dense body's five TEXT rows (the three moved sites and the two cluster
+  refusals) and the five audited test rows must stay at multiplicity 0 and present (`o10_check`). Each key also binds its
+  exact row count (`O10_MULT0_ROWS`; resource.rs 1402 and 1422 hold two each), and the dense body's total is bound in the
+  rules. J3's test-code pattern sizes 0 the four test Debug sites of a whole `ModalOutcome`, which have no source bound.
+- The emitter: `lib/rule_ops.o10_check_rules` now builds the O-10 check's inputs (`o10_mult0_sites`, the new
+  `o10_mult0_rows` and `o10_unreached_fns`) for `sq2_rules.py`, so the tests drive the same code.
+- O10-GATE: three reviewed absences (`run_modal_dense_within`, `modal_completed_set_judge`, `lift_into`) are keyed on the
+  boundary's own text. Each is also checked where the function is looked up, so a rename that keeps the text stops there.
 
-**Derivation (candidate, not a registration).** On `6f6dadbc2` (PR 390's reviewed head `6c6fc70e5` merged with main
-`3c8fc26a6`) the four points complete with O-10 0/0. The prune (36), the resolutions (8) and the remapped keys (889)
-are main's, and no hand-kept key moves. Against main `3c8fc26a6`'s tree, reproduced by its own tool, all 1,606
-coefficients are equal: none is higher and none is lower. `generate --check` with the registered basis line (1,717
-lines) and `point-atoms --check` (150 lines) are equal on the head. This tool, with only resource.rs's pin restored to
-main's value, reproduces main's tree exactly.
+**Limits.** The modal eigen crate is in neither the call graph nor the template inventory, so its two
+`ShapeStorageError` Display rows have no inherited class. They would need adjudication if that crate ever entered the
+inventory.
+
+**Derivation.** No coefficient moves, so nothing is registered. On `6f6dadbc2` (PR 390's reviewed head `6c6fc70e5`
+merged with main `3c8fc26a6`) the four points complete with O-10 0/0. Every guarded row is present at multiplicity 0
+with its exact row count, and `lift_into` is found once in each point's graph and is reached by no retained root. The
+prune (36), the resolutions (8) and the remapped keys (889) are main's, and no hand-kept key moves. Main `e0e3e3c7`
+differs from `3c8fc26a6` in core only by the frame kernel's inverse-norm certificate (two new files and a declaration in
+arc_certificate.rs), which nothing here reads as a boundary mention, and in none of the 13 reviewed inputs. Against
+main `e0e3e3c7`'s tree, priced by its own tool, all 1,606 coefficients are equal: none is higher and none is lower.
+That tree is `3c8fc26a6`'s apart from the basis line. `generate --check` with the registered basis line (1,717 lines)
+and `point-atoms --check` (150 lines) are equal on the head and on main. This tool replays main `e0e3e3c7` byte for
+byte with one restoration, resource.rs's pin set back to main's value; the reviewed absences admit the rest.
