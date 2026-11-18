@@ -51,6 +51,20 @@ pub(crate) enum NotApplied {
 }
 
 impl NotApplied {
+    /// A fixed token per reason, lower snake case, with no payload: for a
+    /// caller that names the reason by code (not yet used in any published text).
+    pub(crate) fn token(&self) -> &'static str {
+        match self {
+            Self::NonlinearRecord => "nonlinear_record",
+            Self::SkewedRecord => "skewed_record",
+            Self::ColdLoadMissing => "cold_load_missing",
+            Self::ColdLoadNotPositive => "cold_load_not_positive",
+            Self::StiffnessDofUnreadable => "stiffness_dof_unreadable",
+            Self::RotationalDof(_) => "rotational_dof",
+            Self::UnknownNode => "unknown_node",
+        }
+    }
+
     pub(crate) fn reason(&self) -> String {
         match self {
             Self::NonlinearRecord => "the record carries a nonlinear member, whose own law governs its DOF".into(),
@@ -133,6 +147,23 @@ pub(crate) fn add_loads(ledger: &mut LoadLedger, model: &PreviewModel, case: &Pr
             ledger.push(&support.id, preload.global_dof(), preload.cold_load_newtons);
         }
     }
+}
+
+/// The captured source replay's case force (S11 section 4.5): the live
+/// producers `nodal_and_eigen_case_force` uses, then the case's preload terms,
+/// so that the replay's ledger agrees bit for bit with the live case ledger.
+pub(crate) fn replay_case_force(
+    application: &LoadApplication,
+    eigen: &[ThermalElementLoad],
+    built: &BuiltModel,
+    model: &PreviewModel,
+    case: &PreviewLoadCase,
+) -> Result<AssembledForce, open_pipe_stress_frame_kernel::load_ledger::LedgerError> {
+    let mut ledger = LoadLedger::new();
+    push_nodal_loads(&mut ledger, application, built.nodes.len());
+    add_thermal_equivalent_loads(&mut ledger, eigen, &built.pipes, &HashMap::new());
+    add_loads(&mut ledger, model, case);
+    ledger.finish(built.nodes.len() * DOF_PER_NODE)
 }
 
 /// The spring's published action on its DOF: the cold load plus the spring

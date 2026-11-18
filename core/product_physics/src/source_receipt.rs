@@ -246,7 +246,7 @@ impl CapturedInvocation {
             .map_err(|pipe| bad(format!("captured eigen member section missing: {pipe}")))?;
         // S11 section 4.5: build through the ledger with the live producer
         // functions (nodal loads, then the eigen equivalents).
-        let force = nodal_and_eigen_case_force(&application, &eigen, built)
+        let force = crate::spring_preload::replay_case_force(&application, &eigen, built, model, case)
             .map_err(|e| bad(format!("captured load ledger: {e}")))?;
         let prescribed: Vec<_> = boundary
             .restrained_dofs
@@ -350,7 +350,7 @@ impl CapturedInvocation {
         // S11 section 4.5: the pre-0.4 replay builds through the ledger too, so
         // it agrees bit for bit with the case ledger (never a finalization
         // `Err` from a fold that differs from the exact net).
-        let force = nodal_and_eigen_case_force(&application, &[], &built)
+        let force = crate::spring_preload::replay_case_force(&application, &[], &built, &model, case)
             .map_err(|e| bad(format!("captured load ledger: {e}")))?;
         let prescribed: Vec<_> = boundary
             .restrained_dofs

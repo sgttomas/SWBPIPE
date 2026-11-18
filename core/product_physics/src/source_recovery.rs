@@ -911,12 +911,6 @@ fn prepare_sources(
     {
         return Err(unsupported("non-nodal load producer present"));
     }
-    // DEL-04-11 REQ-014: the replay forms nodal and eigen terms only, and its
-    // support rows carry no constant term, so a case with a spring's cold load
-    // is not replayed; the ordinary publication carries the preload.
-    if crate::spring_preload::dispositions(input.model, input.load_case).iter().any(|(_, d)| d.is_ok()) {
-        return Err(unsupported("variable spring hanger cold load present"));
-    }
     if input.load_application.is_blocked() {
         return Err(mismatch("blocked load application"));
     }
@@ -1049,6 +1043,23 @@ fn prepare_sources(
         )?,
         None => vec![0.0; member_count],
     };
+    // DEL-04-11 REQ-014: each spring that applies its cold load in this case
+    // adds the live ledger's one term (`spring_preload::add_loads`), and its
+    // support row below carries the same constant: F_cold - k·u.
+    let mut preloads = HashMap::new();
+    for (support, disposition) in crate::spring_preload::dispositions(input.model, input.load_case) {
+        let Ok(preload) = disposition else { continue };
+        let dof = preload.global_dof();
+        if dof >= n {
+            return Err(mismatch("spring preload DOF"));
+        }
+        folded_force.push(&support.id, dof, preload.cold_load_newtons);
+        identity.name(&support.id, budget)?;
+        identity.indices([dof]);
+        identity.scalars([preload.cold_load_newtons]);
+        force_terms.push(exact::ForceContribution { source: support.id.clone(), dof, value: preload.cold_load_newtons });
+        preloads.insert(support.id.as_str(), (dof, preload.cold_load_newtons));
+    }
     let folded_force = folded_force
         .finish(n)
         .map_err(|_| mismatch("complete ordered load fold differs from actual force"))?;
@@ -1588,6 +1599,9 @@ fn prepare_sources(
                     dof,
                     products: vec![vec![-spring.stiffness.value]],
                 });
+                if let Some(&(_, cold)) = preloads.get(id.as_str()).filter(|(at, _)| *at == dof) {
+                    row.offset.push(vec![cold]);
+                }
             }
             descriptors.push(row);
         }
