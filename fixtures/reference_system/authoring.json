@@ -1649,7 +1649,7 @@
     {
       "entities": [],
       "expected_until_then": "—",
-      "family": "RS-SUS, RS-OPE (thermal, modulus by temperature)",
+      "family": "RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)",
       "in_tranche_1": true,
       "row_lane": "—",
       "state": "in tranche 1 as linear cases (load/reference-state group)"
@@ -1660,7 +1660,7 @@
       "family": "RS-EXP",
       "in_tranche_1": true,
       "row_lane": "RT-A5 slice 1b / load-cases lane (0.9.0)",
-      "state": "in tranche 1 as a subtraction; `difference_basis` pending"
+      "state": "in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending"
     },
     {
       "entities": [

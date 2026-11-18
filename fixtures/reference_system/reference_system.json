@@ -8,7 +8,7 @@
     {
       "basis": "result_state_subtraction",
       "id": "combination:RS-EXP",
-      "label": "RS-EXP expansion: RS-OPE-REF - RS-SUS",
+      "label": "RS-EXP expansion: RS-OPE-REF - RS-SUS, the difference of two solved states on the 20 degC modulus",
       "minuend_id": "load:RS-OPE-REF",
       "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
       "subtrahend_id": "load:RS-SUS"

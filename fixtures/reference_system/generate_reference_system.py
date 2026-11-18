@@ -251,7 +251,10 @@ CASES = [
 REFERENCE_MODULUS_REASON = ("RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion "
                             "comparison RS-EXP has both operands on one material basis (spec §8.1)")
 COMBINATIONS = [
-    ("RS-EXP", "RS-EXP expansion: RS-OPE-REF - RS-SUS", "RS-OPE-REF", "RS-SUS"),
+    # spec §8.2: the difference of two independently solved equilibria on one material basis, not a solve under the
+    # load difference.
+    ("RS-EXP", "RS-EXP expansion: RS-OPE-REF - RS-SUS, the difference of two solved states on the 20 degC modulus",
+     "RS-OPE-REF", "RS-SUS"),
     ("RS-dSAM", "RS-dSAM anchor movement term: RS-SAM - RS-SUS", "RS-SAM", "RS-SUS"),
 ]
 
@@ -278,9 +281,9 @@ LEDGER = [
      "the intended one-way normal source solves in the combined test overlay and is not confirmed: "
      "without RS-G1 each case is `NUMERICAL_INTEGRITY_SENSITIVE` (friction normal source is not a base "
      "restraint), with RS-G1 unqualified (core/product_physics/tests/rt_a3_s6_reference_system.rs)"),
-    ("RS-SUS, RS-OPE (thermal, modulus by temperature)",
+    ("RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)",
      "in tranche 1 as linear cases (load/reference-state group)", "—", "—"),
-    ("RS-EXP", "in tranche 1 as a subtraction; `difference_basis` pending",
+    ("RS-EXP", "in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending",
      "RT-A5 slice 1b / load-cases lane (0.9.0)", "basis not recorded"),
     ("RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature", "pending",
      "#1678 / load-cases lane", "`EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`"),
@@ -342,14 +345,16 @@ KEY_RESULTS = [
     ("KR-10", "Hanger table: per hanger, the sized load, travel and selected invented record", ["hanger sizing"],
      "verified_solve", "verified solve"),
     ("EQ-1", "The sum of vertical reactions over all supports, the spring and the constant-effort support included, "
-     "equals the total weight, in RS-SUS, RS-OPE and RS-SAM, and in RS-HYD (with the test contents) when it lands",
-     ["RS-SUS", "RS-OPE", "RS-SAM", "RS-HYD"], "closed_form", "closed form: the total weight recomputed independently "
+     "equals the total weight, in RS-SUS, RS-OPE, RS-OPE-REF and RS-SAM, and in RS-HYD (with the test contents) when "
+     "it lands",
+     ["RS-SUS", "RS-OPE", "RS-OPE-REF", "RS-SAM", "RS-HYD"], "closed_form", "closed form: the total weight recomputed independently "
      "from the inputs (§4, §5) on EX's stated mass bases"),
-    ("EQ-2", "In RS-SUS, RS-OPE and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant is zero, and "
-     "the reaction moment resultant about the origin equals minus the moment of the weight",
-     ["RS-SUS", "RS-OPE", "RS-SAM", "RS-HYD"], "closed_form", "closed form from the inputs"),
-    ("EQ-3", "On every published signed component row, RS-EXP equals RS-OPE - RS-SUS; magnitude rows are "
-     "recomputed from the combined components; withheld rows are excluded", ["RS-EXP", "RS-OPE", "RS-SUS"],
+    ("EQ-2", "In RS-SUS, RS-OPE, RS-OPE-REF and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant "
+     "is zero, and the reaction moment resultant about the origin equals minus the moment of the weight",
+     ["RS-SUS", "RS-OPE", "RS-OPE-REF", "RS-SAM", "RS-HYD"], "closed_form", "closed form from the inputs"),
+    ("EQ-3", "On every published signed component row, RS-EXP equals RS-OPE-REF - RS-SUS; magnitude rows are "
+     "recomputed from the combined components; withheld rows are excluded. The identity establishes the "
+     "combination's algebra and nothing about either solve", ["RS-EXP", "RS-OPE-REF", "RS-SUS"],
      "identity", "exact identity"),
     ("EQ-4", "On the same signed component rows, RS-EQ-SRSS equals sqrt(sum dEQ^2) and RS-EQ-ABS equals "
      "sum |dEQ| over the operand rows, so SRSS <= ABS on each", ["RS-EQ-SRSS", "RS-EQ-ABS", "RS-dEQX", "RS-dEQY",
@@ -366,15 +371,20 @@ KEY_RESULTS = [
 
 # Frozen expected values (spec §1): copied from the independent references in REFERENCES (EQ-1, EQ-2; the fixture
 # test checks the copy against references.json) or naming the identity and its record (EQ-3, EQ-5). EQ-1 and EQ-2 are
-# those of the fixture as it now holds RS-R1 and RS-CE1 (REFERENCES); the tranche-1 package REFERENCES_TRANCHE_1 stays
-# frozen as the earlier fixture's, and its README states the EQ-3 and EQ-5 identities and the product-row conventions.
-# The tranche-1 cases only: RS-HYD's weight (test contents) is not yet referenced.
+# those of the fixture as it now holds RS-R1 and RS-CE1 (REFERENCES), for RS-SUS, RS-OPE and RS-SAM there and for
+# RS-OPE-REF through REFERENCES_OPE_REF, which binds the same record to it; the tranche-1 package REFERENCES_TRANCHE_1
+# stays frozen as the earlier fixture's, and its README states the EQ-5 identity and the product-row conventions.
+# REFERENCES_OPE_REF_README states EQ-3 on RS-EXP's operands RS-OPE-REF and RS-SUS. The tranche-1 cases only: RS-HYD's
+# weight (test contents) is not yet referenced.
 REFERENCES = "validation/references/reference_system_r1_ce/references.json"
 REFERENCES_TRANCHE_1 = "validation/references/reference_system/references.json"
 REFERENCES_README = "validation/references/reference_system/README.md"
+REFERENCES_OPE_REF = "validation/references/reference_system_ope_ref/references.json"
+REFERENCES_OPE_REF_README = "validation/references/reference_system_ope_ref/README.md"
 EXPECTED = {
     "EQ-1": {
-        "basis_record": REFERENCES, "key": "W_total_N", "unit": "N", "cases": ["RS-SUS", "RS-OPE", "RS-SAM"],
+        "basis_record": REFERENCES, "key": "W_total_N", "unit": "N", "cases": ["RS-SUS", "RS-OPE", "RS-OPE-REF", "RS-SAM"],
+        "case_binding": {"RS-OPE-REF": REFERENCES_OPE_REF},
         "check": "the sum of the global Z support action components over every support, RS-VS1 and RS-CE1 included, "
                  "equals W_total",
         "exact": "(3600) + (66155686593423/5000000000)*pi + (124534361799687/800000000000)*pi^2",
@@ -382,15 +392,16 @@ EXPECTED = {
     },
     "EQ-2": {
         "basis_record": REFERENCES, "key": "weight_moment_about_origin_N_m", "unit": "N*m",
-        "cases": ["RS-SUS", "RS-OPE", "RS-SAM"],
+        "cases": ["RS-SUS", "RS-OPE", "RS-OPE-REF", "RS-SAM"], "case_binding": {"RS-OPE-REF": REFERENCES_OPE_REF},
         "check": "the horizontal (X, Y) reaction resultant is zero, and the reaction moment resultant about the origin "
                  "(sum of r x F + M over every support) equals minus the weight's moment about the origin",
         "value": [-442344.66809078795, 249877.7487664089, 0.0],
     },
     "EQ-3": {
-        "basis_record": REFERENCES_README, "cases": ["RS-EXP", "RS-OPE", "RS-SUS"],
-        "identity": "on every published signed component row, RS-EXP = RS-OPE - RS-SUS; magnitude rows equal the norm "
-                    "of the combined components; rows the combination withholds are excluded and listed",
+        "basis_record": REFERENCES_OPE_REF_README, "cases": ["RS-EXP", "RS-OPE-REF", "RS-SUS"],
+        "identity": "on every published signed component row, RS-EXP = RS-OPE-REF - RS-SUS; magnitude rows equal the "
+                    "norm of the combined components; rows the combination withholds are excluded and listed; the "
+                    "identity establishes the combination's algebra and nothing about either solve",
     },
     "EQ-5": {
         "basis_record": REFERENCES_README, "cases": ["RS-dSAM"],
@@ -701,8 +712,9 @@ def weight_basis(model):
 def element_states(element_basis):
     """RS-OPE: every member selects its modulus at the operating temperature, RS-P180 included (the MBF lane's
     coverage rule); every member but RS-P180 takes the free-length state at it, and RS-P180 keeps zero eigenstrain
-    (spec §5.1). RS-OPE-REF: the same thermal state on the installed point, each member that has an operating
-    temperature stating its analysis basis. Other cases: the installed point and no thermal state."""
+    (spec §5.1). RS-OPE-REF: the same thermal state on the 20 degC point, each member that has an operating
+    temperature stating its analysis basis (the reason and the record provenance); RS-P180 takes the 20 degC point with
+    no operating temperature and zero eigenstrain. Other cases: the 20 degC point and no thermal state (spec §8.1)."""
     rows = []
     for tag, *_ in MEMBERS:
         hot = element_basis != INSTALLED and tag != REPLACED_SPAN

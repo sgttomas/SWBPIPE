@@ -128,15 +128,20 @@
       "cases": [
         "RS-SUS",
         "RS-OPE",
+        "RS-OPE-REF",
         "RS-SAM",
         "RS-HYD"
       ],
-      "description": "The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE and RS-SAM, and in RS-HYD (with the test contents) when it lands",
+      "description": "The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE, RS-OPE-REF and RS-SAM, and in RS-HYD (with the test contents) when it lands",
       "expected": {
         "basis_record": "validation/references/reference_system_r1_ce/references.json",
+        "case_binding": {
+          "RS-OPE-REF": "validation/references/reference_system_ope_ref/references.json"
+        },
         "cases": [
           "RS-SUS",
           "RS-OPE",
+          "RS-OPE-REF",
           "RS-SAM"
         ],
         "check": "the sum of the global Z support action components over every support, RS-VS1 and RS-CE1 included, equals W_total",
@@ -153,15 +158,20 @@
       "cases": [
         "RS-SUS",
         "RS-OPE",
+        "RS-OPE-REF",
         "RS-SAM",
         "RS-HYD"
       ],
-      "description": "In RS-SUS, RS-OPE and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant is zero, and the reaction moment resultant about the origin equals minus the moment of the weight",
+      "description": "In RS-SUS, RS-OPE, RS-OPE-REF and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant is zero, and the reaction moment resultant about the origin equals minus the moment of the weight",
       "expected": {
         "basis_record": "validation/references/reference_system_r1_ce/references.json",
+        "case_binding": {
+          "RS-OPE-REF": "validation/references/reference_system_ope_ref/references.json"
+        },
         "cases": [
           "RS-SUS",
           "RS-OPE",
+          "RS-OPE-REF",
           "RS-SAM"
         ],
         "check": "the horizontal (X, Y) reaction resultant is zero, and the reaction moment resultant about the origin (sum of r x F + M over every support) equals minus the weight's moment about the origin",
@@ -180,18 +190,18 @@
       "basis": "identity",
       "cases": [
         "RS-EXP",
-        "RS-OPE",
+        "RS-OPE-REF",
         "RS-SUS"
       ],
-      "description": "On every published signed component row, RS-EXP equals RS-OPE - RS-SUS; magnitude rows are recomputed from the combined components; withheld rows are excluded",
+      "description": "On every published signed component row, RS-EXP equals RS-OPE-REF - RS-SUS; magnitude rows are recomputed from the combined components; withheld rows are excluded. The identity establishes the combination's algebra and nothing about either solve",
       "expected": {
-        "basis_record": "validation/references/reference_system/README.md",
+        "basis_record": "validation/references/reference_system_ope_ref/README.md",
         "cases": [
           "RS-EXP",
-          "RS-OPE",
+          "RS-OPE-REF",
           "RS-SUS"
         ],
-        "identity": "on every published signed component row, RS-EXP = RS-OPE - RS-SUS; magnitude rows equal the norm of the combined components; rows the combination withholds are excluded and listed"
+        "identity": "on every published signed component row, RS-EXP = RS-OPE-REF - RS-SUS; magnitude rows equal the norm of the combined components; rows the combination withholds are excluded and listed; the identity establishes the combination's algebra and nothing about either solve"
       },
       "id": "EQ-3",
       "spec_basis": "exact identity"
