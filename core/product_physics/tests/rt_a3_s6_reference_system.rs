@@ -1,7 +1,8 @@
 //! RT-A3 S6 on the full reference system (DEL-09-01
 //! design §5, §6 and §10; DEL-04-07 design §3.7): the actual
 //! maintained topology, fittings, spring and support families and cases
-//! RS-SUS, RS-OPE and RS-SAM with RS-EXP and RS-dSAM, solved through PP's
+//! RS-SUS, RS-OPE and RS-SAM with RS-EXP (RS-OPE-REF - RS-SUS) and RS-dSAM,
+//! solved through PP's
 //! public entry and read by the RE reader, with every family the exact route
 //! currently admits and the fixture does not yet hold overlaid in this test only.
 //!
@@ -17,6 +18,9 @@
 //! member, component, region, material, case identity, case state or
 //! combination of the fixture changes; the test checks that. Nothing here
 //! adopts an overlay into the fixture, its weight record or its pending ledger.
+//! The fixture's fourth case, RS-OPE-REF, is solved with the others as RS-EXP's
+//! minuend; this test states no support state, standing or equilibrium of it,
+//! and reads its rows only for RS-EXP's subtraction algebra.
 //!
 //! **What this establishes and what it does not.** It is the connecting-path
 //! demonstration the local C1/LS1 references (`rt_a3_s6_references.rs`,
@@ -62,8 +66,9 @@ use std::collections::{BTreeMap, BTreeSet};
 const FIXTURE: &str = include_str!("../../../fixtures/reference_system/reference_system.json");
 const WEIGHT_REFERENCES: &str = include_str!("../../../validation/references/reference_system_r1_ce/references.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
+/// The cases whose states, standings and equilibrium this test states (module comment).
 const CASES: [&str; 3] = ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"];
-const SUBTRACTIONS: [(&str, &str); 2] = [("combination:RS-EXP", "load:RS-OPE"), ("combination:RS-dSAM", "load:RS-SAM")];
+const SUBTRACTIONS: [(&str, &str); 2] = [("combination:RS-EXP", "load:RS-OPE-REF"), ("combination:RS-dSAM", "load:RS-SAM")];
 const R1: &str = "component:RS-R1";
 /// RS-R1's weight (spec §5): the EQ-1 mutant adds it once more.
 const R1_WEIGHT_N: f64 = 300.0;
@@ -409,6 +414,8 @@ fn the_released_full_reference_system_solves_through_the_s6_connecting_path() {
         assert!(std::panic::catch_unwind(|| check_eq(&model, &envelope, &label, R1_WEIGHT_N)).is_err(), "{label}: EQ-1 does not discriminate");
         // Subtractions: published as their operands' difference, else withheld by name.
         for (combination, minuend) in SUBTRACTIONS {
+            let record = model["combinations"].as_array().unwrap().iter().find(|c| c["id"] == combination).unwrap();
+            assert_eq!((&record["minuend_id"], &record["subtrahend_id"]), (&json!(minuend), &json!("load:RS-SUS")), "{label} {combination}");
             let rows = case_rows(&envelope, combination);
             if rows.is_empty() {
                 let named: Vec<&Value> = diagnostics(&envelope).iter().filter(|d| d["affected_refs"].as_array().is_some_and(|r| r.contains(&json!(combination)))).collect();
