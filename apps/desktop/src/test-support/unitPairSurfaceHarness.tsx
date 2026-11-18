@@ -10,6 +10,7 @@ import type { ReactNode } from "react";
 import { expect, vi } from "vitest";
 import * as previewService from "../services/previewService";
 import { openLocalProject } from "../services/projectService";
+import * as workspaceSession from "../features/workspace/workspaceSession";
 import { useWorkspaceSession, type WorkspaceSession } from "../features/workspace/workspaceSession";
 import type { PreviewModel } from "../types";
 
@@ -26,6 +27,20 @@ export async function renderSurface(model: PreviewModel, surface: (session: Work
   const view = render(<Harness />);
   await waitFor(() => expect(ref.current?.model.model).not.toBeNull());
   return { session: ref, view };
+}
+
+/** For a whole-App test: the App's own workspace session, captured by a call-through wrapper of
+ * `useWorkspaceSession` (the real hook runs unchanged), so the stored document can be read back.
+ * Call before rendering <App />. */
+export function captureAppSession(): SessionRef {
+  const ref = {} as SessionRef;
+  const real = workspaceSession.useWorkspaceSession;
+  vi.spyOn(workspaceSession, "useWorkspaceSession").mockImplementation(() => {
+    const session = real();
+    ref.current = session;
+    return session;
+  });
+  return ref;
 }
 
 /** The session's current document after saving it and reopening the saved project. */

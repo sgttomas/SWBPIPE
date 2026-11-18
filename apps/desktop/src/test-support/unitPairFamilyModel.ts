@@ -23,6 +23,7 @@ export function unitPairFamilyModel(): PreviewModel {
   return {
     schema_version: MODEL_SCHEMA_VERSION,
     document_kind: "openpipestress.product_preview.model",
+    data_boundary: { source: "invented_example_not_library_data" },
     project: {
       id: "project:uf-unit-pair-family",
       name: "Invented unit-pair family cantilever",
