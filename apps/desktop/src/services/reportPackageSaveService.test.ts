@@ -230,8 +230,9 @@ async function referencePreparation(controlled: ControlledRouteExport, model: un
 }
 
 const fixture = (file: string) => JSON.parse(readFileSync(resolve(__dirname, "../../../../", file), "utf8")) as Record<string, unknown>;
-/** Requests the save sends: the invented one, one of every JSON shape and text the canonical form
- * escapes or orders, and the committed package requests (exact and pressure-free). */
+/** Eight payloads: the invented request; an invented request of escaped texts, ordered keys and
+ * numbers; the committed exact package request; the committed user-release request; and the four
+ * derivation vectors' run records, used as payloads. */
 function requestCorpus(): Array<[string, unknown, unknown, unknown]> {
   const exact = fixture("fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json");
   const released = fixture("fixtures/reports/invented/user_release_exact/pressure_source_1.json");
@@ -249,7 +250,7 @@ function requestCorpus(): Array<[string, unknown, unknown, unknown]> {
 }
 
 describe("prepareReportPackageSave canonicalises the payload once", () => {
-  it("prepares the same texts, hash and screening as the five-call preparation, on every request", async () => {
+  it("prepares the same texts, hash and screening as the five-call preparation, on each of eight payloads", async () => {
     desktop();
     for (const [name, request, model, inputManifest] of requestCorpus()) {
       const controlled = controlledRequest(structuredClone(request));
@@ -285,7 +286,7 @@ describe("prepareReportPackageSave canonicalises the payload once", () => {
     expect(vi.mocked(hashService.canonicalJsonString).mock.calls.map(([value]) => value)).toEqual([controlled.payload, REQUEST, MODEL, INPUT_MANIFEST]);
   });
 
-  it("keeps the lossless check canonical-text equality", async () => {
+  it("admits or refuses seven payload variants as canonical-text equality does", async () => {
     desktop();
     const cases: Array<[string, unknown, boolean]> = [
       ["member order only", { report: { a: [2, "Ω"], z: 1 }, package_id: "invented" }, true],

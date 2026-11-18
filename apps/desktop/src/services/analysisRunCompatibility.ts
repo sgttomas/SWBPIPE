@@ -9,7 +9,7 @@ import previewPhysicsTimoshenkoTable from "../../../../fixtures/results/semantic
 import previewPhysicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import physicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
-import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "./hashService";
+import { canonicalSha256Hex, canonicalSha256HexCheckedV1, checkJsonProfile } from "./hashService";
 import { inputManifestRef, type CurrentSessionInputManifest } from "./inputManifestService";
 import { libraryRefSites } from "./libraryImportService";
 import { trimLikeRust } from "./rustTrim";
@@ -347,80 +347,10 @@ export function structurallyEqual(left: unknown, right: unknown): boolean {
   return Object.is(left, right) || (typeof left === "number" && left === right);
 }
 
-function validUnicodeScalarString(value: string): boolean {
-  for (let index = 0; index < value.length; index += 1) {
-    const unit = value.charCodeAt(index);
-    if (unit >= 0xd800 && unit <= 0xdbff) {
-      const next = value.charCodeAt(index + 1);
-      if (!(next >= 0xdc00 && next <= 0xdfff)) return false;
-      index += 1;
-    } else if (unit >= 0xdc00 && unit <= 0xdfff) return false;
-  }
-  return true;
-}
-
-/** A copy of `checkedJsonTextOf` (hashService.ts) up to its final `JSON.stringify`: the same
- * checks and errors in the same order, returning the plain data (arrays, null-prototype
- * objects, primitives) instead of its text. sameCheckedJson.test.ts compares the result with
- * the text relation it replaced. */
-function checkedJsonValue(value: unknown): unknown {
-  const seen = new Set<object>();
-  const freeze = (item: unknown): unknown => {
-    if (item === null || typeof item === "boolean") return item;
-    if (typeof item === "string") {
-      if (!validUnicodeScalarString(item)) throw new Error("CHECKED-JSON-LONE-SURROGATE");
-      return item;
-    }
-    if (typeof item === "number") {
-      if (!Number.isFinite(item) || (Number.isInteger(item) && !Number.isSafeInteger(item))) {
-        throw new Error("CHECKED-JSON-NUMBER-OUTSIDE-PROFILE");
-      }
-      return item;
-    }
-    if (typeof item !== "object") throw new Error(`CHECKED-JSON-UNSUPPORTED-TYPE: ${typeof item}`);
-    if (seen.has(item)) throw new Error("CHECKED-JSON-CYCLIC-VALUE");
-    seen.add(item);
-    try {
-      const descriptors = Object.getOwnPropertyDescriptors(item);
-      const keys = Reflect.ownKeys(descriptors);
-      if (Array.isArray(item)) {
-        if (keys.some((key) => typeof key !== "string")) throw new Error("CHECKED-JSON-SYMBOL-KEY");
-        const lengthDescriptor = descriptors.length;
-        const length = lengthDescriptor?.value;
-        if (!lengthDescriptor || typeof length !== "number" || !Number.isSafeInteger(length) || length < 0) throw new Error("CHECKED-JSON-ARRAY-LENGTH");
-        const allowed = new Set(["length", ...Array.from({ length }, (_, index) => String(index))]);
-        if (keys.some((key) => !allowed.has(key as string))) throw new Error("CHECKED-JSON-ARRAY-OWN-PROPERTY");
-        const frozen: unknown[] = [];
-        for (let index = 0; index < length; index += 1) {
-          const descriptor = descriptors[String(index)];
-          if (!descriptor) throw new Error("CHECKED-JSON-SPARSE-ARRAY");
-          if (descriptor.get || descriptor.set || !descriptor.enumerable) throw new Error("CHECKED-JSON-UNSUPPORTED-PROPERTY");
-          frozen.push(freeze(descriptor.value));
-        }
-        return frozen;
-      }
-      const prototype = Object.getPrototypeOf(item);
-      if (prototype !== Object.prototype && prototype !== null) throw new Error("CHECKED-JSON-NON-PLAIN-OBJECT");
-      const frozen: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
-      for (const key of keys) {
-        if (typeof key !== "string") throw new Error("CHECKED-JSON-SYMBOL-KEY");
-        if (!validUnicodeScalarString(key)) throw new Error("CHECKED-JSON-LONE-SURROGATE");
-        const descriptor = descriptors[key];
-        if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) throw new Error("CHECKED-JSON-UNSUPPORTED-PROPERTY");
-        frozen[key] = freeze(descriptor.value);
-      }
-      return frozen;
-    } finally {
-      seen.delete(item);
-    }
-  };
-  return freeze(value);
-}
-
-/** Equality of two values `checkedJsonValue` returned: a string, boolean or null by identity,
- * a number by `===` (so zero equals negative zero, which serialise alike), an array by length
- * and element, an object by its member names in any order and their values; an array never
- * equals an object. */
+/** Equality of two values that passed `checkJsonProfile`, read from the values themselves:
+ * a string, boolean or null by identity, a number by `===` (so zero equals negative zero,
+ * which serialise alike), an array by length and element, an object by its member names in
+ * any order and their values; an array never equals an object. */
 function checkedJsonValuesEqual(left: unknown, right: unknown): boolean {
   if (left === right) return true;
   if (typeof left !== "object" || typeof right !== "object" || left === null || right === null) return false;
@@ -440,15 +370,27 @@ function checkedJsonValuesEqual(left: unknown, right: unknown): boolean {
 }
 
 /** The equality `validateAnalysisRunV03` compares its source bindings by, without making
- * text: either side undefined compares by identity; otherwise the left side is checked
- * wholly, then the right, then the two are compared. It replaces a comparison of the checked
- * texts, parsed, member-sorted and serialised again; sameCheckedJson.test.ts runs both over a
- * generated corpus and requires the same result or error on every pair. */
+ * text or copies: either side undefined compares by identity; otherwise the left side passes
+ * the checked profile wholly (`checkJsonProfile`, the checks `checkedJsonText` runs, which
+ * throw its errors), then the right side, then the two are compared as they stand. It
+ * replaced a comparison of the checked texts, parsed, member-sorted and serialised again;
+ * sameCheckedJson.test.ts runs both over a generated corpus and requires the same result or
+ * error on every pair.
+ * Its domain is values nested no deeper than the JavaScript engine's `JSON.stringify`
+ * recursion allows, whose members read the same on a second read (plain data), with the
+ * built-in prototypes unpatched. Outside it the two differ, and this is not repaired:
+ * - Nested deeper than `JSON.stringify` recursion allows, the old comparison failed with the
+ *   engine's stack error and this one does not. In the validator the operands that come from
+ *   the source are refused first, by the wasm reader's parse depth limit (128 levels, pinned
+ *   in analysisRunDepth.test.ts), and a deep record member is then unequal to its shallow
+ *   operand; analysisRunDepth.test.ts records each case.
+ * - A `toJSON` added to `Array.prototype` or `Object.prototype` was consulted by the old
+ *   comparison's `JSON.stringify` and is not read here; the product patches neither. */
 export function sameCheckedJson(a: unknown, b: unknown): boolean {
   if (a === undefined || b === undefined) return a === b;
-  const left = checkedJsonValue(a);
-  const right = checkedJsonValue(b);
-  return checkedJsonValuesEqual(left, right);
+  checkJsonProfile(a);
+  checkJsonProfile(b);
+  return checkedJsonValuesEqual(a, b);
 }
 
 /** The recorded form's load basis: the stored manifest's load cases, then its combinations. */

@@ -45,6 +45,21 @@ export function checkedJsonText(value: unknown): string {
 }
 
 function checkedJsonTextOf(value: unknown): string {
+  return JSON.stringify(checkedJsonWalk(value, true));
+}
+
+/** The checked profile's checks on `value`, throwing the error `checkedJsonText` throws, in
+ * the same order, without making its copy or its text. `sameCheckedJson`
+ * (analysisRunCompatibility.ts) checks each operand with it before comparing them. */
+export function checkJsonProfile(value: unknown): void {
+  checkedJsonWalk(value, false);
+}
+
+/** The checked profile, applied once for both uses: with `copy`, the checked copy
+ * (arrays, null-prototype objects, primitives) that `checkedJsonTextOf` serialises;
+ * without, the same checks in the same order and no copy (it returns undefined for
+ * every container). */
+function checkedJsonWalk(value: unknown, copy: boolean): unknown {
   const seen = new Set<object>();
   const freeze = (item: unknown): unknown => {
     if (item === null || typeof item === "boolean") return item;
@@ -71,31 +86,33 @@ function checkedJsonTextOf(value: unknown): string {
       if (!lengthDescriptor || typeof length !== "number" || !Number.isSafeInteger(length) || length < 0) throw new Error("CHECKED-JSON-ARRAY-LENGTH");
       const allowed = new Set(["length", ...Array.from({ length }, (_, index) => String(index))]);
       if (keys.some((key) => !allowed.has(key as string))) throw new Error("CHECKED-JSON-ARRAY-OWN-PROPERTY");
-      const frozen: unknown[] = [];
+      const frozen: unknown[] | undefined = copy ? [] : undefined;
       for (let index = 0; index < length; index += 1) {
         const descriptor = descriptors[String(index)];
         if (!descriptor) throw new Error("CHECKED-JSON-SPARSE-ARRAY");
         if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) throw new Error("CHECKED-JSON-UNSUPPORTED-PROPERTY");
-        frozen.push(freeze(descriptor.value));
+        const element = freeze(descriptor.value);
+        if (frozen) frozen.push(element);
       }
       return frozen;
       }
       const prototype = Object.getPrototypeOf(item);
       if (prototype !== Object.prototype && prototype !== null) throw new Error("CHECKED-JSON-NON-PLAIN-OBJECT");
-      const frozen: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
+      const frozen: Record<string, unknown> | undefined = copy ? Object.create(null) as Record<string, unknown> : undefined;
       for (const key of keys) {
         if (typeof key !== "string") throw new Error("CHECKED-JSON-SYMBOL-KEY");
         if (!validUnicodeScalarString(key)) throw new Error("CHECKED-JSON-LONE-SURROGATE");
         const descriptor = descriptors[key];
         if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) throw new Error("CHECKED-JSON-UNSUPPORTED-PROPERTY");
-        frozen[key] = freeze(descriptor.value);
+        const member = freeze(descriptor.value);
+        if (frozen) frozen[key] = member;
       }
       return frozen;
     } finally {
       seen.delete(item);
     }
   };
-  return JSON.stringify(freeze(value));
+  return freeze(value);
 }
 
 export async function canonicalJsonString(value: unknown): Promise<string> {

@@ -135,7 +135,7 @@ describe("Save Shareable Report Package… preparation (route 010)", () => {
     });
   }
 
-  it("prepares the texts, hash and screening the six-call preparation made, the payload canonicalised once", async () => {
+  it("prepares the texts, hash and screening the six-call preparation made, with each of four run records", async () => {
     const { model, result, inputManifest } = await pressureFreeSession();
     const vectors = load("fixtures/reports/invented/user_release_derivation_vectors.json").vectors as Json[];
     const { controlled, request } = await prepareShareableReportPackageSave({

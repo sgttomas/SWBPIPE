@@ -136,7 +136,7 @@ function hasAllowedLocalFirstEvidence(input: ControlledRouteExport): boolean {
  * `sha256_hex(canonical_json(parse(text)))` and `sha256_hex` hashes the text's UTF-8 bytes;
  * the preparations take a payload's hash this way from the text `canonical_json_string`
  * returned instead of canonicalising the payload again. Their tests compare the result with
- * the engine's on the committed package requests. */
+ * the engine's on eight route-009 payloads and one route-010 request. */
 export async function canonicalTextSha256Hex(canonicalText: string): Promise<string> {
   const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonicalText));
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
