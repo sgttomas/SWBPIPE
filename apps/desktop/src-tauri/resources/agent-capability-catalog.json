@@ -38,7 +38,7 @@
     ]
   },
   "limits": {
-    "argumentBytes": 16384,
+    "argumentBytes": 28672,
     "resultBytes": 65536,
     "pageRows": 50,
     "pendingCalls": 16,
@@ -1495,12 +1495,12 @@
             "before": {
               "type": "string",
               "minLength": 1,
-              "maxLength": 16384
+              "maxLength": 28672
             },
             "after": {
               "type": "string",
               "minLength": 1,
-              "maxLength": 16384
+              "maxLength": 28672
             },
             "unit": {
               "type": "string",
@@ -1891,7 +1891,7 @@
         "recordText": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 16384
+          "maxLength": 28672
         },
         "before": {
           "type": "object",
@@ -1899,7 +1899,7 @@
           "additionalProperties": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 16384
+            "maxLength": 28672
           }
         }
       }

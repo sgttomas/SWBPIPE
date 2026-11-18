@@ -226,21 +226,20 @@ fn newly_admitted_kinds_enter_the_reference_families_from_the_fixture_values() {
 }
 
 #[test]
-fn two_analysis_states_exceed_one_proposal_and_a_replacement_needs_two() {
-    // The argument bound is unchanged: a state travels alone, and replacing a
-    // stored state (its before text is the state) is a removal, then a write.
+fn replacing_the_largest_analysis_state_needs_a_removal_then_a_write() {
+    // An analysis state is one field. Replacing a stored state names it twice (its
+    // before text is the state), which for the reference system's largest state
+    // exceeds the argument bound: it is a removal, then a write.
     let fixture = reference();
-    let cases = fixture["load_cases"].as_array().unwrap();
-    let ops: Vec<Value> = cases.iter().take(2).map(|case| none("modify", "Load", case["id"].as_str().unwrap(), "update_load", "analysis_state", "not_present", &canonical_json(&case["analysis_state"]))).collect();
-    let arguments = json!({"operations": ops});
-    assert!(serde_json::to_vec(&arguments).unwrap().len() as u64 > catalog()["limits"]["argumentBytes"].as_u64().unwrap());
-    let state = canonical_json(&cases[1]["analysis_state"]);
-    let replace = json!({"operations":[none("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", &state, &state)]});
+    let (id, state) = fixture["load_cases"].as_array().unwrap().iter()
+        .map(|case| (case["id"].as_str().unwrap().to_string(), canonical_json(&case["analysis_state"])))
+        .max_by_key(|(_, state)| state.len()).unwrap();
+    let replace = json!({"operations":[none("modify", "Load", &id, "update_load", "analysis_state", &state, &state)]});
     assert!(serde_json::to_vec(&replace).unwrap().len() as u64 > catalog()["limits"]["argumentBytes"].as_u64().unwrap());
-    let removal = none("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", &state, "not_present");
+    let removal = none("modify", "Load", &id, "update_load", "analysis_state", &state, "not_present");
     assert!(catalog_admits(&removal));
     let applied = propose(&fixture, vec![removal]);
-    assert!(find(&applied, "load_cases", "load:RS-OPE").get("analysis_state").is_none());
+    assert!(find(&applied, "load_cases", &id).get("analysis_state").is_none());
 }
 
 fn refusal_codes(model: &Value, op: &Value) -> Vec<String> {

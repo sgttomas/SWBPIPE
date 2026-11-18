@@ -106,9 +106,9 @@ describe('workspace-owned live embedded agent adapter',()=>{
  });
  it('cannot be reached past the member-count bound or the length bound through the agent: such arguments exceed the host argument bound first',()=>{
   // The smallest after value with more members than the walk reads, and any after text longer
-  // than the check reads, is far larger than the 16,384 argument bytes the host admits
+  // than the check reads, is far larger than the 28,672 argument bytes the host admits
   // (protocol.rs refuses larger arguments before the webview; the catalog caps an after at
-  // 16,384 characters), and the bridge refuses a claim over 64 KiB; these bounds are for intake
+  // 28,672 characters), and the bridge refuses a claim over 64 KiB; these bounds are for intake
   // and requeue (operationAuthorship.bounds.test.ts).
   const smallest=`[${'0,'.repeat(PERSON_ENTERED_CHECK.maxMembers)}0]`;
   expect(new TextEncoder().encode(smallest).byteLength).toBeGreaterThan(64*1024);
@@ -353,8 +353,8 @@ describe('workspace-owned live embedded agent adapter',()=>{
  it('bounds record pages in UTF-8 bytes and never cuts an oversized first entry',async()=>{
   vi.useFakeTimers();const {session,call,model}=setup();
   const records=model as unknown as Record<string,unknown>;
-  // 6000 three-byte characters: under 16384 UTF-16 units, over 16384 bytes.
-  records.supports=[{id:'support:wide',label:'€'.repeat(6000),node:'node-1',restraints:['UX'],provenance:'p'}];
+  // 10000 three-byte characters: under 28672 UTF-16 units, over 28672 bytes.
+  records.supports=[{id:'support:wide',label:'€'.repeat(10000),node:'node-1',restraints:['UX'],provenance:'p'}];
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}});await session.start('revision');await session.poll();await drain();
   let outcome=JSON.parse(session.actual('invented-session:1')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('support:wide');
   // Two records of about 30 KB each: the page holds one and resumes at the next.
@@ -362,10 +362,30 @@ describe('workspace-owned live embedded agent adapter',()=>{
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
   outcome=JSON.parse(session.actual('invented-session:2')!.outcome);expect(outcome.data.records.map((r:{id:string})=>r.id)).toEqual(['support:0']);expect(outcome.data.nextCursor).toEqual(expect.any(String));
   expect(outcome.data.records[0].before.delete).toBe('€'.repeat(5000));
-  // Each text fits 16 KiB, but escaping makes the single entry larger than a page.
+  // Each text fits the record text bound, but escaping makes the single entry larger than a page.
   records.supports=[{id:'support:quoted',label:'"'.repeat(3900),node:'node-1',restraints:['UX'],provenance:'"'.repeat(3900)}];
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
   outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('support:quoted');
+  await session.close();
+ });
+ it('reports the catalog limits and reads back a stored state up to the argument bound, one byte over by name',async()=>{
+  // One figure bounds a text the agent writes (the argument bytes, a change's before and after)
+  // and the same text read back: a state the agent could enter and not read could never be removed,
+  // since its removal names the stored state as its before.
+  vi.useFakeTimers();const {session,call,model}=setup();
+  const bound=catalog.limits.argumentBytes;expect(bound).toBe(28672);
+  await session.start('revision');await session.poll();await drain();
+  expect(JSON.parse(session.actual('invented-session:1')!.outcome).data.limits).toEqual(catalog.limits);
+  const records=model as unknown as Record<string,unknown>;
+  // {"provenance":"…"} is 17 bytes around its text.
+  const loadCase=(fill:number)=>[{id:'load:L1',label:'L1',kind:'sustained',status:'active',primitive_loads:[],analysis_state:{provenance:'x'.repeat(fill)}}];
+  records.load_cases=loadCase(bound-17);
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
+  let outcome=JSON.parse(session.actual('invented-session:2')!.outcome);expect(outcome.status).toBe('ok');
+  expect(new TextEncoder().encode(outcome.data.records[0].before.analysis_state).byteLength).toBe(bound);
+  records.load_cases=loadCase(bound-16);
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
+  outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('load:L1');
   await session.close();
  });
  it('filters result pages by kind and entity and binds the filter to the cursor',async()=>{
