@@ -23,9 +23,9 @@ import { controlLocalPrivateRenderedHtml } from "./reportRedactionProjector";
 import { provenanceReasonEntity } from "./provenanceReasonEntities";
 import { assembleRenderedReport } from "./renderedReportAssembly";
 import type { NumericalHealthView } from "../results/numericalHealth";
-import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
+import type { ControlledRouteEvidence, ControlledRouteEvidenceWithPayload } from "../redaction-controls/redactionExportControls";
 import type { ReportPackageSaveReceipt, ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
-import { REPORT_PACKAGE_USER_RELEASE_ROUTE_ID } from "../redaction-controls/redactionExportControls";
+import { controlledRouteEvidence, REPORT_PACKAGE_USER_RELEASE_ROUTE_ID } from "../redaction-controls/redactionExportControls";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import {
   controlRenderedReportHtml,
@@ -170,7 +170,8 @@ export function RenderedReportPanel({
   ruleCheckRun?: SessionRuleCheckRun | null;
   packagePrivateIntent?: boolean;
   packageBusy?: boolean;
-  packageRedaction?: ControlledRouteExport | null;
+  /** The package control's summary and blocked flag (never its per-value records). */
+  packageRedaction?: ControlledRouteEvidence | null;
   packageRoute?: ReportPackageSaveRoute | null;
   /** DEL-08-01 REQ-024: the panel's result is shown for its rendered report only (a solved
    * exact-route result that is not numerically eligible). The report package takes only a
@@ -204,9 +205,11 @@ export function RenderedReportPanel({
   // be printed again and a changed one printed afresh.
   const [printRequest, setPrintRequest] = useState<number | null>(null);
   const printPresses = useRef(0);
+  // The render control's summary, blocked flag and payload (the provenance reason reader's
+  // input), never its per-value decisions and findings, which the panel does not read.
   const [redactionState, setRedactionState] = useState<{
     context: ReportExportContext;
-    controlled: ControlledRouteExport;
+    controlled: ControlledRouteEvidenceWithPayload;
   } | null>(null);
   const renderGeneration = useRef(0);
   const nativeRoutes = isNativeRenderedReportRuntime();
@@ -359,7 +362,7 @@ export function RenderedReportPanel({
       });
       if (!isCurrent()) return;
       const { controlled, exactSubmission } = assembly;
-      setRedactionState({ context, controlled });
+      setRedactionState({ context, controlled: controlledRouteEvidence(controlled, "payload") });
       if (controlled.blocked || controlled.payload === null) return;
       if (!isCurrent()) return;
       // An exact source: the admission's live re-check, immediately before IPC (and
