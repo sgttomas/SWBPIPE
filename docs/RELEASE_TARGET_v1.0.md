@@ -214,30 +214,28 @@ target remains adequate. A failure alone does not justify relaxing one.
    sizing.
 
    *Owning deliverables:* DEL-04-07 (one route); DEL-03-03 to DEL-03-06 (components); DEL-04-03 and DEL-04-04 (supports); DEL-05-01 and DEL-05-02 (loads, cases, combinations); DEL-04-09 (modal); DEL-04-10 (response spectrum); DEL-04-11 (hanger sizing).
-2. **Benchmarks.** Each analysis in criterion 1 passes closed-form or hand-calculation
-   references frozen in `validation/references/` with an independent generator.
-   Modal also passes at least one published piping benchmark (DEL-04-09
-   AC-010).
+2. **Benchmarks.** Each analysis in criterion 1 passes closed-form or
+   hand-calculation benchmarks on invented cases that exercise that analysis,
+   using references frozen in `validation/references/` with an independent
+   generator. Modal also passes at least one published piping benchmark
+   (DEL-04-09 AC-010).
 
-   What is referenced, and on which model:
-   - An analysis's response (displacements, rotations, element forces and
-     moments, support loads, frequencies) is referenced on invented models,
-     by that analysis's own packages.
-   - On the reference system itself the frozen references are equilibrium
-     and identity checks on its published results (the `reference_system`
-     packages): the support reaction resultant and its moment about the
-     origin against the applied weight, and against each generated wind or
-     static seismic load; and identities on published rows for the expansion
-     difference, the seismic anchor movement difference and the SRSS and
-     absolute-sum combinations.
-   - No independent solution of the reference system's response is frozen.
-     Its checks show that the published reactions balance the applied loads
-     and that derived rows follow their definitions. They do not show that
-     its displacements, element forces or support loads are correct.
-
-   The criterion requires both: each analysis's response references pass on
-   their invented models, and every check frozen for the reference system
-   passes on the reference system.
+   The solved reference system also passes every reference check that its
+   cases admit (DEL-09-01 AC-009), against the references for its fixture
+   revision. The fixture specification names them
+   (`fixtures/reference_system/SPECIFICATION.md` §9). A check that cannot
+   yet be made is unmet, not waived.
+   - They are checks of equilibrium and identity: support force and moment
+     balance against case weight, hydrotest weight included; the change from
+     sustained against each wind or static seismic load resultant;
+     self-equilibrium of the seismic anchor movement difference; the
+     expansion difference and the seismic and spectrum combination rows
+     against their definitions; and the constant-effort support's published
+     load and action against its entered load.
+   - Their references are in the packages `reference_system`,
+     `reference_system_r1_ce` and `reference_system_pending_cases`.
+   - No independent solution of the full system's response is frozen, so
+     these checks do not establish the response throughout the system.
 
    *Owning deliverables:* each analysis's deliverable under criterion 1, with DEL-09-01 for the reference system.
 3. **Limitations.** Every remaining refusal of a capability these criteria require is listed in the
