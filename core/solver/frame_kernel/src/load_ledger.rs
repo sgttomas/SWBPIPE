@@ -19,6 +19,11 @@ use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::structural::{LoadClosureEntry, LoadPrimitive};
 use std::fmt;
 
+/// Whether this kernel was compiled with the test-only ledger-site observer
+/// (`site_observer`). Product and ordinary test builds never enable it;
+/// product_physics' `tests/ledger_site_observer.rs` asserts `false` there.
+pub const LEDGER_SITE_OBSERVER: bool = cfg!(feature = "ledger-site-observer");
+
 /// Trusted formed/input classification survives omission of numeric S11-G records.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct LoadClosureRecord {
@@ -139,29 +144,36 @@ impl LoadLedger {
     }
 
     /// Pushes one rounded formed term.
+    #[cfg_attr(feature = "ledger-site-observer", track_caller)]
     pub fn push(&mut self, source: impl Into<String>, dof: usize, value: f64) {
         self.terms.push(ForceTerm {
             source: source.into(),
             dof,
             kind: ForceTermKind::Term(value),
         });
+        #[cfg(feature = "ledger-site-observer")]
+        site_observer::append(std::panic::Location::caller(), &self.terms);
         self.formations.push(None);
         self.closures.push(LoadClosureRecord::default());
     }
 
     /// Pushes one load-proportional product, kept exact.
+    #[cfg_attr(feature = "ledger-site-observer", track_caller)]
     pub fn push_product(&mut self, source: impl Into<String>, dof: usize, a: f64, b: f64) {
         self.terms.push(ForceTerm {
             source: source.into(),
             dof,
             kind: ForceTermKind::Product(a, b),
         });
+        #[cfg(feature = "ledger-site-observer")]
+        site_observer::append(std::panic::Location::caller(), &self.terms);
         self.formations.push(None);
         self.closures.push(LoadClosureRecord::default());
     }
 
     /// Pushes one rounded formed term with its formation record (S11-G).
     /// The term is exactly what `push` would push.
+    #[cfg_attr(feature = "ledger-site-observer", track_caller)]
     pub fn push_formed(
         &mut self,
         source: impl Into<String>,
@@ -178,6 +190,7 @@ impl LoadLedger {
     /// Pushes one exact product term with its formation record (S11-G): the
     /// term is exactly what `push_product` would push.
     #[allow(clippy::too_many_arguments)]
+    #[cfg_attr(feature = "ledger-site-observer", track_caller)]
     pub fn push_formed_product(
         &mut self,
         source: impl Into<String>,
@@ -234,6 +247,8 @@ impl LoadLedger {
 
     /// Each DOF's correctly rounded net, rounded once. +0.0 for a zero net.
     pub fn finish(self, size: usize) -> Result<AssembledForce, LedgerError> {
+        #[cfg(feature = "ledger-site-observer")]
+        site_observer::seal(size, &self.terms);
         let mut by_dof = vec![Vec::new(); size];
         for (index, term) in self.terms.iter().enumerate() {
             if term.source.is_empty() {
@@ -374,6 +389,8 @@ impl AssembledForce {
             primitive.term_index += offset;
             primitive
         }));
+        #[cfg(feature = "ledger-site-observer")]
+        site_observer::appended(offset, ledger.terms.len() - offset);
         ledger.finish(size)
     }
 
@@ -420,6 +437,8 @@ impl AssembledForce {
             .iter()
             .map(|term| force_scaled_term(term, scale).ok_or(failed.clone()))
             .collect::<Result<Vec<_>, _>>()?;
+        #[cfg(feature = "ledger-site-observer")]
+        site_observer::scaled(scale.exponent(), &terms);
         let mut values = Vec::with_capacity(self.values.len());
         let mut evidence = LedgerEvidence::default();
         for (dof, indices) in self.by_dof.iter().enumerate() {
@@ -1364,5 +1383,269 @@ mod tests {
                 error: SumError::NonFinite
             }
         );
+    }
+}
+
+/// B1's test-only ledger-site observer, compiled only under the off feature
+/// `ledger-site-observer`. While a scope is armed on a thread, it records, on
+/// that thread, every append to a `LoadLedger` (`push`, `push_product`, and
+/// the formed wrappers, attributed by `track_caller` to their caller), every
+/// seal by `finish`, every appended copy by `AssembledForce::with_appended`,
+/// every rebuild by `AssembledForce::force_scaled`, each right-hand side a
+/// structural preparation formed, and each right-hand side a structural factor
+/// completion passed to its solve. An event on another thread while a scope is
+/// armed is counted and fails `Armed::take`. Unarmed, nothing is recorded.
+/// The armed scope can ask that the next formed right-hand side has the low
+/// bit of one entry flipped: the test-only alteration between formation and
+/// consumption.
+#[cfg(feature = "ledger-site-observer")]
+pub mod site_observer {
+    use super::{ForceTerm, ForceTermKind};
+    use std::cell::RefCell;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::{Mutex, MutexGuard};
+    use std::thread::ThreadId;
+
+    /// A term's kind and exact words: a value's bits, or both factors' bits.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum Words {
+        Term(u64),
+        Product(u64, u64),
+    }
+
+    /// A term as stored: its source identity after `into()`, DOF and words.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct ObservedTerm {
+        pub source: String,
+        pub dof: usize,
+        pub words: Words,
+    }
+
+    /// The preparation that formed a right-hand side.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum Preparation {
+        Dense,
+        Sparse,
+    }
+
+    /// The force binding a completion read, by its three queries.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct Binding {
+        pub binary64: bool,
+        pub assembled: bool,
+        pub audit_terms: bool,
+    }
+
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum Event {
+        /// One append; `index` is the ledger's term count before it.
+        Append {
+            file: &'static str,
+            line: u32,
+            column: u32,
+            index: usize,
+            term: ObservedTerm,
+        },
+        /// One `finish`; `serial` counts seals from 0 within the armed scope.
+        Seal {
+            serial: usize,
+            size: usize,
+            terms: Vec<ObservedTerm>,
+        },
+        /// `with_appended`'s copy, recorded before its `finish`: the base term
+        /// count and the extra ledger's term count.
+        Appended { offset: usize, extra: usize },
+        /// One `force_scaled`: the scale exponent and every rebuilt term.
+        Scaled { exponent: i32, terms: Vec<ObservedTerm> },
+        /// A preparation's formed right-hand side (after any requested flip)
+        /// and row scale exponents; `data` is the right-hand side's address.
+        Formed {
+            preparation: Preparation,
+            data: usize,
+            rhs: Vec<u64>,
+            exponents: Vec<i32>,
+        },
+        /// What a completion passed to its solve.
+        Consumed {
+            data: usize,
+            free_dofs: Vec<usize>,
+            exponents: Vec<i32>,
+            rhs: Vec<u64>,
+            binding: Binding,
+            formation: bool,
+            factorization: &'static str,
+        },
+    }
+
+    #[derive(Default)]
+    struct State {
+        events: Vec<Event>,
+        seals: usize,
+        flip: Option<usize>,
+    }
+
+    static SCOPE: Mutex<()> = Mutex::new(());
+    static ARMED: Mutex<Option<ThreadId>> = Mutex::new(None);
+    static FOREIGN: AtomicUsize = AtomicUsize::new(0);
+    thread_local! {
+        static STATE: RefCell<Option<State>> = const { RefCell::new(None) };
+    }
+
+    /// An armed scope; one at a time across threads. Dropping it disarms.
+    pub struct Armed {
+        _scope: MutexGuard<'static, ()>,
+    }
+
+    /// Arms the observer on the calling thread, waiting for any other scope.
+    pub fn arm() -> Armed {
+        let scope = SCOPE.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        FOREIGN.store(0, Ordering::SeqCst);
+        STATE.with(|state| *state.borrow_mut() = Some(State::default()));
+        *ARMED.lock().unwrap_or_else(|poisoned| poisoned.into_inner()) =
+            Some(std::thread::current().id());
+        Armed { _scope: scope }
+    }
+
+    impl Armed {
+        /// The events recorded so far, in order, leaving the log empty; an
+        /// error if any event was observed on another thread.
+        pub fn take(&self) -> Result<Vec<Event>, String> {
+            let foreign = FOREIGN.load(Ordering::SeqCst);
+            if foreign != 0 {
+                return Err(format!("{foreign} observed event(s) on another thread"));
+            }
+            Ok(STATE.with(|state| {
+                state
+                    .borrow_mut()
+                    .as_mut()
+                    .map(|s| std::mem::take(&mut s.events))
+                    .unwrap_or_default()
+            }))
+        }
+
+        /// Flips the low bit of entry `entry` of the next formed right-hand side.
+        pub fn flip_next_formed(&self, entry: usize) {
+            STATE.with(|state| {
+                if let Some(s) = state.borrow_mut().as_mut() {
+                    s.flip = Some(entry);
+                }
+            });
+        }
+    }
+
+    impl Drop for Armed {
+        fn drop(&mut self) {
+            *ARMED.lock().unwrap_or_else(|poisoned| poisoned.into_inner()) = None;
+            STATE.with(|state| *state.borrow_mut() = None);
+        }
+    }
+
+    fn with_state(record: impl FnOnce(&mut State)) {
+        let armed = *ARMED.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        match armed {
+            None => {}
+            Some(id) if id != std::thread::current().id() => {
+                FOREIGN.fetch_add(1, Ordering::SeqCst);
+            }
+            Some(_) => STATE.with(|state| {
+                if let Some(s) = state.borrow_mut().as_mut() {
+                    record(s);
+                }
+            }),
+        }
+    }
+
+    fn observed(term: &ForceTerm) -> ObservedTerm {
+        ObservedTerm {
+            source: term.source.clone(),
+            dof: term.dof,
+            words: match term.kind {
+                ForceTermKind::Term(value) => Words::Term(value.to_bits()),
+                ForceTermKind::Product(a, b) => Words::Product(a.to_bits(), b.to_bits()),
+            },
+        }
+    }
+
+    pub(crate) fn append(site: &'static std::panic::Location<'static>, terms: &[ForceTerm]) {
+        with_state(|s| {
+            if let Some(term) = terms.last() {
+                s.events.push(Event::Append {
+                    file: site.file(),
+                    line: site.line(),
+                    column: site.column(),
+                    index: terms.len() - 1,
+                    term: observed(term),
+                });
+            }
+        });
+    }
+
+    pub(crate) fn seal(size: usize, terms: &[ForceTerm]) {
+        with_state(|s| {
+            let serial = s.seals;
+            s.seals += 1;
+            s.events.push(Event::Seal {
+                serial,
+                size,
+                terms: terms.iter().map(observed).collect(),
+            });
+        });
+    }
+
+    pub(crate) fn appended(offset: usize, extra: usize) {
+        with_state(|s| s.events.push(Event::Appended { offset, extra }));
+    }
+
+    pub(crate) fn scaled(exponent: i32, terms: &[ForceTerm]) {
+        with_state(|s| {
+            s.events.push(Event::Scaled {
+                exponent,
+                terms: terms.iter().map(observed).collect(),
+            })
+        });
+    }
+
+    pub(crate) fn formed(preparation: Preparation, rhs: &mut [f64], exponents: &[i32]) {
+        with_state(|s| {
+            if let Some(entry) = s.flip.take() {
+                if let Some(value) = rhs.get_mut(entry) {
+                    *value = f64::from_bits(value.to_bits() ^ 1);
+                }
+            }
+            s.events.push(Event::Formed {
+                preparation,
+                data: rhs.as_ptr() as usize,
+                rhs: rhs.iter().map(|v| v.to_bits()).collect(),
+                exponents: exponents.to_vec(),
+            });
+        });
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn consumed(
+        free_dofs: &[usize],
+        exponents: &[i32],
+        rhs: &[f64],
+        binary64: bool,
+        assembled: bool,
+        audit_terms: bool,
+        formation: bool,
+        factorization: &'static str,
+    ) {
+        with_state(|s| {
+            s.events.push(Event::Consumed {
+                data: rhs.as_ptr() as usize,
+                free_dofs: free_dofs.to_vec(),
+                exponents: exponents.to_vec(),
+                rhs: rhs.iter().map(|v| v.to_bits()).collect(),
+                binding: Binding {
+                    binary64,
+                    assembled,
+                    audit_terms,
+                },
+                formation,
+                factorization,
+            })
+        });
     }
 }

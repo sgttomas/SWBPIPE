@@ -1591,6 +1591,8 @@ fn prepare_bound<'s>(
     }
     let (perturbation, load_perturbation, rounding) =
         audit_contributions(system, &exponents, &rhs)?;
+    #[cfg(feature = "ledger-site-observer")]
+    crate::load_ledger::site_observer::formed(crate::load_ledger::site_observer::Preparation::Dense, &mut rhs, &exponents);
     Ok(PreparedSystem {
         source: system,
         force_binding,
@@ -1921,6 +1923,8 @@ where
     }
     let scale_exponents = prepared.gate_scale_exponents();
     let force_binding = prepared.gate_binding();
+    #[cfg(feature = "ledger-site-observer")]
+    crate::load_ledger::site_observer::consumed(system.free_dofs, scale_exponents, prepared.gate_rhs(), force_binding.binary64(), force_binding.assembled().is_some(), force_binding.audit_terms().is_some(), prepared.gate_formation().is_some(), factorization);
     let mut y = solve(prepared.gate_rhs())?;
     if y.len() != n || y.iter().any(|v| !v.is_finite()) {
         return Err(StructuralError::InvalidInput("structural backend output"));

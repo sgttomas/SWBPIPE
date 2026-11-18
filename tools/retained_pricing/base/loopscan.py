@@ -151,7 +151,9 @@ TEST_ATTR = re.compile(r"#\[cfg\((?:test|any\(\s*test\b[^\]]*)\)\]")
 # `off_feature_audit` below hold the manifest and inclusion guards.
 # W1 coverage repair corner 1 (§8.12): `loaded-maximum-hooks` exposes the kernel's test capacity hook for the
 # genuine-exhaustion control only; like `census-probe`, no product build or `[dev-dependencies]` entry enables it.
-OFF_FEATURES = ("census-probe", "loaded-maximum-hooks")
+# B1 (DEL-05-02 REQ-012's classification test): `ledger-site-observer` carries the kernel's test-only ledger-site
+# observer; like `census-probe`, no product build or `[dev-dependencies]` entry enables it.
+OFF_FEATURES = ("census-probe", "loaded-maximum-hooks", "ledger-site-observer")
 OFF_ATTR = re.compile(r'#\[cfg\((?:all\(\s*test\s*,\s*)?feature\s*=\s*"(?:' + "|".join(re.escape(f) for f in OFF_FEATURES)
                       + r')"\s*\)?\)\]')
 
@@ -253,9 +255,10 @@ OFF_BUILD_FILES = {
 }
 # The manifest lines that may name an off feature: for each, the kernel's declaration and product_physics' forwarding.
 OFF_FEATURE_MANIFEST = {
-    "core/solver/frame_kernel/Cargo.toml": ('census-probe = []', 'loaded-maximum-hooks = []'),
+    "core/solver/frame_kernel/Cargo.toml": ('census-probe = []', 'loaded-maximum-hooks = []', 'ledger-site-observer = []'),
     "core/product_physics/Cargo.toml": ('census-probe = ["open_pipe_stress_frame_kernel/census-probe"]',
-                                        'loaded-maximum-hooks = ["open_pipe_stress_frame_kernel/loaded-maximum-hooks"]'),
+                                        'loaded-maximum-hooks = ["open_pipe_stress_frame_kernel/loaded-maximum-hooks"]',
+                                        'ledger-site-observer = ["open_pipe_stress_frame_kernel/ledger-site-observer"]'),
 }
 _PATH_MOD = re.compile(r'((?:#\[[^\]]*\]\s*)*)#\[path\s*=\s*"([^"]+)"\]\s*((?:#\[[^\]]*\]\s*)*)(?:pub(?:\([^)]*\))?\s+)?mod\s+(\w+)\s*;')
 
