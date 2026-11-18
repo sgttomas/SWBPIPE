@@ -4921,6 +4921,23 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                     "-> Result<ModalOutcome, Vec<Diagnostic>> {",
                     "    run_modal_dense_with_budget(req, params, None)", "}"]:
                 raise SystemExit("MODAL-ID: outcome.rs's run_modal_dense is not run_modal_dense_with_budget's delegation; re-review (§8.58)")
+        # MODAL-CS-RK (§8.63, DEL-04-09 completed-set boundary): the body moved again, into run_modal_dense_within
+        # (the caller's completed-set limits), and run_modal_dense_with_budget became its one-line delegation (limits
+        # None), as run_modal_dense is to it (checked above). The three sites keep their format strings and argument
+        # expressions; each is now the `format_args!(` argument of ModalCompletedSetStorage::modal_completed_set_format
+        # (resource.rs, pinned whole below), so its TEXT row is the `format_args!(` line (template_inventory's MACROS).
+        # They are keyed on the function that holds the body; any other shape of run_modal_dense_with_budget stops.
+        _RMD_ROW = "format!("
+        if fnkey("run_modal_dense_within", _MODAL + "outcome.rs"):
+            _RMD, _RMD_ROW = "run_modal_dense_within", "format_args!("
+            if [_l for _l in _fn_text("run_modal_dense_with_budget", _MODAL + "outcome.rs").split("\n")
+                    if _l.strip() and not _l.strip().startswith("//")] != [
+                    "pub(crate) fn run_modal_dense_with_budget(", "    req: &ModalPreviewRequest,",
+                    "    params: &ModalIntegrityParameters,", "    budget: Option<&ModalResourceBudget>,",
+                    ") -> Result<ModalOutcome, Vec<Diagnostic>> {",
+                    "    run_modal_dense_within(req, params, budget, None)", "}"]:
+                raise SystemExit("MODAL-CS-RK: outcome.rs's run_modal_dense_with_budget is not run_modal_dense_within's "
+                                 "delegation; re-review (§8.63)")
         O10_ID_AUDIT += [
             (site("complete_reported_set", _MODAL + "eigen.rs", "{why}, so the set would end", full=True),
              {"why": _m_why_census, "census|?": _M_CENSUS}),
@@ -4955,11 +4972,11 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
              {"range": _md(170, "PencilRangeUnsupported Display: MODAL_PENCIL_RANGE_UNSUPPORTED, `: stiffness entry (r, c) = "
                                 "v is outside the admitted magnitudes [2^-300, 2^300]` (106 B), two usize and one f64 exponent form"),
               "at(range.row)": _M_LABEL, "at(range.col)": _M_LABEL}),
-            (site(_RMD, _MODAL + "outcome.rs", '"mode {}: residual backward error η = {:e} exceeds τ_r = {:e}",', full=True, row="format!("),
+            (site(_RMD, _MODAL + "outcome.rs", '"mode {}: residual backward error η = {:e} exceeds τ_r = {:e}",', full=True, row=_RMD_ROW),
              {"i+1": _M_INT}),
-            (site(_RMD, _MODAL + "outcome.rs", "orthogonality.pair.map(|(a, b)| (a + 1, b + 1)),", full=True, row="format!("),
+            (site(_RMD, _MODAL + "outcome.rs", "orthogonality.pair.map(|(a, b)| (a + 1, b + 1)),", full=True, row=_RMD_ROW),
              {"orthogonality.pair.map(|(a,b)|(a+1,b+1))|?": _M_PAIR}),
-            (site(_RMD, _MODAL + "outcome.rs", "has a first-order eigenvalue error estimate", full=True, row="format!("),
+            (site(_RMD, _MODAL + "outcome.rs", "has a first-order eigenvalue error estimate", full=True, row=_RMD_ROW),
              {"i+1": _M_INT}),
             (site("modal_disclosures", _MODAL + "outcome.rs", '["X", "Y", "Z"][k]', full=True),
              {'["X","Y","Z"][k]': _md(1, "one of three static one-byte axis names")}),
@@ -5135,7 +5152,11 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         _rs_digest = _modal_hashlib.sha256(_text_of(_RS).encode()).hexdigest()
         # PROPOSAL ONLY: source b1e2d1f97, independently reviewed support implementation. This tool run
         # establishes no final predecessor, registration, compiled-source identity or witness binding.
-        if _rs_digest != "f85562f6b73580d02e1c6736d472b74d98ad9fbbf25f0e024c8b0ad3a54c2c5c":
+        # MODAL-CS (§8.63): re-pinned on the completed-set boundary (PR 390's reviewed source). Its diff against the
+        # preceding pin is the module docs' "completed-set boundary" paragraph, the two widened `use` lines and the
+        # appended boundary (from "// The completed-set boundary"); the P0 text above it is byte-identical, so the
+        # §8.58 audits below stand. The appended sites are audited in the MODAL-CS block at the end of this one.
+        if _rs_digest != "f9c7f62a6061a051042299569a65f2d94e00ae9f566f17074243d1d44f0e5622":
             raise SystemExit(f"MODAL-ID: modal/resource.rs changed ({_rs_digest}); re-review its refusal texts and re-pin (§8.58)")
         if _text_of(_MODAL[:-1] + ".rs").count("#[cfg(test)] mod tests_resource;") != 1:
             raise SystemExit("MODAL-ID: tests_resource is no longer a test-only module; re-review (§8.58)")
@@ -5244,6 +5265,271 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             (site("modal_sturm_pencil_refusal", _MODAL + "eigen.rs", 'format!("the Sturm pencil cannot be formed ({error})")'),
              O10 + "MODAL-ID support proposal: no retained root reaches modal; moved, fully classed Sturm construction diagnostic"),
         ]
+        if fnkey("modal_completed_set_judge", _RS):
+            # MODAL-CS (§8.63, DEL-04-09 completed-set boundary, PR 390): the boundary's typed refusals (resource.rs,
+            # pinned whole above), the dense entry's three moved sites (MODAL-CS-RK, above) and its #[cfg(test)]
+            # tests in tests_resource.rs. Every site is at multiplicity 0: no retained root reaches modal, and
+            # MODAL-CS-M0 below makes o10_check.py fail the run if any of them is ever positive or gone. The bounds
+            # are read from the pinned source; where the base's by-name class already covers the source bound
+            # (`actual` 8192 B for a u64 or a usize decimal, `value` 327 B for a usize, `count` 20 B for a usize,
+            # `symbol` 512 B for "n" or "g", `error` 8192 B for a ShapeStorageError, `name` and the dimension's text
+            # 128 B under MODAL-CS-RR) no audit is added; only the arguments the base leaves unclassified are audited.
+            _MCS = O10 + "MODAL-CS (§8.63): "
+            _cs = lambda n, why: {"bytes": n, "source": _MCS + why}
+            _CS_USIZE = _cs(20, "a usize decimal (at most 20 digits, usize::MAX)")
+            _CS_U64 = _cs(20, "a u64 decimal (at most 20 digits, u64::MAX)")
+            _CS_ISIZE = _cs(20, "isize::MAX's decimal (19 digits), within the usize decimal class")
+            _cs_lit = lambda s: len(_re.sub(r"\{[^{}]*\}", "", s).encode())
+            _rs_text = _text_of(_RS)
+
+            # MODAL-CS-ST: a refused request's `structure`. It is a `&'static str` field of ShapeStorageError, set
+            # only where one is constructed and passed only through a request's `structure` parameter. Every
+            # production request and construction in the product crate and in the modal eigen crate is read here: its
+            # structure argument must be one of the named all-literal `&str` constants (MODAL_SET_*, modal_quantities'
+            # six, skew_pencil's two) or the enclosing function's own `structure` parameter, passed through. The bound
+            # is the longest such constant. A computed, literal-less or locally bound structure stops the run.
+            _cs_req = {"modal_shape_reserve": 2, "modal_completed_set_rows": 1, "modal_completed_set_format": 0,
+                       "modal_completed_set_copy_text": 1, "modal_completed_set_text_room": 1, "reserve_exactly": 2,
+                       "requested_bytes": 2}
+            _cs_files = []
+            for _root in (PP_, "core/solver/modal_eigen/src/"):
+                for _d, _, _ns in _os.walk(_os.path.join(_SNAP, _root)):
+                    _cs_files += [_os.path.relpath(_os.path.join(_d, _n), _SNAP) for _n in _ns if _n.endswith(".rs")]
+            # Files that are whole test modules (`#[cfg(test)] mod x;` in their parent) are test code, not production:
+            # x.rs beside a lib.rs or mod.rs parent, else in the parent's own directory.
+            _cs_rl = _production_lexer()
+
+            def _cs_code(raw, f):
+                # raw's code only: literals and comments blanked (the §8.45 lexer), newlines kept.
+                _toks, _comments = _cs_rl["scan"](raw, f)
+                _mask = _cs_rl["_masks"](raw, _toks, _comments)
+                return "".join(" " if _mask[_i] and _c != "\n" else _c for _i, _c in enumerate(raw))
+
+            def _cs_test_modules(files):
+                out = set()
+                for _f in files:
+                    for _m in _re.finditer(r"#\[cfg\(test\)\]\s*(?:pub(?:\([^()]*\))?\s+)?mod\s+(\w+)\s*;", _cs_code(_text_of(_f), _f)):
+                        _base = _os.path.dirname(_f) if _os.path.basename(_f) in ("lib.rs", "mod.rs") else _f[:-3]
+                        out.add(_base + "/" + _m.group(1) + ".rs")
+                return out
+
+            _cs_test_files = _cs_test_modules(_cs_files)
+            _cs_files = [_f for _f in _cs_files if _f not in _cs_test_files]
+            if _TRS not in _cs_test_files or _MODAL + "tests_document.rs" not in _cs_test_files:
+                raise SystemExit("MODAL-CS-ST: the modal test modules are not test-only; re-review (§8.63)")
+            _cs_consts, _cs_args, _cs_bad = {}, [], []
+
+            def _cs_split(code, at):
+                # The top-level arguments of the call whose `(` is at `at` (code only: literals and comments blanked).
+                out, depth, cur, i = [], 0, "", at + 1
+                while i < len(code):
+                    ch = code[i]
+                    if ch in "([{":
+                        depth += 1
+                    elif ch in ")]}":
+                        if depth == 0:
+                            out.append(cur.strip())
+                            return [a for a in out if a]
+                        depth -= 1
+                    if ch == "," and depth == 0:
+                        out.append(cur.strip()); cur = ""
+                    else:
+                        cur += ch
+                    i += 1
+                return None
+
+            for _f in sorted(_cs_files):
+                if _f == _TRS:
+                    continue
+                _raw = _production(_f)
+                _code = _cs_code(_raw, _f)
+                for _m in _re.finditer(r'(?m)^\s*(?:pub(?:\([^()]*\))?\s+)?const\s+([A-Z][A-Z0-9_]*)\s*:\s*&(?:\'static\s+)?str\s*=\s*"([^"\\]*)";', _raw):
+                    _cs_consts.setdefault(_m.group(1), []).append((_f, _m.group(2)))
+                if _re.search(r"\blet\s+(?:mut\s+)?structure\b|\|[^|\n]*\bstructure\b[^|\n]*\||\bfor\s+structure\b", _code) \
+                        and ("ShapeStorage" in _code or "modal_completed_set" in _code):
+                    _cs_bad.append(f"{_f}: a local `structure` binding")
+                for _m in _re.finditer(r"\b(" + "|".join(_cs_req) + r")\b(\s*::\s*<[^<>()]*>)?\s*\(", _code):
+                    if _re.search(r"\bfn\s+$", _code[max(0, _m.start() - 8):_m.start()]):
+                        continue
+                    _a = _cs_split(_code, _m.end() - 1)
+                    _name = _m.group(1)
+                    if _name == "requested_bytes" and _a is not None and len(_a) == 1 and _f.endswith("modal_eigen/src/support.rs") \
+                            and "pub(crate) fn requested_bytes<T>(len: usize) -> Option<usize>" in _raw:
+                        continue   # support.rs's own one-argument requested_bytes (SupportResourceError), not this one
+                    if _a is None or len(_a) <= _cs_req[_name]:
+                        _cs_bad.append(f"{_f}: {_name}({_a})")
+                        continue
+                    _cs_args.append((_f, _name, _a[_cs_req[_name]]))
+                for _m in _re.finditer(r"\b(?:ShapeStorageError|Self)\s*::\s*(?:AllocationFailed|CapacityOverflow)\s*\{([^{}]*)\}", _code):
+                    if _m.group(0).startswith("Self") and not _f.endswith("modal_eigen/src/modal_quantities.rs"):
+                        continue
+                    if _re.match(r"\s*(=>|\|)", _code[_m.end():]):
+                        continue   # a match pattern, not a construction
+                    _fld = [_x.strip() for _x in _m.group(1).split(",") if _x.strip()]
+                    _st = [_x for _x in _fld if _x == "structure" or _x.startswith("structure:")]
+                    if len(_st) != 1:
+                        _cs_bad.append(f"{_f}: ShapeStorageError construction {_m.group(0)[:60]}")
+                        continue
+                    _cs_args.append((_f, "ShapeStorageError", _st[0].split(":", 1)[1].strip() if ":" in _st[0] else "structure"))
+            _cs_struct = []
+            for _f, _name, _arg in _cs_args:
+                _id = _re.sub(r"^(?:[a-z_][a-z0-9_]*\s*::\s*)+", "", _arg)
+                if _arg == "structure":
+                    continue
+                if not _re.fullmatch(r"[A-Z][A-Z0-9_]*", _id) or len(_cs_consts.get(_id, [])) != 1:
+                    _cs_bad.append(f"{_f}: {_name}'s structure `{_arg}`")
+                    continue
+                _cs_struct.append(len(_cs_consts[_id][0][1].encode()))
+            if _cs_bad or len(_cs_struct) < 30:
+                raise SystemExit(f"MODAL-CS-ST: a completed-set storage request's structure is not a named literal; re-review (§8.63): {_cs_bad[:4]}")
+            _CS_STRUCT = _cs(max(_cs_struct), "a storage structure name: every production request passes one of the named all-literal "
+                                              "`&str` constants or its own `structure` parameter (MODAL-CS-ST); the longest constant")
+
+            # MODAL-CS-RR (a zero by premise, read from the source): ModalCompletedSetDimension::ResponseRows(name)
+            # carries a caller-named `&'static str` with no length in the source. It is constructed only in
+            # modal_completed_set_judge, from an entry of a ModalCompletedSetLimits' response_rows, and no product
+            # build holds a ModalCompletedSetLimits or a ModalResponseRowProduct: neither derives Default (or anything
+            # but Debug, Clone, Copy, PartialEq, Eq), no production code constructs either (the only struct-brace
+            # mentions are their definitions and the one impl of the limits), and the variant is named nowhere outside
+            # resource.rs (pinned). The tests build both. So `name` is 0 B in a product build, the dimension's text is
+            # at most its longest literal arm (and `response rows r·ρ of ` `` with an empty name), and the by-name
+            # classes of `name` and of the text (128 B each) cover them.
+            _rr_mentions = {}
+            for _f in sorted(_cs_files):
+                if not _f.startswith(PP_) or _f == _TRS:
+                    continue
+                _raw = _cs_code(_production(_f), _f)
+                for _pat in (r"\bModalCompletedSetLimits\s*\{", r"\bModalResponseRowProduct\s*\{", r"\bResponseRows\b"):
+                    for _m in _re.finditer(_pat, _raw):
+                        _rr_mentions.setdefault(_pat, []).append((_f, _raw[max(0, _m.start() - 30):_m.start()].split("\n")[-1].strip()))
+            _rs_prod = _production(_RS)
+            if (_rr_mentions.get(r"\bModalCompletedSetLimits\s*\{") != [(_RS, "pub(crate) struct"), (_RS, "impl")]
+                    or _rr_mentions.get(r"\bModalResponseRowProduct\s*\{") != [(_RS, "pub(crate) struct")]
+                    or {_f for _f, _ in _rr_mentions.get(r"\bResponseRows\b", [])} != {_RS}
+                    or _rs_prod.count("#[derive(Debug, Clone, PartialEq, Eq)]\npub(crate) struct ModalCompletedSetLimits {") != 1
+                    or _rs_prod.count("#[derive(Debug, Clone, Copy, PartialEq, Eq)]\npub(crate) struct ModalResponseRowProduct {") != 1
+                    or _rs_prod.count("ModalCompletedSetDimension::ResponseRows(product.name)") != 1
+                    or _rs_prod.count("for product in &limits.response_rows {") != 1):
+                raise SystemExit(f"MODAL-CS-RR: a product build may hold completed-set limits or a response-row product; re-review (§8.63): "
+                                 f"{ {k: v[:3] for k, v in _rr_mentions.items()} }")
+
+            # MODAL-CS-LI (the frame kernel's new RestraintBasis::lift_into): no text site, and its only production
+            # caller is skew_pencil's modal_lift_within (modal, unreached). The call graph resolves method calls by
+            # name, so a priced caller named lift_into would reach it; any mention other than its definition and that
+            # call stops the run for re-review.
+            _li, _li_files = [], []
+            for _crate in open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "crate_dirs.txt"),
+                               encoding="utf-8").read().split():
+                for _d, _, _ns in _os.walk(_os.path.join(_SNAP, _crate)):
+                    _li_files += [_os.path.relpath(_os.path.join(_d, _n), _SNAP) for _n in sorted(_ns) if _n.endswith(".rs")]
+            _li_tests = _cs_test_modules(_li_files)
+            for _f in _li_files:
+                if _f not in _li_tests:
+                    _li += [(_f, _l.strip()) for _l in _cs_code(_production(_f), _f).split("\n") if _re.search(r"\blift_into\b", _l)]
+            if sorted(_li) != [(_MODAL + "skew_pencil.rs", "Ok(self.basis.lift_into(&v, &mut lifted).ok().map(|()| lifted))"),
+                               (FK_ + "restraint_basis.rs", "pub fn lift_into(&self, v: &[f64], out: &mut [f64]) -> Result<(), BasisError> {")]:
+                raise SystemExit(f"MODAL-CS-LI: RestraintBasis::lift_into's callers changed; re-review its reach (§8.63): {_li[:4]}")
+
+            # MODAL-CS-ID (ID_AUDIT, site-specific): the boundary's arguments the base leaves unclassified. Each
+            # `expression` and `bound` is a String made by the pinned callers' own format strings, read here.
+            _cs_expr_fmts = ["n_c = {computed}", "r = {r}", "r × n = {r} × {}", "r × g = {r} × {}", "r × ρ = {r} × {}",
+                             "{value} as u64", "r × {symbol} = {completed} × {width}", "{count} entries × {element} B"]
+            _cs_bound_fmts = ["at most u64::MAX = {}", "at most usize::MAX = {}",
+                              "the bytes exceed the addressable size, at most isize::MAX = {} B"]
+            for _s in _cs_expr_fmts + _cs_bound_fmts:
+                if _rs_prod.count('format!("' + _s + '"') < 1:
+                    raise SystemExit(f"MODAL-CS-ID: the boundary's format `{_s}` is gone; re-review (§8.63)")
+            # Every placeholder of these is a usize or u64 decimal (20 B) except `symbol`, "n" or "g" (1 B), the only
+            # two literals `entries` is called with.
+            if _fn_text("modal_completed_set_sizes", _RS).count('entries(ModalCompletedSetDimension::') != 2 \
+                    or len(_re.findall(r'entries\(ModalCompletedSetDimension::\w+, "[ng]", \w+\)\?', _fn_text("modal_completed_set_sizes", _RS))) != 2:
+                raise SystemExit("MODAL-CS-ID: modal_completed_set_sizes' symbols changed; re-review (§8.63)")
+            _cs_ph = lambda s: sum(1 if _p == "{symbol}" else 20 for _p in _re.findall(r"\{[^{}]*\}", s))
+            _CS_EXPR = _cs(max(_cs_lit(_s) + _cs_ph(_s) for _s in _cs_expr_fmts),
+                           "an expression String: the longest of the callers' eight format strings, each placeholder a usize or "
+                           "u64 decimal (`symbol` is \"n\" or \"g\")")
+            _CS_BOUND = _cs(max(_cs_lit(_s) + 20 for _s in _cs_bound_fmts),
+                            "a bound String: the longest of the callers' three format strings with u64/usize/isize::MAX's decimal")
+            _cs_limit_fmt = "the caller's limit on it is {limit} and was not exceeded: the allocator refused, not the limit"
+            if _rs_prod.count('Some(limit) => format!("' + _cs_limit_fmt + '"),') != 1 \
+                    or _rs_prod.count('None => "no completed-set limit was supplied".to_string(),') != 1:
+                raise SystemExit("MODAL-CS-ID: modal_completed_set_refusal's limit text changed; re-review (§8.63)")
+            _CS_LIMIT_TEXT = _cs(max(_cs_lit(_cs_limit_fmt) + 20, len(b"no completed-set limit was supplied")),
+                                 "the refusal's limit String: the limit format with a u64 decimal, or the 35 B none text")
+            _cs_site = lambda fn, text, row=None: site(fn, _RS, text, full=True, row=row)
+            _CS_AUDITS = [
+                (_cs_site("modal_completed_set_exceeded", "over the caller's limit of {limit}; the whole set", row="format!("),
+                 {"expression": _CS_EXPR, "limit": _CS_U64}),
+                (_cs_site("modal_completed_set_overflow", "is not representable ({bound})", row="format!("),
+                 {"expression": _CS_EXPR, "bound": _CS_BOUND}),
+                (_cs_site("modal_completed_set_as_u64", 'format!("{value} as u64")'), {"u64::MAX": _CS_U64}),
+                (_cs_site("modal_completed_set_computed", 'format!("n_c = {computed}")'), {"computed": _CS_USIZE}),
+                (_cs_site("modal_completed_set_sizes", 'format!("r × {symbol} = {completed} × {width}")'),
+                 {"completed": _CS_USIZE, "width": _CS_USIZE, "usize::MAX": _CS_USIZE}),
+                (_cs_site("modal_completed_set_sizes", 'format!("{count} entries × {element} B")'),
+                 {"element": _cs(20, "size_of::<f64>(), a usize decimal")}),
+                (_cs_site("modal_completed_set_sizes", "at most isize::MAX = {} B\", isize::MAX)"), {"isize::MAX": _CS_ISIZE}),
+                (_cs_site("modal_completed_set_judge", 'format!("r = {r}")'), {"r": _CS_USIZE}),
+                (_cs_site("modal_completed_set_judge", 'format!("r × n = {r} × {}", sizes.coordinates)'),
+                 {"r": _CS_USIZE, "sizes.coordinates": _CS_USIZE}),
+                (_cs_site("modal_completed_set_judge", 'format!("r × g = {r} × {}", sizes.global)'),
+                 {"r": _CS_USIZE, "sizes.global": _CS_USIZE}),
+                (_cs_site("modal_completed_set_judge", 'format!("r × ρ = {r} × {}", product.rows_per_mode)'),
+                 {"r": _CS_USIZE, "product.rows_per_mode": _CS_U64}),
+                (_cs_site("modal_completed_set_judge", 'format!("at most u64::MAX = {}", u64::MAX)'), {"u64::MAX": _CS_U64}),
+                (_cs_site("modal_completed_set_refusal", "and was not exceeded: the allocator refused"), {"limit": _CS_U64}),
+                (_cs_site("modal_completed_set_refusal", "overflows the addressable size (at most isize::MAX", row="format!("),
+                 {"structure": _CS_STRUCT, "elements": _CS_USIZE, "element_size": _cs(20, "size_of::<T>() or 1, a usize decimal"),
+                  "isize::MAX": _CS_ISIZE}),
+                (_cs_site("modal_completed_set_refusal", "the allocator refused {bytes} B ({elements} elements) for", row="format!("),
+                 {"bytes": _CS_USIZE, "elements": _CS_USIZE, "structure": _CS_STRUCT, "limit": _CS_LIMIT_TEXT}),
+            ]
+            # tests_resource.rs (#[cfg(test)]): u64 and usize decimals, and a structure name the failpoint recorded
+            # (the `structure` of a production request, MODAL-CS-ST).
+            _cs_tsite = lambda fn, text: site(fn, _TRS, text, full=True)
+            _CS_AUDITS += [
+                (_cs_tsite("the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension",
+                           'format!("= {actual}, over the caller\'s limit of {}", actual - 1)'),
+                 {"actual-1": _cs(20, "a u64 (completed_set_actual's [u64; 4]) less one")}),
+                (_cs_tsite("the_completed_set_products_overflow_by_name_before_any_request", 'format!("r × ρ = 2 × {}", u64::MAX)'),
+                 {"u64::MAX": _CS_U64}),
+                (_cs_tsite("the_completed_set_products_overflow_by_name_before_any_request", 'format!("r × n = 2 × {}", usize::MAX)'),
+                 {"usize::MAX": _CS_USIZE}),
+                (_cs_tsite("the_completed_set_products_overflow_by_name_before_any_request", 'format!("{} entries × 8 B", usize::MAX / 4)'),
+                 {"usize::MAX/4": _CS_USIZE}),
+                (_cs_tsite("each_completed_set_request_refuses_by_name_at_the_entry", 'format!("for `{structure}`")'),
+                 {"structure": _CS_STRUCT}),
+            ]
+            O10_ID_AUDIT += _CS_AUDITS
+            # J3's test-code treatment (no source bound exists): the Debug of a whole ModalOutcome, four test sites,
+            # sized 0 with no site_zero, so o10_check.py fails the run if any is ever positive or gone.
+            _CS_T = (_MCS + "J3's test-code pattern, multiplicity 0: tests_resource is `#[cfg(test)] mod tests_resource;`; size 0 "
+                     "with no site_zero, so o10_check.py fails the run if the site's multiplicity is ever positive")
+            O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [(_k, 0, _CS_T) for _k in (
+                site("completed_set_debug", _TRS, 'format!("{:?}", found.unwrap_or_else('),
+                site("the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension", _TRS, 'let plain = format!("{unlimited:?}");'),
+                site("the_completed_count_is_the_actual_set_not_the_requested_count", _TRS, 'format!("{none:?}")'),
+                site("each_completed_set_request_refuses_by_name_at_the_entry", _TRS, 'let plain = format!("{unlimited:?}");'))]
+            # MODAL-CS-M0 (B7b-JR): every TEXT row of the appended boundary (each `format!(` and `diag(` line after
+            # "// The completed-set boundary"), the three moved outcome.rs rows and the audited test rows must stay at
+            # multiplicity 0 and present; o10_check.py fails the run otherwise. A future retained entry into the
+            # boundary needs its own derivation.
+            _cs_lines = _rs_text.split("\n")
+            _cs_from = [_i for _i, _l in enumerate(_cs_lines) if _l == "// The completed-set boundary (module docs, \"The completed-set boundary\")."]
+            if len(_cs_from) != 1:
+                raise SystemExit("MODAL-CS-M0: the boundary's marker is not unique; re-review (§8.63)")
+            _cs_seam = next(_i for _i, _l in enumerate(_cs_lines) if _l == "pub(crate) mod completed_set_seam {")
+            _cs_m0 = [Resolved(f"modal/resource.rs:{_i + 1}") for _i in range(_cs_from[0], _cs_seam)
+                      if _re.search(r"\b(format!\(|diag\()", _cs_lines[_i]) and not _cs_lines[_i].lstrip().startswith("//")]
+            _cs_m0 += [Resolved(str(_k).split("/src/")[-1]) for _k, _ in _CS_AUDITS if str(_k).endswith(tuple("0123456789"))
+                       and "tests_resource" in str(_k)]
+            _cs_m0 += [site(_RMD, _MODAL + "outcome.rs", _t, row=_RMD_ROW) for _t in (
+                '"mode {}: residual backward error η = {:e} exceeds τ_r = {:e}",', "orthogonality.pair.map(|(a, b)| (a + 1, b + 1)),",
+                "has a first-order eigenvalue error estimate")]
+            if len(_cs_m0) != 25 + 5 + 3:   # 27 rows on 25 lines (two lines hold two format! each)
+                raise SystemExit(f"MODAL-CS-M0: the boundary's TEXT rows changed ({len(_cs_m0)}); re-review (§8.63)")
+            O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
+                (_k, _MCS + "MODAL-CS-M0: no retained root reaches modal; a completed-set boundary row") for _k in _cs_m0]
 
 # ---- RT-A4 (DEL-05-02 Work absolute-sum-srss-combinations.md §10; retained-pricing-rules.md §8.46): absolute sums, SRSS
 # and nested combinations on both routes. D1.4 (retained_memory.rs family_clauses) refuses on both routes every absolute_sum
@@ -7097,6 +7383,13 @@ O10_ABSENT_REVIEWED = {
     ("displacement_correction_warning", _PP_LIB): (("fn", "published_nodal_displacements", _PP_LIB), "PRA: before PR-A"),
     ("withdraw_established", PP_ + "held_status.rs"): (("fn", "published_nodal_displacements", _PP_LIB),
                                                        "RTA5-HR: before PR-A (the original two-Held form, checked there)"),
+    # MODAL-CS (§8.63): a source before the completed-set boundary. Its storage type and its refusal code are the
+    # boundary's own text; a rename that keeps the boundary keeps them and stops here.
+    ("run_modal_dense_within", PP_ + "modal/outcome.rs"): (("text-absent", PP_ + "modal/outcome.rs", "ModalCompletedSetStorage"),
+                                                          "MODAL-CS-RK: before the completed-set boundary"),
+    ("modal_completed_set_judge", PP_ + "modal/resource.rs"): (
+        ("text-absent", PP_ + "modal/resource.rs", "MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED"),
+        "MODAL-CS: before the completed-set boundary"),
 }
 
 
