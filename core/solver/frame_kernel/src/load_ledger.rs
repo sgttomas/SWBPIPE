@@ -19,11 +19,6 @@ use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::structural::{LoadClosureEntry, LoadPrimitive};
 use std::fmt;
 
-/// Whether this kernel was compiled with the test-only ledger-site observer
-/// (`site_observer`). Product and ordinary test builds never enable it;
-/// product_physics' `tests/ledger_site_observer.rs` asserts `false` there.
-pub const LEDGER_SITE_OBSERVER: bool = cfg!(feature = "ledger-site-observer");
-
 /// Trusted formed/input classification survives omission of numeric S11-G records.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct LoadClosureRecord {
@@ -1385,6 +1380,11 @@ mod tests {
         );
     }
 }
+
+/// Whether this kernel was compiled with the test-only ledger-site observer
+/// (`site_observer`). Product and ordinary test builds never enable it;
+/// product_physics' `tests/ledger_site_observer.rs` asserts `false` there.
+pub const LEDGER_SITE_OBSERVER: bool = cfg!(feature = "ledger-site-observer");
 
 /// B1's test-only ledger-site observer, compiled only under the off feature
 /// `ledger-site-observer`. While a scope is armed on a thread, it records, on
