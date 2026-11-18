@@ -1,11 +1,9 @@
 """LIVE CHECKS of the reference packages that staged inputs from live repository files.
 
-Such a package's default check, run by tests/test_reference_packages_regeneration.py, reads only what the package
-holds, so it establishes that the committed output follows from the staged inputs. Its separate live check
-(--check-live) compares those staged inputs with the repository files they were staged from. The table module
-names those files as constants (reference_packages.PREVIEW_MODEL, DEMO_MODEL, FRICTION_REVERSAL_TEST), so the CI
-selector runs this test when any of them changes. A failure here means a source has moved on and a decision is
-needed on re-staging; the committed output still stands for its staged inputs.
+The default check, run by tests/test_reference_packages_regeneration.py, regenerates from the staged input. The
+live check (--check-live) compares the declared sources. The table module names those files as constants
+(reference_packages.PREVIEW_MODEL, DEMO_MODEL, FRICTION_REVERSAL_TEST, REFERENCE_FIXTURE), so the CI selector runs
+this test when any of them changes. A nonzero live exit reports a failed comparison or check error.
 
 Each check runs as `python3 -I -B` from its package directory, in place, within reference_packages.CHECK_TIMEOUT_S,
 and must leave every file under validation/references/ as it was. No product binary is built or run.
@@ -83,8 +81,8 @@ MOVED_ON = ("a source this package's inputs were staged from has moved on, and a
 
 
 def declaration_problems(name: str) -> list[str]:
-    """The package has an entry and holds the generator; each source is a committed file, and the generator names
-    every part of its path as a quoted string, so the declared sources are the ones it reads."""
+    """The package has an entry and holds the generator. The declaration check looks for existing source paths and
+    their quoted path parts."""
     live = LIVE_CHECKS[name]
     if name not in PACKAGES:
         return [f"{name}: a live check with no package entry"]
@@ -100,8 +98,8 @@ def declaration_problems(name: str) -> list[str]:
 
 
 def live_problems(name: str) -> list[str]:
-    """Runs the live check in place. It must leave validation/references/ as it was and exit 0; a nonzero exit
-    means a source has moved on (MOVED_ON)."""
+    """Runs the live check in place. It must leave validation/references/ as it was and exit 0. A nonzero live exit
+    reports a failed comparison or check error."""
     live = LIVE_CHECKS[name]
     before = R.tree_state()
     label = f"python3 -I -B {' '.join(live.argv)} (in validation/references/{name})"
@@ -355,7 +353,6 @@ def test_a_changed_source_fails_the_live_check(tmp_path, name, source, change):
     ("demo_friction_reversal_preload", R.FRICTION_REVERSAL_TEST, _a_changed_copy_behind_a_condition_and_an_import),
     ("demo_friction_reversal_preload", R.DEMO_MODEL, _a_stiffness_on_the_record_beside_its_hanger),
     ("t4_i12_preload", R.PREVIEW_MODEL, _a_stiffness_on_the_record_beside_its_hanger),
-    ("reference_system_generated_loads", R.REFERENCE_FIXTURE, _a_load_case_appended),
 ], ids=lambda v: v.__name__.strip("_") if callable(v) else Path(v).name)
 def test_a_change_the_partial_comparison_cannot_see_fails_the_whole_file_digest(tmp_path, name, source, change):
     root = _copy_of_the_tree_the_live_check_reads(tmp_path, name)
@@ -372,3 +369,16 @@ def test_a_source_the_generator_does_not_name_fails_its_declaration(monkeypatch)
     monkeypatch.setitem(LIVE_CHECKS, name, replace(LIVE_CHECKS[name], sources=("unnamed_source.json",)))
     problems = declaration_problems(name)
     assert any("does not name unnamed_source.json" in p for p in problems), problems
+
+
+def test_a_change_outside_the_reference_system_members_passes_the_leaf_check_and_fails_the_digest(tmp_path):
+    """Both sides for reference_system_generated_loads: a load case appended outside the four compared members
+    passes the leaf check (exit 0) and fails the whole-file digest."""
+    name, source = "reference_system_generated_loads", R.REFERENCE_FIXTURE
+    root = _copy_of_the_tree_the_live_check_reads(tmp_path, name)
+    assert not whole_problems(name, root)
+    (root / source).write_text(_a_load_case_appended((root / source).read_text(encoding="utf-8")), encoding="utf-8")
+    code, output = _live_exit(root, name)
+    assert code == 0, output[-3000:]
+    problems = whole_problems(name, root)
+    assert len(problems) == 1 and problems[0].startswith(f"{source} {WHOLE_CHANGED}"), problems

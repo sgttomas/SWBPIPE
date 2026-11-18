@@ -1,13 +1,9 @@
-"""Reference-system per-load and warning references (`validation/references/reference_system_generated_loads/`),
-supplementing `reference_system_pending_cases`, the reference for EQ-6.
+"""Reference-system per-load and warning references (`validation/references/reference_system_generated_loads/`).
 
-The generator rebuilds `references.json` and `SHA256SUMS` in memory from its package alone and compares them byte
-for byte with the committed files. Here: that check passes, also in a root that holds the package and nothing
-else; the manifest verifies and names exactly the package's files; the staged input holds only the four model
-members; the generator imports only the standard library, makes no dynamic import or evaluation, and names no
-product path but the fixture its live check reads; the governing text and the sibling values it transcribes match
-their sources as they stand; and the recorded comparison rule, floors, EQ-6 entries, component bits and warning
-outcomes are consistent. The live comparison with the fixture is in tests/test_reference_packages_live.py.
+The maintained tests check byte reproduction with package-only inputs, manifest membership and hashes, static
+imports and selected call and path literals, eight specification excerpts, the rigid-family phrase and the sibling
+constants. They check recorded load counts, component encodings against stored values, warning record consistency
+and resultant floors. The live comparison with the fixture is in tests/test_reference_packages_live.py.
 """
 import ast
 import hashlib
@@ -117,8 +113,7 @@ def test_the_staged_input_holds_only_the_four_model_members():
 
 
 def test_the_default_check_reads_only_the_package(tmp_path):
-    """The package's check, run in a root that holds this package and nothing else, still reproduces the committed
-    files: the default check opens no file outside the package."""
+    """The package's check reproduces the committed files in a root that holds this package and nothing else."""
     package = tmp_path / "root" / "validation" / "references" / NAME
     shutil.copytree(REFERENCE, package, ignore=shutil.ignore_patterns("__pycache__"))
     run = subprocess.run([sys.executable, "-I", "-B", "generators/rsgl_reference.py"], cwd=package,
@@ -169,9 +164,13 @@ def test_every_cross_check_agrees():
 def test_recorded_comparison_rule():
     rule = _refs()["comparison_rule"]
     assert rule["relative"] == 1e-9
-    assert rule["nonzero"] == "|observed − expected| ≤ 1e-9·|expected| (relative alone)"
-    assert rule["exact_zero"].startswith("|observed| ≤ 1e-9·zero_scale, zero_scale the largest magnitude of its family")
-    assert rule["discrete"] == "compared exactly"
+    assert rule["rule"] == [
+        "Compare load kind, target and direction or axis exactly.",
+        "Compare every nonzero component force and moment against its recorded binary64 bits.",
+        "For zero transverse moments, either sign is valid if a record is emitted.",
+        "Compare the remaining nonzero values at 1e-9 relative alone.",
+        "For an exact-zero resultant component, use 1e-9 times the largest absolute component in its force or "
+        "moment vector."]
 
 
 def test_floors_and_eq6_follow_from_the_resultants():

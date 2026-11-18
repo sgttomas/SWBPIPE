@@ -127,9 +127,8 @@ code_paths:
 # component's weight included. No product test reads it yet.
 - validation/references/seismic_component_weight/**
 - tests/test_seismic_component_weight_references.py
-# Frozen before the engine work it judges: per-load and warning references for the reference system's
-# wind and three static seismic cases, supplementing reference_system_pending_cases, which remains the
-# reference for EQ-6. No product test reads it yet.
+# Per-load and warning references for RS-WIN and the three static seismic cases.
+# `reference_system_pending_cases` remains the EQ-6 reference.
 - validation/references/reference_system_generated_loads/**
 - tests/test_reference_system_generated_loads_references.py
 # The wind-exposure form is authoring, which is DEL-07-03's subject; no other deliverable lists it.

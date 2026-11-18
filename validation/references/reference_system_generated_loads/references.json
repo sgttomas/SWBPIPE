@@ -1,9 +1,8 @@
 {
  "document": "validation/references/reference_system_generated_loads/references.json",
- "status": "candidate per-load and warning references, derived and cross-checked by their author, not yet independently refuted",
  "supplements": {
   "package": "validation/references/reference_system_pending_cases",
-  "relation": "that package remains the reference for EQ-6; the four resultants and three twins here are values this generator checks equal to its frozen ones, exactly"
+  "relation": "Per-load and warning references for RS-WIN, RS-EQX, RS-EQY and RS-EQZ. Use `reference_system_pending_cases` for EQ-6 as restated at `e494a5925`. This generator compares the four analytic resultants and three pipes-only twins coefficient by coefficient with constants transcribed from that package. The maintained test checks those constants against the sibling files. Both use 9.80665 m/s² for seismic gravity. The pending-cases package assumed it, and §8.1 states it."
  },
  "governs": {
   "scope": "execution/PKG-05/DEL-05-01/ScopeOfWork.md at aebd3442f: Static-equivalent generation, Mass basis, Self-weight plan, REQ-008, REQ-015, AC-007, VER-005",
@@ -50,7 +49,12 @@
   "sign": "a positive g-factor and global_x wind load along the positive global axis (spec §8.1: the factor's sign is the direction's sign)",
   "member": "straight: r(s) from its from-node to its to-node; arc: centre C, e1 and e2 the radius vectors to its from- and to-node, length R·π/2, ∫ r ds = R[(π/2)C + e1 + e2]",
   "exact": "a sum of (q)*sqrt(n)*pi^k terms, q rational",
-  "decimal": "40 significant digits, round half even; value: the nearest binary64; each emitted only when both ends of a bounding interval give the same"
+  "decimal": "40 significant digits, round half even; value: the nearest binary64; each emitted only when both ends of a bounding interval give the same",
+  "labels": {
+   "value_N, value_N_m": "analytic values on the entered decimals",
+   "binary64_by_formation": "the formed primitives",
+   "resultant": "the analytic resultant"
+  }
  },
  "inputs": {
   "nodes_m": {
@@ -3355,8 +3359,7 @@
     "code": null,
     "message": null,
     "findings_per_load_or_per_case": null,
-    "order_of_named_loads": null,
-    "open_fields_matter_for": "only a test that asserts the absence of these findings"
+    "order_of_named_loads": null
    }
   },
   "RS-EQY": {
@@ -4492,8 +4495,7 @@
     "code": null,
     "message": null,
     "findings_per_load_or_per_case": null,
-    "order_of_named_loads": null,
-    "open_fields_matter_for": "only a test that asserts the absence of these findings"
+    "order_of_named_loads": null
    }
   },
   "RS-EQZ": {
@@ -5630,101 +5632,85 @@
     "code": null,
     "message": null,
     "findings_per_load_or_per_case": null,
-    "order_of_named_loads": null,
-    "open_fields_matter_for": "only a test that asserts the absence of these findings"
+    "order_of_named_loads": null
    }
   }
  },
  "EQ-4": {
   "frozen_values": null,
-  "why": "an identity on published rows (spec §9.2 EQ-4)",
-  "recompute": "on each signed component row of RS-EQ-SRSS and RS-EQ-ABS, with x_X, x_Y, x_Z the matching rows of RS-dEQX, RS-dEQY, RS-dEQZ as published and factors 1: ABS = RN(|x_X| + |x_Y| + |x_Z|), the exact sum rounded once; SRSS = RN(√(x_X² + x_Y² + x_Z²)), the exact square root of the exact sum, rounded once (DEL-05-02 'Absolute sum', 'SRSS'); then SRSS ≤ ABS. Magnitude rows follow the combination's own recomputation rule; withheld rows are excluded"
+  "reference": "validation/references/reference_system_pending_cases/README.md, 'EQ-4: SRSS and absolute sum, an identity' (the operand-row identity)"
  },
  "comparison_rule": {
-  "nonzero": "|observed − expected| ≤ 1e-9·|expected| (relative alone)",
-  "exact_zero": "|observed| ≤ 1e-9·zero_scale, zero_scale the largest magnitude of its family in the item (each item's floors record it)",
-  "discrete": "compared exactly",
-  "component_bits": "a component force or moment the scope's formation rule fixes is also given as binary64 bits; a test may compare those exactly",
-  "source": "DEL-05-01 AC-001 (1e-9 relative)",
-  "relative": 1e-09
+  "rule": [
+   "Compare load kind, target and direction or axis exactly.",
+   "Compare every nonzero component force and moment against its recorded binary64 bits.",
+   "For zero transverse moments, either sign is valid if a record is emitted.",
+   "Compare the remaining nonzero values at 1e-9 relative alone.",
+   "For an exact-zero resultant component, use 1e-9 times the largest absolute component in its force or moment vector."
+  ],
+  "relative": 1e-09,
+  "floors": "the eight stored floors use binary64 multiplication of the represented family maximum and the represented 1e-9",
+  "floor_example": "RS-EQX's force floor is 1.4010967471694583e-05; rounding the exact analytic product instead gives 1.4010967471694581e-05",
+  "why_bits": "single rounding of the three normalized operands changes six moment results by one bit and passes the relative comparison; in RS-EQX, the valve's +234 N·m about Y would be 406d3fffffffffff; the required encoding is 406d400000000000",
+  "source": "the relative and zero rule as validation/references/w16_exact_equivalent_static/README.md states it; the pending-cases package leaves tolerances to the consumer"
  },
  "seismic_warning_decisions": [
   {
    "decided_by": "SWBPIPE's Agent 0",
    "date": "2026-11-18",
-   "decision": "the seismic model-check warning names the two kinds of weight REQ-008 states, loads in the weight category and, on the pressure-free route, the added weight a case takes from an operating condition; it does not name applied generated self-weight",
-   "reason": "the warning tells the engineer which weights seismic generation did not scale; a pipe's applied self-weight and a component's applied weight are the ones it did, since generation takes the pipe's mass and the component's W directly"
+   "decision": "The weight finding names entered weight-category loads, including entered distributed member loads, and on the pressure-free route names added weight taken from an operating condition."
   },
   {
    "decided_by": "SWBPIPE's Agent 0",
    "date": "2026-11-18",
-   "decision": "a manual override of generated self-weight is named in the warning"
+   "decision": "Its exemption covers fresh applied generated self-weight.",
+   "reason": "Seismic generation uses the model's pipe mass and the entered component force W directly."
   },
   {
    "decided_by": "SWBPIPE's Agent 0",
    "date": "2026-11-18",
-   "decision": "the gravity comparison reads fresh applied component-weight primitives only; an overridden component contributes no gravity to it"
+   "decision": "Manual overrides are named."
   },
   {
    "decided_by": "SWBPIPE's Agent 0",
    "date": "2026-11-18",
-   "decision": "the weight category is the solver's parsed category, an entered distributed member load included; the text says 'load in the weight category'"
-  }
- ],
- "seismic_warning_decisions_scope_text": "the scope's sentences are to be clarified in a later change; no scope wording is quoted for them",
- "warning_readings_considered_and_excluded": [
-  {
-   "reading": "the warning names the seismic case's own applied self-weight primitives (29 per case)",
-   "excluded_by": "SWBPIPE's Agent 0's decision of 2026-11-18 that applied generated self-weight is not named"
-  },
-  {
-   "reading": "the warning names every weight-category load in the document",
-   "excluded_by": "REQ-008 'on each seismic case' (the assigner's reading of it as that case's loads)"
+   "decision": "The gravity comparison uses fresh applied component-weight primitives."
   }
  ],
  "open_items": [
   {
    "id": "OI-1",
-   "item": "the seismic warning's code and message words",
    "frozen": null,
-   "unsettled": "REQ-008 states what the findings name, not their code or wording; no finding is required on these cases, so this matters only for a test that asserts absence"
+   "item": "Warning code, wording, grouping and specific order are open. These cases freeze the absence of both seismic warning families."
   },
   {
    "id": "OI-2",
-   "item": "one finding per named load or one per case, and their order",
    "frozen": null,
-   "unsettled": "REQ-008 says 'findings' and fixes neither their number nor their order"
+   "item": "Emission of zero transverse moment records is open."
   },
   {
    "id": "OI-3",
-   "item": "whether an exactly zero transverse moment component becomes a load record",
    "frozen": null,
-   "unsettled": "the scope fixes when a component is required nonzero, not whether a zero one is emitted; the values and the required-nonzero set are frozen, the record count is not"
-  },
-  {
-   "id": "OI-4",
-   "item": "generated-load identities and their order",
-   "frozen": null,
-   "unsettled": "no identifier rule is given for generated wind or seismic loads; loads are keyed here by target, kind and axis"
+   "item": "Generated wind and seismic identifier syntax and the specific sequence are open. REQ-009 requires repeatable contribution and finding order, and REQ-007 requires sorted load IDs in the primitive load-case record."
   }
  ],
  "crosscheck": [
   {
    "check": "member order",
    "compares": "the model's pipe_segments order against spec §3.2's table order",
-   "kind": "transcription",
+   "kind": "transcription or inventory",
    "agrees": true
   },
   {
    "check": "replaced span",
    "compares": "the objective connector's replaces_span span_ref against spec §5.1 (RS-P180)",
-   "kind": "transcription",
+   "kind": "transcription or inventory",
    "agrees": true
   },
   {
    "check": "exposed set",
    "compares": "RS-P070 … RS-P200 in §3.2 order less the connector's replaced span, against the 14 members listed here from spec §8.1",
-   "kind": "transcription",
+   "kind": "transcription or inventory",
    "agrees": true,
    "detail": {
     "exposed": [
@@ -5748,55 +5734,55 @@
   {
    "check": "mu section:RS-S270",
    "compares": "radius-form mass per length against the diameter form",
-   "kind": "distinct calculation",
+   "kind": "algebraically equivalent mass form",
    "agrees": true
   },
   {
    "check": "mu section:RS-S220",
    "compares": "radius-form mass per length against the diameter form",
-   "kind": "distinct calculation",
+   "kind": "algebraically equivalent mass form",
    "agrees": true
   },
   {
    "check": "mu section:RS-S170",
    "compares": "radius-form mass per length against the diameter form",
-   "kind": "distinct calculation",
+   "kind": "algebraically equivalent mass form",
    "agrees": true
   },
   {
    "check": "exposed members normal to the wind",
    "compares": "every exposed member's end nodes have X = 6 m and each exposed arc's centre has X = 6 m with radius vectors of zero X component, so every exposed member lies in the plane X = 6 m, normal to +X",
-   "kind": "distinct calculation",
+   "kind": "wind-plane geometry",
    "agrees": true
   },
   {
    "check": "rigid-family components that replace their member",
    "compares": "the components the ordered rules admit against spec §5's statement (RS-F1, RS-V1, RS-F2, RS-R1)",
-   "kind": "transcription",
+   "kind": "transcription or inventory",
    "agrees": true
   },
   {
    "check": "self-weight inventory",
    "compares": "21 line loads and a force and a moment for each of four components (29) against spec §8.1",
-   "kind": "transcription",
+   "kind": "transcription or inventory",
    "agrees": true
   },
   {
    "check": "pi",
-   "compares": "Machin bounds against the Gauss-Legendre AGM value",
-   "kind": "distinct calculation",
+   "compares": "Machin evaluation against the Gauss-Legendre AGM value",
+   "kind": "numerical method",
    "agrees": true
   },
   {
    "check": "binary64 formation",
-   "compares": "each component force and moment rounded here from the exact rational product (ties to even) against the hardware binary64 product of the same binary64 operands, bits",
-   "kind": "distinct calculation",
+   "compares": "each nonzero component force and moment rounded here from the exact rational product (ties to even) has the bits of the hardware binary64 product of the same operands; zero results are compared by magnitude",
+   "kind": "numerical method",
    "agrees": true
   },
   {
    "check": "resultants by quadrature",
-   "compares": "every resultant force and moment (wind, three seismic cases, three twins) against direct quadrature along each member and arc: a different pi (AGM), arc centre from the incoming tangent, trigonometric parametrisation with Romberg integration, diameter-form masses, component forces at node + r; agreement within 1e-50 of each family's largest magnitude",
-   "kind": "distinct calculation",
+   "compares": "every resultant force and moment (wind, three seismic cases, three twins) against direct quadrature, Simpson on straight members and Romberg on bends: a different pi (AGM), arc centre from the incoming tangent, trigonometric parametrisation with Romberg integration, diameter-form masses, component forces at node + r; agreement within 1e-50 of each family's largest magnitude",
+   "kind": "numerical method",
    "agrees": true,
    "detail": {
     "largest_difference_relative": "8.055e-58"
@@ -5805,73 +5791,73 @@
   {
    "check": "RS-EQX against reference_system_r1_ce",
    "compares": "force k·W_total·e and moment k·(S × e) from the frozen weight total W_total and first moment S of validation/references/reference_system_r1_ce (for Z also −k times its weight moment), exactly. Exact because the seismic gravity equals the weight gravity's magnitude (9.80665 m/s², §2, §8.1), the same members carry distributed load on the same basis, and each component's W is held fixed at the same centre of gravity",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "RS-EQY against reference_system_r1_ce",
    "compares": "force k·W_total·e and moment k·(S × e) from the frozen weight total W_total and first moment S of validation/references/reference_system_r1_ce (for Z also −k times its weight moment), exactly. Exact because the seismic gravity equals the weight gravity's magnitude (9.80665 m/s², §2, §8.1), the same members carry distributed load on the same basis, and each component's W is held fixed at the same centre of gravity",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "RS-EQZ against reference_system_r1_ce",
    "compares": "force k·W_total·e and moment k·(S × e) from the frozen weight total W_total and first moment S of validation/references/reference_system_r1_ce (for Z also −k times its weight moment), exactly. Exact because the seismic gravity equals the weight gravity's magnitude (9.80665 m/s², §2, §8.1), the same members carry distributed load on the same basis, and each component's W is held fixed at the same centre of gravity",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "RS-EQZ against reference_system (tranche 1)",
    "compares": "the force k·(W_total(tranche 1) + 300 N − g·μ_S270·√257/40) against RS-EQZ's force, exactly. Not exact without the correction: tranche 1 has no RS-R1, so RS-P150 carries its distributed weight there",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "RS-WIN against reference_system_pending_cases (full)",
    "compares": "generated force and moment about the origin, exactly; that package assumed the seismic gravity 9.80665 m/s² before spec §8.1 stated it, under the rule decided on 2026-11-12, the rule the scope now states",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "RS-EQX against reference_system_pending_cases (full)",
    "compares": "generated force and moment about the origin, exactly; that package assumed the seismic gravity 9.80665 m/s² before spec §8.1 stated it, under the rule decided on 2026-11-12, the rule the scope now states",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "RS-EQY against reference_system_pending_cases (full)",
    "compares": "generated force and moment about the origin, exactly; that package assumed the seismic gravity 9.80665 m/s² before spec §8.1 stated it, under the rule decided on 2026-11-12, the rule the scope now states",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "RS-EQZ against reference_system_pending_cases (full)",
    "compares": "generated force and moment about the origin, exactly; that package assumed the seismic gravity 9.80665 m/s² before spec §8.1 stated it, under the rule decided on 2026-11-12, the rule the scope now states",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "RS-EQX twin against reference_system_pending_cases control",
    "compares": "the pipes-only twin's force and moment against that package's full-system control 'the rule before 2026-11-12: pipe mass on a mapped member, component weight left out', exactly",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "RS-EQY twin against reference_system_pending_cases control",
    "compares": "the pipes-only twin's force and moment against that package's full-system control 'the rule before 2026-11-12: pipe mass on a mapped member, component weight left out', exactly",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "RS-EQZ twin against reference_system_pending_cases control",
    "compares": "the pipes-only twin's force and moment against that package's full-system control 'the rule before 2026-11-12: pipe mass on a mapped member, component weight left out', exactly",
-   "kind": "distinct calculation by another author",
+   "kind": "comparison with a sibling record",
    "agrees": true
   },
   {
    "check": "README quotes",
-   "compares": "the README quotes every nonzero resultant value",
-   "kind": "consistency",
+   "compares": "each nonzero resultant value appears as a numeric string somewhere in the README",
+   "kind": "README number presence",
    "agrees": true
   }
  ],

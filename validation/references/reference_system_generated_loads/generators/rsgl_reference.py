@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 """Reference system, per-load and warning references for RS-WIN, RS-EQX, RS-EQY, RS-EQZ (DEL-05-01, DEL-09-01).
 
-Supplements validation/references/reference_system_pending_cases, which remains the reference for EQ-6: the
-resultants derived here are checked equal to that package's, exactly.
+Use validation/references/reference_system_pending_cases for EQ-6 as restated at e494a5925. This generator
+compares the four analytic resultants and three pipes-only twins coefficient by coefficient with constants
+transcribed from that package.
 
-Standard-library Python 3 only. This generator imports, reads and runs no product code and reads no product
-output. Its default check and --write read only this package: this file, the README (for the key-value
-quotation check) and staged/reference_system_model_members.json, the reference system model's members `nodes`,
-`pipe_segments`, `components` and `pressure_contract` staged from the fixture at a named commit. The staged file
-holds no `load_cases`, `combinations`, `analysis_status` or `diagnostics`. --check-live alone opens the live
-fixture, keeps the same four members, and compares them with the staged copy leaf by leaf.
+The generator imports only standard-library modules. The arithmetic uses package inputs: this file, the README
+(for the number-presence check) and staged/reference_system_model_members.json, the reference system model's
+members `nodes`, `pipe_segments`, `components` and `pressure_contract` with staging metadata. Live mode opens the
+fixture, parses its JSON and projects the four model members before comparing them.
 
 Everything else is transcribed below from the governing text, with its source: the case inputs of the
 specification's section 8.1, the gravity of section 2, the bend corners of section 3.1, the member order of
-section 3.2, and the frozen values of two sibling packages used as cross-checks.
+section 3.2, and the frozen values of three sibling packages used as cross-checks.
 
 What it derives (DEL-05-01 "Static-equivalent generation", "Mass basis", REQ-008, REQ-015, AC-007; spec §8.1,
 §9.2 EQ-6), each value an exact sum of q * pi^k * sqrt(n) terms with q rational:
@@ -72,6 +71,8 @@ def cross(name, compares, kind, agrees, detail=None):
 # ---------------------------------------------------------------------------------------------------------------
 # Transcribed governing text
 # ---------------------------------------------------------------------------------------------------------------
+
+RELATION = ('Per-load and warning references for RS-WIN, RS-EQX, RS-EQY and RS-EQZ. Use `reference_system_pending_cases` for EQ-6 as restated at `e494a5925`. This generator compares the four analytic resultants and three pipes-only twins coefficient by coefficient with constants transcribed from that package. The maintained test checks those constants against the sibling files. Both use 9.80665 m/s² for seismic gravity. The pending-cases package assumed it, and §8.1 states it.')
 
 SPEC = {
     "gravity_weight": "§2: Gravity is entered on each weight case as `global_z`, value −9.80665 m/s²",
@@ -775,14 +776,14 @@ def build():
 
     # --- transcription and set checks
     order = tuple(m["id"] for m in members)
-    cross("member order", "the model's pipe_segments order against spec §3.2's table order", "transcription",
+    cross("member order", "the model's pipe_segments order against spec §3.2's table order", "transcription or inventory",
           order == SPEC_MEMBER_ORDER)
     cross("replaced span", "the objective connector's replaces_span span_ref against spec §5.1 (RS-P180)",
-          "transcription", replaced == [WIND_EXCEPT])
+          "transcription or inventory", replaced == [WIND_EXCEPT])
     i0, i1 = SPEC_MEMBER_ORDER.index(WIND_FIRST), SPEC_MEMBER_ORDER.index(WIND_LAST)
     exposed = [p for p in SPEC_MEMBER_ORDER[i0:i1 + 1] if p not in replaced]
     cross("exposed set", "RS-P070 … RS-P200 in §3.2 order less the connector's replaced span, against the "
-          "14 members listed here from spec §8.1", "transcription", tuple(exposed) == WIND_EXPECTED,
+          "14 members listed here from spec §8.1", "transcription or inventory", tuple(exposed) == WIND_EXPECTED,
           {"exposed": exposed})
 
     # --- sections and geometry
@@ -796,7 +797,8 @@ def build():
             assert prev["coeff"] == mu_coeff, sid
             continue
         s = m["section"]
-        cross("mu " + sid, "radius-form mass per length against the diameter form", "distinct calculation",
+        cross("mu " + sid, "radius-form mass per length against the diameter form",
+              "algebraically equivalent mass form",
               mu_diameter_form(s) == mu_coeff)
         sections[sid] = {"coeff": mu_coeff, "parts": (metal, contents, insulation),
                          "projected_diameter": s["D"] + 2 * s["t_i"], "section": s}
@@ -806,13 +808,13 @@ def build():
             for p in exposed if geo[p]["kind"] == "arc")
     cross("exposed members normal to the wind", "every exposed member's end nodes have X = 6 m and each exposed "
           "arc's centre has X = 6 m with radius vectors of zero X component, so every exposed member lies in "
-          "the plane X = 6 m, normal to +X", "distinct calculation", in_plane)
+          "the plane X = 6 m, normal to +X", "wind-plane geometry", in_plane)
 
     # --- components
     quals = qualify(comps, members, replaced)
     replacing = {q["member"]: q for q in quals if q["replaces"]}
     cross("rigid-family components that replace their member", "the components the ordered rules admit "
-          "against spec §5's statement (RS-F1, RS-V1, RS-F2, RS-R1)", "transcription",
+          "against spec §5's statement (RS-F1, RS-V1, RS-F2, RS-R1)", "transcription or inventory",
           sorted(q["component"] for q in quals if q["replaces"]) == sorted(SPEC_RIGID))
     for q in quals:
         F = [ZERO, ZERO, X.c(-q["W"])]
@@ -823,12 +825,12 @@ def build():
 
     line_members = [m["id"] for m in members if m["id"] not in replaced and m["id"] not in replacing]
     cross("self-weight inventory", "21 line loads and a force and a moment for each of four components (29) "
-          "against spec §8.1", "transcription",
+          "against spec §8.1", "transcription or inventory",
           len(line_members) == 21 and len(replacing) == 4 and len(line_members) + 2 * len(replacing) == 29)
 
     # --- route B geometry
     rb_geo, pi_b = route_b_members(members, nodes)
-    cross("pi", "Machin bounds against the Gauss-Legendre AGM value", "distinct calculation",
+    cross("pi", "Machin evaluation against the Gauss-Legendre AGM value", "numerical method",
           D(PI_LO) <= pi_b + Decimal(10) ** -60 and pi_b - Decimal(10) ** -60 <= D(PI_HI))
 
     def mu_b(m):
@@ -927,9 +929,9 @@ def build():
                           "twin_force": t_force, "twin_moment": t_moment}
         route_b_results[case_id] = (bF, bM)
         route_b_results[case_id + " twin"] = (tbF, tbM)
-    cross("binary64 formation", "each component force and moment rounded here from the exact rational product "
-          "(ties to even) against the hardware binary64 product of the same binary64 operands, bits",
-          "distinct calculation", formations_agree)
+    cross("binary64 formation", "each nonzero component force and moment rounded here from the exact rational "
+          "product (ties to even) has the bits of the hardware binary64 product of the same operands; zero results "
+          "are compared by magnitude", "numerical method", formations_agree)
 
     # --- route A against route B
     worst = Decimal(0)
@@ -945,10 +947,10 @@ def build():
                     rel = abs(to_dec(xa) - xb) / scale
                 worst = max(worst, rel)
     cross("resultants by quadrature", "every resultant force and moment (wind, three seismic cases, three twins) "
-          "against direct quadrature along each member and arc: a different pi (AGM), arc centre from the "
+          "against direct quadrature, Simpson on straight members and Romberg on bends: a different pi (AGM), arc centre from the "
           "incoming tangent, trigonometric parametrisation with Romberg integration, diameter-form masses, "
           "component forces at node + r; agreement within 1e-50 of each family's largest magnitude",
-          "distinct calculation", worst < Decimal(10) ** -50, {"largest_difference_relative": "%.3e" % worst})
+          "numerical method", worst < Decimal(10) ** -50, {"largest_difference_relative": "%.3e" % worst})
 
     # --- seismic Z, X and Y against the r1_ce weight (exact mapping)
     sib = SIBLING["r1_ce"]
@@ -969,7 +971,7 @@ def build():
               "Exact because the seismic gravity equals the weight gravity's magnitude (9.80665 m/s², §2, §8.1), "
               "the same members carry distributed load on the same basis, and each component's W is held fixed "
               "at the same centre of gravity",
-              "distinct calculation by another author", okF and okM, detail)
+              "comparison with a sibling record", okF and okM, detail)
 
     # --- seismic Z against the tranche-1 package: exact only after RS-R1's substitution
     W1 = X.parse(SIBLING["tranche1"]["W_total_N"])
@@ -979,7 +981,7 @@ def build():
     cross("RS-EQZ against reference_system (tranche 1)",
           "the force k·(W_total(tranche 1) + 300 N − g·μ_S270·√257/40) against RS-EQZ's force, exactly. Not exact "
           "without the correction: tranche 1 has no RS-R1, so RS-P150 carries its distributed weight there",
-          "distinct calculation by another author",
+          "comparison with a sibling record",
           cases["RS-EQZ"]["force"][2] == (W1 + sub) * Fr("0.20"))
 
     # --- wind and seismic against the pending-cases package's full system (same rule, gravity then assumed)
@@ -990,7 +992,7 @@ def build():
         cross("%s against reference_system_pending_cases (full)" % case_id,
               "generated force and moment about the origin, exactly; that package assumed the seismic gravity "
               "9.80665 m/s² before spec §8.1 stated it, under the rule decided on 2026-11-12, the rule the "
-              "scope now states", "distinct calculation by another author", ok)
+              "scope now states", "comparison with a sibling record", ok)
 
     ctl = SIBLING["pending_control_before_2026_11_12"]
     for case_id, axis, k in SEISMIC_CASES:
@@ -1000,7 +1002,7 @@ def build():
         cross("%s twin against reference_system_pending_cases control" % case_id,
               "the pipes-only twin's force and moment against that package's full-system control 'the rule "
               "before 2026-11-12: pipe mass on a mapped member, component weight left out', exactly",
-              "distinct calculation by another author", ok)
+              "comparison with a sibling record", ok)
 
     # --- assemble
     out_cases = {}
@@ -1053,11 +1055,8 @@ def build():
 
     doc = {
         "document": "validation/references/reference_system_generated_loads/references.json",
-        "status": "candidate per-load and warning references, derived and cross-checked by their author, not yet "
-                  "independently refuted",
         "supplements": {"package": "validation/references/reference_system_pending_cases",
-                        "relation": "that package remains the reference for EQ-6; the four resultants and three "
-                                    "twins here are values this generator checks equal to its frozen ones, exactly"},
+                        "relation": RELATION},
         "governs": {"scope": "execution/PKG-05/DEL-05-01/ScopeOfWork.md at aebd3442f: Static-equivalent "
                              "generation, Mass basis, Self-weight plan, REQ-008, REQ-015, AC-007, VER-005",
                     "specification": "fixtures/reference_system/SPECIFICATION.md §2, §3, §4.2, §5, §5.1, §8.1, "
@@ -1078,6 +1077,9 @@ def build():
             "exact": "a sum of (q)*sqrt(n)*pi^k terms, q rational",
             "decimal": "40 significant digits, round half even; value: the nearest binary64; each emitted only "
                        "when both ends of a bounding interval give the same",
+            "labels": {"value_N, value_N_m": "analytic values on the entered decimals",
+                       "binary64_by_formation": "the formed primitives",
+                       "resultant": "the analytic resultant"},
         },
         "inputs": inputs_record(nodes, members, quals, exposed, replaced),
         "mass_basis": {"name": MASS_BASIS_EX, "route": "exact (spec §2 pressure_contract exact_pressure_v3)",
@@ -1107,26 +1109,27 @@ def build():
                                     for q in quals],
         "cases": out_cases,
         "EQ-4": {"frozen_values": None,
-                 "why": "an identity on published rows (spec §9.2 EQ-4)",
-                 "recompute": "on each signed component row of RS-EQ-SRSS and RS-EQ-ABS, with x_X, x_Y, x_Z the "
-                              "matching rows of RS-dEQX, RS-dEQY, RS-dEQZ as published and factors 1: "
-                              "ABS = RN(|x_X| + |x_Y| + |x_Z|), the exact sum rounded once; SRSS = RN(√(x_X² + x_Y² "
-                              "+ x_Z²)), the exact square root of the exact sum, rounded once (DEL-05-02 "
-                              "'Absolute sum', 'SRSS'); then SRSS ≤ ABS. Magnitude rows follow the combination's "
-                              "own recomputation rule; withheld rows are excluded"},
+                 "reference": "validation/references/reference_system_pending_cases/README.md, 'EQ-4: SRSS and "
+                              "absolute sum, an identity' (the operand-row identity)"},
         "comparison_rule": {
-            "nonzero": "|observed − expected| ≤ 1e-9·|expected| (relative alone)",
-            "exact_zero": "|observed| ≤ 1e-9·zero_scale, zero_scale the largest magnitude of its family in the "
-                          "item (each item's floors record it)",
-            "discrete": "compared exactly",
-            "component_bits": "a component force or moment the scope's formation rule fixes is also given as "
-                              "binary64 bits; a test may compare those exactly",
-            "source": "DEL-05-01 AC-001 (1e-9 relative)",
+            "rule": ["Compare load kind, target and direction or axis exactly.",
+                     "Compare every nonzero component force and moment against its recorded binary64 bits.",
+                     "For zero transverse moments, either sign is valid if a record is emitted.",
+                     "Compare the remaining nonzero values at 1e-9 relative alone.",
+                     "For an exact-zero resultant component, use 1e-9 times the largest absolute component in its "
+                     "force or moment vector."],
             "relative": 1e-9,
+            "floors": "the eight stored floors use binary64 multiplication of the represented family maximum and "
+                      "the represented 1e-9",
+            "floor_example": "RS-EQX's force floor is 1.4010967471694583e-05; rounding the exact analytic product "
+                             "instead gives 1.4010967471694581e-05",
+            "why_bits": "single rounding of the three normalized operands changes six moment results by one bit and "
+                        "passes the relative comparison; in RS-EQX, the valve's +234 N·m about Y would be "
+                        "406d3fffffffffff; the required encoding is 406d400000000000",
+            "source": "the relative and zero rule as validation/references/w16_exact_equivalent_static/README.md "
+                      "states it; the pending-cases package leaves tolerances to the consumer",
         },
         "seismic_warning_decisions": DECISIONS_WARNING,
-        "seismic_warning_decisions_scope_text": DECISION_SCOPE_TEXT,
-        "warning_readings_considered_and_excluded": CONSIDERED_AND_EXCLUDED,
         "open_items": OPEN_ITEMS,
         "crosscheck": CROSS,
         "crosscheck_count": len(CROSS),
@@ -1153,22 +1156,16 @@ def inputs_record(nodes, members, quals, exposed, replaced):
 
 DECISIONS_WARNING = [
     {"decided_by": "SWBPIPE's Agent 0", "date": "2026-11-18",
-     "decision": "the seismic model-check warning names the two kinds of weight REQ-008 states, loads in the weight "
-                 "category and, on the pressure-free route, the added weight a case takes from an operating condition; "
-                 "it does not name applied generated self-weight",
-     "reason": "the warning tells the engineer which weights seismic generation did not scale; a pipe's applied "
-               "self-weight and a component's applied weight are the ones it did, since generation takes the pipe's "
-               "mass and the component's W directly"},
+     "decision": "The weight finding names entered weight-category loads, including entered distributed member "
+                 "loads, and on the pressure-free route names added weight taken from an operating condition."},
     {"decided_by": "SWBPIPE's Agent 0", "date": "2026-11-18",
-     "decision": "a manual override of generated self-weight is named in the warning"},
+     "decision": "Its exemption covers fresh applied generated self-weight.",
+     "reason": "Seismic generation uses the model's pipe mass and the entered component force W directly."},
     {"decided_by": "SWBPIPE's Agent 0", "date": "2026-11-18",
-     "decision": "the gravity comparison reads fresh applied component-weight primitives only; an overridden component "
-                 "contributes no gravity to it"},
+     "decision": "Manual overrides are named."},
     {"decided_by": "SWBPIPE's Agent 0", "date": "2026-11-18",
-     "decision": "the weight category is the solver's parsed category, an entered distributed member load included; "
-                 "the text says 'load in the weight category'"},
+     "decision": "The gravity comparison uses fresh applied component-weight primitives."},
 ]
-DECISION_SCOPE_TEXT = "the scope's sentences are to be clarified in a later change; no scope wording is quoted for them"
 
 
 def warning_record(case_id, line_members, quals):
@@ -1207,29 +1204,18 @@ def warning_record(case_id, line_members, quals):
             "gravity_finding_required": G_WEIGHT != G_SEISMIC,
         },
         "code": None, "message": None, "findings_per_load_or_per_case": None, "order_of_named_loads": None,
-        "open_fields_matter_for": "only a test that asserts the absence of these findings",
     }
 
 
 OPEN_ITEMS = [
-    {"id": "OI-1", "item": "the seismic warning's code and message words", "frozen": None,
-     "unsettled": "REQ-008 states what the findings name, not their code or wording; no finding is required on "
-     "these cases, so this matters only for a test that asserts absence"},
-    {"id": "OI-2", "item": "one finding per named load or one per case, and their order", "frozen": None,
-     "unsettled": "REQ-008 says 'findings' and fixes neither their number nor their order"},
-    {"id": "OI-3", "item": "whether an exactly zero transverse moment component becomes a load record",
-     "frozen": None, "unsettled": "the scope fixes when a component is required nonzero, not whether a zero one "
-     "is emitted; the values and the required-nonzero set are frozen, the record count is not"},
-    {"id": "OI-4", "item": "generated-load identities and their order", "frozen": None,
-     "unsettled": "no identifier rule is given for generated wind or seismic loads; loads are keyed here by "
-     "target, kind and axis"},
-]
-
-CONSIDERED_AND_EXCLUDED = [
-    {"reading": "the warning names the seismic case's own applied self-weight primitives (29 per case)",
-     "excluded_by": "SWBPIPE's Agent 0's decision of 2026-11-18 that applied generated self-weight is not named"},
-    {"reading": "the warning names every weight-category load in the document",
-     "excluded_by": "REQ-008 'on each seismic case' (the assigner's reading of it as that case's loads)"},
+    {"id": "OI-1", "frozen": None,
+     "item": "Warning code, wording, grouping and specific order are open. These cases freeze the absence of both "
+             "seismic warning families."},
+    {"id": "OI-2", "frozen": None, "item": "Emission of zero transverse moment records is open."},
+    {"id": "OI-3", "frozen": None,
+     "item": "Generated wind and seismic identifier syntax and the specific sequence are open. REQ-009 requires "
+             "repeatable contribution and finding order, and REQ-007 requires sorted load IDs in the primitive "
+             "load-case record."},
 ]
 
 
@@ -1266,8 +1252,9 @@ def main():
         return check_live()
     doc = build()
     missing = readme_quotes(doc)
-    doc["crosscheck"].append({"check": "README quotes", "compares": "the README quotes every nonzero resultant "
-                              "value", "kind": "consistency", "agrees": not missing})
+    doc["crosscheck"].append({"check": "README quotes", "compares": "each nonzero resultant value appears as a "
+                              "numeric string somewhere in the README", "kind": "README number presence",
+                              "agrees": not missing})
     doc["crosscheck_count"] = len(doc["crosscheck"])
     refs = render(doc).encode("utf-8")
     files = {"README.md": README.read_bytes() if README.exists() else b"",

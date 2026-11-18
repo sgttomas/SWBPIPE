@@ -1,40 +1,13 @@
 # Reference system: per-load and warning references for RS-WIN, RS-EQX, RS-EQY, RS-EQZ
 
-Per-load and warning references for the wind case RS-WIN and the static seismic cases RS-EQX, RS-EQY and RS-EQZ
-of the invented reference system
-([`fixtures/reference_system/SPECIFICATION.md`](../../../fixtures/reference_system/SPECIFICATION.md) §8.1). They
-supplement [`../reference_system_pending_cases/`](../reference_system_pending_cases/README.md), which remains the
-reference for EQ-6 (§9.2). For each case they give every generated load one by one. For each component force and
-moment they give the binary64 bits the formation rule fixes. For each seismic case they also give the seismic
-model-check findings the case must carry. They follow the generation rule of
-[DEL-05-01](../../../execution/PKG-05/DEL-05-01/ScopeOfWork.md) ("Static-equivalent generation", "Mass basis",
-REQ-008, REQ-015, AC-007). They were frozen before the engine work they judge, and no product test reads this
-package yet.
-
-Status: candidate per-load and warning references, derived and cross-checked by their author, not yet independently
-refuted.
+Per-load and warning references for RS-WIN, RS-EQX, RS-EQY and RS-EQZ.
 
 ## Relation to the pending-cases package
 
-**Values both packages hold.** Both hold the four resultants (force and moment about the origin of RS-WIN, RS-EQX,
-RS-EQY and RS-EQZ) and the three pipes-only twins. That package holds the twins as its control "the rule before
-2026-11-12". This generator checks every one of them equal to that package's frozen value, rational coefficient by
-coefficient (`crosscheck`), so the two cannot part silently. The pending-cases package is the reference for EQ-6.
-This package does not replace that reference or restate it as its own: its `EQ-6` entries name that package as the
-reference of record and are values checked equal to it.
-
-**What only this package holds:**
-- each generated load one by one, with its target, kind, direction or axis and its intensity or value;
-- the formed binary64 bits of each component force and moment;
-- the comparison rule and each case's floors;
-- the twin's difference measured against that rule;
-- the seismic warning expectation;
-- inputs read from the fixture's model members, staged here, where that package holds the specification's inputs
-  as constants.
-
-**Stated assumptions.** That package's README treats the seismic gravity magnitude as an open reading (OR-G) and
-assumes 9.80665 m/s². This package takes 9.80665 m/s² from §8.1, which now states it. No other stated assumption
-differs.
+Use [`reference_system_pending_cases`](../reference_system_pending_cases/README.md) for EQ-6 as restated at
+`e494a5925`. This generator compares the four analytic resultants and three pipes-only twins coefficient by
+coefficient with constants transcribed from that package. The maintained test checks those constants against the
+sibling files. Both use 9.80665 m/s² for seismic gravity. The pending-cases package assumed it, and §8.1 states it.
 
 ## Files
 
@@ -42,46 +15,40 @@ differs.
 |---|---|
 | `generators/rsgl_reference.py` | the generator: Python 3 standard library only, exact rational arithmetic, controlled evaluation of π and √n |
 | `staged/reference_system_model_members.json` | an input staged from `fixtures/reference_system/reference_system.json` as committed at `b5569a8215847bedcceac7de7a1b8429a5fde41b` (git blob `8a9729b033e9929a820b4c5b96a040f4458da1df`): its members `nodes`, `pipe_segments`, `components` and `pressure_contract`, copied as they stand, every number with the same exact value. It holds no `load_cases`, `combinations`, `analysis_status` or `diagnostics` |
-| `references.json` | the inputs read, sections, members, arcs, component qualification, per case the generated loads, resultant (with the EQ-6 entries checked equal to the pending-cases package), floors, pipes-only twin and model-check record, EQ-4's statement, the comparison rule, the open items and 24 cross-checks |
+| `references.json` | the inputs read, sections, members, arcs, component qualification, per case the generated loads, resultant (with the EQ-6 entries checked equal to the pending-cases package), floors, pipes-only twin and model-check record, a pointer for EQ-4, the comparison rule, the open items and 24 cross-checks |
 | `SHA256SUMS` | hashes of the four files above, written by the generator |
 
 `python3 -I generators/rsgl_reference.py` rebuilds `references.json` and `SHA256SUMS` in memory from this package's
 files alone and compares them byte for byte with the committed files. `--write` rewrites both.
-[`tests/test_reference_system_generated_loads_references.py`](../../../tests/test_reference_system_generated_loads_references.py)
-runs that check. It also checks the manifest, the generator's imports, the transcribed governing text and sibling
-values, the comparison rule and the floors.
+The maintained tests
+([`tests/test_reference_system_generated_loads_references.py`](../../../tests/test_reference_system_generated_loads_references.py))
+check byte reproduction with package-only inputs, manifest membership and hashes, static imports and selected call
+and path literals, eight specification excerpts, the rigid-family phrase and the sibling constants. They check
+recorded load counts, component encodings against stored values, warning record consistency and resultant floors.
 
 ## What the generator reads and does not read
 
-The default check and `--write` read only this package: the generator, this README (for the quotation check) and
-the staged model members. They open no file outside the package. The staged file holds the four model members the
-derivation needs and nothing else. The captured self-weight primitives, which are in the fixture's `load_cases`,
-were never staged. The generator does not read `self_weight_capture.json`, `authoring.json`, `key_results.json`,
-product source, product tests or product output.
+The generator imports only standard-library modules. The arithmetic uses package inputs: the generator, this README
+(for the number-presence check) and the staged model members. The staged copy contains only the four selected model
+members plus staging metadata. Live mode opens the fixture, parses its JSON and projects the four model members
+before comparing them. The generator does not read `self_weight_capture.json`, `authoring.json`,
+`key_results.json`, product source, product tests or product output.
 
 The generator transcribes the rest, with its source. From the specification: the case inputs (§8.1), the weight
 gravity (§2), the bend corners (§3.1), the member order (§3.2) and the statements it quotes in `governs.quoted`.
 From DEL-03-05: the rigid-family kinds. From three sibling packages: the frozen values its cross-checks compare
-against. The maintained test checks every quoted statement against the current specification and every sibling
-value against the committed file it names.
+against.
 
 ## The staged input and the live comparison
 
     python3 -I generators/rsgl_reference.py --check-live
 
-This separate check is not run by the default check. It opens the live fixture, keeps the same four members, and
-compares them with the staged copy leaf by leaf: numbers by exact value, records in a list by their id, and each
-list by its length. It names every leaf that differs and exits nonzero ("SOURCE MOVED ON"). Its result does not
-change the committed output, which still stands for its staged input.
-
-[`tests/test_reference_packages_live.py`](../../../tests/test_reference_packages_live.py) runs it. That test also
-holds the digest of the fixture's whole bytes, because the leaf comparison cannot see everything:
-- a change outside the four members, such as a load case added, a primitive load edited or a member added beside
-  them, passes the leaf comparison;
-- a change the product reads differently from how it reads here, such as a new member a solve gives precedence,
-  also passes the leaf comparison.
-
-Any change to the file fails the digest until a person has looked at its diff against this package.
+The live check compares typed leaves in the four selected model members, numeric values exactly, unique ID-keyed
+list entries by ID, and list lengths. It reports changed compared paths and exits 1 on a mismatch. Excluded
+top-level fields, reordering of ID-keyed lists, empty-object additions and changes to numeric spelling or whitespace
+can pass. The maintained whole-file SHA-256 check
+([`tests/test_reference_packages_live.py`](../../../tests/test_reference_packages_live.py)) detects byte changes
+against the registered digest. Review the fixture diff before updating that digest.
 
 When the fixture's geometry, sections or components change, the answer is a successor package or a regeneration,
 decided at that time. It is not an edit of this package in place.
@@ -129,12 +96,13 @@ q = k·g·μ along the axis: 21 members. The bends and the tee are not rigid-fam
 binary64, F = RN(k·W), and each transverse moment component is RN(±r_c·F), with r_c the corresponding coordinate of
 r, rounded to nearest with ties to even. For F along X the components are M_y = RN(r_z·F) and M_z = −RN(r_y·F).
 For Y they are M_x = −RN(r_z·F) and M_z = RN(r_x·F). For Z they are M_x = RN(r_y·F) and M_y = −RN(r_x·F). Each load
-record gives the exact value on the entered decimals, the formed binary64 with its bits, and whether the scope
-requires it to be nonzero (k and the corresponding coordinate both nonzero). The required-nonzero moment
+record gives the analytic value on the entered decimals (`value_N`, `value_N_m`), the formed primitive
+(`binary64_by_formation`) with its bits, and whether the scope requires it to be nonzero (k and the corresponding
+coordinate both nonzero). The formed component primitives equal their analytic values in these four cases. The required-nonzero moment
 components are 3 in RS-EQX, 5 in RS-EQY and 4 in RS-EQZ. The other transverse components are exactly zero. The scope
 does not fix the sign of a zero.
 
-**Resultants.** The force is Σ q·L·e plus Σ F. The moment is about the global origin, with each force at its point
+**Analytic resultants** (`resultant`). The force is Σ q·L·e plus Σ F. The moment is about the global origin, with each force at its point
 of action: the moment of a distributed load is (∫ r ds) × q·e, and the moment of a component force with its couple
 is (node + r) × F. For a straight member ∫ r ds = L·(A + B)/2. A 90° arc with centre C = A + B − corner, and e₁, e₂
 the radius vectors from C to its from-node and to-node, has length R·π/2 and ∫ r ds = R[(π/2)C + e₁ + e₂]. EQ-6
@@ -158,7 +126,7 @@ component force. The table gives the rule's resultant minus the twin's:
 | RS-EQY | (0, 662.1968, 0) | (−664.3105, 0, 363.4160) |
 | RS-EQZ | (0, 0, 441.4645) | (−521.5424, −242.2773, 0) |
 
-Each nonzero difference is between 4.8 × 10⁶ and 4.7 × 10⁷ times the tolerance of its component
+Each nonzero difference is approximately 4.85 million to 47.26 million times the component tolerance
 (`discrimination_at_the_comparison_rule`), so a resultant comparison at the rule below distinguishes the rule from
 its absence on this model, in every case. The components that are exact zeros are zero under both, so those
 components do not discriminate. They are the force components off the case's axis and the moment component about
@@ -166,53 +134,49 @@ it.
 
 ## Seismic model-check findings
 
-The expectations rest on four decisions SWBPIPE's Agent 0 made on 2026-11-18 (`seismic_warning_decisions`). The
-scope's sentences are to be clarified in a later change.
-1. The warning names the two kinds of weight REQ-008 states: loads in the weight category and, on the pressure-free
-   route, the added weight a case takes from an operating condition. It does not name applied generated
-   self-weight. The reason: the warning tells the engineer which weights seismic generation did not scale, and
-   generation takes the pipe's mass and the component's W directly.
-2. A manual override of generated self-weight is named in the warning.
-3. The gravity comparison reads fresh applied component-weight primitives only. An overridden component contributes
-   no gravity to it.
-4. The weight category is the solver's parsed category, an entered distributed member load included. The text says
-   "load in the weight category".
+The expectations rest on four decisions SWBPIPE's Agent 0 made on 2026-11-18 (`seismic_warning_decisions`):
+1. The weight finding names entered weight-category loads, including entered distributed member loads, and on the
+   pressure-free route names added weight taken from an operating condition.
+2. Its exemption covers fresh applied generated self-weight. The reason: seismic generation uses the model's pipe
+   mass and the entered component force W directly.
+3. Manual overrides are named.
+4. The gravity comparison uses fresh applied component-weight primitives.
 
 On each of RS-EQX, RS-EQY and RS-EQZ, no weight finding and no gravity finding are required. This expectation holds
 only under the condition recorded in each case's `seismic_model_check.condition`: the case's 29 self-weight
 primitives are fresh (the self-weight plan's output, matching the model, as §8.1 states them, none overridden), and
 the case holds no other load in the weight category.
-- **Weight:** under decisions 1, 2 and 4, fresh generated self-weight is not named, and nothing else is in the
-  weight category. The case is on the exact route, and no case carries condition added weight (§8). The 29 ids
-  follow §8.1's rule and are listed in the record.
-- **Gravity:** under decision 3, the baseline is the case's four fresh `…:force:z` component-weight primitives,
+- **Weight:** under decisions 1 to 3, fresh generated self-weight is exempt, and nothing else is in the weight
+  category. The case is on the exact route, and no case carries condition added weight (§8). The 29 ids follow
+  §8.1's rule and are listed in the record.
+- **Gravity:** under decision 4, the baseline is the case's four fresh `…:force:z` component-weight primitives,
   for the components whose forces the case generates. Their gravity magnitude is 9.80665 m/s² (§2, and §8.1: W uses
   "gravity as §2"). The seismic gravity is 9.80665 m/s² (§8.1). They are equal after normalization.
 
 RS-WIN carries no seismic model-check finding (AC-007: "none of those findings otherwise").
 
-Two readings were considered and excluded. Naming the case's own applied self-weight is excluded by decision 1.
-Naming every weight-category load in the document is excluded on the assigner's reading of REQ-008's "on each
-seismic case" as that case's loads.
-
 ## EQ-4
 
-EQ-4 is an identity on published rows, so no values are frozen for it. On each signed component row of RS-EQ-SRSS
-and RS-EQ-ABS, take x_X, x_Y and x_Z as the matching rows of RS-dEQX, RS-dEQY and RS-dEQZ as published (factors 1). A
-test recomputes ABS = RN(|x_X| + |x_Y| + |x_Z|), the exact sum rounded once, and
-SRSS = RN(√(x_X² + x_Y² + x_Z²)), the exact square root of the exact sum rounded once (DEL-05-02 "Absolute sum",
-"SRSS"). It then checks SRSS ≤ ABS. Magnitude rows follow the combination's own recomputation rule, and withheld
-rows are excluded (§9.2).
+EQ-4 is an identity on published rows, so no values are frozen for it. Its operand-row identity is the one
+[`../reference_system_pending_cases/README.md`](../reference_system_pending_cases/README.md) states ("EQ-4: SRSS and
+absolute sum, an identity").
 
 ## Comparison rule
 
-As the sibling packages state it, with the 1e-9 of DEL-05-01 AC-001:
+Compare load kind, target and direction or axis exactly. Compare every nonzero component force and moment against
+its recorded binary64 bits. For zero transverse moments, either sign is valid if a record is emitted. Compare the
+remaining nonzero values at 1e-9 relative alone. For an exact-zero resultant component, use 1e-9 times the largest
+absolute component in its force or moment vector.
 
-- a nonzero expected value passes when |observed − expected| ≤ 1e-9·|expected|, relative alone;
-- an exact-zero expected value passes when |observed| ≤ 1e-9·zero_scale, where zero_scale is the largest magnitude
-  of its family (force or moment) in the item. Each case's `floors` records zero_scale and the floor;
-- discrete outcomes compare exactly. A component force or moment whose bits the scope's formation rule fixes may be
-  compared bit for bit, except for the sign of a zero.
+The relative and zero rule is the one
+[`../w16_exact_equivalent_static/README.md`](../w16_exact_equivalent_static/README.md) states. The pending-cases
+package leaves tolerances to the consumer. The eight stored floors (`floors`) use binary64 multiplication of the
+represented family maximum and the represented 1e-9. For example, RS-EQX's force floor is
+`1.4010967471694583e-05`. Rounding the exact analytic product instead gives `1.4010967471694581e-05`.
+
+The bits are required because single rounding of the three normalized operands changes six moment results by one
+bit and passes the relative comparison. In RS-EQX, the valve's +234 N·m about Y would be `406d3fffffffffff`; the
+required encoding is `406d400000000000`.
 
 ## Conventions
 
@@ -225,51 +189,31 @@ bounded by Machin's formula and √n by the integer square root, each within 10�
 
 ## Cross-checks
 
-`references.json` `crosscheck` holds 24 cross-checks, each with what it compares and whether it is a distinct
-calculation, a transcription check or a consistency check. All agree:
+`references.json` `crosscheck` holds 24 checks, and all agree: five transcription or inventory checks, one
+wind-plane geometry check, three algebraically equivalent mass-form checks, three numerical method checks (π,
+component products, resultant quadrature), eleven comparisons with sibling records, and one README number-presence
+check.
 
-- **transcription (5):** the model's member order equals §3.2's. The replaced span is RS-P180. The marked set
-  (RS-P070 … RS-P200 less the connector's span) equals the 14 members listed from §8.1. The admitted components are
-  §5's four, and the self-weight inventory is 21 + 2 × 4 = 29.
-- **distinct calculations here (7):** every exposed member, the arc's centre and radius vectors included, lies in
-  X = 6 m. Each section's μ in radius form equals
-  the diameter form (3). π from Machin's bounds equals a Gauss–Legendre AGM value. Each component force and moment
-  rounded from the exact rational product (the RN written here) has the same bits as the hardware binary64 product
-  of the same operands. Every resultant, the twins' included, is recomputed by quadrature along each member and arc.
-  That second route uses the AGM π, an arc centre built from the incoming tangent (C = B − R·t_in), a trigonometric
-  parametrization with Romberg integration in 80-digit decimals, diameter-form masses, and each component force at
-  node + r. Its largest relative difference is 8e-58 of its family's largest magnitude.
-- **distinct calculations by other authors (11):**
-  - RS-EQX, RS-EQY and RS-EQZ against
-    [`../reference_system_r1_ce/`](../reference_system_r1_ce/README.md)'s frozen weight total W and first moment S:
-    the force is k·W·e and the moment k·(S × e), and for Z also −k times its weight moment, all exactly. The mapping
-    is exact for three reasons: the seismic gravity equals the weight gravity's magnitude, the same members carry
-    distributed load on the same basis, and each component's W is held fixed at the same centre of gravity.
-  - RS-EQZ against the tranche-1 [`../reference_system/`](../reference_system/README.md) weight total. That match is
-    exact only after RS-R1's substitution (+300 N − g·μ_S270·√257/40), because tranche 1 has no RS-R1.
-  - All four resultants against
-    [`../reference_system_pending_cases/`](../reference_system_pending_cases/README.md)'s full-system values, which
-    assumed the seismic gravity 9.80665 m/s² before §8.1 stated it.
-  - The three twins against that package's control "the rule before 2026-11-12".
-- **consistency (1):** this README quotes every nonzero resultant value.
-
-The sibling comparisons are exact equalities of the rational coefficients. They share the mass-basis reading with
-this package, so they do not check that reading. The pending-cases package takes its inputs from the
-specification's text, and this package from the fixture's model members, so agreement also checks the fixture's
-transcription of those inputs.
+The sibling comparisons consist of three scaled weight wrenches
+([`../reference_system_r1_ce/`](../reference_system_r1_ce/README.md)), one corrected tranche-1 weight total
+([`../reference_system/`](../reference_system/README.md)), four resultants and three controls
+([`../reference_system_pending_cases/`](../reference_system_pending_cases/README.md)). They reuse the mass and
+component readings. Agreement between packages checks the resultant effect of their shared readings and different
+input sources, with no independent coverage of every field. The π check compares Machin evaluation with AGM. The bit
+check agrees on the nonzero products and compares zero magnitudes. The quadrature uses Simpson on straight members
+and Romberg on bends. The README check finds numeric strings anywhere in the file.
 
 ## Open items
 
-`references.json` `open_items` records each of these with a null value:
-
-- the code and words of the seismic findings. No finding is required on these cases, so this matters only for a
-  test that asserts absence;
-- one finding per load or per case, and their order;
-- whether an exactly zero transverse moment component becomes a load record. The values and the required-nonzero set
-  are frozen, and the number of moment records is not;
-- generated-load identities and their order. No rule is given for them, so loads are keyed by target, kind and axis.
+`references.json` `open_items` records these, each with a null value. Warning code, wording, grouping and specific
+order are open. These cases freeze the absence of both seismic warning families. Emission of zero transverse moment
+records is open. Generated wind and seismic identifier syntax and the specific sequence are open. REQ-009 requires
+repeatable contribution and finding order, and REQ-007 requires sorted load IDs in the primitive load-case record.
 
 ## What this is not evidence of
+
+The package supplies generated-load and warning expectations for the specified cases. For EQ-6 reaction resultants
+use `reference_system_pending_cases`.
 
 - Nothing here states how the product behaves today. Every value comes from the governing text and the model's
   members, not from a product run.
@@ -280,7 +224,6 @@ transcription of those inputs.
 - The warning expectation holds only under its condition: fresh self-weight primitives and no other load in the
   weight category. It does not establish what the warning does with a primitive that no longer matches its model,
   with an overridden one or with an entered weight load.
-- The resultants are not a second reference for EQ-6; the pending-cases package is.
 - Passing these checks does not make exit criterion 1 or 2 met.
 - Agreement is evidence, not acceptance (F-PIP-3). SWBPIPE computes mechanics; it does not determine code compliance
   (F-PIP-2).
