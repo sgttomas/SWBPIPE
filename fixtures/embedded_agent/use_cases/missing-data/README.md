@@ -180,6 +180,8 @@ consistent with itself passes. Every outcome says
 under a scripted provider it shows nothing about what a model does. It is not
 acceptance or the owner's verdict. The traces in the tests are synthetic
 inputs to the judge, and every output states (`capture`) that the judge
-cannot tell a captured run from a synthetic or forged one. No captured run of
-this use case exists: the desktop observation waits for the use-case driver
-and launcher of PR 251.
+cannot tell a captured run from a synthetic or forged one; whether a trace is
+a capture rests on its own provenance. As of issue 380's change (November
+2026), no captured run of this use case exists: the desktop observation waits
+for the use-case driver and launcher of PR 251. That is a dated evidence
+limit, not something the judge states.

@@ -43,8 +43,11 @@ it is not acceptance, the owner's verdict on exit criterion 8, or
 qualification of a model.
 
 Capture. The judge cannot tell a captured desktop run from a synthetic or a
-forged trace, and no captured run of this use case exists yet: the use-case
-driver it needs (PR 251) is not ready. Every output says so.
+forged trace, and every output says so. Whether a trace is a capture is a fact
+of its own provenance, never of this verdict. (When this classification was
+added, no captured run of this use case existed: the use-case driver it needs,
+PR 251, was not ready. That is a dated evidence limit, recorded in the
+scenario's README, and no output states it.)
 
 Executions. Each solve request the harness observed has its own
 `request_id`. An executed solve, refused or not, has a native `job_id` and
@@ -114,8 +117,8 @@ FLOW_INCOMPLETE_OUTCOME = ("withheld start, flow incomplete: trace consistent of
                            "route only under a scripted provider")
 STANDING = ("offline consistency of one harness-reported trace with the committed scenario; "
             "the observer is not authenticated; not live or native evidence, not acceptance")
-CAPTURE = ("not established: the judge cannot tell a captured desktop run from a synthetic or forged trace, "
-           "and no captured run of this use case exists")
+CAPTURE = ("not established by this judge: it cannot tell a captured desktop run from a synthetic or forged "
+           "trace; whether this trace is a capture rests on its own provenance")
 
 
 class ScenarioError(Exception):

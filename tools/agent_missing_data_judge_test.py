@@ -100,8 +100,10 @@ def test_both_consistent_paths_are_named_apart_and_claim_nothing_more():
     assert shown["outcome"] == judge_module.FLOW_OUTCOME and shown["flow_gaps"] == []
     for reported in (reported, shown):
         assert "not authenticated" in reported["standing"] and "not acceptance" in reported["standing"]
-        # A synthetic pass never claims a captured run.
-        assert reported["capture"].startswith("not established") and "no captured run" in reported["capture"]
+        # A synthetic pass never claims a captured run, and the verdict states no fact about
+        # what runs exist: that is a dated evidence limit (README), not part of any verdict.
+        assert reported["capture"].startswith("not established") and "provenance" in reported["capture"]
+        assert not re.search(r"\b(exists?|existed|no captured run)\b", reported["capture"])
         assert "scripted provider" in reported["outcome"]
     for text in (shown["outcome"], refusal.as_json()["outcome"], shown["standing"], judge_module.__doc__):
         assert not re.search(r"\b(accepted|qualified|certif|complian)", text.replace("not acceptance", ""), re.I)
