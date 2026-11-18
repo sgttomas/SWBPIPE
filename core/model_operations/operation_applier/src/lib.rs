@@ -252,10 +252,14 @@ enum FieldKind {
         require_positive: bool,
     },
     /// Numeric quantity; `require_positive` rejects non-physical zero/negative
-    /// geometry and modulus values.
+    /// geometry and modulus values. `dimension` is the field's own dimension
+    /// (for a primitive-load magnitude, the one its governed category gives):
+    /// the intent's dimension is checked against it and never taken in its
+    /// place (DEL-16-02 REQ-010).
     Quantity {
         require_positive: bool,
         unit_source: UnitSource,
+        dimension: &'static str,
     },
     /// Reference to an entity id inside another model collection.
     EntityRef {
@@ -368,6 +372,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 kind: FieldKind::Quantity {
                     require_positive: true,
                     unit_source: UnitSource::SiblingUnitField,
+                    dimension: "length",
                 },
             },
             FieldRule {
@@ -375,6 +380,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 kind: FieldKind::Quantity {
                     require_positive: true,
                     unit_source: UnitSource::SiblingUnitField,
+                    dimension: "length",
                 },
             },
         ],
@@ -392,6 +398,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 kind: FieldKind::Quantity {
                     require_positive: true,
                     unit_source: UnitSource::SiblingUnitField,
+                    dimension: "stress",
                 },
             },
             // Issue 380 (DEL-07-02 REQ-002 to REQ-004): G alone is an optional
@@ -411,6 +418,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 kind: FieldKind::Quantity {
                     require_positive: false,
                     unit_source: UnitSource::SiblingUnitField,
+                    dimension: "thermal_expansion_coefficient",
                 },
             },
         ],
@@ -428,6 +436,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 kind: FieldKind::Quantity {
                     require_positive: false,
                     unit_source: UnitSource::ProjectUnits("length"),
+                    dimension: "length",
                 },
             },
             FieldRule {
@@ -435,6 +444,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 kind: FieldKind::Quantity {
                     require_positive: false,
                     unit_source: UnitSource::ProjectUnits("length"),
+                    dimension: "length",
                 },
             },
             FieldRule {
@@ -442,6 +452,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 kind: FieldKind::Quantity {
                     require_positive: false,
                     unit_source: UnitSource::ProjectUnits("length"),
+                    dimension: "length",
                 },
             },
         ],
@@ -465,6 +476,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 kind: FieldKind::Quantity {
                     require_positive: true,
                     unit_source: UnitSource::SiblingUnitField,
+                    dimension: "length",
                 },
             },
             FieldRule {
@@ -472,6 +484,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 kind: FieldKind::Quantity {
                     require_positive: true,
                     unit_source: UnitSource::SiblingUnitField,
+                    dimension: "length",
                 },
             },
             FieldRule {
@@ -6108,19 +6121,7 @@ fn resolve_create_primitive_load(
 
     let imposed_is_rotational =
         category == "imposed_displacement" && matches!(direction, "RX" | "RY" | "RZ");
-    let expected_dimension = if category == "distributed_force" {
-        "force_per_length"
-    } else if category == "concentrated_moment" {
-        "moment"
-    } else if category == "thermal" {
-        "temperature_interval"
-    } else if category == "imposed_displacement" && imposed_is_rotational {
-        "rotation"
-    } else if category == "imposed_displacement" {
-        "displacement"
-    } else {
-        "force"
-    };
+    let expected_dimension = authored_primitive_magnitude_dimension(category, direction);
     let expected_dimension_enum = match Dimension::from_schema_value(expected_dimension) {
         Ok(dimension) => dimension,
         Err(error) => {
@@ -7682,12 +7683,6 @@ fn resolve_field(
         .then(|| material_temperature_point_shear_modulus_id(field_path))
         .flatten();
     let mut dynamic_segments: Option<Vec<String>> = None;
-    let mut pinned_quantity_dimension: Option<&'static str> =
-        if object_type == "Section" && field_path.starts_with("properties.") {
-            Some("length")
-        } else {
-            None
-        };
     let rule_kind = if let Some(point_id) = material_temperature_point_id {
         let point_index = entity
             .get("temperature_points")
@@ -7717,15 +7712,60 @@ fn resolve_field(
             "shear_modulus".to_string(),
             "value".to_string(),
         ]);
-        pinned_quantity_dimension = Some("stress");
         Some(FieldKind::Quantity {
             require_positive: true,
             unit_source: UnitSource::SiblingUnitField,
+            dimension: "stress",
         })
     } else if object_type == "Load" && is_primitive_magnitude_path(field_path) {
+        // The magnitude's dimension is the one its primitive's governed
+        // category gives, read from the stored primitive: neither the intent
+        // nor the primitive's own `dimension` member decides it. A primitive
+        // that is absent falls through to the missing-quantity refusal below;
+        // one whose category gives no single dimension is refused here.
+        let primitive = field_path
+            .split('.')
+            .nth(1)
+            .and_then(|index| index.parse::<usize>().ok())
+            .and_then(|index| {
+                entity
+                    .get("primitive_loads")
+                    .and_then(Value::as_array)
+                    .and_then(|loads| loads.get(index))
+            });
+        let governed = match primitive {
+            Some(primitive) => {
+                let text = |value: Option<&Value>| {
+                    value.and_then(Value::as_str).unwrap_or("").trim().to_string()
+                };
+                let category = text(primitive.get("category"));
+                let direction = text(primitive.get("direction"));
+                let target_type =
+                    text(primitive.get("target").and_then(|target| target.get("type")));
+                let Some(governed) =
+                    stored_primitive_magnitude_dimension(&category, &target_type, &direction)
+                else {
+                    checker.unit_state = "blocked";
+                    checker.push(
+                        "OP-UNIT-DIMENSION-UNKNOWN",
+                        "blocking",
+                        format!(
+                            "Primitive-load magnitude `{field_path}` on `{target_ref}` has no single governed dimension for its stored category and target."
+                        ),
+                        "Edit the magnitude of a primitive load whose category and target give one dimension; a retired or unrecognised primitive is re-authored, not edited in place.",
+                        vec![target_ref.to_string()],
+                    );
+                    return None;
+                };
+                governed
+            }
+            // No dimension is needed to refuse a magnitude that is not there.
+            None => "TBD",
+        };
         Some(FieldKind::Quantity {
             require_positive: false,
             unit_source: UnitSource::SiblingUnitField,
+            dimension: governed,
         })
     } else if object_type == "Combination" && is_combination_term_factor_path(field_path) {
         Some(FieldKind::Number {
@@ -7776,22 +7816,6 @@ fn resolve_field(
 
     let segments: Vec<String> =
         dynamic_segments.unwrap_or_else(|| field_path.split('.').map(str::to_string).collect());
-
-    if let Some(expected_dimension) = pinned_quantity_dimension {
-        if dimension != expected_dimension {
-            checker.unit_state = "blocked";
-            checker.push(
-                "OP-UNIT-DIMENSION-MISMATCH",
-                "blocking",
-                format!(
-                    "Quantity field `{field_path}` requires dimension `{expected_dimension}`, not `{dimension}`."
-                ),
-                "Use the explicit stress-dimension quantity contract for material temperature-point shear modulus.",
-                vec![target_ref.to_string()],
-            );
-            return None;
-        }
-    }
 
     match kind {
         FieldKind::Text => {
@@ -7952,6 +7976,7 @@ fn resolve_field(
         FieldKind::Quantity {
             require_positive,
             unit_source,
+            dimension: field_dimension,
         } => {
             let value_node = value_at_segments(entity, &segments);
             let Some(current_number) = value_node.and_then(Value::as_f64) else {
@@ -7968,9 +7993,55 @@ fn resolve_field(
                 return None;
             };
 
+            // The dimension is the field's own. The intent states one only so
+            // that a disagreement is refused by name; it never selects the
+            // dimension a unit is judged against (DEL-16-02 REQ-010).
+            if Dimension::from_schema_value(dimension).is_err() {
+                checker.unit_state = "blocked";
+                checker.push(
+                    "OP-UNIT-DIMENSION-UNKNOWN",
+                    "blocking",
+                    format!(
+                        "Dimension `{dimension}` is outside the DEC-018 catalog vocabulary; `{field_path}` carries dimension `{field_dimension}`."
+                    ),
+                    "Use a governed dimension token for quantity edits.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+            if dimension != field_dimension {
+                checker.unit_state = "blocked";
+                checker.push(
+                    "OP-UNIT-DIMENSION-MISMATCH",
+                    "blocking",
+                    format!(
+                        "Quantity field `{field_path}` requires dimension `{field_dimension}`, not `{dimension}`."
+                    ),
+                    "Emit the quantity edit with the field's own dimension.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+            let dimension_enum = match Dimension::from_schema_value(field_dimension) {
+                Ok(dimension_enum) => dimension_enum,
+                Err(error) => {
+                    checker.unit_state = "blocked";
+                    checker.push(
+                        "OP-UNIT-DIMENSION-UNKNOWN",
+                        "blocking",
+                        format!(
+                            "Dimension `{field_dimension}` is outside the DEC-018 catalog vocabulary: {error}."
+                        ),
+                        "Use a governed dimension token for quantity edits.",
+                        vec![target_ref.to_string()],
+                    );
+                    return None;
+                }
+            };
+
             // Unit metadata: project-unit quantities keep their project unit
-            // basis. Sibling-unit quantities may atomically update value and
-            // sibling unit through the B2 unit-aware payload.
+            // basis. Sibling-unit quantities update value and sibling unit
+            // together through the explicit value/unit payload.
             let stored_unit = match unit_source {
                 UnitSource::SiblingUnitField => {
                     let mut unit_segments = segments.clone();
@@ -7987,22 +8058,6 @@ fn resolve_field(
                     .and_then(Value::as_str)
                     .map(str::to_string),
             };
-            let dimension_enum = match Dimension::from_schema_value(dimension) {
-                Ok(dimension_enum) => dimension_enum,
-                Err(error) => {
-                    checker.unit_state = "blocked";
-                    checker.push(
-                        "OP-UNIT-DIMENSION-UNKNOWN",
-                        "blocking",
-                        format!(
-                            "Dimension `{dimension}` is outside the DEC-018 catalog vocabulary: {error}."
-                        ),
-                        "Use a governed dimension token for quantity edits.",
-                        vec![target_ref.to_string()],
-                    );
-                    return None;
-                }
-            };
             let quantity_edit = if matches!(unit_source, UnitSource::SiblingUnitField)
                 || after.trim_start().starts_with('{')
             {
@@ -8014,20 +8069,6 @@ fn resolve_field(
                 .as_ref()
                 .map(|edit| edit.unit.as_str())
                 .unwrap_or(unit);
-            if object_type == "Section"
-                && quantity_edit.is_none()
-                && stored_unit.as_deref() != Some(unit)
-            {
-                checker.unit_state = "blocked";
-                checker.push(
-                    "OP-QUANTITY-PAYLOAD-INVALID",
-                    "blocking",
-                    "Section unit changes require an explicit value/unit JSON payload.".to_string(),
-                    "Supply both entered value and unit so the pair is written atomically.",
-                    vec![target_ref.to_string()],
-                );
-                return None;
-            }
             if requested_unit != unit {
                 checker.unit_state = "blocked";
                 checker.push(
@@ -8042,78 +8083,74 @@ fn resolve_field(
                 return None;
             }
             checker.unit_state = "passed";
-            let stored_unit = match stored_unit {
-                None => {
-                    checker.unit_state = "blocked";
-                    checker.push(
-                        "OP-UNIT-METADATA-MISSING",
-                        "blocking",
-                        format!("Stored quantity `{field_path}` on `{target_ref}` has no unit metadata."),
-                        "Repair the model document's unit metadata before editing this quantity.",
-                        vec![target_ref.to_string()],
-                    );
-                    return None;
-                }
-                Some(stored) => {
-                    if pinned_quantity_dimension.is_some()
-                        && !unit_symbol_matches_dimension(&stored, dimension_enum)
-                    {
+            let Some(stored_unit) = stored_unit else {
+                checker.unit_state = "blocked";
+                checker.push(
+                    "OP-UNIT-METADATA-MISSING",
+                    "blocking",
+                    format!("Stored quantity `{field_path}` on `{target_ref}` has no unit metadata."),
+                    "Repair the model document's unit metadata before editing this quantity.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            };
+            match unit_source {
+                UnitSource::SiblingUnitField => {
+                    if !unit_symbol_matches_dimension(unit, dimension_enum) {
                         checker.unit_state = "blocked";
                         checker.push(
                             "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
                             "blocking",
                             format!(
-                                "Stored unit `{stored}` is not accepted for dimension `{dimension}` on `{field_path}`."
-                            ),
-                            "Repair the explicit temperature-point quantity unit before editing its value; no hidden fallback unit is supplied.",
-                            vec![target_ref.to_string()],
-                        );
-                        return None;
-                    }
-                    let unit_matches_stored = unit == stored;
-                    let unit_matches_dimension =
-                        unit_symbol_matches_dimension(unit, dimension_enum);
-                    if !unit_matches_stored && !unit_matches_dimension {
-                        checker.unit_state = "blocked";
-                        checker.push(
-                            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
-                            "blocking",
-                            format!(
-                                "Intent unit `{unit}` does not match stored unit `{stored}` for `{field_path}` and is not accepted for dimension `{dimension}`."
+                                "Intent unit `{unit}` is not an accepted DEC-018 unit for dimension `{field_dimension}` on `{field_path}`."
                             ),
                             "Select an accepted DEC-018 unit; no hidden fallback unit is supplied.",
                             vec![target_ref.to_string()],
                         );
                         return None;
                     }
-                    if matches!(unit_source, UnitSource::ProjectUnits(_))
-                        && !unit_symbol_matches_dimension(&stored, dimension_enum)
-                    {
+                    if !stored_pair_edit_names_its_unit(
+                        quantity_edit.is_some(),
+                        unit,
+                        &stored_unit,
+                        target_ref,
+                        field_path,
+                        checker,
+                    ) {
+                        return None;
+                    }
+                }
+                UnitSource::ProjectUnits(_) => {
+                    // A project-unit field stores a bare number in the project
+                    // unit; an entered unit of the same dimension is converted
+                    // to it below.
+                    if unit != stored_unit && !unit_symbol_matches_dimension(unit, dimension_enum) {
                         checker.unit_state = "blocked";
                         checker.push(
                             "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
                             "blocking",
                             format!(
-                                "Stored project unit `{stored}` is not accepted for dimension `{dimension}`."
+                                "Intent unit `{unit}` does not match stored unit `{stored_unit}` for `{field_path}` and is not accepted for dimension `{field_dimension}`."
+                            ),
+                            "Select an accepted DEC-018 unit; no hidden fallback unit is supplied.",
+                            vec![target_ref.to_string()],
+                        );
+                        return None;
+                    }
+                    if !unit_symbol_matches_dimension(&stored_unit, dimension_enum) {
+                        checker.unit_state = "blocked";
+                        checker.push(
+                            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+                            "blocking",
+                            format!(
+                                "Stored project unit `{stored_unit}` is not accepted for dimension `{field_dimension}`."
                             ),
                             "Repair the model document's project unit metadata before editing this quantity.",
                             vec![target_ref.to_string()],
                         );
                         return None;
                     }
-                    stored
                 }
-            };
-            if !CANONICAL_DIMENSIONS.contains(&dimension) {
-                checker.unit_state = "blocked";
-                checker.push(
-                    "OP-UNIT-DIMENSION-UNKNOWN",
-                    "blocking",
-                    format!("Dimension `{dimension}` is outside the canonical dimension vocabulary."),
-                    "Use a canonical dimension token; vocabulary changes await the D-01 unit-catalog ruling.",
-                    vec![target_ref.to_string()],
-                );
-                return None;
             }
 
             check_before_numeric(current_number, before, target_ref, field_path, checker);
@@ -8786,17 +8823,14 @@ fn resolve_optional_quantity(
                 );
                 return None;
             };
-            if quantity_edit.is_none() && unit != stored_unit {
-                checker.unit_state = "blocked";
-                checker.push(
-                    "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
-                    "blocking",
-                    format!(
-                        "Intent unit `{unit}` does not match stored unit `{stored_unit}` for `{field_path}`; changing the stored unit requires the explicit value-and-unit payload and no silent conversion is performed."
-                    ),
-                    "Refresh the quantity edit intent from the selected value and unit fields.",
-                    vec![target_ref.to_string()],
-                );
+            if !stored_pair_edit_names_its_unit(
+                quantity_edit.is_some(),
+                unit,
+                &stored_unit,
+                target_ref,
+                field_path,
+                checker,
+            ) {
                 return None;
             }
             checker.unit_state = "passed";
@@ -8836,6 +8870,44 @@ fn resolve_optional_quantity(
             })
         }
     }
+}
+
+/// The one rule for editing a stored `{ value, unit }` quantity in place
+/// (issue 382; DEL-16-02 REQ-010 and AC-006). It serves every quantity whose
+/// unit is stored beside its value: the existing-quantity fields and the
+/// present optional quantity slots alike.
+///
+/// A bare number carries no unit of its own, so it is read in the stored
+/// unit: the intent must name that unit, or the edit is refused with the
+/// stored unit and the explicit-pair route named. Nothing is converted and
+/// the number is never written beside a unit it was not entered in. An
+/// explicit `{ value, unit }` payload is the route that changes the unit, and
+/// the caller writes its value and unit together.
+///
+/// The caller has already judged the entered unit against the field's own
+/// dimension. Returns whether the edit may proceed.
+fn stored_pair_edit_names_its_unit(
+    has_explicit_pair: bool,
+    unit: &str,
+    stored_unit: &str,
+    target_ref: &str,
+    field_path: &str,
+    checker: &mut Checker,
+) -> bool {
+    if has_explicit_pair || unit == stored_unit {
+        return true;
+    }
+    checker.unit_state = "blocked";
+    checker.push(
+        "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+        "blocking",
+        format!(
+            "Intent unit `{unit}` does not match stored unit `{stored_unit}` for `{field_path}`; a bare number is read in the stored unit, changing the stored unit requires the explicit value-and-unit payload, and no silent conversion is performed."
+        ),
+        "Send the bare number with the stored unit, or send the replacement as an explicit JSON value/unit pair whose unit is the intent's unit.",
+        vec![target_ref.to_string()],
+    );
+    false
 }
 
 fn check_before(
@@ -9398,6 +9470,69 @@ fn material_temperature_point_shear_modulus_id(field_path: &str) -> Option<&str>
         .strip_prefix("temperature_points.")?
         .strip_suffix(".shear_modulus.value")?;
     (!point_id.is_empty()).then_some(point_id)
+}
+
+/// The dimension a primitive load's magnitude carries, by its authored
+/// category: the one mapping that creation checks a new primitive against and
+/// that a magnitude edit reads an existing primitive by. `category` is one of
+/// the authored categories creation admits, a node-targeted `weight` already
+/// read as the concentrated force or moment it is checked as; an imposed
+/// displacement is a rotation on a rotational DOF.
+fn authored_primitive_magnitude_dimension(category: &str, direction: &str) -> &'static str {
+    match category {
+        "distributed_force" => "force_per_length",
+        "concentrated_moment" => "moment",
+        "thermal" => "temperature_interval",
+        "imposed_displacement" if matches!(direction, "RX" | "RY" | "RZ") => "rotation",
+        "imposed_displacement" => "displacement",
+        _ => "force",
+    }
+}
+
+/// The governed dimension of a stored primitive load's magnitude, from its
+/// category, target and direction; `None` where they give no single one.
+///
+/// This is the load builder's contract for the magnitude it consumes
+/// (`core/loads/primitive_loads`: the node, element and imposed dimension
+/// rules), read from the stored record. A body load (`weight`,
+/// `distributed_force`, `wind`, `seismic`, `occasional`, and the concentrated
+/// force and moment the builder reads as occasional) is a force at a node, or
+/// a moment about a rotational direction, and a force per length along an
+/// element. A thermal load on an element is a temperature interval. An imposed
+/// displacement at a support is a displacement, or a rotation on a rotational
+/// DOF. A retired `pressure` or `hydrotest` primitive admits two dimensions on
+/// an element, and any other category or target is not governed: neither is
+/// edited in place. On every shape creation admits this agrees with
+/// `authored_primitive_magnitude_dimension`.
+fn stored_primitive_magnitude_dimension(
+    category: &str,
+    target_type: &str,
+    direction: &str,
+) -> Option<&'static str> {
+    let rotational = matches!(
+        direction,
+        "rotation_x" | "rotation_y" | "rotation_z"
+            | "RX" | "Rx" | "rx" | "RY" | "Ry" | "ry" | "RZ" | "Rz" | "rz"
+    );
+    let body_load = matches!(
+        category,
+        "weight"
+            | "distributed_force"
+            | "wind"
+            | "seismic"
+            | "occasional"
+            | "concentrated_force"
+            | "concentrated_moment"
+    );
+    match target_type {
+        "node" if body_load => Some(if rotational { "moment" } else { "force" }),
+        "element" if body_load => Some("force_per_length"),
+        "element" if category == "thermal" => Some("temperature_interval"),
+        "support" if category == "imposed_displacement" => {
+            Some(if rotational { "rotation" } else { "displacement" })
+        }
+        _ => None,
+    }
 }
 
 fn is_primitive_magnitude_path(field_path: &str) -> bool {
@@ -10320,6 +10455,9 @@ mod tests {
                     "primitive_loads": [
                         {
                             "id": "load:L-1-Z",
+                            "category": "distributed_force",
+                            "target": { "type": "element", "pipe": "pipe:P-1" },
+                            "direction": "global_z",
                             "magnitude": { "value": -190.0, "unit": "N/m" },
                             "dimension": "force_per_length"
                         }
