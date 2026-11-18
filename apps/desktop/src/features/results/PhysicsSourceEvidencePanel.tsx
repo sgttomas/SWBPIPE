@@ -20,16 +20,30 @@ export function endpointLocationDescription(value: unknown): string {
   return "Location evidence unavailable; no unique governing station is inferred.";
 }
 
-/** The scope an ordinary stress-maximum record states for its own interval. */
+/** The scope an ordinary stress-maximum record states for its own interval, and the retained
+ * endpoint method's basis and scope: the schemas' constants. */
 const POLYNOMIAL_ENCLOSURE_SCOPE = "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate";
+const RETAINED_ENDPOINT_BASIS = "retained_source_endpoint_normal_max_v1";
+const RETAINED_ENDPOINT_SCOPE = "retained_action_projection_and_ordered_binary64_recipe;represented_source_section_operands";
 
-/** The record's interval with what the record says it covers, as one sentence, so that the
- * interval is never shown without its qualification. Presentation of a recorded statement
- * only; a scope the panel does not know is reported as not stated. */
-export function ordinaryMaximumIntervalDescription(maximum: Record<string, unknown>): string {
+/** Which explanation of its interval a stress-maximum record supports: the one whose scope it
+ * states exactly. A record whose basis and scope disagree, or whose scope the panel does not
+ * know, supports neither. Presentation only; this is no validity or eligibility test. */
+export function maximumIntervalReading(maximum: Record<string, unknown>): "retained_endpoint" | "polynomial_enclosure" | "uninterpreted" {
+  const retained = maximum.basis === RETAINED_ENDPOINT_BASIS;
+  if (retained && maximum.enclosure_scope === RETAINED_ENDPOINT_SCOPE) return "retained_endpoint";
+  if (!retained && maximum.enclosure_scope === POLYNOMIAL_ENCLOSURE_SCOPE) return "polynomial_enclosure";
+  return "uninterpreted";
+}
+
+/** The interval of a record that is not a retained endpoint maximum, with what the record says
+ * it covers, as one sentence, so that the interval is never shown without its qualification.
+ * The words are the record's own scope; the panel adds no account of how the coefficients
+ * were formed. */
+export function qualifiedIntervalDescription(maximum: Record<string, unknown>): string {
   const interval = `[${number(maximum.value_lower_pa)}, ${number(maximum.value_upper_pa)}] Pa`;
-  if (maximum.enclosure_scope === POLYNOMIAL_ENCLOSURE_SCOPE) return `Bound for the stress polynomial formed from the published end actions: ${interval}. Solution error is separate.`;
-  return `Recorded interval: ${interval}. The record does not state what this interval covers; it is not read as a bound on the maximum stress.`;
+  if (maximumIntervalReading(maximum) === "polynomial_enclosure") return `Bound over the supplied binary64 polynomial coefficient enclosures: ${interval}. Solution error is separate.`;
+  return `Recorded interval: ${interval}. This panel does not interpret the scope this record gives for the interval, so it is not shown as a bound.`;
 }
 
 /** Render original method facts in both live and historical/reference contexts, for
@@ -55,17 +69,17 @@ export function PhysicsSourceEvidencePanel({ result }: { result: MechanicsResult
         <h4>{id}</h4>
         <p>Ordinary case attempt: {text(ordinary?.solve_quality)}. Selected method: <code>{text(c.selected_method)}</code>. Producer outcome: {text(c.outcome)}.</p>
         {exact ? <p>Material selection: {text(exact.material_basis)}; {rows(exact.pipe_materials).length} member material records; {rows(exact.pipe_sections).length} section records.</p> : null}
-        {rows(exact?.pipe_stress_extrema).map((maximum, i) => <div key={`${text(maximum.result_id)}:${i}`} data-testid={`physics-source-maximum-${text(maximum.result_id)}`}>
+        {rows(exact?.pipe_stress_extrema).map((maximum, i) => { const reading = maximumIntervalReading(maximum); return <div key={`${text(maximum.result_id)}:${i}`} data-testid={`physics-source-maximum-${text(maximum.result_id)}`}>
           <strong>{text(maximum.pipe_id)} — elastic normal-stress maximum</strong>
-          {maximum.basis === "retained_source_endpoint_normal_max_v1"
+          {reading === "retained_endpoint"
             ? <p>Method: <code>{text(maximum.basis)}</code>. Bound: [{number(maximum.value_lower_pa)}, {number(maximum.value_upper_pa)}] Pa.</p>
-            : <p>Method: <code>{text(maximum.basis ?? maximum.coefficient_basis)}</code>. <span data-testid={`physics-source-maximum-interval-${text(maximum.result_id)}`}>{ordinaryMaximumIntervalDescription(maximum)}</span></p>}
-          {maximum.basis === "retained_source_endpoint_normal_max_v1" ? <>
+            : <p>Method: <code>{text(maximum.basis ?? maximum.coefficient_basis)}</code>. <span data-testid={`physics-source-maximum-interval-${text(maximum.result_id)}`}>{qualifiedIntervalDescription(maximum)}</span></p>}
+          {reading === "retained_endpoint" ? <>
             <p>Published value: {number(maximum.value_pa)} Pa; absolute error bound: {number(maximum.absolute_error_bound_pa)} Pa; relative error bound: {number(maximum.relative_error_bound)}; relative limit: {number(maximum.relative_limit)}.</p>
             <p>{endpointLocationDescription(maximum.locations)}</p>
             <p>The bound covers retained-action projection and ordered arithmetic with the represented section operands. It does not certify material or primitive geometry accuracy.</p>
-          </> : <p>Recorded station fraction: {number(maximum.station_fraction)}. A station witness alone does not establish uniqueness.</p>}
-        </div>)}
+          </> : reading === "polynomial_enclosure" ? <p>Recorded station fraction: {number(maximum.station_fraction)}. A station witness alone does not establish uniqueness.</p> : null}
+        </div>; })}
       </article>;
     })}
   </section>;
