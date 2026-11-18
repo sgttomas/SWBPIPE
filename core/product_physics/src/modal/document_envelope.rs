@@ -171,7 +171,7 @@
 //!   + (128 + 3·LL)                write_string's to_string of one literal (lib.rs:335-337)
 //!   + 256 + 384                   number text (lib.rs:400-498), the hex digest's
 //!                                 format!/collect (document.rs:221)
-//! R = max(3·346, 3·84 + 64) = 1038   a refusal's message (and boxed error)
+//! R = max(3·346, 3·84 + 64, 2·64) = 1038   a refusal's message (and boxed errors)
 //! ```
 //!
 //! The stages. `canonical_json_checked_v1_text` (`lib.rs:39-42`) returns at
@@ -197,11 +197,17 @@
 //! numbers are finite): `CHECKED-JSON-INVALID: ` (22) and serde_json's
 //! `recursion limit exceeded at line 1 column N` (`error.rs:384, 405-415`;
 //! compact text has one line, N ≤ 20 digits), 84 bytes, beside its boxed
-//! `ErrorImpl` (P8). A `format!` message of L bytes first reserves twice its
+//! `ErrorImpl` (P8). While that refusal unwinds, `deserialize_any` calls
+//! `end_seq` or `end_map` before it matches the inner result (serde_json
+//! 1.0.149 `de.rs:1439-1442, 1450-1453`; the same in 1.0.151), and the
+//! trailing input there makes a second boxed error, dropped at once: two
+//! boxes at a time, ≤ 2·64, before the message is formatted with one.
+//! (`fix_position`, `de.rs:1465` and `error.rs:337-346`, replaces only an
+//! error without a position, which the depth refusal is not.) A `format!` message of L bytes first reserves twice its
 //! literal piece and grows by P2, so it holds at most 2L (P3), and during its
 //! last growth its old buffer (< L) is live beside the new (≤ 2L): < 3L. The
 //! validation stage is therefore < 3·346 = 1038 bytes and the parse stage
-//! < 3·84 + 64 = 316. (The 36-byte prefix reserves 72; the writes of
+//! ≤ max(3·84 + 64, 2·64) = 316. (The 36-byte prefix reserves 72; the writes of
 //! `f64::MAX`'s digits and zeros grow it 72 → 144 → 288 → 576, so 864 bytes
 //! are live during the last move, within 1038.)
 //!
@@ -309,6 +315,29 @@
 //! a componentwise-maximum tally: HP subtracts float bytes, so it is not
 //! monotone in one. Every term is ≥ what it bounds, so C ≥ the builders' peak
 //! under the premises.
+//!
+//! # Layout
+//!
+//! An allocation whose layout exceeds the target's `isize::MAX` is refused
+//! before any allocator request (`Layout::array` and `RawVec`'s capacity
+//! check panic), so a document whose writer would request one does not
+//! exist, whatever its counts. Every entry therefore checks the layouts
+//! ([`modal_env_laid_out`]) and returns `Unprojectable` naming what could not
+//! be laid out; it then predicts no hash, string or null. The check compares
+//! H(document), the largest HP and C with `isize::MAX`. It suffices: every
+//! buffer the writer and its hashing request, at the capacity it requests
+//! (the grown one under P2 and P3, which the terms above count as live
+//! beside the old), is a term of the live set that one of those figures
+//! bounds at the moment of the request (the serialized text, the canonical
+//! text, the escape scratch, a rebuilt array and a name set in HP; a string,
+//! array or map node of the document in H; the row vectors, `free_index`'s
+//! `16·g`, the copies and locals in C; C ≥ each HP and ≥ H), so a figure
+//! within the limit puts each of its terms within it. It is conservative
+//! where several buffers are live together: a total above the limit is
+//! refused even when each buffer alone could be laid out, and on a narrower
+//! target the 64-bit sizes the formulas use overstate each layout. The
+//! excluded inputs (the request, its ingress copy, the typed outcome) are
+//! not checked here; they already exist.
 //!
 //! # Premises
 //!
@@ -449,10 +478,13 @@ const MODAL_ENV_ERROR_BOX_MAX: u64 = 64;
 
 /// The refusal stage of a hash: a `format!` message of L bytes holds at
 /// most 2L (P3) and, during its last growth, its old buffer (< L) beside
-/// the new (≤ 2L), so < 3L (P2); a parse refusal adds its boxed error.
+/// the new (≤ 2L), so < 3L (P2); a parse refusal adds its boxed error, and
+/// while it unwinds briefly holds a second box (module docs, "HP").
 pub(crate) const fn modal_env_refusal_stage() -> u64 {
     let validation = 3 * MODAL_ENV_VALIDATION_MESSAGE_MAX;
-    let parse = 3 * MODAL_ENV_PARSE_MESSAGE_MAX + MODAL_ENV_ERROR_BOX_MAX;
+    let message = 3 * MODAL_ENV_PARSE_MESSAGE_MAX + MODAL_ENV_ERROR_BOX_MAX;
+    let unwinding = 2 * MODAL_ENV_ERROR_BOX_MAX;
+    let parse = if message > unwinding { message } else { unwinding };
     if validation > parse { validation } else { parse }
 }
 
@@ -723,6 +755,9 @@ fn modal_env_str(text: &str) -> ModalEnvelopeResult<ModalDocumentTally> {
 
 /// A hash of a value with tally `t`: the hex string, or null when the
 /// checked profile refuses it (module docs, "Whether a hash is a string").
+/// This is the profile's decision only; that the hash's buffers can be laid
+/// out is checked by every entry ([`modal_env_laid_out`]), which returns no
+/// prediction where they cannot.
 pub(crate) fn modal_env_digest(t: &ModalDocumentTally) -> ModalDocumentTally {
     if t.depth < MODAL_ENV_PARSE_DEPTH && t.unsafe_numbers == 0 {
         ModalDocumentTally { wire: MODAL_ENV_HEX + 2, nodes: 1, strings: 1, string_bytes: MODAL_ENV_HEX, longest_literal: MODAL_ENV_HEX + 2, ..MODAL_ENV_ZERO }
@@ -1138,6 +1173,12 @@ fn modal_env_node(id: &str) -> ModalEnvelopeResult<ModalEnvelopeText> {
 /// `index + 1` (the builders' 1-based references), in `usize`, checked.
 pub(crate) fn modal_env_next(index: usize) -> ModalEnvelopeResult<u64> {
     index.checked_add(1).map(modal_env_count).ok_or(ModalEnvelopeError::Unprojectable { what: "index + 1 past usize" })
+}
+
+/// `6 * nodes`: the global DOF count (`document.rs:555`), in `usize`,
+/// checked.
+pub(crate) fn modal_env_dofs(nodes: usize) -> ModalEnvelopeResult<usize> {
+    nodes.checked_mul(6).ok_or(ModalEnvelopeError::Unprojectable { what: "global dofs past usize" })
 }
 
 /// `index - 1`: a mode's 0-based ordinal (`document.rs:736`), in `usize`.
@@ -1732,14 +1773,39 @@ fn modal_env_envelope(
     for term in [heap(binding)?, doc_heap, heap(&ledger.rows_total)?, heap(&ledger.retained)?, row_vectors, free_index, transient, 2048] {
         peak = add("construction peak", peak, term)?;
     }
-    Ok(ModalDocumentEnvelope {
+    let envelope = ModalDocumentEnvelope {
         tally: *doc,
         heap_bytes: doc_heap,
         hash_peak_bytes: hash_peak,
         construction_peak_bytes: peak,
         pretty_bytes: modal_env_pretty(doc)?,
         canonical_bound_bytes: modal_env_canonical_bound(doc)?,
-    })
+    };
+    modal_env_laid_out(envelope.heap_bytes, envelope.hash_peak_bytes, envelope.construction_peak_bytes, MODAL_ENV_LAYOUT_MAX)?;
+    Ok(envelope)
+}
+
+/// The largest layout an allocation may request on this target
+/// (`isize::MAX`; module docs, "Layout").
+pub(crate) const MODAL_ENV_LAYOUT_MAX: u64 = isize::MAX as u64;
+
+/// Whether every buffer the writer and its hashing request can be laid out
+/// within `limit` bytes: each such buffer, at its requested (grown)
+/// capacity, is a term of one of these figures (module docs, "Layout"), so
+/// each figure no larger than `limit` suffices. Entries pass
+/// [`MODAL_ENV_LAYOUT_MAX`]; the width is a parameter so that the check can
+/// be held at a modelled target's limit.
+pub(crate) fn modal_env_laid_out(heap: u64, hash_peak: u64, construction_peak: u64, limit: u64) -> ModalEnvelopeResult<()> {
+    if hash_peak > limit {
+        return Err(ModalEnvelopeError::Unprojectable { what: "a hashed value's buffers past the target's isize::MAX" });
+    }
+    if heap > limit {
+        return Err(ModalEnvelopeError::Unprojectable { what: "the document's buffers past the target's isize::MAX" });
+    }
+    if construction_peak > limit {
+        return Err(ModalEnvelopeError::Unprojectable { what: "the construction's buffers past the target's isize::MAX" });
+    }
+    Ok(())
 }
 
 /// The parse-refusal branch (`document.rs:507-513`): `diagnostic` is the
@@ -1848,7 +1914,7 @@ fn modal_env_solved_document(
     standing: ModalParameterStanding<'_>,
 ) -> ModalEnvelopeResult<ModalDocumentTally> {
     let ids = outcome.node_ids.as_slice();
-    let dofs = ids.len().checked_mul(6).ok_or(ModalEnvelopeError::Unprojectable { what: "global dofs past usize" })?;
+    let dofs = modal_env_dofs(ids.len())?;
     ledger.global_dofs = modal_env_count(dofs);
     let mut doc = modal_env_identity(ledger, binding, standing)?;
     doc.modal_env_member("status", modal_env_str("solved")?)?;
