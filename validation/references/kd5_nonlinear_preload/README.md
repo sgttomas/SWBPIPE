@@ -12,6 +12,18 @@ The frozen spring row is −k·u (`reference.py`, `published`: `rows[d % 6] = -k
 case it is −40.013… N for an upward displacement of +4.0013e-4 m. Like the one-way reaction `r = K·u − f`, it is
 a force acting on the structure. F_cold − k·u extends that convention.
 
+**Axis and sign of the cold load.** The cold load acts along the positive axis of the hanger's declared stiffness
+DOF (+UZ here). The positive axis is the integrator's decision for both hanger families, read from DEL-04-03
+REQ-014's convention for the constant-effort support and DEL-04-11 REQ-014's "through the constant-effort seam";
+the words "positive axis" enter the spring's own sentence in both scopes with the preload landing.
+
+This package is independent of the product and not of the frozen package: frame formation, state enumeration
+and classification are the frozen generator's (`../kd5_nonlinear/reference.py`).
+
+No maintained product test reads this package yet, because main does not yet implement the preload law;
+the preload landing (DEL-04-11 REQ-014) points the product tests at it. Until then, its own check and the
+tests of the reference-package table (`tests/reference_packages.py`) are what maintain it.
+
 ## Files
 
 | File | What it is | Supplements |

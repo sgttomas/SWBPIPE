@@ -22,6 +22,11 @@ Status: these are candidate references. Their author TASK derived them
 without seeing any product output. They have not yet been independently
 refuted.
 
+No maintained product test reads this package yet, because main does not yet
+implement the preload law; the preload landing (DEL-04-11 REQ-014) points the
+product tests at it. Until then, its own check and the tests of the
+reference-package table (`tests/reference_packages.py`) are what maintain it.
+
 ## Files
 
 | File | Role |
@@ -63,10 +68,11 @@ rewrites the outputs, for intentional changes only.
    displacements, shear, bending, torsion and moments.
 
 **Axis and sign of the cold load.** The cold load acts along the positive axis
-of the hanger's declared stiffness DOF (+X here). This reading comes from
-DEL-04-11 REQ-014 ("through the constant-effort seam") together with DEL-04-03
-REQ-014's positive-axis convention for the constant-effort support; the
-spring's own sentence in DEL-04-03 does not say "positive axis". If the sign
+of the hanger's declared stiffness DOF (+X here). The positive axis is the
+integrator's decision for both hanger families, read from DEL-04-03 REQ-014's
+convention for the constant-effort support and DEL-04-11 REQ-014's "through
+the constant-effort seam"; the words "positive axis" enter the spring's own
+sentence in both scopes with the preload landing. If the sign
 were decided otherwise, every value here that the cold load moves would
 change.
 
