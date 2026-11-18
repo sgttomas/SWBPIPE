@@ -6290,10 +6290,10 @@ fn solve_prepared_load_case(
         let finding = formation_guard::FormationFinding { guard: formation_guard::Guard::Recovery, sentence, fired: Vec::new() };
         integrity::amend(diagnostics, sink, &load_case.id, |record| formation_guard::demote(record, &finding), integrity::EntryUpdate::None);
     } else if confirmed.is_some() {
-        integrity::amend(diagnostics, sink, &load_case.id, |record| {
-            record.message = format!("{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}", record.message);
-            true
-        }, integrity::EntryUpdate::None);
+        integrity::amend(diagnostics, sink, &load_case.id,
+            |record| {
+                record.message = format!("{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}", record.message); true
+            }, integrity::EntryUpdate::None);
     }
     let certified_force = confirmed.map_or(&force, |state| &state.force);
     let certified_nonlinear = confirmed.map(|state| &state.supports);
@@ -6332,10 +6332,10 @@ fn solve_prepared_load_case(
     if let Some(solve) = &selected_nonlinear {
         let appended = append_nonlinear_relative_displacements(&mut results, built, &ground_motion, &published_displacements, solve, solver_mode);
         if appended && confirmed.is_some() {
-            integrity::amend(diagnostics, sink, &load_case.id, |record| {
-                record.message = format!("{} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}", record.message);
-                true
-            }, integrity::EntryUpdate::None);
+            integrity::amend(diagnostics, sink, &load_case.id,
+                |record| {
+                    record.message = format!("{} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}", record.message); true
+                }, integrity::EntryUpdate::None);
         }
     }
     let mut max_displacement = None;
