@@ -129,7 +129,8 @@ fn matrix_model() -> Value {
             primitive("shape:weight", "weight", tip(), "global_y", -420.0, "N", "force"),
             primitive("shape:weight-moment", "weight", tip(), "rotation_z", -50.0, "N*m", "moment"),
             primitive("shape:occasional", "occasional", tip(), "global_z", -190.0, "N", "force"),
-            primitive("shape:occasional-line", "occasional", element(INBOARD), "global_y", 75.0, "N/m", "force_per_length")
+            primitive("shape:occasional-line", "occasional", element(INBOARD), "global_y", 75.0, "N/m", "force_per_length"),
+            primitive("shape:test-fill", "hydrotest", element(OUTBOARD), "global_y", -310.0, "N/m", "force_per_length")
         ]}));
     model
 }
@@ -214,6 +215,7 @@ fn family() -> Vec<Member> {
         member("nodal weight moment", "Load", SHAPES_CASE, "update_load", &shape(7), "moment", (-50.0, "N*m"), "kN*m", ("N", "force"), false),
         member("nodal occasional force", "Load", SHAPES_CASE, "update_load", &shape(8), "force", (-190.0, "N"), "kN", ("N/m", "force_per_length"), false),
         member("occasional line load", "Load", SHAPES_CASE, "update_load", &shape(9), "force_per_length", (75.0, "N/m"), "kN/m", ("N", "force"), false),
+        member("hydrotest line load", "Load", SHAPES_CASE, "update_load", &shape(10), "force_per_length", (-310.0, "N/m"), "kN/m", ("Pa", "pressure"), false),
     ]
 }
 
@@ -455,14 +457,16 @@ fn sign_constraints_are_unchanged() {
 
 #[test]
 fn a_primitive_whose_category_gives_no_single_dimension_is_not_edited_in_place() {
-    // A retired pressure primitive on an element admits two dimensions, and a
-    // record with no category or target states none.
+    // A retired pressure primitive, a hydrotest primitive stated as a
+    // pressure, and a record with no category or target give none.
     let mut model = matrix_model();
     let shapes = model["load_cases"].as_array().unwrap().len() - 1;
     model["load_cases"][shapes]["primitive_loads"][2] =
         primitive("shape:retired", "pressure", element(OUTBOARD), "global_z", 5.0, "Pa", "pressure");
     model["load_cases"][shapes]["primitive_loads"][8] = json!({"id": "shape:bare", "magnitude": {"value": -190.0, "unit": "N"}, "dimension": "force"});
-    for (index, before, unit, dimension) in [(2, "5", "Pa", "pressure"), (8, "-190", "N", "force")] {
+    model["load_cases"][shapes]["primitive_loads"][10] =
+        primitive("shape:test-pressure", "hydrotest", element(OUTBOARD), "global_z", 5.0, "Pa", "pressure");
+    for (index, before, unit, dimension) in [(2, "5", "Pa", "pressure"), (8, "-190", "N", "force"), (10, "5", "Pa", "pressure")] {
         let member = member("ungoverned primitive", "Load", SHAPES_CASE, "update_load", &shape(index), dimension, (0.0, unit), unit, ("m", "length"), false);
         for after in ["7".to_string(), pair(7.0, unit)] {
             assert_refused(&model, &member, before, &after, unit, dimension, "OP-UNIT-DIMENSION-UNKNOWN");

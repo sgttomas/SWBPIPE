@@ -7719,8 +7719,9 @@ fn resolve_field(
         })
     } else if object_type == "Load" && is_primitive_magnitude_path(field_path) {
         // The magnitude's dimension is the one its primitive's governed
-        // category gives, read from the stored primitive: neither the intent
-        // nor the primitive's own `dimension` member decides it. A primitive
+        // category gives, read from the stored primitive, never the one the
+        // intent states. The primitive's own `dimension` member is read only
+        // where the category admits two and one of them is retired. A primitive
         // that is absent falls through to the missing-quantity refusal below;
         // one whose category gives no single dimension is refused here.
         let primitive = field_path
@@ -7742,9 +7743,13 @@ fn resolve_field(
                 let direction = text(primitive.get("direction"));
                 let target_type =
                     text(primitive.get("target").and_then(|target| target.get("type")));
-                let Some(governed) =
-                    stored_primitive_magnitude_dimension(&category, &target_type, &direction)
-                else {
+                let stored_dimension = text(primitive.get("dimension"));
+                let Some(governed) = stored_primitive_magnitude_dimension(
+                    &category,
+                    &target_type,
+                    &direction,
+                    &stored_dimension,
+                ) else {
                     checker.unit_state = "blocked";
                     checker.push(
                         "OP-UNIT-DIMENSION-UNKNOWN",
@@ -9500,14 +9505,17 @@ fn authored_primitive_magnitude_dimension(category: &str, direction: &str) -> &'
 /// a moment about a rotational direction, and a force per length along an
 /// element. A thermal load on an element is a temperature interval. An imposed
 /// displacement at a support is a displacement, or a rotation on a rotational
-/// DOF. A retired `pressure` or `hydrotest` primitive admits two dimensions on
-/// an element, and any other category or target is not governed: neither is
-/// edited in place. On every shape creation admits this agrees with
+/// DOF. A `hydrotest` primitive on an element admits a pressure, which is
+/// retired, or a force per length: it is governed only where the record itself
+/// states the force per length. A retired `pressure` primitive and any other
+/// category or target are not governed, and are not edited in place. On every
+/// shape creation admits this agrees with
 /// `authored_primitive_magnitude_dimension`.
 fn stored_primitive_magnitude_dimension(
     category: &str,
     target_type: &str,
     direction: &str,
+    stored_dimension: &str,
 ) -> Option<&'static str> {
     let rotational = matches!(
         direction,
@@ -9528,6 +9536,9 @@ fn stored_primitive_magnitude_dimension(
         "node" if body_load => Some(if rotational { "moment" } else { "force" }),
         "element" if body_load => Some("force_per_length"),
         "element" if category == "thermal" => Some("temperature_interval"),
+        "element" if category == "hydrotest" && stored_dimension == "force_per_length" => {
+            Some("force_per_length")
+        }
         "support" if category == "imposed_displacement" => {
             Some(if rotational { "rotation" } else { "displacement" })
         }
