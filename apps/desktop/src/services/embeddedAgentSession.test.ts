@@ -53,6 +53,10 @@ function setup(workspaceHash:ModelHashEvidence=engineHash){
 }
 afterEach(()=>{vi.useRealTimers();vi.clearAllMocks();});
 async function drain(){for(let i=0;i<16;i++)await Promise.resolve();}
+// A record page's own sentence, and the notice that leads its message when it left out a record.
+const PAGE_SENTENCE='Bounded record page at the captured basis; before texts are exact for that basis only.';
+const UNBOUND="Not returned, over this catalog's record bound: ";
+const UNNAMED='Not returned, with an identifier this catalog cannot carry: ';
 describe('workspace-owned live embedded agent adapter',()=>{
  it('gives the agent the catalog form of the workspace hash in its basis, updates and solve output',async()=>{
   vi.useFakeTimers();const {session,sent,owner,call}=setup();
@@ -352,13 +356,14 @@ describe('workspace-owned live embedded agent adapter',()=>{
   const nodes=JSON.parse(session.actual('invented-session:4')!.outcome).data;expect(Object.keys(nodes.records[0].before)).toEqual(['delete']);expect(nodes.records[0].before.delete).toBe('N1; x=0; y=1; z=2');
   await session.close();
  });
- it('bounds record pages in UTF-8 bytes and never cuts an oversized first entry',async()=>{
+ it('bounds record pages in UTF-8 bytes and leaves out, never cuts, an oversized entry',async()=>{
   vi.useFakeTimers();const {session,call,model}=setup();
   const records=model as unknown as Record<string,unknown>;
   // 10000 three-byte characters: under 28672 UTF-16 units, over 28672 bytes.
   records.supports=[{id:'support:wide',label:'€'.repeat(10000),node:'node-1',restraints:['UX'],provenance:'p'}];
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}});await session.start('revision');await session.poll();await drain();
-  let outcome=JSON.parse(session.actual('invented-session:1')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('support:wide');
+  let outcome=JSON.parse(session.actual('invented-session:1')!.outcome);expect(outcome.status).toBe('ok');expect(outcome.data.records).toEqual([]);expect(outcome.data.nextCursor).toBeNull();
+  expect(outcome.message).toBe(`${UNBOUND}support:wide. ${PAGE_SENTENCE}`);
   // Two records of about 30 KB each: the page holds one and resumes at the next.
   records.supports=[0,1].map(i=>({id:`support:${i}`,label:'€'.repeat(5000),node:'node-1',restraints:['UX'],provenance:'p'}));
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
@@ -367,7 +372,8 @@ describe('workspace-owned live embedded agent adapter',()=>{
   // Each text fits the record text bound, but escaping makes the single entry larger than a page.
   records.supports=[{id:'support:quoted',label:'"'.repeat(3900),node:'node-1',restraints:['UX'],provenance:'"'.repeat(3900)}];
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
-  outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('support:quoted');
+  outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('ok');expect(outcome.data.records).toEqual([]);expect(outcome.data.nextCursor).toBeNull();
+  expect(outcome.message).toBe(`${UNBOUND}support:quoted. ${PAGE_SENTENCE}`);
   await session.close();
  });
  it('reports the catalog limits and reads back a stored state up to the argument bound, one byte over by name',async()=>{
@@ -387,7 +393,8 @@ describe('workspace-owned live embedded agent adapter',()=>{
   expect(new TextEncoder().encode(outcome.data.records[0].before.analysis_state).byteLength).toBe(bound);
   records.load_cases=loadCase(bound-16);
   call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
-  outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('load:L1');
+  outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('ok');expect(outcome.data.records).toEqual([]);
+  expect(outcome.message).toBe(`${UNBOUND}load:L1. ${PAGE_SENTENCE}`);
   await session.close();
  });
  it('reads the reference system\'s load cases back whole across pages, each state and its pressure regions as stored',async()=>{
@@ -414,14 +421,15 @@ describe('workspace-owned live embedded agent adapter',()=>{
   }
   await session.close();
  });
- it('characterises a known failure of paging (issue 401): a case whose two held texts each fit and together exceed a record page is not returned, and the page is lost with it',async()=>{
-  // Not a read-back that succeeds. The record is installed directly, as a person's edit in the
-  // desktop can leave it. Its two texts are also of a size the agent's own proposals carry: the
-  // reach test (agent_catalog_reach.rs) writes an analysis state and pressure regions of 25,000
-  // canonical bytes each in separate proposals within the argument bound. Each text is within the
-  // record text bound; the entry is over the 48 KiB record page and is never cut. The read names
-  // the case, discards the ordinary case already gathered for the response and issues no cursor.
-  // So what the agent can write is not always what it can read.
+ it('returns the ordinary case beside a case whose two held texts each fit and together exceed a record page, and names that case as not returned (issue 401); that case itself stays unread (issue 403)',async()=>{
+  // The record is installed directly, as a person's edit in the desktop can leave it. Its two
+  // texts are also of a size the agent's own proposals carry: the reach test
+  // (agent_catalog_reach.rs) writes an analysis state and pressure regions of 25,000 canonical
+  // bytes each in separate proposals within the argument bound. Each text is within the record
+  // text bound; the entry is over the 48 KiB record page and is never cut. The read leaves the
+  // wide case out, names it first in its message and returns the ordinary case beside it, the
+  // same entry it returns when that case is read alone. The wide case itself is still not read:
+  // what the agent can write is not always what it can read (issue 403).
   vi.useFakeTimers();const {session,call,model}=setup();
   const settle=async()=>{for(let i=0;i<8;i++)await drain();};
   const bytes=(text:string)=>new TextEncoder().encode(text).byteLength;
@@ -433,14 +441,116 @@ describe('workspace-owned live embedded agent adapter',()=>{
   expect(25000).toBeLessThanOrEqual(catalog.definitions.record.properties.before.additionalProperties.maxLength);
   (model as unknown as Record<string,unknown>).load_cases=[ordinary,wide];await session.start('revision');await session.poll();await settle();
   call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await settle();
-  const refused=JSON.parse(session.actual('invented-session:2')!.outcome);
-  expect(refused.status).toBe('unavailable');expect(refused.message).toBe('Record load:wide exceeds this catalog page.');expect(refused.data).toBeNull();
-  // The ordinary case alone is read: it is the wide case that costs the page.
+  const beside=JSON.parse(session.actual('invented-session:2')!.outcome);
+  expect(beside.status).toBe('ok');expect(beside.message).toBe(`${UNBOUND}load:wide. ${PAGE_SENTENCE}`);
+  expect(beside.data.records.map((record:{id:string})=>record.id)).toEqual(['load:ordinary']);expect(beside.data.nextCursor).toBeNull();
+  // The ordinary case alone is read as the same entry.
   (model as unknown as Record<string,unknown>).load_cases=[ordinary];
   call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await settle();
   const alone=JSON.parse(session.actual('invented-session:3')!.outcome);
-  expect(alone.status).toBe('ok');expect(alone.data.records.map((record:{id:string})=>record.id)).toEqual(['load:ordinary']);
+  expect(alone.status).toBe('ok');expect(alone.message).toBe(PAGE_SENTENCE);expect(alone.data.records.map((record:{id:string})=>record.id)).toEqual(['load:ordinary']);
+  expect(beside.data.records).toEqual(alone.data.records);
   await session.close();
+ });
+ describe('a record the page cannot carry is left out by name and the page continues past it (issue 401)',()=>{
+  // A support whose label (its delete before text) is 10000 three-byte characters is over the
+  // record text bound; an ordinary support is well inside a page.
+  const wide=(id:string)=>({id,label:'€'.repeat(10000),node:'node-1',restraints:['UX'],provenance:'p'});
+  const fits=(id:string)=>({id,label:id,node:'node-1',restraints:['UX'],provenance:'p'});
+  type Page={status:string;basis:AgentBasis;message:string;data:{records:{id:string}[];nextCursor:string|null}};
+  /** A session over these supports, and a reader that issues one read call per page. */
+  async function reader(supports:unknown[]){
+   vi.useFakeTimers();const {session,call,model}=setup();
+   (model as unknown as Record<string,unknown>).supports=supports;
+   const settle=async()=>{for(let i=0;i<8;i++)await drain();};
+   await session.start('revision');await session.poll();await settle();let n=1;
+   const read=async(cursor:string|null,limit:number):Promise<Page>=>{
+    n++;call('swbpipe_read_records',{family:'supports',page:{cursor,limit}},`invented-session:${n}`);await session.poll();await settle();
+    const raw=session.actual(`invented-session:${n}`)!.outcome;
+    expect(new TextEncoder().encode(raw).byteLength).toBeLessThanOrEqual(catalog.limits.resultBytes);
+    const page=JSON.parse(raw) as Page;expect(page.status).toBe('ok');expect(page.basis).toEqual(basis);
+    expect([...page.message].length).toBeLessThanOrEqual(catalog.definitions.recordsOutput.properties.message.maxLength);
+    return page;
+   };
+   return {session,read};
+  }
+  const ids=(page:Page)=>page.data.records.map(record=>record.id);
+  /** The records a page's message names as not returned for size, in the order named. */
+  const named=(page:Page)=>{const match=/^Not returned, over this catalog's record bound: (.*?)\. (?:Not returned|Bounded)/.exec(page.message);return match?match[1].split(', '):[];};
+  it('returns both ordinary cases beside an oversized one once, names it first, and the cursor resumes past it at the same basis',async()=>{
+   const {session,read}=await reader([fits('support:a'),wide('support:W'),fits('support:b')]);
+   // A page of two rows: the ordinary record and the oversized one, which is named; the cursor follows it.
+   const first=await read(null,2);
+   expect(ids(first)).toEqual(['support:a']);expect(first.message).toBe(`${UNBOUND}support:W. ${PAGE_SENTENCE}`);expect(first.data.nextCursor).toEqual(expect.any(String));
+   const second=await read(first.data.nextCursor,2);
+   expect(ids(second)).toEqual(['support:b']);expect(second.message).toBe(PAGE_SENTENCE);expect(second.data.nextCursor).toBeNull();
+   expect(second.basis).toEqual(first.basis);
+   // One page of five rows: both ordinary records and the oversized one named between them.
+   const whole=await read(null,5);
+   expect(ids(whole)).toEqual(['support:a','support:b']);expect(named(whole)).toEqual(['support:W']);expect(whole.message.startsWith(UNBOUND)).toBe(true);expect(whole.data.nextCursor).toBeNull();
+   await session.close();
+  });
+  it('leads the message with the notice whenever something is left out, and leaves it exactly the page sentence when nothing is',async()=>{
+   const {session,read}=await reader([fits('support:a'),fits('support:b')]);
+   const page=await read(null,5);expect(ids(page)).toEqual(['support:a','support:b']);expect(page.message).toBe(PAGE_SENTENCE);
+   await session.close();
+   const left=await reader([fits('support:a'),{id:'',label:'x'},wide('support:W')]);
+   const both=await left.read(null,5);
+   expect(both.message).toBe(`${UNBOUND}support:W. ${UNNAMED}1 record. ${PAGE_SENTENCE}`);
+   await left.session.close();
+  });
+  it('names every record left out for size: the page stops before a name that would not fit and the cursor resumes at it',async()=>{
+   // Identifiers of 160 characters, the catalog's most: only a few fit one message.
+   const long=(i:number)=>`support:${'w'.repeat(151)}${i}`;expect(long(0)).toHaveLength(160);
+   const rows=[fits('support:o0'),wide(long(0)),wide(long(1)),fits('support:o1'),wide(long(2)),wide(long(3)),wide(long(4)),wide(long(5)),fits('support:o2'),wide(long(6)),wide(long(7)),wide(long(8)),fits('support:o3')];
+   const all=rows.map(row=>row.id);
+   const {session,read}=await reader(rows);
+   const pages:Page[]=[];let cursor:string|null=null;
+   do{const page=await read(cursor,50);pages.push(page);cursor=page.data.nextCursor;}while(cursor!==null&&pages.length<rows.length);
+   expect(cursor).toBeNull();expect(pages.length).toBeGreaterThan(1);
+   // The first page names fewer than all nine, and returns exactly the ordinary records before the first unnamed one.
+   const firstNamed=named(pages[0]);expect(firstNamed.length).toBeGreaterThan(0);expect(firstNamed.length).toBeLessThan(9);
+   const resume=all.indexOf(long(firstNamed.length));
+   expect(ids(pages[0])).toEqual(all.slice(0,resume).filter(id=>id.length<160));
+   expect(named(pages[1])[0]).toBe(long(firstNamed.length));
+   // Across the pages every record is examined exactly once, in order: returned or named, never both, never lost.
+   const seen=pages.flatMap(page=>[...ids(page),...named(page)]);
+   expect(new Set(seen).size).toBe(seen.length);expect([...seen].sort()).toEqual([...all].sort());
+   expect(pages.flatMap(named)).toEqual(all.filter(id=>id.length===160));
+   expect(pages.flatMap(ids)).toEqual(all.filter(id=>id.length<160));
+   await session.close();
+  });
+  it('leaves out an oversized record first on a page, last on a page, and two on one page',async()=>{
+   // First on a later page: that page carries nothing but the notice, and the cursor still advances.
+   let {session,read}=await reader([fits('support:a'),wide('support:W'),fits('support:b')]);
+   const one=await read(null,1);expect(ids(one)).toEqual(['support:a']);expect(one.message).toBe(PAGE_SENTENCE);
+   const two=await read(one.data.nextCursor,1);expect(ids(two)).toEqual([]);expect(two.message).toBe(`${UNBOUND}support:W. ${PAGE_SENTENCE}`);expect(two.data.nextCursor).toEqual(expect.any(String));
+   const three=await read(two.data.nextCursor,1);expect(ids(three)).toEqual(['support:b']);expect(three.message).toBe(PAGE_SENTENCE);expect(three.data.nextCursor).toBeNull();
+   await session.close();
+   // First on the first page, then last on it.
+   ({session,read}=await reader([wide('support:W'),fits('support:a')]));
+   let page=await read(null,5);expect(ids(page)).toEqual(['support:a']);expect(named(page)).toEqual(['support:W']);expect(page.data.nextCursor).toBeNull();
+   await session.close();
+   ({session,read}=await reader([fits('support:a'),wide('support:W')]));
+   page=await read(null,5);expect(ids(page)).toEqual(['support:a']);expect(named(page)).toEqual(['support:W']);expect(page.data.nextCursor).toBeNull();
+   await session.close();
+   // Two on one page, named in their order.
+   ({session,read}=await reader([fits('support:a'),wide('support:W1'),fits('support:b'),wide('support:W2'),fits('support:c')]));
+   page=await read(null,5);expect(ids(page)).toEqual(['support:a','support:b','support:c']);expect(page.message).toBe(`${UNBOUND}support:W1, support:W2. ${PAGE_SENTENCE}`);expect(page.data.nextCursor).toBeNull();
+   await session.close();
+  });
+  it('counts, without a name, a record whose identifier the catalog cannot carry, and continues past it',async()=>{
+   // Empty, over 160 characters, not a string, and not well-formed text.
+   let {session,read}=await reader([{id:'',label:'e'},fits('support:a'),{id:'x'.repeat(161),label:'l'},{id:42,label:'n'},wide('support:W'),{id:'\ud800x',label:'s'},fits('support:b')]);
+   let page=await read(null,50);
+   expect(ids(page)).toEqual(['support:a','support:b']);expect(page.message).toBe(`${UNBOUND}support:W. ${UNNAMED}4 records. ${PAGE_SENTENCE}`);expect(page.data.nextCursor).toBeNull();
+   await session.close();
+   // The rows counted take their place in the page's limit, and the cursor resumes after them.
+   ({session,read}=await reader([{id:'',label:'e'},{id:42,label:'n'},fits('support:a')]));
+   page=await read(null,2);expect(ids(page)).toEqual([]);expect(page.message).toBe(`${UNNAMED}2 records. ${PAGE_SENTENCE}`);expect(page.data.nextCursor).toEqual(expect.any(String));
+   page=await read(page.data.nextCursor,2);expect(ids(page)).toEqual(['support:a']);expect(page.message).toBe(PAGE_SENTENCE);expect(page.data.nextCursor).toBeNull();
+   await session.close();
+  });
  });
  it('filters result pages by kind and entity and binds the filter to the cursor',async()=>{
   vi.useFakeTimers();const {session,owner,call,sent,setResult}=setup();

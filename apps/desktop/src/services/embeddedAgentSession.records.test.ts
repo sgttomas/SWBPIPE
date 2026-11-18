@@ -189,6 +189,22 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     expect((find(model, "supports", supportId).provenance_record as AnyRecord).review_status).toBe("quarantined");
   }, 120_000);
 
+  it("a record named as not returned exists: the engine refuses to create another with its identifier", async () => {
+    // A read leaves a record over its bound out and names it (issue 401). An agent that took the
+    // name for an absent record and proposed to create it could not: the engine refuses a create
+    // whose identifier is an existing case's, and applies the same create under a new identifier.
+    const model = structuredClone(referenceJson) as unknown as PreviewModel;
+    const stored = await canonicalJsonString(find(model, "load_cases", "load:RS-SUS"));
+    const create = (id: string) => op("create", "Load", id, "create_load_case", "load_cases", "not_present", json({ id, label: "agent check", kind: "primitive_user_load", status: "draft", provenance: P }));
+    const refused = await run(model, create("load:RS-SUS"));
+    expect(refused.applied_model).toBeNull();
+    expect(refused.validation.batch_validation_status).not.toBe("passed");
+    expect(codes(refused)).toEqual(["OP-TARGET-ALREADY-EXISTS: Load case `load:RS-SUS` already exists in the current model."]);
+    expect(await canonicalJsonString(find(model, "load_cases", "load:RS-SUS"))).toBe(stored);
+    const fresh = await run(model, create("load:agent-fresh"));
+    expect(fresh.validation.batch_validation_status, codes(fresh).join(" | ")).toBe("passed");
+  });
+
   it("the record producer and the engine agree on a stored state as long as the record text bound", async () => {
     // An engine check, not a call an agent could make: the operations here go straight to the
     // engine, past the argument gate and the pager. A state whose canonical text is as long as

@@ -107,6 +107,16 @@ function namedIds(ids:readonly string[],budget:number):string{
  const shown:string[]=[];let used=0;for(const id of ids){if(used+id.length+2>budget)break;shown.push(id);used+=id.length+2;}
  return `${shown.join(', ')}${shown.length<ids.length?`${shown.length?', ':''}…`:''}`;
 }
+/** A record page's message. Whatever the page left out comes first, so that a page which omits
+ * records is not read as complete: each record over the record bound by name, then a count of any
+ * whose identifier the catalog cannot carry. With nothing left out it is the page's sentence alone. */
+function recordsMessage(unbound:readonly string[],unnamed:number):string{
+ const notice=[
+  ...unbound.length?[`Not returned, over this catalog's record bound: ${unbound.join(', ')}.`]:[],
+  ...unnamed?[`Not returned, with an identifier this catalog cannot carry: ${unnamed} record${unnamed===1?'':'s'}.`]:[],
+ ];
+ return [...notice,'Bounded record page at the captured basis; before texts are exact for that basis only.'].join(' ');
+}
 const blankText=(value:unknown)=>typeof value!=='string'||!value.trim();
 /** At most `limit` Unicode characters (the catalog counts characters), an ellipsis marking a cut. */
 const highSurrogate=(text:string,i:number)=>{const c=text.charCodeAt(i);return c>=0xd800&&c<=0xdbff&&i+1<text.length&&(text.charCodeAt(i+1)&0xfc00)===0xdc00;};
@@ -470,17 +480,23 @@ export class EmbeddedAgentSession {
    const family=call.arguments.family as RecordFamily;if(!RECORD_FAMILIES.includes(family))return this.failure(call,'Record family is unavailable.');
    const rows=familyRecords(model,family);
    const offset=this.offset(call),page=call.arguments.page as {limit:number};const records=[];let bytes=0,end=offset;
-   for(;end<rows.length&&records.length<page.limit;end++){
-    const {id,text,record}=rows[end];if(typeof id!=='string'||!id||id.length>ID_CHARS)return this.failure(call,'Record identifier exceeds this catalog page.');
+   // A record the page cannot carry is left out and the page continues past it: never cut, never
+   // silently dropped. Each one left out for size is named in the message, and one whose identifier
+   // the catalog cannot carry is counted. The limit bounds the rows examined, so the count is at most
+   // the limit; the page stops before a record whose name would not fit, and the cursor resumes it.
+   const unbound:string[]=[];let unnamed=0;
+   for(;end<rows.length&&end-offset<page.limit;end++){
+    const {id,text,record}=rows[end];if(!isShortId(id)){unnamed++;continue;}
     const recordText=await canonicalJsonString(text);const before=await recordBefore(family,record,recordText);
-    // Bounds are UTF-8 bytes; a record whose escaped entry alone exceeds a page is unavailable, never cut.
-    if(byteLength(recordText)>RECORD_TEXT_BYTES||Object.values(before).some(text=>byteLength(text)>RECORD_TEXT_BYTES))return this.failure(call,`Record ${id} exceeds this catalog page.`);
+    // Bounds are UTF-8 bytes; a record whose escaped entry alone exceeds a page is left out, never cut.
     const entry={id,recordText,before};const size=byteLength(JSON.stringify(entry));
-    if(size>RECORD_PAGE_BYTES)return this.failure(call,`Record ${id} exceeds this catalog page.`);
+    if(byteLength(recordText)>RECORD_TEXT_BYTES||Object.values(before).some(text=>byteLength(text)>RECORD_TEXT_BYTES)||size>RECORD_PAGE_BYTES){
+     if(!fitsChars(recordsMessage([...unbound,id],page.limit),1000))break;unbound.push(id);continue;
+    }
     if(bytes+size>RECORD_PAGE_BYTES)break;bytes+=size;records.push(entry);
    }
    if(!this.current(call))return this.failure(call,'Workspace changed while reading records.','stale_basis');
-   return this.result(call,'ok','Bounded record page at the captured basis; before texts are exact for that basis only.',{family,records,nextCursor:this.cursor(call,end,end<rows.length)},{kind:'read'});
+   return this.result(call,'ok',recordsMessage(unbound,unnamed),{family,records,nextCursor:this.cursor(call,end,end<rows.length)},{kind:'read'});
   }
   if(call.tool==='swbpipe_propose_operations'){
    if(this.#proposals.size>=64)return this.failure(call,'Proposal retention is full.');
