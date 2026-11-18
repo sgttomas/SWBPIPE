@@ -2259,7 +2259,7 @@ mod tests {
         let request: Value = serde_json::from_str(BLOCKED_WITNESS_REQUEST).unwrap();
         assert_eq!(request["materials"], json!([]), "the desktop's solve request carries no materials");
         let raw = crate::solve_preview_mechanics_with_mode(request["model"].clone(), open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive).unwrap();
-        let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..").join(BLOCKED_WITNESS_RAW);
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).ancestors().nth(3).expect("desktop crate is three levels below the repository").join(BLOCKED_WITNESS_RAW);
         if std::env::var_os("SWBPIPE_WRITE_AGENT_BLOCKED_WITNESS").is_some() {
             std::fs::write(&path, &raw).unwrap();
         }
