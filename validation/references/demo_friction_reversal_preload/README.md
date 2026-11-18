@@ -22,14 +22,14 @@ and derives the same six scenarios under the law that
   430 N along +UZ (`notes[].sh140_applied_force_n`);
 - `installed_load` and `hot_load` are review data and are not applied.
 
-Status: these are candidate references. Their author TASK derived them
-without seeing any product output. They have not yet been independently
-refuted.
+Status: their author TASK derived these references without seeing any
+product output, and an independent reader that saw no product output
+examined the derivation and the values before the package was frozen.
 
-No maintained product test reads this package yet, because main does not yet
-implement the preload law; the preload landing (DEL-04-11 REQ-014) points the
-product tests at it. Until then, its own check and the tests of the
-reference-package table (`tests/reference_packages.py`) are what maintain it.
+This package was frozen before the preload law (DEL-04-11 REQ-014) was
+implemented, so no product test read it then; the product tests that read it
+arrive with that law. Its own check and the tests of the reference-package
+table (`tests/reference_packages.py`) maintain it.
 
 ## Files
 
