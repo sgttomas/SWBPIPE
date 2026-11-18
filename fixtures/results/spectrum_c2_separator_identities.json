@@ -709,9 +709,9 @@
   },
   "origin": {
     "constructed": [
-      "Every entity identity is constructed by renaming the reference's: N1 as \"N1.ux: anchor node\", N2 as \"N2 .i.Fx_m\", N3 as \"node:N3.uy_m tip\", P1 as \"P1.i.Fx_m\", P2 as \"pipe: P2.j.Mz_m\", A1 as \"A1.Fx: anchor_m\", S1 as \"S1.UY spring: 1\". Each renamed identity contains a dot, a space, a colon or the member-axes suffix _m, the characters a composed key would separate its fields with; every value is the reference's row of the original entity.",
-      "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y), as its convention 2 states; each combined magnitude is formed from them.",
-      "Each entity identity and the spectra are the reference's; the model document is a stand-in in the model document's shape, not a schema-checked model, and the spectrum request is this unit's stand-in shape."
+      "Every entity identity is constructed by renaming the reference's: N1 as \"N1.ux: anchor node\", N2 as \"N2 .i.Fx_m\", N3 as \"node:N3.uy_m tip\", P1 as \"P1.i.Fx_m\", P2 as \"pipe: P2.j.Mz_m\", A1 as \"A1.Fx: anchor_m\", S1 as \"S1.UY spring: 1\". Each renamed identity contains a dot, a space, a colon or the member-axes suffix _m, the characters a composed key would separate its fields with; each global-axes value is the reference's value for the original entity.",
+      "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y); the reference's convention 2 states that such a frame maps component to component. Each combined magnitude is formed from them.",
+      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape."
     ],
     "kind": "constructed_from_reference",
     "produced_by_spectrum_solve": false,
@@ -720,13 +720,13 @@
       "case": "C2-GROUND-SPRING",
       "package": "validation/references/f2_spectrum/discrete"
     },
-    "statement": "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; its combined magnitudes are formed from those contributions by the product's combinations. It shows reader agreement only and is not evidence that the product recovers these contributions."
+    "statement": "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; its combined magnitudes are formed from those contributions by the product's combinations. It is not evidence that the product recovers these contributions."
   },
   "profile": {
     "limitations": [
       "Experimental response-spectrum preview under uniform support motion, formed from the signed modal and rigid contributions of a small-displacement, linear-elastic modal basis, with damping represented only through the user's pseudo-acceleration spectra; it is not a public engineering result, it is not recorded as an analysis run, and it establishes neither physical correctness nor code compliance.",
       "Every row is the response to the support motion alone, about the state the modal model was formed at: a combined row is an unsigned magnitude in its stated frame, formed in that frame from signed contributions, and is never a signed quantity, a total force with the state's own action, or a stress; a signed contribution or a signed cluster sum is not a peak response.",
-      "A reader of this document checks that it is consistent with itself and with the inputs it is given; that does not show that the census is the model's, that a stated frame is the entity's, that the modal basis is an eigenbasis of the model, that a signed contribution was recovered correctly, or that the product produced the document."
+      "That this document is consistent with itself and with the inputs it states does not show that the census is the model's, that a stated frame is the entity's, that the modal basis is an eigenbasis of the model, that a signed contribution was recovered correctly, or that the product produced the document."
     ],
     "profile_id": "product_preview_spectrum_v1"
   },
@@ -4393,7 +4393,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/spectrum-1",
-    "sha256": "e8b8cb68bf25bf4c40a39b1bb2f5e179dd3fa2732952691498a89c1064c74d24"
+    "sha256": "81ad795536c53966cb390bef35fc93395f67f5e74d2af39e30da4698542e95c0"
   },
   "spectra": {
     "digest": "055a9eaa547101a512d606b36fccf42a527e95110ae834d4fe5932fc7e782212",

@@ -75,8 +75,7 @@
         {
           "frame": "global_axes",
           "member_family": null,
-          "static_row": "the static nodal displacement or rotation of that node and component, in global axes",
-          "static_row_kind_token": null
+          "static_row": "the static nodal displacement or rotation of that node and component, in global axes"
         }
       ],
       "has_end": false,
@@ -133,26 +132,22 @@
         {
           "frame": "global_axes",
           "member_family": "straight",
-          "static_row": "the static global end-action row of that member at that end and component",
-          "static_row_kind_token": null
+          "static_row": "the static global end-action row of that member at that end and component"
         },
         {
           "frame": "member_axes",
           "member_family": "straight",
-          "static_row": "the static element-local end row of that member at that end and component, in the member's local frame; on an EX pressure member the axial row takes the frame and sign of the static wall axial end action",
-          "static_row_kind_token": null
+          "static_row": "the static element-local end row of that member at that end and component, in the member's local frame; on an EX pressure member the axial row takes the frame and sign of the static wall axial end action"
         },
         {
           "frame": "global_axes",
           "member_family": "arc",
-          "static_row": "the static global end-action row of that arc at that end and component",
-          "static_row_kind_token": null
+          "static_row": "the static global end-action row of that arc at that end and component"
         },
         {
           "frame": "arc_tangent_frame",
           "member_family": "arc",
-          "static_row": "the static element-local end row of that arc at that end and component, in the arc tangent frame at that end",
-          "static_row_kind_token": null
+          "static_row": "the static element-local end row of that arc at that end and component, in the arc tangent frame at that end"
         }
       ],
       "has_end": true,
@@ -209,8 +204,7 @@
         {
           "frame": "connector_axes",
           "member_family": null,
-          "static_row": "the static connector-local force of that connector and component, without its reference displacement",
-          "static_row_kind_token": null
+          "static_row": "the static connector-local force of that connector and component, without its reference displacement"
         }
       ],
       "has_end": false,
@@ -267,8 +261,7 @@
         {
           "frame": "global_axes",
           "member_family": null,
-          "static_row": "the static connector end action of that connector, end and component",
-          "static_row_kind_token": null
+          "static_row": "the static connector end action of that connector, end and component"
         }
       ],
       "has_end": true,
@@ -290,8 +283,7 @@
         {
           "frame": "rod_axis",
           "member_family": null,
-          "static_row": "the static tie-rod force of that connector's rod, without its reference elongation or pretension",
-          "static_row_kind_token": null
+          "static_row": "the static tie-rod force of that connector's rod, without its reference elongation or pretension"
         }
       ],
       "has_end": false,
@@ -348,8 +340,7 @@
         {
           "frame": "global_axes",
           "member_family": null,
-          "static_row": "where one support holds the constraint, that support's static reaction of the same component where the static result publishes one; a constraint held by more than one support, or by a snubber alone, has no static row",
-          "static_row_kind_token": null
+          "static_row": "where one support holds the constraint, that support's static reaction of the same component where the static result publishes one; a constraint held by more than one support, or by a snubber alone, has no static row"
         }
       ],
       "has_end": false,
@@ -406,8 +397,7 @@
         {
           "frame": "global_axes",
           "member_family": null,
-          "static_row": "that support's static action of the same component; a snubber has no static row",
-          "static_row_kind_token": null
+          "static_row": "that support's static action of the same component; a snubber has no static row"
         }
       ],
       "has_end": false,
@@ -455,7 +445,6 @@
       "statement": "unsigned combined magnitude; it has no sign"
     }
   ],
-  "static_row_kind_tokens": "not stated: each frame names the static row of the same physical quantity in REQ-006's words; the static result's own row-kind token is left null for the assigner to state",
   "value_kinds": [
     {
       "dimension": "dimensionless",

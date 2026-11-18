@@ -35,7 +35,7 @@
       "P1's and P2's member-axes rows are constructed, not published by the reference: each signed contribution and rigid response is the exact rotation, by the member's rows x, y and z (x along the member, y = (0, 0, 1) normal to x, z = x cross y; exact rationals), of the reference's published global decimals, rounded once to the nearest binary64.",
       "The anchors at A and D have no identity in the reference, which names each reaction by its node; their support identities A-anchor and D-anchor are constructed.",
       "The arc's rows are its total end action as published (BEND1.<end>.* and BEND1.<end>.*_t); the reference's elastic and lump_load parts are not rows.",
-      "Each entity identity and the spectra are the reference's; the model document is a stand-in in the model document's shape, not a schema-checked model, and the spectrum request is this unit's stand-in shape."
+      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape."
     ],
     "kind": "constructed_from_reference",
     "produced_by_spectrum_solve": false,
@@ -44,13 +44,13 @@
       "case": "V-ARC-OBL",
       "package": "validation/references/f2_spectrum/recovery_w2"
     },
-    "statement": "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; its combined magnitudes are formed from those contributions by the product's combinations. It shows reader agreement only and is not evidence that the product recovers these contributions."
+    "statement": "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; its combined magnitudes are formed from those contributions by the product's combinations. It is not evidence that the product recovers these contributions."
   },
   "profile": {
     "limitations": [
       "Experimental response-spectrum preview under uniform support motion, formed from the signed modal and rigid contributions of a small-displacement, linear-elastic modal basis, with damping represented only through the user's pseudo-acceleration spectra; it is not a public engineering result, it is not recorded as an analysis run, and it establishes neither physical correctness nor code compliance.",
       "Every row is the response to the support motion alone, about the state the modal model was formed at: a combined row is an unsigned magnitude in its stated frame, formed in that frame from signed contributions, and is never a signed quantity, a total force with the state's own action, or a stress; a signed contribution or a signed cluster sum is not a peak response.",
-      "A reader of this document checks that it is consistent with itself and with the inputs it is given; that does not show that the census is the model's, that a stated frame is the entity's, that the modal basis is an eigenbasis of the model, that a signed contribution was recovered correctly, or that the product produced the document."
+      "That this document is consistent with itself and with the inputs it states does not show that the census is the model's, that a stated frame is the entity's, that the modal basis is an eigenbasis of the model, that a signed contribution was recovered correctly, or that the product produced the document."
     ],
     "profile_id": "product_preview_spectrum_v1"
   },
@@ -196,7 +196,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/spectrum-1",
-    "sha256": "e8b8cb68bf25bf4c40a39b1bb2f5e179dd3fa2732952691498a89c1064c74d24"
+    "sha256": "81ad795536c53966cb390bef35fc93395f67f5e74d2af39e30da4698542e95c0"
   },
   "status": "refused"
 }

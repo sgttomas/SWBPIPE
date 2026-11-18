@@ -5,11 +5,12 @@
 //! [`spectrum_result_document`] is a pure function from structured inputs to the document value:
 //! the model document (which holds the spectra) and the spectrum request it binds, the statement of
 //! the modal basis the result rests on, the census of the built dynamic model and the signed
-//! contributions. It runs the combinations ([`crate::combine`]) and publishes either the solved
-//! document or the refused one, with every refusal found. It forms no modal response and no rigid
-//! response: the signed contributions are its inputs.
+//! contributions. It runs the combinations ([`crate::combine`]) and returns either the solved
+//! document or the refused one, carrying the refusals of the first stage that refused (the input
+//! checks, the combinations, the roster and disclosure checks, or the canonical profile). It forms
+//! no modal response and no rigid response: the signed contributions are its inputs.
 //!
-//! **Conventions shared with the modal result family.** An identity block on every document; the
+//! **Conventions taken from the modal result family.** An identity block on every document; the
 //! checked canonical profile `openpipestress_jcs_ijson_v1` for every hash, each the SHA-256 of a
 //! value's canonical text; sealed rows (`row_id`, `ordinal`, `checksum`) in published tables with a
 //! row count and a digest over the rows' checksums; scalar values as value objects with catalog
@@ -17,7 +18,7 @@
 //! with a sealed refusals table. The document states that it is experimental and not a public
 //! engineering result.
 //!
-//! **Allocation.** With Q response quantities, M extracted modes (P of them periodic), C clusters,
+//! **Allocation** (by reading the code; not measured). With Q response quantities, M extracted modes (P of them periodic), C clusters,
 //! D ≤ 3 requested directions, S spectra of K knots in all, and E census entries, the document holds
 //! O(Q·D·(P + 1) + Q·D·C₂ + M + C + K + E + P²) values, where C₂ ≤ C is the number of periodic
 //! clusters of more than one mode and the P² term is the CQC coefficients of the periodic cluster
@@ -25,8 +26,8 @@
 //! (`combine`); one ordered map of Q row identities for the roster check; the admitted tables of
 //! the S spectra used; and, transiently, the canonical text of one row at a time for its checksum
 //! and of the model and the request once each for their bindings (each bounded by that input's
-//! size). Every contribution value is copied once, from the supplied contributions into its row;
-//! nothing recurses on the input's depth beyond the canonical profile's own check.
+//! size). The assembler copies each contribution value once, from the supplied contributions into
+//! its row; it does not recurse on the input's depth beyond the canonical profile's own check.
 use crate::combine::combine;
 use crate::contract::{
     ClusterClass, ClusterIndex, Combination, CombinationRequest, Direction, DirectionalRule, End, Frame, MemberFamily,
@@ -65,8 +66,8 @@ establishes neither physical correctness nor code compliance.",
 row is an unsigned magnitude in its stated frame, formed in that frame from signed contributions, and is never a \
 signed quantity, a total force with the state's own action, or a stress; a signed contribution or a signed cluster \
 sum is not a peak response.",
-    "A reader of this document checks that it is consistent with itself and with the inputs it is given; that does not \
-show that the census is the model's, that a stated frame is the entity's, that the modal basis is an eigenbasis of the \
+    "That this document is consistent with itself and with the inputs it states does not show that the census is the \
+model's, that a stated frame is the entity's, that the modal basis is an eigenbasis of the \
 model, that a signed contribution was recovered correctly, or that the product produced the document.",
 ];
 
@@ -419,9 +420,6 @@ pub fn spectrum_semantic_table() -> Value {
                     "frame": frame.as_str(),
                     "member_family": family.map(MemberFamily::as_str),
                     "static_row": static_row,
-                    // The static result's own row-kind token is not stated in REQ-006 or this
-                    // unit's sources; the wording above is REQ-006's. Marked for the assigner.
-                    "static_row_kind_token": Value::Null,
                 })).collect::<Vec<_>>(),
             })
         })
@@ -437,7 +435,6 @@ pub fn spectrum_semantic_table() -> Value {
         "sign_statuses": statuses,
         "quantity_kinds": kinds,
         "value_kinds": values,
-        "static_row_kind_tokens": "not stated: each frame names the static row of the same physical quantity in REQ-006's words; the static result's own row-kind token is left null for the assigner to state",
     })
 }
 
@@ -489,7 +486,7 @@ impl Numbers {
         if !(v.is_finite() && v.abs() < PROFILE_LIMIT) {
             if self.outside.len() < 16 {
                 self.outside.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, at, None,
-                    format!("{v:e} is outside the checked canonical profile (an integral binary64 of magnitude 2^53 or more)")));
+                    format!("{v:e} is outside the checked canonical profile (not finite, or of magnitude 2^53 or more)")));
             }
             return Value::Null;
         }
@@ -731,8 +728,8 @@ fn origin_json(origin: &Origin) -> Value {
             "reference": {"package": package, "case": case, "analysis": analysis},
             "constructed": constructed,
             "statement": "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; \
-its combined magnitudes are formed from those contributions by the product's combinations. It shows reader agreement \
-only and is not evidence that the product recovers these contributions.",
+its combined magnitudes are formed from those contributions by the product's combinations. It is not evidence that the \
+product recovers these contributions.",
         }),
     }
 }
@@ -830,6 +827,127 @@ fn check_agreement(inputs: &DocumentInputs, choices: &Choices, tables: &[Spectru
     }
     check_cluster_rule(inputs, refusals);
     check_census_closed(inputs.census, refusals);
+    check_census_entries(inputs.census, refusals);
+    check_frequency_relation(inputs, refusals);
+    check_origin_binding(inputs, refusals);
+    if let Some(state) = &inputs.modal.state {
+        if spectrum_doc_sha256(state).is_none() {
+            refusals.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, "modal_basis", Some("state"),
+                "the modal state statement is outside the checked canonical profile".into()));
+        }
+    }
+    if inputs.modal.extraction.established_finite_mode_count.is_some_and(|n| n as f64 >= PROFILE_LIMIT) {
+        refusals.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, "modal_basis", Some("extraction"),
+            "the established finite mode count is 2^53 or more".into()));
+    }
+}
+
+/// The tolerance of the census frames' orthonormality and handedness, 2^-40.
+const FRAME_TOLERANCE: f64 = 1.0 / 1_099_511_627_776.0;
+
+/// a·b as (a0·b0 + a1·b1) + a2·b2, each operation one binary64 rounding (Rust does not contract
+/// these into fused multiply-adds).
+fn dot(a: [f64; 3], b: [f64; 3]) -> f64 {
+    (a[0] * b[0] + a[1] * b[1]) + a[2] * b[2]
+}
+
+/// The failures of a frame's rows x, y and z: |x·x − 1|, |y·y − 1|, |z·z − 1|, |x·y|, |y·z|,
+/// |z·x| and each component of |x × y − z| at most 2^-40 (NaN fails).
+fn frame_failure(t: &Triad) -> Option<String> {
+    let [x, y, z] = *t;
+    let cross = [x[1] * y[2] - x[2] * y[1], x[2] * y[0] - x[0] * y[2], x[0] * y[1] - x[1] * y[0]];
+    let checks = [
+        ("|x.x - 1|", (dot(x, x) - 1.0).abs()), ("|y.y - 1|", (dot(y, y) - 1.0).abs()), ("|z.z - 1|", (dot(z, z) - 1.0).abs()),
+        ("|x.y|", dot(x, y).abs()), ("|y.z|", dot(y, z).abs()), ("|z.x|", dot(z, x).abs()),
+        ("|(x cross y - z)_x|", (cross[0] - z[0]).abs()), ("|(x cross y - z)_y|", (cross[1] - z[1]).abs()),
+        ("|(x cross y - z)_z|", (cross[2] - z[2]).abs()),
+    ];
+    checks.iter().find(|(_, v)| !(*v <= FRAME_TOLERANCE)).map(|(what, v)| format!("{what} = {v:e} exceeds 2^-40"))
+}
+
+/// Each census frame is orthonormal and right-handed to 2^-40 and each rod axis a unit vector to
+/// 2^-40; each entity occurs once in its table; each rigid constraint names at least one holder and
+/// no holder twice.
+fn check_census_entries(census: &Census, refusals: &mut Vec<Refusal>) {
+    let mut frame = |entry: String, t: &Triad| {
+        if let Some(f) = frame_failure(t) {
+            refusals.push(input_invalid("census", "frame", format!("{entry}: {f}")));
+        }
+    };
+    for m in &census.straight_members {
+        frame(format!("straight member {} member axes", m.id), &m.axes);
+    }
+    for a in &census.arcs {
+        frame(format!("arc {} tangent frame at end i", a.id), &a.tangent_frame_i);
+        frame(format!("arc {} tangent frame at end j", a.id), &a.tangent_frame_j);
+    }
+    for c in &census.connectors {
+        frame(format!("connector {} connector axes", c.id), &c.axes);
+    }
+    for t in &census.tie_rods {
+        let v = (dot(t.axis, t.axis) - 1.0).abs();
+        if !(v <= FRAME_TOLERANCE) {
+            refusals.push(input_invalid("census", "frame", format!("tie rod {} of connector {}: |a.a - 1| = {v:e} exceeds 2^-40", t.rod, t.connector)));
+        }
+    }
+    let mut once = |table: &str, keys: Vec<String>| {
+        let mut seen = BTreeSet::new();
+        for k in keys {
+            if !seen.insert(k.clone()) {
+                refusals.push(input_invalid("census", table, format!("{k} occurs more than once in the census {table} table")));
+            }
+        }
+    };
+    once("nodes", census.nodes.iter().map(|n| format!("node {n}")).collect());
+    once("straight_members", census.straight_members.iter().map(|m| format!("straight member {}", m.id)).collect());
+    once("arcs", census.arcs.iter().map(|m| format!("arc {}", m.id)).collect());
+    once("connectors", census.connectors.iter().map(|c| format!("connector {}", c.id)).collect());
+    once("tie_rods", census.tie_rods.iter().map(|t| format!("tie rod {} of connector {}", t.rod, t.connector)).collect());
+    once("rigid_constraints", census.rigid_constraints.iter().map(|r| format!("rigid constraint at {} {}", r.node, r.component.as_str())).collect());
+    once("compliant_supports", census.compliant_supports.iter().map(|s| format!("compliant support {}", s.support)).collect());
+    once("supports_without_rows", census.supports_without_rows.iter().map(|s| format!("support {}", s.support)).collect());
+    for r in &census.rigid_constraints {
+        let entry = format!("rigid constraint at {} {}", r.node, r.component.as_str());
+        if r.holders.is_empty() {
+            refusals.push(input_invalid("census", "holders", format!("{entry} names no holder")));
+        }
+        let mut seen = BTreeSet::new();
+        for h in &r.holders {
+            if !seen.insert(h) {
+                refusals.push(input_invalid("census", "holders", format!("{entry} names holder {h} twice")));
+            }
+        }
+    }
+}
+
+/// Each extracted mode's, and the next computed mode's, circular frequency w against its
+/// frequency f: |w − c·f| ≤ 8·u·w, with c = 2.0 · π (binary64) and c·f one binary64 product.
+fn check_frequency_relation(inputs: &DocumentInputs, refusals: &mut Vec<Refusal>) {
+    let c = 2.0 * std::f64::consts::PI;
+    let (m, modes) = (inputs.modal, &inputs.combination.modes);
+    let mut pairs: Vec<(String, f64, f64)> =
+        modes.iter().zip(&m.circular_frequency_rad_s).map(|(mode, w)| (mode_ref(mode.mode.0), *w, mode.frequency_hz)).collect();
+    if let (Some(w), Some(f)) = (m.extraction.next_computed_circular_frequency_rad_s, m.extraction.next_computed_frequency_hz) {
+        pairs.push(("the next computed mode".into(), w, f));
+    }
+    for (what, w, f) in pairs {
+        let deviation = (w - c * f).abs();
+        if !(deviation <= 8.0 * UNIT_ROUNDOFF * w) {
+            refusals.push(input_invalid("modal_basis", "circular_frequency",
+                format!("{what}: its circular frequency {w:e} rad/s is not 2 pi times its frequency {f:e} Hz within 8u")));
+        }
+    }
+}
+
+/// A spectrum solve binds its modal result; a document constructed from a reference has none.
+fn check_origin_binding(inputs: &DocumentInputs, refusals: &mut Vec<Refusal>) {
+    match (inputs.origin, inputs.modal_result) {
+        (Origin::SpectrumSolve, ModalResultBinding::NotApplicable { .. }) => refusals.push(input_invalid("modal_result", "binding",
+            "a document produced by a spectrum solve states its modal result binding as not applicable".into())),
+        (Origin::ConstructedFromReference { .. }, ModalResultBinding::Bound { .. }) => refusals.push(input_invalid("modal_result", "binding",
+            "a document constructed from a reference binds a modal result".into())),
+        _ => {}
+    }
 }
 
 /// The census is closed on itself: every node a straight member, an arc, a connector, a rigid

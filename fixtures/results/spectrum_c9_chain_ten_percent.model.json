@@ -1,0 +1,383 @@
+{
+  "combinations": [],
+  "components": [],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000.0
+      },
+      "id": "steel",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 78125000000.0
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "A",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode"
+    },
+    {
+      "id": "M1",
+      "position": {
+        "x": 1.0825317547305484,
+        "y": 1.0825317547305484,
+        "z": 1.0825317547305484
+      },
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode"
+    },
+    {
+      "id": "M2",
+      "position": {
+        "x": 2.165063509461097,
+        "y": 2.165063509461097,
+        "z": 2.165063509461097
+      },
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode"
+    },
+    {
+      "id": "M3",
+      "position": {
+        "x": 3.247595264191645,
+        "y": 3.247595264191645,
+        "z": 3.247595264191645
+      },
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode"
+    },
+    {
+      "id": "M4",
+      "position": {
+        "x": 4.330127018922194,
+        "y": 4.330127018922194,
+        "z": 4.330127018922194
+      },
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode"
+    },
+    {
+      "id": "M5",
+      "position": {
+        "x": 5.412658773652741,
+        "y": 5.412658773652741,
+        "z": 5.412658773652741
+      },
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode"
+    },
+    {
+      "id": "M6",
+      "position": {
+        "x": 6.49519052838329,
+        "y": 6.49519052838329,
+        "z": 6.49519052838329
+      },
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode"
+    },
+    {
+      "id": "M7",
+      "position": {
+        "x": 7.577722283113838,
+        "y": 7.577722283113838,
+        "z": 7.577722283113838
+      },
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode"
+    },
+    {
+      "id": "B",
+      "position": {
+        "x": 8.660254037844387,
+        "y": 8.660254037844387,
+        "z": 8.660254037844387
+      },
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "A",
+      "id": "P1",
+      "material": "steel",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M1",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M1",
+      "id": "P2",
+      "material": "steel",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M2",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M2",
+      "id": "P3",
+      "material": "steel",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M3",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M3",
+      "id": "P4",
+      "material": "steel",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M4",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M4",
+      "id": "P5",
+      "material": "steel",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M5",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M5",
+      "id": "P6",
+      "material": "steel",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M6",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M6",
+      "id": "P7",
+      "material": "steel",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "M7",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "M7",
+      "id": "P8",
+      "material": "steel",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.0603
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00391
+        }
+      },
+      "to": "B",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    }
+  ],
+  "project": {
+    "id": "project:spectrum-c9-chain",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "degC"
+    }
+  },
+  "schema_version": "0.9.0",
+  "spectra": [
+    {
+      "abscissa": "frequency",
+      "damping_ratio": 0.05,
+      "id": "S-C9-FLAT",
+      "interpolation": {
+        "abscissa": "linear",
+        "ordinate": "linear"
+      },
+      "ordinate": "acceleration",
+      "points": [
+        [
+          0.125,
+          2.5
+        ],
+        [
+          1000,
+          2.5
+        ]
+      ],
+      "units": {
+        "abscissa": "Hz",
+        "ordinate": "m/s^2"
+      }
+    }
+  ],
+  "supports": [
+    {
+      "family": "anchor",
+      "id": "SA",
+      "node": "A",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    {
+      "family": "spring",
+      "id": "S1",
+      "node": "B",
+      "provenance": "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode",
+      "restraints": [
+        "UX"
+      ],
+      "stiffness": {
+        "dof": "UX",
+        "value": {
+          "unit": "N/m",
+          "value": 1048576
+        }
+      }
+    }
+  ]
+}

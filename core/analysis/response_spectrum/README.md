@@ -335,27 +335,42 @@ cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example c
 
 - **Bindings.** The model document and the spectrum request are each bound by the SHA-256 of their
   canonical text. A modal result is bound by its run id and its own binding digests (request,
-  model, materials, integrity parameters, and a state case where one is named), never by a digest
-  of the whole modal document; a document built without a modal result says the binding is not
+  model, materials, integrity parameters, and a state case where one is named), not by a digest of
+  the whole modal document. A document built without a modal result states the binding as not
   applicable, with its reason.
 - **What it states.** The experimental admission and origin, the request choices as read, the
-  normalized spectra, the modal basis as used (modes, clusters, standings, state, extraction
-  endpoint), the standing, the disclosure operands (each frequency's location in each spectrum,
-  the extraction premise, the missing-mass fractions with their stated arithmetic), the census of
-  the model's entities and their frames, the signed rows with their sign conventions, the signed
-  cluster sums, the unsigned combined rows and the rule statements.
-- **What it refuses.** A request, modal statement or census that disagrees with the combination;
-  stated clusters that contradict the cluster rule on the stated circular frequencies and cluster
-  tolerance beyond the modal reader's margin (16u(1 + δ_c)·ω_b², binary64, the modal reader's
-  expressions), including between the last extracted mode and the next computed one; a census not
-  closed on itself (a node or connector an entry names that is not a census row); a roster that is
-  not the census's; a value outside the canonical profile, or anything the
-  combination refuses, as a `refused` document naming each refusal.
-- **Allocation.** Linear in its inputs, as the module documentation states: with Q rows, M
-  extracted modes (P periodic), C clusters (C₂ periodic of more than one mode), D directions, S
-  spectra of K knots and E census entries, the document holds O(Q·D·(P + 1) + Q·D·C₂ + M + C + K
-  + E + P²) values. Each row is sealed on its own; no table is formatted into an intermediate
-  string.
+  normalized spectra, the modal basis as stated to it (modes with frequencies and circular
+  frequencies, clusters, cluster tolerance, standings, state, extraction endpoint), the standing,
+  the disclosure operands (each frequency's location in each spectrum, the extraction premise, the
+  missing-mass fractions with their stated arithmetic), the census as supplied, the signed rows with
+  their sign conventions, the signed cluster sums, the unsigned combined rows and the rule
+  statements.
+- **What it refuses**, each as `SPECTRUM_DOCUMENT_INPUT_INVALID` unless named otherwise:
+  - a request choice the contributions were not formed under, or a damping ratio that is not the
+    spectra's;
+  - a modal statement that does not state every extracted mode;
+  - stated clusters that contradict the cluster rule on the stated circular frequencies and
+    cluster tolerance beyond the modal reader's margin (16u(1 + δ_c)·ω_b², in binary64 with the
+    modal reader's expressions), including between the last extracted mode and the next computed
+    one;
+  - a circular frequency w with |w − c·f| > 8u·w, where c = 2.0·π in binary64;
+  - a census frame whose rows are not orthonormal and right-handed to 2^-40, or a rod axis that is
+    not a unit vector to 2^-40;
+  - an entity that occurs twice in its census table, or a rigid constraint with no holder or with
+    a holder named twice;
+  - a census that names a node or connector it does not hold;
+  - a modal result binding that does not match the origin;
+  - a roster that is not the census's;
+  - a periodic frequency or f_r outside a spectrum's range, and an applied correction whose
+    extraction premise fails (`SPECTRUM_EXTRACTION_BELOW_RIGID_FREQUENCY`);
+  - a value outside the canonical profile (`SPECTRUM_DOCUMENT_OUTSIDE_CANONICAL_PROFILE`);
+  - anything the combinations refuse.
+
+  The `refused` document carries the refusals of the first stage that refused.
+- **Allocation** (by reading the code; not measured). With Q rows, M extracted modes (P periodic),
+  C clusters (C₂ periodic of more than one mode), D directions, S spectra of K knots and E census
+  entries, the document holds O(Q·D·(P + 1) + Q·D·C₂ + M + C + K + E + P²) values. Each row is
+  sealed on its own; no table is formatted into an intermediate string.
 
 `fixtures/results/semantic_contract_spectrum_1.json` is the semantic table
 (`document::spectrum_semantic_table`). The committed documents `fixtures/results/spectrum_*.json`,

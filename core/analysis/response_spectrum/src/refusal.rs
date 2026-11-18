@@ -69,14 +69,14 @@ pub enum RefusalCode {
     /// the lowest frequency of its highest completed cluster is below f_r and it is not the whole
     /// finite spectrum (REQ-001, Extraction premise).
     ExtractionBelowRigidFrequency,
-    /// The spectrum document's inputs do not agree with one another: the request, the model's
-    /// spectra, the modal basis statement, the census and the contributions a document is
-    /// assembled from (a missing or unreadable request member, a direction whose spectrum the model
-    /// does not hold, a request choice the contributions were not formed under, a roster that is
-    /// not the census's). The document unit's own refusal; nothing is published.
+    /// The spectrum document's inputs fail one of the document unit's own checks of the request,
+    /// the model's spectra, the modal basis statement, the census and the contributions (for
+    /// example a request choice the contributions were not formed under, a roster that is not the
+    /// census's, a census frame that is not orthonormal, or clusters that contradict the cluster
+    /// rule). No solved document is returned.
     DocumentInputInvalid,
-    /// A value the document would publish is outside the checked canonical profile (an integral
-    /// binary64 of magnitude 2^53 or more), so its hashes cannot be formed. Nothing is published.
+    /// A value the document would carry is outside the checked canonical profile (not finite, or of
+    /// magnitude 2^53 or more), so its hashes cannot be formed. No solved document is returned.
     DocumentOutsideCanonicalProfile,
 }
 

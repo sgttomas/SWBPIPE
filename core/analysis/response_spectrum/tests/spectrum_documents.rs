@@ -1,10 +1,10 @@
 //! The committed spectrum result documents (DEL-04-10 REQ-006, AC-004) and the `spectrum-1`
 //! semantic table, under `fixtures/results/`.
 //!
-//! Every document here is constructed from a frozen reference's published signed contributions,
-//! not produced by a spectrum solve, and says so in its `origin`, with each thing constructed rather
-//! than taken from the reference. Its combined magnitudes are formed from those contributions by
-//! the product's combinations; no reference combined value is copied into a document. Each
+//! Each document here is constructed from a frozen reference's published signed contributions,
+//! not produced by a spectrum solve, and says so in its `origin`, listing what was constructed
+//! rather than taken from the reference. Its combined magnitudes are formed from its contributions
+//! by the product's combinations; this writer copies no reference combined value into a document. Each
 //! document is committed beside the model document stand-in and the spectrum request it binds.
 //!
 //! `write_spectrum_documents` (ignored) writes them; `documents_are_the_projection_of_their_inputs`
@@ -26,9 +26,10 @@ use open_pipe_stress_response_spectrum::{
     RigidContribution, RigidRule,
 };
 use serde_json::{json, Map, Value};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use support::{expected, TOLERANCE};
 
+const C3: &str = include_str!("../../../../validation/references/f2_spectrum/discrete/c3_cantilever_3d.json");
 const C2: &str = include_str!("../../../../validation/references/f2_spectrum/discrete/c2_ground_spring.json");
 const C7: &str = include_str!("../../../../validation/references/f2_spectrum/discrete/c7_repeated_pair.json");
 const C8: &str = include_str!("../../../../validation/references/f2_spectrum/discrete/c8_pipe_x.json");
@@ -45,7 +46,7 @@ const RECOVERY_W2: &str = "validation/references/f2_spectrum/recovery_w2";
 
 const SEMANTIC_TABLE: &str = include_str!("../../../../fixtures/results/semantic_contract_spectrum_1.json");
 /// (name, document, model stand-in, request), read at compile time.
-const COMMITTED: [(&str, &str, &str, &str); 7] = [
+const COMMITTED: [(&str, &str, &str, &str); 10] = [
     ("c9_y_two_frames", include_str!("../../../../fixtures/results/spectrum_c9_y_two_frames.json"),
         include_str!("../../../../fixtures/results/spectrum_c9_y_two_frames.model.json"),
         include_str!("../../../../fixtures/results/spectrum_c9_y_two_frames.request.json")),
@@ -67,6 +68,15 @@ const COMMITTED: [(&str, &str, &str, &str); 7] = [
     ("refused_arc_member_axes", include_str!("../../../../fixtures/results/spectrum_refused_arc_member_axes.json"),
         include_str!("../../../../fixtures/results/spectrum_refused_arc_member_axes.model.json"),
         include_str!("../../../../fixtures/results/spectrum_refused_arc_member_axes.request.json")),
+    ("c3_grouping_100_40_40", include_str!("../../../../fixtures/results/spectrum_c3_grouping_100_40_40.json"),
+        include_str!("../../../../fixtures/results/spectrum_c3_grouping_100_40_40.model.json"),
+        include_str!("../../../../fixtures/results/spectrum_c3_grouping_100_40_40.request.json")),
+    ("c9_chain_ten_percent", include_str!("../../../../fixtures/results/spectrum_c9_chain_ten_percent.json"),
+        include_str!("../../../../fixtures/results/spectrum_c9_chain_ten_percent.model.json"),
+        include_str!("../../../../fixtures/results/spectrum_c9_chain_ten_percent.request.json")),
+    ("c8_absolute_sums", include_str!("../../../../fixtures/results/spectrum_c8_absolute_sums.json"),
+        include_str!("../../../../fixtures/results/spectrum_c8_absolute_sums.model.json"),
+        include_str!("../../../../fixtures/results/spectrum_c8_absolute_sums.request.json")),
 ];
 
 fn fixture_text(value: &Value) -> String {
@@ -678,8 +688,9 @@ fn origin(package: &str, case: &Value, analysis: &str, constructed: Vec<String>)
     Origin::ConstructedFromReference { package: package.into(), case: case["id"].as_str().unwrap().into(), analysis: analysis.into(), constructed }
 }
 
-const STAND_IN: &str = "Each entity identity and the spectra are the reference's; the model document is a stand-in in the \
-model document's shape, not a schema-checked model, and the spectrum request is this unit's stand-in shape.";
+const STAND_IN: &str = "Except where stated above, each entity identity and the spectra are the reference's. The model \
+document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support \
+families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape.";
 
 /// 1. C9-Y: the straight members on the space diagonal, in global and member axes.
 fn c9_y_two_frames() -> Fixture {
@@ -823,7 +834,7 @@ fn c7_cancelling_cluster() -> Fixture {
             "N1's six displacement and rotation rows are constructed: each contribution is zero because all six components at N1 are rigidly restrained by the anchor A1 (REQ-006, Nodes: a component restrained on a global axis is zero), not because the reference publishes them.".into(),
             "Cluster 1 (modes 1 and 2) is the basis_witness basis_2 vectors 1 and 2 (the M-orthonormal rotation of basis_1 by cos 3/5, sin 4/5, each normalized to unit maximum translation), each value as published; under Y their contributions to N3.uz, N3.ry, the anchor's UZ and RY reactions cancel exactly, and under Z those to N3.uy, N3.rz, UY and RZ.".into(),
             "Cluster 2's per-mode contributions are constructed: mode 3 carries the cluster's published signed sum (values_signed_sum_over_repeated_cluster) and mode 4 carries zero, in each direction.".into(),
-            "The per-mode effective masses are constructed: each cluster 1 vector's is its published participation factor squared times its published generalized mass, formed exactly from the decimals and rounded once (the two sum to the cluster's published effective mass); mode 3 carries cluster 2's published effective mass and mode 4 none.".into(),
+            "The per-mode effective masses are constructed: each cluster 1 vector's is its published participation factor squared times its published generalized mass, formed exactly from the decimals and rounded once (their sum agrees with the cluster's published effective mass to 1e-14 relative); mode 3 carries cluster 2's published effective mass and mode 4 none.".into(),
             STAND_IN.into(),
         ]),
         model,
@@ -1137,20 +1148,39 @@ fn w2_joint_rods() -> Fixture {
     }
 }
 
+/// The rule choice of one entry of a discrete analysis's published `mutations` grid: the modal
+/// rule, the rigid rule (`None` for the correction off) and the directional rule.
+type Mutation = (ModalRule, Option<RigidRule>, DirectionalRule);
+
 /// A discrete case's fixture with axis-aligned members, a constraint map and an identity
-/// renaming (`names` maps a document identity back to the reference's).
+/// renaming (`names` maps a document identity back to the reference's). With `mutation`, the
+/// rules are that grid entry's rather than the analysis's base request's; `zero_nodes` are nodes
+/// whose six components a rigid anchor restrains, each row zero.
+#[allow(clippy::too_many_arguments)]
 fn discrete_fixture<'d>(name: &'static str, d: &'d Discrete, analysis: &str, census: Census, constructed: Vec<String>, model: Value,
-    reaction: &dyn Fn(&Quantity) -> String, names: &dyn Fn(&str) -> String) -> Fixture {
+    reaction: &dyn Fn(&Quantity) -> String, names: &dyn Fn(&str) -> String, mutation: Option<Mutation>, zero_nodes: &[&str]) -> Fixture {
     let modes = d.modes();
-    let (modal_rule, directional_rule) = d.rules();
-    let missing = d.missing_mass();
+    let (mut modal_rule, mut directional_rule) = d.rules();
+    let mut missing = d.missing_mass();
+    if let Some((modal, rigid, directional)) = mutation {
+        modal_rule = modal;
+        directional_rule = directional;
+        missing = match (rigid, missing) {
+            (None, _) => MissingMass::NotApplied,
+            (Some(rule), MissingMass::Applied { rigid_frequency_hz, .. }) => MissingMass::Applied { rigid_frequency_hz, rule },
+            (Some(_), MissingMass::NotApplied) => panic!("{name}: the base request states no rigid frequency"),
+        };
+    }
     let applied = matches!(missing, MissingMass::Applied { .. });
     let dirs = d.directions();
     let directions: Vec<Direction> = dirs.iter().map(|x| x.0).collect();
     let rows = census.roster();
     let frames: BTreeMap<String, Triad> = census.straight_members.iter().map(|m| (m.id.clone(), m.axes)).collect();
     let periodic_modes = d.periodic_modes(applied);
-    let value = |q: &Quantity, m: &&Map<String, Value>| discrete_value(q, m, &frames, reaction, names);
+    let value = |q: &Quantity, m: &&Map<String, Value>| match q {
+        Quantity::NodeDisplacement { node, .. } if zero_nodes.contains(&node.as_str()) => 0.0,
+        _ => discrete_value(q, m, &frames, reaction, names),
+    };
     let rigid_source = |dir: Direction| d.rigid_values(dir);
     let rigid_fn: Option<&dyn Fn(Direction) -> &'d Map<String, Value>> = if applied { Some(&rigid_source) } else { None };
     let (periodic, _, rigid) = contributions(&rows, &directions, &periodic_modes, |dir, mode| d.mode_values(None, dir, mode), rigid_fn, value);
@@ -1205,9 +1235,9 @@ fn c8_shared_constraint() -> Fixture {
     };
     discrete_fixture("c8_shared_constraint", &d, "C8-III-TRUNCATION", census, vec![
         "The holder set of the rigid constraint at node B, component UZ, is constructed: the reference's directional restraint SB holds it, and a rigid snubber SN-B, which the reference does not have, is named as a second holder. The constraint's reaction is the reference's SB.Fz, as published; one row names both holders and is not divided between them.".into(),
-        "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y), as its convention 2 states; each combined magnitude is formed from them.".into(),
+        "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y); the reference's convention 2 states that such a frame maps component to component. Each combined magnitude is formed from them.".into(),
         STAND_IN.into(),
-    ], model, &reaction, &|s| s.to_string())
+    ], model, &reaction, &|s| s.to_string(), None, &[])
 }
 
 /// 6. C2-SPRING with every entity renamed to contain the characters a composed key would separate
@@ -1265,11 +1295,109 @@ fn c2_separator_identities() -> Fixture {
         }
     };
     discrete_fixture("c2_separator_identities", &d, "C2-SPRING", census, vec![
-        format!("Every entity identity is constructed by renaming the reference's: {}. Each renamed identity contains a dot, a space, a colon or the member-axes suffix _m, the characters a composed key would separate its fields with; every value is the reference's row of the original entity.",
+        format!("Every entity identity is constructed by renaming the reference's: {}. Each renamed identity contains a dot, a space, a colon or the member-axes suffix _m, the characters a composed key would separate its fields with; each global-axes value is the reference's value for the original entity.",
             RENAMES.iter().map(|(a, b)| format!("{a} as \"{b}\"")).collect::<Vec<_>>().join(", ")),
-        "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y), as its convention 2 states; each combined magnitude is formed from them.".into(),
+        "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y); the reference's convention 2 states that such a frame maps component to component. Each combined magnitude is formed from them.".into(),
         STAND_IN.into(),
-    ], model, &reaction, &original)
+    ], model, &reaction, &original, None, &[])
+}
+
+const MUTATION_NOTE: &str = "The rules are those of one entry of the reference analysis's published mutations grid, not its base \
+request's; the request stand-in states them. The contributions, rigid responses and modal basis are the analysis's own.";
+
+fn global_reaction(q: &Quantity) -> String {
+    match q {
+        Quantity::ConstraintReaction { component, holders, .. } => format!("{}.{}", holders[0], reaction_key(*component)),
+        Quantity::CompliantSupportForce { support, component } => format!("{support}.{}", reaction_key(*component)),
+        other => unreachable!("{other:?}"),
+    }
+}
+
+/// A discrete case's full census: every node, its axis-aligned straight members, its rigid
+/// constraints and its springs.
+fn full_census(d: &Discrete) -> Census {
+    Census {
+        nodes: d.nodes().into_iter().map(|(n, _)| n).collect(),
+        straight_members: axis_aligned_members(d),
+        rigid_constraints: d.rigid_constraints(),
+        compliant_supports: d.case["model"]["springs"].as_array().unwrap().iter().map(|s| CompliantSupport {
+            support: s["id"].as_str().unwrap().into(), node: s["node"].as_str().unwrap().into(),
+            components: vec![dof_component(s["dof"].as_str().unwrap())] }).collect(),
+        ..Census::default()
+    }
+}
+
+/// The model stand-in of a discrete case: its nodes, members, anchors and springs.
+fn discrete_model(d: &Discrete, project: &str, prov: &str) -> Value {
+    let (od, wall) = d.section();
+    let mut supports: Vec<Value> = Vec::new();
+    let mut held: BTreeMap<String, (String, Vec<String>)> = BTreeMap::new();
+    for r in d.case["derived_model"]["restrained_dofs"].as_array().unwrap() {
+        let e = held.entry(r[2].as_str().unwrap().to_string()).or_insert((r[0].as_str().unwrap().to_string(), Vec::new()));
+        e.1.push(dof_component(r[1].as_str().unwrap()).as_str().to_string());
+    }
+    for (id, (node, dofs)) in &held {
+        let family = if dofs.len() == 6 { "anchor" } else { "guide" };
+        supports.push(support_value(id, node, family, &dofs.iter().map(String::as_str).collect::<Vec<_>>(), prov));
+    }
+    for s in d.case["model"]["springs"].as_array().unwrap() {
+        let c = dof_component(s["dof"].as_str().unwrap()).as_str();
+        supports.push(json!({"id": s["id"], "node": s["node"], "family": "spring", "restraints": [c],
+            "stiffness": {"dof": c, "value": {"unit": "N/m", "value": s["stiffness"]}}, "provenance": prov}));
+    }
+    model_value(project, prov, &d.nodes(), d.members().iter().map(|(id, i, j, y)| segment(id, i, j, od, wall, *y, prov)).collect(), vec![],
+        supports, d.spectra_used())
+}
+
+/// 8. C3-BASE under the grid's GROUPING, rigid ABSOLUTE_SUM, 100-40-40 entry: a group of two
+/// clusters, and a governing direction over three requested directions with the correction
+/// applied.
+fn c3_grouping_100_40_40() -> Fixture {
+    let d = Discrete::new(C3, 0, "C3-BASE");
+    let census = full_census(&d);
+    let model = discrete_model(&d, "project:spectrum-c3", "stand-in: discrete C3-CANTILEVER-3D");
+    discrete_fixture("c3_grouping_100_40_40", &d, "C3-BASE", census, vec![
+        MUTATION_NOTE.into(),
+        "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame; each combined magnitude is formed from them.".into(),
+        STAND_IN.into(),
+    ], model, &global_reaction, &|s| s.to_string(),
+        Some((ModalRule::Grouping, Some(RigidRule::AbsoluteSum), DirectionalRule::HundredFortyForty)), &[])
+}
+
+/// 9. C9-CHAIN-Y under the ten percent method: the chain of modes 21, 22 and 23, where the ten
+/// percent method couples 22 with 23 and the grouping method does not.
+fn c9_chain_ten_percent() -> Fixture {
+    let d = Discrete::new(C9, 1, "C9-CHAIN-Y");
+    let spring = &d.case["model"]["springs"][0];
+    let census = Census {
+        nodes: vec!["A".into(), "B".into()],
+        rigid_constraints: d.rigid_constraints(),
+        compliant_supports: vec![CompliantSupport { support: spring["id"].as_str().unwrap().into(), node: spring["node"].as_str().unwrap().into(),
+            components: vec![dof_component(spring["dof"].as_str().unwrap())] }],
+        ..Census::default()
+    };
+    assert!(census.rigid_constraints.iter().all(|c| c.node == "A") && census.rigid_constraints.len() == 6);
+    let model = discrete_model(&d, "project:spectrum-c9-chain", "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode");
+    discrete_fixture("c9_chain_ten_percent", &d, "C9-CHAIN-Y", census, vec![
+        MUTATION_NOTE.into(),
+        "The roster and census are a subset of the reference model: the tip node B, the anchor SA's six constraint reactions at A and the spring S1's force, the quantities the reference publishes per mode, and the node A. The nodes M1 to M7 and the members P1 to P8 are in the model and have no rows here.".into(),
+        "A's six displacement and rotation rows are constructed: each contribution is zero because all six components at A are rigidly restrained by the anchor SA (REQ-006, Nodes: a component restrained on a global axis is zero), not because the reference publishes them.".into(),
+        STAND_IN.into(),
+    ], model, &global_reaction, &|s| s.to_string(), Some((ModalRule::TenPercent, None, DirectionalRule::Srss)), &["A"])
+}
+
+/// 10. C8-III-TRUNCATION under the grid's all-absolute-sum entry: the absolute-sum modal, rigid
+/// and directional rules over Y and Z.
+fn c8_absolute_sums() -> Fixture {
+    let d = Discrete::new(C8, 0, "C8-III-TRUNCATION");
+    let census = full_census(&d);
+    let model = discrete_model(&d, "project:spectrum-c8-absolute-sums", "stand-in: discrete C8-PIPE-X");
+    discrete_fixture("c8_absolute_sums", &d, "C8-III-TRUNCATION", census, vec![
+        MUTATION_NOTE.into(),
+        "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y); the reference's convention 2 states that such a frame maps component to component. Each combined magnitude is formed from them.".into(),
+        STAND_IN.into(),
+    ], model, &global_reaction, &|s| s.to_string(),
+        Some((ModalRule::AbsoluteSum, Some(RigidRule::AbsoluteSum), DirectionalRule::AbsoluteSum)), &[])
 }
 
 fn fixtures() -> Vec<Fixture> {
@@ -1281,6 +1409,9 @@ fn fixtures() -> Vec<Fixture> {
         c8_shared_constraint(),
         c2_separator_identities(),
         w2_arc_fixture("refused_arc_member_axes", true),
+        c3_grouping_100_40_40(),
+        c9_chain_ten_percent(),
+        c8_absolute_sums(),
     ]
 }
 
@@ -1435,10 +1566,10 @@ fn the_cancelling_cluster_combines_to_an_exact_zero() {
     assert!(c["combined"].as_f64().unwrap() > 0.0, "Z excites it");
 }
 
-/// Every combined magnitude of a document constructed from a discrete or W2 reference agrees with
-/// the reference's own combined value at REQ-008's verification tolerance (1e-9 relative, an
-/// expected zero exactly), in every frame the reference publishes. P1's and P2's member-axes rows
-/// of V-ARC-OBL have no reference value and are not compared here.
+/// In the documents built on a reference's base request, each combined magnitude for which the
+/// reference publishes a combined value (and, where it publishes them, each per-direction value)
+/// agrees with it at REQ-008's verification tolerance (1e-9 relative, an expected zero exactly).
+/// Member-axes rows other than C9's have no reference value and are not compared here.
 #[test]
 fn constructed_documents_agree_with_their_references() {
     let check = |d: &Value, lookup: &dyn Fn(&Value) -> Option<(f64, Vec<(String, f64)>)>| -> usize {
@@ -1529,7 +1660,7 @@ fn non_member_axes(d: &Value) -> usize {
 /// every contribution of a row together, which no combination sees.
 #[test]
 fn axis_aligned_member_axes_rows_are_the_permuted_global_rows() {
-    for name in ["w2_joint_rods", "c8_shared_constraint", "c2_separator_identities"] {
+    for name in ["w2_joint_rods", "c8_shared_constraint", "c2_separator_identities", "c3_grouping_100_40_40", "c8_absolute_sums"] {
         let d = document(name);
         let members = d["census"]["straight_members"]["rows"].as_array().unwrap();
         let combined = d["rows"]["combined"]["rows"].as_array().unwrap();
@@ -1606,6 +1737,157 @@ fn a_pair_inside_the_margin_is_not_refused() {
     let refusals = refusal_details(&f.document());
     assert!(refusals.iter().any(|(_, detail)| detail == "mode:1 and mode:2 share a cluster across a relative gap above the cluster tolerance"),
         "{refusals:?}");
+}
+
+/// The documents built on a grid entry of the reference's published `mutations`: (name, source
+/// text, case index, analysis, modal, rigid (`OFF` for the correction off), directional).
+const MUTATION_DOCUMENTS: [(&str, &str, usize, &str, &str, &str, &str); 3] = [
+    ("c3_grouping_100_40_40", C3, 0, "C3-BASE", "GROUPING", "ABSOLUTE_SUM", "100-40-40"),
+    ("c9_chain_ten_percent", C9, 1, "C9-CHAIN-Y", "TEN_PERCENT", "OFF", "SRSS"),
+    ("c8_absolute_sums", C8, 0, "C8-III-TRUNCATION", "ABSOLUTE_SUM", "ABSOLUTE_SUM", "ABSOLUTE_SUM"),
+];
+
+/// Each combined magnitude over the directions that the grid entry publishes agrees with it at
+/// 1e-9 relative (an expected zero exactly). The grid publishes no per-direction value and no
+/// member-axes value; the constructed zero rows of an anchored node have none either.
+#[test]
+fn mutation_documents_agree_with_their_grid_entries() {
+    for (name, text, case, analysis, modal, rigid, directional) in MUTATION_DOCUMENTS {
+        let d = Discrete::new(text, case, analysis);
+        let entry = d.analysis["mutations"].as_array().unwrap().iter()
+            .find(|m| m["modal_combination"] == modal && m["missing_mass"] == rigid && m["directional_combination"] == directional)
+            .unwrap_or_else(|| panic!("{name}: the grid entry"));
+        let published = entry["combined"].as_object().unwrap();
+        let doc = document(name);
+        let mut compared = 0;
+        for r in doc["rows"]["combined"]["rows"].as_array().unwrap() {
+            let s = |k: &str| r[k].as_str().unwrap().to_string();
+            let key = match r["quantity_kind"].as_str().unwrap() {
+                "node_displacement" => format!("{}.{}", s("node"), s("component")),
+                "element_end_action" if r["frame"] == "global_axes" => format!("{}.{}.{}", s("member"), s("end"), s("component")),
+                "element_end_action" => continue,
+                "constraint_reaction" => format!("{}.{}", r["holders"][0].as_str().unwrap(), reaction_key(ReactionComponent::parse(&s("component")).unwrap())),
+                "compliant_support_force" => format!("{}.{}", s("support"), reaction_key(ReactionComponent::parse(&s("component")).unwrap())),
+                other => panic!("{other}"),
+            };
+            let Some(e) = published.get(&key) else {
+                assert_eq!((name, s("node").as_str()), ("c9_chain_ten_percent", "A"), "{name}: {key} has no published value");
+                continue;
+            };
+            let (a, e) = (r["combined"].as_f64().unwrap(), expected(e));
+            assert!(if e == 0.0 { a == 0.0 } else { (a - e).abs() <= TOLERANCE * e.abs() }, "{name} {key}: {a:e} against {e:e}");
+            compared += 1;
+        }
+        assert_eq!(compared, published.len(), "{name}: every published magnitude is compared");
+    }
+}
+
+fn cluster_refs(v: &Value, key: &str) -> Vec<String> {
+    v[key].as_array().unwrap().iter().map(|c| c.as_str().unwrap().to_string()).collect()
+}
+
+/// The grouping method's groups are the reference's (`grouping_groups.periodic`, each mode its own
+/// cluster), one of them of two clusters; and with 100-40-40 over three directions every row with
+/// a nonzero magnitude names its governing direction.
+#[test]
+fn the_grouping_document_states_the_reference_groups_and_governing_directions() {
+    let doc = document("c3_grouping_100_40_40");
+    let d = Discrete::new(C3, 0, "C3-BASE");
+    let reference: Vec<Vec<String>> = d.analysis["grouping_groups"]["periodic"].as_array().unwrap().iter()
+        .map(|g| g.as_array().unwrap().iter().map(|c| format!("cluster:{}", d.cluster_of(c[0].as_u64().unwrap()))).collect()).collect();
+    let groups: Vec<Vec<String>> = doc["rule_statements"]["groups"]["rows"].as_array().unwrap().iter().map(|g| cluster_refs(g, "cluster_refs")).collect();
+    assert_eq!(groups, reference);
+    assert!(groups.iter().any(|g| g.len() > 1));
+    assert!(doc["rule_statements"]["coupled_pairs"].is_null() && doc["rule_statements"]["correlation"].is_null());
+    assert_eq!(doc["rows"]["directions"], json!(["X", "Y", "Z"]));
+    assert_eq!(doc["request"]["missing_mass"]["rigid_combination"], "ABSOLUTE_SUM");
+    let combined = doc["rows"]["combined"]["rows"].as_array().unwrap();
+    for r in combined {
+        let governing = &r["governing_direction"];
+        if r["combined"].as_f64().unwrap() > 0.0 {
+            assert!(["X", "Y", "Z"].iter().any(|g| governing == g), "{r}");
+        }
+    }
+    let named: BTreeSet<&str> = combined.iter().filter_map(|r| r["governing_direction"].as_str()).collect();
+    assert!(named.len() > 1, "more than one direction governs: {named:?}");
+}
+
+/// The ten percent method couples the chain's 21 with 22 and 22 with 23, while the reference's
+/// grouping method groups 21 with 22 and starts a new group at 23: coupled pairs are not groups.
+#[test]
+fn the_ten_percent_document_couples_a_chain_the_groups_split() {
+    let doc = document("c9_chain_ten_percent");
+    let d = Discrete::new(C9, 1, "C9-CHAIN-Y");
+    let pairs: Vec<(String, String)> = doc["rule_statements"]["coupled_pairs"]["rows"].as_array().unwrap().iter()
+        .map(|p| (p["first_cluster_ref"].as_str().unwrap().to_string(), p["second_cluster_ref"].as_str().unwrap().to_string())).collect();
+    let c = |mode: u64| format!("cluster:{}", d.cluster_of(mode));
+    assert!(pairs.contains(&(c(21), c(22))) && pairs.contains(&(c(22), c(23))), "{pairs:?}");
+    assert!(!pairs.contains(&(c(21), c(23))), "{pairs:?}");
+    let groups = &d.analysis["grouping_groups"]["periodic"];
+    assert!(groups.as_array().unwrap().contains(&json!([[21], [22]])) && groups.as_array().unwrap().contains(&json!([[23]])));
+    assert!(doc["rule_statements"]["groups"].is_null());
+    assert_eq!(doc["census"]["nodes"]["rows"].as_array().unwrap().iter().map(|r| r["node_id"].clone()).collect::<Vec<_>>(), [json!("A"), json!("B")]);
+}
+
+fn has_refusal(d: &Value, detail: &str) -> bool {
+    refusal_details(d).iter().any(|(code, x)| code == "SPECTRUM_DOCUMENT_INPUT_INVALID" && x.contains(detail))
+}
+
+/// A census frame that is not orthonormal and right-handed to 2^-40, a rod axis that is not a unit
+/// vector to 2^-40, an entity that occurs twice and a holder named twice are each refused.
+#[test]
+fn census_frames_and_entries_are_checked() {
+    let mut f = c9_y_two_frames();
+    f.census.straight_members[0].axes[0][0] += 2f64.powi(-30);
+    assert!(has_refusal(&f.document(), "straight member P1 member axes: |x.x - 1|"));
+    let mut f = w2_arc_fixture("w2_arc_oblique", false);
+    f.census.arcs[0].tangent_frame_j[2] = f.census.arcs[0].tangent_frame_j[2].map(|v| -v);
+    assert!(has_refusal(&f.document(), "arc BEND1 tangent frame at end j: |(x cross y - z)_"));
+    let mut f = w2_joint_rods();
+    f.census.tie_rods[1].axis = [0.0, 1.0 + 2f64.powi(-30), 0.0];
+    assert!(has_refusal(&f.document(), "tie rod R2 of connector J1: |a.a - 1|"));
+    let mut f = c8_shared_constraint();
+    let first = f.census.nodes[0].clone();
+    f.census.nodes.push(first.clone());
+    let b_uz = f.census.rigid_constraints.iter_mut().find(|c| c.node == "B" && c.component == ReactionComponent::Uz).unwrap();
+    b_uz.holders.push("SB".into());
+    let d = f.document();
+    assert!(has_refusal(&d, &format!("node {first} occurs more than once in the census nodes table")));
+    assert!(has_refusal(&d, "rigid constraint at B UZ names holder SB twice"));
+}
+
+/// A circular frequency that is not 2π times its frequency within 8u is refused; the committed
+/// documents' published pairs pass.
+#[test]
+fn frequency_and_circular_frequency_are_checked() {
+    let mut f = c7_cancelling_cluster();
+    f.modal.circular_frequency_rad_s[2] *= 1.0 + 1e-12;
+    assert!(has_refusal(&f.document(), "mode:3: its circular frequency"));
+    let mut f = w2_arc_fixture("w2_arc_oblique", false);
+    let next = f.modal.extraction.next_computed_circular_frequency_rad_s.unwrap();
+    f.modal.extraction.next_computed_circular_frequency_rad_s = Some(next * (1.0 + 1e-12));
+    assert!(has_refusal(&f.document(), "the next computed mode: its circular frequency"));
+}
+
+/// A spectrum solve's document binds its modal result, and a constructed document binds none.
+#[test]
+fn origin_and_modal_binding_are_checked() {
+    let f = c7_cancelling_cluster();
+    let bound = ModalResultBinding::Bound {
+        run_id: "run:1".into(), request_sha256: "0".repeat(64), model_sha256: None, materials_sha256: "0".repeat(64),
+        integrity_parameters_sha256: "0".repeat(64), state_case: None,
+    };
+    let not_applicable = ModalResultBinding::NotApplicable { reason: "none".into() };
+    let solve = Origin::SpectrumSolve;
+    for (origin, binding, detail) in [
+        (&f.origin, &bound, "a document constructed from a reference binds a modal result"),
+        (&solve, &not_applicable, "a document produced by a spectrum solve states its modal result binding as not applicable"),
+    ] {
+        let d = spectrum_result_document(&DocumentInputs { origin, model: &f.model, request: &f.request, modal_result: binding,
+            modal: &f.modal, census: &f.census, combination: &f.combination });
+        assert_eq!(d["status"], "refused");
+        assert!(has_refusal(&d, detail), "{detail}");
+    }
 }
 
 /// A census that names a node or a connector it does not hold is refused, naming the entry and
