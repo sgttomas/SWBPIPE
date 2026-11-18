@@ -1,9 +1,10 @@
-/** The report package saves keep only the evidence they read of the package request's
- * redaction control. The control returns a decision and a finding for every value it screens;
- * the session keeps its summary and blocked flag (the package summary line) and nothing else,
- * and neither save holds the control result while its native save is awaited. Unit transport
- * replay of committed producer bytes through mocked IPC; NOT a native UI qualification
- * witness. */
+/** What the report package saves keep of the package request's redaction control, which returns
+ * a decision and a finding for every value it screens. The local-private save keeps the control
+ * result whole in the session's package state: on that route the state is the one place a
+ * caller can read the finding for each value after the save (DEL-12-02 REQ-006, AC-004). The
+ * shareable save keeps nothing of it in the session (DEL-08-01 REQ-019) and does not hold it
+ * while its native save is awaited. Unit transport replay of committed producer bytes through
+ * mocked IPC; NOT a native UI qualification witness. */
 import { act, cleanup, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -11,16 +12,12 @@ import type { ControlledRouteExport } from "../redaction-controls/redactionExpor
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 // Each package control result the saves make, with its decisions array, its findings array and
-// its controlled payload, each observed through its own WeakRef; a test that compares the shown
-// line with the full result's asks for the result to be kept as well.
-const observed = vi.hoisted(() => ({
-  keep: false, refs: [] as WeakRef<object>[], records: [] as WeakRef<object>[], payloads: [] as WeakRef<object>[], kept: [] as unknown[]
-}));
+// its controlled payload, each observed through its own WeakRef.
+const observed = vi.hoisted(() => ({ refs: [] as WeakRef<object>[], records: [] as WeakRef<object>[], payloads: [] as WeakRef<object>[] }));
 function observe<T extends { payload: unknown; decisions: object[]; findings: object[] }>(controlled: T): T {
   observed.refs.push(new WeakRef(controlled));
   observed.records.push(new WeakRef(controlled.decisions), new WeakRef(controlled.findings));
   if (typeof controlled.payload === "object" && controlled.payload !== null) observed.payloads.push(new WeakRef(controlled.payload));
-  if (observed.keep) observed.kept.push(controlled);
   return controlled;
 }
 vi.mock("../report/reportRedactionProjector", async (importOriginal) => {
@@ -46,11 +43,9 @@ import { RenderedReportPanel } from "../report/RenderedReportPanel";
 import { useWorkspaceSession } from "./workspaceSession";
 
 afterEach(() => {
-  observed.keep = false;
   observed.refs = [];
   observed.records = [];
   observed.payloads = [];
-  observed.kept = [];
   cleanup();
   vi.restoreAllMocks();
   invokeMock.mockReset();
@@ -110,52 +105,30 @@ function packageSummaryLine(model: Parameters<typeof RenderedReportPanel>[0]["mo
   return line;
 }
 
-describe("the report package saves keep only what they read of the redaction control", () => {
-  it("keeps the local-private control's summary and blocked flag, with the same summary line, and none of its records", async () => {
-    observed.keep = true;
-    const { result: hook, releaseSave } = await solvedSession();
-    act(() => hook.current.results.setReportPackagePrivateIntent(true));
-    let saving!: Promise<void>;
-    act(() => { saving = hook.current.results.handleSaveReportPackage(); });
-    await waitFor(() => expect(saveCalls()).toHaveLength(1));
-    expect(observed.kept).toHaveLength(1);
-    const controlled = observed.kept[0] as ControlledRouteExport;
-    expect(controlled.decisions.length).toBeGreaterThan(0);
-    expect(controlled.findings.length).toBeGreaterThan(0);
-    const stored = hook.current.results.reportPackageRedaction;
-    expect(stored).not.toBeNull();
-    expect(stored).not.toHaveProperty("decisions");
-    expect(stored).not.toHaveProperty("findings");
-    expect(stored).not.toHaveProperty("payload");
-    expect(stored!.summary).toEqual(controlled.summary);
-    expect(stored!.blocked).toBe(controlled.blocked);
-    const model = hook.current.model.model!;
-    const line = packageSummaryLine(model, stored);
-    expect(line).toBe(packageSummaryLine(model, controlled));
-    expect(line).toContain(`decisions=${controlled.decisions.length}; findings=${controlled.findings.length}`);
-    await act(async () => { releaseSave(); await saving; });
-    expect(hook.current.results.reportPackageRoute).toMatchObject({ route: "tauri_report_package_save" });
-    expect(packageSummaryLine(model, hook.current.results.reportPackageRedaction)).toBe(line);
-  });
-
-  it("holds no local-private control result while the native save is awaited", async () => {
+describe("what the report package saves keep of the redaction control", () => {
+  it("keeps the local-private control result in the session's package state, each finding readable there after the save", async () => {
     const { result: hook, releaseSave } = await solvedSession();
     act(() => hook.current.results.setReportPackagePrivateIntent(true));
     let saving!: Promise<void>;
     act(() => { saving = hook.current.results.handleSaveReportPackage(); });
     await waitFor(() => expect(saveCalls()).toHaveLength(1));
     expect(observed.refs).toHaveLength(1);
-    expect(observed.records).toHaveLength(2);
-    expect(observed.payloads).toHaveLength(1);
-    await collectGarbage();
-    expect(observed.refs[0].deref()).toBeUndefined();
-    // Its decisions and its findings, each by its own array, not only by the result that held them.
-    expect(observed.records.map((ref) => ref.deref())).toEqual([undefined, undefined]);
-    // Nor its controlled payload: what is sent is the prepared canonical text.
-    expect(observed.payloads[0].deref()).toBeUndefined();
-    expect(hook.current.results.reportPackageRedaction?.blocked).toBe(false);
+    const controlled = observed.refs[0].deref() as ControlledRouteExport;
+    expect(controlled.decisions.length).toBeGreaterThan(0);
+    expect(controlled.findings.length).toBeGreaterThan(0);
+    // While the native save is awaited: the state is the control's own result.
+    expect(hook.current.results.reportPackageRedaction).toBe(controlled);
+    const model = hook.current.model.model!;
+    const line = packageSummaryLine(model, controlled);
+    expect(line).toContain(`decisions=${controlled.decisions.length}; findings=${controlled.findings.length}`);
     await act(async () => { releaseSave(); await saving; });
     expect(hook.current.results.reportPackageRoute).toMatchObject({ route: "tauri_report_package_save" });
+    // After the completed save: still that result, with every decision and finding it returned.
+    const kept = hook.current.results.reportPackageRedaction;
+    expect(kept).toBe(controlled);
+    expect(kept!.decisions).toHaveLength(controlled.summary.decision_count);
+    expect(kept!.findings).toHaveLength(controlled.summary.finding_count);
+    expect(packageSummaryLine(model, kept)).toBe(line);
   });
 
   it("holds no user-release control result while the native save is awaited", async () => {

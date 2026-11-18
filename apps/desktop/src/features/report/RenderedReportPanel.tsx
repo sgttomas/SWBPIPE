@@ -170,7 +170,7 @@ export function RenderedReportPanel({
   ruleCheckRun?: SessionRuleCheckRun | null;
   packagePrivateIntent?: boolean;
   packageBusy?: boolean;
-  /** The package control's summary and blocked flag (never its per-value records). */
+  /** The package control, of which the panel reads the summary and the blocked flag. */
   packageRedaction?: ControlledRouteEvidence | null;
   packageRoute?: ReportPackageSaveRoute | null;
   /** DEL-08-01 REQ-024: the panel's result is shown for its rendered report only (a solved

@@ -178,7 +178,7 @@ import { buildReportPackageRequest, reportPackageExactSubmission, userReleaseMod
 import type { UserReleaseDialogRequest } from "../report/UserReleaseDialog";
 import { invokeUserReleasedReportPackageSave, prepareShareableReportPackageSave, type UserReleaseConfirmation } from "../report/userReleasedReportPackageSave";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
-import { controlledRouteEvidence, type ControlledRouteEvidence } from "../report/controlledRouteEvidence";
+import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
 import { buildBundledReferenceContext, buildHistoricalRunContext, buildNativeHistoricalRunContext } from "../results/HistoricalRunContext";
 import { disposeRestoredRun, STORED_RESULT_RESTORE_REFUSED, type RestoredRun } from "../../services/nativeReopen";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
@@ -382,21 +382,22 @@ function localPrivateSaveFailureText(error: unknown): string {
 }
 
 /** The local-private package request's control and its save's preparation, in that order:
- * `keep` receives the evidence the session keeps of the control (its summary and blocked
- * flag); a blocked control is passed to `blocked`, at once, and ends here (null); otherwise
- * the request's exact submission (W-11) is taken and the save prepared. The control result,
- * with its decision and finding for every value it screened, lives only in this function's
- * frame, which has ended before the native save is awaited, so those records are not held
- * across it. */
+ * `keep` receives the control result for the session's package state; a blocked control is
+ * passed to `blocked`, at once, and ends here (null); otherwise the request's exact
+ * submission (W-11) is taken and the save prepared. The save handler itself never holds the
+ * control result: it is in this function's frame, which has ended before the native save is
+ * awaited, and in whatever `keep` keeps. The session keeps it whole (`resultsSessionState.ts`):
+ * on this route that state is the one place a caller can read the control's finding for each
+ * value after the save (DEL-12-02 REQ-006, AC-004), so its records are kept on purpose. */
 async function controlAndPrepareReportPackageSave(
   request: object,
   privateIntent: boolean,
   model: PreviewModel,
   inputManifest: unknown,
-  on: { keep: (evidence: ControlledRouteEvidence) => void; blocked: (diagnostic: string) => void }
+  on: { keep: (controlled: ControlledRouteExport) => void; blocked: (diagnostic: string) => void }
 ): Promise<{ prepared: PreparedReportPackageSave; exactSubmission: ReturnType<typeof reportPackageExactSubmission> } | null> {
   const controlled = controlReportPackageRequest(request, privateIntent);
-  on.keep(controlledRouteEvidence(controlled));
+  on.keep(controlled);
   if (controlled.blocked || controlled.payload === null) {
     on.blocked(`REPORT-PACKAGE-REDACTION-BLOCKED: ${controlled.findings.length} finding(s) prevent package assembly or persistence.`);
     return null;
@@ -4227,8 +4228,7 @@ export function useWorkspaceSession() {
         reportComposition: basis.reportComposition
       });
       if (!isCurrent()) return;
-      // The session keeps the control's summary and blocked flag; its per-value records are
-      // not held past the preparation (`controlAndPrepareReportPackageSave`).
+      // The session's package state keeps the control result (`controlAndPrepareReportPackageSave`).
       const screened = await controlAndPrepareReportPackageSave(request, basis.privateIntent, basis.model, basis.inputManifest.manifest, {
         keep: setReportPackageRedaction,
         blocked: (diagnostic) => setReportPackageRoute({ route: "redaction_blocked", diagnostic })
