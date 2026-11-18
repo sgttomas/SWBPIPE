@@ -6,10 +6,13 @@ exact pressure route (`3.0.0/exact_pressure_v3`): a constant-effort support, the
 seismic terms formed by subtraction and their SRSS and absolute-sum
 combinations, a lift-off support that seismic uplift lifts, and a span that a
 connector replaces. The release target's reference system needs all of them
-(exit criteria 1 and 18). Today the exact route refuses generated loads on such
-a document. These references were written before the engine change they will
-judge, so that the change is judged against them. No product test reads them
-yet.
+(exit criteria 1 and 18). The capability they check is this: a load and
+reference-state document whose cases carry generated seismic and wind loads
+solves on the exact route, with each generated load applied once at factor one
+beside the case's declared loads, and with the interactions below. These
+references were written before the engine change they will judge, so that the
+change is judged against them. They say nothing about how the product behaves
+today. No product test reads them yet.
 
 [`../exact_load_state_equivalent_static`](../exact_load_state_equivalent_static/README.md)
 covers the generated loads themselves on such a document (with a temperature
@@ -24,9 +27,9 @@ invented and deliberately non-standard; no value or example from a catalogue,
 code or vendor source is used. There is no internal pressure in this package:
 no pressure region and no pressure load. The standard claim fence applies.
 
-Status: candidate references, derived and cross-checked by their author TASK.
-They have not yet been independently refuted. The comparison tolerance is not
-set here.
+Status: candidate references, derived and cross-checked by their author TASK,
+with one independent numerical review whose corrections are applied here. The
+comparison rule is under "Product binding".
 
 ## What is decided, and what this package rests on
 
@@ -47,6 +50,13 @@ set here.
   generated seismic load.
 - **A constant-effort support's force acts in every case**, so in a subtraction
   of two cases of one model it cancels.
+- **A generated identity that collides with a stored primitive is refused.**
+  SWBPIPE's Agent 0 decided, in November 2026 and among its terms for
+  generation on a load and reference-state document, that a generated identity
+  that collides with an unlisted stored primitive is refused before assembly,
+  so that the ordinary and certified paths cannot attribute one identity to
+  two sources. It is not yet scope text; it is to become text with the engine
+  unit. The refusal JR-REFUSE-GENERATED-IDENTITY-COLLISION rests on it.
 
 Text relied on: DEL-05-01 (static-equivalent generation, mass basis,
 self-weight plan, REQ-008, REQ-015, AC-002, AC-007), DEL-04-07 (REQ-011,
@@ -63,7 +73,7 @@ positive reaction", RS-CE1, the replaced span RS-P180, EQ-4 and EQ-6).
 | File | Role |
 |---|---|
 | `generators/generated_interactions_reference.py` | the generator: exact rational arithmetic with π symbolic, two solution methods, closed forms, `references.json` and `SHA256SUMS` |
-| `references.json` | inputs, derived sections and masses, the three models, the weight primitives, 11 cases, 5 terms, 5 combinations (1489 expected rows), one directional row with its SRSS, absolute sum and signed sum, the lift-off threshold, 3 refusals, 4 wrong-implementation controls and 108 cross-check results |
+| `references.json` | inputs, derived sections and masses, the three models, the weight primitives, 11 cases, 5 terms, 5 combinations (1489 expected rows), one directional row with its SRSS, absolute sum and signed sum, the lift-off threshold, 3 refusals, 4 wrong-implementation controls, the comparison rule with each item's floors and 115 cross-check results |
 | `SHA256SUMS` | hashes of every file above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 
 ```
@@ -111,19 +121,25 @@ not the product's identity strings, which this package does not derive.
 - **Member end** (`member_end/<pipe>/<i|j>/Fx…Mz`): the global force and moment
   that the end node exerts on the member, with the moment about that end node.
   End i is the member's first node.
-- **Axial rows.** The member-end force component along the member's own axis
-  is the effective (elastic) member force N_el, as in
+- **Axial rows.** An axial row is the global component, along the member's
+  own axis, of the node-on-member end action (the member-end convention above)
+  associated with the elastic (effective) axial force N_el, as in
   `../exact_load_state_equivalent_static` ("the member-end rows give the
-  element force N_el"; there the wall force is N_w = N_el + p·A_i). No case
-  in this package carries pressure, so N_el and the pipe-wall force are equal
-  here. Each such row carries `axial_quantity` saying so.
+  element force N_el"; there the wall force is N_w = N_el + p·A_i). It is a
+  global component, not a tension-positive axial force: on CEF `pipe:d-e`,
+  along −Z, the sustained case's Fz is −1675.38 N at end i and +2515.71 N at
+  end j. No case in this package carries pressure, so N_el and the pipe-wall
+  force are equal here. Each signed axial member-end row carries
+  `axial_quantity` saying so; on CEF-EQ-SRSS and CEF-EQ-ABS the same rows are
+  labelled as magnitudes aggregated from those elastic axial components.
 - **Values**: `exact` is a sum of rational multiples of π^k. Areas and second
   moments of an annulus carry π, so distributed loads carry π, a component's W
   and a constant-effort force are rational, and motions carry 1/π. An SRSS
   value's `exact` is `sqrt(…)` of such a sum. `decimal` gives 40 significant
   digits. `value` is the correctly rounded binary64, decided by rational
-  bounds of π 10⁻⁹⁰ apart (and, for a square root, by rational bounds of the
-  root 2⁻⁴²⁰ apart).
+  bounds of π less than 10⁻⁹⁰ apart (and, for a square root, by lower and
+  upper bounds of the root on a grid of spacing 2⁻⁴²⁰); the two bounds' nearest
+  binary64 values agree in every row.
 - A positive g-factor loads along +axis, as in the two packages named above.
 
 ## Inputs
@@ -168,7 +184,9 @@ bore).
 | D + 2t_ins | 0.3187 m | 0.2391 m |
 
 Every constituent is present, and c_m and c_a are nonzero, so a mass taken on
-another wall or bore, or without one constituent, shows in every seismic row.
+another wall or bore, or without one constituent, shows in the mass-dependent
+seismic rows. (The valve's force depends on its fixed W, not on mass, and LO's
+axial rows are exactly zero.)
 The cases carry no pressure; the pressure bore enters only as the contents'
 area, as in `../seismic_component_weight`.
 
@@ -185,6 +203,10 @@ A(0,0,0) – B(2.9,0,0) – C(3.55,0,0) – D(3.55,2.3,0) – E(3.55,2.3,−1.7)
   `mechanics_geometry_only`, its node C. Its weight is applied by the
   self-weight plan and its scale 5/2 multiplies EA, GJ and EI of `pipe:b-c`
   (DEL-03-05).
+- The seismic gravity equals the weight plan's here, so this model exercises
+  the valve's generated force k·W at C but cannot tell a fixed W from one
+  wrongly rescaled by the ratio of the two gravities.
+  `../seismic_component_weight` is the package that separates the two.
 
 **Cases.** Each case of the document selects the same material point for every
 member, carries no thermal strain, and has every support participating.
@@ -218,10 +240,13 @@ with the moment of each about the origin, the component's r × F included.
 | CEF-dEQZ | (0, 0, 2060.22) | (1246.60, −5718.43, 0) |
 
 **Combinations.** CEF-EQ-SRSS and CEF-EQ-ABS combine the three terms at factor
-1, on every signed row: √(Σ dEQ²) and Σ|dEQ|. Each row carries the exact value
-and `binary64_from_rounded_operands`, the value an exact-then-rounded
-evaluation gives from the operands' expected binary64 values (DEL-05-02's
-definitions). Every operand's κ is exactly 0 (1 − 1) and every reached case
+1, on every signed row: √(Σ dEQ²) and Σ|dEQ|, as exact values. Each row also
+carries `binary64_from_rounded_operands`: DEL-05-02's exact-then-rounded
+arithmetic computed on the ideal rounded analytic operands, the nearest
+binary64 of each exact term row. Those ideal operands can differ in the last
+place from term rows a product forms by subtracting its own rounded case rows
+(for CEF-dEQX they differ on 41 rows), so this field is not the value a
+product must publish; see "Product binding". Every operand's κ is exactly 0 (1 − 1) and every reached case
 selects the same material point, so both are expected to be published, not
 withheld. CEF-EQ-SRSS-OF-CASES, the SRSS of the three cases themselves, has
 operands with κ = 1 and is expected to be withheld whole by REQ-011's
@@ -247,9 +272,17 @@ terms. As products of the algebra: CEF-EQ-SIGNED-SUM, a mechanics combination
 of the three terms, has κ = 0 and is expected to be withheld whole by the
 fixed-load count gate in this model with a constant-effort support.
 CEF-SUS-PLUS-EQ, the mechanics combination CEF-SUS + dEQX + dEQY + dEQZ, has
-κ = 1, publishes, and carries the signed sum over SUS. Every row of it equals a
-direct solve of the weight, the device and all three seismic loads together
-(cross-checked).
+κ = 1, publishes, and carries the signed sum over SUS. These are identities of
+the exact mechanics: every exact row of CEF-SUS-PLUS-EQ equals a direct solve of
+the weight, the device and all three seismic loads together, and on every row
+CEF-SUS-PLUS-EQ − CEF-SUS equals dEQX + dEQY + dEQZ, which equals a direct
+solve of the three seismic loads alone (each cross-checked exactly). They are
+not identities of binary64 arithmetic. The nearest binary64 of the direct
+solve, an exact-then-rounded sum of rounded operands, and a rounded chain from
+cases through terms to the combination can differ in the last place. At
+`reaction/support:a/My` they give 338.9035124320791, 338.9035124320794 and
+338.9035124320785 N·m, and on the directional row the analytic signed sum
+rounds to …5423 m where rounded SUS-PLUS-EQ minus rounded SUS gives …5424 m.
 
 Key values at C and at anchor A (motions in m and rad; forces in N, moments in
 N·m):
@@ -286,8 +319,10 @@ Euler–Bernoulli), anchor `support:a` at A.
 
 **The state test** (DEL-04-04 "State-switched test"): contact holds while the
 reaction is positive; a lifted support re-engages when the node would move
-below its ground (uz < 0). For each case both states are solved and published
-in `state_test`; exactly one qualifies, with a strict margin.
+below its ground (uz < 0). The reference stores both candidate states of each
+case in `state_test` (and the other state's rows in `other_state_rows`);
+exactly one qualifies, with a strict margin. The engine expectation concerns
+the qualifying state only: its status and its `rows`.
 
 | Case | k_z | Seated reaction at B (N) | Lifted uz at B (m) | Expected status |
 |---|---|---|---|---|
@@ -349,10 +384,16 @@ A(0,0,0) – M(1.45,0,0) – B(3.1,0,0), then the span B–C(3.9,0,0) that
 - `pipe:b-c` (S2) is replaced by the connector. It carries no load or member
   result, and its element state carries no eigenstrain (the reference system's
   replaced span, spec §5.1).
-- Anchors at A, B, C and D. **Both connector faces are anchored**, so no row
-  depends on the connector's stiffness: the connector's ends do not move, and
-  with no reference load or reference extension it carries no force. Each run
-  is a beam fixed at both ends, with one interior node.
+- Anchors at A, B, C and D. **Both connector faces are anchored**, a valid
+  physical boundary condition that sets the connector's relative attachment
+  motion to zero. Each run is a beam fixed at both ends, with one interior
+  node. (Movable faces would change the live spans' reactions and
+  deflections; this fixture does not have them.)
+- **The connector's inputs.** `component:joint-bc` is a consumed, stress-free,
+  unpressurized connector with zero reference wrench, and either no rods or
+  rods with zero reference extension. The binding supplies valid connector
+  data. With both faces anchored, no row depends on which admissible connector
+  stiffness is supplied, and the connector carries no force.
 
 | Case | Declared ledger | Generated |
 |---|---|---|
@@ -367,6 +408,11 @@ zero reference load and extension), no constant-effort support and no stored
 primitive selected. Each solves, and its rows are frozen. The reactions at B
 and C come only from the runs' own loads (closed form: −wL/2 at each end of
 each run, for the whole-span cases).
+
+**What the checks reach for JR-WIND-PART.** The fixed-fixed closed form checks
+run A–B, which carries only whole-span marks. On run C–D the part-span check
+reaches the load (its interval, intensity and resultant); the response there is
+checked by the two methods and by equilibrium, not by a closed form.
 
 **The live spans and the replaced span in one model.** Every live span carries
 a nonzero generated seismic load on each axis (cross-checked); `pipe:b-c`
@@ -393,18 +439,29 @@ JR-CTRL-UNLISTED-PRIMITIVE-APPLIED gives what applying it would add (up to
 - JR-REFUSE-WIND-ON-REPLACED-SPAN: JR-WIND with a whole-span mark also on
   `pipe:b-c`. JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN: the same with a
   part-span mark on it. Expected for each: the case is refused by name, naming
-  the replaced span; no wind load is generated; no result is published for the
-  case.
+  the replaced span; no wind load is generated; the observable outcome is no
+  applied partial set of the case's loads and no case result. Grounds:
+  DEL-03-06 AC-004 ("A load on that span which a case applies is refused by
+  name") and the reference system's specification §8.1 ("wind on a replaced
+  span is refused"), whatever the mark's extent. When, inside preparation,
+  the case's other wind loads are formed is outside that requirement.
 - JR-REFUSE-GENERATED-IDENTITY-COLLISION: JR-EQ-UNLISTED-PRIMITIVE with the
   unlisted stored primitive given the identity of one of the case's generated
-  loads, whatever identity the generator gives it. Expected: the case is
-  refused by name before assembly, naming the identity; no load is applied and
-  no result is published. A collision is not resolved by dropping either load
-  or by applying one in place of the other.
+  loads, whatever identity the generator gives it. It rests on the decision of
+  SWBPIPE's Agent 0 quoted under "What is decided" (November 2026; not yet
+  scope text; to become text with the engine unit). The identities that
+  collide: a stored primitive of the same case, listed in its ledger or not,
+  whose identity equals a generated load's identity. The observable outcome:
+  the case is refused before assembly; no load is applied; no case result is
+  published. A collision is not resolved by dropping either load or by
+  applying one in place of the other. The unlisted primitive with an identity
+  of its own (JR-EQ-UNLISTED-PRIMITIVE) is excluded and solves, as above.
 
 **No code is given for any of the three.** No scope or frozen reference
 package names a code for a wind mark on a connector-replaced span or for this
-collision. The frozen packages `t4_i12` and `t4_u5a` name
+collision, and the decision names none. The generic replaced-span load code in
+the reference system's §5.1 does not settle the generated mark's code. The
+frozen packages `t4_i12` and `t4_u5a` name
 `JOINT_REPLACED_SPAN_LOAD_UNOWNED` for a stored load or an eigenstrain the
 replaced span owns. This package does not assume that code applies to a
 generated wind mark.
@@ -438,7 +495,7 @@ would make.
 | CEF-CTRL-DEVICE-REMOVED-FROM-EVERY-CASE | the device removed from every case; the terms and combinations do not move, the single-case rows do | 78 rows of each case move; no term or combination row |
 | CEF-EQ-SIGNED-SUM | a mechanics combination of the three terms in a model with a fixed load | withheld whole (κ = 0) |
 | JR-CTRL-UNLISTED-PRIMITIVE-APPLIED | the unlisted stored primitive applied | up to 0.384 mm (M uz) |
-| JR-CTRL-REPLACED-SPAN-LOADED | seismic generated on the replaced span as on a pipe; its end actions go into the anchors at B and C | B (−81.07, −53.39, −65.25) N, (0, 8.70, −7.12) N·m; C the same forces, opposite moments |
+| JR-CTRL-REPLACED-SPAN-LOADED | seismic generated on the replaced span as on a pipe; its end actions go into the anchors at B and C | B (−81.07, −53.39, −65.25) N, (0, 8.70, −7.12) N·m; C the same forces, opposite moments (checked against the span solved alone by the force method) |
 | LO `linear_superposition_control` | the lifted term formed on the seated structure | up to 3.94 mm (C uz) |
 | CEF-EQ-SRSS-OF-CASES | an SRSS of the cases instead of the terms | withheld whole (κ undefined) |
 
@@ -487,26 +544,43 @@ checked separately: by the closed-form generated resultant of each CEF term,
 by the closed-form beams of LO and JR, and by the mass computed from radii and
 from diameters.
 
-## Cross-checks (108, all agree)
+## Cross-checks (115, all agree)
 
 | Check | Shows |
 |---|---|
-| method 1 = method 2 on every motion, member end action and support action of every solved state (every case, both LO states of every case, the threshold, each seismic-only solve) | the stiffness solution is the equilibrium-and-compatibility solution |
-| global equilibrium (force, moment about the origin), free-node balance and member equilibrium of every solved state | the actions balance the loads |
+| method 1 = method 2 on every motion, member end action and support action of each solve that has an explicit comparison: the four CEF cases, each CEF seismic-only solve, the device-only response, the combined solve behind CEF-SUS-PLUS-EQ, the three seismic loads alone, the four twin cases; both LO states of each case, the LO unit seismic load, both states at the threshold, each LO seated seismic-only solve; JR-EQ, JR-WIND, JR-WIND-PART and JR-EQ with the unlisted primitive applied | the stiffness solution is the equilibrium-and-compatibility solution for those solves |
+| global equilibrium (force, moment about the origin) and free-node balance of every CEF case and twin case, every LO state solved, and the three JR cases; member equilibrium of the CEF, LO and JR cases | the actions balance the loads |
 | each CEF term = a direct solve of its generated load alone, on every row | the term is the seismic-only response; the constant-effort force cancels |
 | each CEF term's constant-effort row is zero, and the force is 2730 N in each case | the force acts in every case |
 | each CEF generated resultant = k·g·Σ(μL) + k·W along the axis, moments about the origin (closed form); the anchors' reaction resultant = minus it | EQ-6 |
+| CEF-EQ-SRSS: every row equals the SRSS formed from the three seismic-only direct solves (exact radicand and record); CEF-EQ-ABS likewise | the combination rows, reached from solves other than the case differences |
 | SRSS ≤ absolute sum on every row, exactly; both zero exactly where the three terms are | EQ-4 |
+| dEQX + dEQY + dEQZ = a direct solve of the three seismic loads alone, on every row, the directional row's signed sum included; CEF-SUS-PLUS-EQ = a direct solve of everything together | the signed-sum rows, as exact mechanics |
+| CEF directional row: SRSS, absolute sum and signed sum differ pairwise (exact) | the three combinations are distinguishable |
+| CEF twin without the device: each case's rows with the device less the twin's equal the device's own response, row by row; every term row equal with and without it | the device acted, and the terms cannot show it |
 | LO: exactly one state qualifies strictly in each case; SUS and EQZ-SEATED seated, EQZ-LIFTED lifted; k* strictly between the two g-factors; at k* the seated reaction and the lifted separation both zero | the status and the threshold |
+| LO: the threshold from the solves equals the closed-form threshold | the boundary, two ways |
 | LO: dEQZ-SEATED = the seated seismic-only response; dEQZ-LIFTED differs from it; the constant-effort force present in every case and cancelled in each term | the nonlinear term |
 | LO closed forms (cantilever; propped cantilever with overhang) at B and C | a third way |
-| JR closed forms (fixed-fixed beams) at M, N and the anchors; no generated load on `pipe:b-c` | a third way; the replaced span is skipped |
-| CEF twin without the device: each case's rows with the device less the twin's equal the device's own response, row by row; every term row equal with and without it | the device acted, and the terms cannot show it |
-| CEF directional row: SRSS, absolute sum and signed sum differ pairwise (exact); CEF-SUS-PLUS-EQ = a direct solve of everything together | the three combinations are distinguishable; the published signed sum |
-| LO: the threshold from the solves equals the closed-form threshold | the boundary, two ways |
-| JR: every live span carries nonzero seismic on each axis; no generated load names the replaced span; the part-span resultant equals p·C·(D + 2t_ins)·(f1 − f0)·L (closed form); JR-WIND-PART differs from JR-WIND; the unlisted primitive, were it applied, would move rows | the live and replaced spans, the part-span mark, a discriminating exclusion |
+| JR closed forms (fixed-fixed beams) at M, N and the anchors for JR-EQ and JR-WIND, and on run A–B for JR-WIND-PART | a third way |
+| JR: every live span carries nonzero seismic on each axis; no generated load names the replaced span; the part-span resultant equals p·C·(D + 2t_ins)·(f1 − f0)·L (closed form); JR-WIND-PART differs from JR-WIND; the unlisted primitive, were it applied, would move rows | the live and replaced spans, the part-span load, a discriminating exclusion |
+| JR-CTRL-REPLACED-SPAN-LOADED = the anchors' actions of the span solved alone as a fixed-fixed beam by the force method | the control, a second way |
 | μ from radii = μ from diameters; section validity | the mass basis, input validity |
-| every input replaced by its nearest binary64 value (32 of 46 change): every cross-check still agrees, and the sign of every row and every lift-off status are unchanged | discrete outcomes are not artefacts of exact inputs |
+| every input replaced by its nearest binary64 value (32 of 46 change): every cross-check still agrees, and 2191 signs and states are unchanged (listed below) | discrete outcomes are not artefacts of exact inputs |
+
+**What the rounded-input comparison covers.** The sign of every row of the ten
+cases that carry rows (JR-EQ-UNLISTED-PRIMITIVE has none of its own), of the
+five terms and the two LO seated-structure controls, of CEF-EQ-SRSS,
+CEF-EQ-ABS and CEF-SUS-PLUS-EQ, of the directional row, and of the CEF and JR
+control and twin rows; for the LO state that does not qualify, its B motions
+and seated reaction; the three lift-off statuses; and both sides of the
+threshold. It does not compare the README's rounded key tables, or the decimal
+and binary64 fields themselves.
+
+**What no check here reaches independently.** The LO term rows are formed by
+the generator as differences of two independently checked states. The
+`binary64_from_rounded_operands` fields share the generator's rounding helpers.
+The README's key tables are rounded from `references.json` by hand.
 
 ## Open readings
 
@@ -530,15 +604,19 @@ from diameters.
    body away from A, as in `../seismic_component_weight`. W acts there with
    r × F about it, in the weight primitives and in the generated load alike.
 4. **JR's connector.** Anchoring both faces keeps the connector's stiffness out
-   of every row. It assumes a connector with zero reference load and zero
-   reference extension, whose faces may be anchored. If the product refuses
-   anchors at a connector's faces, JR-EQ and JR-WIND cannot be bound as they
-   stand, and that is a finding for this package's owner, not a reason to
-   change a value.
+   of every row, with the connector's inputs as stated under the model. If the
+   product refuses anchors at a connector's faces, the JR cases cannot be bound
+   as they stand, and that is a finding for this package's owner, not a reason
+   to change a value.
 5. **The lift-off sense.** "Contact on a positive reaction" is RS-LO1's. A
    support that bears the other way negates the threshold's meaning.
 6. **The seismic sign.** +axis for a positive g-factor. The opposite convention
-   negates every generated row.
+   negates every generated row, leaves the CEF SRSS and absolute sum unchanged
+   and keeps LO-EQZ-LIFTED seated.
+7. **A fixed W against a rescaled one.** The CEF seismic gravity equals the
+   weight plan's, so this package cannot tell the valve's fixed W from one
+   wrongly rescaled by the ratio of the case's gravity to the weight plan's.
+   `../seismic_component_weight` separates the two; no case is added here.
 
 Not covered here: pressure (so the effective and wall axial forces coincide
 in every row); Timoshenko members; a hydrostatic test case; gap and friction
@@ -561,9 +639,36 @@ supports.
 
 ## Product binding
 
-The test that compares the product with these references has not been written,
-and its tolerance belongs to the integrator. A status, a refusal, a withheld
-combination or a missing row is compared exactly.
+The test that compares the product with these references has not been written.
+What it must hold to:
+
+- **Theory.** The binding's documents author `euler_bernoulli` explicitly for
+  every member of all three models. A Timoshenko selection changes 78 rows of
+  each signed CEF case, JR-WIND-PART's N uz (2.76385 to 3.24218 μm) and the LO
+  threshold (0.337977 to 0.339322), per the independent review.
+- **The connector.** JR's documents supply valid data for a connector with the
+  inputs stated under the model.
+- **The comparison rule** for a mechanics row, in SI:
+  abs(observed − expected) ≤ max(1e-9 × abs(expected), floor). The relative
+  tolerance 1e-9 is DEL-05-01 AC-001's analytic tolerance. The floor follows
+  the sibling packages `../w16_exact_equivalent_static` and
+  `../w16_timoshenko_partial_wind` (DEC-024/DEC-026): 1e-9 times the largest
+  magnitude of that row's family (force, moment, translation, rotation) in the
+  same case, term or combination. Those packages apply it to exact-zero rows
+  only; here it applies to every row, so that a nearly cancelled nonzero row is
+  judged on the same scale. Where a family is entirely zero in an item, no
+  sibling states a floor, and the independent reviewer's floors are used:
+  1e-9 N or N·m, 1e-12 m or rad. They follow the scope's relative tolerance
+  and leave orders of magnitude between binary64 representation error and the
+  discriminating responses. A dimensionless value (the threshold g-factor) has
+  floor 1e-12. Each item's `comparison_floor` gives its floors. A support
+  status, a gate outcome, a withheld combination, a refusal and a row's
+  presence or absence compare exactly.
+- **What is compared with what.** The product's mechanics rows, those of
+  combinations included, are compared with the analytic rows under that rule.
+  The combination arithmetic is checked separately, as DEL-05-02 states it: in
+  binary64 on the operands the product actually published, not on this
+  package's ideal rounded operands.
 
 **Re-freeze rules.** No value changes to match a product output. A
 disagreement goes back to this reference's owner and an independent refuter. A

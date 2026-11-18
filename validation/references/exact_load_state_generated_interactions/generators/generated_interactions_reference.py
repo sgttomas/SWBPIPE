@@ -982,11 +982,13 @@ def build(inp):
               f"(closed form)", cf_F == Fg and cf_M == Mg)
         check(f"CEF d{name}: the anchors' reaction resultant equals minus the generated resultant",
               all((x + y).zero() for x, y in zip(Rf + Rm, Fg + Mg)))
-        cef_terms[f"d{name}"] = {"rows": term, "Fg": Fg, "Mg": Mg, "Rf": Rf, "Rm": Rm, "kvec": kvec}
+        cef_terms[f"d{name}"] = {"rows": term, "Fg": Fg, "Mg": Mg, "Rf": Rf, "Rm": Rm, "kvec": kvec,
+                                  "only": only_rows}
         cef_seis[name] = (S, sgen)
     # control: the constant-effort force omitted from the seismic cases only
     ctrl = {}
     ce_only = solve_both(cef, inp, secs, CE, anchors, cef["chains"])
+    check("CEF device-only response: method 1 equals method 2", methods_agree(cef, *ce_only, anchors))
     ce_rows = rows_of(cef, ce_only[0], ce_rows=False)
     out["cef"] = {"cases": cef_cases, "terms": cef_terms, "weight_prims": wprims, "ce_response": ce_rows}
     # SRSS and absolute sum on every signed row of the three terms
@@ -1014,6 +1016,21 @@ def build(inp):
         s2, ab = s["_s2"], s["_abs"]
         ok = ok and (ab * ab - s2).sign() >= 0 and ab.sign() >= 0
     check("CEF: SRSS <= absolute sum on every signed row (exact)", ok)
+    only = [dict((r[0], r[2]) for r in cef_terms[t]["only"]) for t in ("dEQX", "dEQY", "dEQZ")]
+    ok_s, ok_a = True, True
+    for i, s_ in enumerate(srss):
+        vals = [o.get(s_["id"], Z) for o in only]  # the device row is absent from a seismic-only solve: zero
+        sq = Z
+        for v in vals:
+            sq = sq + v * v
+        ok_s = ok_s and sq == s_["_s2"] and sqrt_record(sq) == s_["expected"]
+        ab = Z
+        for v in vals:
+            ab = ab + absP(v)
+        ok_a = ok_a and record(ab) == absum[i]["expected"]
+    check("CEF-EQ-SRSS: every row equals the SRSS formed from the three seismic-only direct solves (not the case "
+          "differences), exact radicand and published record", ok_s)
+    check("CEF-EQ-ABS: every row equals the absolute sum formed from the three seismic-only direct solves", ok_a)
     check("CEF: SRSS and absolute sum are zero exactly where all three terms are zero",
           all((s["_s2"].zero()) == (s["_abs"].zero()) for s in srss))
     out["cef"]["srss"], out["cef"]["abs"] = srss, absum
@@ -1077,6 +1094,17 @@ def build(inp):
     s_all = solve_both(cef, inp, secs, merge_loads(W, CE, S_all), anchors, cef["chains"])
     check("CEF-SUS-PLUS-EQ: SUS + dEQX + dEQY + dEQZ equals a direct solve of weight, device and all three "
           "seismic loads, on every row", [r[2] for r in plus] == [r[2] for r in rows_of(cef, s_all[0])])
+    check("CEF-SUS-PLUS-EQ direct solve: method 1 equals method 2", methods_agree(cef, *s_all, anchors))
+    s_sig = solve_both(cef, inp, secs, S_all, anchors, cef["chains"])
+    check("CEF signed sum: a direct solve of the three seismic loads alone, method 1 equals method 2",
+          methods_agree(cef, *s_sig, anchors))
+    sig_rows = rows_of(cef, s_sig[0], ce_rows=False)
+    sum_terms = [r[2] for r in strip_ce(cef_terms["dEQX"]["rows"])]
+    for t in ("dEQY", "dEQZ"):
+        sum_terms = [a + b[2] for a, b in zip(sum_terms, strip_ce(cef_terms[t]["rows"]))]
+    check("CEF signed sum: dEQX + dEQY + dEQZ equals the direct solve of the three seismic loads alone, every row "
+          "(the directional row's signed sum included)", sum_terms == [r[2] for r in sig_rows]
+          and dict((r[0], r[2]) for r in sig_rows)[out["cef"]["designated"]["row"]] == out["cef"]["designated"]["signed"])
     out["cef"]["sus_plus_eq"] = plus
 
     # ------------------------------------------------------------- LO
@@ -1262,6 +1290,12 @@ def build(inp):
     for sid, n, off in (("support:b", "node:b", 0), ("support:c", "node:c", 6)):
         for c in range(6):
             ctrl_jr.append((f"reaction/{sid}/{ACTS[c]}", "force" if c < 3 else "moment", -feq[off + c]))
+    span = {"nodes": {"node:b": jr["nodes"]["node:b"], "node:c": jr["nodes"]["node:c"]},
+            "members": [{"id": "pipe:b-c", "i": "node:b", "j": "node:c", "section": "S2", "scale": F(1)}]}
+    fm = Chain(span, inp, secs, {"nodes": ["node:b", "node:c"], "redundants": [("node:c", k) for k in range(6)]}
+               ).solve({"pipe:b-c": [(q_bc, F(0), F(1))]}, {})
+    check("JR-CTRL-REPLACED-SPAN-LOADED: the rows equal the anchors' actions of the span solved alone as a fixed-fixed "
+          "beam by the force method", [r[2] for r in ctrl_jr] == fm["support"]["node:b"] + fm["support"]["node:c"])
     out["jr"] = {"cases": jr_cases, "controls": {"REPLACED-SPAN-LOADED": ctrl_jr, "UNLISTED-PRIMITIVE-APPLIED": dec_rows},
                  "q_bc": q_bc, "L_bc": Lbc}
 
@@ -1275,6 +1309,21 @@ def build(inp):
         signs[f"LO/{c}"] = [r[2].sign() for r in v["rows"]] + [v["state"]]
     for c, v in jr_cases.items():
         signs[f"JR/{c}"] = [r[2].sign() for r in v["rows"]]
+    for c, v in lo_cases.items():
+        other = "lifted" if v["state"] == "seated" else "seated"
+        signs[f"LO/{c}/other state"] = [x.sign() for x in v["states"][other]["s1"]["motions"]["node:b"]] + [
+            v["states"][other]["R"].sign()]
+    for c, v in lo_terms.items():
+        signs[f"LO/{c}"] = [r[2].sign() for r in v["rows"]] + [r[2].sign() for r in v["linear"]]
+    signs["CEF/SRSS"] = [r["_s2"].sign() for r in srss]
+    signs["CEF/ABS"] = [r["_abs"].sign() for r in srss]
+    signs["CEF/SUS-PLUS-EQ"] = [r[2].sign() for r in plus]
+    signs["CEF/directional"] = [v.sign() for v in out["cef"]["designated"]["terms"]] + [
+        out["cef"]["designated"]["signed"].sign()]
+    signs["CEF/controls"] = [r[2].sign() for r in ctrl["CE-OMITTED-FROM-SEISMIC"]] + [
+        r[2].sign() for rows in twin_cases.values() for r in rows]
+    signs["JR/controls"] = [r[2].sign() for r in ctrl_jr] + [r[2].sign() for r in dec_rows]
+    signs["LO/threshold"] = [(kstar - inp["LO_k_seated"]).sign(), (P.of(inp["LO_k_lifted"]) - kstar).sign()]
     out["signs"] = signs
     return out, checks
 
@@ -1323,6 +1372,10 @@ def model_doc(m):
          "anchors": m["anchors"]}
     if m["replaced"]:
         d["replaced_spans"] = m["replaced"]
+        d["connector_inputs"] = ("component:joint-bc is a consumed, stress-free, unpressurized connector with zero "
+                                 "reference wrench and either no rods or rods with zero reference extension; the "
+                                 "binding supplies valid connector data. Both faces are anchored, so no row depends on "
+                                 "which admissible connector stiffness is supplied")
     if m["constant_effort"]:
         d["constant_effort_supports"] = {s: {"node": n, "dof": DOFS[k], "constant_load_N": str(f),
                                              "direction": f"+{COMP[k].upper()}"}
@@ -1338,6 +1391,37 @@ def model_doc(m):
     return d
 
 
+ABS_FLOOR = {"force": 1e-9, "moment": 1e-9, "translation": 1e-12, "rotation": 1e-12}
+
+
+def comparison_floor(rows):
+    """Per family: 1e-9 times the largest magnitude in the item, or the absolute floor where the family is zero."""
+    out = {}
+    for fam in ABS_FLOOR:
+        vals = [abs(r["expected"]["value"]) for r in rows if r["family"] == fam]
+        if vals:
+            scale = max(vals)
+            out[fam] = 1e-9 * scale if scale > 0 else ABS_FLOOR[fam]
+    return out
+
+
+def with_floors(items):
+    for it in items:
+        if it.get("rows"):
+            it["comparison_floor"] = comparison_floor(it["rows"])
+    return items
+
+
+def label_aggregated_axial(rows, model):
+    axis = {m["id"]: member_geom(model, m)[0] for m in model["members"]}
+    for r in rows:
+        parts = r["id"].split("/")
+        if parts[0] == "member_end" and parts[3] in ACTS[:3] and axis[parts[1]][ACTS.index(parts[3])] != 0:
+            r["axial_quantity"] = ("magnitude aggregated from the elastic axial components of the three terms; "
+                                   "no pressure, so equal to that of the wall force")
+    return rows
+
+
 def strip(rows):
     return [{k: v for k, v in r.items() if not k.startswith("_")} for r in rows]
 
@@ -1349,10 +1433,15 @@ def build_doc():
     res_b, checks_b = build(binary64_inputs(inp))
     changed = sorted(k for k in res["signs"] if res["signs"][k] != res_b["signs"][k])
     n_changed_inputs = sum(1 for k, v in inp.items() if to_binary64(v) != v)
+    n_signs = sum(len(v) for v in res["signs"].values())
     checks.append({"check": f"every input replaced by its nearest binary64 ({n_changed_inputs} of {len(inp)} "
-                            f"inputs change): every cross-check still agrees, and the sign of every row and "
-                            f"every lift-off state are unchanged", "agrees": not changed and all(
-                                c["agrees"] for c in checks_b)})
+                            f"inputs change): every cross-check still agrees, and {n_signs} signs and states are "
+                            f"unchanged: every row of the ten cases that carry rows (and, for the LO state that does "
+                            f"not qualify, its B motions and seated reaction), the five terms and their seated-structure controls, CEF-EQ-SRSS, "
+                            f"CEF-EQ-ABS and CEF-SUS-PLUS-EQ, the directional row, the CEF and JR control and twin "
+                            f"rows, the three lift-off statuses and both sides of the threshold. Not compared: the "
+                            f"README's rounded key tables and the decimal and binary64 fields themselves",
+                   "agrees": not changed and all(c["agrees"] for c in checks_b)})
     secs, mods = res["sections"], res["models"]
     g = inp["g"]
 
@@ -1410,10 +1499,10 @@ def build_doc():
          "factors": [1, 1, 1], "fixed_load_count": "0 (every operand 0)",
          "expected_outcome": "published, not withheld: every operand's fixed-load count is exactly 0 and every "
                              "reached load case selects the same material point",
-         "rows": strip(cef["srss"])},
+         "rows": label_aggregated_axial(strip(cef["srss"]), mods["CEF"])},
         {"id": "CEF-EQ-ABS", "basis": "absolute_sum", "operands": ["CEF-dEQX", "CEF-dEQY", "CEF-dEQZ"],
          "factors": [1, 1, 1], "fixed_load_count": "0 (every operand 0)",
-         "expected_outcome": "published, not withheld (as CEF-EQ-SRSS)", "rows": strip(cef["abs"])},
+         "expected_outcome": "published, not withheld (as CEF-EQ-SRSS)", "rows": label_aggregated_axial(strip(cef["abs"]), mods["CEF"])},
         {"id": "CEF-EQ-SRSS-OF-CASES", "basis": "srss", "operands": ["CEF-EQX", "CEF-EQY", "CEF-EQZ"],
          "factors": [1, 1, 1], "fixed_load_count": "undefined (each operand 1)",
          "expected_outcome": "withheld whole by the fixed-load count gate (DEL-05-02 REQ-011: an absolute sum or "
@@ -1430,8 +1519,13 @@ def build_doc():
          "operands": ["CEF-SUS", "CEF-dEQX", "CEF-dEQY", "CEF-dEQZ"], "factors": [1, 1, 1, 1],
          "fixed_load_count": "1 (1 + 0 + 0 + 0)",
          "expected_outcome": "published, not withheld: the count is exactly 1, the model has no nonlinear support "
-                             "and every reached case selects the same material point. Every row equals a direct "
-                             "solve of the weight, the device and all three generated seismic loads together",
+                             "and every reached case selects the same material point. In exact mechanics every row "
+                             "equals a direct solve of the weight, the device and all three generated seismic loads "
+                             "together; that is an identity of the exact values, not of binary64 arithmetic (the "
+                             "nearest binary64 of the direct solve and an exact-then-rounded sum of rounded operands "
+                             "can differ in the last place). The product's published rows are compared with these "
+                             "analytic rows under the comparison rule; its combination arithmetic is checked as "
+                             "DEL-05-02 states it, on the operands the product actually published",
          "rows": pub_rows(cef["sus_plus_eq"], mods["CEF"])},
     ]
     dsg = cef["designated"]
@@ -1441,8 +1535,11 @@ def build_doc():
                "sum and the signed sum all differ",
         "terms": {t: record(v) for t, v in zip(("CEF-dEQX", "CEF-dEQY", "CEF-dEQZ"), dsg["terms"])},
         "srss": dsg["srss"], "absolute_sum": record(dsg["abs"]), "signed_sum": record(dsg["signed"]),
-        "signed_sum_published_as": "CEF-SUS-PLUS-EQ minus CEF-SUS on this row; a mechanics combination of the three "
-                                   "terms alone is withheld here (CEF-EQ-SIGNED-SUM)"}
+        "signed_sum_published_as": "in exact mechanics, CEF-SUS-PLUS-EQ minus CEF-SUS on this row equals the signed "
+                                   "sum, and so does the direct solve of the three seismic loads alone; these are "
+                                   "identities of the exact values, and a difference formed from rounded rows can "
+                                   "differ in the last place. A mechanics combination of the three terms alone is "
+                                   "withheld here (CEF-EQ-SIGNED-SUM)"}
     tw = cef["twin"]
     ce_twin = {
         "id": "CEF-CTRL-DEVICE-REMOVED-FROM-EVERY-CASE",
@@ -1510,7 +1607,7 @@ def build_doc():
                 "rows": pub_rows(t["linear"], mods["LO"])}})
     ks = lo["kstar"]
     threshold = {
-        "g_factor_z": record(ks),
+        "g_factor_z": record(ks), "comparison_floor": {"dimensionless": 1e-12},
         "derivation": "the seated reaction is R(k) = R0 + k R1 with R0 the reaction under weight and the "
                       "constant-effort force, and R1 the reaction per unit g-factor of the generated seismic Z "
                       "load; k* = -R0 / R1",
@@ -1562,21 +1659,34 @@ def build_doc():
             "frozen packages t4_i12 and t4_u5a name JOINT_REPLACED_SPAN_LOAD_UNOWNED for a stored load or "
             "eigenstrain the replaced span owns, and this package does not assume that code applies to a generated "
             "wind mark")
+    wind_grounds = ("DEL-03-06 AC-004 (a load on the replaced span which a case applies is refused by name) and the "
+                    "reference system's specification section 8.1 (wind on a replaced span is refused), whatever the "
+                    "mark's extent")
+    wind_outcome = "no applied partial set of the case's loads and no case result"
     refusals = [
         {"id": "JR-REFUSE-WIND-ON-REPLACED-SPAN",
          "document": "JR-WIND with a whole-span wind mark also on pipe:b-c, the span the connector replaces",
          "expected": "the case is refused by name, naming the replaced span; no wind load is generated; no result "
-                     "is published for the case", "code": None, "code_note": note},
+                     "is published for the case", "rests_on": wind_grounds, "observable_outcome": wind_outcome,
+         "code": None, "code_note": note},
         {"id": "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN",
          "document": f"JR-WIND with a part-span wind mark also on pipe:b-c, over [{part_from}, {part_to}]",
          "expected": "as JR-REFUSE-WIND-ON-REPLACED-SPAN: refused by name, naming the replaced span; no wind load "
-                     "generated; no result", "code": None, "code_note": note},
+                     "generated; no result", "rests_on": wind_grounds, "observable_outcome": wind_outcome,
+         "code": None, "code_note": note},
         {"id": "JR-REFUSE-GENERATED-IDENTITY-COLLISION",
          "document": "JR-EQ-UNLISTED-PRIMITIVE with the unlisted stored primitive given the identity of one of the "
                      "case's generated loads, whatever identity the generator gives it",
          "expected": "the case is refused by name before assembly, naming the identity; no load is applied and no "
                      "result is published for the case. A collision is not resolved by dropping either load or by "
                      "applying one in place of the other", "code": None,
+         "rests_on": "a decision of SWBPIPE's Agent 0 (November 2026), among its terms for generation on a load and "
+                     "reference-state document: a generated identity that collides with an unlisted stored primitive "
+                     "is refused before assembly, so that the ordinary and certified paths cannot attribute one "
+                     "identity to two sources. It is not yet scope text and is to become text with the engine unit",
+         "colliding_identities": "a stored primitive of the same case, listed in its ledger or not, whose identity "
+                                 "equals a generated load's identity",
+         "observable_outcome": "the case is refused before assembly; no load is applied; no case result is published",
          "code_note": "no scope or frozen reference package read names a code for this refusal; this package names "
                       "none"}]
     dec = jr["controls"]["UNLISTED-PRIMITIVE-APPLIED"]
@@ -1602,6 +1712,8 @@ def build_doc():
                           "representation of generated loads the product adopts. Source labels and row ids are this "
                           "package's own names",
         "units": {"force": "N", "moment": "N*m", "translation": "m", "rotation": "rad", "length": "m"},
+        "binding": "the product documents that bind this package author euler_bernoulli explicitly for every member "
+                   "of all three models; a Timoshenko selection changes rows (see the README)",
         "theory": "small-displacement linear-elastic 3D frame, Euler-Bernoulli, axial and torsional deformation "
                   "included; supports rigid; a constant-effort support is a constant nodal force with no stiffness; "
                   "a lift-off support is a rigid restraint on its degree of freedom while in contact and free while "
@@ -1615,9 +1727,22 @@ def build_doc():
             "nonlinear_support": "reaction_Fz: the lift-off support's force on the pipe (0 when lifted); "
                                  "relative_uz: the node's uz less its ground's (the ground does not move here)",
             "exact": "sum of rational multiples of pi**k; an SRSS value is sqrt of such a sum",
-            "binary64_from_rounded_operands": "on a combination row: RN(sqrt(sum z_i^2)) or RN(sum |z_i|) with z_i "
-                                              "the expected binary64 values of the operand rows, each formed "
-                                              "exactly and rounded once"},
+            "binary64_from_rounded_operands": "on a combination row: RN(sqrt(sum z_i^2)) or RN(sum |z_i|) computed on "
+                                              "the ideal rounded analytic operands z_i (the nearest binary64 of each "
+                                              "exact operand row), each formed exactly and rounded once; not on "
+                                              "operands a product published, which the binding uses instead",
+            "axial": "a member-end force row along its member's own axis is the global component of the "
+                     "node-on-member end action associated with the elastic (effective) axial force N_el; with no "
+                     "pressure it equals the pipe-wall force. On CEF-EQ-SRSS and CEF-EQ-ABS such a row is a "
+                     "magnitude aggregated from those elastic axial components",
+            "comparison": "a row passes when abs(observed - expected) <= max(1e-9 * abs(expected), floor), in SI, "
+                          "expected being the exact value (its binary64 suffices). floor = 1e-9 times the largest "
+                          "magnitude of that row's family (force, moment, translation, rotation) in the same case, "
+                          "term or combination, as w16_exact_equivalent_static and w16_timoshenko_partial_wind state "
+                          "it (DEC-024/DEC-026); where the whole family is zero there, floor = 1e-9 N or N*m, "
+                          "1e-12 m or rad; a dimensionless value (the threshold g-factor) 1e-12. Each item's "
+                          "comparison_floor gives its floors. Discrete outcomes (support status, gate outcome, "
+                          "withheld, refused, a row's presence or absence) compare exactly"},
         "inputs": inputs_doc(inp),
         "derived": {"sections": {"S1": sec_doc("S1"), "S2": sec_doc("S2")},
                     "G_Pa": str(inp["E"] / (2 * (1 + inp["nu"]))),
@@ -1625,9 +1750,9 @@ def build_doc():
                                   "contents on the pressure bore, insulation annulus"},
         "models": {k: model_doc(v) for k, v in mods.items()},
         "weight_primitives": {"CEF": cef["weight_prims"], "LO": lo["weight_prims"]},
-        "cases": case_docs + lo_docs + jr_docs,
-        "terms": term_docs + lo_term_docs,
-        "combinations": comb_docs,
+        "cases": with_floors(case_docs + lo_docs + jr_docs),
+        "terms": with_floors(term_docs + lo_term_docs),
+        "combinations": with_floors(comb_docs),
         "directional_row": directional_row,
         "lift_off_threshold": threshold,
         "refusals": refusals,
