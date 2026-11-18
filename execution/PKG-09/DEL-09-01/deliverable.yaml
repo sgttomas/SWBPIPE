@@ -159,3 +159,7 @@ checks:
 - tests/test_qualification_physics_integration.py
 - tests/test_qualification_load_reference.py
 - tests/test_first_static_selection.py
+# The reference system opened and solved in the launched app, and what a person then meets (render
+# and package offered or refused) recorded in the window's own words, never worked around
+# (evidence-journeys.mjs --journey reference-system, run alone).
+- apps/desktop/native-smoke/evidence-journeys.mjs
