@@ -486,6 +486,27 @@
       "unit_status": "catalog"
     },
     {
+      "dimension": "angular_frequency",
+      "kind": "modal_circular_frequency",
+      "symbol": "rad/s",
+      "unit": "unit:radian_per_second",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "angular_frequency",
+      "kind": "next_computed_circular_frequency",
+      "symbol": "rad/s",
+      "unit": "unit:radian_per_second",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "cluster_tolerance",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
       "dimension": "frequency",
       "kind": "cluster_standing_frequency",
       "symbol": "Hz",

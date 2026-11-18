@@ -1169,6 +1169,14 @@
   "document_kind": "openpipestress.spectrum_result",
   "modal_basis": {
     "attributed_to": "frozen_reference:validation/references/f2_spectrum/recovery_w2:V-ARC-OBL",
+    "cluster_tolerance": {
+      "below_normal": false,
+      "kind": "cluster_tolerance",
+      "undefined_reason": null,
+      "unit": "unit:one",
+      "unit_status": "catalog",
+      "value": 9.5367431640625e-7
+    },
     "clusters": {
       "digest": "fbf412179971f972a5b630aa54b3c1fe9065836646a62167c32500b18c957ae8",
       "row_count": 8,
@@ -1356,6 +1364,14 @@
       "completion_evidence": "the reference lists every one of the model's 12 finite modes (modal_basis.modes, with Sturm counts agreeing at every gap); the next computed mode above the 8 extracted below the cut-off is stated with its frequency",
       "endpoint": "below_computed_cluster",
       "established_finite_mode_count": 12,
+      "next_computed_circular_frequency": {
+        "below_normal": false,
+        "kind": "next_computed_circular_frequency",
+        "undefined_reason": null,
+        "unit": "unit:radian_per_second",
+        "unit_status": "catalog",
+        "value": 2675.0760135404466
+      },
       "next_computed_frequency": {
         "below_normal": false,
         "kind": "next_computed_frequency",
@@ -1367,11 +1383,19 @@
       "reported_mode_count": 8
     },
     "modes": {
-      "digest": "3d219531624f71837b707af992a82a59f11cdb500556940f4cb11252c551cc67",
+      "digest": "018a239a5c3dcaa539e1043c9cdbe4d6418a34e5f92eebbd0827b0f9401c7100",
       "row_count": 8,
       "rows": [
         {
-          "checksum": "5908b7ee7b8e33236a83a3dba78681ef76fcc18760a72fcb3396e57686519381",
+          "checksum": "bf35245a6e71ff3ff25ba49cefb244f9f5d8714c960d676b964b0485a8bf978a",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 222.91772819328224
+          },
           "class": "periodic",
           "cluster_ref": "cluster:1",
           "frequency": {
@@ -1388,7 +1412,15 @@
           "row_id": "mode:1"
         },
         {
-          "checksum": "529e978a622b935b16592c76e1fab71381d4336dff23b37066edf2402077767a",
+          "checksum": "fcd291fc1e7f0ffcd0e23c674c068ed33a18c9f39e0998a2208061d7af15e69a",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 478.94313109426673
+          },
           "class": "periodic",
           "cluster_ref": "cluster:2",
           "frequency": {
@@ -1405,7 +1437,15 @@
           "row_id": "mode:2"
         },
         {
-          "checksum": "a8bfc85d52f804561f0bca0b4a1df479b67e8cb27ff73bd821e6aba3240aeff9",
+          "checksum": "fb0f96af52e38d7197d837deae6cda5ed719a963e4dbab7875e21afc28dbdbf0",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 546.7785803145277
+          },
           "class": "periodic",
           "cluster_ref": "cluster:3",
           "frequency": {
@@ -1422,7 +1462,15 @@
           "row_id": "mode:3"
         },
         {
-          "checksum": "7ef47de627f2ca79e3bf676ff4cc6b342352a720e9642df72808ef71af33b002",
+          "checksum": "f5785776826168d08fa3aae5f51b62e5dfc6c9dfb5737b35247cfb9aa7427aab",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 1207.6408909932625
+          },
           "class": "periodic",
           "cluster_ref": "cluster:4",
           "frequency": {
@@ -1439,7 +1487,15 @@
           "row_id": "mode:4"
         },
         {
-          "checksum": "c1170dc84012d9eb834f04a5b8c00885bf316b3a65159da37392501eae7efef2",
+          "checksum": "5ca02c750d58948d03bbcf20188eb2ae11664bd7793470748b9dcbf26cfe6707",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 1308.1528926714473
+          },
           "class": "periodic",
           "cluster_ref": "cluster:5",
           "frequency": {
@@ -1456,7 +1512,15 @@
           "row_id": "mode:5"
         },
         {
-          "checksum": "31867706e77d6e68548ac664ea6feb33d90e153a9e54c6b3c824479dd1fc0d01",
+          "checksum": "8d12907a6c70a3016d01e9d63087562a160efbea1dd45890fdcc049377750b42",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 1411.2800493197044
+          },
           "class": "periodic",
           "cluster_ref": "cluster:6",
           "frequency": {
@@ -1473,7 +1537,15 @@
           "row_id": "mode:6"
         },
         {
-          "checksum": "f93bc3a01cae5d99c23d81e1e8929543b0aecf308873b93bdadc89f45f0ac266",
+          "checksum": "392bf40c0fc18817ea69ce2cae5ad858abdfbec48ad21cbc7ec3b814fd549bf5",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 1705.6114547944017
+          },
           "class": "rigid",
           "cluster_ref": "cluster:7",
           "frequency": {
@@ -1490,7 +1562,15 @@
           "row_id": "mode:7"
         },
         {
-          "checksum": "9c47193322a30a44b8a8dc3916394963b4089e1b21c10cdec43a84cefb16e7e6",
+          "checksum": "8afbad48388e15c8e911508a883250c080e6fff8270908ca3d037ad223165933",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 1728.2968192338894
+          },
           "class": "rigid",
           "cluster_ref": "cluster:8",
           "frequency": {
@@ -10914,7 +10994,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/spectrum-1",
-    "sha256": "080429ce57a6a2eb71661db6da144c7810bd6f5f8e2c9db52584d65337de0979"
+    "sha256": "e8b8cb68bf25bf4c40a39b1bb2f5e179dd3fa2732952691498a89c1064c74d24"
   },
   "spectra": {
     "digest": "6964a8f2dae1d240b693aa8095f1faea210ae4c8a4d9b266c9856bf8469360c3",

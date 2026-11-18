@@ -462,6 +462,14 @@
   "document_kind": "openpipestress.spectrum_result",
   "modal_basis": {
     "attributed_to": "frozen_reference:validation/references/f2_spectrum/discrete:C2-GROUND-SPRING",
+    "cluster_tolerance": {
+      "below_normal": false,
+      "kind": "cluster_tolerance",
+      "undefined_reason": null,
+      "unit": "unit:one",
+      "unit_status": "catalog",
+      "value": 9.5367431640625e-7
+    },
     "clusters": {
       "digest": "038ebe1cc3358e4e4eda6218b0037793b964205cbafa2bd7b0b45c2fac33b15a",
       "row_count": 4,
@@ -561,6 +569,14 @@
       "completion_evidence": "the reference lists every one of the model's 12 finite modes (modal_basis.clusters, with Sturm counts agreeing at every gap in modal_cross_checks); the next computed mode above the 4 extracted is stated with its frequency",
       "endpoint": "below_computed_cluster",
       "established_finite_mode_count": 12,
+      "next_computed_circular_frequency": {
+        "below_normal": false,
+        "kind": "next_computed_circular_frequency",
+        "undefined_reason": null,
+        "unit": "unit:radian_per_second",
+        "unit_status": "catalog",
+        "value": 1270.543702967279
+      },
       "next_computed_frequency": {
         "below_normal": false,
         "kind": "next_computed_frequency",
@@ -572,11 +588,19 @@
       "reported_mode_count": 4
     },
     "modes": {
-      "digest": "d9b1943f493fd86766138047c12e204af3b8bb734352206a1bd2a1d86feabdd0",
+      "digest": "8637d3d47cdd37c69d69322ed31650eb6252a9de00e05cf3545ecbe45f4a51c2",
       "row_count": 4,
       "rows": [
         {
-          "checksum": "68740f55382f952f24c07390b1f70b4fd37f27a672a692ff60c562754d5145e3",
+          "checksum": "3b090b1ad672d616fc4136d8893e2ff851462d2ef9c5c1af3858be1dcf6d33a7",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 59.938701729661794
+          },
           "class": "periodic",
           "cluster_ref": "cluster:1",
           "frequency": {
@@ -593,7 +617,15 @@
           "row_id": "mode:1"
         },
         {
-          "checksum": "8be6bef64dd97806ccb883ecd16ab64937846abd2e9b8c66136aac41051c0835",
+          "checksum": "d0f203a5fa31b74177a1971fe170d37a250a30b5ddc5dfeb293b92e020f4afd7",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 85.38126132277206
+          },
           "class": "periodic",
           "cluster_ref": "cluster:2",
           "frequency": {
@@ -610,7 +642,15 @@
           "row_id": "mode:2"
         },
         {
-          "checksum": "c988e379d06b940a939dfda93300f45c8d237a94e50628fbe864ef579822fdf9",
+          "checksum": "accbc48364f2efa3347d667cb37c2d0da2f1d3ff850f59859ac6e2889b7ef9c4",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 377.6549857842018
+          },
           "class": "rigid",
           "cluster_ref": "cluster:3",
           "frequency": {
@@ -627,7 +667,15 @@
           "row_id": "mode:3"
         },
         {
-          "checksum": "00ebc5efb464402204b2b46935bf1c2d3ae61934fc6934344715000fc3004980",
+          "checksum": "4563ebf6ad7c4d8ec348f8dd7acf607eba00daf6e6499347af2735636f852c9f",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 382.84565087565846
+          },
           "class": "rigid",
           "cluster_ref": "cluster:4",
           "frequency": {
@@ -4345,7 +4393,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/spectrum-1",
-    "sha256": "080429ce57a6a2eb71661db6da144c7810bd6f5f8e2c9db52584d65337de0979"
+    "sha256": "e8b8cb68bf25bf4c40a39b1bb2f5e179dd3fa2732952691498a89c1064c74d24"
   },
   "spectra": {
     "digest": "055a9eaa547101a512d606b36fccf42a527e95110ae834d4fe5932fc7e782212",

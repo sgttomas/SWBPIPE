@@ -38,6 +38,9 @@ const W2_OBLIQUE: &str = include_str!("../../../../validation/references/f2_spec
 const W2_JOINT_R: &str = include_str!("../../../../validation/references/f2_spectrum/recovery_w2/w2_v_joint_r.json");
 
 const DISCRETE: &str = "validation/references/f2_spectrum/discrete";
+/// δ_c = 2^-20, as both packages state it (discrete README, "Modal basis"; recovery_w2
+/// DERIVATION.md).
+const CLUSTER_TOLERANCE: f64 = 1.0 / 1_048_576.0;
 const RECOVERY_W2: &str = "validation/references/f2_spectrum/recovery_w2";
 
 const SEMANTIC_TABLE: &str = include_str!("../../../../fixtures/results/semantic_contract_spectrum_1.json");
@@ -572,6 +575,11 @@ impl Discrete {
         let finite: usize = all.iter().map(|c| c["modes"].as_array().unwrap().len()).sum();
         let next = all.iter().find(|c| c["modes"].as_array().unwrap().iter().any(|m| m.as_u64() == Some(extracted as u64 + 1)));
         let total = &self.case["modal_basis"]["total_mass_by_direction_kg"];
+        // Each mode's ω is its exact-repeat group's published circular frequency.
+        let omega = |mode: u32| -> f64 {
+            let g = all.iter().find(|c| c["modes"].as_array().unwrap().iter().any(|m| m.as_u64() == Some(u64::from(mode)))).unwrap();
+            real(&g["circular_frequency_rad_per_s"])
+        };
         ModalStatement {
             attributed_to: format!("frozen_reference:{DISCRETE}:{}", self.case["id"].as_str().unwrap()),
             standings: None,
@@ -582,12 +590,15 @@ impl Discrete {
                 reported_mode_count: extracted,
                 established_finite_mode_count: Some(finite),
                 next_computed_frequency_hz: next.map(|c| real(&c["frequency_Hz"])),
+                next_computed_circular_frequency_rad_s: next.map(|c| real(&c["circular_frequency_rad_per_s"])),
                 evidence: format!("the reference lists every one of the model's {finite} finite modes (modal_basis.clusters, with \
 Sturm counts agreeing at every gap in modal_cross_checks); the next computed mode above the {extracted} extracted is stated \
 with its frequency"),
             },
             total_mass_kg: [real(&total["X"]), real(&total["Y"]), real(&total["Z"])],
             effective_mass_kg: effective,
+            circular_frequency_rad_s: modes.iter().map(|m| omega(m.mode.0)).collect(),
+            cluster_tolerance: CLUSTER_TOLERANCE,
         }
     }
 
@@ -751,7 +762,7 @@ fn c7_cancelling_cluster() -> Fixture {
     let vectors = basis["vectors"].as_array().unwrap();
     // The reduced roster: the quantities the basis witness publishes per vector.
     let anchor = d.rigid_constraints();
-    let census = Census { nodes: vec!["N3".into()], rigid_constraints: anchor.clone(), ..Census::default() };
+    let census = Census { nodes: vec!["N1".into(), "N3".into()], rigid_constraints: anchor.clone(), ..Census::default() };
     let rows = census.roster();
     let pair_two = |dir: Direction| -> &Map<String, Value> {
         d.analysis["contributions_signed"][dir.as_str()].as_array().unwrap().iter()
@@ -764,14 +775,21 @@ fn c7_cancelling_cluster() -> Fixture {
             _ => unreachable!(),
         }
     };
+    // N1's six components are rigidly restrained by the anchor: each row is zero (REQ-006, Nodes).
+    let value = |q: &Quantity, m: &Map<String, Value>| -> f64 {
+        match q {
+            Quantity::NodeDisplacement { node, .. } if node == "N1" => 0.0,
+            _ => real(&m[&key(q)]),
+        }
+    };
     let mut periodic = Vec::new();
     for &dir in &directions {
         for (k, v) in vectors.iter().enumerate() {
             let m = v["contributions_signed"][dir.as_str()].as_object().unwrap();
-            periodic.push(ModalContribution { mode: ModeIndex(k as u32 + 1), direction: dir, values: rows.iter().map(|q| real(&m[&key(q)])).collect() });
+            periodic.push(ModalContribution { mode: ModeIndex(k as u32 + 1), direction: dir, values: rows.iter().map(|q| value(q, m)).collect() });
         }
         let s = pair_two(dir);
-        periodic.push(ModalContribution { mode: ModeIndex(3), direction: dir, values: rows.iter().map(|q| real(&s[&key(q)])).collect() });
+        periodic.push(ModalContribution { mode: ModeIndex(3), direction: dir, values: rows.iter().map(|q| value(q, s)).collect() });
         periodic.push(ModalContribution { mode: ModeIndex(4), direction: dir, values: vec![0.0; rows.len()] });
     }
     // Effective masses per mode: each cluster 1 vector's Γ_d² · m_gen, from its published decimals
@@ -801,7 +819,8 @@ fn c7_cancelling_cluster() -> Fixture {
     Fixture {
         name: "c7_cancelling_cluster",
         origin: origin(DISCRETE, &d.case, "C7-PAIRS", vec![
-            "The roster and census are a subset of the reference model: the tip node N3 and the anchor A1's six constraint reactions at N1, the quantities the reference's basis_witness publishes per vector. Nodes N1 and N2 and members P1 and P2 are in the model and have no rows here.".into(),
+            "The roster and census are a subset of the reference model: the tip node N3 and the anchor A1's six constraint reactions at N1, the quantities the reference's basis_witness publishes per vector, and the node N1. Node N2 and members P1 and P2 are in the model and have no rows here.".into(),
+            "N1's six displacement and rotation rows are constructed: each contribution is zero because all six components at N1 are rigidly restrained by the anchor A1 (REQ-006, Nodes: a component restrained on a global axis is zero), not because the reference publishes them.".into(),
             "Cluster 1 (modes 1 and 2) is the basis_witness basis_2 vectors 1 and 2 (the M-orthonormal rotation of basis_1 by cos 3/5, sin 4/5, each normalized to unit maximum translation), each value as published; under Y their contributions to N3.uz, N3.ry, the anchor's UZ and RY reactions cancel exactly, and under Z those to N3.uy, N3.rz, UY and RZ.".into(),
             "Cluster 2's per-mode contributions are constructed: mode 3 carries the cluster's published signed sum (values_signed_sum_over_repeated_cluster) and mode 4 carries zero, in each direction.".into(),
             "The per-mode effective masses are constructed: each cluster 1 vector's is its published participation factor squared times its published generalized mass, formed exactly from the decimals and rounded once (the two sum to the cluster's published effective mass); mode 3 carries cluster 2's published effective mass and mode 4 none.".into(),
@@ -889,11 +908,16 @@ impl W2 {
                 reported_mode_count: extracted,
                 established_finite_mode_count: Some(all.len()),
                 next_computed_frequency_hz: next.map(|m| real(&m["frequency_Hz"])),
+                next_computed_circular_frequency_rad_s: next.map(|m| real(&m["omega_rad_per_s"])),
                 evidence: format!("the reference lists every one of the model's {} finite modes (modal_basis.modes, with Sturm counts \
 agreeing at every gap); the next computed mode above the {extracted} extracted below the cut-off is stated with its frequency", all.len()),
             },
             total_mass_kg: [real(&total["X"]), real(&total["Y"]), real(&total["Z"])],
             effective_mass_kg: effective,
+            circular_frequency_rad_s: modes.iter()
+                .map(|m| real(&all.iter().find(|b| b["index"].as_u64() == Some(u64::from(m.mode.0))).unwrap()["omega_rad_per_s"]))
+                .collect(),
+            cluster_tolerance: CLUSTER_TOLERANCE,
         }
     }
 
@@ -1524,6 +1548,83 @@ fn axis_aligned_member_axes_rows_are_the_permuted_global_rows() {
             n += 1;
         }
         assert_eq!(n, members.len() * 12, "{name}");
+    }
+}
+
+fn refusal_details(d: &Value) -> Vec<(String, String)> {
+    d["refusals"]["rows"].as_array().map_or_else(Vec::new, |rows| {
+        rows.iter().map(|r| (r["code"].as_str().unwrap().to_string(), r["detail"].as_str().unwrap().to_string())).collect()
+    })
+}
+
+/// C7's cluster 1 is an exactly repeated pair (equal circular frequencies). Split into two
+/// clusters, with the contributions unchanged, its stated clusters contradict the cluster rule on
+/// the stated circular frequencies, and the assembler refuses the document naming both modes.
+#[test]
+fn a_split_of_an_exactly_repeated_cluster_is_refused() {
+    let mut f = c7_cancelling_cluster();
+    assert_eq!(f.modal.circular_frequency_rad_s[0], f.modal.circular_frequency_rad_s[1]);
+    for m in &mut f.combination.modes {
+        if m.mode.0 >= 2 {
+            m.cluster = ClusterIndex(m.cluster.0 + 1);
+        }
+    }
+    let d = f.document();
+    assert_eq!(d["status"], "refused");
+    let refusals = refusal_details(&d);
+    assert!(refusals.iter().any(|(code, detail)| code == "SPECTRUM_DOCUMENT_INPUT_INVALID"
+        && detail == "mode:1 and mode:2 are split within the cluster tolerance"), "{refusals:?}");
+    assert_eq!(refusals.iter().filter(|(_, detail)| detail.contains("cluster tolerance")).count(), 1, "{refusals:?}");
+}
+
+/// A pair whose gap lies within the margin of the threshold is neither refused shared nor refused
+/// split; a pair clearly above the threshold is refused when shared.
+#[test]
+fn a_pair_inside_the_margin_is_not_refused() {
+    let wb = c7_cancelling_cluster().modal.circular_frequency_rad_s[1];
+    let delta = CLUSTER_TOLERANCE;
+    // ω_a with ω_b² − ω_a² = δ_c·ω_b², rounded: its gap is within a few u·ω_b² of the threshold.
+    let wa = wb * (1.0 - delta).sqrt();
+    let (gap, threshold) = (wb * wb - wa * wa, delta * (wb * wb));
+    let margin = 16.0 * f64::EPSILON / 2.0 * (1.0 + delta) * (wb * wb);
+    assert!((gap - threshold).abs() < margin, "inside the margin");
+    for split in [false, true] {
+        let mut f = c7_cancelling_cluster();
+        f.modal.circular_frequency_rad_s[0] = wa;
+        if split {
+            for m in &mut f.combination.modes {
+                if m.mode.0 >= 2 {
+                    m.cluster = ClusterIndex(m.cluster.0 + 1);
+                }
+            }
+        }
+        let d = f.document();
+        assert!(refusal_details(&d).iter().all(|(_, detail)| !detail.contains("cluster tolerance")), "split {split}: {:?}", refusal_details(&d));
+    }
+    let mut f = c7_cancelling_cluster();
+    f.modal.circular_frequency_rad_s[0] = wb * (1.0 - 2.0 * delta).sqrt();
+    let refusals = refusal_details(&f.document());
+    assert!(refusals.iter().any(|(_, detail)| detail == "mode:1 and mode:2 share a cluster across a relative gap above the cluster tolerance"),
+        "{refusals:?}");
+}
+
+/// A census that names a node or a connector it does not hold is refused, naming the entry and
+/// what is missing.
+#[test]
+fn a_census_not_closed_on_itself_is_refused() {
+    let mut f = c7_cancelling_cluster();
+    f.census.nodes.retain(|n| n != "N1");
+    let refusals = refusal_details(&f.document());
+    for c in ["UX", "UY", "UZ", "RX", "RY", "RZ"] {
+        let expected = format!("rigid constraint at N1 {c} names node N1, which is not a census node");
+        assert!(refusals.iter().any(|(code, d)| code == "SPECTRUM_DOCUMENT_INPUT_INVALID" && *d == expected), "{expected}: {refusals:?}");
+    }
+    let mut f = w2_joint_rods();
+    f.census.connectors.clear();
+    let refusals = refusal_details(&f.document());
+    for rod in ["R1", "R2"] {
+        let expected = format!("tie rod {rod} names connector J1, which is not a census connector");
+        assert!(refusals.iter().any(|(_, d)| *d == expected), "{expected}: {refusals:?}");
     }
 }
 

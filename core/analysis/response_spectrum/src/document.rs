@@ -153,6 +153,9 @@ pub struct Extraction {
     pub established_finite_mode_count: Option<usize>,
     /// The frequency of the next computed mode above the extracted set, where one is stated.
     pub next_computed_frequency_hz: Option<f64>,
+    /// That mode's circular frequency in rad/s, as the modal result publishes it; `None` exactly
+    /// where the frequency is `None`.
+    pub next_computed_circular_frequency_rad_s: Option<f64>,
     /// What the completion evidence is, in words.
     pub evidence: String,
 }
@@ -176,6 +179,12 @@ pub struct ModalStatement {
     pub total_mass_kg: [f64; 3],
     /// Each mode's effective mass in kg, X, Y, Z, aligned with the combination request's modes.
     pub effective_mass_kg: Vec<[f64; 3]>,
+    /// Each mode's circular frequency ω in rad/s as the modal result publishes it, aligned with
+    /// the combination request's modes. The cluster rule is evaluated on these.
+    pub circular_frequency_rad_s: Vec<f64>,
+    /// The cluster tolerance δ_c the modal result binds (its integrity parameters'
+    /// `cluster_tolerance`), in unit one.
+    pub cluster_tolerance: f64,
 }
 
 /// Three axes, the rows x, y and z, each a vector in global axes.
@@ -353,11 +362,14 @@ fn quantity_kind_rows() -> Vec<(&'static str, &'static str, bool, Vec<(&'static 
 }
 
 /// The scalar value kinds of the document's value objects and their catalog units.
-const VALUE_KINDS: [(&str, UnitId); 19] = [
+const VALUE_KINDS: [(&str, UnitId); 22] = [
     ("damping_ratio", UnitId::One),
     ("scale_factor", UnitId::One),
     ("rigid_frequency", UnitId::Hertz),
     ("modal_frequency", UnitId::Hertz),
+    ("modal_circular_frequency", UnitId::RadianPerSecond),
+    ("next_computed_circular_frequency", UnitId::RadianPerSecond),
+    ("cluster_tolerance", UnitId::One),
     ("cluster_standing_frequency", UnitId::Hertz),
     ("next_computed_frequency", UnitId::Hertz),
     ("evaluated_frequency", UnitId::Hertz),
@@ -816,6 +828,97 @@ fn check_agreement(inputs: &DocumentInputs, choices: &Choices, tables: &[Spectru
         refusals.push(input_invalid("modal_basis", "extraction", format!("the modal endpoint reports {} modes; {} are supplied",
             m.extraction.reported_mode_count, c.modes.len())));
     }
+    check_cluster_rule(inputs, refusals);
+    check_census_closed(inputs.census, refusals);
+}
+
+/// The census is closed on itself: every node a straight member, an arc, a connector, a rigid
+/// constraint or a compliant support names is a row of its nodes table, and every tie rod's
+/// connector is a row of its connectors table.
+fn check_census_closed(census: &Census, refusals: &mut Vec<Refusal>) {
+    let nodes: BTreeSet<&str> = census.nodes.iter().map(String::as_str).collect();
+    let connectors: BTreeSet<&str> = census.connectors.iter().map(|c| c.id.as_str()).collect();
+    let mut named: Vec<(String, &str)> = Vec::new();
+    for m in &census.straight_members {
+        named.extend([(format!("straight member {}", m.id), m.end_i.as_str()), (format!("straight member {}", m.id), m.end_j.as_str())]);
+    }
+    for m in &census.arcs {
+        named.extend([(format!("arc {}", m.id), m.end_i.as_str()), (format!("arc {}", m.id), m.end_j.as_str())]);
+    }
+    for c in &census.connectors {
+        named.extend([(format!("connector {}", c.id), c.end_i.as_str()), (format!("connector {}", c.id), c.end_j.as_str())]);
+    }
+    for r in &census.rigid_constraints {
+        named.push((format!("rigid constraint at {} {}", r.node, r.component.as_str()), r.node.as_str()));
+    }
+    for s in &census.compliant_supports {
+        named.push((format!("compliant support {}", s.support), s.node.as_str()));
+    }
+    for (entry, node) in named {
+        if !nodes.contains(node) {
+            refusals.push(input_invalid("census", "nodes", format!("{entry} names node {node}, which is not a census node")));
+        }
+    }
+    for t in &census.tie_rods {
+        if !connectors.contains(t.connector.as_str()) {
+            refusals.push(input_invalid("census", "connectors",
+                format!("tie rod {} names connector {}, which is not a census connector", t.rod, t.connector)));
+        }
+    }
+}
+
+/// The unit roundoff 2^-53 of the modal reader's cluster margin.
+const UNIT_ROUNDOFF: f64 = 1.0 / 9_007_199_254_740_992.0;
+
+/// The stated clusters against the cluster rule on the stated circular frequencies and cluster
+/// tolerance, as the modal reader evaluates it (`core/reporting/modal_result`, `mr_clusters`), in
+/// binary64 with the same expressions: for adjacent modes a < b, gap = ω_b² − ω_a², threshold =
+/// δ_c·ω_b², margin = 16u(1 + δ_c)·ω_b² with u = 2^-53. A shared cluster across a gap above
+/// threshold + margin, or a split below threshold − margin, is refused, naming the two modes; a
+/// pair inside the margin is not. When the endpoint is below a computed cluster, the last
+/// extracted mode and the next computed one lie in different clusters and are held to the same
+/// rule.
+fn check_cluster_rule(inputs: &DocumentInputs, refusals: &mut Vec<Refusal>) {
+    let (m, modes) = (inputs.modal, &inputs.combination.modes);
+    let omega = &m.circular_frequency_rad_s;
+    let delta = m.cluster_tolerance;
+    if !(delta > 0.0 && delta < 1.0) {
+        refusals.push(input_invalid("modal_basis", "cluster_tolerance", format!("the cluster tolerance {delta:e} is not in (0, 1)")));
+        return;
+    }
+    if omega.len() != modes.len() {
+        refusals.push(input_invalid("modal_basis", "modes", "the modal statement does not state every extracted mode's circular frequency".into()));
+        return;
+    }
+    let next = m.extraction.next_computed_circular_frequency_rad_s;
+    if next.is_some() != m.extraction.next_computed_frequency_hz.is_some() {
+        refusals.push(input_invalid("modal_basis", "extraction", "the next computed mode's frequency and circular frequency are not stated together".into()));
+        return;
+    }
+    if let Some(w) = omega.iter().copied().chain(next).find(|w| !(w.is_finite() && *w > 0.0)) {
+        refusals.push(input_invalid("modal_basis", "modes", format!("a circular frequency {w:e} is not positive and finite")));
+        return;
+    }
+    let mut pairs: Vec<(String, String, f64, f64, bool)> = modes
+        .windows(2)
+        .zip(omega.windows(2))
+        .map(|(p, w)| (mode_ref(p[0].mode.0), mode_ref(p[1].mode.0), w[0], w[1], p[0].cluster == p[1].cluster))
+        .collect();
+    if let (Some(w), Some(last), Some(&wl)) = (next, modes.last(), omega.last()) {
+        if m.extraction.endpoint == "below_computed_cluster" {
+            pairs.push((mode_ref(last.mode.0), "the next computed mode".into(), wl, w, false));
+        }
+    }
+    for (a, b, wa, wb, same) in pairs {
+        let gap = wb * wb - wa * wa;
+        let threshold = delta * (wb * wb);
+        let margin = 16.0 * UNIT_ROUNDOFF * (1.0 + delta) * (wb * wb);
+        if same && gap > threshold + margin {
+            refusals.push(input_invalid("modal_basis", "clusters", format!("{a} and {b} share a cluster across a relative gap above the cluster tolerance")));
+        } else if !same && gap < threshold - margin {
+            refusals.push(input_invalid("modal_basis", "clusters", format!("{a} and {b} are split within the cluster tolerance")));
+        }
+    }
 }
 
 /// The rows are exactly the roster the census gives, each identity once, with the census's
@@ -1050,6 +1153,7 @@ fn solved(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], 
             seal(mode_ref(m.mode.0), i, json!({
                 "mode_index": m.mode.0, "cluster_ref": cluster_ref(m.cluster),
                 "frequency": n.fixed("modal_frequency", m.frequency_hz, "modes"),
+                "circular_frequency": modal.circular_frequency_rad_s.get(i).map_or(Value::Null, |w| n.fixed("modal_circular_frequency", *w, "modes")),
                 "class": class_of.get(&m.cluster).map(|k| k.as_str()),
                 "integrity_standing": modal.mode_standings.get(i).and_then(Option::as_ref).map_or(Value::Null, standing_json),
             }))
@@ -1085,6 +1189,8 @@ fn solved(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], 
         "reported_mode_count": e.reported_mode_count,
         "established_finite_mode_count": e.established_finite_mode_count,
         "next_computed_frequency": e.next_computed_frequency_hz.map_or(Value::Null, |f| n.fixed("next_computed_frequency", f, "extraction")),
+        "next_computed_circular_frequency": e.next_computed_circular_frequency_rad_s
+            .map_or(Value::Null, |w| n.fixed("next_computed_circular_frequency", w, "extraction")),
         "completion_evidence": e.evidence,
     });
     doc.insert("modal_basis".into(), json!({
@@ -1092,6 +1198,7 @@ fn solved(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], 
         "standings": standings,
         "state": modal.state.clone().unwrap_or(Value::Null),
         "extraction": extraction,
+        "cluster_tolerance": n.fixed("cluster_tolerance", modal.cluster_tolerance, "modal_basis"),
         "modes": table(mode_rows),
         "clusters": table(cluster_rows),
     }));

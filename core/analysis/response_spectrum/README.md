@@ -344,8 +344,12 @@ cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example c
   the extraction premise, the missing-mass fractions with their stated arithmetic), the census of
   the model's entities and their frames, the signed rows with their sign conventions, the signed
   cluster sums, the unsigned combined rows and the rule statements.
-- **What it refuses.** A request, modal statement or census that disagrees with the combination,
-  a roster that is not the census's, a value outside the canonical profile, or anything the
+- **What it refuses.** A request, modal statement or census that disagrees with the combination;
+  stated clusters that contradict the cluster rule on the stated circular frequencies and cluster
+  tolerance beyond the modal reader's margin (16u(1 + δ_c)·ω_b², binary64, the modal reader's
+  expressions), including between the last extracted mode and the next computed one; a census not
+  closed on itself (a node or connector an entry names that is not a census row); a roster that is
+  not the census's; a value outside the canonical profile, or anything the
   combination refuses, as a `refused` document naming each refusal.
 - **Allocation.** Linear in its inputs, as the module documentation states: with Q rows, M
   extracted modes (P periodic), C clusters (C₂ periodic of more than one mode), D directions, S
