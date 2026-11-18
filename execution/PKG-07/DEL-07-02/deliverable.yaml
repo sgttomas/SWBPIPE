@@ -39,6 +39,9 @@ needs:
   condition: >-
     An operation or batch can be validated without being applied, returning either a deterministic
     preview of the change or the named refusal the apply would give, including a stale before-value.
+    A set-field change on an absent optional quantity, a material's shear modulus among them,
+    writes the whole quantity from the person's value and explicit unit of the field's dimension,
+    and supplies no value or unit itself.
   gating: true
 - from: DEL-16-06
   condition: >-
@@ -169,6 +172,9 @@ checks:
 - apps/desktop/src/features/support-configuration/supportDirection.test.tsx
 - apps/desktop/src/features/support-configuration/supportDirectionEngine.test.tsx
 - apps/desktop/src/features/model-tree/PropertyInspector.supportFamilyEngine.test.tsx
+# Issue 380: an absent material shear modulus entered through the inspector and Review's Apply in
+# the shared Wasm engine, read back, undone and redone, and refused without a unit.
+- apps/desktop/src/App.materialShearModulusEntry.test.tsx
 - apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx
 - apps/desktop/src/App.splitAndSlope.test.tsx
 - apps/desktop/src/features/condition-sets/conditionSets.engine.test.tsx

@@ -394,11 +394,16 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                     unit_source: UnitSource::SiblingUnitField,
                 },
             },
+            // Issue 380 (DEL-07-02 REQ-002 to REQ-004): G alone is an optional
+            // stress quantity, so an absent G can be entered by the person with
+            // an explicit unit; nothing supplies it. An existing G is edited in
+            // place under the same rule. E and alpha keep the existing-quantity
+            // route, and a material on the E/nu basis keeps its derived G.
             FieldRule {
                 field_path: "shear_modulus.value",
-                kind: FieldKind::Quantity {
-                    require_positive: true,
-                    unit_source: UnitSource::SiblingUnitField,
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "stress",
                 },
             },
             FieldRule {
