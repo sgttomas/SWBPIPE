@@ -1601,9 +1601,9 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections,
-/// re-run with the inverse-norm gate's certificate workspace (IN-WS, a draft for review) on the
-/// gate's source at b9af83f6a: the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and
-/// E (c = 3), under SQ2 rules; text at l <= 128.
+/// re-run with the inverse-norm gate's certificate workspace charged once in the ordinary-span
+/// phases (IN-WS, draft B for review) on the gate's source at d1069048b: the maximum over routes L
+/// (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
@@ -3013,16 +3013,18 @@ pub(super) mod profile {
         pub(crate) constant: u64,
         pub(crate) terms: &'static [(usize, u64)],
     }
-    pub(crate) const FORMS: [Form; 100] = [
+    pub(crate) const FORMS: [Form; 104] = [
         Form { name: "BODY", constant: 228684780, terms: &[(11, 127033), (313, 143000)] },
         Form { name: "FAILED_MANIFEST_COPY", constant: 376141404, terms: &[(11, 5094), (137, 201474), (173, 1), (194, 4), (203, 96), (255, 12393), (294, 49587), (313, 9354)] },
         Form { name: "FORMATION_VALUE_BUILD", constant: 0, terms: &[] },
         Form { name: "HELPER_moving", constant: 8388608, terms: &[] },
         Form { name: "INVOC", constant: 262272, terms: &[(11, 19662), (313, 32768)] },
+        Form { name: "IN_WS_dense", constant: 188672, terms: &[(108, 768), (109, 192), (110, 1024), (111, 192), (112, 8064), (113, 12), (114, 4), (314, 448)] },
+        Form { name: "IN_WS_sparse", constant: 188672, terms: &[(108, 768), (109, 192), (110, 1024), (111, 192), (112, 8064), (113, 12), (114, 4), (314, 448)] },
         Form { name: "NOTICE", constant: 2154, terms: &[(137, 3), (294, 3)] },
         Form { name: "NOTICE_moving", constant: 0, terms: &[(137, 28782)] },
-        Form { name: "O_base_dense", constant: 261064032, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2438), (26, 1408), (29, 3), (30, 32), (31, 24), (32, 6), (34, 896), (35, 96), (40, 256), (41, 256), (42, 1536), (43, 40960), (45, 96), (47, 192), (49, 576), (51, 4), (53, 84096), (57, 384), (61, 576), (63, 288), (64, 384), (65, 4416), (67, 1308), (68, 224), (69, 384), (71, 197184), (73, 267), (78, 4), (79, 3), (83, 12), (84, 4), (96, 1344), (108, 6912), (109, 1728), (110, 9216), (111, 1728), (112, 72576), (113, 216), (114, 36), (115, 6), (116, 6), (117, 12), (118, 6), (119, 6), (120, 48), (121, 771), (122, 3), (123, 12), (124, 3), (125, 3), (126, 6), (127, 3), (128, 384), (131, 143328), (137, 131936), (138, 12), (139, 384), (140, 3072), (142, 5226), (144, 15), (146, 1443180), (148, 3), (151, 1152), (152, 34176), (153, 1536), (154, 1664), (155, 128), (156, 21360), (161, 256), (162, 55350), (163, 19968), (164, 6144), (165, 6), (166, 12312), (170, 28), (173, 3), (174, 15), (182, 96), (183, 96), (187, 768), (190, 786432), (198, 20388), (202, 672), (203, 1200), (204, 1728), (205, 5280), (206, 4608), (210, 5184), (216, 6), (217, 3), (220, 6), (221, 3), (222, 32), (223, 32), (224, 32), (225, 768), (226, 384), (238, 1344), (239, 12), (240, 6144), (241, 1536), (243, 12864), (244, 15744), (247, 3456), (248, 192), (253, 7680), (254, 3), (255, 52411), (256, 5280), (257, 1152), (262, 11721), (264, 6), (274, 9), (275, 96), (276, 32), (286, 12), (288, 12), (289, 24), (290, 126144), (291, 128), (293, 132), (294, 137640), (295, 96), (297, 256), (299, 96), (300, 32), (301, 24576), (304, 448), (313, 108293), (314, 232809), (315, 1728), (316, 6912), (318, 1728), (319, 7616), (329, 192), (332, 332), (334, 288), (335, 10238)] },
-        Form { name: "O_base_sparse", constant: 239704512, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2438), (26, 1408), (29, 3), (30, 32), (31, 24), (32, 6), (34, 896), (35, 96), (40, 256), (41, 256), (42, 1536), (43, 40960), (45, 96), (47, 192), (49, 576), (51, 4), (53, 84096), (57, 384), (61, 576), (63, 288), (64, 384), (65, 4416), (66, 3456), (67, 4764), (68, 224), (69, 384), (71, 197184), (73, 267), (78, 4), (79, 3), (83, 12), (84, 4), (96, 1344), (108, 6912), (109, 1728), (110, 9216), (111, 1728), (112, 72576), (113, 216), (114, 36), (115, 6), (116, 6), (117, 12), (118, 6), (119, 6), (120, 48), (121, 771), (122, 3), (123, 12), (124, 3), (125, 3), (126, 6), (127, 3), (128, 384), (131, 143328), (137, 131936), (138, 12), (139, 384), (140, 3072), (142, 5226), (144, 15), (146, 283116), (148, 3), (151, 1152), (152, 34176), (153, 1536), (154, 1664), (155, 128), (156, 21360), (161, 256), (162, 55350), (163, 19968), (164, 6144), (165, 6), (166, 12312), (170, 28), (173, 3), (174, 15), (182, 96), (183, 96), (187, 768), (190, 786432), (198, 20388), (202, 672), (203, 1200), (204, 1728), (205, 5280), (206, 4032), (210, 5184), (216, 6), (217, 3), (220, 6), (221, 3), (222, 32), (223, 32), (224, 32), (225, 768), (226, 384), (238, 1344), (239, 12), (240, 6144), (241, 1536), (243, 12864), (244, 15744), (247, 3456), (248, 192), (253, 7680), (254, 3), (255, 52411), (256, 5280), (257, 1152), (262, 11721), (264, 6), (274, 9), (275, 96), (276, 32), (286, 12), (288, 12), (289, 24), (290, 126144), (291, 128), (293, 132), (294, 137640), (295, 96), (297, 256), (299, 96), (300, 32), (301, 12288), (304, 448), (313, 108293), (314, 215529), (315, 1728), (318, 3456), (319, 9920), (329, 192), (332, 332), (334, 288), (335, 10232)] },
+        Form { name: "O_base_dense", constant: 259365984, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2438), (26, 1408), (29, 3), (30, 32), (31, 24), (32, 6), (34, 896), (35, 96), (40, 256), (41, 256), (42, 1536), (43, 40960), (45, 96), (47, 192), (49, 576), (51, 4), (53, 84096), (57, 384), (61, 576), (63, 288), (64, 384), (65, 4416), (67, 1308), (68, 224), (69, 384), (71, 197184), (73, 267), (78, 4), (79, 3), (83, 12), (84, 4), (96, 1344), (115, 6), (116, 6), (117, 12), (118, 6), (119, 6), (120, 48), (121, 771), (122, 3), (123, 12), (124, 3), (125, 3), (126, 6), (127, 3), (128, 384), (131, 143328), (137, 131936), (138, 12), (139, 384), (140, 3072), (142, 5226), (144, 15), (146, 1443180), (148, 3), (151, 1152), (152, 34176), (153, 1536), (154, 1664), (155, 128), (156, 21360), (161, 256), (162, 55350), (163, 19968), (164, 6144), (165, 6), (166, 12312), (170, 28), (173, 3), (174, 15), (182, 96), (183, 96), (187, 768), (190, 786432), (198, 20388), (202, 672), (203, 1200), (204, 1728), (205, 5280), (206, 4608), (210, 5184), (216, 6), (217, 3), (220, 6), (221, 3), (222, 32), (223, 32), (224, 32), (225, 768), (226, 384), (238, 1344), (239, 12), (240, 6144), (241, 1536), (243, 12864), (244, 15744), (247, 3456), (248, 192), (253, 7680), (254, 3), (255, 52411), (256, 5280), (257, 1152), (262, 11721), (264, 6), (274, 9), (275, 96), (276, 32), (286, 12), (288, 12), (289, 24), (290, 126144), (291, 128), (293, 132), (294, 137640), (295, 96), (297, 256), (299, 96), (300, 32), (301, 24576), (304, 448), (313, 108293), (314, 228777), (315, 1728), (316, 6912), (318, 1728), (319, 7616), (329, 192), (332, 332), (334, 288), (335, 10238)] },
+        Form { name: "O_base_sparse", constant: 238006464, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2438), (26, 1408), (29, 3), (30, 32), (31, 24), (32, 6), (34, 896), (35, 96), (40, 256), (41, 256), (42, 1536), (43, 40960), (45, 96), (47, 192), (49, 576), (51, 4), (53, 84096), (57, 384), (61, 576), (63, 288), (64, 384), (65, 4416), (66, 3456), (67, 4764), (68, 224), (69, 384), (71, 197184), (73, 267), (78, 4), (79, 3), (83, 12), (84, 4), (96, 1344), (115, 6), (116, 6), (117, 12), (118, 6), (119, 6), (120, 48), (121, 771), (122, 3), (123, 12), (124, 3), (125, 3), (126, 6), (127, 3), (128, 384), (131, 143328), (137, 131936), (138, 12), (139, 384), (140, 3072), (142, 5226), (144, 15), (146, 283116), (148, 3), (151, 1152), (152, 34176), (153, 1536), (154, 1664), (155, 128), (156, 21360), (161, 256), (162, 55350), (163, 19968), (164, 6144), (165, 6), (166, 12312), (170, 28), (173, 3), (174, 15), (182, 96), (183, 96), (187, 768), (190, 786432), (198, 20388), (202, 672), (203, 1200), (204, 1728), (205, 5280), (206, 4032), (210, 5184), (216, 6), (217, 3), (220, 6), (221, 3), (222, 32), (223, 32), (224, 32), (225, 768), (226, 384), (238, 1344), (239, 12), (240, 6144), (241, 1536), (243, 12864), (244, 15744), (247, 3456), (248, 192), (253, 7680), (254, 3), (255, 52411), (256, 5280), (257, 1152), (262, 11721), (264, 6), (274, 9), (275, 96), (276, 32), (286, 12), (288, 12), (289, 24), (290, 126144), (291, 128), (293, 132), (294, 137640), (295, 96), (297, 256), (299, 96), (300, 32), (301, 12288), (304, 448), (313, 108293), (314, 211497), (315, 1728), (318, 3456), (319, 9920), (329, 192), (332, 332), (334, 288), (335, 10232)] },
         Form { name: "STAGED", constant: 376119666, terms: &[(11, 5094), (137, 28782), (173, 1), (255, 12393), (294, 49572), (313, 9354)] },
         Form { name: "STATICS", constant: 633444, terms: &[(11, 7956), (313, 31722)] },
         Form { name: "SUCC", constant: 607220196, terms: &[(11, 272464), (313, 359588)] },
@@ -3069,10 +3071,12 @@ pub(super) mod profile {
         Form { name: "success__FORMATION_VALUE_BUILD", constant: 0, terms: &[] },
         Form { name: "success__HELPER_moving", constant: 8388608, terms: &[] },
         Form { name: "success__INVOC", constant: 262272, terms: &[(11, 19662), (313, 32768)] },
+        Form { name: "success__IN_WS_dense", constant: 188672, terms: &[(108, 768), (109, 192), (110, 1024), (111, 192), (112, 8064), (113, 12), (114, 4), (314, 448)] },
+        Form { name: "success__IN_WS_sparse", constant: 188672, terms: &[(108, 768), (109, 192), (110, 1024), (111, 192), (112, 8064), (113, 12), (114, 4), (314, 448)] },
         Form { name: "success__NOTICE", constant: 2154, terms: &[(137, 3), (294, 3)] },
         Form { name: "success__NOTICE_moving", constant: 0, terms: &[(137, 28782)] },
-        Form { name: "success__O_base_dense", constant: 261064032, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2438), (26, 1408), (29, 3), (30, 32), (31, 24), (32, 6), (34, 896), (35, 96), (40, 256), (41, 256), (42, 1536), (43, 40960), (45, 96), (47, 192), (49, 576), (51, 4), (53, 84096), (57, 384), (61, 576), (63, 288), (64, 384), (65, 4416), (67, 1308), (68, 224), (69, 384), (71, 197184), (73, 267), (78, 4), (79, 3), (83, 12), (84, 4), (96, 1344), (108, 6912), (109, 1728), (110, 9216), (111, 1728), (112, 72576), (113, 216), (114, 36), (115, 6), (116, 6), (117, 12), (118, 6), (119, 6), (120, 48), (121, 771), (122, 3), (123, 12), (124, 3), (125, 3), (126, 6), (127, 3), (128, 384), (131, 143328), (137, 131936), (138, 12), (139, 384), (140, 3072), (142, 5226), (144, 15), (146, 1443180), (148, 3), (151, 1152), (152, 34176), (153, 1536), (154, 1664), (155, 128), (156, 21360), (161, 256), (162, 55350), (163, 19968), (164, 6144), (165, 6), (166, 12312), (170, 28), (173, 3), (174, 15), (182, 96), (183, 96), (187, 768), (190, 786432), (198, 20388), (202, 672), (203, 1200), (204, 1728), (205, 5280), (206, 4608), (210, 5184), (216, 6), (217, 3), (220, 6), (221, 3), (222, 32), (223, 32), (224, 32), (225, 768), (226, 384), (238, 1344), (239, 12), (240, 6144), (241, 1536), (243, 12864), (244, 15744), (247, 3456), (248, 192), (253, 7680), (254, 3), (255, 52411), (256, 5280), (257, 1152), (262, 11721), (264, 6), (274, 9), (275, 96), (276, 32), (286, 12), (288, 12), (289, 24), (290, 126144), (291, 128), (293, 132), (294, 137640), (295, 96), (297, 256), (299, 96), (300, 32), (301, 24576), (304, 448), (313, 108293), (314, 232809), (315, 1728), (316, 6912), (318, 1728), (319, 7616), (329, 192), (332, 332), (334, 288), (335, 10238)] },
-        Form { name: "success__O_base_sparse", constant: 239704512, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2438), (26, 1408), (29, 3), (30, 32), (31, 24), (32, 6), (34, 896), (35, 96), (40, 256), (41, 256), (42, 1536), (43, 40960), (45, 96), (47, 192), (49, 576), (51, 4), (53, 84096), (57, 384), (61, 576), (63, 288), (64, 384), (65, 4416), (66, 3456), (67, 4764), (68, 224), (69, 384), (71, 197184), (73, 267), (78, 4), (79, 3), (83, 12), (84, 4), (96, 1344), (108, 6912), (109, 1728), (110, 9216), (111, 1728), (112, 72576), (113, 216), (114, 36), (115, 6), (116, 6), (117, 12), (118, 6), (119, 6), (120, 48), (121, 771), (122, 3), (123, 12), (124, 3), (125, 3), (126, 6), (127, 3), (128, 384), (131, 143328), (137, 131936), (138, 12), (139, 384), (140, 3072), (142, 5226), (144, 15), (146, 283116), (148, 3), (151, 1152), (152, 34176), (153, 1536), (154, 1664), (155, 128), (156, 21360), (161, 256), (162, 55350), (163, 19968), (164, 6144), (165, 6), (166, 12312), (170, 28), (173, 3), (174, 15), (182, 96), (183, 96), (187, 768), (190, 786432), (198, 20388), (202, 672), (203, 1200), (204, 1728), (205, 5280), (206, 4032), (210, 5184), (216, 6), (217, 3), (220, 6), (221, 3), (222, 32), (223, 32), (224, 32), (225, 768), (226, 384), (238, 1344), (239, 12), (240, 6144), (241, 1536), (243, 12864), (244, 15744), (247, 3456), (248, 192), (253, 7680), (254, 3), (255, 52411), (256, 5280), (257, 1152), (262, 11721), (264, 6), (274, 9), (275, 96), (276, 32), (286, 12), (288, 12), (289, 24), (290, 126144), (291, 128), (293, 132), (294, 137640), (295, 96), (297, 256), (299, 96), (300, 32), (301, 12288), (304, 448), (313, 108293), (314, 215529), (315, 1728), (318, 3456), (319, 9920), (329, 192), (332, 332), (334, 288), (335, 10232)] },
+        Form { name: "success__O_base_dense", constant: 259365984, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2438), (26, 1408), (29, 3), (30, 32), (31, 24), (32, 6), (34, 896), (35, 96), (40, 256), (41, 256), (42, 1536), (43, 40960), (45, 96), (47, 192), (49, 576), (51, 4), (53, 84096), (57, 384), (61, 576), (63, 288), (64, 384), (65, 4416), (67, 1308), (68, 224), (69, 384), (71, 197184), (73, 267), (78, 4), (79, 3), (83, 12), (84, 4), (96, 1344), (115, 6), (116, 6), (117, 12), (118, 6), (119, 6), (120, 48), (121, 771), (122, 3), (123, 12), (124, 3), (125, 3), (126, 6), (127, 3), (128, 384), (131, 143328), (137, 131936), (138, 12), (139, 384), (140, 3072), (142, 5226), (144, 15), (146, 1443180), (148, 3), (151, 1152), (152, 34176), (153, 1536), (154, 1664), (155, 128), (156, 21360), (161, 256), (162, 55350), (163, 19968), (164, 6144), (165, 6), (166, 12312), (170, 28), (173, 3), (174, 15), (182, 96), (183, 96), (187, 768), (190, 786432), (198, 20388), (202, 672), (203, 1200), (204, 1728), (205, 5280), (206, 4608), (210, 5184), (216, 6), (217, 3), (220, 6), (221, 3), (222, 32), (223, 32), (224, 32), (225, 768), (226, 384), (238, 1344), (239, 12), (240, 6144), (241, 1536), (243, 12864), (244, 15744), (247, 3456), (248, 192), (253, 7680), (254, 3), (255, 52411), (256, 5280), (257, 1152), (262, 11721), (264, 6), (274, 9), (275, 96), (276, 32), (286, 12), (288, 12), (289, 24), (290, 126144), (291, 128), (293, 132), (294, 137640), (295, 96), (297, 256), (299, 96), (300, 32), (301, 24576), (304, 448), (313, 108293), (314, 228777), (315, 1728), (316, 6912), (318, 1728), (319, 7616), (329, 192), (332, 332), (334, 288), (335, 10238)] },
+        Form { name: "success__O_base_sparse", constant: 238006464, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2438), (26, 1408), (29, 3), (30, 32), (31, 24), (32, 6), (34, 896), (35, 96), (40, 256), (41, 256), (42, 1536), (43, 40960), (45, 96), (47, 192), (49, 576), (51, 4), (53, 84096), (57, 384), (61, 576), (63, 288), (64, 384), (65, 4416), (66, 3456), (67, 4764), (68, 224), (69, 384), (71, 197184), (73, 267), (78, 4), (79, 3), (83, 12), (84, 4), (96, 1344), (115, 6), (116, 6), (117, 12), (118, 6), (119, 6), (120, 48), (121, 771), (122, 3), (123, 12), (124, 3), (125, 3), (126, 6), (127, 3), (128, 384), (131, 143328), (137, 131936), (138, 12), (139, 384), (140, 3072), (142, 5226), (144, 15), (146, 283116), (148, 3), (151, 1152), (152, 34176), (153, 1536), (154, 1664), (155, 128), (156, 21360), (161, 256), (162, 55350), (163, 19968), (164, 6144), (165, 6), (166, 12312), (170, 28), (173, 3), (174, 15), (182, 96), (183, 96), (187, 768), (190, 786432), (198, 20388), (202, 672), (203, 1200), (204, 1728), (205, 5280), (206, 4032), (210, 5184), (216, 6), (217, 3), (220, 6), (221, 3), (222, 32), (223, 32), (224, 32), (225, 768), (226, 384), (238, 1344), (239, 12), (240, 6144), (241, 1536), (243, 12864), (244, 15744), (247, 3456), (248, 192), (253, 7680), (254, 3), (255, 52411), (256, 5280), (257, 1152), (262, 11721), (264, 6), (274, 9), (275, 96), (276, 32), (286, 12), (288, 12), (289, 24), (290, 126144), (291, 128), (293, 132), (294, 137640), (295, 96), (297, 256), (299, 96), (300, 32), (301, 12288), (304, 448), (313, 108293), (314, 211497), (315, 1728), (318, 3456), (319, 9920), (329, 192), (332, 332), (334, 288), (335, 10232)] },
         Form { name: "success__STAGED", constant: 376119666, terms: &[(11, 5094), (137, 28782), (173, 1), (255, 12393), (294, 49572), (313, 9354)] },
         Form { name: "success__STATICS", constant: 633444, terms: &[(11, 7956), (313, 31722)] },
         Form { name: "success__SUCC", constant: 607220196, terms: &[(11, 272464), (313, 359588)] },
@@ -3120,101 +3124,105 @@ pub(super) mod profile {
     pub(crate) const F_FORMATION_VALUE_BUILD: usize = 2;
     pub(crate) const F_HELPER_MOVING: usize = 3;
     pub(crate) const F_INVOC: usize = 4;
-    pub(crate) const F_NOTICE: usize = 5;
-    pub(crate) const F_NOTICE_MOVING: usize = 6;
-    pub(crate) const F_O_BASE_DENSE: usize = 7;
-    pub(crate) const F_O_BASE_SPARSE: usize = 8;
-    pub(crate) const F_STAGED: usize = 9;
-    pub(crate) const F_STATICS: usize = 10;
-    pub(crate) const F_SUCC: usize = 11;
-    pub(crate) const F_T07_MOVING: usize = 12;
-    pub(crate) const F_T11: usize = 13;
-    pub(crate) const F_T11_LATE_CAPTURE: usize = 14;
-    pub(crate) const F_T11_ORDINARY_SEED: usize = 15;
-    pub(crate) const F_T12: usize = 16;
-    pub(crate) const F_T13: usize = 17;
-    pub(crate) const F_T14: usize = 18;
-    pub(crate) const F_T15: usize = 19;
-    pub(crate) const F_T16_P1: usize = 20;
-    pub(crate) const F_T16_P2: usize = 21;
-    pub(crate) const F_T16_P3: usize = 22;
-    pub(crate) const F_T16_P4: usize = 23;
-    pub(crate) const F_T16_MOVING: usize = 24;
-    pub(crate) const F_T17_V1: usize = 25;
-    pub(crate) const F_T17_V2_CLONE: usize = 26;
-    pub(crate) const F_T17_V2_HASH: usize = 27;
-    pub(crate) const F_T17_V3: usize = 28;
-    pub(crate) const F_T17_V4: usize = 29;
-    pub(crate) const F_T17_V5: usize = 30;
-    pub(crate) const F_T17_V6: usize = 31;
-    pub(crate) const F_T17_MOVING_INVOCATION: usize = 32;
-    pub(crate) const F_T17_MOVING_PUBLICATION: usize = 33;
-    pub(crate) const F_T17_OUTPUT: usize = 34;
-    pub(crate) const F_T19: usize = 35;
-    pub(crate) const F_T25_I1: usize = 36;
-    pub(crate) const F_T25_I2: usize = 37;
-    pub(crate) const F_T25_I3: usize = 38;
-    pub(crate) const F_T25_S1: usize = 39;
-    pub(crate) const F_T25_S2: usize = 40;
-    pub(crate) const F_T25_S3: usize = 41;
-    pub(crate) const F_T25_S4: usize = 42;
-    pub(crate) const F_T25_S5: usize = 43;
-    pub(crate) const F_T25_CARRIED_CASE: usize = 44;
-    pub(crate) const F_T25_MOVING: usize = 45;
-    pub(crate) const F_TAV_W: usize = 46;
-    pub(crate) const F_TAV_X: usize = 47;
-    pub(crate) const F_TXT_MOVING: usize = 48;
-    pub(crate) const F_W1_MEMBER_READER: usize = 49;
-    pub(crate) const F_SUCCESS_BODY: usize = 50;
-    pub(crate) const F_SUCCESS_FAILED_MANIFEST_COPY: usize = 51;
-    pub(crate) const F_SUCCESS_FORMATION_VALUE_BUILD: usize = 52;
-    pub(crate) const F_SUCCESS_HELPER_MOVING: usize = 53;
-    pub(crate) const F_SUCCESS_INVOC: usize = 54;
-    pub(crate) const F_SUCCESS_NOTICE: usize = 55;
-    pub(crate) const F_SUCCESS_NOTICE_MOVING: usize = 56;
-    pub(crate) const F_SUCCESS_O_BASE_DENSE: usize = 57;
-    pub(crate) const F_SUCCESS_O_BASE_SPARSE: usize = 58;
-    pub(crate) const F_SUCCESS_STAGED: usize = 59;
-    pub(crate) const F_SUCCESS_STATICS: usize = 60;
-    pub(crate) const F_SUCCESS_SUCC: usize = 61;
-    pub(crate) const F_SUCCESS_T07_MOVING: usize = 62;
-    pub(crate) const F_SUCCESS_T11: usize = 63;
-    pub(crate) const F_SUCCESS_T11_LATE_CAPTURE: usize = 64;
-    pub(crate) const F_SUCCESS_T11_ORDINARY_SEED: usize = 65;
-    pub(crate) const F_SUCCESS_T12: usize = 66;
-    pub(crate) const F_SUCCESS_T13: usize = 67;
-    pub(crate) const F_SUCCESS_T14: usize = 68;
-    pub(crate) const F_SUCCESS_T15: usize = 69;
-    pub(crate) const F_SUCCESS_T16_P1: usize = 70;
-    pub(crate) const F_SUCCESS_T16_P2: usize = 71;
-    pub(crate) const F_SUCCESS_T16_P3: usize = 72;
-    pub(crate) const F_SUCCESS_T16_P4: usize = 73;
-    pub(crate) const F_SUCCESS_T16_MOVING: usize = 74;
-    pub(crate) const F_SUCCESS_T17_V1: usize = 75;
-    pub(crate) const F_SUCCESS_T17_V2_CLONE: usize = 76;
-    pub(crate) const F_SUCCESS_T17_V2_HASH: usize = 77;
-    pub(crate) const F_SUCCESS_T17_V3: usize = 78;
-    pub(crate) const F_SUCCESS_T17_V4: usize = 79;
-    pub(crate) const F_SUCCESS_T17_V5: usize = 80;
-    pub(crate) const F_SUCCESS_T17_V6: usize = 81;
-    pub(crate) const F_SUCCESS_T17_MOVING_INVOCATION: usize = 82;
-    pub(crate) const F_SUCCESS_T17_MOVING_PUBLICATION: usize = 83;
-    pub(crate) const F_SUCCESS_T17_OUTPUT: usize = 84;
-    pub(crate) const F_SUCCESS_T19: usize = 85;
-    pub(crate) const F_SUCCESS_T25_I1: usize = 86;
-    pub(crate) const F_SUCCESS_T25_I2: usize = 87;
-    pub(crate) const F_SUCCESS_T25_I3: usize = 88;
-    pub(crate) const F_SUCCESS_T25_S1: usize = 89;
-    pub(crate) const F_SUCCESS_T25_S2: usize = 90;
-    pub(crate) const F_SUCCESS_T25_S3: usize = 91;
-    pub(crate) const F_SUCCESS_T25_S4: usize = 92;
-    pub(crate) const F_SUCCESS_T25_S5: usize = 93;
-    pub(crate) const F_SUCCESS_T25_CARRIED_CASE: usize = 94;
-    pub(crate) const F_SUCCESS_T25_MOVING: usize = 95;
-    pub(crate) const F_SUCCESS_TAV_W: usize = 96;
-    pub(crate) const F_SUCCESS_TAV_X: usize = 97;
-    pub(crate) const F_SUCCESS_TXT_MOVING: usize = 98;
-    pub(crate) const F_SUCCESS_W1_MEMBER_READER: usize = 99;
+    pub(crate) const F_IN_WS_DENSE: usize = 5;
+    pub(crate) const F_IN_WS_SPARSE: usize = 6;
+    pub(crate) const F_NOTICE: usize = 7;
+    pub(crate) const F_NOTICE_MOVING: usize = 8;
+    pub(crate) const F_O_BASE_DENSE: usize = 9;
+    pub(crate) const F_O_BASE_SPARSE: usize = 10;
+    pub(crate) const F_STAGED: usize = 11;
+    pub(crate) const F_STATICS: usize = 12;
+    pub(crate) const F_SUCC: usize = 13;
+    pub(crate) const F_T07_MOVING: usize = 14;
+    pub(crate) const F_T11: usize = 15;
+    pub(crate) const F_T11_LATE_CAPTURE: usize = 16;
+    pub(crate) const F_T11_ORDINARY_SEED: usize = 17;
+    pub(crate) const F_T12: usize = 18;
+    pub(crate) const F_T13: usize = 19;
+    pub(crate) const F_T14: usize = 20;
+    pub(crate) const F_T15: usize = 21;
+    pub(crate) const F_T16_P1: usize = 22;
+    pub(crate) const F_T16_P2: usize = 23;
+    pub(crate) const F_T16_P3: usize = 24;
+    pub(crate) const F_T16_P4: usize = 25;
+    pub(crate) const F_T16_MOVING: usize = 26;
+    pub(crate) const F_T17_V1: usize = 27;
+    pub(crate) const F_T17_V2_CLONE: usize = 28;
+    pub(crate) const F_T17_V2_HASH: usize = 29;
+    pub(crate) const F_T17_V3: usize = 30;
+    pub(crate) const F_T17_V4: usize = 31;
+    pub(crate) const F_T17_V5: usize = 32;
+    pub(crate) const F_T17_V6: usize = 33;
+    pub(crate) const F_T17_MOVING_INVOCATION: usize = 34;
+    pub(crate) const F_T17_MOVING_PUBLICATION: usize = 35;
+    pub(crate) const F_T17_OUTPUT: usize = 36;
+    pub(crate) const F_T19: usize = 37;
+    pub(crate) const F_T25_I1: usize = 38;
+    pub(crate) const F_T25_I2: usize = 39;
+    pub(crate) const F_T25_I3: usize = 40;
+    pub(crate) const F_T25_S1: usize = 41;
+    pub(crate) const F_T25_S2: usize = 42;
+    pub(crate) const F_T25_S3: usize = 43;
+    pub(crate) const F_T25_S4: usize = 44;
+    pub(crate) const F_T25_S5: usize = 45;
+    pub(crate) const F_T25_CARRIED_CASE: usize = 46;
+    pub(crate) const F_T25_MOVING: usize = 47;
+    pub(crate) const F_TAV_W: usize = 48;
+    pub(crate) const F_TAV_X: usize = 49;
+    pub(crate) const F_TXT_MOVING: usize = 50;
+    pub(crate) const F_W1_MEMBER_READER: usize = 51;
+    pub(crate) const F_SUCCESS_BODY: usize = 52;
+    pub(crate) const F_SUCCESS_FAILED_MANIFEST_COPY: usize = 53;
+    pub(crate) const F_SUCCESS_FORMATION_VALUE_BUILD: usize = 54;
+    pub(crate) const F_SUCCESS_HELPER_MOVING: usize = 55;
+    pub(crate) const F_SUCCESS_INVOC: usize = 56;
+    pub(crate) const F_SUCCESS_IN_WS_DENSE: usize = 57;
+    pub(crate) const F_SUCCESS_IN_WS_SPARSE: usize = 58;
+    pub(crate) const F_SUCCESS_NOTICE: usize = 59;
+    pub(crate) const F_SUCCESS_NOTICE_MOVING: usize = 60;
+    pub(crate) const F_SUCCESS_O_BASE_DENSE: usize = 61;
+    pub(crate) const F_SUCCESS_O_BASE_SPARSE: usize = 62;
+    pub(crate) const F_SUCCESS_STAGED: usize = 63;
+    pub(crate) const F_SUCCESS_STATICS: usize = 64;
+    pub(crate) const F_SUCCESS_SUCC: usize = 65;
+    pub(crate) const F_SUCCESS_T07_MOVING: usize = 66;
+    pub(crate) const F_SUCCESS_T11: usize = 67;
+    pub(crate) const F_SUCCESS_T11_LATE_CAPTURE: usize = 68;
+    pub(crate) const F_SUCCESS_T11_ORDINARY_SEED: usize = 69;
+    pub(crate) const F_SUCCESS_T12: usize = 70;
+    pub(crate) const F_SUCCESS_T13: usize = 71;
+    pub(crate) const F_SUCCESS_T14: usize = 72;
+    pub(crate) const F_SUCCESS_T15: usize = 73;
+    pub(crate) const F_SUCCESS_T16_P1: usize = 74;
+    pub(crate) const F_SUCCESS_T16_P2: usize = 75;
+    pub(crate) const F_SUCCESS_T16_P3: usize = 76;
+    pub(crate) const F_SUCCESS_T16_P4: usize = 77;
+    pub(crate) const F_SUCCESS_T16_MOVING: usize = 78;
+    pub(crate) const F_SUCCESS_T17_V1: usize = 79;
+    pub(crate) const F_SUCCESS_T17_V2_CLONE: usize = 80;
+    pub(crate) const F_SUCCESS_T17_V2_HASH: usize = 81;
+    pub(crate) const F_SUCCESS_T17_V3: usize = 82;
+    pub(crate) const F_SUCCESS_T17_V4: usize = 83;
+    pub(crate) const F_SUCCESS_T17_V5: usize = 84;
+    pub(crate) const F_SUCCESS_T17_V6: usize = 85;
+    pub(crate) const F_SUCCESS_T17_MOVING_INVOCATION: usize = 86;
+    pub(crate) const F_SUCCESS_T17_MOVING_PUBLICATION: usize = 87;
+    pub(crate) const F_SUCCESS_T17_OUTPUT: usize = 88;
+    pub(crate) const F_SUCCESS_T19: usize = 89;
+    pub(crate) const F_SUCCESS_T25_I1: usize = 90;
+    pub(crate) const F_SUCCESS_T25_I2: usize = 91;
+    pub(crate) const F_SUCCESS_T25_I3: usize = 92;
+    pub(crate) const F_SUCCESS_T25_S1: usize = 93;
+    pub(crate) const F_SUCCESS_T25_S2: usize = 94;
+    pub(crate) const F_SUCCESS_T25_S3: usize = 95;
+    pub(crate) const F_SUCCESS_T25_S4: usize = 96;
+    pub(crate) const F_SUCCESS_T25_S5: usize = 97;
+    pub(crate) const F_SUCCESS_T25_CARRIED_CASE: usize = 98;
+    pub(crate) const F_SUCCESS_T25_MOVING: usize = 99;
+    pub(crate) const F_SUCCESS_TAV_W: usize = 100;
+    pub(crate) const F_SUCCESS_TAV_X: usize = 101;
+    pub(crate) const F_SUCCESS_TXT_MOVING: usize = 102;
+    pub(crate) const F_SUCCESS_W1_MEMBER_READER: usize = 103;
     /// A form's value at the given atom values, in checked arithmetic.
     pub(crate) const fn form(f: &Form, v: &[u64; ATOMS]) -> Option<u64> {
         let mut total = f.constant;
@@ -3242,35 +3250,35 @@ pub(super) mod profile {
     }
     /// T12_T15 (sum of its terms, taken in the build).
     pub(crate) const fn t12_t15(v: &[u64; ATOMS]) -> Option<u64> {
-        add(add(add(form(&FORMS[16], v), form(&FORMS[17], v)), form(&FORMS[18], v)), form(&FORMS[19], v))
+        add(add(add(form(&FORMS[18], v), form(&FORMS[19], v)), form(&FORMS[20], v)), form(&FORMS[21], v))
     }
     /// T16 (maximum of its terms, taken in the build).
     pub(crate) const fn t16(v: &[u64; ATOMS]) -> Option<u64> {
-        max(max(max(form(&FORMS[20], v), form(&FORMS[21], v)), form(&FORMS[22], v)), form(&FORMS[23], v))
+        max(max(max(form(&FORMS[22], v), form(&FORMS[23], v)), form(&FORMS[24], v)), form(&FORMS[25], v))
     }
     /// T17 (sum of its terms, taken in the build).
     pub(crate) const fn t17(v: &[u64; ATOMS]) -> Option<u64> {
-        add(max(max(max(max(max(max(form(&FORMS[25], v), form(&FORMS[26], v)), form(&FORMS[27], v)), form(&FORMS[28], v)), form(&FORMS[29], v)), form(&FORMS[30], v)), form(&FORMS[31], v)), form(&FORMS[34], v))
+        add(max(max(max(max(max(max(form(&FORMS[27], v), form(&FORMS[28], v)), form(&FORMS[29], v)), form(&FORMS[30], v)), form(&FORMS[31], v)), form(&FORMS[32], v)), form(&FORMS[33], v)), form(&FORMS[36], v))
     }
     /// T25 (sum of its terms, taken in the build).
     pub(crate) const fn t25(v: &[u64; ATOMS]) -> Option<u64> {
-        add(form(&FORMS[44], v), max(max(max(max(max(max(max(form(&FORMS[39], v), form(&FORMS[40], v)), form(&FORMS[41], v)), form(&FORMS[42], v)), form(&FORMS[43], v)), form(&FORMS[36], v)), form(&FORMS[37], v)), form(&FORMS[38], v)))
+        add(form(&FORMS[46], v), max(max(max(max(max(max(max(form(&FORMS[41], v), form(&FORMS[42], v)), form(&FORMS[43], v)), form(&FORMS[44], v)), form(&FORMS[45], v)), form(&FORMS[38], v)), form(&FORMS[39], v)), form(&FORMS[40], v)))
     }
     /// success__T12_T15 (sum of its terms, taken in the build).
     pub(crate) const fn success__t12_t15(v: &[u64; ATOMS]) -> Option<u64> {
-        add(add(add(form(&FORMS[66], v), form(&FORMS[67], v)), form(&FORMS[68], v)), form(&FORMS[69], v))
+        add(add(add(form(&FORMS[70], v), form(&FORMS[71], v)), form(&FORMS[72], v)), form(&FORMS[73], v))
     }
     /// success__T16 (maximum of its terms, taken in the build).
     pub(crate) const fn success__t16(v: &[u64; ATOMS]) -> Option<u64> {
-        max(max(max(form(&FORMS[70], v), form(&FORMS[71], v)), form(&FORMS[72], v)), form(&FORMS[73], v))
+        max(max(max(form(&FORMS[74], v), form(&FORMS[75], v)), form(&FORMS[76], v)), form(&FORMS[77], v))
     }
     /// success__T17 (sum of its terms, taken in the build).
     pub(crate) const fn success__t17(v: &[u64; ATOMS]) -> Option<u64> {
-        add(max(max(max(max(max(max(form(&FORMS[75], v), form(&FORMS[76], v)), form(&FORMS[77], v)), form(&FORMS[78], v)), form(&FORMS[79], v)), form(&FORMS[80], v)), form(&FORMS[81], v)), form(&FORMS[84], v))
+        add(max(max(max(max(max(max(form(&FORMS[79], v), form(&FORMS[80], v)), form(&FORMS[81], v)), form(&FORMS[82], v)), form(&FORMS[83], v)), form(&FORMS[84], v)), form(&FORMS[85], v)), form(&FORMS[88], v))
     }
     /// success__T25 (sum of its terms, taken in the build).
     pub(crate) const fn success__t25(v: &[u64; ATOMS]) -> Option<u64> {
-        add(form(&FORMS[94], v), max(max(max(max(max(max(max(form(&FORMS[89], v), form(&FORMS[90], v)), form(&FORMS[91], v)), form(&FORMS[92], v)), form(&FORMS[93], v)), form(&FORMS[86], v)), form(&FORMS[87], v)), form(&FORMS[88], v)))
+        add(form(&FORMS[98], v), max(max(max(max(max(max(max(form(&FORMS[93], v), form(&FORMS[94], v)), form(&FORMS[95], v)), form(&FORMS[96], v)), form(&FORMS[97], v)), form(&FORMS[90], v)), form(&FORMS[91], v)), form(&FORMS[92], v)))
     }
     pub(crate) const PHASES: usize = 8;
     pub(crate) const PHASE_NAMES: [&str; PHASES] = [
@@ -3286,27 +3294,27 @@ pub(super) mod profile {
     /// The phases for sparse mode: requested bytes, and the largest moving extra (E_mov, without R).
     pub(crate) const fn phases_sparse(v: &[u64; ATOMS]) -> [(Option<u64>, Option<u64>); PHASES] {
         [
-            (add(add(add(add(add(add(add(form(&FORMS[8], v), form(&FORMS[46], v)), form(&FORMS[13], v)), form(&FORMS[35], v)), form(&FORMS[10], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[49], v)), max(max(form(&FORMS[48], v), form(&FORMS[3], v)), form(&FORMS[12], v))), // W1
-            (add(add(add(add(add(add(add(add(add(form(&FORMS[8], v), form(&FORMS[46], v)), t12_t15(v)), form(&FORMS[5], v)), form(&FORMS[13], v)), form(&FORMS[35], v)), form(&FORMS[10], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[49], v)), max(max(form(&FORMS[48], v), form(&FORMS[3], v)), form(&FORMS[6], v))), // W2
-            (add(add(add(add(add(add(add(add(add(add(add(form(&FORMS[58], v), form(&FORMS[96], v)), success__t12_t15(v)), form(&FORMS[55], v)), form(&FORMS[63], v)), form(&FORMS[85], v)), form(&FORMS[60], v)), form(&FORMS[51], v)), form(&FORMS[52], v)), form(&FORMS[99], v)), form(&FORMS[59], v)), success__t16(v)), max(max(form(&FORMS[98], v), form(&FORMS[53], v)), form(&FORMS[74], v))), // W3
-            (add(add(add(add(add(add(add(add(add(add(add(add(form(&FORMS[58], v), form(&FORMS[96], v)), success__t12_t15(v)), form(&FORMS[55], v)), form(&FORMS[63], v)), form(&FORMS[85], v)), form(&FORMS[60], v)), form(&FORMS[51], v)), form(&FORMS[52], v)), form(&FORMS[99], v)), form(&FORMS[61], v)), form(&FORMS[54], v)), success__t17(v)), max(max(max(form(&FORMS[98], v), form(&FORMS[53], v)), form(&FORMS[83], v)), form(&FORMS[82], v))), // W4
-            (add(add(add(add(add(add(add(add(add(add(form(&FORMS[58], v), form(&FORMS[96], v)), success__t12_t15(v)), form(&FORMS[55], v)), form(&FORMS[63], v)), form(&FORMS[85], v)), form(&FORMS[60], v)), form(&FORMS[51], v)), form(&FORMS[52], v)), form(&FORMS[99], v)), form(&FORMS[61], v)), max(form(&FORMS[98], v), form(&FORMS[53], v))), // W5
-            (add(add(add(add(add(add(add(add(form(&FORMS[8], v), t25(v)), form(&FORMS[47], v)), form(&FORMS[13], v)), form(&FORMS[35], v)), form(&FORMS[10], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[49], v)), max(max(form(&FORMS[45], v), form(&FORMS[48], v)), form(&FORMS[3], v))), // X1
-            (add(add(add(add(add(add(add(add(add(form(&FORMS[8], v), form(&FORMS[0], v)), form(&FORMS[47], v)), form(&FORMS[5], v)), form(&FORMS[13], v)), form(&FORMS[35], v)), form(&FORMS[10], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[49], v)), max(max(form(&FORMS[48], v), form(&FORMS[3], v)), form(&FORMS[6], v))), // X2
-            (add(add(add(add(add(add(add(form(&FORMS[8], v), form(&FORMS[47], v)), form(&FORMS[13], v)), form(&FORMS[35], v)), form(&FORMS[10], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[49], v)), max(max(form(&FORMS[48], v), form(&FORMS[3], v)), form(&FORMS[12], v))), // X3
+            (add(add(add(add(add(add(add(add(form(&FORMS[10], v), form(&FORMS[48], v)), form(&FORMS[6], v)), form(&FORMS[15], v)), form(&FORMS[37], v)), form(&FORMS[12], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[51], v)), max(max(form(&FORMS[50], v), form(&FORMS[3], v)), form(&FORMS[14], v))), // W1
+            (add(add(add(add(add(add(add(add(add(form(&FORMS[10], v), form(&FORMS[48], v)), t12_t15(v)), form(&FORMS[7], v)), form(&FORMS[15], v)), form(&FORMS[37], v)), form(&FORMS[12], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[51], v)), max(max(form(&FORMS[50], v), form(&FORMS[3], v)), form(&FORMS[8], v))), // W2
+            (add(add(add(add(add(add(add(add(add(add(add(form(&FORMS[62], v), form(&FORMS[100], v)), success__t12_t15(v)), form(&FORMS[59], v)), form(&FORMS[67], v)), form(&FORMS[89], v)), form(&FORMS[64], v)), form(&FORMS[53], v)), form(&FORMS[54], v)), form(&FORMS[103], v)), form(&FORMS[63], v)), success__t16(v)), max(max(form(&FORMS[102], v), form(&FORMS[55], v)), form(&FORMS[78], v))), // W3
+            (add(add(add(add(add(add(add(add(add(add(add(add(form(&FORMS[62], v), form(&FORMS[100], v)), success__t12_t15(v)), form(&FORMS[59], v)), form(&FORMS[67], v)), form(&FORMS[89], v)), form(&FORMS[64], v)), form(&FORMS[53], v)), form(&FORMS[54], v)), form(&FORMS[103], v)), form(&FORMS[65], v)), form(&FORMS[56], v)), success__t17(v)), max(max(max(form(&FORMS[102], v), form(&FORMS[55], v)), form(&FORMS[87], v)), form(&FORMS[86], v))), // W4
+            (add(add(add(add(add(add(add(add(add(add(form(&FORMS[62], v), form(&FORMS[100], v)), success__t12_t15(v)), form(&FORMS[59], v)), form(&FORMS[67], v)), form(&FORMS[89], v)), form(&FORMS[64], v)), form(&FORMS[53], v)), form(&FORMS[54], v)), form(&FORMS[103], v)), form(&FORMS[65], v)), max(form(&FORMS[102], v), form(&FORMS[55], v))), // W5
+            (add(add(add(add(add(add(add(add(add(form(&FORMS[10], v), t25(v)), form(&FORMS[49], v)), form(&FORMS[6], v)), form(&FORMS[15], v)), form(&FORMS[37], v)), form(&FORMS[12], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[51], v)), max(max(form(&FORMS[47], v), form(&FORMS[50], v)), form(&FORMS[3], v))), // X1
+            (add(add(add(add(add(add(add(add(add(form(&FORMS[10], v), form(&FORMS[0], v)), form(&FORMS[49], v)), form(&FORMS[7], v)), form(&FORMS[15], v)), form(&FORMS[37], v)), form(&FORMS[12], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[51], v)), max(max(form(&FORMS[50], v), form(&FORMS[3], v)), form(&FORMS[8], v))), // X2
+            (add(add(add(add(add(add(add(add(form(&FORMS[10], v), form(&FORMS[49], v)), form(&FORMS[6], v)), form(&FORMS[15], v)), form(&FORMS[37], v)), form(&FORMS[12], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[51], v)), max(max(form(&FORMS[50], v), form(&FORMS[3], v)), form(&FORMS[14], v))), // X3
         ]
     }
     /// The phases for dense mode: requested bytes, and the largest moving extra (E_mov, without R).
     pub(crate) const fn phases_dense(v: &[u64; ATOMS]) -> [(Option<u64>, Option<u64>); PHASES] {
         [
-            (add(add(add(add(add(add(add(form(&FORMS[7], v), form(&FORMS[46], v)), form(&FORMS[13], v)), form(&FORMS[35], v)), form(&FORMS[10], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[49], v)), max(max(form(&FORMS[48], v), form(&FORMS[3], v)), form(&FORMS[12], v))), // W1
-            (add(add(add(add(add(add(add(add(add(form(&FORMS[7], v), form(&FORMS[46], v)), t12_t15(v)), form(&FORMS[5], v)), form(&FORMS[13], v)), form(&FORMS[35], v)), form(&FORMS[10], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[49], v)), max(max(form(&FORMS[48], v), form(&FORMS[3], v)), form(&FORMS[6], v))), // W2
-            (add(add(add(add(add(add(add(add(add(add(add(form(&FORMS[57], v), form(&FORMS[96], v)), success__t12_t15(v)), form(&FORMS[55], v)), form(&FORMS[63], v)), form(&FORMS[85], v)), form(&FORMS[60], v)), form(&FORMS[51], v)), form(&FORMS[52], v)), form(&FORMS[99], v)), form(&FORMS[59], v)), success__t16(v)), max(max(form(&FORMS[98], v), form(&FORMS[53], v)), form(&FORMS[74], v))), // W3
-            (add(add(add(add(add(add(add(add(add(add(add(add(form(&FORMS[57], v), form(&FORMS[96], v)), success__t12_t15(v)), form(&FORMS[55], v)), form(&FORMS[63], v)), form(&FORMS[85], v)), form(&FORMS[60], v)), form(&FORMS[51], v)), form(&FORMS[52], v)), form(&FORMS[99], v)), form(&FORMS[61], v)), form(&FORMS[54], v)), success__t17(v)), max(max(max(form(&FORMS[98], v), form(&FORMS[53], v)), form(&FORMS[83], v)), form(&FORMS[82], v))), // W4
-            (add(add(add(add(add(add(add(add(add(add(form(&FORMS[57], v), form(&FORMS[96], v)), success__t12_t15(v)), form(&FORMS[55], v)), form(&FORMS[63], v)), form(&FORMS[85], v)), form(&FORMS[60], v)), form(&FORMS[51], v)), form(&FORMS[52], v)), form(&FORMS[99], v)), form(&FORMS[61], v)), max(form(&FORMS[98], v), form(&FORMS[53], v))), // W5
-            (add(add(add(add(add(add(add(add(form(&FORMS[7], v), t25(v)), form(&FORMS[47], v)), form(&FORMS[13], v)), form(&FORMS[35], v)), form(&FORMS[10], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[49], v)), max(max(form(&FORMS[45], v), form(&FORMS[48], v)), form(&FORMS[3], v))), // X1
-            (add(add(add(add(add(add(add(add(add(form(&FORMS[7], v), form(&FORMS[0], v)), form(&FORMS[47], v)), form(&FORMS[5], v)), form(&FORMS[13], v)), form(&FORMS[35], v)), form(&FORMS[10], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[49], v)), max(max(form(&FORMS[48], v), form(&FORMS[3], v)), form(&FORMS[6], v))), // X2
-            (add(add(add(add(add(add(add(form(&FORMS[7], v), form(&FORMS[47], v)), form(&FORMS[13], v)), form(&FORMS[35], v)), form(&FORMS[10], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[49], v)), max(max(form(&FORMS[48], v), form(&FORMS[3], v)), form(&FORMS[12], v))), // X3
+            (add(add(add(add(add(add(add(add(form(&FORMS[9], v), form(&FORMS[48], v)), form(&FORMS[5], v)), form(&FORMS[15], v)), form(&FORMS[37], v)), form(&FORMS[12], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[51], v)), max(max(form(&FORMS[50], v), form(&FORMS[3], v)), form(&FORMS[14], v))), // W1
+            (add(add(add(add(add(add(add(add(add(form(&FORMS[9], v), form(&FORMS[48], v)), t12_t15(v)), form(&FORMS[7], v)), form(&FORMS[15], v)), form(&FORMS[37], v)), form(&FORMS[12], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[51], v)), max(max(form(&FORMS[50], v), form(&FORMS[3], v)), form(&FORMS[8], v))), // W2
+            (add(add(add(add(add(add(add(add(add(add(add(form(&FORMS[61], v), form(&FORMS[100], v)), success__t12_t15(v)), form(&FORMS[59], v)), form(&FORMS[67], v)), form(&FORMS[89], v)), form(&FORMS[64], v)), form(&FORMS[53], v)), form(&FORMS[54], v)), form(&FORMS[103], v)), form(&FORMS[63], v)), success__t16(v)), max(max(form(&FORMS[102], v), form(&FORMS[55], v)), form(&FORMS[78], v))), // W3
+            (add(add(add(add(add(add(add(add(add(add(add(add(form(&FORMS[61], v), form(&FORMS[100], v)), success__t12_t15(v)), form(&FORMS[59], v)), form(&FORMS[67], v)), form(&FORMS[89], v)), form(&FORMS[64], v)), form(&FORMS[53], v)), form(&FORMS[54], v)), form(&FORMS[103], v)), form(&FORMS[65], v)), form(&FORMS[56], v)), success__t17(v)), max(max(max(form(&FORMS[102], v), form(&FORMS[55], v)), form(&FORMS[87], v)), form(&FORMS[86], v))), // W4
+            (add(add(add(add(add(add(add(add(add(add(form(&FORMS[61], v), form(&FORMS[100], v)), success__t12_t15(v)), form(&FORMS[59], v)), form(&FORMS[67], v)), form(&FORMS[89], v)), form(&FORMS[64], v)), form(&FORMS[53], v)), form(&FORMS[54], v)), form(&FORMS[103], v)), form(&FORMS[65], v)), max(form(&FORMS[102], v), form(&FORMS[55], v))), // W5
+            (add(add(add(add(add(add(add(add(add(form(&FORMS[9], v), t25(v)), form(&FORMS[49], v)), form(&FORMS[5], v)), form(&FORMS[15], v)), form(&FORMS[37], v)), form(&FORMS[12], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[51], v)), max(max(form(&FORMS[47], v), form(&FORMS[50], v)), form(&FORMS[3], v))), // X1
+            (add(add(add(add(add(add(add(add(add(form(&FORMS[9], v), form(&FORMS[0], v)), form(&FORMS[49], v)), form(&FORMS[7], v)), form(&FORMS[15], v)), form(&FORMS[37], v)), form(&FORMS[12], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[51], v)), max(max(form(&FORMS[50], v), form(&FORMS[3], v)), form(&FORMS[8], v))), // X2
+            (add(add(add(add(add(add(add(add(form(&FORMS[9], v), form(&FORMS[49], v)), form(&FORMS[5], v)), form(&FORMS[15], v)), form(&FORMS[37], v)), form(&FORMS[12], v)), form(&FORMS[1], v)), form(&FORMS[2], v)), form(&FORMS[51], v)), max(max(form(&FORMS[50], v), form(&FORMS[3], v)), form(&FORMS[14], v))), // X3
         ]
     }
     /// The admission maximum without R: max over the phases of requested + moving.
@@ -3339,7 +3347,7 @@ pub(super) mod profile {
     pub(crate) const DENSE: Option<(u64, usize)> = maximum(&phases_dense(&ATOM_VALUES));
     /// The Python chain's own evaluation (ASSUMED strides), for the transcription check.
     #[cfg(test)]
-    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8556124514, "W3 publication (T16) with the staged copy"), (8615255858, "W3 publication (T16) with the staged copy")];
+    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8551675202, "W3 publication (T16) with the staged copy"), (8610806546, "W3 publication (T16) with the staged copy")];
 }
 // ---- END GENERATED PROFILE ----
 
