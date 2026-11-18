@@ -38,6 +38,15 @@ use serde_json::{json, Value};
 /// TEST-LOCAL depth cap for every walk here.
 const CAP: u64 = 200;
 
+/// 2^bits where this target's `usize` holds it with room for the writer's
+/// `+ 1`, else 2^(usize::BITS − 2): a value past every safe integer on a
+/// 64-bit target, and the widest that stays representable on a narrower one
+/// (where such a case tests only what that width allows).
+const fn modal_env_wide(bits: u32) -> usize {
+    let limit = usize::BITS - 2;
+    1usize << if bits < limit { bits } else { limit }
+}
+
 // ---------------------------------------------------------------------------
 // The oracle: an independent walk of a built value.
 
@@ -369,8 +378,8 @@ fn modal_env_variants(outcome: &ModalOutcome) -> Vec<(&'static str, ModalOutcome
         o.bounding_box_diagonal = 2e16;
     });
     add("null checksums when hashing refuses", &|o| {
-        o.integrity.computed[0].index = 1 << 60;
-        o.clusters[0].id = 1 << 53;
+        o.integrity.computed[0].index = modal_env_wide(60);
+        o.clusters[0].id = modal_env_wide(53);
         o.reported.bounded_count = usize::MAX;
     });
     add("an unresolved census", &|o| {
@@ -445,7 +454,7 @@ fn modal_env_variants(outcome: &ModalOutcome) -> Vec<(&'static str, ModalOutcome
     });
     add("every candidate decision", &|o| {
         let factored = FactoredShift {
-            negative_pivot_count: 1 << 54,
+            negative_pivot_count: modal_env_wide(54),
             factor_term: 1e-12,
             backward_error: 2e-12,
             inverse_norm_estimate: f64::INFINITY,
@@ -640,7 +649,7 @@ fn modal_env_adversarial() -> Vec<(String, Value, ModalIntegrityParameters, Stri
     let mut odd = test_local_parameters();
     odd.residual_threshold = f64::NAN;
     odd.sturm_growth_limit = 1e300;
-    odd.sturm_max_candidates = 1 << 60;
+    odd.sturm_max_candidates = modal_env_wide(60);
     odd.sturm_gap_log_positions.push(f64::INFINITY);
     all.push(("parameters outside the profile".to_owned(), with(pf_request(false), json!({"zz": 1})), odd, "test-local".to_owned()));
     all
@@ -825,6 +834,8 @@ fn modal_env_writer_width_arithmetic_is_checked_at_the_usize_limit() {
     assert!(unprojectable(modal_env_ordinal(usize::MAX / 3 + 2, 3, 0)), "a participation ordinal (:768)");
     assert!(unprojectable(modal_env_ordinal(2, 3, usize::MAX)), "an ordinal's offset");
     assert_eq!(modal_env_ordinal(1, 6, usize::MAX).unwrap(), usize::MAX as u64);
+    assert_eq!(modal_env_dofs(usize::MAX / 6).unwrap(), usize::MAX / 6 * 6, "6·nodes at the limit (:555)");
+    assert!(matches!(modal_env_dofs(usize::MAX / 6 + 1), Err(ModalEnvelopeError::Unprojectable { what: "global dofs past usize" })), "one over");
     assert_eq!(modal_env_ordinal(usize::MAX / 3 + 1, 3, 0).unwrap(), (usize::MAX / 3 * 3) as u64);
     assert!(unprojectable(modal_env_ordinal(usize::MAX / 3 + 1, 3, usize::MAX - usize::MAX / 3 * 3 + 1)));
     // Every site the writer reaches first, on a solved outcome: the mirror
@@ -906,6 +917,74 @@ fn modal_env_the_longest_refusal_message_is_within_the_refusal_stage() {
     assert!(message.starts_with("CHECKED-JSON-INVALID: recursion limit exceeded at line 1 column "), "{message}");
     assert!(message.len() as u64 <= MODAL_ENV_PARSE_MESSAGE_MAX, "{message}");
     assert!(3 * message.len() as u64 + 64 <= stage);
+}
+
+#[test]
+fn modal_env_the_fixed_hash_terms_are_in_the_formula() {
+    // A scalar null: the serialized text 128 + 3·4 and the escape scratch
+    // 3·4 + 8, nothing parsed into the heap, no names or depth; its writing
+    // stage K = 8 + 3·4 + 128 + 3·4 + 256 + 384 = 800 is below the refusal
+    // stage, so HP = 160 + R. Disconnecting R from the formula fails this.
+    let null = modal_env_value(&json!(null), CAP).unwrap();
+    assert_eq!(modal_env_refusal_stage(), 1038);
+    assert_eq!(modal_env_hash_peak(&null).unwrap(), 140 + 20 + 1038);
+    // The same tally holding a float (its canonical text 25, K = 863 < R):
+    // HP rises by the limbs term exactly. Disconnecting it fails this.
+    let float = ModalDocumentTally { floats: 1, float_bytes: 4, ..null };
+    assert_eq!(modal_env_hash_peak(&float).unwrap() - modal_env_hash_peak(&null).unwrap(), MODAL_ENV_FLOAT_PARSE_BYTES);
+    assert_eq!(MODAL_ENV_FLOAT_PARSE_BYTES, 320);
+}
+
+#[test]
+fn modal_env_layouts_past_the_targets_isize_max_are_refused() {
+    // Modelled widths: a 32-bit target's isize::MAX and this host's; no
+    // large buffer is made (every tally is synthetic).
+    let narrow = i32::MAX as u64;
+    let host = MODAL_ENV_LAYOUT_MAX;
+    assert_eq!(host, isize::MAX as u64);
+    let refused = |r: ModalEnvelopeResult<()>, figure: &str| matches!(r, Err(ModalEnvelopeError::Unprojectable { what }) if what.contains(figure));
+    for limit in [narrow, host] {
+        assert!(modal_env_laid_out(limit, limit, limit, limit).is_ok(), "exact at the limit");
+        assert!(refused(modal_env_laid_out(0, limit + 1, limit + 1, limit), "hashed"), "a hash one over");
+        assert!(refused(modal_env_laid_out(limit + 1, 0, limit + 1, limit), "document"), "the document one over");
+        assert!(refused(modal_env_laid_out(0, 0, limit + 1, limit), "construction"), "the construction one over");
+    }
+    // The reader's witness: a request whose undeclared member holds n NUL
+    // bytes, 6 escaped bytes each. At n = 180 million the serializer's
+    // buffer grows from 128 by doubling past 1 GiB to a 2 GiB request,
+    // above a 32-bit isize::MAX; HP's serialized-text term (128 + 3·W_c)
+    // counts that request beside the old buffer.
+    let request = |n: u64| {
+        let mut object = ModalEnvelopeObject::default();
+        object.modal_env_member("zz", modal_env_string(ModalEnvelopeText { raw: n, escaped: 6 * n }).unwrap()).unwrap();
+        object.modal_env_object().unwrap()
+    };
+    let hp = |n: u64| modal_env_hash_peak(&request(n)).unwrap();
+    let witness = request(180_000_000);
+    assert_eq!(witness.wire, 6 * 180_000_000 + 2 + 4 + 1 + 2);
+    assert!(2u64 << 30 > narrow && 128 + 3 * witness.wire >= (1u64 << 30) + (2u64 << 30), "the 2 GiB request beside the 1 GiB buffer is a term of HP");
+    assert!(refused(modal_env_laid_out(modal_env_heap(&witness).unwrap(), hp(180_000_000), hp(180_000_000), narrow), "hashed"));
+    assert!(modal_env_laid_out(modal_env_heap(&witness).unwrap(), hp(180_000_000), hp(180_000_000), host).is_ok());
+    // Exact at each width's limit and one over: HP is affine in n here.
+    for limit in [narrow, host] {
+        let (n0, n1) = (1_000_000u64, 1_000_001u64);
+        let slope = hp(n1) - hp(n0);
+        let base = hp(n0) - slope * n0;
+        let n = (limit - base) / slope;
+        assert!(hp(n) <= limit && hp(n + 1) > limit, "{limit}: {} {}", hp(n), hp(n + 1));
+        assert!(modal_env_laid_out(0, hp(n), hp(n), limit).is_ok());
+        assert!(refused(modal_env_laid_out(0, hp(n + 1), hp(n + 1), limit), "hashed"));
+    }
+    // Through an entry at this host's width: a fallback diagnostic whose
+    // bounded message cannot be laid out is refused, and no envelope (no
+    // hash prediction) is given; a smaller one is.
+    let params = test_local_parameters();
+    let standing = ModalParameterStanding::TestLocal("t");
+    let message = |m: u64| ModalEnvelopeDiagnosticBound { message: ModalEnvelopeText { raw: m, escaped: m }, ..Default::default() };
+    let found = modal_env_fallback_refused(&pf_request(false), &params, standing, None, &message(500_000_000_000_000_000), CAP);
+    assert!(matches!(found, Err(ModalEnvelopeError::Unprojectable { .. })), "{found:?}");
+    let fits = modal_env_fallback_refused(&pf_request(false), &params, standing, None, &message(100_000_000_000_000_000), CAP).unwrap();
+    assert!(fits.construction_peak_bytes <= host);
 }
 
 // ---------------------------------------------------------------------------
