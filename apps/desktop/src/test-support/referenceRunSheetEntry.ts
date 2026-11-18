@@ -3,7 +3,8 @@
 // journey (`workspace/referenceEntryJourney.session.test.tsx`). The rows, the header and the
 // valve/flange Component details are the run sheet's; `enterReferenceRows` types the bend and
 // valve/flange rows through the real grid cells and the other rows through the sheet's own
-// commit functions, in table order. Test support only: no product behaviour lives here.
+// commit functions, in table order. `rsOpeRefStateBatchText` reads RS-OPE-REF's operation batch
+// from the sheet itself. Test support only: no product behaviour lives here.
 import { act, fireEvent, screen, within } from "@testing-library/react";
 import { expect } from "vitest";
 import type { PreviewModel } from "../types";
@@ -11,13 +12,24 @@ import { blankRow, initialRunSheetState, type RunSheetState } from "../features/
 import type { useRunSheetStore } from "../features/model-tree/runSheet/runSheetStore";
 import { COMPONENT_FIELDS, componentColumn, type ComponentRowInput } from "../features/model-tree/runSheet/runSheetComponents";
 import { assignIds, recordShownPipeIds, setCell, sheetView, type SheetColumnKey } from "../features/model-tree/runSheet/runSheetView";
+import runSheetText from "../../../../fixtures/reference_system/RUN_SHEET.md?raw";
 
 /** ⟨P⟩ and ⟨S5⟩ of the run sheet. */
 export const P = "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data";
 export const S5 = "invented user value, DEL-09-01";
-/** The analysis-basis reason the run sheet types on RS-OPE-REF's element states (spec §8.1); the
- * entry journey and the analysis-state fills test (`load-cases/referenceSystemFills.engine.test.tsx`) type it. */
-export const REFERENCE_MODULUS_REASON = "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)";
+
+/** Step states, RS-OPE-REF: the operation batch the run sheet prints, as text, with its `"⟨state⟩"`
+ * replaced by `state` written as one JSON string, as the sheet tells the person. The entry journey
+ * pastes this text into the imported-proposal panel; the analysis-state fills test
+ * (`load-cases/referenceSystemFills.engine.test.tsx`) applies its one operation. */
+export function rsOpeRefStateBatchText(state: unknown): string {
+  const bullet = runSheetText.slice(runSheetText.indexOf("- **RS-OPE-REF.**"), runSheetText.indexOf("### Step combinations"));
+  const block = /```json\n([\s\S]*?)\n\s*```/.exec(bullet);
+  if (!block) throw new Error("the run sheet's RS-OPE-REF bullet prints no batch");
+  const placeholder = '"⟨state⟩"';
+  expect(block[1].split(placeholder), "the batch names ⟨state⟩ once").toHaveLength(2);
+  return block[1].replace(placeholder, () => JSON.stringify(JSON.stringify(state)));
+}
 
 export type Cells = Partial<Record<SheetColumnKey, string>>;
 const support = (code: string, restraints: string, id: string, label: string): Cells => ({ support: code, restraints, supportId: id, supportLabel: label });

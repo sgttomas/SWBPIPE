@@ -530,12 +530,6 @@ BINDINGS = [
      lambda m: [t["provenance"] for c in _cases(m) for r in c["pressure_regions"] for t in r["terminals"]]),
     ("regions", "Region provenance", lambda m: [r["provenance"] for c in _cases(m) for r in c["pressure_regions"]]),
     ("states", "Analysis state provenance", lambda m: [c["analysis_state"]["provenance"] for c in _cases(m)]),
-    ("states", "Analysis-basis reason", lambda m: [s["analysis_basis_override"]["reason"] for c in _cases(m)
-                                                   for s in c["analysis_state"]["element_states"]
-                                                   if "analysis_basis_override" in s]),
-    ("states", "Analysis-basis provenance", lambda m: [s["analysis_basis_override"]["provenance"] for c in _cases(m)
-                                                       for s in c["analysis_state"]["element_states"]
-                                                       if "analysis_basis_override" in s]),
     ("combinations", "Provenance", lambda m: [c["provenance"] for c in m["combinations"]]),
 ]
 
@@ -601,13 +595,20 @@ def thermal_problems(text: str, model: dict, differences: str) -> list[str]:
     """Each element state's thermal provenance against what step states has the person enter for that
     case and that member: a sentence naming a member binds its value to that member, the case's other
     value is its template for every member; a case copied from another without marking its element
-    states absent keeps that case's values."""
+    states absent keeps that case's values. A case whose bullet pastes the fixture's own analysis state
+    as an imported batch types no thermal provenance, so the sheet transcribes nothing to compare for it;
+    only a bullet that names the fixture's `analysis_state` of that very case is read that way."""
     body = step(text, "states")
     parts = re.split(r"(?m)^- \*\*(RS-[A-Z]+(?:-[A-Z]+)*)\.\*\*", body)
     bullets = dict(zip(parts[1::2], parts[2::2]))
     texts = pasted_texts(text)
     expected: dict[str, dict[str, str | None]] = {}
+    imported = set()
     for case, bullet in bullets.items():
+        flat = re.sub(r"\s+", " ", bullet)
+        if "**Review an imported proposal**" in flat and f"`load:{case}`'s `analysis_state`" in flat:
+            imported.add(case)
+            continue
         copied = re.search(r"Copy analysis state from case\*\* (RS-[A-Z]+(?:-[A-Z]+)*)", bullet)
         own = {"*": None}
         if copied and "Mark element_states absent" not in bullet:
@@ -629,6 +630,8 @@ def thermal_problems(text: str, model: dict, differences: str) -> list[str]:
         expected[case] = own
     problems = []
     for case in _cases(model):
+        if tag(case["id"]) in imported:
+            continue
         own = expected.get(tag(case["id"]))
         if own is None:
             problems.append(f"step states does not enter {case['id']}")
@@ -1301,6 +1304,11 @@ def test_a_stale_source_or_a_changed_fixture_field_is_caught():
     problems = field_problems(RUN_SHEET, model)
     assert reports(problems, "step states, load:RS-SUS pipe:RS-P010: thermal provenance")
     assert reports(problems, "step states, load:RS-SUS pipe:RS-P180: thermal provenance")
+    # RS-OPE-REF's bullet pastes the fixture's own state of that case; a bullet naming another case's state is
+    # read as typing nothing, and the member whose thermal provenance the case holds, RS-P180, is reported.
+    other = RUN_SHEET.replace("`load:RS-OPE-REF`'s `analysis_state`", "`load:RS-OPE`'s `analysis_state`", 1)
+    assert other != RUN_SHEET
+    assert reports(field_problems(other, MODEL), "step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance")
 
 
 def test_a_wrong_typed_label_is_caught():
