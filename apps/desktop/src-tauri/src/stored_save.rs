@@ -222,7 +222,8 @@ fn bound_restored(registry: &SolveJobRegistry, request: &Request) -> Result<Boun
         )));
     }
     let gone = |_| refuse(format!("`{handle}`'s stored run is no longer held"));
-    let result = registry.held_result(&request.job_id).map_err(gone)?;
+    // The re-save reads the held bytes whatever the reopen decided: they are written as stored.
+    let result = registry.held_result_to_resave(&request.job_id).map_err(gone)?;
     let record = registry.restored_record(&request.job_id).map_err(gone)?;
     if hex(&sha256_in_place(result.text().as_bytes())) != source.result_sha256 || Some(hex(&sha256_in_place(record.text().as_bytes()))) != source.record_sha256 {
         return Err(refuse(format!("`{handle}`'s held texts are not its stored source's")));

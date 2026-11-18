@@ -423,6 +423,16 @@ impl Found {
             self.findings.push(code);
         }
     }
+    /// `found.slot()`: where findings found later are inserted, so the list keeps main's order.
+    fn slot(&self) -> (usize, usize) {
+        (self.findings.len(), self.checks.len())
+    }
+    /// `found.insert(at, other)`: another collector's findings at `at`; slots are filled last first.
+    fn insert(&mut self, at: (usize, usize), other: Found) {
+        self.findings.splice(at.0..at.0, other.findings);
+        self.checks.splice(at.1..at.1, other.checks);
+        self.historical.extend(other.historical);
+    }
     /// `readStanding(found, result, model, binding)`: the statement's standing
     /// findings in their scope; a refused recorded dispatch is a check's
     /// finding. Returns the standing read.
@@ -1035,6 +1045,109 @@ fn recorded_run_semantic_binding(recorded: Option<&Value>, route: &Route) -> Val
     }
 }
 
+/// `INTEGRITY_FINDINGS` (`tableBinding.ts`): the hash findings that withhold a reopened run's
+/// rows (DEL-14-02 requirement 015: the record, the received result, the input manifest and the
+/// state binding against their recorded hashes). The project's own model and envelope hashes are
+/// not the run's, and a saved run has no stored input manifest, so neither withholds anything.
+pub(crate) const INTEGRITY_FINDINGS: [&str; 8] = [
+    "HISTORICAL_ANALYSIS_HASH_MISMATCH",
+    "HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE",
+    "HISTORICAL_RESULT_HASH_MISMATCH",
+    "HISTORICAL_RESULT_HASH_MISSING",
+    "HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE",
+    "RECORDED_RUN_INPUT_MANIFEST_HASH_MISMATCH",
+    "RECORDED_RUN_MODEL_STATE_HASH_MISMATCH",
+    "RECORDED_RUN_RECORD_HASH_MISMATCH",
+];
+
+/// `bindingClaim` (`tableBinding.ts`): what a stored record claims over its statement, read
+/// before any row. `None` without a renderable statement (`unreadable_result`).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub(crate) enum Claim {
+    #[default]
+    None,
+    Unrecorded,
+    Recorded,
+    Installed,
+    Other(Value),
+}
+
+/// The claim of `record_envelope` over the renderable statement `source`: the header dispatch's
+/// installed binding and the registry variant the record names (by exact `{id, sha256}`).
+fn binding_claim(record_envelope: &Value, source: &Value, variant: Option<&'static RecordedVariant>) -> Claim {
+    let run = strict_eq_str(record_envelope.get("schema_version"), ANALYSIS_RUN_V03_TEXT).then(|| record_envelope.get("analysis_run")).flatten().filter(|run| run.is_object());
+    let recorded = run.and_then(|run| run.get("reproducibility")).filter(|r| r.is_object()).and_then(|r| r.get("semantic_contract"));
+    let named = recorded.and_then(Value::as_object).filter(|named| named.len() == 2);
+    let (Some(named), Some(recorded)) = (named, recorded) else { return Claim::Unrecorded };
+    let (Some(id), Some(sha256)) = (named.get("id").and_then(Value::as_str), named.get("sha256").and_then(Value::as_str)) else { return Claim::Unrecorded };
+    let statement = source.pointer("/producer/semantic_contract_id").and_then(Value::as_str);
+    if variant.is_some_and(|variant| Some(variant.id) == statement) {
+        return Claim::Recorded;
+    }
+    let installed = dispatch(source).ok();
+    if installed.is_some_and(|route| Some(id) == statement && route.binding_id == id && route.binding_sha256 == sha256) {
+        return Claim::Installed;
+    }
+    Claim::Other(recorded.clone())
+}
+
+/// `decideBinding`: a claim to a table this version reads holds only without an integrity finding.
+fn decide_binding(claim: &Claim, checks: &[String]) -> Value {
+    let withheld = |reason: &str| json!({"withheld": reason});
+    match claim {
+        Claim::None => withheld("unreadable_result"),
+        Claim::Unrecorded => withheld("unrecorded"),
+        _ if checks.iter().any(|finding| INTEGRITY_FINDINGS.contains(&finding.as_str())) => withheld("integrity"),
+        Claim::Other(recorded) => withheld(if is_known_former_digest(Some(recorded)) { "former_digest" } else { "unrecognised_digest" }),
+        Claim::Recorded => json!({"read": "recorded"}),
+        Claim::Installed => json!({"read": "installed"}),
+    }
+}
+
+/// `withheldStanding`: a withheld run's standing findings, only a refusal the header dispatch
+/// states (current, or under the record's variant), which reads no table.
+fn withheld_standing(source: &Value, model: Option<&Value>, recorded: Option<&'static RecordedVariant>) -> Found {
+    let mut sub = Found::new(&[]);
+    if let Some(variant) = recorded {
+        let dispatched = recorded_dispatch(source, variant, None);
+        if dispatched["ok"] != Value::Bool(true) {
+            sub.fail(dispatched["error"]["code"].as_str().unwrap_or("RESULT_READER_UNAVAILABLE").to_string());
+        }
+    } else if rv::route(source).is_err() {
+        sub.findings.extend(standing_findings(&standing(source, model)));
+    }
+    sub
+}
+
+/// `withheldValidatorFinding`: a withheld run's record-validator finding: the validator's
+/// refusals that read no row (a refused header or recorded dispatch, a record that is not the
+/// current contract), else the binding refusal when the record names a binding not accepted.
+fn withheld_validator_finding(record_envelope: &Value, source: &Value, recorded: Option<&'static RecordedVariant>, claim: &Claim) -> Option<String> {
+    if let Some(variant) = recorded {
+        if let Some((_, message)) = reader_refusal(&recorded_dispatch(source, variant, None)) {
+            return Some(message);
+        }
+    } else if dispatch(source).is_err() {
+        return Some(match rv::route(source) {
+            Err(text) if text == open_pipe_stress_result_export::semantic_contract::SOURCE_PRESSURE_2_RETIRED_TEXT => text,
+            _ => "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH".into(),
+        });
+    }
+    match at(at(Some(record_envelope), "run_contract_status").ok().flatten(), "record_contract") {
+        Err(_) => return Some(validator_finding(TYPE_ERROR)),
+        Ok(contract) if !strict_eq_str(contract, "strict_analysis_run_v0_3") => return Some("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH".into()),
+        Ok(_) => {}
+    }
+    // A record whose binding member cannot be read at all: the validator's read of it throws.
+    if at(at(Some(record_envelope), "analysis_run").ok().flatten(), "reproducibility").ok().flatten().is_none_or(Value::is_null) {
+        return Some(validator_finding(TYPE_ERROR));
+    }
+    match claim {
+        Claim::Other(recorded) => Some(semantic_contract_mismatch(Some(recorded))),
+        _ => None,
+    }
+}
+
 /// The validator's outcome as the reopen shows it: a named refusal as it
 /// states it, an unnamed throw as one finding.
 fn validator_finding(error: &str) -> String {
@@ -1071,6 +1184,10 @@ pub(crate) struct HistoricalFindings {
     /// RT-A4 §10.4 (`historicalReaderFindings`): the findings the historical
     /// reader computed under `recorded_table_read`; empty without one.
     pub(crate) historical_reader_findings: Vec<String>,
+    /// `binding` (`tableBinding.ts`): the reopen's one decision, made before any row is read:
+    /// `{"read": "installed" | "recorded"}` or `{"withheld": <reason>}`. Withheld, the held
+    /// result is not read by any native reader (`HeldResult::withheld`), only re-saved.
+    pub(crate) binding: Value,
     pub(crate) run_id: String,
     /// Whether the stored result renders (`isRenderableMechanicsResult`): only
     /// then is it inspected through S and pages.
@@ -1088,6 +1205,12 @@ pub(crate) struct HistoricalFindings {
     /// recorded table); never sent but as `recorded_table_read`.
     #[serde(skip)]
     pub(crate) recorded: Option<RecordedTable>,
+    /// The record's claim and the registry variant it names (read or not), for the validator
+    /// step that follows the findings.
+    #[serde(skip)]
+    pub(crate) claim: Claim,
+    #[serde(skip)]
+    pub(crate) variant: Option<RecordedTable>,
 }
 
 impl HistoricalFindings {
@@ -1102,6 +1225,11 @@ impl HistoricalFindings {
         }
     }
 
+    /// Whether the rows are read (`bindingRead`).
+    pub(crate) fn read(&self) -> bool {
+        self.binding.get("read").is_some()
+    }
+
     fn scoped(found: Found, recorded: Option<&'static RecordedVariant>) -> (Vec<String>, Vec<String>, Option<Value>, Vec<String>) {
         let historical = if recorded.is_some() { found.historical } else { Vec::new() };
         (found.findings, found.checks, recorded.map(binding_value), historical)
@@ -1111,6 +1239,35 @@ impl HistoricalFindings {
 /// JavaScript truthiness of a parsed value (`undefined` is `None`).
 fn js_truthy(value: Option<&Value>) -> bool {
     truthy(value)
+}
+
+/// `readOrWithhold`: makes the decision once every check that reads no row has run, then reads
+/// (or does not read) the rows. Read: the retained reader's refusal and the standing are placed
+/// where main placed them. Withheld: only the refusals the header states. Returns the decision and
+/// the standing read (null when none).
+fn read_or_withhold(found: &mut Found, claim: &Claim, result: &mut Value, model: Option<&Value>, recorded: Option<&'static RecordedVariant>, standing_slot: (usize, usize), retained_slot: Option<(usize, usize)>) -> (Value, Value) {
+    let binding = decide_binding(claim, &found.checks);
+    if *claim == Claim::None {
+        return (binding, Value::Null);
+    }
+    if binding.get("read").is_some() {
+        if let Some(slot) = retained_slot {
+            let mut sub = Found::new(&[]);
+            if let Some(refusal) = reopen_retained_refusal(result, recorded) {
+                sub.fail(refusal);
+            }
+            found.insert(slot, sub);
+        }
+        let Some(model) = model else { return (binding, Value::Null) };
+        let mut sub = Found::new(&[]);
+        let standing = sub.read_standing(result, Some(model), recorded);
+        found.insert(standing_slot, sub);
+        return (binding, standing);
+    }
+    if model.is_some() {
+        found.insert(standing_slot, withheld_standing(result, model, recorded));
+    }
+    (binding, Value::Null)
 }
 
 /// `buildHistoricalRunContext(opened)`: `None` when the project stores neither
@@ -1130,7 +1287,11 @@ pub(crate) fn saved_run_findings(project: &SavedProject<'_>, result: &mut Value,
     // a run recorded before RT-A4 binds a registry variant; it is read (its standing
     // findings, its successor receipt and its record) as it read when recorded, and stays historical.
     let recorded = strict_eq_str(record_envelope.get("schema_version"), ANALYSIS_RUN_V03_TEXT).then(|| recorded_record_binding(record_envelope)).flatten();
-    let standing = if is_renderable { found.read_standing(result, Some(project.model), recorded) } else { Value::Null };
+    // The one decision comes first (`tableBinding.ts`): the header and the record's claim are
+    // read here; the standing and the retained reader, which read rows, wait for it and are
+    // placed where main placed their findings.
+    let claim = if is_renderable { binding_claim(record_envelope, result, recorded) } else { Claim::None };
+    let standing_slot = found.slot();
     if has_mechanics && !is_renderable {
         found.fail("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
     }
@@ -1143,20 +1304,19 @@ pub(crate) fn saved_run_findings(project: &SavedProject<'_>, result: &mut Value,
     if js_truthy(analysis_run) && !record_shape_ok(record) {
         found.fail("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
     }
+    let mut retained_slot = None;
     if is_renderable && reopen_retained_route(result, recorded) {
+        // The reader's refusal waits for the decision (`readOrWithhold`); the receipt comparison
+        // reads the parsed values, as the TypeScript compares the objects it holds.
+        retained_slot = Some(found.slot());
         let receipt_same = record.map(|record| same_saved_receipt(record.get("retained_precision"), result.get("retained_precision")));
-        // The reader reads a rewritten copy's numbers; the receipt comparison
-        // above read the parsed values first, as the TypeScript compares the
-        // objects it holds (the rewrite changes no value's data).
-        if let Some(refusal) = reopen_retained_refusal(result, recorded) {
-            found.fail(refusal);
-        }
         if receipt_same == Some(false) {
             found.fail(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
         }
     }
     let project_id = project.model.pointer("/project/id");
-    let result = &*result;
+    let result_mut = result;
+    let result = &*result_mut;
     if evidence && !strict_eq(result.get("model_ref"), project_id) {
         found.fail("HISTORICAL_MODEL_REF_MISMATCH");
     }
@@ -1234,19 +1394,26 @@ pub(crate) fn saved_run_findings(project: &SavedProject<'_>, result: &mut Value,
         (false, Some(run_id)) => run_id.to_string(),
         _ => "unknown saved run".to_string(),
     };
-    let (findings, check_findings, recorded_table_read, historical_reader_findings) = HistoricalFindings::scoped(found, recorded);
+    let mechanics = evidence.then(|| js_string(result.pointer("/status/mechanics")));
+    let (binding, standing) = read_or_withhold(&mut found, &claim, result_mut, Some(project.model), recorded, standing_slot, retained_slot);
+    let read = binding.get("read").is_some();
+    let shown = recorded.filter(|_| read);
+    let (findings, check_findings, recorded_table_read, historical_reader_findings) = HistoricalFindings::scoped(found, shown);
     Some(HistoricalFindings {
         findings,
         check_findings,
         recorded_table_read,
         historical_reader_findings,
+        binding,
         run_id,
         renderable: is_renderable,
-        mechanics: evidence.then(|| js_string(result.pointer("/status/mechanics"))),
+        mechanics,
         standing,
         envelope_payload_hash,
         model_hash: None,
-        recorded: recorded.map(RecordedTable::of),
+        recorded: shown.map(RecordedTable::of),
+        claim,
+        variant: recorded.map(RecordedTable::of),
     })
 }
 
@@ -1255,6 +1422,13 @@ pub(crate) fn saved_run_findings(project: &SavedProject<'_>, result: &mut Value,
 pub(crate) fn saved_run_validation(found: &mut HistoricalFindings, result: &mut Value, record_envelope: &Value) {
     let record = record_envelope.get("analysis_run").filter(|run| js_truthy(Some(run)) && objectish(Some(run)));
     if !(strict_eq_str(record_envelope.get("schema_version"), ANALYSIS_RUN_V03_TEXT) && found.renderable && record.is_some()) {
+        return;
+    }
+    if !found.read() {
+        let variant = found.variant.map(RecordedTable::variant);
+        if let Some(finding) = withheld_validator_finding(record_envelope, result, variant, &found.claim) {
+            found.fail_once(finding);
+        }
         return;
     }
     let basis = record.and_then(|record| record.get("load_basis_refs"));
@@ -1328,7 +1502,10 @@ pub(crate) fn recorded_run_findings(read: &RecordedRead<'_>, result: Option<&mut
     let model = get_opt(get_opt(manifest, "model_basis"), "model_payload").filter(|model| !model.is_null());
     // a run recorded before RT-A4 reads as it did when recorded (see the saved-run reader).
     let recorded = strict_eq_str(record_envelope.get("schema_version"), ANALYSIS_RUN_V03_TEXT).then(|| recorded_record_binding(record_envelope)).flatten();
-    let standing = if is_renderable && js_truthy(model) { found.read_standing(result, model, recorded) } else { Value::Null };
+    // The one decision comes first, as on the saved-run path.
+    let claim = if is_renderable { binding_claim(record_envelope, result, recorded) } else { Claim::None };
+    let standing_slot = found.slot();
+    let standing_model = model.filter(|model| js_truthy(Some(model)));
     let record = analysis_run.filter(|run| js_truthy(Some(run)) && objectish(Some(run))).and_then(|run| run.get("analysis_run")).filter(|run| js_truthy(Some(run)) && objectish(Some(run)));
     let shape_ok = record.is_some_and(|record| {
         is_array(record.get("hashes")) && is_array(record.get("result_refs")) && is_str(record.get("run_id")) && is_str(get_opt(record.get("model_state_ref"), "ref"))
@@ -1336,16 +1513,16 @@ pub(crate) fn recorded_run_findings(read: &RecordedRead<'_>, result: Option<&mut
     if !shape_ok {
         found.fail("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
     }
+    let mut retained_slot = None;
     if is_renderable && reopen_retained_route(result, recorded) {
+        retained_slot = Some(found.slot());
         let receipt_same = record.map(|record| same_saved_receipt(record.get("retained_precision"), result.get("retained_precision")));
-        if let Some(refusal) = reopen_retained_refusal(result, recorded) {
-            found.fail(refusal);
-        }
         if receipt_same == Some(false) {
             found.fail(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
         }
     }
-    let result = &*result;
+    let result_mut = result;
+    let result = &*result_mut;
     let state_ref = record.and_then(|record| record.get("model_state_ref"));
     if !js_truthy(state_ref)
         || !strict_eq_str(get_opt(state_ref, "object_type"), "ModelState")
@@ -1435,19 +1612,25 @@ pub(crate) fn recorded_run_findings(read: &RecordedRead<'_>, result: Option<&mut
         (false, Some(run_id)) => run_id.to_string(),
         _ => "unknown recorded run".to_string(),
     };
-    let (findings, check_findings, recorded_table_read, historical_reader_findings) = HistoricalFindings::scoped(found, recorded);
+    let mechanics = evidence.then(|| js_string(result.pointer("/status/mechanics")));
+    let (binding, standing) = read_or_withhold(&mut found, &claim, result_mut, standing_model, recorded, standing_slot, retained_slot);
+    let shown = recorded.filter(|_| binding.get("read").is_some());
+    let (findings, check_findings, recorded_table_read, historical_reader_findings) = HistoricalFindings::scoped(found, shown);
     HistoricalFindings {
         findings,
         check_findings,
         recorded_table_read,
         historical_reader_findings,
+        binding,
         run_id,
         renderable: is_renderable,
-        mechanics: evidence.then(|| js_string(result.pointer("/status/mechanics"))),
+        mechanics,
         standing,
         envelope_payload_hash: None,
         model_hash,
-        recorded: recorded.map(RecordedTable::of),
+        recorded: shown.map(RecordedTable::of),
+        claim,
+        variant: recorded.map(RecordedTable::of),
     }
 }
 
@@ -1456,6 +1639,13 @@ pub(crate) fn recorded_run_validation(found: &mut HistoricalFindings, read: &Rec
     let record = record_envelope.get("analysis_run").filter(|run| js_truthy(Some(run)) && objectish(Some(run)));
     let Some(manifest) = manifest else { return };
     if !(strict_eq_str(record_envelope.get("schema_version"), ANALYSIS_RUN_V03_TEXT) && found.renderable && record.is_some()) {
+        return;
+    }
+    if !found.read() {
+        let variant = found.variant.map(RecordedTable::variant);
+        if let Some(finding) = withheld_validator_finding(record_envelope, result, variant, &found.claim) {
+            found.fail_once(finding);
+        }
         return;
     }
     let binding = RecordedState { state_id: read.state_id, model_hash: read.state_model_hash, manifest };

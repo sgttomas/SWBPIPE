@@ -116,7 +116,13 @@ function withheldValidatorFinding(record: AnalysisRunEnvelope, result: Mechanics
     if (header.error?.code === "SOURCE_PRESSURE_2_RETIRED") return header.error.detail ?? header.error.code;
     if (!header.binding) return "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH";
   }
-  if (record.run_contract_status?.record_contract !== "strict_analysis_run_v0_3") return "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH";
+  // As the validator reads it: a member of a missing status throws, which the reopen shows as one finding.
+  const status: unknown = record.run_contract_status;
+  if (status === null || status === undefined) return "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
+  if ((status as { record_contract?: unknown }).record_contract !== "strict_analysis_run_v0_3") return "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH";
+  // A record whose binding member cannot be read at all: the validator's read of it throws.
+  const reproducibility: unknown = (record.analysis_run as { reproducibility?: unknown } | null)?.reproducibility;
+  if (reproducibility === null || reproducibility === undefined) return "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
   return claim.claim === "other" ? semanticContractMismatch(claim.recorded) : null;
 }
 

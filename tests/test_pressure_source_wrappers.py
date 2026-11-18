@@ -14,6 +14,9 @@ import pytest
 
 from core.analysis_runs import compatibility as c
 from core.analysis_runs import rust_reader
+# DEL-05-02: a record binding a table digest this version does not know is refused with its words (decision (e)).
+UNRECOGNISED_TABLE_REFUSAL = ("^ANALYSIS_SEMANTIC_CONTRACT_MISMATCH: this run names a revision of these result rules that this version does not recognise; "
+                              "the stored run is unchanged; run the analysis again on its saved model state to create a new result$")
 
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 # B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"): the current pressure-source-1
@@ -177,7 +180,7 @@ def test_pressure_record_rejects_resealed_binding_and_row_hash_changes(controlle
     wrong_binding = deepcopy(record)
     wrong_binding["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
     reseal(wrong_binding)
-    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
+    with pytest.raises(ValueError, match=UNRECOGNISED_TABLE_REFUSAL):
         c.validate_analysis_run_v0_3(wrong_binding, source, hash_fn=record_test_hash)
     wrong_row = deepcopy(record)
     wrong_row["analysis_run"]["result_refs"][0]["hash_refs"][0]["value"] = "0" * 64

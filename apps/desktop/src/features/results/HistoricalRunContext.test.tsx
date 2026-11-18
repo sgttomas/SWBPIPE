@@ -10,6 +10,7 @@ import savedResult from "../../../../../fixtures/results/preview_physics_connect
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, PreviewModel, MechanicsResult } from "../../types";
+import { UNRECOGNISED_TABLE_REFUSAL_TEXT } from "../../test-support/tableBindingRefusals";
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /** A saved run with a current (0.3.0) analysis record over the connected
@@ -220,7 +221,6 @@ describe("a reopened exact (pressure-2) record", () => {
   // runtime's text (e.g. "Cannot read properties of null").
   it.each([
     ["a null run_contract_status", (_run: Json, _source: MechanicsResult, envelope: Json) => { envelope.run_contract_status = null; }],
-    ["a null reproducibility", (run: Json) => { run.reproducibility = null; }],
     ["a null result ref", (run: Json) => { run.result_refs[0] = null; }],
   ] as const)("names a malformed record with %s HISTORICAL_ANALYSIS_EVIDENCE_INVALID and changes nothing", async (_name, edit) => {
     const saved = await forge(edit as never), before = JSON.stringify(saved);
@@ -255,7 +255,6 @@ describe("a reopened exact (pressure-2) record", () => {
     expect(JSON.stringify(saved)).toBe(before);
   });
   it.each([
-    ["its table switched to pressure-source-1's", (run: Json) => { run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
     ["the source's evidence embedded", (run: Json, source: MechanicsResult) => { run.contract_evidence = structuredClone(source.contract_evidence); }, "ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN"],
     ["a retained-precision receipt embedded", (run: Json) => { run.retained_precision = { receipt_sha256: "0".repeat(64) }; }, "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"],
   ] as const)("names a forged record with %s, displays it, and changes nothing", async (_name, edit, code) => {
@@ -270,6 +269,61 @@ describe("a reopened exact (pressure-2) record", () => {
     expect(screen.getByText(code)).toBeInTheDocument();
     expect(JSON.stringify(saved)).toBe(before);
   });
+
+// The reopen's one decision (decisions (a) and (b) of the table-binding unit): a record whose
+// binding this version does not read, or that records none, has its rows withheld; its findings
+// that read no row, its identity and its stored values are kept.
+describe("a saved run whose table binding is not established", () => {
+  it("withholds the rows of a record bound to another table, with the refusal in its words", async () => {
+    const saved = await forge((run: Json) => { run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9" }; });
+    const before = JSON.stringify(saved);
+    const context = (await buildHistoricalRunContext(saved))!;
+    expect(context.binding).toStrictEqual({ withheld: "unrecognised_digest" });
+    // The standing (a reading under the installed table) is not read; the binding refusal is the validator's finding.
+    expect(context.findings).toStrictEqual(["HISTORICAL_INPUT_MANIFEST_MISSING", UNRECOGNISED_TABLE_REFUSAL_TEXT]);
+    expect(context.mechanicsResult).toBeNull();
+    expect(context.rawMechanicsResult).toBe(saved.mechanics_result);
+    expect(context.rawAnalysisRun).toBe(saved.analysis_run);
+    expect(context.runId).toBe(saved.mechanics_result!.run_id);
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.getByTestId("historical-run-withheld-message").textContent).toBe("The results of this run are not shown: this run names a revision of these result rules that this version does not recognise; the stored run is unchanged; run the analysis again on its saved model state to create a new result.");
+    expect(screen.getByTestId("historical-run-withheld-code").textContent).toBe("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
+    expect(screen.queryByTestId("result-row-table")).toBeNull();
+    expect(screen.queryAllByRole("table")).toHaveLength(0);
+    expect(JSON.stringify(saved)).toBe(before);
+  });
+  it("withholds the rows of a record whose binding member is null, naming the malformed record", async () => {
+    const saved = await forge((run: Json) => { run.reproducibility = null; });
+    const context = (await buildHistoricalRunContext(saved))!;
+    expect(context.binding).toStrictEqual({ withheld: "unrecorded" });
+    expect(context.findings).toStrictEqual(["HISTORICAL_INPUT_MANIFEST_MISSING", "HISTORICAL_ANALYSIS_EVIDENCE_INVALID"]);
+    expect(context.mechanicsResult).toBeNull();
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.getByTestId("historical-run-withheld-code").textContent).toBe("ANALYSIS_SEMANTIC_CONTRACT_UNRECORDED");
+    expect(screen.queryAllByRole("table")).toHaveLength(0);
+  });
+  it("withholds the rows of a statement saved without its record", async () => {
+    const saved = await savedExact();
+    saved.analysis_run = null;
+    await rehash(saved);
+    const context = (await buildHistoricalRunContext(saved))!;
+    expect(context.binding).toStrictEqual({ withheld: "unrecorded" });
+    expect(context.mechanicsResult).toBeNull();
+    expect(context.rawMechanicsResult).toBe(saved.mechanics_result);
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.getByTestId("historical-run-withheld-message").textContent).toBe("The results of this run are not shown: this saved result names its result rules but does not record their revision, so its rows cannot be interpreted reliably; the saved result is preserved; run the analysis again to view current results.");
+    expect(screen.queryAllByRole("table")).toHaveLength(0);
+  });
+  it("keeps the rows of the same statement with its valid record", async () => {
+    const saved = await savedExact();
+    const context = (await buildHistoricalRunContext(saved))!;
+    expect(context.binding).toStrictEqual({ read: "installed" });
+    expect(context.mechanicsResult).toBe(saved.mechanics_result);
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.queryByTestId("historical-run-withheld")).toBeNull();
+    expect(screen.queryAllByRole("table").length).toBeGreaterThan(0);
+  });
+});
 });
 
 afterEach(cleanup);

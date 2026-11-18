@@ -24,6 +24,9 @@ import os
 from pathlib import Path
 
 import pytest
+# DEL-05-02: a record binding a table digest this version does not know is refused with its words (decision (e)).
+UNRECOGNISED_TABLE_REFUSAL = ("^ANALYSIS_SEMANTIC_CONTRACT_MISMATCH: this run names a revision of these result rules that this version does not recognise; "
+                              "the stored run is unchanged; run the analysis again on its saved model state to create a new result$")
 
 from core.analysis_runs.compatibility import (
     PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, _source_contract, build_analysis_run, build_analysis_run_v0_3,
@@ -303,7 +306,7 @@ def test_actual_envelopes_admit_numerically_and_build_pressure_analysis_run(name
     # A wrong table hash in the record is refused.
     forged = deepcopy(record)
     forged["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
-    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
+    with pytest.raises(ValueError, match=UNRECOGNISED_TABLE_REFUSAL):
         validate_analysis_run_v0_3(forged, raw)
 
 

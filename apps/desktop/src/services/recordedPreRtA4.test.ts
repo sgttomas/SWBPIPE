@@ -25,6 +25,7 @@ import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "..
 import { recordedRunSide } from "../features/comparison/runComparisonSides";
 import { COMPARISON_RUN_RECORD_MISMATCH } from "../features/comparison/runComparison";
 import { RECORDED_PRE_RT_A4_TABLES, recordedPreRtA4Binding, recordedPreRtA4Table } from "./recordedPreRtA4";
+import { FORMER_TABLE_REFUSAL_TEXT } from "../test-support/tableBindingRefusals";
 
 const root = resolve(__dirname, "../../../../");
 const fixture = (path: string) => readFileSync(resolve(root, "fixtures/persistence/recorded_pre_rt_a4_pf", path), "utf8");
@@ -45,15 +46,15 @@ const VARIANTS: Variant[] = [
     sha256: "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46", refusal: "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH" },
   { name: "physics-retained-1 (main)", record: () => json("physics_retained_1/main/retained_precision_exact_successor_sparse_interactive.analysis_run.json"),
     source: () => statementOf(json("physics_retained_1/main/retained_precision_exact_successor_sparse_interactive.json")),
-    sha256: "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },
+    sha256: "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd", refusal: FORMER_TABLE_REFUSAL_TEXT },
   { name: "physics-retained-1 (#101)", record: () => json("physics_retained_1/pr101/retained_precision_exact_successor_sparse_interactive.analysis_run.json"),
     source: () => statementOf(json("physics_retained_1/pr101/retained_precision_exact_successor_sparse_interactive.json")),
-    sha256: "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },  { name: "physics-retained-1 (main, RT-A4)", record: () => json("physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.analysis_run.json"),
+    sha256: "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b", refusal: FORMER_TABLE_REFUSAL_TEXT },  { name: "physics-retained-1 (main, RT-A4)", record: () => json("physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.analysis_run.json"),
     source: () => statementOf(json("physics_retained_1/main_bbf384dec/retained_precision_exact_successor_sparse_interactive.json")),
-    sha256: "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },
+    sha256: "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034", refusal: FORMER_TABLE_REFUSAL_TEXT },
   { name: "physics-retained-1 (main, before the combination certificate)", record: () => json("physics_retained_1/main_252bef969/retained_precision_exact_successor_sparse_interactive.analysis_run.json"),
     source: () => statementOf(json("physics_retained_1/main_252bef969/retained_precision_exact_successor_sparse_interactive.json")),
-    sha256: "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691", refusal: "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH" },
+    sha256: "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691", refusal: FORMER_TABLE_REFUSAL_TEXT },
 ];
 const RECORDED = { recordedRead: true } as const;
 /** RT-L2: the pressure-free variants keep main's read; the rest are pressure-2-based exact successors. */
@@ -155,7 +156,7 @@ describe("a run recorded before RT-A4 (historical read)", () => {
     const mixed = structuredClone(record) as Json;
     mixed.analysis_run.result_refs[0].semantic_contract = { ...mixed.analysis_run.result_refs[0].semantic_contract, sha256: now.sha256 };
     await expect(validateAnalysisRunV03(await reseal(mixed), source, basis(record), undefined, RECORDED)).rejects.toThrow("ANALYSIS_ROW_SOURCE_BINDING_MISMATCH");
-    if (variant.refusal !== "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH") {
+    if (variant.refusal !== FORMER_TABLE_REFUSAL_TEXT) {
       await expect(validateAnalysisRunV03(await rebind(record, now), source, basis(record), undefined, RECORDED)).rejects.toThrow(variant.refusal);
     }
     for (const other of RECORDED_PRE_RT_A4_TABLES.filter(entry => entry.id !== id)) {

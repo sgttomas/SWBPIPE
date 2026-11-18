@@ -26,6 +26,11 @@ import os
 from pathlib import Path
 
 import pytest
+# DEL-05-02: a record binding a table digest this version does not know is refused with its words (decision (e)).
+UNRECOGNISED_TABLE_REFUSAL = ("^ANALYSIS_SEMANTIC_CONTRACT_MISMATCH: this run names a revision of these result rules that this version does not recognise; "
+                              "the stored run is unchanged; run the analysis again on its saved model state to create a new result$")
+FORMER_TABLE_REFUSAL = ("^ANALYSIS_SEMANTIC_CONTRACT_MISMATCH: this run was recorded under an earlier revision of these result rules, which this version cannot interpret; "
+                        "the stored run is unchanged; run the analysis again on its saved model state to create a new result$")
 
 from core.analysis_runs.compatibility import (
     PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_SHA256,
@@ -334,7 +339,9 @@ def test_analysis_run_carrier_keeps_both_namespaces_and_is_reproduced_byte_for_b
         ("contract_evidence", lambda r: r["analysis_run"].pop("contract_evidence"), "ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH"),
         ("contract_evidence", lambda r: r["analysis_run"]["contract_evidence"].pop("load_reference_states"), "ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH"),
         ("source_block_recovery", lambda r: r["analysis_run"].pop("source_block_recovery"), "ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH"),
-        ("semantic_contract", lambda r: r["analysis_run"]["reproducibility"]["semantic_contract"].update(sha256="0" * 64), "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"),
+        ("semantic_contract", lambda r: r["analysis_run"]["reproducibility"]["semantic_contract"].update(sha256="0" * 64), UNRECOGNISED_TABLE_REFUSAL),
+        # pressure-source-1's table before T4-U6 (main at 9b25f4acc): a known former digest, refused in the earlier-revision words.
+        ("semantic_contract", lambda r: r["analysis_run"]["reproducibility"]["semantic_contract"].update(sha256="609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"), FORMER_TABLE_REFUSAL),
     ]:
         forged = deepcopy(stored)
         mutate(forged)
