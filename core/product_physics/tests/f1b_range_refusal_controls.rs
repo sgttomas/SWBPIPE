@@ -1,7 +1,7 @@
 //! Controls for the refusal of a static load case whose ordinary attempt
-//! meets a binary64 range failure (DEL-04-01 scope, the range-failure bullet
-//! under "Method choices that define the kernel"; release limitation
-//! LIM-028), observed through the product's public entries:
+//! meets a binary64 range failure (DEL-04-07 scope, the range-failure bullet
+//! under "Method choices that define the solve"; release limitation
+//! LIM-030), observed through the product's public entries:
 //!
 //! - a load term that is not an authored nodal load, the seventh family in
 //!   `force_scaling_admission`'s order, which `f1b_w2_runtime.rs` does not
