@@ -220,20 +220,26 @@ target remains adequate. A failure alone does not justify relaxing one.
    generator. Modal also passes at least one published piping benchmark
    (DEL-04-09 AC-010).
 
-   The solved reference system also passes every reference check that its
-   cases admit (DEL-09-01 AC-009), against the references for its fixture
-   revision. The fixture specification names them
-   (`fixtures/reference_system/SPECIFICATION.md` §9). A check that cannot
-   yet be made is unmet, not waived.
-   - They are checks of equilibrium and identity: support force and moment
-     balance against case weight, hydrotest weight included; the change from
-     sustained against each wind or static seismic load resultant;
-     self-equilibrium of the seismic anchor movement difference; the
-     expansion difference and the seismic and spectrum combination rows
-     against their definitions; and the constant-effort support's published
-     load and action against its entered load.
-   - Their references are in the packages `reference_system`,
-     `reference_system_r1_ce` and `reference_system_pending_cases`.
+   In both solver modes, the solved reference-system fixture passes every
+   reference check that its cases admit (DEL-09-01 AC-009). The fixture
+   specification names them (`fixtures/reference_system/SPECIFICATION.md`
+   §9). An applicable check counts as met only when demonstrated. Checks that
+   require pending cases apply when those cases are admitted.
+   - The checks include support force and moment balance against case
+     weight, including hydrotest weight. The change in support force and
+     moment resultants from sustained balances each wind or static seismic
+     load resultant. The anchor-movement reaction difference is
+     self-equilibrated. The expansion difference, the static seismic SRSS and
+     absolute-sum combinations, and the spectrum directional combination are
+     checked against their definitions. The checks also include the presence
+     of the specified tee stress rows and agreement of the constant-effort
+     support's published applied load and support action with its entered
+     load in cases that use that load.
+   - For numerical comparisons, use independent references applicable to the
+     fixture revision under test. The packages `reference_system`,
+     `reference_system_r1_ce` and `reference_system_pending_cases` state
+     their respective bases and status. Section 9 also defines identities
+     that require no package.
    - No independent solution of the full system's response is frozen, so
      these checks do not establish the response throughout the system.
 
