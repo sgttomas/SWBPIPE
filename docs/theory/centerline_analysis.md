@@ -140,10 +140,17 @@ else in the solve, into exactly the records an ordinary case carries:
 
 - **Temperature.** For each pipe, the temperature change ΔT = T − T₀ between the
   case's condition temperature T and the pipe's set installation temperature T₀
-  becomes an ordinary thermal primitive in kelvin. The free thermal strain of
-  the element is α·ΔT, with α the material's user-entered expansion
-  coefficient; a restrained element carries the axial force E·A·α·ΔT, a free one
-  grows by α·ΔT·L. Condition temperatures drive thermal strain only: the case's
+  becomes an ordinary thermal primitive in kelvin. Assume small strain,
+  linear elasticity, a uniform ΔT along the element, a constant user-entered
+  expansion coefficient α (1/K), a uniform section of area A (m²) and modulus
+  E (Pa), and axial force N (N) positive in tension. The axial strain is then
+  ε = N/(E·A) + α·ΔT. A free element (N = 0) has the free thermal strain
+  ε = α·ΔT and grows by δ = ε·L = α·ΔT·L. An element whose ends are held
+  (ε = 0) carries N = −E·A·α·ΔT: compression when it is heated (ΔT > 0).
+  The frozen `restrained_thermal` case of `validation/references/rt_g5_s2_conditions/`
+  corroborates the restrained case: a member force of E·A·α·ΔT in compression.
+  That reference set records itself as candidate, pending refutation.
+  Condition temperatures drive thermal strain only: the case's
   one elastic basis (`modulus_basis_ref` or `modulus_basis_temperature`) is
   unchanged, and no per-element E(T) is introduced.
 - **Added weight.** Each set's uniform added weight (a line load the user types,
@@ -152,8 +159,12 @@ else in the solve, into exactly the records an ordinary case carries:
   other weights.
 - **Wind exposure.** The pipes whose set is marked wind-exposed become the
   case's exposed pipes; the wind pressure, shape factor and direction remain the
-  case's own entered inputs, and the line load is the existing
-  pressure × shape factor × exposed diameter.
+  case's own entered inputs. The line load (N/m) is the load model's
+  definition (DEL-05-01): the entered pressure (Pa) times the entered shape
+  factor (dimensionless) times the pipe's exposed diameter (m). It is a
+  definition, not an aerodynamic derivation. The pressure and the shape factor
+  are the user's, and whether the model suits a line is the user's engineer's
+  judgement.
 
 **The temperature difference is exact, then rounded once.** Each authored
 temperature is read as the decimal the user typed (its shortest round-trip
@@ -332,7 +343,7 @@ Source inventory status for this draft:
 | `SRC-MIT-OCW-FEA` | `ACCEPTED` | [MIT OCW, "Finite Element Procedures for Solids and Structures"](https://ocw.mit.edu/courses/res-2-002-finite-element-procedures-for-solids-and-structures-spring-2010/), course overview; [MIT OCW Privacy and Terms of Use](https://ocw.mit.edu/pages/privacy-and-terms-of-use/), Creative Commons license section. | MIT OCW states CC BY-NC-SA 4.0 for OCW materials unless otherwise marked. | General finite-element analysis context, assumptions, and linear/nonlinear procedure framing for engineering structures. | Citation support only. No course text, videos, images, formulas, examples, or third-party course media are reused. |
 | `SRC-ENG-STATICS` | `ACCEPTED` | [Open Textbook Library, "Engineering Statics: Open and Interactive"](https://open.umn.edu/opentextbooks/textbooks/1047), book metadata and conditions of use. | Open Textbook Library lists CC BY-NC-SA conditions of use. | General statics vocabulary: forces, vectors, equilibrium, internal reactions, internal forces, and geometrical properties. | Citation support only. No examples, tables, steel-section properties, formulas, or values are copied. |
 | `TBD-public-history` | `TBD` | Public/permissive source for historical development of piping flexibility analysis terminology. | `TBD`. | Historical lineage claims about classical piping flexibility practice. | Do not invent or overstate history. Current prose avoids detailed historical claims. |
-| `TBD-open-frame-reference` | `TBD` | Public/permissive structural-analysis source for formula-level 3D frame element details if future theory prose adds formulas or derivations. | `TBD`. | Formula-level or derivation-level frame theory beyond the conceptual FEA/frame context cited above. | Current prose stays conceptual; no formulas or source examples are introduced. |
+| `TBD-open-frame-reference` | `TBD` | Public/permissive structural-analysis source for formula-level 3D frame element details if future theory prose adds formulas or derivations. | `TBD`. | Formula-level or derivation-level frame theory beyond the conceptual FEA/frame context cited above. | Current prose states a few relations (the thermal strain, growth and restrained force, and the wind load model's definition), each derived in the note or stated as the method's definition under DEL-11-03 REQ-004. It holds no formula-level frame theory, and no relation in it is taken from a source example. |
 | `TBD-local-fea-reference` | `TBD` | Public/permissive source for local shell/solid handoff practice if future prose expands beyond project boundary language. | `TBD`. | Practice-specific guidance for local FEA handoff beyond the general FEA concept. | Current prose stays at boundary level and does not claim local FEA acceptance or professional adequacy. |
 
 Rejected or excluded source classes for this draft:
