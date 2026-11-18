@@ -6,7 +6,6 @@ import type { PreviewModel, ModelHashEvidence, MechanicsResult, Diagnostic } fro
 import type { AgentBasis } from './embeddedAgentBridge';
 import type { SessionResult } from './nativeResult';
 import catalog from '../../src-tauri/resources/agent-capability-catalog.json';
-import referenceJson from '../../../../fixtures/reference_system/reference_system.json';
 const mocks=vi.hoisted(()=>({validate:vi.fn()}));
 vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}));
 // A native read, scripted only where a test turns it on: the native rows query's page and its ordinals.
@@ -389,12 +388,17 @@ describe('workspace-owned live embedded agent adapter',()=>{
   outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('load:L1');
   await session.close();
  });
- it('reads the reference load cases back whole across pages, and names a case whose held texts together exceed a page',async()=>{
+ it('reads load cases of the reference system\'s size back whole across pages, and names a case whose held texts together exceed a page',async()=>{
   vi.useFakeTimers();const {session,call,model}=setup();
   const records=model as unknown as Record<string,unknown>;
   // Each record's texts are produced in turn, so a page of several needs more turns than one drain gives.
   const settle=async()=>{for(let i=0;i<8;i++)await drain();};
-  const cases=structuredClone(referenceJson.load_cases) as unknown as Record<string,any>[];
+  // Invented cases of the reference system's size: a state of about 13,000 bytes and pressure regions of about
+  // 3,600 for each. (The reference fixture's own states are read back and applied in the engine in
+  // embeddedAgentSession.records.test.ts.)
+  const cases:Record<string,any>[]=['A','B','C'].map(name=>({id:`load:${name}`,label:name,kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],
+   analysis_state:{contract:'invented',element_states:Array.from({length:26},(_,i)=>({pipe_ref:`pipe:${name}-${i}`,note:'s'.repeat(440)})),provenance:'invented'},
+   pressure_regions:[{id:`region:${name}`,member_pipe_ids:Array.from({length:26},(_,i)=>`pipe:${name}-${i}`),provenance:'r'.repeat(3000)}]}));
   records.load_cases=cases;await session.start('revision');await session.poll();await settle();
   // Each entry carries the case's state and pressure regions as before texts; a page holds what fits and resumes at the next.
   const seen:Record<string,any>[]=[];let cursor:string|null=null;
