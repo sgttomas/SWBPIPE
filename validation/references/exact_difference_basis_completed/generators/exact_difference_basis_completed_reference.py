@@ -1,6 +1,6 @@
 """Successor exact references for the declared operating-minus-sustained difference on the exact route
 (DEL-05-02 REQ-012, AC-003): the completed admission policy, the frozen package's rows re-derived under it, and
-the added witnesses W1 to W9, F1, F2 and F2b.
+the added witnesses W1 to W11, F1, F2, F2b and K1, and the builder's witnesses X1 to X6.
 
 Python standard library only. It imports, reads and runs no product code and no product output, and it does not
 read the frozen package either: the frozen inputs are restated here, and the package test compares the carried
@@ -10,8 +10,8 @@ rational bounds on pi (Gauss's arctangent formula with a proven error).
 
 Two entries per row, never merged:
   admission   the verdict of the policy (restraint, then G-1, then G-2), with its reason and each part's outcome;
-  mechanical  the independently derived result: a linear increment on one common operator, a difference of two
-              separately solved states on different operators, or none.
+  mechanical  The mechanical entry records a linear increment on a common operator, a difference of separately
+              solved states, or no numerical result.
 
 Methods:
   frame       direct stiffness, 12 x 12 Euler-Bernoulli elements, exact Gauss-Jordan elimination, free strains as
@@ -625,14 +625,26 @@ def norm_number(v):
         return str(v)
 
 
-def norm_mapping(m):
+# Fields whose values are quantities: compared as rationals in lowest terms. Every other scalar (identifiers,
+# kinds, labels, directions, bits strings, and a spring stiffness written as a multiple of pi) is compared as text.
+NUMERIC_FIELDS = frozenset({
+    "E", "nu", "G", "selection_temperature", "interpolation_fraction", "selected_E", "selected_nu",
+    "outside_diameter", "wall", "mill_tolerance", "corrosion_allowance",
+    "pressure", "shape_factor", "exposed_diameter", "factor",
+    "section_mass_per_length", "contents_mass_per_length",
+    "installation_temperature", "operating_temperature", "datum", "constant", "points",
+    "alpha", "interval", "strain", "change", "reference_length",
+})
+
+
+def norm_mapping(m, field=None):
     if isinstance(m, dict):
-        return tuple(sorted((k, norm_mapping(v)) for k, v in m.items()))
+        return tuple(sorted((k, norm_mapping(v, k)) for k, v in m.items()))
     if isinstance(m, list):
-        return tuple(norm_mapping(v) for v in m)
+        return tuple(norm_mapping(v, field) for v in m)
     if isinstance(m, bool) or m is None:
         return m
-    return norm_number(m)
+    return ("q", str(F(m))) if field in NUMERIC_FIELDS else ("text", str(m))
 
 
 def is_zero_bits(b):
@@ -644,9 +656,7 @@ def restraint_laws(side_):
     for s in side_["supports"]:
         if s["law"] == "free":
             law = ("free",)                           # a DOF a side does not list is free too (restraint_holds)
-        elif s["law"] == "rigid":
-            law = ("rigid", s["identity"])
-        else:
+        else:                                         # rigid, spring or nonlinear: every resolved field
             law = (s["law"], s["identity"], s["participation"], norm_mapping(s["parameters"]))
         laws[(s["support"], s["dof"])] = law
     return laws
@@ -654,13 +664,17 @@ def restraint_laws(side_):
 
 def restraint_holds(s, o):
     ls, lo = restraint_laws(s), restraint_laws(o)
-    for key in set(ls) | set(lo):
-        if ls.get(key, ("free",)) != lo.get(key, ("free",)):
-            return False, f"the support law at {key[0]} {key[1]} differs between the operands"
+    differing = [key for key in sorted(set(ls) | set(lo)) if ls.get(key, ("free",)) != lo.get(key, ("free",))]
     fixed = lambda side_: Counter((f["kind"], f["id"], f["value_bits"]) for f in side_["fixed_loads"])
+    cause = [f"support_law:{support}/{dof}" for support, dof in differing]
     if fixed(s) != fixed(o):
-        return False, "the fixed-load inventories differ, which is outside this policy"
-    return True, "the same restraints and devices, and equal fixed-load inventories"
+        cause.append("fixed_load_inventory")
+    if differing:
+        key = differing[0]
+        return False, f"the support law at {key[0]} {key[1]} differs between the operands", cause
+    if cause:
+        return False, "the fixed-load inventories differ, which is outside this policy", cause
+    return True, "the same restraints and devices, and equal fixed-load inventories", []
 
 
 def applied_actions(side_):
@@ -681,7 +695,7 @@ def applied_actions(side_):
         out.append(("pressure_elongation",))
     for g in side_["generated"]:
         extent = g.get("extent") or ["0", "1"]
-        out.append(("generated", g["kind"], g["target"], (norm_number(extent[0]), norm_number(extent[1])),
+        out.append(("generated_recipe", g["kind"], g["target"], (norm_number(extent[0]), norm_number(extent[1])),
                     norm_mapping(g["inputs"]), norm_mapping(g["mass_basis"])))
     for m in side_["motions"]:
         if is_zero_bits(m["value_bits"]):
@@ -716,10 +730,16 @@ def state_is_established_zero(st):
 
 def g1_holds(s, o):
     have = Counter(applied_actions(o))
-    for action, n in Counter(applied_actions(s)).items():
-        if have[action] < n:
-            return False, f"the subtrahend's {action[0].replace('_', ' ')} is not contained in the minuend"
-    return True, "every action of the subtrahend is in the minuend, with multiplicity"
+    missing = [a for a, n in Counter(applied_actions(s)).items() if have[a] < n]   # in the subtrahend's order
+    cause = sorted({a[0] for a in missing})
+    if not missing:
+        return True, "every action of the subtrahend is in the minuend, with multiplicity", []
+    first = missing[0][0]
+    if first == "generated_recipe":
+        why = "The subtrahend's generated recipe is absent from the minuend or occurs there too few times."
+    else:
+        why = f"the subtrahend's {first.replace('_', ' ')} is not contained in the minuend"
+    return False, why, cause
 
 
 # The stiffness part (G-2): its one definition point, with the two readings side by side.
@@ -733,18 +753,19 @@ STIFFNESS_READINGS = {"S": STIFFNESS_RESOLVED + STIFFNESS_SELECTION, "R": STIFFN
 def g2_holds(s, o, reading="S"):
     fields = STIFFNESS_READINGS[reading]
     if set(s["basis"]) != set(o["basis"]):
-        return False, "the operands' members differ in their modulus records"
-    for member in s["basis"]:
-        for f in fields:
-            if norm_mapping(s["basis"][member].get(f)) != norm_mapping(o["basis"][member].get(f)):
-                return False, f"member {member} differs in {f}"
-    return True, "one modulus basis for every member"
+        return False, "the operands' members differ in their modulus records", ["members"]
+    differing = [(member, f) for member in s["basis"] for f in fields
+                 if norm_mapping(s["basis"][member].get(f), f) != norm_mapping(o["basis"][member].get(f), f)]
+    if differing:
+        member, f = differing[0]
+        return False, f"member {member} differs in {f}", sorted(f"{m}:{x}" for m, x in differing)
+    return True, "one modulus basis for every member", []
 
 
 def verdict_under(s, o, reading):
-    r, _ = restraint_holds(s, o)
-    g1, _ = g1_holds(s, o)
-    g2, _ = g2_holds(s, o, reading)
+    r, *_ = restraint_holds(s, o)
+    g1, *_ = g1_holds(s, o)
+    g2, *_ = g2_holds(s, o, reading)
     return ("refused_restraint" if not r else "refused_g1" if not g1 else "refused_g2" if not g2
             else "admitted"), g2
 
@@ -760,16 +781,17 @@ def stiffness_readings(s, o):
 
 
 def admission(s, o, reason, gate_only, gate_only_reason):
-    r, r_why = restraint_holds(s, o)
-    g1, g1_why = g1_holds(s, o)
-    g2, g2_why = g2_holds(s, o, "S")
+    r, r_why, r_cause = restraint_holds(s, o)
+    g1, g1_why, g1_cause = g1_holds(s, o)
+    g2, g2_why, g2_cause = g2_holds(s, o, "S")
     verdict = ("refused_restraint" if not r else "refused_g1" if not g1 else "refused_g2" if not g2
                else "admitted")
     assert (verdict, g2) == verdict_under(s, o, "S")
     COUNTS[f"verdict_{verdict}"] += 1
     return {"verdict": verdict, "reason": reason,
-            "gates": {"restraint": {"holds": r, "why": r_why}, "g1": {"holds": g1, "why": g1_why},
-                      "g2": {"holds": g2, "why": g2_why}},
+            "gates": {"restraint": {"holds": r, "why": r_why, "cause": r_cause},
+                      "g1": {"holds": g1, "why": g1_why, "cause": g1_cause},
+                      "g2": {"holds": g2, "why": g2_why, "cause": g2_cause}},
             "gate_only": gate_only, "gate_only_reason": gate_only_reason}
 
 
@@ -1354,10 +1376,13 @@ def added_rows():
     fixed_fixed = W_ANCHOR + [LINE_STOP]
     for rid, title, s_args, o_args, expected, reason in (
             ("F2", "first reader's fit witness", (F(300), F(1, 1024), "RC-AB"), (F(300), F(0), "RC-AB"),
-             F(-8217, 8388608), "the fit differs, so the resolved free strain differs"),
+             F(-8217, 8388608),
+             "The sustained member state's fit is absent from the operating member state, so the sustained action "
+             "is not contained."),
             ("F2b", "installation-only variant", (F(300), F(0), "RC-AB-INSTALLED-300"),
              (F(400), F(0), "RC-AB-INSTALLED-400"), F(-205425, 134422528),
-             "the installation temperature differs, so the resolved free strain differs")):
+             "The sustained member state's installation temperature differs from the operating member state's, "
+             "so the sustained action is not contained.")):
         de = secant_strain(o_args[0], F(500), o_args[1]) - secant_strain(s_args[0], F(500), s_args[1])
         assert de == expected, (rid, de)
         _, nf, *_ = bar_solve(W_XS, [("AB", "A", "B", ea, Exact.of(de))], {"A": ("rigid", 0), "B": ("rigid", 0)}, {})
@@ -1371,6 +1396,8 @@ def added_rows():
 
     # K1: the selection record alone differs (the two stiffness readings separate here)
     rows.append(selection_record_row())
+    # W10: the same 300 K point selected by exact point and by temperature at that entered point
+    rows.append(endpoint_selection_row())
     # W11: equal moduli, different expansion coefficients, the same authored temperature change in both
     rows.append(expansion_coefficient_row())
     return rows
@@ -1440,6 +1467,46 @@ def expansion_coefficient_row():
                            "`rows`."})
 
 
+# W10 only: an invented material with two entered points; both operands resolve the 300 K point's own E and nu
+W10_MATERIAL = "invented_w10_two_points"
+W10_POINTS = {F(300): (W_E, W_NU), F(700): (W_E / 2, W_NU)}     # T (K): (E Pa, nu)
+
+
+def w10_basis(selection_kind):
+    e_mod, nu = W10_POINTS[F(300)]
+    record = {"kind": selection_kind, "selection_temperature": "300", "interpolation_fraction": None,
+              "selected_E": q(e_mod), "selected_nu": q(nu)}
+    return {"AB": dict(W_BASIS["AB"], E=q(e_mod), nu=q(nu), G=q(e_mod / (2 * (1 + nu))), material=W10_MATERIAL,
+                       selection_kind=selection_kind, case_basis_label="W10", selection_record=record)}
+
+
+def endpoint_selection_row():
+    """Part A 5.4: the shared W bar with a common 1 N axial tip load at B. S selects the material's 300 K point
+    by exact point; O selects the same material by temperature 300 K, exactly an entered point, so E and nu are
+    that point's own and no interpolation fraction is recorded on either side. One operator, equal actions."""
+    load = primitive("f:B:x", "occasional", "node:B", "global_x", "force", F(1), "N")
+    s_basis, o_basis = w10_basis("exact_point"), w10_basis("temperature_interpolation")
+    ea_of = lambda basis: Exact({1: F(basis["AB"]["E"]) * W_AREA})
+    us, *_ = bar_solve(W_XS, [("AB", "A", "B", ea_of(s_basis), ZERO)], {"A": ("rigid", 0)}, {"B": F(1)})
+    uo, *_ = bar_solve(W_XS, [("AB", "A", "B", ea_of(o_basis), ZERO)], {"A": ("rigid", 0)}, {"B": F(1)})
+    assert us["B"] == uo["B"] == Exact({-1: F(1, 7168)}), "u_B = F L / (E A) = 1 / (7168 pi) m"
+    d = uo["B"] - us["B"]
+    return ("W10", "endpoint interpolation against an exact point",
+            w_side("S", primitives=[load], basis=s_basis), w_side("O", primitives=[load], basis=o_basis),
+            "the selection kind and the selection record's kind differ although E, nu, G, material and section "
+            "are equal (stiffness reading S); the stated over-refusal", False, NOT_GATE_ONLY,
+            {"kind": "linear_increment",
+             "values": {"u/B/UX": entry(d, "m")},
+             "note": "The two selection records follow the member material selection in "
+                     "core/product_physics/src/case_state/material.rs at b5569a821. An exact point records "
+                     "selection kind exact_point with no interpolation fraction (lines 264 and 270). A temperature "
+                     "interpolation whose requested temperature equals an entered point selects that point alone "
+                     "with no fraction (lines 300 to 305) and records selection kind temperature_interpolation "
+                     "(lines 342 and 348). Each operand's u/B/UX under the 1 N load is 1/(7168 pi) m.",
+             "divergence": "the stricter stiffness policy refuses a pair whose exact mechanical difference "
+                           "exists"})
+
+
 def selection_record_row():
     """M1 as the frozen 'contained' operating case, in both operands: weights, both regions at 5.75 MPa,
     elongation on, the thermal primitive on every member. S selects the exact 300 K point (REF); O selects a
@@ -1465,8 +1532,11 @@ def selection_record_row():
             "selection records, including fraction 0. W10 specifies a common 1 N bar load and an endpoint record "
             "without a fraction. K1 establishes S and R's verdicts for its supplied records and zero analytical "
             "difference on the common M1 operator.", True,
-            "not established here whether the exact route's resolver records a solve temperature at a table point "
-            "as an interpolation at fraction 0 rather than as that point; establishing it would need product code",
+            "K1 uses synthetic selection records. The load-case modulus-basis resolver selects a basis by solve "
+            "temperature only when that temperature lies strictly between two adjacent user-entered points of the "
+            "material, and otherwise blocks with MODULUS_BASIS_UNRESOLVED (core/product_physics/src/lib.rs lines "
+            "11856 to 11872 at b5569a821). It has no branch for a temperature equal to an entered point. K1's "
+            "operating record selects 300 K, an entered point, so that resolver would block it.",
             {"kind": "linear_increment",
              "values": {"u/B/UX": entry(diff["u/B/UX"], "m"), "reaction/C/FX": entry(diff["reaction/C/FX"], "N"),
                         "axial/AB/N_mech": entry(diff["axial/AB/N_mech"], "N")},
@@ -1478,7 +1548,8 @@ def selection_record_row():
 def builder_witnesses():
     """Rows the builder added (README 'Builder's witnesses'): X1 and X2 for two of the verifier test's mutants
     (a ledger factor, a reference-configuration identifier); X3 the rigid-identity control; X4 the zero-law
-    free-length state that stays an action; X5 two seismic recipes that differ only in mass basis."""
+    free-length state that stays an action; X5 two seismic recipes that differ only in mass basis; X6 two material
+    identifiers equal as numbers and different as text."""
     rows = []
     ea = W_EA
     force = F(1024)
@@ -1500,12 +1571,19 @@ def builder_witnesses():
         return {"member": "AB", "kind": "constant_alpha_interval",
                 "operands": {"alpha": q(F(1, 2 ** 16)), "interval": "64"}, "fit": {"kind": "none"},
                 "reference_configuration": rc}
+    x2 = {}
+    for rc in ("RC-1", "RC-2"):
+        ops = ca_state(rc)["operands"]
+        x2[rc], *_ = bar_solve(W_XS, [("AB", "A", "B", ea, Exact.of(F(ops["alpha"]) * F(ops["interval"])))],
+                               {"A": ("rigid", 0)}, {})
+    x2_d = x2["RC-2"]["B"] - x2["RC-1"]["B"]
+    assert x2["RC-1"]["B"] == Exact.of(F(1, 1024)) and x2_d.is_zero()
     rows.append(("X2", "equal resolved state under two reference-configuration identifiers",
                  w_side("S", member_states=[ca_state("RC-1")]), w_side("O", member_states=[ca_state("RC-2")]),
                  "no reference-configuration identifier is compared; the resolved operands are equal", True,
                  "not established here whether one exact-route document can carry two reference configurations "
                  "for one member; the row tests the policy function only",
-                 {"kind": "linear_increment", "values": {"u/B/UX": entry(ZERO, "m")}}))
+                 {"kind": "linear_increment", "values": {"u/B/UX": entry(x2_d, "m")}}))
 
     # X3: W3 with only the rigid line stop's identity changed in the minuend
     delta = F(1, 1024)
@@ -1555,6 +1633,21 @@ def builder_witnesses():
                  "Proposed policy case. Which mass inputs exact-route seismic generation reads has not been checked "
                  "here.",
                  {"kind": "none"}))
+
+    # X6: two material identifiers that are equal as numbers and differ as text, otherwise equal records
+    unit = primitive("f:B:x", "occasional", "node:B", "global_x", "force", F(1), "N")
+    x6 = {name: {"AB": dict(W_BASIS["AB"], material=name)} for name in ("01", "1")}
+    u01, *_ = bar_solve(W_XS, [("AB", "A", "B", ea, ZERO)], {"A": ("rigid", 0)}, {"B": F(1)})
+    u1, *_ = bar_solve(W_XS, [("AB", "A", "B", ea, ZERO)], {"A": ("rigid", 0)}, {"B": F(1)})
+    rows.append(("X6", "material identifiers 01 and 1, otherwise equal records",
+                 w_side("S", primitives=[unit], basis=x6["01"]), w_side("O", primitives=[unit], basis=x6["1"]),
+                 "the member's material identifier differs as text (01 against 1); every other basis field is "
+                 "equal", True,
+                 "Proposed policy case. Whether the exact route accepts two materials named 01 and 1 has not been "
+                 "checked here.",
+                 {"kind": "linear_increment", "values": {"u/B/UX": entry(u1["B"] - u01["B"], "m")},
+                  "divergence": "both operands share one operator and one 1 N load, so the increment is zero; the "
+                                "policy refuses because the material identifiers differ"}))
     return rows
 
 
@@ -1579,9 +1672,9 @@ def as_records(rows, group):
 EXPECTED_ADDED = {"W1": "admitted", "W2": "admitted", "W3": "admitted", "W4": "admitted", "W5": "refused_g1",
                   "W6": "refused_restraint", "W7a": "refused_restraint", "W7b": "refused_restraint",
                   "W8": "refused_g1", "W9": "admitted", "F1": "refused_g1", "F2": "refused_g1", "F2b": "refused_g1",
-                  "K1": "refused_g2", "W11": "refused_g2",
+                  "K1": "refused_g2", "W10": "refused_g2", "W11": "refused_g2",
                   "X1": "refused_g1", "X2": "admitted", "X3": "refused_restraint", "X4": "refused_g1",
-                  "X5": "refused_g1"}
+                  "X5": "refused_g1", "X6": "refused_g2"}
 
 
 # ==========================================================================================================
@@ -1600,7 +1693,7 @@ def build() -> dict[str, bytes]:
                                  f"{EXPECTED_ADDED[r['id']]}")
     references = {
         "schema": "exact_difference_basis_completed/v1",
-        "status": "candidate references, derived and cross-checked by their author, awaiting independent refutation",
+        "status": "Candidate references for the recorded operands. Independent refutation precedes freezing.",
         "supersedes": {
             "package": "validation/references/exact_difference_basis",
             "section": "G-1: what 'contained by content and with multiplicity' means",
@@ -1632,6 +1725,9 @@ def build() -> dict[str, bytes]:
                                             "O": "exact basis reference to the 650 K point (W11_HI)"},
                              "model": "M1 geometry and the frozen section, no pressure; weight at B and dT on "
                                       "every member in both operands"},
+            "w10_material": {"name": W10_MATERIAL,
+                             "points": {q(T): {"E": q(e), "nu": q(nu)} for T, (e, nu) in W10_POINTS.items()},
+                             "selections": {"S": "exact point 300 K", "O": "temperature 300 K, an entered point"}},
             "shared_w": {"length_m": q(W_L), "outside_diameter_m": q(W_D), "wall_m": q(W_WALL),
                          "inner_radius_m": q(W_RI), "wall_area_m2": Exact({1: W_AREA}).text(), "E_Pa": q(W_E),
                          "nu": q(W_NU), "EA_N": W_EA.text(), "anchor": "A, all six DOFs rigid"},

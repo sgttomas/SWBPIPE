@@ -1,8 +1,7 @@
 """Successor exact-route difference-basis references (`validation/references/exact_difference_basis_completed/`).
 
-The generator's check mode rebuilds `references.json` and `SHA256SUMS` in memory and compares them byte for byte with
-the committed files; while rebuilding it re-derives every carried pair by direct stiffness, checks equilibrium, the
-wall form of the pressure loads and the M1 hand formula, and asserts each added row's verdict and value.
+Regeneration checks committed bytes. The generator checks carried equilibrium, selected pressure and flexibility
+identities, added verdicts and selected mechanical values.
 
 This test imports neither the generator nor the policy verifier. It also reads the frozen package
 (`../exact_difference_basis/references.json`, which stays byte for byte) and holds the successor to it: each
@@ -77,11 +76,10 @@ def test_generator_is_independent_of_the_product_and_of_the_frozen_package():
 
 def test_status_says_candidate_and_not_frozen():
     data = load(PACKAGE / "references.json")
-    assert data["status"] == ("candidate references, derived and cross-checked by their author, awaiting "
-                              "independent refutation")
+    status = "Candidate references for the recorded operands. Independent refutation precedes freezing."
+    assert data["status"] == status
     readme = " ".join((PACKAGE / "README.md").read_text(encoding="utf-8").split())
-    assert ("Candidate references, derived and cross-checked by their author, awaiting independent refutation."
-            in readme)
+    assert status in readme
     assert "**Status.** Frozen" not in readme and "accepted" not in readme.lower()
 
 
@@ -93,13 +91,15 @@ def test_every_row_has_both_entries():
     data = load(PACKAGE / "references.json")
     rows = every_row(data)
     assert [len(data["carried"]["gate_rows"]), len(data["carried"]["pairs"]), len(data["added"]),
-            len(data["builder_witnesses"])] == [19, 17, 15, 5]
+            len(data["builder_witnesses"])] == [19, 17, 16, 6]
     for row in rows:
         adm, mech = row["admission"], row["mechanical"]
         assert adm["verdict"] in VERDICTS, row["id"]
         assert adm["reason"] and adm["gate_only_reason"], row["id"]
         assert isinstance(adm["gate_only"], bool), row["id"]
         assert set(adm["gates"]) == {"restraint", "g1", "g2"}, row["id"]
+        for part in ("restraint", "g1", "g2"):
+            assert adm["gates"][part]["holds"] == (not adm["gates"][part]["cause"]), (row["id"], part)
         first_failing = next((p for p in ("restraint", "g1", "g2") if not adm["gates"][p]["holds"]), None)
         assert adm["verdict"] == ("admitted" if first_failing is None else f"refused_{first_failing}"), row["id"]
         assert mech["kind"] in KINDS and mech["meaning"], row["id"]
@@ -125,10 +125,10 @@ def test_the_added_rows_state_the_specified_verdicts_and_gate_only_marks():
         "W8": ("refused_g1", True, "linear_increment"), "W9": ("admitted", False, "linear_increment"),
         "F1": ("refused_g1", False, "linear_increment"), "F2": ("refused_g1", False, "linear_increment"),
         "F2b": ("refused_g1", False, "linear_increment"), "K1": ("refused_g2", True, "linear_increment"),
-        "W11": ("refused_g2", True, "state_difference"),
+        "W10": ("refused_g2", False, "linear_increment"), "W11": ("refused_g2", True, "state_difference"),
         "X1": ("refused_g1", True, "linear_increment"), "X2": ("admitted", True, "linear_increment"),
         "X3": ("refused_restraint", True, "state_difference"), "X4": ("refused_g1", False, "linear_increment"),
-        "X5": ("refused_g1", True, "none")}
+        "X5": ("refused_g1", True, "none"), "X6": ("refused_g2", True, "linear_increment")}
 
 
 def test_the_stiffness_readings_are_recorded_and_differ_only_where_the_readme_says():
@@ -140,7 +140,8 @@ def test_the_stiffness_readings_are_recorded_and_differ_only_where_the_readme_sa
         assert readings["differ"] == (readings["S"]["verdict"] != readings["R"]["verdict"]), row["id"]
         if readings["differ"]:
             differ.append((row["id"], readings["S"]["verdict"], readings["R"]["verdict"]))
-    assert differ == [("K1", "refused_g2", "admitted"), ("W11", "refused_g2", "admitted")]
+    assert differ == [("K1", "refused_g2", "admitted"), ("W10", "refused_g2", "admitted"),
+                      ("W11", "refused_g2", "admitted")]
     readme = (PACKAGE / "README.md").read_text(encoding="utf-8")
     table = readme.split("### Where the two stiffness readings differ", 1)[1].split("\n\n", 2)[1]
     assert [line.split(" | ")[0].strip("| ") for line in table.splitlines()[2:]] == [rid for rid, _, _ in differ]

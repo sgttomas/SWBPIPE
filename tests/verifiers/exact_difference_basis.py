@@ -9,7 +9,9 @@ A declared subtraction S -> O (S the subtrahend, "sustained"; O the minuend, "op
 1. restraint: the same restraints and devices, and equal fixed-load inventories;
 2. G-1: S's actions are contained in O's, by sameness and with multiplicity;
 3. G-2: the same modulus basis for every member;
-and the verdict names the first part that fails.
+and the verdict names the first part that fails. Each part also reports its cause: what differs, in the
+package's vocabulary (support_law:<support>/<dof> and fixed_load_inventory; the classes primitive,
+pressure_region, pressure_elongation, generated_recipe, motion and member_state; <member>:<field>).
 
 The key functions are module attributes so that a test can replace one with a deliberately wrong version.
 """
@@ -27,19 +29,34 @@ def _float(hex_bits: str) -> float:
     return struct.unpack(">d", bytes.fromhex(hex_bits))[0]
 
 
-def _canon(value):
-    """A value made comparable: rationals in lowest terms, mappings and lists recursively, other text as is."""
+# Fields that hold quantities (the input format writes them as exact rationals). Only these are compared as
+# numbers; every other field (a material, a kind, a label, a direction, an identifier, a bits string, a spring
+# stiffness written with pi) is compared as the text it is.
+QUANTITY_FIELDS = frozenset({
+    # moduli and their selection
+    "E", "nu", "G", "selected_E", "selected_nu", "selection_temperature", "interpolation_fraction",
+    # section
+    "outside_diameter", "wall", "mill_tolerance", "corrosion_allowance",
+    # generated-load inputs and mass basis
+    "factor", "pressure", "shape_factor", "exposed_diameter", "section_mass_per_length", "contents_mass_per_length",
+    # member states and fits
+    "strain", "alpha", "interval", "installation_temperature", "operating_temperature", "datum", "constant",
+    "points", "change", "reference_length",
+})
+
+
+def _canon(value, field=None):
+    """A value made comparable: a quantity field's scalars as rationals in lowest terms, any other scalar as its
+    text, mappings and lists recursively (a list's items take the list's field)."""
     if isinstance(value, dict):
-        return frozenset((k, _canon(v)) for k, v in value.items())
+        return frozenset((k, _canon(v, k)) for k, v in value.items())
     if isinstance(value, list):
-        return tuple(_canon(v) for v in value)
+        return tuple(_canon(v, field) for v in value)
     if value is None or isinstance(value, bool):
         return value
-    text = str(value)
-    try:
-        return ("q", Fraction(text))
-    except (ValueError, ZeroDivisionError):
-        return ("s", text)
+    if field in QUANTITY_FIELDS:
+        return ("q", Fraction(str(value)))
+    return ("s", str(value))
 
 
 def _is_zero(text) -> bool:
@@ -52,27 +69,30 @@ FREE_LAW = ("free",)
 
 
 def restraint_law(record):
-    """The resolved law of one support DOF: free by name (a DOF a side does not list is free as well); rigid with
-    its support identity; a spring or a nonlinear support with its identity, participation and parameters."""
+    """The resolved law of one support DOF: free by name (a DOF a side does not list is free as well); rigid, a
+    spring or a nonlinear support with its identity, participation and parameters, every resolved field."""
     law = record["law"]
     if law == "free":
         return (law,)
-    if law == "rigid":
-        return (law, record["identity"])
-    if law in ("spring", "nonlinear"):
+    if law in ("rigid", "spring", "nonlinear"):
         return (law, record["identity"], record["participation"], _canon(record["parameters"]))
     raise ValueError(f"unknown support law {law!r}")
 
 
-def same_restraint(sustained, operating):
+def restraint_cause(sustained, operating) -> list:
     laws_s = {(r["support"], r["dof"]): restraint_law(r) for r in sustained["supports"]}
     laws_o = {(r["support"], r["dof"]): restraint_law(r) for r in operating["supports"]}
     free = FREE_LAW  # a DOF a side does not list
-    for dof in sorted(set(laws_s) | set(laws_o)):
-        if laws_s.get(dof, free) != laws_o.get(dof, free):
-            return False
+    cause = [f"support_law:{support}/{dof}" for support, dof in sorted(set(laws_s) | set(laws_o))
+             if laws_s.get((support, dof), free) != laws_o.get((support, dof), free)]
     inventory = lambda side: sorted((f["kind"], f["id"], f["value_bits"]) for f in side["fixed_loads"])
-    return inventory(sustained) == inventory(operating)
+    if inventory(sustained) != inventory(operating):
+        cause.append("fixed_load_inventory")
+    return cause
+
+
+def same_restraint(sustained, operating) -> bool:
+    return not restraint_cause(sustained, operating)
 
 
 # ---- G-1 ------------------------------------------------------------------------------------------------
@@ -83,13 +103,13 @@ def primitive_key(record, factor_bits):
 
 
 def region_key(region):
-    return ("region", tuple(sorted(region["pipe_members"])), tuple(sorted(region["connector_members"])),
+    return ("pressure_region", tuple(sorted(region["pipe_members"])), tuple(sorted(region["connector_members"])),
             tuple(sorted((t["node"], t["closure_transfer"]) for t in region["terminals"])), region["pressure_bits"])
 
 
 def generated_key(record):
     start, end = record.get("extent") or ("0", "1")
-    return ("generated", record["kind"], record["target"], (Fraction(start), Fraction(end)),
+    return ("generated_recipe", record["kind"], record["target"], (Fraction(start), Fraction(end)),
             _canon(record["inputs"]), _canon(record["mass_basis"]))
 
 
@@ -131,7 +151,7 @@ def state_is_action(record) -> bool:
 
 
 def state_key(record):
-    return ("state", record["member"], record["kind"], _canon(record["operands"]), _canon(record.get("fit") or NO_FIT))
+    return ("member_state", record["member"], record["kind"], _canon(record["operands"]), _canon(record.get("fit") or NO_FIT))
 
 
 def actions(side) -> Counter:
@@ -147,7 +167,7 @@ def actions(side) -> Counter:
     for region in side["pressure_regions"]:
         found[region_key(region)] += 1
     if side["pressure_elongation"] and len(side["pressure_regions"]) > 0:
-        found[("elongation",)] += 1
+        found[("pressure_elongation",)] += 1
     for record in side["generated"]:
         found[generated_key(record)] += 1
     for record in side["motions"]:
@@ -163,6 +183,12 @@ def contained(sustained_actions: Counter, operating_actions: Counter) -> bool:
     return all(operating_actions[key] >= count for key, count in sustained_actions.items())
 
 
+def containment_cause(sustained, operating) -> list:
+    """The classes of the subtrahend's actions that the minuend lacks, or holds too few times."""
+    held, needed = actions(operating), actions(sustained)
+    return sorted({key[0] for key, count in needed.items() if held[key] < count})
+
+
 # ---- G-2 ------------------------------------------------------------------------------------------------
 
 # The two readings of the stiffness part, defined here once:
@@ -174,24 +200,30 @@ SELECTION_FIELDS = frozenset({"selection_kind", "case_basis_label", "selection_r
 READINGS = {"S": RESOLVED_FIELDS | SELECTION_FIELDS, "R": RESOLVED_FIELDS}
 
 
-def same_basis(sustained, operating, reading="S") -> bool:
+def basis_cause(sustained, operating, reading="S") -> list:
     compared = READINGS[reading]
     if sorted(sustained["basis"]) != sorted(operating["basis"]):
-        return False
-    for member, record in sustained["basis"].items():
-        other = operating["basis"][member]
-        if any(_canon(record.get(f)) != _canon(other.get(f)) for f in sorted(compared)):
-            return False
-    return True
+        return ["members"]
+    return [f"{member}:{f}" for member in sorted(sustained["basis"]) for f in sorted(compared)
+            if _canon(sustained["basis"][member].get(f), f) != _canon(operating["basis"][member].get(f), f)]
+
+
+def same_basis(sustained, operating, reading="S") -> bool:
+    return not basis_cause(sustained, operating, reading)
 
 
 # ---- the verdict ----------------------------------------------------------------------------------------
 
 def admission(sustained, operating, reading="S") -> dict:
+    causes = {"restraint": restraint_cause(sustained, operating),
+              "g1": containment_cause(sustained, operating),
+              "g2": basis_cause(sustained, operating, reading)}
     gates = {"restraint": same_restraint(sustained, operating),
              "g1": contained(actions(sustained), actions(operating)),
              "g2": same_basis(sustained, operating, reading)}
+    assert all(gates[part] == (not causes[part]) for part in gates)
     for part, verdict in (("restraint", "refused_restraint"), ("g1", "refused_g1"), ("g2", "refused_g2")):
         if not gates[part]:
-            return {"verdict": verdict, "gates": gates, "reason": f"the {part} part fails"}
-    return {"verdict": "admitted", "gates": gates, "reason": "every part holds"}
+            return {"verdict": verdict, "gates": gates, "causes": causes,
+                    "reason": f"the {part} part fails: " + ", ".join(causes[part])}
+    return {"verdict": "admitted", "gates": gates, "causes": causes, "reason": "every part holds"}
