@@ -71,7 +71,7 @@ def _doc():
 
 
 def _rows(item):
-    return {r["id"]: r for r in item["rows"]}
+    return {r["id"]: r for r in item.get("rows", [])}
 
 
 def test_every_cross_check_agrees():
@@ -128,7 +128,60 @@ def test_the_replaced_span_carries_no_generated_load_and_a_wind_mark_on_it_is_re
     doc = _doc()
     for case in doc["cases"]:
         if case["model"] == "JR":
-            assert all(g.get("member") != "pipe:b-c" for g in case["generated_loads"]), case["id"]
+            assert all(g.get("member") != "pipe:b-c" for g in case.get("generated_loads", [])), case["id"]
             assert not any("/pipe:b-c/" in rid for rid in _rows(case)), case["id"]
-    refusal, = doc["refusals"]
-    assert refusal["id"] == "JR-REFUSE-WIND-ON-REPLACED-SPAN" and refusal["code"] is None
+    refusals = {r["id"]: r for r in doc["refusals"]}
+    assert set(refusals) == {"JR-REFUSE-WIND-ON-REPLACED-SPAN", "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN",
+                             "JR-REFUSE-GENERATED-IDENTITY-COLLISION"}
+    assert all(r["code"] is None for r in refusals.values())
+    seismic = next(c for c in doc["cases"] if c["id"] == "JR-EQ")
+    assert seismic["generated_loads"] and all(any(x["value"] for x in g["intensity_N_per_m"])
+                                              for g in seismic["generated_loads"])
+
+
+def test_whole_and_part_span_wind_marks_have_their_identities():
+    doc = _doc()
+    part = next(c for c in doc["cases"] if c["id"] == "JR-WIND-PART")
+    marks = sorted((g["identity"]["mark"], g["identity"]["member"]) for g in part["generated_loads"])
+    assert marks == [("part span", "pipe:c-n"), ("whole span", "pipe:a-m"), ("whole span", "pipe:m-b"),
+                     ("whole span", "pipe:n-d")]
+    whole = next(c for c in doc["cases"] if c["id"] == "JR-WIND")
+    assert [r["expected"] for r in whole["rows"]] != [r["expected"] for r in part["rows"]]
+
+
+def test_a_generation_only_case_has_a_result_and_an_unlisted_primitive_is_excluded():
+    doc = _doc()
+    cases = {c["id"]: c for c in doc["cases"]}
+    for cid in ("JR-EQ", "JR-WIND", "JR-WIND-PART"):
+        assert cases[cid]["load_sources"]["declared_ledger"] == [] and cases[cid]["rows"], cid
+    assert cases["JR-EQ-UNLISTED-PRIMITIVE"]["rows_equal"] == "JR-EQ"
+    applied = next(c for c in doc["controls"] if c["id"] == "JR-CTRL-UNLISTED-PRIMITIVE-APPLIED")
+    assert any(r["expected"]["value"] for r in applied["rows"])
+
+
+def test_removing_the_device_moves_single_case_rows_and_no_term_row():
+    doc = _doc()
+    twin = next(c for c in doc["controls"] if c["id"] == "CEF-CTRL-DEVICE-REMOVED-FROM-EVERY-CASE")
+    for cid in ("CEF-SUS", "CEF-EQX", "CEF-EQY", "CEF-EQZ"):
+        moved = twin["rows_that_move"][cid]
+        assert any(r.startswith("reaction/") for r in moved), cid
+        with_device = _rows(next(c for c in doc["cases"] if c["id"] == cid))
+        without = _rows({"rows": twin["twin_case_rows"][cid]})
+        assert all(with_device[r]["expected"] != without[r]["expected"] for r in moved), cid
+        assert all(with_device[r]["expected"] == without[r]["expected"] for r in twin["rows_that_do_not_move"][cid])
+
+
+def test_the_directional_row_separates_srss_absolute_sum_and_signed_sum():
+    row = _doc()["directional_row"]
+    terms = [t["value"] for t in row["terms"].values()]
+    assert min(terms) < 0 < max(terms)
+    values = {row[k]["value"] for k in ("srss", "absolute_sum", "signed_sum")}
+    assert len(values) == 3
+    assert abs(row["signed_sum"]["value"] - sum(terms)) <= 1e-12 * abs(row["signed_sum"]["value"])
+
+
+def test_axial_member_end_rows_say_which_axial_force_they_are():
+    doc = _doc()
+    cef = next(c for c in doc["cases"] if c["id"] == "CEF-SUS")
+    axial = [r for r in cef["rows"] if "axial_quantity" in r]
+    assert len(axial) == 8 and all(r["axial_quantity"].startswith("effective (elastic) member force") for r in axial)
