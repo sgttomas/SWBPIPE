@@ -30,7 +30,17 @@ solved against them. They have not yet been independently refuted.
 |---|---|
 | `generators/rs_r1_ce_reference.py` | the generator: exact rational arithmetic, controlled evaluation of π and √n, `references.json` and `SHA256SUMS` |
 | `references.json` | W_total, its first moment and its moment about the origin with RS-R1 in place; RS-P150's replaced weight and RS-R1's; RS-R1's geometry and weight wrench; RS-CE1's action and the supports' bookkeeping; the generated-weight inventory; negative controls; per-section, per-member and per-component records; the cross-checks |
+| `tranche1_basis/reference_system_inputs.json` | not an input of this generator: the tranche-1 fixture's `nodes`, `pipe_segments`, `components` and `pressure_contract`, each value with its decimal text, as `fixtures/reference_system/reference_system.json` held them at `5dcdb4e21` (blob `f497613f7b`), the four members the frozen `../reference_system/` generator reads |
+| `tranche1_basis/SPECIFICATION.md.txt` | not an input of this generator: `fixtures/reference_system/SPECIFICATION.md` byte for byte at `5dcdb4e21` (blob `19c6009e84`), which the frozen `../reference_system_pending_cases/` generator reads |
 | `SHA256SUMS` | hashes of every other file of the package, which the generator writes over its whole file set |
+
+**The tranche-1 basis.** When the fixture adopted RS-R1 and RS-CE1, the repository files the two frozen packages'
+generators read moved on: the fixture gained RS-R1, which `rs_reference.py` does not hold, and the
+specification cleared its RS-R1 ledger row, which `rs_pending_reference.py` quotes verbatim. The two packages
+stay frozen as they were. `tests/reference_packages.py` reproduces each from the inputs it was generated from:
+it copies the package byte for byte into a scratch repository root, places the basis file at the path its
+generator reads, and runs the package's own unchanged check there. `5dcdb4e21` is the last revision at which
+both checks reproduced in place.
 
 Run `python3 -I generators/rs_r1_ce_reference.py` in this directory to rebuild every output in memory and compare
 it byte for byte with the committed files; `--write` rewrites `references.json` and `SHA256SUMS`.
