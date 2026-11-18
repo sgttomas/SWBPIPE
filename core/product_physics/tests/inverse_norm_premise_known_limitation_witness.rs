@@ -153,3 +153,18 @@ fn witness_one_way_state_is_not_established_on_an_unverified_bound() {
         }
     }
 }
+
+/// Positive control: a maintained request whose bound the certificate verifies
+/// still passes its checks in both modes, so the gate refuses only where the
+/// bound is not verified (a gate that refused everything would fail here).
+#[test]
+fn a_verified_maintained_request_still_passes_its_checks_in_both_modes() {
+    const U_LINE: &str = include_str!("fixtures/kd5_maximum_u_line.json");
+    for mode in MODES {
+        let envelope = run(U_LINE, mode);
+        let (code, message) = integrity(&envelope);
+        assert_eq!(code, PASSED, "{mode:?}: {message}");
+        assert!(!message.contains(NOT_VERIFIED), "{mode:?}: {message}");
+        assert!(blocking(&envelope).is_empty(), "{mode:?}");
+    }
+}

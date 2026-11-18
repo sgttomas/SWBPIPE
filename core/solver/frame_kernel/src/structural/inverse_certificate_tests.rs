@@ -1268,3 +1268,44 @@ fn the_workspace_layouts_are_within_the_pricing_uppers() {
     // The figures' element is named as is by the profile.
     assert_eq!(size_of::<(&'static str, f64)>(), 3 * word);
 }
+
+/// The record vectors' lengths and capacities the pricing's certificate
+/// workspace (IN-WS) charges, on every reference case in every representation
+/// and at a Q low enough that every block runs all three attempts: at most n
+/// blocks; per block at most three attempts (capacity 4); per attempt at most
+/// nine figures (capacity 14); on not verified, at most three attempt kinds,
+/// at most four distinct reasons in each, and at most one candidate per
+/// attempt. Each bound is a property of `run`'s and `assemble`'s straight-line
+/// structure; this test fails if a change outgrows one.
+#[test]
+fn the_record_vectors_stay_within_the_priced_lengths() {
+    let mut cases_seen = 0;
+    let mut three = 0;
+    for c in cases() {
+        let forms = case_forms(&c);
+        for q in [c.q, 1.0e-3, f64::MIN_POSITIVE] {
+            for run in forms.runs(&c.order, &c.first, q) {
+                cases_seen += 1;
+                assert!(run.blocks.len() <= c.n, "{}: blocks", c.name);
+                let mut attempts = 0;
+                for b in &run.blocks {
+                    assert!(b.attempts.len() <= 3 && b.attempts.capacity() <= 4, "{}: attempts", c.name);
+                    three += usize::from(b.attempts.len() == 3);
+                    attempts += b.attempts.len();
+                    for a in &b.attempts {
+                        assert!(a.figures.len() <= 9 && a.figures.capacity() <= 14, "{}: figures", c.name);
+                    }
+                }
+                if let InverseNormCertificate::NotVerified(nv) = &run.result {
+                    assert!(nv.attempts.len() <= 3 && nv.attempts.capacity() <= 4, "{}: kinds", c.name);
+                    for kind in &nv.attempts {
+                        assert!(kind.reasons.len() <= 4, "{}: reasons", c.name);
+                    }
+                    assert!(nv.candidates.len() <= attempts, "{}: candidates", c.name);
+                }
+            }
+        }
+    }
+    assert!(cases_seen >= 8 * 3 * 3);
+    assert!(three > 0, "some block runs all three attempts");
+}
