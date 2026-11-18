@@ -65,6 +65,8 @@ Wind coefficients, exposure rules, seismic response parameters, code load cases 
 
 SWBPIPE's Agent 0 records the decided seismic generation and warning requirements ahead of the engine change. The engine change implements the component replacement and the shared warning, and verifies both against the criteria below.
 
+For v1.0, SWBPIPE's Agent 0 decided on 2026-11-18 that AC-007's partial-span Timoshenko wind comparison is on the exact route only. The pressure-free route refuses a wind exposed-span entry on a Timoshenko straight member by name (DEL-05-03 REQ-011; LIM-034 in `docs/RELEASE_LIMITATIONS_v1.0.md`). The decision conflicts with PRD §12.5's wind load as REQ-008 requires it, on both routes.
+
 **Not met.**
 
 - The component force of static-equivalent seismic generation is not met by the product, on either route and in either solver mode. Where the definition admits component replacement, successful generation today keeps the member's load per length with no finding that identifies the substitution. The product also omits the named refusal when an eligible component's scaled force or moment fails the definition's range check. It is a known product defect, LIM-028 in `docs/RELEASE_LIMITATIONS_v1.0.md`.
