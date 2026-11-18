@@ -243,6 +243,12 @@ def case_list():
     add("C7", "-", "two components joined only by explicit stored zeros (+0.0 at (2,1), -0.0 at (3,0)), "
         "inside the envelope; Q = mul_up(1024, 1)",
         4, c7, q_from(1.0), first=[0, 0, 1, 0], zeros={(2, 1): 0.0, (3, 0): -0.0})
+    # C8: [3] with Q = 2^60. sigma_1 = 2^-59 is below E's loss (delta alone is 2u*3), so E does not verify and D
+    # runs; there the round-to-nearest quotient U/den lies below the exact quotient, so the Uc operand line tells
+    # the directed division apart from round to nearest.
+    add("C8", "-", "the 1x1 matrix [3] with Q = 2^60: E's shift is below its loss, D verifies, and the "
+        "round-to-nearest quotient for Uc lies below the exact quotient",
+        1, {(0, 0): F(3)}, 2.0 ** 60)
     return cases
 
 

@@ -594,3 +594,59 @@ operand 2 e1 loss ge 3cf6fa000000000e
 operand 2 e1 sigma_prime le 3f6fffffffffd20d
 avail verdict verified 40800000000016fb
 end
+case C8
+role -
+about the 1x1 matrix [3] with Q = 2^60: E's shift is below its loss, D verifies, and the round-to-nearest quotient for Uc lies below the exact quotient
+n 1
+order 0
+first 0
+q 43b0000000000000
+entry 0 0 4008000000000000
+truth norm 1/3
+truth block 0 1 1/3
+truth requires bound_at_least_norm
+avail block 0 1 1
+avail attempt 0 e1 lemma_e_sigma_nonpositive -
+avail figure 0 e1 sigma 3c40000000000002
+avail figure 0 e1 gamma 3cc0000000000005
+direction 0 e1 gamma ge 3cc0000000000003
+avail figure 0 e1 n_prime 4008000000000001
+direction 0 e1 n_prime ge 4008000000000000
+avail figure 0 e1 nu 4008000000000000
+direction 0 e1 nu ge 4008000000000000
+avail figure 0 e1 delta 3cc8000000000001
+direction 0 e1 delta ge 3cc8000000000000
+avail figure 0 e1 beta 0000000000000009
+direction 0 e1 beta ge 0000000000000004
+avail figure 0 e1 loss 3ce2000000000007
+direction 0 e1 loss ge 3ce2000000000002
+avail figure 0 e1 sigma_prime bce1fc0000000008
+direction 0 e1 sigma_prime le bce1fc0000000002
+operand 0 e1 gamma ge 3cc0000000000004
+operand 0 e1 beta ge 0000000000000009
+operand 0 e1 loss ge 3ce2000000000007
+operand 0 e1 sigma_prime le bce1fc0000000007
+avail attempt 0 d verified 3fd555555555555a
+avail figure 0 d sigma 0000000000000000
+avail figure 0 d gamma 3cc0000000000005
+direction 0 d gamma ge 3cc0000000000003
+avail figure 0 d u 3fd5555555555556
+direction 0 d u ge 3fd5555555555556
+avail figure 0 d n_l 4008000000000001
+direction 0 d n_l ge 4008000000000000
+avail figure 0 d nu 4008000000000000
+direction 0 d nu ge 4008000000000000
+avail figure 0 d beta 0000000000000009
+direction 0 d beta ge 0000000000000004
+avail figure 0 d t 3cc0000000000009
+direction 0 d t ge 3cc0000000000003
+avail figure 0 d den 3feffffffffffffb
+direction 0 d den le 3feffffffffffffb
+avail figure 0 d uc 3fd555555555555a
+direction 0 d uc ge 3fd5555555555559
+operand 0 d gamma ge 3cc0000000000004
+operand 0 d beta ge 0000000000000009
+operand 0 d t ge 3cc0000000000008
+operand 0 d uc ge 3fd555555555555a
+avail verdict verified 3fd555555555555a
+end

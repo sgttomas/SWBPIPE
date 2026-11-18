@@ -128,7 +128,7 @@ fn cases() -> Vec<Case> {
     }
     assert_eq!(
         out.iter().map(|c| c.name.as_str()).collect::<Vec<_>>(),
-        ["C1", "C2", "C3", "C4", "C5", "C6", "C7"]
+        ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
     );
     out
 }
@@ -1024,42 +1024,37 @@ fn mirrored_zeros_of_opposite_sign_are_symmetric() {
         c7.q,
     );
     assert!(matches!(same, InverseNormCertificate::Verified(_)));
-    let at = (g.row_starts[0]..g.row_starts[1])
-        .find(|&i| g.columns[i] == 3)
-        .unwrap();
-    assert_eq!(g.values[at].to_bits(), (-0.0f64).to_bits());
-    let mut values = g.values.clone();
-    values[at] = 0.0;
-    let bits: Vec<u64> = values.iter().map(|v| v.to_bits()).collect();
-    assert_eq!(
-        certify_compressed(
-            &g.row_starts,
-            &g.columns,
-            &values,
-            &c7.order,
-            &c7.first,
-            c7.q
-        ),
-        same
-    );
-    assert_eq!(
-        certify_compressed_bits(&g.row_starts, &g.columns, &bits, &c7.order, &c7.first, c7.q),
-        same
-    );
-    let mut dense = g.dense.clone();
-    assert_eq!(dense[0][3].to_bits(), (-0.0f64).to_bits());
-    dense[0][3] = 0.0;
-    assert_eq!(
-        certify_dense(
-            &dense,
-            Elimination::Supplied {
-                order: &c7.order,
-                first: &c7.first
-            },
-            c7.q
-        ),
-        same
-    );
+    // C7 stores -0.0 at (3, 0) and (0, 3). Flip each side alone to +0.0: (0, 3),
+    // which the identity-order factor never loads, and (3, 0), the lower entry
+    // its workspace does load (row 3's envelope starts at column 0). Each
+    // mirrored pair of opposite-signed zeros gives the result of equal bits.
+    assert_eq!(c7.order, [0, 1, 2, 3]);
+    assert_eq!(c7.first[3], 0, "(3, 0) is inside the envelope the factor fills");
+    for (row, column) in [(0, 3), (3, 0)] {
+        let at = (g.row_starts[row]..g.row_starts[row + 1])
+            .find(|&i| g.columns[i] == column)
+            .unwrap();
+        assert_eq!(g.values[at].to_bits(), (-0.0f64).to_bits(), "({row}, {column})");
+        let mut values = g.values.clone();
+        values[at] = 0.0;
+        let bits: Vec<u64> = values.iter().map(|v| v.to_bits()).collect();
+        assert_eq!(
+            certify_compressed(&g.row_starts, &g.columns, &values, &c7.order, &c7.first, c7.q),
+            same,
+            "compressed, ({row}, {column})"
+        );
+        assert_eq!(
+            certify_compressed_bits(&g.row_starts, &g.columns, &bits, &c7.order, &c7.first, c7.q),
+            same,
+            "bits, ({row}, {column})"
+        );
+        let mut dense = g.dense.clone();
+        assert_eq!(dense[row][column].to_bits(), (-0.0f64).to_bits(), "({row}, {column})");
+        dense[row][column] = 0.0;
+        let supplied = Elimination::Supplied { order: &c7.order, first: &c7.first };
+        assert_eq!(certify_dense(&dense, supplied, c7.q), same, "dense supplied, ({row}, {column})");
+        assert_eq!(certify_dense(&dense, Elimination::Natural, c7.q), certify_dense(&g.dense, Elimination::Natural, c7.q), "dense natural, ({row}, {column})");
+    }
 }
 
 #[test]

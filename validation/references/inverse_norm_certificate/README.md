@@ -43,7 +43,7 @@ The generator writes it.
 | `truth` | The exact rational ‖A⁻¹‖∞ of the case and of each block, and what truth alone requires: `truth requires not_verified` when the exact norm exceeds Q; otherwise `bound_at_least_norm` (any reported B is at least the exact norm). Every bound reported, verified or candidate, is at least the exact norm of what it bounds. | Exact rational inversion. Independent of the procedure. |
 | `avail` | Availability expectations: the blocks, each attempt (E at σ₁, E at σ₂, D) with its outcome and every figure it forms, and the verdict with B, all as binary64 bits. | This generator's binary64 emulation of the procedure. They say what the stated procedure does on the matrix, not what is true of it: a case the procedure does not verify may still satisfy ‖A⁻¹‖∞ ≤ Q (C4). |
 | `direction` | For each directed figure, the binary64 number next to the exact quantity it stands for, on the side the figure must lie (`ge`: figure ≥ edge, so figure ≥ exact; `le`: figure ≤ exact). The exact quantities are computed in fractions from the emulated factor: γ_m = mu/(1 − mu), N′, ν, 2u·max\|d̃\|, 2⁻¹⁰⁷⁴n(n + ν), the loss, σ − loss, k/σ′, U, t, 1 − t and U/(1 − t). | Exact arithmetic on the emulated factor. The generator refuses to write a figure that is on the wrong side. |
-| `operand` | For γ, β, the loss, σ′, t and Uc, the binary64 number next to the exact result of the figure's own last operation on that operation's binary64 operands as the emulation formed them (for t, the exact product of U and the already formed error sum), on the side the figure must lie. A figure can lie on the right side of the ideal quantity only because its operands were already rounded outward and still be on the wrong side of the operation that formed it; this line catches that for the last operation. The earlier operations inside one figure (for example the product γ·N′ within the loss) are not tested separately. On the present cases a round-to-nearest quotient for Uc is nowhere below the exact quotient, so the Uc line does not tell the two apart here; the division's direction is tested in `directed.txt`. | Exact arithmetic on the emulation's own operands. The generator refuses to write a figure that is on the wrong side. |
+| `operand` | For γ, β, the loss, σ′, t and Uc, the binary64 number next to the exact result of the figure's own last operation on that operation's binary64 operands as the emulation formed them (for t, the exact product of U and the already formed error sum), on the side the figure must lie. A figure can lie on the right side of the ideal quantity only because its operands were already rounded outward and still be on the wrong side of the operation that formed it; this line catches that for the last operation. The earlier operations inside one figure (for example the product γ·N′ within the loss) are not tested separately. | Exact arithmetic on the emulation's own operands. The generator refuses to write a figure that is on the wrong side. |
 
 `directed.txt` gives the directed operations against exact results,
 including RN(1/3) < 1/3 and RN(h/2) = 0 < h/2
@@ -86,9 +86,9 @@ is exact.
 
 ## Cases
 
-Q is an input of the certificate. Each case states it as `mul_up(1024, est)`
-for a stated est; for C2 to C5 the est values are 1, and 1 + 2⁻⁵² at
-λ = 2⁻¹¹. They are inputs stated here, not results this package reproduces. The truth
+Q is an input of the certificate. Each case from C1 to C7 states it as
+`mul_up(1024, est)` for a stated est; for C2 to C5 the est values are 1, and
+1 + 2⁻⁵² at λ = 2⁻¹¹. C8 states Q = 2⁶⁰ directly. They are inputs stated here, not results this package reproduces. The truth
 does not depend on where Q came from.
 
 | Case | Matrix | Exact ‖A⁻¹‖∞ | Q | Expected (avail) |
@@ -100,6 +100,7 @@ does not depend on where Q came from.
 | C5 (underestimate control) | the witness's scaled free matrix | 262144 > Q | mul_up(1024, 1) | not verified (truth requires it) |
 | C6 | blocks of 5 and 4 on interleaved free positions, order 8 1 6 3 4 5 2 7 0, full envelope | 4/5 | mul_up(1024, 1) | verified, both blocks by E at σ₁, with different shifts |
 | C7 | two 2×2 blocks joined only by explicit stored zeros (+0.0 at (2,1), −0.0 at (3,0)) inside the envelope | 1 | mul_up(1024, 1) | verified, two blocks |
+| C8 | the 1×1 matrix [3] | 1/3 | 2⁶⁰ | verified by D (E's shift 2⁻⁵⁹ is below its loss); the round-to-nearest quotient for Uc lies below the exact one |
 
 The witness family is blockdiag(4(I − (1 − λ)wwᵀ), 1, 1), w = (1, 1, −1, −1)/2;
 its exact norm is 1/(4λ). The emulated bounds, to the digits shown:
