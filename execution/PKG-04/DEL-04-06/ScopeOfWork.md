@@ -89,7 +89,7 @@ A diagnostic is a statement about the discrete model and its solve. The absence 
 - **VER-001** — AC-001, AC-003, AC-004, AC-006 and AC-009, executable check: observes, for models singular or invalid by construction, the diagnostic raised, its location and the absence of a result; and, for each classification, the diagnostic at, below and above its supplied limit.
 - **VER-002** — AC-002 and AC-005, executable check: observes each failure kind mapped to its record, field by field, and the status of a failed and of a solved case.
 - **VER-003** — AC-007, executable check: observes the topology findings on constructed models in both solve modes and on both routes, with the published values compared against the same model without the unusual feature.
-- **VER-004** — AC-008, executable check: observes the on-demand findings against the solve's leading diagnostics across a set of invented models, the unchanged model, the bounded report, the memory refusal and the cancellation.
+- **VER-004** — AC-008, executable check: observes the on-demand findings against the solve's leading diagnostics across a set of invented models, the unchanged model, the bounded report, the memory refusal and the cancellation. Include seismic cases with and without each applicable REQ-008 warning condition. Compare the presence, case and content of the warning with REQ-008, and trace both call paths to the shared judgement.
 - **VER-005** — AC-005, judgment by a reviewer who did not write the code: examines diagnostic texts against `docs/claims_registry.md`.
 
 ## Governing Values and Decisions — Axiology
