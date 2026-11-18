@@ -31,7 +31,7 @@ mod prepare;
 mod request; mod resource; // design §5.3.8 P0, on this line so that no line moves.
 mod state;
 mod stiffness; mod skew_pencil;
-mod weight_basis;
+mod weight_basis; mod document_envelope; // REQ-007's document envelope, on this line so that no line moves.
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
