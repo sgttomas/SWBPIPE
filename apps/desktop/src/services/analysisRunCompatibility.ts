@@ -2,7 +2,7 @@ import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "..
 import { isRetainedRoute } from "../features/results/numericalResultQuality";
 import { hasCurrentSourceContract, readerDispatch, readerValidate, recordedReaderDispatch, recordedReaderValidate, ResultReaderError, sourceContract, sourceSemanticBinding } from "../features/results/resultReader";
 import { recordedPreRtA4RecordBinding, recordedPreRtA4Table, type RecordedBinding } from "./recordedPreRtA4";
-import { semanticContractMismatch } from "./tableBinding";
+import { semanticContractMismatch } from "./semanticContractRefusal";
 import pressureTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json";
 import pressureSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json";
 import previewPhysicsTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json";

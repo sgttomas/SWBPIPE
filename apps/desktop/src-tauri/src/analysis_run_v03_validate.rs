@@ -972,7 +972,7 @@ pub(crate) const RECORDED_RUN_TABLE_BASES: [(&str, &str, &str); 0] = [];
 /// main-line revision, or the digest a committed recorded run of main binds
 /// (`fixtures/persistence/recorded_model_*`). Read only to choose the words of
 /// `ANALYSIS_SEMANTIC_CONTRACT_MISMATCH`; never to admit a record. One row per digest: append a
-/// line (and the count). The twins, row for row and in order: `tableBinding.ts` and
+/// line (and the count). The twins, row for row and in order: `semanticContractRefusal.ts` and
 /// `compatibility.py` `KNOWN_FORMER_TABLE_DIGESTS`; `stored_custody_tests.rs` requires the three equal.
 pub(crate) const KNOWN_FORMER_TABLE_DIGESTS: [(&str, &str); 34] = [
     ("openpipestress.result_semantics/0.3.0/pressure-source-1", "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"),

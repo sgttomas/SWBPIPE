@@ -527,7 +527,7 @@ fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
 }
 
 /// The known former table digests that word the binding refusal (`KNOWN_FORMER_TABLE_DIGESTS`,
-/// `analysis_run_v03_validate.rs`) are the webview's (`tableBinding.ts`) and Python's
+/// `analysis_run_v03_validate.rs`) are the webview's (`semanticContractRefusal.ts`) and Python's
 /// (`compatibility.py`), row for row and in order. Each twin's whole literal is read; an entry
 /// that is not a recognized `(id, sha256)` row fails the test. A unit that appends a former digest
 /// appends one row to each of the three and this test holds them equal.
@@ -536,7 +536,7 @@ fn the_known_former_table_digests_are_the_typescript_and_python_lists() {
     use crate::analysis_run_v03_validate::KNOWN_FORMER_TABLE_DIGESTS;
     let native: Vec<[String; 2]> = KNOWN_FORMER_TABLE_DIGESTS.iter().map(|(id, sha256)| [id.to_string(), sha256.to_string()]).collect();
     // TypeScript: `Object.freeze([ { id: "…", sha256: "…" }, … ]);`.
-    let ts = read_text("apps/desktop/src/services/tableBinding.ts");
+    let ts = read_text("apps/desktop/src/services/semanticContractRefusal.ts");
     assert_eq!(ts.matches("const KNOWN_FORMER_TABLE_DIGESTS").count(), 1);
     let declared = &ts[ts.find("const KNOWN_FORMER_TABLE_DIGESTS").unwrap()..];
     let literal = &declared[declared.find("Object.freeze(").expect("the frozen TypeScript list") + "Object.freeze(".len()..];

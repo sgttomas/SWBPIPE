@@ -504,7 +504,7 @@ RECORDED_RUN_TABLE_BASES: tuple[tuple[str, str, str], ...] = ()
 # Former digests of a table, (id, sha256): the SHA-256 of that table file's bytes at a main-line revision, or the digest
 # a committed recorded run of main binds (fixtures/persistence/recorded_model_*). Read only
 # to choose the words of ANALYSIS_SEMANTIC_CONTRACT_MISMATCH; never to admit a record. One row per digest: append a line.
-# The twins, row for row and in order: analysisRunCompatibility.ts and analysis_run_v03_validate.rs
+# The twins, row for row and in order: semanticContractRefusal.ts and analysis_run_v03_validate.rs
 # KNOWN_FORMER_TABLE_DIGESTS (stored_custody_tests.rs requires the three equal).
 KNOWN_FORMER_TABLE_DIGESTS: tuple[tuple[str, str], ...] = (
     ("openpipestress.result_semantics/0.3.0/pressure-source-1", "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"),

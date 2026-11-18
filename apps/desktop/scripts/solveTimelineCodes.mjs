@@ -40,6 +40,8 @@ const SOLVE_PATH_TS = [
   "apps/desktop/src/services/hashService.ts",
   "apps/desktop/src/services/inputManifestService.ts",
   "apps/desktop/src/services/analysisRunCompatibility.ts",
+  // The record validator's table-binding refusal (its words chosen there).
+  "apps/desktop/src/services/semanticContractRefusal.ts",
   "apps/desktop/src/features/workspace/solveJobAudit.ts",
   "apps/desktop/src/features/results/resultReader.ts",
   "apps/desktop/src/features/results/resultStanding.ts",
