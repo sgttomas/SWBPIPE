@@ -12,7 +12,6 @@
 //! used. Both row and column sums bound the contribution, assembly and projection
 //! differences. No member-bound input enters StructuralReport.
 use super::retained::wide::{Wide2, WideArith, WideError};
-use super::inverse_certificate::InverseNormInput;
 use super::{binary_exponent, StructuralError, StructuralSystem};
 use crate::connector::ObjectiveConnector;
 use crate::tie_rod::TieRod;
@@ -452,35 +451,6 @@ impl Failure {
     }
 }
 
-/// The unavailable detail when the inverse-norm bound is not verified. Stable:
-/// published in the diagnostic and in the confirmation stages' reasons.
-pub(super) const INVERSE_NORM_NOT_VERIFIED: &str = "inverse-norm bound not verified";
-
-/// The Λ step's inverse operand: `limit` is Q = mul_up(1024, est), the operand
-/// Λ uses, and `bound` is B, with ‖A⁻¹‖∞ ≤ B ≤ Q established by the
-/// certificate for the matrix A that `projected` reads (DEL-04-01 REQ-015).
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub(super) struct InverseOperand {
-    pub(super) limit: f64,
-    pub(super) bound: f64,
-}
-
-/// The only place Q becomes an operand: Q is returned only when the
-/// certificate verified ‖A⁻¹‖∞ ≤ B ≤ Q for `inverse`'s matrix and elimination.
-/// Anything else (not verified, unusable input, a bound above Q) is
-/// `Failure::Unavailable(INVERSE_NORM_NOT_VERIFIED)`; not verified never means
-/// refuted, and there is no other way to Q.
-fn verified_inverse_operand(est: f64, inverse: InverseNormInput<'_>) -> Result<InverseOperand, Failure> {
-    let limit = mul_up(1024.0, est);
-    match inverse.verified_bound(limit) {
-        Some(verified) if verified.bound <= limit => Ok(InverseOperand {
-            limit,
-            bound: verified.bound,
-        }),
-        _ => Err(Failure::Unavailable(INVERSE_NORM_NOT_VERIFIED)),
-    }
-}
-
 /// Runs the closed check and returns demotion evidence plus recovery inputs.
 pub(super) fn check<F, A, P>(
     system: &StructuralSystem<'_>,
@@ -491,8 +461,7 @@ pub(super) fn check<F, A, P>(
     condition: (f64, f64, f64),
     assembled: &A,
     projected: &P,
-    solve: &F,
-    inverse: InverseNormInput<'_>,
+    solve: &F, inverse: InverseNormInput<'_>,
 ) -> (Option<FormationCheck>, Option<MemberBoundInputs>)
 where
     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
@@ -510,15 +479,12 @@ where
         projected,
         solve,
         true,
-        None,
-        inverse,
+        None, inverse,
     )
 }
 /// `check` at a supplied u with the D5C-1 rule on or off and an optional
 /// per-attempt epsilon_E cache (kd5-nonlinear-active-set.md §1.5): the
 /// confirmation attempt evaluates several systems that share one factor.
-/// `inverse` is the matrix `projected` reads, with the factor's elimination
-/// and certificate slot: the Λ step's gate (`verified_inverse_operand`).
 #[allow(clippy::too_many_arguments)]
 pub(super) fn check_at<F, A, P>(
     system: &StructuralSystem<'_>,
@@ -531,8 +497,7 @@ pub(super) fn check_at<F, A, P>(
     projected: &P,
     solve: &F,
     judged: bool,
-    epsilon_cache: Option<&std::cell::Cell<Option<f64>>>,
-    inverse: InverseNormInput<'_>,
+    epsilon_cache: Option<&std::cell::Cell<Option<f64>>>, inverse: InverseNormInput<'_>,
 ) -> (Option<FormationCheck>, Option<MemberBoundInputs>)
 where
     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
@@ -560,8 +525,7 @@ where
             projected,
             solve,
             judged,
-            epsilon_cache,
-            inverse,
+            epsilon_cache, inverse,
         ),
     };
     match evaluated {
@@ -982,8 +946,7 @@ fn evaluate<F, A, P>(
     projected: &P,
     solve: &F,
     judged: bool,
-    epsilon_cache: Option<&std::cell::Cell<Option<f64>>>,
-    inverse: InverseNormInput<'_>,
+    epsilon_cache: Option<&std::cell::Cell<Option<f64>>>, inverse: InverseNormInput<'_>,
 ) -> Result<(Option<FormationCheck>, Option<MemberBoundInputs>), Failure>
 where
     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
@@ -1121,9 +1084,7 @@ where
         }
     };
     let (_rcond, est, _norm) = condition;
-    let operand = verified_inverse_operand(est, inverse)?;
-    debug_assert!(operand.bound <= operand.limit);
-    let inverse = operand.limit;
+    let operand = verified_inverse_operand(est, inverse)?; debug_assert!(operand.bound <= operand.limit); let inverse = operand.limit;
     let neumann = mul_up(inverse, epsilon);
     if !neumann.is_finite() || neumann >= 1.0 {
         return Err(Failure::Unavailable("Neumann"));
@@ -3457,6 +3418,39 @@ fn invert6(a: &mut WideArith, f: &M6) -> Result<M6, WideError> {
         }
     }
     Ok(out)
+}
+
+// DEL-04-01 REQ-015: the Λ step's gate. `inverse` (check, check_at, evaluate and
+// skew::evaluate) is the matrix `projected` reads, with the factor's elimination
+// and certificate slot.
+use super::inverse_certificate::InverseNormInput;
+/// The unavailable detail when the inverse-norm bound is not verified. Stable:
+/// published in the diagnostic and in the confirmation stages' reasons.
+pub(super) const INVERSE_NORM_NOT_VERIFIED: &str = "inverse-norm bound not verified";
+
+/// The Λ step's inverse operand: `limit` is Q = mul_up(1024, est), the operand
+/// Λ uses, and `bound` is B, with ‖A⁻¹‖∞ ≤ B ≤ Q established by the
+/// certificate for the matrix A that `projected` reads (DEL-04-01 REQ-015).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(super) struct InverseOperand {
+    pub(super) limit: f64,
+    pub(super) bound: f64,
+}
+
+/// The only place Q becomes an operand: Q is returned only when the
+/// certificate verified ‖A⁻¹‖∞ ≤ B ≤ Q for `inverse`'s matrix and elimination.
+/// Anything else (not verified, unusable input, a bound above Q) is
+/// `Failure::Unavailable(INVERSE_NORM_NOT_VERIFIED)`; not verified never means
+/// refuted, and there is no other way to Q.
+fn verified_inverse_operand(est: f64, inverse: InverseNormInput<'_>) -> Result<InverseOperand, Failure> {
+    let limit = mul_up(1024.0, est);
+    match inverse.verified_bound(limit) {
+        Some(verified) if verified.bound <= limit => Ok(InverseOperand {
+            limit,
+            bound: verified.bound,
+        }),
+        _ => Err(Failure::Unavailable(INVERSE_NORM_NOT_VERIFIED)),
+    }
 }
 
 #[cfg(test)]

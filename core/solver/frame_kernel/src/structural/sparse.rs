@@ -1383,8 +1383,7 @@ impl Represented for SparseStructuralSystem<'_> {
         projected:&impl Fn(usize,usize)->f64,
         scale_exponents: &[i32],
         u: &[f64],
-        solve: &F,
-        inverse: InverseNormInput<'_>,
+        solve: &F, inverse: InverseNormInput<'_>,
     ) -> (Option<FormationCheck>,Option<MemberBoundInputs>)
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
@@ -1982,19 +1981,12 @@ impl PreparedGate for SparsePreparedSystem<'_> {
 pub struct SparsePositiveFactor<'p, 's> {
     prepared: &'p SparsePreparedSystem<'s>,
     factor: ProfileFactor,
-    pivots: Vec<PivotEvidence>,
-    certificate: CertificateSlot,
+    pivots: Vec<PivotEvidence>, certificate: CertificateSlot,
 }
 
 impl SparsePositiveFactor<'_, '_> {
     pub fn pivots(&self) -> &[PivotEvidence] {
         &self.pivots
-    }
-    /// The Λ step's gate input: the stored prepared rows this factor factored,
-    /// with its order, envelope and certificate slot.
-    pub(super) fn inverse_norm(&self) -> InverseNormInput<'_> {
-        let p = self.prepared;
-        InverseNormInput::new(CertifiedMatrix::Compressed { row_starts: &p.row_starts, columns: &p.columns, values: &p.values, order: &self.factor.order, first: &self.factor.first }, &self.certificate)
     }
 }
 
@@ -2053,8 +2045,7 @@ pub fn factor_sparse_structural_profile<'p, 's>(
     Ok(SparsePositiveFactor {
         prepared,
         factor,
-        pivots,
-        certificate: CertificateSlot::default(),
+        pivots, certificate: CertificateSlot::default(),
     })
 }
 
@@ -2068,8 +2059,7 @@ pub fn finish_sparse_structural(
         factor.prepared,
         factor.pivots.clone(),
         "positive skyline LDL",
-        |rhs| factor.factor.solve(rhs),
-        factor.inverse_norm(),
+        |rhs| factor.factor.solve(rhs), factor.inverse_norm(),
     )
 }
 
@@ -2086,8 +2076,7 @@ pub struct SharedSparseFactor {
     scale_exponents: Vec<i32>,
     row_starts: Vec<usize>,
     columns: Vec<usize>,
-    values: Vec<u64>,
-    certificate: CertificateSlot,
+    values: Vec<u64>, certificate: CertificateSlot,
 }
 
 impl SparsePositiveFactor<'_, '_> {
@@ -2100,19 +2089,8 @@ impl SparsePositiveFactor<'_, '_> {
             columns: self.prepared.columns.clone(),
             values: self.prepared.values.iter().map(|v| v.to_bits()).collect(),
             factor: self.factor,
-            pivots: self.pivots,
-            // The same matrix bits, order and envelope: a result already held stays valid.
-            certificate: self.certificate,
+            pivots: self.pivots, certificate: self.certificate, // the same matrix bits, order and envelope
         }
-    }
-}
-
-impl SharedSparseFactor {
-    /// The Λ step's gate input: the kept rows (bit-equal to every prepared
-    /// matrix `finish_sparse_structural_on` admits), with the kept factor's
-    /// order, envelope and certificate slot.
-    pub(super) fn inverse_norm(&self) -> InverseNormInput<'_> {
-        InverseNormInput::new(CertifiedMatrix::CompressedBits { row_starts: &self.row_starts, columns: &self.columns, values: &self.values, order: &self.factor.order, first: &self.factor.first }, &self.certificate)
     }
 }
 
@@ -2148,8 +2126,7 @@ pub fn finish_sparse_structural_on(
         prepared,
         factor.pivots.clone(),
         "positive skyline LDL",
-        |rhs| factor.factor.solve(rhs),
-        factor.inverse_norm(),
+        |rhs| factor.factor.solve(rhs), factor.inverse_norm(),
     )
 }
 
@@ -2238,8 +2215,7 @@ impl SparseConfirmationAttempt<'_, '_, '_> {
             &|r, c| prepared.gate_value(r, c),
             &|rhs: &[f64]| self.factor.factor.solve(rhs),
             judged,
-            Some(&self.epsilon),
-            self.factor.inverse_norm(),
+            Some(&self.epsilon), self.factor.inverse_norm(),
         ))
     }
 }
@@ -2457,3 +2433,23 @@ fn pair_energy(
 
 #[cfg(test)]
 mod tests;
+
+// DEL-04-01 REQ-015: the Λ step's gate input of each sparse factor object.
+impl SparsePositiveFactor<'_, '_> {
+    /// The stored prepared rows this factor factored, with its order, envelope
+    /// and certificate slot.
+    pub(super) fn inverse_norm(&self) -> InverseNormInput<'_> {
+        let p = self.prepared;
+        InverseNormInput::new(CertifiedMatrix::Compressed { row_starts: &p.row_starts, columns: &p.columns, values: &p.values, order: &self.factor.order, first: &self.factor.first }, &self.certificate)
+    }
+}
+
+impl SharedSparseFactor {
+    /// The kept rows (bit-equal to every prepared matrix
+    /// `finish_sparse_structural_on` admits), with the kept factor's order,
+    /// envelope and certificate slot; `share` moves the slot of the factor it
+    /// keeps (the same matrix bits, order and envelope).
+    pub(super) fn inverse_norm(&self) -> InverseNormInput<'_> {
+        InverseNormInput::new(CertifiedMatrix::CompressedBits { row_starts: &self.row_starts, columns: &self.columns, values: &self.values, order: &self.factor.order, first: &self.factor.first }, &self.certificate)
+    }
+}

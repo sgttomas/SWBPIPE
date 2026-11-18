@@ -342,9 +342,43 @@ fn another_q_is_recomputed_and_does_not_overwrite() {
 
 // ------------------------------------------------ the only way to Q (scan)
 
-/// The production text before each file's first `#[cfg(test)]` module.
-fn production(source: &str) -> &str {
-    source.find("\n#[cfg(test)]\n").map_or(source, |at| &source[..at])
+/// The production text: the source with every `#[cfg(test)]` item removed (a
+/// declaration ending in `;`, or a braced item, after any further attributes).
+fn production(source: &str) -> String {
+    let mut out = String::new();
+    let mut rest = source;
+    while let Some(at) = rest.find("#[cfg(test)]") {
+        out.push_str(&rest[..at]);
+        let item = &rest[at..];
+        let semicolon = item.find(';');
+        let brace = item.find('{');
+        let end = match (semicolon, brace) {
+            (Some(s), Some(b)) if s < b => s + 1,
+            (Some(s), None) => s + 1,
+            (_, Some(b)) => {
+                let mut depth = 0;
+                let mut end = item.len();
+                for (i, ch) in item[b..].char_indices() {
+                    match ch {
+                        '{' => depth += 1,
+                        '}' => {
+                            depth -= 1;
+                            if depth == 0 {
+                                end = b + i + 1;
+                                break;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                end
+            }
+            (None, None) => item.len(),
+        };
+        rest = &item[end..];
+    }
+    out.push_str(rest);
+    out
 }
 
 fn body_of<'a>(source: &'a str, header: &str) -> &'a str {
@@ -373,14 +407,14 @@ fn body_of<'a>(source: &'a str, header: &str) -> &'a str {
 /// gate's input and slot.
 #[test]
 fn the_helper_is_the_only_place_q_becomes_an_operand() {
-    let check = production(include_str!("formation_check.rs"));
+    let check = &production(include_str!("formation_check.rs"));
     let skew = include_str!("formation_check/skew.rs");
-    let structural = production(include_str!("../structural.rs"));
-    let sparse = production(include_str!("sparse.rs"));
-    let recovery = production(include_str!("certified_recovery.rs"));
-    let basis = production(include_str!("../restraint_basis.rs"));
+    let structural = &production(include_str!("../structural.rs"));
+    let sparse = &production(include_str!("sparse.rs"));
+    let recovery = &production(include_str!("certified_recovery.rs"));
+    let basis = &production(include_str!("../restraint_basis.rs"));
     let helper = body_of(check, "fn verified_inverse_operand(");
-    for (name, text) in [("formation_check.rs", check), ("skew.rs", skew), ("structural.rs", structural), ("sparse.rs", sparse), ("certified_recovery.rs", recovery), ("restraint_basis.rs", basis)] {
+    for (name, text) in [("formation_check.rs", check.as_str()), ("skew.rs", skew), ("structural.rs", structural.as_str()), ("sparse.rs", sparse.as_str()), ("certified_recovery.rs", recovery.as_str()), ("restraint_basis.rs", basis.as_str())] {
         let q = text.matches("1024.0").count();
         let expected = usize::from(name == "formation_check.rs");
         assert_eq!(q, expected, "{name}: Q is formed only in the helper");
@@ -411,7 +445,7 @@ fn the_helper_is_the_only_place_q_becomes_an_operand() {
     assert_eq!(skew.matches("Some(MemberBoundInputs {").count(), 1);
     assert_eq!(basis.matches("MemberBoundInputs {").count(), 1);
     assert!(basis.contains("lambda_sigma: bound.lambda_sigma,"));
-    for text in [structural, sparse, recovery] {
+    for text in [structural.as_str(), sparse.as_str(), recovery.as_str()] {
         assert_eq!(text.matches("MemberBoundInputs {").count(), 0);
     }
     // The gate's input and slot are made only by the factor objects.
@@ -421,6 +455,10 @@ fn the_helper_is_the_only_place_q_becomes_an_operand() {
     assert_eq!(structural.matches("certificate: CertificateSlot::default(),").count(), 2);
     assert_eq!(sparse.matches("certificate: CertificateSlot::default(),").count(), 1);
     assert_eq!(sparse.matches("certificate: self.certificate,").count(), 1);
+    // The production text holds the accessors (which follow test-module declarations).
+    assert!(structural.contains("fn inverse_norm(&self) -> InverseNormInput<'_>"));
+    assert_eq!(sparse.matches("fn inverse_norm(&self) -> InverseNormInput<'_>").count(), 2);
+    assert!(!check.contains("mod inverse_gate_tests"));
     // Each confirmation attempt evaluates on its own factor's input.
     assert_eq!(body_of(structural, "pub fn evaluate_at(").matches("self.factor.inverse_norm()").count(), 1);
     assert_eq!(body_of(sparse, "pub fn evaluate_at(").matches("self.factor.inverse_norm()").count(), 1);
