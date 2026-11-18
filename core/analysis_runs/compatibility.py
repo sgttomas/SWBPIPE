@@ -501,6 +501,25 @@ _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_3.json
 # follows the retired-identity rule and is refused by name (SOURCE_PRESSURE_2_RETIRED). None is current.
 # The desktop's twin is analysisRunCompatibility.ts RECORDED_RUN_TABLE_BASES.
 RECORDED_RUN_TABLE_BASES: tuple[tuple[str, str, str], ...] = ()
+# Former digests of a table, (id, sha256), each the SHA-256 of that table file's bytes at a main-line revision. Read only
+# to choose the words of ANALYSIS_SEMANTIC_CONTRACT_MISMATCH; never to admit a record. One row per digest: append a line.
+# The twins, row for row and in order: analysisRunCompatibility.ts and analysis_run_v03_validate.rs
+# KNOWN_FORMER_TABLE_DIGESTS (stored_custody_tests.rs requires the three equal).
+KNOWN_FORMER_TABLE_DIGESTS: tuple[tuple[str, str], ...] = (
+    ("openpipestress.result_semantics/0.3.0/pressure-source-1", "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"),
+)
+ANALYSIS_SEMANTIC_CONTRACT_MISMATCH = "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"
+_FORMER_TABLE_TEXT = ("this run was recorded under an earlier revision of these result rules, which this version cannot interpret; "
+                      "the stored run is unchanged; run the analysis again on its saved model state to create a new result")
+_UNRECOGNISED_TABLE_TEXT = ("this run names a revision of these result rules that this version does not recognise; "
+                            "the stored run is unchanged; run the analysis again on its saved model state to create a new result")
+
+
+def semantic_contract_mismatch(recorded: Any) -> str:
+    """The refusal of a record whose table binding is not accepted, worded by whether the binding it names is a known
+    former digest of that table."""
+    former = isinstance(recorded, Mapping) and (recorded.get("id"), recorded.get("sha256")) in KNOWN_FORMER_TABLE_DIGESTS
+    return f"{ANALYSIS_SEMANTIC_CONTRACT_MISMATCH}: {_FORMER_TABLE_TEXT if former else _UNRECOGNISED_TABLE_TEXT}"
 
 
 def recorded_run_semantic_binding(recorded: Any, contract_id: str, contract_hash: str) -> dict[str, str]:
@@ -959,7 +978,7 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
         raise ValueError("ANALYSIS_SOURCE_RUN_MISMATCH")
     semantic = recorded_run_semantic_binding(run.get("reproducibility", {}).get("semantic_contract"), contract_id, contract_hash)
     if run.get("reproducibility", {}).get("semantic_contract") != semantic:
-        raise ValueError("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH")
+        raise ValueError(semantic_contract_mismatch(run.get("reproducibility", {}).get("semantic_contract")))
     hashes = [item for item in run.get("hashes", []) if item.get("payload_scope") == "received_result"]
     expected_hash = _checksum("received_result", {"object_type": "ResultEnvelope", "ref": f"result-envelope:{source.get('run_id')}"}, source, hash_fn)
     if hashes != [expected_hash]:
