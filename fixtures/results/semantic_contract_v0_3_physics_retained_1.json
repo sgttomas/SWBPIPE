@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 137,
-  "source_kind_count": 69,
+  "source_signature_count": 138,
+  "source_kind_count": 70,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -2259,6 +2259,21 @@
       "governing_ratio_eligible": false,
       "source_basis": "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=reduced_section",
       "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "supported-source-115",
+      "kind": "variable_spring_hanger_applied_load",
+      "unit": "N",
+      "component": "variable_spring_hanger_applied_load",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "assembled_load_review",
+      "family": null,
+      "canonical_disposition": "exported_review",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     }
   ],
   "hash_vectors": [
@@ -2309,7 +2324,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9",
+  "inherited_semantic_contract_sha256": "7306c0197bc8f72026763599751051e79e4337a9ad0c3285f54391c52eb5d3ed",
   "formulation_profile_id": "exact_straight_retained_w1a_v2",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_v1",
   "supported_profile_limitations": [

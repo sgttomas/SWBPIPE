@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 94,
-  "source_kind_count": 53,
+  "source_signature_count": 95,
+  "source_kind_count": 54,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -1467,6 +1467,20 @@
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
       "governing_ratio_eligible": false,
       "source_basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-080",
+      "kind": "variable_spring_hanger_applied_load",
+      "unit": "N",
+      "component": "variable_spring_hanger_applied_load",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "assembled_load_review",
+      "family": null,
+      "canonical_disposition": "exported_review",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false
     }
   ],
   "hash_vectors": [
