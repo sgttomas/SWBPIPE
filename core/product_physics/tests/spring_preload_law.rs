@@ -181,3 +181,39 @@ fn a_test_condition_case_is_still_refused_before_any_solve_with_a_spring_in_the_
         }
     }
 }
+
+/// DEL-05-02's count rule for an operand whose fixed-load count is undefined, with the
+/// spring's cold load the only fixed-load source (P-A on both routes and modes):
+/// `c:sub` (PA-WT − PA-B) has κ = 1 − 1 = 0; the range envelope `c:env_mixed` of
+/// PA-WT (κ = 1) and `c:sub` (κ = 0) has no common κ, so its κ is undefined, and an
+/// envelope carries no gate of its own, so it publishes; the mechanics combination
+/// `c:mech_of_env` (1.0 · `c:env_mixed`) names an operand with an undefined κ, its
+/// operand is not withheld (that rule is tested first), and it is withheld under
+/// CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED with the spring named as the source.
+#[test]
+fn a_mechanics_combination_of_an_operand_with_an_undefined_count_is_withheld_as_mixed() {
+    const MIXED: &str = "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED";
+    const MIXED_TEXT: &str = "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a variable spring hanger's cold load cannot be decided.";
+    let combinations = json!([
+        {"id": "c:sub", "basis": "result_state_subtraction", "minuend_id": "PA-WT", "subtrahend_id": "PA-B", "provenance": "invented"},
+        {"id": "c:env_mixed", "basis": "range_envelope", "operand_ids": ["PA-WT", "c:sub"], "mode": "max_abs", "provenance": "invented"},
+        {"id": "c:mech_of_env", "basis": "mechanics", "terms": [{"combination": "c:env_mixed", "factor": 1.0}], "provenance": "invented"}]);
+    for route in ROUTES {
+        for mode in MODES {
+            let what = format!("operand undefined {route:?} {mode:?}");
+            let envelope = solved(&pa_two_cases(route, combinations.clone()), mode, &what);
+            let rows_of = |id: &str| envelope["results"].as_array().unwrap().iter()
+                .filter(|r| r["basis_ref"]["ref_type"] == "combination" && r["basis_ref"]["ref_id"] == id).count();
+            assert!(rows_of("c:sub") > 0, "{what}");
+            assert!(rows_of("c:env_mixed") > 0, "{what}: an envelope carries no gate of its own");
+            assert_eq!(rows_of("c:mech_of_env"), 0, "{what}");
+            let mixed = diagnostics(&envelope, MIXED);
+            assert_eq!(mixed.len(), 1, "{what}: {:#?}", envelope["diagnostics"]);
+            assert_eq!(mixed[0]["affected_refs"], json!(["c:mech_of_env"]), "{what}");
+            assert_eq!(mixed[0]["message"], MIXED_TEXT, "{what}");
+            for code in [GATE, "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND", "LOAD_COMBINATION_OPERAND_WITHHELD"] {
+                assert!(diagnostics(&envelope, code).is_empty(), "{what}: {code}");
+            }
+        }
+    }
+}
