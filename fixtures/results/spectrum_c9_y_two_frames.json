@@ -5,15 +5,15 @@
   },
   "bindings": {
     "model": {
+      "binds": "model_document",
       "canonical_form": "openpipestress_jcs_ijson_v1",
       "hash_algorithm": "sha-256",
-      "payload": "model_document",
       "sha256": "12371cb45e0b1c5d60e739d09e474456245373ddfbda18a9d4ad4056437b7f96"
     },
     "request": {
+      "binds": "spectrum_request",
       "canonical_form": "openpipestress_jcs_ijson_v1",
       "hash_algorithm": "sha-256",
-      "payload": "spectrum_request",
       "sha256": "dedd5bc97600426252a11e84b933759c2231ee2bea5acf877e529a50d54ca60d"
     }
   },

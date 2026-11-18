@@ -737,13 +737,13 @@ only and is not evidence that the product recovers these contributions.",
     }
 }
 
-fn binding_json(payload: &str, value: &Value, numbers: &mut Numbers) -> Value {
+fn binding_json(binds: &str, value: &Value, numbers: &mut Numbers) -> Value {
     let sha = spectrum_doc_sha256(value);
     if sha.is_none() {
-        numbers.outside.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, payload, None,
-            format!("the {payload} is outside the checked canonical profile, so it cannot be bound")));
+        numbers.outside.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, binds, None,
+            format!("the {binds} is outside the checked canonical profile, so it cannot be bound")));
     }
-    json!({"payload": payload, "hash_algorithm": SPECTRUM_HASH_ALGORITHM, "canonical_form": SPECTRUM_RESULT_CANONICAL, "sha256": sha})
+    json!({"binds": binds, "hash_algorithm": SPECTRUM_HASH_ALGORITHM, "canonical_form": SPECTRUM_RESULT_CANONICAL, "sha256": sha})
 }
 
 fn modal_result_json(b: &ModalResultBinding) -> Value {
