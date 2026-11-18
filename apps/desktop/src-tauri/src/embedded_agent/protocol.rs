@@ -1198,6 +1198,50 @@ mod tests {
         }
     }
 
+    /// The case the catalog's replacement instruction forbids acting on. A stored state
+    /// can be removed by a proposal that fits while the new state's entry does not fit:
+    /// an agent that removed first would have no route to install the replacement. The
+    /// instruction has the agent establish that both complete proposals fit before it
+    /// proposes the removal, and otherwise leave the stored state in place. Here the
+    /// entry, judged first as the instruction orders, is refused at the argument bound
+    /// and reaches no tool, so nothing has been removed; the removal alone would have
+    /// been admitted, which is why the order matters.
+    #[test]
+    fn a_replacement_whose_entry_exceeds_the_bound_is_refused_with_nothing_removed() {
+        const REFERENCE: &str = include_str!("../../../../../fixtures/reference_system/reference_system.json");
+        const CATALOG: &str = include_str!("../../resources/agent-capability-catalog.json");
+        let catalog: Value = serde_json::from_str(CATALOG).unwrap();
+        let instruction = catalog["tools"].as_array().unwrap().iter()
+            .find(|tool| tool["name"] == Tool::ProposeOperations.name()).unwrap()["description"].as_str().unwrap();
+        assert!(instruction.contains("check that its removal and the new state's entry would each fit argumentBytes as a complete proposal alone. If either exceeds argumentBytes, or you cannot tell, leave the stored state in place and report the limit. If both fit, it is two proposals in order, each alone: its removal, then the new state;"));
+        let reference: Value = serde_json::from_str(REFERENCE).unwrap();
+        let bound = Catalog::load().unwrap().limits().argument_bytes as usize;
+        let stored = reference["load_cases"].as_array().unwrap().iter()
+            .find(|case| case["id"] == "load:RS-OPE").unwrap()["analysis_state"].to_string();
+        let hash = json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","payload_ref":"model","value":"a".repeat(64),"hash_status":"computed_local_preview"});
+        let op = |before: &str, after: &str| json!({"operation_id":"op1","operation_kind":"modify","target":{"object_type":"Load","ref":"load:RS-OPE"},
+            "change":{"change_id":"op1","change_kind":"update_load","field_label":"analysis state","field_path":"analysis_state","before":before,"after":after,"unit":"none","dimension":"dimensionless","source_note":"the person's stated source"},
+            "rationale":"replace the operating case's state"});
+        let args = |operation: Value| json!({"workspaceHandle":"workspace-1","basis":basis(),"claimedModelHash":hash,"operations":[operation],
+            "assumptions":[]});
+        // The new state: one byte more than an entry's arguments can carry.
+        let envelope = serde_json::to_vec(&args(op("not_present", ""))).unwrap().len();
+        let entry = args(op("not_present", &"x".repeat(bound - envelope + 1)));
+        let removal = args(op(&stored, "not_present"));
+        assert!(serde_json::to_vec(&entry).unwrap().len() > bound);
+        assert!(serde_json::to_vec(&removal).unwrap().len() <= bound);
+        // The replacement in one operation does not fit either, which is what sends the agent to the two proposals.
+        assert!(serde_json::to_vec(&args(op(&stored, &"x".repeat(bound - envelope + 1)))).unwrap().len() > bound);
+        let mut p = active();
+        let refused = p.handle_frame(call(json!(80), "entry", Tool::ProposeOperations.name(), entry), &basis()).unwrap();
+        assert!(refused.events.is_empty(), "the entry reaches no tool: {:?}", refused.events);
+        assert_eq!(refused.outbound[0]["result"]["success"], false);
+        // The hazard the order prevents: the removal by itself is admitted.
+        let mut q = active();
+        let admitted = q.handle_frame(call(json!(81), "removal", Tool::ProposeOperations.name(), removal), &basis()).unwrap();
+        assert!(matches!(admitted.events.first(), Some(Event::ToolRequested { .. })), "{:?}", admitted.outbound);
+    }
+
     #[test]
     fn proposal_context_is_checked_before_dispatch() {
         let mut p = active();
