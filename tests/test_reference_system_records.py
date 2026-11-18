@@ -530,10 +530,10 @@ BINDINGS = [
      lambda m: [t["provenance"] for c in _cases(m) for r in c["pressure_regions"] for t in r["terminals"]]),
     ("regions", "Region provenance", lambda m: [r["provenance"] for c in _cases(m) for r in c["pressure_regions"]]),
     ("states", "Analysis state provenance", lambda m: [c["analysis_state"]["provenance"] for c in _cases(m)]),
-    ("states", "Analysis basis reason", lambda m: [s["analysis_basis_override"]["reason"] for c in _cases(m)
+    ("states", "Analysis-basis reason", lambda m: [s["analysis_basis_override"]["reason"] for c in _cases(m)
                                                    for s in c["analysis_state"]["element_states"]
                                                    if "analysis_basis_override" in s]),
-    ("states", "Analysis basis provenance", lambda m: [s["analysis_basis_override"]["provenance"] for c in _cases(m)
+    ("states", "Analysis-basis provenance", lambda m: [s["analysis_basis_override"]["provenance"] for c in _cases(m)
                                                        for s in c["analysis_state"]["element_states"]
                                                        if "analysis_basis_override" in s]),
     ("combinations", "Provenance", lambda m: [c["provenance"] for c in m["combinations"]]),

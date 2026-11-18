@@ -467,12 +467,12 @@ state**, Apply, per case.
   with the copy**, as for RS-OPE. **Mark element_states absent**, then **Add element state**.
   Element state 1: pipe RS-P010; operating temperature 210 degC; material selection exact_point;
   material `material:RS-M1`; material point `point:RS-M1-T020`; thermal state free_length_state;
-  expansion law `law:RS-M1-SECANT`; **Analysis basis reason**
+  expansion law `law:RS-M1-SECANT`; **Analysis-basis reason**
   `RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)`;
-  **Analysis basis provenance** ⟨P⟩. Tick the fill's choice to include the analysis basis.
-  Fill. Then on RS-P180's row clear the operating temperature (value and unit), set thermal
-  state unchanged_reference and **Thermal provenance** ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`,
-  and clear its analysis basis reason and provenance; its material selection stays as filled.
+  **Analysis-basis provenance** ⟨P⟩. Tick **Element state fill includes the template's
+  analysis-basis override**. Fill. Then on RS-P180's row clear the operating temperature (value
+  and unit), set thermal state unchanged_reference and **Thermal provenance** ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`,
+  and **Remove** its analysis-basis override; its material selection stays as filled.
   Factor 1, **Add every primitive of this case**.
 
 ### Step combinations
@@ -561,7 +561,7 @@ step rows do not change, except row 13's support when RS-FR1V becomes one-way.
 An **entry** is one typed or pasted value, one choice from a list or picker, or one checkbox
 or toggle; a unit is an entry where the person sets it. A **press** is one press of a button
 or tab the steps name other than queue, validate and apply, and each key the steps name for
-a purpose other than committing an entry: Add …, Fill …, Replace …, Mark …, Generate …, Enter
+a purpose other than committing an entry: Add …, Fill …, Replace …, Mark …, Remove …, Generate …, Enter
 in a Support cell to add a row, F2 to open a grid cell's editor, Start task, Cancel, the inspector's Task and Properties tabs, Blank
 load/reference model, Create and Run mechanics preview. A **cycle** is one Apply or one Apply
 entire batch. Moving between stages and pages is not counted.
@@ -591,16 +591,16 @@ solve waiting time separately; their sum is compared with the threshold.
 | reference | 12 | 3 | 1 | 15 × 5.5 s = 82.5 s | 1.5 |
 | weight | 40 | 4 | 4 | 44 × 5.5 s = 242 s | 4 |
 | regions | 88 | 8 | 4 | 96 × 5.5 s = 528 s | 8.75 |
-| states | 72 | 19 | 4 | 91 × 5.5 s = 500.5 s | 8.25 |
+| states | 70 | 20 | 4 | 90 × 5.5 s = 495 s | 8.25 |
 | combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
 | solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
-| **Total** | **664** | **105** | **33** | | **about 68.25 entry + 2 waiting = about 70.25** |
+| **Total** | **662** | **106** | **33** | | **about 68.25 entry + 2 waiting = about 70.25** |
 
 Two subtotals, both estimates: **entry** about 68.25 minutes (the grid cells, form entries and
 presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
 sum is about 70.25 minutes.
 
-Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (440 form entries + 105
+Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (438 form entries + 106
 presses) × 5.5/60 min = 18.286 + 49.958 = 68.24 minutes, and with the 2 minutes of solve
 waiting the sum is 70.24 minutes.
 
@@ -643,21 +643,21 @@ How the larger counts arise:
   pressure value and unit, six terminal fields, provenance) for five regions; 26 picker
   choices (25 member pipes and the connector); two entries for each of three copies. The
   presses are Add pressure region five times and Replace once per copy.
-- **states, 72 entries and 19 presses.** RS-SUS 19: its selection, a typed element row of 6
+- **states, 70 entries and 20 presses.** RS-SUS 19: its selection, a typed element row of 6
   fields, the element fill's two choices, one RS-P180 edit and 9 shared entries (contract,
   reference, the typed support state's two fields, the support fill's two choices, factor,
   history, provenance). RS-OPE 20: its selection, the copy's source, 11 element fields, two
   fill choices, four RS-P180 edits and the factor. RS-SAM 11: its selection, the copy's
-  source, the factor and two motions of four fields. RS-OPE-REF 22: its selection, the copy's
+  source, the factor and two motions of four fields. RS-OPE-REF 20: its selection, the copy's
   source, 10 element fields (pipe, operating temperature and its unit, material selection,
-  material, material point, thermal state, expansion law, analysis basis reason and
-  provenance), three fill choices (template, targets and including the analysis basis), six
-  RS-P180 edits (the operating temperature and its unit, thermal state, thermal provenance,
-  analysis basis reason and provenance) and the factor. The presses: for RS-SUS, Add element
+  material, material point, thermal state, expansion law, analysis-basis reason and
+  provenance), three fill choices (template, targets and the tick that includes the
+  analysis-basis override), four RS-P180 edits (the operating temperature and its unit,
+  thermal state and thermal provenance) and the factor. The presses: for RS-SUS, Add element
   state, Fill element states, Add support state, Fill support states and Add every primitive;
-  for RS-OPE and for RS-OPE-REF, Replace, Mark element_states absent, Add element state, Fill
-  element states and Add every primitive; for RS-SAM, Replace, Add every primitive and Add
-  boundary motion twice.
+  for RS-OPE, Replace, Mark element_states absent, Add element state, Fill element states and
+  Add every primitive; for RS-OPE-REF the same five and Remove of RS-P180's analysis-basis
+  override; for RS-SAM, Replace, Add every primitive and Add boundary motion twice.
 - **combinations, 9.** The first: ID, label, basis, minuend, subtrahend, provenance; the
   second: ID, label, minuend.
 
