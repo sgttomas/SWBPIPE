@@ -1114,6 +1114,10 @@ fn roster(source: &Value, model: Option<&Value>) -> Check {
         expected.push(roster_entry(HEADLINE_ID.into(), HEADLINE, "info", HEADLINE_TEXT.into(), refs));
         let case_row = |kinds: &[&str]| results.iter().any(|r| r["basis_ref"]["ref_type"] == "load_case" && r["kind"].as_str().is_some_and(|k| kinds.contains(&k)));
         let (has_maximum, has_intensified) = (case_row(&MAXIMUM_KINDS), case_row(&INTENSIFIED_KINDS));
+        // DEL-04-11 REQ-014: a fixed-load gate's text names its actual source. This reader
+        // binds no consumption fact to the model (the gate readers do); it reads each source
+        // from the applied-load rows its cases publish, one per consuming support or spring.
+        let fixed_load_sources = (case_row(&["constant_effort_support_applied_load"]), case_row(&[crate::spring_preload::APPLIED_LOAD]));
         let model_cases: HashSet<&str> = model.map(|m| items(&m["load_cases"]).iter().filter_map(|c| c["id"].as_str()).collect()).unwrap_or_default();
         let mut withheld: HashMap<&str, &str> = HashMap::new();
         for &(id, gated, code) in &gates {
@@ -1154,7 +1158,8 @@ fn roster(source: &Value, model: Option<&Value>) -> Check {
             } else if crate::preview_held_status::GATES.contains(&code) {
                 (held_gate_message(evidence, id, code)?, vec![id])
             } else {
-                (preview_gate_message(code).to_string(), vec![id])
+                let (constant_effort, springs) = fixed_load_sources;
+                (crate::spring_preload::fixed_load_gate_message(code, constant_effort, springs, preview_gate_message(code)), vec![id])
             };
             expected.push(roster_entry(gate_id, code, "warning", message, refs));
             withheld.insert(id, code);

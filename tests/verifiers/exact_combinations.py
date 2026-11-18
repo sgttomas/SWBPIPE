@@ -35,6 +35,7 @@ import sys
 from typing import Any
 
 from . import combination_graph as graph
+from . import spring_preload
 from .section_basis import bit_equal
 from .units import to_canonical
 
@@ -533,9 +534,63 @@ def applied_load_row(support: Mapping[str, Any], case: str, position: int) -> di
     }
 
 
+# The producer's applied-load sign convention for a variable spring (PP `spring_preload::APPLIED_SIGN_CONVENTION`),
+# re-derived whole.
+SPRING_APPLIED_SIGN_CONVENTION = (
+    "positive value is the user-entered cold load of the variable spring hanger, applied as a constant force along the "
+    "positive axis of its translational stiffness DOF in this load case; the spring keeps its entered rate, and its "
+    "published support force is this cold load minus the rate times the displacement relative to its base; no catalog "
+    "or default value is supplied")
+
+
+def _normalized_force(cold: Mapping[str, Any]) -> float | None:
+    try:
+        return to_canonical(cold.get("value"), cold.get("unit"), "force")
+    except (ValueError, TypeError, AttributeError):
+        return None
+
+
+def applying_springs(model: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """The model's applying springs (``spring_preload.applying``, the cold load normalized to newtons as a
+    constant-effort force is), in model order, with their hanger references as the applied-load row states them; a
+    reference that is neither text nor absent is refused."""
+    supports = {s.get("id"): s for s in _items(model.get("supports")) if isinstance(s, Mapping)}
+    out = []
+    for spring in spring_preload.applying(model, _normalized_force):
+        hanger = supports[spring["id"]].get("hanger")
+        references = [_hanger_reference(hanger, field, f"{field}_missing")
+                      for field in ("source_reference", "manufacturer_reference", "load_side_review_reference")]
+        _require(all(r is not None for r in references), "MODEL_SPRING_PRELOAD")
+        out.append({**spring, "source": references[0], "manufacturer": references[1], "load_side_review": references[2]})
+    return out
+
+
+def spring_applied_load_row(spring: Mapping[str, Any], case: str, position: int) -> dict[str, Any]:
+    """The producer's applied-load row for an applying spring in the solved case at `position` (PP
+    `spring_preload::append_results`): every field, the first case's id kept and every later case's qualified."""
+    tail = f"spring-hanger:{_stable_suffix(spring['id'])}:applied-load"
+    return {
+        "id": f"result:{tail}" if position == 0 else f"result:loadcase:{_stable_suffix(case)}:{tail}",
+        "kind": spring_preload.APPLIED_LOAD,
+        "value": spring["force"],
+        "unit": "N",
+        "entity_ref": spring["id"],
+        "basis_ref": {"ref_type": "load_case", "ref_id": case},
+        "metadata": {
+            "component": spring_preload.APPLIED_LOAD,
+            "coordinate_system": "global",
+            "location": f"{spring['node']}:{spring['dof']} applied load",
+            "basis": (f"support_family=variable_spring_hanger;consumed_dof={spring['dof']};source={spring['source']};"
+                      f"manufacturer={spring['manufacturer']};load_side_review={spring['load_side_review']};"
+                      "mechanics_consumption=assembled_solve_cold_load;dec_ref=DEC-049"),
+            "sign_convention": SPRING_APPLIED_SIGN_CONVENTION,
+        },
+    }
+
+
 def _gate(cid: str, expression: Expression, g: "graph.Graph", modulus: dict, withheld: list[tuple[str, str]],
           evidence: Mapping[str, Any], nonlinear: bool = False,
-          constant_effort: bool = False) -> tuple[str, str, list[str]] | None:
+          constant_effort: bool = False, springs: bool = False) -> tuple[str, str, list[str]] | None:
     """The gates (section 4; absolute-sum-srss section 5): a withheld operand combination; then, for the term bases,
     gates 1 and 2 over every load case the combination reaches, and gates 3 and 4 on kappa."""
     named: list[tuple[str, str]] = []
@@ -577,9 +632,11 @@ def _gate(cid: str, expression: Expression, g: "graph.Graph", modulus: dict, wit
     mechanics = expression.basis == "mechanics"
     if _installed_reference(evidence.get("connector")) and fixed_load_withholding() is not None:
         return gated(INSTALLED_REFERENCE if mechanics else INSTALLED_REFERENCE_UNSIGNED)
-    if constant_effort and (withholding := fixed_load_withholding()) is not None:
-        return gated({"unit": CONSTANT_EFFORT, "operand": CONSTANT_EFFORT_OPERAND_MIXED,
-                      "unsigned": CONSTANT_EFFORT_UNSIGNED}[withholding])
+    # DEL-04-11 REQ-014: a variable spring's cold load is gate 4's other fixed-load source; the text names the
+    # actual source (PP `spring_preload::fixed_load_gate_message`).
+    if (constant_effort or springs) and (withholding := fixed_load_withholding()) is not None:
+        code = {"unit": CONSTANT_EFFORT, "operand": CONSTANT_EFFORT_OPERAND_MIXED, "unsigned": CONSTANT_EFFORT_UNSIGNED}[withholding]
+        return code, spring_preload.fixed_load_gate_message(code, constant_effort, springs, GATE_MESSAGES[code]), [cid]
     return None
 
 
@@ -838,6 +895,9 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
     # Gate 4's input: a consuming constant-effort support publishes its applied-load row in every solved case;
     # `model_checks` binds those rows case by case to the model's DEC-049 decision.
     constant_effort = any(_case_of(r) is not None and r.get("kind") == APPLIED_LOAD for r in results)
+    # DEL-04-11 REQ-014: an applying spring publishes its applied-load row in every solved case; `model_checks`
+    # binds those rows to the model's decision.
+    springs = any(_case_of(r) is not None and r.get("kind") == spring_preload.APPLIED_LOAD for r in results)
     expected_rows, modulus_rows, expected_diagnostics, ids = [], [], [], []
     # absolute-sum-srss sections 2-5: the records in evaluation order, kappa and the reached load cases of each, the
     # modulus key of every load-case operand stated so far, and the combinations withheld whole with their codes.
@@ -874,7 +934,7 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
             expected_diagnostics.append({"id": f"{PREFIX}fixed-load-count:{identity([cid])}", "code": graph.FIXED_LOAD_COUNT_UNREPRESENTABLE,
                                          "severity": "info", "message": graph.fixed_load_count_message(cid), "source": DIAGNOSTIC_SOURCE,
                                          "affected_refs": [cid]})
-        reason = _gate(cid, expression, g, modulus, withheld, evidence, nonlinear, constant_effort)
+        reason = _gate(cid, expression, g, modulus, withheld, evidence, nonlinear, constant_effort, springs)
         _require(bit_equal(record["gate"], {"withheld": reason is not None, "reason": reason[0] if reason else None}), "GATE")
         if basis not in graph.TERM_BASES:
             # DEC-068 item 1: each load-case operand's solve basis, in authored order (an operand combination records none).
@@ -979,3 +1039,15 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
         _require(len(published) == len(consuming), "MODEL_CONSTANT_EFFORT")
         for row, support in zip(published, consuming):
             _require(bit_equal(row, applied_load_row(support, cid, position)), "MODEL_CONSTANT_EFFORT")
+    # DEL-04-11 REQ-014, the same binding for the other fixed-load source: every solved case publishes exactly the
+    # model's applying springs' applied-load rows, in model order, each the producer's whole row.
+    springs = applying_springs(model)
+    for position, case in enumerate(_items((source.get("contract_evidence") or {}).get("exact_cases"))):
+        cid = case.get("load_case_id") if isinstance(case, Mapping) else None
+        _require(isinstance(cid, str), "MODEL_SPRING_PRELOAD")
+        published = [r for r in results if isinstance(r, Mapping) and r.get("kind") == spring_preload.APPLIED_LOAD
+                     and isinstance(r.get("basis_ref"), Mapping) and r["basis_ref"].get("ref_type") == "load_case"
+                     and r["basis_ref"].get("ref_id") == cid]
+        _require(len(published) == len(springs), "MODEL_SPRING_PRELOAD")
+        for row, spring in zip(published, springs):
+            _require(bit_equal(row, spring_applied_load_row(spring, cid, position)), "MODEL_SPRING_PRELOAD")

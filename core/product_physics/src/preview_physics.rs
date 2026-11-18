@@ -1387,11 +1387,17 @@ pub(crate) fn combination_derivation(model: &PreviewModel, rendered: &Rendered, 
         .filter(|c| recorded.contains(&c.id))
         .map(|c| serde_json::json!({"combination_id": c.id, "basis": c.basis, "expression": exact_combinations::expression_evidence(c)}))
         .collect();
-    Some(serde_json::json!({
+    let mut member = serde_json::json!({
         "nonlinear_supports": rendered.nonlinear,
         "consuming_constant_effort": rendered.consuming_constant_effort,
         "combinations": records,
-    }))
+    });
+    // DEL-04-11 REQ-014: the sibling fixed-load source, stated only where it holds,
+    // so that a document without an applying spring keeps its bytes.
+    if crate::spring_preload::fixed_load_source(model) {
+        member[crate::spring_preload::COLD_LOAD_FACT] = serde_json::Value::Bool(true);
+    }
+    Some(member)
 }
 
 /// Operating-case slice 1a (DEL-05-02 Design `pf-nonlinear-operand-standing.md`):

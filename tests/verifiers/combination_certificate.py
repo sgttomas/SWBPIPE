@@ -18,6 +18,7 @@ from typing import Any
 
 from .exact_combinations import norm3
 from .section_basis import bit_equal
+from . import spring_preload
 
 MEMBER = "combination_certificate"
 WITHIN = "COMBINATION_ROWS_WITHIN_STATED_BOUND"
@@ -1032,6 +1033,9 @@ def roster(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) ->
             return any(_get(r, "basis_ref", "ref_type") == "load_case" and _get(r, "kind") in kinds for r in results)
 
         has_maximum, has_intensified = case_row(MAXIMUM_KINDS), case_row(INTENSIFIED_KINDS)
+        # DEL-04-11 REQ-014: a fixed-load gate's text names its actual source. This verifier binds no consumption fact
+        # to the model (the gate verifiers do); it reads each source from the applied-load rows its cases publish.
+        constant_effort, springs = case_row({"constant_effort_support_applied_load"}), case_row({spring_preload.APPLIED_LOAD})
         model_cases = {x for x in (_text(_get(c, "id")) for c in _items(model.get("load_cases"))) if x is not None} if isinstance(model, Mapping) else set()
         withheld: dict[str, str] = {}
         for cid, gated, code in gates:
@@ -1058,7 +1062,8 @@ def roster(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) ->
             elif code in HELD_GATES:
                 message, refs = _held_gate_message(evidence, cid, code), [cid]
             else:
-                message, refs = _PREVIEW_GATE_TEXT.get(code, _MODULUS_GATE_TEXT), [cid]
+                message = spring_preload.fixed_load_gate_message(code, constant_effort, springs, _PREVIEW_GATE_TEXT.get(code, _MODULUS_GATE_TEXT))
+                refs = [cid]
             expected.append(_entry(gate_id, code, "warning", message, refs))
             withheld[cid] = code
         # RT-A5: each held combination's HELD_STATUS_RELEASED notice, set-bound, rebuilt from its validated record.

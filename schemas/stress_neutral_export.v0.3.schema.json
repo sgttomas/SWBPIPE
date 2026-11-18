@@ -3912,6 +3912,10 @@
               "type": "boolean",
               "description": "The solve consumes a constant-effort support (the fixed-load-count gates)."
             },
+            "applying_variable_spring_cold_load": {
+              "const": true,
+              "description": "DEL-04-11 REQ-014: a variable spring hanger applies its cold load in the solve (the fixed-load-count gates' other source). Present only where it holds; absent means no spring applies."
+            },
             "combinations": {
               "type": "array",
               "minItems": 1,

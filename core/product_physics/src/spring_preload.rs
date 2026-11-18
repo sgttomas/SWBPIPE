@@ -180,6 +180,10 @@ pub(crate) fn with_cold_load(model: &PreviewModel, case: &PreviewLoadCase, suppo
 pub(crate) const W2_FAMILY: &str = "variable_spring_hanger_preload";
 
 pub(crate) const APPLIED_LOAD_KIND: &str = "variable_spring_hanger_applied_load";
+/// The `combination_derivation` member stating that a spring applies its cold
+/// load in the solve (a fixed-load source beside `consuming_constant_effort`);
+/// present, and `true`, only where [`fixed_load_source`] holds.
+pub(crate) const COLD_LOAD_FACT: &str = "applying_variable_spring_cold_load";
 pub(crate) const NOT_APPLIED: &str = "SPRING_HANGER_COLD_LOAD_NOT_APPLIED";
 pub(crate) const INSTALLED_DIFFERS: &str = "SPRING_HANGER_INSTALLED_LOAD_DIFFERS_FROM_COLD_LOAD";
 const APPLIED_SIGN_CONVENTION: &str = "positive value is the user-entered cold load of the variable spring hanger, applied as a constant force along the positive axis of its translational stiffness DOF in this load case; the spring keeps its entered rate, and its published support force is this cold load minus the rate times the displacement relative to its base; no catalog or default value is supplied";
