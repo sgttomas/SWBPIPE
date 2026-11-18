@@ -10175,7 +10175,7 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/resource.rs",
-    "line": 1162,
+    "line": 1181,
     "via": "diag()"
    },
    "sites": [
@@ -10192,7 +10192,7 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1162,
+     "line": 1181,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10201,7 +10201,7 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1463,
+     "line": 1482,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10210,7 +10210,7 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1571,
+     "line": 1603,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10286,7 +10286,7 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1140,
+     "line": 1159,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10295,7 +10295,7 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1162,
+     "line": 1181,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10304,7 +10304,7 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1369,
+     "line": 1388,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10313,7 +10313,7 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1456,
+     "line": 1475,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10322,7 +10322,7 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1560,
+     "line": 1592,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10439,17 +10439,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/resource.rs",
-    "line": 1356,
+    "line": 1375,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1356,
+     "line": 1375,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED (core/product_physics/src/modal/resource.rs:1250)"
+      "const MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED (core/product_physics/src/modal/resource.rs:1269)"
      ]
     }
    ],
@@ -10472,13 +10472,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/resource.rs",
-    "line": 1153,
+    "line": 1172,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1153,
+     "line": 1172,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -12965,7 +12965,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 201,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13062,7 +13062,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 201,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13160,7 +13160,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 201,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13227,7 +13227,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 201,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13397,7 +13397,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 201,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -21248,14 +21248,14 @@
   {
    "literal": "D_K",
    "sites": [
-    "core/product_physics/src/modal/resource.rs:1090"
+    "core/product_physics/src/modal/resource.rs:1109"
    ]
   },
   {
    "literal": "D_M",
    "sites": [
-    "core/product_physics/src/modal/resource.rs:1092",
-    "core/product_physics/src/modal/resource.rs:1093"
+    "core/product_physics/src/modal/resource.rs:1111",
+    "core/product_physics/src/modal/resource.rs:1112"
    ]
   },
   {
@@ -21556,7 +21556,7 @@
   {
    "literal": "S_T1",
    "sites": [
-    "core/product_physics/src/modal/resource.rs:1102"
+    "core/product_physics/src/modal/resource.rs:1121"
    ]
   },
   {

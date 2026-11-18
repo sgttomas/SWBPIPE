@@ -408,14 +408,21 @@
 //!   `isize::MAX`, and each caller-named r·ρ (ρ rows per mode, for a
 //!   later consumer; checked in u64, nothing allocated for it), against
 //!   their limits. Every exceeded dimension is named.
-//! - *Storage*, with or without limits: every vector the boundary forms
-//!   (the n_c-row evidence, the r-row modes, the normalized r×n and the
-//!   published or lifted r×g shapes, their below-normal index lists, the
-//!   normalization scratch, the lift's scatter vector and the cumulative
-//!   fractions) is requested once, exactly, through
-//!   [`ModalCompletedSetStorage`] (`try_reserve_exact` after a checked
-//!   byte size). Values, arithmetic and order are unchanged; a reduced
-//!   pencil's lifted shapes are moved, not copied, into its rows.
+//! - *Storage*, with or without limits: every typed outcome row and shape
+//!   the boundary forms is requested once, exactly, through
+//!   [`ModalCompletedSetStorage`] (`try_reserve_exact` after a checked byte
+//!   size): the n_c-row evidence, the computed cluster ids
+//!   (`clusters::cluster_ids_into`) and the per-cluster estimates
+//!   (`reformation::cluster_error_estimates_into`), the r-row modes, the
+//!   normalized r×n and the published r×g shapes with their below-normal
+//!   index lists, the normalization scratch, a reduced pencil's scatter and
+//!   lifted vectors (`RestraintBasis::lift_into`), the cumulative fractions,
+//!   the Sensitive reasons (the set's list, each reason's text and its copy,
+//!   each mode's one-reason list) and the cut-off crossing disclosures (the
+//!   list's added room and each text). A text is requested at its exact
+//!   formatted length, counted by a first formatting pass. Values,
+//!   arithmetic, texts and order are unchanged; a reduced pencil's lifted
+//!   shapes are moved, not copied, into its rows.
 //! - *Refusals*, each of the whole set with no partial modes, truncation,
 //!   omitted low modes or changed standing, and each naming the dimension:
 //!   `MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED` (its expression, actual
@@ -424,18 +431,30 @@
 //!   `MODAL_RESOURCE_ALLOCATION_REFUSED` (the structure, its bytes, the
 //!   dimension's actual value and the caller's limit, stated as not
 //!   exceeded, or that none was supplied). None is a numerical refusal.
-//! - *Not in it*: the eigensolve and everything before it, the solution's
-//!   own vectors, `cluster_ids` and `cluster_error_estimates` (modal_eigen),
-//!   `RestraintBasis::lift`'s returned vector (one g-vector per reduced
-//!   mode, transient), the band-recovery list (at most the kernel's
-//!   screened modes), the
-//!   exact sums and integrity workspaces above, the per-model and
-//!   per-member vectors, and resident memory and time.
+//! - *What it delivers*: fallible, checked typed outcome rows and shapes.
+//!   The counts bound cardinalities, not the bytes of anything built from
+//!   the outcome.
+//! - *Not in it*, numerical workspace: the eigensolve and everything before
+//!   it (the solution's own vectors included), the exact sums, limbs and
+//!   term lists, the residual, re-formation and orthogonality workspaces,
+//!   the Sturm factorizations and candidates, and the band-recovery list
+//!   and screened evidence (the kernel's screened population).
+//! - *Not in it*, per-model storage: positions, node ids, free-DOF metadata,
+//!   mass entries, subjects, member discretization, `ModalBasis::new`'s
+//!   index vector and set, and the fixed and state-case disclosures, which
+//!   do not grow with n_c or r.
+//! - *Not in it*, publication (held for its own unit): the modal document's
+//!   construction (its row, string and nesting envelopes, the `Value`
+//!   rows, maps and strings of every table, row copies and digest material)
+//!   and its canonical hashing, each still by infallible allocation with no
+//!   typed storage error, and so with no row, string, depth, byte or
+//!   retained-workspace envelope enforced there.
+//! - Resident memory and time are not bounded.
 use super::integrity::{ModalIntegrityParameters, MODAL_RESOURCE_ARITHMETIC_OVERFLOW, MODAL_RESOURCE_PREFLIGHT_EXCEEDED};
 use super::prepare::Prepared;
 use crate::{diag, Diagnostic, DOF_PER_NODE};
 use open_pipe_stress_modal_eigen::dense::{DenseAllotments, RESOURCE_ALLOCATION_REFUSED as MODAL_RESOURCE_ALLOCATION_REFUSED};
-use open_pipe_stress_modal_eigen::modal_quantities::{reserve_exactly, ModalQuantityError, ShapeStorage, ShapeStorageError};
+use open_pipe_stress_modal_eigen::modal_quantities::{formatted_length, requested_bytes, reserve_exactly, ModalQuantityError, ShapeStorage, ShapeStorageError};
 use open_pipe_stress_modal_eigen::SupportResourceError;
 use open_pipe_stress_nonlinear_supports::NonlinearSupportBehavior;
 use std::collections::BTreeSet;
@@ -1485,6 +1504,13 @@ pub(crate) const MODAL_SET_LIFTED_SHAPES: &str = "lifted shapes";
 pub(crate) const MODAL_SET_PUBLISHED_VIEWS: &str = "published shape views";
 pub(crate) const MODAL_SET_MODES: &str = "modes";
 pub(crate) const MODAL_SET_PUBLISHED_SHAPE: &str = "published global shape";
+pub(crate) const MODAL_SET_CLUSTER_IDS: &str = "computed cluster ids";
+pub(crate) const MODAL_SET_CLUSTER_ESTIMATES: &str = "per-cluster error estimates";
+pub(crate) const MODAL_SET_SENSITIVE_REASONS: &str = "Sensitive set reasons";
+pub(crate) const MODAL_SET_SENSITIVE_REASON: &str = "Sensitive reason text";
+pub(crate) const MODAL_SET_SENSITIVE_MODE_REASONS: &str = "Sensitive mode reasons";
+pub(crate) const MODAL_SET_CUTOFF_DISCLOSURES: &str = "cut-off crossing disclosures";
+pub(crate) const MODAL_SET_CUTOFF_DISCLOSURE: &str = "cut-off crossing disclosure text";
 
 /// The dimension a requested structure belongs to (module docs).
 pub(crate) fn modal_completed_set_dimension_of(structure: &str) -> ModalCompletedSetDimension {
@@ -1499,13 +1525,19 @@ pub(crate) fn modal_completed_set_dimension_of(structure: &str) -> ModalComplete
         MODAL_SET_COMPUTED_BAND_FLAGS,
         MODAL_SET_COMPUTED_EVIDENCE,
         MODAL_SET_CLUSTERS,
+        MODAL_SET_CLUSTER_IDS,
+        MODAL_SET_CLUSTER_ESTIMATES,
+        MODAL_SET_CUTOFF_DISCLOSURES,
+        MODAL_SET_CUTOFF_DISCLOSURE,
     ]
     .contains(&structure)
     {
         ModalCompletedSetDimension::ComputedModes
     } else if [q::NORMALIZED_SHAPE, q::NORMALIZED_BELOW_NORMAL, q::NORMALIZATION_SCRATCH].contains(&structure) {
         ModalCompletedSetDimension::NormalizedEntries
-    } else if [q::LIFTED_SHAPE, q::LIFTED_BELOW_NORMAL, super::skew_pencil::SKEW_LIFT_SCATTER, MODAL_SET_PUBLISHED_SHAPE].contains(&structure) {
+    } else if [q::LIFTED_SHAPE, q::LIFTED_BELOW_NORMAL, super::skew_pencil::SKEW_LIFT_SCATTER, super::skew_pencil::SKEW_LIFTED_VECTOR, MODAL_SET_PUBLISHED_SHAPE]
+        .contains(&structure)
+    {
         ModalCompletedSetDimension::PublishedEntries
     } else {
         ModalCompletedSetDimension::CompletedModes
@@ -1593,21 +1625,59 @@ impl<'a> ModalCompletedSetStorage<'a> {
 
 impl ShapeStorage for ModalCompletedSetStorage<'_> {
     fn modal_shape_reserve<T>(&mut self, vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError> {
-        let element_size = std::mem::size_of::<T>();
-        let bytes = len
-            .checked_mul(element_size)
-            .filter(|&bytes| bytes <= isize::MAX as usize)
-            .ok_or(ShapeStorageError::CapacityOverflow { structure, elements: len, element_size })?;
-        #[cfg(test)]
-        if bytes > 0 {
-            let refuses = completed_set_seam::modal_completed_set_refuses();
-            completed_set_seam::modal_completed_set_note(structure);
-            if refuses {
-                return Err(ShapeStorageError::AllocationFailed { structure, elements: len, bytes });
-            }
-        }
-        let _ = bytes;
+        let bytes = requested_bytes::<T>(vec.len(), len, structure)?;
+        modal_completed_set_failpoint(structure, len, bytes)?;
         reserve_exactly(vec, len, structure)
+    }
+}
+
+/// TEST-ONLY: the failpoint's refusal of a nonzero request (module
+/// `completed_set_seam`); nothing in a product build.
+fn modal_completed_set_failpoint(structure: &'static str, elements: usize, bytes: usize) -> Result<(), ShapeStorageError> {
+    #[cfg(test)]
+    if bytes > 0 {
+        let refuses = completed_set_seam::modal_completed_set_refuses();
+        completed_set_seam::modal_completed_set_note(structure);
+        if refuses {
+            return Err(ShapeStorageError::AllocationFailed { structure, elements, bytes });
+        }
+    }
+    let _ = (structure, elements, bytes);
+    Ok(())
+}
+
+impl ModalCompletedSetStorage<'_> {
+    /// An empty string with capacity for exactly `len` bytes (one request,
+    /// checked like every other), or the refusal by name.
+    fn modal_completed_set_text_room(&mut self, len: usize, structure: &'static str) -> Result<String, Vec<Diagnostic>> {
+        let refuse = |storage: &Self, error| storage.modal_completed_set_refusal(error);
+        let bytes = requested_bytes::<u8>(0, len, structure).map_err(|error| refuse(self, error))?;
+        modal_completed_set_failpoint(structure, len, bytes).map_err(|error| refuse(self, error))?;
+        let mut text = String::new();
+        text.try_reserve_exact(len)
+            .map_err(|_| refuse(self, ShapeStorageError::AllocationFailed { structure, elements: len, bytes }))?;
+        Ok(text)
+    }
+
+    /// The text `args` formats, requested at its exact length: the length is
+    /// counted by a first formatting pass (checked, storing nothing), the
+    /// string requested, then the same arguments written into it, so the
+    /// bytes are `format!`'s and the string never grows.
+    pub(crate) fn modal_completed_set_format(&mut self, structure: &'static str, args: std::fmt::Arguments<'_>) -> Result<String, Vec<Diagnostic>> {
+        let length = formatted_length(args)
+            .ok_or_else(|| self.modal_completed_set_refusal(ShapeStorageError::CapacityOverflow { structure, elements: usize::MAX, element_size: 1 }))?;
+        let mut text = self.modal_completed_set_text_room(length, structure)?;
+        std::fmt::write(&mut text, args).expect("writing into a String does not fail");
+        debug_assert_eq!(text.len(), length, "the second formatting pass wrote the counted bytes");
+        Ok(text)
+    }
+
+    /// A copy of `text` in its own exactly requested string (the bytes of a
+    /// `clone`).
+    pub(crate) fn modal_completed_set_copy_text(&mut self, text: &str, structure: &'static str) -> Result<String, Vec<Diagnostic>> {
+        let mut copy = self.modal_completed_set_text_room(text.len(), structure)?;
+        copy.push_str(text);
+        Ok(copy)
     }
 }
 

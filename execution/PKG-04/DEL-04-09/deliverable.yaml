@@ -21,7 +21,10 @@ needs:
     The linear support model defines the degrees of freedom each support restrains, an axis spring
     as a stiffness on the global diagonal, a skewed spring as the rank-one term k·d·dᵀ/(dᵀd), and a
     skewed rigid restraint as an exact constraint in the authored direction; an imposed-displacement
-    degree of freedom is restrained, and a constant-effort support contributes no stiffness.
+    degree of freedom is restrained, and a constant-effort support contributes no stiffness. The
+    restraint basis lifts a coordinate vector into an output the caller supplies, with its lift's
+    checks, exact sums, single roundings, order and refusals, so that the modal path requests the
+    lifted vector's storage itself.
   gating: true
 - from: DEL-04-04
   condition: >-

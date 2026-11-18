@@ -43,10 +43,11 @@ pub(crate) struct SkewPencil {
 impl SkewPencil {
     /// φ = Q̃φ′ over the global DOFs, in binary64 (C6: published shapes are lifted
     /// in binary64), from the free-coordinate vector `free` on `free_dofs`; `None`
-    /// when the basis refuses the lift. Its global scatter vector is requested
-    /// through the caller's storage (one request of the global dimension; a
-    /// refusal is the storage's, before the lift). The lifted vector itself is
-    /// the basis's own, allocated by `RestraintBasis::lift`.
+    /// when the basis refuses the lift. Its global scatter vector and the lifted
+    /// vector are each requested through the caller's storage (one request of
+    /// the global dimension each; a refusal is the storage's, before the lift),
+    /// and the basis lifts into the second (`RestraintBasis::lift_into`, `lift`'s
+    /// exact sums and roundings in `lift`'s order).
     pub(crate) fn modal_lift_within<S: ShapeStorage>(&self, free_dofs: &[usize], free: &[f64], storage: &mut S) -> Result<Option<Vec<f64>>, ShapeStorageError> {
         let dimension = self.basis.dimension();
         let mut v = Vec::new();
@@ -55,12 +56,16 @@ impl SkewPencil {
         for (&dof, &value) in free_dofs.iter().zip(free) {
             v[dof] = value;
         }
-        Ok(self.basis.lift(&v).ok())
+        let mut lifted = Vec::new();
+        storage.modal_shape_reserve(&mut lifted, dimension, SKEW_LIFTED_VECTOR)?;
+        lifted.resize(dimension, 0.0);
+        Ok(self.basis.lift_into(&v, &mut lifted).ok().map(|()| lifted))
     }
 }
 
-/// The structure [`SkewPencil::modal_lift_within`] requests.
+/// The structures [`SkewPencil::modal_lift_within`] requests.
 pub(crate) const SKEW_LIFT_SCATTER: &str = "lift scatter vector";
+pub(crate) const SKEW_LIFTED_VECTOR: &str = "lifted global vector";
 
 /// The weighted free coordinates of every global DOF the basis mixes.
 pub(crate) fn coordinates(basis: &RestraintBasis, dof_map: &[Option<usize>]) -> Option<Vec<Option<Coordinates>>> {

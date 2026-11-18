@@ -187,8 +187,9 @@ impl Error for ShapeStorageError {}
 /// Where the vectors of this module's results are requested (module docs,
 /// "Storage").
 pub trait ShapeStorage {
-    /// Gives the empty `vec` capacity for exactly `len` elements, one
-    /// request, or refuses with nothing requested or allocated.
+    /// Gives `vec` room for exactly `len` more elements (callers here pass
+    /// an empty vector unless they extend one), one request, or refuses
+    /// with nothing requested or allocated.
     fn modal_shape_reserve<T>(&mut self, vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError>;
 }
 
@@ -202,17 +203,40 @@ impl ShapeStorage for FallibleStorage {
     }
 }
 
-/// `len × size_of::<T>()` checked against `isize::MAX` (a
-/// [`ShapeStorageError::CapacityOverflow`], before any request), then
-/// `try_reserve_exact(len)` on the empty `vec` (an allocator refusal is
+/// [`requested_bytes`] (a [`ShapeStorageError::CapacityOverflow`], before
+/// any request), then `try_reserve_exact(len)` (an allocator refusal is
 /// [`ShapeStorageError::AllocationFailed`]). A zero length requests nothing.
 pub fn reserve_exactly<T>(vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError> {
-    let element_size = std::mem::size_of::<T>();
-    let bytes = len
-        .checked_mul(element_size)
-        .filter(|&bytes| bytes <= isize::MAX as usize)
-        .ok_or(ShapeStorageError::CapacityOverflow { structure, elements: len, element_size })?;
+    let bytes = requested_bytes::<T>(vec.len(), len, structure)?;
     vec.try_reserve_exact(len).map_err(|_| ShapeStorageError::AllocationFailed { structure, elements: len, bytes })
+}
+
+/// The bytes `len` more `T` request, checked with the whole resulting
+/// length: `(held + len) × size_of::<T>()` must be at most `isize::MAX`
+/// (else [`ShapeStorageError::CapacityOverflow`], with nothing requested).
+pub fn requested_bytes<T>(held: usize, len: usize, structure: &'static str) -> Result<usize, ShapeStorageError> {
+    let element_size = std::mem::size_of::<T>();
+    let overflow = ShapeStorageError::CapacityOverflow { structure, elements: len, element_size };
+    held.checked_add(len)
+        .and_then(|total| total.checked_mul(element_size))
+        .filter(|&bytes| bytes <= isize::MAX as usize)
+        .ok_or(overflow)?;
+    Ok(len * element_size)
+}
+
+/// The bytes `args` formats to, counted with checked addition by a pass
+/// that stores nothing; `None` when the count overflows `usize`. Writing the
+/// same arguments again gives exactly that many bytes.
+pub fn formatted_length(args: fmt::Arguments<'_>) -> Option<usize> {
+    struct Length(usize);
+    impl fmt::Write for Length {
+        fn write_str(&mut self, text: &str) -> fmt::Result {
+            self.0 = self.0.checked_add(text.len()).ok_or(fmt::Error)?;
+            Ok(())
+        }
+    }
+    let mut length = Length(0);
+    fmt::write(&mut length, args).ok().map(|()| length.0)
 }
 
 /// The structures this module requests (module docs, "Storage").

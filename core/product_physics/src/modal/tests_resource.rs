@@ -931,15 +931,39 @@ fn completed_set_skew_request() -> Value {
     with(json!({"model": model, "materials": []}), json!({"mode_count": 8}))
 }
 
-/// The boundary's models: a cluster extension (mode_count 1, two modes
-/// reported), an empty set below a cut-off, a reduced (skew) pencil and a
-/// state case.
-fn completed_set_models() -> Vec<(&'static str, Value)> {
+/// TEST-LOCAL: the test-local set with τ_r = 10⁻³⁰, so that every reported
+/// mode is Sensitive (the maintained `cantilever_sensitive` fixture's set).
+fn completed_set_sensitive_parameters() -> super::integrity::ModalIntegrityParameters {
+    let mut params = test_local_parameters();
+    params.residual_threshold = 1e-30;
+    params
+}
+
+/// A cut-off exactly at a computed mode's published frequency, so that its
+/// first-order e_λ reaches across the cut-off and the outcome discloses it
+/// (an n_c-dependent disclosure). The frequency is the unlimited run's own.
+fn completed_set_cutoff_crossing_request() -> Value {
+    let params = test_local_parameters();
+    let probe = run_modal_dense(&modal(with(sec_a_cantilever(4), json!({"mode_count": 6}))), &params).unwrap();
+    let request = with(sec_a_cantilever(4), json!({"frequency_cutoff": q(probe.modes[2].frequency, "Hz")}));
+    let outcome = run_modal_dense(&modal(request.clone()), &params).unwrap();
+    assert!(outcome.disclosures.iter().any(|d| d.contains("reaches across the cut-off")), "{:#?}", outcome.disclosures);
+    request
+}
+
+/// The boundary's models, each with its parameters: a cluster extension
+/// (mode_count 1, two modes reported), an empty set below a cut-off, a
+/// reduced (skew) pencil, a state case, every mode Sensitive, and a cut-off
+/// crossing disclosure.
+fn completed_set_models() -> Vec<(&'static str, Value, super::integrity::ModalIntegrityParameters)> {
+    let local = test_local_parameters;
     vec![
-        ("cluster extension", with(sec_a_cantilever(2), json!({"mode_count": 1}))),
-        ("empty below cut-off", with(sec_a_cantilever(2), json!({"frequency_cutoff": q(0.5, "Hz")}))),
-        ("skew stop", completed_set_skew_request()),
-        ("U-1 PRESSED", with(kd5(U1), json!({"mode_count": 3, "state_case": "load:PRESSED"}))),
+        ("cluster extension", with(sec_a_cantilever(2), json!({"mode_count": 1})), local()),
+        ("empty below cut-off", with(sec_a_cantilever(2), json!({"frequency_cutoff": q(0.5, "Hz")})), local()),
+        ("skew stop", completed_set_skew_request(), local()),
+        ("U-1 PRESSED", with(kd5(U1), json!({"mode_count": 3, "state_case": "load:PRESSED"})), local()),
+        ("Sensitive", with(sec_a_cantilever(2), json!({"mode_count": 2})), completed_set_sensitive_parameters()),
+        ("cut-off crossing", completed_set_cutoff_crossing_request(), local()),
     ]
 }
 
@@ -950,8 +974,7 @@ fn the_completed_set_limits_have_no_default_and_none_is_the_unlimited_entry() {
     let derive = definition.lines().rev().find(|l| l.starts_with("#[derive")).unwrap();
     assert!(!derive.contains("Default"), "{derive}");
     assert!(!source.contains("impl Default for ModalCompletedSetLimits"));
-    let params = test_local_parameters();
-    for (name, request) in completed_set_models() {
+    for (name, request, params) in completed_set_models() {
         let parsed = modal(request);
         let plain = completed_set_debug(run_modal_dense(&parsed, &params));
         assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, None)), plain, "{name}");
@@ -964,8 +987,7 @@ fn the_completed_set_limits_have_no_default_and_none_is_the_unlimited_entry() {
 /// value and the limit; several under name each.
 #[test]
 fn the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension() {
-    let params = test_local_parameters();
-    for (name, request) in completed_set_models() {
+    for (name, request, params) in completed_set_models() {
         let parsed = modal(request);
         let unlimited = run_modal_dense(&parsed, &params).unwrap();
         let [computed, completed, n, g] = completed_set_actual(&unlimited);
@@ -1054,7 +1076,7 @@ fn the_completed_set_products_overflow_by_name_before_any_request() {
     assert_eq!(found[0].affected_refs[1], "completed_set:response_rows:test-local rows");
     assert!(found[0].message.contains(&format!("r × ρ = 2 × {}", u64::MAX)) && found[0].message.contains("at most u64::MAX"), "{}", found[0].message);
     // Only the rows sized by n_c were requested; nothing sized by r.
-    assert_eq!(requested, ["computed eigenvalues", "computed frequencies"]);
+    assert_eq!(requested, ["computed eigenvalues", "computed cluster ids", "computed frequencies"]);
 
     let sizes = |c, n, g| modal_completed_set_sizes(4, c, n, g).map_err(|found| (codes(&found).join(","), found[0].affected_refs[1].clone(), found[0].message.clone()));
     let (code, dimension, message) = sizes(2, usize::MAX, 6).unwrap_err();
@@ -1076,8 +1098,7 @@ fn the_completed_set_products_overflow_by_name_before_any_request() {
 /// unarmed one.
 #[test]
 fn each_completed_set_request_refuses_by_name_at_the_entry() {
-    let params = test_local_parameters();
-    for (name, request) in completed_set_models() {
+    for (name, request, params) in completed_set_models() {
         let parsed = modal(request);
         let unlimited = run_modal_dense(&parsed, &params).unwrap();
         let plain = format!("{unlimited:?}");
@@ -1087,14 +1108,18 @@ fn each_completed_set_request_refuses_by_name_at_the_entry() {
             assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, limits)), plain, "{name}");
             let structures = modal_completed_set_disarm();
             let skew = name == "skew stop";
-            for expected in ["computed eigenvalues", "computed frequencies", "computed residuals", "computed-mode evidence", "clusters"] {
+            for expected in ["computed eigenvalues", "computed cluster ids", "computed frequencies", "computed residuals", "per-cluster error estimates", "computed-mode evidence", "clusters"] {
                 assert!(structures.contains(&expected), "{name}: {structures:?}");
             }
+            let sensitive = ["Sensitive set reasons", "Sensitive reason text", "Sensitive mode reasons"];
+            assert_eq!(sensitive.iter().all(|s| structures.contains(s)), name == "Sensitive", "{name}: {structures:?}");
+            let crossing = ["cut-off crossing disclosures", "cut-off crossing disclosure text"];
+            assert_eq!(crossing.iter().all(|s| structures.contains(s)), name == "cut-off crossing", "{name}: {structures:?}");
             if !unlimited.modes.is_empty() {
                 for expected in ["normalized modes", "normalized shape", "normalization below-normal scratch", "modes", "cumulative effective-mass fractions"] {
                     assert!(structures.contains(&expected), "{name}: {structures:?}");
                 }
-                let lifted = ["lifted shapes", "lift scatter vector", "lifted shape"];
+                let lifted = ["lifted shapes", "lift scatter vector", "lifted global vector", "lifted shape"];
                 assert_eq!(lifted.iter().all(|s| structures.contains(s)), skew, "{name}: {structures:?}");
                 assert_eq!(structures.contains(&"published global shape"), !skew, "{name}: {structures:?}");
             }
@@ -1135,4 +1160,44 @@ fn p0_still_refuses_every_budgeted_request_before_the_completed_set_boundary() {
     assert!(modal_completed_set_disarm().is_empty(), "nothing of the boundary is requested");
     assert_eq!(codes(&found), [MODAL_RESOURCE_PREFLIGHT_EXCEEDED], "{found:#?}");
     assert!(found[0].affected_refs.iter().any(|r| r == "T2.integrity"), "{:?}", found[0].affected_refs);
+}
+
+/// `RestraintBasis::lift_into` (the caller-owned lift) gives `lift`'s vector
+/// bit for bit on the skew model's own basis, over coordinate vectors of
+/// normal, subnormal, signed-zero and large values, and `lift`'s refusal of
+/// a nonzero restrained coordinate; a wrong output length refuses by
+/// `Shape` with no write and no panic.
+#[test]
+fn lift_into_is_the_static_lift_bit_for_bit() {
+    use open_pipe_stress_frame_kernel::restraint_basis::BasisError;
+    let parsed = modal(completed_set_skew_request());
+    let prepared = prepare_modal(&parsed).unwrap();
+    let basis = prepared.built.skew.as_ref().expect("a skewed stop gives a restraint basis");
+    let n = basis.dimension();
+    let free: Vec<usize> = (0..n).filter(|&dof| {
+        let mut probe = vec![0.0; n];
+        probe[dof] = 1.0;
+        basis.lift(&probe).is_ok()
+    }).collect();
+    assert!(free.len() < n, "the stop restrains a coordinate");
+    let values = [1.0, -0.75, 1e-310, -0.0, 3.5e200, 0.1, -2.0f64.powi(-60), 7.0];
+    for shift in 0..values.len() {
+        let mut v = vec![0.0; n];
+        for (k, &dof) in free.iter().enumerate() {
+            v[dof] = values[(k + shift) % values.len()];
+        }
+        let old = basis.lift(&v).unwrap();
+        let mut out = vec![f64::NAN; n];
+        basis.lift_into(&v, &mut out).unwrap();
+        assert_eq!(out.iter().map(|x| x.to_bits()).collect::<Vec<_>>(), old.iter().map(|x| x.to_bits()).collect::<Vec<_>>(), "shift {shift}");
+    }
+    let restrained = (0..n).find(|dof| !free.contains(dof)).unwrap();
+    let mut bad = vec![0.0; n];
+    bad[restrained] = 1.0;
+    let mut out = vec![0.0; n];
+    assert_eq!(basis.lift_into(&bad, &mut out), Err(basis.lift(&bad).unwrap_err()));
+    let mut short = vec![9.0; n - 1];
+    assert_eq!(basis.lift_into(&vec![0.0; n], &mut short), Err(BasisError::Shape("lifted output length")));
+    assert!(short.iter().all(|&x| x == 9.0));
+    assert_eq!(basis.lift_into(&vec![0.0; n + 1], &mut vec![0.0; n + 1]), Err(basis.lift(&vec![0.0; n + 1]).unwrap_err()));
 }

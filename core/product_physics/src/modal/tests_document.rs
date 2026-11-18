@@ -435,3 +435,34 @@ fn a_completed_set_refusal_is_a_whole_refused_document() {
         assert!(refs[1].as_str().unwrap().starts_with("completed_set:"), "{refs}");
     }
 }
+
+/// The maintained Sensitive fixture through the writer: each request of the
+/// boundary (its Sensitive reasons included) refused in turn, with no limits
+/// and with limits at its dimensions, gives a whole refused document by the
+/// allocation name; past the last request the committed bytes.
+#[test]
+fn each_request_of_the_sensitive_fixture_refuses_a_whole_document() {
+    let fixture = fixtures().into_iter().find(|f| f.name == "cantilever_sensitive").unwrap();
+    let (text, _) = committed(fixture.name);
+    for limits in [None, Some(completed_set_limits_at(&fixture))] {
+        let write = || modal_completed_set_with_limits(limits.clone(), || modal_result_document(&fixture.request, &fixture.params, fixture.label));
+        modal_completed_set_arm(None);
+        assert!(fixture_text(&write()) == text);
+        let structures = modal_completed_set_disarm();
+        for expected in ["Sensitive set reasons", "Sensitive reason text", "Sensitive mode reasons"] {
+            assert!(structures.contains(&expected), "{structures:?}");
+        }
+        for k in 0..structures.len() {
+            modal_completed_set_arm(Some(k));
+            let document = write();
+            modal_completed_set_disarm();
+            assert_eq!(document["status"], "refused", "{k} {}", structures[k]);
+            assert!(document.get("tables").is_none());
+            let rows = document["refusals"]["rows"].as_array().unwrap();
+            assert_eq!((rows.len(), rows[0]["code"].as_str()), (1, Some("MODAL_RESOURCE_ALLOCATION_REFUSED")), "{k}");
+        }
+        modal_completed_set_arm(Some(structures.len()));
+        assert!(fixture_text(&write()) == text);
+        modal_completed_set_disarm();
+    }
+}
