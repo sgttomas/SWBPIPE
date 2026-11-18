@@ -69,5 +69,9 @@ checks:
 # explicit pair writes value and unit together; the dimension is the field's, never the intent's),
 # and edits carried from the operation to the stored document to the solve against closed forms.
 - core/model_operations/operation_applier/tests/stored_quantity_unit_pair.rs
+# Issue 382, the imported-proposal surface: each family member through the offline intake panel,
+# the workspace session's Review Apply and the Wasm engine, read back from the saved project, and
+# requeue of a retained record. Shared with DEL-16-03, whose intake it drives.
+- apps/desktop/src/features/offline-proposal-intake/unitPairFamily.import.test.tsx
 - apps/desktop/src/services/operationService.test.ts
 - apps/desktop/src/services/operationBatchService.test.ts

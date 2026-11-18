@@ -175,6 +175,12 @@ checks:
 # Issue 380: an absent material shear modulus entered through the inspector and Review's Apply in
 # the shared Wasm engine, read back, undone and redone, and refused without a unit.
 - apps/desktop/src/App.materialShearModulusEntry.test.tsx
+# Issue 382 (REQ-003): the inspector, the model tables and the load case manager still write a
+# unit-bearing edit as its value and unit together, through Review's Apply in the shared Wasm
+# engine, read back from the saved project.
+- apps/desktop/src/App.unitPairInspector.test.tsx
+- apps/desktop/src/App.unitPairTables.test.tsx
+- apps/desktop/src/App.unitPairLoadCaseManager.test.tsx
 - apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx
 - apps/desktop/src/App.splitAndSlope.test.tsx
 - apps/desktop/src/features/condition-sets/conditionSets.engine.test.tsx
