@@ -28,6 +28,7 @@ use crate::{integrity_dof_label, Diagnostic, PreviewModel, DOF_PER_NODE};
 use open_pipe_stress_frame_kernel::restraint_basis::RestraintBasis;
 use open_pipe_stress_modal_eigen::dd::Dd;
 use open_pipe_stress_modal_eigen::exact::ExactSum;
+use open_pipe_stress_modal_eigen::modal_quantities::{ShapeStorage, ShapeStorageError};
 use open_pipe_stress_modal_eigen::reformation::Coordinates;
 
 /// The basis a reduced pencil is formed on, for the lift and the re-formation.
@@ -41,15 +42,25 @@ pub(crate) struct SkewPencil {
 
 impl SkewPencil {
     /// φ = Q̃φ′ over the global DOFs, in binary64 (C6: published shapes are lifted
-    /// in binary64), from the free-coordinate vector `free` on `free_dofs`.
-    pub(crate) fn lift(&self, free_dofs: &[usize], free: &[f64]) -> Option<Vec<f64>> {
-        let mut v = vec![0.0; self.basis.dimension()];
+    /// in binary64), from the free-coordinate vector `free` on `free_dofs`; `None`
+    /// when the basis refuses the lift. Its global scatter vector is requested
+    /// through the caller's storage (one request of the global dimension; a
+    /// refusal is the storage's, before the lift). The lifted vector itself is
+    /// the basis's own, allocated by `RestraintBasis::lift`.
+    pub(crate) fn modal_lift_within<S: ShapeStorage>(&self, free_dofs: &[usize], free: &[f64], storage: &mut S) -> Result<Option<Vec<f64>>, ShapeStorageError> {
+        let dimension = self.basis.dimension();
+        let mut v = Vec::new();
+        storage.modal_shape_reserve(&mut v, dimension, SKEW_LIFT_SCATTER)?;
+        v.resize(dimension, 0.0);
         for (&dof, &value) in free_dofs.iter().zip(free) {
             v[dof] = value;
         }
-        self.basis.lift(&v).ok()
+        Ok(self.basis.lift(&v).ok())
     }
 }
+
+/// The structure [`SkewPencil::modal_lift_within`] requests.
+pub(crate) const SKEW_LIFT_SCATTER: &str = "lift scatter vector";
 
 /// The weighted free coordinates of every global DOF the basis mixes.
 pub(crate) fn coordinates(basis: &RestraintBasis, dof_map: &[Option<usize>]) -> Option<Vec<Option<Coordinates>>> {

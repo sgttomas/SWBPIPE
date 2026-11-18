@@ -878,3 +878,261 @@ fn the_support_refusals_are_named_resource_refusals_on_each_route() {
     let overflowed = SupportResourceError::CapacityOverflow { structure: "assembly keys" };
     assert_eq!(modal_refusal_code(&ReformationFailure::SupportResource(overflowed)), MODAL_RESOURCE_ARITHMETIC_OVERFLOW);
 }
+
+// ---------------------------------------------------------------------------
+// The completed-set boundary (`resource`, "The completed-set boundary").
+// Every limit here is TEST-LOCAL: none is selected or proposed.
+// ---------------------------------------------------------------------------
+
+use super::outcome::run_modal_dense_within;
+use super::resource::completed_set_seam::{modal_completed_set_arm, modal_completed_set_disarm};
+use super::resource::{
+    modal_completed_set_sizes, ModalCompletedSetLimits, ModalResponseRowProduct, MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED,
+};
+use super::tests::{section, PROV};
+use open_pipe_stress_modal_eigen::dense::RESOURCE_ALLOCATION_REFUSED;
+
+/// A run's actual completed-set dimensions, from its outcome: n_c, r, n, g.
+fn completed_set_actual(outcome: &ModalOutcome) -> [u64; 4] {
+    [outcome.integrity.computed.len(), outcome.modes.len(), outcome.free_dofs.len(), 6 * outcome.node_ids.len()].map(|v| v as u64)
+}
+
+/// TEST-LOCAL limits exactly at a run's actual dimensions, with `rows`.
+fn limits_at(outcome: &ModalOutcome, rows: Vec<ModalResponseRowProduct>) -> ModalCompletedSetLimits {
+    let [computed, completed, n, g] = completed_set_actual(outcome);
+    ModalCompletedSetLimits { computed_modes: computed, completed_modes: completed, normalized_entries: completed * n, published_entries: completed * g, response_rows: rows }
+}
+
+fn completed_set_debug(found: Result<ModalOutcome, Vec<Diagnostic>>) -> String {
+    format!("{:?}", found.unwrap_or_else(|refused| panic!("refused: {refused:#?}")))
+}
+
+/// An invented skewed-stop model (an oblique line stop (3, 4, 0) at the
+/// free end of a two-element span): a reduced pencil whose shapes are lifted.
+fn completed_set_skew_request() -> Value {
+    let node = |id: &str, x: f64| json!({"id": id, "position": {"x": x, "y": 0.0, "z": 0.0}, "provenance": PROV});
+    let pipe = |id: &str, from: &str, to: &str| json!({"id": id, "from": from, "to": to, "section": section(), "material": "m",
+        "y_reference": {"x": 0, "y": 0, "z": 1}, "provenance": PROV});
+    let model = json!({"schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
+        "project": {"id": "project:completed-set", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
+        "nodes": [node("A", 0.0), node("M", 2.0), node("B", 4.0)],
+        "pipe_segments": [pipe("pipe:AM", "A", "M"), pipe("pipe:MB", "M", "B")],
+        "materials": [{"id": "m", "elastic_modulus": q(200e9, "Pa"), "shear_modulus": q(80e9, "Pa"), "provenance": PROV}],
+        "supports": [
+            {"id": "anchor_A", "node": "A", "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": PROV},
+            {"id": "rot_B", "node": "B", "family": "anchor", "restraints": ["RX", "RY", "RZ"], "provenance": PROV},
+            {"id": "stop_B", "node": "B", "family": "line_stop", "restraints": ["UY"], "direction": {"x": 3.0, "y": 4.0, "z": 0.0}, "provenance": PROV},
+        ],
+        "components": [],
+        "load_cases": [{"id": "case:f", "primitive_loads": [{"id": "load:f", "category": "concentrated_force", "target": {"type": "node", "node": "B"},
+            "direction": "global_z", "magnitude": q(1000.0, "N"), "dimension": "force", "provenance": PROV}], "provenance": PROV}],
+        "combinations": []});
+    with(json!({"model": model, "materials": []}), json!({"mode_count": 8}))
+}
+
+/// The boundary's models: a cluster extension (mode_count 1, two modes
+/// reported), an empty set below a cut-off, a reduced (skew) pencil and a
+/// state case.
+fn completed_set_models() -> Vec<(&'static str, Value)> {
+    vec![
+        ("cluster extension", with(sec_a_cantilever(2), json!({"mode_count": 1}))),
+        ("empty below cut-off", with(sec_a_cantilever(2), json!({"frequency_cutoff": q(0.5, "Hz")}))),
+        ("skew stop", completed_set_skew_request()),
+        ("U-1 PRESSED", with(kd5(U1), json!({"mode_count": 3, "state_case": "load:PRESSED"}))),
+    ]
+}
+
+#[test]
+fn the_completed_set_limits_have_no_default_and_none_is_the_unlimited_entry() {
+    let source = include_str!("resource.rs");
+    let definition = &source[..source.find("pub(crate) struct ModalCompletedSetLimits").unwrap()];
+    let derive = definition.lines().rev().find(|l| l.starts_with("#[derive")).unwrap();
+    assert!(!derive.contains("Default"), "{derive}");
+    assert!(!source.contains("impl Default for ModalCompletedSetLimits"));
+    let params = test_local_parameters();
+    for (name, request) in completed_set_models() {
+        let parsed = modal(request);
+        let plain = completed_set_debug(run_modal_dense(&parsed, &params));
+        assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, None)), plain, "{name}");
+    }
+}
+
+/// Exactly at every actual dimension (and with a response-row product at its
+/// limit) the outcome is the unlimited one, by `Debug` text; one under a
+/// dimension refuses the whole set by name with that dimension, its actual
+/// value and the limit; several under name each.
+#[test]
+fn the_completed_set_admits_at_its_limits_and_refuses_one_over_by_dimension() {
+    let params = test_local_parameters();
+    for (name, request) in completed_set_models() {
+        let parsed = modal(request);
+        let unlimited = run_modal_dense(&parsed, &params).unwrap();
+        let [computed, completed, n, g] = completed_set_actual(&unlimited);
+        let plain = format!("{unlimited:?}");
+        let rows = vec![ModalResponseRowProduct { name: "test-local rows", rows_per_mode: 7, limit: 7 * completed }];
+        let at = limits_at(&unlimited, rows.clone());
+        assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, Some(&at))), plain, "{name}: at the limits");
+        let loose = ModalCompletedSetLimits {
+            computed_modes: u64::MAX,
+            completed_modes: u64::MAX,
+            normalized_entries: u64::MAX,
+            published_entries: u64::MAX,
+            response_rows: vec![ModalResponseRowProduct { name: "test-local rows", rows_per_mode: 1, limit: u64::MAX }],
+        };
+        assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, Some(&loose))), plain, "{name}: looser limits");
+        let over = |mutate: &dyn Fn(&mut ModalCompletedSetLimits), dimension: &str, actual: u64| {
+            let mut limits = at.clone();
+            mutate(&mut limits);
+            let found = refused(run_modal_dense_within(&parsed, &params, None, Some(&limits)));
+            assert_eq!(codes(&found), [MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED], "{name} {dimension}: {found:#?}");
+            assert_eq!(found[0].affected_refs, ["model".to_string(), format!("completed_set:{dimension}")], "{name}");
+            assert!(found[0].message.contains(&format!("= {actual}, over the caller's limit of {}", actual - 1)), "{name}: {}", found[0].message);
+            assert!(found[0].message.contains("no partial modes, truncation or omitted low modes"), "{}", found[0].message);
+        };
+        if computed > 0 {
+            over(&|l| l.computed_modes -= 1, "computed_modes", computed);
+        }
+        if completed > 0 {
+            over(&|l| l.completed_modes -= 1, "completed_modes", completed);
+            over(&|l| l.normalized_entries -= 1, "normalized_entries", completed * n);
+            over(&|l| l.published_entries -= 1, "published_entries", completed * g);
+            over(&|l| l.response_rows[0].limit -= 1, "response_rows:test-local rows", 7 * completed);
+            // Every exceeded dimension is named at once, in a fixed order.
+            let mut all = at.clone();
+            all.completed_modes -= 1;
+            all.published_entries -= 1;
+            let found = refused(run_modal_dense_within(&parsed, &params, None, Some(&all)));
+            let refs: Vec<&str> = found.iter().map(|d| d.affected_refs[1].as_str()).collect();
+            assert_eq!(refs, ["completed_set:completed_modes", "completed_set:published_entries"], "{name}");
+        }
+    }
+}
+
+/// The completed count is the actual one, cluster extension included: a
+/// limit equal to the requested mode_count (1) refuses a set that completes
+/// its cluster to two modes; the empty set admits zero limits, with a
+/// response-row product whose ρ could overflow only with a mode.
+#[test]
+fn the_completed_count_is_the_actual_set_not_the_requested_count() {
+    let params = test_local_parameters();
+    let parsed = modal(with(sec_a_cantilever(2), json!({"mode_count": 1})));
+    let unlimited = run_modal_dense(&parsed, &params).unwrap();
+    assert_eq!((unlimited.reported.bounded_count, unlimited.reported.extension_count, unlimited.modes.len()), (1, 1, 2));
+    let mut limits = limits_at(&unlimited, vec![]);
+    limits.completed_modes = 1;
+    let found = refused(run_modal_dense_within(&parsed, &params, None, Some(&limits)));
+    assert_eq!(codes(&found), [MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED]);
+    assert!(found[0].message.contains("r = 2 = 2, over the caller's limit of 1"), "{}", found[0].message);
+
+    let empty = modal(with(sec_a_cantilever(2), json!({"frequency_cutoff": q(0.5, "Hz")})));
+    let none = run_modal_dense(&empty, &params).unwrap();
+    assert!(none.modes.is_empty());
+    let zero = ModalCompletedSetLimits {
+        computed_modes: none.integrity.computed.len() as u64,
+        completed_modes: 0,
+        normalized_entries: 0,
+        published_entries: 0,
+        response_rows: vec![ModalResponseRowProduct { name: "test-local rows", rows_per_mode: u64::MAX, limit: 0 }],
+    };
+    assert_eq!(completed_set_debug(run_modal_dense_within(&empty, &params, None, Some(&zero))), format!("{none:?}"));
+}
+
+/// Overflow is refused from the operands, before any request: r·ρ at the
+/// entry (u64), and r·n, r·g and their bytes in the checked sizes, with no
+/// enormous allocation tried.
+#[test]
+fn the_completed_set_products_overflow_by_name_before_any_request() {
+    let params = test_local_parameters();
+    let parsed = modal(with(sec_a_cantilever(2), json!({"mode_count": 1})));
+    let unlimited = run_modal_dense(&parsed, &params).unwrap();
+    let limits = limits_at(&unlimited, vec![ModalResponseRowProduct { name: "test-local rows", rows_per_mode: u64::MAX, limit: u64::MAX }]);
+    modal_completed_set_arm(None);
+    let found = refused(run_modal_dense_within(&parsed, &params, None, Some(&limits)));
+    let requested = modal_completed_set_disarm();
+    assert_eq!(codes(&found), [MODAL_RESOURCE_ARITHMETIC_OVERFLOW], "{found:#?}");
+    assert_eq!(found[0].affected_refs[1], "completed_set:response_rows:test-local rows");
+    assert!(found[0].message.contains(&format!("r × ρ = 2 × {}", u64::MAX)) && found[0].message.contains("at most u64::MAX"), "{}", found[0].message);
+    // Only the rows sized by n_c were requested; nothing sized by r.
+    assert_eq!(requested, ["computed eigenvalues", "computed frequencies"]);
+
+    let sizes = |c, n, g| modal_completed_set_sizes(4, c, n, g).map_err(|found| (codes(&found).join(","), found[0].affected_refs[1].clone(), found[0].message.clone()));
+    let (code, dimension, message) = sizes(2, usize::MAX, 6).unwrap_err();
+    assert_eq!((code.as_str(), dimension.as_str()), (MODAL_RESOURCE_ARITHMETIC_OVERFLOW, "completed_set:normalized_entries"));
+    assert!(message.contains(&format!("r × n = 2 × {}", usize::MAX)), "{message}");
+    let (_, dimension, message) = sizes(1, 6, usize::MAX / 4).unwrap_err();
+    assert_eq!(dimension, "completed_set:published_entries");
+    assert!(message.contains(&format!("{} entries × 8 B", usize::MAX / 4)) && message.contains("isize::MAX"), "{message}");
+    let exact = sizes(3, 5, 18).unwrap();
+    assert_eq!((exact.normalized_entries, exact.published_entries), (15, 54));
+    assert_eq!(sizes(0, usize::MAX, usize::MAX).unwrap().published_entries, 0);
+}
+
+/// Each request of the boundary is refused in turn by the allocator
+/// failpoint, at the entry, with and without limits: the whole set refuses
+/// `MODAL_RESOURCE_ALLOCATION_REFUSED` naming the structure, its dimension
+/// and the caller's limit (stated as not exceeded) or that none was
+/// supplied; the run stops there; past the last request the outcome is the
+/// unarmed one.
+#[test]
+fn each_completed_set_request_refuses_by_name_at_the_entry() {
+    let params = test_local_parameters();
+    for (name, request) in completed_set_models() {
+        let parsed = modal(request);
+        let unlimited = run_modal_dense(&parsed, &params).unwrap();
+        let plain = format!("{unlimited:?}");
+        let at = limits_at(&unlimited, vec![]);
+        for limits in [None, Some(&at)] {
+            modal_completed_set_arm(None);
+            assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, limits)), plain, "{name}");
+            let structures = modal_completed_set_disarm();
+            let skew = name == "skew stop";
+            for expected in ["computed eigenvalues", "computed frequencies", "computed residuals", "computed-mode evidence", "clusters"] {
+                assert!(structures.contains(&expected), "{name}: {structures:?}");
+            }
+            if !unlimited.modes.is_empty() {
+                for expected in ["normalized modes", "normalized shape", "normalization below-normal scratch", "modes", "cumulative effective-mass fractions"] {
+                    assert!(structures.contains(&expected), "{name}: {structures:?}");
+                }
+                let lifted = ["lifted shapes", "lift scatter vector", "lifted shape"];
+                assert_eq!(lifted.iter().all(|s| structures.contains(s)), skew, "{name}: {structures:?}");
+                assert_eq!(structures.contains(&"published global shape"), !skew, "{name}: {structures:?}");
+            }
+            for (k, structure) in structures.iter().enumerate() {
+                modal_completed_set_arm(Some(k));
+                let found = refused(run_modal_dense_within(&parsed, &params, None, limits));
+                let seen = modal_completed_set_disarm();
+                assert_eq!(seen.len(), k + 1, "{name}: the refusal at request {k} ({structure}) stops the run");
+                assert_eq!(codes(&found), [RESOURCE_ALLOCATION_REFUSED], "{name} {k} {structure}: {found:#?}");
+                let message = &found[0].message;
+                assert!(message.contains(&format!("for `{structure}`")), "{message}");
+                assert!(found[0].affected_refs[1].starts_with("completed_set:"), "{:?}", found[0].affected_refs);
+                if limits.is_some() {
+                    assert!(message.contains("and was not exceeded: the allocator refused, not the limit"), "{message}");
+                } else {
+                    assert!(message.contains("no completed-set limit was supplied"), "{message}");
+                }
+                assert!(!message.contains("over the caller's limit"), "{message}");
+            }
+            modal_completed_set_arm(Some(structures.len()));
+            assert_eq!(completed_set_debug(run_modal_dense_within(&parsed, &params, None, limits)), plain, "{name}: past the last request");
+            assert_eq!(modal_completed_set_disarm().len(), structures.len());
+        }
+    }
+}
+
+/// P0 is unchanged and comes first: with a budget, the boundary's limits do
+/// not reach the request, which P0 refuses naming its unbounded terms.
+#[test]
+fn p0_still_refuses_every_budgeted_request_before_the_completed_set_boundary() {
+    let params = test_local_parameters();
+    let parsed = modal(with(sec_a_cantilever(2), json!({"mode_count": 1})));
+    let unlimited = run_modal_dense(&parsed, &params).unwrap();
+    let mut tight = limits_at(&unlimited, vec![]);
+    tight.completed_modes = 0;
+    modal_completed_set_arm(None);
+    let found = refused(run_modal_dense_within(&parsed, &params, Some(&admitting_budget()), Some(&tight)));
+    assert!(modal_completed_set_disarm().is_empty(), "nothing of the boundary is requested");
+    assert_eq!(codes(&found), [MODAL_RESOURCE_PREFLIGHT_EXCEEDED], "{found:#?}");
+    assert!(found[0].affected_refs.iter().any(|r| r == "T2.integrity"), "{:?}", found[0].affected_refs);
+}
