@@ -310,7 +310,12 @@ async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: Rec
  * project's run and as a recorded revision. */
 export const REVISED_TABLE_FIXTURE = "fixtures/persistence/recorded_table_revised";
 export const REVISED_TABLE_FILES = { record: FIXTURE_RECORD, source: FIXTURE_SOURCE, request: FIXTURE_REQUEST } as const;
-async function revisedTableCases(): Promise<{ saved: SavedCase[]; recorded: RecordedCase[] }> {
+/** The witness as a project opened from the store and as a recorded run read from the store. */
+export async function revisedTableWitness(): Promise<{ opened: LocalProjectEnvelope; read: AnalysisRunRead }> {
+  const cases = await revisedTableCases();
+  return { opened: cases.opened!, read: cases.read };
+}
+async function revisedTableCases(): Promise<FixtureCases> {
   return recordedFixtureCases(REVISED_TABLE_FIXTURE, "revised-table", REVISED_TABLE_FILES, () => undefined, (expected) => {
     if (!("binding" in expected) || JSON.stringify(expected.binding) !== JSON.stringify({ withheld: "unrecognised_digest" })) throw new Error(`${REVISED_TABLE_FIXTURE}: the revised-table run is not withheld (${JSON.stringify(expected)})`);
   });
@@ -319,8 +324,10 @@ async function revisedTableCases(): Promise<{ saved: SavedCase[]; recorded: Reco
 /** One verbatim fixture (a record, its source and its request model, never rewritten) as a recorded
  * revision built as `recordedRunModel080.test.ts` builds it and, when its model document is current,
  * as a saved project's run. */
-async function recordedFixtureCases(fixture: string, tag: string, names: Readonly<{ record: string; source: string; request: string }>, checkSource: (source: Json) => void, checkExpected: (expected: Expected) => void): Promise<{ saved: SavedCase[]; recorded: RecordedCase[] }> {
+type FixtureCases = { saved: SavedCase[]; recorded: RecordedCase[]; opened: LocalProjectEnvelope | null; read: AnalysisRunRead };
+async function recordedFixtureCases(fixture: string, tag: string, names: Readonly<{ record: string; source: string; request: string }>, checkSource: (source: Json) => void, checkExpected: (expected: Expected) => void): Promise<FixtureCases> {
   const saved: SavedCase[] = [], recorded: RecordedCase[] = [];
+  let opened: LocalProjectEnvelope | null = null, stored: RecordedRead | null = null;
   {
     const text = (name: string) => readFileSync(resolve(ROOT, fixture, name), "utf8");
     const name = fixture.slice(fixture.lastIndexOf("/") + 1);
@@ -333,6 +340,7 @@ async function recordedFixtureCases(fixture: string, tag: string, names: Readonl
       const expected = await savedExpected(p, source, record);
       checkExpected(expected);
       saved.push({ id: `saved-${tag}:${name}`, kind: "saved", project: p, fixture, expected });
+      opened = { summary: {}, ...clone(p), mechanics_result: clone(source), analysis_run: clone(record) } as unknown as LocalProjectEnvelope;
     }
     // As a recorded revision of an invented state, built as the webview tests build it.
     const authored = clone(model);
@@ -356,9 +364,10 @@ async function recordedFixtureCases(fixture: string, tag: string, names: Readonl
     const { record: _record, result_json: _result, ...rest } = read;
     const expected = await recordedExpected(read);
     checkExpected(expected);
-    recorded.push({ id: `recorded-${tag}:${name}`, kind: "recorded", read: { ...rest, fixture, record_patches }, expected });
+    recorded.push({ id: `${tag}:${name}`, kind: "recorded", read: { ...rest, fixture, record_patches }, expected });
+    stored = read;
   }
-  return { saved, recorded };
+  return { saved, recorded, opened, read: { ...clone(stored!), result_json: stored!.result_json } as unknown as AnalysisRunRead };
 }
 
 const PRE_RT_A4 = "fixtures/persistence/recorded_pre_rt_a4_pf";
