@@ -406,7 +406,7 @@ EX, the anchor movement is `analysis_state.support_states[].boundary_motion` wit
 
 | Combination | Basis | Operands | Analysis |
 |---|---|---|---|
-| RS-EXP | `result_state_subtraction`, with `difference_basis` recorded | RS-OPE-REF − RS-SUS | Expansion with its basis |
+| RS-EXP | `result_state_subtraction` with a required `difference_basis`, pending in the fixture (§10) | RS-OPE-REF − RS-SUS | Expansion with its basis |
 | RS-dWIN | `result_state_subtraction` | RS-WIN − RS-SUS | Wind term |
 | RS-dEQX, RS-dEQY, RS-dEQZ | `result_state_subtraction` | RS-EQX, RS-EQY, RS-EQZ, each − RS-SUS | Seismic terms |
 | RS-dSAM | `result_state_subtraction` | RS-SAM − RS-SUS | Anchor movement term |
@@ -487,10 +487,11 @@ refused and returns to Agent 0 as an authored-spectrum question. Nothing is
 extrapolated or silently omitted.
 
 The end tangents of this system's three arcs are aligned with the global axes, so the
-tangent frame at each arc end is a signed permutation of the global axes. Its spectrum
-result is therefore not evidence that an arc's rows are combined in the right frame; that
-evidence is the oblique arc case, V-ARC-OBL, of the spectrum recovery references
-(`validation/references/f2_spectrum/recovery_w2`).
+tangent frame at each arc end is a signed permutation of the global axes. On this
+geometry, combining signed contributions in each arc end's frame gives the same magnitudes
+as combining in global axes and then permuting the magnitudes. V-ARC-OBL in
+`validation/references/f2_spectrum/recovery_w2` supplies the reference that distinguishes
+these operations.
 
 ### 8.6 Equilibrium checks need no extra case
 
@@ -537,8 +538,8 @@ RS-VS1's or RS-CE1's entered inputs.
 | EQ-3 | On every published signed component row (support force and moment components, translation and rotation components, element end-force components), RS-EXP equals RS-OPE-REF − RS-SUS. Magnitude rows (resultant displacement, reaction magnitude) are checked by recomputing them from the combined components, not by subtracting magnitudes. Rows the combination withholds, such as tie-rod forces, are excluded. The identity establishes the combination's algebra and nothing about either solve | exact identity |
 | EQ-4 | On the same signed component rows, RS-EQ-SRSS equals √(Σ dEQ²) and RS-EQ-ABS equals Σ \|dEQ\| over the operand rows, so SRSS ≤ ABS on each. Magnitude rows follow the combination's own recomputation rule, as for EQ-3; withheld rows are excluded | exact identity |
 | EQ-5 | The RS-dSAM reactions are self-equilibrated (resultant force and moment zero) | exact identity: no load differs between RS-SAM and RS-SUS |
-| EQ-6 | The reaction resultant of RS-dWIN, force and moment about the origin, equals minus the resultant of the generated wind load. That of each of RS-dEQX, RS-dEQY and RS-dEQZ equals minus the resultant of that case's generated seismic load: on each member that carries a line load of self-weight (§8.1), the factor times g times the member's mass per length on the generator's stated mass basis; and, in place of that load on the body of each of RS-F1, RS-V1, RS-F2 and RS-R1, the factor times the component's entered weight at its centre of gravity. Each moment takes every force at its point of action about the origin | closed form from the inputs |
-| EQ-7 | Each combined magnitude the spectrum result publishes, for one direction and over the directions, agrees to 1e-9 relative with the exact value of its recorded rule on the published signed contributions, the rigid contributions included, each cluster's contributions summed with their signs first; a magnitude published as zero is exactly zero | identity of the result with itself, checked by the spectrum readers' recomputation (DEL-04-10 REQ-006) at that tolerance; not a bit-exact identity |
+| EQ-6 | The reaction resultant of RS-dWIN, force and moment about the origin, equals minus the resultant of the generated wind load. That of each of RS-dEQX, RS-dEQY and RS-dEQZ equals minus the resultant of the corresponding generated seismic load from RS-EQX, RS-EQY or RS-EQZ: on each member that carries a line load of self-weight (§8.1), the factor times the seismic case's entered gravity times the member's mass per length on the generator's stated mass basis; and, in place of that load on the body of each of RS-F1, RS-V1, RS-F2 and RS-R1, the factor times the component's entered weight at its centre of gravity. Take generated force moments at their points of action about the global origin. For the reaction moment, sum the moments of the reaction forces about that origin and the support couples | closed form from the inputs |
+| EQ-7 | For each response quantity, recompute the periodic magnitude in each direction, the rigid magnitude when applied, their combination and the magnitude over directions from the published signed contributions under the recorded rules. Sum each periodic cluster's contributions with their signs first. Each published magnitude must be within 1e-9 relative of the exact value on the represented operands: the published signed contributions and, where the rule uses them, each periodic cluster's published standing frequency and the published damping ratio. A published zero requires an exact value of zero | identity checked by recomputation from the published result (DEL-04-10 REQ-006). The 1e-9 relative comparison over directions is specified for this system. The magnitude accuracy and exact-zero rule govern publication |
 
 Each closed-form reference is computed by an independent generator, not by the solver under
 test. EQ-1 and EQ-2 for the cases the fixture holds are frozen in

@@ -361,18 +361,24 @@ KEY_RESULTS = [
     ("EQ-5", "The RS-dSAM reactions are self-equilibrated (resultant force and moment zero)", ["RS-dSAM"], "identity",
      "exact identity: no load differs between RS-SAM and RS-SUS"),
     ("EQ-6", "The reaction resultant of RS-dWIN, force and moment about the origin, equals minus the resultant of "
-     "the generated wind load. That of each of RS-dEQX, RS-dEQY and RS-dEQZ equals minus the resultant of that "
-     "case's generated seismic load: on each member that carries a line load of self-weight, the factor times g "
-     "times the member's mass per length on the generator's stated mass basis; and, in place of that load on the "
-     "body of each of RS-F1, RS-V1, RS-F2 and RS-R1, the factor times the component's entered weight at its centre "
-     "of gravity. Each moment takes every force at its point of action about the origin",
+     "the generated wind load. That of each of RS-dEQX, RS-dEQY and RS-dEQZ equals minus the resultant of the "
+     "corresponding generated seismic load from RS-EQX, RS-EQY or RS-EQZ: on each member that carries a line load "
+     "of self-weight, the factor times the seismic case's entered gravity times the member's mass per length on "
+     "the generator's stated mass basis; and, in place of that load on the body of each of RS-F1, RS-V1, RS-F2 and "
+     "RS-R1, the factor times the component's entered weight at its centre of gravity. Take generated force "
+     "moments at their points of action about the global origin. For the reaction moment, sum the moments of the "
+     "reaction forces about that origin and the support couples",
      ["RS-dWIN", "RS-dEQX", "RS-dEQY", "RS-dEQZ"], "closed_form", "closed form from the inputs"),
-    ("EQ-7", "Each combined magnitude the spectrum result publishes, for one direction and over the directions, "
-     "agrees to 1e-9 relative with the exact value of its recorded rule on the published signed contributions, the "
-     "rigid contributions included, each cluster's contributions summed with their signs first; a magnitude "
-     "published as zero is exactly zero", ["spectrum"], "identity",
-     "identity of the result with itself, checked by the spectrum readers' recomputation (DEL-04-10 REQ-006) at "
-     "that tolerance; not a bit-exact identity"),
+    ("EQ-7", "For each response quantity, recompute the periodic magnitude in each direction, the rigid magnitude "
+     "when applied, their combination and the magnitude over directions from the published signed contributions "
+     "under the recorded rules. Sum each periodic cluster's contributions with their signs first. Each published "
+     "magnitude must be within 1e-9 relative of the exact value on the represented operands: the published signed "
+     "contributions and, where the rule uses them, each periodic cluster's published standing frequency and the "
+     "published damping ratio. A published zero requires an exact value of zero", ["spectrum"],
+     "identity",
+     "identity checked by recomputation from the published result (DEL-04-10 REQ-006). The 1e-9 relative "
+     "comparison over directions is specified for this system. The magnitude accuracy and exact-zero rule govern "
+     "publication"),
 ]
 
 
