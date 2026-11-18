@@ -84,6 +84,8 @@ code_paths:
 - apps/desktop/src/services/semanticContractRefusal.ts
 - apps/desktop/src/services/tableBinding.ts
 - apps/desktop/src/test-support/tableBindingRefusals.ts
+# The known former digests' copies above are written from the tables' history by this tool.
+- tools/validation/former_table_digests.py
 # The input manifest, and the resolution of a model's rule-pack references at solve time with the
 # diagnostics an unresolved reference receives. DEL-08-04, DEL-15-01 and DEL-17-06 read those
 # diagnostics and also list rulePackRefDiagnostics.ts.
@@ -143,6 +145,7 @@ checks:
 - apps/desktop/src-tauri/src/stored_save_tests.rs
 - apps/desktop/src/services/historicalReopenParity.test.ts
 - apps/desktop/src/features/results/reopenTableBinding.test.tsx
+- tools/validation/test_former_table_digests.py
 - apps/desktop/src/services/recordedRunParity.test.ts
 - apps/desktop/src/features/results/recordedRunContext.test.ts
 - apps/desktop/src/features/history/recordRun.session.test.tsx

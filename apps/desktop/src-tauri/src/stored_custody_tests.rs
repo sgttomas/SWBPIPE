@@ -529,8 +529,9 @@ fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
 /// The known former table digests that word the binding refusal (`KNOWN_FORMER_TABLE_DIGESTS`,
 /// `analysis_run_v03_validate.rs`) are the webview's (`semanticContractRefusal.ts`) and Python's
 /// (`compatibility.py`), row for row and in order. Each twin's whole literal is read; an entry
-/// that is not a recognized `(id, sha256)` row fails the test. A unit that appends a former digest
-/// appends one row to each of the three and this test holds them equal.
+/// that is not a recognized `(id, sha256)` row fails the test. The three are written from the
+/// repository's history by `tools/validation/former_table_digests.py`, whose test (Repository
+/// checks) holds them to that history; a unit that revises a table runs its `write`.
 #[test]
 fn the_known_former_table_digests_are_the_typescript_and_python_lists() {
     use crate::analysis_run_v03_validate::KNOWN_FORMER_TABLE_DIGESTS;
