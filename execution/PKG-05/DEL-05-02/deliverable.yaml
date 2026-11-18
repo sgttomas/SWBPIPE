@@ -90,6 +90,10 @@ code_paths:
 - core/product_physics/tests/op1b_difference_basis.rs
 - core/product_physics/tests/op_mf_held_status.rs
 - core/product_physics/tests/combination_certificate.rs
+# REQ-012's ledger-site classification test (B1): the observer's runtime test and the static
+# census of append sites.
+- core/product_physics/tests/ledger_site_observer.rs
+- tests/test_ledger_site_census.py
 # The readers' re-derivation of combination rows, gates, standing and certificate, in the Rust
 # reader and in the separately written Python verifiers (tests/verifiers/** is otherwise
 # DEL-04-08's), with their corpora and tests.
