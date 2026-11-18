@@ -35,9 +35,10 @@ export const clone = <T,>(value: T): T => value === undefined ? value : JSON.par
  * plain-number keys to JSON numbers. A blank entry is an absent key; an empty
  * quantity is an absent quantity. Text that is not a finite number cannot be a
  * JSON number, so it is reported instead of being sent. Every other key is
- * passed through unchanged. */
-export function toPayload(value: unknown, numberKeys: readonly string[] = ["factor"], path = "Input"): unknown {
-  if (Array.isArray(value)) return value.map((item, index) => toPayload(item, numberKeys, `${path} ${index + 1}`));
+ * passed through unchanged. The value of a key in `verbatim` is not converted
+ * at all. */
+export function toPayload(value: unknown, numberKeys: readonly string[] = ["factor"], path = "Input", verbatim: readonly string[] = []): unknown {
+  if (Array.isArray(value)) return value.map((item, index) => toPayload(item, numberKeys, `${path} ${index + 1}`, verbatim));
   if (!value || typeof value !== "object") return value;
   const entries = Object.entries(value as DraftRecord);
   // A quantity is `{value, unit}` with a scalar value. A record whose only key
@@ -59,7 +60,7 @@ export function toPayload(value: unknown, numberKeys: readonly string[] = ["fact
   const out: DraftRecord = {};
   for (const [key, item] of entries) {
     const label = `${path} ${key.replaceAll("_", " ")}`;
-    const next = numberKeys.includes(key) ? numeric(item, label) : toPayload(item, numberKeys, label);
+    const next = verbatim.includes(key) ? item : numberKeys.includes(key) ? numeric(item, label) : toPayload(item, numberKeys, label, verbatim);
     if (next !== undefined) out[key] = next;
   }
   return out;
