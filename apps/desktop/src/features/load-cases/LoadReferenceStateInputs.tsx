@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import type { PreviewModel } from "../../types";
 import { record, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import {
-  clone, isLoadStateModel, LOAD_STATE_CONTRACT, LoadStateFeedback, LoadStateNeedsCurrent, member, NOT_PRESENT, NumberText,
+  BOUNDED_TEXT_MAX, clone, isLoadStateModel, LOAD_STATE_CONTRACT, LoadStateFeedback, LoadStateNeedsCurrent, member, NOT_PRESENT, NumberText,
   Quantity, replaceAt, rows, switchVariant, Text, toPayload, useLoadStateQueue, type LoadStateTarget
 } from "./loadStateAuthoring";
 import { CopyFromCase, EverySourceFill, TemplateFill } from "./BulkFillControls";
-import { copyAnalysisState, ELEMENT_STATE_UNEDITED, SUPPORT_STATE_UNEDITED, supportStateCopyRefusal } from "./bulkFill";
+import { copyAnalysisState, ELEMENT_STATE_NOT_COPIED, ELEMENT_STATE_OWN_ROW, ELEMENT_STATE_UNEDITED, SUPPORT_STATE_UNEDITED, supportStateCopyRefusal } from "./bulkFill";
 
 type LoadCase = PreviewModel["load_cases"][number];
 const DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"] as const;
@@ -144,7 +144,8 @@ function ElementStates({ model, value, onChange }: ListProps & { model: PreviewM
   const materials = model.materials ?? [];
   return <fieldset><legend>Element states</legend>
     <ListStatus name="element_states" value={value} onChange={onChange} add="Add element state" />
-    <TemplateFill name="Element state" noun="pipe" list={list} keyName="pipe_ref" targets={pipeOptions(model)} onChange={onChange} omit={ELEMENT_STATE_UNEDITED} />
+    <TemplateFill name="Element state" noun="pipe" list={list} keyName="pipe_ref" targets={pipeOptions(model)} onChange={onChange} omit={ELEMENT_STATE_NOT_COPIED}
+      includable={{ key: ELEMENT_STATE_OWN_ROW[0], label: "analysis-basis override", describe: describeAnalysisBasis }} />
     {list.map((row, e) => {
       const k = `Element state ${e + 1}`;
       const set = (key: string, next: unknown) => onChange(replaceAt(list, e, member(row, key, next)));
@@ -178,11 +179,40 @@ function ElementStates({ model, value, onChange }: ListProps & { model: PreviewM
         </>}
         {thermal.kind === "free_length_state" && <Text label={`${k} expansion law`} value={thermal.expansion_law_ref} choices={laws} onChange={v => setThermal("expansion_law_ref", v)} />}
         {thermal.kind !== undefined && thermal.kind !== "free_length_state" && <Text label={`${k} thermal provenance`} value={thermal.provenance} onChange={v => setThermal("provenance", v)} />}
-        {(row.analysis_basis_override !== undefined || row.mass_state_ref !== undefined) && <p>Retained as authored (not edited here): {["analysis_basis_override", "mass_state_ref"].filter(key => row[key] !== undefined).join(", ")}.</p>}
+        <AnalysisBasisOverride k={k} value={row.analysis_basis_override} onChange={v => set("analysis_basis_override", v)} />
+        {ELEMENT_STATE_UNEDITED.some(key => row[key] !== undefined) && <p>Retained as authored (not edited here): {ELEMENT_STATE_UNEDITED.filter(key => row[key] !== undefined).join(", ")}.</p>}
         <button type="button" onClick={() => onChange(list.filter((_, i) => i !== e))}>Remove {k}</button>
       </fieldset>;
     })}
   </fieldset>;
+}
+
+/** Text of an override as the fill shows it before it is carried. */
+function describeAnalysisBasis(value: unknown): string {
+  const o = record(value);
+  const text = (item: unknown) => typeof item === "string" ? `"${item}"` : "not provided";
+  return `reason ${text(o.reason)}; provenance ${text(o.provenance)}`;
+}
+
+/** `analysis_basis_override`: the reason and provenance a member gives for a
+ * property selected at a temperature other than its known operating one. Both
+ * texts are plain, bounded text. An empty field is an absent key, and with both
+ * empty the member is absent; an authored value, null included, is kept until it
+ * is edited. The editor restates no rule of the engine: the operation engine
+ * refuses one text without the other by name before queueing, and the solve
+ * refuses a blank one by its own code. */
+function AnalysisBasisOverride({ k, value, onChange }: { k: string; value: unknown; onChange: (value: DraftRecord | undefined) => void }) {
+  const basis = record(value);
+  const setBasis = (key: string, next: string) => {
+    const edited = member(basis, key, next);
+    onChange(Object.keys(edited).length ? edited : undefined);
+  };
+  const present = value !== undefined && value !== null;
+  return <>
+    <Text label={`${k} analysis-basis reason`} value={basis.reason} maxLength={BOUNDED_TEXT_MAX} onChange={v => setBasis("reason", v)} />
+    <Text label={`${k} analysis-basis provenance`} value={basis.provenance} maxLength={BOUNDED_TEXT_MAX} onChange={v => setBasis("provenance", v)} />
+    {present && <button type="button" onClick={() => onChange(undefined)}>Remove {k} analysis-basis override</button>}
+  </>;
 }
 
 function SupportStates({ model, value, onChange }: ListProps & { model: PreviewModel }) {

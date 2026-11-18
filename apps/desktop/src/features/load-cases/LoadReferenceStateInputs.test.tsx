@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
 import { LoadCaseManagerPanel } from "./LoadCaseManagerPanel";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
-import { LOAD_STATE_NEEDS_CURRENT, NOT_PRESENT, toPayload } from "./loadStateAuthoring";
+import { BOUNDED_TEXT_MAX, LOAD_STATE_NEEDS_CURRENT, NOT_PRESENT, toPayload } from "./loadStateAuthoring";
 import { applyModelOperation } from "../../services/operationService";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
@@ -320,5 +320,129 @@ describe("no defaults: empty means absent, units are explicit", () => {
     // so the engine (not this helper) reports the missing dof/meaning.
     expect(toPayload({ value: { value: "0.01", unit: "m" } })).toEqual({ value: { value: 0.01, unit: "m" } });
     expect(toPayload([{ value: { value: "0.02", unit: "m" } }])).toEqual([{ value: { value: 0.02, unit: "m" } }]);
+  });
+});
+
+describe("analysis-basis override: entered, edited and removed on its own element-state row as bounded plain text", () => {
+  const R = "Element state 1 analysis-basis reason", PV = "Element state 1 analysis-basis provenance";
+  const REMOVE = "Remove Element state 1 analysis-basis override";
+  const afterOf = async (queue: ReturnType<typeof vi.fn>) => JSON.parse((await queued(queue)).change.after) as { element_states: Array<Record<string, unknown>> };
+  const withBasis = (basis: unknown, extra: Record<string, unknown> = {}) => {
+    const model = base();
+    Object.assign(cold(model).analysis_state!.element_states[0], { analysis_basis_override: basis, ...extra });
+    return model;
+  };
+
+  it("entry: the pair is written to its own row as typed; the other row stays absent", async () => {
+    const model = base();
+    const { queue } = renderInputs(model);
+    expect(screen.getByLabelText(R)).toHaveValue("");
+    expect(screen.queryByRole("button", { name: REMOVE })).toBeNull();
+    change(R, "invented reason <b>kept as text</b>");
+    change(PV, "invented provenance");
+    expect(screen.getByRole("button", { name: REMOVE })).toBeInTheDocument();
+    click("Queue analysis state");
+    const intent = await queued(queue);
+    const expected = structuredClone(cold(model).analysis_state!);
+    expected.element_states[0].analysis_basis_override = { reason: "invented reason <b>kept as text</b>", provenance: "invented provenance" };
+    const after = JSON.parse(intent.change.after);
+    expect(after).toEqual(expected);
+    expect(Object.hasOwn(after.element_states[1], "analysis_basis_override")).toBe(false);
+    expect(cold(await applied(model, intent)).analysis_state).toEqual(expected);
+  });
+
+  it("an authored pair is shown as text and edited in place", async () => {
+    const model = withBasis({ reason: "authored <i>reason</i>", provenance: "authored provenance" });
+    const { queue, view } = renderInputs(model);
+    expect(screen.getByLabelText(R)).toHaveValue("authored <i>reason</i>");
+    expect(view.container.querySelector("i")).toBeNull();
+    expect(screen.getByLabelText(PV)).toHaveValue("authored provenance");
+    change(R, "edited reason");
+    click("Queue analysis state");
+    expect((await afterOf(queue)).element_states[0].analysis_basis_override).toEqual({ reason: "edited reason", provenance: "authored provenance" });
+  });
+
+  it("removal by the button, or by clearing both texts, leaves the member absent: no empty object, no empty strings", async () => {
+    for (const remove of [() => click(REMOVE), () => { change(R, ""); change(PV, ""); }]) {
+      const model = withBasis({ reason: "authored", provenance: "authored provenance" });
+      const { queue, view } = renderInputs(model);
+      remove();
+      expect(screen.getByLabelText(R)).toHaveValue("");
+      expect(screen.queryByRole("button", { name: REMOVE })).toBeNull();
+      click("Queue analysis state");
+      const intent = await queued(queue);
+      expect(Object.hasOwn(JSON.parse(intent.change.after).element_states[0], "analysis_basis_override")).toBe(false);
+      expect(Object.hasOwn(cold(await applied(model, intent)).analysis_state!.element_states[0], "analysis_basis_override")).toBe(false);
+      view.unmount();
+    }
+  });
+
+  it("absent stays absent and an authored pair, null or longer than the typing bound round-trips unchanged through an unrelated edit", async () => {
+    const long = "invented reason ".repeat(40).trim();
+    expect(long.length).toBeGreaterThan(BOUNDED_TEXT_MAX);
+    for (const basis of [undefined, null, { reason: long, provenance: "authored provenance" }]) {
+      const model = basis === undefined ? base() : withBasis(basis);
+      const { queue, view } = renderInputs(model);
+      if (basis && typeof basis === "object") expect(screen.getByLabelText(R)).toHaveValue(long);
+      change("Load source 1 factor (dimensionless)", "3");
+      click("Queue analysis state");
+      const intent = await queued(queue);
+      const row = JSON.parse(intent.change.after).element_states[0];
+      expect(Object.hasOwn(row, "analysis_basis_override")).toBe(basis !== undefined);
+      expect(await canonicalJsonString(row.analysis_basis_override ?? "absent")).toBe(await canonicalJsonString(basis ?? "absent"));
+      view.unmount();
+    }
+  });
+
+  it("the typing bound: both texts take at most BOUNDED_TEXT_MAX characters", () => {
+    expect(BOUNDED_TEXT_MAX).toBe(512);
+    renderInputs(base());
+    expect(screen.getByLabelText(R)).toHaveAttribute("maxlength", "512");
+    expect(screen.getByLabelText(PV)).toHaveAttribute("maxlength", "512");
+  });
+
+  it("a half-entered pair is refused in place by the operation engine, by name; nothing is queued and the draft is kept", async () => {
+    const { queue } = renderInputs(base());
+    change(R, "invented reason only");
+    click("Queue analysis state");
+    await waitFor(() => expect(screen.getByTestId("load-state-analysis-diagnostic-OP-LOAD-STATE-PAYLOAD-INVALID")).toHaveTextContent("missing field `provenance`"), { timeout: 20_000 });
+    expect(queue).not.toHaveBeenCalled();
+    expect(screen.getByLabelText(R)).toHaveValue("invented reason only");
+  });
+
+  it("a blank text is queued as the validation accepts it, no stricter (the solve's own refusal: analysisBasisOverride.engine.test.tsx)", async () => {
+    const { queue } = renderInputs(base());
+    change(R, " ");
+    change(PV, "invented provenance");
+    click("Queue analysis state");
+    expect((await afterOf(queue)).element_states[0].analysis_basis_override).toEqual({ reason: " ", provenance: "invented provenance" });
+  });
+
+  it("the notice names only what is still not edited: mass_state_ref", () => {
+    renderInputs(withBasis({ reason: "a", provenance: "b" }, { mass_state_ref: "invented:mass" }));
+    expect(screen.getByTestId("load-state-analysis-state")).toHaveTextContent("Retained as authored (not edited here): mass_state_ref.");
+    expect(screen.getByTestId("load-state-analysis-state")).not.toHaveTextContent("Retained as authored (not edited here): analysis_basis_override");
+  });
+
+  it("the element-state fill carries the pair only when ticked for that fill, never mass_state_ref", async () => {
+    for (const tick of [false, true]) {
+      const model = withBasis({ reason: "invented reason", provenance: "invented provenance" }, { mass_state_ref: "invented:mass" });
+      const { queue, view } = renderInputs(model);
+      click("Remove Element state 2");
+      change("Element state template", "0");
+      change("Element state fill targets", "missing");
+      const box = screen.getByLabelText("Element state fill includes the template's analysis-basis override") as HTMLInputElement;
+      expect(box.checked).toBe(false);
+      if (tick) fireEvent.click(box);
+      click("Fill element states");
+      expect(screen.getByLabelText("Element state 2 analysis-basis reason")).toHaveValue(tick ? "invented reason" : "");
+      click("Queue analysis state");
+      await waitFor(() => expect(queue).toHaveBeenCalledOnce(), { timeout: 20_000 });
+      const row = JSON.parse((queue.mock.calls[0][0] as EditorOperationIntent).change.after).element_states[1];
+      expect(row.pipe_ref).toBe("pipe:second");
+      expect(row.analysis_basis_override).toEqual(tick ? { reason: "invented reason", provenance: "invented provenance" } : undefined);
+      expect(Object.hasOwn(row, "mass_state_ref")).toBe(false);
+      view.unmount();
+    }
   });
 });

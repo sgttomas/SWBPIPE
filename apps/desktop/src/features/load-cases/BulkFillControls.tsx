@@ -10,7 +10,7 @@ const SCOPES = ["missing", "range", "chosen"] as const;
 /** G7: fills a per-member list from one of its own rows. The person picks the
  * template row and the targets; the draft gains one copy per target and is
  * reviewed and queued as before. */
-export function TemplateFill({ name, noun, list, keyName, targets, onChange, omit = [], refuseTemplate }: {
+export function TemplateFill({ name, noun, list, keyName, targets, onChange, omit = [], refuseTemplate, includable }: {
   /** The row name, as in the list's legends ("Element state"). */
   name: string;
   /** The target kind, singular ("pipe"). */
@@ -23,6 +23,10 @@ export function TemplateFill({ name, noun, list, keyName, targets, onChange, omi
   omit?: readonly string[];
   /** Why a row cannot be a template, if it cannot. */
   refuseTemplate?: (row: DraftRecord) => string | undefined;
+  /** A member of `omit` the person may include, explicitly and for one fill
+   * only, when the chosen template holds it: offered as an unticked choice that
+   * shows the text it would carry (review N1). */
+  includable?: { key: string; label: string; describe: (value: unknown) => string };
 }) {
   // The template is the chosen row itself: if that row is edited, removed or the
   // list is reset, the choice lapses and must be made again (review N3).
@@ -33,6 +37,9 @@ export function TemplateFill({ name, noun, list, keyName, targets, onChange, omi
   const [from, setFrom] = useState(""); const [to, setTo] = useState("");
   const [chosen, setChosen] = useState<string[]>([]);
   const [status, setStatus] = useState("");
+  // Unticked whenever the template is chosen and after every fill: an inclusion
+  // holds for the one fill the person ticked it for.
+  const [include, setInclude] = useState(false);
   const lower = name.toLowerCase();
   const scopeLabels: Record<(typeof SCOPES)[number], string> = {
     missing: `every ${noun} without a ${lower}`,
@@ -42,6 +49,8 @@ export function TemplateFill({ name, noun, list, keyName, targets, onChange, omi
   const templateChoices = list.map((row, i) => ({ value: String(i), label: `${name} ${i + 1}${typeof row[keyName] === "string" ? ` (${row[keyName]})` : ""}` }));
   const ids = targets.map(t => t.value);
   const templateRefusal = templateValid ? refuseTemplate?.(chosenTemplate.row) : undefined;
+  const offered = templateValid && includable !== undefined && chosenTemplate.row[includable.key] !== undefined && chosenTemplate.row[includable.key] !== null ? includable : undefined;
+  const includeLabel = offered && `${name} fill includes the template's ${offered.label}`;
   const reason = list.length === 0 ? `Add and fill one ${lower} first; it is the template.`
     : template === "" ? (chosenTemplate ? "The rows changed; choose the template row again." : "Choose the template row.")
     : templateRefusal ? `${name} ${Number(template) + 1} cannot be a template: ${templateRefusal}.`
@@ -53,17 +62,19 @@ export function TemplateFill({ name, noun, list, keyName, targets, onChange, omi
     const row = chosenTemplate.row;
     const fillScope: FillScope = scope === "range" ? { kind: "range", from, to } : scope === "chosen" ? { kind: "chosen", ids: chosen } : { kind: "missing" };
     const selected = fillTargets(ids, fillScope);
-    const result = fillFromTemplate(list, row, keyName, selected, omit);
+    const result = fillFromTemplate(list, row, keyName, selected, omit, offered && include ? [offered.key] : []);
     onChange(result.rows);
+    setInclude(false);
     setStatus(selected.length === 0 ? `No ${noun} is in that range.`
       : `Added ${result.added.length} ${lower}${result.added.length === 1 ? "" : "s"} from ${name} ${Number(template) + 1}.`
         + (result.skipped.length ? ` ${result.skipped.length} ${noun}${result.skipped.length === 1 ? " already has" : "s already have"} one and ${result.skipped.length === 1 ? "was" : "were"} left unchanged.` : "")
+        + (result.included.length && result.added.length ? ` Included on every added row, as chosen: ${result.included.join(", ")}.` : "")
         + (result.omitted.length && result.added.length ? ` Not copied (kept only on their own row): ${result.omitted.join(", ")}.` : "")
         + " Review the draft before queueing.");
   }
   return <fieldset><legend>Fill {lower}s from a template</legend>
     <label>{`${name} template`}
-      <select aria-label={`${name} template`} value={template} onChange={e => setChosenTemplate(e.target.value === "" ? null : { index: Number(e.target.value), row: list[Number(e.target.value)] })}>
+      <select aria-label={`${name} template`} value={template} onChange={e => { setInclude(false); setChosenTemplate(e.target.value === "" ? null : { index: Number(e.target.value), row: list[Number(e.target.value)] }); }}>
         <option value="">Choose a row</option>
         {templateChoices.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
       </select>
@@ -79,6 +90,10 @@ export function TemplateFill({ name, noun, list, keyName, targets, onChange, omi
       <Text label={`${name} fill to ${noun}`} value={to} choices={ids} onChange={setTo} />
     </>}
     {scope === "chosen" && <VirtualMultiTargetPicker label={`${name} fill ${noun}s`} options={[...targets]} values={chosen} onChange={v => setChosen([...v])} />}
+    {offered && includeLabel && <>
+      <label><input type="checkbox" aria-label={includeLabel} checked={include} onChange={e => setInclude(e.target.checked)} />{includeLabel}</label>
+      <p>{`${name} ${Number(template) + 1} ${offered.label}: ${offered.describe(chosenTemplate!.row[offered.key])}. ${include ? "It will be copied to every row this fill adds." : "Not copied unless ticked; it belongs to its own row."}`}</p>
+    </>}
     <button type="button" disabled={reason !== undefined} title={reason} onClick={fill}>{`Fill ${lower}s`}</button>
     {reason && <small>{reason}</small>}
     <p role="status">{status}</p>

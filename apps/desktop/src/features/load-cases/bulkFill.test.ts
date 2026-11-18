@@ -1,6 +1,6 @@
 // G7/G8 draft helpers (DEL-07-03 design §3). Invented ids.
 import { describe, expect, it } from "vitest";
-import { addEverySource, copyAnalysisState, copyPressureRegions, ELEMENT_STATE_UNEDITED, fillFromTemplate, fillTargets, rederiveRegionId, SUPPORT_STATE_UNEDITED, supportStateCopyRefusal } from "./bulkFill";
+import { addEverySource, copyAnalysisState, copyPressureRegions, ELEMENT_STATE_NOT_COPIED, ELEMENT_STATE_OWN_ROW, ELEMENT_STATE_UNEDITED, fillFromTemplate, fillTargets, rederiveRegionId, SUPPORT_STATE_UNEDITED, supportStateCopyRefusal } from "./bulkFill";
 
 const PIPES = ["pipe:A", "pipe:B", "pipe:C", "pipe:D"];
 
@@ -67,9 +67,10 @@ describe("copy from another case", () => {
 describe("review findings (PR #38)", () => {
   it("N1: never copies a row's own unshown override or reference, and reports it", () => {
     const template = { pipe_ref: "pipe:A", analysis_basis_override: { reason: "only pipe:A" }, mass_state_ref: "mass:A", material_selection: { kind: "exact_point" } };
-    const { rows, omitted } = fillFromTemplate([template], template, "pipe_ref", ["pipe:B"], ELEMENT_STATE_UNEDITED);
+    const { rows, omitted, included } = fillFromTemplate([template], template, "pipe_ref", ["pipe:B"], ELEMENT_STATE_NOT_COPIED);
     expect(rows[1]).toEqual({ pipe_ref: "pipe:B", material_selection: { kind: "exact_point" } });
-    expect(omitted).toEqual(["analysis_basis_override", "mass_state_ref"]);
+    expect(omitted).toEqual(["mass_state_ref", "analysis_basis_override"]);
+    expect(included).toEqual([]);
     const copied = copyAnalysisState({
       element_states: [template],
       support_states: [
@@ -79,9 +80,27 @@ describe("review findings (PR #38)", () => {
     }, []);
     expect(copied.draft.element_states).toEqual([{ pipe_ref: "pipe:A", material_selection: { kind: "exact_point" } }]);
     expect(copied.draft.support_states).toEqual([{ support_ref: "support:S", participation: { kind: "active_model_device" } }]);
-    expect(copied.omitted.sort()).toEqual([...ELEMENT_STATE_UNEDITED, ...SUPPORT_STATE_UNEDITED].sort());
+    expect(copied.omitted.sort()).toEqual([...ELEMENT_STATE_NOT_COPIED, ...SUPPORT_STATE_UNEDITED].sort());
     expect(copied.supportsLeftOut).toEqual(["support:L"]);
     expect(supportStateCopyRefusal({ participation: { kind: "locked_equivalent_support" } })).toMatch(/components/);
+  });
+  it("N1: the analysis-basis override is edited on its row but carried by a fill only when included, and mass_state_ref never", () => {
+    expect(ELEMENT_STATE_UNEDITED).toEqual(["mass_state_ref"]);
+    expect(ELEMENT_STATE_OWN_ROW).toEqual(["analysis_basis_override"]);
+    const basis = { reason: "invented reason for pipe:A", provenance: "invented provenance" };
+    const template = { pipe_ref: "pipe:A", analysis_basis_override: basis, mass_state_ref: "mass:A" };
+    const chosen = fillFromTemplate([template], template, "pipe_ref", ["pipe:B", "pipe:C"], ELEMENT_STATE_NOT_COPIED, ELEMENT_STATE_OWN_ROW);
+    expect(chosen.rows.slice(1)).toEqual([
+      { pipe_ref: "pipe:B", analysis_basis_override: basis },
+      { pipe_ref: "pipe:C", analysis_basis_override: basis }
+    ]);
+    expect(chosen.rows[1].analysis_basis_override).not.toBe(basis);
+    expect(chosen.included).toEqual(["analysis_basis_override"]);
+    expect(chosen.omitted).toEqual(["mass_state_ref"]);
+    // Including a member the template does not hold adds nothing and reports nothing.
+    const without = fillFromTemplate([{ pipe_ref: "pipe:A" }], { pipe_ref: "pipe:A" }, "pipe_ref", ["pipe:B"], ELEMENT_STATE_NOT_COPIED, ELEMENT_STATE_OWN_ROW);
+    expect(without.rows[1]).toEqual({ pipe_ref: "pipe:B" });
+    expect(without.included).toEqual([]);
   });
   it("N2/N4: refuses a source without regions and ids that would collide, so the draft is never replaced", () => {
     expect(() => copyPressureRegions([], "load:A", "load:B")).toThrow(/no pressure regions/);
