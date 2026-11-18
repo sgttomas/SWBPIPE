@@ -1427,7 +1427,7 @@ pub(crate) fn saved_run_findings(project: &SavedProject<'_>, result: &mut Value,
     };
     let mechanics = evidence.then(|| js_string(result.pointer("/status/mechanics")));
     let (binding, standing) = read_or_withhold(&mut found, &claim, result_mut, Some(project.model), recorded, standing_slot, retained_slot);
-    let read = binding.get("read").is_some();
+    let read = binding.is_read();
     let shown = recorded.filter(|_| read);
     let (findings, check_findings, recorded_table_read, historical_reader_findings) = HistoricalFindings::scoped(found, shown);
     Some(HistoricalFindings {
@@ -1645,7 +1645,7 @@ pub(crate) fn recorded_run_findings(read: &RecordedRead<'_>, result: Option<&mut
     };
     let mechanics = evidence.then(|| js_string(result.pointer("/status/mechanics")));
     let (binding, standing) = read_or_withhold(&mut found, &claim, result_mut, standing_model, recorded, standing_slot, retained_slot);
-    let shown = recorded.filter(|_| binding.get("read").is_some());
+    let shown = recorded.filter(|_| binding.is_read());
     let (findings, check_findings, recorded_table_read, historical_reader_findings) = HistoricalFindings::scoped(found, shown);
     HistoricalFindings {
         findings,

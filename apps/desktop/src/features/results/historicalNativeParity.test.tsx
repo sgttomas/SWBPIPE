@@ -23,7 +23,8 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, PreviewModel } from "../../types";
-import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
+import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
+import { analysisRecordProjection } from "../../services/analysisRunCompatibility";
 import { openLocalProjectNative } from "../../services/nativeReopen";
 import { isNativeResult, nativeCustody, resetNativeResultsForTests } from "../../services/nativeResult";
 import { resetSessionResultCustodyForTests } from "../../services/previewService";
@@ -79,12 +80,18 @@ const timoshenko = (): Stored => {
 /** An invented health variant: the first load case's solve quality (and the envelope's status). */
 type Quality = "as recorded" | "sensitive" | "unresolved" | "failed";
 const STATE: Readonly<Record<Exclude<Quality, "as recorded">, keyof typeof NUMERICAL_HEALTH_STATE_TEXT>> = { sensitive: "sensitive", unresolved: "quality_unresolved", failed: "solve_failed" };
-function withQuality(stored: Stored, quality: Quality): Stored {
+/** The run as recorded with another quality: the statement's quality is changed and its record's
+ * received-result hash and own checksum are recomputed, so the record binds the statement as it now
+ * reads (a statement changed under its old record is withheld for integrity, unread). */
+async function withQuality(stored: Stored, quality: Quality): Promise<Stored> {
   if (quality === "as recorded") return stored;
   const source = structuredClone(stored.source) as Json;
   source.numerical_quality.cases[0].solve_quality = quality;
   source.numerical_quality.status = quality;
-  return { ...stored, source };
+  const record = structuredClone(stored.record);
+  record.analysis_run.hashes.find((hash) => hash.payload_scope === "received_result")!.value = await canonicalSha256HexCheckedV1(source);
+  record.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(record));
+  return { ...stored, source, record };
 }
 
 type Case = { name: string; table: string | null; stored: () => Stored; quality: Quality };
@@ -235,7 +242,7 @@ function pressure2Base(source: MechanicsResult): boolean {
 
 describe("a reopened run reads alike held whole and held natively (C1 review F2, F3)", () => {
   it.each(CASES)("$name", async (item) => {
-    const stored = withQuality(item.stored(), item.quality);
+    const stored = await withQuality(item.stored(), item.quality);
     envelope = await storedEnvelope(stored);
     const whole = (await buildHistoricalRunContext(envelope as LocalProjectEnvelope))!;
     const table = item.table ? { id: stored.source.producer!.semantic_contract_id, sha256: item.table } : null;

@@ -1175,17 +1175,25 @@ describe.each(MODES)("%s: reopen revalidates the saved statement and never mints
     expect(hasNativeMechanicsInvocation(context.mechanicsResult, opened.model, mode)).toBe(false);
     expect(retainedPrecisionRegistration(context.mechanicsResult)).toBeNull();
   });
-  it("a saved successor without an AnalysisRun is revalidated and reports no copy mismatch", async () => {
+  it("a saved successor without an AnalysisRun is withheld unread and reports no copy mismatch", async () => {
     const opened = await saved(envelope => { envelope.analysis_run = null; });
-    const findings = (await buildHistoricalRunContext(opened))!.findings;
-    expect(findings).toContain(RETAINED_PRECISION_VALIDATION_REQUIRED);
+    const context = (await buildHistoricalRunContext(opened))!;
+    const findings = context.findings;
+    // No record establishes its table (decision (b)): its rows are withheld and not read, so the
+    // retained reader's standing is not computed.
+    expect(context.binding).toStrictEqual({ withheld: "unrecorded" });
+    expect(context.mechanicsResult).toBeNull();
+    expect(findings).not.toContain(RETAINED_PRECISION_VALIDATION_REQUIRED);
     expect(findings).toContain("HISTORICAL_RUN_EVIDENCE_INCOMPLETE");
     expect(findings).not.toContain(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   });
-  it("a mutated saved row reads unsupported: the reader's own code is a finding", async () => {
+  it("a mutated saved row is withheld for its hash, unread: the reader's code is not a finding", async () => {
     const opened = await saved(envelope => { envelope.mechanics_result.results[0].value = 12345; });
-    const findings = (await buildHistoricalRunContext(opened))!.findings;
-    expect(findings).toEqual(expect.arrayContaining([RETAINED_PRECISION_VALIDATION_REQUIRED, "RETAINED_PRECISION_RECEIPT_MISMATCH", "HISTORICAL_RESULT_HASH_MISMATCH"]));
+    const context = (await buildHistoricalRunContext(opened))!;
+    // The statement no longer matches its record's hash (integrity): its rows are not read, so the
+    // retained reader's refusal and standing are not computed.
+    expect(context.binding).toStrictEqual({ withheld: "integrity" });
+    expect(context.findings).toStrictEqual(["HISTORICAL_INPUT_MANIFEST_MISSING", "HISTORICAL_RESULT_HASH_MISMATCH"]);
   });
   it.each([
     ["altered", (envelope: Json) => { envelope.analysis_run.analysis_run.retained_precision.body.receipt_version = 2; }],
