@@ -292,7 +292,7 @@ describe("No user release record stays in the session after a shareable save (RE
    * screened request is checked to hold the record, so the search below is shown to find it. */
   async function endedSave(answer: () => Promise<unknown>, change: ((prepared: Preparation) => Preparation) | null = null) {
     let screened: unknown = null;
-    preparation.change = (prepared) => { screened = prepared.request; return change ? change(prepared) : prepared; };
+    preparation.change = (prepared) => { screened = prepared.controlled.payload; return change ? change(prepared) : prepared; };
     const rendered = await solvedSession();
     const passThrough = invokeMock.getMockImplementation()!;
     invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) =>

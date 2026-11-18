@@ -409,6 +409,18 @@ async function controlAndPrepareReportPackageSave(
   return { prepared, exactSubmission };
 }
 
+/** The shareable save's preparation, for the session: the prepared save and the request (for
+ * the exact re-check). The preparation returns its control result to this caller, as it does
+ * to any caller; the session reads nothing of it (REQ-019 "Selection": nothing of a user
+ * release is kept in session state), so it ends with this function's frame and is not held
+ * while the native save is awaited. */
+async function prepareShareableSaveForSession(
+  input: Parameters<typeof prepareShareableReportPackageSave>[0]
+): Promise<Pick<Awaited<ReturnType<typeof prepareShareableReportPackageSave>>, "prepared" | "request">> {
+  const { prepared, request } = await prepareShareableReportPackageSave(input);
+  return { prepared, request };
+}
+
 /**
  * The workspace session: the six state hooks, all thirteen effects and every
  * handler, in one closure and in the order `AppSession` declared them.
@@ -4342,7 +4354,7 @@ export function useWorkspaceSession() {
       // The package reads full rows (C2): a native result's bounded full copy.
       const full = isNativeResult(basis.result) ? (await loadC2Full(basis.result)).result : (basis.result as MechanicsResult);
       if (!isCurrent()) return;
-      const { prepared, request } = await prepareShareableReportPackageSave({
+      const { prepared, request } = await prepareShareableSaveForSession({
         model: basis.model,
         result: full,
         inputManifest: basis.inputManifest,

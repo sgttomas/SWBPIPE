@@ -1925,11 +1925,12 @@ describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §
     const model = recordModel();
     const reason = `report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (user_supplied_values[2] review_status quarantined; review that record's disposition in the model before reporting)`;
     const real = reportRedactionProjector.controlReportRendererInput;
-    let held: WeakRef<object> | null = null;
+    // The control result and, each by itself, its decisions and its findings arrays.
+    const held: WeakRef<object>[] = [];
     let expectedLine = "";
     const control = vi.spyOn(reportRedactionProjector, "controlReportRendererInput").mockImplementation((...args) => {
       const controlled = real(...args);
-      held = new WeakRef(controlled);
+      held.push(new WeakRef(controlled), new WeakRef(controlled.decisions), new WeakRef(controlled.findings));
       expect(controlled.decisions.length).toBeGreaterThan(0);
       expect(controlled.findings.length).toBeGreaterThan(0);
       // The line as the panel showed it when it kept the whole control result.
@@ -1945,8 +1946,8 @@ describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §
     // The spy's own record of the call would keep the result; drop it.
     control.mockRestore();
     await collectGarbage();
-    expect(held).not.toBeNull();
-    expect(held!.deref()).toBeUndefined();
+    expect(held).toHaveLength(3);
+    expect(held.map((ref) => ref.deref())).toEqual([undefined, undefined, undefined]);
     expect(screen.getByTestId("rendered-report-redaction-summary").textContent).toBe(expectedLine);
     expect(screen.getByTestId("rendered-report-blocking-reasons")).toHaveTextContent(`${reason} (material-provenance:material:with-record)`);
   });

@@ -19,7 +19,6 @@ import { buildAnalysisRunPreview } from "../../services/previewService";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import type { ReportPackageSaveReceipt, ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import type { MechanicsResult, PreviewModel } from "../../types";
-import { controlledRouteEvidence, type ControlledRouteEvidence } from "./controlledRouteEvidence";
 import {
   controlUserReleasedReportPackageRequest,
   REPORT_PACKAGE_USER_RELEASE_ROUTE_ID,
@@ -78,12 +77,10 @@ export type PreparedUserReleasedReportPackageSave =
   | { route: "ready"; args: UserReleasedReportPackageSaveArgs; requestSha256: string }
   | Exclude<ReportPackageSaveRoute, { route: "tauri_report_package_save" }>;
 
-/** What `prepareShareableReportPackageSave` yields: the screened request's evidence (the
- * control's summary and blocked flag, without its payload or its per-value decisions and
- * findings, so that none of them is held across the native save), the prepared save (or the
- * route that ends it), and the request (for the exact re-check). */
+/** What `prepareShareableReportPackageSave` yields: the screened request's evidence, the
+ * prepared save (or the route that ends it), and the request (for the exact re-check). */
 export type ShareableReportPackagePreparation = {
-  controlled: ControlledRouteEvidence;
+  controlled: ControlledRouteExport;
   prepared: PreparedUserReleasedReportPackageSave;
   request: object;
 };
@@ -205,7 +202,7 @@ export async function prepareShareableReportPackageSave(input: {
     analysisRun,
     reportPackageExactSubmission(request)
   );
-  return { controlled: controlledRouteEvidence(controlled), prepared, request };
+  return { controlled, prepared, request };
 }
 
 /** The native save of a prepared route-010 request. `isCurrent` is the session's basis guard
