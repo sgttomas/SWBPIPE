@@ -19032,8 +19032,11 @@
     "absent_capability",
     "numerical_standing"
    ],
-   "named_by": "unnamed",
-   "named_by_coverage": null,
+   "named_by": "LIM-028",
+   "named_by_coverage": {
+    "coverage": "partial",
+    "reason": "LIM-028 names the code for a linear skew model's case that meets a binary64 range failure, where force scaling is not built for skewed restraints. The code is also raised where a skew model would need the other methods its reason names, which LIM-028 does not describe."
+   },
    "named_by_statement": null
   },
   {
