@@ -48,6 +48,9 @@ def _is_zero(text) -> bool:
 
 # ---- restraint ------------------------------------------------------------------------------------------
 
+FREE_LAW = ("free",)
+
+
 def restraint_law(record):
     """The resolved law of one support DOF: free by name (a DOF a side does not list is free as well); rigid with
     its support identity; a spring or a nonlinear support with its identity, participation and parameters."""
@@ -64,7 +67,7 @@ def restraint_law(record):
 def same_restraint(sustained, operating):
     laws_s = {(r["support"], r["dof"]): restraint_law(r) for r in sustained["supports"]}
     laws_o = {(r["support"], r["dof"]): restraint_law(r) for r in operating["supports"]}
-    free = restraint_law({"law": "free"})
+    free = FREE_LAW  # a DOF a side does not list
     for dof in sorted(set(laws_s) | set(laws_o)):
         if laws_s.get(dof, free) != laws_o.get(dof, free):
             return False
