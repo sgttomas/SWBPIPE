@@ -911,6 +911,12 @@ fn prepare_sources(
     {
         return Err(unsupported("non-nodal load producer present"));
     }
+    // DEL-04-11 REQ-014: the replay forms nodal and eigen terms only, and its
+    // support rows carry no constant term, so a case with a spring's cold load
+    // is not replayed; the ordinary publication carries the preload.
+    if crate::spring_preload::dispositions(input.model, input.load_case).iter().any(|(_, d)| d.is_ok()) {
+        return Err(unsupported("variable spring hanger cold load present"));
+    }
     if input.load_application.is_blocked() {
         return Err(mismatch("blocked load application"));
     }

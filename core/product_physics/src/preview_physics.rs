@@ -22,7 +22,7 @@ const SUPPORT_COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 
 /// The linear state kinds admitted to combination algebra (table
 /// `combination_policy.linear_state_kinds`).
-const LINEAR_STATE_KINDS: [&str; 23] = [
+const LINEAR_STATE_KINDS: [&str; 24] = [
     "global_nodal_displacement_x",
     "global_nodal_displacement_y",
     "global_nodal_displacement_z",
@@ -43,6 +43,7 @@ const LINEAR_STATE_KINDS: [&str; 23] = [
     "pipe_section_pressure_longitudinal_stress",
     "support_reaction_component_v2",
     "constant_effort_support_applied_load",
+    "variable_spring_hanger_applied_load",
     // W-7 (DEL-04-01 Design `global-end-actions.md`): the global end actions.
     "element_global_end_force_v1",
     "element_global_end_moment_v1",
@@ -892,7 +893,8 @@ fn gate_reason(
     // the exact sum of the binary64 factors, admitted iff |sum - 1| <= 64*epsilon,
     // compared exactly. A non-finite factor (already refused by validation's
     // LOAD_COMBINATION_FACTOR_INVALID) makes κ undefined, which never passes.
-    if rendered.consuming_constant_effort {
+    let springs = crate::spring_preload::fixed_load_source(model);
+    if rendered.consuming_constant_effort || springs {
         let operand_kappa: Vec<_> = targets.iter().map(|target| plan.kappa_of(target)).collect();
         let withholding = if basis == "mechanics" {
             open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&plan.kappa[index], operand_kappa.iter())
@@ -901,11 +903,14 @@ fn gate_reason(
         };
         if let Some(withholding) = withholding {
             use open_pipe_stress_load_case_algebra::FixedLoadWithholding as W;
-            return gated(match withholding {
+            let code = match withholding {
                 W::UnitFactorSum => CONSTANT_EFFORT_REQUIRES_SOLVE,
                 W::OperandUndefined => CONSTANT_EFFORT_OPERAND_MIXED,
                 W::UnsignedOperand => CONSTANT_EFFORT_UNSIGNED_OPERAND,
-            });
+            };
+            // DEL-04-11 REQ-014: a spring's cold load is one more fixed-load source
+            // under the same codes; the message names the actual source.
+            return Some((code, crate::spring_preload::fixed_load_gate_message(code, rendered.consuming_constant_effort, springs, gate_message(code))));
         }
     }
     let mut scratch = Vec::new();

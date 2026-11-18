@@ -80,7 +80,7 @@ const SECTION_SEPARATOR: &str = "; section_basis=";
 
 /// The pressure-2 table's `signed_linear` kinds (its `combination_policy.linear_state_kinds`;
 /// pinned to the table's `combination_algebra` by this module's test).
-pub(crate) const SIGNED_LINEAR_KINDS: [&str; 39] = [
+pub(crate) const SIGNED_LINEAR_KINDS: [&str; 40] = [
     "global_nodal_displacement_x",
     "global_nodal_displacement_y",
     "global_nodal_displacement_z",
@@ -101,6 +101,7 @@ pub(crate) const SIGNED_LINEAR_KINDS: [&str; 39] = [
     "pipe_section_pressure_longitudinal_stress",
     "support_reaction_component_v2",
     "constant_effort_support_applied_load",
+    "variable_spring_hanger_applied_load",
     "element_global_end_force_v1",
     "element_global_end_moment_v1",
     "pipe_wall_endpoint_action_v2",
@@ -413,14 +414,19 @@ fn gate_reason(
     // undefined κ withholds as CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED; a
     // mechanics combination whose own κ is undefined, its operands' defined, as
     // CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE (§5.1).
-    if constant_effort_solve_dispositions(model).iter().any(|(_, disposition)| disposition.is_ok()) {
+    // DEL-04-11 REQ-014: a variable spring's cold load is one more fixed-load
+    // source for gate 4, under its codes; the message names the actual source.
+    let constant_effort = constant_effort_solve_dispositions(model).iter().any(|(_, disposition)| disposition.is_ok());
+    let springs = crate::spring_preload::fixed_load_source(model);
+    if constant_effort || springs {
         if let Some(withholding) = fixed_load_withholding() {
             use open_pipe_stress_load_case_algebra::FixedLoadWithholding as W;
-            return gated(match withholding {
+            let code = match withholding {
                 W::UnitFactorSum => CONSTANT_EFFORT,
                 W::OperandUndefined => CONSTANT_EFFORT_OPERAND_MIXED,
                 W::UnsignedOperand => CONSTANT_EFFORT_UNSIGNED,
-            });
+            };
+            return Some((code, crate::spring_preload::fixed_load_gate_message(code, constant_effort, springs, gate_message(code))));
         }
     }
     None

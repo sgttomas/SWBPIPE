@@ -171,7 +171,7 @@ mod u4b_rows;
 mod joint;
 use exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID;
 mod pressure_runtime;
-mod preview_physics;
+mod preview_physics; mod spring_preload; // DEL-04-11 REQ-014 (the variable spring preload), on this line so that no line moves.
 mod pf_timoshenko;
 mod retained_product;
 mod retained_receipt;
@@ -2130,7 +2130,7 @@ fn force_scaling_admission(
         .iter()
         .any(|(_, disposition)| disposition.is_ok())
     {
-        Some("constant_effort_support")
+        Some("constant_effort_support") } else if spring_preload::dispositions(model, load_case).iter().any(|(_, disposition)| disposition.is_ok()) { Some(spring_preload::W2_FAMILY)
     } else if !force.terms().iter().all(term_is_authored_nodal) {
         Some("non_nodal_load_term")
     } else if force.terms().iter().any(|term| {
@@ -3197,7 +3197,7 @@ fn run_linear_static_preview_observed_inner(
         return blocked_envelope(model, diagnostics);
     }
     let built = built.expect("build_model returns Some when no blocking diagnostics were added");
-    append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
+    append_constant_effort_consumption_diagnostics(&model, &mut diagnostics); spring_preload::append_model_diagnostics(&model, &mut diagnostics);
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
@@ -5582,7 +5582,7 @@ fn solve_prepared_load_case(
         Some(state) => load_state_spring_ground(state, spring_entries, &load_case.id, diagnostics),
         None => imposed_motion::case_spring_ground(model, load_case, spring_entries, diagnostics),
     };
-    certified_loads::spring_base_motion(&mut ledger, spring_entries, &spring_ground);
+    certified_loads::spring_base_motion(&mut ledger, spring_entries, &spring_ground); spring_preload::add_loads(&mut ledger, model, load_case);
     if let Some(observer) = product.as_deref_mut() {
         observer.case_source(model, built, materials, load_case, restrained_dofs, spring_entries,
             &load_application, &thermal_loads);
@@ -6448,11 +6448,11 @@ fn solve_prepared_load_case(
                     // a moved base publishes -k·(u - g); an unmoved one (g
                     // equal to zero, of either sign) keeps -k·u.
                     let ground = spring_ground[spring_index];
-                    vector[global % DOF_PER_NODE] = match &w2_publication {
+                    vector[global % DOF_PER_NODE] = spring_preload::with_cold_load(model, load_case, &support.id, match &w2_publication {
                         Some(publication) => publication.spring_actions[spring_index].value,
                         None if ground == 0.0 => -spring.stiffness.value * displacements[global],
                         None => -spring.stiffness.value * (displacements[global] - ground),
-                    };
+                    });
                 }
             }
             if let Some(nonlinear) = built
@@ -6483,7 +6483,7 @@ fn solve_prepared_load_case(
                 }
             }
             let mut certified_along = None; let certified_support = match (member_bound, certified_source.as_ref()) {
-                (Some(bound),Some(source)) => match certified_publication::support(model,support,built,spring_entries,&spring_ground,source,certified_force,&displacements,bound,certified_nonlinear) {
+                (Some(bound),Some(source)) => match certified_publication::support(model,load_case,support,built,spring_entries,&spring_ground,source,certified_force,&displacements,bound,certified_nonlinear) {
                     Ok((rows, along)) => { certified_along = along.as_ref().map(|row| row.published);
                         vector = rows.map(|row| row.published);
                         match certified_publication::support_record(&support.id,formation_bodies.body_of_node(index),&rows,along.as_ref()) {
@@ -6568,7 +6568,7 @@ fn solve_prepared_load_case(
         model,
         &published_displacements,
         load_case,
-    );
+    ); spring_preload::append_results(&mut results, diagnostics, model, load_case);
 
     // S11-G R-b' (section 4): (member, end, q, B) of each straight member end
     // published from the formed K_e * u, decided after the loop.
