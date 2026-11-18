@@ -407,6 +407,7 @@ PACKAGES: dict[str, Package] = {
 
     # Exact-route references frozen after the first table; each also has its own maintained test.
     "exact_difference_basis": _plain("exact_difference_basis_reference.py", deliverables="DEL-05-02"),
+    "exact_difference_basis_completed": _plain("exact_difference_basis_completed_reference.py", deliverables="DEL-05-02"),
     "exact_load_state_equivalent_static": _plain("exact_load_state_reference.py", deliverables="DEL-05-01"),
     "friction_one_way_normal": _plain("friction_one_way_normal_reference.py", deliverables="DEL-04-04"),
     "inverse_norm_witness": _plain("inverse_norm_witness_reference.py", deliverables="DEL-04-01"),
