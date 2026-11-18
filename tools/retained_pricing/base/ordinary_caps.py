@@ -384,9 +384,10 @@ def typed_core(mode):
         # through recovery. Inline owner includes all three Vec headers.
         out["StructuralSolution member-bound payload (KD5O4)"] = B(20 * N) + s("MemberBoundInputs")
     if _in_model_active:
-        # IN-WS (DEL-04-01 REQ-015 inverse-norm gate, DRAFT): one certificate run per factor, inside the formation
-        # check, while the factor and the check's outer vectors live (in_owners_model binds the bodies and counts).
-        out["Inverse-norm certificate workspace (IN-WS)"] = _in_model.workspace(F, H)
+        # IN-SL (DEL-04-01 REQ-015 inverse-norm gate, DRAFT): the certificate slot each factor object carries is
+        # inline and owns no heap. The certificate's run workspace (IN-WS) is not a typed-core owner: it is live only
+        # inside one formation check at a time, so g4_caps charges it once, in the ordinary-span phases only
+        # (in_owners_model.LIVE_PHASES), from out[mode]["in_ws"] below.
         out["Inverse-norm certificate slot on the factor (IN-SL: heap 0)"] = _in_model.slot()
     out["H_formation128 (T06: heap 0)"] = X()
     kpk = k + sp
@@ -740,6 +741,9 @@ for mode, dct in modes.items():
         "O_req": {"symbolic": req.show(), "assumed_bytes": rq},
         "O_mov_extra_largest_old_backing": {"symbolic": movx.show(), "assumed_bytes": mv},
     }
+    if _in_model_active:
+        # IN-WS: one certificate run's workspace, outside O_base (see typed_core's IN-SL note).
+        out[mode]["in_ws"] = dump(_in_model.workspace(F, H), vals)
 if which == "milestone":
     # Cross-check: the transcribed sub-expressions reproduce I54's published milestone constants.
     kk = k + sp

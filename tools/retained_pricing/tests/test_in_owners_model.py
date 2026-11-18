@@ -41,7 +41,7 @@ def test_the_workspace_is_active_and_positive_at_the_caps():
         "s(CertificateFigure)": 8064,
         "s(CertificateFailure)": 192,
         "s(CertificateReasons)": 4,
-        "s(CertificateReasonCount)": 24,
+        "s(CertificateReasonCount)": 12,
         "s(CertificateCandidate)": 1024,
     }
     assert dict(OWNERS["slot"]()) == {}

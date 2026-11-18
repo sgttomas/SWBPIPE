@@ -22,11 +22,25 @@ at the same Q reads the slot. What the run allocates, all freed before `verified
              `failure`: one Option<FactorFailure> per block.
   passes     `mine` (filter-collect, pushcap(n) usize) and a_col, b_col, a, c (four exact f64 vectors of n).
   assemble   on not verified only, while `records` lives: `attempts` push-built to <= 3 (capacity 4) AttemptReasons,
-             each with a push-built `reasons` list of at most the six reachable NotVerifiedReason values (pushcap(6));
+             each with a push-built `reasons` list of distinct reasons (deduplicated by `find`), at most four per kind:
+             E can give LemmaENonpositivePivot, ArithmeticNonfinite, LemmaESigmaNonpositive, BoundExceedsExistingQuantity
+             and D LemmaDNonpositivePivot, ArithmeticNonfinite, LemmaDContractionNotBelowOne, BoundExceedsExistingQuantity
+             (pushcap(4));
              `candidates` push-built to <= 3n CandidateBound.
 
 Every part is summed (no slot reuse is assumed between parts that are not live together), so the formula bounds the
-run's peak. The factor objects' `certificate: CertificateSlot` (structural.rs PositiveFactor, sparse.rs
+run's peak. The length bounds are properties of `run`'s and `assemble`'s straight-line structure (blocks partition the
+n positions; `all`, `retry` and `need_d` each hold distinct block indices and each pass pushes one attempt per listed
+block; each attempt forms at most nine figures; `assemble` iterates three kinds and pushes at most one candidate per
+attempt); the kernel's `the_record_vectors_stay_within_the_priced_lengths` checks each, with capacities.
+
+Where it is live (LIVE_PHASES). The workspace exists only while `verified_bound` runs, inside one formation check, and
+is freed before it returns. The ordinary solve runs on one thread (product_physics `on_reserved_stack` joins its one
+scoped worker), and its cases and W2 evaluations call the check one after another, so at most one workspace is live at
+a time, and only while an ordinary solve runs: the ordinary spans W1, X1 and X3 (retained_product's
+`run_linear_static_preview_observed` call). The retained producer's own phases (T11-T15), publication, validation and
+transfer run no formation check on D1 (hanger derived solves and nonlinear confirmation are refused there). It is
+therefore charged once, outside O_base, in those three phases only, as T25 is charged in X1 only. The factor objects' `certificate: CertificateSlot` (structural.rs PositiveFactor, sparse.rs
 SparsePositiveFactor and SharedSparseFactor) is inline in a stack-held object and owns no heap: it is listed as a
 zero-heap owner so that it appears in the tree. Confirmation attempts borrow their factor's slot and add nothing; the
 confirmation phases are not on D1 (D1.6: no nonlinear supports).
@@ -70,6 +84,7 @@ CONSTRUCTS = {"vec![": 14, "Vec::new()": 10, ".collect()": 11, ".to_vec()": 2, "
               "Vec::with_capacity(": 0, ".push(": 12, ".extend(": 3, "String": 0, "format!": 0, "Box::new": 0,
               "Rc::": 0, "Arc::": 0}
 GATE = "let operand = verified_inverse_operand(est, inverse)?;"
+LIVE_PHASES = ("W1 ordinary span", "X1 ordinary span", "X3 republication")
 
 # Illustrative only; g5_profile binds each to a source upper the kernel's premise test checks against size_of.
 ASSUMED_IN = {"s(CertificateBlockRecord)": 48, "s(CertificateAttempt)": 64, "s(CertificateFigure)": 24,
@@ -136,7 +151,7 @@ def workspace(F, H):
     shifts = B(4 * usize_f64 * F) + B(2 * usize_f64 * pushcap(F))
     factor = s("Vec") * F + B(usize_f64 * H) + B(3 * usize_f64 * F) + s("CertificateFailure") * F
     passes = B(usize_f64 * pushcap(F)) + B(4 * usize_f64 * F)
-    assemble = (s("CertificateReasons") * 4 + s("CertificateReasonCount") * (3 * pushcap(6))
+    assemble = (s("CertificateReasons") * 4 + s("CertificateReasonCount") * (3 * pushcap(4))
                 + s("CertificateCandidate") * pushcap(3 * F))
     return envelope + blocks + records + shifts + factor + passes + assemble
 
