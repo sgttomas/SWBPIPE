@@ -1,5 +1,6 @@
 import type { ReportComposition } from "../report/reportComposition";
-import { EmbeddedAgentSession, type AgentContext, type AgentRunReceipt } from "../../services/embeddedAgentSession";
+import { EmbeddedAgentSession, type AgentContext, type AgentRunReceipt, type AgentSolveFailure, type AgentSolveOutcome, type AgentSolverMode } from "../../services/embeddedAgentSession";
+import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
 import { requeueRetainedRecord, type ImportContext } from "../../services/operationAuthorship";
 import { hasCurrentSourceContract } from "../results/resultReader";
 import type React from "react";
@@ -40,6 +41,7 @@ import {
   readNativeFreshResult,
   loadNativeFullResult,
   describeStoredResultWithheld,
+  ResultTooLargeError,
   terminalJobError
 } from "../../services/previewService";
 import { ResourceUnavailableError } from "../../services/memoryPool";
@@ -239,7 +241,7 @@ import {
   uiModelIdentityHash,
   type SessionModelCheckpoint
 } from "./sessionModel";
-import { commitModelAfterSolveInvalidation, readSolveGate, type SolveGateOutcome, type SolveGateReading, type SolveGateStop } from "./solveGates";
+import { commitModelAfterSolveInvalidation, readSolveGate, solveWithheldReason, type SolveGateOutcome, type SolveGateReading, type SolveGateStop } from "./solveGates";
 import {
   awaitBackendSolveJob,
   blankProjectCreatedSolveJob,
@@ -1297,14 +1299,15 @@ export function useWorkspaceSession() {
 
   async function handleRun(): Promise<void> { await handleSolveRequest(); }
 
-  /** One Solve request: the gate's outcome (null where a solve already held the run,
-   * so this request did nothing) and the solve's receipt where one started. The
-   * gate's listener is set and taken synchronously, so it belongs to this call. */
+  /** One Solve request, in the session's mode: the gate's outcome (null where a solve
+   * already held the run, so this request did nothing), the solve's receipt where a
+   * solved run was published, and the route's outcome. The gate's listener is set and
+   * taken synchronously, so it belongs to this call. */
   async function handleSolveRequest(): Promise<SolveRequestOutcome> {
     let gate = null as SolveGateOutcome | null;
     solveGateListener.current = (outcome) => { gate = outcome; };
-    const receipt = await handleRunWithAgentReceipt();
-    return { gate, receipt };
+    const solve = await handleRunWithAgentReceipt(solverMode);
+    return { gate, receipt: solve.kind === "completed" ? solve : undefined, solve };
   }
   /** Receives the gate's outcome for the Solve request that takes it; taken (and cleared)
    * synchronously at the head of `handleRunWithAgentReceipt`. */
@@ -1416,15 +1419,21 @@ export function useWorkspaceSession() {
     });
   }
 
-  async function handleRunWithAgentReceipt(): Promise<AgentRunReceipt | undefined> {
+  /** The one solve route: the person's Run (in the session's mode, through
+   * `handleSolveRequest`) and the agent's solve (in the mode it names, `requested`, which the
+   * session's selection is then set to once its job has started). Both pass the Solve
+   * command's gate first; a gate that does not proceed starts nothing and is reported as
+   * `gateSolveOutcome` states. The outcome is the agent's; the person's Run reads only its
+   * completed receipt. */
+  async function handleRunWithAgentReceipt(solverMode: AgentSolverMode, requested = false): Promise<AgentSolveOutcome> {
     const reportGate = solveGateListener.current;
     solveGateListener.current = null;
     const runGeneration = solveRunGate.current.tryStart();
-    if (runGeneration === null) return;
+    if (runGeneration === null) return { kind: "not_started", message: "Another solve is running; nothing was started." };
     const gate = solveGateAllows(runGeneration);
     const gateOutcome = gate instanceof Promise ? await gate : gate;
     reportGate?.(gateOutcome);
-    if (gateOutcome.kind !== "proceed") return;
+    if (gateOutcome.kind !== "proceed") return gateSolveOutcome(gateOutcome, solverMode);
     // RT-U4: observation only (solveTimeline.ts); the run's path is unchanged.
     const timeline = beginSolveTimeline({ solver_mode: solverMode });
     invalidateReportPackageComputedState();
@@ -1448,6 +1457,13 @@ export function useWorkspaceSession() {
     // `completed` records that the job was seen completed (its result awaits a take).
     let unsettledJob: { jobId: string; token: string; completed: boolean } | null = null;
     let publishedOutput = false;
+    // What the agent is told; each return below names what happened, and nothing is retried.
+    let solvedModelHash: ModelHashEvidence | null = null;
+    let jobFailed = false;
+    const failed = (failure: AgentSolveFailure, message: string): AgentSolveOutcome =>
+      ({ kind: "failed", failure, message, modelHash: solvedModelHash, solverMode });
+    const superseded = () => failed("superseded", "The model changed or another solve began before this solve's result was published; nothing was published for it.");
+    const lastMessage = (job: SolveJobAuditState, fallback: string) => job.events.at(-1)?.message ?? fallback;
     try {
       if (!model) {
         throw new Error(
@@ -1459,17 +1475,18 @@ export function useWorkspaceSession() {
       const solveModel = structuredClone(model);
       const solveModelRevision = modelRevision.current;
       const solveModelHash = await computeModelHash(solveModel);
+      solvedModelHash = solveModelHash ?? null;
       if (
         !solveModelHash ||
         modelRevision.current !== solveModelRevision ||
         !solveRunGate.current.isCurrent(runGeneration)
-      ) return;
+      ) return solveModelHash ? superseded() : failed("error", "The model's hash could not be computed; nothing was solved.");
       if (
         solveRunGate.current.isCancellationRequested(runGeneration) ||
         solveCancellationTombstones.current.get(runGeneration)?.requested
       ) {
         setSolveJob(cancelledBeforeBackendStartSolveJob(solveModel));
-        return;
+        return failed("cancelled", "The solve was cancelled before it started; nothing was published.");
       }
       // Capture the original live caller representation as well as dispatched JSON.
       let startReceipt: Awaited<ReturnType<typeof startPreviewMechanicsJob>>;
@@ -1481,7 +1498,7 @@ export function useWorkspaceSession() {
         if (error instanceof ResourceUnavailableError) {
           if (solveRunGate.current.isCurrent(runGeneration)) setSolveJob(refusedBeforeBackendStartSolveJob(solveModel, error));
           timeline.end("refused", error);
-          return;
+          return failed("resource_refused", lastMessage(refusedBeforeBackendStartSolveJob(solveModel, error), error.message));
         }
         throw error;
       }
@@ -1501,10 +1518,12 @@ export function useWorkspaceSession() {
         // started job is abandoned in `finally` (cancellation, then release of
         // anything it retains); a failed best effort must not resurrect stale state.
         if (cancellationTombstone) cancellationTombstone.dispatched = true;
-        return;
+        return superseded();
       }
       if (startReceipt.mode !== "backend_job") throw new Error("BROWSER_REFERENCE_RECEIPT_NOT_A_CURRENT_SOLVE");
       startedJob = startSolveJob(solveModel, startReceipt);
+      // The agent named this mode: the Solve panel shows the mode that runs.
+      if (requested) setSolverMode(solverMode);
       const cancellationRequested =
         solveRunGate.current.isCancellationRequested(runGeneration) ||
         cancellationTombstone?.requested === true;
@@ -1522,7 +1541,7 @@ export function useWorkspaceSession() {
           dispatchActiveSolveCancellation(runGeneration);
         } else {
           setSolveJob(cancelledWithoutBackendSolveJob(visibleStartedJob));
-          return;
+          return failed("cancelled", "The solve was cancelled; nothing was published.");
         }
       }
       let output: NativeResult;
@@ -1545,7 +1564,7 @@ export function useWorkspaceSession() {
           else unsettledJob = null;
         }
         // A superseded run's completed result is released from native retention unread (`finally`).
-        if (!solveRunGate.current.isCurrent(runGeneration)) return;
+        if (!solveRunGate.current.isCurrent(runGeneration)) return superseded();
         if (terminal.job_id !== startedJob.job_id) {
           throw new Error(
             `SOLVE-JOB-IDENTITY-MISMATCH: expected ${startedJob.job_id}; received ${terminal.job_id}`
@@ -1558,7 +1577,7 @@ export function useWorkspaceSession() {
               : current
           );
           timeline.end("cancelled");
-          return;
+          return failed("cancelled", "The solve was cancelled; no result was published.");
         }
         if (terminal.state === "refused" && terminal.resource_refusal) {
           const refusal = terminal.resource_refusal;
@@ -1568,7 +1587,7 @@ export function useWorkspaceSession() {
               : current
           );
           timeline.end("refused");
-          return;
+          return failed("resource_refused", lastMessage(refusedSolveJob(startedJob ?? initialSolveJob(), refusal), "Refused by the native memory pool."));
         }
         // Refused natively for its size: the result was discarded unread and is never taken.
         if (terminal.state === "refused" && terminal.result_too_large) {
@@ -1578,9 +1597,12 @@ export function useWorkspaceSession() {
               ? resultTooLargeSolveJob(current, refusal)
               : current
           );
-          return;
+          return failed("result_too_large", lastMessage(resultTooLargeSolveJob(startedJob ?? initialSolveJob(), refusal), "The result is too large to display."));
         }
-        if (terminal.state !== "completed") throw terminalJobError(terminal);
+        if (terminal.state !== "completed") {
+          jobFailed = true;
+          throw terminalJobError(terminal);
+        }
         // The poll carries no result, and the result is never taken: it is read natively, held by
         // its job (C1 native custody). A read the native memory pool refuses is recorded as a typed
         // refusal; the session does not retry it, so `finally` releases the held result.
@@ -1594,7 +1616,7 @@ export function useWorkspaceSession() {
             );
           }
           timeline.end("refused", error);
-          return;
+          return failed("resource_refused", lastMessage(refusedSolveJob(startedJob ?? initialSolveJob(), error.refusal, error.pool, "session_step"), error.message));
         }
         // The handle owns the held result from here (released by its disposal).
         deliveredOutput = output;
@@ -1614,7 +1636,7 @@ export function useWorkspaceSession() {
       const rulePacks = solveModel.rule_pack_refs?.length
         ? await resolveModelRulePacks(solveModel)
         : NO_RULE_PACK_RESOLUTION;
-      if (!solveRunGate.current.isCurrent(runGeneration)) return;
+      if (!solveRunGate.current.isCurrent(runGeneration)) return superseded();
       const manifest = await buildCurrentSessionInputManifest({
         model: solveModel,
         solver: {
@@ -1631,7 +1653,7 @@ export function useWorkspaceSession() {
         active_rule_packs: rulePacks.active_rule_packs,
         external_assets: []
       });
-      if (!solveRunGate.current.isCurrent(runGeneration)) return;
+      if (!solveRunGate.current.isCurrent(runGeneration)) return superseded();
       // The standing was read with the solve's model; the manifest records that same model, so its
       // text is the standing's bound text (a difference is refused, never re-bound silently).
       if (jsonTextKeepingNegativeZero(manifest.manifest.model_basis.model_payload) !== nativeCustody(output).binding.standingModelText) {
@@ -1650,7 +1672,7 @@ export function useWorkspaceSession() {
       if (
         modelRevision.current !== solveModelRevision ||
         !solveRunGate.current.isCurrent(runGeneration)
-      ) return;
+      ) return superseded();
       if (output.model_ref !== solveModel.project.id) {
         throw new Error(
           `SOLVE-RESULT-MODEL-MISMATCH: expected ${solveModel.project.id}; received ${output.model_ref}`
@@ -1686,8 +1708,15 @@ export function useWorkspaceSession() {
         result_row_count: resultRowCount(output)
       });
       timeline.end("completed");
-      return { jobId: startedJob.job_id, runId: output.run_id, modelHash: solveModelHash,
-        solverMode, health: output.status.mechanics };
+      // The solver refused the model (its blocked result: no rows, MODEL_INCOMPLETE): the
+      // findings the Diagnostics panel shows, and no run.
+      const health = output.status.mechanics;
+      if (health !== "MECHANICS_SOLVED") {
+        return { kind: "rejected", jobId: startedJob.job_id, modelHash: solveModelHash, solverMode, health,
+          diagnostics: presentedResultDiagnostics(output), notListed: 0 };
+      }
+      return { kind: "completed", jobId: startedJob.job_id, runId: output.run_id, modelHash: solveModelHash,
+        solverMode, health, result: output };
     } catch (error) {
       timeline.end("failed", error);
       if (solveRunGate.current.isCurrent(runGeneration)) {
@@ -1697,6 +1726,9 @@ export function useWorkspaceSession() {
             : current
         );
       }
+      const kind: AgentSolveFailure = error instanceof ResourceUnavailableError ? "resource_refused"
+        : error instanceof ResultTooLargeError ? "result_too_large" : jobFailed ? "job_failed" : "error";
+      return failed(kind, lastMessage(failSolveJob(startedJob ?? initialSolveJob(), error), String(error)));
     } finally {
       // Every other return: cancelled before start, or superseded (a no-op once ended).
       timeline.end(solveCancellationTombstones.current.get(runGeneration)?.requested ? "cancelled" : "superseded");
@@ -5091,7 +5123,7 @@ export function useWorkspaceSession() {
       result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth } }),
     register: (batch, context) => registerOperationBatch(batch, { agentContext: context }),
     proposal: (key) => agentProposalStandingRef.current.get(key) ?? null,
-    solve: () => handleRunWithAgentReceipt(),
+    solve: (mode) => handleRunWithAgentReceipt(mode ?? solverMode, mode !== undefined),
     withdraw: key => {
       const standing=agentProposalStandingRef.current.get(key);
       const registration=batchRegistrations.current.get(key);
@@ -5104,7 +5136,7 @@ export function useWorkspaceSession() {
   const agentSessionRef = useRef<EmbeddedAgentSession | null>(null);
   if (!agentSessionRef.current) agentSessionRef.current = new EmbeddedAgentSession({
     snapshot: () => agentOwnerRef.current!.snapshot(), register: (batch, context) => agentOwnerRef.current!.register(batch, context),
-    proposal: (key) => agentOwnerRef.current!.proposal(key), solve: () => agentOwnerRef.current!.solve(), withdraw: key => agentOwnerRef.current!.withdraw(key)
+    proposal: (key) => agentOwnerRef.current!.proposal(key), solve: (mode) => agentOwnerRef.current!.solve(mode), withdraw: key => agentOwnerRef.current!.withdraw(key)
   });
   useEffect(() => () => { void agentSessionRef.current?.close(); }, []);
 
@@ -5316,8 +5348,36 @@ export type WorkspaceSession = ReturnType<typeof useWorkspaceSession>;
 
 /** What one Solve request through `results.handleSolveRequest` reports: the gate's outcome
  * (`SolveGateOutcome`; null where a solve already held the run, so the request did
- * nothing) and the solve's receipt where a solve started. */
-export type SolveRequestOutcome = Readonly<{ gate: SolveGateOutcome | null; receipt: AgentRunReceipt | undefined }>;
+ * nothing), the solve's receipt where a solved run was published, and the solve route's
+ * outcome (`AgentSolveOutcome`, as the agent's solve would be told it). */
+export type SolveRequestOutcome = Readonly<{ gate: SolveGateOutcome | null; receipt: AgentRunReceipt | undefined; solve: AgentSolveOutcome }>;
+
+/** What the solve route reports when the Solve command's gate does not proceed; nothing was
+ * started, nothing of the session was cleared and nothing is retried.
+ * - `withheld`: the model was refused before any job (`rejected`, no job and no hash): the
+ *   gate's own findings as the Model checks list holds them, the blocking findings its
+ *   bounded report counted but did not list, and the reason the Solve command states.
+ * - `cancelled`: the person cancelled while the request's model check ran.
+ * - `superseded`: the check ended without a reading for this request (the model changed, a
+ *   later check or the workspace's unmount retired it); a check or continuation that failed
+ *   is reported as an error, since nothing superseded it. */
+export function gateSolveOutcome(gate: Exclude<SolveGateOutcome, { kind: "proceed" }>, solverMode: AgentSolverMode): AgentSolveOutcome {
+  if (gate.kind === "withheld") {
+    const reading = gate.reading;
+    return { kind: "rejected", jobId: null, modelHash: null, solverMode, health: "NOT_SOLVED",
+      diagnostics: reading.diagnostics, notListed: reading.notListedBlocking, message: solveWithheldReason(reading) };
+  }
+  if (gate.kind === "cancelled") {
+    return { kind: "failed", failure: "cancelled", message: "The solve was cancelled while the model checks it runs first were running; nothing was started.", modelHash: null, solverMode };
+  }
+  if (gate.reason === "check_failed") {
+    return { kind: "failed", failure: "error", message: "The model checks the solve runs first did not complete; nothing was started.", modelHash: null, solverMode };
+  }
+  const why = gate.reason === "model_changed" ? "the model changed or another project or model was opened"
+    : gate.reason === "check_retired" ? "a later model check replaced it"
+    : "the workspace closed";
+  return { kind: "failed", failure: "superseded", message: `The model checks the solve runs first ended without a reading (${why}); nothing was started.`, modelHash: null, solverMode };
+}
 
 /** Freeze a queued submission recursively (W-10): no caller can alter it after registration. */
 function deepFreeze<T>(value: T): T {
