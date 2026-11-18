@@ -1,0 +1,528 @@
+# Inverse-norm certificate cases: see README.md for the format and the three kinds of value.
+# Binary64 values are f64::to_bits in hex; rationals are p/q.
+case C1
+role control_success
+about a well-conditioned 12-DOF chain (diagonal 4, neighbours -1), natural order; Q = mul_up(1024, 1/2)
+n 12
+order 0 1 2 3 4 5 6 7 8 9 10 11
+first 0 0 1 2 3 4 5 6 7 8 9 10
+q 4080000000000001
+entry 0 0 4010000000000000
+entry 1 0 bff0000000000000
+entry 1 1 4010000000000000
+entry 2 1 bff0000000000000
+entry 2 2 4010000000000000
+entry 3 2 bff0000000000000
+entry 3 3 4010000000000000
+entry 4 3 bff0000000000000
+entry 4 4 4010000000000000
+entry 5 4 bff0000000000000
+entry 5 5 4010000000000000
+entry 6 5 bff0000000000000
+entry 6 6 4010000000000000
+entry 7 6 bff0000000000000
+entry 7 7 4010000000000000
+entry 8 7 bff0000000000000
+entry 8 8 4010000000000000
+entry 9 8 bff0000000000000
+entry 9 9 4010000000000000
+entry 10 9 bff0000000000000
+entry 10 10 4010000000000000
+entry 11 10 bff0000000000000
+entry 11 11 4010000000000000
+truth norm 1065/2131
+truth block 0 12 1065/2131
+truth requires bound_at_least_norm
+avail block 0 12 4
+avail attempt 0 e1 verified 4070000000001473
+avail figure 0 e1 sigma 3f90000000000001
+avail figure 0 e1 gamma 3cea000000000018
+direction 0 e1 gamma ge 3cea000000000016
+avail figure 0 e1 n_prime 4017f00000000004
+direction 0 e1 n_prime ge 4017f00000000001
+avail figure 0 e1 nu 4012eefefefeff00
+direction 0 e1 nu ge 4012eefefefefeff
+avail figure 0 e1 delta 3ccfe00000000001
+direction 0 e1 delta ge 3ccfe00000000000
+avail figure 0 e1 beta 00000000000000db
+direction 0 e1 beta ge 00000000000000c9
+avail figure 0 e1 loss 3d14720000000018
+direction 0 e1 loss ge 3d14720000000010
+avail figure 0 e1 sigma_prime 3f8fffffffffd71d
+direction 0 e1 sigma_prime le 3f8fffffffffd71d
+avail figure 0 e1 s 4070000000001473
+direction 0 e1 s ge 4070000000001472
+avail verdict verified 4070000000001473
+end
+case C2
+role -
+about the witness family at lambda = 2^-10 (exact norm 256); Q = mul_up(1024, 1)
+n 6
+order 0 1 2 3 4 5
+first 0 0 0 0 4 5
+q 4090000000000001
+entry 0 0 4008020000000000
+entry 1 0 bfeff80000000000
+entry 1 1 4008020000000000
+entry 2 0 3feff80000000000
+entry 2 1 3feff80000000000
+entry 2 2 4008020000000000
+entry 3 0 3feff80000000000
+entry 3 1 3feff80000000000
+entry 3 2 bfeff80000000000
+entry 3 3 4008020000000000
+entry 4 4 3ff0000000000000
+entry 5 5 3ff0000000000000
+truth norm 256/1
+truth block 0 4 256/1
+truth block 4 1 1/1
+truth block 5 1 1/1
+truth requires bound_at_least_norm
+avail block 0 4 2
+avail attempt 0 e1 lemma_e_nonpositive_pivot -
+avail figure 0 e1 sigma 3f70000000000001
+avail attempt 0 e2 verified 408c71c71c729022
+avail figure 0 e2 sigma 3f62000000000001
+avail figure 0 e2 gamma 3cdc00000000000f
+direction 0 e2 gamma ge 3cdc00000000000d
+avail figure 0 e2 n_prime 402150ce712836c3
+direction 0 e2 n_prime ge 402150ce712836bf
+avail figure 0 e2 nu 401156ec25966219
+direction 0 e2 nu ge 401156ec25966217
+avail figure 0 e2 delta 3cc7fd8000000001
+direction 0 e2 delta ge 3cc7fd8000000000
+avail figure 0 e2 beta 0000000000000049
+direction 0 e2 beta ge 000000000000003f
+avail figure 0 e2 loss 3d0fcd4146065fe8
+direction 0 e2 loss ge 3d0fcd4146065fdc
+avail figure 0 e2 sigma_prime 3f61ffffffff80cb
+direction 0 e2 sigma_prime le 3f61ffffffff80cb
+avail figure 0 e2 s 408c71c71c729022
+direction 0 e2 s ge 408c71c71c729022
+avail block 4 1 1
+avail attempt 4 e1 verified 4080000000000ff9
+avail figure 4 e1 sigma 3f60000000000001
+avail figure 4 e1 gamma 3cdc00000000000f
+direction 4 e1 gamma ge 3cdc00000000000d
+avail figure 4 e1 n_prime 3feff00000000001
+direction 4 e1 n_prime ge 3feff00000000000
+avail figure 4 e1 nu 3feff00000000000
+direction 4 e1 nu ge 3feff00000000000
+avail figure 4 e1 delta 3caff00000000001
+direction 4 e1 delta ge 3caff00000000000
+avail figure 4 e1 beta 0000000000000032
+direction 4 e1 beta ge 000000000000002a
+avail figure 4 e1 loss 3cdff00000000013
+direction 4 e1 loss ge 3cdff0000000000d
+avail figure 4 e1 sigma_prime 3f5fffffffffe011
+direction 4 e1 sigma_prime le 3f5fffffffffe011
+avail figure 4 e1 s 4080000000000ff9
+direction 4 e1 s ge 4080000000000ff8
+avail block 5 1 1
+avail attempt 5 e1 verified 4080000000000ff9
+avail figure 5 e1 sigma 3f60000000000001
+avail figure 5 e1 gamma 3cdc00000000000f
+direction 5 e1 gamma ge 3cdc00000000000d
+avail figure 5 e1 n_prime 3feff00000000001
+direction 5 e1 n_prime ge 3feff00000000000
+avail figure 5 e1 nu 3feff00000000000
+direction 5 e1 nu ge 3feff00000000000
+avail figure 5 e1 delta 3caff00000000001
+direction 5 e1 delta ge 3caff00000000000
+avail figure 5 e1 beta 0000000000000032
+direction 5 e1 beta ge 000000000000002a
+avail figure 5 e1 loss 3cdff00000000013
+direction 5 e1 loss ge 3cdff0000000000d
+avail figure 5 e1 sigma_prime 3f5fffffffffe011
+direction 5 e1 sigma_prime le 3f5fffffffffe011
+avail figure 5 e1 s 4080000000000ff9
+direction 5 e1 s ge 4080000000000ff8
+avail verdict verified 408c71c71c729022
+end
+case C3
+role -
+about the witness family at lambda = 2^-11 (exact norm 512); Q = mul_up(1024, 1 + 2^-52)
+n 6
+order 0 1 2 3 4 5
+first 0 0 0 0 4 5
+q 4090000000000002
+entry 0 0 4008010000000000
+entry 1 0 bfeffc0000000000
+entry 1 1 4008010000000000
+entry 2 0 3feffc0000000000
+entry 2 1 3feffc0000000000
+entry 2 2 4008010000000000
+entry 3 0 3feffc0000000000
+entry 3 1 3feffc0000000000
+entry 3 2 bfeffc0000000000
+entry 3 3 4008010000000000
+entry 4 4 3ff0000000000000
+entry 5 5 3ff0000000000000
+truth norm 512/1
+truth block 0 4 512/1
+truth block 4 1 1/1
+truth block 5 1 1/1
+truth requires bound_at_least_norm
+avail block 0 4 2
+avail attempt 0 e1 lemma_e_nonpositive_pivot -
+avail figure 0 e1 sigma 3f6fffffffffffff
+avail attempt 0 e2 lemma_e_nonpositive_pivot -
+avail figure 0 e2 sigma 3f62000000000000
+avail attempt 0 d verified 408000000000782d
+avail figure 0 d sigma 0000000000000000
+avail figure 0 d gamma 3cdc00000000000f
+direction 0 d gamma ge 3cdc00000000000d
+avail figure 0 d u 407ffffffffffdcd
+direction 0 d u ge 407ffffffffffdc2
+avail figure 0 d n_l 402152f2108f500b
+direction 0 d n_l ge 402152f2108f5007
+avail figure 0 d nu 401159ef11aee432
+direction 0 d nu ge 401159ef11aee430
+avail figure 0 d beta 0000000000000049
+direction 0 d beta ge 000000000000003f
+avail figure 0 d t 3d9e51279cfaca11
+direction 0 d t ge 3d9e51279cfac9f9
+avail figure 0 d den 3fefffffffff0d76
+direction 0 d den le 3fefffffffff0d76
+avail figure 0 d uc 408000000000782d
+direction 0 d uc ge 4080000000007826
+avail block 4 1 1
+avail attempt 4 e1 verified 4080000000000ffa
+avail figure 4 e1 sigma 3f5fffffffffffff
+avail figure 4 e1 gamma 3cdc00000000000f
+direction 4 e1 gamma ge 3cdc00000000000d
+avail figure 4 e1 n_prime 3feff00000000001
+direction 4 e1 n_prime ge 3feff00000000000
+avail figure 4 e1 nu 3feff00000000000
+direction 4 e1 nu ge 3feff00000000000
+avail figure 4 e1 delta 3caff00000000001
+direction 4 e1 delta ge 3caff00000000000
+avail figure 4 e1 beta 0000000000000032
+direction 4 e1 beta ge 000000000000002a
+avail figure 4 e1 loss 3cdff00000000013
+direction 4 e1 loss ge 3cdff0000000000d
+avail figure 4 e1 sigma_prime 3f5fffffffffe00e
+direction 4 e1 sigma_prime le 3f5fffffffffe00e
+avail figure 4 e1 s 4080000000000ffa
+direction 4 e1 s ge 4080000000000ffa
+avail block 5 1 1
+avail attempt 5 e1 verified 4080000000000ffa
+avail figure 5 e1 sigma 3f5fffffffffffff
+avail figure 5 e1 gamma 3cdc00000000000f
+direction 5 e1 gamma ge 3cdc00000000000d
+avail figure 5 e1 n_prime 3feff00000000001
+direction 5 e1 n_prime ge 3feff00000000000
+avail figure 5 e1 nu 3feff00000000000
+direction 5 e1 nu ge 3feff00000000000
+avail figure 5 e1 delta 3caff00000000001
+direction 5 e1 delta ge 3caff00000000000
+avail figure 5 e1 beta 0000000000000032
+direction 5 e1 beta ge 000000000000002a
+avail figure 5 e1 loss 3cdff00000000013
+direction 5 e1 loss ge 3cdff0000000000d
+avail figure 5 e1 sigma_prime 3f5fffffffffe00e
+direction 5 e1 sigma_prime le 3f5fffffffffe00e
+avail figure 5 e1 s 4080000000000ffa
+direction 5 e1 s ge 4080000000000ffa
+avail verdict verified 408000000000782d
+end
+case C4
+role -
+about the witness family at lambda = 2^-12 (exact norm 1024 <= Q): the premise holds, yet the procedure does not verify it; Q = mul_up(1024, 1)
+n 6
+order 0 1 2 3 4 5
+first 0 0 0 0 4 5
+q 4090000000000001
+entry 0 0 4008008000000000
+entry 1 0 bfeffe0000000000
+entry 1 1 4008008000000000
+entry 2 0 3feffe0000000000
+entry 2 1 3feffe0000000000
+entry 2 2 4008008000000000
+entry 3 0 3feffe0000000000
+entry 3 1 3feffe0000000000
+entry 3 2 bfeffe0000000000
+entry 3 3 4008008000000000
+entry 4 4 3ff0000000000000
+entry 5 5 3ff0000000000000
+truth norm 1024/1
+truth block 0 4 1024/1
+truth block 4 1 1/1
+truth block 5 1 1/1
+truth requires bound_at_least_norm
+avail block 0 4 2
+avail attempt 0 e1 lemma_e_nonpositive_pivot -
+avail figure 0 e1 sigma 3f70000000000001
+avail attempt 0 e2 lemma_e_nonpositive_pivot -
+avail figure 0 e2 sigma 3f62000000000001
+avail attempt 0 d bound_exceeds_existing_quantity 409000000000f3b3
+avail figure 0 d sigma 0000000000000000
+avail figure 0 d gamma 3cdc00000000000f
+direction 0 d gamma ge 3cdc00000000000d
+avail figure 0 d u 4090000000000117
+direction 0 d u ge 4090000000000110
+avail figure 0 d n_l 40215423a096a796
+direction 0 d n_l ge 40215423a096a792
+avail figure 0 d nu 401157a2e0baa0d5
+direction 0 d nu ge 401157a2e0baa0d3
+avail figure 0 d beta 0000000000000049
+direction 0 d beta ge 000000000000003f
+avail figure 0 d t 3dae533e5907a76b
+direction 0 d t ge 3dae533e5907a74f
+avail figure 0 d den 3feffffffffe1acb
+direction 0 d den le 3feffffffffe1acc
+avail figure 0 d uc 409000000000f3b3
+direction 0 d uc ge 409000000000f3aa
+avail block 4 1 1
+avail attempt 4 e1 verified 4080000000000ff9
+avail figure 4 e1 sigma 3f60000000000001
+avail figure 4 e1 gamma 3cdc00000000000f
+direction 4 e1 gamma ge 3cdc00000000000d
+avail figure 4 e1 n_prime 3feff00000000001
+direction 4 e1 n_prime ge 3feff00000000000
+avail figure 4 e1 nu 3feff00000000000
+direction 4 e1 nu ge 3feff00000000000
+avail figure 4 e1 delta 3caff00000000001
+direction 4 e1 delta ge 3caff00000000000
+avail figure 4 e1 beta 0000000000000032
+direction 4 e1 beta ge 000000000000002a
+avail figure 4 e1 loss 3cdff00000000013
+direction 4 e1 loss ge 3cdff0000000000d
+avail figure 4 e1 sigma_prime 3f5fffffffffe011
+direction 4 e1 sigma_prime le 3f5fffffffffe011
+avail figure 4 e1 s 4080000000000ff9
+direction 4 e1 s ge 4080000000000ff8
+avail block 5 1 1
+avail attempt 5 e1 verified 4080000000000ff9
+avail figure 5 e1 sigma 3f60000000000001
+avail figure 5 e1 gamma 3cdc00000000000f
+direction 5 e1 gamma ge 3cdc00000000000d
+avail figure 5 e1 n_prime 3feff00000000001
+direction 5 e1 n_prime ge 3feff00000000000
+avail figure 5 e1 nu 3feff00000000000
+direction 5 e1 nu ge 3feff00000000000
+avail figure 5 e1 delta 3caff00000000001
+direction 5 e1 delta ge 3caff00000000000
+avail figure 5 e1 beta 0000000000000032
+direction 5 e1 beta ge 000000000000002a
+avail figure 5 e1 loss 3cdff00000000013
+direction 5 e1 loss ge 3cdff0000000000d
+avail figure 5 e1 sigma_prime 3f5fffffffffe011
+direction 5 e1 sigma_prime le 3f5fffffffffe011
+avail figure 5 e1 s 4080000000000ff9
+direction 5 e1 s ge 4080000000000ff8
+avail verdict not_verified -
+end
+case C5
+role control_underestimate
+about the inverse-norm witness's scaled free matrix (exact norm 262144, estimate 1); Q = mul_up(1024, 1)
+n 6
+order 0 1 2 3 4 5
+first 0 0 0 0 4 5
+q 4090000000000001
+entry 0 0 4008000080000000
+entry 1 0 bfeffffe00000000
+entry 1 1 4008000080000000
+entry 2 0 3feffffe00000000
+entry 2 1 3feffffe00000000
+entry 2 2 4008000080000000
+entry 3 0 3feffffe00000000
+entry 3 1 3feffffe00000000
+entry 3 2 bfeffffe00000000
+entry 3 3 4008000080000000
+entry 4 4 3ff0000000000000
+entry 5 5 3ff0000000000000
+truth norm 262144/1
+truth block 0 4 262144/1
+truth block 4 1 1/1
+truth block 5 1 1/1
+truth requires not_verified
+avail block 0 4 2
+avail attempt 0 e1 lemma_e_nonpositive_pivot -
+avail figure 0 e1 sigma 3f70000000000001
+avail attempt 0 e2 lemma_e_nonpositive_pivot -
+avail figure 0 e2 sigma 3f62000000000001
+avail attempt 0 d bound_exceeds_existing_quantity 4110000000f33aa4
+avail figure 0 d sigma 0000000000000000
+avail figure 0 d gamma 3cdc00000000000f
+direction 0 d gamma ge 3cdc00000000000d
+avail figure 0 d u 4110000000009008
+direction 0 d u ge 4110000000009000
+avail figure 0 d n_l 40215554238e4b47
+direction 0 d n_l ge 40215554238e4b43
+avail figure 0 d nu 40115557a38d8b45
+direction 0 d nu ge 40115557a38d8b43
+avail figure 0 d beta 0000000000000049
+direction 0 d beta ge 000000000000003f
+avail figure 0 d t 3e2e55533e3a14de
+direction 0 d t ge 3e2e55533e3a14c2
+avail figure 0 d den 3feffffffe1aaacb
+direction 0 d den le 3feffffffe1aaacc
+avail figure 0 d uc 4110000000f33aa4
+direction 0 d uc ge 4110000000f33a9a
+avail block 4 1 1
+avail attempt 4 e1 verified 4080000000000ff9
+avail figure 4 e1 sigma 3f60000000000001
+avail figure 4 e1 gamma 3cdc00000000000f
+direction 4 e1 gamma ge 3cdc00000000000d
+avail figure 4 e1 n_prime 3feff00000000001
+direction 4 e1 n_prime ge 3feff00000000000
+avail figure 4 e1 nu 3feff00000000000
+direction 4 e1 nu ge 3feff00000000000
+avail figure 4 e1 delta 3caff00000000001
+direction 4 e1 delta ge 3caff00000000000
+avail figure 4 e1 beta 0000000000000032
+direction 4 e1 beta ge 000000000000002a
+avail figure 4 e1 loss 3cdff00000000013
+direction 4 e1 loss ge 3cdff0000000000d
+avail figure 4 e1 sigma_prime 3f5fffffffffe011
+direction 4 e1 sigma_prime le 3f5fffffffffe011
+avail figure 4 e1 s 4080000000000ff9
+direction 4 e1 s ge 4080000000000ff8
+avail block 5 1 1
+avail attempt 5 e1 verified 4080000000000ff9
+avail figure 5 e1 sigma 3f60000000000001
+avail figure 5 e1 gamma 3cdc00000000000f
+direction 5 e1 gamma ge 3cdc00000000000d
+avail figure 5 e1 n_prime 3feff00000000001
+direction 5 e1 n_prime ge 3feff00000000000
+avail figure 5 e1 nu 3feff00000000000
+direction 5 e1 nu ge 3feff00000000000
+avail figure 5 e1 delta 3caff00000000001
+direction 5 e1 delta ge 3caff00000000000
+avail figure 5 e1 beta 0000000000000032
+direction 5 e1 beta ge 000000000000002a
+avail figure 5 e1 loss 3cdff00000000013
+direction 5 e1 loss ge 3cdff0000000000d
+avail figure 5 e1 sigma_prime 3f5fffffffffe011
+direction 5 e1 sigma_prime le 3f5fffffffffe011
+avail figure 5 e1 s 4080000000000ff9
+direction 5 e1 s ge 4080000000000ff8
+avail verdict not_verified -
+end
+case C6
+role -
+about two blocks of sizes 5 and 4 interleaved in free positions, a non-identity elimination order and a full envelope; Q = mul_up(1024, 1)
+n 9
+order 8 1 6 3 4 5 2 7 0
+first 0 0 0 0 0 0 0 0 0
+q 4090000000000001
+entry 0 0 4010000000000000
+entry 1 1 4008000000000000
+entry 2 0 bff0000000000000
+entry 2 2 4010000000000000
+entry 3 1 3ff0000000000000
+entry 3 3 4008000000000000
+entry 4 2 bff0000000000000
+entry 4 4 4010000000000000
+entry 5 3 3ff0000000000000
+entry 5 5 4008000000000000
+entry 6 4 bff0000000000000
+entry 6 6 4010000000000000
+entry 7 5 3ff0000000000000
+entry 7 7 4008000000000000
+entry 8 6 bff0000000000000
+entry 8 8 4010000000000000
+truth norm 4/5
+truth block 0 5 25/52
+truth block 1 4 4/5
+truth requires bound_at_least_norm
+avail block 0 5 3
+avail attempt 0 e1 verified 4080000000002aa1
+avail figure 0 e1 sigma 3f78000000000001
+avail figure 0 e1 gamma 3ce400000000000f
+direction 0 e1 gamma ge 3ce400000000000d
+avail figure 0 e1 n_prime 4017fa0000000004
+direction 0 e1 n_prime ge 4017fa0000000001
+avail figure 0 e1 nu 4012f99fdbf27aef
+direction 0 e1 nu ge 4012f99fdbf27aee
+avail figure 0 e1 delta 3ccff40000000001
+direction 0 e1 delta ge 3ccff40000000000
+avail figure 0 e1 beta 000000000000008a
+direction 0 e1 beta ge 000000000000007c
+avail figure 0 e1 loss 3d0ff7c00000001e
+direction 0 e1 loss ge 3d0ff7c000000013
+avail figure 0 e1 sigma_prime 3f77ffffffffc010
+direction 0 e1 sigma_prime le 3f77ffffffffc011
+avail figure 0 e1 s 4080000000002aa1
+direction 0 e1 s ge 4080000000002aa1
+avail block 1 4 2
+avail attempt 1 e1 verified 40800000000034f6
+avail figure 1 e1 sigma 3f70000000000001
+avail figure 1 e1 gamma 3ce400000000000f
+direction 1 e1 gamma ge 3ce400000000000d
+avail figure 1 e1 n_prime 4013fc0000000003
+direction 1 e1 n_prime ge 4013fc0000000001
+avail figure 1 e1 nu 400d4c717b290db1
+direction 1 e1 nu ge 400d4c717b290daf
+avail figure 1 e1 delta 3cc7f80000000001
+direction 1 e1 delta ge 3cc7f80000000000
+avail figure 1 e1 beta 0000000000000080
+direction 1 e1 beta ge 0000000000000072
+avail figure 1 e1 loss 3d0a7a8000000019
+direction 1 e1 loss ge 3d0a7a8000000011
+avail figure 1 e1 sigma_prime 3f6fffffffff9617
+direction 1 e1 sigma_prime le 3f6fffffffff9617
+avail figure 1 e1 s 40800000000034f6
+direction 1 e1 s ge 40800000000034f5
+avail verdict verified 40800000000034f6
+end
+case C7
+role -
+about two components joined only by explicit stored zeros (+0.0 at (2,1), -0.0 at (3,0)), inside the envelope; Q = mul_up(1024, 1)
+n 4
+order 0 1 2 3
+first 0 0 1 0
+q 4090000000000001
+entry 0 0 4000000000000000
+entry 1 0 bff0000000000000
+entry 1 1 4000000000000000
+entry 2 1 0000000000000000
+entry 2 2 4008000000000000
+entry 3 0 8000000000000000
+entry 3 2 3ff0000000000000
+entry 3 3 4008000000000000
+truth norm 1/1
+truth block 0 2 1/1
+truth block 2 2 1/2
+truth requires bound_at_least_norm
+avail block 0 2 2
+avail attempt 0 e1 verified 40800000000010fb
+avail figure 0 e1 sigma 3f70000000000001
+avail figure 0 e1 gamma 3cd4000000000009
+direction 0 e1 gamma ge 3cd4000000000007
+avail figure 0 e1 n_prime 4007f80000000003
+direction 0 e1 n_prime ge 4007f80000000000
+avail figure 0 e1 nu 4003f5feff7fbfe1
+direction 0 e1 nu ge 4003f5feff7fbfe0
+avail figure 0 e1 delta 3cbff00000000001
+direction 0 e1 delta ge 3cbff00000000000
+avail figure 0 e1 beta 0000000000000021
+direction 0 e1 beta ge 000000000000001a
+avail figure 0 e1 loss 3cf0fa000000000b
+direction 0 e1 loss ge 3cf0fa0000000005
+avail figure 0 e1 sigma_prime 3f6fffffffffde0d
+direction 0 e1 sigma_prime le 3f6fffffffffde0d
+avail figure 0 e1 s 40800000000010fb
+direction 0 e1 s ge 40800000000010fa
+avail block 2 2 2
+avail attempt 2 e1 verified 40800000000016fb
+avail figure 2 e1 sigma 3f70000000000001
+avail figure 2 e1 gamma 3cd4000000000009
+direction 2 e1 gamma ge 3cd4000000000007
+avail figure 2 e1 n_prime 400ff80000000003
+direction 2 e1 n_prime ge 400ff80000000000
+avail figure 2 e1 nu 400d4c717b290db1
+direction 2 e1 nu ge 400d4c717b290daf
+avail figure 2 e1 delta 3cc7f80000000001
+direction 2 e1 delta ge 3cc7f80000000000
+avail figure 2 e1 beta 0000000000000027
+direction 2 e1 beta ge 000000000000001f
+avail figure 2 e1 loss 3cf6fa000000000e
+direction 2 e1 loss ge 3cf6fa0000000007
+avail figure 2 e1 sigma_prime 3f6fffffffffd20d
+direction 2 e1 sigma_prime le 3f6fffffffffd20d
+avail figure 2 e1 s 40800000000016fb
+direction 2 e1 s ge 40800000000016fa
+avail verdict verified 40800000000016fb
+end
