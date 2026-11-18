@@ -2,7 +2,7 @@
 
 This package supplements the independent expectations held inline in
 `core/product_physics/tests/friction_reversal_stop_release_runtime.rs`, in
-the `EXPECTED` table at lines 61–66. That table is frozen and unchanged, and
+the table named `EXPECTED` (lines 61–66 at the staging commit). That table is frozen and unchanged, and
 no generator for it is committed. The table was derived with the bundled demo
 model's hanger `support:SH-140` as a bare 42000 N/m UZ spring, although the
 record (`fixtures/product_preview/invented_demo_model.json`) carries an
@@ -32,7 +32,7 @@ refuted.
 |---|---|
 | `generators/demo_friction_preload_reference.py` | the generator. It is a self-contained exact-rational 3D Euler–Bernoulli frame formed from the staged model's leaves, with every state enumerated. It writes the output and `SHA256SUMS` |
 | `staged/invented_demo_model.json` | an input staged from `fixtures/product_preview/invented_demo_model.json` as committed at `3c8fc26a6c188f1613714f56d9807dc32433c46d`: the whole model document, byte for byte, because the derivation reads most of it |
-| `staged/frozen_expected_table.json` | an input staged from `core/product_physics/tests/friction_reversal_stop_release_runtime.rs` at the same commit: its lines 61–66 (the frozen `EXPECTED` table) verbatim, and the author's transcription of them, marked with each line number. The generator checks the transcription against the staged lines number for number |
+| `staged/frozen_expected_table.json` | an input staged from `core/product_physics/tests/friction_reversal_stop_release_runtime.rs` at the same commit. It holds the table named `EXPECTED` (`const EXPECTED: [Expected; 6]`), the only table this package supplements even if the file holds others: the six rows verbatim and in order, and the author's transcription of them. `line_at_staging_commit` records where each row stood at that commit (lines 61–66); it is a record only. The generator checks the transcription against the staged rows number for number |
 | `demo_friction_reversal_preload.json` | `rows` has the six scenarios under the law, each with exactly the fields of the test's `Expected` entries (case, variant, applied_y_n, stop_active, stop_uy_mm, stop_reaction_n, slip_mm, friction_n, normal_n, s130_fy_n, sh140_fz_n), in the test's units (N, mm, support actions on the structure). `notes` has, per scenario: the admissible state and its margins; every enumerated state with its standing and margins; the stiffness-only state; the applied force; each changed field next to its frozen (stiffness-only) value; and the exact rationals. `crosscheck` lists every check |
 | `SHA256SUMS` | the hashes of every other file of this package. The generator writes it |
 
@@ -57,11 +57,14 @@ python3 -I generators/demo_friction_preload_reference.py --check-live
 This separate check, which `--check` does not run, does two comparisons. It
 compares the staged model with the live fixture on only the leaves that enter
 the derivation (`DERIVATION_LEAVES` in the generator), so the fixture's
-descriptive strings are ignored. It also compares the staged test-file lines
-with the live file's lines 61–66. It names every difference. It establishes
-whether the staged inputs still match their sources. A difference means a
-source has moved on, not that the committed output is wrong for its staged
-inputs.
+descriptive strings are ignored. It also finds the table named `EXPECTED` in the live test file by its
+declaration, wherever it sits, and compares its rows, in order, with the
+staged rows; line numbers play no part. It names every differing leaf or row,
+including a missing or extra one, and exits nonzero. If it cannot find the
+declaration exactly once, it says so and exits nonzero; it does not guess. It
+establishes whether the staged inputs still match their sources. A difference
+means a source has moved on and a decision is needed on re-staging; the
+committed output still stands for its staged inputs.
 
 ## Method
 

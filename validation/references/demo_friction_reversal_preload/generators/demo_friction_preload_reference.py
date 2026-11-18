@@ -42,12 +42,13 @@ Modes (run from this package's directory):
   python3 -I generators/demo_friction_preload_reference.py --write   write the outputs (intentional changes only)
   python3 -I generators/demo_friction_preload_reference.py --check-live
                                        compare the staged inputs with the live fixture's derivation leaves and the
-                                       live test file's lines, naming any that differ (not run by --check)
+                                       live EXPECTED table, found by its name, naming any that differ (not run by --check)
 """
 import argparse
 import fnmatch
 import hashlib
 import json
+import re
 import sys
 import tempfile
 from fractions import Fraction as Fr
@@ -72,8 +73,9 @@ VARIANTS = ["Original", "ReverseZ", "ReverseAll"]
 # transcription; used only for the reproduction check and to stand beside each changed value; build() checks
 # that every number of the transcription appears verbatim on its staged line.
 TABLE = json.loads((OUT / STAGED_TABLE).read_text())
-TRANSCRIBED_LINES = {row["line"]: (row["case"], row["variant"]) for row in TABLE["transcription"]}
-FROZEN = [{k: v for k, v in row.items() if k != "line"} for row in TABLE["transcription"]]
+TRANSCRIBED_LINES = {row["line_at_staging_commit"]: (row["case"], row["variant"]) for row in TABLE["transcription"]}
+FROZEN = [{k: v for k, v in row.items() if k != "line_at_staging_commit"} for row in TABLE["transcription"]]
+STAGED_ROWS = {row["line_at_staging_commit"]: row["text"] for row in TABLE["rows"]}
 FIELDS = ["case", "variant", "applied_y_n", "stop_active", "stop_uy_mm", "stop_reaction_n", "slip_mm", "friction_n",
           "normal_n", "s130_fy_n", "sh140_fz_n"]
 CROSS = []
@@ -363,7 +365,7 @@ def reproduces(row, frozen):
 def transcription_matches():
     ok = True
     for (ln, (case_id, variant)), frozen in zip(TRANSCRIBED_LINES.items(), FROZEN):
-        text = TABLE["lines"][str(ln)]
+        text = STAGED_ROWS[ln]
         ok &= (frozen["case"], frozen["variant"]) == (case_id, variant)
         ok &= f'case: "{case_id}"' in text and f"Variant::{variant}," in text
         for key in FIELDS[2:]:
@@ -492,22 +494,51 @@ def derivation_leaves(doc):
     return {k: v for k, v in flatten(doc).items() if any(fnmatch.fnmatchcase(k, p) for p in DERIVATION_LEAVES)}
 
 
+def live_table_rows(text, name):
+    """The rows of the table declared as the constant `name`, in order, found by the name wherever it sits.
+
+    Returns (rows, None), or (None, reason) when the declaration is not found exactly once."""
+    decl = re.compile(r"^\s*(pub(\([^)]*\))?\s+)?(const|static)\s+" + re.escape(name) + r"\s*:")
+    lines = text.splitlines()
+    at = [i for i, line in enumerate(lines) if decl.match(line)]
+    if len(at) != 1:
+        return None, f"the table {name} is declared {len(at)} times in the file, not once"
+    rows = []
+    for line in lines[at[0] + 1:]:
+        if line.strip().startswith("];"):
+            break
+        if line.strip().startswith("Expected {"):
+            rows.append(line.strip())
+    return rows, None
+
+
 def check_live():
-    """The staged inputs against the live fixture (derivation leaves only) and the live test file's lines."""
+    """The staged inputs against their live sources: the fixture on its derivation leaves only, and the frozen
+    table found by its name in the live test file."""
     differ = []
     staged, live = derivation_leaves(json.loads(DEMO.read_text())), derivation_leaves(json.loads(LIVE_DEMO.read_text()))
     for k in sorted(set(staged) | set(live)):
         if staged.get(k, "<absent>") != live.get(k, "<absent>"):
             differ.append(f"{LIVE_DEMO.relative_to(ROOT)} {k}: staged {staged.get(k, '<absent>')!r}, live {live.get(k, '<absent>')!r}")
-    lines = LIVE_TEST.read_text().splitlines()
-    for ln, text in TABLE["lines"].items():
-        now = lines[int(ln) - 1] if int(ln) <= len(lines) else "<absent>"
-        if now != text:
-            differ.append(f"{LIVE_TEST.relative_to(ROOT)} line {ln}: staged {text!r}, live {now!r}")
+    test = LIVE_TEST.relative_to(ROOT)
+    rows, reason = live_table_rows(LIVE_TEST.read_text(), TABLE["table"])
+    if rows is None:
+        print(f"SOURCE MOVED ON: {test}: {reason}; the live check cannot find the staged table and does not guess. "
+              "A decision is needed on the staged input.")
+        return 1
+    expected = [r["text"].strip() for r in TABLE["rows"]]
+    for i in range(max(len(expected), len(rows))):
+        a = expected[i] if i < len(expected) else "<absent>"
+        b = rows[i] if i < len(rows) else "<absent>"
+        if a != b:
+            differ.append(f"{test} table {TABLE['table']} row {i + 1}: staged {a!r}, live {b!r}")
     for d in differ:
         print("DIFFERS:", d)
-    print(f"live inputs: {len(staged)} model derivation leaves and {len(TABLE['lines'])} test-file lines compared, "
-          f"{len(differ)} differ")
+    print(f"live inputs: {len(staged)} model derivation leaves and the {len(expected)} rows of table {TABLE['table']} "
+          f"compared, {len(differ)} differ")
+    if differ:
+        print("SOURCE MOVED ON: a live source no longer matches the staged input in what is named above; a decision is "
+              "needed on whether to re-stage it. The committed output stands for its staged inputs.")
     return 1 if differ else 0
 
 
