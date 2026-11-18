@@ -2278,11 +2278,12 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // W3 stays the maximum.
 // IN-WS draft B (the inverse-norm gate's certificate workspace, DEL-04-01 REQ-015), from this build's in-build atoms
 // (the seven new atoms' in-build values equal their illustrative ones), without R, the same in both modes: one
-// certificate run's workspace, 494,176 B at the caps, charged once and only in the ordinary-span phases W1, X1 and X3,
-// where an ordinary solve runs its formation check; the other phases are unchanged. W3 stays the maximum.
+// certificate run's workspace, 469,088 B at the caps, charged once and only in the ordinary-span phases W1, X1 and X3,
+// where an ordinary solve runs its formation check; its old buffers join those phases' moving candidates and do not
+// set the moving maximum; the other phases are unchanged. W3 stays the maximum.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_475_462_498, 6_816_962_883, 8_768_961_949, 8_562_642_139, 7_636_223_399, 8_556_475_840, 7_288_060_760, 6_961_795_210],
-    [6_534_593_842, 6_876_094_227, 8_828_093_293, 8_621_773_483, 7_695_354_743, 8_615_607_184, 7_347_192_104, 7_020_926_554],
+    [6_475_437_410, 6_816_962_883, 8_768_961_949, 8_562_642_139, 7_636_223_399, 8_556_450_752, 7_288_060_760, 6_961_770_122],
+    [6_534_568_754, 6_876_094_227, 8_828_093_293, 8_621_773_483, 7_695_354_743, 8_615_582_096, 7_347_192_104, 7_020_901_466],
 ];
 
 #[test]

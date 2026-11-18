@@ -10,13 +10,14 @@ at the same Q reads the slot. What the run allocates, all freed before `verified
   envelope   order, position, first: three exact usize vectors of n (Natural: two `(0..n).collect()`; Supplied: two
              `to_vec`; `position` a `vec!`).
   blocks     `of` (exact n usize); `members`, push-built, at most n components: headers pushcap(n); each component is
-             push-built from empty, pushcap(h) <= 4 + 2h, so <= 4n + 2n = 6n usize in all; the DFS `stack`, one live at a
-             time, <= pushcap(n) usize.
+             push-built from empty to pushcap(h) <= 4h (h >= 1), and the components partition the n positions, so
+             <= 4n usize in all; the DFS `stack`, one live at a time, <= pushcap(n) usize.
   records    one exact `BlockRecord` per block (<= n); each `attempts` push-built to at most three (E sigma1, E sigma2,
              D), capacity 4; each attempt's `figures`: `vec!` of one, `extend` of six (capacity 7), one or two pushes
              (capacity 14), so <= 14 `(&'static str, f64)` per attempt, <= 3n attempts.
-  shifts     sigma1, all, sigma2 and D's zero shifts: four exact f64/usize vectors of n (blocks <= n); `retry` and
-             `need_d` are filter-collects: pushcap(n) each.
+  shifts     sigma1 and all (live to the end of `run`) and one of sigma2 (scoped to the retry block) or D's zero
+             shifts (a temporary of D's factor call): at most three exact f64/usize vectors of n live at once (blocks
+             <= n); `retry` and `need_d` are filter-collects: pushcap(n) each.
   factor     one `Factored` live at a time (each E/D pass drops it): rows, exact headers n and exact row lengths
              i - first[i] + 1 <= i + 1, so <= H = n(n+1)/2 f64; `shifted`, `work`, the `first` clone: 3n words;
              `failure`: one Option<FactorFailure> per block.
@@ -26,13 +27,25 @@ at the same Q reads the slot. What the run allocates, all freed before `verified
              E can give LemmaENonpositivePivot, ArithmeticNonfinite, LemmaESigmaNonpositive, BoundExceedsExistingQuantity
              and D LemmaDNonpositivePivot, ArithmeticNonfinite, LemmaDContractionNotBelowOne, BoundExceedsExistingQuantity
              (pushcap(4));
-             `candidates` push-built to <= 3n CandidateBound.
+             `candidates` push-built, one per attempt that carries a candidate: E gives at most one per block (sigma2
+             runs only for a block whose sigma1 attempt failed on a pivot, which carries none) and D at most one, so
+             <= 2n, capacity pushcap(2n).
 
 Every part is summed (no slot reuse is assumed between parts that are not live together), so the formula bounds the
 run's peak. The length bounds are properties of `run`'s and `assemble`'s straight-line structure (blocks partition the
 n positions; `all`, `retry` and `need_d` each hold distinct block indices and each pass pushes one attempt per listed
 block; each attempt forms at most nine figures; `assemble` iterates three kinds and pushes at most one candidate per
 attempt); the kernel's `the_record_vectors_stay_within_the_priced_lengths` checks each, with capacities.
+
+Figures are charged at 14 per attempt and three attempts per block (42 per block). The code permits at most 29 per
+block (a block runs sigma2 only after its sigma1 attempt failed on a pivot, which keeps one figure at capacity 1), so
+the charge is a stated upper: 13n figure slots, 59,904 B at the caps, above what the code permits.
+
+Old backing (IN-WS moving). A push-grown vector's growth keeps its old buffer alive beside the new one. Growths happen
+one at a time (one thread, sequential statements), so at most one old buffer is live: `moving(F)` gives each growth's
+largest old buffer as its own candidate, and g4_caps lists them in the moving sets of the live phases only (as
+typed core's core_mov). Vectors allocated once at capacity 4 (attempts per block, assemble's kinds, reasons) and the
+exact-size vectors have none.
 
 Where it is live (LIVE_PHASES). The workspace exists only while `verified_bound` runs, inside one formation check, and
 is freed before it returns. The ordinary solve runs on one thread (product_physics `on_reserved_stack` joins its one
@@ -144,16 +157,25 @@ def workspace(F, H):
     """IN-WS: one certificate run on the factor's matrix of dimension F (H = F(F+1)/2), summed over its parts."""
     usize_f64 = 8
     envelope = B(3 * usize_f64 * F)
-    blocks = (B(usize_f64 * F) + s("Vec") * pushcap(F) + B(usize_f64 * 6 * F)
+    blocks = (B(usize_f64 * F) + s("Vec") * pushcap(F) + B(usize_f64 * 4 * F)
               + B(usize_f64 * pushcap(F)))
     records = (s("CertificateBlockRecord") * F + s("CertificateAttempt") * (4 * F)
                + s("CertificateFigure") * (14 * 3 * F))
-    shifts = B(4 * usize_f64 * F) + B(2 * usize_f64 * pushcap(F))
+    shifts = B(3 * usize_f64 * F) + B(2 * usize_f64 * pushcap(F))
     factor = s("Vec") * F + B(usize_f64 * H) + B(3 * usize_f64 * F) + s("CertificateFailure") * F
     passes = B(usize_f64 * pushcap(F)) + B(4 * usize_f64 * F)
     assemble = (s("CertificateReasons") * 4 + s("CertificateReasonCount") * (3 * pushcap(4))
-                + s("CertificateCandidate") * pushcap(3 * F))
+                + s("CertificateCandidate") * pushcap(2 * F))
     return envelope + blocks + records + shifts + factor + passes + assemble
+
+
+def moving(F):
+    """IN-WS moving: each growth's largest old buffer (the buffer live beside its replacement while it grows):
+    members' headers, a usize list (a component, the DFS stack, retry, need_d or mine; one grows at a time), one
+    attempt's figures (7 to 14) and the candidates (pushcap(2F) / 2)."""
+    half = pushcap(F) // 2
+    return [s("Vec") * half, B(8 * half), s("CertificateFigure") * 7,
+            s("CertificateCandidate") * (pushcap(2 * F) // 2)]
 
 
 def slot():

@@ -553,6 +553,8 @@ for mode in ("sparse", "dense"):
 for mode in ("sparse", "dense"):
     if "in_ws" in ORD[mode]:
         form(f"IN_WS_{mode}", parse_sym(ORD[mode]["in_ws"]["symbolic"]))
+        for i_, x_ in enumerate(ORD[mode]["in_ws_moving"]):
+            form(f"IN_WS_moving{i_}_{mode}", parse_sym(x_["symbolic"]))
 for k_, v_ in T25["stage_forms"].items():
     form("T25_" + k_.split(" ")[0], X(v_))
 form("T25_moving", X(T25["moving_form"]))
@@ -595,21 +597,24 @@ EVERY = ["T11", "T19", "STATICS", "FAILED_MANIFEST_COPY", "FORMATION_VALUE_BUILD
 _X3 = _phase_model.republishes(SNAP)
 def phases_of(mode):
     ob = f"O_base_{mode}"
-    iw = [f"IN_WS_{mode}"] if f"IN_WS_{mode}" in forms else []
+    # globals().get: the phase source is also executed alone, without the forms table (test_b7a_formation_model).
+    _forms = globals().get("forms", {})
+    iw = [f"IN_WS_{mode}"] if f"IN_WS_{mode}" in _forms else []
+    iwm = sorted(n_ for n_ in _forms if n_.startswith("IN_WS_moving") and n_.endswith(f"_{mode}"))
     w2 = [ob, "TAV_W", "T12_T15", "NOTICE"] + EVERY
     # PU-X3 (retained-pricing-rules.md §8.14): the republication's second ordinary span. The first run returned and its
     # envelope (reduced to the fail-closed form) dropped before it, and on the Direct entry the observer did too; only
     # the capture, the ledger and the recorded cause persist, each already priced (R_raw and T_resident in O_base, the
     # cause texts in TAV). Its attempts are live T07 attempts that are then declined, so its moving candidates are W1's;
     # nothing is selected, so no T25, and W1 does not start. Its text is the full TAV_X, as in X1/X2.
-    x3 = {_phase_model.X3_NAME: ([ob, "TAV_X"] + iw + EVERY, ["TXT_moving", "HELPER_moving", "T07_moving"])} if _X3 else {}
+    x3 = {_phase_model.X3_NAME: ([ob, "TAV_X"] + iw + EVERY, ["TXT_moving", "HELPER_moving", "T07_moving"] + iwm)} if _X3 else {}
     return {**x3, **{
         "X1 ordinary span with T25 (selected finalization)":
-            ([ob, "T25", "TAV_X"] + iw + EVERY, ["T25_moving", "TXT_moving", "HELPER_moving"]),
+            ([ob, "T25", "TAV_X"] + iw + EVERY, ["T25_moving", "TXT_moving", "HELPER_moving"] + iwm),
         "X2 X completion: retained receipt + reserve + Direct completion":
             ([ob, "BODY", "TAV_X", "NOTICE"] + EVERY, ["TXT_moving", "HELPER_moving", "NOTICE_moving"]),
         "W1 ordinary span (W1 not yet run)":
-            ([ob, "TAV_W"] + iw + EVERY, ["TXT_moving", "HELPER_moving", "T07_moving"]),
+            ([ob, "TAV_W"] + iw + EVERY, ["TXT_moving", "HELPER_moving", "T07_moving"] + iwm),
         "W2 G-B, G-C and the W1 phases (T12-T15) with the N1 reserve":
             (w2, ["TXT_moving", "HELPER_moving", "NOTICE_moving"]),
         "W3 publication (T16) with the staged copy":
@@ -638,7 +643,8 @@ for mode in ("sparse", "dense"):
         ph[name_] = {"requested": rq, "moving_extra": mv, "E_mov": rq + mv, "E_mov_plus_R": rq + mv + R,
                      "fraction_of_M": round((rq + mv + R) / M, 4)}
         tree_phases[mode][name_] = {"requested": req_, "moving": mov_}
-    _iw_in = sorted(k_ for k_, (r_, _) in phases_of(mode).items() if f"IN_WS_{mode}" in r_)
+    _iw_in = sorted(k_ for k_, (r_, m_) in phases_of(mode).items()
+                    if f"IN_WS_{mode}" in r_ or any(n_.startswith("IN_WS_moving") for n_ in m_))
     if f"IN_WS_{mode}" in forms and _iw_in != sorted(k_ for k_ in ph if k_.startswith(_in_model.LIVE_PHASES)):
         raise SystemExit(f"IN-WS: charged in {_iw_in}, not exactly the live phases {_in_model.LIVE_PHASES}")
     worst = max(ph.items(), key=lambda kv: kv[1]["E_mov_plus_R"])

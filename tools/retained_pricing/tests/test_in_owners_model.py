@@ -34,7 +34,7 @@ def test_the_workspace_is_active_and_positive_at_the_caps():
     # F = N = 192 and H = F(F + 1)/2 = 18,528 at the D1 caps (n = 32).
     form = dict(OWNERS["workspace"](192, 18528))
     assert form == {
-        "1": 4608 + (1536 + 9216 + 2048) + (6144 + 4096) + (8 * 18528 + 4608) + (2048 + 6144),
+        "1": 4608 + (1536 + 6144 + 2048) + (4608 + 4096) + (8 * 18528 + 4608) + (2048 + 6144),
         "s(Vec)": 256 + 192,
         "s(CertificateBlockRecord)": 192,
         "s(CertificateAttempt)": 768,
@@ -42,8 +42,10 @@ def test_the_workspace_is_active_and_positive_at_the_caps():
         "s(CertificateFailure)": 192,
         "s(CertificateReasons)": 4,
         "s(CertificateReasonCount)": 12,
-        "s(CertificateCandidate)": 1024,
+        "s(CertificateCandidate)": 512,
     }
+    assert [dict(x) for x in OWNERS["moving"](192)] == [
+        {"s(Vec)": 128}, {"1": 1024}, {"s(CertificateFigure)": 7}, {"s(CertificateCandidate)": 256}]
     assert dict(OWNERS["slot"]()) == {}
 
 

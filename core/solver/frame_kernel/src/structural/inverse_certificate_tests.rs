@@ -1274,9 +1274,11 @@ fn the_workspace_layouts_are_within_the_pricing_uppers() {
 /// and at a Q low enough that every block runs all three attempts: at most n
 /// blocks; per block at most three attempts (capacity 4); per attempt at most
 /// nine figures (capacity 14); on not verified, at most three attempt kinds,
-/// at most four distinct reasons in each, and at most one candidate per
-/// attempt. Each bound is a property of `run`'s and `assemble`'s straight-line
-/// structure; this test fails if a change outgrows one.
+/// at most four distinct reasons in each (capacity 4), and at most two
+/// candidates per block (capacity pushcap(2 * blocks)). Block records are
+/// exact (capacity = length). Each bound is a property of `run`'s and
+/// `assemble`'s straight-line structure; this test fails if a change outgrows
+/// one.
 #[test]
 fn the_record_vectors_stay_within_the_priced_lengths() {
     let mut cases_seen = 0;
@@ -1286,7 +1288,7 @@ fn the_record_vectors_stay_within_the_priced_lengths() {
         for q in [c.q, 1.0e-3, f64::MIN_POSITIVE] {
             for run in forms.runs(&c.order, &c.first, q) {
                 cases_seen += 1;
-                assert!(run.blocks.len() <= c.n, "{}: blocks", c.name);
+                assert!(run.blocks.len() <= c.n && run.blocks.capacity() == run.blocks.len(), "{}: blocks", c.name);
                 let mut attempts = 0;
                 for b in &run.blocks {
                     assert!(b.attempts.len() <= 3 && b.attempts.capacity() <= 4, "{}: attempts", c.name);
@@ -1299,9 +1301,12 @@ fn the_record_vectors_stay_within_the_priced_lengths() {
                 if let InverseNormCertificate::NotVerified(nv) = &run.result {
                     assert!(nv.attempts.len() <= 3 && nv.attempts.capacity() <= 4, "{}: kinds", c.name);
                     for kind in &nv.attempts {
-                        assert!(kind.reasons.len() <= 4, "{}: reasons", c.name);
+                        assert!(kind.reasons.len() <= 4 && kind.reasons.capacity() <= 4, "{}: reasons", c.name);
                     }
+                    let pushcap = |h: usize| if h == 0 { 0 } else { h.next_power_of_two().max(4) };
                     assert!(nv.candidates.len() <= attempts, "{}: candidates", c.name);
+                    assert!(nv.candidates.len() <= 2 * run.blocks.len(), "{}: candidates per block", c.name);
+                    assert!(nv.candidates.capacity() <= pushcap(2 * run.blocks.len()), "{}: candidates capacity", c.name);
                 }
             }
         }

@@ -2,9 +2,7 @@
 //! §10): the existing evaluation applied to the intended Qᵀ K_int Q v = Qᵀ f_int,
 //! with Q the basis's exact node-local matrix. No new certificate, no new
 //! threshold. The binary64 factorization, the corrections w and w₂, the
-//! contraction test, σ and the Neumann bound are today's, on coordinates. The
-//! inverse operand comes from the same gate (`verified_inverse_operand`), on
-//! the same prepared matrix: the transformed system the factor was computed from.
+//! contraction test, σ, the Neumann bound and the gated inverse operand are today's.
 //!
 //! - **Loads (ρ, §10.2).** Each physical ledger term or re-formed primitive on
 //!   DOF i enters each coordinate row r with weight q_ir (`RestraintBasis::q_row`),

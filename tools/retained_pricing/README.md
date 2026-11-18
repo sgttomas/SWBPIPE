@@ -778,8 +778,19 @@ Every part is summed. The model binds the certificate's function bodies by sha25
 in the file's production text (the CFG-PROD extractor); a change stops the run. The record lengths it charges are
 checked, with capacities, by the kernel's `the_record_vectors_stay_within_the_priced_lengths`.
 
-The seven private layout atoms are bound in `g5_profile.py` to source uppers. The kernel's
+Of the seven new layout atoms, the figure tuple is bound in-build (`size_of::<(&'static str, f64)>()`); the six
+private types are bound in `g5_profile.py` to source uppers, and the kernel's
 `the_workspace_layouts_are_within_the_pricing_uppers` checks each upper against `size_of`.
+
+Each push-grown vector's growth keeps its old buffer alive beside the new one. Growths happen one at a time, so
+`moving(F)` gives each growth's largest old buffer as a moving candidate of the same three phases (members' headers,
+a usize list, one attempt's figures, the candidates); none sets those phases' moving maximum at the caps.
+
+Amount at the caps (F = 192, at the bound uppers): 469,088 B per run. The lengths are those the code enforces, with
+one stated upper: figures are charged at 42 per block where the code permits 29 (59,904 B). The four private types
+whose uppers exceed the sizes inferred from their fields (AttemptRecord 64 against 56, CandidateBound 40 against 32,
+AttemptReasons 40 against 32, Option<FactorFailure> 8 against 1; inferred, not measured) add 11,616 B. So the code's
+own amount, at the inferred sizes and permitted lengths, is 397,568 B; the registered charge is the upper.
 
 The workspace is freed before `verified_bound` returns. The ordinary solve runs on one thread, and its cases and
 evaluations call the check one after another, so at most one workspace is live, and only during an ordinary span.

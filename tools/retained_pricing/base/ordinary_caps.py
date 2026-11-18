@@ -744,6 +744,7 @@ for mode, dct in modes.items():
     if _in_model_active:
         # IN-WS: one certificate run's workspace, outside O_base (see typed_core's IN-SL note).
         out[mode]["in_ws"] = dump(_in_model.workspace(F, H), vals)
+        out[mode]["in_ws_moving"] = [dump(x_, vals) for x_ in _in_model.moving(F)]
 if which == "milestone":
     # Cross-check: the transcribed sub-expressions reproduce I54's published milestone constants.
     kk = k + sp
