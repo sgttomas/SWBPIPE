@@ -409,7 +409,9 @@ fn run_inner() -> Result<(), &'static str> {
                                 record(start, "tool_pending", json!({"tool":tool.name()}))?;
                             } else {
                                 let version = open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION;
-                                let value = json!({"status":"ok","basis":basis,"message":"Invented qualification model; no operation applied.","data":{"workspaceHandle":"invented-workspace","projectId":"project:invented","schemaVersion":version,"pressureContract":null,"pressureProfileBefore":json!({"schema_version":version}).to_string(),"projectUnits":{"length":"m"},"objectCounts":{"nodes":1},"admittedOperationKinds":["modify/Node/set_field/position"],"componentsAwaitingUserModifiers":{"count":0,"ids":[]},"limits":{"argumentBytes":28672,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}});
+                                // The invented summary reports the catalog's own limits, never a copy of them.
+                                let limits = super::catalog::Catalog::load().map_err(|_| "catalog_unavailable")?.limits();
+                                let value = json!({"status":"ok","basis":basis,"message":"Invented qualification model; no operation applied.","data":{"workspaceHandle":"invented-workspace","projectId":"project:invented","schemaVersion":version,"pressureContract":null,"pressureProfileBefore":json!({"schema_version":version}).to_string(),"projectUnits":{"length":"m"},"objectCounts":{"nodes":1},"admittedOperationKinds":["modify/Node/set_field/position"],"componentsAwaitingUserModifiers":{"count":0,"ids":[]},"limits":{"argumentBytes":limits.argument_bytes,"resultBytes":limits.result_bytes,"pageRows":limits.page_rows,"pendingCalls":limits.pending_calls,"proposalOperations":limits.proposal_operations}}});
                                 let backing = Arc::new(
                                     registry
                                         .acquire_interactive_ingress(2 * 1024 * 1024)
