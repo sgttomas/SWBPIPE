@@ -38,8 +38,10 @@
 //! longest compact text of one scalar or one quoted name);
 //! `unsafe_numbers` (numbers the checked canonical profile refuses);
 //! `nonempty_containers`, `container_levels` and `slot_levels` (for the
-//! pretty length, below). All are exact for the document the builders build;
-//! the tests hold each to an independent walk of the built value.
+//! pretty length, below). All are exact for the document the builders build
+//! (for [`modal_env_fallback_refused`], whose diagnostic is known only by its
+//! bound, each is an upper bound); the tests hold each to an independent walk
+//! of the built value.
 //!
 //! ## Leaves (exact)
 //!
@@ -92,8 +94,12 @@
 //! hash is the 64-hex string (66 compact bytes) iff `depth < 128` and
 //! `unsafe_numbers = 0`, and null otherwise. A row's checksum, a table's
 //! digest (an array of strings and nulls: always a string) and every binding
-//! hash follow this rule; the identity's run hash and the semantic table's
-//! hash are always strings (their inputs hold strings or nulls only).
+//! hash follow this rule; the semantic table's hash is always a string, and
+//! so is the identity's run hash for a binding the writer produces
+//! (`modal_doc_binding`, whose two hashes are strings or nulls). For a binding
+//! supplied to [`modal_env_solved_with_binding`] its two hash members are
+//! hashed as they are, so the run hash follows the rule above and may be
+//! refused: `run_id` is then `modal-run:` alone.
 //!
 //! # The mirror
 //!
@@ -375,8 +381,13 @@
 //!   capacity 7/8 of them (3 below 8), growth to the next size when full,
 //!   25 bytes a bucket plus ≤ 31 of control and alignment, old and new tables
 //!   coexisting during a resize: a set of k names ≤ 1.5·(25·max(4, 16k/7))
-//!   + 62 ≤ 86k + 212. The capacity growth is sampled; the layout is the
-//!   premise.
+//!   + 62 ≤ 86k + 212. Held by observation on every release test build that
+//!   runs the tests (the counting allocator is registered there only):
+//!   `modal_env_observed_duplicate_name_sets_are_within_p4` builds the set as
+//!   `checked_parse` does, across every growth boundary to 7,169 names (each
+//!   capacity, one below and one or two above), and requires the peak, old
+//!   and new tables live together and the cloned names included, to be
+//!   within key bytes + 86k + 212.
 //! - **P5** `slice::sort_by` allocates at most one scratch of the slice's
 //!   length; `sort_unstable` allocates nothing.
 //! - **P6** ryu (the canonical digit source) yields at most 17 digits.
@@ -384,12 +395,18 @@
 //!   `fast_arithmetic = "64"` for aarch64, x86_64, wasm32 and every 64-bit
 //!   pointer width (on another target the 320 does not follow).
 //! - **P8** serde_json's boxed `ErrorImpl` (an `ErrorCode` and two `usize`s,
-//!   `error.rs:230-234`) is at most 64 bytes.
+//!   `error.rs:230-234`) is at most 64 bytes. Held by observation on every
+//!   release test build that runs the tests:
+//!   `modal_env_observed_one_error_box_is_within_p8` makes one error alone and
+//!   requires its single allocation to be at most 64 bytes, and
+//!   `modal_env_observed_the_depth_refusal_holds_two_boxes` requires the
+//!   depth refusal's unwind (two boxes at once) to be within 2·64.
 //!
 //! Observed, not proved (release test builds only, through the crate's
 //! existing counting allocator): the peaks while the writer builds and hashes
-//! the tested documents are within C and HP, and the tally requests no bytes
-//! (`tests_document_envelope.rs`, `modal_env_observed`).
+//! the tested documents are within C and HP, the tally requests no bytes, and
+//! P4 and P8 hold as stated (`tests_document_envelope.rs`,
+//! `modal_env_observed`).
 //!
 //! # Interface
 //!
@@ -1733,7 +1750,8 @@ fn modal_env_refused(
 /// The envelope of one document (module docs, "Derived storage").
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct ModalDocumentEnvelope {
-    /// The document's tally (exact).
+    /// The document's tally: exact for every entry that mirrors a builder;
+    /// for [`modal_env_fallback_refused`] an upper bound in every count.
     pub(crate) tally: ModalDocumentTally,
     /// H(document).
     pub(crate) heap_bytes: u64,
@@ -1741,7 +1759,8 @@ pub(crate) struct ModalDocumentEnvelope {
     pub(crate) hash_peak_bytes: u64,
     /// C: the construction peak, hashing included.
     pub(crate) construction_peak_bytes: u64,
-    /// The pretty text (no trailing newline).
+    /// The pretty text (no trailing newline): exact, or for the fallback an
+    /// upper bound.
     pub(crate) pretty_bytes: u64,
     /// Its canonical text, at most.
     pub(crate) canonical_bound_bytes: u64,

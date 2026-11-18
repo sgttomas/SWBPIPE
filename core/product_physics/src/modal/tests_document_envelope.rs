@@ -71,6 +71,12 @@ struct ModalEnvelopeObserved {
     canonical_floats: u64,
     string_capacity: u64,
     array_capacity: u64,
+    // The pretty length's three counters, each counted on its own: the
+    // non-empty containers, the sum of their levels (the root's 0), and the
+    // sum over every slot of its container's level plus one.
+    nonempty_containers: u64,
+    container_levels: u64,
+    slot_levels: u64,
 }
 
 fn modal_env_text_len<T: serde::Serialize + ?Sized>(value: &T) -> u64 {
@@ -78,6 +84,21 @@ fn modal_env_text_len<T: serde::Serialize + ?Sized>(value: &T) -> u64 {
 }
 
 fn modal_env_observe(value: &Value) -> ModalEnvelopeObserved {
+    fn modal_env_levels(v: &Value, level: u64, o: &mut ModalEnvelopeObserved) {
+        let children: Vec<&Value> = match v {
+            Value::Array(items) => items.iter().collect(),
+            Value::Object(map) => map.values().collect(),
+            _ => return,
+        };
+        if !children.is_empty() {
+            o.nonempty_containers += 1;
+            o.container_levels += level;
+        }
+        for child in children {
+            o.slot_levels += level + 1;
+            modal_env_levels(child, level + 1, o);
+        }
+    }
     fn modal_env_walk(v: &Value, o: &mut ModalEnvelopeObserved) -> u64 {
         o.nodes += 1;
         match v {
@@ -126,6 +147,7 @@ fn modal_env_observe(value: &Value) -> ModalEnvelopeObserved {
     }
     let mut o = ModalEnvelopeObserved::default();
     o.depth = modal_env_walk(value, &mut o);
+    modal_env_levels(value, 0, &mut o);
     o.wire = modal_env_text_len(value);
     o.pretty = serde_json::to_string_pretty(value).unwrap().len() as u64;
     o.canonical = canonical_json(value).len() as u64;
@@ -173,6 +195,11 @@ fn modal_env_assert_tally(name: &str, t: &ModalDocumentTally, value: &Value) -> 
         counts(t),
         observed,
         "{name}: [wire, float_bytes, floats, nodes, objects, entries, key_bytes, arrays, elements, strings, string_bytes, depth, longest_literal, unsafe]"
+    );
+    assert_eq!(
+        [t.nonempty_containers, t.container_levels, t.slot_levels],
+        [o.nonempty_containers, o.container_levels, o.slot_levels],
+        "{name}: [nonempty containers, container levels, slot levels]"
     );
     assert_eq!(modal_env_pretty(t).unwrap(), o.pretty, "{name}: pretty text");
     // Exact apart from floats; floats within their 25-byte maximum.
@@ -937,13 +964,16 @@ fn modal_env_the_fixed_hash_terms_are_in_the_formula() {
 
 #[test]
 fn modal_env_layouts_past_the_targets_isize_max_are_refused() {
-    // Modelled widths: a 32-bit target's isize::MAX and this host's; no
-    // large buffer is made (every tally is synthetic).
+    // Modelled widths: a 32-bit and a 64-bit target's isize::MAX, whatever
+    // this host's; no large buffer is made (every tally is synthetic). The
+    // entries use this host's (`MODAL_ENV_LAYOUT_MAX`).
     let narrow = i32::MAX as u64;
+    let wide = i64::MAX as u64;
     let host = MODAL_ENV_LAYOUT_MAX;
     assert_eq!(host, isize::MAX as u64);
+    assert!(host == narrow || host == wide);
     let refused = |r: ModalEnvelopeResult<()>, figure: &str| matches!(r, Err(ModalEnvelopeError::Unprojectable { what }) if what.contains(figure));
-    for limit in [narrow, host] {
+    for limit in [narrow, wide] {
         assert!(modal_env_laid_out(limit, limit, limit, limit).is_ok(), "exact at the limit");
         assert!(refused(modal_env_laid_out(0, limit + 1, limit + 1, limit), "hashed"), "a hash one over");
         assert!(refused(modal_env_laid_out(limit + 1, 0, limit + 1, limit), "document"), "the document one over");
@@ -964,9 +994,9 @@ fn modal_env_layouts_past_the_targets_isize_max_are_refused() {
     assert_eq!(witness.wire, 6 * 180_000_000 + 2 + 4 + 1 + 2);
     assert!(2u64 << 30 > narrow && 128 + 3 * witness.wire >= (1u64 << 30) + (2u64 << 30), "the 2 GiB request beside the 1 GiB buffer is a term of HP");
     assert!(refused(modal_env_laid_out(modal_env_heap(&witness).unwrap(), hp(180_000_000), hp(180_000_000), narrow), "hashed"));
-    assert!(modal_env_laid_out(modal_env_heap(&witness).unwrap(), hp(180_000_000), hp(180_000_000), host).is_ok());
+    assert!(modal_env_laid_out(modal_env_heap(&witness).unwrap(), hp(180_000_000), hp(180_000_000), wide).is_ok());
     // Exact at each width's limit and one over: HP is affine in n here.
-    for limit in [narrow, host] {
+    for limit in [narrow, wide] {
         let (n0, n1) = (1_000_000u64, 1_000_001u64);
         let slope = hp(n1) - hp(n0);
         let base = hp(n0) - slope * n0;
@@ -975,16 +1005,40 @@ fn modal_env_layouts_past_the_targets_isize_max_are_refused() {
         assert!(modal_env_laid_out(0, hp(n), hp(n), limit).is_ok());
         assert!(refused(modal_env_laid_out(0, hp(n + 1), hp(n + 1), limit), "hashed"));
     }
-    // Through an entry at this host's width: a fallback diagnostic whose
-    // bounded message cannot be laid out is refused, and no envelope (no
-    // hash prediction) is given; a smaller one is.
+    // Through an entry at this host's width, whichever it is: a fallback
+    // diagnostic whose bounded message cannot be laid out is refused, and no
+    // envelope (no hash prediction) is given. The largest message bound m
+    // that is given an envelope is found by bisection from one that is
+    // (host / 64) and one the layout check refuses (host / 16, where no term
+    // overflows u64); at it every figure is within the host's limit, and
+    // one over it is refused by the layout check.
     let params = test_local_parameters();
     let standing = ModalParameterStanding::TestLocal("t");
     let message = |m: u64| ModalEnvelopeDiagnosticBound { message: ModalEnvelopeText { raw: m, escaped: m }, ..Default::default() };
-    let found = modal_env_fallback_refused(&pf_request(false), &params, standing, None, &message(500_000_000_000_000_000), CAP);
-    assert!(matches!(found, Err(ModalEnvelopeError::Unprojectable { .. })), "{found:?}");
-    let fits = modal_env_fallback_refused(&pf_request(false), &params, standing, None, &message(100_000_000_000_000_000), CAP).unwrap();
-    assert!(fits.construction_peak_bytes <= host);
+    let fallback = |m: u64| modal_env_fallback_refused(&pf_request(false), &params, standing, None, &message(m), CAP);
+    let laid_out_past = |r: &ModalEnvelopeResult<ModalDocumentEnvelope>| matches!(r, Err(ModalEnvelopeError::Unprojectable { what }) if what.contains("past the target's isize::MAX"));
+    let (mut given, mut refused_at) = (host / 64, host / 16);
+    assert!(fallback(given).is_ok());
+    assert!(laid_out_past(&fallback(refused_at)), "{:?}", fallback(refused_at));
+    while refused_at - given > 1 {
+        let mid = given + (refused_at - given) / 2;
+        match fallback(mid) {
+            Ok(_) => given = mid,
+            refused => {
+                assert!(laid_out_past(&refused), "{refused:?}");
+                refused_at = mid;
+            }
+        }
+    }
+    // The largest figure at the boundary is within one step of the limit:
+    // the step is that figure's growth from m - 1 to m.
+    let largest = |e: &ModalDocumentEnvelope| e.heap_bytes.max(e.hash_peak_bytes).max(e.construction_peak_bytes);
+    let at = fallback(given).unwrap();
+    let step = largest(&at) - largest(&fallback(given - 1).unwrap());
+    println!("layout boundary at this host's width: message bound {given}, largest figure {}, step {step}", largest(&at));
+    assert!(largest(&at) <= host && largest(&at) + step > host, "{at:?}, step {step}");
+    let over = fallback(given + 1);
+    assert!(laid_out_past(&over), "{over:?}");
 }
 
 // ---------------------------------------------------------------------------
@@ -1510,5 +1564,87 @@ mod modal_env_observed {
             assert_eq!(region.allocations, 0, "an allocation during the tally: {region:?}");
         }
         println!("modal-env-observed tally: {} regions, none requested a byte", regions.len());
+    }
+    /// The term P8 names, `MODAL_ENV_ERROR_BOX_MAX` (`document_envelope.rs`,
+    /// private there, so restated here as the bound each test holds).
+    const MODAL_ENV_ERROR_BOX_TERM: u64 = 64;
+
+    /// P8: one serde_json error alone, made from a one-byte text that is no
+    /// JSON value (`deserialize_any` refuses it at its first byte), is one
+    /// allocation, the boxed error, of at most 64 bytes.
+    #[test]
+    fn modal_env_observed_one_error_box_is_within_p8() {
+        let _serial = SERIAL.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        let text = String::from("x");
+        let (found, region) = modal_env_region(|| serde_json::from_str::<Value>(&text));
+        let error = found.expect_err("`x` is not JSON");
+        println!("modal-env-observed one error box: {region:?} ({error})");
+        assert!(error.is_syntax(), "{error}");
+        assert_eq!(region.allocations, 1, "one error is one allocation: {region:?}");
+        assert!(region.thread_peak > 0 && region.thread_peak <= MODAL_ENV_ERROR_BOX_TERM, "P8: the box is {} bytes", region.thread_peak);
+        assert_eq!(region.held as u64, region.thread_peak, "the region holds the box it returns: {region:?}");
+    }
+
+    /// The depth refusal's unwind: past serde_json's depth limit every open
+    /// level's `deserialize_any` makes its closing error (`end_seq`) while
+    /// the depth error is alive and drops it, so two boxes are live together
+    /// and no more. The peak is at least two of P8's single boxes (both are
+    /// held), and within the derivation's unwinding term, 2·64.
+    #[test]
+    fn modal_env_observed_the_depth_refusal_holds_two_boxes() {
+        let _serial = SERIAL.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        let single = {
+            let text = String::from("x");
+            let (found, region) = modal_env_region(|| serde_json::from_str::<Value>(&text));
+            drop(found);
+            region.thread_peak
+        };
+        let text = "[".repeat(200);
+        let (found, region) = modal_env_region(|| serde_json::from_str::<Value>(&text));
+        let error = found.expect_err("200 open arrays are past the depth limit");
+        println!("modal-env-observed depth refusal: {region:?}, one box {single} ({error})");
+        assert!(error.to_string().starts_with("recursion limit exceeded"), "{error}");
+        assert!(region.thread_peak >= 2 * single, "the unwind did not hold two boxes: {region:?}, one box {single}");
+        assert!(region.thread_peak.max(region.process_peak) <= 2 * MODAL_ENV_ERROR_BOX_TERM, "the unwind exceeds 2·64: {region:?}");
+        assert_eq!(region.held as u64, single, "one box is returned: {region:?}");
+    }
+
+    /// P4: the duplicate-name set built as `checked_parse` builds it
+    /// (`HashSet::new()`, then `insert(key.clone())` per name; canonical
+    /// JSON crate, `lib.rs`), for name counts at every hashbrown capacity to
+    /// 7,168, one below each and one and two above (the growths, where the
+    /// old and new tables are live together), and 0 and 1. The peak, the
+    /// cloned names included, is within key bytes + 86k + 212.
+    #[test]
+    fn modal_env_observed_duplicate_name_sets_are_within_p4() {
+        use std::collections::HashSet;
+        let _serial = SERIAL.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        // hashbrown's capacity for b buckets: b - 1 below 8, else b / 8 · 7
+        // (3, 7, 14, 28, …, 7,168 for 4 to 8,192 buckets).
+        let mut counts = vec![0_usize, 1, 2];
+        for buckets in (2..=13).map(|e| 1_usize << e) {
+            let capacity = if buckets < 8 { buckets - 1 } else { buckets / 8 * 7 };
+            counts.extend([capacity - 1, capacity, capacity + 1, capacity + 2]);
+        }
+        counts.sort_unstable();
+        counts.dedup();
+        let largest = *counts.last().unwrap();
+        let names: Vec<String> = (0..largest).map(|i| format!("k{i}")).collect();
+        let mut log = ModalEnvelopeLog::default();
+        for &k in &counts {
+            let (seen, region) = modal_env_region(|| {
+                let mut seen = HashSet::new();
+                for name in &names[..k] {
+                    assert!(seen.insert(name.clone()));
+                }
+                seen
+            });
+            assert_eq!(seen.len(), k);
+            drop(seen);
+            let key_bytes: u64 = names[..k].iter().map(|n| n.len() as u64).sum();
+            log.modal_env_within(format!("duplicate-name set of {k}"), &region, key_bytes + 86 * k as u64 + 212);
+        }
+        log.modal_env_report("P4");
+        assert!(counts.contains(&7_168) && counts.contains(&7_169) && counts.contains(&3) && counts.contains(&4));
     }
 }
