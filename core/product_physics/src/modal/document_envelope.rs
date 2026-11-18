@@ -113,7 +113,8 @@
 //! are taken whole from the caller, so no code or message is restated (and
 //! the diagnostic catalog's scan finds no new producer here). Where a
 //! builder would index out of range or panic (a node index past `node_ids`,
-//! an axis past 2, a mode index 0, an unknown unit rule), the mirror returns
+//! an axis past 2, a mode index 0, an unknown unit rule, an index or ordinal
+//! its `usize` arithmetic would overflow), the mirror returns
 //! [`ModalEnvelopeError::Unprojectable`]: no document exists to measure.
 //!
 //! A borrowed request is walked whole (its hash is taken), and the walk
@@ -161,14 +162,48 @@
 //!    + (key_bytes + 86e + 212·depth)  duplicate-name sets of the objects being parsed:
 //!                                 cloned names, and per set of k names ≤ 86k + 212 (P4)
 //!    + (3·LL + 8)                 the parser's escape scratch (P2)
-//!    + (8 + 3·W_k)                the canonical text, String::new then P2's growth
-//!    + 16e                        sorted name lists on the write path (8 per name) and
-//!                                 one sort's scratch (≤ 8 per name, P5)
-//!    + (128 + 3·LL)               write_string's to_string of one literal (lib.rs:335-337)
-//!    + 256 + 512 + 384            number text (lib.rs:400-498), a refusal's message and
-//!                                 boxed error, the hex digest's format!/collect (document.rs:221)
 //!    + 320, when T holds a float  the float parser's two big integers (below; P7)
+//!    + max(R, K)                  the one post-parse stage that runs (below)
+//!
+//! K = (8 + 3·W_k)                 the canonical text, String::new then P2's growth
+//!   + 16e                         sorted name lists on the write path (8 per name) and
+//!                                 one sort's scratch (≤ 8 per name, P5)
+//!   + (128 + 3·LL)                write_string's to_string of one literal (lib.rs:335-337)
+//!   + 256 + 384                   number text (lib.rs:400-498), the hex digest's
+//!                                 format!/collect (document.rs:221)
+//! R = max(3·346, 3·84 + 64) = 1038   a refusal's message (and boxed error)
 //! ```
+//!
+//! The stages. `canonical_json_checked_v1_text` (`lib.rs:39-42`) returns at
+//! `checked_parse(input)?` when the parse refuses, at
+//! `validate_checked_value(&value)?` when validation refuses, and only
+//! otherwise writes the canonical text; `modal_doc_sha256`
+//! (`document.rs:220-221`) forms the digest only from that `Ok` text, after
+//! `.ok()?` has dropped any refusal. So a parse refusal's message, a
+//! validation refusal's message, and the canonical writing with the digest
+//! are mutually exclusive, and one maximum covers them; the text, the parsed
+//! value, the name sets, the scratch and the limbs are summed beside it.
+//!
+//! R. The validator's messages (`lib.rs:99, 102, 104, 105, 107`):
+//! `CHECKED-JSON-UNSAFE-INTEGER: ` (29 bytes) and an i64 or u64 (≤ 20), 49;
+//! the literals `CHECKED-JSON-NUMBER-INVALID` (27) and
+//! `CHECKED-JSON-NON-FINITE` (23), copied exactly; and
+//! `CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: ` (36) and the `Display` of an
+//! integral binary64 above 2⁵³ in magnitude. `Display` of an f64 writes no
+//! exponent: an integral value of magnitude below 2¹⁰²⁴ has at most 309
+//! integer digits (`f64::MAX` has 309), and a sign, so 310; the longest
+//! message is 346 bytes, for `-f64::MAX`. On serialized text the only parse
+//! refusal is the depth limit (a `Map` has no duplicate name, and serialized
+//! numbers are finite): `CHECKED-JSON-INVALID: ` (22) and serde_json's
+//! `recursion limit exceeded at line 1 column N` (`error.rs:384, 405-415`;
+//! compact text has one line, N ≤ 20 digits), 84 bytes, beside its boxed
+//! `ErrorImpl` (P8). A `format!` message of L bytes first reserves twice its
+//! literal piece and grows by P2, so it holds at most 2L (P3), and during its
+//! last growth its old buffer (< L) is live beside the new (≤ 2L): < 3L. The
+//! validation stage is therefore < 3·346 = 1038 bytes and the parse stage
+//! < 3·84 + 64 = 316. (The 36-byte prefix reserves 72; the writes of
+//! `f64::MAX`'s digits and zeros grow it 72 → 144 → 288 → 576, so 864 bytes
+//! are live during the last move, within 1038.)
 //!
 //! The 320. The checked parse reads each number through serde_json's
 //! `float_roundtrip` parser, one number at a time. A binary64 that zmij wrote
@@ -283,8 +318,11 @@
 //! `arbitrary_precision`), `Option<usize>` 16, `&str` 16, `(&str, &str)` 32,
 //! `&String` 8, `(String, Value)` 56 and `usize` 8; on a narrower target
 //! (the desktop's wasm32 engines link this crate) each no larger than that,
-//! so every figure stays an upper bound there; on every target, a map node's
-//! layout within N. By tests: `Map` iterates in sorted order (no
+//! so every figure stays an upper bound there; on every target, that the
+//! modelled node layout (three header fields padded to 8, eleven names,
+//! eleven values, twelve edges) adds up to at most N, which checks the
+//! arithmetic of that model, not the actual node layout or occupancy (those
+//! are P1). By tests: `Map` iterates in sorted order (no
 //! `preserve_order`); capacity samples for P2, P3 and P4. Named, not
 //! established by those samples (which corroborate growth but not allocation
 //! layout or overlap):
@@ -316,6 +354,8 @@
 //! - **P7** serde_json's float parser has u64 limbs: its `build.rs` selects
 //!   `fast_arithmetic = "64"` for aarch64, x86_64, wasm32 and every 64-bit
 //!   pointer width (on another target the 320 does not follow).
+//! - **P8** serde_json's boxed `ErrorImpl` (an `ErrorCode` and two `usize`s,
+//!   `error.rs:230-234`) is at most 64 bytes.
 //!
 //! Observed, not proved (release test builds only, through the crate's
 //! existing counting allocator): the peaks while the writer builds and hashes
@@ -380,8 +420,10 @@ const _: () = {
     assert!(size_of::<(String, Value)>() <= 56);
     assert!(size_of::<usize>() <= 8);
 };
-// N covers a node's layout on every target: three header fields each padded
-// to 8, eleven names, eleven values and twelve edges (P1).
+// The modelled node layout (three header fields each padded to 8, eleven
+// names, eleven values and twelve edges) adds up to at most N on every
+// target. This checks the model's arithmetic only; that std's nodes have this
+// layout and occupancy is P1.
 const _: () = assert!(3 * 8 + 11 * size_of::<String>() + 11 * size_of::<Value>() + 12 * size_of::<usize>() <= 736);
 
 /// V: one `Value`, inline in its parent's buffer or node.
@@ -393,7 +435,27 @@ pub(crate) const MODAL_ENV_SOURCE_MAX: u64 = 64;
 /// The float parser's big integers while one binary64 is re-parsed (module
 /// docs, "HP"): two `Bigint`s of `Vec::with_capacity(20)` u64 limbs, never
 /// grown (P7).
-const MODAL_ENV_FLOAT_PARSE_BYTES: u64 = 2 * 20 * 8;
+pub(crate) const MODAL_ENV_FLOAT_PARSE_BYTES: u64 = 2 * 20 * 8;
+/// The longest message the checked validator can return
+/// (`canonical_json/src/lib.rs:107`): `CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: `
+/// (36 bytes) and the `Display` of `-f64::MAX` (310), module docs, "HP".
+pub(crate) const MODAL_ENV_VALIDATION_MESSAGE_MAX: u64 = 36 + 310;
+/// The longest parse-refusal message on serialized text (`lib.rs:89`):
+/// `CHECKED-JSON-INVALID: ` (22), `recursion limit exceeded` (24),
+/// ` at line 1 column ` (18) and a column of at most 20 digits.
+pub(crate) const MODAL_ENV_PARSE_MESSAGE_MAX: u64 = 22 + 24 + 18 + 20;
+/// serde_json's boxed `ErrorImpl` (a code and two `usize`s), at most (P8).
+const MODAL_ENV_ERROR_BOX_MAX: u64 = 64;
+
+/// The refusal stage of a hash: a `format!` message of L bytes holds at
+/// most 2L (P3) and, during its last growth, its old buffer (< L) beside
+/// the new (≤ 2L), so < 3L (P2); a parse refusal adds its boxed error.
+pub(crate) const fn modal_env_refusal_stage() -> u64 {
+    let validation = 3 * MODAL_ENV_VALIDATION_MESSAGE_MAX;
+    let parse = 3 * MODAL_ENV_PARSE_MESSAGE_MAX + MODAL_ENV_ERROR_BOX_MAX;
+    if validation > parse { validation } else { parse }
+}
+
 /// N: one `BTreeMap<String, Value>` node, at most (P1).
 pub(crate) const MODAL_ENV_MAP_NODE_BYTES: u64 = 736;
 /// The fewest keys of a non-root map node (P1).
@@ -843,11 +905,18 @@ pub(crate) fn modal_env_hash_peak(t: &ModalDocumentTally) -> ModalEnvelopeResult
     let canonical = add("hash canonical", 8, mul("hash canonical", 3, modal_env_canonical_bound(t)?)?)?;
     let sorting = mul("hash sorting", 16, t.entries)?;
     let quoting = add("hash quoting", 128, literal)?;
-    let fixed = 256 + 512 + 384;
     // The float parser's limbs: one number is parsed at a time, so once.
     let limbs = if t.floats > 0 { MODAL_ENV_FLOAT_PARSE_BYTES } else { 0 };
+    // After the parse, exactly one of three stages runs (module docs, "HP"):
+    // a parse refusal's message, a validation refusal's message, or the
+    // canonical text with its number texts and the digest.
+    let mut writing = 256 + 384;
+    for term in [canonical, sorting, quoting] {
+        writing = add("hash writing", writing, term)?;
+    }
+    let stage = writing.max(modal_env_refusal_stage());
     let mut peak = 0;
-    for term in [text, parsed, sets, scratch, canonical, sorting, quoting, fixed, limbs] {
+    for term in [text, parsed, sets, scratch, limbs, stage] {
         peak = add("hash peak", peak, term)?;
     }
     Ok(peak)
@@ -1059,9 +1128,31 @@ fn modal_env_node(id: &str) -> ModalEnvelopeResult<ModalEnvelopeText> {
     modal_env_text_join(modal_env_ascii("node:"), modal_env_text(id)?)
 }
 
-/// `index + 1` (the builders' 1-based references), checked.
-fn modal_env_next(index: usize) -> ModalEnvelopeResult<u64> {
-    modal_env_add("one-based index", modal_env_count(index), 1)
+// The writer's own arithmetic is in `usize` (`document.rs:555, 593, 650,
+// 736-737, 751, 768, 785, 797-798, 815`): with overflow checks it panics,
+// without them it wraps. The mirror performs each such operation in `usize`,
+// checked, before widening, and returns `Unprojectable` where it fails, so it
+// never describes a text the writer would not build. This holds for any
+// `usize` width; the tests run it at the 64-bit host's `usize::MAX` only.
+
+/// `index + 1` (the builders' 1-based references), in `usize`, checked.
+pub(crate) fn modal_env_next(index: usize) -> ModalEnvelopeResult<u64> {
+    index.checked_add(1).map(modal_env_count).ok_or(ModalEnvelopeError::Unprojectable { what: "index + 1 past usize" })
+}
+
+/// `index - 1`: a mode's 0-based ordinal (`document.rs:736`), in `usize`.
+pub(crate) fn modal_env_previous(index: usize) -> ModalEnvelopeResult<usize> {
+    index.checked_sub(1).ok_or(ModalEnvelopeError::Unprojectable { what: "mode index 0" })
+}
+
+/// `(index - 1) * width + offset`: a shape's or participation row's ordinal
+/// (`document.rs:751, 768`), in `usize`, checked.
+pub(crate) fn modal_env_ordinal(index: usize, width: usize, offset: usize) -> ModalEnvelopeResult<u64> {
+    modal_env_previous(index)?
+        .checked_mul(width)
+        .and_then(|first| first.checked_add(offset))
+        .map(modal_env_count)
+        .ok_or(ModalEnvelopeError::Unprojectable { what: "row ordinal past usize" })
 }
 
 // ---------------------------------------------------------------------------
@@ -1757,7 +1848,7 @@ fn modal_env_solved_document(
     standing: ModalParameterStanding<'_>,
 ) -> ModalEnvelopeResult<ModalDocumentTally> {
     let ids = outcome.node_ids.as_slice();
-    let dofs = ids.len().checked_mul(6).ok_or(ModalEnvelopeError::Overflow { term: "global dofs", left: modal_env_count(ids.len()), right: 6 })?;
+    let dofs = ids.len().checked_mul(6).ok_or(ModalEnvelopeError::Unprojectable { what: "global dofs past usize" })?;
     ledger.global_dofs = modal_env_count(dofs);
     let mut doc = modal_env_identity(ledger, binding, standing)?;
     doc.modal_env_member("status", modal_env_str("solved")?)?;
@@ -2100,7 +2191,6 @@ fn modal_env_mode_tables(
     dofs: usize,
 ) -> ModalEnvelopeResult<()> {
     let ids = outcome.node_ids.as_slice();
-    let (add, mul) = (modal_env_add, modal_env_mul);
     let (mut modes, mut shapes, mut participation) = (ModalEnvelopeTable::default(), ModalEnvelopeTable::default(), ModalEnvelopeTable::default());
     for mode in &outcome.modes {
         let case = match mode.normalization {
@@ -2108,7 +2198,7 @@ fn modal_env_mode_tables(
             NormalizationCase::UnitMaxRotation => MODAL_ENV_CASES[1],
         };
         let index = modal_env_count(mode.index);
-        let ordinal = index.checked_sub(1).ok_or(ModalEnvelopeError::Unprojectable { what: "mode index 0" })?;
+        let ordinal = modal_env_count(modal_env_previous(mode.index)?);
         let mode_ref = modal_env_ref("mode:", index)?;
         let quantity = |kind: &str, value: f64, below: bool| modal_env_quantity(kind, "fixed", Some(value), below, None);
         let mut fields = ModalEnvelopeObject::default();
@@ -2128,7 +2218,6 @@ fn modal_env_mode_tables(
         fields.modal_env_member("cluster_error_estimate", quantity("modal_cluster_error_estimate", mode.cluster_error_estimate, false)?)?;
         ledger.modal_env_seal(&mut modes, fields, mode_ref, ordinal)?;
 
-        let first = mul("shape ordinal", ordinal, modal_env_count(dofs))?;
         let shape_prefix = modal_env_text_join(modal_env_text_join(modal_env_ascii("shape:"), mode_ref)?, modal_env_ascii(":"))?;
         for dof in 0..dofs {
             let kind = if dof % 6 < 3 { "mode_shape_translation" } else { "mode_shape_rotation" };
@@ -2140,7 +2229,7 @@ fn modal_env_mode_tables(
             fields.modal_env_member("dof_ref", modal_env_string(id)?)?;
             fields.modal_env_member("component", modal_env_str(MODAL_ENV_COMPONENT)?)?;
             fields.modal_env_member("value", modal_env_quantity(kind, case, Some(value), below, None)?)?;
-            ledger.modal_env_seal(&mut shapes, fields, modal_env_text_join(shape_prefix, id)?, add("shape ordinal", first, modal_env_count(dof))?)?;
+            ledger.modal_env_seal(&mut shapes, fields, modal_env_text_join(shape_prefix, id)?, modal_env_ordinal(mode.index, dofs, dof)?)?;
         }
 
         let below = &mode.below_normal_range;
@@ -2168,7 +2257,7 @@ fn modal_env_mode_tables(
             fields.modal_env_member("effective_mass_fraction", fraction)?;
             fields.modal_env_member("cumulative_effective_mass_fraction", cumulative)?;
             let id = modal_env_text_join(participation_prefix, modal_env_ascii(MODAL_ENV_DIRECTION))?;
-            ledger.modal_env_seal(&mut participation, fields, id, add("participation ordinal", mul("participation ordinal", ordinal, 3)?, modal_env_count(k))?)?;
+            ledger.modal_env_seal(&mut participation, fields, id, modal_env_ordinal(mode.index, 3, k)?)?;
         }
     }
     tables.modal_env_member("modes", ledger.modal_env_publish(&modes)?)?;
