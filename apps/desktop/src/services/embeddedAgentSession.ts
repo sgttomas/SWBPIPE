@@ -499,8 +499,8 @@ export class EmbeddedAgentSession {
    const batch:OperationBatch={batch_id:`agent-${handle}`,operations,source_model_hash:snap.hash!.value};
    const validation=await validateOperationBatch(model,batch,snap.hash);if(!this.current(call))return this.failure(call,'Workspace changed during proposal preparation.','stale_basis');
    // A unit or value/unit-pair refusal on a known quantity field is explained in a closed form;
-   // every other refusal is the generic sentence (agentUnitRefusal.ts).
-   if(validation.validation.batch_validation_status!=='passed')return this.failure(call,unitRefusalMessage(validation,call.arguments.operations,model));
+   // every other refusal is the generic sentence (agentUnitRefusal.ts). Its steps are bound to the operations submitted.
+   if(validation.validation.batch_validation_status!=='passed')return this.failure(call,unitRefusalMessage(validation,operations,model));
    if(this.#interrupted.has(call.turnId))return this.failure(call,'Turn interrupted before registration.');
    const key=await this.owner.register(batch,context);if(!key)return this.failure(call,'Proposal registration was not confirmed.');
    this.#proposals.set(handle,{basis:structuredClone(call.basis),key,context});
