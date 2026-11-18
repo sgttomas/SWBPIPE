@@ -83,6 +83,7 @@ code_paths:
 - validation/references/inverse_norm_witness/**
 - validation/references/kd5_member_bound/**
 - validation/references/kd5_nonlinear/**
+- validation/references/kd5_nonlinear_preload/**
 - validation/references/m3_judge/**
 - validation/references/t4_i6/**
 - validation/references/t4_i9/**
