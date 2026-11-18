@@ -407,24 +407,32 @@ uses. It adds no value and changes none.
    from this package.
 3. **Governing direction.** Not carried. The 100-40-40 magnitude over the
    directions is `method_grid[...].combined`; no per-direction value
-   accompanies it.
+   accompanies it. For member axes use `per_direction_combined_member_axes`
+   and `rigid_response_signed_member_axes` for the base request, and
+   `method_grid[...].combined_member_axes` for the values over the
+   directions.
 4. **Extracted rigid modes.** An entry of `contributions_signed` whose status
    is `rigid (extracted)` is not a contribution row when the missing-mass
    correction is applied. It is one only for the `method_grid` entries with
-   the correction off.
+   the correction off. In W1-BASE, the matching direction and mode in
+   `contributions_signed` classify the entries of
+   `contributions_signed_member_axes`.
 5. **Clusters.** Contributions do not name their cluster. Each extracted mode
    is its own cluster (`scope_clusters`), so a contribution's cluster is that
    mode alone and there are no cluster sums.
 6. **Variants.** The six variants carry combined member-axis rows and rigid
-   member-axis responses, and no per-mode contributions in member axes. Their
-   member-axis rows are compared as combined values only.
+   member-axis responses, and no per-mode contributions in member axes.
+   Compare their combined member-axis magnitudes and their signed rigid
+   member-axis contributions. No direct per-mode member-axis comparison is
+   available for these variants.
 7. **Correlation coefficients.** `cqc_correlation` is the full matrix over
    the extracted modes, diagonal included. REQ-006's rule statement is its
    entries for unordered pairs of distinct periodic modes.
 
 The constituents, shares and balances are this package's diagnostics and
 correspond to no row. This package does not exercise: realized arcs,
-connectors, tie rods, compliant supports, snubbers, a constraint with more
+connectors, tie rods, compliant supports, snubbers, an imposed-displacement
+support or a nonlinear support acting as a holder, a constraint with more
 than one holder, a support with no row, an exact-route pressure member's
 axial row, a cluster of more than one mode, or a restraint along a skew
 direction.
