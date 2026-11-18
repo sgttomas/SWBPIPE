@@ -39,6 +39,27 @@
         "core/solver/modal_eigen/Cargo.toml"
       ]
     },
+    "ledger-site-observer-test": {
+      "cwd": ".",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "core/product_physics/Cargo.toml",
+        "--features",
+        "ledger-site-observer",
+        "--test",
+        "ledger_site_observer",
+        "--config",
+        "profile.test.opt-level=2",
+        "--config",
+        "profile.test.debug-assertions=true",
+        "--config",
+        "profile.test.overflow-checks=true"
+      ]
+    },
     "piping-pytest": {
       "cwd": ".",
       "command": [
@@ -311,6 +332,17 @@
       ],
       "checks": [
         "modal-eigen-test"
+      ]
+    },
+    {
+      "paths": [
+        "core/solver/frame_kernel/**",
+        "core/solver/nonlinear_integration/**",
+        "core/product_physics/**",
+        "tools/retained_pricing/base/loopscan.py"
+      ],
+      "checks": [
+        "ledger-site-observer-test"
       ]
     },
     {
