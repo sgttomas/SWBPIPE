@@ -10,11 +10,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
-// Each package control result the saves make, observed through a WeakRef; a test that compares
-// the shown line with the full result's asks for it to be kept as well.
-const observed = vi.hoisted(() => ({ keep: false, refs: [] as WeakRef<object>[], kept: [] as unknown[] }));
-function observe<T extends object>(controlled: T): T {
+// Each package control result the saves make, and its controlled payload, observed through a
+// WeakRef; a test that compares the shown line with the full result's asks for the result to be
+// kept as well.
+const observed = vi.hoisted(() => ({ keep: false, refs: [] as WeakRef<object>[], payloads: [] as WeakRef<object>[], kept: [] as unknown[] }));
+function observe<T extends { payload: unknown }>(controlled: T): T {
   observed.refs.push(new WeakRef(controlled));
+  if (typeof controlled.payload === "object" && controlled.payload !== null) observed.payloads.push(new WeakRef(controlled.payload));
   if (observed.keep) observed.kept.push(controlled);
   return controlled;
 }
@@ -43,6 +45,7 @@ import { useWorkspaceSession } from "./workspaceSession";
 afterEach(() => {
   observed.keep = false;
   observed.refs = [];
+  observed.payloads = [];
   observed.kept = [];
   cleanup();
   vi.restoreAllMocks();
@@ -138,8 +141,11 @@ describe("the report package saves keep only what they read of the redaction con
     act(() => { saving = hook.current.results.handleSaveReportPackage(); });
     await waitFor(() => expect(saveCalls()).toHaveLength(1));
     expect(observed.refs).toHaveLength(1);
+    expect(observed.payloads).toHaveLength(1);
     await collectGarbage();
     expect(observed.refs[0].deref()).toBeUndefined();
+    // Nor its controlled payload: what is sent is the prepared canonical text.
+    expect(observed.payloads[0].deref()).toBeUndefined();
     expect(hook.current.results.reportPackageRedaction?.blocked).toBe(false);
     await act(async () => { releaseSave(); await saving; });
     expect(hook.current.results.reportPackageRoute).toMatchObject({ route: "tauri_report_package_save" });
@@ -153,8 +159,11 @@ describe("the report package saves keep only what they read of the redaction con
     act(() => { request.save({ userReleasedAt: "2026-11-09T00:00:00Z" }); });
     await waitFor(() => expect(saveCalls()).toHaveLength(1));
     expect(observed.refs).toHaveLength(1);
+    expect(observed.payloads).toHaveLength(1);
     await collectGarbage();
     expect(observed.refs[0].deref()).toBeUndefined();
+    // Nor its controlled payload: what is sent is the prepared canonical text.
+    expect(observed.payloads[0].deref()).toBeUndefined();
     expect(hook.current.results.reportPackageRedaction).toBeNull();
     await act(async () => { releaseSave(); });
     await waitFor(() => expect(hook.current.results.reportPackageBusy).toBe(false));
