@@ -467,8 +467,9 @@ differences remain; none is in criterion 6's identity set or a numerical value:
 - **Blank document members.** The entered document keeps the blank's `analysis_status`
   (`MODEL_INCOMPLETE`, `RULE_INPUTS_INCOMPLETE`, `NOT_PROVIDED`; the fixture's is
   `ready_for_preview_diagnostics`, `not_performed_user_rule_inputs_missing`,
-  `not_provided`), its `data_boundary` (absent from the fixture) and its `diagnostics`, the
-  one `BLANK_PROJECT_AUTHORING_TARGET` entry naming the project (absent from the fixture).
+  `not_provided`), its `data_boundary` (the blank's statements; the fixture states its own,
+  [specification](SPECIFICATION.md) §2) and its `diagnostics`, the one
+  `BLANK_PROJECT_AUTHORING_TARGET` entry naming the project (the fixture's list is empty).
 - **Derived pipe labels.** The sheet labels each straight pipe with its id's token
   (`RS-P020`); the fixture adds what the member carries, on RS-P020, RS-P030, RS-P040,
   RS-P120, RS-P130, RS-P150, RS-P170, RS-P180, RS-P190 and RS-P210 (for example

@@ -107,8 +107,8 @@ A variable spring of rate k set to the load F_cold at the installed position car
 at any position u. The same law is used everywhere: in the sizing arithmetic, in the
 verification pass, and, once increment 6 is built, in the model's own solve.
 
-**This is an assumption.** Practice also sets springs at a settled cold position or with
-an erection offset. SWBPIPE offers neither. Where the cold-condition position u_C is not
+**This is an assumption.** Setting a spring at a settled cold position, or with an
+erection offset, is outside this method, and SWBPIPE offers neither. Where the cold-condition position u_C is not
 zero, the installed setting F_cold and the cold-condition load F_C differ. The engine
 returns both, and only F_cold is a setting. The published result states the
 assumption in its basis statement (slice 1d-α). Labelling the two loads in the
@@ -163,9 +163,10 @@ Each derived solve is a full solve of its case, and lift-off, gaps, one-way supp
 and friction converge to the states that case produces. Friction is the solve's
 static, history-free friction. W is formed in the weight case's own state.
 
-Practice also forms W in the design operating case's state: in the hot position, a
-support that has lifted off no longer carries weight, so a hanger near it carries
-more. SWBPIPE does not do this yet. The result warns, by name, of every nonlinear
+Forming W in the design operating case's state is outside this method for now. A
+support that lifts off in the hot position carries no weight there, and the reactions
+can redistribute, which may increase a nearby hanger's load. SWBPIPE does not form W
+that way yet. The result warns, by name, of every nonlinear
 support whose state differs between the weight solve and the design operating solve
 (`HANGER_SIZING_SUPPORT_STATE_DIFFERS`), so the user can judge whether W represents
 the hot condition. It warns in the same way where replacing the candidates by their

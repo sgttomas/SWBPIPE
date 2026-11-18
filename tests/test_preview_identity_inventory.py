@@ -1,4 +1,4 @@
-"""Inventory guard of the preview-physics-2 identity (DEL-05-03 Design pf-timoshenko.md §4, "Inventory guard").
+"""Inventory guard of the preview-physics-2 identity.
 
 The pressure-free Timoshenko identity (`preview-physics-timoshenko-1`) is admitted beside preview-physics-2 at every
 identity-aware site. Sites that name one identity were found across review rounds, so this test scans the tracked Rust,
@@ -106,6 +106,11 @@ LITERAL_SITES = {
         "preview-physics-timoshenko-1", "apps/desktop/src/features/results/recordedPreRtA4Display.test.tsx"),
     "tools/serialization/generate_product_preview_mechanics.mjs": (
         {"id"}, EB_ONLY, "regenerates the committed Euler-Bernoulli demo fixtures; any other identity is refused", None, None),
+    "apps/desktop/native-smoke/evidence-journeys.mjs": (
+        {"id"}, EB_ONLY,
+        "verification tooling, not an admission site: the pressure-free evidence journey's expectation for the packages "
+        "saved from the bundled Euler-Bernoulli demo, whose shareable path admits preview-physics-2 only on the "
+        "pressure-free route (report_package user_release.rs check_pressure_free)", None, None),
 }
 
 # Symbol-only gates (no literal): path -> (symbols the file must name, class, reason, Timoshenko marker or None, exercised by).
@@ -162,7 +167,7 @@ def _is_scanned(path: str) -> bool:
     if path.startswith("tests/verifiers/"):
         return True
     test = (path.startswith(("tests/", "validation/", "execution/", "fixtures/", "tools/retained_pricing/"))
-            or "/tests/" in path or path.endswith(("_tests.rs", ".test.ts", ".test.tsx", ".spec.ts", "_test.py"))
+            or "/tests/" in path or path.endswith(("_tests.rs", ".test.ts", ".test.tsx", ".test.mjs", ".spec.ts", "_test.py"))
             or "/test-support/" in path or "/src/test/" in path or "/e2e/" in path or "/benches/" in path or "/test_" in path)
     return not test
 

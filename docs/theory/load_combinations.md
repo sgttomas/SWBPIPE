@@ -90,7 +90,12 @@ A and R are +0.0 for an exact zero, never −0.0, and depend only on the multise
 infinity. Displacement and support-force and -moment magnitudes are the correctly
 rounded norm of the combination's own combined components (an envelope selects
 them instead). For an SRSS this equals the SRSS of the operands' magnitudes in
-exact arithmetic; for an absolute sum each component |Σ sᵢfᵢvᵢ,c| ≤ Σ|fᵢvᵢ,c|, so
+exact arithmetic. With every product exact (zᵢ,c = fᵢ·vᵢ,c), the operands' rows
+paired on the same components c in the same frame, and the magnitude the
+Euclidean norm over those components, the combined component is
+R_c = √(Σᵢ (fᵢ·vᵢ,c)²). Then Σ_c R_c² = Σ_c Σᵢ fᵢ²·vᵢ,c² = Σᵢ fᵢ²·Σ_c vᵢ,c² =
+Σᵢ (fᵢ·‖vᵢ‖)², by exchanging the two finite sums. In binary64 the rounding of
+each zᵢ, each R_c and the norm breaks exact equality. For an absolute sum each component |Σ sᵢfᵢvᵢ,c| ≤ Σ|fᵢvᵢ,c|, so
 the magnitude bounds every signed combination's magnitude from above.
 
 ## Assumptions: the fixed-load count κ
@@ -128,8 +133,8 @@ state, so they are formed in models with nonlinear supports, with each operand's
 numerical standing recorded. A `mechanics` combination in such a model is withheld,
 except decision OQ-1: one solved load case with factor exactly 1 plus at least one
 other term, every other term naming a combination with κ exactly 0. Its rows are a
-solved state plus derived differences or bounds, which is how occasional load cases
-are commonly formed in practice; they are labelled as not an equilibrium state.
+solved state plus derived differences or bounds; they are labelled as not an
+equilibrium state.
 
 ## Limitations
 

@@ -3,11 +3,13 @@
 // which the build evaluates in the real webview once the page has loaded (`src-tauri/src/native_smoke.rs`).
 //
 // It works the app as a person would: native menu commands go through the dispatch a menu click uses, and buttons
-// and checkboxes are operated in the window. Two presentations are substituted: the Open Model Document chooser
-// (`native_smoke_choose` names the file it returns) and the system print dialog. Print… goes to the native print
+// and checkboxes are operated in the window. Two presentations are substituted: the file choosers (Open Model
+// Document… and Save canonical HTML…; `native_smoke_choose` names the file each returns) and the system print
+// dialog. Save canonical HTML… goes to the native save route, which writes the file itself. Print… goes to the native print
 // route (DEL-08-01 REQ-022), and this build, in place of the dialog, records on the print window's own handle the
-// print document that reached the native print (`native_smoke_take_report_prints`); the driver closes that window
-// (`native_smoke_close_report_print`). No dialog appears, and none is observed.
+// print document that reached the native print (`native_smoke_take_report_prints`); the driver then asks for the open
+// print window to be closed (`native_smoke_close_report_print`), which answers whether the window that close selected
+// left the window registry. No dialog appears, and none is observed.
 //
 // It records what the window shows, step by step (reached or not, with what was observed), and hands the runner's
 // nonce back; the runner judges. A step that throws is recorded as not reached, with its error, and the journey ends.
@@ -119,6 +121,18 @@
     return byTestId("rendered-report-preview", panel());
   }
 
+  // The session's report output outcomes (`ReportOutputStatus.tsx`), outside the Report section: each entry's id,
+  // kind, state, whether the workspace changed since its report was prepared, and its text, as the window shows them.
+  function outputEntries() {
+    return [...document.querySelectorAll('[data-testid="report-output-status"] > [data-testid^="report-output-"]')].map((item) => ({
+      id: item.getAttribute("data-testid").slice("report-output-".length),
+      kind: item.getAttribute("data-kind"),
+      state: item.getAttribute("data-state"),
+      workspace_changed: item.getAttribute("data-workspace-changed"),
+      text: item.querySelector('[data-testid$="-text"]')?.textContent?.trim() ?? null
+    }));
+  }
+
   const steps = [];
   // A step's body may note what it has seen as it goes (`note`), so a step that fails keeps its observations so far.
   async function step(id, body) {
@@ -199,6 +213,30 @@
         integrity_checked: /integrity checked/.test(documentText)
       };
     });
+    await step("save-html", async (note) => {
+      // Save canonical HTML… goes to the native save route (DEL-08-01 REQ-022): its chooser takes the path queued
+      // here (`native_smoke_choose`, inside the home; the strict chooser ends the app if none is queued), and the
+      // product writes the file. The runner reads the saved bytes itself and compares them with the document read here.
+      const preview = byTestId("rendered-report-preview", panel());
+      const canonical_html = preview?.getAttribute("srcdoc") ?? "";
+      const shown_hash = text("rendered-report-hash", panel());
+      const control = byTestId("rendered-report-save-local-private", panel()) ?? byTestId("rendered-report-save", panel());
+      note({ control: control?.getAttribute("data-testid") ?? null, control_tag: control?.tagName?.toLowerCase() ?? null });
+      if (!control || control.tagName !== "BUTTON") throw new Error("no native Save canonical HTML control");
+      if (control.disabled) throw new Error(`${control.getAttribute("data-testid")} is disabled`);
+      const before = new Set(outputEntries().map((entry) => entry.id));
+      await call("native_smoke_choose", { path: plan.html_save.path });
+      control.click();
+      const status = await waitFor("the save outcome", () => {
+        const now = text("rendered-report-save-status", panel()) ?? "";
+        return /^(Saved |Not saved|Save cancelled|Save outcome unknown)/.test(now) ? now : null;
+      }, 60000);
+      note({ status });
+      // A queued answer still there afterwards was never taken by a chooser.
+      const chooser_paths_unused = await call("native_smoke_clear_choices");
+      const entry = await waitFor("the save's outcome entry, settled", () => outputEntries().find((item) => !before.has(item.id) && item.kind === "save" && item.state !== "pending") ?? null, 30000);
+      return { status, chooser_paths_unused, entry, canonical_html, shown_hash };
+    });
     await step("print", async () => {
       // The native-smoke build presents no system print dialog: on the print window's own handle the native print
       // records the print document. Drain any earlier record, press Print, take the record, close the print window.
@@ -246,7 +284,14 @@
         if (!shown || gateLoading() || !byTestId("rendered-report-precondition", shown)) return null;
         return { panel_present: true, precondition: true, preview: Boolean(byTestId("rendered-report-preview", shown)) };
       }, 30000);
-      return { applied: true, summary, ...seen };
+      // The earlier save's outcome entry, read after this edit has been applied and the panel has withdrawn the
+      // report: the save completed before the edit, so the entry is expected to say that the workspace has changed
+      // since its report was prepared. Ordinary ordering only: no save is in transit across the edit.
+      const savedId = steps.find((item) => item.id === "save-html")?.entry?.id ?? null;
+      const save_entry_after_edit = savedId === null ? null
+        : await waitFor("the save's entry after the edit", () => outputEntries().find((item) => item.id === savedId && item.workspace_changed === "true") ?? null, 30000)
+          .catch(() => outputEntries().find((item) => item.id === savedId) ?? { missing: savedId });
+      return { applied: true, summary, ...seen, save_entry_after_edit };
     });
     await step("resolve-invalidates", async (note) => {
       await menu("edit.undo");
