@@ -30,7 +30,9 @@ refuted.
 
 | File | Role |
 |---|---|
-| `generators/demo_friction_preload_reference.py` | the generator. It is a self-contained exact-rational 3D Euler–Bernoulli frame formed from the demo model's leaves, with every state enumerated. It holds a transcription of the frozen table, marked with its test-file line numbers and checked number by number against those lines. It writes the output and `SHA256SUMS` |
+| `generators/demo_friction_preload_reference.py` | the generator. It is a self-contained exact-rational 3D Euler–Bernoulli frame formed from the staged model's leaves, with every state enumerated. It writes the output and `SHA256SUMS` |
+| `staged/invented_demo_model.json` | an input staged from `fixtures/product_preview/invented_demo_model.json` as committed at `3c8fc26a6c188f1613714f56d9807dc32433c46d`: the whole model document, byte for byte, because the derivation reads most of it |
+| `staged/frozen_expected_table.json` | an input staged from `core/product_physics/tests/friction_reversal_stop_release_runtime.rs` at the same commit: its lines 61–66 (the frozen `EXPECTED` table) verbatim, and the author's transcription of them, marked with each line number. The generator checks the transcription against the staged lines number for number |
 | `demo_friction_reversal_preload.json` | `rows` has the six scenarios under the law, each with exactly the fields of the test's `Expected` entries (case, variant, applied_y_n, stop_active, stop_uy_mm, stop_reaction_n, slip_mm, friction_n, normal_n, s130_fy_n, sh140_fz_n), in the test's units (N, mm, support actions on the structure). `notes` has, per scenario: the admissible state and its margins; every enumerated state with its standing and margins; the stiffness-only state; the applied force; each changed field next to its frozen (stiffness-only) value; and the exact rationals. `crosscheck` lists every check |
 | `SHA256SUMS` | the hashes of every other file of this package. The generator writes it |
 
@@ -43,10 +45,33 @@ python3 -I generators/demo_friction_preload_reference.py --check
 ```
 
 The check rebuilds the output into a temporary directory and compares it byte
-for byte with the committed files. It changes no file. `--write` rewrites the
-outputs, for intentional changes only.
+for byte with the committed files. It changes no file and opens nothing
+outside this package; in particular it opens no file under `core/`. It
+establishes that the committed output follows from the staged inputs.
+`--write` rewrites the outputs, for intentional changes only.
+
+```sh
+python3 -I generators/demo_friction_preload_reference.py --check-live
+```
+
+This separate check, which `--check` does not run, does two comparisons. It
+compares the staged model with the live fixture on only the leaves that enter
+the derivation (`DERIVATION_LEAVES` in the generator), so the fixture's
+descriptive strings are ignored. It also compares the staged test-file lines
+with the live file's lines 61–66. It names every difference. It establishes
+whether the staged inputs still match their sources. A difference means a
+source has moved on, not that the committed output is wrong for its staged
+inputs.
 
 ## Method
+
+**Axis and sign of the cold load.** The cold load acts along the positive axis
+of the hanger's declared stiffness DOF (+Z here). This reading comes from
+DEL-04-11 REQ-014 ("through the constant-effort seam") together with DEL-04-03
+REQ-014's positive-axis convention for the constant-effort support; the
+spring's own sentence in DEL-04-03 does not say "positive axis". If the sign
+were decided otherwise, every value here that the cold load moves would
+change, and the admissible states with them.
 
 The method follows the test header, and every input is read from the demo
 model's leaves:
@@ -108,13 +133,16 @@ lists each change.
 
 ## Independence
 
+This package is independent of the product. It is not independent of the
+stated basis it builds on: the method stated in the test file's header.
+
 What is independent: the generator imports, reads and runs no product code
 and no product output, and it copies no number into the derivation. Every
-value comes from the demo model's leaves, in exact rationals; π is the
-exception, as a 60-decimal rational. It reads the test file only to check its
-transcription of the frozen table, which it uses for the reproduction check
-and to stand beside each changed value. Its author saw no product value for
-this model under the law.
+value comes from the staged model's leaves, in exact rationals; π is the
+exception, as a 60-decimal rational. The frozen table enters only through its
+staged transcription, which the generator uses for the reproduction check and
+to stand beside each changed value. Its author saw no product value for this
+model under the law.
 
 What is not independent: the reference model is the test header's stated
 basis. Its author read the test file, which also states which product rows

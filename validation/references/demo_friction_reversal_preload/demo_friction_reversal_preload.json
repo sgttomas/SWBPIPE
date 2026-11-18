@@ -3,7 +3,8 @@
  "status": "candidate references under the variable-spring-hanger preload law; derived by their author TASK without sight of any product output; not yet independently refuted",
  "supplements": "core/product_physics/tests/friction_reversal_stop_release_runtime.rs EXPECTED (lines 61-66; frozen, unchanged)",
  "model": {
-  "file": "fixtures/product_preview/invented_demo_model.json",
+  "file": "staged/invented_demo_model.json",
+  "staged_from": "fixtures/product_preview/invented_demo_model.json at 3c8fc26a6c188f1613714f56d9807dc32433c46d",
   "sha256": "2fd18681f688e60b03102eb65112d147871d3a59431685800d2bfa3baca7b672",
   "basis": "the test header's: C-130 (and every component) and CE-120 not consumed; the test's request declares C-130 not_solver_consumed"
  },
@@ -2045,7 +2046,7 @@
  "findings": [],
  "crosscheck": [
   {
-   "check": "the transcribed frozen table matches lines 61-66 of the test file, number for number",
+   "check": "the transcribed frozen table matches the staged lines 61-66 of the test file, number for number",
    "agrees": true
   },
   {

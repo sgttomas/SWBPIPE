@@ -30,16 +30,22 @@ negative, released iff N-140 UY <= 0; stick iff |F| <= mu N; slide iff F = -sign
 slide's sense; the S-130 action of the stated sign). Strict: every margin positive. Exactly one strict
 state is required in each scenario; a weak state, none or more than one is reported, not chosen.
 
-Standard-library Python 3 only. It imports, reads and runs no product code and no product output; it reads
-the demo model fixture and the one test file (for the frozen table only, transcribed below with its line
-numbers, and checked against the file's bytes).
+Standard-library Python 3 only. It imports, reads and runs no product code and no product output. Its
+default check reads only this package: staged/invented_demo_model.json (the demo model fixture as committed
+at a named commit) and staged/frozen_expected_table.json (the test file's EXPECTED lines verbatim, with the
+author's transcription, checked against those lines number for number). Only --check-live opens the live
+fixture and the test file.
 
 Modes (run from this package's directory):
   python3 -I generators/demo_friction_preload_reference.py --check   regenerate into a temporary directory and
                                                                      compare byte for byte (changes no file)
   python3 -I generators/demo_friction_preload_reference.py --write   write the outputs (intentional changes only)
+  python3 -I generators/demo_friction_preload_reference.py --check-live
+                                       compare the staged inputs with the live fixture's derivation leaves and the
+                                       live test file's lines, naming any that differ (not run by --check)
 """
 import argparse
+import fnmatch
 import hashlib
 import json
 import sys
@@ -51,27 +57,23 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE.parent
 ROOT = OUT.parents[2]
-DEMO = ROOT / "fixtures" / "product_preview" / "invented_demo_model.json"
-TEST = ROOT / "core" / "product_physics" / "tests" / "friction_reversal_stop_release_runtime.rs"
+STAGED_MODEL = "staged/invented_demo_model.json"
+STAGED_TABLE = "staged/frozen_expected_table.json"
+DEMO = OUT / STAGED_MODEL
+LIVE_DEMO = ROOT / "fixtures" / "product_preview" / "invented_demo_model.json"  # --check-live only
+LIVE_TEST = ROOT / "core" / "product_physics" / "tests" / "friction_reversal_stop_release_runtime.rs"  # --check-live only
 OUTPUT = "demo_friction_reversal_preload.json"
-FIXED_FILES = ("README.md", "generators/demo_friction_preload_reference.py")
+FIXED_FILES = ("README.md", "generators/demo_friction_preload_reference.py", STAGED_MODEL, STAGED_TABLE)
 DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
 VARIANTS = ["Original", "ReverseZ", "ReverseAll"]
 
-# Copied from core/product_physics/tests/friction_reversal_stop_release_runtime.rs lines 61-66 (the EXPECTED
-# table, frozen): the stiffness-only result, SH-140 a bare 42000 N/m spring with its cold load not applied.
-# Used only for the reproduction check and to stand beside each changed value; build() checks that every
-# number here appears verbatim on its line of the test file.
-TRANSCRIBED_LINES = {61: ("load:L-100", "Original"), 62: ("load:L-100", "ReverseZ"), 63: ("load:L-100", "ReverseAll"),
-                     64: ("load:L-200", "Original"), 65: ("load:L-200", "ReverseZ"), 66: ("load:L-200", "ReverseAll")}
-FROZEN = [
-    {"case": "load:L-100", "variant": "Original", "applied_y_n": 350.0, "stop_active": True, "stop_uy_mm": 0.0, "stop_reaction_n": -297.6267180126413, "slip_mm": -6.643926797396845, "friction_n": 0.5237328198735871, "normal_n": 52.373281987358716, "s130_fy_n": -52.373281987358716, "sh140_fz_n": 279.00851842729384},
-    {"case": "load:L-100", "variant": "ReverseZ", "applied_y_n": 350.0, "stop_active": True, "stop_uy_mm": 0.0, "stop_reaction_n": -402.3732819873587, "slip_mm": 6.643926797396845, "friction_n": -0.5237328198735871, "normal_n": 52.373281987358716, "s130_fy_n": 52.373281987358716, "sh140_fz_n": -279.00851842729384},
-    {"case": "load:L-100", "variant": "ReverseAll", "applied_y_n": -350.0, "stop_active": False, "stop_uy_mm": -5.356128551796324, "stop_reaction_n": 0.0, "slip_mm": 5.999143262955726, "friction_n": -3.5, "normal_n": 350.0, "s130_fy_n": 350.0, "sh140_fz_n": -251.93114323387397},
-    {"case": "load:L-200", "variant": "Original", "applied_y_n": 125.0, "stop_active": True, "stop_uy_mm": 0.0, "stop_reaction_n": -98.81335900632064, "slip_mm": -3.3219633986984225, "friction_n": 0.26186640993679355, "normal_n": 26.186640993679358, "s130_fy_n": -26.186640993679358, "sh140_fz_n": 139.50425921364692},
-    {"case": "load:L-200", "variant": "ReverseZ", "applied_y_n": 125.0, "stop_active": True, "stop_uy_mm": 0.0, "stop_reaction_n": -151.18664099367936, "slip_mm": 3.3219633986984225, "friction_n": -0.26186640993679355, "normal_n": 26.186640993679358, "s130_fy_n": 26.186640993679358, "sh140_fz_n": -139.50425921364692},
-    {"case": "load:L-200", "variant": "ReverseAll", "applied_y_n": -125.0, "stop_active": False, "stop_uy_mm": -1.778257869477212, "stop_reaction_n": 0.0, "slip_mm": 3.107892473562634, "friction_n": -1.25, "normal_n": 125.0, "s130_fy_n": 125.0, "sh140_fz_n": -130.5144534132732},
-]
+# The frozen EXPECTED table (the test file's lines 61-66): the stiffness-only result, SH-140 a bare 42000 N/m
+# spring with its cold load not applied. The staged file holds those lines verbatim and the author's
+# transcription; used only for the reproduction check and to stand beside each changed value; build() checks
+# that every number of the transcription appears verbatim on its staged line.
+TABLE = json.loads((OUT / STAGED_TABLE).read_text())
+TRANSCRIBED_LINES = {row["line"]: (row["case"], row["variant"]) for row in TABLE["transcription"]}
+FROZEN = [{k: v for k, v in row.items() if k != "line"} for row in TABLE["transcription"]]
 FIELDS = ["case", "variant", "applied_y_n", "stop_active", "stop_uy_mm", "stop_reaction_n", "slip_mm", "friction_n",
           "normal_n", "s130_fy_n", "sh140_fz_n"]
 CROSS = []
@@ -359,10 +361,9 @@ def reproduces(row, frozen):
 
 
 def transcription_matches():
-    lines = TEST.read_text().splitlines()
     ok = True
     for (ln, (case_id, variant)), frozen in zip(TRANSCRIBED_LINES.items(), FROZEN):
-        text = lines[ln - 1]
+        text = TABLE["lines"][str(ln)]
         ok &= (frozen["case"], frozen["variant"]) == (case_id, variant)
         ok &= f'case: "{case_id}"' in text and f"Variant::{variant}," in text
         for key in FIELDS[2:]:
@@ -380,7 +381,7 @@ def build():
     CROSS.clear()
     doc = json.loads(DEMO.read_text())
     model = Demo(doc)
-    check("the transcribed frozen table matches lines 61-66 of the test file, number for number", transcription_matches())
+    check("the transcribed frozen table matches the staged lines 61-66 of the test file, number for number", transcription_matches())
     check("pi (Machin, 60 decimals) begins 3.14159265358979323846264338327950288419716939937510",
           str(PI.numerator * 10 ** 50 // PI.denominator).startswith("314159265358979323846264338327950288419716939937510"))
     rows, notes, findings = [], [], []
@@ -440,7 +441,9 @@ def build():
         "status": "candidate references under the variable-spring-hanger preload law; derived by their author TASK "
                   "without sight of any product output; not yet independently refuted",
         "supplements": "core/product_physics/tests/friction_reversal_stop_release_runtime.rs EXPECTED (lines 61-66; frozen, unchanged)",
-        "model": {"file": "fixtures/product_preview/invented_demo_model.json",
+        "model": {"file": STAGED_MODEL,
+                  # Both inputs were staged at the same commit, which the staged table records.
+                  "staged_from": "fixtures/product_preview/invented_demo_model.json at " + TABLE["commit"],
                   "sha256": hashlib.sha256(DEMO.read_bytes()).hexdigest(),
                   "basis": "the test header's: C-130 (and every component) and CE-120 not consumed; the test's request "
                            "declares C-130 not_solver_consumed"},
@@ -458,6 +461,56 @@ def build():
     return {OUTPUT: (json.dumps(out, indent=1) + "\n").encode()}
 
 
+# The leaves of the model document the derivation reads (Demo and loads()); descriptive strings, components and
+# CE-120 are not among them. Paths key list members by their id.
+DERIVATION_LEAVES = [
+    "nodes/*/position/*",
+    "materials/*/elastic_modulus/*", "materials/*/shear_modulus/*", "materials/*/thermal_expansion_coefficient/*",
+    "pipe_segments/*/from", "pipe_segments/*/to", "pipe_segments/*/material", "pipe_segments/*/y_reference/*",
+    "pipe_segments/*/section/outside_diameter/*", "pipe_segments/*/section/wall_thickness/*",
+    "supports/support:S-1?0/family", "supports/support:S-1?0/node", "supports/support:S-1?0/restraints/*",
+    "supports/support:S-1?0/nonlinear*",
+    "supports/support:NL-140/node", "supports/support:NL-140/nonlinear/*",
+    "supports/support:NL-130-FRIC/node", "supports/support:NL-130-FRIC/nonlinear/*",
+    "supports/support:SH-140/family", "supports/support:SH-140/node", "supports/support:SH-140/hanger/stiffness/*",
+    "supports/support:SH-140/hanger/cold_load/*",
+    "load_cases/*/primitive_loads/*/direction", "load_cases/*/primitive_loads/*/dimension",
+    "load_cases/*/primitive_loads/*/magnitude/*", "load_cases/*/primitive_loads/*/target/*",
+]
+
+
+def flatten(o, path=""):
+    if isinstance(o, dict):
+        return {k: v for key, x in o.items() for k, v in flatten(x, f"{path}/{key}" if path else key).items()}
+    if isinstance(o, list):
+        keyed = all(isinstance(x, dict) and "id" in x for x in o)
+        return {k: v for i, x in enumerate(o) for k, v in flatten(x, f"{path}/{x['id'] if keyed else i}").items()}
+    return {path: o}
+
+
+def derivation_leaves(doc):
+    return {k: v for k, v in flatten(doc).items() if any(fnmatch.fnmatchcase(k, p) for p in DERIVATION_LEAVES)}
+
+
+def check_live():
+    """The staged inputs against the live fixture (derivation leaves only) and the live test file's lines."""
+    differ = []
+    staged, live = derivation_leaves(json.loads(DEMO.read_text())), derivation_leaves(json.loads(LIVE_DEMO.read_text()))
+    for k in sorted(set(staged) | set(live)):
+        if staged.get(k, "<absent>") != live.get(k, "<absent>"):
+            differ.append(f"{LIVE_DEMO.relative_to(ROOT)} {k}: staged {staged.get(k, '<absent>')!r}, live {live.get(k, '<absent>')!r}")
+    lines = LIVE_TEST.read_text().splitlines()
+    for ln, text in TABLE["lines"].items():
+        now = lines[int(ln) - 1] if int(ln) <= len(lines) else "<absent>"
+        if now != text:
+            differ.append(f"{LIVE_TEST.relative_to(ROOT)} line {ln}: staged {text!r}, live {now!r}")
+    for d in differ:
+        print("DIFFERS:", d)
+    print(f"live inputs: {len(staged)} model derivation leaves and {len(TABLE['lines'])} test-file lines compared, "
+          f"{len(differ)} differ")
+    return 1 if differ else 0
+
+
 def with_sums(files):
     sums = []
     for path in sorted(list(files) + list(FIXED_FILES)):
@@ -472,7 +525,10 @@ def main():
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--write", action="store_true")
     mode.add_argument("--check", action="store_true")
+    mode.add_argument("--check-live", action="store_true")
     args = parser.parse_args()
+    if args.check_live:
+        return check_live()
     files = with_sums(build())
     bad = [c for c in CROSS if not c["agrees"]]
     print(f"cross-checks: {len(CROSS)} recorded, {len(bad)} disagreeing")
