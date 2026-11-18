@@ -175,6 +175,10 @@ TRANCHE1_SPECIFICATION_WHY = ("the specification cleared its RS-R1 ledger row, w
                               "verbatim; it reads the specification as it was at 5dcdb4e21, and the existing "
                               "package's references.json as committed")
 
+# No product test reads the four preload packages (the entries named *_preload) yet: the preload law
+# (DEL-04-11/REQ-014) is not implemented, and its landing points the product tests at them and removes this note.
+# Until then each package's own check and this table's tests maintain them.
+#
 # The live repository files that two preload packages staged their inputs from: t4_i12_preload the preview fixture,
 # demo_friction_reversal_preload the demo fixture and the product test whose inline table it supplements. Their
 # default checks read only the staged copies; tests/test_reference_packages_live.py runs their separate live checks

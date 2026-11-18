@@ -58,8 +58,10 @@ code_paths:
 - validation/references/skew_restraints/**
 - validation/references/w16_nonlinear_motion/**
 - validation/references/w16_nonlinear_motion_preload/**
-# Two more preload references whose hanger is this deliverable's support law (the reference-package table names
-# this deliverable for both): the preview model's cases, and the demo's friction reversal.
+# Three more preload references whose hanger is this deliverable's support law (the reference-package table names
+# this deliverable for each): the one-way support beside a hanger, the preview model's cases, and the demo's
+# friction reversal.
+- validation/references/kd5_nonlinear_preload/**
 - validation/references/t4_i12_preload/**
 - validation/references/demo_friction_reversal_preload/**
 checks:
