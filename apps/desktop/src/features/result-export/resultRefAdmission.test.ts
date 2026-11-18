@@ -122,6 +122,14 @@ describe("Current row binding against the search it replaced", () => {
     for (const outcome of [arrayLike, noPrototype]) expect(outcome).toStrictEqual({ thrown: "TypeError" });
   });
 
+  it("refuses references held in an array whose find never finds, as the search did", async () => {
+    const args = await current();
+    // The record's JSON guard reads own members only, so it admits an array whose prototype
+    // supplies another `find`. The search called that `find` and bound no row.
+    const neverFinds = Object.create(Array.prototype, { find: { value: () => undefined } });
+    expect(await bothWays(withRefs(args, refs => Object.setPrototypeOf(refs, neverFinds) as Refs))).toStrictEqual(ROW_BINDING);
+  });
+
   it("gives the same answer for references in another order", async () => {
     const args = await current();
     // The row binding finds each row's reference wherever it sits; what follows it decides.

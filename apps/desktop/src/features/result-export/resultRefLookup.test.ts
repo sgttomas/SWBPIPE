@@ -90,6 +90,16 @@ describe("first-match result reference lookup", () => {
     }
   });
 
+  it("answers an array whose find is not the standard one by calling that find, as the search did", () => {
+    const entries = [entry("a", 0), entry("b", 1), entry("a", 2)];
+    // One whose prototype supplies a `find` that never finds; one with its own `find` that takes the last match.
+    const never = Object.setPrototypeOf([...entries], Object.create(Array.prototype, { find: { value: () => undefined } })) as Entry[];
+    const last = Object.assign([...entries], { find(this: Entry[], test: (x: Entry) => boolean) { return [...this].reverse().filter(test)[0]; } }) as Entry[];
+    for (const refs of [never, last]) expectSameAsSearch(refs, ["a", "b", "absent", "a"]);
+    expect(firstMatchResultRefLookup(never)("a")).toBeUndefined();
+    expect(firstMatchResultRefLookup(last)("a")).toBe(entries[2]);
+  });
+
   it("matches the search on generated lists with duplicate, missing and unreadable entries", () => {
     const random = mulberry32(0x5eed), shared = {}, pool: unknown[] = ["a", "b", "c", "d", "e", "", "0", 0, -0, 1, null, true, false, NaN, shared];
     const pick = () => pool[Math.floor(random() * pool.length)];

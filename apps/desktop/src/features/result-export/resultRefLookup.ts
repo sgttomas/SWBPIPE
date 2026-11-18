@@ -10,7 +10,9 @@
  *
  * A list that is not an array, or has no `find` to call, is refused with a `TypeError` at the
  * first lookup, where the search threw one: an object holding numbered entries and a length
- * is not a list of references.
+ * is not a list of references. An array whose `find` is not the standard one (its own, or one
+ * its prototype supplies) is answered by calling that `find`, as the search did, and is not
+ * indexed.
  *
  * The equivalence is for a list whose reads are stable: an ordinary array that nothing
  * changes between the first lookup and the last. The search read the live list again for
@@ -22,6 +24,7 @@ export function firstMatchResultRefLookup<T extends { result_ref: { ref: unknown
   let next = 0;
   return id => {
     if (!Array.isArray(refs) || typeof refs.find !== "function") throw new TypeError("result references are not an array");
+    if (refs.find !== Array.prototype.find) return refs.find(entry => entry.result_ref.ref === id);
     // `Map` compares keys by SameValueZero, which differs from `===` only in that NaN equals
     // NaN. `===` matches NaN to nothing, so a NaN id takes no answer from the map.
     if (id === id && first.has(id)) return first.get(id);
