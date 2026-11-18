@@ -4183,7 +4183,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4203,7 +4203,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4223,7 +4223,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4243,7 +4243,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4263,7 +4263,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4283,7 +4283,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4303,7 +4303,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4323,7 +4323,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4343,7 +4343,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4363,7 +4363,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4383,7 +4383,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4403,7 +4403,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4423,7 +4423,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4443,7 +4443,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4463,7 +4463,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4483,7 +4483,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4503,7 +4503,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4523,7 +4523,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4543,7 +4543,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4575,7 +4575,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4595,7 +4595,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4615,7 +4615,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4635,7 +4635,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4655,7 +4655,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",
@@ -4675,7 +4675,7 @@
           {
             "analysis_basis_override": {
               "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
-              "reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+              "reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
             },
             "material_selection": {
               "kind": "exact_point",

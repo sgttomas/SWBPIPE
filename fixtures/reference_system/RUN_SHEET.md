@@ -468,7 +468,7 @@ state**, Apply, per case.
   Element state 1: pipe RS-P010; operating temperature 210 degC; material selection exact_point;
   material `material:RS-M1`; material point `point:RS-M1-T020`; thermal state free_length_state;
   expansion law `law:RS-M1-SECANT`; **Analysis-basis reason**
-  `RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)`;
+  `Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)`;
   **Analysis-basis provenance** ⟨P⟩. Tick **Element state fill includes the template's
   analysis-basis override**. Fill. Then on RS-P180's row clear the operating temperature (value
   and unit), set thermal state unchanged_reference and **Thermal provenance** ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`,

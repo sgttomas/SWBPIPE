@@ -51,8 +51,7 @@ From the specification alone:
   bracketing points 200 °C and 300 °C: fraction 1/10, E = 189 + (182 − 189)/10 = 188.3 GPa, RS-P180 included.
 - **RS-OPE-REF** (§8.1) selects the 20 °C point on every member: E = 200 GPa. Each of its 25 members with an
   operating temperature states the specification's reason for a modulus that is not the one at its temperature,
-  `RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has
-  both operands on one material basis (spec §8.1)`.
+  `Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)`.
 - **Shear modulus**: G = E / (2 (1 + ν)), from the selected pair: 188.3/2.6 GPa and 200/2.6 GPa.
 - **Thermal strain**: the secant law gives the free length at T as L_d (1 + α (T − T_d)). From installation T_i to
   operating T_o the strain is (1 + α (T_o − T_d)) / (1 + α (T_i − T_d)) − 1. With T_i = T_d = 20 °C the denominator

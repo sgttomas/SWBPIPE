@@ -785,7 +785,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P020",
@@ -807,7 +807,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P030",
@@ -829,7 +829,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P040",
@@ -851,7 +851,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P050",
@@ -873,7 +873,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P060",
@@ -895,7 +895,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P065",
@@ -917,7 +917,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P070",
@@ -939,7 +939,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P080",
@@ -961,7 +961,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P085",
@@ -983,7 +983,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P090",
@@ -1005,7 +1005,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P100",
@@ -1027,7 +1027,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P110",
@@ -1049,7 +1049,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P120",
@@ -1071,7 +1071,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P130",
@@ -1093,7 +1093,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P140",
@@ -1115,7 +1115,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P150",
@@ -1137,7 +1137,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P160",
@@ -1159,7 +1159,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P170",
@@ -1181,7 +1181,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P180",
@@ -1225,7 +1225,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P200",
@@ -1247,7 +1247,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P210",
@@ -1269,7 +1269,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P220",
@@ -1291,7 +1291,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P225",
@@ -1313,7 +1313,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    },
    {
     "member": "pipe:RS-P230",
@@ -1335,7 +1335,7 @@
     "thermal_state": "free_length_state",
     "expansion_law": "law:RS-M1-SECANT",
     "thermal_strain": {"exact": "57/25000", "decimal": "2.280000000000000000000000000000000000000e-3", "value": 0.00228},
-    "analysis_basis_override_reason": "RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)"
+    "analysis_basis_override_reason": "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
    }
   ]
  },

@@ -72,8 +72,7 @@ INSTALLATION_C = F(20)  # §8
 OPERATING_C = F(210)  # §8
 KELVIN = F("273.15")
 # §8.1: the reason every RS-OPE-REF member with an operating temperature states for its modulus.
-REASON = ("RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison "
-          "RS-EXP has both operands on one material basis (spec §8.1)")
+REASON = "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
 # §8.1: how each case selects its modulus (the element state's material_selection).
 CASE_SELECTION = {
     "load:RS-OPE": ("temperature_interpolation", OPERATING_C),  # every member, RS-P180 included (§10 coverage note)

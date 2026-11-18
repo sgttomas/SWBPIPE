@@ -371,7 +371,7 @@ RS-OPE-REF, which carries RS-OPE's thermal state on the installation-temperature
 RS-SUS, which uses that modulus too. RS-OPE-REF's members with an operating temperature select
 `point:RS-M1-T020` (`exact_point`), take the free-length state of `law:RS-M1-SECANT` at 210 °C,
 and each records the basis of that choice in its element state's `analysis_basis_override`: the
-reason `RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion comparison RS-EXP has both operands on one material basis (spec §8.1)`
+reason `Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)`
 with the record provenance (§2). RS-P180 takes the 20 °C point, no operating temperature and zero
 eigenstrain (§5.1). RS-OPE is unchanged and is the operating case of record; it is in no
 combination. Agent 0 decided this on 18 November 2026.

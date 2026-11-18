@@ -248,8 +248,7 @@ CASES = [
      OPERATING_REFERENCE_MODULUS, None),
 ]
 # spec §8.1: the reason each member of RS-OPE-REF gives for a modulus that is not the one at its temperature.
-REFERENCE_MODULUS_REASON = ("RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion "
-                            "comparison RS-EXP has both operands on one material basis (spec §8.1)")
+REFERENCE_MODULUS_REASON = "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)"
 COMBINATIONS = [
     # spec §8.2: the difference of two independently solved equilibria on one material basis, not a solve under the
     # load difference.
