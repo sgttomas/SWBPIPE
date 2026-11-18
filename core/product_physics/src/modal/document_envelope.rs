@@ -155,19 +155,43 @@
 //! text bound below, LL = `longest_literal`, e = `entries`:
 //!
 //! ```text
-//! HP = (128 + 3·W_c)              serialized text: Vec::with_capacity(128) then doubling,
-//!                                 old + new at a reallocation (ser.rs:2217; P2)
+//! HP = (128 + 3·W_c)              serialized text: Vec::with_capacity(128) then P2's growth,
+//!                                 old + new at a reallocation (ser.rs:2217)
 //!    + (H(T) + V·elements)        the parse's rebuilt value, one array mid-reallocation
 //!    + (key_bytes + 86e + 212·depth)  duplicate-name sets of the objects being parsed:
 //!                                 cloned names, and per set of k names ≤ 86k + 212 (P4)
 //!    + (3·LL + 8)                 the parser's escape scratch (P2)
-//!    + (8 + 3·W_k)                the canonical text, String::new then doubling (P2)
+//!    + (8 + 3·W_k)                the canonical text, String::new then P2's growth
 //!    + 16e                        sorted name lists on the write path (8 per name) and
 //!                                 one sort's scratch (≤ 8 per name, P5)
 //!    + (128 + 3·LL)               write_string's to_string of one literal (lib.rs:335-337)
 //!    + 256 + 512 + 384            number text (lib.rs:400-498), a refusal's message and
 //!                                 boxed error, the hex digest's format!/collect (document.rs:221)
+//!    + 320, when T holds a float  the float parser's two big integers (below; P7)
 //! ```
+//!
+//! The 320. The checked parse reads each number through serde_json's
+//! `float_roundtrip` parser, one number at a time. A binary64 that zmij wrote
+//! has at most 17 significant digits, so its significand fits a u64 and it is
+//! parsed by `parse_concise_float` (`de.rs:624`, `lexical/parse.rs:14`); an
+//! integer written from a u64 or i64 never overflows into the long path, so no
+//! number uses the deserializer's scratch. The slow path `bhcomp`
+//! (`lexical/bhcomp.rs:197-218`) holds at most two `Bigint`s, each created by
+//! `Bigint::default()`, `Vec::with_capacity(20)` limbs of u64 (`bignum.rs:17-21`,
+//! P7): `small_atof` (a negative scaled exponent) the mantissa and b + h,
+//! `large_atof` the mantissa alone. Neither grows past 20 limbs. With M < 2⁶⁴
+//! the significand and |e| ≤ 341 the decimal exponent: in `small_atof` the
+//! two scaled sides are within a factor 3 of each other (the text is within
+//! half an ulp of its float f, and b ≥ f − ulp), so the larger is
+//! ≤ 3·2⁵⁴·5³⁴¹ < 2⁸⁴⁸, 14 limbs; in `large_atof`, M·10^e < 2¹⁰²⁴, 16 limbs.
+//! `imul_pow5` takes its iterative small-power path (2 + 10 limbs <
+//! 2·`KARATSUBA_CUTOFF`, `math.rs:401`), whose every intermediate is no longer
+//! than its result, as is `ishl`'s; `ishl_limbs`' `splice` allocates nothing
+//! once `reserve` has room. So 2·20·8 = 320 bytes, once per hash. serde_json
+//! 1.0.151 (the headless lock) differs from 1.0.149 on this path only in three
+//! `debug_assert!` forms (`lexical/math.rs:155-182`); its other differences
+//! (`VariantAccess::variant_seed`, `RawValue::from_string_unchecked`, and an
+//! `arbitrary_precision` branch of `Number::is_f64`) are off the value parse.
 //!
 //! **The canonical text** ([`modal_env_canonical_bound`]) differs from the
 //! compact text only in floats (names sorted, same escaping through
@@ -190,13 +214,16 @@
 //! **C, the construction peak** ([`ModalDocumentEnvelope`]):
 //!
 //! ```text
-//! C = D + H(binding) + H(document) + H(rows) + V·(3·rows + 4·tables) + 16·g
+//! C = D + H(binding) + H(document) + H(rows) + H(retained) + V·(3·rows + 4·tables) + 16·g
 //!   + max(X_bind, X_census, X_identity, 2·H(header), X_row, X_table) + 2048
 //! ```
 //!
 //! - D: a diagnostic the builder itself creates (parse `:511`, skew `:527`,
-//!   A2's fallback): H of its row fields (which covers its strings and refs)
-//!   + 2L + 8 for its `source` string (`lib.rs:16088`; L ≤ 64 for A2's).
+//!   A2's fallback), held while the document is built. For one that exists,
+//!   the capacities it holds: its five strings, its refs vector's 24-byte
+//!   headers and each ref (`modal_env_diagnostic_heap`). For A2's, from its
+//!   bound: Σ text bounds + 64 for the source + refs·(24 + ref bound), which
+//!   holds for every diagnostic [`modal_env_diagnostic_within`] admits.
 //! - H(binding): `modal_result_document`'s own binding (`:510, 518, 522`),
 //!   held while the document is built; the document holds a second copy
 //!   (`binding.clone()`, `:489`), inside H(document).
@@ -205,6 +232,9 @@
 //!   originals are all live at once (`:728-778`), so all are counted. Their
 //!   vectors: push-grown (`:728-730`) or collected, ≤ 3n + 4 elements each
 //!   counting a reallocation (P2).
+//! - H(retained): `modal_doc_solved`'s locals `state`, `center`, `endpoint`
+//!   and `placement` (`:564-645`), which `json!` borrows and copies, so they
+//!   stay live to its end, through every row and table.
 //! - 16·g: `free_index`, `vec![None; 6·nodes]` of `Option<usize>` (`:556`).
 //! - X_bind (`:387-416`): the options map (clones of the option values) +
 //!   the undeclared names' `Vec<&str>` (16·(3u + 4)) + the materials clone +
@@ -213,66 +243,98 @@
 //!   parameters, all live while `json!` builds the binding.
 //! - X_census (`:423-436`): the subjects `Vec<(&str, &str)>` (32 per subject)
 //!   + the list value + HP(list) + 512.
-//! - X_identity (`:468-491`): 2·H(semantic table) (its kinds array and
-//!   `json!`'s copy) + HP(semantic table) + HP(run) + 1024 (the run object's
-//!   copied hashes and the units' `collect` vectors).
+//! - X_identity (`:468-491`): H(run input) + HP(run input) (`json!` copies the
+//!   binding's two hash members, whatever they hold, and hashes them); the
+//!   run string (≤ 128) kept while the semantic table is built (its kinds
+//!   array and `json!`'s copy, 2·H(semantic table)) and hashed
+//!   (HP(semantic table)); 1024 for the units' `collect` vectors.
 //! - 2·H(header): a header member's locals and `json!`'s leaf copies, one
 //!   member at a time (`:561-678`).
-//! - X_row: per row, the `format!` temporaries, `json!`'s leaf copies and the
-//!   row clone taken before its checksum (`:280`), each ≤ H(row), + HP(row) +
-//!   512 (the checksum's own string); for the componentwise largest row.
-//! - X_table: the checksum array and its hash (`:287-288`), for the
-//!   componentwise largest checksum array.
+//! - X_row, the largest over the rows taken one by one (`:273-283`): the row,
+//!   the clone taken before its checksum (`:280`) and the originals its
+//!   `json!` borrowed (its id and `format!` strings), each ≤ H(row), + HP of
+//!   the row without its checksum + 512 (the checksum's own strings).
+//! - X_table, the largest over the tables taken one by one: the checksum
+//!   array and its hash (`:287-288`).
 //! - 2048: the options' `collect` vector (≤ 7 × 56 B × 3), the
 //!   `binding["subject_census"]` name (`IndexMut` makes an owned key,
 //!   serde_json `value/index.rs:101`) and the run id's `format!`.
 //!
-//! The transients are mutually exclusive in time; their maximum is added to
-//! what stays live. Every term is ≥ what it bounds, so C ≥ the builders' peak
+//! The phases, in the builders' order, and what each holds beyond the
+//! excluded inputs: (1) the binding being built, with X_bind; (2, solved) the
+//! binding and X_census; (3) the binding, `free_index`, the document so far
+//! and X_identity; (4) those, the retained originals built so far and one
+//! header member's temporaries (≤ H(header)) and copy; (5) those, every
+//! row vector not yet published with its rows, and the current row's X_row
+//! or the current table's X_table. In every phase the document so far and the
+//! copy being built are parts of the final document, so together ≤
+//! H(document); D is live throughout where it exists. So every phase holds at
+//! most the persistent terms of C plus its own transient, which is ≤ C. X_row
+//! and X_table are maxima of per-row and per-table figures, never figures of
+//! a componentwise-maximum tally: HP subtracts float bytes, so it is not
+//! monotone in one. Every term is ≥ what it bounds, so C ≥ the builders' peak
 //! under the premises.
 //!
 //! # Premises
 //!
 //! Proved from source: everything above that cites a line. Asserted (a
-//! toolchain or feature change fails a build or a test):
-//! `size_of::<Value>() == 32`, `size_of::<String>() == 24`,
-//! `size_of::<Number>() == 16` (no `arbitrary_precision`),
-//! `size_of::<Option<usize>>() == 16` and a 64-bit `usize` (compile time,
-//! below); `Map` iterates in sorted order (no `preserve_order`) and P2, P3
-//! and P4's growth (tests). Named, not assertable without an allocation
-//! observer:
+//! toolchain or feature change fails a build or a test): on a 64-bit target,
+//! at compile time, `size_of` of `Value` 32, `String` 24, `Number` 16 (no
+//! `arbitrary_precision`), `Option<usize>` 16, `&str` 16, `(&str, &str)` 32,
+//! `&String` 8, `(String, Value)` 56 and `usize` 8; on a narrower target
+//! (the desktop's wasm32 engines link this crate) each no larger than that,
+//! so every figure stays an upper bound there; on every target, a map node's
+//! layout within N. By tests: `Map` iterates in sorted order (no
+//! `preserve_order`); capacity samples for P2, P3 and P4. Named, not
+//! established by those samples (which corroborate growth but not allocation
+//! layout or overlap):
 //!
 //! - **P1** std's `BTreeMap` has B = 6 (eleven keys a node, every non-root
 //!   node at least five after any insertion, clone or bulk build) and its
 //!   nodes are at most 736 bytes for 24-byte names and 32-byte values.
-//! - **P2** `Vec` growth: capacity at least doubles when full, from 4 (8 for
-//!   bytes), so a pushed vector of n has capacity ≤ max(4, 2n), and old and
-//!   new buffers coexist only during one reallocation. Asserted for the
-//!   capacities a test can see; the coexistence is the premise.
-//! - **P3** `format!` (`alloc::fmt::format`) starts from
-//!   `Arguments::estimated_capacity` (at most twice its literal pieces) and
-//!   grows by P2, so capacity ≤ max(2L, 8). Asserted for this module's id
-//!   formats.
+//! - **P2** `Vec` growth (`RawVec::grow_amortized`): when `len + additional`
+//!   exceeds the capacity, the new capacity is max(2·old, required, minimum),
+//!   the minimum 8 for 1-byte elements and 4 for elements up to 1024 bytes;
+//!   so a vector grown by pushes to n has capacity ≤ max(4, 2n) (bytes:
+//!   max(8, 2n)). Exact-size constructions (`with_capacity`, `vec![x; n]`, a
+//!   `TrustedLen` collect, `to_value` of a sequence) allocate exactly. A grown
+//!   buffer's old and new allocations coexist only during that reallocation.
+//! - **P3** `format!` (`alloc::fmt::format`) first reserves
+//!   `Arguments::estimated_capacity()` (at most twice its literal pieces,
+//!   which are part of the result) and then grows by P2's rule, so a result of
+//!   L bytes has capacity ≤ max(2L, 8). Sampled with the writer's own format
+//!   strings and argument types.
 //! - **P4** std's `HashSet<String>` (hashbrown): buckets a power of two with
 //!   capacity 7/8 of them (3 below 8), growth to the next size when full,
 //!   25 bytes a bucket plus ≤ 31 of control and alignment, old and new tables
 //!   coexisting during a resize: a set of k names ≤ 1.5·(25·max(4, 16k/7))
-//!   + 62 ≤ 86k + 212. The capacity growth is asserted; the layout is the
+//!   + 62 ≤ 86k + 212. The capacity growth is sampled; the layout is the
 //!   premise.
 //! - **P5** `slice::sort_by` allocates at most one scratch of the slice's
 //!   length; `sort_unstable` allocates nothing.
 //! - **P6** ryu (the canonical digit source) yields at most 17 digits.
+//! - **P7** serde_json's float parser has u64 limbs: its `build.rs` selects
+//!   `fast_arithmetic = "64"` for aarch64, x86_64, wasm32 and every 64-bit
+//!   pointer width (on another target the 320 does not follow).
+//!
+//! Observed, not proved (release test builds only, through the crate's
+//! existing counting allocator): the peaks while the writer builds and hashes
+//! the tested documents are within C and HP, and the tally requests no bytes
+//! (`tests_document_envelope.rs`, `modal_env_observed`).
 //!
 //! # Interface
 //!
 //! [`modal_env_parse_refused`], [`modal_env_run_refused`],
 //! [`modal_env_skew_refused`] and [`modal_env_solved`] give the envelope of
 //! the document `modal_result_document` builds on each branch;
-//! [`modal_env_solved_with_binding`] that of `modal_doc_solved` for a given
-//! binding; [`modal_env_fallback_refused`] that of a refused document with
-//! one diagnostic within a [`ModalEnvelopeDiagnosticBound`], from the request
-//! alone (A2 checks it before the solve, so that a named refusal after the
-//! solve is known to fit). [`modal_env_value`] tallies any borrowed value.
+//! [`modal_env_solved_with_binding`] that of `modal_doc_solved` for any given
+//! binding value (its run identity is tallied from the binding's two hash
+//! members as they are); [`modal_env_fallback_refused`] that of a refused
+//! document with one diagnostic within a [`ModalEnvelopeDiagnosticBound`],
+//! from the request alone (A2 checks it before the solve, so that a named
+//! refusal after the solve is known to fit, and checks the diagnostic it then
+//! builds with [`modal_env_diagnostic_within`]). [`modal_env_value`] tallies
+//! any borrowed value.
 use super::document::{
     ModalParameterStanding, MODAL_RESULT_CANONICAL, MODAL_RESULT_KIND, MODAL_RESULT_LIMITATIONS, MODAL_RESULT_PROFILE, MODAL_RESULT_SEMANTICS,
     MODAL_RESULT_VERSION, MODAL_SELECTED_PARAMETER_LABEL,
@@ -289,15 +351,49 @@ use open_pipe_stress_modal_eigen::sturm::{Placement, ShiftDecision};
 use open_pipe_stress_units::UnitId;
 use serde_json::{Number, Value};
 
-// Asserted premises (module docs, "Premises").
-const _: () = assert!(std::mem::size_of::<Value>() == 32);
-const _: () = assert!(std::mem::size_of::<String>() == 24);
-const _: () = assert!(std::mem::size_of::<Number>() == 16);
-const _: () = assert!(std::mem::size_of::<Option<usize>>() == 16);
-const _: () = assert!(std::mem::size_of::<usize>() == 8);
+// Asserted premises (module docs, "Premises"). On a 64-bit target every size
+// the formulas use is exact; on a narrower one (the desktop's wasm32
+// engines link this crate) each is asserted no larger than its constant, so
+// every figure stays an upper bound there.
+use std::mem::size_of;
+#[cfg(target_pointer_width = "64")]
+const _: () = {
+    assert!(size_of::<Value>() == 32);
+    assert!(size_of::<String>() == 24);
+    assert!(size_of::<Number>() == 16);
+    assert!(size_of::<Option<usize>>() == 16);
+    assert!(size_of::<&str>() == 16);
+    assert!(size_of::<(&str, &str)>() == 32);
+    assert!(size_of::<&String>() == 8);
+    assert!(size_of::<(String, Value)>() == 56);
+    assert!(size_of::<usize>() == 8);
+};
+#[cfg(not(target_pointer_width = "64"))]
+const _: () = {
+    assert!(size_of::<Value>() <= 32);
+    assert!(size_of::<String>() <= 24);
+    assert!(size_of::<Number>() <= 16);
+    assert!(size_of::<Option<usize>>() <= 16);
+    assert!(size_of::<&str>() <= 16);
+    assert!(size_of::<(&str, &str)>() <= 32);
+    assert!(size_of::<&String>() <= 8);
+    assert!(size_of::<(String, Value)>() <= 56);
+    assert!(size_of::<usize>() <= 8);
+};
+// N covers a node's layout on every target: three header fields each padded
+// to 8, eleven names, eleven values and twelve edges (P1).
+const _: () = assert!(3 * 8 + 11 * size_of::<String>() + 11 * size_of::<Value>() + 12 * size_of::<usize>() <= 736);
 
 /// V: one `Value`, inline in its parent's buffer or node.
 pub(crate) const MODAL_ENV_VALUE_BYTES: u64 = 32;
+/// One `String`'s header (a diagnostic's refs vector holds them).
+const MODAL_ENV_STRING_BYTES: u64 = 24;
+/// The largest `source` capacity a bounded diagnostic may hold.
+pub(crate) const MODAL_ENV_SOURCE_MAX: u64 = 64;
+/// The float parser's big integers while one binary64 is re-parsed (module
+/// docs, "HP"): two `Bigint`s of `Vec::with_capacity(20)` u64 limbs, never
+/// grown (P7).
+const MODAL_ENV_FLOAT_PARSE_BYTES: u64 = 2 * 20 * 8;
 /// N: one `BTreeMap<String, Value>` node, at most (P1).
 pub(crate) const MODAL_ENV_MAP_NODE_BYTES: u64 = 736;
 /// The fewest keys of a non-root map node (P1).
@@ -379,7 +475,8 @@ fn modal_env_mul(term: &'static str, left: u64, right: u64) -> ModalEnvelopeResu
     left.checked_mul(right).ok_or(ModalEnvelopeError::Overflow { term, left, right })
 }
 
-/// A length or index as u64 (lossless: `usize` is 64 bits, asserted above).
+/// A length or index as u64 (lossless: `usize` is at most 64 bits, asserted
+/// above).
 fn modal_env_count(n: usize) -> u64 {
     n as u64
 }
@@ -747,8 +844,10 @@ pub(crate) fn modal_env_hash_peak(t: &ModalDocumentTally) -> ModalEnvelopeResult
     let sorting = mul("hash sorting", 16, t.entries)?;
     let quoting = add("hash quoting", 128, literal)?;
     let fixed = 256 + 512 + 384;
+    // The float parser's limbs: one number is parsed at a time, so once.
+    let limbs = if t.floats > 0 { MODAL_ENV_FLOAT_PARSE_BYTES } else { 0 };
     let mut peak = 0;
-    for term in [text, parsed, sets, scratch, canonical, sorting, quoting, fixed] {
+    for term in [text, parsed, sets, scratch, canonical, sorting, quoting, fixed, limbs] {
         peak = add("hash peak", peak, term)?;
     }
     Ok(peak)
@@ -979,16 +1078,23 @@ struct ModalEnvelopeTable {
 /// What the construction leaves live and its largest transients.
 #[derive(Debug, Clone, Copy, Default)]
 struct ModalEnvelopeLedger {
-    /// Every sealed row, summed; the componentwise largest.
+    /// Every sealed row, summed.
     rows_total: ModalDocumentTally,
-    row_max: ModalDocumentTally,
-    /// The componentwise largest checksum array.
-    checksums_max: ModalDocumentTally,
+    /// The largest X_row and HP of an unsealed row, each taken row by row
+    /// (HP is not monotone in a componentwise maximum of tallies).
+    row_transient: u64,
+    row_hash_peak: u64,
+    /// The largest X_table and HP of a checksum array, table by table.
+    table_transient: u64,
+    table_hash_peak: u64,
     rows: u64,
     tables: u64,
     /// The header members, summed.
     header: ModalDocumentTally,
-    /// H of a diagnostic the builder creates, with its `source` string.
+    /// The header's originals the solved builder keeps in scope to its end
+    /// (`state`, `center`, `endpoint`, `placement`), summed.
+    retained: ModalDocumentTally,
+    /// The heap of a diagnostic the builder creates, held while it builds.
     created_diagnostic: u64,
     global_dofs: u64,
     bind_transient: u64,
@@ -1011,11 +1117,19 @@ impl ModalEnvelopeLedger {
         let mut row = fields;
         row.modal_env_member("row_id", modal_env_string(row_id)?)?;
         row.modal_env_member("ordinal", modal_env_unsigned(ordinal))?;
-        let checksum = modal_env_digest(&row.modal_env_object()?);
+        // The clone that is hashed is the row without its checksum (`:280`).
+        let unsealed = row.modal_env_object()?;
+        let checksum = modal_env_digest(&unsealed);
+        let hash_peak = modal_env_hash_peak(&unsealed)?;
         row.modal_env_member("checksum", checksum)?;
         let sealed = row.modal_env_object()?;
+        // X_row (module docs): the row, its clone and its originals, each
+        // ≤ H(row), the clone's hash and the checksum's own strings.
+        let (add, mul) = (modal_env_add, modal_env_mul);
+        let transient = add("row transient", add("row transient", mul("row transient", 3, modal_env_heap(&sealed)?)?, hash_peak)?, 512)?;
+        self.row_transient = self.row_transient.max(transient);
+        self.row_hash_peak = self.row_hash_peak.max(hash_peak);
         self.rows_total = modal_env_sum(&self.rows_total, &sealed)?;
-        self.row_max = modal_env_max(&self.row_max, &sealed);
         self.rows = modal_env_add("rows", self.rows, 1)?;
         table.rows.modal_env_element(sealed)?;
         table.checksums.modal_env_element(checksum)?;
@@ -1026,7 +1140,10 @@ impl ModalEnvelopeLedger {
     /// `modal_doc_table`.
     fn modal_env_publish(&mut self, table: &ModalEnvelopeTable) -> ModalEnvelopeResult<ModalDocumentTally> {
         let checksums = table.checksums.modal_env_array()?;
-        self.checksums_max = modal_env_max(&self.checksums_max, &checksums);
+        let hash_peak = modal_env_hash_peak(&checksums)?;
+        let transient = modal_env_add("table transient", modal_env_heap(&checksums)?, hash_peak)?;
+        self.table_transient = self.table_transient.max(transient);
+        self.table_hash_peak = self.table_hash_peak.max(hash_peak);
         self.tables = modal_env_add("tables", self.tables, 1)?;
         let mut out = ModalEnvelopeObject::default();
         out.modal_env_member("status", modal_env_str("published")?)?;
@@ -1047,8 +1164,11 @@ impl ModalEnvelopeLedger {
 // Diagnostics.
 
 /// Upper bounds on one diagnostic a caller will create (A2's named
-/// refusal): each text's raw and escaped length, and its affected refs, each
-/// within `affected_ref`.
+/// refusal): each text's raw and escaped length, its `raw` also bounding the
+/// capacity of the string that holds it; at most `affected_refs` refs, which
+/// also bounds the refs vector's capacity, each within `affected_ref`; a
+/// source of at most [`MODAL_ENV_SOURCE_MAX`] bytes of capacity. A diagnostic
+/// meets it when [`modal_env_diagnostic_within`] says so.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub(crate) struct ModalEnvelopeDiagnosticBound {
     pub(crate) id: ModalEnvelopeText,
@@ -1094,12 +1214,87 @@ fn modal_env_typed_fields(d: &Diagnostic, source: &str) -> ModalEnvelopeResult<M
 }
 
 fn modal_env_bound_fields(bound: &ModalEnvelopeDiagnosticBound) -> ModalEnvelopeResult<ModalEnvelopeObject> {
-    let mut refs = ModalEnvelopeArray::default();
-    let each = modal_env_string(bound.affected_ref)?;
-    for _ in 0..bound.affected_refs {
-        refs.modal_env_element(each)?;
+    let refs = modal_env_repeated(bound.affected_refs, &modal_env_string(bound.affected_ref)?)?;
+    modal_env_diagnostic_fields(bound.id, bound.code, bound.severity, bound.message, refs, "modal")
+}
+
+/// An array of `n` elements each of tally `each`, in closed form (the same
+/// counts as `n` calls of `modal_env_element`, in time independent of `n`).
+pub(crate) fn modal_env_repeated(n: u64, each: &ModalDocumentTally) -> ModalEnvelopeResult<ModalDocumentTally> {
+    let (add, mul) = (modal_env_add, modal_env_mul);
+    let times = |term: &'static str, v: u64| mul(term, n, v);
+    let some = u64::from(n > 0);
+    let slots = add("repeated slots", add("repeated slots", each.entries, each.elements)?, 1)?;
+    Ok(ModalDocumentTally {
+        wire: add("repeated wire", add("repeated wire", 2, n.saturating_sub(1))?, times("repeated wire", each.wire)?)?,
+        float_bytes: times("repeated float bytes", each.float_bytes)?,
+        floats: times("repeated floats", each.floats)?,
+        nodes: add("repeated nodes", 1, times("repeated nodes", each.nodes)?)?,
+        objects: times("repeated objects", each.objects)?,
+        entries: times("repeated entries", each.entries)?,
+        key_bytes: times("repeated key bytes", each.key_bytes)?,
+        arrays: add("repeated arrays", 1, times("repeated arrays", each.arrays)?)?,
+        elements: add("repeated elements", n, times("repeated elements", each.elements)?)?,
+        strings: times("repeated strings", each.strings)?,
+        string_bytes: times("repeated string bytes", each.string_bytes)?,
+        depth: add("repeated depth", 1, if n > 0 { each.depth } else { 0 })?,
+        longest_literal: if n > 0 { each.longest_literal } else { 0 },
+        unsafe_numbers: times("repeated unsafe numbers", each.unsafe_numbers)?,
+        nonempty_containers: add("repeated containers", some, times("repeated containers", each.nonempty_containers)?)?,
+        container_levels: times("repeated levels", add("repeated levels", each.container_levels, each.nonempty_containers)?)?,
+        slot_levels: times("repeated slot levels", add("repeated slot levels", each.slot_levels, slots)?)?,
+    })
+}
+
+/// D for a diagnostic that exists: the capacities it holds (its five strings,
+/// its refs vector's headers and each ref), read, not bounded.
+fn modal_env_diagnostic_heap(d: &Diagnostic) -> ModalEnvelopeResult<u64> {
+    let (add, mul, count) = (modal_env_add, modal_env_mul, modal_env_count);
+    let mut heap = add("created diagnostic", count(d.id.capacity()), count(d.code.capacity()))?;
+    heap = add("created diagnostic", heap, count(d.severity.capacity()))?;
+    heap = add("created diagnostic", heap, count(d.message.capacity()))?;
+    heap = add("created diagnostic", heap, d.source.as_ref().map_or(0, |s| count(s.capacity())))?;
+    heap = add("created diagnostic", heap, mul("created diagnostic", MODAL_ENV_STRING_BYTES, count(d.affected_refs.capacity()))?)?;
+    for r in &d.affected_refs {
+        heap = add("created diagnostic", heap, count(r.capacity()))?;
     }
-    modal_env_diagnostic_fields(bound.id, bound.code, bound.severity, bound.message, refs.modal_env_array()?, "modal")
+    Ok(heap)
+}
+
+/// D for a diagnostic within `bound`: each text's `raw` bounds its capacity
+/// too, `affected_refs` bounds the refs vector's capacity and
+/// [`MODAL_ENV_SOURCE_MAX`] the source's ([`modal_env_diagnostic_within`]).
+fn modal_env_bound_heap(bound: &ModalEnvelopeDiagnosticBound) -> ModalEnvelopeResult<u64> {
+    let (add, mul) = (modal_env_add, modal_env_mul);
+    let mut heap = add("bounded diagnostic", bound.id.raw, bound.code.raw)?;
+    heap = add("bounded diagnostic", heap, bound.severity.raw)?;
+    heap = add("bounded diagnostic", heap, bound.message.raw)?;
+    heap = add("bounded diagnostic", heap, MODAL_ENV_SOURCE_MAX)?;
+    let each = add("bounded diagnostic", MODAL_ENV_STRING_BYTES, bound.affected_ref.raw)?;
+    add("bounded diagnostic", heap, mul("bounded diagnostic", bound.affected_refs, each)?)
+}
+
+/// Whether `d` is within `bound` as [`modal_env_fallback_refused`] assumes:
+/// every text's raw length, escaped length and capacity within its bound's
+/// (`raw` for the capacity), at most `affected_refs` refs in a vector of at
+/// most that capacity, each ref within `affected_ref`, and a source of at
+/// most [`MODAL_ENV_SOURCE_MAX`] bytes of capacity. A2 checks the diagnostic
+/// it builds with this before the document is built.
+pub(crate) fn modal_env_diagnostic_within(d: &Diagnostic, bound: &ModalEnvelopeDiagnosticBound) -> ModalEnvelopeResult<bool> {
+    let within = |text: &str, capacity: usize, limit: ModalEnvelopeText| -> ModalEnvelopeResult<bool> {
+        let t = modal_env_text(text)?;
+        Ok(t.raw <= limit.raw && t.escaped <= limit.escaped && modal_env_count(capacity) <= limit.raw)
+    };
+    let mut fits = within(&d.id, d.id.capacity(), bound.id)?
+        && within(&d.code, d.code.capacity(), bound.code)?
+        && within(&d.severity, d.severity.capacity(), bound.severity)?
+        && within(&d.message, d.message.capacity(), bound.message)?
+        && d.source.as_ref().is_none_or(|s| modal_env_count(s.capacity()) <= MODAL_ENV_SOURCE_MAX)
+        && modal_env_count(d.affected_refs.capacity()) <= bound.affected_refs;
+    for r in &d.affected_refs {
+        fits = fits && within(r, r.capacity(), bound.affected_ref)?;
+    }
+    Ok(fits)
 }
 
 /// A diagnostic row (`document.rs:352-359`) sealed into `table`.
@@ -1152,6 +1347,32 @@ pub(crate) fn modal_env_parameters(params: &ModalIntegrityParameters) -> ModalEn
     out.modal_env_object()
 }
 
+/// A binding's tally and that of the run hash's input that the identity
+/// forms from it (`document.rs:470`).
+#[derive(Debug, Clone, Copy)]
+struct ModalEnvelopeBinding {
+    binding: ModalDocumentTally,
+    run_input: ModalDocumentTally,
+}
+
+/// The run hash's input `{"request_sha256", "integrity_parameters_sha256"}`
+/// for the binding's two members (each null where the binding has none).
+fn modal_env_run_input(request_hash: ModalDocumentTally, parameters_hash: ModalDocumentTally) -> ModalEnvelopeResult<ModalDocumentTally> {
+    let mut run_input = ModalEnvelopeObject::default();
+    run_input.modal_env_member("request_sha256", request_hash)?;
+    run_input.modal_env_member("integrity_parameters_sha256", parameters_hash)?;
+    run_input.modal_env_object()
+}
+
+/// A given binding value's tally and run input: the identity copies its two
+/// hash members whatever they hold (`binding[...]` is null where absent or
+/// where the binding is not an object), so they are walked as they are.
+fn modal_env_given_binding(binding: &Value, cap: u64) -> ModalEnvelopeResult<ModalEnvelopeBinding> {
+    let member = |name: &str| binding.get(name).map_or(Ok(MODAL_ENV_NULL), |value| modal_env_value(value, cap));
+    let run_input = modal_env_run_input(member("request_sha256")?, member("integrity_parameters_sha256")?)?;
+    Ok(ModalEnvelopeBinding { binding: modal_env_value(binding, cap)?, run_input })
+}
+
 /// `modal_doc_binding` (`document.rs:387-416`), with `census` in place of
 /// its null when the solved branch forms one (`:536`).
 fn modal_env_binding(
@@ -1161,7 +1382,7 @@ fn modal_env_binding(
     state: Option<(usize, &str)>,
     census: Option<ModalDocumentTally>,
     cap: u64,
-) -> ModalEnvelopeResult<ModalDocumentTally> {
+) -> ModalEnvelopeResult<ModalEnvelopeBinding> {
     let whole = modal_env_value(request, cap)?;
     let mut options = ModalEnvelopeObject::default();
     for name in MODAL_ENV_OPTION_MEMBERS {
@@ -1238,7 +1459,7 @@ fn modal_env_binding(
     transient = add("binding", transient, peak)?;
     ledger.hash_peak = ledger.hash_peak.max(peak);
     ledger.bind_transient = ledger.bind_transient.max(transient);
-    out.modal_env_object()
+    Ok(ModalEnvelopeBinding { binding: out.modal_env_object()?, run_input: modal_env_run_input(request_hash, parameters_hash)? })
 }
 
 /// `modal_doc_subject_census` (`document.rs:423-436`).
@@ -1280,28 +1501,28 @@ fn modal_env_subject_census(ledger: &mut ModalEnvelopeLedger, outcome: &ModalOut
 /// `modal_doc_identity` (`document.rs:468-491`).
 fn modal_env_identity(
     ledger: &mut ModalEnvelopeLedger,
-    binding: &ModalDocumentTally,
+    binding: &ModalEnvelopeBinding,
     standing: ModalParameterStanding<'_>,
 ) -> ModalEnvelopeResult<ModalEnvelopeObject> {
+    let (add, mul, heap) = (modal_env_add, modal_env_mul, modal_env_heap);
     let (parameter_standing, label) = match standing {
         ModalParameterStanding::Selected => ("selected", MODAL_SELECTED_PARAMETER_LABEL),
         ModalParameterStanding::TestLocal(label) => ("test_local", label),
     };
     let semantic = modal_env_semantic_table()?;
-    // The run hash's input: two hashes, each at most a hex string.
-    let hex = modal_env_digest(&MODAL_ENV_NULL);
-    let mut run_input = ModalEnvelopeObject::default();
-    run_input.modal_env_member("request_sha256", hex)?;
-    run_input.modal_env_member("integrity_parameters_sha256", hex)?;
-    let run_input = run_input.modal_env_object()?;
-    let (semantic_peak, run_peak) = (modal_env_hash_peak(&semantic)?, modal_env_hash_peak(&run_input)?);
+    let run_input = &binding.run_input;
+    let (semantic_peak, run_peak) = (modal_env_hash_peak(&semantic)?, modal_env_hash_peak(run_input)?);
     ledger.hash_peak = ledger.hash_peak.max(semantic_peak).max(run_peak);
-    let transient = modal_env_add(
-        "identity",
-        modal_env_add("identity", modal_env_mul("identity", 2, modal_env_heap(&semantic)?)?, semantic_peak)?,
-        modal_env_add("identity", run_peak, 1024)?,
-    )?;
+    // X_identity (module docs): the run input's copies and their hash; the
+    // run string (≤ 128) kept while the semantic table is built twice and
+    // hashed; 1024 for the units' collect vectors.
+    let run = add("identity", heap(run_input)?, run_peak)?;
+    let table = add("identity", mul("identity", 2, heap(&semantic)?)?, semantic_peak)?;
+    let transient = add("identity", add("identity", run, table)?, 128 + 1024)?;
     ledger.identity_transient = ledger.identity_transient.max(transient);
+    // `run_id` is `modal-run:` and the run hash's first 16 digits, or
+    // `modal-run:` alone when that hash is refused (`unwrap_or_default`).
+    let run_digits = if modal_env_digest(run_input).strings == 1 { "0123456789abcdef" } else { "" };
 
     let mut contract = ModalEnvelopeObject::default();
     contract.modal_env_member("id", modal_env_str(MODAL_RESULT_SEMANTICS)?)?;
@@ -1318,10 +1539,8 @@ fn modal_env_identity(
     admission.modal_env_member("public_engineering_result", modal_env_bool(false))?;
     admission.modal_env_member("parameter_standing", modal_env_str(parameter_standing)?)?;
     admission.modal_env_member("parameter_label", modal_env_str(label)?)?;
-    // The run hash's input holds strings or nulls only, so it is a hex
-    // string and `run_id` is `modal-run:` and its first 16 digits.
     let mut run = ModalEnvelopeObject::default();
-    run.modal_env_member("run_id", modal_env_string(modal_env_text_join(modal_env_ascii("modal-run:"), modal_env_ascii("0123456789abcdef"))?)?)?;
+    run.modal_env_member("run_id", modal_env_string(modal_env_text_join(modal_env_ascii("modal-run:"), modal_env_ascii(run_digits))?)?)?;
     run.modal_env_member("mode_id_scope", modal_env_str("run_local")?)?;
     run.modal_env_member("solver_path", modal_env_str("dense_scrutiny")?)?;
     let mut doc = ModalEnvelopeObject::default();
@@ -1332,7 +1551,7 @@ fn modal_env_identity(
     doc.modal_env_member("canonical_profile", modal_env_str(MODAL_RESULT_CANONICAL)?)?;
     doc.modal_env_member("admission", admission.modal_env_object()?)?;
     doc.modal_env_member("run", run.modal_env_object()?)?;
-    doc.modal_env_member("binding", *binding)?;
+    doc.modal_env_member("binding", binding.binding)?;
     Ok(doc)
 }
 
@@ -1350,7 +1569,7 @@ enum ModalEnvelopeRefusals<'a> {
 /// `modal_doc_refused` (`document.rs:493-499`).
 fn modal_env_refused(
     ledger: &mut ModalEnvelopeLedger,
-    binding: &ModalDocumentTally,
+    binding: &ModalEnvelopeBinding,
     standing: ModalParameterStanding<'_>,
     refusals: ModalEnvelopeRefusals<'_>,
 ) -> ModalEnvelopeResult<ModalDocumentTally> {
@@ -1364,18 +1583,12 @@ fn modal_env_refused(
             }
         }
         ModalEnvelopeRefusals::Made(d) => {
-            let fields = modal_env_typed_fields(d, "modal")?;
-            // D: its strings and refs (H of its row fields covers them) and
-            // its own `source` (`lib.rs:16088`), ≤ 2L + 8.
-            let source = d.source.as_deref().map_or(0, |s| 2 * modal_env_count(s.len()) + 8);
-            ledger.created_diagnostic = modal_env_add("created diagnostic", modal_env_heap(&fields.modal_env_object()?)?, source)?;
-            modal_env_diagnostic_row(ledger, &mut table, "refusal", 0, fields)?;
+            ledger.created_diagnostic = modal_env_diagnostic_heap(d)?;
+            modal_env_diagnostic_row(ledger, &mut table, "refusal", 0, modal_env_typed_fields(d, "modal")?)?;
         }
         ModalEnvelopeRefusals::Bounded(bound) => {
-            let fields = modal_env_bound_fields(bound)?;
-            // D: as above, with a `source` of at most 64 bytes.
-            ledger.created_diagnostic = modal_env_add("created diagnostic", modal_env_heap(&fields.modal_env_object()?)?, 2 * 64 + 8)?;
-            modal_env_diagnostic_row(ledger, &mut table, "refusal", 0, fields)?;
+            ledger.created_diagnostic = modal_env_bound_heap(bound)?;
+            modal_env_diagnostic_row(ledger, &mut table, "refusal", 0, modal_env_bound_fields(bound)?)?;
         }
     }
     doc.modal_env_member("refusals", ledger.modal_env_publish(&table)?)?;
@@ -1408,19 +1621,15 @@ fn modal_env_envelope(
     binding: &ModalDocumentTally,
 ) -> ModalEnvelopeResult<ModalDocumentEnvelope> {
     let (add, mul, heap) = (modal_env_add, modal_env_mul, modal_env_heap);
-    let row_peak = modal_env_hash_peak(&ledger.row_max)?;
-    let table_peak = modal_env_hash_peak(&ledger.checksums_max)?;
-    let hash_peak = ledger.hash_peak.max(row_peak).max(table_peak);
-    let row_transient = add("row transient", add("row transient", mul("row transient", 3, heap(&ledger.row_max)?)?, row_peak)?, 512)?;
-    let table_transient = add("table transient", heap(&ledger.checksums_max)?, table_peak)?;
+    let hash_peak = ledger.hash_peak.max(ledger.row_hash_peak).max(ledger.table_hash_peak);
     let header_transient = mul("header transient", 2, heap(&ledger.header)?)?;
     let transient = ledger
         .bind_transient
         .max(ledger.census_transient)
         .max(ledger.identity_transient)
         .max(header_transient)
-        .max(row_transient)
-        .max(table_transient);
+        .max(ledger.row_transient)
+        .max(ledger.table_transient);
     let row_vectors = mul(
         "row vectors",
         MODAL_ENV_VALUE_BYTES,
@@ -1429,7 +1638,7 @@ fn modal_env_envelope(
     let free_index = mul("free index", 16, ledger.global_dofs)?;
     let doc_heap = heap(doc)?;
     let mut peak = ledger.created_diagnostic;
-    for term in [heap(binding)?, doc_heap, heap(&ledger.rows_total)?, row_vectors, free_index, transient, 2048] {
+    for term in [heap(binding)?, doc_heap, heap(&ledger.rows_total)?, heap(&ledger.retained)?, row_vectors, free_index, transient, 2048] {
         peak = add("construction peak", peak, term)?;
     }
     Ok(ModalDocumentEnvelope {
@@ -1455,7 +1664,7 @@ pub(crate) fn modal_env_parse_refused(
     let mut ledger = ModalEnvelopeLedger::default();
     let binding = modal_env_binding(&mut ledger, request, params, None, None, cap)?;
     let doc = modal_env_refused(&mut ledger, &binding, standing, ModalEnvelopeRefusals::Made(diagnostic))?;
-    modal_env_envelope(&ledger, &doc, &binding)
+    modal_env_envelope(&ledger, &doc, &binding.binding)
 }
 
 /// The run-refusal branch (`document.rs:516-519`): `state` as the builder
@@ -1471,7 +1680,7 @@ pub(crate) fn modal_env_run_refused(
     let mut ledger = ModalEnvelopeLedger::default();
     let binding = modal_env_binding(&mut ledger, request, params, state, None, cap)?;
     let doc = modal_env_refused(&mut ledger, &binding, standing, ModalEnvelopeRefusals::Typed(refusals))?;
-    modal_env_envelope(&ledger, &doc, &binding)
+    modal_env_envelope(&ledger, &doc, &binding.binding)
 }
 
 /// The skew-refusal branch (`document.rs:526-535`): `state` from the
@@ -1487,7 +1696,7 @@ pub(crate) fn modal_env_skew_refused(
     let mut ledger = ModalEnvelopeLedger::default();
     let binding = modal_env_binding(&mut ledger, request, params, state, None, cap)?;
     let doc = modal_env_refused(&mut ledger, &binding, standing, ModalEnvelopeRefusals::Made(diagnostic))?;
-    modal_env_envelope(&ledger, &doc, &binding)
+    modal_env_envelope(&ledger, &doc, &binding.binding)
 }
 
 /// A refused document with one diagnostic within `bound`, from the request
@@ -1506,7 +1715,7 @@ pub(crate) fn modal_env_fallback_refused(
     let mut ledger = ModalEnvelopeLedger::default();
     let binding = modal_env_binding(&mut ledger, request, params, state, None, cap)?;
     let doc = modal_env_refused(&mut ledger, &binding, standing, ModalEnvelopeRefusals::Bounded(bound))?;
-    modal_env_envelope(&ledger, &doc, &binding)
+    modal_env_envelope(&ledger, &doc, &binding.binding)
 }
 
 /// The solved branch (`document.rs:520-538`).
@@ -1522,7 +1731,7 @@ pub(crate) fn modal_env_solved(
     let census = modal_env_subject_census(&mut ledger, outcome)?;
     let binding = modal_env_binding(&mut ledger, request, params, state, Some(census), cap)?;
     let doc = modal_env_solved_document(&mut ledger, outcome, &binding, standing)?;
-    modal_env_envelope(&ledger, &doc, &binding)
+    modal_env_envelope(&ledger, &doc, &binding.binding)
 }
 
 /// `modal_doc_solved(outcome, binding, standing)` for a given binding value.
@@ -1533,9 +1742,9 @@ pub(crate) fn modal_env_solved_with_binding(
     cap: u64,
 ) -> ModalEnvelopeResult<ModalDocumentEnvelope> {
     let mut ledger = ModalEnvelopeLedger::default();
-    let binding = modal_env_value(binding, cap)?;
+    let binding = modal_env_given_binding(binding, cap)?;
     let doc = modal_env_solved_document(&mut ledger, outcome, &binding, standing)?;
-    modal_env_envelope(&ledger, &doc, &binding)
+    modal_env_envelope(&ledger, &doc, &binding.binding)
 }
 
 // ---------------------------------------------------------------------------
@@ -1544,7 +1753,7 @@ pub(crate) fn modal_env_solved_with_binding(
 fn modal_env_solved_document(
     ledger: &mut ModalEnvelopeLedger,
     outcome: &ModalOutcome,
-    binding: &ModalDocumentTally,
+    binding: &ModalEnvelopeBinding,
     standing: ModalParameterStanding<'_>,
 ) -> ModalEnvelopeResult<ModalDocumentTally> {
     let ids = outcome.node_ids.as_slice();
@@ -1646,7 +1855,8 @@ fn modal_env_solved_document(
     extraction.modal_env_member("extension_count", modal_env_index(outcome.reported.extension_count))?;
     extraction.modal_env_member("count", modal_env_index(outcome.reported.count))?;
     extraction.modal_env_member("computed_count", modal_env_index(outcome.integrity.computed.len()))?;
-    extraction.modal_env_member("endpoint", endpoint.modal_env_object()?)?;
+    let endpoint = endpoint.modal_env_object()?;
+    extraction.modal_env_member("endpoint", endpoint)?;
     ledger.modal_env_header(&mut doc, "extraction", extraction.modal_env_object()?)?;
 
     // The census and the standing (`:613-624`).
@@ -1696,10 +1906,15 @@ fn modal_env_solved_document(
             placement.modal_env_member("established_finite_mode_count", modal_env_index(established_finite_mode_count))?;
         }
     }
+    let placement = placement.modal_env_object()?;
+    // `state`, `center`, `endpoint` and `placement` are locals of
+    // `modal_doc_solved` that `json!` borrows and copies (`:564-645`): they
+    // stay live to its end, through every row and table.
+    ledger.retained = modal_env_sum(&modal_env_sum(&state, &center)?, &modal_env_sum(&endpoint, &placement)?)?;
     let mut header = ModalEnvelopeObject::default();
     header.modal_env_member("count", modal_env_index(sturm.count))?;
     header.modal_env_member("reported", modal_env_index(sturm.reported))?;
-    header.modal_env_member("placement", placement.modal_env_object()?)?;
+    header.modal_env_member("placement", placement)?;
     header.modal_env_member("conditioning_multiple", fixed("sturm_premise_parameter", sturm.evidence.conditioning_multiple)?)?;
     header.modal_env_member("conditioning_limit", fixed("sturm_premise_parameter", sturm.evidence.conditioning_limit)?)?;
     header.modal_env_member("separation_multiple", fixed("sturm_premise_parameter", sturm.evidence.separation_multiple)?)?;
