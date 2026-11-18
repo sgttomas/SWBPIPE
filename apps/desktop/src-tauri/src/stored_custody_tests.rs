@@ -36,6 +36,9 @@ const RECORDED_BASIS_FIXTURES: [&str; 8] = [
     "fixtures/persistence/recorded_model_0_9_0_pre_nl",
     "fixtures/persistence/recorded_model_0_9_0_pre_cert",
 ];
+/// `REVISED_TABLE_FIXTURE` of `historicalReopenCases.ts`: main's record of a pressure-3 run under a
+/// table revision this version does not hold (README there). Read, never rewritten.
+const REVISED_TABLE_FIXTURE: &str = "fixtures/persistence/recorded_table_revised";
 const PRESSURE_2_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 const FIXTURE_RECORD: &str = "pressure_plain_connected_sparse.analysis_run.json";
 const FIXTURE_SOURCE: &str = "pressure_connected_mechanics_sparse.json";
@@ -183,7 +186,7 @@ fn file_value(reference: &Value) -> Value {
 }
 
 fn fixture_text(fixture: &Value, name: &str) -> String {
-    let dir = RECORDED_BASIS_FIXTURES.iter().find(|dir| fixture.as_str() == Some(**dir)).unwrap_or_else(|| panic!("{fixture} is no recorded-basis fixture"));
+    let dir = RECORDED_BASIS_FIXTURES.iter().chain([&REVISED_TABLE_FIXTURE]).find(|dir| fixture.as_str() == Some(**dir)).unwrap_or_else(|| panic!("{fixture} is no recorded-basis or revised-table fixture"));
     read_text(&format!("{dir}/{name}"))
 }
 

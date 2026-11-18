@@ -1093,15 +1093,45 @@ fn binding_claim(record_envelope: &Value, source: &Value, variant: Option<&'stat
 }
 
 /// `decideBinding`: a claim to a table this version reads holds only without an integrity finding.
-fn decide_binding(claim: &Claim, checks: &[String]) -> Value {
-    let withheld = |reason: &str| json!({"withheld": reason});
+fn decide_binding(claim: &Claim, checks: &[String]) -> TableBinding {
+    use TableBinding::{Read, Withheld};
     match claim {
-        Claim::None => withheld("unreadable_result"),
-        Claim::Unrecorded => withheld("unrecorded"),
-        _ if checks.iter().any(|finding| INTEGRITY_FINDINGS.contains(&finding.as_str())) => withheld("integrity"),
-        Claim::Other(recorded) => withheld(if is_known_former_digest(Some(recorded)) { "former_digest" } else { "unrecognised_digest" }),
-        Claim::Recorded => json!({"read": "recorded"}),
-        Claim::Installed => json!({"read": "installed"}),
+        Claim::None => Withheld("unreadable_result"),
+        Claim::Unrecorded => Withheld("unrecorded"),
+        _ if checks.iter().any(|finding| INTEGRITY_FINDINGS.contains(&finding.as_str())) => Withheld("integrity"),
+        Claim::Other(recorded) => Withheld(if is_known_former_digest(Some(recorded)) { "former_digest" } else { "unrecognised_digest" }),
+        Claim::Recorded => Read("recorded"),
+        Claim::Installed => Read("installed"),
+    }
+}
+
+/// The reopen's one decision (`TableBinding` of `tableBinding.ts`), sent as `{"read": <how>}` or
+/// `{"withheld": <reason>}`. Held as names, not as a parsed value, until the reply is written.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub(crate) enum TableBinding {
+    Read(&'static str),
+    Withheld(&'static str),
+    #[default]
+    Undecided,
+}
+
+impl TableBinding {
+    pub(crate) fn is_read(self) -> bool {
+        matches!(self, Self::Read(_))
+    }
+}
+
+impl Serialize for TableBinding {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeMap;
+        let (key, value) = match self {
+            Self::Read(how) => ("read", *how),
+            Self::Withheld(reason) => ("withheld", *reason),
+            Self::Undecided => return serializer.serialize_none(),
+        };
+        let mut map = serializer.serialize_map(Some(1))?;
+        map.serialize_entry(key, value)?;
+        map.end()
     }
 }
 
@@ -1188,7 +1218,7 @@ pub(crate) struct HistoricalFindings {
     /// `binding` (`tableBinding.ts`): the reopen's one decision, made before any row is read:
     /// `{"read": "installed" | "recorded"}` or `{"withheld": <reason>}`. Withheld, the held
     /// result is not read by any native reader (`HeldResult::withheld`), only re-saved.
-    pub(crate) binding: Value,
+    pub(crate) binding: TableBinding,
     pub(crate) run_id: String,
     /// Whether the stored result renders (`isRenderableMechanicsResult`): only
     /// then is it inspected through S and pages.
@@ -1228,7 +1258,7 @@ impl HistoricalFindings {
 
     /// Whether the rows are read (`bindingRead`).
     pub(crate) fn read(&self) -> bool {
-        self.binding.get("read").is_some()
+        self.binding.is_read()
     }
 
     fn scoped(found: Found, recorded: Option<&'static RecordedVariant>) -> (Vec<String>, Vec<String>, Option<Value>, Vec<String>) {
@@ -1246,12 +1276,12 @@ fn js_truthy(value: Option<&Value>) -> bool {
 /// (or does not read) the rows. Read: the retained reader's refusal and the standing are placed
 /// where main placed them. Withheld: only the refusals the header states. Returns the decision and
 /// the standing read (null when none).
-fn read_or_withhold(found: &mut Found, claim: &Claim, result: &mut Value, model: Option<&Value>, recorded: Option<&'static RecordedVariant>, standing_slot: (usize, usize), retained_slot: Option<(usize, usize)>) -> (Value, Value) {
+fn read_or_withhold(found: &mut Found, claim: &Claim, result: &mut Value, model: Option<&Value>, recorded: Option<&'static RecordedVariant>, standing_slot: (usize, usize), retained_slot: Option<(usize, usize)>) -> (TableBinding, Value) {
     let binding = decide_binding(claim, &found.checks);
     if *claim == Claim::None {
         return (binding, Value::Null);
     }
-    if binding.get("read").is_some() {
+    if binding.is_read() {
         if let Some(slot) = retained_slot {
             let mut sub = Found::new(&[]);
             if let Some(refusal) = reopen_retained_refusal(result, recorded) {
