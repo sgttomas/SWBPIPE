@@ -7,12 +7,18 @@ const rows = (v: unknown): RecordValue[] => Array.isArray(v) ? v.map(record).fil
 const text = (v: unknown) => typeof v === "string" && v ? v : "unavailable";
 
 /** The panel's own marker for a field it cannot display: a member the row always lists that the
- * record lacks, or a value of another kind than its field's. It is never quoted, so it cannot be
- * taken for a recorded text. */
+ * record lacks, or a value of another kind than its field's. It does not begin with the word
+ * "text", which every recorded text's spelling does, so the first word tells the two apart. */
 const UNAVAILABLE_TO_DISPLAY = "Unavailable to display";
-/** A recorded text, quoted as JSON text so that its extent is unmistakable: no text value can
- * read as a label, as another field's value, or as the panel's marker. */
-const recordedText = (v: unknown) => typeof v === "string" ? JSON.stringify(v) : UNAVAILABLE_TO_DISPLAY;
+/** A recorded text as the word "text" and its spelling. The spelling is the text as a JSON string,
+ * with every character outside U+0020 to U+007E written as its \uXXXX escape (one per UTF-16 code
+ * unit) and every space that follows a space written as \u0020. So the spelling holds printable
+ * ASCII only and no two adjacent spaces, and parsing it as a JSON string gives back the recorded
+ * text: two different recorded texts never have the same spelling. */
+const spelledText = (v: string) => JSON.stringify(v)
+  .replace(/[^\x20-\x7e]/g, unit => `\\u${unit.charCodeAt(0).toString(16).padStart(4, "0")}`)
+  .replace(/ ( +)/g, (_run, rest: string) => ` ${"\\u0020".repeat(rest.length)}`);
+const recordedText = (v: unknown) => typeof v === "string" ? `text ${spelledText(v)}` : UNAVAILABLE_TO_DISPLAY;
 /** A recorded number as the parsed number prints (a recorded 0.0 shows as 0). */
 const recordedNumber = (v: unknown) => typeof v === "number" && Number.isFinite(v) ? String(v) : UNAVAILABLE_TO_DISPLAY;
 const recordedFlag = (v: unknown) => typeof v === "boolean" ? String(v) : UNAVAILABLE_TO_DISPLAY;
@@ -93,12 +99,13 @@ export function PhysicsSourceEvidencePanel({ result }: { result: MechanicsResult
         <h4>{id}</h4>
         <p>Ordinary case attempt: {text(ordinary?.solve_quality)}. Selected method: <code>{text(c.selected_method)}</code>. Producer outcome: {text(c.outcome)}.</p>
         {exact ? <p>Material selection: {text(exact.material_basis)}; {rows(exact.pipe_materials).length} member material records; {rows(exact.pipe_sections).length} section records.</p> : null}
-        {rows(exact?.pipe_stress_extrema).length > 0 ? <p data-testid={`physics-source-recorded-fields-notice-${id}`}>{RECORDED_FIELDS_NOTICE}</p> : null}
-        {rows(exact?.pipe_stress_extrema).map((maximum, i) => <div key={`${text(maximum.result_id)}:${i}`} data-testid={`physics-source-maximum-${text(maximum.result_id)}`}>
+        {rows(exact?.pipe_stress_extrema).length > 0 ? <p data-testid={`physics-source-recorded-fields-notice-${index}`}>{RECORDED_FIELDS_NOTICE}</p> : null}
+        {/* Test identifiers go by position (case, entry), never by a recorded identifier. */}
+        {rows(exact?.pipe_stress_extrema).map((maximum, i) => <div key={i} data-testid={`physics-source-maximum-${index}-${i}`}>
           <strong>Elastic normal-stress maximum evidence entry</strong>
-          <Entries entries={always(maximum, IDENTITY_FIELDS)} testId={`physics-source-maximum-identity-${text(maximum.result_id)}`} />
-          <Entries entries={always(maximum, INTERVAL_FIELDS)} testId={`physics-source-maximum-interval-${text(maximum.result_id)}`} />
-          <Entries entries={optionalEntries(maximum)} testId={`physics-source-maximum-fields-${text(maximum.result_id)}`} />
+          <Entries entries={always(maximum, IDENTITY_FIELDS)} testId={`physics-source-maximum-identity-${index}-${i}`} />
+          <Entries entries={always(maximum, INTERVAL_FIELDS)} testId={`physics-source-maximum-interval-${index}-${i}`} />
+          <Entries entries={optionalEntries(maximum)} testId={`physics-source-maximum-fields-${index}-${i}`} />
         </div>)}
       </article>;
     })}
